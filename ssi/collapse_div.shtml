@@ -1,0 +1,11 @@
+
+<!-- collapse_button.shtml START -->
+
+    <div
+        class="collapse_detail"
+        id="collapse_detail_<!--#echo encoding="none" var="COLLAPSE_ID" -->"
+        style="display:none"
+    >
+    <!-- pre-hide: alternative would be an onload method -->
+
+<!-- collapse_button.shtml END -->

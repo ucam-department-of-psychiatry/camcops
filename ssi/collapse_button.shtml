@@ -1,0 +1,12 @@
+
+<!-- collapse_button.shtml START -->
+
+    <img
+        class="collapse_plusminus_image"
+        id="collapse_image_<!--#echo encoding="none" var="COLLAPSE_ID" -->"
+        alt=""
+        src="/camcops/images/plus.jpg"
+        onclick="toggle('collapse_detail_<!--#echo encoding="none" var="COLLAPSE_ID" -->', 'collapse_image_<!--#echo encoding="none" var="COLLAPSE_ID" -->');"
+    >
+        
+<!-- collapse_button.shtml END -->

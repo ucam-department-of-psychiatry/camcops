@@ -1,0 +1,514 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux (vers 25 March 2009), see www.w3.org">
+  <!--#include virtual="/camcops/ssi/camcops_html_head.shtml" -->
+
+  <title>CamCOPS – Using the app</title>
+</head>
+
+<body onload="generateTOC(document.getElementById('toc'));">
+  <!--#set var="HEADER_TITLE" value="CamCOPS – Using the app" -->
+  <!--#set var="HEADER_URL" value="documentation/app.html" -->
+  <!--#set var="HEADER_BACK_URL" value="index.html" -->
+  <!--#set var="HEADER_BACK_LABEL" value="Documentation" -->
+  <!--#include virtual="/camcops/ssi/camcops_page_header.shtml" -->
+
+  <div id="toc"></div>
+
+  <h1>Overview</h1>
+
+  <ul>
+    <li>CamCOPS begins at its main menu:
+
+      <div class="menu">
+        <img alt="camcops" src="app_icons/camcops.png"> CamCOPS: Cambridge
+        Cognitive and Psychiatric Assessment Kit
+      </div>.
+    </li>
+
+    <li>At any menu except the main menu, touch <img class="menu" alt="back"
+    src="app_icons/back.png"> at the top left to return to the previous
+    menu.</li>
+
+    <li>The icon at the top right of the menus displays the lock status. Touch
+    the icon to change the lock status. The icon can appear as:
+
+      <ul>
+        <li><img class="menu" alt="locked" src="app_icons/locked.png">
+        <b>Locked.</b> When CamCOPS has a patient selected, and is locked, you
+        can give it to the patient, and the patient won’t be able to see
+        details from any other patients. If no patient is selected, and CamCOPS
+        is locked, no tasks or patients are visible except anonymous tasks (see
+        below).</li>
+
+        <li><img class="menu" alt="unlocked" src="app_icons/unlocked.png">
+        <b>Unlocked.</b> When CamCOPS is unlocked, you can change the patient,
+        and see tasks from all patients when no patient is selected.</li>
+
+        <li>
+          <img class="menu" alt="privileged" src="app_icons/privileged.png">
+          <b>Privileged.</b> This mode is for administration, and allows full
+          configuration of CamCOPS. You can enter privileged mode from the
+
+          <div class="menu">
+            <img alt="settings" src="app_icons/settings.png"> Settings
+          </div>menu.
+        </li>
+      </ul>
+    </li>
+  </ul>
+
+  <h1>Patients</h1>
+
+  <ul>
+    <li>When viewing a menu, near the top of the screen, you’ll always see the
+
+      <div class="menu" style="color:yellow;">
+        CURRENT PATIENT’S DETAILS
+      </div>or a message saying
+
+      <div class="menu" style="color:magenta;">
+        No patient selected
+      </div>.
+    </li>
+
+    <li>Touch
+
+      <div class="menu">
+        <img alt="choose_patient" src="app_icons/choose_patient.png"> Change
+        patient
+      </div>to choose (or add, or edit) a patient.
+    </li>
+  </ul>
+
+  <div>
+    At the
+
+    <div class="menu">
+      <img alt="choose_patient" src="app_icons/choose_patient.png"> Change
+      patient
+    </div>screen:
+  </div>
+
+  <ul>
+    <li>Touch a patient row to select/deselect that patient.</li>
+
+    <li>The currently selected patient, if any, will be shown with a
+
+      <div class="menu" style="background-color: blue;">
+        blue background
+      </div>.
+    </li>
+
+    <li>Touch <img class="menu" alt="add" src="app_icons/add.png"> to add a
+    patient.</li>
+  </ul>
+
+  <div>
+    When a patient is selected, you can also:
+  </div>
+
+  <ul>
+    <li>Touch <img class="menu" alt="finish" src="app_icons/finishflag.png"> to
+    mark the patient as finished (see “Uploading” below).</li>
+
+    <li>Touch <img class="menu" alt="edit" src="app_icons/edit.png"> to edit
+    the patient’s details.</li>
+
+    <li>Touch <img class="menu" alt="delete" src="app_icons/delete.png"> to
+    delete the patient.</li>
+  </ul>
+
+  <div>
+    In the list of patients:
+  </div>
+
+  <ul>
+    <li><img class="menu" alt="finish" src="app_icons/finishflag.png">
+    indicates that the patient has been marked as finished (see “Uploading”
+    below).</li>
+
+    <li><img class="menu" alt="stop" src="app_icons/stop.png"> indicates that
+    the patient’s details are insufficient to be uploaded (as determined by the
+    server’s <a href="id.html">ID policy</a>).</li>
+
+    <li><img class="menu" alt="warning" src="app_icons/warning.png"> indicates
+    that the patient’s details are sufficient to be uploaded, but insufficient
+    to be finalized and removed from the tablet (as determined by the server’s
+    <a href="id.html">ID policy</a>).</li>
+  </ul>
+
+  <div>
+    When editing a patient:
+  </div>
+
+  <ul>
+    <li>The descriptions of the ID numbers (e.g. “NHS number”, “Hospital
+    BlahBlah number”) are determined by your server.</li>
+
+    <li>Touch <img class="menu" alt="ok" src="app_icons/ok.png"> to save.</li>
+
+    <li>Touch <img class="menu" alt="cancel" src="app_icons/cancel.png"> to
+    cancel.</li>
+  </ul>
+
+  <h1>Tasks</h1>
+
+  <div>
+    From the main menu, you can go to the
+
+    <div class="menu">
+      <img alt="patient_summary" src="app_icons/patient_summary.png"> Patient
+      summary
+    </div>. This shows all tasks on the tablet for the current patient.
+  </div>
+
+  <div>
+    You can also browse the menu to find specific tasks. If you have trouble
+    finding one, try
+
+    <div class="menu">
+      <img alt="alltasks" src="app_icons/alltasks.png"> All tasks, listed
+      alphabetically
+    </div>.
+  </div>
+
+  <div>
+    At any task menu, task summaries are displayed.
+  </div>
+
+  <ul>
+    <li>Choose
+
+      <div class="menu">
+        <img alt="info" src="app_icons/info.png"> Task information
+      </div>for an information screen.
+    </li>
+
+    <li>Touch <img class="menu" alt="add" src="app_icons/add.png"> to create a
+    new instance of the task, for the current patient.</li>
+
+    <li>Touch a task row to select/deselect a task.</li>
+
+    <li>The currently selected task, if any, will be shown with a
+
+      <div class="menu" style="background-color: blue;">
+        blue background
+      </div>.
+    </li>
+
+    <li><img class="menu" alt="finish" src="app_icons/finishflag.png">
+    indicates (for an <i>anonymous</i> task only; see below) that the task has
+    been marked as finished.</li>
+  </ul>
+
+  <div>
+    When a task is selected:
+  </div>
+
+  <ul>
+    <li>Touch <img class="menu" alt="zoom" src="app_icons/zoom.png"> to view
+    the task, either as a quick summary, or as a proper facsimile.</li>
+
+    <li>Touch <img class="menu" alt="edit" src="app_icons/edit.png"> to edit
+    the task.</li>
+
+    <li>Touch <img class="menu" alt="delete" src="app_icons/delete.png"> to
+    delete the task.</li>
+
+    <li>For anonymous tasks, touch <img class="menu" alt="finish" src=
+    "app_icons/finishflag.png"> to mark the task as finished.</li>
+  </ul>
+
+  <h1>Anonymous tasks</h1>
+
+  <div>
+    Some tasks are anonymous; they are not associated with any patient. An
+    example is the anonymous <a href="tasks/gmc_patient_questionnaire.html">GMC
+    patient satisfaction questionnaire</a>.
+  </div>
+
+  <h1>Using a fake test subject</h1>
+
+  <div>
+    You may want to experiment with the non-anonymous tasks. A suggested way is
+    to define a fake patient with an invalid ID number, or perhaps a couple of
+    different sexes. For example, an NHS number cannot be a single-digit
+    number, but CamCOPS doesn’t perform NHS number validation, so you could
+    tell everyone in your institution that <b>FAKEPATIENT, JANE (NHS# 1,
+    female)</b> and <b>FAKEPATIENT, JOHN (NHS# 2, male)</b> are your test
+    patients. Everyone can then feel free to play with those identities, but
+    not to create others. <b>However,</b> you may be prohibited from doing this
+    in a clinical environment, in which case you could set up a second training
+    database. (The disadvantage of that is the need to aim users’ tablets at
+    the different databases during and after training.)
+  </div>
+
+  <h1>Questionnaire-style tasks</h1>
+
+  <div>
+    Some tasks use an custom user interface, but many use a standard
+    questionnaire style with one or more pages.
+  </div>
+
+  <ul>
+    <li>The page colour tells you who the page is primarily for:
+
+      <ul>
+        <li>
+          <div class="questionnaire" style=
+          "color: black; background-color: white;">
+            white for patients
+          </div>;
+        </li>
+
+        <li>
+          <div class="questionnaire" style=
+          "color: black; background-color: #FFFFD0;">
+            pale yellow for clinicians
+          </div>;
+        </li>
+
+        <li>a
+
+          <div class="questionnaire" style=
+          "color: black; background-color: #FFFFD0;">
+            pale yellow header
+          </div>with a
+
+          <div class="questionnaire" style=
+          "color: black; background-color: white;">
+            white page
+          </div>where the clinician needs to show the patient the page and then
+          mark the responses;
+        </li>
+
+        <li>
+          <div class="questionnaire" style=
+          "color: black; background-color: #E6E6FA;">
+            lavender for configuration menus
+          </div>.
+        </li>
+      </ul>
+    </li>
+
+    <li>Use the <img class="questionnaire" alt="back" src="app_icons/back.png">
+    (back) and <img class="questionnaire" alt="next" src="app_icons/next.png">
+    (next) icons at the top right to navigate the pages.</li>
+
+    <li>At the final page, touch <img class="questionnaire" alt="finish" src=
+    "app_icons/finish.png"> to finish.</li>
+
+    <li>In a chain of tasks, you will see <img class="questionnaire" alt=
+    "fast_forward" src="app_icons/fast_forward.png"> at the end of all tasks
+    except the last, and <img class="questionnaire" alt="finish" src=
+    "app_icons/finish.png"> at the end of the last task.</li>
+
+    <li>To abort, touch <img class="questionnaire" alt="cancel" src=
+    "app_icons/cancel.png"> (at the top left).
+
+      <ul>
+        <li><b>Aborting discards your changes when editing configuration
+        information, but does not discard changes made to tasks. All changes
+        made to task information are immediate and persistent.</b></li>
+      </ul>
+    </li>
+  </ul>
+
+  <div>
+    When entering information:
+  </div>
+
+  <ul>
+    <li>
+      <b>Make the yellow disappear.</b> Information is required if you see
+      things in yellow, like this: <img class="questionnaire" alt=
+      "radio_unselected_required" src=
+      "app_icons/radio_unselected_required.png"> <img class="questionnaire"
+      alt="check_unselected_required" src=
+      "app_icons/check_unselected_required.png"> <img class="questionnaire"
+      alt="field_incomplete_mandatory" src=
+      "app_icons/field_incomplete_mandatory.png">
+
+      <div class="questionnaire" style=
+      "color: grey; background-color: yellow;">
+        Enter some text
+      </div>. You will not be able to move on to the next page while required
+      information is missing.
+    </li>
+
+    <li>Some widgets can’t display the <i>lack</i> of a value well (e.g.
+    date/time pickers; sliders). They show the symbol <img class=
+    "questionnaire" alt="field_incomplete_mandatory" src=
+    "app_icons/field_incomplete_mandatory.png"> when information is missing but
+    mandatory. If <img class="questionnaire" alt="field_incomplete_mandatory"
+    src="app_icons/field_incomplete_mandatory.png"> appears, you need to set a
+    value, even if it looks like one is already set! Widgets may show
+    <img class="questionnaire" alt="field_incomplete_optional" src=
+    "app_icons/field_incomplete_optional.png"> when information is missing but
+    optional. Occasionally, widgets may offer the delete button <img class=
+    "questionnaire" alt="delete" src="app_icons/delete.png"> to wipe their
+    contents.</li><!-- NOT USED AT PRESENT:
+      <li>
+        This indicates a problem: <img class="questionnaire" alt="field_problem" src="app_icons/field_problem.png">.
+      </li>
+      -->
+
+    <li>For radio buttons, you can double-click/tap to unset them.</li>
+
+    <li>For date/time fields, touch <img class="questionnaire" alt="time_now"
+    src="app_icons/time_now.png"> (if shown) to set the date/time to now.</li>
+
+    <li>For sounds, touch <img class="questionnaire" alt="speaker" src=
+    "app_icons/speaker.png"><img class="questionnaire" alt="speaker_playing"
+    src="app_icons/speaker_playing.png"> to start/stop the sound.
+    (The symbol indicates whether or not the sound is currently playing.)</li>
+
+    <li>For photos, touch <img class="questionnaire" alt="camera" src=
+    "app_icons/camera.png"> to take a photo (using the tablet’s camera
+    interface), and <img class="questionnaire" alt="rotate_anticlockwise" src=
+    "app_icons/rotate_anticlockwise.png"><img class="questionnaire" alt=
+    "rotate_clockwise" src="app_icons/rotate_clockwise.png"> to rotate the
+    photo.</li>
+
+    <li>For sketches, touch <img class="questionnaire" alt="reload" src=
+    "app_icons/reload.png"> to reset.</li>
+
+    <li>See the <b>Demonstration questionnaire</b> on the
+
+      <div class="menu">
+        <img alt="info" src="app_icons/info.png"> Help
+      </div>menu for a tutorial.
+    </li>
+  </ul>
+
+  <div>
+    When viewing a read-only facsimile of a questionnaire-style task:
+  </div>
+
+  <ul>
+    <li>The symbol <img class="questionnaire" alt="read_only" src=
+    "app_icons/read_only.png"> appears to indicate the read-only status.</li>
+
+    <li>Touch <img class="questionnaire" alt="choose_page" src=
+    "app_icons/choose_page.png"> to jump directly to a specific page. (This
+    button will sometimes be available during editing, but will not then allow
+    you to jump beyond the last seen or first incomplete page.)</li>
+  </ul>
+
+  <h1>Uploading</h1>
+
+  <ul>
+    <li>Choose
+
+      <div class="menu">
+        <img alt="info" src="app_icons/upload.png"> Upload data to server
+      </div>from the main menu. <i>It will only work if:</i>
+
+      <ul>
+        <li><i>You have chosen the server in Settings → Server
+        settings.</i></li>
+
+        <li><i>You have set your username (and, optionally, password) in
+        Settings → User settings.</i></li>
+
+        <li><i>The tablet has previously been registered with the server
+        (Settings → Register...).</i></li>
+      </ul>
+    </li>
+
+    <li>There are three upload methods:
+
+      <ul>
+        <li><b>COPY.</b> This copies unfinished patients to the server. It
+        moves finished patients (that is, the data for finished patients is
+        copied to the server, then deleted from the tablet), and finished
+        anonymous tasks.</li>
+
+        <li><b>MOVE.</b> This moves <i>all</i> patients and their data. (If
+        some patients do not meet the server’s finalizing criteria, as above,
+        then you can’t MOVE until you fix this.)</li>
+
+        <li><b>MOVE, KEEPING PATIENTS.</b> This moves <i>all</i> patients’
+        data, and erases all task data from the tablet, but it keeps the basic
+        patient details, so you can add more tasks for these patients
+        later.</li>
+      </ul>Please MOVE whenever possible; this reduces the amount of
+      patient-identifiable information stored on this device.<br>
+    </li>
+
+    <li>You should see a message of success when the upload is complete.</li>
+  </ul>
+
+  <h1>Seeing what you’ve uploaded</h1>
+
+  <div>
+    Use any web browser (on a computer or tablet) to browse to your CamCOPS
+    server. See the <a href="webview.html">web interface instructions</a> for
+    more detail.
+  </div>
+
+  <h1>Troubleshooting</h1>
+
+  <h2>Common problems</h2>
+
+  <ul>
+    <li><b>Tablet BLOB upload fails with error “Read timed out”.</b>
+    Likely problem: slow network, large BLOB (binary large object – e.g. a big
+    photo). For example, in
+    one of our tests a BLOB took more than 17 s to upload, so the tablet
+    needs to wait at least that long after starting to send it. Increase the
+    tablet’s network timeout (e.g. to 60000 ms or more)
+    in Settings → Server settings.</li>
+  </ul>
+
+  <h2>What if it crashes?</h2>
+
+  <div>
+    This shouldn’t happen; please note down any error details and let us know!
+    To forcibly stop and restart the app:
+  </div>
+
+  <h3>Android 4.3</h3>
+
+  <ul>
+    <li>Settings → More → Application Manager → CamCOPS → Force stop</li>
+
+    <li>Then start the app again as usual</li>
+  </ul>
+
+  <h3>iOS 7</h3>
+
+  <ul>
+    <li>Double-click the Home button</li>
+
+    <li>Swipe left/right until you find the CamCOPS app’s preview</li>
+
+    <li>Swipe the app preview up to close it</li>
+
+    <li>Then start the app again as usual</li>
+  </ul>
+
+  <h1>Help</h1>
+
+  <div>
+    The
+    <div class="menu">
+      <img alt="info" src="app_icons/info.png"> Help
+    </div>
+    menu includes, amongst other things:
+  </div>
+
+  <ul>
+    <li>links to this documentation;</li>
+
+    <li>a demonstration task, to try out all the user interface elements;</li>
+
+    <li>the CamCOPS app version number.</li>
+  </ul><!--#include virtual="/camcops/ssi/camcops_footer.shtml" -->
+</body>
+</html>

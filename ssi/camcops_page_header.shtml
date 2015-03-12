@@ -1,0 +1,23 @@
+
+<!-- camcops_page_header.shtml START -->
+
+    <div class="header">
+      <div class="headericon">
+        <a href="/camcops/index.html"><img alt="CamCOPS" src="/camcops/images/camcops.png"></a>
+      </div>
+      <div class="headermain">
+        <div class="headertitle">
+          <!--#echo encoding="none" var="HEADER_TITLE" -->
+        </div>
+        <div class="headerright">
+          <div class="bread">
+            Back to <a href="<!--#echo var="HEADER_BACK_URL" -->"><!--#echo encoding="none" var="HEADER_BACK_LABEL" --></a>
+          </div>
+          <div id="pageurl">
+            www.camcops.org/<!--#echo var="HEADER_URL" -->
+          </div>
+        </div>
+      </div>
+    </div>
+    
+<!-- camcops_page_header.shtml END -->

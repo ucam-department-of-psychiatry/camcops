@@ -1,0 +1,47 @@
+/********************************************
+   camcops_iehacks.css
+   Rudolf Cardinal
+   
+   CSS modifications for Internet Explorer
+********************************************/ 
+
+/********************************************
+   NAVBAR
+********************************************/ 
+
+.nav {
+	display: inline-block;   /* for IE only */
+	width: 1px;              /* IE will expand 1px width to fit menu width */
+	padding: 0 2px;          /* fix bug in IE to get border spacing correct */
+}
+.nav li {
+	display: inline;         /* for IE only */
+}
+.nav a {
+	display:inline-block;    /* for IE only */ 
+	margin:0 -2px;           /* to correct an IE bug that doubles the border width */  
+}
+.nav a:link {
+	display:inline-block;    /* for IE only */ 
+	margin:0 -2px;           /* to correct an IE bug that doubles the border width */  
+}
+.nav a:visited {
+	display:inline-block;    /* for IE only */ 
+	margin:0 -2px;           /* to correct an IE bug that doubles the border width */  
+}
+
+/********************************************
+   STICKY FOOTER
+********************************************/ 
+
+
+/********************************************
+   OTHER
+********************************************/ 
+
+.body ul {
+	margin-left: 40px;	/* IE uses different settings... */
+}
+.publicationtext li {
+	margin-left: 40px;	/* IE uses different settings... */
+}
