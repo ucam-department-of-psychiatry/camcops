@@ -1,0 +1,15 @@
+# build.properties for androiduitools
+
+# On Shrike:
+
+#titanium.platform=/home/rudolf/.titanium/mobilesdk/linux/2.1.2.GA/android
+#android.platform=/home/rudolf/android-sdk-linux/platforms/android-16
+#google.apis=/home/rudolf/android-sdk-linux/add-ons/addon-google_apis-google-16
+#android.ndk=/home/rudolf/android-ndk-r8b
+
+# On Bumble:
+
+titanium.platform=/Users/rudolf/Library/Application Support/Titanium/mobilesdk/osx/3.1.3.GA/android
+android.platform=/Users/rudolf/android-sdk/platforms/android-16
+google.apis=/Users/rudolf/android-sdk/add-ons/addon-google_apis-google-16
+android.ndk=/Users/rudolf/android-ndk-r8e

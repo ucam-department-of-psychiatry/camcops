@@ -1,0 +1,12 @@
+tmp
+bin
+build
+*.zip
+.apt_generated
+.svn
+_svn
+
+*.jar
+*.so
+*.class
+
