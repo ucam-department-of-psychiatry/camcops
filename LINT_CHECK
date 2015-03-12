@@ -1,0 +1,28 @@
+#!/bin/bash
+
+echoerr() {
+    echo "$@" 1>&2;
+}
+
+CAMCOPS_DEVDIR=/srv/www/camcops
+PYTHONLIB=/srv/www/pythonlib
+
+export PYTHONPATH=$PYTHONLIB:$CAMCOPS_DEVDIR/server/cc_modules
+
+PYLINT_OPTIONS=--output-format=parseable
+PYCHECKER_OPTIONS=
+PYFLAKES_OPTIONS=
+
+totallines=0
+
+cd $CAMCOPS_DEVDIR/server
+for f in database.py camcops.py database.py cc_modules/*.py tasks/*.py $PYTHONLIB/*.py
+do
+    pyflakes $PYFLAKES_OPTIONS $f
+    numlines=`wc $f | awk '{print $1}'`
+    totallines=$((totallines + numlines))
+    #echoerr "File: $f. Number of lines: $numlines."
+    # ITSELF BUGGY # pychecker $PYCHECKER_OPTIONS $f
+    #pylint $PYLINT_OPTIONS $f
+done
+echo "Total number of lines: $totallines"

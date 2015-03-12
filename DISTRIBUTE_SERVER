@@ -1,0 +1,9 @@
+#!/bin/bash
+
+DEVDIR=/srv/www/camcops
+PACKAGEDIR=$DEVDIR/packagebuild
+
+SERVERDOWNLOADDIR=/srv/www/camcops/download/server
+
+echo "COPYING PACKAGES TO DOWNLOAD AREA"
+cp $PACKAGEDIR/* $SERVERDOWNLOADDIR
