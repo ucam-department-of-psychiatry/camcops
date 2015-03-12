@@ -4,8 +4,8 @@ echoerr() {
     echo "$@" 1>&2;
 }
 
-CAMCOPS_DEVDIR=/srv/www/camcops
-PYTHONLIB=/srv/www/pythonlib
+CAMCOPS_DEVDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+PYTHONLIB=$CAMCOPS_DEVDIR/server/pythonlib
 
 export PYTHONPATH=$PYTHONLIB:$CAMCOPS_DEVDIR/server/cc_modules
 

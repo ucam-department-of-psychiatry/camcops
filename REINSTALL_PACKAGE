@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DEVDIR=/srv/www/camcops
+DEVDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 PACKAGEDIR=$DEVDIR/packagebuild
 
 PACKAGE=`ls -t $PACKAGEDIR/camcops*.deb | head -1` # NB takes most recent by file date

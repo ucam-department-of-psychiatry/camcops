@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DEVDIR=/srv/www/camcops
+DEVDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 PACKAGEDIR=$DEVDIR/packagebuild
 
 SERVERDOWNLOADDIR=/srv/www/camcops/download/server

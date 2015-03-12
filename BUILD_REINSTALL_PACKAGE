@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DEVDIR=/srv/www/camcops
+DEVDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 echo "MAKING PACKAGE"
 $DEVDIR/MAKE_PACKAGE
