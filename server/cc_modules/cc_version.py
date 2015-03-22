@@ -25,8 +25,8 @@
 # Version constants and configuration variables read by shell scripts
 # =============================================================================
 
-CAMCOPS_SERVER_VERSION = 1.34
-CAMCOPS_CHANGEDATE = "2015-03-01"
+CAMCOPS_SERVER_VERSION = 1.35
+CAMCOPS_CHANGEDATE = "2015-03-22"
 # ... must use double quotes; read by a Perl regex in MAKE_PACKAGE
 MINIMUM_TABLET_VERSION = 1.14
 USE_WEASYPRINT = False

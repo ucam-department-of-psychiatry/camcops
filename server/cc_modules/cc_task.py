@@ -2030,7 +2030,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         return rows
 
     # -------------------------------------------------------------------------
-    # CRIS data export
+    # Data export for CRIS and other anonymisation systems
     # -------------------------------------------------------------------------
 
     @classmethod
