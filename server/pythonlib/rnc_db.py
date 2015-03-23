@@ -5,7 +5,7 @@
 
 Author: Rudolf Cardinal (rudolf@pobox.com)
 Created: October 2012
-Last update: 22 Feb 2015
+Last update: 19 Mar 2015
 
 Copyright/licensing:
 
@@ -225,6 +225,25 @@ def get_sql_insert(table, fieldlist, delims=("", "")):
         ") VALUES (" + \
         ",".join(["?"] * len(fieldlist)) + \
         ")"
+
+
+def get_sql_insert_or_update(table, fieldlist, delims=("", "")):
+    """Returns ?-marked SQL for an INSERT-or-if-duplicate-key-UPDATE statement.
+    """
+    # http://stackoverflow.com/questions/4205181
+    return """
+        INSERT INTO {table} ({fields})
+        VALUES ({placeholders})
+        ON DUPLICATE KEY UPDATE {updatelist}
+    """.format(
+        table=delimit(table, delims),
+        fields=",".join([delimit(x, delims) for x in fieldlist]),
+        placeholders=",".join(["?"] * len(fieldlist)),
+        updatelist=",".join(
+            ["{field}=VALUES({field})".format(field=delimit(x, delims))
+             for x in fieldlist]
+        ),
+    )
 
 
 def get_sql_insert_without_first_field(table, fieldlist, delims=("", "")):
@@ -796,13 +815,18 @@ class DatabaseSupporter:
         self.db.rollback()
         logger.debug("rollback")
 
-    def insert_record(self, table, fields, values):
+    def insert_record(self, table, fields, values,
+                      update_on_duplicate_key=False):
         """Inserts a record into database, table "table", using the list of
         fieldnames and the list of values. Returns the new PK (or None)."""
         self.ensure_db_open()
         if len(fields) != len(values):
             raise AssertionError("Field/value mismatch")
-        sql = self.localize_sql(get_sql_insert(table, fields, self.delims))
+        if update_on_duplicate_key:
+            sql = get_sql_insert_or_update(table, fields, self.delims)
+        else:
+            sql = get_sql_insert(table, fields, self.delims)
+        sql = self.localize_sql(sql)
         new_pk = None
         logger.debug("About to insert_record with SQL template: " + sql)
         try:
@@ -925,6 +949,17 @@ class DatabaseSupporter:
             logger.exception("db_exec_literal: SQL was: " + sql)
             raise
 
+    def get_literal_sql_with_arguments(self, query, *args):
+        query = self.localize_sql(query)
+        # Now into the back end:
+        # See cursors.py, connections.py in MySQLdb source.
+        charset = self.db.character_set_name()
+        if isinstance(query, unicode):
+            query = query.encode(charset)
+        if args is not None:
+            query = query % self.db.literal(args)
+        return query
+
     def fetchvalue(self, sql, *args):
         """Executes SQL; returns the first value of the first row, or None."""
         row = self.fetchone(sql, *args)
@@ -953,6 +988,20 @@ class DatabaseSupporter:
             return rows
         except:
             logger.exception("fetchall: SQL was: " + sql)
+            raise
+
+    def gen_fetchall(self, sql, *args):
+        """fetchall() as a generator."""
+        self.ensure_db_open()
+        cursor = self.db.cursor()
+        self.db_exec_with_cursor(cursor, sql, *args)
+        try:
+            row = cursor.fetchone()
+            while row is not None:
+                yield row
+                row = cursor.fetchone()
+        except:
+            logger.exception("gen_fetchall: SQL was: " + sql)
             raise
 
     def fetchall_with_fieldnames(self, sql, *args):
@@ -989,6 +1038,17 @@ class DatabaseSupporter:
         """Executes SQL; returns list of first values of each row."""
         rows = self.fetchall(sql, *args)
         return [row[0] for row in rows]
+
+    def fetch_fieldnames(self, sql, *args):
+        """Executes SQL; returns just the output fieldnames."""
+        self.ensure_db_open()
+        cursor = self.db.cursor()
+        self.db_exec_with_cursor(cursor, sql, *args)
+        try:
+            return [i[0] for i in cursor.description]
+        except:
+            logger.exception("fetch_fieldnames: SQL was: " + sql)
+            raise
 
     def localize_sql(self, sql):
         """Translates ?-placeholder SQL to appropriate dialect.
@@ -1542,7 +1602,7 @@ class DatabaseSupporter:
         return c
 
     def get_datatype(self, table, column):
-        """Returns database SQL datatype for a column."""
+        """Returns database SQL datatype for a column: e.g. varchar."""
         if (self.db_flavour == DatabaseSupporter.FLAVOUR_SQLSERVER
                 or self.db_flavour == DatabaseSupporter.FLAVOUR_MYSQL):
             # ISO standard for INFORMATION_SCHEMA, I think.
@@ -1558,7 +1618,26 @@ class DatabaseSupporter:
             raise AssertionError("Don't know how to get datatype in Access")
         else:
             raise AssertionError("Unknown database flavour")
-        return c
+        return c.upper()
+
+    def get_column_type(self, table, column):
+        """Returns database SQL datatype for a column, e.g. varchar(50)."""
+        if (self.db_flavour == DatabaseSupporter.FLAVOUR_SQLSERVER
+                or self.db_flavour == DatabaseSupporter.FLAVOUR_MYSQL):
+            # ISO standard for INFORMATION_SCHEMA, I think.
+            # SQL Server carries a warning but the warning may be incorrect:
+            # https://msdn.microsoft.com/en-us/library/ms188348.aspx
+            # http://stackoverflow.com/questions/917431
+            # http://sqlblog.com/blogs/aaron_bertrand/archive/2011/11/03/the-case-against-information-schema-views.aspx  # noqa
+            c = self.fetchvalue(
+                "SELECT column_type FROM information_schema.columns "
+                "WHERE table_schema=? AND table_name=? AND column_name=?",
+                self.schema, table, column)
+        elif self.db_flavour == DatabaseSupporter.FLAVOUR_ACCESS:
+            raise AssertionError("Don't know how to get datatype in Access")
+        else:
+            raise AssertionError("Unknown database flavour")
+        return c.upper()
 
     def get_comment(self, table, column):
         """Returns database SQL datatype for a column."""
