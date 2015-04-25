@@ -13,9 +13,11 @@
           <div class="bread">
             Back to <a href="<!--#echo var="HEADER_BACK_URL" -->"><!--#echo encoding="none" var="HEADER_BACK_LABEL" --></a>
           </div>
+          <!--#if expr='v("HEADER_URL")!=""' -->
           <div id="pageurl">
             www.camcops.org/<!--#echo var="HEADER_URL" -->
           </div>
+          <!--#endif -->
         </div>
       </div>
     </div>
