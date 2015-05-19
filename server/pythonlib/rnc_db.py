@@ -5,7 +5,7 @@
 
 Author: Rudolf Cardinal (rudolf@pobox.com)
 Created: October 2012
-Last update: 19 Mar 2015
+Last update: 19 May 2015
 
 Copyright/licensing:
 
@@ -159,16 +159,19 @@ except:
 
 try:
     import jaydebeapi  # sudo pip install jaydebeapi
+    import jpype
     JDBC_AVAILABLE = True
 except:
     JDBC_AVAILABLE = False
 
+import binascii
 import datetime
 import re
 import logging
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 logger.setLevel(logging.INFO)
+import time
 
 
 # =============================================================================
@@ -357,10 +360,11 @@ def full_datatype_to_mysql(d):
     """Converts a full datatype, e.g. INT, VARCHAR(10), VARCHAR(MAX), to a
     MySQL equivalent."""
     d = d.upper()
-    if d == "VARCHAR(MAX)":
+    (s, length) = split_long_sqltype(d)
+    if d in ["VARCHAR(MAX)", "NVARCHAR(MAX)"]:
         # http://wiki.ispirer.com/sqlways/mysql/data-types/longtext
         return "LONGTEXT"
-    elif d == "VARBINARY(MAX)":
+    elif d in ["VARBINARY(MAX)"] or s in ["IMAGE"]:
         # http://wiki.ispirer.com/sqlways/mysql/data-types/varbinary
         return "LONGBLOB"
     else:
@@ -394,7 +398,7 @@ def assign_from_list(obj, fieldlist, valuelist):
     if len(fieldlist) != len(valuelist):
         raise AssertionError("assign_from_list: fieldlist and valuelist of "
                              "different length")
-    for i in range(len(valuelist)):
+    for i in xrange(len(valuelist)):
         setattr(obj, fieldlist[i], valuelist[i])
 
 
@@ -407,7 +411,7 @@ def blank_object(obj, fieldlist):
 def debug_query_result(rows):
     """Writes a query result to the logger."""
     logger.info("Retrieved {} rows".format(len(rows)))
-    for i in range(len(rows)):
+    for i in xrange(len(rows)):
         logger.info("Row {}: {}".format(i, rows[i]))
 
 
@@ -415,7 +419,9 @@ def debug_query_result(rows):
 # SQL types and validation
 # =============================================================================
 
-REGEX_INVALID_TABLE_FIELD_CHARS = re.compile("[^a-zA-Z0-9_]")
+# REGEX_INVALID_TABLE_FIELD_CHARS = re.compile("[^a-zA-Z0-9_ ]")
+REGEX_INVALID_TABLE_FIELD_CHARS = re.compile("[^\x20-\x7E]")
+# ... SQL Server is very liberal!
 
 
 def is_valid_field_name(f):
@@ -430,6 +436,16 @@ def is_valid_table_name(t):
     return is_valid_field_name(t)
 
 
+def ensure_valid_field_name(f):
+    if not is_valid_field_name(f):
+        raise ValueError("Field name invalid: {}".format(f))
+
+
+def ensure_valid_table_name(f):
+    if not is_valid_table_name(f):
+        raise ValueError("Table name invalid: {}".format(f))
+
+
 SQLTYPES_INTEGER = [
     "INT", "INTEGER",
     "TINYINT", "SMALLINT", "MEDIUMINT", "BIGINT",
@@ -441,11 +457,11 @@ SQLTYPES_OTHER_NUMERIC = [
     "BIT", "BOOL", "BOOLEAN", "DEC", "DECIMAL",
 ]
 SQLTYPES_TEXT = [
-    "CHAR", "VARCHAR",
-    "TINYTEXT", "TEXT", "MEDIUMTEXT", "LONGTEXT",
+    "CHAR", "VARCHAR", "NVARCHAR",
+    "TINYTEXT", "TEXT", "NTEXT", "MEDIUMTEXT", "LONGTEXT",
 ]
 SQLTYPES_BINARY = [
-    "BINARY", "BLOB", "LONGBLOB", "VARBINARY",
+    "BINARY", "BLOB", "IMAGE", "LONGBLOB", "VARBINARY",
 ]
 
 SQLTYPES_WITH_DATE = [
@@ -503,13 +519,22 @@ def is_sqltype_date(datatype_long):
     return datatype_short in SQLTYPES_WITH_DATE
 
 
-def is_sqltype_text_over_one_char(datatype_long):
+def is_sqltype_text(datatype_long):
     (datatype_short, length) = split_long_sqltype(datatype_long)
-    possibles_short_text = ["CHAR(1)", "VARCHAR(1)"]
-    return not (
-        datatype_short in SQLTYPES_NOT_TEXT
-        or datatype_long in possibles_short_text
-    )
+    return datatype_short in SQLTYPES_TEXT
+
+
+def is_sqltype_text_of_length_at_least(datatype_long, min_length):
+    (datatype_short, length) = split_long_sqltype(datatype_long)
+    if datatype_short not in SQLTYPES_TEXT:
+        return False
+    if length is None:  # text, with no length, e.g. VARCHAR(MAX)
+        return True
+    return length >= min_length
+
+
+def is_sqltype_text_over_one_char(datatype_long):
+    return is_sqltype_text_of_length_at_least(datatype_long, 2)
 
 
 def is_sqltype_binary(datatype_long):
@@ -532,47 +557,105 @@ def does_sqltype_require_index_len(datatype_long):
     return datatype_short in ["TEXT", "BLOB"]
 
 
-def does_sqltype_merit_fulltext_index(datatype_long):
-    return datatype_long in ["TEXT"]
+def does_sqltype_merit_fulltext_index(datatype_long, min_length=1000):
+    return is_sqltype_text_of_length_at_least(datatype_long, min_length)
 
 
 # =============================================================================
-# Reconfiguring jaydebeapi
+# Reconfiguring jaydebeapi to do sensible type conversions
 # =============================================================================
 
-def _rnc_to_binary(rs, col):
+def _convert_java_binary(rs, col):
     # https://github.com/originell/jpype/issues/71
     # http://stackoverflow.com/questions/5088671
+    # https://github.com/baztian/jaydebeapi/blob/master/jaydebeapi/__init__.py
+    # https://msdn.microsoft.com/en-us/library/ms378813(v=sql.110).aspx
+    # http://stackoverflow.com/questions/2920364/checking-for-a-null-int-value-from-a-java-resultset  # noqa
+
+    v = None
+    logger.debug("_convert_java_binary: converting...")
+    time1 = time.time()
+    try:
+        # ---------------------------------------------------------------------
+        # Method 1: 3578880 bytes in 21.7430660725 seconds =   165 kB/s
+        # ---------------------------------------------------------------------
+        # java_val = rs.getObject(col)
+        # if java_val is None:
+        #     return
+        # t = str(type(java_val))
+        # if t == "<class 'jpype._jarray.byte[]'>": ...
+        # v = ''.join(map(lambda x: chr(x % 256), java_val))
+
+        # ---------------------------------------------------------------------
+        # Method 2: 3578880 bytes in 8.07930088043 seconds =   442 kB/s
+        # ---------------------------------------------------------------------
+        # java_val = rs.getObject(col)
+        # if java_val is None:
+        #     return
+        # l = len(java_val)
+        # v = bytearray(l)
+        # for i in xrange(l):
+        #     v[i] = java_val[i] % 256
+
+        # ---------------------------------------------------------------------
+        # Method 3: 3578880 bytes in 20.1435189247 seconds =   177 kB/s
+        # ---------------------------------------------------------------------
+        # java_val = rs.getObject(col)
+        # if java_val is None:
+        #     return
+        # v = bytearray(map(lambda x: x % 256, java_val))
+
+        # ---------------------------------------------------------------------
+        # Method 4: 3578880 bytes in 0.48352599144 seconds = 7,402 kB/s
+        # ---------------------------------------------------------------------
+        j_hexstr = rs.getString(col)
+        if rs.wasNull():
+            return
+        v = binascii.unhexlify(j_hexstr)
+
+    finally:
+        time2 = time.time()
+        logger.debug("... done (in {} seconds)".format(time2 - time1))
+        # if v:
+        #     logger.debug("_convert_java_binary: type={}, length={}".format(
+        #         type(v), len(v)))
+        return v
+
+
+def _convert_java_bigstring(rs, col):
+    v = str(rs.getCharacterStream(col))
+    if rs.wasNull():
+        return None
+    return v
+
+
+def _convert_java_bigint(rs, col):
+    # http://stackoverflow.com/questions/26899595
+    # https://github.com/baztian/jaydebeapi/issues/6
+    # https://github.com/baztian/jaydebeapi/blob/master/jaydebeapi/__init__.py
+    # https://docs.oracle.com/javase/7/docs/api/java/math/BigInteger.html
+    # http://docs.oracle.com/javase/7/docs/api/java/sql/ResultSet.html
     java_val = rs.getObject(col)
     if java_val is None:
         return
-    t = str(type(java_val))
-    # logger.info("rnc_to_binary: typeof={}".format(t))
-    if t == "<class 'jpype._jarray.byte[]'>":
-        logger.debug("Converting Java byte[] to Python str...")
-        # x = ''.join(map(lambda x: chr(x % 256), java_val))
-        l = len(java_val)
-        x = bytearray(l)
-        for i in xrange(l):
-            x[i] = java_val[i] % 256
-        logger.debug("... done")
-        return x
-    logger.warning("Unknown type to _rnc_to_binary: {}".format(t))
-    return java_val  # unsure
+    v = getattr(java_val, 'toString')()  # Java call: java_val.toString()
+    return int(v)
 
 
 def reconfigure_jaydebeapi():
     if not JDBC_AVAILABLE:
         return
-    # http://stackoverflow.com/questions/26899595
-    from jaydebeapi.dbapi2 import _DEFAULT_CONVERTERS, _java_to_py
+    from jaydebeapi.dbapi2 import _DEFAULT_CONVERTERS  # , _java_to_py
     _DEFAULT_CONVERTERS.update({
-        'BIGINT': _java_to_py('longValue'),
-        # RNC experimental:
-        'BINARY': _rnc_to_binary,  # overrides an existing one
-        'BLOB': _rnc_to_binary,
-        'LONGVARBINARY': _rnc_to_binary,
-        'VARBINARY': _rnc_to_binary,
+        'BIGINT': _convert_java_bigint,
+
+        'BINARY': _convert_java_binary,  # overrides an existing one
+        'BLOB': _convert_java_binary,
+        'LONGVARBINARY': _convert_java_binary,
+        'VARBINARY': _convert_java_binary,
+
+        'LONGVARCHAR': _convert_java_bigstring,
+        'LONGNVARCHAR': _convert_java_bigstring,
     })
 
 
@@ -653,6 +736,7 @@ def add_master_user_mysql(database,
 
 class DatabaseConfig(object):
     def __init__(self, parser, section):
+        self.section = section
         if not parser.has_section(section):
             raise ValueError("config missing section: " + section)
         options = [
@@ -680,12 +764,12 @@ class DatabaseConfig(object):
             else:
                 setattr(self, o, None)
         self.port = int(self.port) if self.port else None
-        self.check_valid(section)
+        self.check_valid()
 
-    def check_valid(self, section):
+    def check_valid(self):
         if not self.engine:
             raise ValueError(
-                "Database {} doesn't specify engine".format(section))
+                "Database {} doesn't specify engine".format(self.section))
         self.engine = self.engine.lower()
         if self.engine not in [ENGINE_MYSQL, ENGINE_SQLSERVER]:
             raise ValueError("Unknown database engine: {}".format(self.engine))
@@ -714,27 +798,35 @@ class DatabaseConfig(object):
                     raise ValueError(
                         "Missing SQL Server details: host, user, or password")
 
-    def get_database(self):
-        db = DatabaseSupporter()
-        db.connect(
-            engine=self.engine,
-            interface=self.interface,
-            host=self.host,
-            port=self.port,
-            database=self.db,
-            dsn=self.dsn,
-            odbc_connection_string=self.odbc_connection_string,
-            user=self.user,
-            password=self.password,
-            autocommit=False  # NB therefore need to commit
-        )
-        return db
+    def get_database(self, autocommit=False, securely=True):
+        try:
+            db = DatabaseSupporter()
+            db.connect(
+                engine=self.engine,
+                interface=self.interface,
+                host=self.host,
+                port=self.port,
+                database=self.db,
+                dsn=self.dsn,
+                odbc_connection_string=self.odbc_connection_string,
+                user=self.user,
+                password=self.password,
+                autocommit=autocommit  # if False, need to commit
+            )
+            return db
+        except:
+            if securely:
+                raise NoDatabaseError(
+                    "Problem opening or reading from database {}; details "
+                    "concealed for security reasons".format(self.section))
+            else:
+                raise
 
 
 def get_database_from_configparser(parser, section, securely=True):
     try:  # guard this bit to prevent any password leakage
         dbc = DatabaseConfig(parser, section)
-        db = dbc.get_database()
+        db = dbc.get_database(securely=securely)
         return db
     except:
         if securely:
@@ -758,6 +850,7 @@ class DatabaseSupporter:
     FLAVOUR_ACCESS = "access"
     PYTHONLIB_MYSQLDB = "mysqldb"
     PYTHONLIB_PYODBC = "pyodbc"
+    PYTHONLIB_JAYDEBEAPI = "jaydebeapi"
     MYSQL_COLUMN_TYPE_EXPR = "column_type"
     SQLSERVER_COLUMN_TYPE_EXPR = """
         (CASE
@@ -796,7 +889,7 @@ class DatabaseSupporter:
             ex=type(e).__name__,
             msg=str(e),
         )
-        logger.error(err)
+        logger.exception(err)
         raise NoDatabaseError(err)
 
     def connect(self,
@@ -811,7 +904,26 @@ class DatabaseSupporter:
         """
 
         # Catch all exceptions, so the error-catcher never shows a password.
+        # Note also that higher-level things may catch exceptions, so use the
+        # logger as well.
+        try:
+            return self._connect(
+                engine=engine, interface=interface,
+                host=host, port=port, database=database,
+                driver=driver, dsn=dsn,
+                odbc_connection_string=odbc_connection_string,
+                user=user, password=password,
+                autocommit=autocommit, charset=charset,
+                use_unicode=use_unicode)
+        except Exception as e:
+            self.reraise_connection_exception(e)
 
+    def _connect(self,
+                 engine=None, interface=None,
+                 host=None, port=None, database=None,
+                 driver=None, dsn=None, odbc_connection_string=None,
+                 user=None, password=None,
+                 autocommit=True, charset="utf8", use_unicode=True):
         # Check engine
         if engine not in [ENGINE_MYSQL, ENGINE_SQLSERVER, ENGINE_ACCESS]:
             raise ValueError("Unknown engine")
@@ -873,6 +985,7 @@ class DatabaseSupporter:
             #     raise ValueError("Missing database parameter")
             if user is None:
                 raise ValueError("Missing user parameter")
+            self.db_pythonlib = DatabaseSupporter.PYTHONLIB_JAYDEBEAPI
         else:
             raise ValueError("Unknown interface")
 
@@ -899,19 +1012,16 @@ class DatabaseSupporter:
                 "mysqldb connect: host={h}, port={p}, user={u}, "
                 "database={d}".format(
                     h=host, p=port, u=user, d=database))
-            try:
-                self.db = MySQLdb.connect(
-                    host=host,
-                    port=port,
-                    user=user,
-                    passwd=password,
-                    db=database,
-                    charset=charset,
-                    use_unicode=use_unicode,
-                    conv=converters
-                )
-            except Exception as e:
-                self.reraise_connection_exception(e)
+            self.db = MySQLdb.connect(
+                host=host,
+                port=port,
+                user=user,
+                passwd=password,
+                db=database,
+                charset=charset,
+                use_unicode=use_unicode,
+                conv=converters
+            )
             self.db.autocommit(autocommit)
             # http://mysql-python.sourceforge.net/MySQLdb.html
             # http://dev.mysql.com/doc/refman/5.0/en/mysql-autocommit.html
@@ -942,10 +1052,7 @@ class DatabaseSupporter:
                 "USER={4};PASSWORD={5}".format(driver, host, port,
                                                database, user, password)
             )
-            try:
-                self.db = pyodbc.connect(dsn)
-            except Exception as e:
-                self.reraise_connection_exception(e)
+            self.db = pyodbc.connect(dsn)
             self.db.autocommit = autocommit
             # http://stackoverflow.com/questions/1063770
 
@@ -966,17 +1073,13 @@ class DatabaseSupporter:
                     user=user,
                 )
             )
-            try:
-                self.jdbc_connect(jclassname, driver_args, jars, libs,
-                                  autocommit)
-            except:
-                logger.error(MYSQL_JDBC_ERROR_HELP)
-                raise
+            self.jdbc_connect(jclassname, driver_args, jars, libs, autocommit)
 
         elif engine == ENGINE_SQLSERVER and interface == INTERFACE_ODBC:
             # SQL Server:
             # http://code.google.com/p/pyodbc/wiki/ConnectionStrings
             if odbc_connection_string:
+                logger.info("Using raw ODBC connection string [censored]")
                 connectstring = odbc_connection_string
             elif dsn:
                 logger.info(
@@ -993,47 +1096,52 @@ class DatabaseSupporter:
                     "DRIVER={};SERVER={};DATABASE={};UID={};PWD={}".format(
                         driver, host, database, user, password)
                 )
-            try:
-                self.db = pyodbc.connect(connectstring, unicode_results=True)
-            except Exception as e:
-                self.reraise_connection_exception(e)
+            self.db = pyodbc.connect(connectstring, unicode_results=True)
             self.db.autocommit = autocommit
             # http://stackoverflow.com/questions/1063770
 
         elif engine == ENGINE_SQLSERVER and interface == INTERFACE_JDBC:
             # jar tvf sqljdbc41.jar
+            # https://msdn.microsoft.com/en-us/sqlserver/aa937724.aspx
             # https://msdn.microsoft.com/en-us/library/ms378428(v=sql.110).aspx
-            jclassname = "com.microsoft.sqlserver.jdbc.SQLServerDriver"
-            db_elem = ";databaseName={}".format(database) if database else ""
-            url = (
-                "jdbc:sqlserver://{host}:{port}{db_elem}"
-                ";user={user};password={password}".format(
-                    host=host, port=port, db_elem=db_elem,
-                    user=user, password=password)
+            # https://msdn.microsoft.com/en-us/library/ms378988(v=sql.110).aspx
+            jclassname = 'com.microsoft.sqlserver.jdbc.SQLServerDriver'
+            urlstem = 'jdbc:sqlserver://{host}:{port};'.format(
+                host=host,
+                port=port
             )
+            nvp = {}
+            if database:
+                nvp['databaseName'] = database
+            nvp['user'] = user
+            nvp['password'] = password
+            nvp['responseBuffering'] = 'adaptive'  # default is 'full'
+            # ... THIS CHANGE (responseBuffering = adaptive) stops the JDBC
+            # driver crashing on cursor close [in a socket recv() call] when
+            # it's fetched a VARBINARY(MAX) field.
+            nvp['selectMethod'] = 'cursor'  # trying this; default is 'direct'
+            url = urlstem + ';'.join(
+                '{}={}'.format(x, y) for x, y in nvp.iteritems())
+
+            nvp['password'] = '[censored]'
+            url_censored = urlstem + ';'.join(
+                '{}={}'.format(x, y) for x, y in nvp.iteritems())
             logger.info(
-                "jdbc connect: jclassname={jclassname}, url = "
-                "jdbc:sqlserver://{host}:{port}{db_elem}"
-                ";user={user};password=[censored]".format(
+                'jdbc connect: jclassname={jclassname}, url = {url}'.format(
                     jclassname=jclassname,
-                    host=host,
-                    port=port,
-                    db_elem=db_elem,
-                    user=user)
+                    url=url_censored
+                )
             )
+
             driver_args = [url]
             jars = None
             libs = None
-            self.jdbc_connect(jclassname, driver_args, jars, libs,
-                              autocommit)
+            self.jdbc_connect(jclassname, driver_args, jars, libs, autocommit)
 
         elif engine == ENGINE_ACCESS and interface == INTERFACE_ODBC:
             dsn = "DSN={}".format(dsn)
             logger.info("ODBC connect: DSN={}".format(dsn))
-            try:
-                self.db = pyodbc.connect(dsn)
-            except Exception as e:
-                self.reraise_connection_exception(e)
+            self.db = pyodbc.connect(dsn)
             self.db.autocommit = autocommit
             # http://stackoverflow.com/questions/1063770
 
@@ -1073,6 +1181,7 @@ class DatabaseSupporter:
             # ... which should have had its connectors altered by
             #     reconfigure_jaydebeapi()
         except Exception as e:
+            logger.error(MYSQL_JDBC_ERROR_HELP)
             self.reraise_connection_exception(e)
         # http://almostflan.com/2012/03/01/turning-off-autocommit-in-jaydebeapi/  # noqa
         self.db.jconn.setAutoCommit(autocommit)
@@ -1395,6 +1504,20 @@ class DatabaseSupporter:
                 row = cursor.fetchone()
         except:
             logger.exception("gen_fetchall: SQL was: " + sql)
+            raise
+
+    def gen_fetchfirst(self, sql, *args):
+        """fetch first values, as a generator."""
+        self.ensure_db_open()
+        cursor = self.db.cursor()
+        self.db_exec_with_cursor(cursor, sql, *args)
+        try:
+            row = cursor.fetchone()
+            while row is not None:
+                yield row[0]
+                row = cursor.fetchone()
+        except:
+            logger.exception("gen_fetchfirst: SQL was: " + sql)
             raise
 
     def fetchall_with_fieldnames(self, sql, *args):
@@ -2142,3 +2265,19 @@ class DatabaseSupporter:
 
     def get_schema(self):
         return self.fetchvalue("SELECT {}".format(self.schema_expr))
+
+    # =========================================================================
+    # Debugging
+    # =========================================================================
+
+    def java_garbage_collect(self):
+        # http://stackoverflow.com/questions/1903041
+        # http://docs.oracle.com/javase/7/docs/api/java/lang/Runtime.html
+        if not JDBC_AVAILABLE:
+            return
+        if self.db_pythonlib != DatabaseSupporter.PYTHONLIB_JAYDEBEAPI:
+            return
+        logger.info("Calling Java garbage collector...")
+        rt = jpype.java.lang.Runtime.getRuntime()
+        rt.gc()
+        logger.info("... done")

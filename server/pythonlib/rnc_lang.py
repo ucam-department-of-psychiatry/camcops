@@ -91,13 +91,13 @@ def convert_attrs_to_lowercase(obj, attrs):
         setattr(obj, a, value.lower())
 
 
-def convert_attrs_to_int_or_none(obj, attrs):
+def convert_attrs_to_int(obj, attrs, default=None):
     for a in attrs:
         value = getattr(obj, a)
         try:
             value = int(value)
         except:
-            value = None
+            value = default
         setattr(obj, a, value)
 
 
@@ -117,3 +117,11 @@ def chunks(l, n):
     """
     for i in xrange(0, len(l), n):
         yield l[i:i + n]
+
+
+def is_integer(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
