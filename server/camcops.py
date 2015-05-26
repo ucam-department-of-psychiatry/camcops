@@ -1121,7 +1121,7 @@ def offer_basic_dump(session, form):
                 <input type="checkbox" name="{PARAM.TASKTYPES}"
                     value="{tablename}" checked>
                 {shortname}
-            </label></br>
+            </label><br>
         """.format(PARAM=PARAM,
                    tablename=cls.get_tablename(),
                    shortname=cls.get_taskshortname())

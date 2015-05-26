@@ -215,6 +215,7 @@ DEPENDS_DEB_ARRAY=(
     gcc
     libapache2-mod-wsgi
     libmagickwand-dev
+    libmysqlclient-dev
     libssl-dev
     libxml2-dev
     libxslt1-dev
@@ -232,6 +233,7 @@ DEPENDS_RPM_ARRAY=(
     gcc # gcc is not standard on CentOS, but is necessary for installation of other packages
     # mod_wsgi: so tricky (with Python 2.7 on CentOS 6.5) that it should be done by hand
     ImageMagick-devel
+    # libmysqlclient-dev equivalent: mysql[55]-devel? mysql[55]-lib?
     openssl-devel
     libxml2-devel
     libxslt-devel
@@ -1291,12 +1293,9 @@ if [ -f $DSTCONFIGFILE ]; then
 fi
 
 #------------------------------------------------------------------------------
-echo '$PACKAGE: Compiling Python to bytecode, with full optimization'
+#echo '$PACKAGE: Compiling Python to bytecode, with full optimization'
 #------------------------------------------------------------------------------
-$PYTHON -OO -m compileall $DSTSERVERDIR
-$PYTHON -OO -m compileall $DSTMODULEDIR
-$PYTHON -OO -m compileall $DSTTASKDIR
-$PYTHON -OO -m compileall $DSTPYTHONLIBDIR
+#find $DSTCAMCOPSDIR -name "*.py" -exec $PYTHON -OO -m compileall {} \;
 
 #------------------------------------------------------------------------------
 # If Apache is installed, restart it
