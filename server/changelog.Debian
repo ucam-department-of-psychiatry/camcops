@@ -1,8 +1,8 @@
-camcops (1.35-1) all; urgency=low
+camcops (1.40-1) all; urgency=low
 
-  * NO CHANGE. Version number tweak in error. MAY STILL BE USED.
+  * Brief COPE Inventory.
 
- -- Rudolf Cardinal <rudolf@pobox.com>  Sun, 22 Mar 2015 11:09:00 +0000
+ -- Rudolf Cardinal <rudolf@pobox.com>  Thu, 28 May 2015 11:09:00 +0000
 
 camcops (1.34-1) all; urgency=medium
 

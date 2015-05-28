@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 PACKAGE=camcops
 STARTDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
@@ -38,7 +39,7 @@ if [[ $EUID -eq 0 ]]; then
     exit 1
 fi
 
-REQUIRED_COMMANDS="dpkg-deb alien rpmrebuild"
+REQUIRED_COMMANDS="alien dpkg-deb git rpmrebuild"
 for i in $REQUIRED_COMMANDS # http://www.cyberciti.biz/faq/unix-linux-shell-find-out-posixcommand-exists-or-not/
 do
 	command_exists $i \
@@ -341,8 +342,10 @@ echo "Fetching and copying tablet code"
 TABLETSUBDIRS="common html lib menu menulib questionnaire questionnairelib \
               screen table task task_html"
 mkdir -p $TMPTABLETDIR
-svn checkout https://egret.psychol.cam.ac.uk/svn/camcops_titanium/ $TMPTABLETDIR
-TMPTABLETRESOURCESDIR=$TMPTABLETDIR/trunk/CamCOPS/Resources
+# svn checkout https://egret.psychol.cam.ac.uk/svn/camcops_titanium/ $TMPTABLETDIR
+# TMPTABLETRESOURCESDIR=$TMPTABLETDIR/trunk/CamCOPS/Resources
+git clone https://rudolf@egret.psychol.cam.ac.uk/git/camcops-tablet $TMPTABLETDIR
+TMPTABLETRESOURCESDIR=$TMPTABLETDIR/Resources
 mkdir -p $WRKTABLETDIR
 for d in $TABLETSUBDIRS
 do
