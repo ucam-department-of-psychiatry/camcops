@@ -109,6 +109,10 @@ SRCPYTHONLIBDIR=$SRCBASEDIR/server/pythonlib
 WRKPYTHONLIBDIR=$WRKBASEDIR/pythonlib
 DSTPYTHONLIBDIR=$DSTCAMCOPSDIR/pythonlib
 
+SRCEXTRASTRINGTEMPLATES=$SRCBASEDIR/server/extra_string_templates
+WRKEXTRASTRINGTEMPLATES=$WRKBASEDIR/extra_string_templates
+#DSTEXTRASTRINGTEMPLATES=$DSTCAMCOPSDIR/extra_string_templates
+
 #SRCDOCDIR=$SRCBASEDIR/documentation
 
 SRCSERVERDIR=$SRCBASEDIR/server
@@ -204,6 +208,7 @@ echo "debugging installation (using system Python rather than virtualenv): $DEBU
 REQUIRED_PYTHONLIBS_ARRAY=(
     rnc_crypto
     rnc_db
+    rnc_lang
     rnc_pdf
     rnc_plot
     rnc_web
@@ -303,6 +308,7 @@ mkdir -p $PACKAGEDIR
 mkdir -p $DEBDIR
 mkdir -p $DEBOVERRIDEDIR
 mkdir -p $WRKPYTHONLIBDIR
+mkdir -p $WRKEXTRASTRINGTEMPLATES
 mkdir -p $WRKDOCDIR
 mkdir -p $WRKMANDIR
 mkdir -p $WRKCONSOLEFILEDIR
@@ -334,6 +340,7 @@ cp $SRCSERVERDIR/changelog.Debian $WEB_VERSION_FILES_DIR # for the web site
 cp $SRCMODULEDIR/*.py $WRKMODULEDIR
 cp $SRCTASKDIR/*.py $WRKTASKDIR
 cp $SRCTASKDISCARDEDDIR/*.py $WRKTASKDISCARDEDDIR
+cp $SRCEXTRASTRINGTEMPLATES/* $WRKEXTRASTRINGTEMPLATES
 
 #==============================================================================
 echo "Fetching and copying tablet code"
@@ -601,6 +608,12 @@ LOCAL_LOGO_FILE_ABSOLUTE = $DSTSERVERDIR/logo_local.png
 # default $DSTSERVERDIR).
 
 RESOURCES_DIRECTORY = $DSTSERVERDIR
+
+# EXTRA_STRING_FILES: multiline list of filenames (with absolute paths), read
+# by the server, and used as EXTRA STRING FILES (in addition to the main
+# strings.xml file specified by RESOURCES_DIRECTORY above). Optional.
+
+EXTRA_STRING_FILES =
 
 # INTROSPECTION_DIRECTORY: Root directory of the CamCOPS installation,
 # used for offering CamCOPS's source code to users if INTROSPECTION is enabled.

@@ -35,7 +35,8 @@ import rnc_db
 from cc_configfile import (
     get_config_parameter,
     get_config_parameter_boolean,
-    get_config_parameter_loglevel
+    get_config_parameter_loglevel,
+    get_config_parameter_multiline
 )
 from cc_constants import (
     CONFIG_FILE_MAIN_SECTION,
@@ -144,6 +145,7 @@ class LocalStorage(object):
         self.INTROSPECTION = False
         self.HL7_LOCKFILE = None
         self.SUMMARY_TABLES_LOCKFILE = None
+        self.EXTRA_STRING_FILES = None
 
         self.SESSION_TIMEOUT = datetime.timedelta(
             minutes=DEFAULT_TIMEOUT_MINUTES)
@@ -182,6 +184,7 @@ class LocalStorage(object):
         self.db = None
 
         self.stringDict = None
+        self.extraStringDicts = None  # dictionary of dictionaries
         self.useSVG = False
         self.session = None
         # currently not configurable, but easy to add in the future:
@@ -242,6 +245,9 @@ class LocalStorage(object):
             int, DEFAULT_TIMEOUT_MINUTES)
         self.SESSION_TIMEOUT = datetime.timedelta(
             minutes=SESSION_TIMEOUT_MINUTES)
+
+        self.EXTRA_STRING_FILES = get_config_parameter_multiline(
+            config, section, "EXTRA_STRING_FILES", [])
 
         self.DB_NAME = config.get(section, "DB_NAME")
         # ... no default: will fail if not provided

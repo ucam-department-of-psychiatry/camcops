@@ -104,3 +104,13 @@ def get_config_parameter_loglevel(config, section, param, default):
         logger.warning("Configuration variable {} not found or improper; "
                        "using default of {}".format(param, default))
         return default
+
+
+def get_config_parameter_multiline(config, section, param, default):
+    try:
+        multiline = config.get(section, param)
+        return [x.strip() for x in multiline.splitlines() if x.strip()]
+    except (TypeError, ValueError, ConfigParser.NoOptionError):
+        logger.warning("Configuration variable {} not found or improper; "
+                       "using default of {}".format(param, default))
+        return default

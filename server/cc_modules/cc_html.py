@@ -590,6 +590,11 @@ def subheading_spanning_two_columns(s, th_not_td=False):
     return tr_span_col(s, cols=2, tr_class="subheading", th_not_td=th_not_td)
 
 
+def subheading_spanning_three_columns(s, th_not_td=False):
+    """HTML table subheading spanning 3 columns."""
+    return tr_span_col(s, cols=3, tr_class="subheading", th_not_td=th_not_td)
+
+
 def subheading_spanning_four_columns(s, th_not_td=False):
     """HTML table subheading spanning 4 columns."""
     return tr_span_col(s, cols=4, tr_class="subheading", th_not_td=th_not_td)

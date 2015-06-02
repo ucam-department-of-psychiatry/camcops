@@ -108,7 +108,6 @@ class CopeBrief(Task):
     def provides_trackers(cls):
         return False
 
-# ***
     def get_summaries(self):
         return [
             self.is_complete_summary_field(),
@@ -169,8 +168,12 @@ class CopeBrief(Task):
         return True
 
     def is_complete(self):
-        return self.is_complete_responder() and self.are_all_fields_complete(
-            ["q{}".format(n) for n in xrange(1, self.NQUESTIONS + 1)])
+        return (
+            self.is_complete_responder() and
+            self.are_all_fields_complete(
+                ["q{}".format(n) for n in xrange(1, self.NQUESTIONS + 1)]) and
+            self.field_contents_valid()
+        )
 
     def self_distraction(self):
         return self.sum_fields(["q1", "q19"])

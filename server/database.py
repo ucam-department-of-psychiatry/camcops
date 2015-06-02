@@ -59,6 +59,7 @@ import cc_lang
 from cc_logger import dblogger as logger
 from cc_pls import pls
 import cc_session
+import cc_string
 import cc_version
 
 # Conditional imports
@@ -410,7 +411,7 @@ def unescape_newlines(s):
         return s
     d = ""  # the destination string
     in_escape = False
-    for i in range(len(s)):
+    for i in xrange(len(s)):
         c = s[i]  # the character being processed
         if in_escape:
             if c == "r":
@@ -581,11 +582,35 @@ def get_server_id_info():
         "idPolicyFinalize": pls.ID_POLICY_FINALIZE_STRING,
         "serverCamcopsVersion": cc_version.CAMCOPS_SERVER_VERSION,
     }
-    for n in range(1, NUMBER_OF_IDNUMS + 1):
+    for n in xrange(1, NUMBER_OF_IDNUMS + 1):
         i = n - 1
         nstr = str(n)
         reply["idDescription" + nstr] = pls.IDDESC[i]
         reply["idShortDescription" + nstr] = pls.IDSHORTDESC[i]
+    return reply
+
+
+def get_select_reply(fields, rows):
+    """Return format:
+        nfields:X
+        fields:X
+        nrecords:X
+        record0:VALUES_AS_CSV_LIST_OF_ENCODED_SQL_VALUES
+            ...
+        record{n}:VALUES_AS_CSV_LIST_OF_ENCODED_SQL_VALUES
+    """
+    nrecords = len(rows)
+    reply = {
+        "nfields": len(fields),
+        "fields": ",".join(fields),
+        "nrecords": nrecords,
+    }
+    for r in xrange(nrecords):
+        row = rows[r]
+        encodedvalues = []
+        for val in row:
+            encodedvalues.append(encode_single_value(val))
+        reply["record" + str(r)] = ",".join(encodedvalues)
     return reply
 
 
@@ -1302,6 +1327,17 @@ def register(form):
     return get_server_id_info()
 
 
+def get_extra_strings(form):
+    """Fetch all local extra strings from the server."""
+    device = get_post_var(form, PARAM.DEVICE)
+    user = get_post_var(form, PARAM.USER)
+    fields = ["task", "name", "value"]
+    rows = cc_string.get_all_extra_strings()
+    reply = get_select_reply(fields, rows)
+    audit("get_extra_strings", user=user, device=device)
+    return reply
+
+
 # =============================================================================
 # Action processors that require UPLOAD privilege
 # =============================================================================
@@ -1358,7 +1394,7 @@ def upload_table(form):
     new_or_updated = 0
     server_active_record_pks = get_server_pks_of_active_records(device, table)
     mark_table_dirty(device, table)
-    for r in range(nrecords):
+    for r in xrange(nrecords):
         recname = "record{}".format(r)
         values = get_values_from_post_var(form, recname)
         nvalues = len(values)
@@ -1512,7 +1548,7 @@ def which_keys_to_send(form):
 
     # 2. See which ones are new or updates.
     pks_needed = []
-    for i in range(npkvalues):
+    for i in xrange(npkvalues):
         clientpkval = clientpk_values[i]
         client_date_value = client_dates[i]
         found, serverpk = record_exists(device, table, clientpk_name,
@@ -1552,13 +1588,7 @@ def count(form):
 
 def select(form):
     """Select fields from a table, specified by WHERE/WHERE NOT criteria,
-    joined by AND. Return format:
-        nfields:X
-        fields:X
-        nrecords:X
-        record0:VALUES_AS_CSV_LIST_OF_ENCODED_SQL_VALUES
-            ...
-        record{n}:VALUES_AS_CSV_LIST_OF_ENCODED_SQL_VALUES
+    joined by AND. Return format: see get_select_reply() help.
     """
     device = get_post_var(form, PARAM.DEVICE)
     user = get_post_var(form, PARAM.USER)
@@ -1572,21 +1602,10 @@ def select(form):
     # Select records
     rows = select_records_with_specified_fields(device, table, wheredict,
                                                 wherenotdict, fields)
-    nrecords = len(rows)
 
     # Send results back to user
     # .... even though this probably reinvents what the client sent us!
-    reply = {
-        "nfields": len(fields),
-        "fields": ",".join(fields),
-        "nrecords": nrecords,
-    }
-    for r in range(nrecords):
-        row = rows[r]
-        encodedvalues = []
-        for val in row:
-            encodedvalues.append(encode_single_value(val))
-        reply["record" + str(r)] = ",".join(encodedvalues)
+    reply = get_select_reply(fields, rows)
 
     auditstring = (
         "webclient SELECT {f} FROM {t} WHERE {w} AND WHERE NOT {wn}".format(
@@ -1695,6 +1714,7 @@ OPERATIONS_ANYONE = {
 }
 OPERATIONS_REGISTRATION = {
     "register": register,
+    "get_extra_strings": get_extra_strings,
 }
 OPERATIONS_UPLOAD = {
     "check_upload_user_and_device": check_upload_user_and_device,

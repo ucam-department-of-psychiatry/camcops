@@ -1,6 +1,10 @@
 camcops (1.40-1) all; urgency=low
 
   * Brief COPE Inventory.
+  * EXTRA_STRING_FILES system, with "get_extra_strings" command to database
+    API.
+  * CBI-R.
+  * ZBI (data collection tool only with option for institution to supply text).
 
  -- Rudolf Cardinal <rudolf@pobox.com>  Thu, 28 May 2015 11:09:00 +0000
 
