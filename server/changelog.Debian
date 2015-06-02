@@ -1,10 +1,17 @@
 camcops (1.40-1) all; urgency=low
 
+  * REQUIRES COMMAND TO UPGRADE EACH DATABASE:
+        camcops --maketables /etc/camcops/MYCONFIGNAME.conf
   * Brief COPE Inventory.
   * EXTRA_STRING_FILES system, with "get_extra_strings" command to database
     API.
   * CBI-R.
   * ZBI (data collection tool only with option for institution to supply text).
+  * Bugfix to ProgressNote: get_task_html() crashed because "answer" was not
+    imported.
+  * xhtml2pdf @page size changed from "a4" to "A4" in cc_html.py to remove
+    "WARNING:xhtml2pdf:Unknown size value for @page"; see
+    https://github.com/chrisglass/xhtml2pdf/issues/71 ... however, no effect.
 
  -- Rudolf Cardinal <rudolf@pobox.com>  Thu, 28 May 2015 11:09:00 +0000
 

@@ -72,7 +72,7 @@ if cc_version.USE_WEASYPRINT:
     # http://weasyprint.org/docs/changelog/
     PDF_BLOCK = """
 @page {
-    size: a4 ORIENTATION;
+    size: A4 ORIENTATION;
     margin: MAINMARGIN;
     @frame header {
         /* -pdf-frame-border: 1; */ /* for debugging */
@@ -95,7 +95,7 @@ else:
 #headerContent { font-size: SMALLFONTSIZE; line-height: SMALLLINEHEIGHT; }
 #footerContent { font-size: SMALLFONTSIZE; line-height: SMALLLINEHEIGHT; }
 @page {
-    size: a4 ORIENTATION;
+    size: A4 ORIENTATION;
     margin-left: MAINMARGIN;
     margin-right: MAINMARGIN;
     margin-top: MAINMARGIN;

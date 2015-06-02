@@ -22,7 +22,7 @@
 """
 
 import rnc_web as ws
-from cc_html import tr
+from cc_html import answer
 from cc_string import WSTRING
 from cc_task import (
     CLINICIAN_FIELDSPECS,
