@@ -31,6 +31,7 @@ from cc_html import (
 )
 from cc_string import WSTRING, WXSTRING
 from cc_task import (
+    DATA_COLLECTION_UNLESS_UPGRADED_DIV,
     get_from_dict,
     STANDARD_TASK_FIELDSPECS,
     Task,
@@ -158,5 +159,5 @@ class Zbi12(Task):
             )
         h += u"""
             </table>
-        """
+        """ + DATA_COLLECTION_UNLESS_UPGRADED_DIV
         return h

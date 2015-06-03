@@ -138,7 +138,7 @@ class Bdi(Task):
         """
         h += tr_qa(WSTRING("bdi_which_scale"), ws.webify(self.bdi_scale))
 
-        for q in range(1, Bdi.NQUESTIONS + 1):
+        for q in xrange(1, Bdi.NQUESTIONS + 1):
             h += tr_qa(u"{} {}".format(WSTRING("question"), q),
                        getattr(self, "q" + str(q)))
         h += u"""

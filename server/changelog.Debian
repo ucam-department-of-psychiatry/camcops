@@ -7,6 +7,11 @@ camcops (1.40-1) all; urgency=low
     API.
   * CBI-R.
   * ZBI (data collection tool only with option for institution to supply text).
+  * HADS (data collection tool only with option for institution to supply
+    text).
+  * Unit tests to ensure no overlap for task longnames/shortnames/tables; see
+    cc_task.unit_tests().
+  * clinician_service field as part of clinician block
   * Bugfix to ProgressNote: get_task_html() crashed because "answer" was not
     imported.
   * xhtml2pdf @page size changed from "a4" to "A4" in cc_html.py to remove

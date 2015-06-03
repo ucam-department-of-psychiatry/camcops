@@ -96,6 +96,15 @@ DATA_COLLECTION_ONLY_DIV = u"""
         a licensed copy of the original task.
     </div>
 """
+DATA_COLLECTION_UNLESS_UPGRADED_DIV = u"""
+    <div class="copyright">
+        Reproduction of the original task/scale is not permitted as part of
+        CamCOPS. This is a data collection tool only, unless the hosting
+        institution has supplied task text via its own permissions. Any such
+        text is not part of CamCOPS. Use this data collection tool only in
+        conjunction with a licensed copy of the original task.
+    </div>
+"""
 FULLWIDTH_PLOT_WIDTH = 6.7  # inches: full width is ~170mm
 ICD10_COPYRIGHT_DIV = u"""
     <div class="copyright">
@@ -204,11 +213,14 @@ CLINICIAN_FIELDSPECS = [  # see also has_clinician()
                  "Psychiatry)"),
     dict(name="clinician_name", cctype="TEXT", anon=True,
          comment="(CLINICIAN) Clinician's name (e.g. Dr X)"),
-    dict(name="clinician_post", cctype="TEXT", anon=True,
-         comment="(CLINICIAN) Clinician's post (e.g. Consultant)"),
     dict(name="clinician_professional_registration", cctype="TEXT",
          comment="(CLINICIAN) Clinician's professional registration (e.g. "
                  "GMC# 12345)"),
+    dict(name="clinician_post", cctype="TEXT", anon=True,
+         comment="(CLINICIAN) Clinician's post (e.g. Consultant)"),
+    dict(name="clinician_service", cctype="TEXT", anon=True,
+         comment="(CLINICIAN) Clinician's service (e.g. Liaison Psychiatry "
+                 "Service)"),
     dict(name="clinician_contact_details", cctype="TEXT", anon=True,
          comment="(CLINICIAN) Clinician's contact details (e.g. bleep, "
                  "extension)"),
@@ -2733,6 +2745,10 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                         <td><b>{}</b></td>
                     </tr>
                     <tr>
+                        <td>Clinician’s service:</td>
+                        <td><b>{}</b></td>
+                    </tr>
+                    <tr>
                         <td>Clinician’s contact details:</td>
                         <td><b>{}</b></td>
                     </tr>
@@ -2741,6 +2757,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             ws.webify(self.clinician_name),
             ws.webify(self.clinician_professional_registration),
             ws.webify(self.clinician_post),
+            ws.webify(self.clinician_service),
             ws.webify(self.clinician_contact_details),
         )
         if include_comments:
@@ -3461,6 +3478,36 @@ def unit_tests():
     skip_tasks = []
     classes = Task.__subclasses__()
     classes.sort(key=lambda cls: cls.get_taskshortname())
+    longnames = set()
+    shortnames = set()
+    tasktables = set()
     for cls in classes:
+        # Sanity checking
+        ln = cls.get_tasklongname()
+        if ln in longnames:
+            raise AssertionError(
+                u"Task longname ({}) duplicates another".format(ln))
+        longnames.add(ln)
+
+        sn = cls.get_taskshortname()
+        if sn in shortnames:
+            raise AssertionError(
+                u"Task shortname ({}) duplicates another".format(sn))
+        shortnames.add(sn)
+
+        basetable = cls.get_tablename()
+        if basetable in tasktables:
+            raise AssertionError(
+                u"Task basetable ({}) duplicates another".format(basetable))
+        tasktables.add(basetable)
+
+        extratables = cls.get_extra_table_names()
+        for t in extratables:
+            if t in tasktables:
+                raise AssertionError(
+                    u"Task extratable ({}) duplicates another".format(t))
+            tasktables.add(t)
+
+        # Task unit tests
         task_unit_test(cls, skip_tasks)
         pls.db.rollback()

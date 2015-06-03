@@ -134,3 +134,9 @@ def get_all_extra_strings():
         for name, value in subdict.iteritems():
             rows.append((task, name, value))
     return rows
+
+
+def task_extrastrings_exist(taskname):
+    """Has the server been supplied with extra strings for a specific task?"""
+    cache_extra_strings()
+    return taskname in cc_pls.pls.extraStringDicts
