@@ -128,7 +128,9 @@ class Hads(Task):
         return self.score(self.DEPRESSION_QUESTIONS)
 
     def get_task_html(self):
-        crippled = task_extrastrings_exist(self.EXTRASTRING_TASKNAME)
+        MIN_SCORE = 0
+        MAX_SCORE = 3
+        crippled = not task_extrastrings_exist(self.EXTRASTRING_TASKNAME)
         a = self.anxiety_score()
         d = self.depression_score()
         h = u"""
@@ -145,12 +147,12 @@ class Hads(Task):
             </div>
             <div class="explanation">
                 All questions are scored from 0–3
-                (0 free of symptoms, 3 most symptomatic).
+                (0 least symptomatic, 3 most symptomatic).
             </div>
             <table class="taskdetail">
                 <tr>
-                    <th width="70%">Question</th>
-                    <th width="30%">Answer</th>
+                    <th width="50%">Question</th>
+                    <th width="50%">Answer</th>
                 </tr>
         """.format(
             is_complete_tr=self.get_is_complete_tr(),
@@ -160,17 +162,20 @@ class Hads(Task):
             d=answer(d),
         )
         for n in xrange(1, self.NQUESTIONS + 1):
-            q = WXSTRING(self.EXTRASTRING_TASKNAME, "q" + str(n),
-                         "HADS: Q{}".format(n))
+            if crippled:
+                q = "HADS: Q{}".format(n)
+            else:
+                q = WXSTRING(self.EXTRASTRING_TASKNAME, "q" + str(n) + "_stem")
             if n in self.ANXIETY_QUESTIONS:
                 q += " (A)"
             if n in self.DEPRESSION_QUESTIONS:
                 q += " (D)"
             v = getattr(self, "q" + str(n))
-            if crippled or v is None:
+            if crippled or v is None or v < MIN_SCORE or v > MAX_SCORE:
                 a = v
             else:
-                a = u"{}: {}".format(v, )
+                a = u"{}: {}".format(v, WXSTRING(self.EXTRASTRING_TASKNAME,
+                                                 "q{}_a{}".format(n, v)))
             h += tr_qa(q, a)
         h += u"""
             </table>

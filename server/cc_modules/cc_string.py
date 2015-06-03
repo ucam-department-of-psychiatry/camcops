@@ -113,15 +113,17 @@ def cache_extra_strings():
                 cc_pls.pls.extraStringDicts[taskname][stringname] = value
 
 
-def XSTRING(taskname, stringname, default):
+def XSTRING(taskname, stringname, default=None):
     """Looks up a string from one of the optional extra XML string files."""
+    if default is None:
+        default = "EXTRA_STRING_NOT_FOUND({}.{})".format(taskname, stringname)
     cache_extra_strings()
     if taskname not in cc_pls.pls.extraStringDicts:
         return default
     return cc_pls.pls.extraStringDicts[taskname].get(stringname, default)
 
 
-def WXSTRING(taskname, stringname, default):
+def WXSTRING(taskname, stringname, default=None):
     """Returns a web-safe version of an XSTRING (see above)."""
     return ws.webify(XSTRING(taskname, stringname, default))
 
