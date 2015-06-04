@@ -9,6 +9,12 @@ camcops (1.40-1) all; urgency=low
   * ZBI (data collection tool only with option for institution to supply text).
   * HADS (data collection tool only with option for institution to supply
     text).
+  * AUDIT-C
+  * CGI-I
+  * Patient Satisfaction Scale
+  * Referrer Satisfaction Scale (generic + specific)
+  * Friends and Family Test
+  * IRAC
   * Unit tests to ensure no overlap for task longnames/shortnames/tables; see
     cc_task.unit_tests().
   * clinician_service field as part of clinician block

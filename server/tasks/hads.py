@@ -165,7 +165,10 @@ class Hads(Task):
             if crippled:
                 q = "HADS: Q{}".format(n)
             else:
-                q = WXSTRING(self.EXTRASTRING_TASKNAME, "q" + str(n) + "_stem")
+                q = u"Q{}. {}".format(
+                    n,
+                    WXSTRING(self.EXTRASTRING_TASKNAME, "q" + str(n) + "_stem")
+                )
             if n in self.ANXIETY_QUESTIONS:
                 q += " (A)"
             if n in self.DEPRESSION_QUESTIONS:

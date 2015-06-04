@@ -46,7 +46,7 @@ from cc_task import (
 # PCL: common class
 # -----------------------------------------------------------------------------
 
-class PclCommon:
+class PclCommon(object):
     NQUESTIONS = 17
     CORE_FIELDSPECS = repeat_fieldspec(
         "q", 1, NQUESTIONS, min=1, max=5,

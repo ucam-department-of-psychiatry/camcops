@@ -73,7 +73,7 @@ class Cgi(Task):
     @classmethod
     def get_fieldspecs(cls):
         return STANDARD_TASK_FIELDSPECS + CLINICIAN_FIELDSPECS + \
-            Cgi.TASK_FIELDSPECS
+            cls.TASK_FIELDSPECS
 
     @classmethod
     def provides_trackers(cls):
@@ -104,7 +104,7 @@ class Cgi(Task):
         ]
 
     def is_complete(self):
-        if not (self.are_all_fields_complete(Cgi.TASK_FIELDS)
+        if not (self.are_all_fields_complete(self.TASK_FIELDS)
                 and self.field_contents_valid()):
             return False
         if self.q1 == 0 or self.q2 == 0 or self.q3t == 0 or self.q3s == 0:
@@ -192,5 +192,82 @@ class Cgi(Task):
                 [3] Questions 3T and 3S are scored 1–4 (0 for not assessed).
                 [4] Q3 is scored 1–16 if Q3T/Q3S complete.
             </div>
+        """
+        return h
+
+
+# =============================================================================
+# CGI-I
+# =============================================================================
+
+class CgiI(Task):
+    TASK_FIELDSPECS = [
+        dict(name="q", cctype="INT", min=0, max=7,
+             comment="Global improvement (1-7, higher worse)"),
+    ]
+    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
+
+    @classmethod
+    def get_tablename(cls):
+        return "cgi_i"
+
+    @classmethod
+    def get_taskshortname(cls):
+        return "CGI-I"
+
+    @classmethod
+    def get_tasklongname(cls):
+        return u"Clinical Global Impressions – Improvement"
+
+    @classmethod
+    def get_fieldspecs(cls):
+        return STANDARD_TASK_FIELDSPECS + CLINICIAN_FIELDSPECS + \
+            cls.TASK_FIELDSPECS
+
+    def get_clinical_text(self):
+        if not self.is_complete():
+            return CTV_DICTLIST_INCOMPLETE
+        return [{
+            "content": "CGI-I rating: {}".format(self.get_rating_text())
+        }]
+
+    def is_complete(self):
+        return (self.are_all_fields_complete(self.TASK_FIELDS)
+                and self.field_contents_valid())
+
+    def get_rating_text(self):
+        qdict = self.get_q_dict()
+        return get_from_dict(qdict, self.q)
+
+    @staticmethod
+    def get_q_dict():
+        return {
+            None: None,
+            0: WSTRING("cgi_q2_option0"),
+            1: WSTRING("cgi_q2_option1"),
+            2: WSTRING("cgi_q2_option2"),
+            3: WSTRING("cgi_q2_option3"),
+            4: WSTRING("cgi_q2_option4"),
+            5: WSTRING("cgi_q2_option5"),
+            6: WSTRING("cgi_q2_option6"),
+            7: WSTRING("cgi_q2_option7"),
+        }
+
+    def get_task_html(self):
+        h = self.get_standard_clinician_block() + u"""
+            <div class="summary">
+                <table class="summary">
+        """ + self.get_is_complete_tr() + u"""
+                </table>
+            </div>
+            <table class="taskdetail">
+                <tr>
+                    <th width="30%">Question</th>
+                    <th width="70%">Answer</th>
+                </tr>
+        """
+        h += tr_qa(WSTRING("cgi_q1_s"), self.get_rating_text())
+        h += u"""
+            </table>
         """
         return h
