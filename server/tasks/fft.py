@@ -88,10 +88,11 @@ class Fft(Task):
             </div>
             <table class="taskdetail">
                 <tr>
-                    <th width="60%">Question</th>
-                    <th width="40%">Answer</th>
+                    <th width="50%">Question</th>
+                    <th width="50%">Answer</th>
                 </tr>
         """
+        h += tr_qa(WSTRING("service_being_rated"), self.service)
         h += tr_qa(WSTRING("fft_q"), r)
         h += u"""
             </table>

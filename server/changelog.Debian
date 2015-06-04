@@ -23,6 +23,7 @@ camcops (1.40-1) all; urgency=low
   * xhtml2pdf @page size changed from "a4" to "A4" in cc_html.py to remove
     "WARNING:xhtml2pdf:Unknown size value for @page"; see
     https://github.com/chrisglass/xhtml2pdf/issues/71 ... however, no effect.
+  * Abstract base class for PCL tasks wasn't inheriting from object; now is.
 
  -- Rudolf Cardinal <rudolf@pobox.com>  Thu, 28 May 2015 11:09:00 +0000
 

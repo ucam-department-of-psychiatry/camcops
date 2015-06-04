@@ -262,11 +262,11 @@ class CgiI(Task):
             </div>
             <table class="taskdetail">
                 <tr>
-                    <th width="30%">Question</th>
-                    <th width="70%">Answer</th>
+                    <th width="50%">Question</th>
+                    <th width="50%">Answer</th>
                 </tr>
         """
-        h += tr_qa(WSTRING("cgi_q1_s"), self.get_rating_text())
+        h += tr_qa(WSTRING("cgi_i_q"), self.get_rating_text())
         h += u"""
             </table>
         """

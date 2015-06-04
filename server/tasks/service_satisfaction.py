@@ -78,11 +78,12 @@ class AbstractSatisfaction(object):
             </div>
             <table class="taskdetail">
                 <tr>
-                    <th width="30%">Question</th>
-                    <th width="70%">Answer</th>
+                    <th width="50%">Question</th>
+                    <th width="50%">Answer</th>
                 </tr>
         """
-        h += tr_qa(rating_q, r)
+        h += tr_qa(WSTRING("service_being_rated"), self.service)
+        h += tr_qa(u"{} {}?".format(rating_q, self.service), r)
         h += tr_qa(good_q, self.good)
         h += tr_qa(bad_q, self.bad)
         h += u"""
