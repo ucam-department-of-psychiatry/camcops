@@ -126,11 +126,6 @@ if PROFILE:
 if DEBUG_TO_HTTP_CLIENT:
     import wsgi_errorreporter
 
-# Imports so as to set parameters in the imported modules
-import rnc_pdf
-rnc_pdf.set_processor("weasyprint" if cc_version.USE_WEASYPRINT
-                      else "xhtml2pdf")
-
 # Task imports: everything in "tasks" directory
 task_modules = glob.glob(os.path.dirname(__file__) + "/tasks/*.py")
 task_modules = [os.path.basename(f)[:-3] for f in task_modules]

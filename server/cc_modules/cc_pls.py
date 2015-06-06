@@ -31,6 +31,7 @@ import datetime
 import logging
 
 import rnc_db
+import rnc_pdf
 
 from cc_configfile import (
     get_config_parameter,
@@ -47,6 +48,7 @@ from cc_constants import (
 )
 import cc_dt
 import cc_logger
+import cc_version
 
 
 # =============================================================================
@@ -145,6 +147,7 @@ class LocalStorage(object):
         self.INTROSPECTION = False
         self.HL7_LOCKFILE = None
         self.SUMMARY_TABLES_LOCKFILE = None
+        self.WKHTMLTOPDF_FILENAME = None
         self.EXTRA_STRING_FILES = None
 
         self.SESSION_TIMEOUT = datetime.timedelta(
@@ -276,6 +279,11 @@ class LocalStorage(object):
         self.DBENGINE_LOGLEVEL = get_config_parameter_loglevel(
             config, section, "DBENGINE_LOGLEVEL", logging.INFO)
         rnc_db.set_loglevel(self.DBENGINE_LOGLEVEL)
+
+        self.WKHTMLTOPDF_FILENAME = get_config_parameter(
+            config, section, "WKHTMLTOPDF_FILENAME", str, None)
+        rnc_pdf.set_processor(cc_version.PDF_ENGINE,
+                              wkhtmltopdf_filename=self.WKHTMLTOPDF_FILENAME)
 
         # ---------------------------------------------------------------------
         # SECURITY: in this section (reading the database password from the
@@ -508,7 +516,7 @@ class LocalStorage(object):
 
         self.WEBSTART = cc_html.WEB_HEAD + self.WEB_LOGO
 
-        if cc_version.USE_WEASYPRINT:
+        if cc_version.PDF_ENGINE == "weasyprint":
             # weasyprint: div with floating img does not work properly
             self.PDF_LOGO_LINE = u"""
                 <div class="pdf_logo_header">
@@ -528,7 +536,7 @@ class LocalStorage(object):
                 self.CAMCOPS_LOGO_FILE_ABSOLUTE,
                 self.LOCAL_LOGO_FILE_ABSOLUTE,
             )
-        else:
+        elif cc_version.PDF_ENGINE in ["xhtml2pdf", "pdfkit"]:
             # xhtml2pdf
             # hard to get logos positioned any other way than within a table
             self.PDF_LOGO_LINE = u"""
@@ -551,6 +559,8 @@ class LocalStorage(object):
                 self.CAMCOPS_LOGO_FILE_ABSOLUTE, cc_html.PDF_LOGO_HEIGHT,
                 self.LOCAL_LOGO_FILE_ABSOLUTE, cc_html.PDF_LOGO_HEIGHT
             )
+        else:
+            raise AssertionError("Invalid PDF engine")
 
         if not self.PATIENT_SPEC_IF_ANONYMOUS:
             raise RuntimeError("Blank PATIENT_SPEC_IF_ANONYMOUS in [server] "

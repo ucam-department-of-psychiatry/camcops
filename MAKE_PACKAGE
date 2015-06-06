@@ -187,9 +187,9 @@ VIRTUALENV_BASE_URL=http://pypi.python.org/packages/source/v/virtualenv
 #==============================================================================
 
 VERSIONFILE=$SRCSERVERDIR/cc_modules/cc_version.py
-MAINVERSION=`perl -ne 'print $1 if /CAMCOPS_SERVER_VERSION\s*=\s*([\d\.]*)/;' $VERSIONFILE`
-CHANGEDATE=`perl -ne 'print $1 if /CAMCOPS_CHANGEDATE\s*=\s*\"(\S*)\"/;' $VERSIONFILE`
-USE_WEASYPRINT=`perl -ne 'print lc $1 if /USE_WEASYPRINT\s*=\s*(\S*)/;' $VERSIONFILE`
+MAINVERSION=`perl -ne 'print $1 if /^CAMCOPS_SERVER_VERSION\s*=\s*([\d\.]*)/;' $VERSIONFILE`
+CHANGEDATE=`perl -ne 'print $1 if /^CAMCOPS_CHANGEDATE\s*=\s*\"(\S*)\"/;' $VERSIONFILE`
+PDF_ENGINE=`perl -ne 'print lc $1 if /^PDF_ENGINE\s*=\s*\"(\S*)\"/;' $VERSIONFILE`
 DEBVERSION=${MAINVERSION}-1
 INITIALPACKAGENAME=$STARTDIR/debian.deb
 FINALPACKAGENAME=$PACKAGEDIR/${PACKAGE}_${DEBVERSION}_all.deb
@@ -198,7 +198,7 @@ FINALPACKAGENAME=$PACKAGEDIR/${PACKAGE}_${DEBVERSION}_all.deb
 
 echo "mainversion: $MAINVERSION"
 echo "changedate: $CHANGEDATE"
-echo "use Weasyprint: $USE_WEASYPRINT"
+echo "PDF engine: $PDF_ENGINE"
 echo "debugging installation (using system Python rather than virtualenv): $DEBUG_USE_SYSTEM_PYTHON"
 
 #==============================================================================
@@ -255,7 +255,7 @@ DEPENDS_RPM_ARRAY=(
 # pyodbc requires {sql.h sqlext.h} which requires unixodbc-dev (Debian) or unixODBC-devel (CentOS)
 
 # weasyprint: lxml needs (libxml2-dev libxslt1-dev); weasyprint also needs (python-dev python-pip python-lxml libcairo2 libpango1.0-0 libgdk-pixbuf2.0-0 libffi-dev)
-if $USE_WEASYPRINT; then
+if [ "$PDF_ENGINE" == "weasyprint" ]; then
     DEPENDS_DEB_ARRAY+=(
         libcairo2
         libffi-dev
@@ -268,6 +268,15 @@ if $USE_WEASYPRINT; then
         glib-devel
         pango
     )
+elif [ "$PDF_ENGINE" == "xhtml2pdf" ]; then
+    # nothing to do
+    :
+elif [ "$PDF_ENGINE" == "pdfkit" ]; then
+    # nothing to do; don't use the Ubuntu-supplied version; see later
+    :
+else
+    echo "Unknown PDF engine: $PDF_ENGINE"
+    exit 1
 fi
 
 SAVE_IFS=$IFS
@@ -644,6 +653,14 @@ HL7_LOCKFILE = $DSTHL7LOCKFILESTEM
 # The installation script will create the directory $DSTLOCKDIR
 
 SUMMARY_TABLES_LOCKFILE = $DSTSUMMARYTABLELOCKFILESTEM
+
+# WKHTMLTOPDF_FILENAME: for the pdfkit PDF engine, specify a filename for
+# wkhtmltopdf that incorporates any need for an X Server (not the default
+# /usr/bin/wkhtmltopdf). See http://stackoverflow.com/questions/9604625/ .
+# A suitable one is bundled with CamCOPS, so you shouldn't have to alter this
+# default. Default is None, which usually ends up calling /usr/bin/wkhtmltopdf
+
+WKHTMLTOPDF_FILENAME =
 
 # -----------------------------------------------------------------------------
 # Login and session configuration
@@ -1140,6 +1157,15 @@ $PYTHON $DSTDBSCRIPT "\$@"
 
 EOF
 
+##==============================================================================
+#echo "Creating wkhtmltopdf.sh launch screen to use standalone X server"
+##==============================================================================
+#
+#cat << EOF > $WRKBASEDIR/wkhtmltopdf.sh
+##!/bin/bash
+#xvfb-run --auto-servernum --server-args="-screen 0 640x480x16" /usr/bin/wkhtmltopdf "\$@"
+#EOF
+
 #==============================================================================
 echo "Creating control file"
 #==============================================================================
@@ -1270,12 +1296,12 @@ $PIP install scipy # slow
 $PIP install Wand # ImageMagick for Python
 $PIP install Werkzeug # profiling middleware
 
-if $USE_WEASYPRINT; then
+if [ "$PDF_ENGINE" = "weasyprint" ]; then
     #=== weasyprint
     # ... don't want old versions of lxml
     $PIP install --upgrade lxml
     $PIP install weasyprint
-else
+elif [ "$PDF_ENGINE" = "xhtml2pdf" ]; then
     #=== xhtml2pdf
     # ... For decent PDFs (see cc_shared.py), need to do this:
     $PIP install xhtml2pdf==0.0.4 --allow-unverified pyPdf --allow-unverified pil
@@ -1286,6 +1312,12 @@ else
     # ... check versions: pip freeze
     # ... another way: $PIP freeze | grep 'reportlab==2.5' || $PIP install -I reportlab==2.5
     # ... if it fails because of old versions: http://stackoverflow.com/questions/14617136/why-is-pip-installing-an-old-version-of-my-package
+elif [ "$PDF_ENGINE" = "pdfkit" ]; then
+
+    $PIP install pdfkit
+else
+    echo "Unknown PDF engine: $PDF_ENGINE"
+    exit 1
 fi
 
 #------------------------------------------------------------------------------
@@ -1622,6 +1654,7 @@ chmod a+x \
     $WRKMAINSCRIPT \
     $WRKDBDUMPFILE \
     $DEBDIR/prerm $DEBDIR/postinst
+# ... $WRKBASEDIR/wkhtmltopdf.sh
 find $WRKDIR -iname "*py" -exec chmod a+x {} \;
 find $WRKDIR -iname "*pl" -exec chmod a+x {} \;
 

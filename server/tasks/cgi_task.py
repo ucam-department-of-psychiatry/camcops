@@ -228,7 +228,7 @@ class CgiI(Task):
         if not self.is_complete():
             return CTV_DICTLIST_INCOMPLETE
         return [{
-            "content": "CGI-I rating: {}".format(self.get_rating_text())
+            "content": u"CGI-I rating: {}".format(self.get_rating_text())
         }]
 
     def is_complete(self):

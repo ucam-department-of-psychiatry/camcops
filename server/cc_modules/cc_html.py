@@ -66,7 +66,7 @@ PDF_LOGO_HEIGHT = "20mm"
 # http://stackoverflow.com/questions/4013604
 # http://stackoverflow.com/questions/6023419
 
-if cc_version.USE_WEASYPRINT:
+if cc_version.PDF_ENGINE == "weasyprint":
     # NOT WORKING PROPERLY YET: WEASYPRINT DOESN'T YET SUPPORT RUNNING ELEMENTS
     # http://librelist.com/browser//weasyprint/2013/7/4/header-and-footer-for-each-page/#abe45ec357d593df44ffca48253817ef  # noqa
     # http://weasyprint.org/docs/changelog/
@@ -90,7 +90,7 @@ if cc_version.USE_WEASYPRINT:
         margin-right: MAINMARGIN;
     }
 """
-else:
+elif cc_version.PDF_ENGINE in ["xhtml2pdf", "pdfkit"]:
     PDF_BLOCK = """
 #headerContent { font-size: SMALLFONTSIZE; line-height: SMALLLINEHEIGHT; }
 #footerContent { font-size: SMALLFONTSIZE; line-height: SMALLLINEHEIGHT; }
@@ -117,6 +117,8 @@ else:
     }
 }
 """
+else:
+    raise AssertionError("Invalid PDF engine")
 
 COMMON_HEAD = (u"""
 <!DOCTYPE html> <!-- HTML 5 -->

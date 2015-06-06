@@ -163,6 +163,48 @@ Best current PDF backend
 5 Jan 2014: xhtml2pdf (with old library versions) -- perfect.
 
 -------------------------------------------------------------------------------
+pdfkit, notes 6 June 2015
+-------------------------------------------------------------------------------
+
+- https://pypi.python.org/pypi/pdfkit
+- https://github.com/JazzCore/python-pdfkit/wiki/Using-wkhtmltopdf-without-X-server
+- https://github.com/JazzCore/python-pdfkit/blob/master/travis/before-script.sh
+- https://coderwall.com/p/tog9eq/using-wkhtmltopdf-and-an-xvfb-daemon-to-render-html-to-pdf
+
+$ sudo apt-get install wkhtmltopdf
+$ pip install pdfkit
+>>> import pdfkit
+>>> help(pdfkit.pdfkit)
+>>> filename = 'test.html'
+>>> url = 'http://egret.psychol.cam.ac.uk/publicworkspace/test_weasyprint_bleed.html'
+>>> html = """
+<style type="text/css">
+table { background-color: blue; }
+td { background-color: yellow; }
+tr {
+ background-color: red;
+ padding: 1cm;
+}
+</style>
+
+<table><tr><td>A</td></tr></table>
+"""
+>>> # kit = pdfkit.pdfkit.PDFKit(filename, 'file')
+>>> # kit = pdfkit.pdfkit.PDFKit(url, 'url')
+>>> # kit = pdfkit.pdfkit.PDFKit(html, 'string')
+>>> kit.to_pdf('outfile.pdf')
+
+- CURRENTLY: working fine on command line but not via Apache.
+- POTENTIALLY ALSO: http://aaronvb.com/articles/pdfkit-and-wkhtmltopdf-without-x-server-using-qt.html
+- AH. NEWER VERSION HELPS HUGELY (no reliance on X server either).
+
+$ wget http://downloads.sourceforge.net/project/wkhtmltopdf/0.12.2.1/wkhtmltox-0.12.2.1_linux-trusty-amd64.deb
+$ sudo gdebi wkhtmltox-0.12.2.1_linux-trusty-amd64.deb
+
+- PPA?
+    http://askubuntu.com/questions/556667/how-to-install-wkhtmltopdf-0-12-1-on-ubuntu-server
+
+-------------------------------------------------------------------------------
 Generator expressions v. list comprehensions
 -------------------------------------------------------------------------------
 LC in general faster; GE are used to save memory, not routinely.
