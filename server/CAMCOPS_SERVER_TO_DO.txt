@@ -204,6 +204,17 @@ $ sudo gdebi wkhtmltox-0.12.2.1_linux-trusty-amd64.deb
 - PPA?
     http://askubuntu.com/questions/556667/how-to-install-wkhtmltopdf-0-12-1-on-ubuntu-server
 
+- Probably best to say that the user has to make a wkhtmltopdf executable
+  available (see option to specify filename in config file).
+- Supports SVG fine. See ACE-III for SVG + bitmap.
+- After a struggle, headers working properly.
+  No support for CSS Paged Media, which is the Weasyprint/XHTML2PDF way, but
+  working nonetheless.
+        https://github.com/FriendsOfCake/CakePdf/issues/77
+        http://madalgo.au.dk/~jakobt/wkhtmltoxdoc/wkhtmltopdf_0.10.0_rc2-doc.html#Footers%20And%20Headers
+        https://github.com/wkhtmltopdf/wkhtmltopdf/issues/2066
+        https://bugs.webkit.org/show_bug.cgi?id=15548
+
 -------------------------------------------------------------------------------
 Generator expressions v. list comprehensions
 -------------------------------------------------------------------------------

@@ -516,7 +516,7 @@ class LocalStorage(object):
 
         self.WEBSTART = cc_html.WEB_HEAD + self.WEB_LOGO
 
-        if cc_version.PDF_ENGINE == "weasyprint":
+        if cc_version.PDF_ENGINE in ["weasyprint", "pdfkit"]:
             # weasyprint: div with floating img does not work properly
             self.PDF_LOGO_LINE = u"""
                 <div class="pdf_logo_header">
@@ -536,7 +536,35 @@ class LocalStorage(object):
                 self.CAMCOPS_LOGO_FILE_ABSOLUTE,
                 self.LOCAL_LOGO_FILE_ABSOLUTE,
             )
-        elif cc_version.PDF_ENGINE in ["xhtml2pdf", "pdfkit"]:
+        elif cc_version.PDF_ENGINE in ["pdfkit"]:
+            self.PDF_LOGO_LINE = u"""
+                <div class="pdf_logo_header">
+                    <table>
+                        <tr>
+                            <td class="image_td">
+                                <img class="logo_left" src="file://{}" />
+                            </td>
+                            <td class="centregap_td"></td>
+                            <td class="image_td">
+                                <img class="logo_right" src="file://{}" />
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            """.format(
+                self.CAMCOPS_LOGO_FILE_ABSOLUTE,
+                self.LOCAL_LOGO_FILE_ABSOLUTE,
+            )
+            #self.PDF_LOGO_LINE = u"""
+            #    <div class="pdf_logo_header">
+            #        <img class="logo_left" src="file://{}" />
+            #        <img class="logo_right" src="file://{}" />
+            #    </div>
+            #""".format(
+            #    self.CAMCOPS_LOGO_FILE_ABSOLUTE,
+            #    self.LOCAL_LOGO_FILE_ABSOLUTE,
+            #)
+        elif cc_version.PDF_ENGINE in ["xhtml2pdf"]:
             # xhtml2pdf
             # hard to get logos positioned any other way than within a table
             self.PDF_LOGO_LINE = u"""

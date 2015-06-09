@@ -458,8 +458,22 @@ class Tracker(object):
     def get_pdf(self):
         """Get PDF representing tracker."""
         cc_plot.set_matplotlib_fontsize(pls.PLOT_FONTSIZE)
-        pls.switch_output_to_png()
-        return rnc_pdf.pdf_from_html(self.get_pdf_html())
+        if cc_html.CSS_PAGED_MEDIA:
+            pls.switch_output_to_png()
+            return rnc_pdf.pdf_from_html(self.get_pdf_html())
+        else:
+            pls.switch_output_to_svg()  # wkhtmltopdf can cope
+            html = self.get_pdf_html()
+            header = self.get_pdf_header_content()
+            footer = self.get_pdf_footer_content()
+            options = cc_html.WKHTMLTOPDF_OPTIONS
+            options.update({
+                "orientation": "Portrait",
+            })
+            return rnc_pdf.pdf_from_html(html,
+                                         header_html=header,
+                                         footer_html=footer,
+                                         wkhtmltopdf_options=options)
 
     def get_pdf_html(self):
         """Get HTML used to generate PDF representing tracker."""
@@ -544,25 +558,35 @@ class Tracker(object):
         """HTML with CSS and header."""
         return pls.WEBSTART + self.get_tracker_header_html()
 
-    def get_pdf_start(self):
-        """HTML for PDF, with CSS and header."""
+    def get_pdf_header_content(self):
         if self._patient is not None:
             ptinfo = self._patient.get_html_for_page_header()
         else:
             ptinfo = ""
-        return cc_html.PDF_HEAD_PORTRAIT + u"""
-            <div id="headerContent">
-                {}
-            </div>
-            <div id="footerContent">
-                Page <pdf:pagenumber> of <pdf:pagecount>. Tracker accessed {}.
-            </div>
-            {}
-        """.format(
-            ptinfo,
-            cc_dt.format_datetime(pls.NOW_LOCAL_TZ, DATEFORMAT.LONG_DATETIME),
-            pls.PDF_LOGO_LINE,
-        ) + self.get_tracker_header_html()
+        return cc_html.pdf_header_content(ptinfo)
+
+    def get_pdf_footer_content(self):
+        accessed = cc_dt.format_datetime(pls.NOW_LOCAL_TZ,
+                                         DATEFORMAT.LONG_DATETIME)
+        content = u"Tracker accessed {}.".format(accessed)
+        return cc_html.pdf_footer_content(content)
+
+    def get_pdf_start(self):
+        """Opening HTML for PDF, including CSS."""
+        if cc_html.CSS_PAGED_MEDIA:
+            head = cc_html.PDF_HEAD_PORTRAIT
+            pdf_header_footer = (
+                self.get_pdf_header_content() + self.get_pdf_footer_content()
+            )
+        else:
+            head = cc_html.PDF_HEAD_NO_PAGED_MEDIA
+            pdf_header_footer = ""
+        return (
+            head
+            + pdf_header_footer
+            + pls.PDF_LOGO_LINE
+            + self.get_tracker_header_html()
+        )
 
     def get_office_html(self):
         """Tedious HTML listing sources."""

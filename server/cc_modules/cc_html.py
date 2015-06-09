@@ -21,6 +21,9 @@
     limitations under the License.
 """
 
+import string
+
+from rnc_lang import merge_dicts
 import rnc_plot
 import rnc_web as ws
 
@@ -55,8 +58,72 @@ RESTRICTED_WARNING_SINGULAR = u"""
 # =============================================================================
 
 CAMCOPS_FAVICON_FILE = "favicon_camcops.png"
-
 PDF_LOGO_HEIGHT = "20mm"
+
+CSS_PAGED_MEDIA = (cc_version.PDF_ENGINE != "pdfkit")
+
+COMMON_DEFINITIONS = {
+    # Rules: line height is 1.2 * font size
+    "SMALLFONTSIZE": "0.85em",
+    "TINYFONTSIZE": "0.7em",
+    "LARGEFONTSIZE": "1.2em",
+    "GIANTFONTSIZE": "1.4em",
+    "BANNERFONTSIZE": "1.6em",
+
+    "MAINLINEHEIGHT": "1.2em",
+    "SMALLLINEHEIGHT": "1.02em",
+    "TINYLINEHEIGHT": "0.84em",
+    "LARGELINEHEIGHT": "1.44em",
+    "GIANTLINEHEIGHT": "1.68em",
+    "BANNERLINEHIGHT": "1.2em",
+    "TABLELINEHEIGHT": "1.1em",
+
+    "VSPACE_NORMAL": "0.5em",
+    "VSPACE_LARGE": "0.8em",
+
+    "SIGNATUREHEIGHT": "3em",
+
+    # Specific to PDFs:
+    "PDF_LOGO_HEIGHT": PDF_LOGO_HEIGHT,
+}
+
+WEB_SIZES = {
+    "MAINFONTSIZE": "medium",
+    "SMALLGAP": "2px",
+    "ELEMENTGAP": "5px",
+    "NORMALPAD": "2px",
+    "TABLEPAD": "2px",
+    "INDENT_NORMAL": "20px",
+    "INDENT_LARGE": "75px",
+    "THINLINE": "1px",
+    "ZERO": "0px",
+    "PDFEXTRA": "",
+    "MAINMARGIN": "10px",
+    "BODYPADDING": "5px",
+    "BANNER_PADDING": "25px",
+}
+
+# Hard page margins for A4:
+# - left/right: most printers can cope; hole punches to e.g. 13 mm; so 20mm
+#   reasonable.
+# - top: HP Laserjet 1100 e.g. clips at about 17.5mm
+# - bottom: HP Laserjet 1100 e.g. clips at about 15mm
+# ... so 20mm all round about right
+
+PDF_SIZES = {
+    "MAINFONTSIZE": "10pt",
+    "SMALLGAP": "0.2mm",
+    "ELEMENTGAP": "1mm",
+    "NORMALPAD": "0.5mm",
+    "TABLEPAD": "0.5mm",
+    "INDENT_NORMAL": "5mm",
+    "INDENT_LARGE": "10mm",
+    "THINLINE": "0.1mm",
+    "ZERO": "0mm",
+    "MAINMARGIN": "2cm",
+    "BODYPADDING": "0mm",
+    "BANNER_PADDING": "0.5cm",
+}
 
 # Sequences of 4: top, right, bottom, left
 # margin is outside, padding is inside
@@ -66,92 +133,32 @@ PDF_LOGO_HEIGHT = "20mm"
 # http://stackoverflow.com/questions/4013604
 # http://stackoverflow.com/questions/6023419
 
-if cc_version.PDF_ENGINE == "weasyprint":
-    # NOT WORKING PROPERLY YET: WEASYPRINT DOESN'T YET SUPPORT RUNNING ELEMENTS
-    # http://librelist.com/browser//weasyprint/2013/7/4/header-and-footer-for-each-page/#abe45ec357d593df44ffca48253817ef  # noqa
-    # http://weasyprint.org/docs/changelog/
-    PDF_BLOCK = """
-@page {
-    size: A4 ORIENTATION;
-    margin: MAINMARGIN;
-    @frame header {
-        /* -pdf-frame-border: 1; */ /* for debugging */
-        -pdf-frame-content: headerContent;
-        top: 1cm;
-        margin-left: MAINMARGIN;
-        margin-right: MAINMARGIN;
-    }
-    @frame footer {
-        /* -pdf-frame-border: 1; */ /* for debugging */
-        -pdf-frame-content: footerContent;
-        bottom: 0.5cm; /* distance up from page's bottom margin? */
-        height: 1cm; /* height of the footer */
-        margin-left: MAINMARGIN;
-        margin-right: MAINMARGIN;
-    }
-"""
-elif cc_version.PDF_ENGINE in ["xhtml2pdf", "pdfkit"]:
-    PDF_BLOCK = """
-#headerContent { font-size: SMALLFONTSIZE; line-height: SMALLLINEHEIGHT; }
-#footerContent { font-size: SMALLFONTSIZE; line-height: SMALLLINEHEIGHT; }
-@page {
-    size: A4 ORIENTATION;
-    margin-left: MAINMARGIN;
-    margin-right: MAINMARGIN;
-    margin-top: MAINMARGIN;
-    margin-bottom: MAINMARGIN;
-    @frame header {
-        /* -pdf-frame-border: 1; */ /* for debugging */
-        -pdf-frame-content: headerContent;
-        top: 1cm;
-        margin-left: MAINMARGIN;
-        margin-right: MAINMARGIN;
-    }
-    @frame footer {
-        /* -pdf-frame-border: 1; */ /* for debugging */
-        -pdf-frame-content: footerContent;
-        bottom: 0.5cm; /* distance up from page's bottom margin? */
-        height: 1cm; /* height of the footer */
-        margin-left: MAINMARGIN;
-        margin-right: MAINMARGIN;
-    }
-}
-"""
-else:
-    raise AssertionError("Invalid PDF engine")
-
-COMMON_HEAD = (u"""
-<!DOCTYPE html> <!-- HTML 5 -->
-<html>
-    <head>
-        <title>CamCOPS</title>
-        <meta charset="utf-8">
-        <link rel="icon" type="image/png" href=\""""
-               + CAMCOPS_FAVICON_FILE + u"""\">
-        <script>
-            /* set "html.svg" if our browser supports SVG */
-            if (document.implementation.hasFeature(
-                    "http://www.w3.org/TR/SVG11/feature#Image", "1.1")) {
-                document.documentElement.className = "svg";
-            }
-        </script>
-        <style type="text/css">
+# Avoid both {} and % substitution by using string.Template and $
+CSS_BASE = string.Template(u"""
 
 /* Display PNG fallback image... */
-svg img.svg { display: none; }
-img.pngfallback { display: inline; }
+svg img.svg {
+    display: none;
+}
+img.pngfallback {
+    display: inline;
+}
 /* ... unless our browser supports SVG */
-html.svg svg img.svg { display: inline; }
-html.svg img.pngfallback { display: none; }
+html.svg svg img.svg {
+    display: inline;
+}
+html.svg img.pngfallback {
+    display: none;
+}
 
 /* Overall defaults */
 
 body {
     font-family: Arial, Helvetica, sans-serif;
-    font-size: MAINFONTSIZE;
-    line-height: MAINLINEHEIGHT;
-    margin: ELEMENTGAP ZERO ELEMENTGAP ZERO;
-    padding: BODYPADDING;
+    font-size: $MAINFONTSIZE;
+    line-height: $MAINLINEHEIGHT;
+    margin: $ELEMENTGAP $ZERO $ELEMENTGAP $ZERO;
+    padding: $BODYPADDING;
 }
 code {
     font-size: 0.8em;
@@ -160,213 +167,345 @@ code {
     background-color: #eeeeee;
     padding: 1px 5px 1px 5px;
 }
-div { margin: ELEMENTGAP ZERO ELEMENTGAP ZERO; padding: NORMALPAD; }
-em { color: rgb(0, 0, 255); font-style: normal; }
+div {
+    margin: $ELEMENTGAP $ZERO $ELEMENTGAP $ZERO;
+    padding: $NORMALPAD;
+}
+em {
+    color: rgb(0, 0, 255);
+    font-style: normal;
+}
 h1 {
-    font-size: GIANTFONTSIZE;
-    line-height: GIANTLINEHEIGHT;
+    font-size: $GIANTFONTSIZE;
+    line-height: $GIANTLINEHEIGHT;
     font-weight: bold;
-    margin: ZERO;
+    margin: $ZERO;
 }
 h2 {
-    font-size: LARGEFONTSIZE;
-    line-height: LARGELINEHEIGHT;
+    font-size: $LARGEFONTSIZE;
+    line-height: $LARGELINEHEIGHT;
     font-weight: bold;
-    margin: ZERO;
+    margin: $ZERO;
 }
 h3 {
-    font-size: LARGEFONTSIZE;
-    line-height: LARGELINEHEIGHT;
+    font-size: $LARGEFONTSIZE;
+    line-height: $LARGELINEHEIGHT;
     font-weight: bold;
     font-style: italic;
-    margin: ZERO;
+    margin: $ZERO;
 }
 img {
     max-width: 100%;
     max-height: 100%;
 }
-p { margin: ELEMENTGAP ZERO ELEMENTGAP ZERO; }
+p {
+    margin: $ELEMENTGAP $ZERO $ELEMENTGAP $ZERO;
+}
 sup, sub {
     font-size: 0.7em; /* 1 em is the size of the parent font */
     vertical-align: baseline;
     position: relative;
     top: -0.5em;
 }
-sub { top: 0.5em; }
+sub {
+    top: 0.5em;
+}
 table {
     width: 100%; /* particularly for PDFs */
     vertical-align: top;
     border-collapse: collapse;
-    border: THINLINE solid black;
-    padding: ZERO;
-    margin: ELEMENTGAP ZERO ELEMENTGAP ZERO;
+    border: $THINLINE solid black;
+    padding: $ZERO;
+    margin: $ELEMENTGAP $ZERO $ELEMENTGAP $ZERO;
 }
 tr, th, td {
     vertical-align: top;
     text-align: left;
-    margin: ZERO;
-    padding: TABLEPAD;
-    border: THINLINE solid black;
-    line-height: TABLELINEHEIGHT;
+    margin: $ZERO;
+    padding: $TABLEPAD;
+    border: $THINLINE solid black;
+    line-height: $TABLELINEHEIGHT;
 }
 
 /* Specific classes */
 
-.badidpolicy_mild { background-color: rgb(255, 255, 153); }
-.badidpolicy_severe { background-color: rgb(255, 255, 0); }
+.badidpolicy_mild {
+    background-color: rgb(255, 255, 153);
+}
+.badidpolicy_severe {
+    background-color: rgb(255, 255, 0);
+}
 .banner {
     text-align: center;
-    font-size: BANNERFONTSIZE;
-    line-height: BANNERLINEHIGHT;
-    padding: BANNER_PADDING;
-    margin: ZERO;
+    font-size: $BANNERFONTSIZE;
+    line-height: $BANNERLINEHIGHT;
+    padding: $BANNER_PADDING;
+    margin: $ZERO;
 }
-.banner_referral_general_adult { background-color: rgb(255, 165, 0); }
-.banner_referral_old_age { background-color: rgb(0, 255, 127); }
-.banner_referral_substance_misuse { background-color: rgb(0, 191, 255); }
-.clinician { background-color: rgb(200, 255, 255); }
+.banner_referral_general_adult {
+    background-color: rgb(255, 165, 0);
+}
+.banner_referral_old_age {
+    background-color: rgb(0, 255, 127);
+}
+.banner_referral_substance_misuse {
+    background-color: rgb(0, 191, 255);
+}
+.clinician {
+    background-color: rgb(200, 255, 255);
+}
 table.clinician, table.clinician th, table.clinician td {
-    border: THINLINE solid black;
+    border: $THINLINE solid black;
 }
 .copyright {
     font-style: italic;
-    font-size: TINYFONTSIZE;
-    line-height: TINYLINEHEIGHT;
+    font-size: $TINYFONTSIZE;
+    line-height: $TINYLINEHEIGHT;
     background-color: rgb(227, 227, 227);
 }
 .ctv_datelimit_start {
     /* line below */
     text-align: right;
     border-style: none none solid none;
-    border-width: THINLINE;
+    border-width: $THINLINE;
     border-color: black;
 }
 .ctv_datelimit_end {
     /* line above */
     text-align: right;
     border-style: solid none none none;
-    border-width: THINLINE;
+    border-width: $THINLINE;
     border-color: black;
 }
-.ctv_taskheading { background-color: rgb(200, 200, 255); font-weight: bold; }
+.ctv_taskheading {
+    background-color: rgb(200, 200, 255);
+    font-weight: bold;
+}
 .ctv_fieldheading {
     background-color: rgb(200, 200, 200);
     font-weight: bold;
     font-style: italic;
-    margin: ELEMENTGAP ZERO SMALLGAP INDENT_NORMAL;
+    margin: $ELEMENTGAP $ZERO $SMALLGAP $INDENT_NORMAL;
 }
 .ctv_fieldsubheading {
     background-color: rgb(200, 200, 200);
     font-style: italic;
-    margin: ELEMENTGAP ZERO SMALLGAP INDENT_NORMAL;
+    margin: $ELEMENTGAP $ZERO $SMALLGAP $INDENT_NORMAL;
 }
 .ctv_fielddescription {
     font-style: italic;
-    margin: ELEMENTGAP ZERO SMALLGAP INDENT_NORMAL;
+    margin: $ELEMENTGAP $ZERO $SMALLGAP $INDENT_NORMAL;
 }
 .ctv_fieldcontent {
     font-weight: bold;
-    margin: SMALLGAP ZERO ELEMENTGAP INDENT_NORMAL;
+    margin: $SMALLGAP $ZERO $ELEMENTGAP $INDENT_NORMAL;
 }
 .ctv_warnings {
-    margin: ELEMENTGAP ZERO SMALLGAP INDENT_NORMAL;
+    margin: $ELEMENTGAP $ZERO $SMALLGAP $INDENT_NORMAL;
 }
-.error { color: rgb(255, 0, 0); }
-.explanation { background-color: rgb(200, 255, 200); }
+.error {
+    color: rgb(255, 0, 0);
+}
+.explanation {
+    background-color: rgb(200, 255, 200);
+}
 table.extradetail {
-    border: THINLINE solid black;
+    border: $THINLINE solid black;
     background-color: rgb(210, 210, 210);
 }
 table.extradetail th {
-    border: THINLINE solid black;
+    border: $THINLINE solid black;
     font-style: italic;
     font-weight: bold;
-    font-size: TINYFONTSIZE;
+    font-size: $TINYFONTSIZE;
 }
-table.extradetail td { border: THINLINE solid black; font-size: TINYFONTSIZE; }
-tr.extradetail2 { background-color: rgb(240, 240, 240); }
-td.figure { padding: ZERO; background-color: rgb(255, 255, 255); }
-div.filter { margin-left: INDENT_LARGE; padding: ZERO; } /* for task filters */
-form.filter { display: inline; margin: ZERO; } /* for task filters */
+table.extradetail td {
+    border: $THINLINE solid black;
+    font-size: $TINYFONTSIZE;
+}
+tr.extradetail2 {
+    background-color: rgb(240, 240, 240);
+}
+td.figure {
+    padding: $ZERO;
+    background-color: rgb(255, 255, 255);
+}
+div.filter {
+    /* for task filters */
+    margin-left: $INDENT_LARGE;
+    padding: $ZERO;
+}
+form.filter {
+    /* for task filters */
+    display: inline;
+    margin: $ZERO;
+}
 .footnotes {
     font-style: italic;
-    font-size: SMALLFONTSIZE;
-    line-height: SMALLLINEHEIGHT;
+    font-size: $SMALLFONTSIZE;
+    line-height: $SMALLLINEHEIGHT;
 }
-.formtitle { font-size: LARGEFONTSIZE; color: rgb(34, 139, 34); }
+.formtitle {
+    font-size: $LARGEFONTSIZE;
+    color: rgb(34, 139, 34);
+}
 table.general, table.general th, table.general td {
-    border: THINLINE solid black;
+    border: $THINLINE solid black;
 }
-table.general th.col1, table.general td.col1 { width: 22%; }
-table.general th.col2, table.general td.col2 { width: 78%; }
-.green { color: rgb(34, 139, 34); }
-p.hangingindent { padding-left: INDENT_NORMAL; text-indent: -INDENT_NORMAL; }
+table.general th.col1, table.general td.col1 {
+    width: 22%;
+}
+table.general th.col2, table.general td.col2 {
+    width: 78%;
+}
+.green {
+    color: rgb(34, 139, 34);
+}
+p.hangingindent {
+    padding-left: $INDENT_NORMAL;
+    text-indent: -$INDENT_NORMAL;
+}
 .heading {
     background-color: rgb(0, 0, 0);
     color: rgb(255, 255, 255);
     font-style: italic;
 }
-.highlight { background-color: rgb(255, 250, 205); }
-.important { color: rgb(64, 0, 192); font-weight: bold; }
-.specialnote { background-color: rgb(255, 255, 153); }
-.live_on_tablet { background-color: rgb(216, 208, 245); }
-.incomplete { background-color: rgb(255, 165, 0); }
-.superuser { background-color: rgb(255, 192, 203); }
-p.indent { margin-left: INDENT_NORMAL; }
-div.indented { margin-left: INDENT_LARGE; }
-.navigation { background-color: rgb(200, 255, 200); }
+.highlight {
+    background-color: rgb(255, 250, 205);
+}
+.important {
+    color: rgb(64, 0, 192);
+    font-weight: bold;
+}
+.specialnote {
+    background-color: rgb(255, 255, 153);
+}
+.live_on_tablet {
+    background-color: rgb(216, 208, 245);
+}
+.incomplete {
+    background-color: rgb(255, 165, 0);
+}
+.superuser {
+    background-color: rgb(255, 192, 203);
+}
+p.indent {
+    margin-left: $INDENT_NORMAL;
+}
+div.indented {
+    margin-left: $INDENT_LARGE;
+}
+.navigation {
+    background-color: rgb(200, 255, 200);
+}
 .noborder {
     border: none;
     /* NB also: hidden overrides none with border-collapse */
 }
-.noborderphoto { padding: ZERO; border: none; }
+.noborderphoto {
+    padding: $ZERO;
+    border: none;
+}
 .office {
     background-color: rgb(227, 227, 227);
     font-style: italic;
-    font-size: TINYFONTSIZE;
-    line-height: TINYLINEHEIGHT;
+    font-size: $TINYFONTSIZE;
+    line-height: $TINYLINEHEIGHT;
 }
-.patient { background-color: rgb(255, 200, 200); }
-.pdf_logo_header { width: 100%; border: none; }
-.pdf_logo_header table, .pdf_logo_header tr { width: 100%; border: none; }
-.pdf_logo_header .image_td { width: 45%; border: none; }
-.pdf_logo_header .centregap_td { width: 10%; border: none; }
-.pdf_logo_header .logo_left { float: left; height: PDF_LOGO_HEIGHT; }
-.pdf_logo_header .logo_right { float: right; height: PDF_LOGO_HEIGHT; }
-.photo { padding: ZERO; }
-.signature_label { border: none; text-align: center; }
-.signature tr, .signature th, .signature td {
-    min-height: SIGNATUREHEIGHT;
-    border: THINLINE solid black;
+.patient {
+    background-color: rgb(255, 200, 200);
 }
-.smallprint { font-style: italic; font-size: SMALLFONTSIZE; }
-.subheading { background-color: rgb(200, 200, 200); font-style: italic; }
-.subsubheading { font-style: italic; }
-.summary { background-color: rgb(200, 200, 255); }
-table.summary, .summary th, .summary td { border: THINLINE solid black; }
+.pdf_logo_header {
+    width: 100%;
+    border: none;
+}
+.pdf_logo_header table, .pdf_logo_header tr {
+    width: 100%;
+    border: none;
+}
+.pdf_logo_header .image_td {
+    width: 45%;
+    border: none;
+}
+.pdf_logo_header .centregap_td {
+    width: 10%;
+    border: none;
+}
+.pdf_logo_header .logo_left {
+    float: left;
+    max-width: 100%;
+    max-height: $PDF_LOGO_HEIGHT;
+    height: auto;
+    width: auto;
+}
+.pdf_logo_header .logo_right {
+    float: right;
+    max-width: 100%;
+    max-height: $PDF_LOGO_HEIGHT;
+    height: auto;
+    width: auto;
+}
+.photo {
+    padding: $ZERO;
+}
+.signature_label {
+    border: none;
+    text-align: center;
+}
+.signature {
+    line-height: $SIGNATUREHEIGHT;
+    border: $THINLINE solid black;
+}
+.smallprint {
+    font-style: italic;
+    font-size: $SMALLFONTSIZE;
+}
+.subheading {
+    background-color: rgb(200, 200, 200);
+    font-style: italic;
+}
+.subsubheading {
+    font-style: italic;
+}
+.summary {
+    background-color: rgb(200, 200, 255);
+}
+table.summary, .summary th, .summary td {
+    border: $THINLINE solid black;
+}
 table.taskconfig, .taskconfig th, .taskconfig td {
-    border: THINLINE solid black;
+    border: $THINLINE solid black;
     background-color: rgb(230, 230, 230);
 }
-table.taskconfig th { font-style: italic; font-weight: normal; }
-table.taskdetail, .taskdetail th, .taskdetail td {
-    border: THINLINE solid black;
+table.taskconfig th {
+    font-style: italic; font-weight: normal;
 }
-table.taskdetail th { font-weight: normal; font-style: italic; }
-table.taskdetail td { font-weight: normal; }
-.taskheader { background-color: rgb(200, 200, 200); }
+table.taskdetail, .taskdetail th, .taskdetail td {
+    border: $THINLINE solid black;
+}
+table.taskdetail th {
+    font-weight: normal; font-style: italic;
+}
+table.taskdetail td {
+    font-weight: normal;
+}
+.taskheader {
+    background-color: rgb(200, 200, 200);
+}
 .trackerheader {
-    font-size: TINYFONTSIZE;
-    line-height: TINYLINEHEIGHT;
+    font-size: $TINYFONTSIZE;
+    line-height: $TINYLINEHEIGHT;
     background-color: rgb(218, 112, 240);
 }
 .tracker_all_consistent {
     font-style: italic;
-    font-size: TINYFONTSIZE;
-    line-height: TINYLINEHEIGHT;
+    font-size: $TINYFONTSIZE;
+    line-height: $TINYLINEHEIGHT;
     background-color: rgb(227, 227, 227);
 }
-.warning { background-color: rgb(255, 100, 100); }
+.warning {
+    background-color: rgb(255, 100, 100);
+}
 
 /* The next three: need both L/R to float and clear:both for IE */
 .web_logo_header {
@@ -381,13 +520,13 @@ table.taskdetail td { font-weight: normal; }
     width: 45%;
     float: left;
     text-decoration: none;
-    border: ZERO;
+    border: $ZERO;
 }
 .web_logo_header .logo_right {
     width: 45%;
     float: right;
     text-decoration: none;
-    border: ZERO;
+    border: $ZERO;
 }
 
 /* For tables that will make it to a PDF, fix Weasyprint column widths.
@@ -399,12 +538,73 @@ table.clinician, table.extradetail, table.general,
     table-layout: fixed;
 }
 
+""")
+
+# Image sizing:
+# http://stackoverflow.com/questions/787839/resize-image-proportionally-with-css  # noqa
+
+PDF_PAGED_MEDIA_CSS = string.Template("""
+
 /* PDF extras */
-""" + PDF_BLOCK + """
+#headerContent {
+    font-size: $SMALLFONTSIZE;
+    line-height: $SMALLLINEHEIGHT;
+}
+#footerContent {
+    font-size: $SMALLFONTSIZE;
+    line-height: $SMALLLINEHEIGHT;
+}
+
+/* PDF paging via CSS Paged Media */
+@page {
+    size: A4 $ORIENTATION;
+    margin-left: $MAINMARGIN;
+    margin-right: $MAINMARGIN;
+    margin-top: $MAINMARGIN;
+    margin-bottom: $MAINMARGIN;
+    @frame header {
+        /* -pdf-frame-border: 1; */ /* for debugging */
+        -pdf-frame-content: headerContent;
+        top: 1cm;
+        margin-left: $MAINMARGIN;
+        margin-right: $MAINMARGIN;
+    }
+    @frame footer {
+        /* -pdf-frame-border: 1; */ /* for debugging */
+        -pdf-frame-content: footerContent;
+        bottom: 0.5cm; /* distance up from page's bottom margin? */
+        height: 1cm; /* height of the footer */
+        margin-left: $MAINMARGIN;
+        margin-right: $MAINMARGIN;
+    }
+}
+""")
+# WEASYPRINT: NOT WORKING PROPERLY YET: WEASYPRINT DOESN'T YET SUPPORT RUNNING
+# ELEMENTS
+# http://librelist.com/browser//weasyprint/2013/7/4/header-and-footer-for-each-page/#abe45ec357d593df44ffca48253817ef  # noqa
+# http://weasyprint.org/docs/changelog/
+
+COMMON_HEAD = string.Template(u"""
+<!DOCTYPE html> <!-- HTML 5 -->
+<html>
+    <head>
+        <title>CamCOPS</title>
+        <meta charset="utf-8">
+        <link rel="icon" type="image/png" href="$CAMCOPS_FAVICON_FILE">
+        <script>
+            /* set "html.svg" if our browser supports SVG */
+            if (document.implementation.hasFeature(
+                    "http://www.w3.org/TR/SVG11/feature#Image", "1.1")) {
+                document.documentElement.className = "svg";
+            }
+        </script>
+        <style type="text/css">
+            $CSS
         </style>
     </head>
     <body>
 """)
+
 # Re PDFs:
 # - The way in which xhtml2pdf copes with column widths
 #   is somewhat restricted: CSS only
@@ -413,59 +613,166 @@ table.clinician, table.extradetail, table.general,
 # http://www.somacon.com/p141.php
 # http://www.w3.org/Style/Tables/examples.html
 
+
+WEB_HEAD = COMMON_HEAD.substitute(
+    CAMCOPS_FAVICON_FILE=CAMCOPS_FAVICON_FILE,
+    CSS=CSS_BASE.substitute(merge_dicts(COMMON_DEFINITIONS, WEB_SIZES)),
+)
+PDF_HEAD_PORTRAIT = COMMON_HEAD.substitute(
+    CAMCOPS_FAVICON_FILE=CAMCOPS_FAVICON_FILE,
+    CSS=(
+        CSS_BASE.substitute(merge_dicts(COMMON_DEFINITIONS, PDF_SIZES)) +
+        PDF_PAGED_MEDIA_CSS.substitute(
+            merge_dicts(COMMON_DEFINITIONS, PDF_SIZES,
+                        {"ORIENTATION": "portrait"}))
+    ),
+)
+PDF_HEAD_LANDSCAPE = COMMON_HEAD.substitute(
+    CAMCOPS_FAVICON_FILE=CAMCOPS_FAVICON_FILE,
+    CSS=(
+        CSS_BASE.substitute(merge_dicts(COMMON_DEFINITIONS, PDF_SIZES)) +
+        PDF_PAGED_MEDIA_CSS.substitute(
+            merge_dicts(COMMON_DEFINITIONS, PDF_SIZES,
+                        {"ORIENTATION": "landscape"}))
+    ),
+)
+PDF_HEAD_NO_PAGED_MEDIA = COMMON_HEAD.substitute(
+    CAMCOPS_FAVICON_FILE=CAMCOPS_FAVICON_FILE,
+    CSS=CSS_BASE.substitute(merge_dicts(COMMON_DEFINITIONS, PDF_SIZES))
+)
+
 COMMON_END = "</body></html>"
-
-# Rules: line height is 1.2 * font size
-COMMON_HEAD = COMMON_HEAD.replace(
-    "SMALLFONTSIZE", "0.85em").replace(
-    "TINYFONTSIZE", "0.7em").replace(
-    "LARGEFONTSIZE", "1.2em").replace(
-    "GIANTFONTSIZE", "1.4em").replace(
-    "BANNERFONTSIZE", "1.6em").replace(
-    "MAINLINEHEIGHT", "1.2em").replace(
-    "SMALLLINEHEIGHT", "1.02em").replace(
-    "TINYLINEHEIGHT", "0.84em").replace(
-    "LARGELINEHEIGHT", "1.44em").replace(
-    "GIANTLINEHEIGHT", "1.68em").replace(
-    "BANNERLINEHIGHT", "1.2em").replace(
-    "SIGNATUREHEIGHT", "5em").replace(
-    "TABLELINEHEIGHT", "1.1em").replace(
-    "VSPACE_NORMAL", "0.5em").replace(
-    "VSPACE_LARGE", "0.8em").replace(
-    "PDF_LOGO_HEIGHT", PDF_LOGO_HEIGHT)
-
-WEB_HEAD = COMMON_HEAD.replace(
-    "MAINFONTSIZE", "medium").replace(  # set base font here
-    "SMALLGAP", "2px").replace(
-    "ELEMENTGAP", "5px").replace(
-    "NORMALPAD", "2px").replace(
-    "TABLEPAD", "2px").replace(
-    "INDENT_NORMAL", "20px").replace(
-    "INDENT_LARGE", "75px").replace(
-    "THINLINE", "1px").replace(
-    "ZERO", "0px").replace(
-    "PDFEXTRA", "").replace(
-    "MAINMARGIN", "10px").replace(
-    "BODYPADDING", "5px").replace(
-    "BANNER_PADDING", "25px")
 WEBEND = COMMON_END
-
-PDF_COMMON_HEAD = COMMON_HEAD.replace(
-    "MAINFONTSIZE", "10pt").replace(  # set base font here
-    "SMALLGAP", "0.2mm").replace(
-    "ELEMENTGAP", "1mm").replace(
-    "NORMALPAD", "0.5mm").replace(
-    "TABLEPAD", "0.5mm").replace(
-    "INDENT_NORMAL", "5mm").replace(
-    "INDENT_LARGE", "10mm").replace(
-    "THINLINE", "0.1mm").replace(
-    "ZERO", "0mm").replace(
-    "MAINMARGIN", "2cm").replace(
-    "BODYPADDING", "0mm").replace(
-    "BANNER_PADDING", "0.5cm")
-PDF_HEAD_PORTRAIT = PDF_COMMON_HEAD.replace("ORIENTATION", "portrait")
-PDF_HEAD_LANDSCAPE = PDF_COMMON_HEAD.replace("ORIENTATION", "landscape")
 PDFEND = COMMON_END
+
+WKHTMLTOPDF_CSS = string.Template("""
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: $MAINFONTSIZE;  /* absolute */
+        line-height: $SMALLLINEHEIGHT;
+        padding: 0;
+        margin: 0;  /* use header-spacing / footer-spacing instead */
+    }
+    div {
+        font-size: $SMALLFONTSIZE;  /* relative */
+    }
+""").substitute(merge_dicts(COMMON_DEFINITIONS, PDF_SIZES))
+# http://stackoverflow.com/questions/11447672/fix-wkhtmltopdf-headers-clipping-content  # noqa
+
+WKHTMLTOPDF_OPTIONS = {
+    "page-size": "A4",
+    "margin-left": "20mm",
+    "margin-right": "20mm",
+    "margin-top": "21mm",  # from paper edge down to top of content
+        # ... then 5mm more, i.e. specify 20mm and get 25mm?
+    "margin-bottom": "24mm",  # from paper edge to bottom of content
+        # ... then 3mm more, i.e. specify 20mm and get 23mm?
+    "header-spacing": "3",  # mm, from content up to bottom of header
+    "footer-spacing": "3",  # mm, from content down to top of footer
+}
+
+
+# =============================================================================
+# Header/footer blocks for PDFs
+# =============================================================================
+
+def wkhtmltopdf_header(inner_html):
+    # doctype is mandatory
+    # https://github.com/wkhtmltopdf/wkhtmltopdf/issues/1645
+    return string.Template(u"""
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta charset="utf-8">
+                <style type="text/css">
+                    $WKHTMLTOPDF_CSS
+                </style>
+            </head>
+            <body onload="subst()">
+                <div>
+                    $INNER
+                </div>
+            </body>
+        </html>
+    """).substitute(WKHTMLTOPDF_CSS=WKHTMLTOPDF_CSS, INNER=inner_html)
+
+
+def wkhtmltopdf_footer(inner_text):
+    return string.Template(u"""
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta charset="utf-8">
+                <style type="text/css">
+                    $WKHTMLTOPDF_CSS
+                </style>
+                <script>
+        function subst() {
+            var vars = {},
+                x = document.location.search.substring(1).split('&'),
+                i,
+                z,
+                y,
+                j;
+            for (i in x) {
+                if (x.hasOwnProperty(i)) {
+                    z = x[i].split('=', 2);
+                    vars[z[0]] = unescape(z[1]);
+                }
+            }
+            x = ['frompage', 'topage', 'page', 'webpage', 'section',
+                 'subsection','subsubsection'];
+            for (i in x) {
+                if (x.hasOwnProperty(i)) {
+                    y = document.getElementsByClassName(x[i]);
+                    for (j = 0; j < y.length; ++j) {
+                        y[j].textContent = vars[x[i]];
+                    }
+                }
+            }
+        }
+                </script>
+            </head>
+            <body onload="subst()">
+                <div>
+                    Page <span class="page"></span> of
+                    <span class="topage"></span>.
+                    $INNER
+                </div>
+            </body>
+        </html>
+    """).substitute(WKHTMLTOPDF_CSS=WKHTMLTOPDF_CSS, INNER=inner_text)
+
+
+def csspagedmedia_header(inner_html):
+    return u"""
+        <div id="headerContent">
+            {}
+        </div>
+    """.format(inner_html)
+
+
+def csspagedmedia_footer(inner_text):
+    return u"""
+        <div id="footerContent">
+            Page <pdf:pagenumber> of <pdf:pagecount>.
+            {}
+        </div>
+    """.format(inner_text)
+
+
+def pdf_header_content(inner_html):
+    if CSS_PAGED_MEDIA:
+        return csspagedmedia_header(inner_html)
+    else:
+        return wkhtmltopdf_header(inner_html)
+
+
+def pdf_footer_content(inner_text):
+    if CSS_PAGED_MEDIA:
+        return csspagedmedia_footer(inner_text)
+    else:
+        return wkhtmltopdf_footer(inner_text)
 
 
 # =============================================================================

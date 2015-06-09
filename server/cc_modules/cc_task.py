@@ -128,13 +128,16 @@ SIGNATURE_BLOCK = u"""
                 </td>
             </tr>
             <tr class="signature">
-                <td><br></td>
-                <td><br></td>
-                <td><br></td>
+                <td class="signature">&nbsp;</td>
+                <td class="signature">&nbsp;</td>
+                <td class="signature">&nbsp;</td>
             </tr>
         </table>
     </div>
 """
+# ... can't get "height" to work in table; only seems to like line-height; for
+# which, you need some text, hence the &nbsp;
+# http://stackoverflow.com/questions/6398172/setting-table-row-height-in-css
 TASK_LIST_HEADER = u"""
     <table>
         <tr>
@@ -2254,10 +2257,27 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     def get_pdf(self):
         """Returns PDF representing task."""
         cc_plot.set_matplotlib_fontsize(pls.PLOT_FONTSIZE)
-        pls.switch_output_to_png()
-        # ... even weasyprint's SVG handling is inadequate
-        html = self.get_pdf_html()
-        return rnc_pdf.pdf_from_html(html)
+        if cc_html.CSS_PAGED_MEDIA:
+            pls.switch_output_to_png()
+            # ... even weasyprint's SVG handling is inadequate
+            html = self.get_pdf_html()
+            return rnc_pdf.pdf_from_html(html)
+        else:
+            pls.switch_output_to_svg()  # wkhtmltopdf can cope
+            html = self.get_pdf_html()
+            header = self.get_pdf_header_content()
+            footer = self.get_pdf_footer_content()
+            orientation = (
+                "Landscape" if self.use_landscape_for_pdf() else "Portrait"
+            )
+            options = cc_html.WKHTMLTOPDF_OPTIONS
+            options.update({
+                "orientation": orientation,
+            })
+            return rnc_pdf.pdf_from_html(html,
+                                         header_html=header,
+                                         footer_html=footer,
+                                         wkhtmltopdf_options=options)
 
     def suggested_pdf_filename(self):
         """Suggested filename for PDF."""
@@ -2422,35 +2442,38 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             + self.get_task_header_html()
         )
 
-    def get_pdf_start(self):
-        """Opening HTML for PDF, including CSS."""
+    def get_pdf_header_content(self):
         anonymous = self.is_anonymous()
         if anonymous:
-            pt_info = self.get_anonymous_page_header_html()
+            content = self.get_anonymous_page_header_html()
         else:
-            pt_info = self._patient.get_html_for_page_header()
-        if self.use_landscape_for_pdf():
-            head = cc_html.PDF_HEAD_LANDSCAPE
+            content = self._patient.get_html_for_page_header()
+        return cc_html.pdf_header_content(content)
+
+    def get_pdf_footer_content(self):
+        taskname = ws.webify(self.get_taskshortname())
+        created = format_datetime_string(self.when_created,
+                                         DATEFORMAT.LONG_DATETIME)
+        content = u"{} created {}.".format(taskname, created)
+        return cc_html.pdf_footer_content(content)
+
+    def get_pdf_start(self):
+        """Opening HTML for PDF, including CSS."""
+        if cc_html.CSS_PAGED_MEDIA:
+            if self.use_landscape_for_pdf():
+                head = cc_html.PDF_HEAD_LANDSCAPE
+            else:
+                head = cc_html.PDF_HEAD_PORTRAIT
+            pdf_header_footer = (
+                self.get_pdf_header_content() + self.get_pdf_footer_content()
+            )
         else:
-            head = cc_html.PDF_HEAD_PORTRAIT
-        pdf_header_footer = u"""
-            <div id="headerContent">
-                {}
-            </div>
-            <div id="footerContent">
-                Page <pdf:pagenumber> of <pdf:pagecount>. {} created {}.
-            </div>
-            {}
-        """.format(
-            pt_info,
-            ws.webify(self.get_taskshortname()),
-            format_datetime_string(self.when_created,
-                                   DATEFORMAT.LONG_DATETIME),
-            pls.PDF_LOGO_LINE,
-        )
+            head = cc_html.PDF_HEAD_NO_PAGED_MEDIA
+            pdf_header_footer = ""
         return (
             head
             + pdf_header_footer
+            + pls.PDF_LOGO_LINE
             + self.get_task_header_html()
         )
 
