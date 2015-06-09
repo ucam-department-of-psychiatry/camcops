@@ -63,20 +63,29 @@ PDF_LOGO_HEIGHT = "20mm"
 CSS_PAGED_MEDIA = (cc_version.PDF_ENGINE != "pdfkit")
 
 COMMON_DEFINITIONS = {
-    # Rules: line height is 1.2 * font size
     "SMALLFONTSIZE": "0.85em",
     "TINYFONTSIZE": "0.7em",
     "LARGEFONTSIZE": "1.2em",
     "GIANTFONTSIZE": "1.4em",
     "BANNERFONTSIZE": "1.6em",
 
+    # Rules: line height is 1.2 * font size
+    # ... but an em is related to the calculated font-size of the element,
+    #   http://www.impressivewebs.com/understanding-em-units-css/
+    # so it can always be 1.2:
     "MAINLINEHEIGHT": "1.2em",
-    "SMALLLINEHEIGHT": "1.02em",
-    "TINYLINEHEIGHT": "0.84em",
-    "LARGELINEHEIGHT": "1.44em",
-    "GIANTLINEHEIGHT": "1.68em",
+    #"SMALLLINEHEIGHT": "1.02em",
+    #"TINYLINEHEIGHT": "0.84em",
+    #"LARGELINEHEIGHT": "1.44em",
+    #"GIANTLINEHEIGHT": "1.68em",
+    #"BANNERLINEHIGHT": "1.2em",
+    #"TABLELINEHEIGHT": "1.1em",
+    "SMALLLINEHEIGHT": "1.2em",
+    "TINYLINEHEIGHT": "1.2em",
+    "LARGELINEHEIGHT": "1.2em",
+    "GIANTLINEHEIGHT": "1.2em",
     "BANNERLINEHIGHT": "1.2em",
-    "TABLELINEHEIGHT": "1.1em",
+    "TABLELINEHEIGHT": "1.2em",
 
     "VSPACE_NORMAL": "0.5em",
     "VSPACE_LARGE": "0.8em",

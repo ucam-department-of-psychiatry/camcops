@@ -16,6 +16,7 @@ camcops (1.40-1) all; urgency=low
   * Friends and Family Test
   * IRAC
   * MDS-UPDRS (data collection tool only)
+  * GDS-15
   * Unit tests to ensure no overlap for task longnames/shortnames/tables; see
     cc_task.unit_tests().
   * clinician_service field as part of clinician block
