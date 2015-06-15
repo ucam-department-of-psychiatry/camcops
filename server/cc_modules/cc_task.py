@@ -187,6 +187,8 @@ STANDARD_TASK_COMMON_FIELDSPECS = [
     dict(name="firstexit_is_abort", cctype="BOOL",
          comment="(TASK) Was the first exit from this task because it was "
                  "aborted (1)?"),
+    dict(name="editing_time_s", cctype="FLOAT",
+         comment="(TASK) Time spent editing (s)"),
 ]
 
 STANDARD_TASK_FIELDSPECS = STANDARD_GENERIC_FIELDSPECS + [

@@ -39,6 +39,7 @@ from cc_pls import pls
 # =============================================================================
 
 # Keys in SQLTYPE are the valid values for the "cctype" field.
+# Values are the corresponding SQL type.
 SQLTYPE = cc_lang.AttrDict({
     # Boolean
     "BOOL": "BOOLEAN",

@@ -160,7 +160,10 @@ simple fix: https://github.com/Kozea/WeasyPrint/issues/38
 -------------------------------------------------------------------------------
 Best current PDF backend
 -------------------------------------------------------------------------------
-5 Jan 2014: xhtml2pdf (with old library versions) -- perfect.
+- 5 Jan 2014: xhtml2pdf (with old library versions) -- perfect.
+- 10 June 2015: wkhtmltopdf, which is better (e.g. ACE-III rendering, SVG),
+  simpler (external installation), more upgradable (compatible with Python 3),
+  and faster than xhtml2pdf. (Weasyprint still has rendering bugs.)
 
 -------------------------------------------------------------------------------
 pdfkit, notes 6 June 2015

@@ -69,23 +69,17 @@ COMMON_DEFINITIONS = {
     "GIANTFONTSIZE": "1.4em",
     "BANNERFONTSIZE": "1.6em",
 
-    # Rules: line height is 1.2 * font size
+    # Rules: line height is 1.1-1.2 * font size
     # ... but an em is related to the calculated font-size of the element,
     #   http://www.impressivewebs.com/understanding-em-units-css/
     # so it can always be 1.2:
-    "MAINLINEHEIGHT": "1.2em",
-    #"SMALLLINEHEIGHT": "1.02em",
-    #"TINYLINEHEIGHT": "0.84em",
-    #"LARGELINEHEIGHT": "1.44em",
-    #"GIANTLINEHEIGHT": "1.68em",
-    #"BANNERLINEHIGHT": "1.2em",
-    #"TABLELINEHEIGHT": "1.1em",
-    "SMALLLINEHEIGHT": "1.2em",
-    "TINYLINEHEIGHT": "1.2em",
-    "LARGELINEHEIGHT": "1.2em",
-    "GIANTLINEHEIGHT": "1.2em",
-    "BANNERLINEHIGHT": "1.2em",
-    "TABLELINEHEIGHT": "1.2em",
+    "MAINLINEHEIGHT": "1.1em",
+    "SMALLLINEHEIGHT": "1.1em",
+    "TINYLINEHEIGHT": "1.0em",  # except this one
+    "LARGELINEHEIGHT": "1.1em",
+    "GIANTLINEHEIGHT": "1.1em",
+    "BANNERLINEHIGHT": "1.1em",
+    "TABLELINEHEIGHT": "1.1em",
 
     "VSPACE_NORMAL": "0.5em",
     "VSPACE_LARGE": "0.8em",
@@ -127,7 +121,7 @@ PDF_SIZES = {
     "TABLEPAD": "0.5mm",
     "INDENT_NORMAL": "5mm",
     "INDENT_LARGE": "10mm",
-    "THINLINE": "0.1mm",
+    "THINLINE": "0.2mm",
     "ZERO": "0mm",
     "MAINMARGIN": "2cm",
     "BODYPADDING": "0mm",
@@ -672,10 +666,10 @@ WKHTMLTOPDF_OPTIONS = {
     "page-size": "A4",
     "margin-left": "20mm",
     "margin-right": "20mm",
-    "margin-top": "21mm",  # from paper edge down to top of content
-        # ... then 5mm more, i.e. specify 20mm and get 25mm?
-    "margin-bottom": "24mm",  # from paper edge to bottom of content
-        # ... then 3mm more, i.e. specify 20mm and get 23mm?
+    "margin-top": "21mm",  # from paper edge down to top of content?
+    # ... inaccurate
+    "margin-bottom": "24mm",  # from paper edge up to bottom of content?
+    # ... inaccurate
     "header-spacing": "3",  # mm, from content up to bottom of header
     "footer-spacing": "3",  # mm, from content down to top of footer
 }
