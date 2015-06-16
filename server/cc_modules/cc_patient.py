@@ -86,6 +86,7 @@ class Patient:
         nstr = str(n)
         FIELDSPECS.append(dict(name="idnum" + nstr,
                                cctype="BIGINT_UNSIGNED",
+                               indexed=True,
                                comment="ID number " + nstr,
                                cris_include=True))
         FIELDSPECS.append(dict(name="iddesc" + nstr,

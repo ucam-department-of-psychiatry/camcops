@@ -29,6 +29,7 @@ camcops (1.40-1) all; urgency=low
     the default PDF renderer.
   * Abstract base class for PCL tasks wasn't inheriting from object; now is.
   * editing_time_s field for all tasks.
+  * Indexing of ID number fields in patient table.
 
  -- Rudolf Cardinal <rudolf@pobox.com>  Thu, 28 May 2015 11:09:00 +0000
 
