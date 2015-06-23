@@ -56,8 +56,8 @@ from cc_modules.cc_constants import (
     STANDARD_GENERIC_FIELDSPECS
 )
 from cc_modules.cc_dt import format_datetime
-from cc_logger import dblogger as logger
-from cc_pls import pls
+from cc_modules.cc_logger import dblogger as logger
+from cc_modules.cc_pls import pls
 import cc_modules.cc_session as cc_session
 import cc_modules.cc_string as cc_string
 import cc_modules.cc_version as cc_version

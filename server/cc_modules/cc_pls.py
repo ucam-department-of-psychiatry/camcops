@@ -77,9 +77,9 @@ CONFIG_FILE_RECIPIENTLIST_SECTION = "recipients"
 
 INTROSPECTABLE_EXTENSIONS = [".js", ".jsx", ".html", ".py", ".pl", ".xml"]
 INTROSPECTABLE_DIRECTORIES = [
-    "pythonlib",
     "server",
     "server/cc_modules",
+    "server/pythonlib",
     "server/tasks",
     "tablet",
     "tablet/common",

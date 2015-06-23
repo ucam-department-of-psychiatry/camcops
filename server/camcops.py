@@ -132,7 +132,7 @@ from cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 if PROFILE:
     import werkzeug.contrib.profiler
 if DEBUG_TO_HTTP_CLIENT:
-    import wsgi_errorreporter
+    import pythonlib.wsgi_errorreporter as wsgi_errorreporter
 
 # Task imports
 import_submodules("tasks")

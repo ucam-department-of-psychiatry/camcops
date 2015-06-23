@@ -106,7 +106,7 @@ DSTDBHELPERFILE=$DSTCONSOLEFILEDIR/$DBHELPERSCRIPT
 WRKDBHELPERFILE=$WRKCONSOLEFILEDIR/$DBHELPERSCRIPT
 
 SRCPYTHONLIBDIR=$SRCBASEDIR/server/pythonlib
-WRKPYTHONLIBDIR=$WRKBASEDIR/pythonlib
+WRKPYTHONLIBDIR=$WRKBASEDIR/server/pythonlib
 #DSTPYTHONLIBDIR=$DSTCAMCOPSDIR/pythonlib
 
 SRCEXTRASTRINGTEMPLATES=$SRCBASEDIR/server/extra_string_templates
@@ -206,16 +206,6 @@ echo "debugging installation (using system Python rather than virtualenv): $DEBU
 #==============================================================================
 # Dependencies
 #==============================================================================
-
-REQUIRED_PYTHONLIBS_ARRAY=(
-    rnc_crypto
-    rnc_db
-    rnc_lang
-    rnc_pdf
-    rnc_plot
-    rnc_web
-    wsgi_errorreporter
-)
 
 # ... in ALPHABETICAL ORDER for Debian:
 DEPENDS_DEB_ARRAY=(
@@ -334,10 +324,7 @@ mkdir -p $RPMTOPDIR/{BUILD,BUILDROOT,RPMS,RPMS/noarch,SOURCES,SPECS,SRPMS}
 #==============================================================================
 echo "Copying files"
 #==============================================================================
-for i in $REQUIRED_PYTHONLIBS
-do
-    cp $SRCPYTHONLIBDIR/${i}.py $WRKPYTHONLIBDIR
-done
+cp $SRCPYTHONLIBDIR/*.py $WRKPYTHONLIBDIR
 #cp -R $SRCDOCDIR/* $WRKDOCDIR
 cp $SRCSERVERDIR/$MAINSCRIPTNAME $WRKSERVERDIR
 cp $SRCSERVERDIR/$DBSCRIPTNAME $WRKSERVERDIR

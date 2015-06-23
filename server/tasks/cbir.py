@@ -23,7 +23,7 @@
 
 from __future__ import division
 
-from rnc_lang import AttrDict
+from pythonlib.rnc_lang import AttrDict
 from cc_modules.cc_constants import PV
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import (
