@@ -21,7 +21,7 @@
     limitations under the License.
 """
 
-import rnc_web as ws
+import pythonlib.rnc_web as ws
 
 from cc_constants import PARAM
 import cc_db

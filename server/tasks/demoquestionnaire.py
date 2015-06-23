@@ -21,11 +21,11 @@
     limitations under the License.
 """
 
-from cc_db import repeat_fieldspec
-from cc_html import (
+from cc_modules.cc_db import repeat_fieldspec
+from cc_modules.cc_html import (
     answer,
 )
-from cc_task import (
+from cc_modules.cc_task import (
     STANDARD_ANONYMOUS_TASK_FIELDSPECS,
     Task,
 )

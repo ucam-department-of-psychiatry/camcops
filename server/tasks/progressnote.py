@@ -21,10 +21,10 @@
     limitations under the License.
 """
 
-import rnc_web as ws
-from cc_html import answer
-from cc_string import WSTRING
-from cc_task import (
+import pythonlib.rnc_web as ws
+from cc_modules.cc_html import answer
+from cc_modules.cc_string import WSTRING
+from cc_modules.cc_task import (
     CLINICIAN_FIELDSPECS,
     STANDARD_TASK_FIELDSPECS,
     Task,

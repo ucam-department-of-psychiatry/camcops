@@ -21,9 +21,9 @@
     limitations under the License.
 """
 
-from cc_html import tr_qa
-from cc_string import WSTRING
-from cc_task import (
+from cc_modules.cc_html import tr_qa
+from cc_modules.cc_string import WSTRING
+from cc_modules.cc_task import (
     get_from_dict,
     STANDARD_TASK_FIELDSPECS,
     Task,

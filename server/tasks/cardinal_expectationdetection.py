@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt
 import numpy
 import scipy.stats  # http://docs.scipy.org/doc/scipy/reference/stats.html
 
-from cc_html import (
+from cc_modules.cc_html import (
     answer,
     div,
     get_html_from_pyplot_figure,
@@ -36,7 +36,7 @@ from cc_html import (
     tr,
     tr_qa,
 )
-from cc_task import (
+from cc_modules.cc_task import (
     FULLWIDTH_PLOT_WIDTH,
     STANDARD_TASK_FIELDSPECS,
     STANDARD_ANCILLARY_FIELDSPECS,

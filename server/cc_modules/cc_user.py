@@ -24,15 +24,15 @@
 import datetime
 import re
 
-import rnc_crypto
-import rnc_web as ws
+import pythonlib.rnc_crypto as rnc_crypto
+from pythonlib.rnc_lang import AttrDict
+import pythonlib.rnc_web as ws
 
 from cc_audit import audit
 from cc_constants import ACTION, PARAM, DATEFORMAT
 import cc_db
 import cc_dt
 import cc_html
-import cc_lang
 from cc_logger import logger
 from cc_pls import pls
 import cc_storedvar
@@ -41,7 +41,7 @@ import cc_storedvar
 # Constants
 # =============================================================================
 
-LABEL = cc_lang.AttrDict({
+LABEL = AttrDict({
     "MAY_USE_WEBVIEWER": (
         u"May use web viewer (BEWARE: you probably don’t "
         "want to untick this for your own user!)"),

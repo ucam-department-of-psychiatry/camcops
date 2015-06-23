@@ -21,7 +21,7 @@
     limitations under the License.
 """
 
-import rnc_web as ws
+import pythonlib.rnc_web as ws
 
 from cc_constants import ISO8601_STRING_LENGTH
 import cc_db

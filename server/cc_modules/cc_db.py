@@ -21,7 +21,8 @@
     limitations under the License.
 """
 
-import rnc_db
+import pythonlib.rnc_db as rnc_db
+from pythonlib.rnc_lang import AttrDict
 
 from cc_constants import (
     DATEFORMAT,
@@ -30,7 +31,6 @@ from cc_constants import (
     NUMBER_OF_IDNUMS
 )
 import cc_dt
-import cc_lang
 from cc_pls import pls
 
 
@@ -40,7 +40,7 @@ from cc_pls import pls
 
 # Keys in SQLTYPE are the valid values for the "cctype" field.
 # Values are the corresponding SQL type.
-SQLTYPE = cc_lang.AttrDict({
+SQLTYPE = AttrDict({
     # Boolean
     "BOOL": "BOOLEAN",
 

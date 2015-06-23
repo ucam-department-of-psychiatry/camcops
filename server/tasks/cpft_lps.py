@@ -21,10 +21,10 @@
     limitations under the License.
 """
 
-import rnc_web as ws
-from cc_constants import DATEFORMAT, PARAM, PV
-from cc_dt import format_datetime_string
-from cc_html import (
+import pythonlib.rnc_web as ws
+from cc_modules.cc_constants import DATEFORMAT, PARAM, PV
+from cc_modules.cc_dt import format_datetime_string
+from cc_modules.cc_html import (
     answer,
     get_yes_no_none,
     subheading_spanning_four_columns,
@@ -32,16 +32,21 @@ from cc_html import (
     tr_qa,
     tr_span_col,
 )
-import cc_nhs
-from cc_pls import pls
-from cc_string import WSTRING
-from cc_task import (
+from cc_modules.cc_nhs import (
+    get_nhs_dd_ethnic_category_code,
+    get_nhs_dd_person_marital_status,
+    PV_NHS_ETHNIC_CATEGORY,
+    PV_NHS_MARITAL_STATUS
+)
+from cc_modules.cc_pls import pls
+from cc_modules.cc_string import WSTRING
+from cc_modules.cc_task import (
     CLINICIAN_FIELDSPECS,
     INVALID_VALUE,
     STANDARD_TASK_FIELDSPECS,
     Task,
 )
-from cc_report import Report
+from cc_modules.cc_report import Report
 
 
 # =============================================================================
@@ -68,9 +73,9 @@ class CPFT_LPS_Referral(Task):
         dict(name="interpreter_required", cctype="BOOL", pv=PV.BIT),
         dict(name="sensory_impairment", cctype="BOOL", pv=PV.BIT),
         dict(name="marital_status_code", cctype="INT",
-             pv=cc_nhs.PV_NHS_MARITAL_STATUS),
+             pv=PV_NHS_MARITAL_STATUS),
         dict(name="ethnic_category_code", cctype="INT",
-             pv=cc_nhs.PV_NHS_ETHNIC_CATEGORY),
+             pv=PV_NHS_ETHNIC_CATEGORY),
 
         dict(name="admission_reason_overdose", cctype="BOOL",
              pv=PV.BIT),
@@ -144,8 +149,8 @@ class CPFT_LPS_Referral(Task):
         """.format(q, default if a is None else a)
 
     def get_task_html(self):
-        PERSON_MARITAL_STATUS = cc_nhs.get_nhs_dd_person_marital_status()
-        ETHNIC_CATEGORY_CODE = cc_nhs.get_nhs_dd_ethnic_category_code()
+        PERSON_MARITAL_STATUS = get_nhs_dd_person_marital_status()
+        ETHNIC_CATEGORY_CODE = get_nhs_dd_ethnic_category_code()
         if self.lps_division == "G":
             banner_class = "banner_referral_general_adult"
             division_name = WSTRING("cpft_lps_service_G")

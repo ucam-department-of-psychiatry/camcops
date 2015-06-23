@@ -23,14 +23,14 @@
 
 from __future__ import division
 
-from cc_db import repeat_fieldspec
-from cc_html import (
+from cc_modules.cc_db import repeat_fieldspec
+from cc_modules.cc_html import (
     answer,
     tr,
     tr_qa,
 )
-from cc_string import WSTRING, WXSTRING
-from cc_task import (
+from cc_modules.cc_string import WSTRING, WXSTRING
+from cc_modules.cc_task import (
     DATA_COLLECTION_UNLESS_UPGRADED_DIV,
     get_from_dict,
     STANDARD_TASK_FIELDSPECS,

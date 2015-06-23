@@ -26,7 +26,7 @@ import xml.etree.cElementTree as ElementTree
 # ... http://docs.python.org/2/library/xml.etree.elementtree.html
 # ... http://effbot.org/zone/celementtree.htm
 
-import rnc_web as ws
+import pythonlib.rnc_web as ws
 
 from cc_logger import logger
 import cc_pls

@@ -21,14 +21,14 @@
     limitations under the License.
 """
 
-from cc_db import repeat_fieldspec
-from cc_html import (
+from cc_modules.cc_db import repeat_fieldspec
+from cc_modules.cc_html import (
     subheading_spanning_two_columns,
     tr_qa,
     tr_span_col,
 )
-from cc_string import WSTRING
-from cc_task import (
+from cc_modules.cc_string import WSTRING
+from cc_modules.cc_task import (
     CLINICIAN_FIELDSPECS,
     CTV_DICTLIST_INCOMPLETE,
     get_from_dict,

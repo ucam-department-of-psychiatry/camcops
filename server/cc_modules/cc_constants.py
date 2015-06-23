@@ -23,7 +23,7 @@
 
 # Helpful UTF-8 characters: ‘’ “” – — × • ≤ ≥ ≠ ± →
 
-import cc_lang
+from pythonlib.rnc_lang import AttrDict
 
 # =============================================================================
 # Number of ID numbers. Don't alter this lightly; influences database fields.
@@ -43,7 +43,7 @@ DEFAULT_DB_SERVER = "localhost"
 # HTTP actions, parameters, values
 # =============================================================================
 
-ACTION = cc_lang.AttrDict({
+ACTION = AttrDict({
     "ADD_SPECIAL_NOTE": "add_special_note",
     "ADD_USER": "add_user",
     "AGREE_TERMS": "agree_terms",
@@ -126,7 +126,7 @@ ACTION = cc_lang.AttrDict({
     "VIEW_TASKS": "view_tasks",
 })
 
-PARAM = cc_lang.AttrDict({
+PARAM = AttrDict({
     "ACTION": "action",
     "ADDRESS": "address",
     "ANONYMISE": "anonymise",
@@ -196,7 +196,7 @@ PARAM = cc_lang.AttrDict({
     "WHICH_IDNUM": "which_idnum",
 })
 
-VALUE = cc_lang.AttrDict({
+VALUE = AttrDict({
     "DUMPTYPE_AS_TASK_FILTER": "as_task_filter",
     "DUMPTYPE_EVERYTHING": "everything",
     "DUMPTYPE_SPECIFIC_TASKS": "specific_tasks",
@@ -212,7 +212,7 @@ VALUE = cc_lang.AttrDict({
 # Date formats
 # =============================================================================
 
-DATEFORMAT = cc_lang.AttrDict({
+DATEFORMAT = AttrDict({
     "SHORT_DATE": "%d %b %Y",  # e.g. 24 Jul 2013
     "LONG_DATE": "%d %B %Y",  # e.g. 24 July 2013
     "LONG_DATE_WITH_DAY": "%a %d %B %Y",  # e.g. Wed 24 July 2013
@@ -243,7 +243,7 @@ DATEFORMAT = cc_lang.AttrDict({
 # Permitted values in fields: some common settings
 # =============================================================================
 
-PV = cc_lang.AttrDict({
+PV = AttrDict({
     "BIT": [0, 1],
 })
 

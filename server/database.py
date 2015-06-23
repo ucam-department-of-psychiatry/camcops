@@ -41,11 +41,12 @@ import re
 import sys
 import time
 
-import rnc_db
-import rnc_web as ws
+import pythonlib.rnc_db as rnc_db
+from pythonlib.rnc_lang import AttrDict
+import pythonlib.rnc_web as ws
 
-import cc_audit
-from cc_constants import (
+import cc_modules.cc_audit as cc_audit
+from cc_modules.cc_constants import (
     CAMCOPS_URL,
     CLIENT_DATE_FIELD,
     DATEFORMAT,
@@ -54,13 +55,12 @@ from cc_constants import (
     NUMBER_OF_IDNUMS,
     STANDARD_GENERIC_FIELDSPECS
 )
-import cc_dt
-import cc_lang
+from cc_modules.cc_dt import format_datetime
 from cc_logger import dblogger as logger
 from cc_pls import pls
-import cc_session
-import cc_string
-import cc_version
+import cc_modules.cc_session as cc_session
+import cc_modules.cc_string as cc_string
+import cc_modules.cc_version as cc_version
 
 # Conditional imports
 if PROFILE:
@@ -74,7 +74,7 @@ CONTENTTYPE = 'text/plain; charset=utf-8'
 DUPLICATE_FAILED = "Failed to duplicate record"
 INSERT_FAILED = "Failed to insert record"
 INVALID_USERNAME_PASSWORD = "Invalid username/password"
-PARAM = cc_lang.AttrDict({
+PARAM = AttrDict({
     "CAMCOPS_VERSION": "camcops_version",
     "DATEVALUES": "datevalues",
     "DEVICE": "device",
@@ -1131,7 +1131,7 @@ def commit_table(device, user, batchtime, preserving, table,
     """.format(table=table)
     n_removed = pls.db.db_exec(query, user, exacttime, batchtime, device)
     # Preservation
-    new_era = cc_dt.format_datetime(batchtime, DATEFORMAT.ERA)
+    new_era = format_datetime(batchtime, DATEFORMAT.ERA)
     if preserving:
         # Preserve all relevant records
         query = """
@@ -1748,7 +1748,7 @@ def main_http_processor(env):
     # For failure, raises an exception.
 
     logger.info("CamCOPS database script starting at {}".format(
-        cc_dt.format_datetime(pls.NOW_LOCAL_TZ, DATEFORMAT.ISO8601)
+        format_datetime(pls.NOW_LOCAL_TZ, DATEFORMAT.ISO8601)
     ))
     form = ws.get_cgi_fieldstorage_from_wsgi_env(env)
 

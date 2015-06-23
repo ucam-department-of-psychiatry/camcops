@@ -21,9 +21,9 @@
     limitations under the License.
 """
 
-from cc_constants import PV
-from cc_html import tr_qa
-from cc_task import (
+from cc_modules.cc_constants import PV
+from cc_modules.cc_html import tr_qa
+from cc_modules.cc_task import (
     DATA_COLLECTION_ONLY_DIV,
     STANDARD_TASK_FIELDSPECS,
     Task,

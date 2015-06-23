@@ -63,13 +63,6 @@ def is_false(x):
     return (not x and x is not None)
 
 
-class AttrDict(dict):
-    # http://stackoverflow.com/questions/4984647
-    def __init__(self, *args, **kwargs):
-        super(AttrDict, self).__init__(*args, **kwargs)
-        self.__dict__ = self
-
-
 def mangle_unicode_to_str(s):
     """Mangle unicode to str, losing accents etc. in the process."""
     # http://stackoverflow.com/questions/1207457

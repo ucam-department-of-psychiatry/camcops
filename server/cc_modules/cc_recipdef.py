@@ -23,13 +23,13 @@
 
 import ConfigParser
 
-import rnc_db
+import pythonlib.rnc_db as rnc_db
+from pythonlib.rnc_lang import AttrDict
 
 from cc_configfile import get_config_parameter, get_config_parameter_boolean
 from cc_constants import NUMBER_OF_IDNUMS, VALUE
 import cc_dt
 import cc_filename
-import cc_lang
 from cc_logger import logger
 import cc_policy
 
@@ -39,7 +39,7 @@ import cc_policy
 # =============================================================================
 
 DEFAULT_HL7_PORT = 2575
-RECIPIENT_TYPE = cc_lang.AttrDict({
+RECIPIENT_TYPE = AttrDict({
     "HL7": "hl7",
     "FILE": "file",
 })

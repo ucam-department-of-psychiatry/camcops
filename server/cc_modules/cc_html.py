@@ -23,9 +23,9 @@
 
 import string
 
-from rnc_lang import merge_dicts
-import rnc_plot
-import rnc_web as ws
+from pythonlib.rnc_lang import merge_dicts
+import pythonlib.rnc_plot as rnc_plot
+import pythonlib.rnc_web as ws
 
 from cc_constants import ACTION, NUMBER_OF_IDNUMS, PARAM
 import cc_pls  # caution, circular import

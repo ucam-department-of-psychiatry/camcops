@@ -21,12 +21,12 @@
     limitations under the License.
 """
 
-from cc_html import (
+from cc_modules.cc_html import (
     answer,
     tr,
 )
-from cc_string import WSTRING
-from cc_task import (
+from cc_modules.cc_string import WSTRING
+from cc_modules.cc_task import (
     CTV_DICTLIST_INCOMPLETE,
     DATA_COLLECTION_ONLY_DIV,
     STANDARD_TASK_FIELDSPECS,

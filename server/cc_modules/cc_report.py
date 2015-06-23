@@ -24,7 +24,7 @@
 import cgi
 import re
 
-import rnc_web as ws
+import pythonlib.rnc_web as ws
 
 from cc_constants import ACTION, DATEFORMAT, NUMBER_OF_IDNUMS, PARAM, VALUE
 import cc_dt

@@ -21,18 +21,18 @@
     limitations under the License.
 """
 
-import rnc_web as ws
-from cc_constants import DATEFORMAT, PV
-from cc_dt import format_datetime_string
-from cc_html import (
+import pythonlib.rnc_web as ws
+from cc_modules.cc_constants import DATEFORMAT, PV
+from cc_modules.cc_dt import format_datetime_string
+from cc_modules.cc_html import (
     get_true_false_none,
     heading_spanning_two_columns,
     subheading_spanning_two_columns,
     tr_qa,
 )
-from cc_lang import is_false
-from cc_string import WSTRING
-from cc_task import (
+from cc_modules.cc_lang import is_false
+from cc_modules.cc_string import WSTRING
+from cc_modules.cc_task import (
     CLINICIAN_FIELDSPECS,
     CTV_DICTLIST_INCOMPLETE,
     ICD10_COPYRIGHT_DIV,

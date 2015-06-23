@@ -21,7 +21,7 @@
     limitations under the License.
 """
 
-import rnc_db
+import pythonlib.rnc_db as rnc_db
 
 from cc_constants import STANDARD_GENERIC_FIELDSPECS
 import cc_db

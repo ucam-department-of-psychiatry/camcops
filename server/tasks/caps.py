@@ -21,16 +21,16 @@
     limitations under the License.
 """
 
-from cc_constants import PV
-from cc_db import repeat_fieldname, repeat_fieldspec
-from cc_html import (
+from cc_modules.cc_constants import PV
+from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from cc_modules.cc_html import (
     answer,
     get_yes_no_none,
     tr,
     tr_qa,
 )
-from cc_string import WSTRING
-from cc_task import (
+from cc_modules.cc_string import WSTRING
+from cc_modules.cc_task import (
     STANDARD_TASK_FIELDSPECS,
     Task,
 )

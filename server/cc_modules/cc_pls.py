@@ -30,8 +30,8 @@ import ConfigParser
 import datetime
 import logging
 
-import rnc_db
-import rnc_pdf
+import pythonlib.rnc_db as rnc_db
+import pythonlib.rnc_pdf as rnc_pdf
 
 from cc_configfile import (
     get_config_parameter,

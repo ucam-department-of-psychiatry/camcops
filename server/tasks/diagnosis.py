@@ -21,14 +21,14 @@
     limitations under the License.
 """
 
-import rnc_web as ws
-import cc_hl7
-from cc_html import (
+import pythonlib.rnc_web as ws
+from cc_modules.cc_hl7 import make_dg1_segment
+from cc_modules.cc_html import (
     answer,
     tr,
 )
-import cc_nlp
-from cc_task import (
+from cc_modules.cc_nlp import guess_name_components
+from cc_modules.cc_task import (
     CLINICIAN_FIELDSPECS,
     STANDARD_ANCILLARY_FIELDSPECS,
     STANDARD_TASK_FIELDSPECS,
@@ -165,11 +165,11 @@ class DiagnosisBase(object):
     def get_hl7_extra_data_segments(self, recipient_def):
         segments = []
         items = self.get_items()
-        clinician = cc_nlp.guess_name_components(self.clinician_name)
+        clinician = guess_name_components(self.clinician_name)
         for i in range(len(items)):
             set_id = i + 1  # make it 1-based, not 0-based
             item = items[i]
-            segments.append(cc_hl7.make_dg1_segment(
+            segments.append(make_dg1_segment(
                 set_id=set_id,
                 diagnosis_datetime=self.get_creation_datetime(),
                 coding_system=self.get_hl7_coding_system(),

@@ -71,7 +71,6 @@ import codecs
 import collections
 import ConfigParser
 import getpass
-import glob
 import io
 import lockfile
 import os
@@ -84,12 +83,17 @@ import sys
 import zipfile
 
 # local:
-import rnc_db
-import rnc_web as ws
+import pythonlib.rnc_db as rnc_db
+from pythonlib.rnc_lang import import_submodules
+import pythonlib.rnc_web as ws
 
 # CamCOPS support modules
-from cc_audit import audit, SECURITY_AUDIT_TABLENAME, SECURITY_AUDIT_FIELDSPECS
-from cc_constants import (
+from cc_modules.cc_audit import (
+    audit,
+    SECURITY_AUDIT_TABLENAME,
+    SECURITY_AUDIT_FIELDSPECS
+)
+from cc_modules.cc_constants import (
     ACTION,
     CAMCOPS_URL,
     DATEFORMAT,
@@ -97,28 +101,32 @@ from cc_constants import (
     PARAM,
     VALUE
 )
-import cc_blob
-import cc_db
-import cc_device
-import cc_dt
-import cc_dump
-import cc_hl7
-import cc_html
-from cc_logger import logger
-import cc_patient
-import cc_plot
+import cc_modules.cc_blob as cc_blob
+import cc_modules.cc_db as cc_db
+import cc_modules.cc_device as cc_device
+from cc_modules.cc_dt import (
+    get_now_localtz,
+    format_datetime,
+    format_datetime_string
+)
+import cc_modules.cc_dump as cc_dump
+import cc_modules.cc_hl7 as cc_hl7
+import cc_modules.cc_html as cc_html
+from cc_modules.cc_logger import logger
+import cc_modules.cc_patient as cc_patient
+import cc_modules.cc_plot as cc_plot
 cc_plot.do_nothing()
-from cc_pls import pls
-import cc_policy
-import cc_report
-import cc_session
-import cc_specialnote
-import cc_storedvar
-from cc_string import WSTRING
-import cc_task
-import cc_tracker
-import cc_user
-import cc_version
+from cc_modules.cc_pls import pls
+import cc_modules.cc_policy as cc_policy
+import cc_modules.cc_report as cc_report
+import cc_modules.cc_session as cc_session
+from cc_modules.cc_specialnote import SpecialNote
+from cc_modules.cc_storedvar import DeviceStoredVar, ServerStoredVar
+from cc_modules.cc_string import WSTRING
+import cc_modules.cc_task as cc_task
+import cc_modules.cc_tracker as cc_tracker
+import cc_modules.cc_user as cc_user
+from cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
 # Conditional imports
 if PROFILE:
@@ -126,11 +134,8 @@ if PROFILE:
 if DEBUG_TO_HTTP_CLIENT:
     import wsgi_errorreporter
 
-# Task imports: everything in "tasks" directory
-task_modules = glob.glob(os.path.dirname(__file__) + "/tasks/*.py")
-task_modules = [os.path.basename(f)[:-3] for f in task_modules]
-for tm in task_modules:
-    __import__(tm, locals(), globals())
+# Task imports
+import_submodules("tasks")
 
 
 # =============================================================================
@@ -215,7 +220,7 @@ def account_locked(locked_until, redirect=None):
     return cc_html.fail_with_error_not_logged_in(
         "Account locked until {} due to multiple login failures. "
         "Try again later or contact your administrator.".format(
-            cc_dt.format_datetime(
+            format_datetime(
                 locked_until,
                 DATEFORMAT.LONG_DATETIME_WITH_DAY,
                 "(never)"
@@ -434,9 +439,9 @@ def main_menu(session, form):
         introspection=introspection,
         chpw=cc_html.get_url_enter_new_password(session.user),
         logout=cc_html.get_generic_action_url(ACTION.LOGOUT),
-        now=cc_dt.format_datetime(pls.NOW_LOCAL_TZ,
-                                  DATEFORMAT.SHORT_DATETIME_SECONDS),
-        sv=cc_version.CAMCOPS_SERVER_VERSION,
+        now=format_datetime(pls.NOW_LOCAL_TZ,
+                            DATEFORMAT.SHORT_DATETIME_SECONDS),
+        sv=CAMCOPS_SERVER_VERSION,
         camcops_url=CAMCOPS_URL,
         invalid_policy_warning=(
             "" if cc_policy.id_policies_valid() else ID_POLICY_INVALID_DIV
@@ -1325,7 +1330,7 @@ def basic_dump(session, form):
 
     # Return the result
     zip_contents = memfile.getvalue()
-    filename = "CamCOPS_dump_" + cc_dt.format_datetime(
+    filename = "CamCOPS_dump_" + format_datetime(
         pls.NOW_LOCAL_TZ,
         DATEFORMAT.FILENAME
     ) + ".zip"
@@ -1455,7 +1460,7 @@ def serve_table_dump(session, form):
         + ws.get_cgi_parameter_list(form, PARAM.TABLES_BLOB)
     )
     if outputtype == VALUE.OUTPUTTYPE_SQL:
-        filename = "CamCOPS_dump_" + cc_dt.format_datetime(
+        filename = "CamCOPS_dump_" + format_datetime(
             pls.NOW_LOCAL_TZ,
             DATEFORMAT.FILENAME
         ) + ".sql"
@@ -1469,7 +1474,7 @@ def serve_table_dump(session, form):
             return cc_html.fail_with_error_stay_logged_in(
                 cc_dump.NOTHING_VALID_SPECIFIED
             )
-        filename = "CamCOPS_dump_" + cc_dt.format_datetime(
+        filename = "CamCOPS_dump_" + format_datetime(
             pls.NOW_LOCAL_TZ,
             DATEFORMAT.FILENAME
         ) + ".zip"
@@ -1614,10 +1619,10 @@ def view_audit_trail(session, form):
     """.format(
         user=session.get_current_user_html(),
         nrows=nrows,
-        start_datetime=cc_dt.format_datetime(start_datetime,
-                                             DATEFORMAT.ISO8601_DATE_ONLY),
-        end_datetime=cc_dt.format_datetime(end_datetime,
-                                           DATEFORMAT.ISO8601_DATE_ONLY),
+        start_datetime=format_datetime(start_datetime,
+                                       DATEFORMAT.ISO8601_DATE_ONLY),
+        end_datetime=format_datetime(end_datetime,
+                                     DATEFORMAT.ISO8601_DATE_ONLY),
     ) + ws.html_table_from_query(rows, descriptions) + cc_html.WEBEND
     return html
 
@@ -1751,10 +1756,10 @@ def view_hl7_log(session, form):
         serverpk=serverpk,
         run_id=run_id,
         nrows=nrows,
-        start_datetime=cc_dt.format_datetime(start_datetime,
-                                             DATEFORMAT.ISO8601_DATE_ONLY),
-        end_datetime=cc_dt.format_datetime(end_datetime,
-                                           DATEFORMAT.ISO8601_DATE_ONLY),
+        start_datetime=format_datetime(start_datetime,
+                                       DATEFORMAT.ISO8601_DATE_ONLY),
+        end_datetime=format_datetime(end_datetime,
+                                     DATEFORMAT.ISO8601_DATE_ONLY),
     )
     html += cc_hl7.HL7Message.get_html_header_row(showmessage=showmessage,
                                                   showreply=showreply)
@@ -1858,10 +1863,10 @@ def view_hl7_run(session, form):
         user=session.get_current_user_html(),
         nrows=nrows,
         run_id=run_id,
-        start_datetime=cc_dt.format_datetime(start_datetime,
-                                             DATEFORMAT.ISO8601_DATE_ONLY),
-        end_datetime=cc_dt.format_datetime(end_datetime,
-                                           DATEFORMAT.ISO8601_DATE_ONLY),
+        start_datetime=format_datetime(start_datetime,
+                                       DATEFORMAT.ISO8601_DATE_ONLY),
+        end_datetime=format_datetime(end_datetime,
+                                     DATEFORMAT.ISO8601_DATE_ONLY),
     )
     html += cc_hl7.HL7Run.get_html_header_row()
     for pk in pks:
@@ -2238,7 +2243,7 @@ def edit_patient(session, form):
         changes["forename"] = changes["forename"].upper()
     if changes["surname"]:
         changes["surname"] = changes["surname"].upper()
-    changes["dob"] = cc_dt.format_datetime(
+    changes["dob"] = format_datetime(
         changes["dob"], DATEFORMAT.ISO8601_DATE_ONLY, default="")
     for n in range(1, NUMBER_OF_IDNUMS + 1):
         val = ws.get_cgi_parameter_int(form, PARAM.IDNUM_PREFIX + str(n))
@@ -2311,7 +2316,7 @@ def edit_patient(session, form):
                     patient.get_idnum(n))
         else:
             warning = ""
-            dob_for_html = cc_dt.format_datetime_string(
+            dob_for_html = format_datetime_string(
                 patient.dob, DATEFORMAT.ISO8601_DATE_ONLY, default="")
             details = u"""
                 Forename: <input type="text" name="{PARAM.FORENAME}"
@@ -2522,7 +2527,7 @@ def forcibly_finalize(session, form):
         # non-task but tablet-based tables
         cc_patient.Patient.TABLENAME,
         cc_blob.Blob.TABLENAME,
-        cc_storedvar.DeviceStoredVar.TABLENAME,
+        DeviceStoredVar.TABLENAME,
     ]
     for cls in cc_task.Task.__subclasses__():
         tables.append(cls.get_tablename())
@@ -2926,7 +2931,7 @@ def rename_table(from_table, to_table):
 def upgrade_database(old_version):
     print("Old database version: {}. New version: {}.".format(
         old_version,
-        cc_version.CAMCOPS_SERVER_VERSION
+        CAMCOPS_SERVER_VERSION
     ))
     if old_version is None:
         logger.warning("Don't know old database version; can't upgrade "
@@ -3060,7 +3065,7 @@ def make_tables(drop_superfluous_columns=False):
     cc_db.set_db_to_utf8(pls.db)
 
     # Special system table, in which old database version number is kept
-    cc_storedvar.ServerStoredVar.make_tables(drop_superfluous_columns)
+    ServerStoredVar.make_tables(drop_superfluous_columns)
 
     print(SEPARATOR_HYPHENS)
     print("Checking database version +/- upgrading.")
@@ -3068,11 +3073,11 @@ def make_tables(drop_superfluous_columns=False):
 
     # Read old version number, and perform any special version-specific
     # upgrade tasks
-    sv_version = cc_storedvar.ServerStoredVar("serverCamcopsVersion", "real")
+    sv_version = ServerStoredVar("serverCamcopsVersion", "real")
     old_version = sv_version.getValue()
     upgrade_database(old_version)
     # Important that we write the new version now:
-    sv_version.setValue(cc_version.CAMCOPS_SERVER_VERSION)
+    sv_version.setValue(CAMCOPS_SERVER_VERSION)
     # This value must only be written in conjunction with the database
     # upgrade process.
 
@@ -3086,12 +3091,12 @@ def make_tables(drop_superfluous_columns=False):
     cc_hl7.HL7Run.make_tables(drop_superfluous_columns)
     cc_hl7.HL7Message.make_tables(drop_superfluous_columns)
     cc_session.Session.make_tables(drop_superfluous_columns)
-    cc_specialnote.SpecialNote.make_tables(drop_superfluous_columns)
+    SpecialNote.make_tables(drop_superfluous_columns)
 
     # Core client tables
     cc_patient.Patient.make_tables(drop_superfluous_columns)
     cc_blob.Blob.make_tables(drop_superfluous_columns)
-    cc_storedvar.DeviceStoredVar.make_tables(drop_superfluous_columns)
+    DeviceStoredVar.make_tables(drop_superfluous_columns)
 
     # System tables without a class representation
     cc_db.create_or_update_table(
@@ -3208,21 +3213,18 @@ def reset_storedvars():
     script).
     """
     print("Setting database title/ID descriptions from configuration file")
-    dbt = cc_storedvar.ServerStoredVar("databaseTitle", "text")
+    dbt = ServerStoredVar("databaseTitle", "text")
     dbt.setValue(pls.DATABASE_TITLE)
     for n in range(1, NUMBER_OF_IDNUMS + 1):
         i = n - 1
         nstr = str(n)
-        sv_id = cc_storedvar.ServerStoredVar("idDescription" + nstr, "text")
+        sv_id = ServerStoredVar("idDescription" + nstr, "text")
         sv_id.setValue(pls.IDDESC[i])
-        sv_sd = cc_storedvar.ServerStoredVar("idShortDescription" + nstr,
-                                             "text")
+        sv_sd = ServerStoredVar("idShortDescription" + nstr, "text")
         sv_sd.setValue(pls.IDSHORTDESC[i])
-    sv_id_policy_upload = cc_storedvar.ServerStoredVar("idPolicyUpload",
-                                                       "text")
+    sv_id_policy_upload = ServerStoredVar("idPolicyUpload", "text")
     sv_id_policy_upload.setValue(pls.ID_POLICY_UPLOAD_STRING)
-    sv_id_policy_finalize = cc_storedvar.ServerStoredVar("idPolicyFinalize",
-                                                         "text")
+    sv_id_policy_finalize = ServerStoredVar("idPolicyFinalize", "text")
     sv_id_policy_finalize.setValue(pls.ID_POLICY_FINALIZE_STRING)
     audit("Reset stored variables", from_console=True)
 
@@ -3494,7 +3496,7 @@ def cli_main():
     )
     parser.add_argument("-v", "--version", action="version",
                         version="CamCOPS {}".format(
-                            cc_version.CAMCOPS_SERVER_VERSION))
+                            CAMCOPS_SERVER_VERSION))
     parser.add_argument("-m", "--maketables",
                         action="store_true", default=False,
                         dest="maketables",
@@ -3561,7 +3563,7 @@ def cli_main():
 
     # Say hello
     if not silent:
-        print("CamCOPS version {}".format(cc_version.CAMCOPS_SERVER_VERSION))
+        print("CamCOPS version {}".format(CAMCOPS_SERVER_VERSION))
         print("By Rudolf Cardinal. See " + CAMCOPS_URL)
 
     # If we don't know the config filename yet, ask the user
@@ -3678,7 +3680,7 @@ Using database: {dbname} ({dbtitle}).
 12) Regenerate anonymisation staging database
 13) Exit
 """.format(sep=SEPARATOR_EQUALS,
-           version=cc_version.CAMCOPS_SERVER_VERSION,
+           version=CAMCOPS_SERVER_VERSION,
            dbname=pls.DB_NAME,
            dbtitle=get_database_title()))
 
@@ -3741,8 +3743,7 @@ def unit_tests():
     # skip: ask_user
     # skip: ask_user_password
     unit_test_ignore("", login_failed, "test_redirect")
-    unit_test_ignore("", account_locked,
-                     cc_dt.get_now_localtz(), "test_redirect")
+    unit_test_ignore("", account_locked, get_now_localtz(), "test_redirect")
     unit_test_ignore("", fail_not_user, "test_action", "test_redirect")
     unit_test_ignore("", fail_not_authorized_for_task)
     unit_test_ignore("", fail_task_not_found)

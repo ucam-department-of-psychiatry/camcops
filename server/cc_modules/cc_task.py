@@ -40,9 +40,9 @@ import datetime
 import operator
 import re
 
-import rnc_db
-import rnc_pdf
-import rnc_web as ws
+import pythonlib.rnc_db as rnc_db
+import pythonlib.rnc_pdf as rnc_pdf
+import pythonlib.rnc_web as ws
 
 from cc_audit import audit
 import cc_blob

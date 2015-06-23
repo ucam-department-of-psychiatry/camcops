@@ -30,7 +30,7 @@ import os
 import shutil
 import tempfile
 
-import rnc_plot
+import pythonlib.rnc_plot as rnc_plot
 
 
 # =============================================================================

@@ -34,8 +34,8 @@ import socket
 import subprocess
 import sys
 
-import rnc_db
-import rnc_web as ws
+import pythonlib.rnc_db as rnc_db
+import pythonlib.rnc_web as ws
 
 from cc_constants import ACTION, DATEFORMAT, ERA_NOW, PARAM, VALUE
 import cc_db
