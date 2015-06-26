@@ -7,21 +7,18 @@
 # Copyright (C) 2012-2013
 # Licence: http://creativecommons.org/licenses/by/3.0/
 
-# A two-script method:
-# (a) better exception reporting to the HTTP client --- SUPERSEDED by import cgitb
-# (b) imported modules are automatically compiled, so load faster
-# (c) Apache not quite so fussy about ownership of the script that gets edited more
-
-import camcopswebview # module that does the real work
+import camcopswebview  # module that does the real work
 
 #==============================================================================
 # CGI method - no longer used
 #==============================================================================
 
 # A two-script method:
-# (a) better exception reporting to the HTTP client --- SUPERSEDED by import cgitb
+# (a) better exception reporting to the HTTP client --- SUPERSEDED by import
+#     cgitb
 # (b) imported modules are automatically compiled, so load faster
-# (c) Apache not quite so fussy about ownership of the script that gets edited more
+# (c) Apache not quite so fussy about ownership of the script that gets edited
+#     more
 
 #camcopswebview.main()
 
@@ -32,6 +29,7 @@ import camcopswebview # module that does the real work
 import sys
 import cgitb
 import StringIO
+
 
 class ErrorReportingMiddleware(object):
     def __init__(self, app):
@@ -58,5 +56,5 @@ class ErrorReportingMiddleware(object):
 #==============================================================================
 # WSGI entry point
 #==============================================================================
-        
+
 application = ErrorReportingMiddleware(camcopswebview.application)

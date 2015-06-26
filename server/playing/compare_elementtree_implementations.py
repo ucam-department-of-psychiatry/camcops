@@ -2,8 +2,8 @@
 
 import xml.etree.ElementTree as ET
 import xml.etree.ElementTree as CET
-
 import time
+
 
 n = 100
 total_et = 0.0
@@ -20,7 +20,6 @@ for i in range(n):
     tree = CET.parse("/usr/share/camcops/server/strings.xml", parser)
     end = time.time()
     total_et += end - start
-    
+
 print "ElementTree mean: ", total_et/n
 print "cElementTree mean: ", total_cet/n
-

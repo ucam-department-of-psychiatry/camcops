@@ -1,5 +1,5 @@
 #!/usr/bin/python2.7
-# -*- encoding: utf8 -*- 
+# -*- encoding: utf8 -*-
 
 """
     Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
@@ -18,10 +18,17 @@
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
-    limitations under the License.    
+    limitations under the License.
 """
 
-from cc_task import *
+from cc_modules.cc_db import repeat_fieldspec
+from cc_modules.cc_string import WSTRING
+from cc_modules.cc_task import (
+    get_from_dict,
+    STANDARD_TASK_FIELDSPECS,
+    Task,
+)
+
 
 #==============================================================================
 # SAS
@@ -30,17 +37,20 @@ from cc_task import *
 class Sas(Task):
     NQUESTIONS = 10
     TASK_FIELDSPECS = repeat_fieldspec("q", 1, NQUESTIONS)
-    TASK_FIELDS = [ x["name"] for x in TASK_FIELDSPECS ]
-    
+    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
+
     @classmethod
     def get_tablename(cls):
         return "sas"
+
     @classmethod
     def get_taskshortname(cls):
         return "SAS"
+
     @classmethod
     def get_tasklongname(cls):
         return u"Simpson–Angus Extrapyramidal Side Effects Scale"
+
     @classmethod
     def get_fieldspecs(cls):
         return STANDARD_TASK_FIELDSPECS + Sas.TASK_FIELDSPECS
@@ -48,6 +58,7 @@ class Sas(Task):
     @classmethod
     def provides_trackers(cls):
         return True
+
     def get_trackers(self):
         return [
             {
@@ -58,24 +69,25 @@ class Sas(Task):
                 "axis_max": 40.5,
             }
         ]
-    
+
     def get_summaries(self):
         return [
-            ( "is_complete", SQLTYPE_BOOL, self.is_complete() ),
-            ( "total", SQLTYPE_INT, self.total_score() ),
+            self.is_complete_summary_field(),
+            dict(name="total", cctype="INT",
+                 value=self.total_score(), comment="Total score"),
         ]
 
     def is_complete(self):
         return self.are_all_fields_complete(Sas.TASK_FIELDS)
-        
+
     def total_score(self):
         return self.sum_fields(Sas.TASK_FIELDS)
-    
+
     def get_task_html(self):
         score = self.total_score()
         ANSWER_DICTS = []
         for q in range(1, Sas.NQUESTIONS + 1):
-            d = { None: "?" }
+            d = {None: "?"}
             for option in range(0, 5):
                 d[option] = WSTRING("sas_q" + str(q) + "_option" + str(option))
             ANSWER_DICTS.append(d)
@@ -87,7 +99,10 @@ class Sas(Task):
                 </table>
             </div>
             <table class="taskdetail">
-                <tr><th width="30%">Question</th><th width="70%">Answer</th></tr>
+                <tr>
+                    <th width="30%">Question</th>
+                    <th width="70%">Answer</th>
+                </tr>
         """.format(
             self.get_is_complete_tr(),
             WSTRING("total_score"), score
@@ -95,10 +110,9 @@ class Sas(Task):
         for q in range(1, Sas.NQUESTIONS + 1):
             h += u"""<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
                 WSTRING("sas_q" + str(q) + "_s"),
-                get_from_dict( ANSWER_DICTS[q - 1], getattr(self, "q" + str(q)) )
+                get_from_dict(ANSWER_DICTS[q - 1], getattr(self, "q" + str(q)))
             )
         h += u"""
             </table>
         """
         return h
-

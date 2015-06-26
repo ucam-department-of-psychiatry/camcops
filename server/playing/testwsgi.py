@@ -2,14 +2,14 @@
 
 # http://pylonsbook.com/en/1.0/the-web-server-gateway-interface-wsgi.html
 
-import cgi
 import cgitb
 import os
 import StringIO
 import sys
 
-import rnc_db
-import rnc_web as ws
+import pythonlib.rnc_db as rnc_db
+import pythonlib.rnc_web as ws
+
 
 #==============================================================================
 # Actual demo application
@@ -23,40 +23,41 @@ def connect_to_database(environ):
     CAMCOPS_DB_SERVER = environ.get("CAMCOPS_DB_SERVER", "localhost")
     CAMCOPS_DB_PORT = int(environ.get("CAMCOPS_DB_PORT", "3306"))
 
-    if CAMCOPS_DB_PASSWORD == None:
+    if CAMCOPS_DB_PASSWORD is None:
         raise Exception("No database password specified")
-    db = dbcore.DatabaseSupporter()
+    db = rnc_db.DatabaseSupporter()
     db.connect_to_database_mysql(
-        server = CAMCOPS_DB_SERVER,
-        port = CAMCOPS_DB_PORT,
-        database = CAMCOPS_DB_NAME,
-        user = CAMCOPS_DB_USER,
-        password = CAMCOPS_DB_PASSWORD
+        server=CAMCOPS_DB_SERVER,
+        port=CAMCOPS_DB_PORT,
+        database=CAMCOPS_DB_NAME,
+        user=CAMCOPS_DB_USER,
+        password=CAMCOPS_DB_PASSWORD
     )
     return db
 
+
 def application_show_environment_test_database(environ, start_response):
-    LINEBREAK = "===========================================================\n"
-    
-    status = '200 OK' 
+    LINEBREAK = "=" * 79 + "\n"
+
+    status = '200 OK'
     if not environ['mod_wsgi.process_group']:
         output = 'mod_wsgi EMBEDDED MODE'
     else:
         output = 'mod_wsgi DAEMON MODE'
-    
+
     output += "\n\nenviron parameter:\n" + LINEBREAK
-    for (k,v) in sorted(environ.iteritems()):
+    for (k, v) in sorted(environ.iteritems()):
         output += str(k) + ": " + str(v) + "\n"
-        
+
     output += "\nos.environ:\n" + LINEBREAK
-    for (k,v) in sorted(os.environ.iteritems()):
+    for (k, v) in sorted(os.environ.iteritems()):
         output += str(k) + ": " + str(v) + "\n"
 
     output += "\nCGI form:\n" + LINEBREAK
     form = ws.get_cgi_fieldstorage_from_wsgi_env(environ)
     for k in form.keys():
         output += "{0} = {1}\n".format(k, form.getvalue(k))
-        
+
     output += "\nCGI value for 'test' field:\n" + LINEBREAK
     output += "{}\n".format(ws.get_cgi_parameter_str(form, "test"))
 
@@ -65,21 +66,25 @@ def application_show_environment_test_database(environ, start_response):
 
     # This successfully writes to the Apache log:
     sys.stderr.write("testwsgi.py: STARTING\n")
-    
+
     # Let's not bother with a persistent database connection for now.
-    # http://stackoverflow.com/questions/405352/mysql-connection-pooling-question-is-it-worth-it
+    # http://stackoverflow.com/questions/405352/mysql-connection-pooling-question-is-it-worth-it  # noqa
 
     testDatabase = False
     if testDatabase:
         db = connect_to_database(environ)
         output += "\nCONNECTED TO DATABASE\n" + LINEBREAK
-        output += "Count: " + str( db.fetchvalue("SELECT COUNT(*) FROM expdetthreshold") ) + "\n"
+        output += (
+            "Count: " +
+            str(db.fetchvalue("SELECT COUNT(*) FROM expdetthreshold")) + "\n"
+        )
 
     # Final output
     response_headers = [('Content-type', 'text/plain'),
                         ('Content-Length', str(len(output)))]
     start_response(status, response_headers)
     return [output]
+
 
 #==============================================================================
 # Wrapper to print errors
@@ -110,5 +115,6 @@ class ErrorReportingMiddleware(object):
 #==============================================================================
 # WSGI entry point
 #==============================================================================
-        
-application = ErrorReportingMiddleware(application_show_environment_test_database)
+
+application = ErrorReportingMiddleware(
+    application_show_environment_test_database)
