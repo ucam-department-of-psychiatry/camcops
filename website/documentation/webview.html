@@ -1,0 +1,327 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux (vers 25 March 2009), see www.w3.org">
+  <!--#include virtual="/camcops/ssi/camcops_html_head.shtml" -->
+
+  <title>CamCOPS – Exploring the web viewer</title>
+</head>
+
+<body onload="generateTOC(document.getElementById('toc'));">
+  <!--#set var="HEADER_TITLE" value="CamCOPS – Instructions for the web viewer" -->
+  <!--#set var="HEADER_URL" value="documentation/webview.html" -->
+  <!--#set var="HEADER_BACK_URL" value="index.html" -->
+  <!--#set var="HEADER_BACK_LABEL" value="Documentation" -->
+  <!--#include virtual="/camcops/ssi/camcops_page_header.shtml" -->
+
+  <div id="toc"></div>
+
+  <h1>General</h1>
+
+  <ul>
+    <li>Begin by logging in.</li>
+
+    <li><b><i>Hint:</i></b> Clicking on the CamCOPS logo (top left) will return
+    you to the main menu at all times.</li>
+
+    <li>The database’s title and your username are always shown.</li>
+
+    <li>See also the <a href="tour.html">tour</a>.</li>
+  </ul>
+
+  <h1>Main data views</h1>
+
+  <h2>View tasks</h2>
+
+  <p>This screen shows you a set of filters, and matching tasks. You can filter
+  by:</p>
+
+  <ul>
+    <li>any one of the ID numbers;</li>
+
+    <li>surname, forename, DOB, sex;</li>
+
+    <li>task type;</li>
+
+    <li>whether the task was properly completed;</li>
+
+    <li>the device and/or user that uploaded the task;</li>
+
+    <li>a start and/or end date, to constrain the tasks to a date range;</li>
+
+    <li>any text found in the fields for the task.
+
+      <ul>
+        <li><b><i>Hint:</i></b> e.g. type in “paracetamol” to find clerkings
+        that mention paracetamol anywhere.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <p>You may view each task in two formats:</p>
+
+  <ul>
+    <li>
+      <b>HTML:</b> this will be served to you fastest, so is useful for quick
+      viewing, but is <b>not</b> suitable for printing in a clinical
+      environment (because it won’t have patient identifiers on each page).
+
+      <ul>
+        <li><b><i>Hint:</i></b> At the bottom of the HTML, there will be a link
+        to view the PDF <i>(and perhaps links to view older/newer versions of
+        the same task, if it has been edited and re-uploaded; the newest will
+        always be shown first)</i>.</li>
+        <li><i>Superusers have some additional options; see
+        <a href="admin.html">Administration</a>.</i></li>
+      </ul>
+    </li>
+
+    <li>
+      <b>PDF:</b> this is suitable for printing, with identifiers on each page
+      and a signature block for clinician-administered tasks (but it takes
+      slightly longer to appear, as the server has to generate it first).
+
+      <ul>
+        <li>Here are some fictional examples: <a href=
+        "dummy_task_1.pdf">PHQ-9</a>; <a href="dummy_task_2.pdf">psychiatric
+        clerking</a> (albeit not a very good one!).</li>
+
+        <li><b><i>Security hint:</i></b> some tablet browsers (e.g. Chrome for
+        Android) save PDFs to the tablet by default. In that case, avoid
+        viewing PDFs from that browser, or you’ll have to clean the
+        patient-identifiable PDF off the tablet yourself.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h2>Trackers</h2>
+
+  <p>Trackers show quantities over time. They work like this:</p>
+
+  <ul>
+    <li>you choose a patient (using one of the ID numbers);</li>
+
+    <li>optionally, you specify a start and/or end date;</li>
+
+    <li>you choose one or more or all tasks (from those that support
+    trackers);</li>
+
+    <li>you specify an HTML (quick) or a PDF (print-formatted) view.</li>
+  </ul>
+
+  <p>Then:</p>
+
+  <ul>
+    <li>All matching tasks are found. The tracker is generated.</li>
+
+    <li>A <b>consistency check</b> is performed and added to the tracker to
+    ensure that names, dates of birth, sexes, and all other ID numbers are
+    consistent in all the tasks. <b>Beware</b> if the consistency check
+    fails.</li>
+  </ul>
+
+  <p>A sample (fictional) tracker might look like this: <a href=
+  "dummy_tracker.pdf">tracker PDF</a></p>
+
+  <h2>Clinical text views</h2>
+
+  <p>Whereas trackers show numerical information, clinical text views show
+  clinically relevant textual information over time.</p>
+
+  <ul>
+    <li>you choose a patient (using one of the ID numbers);</li>
+
+    <li>optionally, you specify a start and/or end date;</li>
+
+    <li>you specify an HTML (quick) or a PDF (print-formatted) view.</li>
+  </ul>
+
+  <p>Then:</p>
+
+  <ul>
+    <li>All matching tasks are found. The view is generated.</li>
+
+    <li>A <b>consistency check</b> is performed and added to the tracker to
+    ensure that names, dates of birth, sexes, and all other ID numbers are
+    consistent in all the tasks. <b>Beware</b> if the consistency check
+    fails.</li>
+
+    <li>Tasks providing primary clinical text (e.g. diagnostic coding,
+    psychiatric clerkings, and progress notes) show that information
+    directly.</li>
+
+    <li>Other tasks are noted in the chronology (and in the HTML version of the
+    view, are hyperlinked to).</li>
+  </ul>
+
+  <p>A sample (fictional) clinical text view might look like this: <a href=
+  "dummy_clinicaltextview.pdf">clinical text view PDF</a></p>
+
+  <h1>Reports and data dumps <i>(for authorized users)</i></h1>
+
+  <p>These options are not visible to most users.</p>
+
+  <h2>Run reports</h2>
+
+  <p>This provides a selection of built-in reports that you can run. Output is
+  offered in HTML (for easy viewing) or tab-separated values (TSV) format for
+  downloading and importing into spreadsheets and the like.</p>
+
+  <h2>Basic research dump (fields and summaries)</h2>
+
+  <p>This should be your starting point for a research dump. It’s not quite as
+  powerful as the table/view data dump (see below), but it’s fairly
+  comprehensive and much simpler to use. This option provides tab-separated
+  value (TSV) files for each task (occasionally more than one per task, but
+  usually one) in a ZIP file. By default it is restricted to current tasks
+  (generally helpful as you don’t often want to view the edit history of all
+  tasks). It incorporates patient and summary information for you, and the
+  summaries are calculated “live” (unlike the table/view data dump, below,
+  which requires you to regenerate summary tables first). So that’s also
+  helpful. The configuration screen provides plenty of <b>explanation</b>,
+  along with examples of how to import the resulting files into different
+  software packages. You can choose to download:</p>
+
+  <ul>
+    <li>Everything (all current records);</li>
+
+    <li>those tasks specified by your current task filters (e.g. to restrict by
+    patient, start/end date, and/or a single task type, etc.);</li>
+
+    <li>just specific tasks (all current records for tasks that you
+    choose).</li>
+  </ul>
+
+  <h2>Regenerate summary tables</h2>
+
+  <p>This wipes and regenerates the <a href="summary_tables.html">summary
+  tables</a>. Use it before dumping summary data with the table/view data dump
+  option (below).</p>
+
+  <h2>Dump table/view data</h2>
+
+  <p>This allows authorized (highly privileged) users to download task data
+  (with summary information), BLOBs (binary large objects, such as pictures),
+  and patient information. The data is in the same format as the underlying
+  database; that is, more powerful but more complex than the basic research
+  dump. The SQL option allows you to recreate a copy of the database. With this
+  option, views are downloaded as view definitions, just as in the original
+  database. The TSV option downloads views as their content, which is often
+  convenient. (Beware downloading the BLOBs. If you insist on downloading the
+  BLOBs, they will be hex-encoded in the TSV format, with the MySQL
+  <code>HEX()</code> function.)</p>
+
+  <h2>Inspect table definitions (with or without view definitions)</h2>
+
+  <p>These options allow you to view the table structure in use on the server.
+  Most significantly, you can see the <b>field comments</b>, which give details
+  of each field. Summary tables will only be included if you’ve generated them
+  (see above).</p>
+
+  <h1>Administrative options <i>(administrators only)</i></h1>
+
+  <h2>Manage users</h2>
+
+  <p>This allows administrators to add and delete users, reset their passwords,
+  and edit their permissions.</p>
+
+  <p>The permissions are:</p>
+
+  <ul>
+    <li><b>May use web viewer:</b> allows access to this web viewer. Usually
+    YES.</li>
+
+    <li><b>May view other users’ records:</b> allows the user to see tasks
+    uploaded by others. Usually YES (beware saying NO: there is a significant
+    clinical risk to being unable to see data!).</li>
+
+    <li><b>Sees all patients’ records when unfiltered:</b> usually NO, for
+    reasons of confidentiality; this is usually a superuser permission (though
+    it may slow the webview down when no patient is selected).</li>
+
+    <li><b>May upload data from tablet devices:</b> usually YES, or the user
+    will be unable to upload data from tablets; however, NO may be correct for
+    administrative/support staff.</li>
+
+    <li><b>May manage users:</b> usually NO; this defines superuser
+    authority.</li>
+
+    <li><b>May register tablet devices:</b> depends on your local security
+    policy (if you say NO, an administrator will have to register all users’
+    tablets).</li>
+
+    <li><b>May use mobileweb storage facility:</b> a facility in development,
+    so say NO for now.</li>
+
+    <li><b>May dump data:</b> ability to download raw data (typically YES for
+    authorized researchers and NO for all others). Users with this permission
+    can see raw data from the entire database regardless of other
+    settings.</li>
+
+    <li><b>May run reports:</b> ability to run prespecified reports (typically
+    YES for selected clinicians and administrators). Users with this permission
+    can run reports based on data from the entire database regardless of other
+    settings.</li>
+  </ul>
+
+  <h2>Delete patient entirely</h2>
+
+  <p>This completely destroys all data associated with a patient, as defined by
+  a specific ID number. Use it e.g. when the records are old enough that they
+  must be destroyed. Use it with great care!</p>
+
+  <p><i><b>Note:</b> you can erase data for individual tasks, or apply a
+  special note to all versions of a task, using the superuser options on that
+  task’s HTML view. See <a href="admin.html">Administration</a>.</i></p>
+
+  <h2>View audit trail</h2>
+
+  <p>Explore the recent (or not so recent) audit log.</p>
+
+  <h2>View HL7 message log</h2>
+
+  <p>Shows recent tasks exported to different recipients via the HL7 or file
+  export system. Each message is associated with a run (see below).</p>
+
+  <h2>View HL7 run log</h2>
+
+  <p>Shows recent HL7/file export runs. Note that many runs may send no
+  messages, because there were no new tasks to export.</p>
+
+  <h1>Other actions</h1>
+
+  <h2>Show server identification policies</h2>
+
+  <p>This displays:</p>
+
+  <ul>
+    <li>the server’s long and short descriptions of all the ID numbers — see
+    <a href="id.html">Patient Identification</a></li>
+
+    <li>the server’s “upload” and “finalize” ID policies — see <a href=
+    "id.html">Patient Identification</a></li>
+  </ul>
+
+  <h2>Introspect source code <i>(if enabled)</i></h2>
+
+  <p>If enabled on the server, this allows you to browse the <i>current</i>
+  source code that the server is running, and the <i>most recent</i> tablet
+  source code available when the server software was built. You may find this
+  option helpful for understanding the internal workings of each task, e.g.
+  scoring systems, or simply of interest. If your administrator has not enabled
+  introspection, the source code is available via <a href=
+  "https://www.camcops.org/">www.camcops.org</a>.</p>
+
+  <h2>Change password</h2>
+
+  <p>Self-explanatory.</p>
+
+  <h2>Log out</h2>
+
+  <p>Self-explanatory.</p>
+  <!--#include virtual="/camcops/ssi/camcops_footer.shtml" -->
+</body>
+</html>

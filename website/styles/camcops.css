@@ -1,0 +1,392 @@
+/********************************************
+   LAYOUT
+********************************************/
+
+.HeaderLeft {
+	float: left;
+}
+.HeaderRight {
+	float: right;
+}
+.HeaderCentre {
+	margin: auto;
+}
+.body {
+	margin: 10px 10px 10px 10px;		/* top, right, bottom, left */
+}
+.body p {
+	/* We need to fix the effects of setting margins to zero in "*". */
+	/* But don't fix it globally (p) - that screws up the footer. */
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+.body ul {
+	/* We need to fix the effects of setting margins to zero in "*" */
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+.footercontent {
+	padding: 3px;
+}
+.footerright {
+	float: right;
+	width: 100px;
+	margin: 0;
+	text-align: left;
+	padding-top: 5px;
+}
+
+table.monospace {
+	font-family: Consolas, Monaco, 'Lucida Console', 'Liberation Mono', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New';
+	font-size: 11px;
+
+    vertical-align: top;
+    border-collapse: collapse;
+    border: 1px solid black;
+    padding: 0px;
+    margin: 2px 0px 2px 0px;
+}
+table.monospace tr, table.monospace th, table.monospace td { /* NB syntax: http://stackoverflow.com/questions/632100/apply-css-style-to-child-elements */
+    vertical-align: top;
+    text-align: left;
+    margin: 0px;
+    padding: 2px;
+    border: 1px solid black;
+    line-height: 120%;
+}
+
+.questionnaire {
+    display: inline-block;
+    margin: 2px 0px;
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: white;
+    font-weight: bold;
+    color: black;
+}
+img.questionnaire, .questionnaire img {
+    width: 36px;
+    height: 36px;
+    vertical-align: middle;
+    margin: 2px 0px;
+}
+
+.menu {
+    display: inline-block;
+    margin: 2px 0px;
+    padding: 0px 2px;
+    background-color: black;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    color: white;
+}
+img.menu, .menu img {
+    width: 36px;
+    height: 36px;
+    vertical-align: middle;
+    margin: 2px 0px;
+}
+
+.unselected {
+    color: black;
+    background-color: #D3D3D3;
+}
+.unselected_required {
+    color: black;
+    background-color: yellow;
+}
+.selected_true {
+    color: white;
+    background-color: blue;
+}
+.selected_false {
+    color: white;
+    background-color: black;
+}
+
+/********************************************
+   MULTI-COLUMN LAYOUT
+********************************************/
+
+/* http://matthewjamestaylor.com/blog/equal-height-columns-cross-browser-css-no-hacks */
+
+#container2 {
+	clear:left;
+	float:left;
+	width:100%;
+	overflow:hidden;
+}
+#container1 {
+	float:left;
+	width:100%;
+	position:relative;
+	right:50%;
+}
+#col1 {
+	float:left;
+	width:46%;
+	position:relative;
+	left:52%;
+	overflow:hidden;
+}
+#col2 {
+	float:left;
+	width:46%;
+	position:relative;
+	left:56%;
+	overflow:hidden;
+}
+
+
+/********************************************
+   HTML ELEMENTS
+********************************************/
+
+body {
+	background: rgb(255, 255, 238); /* #ffffee */
+	font-size: medium;
+	font-family: "Times New Roman", Times, serif;
+	text-align: left;
+}
+h1 {
+	margin-top: 20px;
+	margin-bottom: 15px;
+	color: rgb(0, 13, 94);
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	font-size: large;
+	border-bottom:1px dotted #0A4369;
+}
+h2 {
+	color: rgb(0, 13, 94);
+	font-weight: bold;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: medium;
+}
+h3 {
+	color: rgb(0, 13, 94);
+	font-weight: bold;
+	font-style: italic;
+	font-family: "Times New Roman", Times, serif;
+	font-size: medium;
+}
+p {
+}
+td {
+	vertical-align: top;
+}
+div.centred {				/* Use as <div class="centred"> */
+	text-align: center;
+}
+div.centred table {			/* Use as <div class="centred"> <table> ... */
+	margin: 0 auto;
+	text-align: left;
+}
+div#toc ul {
+  list-style-type: none;
+}
+pre.code1 { /* Use with <pre> for block source code, e.g. <pre class="code1">blahblah</pre> */
+    font-size: 0.8em;
+	font-family: Consolas, Monaco, 'Lucida Console', 'Liberation Mono', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New';
+
+	margin: 5px 5px 5px 40px;		/* top, right, bottom, left */
+	padding: 5px 5px 5px 5px;
+	text-align: left;
+	display: block;
+	overflow: auto;
+	background: #eeeeee;
+	border-left: 3px solid #72A545;
+    white-space:pre-wrap;			/* pre, pre-wrap are some of the alternatives. */
+}
+pre.code2 { /* Use with <pre> for block source code, e.g. <pre class="code2">blahblah</pre> */
+    font-size: 0.8em;
+	font-family: Consolas, Monaco, 'Lucida Console', 'Liberation Mono', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New';
+
+	margin: 5px 5px 5px 40px;		/* top, right, bottom, left */
+	padding: 5px 5px 5px 5px;
+	text-align: left;
+	display: block;
+	overflow: auto;
+	background: #ddffdd;
+	border-left: 3px solid #72A545;
+    white-space:pre-wrap;			/* pre, pre-wrap are some of the alternatives.  */
+}
+pre.output { /* Use with <pre> for output, e.g. <pre class="output">blahblah</pre> */
+	margin: 5px 5px 5px 40px;		/* top, right, bottom, left */
+	padding: 5px 5px 5px 5px;
+	text-align: left;
+	display: block;
+	overflow: auto;
+    font-size: 0.8em;
+	font-family: Consolas, Monaco, 'Lucida Console', 'Liberation Mono', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New';
+
+	color: #0000ff; /* font colour */
+	background: #ffffff;
+	border-left: 3px solid #0000ff;
+    white-space:pre-wrap;			/* pre, pre-wrap are some of the alternatives */
+}
+code { /* Predefined HTML tag. Used to source code within main content, e.g. to list types type <code>ls</code> and blahblah. */
+    font-size: 0.8em;
+	font-family: Consolas, Monaco, 'Lucida Console', 'Liberation Mono', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New';
+    background-color: #eeeeee;
+    padding: 1px 5px 1px 5px;
+}
+.publicationtext {
+	font-size: small;
+	font-family: Georgia, "Times New Roman", Times, serif;
+}
+.publicationtext li {
+	padding-top: 3px;
+	padding-bottom: 3px;
+}
+.publicationtext td {
+	padding-left: 5px;
+	padding-right: 5px;
+}
+.publicationtext img { /* What to do with images in publicationtext */
+	border: 0;
+}
+.publicationtext img.top { /* What to do with images in publicationtext */
+	vertical-align: top;
+}
+.publicationtext img.topright { /* What to do with images in publicationtext */
+	float: right;
+	vertical-align: top;
+}
+.publicationtext a:link {
+	color: #009900;
+}
+.publicationtext a:visited {
+	color: #666699;
+}
+.publicationtext a:hover {
+	color: #333333;
+}
+.publicationtext a:focus {
+	color: #333333;
+}
+.publicationtext a:active {
+	color: #009900;
+}
+
+div.smallprint {
+	font-size: x-small;
+}
+ol.lower-roman {list-style-type: lower-roman}
+ul.nobullet {list-style-type: none}
+
+table {
+    vertical-align: top;
+    border-collapse: collapse;
+    border: 1px solid black;
+    padding: 0px;
+    margin: 5px 0px 5px 0px;
+}
+th, td {
+    vertical-align: top;
+    text-align: left;
+    margin: 0px;
+    padding: 2px;
+    border: 1px solid black;
+    line-height: 1.1em;
+}
+
+/********************************************
+   ID CLASSES
+   (START WITH #;
+    USE ONLY ONCE;
+    BLOCK = MULTI-LINE = CAN RUN OVER MULTIPLE LINES)
+********************************************/
+
+
+
+#centred {
+	text-align: center;
+}
+
+/********************************************
+ COLOUR MODIFICATIONS ETC. TO THE FOOTERS
+********************************************/
+
+.header {
+    display: block;
+    clear: both;
+    overflow: hidden; /* so the div expands to its floating contents */
+    width: 100%;
+	border-bottom: solid 1px #999999;
+	margin-top: 20px;
+}
+.header .headericon {
+    width: 48px;
+    float: left; /* requires both L/R to float and clear:both for IE */
+    text-decoration: none;
+    border: 0px;
+}
+.header img { width: 48px; height: 48px; vertical-align: text-top; } /* Logo */
+.header .headermain {
+    padding-left: 48px;
+}
+.header .headertitle {
+    width: 70%;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	font-style: italic;
+	font-weight: bold;
+	font-size: 2em;
+    float: left;
+}
+.header .headerright {
+    width: 30%;
+    text-decoration: none;
+    word-wrap: break-word;
+    border: 0px;
+    float: right;
+}
+
+.header .bread {
+	text-align: right;
+	font-style: italic;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+#pageurl {
+	text-align: right;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: small;
+	padding-bottom: 3px;
+}
+.leftbox {
+	/* font-family: Georgia, "Times New Roman", Times, serif; */
+	font-family: Arial, Helvetica, sans-serif;
+	/* font-style: italic; */
+}
+.leftbox p {
+	margin: 0px 0px 4px 0px;
+}
+.footer {
+	background: rgb(0,13,94);
+	font-size: x-small;
+	color: rgb(255,204,0);
+	text-align: center;
+}
+
+
+/********************************************
+   ANCHORS, LINKS, PSEUDO-CLASSES
+********************************************/
+
+a:link {
+	color: #0000ee;
+}
+a:visited {
+	color: #551a8b;
+}
+a:hover {
+	/* color: #333333; */
+}
+a:focus {
+	/* color: #333333; */
+}
+a:active {
+	color: #ff0000;
+}

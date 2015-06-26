@@ -1,0 +1,359 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux (vers 25 March 2009), see www.w3.org">
+  <!--#include virtual="/camcops/ssi/camcops_html_head.shtml" -->
+
+  <title>CamCOPS – Tablet configuration</title>
+</head>
+
+<body onload="generateTOC(document.getElementById('toc'));">
+  <!--#set var="HEADER_TITLE" value="CamCOPS – Tablet configuration" -->
+  <!--#set var="HEADER_URL" value="documentation/tablet.html" -->
+  <!--#set var="HEADER_BACK_URL" value="index.html" -->
+  <!--#set var="HEADER_BACK_LABEL" value="Documentation" -->
+  <!--#include virtual="/camcops/ssi/camcops_page_header.shtml" -->
+
+  <div id="toc"></div>
+
+  <h1>Usernames and passwords in CamCOPS</h1>
+
+  <p>In a low-security environment, you’ll be your own administrator. In a
+  high-security environment, we’ll distinguish the user (“clinician”) from the
+  technical security person (“administrator”).</p>
+
+  <p>CamCOPS uses the following usernames and passwords:</p>
+
+  <ul>
+    <li>TABLET PASSWORD. Your tablet will need a password to unlock it.</li>
+
+    <li>CAMCOPS APP PASSWORD. The CamCOPS application will also need a password
+    to unlock it.</li>
+
+    <li>CAMCOPS PRIVILEGED-MODE PASSWORD. This password unlocks the deep dark
+    secrets of the app. Whoever has this can, for example, change the server
+    that the app sends its data to. In a high-security environment, this
+    password is typically known to the administrator, but not the
+    clinician.</li>
+
+    <li>CAMCOPS SERVER USERNAME and CAMCOPS SERVER PASSWORD. These authenticate
+    a user (who might be a clinician or an administrator) to the web interface,
+    hosted by the CamCOPS server. You may use this username/password in these
+    circumstances:
+
+      <ol>
+        <li>The CamCOPS app needs to know a username/password combination to
+        register with a new server. (Registration is typically done by the
+        administrator using their username/password.)</li>
+
+        <li>The CamCOPS app needs to know a username/password combination to
+        upload data to the server. (Uploading is typically done by the
+        clinician using their username/password. The app may or may not be
+        allowed to store the password — that’s a local security policy decision
+        — but it will store the username.)</li>
+
+        <li>You will type in your username and password to access the CamCOPS
+        web viewer. This interface is used primarily to view tasks that have
+        been uploaded from tablets. Administrators can also use this interface
+        to create or edit authorized users.</li>
+      </ol>
+    </li>
+  </ul>
+
+  <h1>Configuring your tablet before using CamCOPS</h1>
+
+  <h2>iPad</h2>
+
+  <ul>
+    <li>Set up appropriate security on your tablet. For a research environment
+    with no patient-identifiable data, this may involve no work. But for a
+    secure environment:
+
+      <ul>
+        <li>Home → Settings → General → Passcode Lock
+
+          <ul>
+            <li>... → Simple passcode = OFF. Why? Because 4-digit passcodes are
+            weak; use a strong password (<a href="http://xkcd.com/936/">what’s
+            a strong password?</a>; <a href=
+            "https://xato.net/passwords/analyzing-the-xkcd-comic/#.UpdCtB8Sqak">
+            more on strong passwords</a>), and don’t forget it! We’ll call this
+            the TABLET PASSWORD.</li>
+
+            <li>... → Turn passcode on</li>
+
+            <li>... → Require passcode = immediately.</li>
+
+            <li>... → Erase data = ON (which will erase all data on the iPad
+            after 10 failed passcode attempts).</li>
+          </ul>
+        </li>
+      </ul>Setting a passcode lock <a href=
+      "http://support.apple.com/kb/ht4175">automatically encrypts data on the
+      iPad</a> <sup>[1]</sup>.
+    </li>
+
+    <li>Install CamCOPS; see the <a href="../download/index.html">download</a>
+    page.</li>
+  </ul>
+
+  <p><i>[1] The iPad's keychain is still vulnerable to attack: <a href=
+  "http://www.maravis.com/ios-device-encryption-not-effective/">summary</a>,
+  <a href=
+  "http://www.maravis.com/blog/wp-content/uploads/iOS-device-encryption-security.pdf">
+  PDF</a>. However, CamCOPS does not store its passwords in the keychain, and
+  app storage is separate from the keychain.</i></p>
+
+  <h2>Android</h2>
+
+  <ul>
+    <li>Set up appropriate security on your tablet. For a research environment
+    with no patient-identifiable data, this may involve no work. But for a
+    secure environment:
+
+      <ul>
+        <li>Plug in the tablet; charge its battery fully. (Encryption takes a
+        while and requires a charged tablet that’s plugged in.)</li>
+
+        <li>Settings → Security → Screen lock → Password</li>
+
+        <li>Enter a strong password (<a href="http://xkcd.com/936/">what’s a
+        strong password?</a>; <a href=
+        "https://xato.net/passwords/analyzing-the-xkcd-comic/#.UpdCtB8Sqak">more
+        on strong passwords</a>), and don’t forget it! We’ll call this the
+        TABLET PASSWORD.</li>
+
+        <li>Settings → Security → Encryption → Encrypt tablet → Encrypt
+        tablet</li>
+
+        <li>... which may take a while.</li>
+      </ul>
+    </li>
+
+    <li>Install CamCOPS; see the <a href="../download/index.html">download</a>
+    page</li>
+  </ul>
+
+  <h1>Configuring CamCOPS before using it</h1>
+
+  <p><b>Using the CamCOPS server’s web interface, the administrator
+  should:</b></p>
+
+  <ul>
+    <li>Create a username and password for the new user. Normal settings:
+
+      <ul>
+        <li>May use web viewer? Almost certainly YES.</li>
+
+        <li>May view other users’ records? Almost certainly YES, for clinical
+        safety reasons.</li>
+
+        <li>Sees all patients’ records when unfiltered? Almost certainly NO,
+        for confidentiality reasons.</li>
+
+        <li>May upload data? YES.</li>
+
+        <li>May manage users? NO; that’s for administrators.</li>
+
+        <li>May register tablet devices? Choose NO in a high-security
+        environment (but this means you will have to register the tablet for
+        the user).</li>
+
+        <li>May use webstorage? Currently this is a feature in beta testing;
+        the security-conscious should choose NO for now.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <p><b>On the tablet, the administrator should:</b></p>
+
+  <ol>
+    <li>Touch the padlock (top right) to unlock. (The first time CamCOPS is
+    run, there will be no lock passwords; you need to set them, as below.)</li>
+
+    <li>Settings → Set privileged mode (the icon at the top right will now show
+    a golden pair of padlocks).</li>
+
+    <li>Settings → Change privileged-mode password → enter a password for this
+    tablet; do NOT tell the clinician; keep it in your Administrator’s
+    Safe.</li>
+
+    <li>Settings → Change app password → enter a starting password for the
+    clinician (their CAMCOPS APP PASSWORD); tell the clinician what this
+    is.</li>
+
+    <li>Settings → Server settings
+
+      <ul>
+        <li>Set the server hostname</li>
+
+        <li>Set the server path</li>
+
+        <li>Ensure “Validate SSL certificates?” is set to “Yes”.</li>
+
+        <li>Choose the “Store user’s server password?” option. Your users will
+        probably thank you for choosing “Yes”. The especially
+        security-conscious may want “No”. (This setting determines whether the
+        tablet will store an encrypted version of the user’s password; it
+        allows the user to unlock CamCOPS with their CamCOPS app password, but
+        then not to have to re-enter their CamCOPS server password each time
+        they upload.)</li>
+
+        <li>Other values can typically be left as the default.</li>
+      </ul>
+    </li>
+
+    <li>Assuming you will not allow the user to register devices with the
+    server, you’ll have to do it yourself:
+
+      <ol>
+        <li>Settings → User settings → Username: your <b>administrative</b>
+        CAMCOPS SERVER USERNAME. (Don’t enter a password here, even if you
+        allow users to store their password; you don’t want your
+        administrator’s password saved.)</li>
+
+        <li>Settings → Register with server. (It will ask for your
+        administrative CAMCOPS SERVER PASSWORD, and then should initiate
+        communication with the server, and succeed). <b>Until registration has
+        succeeded, the app will not be able to upload.</b></li>
+
+        <li><i>Optionally, to be nice to the user:</i> Settings → User settings
+        → Username: the <b>clinician’s</b> CAMCOPS SERVER USERNAME</li>
+      </ol>
+    </li>
+
+    <li>Ensure you haven’t accidentally stored your administrative password in
+    the app (Settings → User settings). If you followed the instructions above,
+    you won’t have done.</li>
+
+    <li>Touch the padlock until it shows the red, locked icon. You can now give
+    the tablet to your clinician.</li>
+  </ol>
+
+  <p><b>The clinician should then:</b></p>
+
+  <ul>
+    <li>If the whole tablet is locked, unlock it with the TABLET PASSWORD.</li>
+
+    <li>Touch the padlock to unlock. You will need your CAMCOPS APP PASSWORD,
+    supplied to you by your administrator.</li>
+
+    <li>Settings → Change app password → change the password to a strong
+    password that you like (<a href="http://xkcd.com/936/">what’s a strong
+    password?</a>; <a href=
+    "https://xato.net/passwords/analyzing-the-xkcd-comic/#.UpdCtB8Sqak">more on
+    strong passwords</a>). Remember it.</li>
+
+    <li>Settings → Intellectual property (IP) permissions → answer all the
+    questions <a href="ip.html">honestly</a>.</li>
+
+    <li>Settings → User settings
+
+      <ul>
+        <li>Device friendly name: e.g. “Joe Smith’s LPS iPad”.</li>
+
+        <li>Username on server: your CAMCOPS SERVER USERNAME, supplied to you
+        by your administrator.</li>
+
+        <li><i>(If your administrator has allowed you to store your server
+        password:)</i> Password on server: your CAMCOPS SERVER PASSWORD,
+        supplied to you by your administrator.</li>
+
+        <li><b>Default clinician’s specialty/name/professional
+        registration/post/contact details:</b> set values that you would
+        typically enter in patients’ notes. For example, a UK doctor might
+        have: specialty = "Liaison psychiatry"; name = "Dr John Doe";
+        professional registration = "GMC# 123456"; post = "Consultant"; contact
+        details = "extension 1234; bleep 5678".</li>
+      </ul>
+    </li>
+  </ul>
+
+  <p><i>The <b>clinician’s name</b> that you enter will be automatically
+  processed into prefix/forename/surname components for HL-7 diagnosis (DG1)
+  segments, if you use a recognized format. Recognized formats include, for
+  example, Prefix Forename Surname (where prefix is Dr, Prof, Miss, Mrs, Ms,
+  Mr, Sr, with or without full stops); Forename Surname; Surname, Forename. If
+  the software doesn’t recognize the format, it will put the whole name
+  verbatim into the surname field for DG-1 codes.</i></p>
+
+  <p>Good to go! See <a href="app.html">using the tablet app</a>.</p>
+
+  <h1>Other tablet settings that can affect CamCOPS</h1>
+  <h2>Turn off auditory interruptions</h2>
+  <p>If beeps and buzzes from other apps would interfere with your use of
+  CamCOPS, disable them.</p>
+  <ul>
+    <li>For Android: Android Settings → Sound → Volume; then turn off things
+    like “Ringtone” (for phones), “Notifications”, and “System”.</li>
+    <li>For iOS: iOS Settings → Notifications, and turn “Sounds” off.</li>
+  </ul>
+
+  <h1>Other app settings</h1>
+
+  <h4>Questionnaire font size</h4>
+
+  <ul>
+    <li>Settings → Questionnaire font size → choose a font size that you
+    like.</li>
+  </ul>
+
+  <h4>Upload after each task is complete?</h4>
+
+  <ul>
+    <li>Settings → User settings → Offer to upload every time a task is
+    edited?</li>
+  </ul>
+
+  <h4>Multiline text editing behaviour</h4>
+
+  <ul>
+    <li>Settings → User settings → Make multiline text fields appear with a
+    fixed height while editing?</li>
+  </ul>
+
+  <p>Choose NO for the text boxes to auto-size whilst editing (which looks
+  nicer). Choose YES if this makes editing too slow (e.g. on an iPad).
+  Multiline text fields will always auto-size in facsimile mode, for
+  viewing.</p>
+
+  <h4>Send analytics to CamCOPS base?</h4>
+
+  <ul>
+    <li>Settings → Server settings → Send analytics to CamCOPS base?</li>
+  </ul>
+
+  <p>This sends information back to the CamCOPS base in Cambridge, when CamCOPS
+  starts. This is the only information sent from the app anywhere except to the
+  user-specified server. <i>NO PATIENT-IDENTIFIABLE, PER-PATIENT INFORMATION,
+  OR TASK DETAILS ARE SENT.</i> This is what is sent:</p>
+
+  <ul>
+    <li>the fact that CamCOPS has started (allowing us to get an idea of how
+    often it’s being used)</li>
+
+    <li>the date/time, including timezone (allowing us to get a rough idea of
+    its geographical distribution)</li>
+
+    <li>the device ID, made up of the operating system type (which platforms
+    are popular?) and the Titanium platform identifier (a random device-unique
+    ID necessary for the task popularity question)</li>
+
+    <li>the current server address (allowing us to get a rough idea of
+    geographical/institutional distribution)</li>
+
+    <li>the total number of records in each table (allowing us to get an idea
+    of which tasks are popular)</li>
+
+    <li>the CamCOPS/database version numbers (so we know if old versions are
+    still in use, or if we can break them in an upgrade)</li>
+  </ul>
+
+  <p>We’d very much appreciate you saying yes; it allows us to support users
+  better. Thank you!</p>
+  <!--#include virtual="/camcops/ssi/camcops_footer.shtml" -->
+</body>
+</html>

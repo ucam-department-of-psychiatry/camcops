@@ -1,0 +1,388 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux (vers 25 March 2009), see www.w3.org">
+  <!--#include virtual="/camcops/ssi/camcops_html_head.shtml" -->
+
+  <title>CamCOPS – Security</title>
+</head>
+
+<body onload="generateTOC(document.getElementById('toc'));">
+  <!--#set var="HEADER_TITLE" value="CamCOPS – Security model" -->
+  <!--#set var="HEADER_URL" value="documentation/security.html" -->
+  <!--#set var="HEADER_BACK_URL" value="index.html" -->
+  <!--#set var="HEADER_BACK_LABEL" value="Documentation" -->
+  <!--#include virtual="/camcops/ssi/camcops_page_header.shtml" -->
+
+  <div id="toc"></div>
+
+  <p>The CamCOPS security model is multi-layered. It is <b>not enough</b> to
+  have a “secure” tablet app; there are other things you must do as well.</p>
+
+  <h1>Summary</h1>
+
+  <ul>
+    <li>CamCOPS can operate in a <a href="id.html">de-identified mode</a>, in
+    which case security concerns are lower. What follows assumes the use of
+    identifiable, high-risk data.</li>
+
+    <li>CamCOPS is designed to operate offline (i.e. the tablet will hold
+    identifiable data for a while), but to move that data securely to the
+    server as often as possible.</li>
+
+    <li>On the tablet, the single most important security measure is to
+    <b>enable device encryption with a strong password.</b> See <a href=
+    "tablet.html">tablet configuration</a>. Details are below.</li>
+
+    <li>CamCOPS also provides security systems so (a) you can hand a device to
+    a subject, without that subject seeing other subjects’ data, and (b) so it
+    can be used in an institutional context where administrators apply security
+    policies that individual clinicians can’t alter.</li>
+
+    <li><b>The link and the server also need to be secure.</b> See below.</li>
+  </ul>
+
+  <h1>Tablet security</h1>
+
+  <p>To meet NHS mobile data protection standards [<a href=
+  "http://www.sehd.scot.nhs.uk/mels/CEL2012_25.pdf">NHS Scotland: CEL 25
+  (2012)</a>], a tablet holding “sensitive information” of a significant degree
+  of sensitivity requires:</p>
+
+  <ul>
+    <li>whole-disk encryption</li>
+
+    <li>a strong password</li>
+  </ul>
+
+  <p>For relevant CamCOPS platforms:</p>
+
+  <ul>
+    <li>Android 3+ devices allow on-device encryption (encrypting applications’
+    data area) with a passcode. [<a href=
+    "http://security.stackexchange.com/questions/10529/are-there-actually-any-advantages-to-android-full-disk-encryption">StackExchange</a>;
+    <a href=
+    "http://source.android.com/tech/encryption/android_crypto_implementation.html">
+    Android</a>; <a href=
+    "http://support.google.com/android/bin/answer.py?hl=en&amp;answer=1663755">Google</a>]</li>
+
+    <li>Apple iPads and related iOS devices invoke encryption when a passcode
+    is entered. [<a href=
+    "http://www.macworld.com/article/1160313/iPad_security.html">Macworld</a>;
+    <a href=
+    "http://images.apple.com/ipad/business/docs/iOS_Security_May12.pdf">Apple</a>]</li>
+
+    <li>Both these platforms have sandboxes to prevent one application seeing
+    another’s data. [<a href=
+    "http://images.apple.com/ipad/business/docs/iOS_Security_May12.pdf">Apple</a>;
+    <a href=
+    "http://developer.android.com/guide/topics/security/permissions.html">Android</a>]</li>
+  </ul>
+
+  <p><b>You must enable tablet encryption, choosing a strong password for your
+  tablet; see <a href="tablet.html">tablet configuration</a>.</b></p>
+
+  <h1>CamCOPS app security</h1>
+
+  <h2>Basics</h2>
+
+  <ul>
+    <li>The CamCOPS application has three security modes: LOCKED, UNLOCKED, and
+    PRIVILEGED.</li>
+
+    <li>In the LOCKED mode, the application is locked to a single patient and
+    can only view or add records pertaining to that patient, or anonymous
+    tasks. This mode is designed for handing the device to a patient.</li>
+
+    <li>In the UNLOCKED mode, all data may be viewed and edited, and data may
+    be uploaded to the server. This mode is designed for use by clinicians. The
+    user may change the app password that unlocks the app.</li>
+
+    <li>PRIVILEGED mode is designed for administrator use. In PRIVILEGED mode,
+    features such as the following are unlocked:
+
+      <ul>
+        <li>configuring the link to a server, and registering the device with a
+        server;</li>
+
+        <li>viewing local data as SQL, and (if the device permits) exporting
+        the local database to an SQL file in an insecure storage area (e.g. an
+        SD card).</li>
+      </ul>
+    </li>
+
+    <li>The application starts in the LOCKED mode. (Otherwise, someone handed a
+    tablet with CamCOPS running in the LOCKED mode could restart the app and
+    thereby gain UNLOCKED access.)</li>
+
+    <li>We envisage that in typical NHS use, an administrator would set up
+    CamCOPS to point to the appropriate NHS server and then give the
+    clinician(s) the app (unlock) password but not the privileged-mode
+    password.</li>
+  </ul>
+
+  <h2>Internally in the tablet app</h2>
+
+  <ul>
+    <li>The app never sends patient-identifiable data to the tablet’s logging
+    stream, so a malicious user who plugs the tablet into a debugging computer
+    (e.g.: USB debugging enabled on tablet; run <code>adb logcat</code> on the
+    computer) won’t see patient-identifiable data that way.</li>
+
+    <li>The CamCOPS app stores its app (unlock) and privileged-mode codes using
+    bcrypt hashes.</li>
+
+    <li>The administrator may choose whether the CamCOPS app stores the user’s
+    server password using reversible encryption (more convenient but less
+    secure; the password would be vulnerable to a skilled attacker with the
+    tablet OS’s unlock code) or doesn’t store it (more secure, but requires the
+    user to enter it at each upload).</li>
+
+    <li>The app sets <code>android:allowBackup="false"</code>, thus opting out
+    of the <a href=
+    "http://developer.android.com/guide/topics/manifest/application-element.html#allowbackup">
+    Android backup-and-restore infrastructure</a> (otherwise, relatively easy
+    data access would be possible for someone with the tablet password; see
+    <a href=
+    "http://blog.shvetsov.com/2013/02/access-android-app-data-without-root.html?m=1">
+    here</a>).</li>
+  </ul>
+
+  <h1>Link security</h1>
+
+  <ul>
+    <li>The link to the server is constrained to use HTTPS and therefore link
+    encryption.</li>
+
+    <li>By default, the app will insist on a validated SSL certificate (though
+    this can be turned off by the administrator for low-security environments
+    using a self-signed [“snake oil”] SSL certificate).</li>
+
+    <li>Privileged-mode access is required to change the server; therefore,
+    from a clinician’s point of view, the device is locked to a single
+    server.</li>
+  </ul>
+
+  <h1>Server security</h1>
+
+  <h2>Communication between tablet and server</h2>
+
+  <ul>
+    <li>The server requires username/password identification before it will
+    accept an upload.</li>
+
+    <li>The server requires that the device (identified by a platform-unique
+    device number) be registered before it will accept an upload.</li>
+
+    <li>Users require an additional permission, set on the server, before they
+    can register a device. (We envisage that in practice, device registration
+    would be managed by an administrator for high-security environments.)</li>
+
+    <li>The server only accepts incoming data; it will not provide data to a
+    device. (Therefore, even a hand-crafted application masquerading as an
+    instance of CamCOPS and in possession of a valid username, password, and
+    device ID cannot download any data.)</li>
+
+    <li>The server will not add new fields or tables based on the claims of the
+    uploading agent.</li>
+
+    <li>The server takes standard precautions against <a href=
+    "http://xkcd.com/327/">SQL injection</a>.</li>
+  </ul>
+
+  <h2>Communication between user and server using the web front end</h2>
+
+  <ul>
+    <li><b>If used, the web front end should be constrained to HTTPS</b> to
+    ensure link security.</li>
+
+    <li>Access is governed by username/password pairs.</li>
+  </ul>
+
+  <h2>Internally in the server</h2>
+
+  <ul>
+    <li>
+      <b>The server should be secured in standard fashion.</b> These are
+      matters outside CamCOPS. Standard security considerations include:
+
+      <ul>
+        <li>physical access</li>
+
+        <li>visibility on public networks (preferably not!)</li>
+
+        <li>firewall configuration</li>
+
+        <li>SSH access</li>
+
+        <li>inappropriate provision of information by a misconfigured web
+        server</li>
+
+        <li>database security</li>
+
+        <li>security of physical backups</li>
+      </ul>
+    </li>
+
+    <li>The server stores CamCOPS passwords using bcrypt hashes.</li>
+  </ul>
+
+  <h1>Security against data loss</h1>
+
+  <ul>
+    <li>Crashes in the CamCOPS application should not (and in our experience do
+    not) affect data integrity, as the SQLite backend is designed to cope with
+    this. [SQLite: <a href="http://www.sqlite.org/testing.html">testing</a>,
+    <a href="http://www.sqlite.org/atomiccommit.html">atomic commit</a>]</li>
+  </ul>
+
+  <h1>“Analytics” security</h1>
+
+  <p>CamCOPS doesn’t send a copy of your data back to its base. <b>Your data is
+  private to you.</b> However, by default, when the CamCOPS app or server
+  starts, it does send some basic usage details back to base (at
+  egret.psychol.cam.ac.uk), helping us to know how CamCOPS is being used and to
+  support users better; see <a href="server.html">server</a> and <a href=
+  "tablet">tablet</a> configuration. <i>No patient-identifiable information,
+  per-patient information, or task details are sent.</i> We hope this doesn’t
+  bother you, but if it does, you can turn this behaviour off.</p>
+
+  <h1>Audit trails</h1>
+
+  <ul>
+    <li>Tablet-side audit trails are minimal, but the application time-stamps
+    all tasks at their creation, and time-stamps the last modification to any
+    record, in addition to collecting information relevant to the time it takes
+    to complete each task.</li>
+
+    <li>The CamCOPS application maintains a number of task-specific tables
+    (e.g. patient, PHQ9, GAD7). It uploads table-wise (and the entire upload
+    process is atomic). To each record, the server adds fields allowing an
+    audit trail; see <a href="tables.html">table structure</a>. When a record
+    is modified or deleted, the old versions are kept.</li>
+
+    <li>The server’s tables therefore contain a snapshot of each device’s
+    current state, and a complete audit trail, whose granularity is the
+    frequency of uploads from a particular device.</li>
+
+    <li>Read access requests to the server (via the <a href="webview.html">web
+    viewer</a>) are also audited, as are command-line CamCOPS operations.</li>
+  </ul>
+
+  <h1>Legacy security</h1>
+
+  <ul>
+    <li>The code is open-source, and should only include tasks/questionnaires
+    that are in the public domain or where permission exists to use the task in
+    perpetuity.</li>
+  </ul>
+
+  <h1>Black Hat’s options</h1>
+
+  <p>What would it take to steal CamCOPS data?</p>
+
+  <ul>
+    <li>Steal a tablet, the tablet’s password, and its CamCOPS app password
+    together; this would allow records to be viewed on that device.</li>
+
+    <li>Steal a tablet, the tablet’s password, its CamCOPS app password, and
+    its CamCOPS privileged-mode password together; this would allow records to
+    be sent to a dark server of the attacker’s choosing.</li>
+
+    <li>Steal a tablet and the tablet’s password, root the device, and access
+    the database directly.</li>
+
+    <li>Steal a tablet that hasn’t been properly secured with a device
+    password; this would eliminate the requirement for the tablet’s password
+    from all of the above. <b>The last two options emphasize the importance of
+    the tablet’s security features.</b></li>
+
+    <li>Break into the server and gain direct access to its database. <b>This
+    emphasizes the importance of securing the server.</b></li>
+  </ul>
+
+  <p>These methods of attack sound plausible but should <b>not</b> be
+  possible:</p>
+
+  <ul>
+    <li>Steal a tablet and the tablet’s password, download the open-source
+    CamCOPS application, modify it, install it over the existing application
+    without deleting the application data, and use the modified application to
+    export data. <i><b>Why not?</b> Apps installed on both Android and iOS
+    tablets are digitally signed, and an app attempting to install with a
+    different digital signature will not be accepted as a replacement for the
+    original, and therefore will not gain access to the original app’s
+    data.</i></li>
+
+    <li>Steal an Android tablet (but not the tablet password), modify the
+    operating system, use it to read the data. <i><b>Why not?</b> This should
+    not work as long as filesystem encryption is enabled; the necessary keys
+    are <a href="http://source.android.com/devices/tech/security/">not stored
+    on the device</a>.</i></li>
+  </ul>
+
+  <h1>Match to NHS security requirements</h1>
+
+  <h2>Mobile device</h2>
+
+  <ul>
+    <li>I’ve not found an England-wide NHS mobile security standard, but the
+    Scottish one is this: [<a href=
+    "http://www.sehd.scot.nhs.uk/mels/CEL2012_25.pdf">NHS Scotland: CEL 25
+    (2012)</a>].</li>
+
+    <li>That standard classifies the data using a traffic-light system. CamCOPS
+    data could include patient-identifiable information and information on
+    patients’ mental states, so it would definitely not be GREEN. It might be
+    AMBER (causing distress/significant embarrassment if lost; low risk to a
+    person’s safety if lost); it might be RED (risk of harm to mental health if
+    lost; causing significant distress if lost; constitute a substantial breach
+    of privacy; etc.).</li>
+
+    <li>The standard specifies a minimum password strength. This is primarily a
+    device issue and both Android and iOS devices can be configured for
+    alphanumeric passwords, not just 4-digit PINs.</li>
+
+    <li>AMBER and RED levels require whole-disk encryption for NHS-owned
+    devices.</li>
+
+    <li>Personally-owned devices would be discouraged or prohibited for AMBER
+    and RED information, since security is difficult to enforce. Specifically,
+    they are prohibited for RED data, and may be considered for AMBER data but
+    only if set up so that no data is stored on the device itself and a remote
+    wipe is possible for residual data (which would negate the “transiently
+    offline” capabilities of CamCOPS). Therefore, by these standards only
+    NHS-owned official devices should be considered for CamCOPS.</li>
+
+    <li>Removable media for AMBER or RED information must be encrypted. In
+    practice, CamCOPS’s function to export to an SD card would only be
+    accessible to administrative staff.</li>
+
+    <li>So the minimum for each tablet is likely to be:
+
+      <ul>
+        <li>mandate a decent password on iPads or Android tablets;</li>
+
+        <li>mandate the whole-disk encryption option on Android tablets;</li>
+
+        <li>ensure that clinicians don’t have access to the Privileged mode (by
+        having an administrator configure and password-protect each device –
+        this takes ~30 seconds).</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h2>Server</h2>
+
+  <ul>
+    <li>Full security is required on the server.</li>
+
+    <li><b>In particular, consideration should be given to restricting access
+    to devices from within an appropriate domain</b> (e.g. within a given NHS
+    Trust or university).</li>
+  </ul><!--#include virtual="/camcops/ssi/camcops_footer.shtml" -->
+</body>
+</html>

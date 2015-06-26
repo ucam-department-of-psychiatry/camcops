@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux (vers 25 March 2009), see www.w3.org">
+  <!--#include virtual="/camcops/ssi/camcops_html_head.shtml" -->
+
+  <title>CamCOPS – Summary tables</title>
+</head>
+
+<body onload="generateTOC(document.getElementById('toc'));">
+  <!--#set var="HEADER_TITLE" value="CamCOPS – Summary tables" -->
+  <!--#set var="HEADER_URL" value="documentation/summary_tables.html" -->
+  <!--#set var="HEADER_BACK_URL" value="index.html" -->
+  <!--#set var="HEADER_BACK_LABEL" value="Documentation" -->
+  <!--#include virtual="/camcops/ssi/camcops_page_header.shtml" -->
+
+  <div id="toc"></div>
+
+  <h1>The summary tables offered by CamCOPS</h1>
+
+  <p>CamCOPS stores its data in <a href="tables.html">tables</a> and offers
+  <a href="tables.html#views">views</a> to select current data (as opposed,
+  say, to deleted data).</p>
+
+  <p>However, CamCOPS seeks to avoid storing duplicated data. For example, if a
+  questionnaire has 10 items, each scored 0–5, then each will be stored as an
+  integer field in the database. What about the total? That is typically not
+  stored — because that would bring the possibility that an edit left a “total”
+  field out of sync with its component parts.</p>
+
+  <p>Normally, you would view totals through the web viewer, which will
+  generate them on the fly. Occasionally, you might need totals to be written
+  to the database, e.g. for further data exporting. For this, there is a
+  <b>summary table</b> feature.</p>
+
+  <h1>Creating the summary tables</h1>
+
+  <ul>
+    <li>Run the command-line tool, e.g.
+      <pre class="code1">
+camcops
+</pre>
+    </li>
+
+    <li>Choose <code>Make summary tables</code>.</li>
+
+    <li>You’ll then find a summary table has been created for every task that
+    supports it. (If the tables previously existed they will be dropped and
+    recreated.)</li>
+  </ul>
+
+  <h1>What’s in the summary tables</h1>
+
+  <p>For example, the PHQ-9 task offers the following pieces of summary
+  information:</p>
+  <pre class="code1">
+is_complete (BOOLEAN)
+total (INTEGER)
+n_core (INTEGER)
+n_other (INTEGER)
+n_total (INTEGER)
+is_mds (BOOLEAN)
+is_ods (BOOLEAN)
+severity (TEXT)
+</pre>
+
+  <p>... and so it will create a table named <code>phq9_SUMMARY_TEMP</code>,
+  with these fields for each task instance, plus a foreign key to its source
+  table, and the creation date/time of the source record (as a DATETIME, to
+  save you parsing the text-based date/time format used in the main record’s
+  <code>when_created</code> field), and the creation date/time of the
+  summary:</p>
+  <pre class="code1">
+phq9_pk (INTEGER)
+when_source_record_created_utc (DATETIME)
+when_summary_created_utc (DATETIME)
+</pre>
+
+  <p>To work out which records are current, you could link to the main table
+  (in this case, <code>phq9</code>), or use the helpful <a href=
+  "tables.html">views</a> that are automatically created.</p>
+
+  <p>Here’s some example output:</p>
+  <pre class="code2">
+mysql&gt; select * from phq9_SUMMARY_TEMP;
++---------+--------------------------------+--------------------------+-------------+-------+--------+---------+---------+--------+--------+-------------------+
+| phq9_pk | when_source_record_created_utc | when_summary_created_utc | is_complete | total | n_core | n_other | n_total | is_mds | is_ods | severity          |
++---------+--------------------------------+--------------------------+-------------+-------+--------+---------+---------+--------+--------+-------------------+
+|       1 | 2013-04-22 18:26:22            | 2013-07-23 11:46:44      |           1 |    10 |      0 |       3 |       3 |      0 |      0 | moderate          |
+|       2 | 2013-04-28 22:26:23            | 2013-07-23 11:46:44      |           1 |    27 |      2 |       7 |       9 |      1 |      0 | severe            |
+|       3 | 2013-04-28 22:26:43            | 2013-07-23 11:46:44      |           0 |     2 |      1 |       0 |       1 |      0 |      0 | none              |
+|       4 | 2013-04-29 23:26:03            | 2013-07-23 11:46:44      |           1 |    18 |      2 |       4 |       6 |      1 |      0 | moderately severe |
+|       5 | 2013-05-03 17:09:53            | 2013-07-23 11:46:44      |           1 |    18 |      2 |       7 |       9 |      1 |      0 | moderately severe |
+|       6 | 2013-05-03 17:10:21            | 2013-07-23 11:46:44      |           1 |     0 |      0 |       0 |       0 |      0 |      0 | none              |
+|       7 | 2013-05-19 21:35:39            | 2013-07-23 11:46:44      |           1 |    12 |      0 |       4 |       4 |      0 |      0 | moderate          |
+|       8 | 2013-05-03 17:09:53            | 2013-07-23 11:46:44      |           1 |    18 |      2 |       7 |       9 |      1 |      0 | moderately severe |
+|       9 | 2013-05-03 17:10:21            | 2013-07-23 11:46:44      |           1 |     0 |      0 |       0 |       0 |      0 |      0 | none              |
+|      10 | 2013-05-19 21:35:39            | 2013-07-23 11:46:44      |           1 |    12 |      0 |       4 |       4 |      0 |      0 | moderate          |
+|      11 | 2013-05-28 22:49:17            | 2013-07-23 11:46:44      |           0 |     0 |      0 |       0 |       0 |      0 |      0 | none              |
++---------+--------------------------------+--------------------------+-------------+-------+--------+---------+---------+--------+--------+-------------------+
+11 rows in set (0.00 sec)
+</pre>
+
+  <p>Try this, too:</p>
+  <pre class="code1">
+select * from phq9_SUMMARY_TEMP_current_withpt;
+</pre><!--#include virtual="/camcops/ssi/camcops_footer.shtml" -->
+</body>
+</html>

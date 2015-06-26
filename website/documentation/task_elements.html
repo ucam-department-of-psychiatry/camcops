@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux (vers 25 March 2009), see www.w3.org">
+  <!--#include virtual="/camcops/ssi/camcops_html_head.shtml" -->
+
+  <title>CamCOPS – Task elements</title>
+</head>
+
+<body>
+  <!--#set var="HEADER_TITLE" value="CamCOPS – Task elements" -->
+  <!--#set var="HEADER_URL" value="documentation/task_elements.html" -->
+  <!--#set var="HEADER_BACK_URL" value="index.html" -->
+  <!--#set var="HEADER_BACK_LABEL" value="Documentation" -->
+  <!--#include virtual="/camcops/ssi/camcops_page_header.shtml" -->
+
+  <h1>Creating tasks</h1>
+  <p>Tasks on the tablet are written in Javascript. Typically, one of two methods are used:</p>
+  <ol>
+    <li>Simple tasks use a Questionnaire object and its elements (described below) to capture user responses.</li>
+    <li>Complex tasks use a webview and HTML/Javascript combinations to create arbitrarily complex animations.
+    Third-party libraries can be used; for example, the <a href="http://raphaeljs.com/">Raphaël</a> library is an easy way to create animations.</li>
+  </ol>
+
+  <h2>Questionnaire elements</h2>
+  <p>Programmers can embed arbitrary logic in a task. Several elements are available.</p>
+
+  <h3>Display</h3>
+  <p>These elements are primarily for static display (though, for example, the programmer can manipulate the contents of static text dynamically).</p>
+  <ul>
+    <li><b>QuestionAudioPlayer.</b> Allows sounds to be played.</li>
+    <li><b>QuestionHeading.</b> Displays headings.</li>
+    <li><b>QuestionHorizontalRule.</b> A horizontal rule or line.</li>
+    <li><b>QuestionImage.</b> A static image.</li>
+    <li><b>QuestionSpacer.</b> Vertical space.</li>
+    <li><b>QuestionText.</b> Static text.</li>
+  </ul>
+
+  <h3>User input</h3>
+  <ul>
+    <li><b>QuestionBooleanImage.</b> An image/picture associated with a Boolean (0/1/NULL) variable. The Boolean variable is displayed with an associated widget.
+        <ul>
+            <li>Unselected: <img class="questionnaire" alt=
+          "check_unselected" src=
+          "app_icons/check_unselected.png"></li>
+            <li>Unselected and required: <img class="questionnaire" alt=
+          "check_unselected_required" src=
+          "app_icons/check_unselected_required.png"></li>
+            <li>False: <img class="questionnaire" alt=
+          "check_false_black" src=
+          "app_icons/check_false_black.png"> or <img class="questionnaire" alt=
+          "check_false_red" src=
+          "app_icons/check_false_red.png"></li>
+            <li>True: <img class="questionnaire" alt=
+          "check_true_black" src=
+          "app_icons/check_true_black.png"> or <img class="questionnaire" alt=
+          "check_true_red" src=
+          "app_icons/check_true_red.png"></li>
+        </ul>
+    </li>
+    <li><b>QuestionBooleanText.</b> Text associated with a Boolean variable, with widgets as for QuestionBooleanImage.</li>
+    <li><b>QuestionBooleanTextButton.</b> Text associated with a Boolean variable, with text as buttons:
+        <ul>
+            <li>Unselected: <div class="questionnaire unselected">XXX</div></li>
+            <li>Unselected and required: <div class="questionnaire unselected_required">XXX</div></li>
+            <li>False: <div class="questionnaire selected_false">XXX</div></li>
+            <li>True: <div class="questionnaire selected_true">XXX</div></li>
+        </ul>
+    </li>
+    <li><b>QuestionButton.</b> A button, used to execute arbitrary code.</li>
+    <li><b>QuestionCanvas.</b> A canvas for sketching, which can take a default or background image.</li>
+    <li><b>QuestionCountdown.</b> A countdown timer.</li>
+    <li><b>QuestionDateTime.</b> Date/time input method, using the device’s widget (e.g. spinner, calendar).</li>
+    <li><b>QuestionDiagnosticCode.</b> Allows searching and selection of diagnostic codes using a recognized system (e.g. ICD-10).</li>
+    <li><b>QuestionMCQ.</b> A simple 1-from-many or multiple-choice question (MCQ), with a range of layout and visual options.
+        <ul>
+            <li>Unselected: <img class="questionnaire" alt=
+          "radio_unselected" src=
+          "app_icons/radio_unselected.png"></li>
+            <li>Unselected and a response is required: <img class="questionnaire" alt=
+          "radio_unselected_required" src=
+          "app_icons/radio_unselected_required.png"></li>
+            <li>Selected: <img class="questionnaire" alt=
+          "radio_selected" src=
+          "app_icons/radio_selected.png"></li>
+        </ul>
+        or
+        <ul>
+            <li>Unselected: <div class="questionnaire unselected">XXX</div></li>
+            <li>Unselected and a response is required: <div class="questionnaire unselected_required">XXX</div></li>
+            <li>Selected: <div class="questionnaire selected_true">XXX</div></li>
+        </ul>
+    </li>
+    <li><b>QuestionMCQGrid.</b> An MCQ specialized to operate in a grid, with lots of questions having a common set of possible answers.</li>
+    <li><b>QuestionMCQGridDouble.</b> A specialized MCQ with a double grid (lots of questions having a common pair of sets of possible answers;
+    e.g. for each question, pick one from A/B/C and pick one from X/Y/Z).</li>
+    <li><b>QuestionMCQGridWithSingleBoolean.</b> Another specialized MCQ; as for QuestionMCQGrid but with an additional Boolean variable per question
+    (e.g. for each question, pick one of absent/mild/moderate/severe, and tick if distressing).</li>
+    <li><b>QuestionMultipleResponse.</b> An <i>n</i>-from-many (multiple response) question.
+        <ul>
+            <li>Unselected: <img class="questionnaire" alt=
+          "check_unselected" src=
+          "app_icons/check_unselected.png"></li>
+            <li>Unselected and more responses required: <img class="questionnaire" alt=
+          "check_unselected_required" src=
+          "app_icons/check_unselected_required.png"></li>
+            <li>Selected: <img class="questionnaire" alt=
+          "check_true_red" src=
+          "app_icons/check_true_red.png"></li>
+        </ul>
+        or
+        <ul>
+            <li>Unselected: <div class="questionnaire unselected">XXX</div></li>
+            <li>Unselected and more responses required: <div class="questionnaire unselected_required">XXX</div></li>
+            <li>Selected: <div class="questionnaire selected_true">XXX</div></li>
+        </ul>
+    </li>
+    <li><b>QuestionPhoto.</b> Uses the device camera to take a photo.</li>
+    <li><b>QuestionPickerInline.</b> Pick from a list of options using a spinner or similar interface.</li>
+    <li><b>QuestionPickerPopup.</b> Pick from a list of options using a pop-up selector.</li>
+    <li><b>QuestionSlider.</b> A slider, for discrete or continuous variables (which might display a number and/or text to the user).</li>
+    <li><b>QuestionThermometer.</b> A thermometer-style visual analogue scale.</li>
+    <li><b>QuestionTypedVariables.</b> User input for text (single-line or multiline), or validated numerical input (integer or floating-point, with range constraints if required).</li>
+  </ul>
+
+  <h3>Layout</h3>
+  <p>These elements are simply for layout:</p>
+  <ul>
+    <li><b>ContainerHorizontal.</b> Arranges other elements in a horizontal row.</li>
+    <li><b>ContainerVertical.</b> Arranges other elements in a vertical column.</li>
+    <li><b>ContainerTable.</b> Arranges other elements in a table or grid.</li>
+  </ul>
+</body>
+</html>

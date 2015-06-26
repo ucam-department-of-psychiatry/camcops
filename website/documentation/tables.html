@@ -1,0 +1,1051 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux (vers 25 March 2009), see www.w3.org">
+  <!--#include virtual="/camcops/ssi/camcops_html_head.shtml" -->
+
+  <title>CamCOPS – Table structure</title>
+</head>
+
+<body onload="generateTOC(document.getElementById('toc'));">
+  <!--#set var="HEADER_TITLE" value="CamCOPS – Table structure" -->
+  <!--#set var="HEADER_URL" value="documentation/tables.html" -->
+  <!--#set var="HEADER_BACK_URL" value="index.html" -->
+  <!--#set var="HEADER_BACK_LABEL" value="Documentation" -->
+  <!--#include virtual="/camcops/ssi/camcops_page_header.shtml" -->
+
+  <div id="toc"></div>
+
+  <h1>Overview of the logical system used by CamCOPS for data storage</h1>
+
+  <h2>The basics</h2>
+
+  <ul>
+    <li>CamCOPS uses a simple, standard relational database design.</li>
+
+    <li>The server tables mirror the client device tables closely.</li>
+
+    <li>On top of this, a layer of complexity is grafted: (a) to allow devices
+    to operate independently, (b) to allow an audit trail, and (c) to allow
+    devices to wipe their data whilst preserving it on the server.</li>
+
+    <li>To overcome this complexity for most practical purposes, the server
+    provides <b>views</b> for each table that restrict access just to current
+    data, and automatically provide single-value foreign keys (FKs) that
+    work.</li>
+  </ul>
+
+  <h2>Audit trail and preserve-and-delete function</h2>
+
+  <p>The thought process behind the design runs as follows.</p>
+
+  <ul>
+    <li>Tablet devices (“clients”) must be able to operate offline, without
+    internet connectivity. Therefore, they must store their data locally, at
+    least for a time; and they must periodically communicate with their
+    server.</li>
+
+    <li>Patient details should not be retrievable from a central server to the
+    tablet device, because that isn’t necessary (the web viewer offers an
+    alternative route) and therefore represents an unnecessary security
+    vulnerability. Additionally, requiring different tablets to be synchronized
+    is potentially unreliable (e.g. if someone adds the same patient on two
+    tablets, both currently disconnected from the network). Consequently,
+    patient details on different tablet devices are not necessarily
+    synchronized. Therefore, the server must maintain records for each of its
+    client tablet devices and keep them independent.
+
+      <ul>
+        <li>All client tables have a primary key called <code>id</code>; this
+        primary key is unique in that table on that device.</li>
+
+        <li>The server mirrors the tables found on the client device.</li>
+
+        <li>In addition, a <code>_device</code> field on the server
+        discriminates records by the unique device ID of the uploading
+        device.</li>
+
+        <li>The server maintains its own primary key in the <code>_pk</code>
+        field; this field is unique in that table on the server (across all
+        devices).</li>
+      </ul>
+    </li>
+
+    <li>If someone edits a record on the server, the server shouldn’t rewrite
+    its own records; it should maintain an audit trail. Therefore, the server
+    must keep “old” records and distinguish them from “current” records.
+
+      <ul>
+        <li>The server maintains a <code>_current</code> field, to mark current
+        records.</li>
+
+        <li>Records that are not current have additional information. (Is the
+        record not current because it was deleted or because it was modified?
+        Who deleted or modified it? Which is its predecessor or successor
+        record?)</li>
+
+        <li>Inclusion of fields for “when added” and “when removed” allows a
+        historical snapshot for any moment in time to be created.</li>
+      </ul>
+    </li>
+
+    <li>It should be possible to wipe a tablet device, yet keep its data
+    actively accessible on the server. Therefore, the server must keep “era”
+    information for each device.
+
+      <ul>
+        <li>The server has an <code>_era</code> field for each table.</li>
+
+        <li>The <code>_era</code> field begins life with the value
+        <code>'NOW'</code>, representing the “current” era.</li>
+
+        <li>When a device “preserves” its data on the server and wipes its
+        database, the <code>_era</code> field is set to the date/time of the
+        preservation process, for all records in all tables for that device
+        that were in the “current” era. A new era is therefore begun for that
+        device.</li>
+
+        <li>The combination of the <code>_device</code>, <code>_era</code>, and
+        <code>id</code> fields is unique for all <code>_current</code>
+        fields.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h2>Transactional upload</h2>
+
+  <p>The upload process is transactional: it either succeeds as a whole, or
+  fails as a whole. (This is necessary because there may be arbitrary
+  relationships between tables on the tablet, e.g. between the main table of a
+  task and its sub-tables.)</p>
+
+  <h2>Date/time storage</h2>
+
+  <p>Databases like MySQL discard fractions of a second, and CamCOPS needs to
+  store millisecond-accuracy timing information. Moreover, it is often helpful
+  to work in local time zones. For consistency, therefore, all date and
+  date/time fields are stored as TEXT fields in <a href=
+  "http://en.wikipedia.org/wiki/ISO_8601">ISO 8601</a> format, specifically
+  <b>YYYY-MM-DDTHH:mm:ss.SSS+ZZ:ZZ</b>. An example is
+  2013-04-22T14:35:07.381+01:00 – this means 22 April 2013 at 7.381 seconds
+  after 2:35pm in a time zone 1 hour ahead of Coordinated Universal Time (UTC,
+  GMT), such as British Summer Time (+01:00). (There are a few fields that are
+  an exception to this rule and use DATETIME format, but these are only used by
+  the webview and are not accessible to users.)</p>
+
+  <h1>Tables in the CamCOPS database</h1>
+
+  <h2>Tables only visible to the server</h2>
+
+  <p>The following tables are only used by the server. For details, see the
+  source code or the <a href="tables_detailed.html">detailed table
+  structure</a>.</p>
+  <pre class="code2">
+_dirty_tables
+_hl7_message_log
+_hl7_run_log
+_security_account_lockouts
+_security_audit
+_security_devices
+_security_login_failures
+_security_users
+_security_webviewer_sessions
+_server_storedvars
+_special_notes
+</pre>
+
+  <h2>Fields added by the server to all tables uploaded by tablet devices</h2>
+
+  <p>Server-side fields have an underscore prefix.</p>
+
+  <table class="monospace">
+    <tr>
+      <th>Field name</th>
+
+      <th>Data type</th>
+
+      <th>Nullable?</th>
+
+      <th>Comment</th>
+    </tr>
+
+    <tr>
+      <td>_pk</td>
+
+      <td>INTEGER</td>
+
+      <td>NO</td>
+
+      <td>(SERVER) Primary key (on the server)</td>
+    </tr>
+
+    <tr>
+      <td>_device</td>
+
+      <td>VARCHAR(255)</td>
+
+      <td>NO</td>
+
+      <td>(SERVER) ID of the source tablet device</td>
+    </tr>
+
+    <tr>
+      <td>_era</td>
+
+      <td>VARCHAR(32)</td>
+
+      <td>NO</td>
+
+      <td>(SERVER) 'NOW', or the date/time this row was preserved and removed
+      from the source device (UTC ISO 8601)</td>
+    </tr>
+
+    <tr>
+      <td>_current</td>
+
+      <td>BOOLEAN</td>
+
+      <td>NO</td>
+
+      <td>(SERVER) Is the row current (1) or not (0)?</td>
+    </tr>
+
+    <tr>
+      <td>_when_added_exact</td>
+
+      <td>VARCHAR(32)</td>
+
+      <td>YES</td>
+
+      <td>(SERVER) Date/time this row was added (ISO 8601)</td>
+    </tr>
+
+    <tr>
+      <td>_when_added_batch_utc</td>
+
+      <td>DATETIME</td>
+
+      <td>YES</td>
+
+      <td>(SERVER) Date/time of the upload batch that added this row (DATETIME
+      in UTC)</td>
+    </tr>
+
+    <tr>
+      <td>_adding_user</td>
+
+      <td>VARCHAR(255)</td>
+
+      <td>YES</td>
+
+      <td>(SERVER) User that added this row</td>
+    </tr>
+
+    <tr>
+      <td>_when_removed_exact</td>
+
+      <td>VARCHAR(32)</td>
+
+      <td>YES</td>
+
+      <td>(SERVER) Date/time this row was removed, i.e. made not current (ISO
+      8601)</td>
+    </tr>
+
+    <tr>
+      <td>_when_removed_batch_utc</td>
+
+      <td>DATETIME</td>
+
+      <td>YES</td>
+
+      <td>(SERVER) Date/time of the upload batch that removed this row
+      (DATETIME in UTC)</td>
+    </tr>
+
+    <tr>
+      <td>_removing_user</td>
+
+      <td>VARCHAR(255)</td>
+
+      <td>YES</td>
+
+      <td>(SERVER) User that removed this row</td>
+    </tr>
+
+    <tr>
+      <td>_preserving_user</td>
+
+      <td>VARCHAR(255)</td>
+
+      <td>YES</td>
+
+      <td>(SERVER) User that preserved this row</td>
+    </tr>
+
+    <tr>
+        <td>_forcibly_preserved</td>
+        <td>BOOLEAN</td>
+        <td>YES</td>
+        <td>(SERVER) Forcibly preserved by superuser (rather than normally
+        preserved by tablet)?</td>
+    </tr>
+
+    <tr>
+      <td>_predecessor_pk</td>
+
+      <td>INTEGER</td>
+
+      <td>YES</td>
+
+      <td>(SERVER) PK of predecessor record, prior to modification</td>
+    </tr>
+
+    <tr>
+      <td>_successor_pk</td>
+
+      <td>INTEGER</td>
+
+      <td>YES</td>
+
+      <td>(SERVER) PK of successor record (after modification) or NULL (after
+      deletion)</td>
+    </tr>
+
+    <tr>
+      <td>_manually_erased</td>
+
+      <td>BOOLEAN</td>
+
+      <td>YES</td>
+
+      <td>(SERVER) Record manually erased (content destroyed)?</td>
+    </tr>
+
+    <tr>
+      <td>_manually_erased_at</td>
+
+      <td>VARCHAR(32)</td>
+
+      <td>YES</td>
+
+      <td>(SERVER) Date/time of manual erasure (ISO 8601)</td>
+    </tr>
+
+    <tr>
+      <td>_manually_erasing_user</td>
+
+      <td>VARCHAR(255)</td>
+
+      <td>YES</td>
+
+      <td>(SERVER) User that erased this row manually</td>
+    </tr>
+
+    <tr>
+      <td>_camcops_version</td>
+
+      <td>REAL</td>
+
+      <td>YES</td>
+
+      <td>(SERVER) CamCOPS version number of the uploading device</td>
+    </tr>
+
+    <tr>
+      <td>_addition_pending</td>
+
+      <td>BOOLEAN</td>
+
+      <td>NO</td>
+
+      <td>(SERVER) Addition pending?</td>
+    </tr>
+
+    <tr>
+      <td>_removal_pending</td>
+
+      <td>BOOLEAN</td>
+
+      <td>NO</td>
+
+      <td>(SERVER) Removal pending?</td>
+    </tr>
+
+  </table>
+
+  <h2>Fields added by the client (tablet) to all tables uploaded by tablet
+  devices</h2>
+
+  <table class="monospace">
+    <tr>
+      <th>Field name</th>
+
+      <th>Data type</th>
+
+      <th>Nullable?</th>
+
+      <th>Comment</th>
+    </tr>
+
+    <tr>
+      <td>_move_off_tablet</td>
+
+      <td>BOOLEAN</td>
+
+      <td>YES</td>
+
+      <td>(SERVER/TABLET) Record-specific preservation pending?</td>
+    </tr>
+
+    <tr>
+      <td>when_last_modified</td>
+
+      <td>TEXT / VARCHAR(32)</td>
+
+      <td>YES</td>
+
+      <td>(STANDARD) Date/time this row was last modified on the source tablet
+      device (ISO 8601)</td>
+    </tr>
+  </table>
+
+  <h2>Core tables present on the tablet devices</h2>
+
+  <h3>patient</h3>
+
+  <p>In addition to the standard fields:</p>
+
+  <table class="monospace">
+    <tr>
+      <th>Field name</th>
+
+      <th>Data type</th>
+
+      <th>Nullable?</th>
+
+      <th>Comment</th>
+    </tr>
+
+    <tr>
+      <td>id</td>
+
+      <td>INTEGER</td>
+
+      <td>NO</td>
+
+      <td>Primary key (patient ID) on the source tablet device</td>
+    </tr>
+
+    <tr>
+      <td>forename</td>
+
+      <td>TEXT / VARCHAR(255)</td>
+
+      <td>NO</td>
+
+      <td>Forename</td>
+    </tr>
+
+    <tr>
+      <td>surname</td>
+
+      <td>TEXT / VARCHAR(255)</td>
+
+      <td>NO</td>
+
+      <td>Surname</td>
+    </tr>
+
+    <tr>
+      <td>dob</td>
+
+      <td>TEXT / VARCHAR(32)</td>
+
+      <td>NO</td>
+
+      <td>Date of birth (YYYY-MM-DD)</td>
+    </tr>
+
+    <tr>
+      <td>sex</td>
+
+      <td>VARCHAR(1)</td>
+
+      <td>NO</td>
+
+      <td>Sex (M, F, X)</td>
+    </tr>
+
+    <tr>
+      <td>idnum1</td>
+
+      <td>BIGINT UNSIGNED</td>
+
+      <td>YES</td>
+
+      <td>First ID number (meaning depends on device's storedvars
+      idDescription1, idShortDescription1)</td>
+    </tr>
+
+    <tr>
+      <td>idnum2</td>
+
+      <td>BIGINT UNSIGNED</td>
+
+      <td>YES</td>
+
+      <td>Second ID number (meaning depends on device's storedvars
+      idDescription2, idShortDescription2)</td>
+    </tr>
+
+    <tr>
+      <td>idnum3</td>
+
+      <td>BIGINT UNSIGNED</td>
+
+      <td>YES</td>
+
+      <td>Third ID number (meaning depends on device's storedvars
+      idDescription3, idShortDescription3)</td>
+    </tr>
+
+    <tr>
+      <td>idnum4</td>
+
+      <td>BIGINT UNSIGNED</td>
+
+      <td>YES</td>
+
+      <td>Fourth ID number (meaning depends on device's storedvars
+      idDescription4, idShortDescription4)</td>
+    </tr>
+
+    <tr>
+      <td>idnum5</td>
+
+      <td>BIGINT UNSIGNED</td>
+
+      <td>YES</td>
+
+      <td>Fifth ID number (meaning depends on device's storedvars
+      idDescription5, idShortDescription5)</td>
+    </tr>
+
+    <tr>
+      <td>idnum6</td>
+
+      <td>BIGINT UNSIGNED</td>
+
+      <td>YES</td>
+
+      <td>Sixth ID number (meaning depends on device's storedvars
+      idDescription6, idShortDescription6)</td>
+    </tr>
+
+    <tr>
+      <td>idnum7</td>
+
+      <td>BIGINT UNSIGNED</td>
+
+      <td>YES</td>
+
+      <td>Seventh ID number (meaning depends on device's storedvars
+      idDescription7, idShortDescription7)</td>
+    </tr>
+
+    <tr>
+      <td>idnum8</td>
+
+      <td>BIGINT UNSIGNED</td>
+
+      <td>YES</td>
+
+      <td>Eighth ID number (meaning depends on device's storedvars
+      idDescription8, idShortDescription8)</td>
+    </tr>
+
+    <tr>
+      <td>address</td>
+
+      <td>TEXT</td>
+
+      <td>YES</td>
+
+      <td>Address</td>
+    </tr>
+
+    <tr>
+      <td>gp</td>
+
+      <td>TEXT</td>
+
+      <td>YES</td>
+
+      <td>General practitioner (GP)</td>
+    </tr>
+
+    <tr>
+      <td>other</td>
+
+      <td>TEXT</td>
+
+      <td>YES</td>
+
+      <td>Other details</td>
+    </tr>
+  </table>
+
+  <h3>storedvars</h3>
+
+  <p>This table stores global variables, such as the server name and the font
+  size preferences.</p>
+
+  <p>In addition to the standard fields:</p>
+
+  <table class="monospace">
+    <tr>
+      <th>Field name</th>
+
+      <th>Data type</th>
+
+      <th>Nullable?</th>
+
+      <th>Comment</th>
+    </tr>
+
+    <tr>
+      <td>id</td>
+
+      <td>INTEGER</td>
+
+      <td>NO</td>
+
+      <td>Arbitrary numerical primary key on the source tablet device</td>
+    </tr>
+
+    <tr>
+      <td>name</td>
+
+      <td>VARCHAR(255)</td>
+
+      <td>NO</td>
+
+      <td>Variable name (effectively the actual primary key on the source
+      tablet device)</td>
+    </tr>
+
+    <tr>
+      <td>type</td>
+
+      <td>VARCHAR(255)</td>
+
+      <td>NO</td>
+
+      <td>Variable type ('integer', 'real', 'text')</td>
+    </tr>
+
+    <tr>
+      <td>valueInteger</td>
+
+      <td>INTEGER</td>
+
+      <td>YES</td>
+
+      <td>Value of an integer variable</td>
+    </tr>
+
+    <tr>
+      <td>valueText</td>
+
+      <td>TEXT</td>
+
+      <td>YES</td>
+
+      <td>Value of a text variable</td>
+    </tr>
+
+    <tr>
+      <td>valueReal</td>
+
+      <td>REAL</td>
+
+      <td>YES</td>
+
+      <td>Value of a real (floating-point) variable</td>
+    </tr>
+  </table>
+
+  <h3>blobs</h3>
+
+  <p>On the client devices, BLOBs (binary large objects) are stored in the
+  device’s filesystem, not in the database. On the server, BLOBs are stored in
+  the database.</p>
+
+  <p>In addition to the standard fields:</p>
+
+  <table class="monospace">
+    <tr>
+      <th>Field name</th>
+
+      <th>Data type</th>
+
+      <th>Nullable?</th>
+
+      <th>Comment</th>
+    </tr>
+
+    <tr>
+      <td>id</td>
+
+      <td>INTEGER</td>
+
+      <td>NO</td>
+
+      <td>BLOB (binary large object) primary key on the source tablet
+      device</td>
+    </tr>
+
+    <tr>
+      <td>tablename</td>
+
+      <td>TEXT</td>
+
+      <td>NO</td>
+
+      <td>Name of the table referring to this BLOB</td>
+    </tr>
+
+    <tr>
+      <td>tablepk</td>
+
+      <td>INTEGER</td>
+
+      <td>NO</td>
+
+      <td>Primary key (id field) of the row referring to this BLOB</td>
+    </tr>
+
+    <tr>
+      <td>fieldname</td>
+
+      <td>TEXT</td>
+
+      <td>NO</td>
+
+      <td>Field name of the field referring to this BLOB by ID</td>
+    </tr>
+
+    <tr>
+      <td>filename</td>
+
+      <td>TEXT</td>
+
+      <td>YES</td>
+
+      <td>Filename of the BLOB on the source tablet device</td>
+    </tr>
+
+    <tr>
+      <td>theblob</td>
+
+      <td>LONGBLOB</td>
+
+      <td>YES</td>
+
+      <td>The BLOB itself, a binary object containing arbitrary information
+      (such as a picture)</td>
+    </tr>
+  </table>
+
+  <h2>Task tables</h2>
+
+  <p>In addition to the standard fields, all task tables include these
+  fields:</p>
+
+  <table class="monospace">
+    <tr>
+      <th>Field name</th>
+
+      <th>Data type</th>
+
+      <th>Nullable?</th>
+
+      <th>Comment</th>
+    </tr>
+
+    <tr>
+      <td>id</td>
+
+      <td>INTEGER</td>
+
+      <td>NO</td>
+
+      <td>(TASK) Primary key (task ID) on the tablet device</td>
+    </tr>
+
+    <tr>
+      <td>patient_id</td>
+
+      <td>INTEGER</td>
+
+      <td>NO</td>
+
+      <td>(TASK) Foreign key to patient.id for this device</td>
+    </tr>
+
+    <tr>
+      <td>when_created</td>
+
+      <td>TEXT</td>
+
+      <td>NO</td>
+
+      <td>(TASK) Date/time this task instance was created</td>
+    </tr>
+
+    <tr>
+      <td>when_firstexit</td>
+
+      <td>TEXT</td>
+
+      <td>YES</td>
+
+      <td>(TASK) Date/time of the first exit from this task</td>
+    </tr>
+
+    <tr>
+      <td>firstexit_is_finish</td>
+
+      <td>BOOLEAN</td>
+
+      <td>YES</td>
+
+      <td>(TASK) Was the first exit from the task because it was finished
+      (1)?</td>
+    </tr>
+
+    <tr>
+      <td>firstexit_is_abort</td>
+
+      <td>BOOLEAN</td>
+
+      <td>YES</td>
+
+      <td>(TASK) Was the first exit from the task because it was aborted
+      (1)?</td>
+    </tr>
+  </table>
+
+  <h2>Ancillary tables</h2>
+
+  <p>In addition to the standard fields, all task tables include these
+  fields:</p>
+
+  <table class="monospace">
+    <tr>
+      <th>Field name</th>
+
+      <th>Data type</th>
+
+      <th>Nullable?</th>
+
+      <th>Comment</th>
+    </tr>
+
+    <tr>
+      <td>id</td>
+
+      <td>INTEGER</td>
+
+      <td>NO</td>
+
+      <td>(ANCILLARY) Primary key on the tablet device</td>
+    </tr>
+  </table>
+
+  <h2>Example of a task table</h2>
+
+  <p>Let’s extract key information about the <code>phq9</code> table. We can
+  run this SQL on the server’s database. First, we log in:</p>
+  <pre class="code1">
+mysql -u <b>root</b> -p
+use <b>camcops</b>; /* database name */
+</pre>
+
+  <p>Then the main SQL:</p>
+  <pre class="code1">
+SELECT c.table_name, c.column_name, c.data_type, c.is_nullable, c.column_comment
+FROM information_schema.columns c
+    INNER JOIN information_schema.tables t
+    ON c.table_schema = t.table_schema
+    AND c.table_name = t.table_name
+WHERE t.table_type='BASE TABLE'
+AND c.table_schema='<b>camcops</b>' /* database name */
+AND c.table_name='<b>phq9</b>';
+</pre>
+
+  <p>That gives:</p>
+  <pre class="code2">
++------------+-------------------------+-----------+-------------+--------------------------------------------------------------------------------------------------+
+| table_name | column_name             | data_type | is_nullable | column_comment                                                                                   |
++------------+-------------------------+-----------+-------------+--------------------------------------------------------------------------------------------------+
+| phq9       | _pk                     | int       | NO          | (SERVER) Primary key (on the server)                                                             |
+| phq9       | _device                 | varchar   | NO          | (SERVER) ID of the source tablet device                                                          |
+| phq9       | _era                    | varchar   | NO          | (SERVER) 'NOW', or when this row was preserved and removed from the source device (UTC ISO 8601) |
+| phq9       | _current                | tinyint   | NO          | (SERVER) Is the row current (1) or not (0)?                                                      |
+| phq9       | _when_added_exact       | varchar   | YES         | (SERVER) Date/time this row was added (ISO 8601)                                                 |
+| phq9       | _when_added_batch_utc   | datetime  | YES         | (SERVER) Date/time of the upload batch that added this row (DATETIME in UTC)                     |
+| phq9       | _adding_user            | varchar   | YES         | (SERVER) User that added this row                                                                |
+| phq9       | _when_removed_exact     | varchar   | YES         | (SERVER) Date/time this row was removed, i.e. made not current (ISO 8601)                        |
+| phq9       | _when_removed_batch_utc | datetime  | YES         | (SERVER) Date/time of the upload batch that removed this row (DATETIME in UTC)                   |
+| phq9       | _removing_user          | varchar   | YES         | (SERVER) User that removed this row                                                              |
+| phq9       | _preserving_user        | varchar   | YES         | (SERVER) User that preserved this row                                                            |
+| phq9       | _predecessor_pk         | int       | YES         | (SERVER) PK of predecessor record, prior to modification                                         |
+| phq9       | _successor_pk           | int       | YES         | (SERVER) PK of successor record  (after modification) or NULL (after deletion)                   |
+| phq9       | _camcops_version        | double    | YES         | (SERVER) CamCOPS version number of the uploading device                                          |
+| phq9       | _addition_pending       | tinyint   | NO          | (SERVER) Addition pending?                                                                       |
+| phq9       | _removal_pending        | tinyint   | NO          | (SERVER) Removal pending?                                                                        |
+| phq9       | _move_off_tablet        | tinyint   | YES         | (SERVER/TABLET) Record-specific preservation pending?                                            |
+| phq9       | when_last_modified      | varchar   | YES         | (STANDARD) Date/time this row was last modified on the source tablet device (ISO 8601)           |
+| phq9       | id                      | int       | NO          | (TASK) Primary key (task ID) on the tablet device                                                |
+| phq9       | patient_id              | int       | NO          | (TASK) Foreign key to patient.id for this device                                                 |
+| phq9       | when_created            | varchar   | NO          | (TASK) Date/time this task instance was created (ISO 8601)                                       |
+| phq9       | when_firstexit          | varchar   | YES         | (TASK) Date/time of the first exit from this task (ISO 8601)                                     |
+| phq9       | firstexit_is_finish     | tinyint   | YES         | (TASK) Was the first exit from the task because it was finished (1)?                             |
+| phq9       | firstexit_is_abort      | tinyint   | YES         | (TASK) Was the first exit from this task because it was aborted (1)?                             |
+| phq9       | q1                      | int       | YES         |                                                                                                  |
+| phq9       | q2                      | int       | YES         |                                                                                                  |
+| phq9       | q3                      | int       | YES         |                                                                                                  |
+| phq9       | q4                      | int       | YES         |                                                                                                  |
+| phq9       | q5                      | int       | YES         |                                                                                                  |
+| phq9       | q6                      | int       | YES         |                                                                                                  |
+| phq9       | q7                      | int       | YES         |                                                                                                  |
+| phq9       | q8                      | int       | YES         |                                                                                                  |
+| phq9       | q9                      | int       | YES         |                                                                                                  |
+| phq9       | q10                     | int       | YES         |                                                                                                  |
++------------+-------------------------+-----------+-------------+--------------------------------------------------------------------------------------------------+
+</pre>
+
+  <p>You can see the PHQ9 fields (Q1–Q9 and extra Q10), the standard
+  client-side field, the standard task fields, and the fields added by the
+  server.</p>
+
+  <h1><a name="views" id="views"></a>Predefined views</h1>
+
+  <p>Records are created on the tablet devices, with appropriate and simple key
+  relationships. Once they’re on the server, things are more complicated, as
+  the server keeps track of multiple tablet devices (and, moreover, multiple
+  copies across time of information from those tablet devices).</p>
+
+  <p>The following views are therefore pre-created to make life easier. They
+  (a) restrict queries to current information, and (b) provide the appropriate
+  server PK (for example, <code>_patient_server_pk</code> to link to the
+  server’s <code>patient._pk</code> field).</p>
+
+  <p>Any table <b>X</b> present on the client devices has a corresponding view
+  named <b>X_current</b>. For simple top-level tables (<code>patient,
+  storedvars, blobs</code>), these are defined as follows:</p>
+  <pre class="code1">
+CREATE OR REPLACE VIEW <b>X_current</b> AS
+SELECT *
+FROM <b>X</b>
+WHERE _current
+;
+</pre>
+
+  <p>For a task table <b>Y</b>, the view <b>Y_current</b> is defined as:</p>
+  <pre class="code1">
+CREATE OR REPLACE VIEW <b>Y_current</b> AS
+SELECT <b>Y</b>.*, patient._pk AS _patient_server_pk
+FROM <b>Y</b>
+INNER JOIN patient
+    ON <b>Y</b>.patient_id = patient.id
+    AND <b>Y</b>._device = patient._device
+    AND <b>Y</b>._era = patient._era
+WHERE
+    <b>Y</b>._current
+    AND patient._current
+;
+</pre>
+
+  <p>In addition, a view <b>Y_current_withpt</b>, linking in current patient
+  information, is defined as:</p>
+  <pre class="code1">
+CREATE OR REPLACE VIEW <b>Y</b>_current_withpt AS
+SELECT
+    <b>Y</b>_current.*
+    , patient_current.forename AS patient_forename
+    , patient_current.surname AS patient_surname
+    , patient_current.dob AS patient_dob
+    , patient_current.sex AS patient_sex
+    , patient_current.idnum1 AS patient_idnum1
+    , patient_current.idnum2 AS patient_idnum2
+    , patient_current.idnum3 AS patient_idnum3
+    , patient_current.idnum4 AS patient_idnum4
+    , patient_current.idnum5 AS patient_idnum5
+    , patient_current.idnum6 AS patient_idnum6
+    , patient_current.idnum7 AS patient_idnum7
+    , patient_current.idnum8 AS patient_idnum8
+    , patient_current.address AS patient_address
+    , patient_current.gp AS patient_gp
+    , patient_current.other AS patient_other
+FROM <b>Y</b>_current
+INNER JOIN patient_current
+    ON <b>Y</b>_current._patient_server_pk = patient_current._pk
+;
+</pre>
+
+  <p>For an ancillary table Z (used by task Y, with a foreign key named Y_id to
+  Y.id), the view <b>Z_current</b> is defined as:</p>
+  <pre class="code1">
+CREATE OR REPLACE VIEW <b>Z_current</b> AS
+SELECT <b>Z</b>, <b>Y</b>._pk AS _task_server_pk
+FROM <b>Z</b>
+INNER JOIN <b>Y</b>
+    ON <b>Z</b>.<b>Y_id</b> = <b>Y</b>.id
+    AND <b>Z</b>._device = <b>Y</b>._device
+    AND <b>Z</b>._era = <b>Y</b>._era
+WHERE
+    <b>Z</b>._current
+    AND <b>Y</b>._current
+;
+</pre>
+
+  <p><b>You are encouraged to use the <code>*_current</code> and
+  <code>*_current_withpt</code> views.</b></p>
+
+  <p>Identical <code>*_current</code> and <code>*_current_withpt</code> views
+  are created for all <a href="summary_tables.html">summary tables</a> (in this
+  example, <code>phq9_SUMMARY_TEMP_current</code> and
+  <code>phq9_SUMMARY_TEMP_current_withpt</code>).</p>
+
+  <p>As a simple example, to attach patient information to all current
+  instances of a PHQ9 task (mimicking the <code>phq9_current_withpt</code>
+  view), you can run:</p>
+  <pre class="code1">
+SELECT * FROM phq9_current INNER JOIN patient_current ON phq9_current._patient_server_pk = patient_current._pk;
+</pre>
+
+  <h1>All fields</h1>
+
+  <p>Code to generate this:</p>
+  <pre class="code1">
+SELECT c.table_name, c.column_name, c.data_type, c.is_nullable, c.column_comment
+FROM information_schema.columns c
+    INNER JOIN information_schema.tables t
+    ON c.table_schema = t.table_schema
+    AND c.table_name = t.table_name
+WHERE t.table_type='BASE TABLE'
+AND c.table_schema='<b>camcops</b>' /* database name */
+;
+</pre>
+
+  <p>With slightly fancier output, we get some <a href=
+  "tables_detailed.html">detailed table structure</a>.</p>
+  <!--#include virtual="/camcops/ssi/camcops_footer.shtml" -->
+</body>
+</html>

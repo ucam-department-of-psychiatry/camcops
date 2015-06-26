@@ -1,0 +1,350 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux (vers 25 March 2009), see www.w3.org">
+  <!--#include virtual="/camcops/ssi/camcops_html_head.shtml" -->
+
+  <title>CamCOPS – Patient identification</title>
+</head>
+
+<body onload="generateTOC(document.getElementById('toc'));">
+  <!--#set var="HEADER_TITLE" value="CamCOPS – Patient identification" -->
+  <!--#set var="HEADER_URL" value="documentation/id.html" -->
+  <!--#set var="HEADER_BACK_URL" value="index.html" -->
+  <!--#set var="HEADER_BACK_LABEL" value="Documentation" -->
+  <!--#include virtual="/camcops/ssi/camcops_page_header.shtml" -->
+
+  <div id="toc"></div>
+
+  <h1>Patient identification fields</h1>
+
+  <p>CamCOPS includes the following patient identification fields. Not all need
+  be used.</p>
+  <pre class="code1">
+forename
+surname
+dob     <i>-- date of birth</i>
+sex     <i>-- one of: M, F, X</i>
+idnum1
+idnum2
+idnum3
+idnum4
+idnum5
+idnum6
+idnum7
+idnum8
+address <i>-- (*) (free text)</i>
+gp      <i>-- (*) general practitioner’s details (free text)</i>
+other   <i>-- (*) any other details required (free text)</i>
+</pre>
+
+  <p>All except those marked (*) may be selected as part of the minimum patient
+  identification details. What counts as the minimum is configurable.
+  Furthermore, the meaning of the ID numbers is entirely configurable.</p>
+
+  <h1>Configuring the meaning of the ID number fields</h1>
+
+  <p>Your institution will use one or more ID number fields. For example, in
+  the UK NHS, every patient should have a unique nationwide NHS number. Most
+  NHS institutions use their own ID as well, and some specialities (such as
+  liaison psychiatry) operate in multiple hospitals. Research studies may use a
+  local, idiosyncratic numbering system. Configure the meanings of up to 8
+  numbering systems (see <a href="server.html">server configuration</a>.)</p>
+
+  <p><b>The first ID number is special in only one way:</b> the web viewer’s
+  drop-down ID selector will default to it. So, pick your institution’s main ID
+  number for this slot; that will save your users some effort.</p>
+
+  <h1>Uploading and finalizing policies</h1>
+
+  <p>The server supports two ID policies: an <b>upload</b> policy – the minimum
+  set of identifying information required to upload information to the server –
+  and a <b>finalizing</b> policy – the minimum set of identifying information
+  required for a tablet to “sign off” and transfer all its information to the
+  server (after which the tablet app can’t edit that information).</p>
+
+  <p>The policies you require depend on your institution. Some examples are
+  given below.</p>
+
+  <p>You can configure the policies using brackets ( ), AND, OR, and any of the
+  fields listed above (except those marked *). Some examples are shown
+  below.</p>
+
+  <p>Configure the policies by entering the command <code>camcops</code> on
+  your server, and follow the prompts.</p>
+
+  <h1>Example 1: clinical, multi-site</h1>
+
+  <p>Suppose we have a mental health NHS Trust – call it CPFT – with its own
+  hospitals that provides liaison psychiatry services in four other hospitals.
+  We might use the following IDs:</p>
+
+  <table>
+    <tr>
+      <th>ID number</th>
+
+      <th>Description</th>
+
+      <th>Short description</th>
+    </tr>
+
+    <tr>
+      <td>1</td>
+
+      <td>CPFT RiO number</td>
+
+      <td>CPFT RiO</td>
+    </tr>
+
+    <tr>
+      <td>2</td>
+
+      <td>NHS number</td>
+
+      <td>NHS</td>
+    </tr>
+
+    <tr>
+      <td>3</td>
+
+      <td>CPFT M number</td>
+
+      <td>CPFT M</td>
+    </tr>
+
+    <tr>
+      <td>4</td>
+
+      <td>Addenbrooke’s number</td>
+
+      <td>Add</td>
+    </tr>
+
+    <tr>
+      <td>5</td>
+
+      <td>Papworth number</td>
+
+      <td>Pap</td>
+    </tr>
+
+    <tr>
+      <td>6</td>
+
+      <td>Hinchingbrooke number</td>
+
+      <td>Hinch</td>
+    </tr>
+
+    <tr>
+      <td>7</td>
+
+      <td>Peterborough City Hosp number</td>
+
+      <td>PCH</td>
+    </tr>
+
+    <tr>
+      <td>8</td>
+
+      <td>Spare_8_idnum</td>
+
+      <td>Spare8</td>
+    </tr>
+  </table>
+
+  <p>and these policies:</p>
+  <pre class="code1">
+<b>UPLOAD POLICY:</b>   forename AND surname AND dob AND sex AND (idnum1 OR idnum2 OR idnum3 OR idnum4 OR idnum5 OR idnum6 OR idnum7)
+<b>FINALIZE POLICY:</b> forename AND surname AND dob AND sex AND idnum1
+</pre>
+
+  <ul>
+    <li>This would allow users to enter information while sitting in
+    Addenbrooke’s Hospital and in possession of the forename, surname, DOB,
+    sex, and Addenbrooke’s hospital number. Equally, the same would be true at
+    any other of the hospitals; or the NHS number could be used.</li>
+
+    <li>The user could then print out the information (from the CamCOPS webview
+    PDFs) for the Addenbrooke’s records, or store an electronic copy.</li>
+
+    <li>Once back at a CPFT office, the CPFT number(s) could be looked up, or
+    created, and entered into the CamCOPS tablet application (by editing that
+    patient’s details).</li>
+
+    <li>Only once this is done will the CamCOPS software allow a “final” upload
+    (an upload that moves rather than copies).</li>
+
+    <li>“Final” records would then conform to a hypothetical CPFT policy of
+    requiring a CPFT RiO number for each record, as well as basic information
+    (forename, surname, DOB, sex).</li>
+
+    <li>An alternative organization might standardize upon NHS numbers instead,
+    and edit its finalizing policy accordingly.</li>
+  </ul>
+
+  <h1>Example 2: research</h1>
+
+  <p>Suppose we’re operating in a very simple research context. We don’t want
+  patient-identifiable data on our computers; we’ll operate with pseudonyms
+  (codes for each subject). We might have a separate secure database to look up
+  individuals from our pseudonyms, but that is outside CamCOPS. We might have
+  the following identifiers:</p>
+
+  <table>
+    <tr>
+      <th>ID number</th>
+
+      <th>Description</th>
+
+      <th>Short description</th>
+    </tr>
+
+    <tr>
+      <td>1</td>
+
+      <td>Research ID number</td>
+
+      <td>RID</td>
+    </tr>
+
+    <tr>
+      <td>2</td>
+
+      <td>Spare_2_idnum</td>
+
+      <td>Spare2</td>
+    </tr>
+
+    <tr>
+      <td>3</td>
+
+      <td>Spare_3_idnum</td>
+
+      <td>Spare3</td>
+    </tr>
+
+    <tr>
+      <td>4</td>
+
+      <td>Spare_4_idnum</td>
+
+      <td>Spare4</td>
+    </tr>
+
+    <tr>
+      <td>5</td>
+
+      <td>Spare_5_idnum</td>
+
+      <td>Spare5</td>
+    </tr>
+
+    <tr>
+      <td>6</td>
+
+      <td>Spare_6_idnum</td>
+
+      <td>Spare6</td>
+    </tr>
+
+    <tr>
+      <td>7</td>
+
+      <td>Spare_7_idnum</td>
+
+      <td>Spare7</td>
+    </tr>
+
+    <tr>
+      <td>8</td>
+
+      <td>Spare_8_idnum</td>
+
+      <td>Spare8</td>
+    </tr>
+  </table>
+
+  <p>and these policies:</p>
+  <pre class="code1">
+<b>UPLOAD POLICY:</b>   sex AND idnum1
+<b>FINALIZE POLICY:</b> sex AND idnum1
+</pre>
+
+  <ul>
+    <li>This requires users to enter the subject’s sex and research ID
+    only.</li>
+  </ul>
+
+  <h1>Example 3: research hosted by a clinical institution</h1>
+
+  <p>Suppose you’re a research group operating within a clinical institution,
+  but collecting data (under appropriate ethics approval) for research
+  purposes. You may want to use patient-identifiable data or pseudonyms. You
+  will want full read access to your database (likely at the SQL level), but
+  you shouldn’t have full read access to all patients at that institution.</p>
+
+  <p>There are at least two possible approaches. You could set up a new server,
+  or you could add a second CamCOPS database to your existing server (which may
+  well be cheaper). This is easy; see <a href=
+  "server.html#multiple_instances">server configuration</a>. If you add a
+  second instance, your URLs might look like:</p>
+  <pre class="code1">
+https://yourhost/<b>camcops</b>/webview  -- Main clinical viewer
+https://yourhost/<b>camcops</b>/database -- Main clinical tablet upload URL
+
+https://yourhost/<b>camcops_depression_project_17</b>/webview  -- Research project viewer
+https://yourhost/<b>camcops_depression_project_17</b>/database -- Research project tablet upload URL
+</pre>
+
+  <h1>Minimum details required by the tablet software</h1>
+
+  <p>The tablet’s internal minimum identification policy, which is fixed,
+  is:</p>
+  <pre class="code1">
+sex AND ( (forename AND surname AND dob) OR (idnum1 OR idnum2 OR idnum3 OR idnum4 OR idnum5 OR idnum6 OR idnum7 OR idnum8) )
+</pre>
+
+  <p>This allows either a named (forename, surname, DOB, sex) or an
+  anonymous/pseudonym-based system for research (sex plus one ID number), or
+  any other sensible mixture as above.</p>
+
+  <h1>About device registration</h1>
+
+  <p>Tablets must register with a server. This serves four purposes:</p>
+
+  <ul>
+    <li><b>The server doesn’t want unauthorized devices uploading to it.</b>
+    Consequently, the server will only accept uploads from registered devices,
+    and requires users to authenticate (with a username approved for device
+    registration) before accepting registration.</li>
+
+    <li><b>Administrators don’t want their clinicians to upload data to
+    unauthorized servers.</b> Consequently, registration is a privileged-mode
+    function. (As a result, the requirement to re-register a device should be
+    minimized, since the day-to-day user of the tablet may not be authorized to
+    register a device.)</li>
+
+    <li><b>The server and the tablet should share a set of ID descriptions.</b>
+    It is not envisaged that the server’s policies should change once set!
+    However, allowing for that possibility: the tablet should not overwrite its
+    ID descriptions without checking with the user (except at device
+    registration), because this may apply errors to existing patients’ ID
+    descriptions (e.g. something the tablet thought was an NHS number is
+    re-labelled as hospital-X-number). CamCOPS will (a) automatically accept ID
+    descriptions when you register a device; (b) allow you to manually accept
+    ID descriptions at any time [Settings → Accept ID descriptions from the
+    server]; (b) check that the descriptions match when you upload, and if they
+    do not match, prevent upload until you have manually accepted them. You are
+    advised to check all patients’ ID number/descriptions carefully if this
+    mismatch occurs.</li>
+
+    <li><b>The tablet needs to know the server’s upload/finalize policies.</b>
+    Consequently, the tablet re-checks these policies before commencing an
+    upload.</li>
+  </ul><!--#include virtual="/camcops/ssi/camcops_footer.shtml" -->
+</body>
+</html>
