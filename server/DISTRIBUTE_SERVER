@@ -1,0 +1,9 @@
+#!/bin/bash
+
+DEVDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+PACKAGEDIR=$DEVDIR/packagebuild
+
+SERVERDOWNLOADDIR=/srv/www/camcops/download/server
+
+echo "COPYING PACKAGES TO DOWNLOAD AREA"
+cp $PACKAGEDIR/* $SERVERDOWNLOADDIR

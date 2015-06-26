@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+
+DEVDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+echo "MAKING PACKAGE"
+$DEVDIR/MAKE_PACKAGE
+echo "REINSTALLING PACKAGE"
+$DEVDIR/REINSTALL_PACKAGE

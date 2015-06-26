@@ -1,0 +1,374 @@
+camcops (1.40-1) all; urgency=low
+
+  * REQUIRES COMMAND TO UPGRADE EACH DATABASE:
+        camcops --maketables /etc/camcops/MYCONFIGNAME.conf
+  * Brief COPE Inventory.
+  * EXTRA_STRING_FILES system, with "get_extra_strings" command to database
+    API.
+  * CBI-R.
+  * ZBI (data collection tool only with option for institution to supply text).
+  * HADS (data collection tool only with option for institution to supply
+    text).
+  * AUDIT-C
+  * CGI-I
+  * Patient Satisfaction Scale
+  * Referrer Satisfaction Scale (generic + specific)
+  * Friends and Family Test
+  * IRAC
+  * MDS-UPDRS (data collection tool only)
+  * GDS-15
+  * Unit tests to ensure no overlap for task longnames/shortnames/tables; see
+    cc_task.unit_tests().
+  * clinician_service field as part of clinician block
+  * Bugfix to ProgressNote: get_task_html() crashed because "answer" was not
+    imported.
+  * xhtml2pdf @page size changed from "a4" to "A4" in cc_html.py to remove
+    "WARNING:xhtml2pdf:Unknown size value for @page"; see
+    https://github.com/chrisglass/xhtml2pdf/issues/71 ... however, no effect.
+  * Switch from xhtml2pdf, bypassing Weasyprint, to wkhtmltopdf (via pdfkit) as
+    the default PDF renderer.
+  * Abstract base class for PCL tasks wasn't inheriting from object; now is.
+  * editing_time_s field for all tasks.
+  * Indexing of ID number fields in patient table.
+  * Python package format internally.
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Thu, 28 May 2015 11:09:00 +0000
+
+camcops (1.34-1) all; urgency=medium
+
+  * Long text (e.g. ProgressNote) crashed PDF generator when in a table.
+    Tasks prone to this (ProgressNote, PsychiatricClerking) reworked to avoid
+    tables.
+  * Bug in RecipientDefinition.report_error() fixed.
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Sun, 01 Mar 2015 21:16:00 +0100
+
+camcops (1.33-1) all; urgency=low
+
+  * Tweaks to RiO metadata export, based on feedback from Servelec.
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Thu, 19 Feb 2015 21:16:00 +0100
+
+camcops (1.32-1) all; urgency=medium
+
+  * REQUIRES COMMAND TO UPGRADE EACH DATABASE:
+        camcops --maketables /etc/camcops/MYCONFIGNAME.conf
+  * Enforces sensible MySQL engine settings.
+  * Switches tables to Barracuda format to avoid uploading bug when rows too
+    large.
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Sun, 15 Feb 2015 21:16:00 +0100
+
+camcops (1.31-1) all; urgency=low
+
+  * REQUIRES COMMAND TO UPGRADE EACH DATABASE:
+        camcops --maketables /etc/camcops/MYCONFIGNAME.conf
+  * IDED3D task: extra field to store shapes (ided3d.shape_definitions_svg).
+  * Patient deletion reports tasks that will be deleted.
+  * Ability to edit patient details, for finalized records.
+  * HL7 resending triggered by cancelling, not deleting, existing messages
+    (in cc_task.Task.delete_from_hl7_message_log(), etc.)
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Tue, 10 Feb 2015 21:16:00 +0100
+
+camcops (1.30-1) all; urgency=low
+
+  * REQUIRES COMMAND TO UPGRADE EACH DATABASE:
+        camcops --maketables /etc/camcops/MYCONFIGNAME.conf
+  * IDED3D task.
+  * Cardinal_ExpectationDetection and Cardinal_ExpDetThreshold: ISO-8601 fields
+    changed from TEXT to (internal) ISO8601 (i.e. SQL VARCHAR).
+  * Prohibit manual erasure of non-finalized (live-on-tablet) tasks (for one
+    thing, the tablet might re-upload and surprise the erasing user).
+  * Manually erased records become non-current.
+  * Fix latent bug by finalizing special notes along with their tasks.
+  * Forcible finalization/preservation, with _forcibly_preserved flag.
+  * Option to drop superfluous columns when remaking tables.
+  * Bugfix: other filters failed if non-current tasks shown
+    (get_session_candidate_task_pks_whencreated).
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Fri, 30 Jan 2015 21:16:00 +0100
+
+camcops (1.22-1) all; urgency=low
+
+  * Improved audit search.
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Wed, 07 Jan 2015 21:16:00 +0100
+
+camcops (1.21-1) all; urgency=low
+
+  * REQUIRES COMMAND TO UPGRADE EACH DATABASE:
+        camcops --maketables /etc/camcops/MYCONFIGNAME.conf
+  * Draft support for RiO metadata export (for RiO's batch document upload
+    facility). Some information pending, e.g. whether UTF-8 is supported in
+    metadata.
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Thu, 04 Dec 2014 21:16:00 +0100
+
+camcops (1.2-1) all; urgency=low
+
+  * REQUIRES COMMAND TO UPGRADE EACH DATABASE:
+        camcops --maketables /etc/camcops/MYCONFIGNAME.conf
+  * WEMWBS/SWEMWBS tasks.
+  * GAF: interprets raw score of zero as "unknown" for total-score purposes.
+  * CGI: requires full completion for a valid total score.
+  * BPRS total score was erroneously including Q19/Q20.
+  * Scoring clarity expanded (e.g. BPRS, BPRS-E, CGI).
+  * Exclude manually erased tasks from list (unless "include old versions" is
+    selected). See
+        cc_task.get_session_candidate_task_pks_whencreated()
+        cc_task.get_all_current_pks()
+  * Bugfix to cc_task.make_extra_summary_tables().
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Fri, 28 Nov 2014 21:16:00 +0100
+
+camcops (1.17-1) all; urgency=low
+
+  * HAM-D: complained inappropriately about '3' codes (meaning 'not measured')
+    for weight questions; maximum score adjusted accordingly from 53 to 52;
+    comment for Q16B was erroneously labelled Q16A.
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Wed, 12 Nov 2014 21:16:00 +0100
+
+camcops (1.15-1) all; urgency=high
+
+  * REQUIRES COMMAND TO UPGRADE EACH DATABASE:
+        camcops --maketables /etc/camcops/MYCONFIGNAME.conf
+  * ID number fields become unsigned BIGINT, not unsigned INT.
+    Fixes critical error (inability to represent NHS numbers.)
+    See VERSION_TRACKER.txt for the tablet software.
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Mon, 20 Oct 2014 21:16:00 +0100
+
+camcops (1.14-1) all; urgency=low
+
+  * REQUIRES COMMAND TO UPGRADE EACH DATABASE:
+        camcops --maketables /etc/camcops/MYCONFIGNAME.conf
+  * REQUIRES TABLET CLIENT V1.14.
+  * Server can enforce a minimum tablet version, and tablet can specify a
+    minimum server version. Version numbers are in cc_version.py on the server.
+  * CAPE-42 task.
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Wed, 15 Oct 2014 21:16:00 +0100
+
+camcops (1.13-1) all; urgency=low
+
+  * Trivial code changes.
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Thu, 02 Oct 2014 21:16:00 +0100
+
+camcops (1.12-1) all; urgency=low
+
+  * REQUIRES TABLET CLIENT V1.12.
+  * REQUIRES COMMAND TO UPGRADE EACH DATABASE:
+        camcops --maketables /etc/camcops/MYCONFIGNAME.conf
+  * Renamed ExpDetThreshold/ExpectationDetection tasks (and tables) to add
+    a "[C/c]ardinal_" prefix, as the names were too vague. THEREFORE requires
+    tablet version 1.12 as well.
+  * Session-based authentication for tablets to improve speed (i.e. no need for
+    bcrypt reauthentication within the same session, as for the web front end).
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Thu, 11 Sep 2014 21:16:00 +0100
+
+camcops (1.11-1) all; urgency=low
+
+  * Future necessity to discriminate field types that all use VARCHAR; e.g.
+    (and esp.) ISO-8601 dates versus others. So change sqltype to cctype
+    internally; see cc_db.add_sqltype().
+  * Significant simplification of work done in tasks with ancillary tables.
+    New cc_task.Ancillary class; q.v.
+  * Export to CRIS staging database and autocreate draft data dictionary.
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Sat, 06 Sep 2014 00:30:00 +0100
+
+camcops (1.10-1) all; urgency=high
+
+  * REQUIRES COMMAND TO UPGRADE EACH DATABASE:
+        camcops --maketables /etc/camcops/MYCONFIGNAME.conf
+  * Database upload script could fail to insert but not complain to the tablet.
+  * Stopped database handler (rnc_db.py) masking any exceptions.
+  * Improved exception handling in database.py.
+  * Bug: patient table incorrectly had forename/surname/DOB fields as NOT NULL.
+    Sex column also now has that constraint removed (enforced elsewhere but one
+    could envisage not enforcing it).
+  * Tablet-side (webclient) minor fix to newline escaping.
+  * Removed Unicode from error messages in make_summary_tables(), since they
+    also go to the Apache log.
+  * Bugfix: login failures were redirecting to the page for acknowledging terms
+    and conditions. Bug was in login().
+  * Bugfix: effective deadlock between the process of a mandatory password
+    change for new users and acknowledging terms/conditions.
+  * Make database/username more prominent (bold) in menus. Was easy to ignore.
+  * pyflakes compliance.
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Sat, 16 Aug 2014 00:30:00 +0100
+
+camcops (1.09-1) all; urgency=high
+
+  * REQUIRES TABLET CLIENT V1.09.
+  * Full rewrite of the database upload script to Python.
+  * Fix MySQL "morning bug" ("MySQL server has gone away") from the Perl upload
+    script.
+  * Logic change to flag_all_records_deleted(), which was not restricted to
+    _current/era='NOW' records, but should have been.
+  * Also rolls back preservation flag changes as part of general rollback.
+  * BLOB transfer encoding improved; fixes design flaw that was due to the use
+    of the Perl CSV module. (Requires tablet client v1.09 as a result.)
+  * Internal code changes: explicit modules in all cases, removing
+    cc_shared.py.
+  * PANSS stripped down to data collection tool only, for copyright reasons.
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Sat, 02 Aug 2014 18:45:00 +0100
+
+camcops (1.08-1) all; urgency=low
+
+  * REQUIRES COMMAND TO UPGRADE EACH DATABASE:
+        camcops --maketables /etc/camcops/MYCONFIGNAME.conf
+  * Automatic version-based database structure upgrade via the --maketables
+    command. (Similarly on the tablet side.)
+  * Distinct patient reports.
+  * CPFT* tasks remain in beta; data structure may change.
+  * QoL* tasks remain in beta; data structure may change.
+  * Remote IP addresses stored in audit log (additional field: remote_addr).
+  * Auditing of clinical text views.
+  * Some string constant code cleanup.
+  * Some Perl code cleanup and upload audit simplification.
+  * perltidy for Perl code.
+  * Trackers/CTVs clearer in their errors when no data found.
+  * Ability to apply multiple filters simultaneously.
+  * Option to force password changes periodically/ad hoc.
+  * PEP8 compliance for core Python code.
+  * PEP8 compliance for task code.
+  * Proper multiple inheritance handling for diagnosis.py, pcl.py.
+  * Disclaimer/acknowledgement recording.
+  * Audit all login attempts, plus user addition/deletion.
+  * OptionParser to ArgumentParser.
+  * Internal URLs for tasks altered slightly.
+  * Better internal timezone handling.
+  * Commit during menu-driven administration to prevent database locking.
+  * Lock user accounts after multiple login failures.
+  * HL7 message framework. (Validated internally and against HL7 Inspector.)
+  * File export message framework, with post-export script option.
+  * Database title, ID descriptions, and policies now have their primary home
+    in the configuration file. Copied to database purely for researcher lookup.
+  * File locking for the regeneration of summary tables.
+  * XML export (tasks, trackers, CTVs).
+  * Unit testing framework (and a couple of bugs fixed).
+  * Shift to unsigned ints for PKs.
+  * Option to introspect source code.
+  * Option to view table definitions from webview.
+  * Basic non-modifying anonymisation system.
+  * Bugfix: added vignette to ICD10-PD display.
+  * Bugfix: HAMD-7 maximum is 26, not 23.
+  * Bugfix: CECAQ3 failed to calculate some summary scores with no siblings,
+    and paternal psychological abuse score was sometimes inappropriately blank.
+  * Bugfix: filter for incomplete tasks only wasn't working.
+  * Bugfix: logic bugfix in ICD-10 manic, mixed, schizophrenia.
+  * Bugfix: categorization text in BMI.
+  * Bugfix: clinical text for SLUMS reported incorrect maximum.
+  * BMI thresholds refined in the underweight zone and referenced properly.
+  * All field comments.
+  * Manual erasure of individual tasks.
+  * Manual deletion of entire patients/associated tasks.
+  * Manual application of special notes.
+  * CTV is clearer when tasks are incomplete.
+  * More consistent formatting of null values in HTML. (Note that the quick
+    way to view null handling is to specify a nonexistent server PK.) The aim
+    is that all user answers should be proceesed via the answer() function, to
+    apply typographic indications that the field is null.
+  * camcopswebview.py renamed to camcops.py.
+  * Optimization on compile.
+  * Ensure commit/rollback always occurs, even after exceptions.
+  * "crash" action to induce a deliberate exception, for testing.
+  * Configurable save-as filenames for tasks, trackers, and CTVs.
+  * Server-side validation of fields (field_contents_valid).
+  * Unit tests prohibit tasks from having summary fields with the same name as
+    a main task field.
+  * Option to disable password autocompletion on the login page.
+  * Server version number in "office" details.
+  * Generator function for task list.
+  * Drop-down lists for filters remember state.
+  * Basic research dump (likely to be the most useful in practice).
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Tue, 22 Jul 2014 21:45:00 +0100
+
+camcops (1.07-1) all; urgency=low
+
+  * REQUIRES DATABASE CHANGE BEFORE INSTALLATION:
+        DROP TABLE _security_webviewer_sessions;
+  * CPFT* tasks remain in beta; data structure may change.
+  * QoL* tasks remain in beta; data structure may change.
+  * Additional content for clinical text views.
+  * Python virtualenv.
+  * Dumping/reporting options for suitably privileged users.
+    Additional user permissions: may_dump_data, may_run_reports.
+  * Bugfix to Session class to prevent the (incredibly unlikely)
+    event of an IP address hop with an identical session token.
+  * Security improvement to Session class: change token upon login.
+  * Speedup to Session design (inc. integer PK).
+  * Typo in CAPS text, Q24.
+  * Speedup to LSTRING XML processor.
+  * Speedup via transaction-based database handling in the Python handler.
+  * Redirect to destination URL after re-authentication.
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Fri, 14 Feb 2014 16:33:00 +0000
+
+camcops (1.06-1) all; urgency=high
+
+  * REQUIRES DATABASE CHANGE BEFORE INSTALLATION:
+        DROP TABLE _dirty_tables;
+  * CPFT_LPS_Referral, CPFT_LPS_Discharge, CPFT_LPS_ResetStartClock tasks.
+    IN BETA; MAY CHANGE.
+  * QoL* tasks remain in beta; data structure may change.
+  * Options in man page.
+  * cc_patient.py / get_id_generic and similar: bugfix to use Unicode
+  * Clinical text provided by Photo/PhotoSequence.
+  * Batch upload empty tables.
+  * rnc_db: skips creation of tables that exist already (removes a warning).
+  * Joint PK for _dirty_tables, and change from TEXT to VARCHAR(255)
+    for the tablenamefield.
+  * Bugfix to database.pl / flag_deleted_where_clientpk_not: wasn't
+    device-specific! Was used by blob upload on the tablet, i.e.
+    dbupload.sendTableRecordwise()
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Thu, 16 Jan 2014 21:15:00 +0000
+
+camcops (1.03-1) all; urgency=low
+
+  * CGI-SCH task.
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Fri, 10 Jan 2014 16:28:00 +0000
+
+camcops (1.02-1) all; urgency=low
+
+  * Mostly changes on the app side (q.v.).
+  * Change to DemoQuestionnaire fields.
+  * DOB task filter.
+  * Server analytics with yes/no option.
+  * Fixed layout on old versions of Internet Explorer.
+  * get_id_info command in the database interface.
+  * QoL* tasks remain in beta; data structure may change.
+  * Changes for CentOS, including Python version check and altered shebang.
+    Using "#!/usr/bin/env python2.7" is perhaps desirable, but Lintian
+    requires e.g. "#!/usr/bin/python2.7":
+    http://lintian.debian.org/tags/python-script-but-no-python-dep.html
+  * Clinical text view.
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Thu, 28 Nov 2013 19:54:00 +0000
+
+camcops (1.01-1) all; urgency=low
+
+  * Test of version number increment (1.01).
+  * Trivial change: ensure empty "*_SUMMARY_TEMP_current*" views
+    aren't created for anonymous tasks.
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Wed, 20 Nov 2013 19:54:00 +0000
+
+camcops (1.0-1) all; urgency=low
+
+  * First version (1.0).
+  * This file has a very precise format:
+    http://www.debian.org/doc/debian-policy/ch-source.html#s-dpkgchangelog
+  * Note that newer entries are at the top.
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Wed, 14 Aug 2013 01:00:00 +0000

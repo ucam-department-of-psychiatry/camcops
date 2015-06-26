@@ -1,0 +1,17 @@
+#!/bin/bash
+set -e
+
+DEVDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+PACKAGEDIR=$DEVDIR/packagebuild
+WWWDIR=/srv/www/camcops
+
+PACKAGE=`ls -t $PACKAGEDIR/camcops*.deb | head -1` # NB takes most recent by file date
+echo "REMOVING OLD CAMCOPS PACKAGE, IF INSTALLED"
+sudo apt-get --yes remove camcops
+echo "INSTALLING CAMCOPS PACKAGE: $PACKAGE"
+sudo gdebi --non-interactive $PACKAGE # install package and dependencies
+
+# Additional:
+cp $DEVDIR/debian/etc/camcops/camcops.conf $WWWDIR/documentation/camcops.conf
+# cp $DEVDIR/debian/usr/share/camcops/demo_apache_config_section $WWWDIR/documentation/demo_apache_config_section
+# cp $DEVDIR/debian/usr/share/camcops/demo_mysql_database_creation $WWWDIR/documentation/demo_mysql_database_creation

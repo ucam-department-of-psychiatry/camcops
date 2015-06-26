@@ -1,0 +1,10 @@
+#!/bin/bash
+
+CAMCOPS_DEVDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+PYTHONLIB=$CAMCOPS_DEVDIR/server/pythonlib
+
+cd $CAMCOPS_DEVDIR/server
+for f in camcops.py database.py cc_modules/*.py tasks/*.py $PYTHONLIB/*.py
+do
+    pep8 $f
+done
