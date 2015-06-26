@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ti:app xmlns:ti="http://ti.appcelerator.org">
+    <name>CamCOPS</name>
+    <id>org.camcops.camcops</id>
+    <publisher>Rudolf Cardinal</publisher>
+    <url>http://camcops.org</url>
+    <description>Cambridge Cognitive and Psychiatric Assessment Kit</description>
+    <copyright>(C) 2012-2015 Rudolf Cardinal</copyright>
+    <version>1.40</version>
+    <!-- SEE ALSO android:versionCode AND android:versionName BELOW -->
+    <android xmlns:android="http://schemas.android.com/apk/res/android">
+        <manifest android:versionCode="140" android:versionName="1.40">
+            <!-- SEE ALSO version ABOVE; there are THREE things to change -->
+            <!-- versionCode is an integer (my convention: float version * 100); versionName is a float or integer
+                 See http://developer.android.com/tools/publishing/versioning.html
+            -->
+            <!-- stuff within the manifest tag is sent direct to the android manifest.xml
+                 Titanium: see http://docs.appcelerator.com/titanium/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference
+                 Android: see http://developer.android.com/guide/topics/manifest/manifest-intro.html
+            -->
+            <uses-sdk android:minSdkVersion="14" targetSdkVersion="17"/>
+            <!-- min=11, target=16 to get fullscreen working
+                 min=10 to install on HTC Desire Z (Android 2.3.3 = one of the Gingerbreads)
+                 ... but if you try to run a FullscreenView it'll crash
+                 tool-api-level: min 17 for largeHeap option
+                 ... but as of Titanium 3.2.0GA, tool-api-deprecated (use targetSdkVersion)
+                 android:textCursorDrawable requires API >= 12 (this is used in the platform/android/res/values/theme.xml file)
+
+                 AS OF TITANIUM v3.3.0: targetSdkVersion must be 14 or higher.
+                 http://docs.appcelerator.com/titanium/3.0/#!/guide/Android_Themes
+
+                 AS OF TITANIUM v3.5.0: minSdkVersion must be 14 or higher.
+            -->
+            <application
+                android:allowBackup="false"
+                android:debuggable="false"
+                android:hardwareAccelerated="true"
+                android:largeHeap="true"
+                android:theme="@style/Theme.CamCOPS">
+                <!--
+                    theme: UPDATED THEME FILE FOR TITANIUM 3.3.0;
+                        see my platform/android/res/values/theme_camcops.xml (formerly .../theme.xml)
+                    http://developer.android.com/guide/topics/manifest/application-element.html
+                    allowBackup:
+                        http://stackoverflow.com/questions/12648373/what-is-androidallowbackup
+                        http://blog.shvetsov.com/2013/02/access-android-app-data-without-root.html?m=1
+                        If enabled, backup/inspect like this:
+                            adb backup -f ~/camcopsbackup.ab -noapk org.camcops.camcops
+                            ... need to enter device password - you have encrypted the device, right? - (also used as backup encryption password)
+                            ... then complex decryption process:
+                                http://nelenkov.blogspot.jp/2012/06/unpacking-android-backups.html
+                                http://sourceforge.net/projects/adbextractor/files/
+                                http://forum.xda-developers.com/showthread.php?p=27840175#post27840175 - which contains abbackuproutines.tar (in Perl)
+                                ...
+                                    sudo apt-get install libcrypt-cbc-perl libcurl4-openssl-dev
+                                    sudo cpan App::cpanminus
+                                    sudo cpanm Crypt::OpenSSL::PBKDF2
+                                    sudo cpanm Crypt::OpenSSL::AES
+                                    ./backupdecrypt.pl camcopsbackup.ab camcopsbackup_decrypted.tar
+                                    ... enter password
+                            Now it's decrypted, unpack:
+                                tar xvf camcopsbackup_decrypted.tar
+                            Inspect contents:
+                                sqlite3 apps/org.camcops.camcops/db/camcops.db
+                                ... or whatever.
+                    hardwareAccelerated:
+                        turned off 2015-03-12 to solve crash:
+                        E/BufferQueue(  292): [org.camcops.camcops/org.appcelerator.titanium.TiActivity] dequeueBuffer: can't dequeue multiple buffers without setting the buffer count
+                        ... didn't help, so turned on again
+                    largeHeap:
+                        for photo capture: try to stop out-of-memory crash.
+                        Previously done within the ti:app section with <property name="ti.android.largeHeap" type="bool">true</property>
+                -->
+            </application>
+        </manifest>
+    </android>
+    <deployment-targets>
+        <target device="tizen">false</target>
+        <target device="mobileweb">true</target>
+        <target device="iphone">false</target>
+        <target device="ipad">true</target>
+        <target device="android">true</target>
+        <target device="blackberry">false</target>
+    </deployment-targets>
+    <sdk-version>3.5.1.GA</sdk-version>
+    <icon>appicon.png</icon>
+    <persistent-wifi>false</persistent-wifi>
+    <prerendered-icon>false</prerendered-icon>
+    <statusbar-style>default</statusbar-style>
+    <statusbar-hidden>true</statusbar-hidden>
+    <fullscreen>false</fullscreen>
+    <navbar-hidden>false</navbar-hidden>
+    <analytics>false</analytics>
+    <!-- Disable Titanium analytics -->
+    <guid>2c50b8da-484f-4fd7-a5a6-ee556ecb7a7a</guid>
+    <property name="ti.ui.defaultunit">dip</property>
+    <!-- set default units -->
+    <iphone>
+        <orientations device="iphone">
+            <orientation>Ti.UI.PORTRAIT</orientation>
+        </orientations>
+        <orientations device="ipad">
+            <orientation>Ti.UI.PORTRAIT</orientation>
+            <orientation>Ti.UI.UPSIDE_PORTRAIT</orientation>
+            <orientation>Ti.UI.LANDSCAPE_LEFT</orientation>
+            <orientation>Ti.UI.LANDSCAPE_RIGHT</orientation>
+        </orientations>
+    </iphone>
+    <mobileweb>
+        <precache/>
+        <splash>
+            <enabled>true</enabled>
+            <inline-css-images>true</inline-css-images>
+        </splash>
+        <theme>default</theme>
+    </mobileweb>
+    <modules>
+        <module platform="android">org.camcops.androidtibugfix</module>
+        <module platform="iphone">ti.imagefactory</module>
+        <module platform="android">ti.imagefactory</module>
+        <module platform="android">org.camcops.androiduitools</module>
+        <module platform="iphone">ti.paint</module>
+        <module platform="android">org.camcops.androidtipaint</module>
+    </modules>
+</ti:app>

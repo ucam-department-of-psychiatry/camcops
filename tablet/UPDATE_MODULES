@@ -1,0 +1,35 @@
+#!/bin/bash
+
+#==============================================================================
+# Absolute path to this script, e.g. /Users/rudolf/mobileweb_camcops/SHIP_DOCS.sh
+#==============================================================================
+
+LOCALBASEDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+#==============================================================================
+# Function to clean/rebuild
+#==============================================================================
+
+function package_android_module {
+    MODULENAME=$1
+    echo "===================================================================="
+    echo $MODULENAME
+    echo "===================================================================="
+    cd $LOCALBASEDIR/../$MODULENAME
+    ant clean
+    ant
+    # don't know how to package
+}
+
+#==============================================================================
+# Update modules
+#==============================================================================
+
+# Exit on any error
+set -e
+
+package_android_module androiduitools
+package_android_module androidtipaint
+package_android_module androidtibugfix
+
+echo "Now use Titanium Studio to package all modules for CamCOPS (don't know how to do that from command line; potential info within /Users/rudolf/Library/Application Support/Titanium/mobilesdk/osx/3.2.0.GA/module/android)"

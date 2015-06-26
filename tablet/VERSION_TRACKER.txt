@@ -1,0 +1,399 @@
+===============================================================================
+    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com)
+    Department of Psychiatry, University of Cambridge.
+    Funded by the Wellcome Trust.
+
+    This file is part of CamCOPS.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+===============================================================================
+
+===============================================================================
+CamCOPS tablet app version tracker
+===============================================================================
+
+Where are version numbers stored?
+
+1. App version number is stored in tiapp.xml
+
+2. Tablet's minimum server version requirement is in
+   Resources/common/VERSION.js
+
+3. Server version number is stored in server/cc_modules/cc_version.py
+   (as is the server's minimum tablet version requirement).
+
+4. Server changelog is stored in server/changelog.debian
+
+5. The web page also has a record of the most recent version, in
+   download/index.html
+
+Indirectly:
+    - Tablet app: Resources/common/VERSION.js reads the app version using
+      Titanium.App.version, which is determined by tiapp.xml. In turn,
+      it exports this as CAMCOPS_VERSION.
+    - Tablet build: SHIP_ANDROID reads VERSION.js
+    - Server build: MAKE_PACKAGE reads cc_constants.py
+Human-readable details are shown in this file.
+
+===============================================================================
+Known problems and bugs
+===============================================================================
+
+- visually disabled elements not yet implemented (starting point only in
+  qcommon.js)
+- wait class imperfect and may leak
+- ti.imagefactory module does not support x86 architecture, just arm
+- Titanium iOS re-layout is very slow. Visible e.g. when changing questionnaire
+  font sizes, but more important for multiline multiline text areas.
+  Bug report: https://jira.appcelerator.org/browse/TC-3560
+- mobileweb edition not yet working
+- Alerts with large content no longer scroll under iOS 8.
+  Apparently this is an Apple bug:
+    https://jira.appcelerator.org/browse/TIMOB-17745
+
+===============================================================================
+Version history (new to old)
+===============================================================================
+
+1.40 (2015-05-27)
+- Requires server version 1.40.
+- FROM-LP framework set menu
+- O'Brien group set menu 1
+- Brief COPE
+- CBI-R
+- ZBI (data collection tool only with option for institution to supply text)
+- HADS (data collection tool only with option for institution to supply text)
+- AUDIT-C
+- CGI-I
+- Patient Satisfaction Scale
+- Referrer Satisfaction Scale (generic + specific)
+- Friends and Family Test
+- IRAC
+- MDS-UPDRS (data collection tool only)
+- GDS-15
+- AUDIT and AUDIT-C corrected to be clinician-colour pages, and instruction
+  page added.
+- extrastrings framework - at registration, the tablet downloads sets of extra
+  strings from its server. This allows the conversion of crippled tasks to
+  fully-functional ones, subject to the hosting institution's right to offer
+  the strings up to its tablets (which is a matter for the institution, the
+  strings not being distributed with CamCOPS).
+- clinician_service field as part of clinician block (and used for service
+  feedback); corresponding storedvars.defaultClinicianService variable.
+- boldPrompt option to QuestionTypedVariables
+- editing_time_s field as standard on all tasks
+
+1.34 (2015-04-26)
+- Probable bugfix: IDED3D performed its stage failure check before its stage
+  success check at the end of trials (should be the other way round).
+
+1.33 (2015-04-26)
+- Bugfix: CGI didn't offer all options for Question 3 (drug effects)!
+
+1.32 (2015-03-10 to 2015-04-22)
+- setRemoteBackup(false) call, to disable back to Apple iCloud; see dbinit.js
+- Intermittent crash on Android 4.4.4 (build 23.0.1.A.4.30).
+  Relates to database access?
+  - Always create all tables at task start. (A crash due to a missing table was
+    still possible, and the kind of thing it's easy to miss on a development
+    machine that tends to have everything precreated. Mind you, not sure that
+    was the actual bug; see next point.) See ensure_database_ok().
+  - Explicitly close all recordsets (cursors) opened on all db.execute()
+    operations.
+  - Did not relate to database access in 10k soak test, and crash occurred
+    outside updateByPK function. Maybe relating to visual display. Key error:
+        E/BufferQueue(  292): [org.camcops.camcops/org.appcelerator.titanium.TiActivity] dequeueBuffer: can't dequeue multiple buffers without setting the buffer count
+    This?
+        https://code.google.com/p/android/issues/detail?id=63738
+    Android source is:
+        https://android.googlesource.com/platform/frameworks/native/+/jb-dev/libs/gui/BufferQueue.cpp
+    But crash also occurred inside updateByPK function (unless from a different
+    thread).
+  No... relates to setBackgroundImage() calls.
+  - https://jira.appcelerator.org/browse/TC-5369
+  Attempt at change:
+  - Get rid of all setBackgroundImage() calls for situations calling for
+    multiple alternative images (e.g. radio buttons). Also
+    setBackgroundSelectedImage().
+  - Replace with method of loading all alternative images at the start, and
+    using hide()/show() calls.
+  - Affects ValidityIndicator; StateRadio; StateCheck.
+  - setImage() calls also removed from ImageGroupVertical.
+  - Residual setImage() calls, which may also be suspect if the Android file
+    system is duff:
+        QuestionCanvas_*
+        QuestionImage
+        QuestionPhoto
+  - NOT successful. If anything, crashes more frequent.
+    Therefore, most likely a memory problem? E.g. ACE-III "learning address"
+    page: 26 x QuestionBooleanText, each with up to 4 potential images loaded,
+    each ~3k on disk, would give 312k (when image caching would reduce that
+    to 12k); might be larger in memory, and if the "imageref_ashmem create
+    failed" message is showing the size -- which it is; see
+    https://code.google.com/p/skia/source/browse/trunk/src/images/SkImageRef_ashmem.cpp?spec=svn11558&r=11558
+    -- then it's about 36k per image, i.e. we were using 3.7 Mb for that page.
+    That's then perhaps less surprising.
+  Reverted.
+  New technique
+  - imagecache.js
+  - Cache cleared from questionnaire.js
+  - Applied to ValidityIndicator, StateRadio, StateCheck
+    ... except you can't pass Blobs to Titanium.UI.createButton, only to
+        createImageView
+    ... so ImageView used instead of button for now (which loses the "currently
+        being touched" facility). See AS_BUTTONS flag in qcommon.js.
+  - However, ImageVerticalGroup goes to preloading method for performance
+    reasons.
+- Allow user to specify the number of lines used for fixed-height multiline
+  text entry: multilineDefaultNLines.
+
+1.31 (2015-02-10)
+- Requires server version 1.31.
+- dbsqlite.renameColumns() and dbsqlite.changeColumnTypes() fail more politely
+  with non-existing columns (remember that not all tables may exist, even if
+  the app has been launched before, so don't throw an error).
+- IDED3D: Minor config text bugfix.
+- IDED3D: Save stimulus shapes to database as SVG.
+- *** IDED3D: Occasional missing sounds.
+  Reaches "playsound: filename =" message.
+  I suspect this is a Titanium bug, but am not certain.
+- IDED3D: Correct/incorrect sounds changed to more distinctive chords with
+  more similar subjective volumes.
+- *** IDED3D: Change colours for the colour-blind? A/w Annette.
+
+1.30 (2015-01-30)
+- Requires server version 1.3.
+- IDED3D task.
+- Bug related to serialization of moment() objects from webviews.
+  Probably introduced in v1.16.
+  The moment.js library now includes a moment.toJSON() function, which
+  overrides custom work in my json_encoder_replacer() function. However,
+  moment.js's version loses information (specifically, time zone, not to
+  mention that it's hard as the recipient to detect whether the object should
+  be reconverted to a moment() object.) Therefore:
+    preprocess_moments_for_json_stringify()
+  ... in conversion.js and taskhtmlcommon.jsx.
+- Alerts with large content no longer scroll under iOS 8.
+  Apparently this is an Apple bug:
+    https://jira.appcelerator.org/browse/TIMOB-17745
+- Raphael.js upgraded from 2.1.0 to 2.1.3.
+- Bugfix: if endUpload() failed, the failure wasn't processed properly.
+
+1.21 (2014-12-26)
+- Fixes bug found in v1.17.
+  Symptom: crash after adding new patient in some circumstances (?when ID check
+  failed). Error of "'undefined' is not an object (evaluating
+  'this.props.pages[this.currentPage].pageTag') at Questionnaire.js (line 1)"
+  Added getPageTag() function to check for invalid index effects.
+- Note in passing: to view iPad-based SQLite files, copy them elsewhere with
+  e.g. http://www.macroplant.com/iexplorer/
+- Curious crash on loading on an iPad whereas fine under the iOS simulator.
+  Occurring in
+    dbinit.js
+    storedvars.databaseVersion.setValue(...)
+    this.dbstore()
+    dbcommon.storeRow()
+    dbsqlite.updateByPK()
+    dbsqlite.getFieldValueArgs()
+  Segmentation fault (view console with Xcore > Window > Devices > click the
+  tiny up-arrow at the bottom left of the right-hand pane for the device).
+  Titanium SDK: 3.5.0.Alpha
+  http://builds.appcelerator.com.s3.amazonaws.com/index.html
+  ... upgraded to 3.5.0.RC (install SDK + change tiapp.xml)
+  ... fixed. So a Titanium bug.
+
+1.2 (2014-11-27)
+- Requires server version 1.2.
+- WEMWBS/SWEMWBS scales.
+- QuestionMCQGrid wasn't centring its buttons properly, because McqGroup wasn't
+  copying its incoming tipropsArray through properly.
+- Bugfix to webclient database handling, in:
+    dbwebclient.js / convertResponseToRecordList()
+    netcore.js / parseServerReply()
+- Some improvements to MobileWeb, though Titanium bugs remain, e.g.:
+    https://jira.appcelerator.org/browse/TC-5065
+    https://jira.appcelerator.org/browse/TC-5071
+- GAF: applies 0-100 input constraint.
+- GAF: interprets raw score of zero as "unknown" for total-score purposes.
+
+1.17 (2014-11-13)
+- HAM-D scoring was wrong for "weight - not measured" option. Fixed. Maximum
+  changed from 53 to 52 accordingly.
+
+1.16 (2014-10-26)
+- Text-as-button widgets:
+        QuestionBooleanText / props.asTextButton
+        QuestionMultipleResponse / props.asTextButton
+        QuestionMCQ / props.asTextButton
+- Reworking of corresponding underlying widget code.
+- QuestionDateTime supports text entry (including by default).
+- Updated moment.js to 2.8.3
+- Minor other code changes and improvement of demo questionnaire.
+
+1.15 (2014-10-18)
+- Requires server version 1.15.
+- NHS numbers were being corrupted, i.e. very long (10-digit) numbers.
+    - Critical error. Stored correctly in database.
+    - SQLite maximum integer is 2^63 - 1 = 9,223,372,036,854,775,807.
+    - Javascript safe max is 9,007,199,254,740,991.
+    - A valid database was read incorrectly by dbsqlite.js / getAllRows().
+    - Ah. Titanium bug: https://jira.appcelerator.org/browse/TIMOB-3050
+    - Workaround is either
+      (a) float, which won't be quoted by the SQLite quote() function, and
+      which MySQL will happily accept (rounding); and all numbers are floats
+      anyway in Javascript;
+        or
+      (b) text, with parseInt() when reading from SQLite to Javascript.
+      This will send integer values quoted, but MySQL will convert even e.g.
+      '9876543209.999' (with the quotes) to 9876543210 when inserted into a
+      BIGINT field, so that's OK. The parseInt() function will truncate, which
+      is also fine.
+        I guess float is slightly more logical. Let's be quite clear: in
+      Javascript, all numbers are floats; they are 64-bit floating point
+      values, the largest safe exact integer is Number.MAX_SAFE_INTEGER, or
+      9007199254740991.
+    - So:
+- QuestionTypedVariables applies +/- Number.MAX_SAFE_INTEGER when no other
+  limits are specified (in getValidatedInt).
+- No negative ID numbers (in Patient.js).
+- Changed columnDefSQL() in dbsqlite.js to use REAL for
+  DBCONSTANTS.TYPE_INTEGER and DBCONSTANTS.TYPE_BLOBID. No value conversion
+  is required.
+- Equivalent change in fieldTypeMatches().
+- Removed AUTOINCREMENT tag from PKs (SQLite behaviour doesn't require this).
+- Added changeColumnTypes() function.
+- Database upgrade changes type of patient ID numbers in patient table.
+- On the server (MySQL) side, the fields were
+    INT: -2,147,483,648 to 2,147,483,647 or 4,294,967,295 unsigned (4-byte)
+  and need to be
+    BIGINT: -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807
+        or 18,446,744,073,709,551,615 unsigned (8-byte)
+
+1.14 (2014-10-15)
+- Requires server version 1.14.
+- Server can enforce a minimum tablet version, and tablet can specify a minimum
+  server version. Version numbers are in common/VERSION.js for the tablet.
+- Bugfix: tablet registration crashed if the Patient table hadn't been created.
+  And similar subsequent bug when uploading with no tables.
+- CAPE-42 task.
+
+1.12 (2014-09-11)
+- Renamed ExpDetThreshold/ExpectationDetection tasks (and tables) to add
+  a "[C/c]ardinal_" prefix, as the names were too vague. THEREFORE requires
+  server version 1.12 as well.
+- Session-based authentication for tablets to improve speed (i.e. no need for
+  bcrypt reauthentication within the same session, as for the web front end).
+- Whisker interface.
+
+1.10 (2014-08-08)
+- Default network timeout changed from 5 s (5000 ms) to 60 s (60000 ms), as
+  shorter timeouts were causing large BLOB uploads to fail.
+- Minor fix to newline decoding for the mobileweb client.
+- Ability to null out dates of birth (for anonymised research use).
+- NULL dates now show in the widget as 01 Jan 1900, not the current date (it's
+  impossible to show an actual NULL, and the current date is confusing when you
+  have neonates).
+- QuestionDateTime widget wouldn't successfully NULL itself on Android. (So
+  now it NULLs itself but doesn't update its pseudo-date; it just displays the
+  NULL icon.)
+- First jshint compliance (except for included third-party libraries)...
+- ... then jslint compliance.
+- Unit testing framework.
+- Not distributed yet.
+
+1.09 (2014-08-02)
+- Requires server version 1.09.
+- Sends BLOBs in ways that cannot be confused with (even very bizarre)
+  strings.
+- PANSS stripped down to data collection tool only, for copyright reasons.
+- Not distributed yet.
+
+1.08 (2014-07-23)
+- Requires server version 1.08.
+- FIELD RENAMING within Icd10Schizophrenia to avoid misnomers:
+    tpah_commentary TO hv_commentary
+    tpah_discussing TO hv_discussing
+    tpah_from_body TO hv_from_body
+- CPFT* tasks remain in beta.
+- Chaining of tasks.
+- Page jump within live questionnaires (allowPageJumpDuringEditing).
+- Radio buttons allow double-clicks/taps to unset them (particularly applicable
+  for potentially loaded questions).
+- Bugfix to HAMD-7: Q4 value 4 and Q5 values 3/4 were not offered, and maximum
+  is 26, not 23.
+- Bugfix to SLUMS: Q9a, Q9b were scored as 1 point each; should be 2.
+- Bugfix calling bad afterwardsFunc() after "move" upload.
+- BMI thresholds refined in the underweight zone and referenced properly.
+- Textual annotation to ICD-10 F90.0, as the actual text gives you no clue that
+  it's a division of hyperkinetic disorders.
+- dbcore.js changed to reflect Titanium bugfix.
+- Android theme changed to light (with consequent changes to questionnaire
+  font size editing screen, etc.).
+
+1.06 (2014-01-16)
+- Requires server version 1.06.
+- CPFT_LPS_Referral, CPFT_LPS_Discharge, CPFT_LPS_ResetStartClock tasks.
+  This are IN BETA.
+- Batch upload empty tables for speed (big improvement).
+- NULL-but-optional indicator in widgets:
+    QuestionDateTime, QuestionPickerInline, QuestionPickerPopup,
+    QuestionSlider, ImageGroupVertical.
+- offerNullButton option in QuestionDateTime, QuestionDiagnosticCode
+- Variable column widths in ContainerTable, plus populateVertically option.
+- Bugfix in QuestionTypedVariables layout for colWidthPrompt.
+- (2014-01-18) Minor layour change in CPFT_LPS_Referral.
+
+1.05 (2014-01-14)
+- Password entry windows improved: return key now accepts data entry.
+
+1.04 (2014-01-14)
+- FIRST BETA VERSION.
+- BUGFIX to Patient.js (re address display crash).
+- Changes to SetMenu_Deakin_1.js
+- Confirmation of CGI-SCH permissions.
+
+1.03 (2014-01-10)
+- Requires server version 1.03.
+- Fixed Titanium 3.2.0 multiline TextArea regression.
+- CGI-SCH task, pending permissions.
+- androidtipaint/QuestionCanvas_tipaint improved/fixed for Titanium 3.2.0.
+- Questionnaire scrollview made full height (Titanium now capable of it).
+- Single-tap/double-tap methods in diagnostic coding, now Titanium bug
+  https://jira.appcelerator.org/browse/TIMOB-15540 fixed.
+- Photo rotation bug fixed.
+- ListView for diagnostic code search.
+- QoL-SG phrasing improved.
+- Tested on iOS 7.0.3/7.0.4, Android 4.1.1.
+
+1.02 (2013-11-22 onwards)
+- A couple of cosmetic changes.
+- Analytics yes/no option.
+- Changed app "domain" to org.camcops.*, so app is org.camcops.camcops
+- Signed APK file.
+- QuestionTypedVariables improved in a few respects.
+- QuestionDiagnosticCode bugfix (didn't appear read-only in read-only mode).
+- android:allowBackup explicitly set to false
+- ID description/policy check on upload.
+- Titanium API now 3.2.0.GA
+- Page jump in questionnaires when read-only.
+- Two CECAQ3 fields used the wrong keyboard/type.
+- Text field/cursor colours improved for iOS/Android.
+- Bugfix to QuestionCanvas_webview.
+
+1.01 (2013-11-13)
+- test of version number increment
+- BUGFIX: Executive menu had a duff entry in and crashed.
+
+1.0 (2013-11-13)
+- first version
+- requires server version 1.0

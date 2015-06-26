@@ -1,0 +1,14 @@
+#!/bin/bash
+
+#==============================================================================
+# Absolute path to this script, e.g. /Users/rudolf/mobileweb_camcops/SHIP_DOCS.sh
+#==============================================================================
+
+LOCALBASEDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+#==============================================================================
+# Build and ship
+#==============================================================================
+
+$LOCALBASEDIR/MAKE_MOBILEWEB
+$LOCALBASEDIR/SHIP_MOBILEWEB

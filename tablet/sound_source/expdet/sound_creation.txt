@@ -1,0 +1,101 @@
+
+EDITOR: Audacity
+    - sudo apt-get install audacity
+    
+RECORDING
+    COMPUTER AUDIO 3.5mm PORTS:
+        - top row: all speaker outputs
+        - bottom row: centre is headphones; to left (as viewed from back of computer) is microphone; to right is line in.
+        - comparison of microphone/line-in: definitely better on microphone port
+    - microphone:
+        in Audacity, select ALSA / pulse / pulse: Rear Mic:0 / 2 (Stereo) Input Channels
+        in Ubuntu's sound settings: Input Devices > Built-in Audio Analogue Stereo / Rear Microphone
+                                    > set level [L/R locked together] so there's no background hum -- adjust WHILE RECORDING in Audacity
+            - quite good at 40%
+            - actually, then you have to amplify - leave at 100%
+    - PLACE THE MICROPHONE AWAY FROM THE MONITORS...
+      MOVE COMPUTER AWAY FROM THE WALL A BIT...
+    - Audacity Edit > Preferences > Recording > software playthrough (temporarily) -- allows adjustment
+    
+    - record
+    - split stereo track to mono
+    - best noise removal is the Noise Removal plugin (give it plenty of baseline to work with); good at default settings
+        http://manual.audacityteam.org/man/Noise_Removal
+        defaults: noise reduction 24 dB, sensitivity 0 dB, frequency smoothing 150 Hz, attack/decay time 0.15 s
+        try with preview mode, esp. with "isolate"
+        trying: 40 dB, sensitivity 3 dB, f.s. 150 Hz, a/d.t. 0.15 s
+
+CUES: A_cue_00.wav to A_cue_07.wav
+    need 8 cues, 100 ms, fade in/out over 4ms, easily distinguishable, different from target (i.e. no simple tones, no words)
+
+    00. Audacity > Generate > Pluck > MIDI pitch 60 (middle C), fade-out gradual, duration 1 s // fade in over first 10 ms // amplify by -18 dB
+    01. river: http://soundbible.com/1776-Babbling-Brook.html [public domain] // chop first little bit (remove click) // fade in over 10 ms // truncate to 1s // fade out over 100ms // amplify by -10 dB
+    02. bird: http://soundbible.com/940-Hummingbird.html [public domain] // amplify by +12 dB // take roughly +1.75 to +2.75 s // fade in over 10ms and out over 100ms
+    03. Morse: http://soundbible.com/1170-Morse-Code.html [public domain] // trim initial blank, limit to 1 s // amplify by -20 dB
+    04. cymbal: http://www.pdsounds.org/sounds/cymbal_sounds [public domain] // trim initial blank, limit to 1s, fade out over 100ms // amplify by -15 dB
+    05. match: http://www.pdsounds.org/sounds/lighting_a_match [public domain] // trim to just the strike // amplify by -10 dB
+    06. metal: http://soundbible.com/2037-Metal-Rattling.html [public domain] // trim to just the first 1s // fade out over 100ms // amplify by -17 dB
+    07. Bach: http://en.wikipedia.org/wiki/File:Prelude_and_Fugue_in_E-flat_major_BWV_552_(prelude).ogg [CC-SA 3.0, Kantor.JH] [my wedding-CD copy] // from 13.75s +1s, fade in over 10ms, out over 100ms // amplify by -12 dB
+
+TARGET 0 (nonverbal): A_target_0.wav
+    ... file will begin simultaneously with the background and last same time (1s)
+    ... fade in/out over same duration as background (50ms)
+    ... amplitude... a not-crazy maximum, e.g. 0.1
+    ... sine wave
+    ... 440 Hz
+
+TARGET 1 (verbal): A_target_1.wav
+    ... will begin simultaneously with the background
+    ... so allow 50ms before noise starts
+    ... short word
+        word choice: nothing like a number (we'll be asking for a rating)
+                     avoid HF components, hard to remove noise
+                     http://crr.ugent.be/papers/Yap_Brysbaert_auditory_lexical_decision_regression_final.pdf
+    ... "moon"
+    ... if necessary (not!) fade out the (just few ms) at the end of the clip, so there isn't an impulse sound
+    ... amplify by 10 dB -- test against background, so easily audible when both at full volume
+
+TARGET BACKGROUND: A_background.wav
+    white noise
+    Generate > Noise > white
+    amplitude: see below (ended up with 0.0375)
+    duration = 1 s (total)
+    fade in over 50 ms:
+        - use the selection toolbar (bottom of the screen) to select from 0 to 4 ms: http://manual.audacityteam.org/man/Audacity_Selection
+          ... if the fade in reselects the whole thing, try clicking *within* the waveform, not on the bar above it, before typing in the selection bar
+        - Effect > Fade In: http://manual.audacityteam.org/man/Fades#linearfade
+    fade out over 50 ms
+
+BINNED
+    - remove mains hum
+        Analyze > Plot Spectrum > Spectrum, Hamming window, size 4096, axis log frequency -- peak at 50Hz?
+    - http://wiki.audacityteam.org/wiki/Nyquist_Effect_Plug-ins#Parametric_EQ
+        ... move parametric.ny to /usr/share/audacity/plug-ins/
+        ... edit it so the minimum gain is -70, not -15
+        ... restart Audacity
+        ... appears under Effects > Plugins 1-11... > Parametric EQ
+        ... freq 50 Hz,
+    - high-pass filter
+    - notch filter
+        http://wiki.audacityteam.org/wiki/Noise_Removal#Notch_Filter
+    - http://wiki.librivox.org/index.php/Detailed_Audacity_Noise_Removal
+    - remove mains hum
+        Effects > Plugins > High-pass filter > 
+        - notch filter via Nyquist prompt:
+            50Hz and harmonics: (notch2 (notch2 (notch2 (notch2 (notch2 s 250 10) 200 8) 150 4) 100 2) 50 1)
+            * 49Hz and harmonics: (notch2 (notch2 (notch2 (notch2 (notch2 s 245 10) 196 8) 147 4) 98 2) 49 1)
+
+SOUND LEVELS
+    - we want the tablet at 100%, since it's hard to be accurate at other levels
+        Android: volumes (1) music/video/games/other media 100%; (2) notifications 0%; (3) alarms 0%
+    - so then set the white noise so that it's not uncomfortable on the tablet at 100%
+        ... amplitude 0.05 gives 62.5 dB(A) max (placing the sound meter in the Audio-Technica headphones), very consistently (settings: A, Lo, Fast, then Max)
+        ... note that dB(A) is db(SPL) weighted for a human ear response
+        ... I'd really like something closer to 60 dB(A) -- so a -2.5 dB change means a power change of (10 ^ -0.25) = 0.562, or an amplitude change of sqrt(power change) = 0.7498...
+            ... so let's try an amplitude in Audacity of 0.05 * 0.75 = 0.0375
+        ... spot on! 60.0 dB(A). Oh, well, mean 59.3.
+    - then (for convenient editing) set the computer's sound volume so the same sound, through the same headphones, also gives ~60 dB(A) -- this is at 44%.
+    - Note that a reduction in amplitude from 1.0 to 0.01 gives a power change of 10^-4, or a dB change of 10 * -4 = -40.
+    - halving amplitude => power x 0.25 => dB change 10 * log10(0.25) = -6
+    - WAV files are 16-bit (signed), i.e. 15 bit, i.e. +/-32,768 approx. (+/- 2^15), so the resolution on the positive scale of 0-1 is 0.00003.
+    - 

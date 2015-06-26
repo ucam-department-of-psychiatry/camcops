@@ -1,0 +1,28 @@
+#!/bin/sh
+
+# from Illustrator: Save for Web > Image Size > width 2000, height 4400 > Apply > Save > sliceme.png
+
+mkdir output
+cd output
+
+# assumes each 400x400 area is an image
+convert ../sliceme.png -crop 400x400 +repage tile-%d.png
+# now, slices are numbered in rows from 0
+
+mv tile-6.png V_cue_00.png
+mv tile-8.png V_cue_01.png
+
+mv tile-16.png V_cue_02.png
+mv tile-18.png V_cue_03.png
+
+mv tile-26.png V_cue_04.png
+mv tile-28.png V_cue_05.png
+
+mv tile-36.png V_cue_06.png
+mv tile-38.png V_cue_07.png
+
+mv tile-46.png V_target_0_circle.png
+mv tile-48.png V_target_1_word.png
+
+# remove the others
+rm tile*.png

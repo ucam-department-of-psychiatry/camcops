@@ -1,0 +1,27 @@
+#!/bin/bash
+
+#==============================================================================
+# Absolute path to this script, e.g. /Users/rudolf/mobileweb_camcops/SHIP_DOCS.sh
+#==============================================================================
+
+LOCALBASEDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+#==============================================================================
+# Build and launch to iOS simulator
+#==============================================================================
+
+node /usr/local/bin/titanium \
+    --no-colors \
+    --no-progress-bars \
+    --no-prompt \
+    build \
+    --platform iphone \
+    --log-level trace \
+    --sdk 3.5.0.GA \
+    --project-dir $LOCALBASEDIR \
+    --target device \
+    --ios-version 8.1 \
+    --device-family ipad \
+    --developer-name "Rudolf Cardinal (R2NF23F45L)" \
+    --device-id f365977f1d2fc7282aed96677a6a188f56e0c8f4 \
+    --pp-uuid 2BE0E600-FD36-4967-A9F4-0FFF22BBAD3F

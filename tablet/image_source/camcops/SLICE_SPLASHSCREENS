@@ -1,0 +1,43 @@
+#!/bin/sh
+
+# from Illustrator:
+# 1. small logo layer:   Save for Web > Image Size > width 1200, height 1200 > Apply > Save > appicon_source.png
+# 2. splashscreen layer: Save for Web > Image Size > width 1200, height 1200 > Apply > Save > splashscreen_source.png
+# (3. PDF icon layer: Save for Web > Image Size > width 1000, height auto > Apply > Save > logo_camcops.png ... thence to web site)
+# (4. PDF icon layer: Save for Web > Image Size > width 1000, height auto > Apply > Save > logo_local.png ... thence to web site)
+
+APPICON=appicon_source.png
+SPLASHSCREEN=splashscreen_source.png
+
+IOS_DIR=Resources/iphone
+ANDROID_APPICON_DIR=Resources/android
+ANDROID_LANDSCAPE_DIR=Resources/android/images/res-land
+ANDROID_PORTRAIT_DIR=Resources/android/images/res-port
+
+mkdir -p $IOS_DIR
+mkdir -p $ANDROID_APPICON_DIR
+mkdir -p $ANDROID_LANDSCAPE_DIR
+mkdir -p $ANDROID_PORTRAIT_DIR
+
+# http://docs.appcelerator.com/titanium/3.0/#!/guide/Icons_and_Splash_Screens
+convert $APPICON -crop 400x400+400+400 +repage -resize 128x128 $ANDROID_APPICON_DIR/appicon.png # 128 x 128
+
+convert $SPLASHSCREEN -crop 1120x672+40+264 +repage -resize 800x480 $ANDROID_LANDSCAPE_DIR/default.png # 800 x 480
+convert $SPLASHSCREEN -crop 672x1120+264+40 +repage -resize 800x480 $ANDROID_PORTRAIT_DIR/default.png # 480 x 480
+
+# http://docs.appcelerator.com/titanium/3.0/#!/guide/Icons_and_Splash_Screens
+# http://docs.appcelerator.com/titanium/latest/#!/guide/iOS_7_Migration_Guide
+convert $APPICON -crop 400x400+400+400 +repage -resize 114x114 $IOS_DIR/appicon@2x.png # 114 x 114
+convert $APPICON -crop 400x400+400+400 +repage -resize 72x72 $IOS_DIR/appicon-72.png # 72 x 72
+convert $APPICON -crop 400x400+400+400 +repage -resize 57x57 $IOS_DIR/appicon.png # 57 x 57
+convert $APPICON -crop 400x400+400+400 +repage -resize 120x120 $IOS_DIR/appicon-60@2x.png # 120 x 120, iOS 7
+convert $APPICON -crop 400x400+400+400 +repage -resize 76x76 $IOS_DIR/appicon-76.png # 76 x 76, iOS 7
+convert $APPICON -crop 400x400+400+400 +repage -resize 152x152 $IOS_DIR/appicon-76@2x.png # 152 x 152, iOS 7
+convert $APPICON -crop 400x400+400+400 +repage -resize 40x40 $IOS_DIR/appicon-Small-40.png # 40 x 40, iOS 7
+convert $APPICON -crop 400x400+400+400 +repage -resize 80x80 $IOS_DIR/appicon-Small-40@2x.png # 80 x 80, iOS 7
+
+convert $SPLASHSCREEN -crop 1024x748+88+226 +repage $IOS_DIR/Default-Landscape.png # 1024 x 748
+convert $SPLASHSCREEN -crop 768x1004+216+98 +repage $IOS_DIR/Default-Portrait.png # 768 x 1004
+# not done: Default-Landscape@2x.png, 2048 x 1496
+# not done: Default-Portrait@2x.png, 1536 x 2008
+# not done: iPhone-only icons

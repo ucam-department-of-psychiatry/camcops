@@ -1,0 +1,105 @@
+#!/bin/bash
+set -e
+
+#==============================================================================
+# Get paths, etc.
+#==============================================================================
+
+LOCALBASEDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+LOCALDOCSTASKDIR=$LOCALBASEDIR/Resources/html
+LOCALSTRINGSDIR=$LOCALBASEDIR/i18n/en
+LOCALICONDIR=$LOCALBASEDIR/Resources/images/camcops
+STRINGFILE=$LOCALSTRINGSDIR/strings.xml
+VERSIONTRACKER=$LOCALBASEDIR/VERSION_TRACKER.txt
+
+REMOTEUSER="rudolf"
+REMOTEHOST="egret"
+CONN=$REMOTEUSER@$REMOTEHOST
+REMOTEDOCSTASKDIR="/srv/www/camcops/documentation/tasks"
+REMOTESERVERBASEDIR="/home/rudolf/Documents/code/camcops-server/server"
+REMOTEICONDIR="/srv/www/camcops/documentation/app_icons"
+REMOTEVERSIONDIR="/srv/www/camcops/documentation/version"
+
+#==============================================================================
+# Extract some strings
+#==============================================================================
+
+TEMPSTEM=`basename $0`
+TMPFILE=`mktemp /tmp/${TEMPSTEM}.${RANDOM}.tmp.html` || exit 1
+python - >"$TMPFILE" <<EOF
+
+# -*- encoding: utf8 -*-
+
+import xml.etree.cElementTree as ElementTree
+
+filename = "$STRINGFILE"
+parser = ElementTree.XMLParser(encoding="UTF-8")
+tree = ElementTree.parse(filename, parser=parser)
+
+def getstring(stringname):
+    e = tree.find("./string[@name='{}']".format(stringname))
+    return e.text
+
+def webifiedstring(stringname):
+    s = getstring(stringname)
+    s = s.replace('\n', '<br>')
+    s = s.replace(r'\n', '<br>')  # alternative is '\\\\n', not '\\n'... ?
+    return s
+
+print u"""
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <!--#include virtual="/camcops/ssi/camcops_html_head.shtml" -->
+    <title>CamCOPS – Overview</title>
+  </head>
+  <body>
+
+    <!--#set var="HEADER_TITLE" value="CamCOPS – Terms and conditions" -->
+    <!--#set var="HEADER_URL" value="version/terms_conditions.html" -->
+    <!--#set var="HEADER_BACK_URL" value="../index.html" -->
+    <!--#set var="HEADER_BACK_LABEL" value="Documentation" -->
+    <!--#include virtual="/camcops/ssi/camcops_page_header.shtml" -->
+
+    <h1>{title}</h1>
+    <h2>{subtitle}</h2>
+    <p>{content}</p>
+
+    <!--#include virtual="/camcops/ssi/camcops_footer.shtml" -->
+
+  </body>
+</html>
+
+""".format(
+    title=webifiedstring("disclaimer_title"),
+    subtitle=webifiedstring("disclaimer_subtitle"),
+    content=webifiedstring("disclaimer_content")
+).encode("utf8")
+
+EOF
+
+chmod 775 "$TMPFILE" # so it'll be treated as an SSI file on the server
+
+#cat "$TMPFILE"
+#rm "$TMPFILE"
+#exit 1
+
+#==============================================================================
+# Copy
+#==============================================================================
+
+scp $STRINGFILE $CONN:$REMOTESERVERBASEDIR/
+ssh $CONN "rm -rf $REMOTEDOCSTASKDIR/*" # CAUTION!
+scp -r $LOCALDOCSTASKDIR/* $CONN:$REMOTEDOCSTASKDIR/
+scp -r $LOCALICONDIR/* $CONN:$REMOTEICONDIR/
+scp $VERSIONTRACKER $CONN:$REMOTEVERSIONDIR/
+ssh $CONN "ls $REMOTEDOCSTASKDIR/"
+scp "$TMPFILE" $CONN:$REMOTEVERSIONDIR/terms.html
+
+#==============================================================================
+# Clean up
+#==============================================================================
+
+rm "$TMPFILE"

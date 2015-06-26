@@ -1,0 +1,18 @@
+<?xml version="1.0"?><svg width="212.59842" height="212.59845" xmlns="http://www.w3.org/2000/svg">
+ <title>selected button</title>
+ <defs>
+  <filter id="filter4352">
+   <feGaussianBlur id="feGaussianBlur4354" stdDeviation="4.505684"/>
+  </filter>
+ </defs>
+ <metadata id="metadata18591">image/svg+xml</metadata>
+ <g>
+  <title>Layer 1</title>
+  <path fill="#ffffff" fill-rule="nonzero" stroke="#000000" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="4" stroke-dashoffset="0" filter="url(#filter4352)" id="path4346" d="m190.86055,105.840553c0,46.581749 -37.761963,84.343742 -84.343719,84.343742c-46.581757,0 -84.343731,-37.761978 -84.343731,-84.343742c0,-46.581738 37.761974,-84.3437 84.343731,-84.3437c46.581757,0 84.343719,37.761963 84.343719,84.3437z"/>
+  <path fill="#ffffff" fill-rule="nonzero" stroke="#000000" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="4" stroke-dashoffset="0" d="m189.86055,104.840553c0,46.581749 -37.761963,84.343742 -84.343719,84.343742c-46.581757,0 -84.343731,-37.761978 -84.343731,-84.343742c0,-46.581738 37.761974,-84.3437 84.343731,-84.3437c46.581757,0 84.343719,37.761963 84.343719,84.3437z" id="path4337"/>
+  <g fill-rule="evenodd" transform="matrix(0.186326 0 0 0.186326 -2198.53 -1179.12)" id="g18353"/>
+  <g fill-rule="evenodd" transform="matrix(0.186326 0 0 0.186326 -2198.53 -1179.12)" id="g18355"/>
+  <g fill-rule="evenodd" transform="matrix(0.186326 0 0 0.186326 -2198.53 -1179.12)" id="g18357"/>
+  <g fill-rule="evenodd" transform="matrix(0.186326 0 0 0.186326 -2198.53 -1179.12)" id="g18359"/>
+ </g>
+</svg>

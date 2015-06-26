@@ -1,0 +1,34 @@
+#!/bin/sh
+
+# from Illustrator: Save for Web > Image Size > width 2200, height 1750 > Apply > Save > sliceme.png
+
+# Basic unit in Illustrator is 55mm wide x 10mm high.
+# Geometry strings are [width]x[height]+-[x]+-[y] -- the x and y values are offsets; the width/height are final sizes 
+
+INFILE=sliceme.png
+OUTPUT_DIR=output
+
+mkdir -p $OUTPUT_DIR
+
+convert $INFILE -crop 550x200+550+100 +repage  $OUTPUT_DIR/dt_unsel_10.png # 200 high
+convert $INFILE -crop 550x200+1100+100 +repage $OUTPUT_DIR/dt_sel_10.png
+convert $INFILE -crop 550x100+550+300 +repage  $OUTPUT_DIR/dt_unsel_9.png # 100 high
+convert $INFILE -crop 550x100+1100+300 +repage $OUTPUT_DIR/dt_sel_9.png
+convert $INFILE -crop 550x100+550+400 +repage  $OUTPUT_DIR/dt_unsel_8.png
+convert $INFILE -crop 550x100+1100+400 +repage $OUTPUT_DIR/dt_sel_8.png
+convert $INFILE -crop 550x100+550+500 +repage  $OUTPUT_DIR/dt_unsel_7.png
+convert $INFILE -crop 550x100+1100+500 +repage $OUTPUT_DIR/dt_sel_7.png
+convert $INFILE -crop 550x100+550+600 +repage  $OUTPUT_DIR/dt_unsel_6.png
+convert $INFILE -crop 550x100+1100+600 +repage $OUTPUT_DIR/dt_sel_6.png
+convert $INFILE -crop 550x100+550+700 +repage  $OUTPUT_DIR/dt_unsel_5.png
+convert $INFILE -crop 550x100+1100+700 +repage $OUTPUT_DIR/dt_sel_5.png
+convert $INFILE -crop 550x100+550+800 +repage  $OUTPUT_DIR/dt_unsel_4.png
+convert $INFILE -crop 550x100+1100+800 +repage $OUTPUT_DIR/dt_sel_4.png
+convert $INFILE -crop 550x100+550+900 +repage  $OUTPUT_DIR/dt_unsel_3.png
+convert $INFILE -crop 550x100+1100+900 +repage $OUTPUT_DIR/dt_sel_3.png
+convert $INFILE -crop 550x100+550+1000 +repage  $OUTPUT_DIR/dt_unsel_2.png
+convert $INFILE -crop 550x100+1100+1000 +repage $OUTPUT_DIR/dt_sel_2.png
+convert $INFILE -crop 550x100+550+1100 +repage  $OUTPUT_DIR/dt_unsel_1.png
+convert $INFILE -crop 550x100+1100+1100 +repage $OUTPUT_DIR/dt_sel_1.png
+convert $INFILE -crop 550x450+550+1200 +repage  $OUTPUT_DIR/dt_unsel_0.png # 450 high
+convert $INFILE -crop 550x450+1100+1200 +repage $OUTPUT_DIR/dt_sel_0.png

@@ -1,0 +1,34 @@
+#!/bin/bash
+
+#==============================================================================
+# Absolute path to this script, e.g. /Users/rudolf/mobileweb_camcops/SHIP_DOCS.sh
+#==============================================================================
+
+LOCALBASEDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+#==============================================================================
+# Build for iOS
+#==============================================================================
+
+UUID=ED142280-3A8C-43C1-8A53-0635B76305E3
+# ... CPFT InCA4 provisioning profile
+# ... download from Apple Developer site
+# ... in Titanium's "Distribute..." dialogue sequence, "Obtain your Distribution Provisioning Profile from Apple. Once the profile is downloaded, you may install it via Studio: BROWSE"
+
+# Build for iOS
+titanium build \
+    --platform ios \
+    --project-dir $LOCALBASEDIR \
+    --target dist-adhoc \
+    --output-directory $LOCALBASEDIR/dist \
+    --pp-uuid $UUID
+# --keychain XXX
+
+# http://stackoverflow.com/questions/18642302/cant-install-enterprise-app-to-devices-with-unregistered-uuids
+
+# Only a team agent or admin can create a distribution certificate:
+# https://developer.apple.com/library/ios/documentation/IDEs/Conceptual/AppDistributionGuide/MaintainingCertificates/MaintainingCertificates.html
+# Also:
+# http://stackoverflow.com/questions/17230736/create-ios-in-house-and-ad-hoc-certificate-option-disabled
+# http://iphonecto.com/2009/09/09/deploying-internal-enterprise-application-iphone/
+

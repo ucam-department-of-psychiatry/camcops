@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   width="900"
+   height="600"
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="0.45+0.46pre0+devel"
+   sodipodi:docname="Flag_of_France.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+  <metadata
+     id="metadata13">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format></dc:format>
+        <dc:type
+           rdf:resource="" />
+        <dc:title></dc:title>
+        <dc:date></dc:date>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title></dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:rights>
+          <cc:Agent>
+            <dc:title></dc:title>
+          </cc:Agent>
+        </dc:rights>
+        <dc:publisher>
+          <cc:Agent>
+            <dc:title></dc:title>
+          </cc:Agent>
+        </dc:publisher>
+        <dc:identifier></dc:identifier>
+        <dc:source></dc:source>
+        <dc:relation></dc:relation>
+        <dc:language></dc:language>
+        <dc:subject>
+          <rdf:Bag />
+        </dc:subject>
+        <dc:coverage></dc:coverage>
+        <dc:description></dc:description>
+        <dc:contributor>
+          <cc:Agent>
+            <dc:title></dc:title>
+          </cc:Agent>
+        </dc:contributor>
+        <cc:license
+           rdf:resource="" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs11">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="-50 : 600 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="700 : 600 : 1"
+       inkscape:persp3d-origin="300 : 400 : 1"
+       id="perspective15" />
+    <inkscape:perspective
+       id="perspective2449"
+       inkscape:persp3d-origin="300 : 400 : 1"
+       inkscape:vp_z="700 : 600 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="-50 : 600 : 1"
+       sodipodi:type="inkscape:persp3d" />
+  </defs>
+  <sodipodi:namedview
+     inkscape:window-height="480"
+     inkscape:window-width="640"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     guidetolerance="10.0"
+     gridtolerance="10.0"
+     objecttolerance="10.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base"
+     showgrid="false" />
+  <rect
+     width="900"
+     height="600"
+     style="fill:#00209F"
+     id="rect4" />
+  <rect
+     width="600"
+     height="600"
+     x="300"
+     style="fill:#fff"
+     id="rect6" />
+  <rect
+     width="300"
+     height="600"
+     x="600"
+     style="fill:#F42A41"
+     id="rect8" />
+  <g
+     inkscape:label="Layer 1"
+     id="layer1"
+     transform="matrix(1.0880462,0,0,1.0978276,67.229287,126.34601)">
+    <g
+       transform="matrix(0.338225,0,0,-0.338225,-22.951,378.5054)"
+       id="g1468"
+       style="fill:#000000;stroke:none">
+      <path
+         d="M 987,1070 C 971,1065 953,1057 947,1052 C 940,1047 913,1037 885,1030 C 818,1013 705,976 655,954 C 633,945 595,931 570,924 C 545,917 500,902 470,891 C 440,880 370,855 315,835 C 260,815 199,794 180,789 C 95,765 90,761 90,715 C 90,675 92,672 121,666 C 138,663 162,660 174,660 C 185,660 238,647 290,631 C 342,615 403,597 425,592 C 447,586 499,572 540,561 C 696,518 700,516 682,495 C 677,489 667,465 660,440 C 653,415 638,378 628,358 L 610,320 L 643,320 C 729,320 833,254 866,180 C 876,158 888,140 893,140 C 898,140 921,157 945,178 C 998,224 1100,275 1183,297 C 1260,316 1435,310 1492,286 C 1513,277 1533,270 1538,270 C 1543,270 1541,300 1534,338 C 1526,375 1516,428 1511,455 C 1506,483 1499,512 1496,520 C 1492,530 1500,541 1522,552 C 1579,580 1628,600 1639,600 C 1655,600 1652,571 1635,554 C 1627,545 1620,525 1620,508 C 1620,484 1626,476 1649,467 C 1675,458 1679,450 1685,401 C 1690,363 1695,351 1699,364 C 1705,379 1709,374 1718,343 C 1733,294 1733,280 1719,300 C 1693,337 1725,261 1755,214 C 1795,151 1837,116 1853,132 C 1862,139 1852,155 1815,194 C 1788,222 1761,244 1756,242 C 1751,240 1751,247 1755,257 C 1766,285 1766,305 1755,303 C 1749,302 1744,309 1743,318 C 1742,327 1739,345 1735,358 C 1729,376 1731,379 1743,374 C 1752,371 1757,363 1754,356 C 1751,349 1765,322 1785,295 C 1824,245 1827,227 1792,260 C 1780,272 1770,277 1770,273 C 1770,257 1868,168 1880,172 C 1887,174 1876,187 1856,200 C 1836,214 1820,229 1820,233 C 1820,241 1829,236 1880,204 C 1905,189 1905,189 1882,206 C 1853,228 1758,341 1764,347 C 1766,349 1790,328 1816,299 C 1843,271 1879,241 1897,234 C 1948,212 1947,217 1895,252 C 1791,321 1726,419 1729,503 C 1730,544 1726,556 1705,576 C 1691,589 1680,603 1680,607 C 1680,616 1744,646 1787,656 C 1802,660 1819,666 1825,670 C 1831,674 1864,687 1900,699 C 1966,722 1974,725 2048,755 C 2086,771 2090,777 2090,807 C 2090,836 2087,840 2064,840 C 2050,840 2011,846 1977,854 C 1943,862 1861,881 1795,896 C 1729,910 1660,927 1642,932 C 1624,938 1586,945 1557,950 C 1528,954 1467,967 1420,979 C 1373,991 1310,1007 1280,1015 C 1250,1023 1200,1034 1170,1041 C 1140,1047 1095,1059 1071,1066 C 1021,1082 1025,1081 987,1070 z M 1716,433 C 1713,429 1710,435 1711,446 C 1711,457 1714,460 1717,452 C 1720,445 1719,436 1716,433 z M 1696,403 C 1693,399 1690,405 1691,416 C 1691,427 1694,430 1697,422 C 1700,415 1699,406 1696,403 z M 1726,393 C 1723,389 1720,395 1721,406 C 1721,417 1724,420 1727,412 C 1730,405 1729,396 1726,393 z M 1750,269 C 1750,263 1746,262 1740,265 C 1734,268 1730,276 1730,281 C 1730,287 1734,288 1740,285 C 1746,282 1750,274 1750,269 z M 1805,185 C 1831,152 1836,142 1820,155 C 1784,184 1760,213 1760,229 C 1760,237 1761,241 1763,239 C 1764,237 1783,213 1805,185 z"
+         id="path1470" />
+    </g>
+  </g>
+</svg>
