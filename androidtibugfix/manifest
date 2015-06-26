@@ -1,0 +1,19 @@
+#
+# this is your module manifest and used by Titanium
+# during compilation, packaging, distribution, etc.
+#
+version: 1.0
+apiversion: 2
+description: Implements Titanium 3.2.1 bugfix to https://jira.appcelerator.org/browse/TIMOB-15535
+author: Rudolf Cardinal
+license: Apache 2.0
+http://www.apache.org/licenses/LICENSE-2.0
+copyright: Rudolf Cardinal
+
+
+# these should not be edited
+name: androidtibugfix
+moduleid: org.camcops.androidtibugfix
+guid: c7236092-de8b-4d0d-b1ea-1959f0c5b370
+platform: android
+minsdk: 3.2.0.GA
