@@ -1,2 +1,2 @@
 # camcops
-Cambridge Cognitive and Psychiatric Test Kit (CamCOPS); https://www.camcops.org/
+Cambridge Cognitive and Psychiatric Test Kit (CamCOPS); http://www.camcops.org/
