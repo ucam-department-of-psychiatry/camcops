@@ -3,6 +3,7 @@ set -e
 
 PACKAGE=camcops
 STARTDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+SRCTABLETDIR=$STARTDIR/../tablet  # cross-reference
 
 DSTSYSTEMPYTHON=python2.7
 # ... must be present on the path on the destination system
@@ -105,19 +106,19 @@ WRKCONSOLEFILE=$WRKCONSOLEFILEDIR/$SETUPSCRIPTNAME
 DSTDBHELPERFILE=$DSTCONSOLEFILEDIR/$DBHELPERSCRIPT
 WRKDBHELPERFILE=$WRKCONSOLEFILEDIR/$DBHELPERSCRIPT
 
-SRCPYTHONLIBDIR=$SRCBASEDIR/server/pythonlib
-WRKPYTHONLIBDIR=$WRKBASEDIR/server/pythonlib
-#DSTPYTHONLIBDIR=$DSTCAMCOPSDIR/pythonlib
-
-SRCEXTRASTRINGTEMPLATES=$SRCBASEDIR/server/extra_string_templates
+SRCEXTRASTRINGTEMPLATES=$SRCBASEDIR/extra_string_templates
 WRKEXTRASTRINGTEMPLATES=$WRKBASEDIR/extra_string_templates
 #DSTEXTRASTRINGTEMPLATES=$DSTCAMCOPSDIR/extra_string_templates
 
 #SRCDOCDIR=$SRCBASEDIR/documentation
 
-SRCSERVERDIR=$SRCBASEDIR/server
+SRCSERVERDIR=$SRCBASEDIR
 WRKSERVERDIR=$WRKBASEDIR/server
 DSTSERVERDIR=$DSTCAMCOPSDIR/server
+
+SRCPYTHONLIBDIR=$SRCBASEDIR/pythonlib
+WRKPYTHONLIBDIR=$WRKSERVERDIR/pythonlib
+#DSTPYTHONLIBDIR=$DSTCAMCOPSDIR/pythonlib
 
 DSTSTRINGFILE=$DSTSERVERDIR/strings.xml
 
@@ -136,7 +137,7 @@ WRKTASKDISCARDEDDIR=$WRKSERVERDIR/tasks_discarded
 DSTTASKDISCARDEDDIR=$DSTSERVERDIR/tasks_discarded
 
 WRKTABLETDIR=$WRKBASEDIR/tablet
-TMPTABLETDIR=$WRKDIR/verytemp
+#TMPTABLETDIR=$WRKDIR/verytemp
 
 DSTPYTHONENV=$DSTCAMCOPSDIR/virtualenv
 PIP=$DSTPYTHONENV/bin/pip
@@ -328,10 +329,10 @@ cp $SRCPYTHONLIBDIR/*.py $WRKPYTHONLIBDIR
 #cp -R $SRCDOCDIR/* $WRKDOCDIR
 cp $SRCSERVERDIR/$MAINSCRIPTNAME $WRKSERVERDIR
 cp $SRCSERVERDIR/$DBSCRIPTNAME $WRKSERVERDIR
-cp $SRCSERVERDIR/favicon_camcops.png $WRKSERVERDIR
-cp $SRCSERVERDIR/logo_camcops.png $WRKSERVERDIR
-cp $SRCSERVERDIR/logo_local.png $WRKSERVERDIR # CONSIDER - currently CPFT
-cp $SRCSERVERDIR/strings.xml $WRKSERVERDIR
+cp $SRCSERVERDIR/images/favicon_camcops.png $WRKSERVERDIR
+cp $SRCSERVERDIR/images/logo_camcops.png $WRKSERVERDIR
+cp $SRCSERVERDIR/images/logo_local.png $WRKSERVERDIR # CONSIDER - currently CPFT
+cp $SRCTABLETDIR/i18n/en/strings.xml $WRKSERVERDIR
 cp $SRCSERVERDIR/changelog.Debian $WRKDOCDIR
 gzip -9 $WRKDOCDIR/changelog.Debian
 cp $SRCSERVERDIR/changelog.Debian $WEB_VERSION_FILES_DIR # for the web site
@@ -341,23 +342,28 @@ cp $SRCTASKDISCARDEDDIR/*.py $WRKTASKDISCARDEDDIR
 cp $SRCEXTRASTRINGTEMPLATES/* $WRKEXTRASTRINGTEMPLATES
 
 #==============================================================================
-echo "Fetching and copying tablet code"
+echo "Copying tablet code"
 #==============================================================================
 
 TABLETSUBDIRS="common html lib menu menulib questionnaire questionnairelib \
               screen table task task_html"
-mkdir -p $TMPTABLETDIR
-# svn checkout https://egret.psychol.cam.ac.uk/svn/camcops_titanium/ $TMPTABLETDIR
-# TMPTABLETRESOURCESDIR=$TMPTABLETDIR/trunk/CamCOPS/Resources
-git clone https://rudolf@egret.psychol.cam.ac.uk/git/camcops-tablet $TMPTABLETDIR
-TMPTABLETRESOURCESDIR=$TMPTABLETDIR/Resources
+
+#mkdir -p $TMPTABLETDIR
+## svn checkout https://egret.psychol.cam.ac.uk/svn/camcops_titanium/ $TMPTABLETDIR
+## TABLETRESOURCESDIR=$TMPTABLETDIR/trunk/CamCOPS/Resources
+#git clone https://rudolf@egret.psychol.cam.ac.uk/git/camcops-tablet $TMPTABLETDIR
+#TABLETRESOURCESDIR=$TMPTABLETDIR/Resources
+
+TABLETRESOURCESDIR=$SRCTABLETDIR/Resources
+
 mkdir -p $WRKTABLETDIR
 for d in $TABLETSUBDIRS
 do
     mkdir -p $WRKTABLETDIR/$d
-    cp $TMPTABLETRESOURCESDIR/$d/* $WRKTABLETDIR/$d/
+    cp $TABLETRESOURCESDIR/$d/* $WRKTABLETDIR/$d/
 done
-rm -rf $TMPTABLETDIR  # CAUTION!
+
+#rm -rf $TMPTABLETDIR  # CAUTION!
 
 
 #==============================================================================
