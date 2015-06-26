@@ -1,0 +1,25 @@
+#!/bin/bash
+
+echoerr() {
+    echo "$@" 1>&2;
+}
+
+CAMCOPSROOT=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+PYLINT_OPTIONS=--output-format=parseable
+PYCHECKER_OPTIONS=
+PYFLAKES_OPTIONS=
+
+PYTHONFILES=$(find "$CAMCOPSROOT/server" -name "*.py")
+export PYTHONPATH=$CAMCOPSROOT/server
+totallines=0
+for f in $PYTHONFILES; do
+    pyflakes $PYFLAKES_OPTIONS $f
+    pep8 $f
+    numlines=`wc $f | awk '{print $1}'`
+    totallines=$((totallines + numlines))
+    # echoerr "File: $f. Number of lines: $numlines."
+    # ITSELF BUGGY # pychecker $PYCHECKER_OPTIONS $f
+    # pylint $PYLINT_OPTIONS $f
+done
+echo "Total number of Python lines: $totallines"
