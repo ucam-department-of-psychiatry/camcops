@@ -5,21 +5,18 @@ set -e
 # Get paths, etc.
 #==============================================================================
 
-LOCALBASEDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+THISDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+DESTDOCROOT=$THISDIR/../website/documentation
 
-LOCALDOCSTASKDIR=$LOCALBASEDIR/Resources/html
-LOCALSTRINGSDIR=$LOCALBASEDIR/i18n/en
-LOCALICONDIR=$LOCALBASEDIR/Resources/images/camcops
+LOCALDOCSTASKDIR=$THISDIR/Resources/html
+LOCALSTRINGSDIR=$THISDIR/i18n/en
+LOCALICONDIR=$THISDIR/Resources/images/camcops
 STRINGFILE=$LOCALSTRINGSDIR/strings.xml
-VERSIONTRACKER=$LOCALBASEDIR/VERSION_TRACKER.txt
+VERSIONTRACKER=$THISDIR/VERSION_TRACKER.txt
 
-REMOTEUSER="rudolf"
-REMOTEHOST="egret"
-CONN=$REMOTEUSER@$REMOTEHOST
-REMOTEDOCSTASKDIR="/srv/www/camcops/documentation/tasks"
-REMOTESERVERBASEDIR="/home/rudolf/Documents/code/camcops-server/server"
-REMOTEICONDIR="/srv/www/camcops/documentation/app_icons"
-REMOTEVERSIONDIR="/srv/www/camcops/documentation/version"
+DESTDOCSTASKDIR=$DESTDOCROOT/tasks
+DESTICONDIR=$DESTDOCROOT/app_icons
+DESTVERSIONDIR=$DESTDOCROOT/version
 
 #==============================================================================
 # Extract some strings
@@ -90,13 +87,11 @@ chmod 775 "$TMPFILE" # so it'll be treated as an SSI file on the server
 # Copy
 #==============================================================================
 
-scp $STRINGFILE $CONN:$REMOTESERVERBASEDIR/
-ssh $CONN "rm -rf $REMOTEDOCSTASKDIR/*" # CAUTION!
-scp -r $LOCALDOCSTASKDIR/* $CONN:$REMOTEDOCSTASKDIR/
-scp -r $LOCALICONDIR/* $CONN:$REMOTEICONDIR/
-scp $VERSIONTRACKER $CONN:$REMOTEVERSIONDIR/
-ssh $CONN "ls $REMOTEDOCSTASKDIR/"
-scp "$TMPFILE" $CONN:$REMOTEVERSIONDIR/terms.html
+rm -rf $DESTDOCSTASKDIR/* # CAUTION!
+cp -r $LOCALDOCSTASKDIR/* $DESTDOCSTASKDIR/
+cp -r $LOCALICONDIR/* $DESTICONDIR/
+cp $VERSIONTRACKER $DESTVERSIONDIR/
+cp "$TMPFILE" $DESTVERSIONDIR/terms.html
 
 #==============================================================================
 # Clean up

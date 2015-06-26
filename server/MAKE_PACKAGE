@@ -4,6 +4,7 @@ set -e
 PACKAGE=camcops
 STARTDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 SRCTABLETDIR=$STARTDIR/../tablet  # cross-reference
+WEBDOCSDIR=$STARTDIR/../website/documentation  # cross-reference
 
 DSTSYSTEMPYTHON=python2.7
 # ... must be present on the path on the destination system
@@ -166,6 +167,7 @@ DSTCONFIGDIR=/etc/$PACKAGE
 DSTCONFIGFILE=$DSTCONFIGDIR/$PACKAGE.conf
 WRKCONFIGDIR=$WRKDIR$DSTCONFIGDIR
 WRKCONFIGFILE=$WRKDIR$DSTCONFIGFILE
+WEBDOCSCONFIGFILE=$WEBDOCSDIR/$PACKAGE.conf
 
 RPMTOPDIR=$STARTDIR/rpmbuild
 
@@ -1112,6 +1114,8 @@ RIO_DOCUMENT_TYPE = CC
 SCRIPT_AFTER_FILE_EXPORT =
 
 EOF
+
+cp $WRKCONFIGFILE $WEBDOCSCONFIGFILE
 
 #==============================================================================
 echo "Creating launch script. Will be installed as $DSTCONSOLEFILE"

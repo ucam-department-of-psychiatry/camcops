@@ -5,6 +5,7 @@
 #==============================================================================
 
 LOCALBASEDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+KEYSTOREFILE=~/CAMCOPS_ANDROID_KEYSTORE.bin
 
 #==============================================================================
 # Build
@@ -26,7 +27,7 @@ titanium build \
     --platform android \
     --project-dir $LOCALBASEDIR \
     --target dist-playstore \
-    --keystore $LOCALBASEDIR/../camcops_android_keystore \
+    --keystore $KEYSTOREFILE \
     --store-password $KEYSTORE_PASSWORD \
     --alias camcops \
     --output-dir $LOCALBASEDIR/dist \
