@@ -23,7 +23,7 @@ DESTVERSIONDIR=$DESTDOCROOT/version
 #==============================================================================
 
 TEMPSTEM=`basename $0`
-TMPFILE=`mktemp /tmp/${TEMPSTEM}.${RANDOM}.tmp.html` || exit 1
+TMPFILE=`mktemp /tmp/${TEMPSTEM}.tmp.html.XXXXXX` || exit 1
 python - >"$TMPFILE" <<EOF
 
 # -*- encoding: utf8 -*-

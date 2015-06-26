@@ -1,0 +1,188 @@
+/*
+    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com)
+    Department of Psychiatry, University of Cambridge.
+    Funded by the Wellcome Trust.
+    
+    This file is part of CamCOPS.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.    
+*/
+
+/*
+ * CSS reminders:
+ *      selector { property: value; property: value; }
+ * Selectors:
+ *      #thing -- an ID selector; use as e.g. <p id="thing">...</p>
+ *      .myclass -- a class selector; use as e.g. <p class="myclass">...</p>
+ *          ... equivalent to *.myclass
+ *      p.myclass -- will only apply to "p" elements of class "myclass"
+ *      table, th, td -- will apply to all of these
+ *      a b -- applies to b only when it's within a
+ *      :hover (etc.) -- see http://www.w3.org/TR/CSS2/selector.html
+ *      don't start selectors with a number
+*/
+
+/* GLOBAL CLASS SELECTORS */ 
+
+.body {
+    margin: 10px 10px 10px 10px;        /* top, right, bottom, left */
+}
+.body p {
+    /* We need to fix the effects of setting margins to zero in "*". */
+    /* But don't fix it globally (p) - that screws up the footer. */
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.body ul {
+    /* We need to fix the effects of setting margins to zero in "*" */
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.footercontent {
+    padding: 3px;
+}
+.footerright {
+    float: right;
+    width: 100px;
+    margin: 0;
+    text-align: left;
+    padding-top: 5px;
+}
+
+.centred {
+    text-align: center;
+}
+
+/* HTML ELEMENTS */ 
+
+body {
+    background: rgb(255, 255, 238); /* #ffffee */
+    font-size: medium;
+    font-family: "Times New Roman", Times, serif;
+    text-align: left;
+}
+code {
+    font-family: 'Courier New';
+    background-color: #ffffcc;
+}
+
+div.centred {
+    text-align: center;
+}
+div.centred table {
+    margin: 0 auto; 
+    text-align: left;
+}
+div.smallprint {
+    font-size: x-small;
+}
+
+h1 {
+    margin-top: 20px;
+    margin-bottom: 15px;
+    color: rgb(0, 13, 94);
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    font-size: x-large;
+    border-bottom:1px dotted #0A4369;
+}
+h2 {
+    color: rgb(0, 13, 94);
+    font-weight: bold;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: large;
+}
+h3 {
+    color: rgb(0, 13, 94);
+    font-weight: bold;
+    font-style: italic;
+    font-family: "Times New Roman", Times, serif;
+    font-size: large;
+}
+
+ol.lower-roman {list-style-type: lower-roman}
+
+pre.code1 { /* Use with <pre> for block source code, e.g. <pre class="code1">blahblah</pre> */
+    font-family: Consolas, Monaco, 'Lucida Console', 'Liberation Mono', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New';
+    font-size: 11px;
+    line-height: 13px;
+
+    margin: 5px 5px 5px 40px;       /* top, right, bottom, left */
+    padding: 5px 5px 5px 5px;
+    text-align: left;
+    display: block;
+    overflow: auto;  
+    background: #dddddd;
+    border-left: 3px solid #72A545;
+        white-space:pre-wrap;           /* pre, pre-wrap are some of the alternatives. */
+}
+pre.code2 { /* Use with <pre> for block source code, e.g. <pre class="code2">blahblah</pre> */
+    font-family: Consolas, Monaco, 'Lucida Console', 'Liberation Mono', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New';
+    font-size: 11px;
+    line-height: 13px;
+
+    margin: 5px 5px 5px 40px;       /* top, right, bottom, left */
+    padding: 5px 5px 5px 5px;
+    text-align: left;
+    display: block;
+    overflow: auto;  
+    background: #ddffdd;
+    border-left: 3px solid #72A545;
+        white-space:pre-wrap;           /* pre, pre-wrap are some of the alternatives.  */
+}
+pre.output { /* Use with <pre> for output, e.g. <pre class="output">blahblah</pre> */
+    margin: 5px 5px 5px 40px;       /* top, right, bottom, left */
+    padding: 5px 5px 5px 5px;
+    text-align: left;
+    display: block;
+    overflow: auto;  
+    font-family: Consolas, Monaco, 'Lucida Console', 'Liberation Mono', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New';
+    /* font-family: 'Lucida Console', 'courier new', monospace; */
+    font-size: 11px;
+    line-height: 13px;
+
+    color: #0000ff; /* font colour */
+    background: #ffffff;
+    border-left: 3px solid #0000ff;
+        white-space:pre-wrap;           /* pre, pre-wrap are some of the alternatives */
+}
+
+table {
+    vertical-align: top;
+    border-collapse: collapse;
+    border: 1px solid black;
+}
+th, td {
+    vertical-align: top;
+    border: 1px solid black;
+}
+
+ul.nobullet {list-style-type: none}
+
+/* ANCHORS, LINKS, PSEUDO-CLASSES */ 
+
+a:link {
+    color: #0000ee;
+}
+a:visited {
+    color: #551a8b;
+}
+a:hover {
+    /* color: #333333; */
+}
+a:focus {
+    /* color: #333333; */
+}
+a:active {
+    color: #ff0000;
+}
