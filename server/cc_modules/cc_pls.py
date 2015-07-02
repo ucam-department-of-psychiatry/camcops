@@ -71,9 +71,7 @@ DEFAULT_INTROSPECTION_DIRECTORY = DEFAULT_RESOURCES_DIRECTORY
 
 CAMCOPS_STRINGS_FILE = "strings.xml"
 CAMCOPS_LOGO_FILE_WEBREF = "logo_camcops.png"
-CAMCOPS_LOGO_FILE_PDFREF = "logo_camcops.svg"
 LOCAL_LOGO_FILE_WEBREF = "logo_local.png"
-LOCAL_LOGO_FILE_PDFREF = "logo_local.svg"
 
 CONFIG_FILE_RECIPIENTLIST_SECTION = "recipients"
 
@@ -400,7 +398,7 @@ class LocalStorage(object):
         self.LOCAL_LOGO_FILE_ABSOLUTE = get_config_parameter(
             config, section, "LOCAL_LOGO_FILE_ABSOLUTE",
             str, os.path.join(self.RESOURCES_DIRECTORY,
-                              LOCAL_LOGO_FILE_PDFREF))
+                              LOCAL_LOGO_FILE_WEBREF))
         self.INTROSPECTION_DIRECTORY = get_config_parameter(
             config, section, "INTROSPECTION_DIRECTORY",
             str, DEFAULT_INTROSPECTION_DIRECTORY)
@@ -498,7 +496,7 @@ class LocalStorage(object):
             self.CAMCOPS_STRINGS_FILE_ABSOLUTE = os.path.join(
                 self.RESOURCES_DIRECTORY, CAMCOPS_STRINGS_FILE)
             self.CAMCOPS_LOGO_FILE_ABSOLUTE = os.path.join(
-                self.RESOURCES_DIRECTORY, CAMCOPS_LOGO_FILE_PDFREF)
+                self.RESOURCES_DIRECTORY, CAMCOPS_LOGO_FILE_WEBREF)
 
         # Note: HTML4 uses <img ...>; XHTML uses <img ... />;
         # HTML5 is happy with <img ... />
@@ -557,15 +555,15 @@ class LocalStorage(object):
                 self.CAMCOPS_LOGO_FILE_ABSOLUTE,
                 self.LOCAL_LOGO_FILE_ABSOLUTE,
             )
-            #self.PDF_LOGO_LINE = u"""
-            #    <div class="pdf_logo_header">
-            #        <img class="logo_left" src="file://{}" />
-            #        <img class="logo_right" src="file://{}" />
-            #    </div>
-            #""".format(
-            #    self.CAMCOPS_LOGO_FILE_ABSOLUTE,
-            #    self.LOCAL_LOGO_FILE_ABSOLUTE,
-            #)
+            # self.PDF_LOGO_LINE = u"""
+            #     <div class="pdf_logo_header">
+            #         <img class="logo_left" src="file://{}" />
+            #         <img class="logo_right" src="file://{}" />
+            #     </div>
+            # """.format(
+            #     self.CAMCOPS_LOGO_FILE_ABSOLUTE,
+            #     self.LOCAL_LOGO_FILE_ABSOLUTE,
+            # )
         elif cc_version.PDF_ENGINE in ["xhtml2pdf"]:
             # xhtml2pdf
             # hard to get logos positioned any other way than within a table

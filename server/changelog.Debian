@@ -31,8 +31,8 @@ camcops (1.40-1) all; urgency=low
   * editing_time_s field for all tasks.
   * Indexing of ID number fields in patient table.
   * Python package format internally.
-  * PDFs use SVG logos.
-    *** hard-configured; alter
+  * Did not implement SVG logos for PDF generation; made files larger not
+    smaller. Stick with PNG.
 
  -- Rudolf Cardinal <rudolf@pobox.com>  Thu, 28 May 2015 11:09:00 +0000
 
