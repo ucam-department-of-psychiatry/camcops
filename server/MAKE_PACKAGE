@@ -87,7 +87,8 @@ DSTCAMCOPSDIR=/usr/share/$PACKAGE
 # ... Lintian dislikes files/subdirectories in: /usr/bin/X, /usr/local/X, /opt/X
 # ... It dislikes images in /usr/lib
 
-WEB_VERSION_FILES_DIR=/srv/www/camcops/documentation/version
+# WEB_VERSION_FILES_DIR=/srv/www/camcops/documentation/version
+WEB_VERSION_FILES_DIR=$WEBDOCSDIR/version
 
 DSTDOCDIR=/usr/share/doc/$PACKAGE
 WRKDOCDIR=$WRKDIR$DSTDOCDIR
@@ -333,7 +334,9 @@ cp $SRCSERVERDIR/$MAINSCRIPTNAME $WRKSERVERDIR
 cp $SRCSERVERDIR/$DBSCRIPTNAME $WRKSERVERDIR
 cp $SRCSERVERDIR/images/favicon_camcops.png $WRKSERVERDIR
 cp $SRCSERVERDIR/images/logo_camcops.png $WRKSERVERDIR
-cp $SRCSERVERDIR/images/logo_local.png $WRKSERVERDIR # CONSIDER - currently CPFT
+cp $SRCSERVERDIR/images/logo_camcops.svg $WRKSERVERDIR
+cp $SRCSERVERDIR/images/logo_local.png $WRKSERVERDIR
+cp $SRCSERVERDIR/images/logo_local.svg $WRKSERVERDIR
 cp $SRCTABLETDIR/i18n/en/strings.xml $WRKSERVERDIR
 cp $SRCSERVERDIR/changelog.Debian $WRKDOCDIR
 gzip -9 $WRKDOCDIR/changelog.Debian

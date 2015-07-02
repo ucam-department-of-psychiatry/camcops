@@ -71,7 +71,9 @@ DEFAULT_INTROSPECTION_DIRECTORY = DEFAULT_RESOURCES_DIRECTORY
 
 CAMCOPS_STRINGS_FILE = "strings.xml"
 CAMCOPS_LOGO_FILE_WEBREF = "logo_camcops.png"
+CAMCOPS_LOGO_FILE_PDFREF = "logo_camcops.svg"
 LOCAL_LOGO_FILE_WEBREF = "logo_local.png"
+LOCAL_LOGO_FILE_PDFREF = "logo_local.svg"
 
 CONFIG_FILE_RECIPIENTLIST_SECTION = "recipients"
 
@@ -398,7 +400,7 @@ class LocalStorage(object):
         self.LOCAL_LOGO_FILE_ABSOLUTE = get_config_parameter(
             config, section, "LOCAL_LOGO_FILE_ABSOLUTE",
             str, os.path.join(self.RESOURCES_DIRECTORY,
-                              LOCAL_LOGO_FILE_WEBREF))
+                              LOCAL_LOGO_FILE_PDFREF))
         self.INTROSPECTION_DIRECTORY = get_config_parameter(
             config, section, "INTROSPECTION_DIRECTORY",
             str, DEFAULT_INTROSPECTION_DIRECTORY)
@@ -496,7 +498,7 @@ class LocalStorage(object):
             self.CAMCOPS_STRINGS_FILE_ABSOLUTE = os.path.join(
                 self.RESOURCES_DIRECTORY, CAMCOPS_STRINGS_FILE)
             self.CAMCOPS_LOGO_FILE_ABSOLUTE = os.path.join(
-                self.RESOURCES_DIRECTORY, CAMCOPS_LOGO_FILE_WEBREF)
+                self.RESOURCES_DIRECTORY, CAMCOPS_LOGO_FILE_PDFREF)
 
         # Note: HTML4 uses <img ...>; XHTML uses <img ... />;
         # HTML5 is happy with <img ... />
