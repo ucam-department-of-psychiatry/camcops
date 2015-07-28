@@ -227,6 +227,22 @@ exports.TASKLIST = {
         subtitle: L('s_demo_task'),
         info: 'html/demo_questionnaire.html'
     },
+    DEMQOL: {
+        task: 'task/Demqol',
+        title: L('b_demqol'),
+        tables: ['demqol'],
+        maintitle: L('t_demqol'),
+        subtitle: L('s_demqol'),
+        info: 'html/demqol.html'
+    },
+    DEMQOL_PROXY: {
+        task: 'task/DemqolProxy',
+        title: L('b_demqolproxy'),
+        tables: ['demqolproxy'],
+        maintitle: L('t_demqolproxy'),
+        subtitle: L('s_demqolproxy'),
+        info: 'html/demqol.html'
+    },
     DIAGNOSIS_ICD10: {
         task: 'task/DiagnosisIcd10',
         title: L('b_diagnosis_icd10'),

@@ -104,13 +104,13 @@ def repeat_fieldspec(prefix, start, end, cctype="INT",
             values are:
                 {n}     field number (from range)
                 {s}     comment_strings[i], or "" if out of range
-        anon: already anonymous/doesn't contain patient-identifiable data
-            (Boolean)
-        cris_include: include with all linked CRIS tables (e.g. patient ID
-            info) (Boolean)
+        comment_strings: see comment_fmt
+        min: minimum permitted value, or None
+        max: maximum permitted value, or None
+        pv: list of permitted values, or None
     """
     fieldspecs = []
-    for n in range(start, end+1):
+    for n in range(start, end + 1):
         i = n - start
         d = dict(
             name=prefix + str(n),

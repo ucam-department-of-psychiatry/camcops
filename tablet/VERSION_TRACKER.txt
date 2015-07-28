@@ -92,6 +92,8 @@ Version history (new to old)
   feedback); corresponding storedvars.defaultClinicianService variable.
 - boldPrompt option to QuestionTypedVariables
 - editing_time_s field as standard on all tasks
+- DEMQOL
+- DEMQOL-Proxy
 
 1.34 (2015-04-26)
 - Probable bugfix: IDED3D performed its stage failure check before its stage

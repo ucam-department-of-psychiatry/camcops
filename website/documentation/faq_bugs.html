@@ -19,6 +19,12 @@
 
   <div id="toc"></div>
 
+  <h1>Common problems</h1>
+
+  <h2>“Read timed out” error when uploading</h2>
+  <p>If this happens frequently: Settings → Set privileged mode → Configure
+  server settings → increase the <b>Network timeout (ms)</b> setting.</p>
+
   <h1>Known bugs</h1>
 
   <h2>Logo PNG with transparency crashes PDF generator</h2>
@@ -47,13 +53,16 @@ global new = &lt;function new&gt;, new.info undefined
       args = ("local variable 'new' referenced before assignment",)
       message = "local variable 'new' referenced before assignment"
   </pre>
-  <p><b>Solution:</b> remove the transparency layer. For example:</p>
+  <p><b>Solution 1:</b> remove the transparency layer. For example:</p>
   <ul>
     <li>Load the file in <a href="http://www.gimp.org/">GIMP</a>;</li>
     <li>Layer &rarr; Transparency &rarr; Remove alpha channel</li>
     <li>Resave, e.g. with File &rarr; Overwrite&hellip;</li>
   </ul>
-  
+  <p><b>Solution 2:</b> use a newer version of CamCOPS; from server version
+  1.40, it uses <a href="http://wkhtmltopdf.org/">wkhtmltopdf</a> instead,
+  which is also faster.</p>
+
   <h2>Uploading error: Operational error (1118). Row size too large (> 8126).
   Changing some columns to TEXT or BLOB may help. In current row format, BLOB
   prefix of 0 bytes is stored inline.</h2>

@@ -46,6 +46,7 @@ class Hads(Task):
     DEPRESSION_QUESTIONS = [2, 4, 6, 8, 10, 12, 14]
     TASK_FIELDSPECS = repeat_fieldspec(
         "q", 1, NQUESTIONS, min=0, max=3,
+        comment_fmt="Q{n}: {s} (0-3)",
         comment_strings=[
             "tense", "enjoy usual", "apprehensive", "laugh", "worry",
             "cheerful", "relaxed", "slow", "butterflies", "appearance",

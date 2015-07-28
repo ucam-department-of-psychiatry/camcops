@@ -1,0 +1,9 @@
+#!/bin/bash
+
+THISDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+cd $THISDIR/Resources/html
+for FILE in *.html; do
+    echo "Formatting $FILE"
+    tidy -quiet -asxhtml -indent -wrap 80 -utf8 -modify $FILE
+done
