@@ -11,9 +11,10 @@ LOCALBASEDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 #==============================================================================
 # http://stackoverflow.com/questions/307503/whats-the-best-way-to-check-that-environment-variables-are-set-in-unix-shellscr
 
-: ${CAMCOPS_IOS_DEVICE_ID?"Need to run '. SET_ENVIRONMENT' to set CAMCOPS_IOS_DEVICE_ID"}
-: ${CAMCOPS_IOS_VERSION?"Need to run '. SET_ENVIRONMENT' to set CAMCOPS_IOS_VERSION"}
-: ${CAMCOPS_TITANIUM_SDK_VERSION?"Need to run '. SET_ENVIRONMENT' to set CAMCOPS_TITANIUM_SDK_VERSION"}
+NEEDTOSET="Need to run '. SET_ENVIRONMENT' to set"
+: ${CAMCOPS_IOS_DEVICE_ID?"$NEEDTOSET CAMCOPS_IOS_DEVICE_ID"}
+: ${CAMCOPS_IOS_VERSION?"$NEEDTOSET CAMCOPS_IOS_VERSION"}
+: ${CAMCOPS_TITANIUM_SDK_VERSION?"$NEEDTOSET CAMCOPS_TITANIUM_SDK_VERSION"}
 
 #==============================================================================
 # Build and launch to iOS simulator
