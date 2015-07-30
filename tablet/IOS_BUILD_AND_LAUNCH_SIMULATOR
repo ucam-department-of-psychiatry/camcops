@@ -7,22 +7,31 @@
 LOCALBASEDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 #==============================================================================
+# Check environment variables set
+#==============================================================================
+# http://stackoverflow.com/questions/307503/whats-the-best-way-to-check-that-environment-variables-are-set-in-unix-shellscr
+
+NEEDTOSET="Need to run '. SET_ENVIRONMENT' to set"
+: ${CAMCOPS_IOS_DEVICE_ID?"$NEEDTOSET CAMCOPS_IOS_DEVICE_ID"}
+: ${CAMCOPS_IOS_VERSION?"$NEEDTOSET CAMCOPS_IOS_VERSION"}
+: ${CAMCOPS_TITANIUM_SDK_VERSION?"$NEEDTOSET CAMCOPS_TITANIUM_SDK_VERSION"}
+
+#==============================================================================
 # Build and launch to iOS simulator
 #==============================================================================
-
 node /usr/local/bin/titanium \
     build \
     --platform ipad \
     --log-level trace \
-    --sdk 3.5.1.GA \
+    --sdk "$CAMCOPS_TITANIUM_SDK_VERSION" \
     --project-dir $LOCALBASEDIR \
     --target simulator \
-    --ios-version 8.3 \
+    --ios-version "$CAMCOPS_IOS_VERSION" \
     --device-family ipad \
     --deploy-type development \
     --sim-type ipad \
-    --sim-version 8.3 \
-    --device-id 1EE9E9CC-4562-4D15-B9AF-88C0D73A8988 \
+    --sim-version "$CAMCOPS_IOS_VERSION" \
+    --device-id "$CAMCOPS_IOS_DEVICE_ID" \
     --skip-js-minify
 
 # If it works from the Studio but not here, use "ps aux | grep titanium" to
