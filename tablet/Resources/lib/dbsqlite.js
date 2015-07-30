@@ -309,6 +309,25 @@ function fieldnames_from_fieldspecs(fieldlist) {
     return names;
 }
 
+/*
+function requireTableWithDbOpen(db, tablename, calling_func_arguments) {
+    var cursor = db.execute("SELECT COUNT(*) FROM sqlite_master " +
+                            "WHERE type=='table' AND name=?", tablename),
+        n = cursor.field(0),
+        funcname;
+    cursor.close();
+    if (n > 0) {
+        return;
+    }
+    // http://stackoverflow.com/questions/1013239
+    funcname = calling_func_arguments.callee.toString();
+    funcname = funcname.substr('function '.length);
+    funcname = funcname.substr(0, funcname.indexOf('('));
+    throw new Error("Function " + funcname + "() requires table " +
+                    tablename + " but it does not exist");
+}
+*/
+
 //=============================================================================
 // SQL generators
 //=============================================================================
@@ -557,6 +576,7 @@ function fieldTypeMatches(sqliteType, camcopsType) {
 }
 
 function createTable(tablename, fieldlist) {
+    Titanium.API.info("createTable: " + tablename);
     var plan = [],
         superfluous_fields = [],
         incorrect_type_fields = [],
@@ -893,13 +913,13 @@ exports.renameTable = renameTable;
 
 function isInDatabaseByPK(tablename, pkname, pkval) {
     // WILL CRASH IF TABLE DOESN'T EXIST.
-    var db,
-        cursor,
-        isPresent;
     if (pkval === undefined || pkval === null) {
         return false;
     }
-    db = Titanium.Database.open(DBCONSTANTS.DBNAME);
+    var db = Titanium.Database.open(DBCONSTANTS.DBNAME),
+        cursor,
+        isPresent;
+    // requireTableWithDbOpen(db, tablename, arguments);
     cursor = db.execute(countByKeySQL(tablename, pkname), pkval);
     // http://stackoverflow.com/questions/1930499/
     // Javascript short-circuits condition checks, so this is safe:
@@ -912,15 +932,15 @@ exports.isInDatabaseByPK = isInDatabaseByPK;
 
 function readFromUniqueField(tablename, fieldlist, object, keyname, keyval) {
     // WILL CRASH IF TABLE DOESN'T EXIST.
-    var db,
-        cursor,
-        success = false;
     if (!isInDatabaseByPK(tablename, keyname, keyval)) {
         return false;
     }
-    db = Titanium.Database.open(DBCONSTANTS.DBNAME);
+    var db = Titanium.Database.open(DBCONSTANTS.DBNAME),
+        cursor,
+        success = false;
+    // requireTableWithDbOpen(db, tablename, arguments);
     cursor = db.execute(getSelectByKeySQL(tablename, fieldlist, keyname),
-                            keyval);
+                        keyval);
     if (cursor.isValidRow()) {
         setFromCursor(cursor, fieldlist, object);
         success = true;
@@ -940,6 +960,7 @@ function isInDatabaseByUniqueFieldCombination(tablename, wherefields,
         i,
         cursor,
         isPresent;
+    // requireTableWithDbOpen(db, tablename, arguments);
     for (i = 0; i < wherefields.length; ++i) {
         wherefieldnames.push(wherefields[i].name);
         encodedvalues.push(encodeValue(wherefields[i], wherevalues[i]));
@@ -984,6 +1005,7 @@ function readFromUniqueFieldCombination(tablename, fieldlist, object,
     }
 
     db = Titanium.Database.open(DBCONSTANTS.DBNAME);
+    // requireTableWithDbOpen(db, tablename, arguments);
     cursor = db.execute(countByMultipleFieldsSQL(tablename, wherefieldnames),
                         wherevalues);
     isPresent = cursor.isValidRow() && (cursor.field(0) > 0);
@@ -1013,9 +1035,11 @@ function getAllRows(tablename, fieldlist, Objecttype, orderby) {
     var rows = [],
         db = Titanium.Database.open(DBCONSTANTS.DBNAME),
         sql = getSelectAllRowsSQL(tablename, fieldlist, orderby),
-        cursor = db.execute(sql),
+        cursor,
         o;
     // Titanium.API.debug("getAllRows: sql: " + sql);
+    // requireTableWithDbOpen(db, tablename, arguments);
+    cursor = db.execute(sql);
     while (cursor.isValidRow()) {
         o = new Objecttype();
         setFromCursor(cursor, fieldlist, o);
@@ -1032,12 +1056,20 @@ exports.getAllRows = getAllRows;
 function getAllRowsByKey(keyname, keyvalue, tablename, fieldlist, Objecttype,
                          orderby) {
     // WILL CRASH IF TABLE DOESN'T EXIST.
+    if (keyvalue === null) {
+        throw new Error("getAllRowsByKey() called with keyvalue = null");
+    }
+    //Titanium.API.debug("getAllRowsByKey(" +
+    //                   Array.prototype.slice.call(arguments).join(", ")
+    //                   + ")");
     var rows = [],
         db = Titanium.Database.open(DBCONSTANTS.DBNAME),
-        cursor = db.execute(getSelectByKeySQL(tablename, fieldlist, keyname,
-                                              orderby),
-                            keyvalue),
+        cursor,
         o;
+    // requireTableWithDbOpen(db, tablename, arguments);
+    cursor = db.execute(getSelectByKeySQL(tablename, fieldlist, keyname,
+                                          orderby),
+                        keyvalue);
     while (cursor.isValidRow()) {
         o = new Objecttype();
         setFromCursor(cursor, fieldlist, o);
@@ -1059,6 +1091,7 @@ function getAllPKs(tablename, pkname, orderby) {
     if (orderby) {
         sql += " ORDER BY " + delimit(orderby); // ***
     }
+    // requireTableWithDbOpen(db, tablename, arguments);
     cursor = db.execute(sql);
     while (cursor.isValidRow()) {
         pks.push(cursor.field(0));
@@ -1080,6 +1113,7 @@ function getAllPKsByKey(tablename, pkname, orderby, keyname, keyvalue) {
     if (orderby) {
         sql += " ORDER BY " + orderby;
     }
+    // requireTableWithDbOpen(db, tablename, arguments);
     cursor = db.execute(sql, keyvalue);
     while (cursor.isValidRow()) {
         pks.push(cursor.field(0));
@@ -1098,7 +1132,9 @@ function getPKsAndDates(tablename, pkname, datefieldname) {
         db = Titanium.Database.open(DBCONSTANTS.DBNAME),
         sql = ("SELECT " + delimit(pkname) + ", " + delimit(datefieldname) +
                " FROM " + delimit(tablename)),
-        cursor = db.execute(sql);
+        cursor;
+    // requireTableWithDbOpen(db, tablename, arguments);
+    cursor = db.execute(sql);
     while (cursor.isValidRow()) {
         pks.push(cursor.field(0));
         dates.push(cursor.field(1));
@@ -1118,8 +1154,10 @@ function getSingleValueByKey(tablename, keyname, keyvalue, field) {
     var sql = ("SELECT " + delimit(field.name) + " FROM " +
                delimit(tablename) + " WHERE " + delimit(keyname) + "=?"),
         db = Titanium.Database.open(DBCONSTANTS.DBNAME),
-        cursor = db.execute(sql, keyvalue),
+        cursor,
         value = null;
+    // requireTableWithDbOpen(db, tablename, arguments);
+    cursor = db.execute(sql, keyvalue);
     if (cursor.isValidRow()) {
         value = decodeValue(field, cursor.field(0));
     }
@@ -1173,6 +1211,7 @@ function countWhere(tablename, wherefields, wherevalues, wherenotfields,
         sql += " WHERE " + whereclauses.join(" AND ");
     }
     db = Titanium.Database.open(DBCONSTANTS.DBNAME);
+    // requireTableWithDbOpen(db, tablename, arguments);
     //Titanium.API.trace("countWhere: sql: " + sql);
     //Titanium.API.trace("countWhere: args: " + args);
     cursor = db.execute(sql, args);
@@ -1210,6 +1249,7 @@ function createRow(tablename, fieldlist, object, pkname) {
     var db = Titanium.Database.open(DBCONSTANTS.DBNAME),
         query = getInsertSQL(tablename, fieldlist),
         args = getFieldValueArgs(fieldlist, object);
+    // requireTableWithDbOpen(db, tablename, arguments);
     execute_noreturn(db, query, args);
     object[pkname] = db.lastInsertRowId;
     db.close();

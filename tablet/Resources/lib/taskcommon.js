@@ -277,6 +277,46 @@ lang.extendPrototype(BaseTask, {
         };
     },
 
+    getRespondentQuestionnaireBlock: function () {
+        var UICONSTANTS = require('common/UICONSTANTS');
+        return {
+            type: "QuestionTypedVariables",
+            mandatory: false,
+            useColumns: true,
+            variables: [
+                {
+                    type: UICONSTANTS.TYPEDVAR_TEXT,
+                    field: "respondent_name",
+                    prompt: L("respondent_name")
+                },
+                {
+                    type: UICONSTANTS.TYPEDVAR_TEXT,
+                    field: "respondent_relationship",
+                    prompt: L("respondent_relationship")
+                },
+            ],
+        };
+    },
+
+    getRespondentDetailsPage: function () {
+        return {
+            title: L("respondent_details"),
+            clinician: true,
+            elements: [ this.getRespondentQuestionnaireBlock() ],
+        };
+    },
+
+    getClinicianAndRespondentDetailsPage: function () {
+        return {
+            title: L("clinician_and_respondent_details"),
+            clinician: true,
+            elements: [
+                this.getClinicianQuestionnaireBlock(),
+                this.getRespondentQuestionnaireBlock(),
+            ],
+        };
+    },
+
 });
 exports.BaseTask = BaseTask;
 

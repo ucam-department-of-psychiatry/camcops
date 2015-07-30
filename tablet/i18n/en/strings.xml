@@ -538,6 +538,13 @@ CamCOPS app
 <string name="clinician_contact_details">Clinician’s contact details</string>
 <string name="location">Location</string>
 
+<!-- For tasks with a respondent who isn't the patient -->
+
+<string name="respondent_details">Respondent’s details</string>
+<string name="respondent_name">Respondent’s name</string>
+<string name="respondent_relationship">Respondent’s relationship to patient</string>
+<string name="clinician_and_respondent_details">Clinician’s and respondent’s details</string>
+
 <!-- Questionnaires -->
 
 <string name="next">Next</string>

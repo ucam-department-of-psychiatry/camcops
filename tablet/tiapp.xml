@@ -72,6 +72,8 @@
                         Previously done within the ti:app section with <property name="ti.android.largeHeap" type="bool">true</property>
                 -->
             </application>
+            <uses-permission android:name="com.sony.mobile.permission.SYSTEM_UI_VISIBILITY_EXTENSION" />
+            <!-- ... Sony-specific thing -->
         </manifest>
     </android>
     <deployment-targets>

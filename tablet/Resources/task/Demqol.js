@@ -36,6 +36,7 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
     MINIMUM_N_FOR_TOTAL_SCORE = 14,
     REVERSE_SCORE = [1, 3, 5, 6, 10, 29];  // questions scored backwards
 
+fieldlist.push.apply(fieldlist, dbcommon.CLINICIAN_FIELDSPECS); // Clinician info 1/3
 dbcommon.appendRepeatedFieldDef(fieldlist, "q", 1, nquestions,
                                 DBCONSTANTS.TYPE_INTEGER);
 
@@ -132,8 +133,11 @@ lang.extendPrototype(Demqol, {
             ],
             questionnaire;
 
+        self.setDefaultClinicianVariablesAtFirstUse(readOnly); // Clinician info 2/3
+        p0 = self.getClinicianDetailsPage(); // Clinician info 3/3
         p1 = {
             title: L('b_demqol') + " " + L('page') + " 1/5",
+            clinician: true,
             elements: [
                 {
                     type: "QuestionText",
@@ -188,6 +192,7 @@ lang.extendPrototype(Demqol, {
         };
         p2 = {
             title: L('b_demqol') + " " + L('page') + " 2/5",
+            clinician: true,
             elements: [
                 {
                     type: "QuestionText",
@@ -213,6 +218,7 @@ lang.extendPrototype(Demqol, {
         };
         p3 = {
             title: L('b_demqol') + " " + L('page') + " 3/5",
+            clinician: true,
             elements: [
                 {
                     type: "QuestionText",
@@ -233,6 +239,7 @@ lang.extendPrototype(Demqol, {
         };
         p4 = {
             title: L('b_demqol') + " " + L('page') + " 4/5",
+            clinician: true,
             elements: [
                 {
                     type: "QuestionText",
@@ -253,6 +260,7 @@ lang.extendPrototype(Demqol, {
         };
         p5 = {
             title: L('b_demqol') + " " + L('page') + " 5/5",
+            clinician: true,
             elements: [
                 {
                     type: "QuestionText",
@@ -271,7 +279,7 @@ lang.extendPrototype(Demqol, {
                 },
             ],
         };
-        pages = [p1, p2, p3, p4, p5];
+        pages = [p0, p1, p2, p3, p4, p5];
 
         questionnaire = new Questionnaire({
             readOnly: readOnly,

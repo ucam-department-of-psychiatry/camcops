@@ -164,11 +164,13 @@ lang.extendPrototype(DiagnosisTaskBase, {
     edit: function (readOnly) {
         var self = this,
             Questionnaire = require('questionnaire/Questionnaire'),
-            my_items = self.getMyItems(),
+            my_items,
             questionnaire;
 
         self.setDefaultClinicianVariablesAtFirstUse(readOnly); // Clinician info 2/3
         self.dbstore(); // generates self.id (needed as FK)
+        // ... MUST SET self.id LIKE THIS BEFORE CALLING getMyItems().
+        my_items = self.getMyItems();
 
         function getNumPages() {
             return 1;

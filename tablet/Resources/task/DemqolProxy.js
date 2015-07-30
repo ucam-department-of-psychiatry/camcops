@@ -36,6 +36,8 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
     MINIMUM_N_FOR_TOTAL_SCORE = 16,
     REVERSE_SCORE = [1, 4, 6, 8, 11, 32];  // questions scored backwards
 
+fieldlist.push.apply(fieldlist, dbcommon.CLINICIAN_FIELDSPECS); // Clinician info 1/3
+fieldlist.push.apply(fieldlist, dbcommon.RESPONDENT_FIELDSPECS);
 dbcommon.appendRepeatedFieldDef(fieldlist, "q", 1, nquestions,
                                 DBCONSTANTS.TYPE_INTEGER);
 
@@ -132,8 +134,11 @@ lang.extendPrototype(DemqolProxy, {
             ],
             questionnaire;
 
+        self.setDefaultClinicianVariablesAtFirstUse(readOnly); // Clinician info 2/3
+        p0 = self.getClinicianAndRespondentDetailsPage(); // Clinician info 3/3
         p1 = {
             title: L('b_demqolproxy') + " " + L('page') + " 1/5",
+            clinician: true,
             elements: [
                 {
                     type: "QuestionText",
@@ -188,6 +193,7 @@ lang.extendPrototype(DemqolProxy, {
         };
         p2 = {
             title: L('b_demqolproxy') + " " + L('page') + " 2/5",
+            clinician: true,
             elements: [
                 {
                     type: "QuestionText",
@@ -213,6 +219,7 @@ lang.extendPrototype(DemqolProxy, {
         };
         p3 = {
             title: L('b_demqolproxy') + " " + L('page') + " 3/5",
+            clinician: true,
             elements: [
                 {
                     type: "QuestionText",
@@ -233,6 +240,7 @@ lang.extendPrototype(DemqolProxy, {
         };
         p4 = {
             title: L('b_demqolproxy') + " " + L('page') + " 4/5",
+            clinician: true,
             elements: [
                 {
                     type: "QuestionText",
@@ -253,6 +261,7 @@ lang.extendPrototype(DemqolProxy, {
         };
         p5 = {
             title: L('b_demqolproxy') + " " + L('page') + " 5/5",
+            clinician: true,
             elements: [
                 {
                     type: "QuestionText",
@@ -271,7 +280,7 @@ lang.extendPrototype(DemqolProxy, {
                 },
             ],
         };
-        pages = [p1, p2, p3, p4, p5];
+        pages = [p0, p1, p2, p3, p4, p5];
 
         questionnaire = new Questionnaire({
             readOnly: readOnly,

@@ -526,6 +526,10 @@ exports.CLINICIAN_FIELDSPECS = [
     {name: "clinician_service", type: DBCONSTANTS.TYPE_TEXT},
     {name: "clinician_contact_details", type: DBCONSTANTS.TYPE_TEXT}
 ];
+exports.RESPONDENT_FIELDSPECS = [
+    {name: "respondent_name", type: DBCONSTANTS.TYPE_TEXT},
+    {name: "respondent_relationship", type: DBCONSTANTS.TYPE_TEXT},
+];
 
 function appendRepeatedFieldDef(fieldlist, prefix, start, end, type,
                                 mandatory) {

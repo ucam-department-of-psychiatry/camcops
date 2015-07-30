@@ -1148,8 +1148,12 @@ function zoomTask(task, wait) {
 exports.zoomTask = zoomTask;
 
 function addTask(taskclass, wait) {
-    var task = new taskclass(), // DUMMY
+    Titanium.API.info("uifunc.addTask()");
+    var task,
         GV = require('common/GV');
+    Titanium.API.info("Making dummy task to inspect properties...");
+    task = new taskclass(); // DUMMY
+    Titanium.API.info("... done");
     if (!task.isTaskPermissible()) {
         ipFail(task);
         return;
@@ -1166,8 +1170,10 @@ function addTask(taskclass, wait) {
             return;
         }
         wait.show();
+        Titanium.API.info("Adding task...");
         task = new taskclass(GV.selected_patient_id); // REAL
         GV.inChain = false;
+        Titanium.API.info("Editing new task...");
         task.edit(); // may fire EVENTS.TASK_FINISHED
         wait.hide();
     }

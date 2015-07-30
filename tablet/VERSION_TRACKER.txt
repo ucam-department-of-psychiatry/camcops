@@ -94,6 +94,63 @@ Version history (new to old)
 - editing_time_s field as standard on all tasks
 - DEMQOL
 - DEMQOL-Proxy
+- Bugfix: Diagnosis* edit() code was calling "my_items = self.getMyItems()"
+  prior to "self.dbstore()", leading to this crash at task creation on Android:
+    E/TiExceptionHandler( 1082): (main) [29136,29136] ----- Titanium Javascript Runtime Error -----
+    E/TiExceptionHandler( 1082): (main) [0,29136] - In lib/dbsqlite.js:1,69
+    E/TiExceptionHandler( 1082): (main) [0,29136] - Message: Uncaught Error: the bind value at index 1 is null
+    E/TiExceptionHandler( 1082): (main) [1,29137] - Source: n(DBCONSTANTS.DBNAME);for(requireTableWithDbOpen(_,a,arguments),s=_.execute(ge
+  ... via dbcommon.getAllRowsByKey(..., null, ...)
+- Crash on Android 4.4.4 on Sony Xperia
+    V/TiAPI   ( 5660):  broadcastPatientSelection
+    V/TiAPI   ( 5660):  SelectPatientWindow.getTableData(): found 2 patients
+    I/TiAPI   ( 5660):  Image cache size: 0
+    W/WindowManager(  897): Access to extended visibility flags denied: Requires com.sonymobile.permission.SYSTEM_UI_VISIBILITY_EXTENSIONS permission.
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    W/ResourceType( 5660): No package identifier when getting name for resource number 0x00000065
+    D/AndroidRuntime( 5660): Shutting down VM
+    W/dalvikvm( 5660): threadid=1: thread exiting with uncaught exception (group=0x415d1d88)
+    E/AndroidRuntime( 5660): FATAL EXCEPTION: main
+    E/AndroidRuntime( 5660): Process: org.camcops.camcops, PID: 5660
+    E/AndroidRuntime( 5660): java.lang.RuntimeException: Unable to start activity ComponentInfo{org.camcops.camcops/org.appcelerator.titanium.TiActivity}: java.lang.IllegalArgumentException: Wrong state class, expecting View State but received class android.widget.AbsListView$SavedState instead. This usually happens when two views of different type have the same id in the same hierarchy. This view's id is id/0x65. Make sure other views do not use the same id.
+    E/AndroidRuntime( 5660): 	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:2237)
+    E/AndroidRuntime( 5660): 	at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:2286)
+    E/AndroidRuntime( 5660): 	at android.app.ActivityThread.handleRelaunchActivity(ActivityThread.java:3828)
+    E/AndroidRuntime( 5660): 	at android.app.ActivityThread.access$900(ActivityThread.java:144)
+    E/AndroidRuntime( 5660): 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1252)
+    E/AndroidRuntime( 5660): 	at android.os.Handler.dispatchMessage(Handler.java:102)
+    E/AndroidRuntime( 5660): 	at android.os.Looper.loop(Looper.java:212)
+    E/AndroidRuntime( 5660): 	at android.app.ActivityThread.main(ActivityThread.java:5137)
+    E/AndroidRuntime( 5660): 	at java.lang.reflect.Method.invokeNative(Native Method)
+    E/AndroidRuntime( 5660): 	at java.lang.reflect.Method.invoke(Method.java:515)
+    E/AndroidRuntime( 5660): 	at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:902)
+    E/AndroidRuntime( 5660): 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:718)
+    E/AndroidRuntime( 5660): 	at dalvik.system.NativeStart.main(Native Method)
+    E/AndroidRuntime( 5660): Caused by: java.lang.IllegalArgumentException: Wrong state class, expecting View State but received class android.widget.AbsListView$SavedState instead. This usually happens when two views of different type have the same id in the same hierarchy. This view's id is id/0x65. Make sure other views do not use the same id.
+    E/AndroidRuntime( 5660): 	at android.view.View.onRestoreInstanceState(View.java:12954)
+    E/AndroidRuntime( 5660): 	at android.view.View.dispatchRestoreInstanceState(View.java:12930)
+    E/AndroidRuntime( 5660): 	at android.view.ViewGroup.dispatchRestoreInstanceState(ViewGroup.java:2643)
+    E/AndroidRuntime( 5660): 	at android.view.ViewGroup.dispatchRestoreInstanceState(ViewGroup.java:2643)
+    E/AndroidRuntime( 5660): 	at android.view.ViewGroup.dispatchRestoreInstanceState(ViewGroup.java:2643)
+    E/AndroidRuntime( 5660): 	at android.view.ViewGroup.dispatchRestoreInstanceState(ViewGroup.java:2643)
+    E/AndroidRuntime( 5660): 	at android.view.ViewGroup.dispatchRestoreInstanceState(ViewGroup.java:2643)
+    E/AndroidRuntime( 5660): 	at android.view.ViewGroup.dispatchRestoreInstanceState(ViewGroup.java:2643)
+    E/AndroidRuntime( 5660): 	at android.view.View.restoreHierarchyState(View.java:12908)
+    E/AndroidRuntime( 5660): 	at com.android.internal.policy.impl.PhoneWindow.restoreHierarchyState(PhoneWindow.java:1751)
+    E/AndroidRuntime( 5660): 	at android.app.Activity.onRestoreInstanceState(Activity.java:944)
+    E/AndroidRuntime( 5660): 	at org.appcelerator.titanium.TiBaseActivity.onRestoreInstanceState(TiBaseActivity.java:1406)
+    E/AndroidRuntime( 5660): 	at android.app.Activity.performRestoreInstanceState(Activity.java:916)
+    E/AndroidRuntime( 5660): 	at android.app.Instrumentation.callActivityOnRestoreInstanceState(Instrumentation.java:1138)
+    E/AndroidRuntime( 5660): 	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:2215)
+    E/AndroidRuntime( 5660): 	... 12 more
+    D/ActivityManager(  897): New dropbox entry: org.camcops.camcops, data_app_crash, fc182478-f254-4874-9328-ecc82933c328
+    W/ActivityManager(  897):   Force finishing activity org.camcops.camcops/org.appcelerator.titanium.TiActivity
+    W/ResourceType(  897): CREATING STRING CACHE OF 44 bytes
+    I/CrashMonitor( 2447): CrashMonitorServiceBroadcastReceiver: Forwarding intent: android.intent.action.DROPBOX_ENTRY_ADDED tag: data_app_crash
+    I/CrashMonitor( 2447): CrashMonitorService: Service started...
+  This is a Sony-specific mess-up.
+  See fix in http://stackoverflow.com/questions/31572405/error-access-to-extended-visibility-flags-denied-requires-com-sonymobile-permis
+  i.e. tiapp.xml: <uses-permission android:name="com.sony.mobile.permission.SYSTEM_UI_VISIBILITY_EXTENSION" />
 
 1.34 (2015-04-26)
 - Probable bugfix: IDED3D performed its stage failure check before its stage
