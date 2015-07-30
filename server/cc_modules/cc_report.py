@@ -30,6 +30,8 @@ from cc_constants import ACTION, DATEFORMAT, NUMBER_OF_IDNUMS, PARAM, VALUE
 import cc_dt
 import cc_html
 from cc_pls import pls
+import cc_session
+from cc_unittest import unit_test_ignore
 
 # =============================================================================
 # Other constants
@@ -281,11 +283,6 @@ class Report(object):
 
 def task_unit_test_report(name, r):
     """Unit tests for reports."""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS
-    # -------------------------------------------------------------------------
-    from cc_unittest import unit_test_ignore
-
     unit_test_ignore("Testing {}.get_report_id".format(name),
                      r.get_report_id)
     unit_test_ignore("Testing {}.get_report_title".format(name),
@@ -298,12 +295,6 @@ def task_unit_test_report(name, r):
 
 def unit_tests():
     """Unit tests for cc_report module."""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS
-    # -------------------------------------------------------------------------
-    import cc_session
-    from cc_unittest import unit_test_ignore
-
     session = cc_session.Session()
     paramspec = {
         PARAM.TYPE: PARAM.WHICH_IDNUM,

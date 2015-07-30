@@ -38,6 +38,7 @@ import cc_html
 from cc_logger import logger
 from cc_pls import pls
 import cc_task
+from cc_unittest import unit_test_ignore
 import cc_user
 
 # =============================================================================
@@ -1003,11 +1004,6 @@ def get_filter_html(filter_name,
 
 def unit_tests_session(s):
     """Unit tests for Session class."""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS
-    # -------------------------------------------------------------------------
-    from cc_unittest import unit_test_ignore
-
     ntasks = 75
 
     # skip: make_tables
@@ -1080,11 +1076,6 @@ def unit_tests_session(s):
 
 def unit_tests():
     """Unit tests for cc_session module."""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS
-    # -------------------------------------------------------------------------
-    from cc_unittest import unit_test_ignore
-
     unit_test_ignore("", delete_old_sessions)
     unit_test_ignore("", is_token_in_use, "dummytoken")
     unit_test_ignore("", generate_token)

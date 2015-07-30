@@ -33,6 +33,15 @@ camcops (1.40-1) all; urgency=low
   * Python package format internally.
   * Did not implement SVG logos for PDF generation; made files larger not
     smaller. Stick with PNG.
+  * PHQ-9 database comment fixed for Q10.
+  * comment_fmt for HADS fields. Note MySQL: SHOW FULL COLUMNS FROM table.
+  * DEMQOL
+  * DEMQOL-Proxy
+  * Default "respondent" framework, for DEMQOL-Proxy.
+  * Remove delayed imports; bug-prone.
+    http://stackoverflow.com/questions/744373
+    Except in cc_hl7, which imports phq9 for testing (which imports specific
+    things from cc_task, which imports cc_hl7).
 
  -- Rudolf Cardinal <rudolf@pobox.com>  Thu, 28 May 2015 11:09:00 +0000
 

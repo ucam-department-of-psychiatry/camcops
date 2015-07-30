@@ -451,6 +451,12 @@ div.indented {
 .photo {
     padding: $ZERO;
 }
+.respondent {
+    background-color: rgb(189, 183, 107);
+}
+table.respondent, table.respondent th, table.respondent td {
+    border: $THINLINE solid black;
+}
 .signature_label {
     border: none;
     text-align: center;

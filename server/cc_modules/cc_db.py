@@ -32,6 +32,7 @@ from cc_constants import (
 )
 import cc_dt
 from cc_pls import pls
+import cc_task
 
 
 # =============================================================================
@@ -297,10 +298,6 @@ def manually_erase_record_object_and_save(obj, table, fields, username):
     """Manually erases a standard record and marks it so erased.
     The object remains _current, as a placeholder, but its contents are wiped.
     WRITES TO DATABASE."""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS
-    # -------------------------------------------------------------------------
-    import cc_task
     if obj._pk is None or obj._era == ERA_NOW:
         return
     standard_task_fields = [x["name"]

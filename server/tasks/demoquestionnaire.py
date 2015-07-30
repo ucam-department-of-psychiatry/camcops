@@ -201,6 +201,7 @@ class DemoQuestionnaire(Task):
         h += divtest("navigation")
         h += divtest("office")
         h += divtest("patient")
+        h += divtest("respondent")
         h += divtest("smallprint")
         h += divtest("specialnote")
         h += divtest("subheading")

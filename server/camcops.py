@@ -67,6 +67,8 @@ if __name__ == '__main__':
 # Imports
 # =============================================================================
 
+import argparse
+import cgi
 import codecs
 import collections
 import ConfigParser
@@ -88,6 +90,7 @@ from pythonlib.rnc_lang import import_submodules
 import pythonlib.rnc_web as ws
 
 # CamCOPS support modules
+import cc_modules.cc_analytics as cc_analytics
 from cc_modules.cc_audit import (
     audit,
     SECURITY_AUDIT_TABLENAME,
@@ -125,6 +128,7 @@ from cc_modules.cc_storedvar import DeviceStoredVar, ServerStoredVar
 from cc_modules.cc_string import WSTRING
 import cc_modules.cc_task as cc_task
 import cc_modules.cc_tracker as cc_tracker
+from cc_modules.cc_unittest import unit_test_ignore
 import cc_modules.cc_user as cc_user
 from cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
@@ -3338,7 +3342,6 @@ def generate_anonymisation_staging_db():
 
 def test():
     """Run all unit tests."""
-
     # We do some rollbacks so as not to break performance of ongoing tasks.
 
     print("-- Testing camcopswebview")
@@ -3346,7 +3349,6 @@ def test():
     pls.db.rollback()
 
     print("-- Testing cc_analytics")
-    import cc_analytics
     cc_analytics.unit_tests()
     pls.db.rollback()
 
@@ -3482,11 +3484,6 @@ def camcops_application_main(environ, start_response):
 
 def cli_main():
     """Command-line entry point."""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS
-    # -------------------------------------------------------------------------
-    import argparse
-
     # Fetch command-line options.
     silent = False
     parser = argparse.ArgumentParser(
@@ -3730,12 +3727,6 @@ Using database: {dbname} ({dbtitle}).
 
 def unit_tests():
     """Unit tests for camcops.py"""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS
-    # -------------------------------------------------------------------------
-    import cgi
-    from cc_unittest import unit_test_ignore
-
     session = cc_session.Session()
     form = cgi.FieldStorage()
     # suboptimal tests, as form isn't tailed to these things

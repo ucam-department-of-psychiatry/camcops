@@ -73,8 +73,15 @@ import cc_namedtuples
 import cc_patient
 import cc_plot
 from cc_pls import pls
+import cc_recipdef
 import cc_specialnote
 from cc_string import WSTRING
+from cc_unittest import (
+    unit_test_ignore,
+    unit_test_show,
+    unit_test_verify,
+    unit_test_verify_not
+)
 import cc_version
 import cc_xml
 
@@ -230,6 +237,13 @@ CLINICIAN_FIELDSPECS = [  # see also has_clinician()
          comment="(CLINICIAN) Clinician's contact details (e.g. bleep, "
                  "extension)"),
 ]
+RESPONDENT_FIELDSPECS = [  # see also has_respondent()
+    dict(name="respondent_name", cctype="TEXT",
+         comment="(RESPONDENT) Respondent's name"),
+    dict(name="respondent_relationship", cctype="TEXT",
+         comment="(RESPONDENT) Respondent's relationship to patient"),
+]
+
 CRIS_CLUSTER_KEY_FIELDSPEC = dict(
     name="_task_main_pk", cctype="INT_UNSIGNED",
     comment="(CRIS) Server primary key for task and linked records"
@@ -1242,6 +1256,16 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         if not self.has_clinician():
             return ""
         return self.clinician_name
+
+    # -------------------------------------------------------------------------
+    # Respondent
+    # -------------------------------------------------------------------------
+
+    @classmethod
+    def has_respondent(cls):
+        """Does the task have a respondent associated with it, other than the
+        patient or clinician?"""
+        return "respondent_name" in cls.get_fields()
 
     # -------------------------------------------------------------------------
     # About the associated patient
@@ -2812,6 +2836,28 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             ws.bold_if_not_blank(ws.webify(comments))
         )
 
+    def get_standard_respondent_block(self):
+        """HTML DIV for respondent information, or ""."""
+        if not self.has_respondent():
+            return ""
+        return u"""
+            <div class="respondent">
+                <table class="taskdetail">
+                    <tr>
+                        <td width="50%">Respondent’s name:</td>
+                        <td width="50%"><b>{name}</b></td>
+                    </tr>
+                    <tr>
+                        <td>Respondent’s relationship to patient:</td>
+                        <td><b>{relationship}</b></td>
+                    </tr>
+                </table>
+            </div>
+        """.format(
+            name=ws.webify(self.respondent_name),
+            relationship=ws.webify(self.respondent_relationship),
+        )
+
     def get_is_complete_td_pair(self):
         """HTML to indicate whether task is complete or not, and to make it
         very obvious visually when it isn't."""
@@ -3096,15 +3142,6 @@ def require_implementation(class_name, instance, method_name):
 
 def task_instance_unit_test(name, instance, skip_tasks=[]):
     """Unit test for an named instance of Task."""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS
-    # -------------------------------------------------------------------------
-    import cc_recipdef
-    from cc_unittest import (
-        unit_test_ignore,
-        unit_test_verify_not
-    )
-
     recipient_def = cc_recipdef.RecipientDefinition()
 
     # -------------------------------------------------------------------------
@@ -3446,11 +3483,6 @@ def task_instance_unit_test(name, instance, skip_tasks=[]):
 
 def task_unit_test(cls, skip_tasks=[]):
     """Unit test for a Task subclass."""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS
-    # -------------------------------------------------------------------------
-    from cc_unittest import unit_test_ignore
-
     name = cls.__name__
     # Test creation with a numeric PK, which may or may not exist in the DB
     unit_test_ignore("Testing {}.__init__(0)".format(name),
@@ -3473,15 +3505,6 @@ def task_unit_test(cls, skip_tasks=[]):
 
 def unit_tests():
     """Unit tests for cc_task module."""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS
-    # -------------------------------------------------------------------------
-    from cc_unittest import (
-        unit_test_ignore,
-        unit_test_show,
-        unit_test_verify
-    )
-
     unit_test_ignore("", TaskFactory, "xxx", 0)
     unit_test_ignore("", TaskFactory, "phq9", 0)
     unit_test_show("", get_base_tables, True)

@@ -43,7 +43,9 @@ from cc_logger import logger
 import cc_namedtuples
 import cc_plot
 from cc_pls import pls
+import cc_session
 import cc_task
+from cc_unittest import unit_test_ignore
 import cc_version
 import cc_xml
 
@@ -1318,11 +1320,6 @@ class ClinicalTextView(object):
 
 def unit_tests_tracker(t):
     """Unit tests for Tracker objects."""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS
-    # -------------------------------------------------------------------------
-    from cc_unittest import unit_test_ignore
-
     unit_test_ignore("", t.get_xml)
     unit_test_ignore("", t.get_html)
     unit_test_ignore("", t.get_pdf)
@@ -1340,11 +1337,6 @@ def unit_tests_tracker(t):
 
 def unit_tests_ctv(c):
     """Unit tests for ClinicalTextView objects."""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS
-    # -------------------------------------------------------------------------
-    from cc_unittest import unit_test_ignore
-
     unit_test_ignore("", c.get_xml)
     unit_test_ignore("", c.get_html)
     unit_test_ignore("", c.get_pdf)
@@ -1361,12 +1353,6 @@ def unit_tests_ctv(c):
 
 def unit_tests():
     """Unit tests for cc_tracker module."""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS
-    # -------------------------------------------------------------------------
-    import cc_session
-    from cc_unittest import unit_test_ignore
-
     session = cc_session.Session()
     tasktables = []
     for cls in cc_task.Task.__subclasses__():

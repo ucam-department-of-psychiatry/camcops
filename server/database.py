@@ -35,8 +35,11 @@ PROFILE = False
 # Imports
 # =============================================================================
 
+import argparse
 import base64
+import binascii
 import ConfigParser
+import os
 import re
 import sys
 import time
@@ -60,6 +63,11 @@ from cc_modules.cc_logger import dblogger as logger
 from cc_modules.cc_pls import pls
 import cc_modules.cc_session as cc_session
 import cc_modules.cc_string as cc_string
+from cc_modules.cc_unittest import (
+    unit_test_ignore,
+    unit_test_must_raise,
+    unit_test_verify
+)
 import cc_modules.cc_version as cc_version
 
 # Conditional imports
@@ -356,11 +364,6 @@ def ensure_valid_device_and_user_for_uploading(device):
 
 def special_hex_encode(v):
     """Encode in X'{hex}' format."""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS
-    # -------------------------------------------------------------------------
-    # as we never really use this!
-    import binascii
     return "X'{}'".format(binascii.hexlify(v))
 
 
@@ -1935,12 +1938,6 @@ def database_application(environ, start_response):
 
 def cli_main():
     """Command-line processor."""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS
-    # -------------------------------------------------------------------------
-    import argparse
-    import os
-
     parser = argparse.ArgumentParser(
         prog="camcops_db",  # name the user will use to call it
         description=("CamCOPS database script (command-line interface)")
@@ -1991,15 +1988,6 @@ database, for example, in MySQL:
 
 def unit_tests():
     """Unit tests for database script."""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS
-    # -------------------------------------------------------------------------
-    from cc_unittest import (
-        unit_test_ignore,
-        unit_test_must_raise,
-        unit_test_verify
-    )
-
     # a = (UserErrorException, ServerErrorException)
     u = (UserErrorException)
     s = (ServerErrorException)

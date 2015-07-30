@@ -22,16 +22,20 @@
 """
 
 from __future__ import division
+import pythonlib.rnc_web as ws
 from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from cc_modules.cc_html import (
     answer,
     get_yes_no,
+    subheading_spanning_two_columns,
     tr_qa,
 )
 from cc_modules.cc_string import WSTRING
 from cc_modules.cc_task import (
     CTV_DICTLIST_INCOMPLETE,
+    CLINICIAN_FIELDSPECS,
     get_from_dict,
+    RESPONDENT_FIELDSPECS,
     STANDARD_TASK_FIELDSPECS,
     Task,
 )
@@ -40,8 +44,16 @@ from cc_modules.cc_task import (
 # Constants
 # =============================================================================
 
+DP = 2
 MISSING_VALUE = -99
 PERMITTED_VALUES = range(1, 4 + 1) + [MISSING_VALUE]
+END_DIV = u"""
+    </table>
+    <div class="footnotes">
+        [1] Extrapolated total scores are: total_for_responded_questions ×
+        n_questions / n_responses.
+    </div>
+"""
 COPYRIGHT_DIV = u"""
     <div class="copyright">
         DEMQOL/DEMQOL-Proxy: Copyright © Institute of Psychiatry, King’s
@@ -60,7 +72,7 @@ def calc_total_score(obj, n_scored_questions, reverse_score_qs,
     n = 0
     total = 0
     for q in xrange(1, n_scored_questions + 1):
-        x = getattr(obj, "q" + str(n))
+        x = getattr(obj, "q" + str(q))
         if x is None or x == MISSING_VALUE:
             continue
         if q in reverse_score_qs:
@@ -71,7 +83,7 @@ def calc_total_score(obj, n_scored_questions, reverse_score_qs,
         return (None, False)
     if n < n_scored_questions:
         return (n_scored_questions * total / n, True)
-    return (total, True)
+    return (total, False)
 
 
 # =============================================================================
@@ -85,7 +97,10 @@ class Demqol(Task):
     REVERSE_SCORE = [1, 3, 5, 6, 10, 29]  # questions scored backwards
     MIN_SCORE = N_SCORED_QUESTIONS
     MAX_SCORE = MIN_SCORE * 4
-    TASK_FIELDSPECS = repeat_fieldspec(
+    FIELDSPECS = (
+        STANDARD_TASK_FIELDSPECS
+        + CLINICIAN_FIELDSPECS
+    ) + repeat_fieldspec(
         "q", 1, N_SCORED_QUESTIONS, pv=PERMITTED_VALUES,
         comment_fmt="Q{n}. {s} (1 a lot - 4 not at all; -99 no response)",
         comment_strings=[
@@ -109,9 +124,7 @@ class Demqol(Task):
         dict(name="q29", cctype="INT", pv=PERMITTED_VALUES,
              comment="Q29. Overall quality of life (1 very good - 4 poor; "
                      "-99 no response)."),
-
     ]
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
 
     @classmethod
     def get_tablename(cls):
@@ -127,7 +140,7 @@ class Demqol(Task):
 
     @classmethod
     def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + cls.TASK_FIELDSPECS
+        return cls.FIELDSPECS
 
     def is_complete(self):
         return self.field_contents_valid() and self.are_all_fields_complete(
@@ -182,6 +195,10 @@ class Demqol(Task):
         (total, extrapolated) = self.totalscore_extrapolated()
         return total
 
+    def get_q(self, n):
+        nstr = str(n)
+        return "Q" + nstr + ". " + WSTRING("demqol_q" + nstr)
+
     def get_task_html(self):
         (total, extrapolated) = self.totalscore_extrapolated()
         MAIN_DICT = {
@@ -190,7 +207,7 @@ class Demqol(Task):
             2: u"2 — " + WSTRING("demqol_a2"),
             3: u"3 — " + WSTRING("demqol_a3"),
             4: u"4 — " + WSTRING("demqol_a4"),
-            MISSING_VALUE: u"—99 — " + WSTRING("demqol_no_response")
+            MISSING_VALUE: WSTRING("demqol_no_response")
         }
         LASTQ_DICT = {
             None: None,
@@ -198,9 +215,17 @@ class Demqol(Task):
             2: u"2 — " + WSTRING("demqol_q29_a2"),
             3: u"3 — " + WSTRING("demqol_q29_a3"),
             4: u"4 — " + WSTRING("demqol_q29_a4"),
-            MISSING_VALUE: u"—99 — " + WSTRING("demqol_no_response")
+            MISSING_VALUE: WSTRING("demqol_no_response")
         }
-        h = u"""
+        INSTRUCTIONDICT = {
+            1: WSTRING("demqol_instruction11"),
+            14: WSTRING("demqol_instruction12"),
+            20: WSTRING("demqol_instruction13"),
+            29: WSTRING("demqol_instruction14"),
+        }
+        # https://docs.python.org/2/library/stdtypes.html#mapping-types-dict
+        # http://paltman.com/try-except-performance-in-python-a-simple-test/
+        h = self.get_standard_clinician_block() + u"""
             <div class="summary">
                 <table class="summary">
                     {is_complete_tr}
@@ -209,8 +234,8 @@ class Demqol(Task):
                         <td>{t}</td>
                     </tr>
                     <tr>
-                        <td>Total score extrapolated from incomplete
-                        responses?</td>
+                        <td>Total score extrapolated using incomplete
+                        responses? <sup>[1]</sup></td>
                         <td>{e}</td>
                     </tr>
                 </table>
@@ -224,19 +249,17 @@ class Demqol(Task):
             is_complete_tr=self.get_is_complete_tr(),
             min=self.MIN_SCORE,
             max=self.MAX_SCORE,
-            t=answer(total),
+            t=answer(ws.number_to_dp(total, DP)),
             e=answer(get_yes_no(extrapolated)),
         )
-        for n in xrange(1, self.N_SCORED_QUESTIONS + 1):
-            nstr = str(n)
-            h += tr_qa(WSTRING("demqol_q" + nstr),
-                       get_from_dict(MAIN_DICT, getattr(self, "q" + nstr)))
-        nstr = str(self.NQUESTIONS)
-        h += tr_qa(WSTRING("demqol_q" + nstr),
-                   get_from_dict(LASTQ_DICT, getattr(self, "q" + nstr)))
-        h += u"""
-            </table>
-        """ + COPYRIGHT_DIV
+        for n in xrange(1, self.NQUESTIONS + 1):
+            if n in INSTRUCTIONDICT:
+                h += subheading_spanning_two_columns(INSTRUCTIONDICT.get(n))
+            d = MAIN_DICT if n <= self.N_SCORED_QUESTIONS else LASTQ_DICT
+            q = self.get_q(n)
+            a = get_from_dict(d, getattr(self, "q" + str(n)))
+            h += tr_qa(q, a)
+        h += END_DIV + COPYRIGHT_DIV
         return h
 
 
@@ -251,7 +274,11 @@ class DemqolProxy(Task):
     REVERSE_SCORE = [1, 4, 6, 8, 11, 32]  # questions scored backwards
     MIN_SCORE = N_SCORED_QUESTIONS
     MAX_SCORE = MIN_SCORE * 4
-    TASK_FIELDSPECS = repeat_fieldspec(
+    FIELDSPECS = (
+        STANDARD_TASK_FIELDSPECS
+        + CLINICIAN_FIELDSPECS
+        + RESPONDENT_FIELDSPECS
+    ) + repeat_fieldspec(
         "q", 1, N_SCORED_QUESTIONS, pv=PERMITTED_VALUES,
         comment_fmt="Q{n}. {s} (1 a lot - 4 not at all; -99 no response)",
         comment_strings=[
@@ -278,9 +305,7 @@ class DemqolProxy(Task):
         dict(name="q32", cctype="INT", pv=PERMITTED_VALUES,
              comment="Q32. Overall quality of life (1 very good - 4 poor; "
                      "-99 no response)."),
-
     ]
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
 
     @classmethod
     def get_tablename(cls):
@@ -296,7 +321,7 @@ class DemqolProxy(Task):
 
     @classmethod
     def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + cls.TASK_FIELDSPECS
+        return cls.FIELDSPECS
 
     def is_complete(self):
         return self.field_contents_valid() and self.are_all_fields_complete(
@@ -350,6 +375,10 @@ class DemqolProxy(Task):
         (total, extrapolated) = self.totalscore_extrapolated()
         return total
 
+    def get_q(self, n):
+        nstr = str(n)
+        return "Q" + nstr + ". " + WSTRING("demqolproxy_q" + nstr)
+
     def get_task_html(self):
         (total, extrapolated) = self.totalscore_extrapolated()
         MAIN_DICT = {
@@ -358,7 +387,7 @@ class DemqolProxy(Task):
             2: u"2 — " + WSTRING("demqol_a2"),
             3: u"3 — " + WSTRING("demqol_a3"),
             4: u"4 — " + WSTRING("demqol_a4"),
-            MISSING_VALUE: u"—99 — " + WSTRING("demqol_no_response")
+            MISSING_VALUE: WSTRING("demqol_no_response")
         }
         LASTQ_DICT = {
             None: None,
@@ -366,9 +395,18 @@ class DemqolProxy(Task):
             2: u"2 — " + WSTRING("demqol_q29_a2"),
             3: u"3 — " + WSTRING("demqol_q29_a3"),
             4: u"4 — " + WSTRING("demqol_q29_a4"),
-            MISSING_VALUE: u"—99 — " + WSTRING("demqol_no_response")
+            MISSING_VALUE: WSTRING("demqol_no_response")
         }
-        h = u"""
+        INSTRUCTIONDICT = {
+            1: WSTRING("demqolproxy_instruction11"),
+            12: WSTRING("demqolproxy_instruction12"),
+            21: WSTRING("demqolproxy_instruction13"),
+            32: WSTRING("demqolproxy_instruction14"),
+        }
+        h = (
+            self.get_standard_clinician_block()
+            + self.get_standard_respondent_block()
+        ) + u"""
             <div class="summary">
                 <table class="summary">
                     {is_complete_tr}
@@ -377,8 +415,8 @@ class DemqolProxy(Task):
                         <td>{t}</td>
                     </tr>
                     <tr>
-                        <td>Total score extrapolated from incomplete
-                        responses?</td>
+                        <td>Total score extrapolated using incomplete
+                        responses? <sup>[1]</sup></td>
                         <td>{e}</td>
                     </tr>
                 </table>
@@ -392,17 +430,15 @@ class DemqolProxy(Task):
             is_complete_tr=self.get_is_complete_tr(),
             min=self.MIN_SCORE,
             max=self.MAX_SCORE,
-            t=answer(total),
+            t=answer(ws.number_to_dp(total, DP)),
             e=answer(get_yes_no(extrapolated)),
         )
-        for n in xrange(1, self.N_SCORED_QUESTIONS + 1):
-            nstr = str(n)
-            h += tr_qa(WSTRING("demqolproxy_q" + nstr),
-                       get_from_dict(MAIN_DICT, getattr(self, "q" + nstr)))
-        nstr = str(self.NQUESTIONS)
-        h += tr_qa(WSTRING("demqolproxy_q" + nstr),
-                   get_from_dict(LASTQ_DICT, getattr(self, "q" + nstr)))
-        h += u"""
-            </table>
-        """ + COPYRIGHT_DIV
+        for n in xrange(1, self.NQUESTIONS + 1):
+            if n in INSTRUCTIONDICT:
+                h += subheading_spanning_two_columns(INSTRUCTIONDICT.get(n))
+            d = MAIN_DICT if n <= self.N_SCORED_QUESTIONS else LASTQ_DICT
+            q = self.get_q(n)
+            a = get_from_dict(d, getattr(self, "q" + str(n)))
+            h += tr_qa(q, a)
+        h += END_DIV + COPYRIGHT_DIV
         return h

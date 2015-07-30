@@ -26,6 +26,7 @@ import pythonlib.rnc_web as ws
 from cc_constants import PARAM
 import cc_db
 from cc_pls import pls
+from cc_unittest import unit_test_ignore
 
 
 # =============================================================================
@@ -123,11 +124,6 @@ def get_device_filter_dropdown(currently_selected=None):
 
 def unit_tests_device(d):
     """Unit tests for Device class."""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS
-    # -------------------------------------------------------------------------
-    from cc_unittest import unit_test_ignore
-
     # skip make_tables
     unit_test_ignore("", d.get_friendly_name)
     unit_test_ignore("", d.get_friendly_name_and_id)
@@ -136,11 +132,6 @@ def unit_tests_device(d):
 
 def unit_tests():
     """Unit tests for cc_device module."""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS
-    # -------------------------------------------------------------------------
-    from cc_unittest import unit_test_ignore
-
     current_pks = pls.db.fetchallfirstvalues(
         "SELECT device FROM {}".format(Device.TABLENAME)
     )
