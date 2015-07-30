@@ -30,6 +30,7 @@ import cc_dt
 from cc_logger import logger
 from cc_pls import pls
 import cc_storedvar
+from cc_unittest import unit_test_ignore
 import cc_version
 
 ANALYTICS_FREQUENCY_DAYS = 7  # send analytics weekly
@@ -122,10 +123,5 @@ def get_all_tables_with_record_counts():
 
 def unit_tests():
     """Unit tests for the cc_analytics module."""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS
-    # -------------------------------------------------------------------------
-    from cc_unittest import unit_test_ignore
-
     unit_test_ignore("", send_analytics_if_necessary)
     unit_test_ignore("", get_all_tables_with_record_counts)

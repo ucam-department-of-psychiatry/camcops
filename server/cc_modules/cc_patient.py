@@ -45,6 +45,7 @@ from cc_pls import pls
 import cc_policy
 import cc_report
 import cc_specialnote
+from cc_unittest import unit_test_ignore
 import cc_xml
 
 
@@ -696,11 +697,6 @@ class Patient_Report_Distinct(cc_report.Report):
 
 def unit_tests_patient(p):
     """Unit tests for Patient class."""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS
-    # -------------------------------------------------------------------------
-    from cc_unittest import unit_test_ignore
-
     # skip make_tables
     unit_test_ignore("", p.get_xml_root)
     unit_test_ignore("", p.get_literals_for_anonymisation)
@@ -762,11 +758,6 @@ def unit_tests_patient(p):
 
 def unit_tests():
     """Unit tests for cc_patient module."""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS
-    # -------------------------------------------------------------------------
-    from cc_unittest import unit_test_ignore
-
     current_pks = pls.db.fetchallfirstvalues(
         "SELECT _pk FROM {} WHERE _current".format(Patient.TABLENAME)
     )

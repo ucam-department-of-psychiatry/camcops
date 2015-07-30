@@ -27,6 +27,7 @@ import tokenize
 from cc_constants import NUMBER_OF_IDNUMS
 # from cc_logger import logger
 import cc_namedtuples
+from cc_unittest import unit_test_ignore
 
 # =============================================================================
 # Constants
@@ -383,11 +384,6 @@ def id_policy_element(ptinfo, token):
 
 def unit_tests():
     """Unit tests for cc_policy module."""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS
-    # -------------------------------------------------------------------------
-    from cc_unittest import unit_test_ignore
-
     test_policies = [
         "",
         "sex AND (failure",

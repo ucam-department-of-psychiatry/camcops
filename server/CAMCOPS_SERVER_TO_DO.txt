@@ -49,9 +49,22 @@ THOUGHTS/POTENTIAL THINGS TO DO
         https://raw.githubusercontent.com/cni/widgets/master/python/startScan.py
         https://cni.stanford.edu/wiki/SaveTriggers.py
 
+===============================================================================
+CONSIDERED BUT NOT IMPLEMENTED
+===============================================================================
+
 - Option to pass set of patient identifying data to an external tool (e.g.
   user's custom Python) to generate a research ID, for the anonymisation step,
   e.g. hashing an NHS number using a secret method not known to CamCOPS.
+
+  ... anonymisation is Somebody Else's Business; we have a separate tool for
+      that.
+
+- Filter on multiple patient IDs. Would only be relevant for researchers trying
+  to take a subset of data.
+
+  ... No current clear demand; therefore follow YAGNI principle.
+      https://en.wikipedia.org/wiki/You_aren%27t_gonna_need_it
 
 ===============================================================================
 Notes

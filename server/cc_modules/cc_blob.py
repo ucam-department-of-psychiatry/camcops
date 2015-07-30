@@ -31,6 +31,7 @@ from cc_constants import ERA_NOW, STANDARD_GENERIC_FIELDSPECS
 import cc_db
 from cc_logger import logger
 from cc_pls import pls
+from cc_unittest import unit_test_ignore
 import cc_xml
 
 # ExactImage API documentation is a little hard to find. See:
@@ -164,11 +165,6 @@ def get_contemporaneous_blob_by_client_info(device, clientpk, era,
 
 def unit_tests_blob(blob):
     """Unit tests for the Blob class."""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS
-    # -------------------------------------------------------------------------
-    from cc_unittest import unit_test_ignore
-
     # skip Blob.make_tables
     unit_test_ignore("", blob.dump)
     unit_test_ignore("", blob.get_rotated_image)
@@ -184,11 +180,6 @@ def unit_tests_blob(blob):
 
 def unit_tests():
     """Unit tests for the cc_blob module."""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS
-    # -------------------------------------------------------------------------
-    from cc_unittest import unit_test_ignore
-
     current_pks = pls.db.fetchallfirstvalues(
         "SELECT _pk FROM {} WHERE _current".format(Blob.TABLENAME)
     )

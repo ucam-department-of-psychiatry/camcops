@@ -43,9 +43,11 @@ import cc_dt
 import cc_filename
 import cc_html
 from cc_logger import logger
+import cc_namedtuples
 from cc_pls import pls
 import cc_recipdef
 import cc_task
+from cc_unittest import unit_test_ignore
 
 
 # =============================================================================
@@ -1501,9 +1503,7 @@ def unit_tests():
     # -------------------------------------------------------------------------
     # DELAYED IMPORTS
     # -------------------------------------------------------------------------
-    import cc_namedtuples
-    from cc_unittest import unit_test_ignore
-    import phq9
+    import tasks.phq9 as phq9
 
     # skip: send_all_pending_hl7_messages
     # skip: send_pending_hl7_messages

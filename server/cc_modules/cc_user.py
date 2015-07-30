@@ -35,7 +35,9 @@ import cc_dt
 import cc_html
 from cc_logger import logger
 from cc_pls import pls
+import cc_session
 import cc_storedvar
+from cc_unittest import unit_test_ignore
 
 # =============================================================================
 # Constants
@@ -1112,13 +1114,6 @@ def user_management_failure_message(msg, as_manager=True):
 
 def unit_tests():
     """Unit tests for cc_user module."""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS
-    # -------------------------------------------------------------------------
-    # import cgi
-    import cc_session
-    from cc_unittest import unit_test_ignore
-
     unit_test_ignore("", delete_old_account_lockouts)
     unit_test_ignore("", is_user_locked_out, "dummy_user")
     unit_test_ignore("", user_locked_out_until, "dummy_user")

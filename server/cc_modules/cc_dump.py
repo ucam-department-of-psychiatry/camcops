@@ -32,6 +32,7 @@ from cc_constants import CONFIG_FILE_MAIN_SECTION
 import cc_patient
 from cc_pls import pls
 import cc_task
+from cc_unittest import unit_test_ignore
 
 # =============================================================================
 # Constants
@@ -256,11 +257,6 @@ def get_multiple_views_data_as_tsv_zip(tables):
 
 def unit_tests():
     """Unit tests for the cc_dump module."""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS
-    # -------------------------------------------------------------------------
-    from cc_unittest import unit_test_ignore
-
     unit_test_ignore("", get_possible_task_tables_views)
     unit_test_ignore("", get_permitted_tables_and_views)
     unit_test_ignore("", get_permitted_tables_views_sorted_labelled)
