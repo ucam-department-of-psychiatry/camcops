@@ -10,7 +10,7 @@ LOCALBASEDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 # Ship
 #==============================================================================
 
-LOCALMOBILEWEBDIR=$LOCALDIR/build/mobileweb
+LOCALMOBILEWEBDIR=$LOCALBASEDIR/build/mobileweb
 
 REMOTEUSER="rudolf"
 REMOTEHOST="egret"
