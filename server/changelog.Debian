@@ -42,6 +42,8 @@ camcops (1.40-1) all; urgency=low
     http://stackoverflow.com/questions/744373
     Except in cc_hl7, which imports phq9 for testing (which imports specific
     things from cc_task, which imports cc_hl7).
+  * Refresh button for tasks (because browsers keep asking you twice if you hit
+    F5).
 
  -- Rudolf Cardinal <rudolf@pobox.com>  Thu, 28 May 2015 11:09:00 +0000
 

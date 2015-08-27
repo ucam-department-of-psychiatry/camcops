@@ -599,6 +599,19 @@ def view_tasks(session, form):
     else:
         info_no_tasks = ""
 
+    refresh_tasks_button = u"""
+        <form class="filter" method="POST" action="{script}">
+            <input type="hidden" name="{PARAM.ACTION}"
+                value="{ACTION.VIEW_TASKS}">
+            <input type="submit" value="Refresh">
+        </form>
+    """.format(
+        script=pls.SCRIPT_NAME,
+        PARAM=PARAM,
+        ACTION=ACTION,
+    )
+    # http://stackoverflow.com/questions/2906582/how-to-create-an-html-button-that-acts-like-a-link  # noqa
+
     return pls.WEBSTART + u"""
         {user}
         <h1>View tasks</h1>
@@ -616,6 +629,9 @@ def view_tasks(session, form):
         </div>
 
         <h2>Tasks</h2>
+        <div class="filter">
+            {refresh_tasks_button}
+        </div>
         {page_nav}
         {task_list_header_table_start}
         {task_rows}
@@ -628,6 +644,7 @@ def view_tasks(session, form):
         warn_other_pts=warn_other_pts,
         current_filters=session.get_current_filter_html(),
         number_to_view_selector=session.get_number_to_view_selector(),
+        refresh_tasks_button=refresh_tasks_button,
         page_nav=page_navigation,
         task_list_header_table_start=cc_task.TASK_LIST_HEADER,
         task_rows=task_rows,
