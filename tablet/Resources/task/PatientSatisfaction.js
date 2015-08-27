@@ -117,14 +117,14 @@ lang.extendPrototype(PatientSatisfaction, {
                 {
                     type: "QuestionText",
                     bold: true,
-                    text: L("pt_satis_rating_q") + " " + this.service + "?",
+                    text: L("pt_satis_rating_q") + " " + this.service + "?"
                 },
                 {
                     type: "QuestionMCQ",
                     field: "rating",
                     mandatory: true,
                     showInstruction: false,
-                    options: options,
+                    options: options
                 },
                 {
                     type: "QuestionTypedVariables",
@@ -141,10 +141,10 @@ lang.extendPrototype(PatientSatisfaction, {
                             type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                             field: "bad",
                             prompt: L('pt_satis_bad_q')
-                        },
-                    ],
-                },
-            ],
+                        }
+                    ]
+                }
+            ]
         }];
 
         questionnaire = new Questionnaire({
@@ -153,10 +153,10 @@ lang.extendPrototype(PatientSatisfaction, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

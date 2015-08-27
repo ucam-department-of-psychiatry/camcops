@@ -33,11 +33,11 @@ function diagHeader(instructionText, fnCloseMe) {
         uifunc = require('lib/uifunc'),
         view = Titanium.UI.createView({
             height: Titanium.UI.SIZE,
-            width: Titanium.UI.FILL,
+            width: Titanium.UI.FILL
         }),
         cancelButton = uifunc.createCancelButton({
             left: 0,
-            center: {y: '50%'},
+            center: {y: '50%'}
         }),
         instruction = Titanium.UI.createLabel({
             text: instructionText,
@@ -48,7 +48,7 @@ function diagHeader(instructionText, fnCloseMe) {
             left: UICONSTANTS.ICONSIZE,
             height: Titanium.UI.SIZE,
             width: Titanium.UI.SIZE,
-            touchEnabled: false,
+            touchEnabled: false
         });
     cancelButton.addEventListener('click', fnCloseMe);
     view.add(cancelButton);
@@ -69,7 +69,7 @@ function QuestionDiagnosticCode(props) {
             top: 0,
             height: Titanium.UI.SIZE,
             width: Titanium.UI.SIZE,
-            layout: 'horizontal',
+            layout: 'horizontal'
         }),
         searchEnabled = true; // !platform.android;
 
@@ -92,7 +92,7 @@ function QuestionDiagnosticCode(props) {
         center: props.center,
         height: Titanium.UI.SIZE,
         width: Titanium.UI.SIZE,
-        layout: 'vertical',
+        layout: 'vertical'
     });
     this.codeLabel = Titanium.UI.createLabel({
         text: "?",
@@ -105,7 +105,7 @@ function QuestionDiagnosticCode(props) {
                                                true, /* bold */
                                                false), /* italic */
         color: UICONSTANTS.READONLY_ANSWER_COLOUR,
-        touchEnabled: false,
+        touchEnabled: false
     });
     this.tiview.add(this.codeLabel);
     this.descriptionLabel = Titanium.UI.createLabel({
@@ -119,7 +119,7 @@ function QuestionDiagnosticCode(props) {
                                                true, /* bold */
                                                false), /* italic */
         color: UICONSTANTS.READONLY_ANSWER_COLOUR,
-        touchEnabled: false,
+        touchEnabled: false
     });
     this.tiview.add(this.descriptionLabel);
 
@@ -135,7 +135,7 @@ function QuestionDiagnosticCode(props) {
             props.readOnly ?
                     UICONSTANTS.QUESTIONNAIRE_READONLY_BUTTON_TEXT_COLOR :
                     UICONSTANTS.QUESTIONNAIRE_BUTTON_TEXT_COLOR
-        ),
+        )
     });
     this.editListener = null;
     if (!props.readOnly) {
@@ -157,7 +157,7 @@ function QuestionDiagnosticCode(props) {
             (!props.readOnly && searchEnabled) ?
                     UICONSTANTS.QUESTIONNAIRE_BUTTON_TEXT_COLOR :
                     UICONSTANTS.QUESTIONNAIRE_READONLY_BUTTON_TEXT_COLOR
-        ),
+        )
     });
     this.searchListener = null;
     buttonView.add(this.searchButton);
@@ -181,7 +181,7 @@ function QuestionDiagnosticCode(props) {
                 (!props.readOnly) ?
                         UICONSTANTS.QUESTIONNAIRE_BUTTON_TEXT_COLOR :
                         UICONSTANTS.QUESTIONNAIRE_READONLY_BUTTON_TEXT_COLOR
-            ),
+            )
         });
         this.nullListener = function () { self.setNull(); };
         this.nullButton.addEventListener('click', this.nullListener);
@@ -246,7 +246,7 @@ lang.extendPrototype(QuestionDiagnosticCode, {
         table = Titanium.UI.createTableView({
             backgroundColor: UICONSTANTS.DIAGNOSTICCODE_BACKGROUND,
             data: rows,
-            showVerticalScrollIndicator: true,
+            showVerticalScrollIndicator: true
         });
         rows = null; // for garbage collection
 
@@ -410,7 +410,7 @@ lang.extendPrototype(QuestionDiagnosticCode, {
                             Titanium.UI.LIST_ACCESSORY_TYPE_CHECKMARK :
                             Titanium.UI.LIST_ACCESSORY_TYPE_NONE
                 ),
-                color: UICONSTANTS.DIAGNOSTICCODE_TEXT,
+                color: UICONSTANTS.DIAGNOSTICCODE_TEXT
             }});
         }
         section.setItems(data);
@@ -422,9 +422,9 @@ lang.extendPrototype(QuestionDiagnosticCode, {
                 left: 0,
                 height: 45,
                 showCancel: false,
-                backgroundColor: UICONSTANTS.QUESTIONNAIRE_SEARCHBAR_BG_COLOUR,
+                backgroundColor: UICONSTANTS.QUESTIONNAIRE_SEARCHBAR_BG_COLOUR
             }),
-            sections: [section],
+            sections: [section]
         });
         listView.addEventListener('itemclick', function (e) {
             self.selectFromListViewSearch(e);
@@ -525,7 +525,7 @@ lang.extendPrototype(QuestionDiagnosticCode, {
         this.codeLabel = null;
         this.descriptionLabel = null;
         this.closeme();
-    },
+    }
 
 });
 

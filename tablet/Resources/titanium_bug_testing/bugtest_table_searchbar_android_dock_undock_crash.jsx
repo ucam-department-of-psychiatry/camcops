@@ -7,7 +7,7 @@
 var rowdata = [
     {title: "row_0"},
     {title: "row_1"},
-    {title: "row_2"},
+    {title: "row_2"}
 ];
 var win = Titanium.UI.createWindow({ backgroundColor: '#FFFFFF' });
 var table = Titanium.UI.createTableView({
@@ -16,7 +16,7 @@ var table = Titanium.UI.createTableView({
         top: 0,
         left: 0,
         height: 45,
-        showCancel: false,
+        showCancel: false
     })
 });
 

@@ -190,7 +190,7 @@ QuestionElementBase.prototype = {
     cleanup: function () {
         // can be overridden
         return;
-    },
+    }
 
 };
 exports.QuestionElementBase = QuestionElementBase;
@@ -412,7 +412,7 @@ ValidityIndicator.prototype = {
 
     cleanup: function () {
         this.tiview = null;
-    },
+    }
 };
 exports.ValidityIndicator = ValidityIndicator;
 
@@ -499,7 +499,7 @@ StateButton.prototype = {
 
     cleanup: function () {
         this.tiview = null;
-    },
+    }
 };
 exports.StateButton = StateButton;
 
@@ -602,7 +602,7 @@ StateRadio.prototype = {
 
     cleanup: function () {
         this.tiview = null;
-    },
+    }
 };
 exports.StateRadio = StateRadio;
 
@@ -745,7 +745,7 @@ StateCheck.prototype = {
 
     cleanup: function () {
         this.tiview = null;
-    },
+    }
 };
 exports.StateCheck = StateCheck;
 
@@ -850,7 +850,7 @@ BooleanWidget.prototype = {
     cleanup: function () {
         this.widget = null;
         this.tiview = null;
-    },
+    }
 };
 exports.BooleanWidget = BooleanWidget;
 
@@ -886,7 +886,7 @@ function McqGroup(props) {
             readOnly: props.readOnly,
             text: props.asTextButton ? props.options[i].key : "",
             extraData: props.extraData, // more extra data
-            tiprops: props.tipropsArray[i],
+            tiprops: props.tipropsArray[i]
         };
         widgetprops.tiprops.index_id = i; // extra data
         widgetprops.tiprops.touchEnabled = true;
@@ -987,7 +987,7 @@ McqGroup.prototype = {
             this.buttons[i].cleanup();
             this.buttons[i] = null;
         }
-    },
+    }
 
 };
 exports.McqGroup = McqGroup;

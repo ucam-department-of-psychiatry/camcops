@@ -36,12 +36,12 @@ module.exports = function PsychosisMenu() {
             ALLTASKS.TASKLIST.CGISCH,
             ALLTASKS.TASKLIST.PANSS,
             ALLTASKS.TASKLIST.ICD10_SCHIZOPHRENIA,
-            ALLTASKS.TASKLIST.ICD10_SCHIZOTYPAL,
+            ALLTASKS.TASKLIST.ICD10_SCHIZOTYPAL
         ],
         self = new MenuWindow({
             title: L('menutitle_psychosis'),
             icon: UICONSTANTS.ICON_MENU_PSYCHOSIS,
-            data: data,
+            data: data
         });
     return self;
 };

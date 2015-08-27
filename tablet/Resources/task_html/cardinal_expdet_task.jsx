@@ -70,7 +70,7 @@ var tp = (inTitanium ?
             // Asus Eee Pad is 1200 x 800 (WXGA), effective size (minus system
             // UI) 1200 x 752. iPad is 1024 x 768
             screenWidth: 1024,
-            screenHeight: 752,
+            screenHeight: 752
         }
     ),
     TASKNAME = "Expectation-Detection HTML/JS",
@@ -106,7 +106,7 @@ var tp = (inTitanium ?
         right: tp.screenWidth * 0.7,
         top: tp.screenHeight * 0.6,
         bottom: tp.screenHeight * 0.8,
-        radius: 20,
+        radius: 20
     },
     PROMPT_X = tp.screenWidth * 0.5,
     PROMPT_Y = tp.screenHeight * 0.20,
@@ -140,7 +140,7 @@ var tp = (inTitanium ?
         right: tp.screenWidth * 0.7,
         top: tp.screenHeight * 0.6,
         bottom: tp.screenHeight * 0.8,
-        radius: 20,
+        radius: 20
     },
     ABORT = {
         label: tp.TEXT_ABORT,
@@ -156,7 +156,7 @@ var tp = (inTitanium ?
         right: tp.screenWidth * 0.08,
         top: tp.screenHeight * 0.94,
         bottom: tp.screenHeight * 0.99,
-        radius: 20,
+        radius: 20
     },
     START = {
         label: tp.TEXT_START,
@@ -174,7 +174,7 @@ var tp = (inTitanium ?
         right: tp.screenWidth * 0.7,
         top: tp.screenHeight * 0.6,
         bottom: tp.screenHeight * 0.8,
-        radius: 20,
+        radius: 20
     },
     CANCEL_ABORT = {
         label: tp.TEXT_CANCEL,
@@ -192,7 +192,7 @@ var tp = (inTitanium ?
         right: tp.screenWidth * 0.4,
         top: tp.screenHeight * 0.6,
         bottom: tp.screenHeight * 0.8,
-        radius: 20,
+        radius: 20
     },
     REALLY_ABORT = {
         label: tp.TEXT_ABORT,
@@ -210,12 +210,12 @@ var tp = (inTitanium ?
         right: tp.screenWidth * 0.8,
         top: tp.screenHeight * 0.6,
         bottom: tp.screenHeight * 0.8,
-        radius: 20,
+        radius: 20
     },
     // Stimuli, counterbalancing, etc.
     MODALITIES = {
         AUDITORY: 0,
-        VISUAL: 1,
+        VISUAL: 1
     },
     // Stimulus counterbalancing is simply the assignment of cues.
     // Start with a sequence:
@@ -252,7 +252,7 @@ function getRatingButtonEdges(x, n) { // x is zero-based
         left:   centre - (RATINGBUTTON_WIDTH / 2),
         right:  centre + (RATINGBUTTON_WIDTH / 2),
         top:    tp.screenHeight * 0.7,
-        bottom: tp.screenHeight * 0.9,
+        bottom: tp.screenHeight * 0.9
     };
 }
 
@@ -283,7 +283,7 @@ function makeRatingButtonsAndPoints() {
             right: edges.right,
             top: edges.top,
             bottom: edges.bottom,
-            radius: 20,
+            radius: 20
         };
         // trace("RATINGBUTTON: " + JSON.stringify(b));
         RATINGBUTTONS.push(b);
@@ -734,4 +734,3 @@ createTrials();
 //=====================================================================
 
 trace("script parsed successfully");
-

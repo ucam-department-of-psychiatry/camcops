@@ -59,7 +59,7 @@ module.exports = function PatientRow(props) {
             left: UICONSTANTS.SPACE,
             center: {y: '50%'},
             layout: 'vertical',
-            touchEnabled: false,
+            touchEnabled: false
         });
         icon = Titanium.UI.createImageView({
             image: warningIcon,
@@ -67,7 +67,7 @@ module.exports = function PatientRow(props) {
             height: UICONSTANTS.ICONSIZE,
             width: UICONSTANTS.ICONSIZE,
             left: 0,
-            touchEnabled: false,
+            touchEnabled: false
         });
         iconVerticalLayout.add(icon);
         iconVerticalLayout.add(uifunc.createVerticalSpacer());
@@ -80,7 +80,7 @@ module.exports = function PatientRow(props) {
             width: UICONSTANTS.SPACE,
             left: 0,
             center: {y: '50%'},
-            touchEnabled: false,
+            touchEnabled: false
         });
         self.add(absentIconSpacer);
     }
@@ -91,7 +91,7 @@ module.exports = function PatientRow(props) {
         left: (2 * UICONSTANTS.SPACE + UICONSTANTS.ICONSIZE),
         center: {y: '50%'},
         layout: 'vertical',
-        touchEnabled: false,
+        touchEnabled: false
     });
     primaryLabel = Titanium.UI.createLabel({
         text: props.firstRowText,
@@ -102,7 +102,7 @@ module.exports = function PatientRow(props) {
         left: 0,
         height: Titanium.UI.SIZE,
         width: Titanium.UI.SIZE,
-        touchEnabled: false,
+        touchEnabled: false
     });
     secondaryLabel = Titanium.UI.createLabel({
         text: props.secondRowText,
@@ -113,7 +113,7 @@ module.exports = function PatientRow(props) {
         left: 0,
         height: Titanium.UI.SIZE,
         width: Titanium.UI.SIZE,
-        touchEnabled: false,
+        touchEnabled: false
     });
     textVerticalLayout.add(primaryLabel);
     textVerticalLayout.add(secondaryLabel);

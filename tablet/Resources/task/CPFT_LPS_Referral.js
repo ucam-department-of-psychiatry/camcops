@@ -140,18 +140,18 @@ lang.extendPrototype(CPFT_LPS_Referral, {
                 "Neurology",
                 "Endocrinology",
                 "Perinatal/obstetric",
-                "Respiratory",
+                "Respiratory"
             ],
             specialty_options = [],
             priority_options = [
                 new KeyValuePair(L('cpft_lps_referral_priority_R'), 'R'),
                 new KeyValuePair(L('cpft_lps_referral_priority_U'), 'U'),
-                new KeyValuePair(L('cpft_lps_referral_priority_E'), 'E'),
+                new KeyValuePair(L('cpft_lps_referral_priority_E'), 'E')
             ],
             lps_division_options = [
                 new KeyValuePair(L('cpft_lps_service_G'), 'G'),
                 new KeyValuePair(L('cpft_lps_service_O'), 'O'),
-                new KeyValuePair(L('cpft_lps_service_S'), 'S'),
+                new KeyValuePair(L('cpft_lps_service_S'), 'S')
             ],
             yesNoOptions = taskcommon.OPTIONS_NO_YES_BOOLEAN,
             onlypage,
@@ -243,8 +243,8 @@ lang.extendPrototype(CPFT_LPS_Referral, {
                             type: UICONSTANTS.TYPEDVAR_TEXT,
                             field: "referring_consultant",
                             prompt: L("cpft_lps_referral_f_referring_consultant")
-                        },
-                    ],
+                        }
+                    ]
                 },
                 {
                     type: "QuestionText",
@@ -265,8 +265,8 @@ lang.extendPrototype(CPFT_LPS_Referral, {
                             type: UICONSTANTS.TYPEDVAR_TEXT,
                             field: "referring_specialty_other",
                             prompt: L("cpft_lps_referral_f_referring_specialty_other")
-                        },
-                    ],
+                        }
+                    ]
                 },
                 { type: "QuestionHorizontalRule" },
 
@@ -284,8 +284,8 @@ lang.extendPrototype(CPFT_LPS_Referral, {
                             type: UICONSTANTS.TYPEDVAR_TEXT,
                             field: "patient_location",
                             prompt: L("cpft_lps_referral_f_patient_location")
-                        },
-                    ],
+                        }
+                    ]
                 },
                 {
                     type: "ContainerTable",
@@ -369,8 +369,8 @@ lang.extendPrototype(CPFT_LPS_Referral, {
                             options: NHS_DD.ETHNIC_CATEGORY_CODE_OPTIONS,
                             field: "ethnic_category_code",
                             mandatory: false
-                        },
-                    ],
+                        }
+                    ]
                 },
                 { type: "QuestionHorizontalRule" },
 
@@ -445,8 +445,8 @@ lang.extendPrototype(CPFT_LPS_Referral, {
                             mandatory: false,
                             bold: false,
                             indicatorOnLeft: true
-                        },
-                    ],
+                        }
+                    ]
                 },
                 { type: "QuestionHorizontalRule" },
 
@@ -474,8 +474,8 @@ lang.extendPrototype(CPFT_LPS_Referral, {
                             type: UICONSTANTS.TYPEDVAR_TEXT,
                             field: "other_contact_details",
                             prompt: L("cpft_lps_referral_f_other_contact_details")
-                        },
-                    ],
+                        }
+                    ]
                 },
                 { type: "QuestionHorizontalRule" },
 
@@ -493,10 +493,10 @@ lang.extendPrototype(CPFT_LPS_Referral, {
                             type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                             field: "referral_reason",
                             prompt: L("cpft_lps_referral_f_referral_reason")
-                        },
-                    ],
-                },
-            ],
+                        }
+                    ]
+                }
+            ]
         };
 
         questionnaire = new Questionnaire({
@@ -505,10 +505,10 @@ lang.extendPrototype(CPFT_LPS_Referral, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

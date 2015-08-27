@@ -474,7 +474,7 @@ DatabaseObject.prototype = {
         setMoveOffTabletForAnyOwnedBlobs(this.getBlobFieldNames(),
                                          this,
                                          moveoff);
-    },
+    }
 };
 exports.DatabaseObject = DatabaseObject;
 
@@ -486,11 +486,11 @@ function standardTaskFields(anonymous) {
             {name: 'firstexit_is_abort', type: DBCONSTANTS.TYPE_INTEGER},
             {name: 'when_firstexit', type: DBCONSTANTS.TYPE_DATETIME},
             {name: 'editing_time_s', type: DBCONSTANTS.TYPE_REAL,
-                defaultValue: 0},
+                defaultValue: 0}
         ];
     if (anonymous) {
         fieldlist = [
-            {name: 'id', type: DBCONSTANTS.TYPE_PK},
+            {name: 'id', type: DBCONSTANTS.TYPE_PK}
         ];
     } else {
         fieldlist = [
@@ -499,7 +499,7 @@ function standardTaskFields(anonymous) {
                 name: DBCONSTANTS.PATIENT_FK_FIELDNAME,
                 type: DBCONSTANTS.TYPE_INTEGER,
                 mandatory: true
-            }, // FK to patient
+            } // FK to patient
         ];
     }
     fieldlist.push.apply(fieldlist, additionals);
@@ -510,7 +510,7 @@ exports.standardTaskFields = standardTaskFields;
 
 function standardAncillaryFields(fkField) {
     var fieldlist = [
-        {name: 'id', type: DBCONSTANTS.TYPE_PK},
+        {name: 'id', type: DBCONSTANTS.TYPE_PK}
     ];
     fieldlist.push(fkField);
     appendCommonFields(fieldlist);
@@ -528,7 +528,7 @@ exports.CLINICIAN_FIELDSPECS = [
 ];
 exports.RESPONDENT_FIELDSPECS = [
     {name: "respondent_name", type: DBCONSTANTS.TYPE_TEXT},
-    {name: "respondent_relationship", type: DBCONSTANTS.TYPE_TEXT},
+    {name: "respondent_relationship", type: DBCONSTANTS.TYPE_TEXT}
 ];
 
 function appendRepeatedFieldDef(fieldlist, prefix, start, end, type,
@@ -538,7 +538,7 @@ function appendRepeatedFieldDef(fieldlist, prefix, start, end, type,
         fieldlist.push({
             name: prefix + i,
             type: type,
-            mandatory: mandatory,
+            mandatory: mandatory
         });
     }
 }

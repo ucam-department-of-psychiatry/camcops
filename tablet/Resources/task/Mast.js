@@ -141,11 +141,11 @@ lang.extendPrototype(Mast, {
                         subtitles: [
                             {beforeIndex: 6, subtitle: "" },
                             {beforeIndex: 12, subtitle: "" },
-                            {beforeIndex: 18, subtitle: "" },
-                        ],
-                    },
-                ],
-            },
+                            {beforeIndex: 18, subtitle: "" }
+                        ]
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -154,10 +154,10 @@ lang.extendPrototype(Mast, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

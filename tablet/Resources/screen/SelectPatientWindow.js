@@ -102,19 +102,19 @@ function SelectPatientWindow() {
             left: title_left,
             right: title_right,
             text: L('menutitle_choose_patient'),
-            textAlign: Titanium.UI.TEXT_ALIGNMENT_LEFT,
+            textAlign: Titanium.UI.TEXT_ALIGNMENT_LEFT
         }),
         toprow = Titanium.UI.createView({
             height: UICONSTANTS.ICONSIZE, // not SIZE; on very narrow displays,
             // it breaks a bit. Truncate instead!
-            width: Titanium.UI.FILL,
+            width: Titanium.UI.FILL
         }),
         tableprops,
         mainview = Titanium.UI.createView({
             height: Titanium.UI.FILL,
             width: Titanium.UI.FILL,
             // backgroundColor: '#FF0000',
-            layout: 'vertical',
+            layout: 'vertical'
         });
 
     this.selectedIndex = null;
@@ -166,7 +166,7 @@ function SelectPatientWindow() {
 
     this.patientline = Titanium.UI.createLabel({
         left: UICONSTANTS.SPACE,
-        font: UICONSTANTS.PATIENT_FONT,
+        font: UICONSTANTS.PATIENT_FONT
     });
 
     this.set_patient_line();
@@ -186,7 +186,7 @@ function SelectPatientWindow() {
         // ... appears to do nothing! We have to emulate it ourselves.
         showVerticalScrollIndicator: true,
         minRowHeight: UICONSTANTS.MIN_TABLE_ROW_HEIGHT,
-        data: this.getTableData(),
+        data: this.getTableData()
     };
     if (!platform.mobileweb) {
         tableprops.search = Titanium.UI.createSearchBar({
@@ -194,7 +194,7 @@ function SelectPatientWindow() {
             left: 0,
             height: 45,
             showCancel: false,
-            backgroundColor: UICONSTANTS.MENU_SEARCHBAR_BG_COLOUR,
+            backgroundColor: UICONSTANTS.MENU_SEARCHBAR_BG_COLOUR
             // barColor: UICONSTANTS.MENU_SEARCHBAR_BG_COLOUR,
             // ... iOS: colour of the bar itself (with shading effects applied)
             // borderColor: UICONSTANTS.MENU_SEARCHBAR_BG_COLOUR,
@@ -363,7 +363,7 @@ SelectPatientWindow.prototype = {
             dlg = Titanium.UI.createAlertDialog({
                 title: L('delete_patient_q'),
                 message: L('delete_this_patient_q') + '\n\n' + patient.getSummary(),
-                buttonNames: [L('cancel'), L('delete')],
+                buttonNames: [L('cancel'), L('delete')]
             }),
             self = this;
         if (!patient) {
@@ -382,7 +382,7 @@ SelectPatientWindow.prototype = {
                             ' ' + L('delete_this_patient_with_tasks_q_b') +
                             '\n\n' + patient.getSummary()
                         ),
-                        buttonNames: [L('cancel'), L('delete')],
+                        buttonNames: [L('cancel'), L('delete')]
                     });
                     dlg2.addEventListener('click', function (ev) {
                         if (ev.index === 1) { // Delete
@@ -517,7 +517,7 @@ SelectPatientWindow.prototype = {
                 secondRowText: patientdata[i].getLine2(),
                 failsUploadPolicy: !patientdata[i].satisfiesUploadIdPolicy(),
                 failsFinalizePolicy: !patientdata[i].satisfiesFinalizeIdPolicy(),
-                finishFlag: patientdata[i].getMoveOffTablet(),
+                finishFlag: patientdata[i].getMoveOffTablet()
             });
             if (GV.selected_patient_id !== null &&
                     patientdata[i].id === GV.selected_patient_id) {
@@ -554,7 +554,7 @@ SelectPatientWindow.prototype = {
         this.broadcast_patient_selection(data.id); // we always want to select
         // something we've just edited
         this.repopulate();
-    },
+    }
 
 };
 module.exports = SelectPatientWindow;

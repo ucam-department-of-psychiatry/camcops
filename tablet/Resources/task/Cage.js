@@ -118,13 +118,13 @@ lang.extendPrototype(Cage, {
                             L('cage_q1'),
                             L('cage_q2'),
                             L('cage_q3'),
-                            L('cage_q4'),
+                            L('cage_q4')
                         ],
                         fields: [ 'q1', 'q2', 'q3', 'q4' ],
-                        optionsWidthTogether: '25%',
-                    },
-                ],
-            },
+                        optionsWidthTogether: '25%'
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -133,10 +133,10 @@ lang.extendPrototype(Cage, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 });
 
 module.exports = Cage;

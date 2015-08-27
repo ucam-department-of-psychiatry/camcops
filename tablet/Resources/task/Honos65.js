@@ -150,8 +150,8 @@ lang.extendPrototype(Honos65, {
                 {
                     type: "QuestionMCQ",
                     field: "q" + q,
-                    options: options,
-                },
+                    options: options
+                }
             ];
             pageTag = "";
             if (q === 8) { // ugly :)
@@ -175,8 +175,8 @@ lang.extendPrototype(Honos65, {
                             new KeyValuePair(L("honos65_q8problemtype_option_g"), "G"),
                             new KeyValuePair(L("honos65_q8problemtype_option_h"), "H"),
                             new KeyValuePair(L("honos65_q8problemtype_option_i"), "I"),
-                            new KeyValuePair(L("honos65_q8problemtype_option_j"), "J"),
-                        ],
+                            new KeyValuePair(L("honos65_q8problemtype_option_j"), "J")
+                        ]
                     },
                     {
                         elementTag: ELEMENTTAG_Q8_OTHER,
@@ -188,8 +188,8 @@ lang.extendPrototype(Honos65, {
                                 field: "q8otherproblem",
                                 prompt: L("honos65_q8otherproblem_prompt"),
                                 hint: L("honos65_q8otherproblem_hint")
-                            },
-                        ],
+                            }
+                        ]
                     }
                 );
             }
@@ -197,7 +197,7 @@ lang.extendPrototype(Honos65, {
                 title: title,
                 clinician: true,
                 elements: elements,
-                pageTag: pageTag,
+                pageTag: pageTag
             };
         }
         pages = [
@@ -215,15 +215,15 @@ lang.extendPrototype(Honos65, {
                                 field: "period_rated",
                                 prompt: L("honos_period_rated"),
                                 hint: L("honos_period_rated")
-                            },
-                        ],
+                            }
+                        ]
                     },
                     {
                         type: "QuestionText",
                         text: L("honos65_instructions")
-                    },
-                ],
-            },
+                    }
+                ]
+            }
         ];
         for (i = 1; i <= nquestions; ++i) {
             pages.push(makepage(i));
@@ -255,10 +255,10 @@ lang.extendPrototype(Honos65, {
                                                     self.q8problemtype === "J");
                 }
                 return { care: false };
-            },
+            }
         });
         questionnaire.open();
-    },
+    }
 
 });
 

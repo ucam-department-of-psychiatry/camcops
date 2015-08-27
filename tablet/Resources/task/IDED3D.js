@@ -170,7 +170,7 @@ lang.extendPrototype(StageInfo, {
         return dbcommon.getAllRowsByKey("ided3d_id",
                                         ided3d_id, stagetablename,
                                         stagefieldlist, StageInfo, "id");
-    },
+    }
 });
 
 //=============================================================================
@@ -198,7 +198,7 @@ lang.extendPrototype(TrialInfo, {
         return dbcommon.getAllRowsByKey("ided3d_id",
                                         ided3d_id, trialtablename,
                                         trialfieldlist, TrialInfo, "id");
-    },
+    }
 });
 
 //=============================================================================
@@ -370,8 +370,8 @@ lang.extendPrototype(IDED3D, {
                                 prompt: L("volume"),
                                 min: 0.0,
                                 max: 1.0
-                            },
-                        ],
+                            }
+                        ]
                     },
                     {
                         type: "QuestionBooleanText",
@@ -384,9 +384,9 @@ lang.extendPrototype(IDED3D, {
                         text: L("ided3d_debug_display_stimuli_only"),
                         field: "debug_display_stimuli_only",
                         bold: false
-                    },
-                ],
-            },
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -487,7 +487,7 @@ lang.extendPrototype(IDED3D, {
             TEXT_ABORT: L("abort"),
             TEXT_START: L("expdetthreshold_start_prompt"),
             INSTRUCTIONS: L("ided3d_instructions"),
-            SAVING_PLEASE_WAIT: L("saving_please_wait"),
+            SAVING_PLEASE_WAIT: L("saving_please_wait")
         };
         dbcommon.copyFields(configfieldlist, self, params);
         html = taskcommon.loadHtmlSetParams(
@@ -574,7 +574,7 @@ lang.extendPrototype(IDED3D, {
         );
         editing_time_start = moment();
         window.open();
-    },
+    }
 
 });
 

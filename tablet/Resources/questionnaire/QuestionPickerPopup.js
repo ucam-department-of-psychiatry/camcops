@@ -74,7 +74,7 @@ function QuestionPickerPopup(props) {
         bottom: props.bottom,
         center: props.center,
         width: Titanium.UI.SIZE,
-        height: Titanium.UI.SIZE,
+        height: Titanium.UI.SIZE
     });
 
     this.indicator = new qcommon.ValidityIndicator({
@@ -90,7 +90,7 @@ function QuestionPickerPopup(props) {
             height: Titanium.UI.SIZE,
             font: UICONSTANTS.getQuestionnaireFont(false, true, false), // bold
             color: UICONSTANTS.READONLY_ANSWER_COLOUR,
-            text: "", // will be set later
+            text: ""  // will be set later
         });
         this.tiview.add(this.value_as_text);
     } else {
@@ -100,7 +100,7 @@ function QuestionPickerPopup(props) {
             width: Titanium.UI.SIZE,
             height: Titanium.UI.SIZE,
             title: "", // will be set later
-            color: UICONSTANTS.QUESTIONNAIRE_BUTTON_TEXT_COLOR,
+            color: UICONSTANTS.QUESTIONNAIRE_BUTTON_TEXT_COLOR
         });
         this.tiview.add(this.button);
 
@@ -134,7 +134,7 @@ lang.extendPrototype(QuestionPickerPopup, {
         // they're meant to be modal
         opts = {
             options: keys,
-            cancel: -1, // disable cancel option
+            cancel: -1  // disable cancel option
         };
         if (this.selectedIndex !== null) {
             opts.selectedIndex = this.selectedIndex;
@@ -222,7 +222,7 @@ lang.extendPrototype(QuestionPickerPopup, {
             this.indicator = null;
             this.button = null;
         }
-    },
+    }
 
 });
 module.exports = QuestionPickerPopup;

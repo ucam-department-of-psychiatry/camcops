@@ -57,7 +57,7 @@ module.exports = function AllTasksMenu() {
     self = new MenuWindow({
         title: L('menutitle_alltasks'),
         icon: UICONSTANTS.ICON_MENU_ALLTASKS,
-        data: data,
+        data: data
     });
     return self;
 };

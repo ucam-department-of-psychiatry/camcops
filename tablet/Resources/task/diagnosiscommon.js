@@ -89,7 +89,7 @@ lang.extendPrototype(DiagnosisItemBase, {
             this._objecttype,
             "seqnum"
         );
-    },
+    }
 });
 exports.DiagnosisItemBase = DiagnosisItemBase;
 
@@ -211,7 +211,7 @@ lang.extendPrototype(DiagnosisTaskBase, {
                     L("of") + " " +
                     my_items.length + "?"
                 ),
-                buttonNames: [L('cancel'), L('delete')],
+                buttonNames: [L('cancel'), L('delete')]
             });
             dlg.addEventListener('click', function (e) {
                 if (e.index === 1) { // Delete
@@ -329,16 +329,16 @@ lang.extendPrototype(DiagnosisTaskBase, {
                                 type: "QuestionDiagnosticCode",
                                 code_field: "code" + index,
                                 description_field: "description" + index,
-                                codelist_filename: self._codefilename,
-                            },
-                        ],
+                                codelist_filename: self._codefilename
+                            }
+                        ]
                     }
                 );
             }
             return {
                 title: self._questionnairetitle,
                 clinician: true,
-                elements: elements,
+                elements: elements
             };
         }
 
@@ -404,7 +404,7 @@ lang.extendPrototype(DiagnosisTaskBase, {
             fnMakePageOnTheFly: makePage
         });
         questionnaire.open();
-    },
+    }
 
 });
 

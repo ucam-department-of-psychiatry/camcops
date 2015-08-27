@@ -327,7 +327,7 @@ add_gc_array([
     "F25.90",
     "F25.91",
     "F28",
-    "F29",
+    "F29"
 ]);
 CODELIST.push({
     startcode: "F30",
@@ -399,7 +399,7 @@ add_gc_array([
     "F38.1",
     "F38.10",
     "F38.8",
-    "F39",
+    "F39"
 ]);
 
 CODELIST.push({
@@ -481,7 +481,7 @@ add_gc_array([
     "F48.0",
     "F48.1",
     "F48.8",
-    "F48.9",
+    "F48.9"
 ]);
 
 CODELIST.push({
@@ -529,7 +529,7 @@ add_gc_array([
     "F53.9",
     "F54",
     "F55",
-    "F59",
+    "F59"
 ]);
 
 CODELIST.push({
@@ -595,7 +595,7 @@ add_gc_array([
     "F68.0",
     "F68.1",
     "F68.8",
-    "F69",
+    "F69"
 ]);
 
 CODELIST.push({
@@ -634,7 +634,7 @@ add_gc_array([
     "F79.0",
     "F79.1",
     "F79.8",
-    "F79.9",
+    "F79.9"
 ]);
 
 CODELIST.push({
@@ -673,7 +673,7 @@ add_gc_array([
     "F84.8",
     "F84.9",
     "F88",
-    "F89",
+    "F89"
 ]);
 
 CODELIST.push({
@@ -737,7 +737,7 @@ add_gc_array([
     "F98.5",
     "F98.6",
     "F98.8",
-    "F98.9",
+    "F98.9"
 ]);
 
 add_gc("F99");

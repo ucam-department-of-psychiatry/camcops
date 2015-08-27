@@ -31,7 +31,7 @@ function createVerticalRule() {
         height: UICONSTANTS.RADIO_BUTTON_ICON_SIZE,
         // ... can't be Titanium.UI.FILL, or it gets giant
         width: UICONSTANTS.GRID_RULE_HEIGHT,
-        backgroundColor: UICONSTANTS.GRID_RULE_COLOUR,
+        backgroundColor: UICONSTANTS.GRID_RULE_COLOUR
     });
 }
 
@@ -41,7 +41,7 @@ function createHorizontalRule() {
         top: 0,
         height: UICONSTANTS.GRID_RULE_HEIGHT,
         width: Titanium.UI.FILL,
-        backgroundColor: UICONSTANTS.GRID_RULE_COLOUR,
+        backgroundColor: UICONSTANTS.GRID_RULE_COLOUR
     });
 }
 
@@ -59,7 +59,7 @@ function RadioGroupGridDoubleTitleRow(options_1, options_2,
             height: Titanium.UI.SIZE,
             layout: 'vertical',
             backgroundColor: UICONSTANTS.GRID_TITLEROW_BACKGROUND,
-            touchEnabled: false,
+            touchEnabled: false
         }),
         stem_1_view = Titanium.UI.createLabel({
             text: stem_1,
@@ -69,12 +69,12 @@ function RadioGroupGridDoubleTitleRow(options_1, options_2,
             width: Titanium.UI.SIZE,
             height: Titanium.UI.SIZE,
             center : { x : '50%' },
-            touchEnabled: false,
+            touchEnabled: false
         }),
         optionsview_1 = Titanium.UI.createView({
             width: Titanium.UI.FILL,
             height: Titanium.UI.SIZE,
-            touchEnabled: false,
+            touchEnabled: false
         }),
         colWidthWithinView_1 = lang.divideUnits('100%', options_1.length),
         stem_and_options_view_2 = Titanium.UI.createView({
@@ -83,7 +83,7 @@ function RadioGroupGridDoubleTitleRow(options_1, options_2,
             height: Titanium.UI.SIZE,
             layout: 'vertical',
             backgroundColor: UICONSTANTS.GRID_TITLEROW_BACKGROUND,
-            touchEnabled: false,
+            touchEnabled: false
         }),
         stem_2_view = Titanium.UI.createLabel({
             text: stem_2,
@@ -93,12 +93,12 @@ function RadioGroupGridDoubleTitleRow(options_1, options_2,
             width: Titanium.UI.SIZE,
             height: Titanium.UI.SIZE,
             center : { x : '50%' },
-            touchEnabled: false,
+            touchEnabled: false
         }),
         optionsview_2 = Titanium.UI.createView({
             width: Titanium.UI.FILL,
             height: Titanium.UI.SIZE,
-            touchEnabled: false,
+            touchEnabled: false
         }),
         colWidthWithinView_2 = lang.divideUnits('100%', options_2.length),
         subtitleview,
@@ -108,7 +108,7 @@ function RadioGroupGridDoubleTitleRow(options_1, options_2,
         width: Titanium.UI.FILL,
         height: Titanium.UI.SIZE,
         top: topspace,
-        touchEnabled: false,
+        touchEnabled: false
     });
     stem_and_options_view_1.add(stem_1_view);
     for (i = 0; i < options_1.length; ++i) {
@@ -121,7 +121,7 @@ function RadioGroupGridDoubleTitleRow(options_1, options_2,
             bottom: 0,
             height: Titanium.UI.SIZE,
             width: colWidthWithinView_1,
-            touchEnabled: false,
+            touchEnabled: false
         });
         optionsview_1.add(optionLabel);
     }
@@ -139,7 +139,7 @@ function RadioGroupGridDoubleTitleRow(options_1, options_2,
             bottom: 0,
             height: Titanium.UI.SIZE,
             width: colWidthWithinView_2,
-            touchEnabled: false,
+            touchEnabled: false
         });
         optionsview_2.add(optionLabel);
     }
@@ -154,7 +154,7 @@ function RadioGroupGridDoubleTitleRow(options_1, options_2,
                                  lang.multiplyUnits(options_2.length,
                                                     colWidth_2)),
             height: Titanium.UI.SIZE,
-            touchEnabled: false,
+            touchEnabled: false
         });
         subtitletext = Titanium.UI.createLabel({
             text: subtitle,
@@ -165,7 +165,7 @@ function RadioGroupGridDoubleTitleRow(options_1, options_2,
             right: UICONSTANTS.SPACE,
             center: { y: '50%' },
             height: Titanium.UI.SIZE,
-            touchEnabled: false,
+            touchEnabled: false
         });
         subtitleview.add(subtitletext);
         this.tiview.add(subtitleview);
@@ -201,7 +201,7 @@ function RadioGroupGridDoubleRow(props) {
         width: Titanium.UI.FILL,
         height: Titanium.UI.SIZE,
         top: props.topspace,
-        touchEnabled: true,
+        touchEnabled: true
     });
     for (i = 0; i < props.options_1.length; ++i) {
         buttonTipropsArray1.push({ center: { x: '50%', y: '50%' }  });
@@ -212,7 +212,7 @@ function RadioGroupGridDoubleRow(props) {
         options: props.options_1,
         setFieldValue: props.setFieldValue_1, // no modification required
         tipropsArray: buttonTipropsArray1,
-        extraData: 1, // extra data
+        extraData: 1 // extra data
     });
     for (i = 0; i < props.options_2.length; ++i) {
         buttonTipropsArray2.push({ center: { x: '50%', y: '50%' }  });
@@ -223,7 +223,7 @@ function RadioGroupGridDoubleRow(props) {
         options: props.options_2,
         setFieldValue: props.setFieldValue_2, // no modification required
         tipropsArray: buttonTipropsArray2,
-        extraData: 2, // extra data
+        extraData: 2 // extra data
     });
 
     // Creation from the left
@@ -233,7 +233,7 @@ function RadioGroupGridDoubleRow(props) {
                                                  props.colWidth_1),
                               lang.multiplyUnits(props.options_2.length,
                                                  props.colWidth_2)),
-        height : Titanium.UI.SIZE,
+        height : Titanium.UI.SIZE
     });
     questiontext = Titanium.UI.createLabel({
         text : props.questionText,
@@ -244,7 +244,7 @@ function RadioGroupGridDoubleRow(props) {
         right : UICONSTANTS.SPACE,
         center : { y : '50%' },
         height : Titanium.UI.SIZE,
-        touchEnabled: false,
+        touchEnabled: false
     });
     questionview.add(questiontext);
     this.tiview.add(questionview);
@@ -260,7 +260,7 @@ function RadioGroupGridDoubleRow(props) {
             width: props.colWidth_1,
             index_id: i, // extra data
             extraData: 1, // extra data
-            touchEnabled: true,
+            touchEnabled: true
         });
         buttonview.add(this.mcqgroup1.buttons[i].tiview);
         this.tiview.add(buttonview);
@@ -273,7 +273,7 @@ function RadioGroupGridDoubleRow(props) {
             width: props.colWidth_2,
             index_id: i, // extra data
             extraData: 2, // extra data
-            touchEnabled: true,
+            touchEnabled: true
         });
         if (i === 0) {
             buttonview.add(createVerticalRule());
@@ -327,7 +327,7 @@ RadioGroupGridDoubleRow.prototype = {
         this.tiview = null;
         this.mcqgroup1.cleanup();
         this.mcqgroup2.cleanup();
-    },
+    }
 
 };
 
@@ -423,7 +423,7 @@ function RadioGroupGridDouble(props) {
             setFieldValue_1: makeFnSetFieldValue_1(i),
             setFieldValue_2: makeFnSetFieldValue_2(i),
             mandatory_1: props.mandatoryFlags_1[i],
-            mandatory_2: props.mandatoryFlags_2[i],
+            mandatory_2: props.mandatoryFlags_2[i]
         });
         this.rows.push(newrow);
         this.tiview.add(newrow.tiview);
@@ -552,7 +552,7 @@ RadioGroupGridDouble.prototype = {
         for (i = 0; i < this.rows.length; ++i) {
             this.rows[i].cleanup();
         }
-    },
+    }
 
 };
 module.exports = RadioGroupGridDouble;

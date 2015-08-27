@@ -137,7 +137,7 @@ function QuestionCanvas(props) {
         bottom: props.bottom,
         center: props.center,
         width: Titanium.UI.FILL,
-        height: Titanium.UI.FILL, // Don't use SIZE. It gets CONFUSED as the
+        height: Titanium.UI.FILL  // Don't use SIZE. It gets CONFUSED as the
         // canvas height changes, and sometimes (unreliably) goes to zero.
         // layout: 'vertical', // No! Makes the height zero sometimes.
     });
@@ -145,7 +145,7 @@ function QuestionCanvas(props) {
     if (!props.readOnly) {
         this.resetButton = uifunc.createReloadButton({
             left: 0,
-            top: 0,
+            top: 0
         });
         this.resetListener = function () { self.reset(); };
         this.resetButton.addEventListener('click', this.resetListener);
@@ -163,7 +163,7 @@ function QuestionCanvas(props) {
         enableZoomControls: false, // for Android
         scrollsToTop: false, // iOS
         showScrollbars: false, // MobileWeb?
-        disableBounce: true, // iOS
+        disableBounce: true // iOS
         // DISABLE any zooming/scaling by the webview
     });
     this.tiview.add(this.webview);
@@ -295,7 +295,7 @@ lang.extendPrototype(QuestionCanvas, {
             Titanium.App.fireEvent(EVENT_TO_WEBVIEW, {
                 pageId: this.pageId,
                 elementId: this.elementId,
-                clearImage: true,
+                clearImage: true
             });
         } else {
             Titanium.API.trace(MODULE_NAME + ".writeDataUrlToCanvas: " +
@@ -304,10 +304,10 @@ lang.extendPrototype(QuestionCanvas, {
                 pageId: this.pageId,
                 elementId: this.elementId,
                 setImage: true,
-                data: url,
+                data: url
             });
         }
-    },
+    }
 
 });
 module.exports = QuestionCanvas;

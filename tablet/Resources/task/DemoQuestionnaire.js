@@ -173,8 +173,8 @@ lang.extendPrototype(DemoQuestionnaire, {
                     {
                         type: "QuestionText",
                         text: "We’ll demonstrate the elements from which questionnaire tasks can be made. Press the ‘Next’ button at the top right of the screen."
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: "Demo questionnaire: EXTRA page with a longer piece of text",
@@ -186,8 +186,8 @@ lang.extendPrototype(DemoQuestionnaire, {
                     {
                         type: "QuestionText",
                         text: L("qolbasic_tto_q")
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: "Demo: MCQs",
@@ -219,9 +219,9 @@ lang.extendPrototype(DemoQuestionnaire, {
                             new KeyValuePair("option with value of 0", 0),
                             new KeyValuePair("option 1", 1),
                             new KeyValuePair("option two", 2),
-                            new KeyValuePair("third option", 3),
+                            new KeyValuePair("third option", 3)
                         ],
-                        field: 'mcq1',
+                        field: 'mcq1'
                     },
                     {
                         type: "QuestionText",
@@ -239,11 +239,11 @@ lang.extendPrototype(DemoQuestionnaire, {
                             new KeyValuePair("2", 2),
                             new KeyValuePair("3", 3),
                             new KeyValuePair("4", 4),
-                            new KeyValuePair("9", 9),
+                            new KeyValuePair("9", 9)
                         ],
-                        field: 'mcq2',
-                    },
-                ],
+                        field: 'mcq2'
+                    }
+                ]
             },
             {
                 title: "Demo: other MCQ styles, MCQ grids, and horizontal rules",
@@ -258,7 +258,7 @@ lang.extendPrototype(DemoQuestionnaire, {
                             new KeyValuePair("option with value of 0", 0),
                             new KeyValuePair("option 1", 1),
                             new KeyValuePair("option two", 2),
-                            new KeyValuePair("third option", 3),
+                            new KeyValuePair("third option", 3)
                         ],
                         field: 'mcq1',
                         mandatory: true,
@@ -276,9 +276,9 @@ lang.extendPrototype(DemoQuestionnaire, {
                             new KeyValuePair("2", 2),
                             new KeyValuePair("3", 3),
                             new KeyValuePair("4", 4),
-                            new KeyValuePair("9", 9),
+                            new KeyValuePair("9", 9)
                         ],
-                        field: 'mcq2',
+                        field: 'mcq2'
                     },
                     {
                         type: "QuestionText",
@@ -291,16 +291,16 @@ lang.extendPrototype(DemoQuestionnaire, {
                             new KeyValuePair("0", 0),
                             new KeyValuePair("1", 1),
                             new KeyValuePair("2", 2),
-                            new KeyValuePair("3", 3),
+                            new KeyValuePair("3", 3)
                         ],
                         questions: [
                             "Question 3",
                             "Question 4",
-                            "Question 5",
+                            "Question 5"
                         ],
-                        fields: [ 'mcq3', 'mcq4', 'mcq5' ],
+                        fields: [ 'mcq3', 'mcq4', 'mcq5' ]
                     },
-                    { type: "QuestionHorizontalRule", },
+                    { type: "QuestionHorizontalRule" },
                     {
                         type: "QuestionText",
                         text: "MCQ grid with single boolean:"
@@ -311,21 +311,21 @@ lang.extendPrototype(DemoQuestionnaire, {
                             new KeyValuePair("absent", 0),
                             new KeyValuePair("mild", 1),
                             new KeyValuePair("moderate", 2),
-                            new KeyValuePair("severe", 3),
+                            new KeyValuePair("severe", 3)
                         ],
                         mandatory: false,
                         booleanLabel: "Tick if distressing",
                         questions: [
                             "Symptom A",
                             "Symptom B",
-                            "Symptom C",
+                            "Symptom C"
                         ],
                         mcqFields: [ 'mcq6', 'mcq7', 'mcq8' ],
                         booleanFields: [ 'mcqbool1', 'mcqbool2', 'mcqbool3' ],
                         boolColWidth: '20%',
                         subtitles: [
-                            {beforeIndex: 1, subtitle: "A subtitle" },
-                        ],
+                            {beforeIndex: 1, subtitle: "A subtitle" }
+                        ]
                     },
                     { type: "QuestionHorizontalRule" },
                     {
@@ -339,26 +339,26 @@ lang.extendPrototype(DemoQuestionnaire, {
                         fields_1: [
                             'mcqtext_1a',
                             'mcqtext_2a',
-                            'mcqtext_3a',
+                            'mcqtext_3a'
                         ],
                         fields_2: [
                             'mcqtext_1b',
                             'mcqtext_2b',
-                            'mcqtext_3b',
+                            'mcqtext_3b'
                         ],
                         options_1: [
                             new KeyValuePair("A", "A"),
                             new KeyValuePair("B", "B"),
                             new KeyValuePair("C", "C"),
-                            new KeyValuePair("D", "D"),
+                            new KeyValuePair("D", "D")
                         ],
                         options_2: [
                             new KeyValuePair("X", "X"),
                             new KeyValuePair("Y", "Y"),
-                            new KeyValuePair("Z", "Z"),
-                        ],
-                    },
-                ],
+                            new KeyValuePair("Z", "Z")
+                        ]
+                    }
+                ]
             },
             {
                 title: "Demo: pickers",
@@ -375,8 +375,8 @@ lang.extendPrototype(DemoQuestionnaire, {
                             new KeyValuePair("absent", 0),
                             new KeyValuePair("mild", 1),
                             new KeyValuePair("moderate", 2),
-                            new KeyValuePair("severe", 3),
-                        ],
+                            new KeyValuePair("severe", 3)
+                        ]
                     },
                     {
                         type: "QuestionText",
@@ -390,15 +390,15 @@ lang.extendPrototype(DemoQuestionnaire, {
                             new KeyValuePair("absent", 0),
                             new KeyValuePair("mild", 1),
                             new KeyValuePair("moderate", 2),
-                            new KeyValuePair("severe", 3),
-                        ],
+                            new KeyValuePair("severe", 3)
+                        ]
                     },
                     {
                         type: "QuestionText",
                         text: "The yellow question mark indicates that input is required.",
                         bold: true
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: "Demo: n-from-many",
@@ -419,7 +419,7 @@ lang.extendPrototype(DemoQuestionnaire, {
                             "subquestion 3",
                             "subquestion 4",
                             "subquestion 5",
-                            "subquestion 6",
+                            "subquestion 6"
                         ],
                         fields: [
                             'multipleresponse1',
@@ -427,10 +427,10 @@ lang.extendPrototype(DemoQuestionnaire, {
                             'multipleresponse3',
                             'multipleresponse4',
                             'multipleresponse5',
-                            'multipleresponse6',
-                        ],
-                    },
-                ],
+                            'multipleresponse6'
+                        ]
+                    }
+                ]
             },
             {
                 title: "Demo: Images, layout, yes/no fields",
@@ -473,7 +473,7 @@ lang.extendPrototype(DemoQuestionnaire, {
                                 elements: [
                                     {
                                         type: "QuestionText",
-                                        text: L("ace3_trial") + " 1",
+                                        text: L("ace3_trial") + " 1"
                                     },
                                     {
                                         type: "ContainerHorizontal",
@@ -489,8 +489,8 @@ lang.extendPrototype(DemoQuestionnaire, {
                                                 text: L("ace3_address_2"),
                                                 field: "booltext2",
                                                 mandatory: false
-                                            },
-                                        ],
+                                            }
+                                        ]
                                     },
                                     {
                                         type: "ContainerHorizontal",
@@ -512,8 +512,8 @@ lang.extendPrototype(DemoQuestionnaire, {
                                                 text: L("ace3_address_5"),
                                                 field: "booltext5",
                                                 mandatory: false
-                                            },
-                                        ],
+                                            }
+                                        ]
                                     },
                                     {
                                         type: "QuestionBooleanText",
@@ -526,15 +526,15 @@ lang.extendPrototype(DemoQuestionnaire, {
                                         text: L("ace3_address_7"),
                                         field: "booltext7",
                                         mandatory: false
-                                    },
-                                ],
+                                    }
+                                ]
                             },
                             {
                                 type: "ContainerVertical",
                                 elements: [
                                     {
                                         type: "QuestionText",
-                                        text: L("ace3_trial") + " 2",
+                                        text: L("ace3_trial") + " 2"
                                     },
                                     {
                                         type: "ContainerHorizontal",
@@ -552,8 +552,8 @@ lang.extendPrototype(DemoQuestionnaire, {
                                                 field: "booltext9",
                                                 asTextButton: true,
                                                 mandatory: false
-                                            },
-                                        ],
+                                            }
+                                        ]
                                     },
                                     {
                                         type: "ContainerHorizontal",
@@ -578,8 +578,8 @@ lang.extendPrototype(DemoQuestionnaire, {
                                                 field: "booltext12",
                                                 asTextButton: true,
                                                 mandatory: false
-                                            },
-                                        ],
+                                            }
+                                        ]
                                     },
                                     {
                                         type: "QuestionBooleanText",
@@ -594,15 +594,15 @@ lang.extendPrototype(DemoQuestionnaire, {
                                         field: "booltext14",
                                         asTextButton: true,
                                         mandatory: false
-                                    },
-                                ],
+                                    }
+                                ]
                             },
                             {
                                 type: "ContainerVertical",
                                 elements: [
                                     {
                                         type: "QuestionText",
-                                        text: L("ace3_trial") + " 3",
+                                        text: L("ace3_trial") + " 3"
                                     },
                                     {
                                         type: "ContainerHorizontal",
@@ -622,8 +622,8 @@ lang.extendPrototype(DemoQuestionnaire, {
                                                 asTextButton: true,
                                                 allowUnsetting: true,
                                                 mandatory: true
-                                            },
-                                        ],
+                                            }
+                                        ]
                                     },
                                     {
                                         type: "ContainerHorizontal",
@@ -651,8 +651,8 @@ lang.extendPrototype(DemoQuestionnaire, {
                                                 asTextButton: true,
                                                 allowUnsetting: true,
                                                 mandatory: true
-                                            },
-                                        ],
+                                            }
+                                        ]
                                     },
                                     {
                                         type: "QuestionBooleanText",
@@ -669,10 +669,10 @@ lang.extendPrototype(DemoQuestionnaire, {
                                         asTextButton: true,
                                         allowUnsetting: true,
                                         mandatory: true
-                                    },
-                                ],
-                            },
-                        ],
+                                    }
+                                ]
+                            }
+                        ]
                     },
                     {
                         type: "QuestionText",
@@ -696,23 +696,23 @@ lang.extendPrototype(DemoQuestionnaire, {
                         indicatorOnLeft: true,
                         bigTick: true,
                         valign: UICONSTANTS.ALIGN_CENTRE
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: "Demo: photo",
                 elements: [
                     {
                         type: "QuestionHeading",
-                        text: "Photo",
+                        text: "Photo"
                     },
                     {
                         type: "QuestionPhoto",
                         field: "photo_blobid",
                         mandatory: false,
                         rotationField: "photo_rotation"
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: "Demo: Typed variables",
@@ -753,10 +753,10 @@ lang.extendPrototype(DemoQuestionnaire, {
                                 type: UICONSTANTS.TYPEDVAR_REAL,
                                 field: "typedvar_real",
                                 prompt: "Real (floating-point) number"
-                            },
-                        ],
-                    },
-                ],
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 title: "Demo: date/time",
@@ -806,8 +806,8 @@ lang.extendPrototype(DemoQuestionnaire, {
                         showTime: true,
                         textInput: true,
                         useWidgets: true
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: "Demo: Countdown, button",
@@ -831,8 +831,8 @@ lang.extendPrototype(DemoQuestionnaire, {
                         fnClicked: function () {
                             uifunc.alert("Hello!");
                         }
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: "Demo: Diagnostic code",
@@ -846,9 +846,9 @@ lang.extendPrototype(DemoQuestionnaire, {
                         type: "QuestionDiagnosticCode",
                         code_field: "diagnosticcode_code",
                         description_field: "diagnosticcode_description",
-                        codelist_filename: "common/CODES_ICD10",
-                    },
-                ],
+                        codelist_filename: "common/CODES_ICD10"
+                    }
+                ]
             },
             {
                 title: "Demo: Slider",
@@ -885,8 +885,8 @@ lang.extendPrototype(DemoQuestionnaire, {
                             { center: "70%", text: "7" },
                             { center: "80%", text: "8" },
                             { center: "90%", text: "9" },
-                            { right: 0, text: "10" },
-                        ],
+                            { right: 0, text: "10" }
+                        ]
                     },
                     {
                         type: "QuestionText",
@@ -911,10 +911,10 @@ lang.extendPrototype(DemoQuestionnaire, {
                             { center: "70%", text: "Seven" },
                             { center: "80%", text: "Eight" },
                             { center: "90%", text: "Nine" },
-                            { right: 0, text: "Ten" },
-                        ],
-                    },
-                ],
+                            { right: 0, text: "Ten" }
+                        ]
+                    }
+                ]
             },
             {
                 title: "Demo: Image stack",
@@ -943,7 +943,7 @@ lang.extendPrototype(DemoQuestionnaire, {
                             THERMOMETER_03_UNSEL,
                             THERMOMETER_02_UNSEL,
                             THERMOMETER_01_UNSEL,
-                            THERMOMETER_00_UNSEL,
+                            THERMOMETER_00_UNSEL
                         ],
                         activeImages: [
                             THERMOMETER_10_SEL,
@@ -956,19 +956,19 @@ lang.extendPrototype(DemoQuestionnaire, {
                             THERMOMETER_03_SEL,
                             THERMOMETER_02_SEL,
                             THERMOMETER_01_SEL,
-                            THERMOMETER_00_SEL,
+                            THERMOMETER_00_SEL
                         ],
                         text: [
                             L('distressthermometer_distress_extreme'),
                             "", "", "", "", "",
                             "", "", "", "",
-                            L('distressthermometer_distress_none'),
+                            L('distressthermometer_distress_none')
                         ],
                         imageWidth: 192,
                         values: [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0],
-                        field: 'thermometer',
-                    },
-                ],
+                        field: 'thermometer'
+                    }
+                ]
             },
             {
                 title: "Demo: Sketching canvas",
@@ -984,8 +984,8 @@ lang.extendPrototype(DemoQuestionnaire, {
                         type: "QuestionCanvas",
                         image: IMAGE_PATH,
                         field: "canvas_blobid"
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: "Demo: Audio player",
@@ -999,9 +999,9 @@ lang.extendPrototype(DemoQuestionnaire, {
                     {
                         type: "QuestionAudioPlayer",
                         filename: UICONSTANTS.SOUND_TEST
-                    },
-                ],
-            },
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -1010,10 +1010,10 @@ lang.extendPrototype(DemoQuestionnaire, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

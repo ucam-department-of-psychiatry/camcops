@@ -137,7 +137,7 @@ module.exports = function Lunsers(patient_id) {
                 new KeyValuePair(L('lunsers_option1'), 1),
                 new KeyValuePair(L('lunsers_option2'), 2),
                 new KeyValuePair(L('lunsers_option3'), 3),
-                new KeyValuePair(L('lunsers_option4'), 4),
+                new KeyValuePair(L('lunsers_option4'), 4)
             ],
             fields = [],
             qs = [],
@@ -161,9 +161,9 @@ module.exports = function Lunsers(patient_id) {
                         type: QuestionMCQGrid,
                         options: options,
                         questions: qs,
-                        fields: fields,
-                    },
-                ],
+                        fields: fields
+                    }
+                ]
             }
         ];
 
@@ -173,7 +173,7 @@ module.exports = function Lunsers(patient_id) {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
     };

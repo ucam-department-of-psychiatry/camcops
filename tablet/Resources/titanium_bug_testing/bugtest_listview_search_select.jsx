@@ -12,7 +12,7 @@ for (i = 0; i < items.length; ++i) {
     data.push({ properties: {
         itemId: i,
         title: items[i],
-        searchableText: items[i],
+        searchableText: items[i]
     }});
 }
 section.setItems(data);
@@ -23,9 +23,9 @@ var listView = Titanium.UI.createListView({
         top: 0,
         left: 0,
         height: 45,
-        showCancel: false,
+        showCancel: false
     }),
-    sections: [section],
+    sections: [section]
 });
 listView.addEventListener('itemclick', function (e) {
     Titanium.API.trace(

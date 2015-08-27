@@ -18,7 +18,7 @@ var with_sections = true,
         width: Titanium.UI.FILL,
         top: 0,
         showVerticalScrollIndicator: true,
-        minRowHeight: 48,
+        minRowHeight: 48
     }),
     rowOne = Titanium.UI.createTableViewRow({
         title: 'row_one'

@@ -176,7 +176,7 @@ lang.extendPrototype(Moca, {
             options_corr_incorr = taskcommon.OPTIONS_INCORRECT_CORRECT_INTEGER,
             options_recalled = [
                 new KeyValuePair(L('not_recalled'), 0),
-                new KeyValuePair(L('recalled'), 1),
+                new KeyValuePair(L('recalled'), 1)
             ],
             options_yesno = taskcommon.OPTIONS_NO_YES_INTEGER,
             pages,
@@ -198,11 +198,11 @@ lang.extendPrototype(Moca, {
                         type: "QuestionMCQ",
                         options: [
                             new KeyValuePair(L('moca_education_option0'), 0),
-                            new KeyValuePair(L('moca_education_option1'), 1),
+                            new KeyValuePair(L('moca_education_option1'), 1)
                         ],
-                        field: "education12y_or_less",
-                    },
-                ],
+                        field: "education12y_or_less"
+                    }
+                ]
             },
             {
                 title: L('moca_title_prefix_singular') + " 1",
@@ -216,8 +216,8 @@ lang.extendPrototype(Moca, {
                         type: "QuestionCanvas",
                         image: IMAGE_PATH,
                         field: "trailpicture_blobid"
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: L('moca_title_prefix_singular') + " 2",
@@ -231,8 +231,8 @@ lang.extendPrototype(Moca, {
                         type: "QuestionCanvas",
                         image: IMAGE_CUBE,
                         field: "cubepicture_blobid"
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: L('moca_title_prefix_singular') + " 3–5",
@@ -246,8 +246,8 @@ lang.extendPrototype(Moca, {
                         type: "QuestionCanvas",
                         image: IMAGE_CLOCK,
                         field: "clockpicture_blobid"
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: L('moca_title_prefix_plural') + " 6–8",
@@ -261,11 +261,11 @@ lang.extendPrototype(Moca, {
                         type: "QuestionImage",
                         image: IMAGE_ANIMALS,
                         width: Titanium.UI.FILL
-                    }, // *** Image aspect ratio - somewhat hacky! This works because it's much wider than long.
+                    } // *** Image aspect ratio - somewhat hacky! This works because it's much wider than long.
                     // Better would be an "aspect fit" mode; I could write this for Android
                     // and an iOS one is at http://developer.appcelerator.com/question/23931/imageview-scaling-mode ;
                     // see also http://developer.appcelerator.com/question/121517/how-to-scale-image-proportionally
-                ],
+                ]
             },
             {
                 title: (L('moca_title_prefix_plural') + " 1–8 " +
@@ -286,13 +286,13 @@ lang.extendPrototype(Moca, {
                             L('moca_q5'),
                             L('moca_q6'),
                             L('moca_q7'),
-                            L('moca_q8'),
+                            L('moca_q8')
                         ],
                         fields: [
                             'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8'
-                        ],
-                    },
-                ],
+                        ]
+                    }
+                ]
             },
             {
                 title: (L('moca_title_prefix_plural') + " " +
@@ -311,15 +311,15 @@ lang.extendPrototype(Moca, {
                             L('moca_registered') + " " + L('moca_memory_2'),
                             L('moca_registered') + " " + L('moca_memory_3'),
                             L('moca_registered') + " " + L('moca_memory_4'),
-                            L('moca_registered') + " " + L('moca_memory_5'),
+                            L('moca_registered') + " " + L('moca_memory_5')
                         ],
                         fields: [
                             "register_trial1_1",
                             "register_trial1_2",
                             "register_trial1_3",
                             "register_trial1_4",
-                            "register_trial1_5",
-                        ],
+                            "register_trial1_5"
+                        ]
                     },
                     {
                         type: "QuestionText",
@@ -333,21 +333,21 @@ lang.extendPrototype(Moca, {
                             L('moca_registered') + " " + L('moca_memory_2'),
                             L('moca_registered') + " " + L('moca_memory_3'),
                             L('moca_registered') + " " + L('moca_memory_4'),
-                            L('moca_registered') + " " + L('moca_memory_5'),
+                            L('moca_registered') + " " + L('moca_memory_5')
                         ],
                         fields: [
                             "register_trial2_1",
                             "register_trial2_2",
                             "register_trial2_3",
                             "register_trial2_4",
-                            "register_trial2_5",
-                        ],
+                            "register_trial2_5"
+                        ]
                     },
                     {
                         type: "QuestionText",
                         text: L('moca_memory_instruction3')
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: L('moca_title_prefix_plural') + " 9–12",
@@ -361,9 +361,9 @@ lang.extendPrototype(Moca, {
                         type: "QuestionMCQGrid",
                         options: options_corr_incorr,
                         questions: [
-                            L('moca_q9'),
+                            L('moca_q9')
                         ],
-                        fields: [ 'q9' ],
+                        fields: [ 'q9' ]
                     },
                     {
                         type: "QuestionText",
@@ -373,9 +373,9 @@ lang.extendPrototype(Moca, {
                         type: "QuestionMCQGrid",
                         options: options_corr_incorr,
                         questions: [
-                            L('moca_q10'),
+                            L('moca_q10')
                         ],
-                        fields: [ 'q10' ],
+                        fields: [ 'q10' ]
                     },
                     {
                         type: "QuestionText",
@@ -385,7 +385,7 @@ lang.extendPrototype(Moca, {
                         type: "QuestionMCQGrid",
                         options: options_corr_incorr,
                         questions: [ L('moca_q11') ],
-                        fields: [ 'q11' ],
+                        fields: [ 'q11' ]
                     },
                     { type: "QuestionText", text: L('moca_q12') },
                     {
@@ -394,11 +394,11 @@ lang.extendPrototype(Moca, {
                             new KeyValuePair(L('moca_q12_option0'), 0),
                             new KeyValuePair(L('moca_q12_option1'), 1),
                             new KeyValuePair(L('moca_q12_option2'), 2),
-                            new KeyValuePair(L('moca_q12_option3'), 3),
+                            new KeyValuePair(L('moca_q12_option3'), 3)
                         ],
-                        field: "q12",
-                    },
-                ],
+                        field: "q12"
+                    }
+                ]
             },
             {
                 title: L('moca_title_prefix_plural') + " 13–15",
@@ -412,9 +412,9 @@ lang.extendPrototype(Moca, {
                         type: "QuestionMCQGrid",
                         options: options_corr_incorr,
                         questions: [
-                            L('moca_q13'),
+                            L('moca_q13')
                         ],
-                        fields: [ 'q13' ],
+                        fields: [ 'q13' ]
                     },
                     {
                         type: "QuestionText",
@@ -424,9 +424,9 @@ lang.extendPrototype(Moca, {
                         type: "QuestionMCQGrid",
                         options: options_corr_incorr,
                         questions: [
-                            L('moca_q14'),
+                            L('moca_q14')
                         ],
-                        fields: [ 'q14' ],
+                        fields: [ 'q14' ]
                     },
                     {
                         type: "QuestionText",
@@ -437,11 +437,11 @@ lang.extendPrototype(Moca, {
                         type: "QuestionMCQGrid",
                         options: options_yesno,
                         questions: [
-                            L('moca_q15'),
+                            L('moca_q15')
                         ],
-                        fields: [ "q15" ],
-                    },
-                ],
+                        fields: [ "q15" ]
+                    }
+                ]
             },
             {
                 title: L('moca_title_prefix_plural') + " 16–17",
@@ -456,11 +456,11 @@ lang.extendPrototype(Moca, {
                         options: options_corr_incorr,
                         questions: [
                             L('moca_q16'),
-                            L('moca_q17'),
+                            L('moca_q17')
                         ],
-                        fields: [ 'q16', 'q17' ],
-                    },
-                ],
+                        fields: [ 'q16', 'q17' ]
+                    }
+                ]
             },
             {
                 title: L('moca_title_prefix_plural') + " 18–22",
@@ -478,19 +478,19 @@ lang.extendPrototype(Moca, {
                             L('moca_recalled') + " " + L('moca_memory_2'),
                             L('moca_recalled') + " " + L('moca_memory_3'),
                             L('moca_recalled') + " " + L('moca_memory_4'),
-                            L('moca_recalled') + " " + L('moca_memory_5'),
+                            L('moca_recalled') + " " + L('moca_memory_5')
                         ],
-                        fields: [ 'q18', 'q19', 'q20', 'q21', 'q22' ],
-                    },
-                ],
+                        fields: [ 'q18', 'q19', 'q20', 'q21', 'q22' ]
+                    }
+                ]
             },
             {
                 onTheFly: true,
-                pageTag: CATEGORY_RECALL,
+                pageTag: CATEGORY_RECALL
             },
             {
                 onTheFly: true,
-                pageTag: MC_RECALL,
+                pageTag: MC_RECALL
             },
             {
                 title: L('moca_title_prefix_plural') + " 23–28",
@@ -509,9 +509,9 @@ lang.extendPrototype(Moca, {
                             L('moca_q25'),
                             L('moca_q26'),
                             L('moca_q27'),
-                            L('moca_q28'),
+                            L('moca_q28')
                         ],
-                        fields: [ 'q23', 'q24', 'q25', 'q26', 'q27', 'q28' ],
+                        fields: [ 'q23', 'q24', 'q25', 'q26', 'q27', 'q28' ]
                     },
                     {
                         type: "QuestionText",
@@ -522,8 +522,8 @@ lang.extendPrototype(Moca, {
                         type: "QuestionText",
                         text: correct_date,
                         italic: true
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: L("examiners_comments"),
@@ -539,11 +539,11 @@ lang.extendPrototype(Moca, {
                                 field: "comments",
                                 prompt: L("examiners_comments_prompt"),
                                 hint: L("examiners_comments")
-                            },
-                        ],
-                    },
-                ],
-            },
+                            }
+                        ]
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -558,11 +558,11 @@ lang.extendPrototype(Moca, {
                     // the optional cued recall pages
                     return {
                         care: true,
-                        showNext: true,
+                        showNext: true
                     };
                 }
                 return {
-                    care: false,
+                    care: false
                 };
             },
             fnMakePageOnTheFly: function (currentPage, pageTag) {
@@ -588,8 +588,8 @@ lang.extendPrototype(Moca, {
                                 {
                                     type: "QuestionText",
                                     text: L('moca_no_need_for_extra_recall')
-                                },
-                            ],
+                                }
+                            ]
                         };
                     }
                     return {
@@ -606,9 +606,9 @@ lang.extendPrototype(Moca, {
                                 type: "QuestionMCQGrid",
                                 options: options_recalled,
                                 questions: questions,
-                                fields: fields,
-                            },
-                        ],
+                                fields: fields
+                            }
+                        ]
                     };
                 }
                 if (pageTag === MC_RECALL) {
@@ -630,8 +630,8 @@ lang.extendPrototype(Moca, {
                                 {
                                     type: "QuestionText",
                                     text: L('moca_no_need_for_extra_recall')
-                                },
-                            ],
+                                }
+                            ]
                         };
                     }
                     return {
@@ -648,17 +648,17 @@ lang.extendPrototype(Moca, {
                                 type: "QuestionMCQGrid",
                                 options: options_recalled,
                                 questions: questions,
-                                fields: fields,
-                            },
-                        ],
+                                fields: fields
+                            }
+                        ]
                     };
                 }
                 throw new Error("Moca/fnMakePageOnTheFly: called for " +
                                 "invalid page");
-            },
+            }
         });
         questionnaire.open();
-    },
+    }
 
 });
 

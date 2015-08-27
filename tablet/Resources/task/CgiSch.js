@@ -147,9 +147,9 @@ lang.extendPrototype(CgiSch, {
                         optionsWidthTogether: "75%",
                         options: severity_options,
                         questions: questions,
-                        fields: severity_fields,
-                    },
-                ],
+                        fields: severity_fields
+                    }
+                ]
             },
             {
                 title: L("cgisch_ii_title"),
@@ -165,14 +165,14 @@ lang.extendPrototype(CgiSch, {
                         optionsWidthTogether: "75%",
                         options: change_options,
                         questions: questions,
-                        fields: change_fields,
+                        fields: change_fields
                     },
                     {
                         type: "QuestionText",
                         text: L("cgisch_ii_postscript")
-                    },
-                ],
-            },
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -181,10 +181,10 @@ lang.extendPrototype(CgiSch, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

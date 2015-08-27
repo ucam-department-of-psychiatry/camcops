@@ -70,7 +70,7 @@ function RadioGroup(props) {
         readOnly: props.readOnly,
         options: props.options,
         setFieldValue: props.setFieldValue, // no modification required
-        tipropsArray: buttonTipropsArray,
+        tipropsArray: buttonTipropsArray
     });
     if (props.asTextButton) {
         for (i = 0; i < props.options.length; ++i) {
@@ -86,7 +86,7 @@ function RadioGroup(props) {
                 top: topspace,
                 left: leftspace,
                 touchEnabled: true, // covers its constituent parts
-                index_id: i, // extra data
+                index_id: i // extra data
             });
             container.add(this.mcqgroup.buttons[i].tiview);
             textview = Titanium.UI.createLabel({
@@ -99,7 +99,7 @@ function RadioGroup(props) {
                 height: Titanium.UI.SIZE,
                 width: Titanium.UI.SIZE,
                 index_id: i, // extra data
-                touchEnabled: true,
+                touchEnabled: true
             });
             container.add(textview);
             this.tiview.add(container);
@@ -177,7 +177,7 @@ RadioGroup.prototype = {
         var uifunc = require('lib/uifunc');
         uifunc.removeAllViewChildren(this.tiview);
         this.tiview = null;
-    },
+    }
 
 };
 module.exports = RadioGroup;

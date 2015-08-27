@@ -120,14 +120,14 @@ lang.extendPrototype(ReferrerSatisfactionGen, {
                     type: "QuestionText",
                     bold: true,
                     text: L("ref_satis_rating_gen_q") + " " + this.service +
-                        "?",
+                        "?"
                 },
                 {
                     type: "QuestionMCQ",
                     field: "rating",
                     mandatory: true,
                     showInstruction: false,
-                    options: options,
+                    options: options
                 },
                 {
                     type: "QuestionTypedVariables",
@@ -144,10 +144,10 @@ lang.extendPrototype(ReferrerSatisfactionGen, {
                             type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                             field: "bad",
                             prompt: L('ref_satis_bad_q')
-                        },
-                    ],
-                },
-            ],
+                        }
+                    ]
+                }
+            ]
         }];
 
         questionnaire = new Questionnaire({
@@ -156,10 +156,10 @@ lang.extendPrototype(ReferrerSatisfactionGen, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

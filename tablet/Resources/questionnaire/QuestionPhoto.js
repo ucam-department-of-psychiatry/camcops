@@ -61,7 +61,7 @@ function QuestionPhoto(props) {
         height: Titanium.UI.SIZE,
         anchorPoint: this.anchor, // iOS only
         touchEnabled: false,
-        image: null,
+        image: null
     });
     this.tiview.add(this.imageView);
 
@@ -335,7 +335,7 @@ lang.extendPrototype(QuestionPhoto, {
                 transform: matrix,
                 anchorPoint: this.anchor,
                 duration: 1,
-                autoreverse: false,
+                autoreverse: false
             });
             this.imageView.animate(animation);
 
@@ -352,7 +352,7 @@ lang.extendPrototype(QuestionPhoto, {
         var dlg = Titanium.UI.createAlertDialog({
                 title: L('delete_photo_q'),
                 message: L('delete_photo_sure'),
-                buttonNames: [L('cancel'), L('delete')],
+                buttonNames: [L('cancel'), L('delete')]
             }),
             self = this;
         dlg.addEventListener('click', function (ev) {
@@ -399,7 +399,7 @@ lang.extendPrototype(QuestionPhoto, {
         this.imageView = null;
 
         this.wait = null;
-    },
+    }
 
 });
 module.exports = QuestionPhoto;

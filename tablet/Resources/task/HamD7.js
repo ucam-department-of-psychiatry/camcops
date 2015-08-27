@@ -39,7 +39,7 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
         {name: "q4", noptions: NORMAL_N_OPTIONS},
         {name: "q5", noptions: NORMAL_N_OPTIONS},
         {name: "q6", noptions: 3}, // this one 3 (0-2), all the rest 5 (0-4)
-        {name: "q7", noptions: NORMAL_N_OPTIONS},
+        {name: "q7", noptions: NORMAL_N_OPTIONS}
     ];
 
 fieldlist.push.apply(fieldlist, dbcommon.CLINICIAN_FIELDSPECS); // Clinician info 1/3
@@ -135,9 +135,9 @@ lang.extendPrototype(HamD7, {
                     {
                         type: "QuestionMCQ",
                         field: name,
-                        options: options,
-                    },
-                ],
+                        options: options
+                    }
+                ]
             };
         }
         pages = [ self.getClinicianDetailsPage() ]; // Clinician info 3/3
@@ -151,10 +151,10 @@ lang.extendPrototype(HamD7, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

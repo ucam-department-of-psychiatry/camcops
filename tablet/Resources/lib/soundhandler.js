@@ -70,7 +70,7 @@ function loadSound(params) {
         sound = Titanium.Media.createSound({
             url: params.filename,
             allowBackground: true,
-            volume: 0.0,
+            volume: 0.0
         });
         sound.play();
         sound.stop(); // resets position to zero
@@ -79,7 +79,7 @@ function loadSound(params) {
         sound = Titanium.Media.createSound({
             url: params.filename,
             allowBackground: true,
-            volume: params.volume,
+            volume: params.volume
         });
     }
     if (typeof params.fnSoundComplete === "function") {

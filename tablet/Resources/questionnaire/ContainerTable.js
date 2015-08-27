@@ -33,7 +33,7 @@ function createRowView() {
         left: 0,
         top: 0,
         width: Titanium.UI.FILL,
-        height: Titanium.UI.SIZE,
+        height: Titanium.UI.SIZE
         // absolute positioning is OK
     });
 }
@@ -43,7 +43,7 @@ function createCellView(left, width) {
         left: left,
         width: width,
         top: 0,
-        height: Titanium.UI.SIZE,
+        height: Titanium.UI.SIZE
         // backgroundColor: (i % 2 == 0) ? '#FF0000' : '#00FF00',
         // ... for debugging
     });
@@ -114,7 +114,7 @@ function ContainerTable(props) {
         left: props.left,
         width: Titanium.UI.FILL,
         height: Titanium.UI.SIZE,
-        layout: "vertical",
+        layout: "vertical"
         // backgroundColor: UICONSTANTS.GARISH_DEBUG_COLOUR_3,
     };
     this.tiview = Titanium.UI.createView(viewprops);

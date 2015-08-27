@@ -114,7 +114,7 @@ function QuestionCanvas(props) {
         bottom: props.bottom,
         center: props.center,
         width: Titanium.UI.FILL,
-        height: Titanium.UI.FILL,
+        height: Titanium.UI.FILL
     });
 
     // WAIT doesn't work - the wait gets stuck on for some reason (from ~Jan
@@ -123,7 +123,7 @@ function QuestionCanvas(props) {
     if (!props.readOnly) {
         this.resetButton = uifunc.createReloadButton({
             left: 0,
-            top: 0,
+            top: 0
         });
         this.resetListener = function () { self.reset(); };
         this.resetButton.addEventListener('click', this.resetListener);
@@ -144,7 +144,7 @@ function QuestionCanvas(props) {
         requestedWidth: props.imageWidth, // RNC addition
         requestedHeight: props.imageHeight, // RNC addition
 
-        image: this.startingImageUrl,
+        image: this.startingImageUrl
     };
     this.paintview = null;
 
@@ -295,7 +295,7 @@ lang.extendPrototype(QuestionCanvas, {
             // IOS: DOESN'T WORK
             this.paintview.setImage(imageUrl);
         }
-    },
+    }
     /*
     Android:
         this.paintview.setImage:

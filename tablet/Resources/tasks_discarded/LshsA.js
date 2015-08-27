@@ -77,7 +77,7 @@ module.exports = function LshsA(patient_id) {
                 new KeyValuePair(L("lshs_a_option1"), 1),
                 new KeyValuePair(L("lshs_a_option2"), 2),
                 new KeyValuePair(L("lshs_a_option3"), 3),
-                new KeyValuePair(L("lshs_a_option4"), 4),
+                new KeyValuePair(L("lshs_a_option4"), 4)
             ],
             pages,
             questionnaire,
@@ -88,8 +88,8 @@ module.exports = function LshsA(patient_id) {
                 title: L("lshs_a_titleprefix") + " " + n,
                 elements: [
                     { type: QuestionText, text: L("lshs_a_q" + n + "_question") },
-                    { type: QuestionMCQ, field: "q" + n, options: options },
-                ],
+                    { type: QuestionMCQ, field: "q" + n, options: options }
+                ]
             };
         }
         pages = [];
@@ -103,7 +103,7 @@ module.exports = function LshsA(patient_id) {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
     };

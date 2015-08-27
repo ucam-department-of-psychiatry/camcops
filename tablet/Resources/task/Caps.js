@@ -173,21 +173,21 @@ lang.extendPrototype(Caps, {
                 new KeyValuePair("2", 2),
                 new KeyValuePair("3", 3),
                 new KeyValuePair("4", 4),
-                new KeyValuePair(L('caps_distress_option5'), 5),
+                new KeyValuePair(L('caps_distress_option5'), 5)
             ],
             options_intrusiveness = [
                 new KeyValuePair(L('caps_intrusiveness_option1'), 1),
                 new KeyValuePair("2", 2),
                 new KeyValuePair("3", 3),
                 new KeyValuePair("4", 4),
-                new KeyValuePair(L('caps_intrusiveness_option5'), 5),
+                new KeyValuePair(L('caps_intrusiveness_option5'), 5)
             ],
             options_frequency = [
                 new KeyValuePair(L('caps_frequency_option1'), 1),
                 new KeyValuePair("2", 2),
                 new KeyValuePair("3", 3),
                 new KeyValuePair("4", 4),
-                new KeyValuePair(L('caps_frequency_option5'), 5),
+                new KeyValuePair(L('caps_frequency_option5'), 5)
             ],
             pages,
             q,
@@ -260,8 +260,8 @@ lang.extendPrototype(Caps, {
                         horizontal: true,
                         mandatory: mandatory,
                         visible: visible
-                    },
-                ],
+                    }
+                ]
             };
         }
 
@@ -278,11 +278,11 @@ lang.extendPrototype(Caps, {
                     { type: "QuestionText", text: L('caps_instruction_7') },
                     { type: "QuestionText", text: L('caps_instruction_8') },
                     { type: "QuestionText", text: L('caps_instruction_9') },
-                    { type: "QuestionText", text: L('caps_instruction_10') },
+                    { type: "QuestionText", text: L('caps_instruction_10') }
                     // remove "example questions", which relate to a paper-based illustration of how to circle the ratings:
                     // { type: "QuestionHeading", text: L('caps_instruction_11') },
                     // { type: "QuestionText", text: L('caps_instruction_12') },
-                ],
+                ]
             }
         ];
         for (q = 1; q <= nquestions; ++q) {
@@ -316,10 +316,10 @@ lang.extendPrototype(Caps, {
                 self.defaultFinishedFn(result, editing_time_s);
                 questionnaire = null; // for garbage collection, since we have
                 // closures referring to questionnaire
-            },
+            }
         });
         questionnaire.open();
-    },
+    }
 });
 
 module.exports = Caps;

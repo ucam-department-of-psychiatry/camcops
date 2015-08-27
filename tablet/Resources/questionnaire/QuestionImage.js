@@ -54,7 +54,7 @@ lang.extendPrototype(QuestionImage, {
         }
         var blob = this.questionnaire.getFieldValue(this.field);
         this.tiview.setImage(blob);
-    },
+    }
 
 });
 module.exports = QuestionImage;

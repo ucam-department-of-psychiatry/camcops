@@ -54,7 +54,7 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
         {name: 'auditory_target_1_intensity', type: DBCONSTANTS.TYPE_REAL}, // 0 to 1
         // ... ITI
         {name: 'iti_min_s', type: DBCONSTANTS.TYPE_REAL},
-        {name: 'iti_max_s', type: DBCONSTANTS.TYPE_REAL},
+        {name: 'iti_max_s', type: DBCONSTANTS.TYPE_REAL}
     ],
     // PER-GROUP-SPEC TABLE (config)
     trialgroupspectablename = "cardinal_expdet_trialgroupspec",
@@ -163,7 +163,7 @@ lang.extendPrototype(TrialGroupSpec, {
                                         trialgroupspectablename,
                                         trialgroupspecfieldlist,
                                         TrialGroupSpec, "id");
-    },
+    }
 
 });
 
@@ -198,7 +198,7 @@ lang.extendPrototype(TrialInfo, {
                                         cardinal_expdet_id,
                                         trialtablename, trialfieldlist,
                                         TrialInfo, "id");
-    },
+    }
 
 });
 
@@ -316,8 +316,8 @@ lang.extendPrototype(Cardinal_ExpectationDetection, {
                                 prompt: L("expdet_config_stimulus_counterbalancing"),
                                 min: 0,
                                 max: N_CUES - 1
-                            },
-                        ],
+                            }
+                        ]
                     },
                     {
                         type: "QuestionText",
@@ -366,8 +366,8 @@ lang.extendPrototype(Cardinal_ExpectationDetection, {
                                 ),
                                 min: 0.0,
                                 max: 1.0
-                            },
-                        ],
+                            }
+                        ]
                     },
                     {
                         type: "QuestionText",
@@ -453,17 +453,17 @@ lang.extendPrototype(Cardinal_ExpectationDetection, {
                                 prompt: L("expdet_config_isi_duration_s"),
                                 min: 0.0,
                                 max: 100.0
-                            },
-                        ],
+                            }
+                        ]
                     },
                     {
                         type: "QuestionBooleanText",
                         field: "is_detection_response_on_right",
                         text: L("expdet_config_is_detection_response_on_right"),
                         bold: false
-                    },
-                ],
-            },
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -582,7 +582,7 @@ lang.extendPrototype(Cardinal_ExpectationDetection, {
                     L("expdetthreshold_visual_target_0_short") + "?",
                 L("expdet_detection_q_prefix") + " " +
                     L("expdet_detection_q_visual") + " " +
-                    L("expdetthreshold_visual_target_1_short") + "?",
+                    L("expdetthreshold_visual_target_1_short") + "?"
             ],
             AUDITORY_PROMPTS: [
                 L("expdet_detection_q_prefix") + " " +
@@ -590,14 +590,14 @@ lang.extendPrototype(Cardinal_ExpectationDetection, {
                     L("expdetthreshold_auditory_target_0_short") + "?",
                 L("expdet_detection_q_prefix") + " " +
                     L("expdet_detection_q_auditory") + " " +
-                    L("expdetthreshold_auditory_target_1_short") + "?",
+                    L("expdetthreshold_auditory_target_1_short") + "?"
             ],
             DETECTION_OPTIONS: [
                 L("expdet_option_0"),
                 L("expdet_option_1"),
                 L("expdet_option_2"),
                 L("expdet_option_3"),
-                L("expdet_option_4"),
+                L("expdet_option_4")
             ],
             STIMHEIGHT: UICONSTANTS.EXPDET.STIM_SIZE,
             STIMWIDTH: UICONSTANTS.EXPDET.STIM_SIZE,
@@ -614,7 +614,7 @@ lang.extendPrototype(Cardinal_ExpectationDetection, {
             INSTRUCTIONS_3: L("expdet_instructions_3"),
             TEXT_REALLY_ABORT: L("webview_really_abort"),
             TEXT_CANCEL: L("cancel"),
-            SAVING_PLEASE_WAIT: L("saving_please_wait"),
+            SAVING_PLEASE_WAIT: L("saving_please_wait")
         };
         dbcommon.copyFields(configfieldlist, self, params);
         html = taskcommon.loadHtmlSetParams(
@@ -680,7 +680,7 @@ lang.extendPrototype(Cardinal_ExpectationDetection, {
         );
         editing_time_start = moment();
         window.open();
-    },
+    }
 
 });
 

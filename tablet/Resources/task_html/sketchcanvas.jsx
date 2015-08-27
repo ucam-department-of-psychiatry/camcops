@@ -46,7 +46,7 @@ var tp = (inTitanium ?
             // Asus Eee Pad is 1200 x 800 (WXGA), effective size (minus system
             // UI) 1200 x 752. iPad is 1024 x 768
             screenWidth: 1024,
-            screenHeight: 752,
+            screenHeight: 752
         }
     ),
     TASKNAME = "QuestionCanvas (sketchcanvas.html)",

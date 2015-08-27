@@ -159,13 +159,13 @@ lang.extendPrototype(Phq15, {
                         options: [
                             new KeyValuePair(L('phq15_a0'), 0),
                             new KeyValuePair(L('phq15_a1'), 1),
-                            new KeyValuePair(L('phq15_a2'), 2),
+                            new KeyValuePair(L('phq15_a2'), 2)
                         ],
                         questions: qs,
-                        fields: fields,
-                    },
-                ],
-            },
+                        fields: fields
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -174,10 +174,10 @@ lang.extendPrototype(Phq15, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

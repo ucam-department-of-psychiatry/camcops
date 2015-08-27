@@ -45,14 +45,14 @@ function AskUsernamePasswordWindow(props) {
             width: Titanium.UI.FILL,
             height: Titanium.UI.FILL,
             backgroundColor: UICONSTANTS.POPUP_BORDER_COLOUR,
-            opacity: 0.5,
+            opacity: 0.5
         }),
         borderview = Titanium.UI.createView({
             width: Titanium.UI.SIZE,
             height: Titanium.UI.SIZE,
             center: {x: '50%', y: '30%'},
             // towards the top of the screen, as virtual keyboards may be below
-            backgroundColor: UICONSTANTS.POPUP_BG_COLOUR,
+            backgroundColor: UICONSTANTS.POPUP_BG_COLOUR
         }),
         view = Titanium.UI.createView({
             left: UICONSTANTS.POPUP_BORDER_SIZE,
@@ -61,12 +61,12 @@ function AskUsernamePasswordWindow(props) {
             width: Titanium.UI.SIZE,
             height: Titanium.UI.SIZE,
             layout: 'vertical',
-            backgroundColor: UICONSTANTS.POPUP_BG_COLOUR,
+            backgroundColor: UICONSTANTS.POPUP_BG_COLOUR
         }),
         buttonview = Titanium.UI.createView({
             width: Titanium.UI.SIZE,
             height: Titanium.UI.SIZE,
-            center: {x: '50%'},
+            center: {x: '50%'}
         }),
         self = this;
 
@@ -179,7 +179,7 @@ AskUsernamePasswordWindow.prototype = {
         this.close();
         // ... should call cleanup (will also destroy window elements)
         this.props.callbackFn(username, password, verified, false);
-    },
+    }
 
 };
 module.exports = AskUsernamePasswordWindow;

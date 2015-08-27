@@ -83,7 +83,7 @@ module.exports = function SettingsMenu() {
         var dlg = Titanium.UI.createAlertDialog({
             title: L('export_title'),
             message: L('export_sure'),
-            buttonNames: [L('cancel'), L('save')],
+            buttonNames: [L('cancel'), L('save')]
         });
         dlg.addEventListener('click', function (e) {
             if (e.index === 1) { // Save
@@ -316,14 +316,14 @@ module.exports = function SettingsMenu() {
             notIfLocked: true,
             maintitle: L('t_unit_test'),
             func: unit_test,
-            needsPrivilege: true,
+            needsPrivilege: true
         }
     ];
 
     self = new MenuWindow({
         title: L('menutitle_settings'),
         icon: UICONSTANTS.ICON_MENU_SETTINGS,
-        data: data,
+        data: data
     });
 
     wait = uifunc.createWait({ window: self.tiview });

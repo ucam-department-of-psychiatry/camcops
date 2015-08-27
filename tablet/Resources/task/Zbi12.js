@@ -134,13 +134,13 @@ lang.extendPrototype(Zbi12, {
                         type: UICONSTANTS.TYPEDVAR_TEXT,
                         field: "responder_relationship",
                         prompt: L('zbi_q_responder_relationship')
-                    },
-                ],
+                    }
+                ]
             },
             {
                 type: "QuestionText",
                 bold: true,
-                text: this.XSTRING('instruction'),
+                text: this.XSTRING('instruction')
             },
             {
                 type: "QuestionMCQGrid",
@@ -149,20 +149,20 @@ lang.extendPrototype(Zbi12, {
                     new KeyValuePair(L('zbi_a1'), 1),
                     new KeyValuePair(L('zbi_a2'), 2),
                     new KeyValuePair(L('zbi_a3'), 3),
-                    new KeyValuePair(L('zbi_a4'), 4),
+                    new KeyValuePair(L('zbi_a4'), 4)
                 ],
                 questions: this.get_questions(),
                 fields: taskcommon.stringArrayFromSequence("q", 1, nquestions),
-                optionsWidthTogether: '65%',
-            },
+                optionsWidthTogether: '65%'
+            }
         ];
 
         pages = [
             {
                 title: L('t_zbi12'),
                 clinician: false,
-                elements: elements,
-            },
+                elements: elements
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -171,11 +171,11 @@ lang.extendPrototype(Zbi12, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
 
         questionnaire.open();
-    },
+    }
 
 });
 

@@ -101,8 +101,8 @@ module.exports = function Epds(patient_id) {
                 elements: [
                     { type: QuestionText, text: L("epds_question_common") },
                     { type: QuestionText, text: L("epds_q" + n + "_question"), bold: true },
-                    { type: QuestionMCQ, field: "q" + n, options: options },
-                ],
+                    { type: QuestionMCQ, field: "q" + n, options: options }
+                ]
             };
         }
         pages = [];
@@ -123,7 +123,7 @@ module.exports = function Epds(patient_id) {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
     };

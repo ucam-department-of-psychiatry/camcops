@@ -44,12 +44,12 @@ module.exports = function ClinicalMenu() {
             ALLTASKS.TASKLIST.PHOTOSEQUENCE,
             ALLTASKS.TASKLIST.PROGRESSNOTE,
             ALLTASKS.TASKLIST.PSYCHIATRICCLERKING,
-            ALLTASKS.TASKLIST.REFERRER_SATISFACTION_SPEC,
+            ALLTASKS.TASKLIST.REFERRER_SATISFACTION_SPEC
         ],
         self = new MenuWindow({
             title: L('menutitle_clinical'),
             icon: UICONSTANTS.ICON_MENU_CLINICAL,
-            data: data,
+            data: data
         });
 
     return self;

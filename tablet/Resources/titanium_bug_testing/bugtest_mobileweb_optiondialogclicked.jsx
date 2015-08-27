@@ -8,7 +8,7 @@ function popupSelected(e) {
 
 var opts = {
         options: ["one", "two", "three"],
-        cancel: -1, // disable cancel option
+        cancel: -1  // disable cancel option
     },
     dialog = Titanium.UI.createOptionDialog(opts),
     popupListener = function (e) { popupSelected(e); },

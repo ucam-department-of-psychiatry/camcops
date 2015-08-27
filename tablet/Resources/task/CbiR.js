@@ -107,14 +107,14 @@ lang.extendPrototype(CbiR, {
                 new KeyValuePair(L('cbir_f1'), 1),
                 new KeyValuePair(L('cbir_f2'), 2),
                 new KeyValuePair(L('cbir_f3'), 3),
-                new KeyValuePair(L('cbir_f4'), 4),
+                new KeyValuePair(L('cbir_f4'), 4)
             ],
             distress_options = [
                 new KeyValuePair(L('cbir_d0'), 0),
                 new KeyValuePair(L('cbir_d1'), 1),
                 new KeyValuePair(L('cbir_d2'), 2),
                 new KeyValuePair(L('cbir_d3'), 3),
-                new KeyValuePair(L('cbir_d4'), 4),
+                new KeyValuePair(L('cbir_d4'), 4)
             ],
             ET_MAIN = "m",
             ET_BLANKS = "b";
@@ -124,7 +124,7 @@ lang.extendPrototype(CbiR, {
                 {
                     type: "QuestionText",
                     bold: true,
-                    text: heading,
+                    text: heading
                 },
                 {
                     elementTag: ET_MAIN,
@@ -148,8 +148,8 @@ lang.extendPrototype(CbiR, {
                         first,
                         last
                     ),
-                    mandatory: true,
-                },
+                    mandatory: true
+                }
             ];
         }
 
@@ -157,7 +157,7 @@ lang.extendPrototype(CbiR, {
             {
                 type: "QuestionText",
                 text: L('cbir_for_carer'),
-                italic: true,
+                italic: true
             },
             {
                 type: "QuestionTypedVariables",
@@ -173,24 +173,24 @@ lang.extendPrototype(CbiR, {
                         type: UICONSTANTS.TYPEDVAR_TEXT,
                         field: "responder_relationship",
                         prompt: L('cbir_q_responder_relationship')
-                    },
-                ],
-            },
+                    }
+                ]
+            }
         ];
 
         elements2 = [
             {
                 type: "QuestionText",
-                text: L('cbir_instruction_1'),
+                text: L('cbir_instruction_1')
             },
             {
                 type: "QuestionText",
-                text: L('cbir_instruction_2'),
+                text: L('cbir_instruction_2')
             },
             {
                 type: "QuestionText",
-                text: L('cbir_instruction_3'),
-            },
+                text: L('cbir_instruction_3')
+            }
         ];
         lang.appendArray(elements2, makeBlock(L('cbir_h_memory'), 1, 8));
         lang.appendArray(elements2, makeBlock(L('cbir_h_everyday'), 9, 13));
@@ -209,15 +209,15 @@ lang.extendPrototype(CbiR, {
                 elementTag: ET_BLANKS,
                 type: "QuestionText",
                 bold: true,
-                text: L('cbi_confirmblanks_q'),
+                text: L('cbi_confirmblanks_q')
             },
             {
                 elementTag: ET_BLANKS,
                 type: "QuestionBooleanText",
                 text: L('cbi_confirmblanks_a'),
                 field: "confirm_blanks",
-                mandatory: true,
-            },
+                mandatory: true
+            }
         ]);
 
         elements3 = [
@@ -230,32 +230,32 @@ lang.extendPrototype(CbiR, {
                         type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                         field: "comments",
                         prompt: L('cbir_comments')
-                    },
-                ],
+                    }
+                ]
             },
             {
                 type: "QuestionText",
                 bold: true,
-                text: L('cbir_thanks'),
-            },
+                text: L('cbir_thanks')
+            }
         ];
 
         pages = [
             {
                 title: L('t_cbir') + " (1/3)",
                 clinician: false,
-                elements: elements1,
+                elements: elements1
             },
             {
                 title: L('t_cbir') + " (2/3)",
                 clinician: false,
-                elements: elements2,
+                elements: elements2
             },
             {
                 title: L('t_cbir') + " (3/3)",
                 clinician: false,
-                elements: elements3,
-            },
+                elements: elements3
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -281,7 +281,7 @@ lang.extendPrototype(CbiR, {
         });
 
         questionnaire.open();
-    },
+    }
 
 });
 

@@ -142,7 +142,7 @@ module.exports = function Gass(patient_id) {
                 new KeyValuePair(L('gass_option0'), 0),
                 new KeyValuePair(L('gass_option1'), 1),
                 new KeyValuePair(L('gass_option2'), 2),
-                new KeyValuePair(L('gass_option3'), 3),
+                new KeyValuePair(L('gass_option3'), 3)
             ],
             quad_main_fields = [],
             quad_distress_fields = [],
@@ -150,7 +150,7 @@ module.exports = function Gass(patient_id) {
             // yn
             yn_options = [
                 new KeyValuePair(L('No'), 0),
-                new KeyValuePair(L('Yes'), 3), // 3 points for a yes
+                new KeyValuePair(L('Yes'), 3)  // 3 points for a yes
             ],
             yn_main_fields = [],
             yn_distress_fields = [],
@@ -186,10 +186,10 @@ module.exports = function Gass(patient_id) {
                                 field: "medication",
                                 prompt: L("gass_medication_prompt"),
                                 hint: L("gass_medication_hint")
-                            },
-                        ],
-                    },
-                ],
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 title: L("gass_main_title"),
@@ -204,8 +204,8 @@ module.exports = function Gass(patient_id) {
                         booleanFields: quad_distress_fields,
                         boolColWidth: '20%',
                         subtitles: [
-                            {beforeIndex: 1 - 1, subtitle: L('gass_quad_subtitle') },
-                        ],
+                            {beforeIndex: 1 - 1, subtitle: L('gass_quad_subtitle') }
+                        ]
                     },
                     {
                         type: QuestionMCQGridWithSingleBoolean,
@@ -216,11 +216,11 @@ module.exports = function Gass(patient_id) {
                         booleanFields: yn_distress_fields,
                         boolColWidth: '20%',
                         subtitles: [
-                            {beforeIndex: 1 - 1, subtitle: L('gass_yn_subtitle') },
-                        ],
-                    },
-                ],
-            },
+                            {beforeIndex: 1 - 1, subtitle: L('gass_yn_subtitle') }
+                        ]
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -229,7 +229,7 @@ module.exports = function Gass(patient_id) {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
     };

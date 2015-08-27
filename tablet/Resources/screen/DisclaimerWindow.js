@@ -31,7 +31,7 @@ function DisclaimerWindow(fnAgree) { // second param fnDisagree ignored
         self = this,
         windowprops = {
             backgroundColor: COLOURS.WHITE,
-            navBarHidden: true, // removes the top line
+            navBarHidden: true // removes the top line
         },
         platform = require('lib/platform'),
         view = Titanium.UI.createScrollView({
@@ -42,7 +42,7 @@ function DisclaimerWindow(fnAgree) { // second param fnDisagree ignored
             layout: 'vertical',
             contentHeight: 'auto',
             scrollType: 'vertical',
-            showVerticalScrollIndicator: true,
+            showVerticalScrollIndicator: true
         });
 
     if (platform.ios7plus) {
@@ -58,7 +58,7 @@ function DisclaimerWindow(fnAgree) { // second param fnDisagree ignored
         left: 0,
         right: 0,
         font: UICONSTANTS.EDITING_INFO_FONT,
-        color: COLOURS.BLACK,
+        color: COLOURS.BLACK
     }));
 
     view.add(Titanium.UI.createLabel({
@@ -67,7 +67,7 @@ function DisclaimerWindow(fnAgree) { // second param fnDisagree ignored
         left: 0,
         right: 0,
         font: UICONSTANTS.EDITING_INFO_FONT,
-        color: COLOURS.RED,
+        color: COLOURS.RED
     }));
 
     view.add(Titanium.UI.createLabel({
@@ -76,14 +76,14 @@ function DisclaimerWindow(fnAgree) { // second param fnDisagree ignored
         left: 0,
         right: 0,
         font: UICONSTANTS.EDITING_LABEL_FONT,
-        color: COLOURS.BLACK,
+        color: COLOURS.BLACK
     }));
 
     this.yesButton = Titanium.UI.createButton({
         top: UICONSTANTS.SPACE,
         center: {x: '50%'},
         title: L('disclaimer_agree'),
-        color: COLOURS.BLUE,
+        color: COLOURS.BLUE
     });
     this.yesListener = function () {
         fnAgree();
@@ -123,7 +123,7 @@ DisclaimerWindow.prototype = {
         this.noButton.removeEventListener('click', this.noListener);
         this.noListener = null;
         */
-    },
+    }
 
 };
 module.exports = DisclaimerWindow;

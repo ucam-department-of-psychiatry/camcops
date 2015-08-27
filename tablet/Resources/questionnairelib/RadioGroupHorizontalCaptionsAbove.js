@@ -35,7 +35,7 @@ function RadioGroupHorizontalCaptionsAbove(props) {
         i,
         toprow = Titanium.UI.createView({
             width: Titanium.UI.FILL,
-            height: Titanium.UI.SIZE,
+            height: Titanium.UI.SIZE
         }),
         bottomrow,
         caption,
@@ -79,14 +79,14 @@ function RadioGroupHorizontalCaptionsAbove(props) {
         readOnly: props.readOnly,
         options: props.options,
         setFieldValue: props.setFieldValue, // no modification required
-        tipropsArray: buttonTipropsArray,
+        tipropsArray: buttonTipropsArray
     });
 
     bottomrow = Titanium.UI.createView({
         width: Titanium.UI.FILL,
         height: Titanium.UI.SIZE,
         top: props.space,
-        touchEnabled: true,
+        touchEnabled: true
     });
     for (i = 0; i < props.options.length; ++i) {
         caption = Titanium.UI.createLabel({
@@ -98,7 +98,7 @@ function RadioGroupHorizontalCaptionsAbove(props) {
             bottom: 0,
             height: Titanium.UI.SIZE,
             width: colWidth,
-            touchEnabled: false,
+            touchEnabled: false
         });
         toprow.add(caption);
         bottomrow.add(this.mcqgroup.buttons[i].tiview);
@@ -168,7 +168,7 @@ RadioGroupHorizontalCaptionsAbove.prototype = {
         uifunc.removeAllViewChildren(this.tiview);
         this.tiview = null;
         this.mcqgroup.cleanup();
-    },
+    }
 
 };
 module.exports = RadioGroupHorizontalCaptionsAbove;

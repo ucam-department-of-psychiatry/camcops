@@ -19,7 +19,7 @@ var DBNAME = "junk.db",
         height: ICONSIZE,
         touchEnabled: true,
         backgroundImage: ICON_RADIO_UNSELECTED,
-        backgroundSelectedImage: ICON_RADIO_UNSELECTED_T,
+        backgroundSelectedImage: ICON_RADIO_UNSELECTED_T
     }),
     state = false,
     win = Titanium.UI.createWindow();

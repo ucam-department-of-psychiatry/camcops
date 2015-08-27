@@ -119,9 +119,9 @@ lang.extendPrototype(Bprs, {
                     {
                         type: "QuestionMCQ",
                         field: "q" + n,
-                        options: options,
-                    },
-                ],
+                        options: options
+                    }
+                ]
             };
         }
 
@@ -139,10 +139,10 @@ lang.extendPrototype(Bprs, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 });
 
 module.exports = Bprs;

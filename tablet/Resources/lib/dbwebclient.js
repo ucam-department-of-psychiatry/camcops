@@ -182,7 +182,7 @@ function isInDatabaseByPK(tablename, pkname, pkval) {
             operation: "count",
             table: tablename,
             wherefields: pkname,
-            wherevalues: pkval,
+            wherevalues: pkval
         }),
         count;
     if (!reply.success || !reply.result) {
@@ -201,7 +201,7 @@ function readFromUniqueField(tablename, fieldlist, object, keyname, keyval) {
             table: tablename,
             fields: getFields(fieldlist),
             wherefields: keyname,
-            wherevalues: keyval,
+            wherevalues: keyval
         }),
         recordlist = netcore.convertResponseToRecordList(reply);
     if (recordlist.length === 0) {
@@ -229,7 +229,7 @@ function isInDatabaseByUniqueFieldCombination(tablename, wherefields,
         operation: "count",
         table: tablename,
         wherefields: wherefieldnames.join(","),
-        wherevalues: encodedvalues.join(","),
+        wherevalues: encodedvalues.join(",")
     });
     if (!reply.success || !reply.result) {
         return false;
@@ -272,7 +272,7 @@ function readFromUniqueFieldCombination(tablename, fieldlist, object,
         table: tablename,
         fields: getFields(fieldlist),
         wherefields: wherefieldnames.join(","),
-        wherevalues: wherevalues.join(","),
+        wherevalues: wherevalues.join(",")
     });
     recordlist = netcore.convertResponseToRecordList(reply);
     if (recordlist.length === 0) {
@@ -289,7 +289,7 @@ function getAllRows(tablename, fieldlist, objecttype, orderby) {
         reply = netcore.getServerResponse({
             operation: "select",
             table: tablename,
-            fields: getFields(fieldlist),
+            fields: getFields(fieldlist)
         }),
         recordlist = netcore.convertResponseToRecordList(reply);
     // order by ... ***
@@ -307,7 +307,7 @@ function getAllRowsByKey(keyname, keyvalue, tablename, fieldlist, objecttype,
             table: tablename,
             fields: getFields(fieldlist),
             wherefields: keyname,
-            wherevalues: keyvalue,
+            wherevalues: keyvalue
         }),
         recordlist = netcore.convertResponseToRecordList(reply);
     // order by ... ***
@@ -322,7 +322,7 @@ function getAllPKs(tablename, pkname, orderby) {
         reply = netcore.getServerResponse({
             operation: "select",
             table: tablename,
-            fields: pkname,
+            fields: pkname
         }),
         recordlist = netcore.convertResponseToRecordList(reply),
         pks = [],
@@ -344,7 +344,7 @@ function getAllPKsByKey(tablename, pkname, orderby, keyname, keyvalue) {
             table: tablename,
             fields: pkname,
             wherefields: keyname,
-            wherevalues: keyvalue,
+            wherevalues: keyvalue
         }),
         recordlist = netcore.convertResponseToRecordList(reply),
         pks = [],
@@ -365,7 +365,7 @@ function getSingleValueByKey(tablename, keyname, keyvalue, field) {
             table: tablename,
             fields: field.name,
             wherefields: keyname,
-            wherevalues: keyvalue,
+            wherevalues: keyvalue
         }),
         recordlist = netcore.convertResponseToRecordList(reply);
     if (recordlist.length === 0) {
@@ -408,7 +408,7 @@ function countWhere(tablename, wherefields, wherevalues, wherenotfields,
         wherefields: wherefieldnames.join(","),
         wherevalues: encodedwherevalues.join(","),
         wherenotfields: wherenotfieldnames.join(","),
-        wherenotvalues: encodedwherenotvalues.join(","),
+        wherenotvalues: encodedwherenotvalues.join(",")
     });
     if (!reply.success || !reply.result) {
         return false;
@@ -439,7 +439,7 @@ function createRow(tablename, fieldlist, object, pkname) {
             table: tablename,
             fields: fieldsAndValues.fields,
             values: fieldsAndValues.values,
-            pkname: pkname,
+            pkname: pkname
         }),
         lastInsertRowId;
 
@@ -465,7 +465,7 @@ function updateByPK(tablename, fieldlist, object, pkname, pkval) {
             camcops_version: VERSION.CAMCOPS_VERSION,
             table: tablename,
             wherefields: pkname,
-            wherevalues: pkval,
+            wherevalues: pkval
         },
         fieldsAndValues = encodeFieldsAndValues(fieldlist, object),
         reply,
@@ -489,7 +489,7 @@ function setSingleValueByKey(tablename, keyname, keyvalue, field, value) {
             wherefields: keyname,
             wherevalues: keyvalue,
             fields: field.name,
-            values: encodeValue(field, value),
+            values: encodeValue(field, value)
         },
         reply = netcore.getServerResponse(params),
         success;
@@ -512,7 +512,7 @@ function deleteWhere(tablename, field, value) {
         operation: "delete",
         table: tablename,
         wherefields: field.name,
-        wherevalues: encodeValue(field, value),
+        wherevalues: encodeValue(field, value)
     });
 }
 exports.deleteWhere = deleteWhere;

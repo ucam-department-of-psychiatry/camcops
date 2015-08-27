@@ -424,8 +424,8 @@ lang.extendPrototype(Ace3, {
                                 type: UICONSTANTS.TYPEDVAR_TEXT,
                                 field: "occupation",
                                 prompt: L("ace3_q_occupation")
-                            },
-                        ],
+                            }
+                        ]
                     },
                     {
                         type: "QuestionMCQ",
@@ -435,10 +435,10 @@ lang.extendPrototype(Ace3, {
                         field: "handedness",
                         options: [
                             new KeyValuePair(L("ace3_left_handed"), "L"),
-                            new KeyValuePair(L("ace3_right_handed"), "R"),
-                        ],
-                    },
-                ],
+                            new KeyValuePair(L("ace3_right_handed"), "R")
+                        ]
+                    }
+                ]
             },
             {
                 title: L("ace3_title_prefix") + " " + (pagenum++),
@@ -479,8 +479,8 @@ lang.extendPrototype(Ace3, {
                                 mandatory: true,
                                 text: L("ace3_attn_time5"),
                                 field: "attn_time5"
-                            },
-                        ],
+                            }
+                        ]
                     },
                     {
                         type: "QuestionText",
@@ -521,8 +521,8 @@ lang.extendPrototype(Ace3, {
                                 mandatory: true,
                                 text: L("ace3_attn_place5"),
                                 field: "attn_place5"
-                            },
-                        ],
+                            }
+                        ]
                     },
                     {
                         type: "QuestionText",
@@ -557,8 +557,8 @@ lang.extendPrototype(Ace3, {
                                 mandatory: true,
                                 text: L("ace3_mem_word3"),
                                 field: "attn_repeat_word3"
-                            },
-                        ],
+                            }
+                        ]
                     },
                     {
                         type: "ContainerHorizontal",
@@ -575,10 +575,10 @@ lang.extendPrototype(Ace3, {
                                     new KeyValuePair("2", 2),
                                     new KeyValuePair("3", 3),
                                     new KeyValuePair("4", 4),
-                                    new KeyValuePair(">4", 0),
-                                ],
-                            },
-                        ],
+                                    new KeyValuePair(">4", 0)
+                                ]
+                            }
+                        ]
                     },
                     // Serial 7s
                     { type: "QuestionHeading", text: L("ace3_cat_attn") },
@@ -623,8 +623,8 @@ lang.extendPrototype(Ace3, {
                                 mandatory: true,
                                 text: L("ace3_attn_subtraction5"),
                                 field: "attn_serial7_subtraction5"
-                            },
-                        ],
+                            }
+                        ]
                     },
                     // Lemon, key, ball (recall)
                     { type: "QuestionHeading", text: L("ace3_cat_mem") },
@@ -657,10 +657,10 @@ lang.extendPrototype(Ace3, {
                                 mandatory: true,
                                 text: L("ace3_mem_word3"),
                                 field: "mem_recall_word3"
-                            },
-                        ],
-                    },
-                ],
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 title: L("ace3_title_prefix") + " " + (pagenum++),
@@ -675,7 +675,7 @@ lang.extendPrototype(Ace3, {
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_fluency_q_letters"),
+                        text: L("ace3_fluency_q_letters")
                     },
                     {
                         type: "QuestionCountdown",
@@ -722,8 +722,8 @@ lang.extendPrototype(Ace3, {
                             new KeyValuePair("8–10", 4),
                             new KeyValuePair("11–13", 5),
                             new KeyValuePair("14–17", 6),
-                            new KeyValuePair("≥18", 7),
-                        ],
+                            new KeyValuePair("≥18", 7)
+                        ]
                     },
                     {
                         type: "QuestionText",
@@ -732,7 +732,7 @@ lang.extendPrototype(Ace3, {
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_fluency_q_animals"),
+                        text: L("ace3_fluency_q_animals")
                     },
                     {
                         type: "QuestionCountdown",
@@ -779,10 +779,10 @@ lang.extendPrototype(Ace3, {
                             new KeyValuePair("11–13", 4),
                             new KeyValuePair("14–16", 5),
                             new KeyValuePair("17–21", 6),
-                            new KeyValuePair("≥22", 7),
-                        ],
-                    },
-                ],
+                            new KeyValuePair("≥22", 7)
+                        ]
+                    }
+                ]
             },
             {
                 title: L("ace3_title_prefix") + " " + (pagenum++),
@@ -792,7 +792,7 @@ lang.extendPrototype(Ace3, {
                     { type: "QuestionHeading", text: L("ace3_cat_mem") },
                     {
                         type: "QuestionText",
-                        text: L("ace3_memory_q_address"),
+                        text: L("ace3_memory_q_address")
                     },
                     {
                         type: "QuestionText",
@@ -812,7 +812,7 @@ lang.extendPrototype(Ace3, {
                                 elements: [
                                     {
                                         type: "QuestionText",
-                                        text: L("ace3_trial") + " 1",
+                                        text: L("ace3_trial") + " 1"
                                     },
                                     {
                                         type: "ContainerHorizontal",
@@ -828,8 +828,8 @@ lang.extendPrototype(Ace3, {
                                                 text: L("ace3_address_2"),
                                                 field: "mem_repeat_address_trial1_2",
                                                 mandatory: false
-                                            },
-                                        ],
+                                            }
+                                        ]
                                     },
                                     {
                                         type: "ContainerHorizontal",
@@ -851,8 +851,8 @@ lang.extendPrototype(Ace3, {
                                                 text: L("ace3_address_5"),
                                                 field: "mem_repeat_address_trial1_5",
                                                 mandatory: false
-                                            },
-                                        ],
+                                            }
+                                        ]
                                     },
                                     {
                                         type: "QuestionBooleanText",
@@ -865,15 +865,15 @@ lang.extendPrototype(Ace3, {
                                         text: L("ace3_address_7"),
                                         field: "mem_repeat_address_trial1_7",
                                         mandatory: false
-                                    },
-                                ],
+                                    }
+                                ]
                             },
                             {
                                 type: "ContainerVertical",
                                 elements: [
                                     {
                                         type: "QuestionText",
-                                        text: L("ace3_trial") + " 2",
+                                        text: L("ace3_trial") + " 2"
                                     },
                                     {
                                         type: "ContainerHorizontal",
@@ -889,8 +889,8 @@ lang.extendPrototype(Ace3, {
                                                 text: L("ace3_address_2"),
                                                 field: "mem_repeat_address_trial2_2",
                                                 mandatory: false
-                                            },
-                                        ],
+                                            }
+                                        ]
                                     },
                                     {
                                         type: "ContainerHorizontal",
@@ -912,8 +912,8 @@ lang.extendPrototype(Ace3, {
                                                 text: L("ace3_address_5"),
                                                 field: "mem_repeat_address_trial2_5",
                                                 mandatory: false
-                                            },
-                                        ],
+                                            }
+                                        ]
                                     },
                                     {
                                         type: "QuestionBooleanText",
@@ -926,15 +926,15 @@ lang.extendPrototype(Ace3, {
                                         text: L("ace3_address_7"),
                                         field: "mem_repeat_address_trial2_7",
                                         mandatory: false
-                                    },
-                                ],
+                                    }
+                                ]
                             },
                             {
                                 type: "ContainerVertical",
                                 elements: [
                                     {
                                         type: "QuestionText",
-                                        text: L("ace3_trial") + " 3",
+                                        text: L("ace3_trial") + " 3"
                                     },
                                     {
                                         type: "ContainerHorizontal",
@@ -950,8 +950,8 @@ lang.extendPrototype(Ace3, {
                                                 mandatory: true,
                                                 text: L("ace3_address_2"),
                                                 field: "mem_repeat_address_trial3_2"
-                                            },
-                                        ],
+                                            }
+                                        ]
                                     },
                                     {
                                         type: "ContainerHorizontal",
@@ -973,8 +973,8 @@ lang.extendPrototype(Ace3, {
                                                 mandatory: true,
                                                 text: L("ace3_address_5"),
                                                 field: "mem_repeat_address_trial3_5"
-                                            },
-                                        ],
+                                            }
+                                        ]
                                     },
                                     {
                                         type: "QuestionBooleanText",
@@ -987,10 +987,10 @@ lang.extendPrototype(Ace3, {
                                         mandatory: true,
                                         text: L("ace3_address_7"),
                                         field: "mem_repeat_address_trial3_7"
-                                    },
-                                ],
-                            },
-                        ],
+                                    }
+                                ]
+                            }
+                        ]
                     },
 
                     // Famous people
@@ -1023,8 +1023,8 @@ lang.extendPrototype(Ace3, {
                         type: "QuestionText",
                         text: L("ace3_instruction_famous"),
                         italic: true
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: L("ace3_title_prefix") + " " + (pagenum++),
@@ -1035,7 +1035,7 @@ lang.extendPrototype(Ace3, {
                     { type: "QuestionHeading", text: L("ace3_cat_lang") },
                     {
                         type: "QuestionText",
-                        text: L("ace3_lang_q_command_1"),
+                        text: L("ace3_lang_q_command_1")
                     },
                     {
                         type: "QuestionBooleanText",
@@ -1045,7 +1045,7 @@ lang.extendPrototype(Ace3, {
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_lang_q_command_2"),
+                        text: L("ace3_lang_q_command_2")
                     },
                     {
                         elementTag: LANG_OPTIONAL_COMMAND,
@@ -1070,7 +1070,7 @@ lang.extendPrototype(Ace3, {
                     { type: "QuestionHeading", text: L("ace3_cat_lang") },
                     {
                         type: "QuestionText",
-                        text: L("ace3_lang_q_sentences"),
+                        text: L("ace3_lang_q_sentences")
                     },
                     {
                         type: "QuestionBooleanText",
@@ -1083,8 +1083,8 @@ lang.extendPrototype(Ace3, {
                         mandatory: true,
                         text: L("ace3_lang_sentences_point2"),
                         field: "lang_write_sentences_point2"
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: L("ace3_title_prefix") + " " + (pagenum++),
@@ -1190,8 +1190,8 @@ lang.extendPrototype(Ace3, {
                         type: "QuestionText",
                         text: L("ace3_advance_warning_8"),
                         italic: true
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: L("ace3_title_prefix") + " " + (pagenum++),
@@ -1278,8 +1278,8 @@ lang.extendPrototype(Ace3, {
                                 mandatory: true,
                                 field: "lang_name_picture12",
                                 image: IMAGE_ACCORDION
-                            },
-                        ],
+                            }
+                        ]
                     },
                     // Choosing pictures by concept
                     { type: "QuestionHeading", text: L("ace3_cat_lang") },
@@ -1315,8 +1315,8 @@ lang.extendPrototype(Ace3, {
                         type: "QuestionText",
                         text: L("ace3_lang_instruction_identify_concept"),
                         italic: true
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: L("ace3_title_prefix") + " " + (pagenum++),
@@ -1344,8 +1344,8 @@ lang.extendPrototype(Ace3, {
                         type: "QuestionText",
                         text: L("ace3_lang_instruction_read_aloud"),
                         italic: true
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: L("ace3_title_prefix") + " " + (pagenum++),
@@ -1360,8 +1360,8 @@ lang.extendPrototype(Ace3, {
                         mandatory: true,
                         text: L("ace3_vsp_infinity_correct"),
                         field: "vsp_copy_infinity"
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: L("ace3_title_prefix") + " " + (pagenum++),
@@ -1380,10 +1380,10 @@ lang.extendPrototype(Ace3, {
                         options: [
                             new KeyValuePair("0", 0),
                             new KeyValuePair("1", 1),
-                            new KeyValuePair("2", 2),
-                        ],
-                    },
-                ],
+                            new KeyValuePair("2", 2)
+                        ]
+                    }
+                ]
             },
             {
                 title: L("ace3_title_prefix") + " " + (pagenum++),
@@ -1412,10 +1412,10 @@ lang.extendPrototype(Ace3, {
                             new KeyValuePair("2", 2),
                             new KeyValuePair("3", 3),
                             new KeyValuePair("4", 4),
-                            new KeyValuePair("5", 5),
-                        ],
-                    },
-                ],
+                            new KeyValuePair("5", 5)
+                        ]
+                    }
+                ]
             },
             {
                 title: L("ace3_title_prefix") + " " + (pagenum++),
@@ -1451,10 +1451,10 @@ lang.extendPrototype(Ace3, {
                                 mandatory: true,
                                 field: "vsp_count_dots4",
                                 image: IMAGE_DOTS9
-                            },
-                        ],
-                    },
-                ],
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 title: L("ace3_title_prefix") + " " + (pagenum++),
@@ -1490,10 +1490,10 @@ lang.extendPrototype(Ace3, {
                                 mandatory: true,
                                 field: "vsp_identify_letter4",
                                 image: IMAGE_T
-                            },
-                        ],
-                    },
-                ],
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 title: L("ace3_title_prefix") + " " + (pagenum++),
@@ -1522,8 +1522,8 @@ lang.extendPrototype(Ace3, {
                                         mandatory: true,
                                         text: L("ace3_address_2"),
                                         field: "mem_recall_address2"
-                                    },
-                                ],
+                                    }
+                                ]
                             },
                             {
                                 type: "ContainerHorizontal",
@@ -1545,8 +1545,8 @@ lang.extendPrototype(Ace3, {
                                         mandatory: true,
                                         text: L("ace3_address_5"),
                                         field: "mem_recall_address5"
-                                    },
-                                ],
+                                    }
+                                ]
                             },
                             {
                                 type: "QuestionBooleanText",
@@ -1559,16 +1559,16 @@ lang.extendPrototype(Ace3, {
                                 mandatory: true,
                                 text: L("ace3_address_7"),
                                 field: "mem_recall_address7"
-                            },
-                        ],
-                    },
-                ],
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 // Recognize bits you didn't recall
                 title: L("ace3_title_prefix") + " " + (pagenum++),
                 onTheFly: true,
-                pageTag: MEM_RECOGNIZE,
+                pageTag: MEM_RECOGNIZE
             },
             {
                 title: L("ace3_title_prefix") + " " + (pagenum++),
@@ -1584,10 +1584,10 @@ lang.extendPrototype(Ace3, {
                                 field: "comments",
                                 prompt: L("examiners_comments_prompt"),
                                 hint: L("examiners_comments")
-                            },
-                        ],
-                    },
-                ],
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 title: L("ace3_title_prefix") + " " + (pagenum++),
@@ -1612,8 +1612,8 @@ lang.extendPrototype(Ace3, {
                         field: "picture1_blobid",
                         mandatory: false,
                         rotationField: "picture1_rotation"
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: L("ace3_title_prefix") + " " + (pagenum++),
@@ -1638,8 +1638,8 @@ lang.extendPrototype(Ace3, {
                         field: "picture2_blobid",
                         mandatory: false,
                         rotationField: "picture2_rotation"
-                    },
-                ],
+                    }
+                ]
             }
         ];
 
@@ -1656,7 +1656,7 @@ lang.extendPrototype(Ace3, {
             fnMakePageOnTheFly: function (currentPage, pageTag) {
                 var elements = [
                         // Recognize the address
-                        { type: "QuestionHeading", text: L("ace3_cat_mem") },
+                        { type: "QuestionHeading", text: L("ace3_cat_mem") }
                     ];
                 if (pageTag !== MEM_RECOGNIZE) {
                     throw new Error("Ace3/fnMakePageOnTheFly: called for " +
@@ -1693,8 +1693,8 @@ lang.extendPrototype(Ace3, {
                             options: [
                                 new KeyValuePair(L("ace3_mem_recall_option1_line1"), 0),
                                 new KeyValuePair(L("ace3_mem_recall_option2_line1"), 1),
-                                new KeyValuePair(L("ace3_mem_recall_option3_line1"), 0),
-                            ],
+                                new KeyValuePair(L("ace3_mem_recall_option3_line1"), 0)
+                            ]
                         });
                     }
                     if (!self.mem_recall_address3) {
@@ -1707,8 +1707,8 @@ lang.extendPrototype(Ace3, {
                             options: [
                                 new KeyValuePair(L("ace3_mem_recall_option1_line2"), 0),
                                 new KeyValuePair(L("ace3_mem_recall_option2_line2"), 1),
-                                new KeyValuePair(L("ace3_mem_recall_option3_line2"), 0),
-                            ],
+                                new KeyValuePair(L("ace3_mem_recall_option3_line2"), 0)
+                            ]
                         });
                     }
                     if (!self.mem_recall_address4 || !self.mem_recall_address5) {
@@ -1721,8 +1721,8 @@ lang.extendPrototype(Ace3, {
                             options: [
                                 new KeyValuePair(L("ace3_mem_recall_option1_line3"), 0),
                                 new KeyValuePair(L("ace3_mem_recall_option2_line3"), 0),
-                                new KeyValuePair(L("ace3_mem_recall_option3_line3"), 1),
-                            ],
+                                new KeyValuePair(L("ace3_mem_recall_option3_line3"), 1)
+                            ]
                         });
                     }
                     if (!self.mem_recall_address6) {
@@ -1734,8 +1734,8 @@ lang.extendPrototype(Ace3, {
                             options: [
                                 new KeyValuePair(L("ace3_mem_recall_option1_line4"), 0),
                                 new KeyValuePair(L("ace3_mem_recall_option2_line4"), 1),
-                                new KeyValuePair(L("ace3_mem_recall_option3_line4"), 0),
-                            ],
+                                new KeyValuePair(L("ace3_mem_recall_option3_line4"), 0)
+                            ]
                         });
                     }
                     if (!self.mem_recall_address7) {
@@ -1748,15 +1748,15 @@ lang.extendPrototype(Ace3, {
                             options: [
                                 new KeyValuePair(L("ace3_mem_recall_option1_line5"), 1),
                                 new KeyValuePair(L("ace3_mem_recall_option2_line5"), 0),
-                                new KeyValuePair(L("ace3_mem_recall_option3_line5"), 0),
-                            ],
+                                new KeyValuePair(L("ace3_mem_recall_option3_line5"), 0)
+                            ]
                         });
                     }
                 }
                 return {
                     title: L("ace3_title_prefix") + " 15", // magic number: memory page number
                     clinician: true,
-                    elements: elements,
+                    elements: elements
                 };
             },
             fnShowNext: function (currentPage, pageTag) {
@@ -1767,10 +1767,10 @@ lang.extendPrototype(Ace3, {
                     );
                 }
                 return { care: false }; // the mandatory framework will do the rest
-            },
+            }
         });
         questionnaire.open();
-    },
+    }
 });
 
 module.exports = Ace3;

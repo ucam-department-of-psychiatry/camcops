@@ -51,7 +51,7 @@ exports.configure = function () {
             "defaultClinicianContactDetails",
             "offerUploadAfterEdit",
             "multilineTextFixedHeight",
-            "multilineDefaultNLines",
+            "multilineDefaultNLines"
         ];
 
     if (doingPassword) {
@@ -65,18 +65,18 @@ exports.configure = function () {
                 prompt: L("label_server_password"),
                 hint: L('hint_server_password'),
                 mandatory: true
-            } ],
+            } ]
         };
         tempstore = {
             tempPassword: rnc_crypto.retrieveObscuredPassword(
                 storedvars.serverPasswordObscured.getValue()
-            ),
+            )
         };
     } else {
         passwordElement = {
             type: "QuestionText",
             text: L("label_password_not_being_stored"),
-            italic: true,
+            italic: true
         };
         tempstore = {};
     }
@@ -102,8 +102,8 @@ exports.configure = function () {
                             prompt: L("label_server_user"),
                             hint: L('hint_server_user'),
                             mandatory: true
-                        },
-                    ],
+                        }
+                    ]
                 },
                 passwordElement,
                 { type: "QuestionHorizontalRule" },
@@ -157,8 +157,8 @@ exports.configure = function () {
                             prompt: L("label_default_clinician_contact_details"),
                             hint: L('hint_default_clinician_contact_details'),
                             mandatory: false
-                        },
-                    ],
+                        }
+                    ]
                 },
                 { type: "QuestionHorizontalRule" },
                 {
@@ -196,11 +196,11 @@ exports.configure = function () {
                             prompt: L("multiline_text_default_n_lines"),
                             hint: L('multiline_text_default_n_lines'),
                             mandatory: true
-                        },
-                    ],
-                },
-            ],
-        },
+                        }
+                    ]
+                }
+            ]
+        }
     ];
 
     for (i = 0; i < varlist.length; ++i) {

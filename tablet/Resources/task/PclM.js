@@ -51,6 +51,6 @@ lang.extendPrototype(PclM, {
 
     _nquestions: nquestions,
     _pcltype: "m",
-    _specificEvent: false,
+    _specificEvent: false
 });
 module.exports = PclM;

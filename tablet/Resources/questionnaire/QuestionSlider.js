@@ -70,7 +70,7 @@ function QuestionSlider(props) {
         bottom: props.bottom,
         center: props.center,
         width: Titanium.UI.FILL,
-        height: Titanium.UI.SIZE,
+        height: Titanium.UI.SIZE
     });
     this.indicator = new qcommon.ValidityIndicator({
         size: UICONSTANTS.QUESTIONNAIRE_WARNING_IMAGE_SIZE
@@ -81,7 +81,7 @@ function QuestionSlider(props) {
         top: 0,
         width: Titanium.UI.FILL,
         height: Titanium.UI.SIZE,
-        layout: 'vertical',
+        layout: 'vertical'
     });
     this.tiview.add(maincontainer);
 
@@ -93,7 +93,7 @@ function QuestionSlider(props) {
             font: UICONSTANTS.getQuestionnaireFont(props.big, props.bold,
                                                    props.italic),
             color: UICONSTANTS.QUESTION_COLOUR,
-            touchEnabled: false,
+            touchEnabled: false
         });
         maincontainer.add(this.numberLabel);
     }
@@ -108,7 +108,7 @@ function QuestionSlider(props) {
         min: props.min,
         max: props.max,
         minRange: props.min,
-        maxRange: props.max,
+        maxRange: props.max
     });
     maincontainer.add(this.slider);
 
@@ -118,7 +118,7 @@ function QuestionSlider(props) {
             top: 0,
             left: 0,
             width: Titanium.UI.FILL,
-            height: Titanium.UI.SIZE,
+            height: Titanium.UI.SIZE
         });
         maincontainer.add(textcontainer);
         for (i = 0; i < props.labels.length; ++i) {
@@ -134,7 +134,7 @@ function QuestionSlider(props) {
                 ),
                 color: UICONSTANTS.QUESTION_COLOUR,
                 touchEnabled: false,
-                text: props.labels[i].text,
+                text: props.labels[i].text
             };
             if (props.labels[i].left !== undefined) {
                 labelprops.left = props.labels[i].left;
@@ -256,7 +256,7 @@ lang.extendPrototype(QuestionSlider, {
         this.slider = null;
         this.numberLabel = null;
         this.indicator.cleanup();
-    },
+    }
 
 });
 module.exports = QuestionSlider;

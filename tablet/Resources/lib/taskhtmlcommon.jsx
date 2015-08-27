@@ -34,7 +34,7 @@ var inTitanium = (this.Titanium !== undefined),
     NOT_IN_TITANIUM_MSG = "call not permitted; not in Titanium environment",
     windowInitialized = false,
     RADPERDEG = Math.PI / 180, // radians per degree
-    TASKNAME = "",
+    TASKNAME,
     EVENTNAME_IN,
     EVENTNAME_OUT,
     startTask,
@@ -331,7 +331,7 @@ function json_freeze_moment(m) {
     // Function must be identical in conversion.js and taskhtmlcommon.jsx
     return {
         _class: "moment",
-        value: momentToString(m),
+        value: momentToString(m)
     };
 }
 

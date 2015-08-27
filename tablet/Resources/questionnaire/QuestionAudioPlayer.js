@@ -41,7 +41,7 @@ function QuestionAudioPlayer(props) {
         // filename should begin with "/" or it searches Resources/lib/FILENAME
         // (= relative to this .js file...)
         allowBackground: true,
-        volume: props.volume,
+        volume: props.volume
     });
     this.finishedListener = function () { self.soundFinished(); };
     this.sound.addEventListener("complete", this.finishedListener);
@@ -56,7 +56,7 @@ function QuestionAudioPlayer(props) {
         top: props.top,
         bottom: props.bottom,
         center: props.center,
-        touchEnabled: true,
+        touchEnabled: true
     });
     this.touchedListener = function () { self.touched(); };
     this.tiview.addEventListener("click", this.touchedListener);
@@ -111,7 +111,7 @@ lang.extendPrototype(QuestionAudioPlayer, {
         this.tiview.removeEventListener("click", this.touchedListener);
         this.touchedListener = null;
         this.sound = null;
-    },
+    }
 
 });
 module.exports = QuestionAudioPlayer;

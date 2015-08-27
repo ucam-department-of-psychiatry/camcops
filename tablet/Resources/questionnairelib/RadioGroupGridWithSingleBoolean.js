@@ -38,7 +38,7 @@ function RadioGroupGridWSBTitleRow(options,
             height: Titanium.UI.SIZE,
             bottom: 0,
             backgroundColor: UICONSTANTS.GRID_TITLEROW_BACKGROUND,
-            touchEnabled: false,
+            touchEnabled: false
         }),
         colWidthWithinRadioView = lang.divideUnits('100%', options.length),
         i,
@@ -51,7 +51,7 @@ function RadioGroupGridWSBTitleRow(options,
         width: Titanium.UI.FILL,
         height: Titanium.UI.SIZE,
         top: topspace,
-        touchEnabled: false,
+        touchEnabled: false
     });
 
     for (i = 0; i < options.length; ++i) {
@@ -64,7 +64,7 @@ function RadioGroupGridWSBTitleRow(options,
             bottom: 0,
             height: Titanium.UI.SIZE,
             width: colWidthWithinRadioView,
-            touchEnabled: false,
+            touchEnabled: false
         });
         radioview.add(optionLabel);
     }
@@ -80,7 +80,7 @@ function RadioGroupGridWSBTitleRow(options,
         height: Titanium.UI.SIZE,
         right: 0,
         width: boolColWidth,
-        touchEnabled: false,
+        touchEnabled: false
     });
     this.tiview.add(booleanLabel);
 
@@ -91,7 +91,7 @@ function RadioGroupGridWSBTitleRow(options,
                                                      radioColWidth),
                                   boolColWidth),
             height : Titanium.UI.SIZE,
-            touchEnabled: false,
+            touchEnabled: false
         });
         subtitletext = Titanium.UI.createLabel({
             text : subtitle,
@@ -102,7 +102,7 @@ function RadioGroupGridWSBTitleRow(options,
             right : UICONSTANTS.SPACE,
             center : { y : '50%' },
             height : Titanium.UI.SIZE,
-            touchEnabled: false,
+            touchEnabled: false
         });
         subtitleview.add(subtitletext);
         this.tiview.add(subtitleview);
@@ -139,7 +139,7 @@ function RadioGroupGridWSBRow(props) {
         width: Titanium.UI.FILL,
         height: Titanium.UI.SIZE,
         top: props.topspace,
-        touchEnabled: true,
+        touchEnabled: true
     });
 
     for (i = 0; i < props.radioOptions.length; ++i) {
@@ -153,7 +153,7 @@ function RadioGroupGridWSBRow(props) {
             props.setFieldValue(props.mcqField, newValue);
         },
         tipropsArray: buttonTipropsArray,
-        extraData: UICONSTANTS.ELEMENT_TYPE_RADIO, // extra data
+        extraData: UICONSTANTS.ELEMENT_TYPE_RADIO // extra data
     });
 
     // Creation from the left
@@ -162,7 +162,7 @@ function RadioGroupGridWSBRow(props) {
         right : lang.addUnits(lang.multiplyUnits(props.radioOptions.length,
                                                  props.radioColWidth),
                               props.boolColWidth),
-        height : Titanium.UI.SIZE,
+        height : Titanium.UI.SIZE
     });
     questiontext = Titanium.UI.createLabel({
         text : props.question_text,
@@ -173,7 +173,7 @@ function RadioGroupGridWSBRow(props) {
         right : UICONSTANTS.SPACE,
         center : { y : '50%' },
         height : Titanium.UI.SIZE,
-        touchEnabled: false,
+        touchEnabled: false
     });
     questionview.add(questiontext);
     this.tiview.add(questionview);
@@ -189,7 +189,7 @@ function RadioGroupGridWSBRow(props) {
             width: props.radioColWidth,
             extraData: UICONSTANTS.ELEMENT_TYPE_RADIO, // extra data
             index_id: i, // extra data
-            touchEnabled: true,
+            touchEnabled: true
         });
         buttonview.add(this.mcqgroup.buttons[i].tiview);
         this.tiview.add(buttonview);
@@ -200,7 +200,7 @@ function RadioGroupGridWSBRow(props) {
         right: 0,
         width: props.boolColWidth,
         extraData: UICONSTANTS.ELEMENT_TYPE_BOOLEAN, // extra data
-        touchEnabled: true,
+        touchEnabled: true
     });
     this.booleanwidget = new qcommon.BooleanWidget({
         readOnly: props.readOnly,
@@ -212,9 +212,9 @@ function RadioGroupGridWSBRow(props) {
             props.setFieldValue(props.booleanField, newValue);
         },
         tiprops: {
-            center: { x: '50%', y: '50%' },
+            center: { x: '50%', y: '50%' }
         },
-        extraData: UICONSTANTS.ELEMENT_TYPE_BOOLEAN, // extra data
+        extraData: UICONSTANTS.ELEMENT_TYPE_BOOLEAN // extra data
     });
     booleanview.add(this.booleanwidget.tiview);
     this.tiview.add(booleanview);
@@ -264,7 +264,7 @@ RadioGroupGridWSBRow.prototype = {
         this.tiview = null;
         this.mcqgroup.cleanup();
         this.booleanwidget.cleanup();
-    },
+    }
 
 };
 
@@ -338,7 +338,7 @@ function RadioGroupGridWithSingleBoolean(props) {
                 top: props.rowPadding,
                 height: UICONSTANTS.GRID_RULE_HEIGHT,
                 width: Titanium.UI.FILL,
-                backgroundColor: UICONSTANTS.GRID_RULE_COLOUR,
+                backgroundColor: UICONSTANTS.GRID_RULE_COLOUR
             });
             this.tiview.add(rule);
         }
@@ -355,7 +355,7 @@ function RadioGroupGridWithSingleBoolean(props) {
             mcqMandatory: props.mcqFieldsMandatory[i],
             booleanMandatory: props.booleanFieldsMandatory[i],
             booleanBistate: props.booleanBistate,
-            setFieldValue: props.setFieldValue, // relay the change
+            setFieldValue: props.setFieldValue // relay the change
         });
         this.rows.push(newrow);
         this.tiview.add(newrow.tiview);
@@ -474,7 +474,7 @@ RadioGroupGridWithSingleBoolean.prototype = {
         for (i = 0; i < this.rows.length; ++i) {
             this.rows[i].cleanup();
         }
-    },
+    }
 
 };
 module.exports = RadioGroupGridWithSingleBoolean;

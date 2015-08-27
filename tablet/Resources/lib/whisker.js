@@ -70,7 +70,7 @@ function send_imm(msg) {
     // Blocking:
     imm_socket.write(Titanium.createBuffer({
         value: msg + NEWLINE,
-        type: Titanium.Codec.CHARSET_ASCII,
+        type: Titanium.Codec.CHARSET_ASCII
     }));
 }
 
@@ -153,7 +153,7 @@ function connect_imm(port) {
                    e.errorCode + '): ' + e.error);
             Titanium.API.warn(msg);
             alert(msg);
-        },
+        }
     });
     Titanium.API.info("whisker: connecting immediate socket to " +
                       host + ":" + port);
@@ -215,7 +215,7 @@ function send_main(msg) {
     // METHOD 2: blocking (synchronous)
     main_socket.write(Titanium.createBuffer({
         value: msg + NEWLINE,
-        type: Titanium.Codec.CHARSET_ASCII,
+        type: Titanium.Codec.CHARSET_ASCII
     }));
 }
 
@@ -226,7 +226,7 @@ function process_incoming_event(event, whisker_timestamp_ms, now) {
     Titanium.App.fireEvent(EVENTS.WHISKER_EVENT, {
         event: event,
         whisker_timestamp_ms: whisker_timestamp_ms,
-        moment_timestamp: now,
+        moment_timestamp: now
     });
 }
 
@@ -335,7 +335,7 @@ function connect_main() {
                    e.errorCode + '): ' + e.error);
             Titanium.API.info(msg);
             alert(msg);
-        },
+        }
     });
     Titanium.API.info("whisker: connecting main socket to " +
                       host + ":" + port);

@@ -36,7 +36,7 @@ function makeSizeButton(percent) {
         height: Titanium.UI.SIZE,
         color: UICONSTANTS.QUESTIONNAIRE_BUTTON_TEXT_COLOR,
         // backgroundColor: UICONSTANTS.QUESTIONNAIRE_BUTTON_BG_COLOR,
-        title: qcommon.processButtonTextForIos(percent + "%"),
+        title: qcommon.processButtonTextForIos(percent + "%")
     });
 }
 
@@ -55,7 +55,7 @@ function createLabel(text, sizeVaries) {
         color: (sizeVaries ?
                 UICONSTANTS.READONLY_ANSWER_COLOUR :
                 UICONSTANTS.QUESTION_COLOUR
-        ),
+        )
     });
 }
 
@@ -74,12 +74,12 @@ function ConfigureQuestionnaireWindow() {
             right: heading_right,
             text: L('t_configure_questionnaire'),
             textAlign: Titanium.UI.TEXT_ALIGNMENT_CENTER,
-            color: UICONSTANTS.QUESTIONNAIRE_TITLE_COLOUR,
+            color: UICONSTANTS.QUESTIONNAIRE_TITLE_COLOUR
         }),
         toprow = Titanium.UI.createView({
             height: UICONSTANTS.ICONSIZE, // not SIZE; on very narrow displays,
             // it breaks a bit. Truncate instead!
-            width: Titanium.UI.FILL,
+            width: Titanium.UI.FILL
             // backgroundColor: COLOURS.YELLOW,
         }),
         contentview = Titanium.UI.createScrollView({
@@ -88,7 +88,7 @@ function ConfigureQuestionnaireWindow() {
             layout: 'vertical',
             contentHeight: 'auto',
             scrollType: 'vertical',
-            showVerticalScrollIndicator: true,
+            showVerticalScrollIndicator: true
         }),
         label_questionnaireTextSizePercent = createLabel(
             L('label_questionnaire_text_size_percent')
@@ -98,7 +98,7 @@ function ConfigureQuestionnaireWindow() {
             left: 0,
             height: Titanium.UI.SIZE,
             width: Titanium.UI.FILL,
-            layout: 'horizontal',
+            layout: 'horizontal'
         }),
         i,
         percent,
@@ -109,7 +109,7 @@ function ConfigureQuestionnaireWindow() {
             height: Titanium.UI.FILL,
             width: Titanium.UI.FILL,
             layout: 'vertical',
-            backgroundColor: UICONSTANTS.QUESTIONNAIRE_BG_COLOUR_CONFIG,
+            backgroundColor: UICONSTANTS.QUESTIONNAIRE_BG_COLOUR_CONFIG
         });
 
     this.tiview = uifunc.createMenuWindow();
@@ -134,7 +134,7 @@ function ConfigureQuestionnaireWindow() {
         center: {x: "50%"},
         touchEnabled: false,
         font: UICONSTANTS.getQuestionnaireFont(),
-        color: UICONSTANTS.QUESTION_COLOUR,
+        color: UICONSTANTS.QUESTION_COLOUR
     });
     contentview.add(this.numberLabel_questionnaireTextSizePercent);
 
@@ -147,7 +147,7 @@ function ConfigureQuestionnaireWindow() {
         max: 300,
         minRange: 25,
         maxRange: 300,
-        value: storedvars.questionnaireTextSizePercent.getValue(),
+        value: storedvars.questionnaireTextSizePercent.getValue()
     });
     contentview.add(this.slider_questionnaireTextSizePercent);
 

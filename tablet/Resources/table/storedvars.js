@@ -44,7 +44,7 @@ var platform = require('lib/platform'),
         {name: 'type', type: DBCONSTANTS.TYPE_TEXT, mandatory: true},
         {name: 'valueInteger', type: DBCONSTANTS.TYPE_INTEGER},
         {name: 'valueText', type: DBCONSTANTS.TYPE_TEXT},
-        {name: 'valueReal', type: DBCONSTANTS.TYPE_REAL},
+        {name: 'valueReal', type: DBCONSTANTS.TYPE_REAL}
     ],
     SV_TYPE_INTEGER = "integer",
     SV_TYPE_TEXT = "text",
@@ -153,7 +153,7 @@ lang.extendPrototype(StoredVariable_db, {
             throw new Error("Invalid type passed to StoredVariable: " +
                             this.type);
         }
-    },
+    }
 
 });
 
@@ -252,7 +252,7 @@ StoredVariable_titanium.prototype = {
             throw new Error("Invalid type passed to StoredVariable: " +
                             this.type);
         }
-    },
+    }
 
 };
 
@@ -562,7 +562,7 @@ exports.askUserForSpecialMobilewebVariables = function (callbackfunction) {
         hintPassword: L('hint_server_password'),
         verifyAgainstHash: false,
         showCancel: false,
-        callbackFn: userEnteredDataFn,
+        callbackFn: userEnteredDataFn
     });
     win.open();
 };

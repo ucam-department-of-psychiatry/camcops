@@ -381,10 +381,10 @@ lang.extendPrototype(Icd10SpecPD, {
                                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                                 field: "vignette",
                                 prompt: L("icd10_pd_vignette")
-                            },
-                        ],
-                    },
-                ],
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 pageTag: TAG_GENERAL,
@@ -402,7 +402,7 @@ lang.extendPrototype(Icd10SpecPD, {
                         horizontal: true,
                         options: yes_no_options,
                         questions: [ L('icd10pd_G1') ],
-                        fields: [ 'g1' ],
+                        fields: [ 'g1' ]
                     },
                     {
                         type: "QuestionText",
@@ -423,7 +423,7 @@ lang.extendPrototype(Icd10SpecPD, {
                             "g1_",
                             1,
                             N_GENERAL_1
-                        ),
+                        )
                     },
                     {
                         type: "QuestionText",
@@ -444,14 +444,14 @@ lang.extendPrototype(Icd10SpecPD, {
                             "g",
                             2,
                             N_GENERAL
-                        ),
+                        )
                     },
                     {
                         type: "QuestionText",
                         text: L('icd10pd_comments'),
                         bold: true
-                    },
-                ],
+                    }
+                ]
             },
             {
                 pageTag: TAG_PARANOID,
@@ -493,9 +493,9 @@ lang.extendPrototype(Icd10SpecPD, {
                             "paranoid",
                             1,
                             N_PARANOID
-                        ),
-                    },
-                ],
+                        )
+                    }
+                ]
             },
             {
                 pageTag: TAG_SCHIZOID,
@@ -534,9 +534,9 @@ lang.extendPrototype(Icd10SpecPD, {
                             "schizoid",
                             1,
                             N_SCHIZOID
-                        ),
-                    },
-                ],
+                        )
+                    }
+                ]
             },
             {
                 pageTag: TAG_DISSOCIAL,
@@ -578,9 +578,9 @@ lang.extendPrototype(Icd10SpecPD, {
                             "dissocial",
                             1,
                             N_DISSOCIAL
-                        ),
-                    },
-                ],
+                        )
+                    }
+                ]
             },
             {
                 pageTag: TAG_EU,
@@ -627,7 +627,7 @@ lang.extendPrototype(Icd10SpecPD, {
                             "eu",
                             1,
                             N_EUPD_I
-                        ),
+                        )
                     },
                     {
                         type: "QuestionText",
@@ -652,9 +652,9 @@ lang.extendPrototype(Icd10SpecPD, {
                             "eu",
                             N_EUPD_I + 1,
                             N_EU
-                        ),
-                    },
-                ],
+                        )
+                    }
+                ]
             },
             {
                 pageTag: TAG_HISTRIONIC,
@@ -693,9 +693,9 @@ lang.extendPrototype(Icd10SpecPD, {
                             "histrionic",
                             1,
                             N_HISTRIONIC
-                        ),
-                    },
-                ],
+                        )
+                    }
+                ]
             },
             {
                 pageTag: TAG_ANANKASTIC,
@@ -734,9 +734,9 @@ lang.extendPrototype(Icd10SpecPD, {
                             "anankastic",
                             1,
                             N_ANANKASTIC
-                        ),
-                    },
-                ],
+                        )
+                    }
+                ]
             },
             {
                 pageTag: TAG_ANXIOUS,
@@ -775,9 +775,9 @@ lang.extendPrototype(Icd10SpecPD, {
                             "anxious",
                             1,
                             N_ANXIOUS
-                        ),
-                    },
-                ],
+                        )
+                    }
+                ]
             },
             {
                 pageTag: TAG_DEPENDENT,
@@ -816,10 +816,10 @@ lang.extendPrototype(Icd10SpecPD, {
                             "dependent",
                             1,
                             N_DEPENDENT
-                        ),
-                    },
-                ],
-            },
+                        )
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -898,10 +898,10 @@ lang.extendPrototype(Icd10SpecPD, {
                 }
                 questionnaire.setFromFieldByTag(TAG_HAS_PD);
                 return { care: false };
-            },
+            }
         });
         questionnaire.open();
-    },
+    }
 
 });
 

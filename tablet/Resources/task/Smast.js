@@ -138,11 +138,11 @@ lang.extendPrototype(Smast, {
                         subtitles: [
                             {beforeIndex: 5, subtitle: "" },
                             {beforeIndex: 10, subtitle: "" },
-                            {beforeIndex: 15, subtitle: "" },
-                        ],
-                    },
-                ],
-            },
+                            {beforeIndex: 15, subtitle: "" }
+                        ]
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -151,10 +151,10 @@ lang.extendPrototype(Smast, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

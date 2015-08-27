@@ -115,10 +115,10 @@ lang.extendPrototype(CPFT_LPS_ResetResponseClock, {
                             type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                             field: "reason",
                             prompt: L("cpft_lps_rc_reason")
-                        },
-                    ],
-                },
-            ],
+                        }
+                    ]
+                }
+            ]
         };
 
         questionnaire = new Questionnaire({
@@ -127,10 +127,10 @@ lang.extendPrototype(CPFT_LPS_ResetResponseClock, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

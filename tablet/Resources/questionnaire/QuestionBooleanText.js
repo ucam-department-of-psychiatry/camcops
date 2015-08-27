@@ -70,7 +70,7 @@ function QuestionBooleanText(props) {
         },
         text: props.asTextButton ? props.text : "",
         size: buttonsize,
-        tiprops: {},
+        tiprops: {}
     };
     props_text = {
         textAlign: Titanium.UI.TEXT_ALIGNMENT_LEFT,
@@ -78,7 +78,7 @@ function QuestionBooleanText(props) {
                                                props.italic),
         color: UICONSTANTS.QUESTION_COLOUR,
         text: props.text,
-        touchEnabled: true,
+        touchEnabled: true
     };
 
     if (!props.asTextButton) {
@@ -110,7 +110,7 @@ function QuestionBooleanText(props) {
             center: props.center,
             height: Titanium.UI.SIZE,
             width: Titanium.UI.SIZE,
-            touchEnabled: true, // see comments in QuestionBooleanImage
+            touchEnabled: true // see comments in QuestionBooleanImage
         });
         this.tiview.add(this.button.tiview);
         text = Titanium.UI.createLabel(props_text);
@@ -160,7 +160,7 @@ lang.extendPrototype(QuestionBooleanText, {
         var uifunc = require('lib/uifunc');
         uifunc.removeAllViewChildren(this.tiview);
         this.tiview = null;
-    },
+    }
 
 });
 module.exports = QuestionBooleanText;

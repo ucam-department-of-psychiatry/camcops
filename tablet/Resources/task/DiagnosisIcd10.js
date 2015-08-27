@@ -53,7 +53,7 @@ lang.extendPrototype(DiagnosisIcd10Item, {
     _tablename: itemtablename,
     _fieldlist: itemfieldlist,
 
-    _fkname: itemfkname,
+    _fkname: itemfkname
 });
 
 //=============================================================================
@@ -75,7 +75,7 @@ lang.extendPrototype(DiagnosisIcd10, {
     _itemfkfield: itemfkfield,
 
     _codefilename: "common/CODES_ICD10",
-    _questionnairetitle: L('t_diagnosis_icd10'),
+    _questionnairetitle: L('t_diagnosis_icd10')
 });
 
 module.exports = DiagnosisIcd10;

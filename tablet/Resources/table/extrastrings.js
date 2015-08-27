@@ -31,7 +31,7 @@ var dbcommon = require('lib/dbcommon'),
     fieldlist = [
         TASKFIELD,
         {name: 'name', type: DBCONSTANTS.TYPE_TEXT},
-        {name: 'value', type: DBCONSTANTS.TYPE_TEXT},
+        {name: 'value', type: DBCONSTANTS.TYPE_TEXT}
     ],
     IDXNAME_T = "extrastrings_idx_task",
     IDXNAME_N = "extrastrings_idx_name";

@@ -36,7 +36,7 @@ module.exports = function SetMenu_FROM_LP() {
             // ================================================================
             {
                 maintitle: L('t_from_lp_generic'),
-                labelOnly: true,
+                labelOnly: true
             },
             ALLTASKS.TASKLIST.CGI_I,
             // CORE-10 -- copyright conditions prohibit
@@ -50,7 +50,7 @@ module.exports = function SetMenu_FROM_LP() {
             // ================================================================
             {
                 maintitle: L('t_from_lp_specific'),
-                labelOnly: true,
+                labelOnly: true
             },
             ALLTASKS.TASKLIST.ACE3,
             ALLTASKS.TASKLIST.PHQ9,
@@ -58,13 +58,13 @@ module.exports = function SetMenu_FROM_LP() {
             ALLTASKS.TASKLIST.GAD7,
             ALLTASKS.TASKLIST.HONOS,
             ALLTASKS.TASKLIST.AUDIT_C,
-            ALLTASKS.TASKLIST.BMI,
+            ALLTASKS.TASKLIST.BMI
             // *** EQ-5D-5L, if permitted?
         ],
         self = new MenuWindow({
             title: L('t_set_from_lp'),
             subtitle: L('s_set_from_lp'),
-            data: data,
+            data: data
         });
 
     return self;

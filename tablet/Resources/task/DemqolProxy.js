@@ -112,6 +112,7 @@ lang.extendPrototype(DemqolProxy, {
         var self = this,
             KeyValuePair = require('lib/KeyValuePair'),
             Questionnaire = require('questionnaire/Questionnaire'),
+            p0,
             p1,
             p2,
             p3,
@@ -123,14 +124,14 @@ lang.extendPrototype(DemqolProxy, {
                 new KeyValuePair(L('demqol_a2'), 2),
                 new KeyValuePair(L('demqol_a3'), 3),
                 new KeyValuePair(L('demqol_a4'), 4),
-                new KeyValuePair(L('demqol_no_response'), MISSING_VALUE),
+                new KeyValuePair(L('demqol_no_response'), MISSING_VALUE)
             ],
             qoloptions = [
                 new KeyValuePair(L('demqol_q29_a1'), 1),
                 new KeyValuePair(L('demqol_q29_a2'), 2),
                 new KeyValuePair(L('demqol_q29_a3'), 3),
                 new KeyValuePair(L('demqol_q29_a4'), 4),
-                new KeyValuePair(L('demqol_no_response'), MISSING_VALUE),
+                new KeyValuePair(L('demqol_no_response'), MISSING_VALUE)
             ],
             questionnaire;
 
@@ -143,53 +144,53 @@ lang.extendPrototype(DemqolProxy, {
                 {
                     type: "QuestionText",
                     text: L('demqolproxy_instruction1'),
-                    italic: true,
+                    italic: true
                 },
                 {
                     type: "QuestionText",
                     text: L('demqolproxy_instruction2'),
-                    bold: true,
+                    bold: true
                 },
                 {
                     type: "QuestionText",
                     text: L('demqolproxy_instruction3'),
-                    bold: true,
+                    bold: true
                 },
                 {
                     type: "QuestionText",
                     text: L('demqolproxy_instruction4'),
-                    italic: true,
+                    italic: true
                 },
                 {
                     type: "QuestionText",
                     text: L('demqolproxy_instruction5'),
-                    bold: true,
+                    bold: true
                 },
-                { type: "QuestionText", text: L('demqol_a1'), bold: true, },
-                { type: "QuestionText", text: L('demqol_a2'), bold: true, },
-                { type: "QuestionText", text: L('demqol_a3'), bold: true, },
-                { type: "QuestionText", text: L('demqol_a4'), bold: true, },
+                { type: "QuestionText", text: L('demqol_a1'), bold: true },
+                { type: "QuestionText", text: L('demqol_a2'), bold: true },
+                { type: "QuestionText", text: L('demqol_a3'), bold: true },
+                { type: "QuestionText", text: L('demqol_a4'), bold: true },
                 {
                     type: "QuestionText",
                     text: L('demqolproxy_instruction6'),
-                    italic: true,
+                    italic: true
                 },
                 {
                     type: "QuestionText",
                     text: L('demqolproxy_instruction7'),
-                    bold: true,
+                    bold: true
                 },
                 {
                     type: "QuestionText",
                     text: L('demqolproxy_instruction8'),
-                    italic: true,
+                    italic: true
                 },
                 {
                     type: "QuestionText",
                     text: L('demqolproxy_instruction9'),
-                    bold: true,
-                },
-            ],
+                    bold: true
+                }
+            ]
         };
         p2 = {
             title: L('b_demqolproxy') + " " + L('page') + " 2/5",
@@ -198,12 +199,12 @@ lang.extendPrototype(DemqolProxy, {
                 {
                     type: "QuestionText",
                     text: L('demqolproxy_instruction10'),
-                    bold: true,
+                    bold: true
                 },
                 {
                     type: "QuestionText",
                     text: L('demqolproxy_instruction11'),
-                    bold: true,
+                    bold: true
                 },
                 {
                     type: "QuestionMCQGrid",
@@ -213,9 +214,9 @@ lang.extendPrototype(DemqolProxy, {
                         1,
                         11
                     ),
-                    fields: taskcommon.stringArrayFromSequence('q', 1, 11),
-                },
-            ],
+                    fields: taskcommon.stringArrayFromSequence('q', 1, 11)
+                }
+            ]
         };
         p3 = {
             title: L('b_demqolproxy') + " " + L('page') + " 3/5",
@@ -224,7 +225,7 @@ lang.extendPrototype(DemqolProxy, {
                 {
                     type: "QuestionText",
                     text: L('demqolproxy_instruction12'),
-                    bold: true,
+                    bold: true
                 },
                 {
                     type: "QuestionMCQGrid",
@@ -234,9 +235,9 @@ lang.extendPrototype(DemqolProxy, {
                         12,
                         20
                     ),
-                    fields: taskcommon.stringArrayFromSequence('q', 12, 20),
-                },
-            ],
+                    fields: taskcommon.stringArrayFromSequence('q', 12, 20)
+                }
+            ]
         };
         p4 = {
             title: L('b_demqolproxy') + " " + L('page') + " 4/5",
@@ -245,7 +246,7 @@ lang.extendPrototype(DemqolProxy, {
                 {
                     type: "QuestionText",
                     text: L('demqolproxy_instruction13'),
-                    bold: true,
+                    bold: true
                 },
                 {
                     type: "QuestionMCQGrid",
@@ -255,9 +256,9 @@ lang.extendPrototype(DemqolProxy, {
                         21,
                         31
                     ),
-                    fields: taskcommon.stringArrayFromSequence('q', 21, 31),
-                },
-            ],
+                    fields: taskcommon.stringArrayFromSequence('q', 21, 31)
+                }
+            ]
         };
         p5 = {
             title: L('b_demqolproxy') + " " + L('page') + " 5/5",
@@ -266,19 +267,19 @@ lang.extendPrototype(DemqolProxy, {
                 {
                     type: "QuestionText",
                     text: L('demqolproxy_instruction14'),
-                    bold: true,
+                    bold: true
                 },
                 {
                     type: "QuestionText",
                     text: L('demqolproxy_q32'),
-                    bold: true,
+                    bold: true
                 },
                 {
                     type: "QuestionMCQ",
                     options: qoloptions,
-                    field: "q32",
-                },
-            ],
+                    field: "q32"
+                }
+            ]
         };
         pages = [p0, p1, p2, p3, p4, p5];
 
@@ -288,10 +289,10 @@ lang.extendPrototype(DemqolProxy, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

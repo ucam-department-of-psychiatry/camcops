@@ -92,7 +92,7 @@ function MultiCheckVertical(props) {
                 width: Titanium.UI.FILL,
                 height: Titanium.UI.SIZE,
                 top: (i > 0 ? props.space : 0),
-                row_id: i, // extra data
+                row_id: i // extra data
             });
             textlabel = Titanium.UI.createLabel({
                 text: props.optionFieldMap[i].key,
@@ -104,7 +104,7 @@ function MultiCheckVertical(props) {
                 // top: 0,
                 height: Titanium.UI.SIZE,
                 width: Titanium.UI.SIZE,
-                row_id: i, // extra data
+                row_id: i // extra data
             });
             container.add(this.checks[i].tiview);
             container.add(textlabel);
@@ -222,7 +222,7 @@ MultiCheckVertical.prototype = {
         var uifunc = require('lib/uifunc');
         uifunc.removeAllViewChildren(this.tiview);
         this.tiview = null;
-    },
+    }
 
 };
 module.exports = MultiCheckVertical;

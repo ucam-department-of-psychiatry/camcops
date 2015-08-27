@@ -85,7 +85,7 @@ module.exports = function Csi(patient_id) {
             QuestionText = require('questionnaire/QuestionText'),
             options = [
                 new KeyValuePair(L('Absent'), 0),
-                new KeyValuePair(L('Present'), 1),
+                new KeyValuePair(L('Present'), 1)
             ],
             fields = [],
             qs = [],
@@ -107,9 +107,9 @@ module.exports = function Csi(patient_id) {
                         type: QuestionMCQGrid,
                         options: options,
                         questions: qs,
-                        fields: fields,
-                    },
-                ],
+                        fields: fields
+                    }
+                ]
             }
         ];
 
@@ -119,7 +119,7 @@ module.exports = function Csi(patient_id) {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
     };

@@ -121,7 +121,7 @@ lang.extendPrototype(QoLSG, {
                 TEXT_INSTRUCTION_MEDIUM: L("qolsg_instruction_medium"),
                 TEXT_INSTRUCTION_LOW: L("qolsg_instruction_low"),
                 TEXT_INSTRUCTION_HIGH: L("qolsg_instruction_high"),
-                TEXT_INSTRUCTION_SUFFIX: L("qolsg_instruction_suffix"),
+                TEXT_INSTRUCTION_SUFFIX: L("qolsg_instruction_suffix")
             },
             html = taskcommon.loadHtmlSetParams(
                 "task_html/qolsg_task.html",
@@ -182,7 +182,7 @@ lang.extendPrototype(QoLSG, {
         );
         editing_time_start = moment();
         window.open();
-    },
+    }
 
 });
 

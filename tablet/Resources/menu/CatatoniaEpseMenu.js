@@ -42,13 +42,13 @@ module.exports = function CatatoniaEpseMenu() {
             // PERMISSION REFUSED: ALLTASKS.TASKLIST.CSI,
             // PERMISSION REFUSED: ALLTASKS.TASKLIST.GASS,
             // PERMISSION REFUSED: ALLTASKS.TASKLIST.LUNSERS,
-            ALLTASKS.TASKLIST.MDS_UPDRS,
+            ALLTASKS.TASKLIST.MDS_UPDRS
             // PERMISSION REFUSED: ALLTASKS.TASKLIST.SAS,
         ],
         self = new MenuWindow({
             title: L('menutitle_catatonia_epse_b'),
             icon: UICONSTANTS.ICON_MENU_CATATONIA,
-            data: data,
+            data: data
         });
 
     return self;

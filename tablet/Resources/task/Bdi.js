@@ -93,7 +93,7 @@ lang.extendPrototype(Bdi, {
                 new KeyValuePair("0", 0),
                 new KeyValuePair("1", 1),
                 new KeyValuePair("2", 2),
-                new KeyValuePair("3", 3),
+                new KeyValuePair("3", 3)
             ],
             qs = [],
             fields = [],
@@ -129,11 +129,11 @@ lang.extendPrototype(Bdi, {
                         options: [
                             new KeyValuePair("BDI (1961; BDI-I)", BDI_I),
                             new KeyValuePair("BDI-IA (1978)", BDI_IA),
-                            new KeyValuePair("BDI-II (1996)", BDI_II),
+                            new KeyValuePair("BDI-II (1996)", BDI_II)
                         ],
                         field: "bdi_scale",
                         showInstruction: false,
-                        horizontal: true,
+                        horizontal: true
                     },
                     {
                         type: "QuestionText",
@@ -143,10 +143,10 @@ lang.extendPrototype(Bdi, {
                         type: "QuestionMCQGrid",
                         options: bdi_options,
                         questions: qs,
-                        fields: fields,
-                    },
-                ],
-            },
+                        fields: fields
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -155,10 +155,10 @@ lang.extendPrototype(Bdi, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 });
 
 module.exports = Bdi;

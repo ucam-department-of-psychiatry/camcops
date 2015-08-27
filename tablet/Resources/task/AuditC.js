@@ -101,22 +101,22 @@ lang.extendPrototype(AuditC, {
                     elements: [
                         {
                             type: "QuestionText",
-                            text: L("audit_instructions_1"),
+                            text: L("audit_instructions_1")
                         },
                         {
                             type: "QuestionText",
-                            text: L("audit_instructions_3"),
+                            text: L("audit_instructions_3")
                         },
                         {
                             type: "QuestionText",
                             bold: true,
-                            text: L("audit_instructions_4"),
+                            text: L("audit_instructions_4")
                         },
                         {
                             type: "QuestionText",
-                            text: L("audit_instructions_5"),
-                        },
-                    ],
+                            text: L("audit_instructions_5")
+                        }
+                    ]
                 },
                 {
                     title: L("audit_c_qprefix") + " 1",
@@ -140,10 +140,10 @@ lang.extendPrototype(AuditC, {
                                 new KeyValuePair(L("audit_q1_option1"), 1),
                                 new KeyValuePair(L("audit_q1_option2"), 2),
                                 new KeyValuePair(L("audit_q1_option3"), 3),
-                                new KeyValuePair(L("audit_q1_option4"), 4),
-                            ],
-                        },
-                    ],
+                                new KeyValuePair(L("audit_q1_option4"), 4)
+                            ]
+                        }
+                    ]
                 },
                 {
                     title: L("audit_c_qprefix") + " 2",
@@ -164,10 +164,10 @@ lang.extendPrototype(AuditC, {
                                 new KeyValuePair(L("audit_q2_option1"), 1),
                                 new KeyValuePair(L("audit_q2_option2"), 2),
                                 new KeyValuePair(L("audit_q2_option3"), 3),
-                                new KeyValuePair(L("audit_q2_option4"), 4),
-                            ],
-                        },
-                    ],
+                                new KeyValuePair(L("audit_q2_option4"), 4)
+                            ]
+                        }
+                    ]
                 },
                 {
                     title: L("audit_c_qprefix") + " 3",
@@ -187,11 +187,11 @@ lang.extendPrototype(AuditC, {
                                 new KeyValuePair(L("audit_q3to8_option1"), 1),
                                 new KeyValuePair(L("audit_q3to8_option2"), 2),
                                 new KeyValuePair(L("audit_q3to8_option3"), 3),
-                                new KeyValuePair(L("audit_q3to8_option4"), 4),
-                            ],
-                        },
-                    ],
-                },
+                                new KeyValuePair(L("audit_q3to8_option4"), 4)
+                            ]
+                        }
+                    ]
+                }
             ],
             questionnaire = new Questionnaire({
                 readOnly: readOnly,
@@ -199,11 +199,11 @@ lang.extendPrototype(AuditC, {
                 callbackThis: self,
                 fnGetFieldValue: self.defaultGetFieldValueFn,
                 fnSetField: self.defaultSetFieldFn,
-                fnFinished: self.defaultFinishedFn,
+                fnFinished: self.defaultFinishedFn
             });
 
         questionnaire.open();
-    },
+    }
 });
 
 module.exports = AuditC;

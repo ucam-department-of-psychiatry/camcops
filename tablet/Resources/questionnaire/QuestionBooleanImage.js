@@ -63,11 +63,11 @@ function QuestionBooleanImage(props) {
             props.questionnaire.setFieldValue(props.field, newValue);
         },
         tiprops: {},
-        size: ticksize,
+        size: ticksize
     };
     props_image = {
         image: props.image,
-        touchEnabled: true,
+        touchEnabled: true
     };
 
     if (props.indicatorOnLeft) {
@@ -96,7 +96,7 @@ function QuestionBooleanImage(props) {
         center: props.center,
         height: Titanium.UI.SIZE,
         width: Titanium.UI.SIZE,
-        touchEnabled: true,
+        touchEnabled: true
         // (1) on iOS, must be true for its constituent parts (image, tick) to
         //     receive events.
         // (2) However, if a click event is set on the view (on iOS), then the
@@ -147,7 +147,7 @@ lang.extendPrototype(QuestionBooleanImage, {
         }
         this.tick.cleanup();
         this.tick = null;
-    },
+    }
 
 });
 module.exports = QuestionBooleanImage;

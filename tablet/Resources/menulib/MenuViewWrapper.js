@@ -55,7 +55,7 @@ function MenuViewWrapper(p) {
     this.tiview = Titanium.UI.createView({
         width: Titanium.UI.FILL,
         height: Titanium.UI.SIZE,
-        backgroundColor: UICONSTANTS.MENU_BG_COLOUR,
+        backgroundColor: UICONSTANTS.MENU_BG_COLOUR
     });
     // Don't bother with an android:back listener: the Window gets those
     // messages, not the View.
@@ -63,7 +63,7 @@ function MenuViewWrapper(p) {
     header_table_view = Titanium.UI.createView({
         top: 0,
         bottom: header_table_view_bottom,
-        layout: 'vertical',
+        layout: 'vertical'
     });
 
     this.header = new MenuHeaderView({
@@ -73,7 +73,7 @@ function MenuViewWrapper(p) {
         subtitle: p.subtitle,
         patient_id: p.patient_id,
         patientline: p.patientline,
-        fnBackClicked: p.fnBackClicked,
+        fnBackClicked: p.fnBackClicked
     });
     header_table_view.add(this.header.tiview);
 
@@ -91,7 +91,7 @@ function MenuViewWrapper(p) {
             bottom: UICONSTANTS.SPACE,
             height: UICONSTANTS.FOOTER_HEIGHT,
             // ... Can't safely use Titanium.UI.SIZE, so set this correctly
-            width: Titanium.UI.FILL,
+            width: Titanium.UI.FILL
         });
         // To make a clickable URL, previously: horizontal view with three bits
         // of text; middle text had a 'click' event
@@ -108,7 +108,7 @@ MenuViewWrapper.prototype = {
         this.tiview = null;
         this.header.cleanup();
         this.tableview.cleanup();
-    },
+    }
 
 };
 module.exports = MenuViewWrapper;

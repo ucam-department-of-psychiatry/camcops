@@ -111,7 +111,7 @@ lang.extendPrototype(Gad7, {
                             new KeyValuePair(L('gad7_a0'), 0),
                             new KeyValuePair(L('gad7_a1'), 1),
                             new KeyValuePair(L('gad7_a2'), 2),
-                            new KeyValuePair(L('gad7_a3'), 3),
+                            new KeyValuePair(L('gad7_a3'), 3)
                         ],
                         questions: [
                             L('gad7_q1'),
@@ -120,12 +120,12 @@ lang.extendPrototype(Gad7, {
                             L('gad7_q4'),
                             L('gad7_q5'),
                             L('gad7_q6'),
-                            L('gad7_q7'),
+                            L('gad7_q7')
                         ],
-                        fields: [ 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7'],
-                    },
-                ],
-            },
+                        fields: [ 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7']
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -134,10 +134,10 @@ lang.extendPrototype(Gad7, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

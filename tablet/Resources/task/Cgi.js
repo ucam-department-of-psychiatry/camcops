@@ -144,8 +144,8 @@ lang.extendPrototype(Cgi, {
                         type: "QuestionMCQ",
                         field: qname,
                         options: options
-                    },
-                ],
+                    }
+                ]
             };
         }
 
@@ -165,10 +165,10 @@ lang.extendPrototype(Cgi, {
                 self.setEfficacyIndex();
                 self.dbstore();
             },
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

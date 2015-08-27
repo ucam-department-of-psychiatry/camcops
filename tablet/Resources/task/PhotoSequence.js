@@ -82,7 +82,7 @@ lang.extendPrototype(SinglePhoto, {
         return dbcommon.getAllRowsByKey(PHOTOTABLE_FK_FIELDNAME,
                                         photosequence_id, phototablename,
                                         photofieldlist, SinglePhoto, "id");
-    },
+    }
 
 });
 
@@ -234,7 +234,7 @@ lang.extendPrototype(PhotoSequence, {
                     L('photosequence_delete_q') + " " + (photoIndex + 1) +
                     " " + L("of") + " " + my_photos.length + "?"
                 ),
-                buttonNames: [L('cancel'), L('delete')],
+                buttonNames: [L('cancel'), L('delete')]
             });
             dlg.addEventListener('click', function (e) {
                 if (e.index === 1) { // Delete
@@ -296,9 +296,9 @@ lang.extendPrototype(PhotoSequence, {
                                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                                 field: "sequence_description",
                                 prompt: L("photosequence_description_sequence")
-                            },
-                        ],
-                    },
+                            }
+                        ]
+                    }
                 ];
                 if (my_photos.length === 0) {
                     elements.push(
@@ -313,7 +313,7 @@ lang.extendPrototype(PhotoSequence, {
                     title: (L('photosequence_title') + " (" + L("photos") +
                             ": " + my_photos.length + ")"),
                     clinician: true,
-                    elements: elements,
+                    elements: elements
                 };
             }
 
@@ -359,8 +359,8 @@ lang.extendPrototype(PhotoSequence, {
                                 fnClicked: function () {
                                     moveForwards(index);
                                 }
-                            },
-                        ],
+                            }
+                        ]
                     },
                     { type: "QuestionText", text: L('photo_q') },
                     {
@@ -372,8 +372,8 @@ lang.extendPrototype(PhotoSequence, {
                                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                                 field: "description" + index,
                                 prompt: L("photosequence_description_photo")
-                            },
-                        ],
+                            }
+                        ]
                     },
                     {
                         type: "QuestionPhoto",
@@ -381,8 +381,8 @@ lang.extendPrototype(PhotoSequence, {
                         mandatory: false,
                         offerDeleteButton: false,
                         rotationField: "rotation" + index
-                    },
-                ],
+                    }
+                ]
             };
         }
 
@@ -455,7 +455,7 @@ lang.extendPrototype(PhotoSequence, {
             fnMakePageOnTheFly: makePage
         });
         questionnaire.open();
-    },
+    }
 
 });
 

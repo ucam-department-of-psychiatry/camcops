@@ -32,7 +32,7 @@ exports.PERSON_MARITAL_STATUS_CODE_OPTIONS = [
     new KeyValuePair(L('nhs_person_marital_status_code_D'), 'D'),
     new KeyValuePair(L('nhs_person_marital_status_code_W'), 'W'),
     new KeyValuePair(L('nhs_person_marital_status_code_P'), 'P'),
-    new KeyValuePair(L('nhs_person_marital_status_code_N'), 'N'),
+    new KeyValuePair(L('nhs_person_marital_status_code_N'), 'N')
 ];
 
 // http://www.datadictionary.nhs.uk/data_dictionary/attributes/e/end/ethnic_category_code_de.asp?shownav=1
@@ -53,5 +53,5 @@ exports.ETHNIC_CATEGORY_CODE_OPTIONS = [
     new KeyValuePair(L('nhs_ethnic_category_code_P'), 'P'),
     new KeyValuePair(L('nhs_ethnic_category_code_R'), 'R'),
     new KeyValuePair(L('nhs_ethnic_category_code_S'), 'S'),
-    new KeyValuePair(L('nhs_ethnic_category_code_Z'), 'Z'),
+    new KeyValuePair(L('nhs_ethnic_category_code_Z'), 'Z')
 ];

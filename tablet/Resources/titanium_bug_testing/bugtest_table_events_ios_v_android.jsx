@@ -11,7 +11,7 @@ function eventArrived(e) {
 var rowdata = [
     {title: "row_0", myattribute: "A"},
     {title: "row_1", myattribute: "B"},
-    {title: "row_2", myattribute: "C"},
+    {title: "row_2", myattribute: "C"}
 ];
 var win = Titanium.UI.createWindow({ backgroundColor: '#FFFFFF' });
 var table = Titanium.UI.createTableView({ data: rowdata });

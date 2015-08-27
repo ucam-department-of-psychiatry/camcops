@@ -41,30 +41,30 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
         'thought_echo',
         'thought_withdrawal',
         'thought_insertion',
-        'thought_broadcasting',
+        'thought_broadcasting'
     ],
     B_NAMES = [
         'hallucinations_other',
         'thought_disorder',
-        'catatonia',
+        'catatonia'
     ],
     C_NAMES = [
-        'negative',
+        'negative'
     ],
     D_NAMES = [
-        'present_one_month',
+        'present_one_month'
     ],
     E_NAMES = [
         'also_manic',
         'also_depressive',
-        'if_mood_psychosis_first',
+        'if_mood_psychosis_first'
     ],
     F_NAMES = [
-        'not_organic_or_substance',
+        'not_organic_or_substance'
     ],
     G_NAMES = [
         'behaviour_change',
-        'performance_decline',
+        'performance_decline'
     ],
     H_NAMES = [
         'subtype_paranoid',
@@ -74,7 +74,7 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
         'subtype_postschizophrenic_depression',
         'subtype_residual',
         'subtype_simple',
-        'subtype_cenesthopathic',
+        'subtype_cenesthopathic'
     ],
     TAG_ALL_RELEVANT = "tag";
 
@@ -237,7 +237,7 @@ lang.extendPrototype(Icd10Schizophrenia, {
                 questions: taskcommon.localizedStringArrayBySuffixArray(STEM,
                                                                         arr),
                 fields: arr,
-                mandatory: mayBeRelevant,
+                mandatory: mayBeRelevant
             };
         }
 
@@ -316,11 +316,11 @@ lang.extendPrototype(Icd10Schizophrenia, {
                                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                                 field: "comments",
                                 prompt: L("comments")
-                            },
-                        ],
-                    },
-                ],
-            },
+                            }
+                        ]
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -334,10 +334,10 @@ lang.extendPrototype(Icd10Schizophrenia, {
                 var known = (self.meetsGeneralCriteria() !== null);
                 questionnaire.setMandatoryByTag(TAG_ALL_RELEVANT, !known);
                 return { care: false };
-            },
+            }
         });
         questionnaire.open();
-    },
+    }
 
 });
 

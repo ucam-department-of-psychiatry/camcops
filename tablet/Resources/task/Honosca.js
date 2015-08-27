@@ -134,9 +134,9 @@ lang.extendPrototype(Honosca, {
                     {
                         type: "QuestionMCQ",
                         field: "q" + q,
-                        options: options,
-                    },
-                ],
+                        options: options
+                    }
+                ]
             };
         }
 
@@ -155,10 +155,10 @@ lang.extendPrototype(Honosca, {
                                 field: "period_rated",
                                 prompt: L("honos_period_rated"),
                                 hint: L("honos_period_rated")
-                            },
-                        ],
-                    },
-                ],
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 title: L('honosca_section_a_title'),
@@ -167,8 +167,8 @@ lang.extendPrototype(Honosca, {
                     {
                         type: "QuestionText",
                         text: L("honosca_section_a_instructions")
-                    },
-                ],
+                    }
+                ]
             }
         ];
         for (i = 1; i <= 13; ++i) {
@@ -182,8 +182,8 @@ lang.extendPrototype(Honosca, {
                     {
                         type: "QuestionText",
                         text: L("honosca_section_b_instructions")
-                    },
-                ],
+                    }
+                ]
             }
         );
         for (i = 14; i <= nquestions; ++i) {
@@ -196,10 +196,10 @@ lang.extendPrototype(Honosca, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

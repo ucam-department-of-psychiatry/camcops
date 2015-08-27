@@ -51,14 +51,14 @@ module.exports = function TaskRow(props) {
             height: Titanium.UI.SIZE,
             width: Titanium.UI.FILL,
             horizontalWrap: false,
-            touchEnabled: false,
+            touchEnabled: false
         }),
         spacer = Titanium.UI.createView({
             height: UICONSTANTS.ICONSIZE,
             width: UICONSTANTS.SPACE,
             left: 0,
             center: {y: '50%'},
-            touchEnabled: false,
+            touchEnabled: false
         }),
         finishFlagIcon,
         patientLabel,
@@ -97,7 +97,7 @@ module.exports = function TaskRow(props) {
             height: UICONSTANTS.ICONSIZE,
             width: UICONSTANTS.ICONSIZE,
             left: iconLeft,
-            touchEnabled: false,
+            touchEnabled: false
         });
         layout.add(finishFlagIcon);
     }
@@ -111,7 +111,7 @@ module.exports = function TaskRow(props) {
             left: patientLeft,
             height: Titanium.UI.SIZE,
             width: patientWidth,
-            touchEnabled: false,
+            touchEnabled: false
         });
         layout.add(patientLabel);
     } else if (props.taskTitle) {
@@ -131,7 +131,7 @@ module.exports = function TaskRow(props) {
             left: patientLeft,
             height: Titanium.UI.SIZE,
             width: patientWidth,
-            touchEnabled: false,
+            touchEnabled: false
         });
         layout.add(taskLabel);
     }
@@ -149,7 +149,7 @@ module.exports = function TaskRow(props) {
         left: dateLeft,
         height: Titanium.UI.SIZE,
         width: dateWidth,
-        touchEnabled: false,
+        touchEnabled: false
     });
     layout.add(dateLabel);
 
@@ -158,7 +158,7 @@ module.exports = function TaskRow(props) {
         left: contentLeft,
         height: Titanium.UI.SIZE,
         width: contentWidth,
-        touchEnabled: false,
+        touchEnabled: false
     });
     content.add(props.taskSummaryView);
     layout.add(content);

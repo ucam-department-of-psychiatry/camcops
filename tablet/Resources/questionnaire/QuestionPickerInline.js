@@ -59,7 +59,7 @@ function QuestionPickerInline(props) {
         bottom: props.bottom,
         center: props.center,
         width: Titanium.UI.SIZE,
-        height: Titanium.UI.SIZE,
+        height: Titanium.UI.SIZE
     };
     this.tiview = Titanium.UI.createView(viewprops);
 
@@ -88,7 +88,7 @@ function QuestionPickerInline(props) {
             height: Titanium.UI.SIZE,
             font: UICONSTANTS.getQuestionnaireFont(false, true, false), // bold
             color: UICONSTANTS.READONLY_ANSWER_COLOUR,
-            text: "", // will be set later
+            text: ""  // will be set later
         });
         this.tiview.add(this.value_as_text);
     } else {
@@ -107,7 +107,7 @@ function QuestionPickerInline(props) {
             selectionIndicator: true,
             // DOESN'T WORK (UNRESPONSIVE TO TOUCHES): // useSpinner: true,
             // ... for an inline picker on Android, to match the iOS interface
-            columns: [column],
+            columns: [column]
         };
 
         platform = require('lib/platform');
@@ -119,7 +119,7 @@ function QuestionPickerInline(props) {
                 left: UICONSTANTS.QUESTIONNAIRE_WARNING_IMAGE_SIZE,
                 width: Titanium.UI.SIZE,
                 height: Titanium.UI.SIZE,
-                backgroundColor: UICONSTANTS.ANDROID_WIDGET_BACKGROUND_COLOUR,
+                backgroundColor: UICONSTANTS.ANDROID_WIDGET_BACKGROUND_COLOUR
             });
             this.intermediateview.add(this.picker);
             this.tiview.add(this.intermediateview);
@@ -198,7 +198,7 @@ lang.extendPrototype(QuestionPickerInline, {
             this.picker = null;
             this.intermediateview = null;
         }
-    },
+    }
 
 });
 module.exports = QuestionPickerInline;

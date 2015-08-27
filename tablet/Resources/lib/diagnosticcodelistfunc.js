@@ -234,7 +234,7 @@ function makeTableRow(item, selected, indicateChildren, sparse) {
             leftImage: UICONSTANTS.ICON_TABLE_PARENTARROW,
             font: UICONSTANTS.DIAGNOSTICCODE_GO_UP_FONT,
             color: UICONSTANTS.DIAGNOSTICCODE_TEXT,
-            backgroundColor: UICONSTANTS.DIAGNOSTICCODE_BACKGROUND,
+            backgroundColor: UICONSTANTS.DIAGNOSTICCODE_BACKGROUND
         });
     }
 
@@ -263,7 +263,7 @@ function makeTableRow(item, selected, indicateChildren, sparse) {
                 selected ?
                         UICONSTANTS.DIAGNOSTICCODE_BACKGROUND_SELECTED :
                         UICONSTANTS.DIAGNOSTICCODE_BACKGROUND
-            ),
+            )
         };
         if (indicateChildren && item.firstchild !== null) {
             rowprops.rightImage = UICONSTANTS.ICON_TABLE_CHILDARROW;
@@ -279,7 +279,7 @@ function makeTableRow(item, selected, indicateChildren, sparse) {
             selected ?
                     UICONSTANTS.DIAGNOSTICCODE_BACKGROUND_SELECTED :
                     UICONSTANTS.DIAGNOSTICCODE_BACKGROUND
-        ),
+        )
     };
     if (indicateChildren && item.firstchild !== null) {
         rowprops.rightImage = UICONSTANTS.ICON_TABLE_CHILDARROW;
@@ -290,7 +290,7 @@ function makeTableRow(item, selected, indicateChildren, sparse) {
         height: UICONSTANTS.ICONSIZE,
         width: UICONSTANTS.SPACE,
         left: 0,
-        center: {y: '50%'},
+        center: {y: '50%'}
     }));
     // label:
     row.add(Titanium.UI.createLabel({
@@ -305,7 +305,7 @@ function makeTableRow(item, selected, indicateChildren, sparse) {
         center: {y: '50%'},
         left: 0,
         height: Titanium.UI.SIZE,
-        width: Titanium.UI.SIZE,
+        width: Titanium.UI.SIZE
     }));
     return row;
 }

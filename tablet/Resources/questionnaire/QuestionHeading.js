@@ -49,7 +49,7 @@ function QuestionHeading(props) {
         width: Titanium.UI.FILL,
         height: Titanium.UI.SIZE,
         backgroundColor: UICONSTANTS.QUESTIONNAIRE_HEADING_BG_COLOUR,
-        layout: 'vertical',
+        layout: 'vertical'
     });
 
     text = Titanium.UI.createLabel({
@@ -63,7 +63,7 @@ function QuestionHeading(props) {
                                                props.italic),
         color: UICONSTANTS.QUESTION_COLOUR,
         text: props.text,
-        touchEnabled: false,
+        touchEnabled: false
     });
 
     this.tiview.add(uifunc.createVerticalSpacer());

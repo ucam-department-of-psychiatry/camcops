@@ -176,5 +176,5 @@ module.exports = {
     GRAY90              : '#E6E6E6',
     AMBER               : '#FF7E00',
     PALEYELLOW          : '#FFFFD0',
-    PALEBLUE            : '#DDDDFF',
+    PALEBLUE            : '#DDDDFF'
 };

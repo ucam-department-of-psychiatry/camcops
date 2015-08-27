@@ -190,13 +190,13 @@ lang.extendPrototype(Cape42, {
                 new KeyValuePair(L('cape42_distress_option1'), 1),
                 new KeyValuePair(L('cape42_distress_option2'), 2),
                 new KeyValuePair(L('cape42_distress_option3'), 3),
-                new KeyValuePair(L('cape42_distress_option4'), 4),
+                new KeyValuePair(L('cape42_distress_option4'), 4)
             ],
             options_frequency = [
                 new KeyValuePair(L('cape42_frequency_option1'), 1),
                 new KeyValuePair(L('cape42_frequency_option2'), 2),
                 new KeyValuePair(L('cape42_frequency_option3'), 3),
-                new KeyValuePair(L('cape42_frequency_option4'), 4),
+                new KeyValuePair(L('cape42_frequency_option4'), 4)
             ],
             pages,
             q,
@@ -240,8 +240,8 @@ lang.extendPrototype(Cape42, {
                         horizontal: false,
                         mandatory: mandatory,
                         visible: visible
-                    },
-                ],
+                    }
+                ]
             };
         }
 
@@ -277,10 +277,10 @@ lang.extendPrototype(Cape42, {
                 self.defaultFinishedFn(result, editing_time_s);
                 questionnaire = null; // for garbage collection, since we have
                 // closures referring to questionnaire
-            },
+            }
         });
         questionnaire.open();
-    },
+    }
 });
 
 module.exports = Cape42;

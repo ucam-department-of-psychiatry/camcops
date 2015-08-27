@@ -103,7 +103,7 @@ module.exports = function Fab(patient_id) {
             return {
                 title: L("fab_q" + n + "_title"),
                 clinician: true,
-                elements: elements,
+                elements: elements
             };
         }
         pages = [ taskcommon.CLINICIAN_DETAILS_PAGE ]; // Clinician info 3/3
@@ -120,7 +120,7 @@ module.exports = function Fab(patient_id) {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
     };

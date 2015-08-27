@@ -68,7 +68,7 @@ function QuestionText(props) {
                 )
         ),
         text: (props.field === undefined ? props.text : ""),
-        touchEnabled: false,
+        touchEnabled: false
         // backgroundColor: '#FF0000',
     });
 }
@@ -80,7 +80,7 @@ lang.extendPrototype(QuestionText, {
             return;
         }
         this.tiview.setText(this.questionnaire.getFieldValue(this.field));
-    },
+    }
 
 });
 module.exports = QuestionText;

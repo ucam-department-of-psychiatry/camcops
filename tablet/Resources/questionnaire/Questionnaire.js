@@ -33,7 +33,7 @@ function createSpacerView() {
     return Titanium.UI.createView({
         height: UICONSTANTS.BIGSPACE,
         width: Titanium.UI.FILL,
-        touchEnabled: false,
+        touchEnabled: false
         // backgroundColor: COLOURS.RED,
     });
 }
@@ -47,7 +47,7 @@ function createElementContainer(disableScroll) {
             right: UICONSTANTS.BIGSPACE,
             top: 0,
             height: Titanium.UI.FILL,
-            layout: 'vertical',
+            layout: 'vertical'
             // backgroundColor: COLOURS.GREEN,
         });
     }
@@ -67,7 +67,7 @@ function createElementContainer(disableScroll) {
         showHorizontalScrollIndicator: false,
         horizontalWrap: false,
         disableBounce: true,
-        horizontalBounce: false,
+        horizontalBounce: false
 
         // backgroundColor: COLOURS.GREEN,
     });
@@ -518,7 +518,7 @@ Questionnaire.prototype = {
             fnNext: function () { self.pageNext(pageId); },
             fnBack: function () { self.pageBack(pageId); },
             fnJump: function () { self.pageJump(); },
-            okIconAtEnd: this.props.okIconAtEnd,
+            okIconAtEnd: this.props.okIconAtEnd
         };
         if (pageprops.clinicianAssisted) {
             headerprops.backgroundColor = (
@@ -547,11 +547,11 @@ Questionnaire.prototype = {
                                     )
                             )
                 ),
-                layout: 'vertical',
+                layout: 'vertical'
             }),
             header: new QuestionnaireHeader(headerprops),
             elements: [],
-            elementcontainer: createElementContainer(pageprops.disableScroll),
+            elementcontainer: createElementContainer(pageprops.disableScroll)
         };
         this.currentview.tiview.add(this.currentview.header.tiview);
         this.currentview.tiview.add(uifunc.createQuestionnaireRule());
@@ -767,7 +767,7 @@ Questionnaire.prototype = {
             dlg = Titanium.UI.createAlertDialog({
                 title: L('abort_title'),
                 message: L('abort_sure'),
-                buttonNames: [L('cancel'), L('abort')],
+                buttonNames: [L('cancel'), L('abort')]
                 // *** For some reason, this dialog (alone) mis-sorts its
                 // buttons... it puts "Abort" on the left.
             });
@@ -858,7 +858,7 @@ Questionnaire.prototype = {
         this.jumpDialog = Titanium.UI.createOptionDialog({
             options: textOptions,
             selectedIndex: this.currentPage,
-            opaquebackground: true, // or it will ghost when scrolling on iPad
+            opaquebackground: true  // or it will ghost when scrolling on iPad
         });
         this.jumpListener = function (e) { self.jumpPageSelected(e); };
         this.jumpDialog.addEventListener("click", this.jumpListener);
@@ -922,7 +922,7 @@ Questionnaire.prototype = {
     refreshCurrentPage: function () {
         Titanium.API.trace("Questionnaire.refreshCurrentPage");
         this.setFocus(this.currentPage);
-    },
+    }
 
 };
 module.exports = Questionnaire;

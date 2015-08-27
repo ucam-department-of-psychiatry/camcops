@@ -94,7 +94,7 @@ if (prevversion !== null &&
         dbsqlite.renameColumns("icd10schizophrenia", [
             {from: "tpah_commentary", to: "hv_commentary"},
             {from: "tpah_discussing", to: "hv_discussing"},
-            {from: "tpah_from_body", to: "hv_from_body"},
+            {from: "tpah_from_body", to: "hv_from_body"}
         ]);
     }
 
@@ -106,7 +106,7 @@ if (prevversion !== null &&
         dbsqlite.renameTable("expdetthreshold_trials",
                              "cardinal_expdetthreshold_trials");
         dbsqlite.renameColumns("cardinal_expdetthreshold_trials", [
-            {from: "expdetthreshold_id", to: "cardinal_expdetthreshold_id"},
+            {from: "expdetthreshold_id", to: "cardinal_expdetthreshold_id"}
         ]);
 
         // expdet
@@ -117,10 +117,10 @@ if (prevversion !== null &&
         dbsqlite.renameTable("expectationdetection_trials",
                              "cardinal_expdet_trials");
         dbsqlite.renameColumns("cardinal_expdet_trials", [
-            {from: "expectationdetection_id", to: "cardinal_expdet_id"},
+            {from: "expectationdetection_id", to: "cardinal_expdet_id"}
         ]);
         dbsqlite.renameColumns("cardinal_expdet_trialgroupspec", [
-            {from: "expectationdetection_id", to: "cardinal_expdet_id"},
+            {from: "expectationdetection_id", to: "cardinal_expdet_id"}
         ]);
     }
 

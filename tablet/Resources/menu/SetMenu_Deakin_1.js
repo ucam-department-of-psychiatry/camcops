@@ -43,12 +43,12 @@ module.exports = function SetMenu_Deakin_1() {
             ALLTASKS.TASKLIST.EXPECTATIONDETECTION,
             ALLTASKS.TASKLIST.GAF,
             ALLTASKS.TASKLIST.NART,
-            ALLTASKS.TASKLIST.PANSS,
+            ALLTASKS.TASKLIST.PANSS
         ],
         self = new MenuWindow({
             title: L('t_set_deakin_1'),
             subtitle: L('s_set_deakin_1'),
-            data: data,
+            data: data
         });
 
     return self;

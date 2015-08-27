@@ -66,7 +66,7 @@ var tp = (inTitanium ?
             // Asus Eee Pad is 1200 x 800 (WXGA), effective size (minus system
             // UI) 1200 x 752. iPad is 1024 x 768
             screenWidth: 1024,
-            screenHeight: 752,
+            screenHeight: 752
         }
     ),
     TASKNAME = "ExpDetThreshold HTML/JS",
@@ -105,7 +105,7 @@ var tp = (inTitanium ?
         right: tp.screenWidth * 0.8,
         top: tp.screenHeight * 0.7,
         bottom: tp.screenHeight * 0.9,
-        radius: 20,
+        radius: 20
     },
     NOBUTTON = {
         label: tp.OPTION_NO,
@@ -123,7 +123,7 @@ var tp = (inTitanium ?
         right: tp.screenWidth * 0.4,
         top: tp.screenHeight * 0.7,
         bottom: tp.screenHeight * 0.9,
-        radius: 20,
+        radius: 20
     },
     PROMPT_X = tp.screenWidth * 0.5,
     PROMPT_Y = tp.screenHeight * 0.65,
@@ -151,7 +151,7 @@ var tp = (inTitanium ?
         right: tp.screenWidth * 0.7,
         top: tp.screenHeight * 0.6,
         bottom: tp.screenHeight * 0.8,
-        radius: 20,
+        radius: 20
     },
     ABORT = {
         label: tp.TEXT_ABORT,
@@ -167,7 +167,7 @@ var tp = (inTitanium ?
         right: tp.screenWidth * 0.08,
         top: tp.screenHeight * 0.94,
         bottom: tp.screenHeight * 0.99,
-        radius: 20,
+        radius: 20
     },
     START = {
         label: tp.TEXT_START,
@@ -185,7 +185,7 @@ var tp = (inTitanium ?
         right: tp.screenWidth * 0.7,
         top: tp.screenHeight * 0.6,
         bottom: tp.screenHeight * 0.8,
-        radius: 20,
+        radius: 20
     },
     //-------------------------------------------------------------------------
     // Graphics
@@ -203,7 +203,7 @@ var tp = (inTitanium ?
     currentTrialIgnoringCatchTrials = -1,
     trialNumberLastYesBeforeFirstNo = null, // termed "trial 1" in Lecluyse & Meddis (2009)
     mainrecord = {
-        finished: false,
+        finished: false
         // other properties copied from LogisticDescriptives (q.v.)
     };
 

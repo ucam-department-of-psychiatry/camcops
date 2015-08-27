@@ -89,10 +89,10 @@ module.exports = function Asrm(patient_id) {
                             new KeyValuePair(L("asrm_q" + n + "_option1"), 1),
                             new KeyValuePair(L("asrm_q" + n + "_option2"), 2),
                             new KeyValuePair(L("asrm_q" + n + "_option3"), 3),
-                            new KeyValuePair(L("asrm_q" + n + "_option4"), 4),
-                        ],
-                    },
-                ],
+                            new KeyValuePair(L("asrm_q" + n + "_option4"), 4)
+                        ]
+                    }
+                ]
             };
         }
 
@@ -106,7 +106,7 @@ module.exports = function Asrm(patient_id) {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
     };

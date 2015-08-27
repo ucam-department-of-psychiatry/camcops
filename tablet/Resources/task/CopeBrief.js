@@ -135,7 +135,7 @@ lang.extendPrototype(CopeBrief, {
                 new KeyValuePair(L('copebrief_a0'), 0),
                 new KeyValuePair(L('copebrief_a1'), 1),
                 new KeyValuePair(L('copebrief_a2'), 2),
-                new KeyValuePair(L('copebrief_a3'), 3),
+                new KeyValuePair(L('copebrief_a3'), 3)
             ],
             relationship_options = [],
             i;
@@ -154,7 +154,7 @@ lang.extendPrototype(CopeBrief, {
             {
                 type: "QuestionText",
                 text: L('copebrief_q_patient') + " (" + this.getPatientName() +
-                    ")?",
+                    ")?"
             },
             {
                 type: "QuestionMCQ",
@@ -162,7 +162,7 @@ lang.extendPrototype(CopeBrief, {
                 showInstruction: false,
                 horizontal: true,
                 mandatory: true,
-                options: taskcommon.OPTIONS_YES_NO_BOOLEAN,
+                options: taskcommon.OPTIONS_YES_NO_BOOLEAN
             },
             {
                 elementTag: ET_RELATIONSHIP,
@@ -175,14 +175,14 @@ lang.extendPrototype(CopeBrief, {
                         type: UICONSTANTS.TYPEDVAR_TEXT,
                         field: "completed_by",
                         prompt: L('copebrief_q_completedby')
-                    },
-                ],
+                    }
+                ]
             },
             {
                 elementTag: ET_RELATIONSHIP,
                 visible: false,
                 type: "QuestionText",
-                text: L('copebrief_q_relationship'),
+                text: L('copebrief_q_relationship')
             },
             {
                 elementTag: ET_RELATIONSHIP,
@@ -191,7 +191,7 @@ lang.extendPrototype(CopeBrief, {
                 field: "relationship_to_patient",
                 showInstruction: false,
                 mandatory: true,
-                options: relationship_options,
+                options: relationship_options
             },
 
             {
@@ -205,33 +205,33 @@ lang.extendPrototype(CopeBrief, {
                         type: UICONSTANTS.TYPEDVAR_TEXT,
                         field: "relationship_to_patient_other",
                         prompt: L('copebrief_q_relationship_other')
-                    },
-                ],
-            },
+                    }
+                ]
+            }
         ];
 
         elements2 = [
             {
                 type: "QuestionText",
                 bold: true,
-                text: L('copebrief_instructions'),
-            },
+                text: L('copebrief_instructions')
+            }
         ];
         for (i = 1; i <= nquestions; ++i) {
             elements2.push({
-                type: "QuestionHorizontalRule",
+                type: "QuestionHorizontalRule"
             });
             elements2.push({
                 type: "QuestionText",
                 text: "Q" + i + ". " + L("copebrief_q" + i),
-                bold: true,
+                bold: true
             });
             elements2.push({
                 type: "QuestionMCQ",
                 field: "q" + i,
                 showInstruction: false,
                 mandatory: true,
-                options: main_options,
+                options: main_options
             });
         }
 
@@ -239,13 +239,13 @@ lang.extendPrototype(CopeBrief, {
             {
                 title: L('t_copebrief') + " (1/2)",
                 clinician: false,
-                elements: elements1,
+                elements: elements1
             },
             {
                 title: L('t_copebrief') + " (2/2)",
                 clinician: false,
-                elements: elements2,
-            },
+                elements: elements2
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -272,11 +272,11 @@ lang.extendPrototype(CopeBrief, {
                     };
                 }
                 return { care: false };
-            },
+            }
         });
 
         questionnaire.open();
-    },
+    }
 
 });
 

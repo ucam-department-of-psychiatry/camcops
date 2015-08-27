@@ -122,7 +122,7 @@ lang.extendPrototype(Panss, {
                 new KeyValuePair(L('panss_option4'), 4),
                 new KeyValuePair(L('panss_option5'), 5),
                 new KeyValuePair(L('panss_option6'), 6),
-                new KeyValuePair(L('panss_option7'), 7),
+                new KeyValuePair(L('panss_option7'), 7)
             ],
             qs_p = [],
             fields_p = [],
@@ -163,9 +163,9 @@ lang.extendPrototype(Panss, {
                     type: "QuestionMCQGrid",
                     options: panss_options,
                     questions: qs_p,
-                    fields: fields_p,
-                },
-            ],
+                    fields: fields_p
+                }
+            ]
         });
         pages.push({
             title: L("t_panss") + " (N)",
@@ -180,9 +180,9 @@ lang.extendPrototype(Panss, {
                     type: "QuestionMCQGrid",
                     options: panss_options,
                     questions: qs_n,
-                    fields: fields_n,
-                },
-            ],
+                    fields: fields_n
+                }
+            ]
         });
         pages.push({
             title: L("t_panss") + " (G)",
@@ -197,9 +197,9 @@ lang.extendPrototype(Panss, {
                     type: "QuestionMCQGrid",
                     options: panss_options,
                     questions: qs_g,
-                    fields: fields_g,
-                },
-            ],
+                    fields: fields_g
+                }
+            ]
         });
 
         questionnaire = new Questionnaire({
@@ -208,10 +208,10 @@ lang.extendPrototype(Panss, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

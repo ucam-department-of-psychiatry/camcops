@@ -41,25 +41,25 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
         'talkativeness',
         'recklessness',
         'social_disinhibition',
-        'sexual',
+        'sexual'
     ],
     MANIA_NAMES = [
         'grandiosity',
-        'flight_of_ideas',
+        'flight_of_ideas'
     ],
     OTHER_CRITERIA_NAMES = [
         'sustained4days',
         'sustained7days',
         'admission_required',
         'some_interference_functioning',
-        'severe_interference_functioning',
+        'severe_interference_functioning'
     ],
     PSYCHOSIS_NAMES = [
         'perceptual_alterations', // not psychotic
         'hallucinations_schizophrenic',
         'hallucinations_other',
         'delusions_schizophrenic',
-        'delusions_other',
+        'delusions_other'
     ];
 
 fieldlist.push.apply(fieldlist, dbcommon.CLINICIAN_FIELDSPECS); // Clinician info 1/3
@@ -354,7 +354,7 @@ lang.extendPrototype(Icd10Manic, {
                 questions: taskcommon.localizedStringArrayBySuffixArray(STEM,
                                                                         arr),
                 fields: arr,
-                mandatory: true,
+                mandatory: true
             };
         }
 
@@ -417,11 +417,11 @@ lang.extendPrototype(Icd10Manic, {
                                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                                 field: "comments",
                                 prompt: L("comments")
-                            },
-                        ],
-                    },
-                ],
-            },
+                            }
+                        ]
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -430,10 +430,10 @@ lang.extendPrototype(Icd10Manic, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

@@ -656,7 +656,7 @@ exports.TASKLIST = {
         maintitle: L('t_zbi12'),
         subtitle: L('s_zbi12'),
         info: 'html/zbi.html'
-    },
+    }
 
     // Removed
     /*

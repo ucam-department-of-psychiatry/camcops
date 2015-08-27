@@ -41,7 +41,7 @@ exports.configure = function () { // param sourcewindow ignored
             "idPolicyFinalize",
             "serverCamcopsVersion",
             "lastServerRegistration",
-            "lastSuccessfulUpload",
+            "lastSuccessfulUpload"
         ],
         i,
         pages,
@@ -100,10 +100,10 @@ exports.configure = function () { // param sourcewindow ignored
                 {
                     type: "QuestionTypedVariables",
                     readOnly: true,
-                    variables: idvariables,
-                },
-            ],
-        },
+                    variables: idvariables
+                }
+            ]
+        }
     ];
 
 
@@ -126,7 +126,7 @@ exports.configure = function () { // param sourcewindow ignored
         fnFinished: function () {
             // Do nothing
             return;
-        },
+        }
     });
 
     questionnaire.open();

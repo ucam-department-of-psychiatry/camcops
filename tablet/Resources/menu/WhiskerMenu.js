@@ -99,13 +99,13 @@ module.exports = function WhiskerMenu() {
             notIfLocked: true,
             maintitle: L('whisker_configure'),
             func: configure
-        },
+        }
     ];
 
     self = new MenuWindow({
         title: L('menutitle_whisker'),
         icon: UICONSTANTS.ICON_WHISKER,
-        data: data,
+        data: data
     });
 
     wait = uifunc.createWait({ window: self.tiview });

@@ -51,6 +51,6 @@ lang.extendPrototype(PclC, {
 
     _nquestions: nquestions,
     _pcltype: "c",
-    _specificEvent: false,
+    _specificEvent: false
 });
 module.exports = PclC;

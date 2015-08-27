@@ -78,7 +78,7 @@ var tp = (inTitanium ?
             // Asus Eee Pad is 1200 x 800 (WXGA), effective size (minus system
             // UI) 1200 x 752. iPad is 1024 x 768
             screenWidth: 1024,
-            screenHeight: 752,
+            screenHeight: 752
         }
     ),
     TASKNAME = "QoLSG HTML/JS",
@@ -108,7 +108,7 @@ var tp = (inTitanium ?
         textattr: {
             fill: Raphael.rgb(255, 255, 255),
             font: FONT,
-            "text-anchor": "start",
+            "text-anchor": "start"
         },
         //prefix_high: tp.TEXT_INSTRUCTION_PREFIX_HIGH,
         //prefix_medium: tp.TEXT_INSTRUCTION_PREFIX_MEDIUM,
@@ -117,7 +117,7 @@ var tp = (inTitanium ?
         medium: tp.TEXT_INSTRUCTION_MEDIUM,
         low: tp.TEXT_INSTRUCTION_LOW,
         high: tp.TEXT_INSTRUCTION_HIGH,
-        suffix: tp.TEXT_INSTRUCTION_SUFFIX,
+        suffix: tp.TEXT_INSTRUCTION_SUFFIX
     },
     INITIALINSTRUCTION = {
         xcentre: tp.screenWidth * 0.5,
@@ -137,17 +137,17 @@ var tp = (inTitanium ?
     TESTSTATE = {
         label: tp.TEXT_CURRENT_STATE,
         fillcolour: Raphael.rgb(255, 255, 0),
-        textcolour: Raphael.rgb(255, 255, 0),
+        textcolour: Raphael.rgb(255, 255, 0)
     },
     DEAD = {
         label: tp.TEXT_DEAD,
         fillcolour: Raphael.rgb(0, 0, 0),
-        textcolour: Raphael.rgb(255, 0, 0),
+        textcolour: Raphael.rgb(255, 0, 0)
     },
     HEALTHY = {
         label: tp.TEXT_HEALTHY,
         fillcolour: Raphael.rgb(0, 0, 255),
-        textcolour: Raphael.rgb(255, 255, 255),
+        textcolour: Raphael.rgb(255, 255, 255)
     },
     TWIRLER = {
         radius: STIMRADIUS * 1.4,
@@ -156,7 +156,7 @@ var tp = (inTitanium ?
             stroke: STROKE,
             "stroke-width": STROKEWIDTH
         },
-        angle: 20,
+        angle: 20
     },
     INDIFFERENCE = {
         label: tp.TEXT_INDIFFERENT,
@@ -174,7 +174,7 @@ var tp = (inTitanium ?
         right: tp.screenWidth * 0.7,
         top: tp.screenHeight * 0.90,
         bottom: tp.screenHeight * 0.99, // don't go below 0.90 on Android
-        radius: 20,
+        radius: 20
     },
     BACK_TO_CATEGORY = {
         label: tp.TEXT_BACK,
@@ -192,7 +192,7 @@ var tp = (inTitanium ?
         right: tp.screenWidth * 0.15,
         top: tp.screenHeight * 0.94,
         bottom: tp.screenHeight * 0.99,
-        radius: 20,
+        radius: 20
     },
     THANKS = {
         label: tp.TEXT_THANKS,
@@ -210,7 +210,7 @@ var tp = (inTitanium ?
         right: tp.screenWidth * 0.7,
         top: tp.screenHeight * 0.4,
         bottom: tp.screenHeight * 0.6,
-        radius: 20,
+        radius: 20
     },
     TASKTYPE_HIGH = {
         label: tp.TEXT_H_ABOVE_1,
@@ -229,7 +229,7 @@ var tp = (inTitanium ?
         right: tp.screenWidth * 0.8,
         top: tp.screenHeight * 0.15,
         bottom: tp.screenHeight * 0.25,
-        radius: 20,
+        radius: 20
     },
     TASKTYPE_MEDIUM = {
         label: tp.TEXT_H_0_TO_1,
@@ -248,7 +248,7 @@ var tp = (inTitanium ?
         right: tp.screenWidth * 0.8,
         top: tp.screenHeight * 0.45,
         bottom: tp.screenHeight * 0.55,
-        radius: 20,
+        radius: 20
     },
     TASKTYPE_LOW = {
         label: tp.TEXT_H_BELOW_0,
@@ -267,7 +267,7 @@ var tp = (inTitanium ?
         right: tp.screenWidth * 0.8,
         top: tp.screenHeight * 0.75,
         bottom: tp.screenHeight * 0.85,
-        radius: 20,
+        radius: 20
     },
     //-------------------------------------------------------------------------
     // Graphics

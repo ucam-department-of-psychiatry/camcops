@@ -108,7 +108,7 @@ function QuestionDateTime(props) {
         center: props.center,
         width: Titanium.UI.SIZE,
         height: Titanium.UI.SIZE,
-        layout: 'horizontal',
+        layout: 'horizontal'
     });
 
     buttoncontainer = Titanium.UI.createView({
@@ -116,7 +116,7 @@ function QuestionDateTime(props) {
         top: 0,
         width: Titanium.UI.SIZE,
         height: Titanium.UI.SIZE,
-        layout: 'vertical',
+        layout: 'vertical'
     });
     this.tiview.add(buttoncontainer);
 
@@ -130,7 +130,7 @@ function QuestionDateTime(props) {
         top: 0,
         width: Titanium.UI.SIZE,
         height: Titanium.UI.SIZE,
-        layout: 'vertical',
+        layout: 'vertical'
     });
     this.tiview.add(datacontainer);
 
@@ -155,7 +155,7 @@ function QuestionDateTime(props) {
             height: Titanium.UI.SIZE,
             font: UICONSTANTS.getQuestionnaireFont(false, true, false), // bold
             color: UICONSTANTS.READONLY_ANSWER_COLOUR,
-            text: this.momentToPrettyText(this.getRawFieldValue()),
+            text: this.momentToPrettyText(this.getRawFieldValue())
         });
         datacontainer.add(this.date_as_text);
     }
@@ -167,7 +167,7 @@ function QuestionDateTime(props) {
             height: Titanium.UI.SIZE,
             // backgroundColor: UICONSTANTS.ANDROID_WIDGET_BACKGROUND_COLOUR,
             // for Android (date/time things are transparent, with white text)
-            layout: 'horizontal',
+            layout: 'horizontal'
         });
         datacontainer.add(widgetcontainer);
         if (this.separateTime) {
@@ -178,7 +178,7 @@ function QuestionDateTime(props) {
                 left: 0,
                 width : Titanium.UI.SIZE,
                 height : Titanium.UI.SIZE,
-                type: Titanium.UI.PICKER_TYPE_DATE,
+                type: Titanium.UI.PICKER_TYPE_DATE
                 // selectionIndicator: true,
             });
             this.timepicker = Titanium.UI.createPicker({
@@ -190,7 +190,7 @@ function QuestionDateTime(props) {
                 type: Titanium.UI.PICKER_TYPE_TIME,
                 // selectionIndicator: true,
                 format24: true,
-                minuteInterval: props.minuteInterval,
+                minuteInterval: props.minuteInterval
             });
             widgetcontainer.add(this.datepicker);
             widgetcontainer.add(this.timepicker);
@@ -213,7 +213,7 @@ function QuestionDateTime(props) {
                 ),
                 // selectionIndicator: true,
                 format24: true, // Android only
-                minuteInterval: props.minuteInterval,
+                minuteInterval: props.minuteInterval
             });
             widgetcontainer.add(this.datetimepicker);
             this.datetimeListener = function (e, value) {
@@ -248,7 +248,7 @@ function QuestionDateTime(props) {
                 passwordMask: false,
                 suppressReturn: true, // not multiline
                 value: null, // Will be overwritten later
-                verticalAlign: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP,
+                verticalAlign: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP
             });
             this.editChangedListener = function (e) {
                 self.editChanged(e);
@@ -546,7 +546,7 @@ lang.extendPrototype(QuestionDateTime, {
             this.editFocusLostListener = null;
         }
         this.editbox = null;
-    },
+    }
 
 });
 module.exports = QuestionDateTime;

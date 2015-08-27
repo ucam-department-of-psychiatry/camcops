@@ -171,13 +171,13 @@ lang.extendPrototype(CPFT_LPS_Discharge, {
                 new KeyValuePair(L('cpft_lps_discharge_reason_code_F'), 'F'),
                 new KeyValuePair(L('cpft_lps_discharge_reason_code_A'), 'A'),
                 new KeyValuePair(L('cpft_lps_discharge_reason_code_O'), 'O'),
-                new KeyValuePair(L('cpft_lps_discharge_reason_code_C'), 'C'),
+                new KeyValuePair(L('cpft_lps_discharge_reason_code_C'), 'C')
             ],
             wanted_letter_text = [
                 "None done",
                 "Yes",
                 "No",
-                "Not appropriate",
+                "Not appropriate"
             ],
             wanted_letter_options = [],
             outcome_text = [
@@ -301,8 +301,8 @@ lang.extendPrototype(CPFT_LPS_Discharge, {
                             max: 100,
                             field: "gaf_at_discharge",
                             prompt: L("cpft_lps_dis_gaf_at_discharge")
-                        },
-                    ],
+                        }
+                    ]
                 },
 
                 { type: "QuestionHorizontalRule" },
@@ -484,8 +484,8 @@ lang.extendPrototype(CPFT_LPS_Discharge, {
                             mandatory: false,
                             bold: false,
                             indicatorOnLeft: true
-                        },
-                    ],
+                        }
+                    ]
                 },
                 {
                     type: "QuestionTypedVariables",
@@ -502,8 +502,8 @@ lang.extendPrototype(CPFT_LPS_Discharge, {
                             type: UICONSTANTS.TYPEDVAR_TEXT,
                             field: "referral_reason_other_detail",
                             prompt: L("cpft_lps_dis_referral_reason_other_detail")
-                        },
-                    ],
+                        }
+                    ]
                 },
 
                 { type: "QuestionHorizontalRule" },
@@ -569,8 +569,8 @@ lang.extendPrototype(CPFT_LPS_Discharge, {
                             description_field: "diagnosis_psych_4_description",
                             codelist_filename: "common/CODES_ICD10",
                             offerNullButton: true
-                        },
-                    ],
+                        }
+                    ]
                 },
                 {
                     type: "QuestionTypedVariables",
@@ -597,8 +597,8 @@ lang.extendPrototype(CPFT_LPS_Discharge, {
                             type: UICONSTANTS.TYPEDVAR_TEXT,
                             field: "diagnosis_medical_4",
                             prompt: L("cpft_lps_dis_diagnosis_medical") + " 4"
-                        },
-                    ],
+                        }
+                    ]
                 },
 
                 { type: "QuestionHorizontalRule" },
@@ -796,8 +796,8 @@ lang.extendPrototype(CPFT_LPS_Discharge, {
                             mandatory: false,
                             bold: false,
                             indicatorOnLeft: true
-                        },
-                    ],
+                        }
+                    ]
                 },
                 {
                     type: "QuestionTypedVariables",
@@ -809,8 +809,8 @@ lang.extendPrototype(CPFT_LPS_Discharge, {
                             type: UICONSTANTS.TYPEDVAR_TEXT,
                             field: "management_other_detail",
                             prompt: L("cpft_lps_dis_management_other_detail")
-                        },
-                    ],
+                        }
+                    ]
                 },
 
                 { type: "QuestionHorizontalRule" },
@@ -843,11 +843,11 @@ lang.extendPrototype(CPFT_LPS_Discharge, {
                             type: UICONSTANTS.TYPEDVAR_TEXT,
                             field: "outcome_other_detail",
                             prompt: L("cpft_lps_dis_outcome_other_detail")
-                        },
-                    ],
-                },
+                        }
+                    ]
+                }
 
-            ],
+            ]
         };
 
         questionnaire = new Questionnaire({
@@ -856,10 +856,10 @@ lang.extendPrototype(CPFT_LPS_Discharge, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

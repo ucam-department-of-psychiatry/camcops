@@ -111,7 +111,7 @@ lang.extendPrototype(Wemwbs, {
                             new KeyValuePair(L('wemwbs_a2'), 2),
                             new KeyValuePair(L('wemwbs_a3'), 3),
                             new KeyValuePair(L('wemwbs_a4'), 4),
-                            new KeyValuePair(L('wemwbs_a5'), 5),
+                            new KeyValuePair(L('wemwbs_a5'), 5)
                         ],
                         questions: taskcommon.localizedStringArrayFromSequence(
                             "wemwbs_q",
@@ -119,10 +119,10 @@ lang.extendPrototype(Wemwbs, {
                             nquestions
                         ),
                         fields: taskcommon.stringArrayFromSequence("q", 1,
-                                                                   nquestions),
-                    },
-                ],
-            },
+                                                                   nquestions)
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -131,10 +131,10 @@ lang.extendPrototype(Wemwbs, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

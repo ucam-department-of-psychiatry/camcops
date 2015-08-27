@@ -144,8 +144,8 @@ lang.extendPrototype(ContactLog, {
                                 type: UICONSTANTS.TYPEDVAR_TEXT,
                                 field: "location",
                                 prompt: L("location")
-                            },
-                        ],
+                            }
+                        ]
                     },
                     {
                         type: "QuestionTypedVariables",
@@ -156,8 +156,8 @@ lang.extendPrototype(ContactLog, {
                                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                                 field: "comment",
                                 prompt: L("contactlog_comment")
-                            },
-                        ],
+                            }
+                        ]
                     },
                     {
                         type: "QuestionText",
@@ -203,9 +203,9 @@ lang.extendPrototype(ContactLog, {
                         indicatorOnLeft: true,
                         bigTick: true,
                         valign: UICONSTANTS.ALIGN_CENTRE
-                    },
-                ],
-            },
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -214,10 +214,10 @@ lang.extendPrototype(ContactLog, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

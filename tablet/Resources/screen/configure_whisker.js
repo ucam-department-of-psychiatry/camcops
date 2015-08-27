@@ -32,7 +32,7 @@ exports.configure = function () { // sourcewindow parameter not used
         varlist = [
             "whiskerHost",
             "whiskerPort",
-            "whiskerTimeoutMs",
+            "whiskerTimeoutMs"
         ],
         i,
         pages,
@@ -69,11 +69,11 @@ exports.configure = function () { // sourcewindow parameter not used
                             prompt: L("label_server_timeout"),
                             hint: L('hint_server_timeout'),
                             min: 0
-                        },
-                    ],
-                },
-            ],
-        },
+                        }
+                    ]
+                }
+            ]
+        }
     ];
 
 
@@ -99,7 +99,7 @@ exports.configure = function () { // sourcewindow parameter not used
                     storedvars[v].setValue(tempstore[v]);
                 }
             }
-        },
+        }
     });
 
     questionnaire.open();

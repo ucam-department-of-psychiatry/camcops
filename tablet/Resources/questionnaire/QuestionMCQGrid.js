@@ -67,7 +67,7 @@ function QuestionMCQGrid(props) {
             right: props.right,
             top: props.top,
             bottom: props.bottom,
-            center: props.center,
+            center: props.center
         },
         questions: props.questions,
         subtitles: props.subtitles,
@@ -113,7 +113,7 @@ lang.extendPrototype(QuestionMCQGrid, {
     cleanup: function () {
         this.grid.cleanup();
         this.grid = null;
-    },
+    }
 
 });
 module.exports = QuestionMCQGrid;

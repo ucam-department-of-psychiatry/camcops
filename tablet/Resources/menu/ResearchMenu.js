@@ -57,13 +57,13 @@ module.exports = function ResearchMenu() {
                 ALLTASKS.TASKLIST.PHQ9,
                 ALLTASKS.TASKLIST.PHQ15
             ]
-        },
+        }
     ];
 
     self = new MenuWindow({
         title: L('menutitle_research'),
         icon: UICONSTANTS.ICON_MENU_RESEARCH,
-        data: data,
+        data: data
     });
 
     return self;

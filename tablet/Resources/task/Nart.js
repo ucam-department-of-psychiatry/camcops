@@ -228,9 +228,9 @@ lang.extendPrototype(Nart, {
                         type: "ContainerTable",
                         columns: 2,
                         elements: table_elements
-                    },
-                ],
-            },
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -239,10 +239,10 @@ lang.extendPrototype(Nart, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

@@ -89,7 +89,7 @@ function QuestionMultipleResponse(props) {
         center: props.center,
         width: Titanium.UI.FILL,
         height: Titanium.UI.SIZE,
-        layout: 'vertical',
+        layout: 'vertical'
     });
 
     if (props.showInstruction) {
@@ -104,7 +104,7 @@ function QuestionMultipleResponse(props) {
             font: UICONSTANTS.getQuestionnaireFont(),
             color: UICONSTANTS.INSTRUCTION_COLOUR,
             text: instruction,
-            touchEnabled: false,
+            touchEnabled: false
         });
         this.tiview.add(elemInstruction);
     }
@@ -116,7 +116,7 @@ function QuestionMultipleResponse(props) {
             left: 0,
             top: 0,
             height: Titanium.UI.SIZE,
-            width: Titanium.UI.FILL,
+            width: Titanium.UI.FILL
         },
         optionFieldMap: optionFieldMap,
         min: props.min_answers,
@@ -128,7 +128,7 @@ function QuestionMultipleResponse(props) {
             // as true!
             props.questionnaire.setFieldValue(field, value);
         },
-        mandatory: props.mandatory,
+        mandatory: props.mandatory
     });
     this.tiview.add(this.elemOptions.tiview);
 
@@ -158,7 +158,7 @@ lang.extendPrototype(QuestionMultipleResponse, {
     cleanup: function () {
         this.elemOptions.cleanup();
         this.elemOptions = null;
-    },
+    }
 
 });
 module.exports = QuestionMultipleResponse;

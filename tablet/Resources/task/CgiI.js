@@ -103,15 +103,15 @@ lang.extendPrototype(CgiI, {
                 elements: [
                     {
                         type: "QuestionText",
-                        text: L("cgi_i_q"),
+                        text: L("cgi_i_q")
                     },
                     {
                         type: "QuestionMCQ",
                         showInstruction: false,
                         field: "q",
                         options: options
-                    },
-                ],
+                    }
+                ]
             }
         ];
 
@@ -121,10 +121,10 @@ lang.extendPrototype(CgiI, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

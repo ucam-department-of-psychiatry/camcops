@@ -109,11 +109,11 @@ lang.extendPrototype(Gaf, {
                                 prompt: L('gaf_score'),
                                 min: 0,
                                 max: 100
-                            },
-                        ],
-                    },
-                ],
-            },
+                            }
+                        ]
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -122,10 +122,10 @@ lang.extendPrototype(Gaf, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

@@ -33,7 +33,7 @@ exports.configure = function () {
         ip_options = [
             new KeyValuePair(L('Unknown'), storedvars.USE_TYPE_UNKNOWN),
             new KeyValuePair(L('No'), storedvars.USE_TYPE_FALSE),
-            new KeyValuePair(L('Yes'), storedvars.USE_TYPE_TRUE),
+            new KeyValuePair(L('Yes'), storedvars.USE_TYPE_TRUE)
         ],
         pages = [
             {
@@ -110,16 +110,16 @@ exports.configure = function () {
                         options: ip_options,
                         showInstruction: false,
                         horizontal: true
-                    },
+                    }
 
-                ],
-            },
+                ]
+            }
         ],
         varlist = [
             "useClinical",
             "useEducational",
             "useResearch",
-            "useCommercial",
+            "useCommercial"
         ],
         tempstore = {},
         i,

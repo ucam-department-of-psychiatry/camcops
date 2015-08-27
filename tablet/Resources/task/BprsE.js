@@ -115,10 +115,10 @@ lang.extendPrototype(BprsE, {
                             new KeyValuePair(L("bprse_q" + n + "_option4"), 4),
                             new KeyValuePair(L("bprse_q" + n + "_option5"), 5),
                             new KeyValuePair(L("bprse_q" + n + "_option6"), 6),
-                            new KeyValuePair(L("bprse_q" + n + "_option7"), 7),
-                        ],
-                    },
-                ],
+                            new KeyValuePair(L("bprse_q" + n + "_option7"), 7)
+                        ]
+                    }
+                ]
             };
         }
 
@@ -133,10 +133,10 @@ lang.extendPrototype(BprsE, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 });
 
 module.exports = BprsE;

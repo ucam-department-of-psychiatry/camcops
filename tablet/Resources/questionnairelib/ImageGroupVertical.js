@@ -45,7 +45,7 @@ function ImageGroupRow(props) {
         width: Titanium.UI.FILL,
         height: Titanium.UI.SIZE,
         index: props.index, // extra data
-        touchEnabled: true, // covers its constituent parts
+        touchEnabled: true // covers its constituent parts
     });
 
     // iOS image scaling problem here. Probably this:
@@ -57,7 +57,7 @@ function ImageGroupRow(props) {
         left: 0,
         top: 0,
         index: props.index, // extra data
-        touchEnabled: false,
+        touchEnabled: false
     };
     if (props.imageHeight) {
         imageprops.height = props.imageHeight;
@@ -85,7 +85,7 @@ function ImageGroupRow(props) {
         height: Titanium.UI.SIZE,
         width: Titanium.UI.SIZE,
         index: props.index, // extra data
-        touchEnabled: false,
+        touchEnabled: false
     });
     this.tiview.add(text);
 }
@@ -107,7 +107,7 @@ ImageGroupRow.prototype = {
         this.tiview = null;
         this.imgInactive = null;
         this.imgActive = null;
-    },
+    }
 
 };
 
@@ -152,7 +152,7 @@ function ImageGroupVertical(props) {
         top: 0,
         width: Titanium.UI.SIZE,
         height: Titanium.UI.SIZE,
-        layout: 'vertical',
+        layout: 'vertical'
     });
     this.tiview.add(this.maincontainer);
 
@@ -166,7 +166,7 @@ function ImageGroupVertical(props) {
             text: props.text[i],
             imageHeight: props.imageHeight,
             imageWidth: props.imageWidth,
-            index: i, // extra data
+            index: i // extra data
         });
         this.rows.push(row);
         this.maincontainer.add(row.tiview);
@@ -260,7 +260,7 @@ ImageGroupVertical.prototype = {
         for (i = 0; i < this.rows.length; ++i) {
             this.rows[i].cleanup();
         }
-    },
+    }
 
 };
 module.exports = ImageGroupVertical;

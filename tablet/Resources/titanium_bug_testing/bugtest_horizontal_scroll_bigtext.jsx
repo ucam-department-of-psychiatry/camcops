@@ -5,14 +5,14 @@ var win = Titanium.UI.createWindow({
         navBarHidden: true,
         fullscreen: true,
         backgroundColor: '#FFFFFF',
-        orientationModes: [],
+        orientationModes: []
     }),
     mainview = Titanium.UI.createView({
         top: 0,
         left: 0,
         height: Titanium.UI.FILL,
         width: Titanium.UI.FILL,
-        layout: 'vertical',
+        layout: 'vertical'
     }),
     rule = Titanium.UI.createView({
         left: 0,
@@ -20,7 +20,7 @@ var win = Titanium.UI.createWindow({
         height: 2,
         width: Titanium.UI.FILL,
         backgroundColor: '#808080',
-        touchEnabled: false,
+        touchEnabled: false
     }),
     scrollview = Titanium.UI.createScrollView({
         left: 16,
@@ -32,7 +32,7 @@ var win = Titanium.UI.createWindow({
         contentHeight: 'auto',
         showVerticalScrollIndicator: true,
         showHorizontalScrollIndicator: false,
-        backgroundColor: '#00FF00',
+        backgroundColor: '#00FF00'
     }),
     string1 = (
         "This is a very long string. " +
@@ -69,7 +69,7 @@ for (i = 0; i < nlabels; i += 1) {
         height: Titanium.UI.SIZE,
         touchEnabled: false,
         backgroundColor: '#FF0000',
-        text: string1,
+        text: string1
         // text: string2,
     });
     scrollview.add(label);

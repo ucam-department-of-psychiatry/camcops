@@ -145,11 +145,11 @@ lang.extendPrototype(Dast, {
                             {beforeIndex: 10, subtitle: "" },
                             {beforeIndex: 15, subtitle: "" },
                             {beforeIndex: 20, subtitle: "" },
-                            {beforeIndex: 25, subtitle: "" },
-                        ],
-                    },
-                ],
-            },
+                            {beforeIndex: 25, subtitle: "" }
+                        ]
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -158,10 +158,10 @@ lang.extendPrototype(Dast, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

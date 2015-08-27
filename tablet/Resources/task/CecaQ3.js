@@ -360,7 +360,7 @@ lang.extendPrototype(CecaQ3, {
             "s1a_fatherfigure_familyfriend",
             "s1a_fatherfigure_fosterfather",
             "s1a_fatherfigure_adoptivefather",
-            "s1a_fatherfigure_other",
+            "s1a_fatherfigure_other"
         ]);
     },
 
@@ -418,7 +418,7 @@ lang.extendPrototype(CecaQ3, {
                 !taskcommon.isCompleteByFieldnameArray(this, [
                     "s1c_first_separated_from_mother_aged",
                     "s1c_mother_how_long_first_separation_years",
-                    "s1c_mother_separation_reason",
+                    "s1c_mother_separation_reason"
                 ])
             ) {
                 return false;
@@ -429,7 +429,7 @@ lang.extendPrototype(CecaQ3, {
                 !taskcommon.isCompleteByFieldnameArray(this, [
                     "s1c_first_separated_from_father_aged",
                     "s1c_father_how_long_first_separation_years",
-                    "s1c_father_separation_reason",
+                    "s1c_father_separation_reason"
                 ])
             ) {
                 return false;
@@ -638,7 +638,7 @@ lang.extendPrototype(CecaQ3, {
                     "s5c_mother_hit_more_than_once",
                     "s5c_mother_hit_how",
                     "s5c_mother_injured",
-                    "s5c_mother_out_of_control",
+                    "s5c_mother_out_of_control"
                 ])
             ) {
                 return false;
@@ -651,7 +651,7 @@ lang.extendPrototype(CecaQ3, {
                     "s5c_father_hit_more_than_once",
                     "s5c_father_hit_how",
                     "s5c_father_injured",
-                    "s5c_father_out_of_control",
+                    "s5c_father_out_of_control"
                 ])
             ) {
                 return false;
@@ -709,7 +709,7 @@ lang.extendPrototype(CecaQ3, {
                 new KeyValuePair(L('cecaq3_1c_separation_reason3'), 3),
                 new KeyValuePair(L('cecaq3_1c_separation_reason4'), 4),
                 new KeyValuePair(L('cecaq3_1c_separation_reason5'), 5),
-                new KeyValuePair(L('cecaq3_1c_separation_reason6'), 6),
+                new KeyValuePair(L('cecaq3_1c_separation_reason6'), 6)
             ],
             options_2a_whichmotherfigure = [
                 new KeyValuePair(L('cecaq3_2a_which_option1'), 1),
@@ -717,7 +717,7 @@ lang.extendPrototype(CecaQ3, {
                 new KeyValuePair(L('cecaq3_2a_which_option3'), 3),
                 new KeyValuePair(L('cecaq3_2a_which_option4'), 4),
                 new KeyValuePair(L('cecaq3_2a_which_option5'), 5),
-                new KeyValuePair(L('cecaq3_2a_which_option0'), 0),
+                new KeyValuePair(L('cecaq3_2a_which_option0'), 0)
             ],
             options_3a_whichfatherfigure = [
                 new KeyValuePair(L('cecaq3_3a_which_option1'), 1),
@@ -725,38 +725,38 @@ lang.extendPrototype(CecaQ3, {
                 new KeyValuePair(L('cecaq3_3a_which_option3'), 3),
                 new KeyValuePair(L('cecaq3_3a_which_option4'), 4),
                 new KeyValuePair(L('cecaq3_3a_which_option5'), 5),
-                new KeyValuePair(L('cecaq3_3a_which_option0'), 0),
+                new KeyValuePair(L('cecaq3_3a_which_option0'), 0)
             ],
             options_5way_no_to_yes = [ // presented in yes-to-no order
                 new KeyValuePair(L('cecaq3_options5way_notoyes_5'), 5),
                 new KeyValuePair("", 4),
                 new KeyValuePair(L('cecaq3_options5way_notoyes_3'), 3),
                 new KeyValuePair("", 2),
-                new KeyValuePair(L('cecaq3_options5way_notoyes_1'), 1),
+                new KeyValuePair(L('cecaq3_options5way_notoyes_1'), 1)
             ],
             options3way_noto_yes = [ // presented in yes-to-no order
                 new KeyValuePair(L('cecaq3_options3way_noto_yes_2'), 2),
                 new KeyValuePair(L('cecaq3_options3way_noto_yes_1'), 1),
-                new KeyValuePair(L('cecaq3_options3way_noto_yes_0'), 0),
+                new KeyValuePair(L('cecaq3_options3way_noto_yes_0'), 0)
             ],
             optionsfrequency = [
                 new KeyValuePair(L('cecaq3_optionsfrequency0'), 0),
                 new KeyValuePair(L('cecaq3_optionsfrequency1'), 1),
                 new KeyValuePair(L('cecaq3_optionsfrequency2'), 2),
-                new KeyValuePair(L('cecaq3_optionsfrequency3'), 3),
+                new KeyValuePair(L('cecaq3_optionsfrequency3'), 3)
             ],
             options_whichparentcaredfor = [
                 new KeyValuePair(L('cecaq3_3c_whichparentcaredfor_option1'), 1),
                 new KeyValuePair(L('cecaq3_3c_whichparentcaredfor_option2'), 2),
                 new KeyValuePair(L('cecaq3_3c_whichparentcaredfor_option3'), 3),
                 new KeyValuePair(L('cecaq3_3c_whichparentcaredfor_option4'), 4),
-                new KeyValuePair(L('cecaq3_3c_whichparentcaredfor_option0'), 0),
+                new KeyValuePair(L('cecaq3_3c_whichparentcaredfor_option0'), 0)
             ],
             options_hit = [
                 new KeyValuePair(L('cecaq3_5_hit_option_1'), 1),
                 new KeyValuePair(L('cecaq3_5_hit_option_2'), 2),
                 new KeyValuePair(L('cecaq3_5_hit_option_3'), 3),
-                new KeyValuePair(L('cecaq3_5_hit_option_4'), 4),
+                new KeyValuePair(L('cecaq3_5_hit_option_4'), 4)
             ],
             generic_subtitles = [
                 { beforeIndex:  0, subtitle: "" },
@@ -764,7 +764,7 @@ lang.extendPrototype(CecaQ3, {
                 { beforeIndex:  9, subtitle: "" },
                 { beforeIndex: 14, subtitle: "" },
                 { beforeIndex: 19, subtitle: "" },
-                { beforeIndex: 24, subtitle: "" },
+                { beforeIndex: 24, subtitle: "" }
             ],
             pages,
             questionnaire;
@@ -773,7 +773,7 @@ lang.extendPrototype(CecaQ3, {
             { title: "CECA-Q3", elements: [
                 { type: "QuestionHeading", text: L('cecaq3_title'), bold: true },
                 { type: "QuestionText", text: L('cecaq3_instruction1') },
-                { type: "QuestionText", text: L('cecaq3_instruction2') },
+                { type: "QuestionText", text: L('cecaq3_instruction2') }
             ] },
             { title: "CECA-Q3 (1A)", pageTag: PAGETAG_1A, elements: [
                 { type: "QuestionHeading", text: L('cecaq3_1a_q'), bold: true },
@@ -798,7 +798,7 @@ lang.extendPrototype(CecaQ3, {
                                 L('cecaq3_1a_mf_familyfriend'),
                                 L('cecaq3_1a_mf_fostermother'),
                                 L('cecaq3_1a_mf_adoptivemother'),
-                                L('cecaq3_other') + " (*)",
+                                L('cecaq3_other') + " (*)"
                             ],
                             fields: [
                                 's1a_motherfigure_birthmother',
@@ -807,8 +807,8 @@ lang.extendPrototype(CecaQ3, {
                                 's1a_motherfigure_familyfriend',
                                 's1a_motherfigure_fostermother',
                                 's1a_motherfigure_adoptivemother',
-                                's1a_motherfigure_other',
-                            ],
+                                's1a_motherfigure_other'
+                            ]
                         },
                         {
                             type: "QuestionText",
@@ -829,9 +829,9 @@ lang.extendPrototype(CecaQ3, {
                                     type: UICONSTANTS.TYPEDVAR_TEXT,
                                     field: "s1a_motherfigure_other_detail",
                                     prompt: L('cecaq3_other')
-                                },
-                            ],
-                        },
+                                }
+                            ]
+                        }
                     ] },
                     { type: "ContainerVertical", elements: [
                         {
@@ -852,7 +852,7 @@ lang.extendPrototype(CecaQ3, {
                                 L('cecaq3_1a_ff_familyfriend'),
                                 L('cecaq3_1a_ff_fosterfather'),
                                 L('cecaq3_1a_ff_adoptivefather'),
-                                L('cecaq3_other') + " (*)",
+                                L('cecaq3_other') + " (*)"
                             ],
                             fields: [
                                 's1a_fatherfigure_birthfather',
@@ -861,8 +861,8 @@ lang.extendPrototype(CecaQ3, {
                                 's1a_fatherfigure_familyfriend',
                                 's1a_fatherfigure_fosterfather',
                                 's1a_fatherfigure_adoptivefather',
-                                's1a_fatherfigure_other',
-                            ],
+                                's1a_fatherfigure_other'
+                            ]
                         },
                         {
                             type: "QuestionText",
@@ -883,11 +883,11 @@ lang.extendPrototype(CecaQ3, {
                                     type: UICONSTANTS.TYPEDVAR_TEXT,
                                     field: "s1a_fatherfigure_other_detail",
                                     prompt: L('cecaq3_other')
-                                },
-                            ],
-                        },
-                    ] },
-                ] },
+                                }
+                            ]
+                        }
+                    ] }
+                ] }
             ] },
             { title: "CECA-Q3 (1B)", pageTag: PAGETAG_1B, elements: [
                 {
@@ -917,9 +917,9 @@ lang.extendPrototype(CecaQ3, {
                             type: UICONSTANTS.TYPEDVAR_REAL,
                             field: "s1b_institution_time_years",
                             hint: L('cecaq3_1b_how_long_prompt')
-                        },
-                    ],
-                },
+                        }
+                    ]
+                }
             ] },
             { title: "CECA-Q3 (1C)", pageTag: PAGETAG_1C, elements: [
                 { type: "QuestionHeading", text: L('cecaq3_1c_heading'), bold: true },
@@ -957,8 +957,8 @@ lang.extendPrototype(CecaQ3, {
                                 type: UICONSTANTS.TYPEDVAR_REAL,
                                 field: "s1c_mother_died_subject_aged",
                                 hint: L('cecaq3_age_years')
-                            },
-                        ],
+                            }
+                        ]
                     },
                     {
                         elementTag: ELEMENTTAG_1C_F_DIED,
@@ -970,8 +970,8 @@ lang.extendPrototype(CecaQ3, {
                                 type: UICONSTANTS.TYPEDVAR_REAL,
                                 field: "s1c_father_died_subject_aged",
                                 hint: L('cecaq3_age_years')
-                            },
-                        ],
+                            }
+                        ]
                     },
                     //
                     { type: "QuestionHorizontalRule" },
@@ -1011,8 +1011,8 @@ lang.extendPrototype(CecaQ3, {
                                 type: UICONSTANTS.TYPEDVAR_REAL,
                                 field: "s1c_first_separated_from_mother_aged",
                                 hint: L('cecaq3_age_years')
-                            },
-                        ],
+                            }
+                        ]
                     },
                     {
                         elementTag: ELEMENTTAG_1C_F_SEP,
@@ -1024,8 +1024,8 @@ lang.extendPrototype(CecaQ3, {
                                 type: UICONSTANTS.TYPEDVAR_REAL,
                                 field: "s1c_first_separated_from_father_aged",
                                 hint: L('cecaq3_age_years')
-                            },
-                        ],
+                            }
+                        ]
                     },
                     //
                     { type: "QuestionText", text: L('cecaq3_1c_how_long_separation') },
@@ -1039,8 +1039,8 @@ lang.extendPrototype(CecaQ3, {
                                 type: UICONSTANTS.TYPEDVAR_REAL,
                                 field: "s1c_mother_how_long_first_separation_years",
                                 hint: L('cecaq3_1c_years')
-                            },
-                        ],
+                            }
+                        ]
                     },
                     {
                         elementTag: ELEMENTTAG_1C_F_SEP,
@@ -1052,8 +1052,8 @@ lang.extendPrototype(CecaQ3, {
                                 type: UICONSTANTS.TYPEDVAR_REAL,
                                 field: "s1c_father_how_long_first_separation_years",
                                 hint: L('cecaq3_1c_years')
-                            },
-                        ],
+                            }
+                        ]
                     },
                     //
                     { type: "QuestionText", text: L('cecaq3_1c_separation_reason') },
@@ -1072,7 +1072,7 @@ lang.extendPrototype(CecaQ3, {
                         options: options_separation,
                         field: "s1c_father_separation_reason",
                         showInstruction: false
-                    },
+                    }
                 ] },
                 {
                     type: "QuestionTypedVariables",
@@ -1083,9 +1083,9 @@ lang.extendPrototype(CecaQ3, {
                             type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                             field: "s1c_describe_experience",
                             prompt: L('cecaq3_please_describe_experience')
-                        },
-                    ],
-                },
+                        }
+                    ]
+                }
             ] },
             { title: "CECA-Q3 (2A)", pageTag: PAGETAG_2A, elements: [
                 { type: "QuestionHeading", text: L('cecaq3_2a_heading'), bold: true },
@@ -1109,8 +1109,8 @@ lang.extendPrototype(CecaQ3, {
                             field: "s2a_which_mother_figure_other_detail",
                             prompt: L('cecaq3_rnc_if_other_describe'),
                             hint: L('cecaq3_hint_description')
-                        },
-                    ],
+                        }
+                    ]
                 },
                 {
                     elementTag: ELEMENTTAG_2A_CHOSEN,
@@ -1134,7 +1134,7 @@ lang.extendPrototype(CecaQ3, {
                         L('cecaq3_2a_q13'),
                         L('cecaq3_2a_q14'),
                         L('cecaq3_2a_q15'),
-                        L('cecaq3_2a_q16'),
+                        L('cecaq3_2a_q16')
                     ],
                     fields: [
                         "s2a_q1",
@@ -1152,8 +1152,8 @@ lang.extendPrototype(CecaQ3, {
                         "s2a_q13",
                         "s2a_q14",
                         "s2a_q15",
-                        "s2a_q16",
-                    ],
+                        "s2a_q16"
+                    ]
                 },
                 {
                     type: "QuestionTypedVariables",
@@ -1164,9 +1164,9 @@ lang.extendPrototype(CecaQ3, {
                             type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                             field: "s2a_extra",
                             prompt: L('cecaq3_2a_add_anything')
-                        },
-                    ],
-                },
+                        }
+                    ]
+                }
             ] },
             { title: "CECA-Q3 (2B)", pageTag: PAGETAG_2B, elements: [
                 { type: "QuestionHeading", text: L('cecaq3_2b_heading'), bold: true },
@@ -1196,7 +1196,7 @@ lang.extendPrototype(CecaQ3, {
                         L('cecaq3_2b_q14'),
                         L('cecaq3_2b_q15'),
                         L('cecaq3_2b_q16'),
-                        L('cecaq3_2b_q17'),
+                        L('cecaq3_2b_q17')
                     ],
                     stem_1: "",
                     stem_2: L('cecaq3_how_frequent'),
@@ -1217,7 +1217,7 @@ lang.extendPrototype(CecaQ3, {
                         "s2b_q14",
                         "s2b_q15",
                         "s2b_q16",
-                        "s2b_q17",
+                        "s2b_q17"
                     ],
                     fields_2: [
                         "s2b_q1_frequency",
@@ -1236,8 +1236,8 @@ lang.extendPrototype(CecaQ3, {
                         "s2b_q14_frequency",
                         "s2b_q15_frequency",
                         "s2b_q16_frequency",
-                        "s2b_q17_frequency",
-                    ],
+                        "s2b_q17_frequency"
+                    ]
                 },
                 {
                     elementTag: ELEMENTTAG_2B_AGE,
@@ -1255,9 +1255,9 @@ lang.extendPrototype(CecaQ3, {
                             type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                             field: "s2b_extra",
                             prompt: L('cecaq3_is_there_more_you_want_to_say')
-                        },
-                    ],
-                },
+                        }
+                    ]
+                }
             ] },
             { title: "CECA-Q3 (3A)", pageTag: PAGETAG_3A, elements: [
                 { type: "QuestionHeading", text: L('cecaq3_3a_heading'), bold: true },
@@ -1281,8 +1281,8 @@ lang.extendPrototype(CecaQ3, {
                             type: UICONSTANTS.TYPEDVAR_TEXT,
                             field: "s3a_which_father_figure_other_detail",
                             prompt: L('cecaq3_rnc_if_other_describe')
-                        },
-                    ],
+                        }
+                    ]
                 },
                 {
                     elementTag: ELEMENTTAG_3A_CHOSEN,
@@ -1306,7 +1306,7 @@ lang.extendPrototype(CecaQ3, {
                         L('cecaq3_3a_q13'),
                         L('cecaq3_3a_q14'),
                         L('cecaq3_3a_q15'),
-                        L('cecaq3_3a_q16'),
+                        L('cecaq3_3a_q16')
                     ],
                     fields: [
                         "s3a_q1",
@@ -1324,8 +1324,8 @@ lang.extendPrototype(CecaQ3, {
                         "s3a_q13",
                         "s3a_q14",
                         "s3a_q15",
-                        "s3a_q16",
-                    ],
+                        "s3a_q16"
+                    ]
                 },
                 {
                     type: "QuestionTypedVariables",
@@ -1336,9 +1336,9 @@ lang.extendPrototype(CecaQ3, {
                             type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                             field: "s3a_extra",
                             prompt: L('cecaq3_3a_add_anything')
-                        },
-                    ],
-                },
+                        }
+                    ]
+                }
             ] },
             { title: "CECA-Q3 (3B)", pageTag: PAGETAG_3B, elements: [
                 { type: "QuestionHeading", text: L('cecaq3_3b_heading'), bold: true },
@@ -1369,7 +1369,7 @@ lang.extendPrototype(CecaQ3, {
                         L('cecaq3_3b_q14'),
                         L('cecaq3_3b_q15'),
                         L('cecaq3_3b_q16'),
-                        L('cecaq3_3b_q17'),
+                        L('cecaq3_3b_q17')
                     ],
                     stem_1: "",
                     stem_2: L('cecaq3_how_frequent'),
@@ -1390,7 +1390,7 @@ lang.extendPrototype(CecaQ3, {
                         "s3b_q14",
                         "s3b_q15",
                         "s3b_q16",
-                        "s3b_q17",
+                        "s3b_q17"
                     ],
                     fields_2: [
                         "s3b_q1_frequency",
@@ -1409,8 +1409,8 @@ lang.extendPrototype(CecaQ3, {
                         "s3b_q14_frequency",
                         "s3b_q15_frequency",
                         "s3b_q16_frequency",
-                        "s3b_q17_frequency",
-                    ],
+                        "s3b_q17_frequency"
+                    ]
                 },
                 {
                     elementTag: ELEMENTTAG_3B_AGE,
@@ -1428,9 +1428,9 @@ lang.extendPrototype(CecaQ3, {
                             type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                             field: "s3b_extra",
                             prompt: L('cecaq3_is_there_more_you_want_to_say')
-                        },
-                    ],
-                },
+                        }
+                    ]
+                }
             ] },
             { title: "CECA-Q3 (3C)", pageTag: PAGETAG_3C, elements: [
                 { type: "QuestionHeading", text: L('cecaq3_3c_heading'), bold: true },
@@ -1456,7 +1456,7 @@ lang.extendPrototype(CecaQ3, {
                         L('cecaq3_3c_q14'),
                         L('cecaq3_3c_q15'),
                         L('cecaq3_3c_q16'),
-                        L('cecaq3_3c_q17'),
+                        L('cecaq3_3c_q17')
                     ],
                     fields: [
                         "s3c_q1",
@@ -1475,8 +1475,8 @@ lang.extendPrototype(CecaQ3, {
                         "s3c_q14",
                         "s3c_q15",
                         "s3c_q16",
-                        "s3c_q17",
-                    ],
+                        "s3c_q17"
+                    ]
                 },
                 {
                     type: "QuestionText",
@@ -1516,7 +1516,7 @@ lang.extendPrototype(CecaQ3, {
                     field: "s3c_parent_physical_problem",
                     showInstruction: false,
                     horizontal: true
-                },
+                }
             ] },
             { title: "CECA-Q3 (4A)", pageTag: PAGETAG_4A, elements: [
                 { type: "QuestionHeading", text: L('cecaq3_4_heading') },
@@ -1542,7 +1542,7 @@ lang.extendPrototype(CecaQ3, {
                         L('cecaq3_4a_option_relative'),
                         L('cecaq3_4a_option_friend'),
                         L('cecaq3_4a_option_responsibleadult'),
-                        L('cecaq3_4a_option_other'),
+                        L('cecaq3_4a_option_other')
                     ],
                     fields: [
                         's4a_adultconfidant_mother',
@@ -1550,8 +1550,8 @@ lang.extendPrototype(CecaQ3, {
                         's4a_adultconfidant_otherrelative',
                         's4a_adultconfidant_familyfriend',
                         's4a_adultconfidant_responsibleadult',
-                        's4a_adultconfidant_other',
-                    ],
+                        's4a_adultconfidant_other'
+                    ]
                 },
                 {
                     elementTag: ELEMENTTAG_4A_OTHER,
@@ -1568,9 +1568,9 @@ lang.extendPrototype(CecaQ3, {
                             type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                             field: "s4a_adultconfidant_additional",
                             prompt: L('cecaq3_4_note_anything')
-                        },
-                    ],
-                },
+                        }
+                    ]
+                }
             ] },
             { title: "CECA-Q3 (4B)", pageTag: PAGETAG_4B, elements: [
                 { type: "QuestionHeading", text: L('cecaq3_4_heading') },
@@ -1596,7 +1596,7 @@ lang.extendPrototype(CecaQ3, {
                         L('cecaq3_4b_option_relative'),
                         L('cecaq3_4b_option_closefriend'),
                         L('cecaq3_4b_option_otherfriend'),
-                        L('cecaq3_4b_option_other'),
+                        L('cecaq3_4b_option_other')
                     ],
                     fields: [
                         's4b_childconfidant_sister',
@@ -1604,8 +1604,8 @@ lang.extendPrototype(CecaQ3, {
                         's4b_childconfidant_otherrelative',
                         's4b_childconfidant_closefriend',
                         's4b_childconfidant_otherfriend',
-                        's4b_childconfidant_other',
-                    ],
+                        's4b_childconfidant_other'
+                    ]
                 },
                 {
                     elementTag: ELEMENTTAG_4B_OTHER,
@@ -1622,9 +1622,9 @@ lang.extendPrototype(CecaQ3, {
                             type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                             field: "s4b_childconfidant_additional",
                             prompt: L('cecaq3_4_note_anything')
-                        },
-                    ],
-                },
+                        }
+                    ]
+                }
             ] },
             { title: "CECA-Q3 (4C)", pageTag: PAGETAG_4C, elements: [
                 { type: "QuestionHeading", text: L('cecaq3_4_heading') },
@@ -1642,7 +1642,7 @@ lang.extendPrototype(CecaQ3, {
                         L('cecaq3_4c_option_relative'),
                         L('cecaq3_4c_option_adultfriend'),
                         L('cecaq3_4c_option_youngfriend'),
-                        L('cecaq3_4c_option_other'),
+                        L('cecaq3_4c_option_other')
                     ],
                     fields: [
                         's4c_closest_mother',
@@ -1651,8 +1651,8 @@ lang.extendPrototype(CecaQ3, {
                         's4c_closest_otherrelative',
                         's4c_closest_adultfriend',
                         's4c_closest_childfriend',
-                        's4c_closest_other',
-                    ],
+                        's4c_closest_other'
+                    ]
                 },
                 {
                     elementTag: ELEMENTTAG_4C_OTHER,
@@ -1669,9 +1669,9 @@ lang.extendPrototype(CecaQ3, {
                             type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                             field: "s4c_closest_additional",
                             prompt: L('cecaq3_4_note_anything')
-                        },
-                    ],
-                },
+                        }
+                    ]
+                }
             ] },
             { title: "CECA-Q3 (5)", pageTag: PAGETAG_5, elements: [
                 { type: "QuestionHeading", text: L('cecaq3_5_heading'), bold: true },
@@ -1721,8 +1721,8 @@ lang.extendPrototype(CecaQ3, {
                                 type: UICONSTANTS.TYPEDVAR_REAL,
                                 field: "s5c_mother_abuse_age_began",
                                 hint: L('cecaq3_age_years')
-                            },
-                        ],
+                            }
+                        ]
                     },
                     {
                         elementTag: ELEMENTTAG_5A_FATHER,
@@ -1734,8 +1734,8 @@ lang.extendPrototype(CecaQ3, {
                                 type: UICONSTANTS.TYPEDVAR_REAL,
                                 field: "s5c_father_abuse_age_began",
                                 hint: L('cecaq3_age_years')
-                            },
-                        ],
+                            }
+                        ]
                     },
                     //
                     { type: "QuestionText", text: L('cecaq3_5_hit_more_than_once') },
@@ -1814,7 +1814,7 @@ lang.extendPrototype(CecaQ3, {
                         field: "s5c_father_out_of_control",
                         showInstruction: false,
                         horizontal: true
-                    },
+                    }
                 ] },
                 {
                     type: "QuestionTypedVariables",
@@ -1825,8 +1825,8 @@ lang.extendPrototype(CecaQ3, {
                             type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                             field: "s5c_parental_abuse_description",
                             prompt: L('cecaq3_5_can_you_describe_1')
-                        },
-                    ],
+                        }
+                    ]
                 },
                 { type: "QuestionText", text: L('cecaq3_5_anyone_else') },
                 {
@@ -1847,9 +1847,9 @@ lang.extendPrototype(CecaQ3, {
                             type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                             field: "s5c_nonparent_abuse_description",
                             prompt: L('cecaq3_5_can_you_describe_2')
-                        },
-                    ],
-                },
+                        }
+                    ]
+                }
             ] },
             { title: "CECA-Q3 (6)", pageTag: PAGETAG_6, elements: [
                 { type: "QuestionHeading", text: L('cecaq3_6_heading'), bold: true },
@@ -1898,8 +1898,8 @@ lang.extendPrototype(CecaQ3, {
                                 type: UICONSTANTS.TYPEDVAR_REAL,
                                 field: "s6_first_age",
                                 hint: L('cecaq3_age_years')
-                            },
-                        ],
+                            }
+                        ]
                     },
                     {
                         type: "QuestionTypedVariables",
@@ -1910,8 +1910,8 @@ lang.extendPrototype(CecaQ3, {
                                 type: UICONSTANTS.TYPEDVAR_REAL,
                                 field: "s6_other_age",
                                 hint: L('cecaq3_age_years')
-                            },
-                        ],
+                            }
+                        ]
                     },
                     //
                     { type: "QuestionText", text: L('cecaq3_6_q2') },
@@ -2045,7 +2045,7 @@ lang.extendPrototype(CecaQ3, {
                         field: "s6_other_intercourse",
                         showInstruction: false,
                         horizontal: true
-                    },
+                    }
                 ] },
                 {
                     type: "QuestionTypedVariables",
@@ -2056,9 +2056,9 @@ lang.extendPrototype(CecaQ3, {
                             type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                             field: "s6_unwanted_sexual_description",
                             prompt: L('cecaq3_5_can_you_describe_1')
-                        },
-                    ],
-                },
+                        }
+                    ]
+                }
             ] },
             { title: "CECA-Q3 (end)", elements: [
                 { type: "QuestionHeading", text: L('thank_you'), bold: true },
@@ -2073,10 +2073,10 @@ lang.extendPrototype(CecaQ3, {
                             type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                             field: "any_other_comments",
                             prompt: L('cecaq3_any_other_comments')
-                        },
-                    ],
-                },
-            ] },
+                        }
+                    ]
+                }
+            ] }
         ];
 
         questionnaire = new Questionnaire({
@@ -2315,10 +2315,10 @@ lang.extendPrototype(CecaQ3, {
                     return sourcePageId - 2;
                 }
                 return sourcePageId - 1;
-            },
+            }
         });
         questionnaire.open();
-    },
+    }
 
 });
 

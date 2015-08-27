@@ -38,7 +38,7 @@ function MenuHeaderViewWrapper(p) {
         useicon = p.icon.length > 0,
         toprow = Titanium.UI.createView({
             height: Titanium.UI.SIZE,
-            width: Titanium.UI.FILL,
+            width: Titanium.UI.FILL
         }),
         next_left = 0,
         icon,
@@ -56,7 +56,7 @@ function MenuHeaderViewWrapper(p) {
     this.tiview = Titanium.UI.createView({
         height: Titanium.UI.SIZE,
         width: Titanium.UI.FILL,
-        layout: 'vertical',
+        layout: 'vertical'
     });
 
     // TOP ROW: STUFF ON THE LEFT
@@ -93,7 +93,7 @@ function MenuHeaderViewWrapper(p) {
         UICONSTANTS.ICON_WHISKER,
         {
             right: whisker_right,
-            visible: whisker.isConnected(),
+            visible: whisker.isConnected()
             // setting the visible flag at creation is necessary on Android,
             // because the show/hide code doesn't seem to be called at creation
         }
@@ -107,7 +107,7 @@ function MenuHeaderViewWrapper(p) {
             right: centreview_right,
             center: {y: '50%'},
             text: p.title,
-            textAlign: Titanium.UI.TEXT_ALIGNMENT_LEFT,
+            textAlign: Titanium.UI.TEXT_ALIGNMENT_LEFT
         });
         toprow.add(title);
     } else {
@@ -116,19 +116,19 @@ function MenuHeaderViewWrapper(p) {
             right: centreview_right,
             height: Titanium.UI.SIZE,
             center: {y: '50%'},
-            layout: 'vertical',
+            layout: 'vertical'
         });
         title = uifunc.createMenuTitleText({
             left: 0,
             right: 0,
             text: p.title,
-            textAlign: Titanium.UI.TEXT_ALIGNMENT_LEFT,
+            textAlign: Titanium.UI.TEXT_ALIGNMENT_LEFT
         }, true);
         subtitle = uifunc.createMenuSubtitleText({
             left: 0,
             right: 0,
             text: p.subtitle,
-            textAlign: Titanium.UI.TEXT_ALIGNMENT_LEFT,
+            textAlign: Titanium.UI.TEXT_ALIGNMENT_LEFT
         }, true);
         textVerticalLayout.add(title);
         textVerticalLayout.add(subtitle);
@@ -144,7 +144,7 @@ function MenuHeaderViewWrapper(p) {
     if (p.patientline) {
         this.patientrow = Titanium.UI.createLabel({
             left: UICONSTANTS.SPACE,
-            font: UICONSTANTS.PATIENT_FONT,
+            font: UICONSTANTS.PATIENT_FONT
         });
         this.tiview.add(this.patientrow);
         this.tiview.add(uifunc.createVerticalSpacer());

@@ -109,7 +109,7 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
         {name: "q4_3", type: DBCONSTANTS.TYPE_INTEGER},
         {name: "q4_4", type: DBCONSTANTS.TYPE_INTEGER},
         {name: "q4_5", type: DBCONSTANTS.TYPE_INTEGER},
-        {name: "q4_6", type: DBCONSTANTS.TYPE_INTEGER},
+        {name: "q4_6", type: DBCONSTANTS.TYPE_INTEGER}
     ],
     PAGETAG_3 = "p3",
     ELEMENTTAG_3C1 = "q3c1";
@@ -165,16 +165,16 @@ lang.extendPrototype(MdsUpdrs, {
                 new KeyValuePair(L("mds_updrs_a1"), 1),
                 new KeyValuePair(L("mds_updrs_a2"), 2),
                 new KeyValuePair(L("mds_updrs_a3"), 3),
-                new KeyValuePair(L("mds_updrs_a4"), 4),
+                new KeyValuePair(L("mds_updrs_a4"), 4)
             ],
             source_options = [
                 new KeyValuePair(L("mds_updrs_respondent_pt"), 0),
                 new KeyValuePair(L("mds_updrs_respondent_cg"), 1),
-                new KeyValuePair(L("mds_updrs_respondent_both"), 2),
+                new KeyValuePair(L("mds_updrs_respondent_both"), 2)
             ],
             on_off_options = [
                 new KeyValuePair(L("off"), 0),
-                new KeyValuePair(L("on"), 1),
+                new KeyValuePair(L("on"), 1)
             ],
             hy_options = [
                 new KeyValuePair("0", 0),
@@ -182,7 +182,7 @@ lang.extendPrototype(MdsUpdrs, {
                 new KeyValuePair("2", 2),
                 new KeyValuePair("3", 3),
                 new KeyValuePair("4", 4),
-                new KeyValuePair("5", 5),
+                new KeyValuePair("5", 5)
             ],
             elements_i,
             elements_ii,
@@ -212,40 +212,40 @@ lang.extendPrototype(MdsUpdrs, {
         elements_i = [
             {
                 type: "QuestionText",
-                text: "Part I, Q1a (information source for 1.1–1.6)",
+                text: "Part I, Q1a (information source for 1.1–1.6"
             },
             {
                 type: "QuestionMCQ",
                 options: source_options,
                 field: "q1a",
                 showInstruction: false,
-                horizontal: true,
+                horizontal: true
             },
             {
                 type: "QuestionMCQGrid",
                 options: main_options,
                 questions: taskcommon.stringArrayFromSequence("Part I, Q1.",
                                                               1, 6),
-                fields: taskcommon.stringArrayFromSequence("q1_", 1, 6),
+                fields: taskcommon.stringArrayFromSequence("q1_", 1, 6)
             },
             {
                 type: "QuestionText",
-                text: "Part I, Q1.6a (information source for 1.7–1.13)",
+                text: "Part I, Q1.6a (information source for 1.7–1.13"
             },
             {
                 type: "QuestionMCQ",
                 options: source_options,
                 field: "q1_6a",
                 showInstruction: false,
-                horizontal: true,
+                horizontal: true
             },
             {
                 type: "QuestionMCQGrid",
                 options: main_options,
                 questions: taskcommon.stringArrayFromSequence("Part I, Q1.",
                                                               7, 13),
-                fields: taskcommon.stringArrayFromSequence("q1_", 7, 13),
-            },
+                fields: taskcommon.stringArrayFromSequence("q1_", 7, 13)
+            }
         ];
 
         elements_ii = [
@@ -254,8 +254,8 @@ lang.extendPrototype(MdsUpdrs, {
                 options: main_options,
                 questions: taskcommon.stringArrayFromSequence("Part II, Q2.",
                                                               1, 13),
-                fields: taskcommon.stringArrayFromSequence("q2_", 1, 13),
-            },
+                fields: taskcommon.stringArrayFromSequence("q2_", 1, 13)
+            }
         ];
 
         for (i = 0; i < part3bits.length; ++i) {
@@ -265,36 +265,36 @@ lang.extendPrototype(MdsUpdrs, {
         elements_iii = [
             {
                 type: "QuestionText",
-                text: "Part III, Q3a (medication)",
+                text: "Part III, Q3a (medication)"
             },
             {
                 type: "QuestionMCQ",
                 options: taskcommon.OPTIONS_NO_YES_BOOLEAN,
                 field: "q3a",
                 showInstruction: false,
-                horizontal: true,
+                horizontal: true
             },
             {
                 type: "QuestionText",
-                text: "Part III, Q3b (clinical state)",
+                text: "Part III, Q3b (clinical state)"
             },
             {
                 type: "QuestionMCQ",
                 options: on_off_options,
                 field: "q3b",
                 showInstruction: false,
-                horizontal: true,
+                horizontal: true
             },
             {
                 type: "QuestionText",
-                text: "Part III, Q3c (levodopa)",
+                text: "Part III, Q3c (levodopa)"
             },
             {
                 type: "QuestionMCQ",
                 options: taskcommon.OPTIONS_NO_YES_BOOLEAN,
                 field: "q3c",
                 showInstruction: false,
-                horizontal: true,
+                horizontal: true
             },
             {
                 elementTag: ELEMENTTAG_3C1,
@@ -306,49 +306,49 @@ lang.extendPrototype(MdsUpdrs, {
                         type: UICONSTANTS.TYPEDVAR_REAL,
                         field: "q3c1",
                         prompt: "Q3c.1, minutes since last dose",
-                        min: 0,
-                    },
-                ],
+                        min: 0
+                    }
+                ]
             },
             {
                 type: "QuestionMCQGrid",
                 options: main_options,
                 questions: part3q,
-                fields: part3f,
+                fields: part3f
             },
             {
                 type: "QuestionText",
-                text: "q3_dyskinesia_present",
+                text: "q3_dyskinesia_present"
             },
             {
                 type: "QuestionMCQ",
                 options: taskcommon.OPTIONS_NO_YES_BOOLEAN,
                 field: "q3_dyskinesia_present",
                 showInstruction: false,
-                horizontal: true,
+                horizontal: true
             },
             {
                 type: "QuestionText",
-                text: "q3_dyskinesia_interfered",
+                text: "q3_dyskinesia_interfered"
             },
             {
                 type: "QuestionMCQ",
                 options: taskcommon.OPTIONS_NO_YES_BOOLEAN,
                 field: "q3_dyskinesia_interfered",
                 showInstruction: false,
-                horizontal: true,
+                horizontal: true
             },
             {
                 type: "QuestionText",
-                text: "Hoehn & Yahr stage",
+                text: "Hoehn & Yahr stage"
             },
             {
                 type: "QuestionMCQ",
                 options: hy_options,
                 field: "q3_hy_stage",
                 showInstruction: false,
-                horizontal: true,
-            },
+                horizontal: true
+            }
         ];
 
         elements_iv = [
@@ -357,28 +357,28 @@ lang.extendPrototype(MdsUpdrs, {
                 options: main_options,
                 questions: taskcommon.stringArrayFromSequence("Part IV, Q4.",
                                                               1, 6),
-                fields: taskcommon.stringArrayFromSequence("q4_", 1, 6),
-            },
+                fields: taskcommon.stringArrayFromSequence("q4_", 1, 6)
+            }
         ];
 
         pages = [
             {
                 title: pagetitle(1),
-                elements: elements_i,
+                elements: elements_i
             },
             {
                 title: pagetitle(2),
-                elements: elements_ii,
+                elements: elements_ii
             },
             {
                 title: pagetitle(3),
                 pageTag: PAGETAG_3,
-                elements: elements_iii,
+                elements: elements_iii
             },
             {
                 title: pagetitle(4),
-                elements: elements_iv,
-            },
+                elements: elements_iv
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -396,10 +396,10 @@ lang.extendPrototype(MdsUpdrs, {
                     );
                 }
                 return { care: false };
-            },
+            }
         });
         questionnaire.open();
-    },
+    }
 });
 
 module.exports = MdsUpdrs;

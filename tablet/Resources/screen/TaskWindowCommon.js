@@ -70,7 +70,7 @@ function taskInfoFromTask(task, taskType, taskTitle, addPatientName,
         taskSummaryView: task.getSummaryView(),
         isComplete: task.isComplete(),
         showFinishFlag: showFinishFlag,
-        finishFlag: showFinishFlag && task.getMoveOffTablet(),
+        finishFlag: showFinishFlag && task.getMoveOffTablet()
     };
 }
 
@@ -89,12 +89,12 @@ function TaskWindowCommon(isPatientSummary, tasktype, tasktitle, taskhtml) {
         mainview = Titanium.UI.createView({
             height: Titanium.UI.FILL,
             width: Titanium.UI.FILL,
-            layout: 'vertical',
+            layout: 'vertical'
         }),
         toprowprops = {
             height: UICONSTANTS.ICONSIZE, // not SIZE, on very narrow displays, it
             // breaks a bit. Truncate instead!
-            width: Titanium.UI.FILL,
+            width: Titanium.UI.FILL
         },
         backbutton_left,
         icon_left,
@@ -216,7 +216,7 @@ function TaskWindowCommon(isPatientSummary, tasktype, tasktitle, taskhtml) {
         left: heading_left,
         right: heading_right,
         text: isPatientSummary ? L('patient_summary_title') : tasktitle,
-        textAlign: Titanium.UI.TEXT_ALIGNMENT_LEFT,
+        textAlign: Titanium.UI.TEXT_ALIGNMENT_LEFT
         // ... Titanium.UI.TEXT_ALIGNMENT_CENTER,
     });
 
@@ -251,7 +251,7 @@ function TaskWindowCommon(isPatientSummary, tasktype, tasktitle, taskhtml) {
     // PATIENT
     this.patientrow = Titanium.UI.createLabel({
         left: UICONSTANTS.SPACE,
-        font: UICONSTANTS.PATIENT_FONT,
+        font: UICONSTANTS.PATIENT_FONT
     });
     this.set_patient_line();
 
@@ -266,7 +266,7 @@ function TaskWindowCommon(isPatientSummary, tasktype, tasktitle, taskhtml) {
         allowsSelection: true,
         // ... appears to do nothing! We have to emulate it ourselves.
         showVerticalScrollIndicator: true,
-        minRowHeight: UICONSTANTS.MIN_TABLE_ROW_HEIGHT,
+        minRowHeight: UICONSTANTS.MIN_TABLE_ROW_HEIGHT
     });
     this.rowListener = function (e) { self.rowClicked(e); };
     this.tableview.addEventListener('click', this.rowListener);
@@ -773,7 +773,7 @@ TaskWindowCommon.prototype = {
                            "pending_patient_update = " +
                            this.pending_patient_update);
         this.have_focus = false;
-    },
+    }
 
 };
 module.exports = TaskWindowCommon;

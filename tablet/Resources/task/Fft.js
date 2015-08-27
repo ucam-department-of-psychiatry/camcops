@@ -109,21 +109,21 @@ lang.extendPrototype(FFT, {
                 {
                     type: "QuestionText",
                     bold: true,
-                    text: this.service,
+                    text: this.service
                 },
                 {
                     type: "QuestionText",
                     bold: true,
-                    text: L("fft_q"),
+                    text: L("fft_q")
                 },
                 {
                     type: "QuestionMCQ",
                     field: "rating",
                     mandatory: true,
                     showInstruction: false,
-                    options: options,
-                },
-            ],
+                    options: options
+                }
+            ]
         }];
 
         questionnaire = new Questionnaire({
@@ -132,10 +132,10 @@ lang.extendPrototype(FFT, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

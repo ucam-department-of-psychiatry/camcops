@@ -141,13 +141,13 @@ module.exports = function HelpMenu() {
         {maintitle: L('t_view_terms_conditions'), func: view_terms_conditions },
         {maintitle: L('t_black_white_test'), func: black_white_test },
         {maintitle: L('t_scale_scroll_test'), func: scale_scroll_test },
-        {maintitle: L('t_sound_test'), func: sound_test },
+        {maintitle: L('t_sound_test'), func: sound_test }
     ];
 
     self = new MenuWindow({
         title: L('menutitle_help'),
         icon: UICONSTANTS.ICON_MENU_HELP,
-        data: data,
+        data: data
     });
 
     return self;

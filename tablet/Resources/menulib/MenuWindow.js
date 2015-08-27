@@ -69,7 +69,7 @@ MenuWindow.prototype = {
                                         this.androidBackListener);
         this.androidBackListener = null;
         this.menuview.cleanup();
-    },
+    }
 
 };
 module.exports = MenuWindow;

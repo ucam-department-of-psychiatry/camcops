@@ -278,13 +278,13 @@ lang.extendPrototype(Rand36, {
                             new KeyValuePair(L('rand36_q1_option2'), 2),
                             new KeyValuePair(L('rand36_q1_option3'), 3),
                             new KeyValuePair(L('rand36_q1_option4'), 4),
-                            new KeyValuePair(L('rand36_q1_option5'), 5),
+                            new KeyValuePair(L('rand36_q1_option5'), 5)
                         ],
                         field: "q1",
                         showInstruction: false,
                         horizontal: false
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: pageTitle(pagenum++),
@@ -297,13 +297,13 @@ lang.extendPrototype(Rand36, {
                             new KeyValuePair(L('rand36_q2_option2'), 2),
                             new KeyValuePair(L('rand36_q2_option3'), 3),
                             new KeyValuePair(L('rand36_q2_option4'), 4),
-                            new KeyValuePair(L('rand36_q2_option5'), 5),
+                            new KeyValuePair(L('rand36_q2_option5'), 5)
                         ],
                         field: "q2",
                         showInstruction: false,
                         horizontal: false
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: pageTitle(pagenum++),
@@ -330,7 +330,7 @@ lang.extendPrototype(Rand36, {
                             L("rand36_q9"),
                             L("rand36_q10"),
                             L("rand36_q11"),
-                            L("rand36_q12"),
+                            L("rand36_q12")
                         ],
                         fields: [
                             "q3",
@@ -342,10 +342,10 @@ lang.extendPrototype(Rand36, {
                             "q9",
                             "q10",
                             "q11",
-                            "q12",
-                        ],
-                    },
-                ],
+                            "q12"
+                        ]
+                    }
+                ]
             },
             {
                 title: pageTitle(pagenum++),
@@ -359,22 +359,22 @@ lang.extendPrototype(Rand36, {
                         type: "QuestionMCQGrid",
                         options: [
                             new KeyValuePair(L('rand36_yesno_option1'), 1),
-                            new KeyValuePair(L('rand36_yesno_option2'), 2),
+                            new KeyValuePair(L('rand36_yesno_option2'), 2)
                         ],
                         questions: [
                             L("rand36_q13"),
                             L("rand36_q14"),
                             L("rand36_q15"),
-                            L("rand36_q16"),
+                            L("rand36_q16")
                         ],
                         fields: [
                             "q13",
                             "q14",
                             "q15",
-                            "q16",
-                        ],
-                    },
-                ],
+                            "q16"
+                        ]
+                    }
+                ]
             },
             {
                 title: pageTitle(pagenum++),
@@ -388,20 +388,20 @@ lang.extendPrototype(Rand36, {
                         type: "QuestionMCQGrid",
                         options: [
                             new KeyValuePair(L('rand36_yesno_option1'), 1),
-                            new KeyValuePair(L('rand36_yesno_option2'), 2),
+                            new KeyValuePair(L('rand36_yesno_option2'), 2)
                         ],
                         questions: [
                             L("rand36_q17"),
                             L("rand36_q18"),
-                            L("rand36_q19"),
+                            L("rand36_q19")
                         ],
                         fields: [
                             "q17",
                             "q18",
-                            "q19",
-                        ],
-                    },
-                ],
+                            "q19"
+                        ]
+                    }
+                ]
             },
             {
                 title: pageTitle(pagenum++),
@@ -414,13 +414,13 @@ lang.extendPrototype(Rand36, {
                             new KeyValuePair(L('rand36_q20_option2'), 2),
                             new KeyValuePair(L('rand36_q20_option3'), 3),
                             new KeyValuePair(L('rand36_q20_option4'), 4),
-                            new KeyValuePair(L('rand36_q20_option5'), 5),
+                            new KeyValuePair(L('rand36_q20_option5'), 5)
                         ],
                         field: "q20",
                         showInstruction: false,
                         horizontal: false
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: pageTitle(pagenum++),
@@ -434,13 +434,13 @@ lang.extendPrototype(Rand36, {
                             new KeyValuePair(L('rand36_q21_option3'), 3),
                             new KeyValuePair(L('rand36_q21_option4'), 4),
                             new KeyValuePair(L('rand36_q21_option5'), 5),
-                            new KeyValuePair(L('rand36_q21_option6'), 6),
+                            new KeyValuePair(L('rand36_q21_option6'), 6)
                         ],
                         field: "q21",
                         showInstruction: false,
                         horizontal: false
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: pageTitle(pagenum++),
@@ -453,13 +453,13 @@ lang.extendPrototype(Rand36, {
                             new KeyValuePair(L('rand36_q22_option2'), 2),
                             new KeyValuePair(L('rand36_q22_option3'), 3),
                             new KeyValuePair(L('rand36_q22_option4'), 4),
-                            new KeyValuePair(L('rand36_q22_option5'), 5),
+                            new KeyValuePair(L('rand36_q22_option5'), 5)
                         ],
                         field: "q22",
                         showInstruction: false,
                         horizontal: false
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: pageTitle(pagenum++),
@@ -482,7 +482,7 @@ lang.extendPrototype(Rand36, {
                             new KeyValuePair(L('rand36_last4weeks_option3'), 3),
                             new KeyValuePair(L('rand36_last4weeks_option4'), 4),
                             new KeyValuePair(L('rand36_last4weeks_option5'), 5),
-                            new KeyValuePair(L('rand36_last4weeks_option6'), 6),
+                            new KeyValuePair(L('rand36_last4weeks_option6'), 6)
                         ],
                         questions: [
                             L("rand36_q23"),
@@ -493,7 +493,7 @@ lang.extendPrototype(Rand36, {
                             L("rand36_q28"),
                             L("rand36_q29"),
                             L("rand36_q30"),
-                            L("rand36_q31"),
+                            L("rand36_q31")
                         ],
                         fields: [
                             "q23",
@@ -504,10 +504,10 @@ lang.extendPrototype(Rand36, {
                             "q28",
                             "q29",
                             "q30",
-                            "q31",
-                        ],
-                    },
-                ],
+                            "q31"
+                        ]
+                    }
+                ]
             },
             {
                 title: pageTitle(pagenum++),
@@ -520,13 +520,13 @@ lang.extendPrototype(Rand36, {
                             new KeyValuePair(L('rand36_q32_option2'), 2),
                             new KeyValuePair(L('rand36_q32_option3'), 3),
                             new KeyValuePair(L('rand36_q32_option4'), 4),
-                            new KeyValuePair(L('rand36_q32_option5'), 5),
+                            new KeyValuePair(L('rand36_q32_option5'), 5)
                         ],
                         field: "q32",
                         showInstruction: false,
                         horizontal: false
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: pageTitle(pagenum++),
@@ -543,23 +543,23 @@ lang.extendPrototype(Rand36, {
                             new KeyValuePair(L('rand36_q33to36_option2'), 2),
                             new KeyValuePair(L('rand36_q33to36_option3'), 3),
                             new KeyValuePair(L('rand36_q33to36_option4'), 4),
-                            new KeyValuePair(L('rand36_q33to36_option5'), 5),
+                            new KeyValuePair(L('rand36_q33to36_option5'), 5)
                         ],
                         questions: [
                             L("rand36_q33"),
                             L("rand36_q34"),
                             L("rand36_q35"),
-                            L("rand36_q36"),
+                            L("rand36_q36")
                         ],
                         fields: [
                             "q33",
                             "q34",
                             "q35",
-                            "q36",
-                        ],
-                    },
-                ],
-            },
+                            "q36"
+                        ]
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -568,10 +568,10 @@ lang.extendPrototype(Rand36, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

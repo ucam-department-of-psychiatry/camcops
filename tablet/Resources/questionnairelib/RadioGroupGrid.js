@@ -33,7 +33,7 @@ function RadioGroupGridTitleRow(options, colWidth, topspace, subtitle) {
             width: lang.multiplyUnits(options.length, colWidth),
             height: Titanium.UI.SIZE,
             backgroundColor: UICONSTANTS.GRID_TITLEROW_BACKGROUND,
-            touchEnabled: false,
+            touchEnabled: false
         }),
         colWidthWithinView = lang.divideUnits('100%', options.length),
         i,
@@ -45,7 +45,7 @@ function RadioGroupGridTitleRow(options, colWidth, topspace, subtitle) {
         width: Titanium.UI.FILL,
         height: Titanium.UI.SIZE,
         top: topspace,
-        touchEnabled: false,
+        touchEnabled: false
     });
 
     for (i = 0; i < options.length; ++i) {
@@ -58,7 +58,7 @@ function RadioGroupGridTitleRow(options, colWidth, topspace, subtitle) {
             bottom: 0,
             height: Titanium.UI.SIZE,
             width: colWidthWithinView,
-            touchEnabled: false,
+            touchEnabled: false
         });
         optionsview.add(optionLabel);
     }
@@ -69,7 +69,7 @@ function RadioGroupGridTitleRow(options, colWidth, topspace, subtitle) {
             left : 0,
             right : lang.multiplyUnits(options.length, colWidth),
             height : Titanium.UI.SIZE,
-            touchEnabled: false,
+            touchEnabled: false
         });
         subtitletext = Titanium.UI.createLabel({
             text : subtitle,
@@ -80,7 +80,7 @@ function RadioGroupGridTitleRow(options, colWidth, topspace, subtitle) {
             right : UICONSTANTS.SPACE,
             center : { y : '50%' },
             height : Titanium.UI.SIZE,
-            touchEnabled: false,
+            touchEnabled: false
         });
         subtitleview.add(subtitletext);
         this.tiview.add(subtitleview);
@@ -111,14 +111,14 @@ function RadioGroupGridRow(props) {
         width: Titanium.UI.FILL,
         height: Titanium.UI.SIZE,
         top: props.topspace,
-        touchEnabled: true,
+        touchEnabled: true
     });
 
     // Creation from the left
     questionview = Titanium.UI.createView({
         left: 0,
         right: lang.multiplyUnits(props.options.length, props.colWidth),
-        height: Titanium.UI.SIZE,
+        height: Titanium.UI.SIZE
     });
     questiontext = Titanium.UI.createLabel({
         text: props.questionText,
@@ -129,7 +129,7 @@ function RadioGroupGridRow(props) {
         right: UICONSTANTS.SPACE,
         center: { y : '50%' },
         height: Titanium.UI.SIZE,
-        touchEnabled: false,
+        touchEnabled: false
     });
     questionview.add(questiontext);
     this.tiview.add(questionview);
@@ -143,7 +143,7 @@ function RadioGroupGridRow(props) {
         setFieldValue: function (newValue) {
             props.setFieldValue(props.questionIndex, newValue);
         },
-        tipropsArray: buttonTipropsArray,
+        tipropsArray: buttonTipropsArray
     });
     for (i = 0; i < props.options.length; ++i) {
         buttonview = Titanium.UI.createView({
@@ -152,7 +152,7 @@ function RadioGroupGridRow(props) {
                                       props.colWidth),
             width: props.colWidth,
             index_id: i, // extra data
-            touchEnabled: true,
+            touchEnabled: true
         });
         buttonview.add(this.mcqgroup.buttons[i].tiview);
         this.tiview.add(buttonview);
@@ -191,7 +191,7 @@ RadioGroupGridRow.prototype = {
         uifunc.removeAllViewChildren(this.tiview);
         this.tiview = null;
         this.mcqgroup.cleanup();
-    },
+    }
 
 };
 
@@ -253,7 +253,7 @@ function RadioGroupGrid(props) {
                 top: props.rowPadding,
                 height: UICONSTANTS.GRID_RULE_HEIGHT,
                 width: Titanium.UI.FILL,
-                backgroundColor: UICONSTANTS.GRID_RULE_COLOUR,
+                backgroundColor: UICONSTANTS.GRID_RULE_COLOUR
             });
             this.tiview.add(rule);
         }
@@ -265,7 +265,7 @@ function RadioGroupGrid(props) {
             colWidth: props.colWidth,
             readOnly: props.readOnly,
             mandatory: props.mandatoryFlags[i],
-            setFieldValue: props.setFieldValue, // relay the change
+            setFieldValue: props.setFieldValue // relay the change
         });
         this.rows.push(newrow);
         this.tiview.add(newrow.tiview);
@@ -346,7 +346,7 @@ RadioGroupGrid.prototype = {
         for (i = 0; i < this.rows.length; ++i) {
             this.rows[i].cleanup();
         }
-    },
+    }
 
 };
 module.exports = RadioGroupGrid;

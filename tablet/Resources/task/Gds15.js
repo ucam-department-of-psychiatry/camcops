@@ -114,10 +114,10 @@ lang.extendPrototype(Gds15, {
                             nquestions
                         ),
                         fields: taskcommon.stringArrayFromSequence('q', 1,
-                                                                   nquestions),
-                    },
-                ],
-            },
+                                                                   nquestions)
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -126,10 +126,10 @@ lang.extendPrototype(Gds15, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

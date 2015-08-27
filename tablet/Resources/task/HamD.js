@@ -55,7 +55,7 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
         {name: "q18b", noptions: 3, mandatory: false },
         {name: "q19", noptions: 5, mandatory: false },
         {name: "q20", noptions: 4, mandatory: false },
-        {name: "q21", noptions: 3, mandatory: false },
+        {name: "q21", noptions: 3, mandatory: false }
     ];
 
 fieldlist.push.apply(fieldlist, dbcommon.CLINICIAN_FIELDSPECS); // Clinician info 1/3
@@ -213,9 +213,9 @@ lang.extendPrototype(HamD, {
                         type: "QuestionMCQ",
                         field: props.name,
                         mandatory: props.mandatory,
-                        options: options,
-                    },
-                ],
+                        options: options
+                    }
+                ]
             };
         }
         pages = [ self.getClinicianDetailsPage() ]; // Clinician info 3/3
@@ -252,11 +252,11 @@ lang.extendPrototype(HamD, {
                 }
                 return pageId_zero_based - 1;
                 // by default, move to the previous question
-            },
+            }
         });
 
         questionnaire.open();
-    },
+    }
 
 });
 

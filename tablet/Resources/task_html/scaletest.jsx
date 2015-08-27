@@ -93,7 +93,7 @@ function startTask() {
             right: 300,
             top: 500,
             bottom: 600,
-            radius: 20,
+            radius: 20
         },
         i,
         B;

@@ -123,7 +123,7 @@ lang.extendPrototype(Hads, {
                 new KeyValuePair("0", 0),
                 new KeyValuePair("1", 1),
                 new KeyValuePair("2", 2),
-                new KeyValuePair("3", 3),
+                new KeyValuePair("3", 3)
             ],
             questions = [],
             fields = [],
@@ -155,12 +155,12 @@ lang.extendPrototype(Hads, {
                 mandatory: true,
                 options: hads_options,
                 questions: questions,
-                fields: fields,
-            },
+                fields: fields
+            }
         ];
         page = {
             title: L("t_hads"),
-            elements: elements,
+            elements: elements
         };
         return [page];
     },
@@ -172,22 +172,22 @@ lang.extendPrototype(Hads, {
                 elements: [
                     {
                         type: "QuestionText",
-                        text: this.XSTRING('instruction_1'),
+                        text: this.XSTRING('instruction_1')
                     },
                     {
                         type: "QuestionText",
-                        text: this.XSTRING('instruction_2'),
+                        text: this.XSTRING('instruction_2')
                     },
                     {
                         type: "QuestionText",
-                        text: this.XSTRING('instruction_3'),
+                        text: this.XSTRING('instruction_3')
                     },
                     {
                         type: "QuestionText",
                         bold: true,
-                        text: L('press_next_to_continue'),
-                    },
-                ],
+                        text: L('press_next_to_continue')
+                    }
+                ]
             }],
             elements,
             options,
@@ -197,7 +197,7 @@ lang.extendPrototype(Hads, {
                 new KeyValuePair(this.XSTRING('q' + n + '_a0'), 0),
                 new KeyValuePair(this.XSTRING('q' + n + '_a1'), 1),
                 new KeyValuePair(this.XSTRING('q' + n + '_a2'), 2),
-                new KeyValuePair(this.XSTRING('q' + n + '_a3'), 3),
+                new KeyValuePair(this.XSTRING('q' + n + '_a3'), 3)
             ];
             if (this.questionOptionsInverted(n)) {
                 options.reverse();
@@ -206,19 +206,19 @@ lang.extendPrototype(Hads, {
                 {
                     type: "QuestionText",
                     bold: true,
-                    text: this.XSTRING('q' + n + '_stem'),
+                    text: this.XSTRING('q' + n + '_stem')
                 },
                 {
                     type: "QuestionMCQ",
                     mandatory: true,
                     showInstruction: false,
                     options: options,
-                    field: 'q' + n,
-                },
+                    field: 'q' + n
+                }
             ];
             pages.push({
                 title: L("t_hads") + " Q" + n,
-                elements: elements,
+                elements: elements
             });
         }
         return pages;
@@ -240,10 +240,10 @@ lang.extendPrototype(Hads, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 });
 
 module.exports = Hads;

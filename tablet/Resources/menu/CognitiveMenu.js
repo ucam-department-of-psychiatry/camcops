@@ -34,12 +34,12 @@ module.exports = function CognitiveMenu() {
             ALLTASKS.TASKLIST.ACE3,
             ALLTASKS.TASKLIST.MOCA,
             ALLTASKS.TASKLIST.SLUMS,
-            ALLTASKS.TASKLIST.NART,
+            ALLTASKS.TASKLIST.NART
         ],
         self = new MenuWindow({
             title: L('menutitle_cognitive'),
             icon: UICONSTANTS.ICON_MENU_COGNITIVE,
-            data: data,
+            data: data
         });
 
     return self;

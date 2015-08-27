@@ -99,17 +99,17 @@ lang.extendPrototype(Photo, {
                                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                                 field: "description",
                                 prompt: L("photo_description_prompt")
-                            },
-                        ],
+                            }
+                        ]
                     },
                     {
                         type: "QuestionPhoto",
                         field: "photo_blobid",
                         mandatory: true,
                         rotationField: "rotation"
-                    },
-                ],
-            },
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -118,10 +118,10 @@ lang.extendPrototype(Photo, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

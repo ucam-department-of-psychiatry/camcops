@@ -151,7 +151,7 @@ lang.extendPrototype(Icd10Schizotypal, {
                         ),
                         fields: taskcommon.stringArrayFromSequence("a", 1,
                                                                    N_A),
-                        mandatory: true,
+                        mandatory: true
                     },
                     {
                         type: "QuestionText",
@@ -164,7 +164,7 @@ lang.extendPrototype(Icd10Schizotypal, {
                         options: yes_no_options,
                         questions: [ L("icd10schizotypal_b") ],
                         fields: [ "b" ],
-                        mandatory: true,
+                        mandatory: true
                     },
                     {
                         type: "QuestionTypedVariables",
@@ -175,11 +175,11 @@ lang.extendPrototype(Icd10Schizotypal, {
                                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                                 field: "comments",
                                 prompt: L("comments")
-                            },
-                        ],
-                    },
-                ],
-            },
+                            }
+                        ]
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -188,10 +188,10 @@ lang.extendPrototype(Icd10Schizotypal, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

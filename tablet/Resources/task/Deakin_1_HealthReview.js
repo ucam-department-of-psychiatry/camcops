@@ -50,7 +50,7 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
         "ketamine",
         "legal highs (e.g. Salvia)",
         "inhalants",
-        "hallucinogens",
+        "hallucinogens"
     ],
     INFECTIONLIST = [ // order is important
         "respiratory infection",
@@ -58,7 +58,7 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
         "urinary tract infection",
         "sexually transmitted infection",
         "hepatitis",
-        "other",
+        "other"
     ],
     PT_ETHNICITY = "eth",
     PT_ALLERGY = "all",
@@ -241,7 +241,7 @@ lang.extendPrototype(Deakin_1_HealthReview, {
             "mri_worked_with_metal",
             "mri_previous_brain_scan",
             "other_relevant_things",
-            "willing_to_participate_in_further_studies",
+            "willing_to_participate_in_further_studies"
         ]);
     },
 
@@ -284,7 +284,7 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                     {
                         type: "QuestionMCQ",
                         field: "ethnicity",
-                        options: ethnicityoptions,
+                        options: ethnicityoptions
                     },
                     {
                         elementTag: ET_ETHNICITY_OTHER,
@@ -296,10 +296,10 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                                 field: "ethnicity_other_details",
                                 prompt: L("gmcpq_ethnicity_other_s")
-                            },
-                        ],
-                    },
-                ],
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 title: "Handedness",
@@ -316,10 +316,10 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                         field: "handedness",
                         options: [
                             new KeyValuePair("Left hand", "L"),
-                            new KeyValuePair("Right hand", "R"),
-                        ],
-                    },
-                ],
+                            new KeyValuePair("Right hand", "R")
+                        ]
+                    }
+                ]
             },
             {
                 title: "Education",
@@ -344,10 +344,10 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                             new KeyValuePair("Degree qualification — bachelor’s", "degree_bachelor"),
                             new KeyValuePair("Degree qualification — other", "degree_other"),
                             new KeyValuePair("Postgraduate qualification — master’s", "postgrad_masters"),
-                            new KeyValuePair("Postgraduate qualification — PhD", "postgrad_phd"),
-                        ],
-                    },
-                ],
+                            new KeyValuePair("Postgraduate qualification — PhD", "postgrad_phd")
+                        ]
+                    }
+                ]
             },
             {
                 pageTag: PT_ALLERGY,
@@ -363,7 +363,7 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                         horizontal: true,
                         showInstruction: false,
                         field: "allergies",
-                        options: yes_no_options,
+                        options: yes_no_options
                     },
                     {
                         type: "QuestionText",
@@ -382,7 +382,7 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                             "dermatitis",
                             "food allergy",
                             "animal dander",
-                            "other",
+                            "other"
                         ],
                         fields: [
                             'allergy_asthma',
@@ -390,8 +390,8 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                             'allergy_dermatitis',
                             'allergy_food',
                             'allergy_dander',
-                            'allergy_other',
-                        ],
+                            'allergy_other'
+                        ]
                     },
                     {
                         type: "QuestionTypedVariables",
@@ -401,11 +401,11 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                             {
                                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                                 field: "allergy_details",
-                                prompt: STR_DETAILS,
-                            },
-                        ],
-                    },
-                ],
+                                prompt: STR_DETAILS
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 pageTag: PT_VACCINES,
@@ -421,7 +421,7 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                         horizontal: true,
                         showInstruction: false,
                         field: "vaccinations_last3months",
-                        options: yes_no_options,
+                        options: yes_no_options
                     },
                     {
                         type: "QuestionText",
@@ -436,11 +436,11 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                         variables: [
                             {
                                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
-                                field: "vaccination_details",
-                            },
-                        ],
-                    },
-                ],
+                                field: "vaccination_details"
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 pageTag: PT_ACUTE_INFECTIONS,
@@ -456,7 +456,7 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                         horizontal: true,
                         showInstruction: false,
                         field: "infections_last3months",
-                        options: yes_no_options,
+                        options: yes_no_options
                     },
                     {
                         type: "QuestionText",
@@ -476,8 +476,8 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                             'infection_recent_urinary',
                             'infection_recent_sexual',
                             'infection_recent_hepatitis',
-                            'infection_recent_other',
-                        ],
+                            'infection_recent_other'
+                        ]
                     },
                     {
                         type: "QuestionTypedVariables",
@@ -487,11 +487,11 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                             {
                                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                                 field: "infection_recent_details",
-                                prompt: STR_DETAILS,
-                            },
-                        ],
-                    },
-                ],
+                                prompt: STR_DETAILS
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 pageTag: PT_CHRONIC_INFECTIONS,
@@ -507,7 +507,7 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                         horizontal: true,
                         showInstruction: false,
                         field: "infections_chronic",
-                        options: yes_no_options,
+                        options: yes_no_options
                     },
                     {
                         type: "QuestionText",
@@ -527,8 +527,8 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                             'infection_chronic_urinary',
                             'infection_chronic_sexual',
                             'infection_chronic_hepatitis',
-                            'infection_chronic_other',
-                        ],
+                            'infection_chronic_other'
+                        ]
                     },
                     {
                         type: "QuestionTypedVariables",
@@ -538,11 +538,11 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                             {
                                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                                 field: "infection_chronic_details",
-                                prompt: STR_DETAILS,
-                            },
-                        ],
-                    },
-                ],
+                                prompt: STR_DETAILS
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 pageTag: PT_IMMUNE,
@@ -558,7 +558,7 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                         horizontal: true,
                         showInstruction: false,
                         field: "immune_disorders",
-                        options: yes_no_options,
+                        options: yes_no_options
                     },
                     {
                         type: "QuestionText",
@@ -578,7 +578,7 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                             "HIV/AIDS",
                             "Graves’ disease",
                             "diabetes",
-                            "other",
+                            "other"
                         ],
                         fields: [
                             'immunity_ms',
@@ -587,8 +587,8 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                             'immunity_hiv',
                             'immunity_graves',
                             'immunity_diabetes',
-                            'immunity_other',
-                        ],
+                            'immunity_other'
+                        ]
                     },
                     {
                         type: "QuestionTypedVariables",
@@ -598,11 +598,11 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                             {
                                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                                 field: "immunity_details",
-                                prompt: STR_DETAILS,
-                            },
-                        ],
-                    },
-                ],
+                                prompt: STR_DETAILS
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 pageTag: PT_FH,
@@ -618,7 +618,7 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                         horizontal: true,
                         showInstruction: false,
                         field: "family_history",
-                        options: yes_no_options,
+                        options: yes_no_options
                     },
                     {
                         type: "QuestionText",
@@ -637,7 +637,7 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                             "arthritis",
                             "Graves’ disease",
                             "psychosis/schizophrenia",
-                            "mania/bipolar affective disorder",
+                            "mania/bipolar affective disorder"
                         ],
                         fields: [
                             'familyhistory_ms',
@@ -645,8 +645,8 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                             'familyhistory_arthritis',
                             'familyhistory_graves',
                             'familyhistory_psychosis_sz',
-                            'familyhistory_bipolar',
-                        ],
+                            'familyhistory_bipolar'
+                        ]
                     },
                     {
                         type: "QuestionTypedVariables",
@@ -656,11 +656,11 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                             {
                                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                                 field: "familyhistory_details",
-                                prompt: STR_DETAILS,
-                            },
-                        ],
-                    },
-                ],
+                                prompt: STR_DETAILS
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 pageTag: PT_HEALTH_OTHER,
@@ -676,7 +676,7 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                         horizontal: true,
                         showInstruction: false,
                         field: "health_anything_else",
-                        options: yes_no_options,
+                        options: yes_no_options
                     },
                     {
                         type: "QuestionText",
@@ -691,11 +691,11 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                         variables: [
                             {
                                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
-                                field: "health_anything_else_details",
-                            },
-                        ],
-                    },
-                ],
+                                field: "health_anything_else_details"
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 title: "Medication",
@@ -712,9 +712,9 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                         variables: [
                             {
                                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
-                                field: "drug_history",
-                            },
-                        ],
+                                field: "drug_history"
+                            }
+                        ]
                     },
                     {
                         type: "QuestionText",
@@ -728,11 +728,11 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                         variables: [
                             {
                                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
-                                field: "first_antipsychotic_medication",
-                            },
-                        ],
-                    },
-                ],
+                                field: "first_antipsychotic_medication"
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 pageTag: PT_RECDRUGS,
@@ -753,7 +753,7 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                         horizontal: true,
                         showInstruction: false,
                         field: "recreational_drug_in_last_3_months",
-                        options: yes_no_options,
+                        options: yes_no_options
                     },
                     {
                         type: "QuestionText",
@@ -766,7 +766,7 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                         horizontal: true,
                         showInstruction: false,
                         field: "recdrug_prevheavy",
-                        options: yes_no_options,
+                        options: yes_no_options
                     },
                     {
                         type: "QuestionText",
@@ -791,7 +791,7 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                             new KeyValuePair("Occasionally", 1),
                             new KeyValuePair("Monthly", 2),
                             new KeyValuePair("Weekly", 3),
-                            new KeyValuePair("Daily", 4),
+                            new KeyValuePair("Daily", 4)
                         ],
                         mandatory: false,
                         booleanLabel: "Previous heavy use?",
@@ -813,7 +813,7 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                             "recdrug_ketamine_frequency",
                             "recdrug_legalhighs_frequency",
                             "recdrug_inhalants_frequency",
-                            "recdrug_hallucinogens_frequency",
+                            "recdrug_hallucinogens_frequency"
                         ],
                         booleanFields: [
                             "recdrug_tobacco_prevheavy",
@@ -832,15 +832,15 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                             "recdrug_ketamine_prevheavy",
                             "recdrug_legalhighs_prevheavy",
                             "recdrug_inhalants_prevheavy",
-                            "recdrug_hallucinogens_prevheavy",
+                            "recdrug_hallucinogens_prevheavy"
                         ],
                         subtitles: [
                             {beforeIndex: 3, subtitle: " " }, // invisible subtitles repeat the options bar
                             {beforeIndex: 7, subtitle: " " }, // invisible subtitles repeat the options bar
-                            {beforeIndex: 10, subtitle: " " }, // invisible subtitles repeat the options bar
+                            {beforeIndex: 10, subtitle: " " }  // invisible subtitles repeat the options bar
                         ],
                         radioColWidth: '12%',
-                        boolColWidth: '12%',
+                        boolColWidth: '12%'
                     },
                     {
                         type: "QuestionText",
@@ -854,9 +854,9 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                         variables: [
                             {
                                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
-                                field: "recdrug_details",
-                            },
-                        ],
+                                field: "recdrug_details"
+                            }
+                        ]
                     },
                     {
                         type: "QuestionText",
@@ -881,8 +881,8 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                                 type: UICONSTANTS.TYPEDVAR_INTEGER,
                                 field: "recdrug_alcohol_unitsperweek",
                                 prompt: "Alcohol – units per week:"
-                            },
-                        ],
+                            }
+                        ]
                     },
                     {
                         type: "QuestionText",
@@ -896,11 +896,11 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                         variables: [
                             {
                                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
-                                field: "recdrug_prevheavy_details",
-                            },
-                        ],
-                    },
-                ],
+                                field: "recdrug_prevheavy_details"
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 pageTag: PT_MRI,
@@ -919,7 +919,7 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                             "Do you have any tattoos or nicotine patches?",
                             "Have you ever worked with metal (e.g. as a machinist, metalworker, etc.)?",
                             "Have you ever had any form of brain scan before? If so, please give details below.",
-                            "Are there any points you feel may be relevant to your participation in the study? If so, please give details below.",
+                            "Are there any points you feel may be relevant to your participation in the study? If so, please give details below."
                         ],
                         fields: [
                             'mri_claustrophobic',
@@ -929,8 +929,8 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                             'mri_tattoos_nicotine_patches',
                             'mri_worked_with_metal',
                             'mri_previous_brain_scan',
-                            'other_relevant_things',
-                        ],
+                            'other_relevant_things'
+                        ]
                     },
                     {
                         elementTag: ET_PREVSCAN,
@@ -941,9 +941,9 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                             {
                                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                                 field: "mri_previous_brain_scan_details",
-                                prompt: "Details of previous brain scans, if applicable:",
-                            },
-                        ],
+                                prompt: "Details of previous brain scans, if applicable:"
+                            }
+                        ]
                     },
                     {
                         elementTag: ET_OTHERDETAILS,
@@ -954,9 +954,9 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                             {
                                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                                 field: "other_relevant_things_details",
-                                prompt: "Any other points you feel may be relevant to your participation, if applicable:",
-                            },
-                        ],
+                                prompt: "Any other points you feel may be relevant to your participation, if applicable:"
+                            }
+                        ]
                     },
                     { type: "QuestionText", text: "Finally:" },
                     {
@@ -965,13 +965,13 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                         mandatory: true,
                         options: yes_no_options,
                         questions: [
-                            "Would you be willing to participate in further studies run by our department?",
+                            "Would you be willing to participate in further studies run by our department?"
                         ],
                         fields: [
-                            'willing_to_participate_in_further_studies',
-                        ],
-                    },
-                ],
+                            'willing_to_participate_in_further_studies'
+                        ]
+                    }
+                ]
             },
             {
                 title: L("finished"),
@@ -980,9 +980,9 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                         type: "QuestionText",
                         text: L('thank_you'),
                         bold: true
-                    },
-                ],
-            },
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -1078,10 +1078,10 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                     break;
                 }
                 return { care: false };
-            },
+            }
         });
         questionnaire.open();
-    },
+    }
 
 });
 

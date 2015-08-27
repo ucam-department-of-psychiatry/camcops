@@ -101,7 +101,7 @@ for file in "${ALLFILES[@]}"; do
         else
             echo -n "."
         fi
-        jslint --terse "$file"
+        jslint --terse --edition=latest "$file"
     fi
 done
 echo "Total number of Javascript lines: $totallines"

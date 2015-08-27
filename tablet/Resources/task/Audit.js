@@ -122,26 +122,26 @@ lang.extendPrototype(Audit, {
                 new KeyValuePair(L("audit_q1_option1"), 1),
                 new KeyValuePair(L("audit_q1_option2"), 2),
                 new KeyValuePair(L("audit_q1_option3"), 3),
-                new KeyValuePair(L("audit_q1_option4"), 4),
+                new KeyValuePair(L("audit_q1_option4"), 4)
             ],
             options2 = [
                 new KeyValuePair(L("audit_q2_option0"), 0),
                 new KeyValuePair(L("audit_q2_option1"), 1),
                 new KeyValuePair(L("audit_q2_option2"), 2),
                 new KeyValuePair(L("audit_q2_option3"), 3),
-                new KeyValuePair(L("audit_q2_option4"), 4),
+                new KeyValuePair(L("audit_q2_option4"), 4)
             ],
             options3to8 = [
                 new KeyValuePair(L("audit_q3to8_option0"), 0),
                 new KeyValuePair(L("audit_q3to8_option1"), 1),
                 new KeyValuePair(L("audit_q3to8_option2"), 2),
                 new KeyValuePair(L("audit_q3to8_option3"), 3),
-                new KeyValuePair(L("audit_q3to8_option4"), 4),
+                new KeyValuePair(L("audit_q3to8_option4"), 4)
             ],
             options9to10 = [
                 new KeyValuePair(L("audit_q9to10_option0"), 0),
                 new KeyValuePair(L("audit_q9to10_option2"), 2),
-                new KeyValuePair(L("audit_q9to10_option4"), 4),
+                new KeyValuePair(L("audit_q9to10_option4"), 4)
             ],
             pages = [{
                 title: L("t_audit"),
@@ -149,27 +149,27 @@ lang.extendPrototype(Audit, {
                 elements: [
                     {
                         type: "QuestionText",
-                        text: L("audit_instructions_1"),
+                        text: L("audit_instructions_1")
                     },
                     {
                         type: "QuestionText",
                         bold: true,
-                        text: L("audit_instructions_2"),
+                        text: L("audit_instructions_2")
                     },
                     {
                         type: "QuestionText",
-                        text: L("audit_instructions_3"),
+                        text: L("audit_instructions_3")
                     },
                     {
                         type: "QuestionText",
                         bold: true,
-                        text: L("audit_instructions_4"),
+                        text: L("audit_instructions_4")
                     },
                     {
                         type: "QuestionText",
-                        text: L("audit_instructions_5"),
-                    },
-                ],
+                        text: L("audit_instructions_5")
+                    }
+                ]
             }],
             questionnaire;
 
@@ -187,8 +187,8 @@ lang.extendPrototype(Audit, {
                         showInstruction: false,
                         field: "q" + question,
                         options: options
-                    },
-                ],
+                    }
+                ]
             };
         }
         pages.push(makepage(1, options1));
@@ -232,10 +232,10 @@ lang.extendPrototype(Audit, {
                     return 3 - offset; // skip to Q3 (by zero-based index)
                 }
                 return pageId_zero_based - 1; // by default, move to the previous question
-            },
+            }
         });
         questionnaire.open();
-    },
+    }
 });
 
 module.exports = Audit;

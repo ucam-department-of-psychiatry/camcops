@@ -94,7 +94,7 @@ function QuestionMCQGridWithSingleBoolean(props) {
             bottom: props.bottom,
             center: props.center,
             height: Titanium.UI.SIZE,
-            width: Titanium.UI.FILL,
+            width: Titanium.UI.FILL
         },
         questions: props.questions,
         subtitles: props.subtitles,
@@ -112,7 +112,7 @@ function QuestionMCQGridWithSingleBoolean(props) {
             // That will fail to set the "this" object correctly, as
             // setFieldValue is part of the prototype of props.questionnaire.
             props.questionnaire.setFieldValue(field, value);
-        },
+        }
     });
     this.tiview = this.grid.tiview;
 }
@@ -158,7 +158,7 @@ lang.extendPrototype(QuestionMCQGridWithSingleBoolean, {
     cleanup: function () {
         this.grid.cleanup();
         this.grid = null;
-    },
+    }
 
 });
 module.exports = QuestionMCQGridWithSingleBoolean;

@@ -148,13 +148,13 @@ lang.extendPrototype(Icd10Mixed, {
                         options: true_false_options,
                         questions: [
                             L("icd10mixed_a"),
-                            L("icd10mixed_b"),
+                            L("icd10mixed_b")
                         ],
                         fields: [
                             "mixture_or_rapid_alternation",
-                            "duration_at_least_2_weeks",
+                            "duration_at_least_2_weeks"
                         ],
-                        mandatory: true,
+                        mandatory: true
                     },
                     {
                         type: "QuestionTypedVariables",
@@ -165,11 +165,11 @@ lang.extendPrototype(Icd10Mixed, {
                                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                                 field: "comments",
                                 prompt: L("comments")
-                            },
-                        ],
-                    },
-                ],
-            },
+                            }
+                        ]
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -178,10 +178,10 @@ lang.extendPrototype(Icd10Mixed, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

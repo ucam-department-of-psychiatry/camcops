@@ -115,9 +115,9 @@ module.exports = function Bfcrs(patient_id) {
                     {
                         type: QuestionMCQ,
                         field: "q" + n,
-                        options: options,
-                    },
-                ],
+                        options: options
+                    }
+                ]
             };
         }
 
@@ -133,7 +133,7 @@ module.exports = function Bfcrs(patient_id) {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
     };

@@ -48,7 +48,7 @@ function QuestionCountdown(props) {
     this.bingPlayer = Titanium.Media.createSound({
         url: UICONSTANTS.SOUND_COUNTDOWN_FINISHED,
         allowBackground: true,
-        volume: 1.0,
+        volume: 1.0
     });
 
     this.tiview = Titanium.UI.createView({
@@ -60,7 +60,7 @@ function QuestionCountdown(props) {
         width: Titanium.UI.SIZE,
         height: Titanium.UI.SIZE,
         layout: 'horizontal',
-        touchEnabled: true,
+        touchEnabled: true
     });
 
     this.countdown = Titanium.UI.createLabel({
@@ -70,7 +70,7 @@ function QuestionCountdown(props) {
         font: UICONSTANTS.getQuestionnaireFont(),
         color: UICONSTANTS.QUESTION_COLOUR,
         text: props.text,
-        touchEnabled: false,
+        touchEnabled: false
     });
 
     this.startButton = Titanium.UI.createButton({
@@ -79,7 +79,7 @@ function QuestionCountdown(props) {
             props.readOnly ?
                     UICONSTANTS.QUESTIONNAIRE_READONLY_BUTTON_TEXT_COLOR :
                     UICONSTANTS.QUESTIONNAIRE_BUTTON_TEXT_COLOR
-        ),
+        )
     });
 
     this.stopButton = Titanium.UI.createButton({
@@ -89,7 +89,7 @@ function QuestionCountdown(props) {
             props.readOnly ?
                     UICONSTANTS.QUESTIONNAIRE_READONLY_BUTTON_TEXT_COLOR :
                     UICONSTANTS.QUESTIONNAIRE_BUTTON_TEXT_COLOR
-        ),
+        )
     });
 
     this.resetButton = Titanium.UI.createButton({
@@ -99,7 +99,7 @@ function QuestionCountdown(props) {
             props.readOnly ?
                     UICONSTANTS.QUESTIONNAIRE_READONLY_BUTTON_TEXT_COLOR :
                     UICONSTANTS.QUESTIONNAIRE_BUTTON_TEXT_COLOR
-        ),
+        )
     });
 
     if (!props.readOnly) {
@@ -189,7 +189,7 @@ lang.extendPrototype(QuestionCountdown, {
         this.resetButton = null;
         this.bingPlayer = null;
         this.countdown = null;
-    },
+    }
 
 });
 module.exports = QuestionCountdown;

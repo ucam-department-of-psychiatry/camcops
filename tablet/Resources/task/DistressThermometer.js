@@ -162,7 +162,7 @@ lang.extendPrototype(DistressThermometer, {
                             THERMOMETER_03_UNSEL,
                             THERMOMETER_02_UNSEL,
                             THERMOMETER_01_UNSEL,
-                            THERMOMETER_00_UNSEL,
+                            THERMOMETER_00_UNSEL
                         ],
                         activeImages: [
                             THERMOMETER_10_SEL,
@@ -175,20 +175,20 @@ lang.extendPrototype(DistressThermometer, {
                             THERMOMETER_03_SEL,
                             THERMOMETER_02_SEL,
                             THERMOMETER_01_SEL,
-                            THERMOMETER_00_SEL,
+                            THERMOMETER_00_SEL
                         ],
                         text: [
                             L('distressthermometer_distress_extreme'),
                             "", "", "", "", "",
                             "", "", "", "",
-                            L('distressthermometer_distress_none'),
+                            L('distressthermometer_distress_none')
                         ],
                         imageWidth: THERMOMETER_IMAGE_WIDTH,
                         // imageHeight should be auto-set
                         values: [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0],
-                        field: 'distress',
-                    },
-                ],
+                        field: 'distress'
+                    }
+                ]
             },
             {
                 title: L('distressthermometer_section2_title'),
@@ -211,12 +211,12 @@ lang.extendPrototype(DistressThermometer, {
                             {beforeIndex: 20, subtitle: "" },
                             {beforeIndex: 25, subtitle: "" },
                             {beforeIndex: 30, subtitle: "" },
-                            {beforeIndex: 35, subtitle: "" },
+                            {beforeIndex: 35, subtitle: "" }
                         ],
                         fields: fields,
-                        optionsWidthTogether: '25%',
-                    },
-                ],
+                        optionsWidthTogether: '25%'
+                    }
+                ]
             },
             {
                 title: L("distressthermometer_section3_title"),
@@ -234,11 +234,11 @@ lang.extendPrototype(DistressThermometer, {
                                 type: UICONSTANTS.TYPEDVAR_TEXT,
                                 field: "other",
                                 prompt: L("distressthermometer_other_prompt")
-                            },
-                        ],
-                    },
-                ],
-            },
+                            }
+                        ]
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -247,10 +247,10 @@ lang.extendPrototype(DistressThermometer, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

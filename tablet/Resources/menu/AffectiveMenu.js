@@ -48,12 +48,12 @@ module.exports = function AffectiveMenu() {
             ALLTASKS.TASKLIST.PCLC,
             ALLTASKS.TASKLIST.PCLS,
             ALLTASKS.TASKLIST.PHQ9,
-            ALLTASKS.TASKLIST.PHQ15,
+            ALLTASKS.TASKLIST.PHQ15
         ],
         self = new MenuWindow({
             title: L('menutitle_affective_b'),
             icon: UICONSTANTS.ICON_MENU_AFFECTIVE,
-            data: data,
+            data: data
         });
 
     return self;

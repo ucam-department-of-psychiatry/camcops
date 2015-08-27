@@ -112,7 +112,7 @@ lang.extendPrototype(IRAC, {
                 {
                     type: "QuestionText",
                     bold: true,
-                    text: L("irac_q_aim"),
+                    text: L("irac_q_aim")
                 },
                 {
                     type: "QuestionMCQ",
@@ -121,12 +121,12 @@ lang.extendPrototype(IRAC, {
                     showInstruction: false,
                     horizontal: true,
                     asTextButton: true,
-                    options: options_aim,
+                    options: options_aim
                 },
                 {
                     type: "QuestionText",
                     bold: true,
-                    text: L("irac_q_achieved"),
+                    text: L("irac_q_achieved")
                 },
                 {
                     type: "QuestionMCQ",
@@ -135,9 +135,9 @@ lang.extendPrototype(IRAC, {
                     showInstruction: false,
                     horizontal: true,
                     asTextButton: true,
-                    options: options_achieved,
-                },
-            ],
+                    options: options_achieved
+                }
+            ]
         }];
 
         questionnaire = new Questionnaire({
@@ -146,10 +146,10 @@ lang.extendPrototype(IRAC, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

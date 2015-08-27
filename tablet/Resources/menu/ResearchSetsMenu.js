@@ -41,12 +41,12 @@ module.exports = function ResearchSetsMenu() {
                 subtitle: L('s_set_obrien_1'),
                 arrowOnRight: true,
                 window: 'menu/SetMenu_OBrien_1'
-            },
+            }
         ],
         self = new MenuWindow({
             title: L('menutitle_sets_research'),
             icon: UICONSTANTS.ICON_MENU_SETS_RESEARCH,
-            data: data,
+            data: data
         });
 
     return self;

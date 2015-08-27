@@ -90,7 +90,7 @@ function QuestionMCQGridDouble(props) {
             right: props.right,
             top: props.top,
             bottom: props.bottom,
-            center: props.center,
+            center: props.center
         },
         questions: props.questions,
         subtitles: props.subtitles,
@@ -109,7 +109,7 @@ function QuestionMCQGridDouble(props) {
                                               value);
         },
         stem_1: props.stem_1,
-        stem_2: props.stem_2,
+        stem_2: props.stem_2
     });
     this.tiview = this.grid.tiview;
 }
@@ -147,7 +147,7 @@ lang.extendPrototype(QuestionMCQGridDouble, {
     cleanup: function () {
         this.grid.cleanup();
         this.grid = null;
-    },
+    }
 
 });
 module.exports = QuestionMCQGridDouble;

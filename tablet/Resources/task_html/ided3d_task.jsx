@@ -175,7 +175,7 @@ var tp = (inTitanium ?
             // Asus Eee Pad is 1200 x 800 (WXGA), effective size (minus system
             // UI) 1200 x 752. iPad is 1024 x 768
             screenWidth: 1024,
-            screenHeight: 752,
+            screenHeight: 752
         }
     ),
     //-------------------------------------------------------------------------
@@ -243,7 +243,7 @@ paper.text(c, c, "0").attr(textattr);
         ["m-60,-30 l60,-30 l60,30 l0,60 l-60,30 l-60,-30 z"], // 8: hexagon
         ["m-60,60 l120,0 l-60,-60 z m0,-120 l120,0 l-60,60 z"], // 9: hourglass of triangles
         ["m-60,-40 l0,68 l120,0 l-45,-30 l0,11 l-45,-38 l0,23 z"], // 10: mountain range
-        ["m-60,0 l34,-43 l86,0 l-34,43 l34,43 l-86,0 z"], // 11: left-pointing arrow feathers
+        ["m-60,0 l34,-43 l86,0 l-34,43 l34,43 l-86,0 z"] // 11: left-pointing arrow feathers
     ],
     STIMSIZE = 120,  // max width/height
     //-------------------------------------------------------------------------
@@ -261,7 +261,7 @@ paper.text(c, c, "0").attr(textattr);
         "#f55", // CGA: light red
         "#f5f", // CGA: light magenta
         "#ff5", // CGA: yellow
-        "#fff", // white
+        "#fff" // white
     ],
     POSSIBLE_NUMBERS = range(tp.min_number, tp.max_number + 1),
     //-------------------------------------------------------------------------
@@ -283,7 +283,7 @@ paper.text(c, c, "0").attr(textattr);
             width: BOXWIDTH,
             height: BOXHEIGHT,
             left: HDIST[1] - BOXWIDTH / 2,
-            top: VDIST[0] - BOXHEIGHT / 2,
+            top: VDIST[0] - BOXHEIGHT / 2
         },
         {
             // right
@@ -292,7 +292,7 @@ paper.text(c, c, "0").attr(textattr);
             width: BOXWIDTH,
             height: BOXHEIGHT,
             left: HDIST[2] - BOXWIDTH / 2,
-            top: VDIST[1] - BOXHEIGHT / 2,
+            top: VDIST[1] - BOXHEIGHT / 2
         },
         {
             // bottom
@@ -301,7 +301,7 @@ paper.text(c, c, "0").attr(textattr);
             width: BOXWIDTH,
             height: BOXHEIGHT,
             left: HDIST[1] - BOXWIDTH / 2,
-            top: VDIST[2] - BOXHEIGHT / 2,
+            top: VDIST[2] - BOXHEIGHT / 2
         },
         {
             // left
@@ -310,8 +310,8 @@ paper.text(c, c, "0").attr(textattr);
             width: BOXWIDTH,
             height: BOXHEIGHT,
             left: HDIST[0] - BOXWIDTH / 2,
-            top: VDIST[1] - BOXHEIGHT / 2,
-        },
+            top: VDIST[1] - BOXHEIGHT / 2
+        }
     ],
     //-------------------------------------------------------------------------
     // Recording
@@ -333,7 +333,7 @@ paper.text(c, c, "0").attr(textattr);
     BOXATTR = {
         stroke: 'rgba(255,255,255,0.5)',
         'stroke-width': 3,
-        fill: BGCOLOUR,  // or it won't be touchable
+        fill: BGCOLOUR  // or it won't be touchable
     },
     FONT = "20px Fontin-Sans, Arial",
     BIGFONT = "50px Fontin-Sans, Arial",
@@ -377,7 +377,7 @@ paper.text(c, c, "0").attr(textattr);
         right: tp.screenWidth * 0.7,
         top: tp.screenHeight * 0.6,
         bottom: tp.screenHeight * 0.8,
-        radius: 20,
+        radius: 20
     },
     ABORT = {
         label: tp.TEXT_ABORT,
@@ -393,7 +393,7 @@ paper.text(c, c, "0").attr(textattr);
         right: tp.screenWidth * 0.08,
         top: tp.screenHeight * 0.94,
         bottom: tp.screenHeight * 0.99,
-        radius: 20,
+        radius: 20
     },
     START = {
         label: tp.TEXT_START,
@@ -411,11 +411,11 @@ paper.text(c, c, "0").attr(textattr);
         right: tp.screenWidth * 0.7,
         top: tp.screenHeight * 0.6,
         bottom: tp.screenHeight * 0.8,
-        radius: 20,
+        radius: 20
     },
     OBSCURE_ATTR = {  // used to dim the display during feedback
         fill: Raphael.rgb(0, 0, 0),
-        "fill-opacity": 0.4,
+        "fill-opacity": 0.4
     },
     //-------------------------------------------------------------------------
     // Graphics
@@ -592,87 +592,87 @@ function makeStages(counterbalance_dimensions) {
         dimset = {
             dimname1: firstDimName,
             dimname2: secondDimName,
-            dimname3: thirdDimName,
+            dimname3: thirdDimName
         },
         sdCorrectSet = {
             exlist1: [sdCorrectExemplar],
             exlist2: [sdIrrelevantExemplarSecondDim],
-            exlist3: [sdIrrelevantExemplarThirdDim],
+            exlist3: [sdIrrelevantExemplarThirdDim]
         },
         sdIncorrectSet = {
             exlist1: [sdIncorrectExemplar],
             exlist2: [sdIrrelevantExemplarSecondDim],
-            exlist3: [sdIrrelevantExemplarThirdDim],
+            exlist3: [sdIrrelevantExemplarThirdDim]
         },
         sdrCorrectSet = {
             exlist1: [sdIncorrectExemplar],
             exlist2: [sdIrrelevantExemplarSecondDim],
-            exlist3: [sdIrrelevantExemplarThirdDim],
+            exlist3: [sdIrrelevantExemplarThirdDim]
         },
         sdrIncorrectSet = {
             exlist1: [sdCorrectExemplar],
             exlist2: [sdIrrelevantExemplarSecondDim],
-            exlist3: [sdIrrelevantExemplarThirdDim],
+            exlist3: [sdIrrelevantExemplarThirdDim]
         },
         cdCorrectSet = {
             exlist1: [sdIncorrectExemplar],
             exlist2: cdIrrelevantExemplarsSecondDim,
-            exlist3: cdIrrelevantExemplarsThirdDim,
+            exlist3: cdIrrelevantExemplarsThirdDim
         },
         cdIncorrectSet = {
             exlist1: [sdCorrectExemplar],
             exlist2: cdIrrelevantExemplarsSecondDim,
-            exlist3: cdIrrelevantExemplarsThirdDim,
+            exlist3: cdIrrelevantExemplarsThirdDim
         },
         cdrCorrectSet = {
             exlist1: [sdCorrectExemplar],
             exlist2: cdIrrelevantExemplarsSecondDim,
-            exlist3: cdIrrelevantExemplarsThirdDim,
+            exlist3: cdIrrelevantExemplarsThirdDim
         },
         cdrIncorrectSet = {
             exlist1: [sdIncorrectExemplar],
             exlist2: cdIrrelevantExemplarsSecondDim,
-            exlist3: cdIrrelevantExemplarsThirdDim,
+            exlist3: cdIrrelevantExemplarsThirdDim
         },
         idCorrectSet = {
             exlist1: [idCorrectExemplar],
             exlist2: idIrrelevantExemplarsSecondDim,
-            exlist3: idIrrelevantExemplarsThirdDim,
+            exlist3: idIrrelevantExemplarsThirdDim
         },
         idIncorrectSet = {
             exlist1: [idIncorrectExemplar],
             exlist2: idIrrelevantExemplarsSecondDim,
-            exlist3: idIrrelevantExemplarsThirdDim,
+            exlist3: idIrrelevantExemplarsThirdDim
         },
         idrCorrectSet = {
             exlist1: [idIncorrectExemplar],
             exlist2: idIrrelevantExemplarsSecondDim,
-            exlist3: idIrrelevantExemplarsThirdDim,
+            exlist3: idIrrelevantExemplarsThirdDim
         },
         idrIncorrectSet = {
             exlist1: [idCorrectExemplar],
             exlist2: idIrrelevantExemplarsSecondDim,
-            exlist3: idIrrelevantExemplarsThirdDim,
+            exlist3: idIrrelevantExemplarsThirdDim
         },
         edCorrectSet = {
             exlist1: edIrrelevantExemplarsFirstDim,
             exlist2: [edCorrectExemplar],
-            exlist3: edIrrelevantExemplarsThirdDim,
+            exlist3: edIrrelevantExemplarsThirdDim
         },
         edIncorrectSet = {
             exlist1: edIrrelevantExemplarsFirstDim,
             exlist2: [edIncorrectExemplar],
-            exlist3: edIrrelevantExemplarsThirdDim,
+            exlist3: edIrrelevantExemplarsThirdDim
         },
         edrCorrectSet = {
             exlist1: edIrrelevantExemplarsFirstDim,
             exlist2: [edIncorrectExemplar],
-            exlist3: edIrrelevantExemplarsThirdDim,
+            exlist3: edIrrelevantExemplarsThirdDim
         },
         edrIncorrectSet = {
             exlist1: edIrrelevantExemplarsFirstDim,
             exlist2: [edCorrectExemplar],
-            exlist3: edIrrelevantExemplarsThirdDim,
+            exlist3: edIrrelevantExemplarsThirdDim
         },
         stageNum = 1;
 
@@ -795,7 +795,7 @@ function makeStages(counterbalance_dimensions) {
             getColours(edrIncorrectSet, dimset),
             getNumbers(edrIncorrectSet, dimset),
             false  // incorrectStimulusCanOverlap
-        ),
+        )
     ];
 }
 

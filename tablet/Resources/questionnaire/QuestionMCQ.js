@@ -57,7 +57,7 @@ function QuestionMCQ(props) {
         center: props.center,
         width: Titanium.UI.FILL,
         height: Titanium.UI.SIZE,
-        layout: 'vertical',
+        layout: 'vertical'
     });
 
     if (props.showInstruction) {
@@ -68,7 +68,7 @@ function QuestionMCQ(props) {
             font: UICONSTANTS.getQuestionnaireFont(),
             color: UICONSTANTS.INSTRUCTION_COLOUR,
             text: L('pick') + " 1:",
-            touchEnabled: false,
+            touchEnabled: false
         });
         this.tiview.add(elemInstruction);
     }
@@ -106,7 +106,7 @@ lang.extendPrototype(QuestionMCQ, {
     cleanup: function () {
         this.elemOptions.cleanup();
         this.elemOptions = null;
-    },
+    }
 
 });
 module.exports = QuestionMCQ;

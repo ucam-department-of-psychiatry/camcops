@@ -138,7 +138,7 @@ lang.extendPrototype(Phq9, {
                             new KeyValuePair(L('phq9_a0'), 0),
                             new KeyValuePair(L('phq9_a1'), 1),
                             new KeyValuePair(L('phq9_a2'), 2),
-                            new KeyValuePair(L('phq9_a3'), 3),
+                            new KeyValuePair(L('phq9_a3'), 3)
                         ],
                         questions: [
                             L('phq9_q1'),
@@ -149,12 +149,12 @@ lang.extendPrototype(Phq9, {
                             L('phq9_q6'),
                             L('phq9_q7'),
                             L('phq9_q8'),
-                            L('phq9_q9'),
+                            L('phq9_q9')
                         ],
                         fields: [
                             'q1', 'q2', 'q3', 'q4', 'q5',
                             'q6', 'q7', 'q8', 'q9'
-                        ],
+                        ]
                     },
                     {
                         type: "QuestionText",
@@ -167,12 +167,12 @@ lang.extendPrototype(Phq9, {
                             new KeyValuePair(L('phq9_fa0'), 0),
                             new KeyValuePair(L('phq9_fa1'), 1),
                             new KeyValuePair(L('phq9_fa2'), 2),
-                            new KeyValuePair(L('phq9_fa3'), 3),
+                            new KeyValuePair(L('phq9_fa3'), 3)
                         ],
-                        field: 'q10',
-                    },
-                ],
-            },
+                        field: 'q10'
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -187,10 +187,10 @@ lang.extendPrototype(Phq9, {
                     care: true,
                     showNext: self.isComplete()
                 };
-            },
+            }
         });
         questionnaire.open();
-    },
+    }
 
 });
 

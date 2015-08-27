@@ -150,7 +150,7 @@ var test_suite_1 = {
     test_VERSION: function () {
         var VERSION = require('common/VERSION');
         jsUnity.log("version: " + VERSION.CAMCOPS_VERSION);
-    },
+    }
 };
 
 function unittest() {

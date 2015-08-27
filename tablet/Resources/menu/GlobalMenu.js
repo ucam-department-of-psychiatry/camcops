@@ -47,12 +47,12 @@ module.exports = function GlobalMenu() {
             ALLTASKS.TASKLIST.RAND36,
             ALLTASKS.TASKLIST.SWEMWBS,
             ALLTASKS.TASKLIST.WEMWBS,
-            ALLTASKS.TASKLIST.ZBI12,
+            ALLTASKS.TASKLIST.ZBI12
         ],
         self = new MenuWindow({
             title: L('menutitle_global_b'),
             icon: UICONSTANTS.ICON_MENU_GLOBAL,
-            data: data,
+            data: data
         });
 
     return self;

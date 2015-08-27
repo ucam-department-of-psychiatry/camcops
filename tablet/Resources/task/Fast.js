@@ -104,7 +104,7 @@ lang.extendPrototype(Fast, {
                 new KeyValuePair(L('fast_q1to3_option1'), 1),
                 new KeyValuePair(L('fast_q1to3_option2'), 2),
                 new KeyValuePair(L('fast_q1to3_option3'), 3),
-                new KeyValuePair(L('fast_q1to3_option4'), 4),
+                new KeyValuePair(L('fast_q1to3_option4'), 4)
             ],
             pages,
             questionnaire;
@@ -118,19 +118,19 @@ lang.extendPrototype(Fast, {
                     {
                         type: "QuestionMCQ",
                         field: "q1",
-                        options: mainoptions,
+                        options: mainoptions
                     },
                     { type: "QuestionText", text: L('fast_q2'), bold: true },
                     {
                         type: "QuestionMCQ",
                         field: "q2",
-                        options: mainoptions,
+                        options: mainoptions
                     },
                     { type: "QuestionText", text: L('fast_q3'), bold: true },
                     {
                         type: "QuestionMCQ",
                         field: "q3",
-                        options: mainoptions,
+                        options: mainoptions
                     },
                     { type: "QuestionText", text: L('fast_q4'), bold: true },
                     {
@@ -139,11 +139,11 @@ lang.extendPrototype(Fast, {
                         options: [
                             new KeyValuePair(L('fast_q4_option0'), 0),
                             new KeyValuePair(L('fast_q4_option2'), 2),
-                            new KeyValuePair(L('fast_q4_option4'), 4),
-                        ],
-                    },
-                ],
-            },
+                            new KeyValuePair(L('fast_q4_option4'), 4)
+                        ]
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -152,10 +152,10 @@ lang.extendPrototype(Fast, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

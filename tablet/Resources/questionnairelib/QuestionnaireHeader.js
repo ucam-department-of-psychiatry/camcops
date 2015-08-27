@@ -33,7 +33,7 @@ function QuestionnaireHeader(props) {
         MODULE_NAME = "QuestionnaireHeader",
         tiprops = {
             height: Titanium.UI.SIZE,
-            width: Titanium.UI.FILL,
+            width: Titanium.UI.FILL
         },
         exitbutton_left = uifunc.buttonPosition(0),
         readonlyicon_left = uifunc.buttonPosition(1), // may not be used
@@ -85,7 +85,7 @@ function QuestionnaireHeader(props) {
         color: UICONSTANTS.QUESTIONNAIRE_TITLE_COLOUR,
         textAlign: Titanium.UI.TEXT_ALIGNMENT_CENTER,
         text: props.title,
-        touchEnabled: false,
+        touchEnabled: false
     });
 
     this.backbutton = uifunc.createBackButton({
@@ -107,7 +107,7 @@ function QuestionnaireHeader(props) {
         nextButtonIcon,
         {
             right: nextbutton_right,
-            visible: false,
+            visible: false
             // the showNext() function should be called to make it visible
         },
         nextButtonIconT
@@ -124,7 +124,7 @@ function QuestionnaireHeader(props) {
         this.jumpbutton = uifunc.createGenericButton(
             UICONSTANTS.ICON_CHOOSE_PAGE,
             {
-                right: jumpbutton_right,
+                right: jumpbutton_right
             },
             UICONSTANTS.ICON_CHOOSE_PAGE_T
         );
@@ -142,7 +142,7 @@ function QuestionnaireHeader(props) {
             width: UICONSTANTS.ICONSIZE,
             top: 0,
             left: readonlyicon_left,
-            touchEnabled: false,
+            touchEnabled: false
         }));
     }
 }
@@ -174,7 +174,7 @@ QuestionnaireHeader.prototype = {
             this.jumpbutton = null;
             this.jumpListener = null;
         }
-    },
+    }
 
 };
 module.exports = QuestionnaireHeader;

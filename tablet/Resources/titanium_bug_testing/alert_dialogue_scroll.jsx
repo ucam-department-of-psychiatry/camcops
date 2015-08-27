@@ -19,7 +19,7 @@ win.open();
 alertDlg = Titanium.UI.createAlertDialog({
     message: repeatString("Repeat me", 1000),
     title: "Alert dialogue test",
-    buttonNames: ["OK"],
+    buttonNames: ["OK"]
 });
 
 /*

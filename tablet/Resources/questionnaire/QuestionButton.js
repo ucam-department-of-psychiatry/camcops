@@ -60,7 +60,7 @@ function QuestionButton(props) {
             (props.readOnly || props.inactive) ?
                     UICONSTANTS.QUESTIONNAIRE_READONLY_BUTTON_TEXT_COLOR :
                     UICONSTANTS.QUESTIONNAIRE_BUTTON_TEXT_COLOR
-        ),
+        )
     });
     if (!props.readOnly && !props.inactive) {
         this.clickListener = function () { props.fnClicked(); };
@@ -75,7 +75,7 @@ lang.extendPrototype(QuestionButton, {
             this.tiview.removeEventListener("click", this.clickListener);
             this.clickListener = null;
         }
-    },
+    }
 
 });
 module.exports = QuestionButton;

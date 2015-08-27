@@ -600,7 +600,7 @@ function createTable(tablename, fieldlist) {
             field: fieldlist[i],
             // then extras:
             exists_in_db: false,
-            correct: false,
+            correct: false
         });
     }
     db = Titanium.Database.open(DBCONSTANTS.DBNAME);
@@ -792,7 +792,7 @@ function getPragmaInfo(tablename) {
             type: cursor.field(2), // text
             notnull: cursor.field(3), // 0 or 1
             dflt_value: cursor.field(4), // may be null
-            pk: cursor.field(5), // 0 or 1
+            pk: cursor.field(5)  // 0 or 1
         };
         info.push(item);
         cursor.next();

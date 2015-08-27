@@ -167,7 +167,7 @@ function QuestionTypedVariables(props) {
         center: props.center,
         width : Titanium.UI.FILL,
         height : Titanium.UI.SIZE,
-        layout : 'vertical',
+        layout : 'vertical'
     });
     this.timeouts = [];
     this.changeListeners = [];
@@ -257,7 +257,7 @@ function QuestionTypedVariables(props) {
                         lang.subtractUnits("100%", props.colWidthPrompt) :
                         0
                 ), // Titanium calculates this from right to left, it seems (2014-01-17)
-                touchEnabled: false,
+                touchEnabled: false
                 // backgroundColor: UICONSTANTS.GARISH_DEBUG_COLOUR_1,
             });
             textView = Titanium.UI.createLabel({
@@ -274,7 +274,7 @@ function QuestionTypedVariables(props) {
                 ),
                 color: UICONSTANTS.QUESTION_COLOUR,
                 // backgroundColor: UICONSTANTS.GARISH_DEBUG_COLOUR_2,
-                touchEnabled: false,
+                touchEnabled: false
             });
             textHolder.add(textView);
         }
@@ -307,7 +307,7 @@ function QuestionTypedVariables(props) {
             value: null, // Will be overwritten later
             verticalAlign: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP,
 
-            variableId: i,
+            variableId: i
         });
         if (!props.readOnly) {
             fnChanged = makeChangedFunction(this, i, changedFunction);
@@ -323,7 +323,7 @@ function QuestionTypedVariables(props) {
             rowview = Titanium.UI.createView({
                 width : Titanium.UI.FILL,
                 height : Titanium.UI.SIZE,
-                top: (i > 0 ? UICONSTANTS.SPACE : 0),
+                top: (i > 0 ? UICONSTANTS.SPACE : 0)
             });
             if (props.variables[i].prompt) {
                 rowview.add(textHolder);
@@ -545,7 +545,7 @@ lang.extendPrototype(QuestionTypedVariables, {
             }
             this.rows[i] = null;
         }
-    },
+    }
 
 });
 module.exports = QuestionTypedVariables;

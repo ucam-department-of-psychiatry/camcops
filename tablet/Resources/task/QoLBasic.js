@@ -111,10 +111,10 @@ lang.extendPrototype(QoLBasic, {
                             { center: "70%", text: "7" },
                             { center: "80%", text: "8" },
                             { center: "90%", text: "9" },
-                            { right: 0, text: "10" },
-                        ],
-                    },
-                ],
+                            { right: 0, text: "10" }
+                        ]
+                    }
+                ]
             },
             {
                 title: L("qolbasic_rs_title"),
@@ -129,11 +129,11 @@ lang.extendPrototype(QoLBasic, {
                         numberFormatDecimalPlaces: 0,
                         labels: [
                             { left: 0, text: L("qolbasic_rs_0") },
-                            { right: 0, text: L("qolbasic_rs_100") },
-                        ],
-                    },
-                ],
-            },
+                            { right: 0, text: L("qolbasic_rs_100") }
+                        ]
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -142,10 +142,10 @@ lang.extendPrototype(QoLBasic, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

@@ -127,7 +127,7 @@ module.exports = function MenuTableRow(rowdata) {
         info: rowdata.info,
         chain: rowdata.chain,
         chainList: rowdata.chainList,
-        labelOnly: rowdata.labelOnly,
+        labelOnly: rowdata.labelOnly
     };
     if (rowdata.arrowOnRight) {
         rowprops.rightImage = UICONSTANTS.ICON_TABLE_CHILDARROW;
@@ -153,7 +153,7 @@ module.exports = function MenuTableRow(rowdata) {
             left: iconleft,
             center: {y: '50%'},
             layout: 'vertical',
-            touchEnabled: false,
+            touchEnabled: false
         });
         icon = Titanium.UI.createImageView({
             image: rowdata.icon,
@@ -161,7 +161,7 @@ module.exports = function MenuTableRow(rowdata) {
             width: UICONSTANTS.ICONSIZE,
             top: UICONSTANTS.SPACE,
             left: 0,
-            touchEnabled: false,
+            touchEnabled: false
         });
         iconVerticalLayout.add(icon);
         iconVerticalLayout.add(uifunc.createVerticalSpacer());
@@ -174,7 +174,7 @@ module.exports = function MenuTableRow(rowdata) {
             width: UICONSTANTS.SPACE,
             left: 0,
             center: {y: '50%'},
-            touchEnabled: false,
+            touchEnabled: false
         });
         self.add(absentIconSpacer);
     }
@@ -185,7 +185,7 @@ module.exports = function MenuTableRow(rowdata) {
         left: textleft,
         center: {y: '50%'},
         layout: 'vertical',
-        touchEnabled: false,
+        touchEnabled: false
     });
     primaryLabel = Titanium.UI.createLabel({
         text: rowdata.maintitle,
@@ -196,7 +196,7 @@ module.exports = function MenuTableRow(rowdata) {
         left: 0,
         height: Titanium.UI.SIZE,
         width: Titanium.UI.FILL,
-        touchEnabled: false,
+        touchEnabled: false
     });
     textVerticalLayout.add(primaryLabel);
 
@@ -210,7 +210,7 @@ module.exports = function MenuTableRow(rowdata) {
             left: 0,
             height: Titanium.UI.SIZE,
             width: Titanium.UI.FILL,
-            touchEnabled: false,
+            touchEnabled: false
         });
         textVerticalLayout.add(secondaryLabel);
     }

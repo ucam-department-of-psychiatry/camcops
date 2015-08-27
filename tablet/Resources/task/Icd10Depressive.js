@@ -33,7 +33,7 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
     CORE_NAMES = [
         'mood',
         'anhedonia',
-        'energy',
+        'energy'
     ],
     ADDITIONAL_NAMES = [
         'sleep',
@@ -42,7 +42,7 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
         'guilt',
         'concentration',
         'activity',
-        'death',
+        'death'
     ],
     SOMATIC_NAMES = [
         'somatic_anhedonia',
@@ -52,14 +52,14 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
         'somatic_psychomotor',
         'somatic_appetite',
         'somatic_weight',
-        'somatic_libido',
+        'somatic_libido'
     ],
     PSYCHOSIS_NAMES = [
         'hallucinations_schizophrenic',
         'hallucinations_other',
         'delusions_schizophrenic',
         'delusions_other',
-        'stupor',
+        'stupor'
     ];
 
 fieldlist.push.apply(fieldlist, dbcommon.CLINICIAN_FIELDSPECS); // Clinician info 1/3
@@ -386,7 +386,7 @@ lang.extendPrototype(Icd10Depressive, {
                 questions: taskcommon.localizedStringArrayBySuffixArray(STEM,
                                                                         arr),
                 fields: arr,
-                mandatory: mandatory,
+                mandatory: mandatory
             };
         }
 
@@ -420,12 +420,12 @@ lang.extendPrototype(Icd10Depressive, {
                         horizontal: true,
                         options: true_false_options,
                         questions: [
-                            L("icd10depressive_duration_at_least_2_weeks"),
+                            L("icd10depressive_duration_at_least_2_weeks")
                         ],
                         fields: [
-                            "duration_at_least_2_weeks",
+                            "duration_at_least_2_weeks"
                         ],
-                        mandatory: true,
+                        mandatory: true
                     },
                     {
                         type: "QuestionText",
@@ -449,12 +449,12 @@ lang.extendPrototype(Icd10Depressive, {
                         horizontal: true,
                         options: true_false_options,
                         questions: [
-                            L("icd10depressive_severe_clinically"),
+                            L("icd10depressive_severe_clinically")
                         ],
                         fields: [
-                            "severe_clinically",
+                            "severe_clinically"
                         ],
-                        mandatory: true,
+                        mandatory: true
                     },
                     {
                         type: "QuestionText",
@@ -477,11 +477,11 @@ lang.extendPrototype(Icd10Depressive, {
                                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                                 field: "comments",
                                 prompt: L("comments")
-                            },
-                        ],
-                    },
-                ],
-            },
+                            }
+                        ]
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -490,10 +490,10 @@ lang.extendPrototype(Icd10Depressive, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

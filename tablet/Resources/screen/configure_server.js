@@ -41,7 +41,7 @@ exports.configure = function () { // sourcewindow parameter not used
             "serverTimeoutMs",
             "validateSSLCertificates",
             "storeServerPassword",
-            "sendAnalytics",
+            "sendAnalytics"
         ],
         i,
         pages,
@@ -102,8 +102,8 @@ exports.configure = function () { // sourcewindow parameter not used
                             prompt: L("label_server_timeout"),
                             hint: L('hint_server_timeout'),
                             min: 0
-                        },
-                    ],
+                        }
+                    ]
 
                 },
                 {
@@ -144,9 +144,9 @@ exports.configure = function () { // sourcewindow parameter not used
                     options: yn_options,
                     showInstruction: false,
                     horizontal: true
-                },
-            ],
-        },
+                }
+            ]
+        }
     ];
 
 
@@ -195,7 +195,7 @@ exports.configure = function () { // sourcewindow parameter not used
                 // Drop the changes.
                 return;
             }
-        },
+        }
     });
 
     questionnaire.open();

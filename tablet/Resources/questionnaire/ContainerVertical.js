@@ -43,7 +43,7 @@ function ContainerVertical(props) {
         left: props.left,
         width: Titanium.UI.FILL,
         height: Titanium.UI.SIZE,
-        layout: 'vertical',
+        layout: 'vertical'
     });
 
     // Iterate through elements property, creating elements

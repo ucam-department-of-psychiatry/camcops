@@ -31,12 +31,12 @@ module.exports = function AnonymousMenu() {
         ALLTASKS = require('common/ALLTASKS'),
         data = [
             ALLTASKS.TASKLIST.GMCPQ,
-            ALLTASKS.TASKLIST.REFERRER_SATISFACTION_GEN,
+            ALLTASKS.TASKLIST.REFERRER_SATISFACTION_GEN
         ],
         self = new MenuWindow({
             title: L('menutitle_anonymous'),
             icon: UICONSTANTS.ICON_CHOOSE_PATIENT,
-            data: data,
+            data: data
         });
 
     return self;

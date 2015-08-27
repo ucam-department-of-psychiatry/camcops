@@ -43,7 +43,7 @@ var dbcommon = require('lib/dbcommon'),
         {name: 'sex', type: DBCONSTANTS.TYPE_TEXT},
         {name: 'address', type: DBCONSTANTS.TYPE_TEXT},
         {name: 'gp', type: DBCONSTANTS.TYPE_TEXT},
-        {name: 'other', type: DBCONSTANTS.TYPE_TEXT},
+        {name: 'other', type: DBCONSTANTS.TYPE_TEXT}
     ],
     i,
     SEX_MALE = "M",
@@ -236,7 +236,7 @@ lang.extendPrototype(Patient, {
             backup = {},
             temp = {
                 warning_1: "",
-                warning_2: "",
+                warning_2: ""
             },
             varlist = [
                 "forename",
@@ -245,14 +245,14 @@ lang.extendPrototype(Patient, {
                 "sex",
                 "address",
                 "gp",
-                "other",
+                "other"
             ],
             i,
             v,
             sex_options = [
                 new KeyValuePair(L('male'), SEX_MALE),
                 new KeyValuePair(L('female'), SEX_FEMALE),
-                new KeyValuePair(L('sex_x'), SEX_X),
+                new KeyValuePair(L('sex_x'), SEX_X)
             ],
             idvariables = [],
             upload_warning = (L('patient_warning_upload_policy') + " [" +
@@ -288,7 +288,7 @@ lang.extendPrototype(Patient, {
                 prompt: this[DBCONSTANTS.IDDESC_FIELD_PREFIX + i],
                 hint: "",
                 mandatory: false,
-                min: 0,  // no negative ID numbers
+                min: 0  // no negative ID numbers
             });
         }
         pages = [
@@ -325,8 +325,8 @@ lang.extendPrototype(Patient, {
                                 mandatory: false,
                                 autocapitalization: Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL,
                                 maxLength: NAME_MAXLENGTH
-                            },
-                        ],
+                            }
+                        ]
                     },
                     { type: "QuestionText", text: L("dob") },
                     {
@@ -335,7 +335,7 @@ lang.extendPrototype(Patient, {
                         mandatory: false,
                         showTime: false,
                         offerNowButton: false,
-                        offerNullButton: true,
+                        offerNullButton: true
                     },
                     {
                         type: "QuestionText",
@@ -358,7 +358,7 @@ lang.extendPrototype(Patient, {
                     },
                     {
                         type: "QuestionTypedVariables",
-                        variables: idvariables,
+                        variables: idvariables
                     },
                     {
                         type: "QuestionTypedVariables",
@@ -384,11 +384,11 @@ lang.extendPrototype(Patient, {
                                 prompt: L("other_details"),
                                 hint: L('hint_other_details'),
                                 mandatory: false
-                            },
-                        ],
-                    },
-                ],
-            },
+                            }
+                        ]
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -484,7 +484,7 @@ lang.extendPrototype(Patient, {
         });
 
         questionnaire.open();
-    },
+    }
 });
 
 // CREATE THE TABLE

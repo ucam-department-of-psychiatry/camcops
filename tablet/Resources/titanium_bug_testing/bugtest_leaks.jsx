@@ -4,11 +4,11 @@
 /*global Titanium */
 
 var label = Titanium.UI.createLabel({
-    text: "label",
+    text: "label"
 });
 
 var view = Titanium.UI.createView({
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FFFFFF'
 });
 
 view.add(label);

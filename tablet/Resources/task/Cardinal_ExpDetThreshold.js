@@ -48,7 +48,7 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
         {name: 'num_trials_in_main_sequence', type: DBCONSTANTS.TYPE_INTEGER},
         {name: 'p_catch_trial', type: DBCONSTANTS.TYPE_REAL},
         {name: 'prompt', type: DBCONSTANTS.TYPE_TEXT},
-        {name: 'iti_s', type: DBCONSTANTS.TYPE_REAL},
+        {name: 'iti_s', type: DBCONSTANTS.TYPE_REAL}
     ],
     trialtablename = "cardinal_expdetthreshold_trials",
     TRIAL_FK_FIELD = {
@@ -126,7 +126,7 @@ lang.extendPrototype(TrialInfo, {
         return dbcommon.getAllRowsByKey("cardinal_expdetthreshold_id",
                                         cardinal_expdetthreshold_id, trialtablename,
                                         trialfieldlist, TrialInfo, "id");
-    },
+    }
 
 });
 
@@ -287,14 +287,14 @@ lang.extendPrototype(Cardinal_ExpDetThreshold, {
                         field: "modality",
                         options: [
                             new KeyValuePair(L("auditory"), MODALITY_AUDITORY),
-                            new KeyValuePair(L("visual"), MODALITY_VISUAL),
-                        ],
+                            new KeyValuePair(L("visual"), MODALITY_VISUAL)
+                        ]
                     }
-                ],
+                ]
             },
             {
                 onTheFly: true,
-                pageTag: PAGE_TARGET,
+                pageTag: PAGE_TARGET
             },
             {
                 title: L("expdetthreshold_config_title") + " (3)",
@@ -369,11 +369,11 @@ lang.extendPrototype(Cardinal_ExpDetThreshold, {
                                 prompt: L("expdetthreshold_config_iti_s"),
                                 min: 0.0,
                                 max: 100.0
-                            },
-                        ],
-                    },
-                ],
-            },
+                            }
+                        ]
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -397,7 +397,7 @@ lang.extendPrototype(Cardinal_ExpDetThreshold, {
                         type: "QuestionText",
                         text: L("expdetthreshold_config_instructions_2"),
                         bold: true
-                    },
+                    }
                 ];
                 if (self.modality === MODALITY_AUDITORY) {
                     elements.push({
@@ -407,8 +407,8 @@ lang.extendPrototype(Cardinal_ExpDetThreshold, {
                         field: "target_number",
                         options: [
                             new KeyValuePair(L("expdetthreshold_auditory_target_0"), 0),
-                            new KeyValuePair(L("expdetthreshold_auditory_target_1"), 1),
-                        ],
+                            new KeyValuePair(L("expdetthreshold_auditory_target_1"), 1)
+                        ]
                     });
                 } else {
                     elements.push({
@@ -418,14 +418,14 @@ lang.extendPrototype(Cardinal_ExpDetThreshold, {
                         field: "target_number",
                         options: [
                             new KeyValuePair(L("expdetthreshold_visual_target_0"), 0),
-                            new KeyValuePair(L("expdetthreshold_visual_target_1"), 1),
-                        ],
+                            new KeyValuePair(L("expdetthreshold_visual_target_1"), 1)
+                        ]
                     });
                 }
                 return {
                     title: L("expdetthreshold_config_title") + " (2)",
                     clinician: true,
-                    elements: elements,
+                    elements: elements
                 };
             },
             fnFinished: function (result, editing_time_s) {
@@ -535,7 +535,7 @@ lang.extendPrototype(Cardinal_ExpDetThreshold, {
             INSTRUCTIONS_1: L("expdet_instructions_1"),
             INSTRUCTIONS_2: L("expdet_instructions_2"),
             INSTRUCTIONS_3: L("expdet_instructions_3"),
-            SAVING_PLEASE_WAIT: L("saving_please_wait"),
+            SAVING_PLEASE_WAIT: L("saving_please_wait")
         };
         dbcommon.copyFields(configfieldlist, self, params);
         html = taskcommon.loadHtmlSetParams(
@@ -600,7 +600,7 @@ lang.extendPrototype(Cardinal_ExpDetThreshold, {
         );
         editing_time_start = moment();
         window.open();
-    },
+    }
 
 });
 

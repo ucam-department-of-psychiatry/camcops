@@ -55,7 +55,7 @@ function sendEmptyTables(tablenames, callbackSuccess, callbackFailure) {
     }
     var dict = {
         operation: "upload_empty_tables",
-        tables: tablenames.join(","),
+        tables: tablenames.join(",")
     };
     netcore.sendToServer(dict, callbackSuccess, callbackFailure);
 }
@@ -66,7 +66,7 @@ function sendTableWhole(tablename, callbackSuccess, callbackFailure) {
         dict = {
             operation: "upload_table",
             table: tablename,
-            fields: fieldnames.join(","),
+            fields: fieldnames.join(",")
         };
     dbsqlite.getRecords_lowmem(tablename, dict, "record", "nrecords");
     // We send even empty tables, since this might reflect recent deletion...
@@ -89,7 +89,7 @@ function sendTableRecordwise(tablename, callbackSuccess, callbackFailure) {
             operation: "upload_record",
             table: tablename,
             fields: fieldnames.join(","),
-            pkname: pkname,
+            pkname: pkname
         };
         dbsqlite.getRecordByPK_lowmem(tablename, fieldnames, pkname,
                                       pks[currentRecord], dict, "values");
@@ -136,7 +136,7 @@ function sendBlobTable(callbackSuccess, callbackFailure) {
                 operation: "upload_record",
                 table: tablename,
                 fields: fieldnames.join(","),
-                pkname: pkname,
+                pkname: pkname
             };
         dbsqlite.getRecordByPK_lowmem(tablename, fieldnames, pkname,
                                       pks_to_send[currentRecord], dict,
@@ -208,7 +208,7 @@ function getServerIdentificationInfo(reply) {
             databaseTitle: reply.databaseTitle || "",
             idPolicyUpload: reply.idPolicyUpload || "",
             idPolicyFinalize: reply.idPolicyFinalize || "",
-            serverCamcopsVersion: reply.serverCamcopsVersion || "",
+            serverCamcopsVersion: reply.serverCamcopsVersion || ""
         },
         idDescriptions = [],
         idShortDescriptions = [],
@@ -690,13 +690,13 @@ function markLastRegistrationAsNow() {
 function getRegistrationDictionary() {
     return {
         operation: "register",
-        devicefriendlyname: storedvars.deviceFriendlyName.getValue(),
+        devicefriendlyname: storedvars.deviceFriendlyName.getValue()
     };
 }
 
 function getExtraStringRequestDictionary() {
     return {
-        operation: "get_extra_strings",
+        operation: "get_extra_strings"
     };
 }
 
@@ -828,7 +828,7 @@ function fetch_id_descriptions(sourcewindow) {
     var uifunc = require('lib/uifunc'),
         wait = null,
         dict = {
-            operation: "get_id_info",
+            operation: "get_id_info"
         };
 
     function finished() {

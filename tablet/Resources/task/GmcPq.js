@@ -220,8 +220,8 @@ lang.extendPrototype(GmcPq, {
                                 type: UICONSTANTS.TYPEDVAR_TEXT,
                                 field: "doctor",
                                 prompt: L("gmcpq_q_doctor")
-                            },
-                        ],
+                            }
+                        ]
                     },
                     {
                         type: "QuestionText",
@@ -239,15 +239,15 @@ lang.extendPrototype(GmcPq, {
                             new KeyValuePair(L("gmcpq_q1_option1"), 1),
                             new KeyValuePair(L("gmcpq_q1_option2"), 2),
                             new KeyValuePair(L("gmcpq_q1_option3"), 3),
-                            new KeyValuePair(L("gmcpq_q1_option4"), 4),
-                        ],
+                            new KeyValuePair(L("gmcpq_q1_option4"), 4)
+                        ]
                     },
                     {
                         type: "QuestionText",
                         text: L('gmcpq_info3'),
                         bold: true
-                    },
-                ],
+                    }
+                ]
             },
             {
                 pageTag: PT_REASON,
@@ -267,7 +267,7 @@ lang.extendPrototype(GmcPq, {
                             L("gmcpq_q2_c"),
                             L("gmcpq_q2_d"),
                             L("gmcpq_q2_e"),
-                            L("gmcpq_q2_f"),
+                            L("gmcpq_q2_f")
                         ],
                         fields: [
                             "q2a",
@@ -275,8 +275,8 @@ lang.extendPrototype(GmcPq, {
                             "q2c",
                             "q2d",
                             "q2e",
-                            "q2f",
-                        ],
+                            "q2f"
+                        ]
                     },
                     {
                         elementTag: ET_REASON_OTHER,
@@ -288,10 +288,10 @@ lang.extendPrototype(GmcPq, {
                                 type: UICONSTANTS.TYPEDVAR_TEXT,
                                 field: "q2f_details",
                                 prompt: L("gmcpq_q2f_s")
-                            },
-                        ],
-                    },
-                ],
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 title: maketitle(3),
@@ -305,10 +305,10 @@ lang.extendPrototype(GmcPq, {
                             new KeyValuePair(L("gmcpq_q3_option2"), 2),
                             new KeyValuePair(L("gmcpq_q3_option3"), 3),
                             new KeyValuePair(L("gmcpq_q3_option4"), 4),
-                            new KeyValuePair(L("gmcpq_q3_option5"), 5),
-                        ],
-                    },
-                ],
+                            new KeyValuePair(L("gmcpq_q3_option5"), 5)
+                        ]
+                    }
+                ]
             },
             {
                 title: maketitle(4),
@@ -322,7 +322,7 @@ lang.extendPrototype(GmcPq, {
                             new KeyValuePair(L('gmcpq_q4_option3'), 3),
                             new KeyValuePair(L('gmcpq_q4_option4'), 4),
                             new KeyValuePair(L('gmcpq_q4_option5'), 5),
-                            new KeyValuePair(L('gmcpq_q4_option0'), 0),
+                            new KeyValuePair(L('gmcpq_q4_option0'), 0)
                         ],
                         questions: [
                             L('gmcpq_q4_a'),
@@ -331,13 +331,13 @@ lang.extendPrototype(GmcPq, {
                             L('gmcpq_q4_d'),
                             L('gmcpq_q4_e'),
                             L('gmcpq_q4_f'),
-                            L('gmcpq_q4_g'),
+                            L('gmcpq_q4_g')
                         ],
                         fields: [
                             'q4a', 'q4b', 'q4c', 'q4d', 'q4e', 'q4f', 'q4g'
-                        ],
-                    },
-                ],
+                        ]
+                    }
+                ]
             },
             {
                 title: maketitle(5),
@@ -351,15 +351,15 @@ lang.extendPrototype(GmcPq, {
                             new KeyValuePair(L('gmcpq_q5_option3'), 3),
                             new KeyValuePair(L('gmcpq_q5_option4'), 4),
                             new KeyValuePair(L('gmcpq_q5_option5'), 5),
-                            new KeyValuePair(L('gmcpq_q5_option0'), 0),
+                            new KeyValuePair(L('gmcpq_q5_option0'), 0)
                         ],
                         questions: [
                             L('gmcpq_q5_a'),
-                            L('gmcpq_q5_b'),
+                            L('gmcpq_q5_b')
                         ],
-                        fields: [ 'q5a', 'q5b' ],
-                    },
-                ],
+                        fields: [ 'q5a', 'q5b' ]
+                    }
+                ]
             },
             {
                 title: maketitle(6),
@@ -368,9 +368,9 @@ lang.extendPrototype(GmcPq, {
                     {
                         type: "QuestionMCQ",
                         field: "q6",
-                        options: yes_no_options,
-                    },
-                ],
+                        options: yes_no_options
+                    }
+                ]
             },
             {
                 title: maketitle(7),
@@ -379,9 +379,9 @@ lang.extendPrototype(GmcPq, {
                     {
                         type: "QuestionMCQ",
                         field: "q7",
-                        options: yes_no_options,
-                    },
-                ],
+                        options: yes_no_options
+                    }
+                ]
             },
             {
                 title: maketitle(8),
@@ -390,9 +390,9 @@ lang.extendPrototype(GmcPq, {
                     {
                         type: "QuestionMCQ",
                         field: "q8",
-                        options: yes_no_options,
-                    },
-                ],
+                        options: yes_no_options
+                    }
+                ]
             },
             {
                 title: maketitle(9), // comments
@@ -407,10 +407,10 @@ lang.extendPrototype(GmcPq, {
                                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                                 field: "q9",
                                 prompt: L("gmcpq_q9_s")
-                            },
-                        ],
-                    },
-                ],
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 title: maketitle(10),
@@ -426,10 +426,10 @@ lang.extendPrototype(GmcPq, {
                         field: "q10",
                         options: [
                             new KeyValuePair(L("male"), "M"),
-                            new KeyValuePair(L("female"), "F"),
-                        ],
-                    },
-                ],
+                            new KeyValuePair(L("female"), "F")
+                        ]
+                    }
+                ]
             },
             {
                 title: maketitle(11),
@@ -443,10 +443,10 @@ lang.extendPrototype(GmcPq, {
                             new KeyValuePair(L("gmcpq_q11_option2"), 2),
                             new KeyValuePair(L("gmcpq_q11_option3"), 3),
                             new KeyValuePair(L("gmcpq_q11_option4"), 4),
-                            new KeyValuePair(L("gmcpq_q11_option5"), 5),
-                        ],
-                    },
-                ],
+                            new KeyValuePair(L("gmcpq_q11_option5"), 5)
+                        ]
+                    }
+                ]
             },
             {
                 pageTag: PT_ETHNICITY,
@@ -456,7 +456,7 @@ lang.extendPrototype(GmcPq, {
                     {
                         type: "QuestionMCQ",
                         field: "q12",
-                        options: q12options,
+                        options: q12options
                     },
                     {
                         elementTag: ET_ETHNICITY_OTHER,
@@ -468,17 +468,17 @@ lang.extendPrototype(GmcPq, {
                                 type: UICONSTANTS.TYPEDVAR_TEXT,
                                 field: "q12_details",
                                 prompt: L("gmcpq_ethnicity_other_s")
-                            },
-                        ],
-                    },
-                ],
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 title: L("finished"),
                 elements: [
-                    { type: "QuestionText", text: L('thank_you') },
-                ],
-            },
+                    { type: "QuestionText", text: L('thank_you') }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -509,10 +509,10 @@ lang.extendPrototype(GmcPq, {
                     break;
                 }
                 return { care: false };
-            },
+            }
         });
         questionnaire.open();
-    },
+    }
 
 });
 

@@ -105,7 +105,7 @@ lang.extendPrototype(Aims, {
                         type: "QuestionText",
                         text: L('aims_intro_info')
                     }
-                ],
+                ]
             },
             {
                 title: L('aims_section1_title'),
@@ -119,7 +119,7 @@ lang.extendPrototype(Aims, {
                             new KeyValuePair(L('aims_main_option1'), 1),
                             new KeyValuePair(L('aims_main_option2'), 2),
                             new KeyValuePair(L('aims_main_option3'), 3),
-                            new KeyValuePair(L('aims_main_option4'), 4),
+                            new KeyValuePair(L('aims_main_option4'), 4)
                         ],
                         questions: [
                             L('aims_q1_question'),
@@ -129,7 +129,7 @@ lang.extendPrototype(Aims, {
                             L('aims_q5_question'),
                             L('aims_q6_question'),
                             L('aims_q7_question'),
-                            L('aims_q8_question'),
+                            L('aims_q8_question')
                         ],
                         fields: [
                             'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8'
@@ -138,10 +138,10 @@ lang.extendPrototype(Aims, {
                             {beforeIndex: 1 - 1, subtitle: L('aims_q1_subtitle') },
                             {beforeIndex: 5 - 1, subtitle: L('aims_q5_subtitle') },
                             {beforeIndex: 7 - 1, subtitle: L('aims_q7_subtitle') },
-                            {beforeIndex: 8 - 1, subtitle: L('aims_q8_subtitle') },
-                        ],
-                    },
-                ],
+                            {beforeIndex: 8 - 1, subtitle: L('aims_q8_subtitle') }
+                        ]
+                    }
+                ]
             },
             {
                 title: L('aims_section2_title'),
@@ -155,11 +155,11 @@ lang.extendPrototype(Aims, {
                             new KeyValuePair(L('aims_main_option1'), 1),
                             new KeyValuePair(L('aims_main_option2'), 2),
                             new KeyValuePair(L('aims_main_option3'), 3),
-                            new KeyValuePair(L('aims_main_option4'), 4),
+                            new KeyValuePair(L('aims_main_option4'), 4)
                         ],
-                        field: "q9",
-                    },
-                ],
+                        field: "q9"
+                    }
+                ]
             },
             {
                 title: L('aims_section3_title'),
@@ -173,11 +173,11 @@ lang.extendPrototype(Aims, {
                             new KeyValuePair(L('aims_q10_option1'), 1),
                             new KeyValuePair(L('aims_q10_option2'), 2),
                             new KeyValuePair(L('aims_q10_option3'), 3),
-                            new KeyValuePair(L('aims_q10_option4'), 4),
+                            new KeyValuePair(L('aims_q10_option4'), 4)
                         ],
-                        field: "q10",
-                    },
-                ],
+                        field: "q10"
+                    }
+                ]
             },
             {
                 title: L('aims_section4_title'),
@@ -188,12 +188,12 @@ lang.extendPrototype(Aims, {
                         options: taskcommon.OPTIONS_NO_YES_INTEGER,
                         questions: [
                             L('aims_q11_question'),
-                            L('aims_q12_question'),
+                            L('aims_q12_question')
                         ],
-                        fields: [ 'q11', 'q12' ],
-                    },
-                ],
-            },
+                        fields: [ 'q11', 'q12' ]
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -202,10 +202,10 @@ lang.extendPrototype(Aims, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 });
 
 module.exports = Aims;

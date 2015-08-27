@@ -45,7 +45,7 @@ function ContainerHorizontal(props) {
         width: Titanium.UI.FILL,
         height: Titanium.UI.SIZE,
         layout: 'horizontal',
-        horizontalWrap: true,
+        horizontalWrap: true
     });
 
     // Iterate through elements property, creating elements

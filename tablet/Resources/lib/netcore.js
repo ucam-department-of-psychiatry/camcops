@@ -223,7 +223,7 @@ function getBlankResponseDict() {
     return {
         success: false,
         response: null,
-        error: null,
+        error: null
     };
 }
 
@@ -270,7 +270,7 @@ function getServerResponse(dict, includeUser) { // Blocking
             announceError(result.error, url);
         },
         timeout: storedvars.serverTimeoutMs.getValue(), // in milliseconds
-        validatesSecureCertificate: storedvars.validateSSLCertificates.getValue(),
+        validatesSecureCertificate: storedvars.validateSSLCertificates.getValue()
     });
     // Titanium.API.trace("SENDING TO SERVER: " + JSON.stringify(dict));
     // Prepare the connection. SYNCHRONOUS (BLOCKING) MODE.
@@ -322,7 +322,7 @@ function sendToServer(dict, callbackSuccess, callbackFailure, includeUser) {
             callbackFailure(result.error);
         },
         timeout: storedvars.serverTimeoutMs.getValue(), // in milliseconds
-        validatesSecureCertificate: storedvars.validateSSLCertificates.getValue(),
+        validatesSecureCertificate: storedvars.validateSSLCertificates.getValue()
     });
     // Titanium.API.trace("SENDING TO SERVER: " + JSON.stringify(dict));
     // Prepare the connection.

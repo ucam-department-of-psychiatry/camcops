@@ -113,7 +113,7 @@ lang.extendPrototype(PclCommon, {
                 new KeyValuePair(L('pcl_option2'), 2),
                 new KeyValuePair(L('pcl_option3'), 3),
                 new KeyValuePair(L('pcl_option4'), 4),
-                new KeyValuePair(L('pcl_option5'), 5),
+                new KeyValuePair(L('pcl_option5'), 5)
             ],
             questions = [],
             fields = [],
@@ -148,8 +148,8 @@ lang.extendPrototype(PclCommon, {
                             field: "eventdate",
                             prompt: L('pcl_s_eventdate_prompt'),
                             hint: L('pcl_s_eventdate_hint')
-                        },
-                    ],
+                        }
+                    ]
                 }
             );
         }
@@ -168,15 +168,15 @@ lang.extendPrototype(PclCommon, {
                     {beforeIndex: 4, subtitle: "" },
                     {beforeIndex: 8, subtitle: "" },
                     {beforeIndex: 12, subtitle: "" },
-                    {beforeIndex: 16, subtitle: "" },
-                ],
+                    {beforeIndex: 16, subtitle: "" }
+                ]
             }
         );
 
         pages = [
             {
                 title: L("pcl_" + this._pcltype + "_title"),
-                elements: elements,
+                elements: elements
             }
         ];
 
@@ -186,10 +186,10 @@ lang.extendPrototype(PclCommon, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

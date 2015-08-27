@@ -174,15 +174,15 @@ lang.extendPrototype(Bmi, {
                         type: "QuestionMCQ",
                         options: [
                             new KeyValuePair(L('bmi_metric_height'), 0),
-                            new KeyValuePair(L('bmi_imperial_height'), 1),
+                            new KeyValuePair(L('bmi_imperial_height'), 1)
                         ],
-                        field: 'isHeightInImperial',
-                    },
-                ],
+                        field: 'isHeightInImperial'
+                    }
+                ]
             },
             {
                 onTheFly: true,
-                pageTag: PAGE_HEIGHT,
+                pageTag: PAGE_HEIGHT
             },
             {
                 title: L('bmi_title_3'),
@@ -191,16 +191,16 @@ lang.extendPrototype(Bmi, {
                         type: "QuestionMCQ",
                         options: [
                             new KeyValuePair(L('bmi_metric_mass'), 0),
-                            new KeyValuePair(L('bmi_imperial_mass'), 1),
+                            new KeyValuePair(L('bmi_imperial_mass'), 1)
                         ],
-                        field: 'isMassInImperial',
-                    },
-                ],
+                        field: 'isMassInImperial'
+                    }
+                ]
             },
             {
                 onTheFly: true,
-                pageTag: PAGE_MASS,
-            },
+                pageTag: PAGE_MASS
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -275,14 +275,14 @@ lang.extendPrototype(Bmi, {
                                     {
                                         field: "height_ft",
                                         prompt: L('bmi_ft'),
-                                        type: UICONSTANTS.TYPEDVAR_REAL,
+                                        type: UICONSTANTS.TYPEDVAR_REAL
                                     },
                                     {
                                         field: "height_in",
                                         prompt: L('bmi_in'),
-                                        type: UICONSTANTS.TYPEDVAR_REAL,
-                                    },
-                                ],
+                                        type: UICONSTANTS.TYPEDVAR_REAL
+                                    }
+                                ]
                             }
                         ];
                     } else {
@@ -293,9 +293,9 @@ lang.extendPrototype(Bmi, {
                                     {
                                         field: "height_m",
                                         prompt: L('bmi_m'),
-                                        type: UICONSTANTS.TYPEDVAR_REAL,
-                                    },
-                                ],
+                                        type: UICONSTANTS.TYPEDVAR_REAL
+                                    }
+                                ]
                             }
                         ];
                     }
@@ -309,14 +309,14 @@ lang.extendPrototype(Bmi, {
                                     {
                                         field: "mass_st",
                                         prompt: L('bmi_st'),
-                                        type: UICONSTANTS.TYPEDVAR_REAL,
+                                        type: UICONSTANTS.TYPEDVAR_REAL
                                     },
                                     {
                                         field: "mass_lb",
                                         prompt: L('bmi_lb'),
-                                        type: UICONSTANTS.TYPEDVAR_REAL,
-                                    },
-                                ],
+                                        type: UICONSTANTS.TYPEDVAR_REAL
+                                    }
+                                ]
                             },
                             {
                                 type: "QuestionTypedVariables",
@@ -326,10 +326,10 @@ lang.extendPrototype(Bmi, {
                                     {
                                         field: "comment",
                                         prompt: L('comments'),
-                                        type: UICONSTANTS.TYPEDVAR_TEXT,
-                                    },
-                                ],
-                            },
+                                        type: UICONSTANTS.TYPEDVAR_TEXT
+                                    }
+                                ]
+                            }
                         ];
                     } else {
                         elements = [
@@ -339,9 +339,9 @@ lang.extendPrototype(Bmi, {
                                     {
                                         field: "mass_kg",
                                         prompt: L('bmi_kg'),
-                                        type: UICONSTANTS.TYPEDVAR_REAL,
-                                    },
-                                ],
+                                        type: UICONSTANTS.TYPEDVAR_REAL
+                                    }
+                                ]
                             },
                             {
                                 type: "QuestionTypedVariables",
@@ -351,10 +351,10 @@ lang.extendPrototype(Bmi, {
                                     {
                                         field: "comment",
                                         prompt: L('comments'),
-                                        type: UICONSTANTS.TYPEDVAR_TEXT,
-                                    },
-                                ],
-                            },
+                                        type: UICONSTANTS.TYPEDVAR_TEXT
+                                    }
+                                ]
+                            }
                         ];
                     }
                 } else {
@@ -363,13 +363,13 @@ lang.extendPrototype(Bmi, {
                 }
                 return {
                     title: title,
-                    elements: elements,
+                    elements: elements
                 };
             },
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 });
 
 module.exports = Bmi;

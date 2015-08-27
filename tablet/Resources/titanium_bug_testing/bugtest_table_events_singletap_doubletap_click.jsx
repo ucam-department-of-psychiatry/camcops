@@ -11,7 +11,7 @@ function eventArrived(e) {
 var rowdata = [
     {title: "row_0"},
     {title: "row_1"},
-    {title: "row_2"},
+    {title: "row_2"}
 ];
 var win = Titanium.UI.createWindow({ backgroundColor: '#FFFFFF' });
 var table = Titanium.UI.createTableView({ data: rowdata });

@@ -93,7 +93,7 @@ function alert(message, title) {
     alertDlg = Titanium.UI.createAlertDialog({
         message: message,
         title: title,
-        buttonNames: [L('ok')],
+        buttonNames: [L('ok')]
     });
     alertDlg.addEventListener('click', function () {
         alertInProgress = false;
@@ -132,14 +132,14 @@ function createWait(props) { // *** This class is imperfect and may leak.
     var outercontainer = Titanium.UI.createView({
             height: Titanium.UI.FILL,
             width: Titanium.UI.FILL,
-            visible: false,
+            visible: false
             // ... so, like an ActivityIndicator, it requires to be show()n first
         }),
         transparentfilm = Titanium.UI.createView({
             height: Titanium.UI.FILL,
             width: Titanium.UI.FILL,
             backgroundColor: UICONSTANTS.POPUP_BORDER_COLOUR,
-            opacity: 0.5,
+            opacity: 0.5
         }),
         innercontainer = Titanium.UI.createView({
             center: {x: '50%', y: '50%'},
@@ -157,7 +157,7 @@ function createWait(props) { // *** This class is imperfect and may leak.
             width: Titanium.UI.SIZE,
             font: UICONSTANTS.WAIT_FONT,
             color: UICONSTANTS.WAIT_COLOUR,
-            text: props.message,
+            text: props.message
         }),
         titleLabel,
         cancelButton;
@@ -171,7 +171,7 @@ function createWait(props) { // *** This class is imperfect and may leak.
             width: Titanium.UI.SIZE,
             font: UICONSTANTS.WAIT_TITLE_FONT,
             color: UICONSTANTS.WAIT_TITLE_COLOUR,
-            text: props.title,
+            text: props.title
         });
         innercontainer.add(titleLabel);
     }
@@ -183,7 +183,7 @@ function createWait(props) { // *** This class is imperfect and may leak.
         }
         cancelButton = Titanium.UI.createButton({
             title: L('cancel'),
-            bottom: UICONSTANTS.WAIT_SPACE,
+            bottom: UICONSTANTS.WAIT_SPACE
         });
         cancelButton.addEventListener('click', props.fnCancel);
         innercontainer.add(cancelButton);
@@ -206,7 +206,7 @@ function createEncryptionWait(sourcewindow) {
         window: sourcewindow,
         message: L('encryption_wait_msg'),
         title: L('encryption_wait_title'),
-        offerCancel: false,
+        offerCancel: false
     });
 }
 exports.createEncryptionWait = createEncryptionWait;
@@ -629,7 +629,7 @@ function createVerticalSpacer() {
         left: 0,
         height: UICONSTANTS.SPACE,
         width: Titanium.UI.FILL,
-        touchEnabled: false,
+        touchEnabled: false
     });
 }
 exports.createVerticalSpacer = createVerticalSpacer;
@@ -640,7 +640,7 @@ function createHorizontalSpacer() {
         left: 0,
         height: UICONSTANTS.SPACE,
         width: UICONSTANTS.SPACE,
-        touchEnabled: false,
+        touchEnabled: false
     });
 }
 exports.createHorizontalSpacer = createHorizontalSpacer;
@@ -650,7 +650,7 @@ function createMenuRule() {
         backgroundColor: UICONSTANTS.MENU_HEADER_RULE_COLOUR,
         height: UICONSTANTS.MENU_HEADER_RULE_HEIGHT,
         width: Titanium.UI.FILL,
-        touchEnabled: false,
+        touchEnabled: false
     });
 }
 exports.createMenuRule = createMenuRule;
@@ -660,7 +660,7 @@ function createQuestionnaireRule() {
         backgroundColor: UICONSTANTS.QUESTIONNAIRE_HEADER_RULE_COLOUR,
         height: UICONSTANTS.QUESTIONNAIRE_HEADER_RULE_HEIGHT,
         width: Titanium.UI.FILL,
-        touchEnabled: false,
+        touchEnabled: false
     });
 }
 exports.createQuestionnaireRule = createQuestionnaireRule;
@@ -729,7 +729,7 @@ function createMenuWindow(p) {
             backgroundColor: UICONSTANTS.MENU_BG_COLOUR,
             modal: p.modal,
             // makes it a heavyweight window, so the hardware "back" button works
-            navBarHidden: p.navBarHidden, // removes the top line
+            navBarHidden: p.navBarHidden // removes the top line
         },
         platform = require('lib/platform'),
         win;
@@ -757,19 +757,19 @@ function showHtml(content, title, nobounce, html_not_filename) {
         }),
         header = Titanium.UI.createView({
             height: Titanium.UI.SIZE,
-            width: Titanium.UI.FILL,
+            width: Titanium.UI.FILL
         }),
         backbutton = createBackButton({left: buttonPosition(0) }),
         titletext = createMenuTitleText({
             left: buttonPosition(1),
             right: UICONSTANTS.SPACE,
             textAlign: Titanium.UI.TEXT_ALIGNMENT_CENTER,
-            text: title,
+            text: title
         }),
         platform = require('lib/platform'),
         props = {
             height: Titanium.UI.FILL,
-            width: Titanium.UI.FILL,
+            width: Titanium.UI.FILL
         },
         webview;
 
@@ -957,7 +957,7 @@ function createSettingsLabel(text) {
         text: text,
         left: UICONSTANTS.SPACE,
         font: UICONSTANTS.EDITING_LABEL_FONT,
-        color: UICONSTANTS.EDITING_LABEL_COLOUR,
+        color: UICONSTANTS.EDITING_LABEL_COLOUR
     });
 }
 exports.createSettingsLabel = createSettingsLabel;
@@ -967,7 +967,7 @@ function createWarningLabel(text) {
         text: text,
         left: UICONSTANTS.SPACE,
         font: UICONSTANTS.EDITING_FONT,
-        color: UICONSTANTS.EDITING_WARNING_COLOUR,
+        color: UICONSTANTS.EDITING_WARNING_COLOUR
     });
 }
 exports.createWarningLabel = createWarningLabel;
@@ -977,7 +977,7 @@ function createInfoLabel(text) {
         text: text,
         left: UICONSTANTS.SPACE,
         font: UICONSTANTS.EDITING_INFO_FONT,
-        color: UICONSTANTS.EDITING_INFO_COLOUR,
+        color: UICONSTANTS.EDITING_INFO_COLOUR
     });
 }
 exports.createInfoLabel = createInfoLabel;
@@ -995,7 +995,7 @@ function createSettingsEditText(initialvalue, hint, capitalize) {
                 Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE
         ),
         hintText: hint,
-        suppressReturn: true,
+        suppressReturn: true
     });
 }
 exports.createSettingsEditText = createSettingsEditText;
@@ -1010,7 +1010,7 @@ function createSettingsEditPassword(initialvalue, hint) {
         backgroundColor: UICONSTANTS.EDITING_PASSWORD_BACKGROUND,
         hintText: hint,
         passwordMask: true,
-        suppressReturn: true,
+        suppressReturn: true
     });
 }
 exports.createSettingsEditPassword = createSettingsEditPassword;
@@ -1070,7 +1070,7 @@ function editTask(task, wait) {
         title: L('edit_record_q'),
         message: (L('edit_this_record_q') + '\n\n' +
                   task.getCreationDateTimeNice()),
-        buttonNames: [L('cancel'), L('edit')],
+        buttonNames: [L('cancel'), L('edit')]
     });
     dlg.addEventListener('click', function (e) {
         if (e.index === 1) { // Edit
@@ -1098,7 +1098,7 @@ function deleteTask(task, callbackWhenDeleted) {
     dlg = Titanium.UI.createAlertDialog({
         title: L('delete_record_q'),
         message: L('delete_this_record_q') + '\n\n' + task.getSummary(),
-        buttonNames: [L('cancel'), L('delete')],
+        buttonNames: [L('cancel'), L('delete')]
     });
     dlg.addEventListener('click', function (e) {
         if (e.index === 1) { // Delete
@@ -1127,7 +1127,7 @@ function zoomTask(task, wait) {
         dlg = Titanium.UI.createAlertDialog({
             title: L('view_options'),
             message: L('view_options_q'),
-            buttonNames: [L('cancel'), L('facsimile'), L('summary')],
+            buttonNames: [L('cancel'), L('facsimile'), L('summary')]
         });
         dlg.addEventListener('click', function (e) {
             if (e.index === 1) { // Facsimile
@@ -1199,7 +1199,7 @@ function createPasswordPopupWindow() {
         // ... makes it a heavyweight window, so the hardware "back" button
         // works: http://developer.appcelerator.com/question/2731/adding-a-window-to-the-stack
 
-        fullscreen: true, // for iOS 7, or transparent status bar visible
+        fullscreen: true // for iOS 7, or transparent status bar visible
     });
     addAndroidCloser(win);
     return win;
@@ -1212,7 +1212,7 @@ function createQuestionnaireWindow(orientationModes) {
         backgroundColor: UICONSTANTS.QUESTIONNAIRE_BG_COLOUR,
         navBarHidden: true,
         fullscreen: true,
-        orientationModes: orientationModes,
+        orientationModes: orientationModes
         // Must be a heavyweight window to support orientationModes
     });
     // NO - DO THIS BY HAND IN QUESTIONNAIRE -- addAndroidCloser(win);
@@ -1230,7 +1230,7 @@ function createDiagnosticCodeWindow(androidBackCallbackFn) {
             navBarHidden: true,
             backgroundColor: UICONSTANTS.DIAGNOSTICCODE_BACKGROUND,
             layout: 'vertical',
-            fullscreen: true, // for iOS 7, or transparent status bar visible
+            fullscreen: true // for iOS 7, or transparent status bar visible
         }),
         platform = require('lib/platform');
     if (platform.android && typeof androidBackCallbackFn === "function") {
@@ -1294,7 +1294,7 @@ function upload(sourcewindow, afterwardsFunc) {
                 title: L('upload_choice_title'),
                 message: L('upload_choice_msg'),
                 buttonNames: [L('cancel'), L('copy'), L('move_keep_patients'),
-                              L('move')],
+                              L('move')]
             });
             dlg.addEventListener('click', function (e) {
                 if (e.index === 1) {
@@ -1314,7 +1314,7 @@ function upload(sourcewindow, afterwardsFunc) {
             dlg = Titanium.UI.createAlertDialog({
                 title: L('upload_choice_title'),
                 message: L('upload_choice_msg'),
-                buttonNames: [ L('copy'), L('move_keep_patients'), L('move')],
+                buttonNames: [ L('copy'), L('move_keep_patients'), L('move')]
             });
             dlg.addEventListener('click', function (e) {
                 if (e.index === 0) {
@@ -1349,7 +1349,7 @@ function task_finished_offer_upload(sourcewindow, afterwardsFunc) {
     dlg = Titanium.UI.createAlertDialog({
         title: L('task_finished_upload_title'),
         message: L('task_finished_upload_msg'),
-        buttonNames: [L('cancel'), L('upload')],
+        buttonNames: [L('cancel'), L('upload')]
     });
     dlg.addEventListener('click', function (e) {
         if (e.index === 1) { // Upload

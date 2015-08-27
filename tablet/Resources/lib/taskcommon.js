@@ -155,7 +155,7 @@ lang.extendPrototype(BaseTask, {
             top: 0,
             left: 0,
             height: Titanium.UI.SIZE,
-            width: Titanium.UI.SIZE,
+            width: Titanium.UI.SIZE
         });
     },
 
@@ -264,8 +264,8 @@ lang.extendPrototype(BaseTask, {
                     type: UICONSTANTS.TYPEDVAR_TEXT,
                     field: "clinician_contact_details",
                     prompt: L("clinician_contact_details")
-                },
-            ],
+                }
+            ]
         };
     },
 
@@ -273,7 +273,7 @@ lang.extendPrototype(BaseTask, {
         return {
             title: L("clinician_details"),
             clinician: true,
-            elements: [ this.getClinicianQuestionnaireBlock() ],
+            elements: [ this.getClinicianQuestionnaireBlock() ]
         };
     },
 
@@ -293,8 +293,8 @@ lang.extendPrototype(BaseTask, {
                     type: UICONSTANTS.TYPEDVAR_TEXT,
                     field: "respondent_relationship",
                     prompt: L("respondent_relationship")
-                },
-            ],
+                }
+            ]
         };
     },
 
@@ -302,7 +302,7 @@ lang.extendPrototype(BaseTask, {
         return {
             title: L("respondent_details"),
             clinician: true,
-            elements: [ this.getRespondentQuestionnaireBlock() ],
+            elements: [ this.getRespondentQuestionnaireBlock() ]
         };
     },
 
@@ -312,10 +312,10 @@ lang.extendPrototype(BaseTask, {
             clinician: true,
             elements: [
                 this.getClinicianQuestionnaireBlock(),
-                this.getRespondentQuestionnaireBlock(),
-            ],
+                this.getRespondentQuestionnaireBlock()
+            ]
         };
-    },
+    }
 
 });
 exports.BaseTask = BaseTask;
@@ -557,46 +557,46 @@ exports.YES_CHAR = yesChar;
 
 exports.OPTIONS_YES_NO_CHAR = [
     new KeyValuePair(L('Yes'), yesChar),
-    new KeyValuePair(L('No'), noChar),
+    new KeyValuePair(L('No'), noChar)
 ];
 exports.OPTIONS_YES_NO_BOOLEAN = [
     new KeyValuePair(L('Yes'), true),
-    new KeyValuePair(L('No'), false),
+    new KeyValuePair(L('No'), false)
 ];
 exports.OPTIONS_YES_NO_INTEGER = [
     new KeyValuePair(L('Yes'), 1),
-    new KeyValuePair(L('No'), 0),
+    new KeyValuePair(L('No'), 0)
 ];
 exports.OPTIONS_NO_YES_CHAR = [
     new KeyValuePair(L('No'), noChar),
-    new KeyValuePair(L('Yes'), yesChar),
+    new KeyValuePair(L('Yes'), yesChar)
 ];
 exports.OPTIONS_NO_YES_BOOLEAN = [
     new KeyValuePair(L('No'), false),
-    new KeyValuePair(L('Yes'), true),
+    new KeyValuePair(L('Yes'), true)
 ];
 exports.OPTIONS_NO_YES_INTEGER = [
     new KeyValuePair(L('No'), 0),
-    new KeyValuePair(L('Yes'), 1),
+    new KeyValuePair(L('Yes'), 1)
 ];
 
 exports.OPTIONS_INCORRECT_CORRECT_BOOLEAN = [
     new KeyValuePair(L('incorrect'), false),
-    new KeyValuePair(L('correct'), true),
+    new KeyValuePair(L('correct'), true)
 ];
 exports.OPTIONS_INCORRECT_CORRECT_INTEGER = [
     new KeyValuePair(L('incorrect'), 0),
-    new KeyValuePair(L('correct'), 1),
+    new KeyValuePair(L('correct'), 1)
 ];
 
 exports.OPTIONS_FALSE_TRUE_BOOLEAN = [
     new KeyValuePair(L("False"), false),
-    new KeyValuePair(L("True"), true),
+    new KeyValuePair(L("True"), true)
 ];
 
 exports.OPTIONS_ABSENT_PRESENT_BOOLEAN = [
     new KeyValuePair(L("Absent"), false),
-    new KeyValuePair(L("Present"), true),
+    new KeyValuePair(L("Present"), true)
 ];
 
 //=============================================================================
@@ -661,7 +661,7 @@ function createFullscreenWebviewWindow(html, nameEventFromWebview,
             scrollsToTop: false, // iOS
             disableBounce: true, // iOS
             showScrollbars: false, // MobileWeb?
-            keepScreenOn: true, // Android
+            keepScreenOn: true // Android
             // makes no difference // borderRadius: 0,
             // http://developer.appcelerator.com/question/118677/masking-or-hiding-overflow-from-a-view
         }),
@@ -673,7 +673,7 @@ function createFullscreenWebviewWindow(html, nameEventFromWebview,
             orientationModes: [
                 Titanium.UI.LANDSCAPE_RIGHT,
                 Titanium.UI.LANDSCAPE_LEFT
-            ], // disallow portrait mode
+            ] // disallow portrait mode
         });
     // ***
     function keypressed(e) {

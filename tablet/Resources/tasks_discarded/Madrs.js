@@ -106,7 +106,7 @@ module.exports = function Madrs(patient_id) {
                 option3,
                 new KeyValuePair(L("madrs_q" + q + "_option4"), 4),
                 option5,
-                new KeyValuePair(L("madrs_q" + q + "_option6"), 6),
+                new KeyValuePair(L("madrs_q" + q + "_option6"), 6)
             ];
             return {
                 title: L("madrs_q" + q + "_title"),
@@ -116,9 +116,9 @@ module.exports = function Madrs(patient_id) {
                     {
                         type: QuestionMCQ,
                         field: "q" + q,
-                        options: options,
-                    },
-                ],
+                        options: options
+                    }
+                ]
             };
         }
         pages = [
@@ -133,10 +133,10 @@ module.exports = function Madrs(patient_id) {
                         mandatory: true,
                         useColumns: false,
                         variables: [
-                            { type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE, field: "period_rated", prompt: L("madrs_q_period_rated") },
-                        ],
-                    },
-                ],
+                            { type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE, field: "period_rated", prompt: L("madrs_q_period_rated") }
+                        ]
+                    }
+                ]
             }
         ];
         for (i = 1; i <= nquestions; ++i) {
@@ -149,7 +149,7 @@ module.exports = function Madrs(patient_id) {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
     };

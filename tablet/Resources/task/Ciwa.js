@@ -136,7 +136,7 @@ lang.extendPrototype(Ciwa, {
                         options: options,
                         field: "q" + n
                     }
-                ],
+                ]
             };
         }
 
@@ -184,10 +184,10 @@ lang.extendPrototype(Ciwa, {
                             type: UICONSTANTS.TYPEDVAR_INTEGER,
                             field: "rr",
                             prompt: L("ciwa_rr")
-                        },
-                    ],
-                },
-            ],
+                        }
+                    ]
+                }
+            ]
         });
 
         questionnaire = new Questionnaire({
@@ -196,10 +196,10 @@ lang.extendPrototype(Ciwa, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

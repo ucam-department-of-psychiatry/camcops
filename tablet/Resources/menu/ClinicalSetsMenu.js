@@ -35,12 +35,12 @@ module.exports = function ClinicalSetsMenu() {
                 subtitle: L('s_set_from_lp'),
                 arrowOnRight: true,
                 window: 'menu/SetMenu_FROM_LP'
-            },
+            }
         ],
         self = new MenuWindow({
             title: L('menutitle_sets_clinical'),
             icon: UICONSTANTS.ICON_MENU_SETS_CLINICAL,
-            data: data,
+            data: data
         });
 
     return self;

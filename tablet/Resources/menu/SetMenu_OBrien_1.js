@@ -36,12 +36,12 @@ module.exports = function SetMenu_OBrien_1() {
             ALLTASKS.TASKLIST.COPE_BRIEF,
             ALLTASKS.TASKLIST.HADS,
             ALLTASKS.TASKLIST.MDS_UPDRS,
-            ALLTASKS.TASKLIST.ZBI12,
+            ALLTASKS.TASKLIST.ZBI12
         ],
         self = new MenuWindow({
             title: L('t_set_obrien_1'),
             subtitle: L('s_set_obrien_1'),
-            data: data,
+            data: data
         });
 
     return self;

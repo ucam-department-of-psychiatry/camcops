@@ -60,5 +60,5 @@ module.exports = {
 
     EXTRASTRINGS_TABLE: "extrastrings",
     STOREDVARS_TABLE: "storedvars",
-    STOREDVARS_PRIVATE_TABLE: "storedvarsprivate",
+    STOREDVARS_PRIVATE_TABLE: "storedvarsprivate"
 };

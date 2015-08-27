@@ -61,7 +61,7 @@ function QuestionThermometer(props) {
         setFieldValue: function (value) {
             props.questionnaire.setFieldValue(props.field, value);
         },
-        mandatory: props.mandatory,
+        mandatory: props.mandatory
     });
     this.tiview = this.imagegroup.tiview;
 }
@@ -83,7 +83,7 @@ lang.extendPrototype(QuestionThermometer, {
     cleanup: function () {
         this.imagegroup.cleanup();
         this.imagegroup = null;
-    },
+    }
 
 });
 module.exports = QuestionThermometer;

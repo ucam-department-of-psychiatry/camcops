@@ -38,12 +38,12 @@ module.exports = function AddictionMenu() {
             ALLTASKS.TASKLIST.DAST,
             ALLTASKS.TASKLIST.FAST,
             ALLTASKS.TASKLIST.MAST,
-            ALLTASKS.TASKLIST.SMAST,
+            ALLTASKS.TASKLIST.SMAST
         ],
         self = new MenuWindow({
             title: L('menutitle_addiction'),
             icon: UICONSTANTS.ICON_MENU_ADDICTION,
-            data: data,
+            data: data
         });
 
     return self;

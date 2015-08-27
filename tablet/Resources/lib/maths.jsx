@@ -425,7 +425,7 @@ function logisticDescriptives(par) {
         intercept: intercept,
         slope: slope,
         k: k,
-        theta: theta,
+        theta: theta
     };
 }
 

@@ -33,12 +33,12 @@ module.exports = function PersonalityMenu() {
             UICONSTANTS.CHANGE_PATIENT_MENU_LINE,
             ALLTASKS.TASKLIST.CECAQ3,
             ALLTASKS.TASKLIST.ICD10_SPECIFIC_PD,
-            ALLTASKS.TASKLIST.ICD10_SCHIZOTYPAL,
+            ALLTASKS.TASKLIST.ICD10_SCHIZOTYPAL
         ],
         self = new MenuWindow({
             title: L('menutitle_personality'),
             icon: UICONSTANTS.ICON_MENU_PERSONALITY,
-            data: data,
+            data: data
         });
 
     return self;

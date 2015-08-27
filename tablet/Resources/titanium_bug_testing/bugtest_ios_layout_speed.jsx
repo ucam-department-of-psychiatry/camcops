@@ -57,7 +57,7 @@ for (i = 0; i < n_things_of_each_kind; ++i) {
         left: 0,
         top: 0,
         height: Titanium.UI.SIZE,
-        width: Titanium.UI.FILL,
+        width: Titanium.UI.FILL
     });
     labels.push(newlabel);
     view.add(newlabel);
@@ -70,7 +70,7 @@ for (i = 0; i < n_things_of_each_kind; ++i) {
         backgroundColor: '#888888',
         suppressReturn: false, // multiline
         autocapitalization: Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE,
-        autocorrect: false, // we're not measuring the spellchecker's speed
+        autocorrect: false  // we're not measuring the spellchecker's speed
     }));
 }
 

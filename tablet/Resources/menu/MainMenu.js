@@ -145,7 +145,7 @@ module.exports = function MainMenu() {
             arrowOnRight: true,
             icon: UICONSTANTS.ICON_MENU_ALLTASKS,
             window: 'menu/AllTasksMenu'
-        },
+        }
     ];
 
     self = new MenuWindow({
@@ -154,7 +154,7 @@ module.exports = function MainMenu() {
         icon: UICONSTANTS.ICON_CAMCOPS,
         data: data,
         addfooter: false,
-        exitOnClose: true, // special for the top menu
+        exitOnClose: true // special for the top menu
     });
 
     return self;

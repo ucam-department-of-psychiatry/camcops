@@ -42,7 +42,7 @@ function getVariableFontSpecifyingPercent(base, bold, italic, percent) {
     return {
         fontSize: Math.round(base * percent / 100).toString() + 'sp',
         fontWeight: bold ? 'bold' : 'normal',
-        fontStyle: italic ? 'italic' : 'normal',
+        fontStyle: italic ? 'italic' : 'normal'
     };
 }
 
@@ -508,11 +508,11 @@ module.exports = {
             platform.translateFilename('sounds/expdet/A_cue_04_cymbal.wav'),
             platform.translateFilename('sounds/expdet/A_cue_05_match.wav'),
             platform.translateFilename('sounds/expdet/A_cue_06_metal.wav'),
-            platform.translateFilename('sounds/expdet/A_cue_07_bach.wav'),
+            platform.translateFilename('sounds/expdet/A_cue_07_bach.wav')
         ],
         AUDITORY_TARGETS: [
             platform.translateFilename('sounds/expdet/A_target_0_tone.wav'),
-            platform.translateFilename('sounds/expdet/A_target_1_voice.wav'),
+            platform.translateFilename('sounds/expdet/A_target_1_voice.wav')
         ],
         VISUAL_BACKGROUND: platform.translateFilenameForWebView(
             'images/expdet/V_background.png'
@@ -525,7 +525,7 @@ module.exports = {
             platform.translateFilenameForWebView('images/expdet/V_cue_04.png'),
             platform.translateFilenameForWebView('images/expdet/V_cue_05.png'),
             platform.translateFilenameForWebView('images/expdet/V_cue_06.png'),
-            platform.translateFilenameForWebView('images/expdet/V_cue_07.png'),
+            platform.translateFilenameForWebView('images/expdet/V_cue_07.png')
         ],
         VISUAL_TARGETS: [
             platform.translateFilenameForWebView(
@@ -533,8 +533,8 @@ module.exports = {
             ),
             platform.translateFilenameForWebView(
                 'images/expdet/V_target_1_word.png'
-            ),
+            )
         ],
-        STIM_SIZE: 400, // stimulus height and width
-    },
+        STIM_SIZE: 400 // stimulus height and width
+    }
 };

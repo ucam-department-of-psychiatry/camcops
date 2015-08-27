@@ -50,7 +50,7 @@ function MenuTableViewWrapper(data) {
         data: tbldata,
         separatorColor: UICONSTANTS.MENU_SEPARATOR_COLOUR,
         minRowHeight: UICONSTANTS.MIN_TABLE_ROW_HEIGHT,
-        backgroundColor: UICONSTANTS.MENU_BG_COLOUR,
+        backgroundColor: UICONSTANTS.MENU_BG_COLOUR
         // backgroundSelectedColor: UICONSTANTS.TABLE_BG_SELECTED_COLOUR,
     });
     this.wait = uifunc.createWait({ window: this.tiview });
@@ -285,7 +285,7 @@ MenuTableViewWrapper.prototype = {
         GV.chainIndex = 0;
         GV.chainTablenames = [];
         GV.chainIds = [];
-    },
+    }
 
 };
 module.exports = MenuTableViewWrapper;

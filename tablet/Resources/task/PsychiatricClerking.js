@@ -37,7 +37,7 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
         {name: "reason_for_contact", type: DBCONSTANTS.TYPE_TEXT},
         {name: "presenting_issue", type: DBCONSTANTS.TYPE_TEXT},
         {name: "systems_review", type: DBCONSTANTS.TYPE_TEXT},
-        {name: "collateral_history", type: DBCONSTANTS.TYPE_TEXT},
+        {name: "collateral_history", type: DBCONSTANTS.TYPE_TEXT}
     ],
     extrafields_c = [
         {name: "diagnoses_psychiatric", type: DBCONSTANTS.TYPE_TEXT},
@@ -51,7 +51,7 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
         {name: "personal_history", type: DBCONSTANTS.TYPE_TEXT},
         {name: "premorbid_personality", type: DBCONSTANTS.TYPE_TEXT},
         {name: "forensic_history", type: DBCONSTANTS.TYPE_TEXT},
-        {name: "current_social_situation", type: DBCONSTANTS.TYPE_TEXT},
+        {name: "current_social_situation", type: DBCONSTANTS.TYPE_TEXT}
     ],
     extrafields_mse = [
         {name: "mse_appearance_behaviour", type: DBCONSTANTS.TYPE_TEXT},
@@ -62,23 +62,23 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
         {name: "mse_thought_content", type: DBCONSTANTS.TYPE_TEXT},
         {name: "mse_perception", type: DBCONSTANTS.TYPE_TEXT},
         {name: "mse_cognition", type: DBCONSTANTS.TYPE_TEXT},
-        {name: "mse_insight", type: DBCONSTANTS.TYPE_TEXT},
+        {name: "mse_insight", type: DBCONSTANTS.TYPE_TEXT}
     ],
     extrafields_pe = [
         {name: "physical_examination_general", type: DBCONSTANTS.TYPE_TEXT},
         {name: "physical_examination_cardiovascular", type: DBCONSTANTS.TYPE_TEXT},
         {name: "physical_examination_respiratory", type: DBCONSTANTS.TYPE_TEXT},
         {name: "physical_examination_abdominal", type: DBCONSTANTS.TYPE_TEXT},
-        {name: "physical_examination_neurological", type: DBCONSTANTS.TYPE_TEXT},
+        {name: "physical_examination_neurological", type: DBCONSTANTS.TYPE_TEXT}
     ],
     extrafields_d = [
         {name: "assessment_scales", type: DBCONSTANTS.TYPE_TEXT},
-        {name: "investigations_results", type: DBCONSTANTS.TYPE_TEXT},
+        {name: "investigations_results", type: DBCONSTANTS.TYPE_TEXT}
     ],
     extrafields_e = [
         {name: "safety_alerts", type: DBCONSTANTS.TYPE_TEXT},
         {name: "risk_assessment", type: DBCONSTANTS.TYPE_TEXT},
-        {name: "relevant_legal_information", type: DBCONSTANTS.TYPE_TEXT},
+        {name: "relevant_legal_information", type: DBCONSTANTS.TYPE_TEXT}
     ],
     extrafields_f = [
         {name: "current_problems", type: DBCONSTANTS.TYPE_TEXT},
@@ -198,49 +198,49 @@ lang.extendPrototype(PsychiatricClerking, {
             variables_b.push({
                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                 field: extrafields_b[i].name,
-                prompt: L(extrafields_b[i].name),
+                prompt: L(extrafields_b[i].name)
             });
         }
         for (i = 0; i < extrafields_mse.length; ++i) {
             variables_mse.push({
                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                 field: extrafields_mse[i].name,
-                prompt: L(extrafields_mse[i].name),
+                prompt: L(extrafields_mse[i].name)
             });
         }
         for (i = 0; i < extrafields_c.length; ++i) {
             variables_c.push({
                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                 field: extrafields_c[i].name,
-                prompt: L(extrafields_c[i].name),
+                prompt: L(extrafields_c[i].name)
             });
         }
         for (i = 0; i < extrafields_pe.length; ++i) {
             variables_pe.push({
                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                 field: extrafields_pe[i].name,
-                prompt: L(extrafields_pe[i].name),
+                prompt: L(extrafields_pe[i].name)
             });
         }
         for (i = 0; i < extrafields_d.length; ++i) {
             variables_d.push({
                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                 field: extrafields_d[i].name,
-                prompt: L(extrafields_d[i].name),
+                prompt: L(extrafields_d[i].name)
             });
         }
         for (i = 0; i < extrafields_e.length; ++i) {
             variables_e.push({
                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                 field: extrafields_e[i].name,
-                prompt: L(extrafields_e[i].name),
+                prompt: L(extrafields_e[i].name)
             });
         }
         for (i = 0; i < extrafields_f.length; ++i) {
             variables_f.push({
                 type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                 field: extrafields_f[i].name,
-                prompt: L(extrafields_f[i].name),
+                prompt: L(extrafields_f[i].name)
             });
         }
 
@@ -267,7 +267,7 @@ lang.extendPrototype(PsychiatricClerking, {
                         type: "QuestionTypedVariables",
                         mandatory: false,
                         useColumns: false,
-                        variables: variables_b,
+                        variables: variables_b
                     },
                     {
                         type: "QuestionHeading",
@@ -278,7 +278,7 @@ lang.extendPrototype(PsychiatricClerking, {
                         type: "QuestionTypedVariables",
                         mandatory: false,
                         useColumns: false,
-                        variables: variables_c,
+                        variables: variables_c
                     },
                     {
                         type: "QuestionHeading",
@@ -293,7 +293,7 @@ lang.extendPrototype(PsychiatricClerking, {
                         type: "QuestionTypedVariables",
                         mandatory: false,
                         useColumns: true,
-                        variables: variables_mse,
+                        variables: variables_mse
                     },
                     {
                         type: "QuestionText",
@@ -303,13 +303,13 @@ lang.extendPrototype(PsychiatricClerking, {
                         type: "QuestionTypedVariables",
                         mandatory: false,
                         useColumns: true,
-                        variables: variables_pe,
+                        variables: variables_pe
                     },
                     {
                         type: "QuestionTypedVariables",
                         mandatory: false,
                         useColumns: false,
-                        variables: variables_d,
+                        variables: variables_d
                     },
                     {
                         type: "QuestionHeading",
@@ -320,7 +320,7 @@ lang.extendPrototype(PsychiatricClerking, {
                         type: "QuestionTypedVariables",
                         mandatory: false,
                         useColumns: false,
-                        variables: variables_e,
+                        variables: variables_e
                     },
                     {
                         type: "QuestionHeading",
@@ -331,10 +331,10 @@ lang.extendPrototype(PsychiatricClerking, {
                         type: "QuestionTypedVariables",
                         mandatory: false,
                         useColumns: false,
-                        variables: variables_f,
-                    },
-                ],
-            },
+                        variables: variables_f
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -343,10 +343,10 @@ lang.extendPrototype(PsychiatricClerking, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 

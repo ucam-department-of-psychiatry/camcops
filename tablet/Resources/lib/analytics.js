@@ -82,7 +82,7 @@ function reportAnalytics() {
         use_clinical: storedvars.useClinical.getValue(),
         use_educational: storedvars.useEducational.getValue(),
         use_research: storedvars.useResearch.getValue(),
-        use_commercial: storedvars.useCommercial.getValue(),
+        use_commercial: storedvars.useCommercial.getValue()
     };
     // OK, send it
     Titanium.API.info("Sending analytics...");

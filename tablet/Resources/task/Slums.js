@@ -194,11 +194,11 @@ lang.extendPrototype(Slums, {
                         options: taskcommon.OPTIONS_NO_YES_INTEGER,
                         questions: [
                             L('slums_q_alert'),
-                            L('slums_q_highschool'),
+                            L('slums_q_highschool')
                         ],
-                        fields: [ 'alert', 'highschooleducation' ],
-                    },
-                ],
+                        fields: [ 'alert', 'highschooleducation' ]
+                    }
+                ]
             },
             {
                 title: L('slums_title_prefix_plural') + " 1–3",
@@ -208,14 +208,14 @@ lang.extendPrototype(Slums, {
                         type: "QuestionMCQGrid",
                         options: [
                             new KeyValuePair(L('incorrect'), 0),
-                            new KeyValuePair(L('correct'), 1),
+                            new KeyValuePair(L('correct'), 1)
                         ],
                         questions: [
                             L('slums_q1'),
                             L('slums_q2'),
-                            L('slums_q3'),
+                            L('slums_q3')
                         ],
-                        fields: [ 'q1', 'q2', 'q3' ],
+                        fields: [ 'q1', 'q2', 'q3' ]
                     },
                     {
                         type: "QuestionText",
@@ -226,15 +226,15 @@ lang.extendPrototype(Slums, {
                         type: "QuestionText",
                         text: correct_date,
                         italic: true
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: L('slums_title_prefix_singular') + " 4",
                 clinician: true,
                 elements: [
-                    { type: "QuestionText", text: L('slums_q4') },
-                ],
+                    { type: "QuestionText", text: L('slums_q4') }
+                ]
             },
             {
                 title: L('slums_title_prefix_singular') + " 5",
@@ -245,18 +245,18 @@ lang.extendPrototype(Slums, {
                         type: "QuestionMCQGrid",
                         options: taskcommon.OPTIONS_INCORRECT_CORRECT_INTEGER,
                         questions: [ L('slums_q5a') ],
-                        fields: [ 'q5a' ],
+                        fields: [ 'q5a' ]
                     },
                     {
                         type: "QuestionMCQGrid",
                         options: [
                             new KeyValuePair(L('incorrect'), 0),
-                            new KeyValuePair(L('correct'), 2), // NB different scoring
+                            new KeyValuePair(L('correct'), 2) // NB different scoring
                         ],
                         questions: [ L('slums_q5b') ],
-                        fields: [ 'q5b' ],
-                    },
-                ],
+                        fields: [ 'q5b' ]
+                    }
+                ]
             },
             {
                 title: L('slums_title_prefix_singular') + " 6",
@@ -270,11 +270,11 @@ lang.extendPrototype(Slums, {
                             new KeyValuePair(L('slums_q6_option0'), 0),
                             new KeyValuePair(L('slums_q6_option1'), 1),
                             new KeyValuePair(L('slums_q6_option2'), 2),
-                            new KeyValuePair(L('slums_q6_option3'), 3),
+                            new KeyValuePair(L('slums_q6_option3'), 3)
                         ],
-                        field: "q6",
-                    },
-                ],
+                        field: "q6"
+                    }
+                ]
             },
             {
                 title: L('slums_title_prefix_singular') + " 7",
@@ -285,18 +285,18 @@ lang.extendPrototype(Slums, {
                         type: "QuestionMCQGrid",
                         options: [
                             new KeyValuePair(L('not_recalled'), 0),
-                            new KeyValuePair(L('recalled'), 1),
+                            new KeyValuePair(L('recalled'), 1)
                         ],
                         questions: [
                             L('slums_q7a'),
                             L('slums_q7b'),
                             L('slums_q7c'),
                             L('slums_q7d'),
-                            L('slums_q7e'),
+                            L('slums_q7e')
                         ],
-                        fields: [ 'q7a', 'q7b', 'q7c', 'q7d', 'q7e' ],
-                    },
-                ],
+                        fields: [ 'q7a', 'q7b', 'q7c', 'q7d', 'q7e' ]
+                    }
+                ]
             },
             {
                 title: L('slums_title_prefix_singular') + " 8",
@@ -307,15 +307,15 @@ lang.extendPrototype(Slums, {
                         type: "QuestionMCQGrid",
                         options: [
                             new KeyValuePair(L('incorrect'), 0),
-                            new KeyValuePair(L('correct'), 1),
+                            new KeyValuePair(L('correct'), 1)
                         ],
                         questions: [
                             L('slums_q8b'),
-                            L('slums_q8c'),
+                            L('slums_q8c')
                         ],
-                        fields: [ 'q8b', 'q8c' ],
-                    },
-                ],
+                        fields: [ 'q8b', 'q8c' ]
+                    }
+                ]
             },
             {
                 title: L('slums_title_prefix_singular') + " 9",
@@ -326,8 +326,8 @@ lang.extendPrototype(Slums, {
                         type: "QuestionCanvas",
                         image: IMAGE_CIRCLE,
                         field: "clockpicture_blobid"
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: (L('slums_title_prefix_singular') + " 9 " +
@@ -338,15 +338,15 @@ lang.extendPrototype(Slums, {
                         type: "QuestionMCQGrid",
                         options: [
                             new KeyValuePair(L('incorrect'), 0),
-                            new KeyValuePair(L('correct'), 2), // NB different scoring
+                            new KeyValuePair(L('correct'), 2) // NB different scoring
                         ],
                         questions: [
                             L('slums_q9a'),
-                            L('slums_q9b'),
+                            L('slums_q9b')
                         ],
-                        fields: [ 'q9a', 'q9b' ],
-                    },
-                ],
+                        fields: [ 'q9a', 'q9b' ]
+                    }
+                ]
             },
             {
                 title: L('slums_title_prefix_singular') + " 10",
@@ -361,8 +361,8 @@ lang.extendPrototype(Slums, {
                         type: "QuestionCanvas",
                         image: IMAGE_SHAPES,
                         field: "shapespicture_blobid"
-                    },
-                ],
+                    }
+                ]
             },
             {
                 title: (L('slums_title_prefix_singular') + " 10 " +
@@ -373,15 +373,15 @@ lang.extendPrototype(Slums, {
                         type: "QuestionMCQGrid",
                         options: [
                             new KeyValuePair(L('incorrect'), 0),
-                            new KeyValuePair(L('correct'), 1),
+                            new KeyValuePair(L('correct'), 1)
                         ],
                         questions: [
                             L('slums_q10a'),
-                            L('slums_q10b'),
+                            L('slums_q10b')
                         ],
-                        fields: [ 'q10a', 'q10b' ],
-                    },
-                ],
+                        fields: [ 'q10a', 'q10b' ]
+                    }
+                ]
             },
             {
                 title: L('slums_title_prefix_singular') + " 11",
@@ -392,18 +392,18 @@ lang.extendPrototype(Slums, {
                         type: "QuestionMCQGrid",
                         options: [
                             new KeyValuePair(L('incorrect'), 0),
-                            new KeyValuePair(L('correct'), 2),
+                            new KeyValuePair(L('correct'), 2)
                             // TWO points for each correct answer for this one
                         ],
                         questions: [
                             L('slums_q11a'),
                             L('slums_q11b'),
                             L('slums_q11c'),
-                            L('slums_q11d'),
+                            L('slums_q11d')
                         ],
-                        fields: [ 'q11a', 'q11b', 'q11c', 'q11d' ],
-                    },
-                ],
+                        fields: [ 'q11a', 'q11b', 'q11c', 'q11d' ]
+                    }
+                ]
             },
             {
                 title: L("examiners_comments"),
@@ -419,11 +419,11 @@ lang.extendPrototype(Slums, {
                                 field: "comments",
                                 prompt: L("examiners_comments_prompt"),
                                 hint: L("examiners_comments")
-                            },
-                        ],
-                    },
-                ],
-            },
+                            }
+                        ]
+                    }
+                ]
+            }
         ];
 
         questionnaire = new Questionnaire({
@@ -432,10 +432,10 @@ lang.extendPrototype(Slums, {
             callbackThis: self,
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
-            fnFinished: self.defaultFinishedFn,
+            fnFinished: self.defaultFinishedFn
         });
         questionnaire.open();
-    },
+    }
 
 });
 
