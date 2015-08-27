@@ -26,7 +26,8 @@
 
 var MODULE_NAME = "QuestionMCQ",
     qcommon = require('questionnairelib/qcommon'),
-    lang = require('lib/lang');
+    lang = require('lib/lang'),
+    platform = require('lib/platform');
 
 function QuestionPickerPopup(props) {
 
@@ -225,4 +226,12 @@ lang.extendPrototype(QuestionPickerPopup, {
     }
 
 });
-module.exports = QuestionPickerPopup;
+
+if (platform.mobileweb) {
+    // 2015-08-27: This remains broken under mobileweb.
+    // Replace with something that works.
+    module.exports = require('questionnaire/QuestionPickerInline');
+} else {
+    // This is as it should be.
+    module.exports = QuestionPickerPopup;
+}
