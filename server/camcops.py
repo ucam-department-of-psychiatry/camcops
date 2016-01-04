@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# camcops.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -50,11 +50,15 @@ PROFILE = False
 
 import sys
 
-if sys.version_info[0] != 2 or sys.version_info[1] != 7:
-    # ... sys.version_info.major (etc.) require Python 2.7 in any case!
+# if sys.version_info[0] != 2 or sys.version_info[1] != 7:
+#     # ... sys.version_info.major (etc.) require Python 2.7 in any case!
+#     raise RuntimeError(
+#         "CamCOPS needs Python 2.7, and this Python version is: "
+#         + sys.version)
+
+if sys.version_info[0] != 3:
     raise RuntimeError(
-        "CamCOPS needs Python 2.7, and this Python version is: "
-        + sys.version)
+        "CamCOPS needs Python 3, and this Python version is: " + sys.version)
 
 # =============================================================================
 # Command-line "respond quickly" point

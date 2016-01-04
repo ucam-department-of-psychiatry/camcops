@@ -1,5 +1,6 @@
 camcops (1.40-1) all; urgency=low
 
+  * From May 2015 to Jan 2016.
   * REQUIRES COMMAND TO UPGRADE EACH DATABASE:
         camcops --maketables /etc/camcops/MYCONFIGNAME.conf
   * Brief COPE Inventory.
@@ -44,8 +45,13 @@ camcops (1.40-1) all; urgency=low
     things from cc_task, which imports cc_hl7).
   * Refresh button for tasks (because browsers keep asking you twice if you hit
     F5).
+  * EXTRA_STRING_FILES can use globs (in cc_string.py).
 
- -- Rudolf Cardinal <rudolf@pobox.com>  Thu, 28 May 2015 11:09:00 +0000
+
+IN PROGRESS
+  * Python 3 ***
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Mon, 04 Jan 2016 22:13:00 +0000
 
 camcops (1.34-1) all; urgency=medium
 
