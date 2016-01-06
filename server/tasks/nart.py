@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# nart.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -89,9 +89,9 @@ WORDLIST = [
     "campanile"
 ]
 ACCENTED_WORDLIST = list(WORDLIST)
-ACCENTED_WORDLIST[ACCENTED_WORDLIST.index("naive")] = u"naïve"
-ACCENTED_WORDLIST[ACCENTED_WORDLIST.index("facade")] = u"façade"
-ACCENTED_WORDLIST[ACCENTED_WORDLIST.index("detente")] = u"détente"
+ACCENTED_WORDLIST[ACCENTED_WORDLIST.index("naive")] = "naïve"
+ACCENTED_WORDLIST[ACCENTED_WORDLIST.index("facade")] = "façade"
+ACCENTED_WORDLIST[ACCENTED_WORDLIST.index("detente")] = "détente"
 
 
 # =============================================================================
@@ -117,7 +117,7 @@ class Nart(Task):
         for w in WORDLIST:
             fieldspecs.append(
                 dict(name=w, cctype="BOOL", pv=PV.BIT,
-                     comment=u"Pronounced {} correctly "
+                     comment="Pronounced {} correctly "
                      "(0 no, 1 yes)".format(w)))
         return STANDARD_TASK_FIELDSPECS + CLINICIAN_FIELDSPECS + fieldspecs
 
@@ -169,7 +169,7 @@ class Nart(Task):
         return 123.5 - 0.645 * self.n_errors()
 
     def get_task_html(self):
-        h = self.get_standard_clinician_block() + u"""
+        h = self.get_standard_clinician_block() + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
@@ -177,7 +177,7 @@ class Nart(Task):
         h += tr_qa("Predicted full-scale IQ <sup>[1]</sup>", self.fsiq())
         h += tr_qa("Predicted verbal IQ <sup>[2]</sup>", self.viq())
         h += tr_qa("Predicted performance IQ <sup>[3]</sup>", self.piq())
-        h += u"""
+        h += """
                 </table>
             </div>
             <div class="explanation">
@@ -200,14 +200,14 @@ class Nart(Task):
         for unused_loopvar in range(nwords):
             x = (column * nrows) + row
             if column == 0:  # first column
-                h += u"<tr>"
+                h += "<tr>"
             h += td(ACCENTED_WORDLIST[x])
             h += td(answer(getattr(self, WORDLIST[x])))
             if column == (ncolumns - 1):  # last column
-                h += u"</tr>"
+                h += "</tr>"
                 row += 1
             column = (column + 1) % ncolumns
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] Full-scale IQ ≈ 127.7 – 0.826 × errors.

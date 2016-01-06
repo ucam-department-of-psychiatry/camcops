@@ -21,8 +21,6 @@
     limitations under the License.
 """
 
-from __future__ import print_function
-
 # =============================================================================
 # Debugging options
 # =============================================================================
@@ -35,13 +33,9 @@ PROFILE = False
 # Imports
 # =============================================================================
 
-import argparse
 import base64
 import binascii
-import ConfigParser
-import os
 import re
-import sys
 import time
 
 import pythonlib.rnc_db as rnc_db
@@ -50,7 +44,6 @@ import pythonlib.rnc_web as ws
 
 import cc_modules.cc_audit as cc_audit
 from cc_modules.cc_constants import (
-    CAMCOPS_URL,
     CLIENT_DATE_FIELD,
     DATEFORMAT,
     ERA_NOW,
@@ -69,10 +62,6 @@ from cc_modules.cc_unittest import (
     unit_test_verify
 )
 import cc_modules.cc_version as cc_version
-
-# Conditional imports
-if PROFILE:
-    import werkzeug.contrib.profiler
 
 # =============================================================================
 # Constants
@@ -276,7 +265,7 @@ def get_fields_and_values(form, fields_var, values_var, mandatory=True):
                 v=len(values),
             )
         )
-    return dict(zip(fields, values))
+    return dict(list(zip(fields, values)))
 
 
 def get_tables_from_post_var(form, var, mandatory=True):
@@ -414,7 +403,7 @@ def unescape_newlines(s):
         return s
     d = ""  # the destination string
     in_escape = False
-    for i in xrange(len(s)):
+    for i in range(len(s)):
         c = s[i]  # the character being processed
         if in_escape:
             if c == "r":
@@ -447,7 +436,7 @@ def encode_single_value(v, is_blob=False):
         return "NULL"
     if is_blob:
         return special_base64_encode(v)
-    if isinstance(v, basestring):
+    if isinstance(v, str):
         return escape_newlines(rnc_db.sql_quote_string(v))
     # for int, float, etc.:
     return str(v)
@@ -574,7 +563,7 @@ def delimit(f):
 
 def nvp(name, value):
     """Returns name/value pair in 'name:value\n' format."""
-    return u"{}:{}\n".format(name, value)
+    return "{}:{}\n".format(name, value)
 
 
 def get_server_id_info():
@@ -585,7 +574,7 @@ def get_server_id_info():
         "idPolicyFinalize": pls.ID_POLICY_FINALIZE_STRING,
         "serverCamcopsVersion": cc_version.CAMCOPS_SERVER_VERSION,
     }
-    for n in xrange(1, NUMBER_OF_IDNUMS + 1):
+    for n in range(1, NUMBER_OF_IDNUMS + 1):
         i = n - 1
         nstr = str(n)
         reply["idDescription" + nstr] = pls.IDDESC[i]
@@ -608,7 +597,7 @@ def get_select_reply(fields, rows):
         "fields": ",".join(fields),
         "nrecords": nrecords,
     }
-    for r in xrange(nrecords):
+    for r in range(nrecords):
         row = rows[r]
         encodedvalues = []
         for val in row:
@@ -680,14 +669,14 @@ def append_where_sql_and_values(query, args, wheredict=[], wherenotdict=[]):
 
     MODIFIES the args argument in place, and returns an extended query."""
     if wheredict:
-        for wherefield, wherevalue in wheredict.iteritems():
+        for wherefield, wherevalue in wheredict.items():
             if wherevalue is None:
                 query += " AND {} IS NULL".format(delimit(wherefield))
             else:
                 query += " AND {} = ?".format(delimit(wherefield))
                 args.append(wherevalue)
     if wherenotdict:
-        for wnfield, wnvalue in wherenotdict.iteritems():
+        for wnfield, wnvalue in wherenotdict.items():
             if wnvalue is None:
                 query += " AND {} IS NOT NULL".format(delimit(wnfield))
             else:
@@ -909,7 +898,7 @@ def update_new_copy_of_record(table, serverpk, valuedict, predecessor_pk,
         table=table,
     )
     args = [predecessor_pk, tablet_camcops_version]
-    for f, v in valuedict.iteritems():
+    for f, v in valuedict.items():
         query += ", {}=?".format(delimit(f))
         args.append(v)
     query += " WHERE _pk=?"
@@ -1397,7 +1386,7 @@ def upload_table(form):
     new_or_updated = 0
     server_active_record_pks = get_server_pks_of_active_records(device, table)
     mark_table_dirty(device, table)
-    for r in xrange(nrecords):
+    for r in range(nrecords):
         recname = "record{}".format(r)
         values = get_values_from_post_var(form, recname)
         nvalues = len(values)
@@ -1406,7 +1395,7 @@ def upload_table(form):
                 "Number of fields in field list ({nfields}) doesn't match "
                 "number of values in record {r} ({nvalues})".format(
                     nfields=nfields, r=r, nvalues=nvalues))
-        valuedict = dict(zip(fields, values))
+        valuedict = dict(list(zip(fields, values)))
         # CORE: CALLS upload_record_core
         oldserverpk, newserverpk = upload_record_core(
             device, table, clientpk_name, valuedict, r, camcops_version)
@@ -1551,7 +1540,7 @@ def which_keys_to_send(form):
 
     # 2. See which ones are new or updates.
     pks_needed = []
-    for i in xrange(npkvalues):
+    for i in range(npkvalues):
         clientpkval = clientpk_values[i]
         client_date_value = client_dates[i]
         found, serverpk = record_exists(device, table, clientpk_name,
@@ -1801,19 +1790,19 @@ def main_http_processor(env):
 
     fn = None
 
-    if operation in OPERATIONS_ANYONE.keys():
+    if operation in OPERATIONS_ANYONE:
         fn = OPERATIONS_ANYONE.get(operation)
 
-    if operation in OPERATIONS_REGISTRATION.keys():
+    if operation in OPERATIONS_REGISTRATION:
         ensure_valid_user_for_device_registration()
         fn = OPERATIONS_REGISTRATION.get(operation)
 
-    if operation in OPERATIONS_UPLOAD.keys():
+    if operation in OPERATIONS_UPLOAD:
         ensure_valid_device_and_user_for_uploading(device)
         fn = OPERATIONS_UPLOAD.get(operation)
 
     if pls.ALLOW_MOBILEWEB:
-        if operation in OPERATIONS_MOBILEWEB.keys():
+        if operation in OPERATIONS_MOBILEWEB:
             ensure_valid_user_for_webstorage(username, device)
             fn = OPERATIONS_MOBILEWEB.get(operation)
 
@@ -1905,8 +1894,8 @@ def database_application(environ, start_response):
         resultdict[PARAM.SESSION_ID] = pls.session.id
         resultdict[PARAM.SESSION_TOKEN] = pls.session.token
     # Convert dictionary to text
-    text = u""
-    for k, v in resultdict.iteritems():
+    text = ""
+    for k, v in resultdict.items():
         text += nvp(k, v)
     output = text.encode("utf-8")
 
@@ -1933,56 +1922,6 @@ def database_application(environ, start_response):
 
 
 # =============================================================================
-# Command-line processor
-# =============================================================================
-
-def cli_main():
-    """Command-line processor."""
-    parser = argparse.ArgumentParser(
-        prog="camcops_db",  # name the user will use to call it
-        description=("CamCOPS database script (command-line interface)")
-    )
-    parser.add_argument("configfilename", nargs="?", default=None,
-                        help="Configuration file")
-    args = parser.parse_args()
-
-    print("""CamCOPS tablet database access script, version {version}
-By Rudolf Cardinal. See {url}
-COMMAND-LINE ACCESS IS ONLY FOR UNIT TESTING.
-Launch via Apache/mod_wsgi for normal use; see documentation.
-    """.format(
-        version=cc_version.CAMCOPS_SERVER_VERSION,
-        url=CAMCOPS_URL,
-    ))
-
-    if not args.configfilename:
-        sys.exit()
-
-    os.environ["CAMCOPS_CONFIG_FILE"] = args.configfilename
-    print("Using configuration file: {}".format(args.configfilename))
-
-    try:
-        print("Processing configuration information and connecting "
-              "to database (this may take some time)...")
-        pls.set_from_environ_and_ping_db(os.environ, as_client_db=True)
-    except ConfigParser.NoSectionError:
-        print("""
-You may not have the necessary privileges to read the configuration file, or it
-may not exist, or be incomplete.
-""")
-        raise
-    except rnc_db.NoDatabaseError():
-        print("""
-If the database failed to open, ensure it has been created. To create a
-database, for example, in MySQL:
-    CREATE DATABASE camcops;
-""")
-        raise
-
-    unit_tests()
-
-
-# =============================================================================
 # Unit tests
 # =============================================================================
 
@@ -1998,7 +1937,7 @@ def unit_tests():
     unit_test_must_raise("", fail_user_error, u, "testmsg")
     unit_test_must_raise("", fail_server_error, s, "testmsg")
     unit_test_must_raise("", fail_unsupported_operation, u, "duffop")
-    unit_test_verify("", nvp, u"n:v\n", "n", "v")
+    unit_test_verify("", nvp, "n:v\n", "n", "v")
 
     # Encoding/decoding tests
     data = bytearray("hello")
@@ -2030,7 +1969,7 @@ def unit_tests():
         ],
         "": [],
     }
-    for k, v in SQL_CSV_TESTDICT.iteritems():
+    for k, v in SQL_CSV_TESTDICT.items():
         r = decode_values(k)
         if r != v:
             raise AssertionError(
@@ -2043,19 +1982,3 @@ def unit_tests():
         raise AssertionError("Bug in escape_newlines() or unescape_newlines()")
 
     # more... ?
-
-# =============================================================================
-# WSGI entry point
-# =============================================================================
-
-application = database_wrapper
-if PROFILE:
-    application = werkzeug.contrib.profiler.ProfilerMiddleware(application)
-
-
-# =============================================================================
-# Command-line entry point
-# =============================================================================
-
-if __name__ == '__main__':
-    cli_main()

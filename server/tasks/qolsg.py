@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# qolsg.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -109,7 +109,7 @@ class QolSG(Task):
         if not self.is_complete():
             return CTV_DICTLIST_INCOMPLETE
         return [{
-            "content":  u"Quality of life: {}".format(
+            "content":  "Quality of life: {}".format(
                         ws.number_to_dp(self.utility, DP))
         }]
 
@@ -120,12 +120,12 @@ class QolSG(Task):
         )
 
     def get_task_html(self):
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
         h += tr_qa("Utility", ws.number_to_dp(self.utility, DP, default=None))
-        h += u"""
+        h += """
                 </table>
             </div>
             <div class="explanation">
@@ -146,7 +146,7 @@ class QolSG(Task):
         h += tr_qa("Gamble: fixed option", self.gamble_fixed_option)
         h += tr_qa("Gamble: lottery option for <i>p</i>",
                    self.gamble_lottery_option_p)
-        h += tr_qa(u"Gamble: lottery option for <i>q</i> = 1 – <i>p</i>",
+        h += tr_qa("Gamble: lottery option for <i>q</i> = 1 – <i>p</i>",
                    self.gamble_lottery_option_q)
         h += tr_qa("Gamble: lottery on left?",
                    get_yes_no_none(self.gamble_lottery_on_left))
@@ -159,7 +159,7 @@ class QolSG(Task):
                    ws.number_to_dp(self.gamble_p, DP, default=None))
         h += tr_qa("Calculated utility",
                    ws.number_to_dp(self.utility, DP, default=None))
-        h += u"""
+        h += """
             </table>
         """
         return h

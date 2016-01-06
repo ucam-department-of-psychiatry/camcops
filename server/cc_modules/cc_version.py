@@ -26,12 +26,6 @@
 # =============================================================================
 
 CAMCOPS_SERVER_VERSION = 1.40
-CAMCOPS_CHANGEDATE = "2015-06-23"
+CAMCOPS_CHANGEDATE = "2016-01-04"
 # ... must use double quotes; read by a Perl regex in MAKE_PACKAGE
 MINIMUM_TABLET_VERSION = 1.14
-
-# PDF_ENGINE = "xhtml2pdf"  # working
-PDF_ENGINE = "pdfkit"  # working
-# PDF_ENGINE = "weasyprint"  # working but table <tr> element bugs
-# ... must use double quotes; read by a Perl regex in MAKE_PACKAGE
-# ... value must be one of: xhtml2pdf, weasyprint, pdfkit

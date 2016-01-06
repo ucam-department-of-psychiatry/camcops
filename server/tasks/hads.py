@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# hads.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -100,7 +100,7 @@ class Hads(Task):
         if not self.is_complete():
             return CTV_DICTLIST_INCOMPLETE
         return [{
-            "content": u"anxiety score {}/21, depression score {}/21".format(
+            "content": "anxiety score {}/21, depression score {}/21".format(
                        self.anxiety_score(), self.depression_score())
         }]
 
@@ -134,7 +134,7 @@ class Hads(Task):
         crippled = not task_extrastrings_exist(self.EXTRASTRING_TASKNAME)
         a = self.anxiety_score()
         d = self.depression_score()
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
                     {is_complete_tr}
@@ -162,11 +162,11 @@ class Hads(Task):
             sd=WSTRING("hads_depression_score"),
             d=answer(d),
         )
-        for n in xrange(1, self.NQUESTIONS + 1):
+        for n in range(1, self.NQUESTIONS + 1):
             if crippled:
                 q = "HADS: Q{}".format(n)
             else:
-                q = u"Q{}. {}".format(
+                q = "Q{}. {}".format(
                     n,
                     WXSTRING(self.EXTRASTRING_TASKNAME, "q" + str(n) + "_stem")
                 )
@@ -178,10 +178,10 @@ class Hads(Task):
             if crippled or v is None or v < MIN_SCORE or v > MAX_SCORE:
                 a = v
             else:
-                a = u"{}: {}".format(v, WXSTRING(self.EXTRASTRING_TASKNAME,
-                                                 "q{}_a{}".format(n, v)))
+                a = "{}: {}".format(v, WXSTRING(self.EXTRASTRING_TASKNAME,
+                                                "q{}_a{}".format(n, v)))
             h += tr_qa(q, a)
-        h += u"""
+        h += """
             </table>
         """ + DATA_COLLECTION_UNLESS_UPGRADED_DIV
         return h

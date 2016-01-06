@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# deakin_1_healthreview.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -214,7 +214,7 @@ class Deakin_1_HealthReview(Task):
 
     @classmethod
     def get_tasklongname(cls):
-        return u"Deakin JB – 1 – Health Review"
+        return "Deakin JB – 1 – Health Review"
 
     @classmethod
     def get_fieldspecs(cls):
@@ -259,7 +259,7 @@ class Deakin_1_HealthReview(Task):
         return tr_qa(fieldname, frequency)
 
     def get_task_html(self):
-        return u"""
+        return """
             <div class="summary">
                 <table class="summary">
                     {}

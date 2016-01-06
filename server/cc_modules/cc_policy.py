@@ -21,13 +21,13 @@
     limitations under the License.
 """
 
-import cStringIO
+import io
 import tokenize
 
-from cc_constants import NUMBER_OF_IDNUMS
+from .cc_constants import NUMBER_OF_IDNUMS
 # from cc_logger import logger
-import cc_namedtuples
-from cc_unittest import unit_test_ignore
+from . import cc_namedtuples
+from .cc_unittest import unit_test_ignore
 
 # =============================================================================
 # Constants
@@ -195,13 +195,13 @@ def get_tokenized_id_policy(policy):
         tokenstrings = list(
             token[STRING]
             for token in tokenize.generate_tokens(
-                cStringIO.StringIO(policy.upper()).readline)
+                io.StringIO(policy.upper()).readline)
             if token[STRING]
         )
     except tokenize.TokenError:
         # something went wrong
         return None
-    if not all(k in POLICY_TOKEN_DICT.keys() for k in tokenstrings):
+    if not all(k in POLICY_TOKEN_DICT for k in tokenstrings):
         # There's something bad in there.
         return None
     return [POLICY_TOKEN_DICT[k] for k in tokenstrings]

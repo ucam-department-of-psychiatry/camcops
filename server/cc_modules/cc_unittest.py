@@ -21,7 +21,6 @@
     limitations under the License.
 """
 
-from __future__ import print_function
 import sys
 
 
@@ -49,7 +48,7 @@ def unit_test_ignore(message, function, *args, **kwargs):
 def unit_test_show(message, function, *args, **kwargs):
     """Print message; call function(*args, **kwargs); print "OK: <result>"."""
     x = unit_test(message, function, *args, **kwargs)
-    print(u"OK: " + unicode(x))
+    print("OK: " + str(x))
 
 
 def unit_test_verify(message, function, intended_result, *args, **kwargs):

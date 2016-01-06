@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# dast.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -157,7 +157,7 @@ class Dast(Task):
             "Y": WSTRING("Yes"),
             "N": WSTRING("No")
         }
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
@@ -166,7 +166,7 @@ class Dast(Task):
                    get_yes_no(exceeds_cutoff_1))
         h += tr_qa(WSTRING("dast_exceeds_standard_cutoff_2"),
                    get_yes_no(exceeds_cutoff_2))
-        h += u"""
+        h += """
                 </table>
             </div>
             <table class="taskdetail">
@@ -179,9 +179,9 @@ class Dast(Task):
             h += tr(
                 WSTRING("dast_q" + str(q)),
                 answer(get_from_dict(MAIN_DICT, getattr(self, "q" + str(q))))
-                + u" — " + answer(str(self.get_score(q)))
+                + " — " + answer(str(self.get_score(q)))
             )
-        h += u"""
+        h += """
             </table>
             <div class="copyright">
                 DAST: Copyright © Harvey A. Skinner and the Centre for

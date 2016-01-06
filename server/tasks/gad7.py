@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# gad7.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -140,16 +140,16 @@ class Gad7(Task):
         ANSWER_DICT = {None: None}
         for option in range(0, 4):
             ANSWER_DICT[option] = (
-                str(option) + u" — " + WSTRING("gad7_a" + str(option))
+                str(option) + " — " + WSTRING("gad7_a" + str(option))
             )
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
         h += tr(WSTRING("total_score"), answer(score) + " / 21")
         h += tr(WSTRING("gad7_anxiety_severity") + " <sup>[1]</sup>",
                 severity)
-        h += u"""
+        h += """
                 </table>
             </div>
             <div class="explanation">
@@ -166,7 +166,7 @@ class Gad7(Task):
                 WSTRING("gad7_q" + str(q)),
                 get_from_dict(ANSWER_DICT, getattr(self, "q" + str(q)))
             )
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] ≥15 severe, ≥10 moderate, ≥5 mild.

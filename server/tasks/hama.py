@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# hama.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -143,14 +143,14 @@ class Hama(Task):
                 d[option] = WSTRING("hama_q" + str(q) + "_option" +
                                     str(option))
             ANSWER_DICTS.append(d)
-        h = self.get_standard_clinician_block() + u"""
+        h = self.get_standard_clinician_block() + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
         h += tr(WSTRING("total_score"), answer(score) + " / 56")
         h += tr_qa(WSTRING("hama_symptom_severity") + " <sup>[1]</sup>",
                    severity)
-        h += u"""
+        h += """
                 </table>
             </div>
             <table class="taskdetail">
@@ -165,7 +165,7 @@ class Hama(Task):
                     "hama_q" + str(q) + "_question"),
                 get_from_dict(ANSWER_DICTS[q - 1], getattr(self, "q" + str(q)))
             )
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] ≥31 very severe, ≥25 moderate to severe,

@@ -21,7 +21,7 @@
     limitations under the License.
 """
 
-from cc_string import WSTRING
+from .cc_string import WSTRING
 
 
 # =============================================================================

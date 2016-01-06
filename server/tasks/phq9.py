@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# phq9.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -193,20 +193,19 @@ class Phq9(Task):
     def get_task_html(self):
         MAIN_DICT = {
             None: None,
-            0: u"0 — " + WSTRING("phq9_a0"),
-            1: u"1 — " + WSTRING("phq9_a1"),
-            2: u"2 — " + WSTRING("phq9_a2"),
-            3: u"3 — " + WSTRING("phq9_a3")
+            0: "0 — " + WSTRING("phq9_a0"),
+            1: "1 — " + WSTRING("phq9_a1"),
+            2: "2 — " + WSTRING("phq9_a2"),
+            3: "3 — " + WSTRING("phq9_a3")
         }
         Q10_DICT = {
             None: None,
-            0: u"0 — " + WSTRING("phq9_fa0"),
-            1: u"1 — " + WSTRING("phq9_fa1"),
-            2: u"2 — " + WSTRING("phq9_fa2"),
-            3: u"3 — " + WSTRING("phq9_fa3")
+            0: "0 — " + WSTRING("phq9_fa0"),
+            1: "1 — " + WSTRING("phq9_fa1"),
+            2: "2 — " + WSTRING("phq9_fa2"),
+            3: "3 — " + WSTRING("phq9_fa3")
         }
-        # NB Unicode string literal: start with u
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
@@ -225,7 +224,7 @@ class Phq9(Task):
                    get_yes_no(self.is_mds()))
         h += tr_qa(WSTRING("phq9_ods") + " <sup>[6]</sup>",
                    get_yes_no(self.is_ods()))
-        h += u"""
+        h += """
                 </table>
             </div>
             <div class="explanation">
@@ -243,7 +242,7 @@ class Phq9(Task):
                        get_from_dict(MAIN_DICT, getattr(self, "q" + nstr)))
         h += tr_qa("10. " + WSTRING("phq9_finalq"),
                    get_from_dict(Q10_DICT, self.q10))
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] Sum for questions 1–9.

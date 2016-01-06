@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# gds.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -128,13 +128,13 @@ class Gds15(Task):
 
     def get_task_html(self):
         score = self.total_score()
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
         h += tr(WSTRING("total_score"), answer(score) + " / 15")
-        h += u"""
+        h += """
                 </table>
             </div>
             <div class="explanation">
@@ -147,12 +147,12 @@ class Gds15(Task):
                 </tr>
         """
         for q in range(1, self.NQUESTIONS + 1):
-            suffix = u" †" if q in self.SCORE_IF_YES else u" *"
+            suffix = " †" if q in self.SCORE_IF_YES else " *"
             h += tr_qa(
                 str(q) + ". " + WSTRING("gds15_q" + str(q)) + suffix,
                 getattr(self, "q" + str(q))
             )
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 (†) ‘Y’ scores 1; ‘N’ scores 0.

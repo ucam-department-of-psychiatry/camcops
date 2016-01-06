@@ -327,9 +327,125 @@ STANDARD_GENERIC_FIELDSPECS = [
                  "source tablet device (ISO 8601)"),
 ]
 
+STANDARD_TASK_COMMON_FIELDSPECS = [
+    dict(name="when_created", cctype="ISO8601", notnull=True,
+         comment="(TASK) Date/time this task instance was created (ISO 8601)"),
+    dict(name="when_firstexit", cctype="ISO8601",
+         comment="(TASK) Date/time of the first exit from this "
+                 "task (ISO 8601)"),
+    dict(name="firstexit_is_finish", cctype="BOOL",
+         comment="(TASK) Was the first exit from the task because it was "
+                 "finished (1)?"),
+    dict(name="firstexit_is_abort", cctype="BOOL",
+         comment="(TASK) Was the first exit from this task because it was "
+                 "aborted (1)?"),
+    dict(name="editing_time_s", cctype="FLOAT",
+         comment="(TASK) Time spent editing (s)"),
+]
+
+STANDARD_TASK_FIELDSPECS = STANDARD_GENERIC_FIELDSPECS + [
+    dict(name="id", cctype="INT_UNSIGNED", notnull=True,
+         comment="(TASK) Primary key (task ID) on the tablet device",
+         indexed=True),
+    dict(name="patient_id", cctype="INT_UNSIGNED", notnull=True,
+         comment="(TASK) Foreign key to patient.id for this device",
+         indexed=True),
+] + STANDARD_TASK_COMMON_FIELDSPECS
+
+STANDARD_ANONYMOUS_TASK_FIELDSPECS = STANDARD_GENERIC_FIELDSPECS + [
+    dict(name="id", cctype="INT_UNSIGNED", notnull=True,
+         comment="(TASK) Primary key (task ID) on the tablet device",
+         indexed=True),
+] + STANDARD_TASK_COMMON_FIELDSPECS
+
+STANDARD_ANCILLARY_FIELDSPECS = STANDARD_GENERIC_FIELDSPECS + [
+    dict(name="id", cctype="INT_UNSIGNED", notnull=True,
+         comment="(ANCILLARY) Primary key on the tablet device",
+         indexed=True),
+]
+
+CLINICIAN_FIELDSPECS = [  # see also has_clinician()
+    dict(name="clinician_specialty", cctype="TEXT", anon=True,
+         comment="(CLINICIAN) Clinician's specialty (e.g. Liaison "
+                 "Psychiatry)"),
+    dict(name="clinician_name", cctype="TEXT", anon=True,
+         comment="(CLINICIAN) Clinician's name (e.g. Dr X)"),
+    dict(name="clinician_professional_registration", cctype="TEXT",
+         comment="(CLINICIAN) Clinician's professional registration (e.g. "
+                 "GMC# 12345)"),
+    dict(name="clinician_post", cctype="TEXT", anon=True,
+         comment="(CLINICIAN) Clinician's post (e.g. Consultant)"),
+    dict(name="clinician_service", cctype="TEXT", anon=True,
+         comment="(CLINICIAN) Clinician's service (e.g. Liaison Psychiatry "
+                 "Service)"),
+    dict(name="clinician_contact_details", cctype="TEXT", anon=True,
+         comment="(CLINICIAN) Clinician's contact details (e.g. bleep, "
+                 "extension)"),
+]
+RESPONDENT_FIELDSPECS = [  # see also has_respondent()
+    dict(name="respondent_name", cctype="TEXT",
+         comment="(RESPONDENT) Respondent's name"),
+    dict(name="respondent_relationship", cctype="TEXT",
+         comment="(RESPONDENT) Respondent's relationship to patient"),
+]
+
+CRIS_CLUSTER_KEY_FIELDSPEC = dict(
+    name="_task_main_pk", cctype="INT_UNSIGNED",
+    comment="(CRIS) Server primary key for task and linked records"
+)
+
+# BEWARE when using these, esp. if you perform modifications. For example:
+#
+#   x = [{"a": 1}]
+#   y = [{"b": 2}]
+#   z = x + y
+#   for i in z:
+#       i["modify"] = 99
+#
+# ... modifies x, y as well. And so does this:
+#
+#   x = [{"a": 1}]
+#   y = [{"b": 2}]
+#   z = list(x) + list(y)
+#   for i in z:
+#       i["modify"] = 99
+#
+# So you'd need a deep copy.
+# http://stackoverflow.com/questions/8913026/list-copy-not-working
+# http://stackoverflow.com/questions/2612802
+# http://stackoverflow.com/questions/6993531/copy-list-in-python
+#
+# However, our problem comes about when we modify comments; it'll be OK if we
+# never modify a comment when there's an existing comment.
+
+TEXT_FILTER_EXEMPT_FIELDS = [
+    item["name"] for item in (
+        STANDARD_GENERIC_FIELDSPECS
+        + STANDARD_TASK_COMMON_FIELDSPECS
+        + CLINICIAN_FIELDSPECS
+    ) if item["cctype"] == "TEXT"
+]
+
 # =============================================================================
 # Other special values
 # =============================================================================
 
 CAMCOPS_URL = "http://www.camcops.org/"
 ERA_NOW = "NOW"  # defines the current era in database records
+
+# =============================================================================
+# PDF engine: now always "pdfkit".
+# =============================================================================
+
+# PDF_ENGINE = "xhtml2pdf"  # working
+PDF_ENGINE = "pdfkit"  # working
+# PDF_ENGINE = "weasyprint"  # working but table <tr> element bugs
+# ... must use double quotes; read by a Perl regex in MAKE_PACKAGE
+# ... value must be one of: xhtml2pdf, weasyprint, pdfkit
+
+# =============================================================================
+# Other
+# =============================================================================
+
+SEPARATOR_HYPHENS = "-" * 79
+SEPARATOR_EQUALS = "=" * 79

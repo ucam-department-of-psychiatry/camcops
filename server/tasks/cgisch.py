@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# cgisch.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -52,7 +52,7 @@ class CgiSch(Task):
             comment_fmt="Severity Q{n}, {s} (1-7, higher worse)",
             comment_strings=QUESTION_FRAGMENTS) +
         repeat_fieldspec(
-            "change", 1, 5, pv=range(1, 7 + 1) + [9],
+            "change", 1, 5, pv=list(range(1, 7 + 1)) + [9],
             comment_fmt="Change Q{n}, {s} (1-7, higher worse, or 9 N/A)",
             comment_strings=QUESTION_FRAGMENTS)
     )
@@ -68,7 +68,7 @@ class CgiSch(Task):
 
     @classmethod
     def get_tasklongname(cls):
-        return u"Clinical Global Impression – Schizophrenia"
+        return "Clinical Global Impression – Schizophrenia"
 
     @classmethod
     def get_fieldspecs(cls):
@@ -172,7 +172,7 @@ class CgiSch(Task):
             7: WSTRING("cgisch_ii_option7"),
             9: WSTRING("cgisch_ii_option9"),
         }
-        h = self.get_standard_clinician_block() + u"""
+        h = self.get_standard_clinician_block() + """
             <div class="summary">
                 <table class="summary">
                     {}
@@ -208,7 +208,7 @@ class CgiSch(Task):
                    get_from_dict(CHANGE_DICT, self.change4))
         h += tr_qa(WSTRING("cgisch_q5"),
                    get_from_dict(CHANGE_DICT, self.change5))
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] All questions are scored 1–7, or 9 (not applicable, for

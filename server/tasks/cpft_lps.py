@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# cpft_lps.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -131,7 +131,7 @@ class CPFT_LPS_Referral(Task):
         }]
 
     def four_column_row(self, q1, a1, q2, a2, default=""):
-        return u"""
+        return """
             <tr>
                 <td>{}</td><td>{}</td>
                 <td>{}</td><td>{}</td>
@@ -144,7 +144,7 @@ class CPFT_LPS_Referral(Task):
         )
 
     def tr_qa(self, q, a, default=""):
-        return u"""
+        return """
             <tr><td colspan="2">{}</td><td colspan="2"><b>{}</b></td></tr>
         """.format(q, default if a is None else a)
 
@@ -188,7 +188,7 @@ class CPFT_LPS_Referral(Task):
             if getattr(self, r):
                 admission_reasons.append(WSTRING("cpft_lps_referral_f_" + r))
 
-        h = u"""
+        h = """
             <div class="banner {}">{} referral at {}</div>
             <div class="summary">
                 <table class="summary">
@@ -211,7 +211,7 @@ class CPFT_LPS_Referral(Task):
         )
         h += subheading_spanning_four_columns(
             WSTRING("cpft_lps_referral_t_about_referral"))
-        h += u"""
+        h += """
             <tr>
                 <td>{}</td><td>{}</td>
                 <td>{}</td><td class="highlight">{}</td>
@@ -243,7 +243,7 @@ class CPFT_LPS_Referral(Task):
         )
         h += subheading_spanning_four_columns(
             WSTRING("cpft_lps_referral_t_patient"))
-        h += u"""
+        h += """
             <tr>
                 <td>{}</td><td>{}</td>
                 <td>{}</td><td class="highlight">{}</td>
@@ -277,7 +277,7 @@ class CPFT_LPS_Referral(Task):
         )
         h += subheading_spanning_four_columns(
             WSTRING("cpft_lps_referral_t_admission_reason"))
-        h += tr_span_col(answer(u", ".join(admission_reasons), ""), cols=4)
+        h += tr_span_col(answer(", ".join(admission_reasons), ""), cols=4)
         h += subheading_spanning_four_columns(
             WSTRING("cpft_lps_referral_t_other_people"))
         h += self.tr_qa(
@@ -292,7 +292,7 @@ class CPFT_LPS_Referral(Task):
         h += subheading_spanning_four_columns(
             WSTRING("cpft_lps_referral_t_referral_reason"))
         h += tr_span_col(answer(self.referral_reason, ""), cols=4)
-        h += u"""
+        h += """
             </table>
         """
         return h
@@ -339,7 +339,7 @@ class CPFT_LPS_ResetResponseClock(Task):
         return [{"content": self.reason}]
 
     def get_task_html(self):
-        h = self.get_standard_clinician_block() + u"""
+        h = self.get_standard_clinician_block() + """
             <div class="summary">
                 <table class="summary">
                     {}
@@ -357,7 +357,7 @@ class CPFT_LPS_ResetResponseClock(Task):
                                    DATEFORMAT.LONG_DATETIME_WITH_DAY,
                                    default=None))
         h += tr_qa(WSTRING("cpft_lps_rc_reason"), self.reason)
-        h += u"""
+        h += """
             </table>
         """
         return h
@@ -590,7 +590,7 @@ class CPFT_LPS_Discharge(Task):
                 psychiatric_diagnoses.append(
                     ws.webify(getattr(self, "diagnosis_psych_" +
                                       str(i) + "_icd10code"))
-                    + u" – "
+                    + " – "
                     + ws.webify(getattr(self, "diagnosis_psych_" +
                                         str(i) + "_description"))
                 )
@@ -632,7 +632,7 @@ class CPFT_LPS_Discharge(Task):
         ]
 
     def get_task_html(self):
-        h = self.get_standard_clinician_block() + u"""
+        h = self.get_standard_clinician_block() + """
             <div class="summary">
                 <table class="summary">
                     {}
@@ -696,7 +696,7 @@ class CPFT_LPS_Discharge(Task):
         h += tr_qa(WSTRING("cpft_lps_dis_outcome_other_detail"),
                    self.outcome_other_detail, "")
 
-        h += u"""
+        h += """
             </table>
         """
         return h
@@ -716,7 +716,7 @@ class LPS_Report_Referred_Not_Discharged(Report):
 
     @classmethod
     def get_report_title(cls):
-        return u"CPFT LPS – referred but not yet discharged"
+        return "CPFT LPS – referred but not yet discharged"
 
     @classmethod
     def get_param_spec_list(cls):
@@ -785,7 +785,7 @@ class LPS_Report_Referred_Not_Clerked_Or_Discharged(Report):
 
     @classmethod
     def get_report_title(cls):
-        return u"CPFT LPS – referred but not yet fully assessed or discharged"
+        return "CPFT LPS – referred but not yet fully assessed or discharged"
 
     @classmethod
     def get_param_spec_list(cls):

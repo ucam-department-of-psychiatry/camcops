@@ -27,7 +27,7 @@ camcops (1.40-1) all; urgency=low
     "WARNING:xhtml2pdf:Unknown size value for @page"; see
     https://github.com/chrisglass/xhtml2pdf/issues/71 ... however, no effect.
   * Switch from xhtml2pdf, bypassing Weasyprint, to wkhtmltopdf (via pdfkit) as
-    the default PDF renderer.
+    the (default and now only) PDF renderer.
   * Abstract base class for PCL tasks wasn't inheriting from object; now is.
   * editing_time_s field for all tasks.
   * Indexing of ID number fields in patient table.
@@ -46,10 +46,15 @@ camcops (1.40-1) all; urgency=low
   * Refresh button for tasks (because browsers keep asking you twice if you hit
     F5).
   * EXTRA_STRING_FILES can use globs (in cc_string.py).
-
-
-IN PROGRESS
-  * Python 3 ***
+  * Updated to current pythonlib.
+  * Python build toolchain.
+  * Moved to Python 3.
+  * Supplied with Gunicorn, to enable front-end web servers like Apache to
+    talk to CamCOPS, and have CamCOPS upgrade/restart, without having to (a)
+    restart Apache, or (b) integrate a specific Python version into Apache
+    with mod_wsgi. The new system runs in a virtual environment, entirely
+    separated (in terms of code) from the front-end web server, communicating
+    with it via a private port or Unix socket.
 
  -- Rudolf Cardinal <rudolf@pobox.com>  Mon, 04 Jan 2016 22:13:00 +0000
 

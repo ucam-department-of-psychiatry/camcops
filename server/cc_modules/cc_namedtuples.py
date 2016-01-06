@@ -67,7 +67,7 @@ class XmlElementTuple(collections.namedtuple("XmlElementTuple",
     def __new__(cls, name, value=None, datatype=None, comment=None):
         # Special: boolean requires lower case "true"/"false" (or 0/1)
         if datatype == "boolean" and value is not None:
-            value = unicode(value).lower()
+            value = str(value).lower()
         return super(XmlElementTuple, cls).__new__(cls, name, value, datatype,
                                                    comment)
 

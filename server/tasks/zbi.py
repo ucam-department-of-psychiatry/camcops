@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# zbi.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -20,8 +20,6 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 """
-
-from __future__ import division
 
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import (
@@ -119,7 +117,7 @@ class Zbi12(Task):
         OPTION_DICT = {None: None}
         for a in range(self.MIN_SCORE, self.MAX_SCORE + 1):
             OPTION_DICT[a] = WSTRING("zbi_a" + str(a))
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
                     {complete_tr}
@@ -141,13 +139,13 @@ class Zbi12(Task):
         """.format(
             complete_tr=self.get_is_complete_tr(),
             total=answer(self.total_score()),
-            tr_responder=tr_qa(u"Responder’s name", self.responder_name),
-            tr_relationship=tr_qa(u"Responder’s relationship to patient",
+            tr_responder=tr_qa("Responder’s name", self.responder_name),
+            tr_relationship=tr_qa("Responder’s relationship to patient",
                                   self.responder_relationship),
         )
-        for q in xrange(1, self.NQUESTIONS + 1):
+        for q in range(1, self.NQUESTIONS + 1):
             a = getattr(self, "q" + str(q))
-            fa = (u"{}: {}".format(a, get_from_dict(OPTION_DICT, a))
+            fa = ("{}: {}".format(a, get_from_dict(OPTION_DICT, a))
                   if a is not None else None)
             h += tr(
                 WXSTRING(
@@ -157,7 +155,7 @@ class Zbi12(Task):
                 ),
                 answer(fa)
             )
-        h += u"""
+        h += """
             </table>
         """ + DATA_COLLECTION_UNLESS_UPGRADED_DIV
         return h

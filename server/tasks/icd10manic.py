@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# icd10manic.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -157,8 +157,8 @@ class Icd10Manic(Task):
     @classmethod
     def get_tasklongname(cls):
         return (
-            u"ICD-10 symptomatic criteria for a manic/hypomanic episode "
-            u"(as in e.g. F06.3, F25, F30, F31)"
+            "ICD-10 symptomatic criteria for a manic/hypomanic episode "
+            "(as in e.g. F06.3, F25, F30, F31)"
         )
 
     @classmethod
@@ -333,25 +333,25 @@ class Icd10Manic(Task):
             fieldname, WSTRING("icd10manic_" + fieldname))
 
     def get_task_html(self):
-        h = self.get_standard_clinician_block(True, self.comments) + u"""
+        h = self.get_standard_clinician_block(True, self.comments) + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
         h += tr_qa(WSTRING("date_pertains_to"),
                    format_datetime_string(self.date_pertains_to,
                                           DATEFORMAT.LONG_DATE, default=None))
-        h += tr_qa(WSTRING("category") + u" <sup>[1,2]</sup>",
+        h += tr_qa(WSTRING("category") + " <sup>[1,2]</sup>",
                    self.get_description())
         h += tr_qa(WSTRING("icd10manic_psychotic_symptoms")
-                   + u" <sup>[2]</sup>",
+                   + " <sup>[2]</sup>",
                    get_present_absent_none(self.psychosis_present()))
-        h += u"""
+        h += """
                 </table>
             </div>
             <div class="explanation">
         """
         h += WSTRING("icd10_symptomatic_disclaimer")
-        h += u"""
+        h += """
             </div>
             <table class="taskdetail">
                 <tr>
@@ -380,7 +380,7 @@ class Icd10Manic(Task):
         for x in Icd10Manic.PSYCHOSIS_NAMES:
             h += self.row_true_false(x)
 
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] Hypomania:

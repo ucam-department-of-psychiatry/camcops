@@ -23,11 +23,11 @@
 
 import pythonlib.rnc_web as ws
 
-from cc_constants import ISO8601_STRING_LENGTH
-import cc_db
-import cc_namedtuples
-from cc_pls import pls
-import cc_xml
+from .cc_constants import ISO8601_STRING_LENGTH
+from . import cc_db
+from . import cc_namedtuples
+from .cc_pls import pls
+from . import cc_xml
 
 
 # =============================================================================
@@ -85,7 +85,7 @@ class SpecialNote(object):
 
     def get_note_as_string(self):
         """Return a string-formatted version of the note."""
-        return u"[{dt}, {user}]\n{note}".format(
+        return "[{dt}, {user}]\n{note}".format(
             dt=self.note_at or "?",
             user=self.user or "?",
             note=self.note or "",
@@ -93,7 +93,7 @@ class SpecialNote(object):
 
     def get_note_as_html(self):
         """Return an HTML-formatted version of the note."""
-        return u"[{dt}, {user}]<br><b>{note}</b>".format(
+        return "[{dt}, {user}]<br><b>{note}</b>".format(
             dt=self.note_at or "?",
             user=self.user or "?",
             note=ws.webify(self.note) or "",

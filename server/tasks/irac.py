@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# irac.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -75,14 +75,14 @@ class Irac(Task):
 
     def get_task_html(self):
         if self.achieved is not None:
-            achieved = u"{}. {}".format(self.achieved,
-                                        self.get_achieved_text())
+            achieved = "{}. {}".format(self.achieved,
+                                       self.get_achieved_text())
         else:
             achieved = None
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
-        """ + self.get_is_complete_tr() + u"""
+        """ + self.get_is_complete_tr() + """
                 </table>
             </div>
             <table class="taskdetail">
@@ -93,7 +93,7 @@ class Irac(Task):
         """
         h += tr_qa(WSTRING("irac_q_aim"), ws.webify(self.aim))
         h += tr_qa(WSTRING("irac_q_achieved"), achieved)
-        h += u"""
+        h += """
             </table>
         """
         return h

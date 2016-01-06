@@ -21,17 +21,17 @@
     limitations under the License.
 """
 
-import ConfigParser
+import configparser
 
 import pythonlib.rnc_db as rnc_db
 from pythonlib.rnc_lang import AttrDict
 
-from cc_configfile import get_config_parameter, get_config_parameter_boolean
-from cc_constants import NUMBER_OF_IDNUMS, VALUE
-import cc_dt
-import cc_filename
-from cc_logger import logger
-import cc_policy
+from .cc_configfile import get_config_parameter, get_config_parameter_boolean
+from .cc_constants import NUMBER_OF_IDNUMS, VALUE
+from . import cc_dt
+from . import cc_filename
+from .cc_logger import logger
+from . import cc_policy
 
 
 # =============================================================================
@@ -111,7 +111,7 @@ class RecipientDefinition(object):
             RecipientDefinition(config, section)
 
         Args:
-            config: ConfigParser INI file object
+            config: configparser INI file object
             section: name of recipient and of INI file section
         """
         rnc_db.blank_object(self, RecipientDefinition.FIELDS)
@@ -243,7 +243,7 @@ class RecipientDefinition(object):
 
             self.check_valid()
 
-        except ConfigParser.NoSectionError:
+        except configparser.NoSectionError:
             logger.warning("Config file section missing: [{}]".format(
                 section
             ))
@@ -406,14 +406,9 @@ class RecipientDefinition(object):
 
     def __str__(self):
         """String representation."""
-        # http://stackoverflow.com/questions/1307014/python-str-versus-unicode
-        return unicode(self).encode('utf-8')
-
-    def __unicode__(self):
-        """Unicode representation."""
         return (
-            u"RecipientDefinition: " + u", ".join([
-                u"{}={}".format(key, unicode(getattr(self, key)))
+            "RecipientDefinition: " + ", ".join([
+                "{}={}".format(key, str(getattr(self, key)))
                 for key in self.__dict__ if not key.startswith('_')
             ])
         )

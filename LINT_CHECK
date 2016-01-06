@@ -51,7 +51,7 @@ PYLINT_OPTIONS=--output-format=parseable
 PYCHECKER_OPTIONS=
 PYFLAKES_OPTIONS=
 
-PYTHONFILES=$(find "$CAMCOPSROOT/server" -name "*.py" -not -path "$CAMCOPSROOT/server/debian/*")
+PYTHONFILES=$(find "$CAMCOPSROOT/server" -name "*.py" -not -path "$CAMCOPSROOT/server/debian/*" -not -path "$CAMCOPSROOT/server/playing/*")
 # http://stackoverflow.com/questions/4210042/exclude-directory-from-find-command
 export PYTHONPATH=$CAMCOPSROOT/server
 totallines=0

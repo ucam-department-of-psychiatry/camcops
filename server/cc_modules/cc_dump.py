@@ -21,18 +21,18 @@
     limitations under the License.
 """
 
-import ConfigParser
+import configparser
 import io
 import subprocess
 import zipfile
 
-from cc_audit import audit
-import cc_blob
-from cc_constants import CONFIG_FILE_MAIN_SECTION
-import cc_patient
-from cc_pls import pls
-import cc_task
-from cc_unittest import unit_test_ignore
+from .cc_audit import audit
+from . import cc_blob
+from .cc_constants import CONFIG_FILE_MAIN_SECTION
+from . import cc_patient
+from .cc_pls import pls
+from . import cc_task
+from .cc_unittest import unit_test_ignore
 
 # =============================================================================
 # Constants
@@ -130,7 +130,7 @@ def get_database_dump_as_sql(tables=[]):
 
     # We'll need to re-fetch the database password,
     # since we don't store it (for security reasons).
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     config.read(pls.CAMCOPS_CONFIG_FILE)
 
     # -------------------------------------------------------------------------
@@ -173,7 +173,7 @@ def get_database_dump_as_sql(tables=[]):
 def get_query_as_tsv(sql):
     """Returns the result of the SQL query supplied, in TSV format."""
     # Security considerations as above.
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     config.read(pls.CAMCOPS_CONFIG_FILE)
     try:
         DB_PASSWORD = config.get(CONFIG_FILE_MAIN_SECTION, "DB_PASSWORD")

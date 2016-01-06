@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# cbir.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -220,7 +220,7 @@ class CbiR(Task):
     def subscore(self, first, last, fieldprefix):
         score = 0
         n = 0
-        for q in xrange(first, last + 1):
+        for q in range(first, last + 1):
             value = getattr(self, fieldprefix + str(q))
             if value is not None:
                 score += value / self.MAX_SCORE
@@ -261,13 +261,13 @@ class CbiR(Task):
         })
 
         def get_question_rows(first, last):
-            h = u""
-            for q in xrange(first, last + 1):
+            h = ""
+            for q in range(first, last + 1):
                 f = getattr(self, "frequency" + str(q))
                 d = getattr(self, "distress" + str(q))
-                fa = (u"{}: {}".format(f, get_from_dict(FREQ_DICT, f))
+                fa = ("{}: {}".format(f, get_from_dict(FREQ_DICT, f))
                       if f is not None else None)
-                da = (u"{}: {}".format(d, get_from_dict(DISTRESS_DICT, d))
+                da = ("{}: {}".format(d, get_from_dict(DISTRESS_DICT, d))
                       if d is not None else None)
                 h += tr(
                     WSTRING("cbir_q" + str(q)),
@@ -276,7 +276,7 @@ class CbiR(Task):
                 )
             return h
 
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
                     {complete_tr}
@@ -376,8 +376,8 @@ class CbiR(Task):
                 self.frequency_subscore(*self.QNUMS_MOTIVATION)),
             motivation_d=answer(
                 self.distress_subscore(*self.QNUMS_MOTIVATION)),
-            tr_responder=tr_qa(u"Responder’s name", self.responder_name),
-            tr_relationship=tr_qa(u"Responder’s relationship to patient",
+            tr_responder=tr_qa("Responder’s name", self.responder_name),
+            tr_relationship=tr_qa("Responder’s relationship to patient",
                                   self.responder_relationship),
             tr_blanks=tr(
                 "Responded confirmed that blanks are deliberate (N/A)",
@@ -405,7 +405,7 @@ class CbiR(Task):
         h += get_question_rows(*self.QNUMS_STEREOTYPY)
         h += subheading_spanning_three_columns(HEADINGS.motivation)
         h += get_question_rows(*self.QNUMS_MOTIVATION)
-        h += u"""
+        h += """
             </table>
         """
         return h

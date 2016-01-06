@@ -68,7 +68,11 @@ def mangle_unicode_to_str(s):
     # http://stackoverflow.com/questions/1207457
     if s is None:
         return ""
-    elif isinstance(s, unicode):
-        return unicodedata.normalize('NFKD', s).encode('ascii', 'ignore')
+    elif isinstance(s, str):
+        return (
+            unicodedata.normalize('NFKD', s)
+                       .encode('ascii', 'ignore')  # gets rid of accents
+                       .decode('ascii')  # back to a string
+        )
     else:
         return str(s)

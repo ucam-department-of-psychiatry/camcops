@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# pcl.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -169,14 +169,14 @@ class PclCommon(object):
         ptsd = self.ptsd()
         ANSWER_DICT = {None: None}
         for option in range(1, 6):
-            ANSWER_DICT[option] = str(option) + u" – " + \
+            ANSWER_DICT[option] = str(option) + " – " + \
                 WSTRING("pcl_option" + str(option))
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
-        h += tr_qa(u"{} (17–85)".format(WSTRING("total_score")),
+        h += tr_qa("{} (17–85)".format(WSTRING("total_score")),
                    score)
         h += tr("Number symptomatic <sup>[1]</sup>: B, C, D (total)",
                 answer(num_symptomatic_B)
@@ -189,7 +189,7 @@ class PclCommon(object):
                 + ")")
         h += tr_qa(WSTRING("pcl_dsm_criteria_met") + " <sup>[2]</sup>",
                    get_yes_no(ptsd))
-        h += u"""
+        h += """
                 </table>
             </div>
             <table class="taskdetail">
@@ -211,7 +211,7 @@ class PclCommon(object):
                 WSTRING("pcl_q" + str(q) + "_s"),
                 get_from_dict(ANSWER_DICT, getattr(self, "q" + str(q)))
             )
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] Questions with scores ≥3 are considered symptomatic.

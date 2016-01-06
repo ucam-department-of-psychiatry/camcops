@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# distressthermometer.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -117,13 +117,13 @@ class DistressThermometer(Task):
         )
 
     def get_task_html(self):
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
-        h += tr_qa(u"Overall distress (0–10)", self.distress)
-        h += u"""
+        h += tr_qa("Overall distress (0–10)", self.distress)
+        h += """
                 </table>
             </div>
             <div class="explanation">
@@ -136,41 +136,41 @@ class DistressThermometer(Task):
                     <th width="50%">Answer</th>
                 </tr>
         """
-        h += tr_qa(u"Distress (0 no distress – 10 extreme distress)",
+        h += tr_qa("Distress (0 no distress – 10 extreme distress)",
                    self.distress)
         h += subheading_spanning_two_columns("Practical problems")
         for i in range(1, 5 + 1):
             h += tr_qa(
-                u"{}. {}".format(i, WSTRING("distressthermometer_q" + str(i))),
+                "{}. {}".format(i, WSTRING("distressthermometer_q" + str(i))),
                 get_yes_no_none(getattr(self, "q" + str(i)))
             )
         h += subheading_spanning_two_columns("Family problems")
         for i in range(6, 8 + 1):
             h += tr_qa(
-                u"{}. {}".format(i, WSTRING("distressthermometer_q" + str(i))),
+                "{}. {}".format(i, WSTRING("distressthermometer_q" + str(i))),
                 get_yes_no_none(getattr(self, "q" + str(i)))
             )
         h += subheading_spanning_two_columns("Emotional problems")
         for i in range(9, 14 + 1):
             h += tr_qa(
-                u"{}. {}".format(i, WSTRING("distressthermometer_q" + str(i))),
+                "{}. {}".format(i, WSTRING("distressthermometer_q" + str(i))),
                 get_yes_no_none(getattr(self, "q" + str(i)))
             )
         h += subheading_spanning_two_columns("Spiritual problems")
         for i in range(15, 15 + 1):
             h += tr_qa(
-                u"{}. {}".format(i, WSTRING("distressthermometer_q" + str(i))),
+                "{}. {}".format(i, WSTRING("distressthermometer_q" + str(i))),
                 get_yes_no_none(getattr(self, "q" + str(i)))
             )
         h += subheading_spanning_two_columns("Physical problems")
         for i in range(16, DistressThermometer.NQUESTIONS + 1):
             h += tr_qa(
-                u"{}. {}".format(i, WSTRING("distressthermometer_q" + str(i))),
+                "{}. {}".format(i, WSTRING("distressthermometer_q" + str(i))),
                 get_yes_no_none(getattr(self, "q" + str(i)))
             )
         h += subheading_spanning_two_columns("Other problems")
         h += tr_qa(WSTRING("distressthermometer_other_s"), self.other)
-        h += u"""
+        h += """
             </table>
         """
         return h

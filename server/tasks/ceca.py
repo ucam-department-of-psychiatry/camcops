@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# ceca.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -1145,69 +1145,69 @@ class CecaQ3(Task):
     def get_task_html(self):
         SEPARATION_MAP = {
             None: None,
-            1: u"1 — " + WSTRING("cecaq3_1c_separation_reason1"),
-            2: u"2 — " + WSTRING("cecaq3_1c_separation_reason2"),
-            3: u"3 — " + WSTRING("cecaq3_1c_separation_reason3"),
-            4: u"4 — " + WSTRING("cecaq3_1c_separation_reason4"),
-            5: u"5 — " + WSTRING("cecaq3_1c_separation_reason5"),
-            6: u"6 — " + WSTRING("cecaq3_1c_separation_reason6"),
+            1: "1 — " + WSTRING("cecaq3_1c_separation_reason1"),
+            2: "2 — " + WSTRING("cecaq3_1c_separation_reason2"),
+            3: "3 — " + WSTRING("cecaq3_1c_separation_reason3"),
+            4: "4 — " + WSTRING("cecaq3_1c_separation_reason4"),
+            5: "5 — " + WSTRING("cecaq3_1c_separation_reason5"),
+            6: "6 — " + WSTRING("cecaq3_1c_separation_reason6"),
         }
         MOTHERFIGURE_MAP = {
             None: None,
-            0: u"0 — " + WSTRING("cecaq3_2a_which_option0"),
-            1: u"1 — " + WSTRING("cecaq3_2a_which_option1"),
-            2: u"2 — " + WSTRING("cecaq3_2a_which_option2"),
-            3: u"3 — " + WSTRING("cecaq3_2a_which_option3"),
-            4: u"4 — " + WSTRING("cecaq3_2a_which_option4"),
-            5: u"5 — " + WSTRING("cecaq3_2a_which_option5"),
+            0: "0 — " + WSTRING("cecaq3_2a_which_option0"),
+            1: "1 — " + WSTRING("cecaq3_2a_which_option1"),
+            2: "2 — " + WSTRING("cecaq3_2a_which_option2"),
+            3: "3 — " + WSTRING("cecaq3_2a_which_option3"),
+            4: "4 — " + WSTRING("cecaq3_2a_which_option4"),
+            5: "5 — " + WSTRING("cecaq3_2a_which_option5"),
         }
         FATHERFIGURE_MAP = {
             None: None,
-            0: u"0 — " + WSTRING("cecaq3_3a_which_option0"),
-            1: u"1 — " + WSTRING("cecaq3_3a_which_option1"),
-            2: u"2 — " + WSTRING("cecaq3_3a_which_option2"),
-            3: u"3 — " + WSTRING("cecaq3_3a_which_option3"),
-            4: u"4 — " + WSTRING("cecaq3_3a_which_option4"),
-            5: u"5 — " + WSTRING("cecaq3_3a_which_option5"),
+            0: "0 — " + WSTRING("cecaq3_3a_which_option0"),
+            1: "1 — " + WSTRING("cecaq3_3a_which_option1"),
+            2: "2 — " + WSTRING("cecaq3_3a_which_option2"),
+            3: "3 — " + WSTRING("cecaq3_3a_which_option3"),
+            4: "4 — " + WSTRING("cecaq3_3a_which_option4"),
+            5: "5 — " + WSTRING("cecaq3_3a_which_option5"),
         }
         NO_YES_5WAY_MAP = {
             None: None,
-            1: u"1 — " + WSTRING("cecaq3_options5way_notoyes_1"),
-            2: u"2 — (between not-at-all and unsure)",
-            3: u"3 — " + WSTRING("cecaq3_options5way_notoyes_3"),
-            4: u"4 — (between unsure and yes-definitely)",
-            5: u"5 — " + WSTRING("cecaq3_options5way_notoyes_5"),
+            1: "1 — " + WSTRING("cecaq3_options5way_notoyes_1"),
+            2: "2 — (between not-at-all and unsure)",
+            3: "3 — " + WSTRING("cecaq3_options5way_notoyes_3"),
+            4: "4 — (between unsure and yes-definitely)",
+            5: "5 — " + WSTRING("cecaq3_options5way_notoyes_5"),
         }
         NO_YES_3WAY_MAP = {
             None: None,
-            0: u"0 — " + WSTRING("cecaq3_options3way_noto_yes_0"),
-            1: u"1 — " + WSTRING("cecaq3_options3way_noto_yes_1"),
-            2: u"2 — " + WSTRING("cecaq3_options3way_noto_yes_2"),
+            0: "0 — " + WSTRING("cecaq3_options3way_noto_yes_0"),
+            1: "1 — " + WSTRING("cecaq3_options3way_noto_yes_1"),
+            2: "2 — " + WSTRING("cecaq3_options3way_noto_yes_2"),
         }
         FREQUENCY_MAP = {
             None: None,
-            0: u"0 — " + WSTRING("cecaq3_optionsfrequency0"),
-            1: u"1 — " + WSTRING("cecaq3_optionsfrequency1"),
-            2: u"2 — " + WSTRING("cecaq3_optionsfrequency2"),
-            3: u"3 — " + WSTRING("cecaq3_optionsfrequency3"),
+            0: "0 — " + WSTRING("cecaq3_optionsfrequency0"),
+            1: "1 — " + WSTRING("cecaq3_optionsfrequency1"),
+            2: "2 — " + WSTRING("cecaq3_optionsfrequency2"),
+            3: "3 — " + WSTRING("cecaq3_optionsfrequency3"),
         }
         PARENT_CARED_FOR_MAP = {
             None: None,
-            0: u"0 — " + WSTRING("cecaq3_3c_whichparentcaredfor_option0"),
-            1: u"1 — " + WSTRING("cecaq3_3c_whichparentcaredfor_option1"),
-            2: u"2 — " + WSTRING("cecaq3_3c_whichparentcaredfor_option2"),
-            3: u"3 — " + WSTRING("cecaq3_3c_whichparentcaredfor_option3"),
-            4: u"4 — " + WSTRING("cecaq3_3c_whichparentcaredfor_option4"),
+            0: "0 — " + WSTRING("cecaq3_3c_whichparentcaredfor_option0"),
+            1: "1 — " + WSTRING("cecaq3_3c_whichparentcaredfor_option1"),
+            2: "2 — " + WSTRING("cecaq3_3c_whichparentcaredfor_option2"),
+            3: "3 — " + WSTRING("cecaq3_3c_whichparentcaredfor_option3"),
+            4: "4 — " + WSTRING("cecaq3_3c_whichparentcaredfor_option4"),
         }
         HITTING_MAP = {
             None: None,
-            1: u"1 — " + WSTRING("cecaq3_5_hit_option_1"),
-            2: u"2 — " + WSTRING("cecaq3_5_hit_option_2"),
-            3: u"3 — " + WSTRING("cecaq3_5_hit_option_3"),
-            4: u"4 — " + WSTRING("cecaq3_5_hit_option_4"),
+            1: "1 — " + WSTRING("cecaq3_5_hit_option_1"),
+            2: "2 — " + WSTRING("cecaq3_5_hit_option_2"),
+            3: "3 — " + WSTRING("cecaq3_5_hit_option_3"),
+            4: "4 — " + WSTRING("cecaq3_5_hit_option_4"),
         }
         html = (
-            u"""
+            """
                 <div class="summary">
                     <table class="summary">
             """
@@ -1216,43 +1216,43 @@ class CecaQ3(Task):
                     get_yes_no(self.parental_loss_risk()))
             + tr_qa("Parental loss higher risk factor? <sup>[2]</sup>",
                     get_yes_no(self.parental_loss_high_risk()))
-            + tr_qa(u"Maternal antipathy score (8–40) <sup>[3]</sup>",
+            + tr_qa("Maternal antipathy score (8–40) <sup>[3]</sup>",
                     self.mother_antipathy())
-            + tr_qa(u"Maternal neglect score (8–40) <sup>[3]</sup>",
+            + tr_qa("Maternal neglect score (8–40) <sup>[3]</sup>",
                     self.mother_neglect())
-            + tr_qa(u"Maternal psychological abuse score (0–85) "
-                    u"<sup>[4]</sup>",
+            + tr_qa("Maternal psychological abuse score (0–85) "
+                    "<sup>[4]</sup>",
                     self.mother_psychological_abuse())
-            + tr_qa(u"Paternal antipathy score (8–40) <sup>[3]</sup>",
+            + tr_qa("Paternal antipathy score (8–40) <sup>[3]</sup>",
                     self.father_antipathy())
-            + tr_qa(u"Paternal neglect score (8–40) <sup>[3]</sup>",
+            + tr_qa("Paternal neglect score (8–40) <sup>[3]</sup>",
                     self.father_neglect())
-            + tr_qa(u"Paternal psychological abuse score (0–85) "
-                    u"<sup>[4]</sup>",
+            + tr_qa("Paternal psychological abuse score (0–85) "
+                    "<sup>[4]</sup>",
                     self.father_psychological_abuse())
-            + tr_qa(u"Role reversal score (17–85) <sup>[5]</sup>",
+            + tr_qa("Role reversal score (17–85) <sup>[5]</sup>",
                     self.role_reversal())
-            + tr_qa(u"Physical abuse screen (0–1) <sup>[6]</sup>",
+            + tr_qa("Physical abuse screen (0–1) <sup>[6]</sup>",
                     self.physical_abuse_screen())
-            + tr_qa(u"Maternal physical abuse severity score (0–4) "
-                    u"<sup>[6]</sup>",
+            + tr_qa("Maternal physical abuse severity score (0–4) "
+                    "<sup>[6]</sup>",
                     self.physical_abuse_severity_mother())
-            + tr_qa(u"Paternal physical abuse severity score (0–4) "
-                    u"<sup>[6]</sup>",
+            + tr_qa("Paternal physical abuse severity score (0–4) "
+                    "<sup>[6]</sup>",
                     self.physical_abuse_severity_father())
-            + tr_qa(u"Sexual abuse screen (0–3) <sup>[7]</sup>",
+            + tr_qa("Sexual abuse screen (0–3) <sup>[7]</sup>",
                     self.sexual_abuse_screen())
-            + tr_qa(u"First sexual abuse severity score (0–7) <sup>[7]</sup>",
+            + tr_qa("First sexual abuse severity score (0–7) <sup>[7]</sup>",
                     self.sexual_abuse_score_first())
-            + tr_qa(u"Other sexual abuse severity score (0–7) <sup>[7]</sup>",
+            + tr_qa("Other sexual abuse severity score (0–7) <sup>[7]</sup>",
                     self.sexual_abuse_score_other())
-            + u"""
+            + """
                     </table>
                 </div>
                 <table class="taskdetail">
             """
 
-            + subheading_spanning_two_columns(u"1A: " + WSTRING("cecaq3_1a_q"))
+            + subheading_spanning_two_columns("1A: " + WSTRING("cecaq3_1a_q"))
 
             + subsubheading_from_wstring("cecaq3_1a_motherfigures")
             + wstring_boolean("cecaq3_1a_mf_birthmother",
@@ -1293,12 +1293,12 @@ class CecaQ3(Task):
             + string_string("(Other, details)",
                             self.s1a_fatherfigure_other_detail)
 
-            + subheading_from_string(u"1B: " + WSTRING("cecaq3_1b_q"))
+            + subheading_from_string("1B: " + WSTRING("cecaq3_1b_q"))
             + wstring_boolean("cecaq3_1b_q", self.s1b_institution)
             + wstring_numeric("cecaq3_1b_q_how_long",
                               self.s1b_institution_time_years)
 
-            + subheading_from_string(u"1C: " + WSTRING("cecaq3_1c_heading"))
+            + subheading_from_string("1C: " + WSTRING("cecaq3_1c_heading"))
             + subsubheading_from_wstring("cecaq3_mother")
 
             + string_boolean("Mother died before age 17",
@@ -1329,7 +1329,7 @@ class CecaQ3(Task):
             + wstring_string("cecaq3_please_describe_experience",
                              self.s1c_describe_experience)
 
-            + subheading_from_string(u"2A: " + WSTRING("cecaq3_2a_heading"))
+            + subheading_from_string("2A: " + WSTRING("cecaq3_2a_heading"))
             + wstring_dict("cecaq3_2a_which",
                            self.s2a_which_mother_figure, MOTHERFIGURE_MAP)
             + wstring_string("cecaq3_rnc_if_other_describe",
@@ -1342,7 +1342,7 @@ class CecaQ3(Task):
                                 NO_YES_5WAY_MAP)
         html += (
             wstring_string("cecaq3_2a_add_anything", self.s2a_extra)
-            + subheading_from_string(u"2B: " + WSTRING("cecaq3_2b_heading"))
+            + subheading_from_string("2B: " + WSTRING("cecaq3_2b_heading"))
         )
         for i in range(1, 18):
             html += tr(
@@ -1360,7 +1360,7 @@ class CecaQ3(Task):
             + wstring_string("cecaq3_is_there_more_you_want_to_say",
                              self.s2b_extra)
 
-            + subheading_from_string(u"3A: " + WSTRING("cecaq3_3a_heading"))
+            + subheading_from_string("3A: " + WSTRING("cecaq3_3a_heading"))
             + wstring_dict("cecaq3_2a_which",
                            self.s3a_which_father_figure, FATHERFIGURE_MAP)
             + wstring_string("cecaq3_rnc_if_other_describe",
@@ -1372,7 +1372,7 @@ class CecaQ3(Task):
                 getattr(self, "s3a_q" + str(i)), NO_YES_5WAY_MAP)
         html += (
             wstring_string("cecaq3_3a_add_anything", self.s3a_extra)
-            + subheading_from_string(u"3B: " + WSTRING("cecaq3_3b_heading"))
+            + subheading_from_string("3B: " + WSTRING("cecaq3_3b_heading"))
         )
         for i in range(1, 18):
             html += tr(
@@ -1389,7 +1389,7 @@ class CecaQ3(Task):
             wstring_boolean("cecaq3_if_any_what_age", self.s3b_age_began)
             + wstring_string("cecaq3_is_there_more_you_want_to_say",
                              self.s3b_extra)
-            + subheading_from_string(u"3C: " + WSTRING("cecaq3_3c_heading"))
+            + subheading_from_string("3C: " + WSTRING("cecaq3_3c_heading"))
         )
         for i in range(1, 18):
             html += string_dict(
@@ -1404,7 +1404,7 @@ class CecaQ3(Task):
             + wstring_boolean("cecaq3_3c_parent_physical_problem",
                               self.s3c_parent_physical_problem)
 
-            + subheading_from_string(u"4: " + WSTRING("cecaq3_4_heading"))
+            + subheading_from_string("4: " + WSTRING("cecaq3_4_heading"))
             + subsubheading_from_string("(Adult confidant)")
             + wstring_boolean("cecaq3_4a_q", self.s4a_adultconfidant)
             + subsubheading_from_wstring("cecaq3_4_if_so_who")
@@ -1461,7 +1461,7 @@ class CecaQ3(Task):
             + wstring_string("cecaq3_4_note_anything",
                              self.s4c_closest_additional)
 
-            + subheading_from_string(u"4: " + WSTRING("cecaq3_5_heading"))
+            + subheading_from_string("4: " + WSTRING("cecaq3_5_heading"))
             + wstring_boolean("cecaq3_5_mainq", self.s5c_physicalabuse)
             + subsubheading_from_wstring("cecaq3_5_motherfigure")
             + wstring_boolean("cecaq3_5_did_this_person_hurt_you",
@@ -1495,7 +1495,7 @@ class CecaQ3(Task):
             + wstring_string("cecaq3_5_can_you_describe_2",
                              self.s5c_nonparent_abuse_description)
 
-            + subheading_from_string(u"6: " + WSTRING("cecaq3_6_heading"))
+            + subheading_from_string("6: " + WSTRING("cecaq3_6_heading"))
             + wstring_dict("cecaq3_6_any_unwanted",
                            self.s6_any_unwanted_sexual_experience,
                            NO_YES_3WAY_MAP)
@@ -1535,7 +1535,7 @@ class CecaQ3(Task):
             + wstring_string("cecaq3_any_other_comments",
                              self.any_other_comments)
 
-            + u"""
+            + """
                 </table>
                 <div class="footnotes">
                     [1] Death of mother/father before age 17 or continuous
@@ -1576,7 +1576,7 @@ def subheading_from_wstring(ws):
 
 
 def subsubheading_from_string(s):
-    return u"""<tr><td></td><td class="subheading">{}</td></tr>""".format(s)
+    return """<tr><td></td><td class="subheading">{}</td></tr>""".format(s)
 
 
 def subsubheading_from_wstring(ws):

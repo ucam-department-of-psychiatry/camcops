@@ -23,10 +23,10 @@
 
 import pythonlib.rnc_db as rnc_db
 
-from cc_constants import STANDARD_GENERIC_FIELDSPECS
-import cc_db
-from cc_logger import logger
-from cc_pls import pls
+from .cc_constants import STANDARD_GENERIC_FIELDSPECS
+from . import cc_db
+from .cc_logger import logger
+from .cc_pls import pls
 
 
 # =============================================================================

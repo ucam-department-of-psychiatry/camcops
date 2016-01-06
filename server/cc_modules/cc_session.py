@@ -21,7 +21,7 @@
     limitations under the License.
 """
 
-import Cookie
+import http.cookies
 import datetime
 import math
 
@@ -29,17 +29,16 @@ import pythonlib.rnc_crypto as rnc_crypto
 import pythonlib.rnc_db as rnc_db
 import pythonlib.rnc_web as ws
 
-import cc_analytics
-from cc_constants import ACTION, DATEFORMAT, NUMBER_OF_IDNUMS, PARAM
-import cc_db
-import cc_device
-import cc_dt
-import cc_html
-from cc_logger import logger
-from cc_pls import pls
-import cc_task
-from cc_unittest import unit_test_ignore
-import cc_user
+from . import cc_analytics
+from .cc_constants import ACTION, DATEFORMAT, NUMBER_OF_IDNUMS, PARAM
+from . import cc_db
+from . import cc_device
+from . import cc_dt
+from . import cc_html
+from .cc_logger import logger
+from .cc_pls import pls
+from .cc_unittest import unit_test_ignore
+from . import cc_user
 
 # =============================================================================
 # Constants
@@ -87,12 +86,12 @@ def establish_session(env):
     process-local storage)."""
     ip_address = env["REMOTE_ADDR"]
     try:
-        cookie = Cookie.SimpleCookie(env["HTTP_COOKIE"])
+        cookie = http.cookies.SimpleCookie(env["HTTP_COOKIE"])
         session_id = cookie["session_id"].value
         session_token = cookie["session_token"].value
-        #logger.debug("Found cookie token: ID {}, token {}".format(
+        # logger.debug("Found cookie token: ID {}, token {}".format(
         #    session_id, session_token))
-    except (Cookie.CookieError, KeyError):
+    except (http.cookies.CookieError, KeyError):
         logger.debug("No cookie yet. Creating new one.")
         session_id = None
         session_token = None
@@ -252,7 +251,7 @@ class Session:
         """Get list of cookies, each a tuple of ("Set-Cookie", datastring)."""
         # Use cookies for session security:
         # http://security.stackexchange.com/questions/9133
-        cookie = Cookie.SimpleCookie()
+        cookie = http.cookies.SimpleCookie()
         # No expiration date, making it a session cookie
         cookie["session_id"] = self.id
         cookie["session_id"]["secure"] = True  # HTTPS only
@@ -407,6 +406,11 @@ class Session:
 
     def get_current_filter_html(self):
         """HTML showing current filters and offering ways to set them."""
+        # ---------------------------------------------------------------------
+        # Delayed imports
+        # ---------------------------------------------------------------------
+        from . import cc_task
+
         # Consider also multiple buttons in a single form:
         # http://stackoverflow.com/questions/942772
         # ... might allow "apply all things entered here" button
@@ -426,7 +430,7 @@ class Session:
             if value is not None:
                 id_filter_value = value
                 id_filter_name = id_filter_descs[index]
-        which_idnum_temp = u"""
+        which_idnum_temp = """
                 {picker}
                 <input type="number" name="{PARAM.IDNUM_VALUE}">
         """.format(
@@ -560,7 +564,7 @@ class Session:
             filters
         ) or found_one
 
-        clear_filter_html = u"""
+        clear_filter_html = """
                 <input type="submit" name="{ACTION.CLEAR_FILTERS}"
                         value="Clear all filters">
                 <br>
@@ -568,7 +572,7 @@ class Session:
             ACTION=ACTION,
         )
         no_filters_applied = "<p><b><i>No filters applied</i></b></p>"
-        html = u"""
+        html = """
             <form class="filter" method="POST" action="{script}">
 
                 <input type="hidden" name="{PARAM.ACTION}"
@@ -890,7 +894,7 @@ class Session:
     def get_number_to_view_selector(self):
         """HTML form to choose how many tasks to view."""
         options = [5, 25, 50, 100]
-        html = u"""
+        html = """
             <form class="filter" method="POST" action="{script}">
                 <input type="hidden" name="{PARAM.ACTION}"
                     value="{ACTION.CHANGE_NUMBER_TO_VIEW}">
@@ -908,7 +912,7 @@ class Session:
                 selected=ws.option_selected(self.number_to_view, n),
                 n=n,
             )
-        html += u"""
+        html += """
                 </select>
                 <input type="submit" value="Submit">
             </form>
@@ -966,12 +970,12 @@ def get_filter_html(filter_name,
     no_filter_value = (
         filter_value is None
         or (
-            isinstance(filter_value, basestring)
+            isinstance(filter_value, str)
             and not filter_value
         )
     )
     if no_filter_value:
-        filter_list.append(u"""
+        filter_list.append("""
                     {filter_name}: {apply_field_html}
                     <br>
         """.format(
@@ -982,7 +986,7 @@ def get_filter_html(filter_name,
         #            <input type="submit" name="{apply_action}" value="Filter">
         return False
     else:
-        filter_list.append(u"""
+        filter_list.append("""
                     {filter_name}: <b>{filter_value}</b>
                     <input type="submit" name="{clear_action}" value="Clear">
                     {apply_field_html}

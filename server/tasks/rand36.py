@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# rand36.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -351,7 +351,7 @@ class Rand36(Task):
         s = self.recode(q)
         return tr(
             qtext,
-            answer(v) + u": " + answer(atext),
+            answer(v) + ": " + answer(atext),
             answer(s, formatter_answer=identity)
         )
 
@@ -364,9 +364,9 @@ class Rand36(Task):
     def get_task_html(self):
         ANSWER_DICT = {None: "?"}
         for option in range(0, 3):
-            ANSWER_DICT[option] = str(option) + u" – " + \
+            ANSWER_DICT[option] = str(option) + " – " + \
                 WSTRING("phq15_a" + str(option))
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
@@ -398,7 +398,7 @@ class Rand36(Task):
         h += self.scoreline(
             WSTRING("rand36_score_general_health"), 9,
             self.format_float_for_display(self.scoreGeneralHealth()))
-        h += u"""
+        h += """
                 </table>
             </div>
             <table class="taskdetail">
@@ -436,7 +436,7 @@ class Rand36(Task):
         h += self.section_row_html(WSTRING("rand36_q33to36stem"))
         for q in range(33, 36 + 1):
             h += self.answer_row_html(q)
-        h += u"""
+        h += """
             </table>
             <div class="copyright">
                 The RAND 36-Item Short Form Health Survey was developed at RAND

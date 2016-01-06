@@ -1,5 +1,6 @@
 camcops (1.40-1) all; urgency=low
 
+  * From May 2015 to Jan 2016.
   * REQUIRES COMMAND TO UPGRADE EACH DATABASE:
         camcops --maketables /etc/camcops/MYCONFIGNAME.conf
   * Brief COPE Inventory.
@@ -26,7 +27,7 @@ camcops (1.40-1) all; urgency=low
     "WARNING:xhtml2pdf:Unknown size value for @page"; see
     https://github.com/chrisglass/xhtml2pdf/issues/71 ... however, no effect.
   * Switch from xhtml2pdf, bypassing Weasyprint, to wkhtmltopdf (via pdfkit) as
-    the default PDF renderer.
+    the (default and now only) PDF renderer.
   * Abstract base class for PCL tasks wasn't inheriting from object; now is.
   * editing_time_s field for all tasks.
   * Indexing of ID number fields in patient table.
@@ -42,8 +43,20 @@ camcops (1.40-1) all; urgency=low
     http://stackoverflow.com/questions/744373
     Except in cc_hl7, which imports phq9 for testing (which imports specific
     things from cc_task, which imports cc_hl7).
+  * Refresh button for tasks (because browsers keep asking you twice if you hit
+    F5).
+  * EXTRA_STRING_FILES can use globs (in cc_string.py).
+  * Updated to current pythonlib.
+  * Python build toolchain.
+  * Moved to Python 3.
+  * Supplied with Gunicorn, to enable front-end web servers like Apache to
+    talk to CamCOPS, and have CamCOPS upgrade/restart, without having to (a)
+    restart Apache, or (b) integrate a specific Python version into Apache
+    with mod_wsgi. The new system runs in a virtual environment, entirely
+    separated (in terms of code) from the front-end web server, communicating
+    with it via a private port or Unix socket.
 
- -- Rudolf Cardinal <rudolf@pobox.com>  Thu, 28 May 2015 11:09:00 +0000
+ -- Rudolf Cardinal <rudolf@pobox.com>  Mon, 04 Jan 2016 22:13:00 +0000
 
 camcops (1.34-1) all; urgency=medium
 

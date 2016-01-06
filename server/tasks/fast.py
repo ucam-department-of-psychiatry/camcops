@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# fast.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -118,26 +118,26 @@ class Fast(Task):
     def get_task_html(self):
         MAIN_DICT = {
             None: None,
-            0: u"0 — " + WSTRING("fast_q1to3_option0"),
-            1: u"1 — " + WSTRING("fast_q1to3_option1"),
-            2: u"2 — " + WSTRING("fast_q1to3_option2"),
-            3: u"3 — " + WSTRING("fast_q1to3_option3"),
-            4: u"4 — " + WSTRING("fast_q1to3_option4"),
+            0: "0 — " + WSTRING("fast_q1to3_option0"),
+            1: "1 — " + WSTRING("fast_q1to3_option1"),
+            2: "2 — " + WSTRING("fast_q1to3_option2"),
+            3: "3 — " + WSTRING("fast_q1to3_option3"),
+            4: "4 — " + WSTRING("fast_q1to3_option4"),
         }
         Q4_DICT = {
             None: None,
-            0: u"0 — " + WSTRING("fast_q4_option0"),
-            2: u"2 — " + WSTRING("fast_q4_option2"),
-            4: u"4 — " + WSTRING("fast_q4_option4"),
+            0: "0 — " + WSTRING("fast_q4_option0"),
+            2: "2 — " + WSTRING("fast_q4_option2"),
+            4: "4 — " + WSTRING("fast_q4_option4"),
         }
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
         h += tr(WSTRING("total_score"), answer(self.total_score()) + " / 16")
         h += tr_qa(WSTRING("fast_positive") + " <sup>[1]</sup>",
                    get_yes_no(self.is_positive()))
-        h += u"""
+        h += """
                 </table>
             </div>
             <table class="taskdetail">
@@ -150,7 +150,7 @@ class Fast(Task):
         h += tr_qa(WSTRING("fast_q2"), get_from_dict(MAIN_DICT, self.q2))
         h += tr_qa(WSTRING("fast_q3"), get_from_dict(MAIN_DICT, self.q3))
         h += tr_qa(WSTRING("fast_q4"), get_from_dict(Q4_DICT, self.q4))
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] Negative if Q1 = 0. Positive if Q1 ≥ 3. Otherwise positive

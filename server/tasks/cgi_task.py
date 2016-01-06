@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# cgi_task.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -153,12 +153,12 @@ class Cgi(Task):
             3: WSTRING("cgi_q3s_option3"),
             4: WSTRING("cgi_q3s_option4"),
         }
-        h = self.get_standard_clinician_block() + u"""
+        h = self.get_standard_clinician_block() + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
         h += tr("Total score <sup>[1]</sup>", answer(self.total_score()))
-        h += u"""
+        h += """
                 </table>
             </div>
             <table class="taskdetail">
@@ -167,16 +167,16 @@ class Cgi(Task):
                     <th width="70%">Answer</th>
                 </tr>
         """
-        h += tr_qa(WSTRING("cgi_q1_s") + u" <sup>[2]</sup>",
+        h += tr_qa(WSTRING("cgi_q1_s") + " <sup>[2]</sup>",
                    get_from_dict(Q1_DICT, self.q1))
-        h += tr_qa(WSTRING("cgi_q2_s") + u" <sup>[2]</sup>",
+        h += tr_qa(WSTRING("cgi_q2_s") + " <sup>[2]</sup>",
                    get_from_dict(Q2_DICT, self.q2))
-        h += tr_qa(WSTRING("cgi_q3t_s") + u" <sup>[3]</sup>",
+        h += tr_qa(WSTRING("cgi_q3t_s") + " <sup>[3]</sup>",
                    get_from_dict(Q3T_DICT, self.q3t))
-        h += tr_qa(WSTRING("cgi_q3s_s") + u" <sup>[3]</sup>",
+        h += tr_qa(WSTRING("cgi_q3s_s") + " <sup>[3]</sup>",
                    get_from_dict(Q3S_DICT, self.q3s))
         h += tr(
-            u"""
+            """
                 {} <sup>[4]</sup>
                 <div class="smallprint">
                     [(Q3T – 1) × 4 + Q3S]
@@ -184,7 +184,7 @@ class Cgi(Task):
             """.format(WSTRING("cgi_q3_s")),
             answer(self.q3, formatter_answer=italic)
         )
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] Total score: Q1 + Q2 + Q3. Range 3–30 when complete.
@@ -217,7 +217,7 @@ class CgiI(Task):
 
     @classmethod
     def get_tasklongname(cls):
-        return u"Clinical Global Impressions – Improvement"
+        return "Clinical Global Impressions – Improvement"
 
     @classmethod
     def get_fieldspecs(cls):
@@ -228,7 +228,7 @@ class CgiI(Task):
         if not self.is_complete():
             return CTV_DICTLIST_INCOMPLETE
         return [{
-            "content": u"CGI-I rating: {}".format(self.get_rating_text())
+            "content": "CGI-I rating: {}".format(self.get_rating_text())
         }]
 
     def is_complete(self):
@@ -254,10 +254,10 @@ class CgiI(Task):
         }
 
     def get_task_html(self):
-        h = self.get_standard_clinician_block() + u"""
+        h = self.get_standard_clinician_block() + """
             <div class="summary">
                 <table class="summary">
-        """ + self.get_is_complete_tr() + u"""
+        """ + self.get_is_complete_tr() + """
                 </table>
             </div>
             <table class="taskdetail">
@@ -267,7 +267,7 @@ class CgiI(Task):
                 </tr>
         """
         h += tr_qa(WSTRING("cgi_i_q"), self.get_rating_text())
-        h += u"""
+        h += """
             </table>
         """
         return h

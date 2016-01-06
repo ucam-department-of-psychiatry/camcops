@@ -29,8 +29,8 @@ import xml.etree.cElementTree as ElementTree
 
 import pythonlib.rnc_web as ws
 
-from cc_logger import logger
-import cc_pls
+from .cc_logger import logger
+from . import cc_pls
 
 
 # =============================================================================
@@ -140,8 +140,8 @@ def get_all_extra_strings():
     """Returns all extra strings, as a list of (task, name, value) tuples."""
     cache_extra_strings()
     rows = []
-    for task, subdict in cc_pls.pls.extraStringDicts.iteritems():
-        for name, value in subdict.iteritems():
+    for task, subdict in cc_pls.pls.extraStringDicts.items():
+        for name, value in subdict.items():
             rows.append((task, name, value))
     return rows
 

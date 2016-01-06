@@ -1,4 +1,18 @@
 ===============================================================================
+CAMCOPS SERVER THINGS TO DO NOW
+===============================================================================
+
+*** tasks
+
+*** test
+
+*** CentOS installation
+
+IN PROGRESS
+  * Python 3
+  * gunicorn for independence from Apache/single built-in modwsgi.
+
+===============================================================================
 CAMCOPS SERVER THINGS TO DO
 ===============================================================================
 
@@ -26,12 +40,6 @@ CAMCOPS SERVER THINGS TO DO
   table with separate history
   ... allows a full audit trail of arbitrary data
 
-- Python 3
-- gunicorn or similar framework, like CRATE
-
-  ***
-
-
 ===============================================================================
 THOUGHTS/POTENTIAL THINGS TO DO
 ===============================================================================
@@ -46,7 +54,9 @@ THOUGHTS/POTENTIAL THINGS TO DO
 - internationalization of web interface (framework done)
 
 - SQLAlchemy would be an alternative engine.
-    - CURRENT PREREQUISITES: COMMENTS. Not yet there: http://docs.sqlalchemy.org/en/rel_0_9/core/metadata.html
+    - CURRENT PREREQUISITES: COMMENTS. Not yet there:
+        http://docs.sqlalchemy.org/en/rel_0_9/core/metadata.html
+        http://docs.sqlalchemy.org/en/latest/core/metadata.html?highlight=metadata
     - WSGI: would use sessionmaker
         ... http://stackoverflow.com/questions/860313/sqlalchemy-is-convoluted
         ... http://stackoverflow.com/questions/2505426/sqlalchemy-layout-with-wsgi-application
@@ -62,7 +72,7 @@ THOUGHTS/POTENTIAL THINGS TO DO
 - potentially Pyramid or a similar framework; over and above SQLAlchemy, would bring (a) templating, e.g. Mako; (b) URL routing.
     - PREREQUISITES WOULD BE: correct URL routing when hosted at a sub-path; server-side sessions without too much faff.
   However, could also make better use of named string.format() arguments, and URL routing has some of its own complexities.
-- *** Django probably the best, with a good ORM built in.
+- Django probably the best, with a good ORM built in.
 
 - MRI triggering on task side
     - e.g. tasks written in Javascript under Titanium on Windows (when
@@ -101,7 +111,7 @@ Notes
 ===============================================================================
 
 -------------------------------------------------------------------------------
-xhtml2pdf notes
+xhtml2pdf notes - SUPERSEDED
 -------------------------------------------------------------------------------
 
 ... "align" may be deprecated, but xhtml2pdf struggles with CSS

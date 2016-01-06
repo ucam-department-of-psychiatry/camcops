@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# smast.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -160,7 +160,7 @@ class Smast(Task):
             "Y": WSTRING("Yes"),
             "N": WSTRING("No")
         }
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
         """
@@ -168,7 +168,7 @@ class Smast(Task):
         h += tr(WSTRING("total_score"), answer(score) + " / 13")
         h += tr_qa(WSTRING("smast_problem_likelihood") + " <sup>[1]</sup>",
                    likelihood)
-        h += u"""
+        h += """
                 </table>
             </div>
             <table class="taskdetail">
@@ -181,9 +181,9 @@ class Smast(Task):
             h += tr(
                 WSTRING("smast_q" + str(q)),
                 answer(get_from_dict(MAIN_DICT, getattr(self, "q" + str(q))))
-                + u" — " + str(self.get_score(q))
+                + " — " + str(self.get_score(q))
             )
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] Total score ≥3 probable, ≥2 possible, 0–1 unlikely.

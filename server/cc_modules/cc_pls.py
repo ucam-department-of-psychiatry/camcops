@@ -25,37 +25,43 @@
 # minimize the number of modules loaded when this is used in the context of the
 # client-side database script, rather than the webview.
 
+import cgi
 import codecs
-import ConfigParser
+import configparser
 import datetime
+import operator
+import os
+import urllib.error
+import urllib.parse
+import urllib.request
 import logging
 
 import pythonlib.rnc_db as rnc_db
 import pythonlib.rnc_pdf as rnc_pdf
 
-from cc_configfile import (
+from .cc_configfile import (
     get_config_parameter,
     get_config_parameter_boolean,
     get_config_parameter_loglevel,
     get_config_parameter_multiline
 )
-from cc_constants import (
+from .cc_constants import (
     CONFIG_FILE_MAIN_SECTION,
     DATEFORMAT,
     DEFAULT_DB_PORT,
     DEFAULT_DB_SERVER,
-    NUMBER_OF_IDNUMS
+    NUMBER_OF_IDNUMS,
+    PDF_ENGINE,
 )
-import cc_dt
-import cc_logger
-import cc_version
+from . import cc_dt
+from . import cc_logger
 
 
 # =============================================================================
 # Constants
 # =============================================================================
 
-DEFAULT_DATABASE_TITLE = u"CamCOPS database"
+DEFAULT_DATABASE_TITLE = "CamCOPS database"
 DEFAULT_LOCAL_INSTITUTION_URL = "http://www.camcops.org/"
 DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES = 10
 DEFAULT_LOCKOUT_THRESHOLD = 10
@@ -263,14 +269,14 @@ class LocalStorage(object):
             config, section, "DB_PORT", int, DEFAULT_DB_PORT)
 
         self.DATABASE_TITLE = get_config_parameter(
-            config, section, "DATABASE_TITLE", unicode, DEFAULT_DATABASE_TITLE)
+            config, section, "DATABASE_TITLE", str, DEFAULT_DATABASE_TITLE)
         for n in range(1, NUMBER_OF_IDNUMS + 1):
             i = n - 1
             nstr = str(n)
             self.IDDESC[i] = get_config_parameter(
-                config, section, "IDDESC_" + nstr, unicode, u"")
+                config, section, "IDDESC_" + nstr, str, "")
             self.IDSHORTDESC[i] = get_config_parameter(
-                config, section, "IDSHORTDESC_" + nstr, unicode, u"")
+                config, section, "IDSHORTDESC_" + nstr, str, "")
         self.ID_POLICY_UPLOAD_STRING = get_config_parameter(
             config, section, "UPLOAD_POLICY", str, "")
         self.ID_POLICY_FINALIZE_STRING = get_config_parameter(
@@ -282,7 +288,7 @@ class LocalStorage(object):
 
         self.WKHTMLTOPDF_FILENAME = get_config_parameter(
             config, section, "WKHTMLTOPDF_FILENAME", str, None)
-        rnc_pdf.set_processor(cc_version.PDF_ENGINE,
+        rnc_pdf.set_processor(PDF_ENGINE,
                               wkhtmltopdf_filename=self.WKHTMLTOPDF_FILENAME)
 
         # ---------------------------------------------------------------------
@@ -336,17 +342,11 @@ class LocalStorage(object):
         # ---------------------------------------------------------------------
         # Delayed imports
         # ---------------------------------------------------------------------
-        import cgi
-        import operator
-        import os
-        import urllib
-
-        import cc_filename
-        import cc_html  # caution, circular import
-        import cc_policy
-        import cc_namedtuples
-        import cc_recipdef
-        import cc_version
+        from . import cc_filename
+        from . import cc_html  # caution, circular import
+        from . import cc_policy
+        from . import cc_namedtuples
+        from . import cc_recipdef
 
         logger = cc_logger.logger
 
@@ -371,8 +371,8 @@ class LocalStorage(object):
         else:
             if environ.get("SERVER_PORT") != "80":
                 url += ':' + environ.get("SERVER_PORT", "")
-        url += urllib.quote(environ.get("SCRIPT_NAME", ""))
-        url += urllib.quote(environ.get("PATH_INFO", ""))
+        url += urllib.parse.quote(environ.get("SCRIPT_NAME", ""))
+        url += urllib.parse.quote(environ.get("PATH_INFO", ""))
         # But not the query string:
         # if environ.get("QUERY_STRING"):
         #    url += "?" + environ.get("QUERY_STRING")
@@ -446,12 +446,12 @@ class LocalStorage(object):
         try:
             hl7_items = config.items(CONFIG_FILE_RECIPIENTLIST_SECTION)
             for key, recipientdef_name in hl7_items:
-                logger.debug(u"HL7 config: key={}, recipientdef_name="
+                logger.debug("HL7 config: key={}, recipientdef_name="
                              "{}".format(key, recipientdef_name))
                 h = cc_recipdef.RecipientDefinition(config, recipientdef_name)
                 if h.valid:
                     self.HL7_RECIPIENT_DEFS.append(h)
-        except ConfigParser.NoSectionError:
+        except configparser.NoSectionError:
             logger.info("No config file section [{}]".format(
                 CONFIG_FILE_RECIPIENTLIST_SECTION
             ))
@@ -504,7 +504,7 @@ class LocalStorage(object):
         # IE float-right problems: http://stackoverflow.com/questions/1820007
         # Tables are a nightmare in IE (table max-width not working unless you
         # also specify it for image size, etc.)
-        self.WEB_LOGO = u"""
+        self.WEB_LOGO = """
             <div class="web_logo_header">
                 <a href="{}"><img class="logo_left" src="{}" alt="" /></a>
                 <a href="{}"><img class="logo_right" src="{}" alt="" /></a>
@@ -516,9 +516,9 @@ class LocalStorage(object):
 
         self.WEBSTART = cc_html.WEB_HEAD + self.WEB_LOGO
 
-        if cc_version.PDF_ENGINE in ["weasyprint", "pdfkit"]:
+        if PDF_ENGINE in ["weasyprint", "pdfkit"]:
             # weasyprint: div with floating img does not work properly
-            self.PDF_LOGO_LINE = u"""
+            self.PDF_LOGO_LINE = """
                 <div class="pdf_logo_header">
                     <table>
                         <tr>
@@ -536,8 +536,8 @@ class LocalStorage(object):
                 self.CAMCOPS_LOGO_FILE_ABSOLUTE,
                 self.LOCAL_LOGO_FILE_ABSOLUTE,
             )
-        elif cc_version.PDF_ENGINE in ["pdfkit"]:
-            self.PDF_LOGO_LINE = u"""
+        elif PDF_ENGINE in ["pdfkit"]:
+            self.PDF_LOGO_LINE = """
                 <div class="pdf_logo_header">
                     <table>
                         <tr>
@@ -555,7 +555,7 @@ class LocalStorage(object):
                 self.CAMCOPS_LOGO_FILE_ABSOLUTE,
                 self.LOCAL_LOGO_FILE_ABSOLUTE,
             )
-            # self.PDF_LOGO_LINE = u"""
+            # self.PDF_LOGO_LINE = """
             #     <div class="pdf_logo_header">
             #         <img class="logo_left" src="file://{}" />
             #         <img class="logo_right" src="file://{}" />
@@ -564,10 +564,10 @@ class LocalStorage(object):
             #     self.CAMCOPS_LOGO_FILE_ABSOLUTE,
             #     self.LOCAL_LOGO_FILE_ABSOLUTE,
             # )
-        elif cc_version.PDF_ENGINE in ["xhtml2pdf"]:
+        elif PDF_ENGINE in ["xhtml2pdf"]:
             # xhtml2pdf
             # hard to get logos positioned any other way than within a table
-            self.PDF_LOGO_LINE = u"""
+            self.PDF_LOGO_LINE = """
                 <div class="header">
                     <table class="noborder">
                         <tr class="noborder">
@@ -659,7 +659,7 @@ class LocalStorage(object):
         logger.debug("Setting persistent constants")
 
         self.CAMCOPS_CONFIG_FILE = environ.get("CAMCOPS_CONFIG_FILE")
-        config = ConfigParser.ConfigParser()
+        config = configparser.ConfigParser()
         config.readfp(codecs.open(self.CAMCOPS_CONFIG_FILE, "r", "utf8"))
 
         self.set_common(environ, config, as_client_db)
@@ -695,7 +695,7 @@ class LocalStorage(object):
         critical and the connection does not need to be cached. Will raise
         an exception upon a connection error."""
         # Follows same security principles as above.
-        config = ConfigParser.ConfigParser()
+        config = configparser.ConfigParser()
         config.readfp(codecs.open(self.CAMCOPS_CONFIG_FILE, "r", "utf8"))
         section = CONFIG_FILE_MAIN_SECTION
 

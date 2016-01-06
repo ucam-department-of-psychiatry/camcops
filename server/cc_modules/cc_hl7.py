@@ -21,33 +21,30 @@
     limitations under the License.
 """
 
-from __future__ import print_function
-
 import base64
 import errno
 import codecs
 import hl7
 import lockfile
 import os
-import ping
 import socket
 import subprocess
 import sys
 
 import pythonlib.rnc_db as rnc_db
 import pythonlib.rnc_web as ws
+from pythonlib.rnc_net import ping
 
-from cc_constants import ACTION, DATEFORMAT, ERA_NOW, PARAM, VALUE
-import cc_db
-import cc_dt
-import cc_filename
-import cc_html
-from cc_logger import logger
-import cc_namedtuples
-from cc_pls import pls
-import cc_recipdef
-import cc_task
-from cc_unittest import unit_test_ignore
+from .cc_constants import ACTION, DATEFORMAT, ERA_NOW, PARAM, VALUE
+from . import cc_db
+from . import cc_dt
+from . import cc_filename
+from . import cc_html
+from .cc_logger import logger
+from . import cc_namedtuples
+from .cc_pls import pls
+from . import cc_recipdef
+from .cc_unittest import unit_test_ignore
 
 
 # =============================================================================
@@ -121,18 +118,18 @@ from cc_unittest import unit_test_ignore
 
 # STRUCTURE OF HL7 MESSAGES
 # MESSAGE = list of segments, separated by carriage returns
-SEGMENT_SEPARATOR = u"\r"
+SEGMENT_SEPARATOR = "\r"
 # SEGMENT = list of fields (= composites), separated by pipes
-FIELD_SEPARATOR = u"|"
+FIELD_SEPARATOR = "|"
 # FIELD (= COMPOSITE) = string, or list of components separated by carets
-COMPONENT_SEPARATOR = u"^"
+COMPONENT_SEPARATOR = "^"
 # Component = string, or lists of subcomponents separated by ampersands
-SUBCOMPONENT_SEPARATOR = u"&"
+SUBCOMPONENT_SEPARATOR = "&"
 # Subcomponents must be primitive data types (i.e. strings).
 # ... http://www.interfaceware.com/blog/hl7-composites/
 
-REPETITION_SEPARATOR = u"~"
-ESCAPE_CHARACTER = u"\\"
+REPETITION_SEPARATOR = "~"
+ESCAPE_CHARACTER = "\\"
 
 # Fields are specified in terms of DATA TYPES:
 # http://www.corepointhealth.com/resource-center/hl7-resources/hl7-data-types
@@ -187,11 +184,9 @@ def send_pending_hl7_messages(recipient_def, show_queue_only, queue_stdout):
         # http://hl7tsc.org/wiki/index.php?title=FTSD-ConCalls-20081028
         # So use TCP/IP ping.
         try:
-            if not ping.do_one(
-                dest_addr=recipient_def.host,
-                timeout=recipient_def.network_timeout_ms,
-                psize=32  # ping standard, not that it matters
-            ):
+            timeout_s = min(recipient_def.network_timeout_ms // 1000, 1)
+            if not ping(hostname=recipient_def.host,
+                        timeout_s=timeout_s):
                 logger.error("Failed to ping {}".format(recipient_def.host))
                 return
         except socket.error:
@@ -225,6 +220,11 @@ def send_pending_hl7_messages_2(recipient_def, show_queue_only, queue_stdout,
     """Sends all pending HL7/file messages to a specific recipient."""
     # Also called once per recipient, but after diversion files safely
     # opened and recipient pinged successfully (if desired).
+    # -------------------------------------------------------------------------
+    # Delayed imports
+    # -------------------------------------------------------------------------
+    from . import cc_task
+
     n_hl7_sent = 0
     n_hl7_successful = 0
     n_file_sent = 0
@@ -373,10 +373,10 @@ def make_msh_segment(message_datetime,
     # -------------------------------------------------------------------------
     # http://www.hl7.org/documentcenter/public/wg/conf/HL7MSH.htm
 
-    segment_id = u"MSH"
+    segment_id = "MSH"
     encoding_characters = (COMPONENT_SEPARATOR + REPETITION_SEPARATOR +
                            ESCAPE_CHARACTER + SUBCOMPONENT_SEPARATOR)
-    sending_application = u"CamCOPS"
+    sending_application = "CamCOPS"
     sending_facility = ""
     receiving_application = ""
     receiving_facility = ""
@@ -442,7 +442,7 @@ def make_pid_segment(forename,
     # ID numbers...
     # http://www.cdc.gov/vaccines/programs/iis/technical-guidance/downloads/hl7guide-1-4-2012-08.pdf  # noqa
 
-    segment_id = u"PID"
+    segment_id = "PID"
     set_id = ""
 
     # External ID
@@ -547,7 +547,7 @@ def make_obr_segment(task):
     #   http://www.corepointhealth.com/resource-center/hl7-resources/hl7-oru-message  # noqa
     #   http://www.corepointhealth.com/resource-center/hl7-resources/hl7-obr-segment  # noqa
 
-    segment_id = u"OBR"
+    segment_id = "OBR"
     set_id = "1"
     placer_order_number = "CamCOPS"
     filler_order_number = "CamCOPS"
@@ -662,35 +662,35 @@ def make_obx_segment(task,
     #   http://www.hl7.org/implement/standards/fhir/v2/0191/index.html
     # subtype of data:
     #   http://www.hl7.org/implement/standards/fhir/v2/0291/index.html
-    segment_id = u"OBX"
-    set_id = unicode(1)
+    segment_id = "OBX"
+    set_id = str(1)
 
-    source_application = u"CamCOPS"
+    source_application = "CamCOPS"
     if task_format == VALUE.OUTPUTTYPE_PDF:
         value_type = "ED"  # Encapsulated data (ED) field
         observation_value = hl7.Field(COMPONENT_SEPARATOR, [
             source_application,
-            u"Application",  # type of data
-            u"PDF",  # data subtype
-            u"Base64",  # base 64 encoding
+            "Application",  # type of data
+            "PDF",  # data subtype
+            "Base64",  # base 64 encoding
             base64.standard_b64encode(task.get_pdf())  # data
         ])
     elif task_format == VALUE.OUTPUTTYPE_HTML:
         value_type = "ED"  # Encapsulated data (ED) field
         observation_value = hl7.Field(COMPONENT_SEPARATOR, [
             source_application,
-            u"TEXT",  # type of data
-            u"HTML",  # data subtype
-            u"A",  # no encoding (see table 0299), but need to escape
+            "TEXT",  # type of data
+            "HTML",  # data subtype
+            "A",  # no encoding (see table 0299), but need to escape
             escape_hl7_text(task.get_html())  # data
         ])
     elif task_format == VALUE.OUTPUTTYPE_XML:
         value_type = "ED"  # Encapsulated data (ED) field
         observation_value = hl7.Field(COMPONENT_SEPARATOR, [
             source_application,
-            u"TEXT",  # type of data
-            u"XML",  # data subtype
-            u"A",  # no encoding (see table 0299), but need to escape
+            "TEXT",  # type of data
+            "XML",  # data subtype
+            "A",  # no encoding (see table 0299), but need to escape
             escape_hl7_text(task.get_xml(
                 indent_spaces=0, eol="",
                 include_comments=xml_field_comments
@@ -807,10 +807,10 @@ def make_dg1_segment(set_id,
     # -------------------------------------------------------------------------
     # http://www.mexi.be/documents/hl7/ch600012.htm
     # https://www.hl7.org/special/committees/vocab/V26_Appendix_A.pdf
-    segment_id = u"DG1"
+    segment_id = "DG1"
     try:
         int(set_id)
-        set_id = unicode(set_id)
+        set_id = str(set_id)
     except:
         raise AssertionError("make_dg1_segment: set_id invalid")
     diagnosis_coding_method = ""
@@ -839,7 +839,7 @@ def make_dg1_segment(set_id,
 
     try:
         clinician_id_number = (
-            unicode(int(clinician_id_number))
+            str(int(clinician_id_number))
             if clinician_id_number is not None else ""
         )
     except:
@@ -911,16 +911,16 @@ def escape_hl7_text(s):
     # http://www.mexi.be/documents/hl7/ch200034.htm
     # http://www.mexi.be/documents/hl7/ch200071.htm
     esc_escape = ESCAPE_CHARACTER + ESCAPE_CHARACTER + ESCAPE_CHARACTER
-    esc_fieldsep = ESCAPE_CHARACTER + u"F" + ESCAPE_CHARACTER
-    esc_componentsep = ESCAPE_CHARACTER + u"S" + ESCAPE_CHARACTER
-    esc_subcomponentsep = ESCAPE_CHARACTER + u"T" + ESCAPE_CHARACTER
-    esc_repetitionsep = ESCAPE_CHARACTER + u"R" + ESCAPE_CHARACTER
+    esc_fieldsep = ESCAPE_CHARACTER + "F" + ESCAPE_CHARACTER
+    esc_componentsep = ESCAPE_CHARACTER + "S" + ESCAPE_CHARACTER
+    esc_subcomponentsep = ESCAPE_CHARACTER + "T" + ESCAPE_CHARACTER
+    esc_repetitionsep = ESCAPE_CHARACTER + "R" + ESCAPE_CHARACTER
 
     # Linebreaks:
     # http://www.healthintersections.com.au/?p=344
     # https://groups.google.com/forum/#!topic/ensemble-in-healthcare/wP2DWMeFrPA  # noqa
     # http://www.hermetechnz.com/documentation/sqlschema/index.html?hl7_escape_rules.htm  # noqa
-    esc_linebreak = ESCAPE_CHARACTER + u".br" + ESCAPE_CHARACTER
+    esc_linebreak = ESCAPE_CHARACTER + ".br" + ESCAPE_CHARACTER
 
     s = s.replace(ESCAPE_CHARACTER, esc_escape)  # this one first!
     s = s.replace(FIELD_SEPARATOR, esc_fieldsep)
@@ -950,10 +950,10 @@ def msg_is_successful_ack(msg):
             len(msh_segment))
     msh_segment_id = msh_segment[0]
     msh_message_type = msh_segment[8]
-    if msh_segment_id != [u"MSH"]:
+    if msh_segment_id != ["MSH"]:
         return False, "First (MSH) segment ID is not 'MSH' (is {})".format(
             msh_segment_id)
-    if msh_message_type != [u"ACK"]:
+    if msh_message_type != ["ACK"]:
         return False, "MSH message type is not 'ACK' (is {})".format(
             msh_message_type)
 
@@ -963,10 +963,10 @@ def msg_is_successful_ack(msg):
             len(msa_segment))
     msa_segment_id = msa_segment[0]
     msa_acknowledgment_code = msa_segment[1]
-    if msa_segment_id != [u"MSA"]:
+    if msa_segment_id != ["MSA"]:
         return False, "Second (MSA) segment ID is not 'MSA' (is {})".format(
             msa_segment_id)
-    if msa_acknowledgment_code != [u"AA"]:
+    if msa_acknowledgment_code != ["AA"]:
         # AA for success, AE for error
         return False, "MSA acknowledgement code is not 'AA' (is {})".format(
             msa_acknowledgment_code)
@@ -1049,19 +1049,19 @@ class HL7Run(object):
 
     @classmethod
     def get_html_header_row(cls):
-        html = u"<tr>"
+        html = "<tr>"
         for fs in cls.FIELDSPECS:
-            html += u"<th>{}</th>".format(fs["name"])
-        html += u"</tr>\n"
+            html += "<th>{}</th>".format(fs["name"])
+        html += "</tr>\n"
         return html
 
     def get_html_data_row(self):
-        html = u"<tr>"
+        html = "<tr>"
         for fs in self.FIELDSPECS:
             name = fs["name"]
             value = ws.webify(getattr(self, name))
-            html += u"<td>{}</td>".format(value)
-        html += u"</tr>\n"
+            html += "<td>{}</td>".format(value)
+        html += "</tr>\n"
         return html
 
 
@@ -1118,6 +1118,11 @@ class HL7Message(object):
         or:
             HL7Message(basetable, serverpk, hl7run, recipient_def)
         """
+        # ---------------------------------------------------------------------
+        # Delayed imports
+        # ---------------------------------------------------------------------
+        from . import cc_task
+
         nargs = len(args)
         if nargs == 1:
             # HL7Message(msg_id)
@@ -1181,7 +1186,7 @@ class HL7Message(object):
             )
         )
         print(infomsg, file=f)
-        print(unicode(self.msg), file=f)
+        print(str(self.msg), file=f)
         print("\n", file=f)
         logger.debug(infomsg)
         self.host = self.recipient_def.divert_to_file
@@ -1325,7 +1330,7 @@ class HL7Message(object):
 
         msh_segment = make_msh_segment(
             message_datetime=now,
-            message_control_id=unicode(self.msg_id)
+            message_control_id=str(self.msg_id)
         )
         pid_segment = self.task.get_patient_hl7_pid_segment(self.recipient_def)
         other_segments = self.task.get_hl7_data_segments(self.recipient_def)
@@ -1336,7 +1341,7 @@ class HL7Message(object):
         segments = [msh_segment, pid_segment] + other_segments
         self.msg = hl7.Message(SEGMENT_SEPARATOR, segments)
         if self.recipient_def.keep_message:
-            self.message = unicode(self.msg)
+            self.message = str(self.msg)
 
     def transmit_hl7(self):
         """Sends HL7 message over TCP/IP."""
@@ -1384,19 +1389,24 @@ class HL7Message(object):
     @classmethod
     def get_html_header_row(cls, showmessage=False, showreply=False):
         """Returns HTML table header row for this class."""
-        html = u"<tr>"
+        html = "<tr>"
         for fs in cls.FIELDSPECS:
             if fs["name"] == "message" and not showmessage:
                 continue
             if fs["name"] == "reply" and not showreply:
                 continue
-            html += u"<th>{}</th>".format(fs["name"])
-        html += u"</tr>\n"
+            html += "<th>{}</th>".format(fs["name"])
+        html += "</tr>\n"
         return html
 
     def get_html_data_row(self, showmessage=False, showreply=False):
         """Returns HTML table data row for this instance."""
-        html = u"<tr>"
+        # ---------------------------------------------------------------------
+        # Delayed imports
+        # ---------------------------------------------------------------------
+        from . import cc_task
+
+        html = "<tr>"
         for fs in self.FIELDSPECS:
             name = fs["name"]
             if name == "message" and not showmessage:
@@ -1405,19 +1415,19 @@ class HL7Message(object):
                 continue
             value = ws.webify(getattr(self, name))
             if name == "serverpk":
-                contents = u"<a href={}>{}</a>".format(
+                contents = "<a href={}>{}</a>".format(
                     cc_task.get_url_task_html(self.basetable, self.serverpk),
                     value
                 )
             elif name == "run_id":
-                contents = u"<a href={}>{}</a>".format(
+                contents = "<a href={}>{}</a>".format(
                     get_url_hl7_run(value),
                     value
                 )
             else:
-                contents = unicode(value)
-            html += u"<td>{}</td>".format(contents)
-        html += u"</tr>\n"
+                contents = str(value)
+            html += "<td>{}</td>".format(contents)
+        html += "</tr>\n"
         return html
 
 # =============================================================================
@@ -1461,7 +1471,7 @@ class MLLPTimeoutClient(object):
         and send the message to the server
         """
         if isinstance(message, hl7.Message):
-            message = unicode(message)
+            message = str(message)
         # wrap in MLLP message container
         data = SB + message + CR + EB + CR
         # ... the CR immediately after the message is my addition, because

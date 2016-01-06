@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# ace3.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -236,7 +236,7 @@ class Ace3(Task):
 
     @classmethod
     def get_tasklongname(cls):
-        return u"Addenbrooke’s Cognitive Examination III"
+        return "Addenbrooke’s Cognitive Examination III"
 
     @classmethod
     def get_fieldspecs(cls):
@@ -466,7 +466,7 @@ class Ace3(Task):
             figurehtml = get_html_from_pyplot_figure(fig)
         return (
             self.get_standard_clinician_block(True, self.comments)
-            + u"""
+            + """
                 <div class="summary">
                     <table class="summary">
                         <tr>
@@ -481,7 +481,7 @@ class Ace3(Task):
             + tr("Fluency", answer(f) + " / 14 ({}%)".format(100*f/14))
             + tr("Language", answer(l) + " / 26 ({}%)".format(100*l/26))
             + tr("Visuospatial", answer(v) + " / 16 ({}%)".format(100*v/16))
-            + u"""
+            + """
                     </table>
                 </div>
                 <table class="taskdetail">
@@ -497,28 +497,28 @@ class Ace3(Task):
 
             + subheading_spanning_two_columns("Attention")
             + tr("Day? Date? Month? Year? Season?",
-                 u", ".join([answer(x) for x in [self.attn_time1,
-                                                 self.attn_time2,
-                                                 self.attn_time3,
-                                                 self.attn_time4,
-                                                 self.attn_time5]]))
+                 ", ".join([answer(x) for x in [self.attn_time1,
+                                                self.attn_time2,
+                                                self.attn_time3,
+                                                self.attn_time4,
+                                                self.attn_time5]]))
             + tr("House number/floor? Street/hospital? Town? County? Country?",
-                 u", ".join([answer(x) for x in [self.attn_place1,
-                                                 self.attn_place2,
-                                                 self.attn_place3,
-                                                 self.attn_place4,
-                                                 self.attn_place5]]))
+                 ", ".join([answer(x) for x in [self.attn_place1,
+                                                self.attn_place2,
+                                                self.attn_place3,
+                                                self.attn_place4,
+                                                self.attn_place5]]))
             + tr("Repeat: Lemon? Key? Ball?",
-                 u", ".join([answer(x) for x in [self.attn_repeat_word1,
-                                                 self.attn_repeat_word2,
-                                                 self.attn_repeat_word3]]))
+                 ", ".join([answer(x) for x in [self.attn_repeat_word1,
+                                                self.attn_repeat_word2,
+                                                self.attn_repeat_word3]]))
             + tr("Repetition: number of trials <i>(not scored)</i>",
                  answer(self.attn_num_registration_trials,
                         formatter_answer=italic))
             + tr(
                 "Serial subtractions: First correct? Second? Third? Fourth? "
                 "Fifth?",
-                u", ".join([answer(x) for x in [
+                ", ".join([answer(x) for x in [
                     self.attn_serial7_subtraction1,
                     self.attn_serial7_subtraction2,
                     self.attn_serial7_subtraction3,
@@ -527,25 +527,25 @@ class Ace3(Task):
 
             + subheading_spanning_two_columns("Memory (1)")
             + tr("Recall: Lemon? Key? Ball?",
-                 u", ".join([answer(x) for x in [self.mem_recall_word1,
-                                                 self.mem_recall_word2,
-                                                 self.mem_recall_word3]]))
+                 ", ".join([answer(x) for x in [self.mem_recall_word1,
+                                                self.mem_recall_word2,
+                                                self.mem_recall_word3]]))
 
             + subheading_spanning_two_columns("Fluency")
-            + tr(u"Score for words beginning with ‘P’ <i>(≥18 scores 7, 14–17 "
-                 u"scores 6, 11–13 scores 5, 8–10 scores 4, 6–7 scores 3, "
-                 u"4–5 scores 2, 2–3 scores 1, 0–1 scores 0)</i>",
+            + tr("Score for words beginning with ‘P’ <i>(≥18 scores 7, 14–17 "
+                 "scores 6, 11–13 scores 5, 8–10 scores 4, 6–7 scores 3, "
+                 "4–5 scores 2, 2–3 scores 1, 0–1 scores 0)</i>",
                  answer(self.fluency_letters_score) + " / 7")
-            + tr(u"Score for animals <i>(≥22 scores 7, 17–21 scores 6, "
-                 u"14–16 scores 5, 11–13 scores 4, 9–10 scores 3, "
-                 u"7–8 scores 2, 5–6 scores 1, &lt;5 scores 0)</i>",
+            + tr("Score for animals <i>(≥22 scores 7, 17–21 scores 6, "
+                 "14–16 scores 5, 11–13 scores 4, 9–10 scores 3, "
+                 "7–8 scores 2, 5–6 scores 1, &lt;5 scores 0)</i>",
                  answer(self.fluency_animals_score) + " / 7")
 
             + subheading_spanning_two_columns("Memory (2)")
             + tr(
                 "Third trial of address registration: Harry? Barnes? 73? "
                 "Orchard? Close? Kingsbridge? Devon?",
-                u", ".join([answer(x) for x in [
+                ", ".join([answer(x) for x in [
                     self.mem_repeat_address_trial3_1,
                     self.mem_repeat_address_trial3_2,
                     self.mem_repeat_address_trial3_3,
@@ -555,66 +555,66 @@ class Ace3(Task):
                     self.mem_repeat_address_trial3_7]]))
             + tr("Current PM? Woman who was PM? USA president? USA president "
                  "assassinated in 1960s?",
-                 u", ".join([answer(x) for x in [self.mem_famous1,
-                                                 self.mem_famous2,
-                                                 self.mem_famous3,
-                                                 self.mem_famous4]]))
+                 ", ".join([answer(x) for x in [self.mem_famous1,
+                                                self.mem_famous2,
+                                                self.mem_famous3,
+                                                self.mem_famous4]]))
 
             + subheading_spanning_two_columns("Language")
-            + tr(u"<i>Practice trial (“Pick up the pencil and then the "
-                 u"paper”)</i>",
+            + tr("<i>Practice trial (“Pick up the pencil and then the "
+                 "paper”)</i>",
                  answer(self.lang_follow_command_practice,
                         formatter_answer=italic))
-            + tr_qa(u"“Place the paper on top of the pencil”",
+            + tr_qa("“Place the paper on top of the pencil”",
                     self.lang_follow_command1)
-            + tr_qa(u"“Pick up the pencil but not the paper”",
+            + tr_qa("“Pick up the pencil but not the paper”",
                     self.lang_follow_command2)
-            + tr_qa(u"“Pass me the pencil after touching the paper”",
+            + tr_qa("“Pass me the pencil after touching the paper”",
                     self.lang_follow_command3)
             + tr(
-                u"Sentence-writing: point for ≥2 complete sentences about "
-                u"the one topic? Point for correct grammar and spelling?",
-                u", ".join([answer(x) for x in [
+                "Sentence-writing: point for ≥2 complete sentences about "
+                "the one topic? Point for correct grammar and spelling?",
+                ", ".join([answer(x) for x in [
                     self.lang_write_sentences_point1,
                     self.lang_write_sentences_point2]]))
             + tr(
-                u"Repeat: caterpillar? eccentricity? unintelligible? "
-                u"statistician? <i>(score 2 if all correct, 1 if 3 correct, "
-                u"0 if ≤2 correct)</i>",
-                u"<i>{}, {}, {}, {}</i> (score <b>{}</b> / 2)".format(
+                "Repeat: caterpillar? eccentricity? unintelligible? "
+                "statistician? <i>(score 2 if all correct, 1 if 3 correct, "
+                "0 if ≤2 correct)</i>",
+                "<i>{}, {}, {}, {}</i> (score <b>{}</b> / 2)".format(
                     answer(self.lang_repeat_word1, formatter_answer=italic),
                     answer(self.lang_repeat_word2, formatter_answer=italic),
                     answer(self.lang_repeat_word3, formatter_answer=italic),
                     answer(self.lang_repeat_word4, formatter_answer=italic),
                     self.get_repeat_word_score(),
                 ))
-            + tr_qa(u"Repeat: “All that glitters is not gold”?",
+            + tr_qa("Repeat: “All that glitters is not gold”?",
                     self.lang_repeat_sentence1)
-            + tr_qa(u"Repeat: “A stitch in time saves nine”?",
+            + tr_qa("Repeat: “A stitch in time saves nine”?",
                     self.lang_repeat_sentence2)
             + tr("Name pictures: spoon, book, kangaroo/wallaby",
-                 u", ".join([answer(x) for x in [self.lang_name_picture1,
-                                                 self.lang_name_picture2,
-                                                 self.lang_name_picture3]]))
+                 ", ".join([answer(x) for x in [self.lang_name_picture1,
+                                                self.lang_name_picture2,
+                                                self.lang_name_picture3]]))
             + tr("Name pictures: penguin, anchor, camel/dromedary",
-                 u", ".join([answer(x) for x in [self.lang_name_picture4,
-                                                 self.lang_name_picture5,
-                                                 self.lang_name_picture6]]))
+                 ", ".join([answer(x) for x in [self.lang_name_picture4,
+                                                self.lang_name_picture5,
+                                                self.lang_name_picture6]]))
             + tr("Name pictures: harp, rhinoceros/rhino, barrel/keg/tub",
-                 u", ".join([answer(x) for x in [self.lang_name_picture7,
-                                                 self.lang_name_picture8,
-                                                 self.lang_name_picture9]]))
+                 ", ".join([answer(x) for x in [self.lang_name_picture7,
+                                                self.lang_name_picture8,
+                                                self.lang_name_picture9]]))
             + tr("Name pictures: crown, alligator/crocodile, "
                  "accordion/piano accordion/squeeze box",
-                 u", ".join([answer(x) for x in [self.lang_name_picture10,
-                                                 self.lang_name_picture11,
-                                                 self.lang_name_picture12]]))
+                 ", ".join([answer(x) for x in [self.lang_name_picture10,
+                                                self.lang_name_picture11,
+                                                self.lang_name_picture12]]))
             + tr(
                 "Identify pictures: monarchy? marsupial? Antarctic? nautical?",
-                u", ".join([answer(x) for x in [self.lang_identify_concept1,
-                                                self.lang_identify_concept2,
-                                                self.lang_identify_concept3,
-                                                self.lang_identify_concept4]]))
+                ", ".join([answer(x) for x in [self.lang_identify_concept1,
+                                               self.lang_identify_concept2,
+                                               self.lang_identify_concept3,
+                                               self.lang_identify_concept4]]))
             + tr_qa("Read all successfully: sew, pint, soot, dough, height",
                     self.lang_read_words_aloud)
 
@@ -624,26 +624,26 @@ class Ace3(Task):
             + tr("Draw clock with numbers and hands at 5:10",
                  answer(self.vsp_draw_clock) + " / 5")
             + tr("Count dots: 8, 10, 7, 9",
-                 u", ".join([answer(x) for x in [self.vsp_count_dots1,
-                                                 self.vsp_count_dots2,
-                                                 self.vsp_count_dots3,
-                                                 self.vsp_count_dots4]]))
+                 ", ".join([answer(x) for x in [self.vsp_count_dots1,
+                                                self.vsp_count_dots2,
+                                                self.vsp_count_dots3,
+                                                self.vsp_count_dots4]]))
             + tr("Identify letters: K, M, A, T",
-                 u", ".join([answer(x) for x in [self.vsp_identify_letter1,
-                                                 self.vsp_identify_letter2,
-                                                 self.vsp_identify_letter3,
-                                                 self.vsp_identify_letter4]]))
+                 ", ".join([answer(x) for x in [self.vsp_identify_letter1,
+                                                self.vsp_identify_letter2,
+                                                self.vsp_identify_letter3,
+                                                self.vsp_identify_letter4]]))
 
             + subheading_spanning_two_columns("Memory (3)")
             + tr("Recall address: Harry? Barnes? 73? Orchard? Close? "
                  "Kingsbridge? Devon?",
-                 u", ".join([answer(x) for x in [self.mem_recall_address1,
-                                                 self.mem_recall_address2,
-                                                 self.mem_recall_address3,
-                                                 self.mem_recall_address4,
-                                                 self.mem_recall_address5,
-                                                 self.mem_recall_address6,
-                                                 self.mem_recall_address7]]))
+                 ", ".join([answer(x) for x in [self.mem_recall_address1,
+                                                self.mem_recall_address2,
+                                                self.mem_recall_address3,
+                                                self.mem_recall_address4,
+                                                self.mem_recall_address5,
+                                                self.mem_recall_address6,
+                                                self.mem_recall_address7]]))
             + tr("Recognize address: Jerry Barnes/Harry Barnes/Harry "
                  "Bradford?",
                  self.get_recog_text((self.mem_recall_address1 == 1
@@ -673,7 +673,7 @@ class Ace3(Task):
             + tr_span_col(self.get_blob_png_html(self.picture2_blobid,
                                                  self.picture2_rotation),
                           td_class="photo")
-            + u"""
+            + """
                 </table>
                 <div class="footnotes">
                     [1] In the ACE-R (the predecessor of the ACE-III),

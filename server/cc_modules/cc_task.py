@@ -44,46 +44,53 @@ import pythonlib.rnc_db as rnc_db
 import pythonlib.rnc_pdf as rnc_pdf
 import pythonlib.rnc_web as ws
 
-from cc_audit import audit
-import cc_blob
-from cc_constants import (
+from .cc_audit import audit
+from . import cc_blob
+from .cc_constants import (  # noqa
     ACTION,
+    CLINICIAN_FIELDSPECS,
+    CRIS_CLUSTER_KEY_FIELDSPEC,
     DATEFORMAT,
     ERA_NOW,
     NUMBER_OF_IDNUMS,
     PARAM,
     PKNAME,
+    RESPONDENT_FIELDSPECS,
+    STANDARD_ANCILLARY_FIELDSPECS,
+    STANDARD_ANONYMOUS_TASK_FIELDSPECS,
     STANDARD_GENERIC_FIELDSPECS,
-    VALUE
+    STANDARD_TASK_FIELDSPECS,
+    TEXT_FILTER_EXEMPT_FIELDS,
+    VALUE,
 )
-import cc_db
-import cc_device
-import cc_dt
-from cc_dt import (
+from . import cc_db
+from . import cc_device
+from . import cc_dt
+from .cc_dt import (
     get_datetime_from_string,
     format_datetime,
     format_datetime_string
 )
-import cc_filename
-import cc_hl7
-import cc_html
-import cc_lang
-from cc_logger import logger
-import cc_namedtuples
-import cc_patient
-import cc_plot
-from cc_pls import pls
-import cc_recipdef
-import cc_specialnote
-from cc_string import WSTRING
-from cc_unittest import (
+from . import cc_filename
+from . import cc_hl7
+from . import cc_html
+from . import cc_lang
+from .cc_logger import logger
+from . import cc_namedtuples
+from . import cc_patient
+from . import cc_plot
+from .cc_pls import pls
+from . import cc_recipdef
+from . import cc_specialnote
+from .cc_string import WSTRING
+from .cc_unittest import (
     unit_test_ignore,
     unit_test_show,
     unit_test_verify,
     unit_test_verify_not
 )
-import cc_version
-import cc_xml
+from . import cc_version
+from . import cc_xml
 
 
 # =============================================================================
@@ -96,14 +103,14 @@ CTV_DICTLIST_INCOMPLETE = [{
     "description": "Incomplete",
     "skip_if_no_content": False
 }]
-DATA_COLLECTION_ONLY_DIV = u"""
+DATA_COLLECTION_ONLY_DIV = """
     <div class="copyright">
         Reproduction of the original task/scale is not permitted.
         This is a data collection tool only; use it only in conjunction with
         a licensed copy of the original task.
     </div>
 """
-DATA_COLLECTION_UNLESS_UPGRADED_DIV = u"""
+DATA_COLLECTION_UNLESS_UPGRADED_DIV = """
     <div class="copyright">
         Reproduction of the original task/scale is not permitted as part of
         CamCOPS. This is a data collection tool only, unless the hosting
@@ -113,14 +120,14 @@ DATA_COLLECTION_UNLESS_UPGRADED_DIV = u"""
     </div>
 """
 FULLWIDTH_PLOT_WIDTH = 6.7  # inches: full width is ~170mm
-ICD10_COPYRIGHT_DIV = u"""
+ICD10_COPYRIGHT_DIV = """
     <div class="copyright">
         ICD-10 criteria: Copyright © 1992 World Health Organization.
         Used here with permission.
     </div>
 """
 INVALID_VALUE = "[invalid_value]"
-SIGNATURE_BLOCK = u"""
+SIGNATURE_BLOCK = """
     <div>
         <table class="noborder">
             <tr class="signature_label">
@@ -145,7 +152,7 @@ SIGNATURE_BLOCK = u"""
 # ... can't get "height" to work in table; only seems to like line-height; for
 # which, you need some text, hence the &nbsp;
 # http://stackoverflow.com/questions/6398172/setting-table-row-height-in-css
-TASK_LIST_HEADER = u"""
+TASK_LIST_HEADER = """
     <table>
         <tr>
             <th>Surname, forename (sex, DOB, age)</th>
@@ -157,7 +164,7 @@ TASK_LIST_HEADER = u"""
             <th>Print/save detail</th>
         </tr>
 """
-TASK_LIST_FOOTER = u"""
+TASK_LIST_FOOTER = """
     </table>
     <div class="footnotes">
         Colour in the Patient column means
@@ -174,112 +181,9 @@ TASK_LIST_FOOTER = u"""
     </div>
 """
 TSV_PATIENT_FIELD_PREFIX = "_patient_"
-CRIS_PATIENT_COMMENT_PREFIX = u"(PATIENT) "
-CRIS_SUMMARY_COMMENT_PREFIX = u"(SUMMARY) "
+CRIS_PATIENT_COMMENT_PREFIX = "(PATIENT) "
+CRIS_SUMMARY_COMMENT_PREFIX = "(SUMMARY) "
 CRIS_TABLENAME_PREFIX = "camcops_"
-
-# =============================================================================
-# Field names/specifications
-# =============================================================================
-
-STANDARD_TASK_COMMON_FIELDSPECS = [
-    dict(name="when_created", cctype="ISO8601", notnull=True,
-         comment="(TASK) Date/time this task instance was created (ISO 8601)"),
-    dict(name="when_firstexit", cctype="ISO8601",
-         comment="(TASK) Date/time of the first exit from this "
-                 "task (ISO 8601)"),
-    dict(name="firstexit_is_finish", cctype="BOOL",
-         comment="(TASK) Was the first exit from the task because it was "
-                 "finished (1)?"),
-    dict(name="firstexit_is_abort", cctype="BOOL",
-         comment="(TASK) Was the first exit from this task because it was "
-                 "aborted (1)?"),
-    dict(name="editing_time_s", cctype="FLOAT",
-         comment="(TASK) Time spent editing (s)"),
-]
-
-STANDARD_TASK_FIELDSPECS = STANDARD_GENERIC_FIELDSPECS + [
-    dict(name="id", cctype="INT_UNSIGNED", notnull=True,
-         comment="(TASK) Primary key (task ID) on the tablet device",
-         indexed=True),
-    dict(name="patient_id", cctype="INT_UNSIGNED", notnull=True,
-         comment="(TASK) Foreign key to patient.id for this device",
-         indexed=True),
-] + STANDARD_TASK_COMMON_FIELDSPECS
-
-STANDARD_ANONYMOUS_TASK_FIELDSPECS = STANDARD_GENERIC_FIELDSPECS + [
-    dict(name="id", cctype="INT_UNSIGNED", notnull=True,
-         comment="(TASK) Primary key (task ID) on the tablet device",
-         indexed=True),
-] + STANDARD_TASK_COMMON_FIELDSPECS
-
-STANDARD_ANCILLARY_FIELDSPECS = STANDARD_GENERIC_FIELDSPECS + [
-    dict(name="id", cctype="INT_UNSIGNED", notnull=True,
-         comment="(ANCILLARY) Primary key on the tablet device",
-         indexed=True),
-]
-
-CLINICIAN_FIELDSPECS = [  # see also has_clinician()
-    dict(name="clinician_specialty", cctype="TEXT", anon=True,
-         comment="(CLINICIAN) Clinician's specialty (e.g. Liaison "
-                 "Psychiatry)"),
-    dict(name="clinician_name", cctype="TEXT", anon=True,
-         comment="(CLINICIAN) Clinician's name (e.g. Dr X)"),
-    dict(name="clinician_professional_registration", cctype="TEXT",
-         comment="(CLINICIAN) Clinician's professional registration (e.g. "
-                 "GMC# 12345)"),
-    dict(name="clinician_post", cctype="TEXT", anon=True,
-         comment="(CLINICIAN) Clinician's post (e.g. Consultant)"),
-    dict(name="clinician_service", cctype="TEXT", anon=True,
-         comment="(CLINICIAN) Clinician's service (e.g. Liaison Psychiatry "
-                 "Service)"),
-    dict(name="clinician_contact_details", cctype="TEXT", anon=True,
-         comment="(CLINICIAN) Clinician's contact details (e.g. bleep, "
-                 "extension)"),
-]
-RESPONDENT_FIELDSPECS = [  # see also has_respondent()
-    dict(name="respondent_name", cctype="TEXT",
-         comment="(RESPONDENT) Respondent's name"),
-    dict(name="respondent_relationship", cctype="TEXT",
-         comment="(RESPONDENT) Respondent's relationship to patient"),
-]
-
-CRIS_CLUSTER_KEY_FIELDSPEC = dict(
-    name="_task_main_pk", cctype="INT_UNSIGNED",
-    comment="(CRIS) Server primary key for task and linked records"
-)
-
-# BEWARE when using these, esp. if you perform modifications. For example:
-#
-#   x = [{"a": 1}]
-#   y = [{"b": 2}]
-#   z = x + y
-#   for i in z:
-#       i["modify"] = 99
-#
-# ... modifies x, y as well. And so does this:
-#
-#   x = [{"a": 1}]
-#   y = [{"b": 2}]
-#   z = list(x) + list(y)
-#   for i in z:
-#       i["modify"] = 99
-#
-# So you'd need a deep copy.
-# http://stackoverflow.com/questions/8913026/list-copy-not-working
-# http://stackoverflow.com/questions/2612802
-# http://stackoverflow.com/questions/6993531/copy-list-in-python
-#
-# However, our problem comes about when we modify comments; it'll be OK if we
-# never modify a comment when there's an existing comment.
-
-TEXT_FILTER_EXEMPT_FIELDS = [
-    item["name"] for item in (
-        STANDARD_GENERIC_FIELDSPECS
-        + STANDARD_TASK_COMMON_FIELDSPECS
-        + CLINICIAN_FIELDSPECS
-    ) if item["cctype"] == "TEXT"
-]
 
 
 # =============================================================================
@@ -426,7 +330,7 @@ def get_base_tables(include_anonymous=True):
 def get_literal_regex(x):
     """Regex for anonymisation. Literal at word boundaries."""
     # http://stackoverflow.com/questions/919056
-    wb = u"\\b"  # word boundary; escape the slash
+    wb = "\\b"  # word boundary; escape the slash
     return re.compile(wb + re.escape(x) + wb, re.IGNORECASE)
 
 
@@ -1178,7 +1082,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         # What to wipe?
         fieldspecs = self.get_fieldspecs()
         literals = self._patient.get_literals_for_anonymisation()
-        literals = [unicode(x) for x in literals if x]  # remove blanks
+        literals = [str(x) for x in literals if x]  # remove blanks
         datetimes = self._patient.get_dates_for_anonymisation()
         datetimes = [x for x in datetimes if x]  # remove blanks
         regexes = (
@@ -1197,7 +1101,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                 continue
             fieldname = fs["name"]
             v = getattr(self, fieldname)  # starting value
-            if not v or not (isinstance(v, str) or isinstance(v, unicode)):
+            if not v or not isinstance(v, str):
                 # empty, or not a string
                 continue
             for r in regexes:
@@ -1612,7 +1516,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         complete = self.is_complete()
         anonymous = self.is_anonymous()
         if anonymous:
-            patient_id = u"—"
+            patient_id = "—"
         else:
             patient_id = self._patient.get_html_for_webview_patient_column()
         satisfies_upload = (
@@ -1626,7 +1530,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
         if anonymous:
             conflict = False
-            idmsg = u"—"
+            idmsg = "—"
         else:
             conflict, idmsg = self._patient.get_conflict_html_for_id_col()
 
@@ -1637,7 +1541,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         else:
             colour_policy = ' class="badidpolicy_mild"'
 
-        return u"""
+        return """
             <tr>
                 <td{colour_policy}>{patient_id}</td>
                 <td{colour_conflict}>{idmsg}</td>
@@ -2191,7 +2095,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                     itembranches.append(cc_xml.XML_COMMENT_BLOBS)
                     itembranches.extend(it.make_xml_branches_for_blob_fields(
                         skip_fields=skip_fields))
-            branches.append(u"<!-- Items for {} -->\n".format(tablename))
+            branches.append("<!-- Items for {} -->\n".format(tablename))
             branches.append(cc_namedtuples.XmlElementTuple(
                 name=tablename,
                 value=itembranches
@@ -2271,7 +2175,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
     def get_hyperlink_html(self, text):
         """Hyperlink to HTML version."""
-        return u"""<a href="{}" target="_blank">{}</a>""".format(
+        return """<a href="{}" target="_blank">{}</a>""".format(
             get_url_task_html(self.get_tablename(), self._pk),
             text
         )
@@ -2344,7 +2248,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
     def get_hyperlink_pdf(self, text):
         """Hyperlink to PDF version."""
-        return u"""<a href="{}" target="_blank">{}</a>""".format(
+        return """<a href="{}" target="_blank">{}</a>""".format(
             get_url_task_pdf(self.get_tablename(), self._pk),
             text
         )
@@ -2430,7 +2334,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             client_id = self._patient.get_idnum(which_idnum)
         except:
             client_id = ""
-        title = u"CamCOPS_" + self.get_taskshortname()
+        title = "CamCOPS_" + self.get_taskshortname()
         description = self.get_tasklongname()
         author = self.get_clinician_name()  # may be blank
         document_date = format_datetime_string(self.when_created,
@@ -2480,7 +2384,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         taskname = ws.webify(self.get_taskshortname())
         created = format_datetime_string(self.when_created,
                                          DATEFORMAT.LONG_DATETIME)
-        content = u"{} created {}.".format(taskname, created)
+        content = "{} created {}.".format(taskname, created)
         return cc_html.pdf_footer_content(content)
 
     def get_pdf_start(self):
@@ -2536,7 +2440,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                     default_for_blank_strings=True
                 )
             )
-        main_task_header = u"""
+        main_task_header = """
             <div class="taskheader">
                 <b>{longname} ({shortname})</b><br>
                 Created: {created} {age}
@@ -2595,7 +2499,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         explanations = [ws.webify(e) for e in explanations]
         if explanations:
             explanations = ["<b>WARNING. Invalid values.</b>"] + explanations
-        return u"""
+        return """
             <div class="warning">
                 {}
             </div>
@@ -2604,7 +2508,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     def get_erasure_notice(self):
         if not self._manually_erased:
             return ""
-        return u"""
+        return """
             <div class="warning">
                 <b>RECORD HAS BEEN MANUALLY ERASED BY {} AT {}.</b>
             </div>
@@ -2617,9 +2521,9 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         self.ensure_special_notes_loaded()
         if not self._special_notes:
             return ""
-        note_html = u"<br>".join([
+        note_html = "<br>".join([
             x.get_note_as_html() for x in self._special_notes])
-        return u"""
+        return """
             <div class="specialnote">
                 <b>TASK SPECIAL NOTES:</b><br>
                 {}
@@ -2643,7 +2547,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                 ws.webify(self._preserving_user),
                 self._era,  # already a UTC ISO8601 string.
             )
-        return u"""
+        return """
             {invalid_warning}
             <div class="office">
                 Created on device at: {when_created}.
@@ -2698,7 +2602,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
     def get_xml_nav_html(self):
         """HTML DIV with hyperlink to XML version."""
-        return u"""
+        return """
             <div class="office">
                 <a href="{}">View raw data as XML</a>
             </div>
@@ -2733,7 +2637,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             )
         if not options:
             return ""
-        return u"""
+        return """
             <div class="superuser">
                 {}
             </div>
@@ -2743,7 +2647,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         """HTML with hyperlink to predecessor version, or ""."""
         if self._predecessor_pk is None:
             return ""
-        return u"""
+        return """
             <p><i>
                 An older version of this record exists:
                 <a href="{}">view previous version</a>.
@@ -2756,7 +2660,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         """HTML with hyperlink to successor version, or ""."""
         if self._successor_pk is None:
             return ""
-        return u"""
+        return """
             <p><b>
                 An newer version of this record exists:
                 <a href="{}">view next version</a>.
@@ -2774,7 +2678,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         """HTML DIV for clinician information, or ""."""
         if not self.has_clinician():
             return ""
-        html = u"""
+        html = """
             <div class="clinician">
                 <table class="taskdetail">
                     <tr>
@@ -2810,12 +2714,12 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             ws.webify(self.clinician_contact_details),
         )
         if include_comments:
-            html += u"""
+            html += """
                     <tr><td>Clinician’s comments:</td><td>{}</td></tr>
             """.format(
                 ws.bold_if_not_blank(ws.webify(comments))
             )
-        html += u"""
+        html += """
                 </table>
             </div>
         """
@@ -2823,7 +2727,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
     def get_standard_clinician_comments_block(self, comments):
         """HTML DIV for clinician's comments."""
-        return u"""
+        return """
             <div class="clinician">
                 <table class="taskdetail">
                     <tr>
@@ -2840,7 +2744,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         """HTML DIV for respondent information, or ""."""
         if not self.has_respondent():
             return ""
-        return u"""
+        return """
             <div class="respondent">
                 <table class="taskdetail">
                     <tr>
@@ -3060,7 +2964,7 @@ def get_task_filter_dropdown(currently_selected=None):
         t = ws.webify(cls.get_tablename())
         taskoptions.append({
             "shortname": cls.get_taskshortname(),
-            "html": u"""<option value="{t}"{sel}>{name}</option>""".format(
+            "html": """<option value="{t}"{sel}>{name}</option>""".format(
                 t=t,
                 name=ws.webify(cls.get_taskshortname()),
                 sel=ws.option_selected(currently_selected, t),
@@ -3193,7 +3097,7 @@ def task_instance_unit_test(name, instance, skip_tasks=[]):
         name), instance.get_extra_dictlist_for_tsv)
 
     literals = ["hello"]
-    datetimes = [datetime.date(2014, 01, 01)]
+    datetimes = [datetime.date(2014, 1, 1)]
     regexes = (
         [get_literal_regex(x) for x in literals]
         + [cc_dt.get_date_regex(dt) for dt in datetimes]
@@ -3534,26 +3438,26 @@ def unit_tests():
         ln = cls.get_tasklongname()
         if ln in longnames:
             raise AssertionError(
-                u"Task longname ({}) duplicates another".format(ln))
+                "Task longname ({}) duplicates another".format(ln))
         longnames.add(ln)
 
         sn = cls.get_taskshortname()
         if sn in shortnames:
             raise AssertionError(
-                u"Task shortname ({}) duplicates another".format(sn))
+                "Task shortname ({}) duplicates another".format(sn))
         shortnames.add(sn)
 
         basetable = cls.get_tablename()
         if basetable in tasktables:
             raise AssertionError(
-                u"Task basetable ({}) duplicates another".format(basetable))
+                "Task basetable ({}) duplicates another".format(basetable))
         tasktables.add(basetable)
 
         extratables = cls.get_extra_table_names()
         for t in extratables:
             if t in tasktables:
                 raise AssertionError(
-                    u"Task extratable ({}) duplicates another".format(t))
+                    "Task extratable ({}) duplicates another".format(t))
             tasktables.add(t)
 
         # Task unit tests

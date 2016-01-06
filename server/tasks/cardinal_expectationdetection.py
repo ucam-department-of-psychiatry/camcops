@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# cardinal_expectationdetection.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -52,13 +52,13 @@ NRATINGS = 5  # numbered 0-4 in the database
 # -- to match DETECTION_OPTIONS.length in the original task
 N_CUES = 8  # to match magic number in original task
 
-ERROR_RATING_OUT_OF_RANGE = u"""
+ERROR_RATING_OUT_OF_RANGE = """
     <div class="error">Can't draw figure: rating out of range</div>
 """
-WARNING_INSUFFICIENT_DATA = u"""
+WARNING_INSUFFICIENT_DATA = """
     <div class="warning">Insufficient data</div>
 """
-WARNING_RATING_MISSING = u"""
+WARNING_RATING_MISSING = """
     <div class="warning">One or more ratings are missing</div>
 """
 PLAIN_ROC_TITLE = "ROC"
@@ -153,7 +153,7 @@ class ExpDet_Trial(Ancillary):
 
     @classmethod
     def get_html_table_header(cls):
-        return u"""
+        return """
             <table class="extradetail">
                 <tr>
                     <th>Trial</th>
@@ -286,7 +286,7 @@ class ExpDet_TrialGroupSpec(Ancillary):
 
     @classmethod
     def get_html_table_header(cls):
-        return u"""
+        return """
             <table class="extradetail">
                 <tr>
                     <th>Group#</th>
@@ -321,7 +321,7 @@ class Cardinal_ExpectationDetection(Task):
 
     @classmethod
     def get_tasklongname(cls):
-        return u"Cardinal RN – Expectation–Detection task"
+        return "Cardinal RN – Expectation–Detection task"
 
     @classmethod
     def get_fieldspecs(cls):
@@ -415,7 +415,7 @@ class Cardinal_ExpectationDetection(Task):
         html = ExpDet_TrialGroupSpec.get_html_table_header()
         for g in grouparray:
             html += g.get_html_table_row()
-        html += u"""</table>"""
+        html += """</table>"""
         return html
 
     def get_c_dprime(self, h, fa, two_alternative_forced_choice=False):
@@ -539,7 +539,7 @@ class Cardinal_ExpectationDetection(Task):
         if not trialarray or not grouparray:
             return WARNING_INSUFFICIENT_DATA
         FIGSIZE = (FULLWIDTH_PLOT_WIDTH*2, FULLWIDTH_PLOT_WIDTH)
-        html = u""
+        html = ""
         fig = plt.figure(figsize=FIGSIZE)
         warned = False
         for groupnum in range(len(grouparray)):
@@ -572,14 +572,14 @@ class Cardinal_ExpectationDetection(Task):
         if not trialarray or not self.num_blocks:
             return WARNING_INSUFFICIENT_DATA
         FIGSIZE = (FULLWIDTH_PLOT_WIDTH, FULLWIDTH_PLOT_WIDTH/2)
-        html = u""
+        html = ""
         fig = plt.figure(figsize=FIGSIZE)
         warned = False
         for half in range(2):
             ax = fig.add_subplot(1, 2, half+1)
             # ... rows, cols, plotnum (in reading order from 1)
-            blocks = range(half * self.num_blocks/2,
-                           self.num_blocks/(2 - half))
+            blocks = list(range(half * self.num_blocks/2,
+                                self.num_blocks/(2 - half)))
             rocinfo = self.get_roc_info(trialarray, blocks, None)
             if rocinfo["rating_out_of_range"]:
                 return ERROR_RATING_OUT_OF_RANGE
@@ -607,7 +607,7 @@ class Cardinal_ExpectationDetection(Task):
         html = ExpDet_Trial.get_html_table_header()
         for t in trialarray:
             html += t.get_html_table_row()
-        html += u"""</table>"""
+        html += """</table>"""
         return html
 
     def get_group_array(self):
@@ -627,7 +627,7 @@ class Cardinal_ExpectationDetection(Task):
 
         # Provide HTML
         # HTML
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
                     {}
@@ -646,13 +646,13 @@ class Cardinal_ExpectationDetection(Task):
         )
         h += tr_qa("Number of blocks", self.num_blocks)
         h += tr_qa("Stimulus counterbalancing", self.stimulus_counterbalancing)
-        h += tr_qa(u"“Detection” response on right?",
+        h += tr_qa("“Detection” response on right?",
                    self.is_detection_response_on_right)
         h += tr_qa("Pause every <i>n</i> trials (0 = no pauses)",
                    self.pause_every_n_trials)
         h += tr_qa("Cue duration (s)", self.cue_duration_s)
-        h += tr_qa(u"Visual cue intensity (0–1)", self.visual_cue_intensity)
-        h += tr_qa(u"Auditory cue intensity (0–1)",
+        h += tr_qa("Visual cue intensity (0–1)", self.visual_cue_intensity)
+        h += tr_qa("Auditory cue intensity (0–1)",
                    self.auditory_cue_intensity)
         h += tr_qa("ISI duration (s)", self.isi_duration_s)
         h += tr_qa("Visual target duration (s)", self.visual_target_duration_s)
@@ -660,17 +660,17 @@ class Cardinal_ExpectationDetection(Task):
                    self.visual_background_intensity)
         h += tr_qa("Visual target 0 (circle) intensity",
                    self.visual_target_0_intensity)
-        h += tr_qa(u"Visual target 1 (“sun”) intensity",
+        h += tr_qa("Visual target 1 (“sun”) intensity",
                    self.visual_target_1_intensity)
         h += tr_qa("Auditory background intensity",
                    self.auditory_background_intensity)
         h += tr_qa("Auditory target 0 (tone) intensity",
                    self.auditory_target_0_intensity)
-        h += tr_qa(u"Auditory target 1 (“moon”) intensity",
+        h += tr_qa("Auditory target 1 (“moon”) intensity",
                    self.auditory_target_1_intensity)
         h += tr_qa("ITI minimum (s)", self.iti_min_s)
         h += tr_qa("ITI maximum (s)", self.iti_max_s)
-        h += u"""
+        h += """
             </table>
             <table class="taskdetail">
                 <tr><th width="50%">Measure</th><th width="50%">Value</th></tr>
@@ -679,7 +679,7 @@ class Cardinal_ExpectationDetection(Task):
         h += tr_qa("Finished?", get_yes_no_none(self.finished))
         h += tr_qa("Last trial completed", self.last_trial_completed)
         h += (
-            u"""
+            """
                 </table>
                 <div>
                     Trial group specifications (one block is a full set of
@@ -687,7 +687,7 @@ class Cardinal_ExpectationDetection(Task):
                 </div>
             """
             + self.get_group_html(grouparray)
-            + u"""
+            + """
                 <div>
                     Detection probabilities by block and group (c &gt; 0 when
                     miss rate &gt; false alarm rate; c &lt; 0 when false alarm
@@ -695,11 +695,11 @@ class Cardinal_ExpectationDetection(Task):
                 </div>
             """
             + self.get_html_correct_by_group_and_block(trialarray)
-            + u"<div>Detection probabilities by block:</div>"
+            + "<div>Detection probabilities by block:</div>"
             + self.get_html_correct_by_block(trialarray)
-            + u"<div>Detection probabilities by group:</div>"
+            + "<div>Detection probabilities by group:</div>"
             + self.get_html_correct_by_group(trialarray)
-            + u"""
+            + """
                 <div>
                     Detection probabilities by half and high/low association
                     probability:
@@ -707,7 +707,7 @@ class Cardinal_ExpectationDetection(Task):
             """
             + self.get_html_correct_by_half_and_probability(trialarray,
                                                             grouparray)
-            + u"""
+            + """
                 <div>
                     Detection probabilities by block and high/low association
                     probability:
@@ -715,16 +715,16 @@ class Cardinal_ExpectationDetection(Task):
             """
             + self.get_html_correct_by_block_and_probability(trialarray,
                                                              grouparray)
-            + u"""
+            + """
                 <div>
                     Receiver operating characteristic (ROC) curves by group:
                 </div>
             """
             + self.get_roc_figure_by_group(trialarray, grouparray, True)
             + self.get_roc_figure_by_group(trialarray, grouparray, False)
-            + u"<div>First-half/last-half ROCs:</div>"
+            + "<div>First-half/last-half ROCs:</div>"
             + self.get_roc_figure_firsthalf_lasthalf(trialarray, True)
-            + u"<div>Trial-by-trial results:</div>"
+            + "<div>Trial-by-trial results:</div>"
             + self.get_trial_html(trialarray)
         )
         return h
@@ -797,8 +797,8 @@ class Cardinal_ExpectationDetection(Task):
         )
         for half in [0, 1]:
             for prob in [0, 1]:
-                blocks = range(half * self.num_blocks/2,
-                               self.num_blocks/(2 - half))
+                blocks = list(range(half * self.num_blocks/2,
+                                    self.num_blocks/(2 - half)))
                 groups = groups_lowprob if prob == 0 else groups_highprob
                 (p_detected_given_present,
                  p_detected_given_absent,
@@ -1107,8 +1107,8 @@ class Cardinal_ExpectationDetection(Task):
         # Now another one...
         halfprob_values = []
         for half in range(2):
-            blocks = range(half * self.num_blocks/2,
-                           self.num_blocks/(2 - half))
+            blocks = list(range(half * self.num_blocks/2,
+                                self.num_blocks/(2 - half)))
             for target_probability_low_high in (0, 1):
                 groups = (
                     groups_lowprob if target_probability_low_high == 0

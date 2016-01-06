@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# gmcpq.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -170,12 +170,12 @@ class GMCPQ(Task):
             DICTQ3[option] = WSTRING("gmcpq_q3_option" + str(option))
             DICTQ11[option] = WSTRING("gmcpq_q11_option" + str(option))
         for option in range(0, 6):
-            prefix = str(option) + u" – " if option > 0 else ""
+            prefix = str(option) + " – " if option > 0 else ""
             DICTQ4[option] = prefix + WSTRING("gmcpq_q4_option" + str(option))
             DICTQ5[option] = prefix + WSTRING("gmcpq_q5_option" + str(option))
         for option in range(1, 17):
             DICTQ12[option] = WSTRING("gmcpq_ethnicity_option" + str(option))
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
                     {}
@@ -233,7 +233,7 @@ class GMCPQ(Task):
         h += tr_qa(WSTRING("gmcpq_q12"), get_from_dict(DICTQ12, self.q12))
         h += tr_qa(ell + WSTRING("gmcpq_ethnicity_other_s"),
                    ws.webify(self.q12_details))
-        h += u"""
+        h += """
             </table>
         """
         return h

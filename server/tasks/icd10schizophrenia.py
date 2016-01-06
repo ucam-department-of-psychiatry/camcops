@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# icd10schizophrenia.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -220,7 +220,7 @@ class Icd10Schizophrenia(Task):
 
     @classmethod
     def get_tasklongname(cls):
-        return u"ICD-10 criteria for schizophrenia (F20)"
+        return "ICD-10 criteria for schizophrenia (F20)"
 
     @classmethod
     def get_fieldspecs(cls):
@@ -308,7 +308,7 @@ class Icd10Schizophrenia(Task):
             fieldname, WSTRING("icd10sz_" + fieldname))
 
     def get_task_html(self):
-        h = self.get_standard_clinician_block(True, self.comments) + u"""
+        h = self.get_standard_clinician_block(True, self.comments) + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
@@ -316,15 +316,15 @@ class Icd10Schizophrenia(Task):
                    format_datetime_string(self.date_pertains_to,
                                           DATEFORMAT.LONG_DATE, default=None))
         h += tr_qa(WSTRING("icd10sz_meets_general_criteria")
-                   + u" <sup>[1]</sup>",
+                   + " <sup>[1]</sup>",
                    get_true_false_none(self.meets_general_criteria()))
-        h += u"""
+        h += """
                 </table>
             </div>
             <div class="explanation">
         """
         h += WSTRING("icd10sz_comments")
-        h += u"""
+        h += """
             </div>
             <table class="taskdetail">
                 <tr>
@@ -363,7 +363,7 @@ class Icd10Schizophrenia(Task):
         for x in Icd10Schizophrenia.H_NAMES:
             h += self.row_present_absent(x)
 
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] All of:

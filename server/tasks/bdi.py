@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# bdi.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -101,7 +101,7 @@ class Bdi(Task):
         if not self.is_complete():
             return CTV_DICTLIST_INCOMPLETE
         return [{
-            "content": u"{} total score {}/63".format(
+            "content": "{} total score {}/63".format(
                        ws.webify(self.bdi_scale), self.total_score())
         }]
 
@@ -117,13 +117,13 @@ class Bdi(Task):
 
     def get_task_html(self):
         score = self.total_score()
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
         h += tr(WSTRING("total_score"), answer(score) + " / 63")
-        h += u"""
+        h += """
                 </table>
             </div>
             <div class="explanation">
@@ -138,10 +138,10 @@ class Bdi(Task):
         """
         h += tr_qa(WSTRING("bdi_which_scale"), ws.webify(self.bdi_scale))
 
-        for q in xrange(1, Bdi.NQUESTIONS + 1):
-            h += tr_qa(u"{} {}".format(WSTRING("question"), q),
+        for q in range(1, Bdi.NQUESTIONS + 1):
+            h += tr_qa("{} {}".format(WSTRING("question"), q),
                        getattr(self, "q" + str(q)))
-        h += u"""
+        h += """
             </table>
         """ + DATA_COLLECTION_ONLY_DIV
         return h

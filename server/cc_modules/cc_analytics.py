@@ -22,16 +22,17 @@
 """
 
 import datetime
-import urllib
-import urllib2
+import urllib.error
+import urllib.parse
+import urllib.request
 
-from cc_constants import DATEFORMAT
-import cc_dt
-from cc_logger import logger
-from cc_pls import pls
-import cc_storedvar
-from cc_unittest import unit_test_ignore
-import cc_version
+from .cc_constants import DATEFORMAT
+from . import cc_dt
+from .cc_logger import logger
+from .cc_pls import pls
+from . import cc_storedvar
+from .cc_unittest import unit_test_ignore
+from . import cc_version
 
 ANALYTICS_FREQUENCY_DAYS = 7  # send analytics weekly
 
@@ -89,13 +90,12 @@ def send_analytics_if_necessary():
     # See http://stackoverflow.com/questions/2297403 for details.
 
     # Send it.
-    encoded_dict = urllib.urlencode(d)
-    request = urllib2.Request(ANALYTICS_URL, encoded_dict)
+    encoded_dict = urllib.parse.urlencode(d)
+    request = urllib.request.Request(ANALYTICS_URL, encoded_dict)
     try:
-        urllib2.urlopen(request, timeout=ANALYTICS_TIMEOUT_MS)
-        # connection = urllib2.urlopen(request, timeout=ANALYTICS_TIMEOUT_MS)
-        # response = connection.read()  # we don't care
-    except (urllib2.URLError, urllib2.HTTPError):
+        urllib.request.urlopen(request, timeout=ANALYTICS_TIMEOUT_MS)
+        # don't care about any response
+    except (urllib.error.URLError, urllib.error.HTTPError):
         # something broke; try again next time
         logger.info("Failed to send analytics to {}".format(ANALYTICS_URL))
         return

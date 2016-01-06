@@ -24,15 +24,15 @@
 import pythonlib.rnc_db as rnc_db
 from pythonlib.rnc_lang import AttrDict
 
-from cc_constants import (
+from .cc_constants import (
     DATEFORMAT,
     ERA_NOW,
     ISO8601_STRING_LENGTH,
-    NUMBER_OF_IDNUMS
+    NUMBER_OF_IDNUMS,
+    STANDARD_TASK_FIELDSPECS,
 )
-import cc_dt
-from cc_pls import pls
-import cc_task
+from . import cc_dt
+from .cc_pls import pls
 
 
 # =============================================================================
@@ -300,8 +300,7 @@ def manually_erase_record_object_and_save(obj, table, fields, username):
     WRITES TO DATABASE."""
     if obj._pk is None or obj._era == ERA_NOW:
         return
-    standard_task_fields = [x["name"]
-                            for x in cc_task.STANDARD_TASK_FIELDSPECS]
+    standard_task_fields = [x["name"] for x in STANDARD_TASK_FIELDSPECS]
     erasure_fields = [
         x
         for x in fields

@@ -22,7 +22,7 @@
 """
 
 
-from cc_pls import pls
+from .cc_pls import pls
 
 # =============================================================================
 # Constants

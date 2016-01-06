@@ -27,10 +27,9 @@ from pythonlib.rnc_lang import merge_dicts
 import pythonlib.rnc_plot as rnc_plot
 import pythonlib.rnc_web as ws
 
-from cc_constants import ACTION, NUMBER_OF_IDNUMS, PARAM
-import cc_pls  # caution, circular import
-from cc_string import WSTRING
-import cc_version
+from .cc_constants import ACTION, NUMBER_OF_IDNUMS, PARAM, PDF_ENGINE
+from . import cc_pls  # caution, circular import
+from .cc_string import WSTRING
 
 # =============================================================================
 # Simple constants
@@ -41,12 +40,12 @@ DEFAULT_PLOT_DPI = 300
 # Debugging option
 USE_SVG_IN_HTML = True  # set to False for PNG debugging
 
-RESTRICTED_WARNING = u"""
+RESTRICTED_WARNING = """
     <div class="warning">
         You are restricted to viewing records uploaded by you. Other records
         may exist for the same patient(s), uploaded by others.
     </div>"""
-RESTRICTED_WARNING_SINGULAR = u"""
+RESTRICTED_WARNING_SINGULAR = """
     <div class="warning">
         You are restricted to viewing records uploaded by you. Other records
         may exist for the same patient, uploaded by others.
@@ -60,7 +59,7 @@ RESTRICTED_WARNING_SINGULAR = u"""
 CAMCOPS_FAVICON_FILE = "favicon_camcops.png"
 PDF_LOGO_HEIGHT = "20mm"
 
-CSS_PAGED_MEDIA = (cc_version.PDF_ENGINE != "pdfkit")
+CSS_PAGED_MEDIA = (PDF_ENGINE != "pdfkit")
 
 COMMON_DEFINITIONS = {
     "SMALLFONTSIZE": "0.85em",
@@ -137,7 +136,7 @@ PDF_SIZES = {
 # http://stackoverflow.com/questions/6023419
 
 # Avoid both {} and % substitution by using string.Template and $
-CSS_BASE = string.Template(u"""
+CSS_BASE = string.Template("""
 
 /* Display PNG fallback image... */
 svg img.svg {
@@ -593,7 +592,7 @@ PDF_PAGED_MEDIA_CSS = string.Template("""
 # http://librelist.com/browser//weasyprint/2013/7/4/header-and-footer-for-each-page/#abe45ec357d593df44ffca48253817ef  # noqa
 # http://weasyprint.org/docs/changelog/
 
-COMMON_HEAD = string.Template(u"""
+COMMON_HEAD = string.Template("""
 <!DOCTYPE html> <!-- HTML 5 -->
 <html>
     <head>
@@ -688,7 +687,7 @@ WKHTMLTOPDF_OPTIONS = {
 def wkhtmltopdf_header(inner_html):
     # doctype is mandatory
     # https://github.com/wkhtmltopdf/wkhtmltopdf/issues/1645
-    return string.Template(u"""
+    return string.Template("""
         <!DOCTYPE html>
         <html>
             <head>
@@ -707,7 +706,7 @@ def wkhtmltopdf_header(inner_html):
 
 
 def wkhtmltopdf_footer(inner_text):
-    return string.Template(u"""
+    return string.Template("""
         <!DOCTYPE html>
         <html>
             <head>
@@ -754,7 +753,7 @@ def wkhtmltopdf_footer(inner_text):
 
 
 def csspagedmedia_header(inner_html):
-    return u"""
+    return """
         <div id="headerContent">
             {}
         </div>
@@ -762,7 +761,7 @@ def csspagedmedia_header(inner_html):
 
 
 def csspagedmedia_footer(inner_text):
-    return u"""
+    return """
         <div id="footerContent">
             Page <pdf:pagenumber> of <pdf:pagecount>.
             {}
@@ -815,7 +814,7 @@ def table_row(columns, classes=None, colspans=None, colwidths=None,
         ]
 
     return (
-        u"<tr>"
+        "<tr>"
         + "".join([
             "<{cellspec}{classdetail}{colspan}{colwidth}>"
             "{contents}</{cellspec}>".format(
@@ -832,7 +831,7 @@ def table_row(columns, classes=None, colspans=None, colwidths=None,
 
 def div(content, div_class=""):
     """Make simple HTML div."""
-    return u"""
+    return """
         <div{div_class}>
             {content}
         </div>
@@ -844,7 +843,7 @@ def div(content, div_class=""):
 
 def table(content, table_class=""):
     """Make simple HTML table."""
-    return u"""
+    return """
         <table{table_class}>
             {content}
         </table>
@@ -868,7 +867,7 @@ def tr(*args, **kwargs):
         elements = args
     else:
         elements = [td(x) for x in args]
-    return u"<tr{tr_class}>{contents}</tr>\n".format(
+    return "<tr{tr_class}>{contents}</tr>\n".format(
         tr_class=' class="{}"'.format(tr_class) if tr_class else '',
         contents="".join(elements),
     )
@@ -876,7 +875,7 @@ def tr(*args, **kwargs):
 
 def td(contents, td_class="", td_width=""):
     """Make simple HTML table data cell."""
-    return u"<td{td_class}{td_width}>{contents}</td>\n".format(
+    return "<td{td_class}{td_width}>{contents}</td>\n".format(
         td_class=' class="{}"'.format(td_class) if td_class else '',
         td_width=' width="{}"'.format(td_width) if td_width else '',
         contents=contents,
@@ -885,7 +884,7 @@ def td(contents, td_class="", td_width=""):
 
 def th(contents, th_class="", th_width=""):
     """Make simple HTML table header cell."""
-    return u"<th{th_class}{th_width}>{contents}</th>\n".format(
+    return "<th{th_class}{th_width}>{contents}</th>\n".format(
         th_class=' class="{}"'.format(th_class) if th_class else '',
         th_width=' width="{}"'.format(th_width) if th_width else '',
         contents=contents,
@@ -920,12 +919,12 @@ def subheading_spanning_four_columns(s, th_not_td=False):
 
 def bold(x):
     """Applies HTML bold."""
-    return u"<b>{}</b>".format(x)
+    return "<b>{}</b>".format(x)
 
 
 def italic(x):
     """Applies HTML italic."""
-    return u"<i>{}</i>".format(x)
+    return "<i>{}</i>".format(x)
 
 
 def identity(x):
@@ -943,8 +942,7 @@ def answer(x, default="?", default_for_blank_strings=False,
     """
     if x is None:
         return formatter_blank(default)
-    if default_for_blank_strings and not x and (isinstance(x, str)
-                                                or isinstance(x, unicode)):
+    if default_for_blank_strings and not x and isinstance(x, str):
         return formatter_blank(default)
     return formatter_answer(x)
 
@@ -959,11 +957,11 @@ def tr_span_col(x, cols=2, tr_class="", td_class="", th_not_td=False):
         th_not_td: make it a th, not a td.
     """
     cell = "th" if th_not_td else "td"
-    return u'<tr{tr_cl}><{c} colspan="{cols}"{td_cl}>{x}</{c}></tr>'.format(
+    return '<tr{tr_cl}><{c} colspan="{cols}"{td_cl}>{x}</{c}></tr>'.format(
         cols=cols,
         x=x,
-        tr_cl=u' class="{}"'.format(tr_class) if tr_class else "",
-        td_cl=u' class="{}"'.format(td_class) if td_class else "",
+        tr_cl=' class="{}"'.format(tr_class) if tr_class else "",
+        td_cl=' class="{}"'.format(td_class) if td_class else "",
         c=cell,
     )
 
@@ -984,20 +982,20 @@ def get_html_from_pyplot_figure(fig):
 
 
 def get_html_which_idnum_picker(param=PARAM.WHICH_IDNUM, selected=None):
-    html = u"""
+    html = """
         <select name="{param}">
     """.format(
         param=param,
     )
     for n in range(1, NUMBER_OF_IDNUMS + 1):
-        html += u"""
+        html += """
             <option value="{value}"{selected}>{description}</option>
         """.format(
             value=str(n),
             description=cc_pls.pls.get_id_desc(n),
             selected=ws.option_selected(selected, n),
         )
-    html += u"""
+    html += """
         </select>
     """
     return html
@@ -1096,7 +1094,7 @@ def login_page(extra_msg="", redirect=None):
                             else '')
     # http://stackoverflow.com/questions/2530
     # Note that e.g. Chrome may ignore this.
-    return cc_pls.pls.WEBSTART + u"""
+    return cc_pls.pls.WEBSTART + """
         <div>{dbtitle}</div>
         <div>
             <b>Unauthorized access prohibited.</b>
@@ -1128,7 +1126,7 @@ def login_page(extra_msg="", redirect=None):
 
 def simple_success_message(msg, extra_html=""):
     """HTML for simple success message."""
-    return cc_pls.pls.WEBSTART + u"""
+    return cc_pls.pls.WEBSTART + """
         <h1>Success</h1>
         <div>{}</div>
         {}
@@ -1142,7 +1140,7 @@ def simple_success_message(msg, extra_html=""):
 
 def error_msg(msg):
     """HTML for error message."""
-    return u"""<h2 class="error">{}</h2>""".format(msg)
+    return """<h2 class="error">{}</h2>""".format(msg)
 
 
 def fail_with_error_not_logged_in(error, redirect=None):
@@ -1152,7 +1150,7 @@ def fail_with_error_not_logged_in(error, redirect=None):
 
 def fail_with_error_stay_logged_in(error, extra_html=""):
     """HTML for errors where the user stays logged in."""
-    return cc_pls.pls.WEBSTART + u"""
+    return cc_pls.pls.WEBSTART + """
         {}
         {}
         {}
@@ -1165,7 +1163,7 @@ def fail_with_error_stay_logged_in(error, extra_html=""):
 
 def get_return_to_main_menu_line():
     """HTML DIV for returning to the main menu."""
-    return u"""
+    return """
         <div>
             <a href="{}">Return to main menu</a>
         </div>
@@ -1176,7 +1174,7 @@ def get_database_title_string():
     """Database title as HTML-safe unicode."""
     if not cc_pls.pls.DATABASE_TITLE:
         return ""
-    return u"Database: <b>{}</b>.".format(ws.webify(cc_pls.pls.DATABASE_TITLE))
+    return "Database: <b>{}</b>.".format(ws.webify(cc_pls.pls.DATABASE_TITLE))
 
 
 # =============================================================================

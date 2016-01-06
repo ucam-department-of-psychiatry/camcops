@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# wemwbs.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -57,7 +57,7 @@ class Wemwbs(Task):
 
     @classmethod
     def get_tasklongname(cls):
-        return u"Warwick–Edinburgh Mental Well-Being Scale"
+        return "Warwick–Edinburgh Mental Well-Being Scale"
 
     @classmethod
     def get_fieldspecs(cls):
@@ -110,7 +110,7 @@ class Wemwbs(Task):
         if not self.is_complete():
             return CTV_DICTLIST_INCOMPLETE
         return [{
-            "content": u"WEMWBS total score {} (range {}–{})".format(
+            "content": "WEMWBS total score {} (range {}–{})".format(
                 self.total_score(),
                 Wemwbs.MINTOTALSCORE,
                 Wemwbs.MAXTOTALSCORE)
@@ -134,24 +134,24 @@ class Wemwbs(Task):
     def get_task_html(self):
         MAIN_DICT = {
             None: None,
-            1: u"1 — " + WSTRING("wemwbs_a1"),
-            2: u"2 — " + WSTRING("wemwbs_a2"),
-            3: u"3 — " + WSTRING("wemwbs_a3"),
-            4: u"4 — " + WSTRING("wemwbs_a4"),
-            5: u"5 — " + WSTRING("wemwbs_a5")
+            1: "1 — " + WSTRING("wemwbs_a1"),
+            2: "2 — " + WSTRING("wemwbs_a2"),
+            3: "3 — " + WSTRING("wemwbs_a3"),
+            4: "4 — " + WSTRING("wemwbs_a4"),
+            5: "5 — " + WSTRING("wemwbs_a5")
         }
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
         h += tr(
             WSTRING("total_score"),
-            answer(self.total_score()) + u" (range {}–{})".format(
+            answer(self.total_score()) + " (range {}–{})".format(
                 Wemwbs.MINTOTALSCORE,
                 Wemwbs.MAXTOTALSCORE
             )
         )
-        h += u"""
+        h += """
                 </table>
             </div>
             <div class="explanation">
@@ -167,7 +167,7 @@ class Wemwbs(Task):
             nstr = str(i)
             h += tr_qa(WSTRING("wemwbs_q" + nstr),
                        get_from_dict(MAIN_DICT, getattr(self, "q" + nstr)))
-        h += u"""
+        h += """
             </table>
             <div class="copyright">
                 WEMWBS: from Tennant et al. (2007), <i>Health and Quality of
@@ -200,7 +200,7 @@ class Swemwbs(Task):
 
     @classmethod
     def get_tasklongname(cls):
-        return u"Short Warwick–Edinburgh Mental Well-Being Scale"
+        return "Short Warwick–Edinburgh Mental Well-Being Scale"
 
     @classmethod
     def get_fieldspecs(cls):
@@ -253,7 +253,7 @@ class Swemwbs(Task):
         if not self.is_complete():
             return CTV_DICTLIST_INCOMPLETE
         return [{
-            "content": u"SWEMWBS total score {} (range {}–{})".format(
+            "content": "SWEMWBS total score {} (range {}–{})".format(
                 self.total_score(),
                 Swemwbs.MINTOTALSCORE,
                 Swemwbs.MAXTOTALSCORE)
@@ -277,24 +277,24 @@ class Swemwbs(Task):
     def get_task_html(self):
         MAIN_DICT = {
             None: None,
-            1: u"1 — " + WSTRING("wemwbs_a1"),
-            2: u"2 — " + WSTRING("wemwbs_a2"),
-            3: u"3 — " + WSTRING("wemwbs_a3"),
-            4: u"4 — " + WSTRING("wemwbs_a4"),
-            5: u"5 — " + WSTRING("wemwbs_a5")
+            1: "1 — " + WSTRING("wemwbs_a1"),
+            2: "2 — " + WSTRING("wemwbs_a2"),
+            3: "3 — " + WSTRING("wemwbs_a3"),
+            4: "4 — " + WSTRING("wemwbs_a4"),
+            5: "5 — " + WSTRING("wemwbs_a5")
         }
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
         h += tr(
             WSTRING("total_score"),
-            answer(self.total_score()) + u" (range {}–{})".format(
+            answer(self.total_score()) + " (range {}–{})".format(
                 Swemwbs.MINTOTALSCORE,
                 Swemwbs.MAXTOTALSCORE
             )
         )
-        h += u"""
+        h += """
                 </table>
             </div>
             <div class="explanation">
@@ -310,7 +310,7 @@ class Swemwbs(Task):
             nstr = str(i)
             h += tr_qa(WSTRING("swemwbs_q" + nstr),
                        get_from_dict(MAIN_DICT, getattr(self, "q" + nstr)))
-        h += u"""
+        h += """
             </table>
             <div class="copyright">
                 SWEMWBS: from Stewart-Brown et al. (2009), <i>Health and

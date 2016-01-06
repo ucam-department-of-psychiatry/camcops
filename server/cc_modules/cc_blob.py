@@ -28,12 +28,12 @@ import wand.image
 import pythonlib.rnc_db as rnc_db
 import pythonlib.rnc_web as ws
 
-from cc_constants import ERA_NOW, STANDARD_GENERIC_FIELDSPECS
-import cc_db
-from cc_logger import logger
-from cc_pls import pls
-from cc_unittest import unit_test_ignore
-import cc_xml
+from .cc_constants import ERA_NOW, STANDARD_GENERIC_FIELDSPECS
+from . import cc_db
+from .cc_logger import logger
+from .cc_pls import pls
+from .cc_unittest import unit_test_ignore
+from . import cc_xml
 
 # ExactImage API documentation is a little hard to find. See:
 #   http://www.exactcode.com/site/open_source/exactimage

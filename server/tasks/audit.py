@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# audit.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -126,17 +126,17 @@ class Audit(Task):
         Q2_DICT = {None: None}
         Q3_TO_8_DICT = {None: None}
         Q9_TO_10_DICT = {None: None}
-        for option in xrange(0, 5):
-            Q1_DICT[option] = str(option) + u" – " + \
+        for option in range(0, 5):
+            Q1_DICT[option] = str(option) + " – " + \
                 WSTRING("audit_q1_option" + str(option))
-            Q2_DICT[option] = str(option) + u" – " + \
+            Q2_DICT[option] = str(option) + " – " + \
                 WSTRING("audit_q2_option" + str(option))
-            Q3_TO_8_DICT[option] = str(option) + u" – " + \
+            Q3_TO_8_DICT[option] = str(option) + " – " + \
                 WSTRING("audit_q3to8_option" + str(option))
             if option != 1 and option != 3:
-                Q9_TO_10_DICT[option] = str(option) + u" – " + \
+                Q9_TO_10_DICT[option] = str(option) + " – " + \
                     WSTRING("audit_q9to10_option" + str(option))
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
         """
@@ -144,7 +144,7 @@ class Audit(Task):
         h += tr(WSTRING("total_score"), answer(score) + " / 40")
         h += tr_qa(WSTRING("audit_exceeds_standard_cutoff"),
                    get_yes_no(exceeds_cutoff))
-        h += u"""
+        h += """
                 </table>
             </div>
             <table class="taskdetail">
@@ -155,7 +155,7 @@ class Audit(Task):
         """
         h += tr_qa(WSTRING("audit_q1_s"), get_from_dict(Q1_DICT, self.q1))
         h += tr_qa(WSTRING("audit_q2_s"), get_from_dict(Q2_DICT, self.q2))
-        for q in xrange(3, 8 + 1):
+        for q in range(3, 8 + 1):
             h += tr_qa(
                 WSTRING("audit_q" + str(q) + "_s"),
                 get_from_dict(Q3_TO_8_DICT, getattr(self, "q" + str(q)))
@@ -164,7 +164,7 @@ class Audit(Task):
                    get_from_dict(Q9_TO_10_DICT, self.q9))
         h += tr_qa(WSTRING("audit_q10_s"),
                    get_from_dict(Q9_TO_10_DICT, self.q10))
-        h += u"""
+        h += """
             </table>
             <div class="copyright">
                 AUDIT: Copyright © World Health Organization.
@@ -247,24 +247,24 @@ class AuditC(Task):
         Q1_DICT = {None: None}
         Q2_DICT = {None: None}
         Q3_DICT = {None: None}
-        for option in xrange(0, 5):
-            Q1_DICT[option] = str(option) + u" – " + \
+        for option in range(0, 5):
+            Q1_DICT[option] = str(option) + " – " + \
                 WSTRING("audit_q1_option" + str(option))
             if option == 0:  # special!
-                Q2_DICT[option] = str(option) + u" – " + \
+                Q2_DICT[option] = str(option) + " – " + \
                     WSTRING("audit_c_q2_option0")
             else:
-                Q2_DICT[option] = str(option) + u" – " + \
+                Q2_DICT[option] = str(option) + " – " + \
                     WSTRING("audit_q2_option" + str(option))
-            Q3_DICT[option] = str(option) + u" – " + \
+            Q3_DICT[option] = str(option) + " – " + \
                 WSTRING("audit_q3to8_option" + str(option))
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
         h += tr(WSTRING("total_score"), answer(score) + " / 12")
-        h += u"""
+        h += """
                 </table>
             </div>
             <table class="taskdetail">
@@ -279,7 +279,7 @@ class AuditC(Task):
                    get_from_dict(Q2_DICT, self.q2))
         h += tr_qa(WSTRING("audit_c_q3_question"),
                    get_from_dict(Q3_DICT, self.q3))
-        h += u"""
+        h += """
             </table>
             <div class="copyright">
                 AUDIT: Copyright © World Health Organization.
