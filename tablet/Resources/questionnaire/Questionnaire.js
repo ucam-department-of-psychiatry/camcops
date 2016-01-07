@@ -100,6 +100,12 @@ function setDefaultPageProperties(pageprops, pageIndex, npages, readonly) {
                                L('question') + " " + (pageIndex + 1) + " " +
                                L('of') + " " + npages);
     // if (readonly) { pageprops.title += " " + L('read_only_suffix'); }
+
+    // Deal with MobileWeb bug (2015-09-06):
+    var platform = require('lib/platform');
+    if (platform.mobileweb) {
+        pageprops["disableScroll"] = true;
+    }
 }
 /*jslint unparam: false */
 

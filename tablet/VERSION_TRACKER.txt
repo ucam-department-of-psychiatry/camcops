@@ -108,6 +108,8 @@ Version history (new to old)
 - Javascript code meets JSLint (2014) prohibition on trailing commas.
 - Altered TaskWindowCommon.js to get round Titanium MobileWeb bug preventing
   use of sections in tables; https://jira.appcelerator.org/browse/TIMOB-18112
+- Failed to get MobileWeb to acknowledge password entry. The problem appears to
+  be that the UI is unresponsive until user input is required.
 
 1.34 (2015-04-26)
 - Probable bugfix: IDED3D performed its stage failure check before its stage
