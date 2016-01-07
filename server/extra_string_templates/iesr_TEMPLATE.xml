@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <task name="iesr">
+    <task name="IES-R">
         <!-- Impact of Events Scale - Revised -->
 <!--
-        <string name="instruction">XXX</string>
+        <string name="instruction_1">XXX</string>
+        <string name="instruction_2">XXX</string>
         <string name="q1">XXX</string>
         <string name="q2">XXX</string>
         <string name="q3">XXX</string>

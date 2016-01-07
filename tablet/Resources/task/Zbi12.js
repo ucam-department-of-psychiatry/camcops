@@ -1,7 +1,7 @@
 // Zbi12.js
 
 /*
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -26,13 +26,11 @@
 
 var DBCONSTANTS = require('common/DBCONSTANTS'),
     dbcommon = require('lib/dbcommon'),
-    extrastrings = require('table/extrastrings'),
     taskcommon = require('lib/taskcommon'),
     lang = require('lib/lang'),
     tablename = "zbi12",
     fieldlist = dbcommon.standardTaskFields(),
-    nquestions = 12,
-    EXTRASTRING_TASKNAME = "zbi12";
+    nquestions = 12;
 
 fieldlist.push(
     {name: 'responder_name', type: DBCONSTANTS.TYPE_TEXT},
@@ -62,8 +60,10 @@ lang.extendPrototype(Zbi12, {
 
     // TASK CLASS FIELD OVERRIDES (USED BY BaseTask)
 
+    _extrastringTaskname: "ZBI-12",
     isTaskCrippled: function () {
-        return !extrastrings.task_exists(EXTRASTRING_TASKNAME);
+        var extrastrings = require('table/extrastrings');
+        return !extrastrings.task_exists(this._extrastringTaskname);
     },
 
     // EXTRA STRINGS

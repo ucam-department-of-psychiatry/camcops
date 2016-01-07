@@ -26,7 +26,7 @@ from cc_modules.cc_html import (
     answer,
     tr_qa,
 )
-from cc_modules.cc_string import task_extrastrings_exist, WSTRING, WXSTRING
+from cc_modules.cc_string import task_extrastrings_exist, WSTRING
 from cc_modules.cc_task import (
     CTV_DICTLIST_INCOMPLETE,
     DATA_COLLECTION_UNLESS_UPGRADED_DIV,
@@ -41,7 +41,7 @@ from cc_modules.cc_task import (
 
 class Hads(Task):
     NQUESTIONS = 14
-    EXTRASTRING_TASKNAME = "hads"
+    EXTRASTRING_TASKNAME = "HADS"
     ANXIETY_QUESTIONS = [1, 3, 5, 7, 9, 11, 13]
     DEPRESSION_QUESTIONS = [2, 4, 6, 8, 10, 12, 14]
     TASK_FIELDSPECS = repeat_fieldspec(
@@ -168,7 +168,7 @@ class Hads(Task):
             else:
                 q = "Q{}. {}".format(
                     n,
-                    WXSTRING(self.EXTRASTRING_TASKNAME, "q" + str(n) + "_stem")
+                    self.WXSTRING("q" + str(n) + "_stem")
                 )
             if n in self.ANXIETY_QUESTIONS:
                 q += " (A)"
@@ -178,8 +178,7 @@ class Hads(Task):
             if crippled or v is None or v < MIN_SCORE or v > MAX_SCORE:
                 a = v
             else:
-                a = "{}: {}".format(v, WXSTRING(self.EXTRASTRING_TASKNAME,
-                                                "q{}_a{}".format(n, v)))
+                a = "{}: {}".format(v, self.WXSTRING("q{}_a{}".format(n, v)))
             h += tr_qa(q, a)
         h += """
             </table>

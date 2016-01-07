@@ -27,7 +27,7 @@ from cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from cc_modules.cc_string import WSTRING, WXSTRING
+from cc_modules.cc_string import WSTRING
 from cc_modules.cc_task import (
     DATA_COLLECTION_UNLESS_UPGRADED_DIV,
     get_from_dict,
@@ -72,7 +72,7 @@ class Zbi12(Task):
     ] + QUESTION_FIELDSPECS
     TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
     QUESTION_FIELDS = [x["name"] for x in QUESTION_FIELDSPECS]
-    EXTRASTRING_TASKNAME = "zbi12"
+    EXTRASTRING_TASKNAME = "ZBI-12"
 
     @classmethod
     def get_tablename(cls):
@@ -147,14 +147,7 @@ class Zbi12(Task):
             a = getattr(self, "q" + str(q))
             fa = ("{}: {}".format(a, get_from_dict(OPTION_DICT, a))
                   if a is not None else None)
-            h += tr(
-                WXSTRING(
-                    self.EXTRASTRING_TASKNAME,
-                    "q" + str(q),
-                    "[ZBI: Q{}]".format(q)
-                ),
-                answer(fa)
-            )
+            h += tr(self.WXSTRING("q" + str(q)), answer(fa))
         h += """
             </table>
         """ + DATA_COLLECTION_UNLESS_UPGRADED_DIV

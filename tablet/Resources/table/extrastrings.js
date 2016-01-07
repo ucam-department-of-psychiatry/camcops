@@ -1,7 +1,7 @@
 // extrastrings.js
 
 /*
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -55,6 +55,9 @@ exports.delete_all_strings = delete_all_strings;
 
 function get(task, name, defaultvalue) {
     // RETURNS THE STRING.
+    if (!task || !name) {
+        return defaultvalue;
+    }
     var object = {},
         fvpairs = {"task": task, "name": name},
         success = dbcommon.readFromUniqueFieldCombination(tablename, fieldlist,

@@ -89,7 +89,7 @@ from . import cc_plot
 from .cc_pls import pls
 from . import cc_recipdef
 from . import cc_specialnote
-from .cc_string import WSTRING
+from .cc_string import WSTRING, WXSTRING
 from .cc_unittest import (
     unit_test_ignore,
     unit_test_show,
@@ -496,6 +496,8 @@ def get_blob_by_id(obj, blobid):
 
 class Task(object):  # new-style classes inherit from (e.g.) object
     """Abstract base class for all tasks."""
+
+    EXTRASTRING_TASKNAME = None  # override if desired
 
     def __init__(self, serverpk):
         """Initialize (loading details from database)."""
@@ -2903,6 +2905,18 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                 continue
             total += value if value is not None else 0
         return total
+
+    # -------------------------------------------------------------------------
+    # Extra strings
+    # -------------------------------------------------------------------------
+
+    def WXSTRING(self, name, defaultvalue=None):
+        if defaultvalue is None:
+            defaultvalue = "[{}: {}]".format(self.EXTRASTRING_TASKNAME,
+                                             name)
+        return WXSTRING(self.EXTRASTRING_TASKNAME,
+                        name,
+                        defaultvalue)
 
 
 class Ancillary(object):

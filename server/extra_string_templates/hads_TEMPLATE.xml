@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <task name="hads">
+    <task name="HADS">
         <!-- Q1. A; 3 at the top -->
 <!--
         <string name="q1_stem">XXX:</string>

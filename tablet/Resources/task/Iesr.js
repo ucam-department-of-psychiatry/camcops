@@ -1,7 +1,7 @@
 // Iesr.js
 
 /*
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -26,17 +26,14 @@
 
 var DBCONSTANTS = require('common/DBCONSTANTS'),
     dbcommon = require('lib/dbcommon'),
-    extrastrings = require('table/extrastrings'),
     taskcommon = require('lib/taskcommon'),
     lang = require('lib/lang'),
     tablename = "iesr",
     fieldlist = dbcommon.standardTaskFields(),
-    nquestions = 12,
-    EXTRASTRING_TASKNAME = "iesr";
+    nquestions = 22;
 
 fieldlist.push(
-    {name: 'responder_name', type: DBCONSTANTS.TYPE_TEXT},
-    {name: 'responder_relationship', type: DBCONSTANTS.TYPE_TEXT}
+    {name: 'event', type: DBCONSTANTS.TYPE_TEXT},
 );
 dbcommon.appendRepeatedFieldDef(fieldlist, "q", 1, nquestions,
                                 DBCONSTANTS.TYPE_INTEGER);
@@ -47,32 +44,28 @@ dbcommon.createTable(tablename, fieldlist);
 
 // TASK
 
-function Zbi12(patient_id) {
+function Iesr(patient_id) {
     taskcommon.BaseTask.call(this, patient_id); // call base constructor
 }
 
-lang.inheritPrototype(Zbi12, taskcommon.BaseTask);
-lang.extendPrototype(Zbi12, {
+lang.inheritPrototype(Iesr, taskcommon.BaseTask);
+lang.extendPrototype(Iesr, {
 
     // KEY DATABASE FIELDS (USED BY DatabaseObject)
 
-    _objecttype: Zbi12,
+    _objecttype: Iesr,
     _tablename: tablename,
     _fieldlist: fieldlist,
 
     // TASK CLASS FIELD OVERRIDES (USED BY BaseTask)
 
+    _extrastringTaskname: "IES-R",
     isTaskCrippled: function () {
-        return !extrastrings.task_exists(EXTRASTRING_TASKNAME);
+        var extrastrings = require('table/extrastrings');
+        return !extrastrings.task_exists(this._extrastringTaskname);
     },
 
     // EXTRA STRINGS
-
-    XSTRING: function (name, defaultvalue) {
-        defaultvalue = defaultvalue || name;
-        return extrastrings.get(EXTRASTRING_TASKNAME, name,
-                                "[ZBI: " + defaultvalue + "]");
-    },
 
     get_questions: function () {
         var arr = [],
@@ -121,35 +114,35 @@ lang.extendPrototype(Zbi12, {
 
         elements = [
             {
+                type: "QuestionText",
+                bold: true,
+                text: this.XSTRING('instruction_1')
+            },
+            {
                 type: "QuestionTypedVariables",
                 mandatory: true,
                 useColumns: false,
                 variables: [
                     {
                         type: UICONSTANTS.TYPEDVAR_TEXT,
-                        field: "responder_name",
-                        prompt: L('zbi_q_responder_name')
-                    },
-                    {
-                        type: UICONSTANTS.TYPEDVAR_TEXT,
-                        field: "responder_relationship",
-                        prompt: L('zbi_q_responder_relationship')
+                        field: "event",
+                        prompt: L('iesr_event')
                     }
                 ]
             },
             {
                 type: "QuestionText",
                 bold: true,
-                text: this.XSTRING('instruction')
+                text: this.XSTRING('instruction_2')
             },
             {
                 type: "QuestionMCQGrid",
                 options: [
-                    new KeyValuePair(L('zbi_a0'), 0),
-                    new KeyValuePair(L('zbi_a1'), 1),
-                    new KeyValuePair(L('zbi_a2'), 2),
-                    new KeyValuePair(L('zbi_a3'), 3),
-                    new KeyValuePair(L('zbi_a4'), 4)
+                    new KeyValuePair(L('iesr_a0'), 0),
+                    new KeyValuePair(L('iesr_a1'), 1),
+                    new KeyValuePair(L('iesr_a2'), 2),
+                    new KeyValuePair(L('iesr_a3'), 3),
+                    new KeyValuePair(L('iesr_a4'), 4)
                 ],
                 questions: this.get_questions(),
                 fields: taskcommon.stringArrayFromSequence("q", 1, nquestions),
@@ -159,7 +152,7 @@ lang.extendPrototype(Zbi12, {
 
         pages = [
             {
-                title: L('t_zbi12'),
+                title: L('t_iesr'),
                 clinician: false,
                 elements: elements
             }
@@ -179,4 +172,4 @@ lang.extendPrototype(Zbi12, {
 
 });
 
-module.exports = Zbi12;
+module.exports = Iesr;
