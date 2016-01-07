@@ -72,7 +72,7 @@ class Zbi12(Task):
     ] + QUESTION_FIELDSPECS
     TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
     QUESTION_FIELDS = [x["name"] for x in QUESTION_FIELDSPECS]
-    EXTRASTRING_TASKNAME = "zarit_burden_interview_12"
+    EXTRASTRING_TASKNAME = "zbi12"
 
     @classmethod
     def get_tablename(cls):

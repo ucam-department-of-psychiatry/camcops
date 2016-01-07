@@ -25,6 +25,7 @@ camcops (1.40-1) all; urgency=low
     API.
   * PHQ-9 database comment fixed for Q10.
   * comment_fmt for HADS fields. Note MySQL: SHOW FULL COLUMNS FROM table.
+  * IES-R (skeleton only).
   * Unit tests to ensure no overlap for task longnames/shortnames/tables; see
     cc_task.unit_tests().
   * clinician_service field as part of clinician block

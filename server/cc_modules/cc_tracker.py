@@ -798,7 +798,10 @@ class Tracker(object):
                     va = t[2]
                 else:
                     va = "center"
-                ax.text(label_left, y, l, verticalalignment=va, alpha="0.5")
+                ax.text(label_left, y, l, verticalalignment=va, alpha=0.5)
+                # was "0.5" rather than 0.5, which led to a tricky-to-find
+                # "TypeError: a float is required" exception after switching
+                # to Python 3.
 
         # replot so the data are on top of the rest:
         ax.plot(x, values, color="b", linestyle="-", marker="+",

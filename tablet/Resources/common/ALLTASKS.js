@@ -448,6 +448,14 @@ exports.TASKLIST = {
         subtitle: L('s_ided3d'),
         info: 'html/ided3d.html'
     },
+    IESR: {
+        task: 'task/Iesr',
+        title: L('b_iesr'),
+        tables: ['iesr'],
+        maintitle: L('t_iesr'),
+        subtitle: L('s_iesr'),
+        info: 'html/iesr.html'
+    },
     IRAC: {
         task: 'task/Irac',
         title: L('b_irac'),

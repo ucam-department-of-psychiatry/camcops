@@ -6,11 +6,7 @@ CAMCOPS SERVER THINGS TO DO NOW
 
 *** test
 
-*** CentOS installation
-
-IN PROGRESS
-  * Python 3
-  * gunicorn for independence from Apache/single built-in modwsgi.
+*** CentOS installation at CPFT
 
 ===============================================================================
 CAMCOPS SERVER THINGS TO DO

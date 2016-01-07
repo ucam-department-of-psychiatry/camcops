@@ -16,6 +16,8 @@ Note that you can get CentOS version/architecture with:
 
 # We could use a temporary directory for the Debian build,
 # but it's helpful to be able to see what it's doing as well.
+# ... actually, let's do that, using mkdtemp(), so it'll linger if the build
+# fails.
 
 import getpass
 import glob
@@ -27,6 +29,7 @@ import shutil
 import string
 import subprocess
 import sys
+import tempfile
 
 if sys.version_info[0] < 3:
     raise AssertionError("Need Python 3")
@@ -163,7 +166,9 @@ PROJECT_BASE_DIR = os.path.abspath(join(STARTDIR, os.pardir))
 SRCTABLETDIR = join(PROJECT_BASE_DIR, 'tablet')
 WEBDOCSDIR = join(PROJECT_BASE_DIR, 'website', 'documentation')
 
-WRKDIR = join(STARTDIR, 'debian')
+TMPDIR = tempfile.mkdtemp()
+WRKDIR = join(TMPDIR, 'debian')
+print("Temporary working directory: " + TMPDIR)
 
 PACKAGEDIR = join(STARTDIR, 'packagebuild')
 DSTCAMCOPSDIR = join('/usr/share', PACKAGE)
@@ -288,8 +293,7 @@ for i, line in enumerate(open(VERSIONFILE)):
     if m:
         CHANGEDATE = m.group(1)
 DEBVERSION = MAINVERSION + '-1'
-INITIALPACKAGENAME = join(STARTDIR, 'debian.deb')
-FINALPACKAGENAME = join(
+PACKAGENAME = join(
     PACKAGEDIR,
     '{PACKAGE}_{DEBVERSION}_all.deb'.format(PACKAGE=PACKAGE,
                                             DEBVERSION=DEBVERSION))
@@ -303,30 +307,31 @@ print("changedate:", CHANGEDATE)
 # =============================================================================
 # Directories, files
 # =============================================================================
-print("Deleting old workspace")
-shutil.rmtree(WRKDIR, ignore_errors=True)  # CAUTION!
+# print("Deleting old workspace")
+# shutil.rmtree(WRKDIR, ignore_errors=True)  # CAUTION!
 
 print("Making directories")
-mkdirp(WRKDIR)
-mkdirp(PACKAGEDIR)
 mkdirp(DEBDIR)
 mkdirp(DEBOVERRIDEDIR)
-mkdirp(WRKPYTHONLIBDIR)
-mkdirp(WRKEXTRASTRINGTEMPLATES)
-mkdirp(WRKDOCDIR)
-mkdirp(WRKMANDIR)
+mkdirp(PACKAGEDIR)
+mkdirp(RPMTOPDIR)
+mkdirp(WRKCONFIGDIR)
 mkdirp(WRKCONSOLEFILEDIR)
-mkdirp(WRKSERVERDIR)
+mkdirp(WRKDIR)
+mkdirp(WRKDOCDIR)
+mkdirp(WRKEXTRASTRINGTEMPLATES)
+mkdirp(WRKMANDIR)
 mkdirp(WRKMODULEDIR)
+mkdirp(WRKPYTHONLIBDIR)
+mkdirp(WRKSERVERDIR)
+mkdirp(WRKSTATICDIR)
+mkdirp(WRKSUPERVISORCONFDIR)
+mkdirp(WRKTABLETDIR)
 mkdirp(WRKTASKDIR)
 mkdirp(WRKTASKDISCARDEDDIR)
-mkdirp(WRKCONFIGDIR)
-mkdirp(RPMTOPDIR)
+mkdirp(WRKTOOLDIR)
 for d in "BUILD,BUILDROOT,RPMS,RPMS/noarch,SOURCES,SPECS,SRPMS".split(","):
     mkdirp(join(RPMTOPDIR, d))
-mkdirp(WRKTABLETDIR)
-mkdirp(WRKTOOLDIR)
-mkdirp(WRKSUPERVISORCONFDIR)
 
 print("Copying files")
 copyglob(join(SRCSERVERDIR, '*.py'), WRKSERVERDIR)
@@ -1111,18 +1116,19 @@ RIO_DOCUMENT_TYPE = CC
 SCRIPT_AFTER_FILE_EXPORT =
 
     """).substitute(  # noqa
+        DEFAULT_ANONSTAG_DB_NAME=DEFAULT_ANONSTAG_DB_NAME,
+        DEFAULT_ANONSTAG_DB_PASSWORD=DEFAULT_ANONSTAG_DB_PASSWORD,
+        DEFAULT_ANONSTAG_DB_USER=DEFAULT_ANONSTAG_DB_USER,
         DEFAULT_DB_NAME=DEFAULT_DB_NAME,
-        DEFAULT_DB_USER=DEFAULT_DB_USER,
         DEFAULT_DB_PASSWORD=DEFAULT_DB_PASSWORD,
-        INSTITUTIONURL=INSTITUTIONURL,
-        DSTSERVERDIR=DSTSERVERDIR,
+        DEFAULT_DB_USER=DEFAULT_DB_USER,
         DSTCAMCOPSDIR=DSTCAMCOPSDIR,
         DSTHL7LOCKFILESTEM=DSTHL7LOCKFILESTEM,
         DSTLOCKDIR=DSTLOCKDIR,
+        DSTSERVERDIR=DSTSERVERDIR,
+        DSTSTATICDIR=DSTSTATICDIR,
         DSTSUMMARYTABLELOCKFILESTEM=DSTSUMMARYTABLELOCKFILESTEM,
-        DEFAULT_ANONSTAG_DB_NAME=DEFAULT_ANONSTAG_DB_NAME,
-        DEFAULT_ANONSTAG_DB_USER=DEFAULT_ANONSTAG_DB_USER,
-        DEFAULT_ANONSTAG_DB_PASSWORD=DEFAULT_ANONSTAG_DB_PASSWORD,
+        INSTITUTIONURL=INSTITUTIONURL,
     ), file=outfile)
     shutil.copy(WRKCONFIGFILE, WEBDOCSCONFIGFILE)
 
@@ -1811,24 +1817,19 @@ subprocess.check_call(
 # =============================================================================
 print("Building package")
 # =============================================================================
-subprocess.check_call(['fakeroot', 'dpkg-deb', '--build', WRKDIR])
+subprocess.check_call(['fakeroot', 'dpkg-deb', '--build', WRKDIR, PACKAGENAME])
 # ... "fakeroot" prefix makes all files installed as root:root
-
-# =============================================================================
-print("Renaming package")
-# =============================================================================
-shutil.move(INITIALPACKAGENAME, FINALPACKAGENAME)
 
 # =============================================================================
 print("Checking with Lintian")
 # =============================================================================
-subprocess.check_call(['lintian', FINALPACKAGENAME])
+subprocess.check_call(['lintian', PACKAGENAME])
 
 # =============================================================================
 print("Converting to RPM")
 # =============================================================================
 subprocess.check_call(
-    ['fakeroot', 'alien', '--to-rpm', '--scripts', FINALPACKAGENAME],
+    ['fakeroot', 'alien', '--to-rpm', '--scripts', PACKAGENAME],
     cwd=PACKAGEDIR)
 # see "man alien"/NOTES: needs to be run as root for correct final permissions
 EXPECTED_MAIN_RPM_NAME = "{PACKAGE}-{MAINVERSION}-2.noarch.rpm".format(
@@ -1866,7 +1867,12 @@ os.rename(join(RPMTOPDIR, 'RPMS', 'noarch', EXPECTED_MAIN_RPM_NAME),
 # ... will overwrite its predecessor
 
 # =============================================================================
+print("Deleting temporary workspace")
+# =============================================================================
+shutil.rmtree(TMPDIR, ignore_errors=True)  # CAUTION!
+
+# =============================================================================
 print("=" * 79)
-print("Debian package should be: " + FINALPACKAGENAME)
+print("Debian package should be: " + PACKAGENAME)
 print("RPM should be: " + FULL_RPM_PATH)
 # =============================================================================

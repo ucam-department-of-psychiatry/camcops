@@ -6203,6 +6203,23 @@ FOR THE STUDY AND SUPPLIED/CONFIGURED BY THE HOSTING INSTITUTION
 <string name="zbi_a4">Nearly always</string>
 
 <!--
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+IES-R
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+DATA COLLECTION TOOL ONLY, WITH SERVER-SIDE STRING DISTRIBUTION IF PERMITTED
+FOR THE STUDY AND SUPPLIED/CONFIGURED BY THE HOSTING INSTITUTION
+-->
+
+<string name="t_iesr">Impact of Events Scale – Revised (IES-R) (¶+)</string>
+<string name="s_iesr">22-item self-report scale. Data collection tool ONLY unless host institution adds scale text.</string>
+<string name="b_iesr">IES-R</string>
+<string name="iesr_a0">Not at all</string>
+<string name="iesr_a1">A little bit</string>
+<string name="iesr_a2">Moderately</string>
+<string name="iesr_a3">Quite a bit</string>
+<string name="iesr_a4">Extremely</string>
+
+<!--
 <string name="XXX">XXX</string>
 
 Helpful characters: ‘ ’ “ ” – — × • ≤ ≥ ≠ ± →

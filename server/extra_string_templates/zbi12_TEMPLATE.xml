@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <task name="zarit_burden_interview_12">
+    <task name="zbi12">
+        <!-- Zarit Burden Interview -->
+<!--
         <string name="instruction">XXX</string>
         <string name="q1">XXX</string>
         <string name="q2">XXX</string>
@@ -14,5 +16,6 @@
         <string name="q10">XXX</string>
         <string name="q11">XXX</string>
         <string name="q12">XXX</string>
+-->
     </task>
 </resources>

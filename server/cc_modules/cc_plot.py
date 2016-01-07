@@ -63,7 +63,7 @@ if 'HOME' in os.environ:
 import matplotlib
 
 # 6. Set the backend
-matplotlib.use("Agg")
+matplotlib.use("Agg")  # also the default backend
 # ... http://matplotlib.org/faq/usage_faq.html#what-is-a-backend
 # ... http://matplotlib.org/faq/howto_faq.html
 # matplotlib.use("cairo") # cairo backend corrupts some SVG figures

@@ -1,4 +1,4 @@
-// Zbi12.js
+// Iesr.js
 
 /*
     Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
@@ -29,10 +29,10 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
     extrastrings = require('table/extrastrings'),
     taskcommon = require('lib/taskcommon'),
     lang = require('lib/lang'),
-    tablename = "zbi12",
+    tablename = "iesr",
     fieldlist = dbcommon.standardTaskFields(),
     nquestions = 12,
-    EXTRASTRING_TASKNAME = "zbi12";
+    EXTRASTRING_TASKNAME = "iesr";
 
 fieldlist.push(
     {name: 'responder_name', type: DBCONSTANTS.TYPE_TEXT},
