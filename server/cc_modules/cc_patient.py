@@ -38,7 +38,7 @@ from .cc_constants import (
 )
 from . import cc_db
 from . import cc_dt
-from . import cc_hl7
+from . import cc_hl7core
 from . import cc_html
 from . import cc_namedtuples
 from .cc_pls import pls
@@ -313,7 +313,7 @@ class Patient:
                     assigning_authority=recipient_def.get_id_aa(n)
                 )
             )
-        return cc_hl7.make_pid_segment(
+        return cc_hl7core.make_pid_segment(
             forename=self.get_surname(),
             surname=self.get_forename(),
             dob=self.get_dob(),

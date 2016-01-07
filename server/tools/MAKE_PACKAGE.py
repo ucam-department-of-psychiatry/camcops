@@ -237,6 +237,7 @@ DSTMANFILE = join(DSTMANDIR, SETUPSCRIPTNAME + '.1.gz')
 WRKDBDUMPFILE = join(WRKBASEDIR, 'demo_mysql_dump_script')
 WRKMYSQLCREATION = join(WRKBASEDIR, 'demo_mysql_database_creation')
 WRKINSTRUCTIONS = os.path.join(WRKBASEDIR, 'instructions.txt')
+DSTINSTRUCTIONS = os.path.join(DSTCAMCOPSDIR, 'instructions.txt')
 
 DSTSUPERVISORCONFDIR = '/etc/supervisor/conf.d'
 WRKSUPERVISORCONFDIR = workpath(WRKDIR, DSTSUPERVISORCONFDIR)
@@ -269,6 +270,7 @@ DSTPYTHONVENV = join(DSTCAMCOPSDIR, 'venv')
 DSTVENVPYTHON = join(DSTPYTHONVENV, 'bin', 'python')
 DSTPYTHONCACHE = join(DSTCAMCOPSDIR, '.cache')
 
+SRCSTATICDIR = join(SRCSERVERDIR, 'static')
 WRKSTATICDIR = join(WRKSERVERDIR, 'static')
 DSTSTATICDIR = join(DSTSERVERDIR, 'static')
 
@@ -330,9 +332,7 @@ print("Copying files")
 copyglob(join(SRCSERVERDIR, '*.py'), WRKSERVERDIR)
 copyglob(join(SRCSERVERDIR, '*.txt'), WRKSERVERDIR)
 copyglob(join(SRCPYTHONLIBDIR, '*.py'), WRKPYTHONLIBDIR)
-copyglob(join(SRCSERVERDIR, 'images', 'favicon_camcops.png'), WRKSERVERDIR)
-copyglob(join(SRCSERVERDIR, 'images', 'logo_camcops.png'), WRKSERVERDIR)
-copyglob(join(SRCSERVERDIR, 'images', 'logo_local.png'), WRKSERVERDIR)
+copyglob(join(SRCSTATICDIR, '*'), WRKSTATICDIR)
 copyglob(join(SRCTABLETDIR, 'i18n', 'en', 'strings.xml'), WRKSERVERDIR)
 copyglob(join(SRCSERVERDIR, 'changelog.Debian'), WRKDOCDIR)
 subprocess.check_call(['gzip', '-9', join(WRKDOCDIR, 'changelog.Debian')])
@@ -424,7 +424,10 @@ with open(WRKREADME, 'w') as outfile:
 CamCOPS: the Cambridge Cognitive and Psychiatric Test Kit
 
 See http://www.camcops.org for documentation.
-    """, file=outfile)
+See also {DSTINSTRUCTIONS}
+    """.format(
+        DSTINSTRUCTIONS=DSTINSTRUCTIONS,
+    ), file=outfile)
 
 # =============================================================================
 print("Creating config file. Will be installed as " + DSTCONFIGFILE)
@@ -556,6 +559,32 @@ FINALIZE_POLICY = forename AND surname AND dob AND sex AND idnum1
 # URLs and paths
 # -----------------------------------------------------------------------------
 
+# =============================================================================
+# Site URL configuration
+# =============================================================================
+
+# A quick note on absolute and relative URLs, and how CamCOPS is mounted.
+#
+# Suppose your CamCOPS site is visible at
+#       https://www.somewhere.ac.uk/camcops_smith_lab/webview
+#       ^      ^^                 ^^                ^^      ^
+#       +------++-----------------++----------------++------+
+#       |       |                  |                 |
+#       1       2                  3                 4
+#
+# Part 1 is the protocol, and part 2 the machine name.
+# Part 3 is the mount point. The main server (e.g. Apache) knows where the
+# CamCOPS script is mounted (in this case /camcops_smith_lab). It does NOT
+# tell the script via the script's WSGI environment. Therefore, if the script
+# sends HTML including links, the script can operate only in relative mode.
+# For it to operate in absolute mode, it would need to know (3).
+# Part 4 is visible to the CamCOPS script.
+#
+# If CamCOPS used URLs starting with '/', it would need to be told at least
+# part (3). To use absolute URLs, it would need to know all of (1), (2), (3).
+# We will follow others (e.g. http://stackoverflow.com/questions/2005079) and
+# use only relative URLs.
+
 # LOCAL_INSTITUTION_URL: Clicking on your institution's logo in the CamCOPS
 # menu will take you to this URL.
 # Edit the next line to point to your institution:
@@ -564,11 +593,11 @@ LOCAL_INSTITUTION_URL = $INSTITUTIONURL
 
 # LOCAL_LOGO_FILE_ABSOLUTE: Specify the full path to your institution's logo
 # file, e.g. /var/www/logo_local_myinstitution.png . It's used for PDF
-# generation; HTML views use the fixed string logo_local.png, aliased to your
-# file via the Apache configuration file).
+# generation; HTML views use the fixed string "static/logo_local.png", aliased
+# to your file via the Apache configuration file).
 # Edit the next line to point to your local institution's logo file:
 
-LOCAL_LOGO_FILE_ABSOLUTE = $DSTSERVERDIR/logo_local.png
+LOCAL_LOGO_FILE_ABSOLUTE = $DSTSTATICDIR/logo_local.png
 
 # RESOURCES_DIRECTORY: Resources directory containing the strings.xml string
 # file and other resources (set by the installation script;
@@ -758,6 +787,11 @@ DBENGINE_LOGLEVEL = info
 # script. (Loglevel option; see above.)
 
 DBCLIENT_LOGLEVEL = info
+
+# ALLOW_INSECURE_COOKIES: DANGEROUS option that removes the requirement that
+# cookies be HTTPS (SSL) only.
+
+ALLOW_INSECURE_COOKIES = false
 
 # -----------------------------------------------------------------------------
 # Analytics
@@ -1103,7 +1137,7 @@ echo 'Launching CamCOPS command-line tool...' >&2
 
 export PYTHONPATH={DSTPYTHONPATH}
 
-{DSTVENVPYTHON} {DSTMAINSCRIPT} "\$@"
+{DSTVENVPYTHON} {DSTMAINSCRIPT} "$@"
     """.format(
         DSTPYTHONPATH=DSTPYTHONPATH,
         DSTVENVPYTHON=DSTVENVPYTHON,
@@ -1161,6 +1195,23 @@ with open(join(DEBDIR, 'conffiles'), 'w') as outfile:
 # If a configuration file is removed by the user, it won't be reinstalled:
 #   http://www.debian.org/doc/debian-policy/ap-pkg-conffiles.html
 # In this situation, do "sudo aptitude purge camcops" then reinstall.
+
+# =============================================================================
+print("Creating preinst file. Will be installed as "
+      + join(DSTDPKGDIR, PACKAGE + '.preinst'))
+# =============================================================================
+with open(join(DEBDIR, 'preinst'), 'w') as outfile:
+    print("""#!/bin/bash
+# Exit on any errors? (Lintian strongly advises this.)
+set -e
+
+echo "If available, stopping supervisor process: {PACKAGE}-gunicorn"
+which supervisorctl >/dev/null && supervisorctl stop {PACKAGE}-gunicorn
+# supervisorctl seems not to emit an error exit status whatever it does
+
+    """.format(
+        PACKAGE=PACKAGE,
+    ), file=outfile)
 
 # =============================================================================
 print("Creating postinst file. Will be installed as "
@@ -1242,6 +1293,13 @@ fi
 # fi
 
 #------------------------------------------------------------------------------
+# Restart supervisor process(es)
+#------------------------------------------------------------------------------
+
+echo "If available, starting supervisor process: {PACKAGE}-gunicorn"
+which supervisorctl >/dev/null && supervisorctl start {PACKAGE}-gunicorn
+
+#------------------------------------------------------------------------------
 # Other things that we don't want strict dependencies on, or can't install now
 #------------------------------------------------------------------------------
 
@@ -1283,6 +1341,10 @@ with open(join(DEBDIR, 'prerm'), 'w') as outfile:
     print("""#!/bin/sh
 set -e
 echo '{PACKAGE} prerm file executing'
+
+echo "If available, stopping supervisor process: {PACKAGE}-gunicorn"
+which supervisorctl >/dev/null && supervisorctl stop {PACKAGE}-gunicorn
+
 # Must use -f or an error will cause the prerm (and package removal) to fail
 # See /var/lib/dpkg/info/MYPACKAGE.prerm for manual removal!
 find {DSTCAMCOPSDIR} -name '*.pyc' -delete
@@ -1350,7 +1412,7 @@ TEXT FOR SPECIFIC ASSESSMENT SCALES
 print("Creating supervisor conf file. Will be " + DST_SUPERVISOR_CONF_FILE)
 # =============================================================================
 with open(WRK_SUPERVISOR_CONF_FILE, 'w') as outfile:
-    print("""
+    print(string.Template("""
 
 ; IF YOU EDIT THIS FILE, run:
 ;       sudo service supervisor restart
@@ -1364,15 +1426,21 @@ with open(WRK_SUPERVISOR_CONF_FILE, 'w') as outfile:
 ;   http://stackoverflow.com/questions/10653590
 ; - Programs like celery and gunicorn that are installed within a virtual
 ;   environment use the virtualenv's python via their shebang.
+; - The "environment" setting sets the OS environment. The "--env" parameter
+;   to gunicorn sets the WSGI environment.
 
 [program:camcops-gunicorn]
 
-command = $DSTPYTHONVENV/bin/gunicorn config.wsgi:application --workers 4 --bind=unix:$DEFAULT_GUNICORN_SOCKET
+command = $DSTPYTHONVENV/bin/gunicorn camcops:application
+    --workers 4
+    --bind=unix:$DEFAULT_GUNICORN_SOCKET
+    --env CAMCOPS_CONFIG_FILE=$DSTCONFIGFILE
+
 ; Alternative methods (port and socket respectively):
 ;   --bind=127.0.0.1:$DEFAULT_GUNICORN_PORT
 ;   --bind=unix:$DEFAULT_GUNICORN_SOCKET
 directory = $DSTSERVERDIR
-environment = PYTHONPATH="$DSTPYTHONPATH",CAMCOPS_CONFIG_FILE="$DSTCONFIGFILE"
+environment = PYTHONPATH="$DSTPYTHONPATH"
 user = www-data
 ; ... Ubuntu: typically www-data
 ; ... CentOS: typically apache
@@ -1383,7 +1451,7 @@ autorestart = true
 startsecs = 10
 stopwaitsecs = 60
 
-    """.format(  # noqa
+    """).substitute(  # noqa
         DSTPYTHONVENV=DSTPYTHONVENV,
         DEFAULT_GUNICORN_PORT=DEFAULT_GUNICORN_PORT,
         DEFAULT_GUNICORN_SOCKET=DEFAULT_GUNICORN_SOCKET,
@@ -1450,7 +1518,21 @@ Monitoring with supervisord
     sudo supervisorctl  # assuming it's running as root
 
 ===============================================================================
-*** Apache
+Testing with just gunicorn
+===============================================================================
+
+- Assuming your www-data has the necessary access, then configure gunicorn
+  for a test port on 8000:
+
+    sudo -u www-data \\
+        PYTHONPATH="$DSTPYTHONPATH" \\
+        CAMCOPS_CONFIG_FILE="$DSTCONFIGFILE" \\
+        $DSTPYTHONVENV/bin/gunicorn camcops:application \\
+        --workers 4 \\
+        --bind=127.0.0.1:8000
+
+===============================================================================
+Apache
 ===============================================================================
 -------------------------------------------------------------------------------
 OPTIMAL: proxy Apache through to Gunicorn
@@ -1481,6 +1563,10 @@ OPTIMAL: proxy Apache through to Gunicorn
         #    ... either via port $DEFAULT_GUNICORN_PORT
         #    ... or, better, via socket $DEFAULT_GUNICORN_SOCKET
         # NOTES
+        # - When you ProxyPass /$URLBASE, you should browse to
+        #       https://YOURSITE/$URLBASE/webview
+        #   and point your tablets to
+        #       https://YOURSITE/$URLBASE/database
         # - Don't specify trailing slashes.
         #   If you do, http://host/$URLBASE will fail though;
         #              http://host/$URLBASE/ will succeed.
@@ -1497,11 +1583,16 @@ OPTIMAL: proxy Apache through to Gunicorn
         # Port
         # Note the use of "http" (reflecting the backend), not https (like the
         # front end).
-    # ProxyPass /$URLBASE https://127.0.0.1:$DEFAULT_GUNICORN_PORT
-    # ProxyPassReverse /$URLBASE https://127.0.0.1:$DEFAULT_GUNICORN_PORT
+    # ProxyPass /$URLBASE http://127.0.0.1:$DEFAULT_GUNICORN_PORT
+    # ProxyPassReverse /$URLBASE http://127.0.0.1:$DEFAULT_GUNICORN_PORT
         # Socket (Apache 2.4.9 and higher)
     ProxyPass /$URLBASE unix:$DEFAULT_GUNICORN_SOCKET|https://localhost
     ProxyPassReverse /$URLBASE unix:$DEFAULT_GUNICORN_SOCKET|https://localhost
+        # Allow proxy over SSL.
+        # Without this, you will get errors like:
+        #   ... SSL Proxy requested for wombat:443 but not enabled [Hint: SSLProxyEngine]
+        #   ... failed to enable ssl support for 0.0.0.0:0 (httpd-UDS)
+    SSLProxyEngine on
         # Allow access
     <Location /$URLBASE>
         Require all granted
@@ -1513,9 +1604,7 @@ OPTIMAL: proxy Apache through to Gunicorn
         # a) offer them at the appropriate URL
         # b) provide permission
 
-    #   Referred to by the webview and must be in the same URL directory:
-    Alias /$URLBASE/favicon_camcops.png $DSTSERVERDIR/favicon_camcops.png
-    Alias /$URLBASE/logo_camcops.png $DSTSERVERDIR/logo_camcops.png
+    Alias /$URLBASE/static/ $DSTSTATICDIR/
 
     #   Change this: aim the alias at your own institutional logo.
     Alias /$URLBASE/logo_local.png $DSTSERVERDIR/logo_local.png
@@ -1532,8 +1621,6 @@ OPTIMAL: proxy Apache through to Gunicorn
         # (b) you will also need to create an additional Gunicorn instance,
         #     as above;
         # (c) add additional static aliases (in section 2 above).
-
-*** 'webview' / 'database' URL stems via WSGI PATH_INFO
 
     #==========================================================================
     # SSL security (for HTTPS)
@@ -1703,6 +1790,7 @@ subprocess.check_call([
     WRKMAINSCRIPT,
     WRKDBDUMPFILE,
     join(DEBDIR, 'prerm'),
+    join(DEBDIR, 'preinst'),
     join(DEBDIR, 'postinst'),
 ])
 subprocess.check_call(

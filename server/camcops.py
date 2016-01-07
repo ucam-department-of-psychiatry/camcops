@@ -9,6 +9,7 @@ import os
 import sys
 
 import werkzeug.contrib.profiler
+from werkzeug.wsgi import SharedDataMiddleware
 
 import pythonlib.rnc_db as rnc_db
 import pythonlib.wsgi_errorreporter as wsgi_errorreporter
@@ -30,6 +31,9 @@ from cc_modules.cc_constants import (
     NUMBER_OF_IDNUMS,
     SEPARATOR_EQUALS,
     SEPARATOR_HYPHENS,
+    URL_ROOT_DATABASE,
+    URL_ROOT_STATIC,
+    URL_ROOT_WEBVIEW,
 )
 import cc_modules.cc_blob as cc_blob
 import cc_modules.cc_db as cc_db
@@ -37,6 +41,7 @@ import cc_modules.cc_device as cc_device
 import cc_modules.cc_dump as cc_dump
 from cc_modules.cc_logger import logger
 import cc_modules.cc_hl7 as cc_hl7
+import cc_modules.cc_hl7core as cc_hl7core
 import cc_modules.cc_patient as cc_patient
 from cc_modules.cc_pls import pls
 import cc_modules.cc_policy as cc_policy
@@ -45,7 +50,7 @@ import cc_modules.cc_session as cc_session
 from cc_modules.cc_specialnote import SpecialNote
 from cc_modules.cc_storedvar import DeviceStoredVar, ServerStoredVar
 import cc_modules.cc_task as cc_task
-import cc_modules.cc_tracker as cc_tracker
+import cc_modules.cc_tracker as cc_tracker  # will import matplotlib
 import cc_modules.cc_user as cc_user
 from cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
@@ -67,6 +72,8 @@ DEBUG_TO_HTTP_CLIENT = True
 # Report profiling information to the HTTPD log? (Adds overhead; do not enable
 # for production systems.)
 PROFILE = False
+
+SERVE_STATIC_FILES = True
 
 # The other debugging control is in cc_shared: see the logger.setLevel() calls,
 # controlled primarily by the configuration file's DEBUG_OUTPUT option.
@@ -111,14 +118,28 @@ if PROFILE:
 
 def application(environ, start_response):
     """Master WSGI entry point."""
-    if environ['PATH_INFO'] == 'webview':
+    # logger.debug("WSGI environment: {}".format(repr(environ)))
+    path = environ['PATH_INFO']
+    logger.debug("PATH_INFO: {}".format(path))
+    if path == URL_ROOT_WEBVIEW:
         return webview_application(environ, start_response)
-    elif environ['PATH_INFO'] == 'database':
+    elif path == URL_ROOT_DATABASE:
         return database_application(environ, start_response)
     else:
         # No URL matches
-        start_response('404 NOT FOUND', [('Content-Type', 'text/plain')])
-        return ['Not Found']
+        msg = "Not found."
+        output = msg.encode('utf-8')
+        start_response('404 Not Found', [
+            ('Content-Type', 'text/plain'),
+            ('Content-Length', str(len(output))),
+        ])
+        return [output]
+
+
+if SERVE_STATIC_FILES:
+    application = SharedDataMiddleware(application, {
+        URL_ROOT_STATIC: os.path.join(os.path.dirname(__file__), 'static')
+    })
 
 
 # =============================================================================
@@ -293,26 +314,34 @@ def make_tables(drop_superfluous_columns=False):
     print(SEPARATOR_EQUALS)
 
     # MySQL engine settings
+    failed = False
     INSERTMSG = " into my.cnf [mysqld] section, and restart MySQL"
     if not pls.db.mysql_using_innodb_strict_mode():
         logger.error("NOT USING innodb_strict_mode; please insert "
                      "'innodb_strict_mode = 1'" + INSERTMSG)
-        return
+        failed = True
     max_allowed_packet = pls.db.mysql_get_max_allowed_packet()
-    if max_allowed_packet < 32 * 1024 * 1024:
-        logger.error("MySQL max_allowed_packet < 32M; please insert "
-                     "'max_allowed_packet = 32M'" + INSERTMSG)
-        return
+    size_32M = 32 * 1024 * 1024
+    if max_allowed_packet < size_32M:
+        logger.error(
+            "MySQL max_allowed_packet < 32M (it's {} and needs to be {}); "
+            "please insert 'max_allowed_packet = 32M'".format(
+                max_allowed_packet,
+                size_32M,
+            ) + INSERTMSG)
+        failed = True
     if not pls.db.mysql_using_file_per_table():
         logger.error(
             "NOT USING innodb_file_per_table; please insert "
             "'innodb_file_per_table = 1'" + INSERTMSG)
-        return
+        failed = True
     if not pls.db.mysql_using_innodb_barracuda():
-        logger.warning(
+        logger.error(
             "innodb_file_format IS NOT Barracuda; please insert "
             "'innodb_file_per_table = Barracuda'" + INSERTMSG)
-        return
+        failed = True
+    if failed:
+        raise AssertionError("MySQL settings need fixing")
 
     # Database settings
     cc_db.set_db_to_utf8(pls.db)
@@ -511,8 +540,8 @@ def test():
     cc_dump.unit_tests()
     pls.db.rollback()
 
-    print("-- Testing cc_hl7")
-    cc_hl7.unit_tests()
+    print("-- Testing cc_hl7core")
+    cc_hl7core.unit_tests()
     pls.db.rollback()
 
     # cc_namedtuples: simple, and doesn't need cc_shared
@@ -564,73 +593,67 @@ def cli_main():
         description=("CamCOPS command-line tool. "
                      "Run with no arguments for an interactive menu.")
     )
-    parser.add_argument("-v", "--version", action="version",
-                        version="CamCOPS {}".format(
-                            CAMCOPS_SERVER_VERSION))
-    parser.add_argument("-m", "--maketables",
-                        action="store_true", default=False,
-                        dest="maketables",
-                        help="Make/remake tables and views")
-    parser.add_argument("--dropsuperfluous", action="store_true",
-                        help="Additional option to --maketables to drop "
-                             "superfluous columns; requires both confirmatory "
-                             "flags as well")
-    parser.add_argument("--confirm_drop_superfluous_1", action="store_true",
-                        help="Confirmatory flag 1/2 for --dropsuperfluous")
-    parser.add_argument("--confirm_drop_superfluous_2", action="store_true",
-                        help="Confirmatory flag 2/2 for --dropsuperfluous")
-    parser.add_argument("-r", "--resetstoredvars",
-                        action="store_true", default=False,
-                        dest="resetstoredvars",
-                        help=("Redefine database title/patient ID number "
-                              "meanings/ID policy"))
-    parser.add_argument("-t", "--title",
-                        action="store_true", default=False,
-                        dest="showtitle",
-                        help="Show database title")
-    parser.add_argument("-s", "--summarytables",
-                        action="store_true", default=False,
-                        dest="summarytables",
-                        help="Make summary tables")
-    parser.add_argument("-u", "--superuser",
-                        action="store_true", default=False,
-                        dest="superuser",
-                        help="Make superuser")
-    parser.add_argument("-p", "--password",
-                        action="store_true", default=False,
-                        dest="password",
-                        help="Reset a user's password")
-    parser.add_argument("-e", "--enableuser",
-                        action="store_true", default=False,
-                        dest="enableuser",
-                        help="Re-enable a locked user account")
-    parser.add_argument("-d", "--descriptions",
-                        action="store_true", default=False,
-                        dest="descriptions",
-                        help="Export table descriptions")
-    parser.add_argument("-7", "--hl7",
-                        action="store_true", default=False,
-                        dest="hl7",
-                        help="Send pending HL7 messages and outbound files")
-    parser.add_argument("-q", "--queue",
-                        action="store_true", default=False,
-                        dest="show_hl7_queue",
-                        help="View outbound HL7/file queue (without sending)")
-    parser.add_argument("-y", "--anonstaging",
-                        action="store_true", default=False,
-                        dest="anonstaging",
-                        help=("Generate/regenerate anonymisation staging "
-                              "database"))
-    parser.add_argument("-x", "--test",
-                        action="store_true", default=False,
-                        dest="test",
-                        help="Test internal code")
-    parser.add_argument("--dbunittest",
-                        action="store_true", default=False,
-                        help="Unit tests for database code")
-    parser.add_argument("configfilename", nargs="?", default=None,
-                        help="Configuration file")
+    parser.add_argument(
+        "-v", "--version", action="version",
+        version="CamCOPS {}".format(CAMCOPS_SERVER_VERSION))
+    parser.add_argument(
+        "-m", "--maketables",
+        action="store_true", default=False,
+        help="Make/remake tables and views")
+    parser.add_argument(
+        "--dropsuperfluous", action="store_true",
+        help="Additional option to --maketables to drop superfluous columns; "
+        "requires both confirmatory flags as well")
+    parser.add_argument(
+        "--confirm_drop_superfluous_1", action="store_true",
+        help="Confirmatory flag 1/2 for --dropsuperfluous")
+    parser.add_argument(
+        "--confirm_drop_superfluous_2", action="store_true",
+        help="Confirmatory flag 2/2 for --dropsuperfluous")
+    parser.add_argument(
+        "-r", "--resetstoredvars", action="store_true", default=False,
+        help="Redefine database title/patient ID number meanings/ID policy")
+    parser.add_argument(
+        "-t", "--title", action="store_true", default=False, dest="showtitle",
+        help="Show database title")
+    parser.add_argument(
+        "-s", "--summarytables", action="store_true", default=False,
+        help="Make summary tables")
+    parser.add_argument(
+        "-u", "--superuser", action="store_true", default=False,
+        help="Make superuser")
+    parser.add_argument(
+        "-p", "--password", action="store_true", default=False,
+        help="Reset a user's password")
+    parser.add_argument(
+        "-e", "--enableuser", action="store_true", default=False,
+        help="Re-enable a locked user account")
+    parser.add_argument(
+        "-d", "--descriptions", action="store_true", default=False,
+        help="Export table descriptions")
+    parser.add_argument(
+        "-7", "--hl7", action="store_true", default=False,
+        help="Send pending HL7 messages and outbound files")
+    parser.add_argument(
+        "-q", "--queue", action="store_true", default=False,
+        dest="show_hl7_queue",
+        help="View outbound HL7/file queue (without sending)")
+    parser.add_argument(
+        "-y", "--anonstaging", action="store_true", default=False,
+        help="Generate/regenerate anonymisation staging database")
+    parser.add_argument(
+        "-x", "--test", action="store_true", default=False,
+        help="Test internal code")
+    parser.add_argument(
+        "--dbunittest", action="store_true", default=False,
+        help="Unit tests for database code")
+    parser.add_argument(
+        "configfilename", nargs="?", default=None,
+        help="Configuration file. (When run in WSGI mode, this is read from "
+             "the CAMCOPS_CONFIG_FILE variable in (1) the WSGI environment, "
+             "or (2) the operating system environment.)")
     args = parser.parse_args()
+
     if args.show_hl7_queue:
         silent = True
 

@@ -71,10 +71,13 @@ from cc_modules.cc_audit import (
 from cc_modules.cc_constants import (
     ACTION,
     CAMCOPS_URL,
+    COMMON_HEAD,
     DATEFORMAT,
     NUMBER_OF_IDNUMS,
     PARAM,
-    VALUE
+    RESTRICTED_WARNING,
+    VALUE,
+    WEBEND,
 )
 import cc_modules.cc_blob as cc_blob
 import cc_modules.cc_db as cc_db
@@ -381,7 +384,7 @@ def main_menu(session, form):
         invalid_policy_warning=(
             "" if cc_policy.id_policies_valid() else ID_POLICY_INVALID_DIV
         ),
-    ) + cc_html.WEBEND
+    ) + WEBEND
     return html
 
 
@@ -407,7 +410,7 @@ def offer_terms(session, form):
         PARAM=PARAM,
         ACTION=ACTION,
         agree=WSTRING("disclaimer_agree"),
-    ) + cc_html.WEBEND
+    ) + WEBEND
     return html
 
 
@@ -451,7 +454,7 @@ def view_policies(session, form):
         cc_policy.get_upload_id_policy_principal_numeric_id(),
         cc_policy.get_finalize_id_policy_principal_numeric_id(),
     )
-    return html + cc_html.WEBEND
+    return html + WEBEND
 
 
 def view_tasks(session, form):
@@ -512,7 +515,7 @@ def view_tasks(session, form):
     )
 
     if session.restricted_to_viewing_user():
-        warn_restricted = cc_html.RESTRICTED_WARNING
+        warn_restricted = RESTRICTED_WARNING
     else:
         warn_restricted = ""
     if (not session.user_may_view_all_patients_when_unfiltered()
@@ -581,7 +584,7 @@ def view_tasks(session, form):
         task_rows=task_rows,
         task_list_footer=cc_task.TASK_LIST_FOOTER,
         info_no_tasks=info_no_tasks,
-    ) + cc_html.WEBEND
+    ) + WEBEND
 
 
 def change_number_to_view(session, form):
@@ -684,7 +687,7 @@ def choose_tracker(session, form):
     """HTML form for tracker selection."""
 
     if session.restricted_to_viewing_user():
-        warning_restricted = cc_html.RESTRICTED_WARNING
+        warning_restricted = RESTRICTED_WARNING
     else:
         warning_restricted = ""
     html = pls.WEBSTART + """
@@ -777,7 +780,7 @@ def choose_tracker(session, form):
         VALUE=VALUE,
     )
     # NB double the braces to escape them for Javascript
-    return html + cc_html.WEBEND
+    return html + WEBEND
 
 
 def serve_tracker(session, form):
@@ -816,7 +819,7 @@ def choose_clinicaltextview(session, form):
     """HTML form for CTV selection."""
 
     if session.restricted_to_viewing_user():
-        warning_restricted = cc_html.RESTRICTED_WARNING
+        warning_restricted = RESTRICTED_WARNING
     else:
         warning_restricted = ""
     html = pls.WEBSTART + """
@@ -873,7 +876,7 @@ def choose_clinicaltextview(session, form):
         VALUE=VALUE,
         ACTION=ACTION,
     )
-    return html + cc_html.WEBEND
+    return html + WEBEND
 
 
 def serve_clinicaltextview(session, form):
@@ -1028,7 +1031,7 @@ def offer_regenerate_summary_tables(session, form):
         session.get_current_user_html(),
         cc_html.get_generic_action_url(ACTION.REGENERATE_SUMMARIES),
         cc_html.get_url_main_menu(),
-    ) + cc_html.WEBEND
+    ) + WEBEND
 
 
 def regenerate_summary_tables(session, form):
@@ -1205,7 +1208,7 @@ def offer_basic_dump(session, form):
         view_tasks=cc_html.get_generic_action_url(ACTION.VIEW_TASKS),
         table_dump=cc_html.get_generic_action_url(ACTION.OFFER_TABLE_DUMP),
         possible_tasks=possible_tasks,
-    ) + cc_html.WEBEND
+    ) + WEBEND
 
 
 def basic_dump(session, form):
@@ -1395,7 +1398,7 @@ def offer_table_dump(session, form):
         PARAM=PARAM,
         VALUE=VALUE,
     )
-    return html + cc_html.WEBEND
+    return html + WEBEND
 
 
 def serve_table_dump(session, form):
@@ -1575,7 +1578,7 @@ def view_audit_trail(session, form):
                                        DATEFORMAT.ISO8601_DATE_ONLY),
         end_datetime=format_datetime(end_datetime,
                                      DATEFORMAT.ISO8601_DATE_ONLY),
-    ) + ws.html_table_from_query(rows, descriptions) + cc_html.WEBEND
+    ) + ws.html_table_from_query(rows, descriptions) + WEBEND
     return html
 
 
@@ -1721,7 +1724,7 @@ def view_hl7_log(session, form):
                                          showreply=showreply)
     return html + """
         </table>
-    """ + cc_html.WEBEND
+    """ + WEBEND
 
 
 def offer_hl7_run_options(session, form):
@@ -1826,7 +1829,7 @@ def view_hl7_run(session, form):
         html += hl7run.get_html_data_row()
     return html + """
         </table>
-    """ + cc_html.WEBEND
+    """ + WEBEND
 
 
 def offer_introspection(session, form):
@@ -1849,7 +1852,7 @@ def offer_introspection(session, form):
             url=get_url_introspect(ft.searchterm),
             prettypath=ft.prettypath,
         )
-    return html + cc_html.WEBEND
+    return html + WEBEND
 
 
 def introspect(session, form):
@@ -1958,7 +1961,7 @@ def add_special_note(session, form):
             confirmation_sequence=confirmation_sequence + 1,
             textarea=textarea,
             cancelurl=cc_task.get_url_task_html(tablename, serverpk),
-        ) + cc_html.WEBEND
+        ) + WEBEND
     # If we get here, we'll apply the note.
     task.apply_special_note(note, session.user)
     return cc_html.simple_success_message(
@@ -2029,7 +2032,7 @@ def erase_task(session, form):
             serverpk=serverpk,
             confirmation_sequence=confirmation_sequence + 1,
             cancelurl=cc_task.get_url_task_html(tablename, serverpk),
-        ) + cc_html.WEBEND
+        ) + WEBEND
     # If we get here, we'll do the erasure.
     task.manually_erase(session.user)
     return cc_html.simple_success_message(
@@ -2133,7 +2136,7 @@ def delete_patient(session, form):
             confirmation_sequence=confirmation_sequence + 1,
             cancelurl=cc_html.get_url_main_menu(),
             tasks=tasks,
-        ) + cc_html.WEBEND
+        ) + WEBEND
     if not patient_server_pks:
         return cc_html.fail_with_error_stay_logged_in("No such patient found.")
     # If we get here, we'll do the erasure.
@@ -2338,7 +2341,7 @@ def edit_patient(session, form):
             confirmation_sequence=confirmation_sequence + 1,
             cancelurl=cc_html.get_url_main_menu(),
             tasks=tasks,
-        ) + cc_html.WEBEND
+        ) + WEBEND
     # Line up the changes and validate, but DO NOT SAVE THE PATIENT as yet.
     changemessages = []
     for k, v in changes.iteritems():
@@ -2471,7 +2474,7 @@ def forcibly_finalize(session, form):
             confirmation_sequence=confirmation_sequence + 1,
             cancelurl=cc_html.get_url_main_menu(),
             tasks=tasks
-        ) + cc_html.WEBEND
+        ) + WEBEND
 
     # If we get here, we'll do the forced finalization.
     # Force-finalize tasks (with subtables)
@@ -2868,7 +2871,7 @@ def write_descriptions_comments(file, include_views=False):
         pls.DB_NAME
     )
     rows = pls.db.fetchall(sql)
-    print(cc_html.COMMON_HEAD, file=file)
+    print(COMMON_HEAD, file=file)
     # don't used fixed-width tables; they truncate contents
     print("""
             <table>

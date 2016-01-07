@@ -22,7 +22,11 @@
 """
 
 import logging
-logging.basicConfig()
+
+LOG_FORMAT = '%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:%(message)s'
+LOG_DATEFMT = '%Y-%m-%d %H:%M:%S'
+
+logging.basicConfig(format=LOG_FORMAT, datefmt=LOG_DATEFMT)
 
 # =============================================================================
 # Logger

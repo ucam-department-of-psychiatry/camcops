@@ -29,7 +29,7 @@ from pythonlib.rnc_lang import AttrDict
 import pythonlib.rnc_web as ws
 
 from .cc_audit import audit
-from .cc_constants import ACTION, PARAM, DATEFORMAT
+from .cc_constants import ACTION, PARAM, DATEFORMAT, WEBEND
 from . import cc_db
 from . import cc_dt
 from . import cc_html
@@ -547,7 +547,7 @@ def enter_new_password(session, username, as_manager=False,
         PARAM=PARAM,
         MINIMUM_PASSWORD_LENGTH=MINIMUM_PASSWORD_LENGTH,
         changepw=changepw,
-    ) + cc_html.WEBEND
+    ) + WEBEND
 
 
 def change_password(username, form, as_manager=False):
@@ -644,7 +644,7 @@ def manage_users(session):
     """.format(
         session.get_current_user_html(),
         cc_html.get_generic_action_url(ACTION.ASK_TO_ADD_USER),
-    ) + cc_html.WEBEND
+    ) + WEBEND
     for u in allusers:
         if u.is_locked_out():
             enableuser = "| <a href={}>Re-enable user</a>".format(
@@ -702,7 +702,7 @@ def manage_users(session):
         )
     output += """
         </table>
-    """ + cc_html.WEBEND
+    """ + WEBEND
     return output
 
 
@@ -791,7 +791,7 @@ def edit_user(session, username):
         PARAM=PARAM,
         ACTION=ACTION,
         LABEL=LABEL,
-    ) + cc_html.WEBEND
+    ) + WEBEND
 
 
 def change_user(form):
@@ -948,7 +948,7 @@ def ask_to_add_user(session):
         PARAM=PARAM,
         ACTION=ACTION,
         MINIMUM_PASSWORD_LENGTH=MINIMUM_PASSWORD_LENGTH,
-    ) + cc_html.WEBEND
+    ) + WEBEND
 
 
 def add_user(form):
@@ -1057,7 +1057,7 @@ def ask_delete_user(session, username):
         script=pls.SCRIPT_NAME,
         ACTION=ACTION,
         PARAM=PARAM,
-    ) + cc_html.WEBEND
+    ) + WEBEND
 
 
 def delete_user(username):
@@ -1114,7 +1114,7 @@ def user_management_failure_message(msg, as_manager=True):
 def unit_tests():
     """Unit tests for cc_user module."""
     # -------------------------------------------------------------------------
-    # Delayed imports
+    # Delayed imports (UNIT TESTING ONLY)
     # -------------------------------------------------------------------------
     from . import cc_session
 

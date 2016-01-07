@@ -22,7 +22,6 @@
 """
 
 import datetime
-import matplotlib.pyplot as plt
 
 import pythonlib.rnc_pdf as rnc_pdf
 import pythonlib.rnc_web as ws
@@ -30,10 +29,16 @@ import pythonlib.rnc_web as ws
 from .cc_audit import audit
 from .cc_constants import (
     ACTION,
+    CSS_PAGED_MEDIA,
+    DATEFORMAT,
     NUMBER_OF_IDNUMS,
     PARAM,
+    PDFEND,
+    PDF_HEAD_NO_PAGED_MEDIA,
+    PDF_HEAD_PORTRAIT,
+    RESTRICTED_WARNING_SINGULAR,
     VALUE,
-    DATEFORMAT
+    WKHTMLTOPDF_OPTIONS,
 )
 from . import cc_dt
 from . import cc_filename
@@ -48,6 +53,8 @@ from . import cc_task
 from .cc_unittest import unit_test_ignore
 from . import cc_version
 from . import cc_xml
+
+import matplotlib.pyplot as plt  # ONLY AFTER IMPORTING cc_plot
 
 # =============================================================================
 # Constants
@@ -294,7 +301,7 @@ class Tracker(object):
             self.end_datetime_extended))
 
         self.restricted_warning = (
-            cc_html.RESTRICTED_WARNING_SINGULAR
+            RESTRICTED_WARNING_SINGULAR
             if session.restricted_to_viewing_user() else ""
         )
         self._patient = None  # default value if we fail
@@ -450,7 +457,7 @@ class Tracker(object):
             + """<div class="navigation">"""
             + self.get_hyperlink_pdf("View PDF for printing/saving")
             + "</div>"
-            + cc_html.PDFEND
+            + PDFEND
         )
 
     # -------------------------------------------------------------------------
@@ -460,7 +467,7 @@ class Tracker(object):
     def get_pdf(self):
         """Get PDF representing tracker."""
         cc_plot.set_matplotlib_fontsize(pls.PLOT_FONTSIZE)
-        if cc_html.CSS_PAGED_MEDIA:
+        if CSS_PAGED_MEDIA:
             pls.switch_output_to_png()
             return rnc_pdf.pdf_from_html(self.get_pdf_html())
         else:
@@ -468,7 +475,7 @@ class Tracker(object):
             html = self.get_pdf_html()
             header = self.get_pdf_header_content()
             footer = self.get_pdf_footer_content()
-            options = cc_html.WKHTMLTOPDF_OPTIONS
+            options = WKHTMLTOPDF_OPTIONS
             options.update({
                 "orientation": "Portrait",
             })
@@ -483,7 +490,7 @@ class Tracker(object):
             self.get_pdf_start()
             + self.get_all_plots_for_all_tasks_html()
             + self.get_office_html()
-            + cc_html.PDFEND
+            + PDFEND
         )
 
     def suggested_pdf_filename(self):
@@ -575,13 +582,13 @@ class Tracker(object):
 
     def get_pdf_start(self):
         """Opening HTML for PDF, including CSS."""
-        if cc_html.CSS_PAGED_MEDIA:
-            head = cc_html.PDF_HEAD_PORTRAIT
+        if CSS_PAGED_MEDIA:
+            head = PDF_HEAD_PORTRAIT
             pdf_header_footer = (
                 self.get_pdf_header_content() + self.get_pdf_footer_content()
             )
         else:
-            head = cc_html.PDF_HEAD_NO_PAGED_MEDIA
+            head = PDF_HEAD_NO_PAGED_MEDIA
             pdf_header_footer = ""
         return (
             head
@@ -883,7 +890,7 @@ class ClinicalTextView(object):
                      + str(self.end_datetime_extended))
 
         if session.restricted_to_viewing_user():
-            self.restricted_warning = cc_html.RESTRICTED_WARNING_SINGULAR
+            self.restricted_warning = RESTRICTED_WARNING_SINGULAR
         else:
             self.restricted_warning = ""
         self._patient = None  # default value if we fail
@@ -1019,7 +1026,7 @@ class ClinicalTextView(object):
             + """<div class="navigation">"""
             + self.get_hyperlink_pdf("View PDF for printing/saving")
             + "</div>"
-            + cc_html.PDFEND
+            + PDFEND
         )
 
     # -------------------------------------------------------------------------
@@ -1036,7 +1043,7 @@ class ClinicalTextView(object):
             self.get_pdf_start()
             + self.get_clinicaltextview_main_html(as_pdf=True)
             + self.get_office_html()
-            + cc_html.PDFEND
+            + PDFEND
         )
 
     def suggested_pdf_filename(self):
@@ -1125,7 +1132,7 @@ class ClinicalTextView(object):
             ptinfo = self._patient.get_html_for_page_header()
         else:
             ptinfo = ""
-        return cc_html.PDF_HEAD_PORTRAIT + """
+        return PDF_HEAD_PORTRAIT + """
             <div id="headerContent">
                 {}
             </div>

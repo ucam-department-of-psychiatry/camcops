@@ -1836,7 +1836,7 @@ def database_wrapper(environ, start_response):
         logger.debug("Started in single-threaded mode")
 
     # Set global variables, connect/reconnect to database, etc.
-    pls.set_from_environ_and_ping_db(environ, as_client_db=True)
+    pls.set_from_environ_and_ping_db(environ)
 
     # Trap any errors from here.
     # http://doughellmann.com/2009/06/19/python-exception-handling-techniques.html  # noqa

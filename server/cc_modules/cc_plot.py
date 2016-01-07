@@ -46,10 +46,23 @@ atexit.register(lambda: shutil.rmtree(MPLCONFIGDIR, ignore_errors=True))
 # 3. Tell matplotlib about this directory prior to importing it
 os.environ["MPLCONFIGDIR"] = MPLCONFIGDIR
 
-# 4. Import matplotlib
+# 4. Another nasty matplotlib hack
+#    matplotlib.font_manager reads os.environ.get('HOME') directly, and
+#    searches ~/.fonts for fonts. That's fine unless a user is calling with
+#    sudo -u USER, leaving $HOME as it was but removing the permissions - then
+#    matplotlib crashes out with e.g.
+#       PermissionError: [Errno 13] Permission denied: '/home/rudolf/.fonts/SABOI___.TTF'  # noqa
+#    Note that an empty string won't help either, since the check is
+#    "is not None".
+#    You can't assign None to an os.environ member; see
+#    http://stackoverflow.com/questions/3575165; do this:
+if 'HOME' in os.environ:
+    del os.environ['HOME']
+
+# 5. Import matplotlib
 import matplotlib
 
-# 5. Set the backend
+# 6. Set the backend
 matplotlib.use("Agg")
 # ... http://matplotlib.org/faq/usage_faq.html#what-is-a-backend
 # ... http://matplotlib.org/faq/howto_faq.html

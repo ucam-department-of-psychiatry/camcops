@@ -26,11 +26,17 @@ import re
 
 import pythonlib.rnc_web as ws
 
-from .cc_constants import ACTION, DATEFORMAT, NUMBER_OF_IDNUMS, PARAM, VALUE
+from .cc_constants import (
+    ACTION,
+    DATEFORMAT,
+    NUMBER_OF_IDNUMS,
+    PARAM,
+    VALUE,
+    WEBEND,
+)
 from . import cc_dt
 from . import cc_html
 from .cc_pls import pls
-from . import cc_session
 from .cc_unittest import unit_test_ignore
 
 # =============================================================================
@@ -61,7 +67,7 @@ def offer_report_menu(session):
                                                    cls.get_report_id()),
             cls.get_report_title()
         )
-    return html + "</ul>" + cc_html.WEBEND
+    return html + "</ul>" + WEBEND
 
 
 def get_param_html(paramspec):
@@ -171,7 +177,7 @@ def offer_individual_report(session, form):
         PARAM=PARAM,
         VALUE=VALUE,
     )
-    return html + cc_html.WEBEND
+    return html + WEBEND
 
 
 def escape_for_tsv(value):
@@ -240,7 +246,7 @@ def provide_report(session, form):
         """.format(
             session.get_current_user_html(),
             report.get_report_title(),
-        ) + ws.html_table_from_query(rows, descriptions) + cc_html.WEBEND
+        ) + ws.html_table_from_query(rows, descriptions) + WEBEND
         return html
 
 
@@ -295,6 +301,11 @@ def task_unit_test_report(name, r):
 
 def unit_tests():
     """Unit tests for cc_report module."""
+    # -------------------------------------------------------------------------
+    # DELAYED IMPORTS (UNIT TESTING ONLY)
+    # -------------------------------------------------------------------------
+    from . import cc_session
+
     session = cc_session.Session()
     paramspec = {
         PARAM.TYPE: PARAM.WHICH_IDNUM,

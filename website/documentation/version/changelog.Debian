@@ -55,6 +55,7 @@ camcops (1.40-1) all; urgency=low
     with mod_wsgi. The new system runs in a virtual environment, entirely
     separated (in terms of code) from the front-end web server, communicating
     with it via a private port or Unix socket.
+  * ALLOW_INSECURE_COOKIES debugging option.
 
  -- Rudolf Cardinal <rudolf@pobox.com>  Mon, 04 Jan 2016 22:13:00 +0000
 

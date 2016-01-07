@@ -90,7 +90,7 @@ def send_analytics_if_necessary():
     # See http://stackoverflow.com/questions/2297403 for details.
 
     # Send it.
-    encoded_dict = urllib.parse.urlencode(d)
+    encoded_dict = urllib.parse.urlencode(d).encode('ascii')
     request = urllib.request.Request(ANALYTICS_URL, encoded_dict)
     try:
         urllib.request.urlopen(request, timeout=ANALYTICS_TIMEOUT_MS)

@@ -46,14 +46,20 @@ import pythonlib.rnc_web as ws
 
 from .cc_audit import audit
 from . import cc_blob
-from .cc_constants import (  # noqa
+from .cc_constants import (  # some needless imports for subclasses  # noqa
     ACTION,
     CLINICIAN_FIELDSPECS,
     CRIS_CLUSTER_KEY_FIELDSPEC,
+    CSS_PAGED_MEDIA,
     DATEFORMAT,
     ERA_NOW,
+    HL7MESSAGE_TABLENAME,
     NUMBER_OF_IDNUMS,
     PARAM,
+    PDFEND,
+    PDF_HEAD_LANDSCAPE,
+    PDF_HEAD_NO_PAGED_MEDIA,
+    PDF_HEAD_PORTRAIT,
     PKNAME,
     RESPONDENT_FIELDSPECS,
     STANDARD_ANCILLARY_FIELDSPECS,
@@ -62,6 +68,7 @@ from .cc_constants import (  # noqa
     STANDARD_TASK_FIELDSPECS,
     TEXT_FILTER_EXEMPT_FIELDS,
     VALUE,
+    WKHTMLTOPDF_OPTIONS,
 )
 from . import cc_db
 from . import cc_device
@@ -72,7 +79,7 @@ from .cc_dt import (
     format_datetime_string
 )
 from . import cc_filename
-from . import cc_hl7
+from . import cc_hl7core
 from . import cc_html
 from . import cc_lang
 from .cc_logger import logger
@@ -1267,8 +1274,8 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             OBX segment
             any extra ones offered by the task
         """
-        obr_segment = cc_hl7.make_obr_segment(self)
-        obx_segment = cc_hl7.make_obx_segment(
+        obr_segment = cc_hl7core.make_obr_segment(self)
+        obx_segment = cc_hl7core.make_obx_segment(
             self,
             task_format=recipient_def.task_format,
             observation_identifier=self.get_tablename() + "_" + str(self._pk),
@@ -1301,7 +1308,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             AND     serverpk = ?
             AND     (NOT cancelled OR cancelled IS NULL)
         """.format(
-            cc_hl7.HL7Message.TABLENAME,
+            HL7MESSAGE_TABLENAME,
             self._pk
         )
         args = [
@@ -2170,7 +2177,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             + self.get_hyperlink_pdf("View PDF for printing/saving")
             + "</p>"
             + "</div>"
-            + cc_html.PDFEND
+            + PDFEND
         )
 
     def get_hyperlink_html(self, text):
@@ -2187,7 +2194,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     def get_pdf(self):
         """Returns PDF representing task."""
         cc_plot.set_matplotlib_fontsize(pls.PLOT_FONTSIZE)
-        if cc_html.CSS_PAGED_MEDIA:
+        if CSS_PAGED_MEDIA:
             pls.switch_output_to_png()
             # ... even weasyprint's SVG handling is inadequate
             html = self.get_pdf_html()
@@ -2200,7 +2207,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             orientation = (
                 "Landscape" if self.use_landscape_for_pdf() else "Portrait"
             )
-            options = cc_html.WKHTMLTOPDF_OPTIONS
+            options = WKHTMLTOPDF_OPTIONS
             options.update({
                 "orientation": orientation,
             })
@@ -2243,7 +2250,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             + self.get_task_html()
             + self.get_office_html()
             + (SIGNATURE_BLOCK if signature else "")
-            + cc_html.PDFEND
+            + PDFEND
         )
 
     def get_hyperlink_pdf(self, text):
@@ -2389,16 +2396,16 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
     def get_pdf_start(self):
         """Opening HTML for PDF, including CSS."""
-        if cc_html.CSS_PAGED_MEDIA:
+        if CSS_PAGED_MEDIA:
             if self.use_landscape_for_pdf():
-                head = cc_html.PDF_HEAD_LANDSCAPE
+                head = PDF_HEAD_LANDSCAPE
             else:
-                head = cc_html.PDF_HEAD_PORTRAIT
+                head = PDF_HEAD_PORTRAIT
             pdf_header_footer = (
                 self.get_pdf_header_content() + self.get_pdf_footer_content()
             )
         else:
-            head = cc_html.PDF_HEAD_NO_PAGED_MEDIA
+            head = PDF_HEAD_NO_PAGED_MEDIA
             pdf_header_footer = ""
         return (
             head

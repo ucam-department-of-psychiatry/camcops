@@ -22,7 +22,7 @@
 """
 
 import pythonlib.rnc_web as ws
-from cc_modules.cc_hl7 import make_dg1_segment
+from cc_modules.cc_hl7core import make_dg1_segment
 from cc_modules.cc_html import (
     answer,
     tr,
