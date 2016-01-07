@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# mast.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -170,14 +170,14 @@ class Mast(Task):
             "Y": WSTRING("Yes"),
             "N": WSTRING("No")
         }
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
         h += tr(WSTRING("total_score"), answer(score) + " / 53")
         h += tr_qa(WSTRING("mast_exceeds_threshold"),
                    get_yes_no(exceeds_threshold))
-        h += u"""
+        h += """
                 </table>
             </div>
             <table class="taskdetail">
@@ -192,10 +192,10 @@ class Mast(Task):
                 (
                     answer(get_from_dict(MAIN_DICT,
                                          getattr(self, "q" + str(q)))) +
-                    answer(u" — " + str(self.get_score(q)))
+                    answer(" — " + str(self.get_score(q)))
                 )
             )
-        h += u"""
+        h += """
             </table>
         """
         return h

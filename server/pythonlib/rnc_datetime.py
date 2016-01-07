@@ -5,7 +5,7 @@
 
 Author: Rudolf Cardinal (rudolf@pobox.com)
 Created: 26 Feb 2015
-Last update: 26 Feb 2015
+Last update: 24 Sep 2015
 
 Copyright/licensing:
 
@@ -25,8 +25,8 @@ Copyright/licensing:
 """
 
 import datetime
-import dateutil.parser
-import pytz
+import dateutil.parser  # sudo apt-get install python-dateutil
+import pytz  # sudo apt-get install python-tz
 
 
 # =============================================================================

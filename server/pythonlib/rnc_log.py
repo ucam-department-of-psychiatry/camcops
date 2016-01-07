@@ -5,7 +5,7 @@
 
 Author: Rudolf Cardinal (rudolf@pobox.com)
 Created: 26 Feb 2015
-Last update: 31 Mar 2015
+Last update: 24 Sep 2015
 
 Copyright/licensing:
 
@@ -33,14 +33,15 @@ IN SUMMARY, LIBRARIES SHOULD DO THIS:
     # ... and log away
 APPLICATIONS SHOULD DO THIS:
     import logging
+    logger = logging.getLogger(__name__)
     logging.basicConfig()
 OR THIS SORT OF THING:
     import logging
+    logger = logging.getLogger(__name__)
     LOG_FORMAT = '%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:%(message)s'
     LOG_DATEFMT = '%Y-%m-%d %H:%M:%S'
-    logging.basicConfig(format=LOG_FORMAT, datefmt=LOG_DATEFMT)
-    # +/-
-    logger = logging.getLogger(__name__)
+    logging.basicConfig(format=LOG_FORMAT, datefmt=LOG_DATEFMT,
+                        level=logging.DEBUG)
     # ... and log away
 """
 
@@ -66,13 +67,13 @@ def reset_logformat(logger, fmt, datefmt='%Y-%m-%d %H:%M:%S'):
     logger.propagate = False
 
 
-def reset_logformat_timestamped(logger, extraname="", debug=False):
+def reset_logformat_timestamped(logger, extraname="", level=logging.INFO):
     """Apply a simple time-stamped log format to an existing logger, and set
     its loglevel to either DEBUG or INFO."""
     namebit = extraname + ":" if extraname else ""
     fmt = ("%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:" + namebit +
            "%(message)s")
-    logger.info(fmt)
+    # logger.info(fmt)
     reset_logformat(logger, fmt=fmt)
-    logger.info(fmt)
-    logger.setLevel(logging.DEBUG if debug else logging.INFO)
+    # logger.info(fmt)
+    logger.setLevel(level)

@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# cc_lang.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -68,7 +68,11 @@ def mangle_unicode_to_str(s):
     # http://stackoverflow.com/questions/1207457
     if s is None:
         return ""
-    elif isinstance(s, unicode):
-        return unicodedata.normalize('NFKD', s).encode('ascii', 'ignore')
+    elif isinstance(s, str):
+        return (
+            unicodedata.normalize('NFKD', s)
+                       .encode('ascii', 'ignore')  # gets rid of accents
+                       .decode('ascii')  # back to a string
+        )
     else:
         return str(s)

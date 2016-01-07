@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# demqol.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -46,15 +46,15 @@ from cc_modules.cc_task import (
 
 DP = 2
 MISSING_VALUE = -99
-PERMITTED_VALUES = range(1, 4 + 1) + [MISSING_VALUE]
-END_DIV = u"""
+PERMITTED_VALUES = list(range(1, 4 + 1)) + [MISSING_VALUE]
+END_DIV = """
     </table>
     <div class="footnotes">
         [1] Extrapolated total scores are: total_for_responded_questions ×
         n_questions / n_responses.
     </div>
 """
-COPYRIGHT_DIV = u"""
+COPYRIGHT_DIV = """
     <div class="copyright">
         DEMQOL/DEMQOL-Proxy: Copyright © Institute of Psychiatry, King’s
         College London. Reproduced with permission.
@@ -71,7 +71,7 @@ def calc_total_score(obj, n_scored_questions, reverse_score_qs,
     """Returns (total, extrapolated?)."""
     n = 0
     total = 0
-    for q in xrange(1, n_scored_questions + 1):
+    for q in range(1, n_scored_questions + 1):
         x = getattr(obj, "q" + str(q))
         if x is None or x == MISSING_VALUE:
             continue
@@ -167,7 +167,7 @@ class Demqol(Task):
         if not self.is_complete():
             return CTV_DICTLIST_INCOMPLETE
         return [{
-            "content": u"total score {} (range {}-{}, higher better)".format(
+            "content": "total score {} (range {}-{}, higher better)".format(
                        self.total_score(), self.MIN_SCORE, self.MAX_SCORE)
         }]
 
@@ -203,18 +203,18 @@ class Demqol(Task):
         (total, extrapolated) = self.totalscore_extrapolated()
         MAIN_DICT = {
             None: None,
-            1: u"1 — " + WSTRING("demqol_a1"),
-            2: u"2 — " + WSTRING("demqol_a2"),
-            3: u"3 — " + WSTRING("demqol_a3"),
-            4: u"4 — " + WSTRING("demqol_a4"),
+            1: "1 — " + WSTRING("demqol_a1"),
+            2: "2 — " + WSTRING("demqol_a2"),
+            3: "3 — " + WSTRING("demqol_a3"),
+            4: "4 — " + WSTRING("demqol_a4"),
             MISSING_VALUE: WSTRING("demqol_no_response")
         }
         LASTQ_DICT = {
             None: None,
-            1: u"1 — " + WSTRING("demqol_q29_a1"),
-            2: u"2 — " + WSTRING("demqol_q29_a2"),
-            3: u"3 — " + WSTRING("demqol_q29_a3"),
-            4: u"4 — " + WSTRING("demqol_q29_a4"),
+            1: "1 — " + WSTRING("demqol_q29_a1"),
+            2: "2 — " + WSTRING("demqol_q29_a2"),
+            3: "3 — " + WSTRING("demqol_q29_a3"),
+            4: "4 — " + WSTRING("demqol_q29_a4"),
             MISSING_VALUE: WSTRING("demqol_no_response")
         }
         INSTRUCTIONDICT = {
@@ -225,7 +225,7 @@ class Demqol(Task):
         }
         # https://docs.python.org/2/library/stdtypes.html#mapping-types-dict
         # http://paltman.com/try-except-performance-in-python-a-simple-test/
-        h = self.get_standard_clinician_block() + u"""
+        h = self.get_standard_clinician_block() + """
             <div class="summary">
                 <table class="summary">
                     {is_complete_tr}
@@ -252,7 +252,7 @@ class Demqol(Task):
             t=answer(ws.number_to_dp(total, DP)),
             e=answer(get_yes_no(extrapolated)),
         )
-        for n in xrange(1, self.NQUESTIONS + 1):
+        for n in range(1, self.NQUESTIONS + 1):
             if n in INSTRUCTIONDICT:
                 h += subheading_spanning_two_columns(INSTRUCTIONDICT.get(n))
             d = MAIN_DICT if n <= self.N_SCORED_QUESTIONS else LASTQ_DICT
@@ -349,7 +349,7 @@ class DemqolProxy(Task):
         if not self.is_complete():
             return CTV_DICTLIST_INCOMPLETE
         return [{
-            "content": u"total score {} (range {}-{}, higher better)".format(
+            "content": "total score {} (range {}-{}, higher better)".format(
                        self.total_score(), self.MIN_SCORE, self.MAX_SCORE)
         }]
 
@@ -383,18 +383,18 @@ class DemqolProxy(Task):
         (total, extrapolated) = self.totalscore_extrapolated()
         MAIN_DICT = {
             None: None,
-            1: u"1 — " + WSTRING("demqol_a1"),
-            2: u"2 — " + WSTRING("demqol_a2"),
-            3: u"3 — " + WSTRING("demqol_a3"),
-            4: u"4 — " + WSTRING("demqol_a4"),
+            1: "1 — " + WSTRING("demqol_a1"),
+            2: "2 — " + WSTRING("demqol_a2"),
+            3: "3 — " + WSTRING("demqol_a3"),
+            4: "4 — " + WSTRING("demqol_a4"),
             MISSING_VALUE: WSTRING("demqol_no_response")
         }
         LASTQ_DICT = {
             None: None,
-            1: u"1 — " + WSTRING("demqol_q29_a1"),
-            2: u"2 — " + WSTRING("demqol_q29_a2"),
-            3: u"3 — " + WSTRING("demqol_q29_a3"),
-            4: u"4 — " + WSTRING("demqol_q29_a4"),
+            1: "1 — " + WSTRING("demqol_q29_a1"),
+            2: "2 — " + WSTRING("demqol_q29_a2"),
+            3: "3 — " + WSTRING("demqol_q29_a3"),
+            4: "4 — " + WSTRING("demqol_q29_a4"),
             MISSING_VALUE: WSTRING("demqol_no_response")
         }
         INSTRUCTIONDICT = {
@@ -406,7 +406,7 @@ class DemqolProxy(Task):
         h = (
             self.get_standard_clinician_block()
             + self.get_standard_respondent_block()
-        ) + u"""
+        ) + """
             <div class="summary">
                 <table class="summary">
                     {is_complete_tr}
@@ -433,7 +433,7 @@ class DemqolProxy(Task):
             t=answer(ws.number_to_dp(total, DP)),
             e=answer(get_yes_no(extrapolated)),
         )
-        for n in xrange(1, self.NQUESTIONS + 1):
+        for n in range(1, self.NQUESTIONS + 1):
             if n in INSTRUCTIONDICT:
                 h += subheading_spanning_two_columns(INSTRUCTIONDICT.get(n))
             d = MAIN_DICT if n <= self.N_SCORED_QUESTIONS else LASTQ_DICT

@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# honos.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -75,7 +75,7 @@ class Honos(Task):
         dict(name="q8otherproblem", cctype="TEXT",
              comment="Q8: other problem: specify"),
     ]
-    COPYRIGHT_DIV = u"""
+    COPYRIGHT_DIV = """
         <div class="copyright">
             Health of the Nation Outcome Scales:
             Copyright © Royal College of Psychiatrists.
@@ -175,12 +175,12 @@ class Honos(Task):
             "I": WSTRING("honos_q8problemtype_option_i"),
             "J": WSTRING("honos_q8problemtype_option_j"),
         }
-        h = self.get_standard_clinician_block() + u"""
+        h = self.get_standard_clinician_block() + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
         h += tr(WSTRING("total_score"), answer(self.total_score()) + " / 48")
-        h += u"""
+        h += """
                 </table>
             </div>
             <table class="taskdetail">
@@ -204,7 +204,7 @@ class Honos(Task):
                 self.get_q(i),
                 self.get_answer(i, getattr(self, "q" + str(i)))
             )
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] 0 = no problem;
@@ -345,12 +345,12 @@ class Honos65(Task):
             "I": WSTRING("honos65_q8problemtype_option_i"),
             "J": WSTRING("honos65_q8problemtype_option_j"),
         }
-        h = self.get_standard_clinician_block() + u"""
+        h = self.get_standard_clinician_block() + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
         h += tr(WSTRING("total_score"), answer(self.total_score()) + " / 48")
-        h += u"""
+        h += """
                 </table>
             </div>
             <table class="taskdetail">
@@ -374,7 +374,7 @@ class Honos65(Task):
                 self.get_q(i),
                 self.get_answer(i, getattr(self, "q" + str(i)))
             )
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] 0 = no problem;
@@ -492,12 +492,12 @@ class Honosca(Task):
         return WSTRING("honosca_q" + str(q) + "_option" + str(a))
 
     def get_task_html(self):
-        h = self.get_standard_clinician_block() + u"""
+        h = self.get_standard_clinician_block() + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
         h += tr(WSTRING("total_score"), answer(self.total_score()) + " / 60")
-        h += u"""
+        h += """
                 </table>
             </div>
             <table class="taskdetail">
@@ -521,7 +521,7 @@ class Honosca(Task):
                 self.get_q(i),
                 self.get_answer(i, getattr(self, "q" + str(i)))
             )
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] 0 = no problem;

@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# ciwa.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -159,13 +159,13 @@ class Ciwa(Task):
                     continue
                 d[option] = WSTRING("ciwa_" + q + "_option" + str(option))
             ANSWER_DICTS_DICT[q] = d
-        h = self.get_standard_clinician_block() + u"""
+        h = self.get_standard_clinician_block() + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
         h += tr(WSTRING("total_score"), answer(score) + " / 67")
         h += tr_qa(WSTRING("ciwa_severity") + " <sup>[1]</sup>", severity)
-        h += u"""
+        h += """
                 </table>
             </div>
             <table class="taskdetail">
@@ -186,7 +186,7 @@ class Ciwa(Task):
         h += tr(WSTRING("ciwa_bp"),
                 answer(self.sbp) + " / " + answer(self.dbp))
         h += tr_qa(WSTRING("ciwa_rr"), self.rr)
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] Total score ≥15 severe, ≥8 moderate, otherwise

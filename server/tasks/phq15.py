@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# phq15.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -167,9 +167,9 @@ class Phq15(Task):
         severity = self.severity()
         ANSWER_DICT = {None: None}
         for option in range(0, 3):
-            ANSWER_DICT[option] = str(option) + u" – " + \
+            ANSWER_DICT[option] = str(option) + " – " + \
                 WSTRING("phq15_a" + str(option))
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
         """
@@ -183,7 +183,7 @@ class Phq15(Task):
                    get_yes_no(somatoform_likely))
         h += tr_qa(WSTRING("phq15_symptom_severity") + " <sup>[4]</sup>",
                    severity)
-        h += u"""
+        h += """
                 </table>
             </div>
             <table class="taskdetail">
@@ -197,7 +197,7 @@ class Phq15(Task):
                 WSTRING("phq15_q" + str(q)),
                 get_from_dict(ANSWER_DICT, getattr(self, "q" + str(q)))
             )
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] In males, maximum score is actually 28.

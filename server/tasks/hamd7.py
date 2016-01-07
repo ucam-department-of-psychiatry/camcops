@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# hamd7.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -149,13 +149,13 @@ class Hamd7(Task):
                 d[option] = WSTRING("hamd7_q" + str(q) + "_option" +
                                     str(option))
             ANSWER_DICTS.append(d)
-        h = self.get_standard_clinician_block() + u"""
+        h = self.get_standard_clinician_block() + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
         h += tr(WSTRING("total_score"), answer(score) + " / 26")
         h += tr_qa(WSTRING("hamd7_severity") + " <sup>[1]</sup>", severity)
-        h += u"""
+        h += """
                 </table>
             </div>
             <table class="taskdetail">
@@ -169,7 +169,7 @@ class Hamd7(Task):
                 WSTRING("hamd7_q" + str(q) + "_s"),
                 get_from_dict(ANSWER_DICTS[q - 1], getattr(self, "q" + str(q)))
             )
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] ≥20 severe, ≥12 moderate, ≥4 mild, &lt;4 none.

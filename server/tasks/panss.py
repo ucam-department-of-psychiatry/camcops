@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# panss.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -149,8 +149,8 @@ class Panss(Task):
         if not self.is_complete():
             return CTV_DICTLIST_INCOMPLETE
         return [{
-            "content":  u"PANSS total score {} (P {}, N {}, G {}, "
-                        u"composite P–N {})".format(
+            "content":  "PANSS total score {} (P {}, N {}, G {}, "
+                        "composite P–N {})".format(
                             self.total_score(),
                             self.score_p(),
                             self.score_n(),
@@ -212,17 +212,17 @@ class Panss(Task):
             6: WSTRING("panss_option6"),
             7: WSTRING("panss_option7"),
         }
-        h = self.get_standard_clinician_block() + u"""
+        h = self.get_standard_clinician_block() + """
             <div class="summary">
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
-        h += tr_qa(u"{} (30–210)".format(WSTRING("total_score")), total)
-        h += tr_qa(u"{} (7–49)".format(WSTRING("panss_p")), p)
-        h += tr_qa(u"{} (7–49)".format(WSTRING("panss_n")), n)
-        h += tr_qa(u"{} (16–112)".format(WSTRING("panss_g")), g)
+        h += tr_qa("{} (30–210)".format(WSTRING("total_score")), total)
+        h += tr_qa("{} (7–49)".format(WSTRING("panss_p")), p)
+        h += tr_qa("{} (7–49)".format(WSTRING("panss_n")), n)
+        h += tr_qa("{} (16–112)".format(WSTRING("panss_g")), g)
         h += tr_qa(WSTRING("panss_composite"), composite)
-        h += u"""
+        h += """
                 </table>
             </div>
             <table class="taskdetail">
@@ -236,7 +236,7 @@ class Panss(Task):
                 WSTRING("panss_" + q + "_s"),
                 get_from_dict(ANSWERS, getattr(self, q))
             )
-        h += u"""
+        h += """
             </table>
         """ + DATA_COLLECTION_ONLY_DIV
         return h

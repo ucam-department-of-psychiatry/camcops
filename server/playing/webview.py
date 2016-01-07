@@ -9,9 +9,9 @@
 
 import camcopswebview  # module that does the real work
 
-#==============================================================================
+# =============================================================================
 # CGI method - no longer used
-#==============================================================================
+# =============================================================================
 
 # A two-script method:
 # (a) better exception reporting to the HTTP client --- SUPERSEDED by import
@@ -20,11 +20,11 @@ import camcopswebview  # module that does the real work
 # (c) Apache not quite so fussy about ownership of the script that gets edited
 #     more
 
-#camcopswebview.main()
+# camcopswebview.main()
 
-#==============================================================================
+# =============================================================================
 # Wrapper to print errors
-#==============================================================================
+# =============================================================================
 
 import sys
 import cgitb
@@ -53,8 +53,8 @@ class ErrorReportingMiddleware(object):
             )
             return self.format_exception(exc_info)
 
-#==============================================================================
+# =============================================================================
 # WSGI entry point
-#==============================================================================
+# =============================================================================
 
 application = ErrorReportingMiddleware(camcopswebview.application)

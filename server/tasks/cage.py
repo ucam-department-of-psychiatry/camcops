@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# cage.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -113,13 +113,13 @@ class Cage(Task):
     def get_task_html(self):
         score = self.total_score()
         exceeds_cutoff = score >= 2
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
         h += tr(WSTRING("total_score"), answer(score) + " / 4")
         h += tr_qa(WSTRING("cage_over_threshold"), get_yes_no(exceeds_cutoff))
-        h += u"""
+        h += """
                 </table>
             </div>
             <table class="taskdetail">
@@ -129,9 +129,9 @@ class Cage(Task):
                 </tr>
         """
         for q in range(1, Cage.NQUESTIONS + 1):
-            h += tr_qa(str(q) + u" — " + WSTRING("cage_q" + str(q)),
+            h += tr_qa(str(q) + " — " + WSTRING("cage_q" + str(q)),
                        get_yes_no_none(getattr(self, "q" + str(q))))
-        h += u"""
+        h += """
             </table>
         """
         return h

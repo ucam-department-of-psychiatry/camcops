@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# cope.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -171,7 +171,7 @@ class CopeBrief(Task):
         return (
             self.is_complete_responder() and
             self.are_all_fields_complete(
-                ["q{}".format(n) for n in xrange(1, self.NQUESTIONS + 1)]) and
+                ["q{}".format(n) for n in range(1, self.NQUESTIONS + 1)]) and
             self.field_contents_valid()
         )
 
@@ -219,11 +219,11 @@ class CopeBrief(Task):
 
     def get_task_html(self):
         ANSWER_DICT = {None: None}
-        for option in xrange(0, 3 + 1):
+        for option in range(0, 3 + 1):
             ANSWER_DICT[option] = (
-                str(option) + u" — " + WSTRING("copebrief_a" + str(option))
+                str(option) + " — " + WSTRING("copebrief_a" + str(option))
             )
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
@@ -244,7 +244,7 @@ class CopeBrief(Task):
         h += tr_qa("Acceptance (Q20, Q24)", self.acceptance())
         h += tr_qa("Religion (Q22, Q27)", self.religion())
         h += tr_qa("Self-blame (Q13, Q26)", self.self_blame())
-        h += u"""
+        h += """
                 </table>
             </div>
             <div class="explanation">
@@ -260,12 +260,12 @@ class CopeBrief(Task):
                     <th width="50%">Answer</th>
                 </tr>
         """
-        for q in xrange(1, self.NQUESTIONS + 1):
+        for q in range(1, self.NQUESTIONS + 1):
             h += tr_qa(
-                u"Q{}. {}".format(q, WSTRING("copebrief_q" + str(q))),
+                "Q{}. {}".format(q, WSTRING("copebrief_q" + str(q))),
                 get_from_dict(ANSWER_DICT, getattr(self, "q" + str(q)))
             )
-        h += u"""
+        h += """
             </table>
         """
         return h

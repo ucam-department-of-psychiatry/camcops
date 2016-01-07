@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# cc_string.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -21,6 +21,7 @@
     limitations under the License.
 """
 
+import glob
 import xml.etree.cElementTree as ElementTree
 # ... cElementTree is a faster implementation
 # ... http://docs.python.org/2/library/xml.etree.elementtree.html
@@ -28,8 +29,8 @@ import xml.etree.cElementTree as ElementTree
 
 import pythonlib.rnc_web as ws
 
-from cc_logger import logger
-import cc_pls
+from .cc_logger import logger
+from . import cc_pls
 
 
 # =============================================================================
@@ -98,7 +99,14 @@ def cache_extra_strings():
             "XSTRING/WXSTRING in classmethod, before initialization via "
             "the WSGI application entry point")
     cc_pls.pls.extraStringDicts = {}
-    for filename in cc_pls.pls.EXTRA_STRING_FILES:
+    # Glob support added 2016-01-04.
+    # for filename in cc_pls.pls.EXTRA_STRING_FILES:
+    filenames = []
+    for filespec in cc_pls.pls.EXTRA_STRING_FILES:
+        possibles = glob.glob(filespec, recursive=False)
+        filenames.append(possibles)
+    filenames = list(set(filenames))  # just unique ones
+    for filename in filenames:
         logger.debug("Loading XML file: " + filename)
         parser = ElementTree.XMLParser(encoding="UTF-8")
         tree = ElementTree.parse(filename, parser=parser)
@@ -132,8 +140,8 @@ def get_all_extra_strings():
     """Returns all extra strings, as a list of (task, name, value) tuples."""
     cache_extra_strings()
     rows = []
-    for task, subdict in cc_pls.pls.extraStringDicts.iteritems():
-        for name, value in subdict.iteritems():
+    for task, subdict in cc_pls.pls.extraStringDicts.items():
+        for name, value in subdict.items():
             rows.append((task, name, value))
     return rows
 

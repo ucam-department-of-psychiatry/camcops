@@ -1,7 +1,7 @@
 // AffectiveMenu.js
 
 /*
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -43,6 +43,7 @@ module.exports = function AffectiveMenu() {
             ALLTASKS.TASKLIST.ICD10_DEPRESSIVE_EPISODE,
             ALLTASKS.TASKLIST.ICD10_MANIC_EPISODE,
             ALLTASKS.TASKLIST.ICD10_MIXED_EPISODE,
+            ALLTASKS.TASKLIST.IESR,
             // PERMISSION REFUSED: ALLTASKS.TASKLIST.MADRS,
             ALLTASKS.TASKLIST.PCLM,
             ALLTASKS.TASKLIST.PCLC,

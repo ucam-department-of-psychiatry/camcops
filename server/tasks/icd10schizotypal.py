@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# icd10schizotypal.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -86,7 +86,7 @@ class Icd10Schizotypal(Task):
 
     @classmethod
     def get_tasklongname(cls):
-        return u"ICD-10 criteria for schizotypal disorder (F21)"
+        return "ICD-10 criteria for schizotypal disorder (F21)"
 
     @classmethod
     def get_fieldspecs(cls):
@@ -151,7 +151,7 @@ class Icd10Schizotypal(Task):
             stem + str(i), WSTRING("icd10_" + stem + "_pd_" + str(i)))
 
     def get_task_html(self):
-        h = self.get_standard_clinician_block(True, self.comments) + u"""
+        h = self.get_standard_clinician_block(True, self.comments) + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
@@ -160,7 +160,7 @@ class Icd10Schizotypal(Task):
                                           DATEFORMAT.LONG_DATE, default=None))
         h += tr_qa(WSTRING("meets_criteria"),
                    get_yes_no_none(self.meets_criteria()))
-        h += u"""
+        h += """
                 </table>
             </div>
             <table class="taskdetail">
@@ -175,7 +175,7 @@ class Icd10Schizotypal(Task):
                 "a" + str(i), WSTRING("icd10schizotypal_a" + str(i)))
         h += self.get_twocol_bool_row_true_false(
             "b", WSTRING("icd10schizotypal_b"))
-        h += u"""
+        h += """
             </table>
         """ + ICD10_COPYRIGHT_DIV
         return h

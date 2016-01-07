@@ -196,8 +196,8 @@ def main(port=2575):
     print("Starting on port {}".format(port))
     print("P(timeout) = {}".format(PROBABILITY_OF_TIMEOUT))
     print("P(success) = {}".format(PROBABILITY_OF_SUCCESS))
-    #reactor.listenTCP(port, EchoFactory())
-    #reactor.listenTCP(port, HelloFactory())
+    # reactor.listenTCP(port, EchoFactory())
+    # reactor.listenTCP(port, HelloFactory())
     reactor.listenTCP(port, HL7ServerFactory())
     reactor.run()
 

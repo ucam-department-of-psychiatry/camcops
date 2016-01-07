@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# icd10depressive.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -159,8 +159,8 @@ class Icd10Depressive(Task):
     @classmethod
     def get_tasklongname(cls):
         return (
-            u"ICD-10 symptomatic criteria for a depressive episode "
-            u"(as in e.g. F06.3, F25, F31, F32, F33)"
+            "ICD-10 symptomatic criteria for a depressive episode "
+            "(as in e.g. F06.3, F25, F31, F32, F33)"
         )
 
     @classmethod
@@ -389,7 +389,7 @@ class Icd10Depressive(Task):
             fieldname, WSTRING("icd10depressive_" + fieldname))
 
     def get_task_html(self):
-        h = self.get_standard_clinician_block(True, self.comments) + u"""
+        h = self.get_standard_clinician_block(True, self.comments) + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
@@ -397,7 +397,7 @@ class Icd10Depressive(Task):
                    format_datetime_string(self.date_pertains_to,
                                           DATEFORMAT.LONG_DATE,
                                           default=None))
-        h += tr_qa(WSTRING("category") + u" <sup>[1,2]</sup>",
+        h += tr_qa(WSTRING("category") + " <sup>[1,2]</sup>",
                    self.get_full_description())
         h += tr(WSTRING("icd10depressive_n_core"),
                 answer(self.n_core()) + " / 3")
@@ -406,15 +406,15 @@ class Icd10Depressive(Task):
         h += tr(WSTRING("icd10depressive_n_somatic"),
                 answer(self.n_somatic()) + " / 8")
         h += tr(WSTRING("icd10depressive_psychotic_symptoms_or_stupor")
-                + u" <sup>[2]</sup>",
+                + " <sup>[2]</sup>",
                 answer(get_present_absent_none(self.is_psychotic_or_stupor())))
-        h += u"""
+        h += """
                 </table>
             </div>
             <div class="explanation">
         """
         h += WSTRING("icd10_symptomatic_disclaimer")
-        h += u"""
+        h += """
             </div>
             <table class="taskdetail">
                 <tr>
@@ -445,7 +445,7 @@ class Icd10Depressive(Task):
         for x in Icd10Depressive.PSYCHOSIS_NAMES:
             h += self.row_present_absent(x)
 
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] Mild depression requires ≥2 core symptoms and ≥4 total

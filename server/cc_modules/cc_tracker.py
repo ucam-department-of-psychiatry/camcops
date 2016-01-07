@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# cc_tracker.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -22,32 +22,39 @@
 """
 
 import datetime
-import matplotlib.pyplot as plt
 
 import pythonlib.rnc_pdf as rnc_pdf
 import pythonlib.rnc_web as ws
 
-from cc_audit import audit
-from cc_constants import (
+from .cc_audit import audit
+from .cc_constants import (
     ACTION,
+    CSS_PAGED_MEDIA,
+    DATEFORMAT,
     NUMBER_OF_IDNUMS,
     PARAM,
+    PDFEND,
+    PDF_HEAD_NO_PAGED_MEDIA,
+    PDF_HEAD_PORTRAIT,
+    RESTRICTED_WARNING_SINGULAR,
     VALUE,
-    DATEFORMAT
+    WKHTMLTOPDF_OPTIONS,
 )
-import cc_dt
-import cc_filename
-import cc_html
-import cc_lang
-from cc_logger import logger
-import cc_namedtuples
-import cc_plot
-from cc_pls import pls
-import cc_session
-import cc_task
-from cc_unittest import unit_test_ignore
-import cc_version
-import cc_xml
+from . import cc_dt
+from . import cc_filename
+from . import cc_html
+from . import cc_lang
+from .cc_logger import logger
+from . import cc_namedtuples
+from . import cc_plot
+from .cc_pls import pls
+from . import cc_session
+from . import cc_task
+from .cc_unittest import unit_test_ignore
+from . import cc_version
+from . import cc_xml
+
+import matplotlib.pyplot as plt  # ONLY AFTER IMPORTING cc_plot
 
 # =============================================================================
 # Constants
@@ -88,39 +95,39 @@ def consistency(values, servervalue=None, case_sensitive=True):
         msg: HTML message
     """
     if case_sensitive:
-        vallist = [unicode(v) if v is not None else v for v in values]
+        vallist = [str(v) if v is not None else v for v in values]
         if servervalue is not None:
-            vallist.append(unicode(servervalue))
+            vallist.append(str(servervalue))
     else:
-        vallist = [unicode(v).upper() if v is not None else v for v in values]
+        vallist = [str(v).upper() if v is not None else v for v in values]
         if servervalue is not None:
-            vallist.append(unicode(servervalue).upper())
+            vallist.append(str(servervalue).upper())
     # Replace "" with None, so we only have a single "not-present" value
     vallist = [None if x == "" else x for x in vallist]
     unique = list(set(vallist))
     if len(unique) == 0:
-        return True, u"consistent (no values)"
+        return True, "consistent (no values)"
     if len(unique) == 1:
-        return True, u"consistent ({})".format(unique[0])
-    #logger.debug("consistency: values = {}, unique = {}".format(repr(values),
+        return True, "consistent ({})".format(unique[0])
+    # logger.debug("consistency: values = {}, unique = {}".format(repr(values),
     #                                                            repr(unique)))
     if len(unique) == 2:
         if None in unique:
-            return True, u"consistent (all blank or {})".format(
+            return True, "consistent (all blank or {})".format(
                 unique[1 - unique.index(None)]
             )
-    return False, u"<b>INCONSISTENT (contains values {})</b>".format(
+    return False, "<b>INCONSISTENT (contains values {})</b>".format(
         ", ".join(unique)
     )
 
 
 def get_summary_of_tasks(list_of_task_instance_lists):
     """Textual list of participating tasks."""
-    return u" — ".join(
+    return " — ".join(
         [
-            u"; ".join(
+            "; ".join(
                 [
-                    u"({},{},{})".format(
+                    "({},{},{})".format(
                         task.get_tablename(),
                         task._pk,
                         task.get_patient_server_pk()
@@ -137,11 +144,11 @@ def format_daterange(start, end):
     """Textual representation of inclusive date range.
 
     Arguments are datetime values."""
-    return u"[{}, {}]".format(
+    return "[{}, {}]".format(
         cc_dt.format_datetime(start, DATEFORMAT.ISO8601_DATE_ONLY,
-                              default=u"−∞"),
+                              default="−∞"),
         cc_dt.format_datetime(end, DATEFORMAT.ISO8601_DATE_ONLY,
-                              default=u"+∞")
+                              default="+∞")
     )
 
 
@@ -210,17 +217,17 @@ class ConsistencyInfo(object):
         """Textual representation of ID information, indicating consistency or
         lack of it."""
         cons = [
-            u"Forename: {}".format(self.msg_forename),
-            u"Surname: {}".format(self.msg_surname),
-            u"DOB: {}".format(self.msg_dob),
-            u"Sex: {}".format(self.msg_sex),
+            "Forename: {}".format(self.msg_forename),
+            "Surname: {}".format(self.msg_surname),
+            "DOB: {}".format(self.msg_dob),
+            "Sex: {}".format(self.msg_sex),
         ]
         for n in range(1, NUMBER_OF_IDNUMS + 1):
             i = n - 1
             if self.msg_iddescs[i]:
-                cons.append(u"""iddesc{}: {}""".format(n, self.msg_iddescs[i]))
+                cons.append("""iddesc{}: {}""".format(n, self.msg_iddescs[i]))
             if self.msg_idnums[i]:
-                cons.append(u"""idnum{}: {}""".format(n, self.msg_idnums[i]))
+                cons.append("""idnum{}: {}""".format(n, self.msg_idnums[i]))
         return cons
 
     def get_xml_root(self):
@@ -294,7 +301,7 @@ class Tracker(object):
             self.end_datetime_extended))
 
         self.restricted_warning = (
-            cc_html.RESTRICTED_WARNING_SINGULAR
+            RESTRICTED_WARNING_SINGULAR
             if session.restricted_to_viewing_user() else ""
         )
         self._patient = None  # default value if we fail
@@ -302,7 +309,7 @@ class Tracker(object):
         # ... list (by task class) of lists of task instances
         self.earliest = None
         self.latest = None
-        self.summary = u""
+        self.summary = ""
 
         # Build task lists
         for cls in task_class_list:
@@ -450,7 +457,7 @@ class Tracker(object):
             + """<div class="navigation">"""
             + self.get_hyperlink_pdf("View PDF for printing/saving")
             + "</div>"
-            + cc_html.PDFEND
+            + PDFEND
         )
 
     # -------------------------------------------------------------------------
@@ -460,7 +467,7 @@ class Tracker(object):
     def get_pdf(self):
         """Get PDF representing tracker."""
         cc_plot.set_matplotlib_fontsize(pls.PLOT_FONTSIZE)
-        if cc_html.CSS_PAGED_MEDIA:
+        if CSS_PAGED_MEDIA:
             pls.switch_output_to_png()
             return rnc_pdf.pdf_from_html(self.get_pdf_html())
         else:
@@ -468,7 +475,7 @@ class Tracker(object):
             html = self.get_pdf_html()
             header = self.get_pdf_header_content()
             footer = self.get_pdf_footer_content()
-            options = cc_html.WKHTMLTOPDF_OPTIONS
+            options = WKHTMLTOPDF_OPTIONS
             options.update({
                 "orientation": "Portrait",
             })
@@ -483,7 +490,7 @@ class Tracker(object):
             self.get_pdf_start()
             + self.get_all_plots_for_all_tasks_html()
             + self.get_office_html()
-            + cc_html.PDFEND
+            + PDFEND
         )
 
     def suggested_pdf_filename(self):
@@ -532,7 +539,7 @@ class Tracker(object):
                 label_id_numbers=True)
         else:
             ptinfo = WARNING_NO_PATIENT_FOUND
-        return u"""
+        return """
             <div class="trackerheader">
                 Patient identified by: <b>{pt_search}</b>.
                 Date range for search: <b>{dt_search}</b>.
@@ -570,18 +577,18 @@ class Tracker(object):
     def get_pdf_footer_content(self):
         accessed = cc_dt.format_datetime(pls.NOW_LOCAL_TZ,
                                          DATEFORMAT.LONG_DATETIME)
-        content = u"Tracker accessed {}.".format(accessed)
+        content = "Tracker accessed {}.".format(accessed)
         return cc_html.pdf_footer_content(content)
 
     def get_pdf_start(self):
         """Opening HTML for PDF, including CSS."""
-        if cc_html.CSS_PAGED_MEDIA:
-            head = cc_html.PDF_HEAD_PORTRAIT
+        if CSS_PAGED_MEDIA:
+            head = PDF_HEAD_PORTRAIT
             pdf_header_footer = (
                 self.get_pdf_header_content() + self.get_pdf_footer_content()
             )
         else:
-            head = cc_html.PDF_HEAD_NO_PAGED_MEDIA
+            head = PDF_HEAD_NO_PAGED_MEDIA
             pdf_header_footer = ""
         return (
             head
@@ -596,7 +603,7 @@ class Tracker(object):
             request = "None"
         else:
             request = ", ".join(self.task_tablename_list)
-        return u"""
+        return """
             <div class="office">
                 Trackers use only information from tasks that are flagged
                 CURRENT and COMPLETE.
@@ -623,12 +630,12 @@ class Tracker(object):
         """HTML for all plots."""
         if (self.task_tablename_list is None
                 or len(self.task_tablename_list) == 0):
-            return u"""
+            return """
                 <div class="warning">
                     Unable to generate tracker: no task types specified
                 </div>"""
         if self._patient is None:
-            return u"""
+            return """
                 <div class="warning">
                     Unable to generate tracker: no patient details
                 </div>"""
@@ -638,7 +645,7 @@ class Tracker(object):
             task_instance_list = self.list_of_task_instance_lists[c]
             if len(task_instance_list) == 0:
                 continue
-            html += u"""
+            html += """
                 <div class="taskheader">
                     <b>{} ({})</b>
                 </div>
@@ -791,7 +798,10 @@ class Tracker(object):
                     va = t[2]
                 else:
                     va = "center"
-                ax.text(label_left, y, l, verticalalignment=va, alpha="0.5")
+                ax.text(label_left, y, l, verticalalignment=va, alpha=0.5)
+                # was "0.5" rather than 0.5, which led to a tricky-to-find
+                # "TypeError: a float is required" exception after switching
+                # to Python 3.
 
         # replot so the data are on top of the rest:
         ax.plot(x, values, color="b", linestyle="-", marker="+",
@@ -838,7 +848,7 @@ class Tracker(object):
         url += cc_html.get_url_field_value_pair(
             PARAM.OUTPUTTYPE,
             VALUE.OUTPUTTYPE_PDF)
-        return u"""<a href="{}" target="_blank">{}</a>""".format(url, text)
+        return """<a href="{}" target="_blank">{}</a>""".format(url, text)
 
 
 # =============================================================================
@@ -883,11 +893,11 @@ class ClinicalTextView(object):
                      + str(self.end_datetime_extended))
 
         if session.restricted_to_viewing_user():
-            self.restricted_warning = cc_html.RESTRICTED_WARNING_SINGULAR
+            self.restricted_warning = RESTRICTED_WARNING_SINGULAR
         else:
             self.restricted_warning = ""
         self._patient = None  # default value if we fail
-        self.summary = u""
+        self.summary = ""
 
         # Build task lists
         list_of_task_instance_lists = []
@@ -1019,7 +1029,7 @@ class ClinicalTextView(object):
             + """<div class="navigation">"""
             + self.get_hyperlink_pdf("View PDF for printing/saving")
             + "</div>"
-            + cc_html.PDFEND
+            + PDFEND
         )
 
     # -------------------------------------------------------------------------
@@ -1036,7 +1046,7 @@ class ClinicalTextView(object):
             self.get_pdf_start()
             + self.get_clinicaltextview_main_html(as_pdf=True)
             + self.get_office_html()
-            + cc_html.PDFEND
+            + PDFEND
         )
 
     def suggested_pdf_filename(self):
@@ -1082,7 +1092,7 @@ class ClinicalTextView(object):
         else:
             cons_class = "warning"
             joiner = "<br>"
-        h = u"""
+        h = """
             <div class="trackerheader">
                 Patient identified by: <b>{}</b>.
                 Date range for search: <b>{}</b>.
@@ -1105,7 +1115,7 @@ class ClinicalTextView(object):
                 label_id_numbers=True)
         else:
             ptinfo = WARNING_NO_PATIENT_FOUND
-        h += u"""
+        h += """
             </div>
             {}
             {}
@@ -1125,7 +1135,7 @@ class ClinicalTextView(object):
             ptinfo = self._patient.get_html_for_page_header()
         else:
             ptinfo = ""
-        return cc_html.PDF_HEAD_PORTRAIT + u"""
+        return PDF_HEAD_PORTRAIT + """
             <div id="headerContent">
                 {}
             </div>
@@ -1142,7 +1152,7 @@ class ClinicalTextView(object):
 
     def get_office_html(self):
         """Tedious HTML listing sources."""
-        return u"""
+        return """
             <div class="office">
                 The clinical text view uses only information from tasks that
                 are flagged CURRENT.
@@ -1166,29 +1176,29 @@ class ClinicalTextView(object):
     def get_clinicaltextview_main_html(self, as_pdf=False):
         """HTML for main CTV, with start date, content, end date."""
         if self._patient is None:
-            return u"""
+            return """
                 <div class="warning">
                     Unable to generate tracker: no patient details
                 </div>
             """
-        html = u"""
+        html = """
             <div class="ctv_datelimit_start">
                 Start date for search: {}
             </div>
         """.format(
             cc_dt.format_datetime(self.start_datetime,
-                                  DATEFORMAT.ISO8601_DATE_ONLY, default=u"−∞")
+                                  DATEFORMAT.ISO8601_DATE_ONLY, default="−∞")
         )
         for t in range(len(self.flattasklist)):
             html += self.get_textview_for_one_task_instance_html(
                 self.flattasklist[t], as_pdf=as_pdf)
-        html += u"""
+        html += """
             <div class="ctv_datelimit_end">
                 End date for search: {}
             </div>
         """.format(
             cc_dt.format_datetime(self.end_datetime,
-                                  DATEFORMAT.ISO8601_DATE_ONLY, default=u"+∞")
+                                  DATEFORMAT.ISO8601_DATE_ONLY, default="+∞")
         )
         return html
 
@@ -1209,7 +1219,7 @@ class ClinicalTextView(object):
         # If it provides none, we offer a line indicating just the existence of
         # the task, with no further details.
         if ctv_dict_list is None:
-            return u"""
+            return """
                 <div class="ctv_taskheading">{}: {} exists {}</div>
             """.format(
                 datetext,
@@ -1220,11 +1230,11 @@ class ClinicalTextView(object):
         # Clinician
         clinician_html = ""
         if task.has_clinician():
-            clinician_html = u"<i>(Clinician: {})</i>".format(
+            clinician_html = "<i>(Clinician: {})</i>".format(
                 task.get_clinician_name()
             )
         # Header
-        html = u"""
+        html = """
             <div class="ctv_taskheading">{dt}: {t} {l} {c}</div>
         """.format(
             dt=datetext,
@@ -1240,7 +1250,7 @@ class ClinicalTextView(object):
             # task.get_not_current_warning() not required (CTV: all current)
         )
         if warnings:
-            html += u"""
+            html += """
                 <div class="ctv_warnings">
                     {}
                 </div>
@@ -1256,25 +1266,25 @@ class ClinicalTextView(object):
             skip_if_no_content = fielddict.get("skip_if_no_content", True)
             if content or (not skip_if_no_content):
                 if heading:
-                    html += u"""
+                    html += """
                         <div class="ctv_fieldheading">
                             {}
                         </div>
                     """.format(heading)
                 if subheading:
-                    html += u"""
+                    html += """
                         <div class="ctv_fieldsubheading">
                             {}
                         </div>
                     """.format(subheading)
                 if description:
-                    html += u"""
+                    html += """
                         <div class="ctv_fielddescription">
                             {}
                         </div>
                     """.format(description)
             if content:
-                html += u"""
+                html += """
                     <div class="ctv_fieldcontent">
                         {}
                     </div>
@@ -1311,7 +1321,7 @@ class ClinicalTextView(object):
                                   DATEFORMAT.ISO8601_DATE_ONLY, default=""))
         url += cc_html.get_url_field_value_pair(
             PARAM.OUTPUTTYPE, VALUE.OUTPUTTYPE_PDF)
-        return u"""<a href="{}" target="_blank">{}</a>""".format(url, text)
+        return """<a href="{}" target="_blank">{}</a>""".format(url, text)
 
 
 # =============================================================================

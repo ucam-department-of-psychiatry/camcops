@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# hads.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -26,7 +26,7 @@ from cc_modules.cc_html import (
     answer,
     tr_qa,
 )
-from cc_modules.cc_string import task_extrastrings_exist, WSTRING, WXSTRING
+from cc_modules.cc_string import task_extrastrings_exist, WSTRING
 from cc_modules.cc_task import (
     CTV_DICTLIST_INCOMPLETE,
     DATA_COLLECTION_UNLESS_UPGRADED_DIV,
@@ -41,7 +41,7 @@ from cc_modules.cc_task import (
 
 class Hads(Task):
     NQUESTIONS = 14
-    EXTRASTRING_TASKNAME = "hads"
+    EXTRASTRING_TASKNAME = "HADS"
     ANXIETY_QUESTIONS = [1, 3, 5, 7, 9, 11, 13]
     DEPRESSION_QUESTIONS = [2, 4, 6, 8, 10, 12, 14]
     TASK_FIELDSPECS = repeat_fieldspec(
@@ -100,7 +100,7 @@ class Hads(Task):
         if not self.is_complete():
             return CTV_DICTLIST_INCOMPLETE
         return [{
-            "content": u"anxiety score {}/21, depression score {}/21".format(
+            "content": "anxiety score {}/21, depression score {}/21".format(
                        self.anxiety_score(), self.depression_score())
         }]
 
@@ -134,7 +134,7 @@ class Hads(Task):
         crippled = not task_extrastrings_exist(self.EXTRASTRING_TASKNAME)
         a = self.anxiety_score()
         d = self.depression_score()
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
                     {is_complete_tr}
@@ -162,13 +162,13 @@ class Hads(Task):
             sd=WSTRING("hads_depression_score"),
             d=answer(d),
         )
-        for n in xrange(1, self.NQUESTIONS + 1):
+        for n in range(1, self.NQUESTIONS + 1):
             if crippled:
                 q = "HADS: Q{}".format(n)
             else:
-                q = u"Q{}. {}".format(
+                q = "Q{}. {}".format(
                     n,
-                    WXSTRING(self.EXTRASTRING_TASKNAME, "q" + str(n) + "_stem")
+                    self.WXSTRING("q" + str(n) + "_stem")
                 )
             if n in self.ANXIETY_QUESTIONS:
                 q += " (A)"
@@ -178,10 +178,9 @@ class Hads(Task):
             if crippled or v is None or v < MIN_SCORE or v > MAX_SCORE:
                 a = v
             else:
-                a = u"{}: {}".format(v, WXSTRING(self.EXTRASTRING_TASKNAME,
-                                                 "q{}_a{}".format(n, v)))
+                a = "{}: {}".format(v, self.WXSTRING("q{}_a{}".format(n, v)))
             h += tr_qa(q, a)
-        h += u"""
+        h += """
             </table>
         """ + DATA_COLLECTION_UNLESS_UPGRADED_DIV
         return h

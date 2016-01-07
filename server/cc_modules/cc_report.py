@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# cc_report.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -26,12 +26,18 @@ import re
 
 import pythonlib.rnc_web as ws
 
-from cc_constants import ACTION, DATEFORMAT, NUMBER_OF_IDNUMS, PARAM, VALUE
-import cc_dt
-import cc_html
-from cc_pls import pls
-import cc_session
-from cc_unittest import unit_test_ignore
+from .cc_constants import (
+    ACTION,
+    DATEFORMAT,
+    NUMBER_OF_IDNUMS,
+    PARAM,
+    VALUE,
+    WEBEND,
+)
+from . import cc_dt
+from . import cc_html
+from .cc_pls import pls
+from .cc_unittest import unit_test_ignore
 
 # =============================================================================
 # Other constants
@@ -47,7 +53,7 @@ NEWLINE_REGEX = re.compile("\n", re.MULTILINE)
 
 def offer_report_menu(session):
     """HTML page offering available reports."""
-    html = pls.WEBSTART + u"""
+    html = pls.WEBSTART + """
         {}
         <h1>Reports</h1>
         <ul>
@@ -55,13 +61,13 @@ def offer_report_menu(session):
         session.get_current_user_html(),
     )
     for cls in Report.__subclasses__():
-        html += u"<li><a href={}>{}</a></li>".format(
+        html += "<li><a href={}>{}</a></li>".format(
             cc_html.get_generic_action_url(ACTION.OFFER_REPORT)
                 + cc_html.get_url_field_value_pair(PARAM.REPORT_ID,
                                                    cls.get_report_id()),
             cls.get_report_title()
         )
-    return html + "</ul>" + cc_html.WEBEND
+    return html + "</ul>" + WEBEND
 
 
 def get_param_html(paramspec):
@@ -70,7 +76,7 @@ def get_param_html(paramspec):
     paramname = paramspec[PARAM.NAME]
     paramlabel = paramspec[PARAM.LABEL]
     if paramtype == PARAM.WHICH_IDNUM:
-        return u"""
+        return """
             {}
             <select name="{}">
                 {}
@@ -78,15 +84,15 @@ def get_param_html(paramspec):
         """.format(
             paramlabel,
             paramname,
-            u" ".join([
-                u"""<option value="{}">{}</option>""".format(
+            " ".join([
+                """<option value="{}">{}</option>""".format(
                     str(n), pls.get_id_desc(n))
                 for n in range(1, NUMBER_OF_IDNUMS + 1)
             ])
         )
     else:
         # Invalid paramtype
-        return u""
+        return ""
 
 
 def get_params_from_form(paramspeclist, form):
@@ -131,7 +137,7 @@ def offer_individual_report(session, form):
     if not report:
         return cc_html.fail_with_error_stay_logged_in("Invalid report_id")
 
-    html = pls.WEBSTART + u"""
+    html = pls.WEBSTART + """
         {userdetails}
         <h1>Report: {reporttitle}</h1>
         <div class="filter">
@@ -150,7 +156,7 @@ def offer_individual_report(session, form):
     )
     for p in report.get_param_spec_list():
         html += get_param_html(p)
-    html += u"""
+    html += """
                 <br>
                 Report output format:<br>
                 <label>
@@ -171,17 +177,17 @@ def offer_individual_report(session, form):
         PARAM=PARAM,
         VALUE=VALUE,
     )
-    return html + cc_html.WEBEND
+    return html + WEBEND
 
 
 def escape_for_tsv(value):
     """Escapes value for tab-separated value (TSV) format.
 
-    Converts to unicode and escapes tabs/newlines.
+    Converts to unicode/str and escapes tabs/newlines.
     """
     if value is None:
-        return u""
-    s = unicode(value)
+        return ""
+    s = str(value)
     # escape tabs and newlines:
     s = TAB_REGEX.sub("\\t", s)
     s = NEWLINE_REGEX.sub("\\n", s)
@@ -190,9 +196,9 @@ def escape_for_tsv(value):
 
 def tsv_from_query(rows, descriptions):
     """Converts rows from an SQL query result to TSV format."""
-    tsv = u"\t".join([escape_for_tsv(x) for x in descriptions]) + u"\n"
+    tsv = "\t".join([escape_for_tsv(x) for x in descriptions]) + "\n"
     for row in rows:
-        tsv += u"\t".join([escape_for_tsv(x) for x in row]) + u"\n"
+        tsv += "\t".join([escape_for_tsv(x) for x in row]) + "\n"
     return tsv
 
 
@@ -234,13 +240,13 @@ def provide_report(session, form):
         return ws.tsv_result(tsv_from_query(rows, descriptions), [], filename)
     else:
         # HTML
-        html = pls.WEBSTART + u"""
+        html = pls.WEBSTART + """
             {}
             <h1>{}</h1>
         """.format(
             session.get_current_user_html(),
             report.get_report_title(),
-        ) + ws.html_table_from_query(rows, descriptions) + cc_html.WEBEND
+        ) + ws.html_table_from_query(rows, descriptions) + WEBEND
         return html
 
 
@@ -295,6 +301,11 @@ def task_unit_test_report(name, r):
 
 def unit_tests():
     """Unit tests for cc_report module."""
+    # -------------------------------------------------------------------------
+    # DELAYED IMPORTS (UNIT TESTING ONLY)
+    # -------------------------------------------------------------------------
+    from . import cc_session
+
     session = cc_session.Session()
     paramspec = {
         PARAM.TYPE: PARAM.WHICH_IDNUM,

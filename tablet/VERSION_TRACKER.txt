@@ -67,8 +67,6 @@ Version history (new to old)
 
 1.40 (2015-05-27)
 - Requires server version 1.40.
-- FROM-LP framework set menu
-- O'Brien group set menu 1
 - Brief COPE
 - CBI-R
 - ZBI (data collection tool only with option for institution to supply text)
@@ -83,6 +81,17 @@ Version history (new to old)
 - GDS-15
 - AUDIT and AUDIT-C corrected to be clinician-colour pages, and instruction
   page added.
+- DEMQOL
+- DEMQOL-Proxy
+- FROM-LP framework set menu
+- IES-R (skeleton)
+- O'Brien group set menu 1
+- Bugfix: Diagnosis* edit() code was calling "my_items = self.getMyItems()"
+  prior to "self.dbstore()", leading to this crash at task creation on Android:
+    E/TiExceptionHandler( 1082): (main) [29136,29136] ----- Titanium Javascript Runtime Error -----
+    E/TiExceptionHandler( 1082): (main) [0,29136] - In lib/dbsqlite.js:1,69
+    E/TiExceptionHandler( 1082): (main) [0,29136] - Message: Uncaught Error: the bind value at index 1 is null
+  ... via dbcommon.getAllRowsByKey(..., null, ...)
 - extrastrings framework - at registration, the tablet downloads sets of extra
   strings from its server. This allows the conversion of crippled tasks to
   fully-functional ones, subject to the hosting institution's right to offer
@@ -92,14 +101,6 @@ Version history (new to old)
   feedback); corresponding storedvars.defaultClinicianService variable.
 - boldPrompt option to QuestionTypedVariables
 - editing_time_s field as standard on all tasks
-- DEMQOL
-- DEMQOL-Proxy
-- Bugfix: Diagnosis* edit() code was calling "my_items = self.getMyItems()"
-  prior to "self.dbstore()", leading to this crash at task creation on Android:
-    E/TiExceptionHandler( 1082): (main) [29136,29136] ----- Titanium Javascript Runtime Error -----
-    E/TiExceptionHandler( 1082): (main) [0,29136] - In lib/dbsqlite.js:1,69
-    E/TiExceptionHandler( 1082): (main) [0,29136] - Message: Uncaught Error: the bind value at index 1 is null
-  ... via dbcommon.getAllRowsByKey(..., null, ...)
 - Crash on Android 4.4.4 on Sony Xperia Z2 tablet
     W/WindowManager(  897): Access to extended visibility flags denied: Requires com.sonymobile.permission.SYSTEM_UI_VISIBILITY_EXTENSIONS permission.
   This is a Sony-specific mess-up.

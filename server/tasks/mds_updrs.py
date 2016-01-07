@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# mds_updrs.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -36,12 +36,12 @@ from cc_modules.cc_task import (
 
 class MdsUpdrs(Task):
     main_cmt = " (0 normal, 1 slight, 2 mild, 3 moderate, 4 severe)"
-    main_pv = range(0, 4 + 1)
+    main_pv = list(range(0, 4 + 1))
     informant_cmt = " (0 patient, 1 caregiver, 2 both)"
-    informant_pv = range(0, 2 + 1)
+    informant_pv = list(range(0, 2 + 1))
     yn_cmt = " (0 no, 1 yes)"
     on_off_cmt = " (0 off, 1 on)"
-    hy_pv = range(0, 5 + 1)
+    hy_pv = list(range(0, 5 + 1))
     TASK_FIELDSPECS = [
         # Part I
         dict(name="q1a", cctype="INT", pv=informant_pv,
@@ -210,8 +210,8 @@ class MdsUpdrs(Task):
     @classmethod
     def get_tasklongname(cls):
         return (
-            u"Movement Disorder Society-Sponsored Revision of the Unified "
-            u"Parkinson’s Disease Rating Scale (data collection only)")
+            "Movement Disorder Society-Sponsored Revision of the Unified "
+            "Parkinson’s Disease Rating Scale (data collection only)")
 
     @classmethod
     def get_fieldspecs(cls):
@@ -225,10 +225,10 @@ class MdsUpdrs(Task):
         )
 
     def get_task_html(self):
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
-        """ + self.get_is_complete_tr() + u"""
+        """ + self.get_is_complete_tr() + """
                 </table>
             </div>
             <table class="taskdetail">
@@ -242,7 +242,7 @@ class MdsUpdrs(Task):
             fieldname = fs["name"]
             value = getattr(self, fieldname)
             h += tr_qa(question, value)
-        h += u"""
+        h += """
             </table>
         """ + DATA_COLLECTION_ONLY_DIV
         return h

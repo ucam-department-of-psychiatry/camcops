@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# cc_version.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -26,12 +26,6 @@
 # =============================================================================
 
 CAMCOPS_SERVER_VERSION = 1.40
-CAMCOPS_CHANGEDATE = "2015-06-23"
+CAMCOPS_CHANGEDATE = "2016-01-04"
 # ... must use double quotes; read by a Perl regex in MAKE_PACKAGE
 MINIMUM_TABLET_VERSION = 1.14
-
-# PDF_ENGINE = "xhtml2pdf"  # working
-PDF_ENGINE = "pdfkit"  # working
-# PDF_ENGINE = "weasyprint"  # working but table <tr> element bugs
-# ... must use double quotes; read by a Perl regex in MAKE_PACKAGE
-# ... value must be one of: xhtml2pdf, weasyprint, pdfkit

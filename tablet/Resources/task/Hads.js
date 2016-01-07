@@ -1,7 +1,7 @@
 // Hads.js
 
 /*
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -26,14 +26,12 @@
 
 var DBCONSTANTS = require('common/DBCONSTANTS'),
     dbcommon = require('lib/dbcommon'),
-    extrastrings = require('table/extrastrings'),
     taskcommon = require('lib/taskcommon'),
     lang = require('lib/lang'),
     // TABLE
     tablename = "hads",
     fieldlist = dbcommon.standardTaskFields(),
     nquestions = 14,
-    EXTRASTRING_TASKNAME = "hads",
     INVERTED_QUESTIONS = [1, 3, 5, 6, 8, 10, 11, 13],
     ANXIETY_QUESTIONS = [1, 3, 5, 7, 9, 11, 13],
     DEPRESSION_QUESTIONS = [2, 4, 6, 8, 10, 12, 14];
@@ -62,15 +60,10 @@ lang.extendPrototype(Hads, {
 
     // TASK CLASS FIELD OVERRIDES (USED BY BaseTask)
 
+    _extrastringTaskname: "HADS",
     isTaskCrippled: function () {
-        return !extrastrings.task_exists(EXTRASTRING_TASKNAME);
-    },
-
-    // EXTRA STRINGS
-
-    XSTRING: function (name) {
-        return extrastrings.get(EXTRASTRING_TASKNAME, name,
-                                "[HADS: " + name + "]");
+        var extrastrings = require('table/extrastrings');
+        return !extrastrings.task_exists(this._extrastringTaskname);
     },
 
     // OTHER

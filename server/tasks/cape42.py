@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# cape42.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -67,7 +67,7 @@ POSITIVE = [2, 5, 6, 7, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 30, 31, 33,
             34, 41, 42]
 DEPRESSIVE = [1, 9, 12, 14, 19, 38, 39, 40]
 NEGATIVE = [3, 4, 8, 16, 18, 21, 23, 25, 27, 29, 32, 35, 36, 37]
-ALL = range(1, NQUESTIONS + 1)
+ALL = list(range(1, NQUESTIONS + 1))
 MIN_SCORE_PER_Q = 1
 MAX_SCORE_PER_Q = 4
 
@@ -113,7 +113,7 @@ class Cape42(Task):
 
     @classmethod
     def get_tasklongname(cls):
-        return u"Community Assessment of Psychic Experiences"
+        return "Community Assessment of Psychic Experiences"
 
     @classmethod
     def get_fieldspecs(cls):
@@ -126,67 +126,67 @@ class Cape42(Task):
     def get_trackers(self):
         fstr1 = "CAPE-42 weighted frequency score: "
         dstr1 = "CAPE-42 weighted distress score: "
-        wtr = u" ({low}–{high})".format(
+        wtr = " ({low}–{high})".format(
             low=MIN_SCORE_PER_Q,
             high=MAX_SCORE_PER_Q)
-        fstr2 = u" weighted freq. score" + wtr
-        dstr2 = u" weighted distress score" + wtr
+        fstr2 = " weighted freq. score" + wtr
+        dstr2 = " weighted distress score" + wtr
         axis_min = MIN_SCORE_PER_Q - 0.2
         axis_max = MAX_SCORE_PER_Q + 0.2
         return [
             {
                 "value": self.weighted_frequency_score(ALL),
                 "plot_label": fstr1 + "overall",
-                "axis_label": u"Overall" + fstr2,
+                "axis_label": "Overall" + fstr2,
                 "axis_min": axis_min,
                 "axis_max": axis_max,
             },
             {
                 "value": self.weighted_distress_score(ALL),
                 "plot_label": dstr1 + "overall",
-                "axis_label": u"Overall" + dstr2,
+                "axis_label": "Overall" + dstr2,
                 "axis_min": axis_min,
                 "axis_max": axis_max,
             },
             {
                 "value": self.weighted_frequency_score(POSITIVE),
                 "plot_label": fstr1 + "positive symptoms",
-                "axis_label": u"Positive Sx" + fstr2,
+                "axis_label": "Positive Sx" + fstr2,
                 "axis_min": axis_min,
                 "axis_max": axis_max,
             },
             {
                 "value": self.weighted_distress_score(POSITIVE),
                 "plot_label": dstr1 + "positive symptoms",
-                "axis_label": u"Positive Sx" + dstr2,
+                "axis_label": "Positive Sx" + dstr2,
                 "axis_min": axis_min,
                 "axis_max": axis_max,
             },
             {
                 "value": self.weighted_frequency_score(NEGATIVE),
                 "plot_label": fstr1 + "negative symptoms",
-                "axis_label": u"Negative Sx" + fstr2,
+                "axis_label": "Negative Sx" + fstr2,
                 "axis_min": axis_min,
                 "axis_max": axis_max,
             },
             {
                 "value": self.weighted_distress_score(NEGATIVE),
                 "plot_label": dstr1 + "negative symptoms",
-                "axis_label": u"Negative Sx" + dstr2,
+                "axis_label": "Negative Sx" + dstr2,
                 "axis_min": axis_min,
                 "axis_max": axis_max,
             },
             {
                 "value": self.weighted_frequency_score(DEPRESSIVE),
                 "plot_label": fstr1 + "depressive symptoms",
-                "axis_label": u"Depressive Sx" + fstr2,
+                "axis_label": "Depressive Sx" + fstr2,
                 "axis_min": axis_min,
                 "axis_max": axis_max,
             },
             {
                 "value": self.weighted_distress_score(DEPRESSIVE),
                 "plot_label": dstr1 + "depressive symptoms",
-                "axis_label": u"Depressive Sx" + dstr2,
+                "axis_label": "Depressive Sx" + dstr2,
                 "axis_min": axis_min,
                 "axis_max": axis_max,
             },
@@ -369,7 +369,7 @@ class Cape42(Task):
         return "?"
 
     def get_task_html(self):
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
                     {iscomplete}
@@ -383,31 +383,31 @@ class Cape42(Task):
         """.format(iscomplete=self.get_is_complete_tr())
 
         h += tr(
-            u"Overall <sup>[1]</sup> ({low}–{high})".format(
+            "Overall <sup>[1]</sup> ({low}–{high})".format(
                 low=ALL_MIN,
                 high=ALL_MAX),
             self.frequency_score(ALL),
             self.distress_score(ALL))
         h += tr(
-            u"Positive symptoms ({low}–{high})".format(
+            "Positive symptoms ({low}–{high})".format(
                 low=POS_MIN,
                 high=POS_MAX),
             self.frequency_score(POSITIVE),
             self.distress_score(POSITIVE))
         h += tr(
-            u"Negative symptoms ({low}–{high})".format(
+            "Negative symptoms ({low}–{high})".format(
                 low=NEG_MIN,
                 high=NEG_MAX),
             self.frequency_score(NEGATIVE),
             self.distress_score(NEGATIVE))
         h += tr(
-            u"Depressive symptoms ({low}–{high})".format(
+            "Depressive symptoms ({low}–{high})".format(
                 low=DEP_MIN,
                 high=DEP_MAX),
             self.frequency_score(DEPRESSIVE),
             self.distress_score(DEPRESSIVE))
 
-        h += u"""
+        h += """
                 </table>
                 <table class="summary">
                     <tr>
@@ -431,7 +431,7 @@ class Cape42(Task):
             ws.number_to_dp(self.weighted_frequency_score(DEPRESSIVE), DP),
             ws.number_to_dp(self.weighted_distress_score(DEPRESSIVE), DP))
 
-        h += u"""
+        h += """
                 </table>
             </div>
             <div class="explanation">
@@ -460,15 +460,15 @@ class Cape42(Task):
         )
         for q in ALL:
             h += tr(
-                u"{q}. ".format(q=q)
+                "{q}. ".format(q=q)
                 + WSTRING("cape42_q" + str(q))
-                + u" (<i>" + self.question_category(q) + "</i>)",
+                + " (<i>" + self.question_category(q) + "</i>)",
                 answer(self.get_frequency(q)),
                 answer(
                     self.get_distress_score(q) if self.endorsed(q) else None,
                     default=str(MIN_SCORE_PER_Q))
             )
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] “Total” score is the overall frequency score (the sum of

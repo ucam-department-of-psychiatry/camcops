@@ -1,7 +1,40 @@
 ===============================================================================
+CAMCOPS SERVER THINGS TO DO NOW
+===============================================================================
+
+*** tasks
+
+*** test
+
+*** CentOS installation at CPFT
+
+===============================================================================
 CAMCOPS SERVER THINGS TO DO
 ===============================================================================
 
+- document that anonymisation for research exports is supported as a basic
+  framework, but use CRATE if you want to do it properly.
+
+- make more/all tasks downloadable, rather than in the giant strings file
+    - strings
+        - make XSTRING() part of the BaseTask class
+        - use the base tablename as the task name, consistently
+        - default "missing string" is "[taskname: stringname]"
+        - make a default isTaskCrippled() in BaseTask
+    - other files
+        - we don't want these in the same XML template
+        - task JS, help HTML, any additional task-specific media
+        - store in subdirectory of media path, like blobs
+        - on the server side, point to one or more directories to scan
+        - on the tablet, have an XFILE() function, keyed to the task
+
+- document rationale for multiple databases, not one database with a "virtual
+  database number" field (like RedCap)
+  ... allows researchers to have full access to raw database, if desired,
+      without having to work via a web API
+- document rationale for "current/non-current" fields, versus "current"-only
+  table with separate history
+  ... allows a full audit trail of arbitrary data
 
 ===============================================================================
 THOUGHTS/POTENTIAL THINGS TO DO
@@ -14,10 +47,12 @@ THOUGHTS/POTENTIAL THINGS TO DO
 - refine unit testing, i.e. more branch coverage, and use of real or dummy
   database-record instances in more cases
 - see also Python modules for unit testing
-- automatic anonymisation for research exports (framework done)
 - internationalization of web interface (framework done)
+
 - SQLAlchemy would be an alternative engine.
-    - CURRENT PREREQUISITES: COMMENTS. Not yet there: http://docs.sqlalchemy.org/en/rel_0_9/core/metadata.html
+    - CURRENT PREREQUISITES: COMMENTS. Not yet there:
+        http://docs.sqlalchemy.org/en/rel_0_9/core/metadata.html
+        http://docs.sqlalchemy.org/en/latest/core/metadata.html?highlight=metadata
     - WSGI: would use sessionmaker
         ... http://stackoverflow.com/questions/860313/sqlalchemy-is-convoluted
         ... http://stackoverflow.com/questions/2505426/sqlalchemy-layout-with-wsgi-application
@@ -33,6 +68,7 @@ THOUGHTS/POTENTIAL THINGS TO DO
 - potentially Pyramid or a similar framework; over and above SQLAlchemy, would bring (a) templating, e.g. Mako; (b) URL routing.
     - PREREQUISITES WOULD BE: correct URL routing when hosted at a sub-path; server-side sessions without too much faff.
   However, could also make better use of named string.format() arguments, and URL routing has some of its own complexities.
+- Django probably the best, with a good ORM built in.
 
 - MRI triggering on task side
     - e.g. tasks written in Javascript under Titanium on Windows (when
@@ -71,7 +107,7 @@ Notes
 ===============================================================================
 
 -------------------------------------------------------------------------------
-xhtml2pdf notes
+xhtml2pdf notes - SUPERSEDED
 -------------------------------------------------------------------------------
 
 ... "align" may be deprecated, but xhtml2pdf struggles with CSS

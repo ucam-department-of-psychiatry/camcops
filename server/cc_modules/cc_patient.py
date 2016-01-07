@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# cc_patient.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -27,8 +27,8 @@ import dateutil.relativedelta
 import pythonlib.rnc_db as rnc_db
 import pythonlib.rnc_web as ws
 
-from cc_audit import audit
-from cc_constants import (
+from .cc_audit import audit
+from .cc_constants import (
     ACTION,
     DATEFORMAT,
     ERA_NOW,
@@ -36,17 +36,17 @@ from cc_constants import (
     PARAM,
     STANDARD_GENERIC_FIELDSPECS
 )
-import cc_db
-import cc_dt
-import cc_hl7
-import cc_html
-import cc_namedtuples
-from cc_pls import pls
-import cc_policy
-import cc_report
-import cc_specialnote
-from cc_unittest import unit_test_ignore
-import cc_xml
+from . import cc_db
+from . import cc_dt
+from . import cc_hl7core
+from . import cc_html
+from . import cc_namedtuples
+from .cc_pls import pls
+from . import cc_policy
+from . import cc_report
+from . import cc_specialnote
+from .cc_unittest import unit_test_ignore
+from . import cc_xml
 
 
 # =============================================================================
@@ -313,7 +313,7 @@ class Patient:
                     assigning_authority=recipient_def.get_id_aa(n)
                 )
             )
-        return cc_hl7.make_pid_segment(
+        return cc_hl7core.make_pid_segment(
             forename=self.get_surname(),
             surname=self.get_forename(),
             dob=self.get_dob(),
@@ -381,15 +381,15 @@ class Patient:
         """
         if idnum is None:
             return False, ""  # no conflict if no number!
-        prefix = u"<i>(" + idnumtext + u")</i> " if label_id_numbers else ""
+        prefix = "<i>(" + idnumtext + ")</i> " if label_id_numbers else ""
         if longform:
             conflict = (desc != serverdesc)
             if conflict:
-                finaldesc = u"{} [server] or {} [tablet]".format(serverdesc,
-                                                                 desc)
+                finaldesc = "{} [server] or {} [tablet]".format(serverdesc,
+                                                                desc)
             else:
                 finaldesc = ws.webify(desc)
-            return conflict, u"<br>{}{}: <b>{}</b>".format(
+            return conflict, "<br>{}{}: <b>{}</b>".format(
                 prefix,
                 finaldesc,
                 idnum
@@ -454,7 +454,7 @@ class Patient:
 
     def get_html_for_page_header(self):
         """Get HTML used for PDF page header."""
-        h = u"<b>{}</b> ({}). {}".format(
+        h = "<b>{}</b> ({}). {}".format(
             self.get_surname_forename_upper(),
             self.get_sex_verbose(),
             self.get_dob_html(False),
@@ -467,7 +467,7 @@ class Patient:
 
     def get_html_for_task_header(self, label_id_numbers=False):
         """Get HTML used for patient details in tasks."""
-        h = u"""
+        h = """
             <div class="patient">
                 <b>{name}</b> ({sex})
                 {dob}
@@ -479,13 +479,13 @@ class Patient:
         for n in range(1, NUMBER_OF_IDNUMS + 1):
             conflict, msg = self.get_idnum_conflict_and_html(n, True,
                                                              label_id_numbers)
-            h += u"""
+            h += """
                 {} <!-- ID{} -->
             """.format(
                 msg,
                 n
             )
-        h += u"""
+        h += """
                 {} <!-- ID_other -->
                 {} <!-- address -->
                 {} <!-- GP -->
@@ -500,7 +500,7 @@ class Patient:
 
     def get_html_for_webview_patient_column(self):
         """Get HTML for patient details in task summary view."""
-        return u"""
+        return """
             <b>{}</b> ({}, {}, aged {})
         """.format(
             self.get_surname_forename_upper(),
@@ -513,7 +513,7 @@ class Patient:
     def get_conflict_html_for_id_col(self):
         """Returns (conflict, html) used for patient ID column in task summary
         view."""
-        h = u""
+        h = ""
         conflict = False
         for n in range(1, NUMBER_OF_IDNUMS + 1):
             c, msg = self.get_idnum_conflict_and_html(n, False)
@@ -585,9 +585,9 @@ class Patient:
         self.ensure_special_notes_loaded()
         if not self._special_notes:
             return ""
-        note_html = u"<br>".join([
+        note_html = "<br>".join([
             x.get_note_as_html() for x in self._special_notes])
-        return u"""
+        return """
             <div class="specialnote">
                 <b>PATIENT SPECIAL NOTES:</b><br>
                 {}
@@ -649,7 +649,7 @@ class Patient_Report_Distinct(cc_report.Report):
 
     @classmethod
     def get_report_title(cls):
-        return u"Patients, distinct by name, sex, DOB, all ID numbers"
+        return "Patients, distinct by name, sex, DOB, all ID numbers"
 
     @classmethod
     def get_param_spec_list(cls):
@@ -684,7 +684,7 @@ class Patient_Report_Distinct(cc_report.Report):
             fieldnames = [
                 f.replace(
                     "idnum" + str(n),
-                    u"idnum" + str(n) + " (" + pls.get_id_desc(n) + ")"
+                    "idnum" + str(n) + " (" + pls.get_id_desc(n) + ")"
                 )
                 for f in fieldnames
             ]

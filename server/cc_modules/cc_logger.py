@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# cc_logger.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -22,7 +22,11 @@
 """
 
 import logging
-logging.basicConfig()
+
+LOG_FORMAT = '%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:%(message)s'
+LOG_DATEFMT = '%Y-%m-%d %H:%M:%S'
+
+logging.basicConfig(format=LOG_FORMAT, datefmt=LOG_DATEFMT)
 
 # =============================================================================
 # Logger

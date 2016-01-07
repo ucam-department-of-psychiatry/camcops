@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# hamd.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -237,14 +237,14 @@ class Hamd(Task):
                     continue
                 d[option] = WSTRING("hamd_" + q + "_option" + str(option))
             ANSWER_DICTS_DICT[q] = d
-        h = self.get_standard_clinician_block() + u"""
+        h = self.get_standard_clinician_block() + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
         h += tr(WSTRING("total_score") + " <sup>[1]</sup>",
                 answer(score) + " / {}".format(MAX_SCORE))
         h += tr_qa(WSTRING("hamd_severity") + " <sup>[2]</sup>", severity)
-        h += u"""
+        h += """
                 </table>
             </div>
             <table class="taskdetail">
@@ -258,10 +258,10 @@ class Hamd(Task):
                 qstr = WSTRING("hamd_whichq16_title")
             else:
                 if q == "q16a" or q == "q16b":
-                    rangestr = u" <sup>range 0–2; ‘3’ not scored</sup>"
+                    rangestr = " <sup>range 0–2; ‘3’ not scored</sup>"
                 else:
                     rangestr = next((
-                        u" <sup>range {}–{}</sup>".format(
+                        " <sup>range {}–{}</sup>".format(
                             item.get("min"), item.get("max")
                         )
                         for item in Hamd.TASK_FIELDSPECS
@@ -271,7 +271,7 @@ class Hamd(Task):
                 qstr = WSTRING("hamd_" + q + "_s") + rangestr
             h += tr_qa(qstr, get_from_dict(ANSWER_DICTS_DICT[q],
                                            getattr(self, q)))
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] Only Q1–Q17 scored towards the total.

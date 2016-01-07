@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# caps.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -91,7 +91,7 @@ class Caps(Task):
 
     @classmethod
     def get_tasklongname(cls):
-        return u"Cardiff Anomalous Perceptions Scale"
+        return "Cardiff Anomalous Perceptions Scale"
 
     @classmethod
     def get_fieldspecs(cls):
@@ -181,19 +181,19 @@ class Caps(Task):
         distress = self.distress_score()
         intrusiveness = self.intrusiveness_score()
         frequency = self.frequency_score()
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr_qa(u"{} <sup>[1]</sup> (0–32)".format(WSTRING("total_score")),
+        h += tr_qa("{} <sup>[1]</sup> (0–32)".format(WSTRING("total_score")),
                    total)
-        h += tr_qa(u"{} (0–160)".format(WSTRING("caps_distress")),
+        h += tr_qa("{} (0–160)".format(WSTRING("caps_distress")),
                    distress)
-        h += tr_qa(u"{} (0–160)".format(WSTRING("caps_intrusiveness")),
+        h += tr_qa("{} (0–160)".format(WSTRING("caps_intrusiveness")),
                    intrusiveness)
-        h += tr_qa(u"{} (0–160)".format(WSTRING("caps_frequency")),
+        h += tr_qa("{} (0–160)".format(WSTRING("caps_frequency")),
                    frequency)
-        h += u"""
+        h += """
                 </table>
             </div>
             <div class="explanation">
@@ -228,7 +228,7 @@ class Caps(Task):
                 answer(getattr(self, "frequency" + str(q))
                        if getattr(self, "endorse" + str(q)) else "")
             )
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] Total score: sum of endorsements (yes = 1, no = 0).

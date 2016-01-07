@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# psychiatricclerking.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -187,22 +187,22 @@ class PsychiatricClerking(Task):
         return True
 
     def heading(self, wstringname):
-        return u'<div class="heading">{}</div>'.format(WSTRING(wstringname))
+        return '<div class="heading">{}</div>'.format(WSTRING(wstringname))
 
     def subheading(self, wstringname):
-        return u'<div class="subheading">{}</div>'.format(WSTRING(wstringname))
+        return '<div class="subheading">{}</div>'.format(WSTRING(wstringname))
 
     def subsubheading(self, wstringname):
-        return u'<div class="subsubheading">{}</div>'.format(
+        return '<div class="subsubheading">{}</div>'.format(
             WSTRING(wstringname))
 
     def subhead_text(self, fieldname):
-        return self.subheading(fieldname) + u'<div><b>{}</b></div>'.format(
+        return self.subheading(fieldname) + '<div><b>{}</b></div>'.format(
             ws.webify(getattr(self, fieldname))
         )
 
     def subsubhead_text(self, fieldname):
-        return self.subsubheading(fieldname) + u'<div><b>{}</b></div>'.format(
+        return self.subsubheading(fieldname) + '<div><b>{}</b></div>'.format(
             ws.webify(getattr(self, fieldname))
         )
 

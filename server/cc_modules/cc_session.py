@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# cc_session.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -21,7 +21,7 @@
     limitations under the License.
 """
 
-import Cookie
+import http.cookies
 import datetime
 import math
 
@@ -29,17 +29,17 @@ import pythonlib.rnc_crypto as rnc_crypto
 import pythonlib.rnc_db as rnc_db
 import pythonlib.rnc_web as ws
 
-import cc_analytics
-from cc_constants import ACTION, DATEFORMAT, NUMBER_OF_IDNUMS, PARAM
-import cc_db
-import cc_device
-import cc_dt
-import cc_html
-from cc_logger import logger
-from cc_pls import pls
-import cc_task
-from cc_unittest import unit_test_ignore
-import cc_user
+from . import cc_analytics
+from .cc_constants import ACTION, DATEFORMAT, NUMBER_OF_IDNUMS, PARAM
+from . import cc_db
+from . import cc_device
+from . import cc_dt
+from . import cc_html
+from .cc_logger import logger
+from .cc_pls import pls
+from .cc_unittest import unit_test_ignore
+from . import cc_task
+from . import cc_user
 
 # =============================================================================
 # Constants
@@ -87,12 +87,13 @@ def establish_session(env):
     process-local storage)."""
     ip_address = env["REMOTE_ADDR"]
     try:
-        cookie = Cookie.SimpleCookie(env["HTTP_COOKIE"])
+        # logger.debug('HTTP_COOKIE: {}'.format(repr(env["HTTP_COOKIE"])))
+        cookie = http.cookies.SimpleCookie(env["HTTP_COOKIE"])
         session_id = cookie["session_id"].value
         session_token = cookie["session_token"].value
-        #logger.debug("Found cookie token: ID {}, token {}".format(
-        #    session_id, session_token))
-    except (Cookie.CookieError, KeyError):
+        logger.debug("Found cookie token: ID {}, token {}".format(
+            session_id, session_token))
+    except (http.cookies.CookieError, KeyError):
         logger.debug("No cookie yet. Creating new one.")
         session_id = None
         session_token = None
@@ -198,17 +199,37 @@ class Session:
         pls.db.fetch_object_from_db_by_pk(self, Session.TABLENAME,
                                           Session.FIELDS, pk)
         expiry_if_before = pls.NOW_UTC_NO_TZ - pls.SESSION_TIMEOUT
-        if (self.id is None  # couldn't find one...
-                or self.token is None  # something went wrong...
-                or self.token != token  # token not what we were expecting
-                or self.ip_address != ip_address  # from wrong IP address
-                or self.last_activity_utc < expiry_if_before):  # expired
+        make_new_session = False
+        if self.id is None:  # couldn't find one...
+            logger.debug("session id missing")
+            make_new_session = True
+        elif self.token is None:  # something went wrong...
+            logger.debug("no token")
+            make_new_session = True
+        elif self.token != token:  # token not what we were expecting
+            logger.debug(
+                "token mismatch (existing = {}, incoming = {})".format(
+                    self.token, token))
+            make_new_session = True
+        elif self.ip_address != ip_address:  # from wrong IP address
+            logger.debug(
+                "IP address mismatch (existing = {}, incoming = {}".format(
+                    self.ip_address, ip_address))
+            make_new_session = True
+        elif self.last_activity_utc < expiry_if_before:  # expired
+            logger.debug("session expired")
+            make_new_session = True
+
+        if make_new_session:
             # new one (meaning new not-logged-in one) for you!
             rnc_db.blank_object(self, Session.FIELDS)
             self.__set_defaults()
             self.token = generate_token()
             self.ip_address = ip_address
-        self.save()
+        self.save()  # assigns self.id
+        if make_new_session:
+            logger.debug("Making new session. ID: {}. Token: {}".format(
+                self.id, self.token))
         if self.user:
             self.userobject = cc_user.User(self.user,
                                            create_if_not_exists=False)
@@ -252,14 +273,15 @@ class Session:
         """Get list of cookies, each a tuple of ("Set-Cookie", datastring)."""
         # Use cookies for session security:
         # http://security.stackexchange.com/questions/9133
-        cookie = Cookie.SimpleCookie()
+        cookie = http.cookies.SimpleCookie()
         # No expiration date, making it a session cookie
         cookie["session_id"] = self.id
-        cookie["session_id"]["secure"] = True  # HTTPS only
         cookie["session_id"]["HttpOnly"] = True  # HTTP(S) only; no Javascript
         cookie["session_token"] = self.token
-        cookie["session_token"]["secure"] = True  # HTTPS only
         cookie["session_token"]["HttpOnly"] = True  # HTTP(S) only; no JS; etc.
+        if not pls.ALLOW_INSECURE_COOKIES:
+            cookie["session_id"]["secure"] = True  # HTTPS only
+            cookie["session_token"]["secure"] = True  # HTTPS only
         return [
             ("Set-Cookie", morsel.OutputString())
             for morsel in cookie.values()
@@ -269,6 +291,7 @@ class Session:
     def login(self, userobject):
         """Log in. Associates the user with the session and makes a new
         token."""
+        logger.debug("login: username = {}".format(userobject.user))
         self.user = userobject.user
         self.userobject = userobject
         self.token = generate_token()
@@ -278,6 +301,7 @@ class Session:
     def authorized_as_viewer(self):
         """Is the user authorized as a viewer?"""
         if self.userobject is None:
+            logger.debug("not authorized as viewer: userobject is None")
             return False
         return self.userobject.may_use_webviewer or self.userobject.superuser
 
@@ -426,7 +450,7 @@ class Session:
             if value is not None:
                 id_filter_value = value
                 id_filter_name = id_filter_descs[index]
-        which_idnum_temp = u"""
+        which_idnum_temp = """
                 {picker}
                 <input type="number" name="{PARAM.IDNUM_VALUE}">
         """.format(
@@ -517,14 +541,14 @@ class Session:
             ACTION.APPLY_FILTER_INCLUDE_OLD_VERSIONS,
             filters
         ) or found_one
-        found_one = get_filter_html(
-            "Tablet device",
-            self.filter_device,
-            ACTION.CLEAR_FILTER_DEVICE,
-            cc_device.get_device_filter_dropdown(self.filter_device),
-            ACTION.APPLY_FILTER_DEVICE,
-            filters
-        ) or found_one
+        # found_one = get_filter_html(
+        #     "Tablet device",
+        #     self.filter_device,
+        #     ACTION.CLEAR_FILTER_DEVICE,
+        #     cc_device.get_device_filter_dropdown(self.filter_device),
+        #     ACTION.APPLY_FILTER_DEVICE,
+        #     filters
+        # ) or found_one
         found_one = get_filter_html(
             "Adding user",
             self.filter_user,
@@ -560,7 +584,7 @@ class Session:
             filters
         ) or found_one
 
-        clear_filter_html = u"""
+        clear_filter_html = """
                 <input type="submit" name="{ACTION.CLEAR_FILTERS}"
                         value="Clear all filters">
                 <br>
@@ -568,7 +592,7 @@ class Session:
             ACTION=ACTION,
         )
         no_filters_applied = "<p><b><i>No filters applied</i></b></p>"
-        html = u"""
+        html = """
             <form class="filter" method="POST" action="{script}">
 
                 <input type="hidden" name="{PARAM.ACTION}"
@@ -873,13 +897,13 @@ class Session:
         """Number of pages."""
         if not self.number_to_view:
             return 1
-        return int(math.ceil(float(ntasks) / self.number_to_view))
+        return math.ceil(ntasks / self.number_to_view)
 
     def get_current_page(self):
         """Current page we're on."""
         if not self.number_to_view:
             return 1
-        return (self.get_first_task_to_view() / self.number_to_view) + 1
+        return (self.get_first_task_to_view() // self.number_to_view) + 1
 
     def change_number_to_view(self, form):
         """Set how many tasks to view per page (from CGI form)."""
@@ -890,7 +914,7 @@ class Session:
     def get_number_to_view_selector(self):
         """HTML form to choose how many tasks to view."""
         options = [5, 25, 50, 100]
-        html = u"""
+        html = """
             <form class="filter" method="POST" action="{script}">
                 <input type="hidden" name="{PARAM.ACTION}"
                     value="{ACTION.CHANGE_NUMBER_TO_VIEW}">
@@ -908,7 +932,7 @@ class Session:
                 selected=ws.option_selected(self.number_to_view, n),
                 n=n,
             )
-        html += u"""
+        html += """
                 </select>
                 <input type="submit" value="Submit">
             </form>
@@ -966,12 +990,12 @@ def get_filter_html(filter_name,
     no_filter_value = (
         filter_value is None
         or (
-            isinstance(filter_value, basestring)
+            isinstance(filter_value, str)
             and not filter_value
         )
     )
     if no_filter_value:
-        filter_list.append(u"""
+        filter_list.append("""
                     {filter_name}: {apply_field_html}
                     <br>
         """.format(
@@ -982,7 +1006,7 @@ def get_filter_html(filter_name,
         #            <input type="submit" name="{apply_action}" value="Filter">
         return False
     else:
-        filter_list.append(u"""
+        filter_list.append("""
                     {filter_name}: <b>{filter_value}</b>
                     <input type="submit" name="{clear_action}" value="Clear">
                     {apply_field_html}

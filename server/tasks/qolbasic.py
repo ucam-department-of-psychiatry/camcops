@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# qolbasic.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -101,7 +101,7 @@ class QolBasic(Task):
         rs_qol = self.get_rs_qol()
         mean_qol = mean([tto_qol, rs_qol])
         return [{
-            "content":  u"Quality of life: time trade-off {}, rating scale {},"
+            "content":  "Quality of life: time trade-off {}, rating scale {},"
                         " mean {}.".format(
                             ws.number_to_dp(tto_qol, DP),
                             ws.number_to_dp(rs_qol, DP),
@@ -136,14 +136,14 @@ class QolBasic(Task):
         tto_qol = self.get_tto_qol()
         rs_qol = self.get_rs_qol()
         mean_qol = mean([tto_qol, rs_qol])
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
         h += tr("Mean QoL", answer(ws.number_to_dp(mean_qol, DP, default=None),
                                    formatter_answer=identity))
-        h += u"""
+        h += """
                 </table>
             </div>
             <div class="explanation">
@@ -165,7 +165,7 @@ class QolBasic(Task):
                 answer(ws.number_to_dp(self.rs, DP, default=None)),
                 answer(ws.number_to_dp(rs_qol, DP, default=None),
                        formatter_answer=identity))
-        h += u"""
+        h += """
             </table>
         """
         return h

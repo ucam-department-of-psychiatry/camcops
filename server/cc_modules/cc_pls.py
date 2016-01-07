@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# cc_pls.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -25,75 +25,61 @@
 # minimize the number of modules loaded when this is used in the context of the
 # client-side database script, rather than the webview.
 
+import cgi
 import codecs
-import ConfigParser
+import configparser
 import datetime
+import operator
+import os
+import urllib.error
+import urllib.parse
+import urllib.request
 import logging
 
 import pythonlib.rnc_db as rnc_db
 import pythonlib.rnc_pdf as rnc_pdf
 
-from cc_configfile import (
+from .cc_configfile import (
     get_config_parameter,
     get_config_parameter_boolean,
     get_config_parameter_loglevel,
     get_config_parameter_multiline
 )
-from cc_constants import (
+from .cc_constants import (
+    CAMCOPS_LOGO_FILE_WEBREF,
+    CAMCOPS_STRINGS_FILE,
     CONFIG_FILE_MAIN_SECTION,
+    CONFIG_FILE_RECIPIENTLIST_SECTION,
     DATEFORMAT,
+    DEFAULT_DATABASE_TITLE,
     DEFAULT_DB_PORT,
     DEFAULT_DB_SERVER,
-    NUMBER_OF_IDNUMS
+    DEFAULT_INTROSPECTION_DIRECTORY,
+    DEFAULT_LOCAL_INSTITUTION_URL,
+    DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES,
+    DEFAULT_LOCKOUT_THRESHOLD,
+    DEFAULT_MYSQL,
+    DEFAULT_MYSQLDUMP,
+    DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS,
+    DEFAULT_PLOT_FONTSIZE,
+    DEFAULT_RESOURCES_DIRECTORY,
+    DEFAULT_TIMEOUT_MINUTES,
+    INTROSPECTABLE_DIRECTORIES,
+    INTROSPECTABLE_EXTENSIONS,
+    LOCAL_LOGO_FILE_WEBREF,
+    NUMBER_OF_IDNUMS,
+    PDF_ENGINE,
+    PDF_LOGO_HEIGHT,
+    URL_RELATIVE_WEBVIEW,
+    WEB_HEAD,
 )
-import cc_dt
-import cc_logger
-import cc_version
-
-
-# =============================================================================
-# Constants
-# =============================================================================
-
-DEFAULT_DATABASE_TITLE = u"CamCOPS database"
-DEFAULT_LOCAL_INSTITUTION_URL = "http://www.camcops.org/"
-DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES = 10
-DEFAULT_LOCKOUT_THRESHOLD = 10
-DEFAULT_MYSQLDUMP = "/usr/bin/mysqldump"
-DEFAULT_MYSQL = "/usr/bin/mysql"
-DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS = 0  # zero for never
-DEFAULT_RESOURCES_DIRECTORY = "/usr/share/camcops/server"
-DEFAULT_TIMEOUT_MINUTES = 30
-DEFAULT_PLOT_FONTSIZE = 8
-
-# Defaults depending on those above
-DEFAULT_INTROSPECTION_DIRECTORY = DEFAULT_RESOURCES_DIRECTORY
-
-CAMCOPS_STRINGS_FILE = "strings.xml"
-CAMCOPS_LOGO_FILE_WEBREF = "logo_camcops.png"
-LOCAL_LOGO_FILE_WEBREF = "logo_local.png"
-
-CONFIG_FILE_RECIPIENTLIST_SECTION = "recipients"
-
-INTROSPECTABLE_EXTENSIONS = [".js", ".jsx", ".html", ".py", ".pl", ".xml"]
-INTROSPECTABLE_DIRECTORIES = [
-    "server",
-    "server/cc_modules",
-    "server/pythonlib",
-    "server/tasks",
-    "tablet",
-    "tablet/common",
-    "tablet/html",
-    "tablet/lib",
-    "tablet/menu",
-    "tablet/menulib",
-    "tablet/questionnaire",
-    "tablet/questionnairelib",
-    "tablet/screen",
-    "tablet/table",
-    "tablet/task",
-    "tablet/task_html",
-]
+from . import cc_dt
+from . import cc_filename
+from . import cc_logger
+from .cc_logger import logger
+from . import cc_namedtuples
+from . import cc_policy
+from . import cc_recipdef
 
 
 # =============================================================================
@@ -168,6 +154,7 @@ class LocalStorage(object):
         self.WEBVIEW_LOGLEVEL = logging.INFO
         self.DBENGINE_LOGLEVEL = logging.INFO
         self.DBCLIENT_LOGLEVEL = logging.INFO
+        self.ALLOW_INSECURE_COOKIES = False
 
         self.SEND_ANALYTICS = True
 
@@ -224,8 +211,12 @@ class LocalStorage(object):
         """Switch server to producing figures in SVG."""
         self.useSVG = True
 
-    def set_always(self):
+    def set_always(self, environ):
         """Set the things we set every time the script is invoked (time!)."""
+
+        # ---------------------------------------------------------------------
+        # Date/time
+        # ---------------------------------------------------------------------
         self.NOW_LOCAL_TZ = cc_dt.get_now_localtz()
         # ... we want nearly all our times offset-aware
         # ... http://stackoverflow.com/questions/4530069
@@ -236,22 +227,84 @@ class LocalStorage(object):
                                                           DATEFORMAT.ISO8601)
         self.TODAY = datetime.date.today()  # fetches the local date
 
-    def set_common(self, environ, config, as_client_db):
-        # logger = cc_logger.dblogger if as_client_db else cc_logger.logger
         # ---------------------------------------------------------------------
-        # Read from the config file:
+        # Read from the WSGI environment
+        # ---------------------------------------------------------------------
+        self.remote_addr = environ.get("REMOTE_ADDR")
+        self.remote_port = environ.get("REMOTE_PORT")
+
+        # http://www.zytrax.com/tech/web/env_var.htm
+        # Apache standard CGI variables:
+        # self.SCRIPT_NAME = environ.get("SCRIPT_NAME", "")
+        self.SCRIPT_NAME = URL_RELATIVE_WEBVIEW
+        self.SERVER_NAME = environ.get("SERVER_NAME")
+
+        # Reconstruct URL:
+        # http://www.python.org/dev/peps/pep-0333/#url-reconstruction
+        url = environ.get("wsgi.url_scheme", "") + "://"
+        if environ.get("HTTP_HOST"):
+            url += environ.get("HTTP_HOST")
+        else:
+            url += environ.get("SERVER_NAME", "")
+        if environ.get("wsgi.url_scheme") == "https":
+            if environ.get("SERVER_PORT") != "443":
+                url += ':' + environ.get("SERVER_PORT", "")
+        else:
+            if environ.get("SERVER_PORT") != "80":
+                url += ':' + environ.get("SERVER_PORT", "")
+        url += urllib.parse.quote(environ.get("SCRIPT_NAME", ""))
+        url += urllib.parse.quote(environ.get("PATH_INFO", ""))
+        # But not the query string:
+        # if environ.get("QUERY_STRING"):
+        #    url += "?" + environ.get("QUERY_STRING")
+
+        self.SCRIPT_PUBLIC_URL_ESCAPED = cgi.escape(url)
+
+    def set(self, environ):
+        """Set all variables from environment and thus config file."""
+
+        self.set_always(environ)
+
+        if self.PERSISTENT_CONSTANTS_INITIALIZED:
+            return
+
+        logger.debug("Setting persistent constants")
+
+        # ---------------------------------------------------------------------
+        # Open config file
+        # ---------------------------------------------------------------------
+        self.CAMCOPS_CONFIG_FILE = environ.get("CAMCOPS_CONFIG_FILE")
+        if not self.CAMCOPS_CONFIG_FILE:
+            # fallback to OS environment
+            self.CAMCOPS_CONFIG_FILE = os.environ.get("CAMCOPS_CONFIG_FILE")
+        if not self.CAMCOPS_CONFIG_FILE:
+            raise AssertionError("CAMCOPS_CONFIG_FILE not specified")
+        config = configparser.ConfigParser()
+        config.readfp(codecs.open(self.CAMCOPS_CONFIG_FILE, "r", "utf8"))
+
+        # ---------------------------------------------------------------------
+        # Read from the config file: 1. things that others depend on
         # ---------------------------------------------------------------------
         section = CONFIG_FILE_MAIN_SECTION
 
-        SESSION_TIMEOUT_MINUTES = get_config_parameter(
-            config, section, "SESSION_TIMEOUT_MINUTES",
-            int, DEFAULT_TIMEOUT_MINUTES)
-        self.SESSION_TIMEOUT = datetime.timedelta(
-            minutes=SESSION_TIMEOUT_MINUTES)
+        self.RESOURCES_DIRECTORY = get_config_parameter(
+            config, section, "RESOURCES_DIRECTORY",
+            str, DEFAULT_RESOURCES_DIRECTORY)
 
-        self.EXTRA_STRING_FILES = get_config_parameter_multiline(
-            config, section, "EXTRA_STRING_FILES", [])
+        # ---------------------------------------------------------------------
+        # Read from the config file: 2. the rest, in alphabetical order
+        # ---------------------------------------------------------------------
 
+        self.ALLOW_INSECURE_COOKIES = get_config_parameter_boolean(
+            config, section, "ALLOW_INSECURE_COOKIES", False)
+        self.ALLOW_MOBILEWEB = get_config_parameter_boolean(
+            config, section, "ALLOW_MOBILEWEB", False)
+
+        self.CTV_FILENAME_SPEC = get_config_parameter(
+            config, section, "CTV_FILENAME_SPEC", str, None)
+
+        self.DATABASE_TITLE = get_config_parameter(
+            config, section, "DATABASE_TITLE", str, DEFAULT_DATABASE_TITLE)
         self.DB_NAME = config.get(section, "DB_NAME")
         # ... no default: will fail if not provided
         self.DB_USER = config.get(section, "DB_USER")
@@ -262,29 +315,113 @@ class LocalStorage(object):
         self.DB_PORT = get_config_parameter(
             config, section, "DB_PORT", int, DEFAULT_DB_PORT)
 
-        self.DATABASE_TITLE = get_config_parameter(
-            config, section, "DATABASE_TITLE", unicode, DEFAULT_DATABASE_TITLE)
-        for n in range(1, NUMBER_OF_IDNUMS + 1):
-            i = n - 1
-            nstr = str(n)
-            self.IDDESC[i] = get_config_parameter(
-                config, section, "IDDESC_" + nstr, unicode, u"")
-            self.IDSHORTDESC[i] = get_config_parameter(
-                config, section, "IDSHORTDESC_" + nstr, unicode, u"")
-        self.ID_POLICY_UPLOAD_STRING = get_config_parameter(
-            config, section, "UPLOAD_POLICY", str, "")
-        self.ID_POLICY_FINALIZE_STRING = get_config_parameter(
-            config, section, "FINALIZE_POLICY", str, "")
+        self.DBCLIENT_LOGLEVEL = get_config_parameter_loglevel(
+            config, section, "DBCLIENT_LOGLEVEL", logging.INFO)
+        cc_logger.dblogger.setLevel(self.DBCLIENT_LOGLEVEL)
 
         self.DBENGINE_LOGLEVEL = get_config_parameter_loglevel(
             config, section, "DBENGINE_LOGLEVEL", logging.INFO)
         rnc_db.set_loglevel(self.DBENGINE_LOGLEVEL)
 
+        self.DISABLE_PASSWORD_AUTOCOMPLETE = get_config_parameter_boolean(
+            config, section, "DISABLE_PASSWORD_AUTOCOMPLETE", True)
+
+        self.EXPORT_CRIS_DATA_DICTIONARY_TSV_FILE = get_config_parameter(
+            config, section, "EXPORT_CRIS_DATA_DICTIONARY_TSV_FILE", str, None)
+        self.EXTRA_STRING_FILES = get_config_parameter_multiline(
+            config, section, "EXTRA_STRING_FILES", [])
+
+        self.HL7_LOCKFILE = get_config_parameter(
+            config, section, "HL7_LOCKFILE", str, None)
+
+        for n in range(1, NUMBER_OF_IDNUMS + 1):
+            i = n - 1
+            nstr = str(n)
+            self.IDDESC[i] = get_config_parameter(
+                config, section, "IDDESC_" + nstr, str, "")
+            self.IDSHORTDESC[i] = get_config_parameter(
+                config, section, "IDSHORTDESC_" + nstr, str, "")
+        self.ID_POLICY_UPLOAD_STRING = get_config_parameter(
+            config, section, "UPLOAD_POLICY", str, "")
+        self.ID_POLICY_FINALIZE_STRING = get_config_parameter(
+            config, section, "FINALIZE_POLICY", str, "")
+        self.INTROSPECTION_DIRECTORY = get_config_parameter(
+            config, section, "INTROSPECTION_DIRECTORY",
+            str, DEFAULT_INTROSPECTION_DIRECTORY)
+        self.INTROSPECTION = get_config_parameter_boolean(
+            config, section, "INTROSPECTION", True)
+
+        self.LOCAL_INSTITUTION_URL = get_config_parameter(
+            config, section, "LOCAL_INSTITUTION_URL",
+            str, DEFAULT_LOCAL_INSTITUTION_URL)
+        self.LOCAL_LOGO_FILE_ABSOLUTE = get_config_parameter(
+            config, section, "LOCAL_LOGO_FILE_ABSOLUTE",
+            str, os.path.join(self.RESOURCES_DIRECTORY,
+                              LOCAL_LOGO_FILE_WEBREF))
+        self.LOCKOUT_THRESHOLD = get_config_parameter(
+            config, section, "LOCKOUT_THRESHOLD",
+            int, DEFAULT_LOCKOUT_THRESHOLD)
+        self.LOCKOUT_DURATION_INCREMENT_MINUTES = get_config_parameter(
+            config, section, "LOCKOUT_DURATION_INCREMENT_MINUTES",
+            int, DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES)
+
+        self.MYSQL = get_config_parameter(
+            config, section, "MYSQL", str, DEFAULT_MYSQL)
+        self.MYSQLDUMP = get_config_parameter(
+            config, section, "MYSQLDUMP", str, DEFAULT_MYSQLDUMP)
+
+        self.PASSWORD_CHANGE_FREQUENCY_DAYS = get_config_parameter(
+            config, section, "PASSWORD_CHANGE_FREQUENCY_DAYS",
+            int, DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS)
+        self.PATIENT_SPEC_IF_ANONYMOUS = get_config_parameter(
+            config, section, "PATIENT_SPEC_IF_ANONYMOUS", str, "anonymous")
+        self.PATIENT_SPEC = get_config_parameter(
+            config, section, "PATIENT_SPEC", str, None)
+
+        self.SEND_ANALYTICS = get_config_parameter_boolean(
+            config, section, "SEND_ANALYTICS", True)
+        SESSION_TIMEOUT_MINUTES = get_config_parameter(
+            config, section, "SESSION_TIMEOUT_MINUTES",
+            int, DEFAULT_TIMEOUT_MINUTES)
+        self.SESSION_TIMEOUT = datetime.timedelta(
+            minutes=SESSION_TIMEOUT_MINUTES)
+        self.SUMMARY_TABLES_LOCKFILE = get_config_parameter(
+            config, section, "SUMMARY_TABLES_LOCKFILE", str, None)
+
+        self.TASK_FILENAME_SPEC = get_config_parameter(
+            config, section, "TASK_FILENAME_SPEC", str, None)
+        self.TRACKER_FILENAME_SPEC = get_config_parameter(
+            config, section, "TRACKER_FILENAME_SPEC", str, None)
+
+        self.WEBVIEW_LOGLEVEL = get_config_parameter_loglevel(
+            config, section, "WEBVIEW_LOGLEVEL", logging.INFO)
+        cc_logger.logger.setLevel(self.WEBVIEW_LOGLEVEL)
+
         self.WKHTMLTOPDF_FILENAME = get_config_parameter(
             config, section, "WKHTMLTOPDF_FILENAME", str, None)
-        rnc_pdf.set_processor(cc_version.PDF_ENGINE,
+        rnc_pdf.set_processor(PDF_ENGINE,
                               wkhtmltopdf_filename=self.WKHTMLTOPDF_FILENAME)
 
+        # ---------------------------------------------------------------------
+        # Read from the config file: 3. HL7 section
+        # ---------------------------------------------------------------------
+        # http://stackoverflow.com/questions/335695/lists-in-configparser
+        try:
+            hl7_items = config.items(CONFIG_FILE_RECIPIENTLIST_SECTION)
+            for key, recipientdef_name in hl7_items:
+                logger.debug("HL7 config: key={}, recipientdef_name="
+                             "{}".format(key, recipientdef_name))
+                h = cc_recipdef.RecipientDefinition(config, recipientdef_name)
+                if h.valid:
+                    self.HL7_RECIPIENT_DEFS.append(h)
+        except configparser.NoSectionError:
+            logger.info("No config file section [{}]".format(
+                CONFIG_FILE_RECIPIENTLIST_SECTION
+            ))
+
+        # ---------------------------------------------------------------------
+        # Read from the config file: 4. database password
+        # ---------------------------------------------------------------------
         # ---------------------------------------------------------------------
         # SECURITY: in this section (reading the database password from the
         # config file and connecting to the database), consider the possibility
@@ -332,129 +469,10 @@ class LocalStorage(object):
         # Password is now re-obscured in all situations. Onwards...
         # ---------------------------------------------------------------------
 
-    def set_webview(self, environ, config):
         # ---------------------------------------------------------------------
-        # Delayed imports
+        # Read from the database
         # ---------------------------------------------------------------------
-        import cgi
-        import operator
-        import os
-        import urllib
-
-        import cc_filename
-        import cc_html  # caution, circular import
-        import cc_policy
-        import cc_namedtuples
-        import cc_recipdef
-        import cc_version
-
-        logger = cc_logger.logger
-
-        # ---------------------------------------------------------------------
-        # Read from the environment
-        # ---------------------------------------------------------------------
-        # http://www.zytrax.com/tech/web/env_var.htm
-        # Apache standard CGI variables:
-        self.SCRIPT_NAME = environ.get("SCRIPT_NAME", "")
-        self.SERVER_NAME = environ.get("SERVER_NAME")
-
-        # Reconstruct URL:
-        # http://www.python.org/dev/peps/pep-0333/#url-reconstruction
-        url = environ.get("wsgi.url_scheme", "") + "://"
-        if environ.get("HTTP_HOST"):
-            url += environ.get("HTTP_HOST")
-        else:
-            url += environ.get("SERVER_NAME", "")
-        if environ.get("wsgi.url_scheme") == "https":
-            if environ.get("SERVER_PORT") != "443":
-                url += ':' + environ.get("SERVER_PORT", "")
-        else:
-            if environ.get("SERVER_PORT") != "80":
-                url += ':' + environ.get("SERVER_PORT", "")
-        url += urllib.quote(environ.get("SCRIPT_NAME", ""))
-        url += urllib.quote(environ.get("PATH_INFO", ""))
-        # But not the query string:
-        # if environ.get("QUERY_STRING"):
-        #    url += "?" + environ.get("QUERY_STRING")
-
-        self.SCRIPT_PUBLIC_URL_ESCAPED = cgi.escape(url)
-
-        # ---------------------------------------------------------------------
-        # Read from the config file:
-        # ---------------------------------------------------------------------
-        section = CONFIG_FILE_MAIN_SECTION
-        self.MYSQL = get_config_parameter(
-            config, section, "MYSQL", str, DEFAULT_MYSQL)
-        self.MYSQLDUMP = get_config_parameter(
-            config, section, "MYSQLDUMP", str, DEFAULT_MYSQLDUMP)
-
-        self.LOCAL_INSTITUTION_URL = get_config_parameter(
-            config, section, "LOCAL_INSTITUTION_URL",
-            str, DEFAULT_LOCAL_INSTITUTION_URL)
-        # note order dependency: RESOURCES_DIRECTORY, LOCAL_LOGO_FILE_ABSOLUTE
-        self.RESOURCES_DIRECTORY = get_config_parameter(
-            config, section, "RESOURCES_DIRECTORY",
-            str, DEFAULT_RESOURCES_DIRECTORY)
-        self.LOCAL_LOGO_FILE_ABSOLUTE = get_config_parameter(
-            config, section, "LOCAL_LOGO_FILE_ABSOLUTE",
-            str, os.path.join(self.RESOURCES_DIRECTORY,
-                              LOCAL_LOGO_FILE_WEBREF))
-        self.INTROSPECTION_DIRECTORY = get_config_parameter(
-            config, section, "INTROSPECTION_DIRECTORY",
-            str, DEFAULT_INTROSPECTION_DIRECTORY)
-        self.INTROSPECTION = get_config_parameter_boolean(
-            config, section, "INTROSPECTION", True)
-        self.HL7_LOCKFILE = get_config_parameter(
-            config, section, "HL7_LOCKFILE", str, None)
-        self.SUMMARY_TABLES_LOCKFILE = get_config_parameter(
-            config, section, "SUMMARY_TABLES_LOCKFILE", str, None)
-
-        self.PASSWORD_CHANGE_FREQUENCY_DAYS = get_config_parameter(
-            config, section, "PASSWORD_CHANGE_FREQUENCY_DAYS",
-            int, DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS)
-        self.LOCKOUT_THRESHOLD = get_config_parameter(
-            config, section, "LOCKOUT_THRESHOLD",
-            int, DEFAULT_LOCKOUT_THRESHOLD)
-        self.LOCKOUT_DURATION_INCREMENT_MINUTES = get_config_parameter(
-            config, section, "LOCKOUT_DURATION_INCREMENT_MINUTES",
-            int, DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES)
-        self.DISABLE_PASSWORD_AUTOCOMPLETE = get_config_parameter_boolean(
-            config, section, "DISABLE_PASSWORD_AUTOCOMPLETE", True)
-
-        self.PATIENT_SPEC_IF_ANONYMOUS = get_config_parameter(
-            config, section, "PATIENT_SPEC_IF_ANONYMOUS", str, "anonymous")
-        self.PATIENT_SPEC = get_config_parameter(
-            config, section, "PATIENT_SPEC", str, None)
-        self.TASK_FILENAME_SPEC = get_config_parameter(
-            config, section, "TASK_FILENAME_SPEC", str, None)
-        self.TRACKER_FILENAME_SPEC = get_config_parameter(
-            config, section, "TRACKER_FILENAME_SPEC", str, None)
-        self.CTV_FILENAME_SPEC = get_config_parameter(
-            config, section, "CTV_FILENAME_SPEC", str, None)
-
-        self.WEBVIEW_LOGLEVEL = get_config_parameter_loglevel(
-            config, section, "WEBVIEW_LOGLEVEL", logging.INFO)
-        logger.setLevel(self.WEBVIEW_LOGLEVEL)
-
-        self.SEND_ANALYTICS = get_config_parameter_boolean(
-            config, section, "SEND_ANALYTICS", True)
-
-        self.EXPORT_CRIS_DATA_DICTIONARY_TSV_FILE = get_config_parameter(
-            config, section, "EXPORT_CRIS_DATA_DICTIONARY_TSV_FILE", str, None)
-
-        # http://stackoverflow.com/questions/335695/lists-in-configparser
-        try:
-            hl7_items = config.items(CONFIG_FILE_RECIPIENTLIST_SECTION)
-            for key, recipientdef_name in hl7_items:
-                logger.debug(u"HL7 config: key={}, recipientdef_name="
-                             "{}".format(key, recipientdef_name))
-                h = cc_recipdef.RecipientDefinition(config, recipientdef_name)
-                if h.valid:
-                    self.HL7_RECIPIENT_DEFS.append(h)
-        except ConfigParser.NoSectionError:
-            logger.info("No config file section [{}]".format(
-                CONFIG_FILE_RECIPIENTLIST_SECTION
-            ))
+        self.VALID_TABLE_NAMES = self.db.get_all_table_names()
 
         # ---------------------------------------------------------------------
         # Built from the preceding:
@@ -479,9 +497,9 @@ class LocalStorage(object):
                             ext=ext
                         )
                     )
-            self.INTROSPECTION_FILES = sorted(self.INTROSPECTION_FILES,
-                                              key=operator.attrgetter(
-                                                  "prettypath"))
+            self.INTROSPECTION_FILES = sorted(
+                self.INTROSPECTION_FILES,
+                key=operator.attrgetter("prettypath"))
 
         # Cache tokenized ID policies
         cc_policy.tokenize_upload_id_policy(self.ID_POLICY_UPLOAD_STRING)
@@ -504,7 +522,7 @@ class LocalStorage(object):
         # IE float-right problems: http://stackoverflow.com/questions/1820007
         # Tables are a nightmare in IE (table max-width not working unless you
         # also specify it for image size, etc.)
-        self.WEB_LOGO = u"""
+        self.WEB_LOGO = """
             <div class="web_logo_header">
                 <a href="{}"><img class="logo_left" src="{}" alt="" /></a>
                 <a href="{}"><img class="logo_right" src="{}" alt="" /></a>
@@ -514,11 +532,11 @@ class LocalStorage(object):
             self.LOCAL_INSTITUTION_URL, LOCAL_LOGO_FILE_WEBREF
         )
 
-        self.WEBSTART = cc_html.WEB_HEAD + self.WEB_LOGO
+        self.WEBSTART = WEB_HEAD + self.WEB_LOGO
 
-        if cc_version.PDF_ENGINE in ["weasyprint", "pdfkit"]:
+        if PDF_ENGINE in ["weasyprint", "pdfkit"]:
             # weasyprint: div with floating img does not work properly
-            self.PDF_LOGO_LINE = u"""
+            self.PDF_LOGO_LINE = """
                 <div class="pdf_logo_header">
                     <table>
                         <tr>
@@ -536,8 +554,8 @@ class LocalStorage(object):
                 self.CAMCOPS_LOGO_FILE_ABSOLUTE,
                 self.LOCAL_LOGO_FILE_ABSOLUTE,
             )
-        elif cc_version.PDF_ENGINE in ["pdfkit"]:
-            self.PDF_LOGO_LINE = u"""
+        elif PDF_ENGINE in ["pdfkit"]:
+            self.PDF_LOGO_LINE = """
                 <div class="pdf_logo_header">
                     <table>
                         <tr>
@@ -555,7 +573,7 @@ class LocalStorage(object):
                 self.CAMCOPS_LOGO_FILE_ABSOLUTE,
                 self.LOCAL_LOGO_FILE_ABSOLUTE,
             )
-            # self.PDF_LOGO_LINE = u"""
+            # self.PDF_LOGO_LINE = """
             #     <div class="pdf_logo_header">
             #         <img class="logo_left" src="file://{}" />
             #         <img class="logo_right" src="file://{}" />
@@ -564,10 +582,10 @@ class LocalStorage(object):
             #     self.CAMCOPS_LOGO_FILE_ABSOLUTE,
             #     self.LOCAL_LOGO_FILE_ABSOLUTE,
             # )
-        elif cc_version.PDF_ENGINE in ["xhtml2pdf"]:
+        elif PDF_ENGINE in ["xhtml2pdf"]:
             # xhtml2pdf
             # hard to get logos positioned any other way than within a table
-            self.PDF_LOGO_LINE = u"""
+            self.PDF_LOGO_LINE = """
                 <div class="header">
                     <table class="noborder">
                         <tr class="noborder">
@@ -584,8 +602,8 @@ class LocalStorage(object):
                     </table>
                 </div>
             """.format(
-                self.CAMCOPS_LOGO_FILE_ABSOLUTE, cc_html.PDF_LOGO_HEIGHT,
-                self.LOCAL_LOGO_FILE_ABSOLUTE, cc_html.PDF_LOGO_HEIGHT
+                self.CAMCOPS_LOGO_FILE_ABSOLUTE, PDF_LOGO_HEIGHT,
+                self.LOCAL_LOGO_FILE_ABSOLUTE, PDF_LOGO_HEIGHT
             )
         else:
             raise AssertionError("Invalid PDF engine")
@@ -623,61 +641,18 @@ class LocalStorage(object):
             raise RuntimeError("Invalid CTV_FILENAME_SPEC in "
                                "[server] section of config file")
 
-    def set_dbclient(self, environ, config):
-        logger = cc_logger.dblogger
-
         # ---------------------------------------------------------------------
-        # Read from the environment
-        # ---------------------------------------------------------------------
-        self.remote_addr = environ.get("REMOTE_ADDR")
-        self.remote_port = environ.get("REMOTE_PORT")
-
-        # ---------------------------------------------------------------------
-        # Read from the config file:
-        # ---------------------------------------------------------------------
-        section = CONFIG_FILE_MAIN_SECTION
-        self.ALLOW_MOBILEWEB = get_config_parameter_boolean(
-            config, section, "ALLOW_MOBILEWEB", False)
-        self.DBCLIENT_LOGLEVEL = get_config_parameter_loglevel(
-            config, section, "DBCLIENT_LOGLEVEL", logging.INFO)
-        logger.setLevel(self.DBCLIENT_LOGLEVEL)
-
-        # ---------------------------------------------------------------------
-        # Read from the database
-        # ---------------------------------------------------------------------
-        self.VALID_TABLE_NAMES = self.db.get_all_table_names()
-
-    def set(self, environ, as_client_db=False):
-        """Set all variables from environment and thus config file."""
-
-        self.set_always()
-
-        if self.PERSISTENT_CONSTANTS_INITIALIZED:
-            return
-
-        logger = cc_logger.dblogger if as_client_db else cc_logger.logger
-        logger.debug("Setting persistent constants")
-
-        self.CAMCOPS_CONFIG_FILE = environ.get("CAMCOPS_CONFIG_FILE")
-        config = ConfigParser.ConfigParser()
-        config.readfp(codecs.open(self.CAMCOPS_CONFIG_FILE, "r", "utf8"))
-
-        self.set_common(environ, config, as_client_db)
-        if as_client_db:
-            self.set_dbclient(environ, config)
-        else:
-            self.set_webview(environ, config)
-
         # Now we can keep that state:
+        # ---------------------------------------------------------------------
         self.PERSISTENT_CONSTANTS_INITIALIZED = True
 
-    def set_from_environ_and_ping_db(self, environ, as_client_db=False):
+    def set_from_environ_and_ping_db(self, environ):
         """Set up process-local storage from the incoming environment (which
         may be very fast if already cached) and ensure we have an active
         database connection."""
 
         # 1. Set up process-local storage
-        self.set(environ, as_client_db)
+        self.set(environ)
         # ... will do almost nothing if its
         #     PERSISTENT_CONSTANTS_INITIALIZED flag is set
         # ... so we also have to:
@@ -695,7 +670,7 @@ class LocalStorage(object):
         critical and the connection does not need to be cached. Will raise
         an exception upon a connection error."""
         # Follows same security principles as above.
-        config = ConfigParser.ConfigParser()
+        config = configparser.ConfigParser()
         config.readfp(codecs.open(self.CAMCOPS_CONFIG_FILE, "r", "utf8"))
         section = CONFIG_FILE_MAIN_SECTION
 

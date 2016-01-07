@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# cc_user.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -28,16 +28,15 @@ import pythonlib.rnc_crypto as rnc_crypto
 from pythonlib.rnc_lang import AttrDict
 import pythonlib.rnc_web as ws
 
-from cc_audit import audit
-from cc_constants import ACTION, PARAM, DATEFORMAT
-import cc_db
-import cc_dt
-import cc_html
-from cc_logger import logger
-from cc_pls import pls
-import cc_session
-import cc_storedvar
-from cc_unittest import unit_test_ignore
+from .cc_audit import audit
+from .cc_constants import ACTION, PARAM, DATEFORMAT, WEBEND
+from . import cc_db
+from . import cc_dt
+from . import cc_html
+from .cc_logger import logger
+from .cc_pls import pls
+from . import cc_storedvar
+from .cc_unittest import unit_test_ignore
 
 # =============================================================================
 # Constants
@@ -45,24 +44,24 @@ from cc_unittest import unit_test_ignore
 
 LABEL = AttrDict({
     "MAY_USE_WEBVIEWER": (
-        u"May use web viewer (BEWARE: you probably don’t "
+        "May use web viewer (BEWARE: you probably don’t "
         "want to untick this for your own user!)"),
     "MAY_VIEW_OTHER_USERS_RECORDS": (
-        u"May view other users’ records (BEWARE: unticking can be clinically "
+        "May view other users’ records (BEWARE: unticking can be clinically "
         "dangerous by hiding important information)"),
     "VIEW_ALL_PATIENTS_WHEN_UNFILTERED": (
-        u"Sees all patients’ records when unfiltered (generally: untick in a "
+        "Sees all patients’ records when unfiltered (generally: untick in a "
         "clinical context for confidentiality)"),
-    "MAY_UPLOAD": u"May upload data from tablet devices",
+    "MAY_UPLOAD": "May upload data from tablet devices",
     "SUPERUSER": (
-        u"SUPERUSER (ALSO BEWARE: you probably don’t  want to untick this for "
-        u"your own user!)"),
-    "MAY_REGISTER_DEVICES": u"May register tablet devices",
-    "MAY_USE_WEBSTORAGE": u"May use mobileweb storage facility",
-    "MAY_DUMP_DATA": u"May dump data",
-    "MAY_RUN_REPORTS": u"May run reports",
-    "MUST_CHANGE_PASSWORD": u"Must change password at next login",
-    "MAY_ADD_NOTES": u"May add special notes to tasks",
+        "SUPERUSER (ALSO BEWARE: you probably don’t  want to untick this for "
+        "your own user!)"),
+    "MAY_REGISTER_DEVICES": "May register tablet devices",
+    "MAY_USE_WEBSTORAGE": "May use mobileweb storage facility",
+    "MAY_DUMP_DATA": "May dump data",
+    "MAY_RUN_REPORTS": "May run reports",
+    "MUST_CHANGE_PASSWORD": "Must change password at next login",
+    "MAY_ADD_NOTES": "May add special notes to tasks",
 })
 
 MINIMUM_PASSWORD_LENGTH = 8
@@ -516,7 +515,7 @@ def enter_new_password(session, username, as_manager=False,
         )
     else:
         changepw = ""
-    return pls.WEBSTART + u"""
+    return pls.WEBSTART + """
         {userdetails}
         {if_expired}
         <h1>Change password for {username}</h1>
@@ -548,7 +547,7 @@ def enter_new_password(session, username, as_manager=False,
         PARAM=PARAM,
         MINIMUM_PASSWORD_LENGTH=MINIMUM_PASSWORD_LENGTH,
         changepw=changepw,
-    ) + cc_html.WEBEND
+    ) + WEBEND
 
 
 def change_password(username, form, as_manager=False):
@@ -618,7 +617,7 @@ def manage_users(session):
     allusers = pls.db.fetch_all_objects_from_db(User, User.TABLENAME,
                                                 User.FIELDS, True)
     allusers = sorted(allusers, key=lambda k: k.user)
-    output = pls.WEBSTART + u"""
+    output = pls.WEBSTART + """
         {}
         <h1>Manage users</h1>
         <ul>
@@ -645,7 +644,7 @@ def manage_users(session):
     """.format(
         session.get_current_user_html(),
         cc_html.get_generic_action_url(ACTION.ASK_TO_ADD_USER),
-    ) + cc_html.WEBEND
+    ) + WEBEND
     for u in allusers:
         if u.is_locked_out():
             enableuser = "| <a href={}>Re-enable user</a>".format(
@@ -658,7 +657,7 @@ def manage_users(session):
         else:
             enableuser = ""
             lockedmsg = "No"
-        output += u"""
+        output += """
             <tr>
                 <td>{username}</td>
                 <td>
@@ -701,9 +700,9 @@ def manage_users(session):
             url_delete=get_url_ask_delete_user(u.user),
             username=u.user,
         )
-    output += u"""
+    output += """
         </table>
-    """ + cc_html.WEBEND
+    """ + WEBEND
     return output
 
 
@@ -712,7 +711,7 @@ def edit_user(session, username):
     user = User(username, False)
     if not user.user:
         return user_management_failure_message("Invalid user: " + username)
-    return pls.WEBSTART + u"""
+    return pls.WEBSTART + """
         {userdetails}
         <h1>Edit user {username}</h1>
         <form name="myform" action="{script}" method="POST">
@@ -792,7 +791,7 @@ def edit_user(session, username):
         PARAM=PARAM,
         ACTION=ACTION,
         LABEL=LABEL,
-    ) + cc_html.WEBEND
+    ) + WEBEND
 
 
 def change_user(form):
@@ -863,7 +862,7 @@ def change_user(form):
 
 def ask_to_add_user(session):
     """HTML form to add a user."""
-    return pls.WEBSTART + u"""
+    return pls.WEBSTART + """
         {userdetails}
         <h1>Add user</h1>
         <form name="myform" action="{script}" method="POST">
@@ -949,7 +948,7 @@ def ask_to_add_user(session):
         PARAM=PARAM,
         ACTION=ACTION,
         MINIMUM_PASSWORD_LENGTH=MINIMUM_PASSWORD_LENGTH,
-    ) + cc_html.WEBEND
+    ) + WEBEND
 
 
 def add_user(form):
@@ -1043,7 +1042,7 @@ def add_user(form):
 
 def ask_delete_user(session, username):
     """HTML form to delete a user."""
-    return pls.WEBSTART + u"""
+    return pls.WEBSTART + """
         {userdetails}
         <h1>You are about to delete user {username}</h1>
         <form name="myform" action="{script}" method="POST">
@@ -1058,7 +1057,7 @@ def ask_delete_user(session, username):
         script=pls.SCRIPT_NAME,
         ACTION=ACTION,
         PARAM=PARAM,
-    ) + cc_html.WEBEND
+    ) + WEBEND
 
 
 def delete_user(username):
@@ -1114,6 +1113,11 @@ def user_management_failure_message(msg, as_manager=True):
 
 def unit_tests():
     """Unit tests for cc_user module."""
+    # -------------------------------------------------------------------------
+    # Delayed imports (UNIT TESTING ONLY)
+    # -------------------------------------------------------------------------
+    from . import cc_session
+
     unit_test_ignore("", delete_old_account_lockouts)
     unit_test_ignore("", is_user_locked_out, "dummy_user")
     unit_test_ignore("", user_locked_out_until, "dummy_user")

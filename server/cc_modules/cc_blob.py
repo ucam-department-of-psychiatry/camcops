@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# cc_blob.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -21,18 +21,19 @@
     limitations under the License.
 """
 
+
 import wand.image
 # ... sudo apt-get install libmagickwand-dev; sudo pip install Wand
 
 import pythonlib.rnc_db as rnc_db
 import pythonlib.rnc_web as ws
 
-from cc_constants import ERA_NOW, STANDARD_GENERIC_FIELDSPECS
-import cc_db
-from cc_logger import logger
-from cc_pls import pls
-from cc_unittest import unit_test_ignore
-import cc_xml
+from .cc_constants import ERA_NOW, STANDARD_GENERIC_FIELDSPECS
+from . import cc_db
+from .cc_logger import logger
+from .cc_pls import pls
+from .cc_unittest import unit_test_ignore
+from . import cc_xml
 
 # ExactImage API documentation is a little hard to find. See:
 #   http://www.exactcode.com/site/open_source/exactimage

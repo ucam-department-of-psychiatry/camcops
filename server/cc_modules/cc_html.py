@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# cc_html.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -23,662 +23,21 @@
 
 import string
 
-from pythonlib.rnc_lang import merge_dicts
 import pythonlib.rnc_plot as rnc_plot
 import pythonlib.rnc_web as ws
 
-from cc_constants import ACTION, NUMBER_OF_IDNUMS, PARAM
-import cc_pls  # caution, circular import
-from cc_string import WSTRING
-import cc_version
-
-# =============================================================================
-# Simple constants
-# =============================================================================
-
-DEFAULT_PLOT_DPI = 300
-
-# Debugging option
-USE_SVG_IN_HTML = True  # set to False for PNG debugging
-
-RESTRICTED_WARNING = u"""
-    <div class="warning">
-        You are restricted to viewing records uploaded by you. Other records
-        may exist for the same patient(s), uploaded by others.
-    </div>"""
-RESTRICTED_WARNING_SINGULAR = u"""
-    <div class="warning">
-        You are restricted to viewing records uploaded by you. Other records
-        may exist for the same patient, uploaded by others.
-    </div>"""
-
-
-# =============================================================================
-# CSS/HTML constants
-# =============================================================================
-
-CAMCOPS_FAVICON_FILE = "favicon_camcops.png"
-PDF_LOGO_HEIGHT = "20mm"
-
-CSS_PAGED_MEDIA = (cc_version.PDF_ENGINE != "pdfkit")
-
-COMMON_DEFINITIONS = {
-    "SMALLFONTSIZE": "0.85em",
-    "TINYFONTSIZE": "0.7em",
-    "LARGEFONTSIZE": "1.2em",
-    "GIANTFONTSIZE": "1.4em",
-    "BANNERFONTSIZE": "1.6em",
-
-    # Rules: line height is 1.1-1.2 * font size
-    # ... but an em is related to the calculated font-size of the element,
-    #   http://www.impressivewebs.com/understanding-em-units-css/
-    # so it can always be 1.2:
-    "MAINLINEHEIGHT": "1.1em",
-    "SMALLLINEHEIGHT": "1.1em",
-    "TINYLINEHEIGHT": "1.0em",  # except this one
-    "LARGELINEHEIGHT": "1.1em",
-    "GIANTLINEHEIGHT": "1.1em",
-    "BANNERLINEHIGHT": "1.1em",
-    "TABLELINEHEIGHT": "1.1em",
-
-    "VSPACE_NORMAL": "0.5em",
-    "VSPACE_LARGE": "0.8em",
-
-    "SIGNATUREHEIGHT": "3em",
-
-    # Specific to PDFs:
-    "PDF_LOGO_HEIGHT": PDF_LOGO_HEIGHT,
-}
-
-WEB_SIZES = {
-    "MAINFONTSIZE": "medium",
-    "SMALLGAP": "2px",
-    "ELEMENTGAP": "5px",
-    "NORMALPAD": "2px",
-    "TABLEPAD": "2px",
-    "INDENT_NORMAL": "20px",
-    "INDENT_LARGE": "75px",
-    "THINLINE": "1px",
-    "ZERO": "0px",
-    "PDFEXTRA": "",
-    "MAINMARGIN": "10px",
-    "BODYPADDING": "5px",
-    "BANNER_PADDING": "25px",
-}
-
-# Hard page margins for A4:
-# - left/right: most printers can cope; hole punches to e.g. 13 mm; so 20mm
-#   reasonable.
-# - top: HP Laserjet 1100 e.g. clips at about 17.5mm
-# - bottom: HP Laserjet 1100 e.g. clips at about 15mm
-# ... so 20mm all round about right
-
-PDF_SIZES = {
-    "MAINFONTSIZE": "10pt",
-    "SMALLGAP": "0.2mm",
-    "ELEMENTGAP": "1mm",
-    "NORMALPAD": "0.5mm",
-    "TABLEPAD": "0.5mm",
-    "INDENT_NORMAL": "5mm",
-    "INDENT_LARGE": "10mm",
-    "THINLINE": "0.2mm",
-    "ZERO": "0mm",
-    "MAINMARGIN": "2cm",
-    "BODYPADDING": "0mm",
-    "BANNER_PADDING": "0.5cm",
-}
-
-# Sequences of 4: top, right, bottom, left
-# margin is outside, padding is inside
-# #identifier
-# .class
-# http://www.w3schools.com/cssref/css_selectors.asp
-# http://stackoverflow.com/questions/4013604
-# http://stackoverflow.com/questions/6023419
-
-# Avoid both {} and % substitution by using string.Template and $
-CSS_BASE = string.Template(u"""
-
-/* Display PNG fallback image... */
-svg img.svg {
-    display: none;
-}
-img.pngfallback {
-    display: inline;
-}
-/* ... unless our browser supports SVG */
-html.svg svg img.svg {
-    display: inline;
-}
-html.svg img.pngfallback {
-    display: none;
-}
-
-/* Overall defaults */
-
-body {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: $MAINFONTSIZE;
-    line-height: $MAINLINEHEIGHT;
-    margin: $ELEMENTGAP $ZERO $ELEMENTGAP $ZERO;
-    padding: $BODYPADDING;
-}
-code {
-    font-size: 0.8em;
-    font-family: Consolas, Monaco, 'Lucida Console', 'Liberation Mono',
-        'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New';
-    background-color: #eeeeee;
-    padding: 1px 5px 1px 5px;
-}
-div {
-    margin: $ELEMENTGAP $ZERO $ELEMENTGAP $ZERO;
-    padding: $NORMALPAD;
-}
-em {
-    color: rgb(0, 0, 255);
-    font-style: normal;
-}
-h1 {
-    font-size: $GIANTFONTSIZE;
-    line-height: $GIANTLINEHEIGHT;
-    font-weight: bold;
-    margin: $ZERO;
-}
-h2 {
-    font-size: $LARGEFONTSIZE;
-    line-height: $LARGELINEHEIGHT;
-    font-weight: bold;
-    margin: $ZERO;
-}
-h3 {
-    font-size: $LARGEFONTSIZE;
-    line-height: $LARGELINEHEIGHT;
-    font-weight: bold;
-    font-style: italic;
-    margin: $ZERO;
-}
-img {
-    max-width: 100%;
-    max-height: 100%;
-}
-p {
-    margin: $ELEMENTGAP $ZERO $ELEMENTGAP $ZERO;
-}
-sup, sub {
-    font-size: 0.7em; /* 1 em is the size of the parent font */
-    vertical-align: baseline;
-    position: relative;
-    top: -0.5em;
-}
-sub {
-    top: 0.5em;
-}
-table {
-    width: 100%; /* particularly for PDFs */
-    vertical-align: top;
-    border-collapse: collapse;
-    border: $THINLINE solid black;
-    padding: $ZERO;
-    margin: $ELEMENTGAP $ZERO $ELEMENTGAP $ZERO;
-}
-tr, th, td {
-    vertical-align: top;
-    text-align: left;
-    margin: $ZERO;
-    padding: $TABLEPAD;
-    border: $THINLINE solid black;
-    line-height: $TABLELINEHEIGHT;
-}
-
-/* Specific classes */
-
-.badidpolicy_mild {
-    background-color: rgb(255, 255, 153);
-}
-.badidpolicy_severe {
-    background-color: rgb(255, 255, 0);
-}
-.banner {
-    text-align: center;
-    font-size: $BANNERFONTSIZE;
-    line-height: $BANNERLINEHIGHT;
-    padding: $BANNER_PADDING;
-    margin: $ZERO;
-}
-.banner_referral_general_adult {
-    background-color: rgb(255, 165, 0);
-}
-.banner_referral_old_age {
-    background-color: rgb(0, 255, 127);
-}
-.banner_referral_substance_misuse {
-    background-color: rgb(0, 191, 255);
-}
-.clinician {
-    background-color: rgb(200, 255, 255);
-}
-table.clinician, table.clinician th, table.clinician td {
-    border: $THINLINE solid black;
-}
-.copyright {
-    font-style: italic;
-    font-size: $TINYFONTSIZE;
-    line-height: $TINYLINEHEIGHT;
-    background-color: rgb(227, 227, 227);
-}
-.ctv_datelimit_start {
-    /* line below */
-    text-align: right;
-    border-style: none none solid none;
-    border-width: $THINLINE;
-    border-color: black;
-}
-.ctv_datelimit_end {
-    /* line above */
-    text-align: right;
-    border-style: solid none none none;
-    border-width: $THINLINE;
-    border-color: black;
-}
-.ctv_taskheading {
-    background-color: rgb(200, 200, 255);
-    font-weight: bold;
-}
-.ctv_fieldheading {
-    background-color: rgb(200, 200, 200);
-    font-weight: bold;
-    font-style: italic;
-    margin: $ELEMENTGAP $ZERO $SMALLGAP $INDENT_NORMAL;
-}
-.ctv_fieldsubheading {
-    background-color: rgb(200, 200, 200);
-    font-style: italic;
-    margin: $ELEMENTGAP $ZERO $SMALLGAP $INDENT_NORMAL;
-}
-.ctv_fielddescription {
-    font-style: italic;
-    margin: $ELEMENTGAP $ZERO $SMALLGAP $INDENT_NORMAL;
-}
-.ctv_fieldcontent {
-    font-weight: bold;
-    margin: $SMALLGAP $ZERO $ELEMENTGAP $INDENT_NORMAL;
-}
-.ctv_warnings {
-    margin: $ELEMENTGAP $ZERO $SMALLGAP $INDENT_NORMAL;
-}
-.error {
-    color: rgb(255, 0, 0);
-}
-.explanation {
-    background-color: rgb(200, 255, 200);
-}
-table.extradetail {
-    border: $THINLINE solid black;
-    background-color: rgb(210, 210, 210);
-}
-table.extradetail th {
-    border: $THINLINE solid black;
-    font-style: italic;
-    font-weight: bold;
-    font-size: $TINYFONTSIZE;
-}
-table.extradetail td {
-    border: $THINLINE solid black;
-    font-size: $TINYFONTSIZE;
-}
-tr.extradetail2 {
-    background-color: rgb(240, 240, 240);
-}
-td.figure {
-    padding: $ZERO;
-    background-color: rgb(255, 255, 255);
-}
-div.filter {
-    /* for task filters */
-    margin-left: $INDENT_LARGE;
-    padding: $ZERO;
-}
-form.filter {
-    /* for task filters */
-    display: inline;
-    margin: $ZERO;
-}
-.footnotes {
-    font-style: italic;
-    font-size: $SMALLFONTSIZE;
-    line-height: $SMALLLINEHEIGHT;
-}
-.formtitle {
-    font-size: $LARGEFONTSIZE;
-    color: rgb(34, 139, 34);
-}
-table.general, table.general th, table.general td {
-    border: $THINLINE solid black;
-}
-table.general th.col1, table.general td.col1 {
-    width: 22%;
-}
-table.general th.col2, table.general td.col2 {
-    width: 78%;
-}
-.green {
-    color: rgb(34, 139, 34);
-}
-p.hangingindent {
-    padding-left: $INDENT_NORMAL;
-    text-indent: -$INDENT_NORMAL;
-}
-.heading {
-    background-color: rgb(0, 0, 0);
-    color: rgb(255, 255, 255);
-    font-style: italic;
-}
-.highlight {
-    background-color: rgb(255, 250, 205);
-}
-.important {
-    color: rgb(64, 0, 192);
-    font-weight: bold;
-}
-.specialnote {
-    background-color: rgb(255, 255, 153);
-}
-.live_on_tablet {
-    background-color: rgb(216, 208, 245);
-}
-.incomplete {
-    background-color: rgb(255, 165, 0);
-}
-.superuser {
-    background-color: rgb(255, 192, 203);
-}
-p.indent {
-    margin-left: $INDENT_NORMAL;
-}
-div.indented {
-    margin-left: $INDENT_LARGE;
-}
-.navigation {
-    background-color: rgb(200, 255, 200);
-}
-.noborder {
-    border: none;
-    /* NB also: hidden overrides none with border-collapse */
-}
-.noborderphoto {
-    padding: $ZERO;
-    border: none;
-}
-.office {
-    background-color: rgb(227, 227, 227);
-    font-style: italic;
-    font-size: $TINYFONTSIZE;
-    line-height: $TINYLINEHEIGHT;
-}
-.patient {
-    background-color: rgb(255, 200, 200);
-}
-.pdf_logo_header {
-    width: 100%;
-    border: none;
-}
-.pdf_logo_header table, .pdf_logo_header tr {
-    width: 100%;
-    border: none;
-}
-.pdf_logo_header .image_td {
-    width: 45%;
-    border: none;
-}
-.pdf_logo_header .centregap_td {
-    width: 10%;
-    border: none;
-}
-.pdf_logo_header .logo_left {
-    float: left;
-    max-width: 100%;
-    max-height: $PDF_LOGO_HEIGHT;
-    height: auto;
-    width: auto;
-}
-.pdf_logo_header .logo_right {
-    float: right;
-    max-width: 100%;
-    max-height: $PDF_LOGO_HEIGHT;
-    height: auto;
-    width: auto;
-}
-.photo {
-    padding: $ZERO;
-}
-.respondent {
-    background-color: rgb(189, 183, 107);
-}
-table.respondent, table.respondent th, table.respondent td {
-    border: $THINLINE solid black;
-}
-.signature_label {
-    border: none;
-    text-align: center;
-}
-.signature {
-    line-height: $SIGNATUREHEIGHT;
-    border: $THINLINE solid black;
-}
-.smallprint {
-    font-style: italic;
-    font-size: $SMALLFONTSIZE;
-}
-.subheading {
-    background-color: rgb(200, 200, 200);
-    font-style: italic;
-}
-.subsubheading {
-    font-style: italic;
-}
-.summary {
-    background-color: rgb(200, 200, 255);
-}
-table.summary, .summary th, .summary td {
-    border: $THINLINE solid black;
-}
-table.taskconfig, .taskconfig th, .taskconfig td {
-    border: $THINLINE solid black;
-    background-color: rgb(230, 230, 230);
-}
-table.taskconfig th {
-    font-style: italic; font-weight: normal;
-}
-table.taskdetail, .taskdetail th, .taskdetail td {
-    border: $THINLINE solid black;
-}
-table.taskdetail th {
-    font-weight: normal; font-style: italic;
-}
-table.taskdetail td {
-    font-weight: normal;
-}
-.taskheader {
-    background-color: rgb(200, 200, 200);
-}
-.trackerheader {
-    font-size: $TINYFONTSIZE;
-    line-height: $TINYLINEHEIGHT;
-    background-color: rgb(218, 112, 240);
-}
-.tracker_all_consistent {
-    font-style: italic;
-    font-size: $TINYFONTSIZE;
-    line-height: $TINYLINEHEIGHT;
-    background-color: rgb(227, 227, 227);
-}
-.warning {
-    background-color: rgb(255, 100, 100);
-}
-
-/* The next three: need both L/R to float and clear:both for IE */
-.web_logo_header {
-    display: block;
-    overflow: hidden;
-    width: 100%;
-    border: none;
-    clear: both;
-}
-/* ... overflow:hidden so the div expands to its floating contents */
-.web_logo_header .logo_left {
-    width: 45%;
-    float: left;
-    text-decoration: none;
-    border: $ZERO;
-}
-.web_logo_header .logo_right {
-    width: 45%;
-    float: right;
-    text-decoration: none;
-    border: $ZERO;
-}
-
-/* For tables that will make it to a PDF, fix Weasyprint column widths.
-   But not for all (e.g. webview task list) tables. */
-table.clinician, table.extradetail, table.general,
-        table.pdf_logo_header, table.summary,
-        table.taskconfig, table.taskdetail,
-        table.fixed {
-    table-layout: fixed;
-}
-
-""")
-
-# Image sizing:
-# http://stackoverflow.com/questions/787839/resize-image-proportionally-with-css  # noqa
-
-PDF_PAGED_MEDIA_CSS = string.Template("""
-
-/* PDF extras */
-#headerContent {
-    font-size: $SMALLFONTSIZE;
-    line-height: $SMALLLINEHEIGHT;
-}
-#footerContent {
-    font-size: $SMALLFONTSIZE;
-    line-height: $SMALLLINEHEIGHT;
-}
-
-/* PDF paging via CSS Paged Media */
-@page {
-    size: A4 $ORIENTATION;
-    margin-left: $MAINMARGIN;
-    margin-right: $MAINMARGIN;
-    margin-top: $MAINMARGIN;
-    margin-bottom: $MAINMARGIN;
-    @frame header {
-        /* -pdf-frame-border: 1; */ /* for debugging */
-        -pdf-frame-content: headerContent;
-        top: 1cm;
-        margin-left: $MAINMARGIN;
-        margin-right: $MAINMARGIN;
-    }
-    @frame footer {
-        /* -pdf-frame-border: 1; */ /* for debugging */
-        -pdf-frame-content: footerContent;
-        bottom: 0.5cm; /* distance up from page's bottom margin? */
-        height: 1cm; /* height of the footer */
-        margin-left: $MAINMARGIN;
-        margin-right: $MAINMARGIN;
-    }
-}
-""")
-# WEASYPRINT: NOT WORKING PROPERLY YET: WEASYPRINT DOESN'T YET SUPPORT RUNNING
-# ELEMENTS
-# http://librelist.com/browser//weasyprint/2013/7/4/header-and-footer-for-each-page/#abe45ec357d593df44ffca48253817ef  # noqa
-# http://weasyprint.org/docs/changelog/
-
-COMMON_HEAD = string.Template(u"""
-<!DOCTYPE html> <!-- HTML 5 -->
-<html>
-    <head>
-        <title>CamCOPS</title>
-        <meta charset="utf-8">
-        <link rel="icon" type="image/png" href="$CAMCOPS_FAVICON_FILE">
-        <script>
-            /* set "html.svg" if our browser supports SVG */
-            if (document.implementation.hasFeature(
-                    "http://www.w3.org/TR/SVG11/feature#Image", "1.1")) {
-                document.documentElement.className = "svg";
-            }
-        </script>
-        <style type="text/css">
-            $CSS
-        </style>
-    </head>
-    <body>
-""")
-
-# Re PDFs:
-# - The way in which xhtml2pdf copes with column widths
-#   is somewhat restricted: CSS only
-# - "height" not working for td
-# TABLE STYLING HELP:
-# http://www.somacon.com/p141.php
-# http://www.w3.org/Style/Tables/examples.html
-
-
-WEB_HEAD = COMMON_HEAD.substitute(
-    CAMCOPS_FAVICON_FILE=CAMCOPS_FAVICON_FILE,
-    CSS=CSS_BASE.substitute(merge_dicts(COMMON_DEFINITIONS, WEB_SIZES)),
+from .cc_constants import (
+    ACTION,
+    CSS_PAGED_MEDIA,
+    DEFAULT_PLOT_DPI,
+    NUMBER_OF_IDNUMS,
+    PARAM,
+    USE_SVG_IN_HTML,
+    WEBEND,
+    WKHTMLTOPDF_CSS,
 )
-PDF_HEAD_PORTRAIT = COMMON_HEAD.substitute(
-    CAMCOPS_FAVICON_FILE=CAMCOPS_FAVICON_FILE,
-    CSS=(
-        CSS_BASE.substitute(merge_dicts(COMMON_DEFINITIONS, PDF_SIZES)) +
-        PDF_PAGED_MEDIA_CSS.substitute(
-            merge_dicts(COMMON_DEFINITIONS, PDF_SIZES,
-                        {"ORIENTATION": "portrait"}))
-    ),
-)
-PDF_HEAD_LANDSCAPE = COMMON_HEAD.substitute(
-    CAMCOPS_FAVICON_FILE=CAMCOPS_FAVICON_FILE,
-    CSS=(
-        CSS_BASE.substitute(merge_dicts(COMMON_DEFINITIONS, PDF_SIZES)) +
-        PDF_PAGED_MEDIA_CSS.substitute(
-            merge_dicts(COMMON_DEFINITIONS, PDF_SIZES,
-                        {"ORIENTATION": "landscape"}))
-    ),
-)
-PDF_HEAD_NO_PAGED_MEDIA = COMMON_HEAD.substitute(
-    CAMCOPS_FAVICON_FILE=CAMCOPS_FAVICON_FILE,
-    CSS=CSS_BASE.substitute(merge_dicts(COMMON_DEFINITIONS, PDF_SIZES))
-)
-
-COMMON_END = "</body></html>"
-WEBEND = COMMON_END
-PDFEND = COMMON_END
-
-WKHTMLTOPDF_CSS = string.Template("""
-    body {
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: $MAINFONTSIZE;  /* absolute */
-        line-height: $SMALLLINEHEIGHT;
-        padding: 0;
-        margin: 0;  /* use header-spacing / footer-spacing instead */
-    }
-    div {
-        font-size: $SMALLFONTSIZE;  /* relative */
-    }
-""").substitute(merge_dicts(COMMON_DEFINITIONS, PDF_SIZES))
-# http://stackoverflow.com/questions/11447672/fix-wkhtmltopdf-headers-clipping-content  # noqa
-
-WKHTMLTOPDF_OPTIONS = {
-    "page-size": "A4",
-    "margin-left": "20mm",
-    "margin-right": "20mm",
-    "margin-top": "21mm",  # from paper edge down to top of content?
-    # ... inaccurate
-    "margin-bottom": "24mm",  # from paper edge up to bottom of content?
-    # ... inaccurate
-    "header-spacing": "3",  # mm, from content up to bottom of header
-    "footer-spacing": "3",  # mm, from content down to top of footer
-}
+from . import cc_pls
+from .cc_string import WSTRING
 
 
 # =============================================================================
@@ -688,7 +47,7 @@ WKHTMLTOPDF_OPTIONS = {
 def wkhtmltopdf_header(inner_html):
     # doctype is mandatory
     # https://github.com/wkhtmltopdf/wkhtmltopdf/issues/1645
-    return string.Template(u"""
+    return string.Template("""
         <!DOCTYPE html>
         <html>
             <head>
@@ -707,7 +66,7 @@ def wkhtmltopdf_header(inner_html):
 
 
 def wkhtmltopdf_footer(inner_text):
-    return string.Template(u"""
+    return string.Template("""
         <!DOCTYPE html>
         <html>
             <head>
@@ -754,7 +113,7 @@ def wkhtmltopdf_footer(inner_text):
 
 
 def csspagedmedia_header(inner_html):
-    return u"""
+    return """
         <div id="headerContent">
             {}
         </div>
@@ -762,7 +121,7 @@ def csspagedmedia_header(inner_html):
 
 
 def csspagedmedia_footer(inner_text):
-    return u"""
+    return """
         <div id="footerContent">
             Page <pdf:pagenumber> of <pdf:pagecount>.
             {}
@@ -815,7 +174,7 @@ def table_row(columns, classes=None, colspans=None, colwidths=None,
         ]
 
     return (
-        u"<tr>"
+        "<tr>"
         + "".join([
             "<{cellspec}{classdetail}{colspan}{colwidth}>"
             "{contents}</{cellspec}>".format(
@@ -832,7 +191,7 @@ def table_row(columns, classes=None, colspans=None, colwidths=None,
 
 def div(content, div_class=""):
     """Make simple HTML div."""
-    return u"""
+    return """
         <div{div_class}>
             {content}
         </div>
@@ -844,7 +203,7 @@ def div(content, div_class=""):
 
 def table(content, table_class=""):
     """Make simple HTML table."""
-    return u"""
+    return """
         <table{table_class}>
             {content}
         </table>
@@ -868,7 +227,7 @@ def tr(*args, **kwargs):
         elements = args
     else:
         elements = [td(x) for x in args]
-    return u"<tr{tr_class}>{contents}</tr>\n".format(
+    return "<tr{tr_class}>{contents}</tr>\n".format(
         tr_class=' class="{}"'.format(tr_class) if tr_class else '',
         contents="".join(elements),
     )
@@ -876,7 +235,7 @@ def tr(*args, **kwargs):
 
 def td(contents, td_class="", td_width=""):
     """Make simple HTML table data cell."""
-    return u"<td{td_class}{td_width}>{contents}</td>\n".format(
+    return "<td{td_class}{td_width}>{contents}</td>\n".format(
         td_class=' class="{}"'.format(td_class) if td_class else '',
         td_width=' width="{}"'.format(td_width) if td_width else '',
         contents=contents,
@@ -885,7 +244,7 @@ def td(contents, td_class="", td_width=""):
 
 def th(contents, th_class="", th_width=""):
     """Make simple HTML table header cell."""
-    return u"<th{th_class}{th_width}>{contents}</th>\n".format(
+    return "<th{th_class}{th_width}>{contents}</th>\n".format(
         th_class=' class="{}"'.format(th_class) if th_class else '',
         th_width=' width="{}"'.format(th_width) if th_width else '',
         contents=contents,
@@ -920,12 +279,12 @@ def subheading_spanning_four_columns(s, th_not_td=False):
 
 def bold(x):
     """Applies HTML bold."""
-    return u"<b>{}</b>".format(x)
+    return "<b>{}</b>".format(x)
 
 
 def italic(x):
     """Applies HTML italic."""
-    return u"<i>{}</i>".format(x)
+    return "<i>{}</i>".format(x)
 
 
 def identity(x):
@@ -943,8 +302,7 @@ def answer(x, default="?", default_for_blank_strings=False,
     """
     if x is None:
         return formatter_blank(default)
-    if default_for_blank_strings and not x and (isinstance(x, str)
-                                                or isinstance(x, unicode)):
+    if default_for_blank_strings and not x and isinstance(x, str):
         return formatter_blank(default)
     return formatter_answer(x)
 
@@ -959,11 +317,11 @@ def tr_span_col(x, cols=2, tr_class="", td_class="", th_not_td=False):
         th_not_td: make it a th, not a td.
     """
     cell = "th" if th_not_td else "td"
-    return u'<tr{tr_cl}><{c} colspan="{cols}"{td_cl}>{x}</{c}></tr>'.format(
+    return '<tr{tr_cl}><{c} colspan="{cols}"{td_cl}>{x}</{c}></tr>'.format(
         cols=cols,
         x=x,
-        tr_cl=u' class="{}"'.format(tr_class) if tr_class else "",
-        td_cl=u' class="{}"'.format(td_class) if td_class else "",
+        tr_cl=' class="{}"'.format(tr_class) if tr_class else "",
+        td_cl=' class="{}"'.format(td_class) if td_class else "",
         c=cell,
     )
 
@@ -984,20 +342,20 @@ def get_html_from_pyplot_figure(fig):
 
 
 def get_html_which_idnum_picker(param=PARAM.WHICH_IDNUM, selected=None):
-    html = u"""
+    html = """
         <select name="{param}">
     """.format(
         param=param,
     )
     for n in range(1, NUMBER_OF_IDNUMS + 1):
-        html += u"""
+        html += """
             <option value="{value}"{selected}>{description}</option>
         """.format(
             value=str(n),
             description=cc_pls.pls.get_id_desc(n),
             selected=ws.option_selected(selected, n),
         )
-    html += u"""
+    html += """
         </select>
     """
     return html
@@ -1096,7 +454,7 @@ def login_page(extra_msg="", redirect=None):
                             else '')
     # http://stackoverflow.com/questions/2530
     # Note that e.g. Chrome may ignore this.
-    return cc_pls.pls.WEBSTART + u"""
+    return cc_pls.pls.WEBSTART + """
         <div>{dbtitle}</div>
         <div>
             <b>Unauthorized access prohibited.</b>
@@ -1128,7 +486,7 @@ def login_page(extra_msg="", redirect=None):
 
 def simple_success_message(msg, extra_html=""):
     """HTML for simple success message."""
-    return cc_pls.pls.WEBSTART + u"""
+    return cc_pls.pls.WEBSTART + """
         <h1>Success</h1>
         <div>{}</div>
         {}
@@ -1142,7 +500,7 @@ def simple_success_message(msg, extra_html=""):
 
 def error_msg(msg):
     """HTML for error message."""
-    return u"""<h2 class="error">{}</h2>""".format(msg)
+    return """<h2 class="error">{}</h2>""".format(msg)
 
 
 def fail_with_error_not_logged_in(error, redirect=None):
@@ -1152,7 +510,7 @@ def fail_with_error_not_logged_in(error, redirect=None):
 
 def fail_with_error_stay_logged_in(error, extra_html=""):
     """HTML for errors where the user stays logged in."""
-    return cc_pls.pls.WEBSTART + u"""
+    return cc_pls.pls.WEBSTART + """
         {}
         {}
         {}
@@ -1165,7 +523,7 @@ def fail_with_error_stay_logged_in(error, extra_html=""):
 
 def get_return_to_main_menu_line():
     """HTML DIV for returning to the main menu."""
-    return u"""
+    return """
         <div>
             <a href="{}">Return to main menu</a>
         </div>
@@ -1176,7 +534,7 @@ def get_database_title_string():
     """Database title as HTML-safe unicode."""
     if not cc_pls.pls.DATABASE_TITLE:
         return ""
-    return u"Database: <b>{}</b>.".format(ws.webify(cc_pls.pls.DATABASE_TITLE))
+    return "Database: <b>{}</b>.".format(ws.webify(cc_pls.pls.DATABASE_TITLE))
 
 
 # =============================================================================

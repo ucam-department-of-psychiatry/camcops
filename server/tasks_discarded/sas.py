@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# sas.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -30,9 +30,9 @@ from cc_modules.cc_task import (
 )
 
 
-#==============================================================================
+# =============================================================================
 # SAS
-#==============================================================================
+# =============================================================================
 
 class Sas(Task):
     NQUESTIONS = 10

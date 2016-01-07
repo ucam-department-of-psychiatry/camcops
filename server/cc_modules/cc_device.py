@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# cc_device.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -23,10 +23,10 @@
 
 import pythonlib.rnc_web as ws
 
-from cc_constants import PARAM
-import cc_db
-from cc_pls import pls
-from cc_unittest import unit_test_ignore
+from .cc_constants import PARAM
+from . import cc_db
+from .cc_pls import pls
+from .cc_unittest import unit_test_ignore
 
 
 # =============================================================================
@@ -100,7 +100,7 @@ class Device(object):
 
 def get_device_filter_dropdown(currently_selected=None):
     """Get HTML list of all known tablet devices."""
-    s = u"""
+    s = """
         <select name="{}">
             <option value="">(all)</option>
     """.format(PARAM.DEVICE)
@@ -109,12 +109,12 @@ def get_device_filter_dropdown(currently_selected=None):
     for pk in [row[0] for row in rows]:
         device = Device(pk)
         i = ws.webify(device.get_id())
-        s += u"""<option value="{i}"{sel}>{name}</option>""".format(
+        s += """<option value="{i}"{sel}>{name}</option>""".format(
             i=i,
             name=ws.webify(device.get_friendly_name_and_id()),
             sel=ws.option_selected(currently_selected, i),
         )
-    s += u"""</select>"""
+    s += """</select>"""
     return s
 
 

@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# cc_filename.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -23,9 +23,9 @@
 
 import os
 
-from cc_constants import DATEFORMAT, NUMBER_OF_IDNUMS
-import cc_dt
-import cc_lang
+from .cc_constants import DATEFORMAT, NUMBER_OF_IDNUMS
+from . import cc_dt
+from . import cc_lang
 
 
 # =============================================================================
@@ -118,7 +118,7 @@ def get_export_filename(patient_spec_if_anonymous, patient_spec,
     if is_anonymous:
         patient = patient_spec_if_anonymous
     else:
-        patient = unicode(patient_spec).format(**d)
+        patient = str(patient_spec).format(**d)
     d.update(dict(
         patient=patient,
         created=cc_dt.format_datetime(creation_datetime,
@@ -131,7 +131,7 @@ def get_export_filename(patient_spec_if_anonymous, patient_spec,
         anonymous=patient_spec_if_anonymous if is_anonymous else "",
     ))
     return convert_string_for_filename(
-        unicode(filename_spec).format(**d), allow_paths=True)
+        str(filename_spec).format(**d), allow_paths=True)
 
 
 def convert_string_for_filename(s, allow_paths=False):

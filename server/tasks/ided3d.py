@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# ided3d.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -108,7 +108,7 @@ class IDED3D_Trial(Ancillary):
 
     @classmethod
     def get_html_table_header(cls):
-        return u"""
+        return """
             <table class="extradetail">
                 <tr>
                     <th>Trial</th>
@@ -216,7 +216,7 @@ class IDED3D_Stage(Ancillary):
 
     @classmethod
     def get_html_table_header(cls):
-        return u"""
+        return """
             <table class="extradetail">
                 <tr>
                     <th>Stage#</th>
@@ -273,7 +273,7 @@ class IDED3D(Task):
 
     @classmethod
     def get_tasklongname(cls):
-        return u"Three-dimensional ID/ED task"
+        return "Three-dimensional ID/ED task"
 
     @classmethod
     def get_fieldspecs(cls):
@@ -333,14 +333,14 @@ class IDED3D(Task):
         html = IDED3D_Stage.get_html_table_header()
         for s in stagearray:
             html += s.get_html_table_row()
-        html += u"""</table>"""
+        html += """</table>"""
         return html
 
     def get_trial_html(self, trialarray):
         html = IDED3D_Trial.get_html_table_header()
         for t in trialarray:
             html += t.get_html_table_row()
-        html += u"""</table>"""
+        html += """</table>"""
         return html
 
     def get_stage_array(self):
@@ -360,7 +360,7 @@ class IDED3D(Task):
 
         # Provide HTML
         # HTML
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
                     {}
@@ -393,16 +393,16 @@ class IDED3D(Task):
                    self.pause_after_beep_ms)
         h += tr_qa(WSTRING("ided3d_iti_ms"), self.iti_ms)
         h += tr_qa(WSTRING("ided3d_counterbalance_dimensions")
-                   + u"<sup>[1]</sup>",
+                   + "<sup>[1]</sup>",
                    self.counterbalance_dimensions)
         h += tr_qa(WSTRING("volume"), self.volume)
         h += tr_qa(WSTRING("ided3d_offer_abort"), self.offer_abort)
         h += tr_qa(WSTRING("ided3d_debug_display_stimuli_only"),
                    self.debug_display_stimuli_only)
-        h += tr_qa(u"Shapes (as a JSON-encoded array of SVG "
-                   u"definitions; X and Y range both –60 to +60)",
+        h += tr_qa("Shapes (as a JSON-encoded array of SVG "
+                   "definitions; X and Y range both –60 to +60)",
                    ws.webify(self.shape_definitions_svg))
-        h += u"""
+        h += """
             </table>
             <table class="taskdetail">
                 <tr><th width="50%">Measure</th><th width="50%">Value</th></tr>
@@ -411,14 +411,14 @@ class IDED3D(Task):
         h += tr_qa("Finished?", get_yes_no_none(self.finished))
         h += tr_qa("Last trial completed", self.last_trial_completed)
         h += (
-            u"""
+            """
                 </table>
                 <div>Stage specifications and results:</div>
             """
             + self.get_stage_html(stagearray)
-            + u"<div>Trial-by-trial results:</div>"
+            + "<div>Trial-by-trial results:</div>"
             + self.get_trial_html(trialarray)
-            + u"""
+            + """
                 <div class="footnotes">
                     [1] Counterbalancing of dimensions is as follows, with
                     notation X/Y indicating that X is the first relevant

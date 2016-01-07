@@ -1,7 +1,7 @@
 #!/bin/bash
 
-DEVDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-PACKAGEDIR=$DEVDIR/packagebuild
+TOOLDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+PACKAGEDIR=$TOOLDIR/../packagebuild
 
 SERVERDOWNLOADDIR=/srv/www/camcops/download/server
 

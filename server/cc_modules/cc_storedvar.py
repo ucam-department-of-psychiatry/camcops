@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# cc_storedvar.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -23,10 +23,10 @@
 
 import pythonlib.rnc_db as rnc_db
 
-from cc_constants import STANDARD_GENERIC_FIELDSPECS
-import cc_db
-from cc_logger import logger
-from cc_pls import pls
+from .cc_constants import STANDARD_GENERIC_FIELDSPECS
+from . import cc_db
+from .cc_logger import logger
+from .cc_pls import pls
 
 
 # =============================================================================

@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# fft.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -77,13 +77,13 @@ class Fft(Task):
 
     def get_task_html(self):
         if self.rating is not None:
-            r = u"{}. {}".format(self.rating, self.get_rating_text())
+            r = "{}. {}".format(self.rating, self.get_rating_text())
         else:
             r = None
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
-        """ + self.get_is_complete_tr() + u"""
+        """ + self.get_is_complete_tr() + """
                 </table>
             </div>
             <table class="taskdetail">
@@ -94,7 +94,7 @@ class Fft(Task):
         """
         h += tr_qa(WSTRING("service_being_rated"), self.service)
         h += tr_qa(WSTRING("fft_q"), r)
-        h += u"""
+        h += """
             </table>
         """
         return h

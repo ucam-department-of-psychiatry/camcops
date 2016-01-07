@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# photo.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -77,7 +77,7 @@ class Photo(Task):
         return [{"content": self.description}]
 
     def get_task_html(self):
-        return self.get_standard_clinician_block() + u"""
+        return self.get_standard_clinician_block() + """
             <table class="taskdetail">
                 <tr class="subheading"><td>Description</td></tr>
                 <tr><td>{}</td></tr>
@@ -132,7 +132,7 @@ class PhotoSequence_SinglePhoto(Ancillary):
         return "seqnum"
 
     def get_html_table_rows(self):
-        return u"""
+        return """
             <tr class="subheading"><td>Photo {}: <b>{}</b></td></tr>
             <tr><td>{}</td></tr>
         """.format(
@@ -202,7 +202,7 @@ class PhotoSequence(Task):
 
     def get_task_html(self):
         photos = self.get_photos()
-        html = self.get_standard_clinician_block() + u"""
+        html = self.get_standard_clinician_block() + """
             <div class="summary">
                 <table class="summary">
                     {is_complete}

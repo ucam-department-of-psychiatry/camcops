@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# cardinal_expdetthreshold.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -110,7 +110,7 @@ class Cardinal_ExpDetThreshold_Trial(Ancillary):
 
     @classmethod
     def get_html_table_header(cls):
-        return u"""
+        return """
             <table class="extradetail">
                 <tr>
                     <th>Trial</th>
@@ -130,7 +130,7 @@ class Cardinal_ExpDetThreshold_Trial(Ancillary):
         """
 
     def get_html_table_row(self):
-        return (u"<tr>" + u"<td>{}</td>" * 13 + u"</th>").format(
+        return ("<tr>" + "<td>{}</td>" * 13 + "</th>").format(
             self.trial,
             self.trial_ignoring_catch_trials,
             self.target_presented,
@@ -158,8 +158,8 @@ class Cardinal_ExpDetThreshold(Task):
 
     @classmethod
     def get_tasklongname(cls):
-        return (u"Cardinal RN – Threshold determination for "
-                u"Expectation–Detection task")
+        return ("Cardinal RN – Threshold determination for "
+                "Expectation–Detection task")
 
     @classmethod
     def get_fieldspecs(cls):
@@ -231,7 +231,7 @@ class Cardinal_ExpDetThreshold(Task):
         html = Cardinal_ExpDetThreshold_Trial.get_html_table_header()
         for t in trialarray:
             html += t.get_html_table_row()
-        html += u"""</table>"""
+        html += """</table>"""
 
         # Don't add figures if we're incomplete
         if not self.is_complete():
@@ -361,7 +361,7 @@ class Cardinal_ExpDetThreshold(Task):
             plt.xlabel("Intensity")
             plt.ylabel("Detected? (0=no, 1=yes; jittered)")
 
-        html += u"""
+        html += """
             <table class="noborder">
                 <tr>
                     <td class="noborderphoto">{}</td>
@@ -388,7 +388,7 @@ class Cardinal_ExpDetThreshold(Task):
             modality = WSTRING("visual")
         else:
             modality = None
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
                     {}
@@ -426,7 +426,7 @@ class Cardinal_ExpDetThreshold(Task):
         h += tr_qa("Probability of a catch trial", self.p_catch_trial)
         h += tr_qa("Prompt", self.prompt)
         h += tr_qa("Intertrial interval (ITI) (s)", self.iti_s)
-        h += u"""
+        h += """
             </table>
             <table class="taskdetail">
                 <tr><th width="50%">Measure</th><th width="50%">Value</th></tr>
@@ -439,7 +439,7 @@ class Cardinal_ExpDetThreshold(Task):
                    ws.number_to_dp(self.slope, DP))
         h += tr_qa("Logistic k (= slope)",
                    ws.number_to_dp(self.k, DP))
-        h += tr_qa(u"Logistic theta (= –intercept/slope)",
+        h += tr_qa("Logistic theta (= –intercept/slope)",
                    ws.number_to_dp(self.theta, DP))
         h += tr_qa("Intensity for {}% detection".format(100*LOWER_MARKER),
                    ws.number_to_dp(self.logistic_x_from_p(LOWER_MARKER),
@@ -449,7 +449,7 @@ class Cardinal_ExpDetThreshold(Task):
         h += tr_qa("Intensity for {}% detection".format(100*UPPER_MARKER),
                    ws.number_to_dp(self.logistic_x_from_p(UPPER_MARKER),
                                    DP))
-        h += u"""
+        h += """
             </table>
         """
         h += self.get_trial_html()

@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# icd10specpd.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -187,7 +187,7 @@ class Icd10SpecPD(Task):
 
     @classmethod
     def get_tasklongname(cls):
-        return u"ICD-10 criteria for specific personality disorders (F60)"
+        return "ICD-10 criteria for specific personality disorders (F60)"
 
     @classmethod
     def get_fieldspecs(cls):
@@ -423,7 +423,7 @@ class Icd10SpecPD(Task):
         )
 
     def pd_heading(self, wstringname):
-        return u"""
+        return """
             <tr class="heading"><td colspan="2">{}</td></tr>
         """.format(WSTRING(wstringname))
 
@@ -432,7 +432,7 @@ class Icd10SpecPD(Task):
                                         label=WSTRING("icd10pd_skip_this_pd"))
 
     def pd_subheading(self, wstringname):
-        return u"""
+        return """
             <tr class="subheading"><td colspan="2">{}</td></tr>
         """.format(WSTRING(wstringname))
 
@@ -445,7 +445,7 @@ class Icd10SpecPD(Task):
         )
 
     def pd_b_text(self, wstringname):
-        return u"""
+        return """
             <tr><td>{}</td><td class="subheading"></td></tr>
         """.format(WSTRING(wstringname))
 
@@ -463,7 +463,7 @@ class Icd10SpecPD(Task):
         return html
 
     def get_task_html(self):
-        h = self.get_standard_clinician_block(True, self.comments) + u"""
+        h = self.get_standard_clinician_block(True, self.comments) + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
@@ -491,7 +491,7 @@ class Icd10SpecPD(Task):
         h += tr_qa(WSTRING("icd10_dependent_pd_title"),
                    get_yes_no_none(self.hasDependentPD()))
 
-        h += u"""
+        h += """
                 </table>
             </div>
             <div>
@@ -543,7 +543,7 @@ class Icd10SpecPD(Task):
         h += self.standard_pd_html("dependent", Icd10SpecPD.N_DEPENDENT)
 
         # Done
-        h += u"""
+        h += """
             </table>
         """ + ICD10_COPYRIGHT_DIV
         return h

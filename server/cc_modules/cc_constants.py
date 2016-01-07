@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# cc_constants.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -23,7 +23,8 @@
 
 # Helpful UTF-8 characters: ‘’ “” – — × • ≤ ≥ ≠ ± →
 
-from pythonlib.rnc_lang import AttrDict
+import string
+from pythonlib.rnc_lang import AttrDict, merge_dicts
 
 # =============================================================================
 # Number of ID numbers. Don't alter this lightly; influences database fields.
@@ -36,8 +37,68 @@ NUMBER_OF_IDNUMS = 8  # Determines number of ID number fields
 # =============================================================================
 
 CONFIG_FILE_MAIN_SECTION = "server"
+CONFIG_FILE_RECIPIENTLIST_SECTION = "recipients"
+
 DEFAULT_DB_PORT = 3306
 DEFAULT_DB_SERVER = "localhost"
+DEFAULT_DATABASE_TITLE = "CamCOPS database"
+DEFAULT_LOCAL_INSTITUTION_URL = "http://www.camcops.org/"
+DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES = 10
+DEFAULT_LOCKOUT_THRESHOLD = 10
+DEFAULT_MYSQLDUMP = "/usr/bin/mysqldump"
+DEFAULT_MYSQL = "/usr/bin/mysql"
+DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS = 0  # zero for never
+DEFAULT_RESOURCES_DIRECTORY = "/usr/share/camcops/server"
+DEFAULT_TIMEOUT_MINUTES = 30
+DEFAULT_PLOT_FONTSIZE = 8
+
+# =============================================================================
+# URLs, filenames, etc. for interaction with the hosting web server
+# =============================================================================
+
+# As sent to the client, using relative URLS:
+STATIC_URL_PREFIX = "static/"
+CAMCOPS_LOGO_FILE_WEBREF = STATIC_URL_PREFIX + "logo_camcops.png"
+LOCAL_LOGO_FILE_WEBREF = STATIC_URL_PREFIX + "logo_local.png"
+CAMCOPS_FAVICON_FILE = STATIC_URL_PREFIX + "favicon_camcops.png"
+
+URL_RELATIVE_WEBVIEW = "webview"
+
+# As seen in the WSGI PATH_INFO variable:
+URL_ROOT_WEBVIEW = "/" + URL_RELATIVE_WEBVIEW
+URL_ROOT_DATABASE = "/database"
+URL_ROOT_STATIC = "/static"  # only for development environments
+
+# =============================================================================
+# Other filenames
+# =============================================================================
+
+CAMCOPS_STRINGS_FILE = "strings.xml"
+
+# =============================================================================
+# Introspection
+# =============================================================================
+
+DEFAULT_INTROSPECTION_DIRECTORY = DEFAULT_RESOURCES_DIRECTORY
+INTROSPECTABLE_EXTENSIONS = [".js", ".jsx", ".html", ".py", ".pl", ".xml"]
+INTROSPECTABLE_DIRECTORIES = [
+    "server",
+    "server/cc_modules",
+    "server/pythonlib",
+    "server/tasks",
+    "tablet",
+    "tablet/common",
+    "tablet/html",
+    "tablet/lib",
+    "tablet/menu",
+    "tablet/menulib",
+    "tablet/questionnaire",
+    "tablet/questionnairelib",
+    "tablet/screen",
+    "tablet/table",
+    "tablet/task",
+    "tablet/task_html",
+]
 
 # =============================================================================
 # HTTP actions, parameters, values
@@ -327,9 +388,777 @@ STANDARD_GENERIC_FIELDSPECS = [
                  "source tablet device (ISO 8601)"),
 ]
 
+STANDARD_TASK_COMMON_FIELDSPECS = [
+    dict(name="when_created", cctype="ISO8601", notnull=True,
+         comment="(TASK) Date/time this task instance was created (ISO 8601)"),
+    dict(name="when_firstexit", cctype="ISO8601",
+         comment="(TASK) Date/time of the first exit from this "
+                 "task (ISO 8601)"),
+    dict(name="firstexit_is_finish", cctype="BOOL",
+         comment="(TASK) Was the first exit from the task because it was "
+                 "finished (1)?"),
+    dict(name="firstexit_is_abort", cctype="BOOL",
+         comment="(TASK) Was the first exit from this task because it was "
+                 "aborted (1)?"),
+    dict(name="editing_time_s", cctype="FLOAT",
+         comment="(TASK) Time spent editing (s)"),
+]
+
+STANDARD_TASK_FIELDSPECS = STANDARD_GENERIC_FIELDSPECS + [
+    dict(name="id", cctype="INT_UNSIGNED", notnull=True,
+         comment="(TASK) Primary key (task ID) on the tablet device",
+         indexed=True),
+    dict(name="patient_id", cctype="INT_UNSIGNED", notnull=True,
+         comment="(TASK) Foreign key to patient.id for this device",
+         indexed=True),
+] + STANDARD_TASK_COMMON_FIELDSPECS
+
+STANDARD_ANONYMOUS_TASK_FIELDSPECS = STANDARD_GENERIC_FIELDSPECS + [
+    dict(name="id", cctype="INT_UNSIGNED", notnull=True,
+         comment="(TASK) Primary key (task ID) on the tablet device",
+         indexed=True),
+] + STANDARD_TASK_COMMON_FIELDSPECS
+
+STANDARD_ANCILLARY_FIELDSPECS = STANDARD_GENERIC_FIELDSPECS + [
+    dict(name="id", cctype="INT_UNSIGNED", notnull=True,
+         comment="(ANCILLARY) Primary key on the tablet device",
+         indexed=True),
+]
+
+CLINICIAN_FIELDSPECS = [  # see also has_clinician()
+    dict(name="clinician_specialty", cctype="TEXT", anon=True,
+         comment="(CLINICIAN) Clinician's specialty (e.g. Liaison "
+                 "Psychiatry)"),
+    dict(name="clinician_name", cctype="TEXT", anon=True,
+         comment="(CLINICIAN) Clinician's name (e.g. Dr X)"),
+    dict(name="clinician_professional_registration", cctype="TEXT",
+         comment="(CLINICIAN) Clinician's professional registration (e.g. "
+                 "GMC# 12345)"),
+    dict(name="clinician_post", cctype="TEXT", anon=True,
+         comment="(CLINICIAN) Clinician's post (e.g. Consultant)"),
+    dict(name="clinician_service", cctype="TEXT", anon=True,
+         comment="(CLINICIAN) Clinician's service (e.g. Liaison Psychiatry "
+                 "Service)"),
+    dict(name="clinician_contact_details", cctype="TEXT", anon=True,
+         comment="(CLINICIAN) Clinician's contact details (e.g. bleep, "
+                 "extension)"),
+]
+RESPONDENT_FIELDSPECS = [  # see also has_respondent()
+    dict(name="respondent_name", cctype="TEXT",
+         comment="(RESPONDENT) Respondent's name"),
+    dict(name="respondent_relationship", cctype="TEXT",
+         comment="(RESPONDENT) Respondent's relationship to patient"),
+]
+
+CRIS_CLUSTER_KEY_FIELDSPEC = dict(
+    name="_task_main_pk", cctype="INT_UNSIGNED",
+    comment="(CRIS) Server primary key for task and linked records"
+)
+
+# BEWARE when using these, esp. if you perform modifications. For example:
+#
+#   x = [{"a": 1}]
+#   y = [{"b": 2}]
+#   z = x + y
+#   for i in z:
+#       i["modify"] = 99
+#
+# ... modifies x, y as well. And so does this:
+#
+#   x = [{"a": 1}]
+#   y = [{"b": 2}]
+#   z = list(x) + list(y)
+#   for i in z:
+#       i["modify"] = 99
+#
+# So you'd need a deep copy.
+# http://stackoverflow.com/questions/8913026/list-copy-not-working
+# http://stackoverflow.com/questions/2612802
+# http://stackoverflow.com/questions/6993531/copy-list-in-python
+#
+# However, our problem comes about when we modify comments; it'll be OK if we
+# never modify a comment when there's an existing comment.
+
+TEXT_FILTER_EXEMPT_FIELDS = [
+    item["name"] for item in (
+        STANDARD_GENERIC_FIELDSPECS
+        + STANDARD_TASK_COMMON_FIELDSPECS
+        + CLINICIAN_FIELDSPECS
+    ) if item["cctype"] == "TEXT"
+]
+
 # =============================================================================
 # Other special values
 # =============================================================================
 
 CAMCOPS_URL = "http://www.camcops.org/"
 ERA_NOW = "NOW"  # defines the current era in database records
+
+# =============================================================================
+# PDF engine: now always "pdfkit".
+# =============================================================================
+
+# PDF_ENGINE = "xhtml2pdf"  # working
+PDF_ENGINE = "pdfkit"  # working
+# PDF_ENGINE = "weasyprint"  # working but table <tr> element bugs
+# ... must use double quotes; read by a Perl regex in MAKE_PACKAGE
+# ... value must be one of: xhtml2pdf, weasyprint, pdfkit
+
+# =============================================================================
+# Simple constants for HTML/plots/display
+# =============================================================================
+
+DEFAULT_PLOT_DPI = 300
+
+# Debugging option
+USE_SVG_IN_HTML = True  # set to False for PNG debugging
+
+RESTRICTED_WARNING = """
+    <div class="warning">
+        You are restricted to viewing records uploaded by you. Other records
+        may exist for the same patient(s), uploaded by others.
+    </div>"""
+RESTRICTED_WARNING_SINGULAR = """
+    <div class="warning">
+        You are restricted to viewing records uploaded by you. Other records
+        may exist for the same patient, uploaded by others.
+    </div>"""
+
+# =============================================================================
+# CSS/HTML constants
+# =============================================================================
+
+PDF_LOGO_HEIGHT = "20mm"
+
+CSS_PAGED_MEDIA = (PDF_ENGINE != "pdfkit")
+
+COMMON_DEFINITIONS = {
+    "SMALLFONTSIZE": "0.85em",
+    "TINYFONTSIZE": "0.7em",
+    "LARGEFONTSIZE": "1.2em",
+    "GIANTFONTSIZE": "1.4em",
+    "BANNERFONTSIZE": "1.6em",
+
+    # Rules: line height is 1.1-1.2 * font size
+    # ... but an em is related to the calculated font-size of the element,
+    #   http://www.impressivewebs.com/understanding-em-units-css/
+    # so it can always be 1.2:
+    "MAINLINEHEIGHT": "1.1em",
+    "SMALLLINEHEIGHT": "1.1em",
+    "TINYLINEHEIGHT": "1.0em",  # except this one
+    "LARGELINEHEIGHT": "1.1em",
+    "GIANTLINEHEIGHT": "1.1em",
+    "BANNERLINEHIGHT": "1.1em",
+    "TABLELINEHEIGHT": "1.1em",
+
+    "VSPACE_NORMAL": "0.5em",
+    "VSPACE_LARGE": "0.8em",
+
+    "SIGNATUREHEIGHT": "3em",
+
+    # Specific to PDFs:
+    "PDF_LOGO_HEIGHT": PDF_LOGO_HEIGHT,
+}
+
+WEB_SIZES = {
+    "MAINFONTSIZE": "medium",
+    "SMALLGAP": "2px",
+    "ELEMENTGAP": "5px",
+    "NORMALPAD": "2px",
+    "TABLEPAD": "2px",
+    "INDENT_NORMAL": "20px",
+    "INDENT_LARGE": "75px",
+    "THINLINE": "1px",
+    "ZERO": "0px",
+    "PDFEXTRA": "",
+    "MAINMARGIN": "10px",
+    "BODYPADDING": "5px",
+    "BANNER_PADDING": "25px",
+}
+
+# Hard page margins for A4:
+# - left/right: most printers can cope; hole punches to e.g. 13 mm; so 20mm
+#   reasonable.
+# - top: HP Laserjet 1100 e.g. clips at about 17.5mm
+# - bottom: HP Laserjet 1100 e.g. clips at about 15mm
+# ... so 20mm all round about right
+
+PDF_SIZES = {
+    "MAINFONTSIZE": "10pt",
+    "SMALLGAP": "0.2mm",
+    "ELEMENTGAP": "1mm",
+    "NORMALPAD": "0.5mm",
+    "TABLEPAD": "0.5mm",
+    "INDENT_NORMAL": "5mm",
+    "INDENT_LARGE": "10mm",
+    "THINLINE": "0.2mm",
+    "ZERO": "0mm",
+    "MAINMARGIN": "2cm",
+    "BODYPADDING": "0mm",
+    "BANNER_PADDING": "0.5cm",
+}
+
+# Sequences of 4: top, right, bottom, left
+# margin is outside, padding is inside
+# #identifier
+# .class
+# http://www.w3schools.com/cssref/css_selectors.asp
+# http://stackoverflow.com/questions/4013604
+# http://stackoverflow.com/questions/6023419
+
+# Avoid both {} and % substitution by using string.Template and $
+CSS_BASE = string.Template("""
+
+/* Display PNG fallback image... */
+svg img.svg {
+    display: none;
+}
+img.pngfallback {
+    display: inline;
+}
+/* ... unless our browser supports SVG */
+html.svg svg img.svg {
+    display: inline;
+}
+html.svg img.pngfallback {
+    display: none;
+}
+
+/* Overall defaults */
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: $MAINFONTSIZE;
+    line-height: $MAINLINEHEIGHT;
+    margin: $ELEMENTGAP $ZERO $ELEMENTGAP $ZERO;
+    padding: $BODYPADDING;
+}
+code {
+    font-size: 0.8em;
+    font-family: Consolas, Monaco, 'Lucida Console', 'Liberation Mono',
+        'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New';
+    background-color: #eeeeee;
+    padding: 1px 5px 1px 5px;
+}
+div {
+    margin: $ELEMENTGAP $ZERO $ELEMENTGAP $ZERO;
+    padding: $NORMALPAD;
+}
+em {
+    color: rgb(0, 0, 255);
+    font-style: normal;
+}
+h1 {
+    font-size: $GIANTFONTSIZE;
+    line-height: $GIANTLINEHEIGHT;
+    font-weight: bold;
+    margin: $ZERO;
+}
+h2 {
+    font-size: $LARGEFONTSIZE;
+    line-height: $LARGELINEHEIGHT;
+    font-weight: bold;
+    margin: $ZERO;
+}
+h3 {
+    font-size: $LARGEFONTSIZE;
+    line-height: $LARGELINEHEIGHT;
+    font-weight: bold;
+    font-style: italic;
+    margin: $ZERO;
+}
+img {
+    max-width: 100%;
+    max-height: 100%;
+}
+p {
+    margin: $ELEMENTGAP $ZERO $ELEMENTGAP $ZERO;
+}
+sup, sub {
+    font-size: 0.7em; /* 1 em is the size of the parent font */
+    vertical-align: baseline;
+    position: relative;
+    top: -0.5em;
+}
+sub {
+    top: 0.5em;
+}
+table {
+    width: 100%; /* particularly for PDFs */
+    vertical-align: top;
+    border-collapse: collapse;
+    border: $THINLINE solid black;
+    padding: $ZERO;
+    margin: $ELEMENTGAP $ZERO $ELEMENTGAP $ZERO;
+}
+tr, th, td {
+    vertical-align: top;
+    text-align: left;
+    margin: $ZERO;
+    padding: $TABLEPAD;
+    border: $THINLINE solid black;
+    line-height: $TABLELINEHEIGHT;
+}
+
+/* Specific classes */
+
+.badidpolicy_mild {
+    background-color: rgb(255, 255, 153);
+}
+.badidpolicy_severe {
+    background-color: rgb(255, 255, 0);
+}
+.banner {
+    text-align: center;
+    font-size: $BANNERFONTSIZE;
+    line-height: $BANNERLINEHIGHT;
+    padding: $BANNER_PADDING;
+    margin: $ZERO;
+}
+.banner_referral_general_adult {
+    background-color: rgb(255, 165, 0);
+}
+.banner_referral_old_age {
+    background-color: rgb(0, 255, 127);
+}
+.banner_referral_substance_misuse {
+    background-color: rgb(0, 191, 255);
+}
+.clinician {
+    background-color: rgb(200, 255, 255);
+}
+table.clinician, table.clinician th, table.clinician td {
+    border: $THINLINE solid black;
+}
+.copyright {
+    font-style: italic;
+    font-size: $TINYFONTSIZE;
+    line-height: $TINYLINEHEIGHT;
+    background-color: rgb(227, 227, 227);
+}
+.ctv_datelimit_start {
+    /* line below */
+    text-align: right;
+    border-style: none none solid none;
+    border-width: $THINLINE;
+    border-color: black;
+}
+.ctv_datelimit_end {
+    /* line above */
+    text-align: right;
+    border-style: solid none none none;
+    border-width: $THINLINE;
+    border-color: black;
+}
+.ctv_taskheading {
+    background-color: rgb(200, 200, 255);
+    font-weight: bold;
+}
+.ctv_fieldheading {
+    background-color: rgb(200, 200, 200);
+    font-weight: bold;
+    font-style: italic;
+    margin: $ELEMENTGAP $ZERO $SMALLGAP $INDENT_NORMAL;
+}
+.ctv_fieldsubheading {
+    background-color: rgb(200, 200, 200);
+    font-style: italic;
+    margin: $ELEMENTGAP $ZERO $SMALLGAP $INDENT_NORMAL;
+}
+.ctv_fielddescription {
+    font-style: italic;
+    margin: $ELEMENTGAP $ZERO $SMALLGAP $INDENT_NORMAL;
+}
+.ctv_fieldcontent {
+    font-weight: bold;
+    margin: $SMALLGAP $ZERO $ELEMENTGAP $INDENT_NORMAL;
+}
+.ctv_warnings {
+    margin: $ELEMENTGAP $ZERO $SMALLGAP $INDENT_NORMAL;
+}
+.error {
+    color: rgb(255, 0, 0);
+}
+.explanation {
+    background-color: rgb(200, 255, 200);
+}
+table.extradetail {
+    border: $THINLINE solid black;
+    background-color: rgb(210, 210, 210);
+}
+table.extradetail th {
+    border: $THINLINE solid black;
+    font-style: italic;
+    font-weight: bold;
+    font-size: $TINYFONTSIZE;
+}
+table.extradetail td {
+    border: $THINLINE solid black;
+    font-size: $TINYFONTSIZE;
+}
+tr.extradetail2 {
+    background-color: rgb(240, 240, 240);
+}
+td.figure {
+    padding: $ZERO;
+    background-color: rgb(255, 255, 255);
+}
+div.filter {
+    /* for task filters */
+    margin-left: $INDENT_LARGE;
+    padding: $ZERO;
+}
+form.filter {
+    /* for task filters */
+    display: inline;
+    margin: $ZERO;
+}
+.footnotes {
+    font-style: italic;
+    font-size: $SMALLFONTSIZE;
+    line-height: $SMALLLINEHEIGHT;
+}
+.formtitle {
+    font-size: $LARGEFONTSIZE;
+    color: rgb(34, 139, 34);
+}
+table.general, table.general th, table.general td {
+    border: $THINLINE solid black;
+}
+table.general th.col1, table.general td.col1 {
+    width: 22%;
+}
+table.general th.col2, table.general td.col2 {
+    width: 78%;
+}
+.green {
+    color: rgb(34, 139, 34);
+}
+p.hangingindent {
+    padding-left: $INDENT_NORMAL;
+    text-indent: -$INDENT_NORMAL;
+}
+.heading {
+    background-color: rgb(0, 0, 0);
+    color: rgb(255, 255, 255);
+    font-style: italic;
+}
+.highlight {
+    background-color: rgb(255, 250, 205);
+}
+.important {
+    color: rgb(64, 0, 192);
+    font-weight: bold;
+}
+.specialnote {
+    background-color: rgb(255, 255, 153);
+}
+.live_on_tablet {
+    background-color: rgb(216, 208, 245);
+}
+.incomplete {
+    background-color: rgb(255, 165, 0);
+}
+.superuser {
+    background-color: rgb(255, 192, 203);
+}
+p.indent {
+    margin-left: $INDENT_NORMAL;
+}
+div.indented {
+    margin-left: $INDENT_LARGE;
+}
+.navigation {
+    background-color: rgb(200, 255, 200);
+}
+.noborder {
+    border: none;
+    /* NB also: hidden overrides none with border-collapse */
+}
+.noborderphoto {
+    padding: $ZERO;
+    border: none;
+}
+.office {
+    background-color: rgb(227, 227, 227);
+    font-style: italic;
+    font-size: $TINYFONTSIZE;
+    line-height: $TINYLINEHEIGHT;
+}
+.patient {
+    background-color: rgb(255, 200, 200);
+}
+.pdf_logo_header {
+    width: 100%;
+    border: none;
+}
+.pdf_logo_header table, .pdf_logo_header tr {
+    width: 100%;
+    border: none;
+}
+.pdf_logo_header .image_td {
+    width: 45%;
+    border: none;
+}
+.pdf_logo_header .centregap_td {
+    width: 10%;
+    border: none;
+}
+.pdf_logo_header .logo_left {
+    float: left;
+    max-width: 100%;
+    max-height: $PDF_LOGO_HEIGHT;
+    height: auto;
+    width: auto;
+}
+.pdf_logo_header .logo_right {
+    float: right;
+    max-width: 100%;
+    max-height: $PDF_LOGO_HEIGHT;
+    height: auto;
+    width: auto;
+}
+.photo {
+    padding: $ZERO;
+}
+.respondent {
+    background-color: rgb(189, 183, 107);
+}
+table.respondent, table.respondent th, table.respondent td {
+    border: $THINLINE solid black;
+}
+.signature_label {
+    border: none;
+    text-align: center;
+}
+.signature {
+    line-height: $SIGNATUREHEIGHT;
+    border: $THINLINE solid black;
+}
+.smallprint {
+    font-style: italic;
+    font-size: $SMALLFONTSIZE;
+}
+.subheading {
+    background-color: rgb(200, 200, 200);
+    font-style: italic;
+}
+.subsubheading {
+    font-style: italic;
+}
+.summary {
+    background-color: rgb(200, 200, 255);
+}
+table.summary, .summary th, .summary td {
+    border: $THINLINE solid black;
+}
+table.taskconfig, .taskconfig th, .taskconfig td {
+    border: $THINLINE solid black;
+    background-color: rgb(230, 230, 230);
+}
+table.taskconfig th {
+    font-style: italic; font-weight: normal;
+}
+table.taskdetail, .taskdetail th, .taskdetail td {
+    border: $THINLINE solid black;
+}
+table.taskdetail th {
+    font-weight: normal; font-style: italic;
+}
+table.taskdetail td {
+    font-weight: normal;
+}
+.taskheader {
+    background-color: rgb(200, 200, 200);
+}
+.trackerheader {
+    font-size: $TINYFONTSIZE;
+    line-height: $TINYLINEHEIGHT;
+    background-color: rgb(218, 112, 240);
+}
+.tracker_all_consistent {
+    font-style: italic;
+    font-size: $TINYFONTSIZE;
+    line-height: $TINYLINEHEIGHT;
+    background-color: rgb(227, 227, 227);
+}
+.warning {
+    background-color: rgb(255, 100, 100);
+}
+
+/* The next three: need both L/R to float and clear:both for IE */
+.web_logo_header {
+    display: block;
+    overflow: hidden;
+    width: 100%;
+    border: none;
+    clear: both;
+}
+/* ... overflow:hidden so the div expands to its floating contents */
+.web_logo_header .logo_left {
+    width: 45%;
+    float: left;
+    text-decoration: none;
+    border: $ZERO;
+}
+.web_logo_header .logo_right {
+    width: 45%;
+    float: right;
+    text-decoration: none;
+    border: $ZERO;
+}
+
+/* For tables that will make it to a PDF, fix Weasyprint column widths.
+   But not for all (e.g. webview task list) tables. */
+table.clinician, table.extradetail, table.general,
+        table.pdf_logo_header, table.summary,
+        table.taskconfig, table.taskdetail,
+        table.fixed {
+    table-layout: fixed;
+}
+
+""")
+
+# Image sizing:
+# http://stackoverflow.com/questions/787839/resize-image-proportionally-with-css  # noqa
+
+PDF_PAGED_MEDIA_CSS = string.Template("""
+
+/* PDF extras */
+#headerContent {
+    font-size: $SMALLFONTSIZE;
+    line-height: $SMALLLINEHEIGHT;
+}
+#footerContent {
+    font-size: $SMALLFONTSIZE;
+    line-height: $SMALLLINEHEIGHT;
+}
+
+/* PDF paging via CSS Paged Media */
+@page {
+    size: A4 $ORIENTATION;
+    margin-left: $MAINMARGIN;
+    margin-right: $MAINMARGIN;
+    margin-top: $MAINMARGIN;
+    margin-bottom: $MAINMARGIN;
+    @frame header {
+        /* -pdf-frame-border: 1; */ /* for debugging */
+        -pdf-frame-content: headerContent;
+        top: 1cm;
+        margin-left: $MAINMARGIN;
+        margin-right: $MAINMARGIN;
+    }
+    @frame footer {
+        /* -pdf-frame-border: 1; */ /* for debugging */
+        -pdf-frame-content: footerContent;
+        bottom: 0.5cm; /* distance up from page's bottom margin? */
+        height: 1cm; /* height of the footer */
+        margin-left: $MAINMARGIN;
+        margin-right: $MAINMARGIN;
+    }
+}
+""")
+# WEASYPRINT: NOT WORKING PROPERLY YET: WEASYPRINT DOESN'T YET SUPPORT RUNNING
+# ELEMENTS
+# http://librelist.com/browser//weasyprint/2013/7/4/header-and-footer-for-each-page/#abe45ec357d593df44ffca48253817ef  # noqa
+# http://weasyprint.org/docs/changelog/
+
+COMMON_HEAD = string.Template("""
+<!DOCTYPE html> <!-- HTML 5 -->
+<html>
+    <head>
+        <title>CamCOPS</title>
+        <meta charset="utf-8">
+        <link rel="icon" type="image/png" href="$CAMCOPS_FAVICON_FILE">
+        <script>
+            /* set "html.svg" if our browser supports SVG */
+            if (document.implementation.hasFeature(
+                    "http://www.w3.org/TR/SVG11/feature#Image", "1.1")) {
+                document.documentElement.className = "svg";
+            }
+        </script>
+        <style type="text/css">
+            $CSS
+        </style>
+    </head>
+    <body>
+""")
+
+# Re PDFs:
+# - The way in which xhtml2pdf copes with column widths
+#   is somewhat restricted: CSS only
+# - "height" not working for td
+# TABLE STYLING HELP:
+# http://www.somacon.com/p141.php
+# http://www.w3.org/Style/Tables/examples.html
+
+
+WEB_HEAD = COMMON_HEAD.substitute(
+    CAMCOPS_FAVICON_FILE=CAMCOPS_FAVICON_FILE,
+    CSS=CSS_BASE.substitute(merge_dicts(COMMON_DEFINITIONS, WEB_SIZES)),
+)
+PDF_HEAD_PORTRAIT = COMMON_HEAD.substitute(
+    CAMCOPS_FAVICON_FILE=CAMCOPS_FAVICON_FILE,
+    CSS=(
+        CSS_BASE.substitute(merge_dicts(COMMON_DEFINITIONS, PDF_SIZES)) +
+        PDF_PAGED_MEDIA_CSS.substitute(
+            merge_dicts(COMMON_DEFINITIONS, PDF_SIZES,
+                        {"ORIENTATION": "portrait"}))
+    ),
+)
+PDF_HEAD_LANDSCAPE = COMMON_HEAD.substitute(
+    CAMCOPS_FAVICON_FILE=CAMCOPS_FAVICON_FILE,
+    CSS=(
+        CSS_BASE.substitute(merge_dicts(COMMON_DEFINITIONS, PDF_SIZES)) +
+        PDF_PAGED_MEDIA_CSS.substitute(
+            merge_dicts(COMMON_DEFINITIONS, PDF_SIZES,
+                        {"ORIENTATION": "landscape"}))
+    ),
+)
+PDF_HEAD_NO_PAGED_MEDIA = COMMON_HEAD.substitute(
+    CAMCOPS_FAVICON_FILE=CAMCOPS_FAVICON_FILE,
+    CSS=CSS_BASE.substitute(merge_dicts(COMMON_DEFINITIONS, PDF_SIZES))
+)
+
+COMMON_END = "</body></html>"
+WEBEND = COMMON_END
+PDFEND = COMMON_END
+
+WKHTMLTOPDF_CSS = string.Template("""
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: $MAINFONTSIZE;  /* absolute */
+        line-height: $SMALLLINEHEIGHT;
+        padding: 0;
+        margin: 0;  /* use header-spacing / footer-spacing instead */
+    }
+    div {
+        font-size: $SMALLFONTSIZE;  /* relative */
+    }
+""").substitute(merge_dicts(COMMON_DEFINITIONS, PDF_SIZES))
+# http://stackoverflow.com/questions/11447672/fix-wkhtmltopdf-headers-clipping-content  # noqa
+
+WKHTMLTOPDF_OPTIONS = {
+    "page-size": "A4",
+    "margin-left": "20mm",
+    "margin-right": "20mm",
+    "margin-top": "21mm",  # from paper edge down to top of content?
+    # ... inaccurate
+    "margin-bottom": "24mm",  # from paper edge up to bottom of content?
+    # ... inaccurate
+    "header-spacing": "3",  # mm, from content up to bottom of header
+    "footer-spacing": "3",  # mm, from content down to top of footer
+}
+
+# =============================================================================
+# Other
+# =============================================================================
+
+SEPARATOR_HYPHENS = "-" * 79
+SEPARATOR_EQUALS = "=" * 79
+
+# =============================================================================
+# Table names used by modules that would otherwise have an interdependency
+# =============================================================================
+
+HL7MESSAGE_TABLENAME = "_hl7_message_log"

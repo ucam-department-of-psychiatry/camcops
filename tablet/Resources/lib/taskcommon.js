@@ -1,7 +1,7 @@
 // taskcommon.js
 
 /*
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -57,6 +57,7 @@ lang.extendPrototype(BaseTask, {
     _editable: true,
     _prohibitCommercial: false,
     _prohibitResearch: false,
+    _extrastringTaskname: "",
 
     // OTHER
 
@@ -315,6 +316,17 @@ lang.extendPrototype(BaseTask, {
                 this.getRespondentQuestionnaireBlock()
             ]
         };
+    },
+
+    XSTRING: function (name, defaultvalue) {
+        var extrastrings = require('table/extrastrings');
+        defaultvalue = defaultvalue || ("[" + this._extrastringTaskname +
+                                        ": " + name + "]");
+        return extrastrings.get(
+            this._extrastringTaskname,
+            name,
+            defaultvalue
+        );
     }
 
 });

@@ -1,7 +1,7 @@
 // ALLTASKS.js
 
 /*
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -447,6 +447,14 @@ exports.TASKLIST = {
         maintitle: L('t_ided3d'),
         subtitle: L('s_ided3d'),
         info: 'html/ided3d.html'
+    },
+    IESR: {
+        task: 'task/Iesr',
+        title: L('b_iesr'),
+        tables: ['iesr'],
+        maintitle: L('t_iesr'),
+        subtitle: L('s_iesr'),
+        info: 'html/iesr.html'
     },
     IRAC: {
         task: 'task/Irac',

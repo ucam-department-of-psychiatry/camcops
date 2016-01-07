@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# moca.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -232,14 +232,14 @@ class Moca(Task):
         totalscore = self.total_score()
         category = self.category()
 
-        h = self.get_standard_clinician_block(True, self.comments) + u"""
+        h = self.get_standard_clinician_block(True, self.comments) + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
         h += tr(WSTRING("total_score"), answer(totalscore) + " / 30")
         h += tr_qa(WSTRING("moca_category") + " <sup>[1]</sup>",
                    category)
-        h += u"""
+        h += """
                 </table>
             </div>
             <table class="taskdetail">
@@ -273,7 +273,7 @@ class Moca(Task):
         h += tr(WSTRING("moca_subscore_language"),
                 answer(language) + " / 3",
                 tr_class="subheading")
-        h += tr(u"Repeat sentence 1, repeat sentence 2, fluency to letter ‘F’",
+        h += tr("Repeat sentence 1, repeat sentence 2, fluency to letter ‘F’",
                 ", ".join([answer(x) for x in [self.q13, self.q14, self.q15]]))
 
         h += tr(WSTRING("moca_subscore_abstraction"),
@@ -359,8 +359,8 @@ class Moca(Task):
         )
 
         h += subheading_spanning_two_columns(WSTRING("moca_education_s"))
-        h += tr_qa(u"≤12 years’ education?", self.education12y_or_less)
-        h += u"""
+        h += tr_qa("≤12 years’ education?", self.education12y_or_less)
+        h += """
             </table>
             <table class="taskdetail">
         """
@@ -380,7 +380,7 @@ class Moca(Task):
             td("", td_class="subheading"),
             literal=True,
         )
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] Normal is ≥26 (Nasreddine et al. 2005, PubMed ID 15817019).

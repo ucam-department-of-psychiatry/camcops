@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# set -e
+
 VERBOSE=false
 
 #==============================================================================
@@ -49,13 +51,14 @@ PYLINT_OPTIONS=--output-format=parseable
 PYCHECKER_OPTIONS=
 PYFLAKES_OPTIONS=
 
-PYTHONFILES=$(find "$CAMCOPSROOT/server" -name "*.py" -not -path "$CAMCOPSROOT/server/debian/*")
+PYTHONFILES=$(find "$CAMCOPSROOT/server" -name "*.py" -not -path "$CAMCOPSROOT/server/debian/*" -not -path "$CAMCOPSROOT/server/playing/*")
 # http://stackoverflow.com/questions/4210042/exclude-directory-from-find-command
 export PYTHONPATH=$CAMCOPSROOT/server
 totallines=0
 for f in $PYTHONFILES; do
-    pyflakes $PYFLAKES_OPTIONS $f
-    pep8 $f
+    flake8 $f
+    # pyflakes $PYFLAKES_OPTIONS $f
+    # pep8 $f
     numlines=`wc $f | awk '{print $1}'`
     totallines=$((totallines + numlines))
     if $VERBOSE; then

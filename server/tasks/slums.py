@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# slums.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -211,13 +211,13 @@ class Slums(Task):
     def get_task_html(self):
         score = self.total_score()
         category = self.category()
-        h = self.get_standard_clinician_block(True, self.comments) + u"""
+        h = self.get_standard_clinician_block(True, self.comments) + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
         h += tr(WSTRING("total_score"), answer(score) + " / 30")
         h += tr_qa(WSTRING("category") + " <sup>[1]</sup>", category)
-        h += u"""
+        h += """
                 </table>
             </div>
             <table class="taskdetail">
@@ -232,26 +232,26 @@ class Slums(Task):
         h += tr_qa(WSTRING("slums_q1_s"), self.q1)
         h += tr_qa(WSTRING("slums_q2_s"), self.q2)
         h += tr_qa(WSTRING("slums_q3_s"), self.q3)
-        h += tr(u"Q5 <sup>[2]</sup> (money spent, money left "
-                u"[<i>scores 2</i>]",
-                u", ".join([answer(x) for x in [self.q5a, self.q5b]]))
-        h += tr_qa(u"Q6 (animal fluency) [<i>≥15 scores 3, 10–14 scores 2, "
-                   u"5–9 scores 1, 0–4 scores 0</i>]",
+        h += tr("Q5 <sup>[2]</sup> (money spent, money left "
+                "[<i>scores 2</i>]",
+                ", ".join([answer(x) for x in [self.q5a, self.q5b]]))
+        h += tr_qa("Q6 (animal fluency) [<i>≥15 scores 3, 10–14 scores 2, "
+                   "5–9 scores 1, 0–4 scores 0</i>]",
                    self.q6)
-        h += tr(u"Q7 (recall: apple, pen, tie, house, car)",
-                u", ".join([answer(x) for x in [self.q7a, self.q7b, self.q7c,
-                                                self.q7d, self.q7e]]))
-        h += tr(u"Q8 (backwards: 648, 8537)",
-                u", ".join([answer(x) for x in [self.q8b, self.q8c]]))
-        h += tr(u"Q9 (clock: hour markers, time [<i>score 2 each</i>]",
-                u", ".join([answer(x) for x in [self.q9a, self.q9b]]))
-        h += tr(u"Q10 (X in triangle; which is biggest?)",
-                u", ".join([answer(x) for x in [self.q10a, self.q10b]]))
-        h += tr(u"Q11 (story: Female’s name? Job? When back to work? "
-                u"State she lived in? [<i>score 2 each</i>])",
-                u", ".join([answer(x) for x in [self.q11a, self.q11b,
-                                                self.q11c, self.q11d]]))
-        h += u"""
+        h += tr("Q7 (recall: apple, pen, tie, house, car)",
+                ", ".join([answer(x) for x in [self.q7a, self.q7b, self.q7c,
+                                               self.q7d, self.q7e]]))
+        h += tr("Q8 (backwards: 648, 8537)",
+                ", ".join([answer(x) for x in [self.q8b, self.q8c]]))
+        h += tr("Q9 (clock: hour markers, time [<i>score 2 each</i>]",
+                ", ".join([answer(x) for x in [self.q9a, self.q9b]]))
+        h += tr("Q10 (X in triangle; which is biggest?)",
+                ", ".join([answer(x) for x in [self.q10a, self.q10b]]))
+        h += tr("Q11 (story: Female’s name? Job? When back to work? "
+                "State she lived in? [<i>score 2 each</i>])",
+                ", ".join([answer(x) for x in [self.q11a, self.q11b,
+                                               self.q11c, self.q11d]]))
+        h += """
             </table>
             <table class="taskdetail">
         """
@@ -263,7 +263,7 @@ class Slums(Task):
                td_width="50%", td_class="photo"),
             literal=True
         )
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] With high school education:

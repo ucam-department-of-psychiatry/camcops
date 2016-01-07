@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# cc_xml.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -24,19 +24,19 @@
 import base64
 import xml.sax.saxutils
 
-import cc_db
-import cc_namedtuples
+from . import cc_db
+from . import cc_namedtuples
 
 # =============================================================================
 # Constants
 # =============================================================================
 
-XML_COMMENT_ANONYMOUS = u"<!-- Anonymous task; no patient info -->"
-XML_COMMENT_BLOBS = u"<!-- Associated BLOBs -->"
-XML_COMMENT_CALCULATED = u"<!-- Calculated fields -->"
-XML_COMMENT_PATIENT = u"<!-- Associated patient details -->"
-XML_COMMENT_SPECIAL_NOTES = u"<!-- Any special notes added -->"
-XML_COMMENT_STORED = u"<!-- Stored fields -->"
+XML_COMMENT_ANONYMOUS = "<!-- Anonymous task; no patient info -->"
+XML_COMMENT_BLOBS = "<!-- Associated BLOBs -->"
+XML_COMMENT_CALCULATED = "<!-- Calculated fields -->"
+XML_COMMENT_PATIENT = "<!-- Associated patient details -->"
+XML_COMMENT_SPECIAL_NOTES = "<!-- Any special notes added -->"
+XML_COMMENT_STORED = "<!-- Stored fields -->"
 
 XML_NAMESPACES = [
     ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'
@@ -156,8 +156,8 @@ def get_xml_tree(element, level=0, indent_spaces=4, eol='\n',
     # Comments:
     # - http://blog.galasoft.ch/posts/2010/02/quick-tip-commenting-out-properties-in-xaml/  # noqa
     # - http://stackoverflow.com/questions/2073140/
-    xml = u""
-    prefix = u' ' * level * indent_spaces
+    xml = ""
+    prefix = ' ' * level * indent_spaces
 
     if isinstance(element, cc_namedtuples.XmlElementTuple):
 
@@ -181,7 +181,7 @@ def get_xml_tree(element, level=0, indent_spaces=4, eol='\n',
         # Assemble
         if element.value is None:
             # NULL handling
-            xml += u'{pr}<{name}{attributes} xsi:nil="true"/>{eol}'.format(
+            xml += '{pr}<{name}{attributes} xsi:nil="true"/>{eol}'.format(
                 name=element.name,
                 pr=prefix,
                 eol=eol,
@@ -199,8 +199,8 @@ def get_xml_tree(element, level=0, indent_spaces=4, eol='\n',
             nl = eol if complex_value else ""
             pr2 = prefix if complex_value else ""
             xml += (
-                u'{pr}<{name}{attributes}>{nl}'
-                u'{value}{pr2}</{name}>{eol}'.format(
+                '{pr}<{name}{attributes}>{nl}'
+                '{value}{pr2}</{name}>{eol}'.format(
                     name=element.name,
                     pr=prefix,
                     eol=eol,
@@ -225,14 +225,14 @@ def get_xml_tree(element, level=0, indent_spaces=4, eol='\n',
 
     elif isinstance(element, cc_namedtuples.XmlSimpleValue):
         # The lowest-level thing a value. No extra indent.
-        xml += xml_escape_value(unicode(element.value))
+        xml += xml_escape_value(str(element.value))
         # Regarding newlines: no need to do anything special (although some
         # browsers may fail to display them correctly):
         # http://stackoverflow.com/questions/2004386
 
     else:
         # A user-inserted piece of XML. Insert, but indent.
-        xml += prefix + unicode(element) + eol
+        xml += prefix + str(element) + eol
 
     return xml
 

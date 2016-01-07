@@ -1,0 +1,15 @@
+gcc  # gcc is not standard on CentOS, but is necessary for installation of other packages
+ImageMagick-devel
+openssl-devel
+libxml2-devel
+libxslt-devel
+python
+python3
+python-devel
+supervisor
+swig
+wget
+
+
+# For yum, some different names. Search e.g. with "yum list scip\*" or "yum search scipy" to find scipy
+# pyodbc requires {sql.h sqlext.h} which requires unixodbc-dev (Debian) or unixODBC-devel (CentOS)

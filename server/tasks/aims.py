@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# aims.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -120,18 +120,18 @@ class Aims(Task):
         MAIN_DICT = {None: None}
         Q10_DICT = {None: None}
         for option in range(0, 5):
-            MAIN_DICT[option] = str(option) + u" — " + \
+            MAIN_DICT[option] = str(option) + " — " + \
                 WSTRING("aims_main_option" + str(option))
-            Q10_DICT[option] = str(option) + u" — " + \
+            Q10_DICT[option] = str(option) + " — " + \
                 WSTRING("aims_q10_option" + str(option))
-        h = self.get_standard_clinician_block() + u"""
+        h = self.get_standard_clinician_block() + """
             <div class="summary">
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
         h += tr(WSTRING("total_score") + " <sup>[1]</sup>",
                 answer(score) + " / 40")
-        h += u"""
+        h += """
                 </table>
             </div>
             <table class="taskdetail">
@@ -147,7 +147,7 @@ class Aims(Task):
             tr_qa(WSTRING("aims_q10_s"), get_from_dict(Q10_DICT, self.q10))
             + tr_qa(WSTRING("aims_q11_s"), get_yes_no_none(self.q11))
             + tr_qa(WSTRING("aims_q12_s"), get_yes_no_none(self.q12))
-            + u"""
+            + """
                 </table>
                 <div class="footnotes">
                     [1] Only Q1–10 are scored.

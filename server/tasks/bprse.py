@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# bprse.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -115,23 +115,23 @@ class Bprse(Task):
     def get_task_html(self):
         MAIN_DICT = {
             None: None,
-            0: u"0 — " + WSTRING("bprsold_option0"),
-            1: u"1 — " + WSTRING("bprsold_option1"),
-            2: u"2 — " + WSTRING("bprsold_option2"),
-            3: u"3 — " + WSTRING("bprsold_option3"),
-            4: u"4 — " + WSTRING("bprsold_option4"),
-            5: u"5 — " + WSTRING("bprsold_option5"),
-            6: u"6 — " + WSTRING("bprsold_option6"),
-            7: u"7 — " + WSTRING("bprsold_option7")
+            0: "0 — " + WSTRING("bprsold_option0"),
+            1: "1 — " + WSTRING("bprsold_option1"),
+            2: "2 — " + WSTRING("bprsold_option2"),
+            3: "3 — " + WSTRING("bprsold_option3"),
+            4: "4 — " + WSTRING("bprsold_option4"),
+            5: "5 — " + WSTRING("bprsold_option5"),
+            6: "6 — " + WSTRING("bprsold_option6"),
+            7: "7 — " + WSTRING("bprsold_option7")
         }
-        h = self.get_standard_clinician_block() + u"""
+        h = self.get_standard_clinician_block() + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
         h += tr(WSTRING("total_score") +
-                u" (0–168; 24–168 if all rated)",
+                " (0–168; 24–168 if all rated)",
                 answer(self.total_score()))
-        h += u"""
+        h += """
                 </table>
             </div>
             <div class="explanation">
@@ -149,7 +149,7 @@ class Bprse(Task):
                 WSTRING("bprse_q" + str(i) + "_s"),
                 get_from_dict(MAIN_DICT, getattr(self, "q" + str(i)))
             )
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] All answers are in the range 1–7, or 0 (not assessed, for

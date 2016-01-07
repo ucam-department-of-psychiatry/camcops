@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# service_satisfaction.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -67,13 +67,13 @@ class AbstractSatisfaction(object):
 
     def get_common_task_html(self, rating_q, good_q, bad_q):
         if self.rating is not None:
-            r = u"{}. {}".format(self.rating, self.get_rating_text())
+            r = "{}. {}".format(self.rating, self.get_rating_text())
         else:
             r = None
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
-        """ + self.get_is_complete_tr() + u"""
+        """ + self.get_is_complete_tr() + """
                 </table>
             </div>
             <table class="taskdetail">
@@ -83,10 +83,10 @@ class AbstractSatisfaction(object):
                 </tr>
         """
         h += tr_qa(WSTRING("service_being_rated"), self.service)
-        h += tr_qa(u"{} {}?".format(rating_q, self.service), r)
+        h += tr_qa("{} {}?".format(rating_q, self.service), r)
         h += tr_qa(good_q, self.good)
         h += tr_qa(bad_q, self.bad)
-        h += u"""
+        h += """
             </table>
         """
         return h

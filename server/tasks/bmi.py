@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# bmi.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -125,7 +125,7 @@ class Bmi(Task):
         if not self.is_complete():
             return CTV_DICTLIST_INCOMPLETE
         return [{
-            "content":  u"BMI: {} kg⋅m<sup>–2</sup> [{}]. Mass: {} kg. "
+            "content":  "BMI: {} kg⋅m<sup>–2</sup> [{}]. Mass: {} kg. "
                         "Height: {} m.".format(
                             ws.number_to_dp(self.bmi(), BMI_DP),
                             self.category(),
@@ -174,7 +174,7 @@ class Bmi(Task):
             return WSTRING("bmi_underweight_under_13")
 
     def get_task_html(self):
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
         """
@@ -182,7 +182,7 @@ class Bmi(Task):
         h += tr_qa("BMI (kg/m<sup>2</sup>)",
                    ws.number_to_dp(self.bmi(), BMI_DP))
         h += tr_qa("Category <sup>[1]</sup>", self.category())
-        h += u"""
+        h += """
                 </table>
             </div>
             <table class="taskdetail">
@@ -190,7 +190,7 @@ class Bmi(Task):
         h += tr_qa("Mass (kg)", ws.number_to_dp(self.mass_kg, KG_DP))
         h += tr_qa("Height (m)", ws.number_to_dp(self.height_m, M_DP))
         h += tr_qa("Comment", ws.webify(self.comment))
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] Categorization <b>for adults</b> (square brackets

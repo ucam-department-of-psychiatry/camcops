@@ -1,10 +1,9 @@
 camcops (1.40-1) all; urgency=low
 
+  * From May 2015 to Jan 2016.
   * REQUIRES COMMAND TO UPGRADE EACH DATABASE:
         camcops --maketables /etc/camcops/MYCONFIGNAME.conf
   * Brief COPE Inventory.
-  * EXTRA_STRING_FILES system, with "get_extra_strings" command to database
-    API.
   * CBI-R.
   * ZBI (data collection tool only with option for institution to supply text).
   * HADS (data collection tool only with option for institution to supply
@@ -17,33 +16,56 @@ camcops (1.40-1) all; urgency=low
   * IRAC
   * MDS-UPDRS (data collection tool only)
   * GDS-15
+  * DEMQOL
+  * DEMQOL-Proxy
+  * Default "respondent" framework, for DEMQOL-Proxy.
+  * Bugfix to ProgressNote: get_task_html() crashed because "answer" was not
+    imported.
+  * EXTRA_STRING_FILES system, with "get_extra_strings" command to database
+    API.
+  * PHQ-9 database comment fixed for Q10.
+  * comment_fmt for HADS fields. Note MySQL: SHOW FULL COLUMNS FROM table.
   * Unit tests to ensure no overlap for task longnames/shortnames/tables; see
     cc_task.unit_tests().
   * clinician_service field as part of clinician block
-  * Bugfix to ProgressNote: get_task_html() crashed because "answer" was not
-    imported.
   * xhtml2pdf @page size changed from "a4" to "A4" in cc_html.py to remove
     "WARNING:xhtml2pdf:Unknown size value for @page"; see
     https://github.com/chrisglass/xhtml2pdf/issues/71 ... however, no effect.
   * Switch from xhtml2pdf, bypassing Weasyprint, to wkhtmltopdf (via pdfkit) as
-    the default PDF renderer.
+    the (default and now only) PDF renderer.
   * Abstract base class for PCL tasks wasn't inheriting from object; now is.
   * editing_time_s field for all tasks.
   * Indexing of ID number fields in patient table.
   * Python package format internally.
   * Did not implement SVG logos for PDF generation; made files larger not
     smaller. Stick with PNG.
-  * PHQ-9 database comment fixed for Q10.
-  * comment_fmt for HADS fields. Note MySQL: SHOW FULL COLUMNS FROM table.
-  * DEMQOL
-  * DEMQOL-Proxy
-  * Default "respondent" framework, for DEMQOL-Proxy.
   * Remove delayed imports; bug-prone.
     http://stackoverflow.com/questions/744373
     Except in cc_hl7, which imports phq9 for testing (which imports specific
     things from cc_task, which imports cc_hl7).
+    ... subsequently revisited; delayed imports now remain only for unit tests,
+    where they are more convenient.
+  * Refresh button for tasks (because browsers keep asking you twice if you hit
+    F5).
+  * EXTRA_STRING_FILES can use globs (in cc_string.py).
+  * Updated to current pythonlib.
+  * Python build toolchain.
+  * Moved to Python 3.
+  * Supplied with Gunicorn, to enable front-end web servers like Apache to
+    talk to CamCOPS, and have CamCOPS upgrade/restart, without having to (a)
+    restart Apache, or (b) integrate a specific Python version into Apache
+    with mod_wsgi. The new system runs in a virtual environment, entirely
+    separated (in terms of code) from the front-end web server, communicating
+    with it via a private port or Unix socket.
+  * Change to relative URL addressing to make that work simply (without having
+    to tell CamCOPS where it's mounted).
+  * ALLOW_INSECURE_COOKIES debugging option.
+  * Removed the "Tablet device" filter option for tasks (it generates long
+    complex-looking lists of IDs and isn't helpful for end users). Removal
+    done simply by taking the option out of the form, in
+    cc_session.get_current_filter_html().
 
- -- Rudolf Cardinal <rudolf@pobox.com>  Thu, 28 May 2015 11:09:00 +0000
+ -- Rudolf Cardinal <rudolf@pobox.com>  Mon, 04 Jan 2016 22:13:00 +0000
 
 camcops (1.34-1) all; urgency=medium
 

@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# icd10mixed.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -74,8 +74,8 @@ class Icd10Mixed(Task):
     @classmethod
     def get_tasklongname(cls):
         return (
-            u"ICD-10 symptomatic criteria for a mixed affective episode "
-            u"(as in e.g. F06.3, F25, F38.00, F31.6)"
+            "ICD-10 symptomatic criteria for a mixed affective episode "
+            "(as in e.g. F06.3, F25, F38.00, F31.6)"
         )
 
     @classmethod
@@ -125,7 +125,7 @@ class Icd10Mixed(Task):
         )
 
     def get_task_html(self):
-        h = self.get_standard_clinician_block(True, self.comments) + u"""
+        h = self.get_standard_clinician_block(True, self.comments) + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
@@ -134,13 +134,13 @@ class Icd10Mixed(Task):
                                           DATEFORMAT.LONG_DATE, default=None))
         h += tr_qa(WSTRING("meets_criteria"),
                    get_true_false_none(self.meets_criteria()))
-        h += u"""
+        h += """
                 </table>
             </div>
             <div class="explanation">
         """
         h += WSTRING("icd10_symptomatic_disclaimer")
-        h += u"""
+        h += """
             </div>
             <table class="taskdetail">
                 <tr>
@@ -154,7 +154,7 @@ class Icd10Mixed(Task):
         h += self.get_twocol_bool_row_true_false(
             "duration_at_least_2_weeks", WSTRING("icd10mixed_b"))
 
-        h += u"""
+        h += """
             </table>
         """ + ICD10_COPYRIGHT_DIV
         return h

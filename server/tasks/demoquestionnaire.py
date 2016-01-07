@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# demoquestionnaire.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -45,7 +45,7 @@ N_SLIDER = 2
 
 
 def divtest(divname):
-    return u'<div class="{d}">.{d}</div>\n'.format(d=divname)
+    return '<div class="{d}">.{d}</div>\n'.format(d=divname)
 
 
 class DemoQuestionnaire(Task):
@@ -114,7 +114,7 @@ class DemoQuestionnaire(Task):
         return True
 
     def get_task_html(self):
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
                     {}
@@ -165,7 +165,7 @@ class DemoQuestionnaire(Task):
                                          rotationfieldname="photo_rotation")
         h += self.get_twocol_picture_row("canvas_blobid",
                                          rotationfieldname=None)
-        h += u"""
+        h += """
             </table>
 
             <div>
@@ -180,8 +180,8 @@ class DemoQuestionnaire(Task):
             <div>
                 Plain div with <sup>superscript</sup> and <sub>subscript</sub>.
                 <br>
-                Answers look like this: """ + answer("Answer") + u"""<br>
-                Missing answers look liks this: """ + answer(None) + u"""<br>
+                Answers look like this: """ + answer("Answer") + """<br>
+                Missing answers look liks this: """ + answer(None) + """<br>
             </div>
         """
         h += divtest("badidpolicy_mild")
@@ -211,7 +211,7 @@ class DemoQuestionnaire(Task):
         h += divtest("trackerheader")
         h += divtest("tracker_all_consistent")
         h += divtest("warning")
-        h += u"""
+        h += """
             <table>
                 <tr>
                     <th>Standard table heading; column 1</th><th>Column 2</th>

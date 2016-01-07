@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# diagnosis.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -22,7 +22,7 @@
 """
 
 import pythonlib.rnc_web as ws
-from cc_modules.cc_hl7 import make_dg1_segment
+from cc_modules.cc_hl7core import make_dg1_segment
 from cc_modules.cc_html import (
     answer,
     tr,
@@ -130,7 +130,7 @@ class DiagnosisBase(object):
 
     def get_task_html(self):
         items = self.get_items()
-        html = self.get_standard_clinician_block() + u"""
+        html = self.get_standard_clinician_block() + """
             <div class="summary">
                 <table class="summary">
                     {}
@@ -157,8 +157,8 @@ class DiagnosisBase(object):
         items = self.get_items()
         for item in items:
             fielddictlist.append({
-                "content": u"<b>{}</b>: {}".format(ws.webify(item.code),
-                                                   ws.webify(item.description))
+                "content": "<b>{}</b>: {}".format(ws.webify(item.code),
+                                                  ws.webify(item.description))
             })
         return fielddictlist
 

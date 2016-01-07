@@ -1,8 +1,8 @@
-#!/usr/bin/python2.7
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# cc_configfile.py
 
 """
-    Copyright (C) 2012-2015 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
@@ -21,10 +21,10 @@
     limitations under the License.
 """
 
-import ConfigParser
+import configparser
 import logging
 
-from cc_logger import logger
+from .cc_logger import logger
 
 
 # =============================================================================
@@ -32,10 +32,10 @@ from cc_logger import logger
 # =============================================================================
 
 def get_config_parameter(config, section, param, fn, default):
-    """Fetch parameter from ConfigParser INI file.
+    """Fetch parameter from configparser INI file.
 
     Args:
-        config: ConfigParser object
+        config: configparser object
         section: name of INI file section
         param: name of parameter within section
         fn: function to apply to string parameter (e.g. int)
@@ -45,7 +45,7 @@ def get_config_parameter(config, section, param, fn, default):
     """
     try:
         value = fn(config.get(section, param))
-    except (TypeError, ValueError, ConfigParser.NoOptionError):
+    except (TypeError, ValueError, configparser.NoOptionError):
         logger.warning("Configuration variable {} not found or improper; "
                        "using default of {}".format(param, default))
         if default is None:
@@ -56,10 +56,10 @@ def get_config_parameter(config, section, param, fn, default):
 
 
 def get_config_parameter_boolean(config, section, param, default):
-    """Get Boolean parameter from ConfigParser INI file.
+    """Get Boolean parameter from configparser INI file.
 
     Args:
-        config: ConfigParser object
+        config: configparser object
         section: name of INI file section
         param: name of parameter within section
         default: default value
@@ -68,7 +68,7 @@ def get_config_parameter_boolean(config, section, param, default):
     """
     try:
         value = config.getboolean(section, param)
-    except (TypeError, ValueError, ConfigParser.NoOptionError):
+    except (TypeError, ValueError, configparser.NoOptionError):
         logger.warning("Configuration variable {} not found or improper; "
                        "using default of {}".format(param, default))
         value = default
@@ -76,10 +76,10 @@ def get_config_parameter_boolean(config, section, param, default):
 
 
 def get_config_parameter_loglevel(config, section, param, default):
-    """Get loglevel parameter from ConfigParser INI file.
+    """Get loglevel parameter from configparser INI file.
 
     Args:
-        config: ConfigParser object
+        config: configparser object
         section: name of INI file section
         param: name of parameter within section
         default: default value
@@ -100,7 +100,7 @@ def get_config_parameter_loglevel(config, section, param, default):
             return logging.CRITICAL  # 50
         else:
             raise ValueError
-    except (TypeError, ValueError, ConfigParser.NoOptionError, AttributeError):
+    except (TypeError, ValueError, configparser.NoOptionError, AttributeError):
         logger.warning("Configuration variable {} not found or improper; "
                        "using default of {}".format(param, default))
         return default
@@ -110,7 +110,7 @@ def get_config_parameter_multiline(config, section, param, default):
     try:
         multiline = config.get(section, param)
         return [x.strip() for x in multiline.splitlines() if x.strip()]
-    except (TypeError, ValueError, ConfigParser.NoOptionError):
+    except (TypeError, ValueError, configparser.NoOptionError):
         logger.warning("Configuration variable {} not found or improper; "
                        "using default of {}".format(param, default))
         return default

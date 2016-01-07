@@ -1,16 +1,12 @@
-#!/usr/bin/python
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
+# __init__.py
 
 """
-__init__.py
+    Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
+    Department of Psychiatry, University of Cambridge.
+    Funded by the Wellcome Trust.
 
-Author: Rudolf Cardinal (rudolf@pobox.com)
-Created: 23 June 2015
-Last update: 23 June 2015
-
-Copyright/licensing:
-
-    Copyright (C) 2015-2015 Rudolf Cardinal (rudolf@pobox.com).
+    This file is part of CamCOPS.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
