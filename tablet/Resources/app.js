@@ -124,6 +124,18 @@ function launch_camcops() {
     ensure_disclaimer_agreed();
 }
 
+/*
+// Doesn't work - wait is shown only after main menu loads!
+function mobileweb_loading_wait() {
+    var uifunc = require('lib/uifunc'),
+        win = Titanium.UI.createWindow(),
+        wait = uifunc.createWait({window: win});
+    wait.show();
+    win.open();
+    launch_camcops();
+}
+*/
+
 function camcops() {
     Titanium.API.info("CamCOPS starting");
     var floatTitaniumVersion = parseFloat(Titanium.version),

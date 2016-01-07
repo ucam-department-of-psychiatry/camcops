@@ -24,10 +24,13 @@
 "use strict";
 /*global Titanium, L */
 
-var TYPE_CHOOSE_PATIENT = 'choose',
+var platform = require('lib/platform'),
+    NO_SECTIONS = platform.mobileweb,
+    // ... workaround for: https://jira.appcelerator.org/browse/TIMOB-18112
+    TYPE_CHOOSE_PATIENT = 'choose',
     TYPE_INFO = 'info',
-    TYPE_TASK = 'task',
-    TASK_SECTION = 1; // tasks are in the second section of the table
+    TYPE_TASK = 'task';
+    // TASK_SECTION = 1; // tasks are in the second section of the table
 
 function sortfunction(a, b) { // comparing two tasks
     var x = a.dateRaw,
@@ -58,6 +61,19 @@ function deselect_row(row) {
     row.selected = false;
 }
 
+/*
+function dump(x) {
+    // Deals with circular objects more happily!
+    var debugfunc = require('lib/debugfunc');
+    debugfunc.dumpObject(x, {
+        traceNotReturnString: true,
+        showLevelNotDots: true,
+        maxDepth: 2,
+        lineLimit: 1000
+    });
+}
+*/
+
 function taskInfoFromTask(task, taskType, taskTitle, addPatientName,
                           showFinishFlag) {
     return {
@@ -72,6 +88,26 @@ function taskInfoFromTask(task, taskType, taskTitle, addPatientName,
         showFinishFlag: showFinishFlag,
         finishFlag: showFinishFlag && task.getMoveOffTablet()
     };
+}
+
+function makeChoosePatient() {
+    var MenuTableRow = require('menulib/MenuTableRow'),
+        UICONSTANTS = require('common/UICONSTANTS');
+    return new MenuTableRow({
+        maintitle: L('menutitle_choose_patient'),
+        icon: UICONSTANTS.ICON_CHOOSE_PATIENT,
+        rowType: TYPE_CHOOSE_PATIENT
+    });
+}
+
+function makeTaskInfo() {
+    var MenuTableRow = require('menulib/MenuTableRow'),
+        UICONSTANTS = require('common/UICONSTANTS');
+    return new MenuTableRow({
+        maintitle: L('task_info'),
+        icon: UICONSTANTS.ICON_INFO,
+        rowType: TYPE_INFO
+    });
 }
 
 //var instanceCounter = 1;
@@ -113,6 +149,7 @@ function TaskWindowCommon(isPatientSummary, tasktype, tasktitle, taskhtml) {
     this.isPatientSummary = isPatientSummary;
     this.tasktitle = tasktitle;
     this.taskhtml = taskhtml;
+    this.taskrows = [];
 
     this.TaskClass = null;
     this.dummytask = null;
@@ -512,11 +549,12 @@ TaskWindowCommon.prototype = {
     },
 
     getSelectedTask: function () {
-        if (this.selectedIndex === null) {
+        if (this.selectedIndex === null || this.selectedIndex < 0 ||
+                this.selectedIndex >= this.taskrows.length) {
             return null;
         }
         this.wait.show();
-        var row = this.tableview.data[TASK_SECTION].rows[this.selectedIndex],
+        var row = this.taskrows[this.selectedIndex],
             id = row.taskID,
             task,
             taskType,
@@ -538,31 +576,21 @@ TaskWindowCommon.prototype = {
         // ... http://developer.appcelerator.com/question/122893/tableview---data-property
         // ... http://developer.appcelerator.com/question/9121/getting-tableview-data-array
 
-        /*
-        debugfunc.dumpObject(tableview.data, {
-            traceNotReturnString: true,
-            showLevelNotDots: true,
-            maxDepth: 2,
-            lineLimit: 1000,
-        });
-        */
+        // Titanium.API.trace("select_by_index()");
+        // dump(this.tableview.data); // on mobileweb: useless
 
         if (this.selectedIndex !== null) {
             // don't use if (this.selectedIndex)! That returns false for 0.
             if (this.selectedIndex === index) {
                 return; // nothing to do
             }
-            // *** The following lookup fails in mobileweb
-            // ("Cannot read property '0' of undefined")
-            deselect_row(
-                this.tableview.data[TASK_SECTION].rows[this.selectedIndex]
-            );
+            deselect_row(this.taskrows[this.selectedIndex]);
         }
         this.selectedIndex = index;
         if (this.selectedIndex === null) {
             return;
         }
-        select_row(this.tableview.data[TASK_SECTION].rows[this.selectedIndex]);
+        select_row(this.taskrows[this.selectedIndex]);
         // this.tableview.scrollToIndex(selectedIndex);
         this.set_button_states();
     },
@@ -582,8 +610,17 @@ TaskWindowCommon.prototype = {
         // Titanium.API.trace("TaskWindowCommon: tableview clicked: e props = " + uifunc.dumpProps(e));
         // Titanium.API.trace("TaskWindowCommon: tableview clicked: source = " + e.source);
         // other more basic way: if (e.source && e.source.rowType) { ... }
+
+        // Titanium.API.trace("TaskWindowCommon: rowClicked: e:");
+        // dump(e);
+        // Titanium.API.trace("TaskWindowCommon: rowClicked: r:");
+        // dump(r);
         if (r) {
-            // Titanium.API.trace("TaskWindowCommon: tableview clicked: row data = " + r);
+            // MobileWeb, Sep 2015: r is circular; avoid JSON.stringify
+            //Titanium.API.trace(
+            //    "TaskWindowCommon: tableview clicked: row data = " +
+            //    JSON.stringify(r)
+            //);
             if (r.rowType === TYPE_CHOOSE_PATIENT) {
                 uifunc.choosePatient();
             } else if (r.rowType === TYPE_INFO) {
@@ -599,9 +636,7 @@ TaskWindowCommon.prototype = {
     repopulate: function () {
         this.repopulating_wait.show();
         var GV = require('common/GV'),
-            MenuTableRow = require('menulib/MenuTableRow'),
             TaskRow = require('menulib/TaskRow'),
-            UICONSTANTS = require('common/UICONSTANTS'),
             taskdata = [],
             i,
             ALLTASKS,
@@ -614,15 +649,24 @@ TaskWindowCommon.prototype = {
             singletaskdata,
             tasks = [],
             addPatientName = false,
-            sectionTools = Titanium.UI.createTableViewSection({
-                headerTitle: L('options')
-            }),
-            sectionList = Titanium.UI.createTableViewSection({
-                headerTitle: L('task_list') + (
-                    this.isPatientSummary ? "" : (": " + this.tasktitle)
-                )
-            });
-        // Gather task instances
+            sectionTools = (
+                NO_SECTIONS
+                ? null
+                : Titanium.UI.createTableViewSection({headerTitle: L('options')})
+            ),
+            sectionList = (
+                NO_SECTIONS
+                ? null
+                : Titanium.UI.createTableViewSection({
+                        headerTitle: L('task_list') + (
+                            this.isPatientSummary ? "" : (": " + this.tasktitle)
+                        )
+                    })
+            ),
+            noSectionArray = [];
+
+        this.taskrows = [];
+        // Gather task instances info into taskdata
         if (this.isPatientSummary) {
             if (GV.selected_patient_id !== null) {
                 ALLTASKS = require('common/ALLTASKS');
@@ -684,31 +728,36 @@ TaskWindowCommon.prototype = {
         Titanium.API.trace("TaskWindowCommon.repopulate(): found " +
                            taskdata.length + " records");
 
-        // Tools
-        if (!this.anonymous) {
-            sectionTools.add(new MenuTableRow({
-                maintitle: L('menutitle_choose_patient'),
-                icon: UICONSTANTS.ICON_CHOOSE_PATIENT,
-                rowType: TYPE_CHOOSE_PATIENT
-            }));
-        }
-        if (!this.isPatientSummary) {
-            sectionTools.add(new MenuTableRow({
-                maintitle: L('task_info'),
-                icon: UICONSTANTS.ICON_INFO,
-                rowType: TYPE_INFO
-            }));
-        }
-
-        // Task list
+        // Tasks
         for (i = 0; i < taskdata.length; ++i) {
             taskdata[i].rowIndex = i;
             taskdata[i].rowType = TYPE_TASK;
-            sectionList.add(new TaskRow(taskdata[i]));
+            this.taskrows.push(new TaskRow(taskdata[i]));
+        }
+        if (NO_SECTIONS) {
+            if (!this.anonymous) {
+                noSectionArray.push(makeChoosePatient());
+            }
+            if (!this.isPatientSummary) {
+                noSectionArray.push(makeTaskInfo());
+            }
+            for (i = 0; i < this.taskrows.length; ++i) {
+                noSectionArray.push(this.taskrows[i]);
+            }
+            this.tableview.setData(noSectionArray);
+        } else {
+            if (!this.anonymous) {
+                sectionTools.add(makeChoosePatient());
+            }
+            if (!this.isPatientSummary) {
+                sectionTools.add(makeTaskInfo());
+            }
+            for (i = 0; i < this.taskrows.length; ++i) {
+                sectionList.add(this.taskrows[i]);
+            }
+            this.tableview.setData([sectionTools, sectionList]);
         }
 
-        // Redisplay
-        this.tableview.setData([sectionTools, sectionList]);
         this.selectedIndex = null;
             // We can't maintain a selection index through a repopulate() call,
             // because even the selected patient might have changed.

@@ -107,6 +107,8 @@ Version history (new to old)
   See fix in http://stackoverflow.com/questions/31572405/error-access-to-extended-visibility-flags-denied-requires-com-sonymobile-permis
   i.e. tiapp.xml: <uses-permission android:name="com.sony.mobile.permission.SYSTEM_UI_VISIBILITY_EXTENSION" />
 - Javascript code meets JSLint (2014) prohibition on trailing commas.
+- Altered TaskWindowCommon.js to get round Titanium MobileWeb bug preventing
+  use of sections in tables; https://jira.appcelerator.org/browse/TIMOB-18112
 
 1.34 (2015-04-26)
 - Probable bugfix: IDED3D performed its stage failure check before its stage
