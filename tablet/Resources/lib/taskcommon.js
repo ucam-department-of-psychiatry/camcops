@@ -434,6 +434,20 @@ function totalScore(object, prefix, start, end) {
 }
 exports.totalScore = totalScore;
 
+function totalScoreFromSuffixArray(object, prefix, suffixes) {
+    var i,
+        value,
+        total = 0;
+    for (i = 0; i < suffixes.length; ++i) {
+        value = object[prefix + suffixes[i]];
+        if (value !== null) {
+            total += value;
+        }
+    }
+    return total;
+}
+exports.totalScoreFromSuffixArray = totalScoreFromSuffixArray;
+
 function asBinary(object, field) {
     return object[field] ? 1 : 0;
 }

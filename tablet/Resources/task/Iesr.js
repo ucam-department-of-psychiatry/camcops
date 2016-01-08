@@ -30,10 +30,13 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
     lang = require('lib/lang'),
     tablename = "iesr",
     fieldlist = dbcommon.standardTaskFields(),
-    nquestions = 22;
+    nquestions = 22,
+    AVOIDANCE_QUESTIONS = [5, 7, 8, 11, 12, 13, 17, 22],
+    INTRUSION_QUESTIONS = [1, 2, 3, 6, 9, 16, 20],
+    HYPERAROUSAL_QUESTIONS = [4, 10, 14, 15, 18, 19, 21];
 
 fieldlist.push(
-    {name: 'event', type: DBCONSTANTS.TYPE_TEXT},
+    {name: 'event', type: DBCONSTANTS.TYPE_TEXT}
 );
 dbcommon.appendRepeatedFieldDef(fieldlist, "q", 1, nquestions,
                                 DBCONSTANTS.TYPE_INTEGER);
@@ -78,25 +81,38 @@ lang.extendPrototype(Iesr, {
 
     // OTHER
 
-    isCompleteResponder: function () {
-        return this.responder_name && this.responder_relationship;
-    },
-
-    isCompleteQuestions: function () {
-        return taskcommon.isComplete(this, "q", 1, nquestions);
-    },
-
-    getRelationship: function () {
-        return this.responder_relationship || "";
-    },
-
     // Standard task functions
     isComplete: function () {
-        return this.isCompleteResponder() && this.isCompleteQuestions();
+        return this.event && taskcommon.isComplete(this, "q", 1, nquestions);
+    },
+
+    getTotalScore: function () {
+        return taskcommon.totalScore(this, "q", 1, nquestions);
+    },
+
+    getAvoidanceScore: function () {
+        return taskcommon.totalScoreFromSuffixArray(this, "q",
+                                                    AVOIDANCE_QUESTIONS);
+    },
+
+    getIntrusionScore: function () {
+        return taskcommon.totalScoreFromSuffixArray(this, "q",
+                                                    INTRUSION_QUESTIONS);
+    },
+
+    getHyperarousalScore: function () {
+        return taskcommon.totalScoreFromSuffixArray(this, "q",
+                                                    HYPERAROUSAL_QUESTIONS);
     },
 
     getSummary: function () {
-        return this.getRelationship() + this.isCompleteSuffix();
+        return (
+            "Total " + this.getTotalScore() + "/88, " +
+            "avoidance " + this.getAvoidanceScore() + "/32, " +
+            "intrusion " + this.getAvoidanceScore() + "/28, " +
+            "hyperarousal " + this.getAvoidanceScore() + "/28 " +
+            this.isCompleteSuffix()
+        );
     },
 
     getDetail: function () {

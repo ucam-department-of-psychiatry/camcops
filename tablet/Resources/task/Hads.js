@@ -70,18 +70,7 @@ lang.extendPrototype(Hads, {
 
     // Scoring
     getScore: function (questions) {
-        var i,
-            n,
-            value,
-            score = 0;
-        for (i = 0; i < questions.length; ++i) {
-            n = questions[i];
-            value = this['q' + n];
-            if (value !== null) {
-                score += value;
-            }
-        }
-        return score;
+        return taskcommon.totalScoreFromSuffixArray(this, "q", questions);
     },
 
     // Standard task functions
