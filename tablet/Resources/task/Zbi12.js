@@ -68,12 +68,6 @@ lang.extendPrototype(Zbi12, {
 
     // EXTRA STRINGS
 
-    XSTRING: function (name, defaultvalue) {
-        defaultvalue = defaultvalue || name;
-        return extrastrings.get(EXTRASTRING_TASKNAME, name,
-                                "[ZBI: " + defaultvalue + "]");
-    },
-
     get_questions: function () {
         var arr = [],
             i;

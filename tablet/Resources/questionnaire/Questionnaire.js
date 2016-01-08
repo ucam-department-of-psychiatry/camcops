@@ -104,7 +104,7 @@ function setDefaultPageProperties(pageprops, pageIndex, npages, readonly) {
     // Deal with MobileWeb bug (2015-09-06):
     var platform = require('lib/platform');
     if (platform.mobileweb) {
-        pageprops["disableScroll"] = true;
+        pageprops.disableScroll = true;
     }
 }
 /*jslint unparam: false */
