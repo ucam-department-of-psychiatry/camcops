@@ -23,6 +23,7 @@
 
 # Helpful UTF-8 characters: ‘’ “” – — × • ≤ ≥ ≠ ± →
 
+import os
 import string
 from pythonlib.rnc_lang import AttrDict, merge_dicts
 
@@ -48,7 +49,13 @@ DEFAULT_LOCKOUT_THRESHOLD = 10
 DEFAULT_MYSQLDUMP = "/usr/bin/mysqldump"
 DEFAULT_MYSQL = "/usr/bin/mysql"
 DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS = 0  # zero for never
-DEFAULT_RESOURCES_DIRECTORY = "/usr/share/camcops/server"
+
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_RESOURCES_DIRECTORY = os.path.abspath(
+    os.path.join(THIS_DIR,  # cc_modules
+                 os.pardir,  # server
+                 os.pardir))  # camcops
+# DEFAULT_RESOURCES_DIRECTORY = "/usr/share/camcops/server"
 DEFAULT_TIMEOUT_MINUTES = 30
 DEFAULT_PLOT_FONTSIZE = 8
 

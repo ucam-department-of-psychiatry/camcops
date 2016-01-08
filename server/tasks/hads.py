@@ -115,12 +115,8 @@ class Hads(Task):
         ]
 
     def score(self, questions):
-        score = 0
-        for q in questions:
-            value = getattr(self, "q" + str(q))
-            if value is not None:
-                score += value
-        return score
+        fields = self.fieldnames_from_list("q", questions)
+        return self.sum_fields(fields)
 
     def anxiety_score(self):
         return self.score(self.ANXIETY_QUESTIONS)

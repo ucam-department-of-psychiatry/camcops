@@ -161,27 +161,28 @@ To install rpmrebuild:
 # =============================================================================
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-STARTDIR = os.path.abspath(os.path.join(THIS_DIR, os.pardir))
-PROJECT_BASE_DIR = os.path.abspath(join(STARTDIR, os.pardir))
-SRCTABLETDIR = join(PROJECT_BASE_DIR, 'tablet')
-WEBDOCSDIR = join(PROJECT_BASE_DIR, 'website', 'documentation')
+PROJECT_BASE_DIR = os.path.abspath(join(THIS_DIR, os.pardir, os.pardir))
 
-TMPDIR = tempfile.mkdtemp()
-WRKDIR = join(TMPDIR, 'debian')
-print("Temporary working directory: " + TMPDIR)
-
-PACKAGEDIR = join(STARTDIR, 'packagebuild')
-DSTCAMCOPSDIR = join('/usr/share', PACKAGE)
+DSTBASEDIR = join('/usr/share', PACKAGE)
 # Lintian dislikes files/subdirectories in: /usr/bin/X, /usr/local/X, /opt/X
 # It dislikes images in /usr/lib
+
+TMPDIR = tempfile.mkdtemp()
+print("Temporary working directory: " + TMPDIR)
+WRKDIR = join(TMPDIR, 'debian')
+RPMTOPDIR = join(TMPDIR, 'rpmbuild')
+
+SRCSERVERDIR = join(PROJECT_BASE_DIR, 'server')
+SRCTABLETDIR = join(PROJECT_BASE_DIR, 'tablet')
+WEBDOCSDIR = join(PROJECT_BASE_DIR, 'website', 'documentation')
+PACKAGEDIR = join(SRCSERVERDIR, 'packagebuild')
 
 WEB_VERSION_FILES_DIR = join(WEBDOCSDIR, 'version')
 
 DSTDOCDIR = join('/usr/share/doc', PACKAGE)
 WRKDOCDIR = workpath(WRKDIR, DSTDOCDIR)
 
-SRCBASEDIR = STARTDIR
-WRKBASEDIR = workpath(WRKDIR, DSTCAMCOPSDIR)
+WRKBASEDIR = workpath(WRKDIR, DSTBASEDIR)
 
 DEBDIR = join(WRKDIR, 'DEBIAN')
 # ... where Debian package control information lives
@@ -193,14 +194,16 @@ WRKCONSOLEFILEDIR = workpath(WRKDIR, DSTCONSOLEFILEDIR)
 DSTCONSOLEFILE = join(DSTCONSOLEFILEDIR, SETUPSCRIPTNAME)
 WRKCONSOLEFILE = join(WRKCONSOLEFILEDIR, SETUPSCRIPTNAME)
 
-SRCEXTRASTRINGTEMPLATES = join(SRCBASEDIR, 'extra_string_templates')
-WRKEXTRASTRINGTEMPLATES = join(WRKBASEDIR, 'extra_string_templates')
-
-SRCSERVERDIR = SRCBASEDIR
 WRKSERVERDIR = join(WRKBASEDIR, 'server')
-DSTSERVERDIR = join(DSTCAMCOPSDIR, 'server')
+DSTSERVERDIR = join(DSTBASEDIR, 'server')
 
-SRCPYTHONLIBDIR = join(SRCBASEDIR, 'pythonlib')
+SRCEXTRASTRINGS = join(SRCSERVERDIR, 'extra_strings')
+WRKEXTRASTRINGS = join(WRKSERVERDIR, 'extra_strings')
+DSTEXTRASTRINGS = join(DSTSERVERDIR, 'extra_strings')
+SRCEXTRASTRINGTEMPLATES = join(SRCSERVERDIR, 'extra_string_templates')
+WRKEXTRASTRINGTEMPLATES = join(WRKSERVERDIR, 'extra_string_templates')
+
+SRCPYTHONLIBDIR = join(SRCSERVERDIR, 'pythonlib')
 WRKPYTHONLIBDIR = join(WRKSERVERDIR, 'pythonlib')
 
 DSTSTRINGFILE = join(DSTSERVERDIR, 'strings.xml')
@@ -211,7 +214,7 @@ WRKMODULEDIR = join(WRKSERVERDIR, 'cc_modules')
 SRCTASKDIR = join(SRCSERVERDIR, 'tasks')
 WRKTASKDIR = join(WRKSERVERDIR, 'tasks')
 
-DSTTEMPDIR = join(DSTCAMCOPSDIR, 'tmp')
+DSTTEMPDIR = join(DSTBASEDIR, 'tmp')
 
 SRCTASKDISCARDEDDIR = join(SRCSERVERDIR, 'tasks_discarded')
 WRKTASKDISCARDEDDIR = join(WRKSERVERDIR, 'tasks_discarded')
@@ -242,7 +245,7 @@ DSTMANFILE = join(DSTMANDIR, SETUPSCRIPTNAME + '.1.gz')
 WRKDBDUMPFILE = join(WRKBASEDIR, 'demo_mysql_dump_script')
 WRKMYSQLCREATION = join(WRKBASEDIR, 'demo_mysql_database_creation')
 WRKINSTRUCTIONS = os.path.join(WRKBASEDIR, 'instructions.txt')
-DSTINSTRUCTIONS = os.path.join(DSTCAMCOPSDIR, 'instructions.txt')
+DSTINSTRUCTIONS = os.path.join(DSTBASEDIR, 'instructions.txt')
 
 DSTSUPERVISORCONFDIR = '/etc/supervisor/conf.d'
 WRKSUPERVISORCONFDIR = workpath(WRKDIR, DSTSUPERVISORCONFDIR)
@@ -256,7 +259,6 @@ DSTCONFIGFILE = join(DSTCONFIGDIR, PACKAGE + '.conf')
 WRKCONFIGFILE = join(WRKCONFIGDIR, PACKAGE + '.conf')
 WEBDOCSCONFIGFILE = join(WEBDOCSDIR, PACKAGE + '.conf')
 
-RPMTOPDIR = join(STARTDIR, 'rpmbuild')
 
 DSTDPKGDIR = '/var/lib/dpkg/info'
 
@@ -268,12 +270,12 @@ DSTSUMMARYTABLELOCKFILESTEM = join(DSTLOCKDIR, PACKAGE + '.summarytables')
 DSTREADME = join(DSTDOCDIR, 'README.txt')
 WRKREADME = join(WRKDOCDIR, 'README.txt')
 
-DEB_REQ_FILE = os.path.join(STARTDIR, 'requirements-deb.txt')
-RPM_REQ_FILE = os.path.join(STARTDIR, 'requirements-rpm.txt')
+DEB_REQ_FILE = os.path.join(SRCSERVERDIR, 'requirements-deb.txt')
+RPM_REQ_FILE = os.path.join(SRCSERVERDIR, 'requirements-rpm.txt')
 
-DSTPYTHONVENV = join(DSTCAMCOPSDIR, 'venv')
+DSTPYTHONVENV = join(DSTBASEDIR, 'venv')
 DSTVENVPYTHON = join(DSTPYTHONVENV, 'bin', 'python')
-DSTPYTHONCACHE = join(DSTCAMCOPSDIR, '.cache')
+DSTPYTHONCACHE = join(DSTBASEDIR, '.cache')
 
 SRCSTATICDIR = join(SRCSERVERDIR, 'static')
 WRKSTATICDIR = join(WRKSERVERDIR, 'static')
@@ -319,6 +321,7 @@ mkdirp(WRKCONFIGDIR)
 mkdirp(WRKCONSOLEFILEDIR)
 mkdirp(WRKDIR)
 mkdirp(WRKDOCDIR)
+mkdirp(WRKEXTRASTRINGS)
 mkdirp(WRKEXTRASTRINGTEMPLATES)
 mkdirp(WRKMANDIR)
 mkdirp(WRKMODULEDIR)
@@ -346,7 +349,9 @@ copyglob(join(SRCSERVERDIR, 'changelog.Debian'), WEB_VERSION_FILES_DIR)
 copyglob(join(SRCMODULEDIR, '*.py'), WRKMODULEDIR)
 copyglob(join(SRCTASKDIR, '*.py'), WRKTASKDIR)
 copyglob(join(SRCTASKDISCARDEDDIR, '*.py'), WRKTASKDISCARDEDDIR)
-copyglob(join(SRCEXTRASTRINGTEMPLATES, '*'), WRKEXTRASTRINGTEMPLATES)
+copyglob(join(SRCEXTRASTRINGS, '*'), WRKEXTRASTRINGS, allow_nothing=True)
+copyglob(join(SRCEXTRASTRINGTEMPLATES, '*'), WRKEXTRASTRINGTEMPLATES,
+         allow_nothing=True)
 copyglob(join(SRCTOOLDIR, VENVSCRIPT), WRKTOOLDIR)
 copyglob(join(SRCTOOLDIR, WKHTMLTOPDFSCRIPT), WRKTOOLDIR)
 
@@ -616,16 +621,16 @@ RESOURCES_DIRECTORY = $DSTSERVERDIR
 # May use "glob" pattern-matching (see
 # https://docs.python.org/3.5/library/glob.html).
 
-EXTRA_STRING_FILES =
+EXTRA_STRING_FILES = $DSTEXTRASTRINGS/*
 
 # INTROSPECTION_DIRECTORY: Root directory of the CamCOPS installation,
 # used for offering CamCOPS's source code to users if INTROSPECTION is enabled.
-# Default is $DSTCAMCOPSDIR.
+# Default is $DSTBASEDIR.
 # INTROSPECTION: permits the offering of CamCOPS source code files to the user,
 # allowing inspection of tasks' internal calculating algorithms. Default is
 # true.
 
-INTROSPECTION_DIRECTORY = $DSTCAMCOPSDIR
+INTROSPECTION_DIRECTORY = $DSTBASEDIR
 INTROSPECTION = true
 
 # HL7_LOCKFILE: filename stem used for process locking for HL7 message
@@ -1122,7 +1127,8 @@ SCRIPT_AFTER_FILE_EXPORT =
         DEFAULT_DB_NAME=DEFAULT_DB_NAME,
         DEFAULT_DB_PASSWORD=DEFAULT_DB_PASSWORD,
         DEFAULT_DB_USER=DEFAULT_DB_USER,
-        DSTCAMCOPSDIR=DSTCAMCOPSDIR,
+        DSTBASEDIR=DSTBASEDIR,
+        DSTEXTRASTRINGS=DSTEXTRASTRINGS,
         DSTHL7LOCKFILESTEM=DSTHL7LOCKFILESTEM,
         DSTLOCKDIR=DSTLOCKDIR,
         DSTSERVERDIR=DSTSERVERDIR,
@@ -1353,11 +1359,11 @@ which supervisorctl >/dev/null && supervisorctl stop {PACKAGE}-gunicorn
 
 # Must use -f or an error will cause the prerm (and package removal) to fail
 # See /var/lib/dpkg/info/MYPACKAGE.prerm for manual removal!
-find {DSTCAMCOPSDIR} -name '*.pyc' -delete
-find {DSTCAMCOPSDIR} -name '*.pyo' -delete
+find {DSTBASEDIR} -name '*.pyc' -delete
+find {DSTBASEDIR} -name '*.pyo' -delete
     """.format(
         PACKAGE=PACKAGE,
-        DSTCAMCOPSDIR=DSTCAMCOPSDIR,
+        DSTBASEDIR=DSTBASEDIR,
     ), file=outfile)
 
 # =============================================================================
@@ -1468,7 +1474,7 @@ stopwaitsecs = 60
     ), file=outfile)
 
 # =============================================================================
-print("Creating instructions. Will be installed within " + DSTCAMCOPSDIR)
+print("Creating instructions. Will be installed within " + DSTBASEDIR)
 # =============================================================================
 
 # CONSIDER: MULTIPLE INSTANCES
@@ -1708,7 +1714,7 @@ OPTIMAL: proxy Apache through to Gunicorn
 
 # =============================================================================
 print("Creating demonstration MySQL database creation commands. Will be "
-      "installed within " + DSTCAMCOPSDIR)
+      "installed within " + DSTBASEDIR)
 # =============================================================================
 with open(WRKMYSQLCREATION, 'w') as outfile:
     print("""
@@ -1746,7 +1752,7 @@ exit
 
 # =============================================================================
 print("Creating demonstration backup script. Will be installed within "
-      + DSTCAMCOPSDIR)
+      + DSTBASEDIR)
 # =============================================================================
 with open(WRKDBDUMPFILE, 'w') as outfile:
     print("""#!/bin/sh
@@ -1862,8 +1868,8 @@ subprocess.check_call([
 # ... define topdir, or it builds in ~/rpmbuild/...
 # ... --package, or it looks for an installed RPM rather than a package file
 
-os.rename(join(RPMTOPDIR, 'RPMS', 'noarch', EXPECTED_MAIN_RPM_NAME),
-          join(PACKAGEDIR, EXPECTED_MAIN_RPM_NAME))
+shutil.move(join(RPMTOPDIR, 'RPMS', 'noarch', EXPECTED_MAIN_RPM_NAME),
+            join(PACKAGEDIR, EXPECTED_MAIN_RPM_NAME))
 # ... will overwrite its predecessor
 
 # =============================================================================

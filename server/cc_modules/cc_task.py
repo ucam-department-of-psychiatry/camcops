@@ -2906,6 +2906,12 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             total += value if value is not None else 0
         return total
 
+    def fieldnames_from_prefix(self, prefix, start, end):
+        return [prefix + str(x) for x in range(start, end + 1)]
+
+    def fieldnames_from_list(self, prefix, suffixes):
+        return [prefix + str(x) for x in suffixes]
+
     # -------------------------------------------------------------------------
     # Extra strings
     # -------------------------------------------------------------------------

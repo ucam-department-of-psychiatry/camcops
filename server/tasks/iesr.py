@@ -81,6 +81,9 @@ class Iesr(Task):
     TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
     QUESTION_FIELDS = [x["name"] for x in QUESTION_FIELDSPECS]
     EXTRASTRING_TASKNAME = "IES-R"
+    AVOIDANCE_QUESTIONS = [5, 7, 8, 11, 12, 13, 17, 22]
+    INTRUSION_QUESTIONS = [1, 2, 3, 6, 9, 16, 20]
+    HYPERAROUSAL_QUESTIONS = [4, 10, 14, 15, 18, 19, 21]
 
     @classmethod
     def get_tablename(cls):
@@ -113,11 +116,22 @@ class Iesr(Task):
     def total_score(self):
         return self.sum_fields(self.QUESTION_FIELDS)
 
+    def avoidance_score(self):
+        return self.sum_fields(
+            self.fieldnames_from_list("q", self.AVOIDANCE_QUESTIONS))
+
+    def intrusion_score(self):
+        return self.sum_fields(
+            self.fieldnames_from_list("q", self.INTRUSION_QUESTIONS))
+
+    def hyperarousal_score(self):
+        return self.sum_fields(
+            self.fieldnames_from_list("q", self.HYPERAROUSAL_QUESTIONS))
+
     def is_complete(self):
         return (
             self.field_contents_valid()
-            and self.responder_name
-            and self.responder_relationship
+            and self.event
             and self.are_all_fields_complete(self.QUESTION_FIELDS)
         )
 
@@ -130,8 +144,20 @@ class Iesr(Task):
                 <table class="summary">
                     {complete_tr}
                     <tr>
-                        <td>Total score (/ 88)</td>
-                        <td>{total}</td>
+                        <td>Total score</td>
+                        <td>{total} / 88</td>
+                    </td>
+                    <tr>
+                        <td>Avoidance score</td>
+                        <td>{avoidance} / 32</td>
+                    </td>
+                    <tr>
+                        <td>Intrusion score</td>
+                        <td>{intrusion} / 28</td>
+                    </td>
+                    <tr>
+                        <td>Hyperarousal score</td>
+                        <td>{hyperarousal} / 28</td>
                     </td>
                 </table>
             </div>
@@ -146,6 +172,9 @@ class Iesr(Task):
         """.format(
             complete_tr=self.get_is_complete_tr(),
             total=answer(self.total_score()),
+            avoidance=answer(self.avoidance_score()),
+            intrusion=answer(self.intrusion_score()),
+            hyperarousal=answer(self.hyperarousal_score()),
             tr_event=tr_qa(WSTRING("iesr_event"), self.event),
         )
         for q in range(1, self.NQUESTIONS + 1):

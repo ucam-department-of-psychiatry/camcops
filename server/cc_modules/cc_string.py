@@ -103,8 +103,8 @@ def cache_extra_strings():
     # for filename in cc_pls.pls.EXTRA_STRING_FILES:
     filenames = []
     for filespec in cc_pls.pls.EXTRA_STRING_FILES:
-        possibles = glob.glob(filespec, recursive=False)
-        filenames.append(possibles)
+        possibles = glob.glob(filespec)
+        filenames.extend(possibles)
     filenames = list(set(filenames))  # just unique ones
     for filename in filenames:
         logger.debug("Loading XML file: " + filename)
