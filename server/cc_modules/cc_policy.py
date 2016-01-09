@@ -238,7 +238,7 @@ def find_critical_single_numerical_id(tokenized_policy):
 
 def is_idnum_mandatory_in_policy(idnum, tokenized_policy):
     """Is the ID number mandatory in the specified policy?"""
-    if idnum < 1 or idnum > NUMBER_OF_IDNUMS:
+    if idnum is None or idnum < 1 or idnum > NUMBER_OF_IDNUMS:
         return False
     # A hacky way...
     dummyptinfo = cc_namedtuples.BarePatientInfo(

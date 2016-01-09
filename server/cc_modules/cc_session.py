@@ -895,7 +895,7 @@ class Session:
 
     def get_npages(self, ntasks):
         """Number of pages."""
-        if not self.number_to_view:
+        if not ntasks or not self.number_to_view:
             return 1
         return math.ceil(ntasks / self.number_to_view)
 

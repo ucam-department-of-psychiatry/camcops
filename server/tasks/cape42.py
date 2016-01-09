@@ -316,7 +316,7 @@ class Cape42(Task):
 
     def endorsed(self, q):
         f = self.get_frequency(q)
-        return f > MIN_SCORE_PER_Q  # (None > 1) == False
+        return f is not None and f > MIN_SCORE_PER_Q
 
     def distress_score(self, qlist):
         score = 0

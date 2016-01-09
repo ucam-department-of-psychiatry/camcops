@@ -136,7 +136,8 @@ class PclCommon(object):
     def get_num_symptomatic(self, first, last):
         n = 0
         for i in range(first, last + 1):
-            if getattr(self, "q" + str(i)) >= 3:
+            value = getattr(self, "q" + str(i))
+            if value is not None and value >= 3:
                 n += 1
         return n
 

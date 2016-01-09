@@ -1,32 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <task name="IES-R">
-        <!-- Impact of Events Scale - Revised -->
-<!--
-        <string name="instruction_1">XXX</string>
-        <string name="instruction_2">XXX</string>
-        <string name="q1">XXX</string>
-        <string name="q2">XXX</string>
-        <string name="q3">XXX</string>
-        <string name="q4">XXX</string>
-        <string name="q5">XXX</string>
-        <string name="q6">XXX</string>
-        <string name="q7">XXX</string>
-        <string name="q8">XXX</string>
-        <string name="q9">XXX</string>
-        <string name="q10">XXX</string>
-        <string name="q11">XXX</string>
-        <string name="q12">XXX</string>
-        <string name="q13">XXX</string>
-        <string name="q14">XXX</string>
-        <string name="q15">XXX</string>
-        <string name="q16">XXX</string>
-        <string name="q17">XXX</string>
-        <string name="q18">XXX</string>
-        <string name="q19">XXX</string>
-        <string name="q20">XXX</string>
-        <string name="q21">XXX</string>
-        <string name="q22">XXX</string>
--->
-    </task>
+  <task name="IES-R">
+    <!-- Impact of Events Scale - Revised -->
+    <!-- TEMPLATE ONLY: replace 'XXX' with real text if you have the necessary permissions -->
+    <string name="instruction_1">XXX</string>
+    <string name="instruction_2">XXX</string>
+    <string name="q1">XXX</string>
+    <string name="q2">XXX</string>
+    <string name="q3">XXX</string>
+    <string name="q4">XXX</string>
+    <string name="q5">XXX</string>
+    <string name="q6">XXX</string>
+    <string name="q7">XXX</string>
+    <string name="q8">XXX</string>
+    <string name="q9">XXX</string>
+    <string name="q10">XXX</string>
+    <string name="q11">XXX</string>
+    <string name="q12">XXX</string>
+    <string name="q13">XXX</string>
+    <string name="q14">XXX</string>
+    <string name="q15">XXX</string>
+    <string name="q16">XXX</string>
+    <string name="q17">XXX</string>
+    <string name="q18">XXX</string>
+    <string name="q19">XXX</string>
+    <string name="q20">XXX</string>
+    <string name="q21">XXX</string>
+    <string name="q22">XXX</string>
+  </task>
 </resources>

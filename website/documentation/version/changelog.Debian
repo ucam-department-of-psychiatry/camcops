@@ -52,6 +52,7 @@ camcops (1.40-1) all; urgency=low
   * Updated to current pythonlib.
   * Python build toolchain.
   * Moved to Python 3.
+    - Of note: comparison of None to int now fails.
   * Supplied with Gunicorn, to enable front-end web servers like Apache to
     talk to CamCOPS, and have CamCOPS upgrade/restart, without having to (a)
     restart Apache, or (b) integrate a specific Python version into Apache

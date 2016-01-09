@@ -145,7 +145,8 @@ class Phq15(Task):
     def num_severe(self):
         n = 0
         for i in range(1, Phq15.NQUESTIONS + 1):
-            if getattr(self, "q" + str(i)) >= 2:
+            value = getattr(self, "q" + str(i))
+            if value is not None and value >= 2:
                 n += 1
         return n
 

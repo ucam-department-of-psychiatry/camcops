@@ -132,6 +132,7 @@ class LocalStorage(object):
         )
         self.LOCKOUT_THRESHOLD = DEFAULT_LOCKOUT_THRESHOLD
         self.MAIN_STRING_FILE = DEFAULT_STRING_FILE
+        self.MPLCONFIGDIR = ""
         self.MYSQL = DEFAULT_MYSQL
         self.MYSQLDUMP = DEFAULT_MYSQLDUMP
         self.NOW_LOCAL_TZ_ISO8601 = ""
@@ -341,6 +342,8 @@ class LocalStorage(object):
 
         self.MAIN_STRING_FILE = get_config_parameter(
             config, section, "MAIN_STRING_FILE", str, DEFAULT_STRING_FILE)
+        self.MPLCONFIGDIR = get_config_parameter(
+            config, section, "MPLCONFIGDIR", str, "")
         self.MYSQL = get_config_parameter(
             config, section, "MYSQL", str, DEFAULT_MYSQL)
         self.MYSQLDUMP = get_config_parameter(

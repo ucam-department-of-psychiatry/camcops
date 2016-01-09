@@ -153,18 +153,22 @@ class Phq9(Task):
     def total_score(self):
         return self.sum_fields(repeat_fieldname("q", 1, 9))
 
+    def one_if_q_ge(self, qnum, threshold):
+        value = getattr(self, "q" + str(qnum))
+        return 1 if value is not None and value >= threshold else 0
+
     def n_core(self):
-        return ((1 if self.q1 >= 2 else 0) +
-                (1 if self.q2 >= 2 else 0))
+        return (self.one_if_q_ge(1, 2) +
+                self.one_if_q_ge(2, 2))
 
     def n_other(self):
-        return ((1 if self.q3 >= 2 else 0) +
-                (1 if self.q4 >= 2 else 0) +
-                (1 if self.q5 >= 2 else 0) +
-                (1 if self.q6 >= 2 else 0) +
-                (1 if self.q7 >= 2 else 0) +
-                (1 if self.q8 >= 2 else 0) +
-                (1 if self.q9 >= 1 else 0))  # suicidality
+        return (self.one_if_q_ge(3, 2) +
+                self.one_if_q_ge(4, 2) +
+                self.one_if_q_ge(5, 2) +
+                self.one_if_q_ge(6, 2) +
+                self.one_if_q_ge(7, 2) +
+                self.one_if_q_ge(8, 2) +
+                self.one_if_q_ge(9, 1))  # suicidality
         # suicidality counted whenever present
 
     def n_total(self):
