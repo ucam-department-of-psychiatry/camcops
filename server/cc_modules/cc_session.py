@@ -32,7 +32,7 @@ import pythonlib.rnc_web as ws
 from . import cc_analytics
 from .cc_constants import ACTION, DATEFORMAT, NUMBER_OF_IDNUMS, PARAM
 from . import cc_db
-from . import cc_device
+# from . import cc_device
 from . import cc_dt
 from . import cc_html
 from .cc_logger import logger

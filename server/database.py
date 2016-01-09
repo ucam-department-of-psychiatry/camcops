@@ -662,12 +662,15 @@ def get_server_pks_of_specified_records(device, table, wheredict):
     return pls.db.fetchallfirstvalues(query, *args)
 
 
-def append_where_sql_and_values(query, args, wheredict=[], wherenotdict=[]):
+def append_where_sql_and_values(query, args, wheredict=None,
+                                wherenotdict=None):
     """Appends a set of conditions, joined with AND, to the WHERE clause of
     an SQL query. Note that there WHERE clause must already have been started.
     Allows WHERE and WHERE NOT clauses.
 
     MODIFIES the args argument in place, and returns an extended query."""
+    wheredict = wheredict or []
+    wherenotdict = wherenotdict or []
     if wheredict:
         for wherefield, wherevalue in wheredict.items():
             if wherevalue is None:

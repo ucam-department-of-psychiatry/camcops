@@ -715,11 +715,14 @@ class Tracker(object):
                              axis_label=None,
                              axis_min=None,
                              axis_max=None,
-                             axis_ticks=[],
-                             horizontal_lines=[],
-                             horizontal_labels=[],
+                             axis_ticks=None,
+                             horizontal_lines=None,
+                             horizontal_labels=None,
                              aspect_ratio=DEFAULT_TRACKER_ASPECT_RATIO):
         """HTML for a single figure."""
+        axis_ticks = axis_ticks or []
+        horizontal_lines = horizontal_lines or []
+        horizontal_labels = horizontal_labels or []
         if not aspect_ratio:  # duff input
             aspect_ratio = DEFAULT_TRACKER_ASPECT_RATIO
         FIGSIZE = (cc_task.FULLWIDTH_PLOT_WIDTH,

@@ -156,8 +156,10 @@ def make_pid_segment(forename,
                      dob,
                      sex,
                      address,
-                     patient_id_tuple_list=[]):
+                     patient_id_tuple_list=None):
     """Creates an HL7 patient identification (PID) segment."""
+    patient_id_tuple_list = patient_id_tuple_list or []
+
     # -------------------------------------------------------------------------
     # Patient identification (PID)
     # -------------------------------------------------------------------------

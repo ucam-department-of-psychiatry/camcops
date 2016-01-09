@@ -59,6 +59,7 @@ for f in $PYTHONFILES; do
     flake8 $f
     # pyflakes $PYFLAKES_OPTIONS $f
     # pep8 $f
+    grep "=\[\]" $f && echo "WARNING: $f contains '=[]'"
     numlines=`wc $f | awk '{print $1}'`
     totallines=$((totallines + numlines))
     if $VERBOSE; then

@@ -59,9 +59,10 @@ XML_IGNORE_NAMESPACES = [
 # However, they do look quite fiddly and we only want to create something
 # simple. Therefore, let's roll our own:
 
-def make_xml_branches_from_fieldspecs(obj, fieldspecs, skip_fields=[]):
+def make_xml_branches_from_fieldspecs(obj, fieldspecs, skip_fields=None):
     """Returns a list of XML branches, each an XmlElementTuple, from an
     objects and the list of fieldspecs that define/describe its fields."""
+    skip_fields = skip_fields or []
     branches = []
     for fs in fieldspecs:
         name = fs["name"]
@@ -76,9 +77,10 @@ def make_xml_branches_from_fieldspecs(obj, fieldspecs, skip_fields=[]):
     return branches
 
 
-def make_xml_branches_from_summaries(summaries, skip_fields=[]):
+def make_xml_branches_from_summaries(summaries, skip_fields=None):
     """Returns a list of XML branches, each an XmlElementTuple, from a
     list of summary data provided by a task."""
+    skip_fields = skip_fields or []
     branches = []
     for d in summaries:
         name = d["name"]

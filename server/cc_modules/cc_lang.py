@@ -72,6 +72,8 @@ derived_class_implements_method(Derived, Base, 'two')  # should be True
 derived_class_implements_method(Derived, Base, 'three')  # should be False
 
 """
+
+
 def derived_class_implements_method(derived, base, method_name):
     derived_method = getattr(derived, method_name, None)
     if derived_method is None:

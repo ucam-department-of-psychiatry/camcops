@@ -2964,22 +2964,17 @@ def webview_application(environ, start_response):
     status = '200 OK'  # default unless overwritten
     # If it's a 3-value tuple, fine. Otherwise, assume HTML requiring encoding.
     if isinstance(result, tuple) and len(result) == 3:
-        logger.debug("3 THINGS")
         (contenttype, extraheaders, output) = result
     elif isinstance(result, tuple) and len(result) == 4:
-        logger.debug("4 THINGS")
         (contenttype, extraheaders, output, status) = result
     else:
-        logger.debug("1 THING")
         (contenttype, extraheaders, output) = ws.html_result(result)
 
     # Commit (e.g. password changes, audit events, session timestamps)
     pls.db.commit()  # WSGI route commit
 
     # Add cookie.
-    logger.debug("Starting extraheaders: {}".format(extraheaders))
     cookies = pls.session.get_cookies()
-    logger.debug("Adding cookies: {}".format(cookies))
     extraheaders.extend(cookies)
     # Wipe session details, as an additional safeguard
     pls.session = None
@@ -2989,7 +2984,6 @@ def webview_application(environ, start_response):
                         ('Content-Length', str(len(output)))]
     if extraheaders is not None:
         response_headers.extend(extraheaders)  # not append!
-    logger.debug("start_response with response_headers = {}".format(response_headers))
     start_response(status, response_headers)
     return [output]
 

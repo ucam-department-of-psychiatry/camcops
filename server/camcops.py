@@ -104,18 +104,18 @@ DIRTY_TABLES_FIELDSPECS = [
 # The WSGI framework looks for: def application(environ, start_response)
 # ... must be called "application"
 
-# # Disable client-side caching for anything non-static
-# webview_application = DisableClientSideCachingMiddleware(webview_application)
-# database_application = DisableClientSideCachingMiddleware(database_application)
-#
-# # Don't apply ZIP compression here as middleware: it needs to be done
-# # selectively by content type, and is best applied automatically by Apache
-# # (which is easy).
-# if DEBUG_TO_HTTP_CLIENT:
-#     webview_application = ErrorReportingMiddleware(webview_application)
-# if PROFILE:
-#     webview_application = ProfilerMiddleware(webview_application)
-#     database_application = ProfilerMiddleware(database_application)
+# Disable client-side caching for anything non-static
+webview_application = DisableClientSideCachingMiddleware(webview_application)
+database_application = DisableClientSideCachingMiddleware(database_application)
+
+# Don't apply ZIP compression here as middleware: it needs to be done
+# selectively by content type, and is best applied automatically by Apache
+# (which is easy).
+if DEBUG_TO_HTTP_CLIENT:
+    webview_application = ErrorReportingMiddleware(webview_application)
+if PROFILE:
+    webview_application = ProfilerMiddleware(webview_application)
+    database_application = ProfilerMiddleware(database_application)
 
 
 def application(environ, start_response):
@@ -136,8 +136,9 @@ def application(environ, start_response):
     pls.set_from_environ_and_ping_db(environ)
 
     logger.debug("WSGI environment: {}".format(repr(environ)))
+
     path = environ['PATH_INFO']
-    logger.debug("PATH_INFO: {}".format(path))
+    # logger.debug("PATH_INFO: {}".format(path))
 
     # Trap any errors from here.
     # http://doughellmann.com/2009/06/19/python-exception-handling-techniques.html  # noqa
@@ -168,10 +169,10 @@ def application(environ, start_response):
                 pass  # ignore errors in rollback
 
 
-# if SERVE_STATIC_FILES:
-#     application = SharedDataMiddleware(application, {
-#         URL_ROOT_STATIC: os.path.join(os.path.dirname(__file__), 'static')
-#     })
+if SERVE_STATIC_FILES:
+    application = SharedDataMiddleware(application, {
+        URL_ROOT_STATIC: os.path.join(os.path.dirname(__file__), 'static')
+    })
 
 
 # =============================================================================

@@ -1,4 +1,4 @@
-camcops (1.40-1) all; urgency=low
+camcops (1.40-1) all; urgency=high
 
   * From May 2015 to Jan 2016.
   * REQUIRES COMMAND TO UPGRADE EACH DATABASE:
@@ -67,7 +67,10 @@ camcops (1.40-1) all; urgency=low
     to tell CamCOPS where it's mounted).
   * ALLOW_INSECURE_COOKIES debugging option.
   * Fix nasty bug in rnc_web using "extraheaders=[]" in function signature,
-    allowing headers to accumulate over multiple calls.
+    allowing headers (e.g. cookies) to accumulate over multiple calls (and leak
+    across clients). 2016-01-09.
+    (But note what is NOT a bug: multiple Chrome "incognito" tabs share each
+    other's cookies: https://code.google.com/p/chromium/issues/detail?id=24690)
   * Removed the "Tablet device" filter option for tasks (it generates long
     complex-looking lists of IDs and isn't helpful for end users). Removal
     done simply by taking the option out of the form, in

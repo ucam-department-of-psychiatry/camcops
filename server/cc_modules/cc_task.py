@@ -455,8 +455,9 @@ def get_cris_dd_rows_from_fieldspecs(taskname, tablename, fieldspecs):
 # BLOB functions (shared between Task and Ancillary)
 # =============================================================================
 
-def make_xml_branches_for_blob_fields(obj, skip_fields=[]):
+def make_xml_branches_for_blob_fields(obj, skip_fields=None):
     """Returns list of XmlElementTuple elements for BLOB fields."""
+    skip_fields = skip_fields or []
     branches = []
     for t in obj.get_pngblob_name_idfield_rotationfield_list():
         name = t[0]
@@ -2054,8 +2055,9 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
     def get_xml(self, include_calculated=True, include_blobs=True,
                 include_patient=True, indent_spaces=4, eol='\n',
-                skip_fields=[], include_comments=False):
+                skip_fields=None, include_comments=False):
         """Returns XML UTF-8 document representing task."""
+        skip_fields = skip_fields or []
         tree = self.get_xml_root(include_calculated=include_calculated,
                                  include_blobs=include_blobs,
                                  include_patient=include_patient,
@@ -2069,12 +2071,13 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
     def get_xml_root(self, include_calculated=True, include_blobs=True,
                      include_patient=True,
-                     skip_fields=[]):
+                     skip_fields=None):
         """Returns XML tree. Return value is the root XmlElementTuple.
 
         Override to include other tables, or to deal with BLOBs, if the default
         methods are insufficient.
         """
+        skip_fields = skip_fields or []
 
         # Core (inc. core BLOBs)
         branches = self.get_xml_core_branches(
@@ -2115,9 +2118,10 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
     def get_xml_core_branches(self, include_calculated=True,
                               include_blobs=True, include_patient=True,
-                              skip_fields=[]):
+                              skip_fields=None):
         """Returns a list of XmlElementTuple elements representing stored,
         calculated, patient, and/or BLOB fields, depending on the options."""
+        skip_fields = skip_fields or []
         # Stored
         branches = [cc_xml.XML_COMMENT_STORED]
         branches.extend(cc_xml.make_xml_branches_from_fieldspecs(
@@ -2147,9 +2151,10 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                 skip_fields=skip_fields))
         return branches
 
-    def make_xml_branches_for_blob_fields(self, skip_fields=[]):
+    def make_xml_branches_for_blob_fields(self, skip_fields=None):
         """Returns list of XmlElementTuple elements for BLOB fields."""
-        return make_xml_branches_for_blob_fields(self, skip_fields=[])
+        skip_fields = skip_fields or []
+        return make_xml_branches_for_blob_fields(self, skip_fields=skip_fields)
 
     def get_blob_png_xml_tuple(self, blobid, name, rotation_clockwise_deg=0):
         """Get XmlElementTuple for a PNG BLOB."""
@@ -2960,9 +2965,10 @@ class Ancillary(object):
         """As for Task. Override if the ancillary table implements BLOBs."""
         return []
 
-    def make_xml_branches_for_blob_fields(self, skip_fields=[]):
+    def make_xml_branches_for_blob_fields(self, skip_fields=None):
         """Returns list of XmlElementTuple elements for BLOB fields."""
-        return make_xml_branches_for_blob_fields(self, skip_fields=[])
+        skip_fields = skip_fields or []
+        return make_xml_branches_for_blob_fields(self, skip_fields=skip_fields)
 
     def get_blob_png_xml_tuple(self, blobid, name, rotation_clockwise_deg=0):
         """Get XmlElementTuple for a PNG BLOB."""
@@ -3071,8 +3077,9 @@ def require_implementation(class_name, instance, method_name):
         ))
 
 
-def task_instance_unit_test(name, instance, skip_tasks=[]):
+def task_instance_unit_test(name, instance, skip_tasks=None):
     """Unit test for an named instance of Task."""
+    skip_tasks = skip_tasks or []
     recipient_def = cc_recipdef.RecipientDefinition()
 
     # -------------------------------------------------------------------------
@@ -3280,13 +3287,13 @@ def task_instance_unit_test(name, instance, skip_tasks=[]):
                          instance.get_xml,
                          include_calculated=False, include_blobs=False,
                          include_patient=False, indent_spaces=4, eol='\n',
-                         skip_fields=[], include_comments=False,
+                         skip_fields=None, include_comments=False,
                          must_not_return=None)
     unit_test_verify_not("Testing {}.get_xml".format(name),
                          instance.get_xml,
                          include_calculated=True, include_blobs=True,
                          include_patient=True, indent_spaces=4, eol='\n',
-                         skip_fields=[], include_comments=True,
+                         skip_fields=None, include_comments=True,
                          must_not_return=None)
     unit_test_ignore("Testing {}.get_xml_root".format(name),
                      instance.get_xml_root)
@@ -3412,8 +3419,9 @@ def task_instance_unit_test(name, instance, skip_tasks=[]):
                      instance.unit_tests)
 
 
-def task_unit_test(cls, skip_tasks=[]):
+def task_unit_test(cls, skip_tasks=None):
     """Unit test for a Task subclass."""
+    skip_tasks = skip_tasks or []
     name = cls.__name__
     # Test creation with a numeric PK, which may or may not exist in the DB
     unit_test_ignore("Testing {}.__init__(0)".format(name),
