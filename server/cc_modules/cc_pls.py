@@ -47,23 +47,24 @@ from .cc_configfile import (
 )
 from .cc_constants import (
     CAMCOPS_LOGO_FILE_WEBREF,
-    CAMCOPS_STRINGS_FILE,
     CONFIG_FILE_MAIN_SECTION,
     CONFIG_FILE_RECIPIENTLIST_SECTION,
     DATEFORMAT,
+    DEFAULT_CAMCOPS_LOGO_FILE,
     DEFAULT_DATABASE_TITLE,
     DEFAULT_DB_PORT,
     DEFAULT_DB_SERVER,
-    DEFAULT_INTROSPECTION_DIRECTORY,
     DEFAULT_LOCAL_INSTITUTION_URL,
+    DEFAULT_LOCAL_LOGO_FILE,
     DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES,
     DEFAULT_LOCKOUT_THRESHOLD,
     DEFAULT_MYSQL,
     DEFAULT_MYSQLDUMP,
     DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS,
     DEFAULT_PLOT_FONTSIZE,
-    DEFAULT_RESOURCES_DIRECTORY,
+    DEFAULT_STRING_FILE,
     DEFAULT_TIMEOUT_MINUTES,
+    INTROSPECTION_BASE_DIRECTORY,
     INTROSPECTABLE_DIRECTORIES,
     INTROSPECTABLE_EXTENSIONS,
     LOCAL_LOGO_FILE_WEBREF,
@@ -100,88 +101,69 @@ class LocalStorage(object):
 
     def __init__(self):
         """Initialize with blank values."""
-        self.PERSISTENT_CONSTANTS_INITIALIZED = False
-
-        self.NOW_LOCAL_TZ = None
-        self.NOW_UTC_WITH_TZ = None
-        self.NOW_UTC_NO_TZ = None
-        self.NOW_LOCAL_TZ_ISO8601 = ""
-        self.TODAY = None
-
-        self.SCRIPT_NAME = ""
-        self.SERVER_NAME = ""
+        self.ALLOW_INSECURE_COOKIES = False
+        self.ALLOW_MOBILEWEB = False
         self.CAMCOPS_CONFIG_FILE = ""
-        self.SCRIPT_PUBLIC_URL_ESCAPED = ""
-
-        self.DB_NAME = ""
-        self.DB_USER = ""
-        self.DB_SERVER = DEFAULT_DB_SERVER
-        self.DB_PORT = DEFAULT_DB_PORT
-        self.MYSQL = DEFAULT_MYSQL
-        self.MYSQLDUMP = DEFAULT_MYSQLDUMP
-
+        self.CAMCOPS_LOGO_FILE_ABSOLUTE = None
+        self.CTV_FILENAME_SPEC = ""
         self.DATABASE_TITLE = ""
-        self.IDDESC = [None] * NUMBER_OF_IDNUMS
-        self.IDSHORTDESC = [None] * NUMBER_OF_IDNUMS
-        self.ID_POLICY_UPLOAD_STRING = ""
-        self.ID_POLICY_FINALIZE_STRING = ""
-
-        self.LOCAL_INSTITUTION_URL = DEFAULT_LOCAL_INSTITUTION_URL
-        self.RESOURCES_DIRECTORY = DEFAULT_RESOURCES_DIRECTORY
-        self.LOCAL_LOGO_FILE_ABSOLUTE = ""
-        self.INTROSPECTION_DIRECTORY = DEFAULT_INTROSPECTION_DIRECTORY
-        self.INTROSPECTION = False
-        self.HL7_LOCKFILE = None
-        self.SUMMARY_TABLES_LOCKFILE = None
-        self.WKHTMLTOPDF_FILENAME = None
+        self.DBCLIENT_LOGLEVEL = logging.INFO
+        self.DBENGINE_LOGLEVEL = logging.INFO
+        self.DB_NAME = ""
+        self.db = None
+        self.DB_PORT = DEFAULT_DB_PORT
+        self.DB_SERVER = DEFAULT_DB_SERVER
+        self.DB_USER = ""
+        self.DISABLE_PASSWORD_AUTOCOMPLETE = False
+        self.extraStringDicts = None  # dictionary of dictionaries
         self.EXTRA_STRING_FILES = None
-
-        self.SESSION_TIMEOUT = datetime.timedelta(
-            minutes=DEFAULT_TIMEOUT_MINUTES)
-        self.PASSWORD_CHANGE_FREQUENCY_DAYS = None
-        self.LOCKOUT_THRESHOLD = DEFAULT_LOCKOUT_THRESHOLD
+        self.HL7_LOCKFILE = None
+        self.HL7_RECIPIENT_DEFS = []
+        self.IDDESC = [None] * NUMBER_OF_IDNUMS
+        self.ID_POLICY_FINALIZE_STRING = ""
+        self.ID_POLICY_UPLOAD_STRING = ""
+        self.IDSHORTDESC = [None] * NUMBER_OF_IDNUMS
+        self.INTROSPECTION = False
+        self.INTROSPECTION_FILES = []
+        self.LOCAL_INSTITUTION_URL = DEFAULT_LOCAL_INSTITUTION_URL
+        self.LOCAL_LOGO_FILE_ABSOLUTE = ""
         self.LOCKOUT_DURATION_INCREMENT_MINUTES = (
             DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES
         )
-        self.DISABLE_PASSWORD_AUTOCOMPLETE = False
-
-        self.PATIENT_SPEC_IF_ANONYMOUS = ""
+        self.LOCKOUT_THRESHOLD = DEFAULT_LOCKOUT_THRESHOLD
+        self.MAIN_STRING_FILE = DEFAULT_STRING_FILE
+        self.MYSQL = DEFAULT_MYSQL
+        self.MYSQLDUMP = DEFAULT_MYSQLDUMP
+        self.NOW_LOCAL_TZ_ISO8601 = ""
+        self.NOW_LOCAL_TZ = None
+        self.NOW_UTC_NO_TZ = None
+        self.NOW_UTC_WITH_TZ = None
+        self.PASSWORD_CHANGE_FREQUENCY_DAYS = None
         self.PATIENT_SPEC = ""
-        self.TASK_FILENAME_SPEC = ""
-        self.TRACKER_FILENAME_SPEC = ""
-        self.CTV_FILENAME_SPEC = ""
-
-        self.WEBVIEW_LOGLEVEL = logging.INFO
-        self.DBENGINE_LOGLEVEL = logging.INFO
-        self.DBCLIENT_LOGLEVEL = logging.INFO
-        self.ALLOW_INSECURE_COOKIES = False
-
-        self.SEND_ANALYTICS = True
-
-        self.HL7_RECIPIENT_DEFS = []
-
-        self.INTROSPECTION_FILES = []
-
-        self.CAMCOPS_STRINGS_FILE_ABSOLUTE = None
-        self.CAMCOPS_LOGO_FILE_ABSOLUTE = None
-
-        self.WEB_LOGO = None
-        self.WEBSTART = None
+        self.PATIENT_SPEC_IF_ANONYMOUS = ""
         self.PDF_LOGO_LINE = None
-
-        self.ALLOW_MOBILEWEB = False
-
-        self.db = None
-
-        self.stringDict = None
-        self.extraStringDicts = None  # dictionary of dictionaries
-        self.useSVG = False
-        self.session = None
+        self.PERSISTENT_CONSTANTS_INITIALIZED = False
         # currently not configurable, but easy to add in the future:
         self.PLOT_FONTSIZE = DEFAULT_PLOT_FONTSIZE
-
         self.remote_addr = None
         self.remote_port = None
+        self.SCRIPT_NAME = ""
+        self.SCRIPT_PUBLIC_URL_ESCAPED = ""
+        self.SEND_ANALYTICS = True
+        self.SERVER_NAME = ""
+        self.session = None
+        self.SESSION_TIMEOUT = datetime.timedelta(
+            minutes=DEFAULT_TIMEOUT_MINUTES)
+        self.stringDict = None
+        self.SUMMARY_TABLES_LOCKFILE = None
+        self.TASK_FILENAME_SPEC = ""
+        self.TODAY = None
+        self.TRACKER_FILENAME_SPEC = ""
+        self.useSVG = False
+        self.WEB_LOGO = None
+        self.WEBSTART = None
+        self.WEBVIEW_LOGLEVEL = logging.INFO
+        self.WKHTMLTOPDF_FILENAME = None
 
     def get_id_desc(self, n):
         """Get server's ID description.
@@ -283,22 +265,18 @@ class LocalStorage(object):
         config.readfp(codecs.open(self.CAMCOPS_CONFIG_FILE, "r", "utf8"))
 
         # ---------------------------------------------------------------------
-        # Read from the config file: 1. things that others depend on
+        # Read from the config file: 1. Most stuff, in alphabetical order
         # ---------------------------------------------------------------------
         section = CONFIG_FILE_MAIN_SECTION
-
-        self.RESOURCES_DIRECTORY = get_config_parameter(
-            config, section, "RESOURCES_DIRECTORY",
-            str, DEFAULT_RESOURCES_DIRECTORY)
-
-        # ---------------------------------------------------------------------
-        # Read from the config file: 2. the rest, in alphabetical order
-        # ---------------------------------------------------------------------
 
         self.ALLOW_INSECURE_COOKIES = get_config_parameter_boolean(
             config, section, "ALLOW_INSECURE_COOKIES", False)
         self.ALLOW_MOBILEWEB = get_config_parameter_boolean(
             config, section, "ALLOW_MOBILEWEB", False)
+
+        self.CAMCOPS_LOGO_FILE_ABSOLUTE = get_config_parameter(
+            config, section, "CAMCOPS_LOGO_FILE_ABSOLUTE", str,
+            DEFAULT_CAMCOPS_LOGO_FILE)
 
         self.CTV_FILENAME_SPEC = get_config_parameter(
             config, section, "CTV_FILENAME_SPEC", str, None)
@@ -345,9 +323,6 @@ class LocalStorage(object):
             config, section, "UPLOAD_POLICY", str, "")
         self.ID_POLICY_FINALIZE_STRING = get_config_parameter(
             config, section, "FINALIZE_POLICY", str, "")
-        self.INTROSPECTION_DIRECTORY = get_config_parameter(
-            config, section, "INTROSPECTION_DIRECTORY",
-            str, DEFAULT_INTROSPECTION_DIRECTORY)
         self.INTROSPECTION = get_config_parameter_boolean(
             config, section, "INTROSPECTION", True)
 
@@ -356,8 +331,7 @@ class LocalStorage(object):
             str, DEFAULT_LOCAL_INSTITUTION_URL)
         self.LOCAL_LOGO_FILE_ABSOLUTE = get_config_parameter(
             config, section, "LOCAL_LOGO_FILE_ABSOLUTE",
-            str, os.path.join(self.RESOURCES_DIRECTORY,
-                              LOCAL_LOGO_FILE_WEBREF))
+            str, DEFAULT_LOCAL_LOGO_FILE)
         self.LOCKOUT_THRESHOLD = get_config_parameter(
             config, section, "LOCKOUT_THRESHOLD",
             int, DEFAULT_LOCKOUT_THRESHOLD)
@@ -365,6 +339,8 @@ class LocalStorage(object):
             config, section, "LOCKOUT_DURATION_INCREMENT_MINUTES",
             int, DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES)
 
+        self.MAIN_STRING_FILE = get_config_parameter(
+            config, section, "MAIN_STRING_FILE", str, DEFAULT_STRING_FILE)
         self.MYSQL = get_config_parameter(
             config, section, "MYSQL", str, DEFAULT_MYSQL)
         self.MYSQLDUMP = get_config_parameter(
@@ -403,7 +379,7 @@ class LocalStorage(object):
                               wkhtmltopdf_filename=self.WKHTMLTOPDF_FILENAME)
 
         # ---------------------------------------------------------------------
-        # Read from the config file: 3. HL7 section
+        # Read from the config file: 2. HL7 section
         # ---------------------------------------------------------------------
         # http://stackoverflow.com/questions/335695/lists-in-configparser
         try:
@@ -420,7 +396,7 @@ class LocalStorage(object):
             ))
 
         # ---------------------------------------------------------------------
-        # Read from the config file: 4. database password
+        # Read from the config file: 3. database password
         # ---------------------------------------------------------------------
         # ---------------------------------------------------------------------
         # SECURITY: in this section (reading the database password from the
@@ -480,7 +456,7 @@ class LocalStorage(object):
 
         self.INTROSPECTION_FILES = []
         if self.INTROSPECTION:
-            rootdir = self.INTROSPECTION_DIRECTORY
+            rootdir = INTROSPECTION_BASE_DIRECTORY
             for d in INTROSPECTABLE_DIRECTORIES:
                 searchdir = os.sep.join([rootdir, d]) if d else rootdir
                 for fname in os.listdir(searchdir):
@@ -509,12 +485,6 @@ class LocalStorage(object):
             raise RuntimeError("UPLOAD_POLICY invalid in config")
         if not cc_policy.finalize_id_policy_valid():
             raise RuntimeError("FINALIZE_POLICY invalid in config")
-
-        if self.RESOURCES_DIRECTORY is not None:
-            self.CAMCOPS_STRINGS_FILE_ABSOLUTE = os.path.join(
-                self.RESOURCES_DIRECTORY, CAMCOPS_STRINGS_FILE)
-            self.CAMCOPS_LOGO_FILE_ABSOLUTE = os.path.join(
-                self.RESOURCES_DIRECTORY, CAMCOPS_LOGO_FILE_WEBREF)
 
         # Note: HTML4 uses <img ...>; XHTML uses <img ... />;
         # HTML5 is happy with <img ... />
