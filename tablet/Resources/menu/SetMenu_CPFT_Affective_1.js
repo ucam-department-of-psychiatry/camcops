@@ -1,4 +1,4 @@
-// ResearchSetsMenu.js
+// SetMenu_CPFT_Affective_1.js
 
 /*
     Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
@@ -24,34 +24,25 @@
 "use strict";
 /*global L */
 
-module.exports = function ResearchSetsMenu() {
+module.exports = function SetMenu_CPFT_Affective_1() {
 
     var MenuWindow = require('menulib/MenuWindow'),
         UICONSTANTS = require('common/UICONSTANTS'),
+        ALLTASKS = require('common/ALLTASKS'),
         data = [
             UICONSTANTS.CHANGE_PATIENT_MENU_LINE,
-            {
-                maintitle: L('t_set_cpft_affective_1'),
-                subtitle: L('s_set_cpft_affective_1'),
-                arrowOnRight: true,
-                window: 'menu/SetMenu_CPFT_Affective_1'
-            },
-            {
-                maintitle: L('t_set_deakin_1'),
-                subtitle: L('s_set_deakin_1'),
-                arrowOnRight: true,
-                window: 'menu/SetMenu_Deakin_1'
-            },
-            {
-                maintitle: L('t_set_obrien_1'),
-                subtitle: L('s_set_obrien_1'),
-                arrowOnRight: true,
-                window: 'menu/SetMenu_OBrien_1'
-            }
+            ALLTASKS.TASKLIST.DIAGNOSIS_ICD9CM,  // = DSM-IV
+            ALLTASKS.TASKLIST.HAMD,
+            ALLTASKS.TASKLIST.IESR,
+            ALLTASKS.TASKLIST.SWEMWBS,
+            ALLTASKS.TASKLIST.WSAS,
+            // *** YBOCS
+            // *** Penn State Worry Questionnaire
+            // *** Panic Disorder Severity Scale
         ],
         self = new MenuWindow({
-            title: L('menutitle_sets_research'),
-            icon: UICONSTANTS.ICON_MENU_SETS_RESEARCH,
+            title: L('t_set_cpft_affective_1'),
+            subtitle: L('s_set_cpft_affective_1'),
             data: data
         });
 

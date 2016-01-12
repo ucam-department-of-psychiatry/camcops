@@ -91,6 +91,11 @@ lang.extendPrototype(BaseTask, {
         return this._crippled;
     },
 
+    extraStringsPresent: function () {
+        var extrastrings = require('table/extrastrings');
+        return extrastrings.task_exists(this._extrastringTaskname);
+    },
+
     whyNotPermissible: function () {
         var storedvars = require('table/storedvars');
         if (this._prohibitCommercial) {

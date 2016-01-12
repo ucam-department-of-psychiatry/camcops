@@ -85,6 +85,7 @@ Version history (new to old)
 - DEMQOL-Proxy
 - FROM-LP framework set menu
 - IES-R (skeleton)
+- WSAS (skeleton)
 - O'Brien group set menu 1
 - Bugfix: Diagnosis* edit() code was calling "my_items = self.getMyItems()"
   prior to "self.dbstore()", leading to this crash at task creation on Android:

@@ -47,6 +47,7 @@ module.exports = function GlobalMenu() {
             ALLTASKS.TASKLIST.RAND36,
             ALLTASKS.TASKLIST.SWEMWBS,
             ALLTASKS.TASKLIST.WEMWBS,
+            ALLTASKS.TASKLIST.WSAS,
             ALLTASKS.TASKLIST.ZBI12
         ],
         self = new MenuWindow({

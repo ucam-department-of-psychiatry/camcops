@@ -71,6 +71,9 @@ exports.get = get;
 
 
 function add(task, name, value) {
+    if (!task || !name) {
+        return;
+    }
     var object = {"task": task, "name": name, "value": value};
     dbcommon.createRow(tablename, fieldlist, object, "dummypk");
 }
@@ -78,6 +81,9 @@ exports.add = add;
 
 
 function task_exists(task) {
+    if (!task) {
+        return false;
+    }
     return dbcommon.countWhere(tablename, [TASKFIELD], [task]) > 0;
 }
 exports.task_exists = task_exists;

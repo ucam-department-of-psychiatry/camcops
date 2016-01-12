@@ -507,6 +507,8 @@ CamCOPS app
 
 <!-- ClinicalSetsMenu / ResearchSetsMenu extras -->
 
+<string name="t_set_cpft_affective_1">CPFT Affective Disorders Research Database — 1</string>
+<string name="s_set_cpft_affective_1">Cambridgeshire and Peterborough NHS Foundation Trust, UK — affective disorders</string>
 <string name="t_set_deakin_1">Deakin JB — 1</string>
 <string name="s_set_deakin_1">Deakin JB, University of Cambridge, UK — antibody-mediated psychosis</string>
 <string name="t_set_from_lp">FROM-LP</string>
@@ -6219,6 +6221,27 @@ FOR THE STUDY AND SUPPLIED/CONFIGURED BY THE HOSTING INSTITUTION
 <string name="iesr_a2">Moderately</string>
 <string name="iesr_a3">Quite a bit</string>
 <string name="iesr_a4">Extremely</string>
+
+<!--
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+WSAS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+DATA COLLECTION TOOL ONLY, WITH SERVER-SIDE STRING DISTRIBUTION IF PERMITTED
+FOR THE STUDY AND SUPPLIED/CONFIGURED BY THE HOSTING INSTITUTION
+-->
+
+<string name="t_wsas">Work and Social Adjustment Scale (WSAS) (¶+)</string>
+<string name="s_wsas">5-item self-report scale. Data collection tool ONLY unless host institution adds scale text.</string>
+<string name="b_wsas">WSAS</string>
+<string name="wsas_a0">0: Not at all</string>
+<string name="wsas_a1">1</string>
+<string name="wsas_a2">2: Slightly</string>
+<string name="wsas_a3">3</string>
+<string name="wsas_a4">4: Definitely</string>
+<string name="wsas_a5">5</string>
+<string name="wsas_a6">6: Markedly</string>
+<string name="wsas_a7">7</string>
+<string name="wsas_a8">8: Very severely</string>
 
 <!--
 <string name="XXX">XXX</string>

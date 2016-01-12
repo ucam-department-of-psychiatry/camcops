@@ -60,10 +60,9 @@ lang.extendPrototype(Hads, {
 
     // TASK CLASS FIELD OVERRIDES (USED BY BaseTask)
 
-    _extrastringTaskname: "HADS",
+    _extrastringTaskname: "hads",
     isTaskCrippled: function () {
-        var extrastrings = require('table/extrastrings');
-        return !extrastrings.task_exists(this._extrastringTaskname);
+        return !this.extraStringsPresent();
     },
 
     // OTHER

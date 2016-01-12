@@ -60,10 +60,9 @@ lang.extendPrototype(Zbi12, {
 
     // TASK CLASS FIELD OVERRIDES (USED BY BaseTask)
 
-    _extrastringTaskname: "ZBI-12",
+    _extrastringTaskname: "zbi12",
     isTaskCrippled: function () {
-        var extrastrings = require('table/extrastrings');
-        return !extrastrings.task_exists(this._extrastringTaskname);
+        return !this.extraStringsPresent();
     },
 
     // EXTRA STRINGS

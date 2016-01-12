@@ -657,6 +657,14 @@ exports.TASKLIST = {
         subtitle: L('s_wemwbs'),
         info: 'html/wemwbs.html'
     },
+    WSAS: {
+        task: 'task/Wsas',
+        title: L('b_wsas'),
+        tables: ['wsas'],
+        maintitle: L('t_wsas'),
+        subtitle: L('s_wsas'),
+        info: 'html/wsas.html'
+    },
     ZBI12: {
         task: 'task/Zbi12',
         title: L('b_zbi12'),
