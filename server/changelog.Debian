@@ -1,4 +1,4 @@
-camcops (1.40-1) all; urgency=low
+camcops (1.40-1) all; urgency=high
 
   * From May 2015 to Jan 2016.
   * REQUIRES COMMAND TO UPGRADE EACH DATABASE:
@@ -49,18 +49,28 @@ camcops (1.40-1) all; urgency=low
   * Refresh button for tasks (because browsers keep asking you twice if you hit
     F5).
   * EXTRA_STRING_FILES can use globs (in cc_string.py).
+  * Support MPLCONFIGDIR (default: /var/cache/camcops/matplotlib) to speed up
+    matplotlib/pyplot loading.
   * Updated to current pythonlib.
   * Python build toolchain.
   * Moved to Python 3.
+    - Of note: comparison of None to int now fails.
   * Supplied with Gunicorn, to enable front-end web servers like Apache to
     talk to CamCOPS, and have CamCOPS upgrade/restart, without having to (a)
     restart Apache, or (b) integrate a specific Python version into Apache
     with mod_wsgi. The new system runs in a virtual environment, entirely
     separated (in terms of code) from the front-end web server, communicating
     with it via a private port or Unix socket.
+  * Disable HTTP client-side caching for added security.
+    See also http://codebutler.github.io/firesheep
   * Change to relative URL addressing to make that work simply (without having
     to tell CamCOPS where it's mounted).
   * ALLOW_INSECURE_COOKIES debugging option.
+  * Fix nasty bug in rnc_web using "extraheaders=[]" in function signature,
+    allowing headers (e.g. cookies) to accumulate over multiple calls (and leak
+    across clients). 2016-01-09.
+    (But note what is NOT a bug: multiple Chrome "incognito" tabs share each
+    other's cookies: https://code.google.com/p/chromium/issues/detail?id=24690)
   * Removed the "Tablet device" filter option for tasks (it generates long
     complex-looking lists of IDs and isn't helpful for end users). Removal
     done simply by taking the option out of the form, in

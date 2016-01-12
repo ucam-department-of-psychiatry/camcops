@@ -32,18 +32,26 @@ import tempfile
 
 import pythonlib.rnc_plot as rnc_plot
 
+from .cc_logger import logger
 
 # =============================================================================
 # Import matplotlib
 # =============================================================================
 
-# 1. Make a temporary directory (must be a directory per process, I'm sure)
-MPLCONFIGDIR = tempfile.mkdtemp()
-
-# 2. Ensure temporary directory is removed when this process exits.
-atexit.register(lambda: shutil.rmtree(MPLCONFIGDIR, ignore_errors=True))
+# We need to use os.environ, since pls won't be initialized yet. That goes
+# for anything that affects imports (to avoid the complexity of delayed
+# imports).
+if 'MPLCONFIGDIR' in os.environ:
+    # 1+2. Use a writable static directory (speeds pyplot loads hugely).
+    MPLCONFIGDIR = os.environ['MPLCONFIGDIR']
+else:
+    # 1. Make a temporary directory (must be a directory per process, I'm sure)
+    MPLCONFIGDIR = tempfile.mkdtemp()
+    # 2. Ensure temporary directory is removed when this process exits.
+    atexit.register(lambda: shutil.rmtree(MPLCONFIGDIR, ignore_errors=True))
 
 # 3. Tell matplotlib about this directory prior to importing it
+#    http://matplotlib.org/faq/environment_variables_faq.html
 os.environ["MPLCONFIGDIR"] = MPLCONFIGDIR
 
 # 4. Another nasty matplotlib hack
@@ -60,6 +68,8 @@ if 'HOME' in os.environ:
     del os.environ['HOME']
 
 # 5. Import matplotlib
+logger.info("importing matplotlib (can be slow) (MPLCONFIGDIR={})...".format(
+    MPLCONFIGDIR))
 import matplotlib
 
 # 6. Set the backend
@@ -67,6 +77,10 @@ matplotlib.use("Agg")  # also the default backend
 # ... http://matplotlib.org/faq/usage_faq.html#what-is-a-backend
 # ... http://matplotlib.org/faq/howto_faq.html
 # matplotlib.use("cairo") # cairo backend corrupts some SVG figures
+
+# Load this once so we can tell the user we're importing it and it's slow
+import matplotlib.pyplot
+logger.info("... done")
 
 # THEN DO e.g. # import matplotlib.pyplot as plt
 

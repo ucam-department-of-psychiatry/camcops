@@ -89,7 +89,7 @@ SQLTYPE = AttrDict({
 # =============================================================================
 
 def repeat_fieldspec(prefix, start, end, cctype="INT",
-                     comment_fmt=None, comment_strings=[],
+                     comment_fmt=None, comment_strings=None,
                      min=None, max=None, pv=None):
     """Return a list of field specifications for numerically sequenced
     fields.
@@ -110,6 +110,7 @@ def repeat_fieldspec(prefix, start, end, cctype="INT",
         max: maximum permitted value, or None
         pv: list of permitted values, or None
     """
+    comment_strings = comment_strings or []
     fieldspecs = []
     for n in range(start, end + 1):
         i = n - start

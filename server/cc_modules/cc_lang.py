@@ -22,6 +22,7 @@
 """
 
 import unicodedata
+import six
 
 
 # =============================================================================
@@ -39,11 +40,49 @@ def mean(values):
     return total / n if n > 0 else None
 
 
-def derived_class_implements_method(derived, base, method_name):
-    # http://stackoverflow.com/questions/1776994
-    derived_method = getattr(derived, method_name)
-    base_method = getattr(base, method_name)
+"""
+http://stackoverflow.com/questions/1776994
+https://docs.python.org/3/library/inspect.html
+https://github.com/edoburu/django-fluent-contents/issues/43
+https://bytes.com/topic/python/answers/843424-python-2-6-3-0-determining-if-method-inherited  # noqa
+https://docs.python.org/3/reference/datamodel.html
+
+In Python 2, you can do this:
     return derived_method.__func__ != base_method.__func__
+In Python 3.4:
+    ...
+
+class Base(object):
+    def one():
+        print("base one")
+    def two():
+        print("base two")
+
+
+class Derived(Base):
+    def two():
+        print("derived two")
+
+
+Derived.two.__dir__()  # not all versions of Python
+
+
+derived_class_implements_method(Derived, Base, 'one')  # should be False
+derived_class_implements_method(Derived, Base, 'two')  # should be True
+derived_class_implements_method(Derived, Base, 'three')  # should be False
+
+"""
+
+
+def derived_class_implements_method(derived, base, method_name):
+    derived_method = getattr(derived, method_name, None)
+    if derived_method is None:
+        return False
+    base_method = getattr(base, method_name, None)
+    if six.PY2:
+        return derived_method.__func__ != base_method.__func__
+    else:
+        return derived_method is not base_method
 
 
 def flatten_list(l):

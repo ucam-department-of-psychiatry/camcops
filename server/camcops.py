@@ -5,21 +5,17 @@ import argparse
 import codecs
 import configparser
 import getpass
+import logging
 import os
 import sys
 
-import werkzeug.contrib.profiler
+from werkzeug.contrib.profiler import ProfilerMiddleware
 from werkzeug.wsgi import SharedDataMiddleware
 
 import pythonlib.rnc_db as rnc_db
-import pythonlib.wsgi_errorreporter as wsgi_errorreporter
+from pythonlib.wsgi_errorreporter import ErrorReportingMiddleware
+from pythonlib.wsgi_cache import DisableClientSideCachingMiddleware
 
-import webview
-from webview import (
-    get_database_title,
-    make_summary_tables,
-)
-import database
 import cc_modules.cc_analytics as cc_analytics
 from cc_modules.cc_audit import (
     audit,
@@ -39,7 +35,7 @@ import cc_modules.cc_blob as cc_blob
 import cc_modules.cc_db as cc_db
 import cc_modules.cc_device as cc_device
 import cc_modules.cc_dump as cc_dump
-from cc_modules.cc_logger import logger
+from cc_modules.cc_logger import logger, dblogger
 import cc_modules.cc_hl7 as cc_hl7
 import cc_modules.cc_hl7core as cc_hl7core
 import cc_modules.cc_patient as cc_patient
@@ -50,9 +46,17 @@ import cc_modules.cc_session as cc_session
 from cc_modules.cc_specialnote import SpecialNote
 from cc_modules.cc_storedvar import DeviceStoredVar, ServerStoredVar
 import cc_modules.cc_task as cc_task
-import cc_modules.cc_tracker as cc_tracker  # will import matplotlib
+import cc_modules.cc_tracker as cc_tracker  # imports matplotlib; SLOW
 import cc_modules.cc_user as cc_user
 from cc_modules.cc_version import CAMCOPS_SERVER_VERSION
+import webview
+from webview import (
+    get_database_title,
+    make_summary_tables,
+    webview_application,
+)
+import database
+from database import database_application
 
 
 # =============================================================================
@@ -100,40 +104,69 @@ DIRTY_TABLES_FIELDSPECS = [
 # The WSGI framework looks for: def application(environ, start_response)
 # ... must be called "application"
 
-webview_application = webview.camcops_application_db_wrapper
-database_application = database.database_wrapper
+# Disable client-side caching for anything non-static
+webview_application = DisableClientSideCachingMiddleware(webview_application)
+database_application = DisableClientSideCachingMiddleware(database_application)
 
 # Don't apply ZIP compression here as middleware: it needs to be done
 # selectively by content type, and is best applied automatically by Apache
 # (which is easy).
 if DEBUG_TO_HTTP_CLIENT:
-    webview_application = wsgi_errorreporter.ErrorReportingMiddleware(
-        webview_application)
+    webview_application = ErrorReportingMiddleware(webview_application)
 if PROFILE:
-    webview_application = werkzeug.contrib.profiler.ProfilerMiddleware(
-        webview_application)
-    database_application = werkzeug.contrib.profiler.ProfilerMiddleware(
-        database_application)
+    webview_application = ProfilerMiddleware(webview_application)
+    database_application = ProfilerMiddleware(database_application)
 
 
 def application(environ, start_response):
-    """Master WSGI entry point."""
-    # logger.debug("WSGI environment: {}".format(repr(environ)))
+    """
+    Master WSGI entry point.
+
+    Provides a wrapper around the main WSGI application in order to trap
+    database errors, so that a commit or rollback is guaranteed, and so a crash
+    cannot leave the database in a locked state and thereby mess up other
+    processes.
+    """
+
+    if environ["wsgi.multithread"]:
+        logger.critical("Error: started in multithreaded mode")
+        raise RuntimeError("Cannot be run in multithreaded mode")
+
+    # Set global variables, connect/reconnect to database, etc.
+    pls.set_from_environ_and_ping_db(environ)
+
+    logger.debug("WSGI environment: {}".format(repr(environ)))
+
     path = environ['PATH_INFO']
-    logger.debug("PATH_INFO: {}".format(path))
-    if path == URL_ROOT_WEBVIEW:
-        return webview_application(environ, start_response)
-    elif path == URL_ROOT_DATABASE:
-        return database_application(environ, start_response)
-    else:
-        # No URL matches
-        msg = "Not found."
-        output = msg.encode('utf-8')
-        start_response('404 Not Found', [
-            ('Content-Type', 'text/plain'),
-            ('Content-Length', str(len(output))),
-        ])
-        return [output]
+    # logger.debug("PATH_INFO: {}".format(path))
+
+    # Trap any errors from here.
+    # http://doughellmann.com/2009/06/19/python-exception-handling-techniques.html  # noqa
+
+    try:
+        if path == URL_ROOT_WEBVIEW:
+            return webview_application(environ, start_response)
+            # ... it will commit (the earlier the better for speed)
+        elif path == URL_ROOT_DATABASE:
+            return database_application(environ, start_response)
+            # ... it will commit (the earlier the better for speed)
+        else:
+            # No URL matches
+            msg = "Not found."
+            output = msg.encode('utf-8')
+            start_response('404 Not Found', [
+                ('Content-Type', 'text/plain'),
+                ('Content-Length', str(len(output))),
+            ])
+            return [output]
+    except:
+        try:
+            raise  # re-raise the original error
+        finally:
+            try:
+                pls.db.rollback()
+            except:
+                pass  # ignore errors in rollback
 
 
 if SERVE_STATIC_FILES:
@@ -647,12 +680,19 @@ def cli_main():
     parser.add_argument(
         "--dbunittest", action="store_true", default=False,
         help="Unit tests for database code")
+    parser.add_argument('--verbose', action='count', default=0,
+                        help="Verbose startup")
     parser.add_argument(
         "configfilename", nargs="?", default=None,
         help="Configuration file. (When run in WSGI mode, this is read from "
              "the CAMCOPS_CONFIG_FILE variable in (1) the WSGI environment, "
              "or (2) the operating system environment.)")
     args = parser.parse_args()
+
+    # Initial log level (overridden later by config file but helpful for start)
+    loglevel = logging.DEBUG if args.verbose >= 1 else logging.INFO
+    logger.setLevel(loglevel)
+    dblogger.setLevel(loglevel)
 
     if args.show_hl7_queue:
         silent = True

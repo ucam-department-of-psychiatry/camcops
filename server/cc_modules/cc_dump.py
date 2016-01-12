@@ -122,8 +122,9 @@ def validate_single_table(table):
 # Providing user with database dump output in various formats
 # =============================================================================
 
-def get_database_dump_as_sql(tables=[]):
+def get_database_dump_as_sql(tables=None):
     """Returns a database dump of all the tables requested, in SQL format."""
+    tables = tables or []
     tables = validate_table_list(tables)
     if not tables:
         return NOTHING_VALID_SPECIFIED

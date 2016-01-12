@@ -206,8 +206,6 @@ WRKEXTRASTRINGTEMPLATES = join(WRKSERVERDIR, 'extra_string_templates')
 SRCPYTHONLIBDIR = join(SRCSERVERDIR, 'pythonlib')
 WRKPYTHONLIBDIR = join(WRKSERVERDIR, 'pythonlib')
 
-DSTSTRINGFILE = join(DSTSERVERDIR, 'strings.xml')
-
 SRCMODULEDIR = join(SRCSERVERDIR, 'cc_modules')
 WRKMODULEDIR = join(WRKSERVERDIR, 'cc_modules')
 
@@ -229,6 +227,7 @@ DSTVENVSCRIPT = join(DSTTOOLDIR, VENVSCRIPT)
 DSTWKHTMLTOPDFSCRIPT = join(DSTTOOLDIR, WKHTMLTOPDFSCRIPT)
 
 WRKTABLETDIR = join(WRKBASEDIR, 'tablet')
+DSTTABLETDIR = join(DSTBASEDIR, 'tablet')
 
 MAINSCRIPTNAME = 'camcops.py'
 
@@ -259,7 +258,6 @@ DSTCONFIGFILE = join(DSTCONFIGDIR, PACKAGE + '.conf')
 WRKCONFIGFILE = join(WRKCONFIGDIR, PACKAGE + '.conf')
 WEBDOCSCONFIGFILE = join(WEBDOCSDIR, PACKAGE + '.conf')
 
-
 DSTDPKGDIR = '/var/lib/dpkg/info'
 
 DSTLOCKDIR = join('/var/lock', PACKAGE)
@@ -280,6 +278,10 @@ DSTPYTHONCACHE = join(DSTBASEDIR, '.cache')
 SRCSTATICDIR = join(SRCSERVERDIR, 'static')
 WRKSTATICDIR = join(WRKSERVERDIR, 'static')
 DSTSTATICDIR = join(DSTSERVERDIR, 'static')
+
+DSTMPLCONFIGDIR = '/var/cache/{}/matplotlib'.format(PACKAGE)
+# Lintian dislikes using /var/local
+WRKMPLCONFIGDIR = workpath(WRKDIR, DSTMPLCONFIGDIR)
 
 # =============================================================================
 # Version number and conditionals
@@ -325,6 +327,7 @@ mkdirp(WRKEXTRASTRINGS)
 mkdirp(WRKEXTRASTRINGTEMPLATES)
 mkdirp(WRKMANDIR)
 mkdirp(WRKMODULEDIR)
+mkdirp(WRKMPLCONFIGDIR)
 mkdirp(WRKPYTHONLIBDIR)
 mkdirp(WRKSERVERDIR)
 mkdirp(WRKSTATICDIR)
@@ -341,7 +344,6 @@ copyglob(join(SRCSERVERDIR, '*.py'), WRKSERVERDIR)
 copyglob(join(SRCSERVERDIR, '*.txt'), WRKSERVERDIR)
 copyglob(join(SRCPYTHONLIBDIR, '*.py'), WRKPYTHONLIBDIR)
 copyglob(join(SRCSTATICDIR, '*'), WRKSTATICDIR)
-copyglob(join(SRCTABLETDIR, 'i18n', 'en', 'strings.xml'), WRKSERVERDIR)
 copyglob(join(SRCSERVERDIR, 'changelog.Debian'), WRKDOCDIR)
 subprocess.check_call(['gzip', '-9', join(WRKDOCDIR, 'changelog.Debian')])
 copyglob(join(SRCSERVERDIR, 'changelog.Debian'), WEB_VERSION_FILES_DIR)
@@ -356,13 +358,26 @@ copyglob(join(SRCTOOLDIR, VENVSCRIPT), WRKTOOLDIR)
 copyglob(join(SRCTOOLDIR, WKHTMLTOPDFSCRIPT), WRKTOOLDIR)
 
 print("Copying tablet code")
-TABLETSUBDIRS = ("common html lib menu menulib questionnaire questionnairelib "
-                 "screen table task task_html".split())
-TABLETRESOURCESDIR = join(SRCTABLETDIR, 'Resources')
+TABLETSUBDIRS = [
+    "i18n/en",
+    "Resources/common",
+    "Resources/html",
+    "Resources/lib",
+    "Resources/menu",
+    "Resources/menulib",
+    "Resources/questionnaire",
+    "Resources/questionnairelib",
+    "Resources/screen",
+    "Resources/table",
+    "Resources/task",
+    "Resources/task_html",
+]
 for d in TABLETSUBDIRS:
     destdir = join(WRKTABLETDIR, d)
     mkdirp(destdir)
-    copyglob(join(TABLETRESOURCESDIR, d, '*'), destdir)
+    copyglob(join(SRCTABLETDIR, d, '*'), destdir)
+
+DSTSTRINGFILE = join(DSTTABLETDIR, 'i18n/en/strings.xml')
 
 # =============================================================================
 print("Creating man page. Will be installed as " + DSTMANFILE)
@@ -601,7 +616,7 @@ FINALIZE_POLICY = forename AND surname AND dob AND sex AND idnum1
 
 LOCAL_INSTITUTION_URL = $INSTITUTIONURL
 
-# LOCAL_LOGO_FILE_ABSOLUTE: Specify the full path to your institution's logo
+# LOCAL_LOGO_FILE: Specify the full path to your institution's logo
 # file, e.g. /var/www/logo_local_myinstitution.png . It's used for PDF
 # generation; HTML views use the fixed string "static/logo_local.png", aliased
 # to your file via the Apache configuration file).
@@ -609,28 +624,29 @@ LOCAL_INSTITUTION_URL = $INSTITUTIONURL
 
 LOCAL_LOGO_FILE_ABSOLUTE = $DSTSTATICDIR/logo_local.png
 
-# RESOURCES_DIRECTORY: Resources directory containing the strings.xml string
+# CAMCOPS_LOGO_FILE_ABSOLUTE: similarly, but for the CamCOPS logo.
+# It's fine not to specify this.
+
+# CAMCOPS_LOGO_FILE_ABSOLUTE = $DSTSTATICDIR/logo_camcops.png
+
+# MAIN_STRING_FILE: Main strings.xml file to be used by the server.
 # file and other resources (set by the installation script;
 # default $DSTSERVERDIR).
 
-RESOURCES_DIRECTORY = $DSTSERVERDIR
+MAIN_STRING_FILE = $DSTSTRINGFILE
 
 # EXTRA_STRING_FILES: multiline list of filenames (with absolute paths), read
 # by the server, and used as EXTRA STRING FILES (in addition to the main
-# strings.xml file specified by RESOURCES_DIRECTORY above). Optional.
+# strings.xml file specified by MAIN_STRING_FILE above). Optional.
 # May use "glob" pattern-matching (see
 # https://docs.python.org/3.5/library/glob.html).
 
 EXTRA_STRING_FILES = $DSTEXTRASTRINGS/*
 
-# INTROSPECTION_DIRECTORY: Root directory of the CamCOPS installation,
-# used for offering CamCOPS's source code to users if INTROSPECTION is enabled.
-# Default is $DSTBASEDIR.
 # INTROSPECTION: permits the offering of CamCOPS source code files to the user,
 # allowing inspection of tasks' internal calculating algorithms. Default is
 # true.
 
-INTROSPECTION_DIRECTORY = $DSTBASEDIR
 INTROSPECTION = true
 
 # HL7_LOCKFILE: filename stem used for process locking for HL7 message
@@ -1133,6 +1149,7 @@ SCRIPT_AFTER_FILE_EXPORT =
         DSTLOCKDIR=DSTLOCKDIR,
         DSTSERVERDIR=DSTSERVERDIR,
         DSTSTATICDIR=DSTSTATICDIR,
+        DSTSTRINGFILE=DSTSTRINGFILE,
         DSTSUMMARYTABLELOCKFILESTEM=DSTSUMMARYTABLELOCKFILESTEM,
         INSTITUTIONURL=INSTITUTIONURL,
     ), file=outfile)
@@ -1292,6 +1309,7 @@ chmod 600 {DSTCONFIGFILE}
 if [[ ! -z "$APACHEUSER" ]]; then
     chown $APACHEUSER:$APACHEUSER {DSTCONFIGFILE}
     chown $APACHEUSER:$APACHEUSER {DSTLOCKDIR}
+    chown $APACHEUSER:$APACHEUSER {DSTMPLCONFIGDIR}
     chown $APACHEUSER:$APACHEUSER {DST_SUPERVISOR_CONF_FILE}
 fi
 
@@ -1337,6 +1355,7 @@ echo "========================================================================"
         DSTPYTHONCACHE=DSTPYTHONCACHE,
         DSTSYSTEMPYTHON=DSTSYSTEMPYTHON,
         DSTWKHTMLTOPDFSCRIPT=DSTWKHTMLTOPDFSCRIPT,
+        DSTMPLCONFIGDIR=DSTMPLCONFIGDIR,
         DSTVENVSCRIPT=DSTVENVSCRIPT,
         DSTPYTHONVENV=DSTPYTHONVENV,
         DSTLOCKDIR=DSTLOCKDIR,
@@ -1452,7 +1471,7 @@ command = $DSTPYTHONVENV/bin/gunicorn camcops:application
 ;   --bind=127.0.0.1:$DEFAULT_GUNICORN_PORT
 ;   --bind=unix:$DEFAULT_GUNICORN_SOCKET
 directory = $DSTSERVERDIR
-environment = PYTHONPATH="$DSTPYTHONPATH"
+environment = PYTHONPATH="$DSTPYTHONPATH",MPLCONFIGDIR="$DSTMPLCONFIGDIR"
 user = www-data
 ; ... Ubuntu: typically www-data
 ; ... CentOS: typically apache
@@ -1467,6 +1486,7 @@ stopwaitsecs = 60
         DSTPYTHONVENV=DSTPYTHONVENV,
         DEFAULT_GUNICORN_PORT=DEFAULT_GUNICORN_PORT,
         DEFAULT_GUNICORN_SOCKET=DEFAULT_GUNICORN_SOCKET,
+        DSTMPLCONFIGDIR=DSTMPLCONFIGDIR,
         DSTSERVERDIR=DSTSERVERDIR,
         DSTPYTHONPATH=DSTPYTHONPATH,
         DSTCONFIGFILE=DSTCONFIGFILE,

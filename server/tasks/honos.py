@@ -146,7 +146,7 @@ class Honos(Task):
         total = 0
         for q in range(1, Honos.NQUESTIONS + 1):
             value = getattr(self, "q" + str(q))
-            if value >= 0 and value <= 4:
+            if value is not None and value >= 0 and value <= 4:
                 # i.e. ignore null values and 9 (= not known)
                 total += value
         return total
@@ -316,7 +316,7 @@ class Honos65(Task):
         total = 0
         for q in range(1, Honos65.NQUESTIONS + 1):
             value = getattr(self, "q" + str(q))
-            if value >= 0 and value <= 4:
+            if value is not None and value >= 0 and value <= 4:
                 # i.e. ignore null values and 9 (= not known)
                 total += value
         return total
@@ -476,7 +476,7 @@ class Honosca(Task):
         total = 0
         for q in range(1, Honosca.NQUESTIONS + 1):
             value = getattr(self, "q" + str(q))
-            if value >= 0 and value <= 4:
+            if value is not None and value >= 0 and value <= 4:
                 # i.e. ignore null values and 9 (= not known)
                 total += value
         return total

@@ -49,16 +49,14 @@ def cache_strings():
     """
     if cc_pls.pls.stringDict is not None:
         return
-    if cc_pls.pls.CAMCOPS_STRINGS_FILE_ABSOLUTE is None:
+    if cc_pls.pls.MAIN_STRING_FILE is None:
         raise AssertionError(
-            "pls.CAMCOPS_STRINGS_FILE_ABSOLUTE is None -- likely use of "
+            "pls.MAIN_STRING_FILE is None -- likely use of "
             "LSTRING/WSTRING in classmethod, before initialization via "
             "the WSGI application entry point")
-    logger.debug("Loading XML file: " +
-                 cc_pls.pls.CAMCOPS_STRINGS_FILE_ABSOLUTE)
+    logger.debug("Loading XML file: " + cc_pls.pls.MAIN_STRING_FILE)
     parser = ElementTree.XMLParser(encoding="UTF-8")
-    tree = ElementTree.parse(cc_pls.pls.CAMCOPS_STRINGS_FILE_ABSOLUTE,
-                             parser=parser)
+    tree = ElementTree.parse(cc_pls.pls.MAIN_STRING_FILE, parser=parser)
     cc_pls.pls.stringDict = {}
     # find all children of the root with tag "string" and attribute "name"
     for e in tree.findall("./string[@name]"):

@@ -99,8 +99,9 @@ class SpecialNote(object):
             note=ws.webify(self.note) or "",
         )
 
-    def get_xml_root(self, skip_fields=[]):
+    def get_xml_root(self, skip_fields=None):
         """Get root of XML tree, as an XmlElementTuple."""
+        skip_fields = skip_fields or []
         branches = cc_xml.make_xml_branches_from_fieldspecs(
             self, self.FIELDSPECS, skip_fields=skip_fields)
         return cc_namedtuples.XmlElementTuple(name=self.TABLENAME,

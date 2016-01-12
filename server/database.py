@@ -662,12 +662,15 @@ def get_server_pks_of_specified_records(device, table, wheredict):
     return pls.db.fetchallfirstvalues(query, *args)
 
 
-def append_where_sql_and_values(query, args, wheredict=[], wherenotdict=[]):
+def append_where_sql_and_values(query, args, wheredict=None,
+                                wherenotdict=None):
     """Appends a set of conditions, joined with AND, to the WHERE clause of
     an SQL query. Note that there WHERE clause must already have been started.
     Allows WHERE and WHERE NOT clauses.
 
     MODIFIES the args argument in place, and returns an extended query."""
+    wheredict = wheredict or []
+    wherenotdict = wherenotdict or []
     if wheredict:
         for wherefield, wherevalue in wheredict.items():
             if wherevalue is None:
@@ -1819,41 +1822,6 @@ def main_http_processor(env):
 # =============================================================================
 # WSGI application
 # =============================================================================
-
-def database_wrapper(environ, start_response):
-    """WSGI application entry point.
-
-    Provides a wrapper around the main WSGI application in order to trap
-    database errors, so that a commit or rollback is guaranteed, and so a crash
-    cannot leave the database in a locked state and thereby mess up other
-    processes.
-    """
-
-    if environ["wsgi.multithread"]:
-        logger.critical("Started in multithreaded mode")
-        raise RuntimeError("Cannot be run in multithreaded mode")
-    else:
-        logger.debug("Started in single-threaded mode")
-
-    # Set global variables, connect/reconnect to database, etc.
-    pls.set_from_environ_and_ping_db(environ)
-
-    # Trap any errors from here.
-    # http://doughellmann.com/2009/06/19/python-exception-handling-techniques.html  # noqa
-
-    try:
-        result = database_application(environ, start_response)
-        # ... it will commit (the earlier the better for speed)
-        return result
-    except:
-        try:
-            raise  # re-raise the original error
-        finally:
-            try:
-                pls.db.rollback()
-            except:
-                pass  # ignore errors in rollback
-
 
 def database_application(environ, start_response):
     """Main WSGI application handler. Very simple."""

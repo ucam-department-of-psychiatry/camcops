@@ -21,7 +21,6 @@
     limitations under the License.
 """
 
-import base64
 import errno
 import codecs
 import hl7
@@ -46,12 +45,23 @@ from .cc_constants import (
 from . import cc_db
 from . import cc_dt
 from . import cc_filename
+from .cc_hl7core import (
+    escape_hl7_text,
+    get_mod11_checkdigit,
+    make_msh_segment,
+    make_obr_segment,
+    make_obx_segment,
+    make_pid_segment,
+    msg_is_successful_ack,
+    SEGMENT_SEPARATOR,
+)
 from . import cc_html
 from .cc_logger import logger
 from . import cc_namedtuples
 from .cc_pls import pls
 from . import cc_recipdef
 from . import cc_task
+from .cc_unittest import unit_test_ignore
 
 
 # =============================================================================

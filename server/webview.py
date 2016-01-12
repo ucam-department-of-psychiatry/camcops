@@ -2954,42 +2954,7 @@ def make_summary_tables(from_console=True):
 # WSGI application
 # =============================================================================
 
-def camcops_application_db_wrapper(environ, start_response):
-    """WSGI application entry point.
-
-    Provides a wrapper around the main WSGI application in order to trap
-    database errors, so that a commit or rollback is guaranteed, and so a crash
-    cannot leave the database in a locked state and thereby mess up other
-    processes.
-    """
-
-    if environ["wsgi.multithread"]:
-        logger.critical("Started in multithreaded mode")
-        raise RuntimeError("Cannot be run in multithreaded mode")
-    else:
-        logger.debug("Started in single-threaded mode")
-
-    # Set global variables, connect/reconnect to database, etc.
-    pls.set_from_environ_and_ping_db(environ)
-
-    # Trap any errors from here.
-    # http://doughellmann.com/2009/06/19/python-exception-handling-techniques.html  # noqa
-
-    try:
-        result = camcops_application_main(environ, start_response)
-        # ... it will commit (the earlier the better for speed)
-        return result
-    except Exception:
-        try:
-            raise  # re-raise the original error
-        finally:
-            try:
-                pls.db.rollback()
-            except:
-                pass  # ignore errors in rollback
-
-
-def camcops_application_main(environ, start_response):
+def webview_application(environ, start_response):
     """Main WSGI application handler."""
     # Establish a session based on incoming details
     cc_session.establish_session(environ)  # writes to pls.session
@@ -3009,7 +2974,8 @@ def camcops_application_main(environ, start_response):
     pls.db.commit()  # WSGI route commit
 
     # Add cookie.
-    extraheaders.extend(pls.session.get_cookies())
+    cookies = pls.session.get_cookies()
+    extraheaders.extend(cookies)
     # Wipe session details, as an additional safeguard
     pls.session = None
 
@@ -3073,4 +3039,3 @@ def unit_tests():
     # ignored: make_superuser
     # ignored: reset_password
     # ignored: enable_user_cli
-    # ignored: camcops_application_db_wrapper

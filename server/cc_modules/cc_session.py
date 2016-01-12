@@ -32,7 +32,7 @@ import pythonlib.rnc_web as ws
 from . import cc_analytics
 from .cc_constants import ACTION, DATEFORMAT, NUMBER_OF_IDNUMS, PARAM
 from . import cc_db
-from . import cc_device
+# from . import cc_device
 from . import cc_dt
 from . import cc_html
 from .cc_logger import logger
@@ -895,7 +895,7 @@ class Session:
 
     def get_npages(self, ntasks):
         """Number of pages."""
-        if not self.number_to_view:
+        if not ntasks or not self.number_to_view:
             return 1
         return math.ceil(ntasks / self.number_to_view)
 

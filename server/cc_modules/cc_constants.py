@@ -50,12 +50,14 @@ DEFAULT_MYSQLDUMP = "/usr/bin/mysqldump"
 DEFAULT_MYSQL = "/usr/bin/mysql"
 DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS = 0  # zero for never
 
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_RESOURCES_DIRECTORY = os.path.abspath(
-    os.path.join(THIS_DIR,  # cc_modules
+THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+PROJECT_BASE_DIRECTORY = os.path.abspath(  # *** RENAMED
+    os.path.join(THIS_DIRECTORY,  # cc_modules
                  os.pardir,  # server
                  os.pardir))  # camcops
-# DEFAULT_RESOURCES_DIRECTORY = "/usr/share/camcops/server"
+SERVER_BASE_DIRECTORY = os.path.join(PROJECT_BASE_DIRECTORY, "server")
+DEFAULT_STRING_FILE = os.path.join(
+    PROJECT_BASE_DIRECTORY, "tablet", "i18n", "en", "strings.xml")
 DEFAULT_TIMEOUT_MINUTES = 30
 DEFAULT_PLOT_FONTSIZE = 8
 
@@ -77,34 +79,38 @@ URL_ROOT_DATABASE = "/database"
 URL_ROOT_STATIC = "/static"  # only for development environments
 
 # =============================================================================
-# Other filenames
+# More filenames
 # =============================================================================
 
-CAMCOPS_STRINGS_FILE = "strings.xml"
+DEFAULT_CAMCOPS_LOGO_FILE = os.path.join(SERVER_BASE_DIRECTORY,
+                                         CAMCOPS_LOGO_FILE_WEBREF)
+DEFAULT_LOCAL_LOGO_FILE = os.path.join(SERVER_BASE_DIRECTORY,
+                                       LOCAL_LOGO_FILE_WEBREF)
 
 # =============================================================================
 # Introspection
 # =============================================================================
 
-DEFAULT_INTROSPECTION_DIRECTORY = DEFAULT_RESOURCES_DIRECTORY
+INTROSPECTION_BASE_DIRECTORY = PROJECT_BASE_DIRECTORY
 INTROSPECTABLE_EXTENSIONS = [".js", ".jsx", ".html", ".py", ".pl", ".xml"]
 INTROSPECTABLE_DIRECTORIES = [
     "server",
     "server/cc_modules",
     "server/pythonlib",
     "server/tasks",
-    "tablet",
-    "tablet/common",
-    "tablet/html",
-    "tablet/lib",
-    "tablet/menu",
-    "tablet/menulib",
-    "tablet/questionnaire",
-    "tablet/questionnairelib",
-    "tablet/screen",
-    "tablet/table",
-    "tablet/task",
-    "tablet/task_html",
+    "server/tools",
+    "tablet/i18n/en",
+    "tablet/Resources/common",
+    "tablet/Resources/html",
+    "tablet/Resources/lib",
+    "tablet/Resources/menu",
+    "tablet/Resources/menulib",
+    "tablet/Resources/questionnaire",
+    "tablet/Resources/questionnairelib",
+    "tablet/Resources/screen",
+    "tablet/Resources/table",
+    "tablet/Resources/task",
+    "tablet/Resources/task_html",
 ]
 
 # =============================================================================
