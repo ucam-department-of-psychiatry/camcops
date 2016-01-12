@@ -41,7 +41,7 @@ from cc_modules.cc_task import (
 
 class Hads(Task):
     NQUESTIONS = 14
-    EXTRASTRING_TASKNAME = "HADS"
+    EXTRASTRING_TASKNAME = "hads"
     ANXIETY_QUESTIONS = [1, 3, 5, 7, 9, 11, 13]
     DEPRESSION_QUESTIONS = [2, 4, 6, 8, 10, 12, 14]
     TASK_FIELDSPECS = repeat_fieldspec(

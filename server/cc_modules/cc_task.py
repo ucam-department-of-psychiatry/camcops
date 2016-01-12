@@ -121,9 +121,11 @@ DATA_COLLECTION_UNLESS_UPGRADED_DIV = """
     <div class="copyright">
         Reproduction of the original task/scale is not permitted as part of
         CamCOPS. This is a data collection tool only, unless the hosting
-        institution has supplied task text via its own permissions. Any such
-        text is not part of CamCOPS. Use this data collection tool only in
-        conjunction with a licensed copy of the original task.
+        institution has supplied task text via its own permissions. <b>Any such
+        text, if shown here, is not part of CamCOPS, and copyright in
+        it belongs to the original task’s copyright holder.</b> Use this data
+        collection tool only in conjunction with a licensed copy of the
+        original task.
     </div>
 """
 FULLWIDTH_PLOT_WIDTH = 6.7  # inches: full width is ~170mm

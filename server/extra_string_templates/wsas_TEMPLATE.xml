@@ -1,20 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-  <task name="zbi12">
-    <!-- Zarit Burden Interview -->
+  <task name="wsas">
+    <!-- Work and Social Adjustment Scale -->
     <!-- TEMPLATE ONLY: replace 'XXX' with real text if you have the necessary permissions -->
     <string name="instruction">XXX</string>
+    <string name="q_retired_etc">XXX</string>
     <string name="q1">XXX</string>
     <string name="q2">XXX</string>
     <string name="q3">XXX</string>
     <string name="q4">XXX</string>
     <string name="q5">XXX</string>
-    <string name="q6">XXX</string>
-    <string name="q7">XXX</string>
-    <string name="q8">XXX</string>
-    <string name="q9">XXX</string>
-    <string name="q10">XXX</string>
-    <string name="q11">XXX</string>
-    <string name="q12">XXX</string>
   </task>
 </resources>

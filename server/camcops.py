@@ -13,6 +13,7 @@ from werkzeug.contrib.profiler import ProfilerMiddleware
 from werkzeug.wsgi import SharedDataMiddleware
 
 import pythonlib.rnc_db as rnc_db
+from pythonlib.rnc_lang import convert_to_bool
 from pythonlib.wsgi_errorreporter import ErrorReportingMiddleware
 from pythonlib.wsgi_cache import DisableClientSideCachingMiddleware
 
@@ -63,21 +64,23 @@ from database import database_application
 # Debugging options
 # =============================================================================
 
-# Not possible to put the next two flags in environment variables, because we
-# need them at load-time and the WSGI system only gives us environments at
-# run-time.
+# Note that: (*) os.environ is available at load time but is separate from the
+# WSGI environment; (*) the WSGI environment is sent with each request; (*) we
+# need the following information at load time.
 
 # For debugging, set the next variable to True, and it will provide much
 # better HTML debugging output.
 # Use caution enabling this on a production system.
 # However, system passwords should be concealed regardless (see cc_shared.py).
-DEBUG_TO_HTTP_CLIENT = True
+CAMCOPS_DEBUG_TO_HTTP_CLIENT = convert_to_bool(
+    os.environ.get("CAMCOPS_DEBUG_TO_HTTP_CLIENT", False))
 
 # Report profiling information to the HTTPD log? (Adds overhead; do not enable
 # for production systems.)
-PROFILE = False
+CAMCOPS_PROFILE = convert_to_bool(os.environ.get("CAMCOPS_PROFILE", False))
 
-SERVE_STATIC_FILES = True
+CAMCOPS_SERVE_STATIC_FILES = convert_to_bool(
+    os.environ.get("CAMCOPS_SERVE_STATIC_FILES", True))
 
 # The other debugging control is in cc_shared: see the logger.setLevel() calls,
 # controlled primarily by the configuration file's DEBUG_OUTPUT option.
@@ -111,9 +114,9 @@ database_application = DisableClientSideCachingMiddleware(database_application)
 # Don't apply ZIP compression here as middleware: it needs to be done
 # selectively by content type, and is best applied automatically by Apache
 # (which is easy).
-if DEBUG_TO_HTTP_CLIENT:
+if CAMCOPS_DEBUG_TO_HTTP_CLIENT:
     webview_application = ErrorReportingMiddleware(webview_application)
-if PROFILE:
+if CAMCOPS_PROFILE:
     webview_application = ProfilerMiddleware(webview_application)
     database_application = ProfilerMiddleware(database_application)
 
@@ -169,7 +172,7 @@ def application(environ, start_response):
                 pass  # ignore errors in rollback
 
 
-if SERVE_STATIC_FILES:
+if CAMCOPS_SERVE_STATIC_FILES:
     application = SharedDataMiddleware(application, {
         URL_ROOT_STATIC: os.path.join(os.path.dirname(__file__), 'static')
     })

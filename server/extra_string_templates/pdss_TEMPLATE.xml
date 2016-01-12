@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="pdss">
+    <!-- Panic Disorder Severity Scale -->
+    <!-- TEMPLATE ONLY: replace 'XXX' with real text if you have the necessary permissions -->
+    <string name="instruction">XXX</string>
+
+    <string name="q1">XXX</string>
+    <string name="q1_option0">XXX</string>
+    <string name="q1_option1">XXX</string>
+    <string name="q1_option2">XXX</string>
+    <string name="q1_option3">XXX</string>
+    <string name="q1_option4">XXX</string>
+
+    <string name="q2">XXX</string>
+    <string name="q2_option0">XXX</string>
+    <string name="q2_option1">XXX</string>
+    <string name="q2_option2">XXX</string>
+    <string name="q2_option3">XXX</string>
+    <string name="q2_option4">XXX</string>
+
+    <string name="q3">XXX</string>
+    <string name="q3_option0">XXX</string>
+    <string name="q3_option1">XXX</string>
+    <string name="q3_option2">XXX</string>
+    <string name="q3_option3">XXX</string>
+    <string name="q3_option4">XXX</string>
+
+    <string name="q4">XXX</string>
+    <string name="q4_option0">XXX</string>
+    <string name="q4_option1">XXX</string>
+    <string name="q4_option2">XXX</string>
+    <string name="q4_option3">XXX</string>
+    <string name="q4_option4">XXX</string>
+
+    <string name="q5">XXX</string>
+    <string name="q5_option0">XXX</string>
+    <string name="q5_option1">XXX</string>
+    <string name="q5_option2">XXX</string>
+    <string name="q5_option3">XXX</string>
+    <string name="q5_option4">XXX</string>
+
+    <string name="q6">XXX</string>
+    <string name="q6_option0">XXX</string>
+    <string name="q6_option1">XXX</string>
+    <string name="q6_option2">XXX</string>
+    <string name="q6_option3">XXX</string>
+    <string name="q6_option4">XXX</string>
+
+    <string name="q7">XXX</string>
+    <string name="q7_option0">XXX</string>
+    <string name="q7_option1">XXX</string>
+    <string name="q7_option2">XXX</string>
+    <string name="q7_option3">XXX</string>
+    <string name="q7_option4">XXX</string>
+  </task>
+</resources>

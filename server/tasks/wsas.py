@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# iesr.py
+# wsas.py
 
 """
     Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
@@ -37,37 +37,20 @@ from cc_modules.cc_task import (
 
 
 # =============================================================================
-# IES-R
+# WSAS
 # =============================================================================
 
-class Iesr(Task):
+class Wsas(Task):
     MIN_SCORE = 0
-    MAX_SCORE = 4
+    MAX_SCORE = 8
     QUESTION_SNIPPETS = [
-        "reminder feelings",  # 1
-        "sleep maintenance",
-        "reminder thinking",
-        "irritable",
-        "avoided getting upset",  # 5
-        "thought unwanted",
-        "unreal",
-        "avoided reminder",
-        "mental pictures",
-        "jumpy",  # 10
-        "avoided thinking",
-        "feelings undealt",
-        "numb",
-        "as if then",
-        "sleep initiation",  # 15
-        "waves of emotion",
-        "tried forgetting",
-        "concentration",
-        "reminder physical",
-        "dreams",  # 20
-        "vigilant",
-        "avoided talking",
+        "work",
+        "home management",
+        "social leisure",
+        "private leisure",
+        "relationships",
     ]
-    NQUESTIONS = 22
+    NQUESTIONS = 5
     QUESTION_FIELDSPECS = repeat_fieldspec(
         "q", 1, NQUESTIONS,
         comment_fmt="Q{n}, {s} (0-4, higher worse)",
@@ -75,27 +58,25 @@ class Iesr(Task):
         comment_strings=QUESTION_SNIPPETS
     )
     TASK_FIELDSPECS = [
-        dict(name="event", cctype="TEXT",
-             comment="Relevant event"),
+        dict(name="retired_etc", cctype="BOOL",
+             comment="Retired or choose not to have job for reason unrelated "
+             "to problem"),
     ] + QUESTION_FIELDSPECS
     TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
     QUESTION_FIELDS = [x["name"] for x in QUESTION_FIELDSPECS]
-    EXTRASTRING_TASKNAME = "iesr"
-    AVOIDANCE_QUESTIONS = [5, 7, 8, 11, 12, 13, 17, 22]
-    INTRUSION_QUESTIONS = [1, 2, 3, 6, 9, 16, 20]
-    HYPERAROUSAL_QUESTIONS = [4, 10, 14, 15, 18, 19, 21]
+    EXTRASTRING_TASKNAME = "wsas"
 
     @classmethod
     def get_tablename(cls):
-        return "iesr"
+        return "wsas"
 
     @classmethod
     def get_taskshortname(cls):
-        return "IES-R"
+        return "WSAS"
 
     @classmethod
     def get_tasklongname(cls):
-        return "Impact of Events Scale – Revised"
+        return "Work and Social Adjustment Scale"
 
     @classmethod
     def get_fieldspecs(cls):
@@ -110,35 +91,22 @@ class Iesr(Task):
             self.is_complete_summary_field(),
             dict(name="total_score", cctype="INT",
                  value=self.total_score(),
-                 comment="Total score (/ 88)"),
+                 comment="Total score (/ 40)"),
         ]
 
     def total_score(self):
         return self.sum_fields(self.QUESTION_FIELDS)
 
-    def avoidance_score(self):
-        return self.sum_fields(
-            self.fieldnames_from_list("q", self.AVOIDANCE_QUESTIONS))
-
-    def intrusion_score(self):
-        return self.sum_fields(
-            self.fieldnames_from_list("q", self.INTRUSION_QUESTIONS))
-
-    def hyperarousal_score(self):
-        return self.sum_fields(
-            self.fieldnames_from_list("q", self.HYPERAROUSAL_QUESTIONS))
-
     def is_complete(self):
         return (
             self.field_contents_valid()
-            and self.event
             and self.are_all_fields_complete(self.QUESTION_FIELDS)
         )
 
     def get_task_html(self):
         OPTION_DICT = {None: None}
         for a in range(self.MIN_SCORE, self.MAX_SCORE + 1):
-            OPTION_DICT[a] = WSTRING("iesr_a" + str(a))
+            OPTION_DICT[a] = WSTRING("wsas_a" + str(a))
         h = """
             <div class="summary">
                 <table class="summary">
@@ -147,35 +115,19 @@ class Iesr(Task):
                         <td>Total score</td>
                         <td>{total} / 88</td>
                     </td>
-                    <tr>
-                        <td>Avoidance score</td>
-                        <td>{avoidance} / 32</td>
-                    </td>
-                    <tr>
-                        <td>Intrusion score</td>
-                        <td>{intrusion} / 28</td>
-                    </td>
-                    <tr>
-                        <td>Hyperarousal score</td>
-                        <td>{hyperarousal} / 28</td>
-                    </td>
                 </table>
             </div>
             <table class="taskdetail">
-                {tr_event}
-            </table>
-            <table class="taskdetail">
                 <tr>
                     <th width="75%">Question</th>
-                    <th width="25%">Answer (0–4)</th>
+                    <th width="25%">Answer (0–8)</th>
                 </tr>
+                {retired_row}
         """.format(
             complete_tr=self.get_is_complete_tr(),
             total=answer(self.total_score()),
-            avoidance=answer(self.avoidance_score()),
-            intrusion=answer(self.intrusion_score()),
-            hyperarousal=answer(self.hyperarousal_score()),
-            tr_event=tr_qa(WSTRING("iesr_event"), self.event),
+            retired_row=tr_qa(self.WXSTRING("q_retired_etc"),
+                              self.retired_etc),
         )
         for q in range(1, self.NQUESTIONS + 1):
             a = getattr(self, "q" + str(q))

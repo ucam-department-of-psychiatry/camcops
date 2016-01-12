@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-  <task name="IES-R">
+  <task name="iesr">
     <!-- Impact of Events Scale - Revised -->
     <!-- TEMPLATE ONLY: replace 'XXX' with real text if you have the necessary permissions -->
     <string name="instruction_1">XXX</string>

@@ -26,6 +26,7 @@ camcops (1.40-1) all; urgency=high
   * PHQ-9 database comment fixed for Q10.
   * comment_fmt for HADS fields. Note MySQL: SHOW FULL COLUMNS FROM table.
   * IES-R (skeleton only).
+  * WSAS (skeleton only).
   * Unit tests to ensure no overlap for task longnames/shortnames/tables; see
     cc_task.unit_tests().
   * clinician_service field as part of clinician block
@@ -75,6 +76,16 @@ camcops (1.40-1) all; urgency=high
     complex-looking lists of IDs and isn't helpful for end users). Removal
     done simply by taking the option out of the form, in
     cc_session.get_current_filter_html().
+  * New server environment variable options (see instructions.txt):
+    MPLCONFIGDIR
+    CAMCOPS_DEBUG_TO_HTTP_CLIENT
+    CAMCOPS_PROFILE
+    CAMCOPS_SERVE_STATIC_FILES
+  * Changes to config variables:
+    RESOURCES_DIRECTORY -- removed
+    INTROSPECTION_DIRECTORY -- removed
+    MAIN_STRING_FILE -- added
+    EXTRA_STRING_FILES -- added
 
  -- Rudolf Cardinal <rudolf@pobox.com>  Mon, 04 Jan 2016 22:13:00 +0000
 

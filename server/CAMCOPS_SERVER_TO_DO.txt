@@ -6,7 +6,7 @@ CAMCOPS SERVER THINGS TO DO NOW
 
 *** test
 
-*** CentOS installation at CPFT
+*** CentOS installation at CPFT, inc. wkhtmltopdf
 
 ===============================================================================
 CAMCOPS SERVER THINGS TO DO
@@ -17,9 +17,6 @@ CAMCOPS SERVER THINGS TO DO
 
 - make more/all tasks downloadable, rather than in the giant strings file
     - strings
-        - make XSTRING() part of the BaseTask class
-        - use the base tablename as the task name, consistently
-        - default "missing string" is "[taskname: stringname]"
         - make a default isTaskCrippled() in BaseTask
     - other files
         - we don't want these in the same XML template
@@ -28,13 +25,7 @@ CAMCOPS SERVER THINGS TO DO
         - on the server side, point to one or more directories to scan
         - on the tablet, have an XFILE() function, keyed to the task
 
-- document rationale for multiple databases, not one database with a "virtual
-  database number" field (like RedCap)
-  ... allows researchers to have full access to raw database, if desired,
-      without having to work via a web API
-- document rationale for "current/non-current" fields, versus "current"-only
-  table with separate history
-  ... allows a full audit trail of arbitrary data
+- index of tasks by patient ID, to speed up lookup?
 
 ===============================================================================
 THOUGHTS/POTENTIAL THINGS TO DO

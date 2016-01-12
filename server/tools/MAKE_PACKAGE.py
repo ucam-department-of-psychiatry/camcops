@@ -616,7 +616,7 @@ FINALIZE_POLICY = forename AND surname AND dob AND sex AND idnum1
 
 LOCAL_INSTITUTION_URL = $INSTITUTIONURL
 
-# LOCAL_LOGO_FILE: Specify the full path to your institution's logo
+# LOCAL_LOGO_FILE_ABSOLUTE: Specify the full path to your institution's logo
 # file, e.g. /var/www/logo_local_myinstitution.png . It's used for PDF
 # generation; HTML views use the fixed string "static/logo_local.png", aliased
 # to your file via the Apache configuration file).
@@ -1550,6 +1550,63 @@ Monitoring with supervisord
     sudo supervisorctl  # assuming it's running as root
 
 ===============================================================================
+Advanced configuration
+===============================================================================
+
+CamCOPS uses operating system environment variables (os.environ, from a Python
+perspective) for things that influence early startup, such as module loading.
+This is because it's often convenient to load all relevant modules before
+reading the configuration file. These govern low-level settings and are not
+typically needed, or are typically set up for you as part of the default
+CamCOPS installation.
+
+Essential environment variables
+-------------------------------
+
+CAMCOPS_CONFIG_FILE
+    Points to the configuration file itself (e.g. /etc/camcops.conf).
+
+Common environment variables
+----------------------------
+
+MPLCONFIGDIR
+    A temporary cache directory for matplotlib to store information (e.g. font
+    lists). Specifying this dramatically reduces matplotlib's startup time
+    (from e.g. 3 seconds the first time, to a fraction of that subsequently).
+    If you don't specify it, CamCOPS uses a fresh temporary directory, so you
+    don't get the speedup. The default is
+        {DSTMPLCONFIGDIR}
+    The directory must be writable by the user running CamCOPS.
+
+Debugging environment variables
+-------------------------------
+
+CAMCOPS_DEBUG_TO_HTTP_CLIENT
+    Boolean string (e.g. 'True', 'Y', '1' / 'False', 'N', '0').
+    Enables exception reporting to the HTTP client. Should be DISABLED for
+    production systems. Default is False.
+
+CAMCOPS_PROFILE
+    Boolean string.
+    Enable a profiling layer on HTTP requests. The output goes to the system
+    console. Default is False.
+
+CAMCOPS_SERVE_STATIC_FILES
+    Boolean string.
+    The CamCOPS program will itself serve static files. Default is True.
+    In a production server, you can ignore this setting, but you should serve
+    static files from a proper web server (e.g. Apache) instead, for
+    performance.
+
+Note regarding environment variables
+------------------------------------
+
+Operating system environment variables are read at PROGRAM LOAD TIME, not WSGI
+call time. They are distinct from WSGI environment variables (which are passed
+from the WSGI web server to CamCOPS at run-time and contain per-request
+information).
+
+===============================================================================
 Testing with just gunicorn
 ===============================================================================
 
@@ -1709,19 +1766,20 @@ OPTIMAL: proxy Apache through to Gunicorn
     Header append Vary User-Agent env=!dont-vary
 
     """).substitute(  # noqa
-        DSTPYTHONVENV=DSTPYTHONVENV,
-        DSTPYTHONPATH=DSTPYTHONPATH,
-        URLBASE=URLBASE,
-        WEBVIEWSCRIPT=WEBVIEWSCRIPT,
-        DSTSERVERDIR=DSTSERVERDIR,
-        MAINSCRIPTNAME=MAINSCRIPTNAME,
-        TABLETSCRIPT=TABLETSCRIPT,
-        DSTCONFIGFILE=DSTCONFIGFILE,
-        DSTCONFIGDIR=DSTCONFIGDIR,
-        DST_SUPERVISOR_CONF_FILE=DST_SUPERVISOR_CONF_FILE,
         DEFAULT_GUNICORN_PORT=DEFAULT_GUNICORN_PORT,
         DEFAULT_GUNICORN_SOCKET=DEFAULT_GUNICORN_SOCKET,
+        DSTCONFIGDIR=DSTCONFIGDIR,
+        DSTCONFIGFILE=DSTCONFIGFILE,
+        DSTMPLCONFIGDIR=DSTMPLCONFIGDIR,
+        DSTPYTHONPATH=DSTPYTHONPATH,
+        DSTPYTHONVENV=DSTPYTHONVENV,
+        DSTSERVERDIR=DSTSERVERDIR,
         DSTSTATICDIR=DSTSTATICDIR,
+        DST_SUPERVISOR_CONF_FILE=DST_SUPERVISOR_CONF_FILE,
+        MAINSCRIPTNAME=MAINSCRIPTNAME,
+        TABLETSCRIPT=TABLETSCRIPT,
+        URLBASE=URLBASE,
+        WEBVIEWSCRIPT=WEBVIEWSCRIPT,
     ), file=outfile)
 
 # In <Files "$DBSCRIPTNAME"> section, we did have:

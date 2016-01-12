@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-  <task name="HADS">
+  <task name="hads">
     <!-- TEMPLATE ONLY: replace 'XXX' with real text if you have the necessary permissions -->
 
     <!-- Q1. A; 3 at the top -->
