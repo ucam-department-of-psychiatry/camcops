@@ -76,6 +76,8 @@ from cc_modules.cc_constants import (
     NUMBER_OF_IDNUMS,
     PARAM,
     RESTRICTED_WARNING,
+    TASK_LIST_FOOTER,
+    TASK_LIST_HEADER,
     VALUE,
     WEBEND,
 )
@@ -580,9 +582,9 @@ def view_tasks(session, form):
         number_to_view_selector=session.get_number_to_view_selector(),
         refresh_tasks_button=refresh_tasks_button,
         page_nav=page_navigation,
-        task_list_header_table_start=cc_task.TASK_LIST_HEADER,
+        task_list_header_table_start=TASK_LIST_HEADER,
         task_rows=task_rows,
-        task_list_footer=cc_task.TASK_LIST_FOOTER,
+        task_list_footer=TASK_LIST_FOOTER,
         info_no_tasks=info_no_tasks,
     ) + WEBEND
 
@@ -719,8 +721,7 @@ def choose_tracker(session, form):
             PARAM.WHICH_IDNUM),
         PARAM=PARAM,
     )
-    classes = cc_task.Task.__subclasses__()
-    classes.sort(key=lambda cls: cls.get_taskshortname())
+    classes = cc_task.get_all_task_classes()
     for cls in classes:
         if cls.provides_trackers():
             html += """
@@ -1068,8 +1069,7 @@ def offer_basic_dump(session, form):
 
     if not session.authorized_to_dump():
         return cc_html.fail_with_error_stay_logged_in(CANNOT_DUMP)
-    classes = cc_task.Task.__subclasses__()
-    classes.sort(key=lambda cls: cls.get_taskshortname())
+    classes = cc_task.get_all_task_classes()
     possible_tasks = "".join([
         """
             <label>
@@ -1238,8 +1238,7 @@ def basic_dump(session, form):
     z = zipfile.ZipFile(memfile, "w")
 
     # Generate everything
-    classes = cc_task.Task.__subclasses__()
-    classes.sort(key=lambda cls: cls.get_taskshortname())
+    classes = cc_task.get_all_task_classes()
     processed_tables = []
     for cls in classes:
         if dump_type == VALUE.DUMPTYPE_AS_TASK_FILTER:
@@ -2141,7 +2140,7 @@ def delete_patient(session, form):
         return cc_html.fail_with_error_stay_logged_in("No such patient found.")
     # If we get here, we'll do the erasure.
     # Delete tasks (with subtables)
-    for cls in cc_task.Task.__subclasses__():
+    for cls in cc_task.get_all_task_classes():
         tablename = cls.get_tablename()
         serverpks = cls.get_task_pks_for_patient_deletion(which_idnum,
                                                           idnum_value)
@@ -2389,9 +2388,9 @@ def task_list_from_generator(generator):
         {tasklist_html}
         {TASK_LIST_FOOTER}
     """.format(
-        TASK_LIST_HEADER=cc_task.TASK_LIST_HEADER,
+        TASK_LIST_HEADER=TASK_LIST_HEADER,
         tasklist_html=tasklist_html,
-        TASK_LIST_FOOTER=cc_task.TASK_LIST_FOOTER,
+        TASK_LIST_FOOTER=TASK_LIST_FOOTER,
     )
 
 
@@ -2484,7 +2483,7 @@ def forcibly_finalize(session, form):
         cc_blob.Blob.TABLENAME,
         DeviceStoredVar.TABLENAME,
     ]
-    for cls in cc_task.Task.__subclasses__():
+    for cls in cc_task.get_all_task_classes():
         tables.append(cls.get_tablename())
         tables.extend(cls.get_extra_table_names())
     for t in tables:
@@ -2801,7 +2800,16 @@ def main_http_processor(env):
     # -------------------------------------------------------------------------
     form = ws.get_cgi_fieldstorage_from_wsgi_env(env)
     action = ws.get_cgi_parameter_str(form, PARAM.ACTION)
-    logger.debug("action = {}".format(action))
+
+    logger.info(
+        "Incoming connection from IP={i}, port={p}, user={u}, "
+        "action={a}".format(
+            i=pls.remote_addr,
+            p=pls.remote_port,
+            u=pls.session.user,
+            a=action,
+        )
+    )
 
     # -------------------------------------------------------------------------
     # Login
@@ -2938,7 +2946,7 @@ def make_summary_tables(from_console=True):
     try:
         with lock:
             logger.info("MAKING SUMMARY TABLES")
-            for cls in cc_task.Task.__subclasses__():
+            for cls in cc_task.get_all_task_classes():
                 cls.make_summary_table()
             audit("Created/recreated summary tables",
                   from_console=from_console)

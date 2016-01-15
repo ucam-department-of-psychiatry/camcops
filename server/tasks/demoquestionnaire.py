@@ -21,14 +21,14 @@
     limitations under the License.
 """
 
+from cc_modules.cc_constants import (
+    STANDARD_ANONYMOUS_TASK_FIELDSPECS,
+)
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import (
     answer,
 )
-from cc_modules.cc_task import (
-    STANDARD_ANONYMOUS_TASK_FIELDSPECS,
-    Task,
-)
+from cc_modules.cc_task import Task
 
 
 # =============================================================================

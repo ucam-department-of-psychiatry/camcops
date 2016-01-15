@@ -24,7 +24,13 @@
 import matplotlib.pyplot as plt
 import numpy
 import pythonlib.rnc_web as ws
-from cc_modules.cc_constants import PV
+from cc_modules.cc_constants import (
+    CTV_DICTLIST_INCOMPLETE,
+    CLINICIAN_FIELDSPECS,
+    FULLWIDTH_PLOT_WIDTH,
+    PV,
+    STANDARD_TASK_FIELDSPECS,
+)
 from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from cc_modules.cc_html import (
     answer,
@@ -35,13 +41,7 @@ from cc_modules.cc_html import (
     tr_qa,
     tr_span_col,
 )
-from cc_modules.cc_task import (
-    CTV_DICTLIST_INCOMPLETE,
-    CLINICIAN_FIELDSPECS,
-    FULLWIDTH_PLOT_WIDTH,
-    STANDARD_TASK_FIELDSPECS,
-    Task,
-)
+from cc_modules.cc_task import Task
 
 
 # =============================================================================

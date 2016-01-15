@@ -430,7 +430,7 @@ def make_tables(drop_superfluous_columns=False):
     print(SEPARATOR_HYPHENS)
     print("Making task tables")
     print(SEPARATOR_HYPHENS)
-    for cls in cc_task.Task.__subclasses__():
+    for cls in cc_task.get_all_task_classes():
         print(
             "Making table(s) and view(s) for task: "
             + cls.get_taskshortname()
@@ -481,8 +481,7 @@ def reset_storedvars():
 def generate_anonymisation_staging_db():
     db = pls.get_anonymisation_database()  # may raise
     ddfilename = pls.EXPORT_CRIS_DATA_DICTIONARY_TSV_FILE
-    classes = cc_task.Task.__subclasses__()
-    classes.sort(key=lambda cls: cls.get_taskshortname())
+    classes = cc_task.get_all_task_classes()
     with codecs.open(ddfilename, mode="w", encoding="utf8") as f:
         written_header = False
         for cls in classes:

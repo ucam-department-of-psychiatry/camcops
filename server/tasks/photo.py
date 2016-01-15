@@ -22,18 +22,17 @@
 """
 
 import pythonlib.rnc_web as ws
+from cc_modules.cc_constants import (
+    CLINICIAN_FIELDSPECS,
+    CTV_DICTLIST_INCOMPLETE,
+    STANDARD_ANCILLARY_FIELDSPECS,
+    STANDARD_TASK_FIELDSPECS,
+)
 from cc_modules.cc_html import (
     answer,
     tr_qa,
 )
-from cc_modules.cc_task import (
-    CLINICIAN_FIELDSPECS,
-    CTV_DICTLIST_INCOMPLETE,
-    STANDARD_TASK_FIELDSPECS,
-    STANDARD_ANCILLARY_FIELDSPECS,
-    Task,
-    Ancillary
-)
+from cc_modules.cc_task import Ancillary, Task
 
 
 # =============================================================================

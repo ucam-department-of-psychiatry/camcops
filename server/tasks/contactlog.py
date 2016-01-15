@@ -22,7 +22,13 @@
 """
 
 import pythonlib.rnc_web as ws
-from cc_modules.cc_constants import DATEFORMAT, PV
+from cc_modules.cc_constants import (
+    CLINICIAN_FIELDSPECS,
+    CTV_DICTLIST_INCOMPLETE,
+    DATEFORMAT,
+    PV,
+    STANDARD_TASK_FIELDSPECS,
+)
 from cc_modules.cc_dt import format_datetime_string, get_duration_h_m
 from cc_modules.cc_html import (
     italic,
@@ -30,12 +36,7 @@ from cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from cc_modules.cc_task import (
-    CTV_DICTLIST_INCOMPLETE,
-    CLINICIAN_FIELDSPECS,
-    STANDARD_TASK_FIELDSPECS,
-    Task,
-)
+from cc_modules.cc_task import Task
 
 
 # =============================================================================

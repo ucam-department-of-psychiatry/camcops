@@ -22,6 +22,11 @@
 """
 
 import pythonlib.rnc_web as ws
+from cc_modules.cc_constants import (
+    PV,
+    STANDARD_ANCILLARY_FIELDSPECS,
+    STANDARD_TASK_FIELDSPECS,
+)
 from cc_modules.cc_constants import PV
 from cc_modules.cc_html import (
     answer,
@@ -31,12 +36,7 @@ from cc_modules.cc_html import (
     tr_qa,
 )
 from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import (
-    STANDARD_TASK_FIELDSPECS,
-    STANDARD_ANCILLARY_FIELDSPECS,
-    Task,
-    Ancillary
-)
+from cc_modules.cc_task import Ancillary, Task
 
 
 def a(x):

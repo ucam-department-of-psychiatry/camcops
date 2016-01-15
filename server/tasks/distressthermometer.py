@@ -21,7 +21,11 @@
     limitations under the License.
 """
 
-from cc_modules.cc_constants import PV
+from cc_modules.cc_constants import (
+    CTV_DICTLIST_INCOMPLETE,
+    PV,
+    STANDARD_TASK_FIELDSPECS,
+)
 from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from cc_modules.cc_html import (
     get_yes_no_none,
@@ -29,11 +33,7 @@ from cc_modules.cc_html import (
     tr_qa,
 )
 from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import (
-    CTV_DICTLIST_INCOMPLETE,
-    STANDARD_TASK_FIELDSPECS,
-    Task,
-)
+from cc_modules.cc_task import Task
 
 
 # =============================================================================

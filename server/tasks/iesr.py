@@ -21,6 +21,10 @@
     limitations under the License.
 """
 
+from cc_modules.cc_constants import (
+    DATA_COLLECTION_UNLESS_UPGRADED_DIV,
+    STANDARD_TASK_FIELDSPECS,
+)
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import (
     answer,
@@ -28,12 +32,7 @@ from cc_modules.cc_html import (
     tr_qa,
 )
 from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import (
-    DATA_COLLECTION_UNLESS_UPGRADED_DIV,
-    get_from_dict,
-    STANDARD_TASK_FIELDSPECS,
-    Task,
-)
+from cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
@@ -103,7 +102,39 @@ class Iesr(Task):
 
     @classmethod
     def provides_trackers(cls):
-        return False
+        return True
+
+    def get_trackers(self):
+        return [
+            {
+                "value": self.total_score(),
+                "plot_label": "IES-R total score (lower is better)",
+                "axis_label": "Total score (out of 88)",
+                "axis_min": -0.5,
+                "axis_max": 88.5,
+            },
+            {
+                "value": self.avoidance_score(),
+                "plot_label": "IES-R avoidance score",
+                "axis_label": "Avoidance score (out of 32)",
+                "axis_min": -0.5,
+                "axis_max": 32.5,
+            },
+            {
+                "value": self.intrusion_score(),
+                "plot_label": "IES-R intrusion score",
+                "axis_label": "Intrusion score (out of 28)",
+                "axis_min": -0.5,
+                "axis_max": 28.5,
+            },
+            {
+                "value": self.hyperarousal_score(),
+                "plot_label": "IES-R hyperarousal score",
+                "axis_label": "Hyperarousal score (out of 28)",
+                "axis_min": -0.5,
+                "axis_max": 28.5,
+            },
+        ]
 
     def get_summaries(self):
         return [
@@ -111,6 +142,15 @@ class Iesr(Task):
             dict(name="total_score", cctype="INT",
                  value=self.total_score(),
                  comment="Total score (/ 88)"),
+            dict(name="avoidance_score", cctype="INT",
+                 value=self.avoidance_score(),
+                 comment="Avoidance score (/ 32)"),
+            dict(name="intrusion_score", cctype="INT",
+                 value=self.intrusion_score(),
+                 comment="Intrusion score (/ 28)"),
+            dict(name="hyperarousal_score", cctype="INT",
+                 value=self.hyperarousal_score(),
+                 comment="Hyperarousal score (/ 28)"),
         ]
 
     def total_score(self):

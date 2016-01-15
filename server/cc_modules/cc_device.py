@@ -26,6 +26,7 @@ import pythonlib.rnc_web as ws
 from .cc_constants import PARAM
 from . import cc_db
 from .cc_pls import pls
+from . import cc_report
 from .cc_unittest import unit_test_ignore
 
 
@@ -117,6 +118,42 @@ def get_device_filter_dropdown(currently_selected=None):
     s += """</select>"""
     return s
 
+
+# =============================================================================
+# Reports
+# =============================================================================
+
+class DeviceReport(cc_report.Report):
+    """Report to show registered devices."""
+
+    @classmethod
+    def get_report_id(cls):
+        return "devices"
+
+    @classmethod
+    def get_report_title(cls):
+        return "(Server) Devices registered with the server"
+
+    @classmethod
+    def get_param_spec_list(cls):
+        return []
+
+    def get_rows_descriptions(self):
+        sql = """
+            SELECT
+                device,
+                registered_by_user,
+                when_registered_utc,
+                friendly_name,
+                camcops_version,
+                last_upload_batch_utc
+            FROM {tablename}
+        """.format(
+            tablename=Device.TABLENAME,
+        )
+        (rows, fieldnames) = pls.db.fetchall_with_fieldnames(sql)
+        fieldnames = cc_report.expand_id_descriptions(fieldnames)
+        return (rows, fieldnames)
 
 # =============================================================================
 # Unit tests

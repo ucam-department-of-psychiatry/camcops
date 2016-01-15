@@ -28,19 +28,18 @@ import numpy
 import pythonlib.rnc_plot as rnc_plot
 import pythonlib.rnc_web as ws
 
+from cc_modules.cc_constants import (
+    FULLWIDTH_PLOT_WIDTH,
+    STANDARD_ANCILLARY_FIELDSPECS,
+    STANDARD_TASK_FIELDSPECS,
+)
 from cc_modules.cc_html import (
     get_html_from_pyplot_figure,
     get_yes_no_none,
     tr_qa,
 )
 from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import (
-    FULLWIDTH_PLOT_WIDTH,
-    STANDARD_TASK_FIELDSPECS,
-    STANDARD_ANCILLARY_FIELDSPECS,
-    Task,
-    Ancillary
-)
+from cc_modules.cc_task import Ancillary, Task
 
 
 LOWER_MARKER = 0.25

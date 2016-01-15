@@ -356,6 +356,7 @@ copyglob(join(SRCEXTRASTRINGTEMPLATES, '*'), WRKEXTRASTRINGTEMPLATES,
          allow_nothing=True)
 copyglob(join(SRCTOOLDIR, VENVSCRIPT), WRKTOOLDIR)
 copyglob(join(SRCTOOLDIR, WKHTMLTOPDFSCRIPT), WRKTOOLDIR)
+copyglob(join(SRCTOOLDIR, 'update_multiple_databases.py'), WRKTOOLDIR)
 
 print("Copying tablet code")
 TABLETSUBDIRS = [
@@ -638,6 +639,9 @@ MAIN_STRING_FILE = $DSTSTRINGFILE
 # EXTRA_STRING_FILES: multiline list of filenames (with absolute paths), read
 # by the server, and used as EXTRA STRING FILES (in addition to the main
 # strings.xml file specified by MAIN_STRING_FILE above). Optional.
+# However, if you specify it, don't remove the default of
+#   $DSTEXTRASTRINGS
+# or you will lose some functionality of some core tasks.
 # May use "glob" pattern-matching (see
 # https://docs.python.org/3.5/library/glob.html).
 

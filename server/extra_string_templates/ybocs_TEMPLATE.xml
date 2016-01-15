@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="ybocs">
+    <!-- Yale–Brown Obsessive Compulsive Scale (Y-BOCS) -->
+    <!-- TEMPLATE ONLY: replace 'XXX' with real text if you have the necessary permissions -->
+
+    <string name="instruction_1">XXX</string>
+    <string name="instruction_2">XXX</string>
+    <string name="instruction_3">XXX</string>
+    <string name="instruction_4">XXX</string>
+    <string name="instruction_5">XXX</string>
+    <string name="instruction_6">XXX</string>
+    <string name="instruction_7">XXX</string>
+    <string name="instruction_8">XXX</string>
+    <string name="instruction_9">XXX</string>
+    <string name="instruction_10">XXX</string>
+    <string name="instruction_11">XXX</string>
+    <string name="instruction_12">XXX</string>
+    <string name="instruction_13">XXX</string>
+    <string name="instruction_14">XXX</string>
+    <string name="instruction_15">XXX</string>
+    <string name="instruction_16">XXX</string>
+    <string name="instruction_17">XXX</string>
+    <string name="instruction_18">XXX</string>
+
+    <string name="target_symptom_list_title">XXX</string>
+    <string name="target_obsession_stem">XXX</string>
+    <string name="target_compulsions_stem">XXX</string>
+    <string name="target_avoidance_stem">XXX</string>
+
+    <string name="q1_preamble">XXX</string>
+
+    <string name="q1_title">XXX</string>
+    <string name="q1_question">XXX</string>
+    <string name="q1_explanation">XXX</string>
+    <string name="q1_a0">XXX</string>
+    <string name="q1_a1">XXX</string>
+    <string name="q1_a2">XXX</string>
+    <string name="q1_a3">XXX</string>
+    <string name="q1_a4">XXX</string>
+
+    <string name="q1b_title">XXX</string>
+    <string name="q1b_question">XXX</string>
+    <string name="q1b_explanation">XXX</string>
+    <string name="q1b_a0">XXX</string>
+    <string name="q1b_a1">XXX</string>
+    <string name="q1b_a2">XXX</string>
+    <string name="q1b_a3">XXX</string>
+    <string name="q1b_a4">XXX</string>
+
+    <string name="q2_title">XXX</string>
+    <string name="q2_question">XXX</string>
+    <string name="q2_explanation">XXX</string>
+    <string name="q2_a0">XXX</string>
+    <string name="q2_a1">XXX</string>
+    <string name="q2_a2">XXX</string>
+    <string name="q2_a3">XXX</string>
+    <string name="q2_a4">XXX</string>
+
+    <string name="q3_title">XXX</string>
+    <string name="q3_question">XXX</string>
+    <string name="q3_explanation">XXX</string>
+    <string name="q3_a0">XXX</string>
+    <string name="q3_a1">XXX</string>
+    <string name="q3_a2">XXX</string>
+    <string name="q3_a3">XXX</string>
+    <string name="q3_a4">XXX</string>
+
+    <string name="q4_title">XXX</string>
+    <string name="q4_question">XXX</string>
+    <string name="q4_explanation">XXX</string>
+    <string name="q4_a0">XXX</string>
+    <string name="q4_a1">XXX</string>
+    <string name="q4_a2">XXX</string>
+    <string name="q4_a3">XXX</string>
+    <string name="q4_a4">XXX</string>
+
+    <string name="q5_title">XXX</string>
+    <string name="q5_question">XXX</string>
+    <string name="q5_explanation">XXX</string>
+    <string name="q5_a0">XXX</string>
+    <string name="q5_a1">XXX</string>
+    <string name="q5_a2">XXX</string>
+    <string name="q5_a3">XXX</string>
+    <string name="q5_a4">XXX</string>
+
+    <string name="q6_preamble">XXX</string>
+
+    <string name="q6_title">XXX</string>
+    <string name="q6_question">XXX</string>
+    <string name="q6_explanation">XXX</string>
+    <string name="q6_a0">XXX</string>
+    <string name="q6_a1">XXX</string>
+    <string name="q6_a2">XXX</string>
+    <string name="q6_a3">XXX</string>
+    <string name="q6_a4">XXX</string>
+
+    <string name="q6b_title">XXX</string>
+    <string name="q6b_question">XXX</string>
+    <string name="q6b_explanation">XXX</string>
+    <string name="q6b_a0">XXX</string>
+    <string name="q6b_a1">XXX</string>
+    <string name="q6b_a2">XXX</string>
+    <string name="q6b_a3">XXX</string>
+    <string name="q6b_a4">XXX</string>
+
+    <string name="q7_title">XXX</string>
+    <string name="q7_question">XXX</string>
+    <string name="q7_explanation">XXX</string>
+    <string name="q7_a0">XXX</string>
+    <string name="q7_a1">XXX</string>
+    <string name="q7_a2">XXX</string>
+    <string name="q7_a3">XXX</string>
+    <string name="q7_a4">XXX</string>
+
+    <string name="q8_title">XXX</string>
+    <string name="q8_question">XXX</string>
+    <string name="q8_explanation">XXX</string>
+    <string name="q8_a0">XXX</string>
+    <string name="q8_a1">XXX</string>
+    <string name="q8_a2">XXX</string>
+    <string name="q8_a3">XXX</string>
+    <string name="q8_a4">XXX</string>
+
+    <string name="q9_title">XXX</string>
+    <string name="q9_question">XXX</string>
+    <string name="q9_explanation">XXX</string>
+    <string name="q9_a0">XXX</string>
+    <string name="q9_a1">XXX</string>
+    <string name="q9_a2">XXX</string>
+    <string name="q9_a3">XXX</string>
+    <string name="q9_a4">XXX</string>
+
+    <string name="q10_title">XXX</string>
+    <string name="q10_question">XXX</string>
+    <string name="q10_explanation">XXX</string>
+    <string name="q10_a0">XXX</string>
+    <string name="q10_a1">XXX</string>
+    <string name="q10_a2">XXX</string>
+    <string name="q10_a3">XXX</string>
+    <string name="q10_a4">XXX</string>
+
+    <string name="q11_preamble">XXX</string>
+
+    <string name="q11_title">XXX</string>
+    <string name="q11_question">XXX</string>
+    <string name="q11_explanation">XXX</string>
+    <string name="q11_a0">XXX</string>
+    <string name="q11_a1">XXX</string>
+    <string name="q11_a2">XXX</string>
+    <string name="q11_a3">XXX</string>
+    <string name="q11_a4">XXX</string>
+
+    <string name="q12_title">XXX</string>
+    <string name="q12_question">XXX</string>
+    <string name="q12_explanation">XXX</string>
+    <string name="q12_a0">XXX</string>
+    <string name="q12_a1">XXX</string>
+    <string name="q12_a2">XXX</string>
+    <string name="q12_a3">XXX</string>
+    <string name="q12_a4">XXX</string>
+
+    <string name="q13_title">XXX</string>
+    <string name="q13_question">XXX</string>
+    <string name="q13_explanation">XXX</string>
+    <string name="q13_a0">XXX</string>
+    <string name="q13_a1">XXX</string>
+    <string name="q13_a2">XXX</string>
+    <string name="q13_a3">XXX</string>
+    <string name="q13_a4">XXX</string>
+
+    <string name="q14_title">XXX</string>
+    <string name="q14_question">XXX</string>
+    <string name="q14_explanation">XXX</string>
+    <string name="q14_a0">XXX</string>
+    <string name="q14_a1">XXX</string>
+    <string name="q14_a2">XXX</string>
+    <string name="q14_a3">XXX</string>
+    <string name="q14_a4">XXX</string>
+
+    <string name="q15_title">XXX</string>
+    <string name="q15_question">XXX</string>
+    <string name="q15_explanation">XXX</string>
+    <string name="q15_a0">XXX</string>
+    <string name="q15_a1">XXX</string>
+    <string name="q15_a2">XXX</string>
+    <string name="q15_a3">XXX</string>
+    <string name="q15_a4">XXX</string>
+
+    <string name="q16_title">XXX</string>
+    <string name="q16_question">XXX</string>
+    <string name="q16_explanation">XXX</string>
+    <string name="q16_a0">XXX</string>
+    <string name="q16_a1">XXX</string>
+    <string name="q16_a2">XXX</string>
+    <string name="q16_a3">XXX</string>
+    <string name="q16_a4">XXX</string>
+
+    <string name="q17_preamble">XXX</string>
+
+    <string name="q17_title">XXX</string>
+    <string name="q17_question">XXX</string>
+    <string name="q17_explanation">XXX</string>
+    <string name="q17_a0">XXX</string>
+    <string name="q17_a1">XXX</string>
+    <string name="q17_a2">XXX</string>
+    <string name="q17_a3">XXX</string>
+    <string name="q17_a4">XXX</string>
+    <string name="q17_a5">XXX</string>
+    <string name="q17_a6">XXX</string>
+
+    <string name="q18_title">XXX</string>
+    <string name="q18_question">XXX</string>
+    <string name="q18_explanation">XXX</string>
+    <string name="q18_a0">XXX</string>
+    <string name="q18_a1">XXX</string>
+    <string name="q18_a2">XXX</string>
+    <string name="q18_a3">XXX</string>
+    <string name="q18_a4">XXX</string>
+    <string name="q18_a5">XXX</string>
+    <string name="q18_a6">XXX</string>
+
+    <string name="q19_title">XXX</string>
+    <string name="q19_question">XXX</string>
+    <string name="q19_explanation">XXX</string>
+    <string name="q19_a0">XXX</string>
+    <string name="q19_a1">XXX</string>
+    <string name="q19_a2">XXX</string>
+    <string name="q19_a3">XXX</string>
+
+    <string name="closing_1">XXX</string>
+    <string name="closing_2">XXX</string>
+    <string name="closing_3">XXX</string>
+
+    <string name="sc_title">XXX</string>
+    <string name="sc_instruction_1">XXX</string>
+    <string name="sc_instruction_2">XXX</string>
+
+    <string name="sc_obs_aggressive">XXX</string>
+    <string name="sc_obs_aggressive_harm_self">XXX</string>
+    <string name="sc_obs_aggressive_harm_others">XXX</string>
+    <string name="sc_obs_aggressive_imagery">XXX</string>
+    <string name="sc_obs_aggressive_obscenities">XXX</string>
+    <string name="sc_obs_aggressive_embarrassing">XXX</string>
+    <string name="sc_obs_aggressive_impulses">XXX</string>
+    <string name="sc_obs_aggressive_steal">XXX</string>
+    <string name="sc_obs_aggressive_accident">XXX</string>
+    <string name="sc_obs_aggressive_responsible">XXX</string>
+    <string name="sc_obs_aggressive_other">XXX</string>
+
+    <string name="sc_obs_contamination">XXX</string>
+    <string name="sc_obs_contamination_bodily_waste">XXX</string>
+    <string name="sc_obs_contamination_dirt">XXX</string>
+    <string name="sc_obs_contamination_environmental">XXX</string>
+    <string name="sc_obs_contamination_household">XXX</string>
+    <string name="sc_obs_contamination_animals">XXX</string>
+    <string name="sc_obs_contamination_sticky">XXX</string>
+    <string name="sc_obs_contamination_ill">XXX</string>
+    <string name="sc_obs_contamination_others_ill">XXX</string>
+    <string name="sc_obs_contamination_feeling">XXX</string>
+    <string name="sc_obs_contamination_other">XXX</string>
+
+    <string name="sc_obs_sexual">XXX</string>
+    <string name="sc_obs_sexual_forbidden">XXX</string>
+    <string name="sc_obs_sexual_children_incest">XXX</string>
+    <string name="sc_obs_sexual_homosexuality">XXX</string>
+    <string name="sc_obs_sexual_to_others">XXX</string>
+    <string name="sc_obs_sexual_other">XXX</string>
+
+    <string name="sc_obs_hoarding">XXX</string>
+    <string name="sc_obs_hoarding_other">XXX</string>
+
+    <string name="sc_obs_religious">XXX</string>
+    <string name="sc_obs_religious_sacrilege">XXX</string>
+    <string name="sc_obs_religious_morality">XXX</string>
+    <string name="sc_obs_religious_other">XXX</string>
+
+    <string name="sc_obs_symmetry">XXX</string>
+    <string name="sc_obs_symmetry_with_magical">XXX</string>
+    <string name="sc_obs_symmetry_without_magical">XXX</string>
+
+    <string name="sc_obs_misc">XXX</string>
+    <string name="sc_obs_misc_know_remember">XXX</string>
+    <string name="sc_obs_misc_fear_saying">XXX</string>
+    <string name="sc_obs_misc_fear_not_saying">XXX</string>
+    <string name="sc_obs_misc_fear_losing">XXX</string>
+    <string name="sc_obs_misc_intrusive_nonviolent_images">XXX</string>
+    <string name="sc_obs_misc_intrusive_sounds">XXX</string>
+    <string name="sc_obs_misc_bothered_sounds">XXX</string>
+    <string name="sc_obs_misc_numbers">XXX</string>
+    <string name="sc_obs_misc_colours">XXX</string>
+    <string name="sc_obs_misc_superstitious">XXX</string>
+    <string name="sc_obs_misc_other">XXX</string>
+
+    <string name="sc_obs_somatic">XXX</string>
+    <string name="sc_obs_somatic_illness">XXX</string>
+    <string name="sc_obs_somatic_appearance">XXX</string>
+    <string name="sc_obs_somatic_other">XXX</string>
+
+    <string name="sc_com_cleaning">XXX</string>
+    <string name="sc_com_cleaning_handwashing">XXX</string>
+    <string name="sc_com_cleaning_toileting">XXX</string>
+    <string name="sc_com_cleaning_cleaning_items">XXX</string>
+    <string name="sc_com_cleaning_other_contaminant_avoidance">XXX</string>
+    <string name="sc_com_cleaning_other">XXX</string>
+
+    <string name="sc_com_checking">XXX</string>
+    <string name="sc_com_checking_locks_appliances">XXX</string>
+    <string name="sc_com_checking_not_harm_others">XXX</string>
+    <string name="sc_com_checking_not_harm_self">XXX</string>
+    <string name="sc_com_checking_nothing_bad_happens">XXX</string>
+    <string name="sc_com_checking_no_mistake">XXX</string>
+    <string name="sc_com_checking_somatic">XXX</string>
+    <string name="sc_com_checking_other">XXX</string>
+
+    <string name="sc_com_repeat">XXX</string>
+    <string name="sc_com_repeat_reread_rewrite">XXX</string>
+    <string name="sc_com_repeat_routine">XXX</string>
+    <string name="sc_com_repeat_other">XXX</string>
+
+    <string name="sc_com_counting">XXX</string>
+    <string name="sc_com_counting_other">XXX</string>
+
+    <string name="sc_com_arranging">XXX</string>
+    <string name="sc_com_arranging_other">XXX</string>
+
+    <string name="sc_com_hoarding">XXX</string>
+    <string name="sc_com_hoarding_other">XXX</string>
+
+    <string name="sc_com_misc">XXX</string>
+    <string name="sc_com_misc_mental_rituals">XXX</string>
+    <string name="sc_com_misc_lists">XXX</string>
+    <string name="sc_com_misc_tell_ask">XXX</string>
+    <string name="sc_com_misc_touch">XXX</string>
+    <string name="sc_com_misc_blink_stare">XXX</string>
+    <string name="sc_com_misc_prevent">XXX</string>
+    <string name="sc_com_misc_prevent_harm_self">XXX</string>
+    <string name="sc_com_misc_prevent_harm_others">XXX</string>
+    <string name="sc_com_misc_prevent_terrible">XXX</string>
+    <string name="sc_com_misc_eating_ritual">XXX</string>
+    <string name="sc_com_misc_superstitious">XXX</string>
+    <string name="sc_com_misc_trichotillomania">XXX</string>
+    <string name="sc_com_misc_self_harm">XXX</string>
+    <string name="sc_com_misc_other">XXX</string>
+  </task>
+</resources>

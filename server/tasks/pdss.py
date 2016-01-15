@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# wsas.py
+# pdss.py
 
 """
     Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
@@ -21,6 +21,7 @@
     limitations under the License.
 """
 
+import pythonlib.rnc_web as ws
 from cc_modules.cc_constants import (
     DATA_COLLECTION_UNLESS_UPGRADED_DIV,
     STANDARD_TASK_FIELDSPECS,
@@ -28,59 +29,55 @@ from cc_modules.cc_constants import (
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import (
     answer,
-    get_true_false,
     tr,
-    tr_qa,
 )
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import get_from_dict, Task
+from cc_modules.cc_task import Task
 
 
 # =============================================================================
-# WSAS
+# PDSS
 # =============================================================================
 
-class Wsas(Task):
+DP = 3
+
+
+class Pdss(Task):
     MIN_SCORE = 0
-    MAX_SCORE = 8
+    MAX_SCORE = 4
     QUESTION_SNIPPETS = [
-        "work",
-        "home management",
-        "social leisure",
-        "private leisure",
-        "relationships",
+        "frequency",
+        "distressing during",
+        "anxiety about panic",
+        "places or situations avoided",
+        "activities avoided",
+        "interference with responsibilities",
+        "interference with social life",
     ]
-    NQUESTIONS = 5
+    NQUESTIONS = 7
     QUESTION_FIELDSPECS = repeat_fieldspec(
         "q", 1, NQUESTIONS,
         comment_fmt="Q{n}, {s} (0-4, higher worse)",
         min=MIN_SCORE, max=MAX_SCORE,
         comment_strings=QUESTION_SNIPPETS
     )
-    TASK_FIELDSPECS = [
-        dict(name="retired_etc", cctype="BOOL",
-             comment="Retired or choose not to have job for reason unrelated "
-             "to problem"),
-    ] + QUESTION_FIELDSPECS
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
     QUESTION_FIELDS = [x["name"] for x in QUESTION_FIELDSPECS]
-    EXTRASTRING_TASKNAME = "wsas"
+    EXTRASTRING_TASKNAME = "pdss"
 
     @classmethod
     def get_tablename(cls):
-        return "wsas"
+        return "pdss"
 
     @classmethod
     def get_taskshortname(cls):
-        return "WSAS"
+        return "PDSS"
 
     @classmethod
     def get_tasklongname(cls):
-        return "Work and Social Adjustment Scale"
+        return "Panic Disorder Severity Scale"
 
     @classmethod
     def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + cls.TASK_FIELDSPECS
+        return STANDARD_TASK_FIELDSPECS + cls.QUESTION_FIELDSPECS
 
     @classmethod
     def provides_trackers(cls):
@@ -90,10 +87,10 @@ class Wsas(Task):
         return [
             {
                 "value": self.total_score(),
-                "plot_label": "WSAS total score (lower is better)",
-                "axis_label": "Total score (out of 40)",
+                "plot_label": "PDSS total score (lower is better)",
+                "axis_label": "Total score (out of 28)",
                 "axis_min": -0.5,
-                "axis_max": 40.5,
+                "axis_max": 28.5,
             },
         ]
 
@@ -102,11 +99,17 @@ class Wsas(Task):
             self.is_complete_summary_field(),
             dict(name="total_score", cctype="INT",
                  value=self.total_score(),
-                 comment="Total score (/ 40)"),
+                 comment="Total score (/ 28)"),
+            dict(name="composite_score", cctype="FLOAT",
+                 value=self.composite_score(),
+                 comment="Composite score (/ 4)"),
         ]
 
     def total_score(self):
         return self.sum_fields(self.QUESTION_FIELDS)
+
+    def composite_score(self):
+        return self.mean_fields(self.QUESTION_FIELDS)
 
     def is_complete(self):
         return (
@@ -115,41 +118,37 @@ class Wsas(Task):
         )
 
     def get_task_html(self):
-        OPTION_DICT = {None: None}
-        for a in range(self.MIN_SCORE, self.MAX_SCORE + 1):
-            OPTION_DICT[a] = WSTRING("wsas_a" + str(a))
         h = """
             <div class="summary">
                 <table class="summary">
                     {complete_tr}
                     <tr>
                         <td>Total score</td>
-                        <td>{total} / 40</td>
+                        <td>{total} / 28</td>
+                    </td>
+                    <tr>
+                        <td>Composite (mean) score</td>
+                        <td>{composite} / 4</td>
                     </td>
                 </table>
             </div>
             <table class="taskdetail">
                 <tr>
-                    <th width="75%">Question</th>
-                    <th width="25%">Answer</th>
-                </tr>
-                {retired_row}
-            </table>
-            <table class="taskdetail">
-                <tr>
-                    <th width="75%">Question</th>
-                    <th width="25%">Answer (0–8)</th>
+                    <th width="60%">Question</th>
+                    <th width="40%">Answer (0–4)</th>
                 </tr>
         """.format(
             complete_tr=self.get_is_complete_tr(),
             total=answer(self.total_score()),
-            retired_row=tr_qa(self.WXSTRING("q_retired_etc"),
-                              get_true_false(self.retired_etc)),
+            composite=answer(ws.number_to_dp(self.composite_score(), DP,
+                                             default="?")),
         )
         for q in range(1, self.NQUESTIONS + 1):
+            qtext = self.WXSTRING("q" + str(q))
             a = getattr(self, "q" + str(q))
-            fa = get_from_dict(OPTION_DICT, a) if a is not None else None
-            h += tr(self.WXSTRING("q" + str(q)), answer(fa))
+            atext = (self.WXSTRING("q{}_option{}".format(q, a), str(a))
+                     if a is not None else None)
+            h += tr(qtext, answer(atext))
         h += """
             </table>
         """ + DATA_COLLECTION_UNLESS_UPGRADED_DIV

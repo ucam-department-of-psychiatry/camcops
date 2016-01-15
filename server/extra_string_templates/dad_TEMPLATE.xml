@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="dad">
+    <!-- Disability Assessment for Dementia -->
+    <!-- TEMPLATE ONLY: replace 'XXX' with real text if you have the necessary permissions -->
+
+    <string name="instruction_1">XXX</string>
+    <string name="instruction_2">XXX</string>
+
+    <string name="hygiene">XXX</string>
+    <string name="hygiene_init_wash">XXX</string>
+    <string name="hygiene_init_teeth">XXX</string>
+    <string name="hygiene_init_hair">XXX</string>
+    <string name="hygiene_plan_wash">XXX</string>
+    <string name="hygiene_exec_wash">XXX</string>
+    <string name="hygiene_exec_hair">XXX</string>
+    <string name="hygiene_exec_teeth">XXX</string>
+
+    <string name="dressing">XXX</string>
+    <string name="dressing_init_dress">XXX</string>
+    <string name="dressing_plan_clothing">XXX</string>
+    <string name="dressing_plan_order">XXX</string>
+    <string name="dressing_exec_dress">XXX</string>
+    <string name="dressing_exec_undress">XXX</string>
+
+    <string name="continence">XXX</string>
+    <string name="continence_init_toilet">XXX</string>
+    <string name="continence_exec_toilet">XXX</string>
+
+    <string name="eating">XXX</string>
+    <string name="eating_init_eat">XXX</string>
+    <string name="eating_plan_utensils">XXX</string>
+    <string name="eating_exec_eat">XXX</string>
+
+    <string name="mealprep">XXX</string>
+    <string name="mealprep_init_meal">XXX</string>
+    <string name="mealprep_plan_meal">XXX</string>
+    <string name="mealprep_exec_meal">XXX</string>
+
+    <string name="telephone">XXX</string>
+    <string name="telephone_init_phone">XXX</string>
+    <string name="telephone_plan_dial">XXX</string>
+    <string name="telephone_exec_conversation">XXX</string>
+    <string name="telephone_exec_message">XXX</string>
+
+    <string name="outing">XXX</string>
+    <string name="outing_init_outing">XXX</string>
+    <string name="outing_plan_outing">XXX</string>
+    <string name="outing_exec_reach_destination">XXX</string>
+    <string name="outing_exec_mode_transportation">XXX</string>
+    <string name="outing_exec_return_with_shopping">XXX</string>
+
+    <string name="finance">XXX</string>
+    <string name="finance_init_interest">XXX</string>
+    <string name="finance_plan_pay_bills">XXX</string>
+    <string name="finance_plan_organise_correspondence">XXX</string>
+    <string name="finance_exec_handle_money">XXX</string>
+
+    <string name="medications">XXX</string>
+    <string name="medications_init_medication">XXX</string>
+    <string name="medications_exec_take_medications">XXX</string>
+
+    <string name="leisure">XXX</string>
+    <string name="leisure_init_interest_leisure">XXX</string>
+    <string name="leisure_init_interest_chores">XXX</string>
+    <string name="leisure_plan_chores">XXX</string>
+    <string name="leisure_exec_complete_chores">XXX</string>
+    <string name="leisure_exec_safe_at_home">XXX</string>
+
+  </task>
+</resources>

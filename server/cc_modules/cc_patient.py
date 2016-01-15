@@ -34,7 +34,7 @@ from .cc_constants import (
     ERA_NOW,
     NUMBER_OF_IDNUMS,
     PARAM,
-    STANDARD_GENERIC_FIELDSPECS
+    STANDARD_GENERIC_FIELDSPECS,
 )
 from . import cc_db
 from . import cc_dt
@@ -641,7 +641,7 @@ def get_patient_server_pks_by_idnum(which_idnum, idnum_value,
 # Reports
 # =============================================================================
 
-class Patient_Report_Distinct(cc_report.Report):
+class DistinctPatientReport(cc_report.Report):
     """Report to show distinct patients."""
 
     @classmethod
@@ -650,7 +650,7 @@ class Patient_Report_Distinct(cc_report.Report):
 
     @classmethod
     def get_report_title(cls):
-        return "Patients, distinct by name, sex, DOB, all ID numbers"
+        return "(Server) Patients, distinct by name, sex, DOB, all ID numbers"
 
     @classmethod
     def get_param_spec_list(cls):
@@ -659,7 +659,7 @@ class Patient_Report_Distinct(cc_report.Report):
     def get_rows_descriptions(self):
         # Not easy to get UTF-8 fields out of a query in the column headings!
         # So don't do SELECT idnum8 AS 'idnum8 (Addenbrooke's number)';
-        # change it post hoc like this:
+        # change it post hoc using cc_report.expand_id_descriptions()
         sql = """
             SELECT DISTINCT
                 surname
@@ -681,14 +681,7 @@ class Patient_Report_Distinct(cc_report.Report):
                 , sex
         """
         (rows, fieldnames) = pls.db.fetchall_with_fieldnames(sql)
-        for n in range(1, NUMBER_OF_IDNUMS + 1):
-            fieldnames = [
-                f.replace(
-                    "idnum" + str(n),
-                    "idnum" + str(n) + " (" + pls.get_id_desc(n) + ")"
-                )
-                for f in fieldnames
-            ]
+        fieldnames = cc_report.expand_id_descriptions(fieldnames)
         return (rows, fieldnames)
 
 

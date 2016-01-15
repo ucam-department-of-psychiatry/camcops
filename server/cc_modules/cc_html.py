@@ -443,6 +443,14 @@ def get_present_absent_unknown(x):
     return get_present_absent(x)
 
 
+def get_ternary(x, value_true=True, value_false=False, value_none=None):
+    if x is None:
+        return value_none
+    if x:
+        return value_true
+    return value_false
+
+
 # =============================================================================
 # Pages referred to in this module by simple success/failure messages
 # =============================================================================

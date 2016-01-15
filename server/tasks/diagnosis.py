@@ -22,19 +22,21 @@
 """
 
 import pythonlib.rnc_web as ws
+from cc_modules.cc_constants import (
+    CLINICIAN_FIELDSPECS,
+    NUMBER_OF_IDNUMS,
+    STANDARD_ANCILLARY_FIELDSPECS,
+    STANDARD_TASK_FIELDSPECS,
+)
 from cc_modules.cc_hl7core import make_dg1_segment
 from cc_modules.cc_html import (
     answer,
     tr,
 )
 from cc_modules.cc_nlp import guess_name_components
-from cc_modules.cc_task import (
-    CLINICIAN_FIELDSPECS,
-    STANDARD_ANCILLARY_FIELDSPECS,
-    STANDARD_TASK_FIELDSPECS,
-    Task,
-    Ancillary
-)
+from cc_modules.cc_task import Ancillary, Task
+from cc_modules.cc_pls import pls
+import cc_modules.cc_report as cc_report
 
 
 # =============================================================================
@@ -258,3 +260,158 @@ class DiagnosisIcd9CM(DiagnosisBase, Task):
         # Page A-129 of:
         # https://www.hl7.org/special/committees/vocab/V26_Appendix_A.pdf
         return "I9CM"
+
+
+# =============================================================================
+# Reports
+# =============================================================================
+
+def get_diagnosis_report_sql(diagnosis_table, item_table, item_fk_fieldname,
+                             system):
+    select_idnums = ["p.idnum{n} AS idnum{n}".format(n=n)
+                     for n in range(1, NUMBER_OF_IDNUMS + 1)]
+    sql = """
+        SELECT
+            p.surname AS surname,
+            p.forename AS forename,
+            p.dob AS dob,
+            p.sex AS sex,
+            {select_idnums},
+            d.when_created,
+            '{system}' AS system,
+            i.code AS code,
+            i.description AS description
+        FROM patient p
+        INNER JOIN {diagnosis_table} d
+            ON d.patient_id = p.id
+            AND d._device = p._device
+            AND d._era = p._era
+        INNER JOIN {item_table} i
+            ON i.{item_fk_fieldname} = d.id
+            AND i._device = d._device
+            AND i._era = d._era
+        WHERE
+            p._current
+            AND d._current
+            AND i._current
+        ORDER BY
+            p.surname,
+            p.forename,
+            p.dob,
+            p.sex,
+            d.when_created,
+            i.code
+    """.format(
+        select_idnums=", ".join(select_idnums),
+        system=system,
+        diagnosis_table=diagnosis_table,
+        item_table=item_table,
+        item_fk_fieldname=item_fk_fieldname,
+    )
+    return sql
+
+
+def get_diagnosis_report(diagnosis_table, item_table, item_fk_fieldname,
+                         system):
+    sql = get_diagnosis_report_sql(diagnosis_table, item_table,
+                                   item_fk_fieldname, system)
+    (rows, fieldnames) = pls.db.fetchall_with_fieldnames(sql)
+    fieldnames = cc_report.expand_id_descriptions(fieldnames)
+    return (rows, fieldnames)
+
+
+class Diagnosis_ICD9CM_Report(cc_report.Report):
+    """Report to show ICD-9-CM (DSM-IV-TR) diagnoses."""
+
+    @classmethod
+    def get_report_id(cls):
+        return "diagnoses_icd9cm"
+
+    @classmethod
+    def get_report_title(cls):
+        return "Diagnosis – ICD-9-CM (DSM-IV-TR) diagnoses for all patients"
+
+    @classmethod
+    def get_param_spec_list(cls):
+        return []
+
+    def get_rows_descriptions(self):
+        return get_diagnosis_report(
+            diagnosis_table='diagnosis_icd9cm',
+            item_table='diagnosis_icd9cm_item',
+            item_fk_fieldname='diagnosis_icd9cm_id',
+            system='ICD-9-CM'
+        )
+
+
+class Diagnosis_ICD10_Report(cc_report.Report):
+    """Report to show ICD-10 diagnoses."""
+
+    @classmethod
+    def get_report_id(cls):
+        return "diagnoses_icd10"
+
+    @classmethod
+    def get_report_title(cls):
+        return "Diagnosis – ICD-10 diagnoses for all patients"
+
+    @classmethod
+    def get_param_spec_list(cls):
+        return []
+
+    def get_rows_descriptions(self):
+        return get_diagnosis_report(
+            diagnosis_table='diagnosis_icd10',
+            item_table='diagnosis_icd10_item',
+            item_fk_fieldname='diagnosis_icd10_id',
+            system='ICD-10'
+        )
+
+
+class Diagnosis_All_Report(cc_report.Report):
+    """Report to show all diagnoses."""
+
+    @classmethod
+    def get_report_id(cls):
+        return "diagnoses_all"
+
+    @classmethod
+    def get_report_title(cls):
+        return "Diagnosis – All diagnoses for all patients"
+
+    @classmethod
+    def get_param_spec_list(cls):
+        return []
+
+    def get_rows_descriptions(self):
+        sql_icd9cm = get_diagnosis_report_sql(
+            diagnosis_table='diagnosis_icd9cm',
+            item_table='diagnosis_icd9cm_item',
+            item_fk_fieldname='diagnosis_icd9cm_id',
+            system='ICD-9-CM'
+        )
+        sql_icd10 = get_diagnosis_report_sql(
+            diagnosis_table='diagnosis_icd10',
+            item_table='diagnosis_icd10_item',
+            item_fk_fieldname='diagnosis_icd10_id',
+            system='ICD-10'
+        )
+        sql = """
+            ({sql_icd9cm})
+            UNION
+            ({sql_icd10})
+            ORDER BY
+                surname,
+                forename,
+                dob,
+                sex,
+                when_created,
+                system,
+                code
+        """.format(
+            sql_icd9cm=sql_icd9cm,
+            sql_icd10=sql_icd10,
+        )
+        (rows, fieldnames) = pls.db.fetchall_with_fieldnames(sql)
+        fieldnames = cc_report.expand_id_descriptions(fieldnames)
+        return (rows, fieldnames)

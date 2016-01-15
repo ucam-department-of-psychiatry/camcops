@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# wsas.py
+# pswq.py
 
 """
     Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
@@ -28,55 +28,58 @@ from cc_modules.cc_constants import (
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import (
     answer,
-    get_true_false,
     tr,
-    tr_qa,
 )
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import get_from_dict, Task
+from cc_modules.cc_task import Task
 
 
 # =============================================================================
-# WSAS
+# IES-R
 # =============================================================================
 
-class Wsas(Task):
-    MIN_SCORE = 0
-    MAX_SCORE = 8
+class Pswq(Task):
+    MIN_SCORE = 1
+    MAX_SCORE = 5
     QUESTION_SNIPPETS = [
-        "work",
-        "home management",
-        "social leisure",
-        "private leisure",
-        "relationships",
+        "OK if not enough time [REVERSE SCORE]",  # 1
+        "worries overwhelm",
+        "do not tend to worry [REVERSE SCORE]",
+        "many situations make me worry",
+        "cannot help worrying",  # 5
+        "worry under pressure",
+        "always worrying",
+        "easily dismiss worries [REVERSE SCORE]",
+        "finish then worry about next thing",
+        "never worry [REVERSE SCORE]",  # 10
+        "if nothing more to do, I do not worry [REVERSE SCORE]",
+        "lifelong worrier",
+        "have been worrying",
+        "when start worrying cannot stop",
+        "worry all the time",  # 15
+        "worry about projects until done",
     ]
-    NQUESTIONS = 5
-    QUESTION_FIELDSPECS = repeat_fieldspec(
+    NQUESTIONS = 16
+    REVERSE_SCORE = [1, 3, 8, 10, 11]
+    TASK_FIELDSPECS = repeat_fieldspec(
         "q", 1, NQUESTIONS,
-        comment_fmt="Q{n}, {s} (0-4, higher worse)",
+        comment_fmt="Q{n}, {s} (1-5)",
         min=MIN_SCORE, max=MAX_SCORE,
         comment_strings=QUESTION_SNIPPETS
     )
-    TASK_FIELDSPECS = [
-        dict(name="retired_etc", cctype="BOOL",
-             comment="Retired or choose not to have job for reason unrelated "
-             "to problem"),
-    ] + QUESTION_FIELDSPECS
     TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
-    QUESTION_FIELDS = [x["name"] for x in QUESTION_FIELDSPECS]
-    EXTRASTRING_TASKNAME = "wsas"
+    EXTRASTRING_TASKNAME = "pswq"
 
     @classmethod
     def get_tablename(cls):
-        return "wsas"
+        return "pswq"
 
     @classmethod
     def get_taskshortname(cls):
-        return "WSAS"
+        return "PSWQ"
 
     @classmethod
     def get_tasklongname(cls):
-        return "Work and Social Adjustment Scale"
+        return "Penn State Worry Questionnaire"
 
     @classmethod
     def get_fieldspecs(cls):
@@ -90,10 +93,10 @@ class Wsas(Task):
         return [
             {
                 "value": self.total_score(),
-                "plot_label": "WSAS total score (lower is better)",
-                "axis_label": "Total score (out of 40)",
-                "axis_min": -0.5,
-                "axis_max": 40.5,
+                "plot_label": "PSWQ total score (lower is better)",
+                "axis_label": "Total score (16–80)",
+                "axis_min": 15.5,
+                "axis_max": 80.5,
             },
         ]
 
@@ -102,55 +105,61 @@ class Wsas(Task):
             self.is_complete_summary_field(),
             dict(name="total_score", cctype="INT",
                  value=self.total_score(),
-                 comment="Total score (/ 40)"),
+                 comment="Total score (16–80)"),
         ]
 
+    def score(self, q):
+        value = getattr(self, "q" + str(q))
+        if value is None:
+            return None
+        if q in self.REVERSE_SCORE:
+            return self.MAX_SCORE + 1 - value
+        else:
+            return value
+
     def total_score(self):
-        return self.sum_fields(self.QUESTION_FIELDS)
+        values = [self.score(q) for q in range(1, self.NQUESTIONS + 1)]
+        return sum(v for v in values if v is not None)
 
     def is_complete(self):
         return (
             self.field_contents_valid()
-            and self.are_all_fields_complete(self.QUESTION_FIELDS)
+            and self.are_all_fields_complete(self.TASK_FIELDS)
         )
 
     def get_task_html(self):
-        OPTION_DICT = {None: None}
-        for a in range(self.MIN_SCORE, self.MAX_SCORE + 1):
-            OPTION_DICT[a] = WSTRING("wsas_a" + str(a))
         h = """
             <div class="summary">
                 <table class="summary">
                     {complete_tr}
                     <tr>
-                        <td>Total score</td>
-                        <td>{total} / 40</td>
+                        <td>Total score (16–80)</td>
+                        <td>{total}</td>
                     </td>
                 </table>
             </div>
+            <div class="explanation">
+                Anchor points are 1 = {anchor1}, 5 = {anchor5}.
+                Questions {reversed_questions} are reverse-scored.
+            </div>
             <table class="taskdetail">
                 <tr>
-                    <th width="75%">Question</th>
-                    <th width="25%">Answer</th>
-                </tr>
-                {retired_row}
-            </table>
-            <table class="taskdetail">
-                <tr>
-                    <th width="75%">Question</th>
-                    <th width="25%">Answer (0–8)</th>
+                    <th width="70%">Question</th>
+                    <th width="15%">Answer (1–5)</th>
+                    <th width="15%">Score (1–5)</th>
                 </tr>
         """.format(
             complete_tr=self.get_is_complete_tr(),
             total=answer(self.total_score()),
-            retired_row=tr_qa(self.WXSTRING("q_retired_etc"),
-                              get_true_false(self.retired_etc)),
+            anchor1=self.WXSTRING("anchor1"),
+            anchor5=self.WXSTRING("anchor5"),
+            reversed_questions=", ".join(str(x) for x in self.REVERSE_SCORE)
         )
         for q in range(1, self.NQUESTIONS + 1):
             a = getattr(self, "q" + str(q))
-            fa = get_from_dict(OPTION_DICT, a) if a is not None else None
-            h += tr(self.WXSTRING("q" + str(q)), answer(fa))
+            score = self.score(q)
+            h += tr(self.WXSTRING("q" + str(q)), answer(a), score)
         h += """
             </table>
-        """ + DATA_COLLECTION_UNLESS_UPGRADED_DIV
+        """
         return h

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="pswq">
+    <!-- Penn State Worry Questionnaire -->
+    <string name="instruction">Instructions: Rate each of the following statements on a scale of 1 (“not at all typical of me”) to 5 (“very typical of me”). Please do not leave any items blank.</string>
+
+    <string name="anchor1">Not at all typical of me</string>
+    <string name="anchor5">Very typical of me</string>
+
+    <string name="q1">1. If I do not have enough time to do everything, I do not worry about it.</string>
+    <string name="q2">2. My worries overwhelm me.</string>
+    <string name="q3">3. I do not tend to worry about things.</string>
+    <string name="q4">4. Many situations make me worry.</string>
+    <string name="q5">5. I know I should not worry about things, but I just cannot help it.</string>
+    <string name="q6">6. When I am under pressure I worry a lot.</string>
+    <string name="q7">7. I am always worrying about something.</string>
+    <string name="q8">8. I find it easy to dismiss worrisome thoughts.</string>
+    <string name="q9">9. As soon as I finish one task, I start to worry about everything else I have to do.</string>
+    <string name="q10">10. I never worry about anything.</string>
+    <string name="q11">11. When there is nothing more I can do about a concern, I do not worry about it any more.</string>
+    <string name="q12">12. I have been a worrier all my life.</string>
+    <string name="q13">13. I notice that I have been worrying about things.</string>
+    <string name="q14">14. Once I start worrying, I cannot stop.</string>
+    <string name="q15">15. I worry all the time.</string>
+    <string name="q16">16. I worry about projects until they are all done.</string>
+  </task>
+</resources>

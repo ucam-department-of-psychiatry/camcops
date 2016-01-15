@@ -22,7 +22,14 @@
 """
 
 import pythonlib.rnc_web as ws
-from cc_modules.cc_constants import DATEFORMAT, PARAM, PV
+from cc_modules.cc_constants import (
+    CLINICIAN_FIELDSPECS,
+    DATEFORMAT,
+    INVALID_VALUE,
+    PARAM,
+    PV,
+    STANDARD_TASK_FIELDSPECS,
+)
 from cc_modules.cc_dt import format_datetime_string
 from cc_modules.cc_html import (
     answer,
@@ -40,12 +47,7 @@ from cc_modules.cc_nhs import (
 )
 from cc_modules.cc_pls import pls
 from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import (
-    CLINICIAN_FIELDSPECS,
-    INVALID_VALUE,
-    STANDARD_TASK_FIELDSPECS,
-    Task,
-)
+from cc_modules.cc_task import Task
 from cc_modules.cc_report import Report
 
 

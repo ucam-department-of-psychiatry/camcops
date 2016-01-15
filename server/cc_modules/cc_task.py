@@ -39,6 +39,7 @@ import copy
 import datetime
 import operator
 import re
+import statistics
 
 import pythonlib.rnc_db as rnc_db
 import pythonlib.rnc_pdf as rnc_pdf
@@ -46,14 +47,19 @@ import pythonlib.rnc_web as ws
 
 from .cc_audit import audit
 from . import cc_blob
-from .cc_constants import (  # some needless imports for subclasses  # noqa
+from .cc_constants import (
     ACTION,
-    CLINICIAN_FIELDSPECS,
+    ANON_PATIENT,
+    COMMENT_IS_COMPLETE,
     CRIS_CLUSTER_KEY_FIELDSPEC,
+    CRIS_PATIENT_COMMENT_PREFIX,
+    CRIS_SUMMARY_COMMENT_PREFIX,
+    CRIS_TABLENAME_PREFIX,
     CSS_PAGED_MEDIA,
     DATEFORMAT,
     ERA_NOW,
     HL7MESSAGE_TABLENAME,
+    INVALID_VALUE,
     NUMBER_OF_IDNUMS,
     PARAM,
     PDFEND,
@@ -61,12 +67,9 @@ from .cc_constants import (  # some needless imports for subclasses  # noqa
     PDF_HEAD_NO_PAGED_MEDIA,
     PDF_HEAD_PORTRAIT,
     PKNAME,
-    RESPONDENT_FIELDSPECS,
-    STANDARD_ANCILLARY_FIELDSPECS,
-    STANDARD_ANONYMOUS_TASK_FIELDSPECS,
-    STANDARD_GENERIC_FIELDSPECS,
-    STANDARD_TASK_FIELDSPECS,
+    SIGNATURE_BLOCK,
     TEXT_FILTER_EXEMPT_FIELDS,
+    TSV_PATIENT_FIELD_PREFIX,
     VALUE,
     WKHTMLTOPDF_OPTIONS,
 )
@@ -88,6 +91,7 @@ from . import cc_patient
 from . import cc_plot
 from .cc_pls import pls
 from . import cc_recipdef
+from . import cc_report
 from . import cc_specialnote
 from .cc_string import WSTRING, WXSTRING
 from .cc_unittest import (
@@ -98,101 +102,6 @@ from .cc_unittest import (
 )
 from . import cc_version
 from . import cc_xml
-
-
-# =============================================================================
-# Constants
-# =============================================================================
-
-ANON_PATIENT = "XXXX"
-COMMENT_IS_COMPLETE = "Task complete?"
-CTV_DICTLIST_INCOMPLETE = [{
-    "description": "Incomplete",
-    "skip_if_no_content": False
-}]
-DATA_COLLECTION_ONLY_DIV = """
-    <div class="copyright">
-        Reproduction of the original task/scale is not permitted.
-        This is a data collection tool only; use it only in conjunction with
-        a licensed copy of the original task.
-    </div>
-"""
-DATA_COLLECTION_UNLESS_UPGRADED_DIV = """
-    <div class="copyright">
-        Reproduction of the original task/scale is not permitted as part of
-        CamCOPS. This is a data collection tool only, unless the hosting
-        institution has supplied task text via its own permissions. <b>Any such
-        text, if shown here, is not part of CamCOPS, and copyright in
-        it belongs to the original task’s copyright holder.</b> Use this data
-        collection tool only in conjunction with a licensed copy of the
-        original task.
-    </div>
-"""
-FULLWIDTH_PLOT_WIDTH = 6.7  # inches: full width is ~170mm
-ICD10_COPYRIGHT_DIV = """
-    <div class="copyright">
-        ICD-10 criteria: Copyright © 1992 World Health Organization.
-        Used here with permission.
-    </div>
-"""
-INVALID_VALUE = "[invalid_value]"
-SIGNATURE_BLOCK = """
-    <div>
-        <table class="noborder">
-            <tr class="signature_label">
-                <td class="signature_label" width="33%">
-                    Signature of author/validator
-                </td>
-                <td class="signature_label" width="33%">
-                    Print name
-                </td>
-                <td class="signature_label" width="33%">
-                    Date and time
-                </td>
-            </tr>
-            <tr class="signature">
-                <td class="signature">&nbsp;</td>
-                <td class="signature">&nbsp;</td>
-                <td class="signature">&nbsp;</td>
-            </tr>
-        </table>
-    </div>
-"""
-# ... can't get "height" to work in table; only seems to like line-height; for
-# which, you need some text, hence the &nbsp;
-# http://stackoverflow.com/questions/6398172/setting-table-row-height-in-css
-TASK_LIST_HEADER = """
-    <table>
-        <tr>
-            <th>Surname, forename (sex, DOB, age)</th>
-            <th>Identifiers</th>
-            <th>Task type</th>
-            <th>Adding user</th>
-            <th>Created</th>
-            <th>View detail</th>
-            <th>Print/save detail</th>
-        </tr>
-"""
-TASK_LIST_FOOTER = """
-    </table>
-    <div class="footnotes">
-        Colour in the Patient column means
-            that an ID policy is not yet satisfied.
-        Colour in the Identifiers column means
-            a conflict between the server’s and the tablet’s ID descriptions.
-        Colour in the Task Type column means
-            the record is not current.
-        Colour in the Created column means
-            the task is ‘live’ on the tablet, not finalized
-            (so patient and task details may change).
-        Colour in the View/Print columns means
-            the task is incomplete.
-    </div>
-"""
-TSV_PATIENT_FIELD_PREFIX = "_patient_"
-CRIS_PATIENT_COMMENT_PREFIX = "(PATIENT) "
-CRIS_SUMMARY_COMMENT_PREFIX = "(SUMMARY) "
-CRIS_TABLENAME_PREFIX = "camcops_"
 
 
 # =============================================================================
@@ -2913,6 +2822,19 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             total += value if value is not None else 0
         return total
 
+    def mean_fields(self, fields, ignorevalue=None):
+        """Mean of values stored in all fields (skipping any whose value is
+        ignorevalue)."""
+        values = []
+        for f in fields:
+            value = getattr(self, f)
+            if value != ignorevalue:
+                values.append(value)
+        try:
+            return statistics.mean(values)
+        except:
+            return None
+
     def fieldnames_from_prefix(self, prefix, start, end):
         return [prefix + str(x) for x in range(start, end + 1)]
 
@@ -3018,6 +2940,58 @@ def get_task_filter_dropdown(currently_selected=None):
 def get_from_dict(d, key, default=INVALID_VALUE):
     """Returns a value from a dictionary."""
     return d.get(key, default)
+
+
+def get_all_task_classes():
+    classes = Task.__subclasses__()
+    classes.sort(key=lambda cls: cls.get_taskshortname())
+    return classes
+
+
+# =============================================================================
+# Reports
+# =============================================================================
+
+class TaskCountReport(cc_report.Report):
+    """Report to count task instances."""
+
+    @classmethod
+    def get_report_id(cls):
+        return "taskcount"
+
+    @classmethod
+    def get_report_title(cls):
+        return "(Server) Count current task instances, by creation date"
+
+    @classmethod
+    def get_param_spec_list(cls):
+        return []
+
+    def get_rows_descriptions(self):
+        final_rows = []
+        classes = Task.__subclasses__()
+        classes.sort(key=lambda cls: cls.get_tablename())
+        for cls in classes:
+            sql = """
+                SELECT
+                    '{tablename}' AS task,
+                    YEAR(_when_added_batch_utc) AS year,
+                    MONTH(_when_added_batch_utc) AS month,
+                    COUNT(*) AS num_tasks_added
+                FROM {tablename}
+                WHERE _current
+                GROUP BY
+                    YEAR(_when_added_batch_utc),
+                    MONTH(_when_added_batch_utc)
+                ORDER BY
+                    YEAR(_when_added_batch_utc),
+                    MONTH(_when_added_batch_utc) DESC
+            """.format(
+                tablename=cls.get_tablename(),
+            )
+            (rows, fieldnames) = pls.db.fetchall_with_fieldnames(sql)
+            final_rows.extend(rows)
+        return (final_rows, fieldnames)
 
 
 # =============================================================================

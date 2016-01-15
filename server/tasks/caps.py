@@ -21,7 +21,10 @@
     limitations under the License.
 """
 
-from cc_modules.cc_constants import PV
+from cc_modules.cc_constants import (
+    PV,
+    STANDARD_TASK_FIELDSPECS,
+)
 from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from cc_modules.cc_html import (
     answer,
@@ -30,10 +33,7 @@ from cc_modules.cc_html import (
     tr_qa,
 )
 from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import (
-    STANDARD_TASK_FIELDSPECS,
-    Task,
-)
+from cc_modules.cc_task import Task
 
 
 # =============================================================================

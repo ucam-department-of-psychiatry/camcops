@@ -22,7 +22,10 @@
 """
 
 import pythonlib.rnc_web as ws
-from cc_modules.cc_constants import PV
+from cc_modules.cc_constants import (
+    PV,
+    STANDARD_ANONYMOUS_TASK_FIELDSPECS,
+)
 from cc_modules.cc_html import (
     get_yes_no_none,
     subheading_spanning_two_columns,
@@ -31,11 +34,7 @@ from cc_modules.cc_html import (
     tr_qa,
 )
 from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import (
-    get_from_dict,
-    STANDARD_ANONYMOUS_TASK_FIELDSPECS,
-    Task,
-)
+from cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================

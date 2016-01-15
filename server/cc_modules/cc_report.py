@@ -60,7 +60,7 @@ def offer_report_menu(session):
     """.format(
         session.get_current_user_html(),
     )
-    for cls in Report.__subclasses__():
+    for cls in get_all_report_classes():
         html += "<li><a href={}>{}</a></li>".format(
             cc_html.get_generic_action_url(ACTION.OFFER_REPORT)
                 + cc_html.get_url_field_value_pair(PARAM.REPORT_ID,
@@ -117,7 +117,7 @@ def get_all_report_ids():
 
     Report IDs are fixed names defined in each Report subclass.
     """
-    return [cls.get_report_id() for cls in Report.__subclasses__()]
+    return [cls.get_report_id() for cls in get_all_report_classes()]
 
 
 def get_report_instance(report_id):
@@ -281,6 +281,37 @@ class Report(object):
         """Execute the report. Must override. Parameters are passed in via
         **kwargs."""
         return [], []
+
+
+# =============================================================================
+# Helper functions
+# =============================================================================
+
+def get_all_report_classes():
+    classes = Report.__subclasses__()
+    classes.sort(key=lambda cls: cls.get_report_title())
+    return classes
+
+
+def expand_id_descriptions(fieldnames):
+    """
+    Not easy to get UTF-8 fields out of a query in the column headings!
+    So don't do SELECT idnum8 AS 'idnum8 (Addenbrooke's number)';
+    change it post hoc like this:
+
+        SELECT idnum1 FROM ...
+    ...
+        fieldnames = expand_id_descriptions(fieldnames)
+    """
+    for n in range(1, NUMBER_OF_IDNUMS + 1):
+        fieldnames = [
+            f.replace(
+                "idnum" + str(n),
+                "idnum" + str(n) + " (" + pls.get_id_desc(n) + ")"
+            )
+            for f in fieldnames
+        ]
+    return fieldnames
 
 
 # =============================================================================

@@ -51,13 +51,15 @@ DEFAULT_MYSQL = "/usr/bin/mysql"
 DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS = 0  # zero for never
 
 THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
-PROJECT_BASE_DIRECTORY = os.path.abspath(  # *** RENAMED
+PROJECT_BASE_DIRECTORY = os.path.abspath(
     os.path.join(THIS_DIRECTORY,  # cc_modules
                  os.pardir,  # server
                  os.pardir))  # camcops
 SERVER_BASE_DIRECTORY = os.path.join(PROJECT_BASE_DIRECTORY, "server")
 DEFAULT_STRING_FILE = os.path.join(
     PROJECT_BASE_DIRECTORY, "tablet", "i18n", "en", "strings.xml")
+DEFAULT_EXTRA_STRING_SPEC = os.path.join(
+    PROJECT_BASE_DIRECTORY, "server", "extra_strings", "*")
 DEFAULT_TIMEOUT_MINUTES = 30
 DEFAULT_PLOT_FONTSIZE = 8
 
@@ -1175,3 +1177,97 @@ SEPARATOR_EQUALS = "=" * 79
 # =============================================================================
 
 HL7MESSAGE_TABLENAME = "_hl7_message_log"
+
+# =============================================================================
+# Task constants
+# =============================================================================
+
+ANON_PATIENT = "XXXX"
+COMMENT_IS_COMPLETE = "Task complete?"
+CTV_DICTLIST_INCOMPLETE = [{
+    "description": "Incomplete",
+    "skip_if_no_content": False
+}]
+DATA_COLLECTION_ONLY_DIV = """
+    <div class="copyright">
+        Reproduction of the original task/scale is not permitted.
+        This is a data collection tool only; use it only in conjunction with
+        a licensed copy of the original task.
+    </div>
+"""
+DATA_COLLECTION_UNLESS_UPGRADED_DIV = """
+    <div class="copyright">
+        Reproduction of the original task/scale is not permitted as part of
+        CamCOPS. This is a data collection tool only, unless the hosting
+        institution has supplied task text via its own permissions. <b>Any such
+        text, if shown here, is not part of CamCOPS, and copyright in
+        it belongs to the original task’s copyright holder.</b> Use this data
+        collection tool only in conjunction with a licensed copy of the
+        original task.
+    </div>
+"""
+FULLWIDTH_PLOT_WIDTH = 6.7  # inches: full width is ~170mm
+ICD10_COPYRIGHT_DIV = """
+    <div class="copyright">
+        ICD-10 criteria: Copyright © 1992 World Health Organization.
+        Used here with permission.
+    </div>
+"""
+INVALID_VALUE = "[invalid_value]"
+SIGNATURE_BLOCK = """
+    <div>
+        <table class="noborder">
+            <tr class="signature_label">
+                <td class="signature_label" width="33%">
+                    Signature of author/validator
+                </td>
+                <td class="signature_label" width="33%">
+                    Print name
+                </td>
+                <td class="signature_label" width="33%">
+                    Date and time
+                </td>
+            </tr>
+            <tr class="signature">
+                <td class="signature">&nbsp;</td>
+                <td class="signature">&nbsp;</td>
+                <td class="signature">&nbsp;</td>
+            </tr>
+        </table>
+    </div>
+"""
+# ... can't get "height" to work in table; only seems to like line-height; for
+# which, you need some text, hence the &nbsp;
+# http://stackoverflow.com/questions/6398172/setting-table-row-height-in-css
+TASK_LIST_HEADER = """
+    <table>
+        <tr>
+            <th>Surname, forename (sex, DOB, age)</th>
+            <th>Identifiers</th>
+            <th>Task type</th>
+            <th>Adding user</th>
+            <th>Created</th>
+            <th>View detail</th>
+            <th>Print/save detail</th>
+        </tr>
+"""
+TASK_LIST_FOOTER = """
+    </table>
+    <div class="footnotes">
+        Colour in the Patient column means
+            that an ID policy is not yet satisfied.
+        Colour in the Identifiers column means
+            a conflict between the server’s and the tablet’s ID descriptions.
+        Colour in the Task Type column means
+            the record is not current.
+        Colour in the Created column means
+            the task is ‘live’ on the tablet, not finalized
+            (so patient and task details may change).
+        Colour in the View/Print columns means
+            the task is incomplete.
+    </div>
+"""
+TSV_PATIENT_FIELD_PREFIX = "_patient_"
+CRIS_PATIENT_COMMENT_PREFIX = "(PATIENT) "
+CRIS_SUMMARY_COMMENT_PREFIX = "(SUMMARY) "
+CRIS_TABLENAME_PREFIX = "camcops_"

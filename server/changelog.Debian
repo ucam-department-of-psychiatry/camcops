@@ -27,6 +27,13 @@ camcops (1.40-1) all; urgency=high
   * comment_fmt for HADS fields. Note MySQL: SHOW FULL COLUMNS FROM table.
   * IES-R (skeleton only).
   * WSAS (skeleton only).
+  * PDSS (skeleton only).
+  * PSWQ.
+  * Y-BOCS, Y-BOCS-SC (skeleton only).
+  * DAD (skeleton only).
+  * Diagnosis reports.
+  * Device report.
+  * update_multiple_databases.py script
   * Unit tests to ensure no overlap for task longnames/shortnames/tables; see
     cc_task.unit_tests().
   * clinician_service field as part of clinician block
@@ -84,8 +91,11 @@ camcops (1.40-1) all; urgency=high
   * Changes to config variables:
     RESOURCES_DIRECTORY -- removed
     INTROSPECTION_DIRECTORY -- removed
+    CAMCOPS_LOGO_FILE_ABSOLUTE -- added
     MAIN_STRING_FILE -- added
     EXTRA_STRING_FILES -- added
+  * Added process ID to log output.
+  * Task counting report.
 
  -- Rudolf Cardinal <rudolf@pobox.com>  Mon, 04 Jan 2016 22:13:00 +0000
 

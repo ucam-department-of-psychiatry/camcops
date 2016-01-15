@@ -29,6 +29,7 @@ import xml.etree.cElementTree as ElementTree
 
 import pythonlib.rnc_web as ws
 
+from .cc_convert import unescape_newlines
 from .cc_logger import logger
 from . import cc_pls
 
@@ -54,13 +55,13 @@ def cache_strings():
             "pls.MAIN_STRING_FILE is None -- likely use of "
             "LSTRING/WSTRING in classmethod, before initialization via "
             "the WSGI application entry point")
-    logger.debug("Loading XML file: " + cc_pls.pls.MAIN_STRING_FILE)
+    logger.info("Loading XML file: " + cc_pls.pls.MAIN_STRING_FILE)
     parser = ElementTree.XMLParser(encoding="UTF-8")
     tree = ElementTree.parse(cc_pls.pls.MAIN_STRING_FILE, parser=parser)
     cc_pls.pls.stringDict = {}
     # find all children of the root with tag "string" and attribute "name"
     for e in tree.findall("./string[@name]"):
-        cc_pls.pls.stringDict[e.attrib.get("name")] = e.text
+        cc_pls.pls.stringDict[e.attrib.get("name")] = unescape_newlines(e.text)
 
 
 def LSTRING(stringname):  # equivalent of Titanium's L()
@@ -105,7 +106,7 @@ def cache_extra_strings():
         filenames.extend(possibles)
     filenames = list(set(filenames))  # just unique ones
     for filename in filenames:
-        logger.debug("Loading XML file: " + filename)
+        logger.info("Loading XML file: " + filename)
         parser = ElementTree.XMLParser(encoding="UTF-8")
         tree = ElementTree.parse(filename, parser=parser)
         root = tree.getroot()
@@ -115,8 +116,9 @@ def cache_extra_strings():
                 cc_pls.pls.extraStringDicts[taskname] = {}
             for e in taskroot.findall("./string[@name]"):
                 stringname = e.attrib.get("name")
-                value = e.text
-                cc_pls.pls.extraStringDicts[taskname][stringname] = value
+                cc_pls.pls.extraStringDicts[taskname][stringname] = (
+                    unescape_newlines(e.text)
+                )
 
 
 def XSTRING(taskname, stringname, default=None):

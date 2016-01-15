@@ -54,6 +54,7 @@ from .cc_constants import (
     DEFAULT_DATABASE_TITLE,
     DEFAULT_DB_PORT,
     DEFAULT_DB_SERVER,
+    DEFAULT_EXTRA_STRING_SPEC,
     DEFAULT_LOCAL_INSTITUTION_URL,
     DEFAULT_LOCAL_LOGO_FILE,
     DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES,
@@ -132,7 +133,6 @@ class LocalStorage(object):
         )
         self.LOCKOUT_THRESHOLD = DEFAULT_LOCKOUT_THRESHOLD
         self.MAIN_STRING_FILE = DEFAULT_STRING_FILE
-        self.MPLCONFIGDIR = ""
         self.MYSQL = DEFAULT_MYSQL
         self.MYSQLDUMP = DEFAULT_MYSQLDUMP
         self.NOW_LOCAL_TZ_ISO8601 = ""
@@ -224,22 +224,34 @@ class LocalStorage(object):
 
         # Reconstruct URL:
         # http://www.python.org/dev/peps/pep-0333/#url-reconstruction
-        url = environ.get("wsgi.url_scheme", "") + "://"
+        protocol = environ.get("wsgi.url_scheme", "")
         if environ.get("HTTP_HOST"):
-            url += environ.get("HTTP_HOST")
+            host = environ.get("HTTP_HOST")
         else:
-            url += environ.get("SERVER_NAME", "")
-        if environ.get("wsgi.url_scheme") == "https":
-            if environ.get("SERVER_PORT") != "443":
-                url += ':' + environ.get("SERVER_PORT", "")
-        else:
-            if environ.get("SERVER_PORT") != "80":
-                url += ':' + environ.get("SERVER_PORT", "")
-        url += urllib.parse.quote(environ.get("SCRIPT_NAME", ""))
-        url += urllib.parse.quote(environ.get("PATH_INFO", ""))
+            host = environ.get("SERVER_NAME", "")
+        port = ""
+        server_port = environ.get("SERVER_PORT")
+        if (server_port
+                and ":" not in host
+                and not(protocol == "https" and server_port == "443")
+                and not(protocol == "http" and server_port == "80")):
+            port = ":" + server_port
+        script = urllib.parse.quote(environ.get("SCRIPT_NAME", ""))
+        path = urllib.parse.quote(environ.get("PATH_INFO", ""))
+
         # But not the query string:
         # if environ.get("QUERY_STRING"):
-        #    url += "?" + environ.get("QUERY_STRING")
+        #    query += "?" + environ.get("QUERY_STRING")
+        # else:
+        #    query = ""
+
+        url = "{protocol}://{host}{port}{script}{path}".format(
+            protocol=protocol,
+            host=host,
+            port=port,
+            script=script,
+            path=path,
+        )
 
         self.SCRIPT_PUBLIC_URL_ESCAPED = cgi.escape(url)
 
@@ -251,8 +263,6 @@ class LocalStorage(object):
         if self.PERSISTENT_CONSTANTS_INITIALIZED:
             return
 
-        logger.debug("Setting persistent constants")
-
         # ---------------------------------------------------------------------
         # Open config file
         # ---------------------------------------------------------------------
@@ -262,6 +272,7 @@ class LocalStorage(object):
             self.CAMCOPS_CONFIG_FILE = os.environ.get("CAMCOPS_CONFIG_FILE")
         if not self.CAMCOPS_CONFIG_FILE:
             raise AssertionError("CAMCOPS_CONFIG_FILE not specified")
+        logger.info("Reading from {}".format(self.CAMCOPS_CONFIG_FILE))
         config = configparser.ConfigParser()
         config.readfp(codecs.open(self.CAMCOPS_CONFIG_FILE, "r", "utf8"))
 
@@ -308,7 +319,7 @@ class LocalStorage(object):
         self.EXPORT_CRIS_DATA_DICTIONARY_TSV_FILE = get_config_parameter(
             config, section, "EXPORT_CRIS_DATA_DICTIONARY_TSV_FILE", str, None)
         self.EXTRA_STRING_FILES = get_config_parameter_multiline(
-            config, section, "EXTRA_STRING_FILES", [])
+            config, section, "EXTRA_STRING_FILES", [DEFAULT_EXTRA_STRING_SPEC])
 
         self.HL7_LOCKFILE = get_config_parameter(
             config, section, "HL7_LOCKFILE", str, None)
@@ -342,8 +353,6 @@ class LocalStorage(object):
 
         self.MAIN_STRING_FILE = get_config_parameter(
             config, section, "MAIN_STRING_FILE", str, DEFAULT_STRING_FILE)
-        self.MPLCONFIGDIR = get_config_parameter(
-            config, section, "MPLCONFIGDIR", str, "")
         self.MYSQL = get_config_parameter(
             config, section, "MYSQL", str, DEFAULT_MYSQL)
         self.MYSQLDUMP = get_config_parameter(

@@ -25,6 +25,11 @@ import matplotlib.pyplot as plt
 import numpy
 import scipy.stats  # http://docs.scipy.org/doc/scipy/reference/stats.html
 
+from cc_modules.cc_constants import (
+    FULLWIDTH_PLOT_WIDTH,
+    STANDARD_ANCILLARY_FIELDSPECS,
+    STANDARD_TASK_FIELDSPECS,
+)
 from cc_modules.cc_html import (
     answer,
     div,
@@ -36,13 +41,7 @@ from cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from cc_modules.cc_task import (
-    FULLWIDTH_PLOT_WIDTH,
-    STANDARD_TASK_FIELDSPECS,
-    STANDARD_ANCILLARY_FIELDSPECS,
-    Task,
-    Ancillary
-)
+from cc_modules.cc_task import Ancillary, Task
 
 
 CONVERT_0_P_TO = 0.001  # for Z-transformed ROC plot
