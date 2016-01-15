@@ -62,12 +62,12 @@ lang.extendPrototype(Swemwbs, {
 
     // Scoring
     getTotalScore: function () {
-        return taskcommon.totalScore(this, "q", 1, nquestions);
+        return taskcommon.totalScoreFromPrefix(this, "q", 1, nquestions);
     },
 
     // Standard task functions
     isComplete: function () {
-        return taskcommon.isComplete(this, "q", 1, nquestions);
+        return taskcommon.isCompleteFromPrefix(this, "q", 1, nquestions);
     },
 
     getSummary: function () {

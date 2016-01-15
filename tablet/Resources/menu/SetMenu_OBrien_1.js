@@ -34,9 +34,16 @@ module.exports = function SetMenu_OBrien_1() {
             ALLTASKS.TASKLIST.ACE3,
             ALLTASKS.TASKLIST.CBI_R,
             ALLTASKS.TASKLIST.COPE_BRIEF,
+            ALLTASKS.TASKLIST.DAD,
+            ALLTASKS.TASKLIST.DEMQOL,
+            ALLTASKS.TASKLIST.DEMQOL_PROXY,
             ALLTASKS.TASKLIST.HADS,
             ALLTASKS.TASKLIST.MDS_UPDRS,
             ALLTASKS.TASKLIST.ZBI12
+            // *** NPI
+            // *** Bristol ADL
+            // *** IFS
+            // *** FRS or FTDFRS or whatever it is
         ],
         self = new MenuWindow({
             title: L('t_set_obrien_1'),

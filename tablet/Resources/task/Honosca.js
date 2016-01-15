@@ -82,7 +82,7 @@ lang.extendPrototype(Honosca, {
 
     // Standard task functions
     isComplete: function () {
-        return taskcommon.isComplete(this, "q", 1, nquestions) &&
+        return taskcommon.isCompleteFromPrefix(this, "q", 1, nquestions) &&
             this.period_rated !== null;
     },
 

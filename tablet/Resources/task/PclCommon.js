@@ -54,7 +54,7 @@ lang.extendPrototype(PclCommon, {
 
     // Scoring
     getTotalScore: function () {
-        return taskcommon.totalScore(this, "q", 1, this._nquestions);
+        return taskcommon.totalScoreFromPrefix(this, "q", 1, this._nquestions);
     },
 
     getNumSymptomatic: function (start, end) {
@@ -71,7 +71,7 @@ lang.extendPrototype(PclCommon, {
 
     // Standard task functions
     isComplete: function () {
-        return taskcommon.isComplete(this, "q", 1, this._nquestions);
+        return taskcommon.isCompleteFromPrefix(this, "q", 1, this._nquestions);
     },
 
     getSummary: function () {

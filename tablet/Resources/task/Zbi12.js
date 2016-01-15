@@ -83,7 +83,7 @@ lang.extendPrototype(Zbi12, {
     },
 
     isCompleteQuestions: function () {
-        return taskcommon.isComplete(this, "q", 1, nquestions);
+        return taskcommon.isCompleteFromPrefix(this, "q", 1, nquestions);
     },
 
     getRelationship: function () {

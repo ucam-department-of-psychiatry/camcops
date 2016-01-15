@@ -34,11 +34,12 @@ module.exports = function SetMenu_CPFT_Affective_1() {
             ALLTASKS.TASKLIST.DIAGNOSIS_ICD9CM,  // = DSM-IV
             ALLTASKS.TASKLIST.HAMD,
             ALLTASKS.TASKLIST.IESR,
+            ALLTASKS.TASKLIST.PDSS,
+            ALLTASKS.TASKLIST.PSWQ,
             ALLTASKS.TASKLIST.SWEMWBS,
             ALLTASKS.TASKLIST.WSAS,
-            // *** YBOCS
-            // *** Penn State Worry Questionnaire
-            // *** Panic Disorder Severity Scale
+            ALLTASKS.TASKLIST.YBOCS,
+            ALLTASKS.TASKLIST.YBOCSSC
         ],
         self = new MenuWindow({
             title: L('t_set_cpft_affective_1'),

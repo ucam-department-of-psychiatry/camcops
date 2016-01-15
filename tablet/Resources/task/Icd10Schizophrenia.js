@@ -128,15 +128,15 @@ lang.extendPrototype(Icd10Schizophrenia, {
 
     // Meets criteria? These also return null for unknown.
     meetsGeneralCriteria: function () {
-        var t_1 = taskcommon.countBooleansByFieldnameArray(this, A_NAMES),
-            u_1 = taskcommon.numIncompleteByFieldnameArray(this, A_NAMES),
+        var t_1 = taskcommon.countBooleans(this, A_NAMES),
+            u_1 = taskcommon.numIncomplete(this, A_NAMES),
             t_2 = (
-                taskcommon.countBooleansByFieldnameArray(this, B_NAMES) +
-                taskcommon.countBooleansByFieldnameArray(this, C_NAMES)
+                taskcommon.countBooleans(this, B_NAMES) +
+                taskcommon.countBooleans(this, C_NAMES)
             ),
             u_2 = (
-                taskcommon.numIncompleteByFieldnameArray(this, B_NAMES) +
-                taskcommon.numIncompleteByFieldnameArray(this, C_NAMES)
+                taskcommon.numIncomplete(this, B_NAMES) +
+                taskcommon.numIncomplete(this, C_NAMES)
             );
         if (t_1 + u_1 < 1 && t_2 + u_2 < 2) {
             return false;

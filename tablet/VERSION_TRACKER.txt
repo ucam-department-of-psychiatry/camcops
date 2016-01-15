@@ -84,9 +84,14 @@ Version history (new to old)
 - DEMQOL
 - DEMQOL-Proxy
 - FROM-LP framework set menu
-- IES-R (skeleton)
-- WSAS (skeleton)
+- IES-R (skeleton only)
+- WSAS (skeleton only)
+- PDSS (skeleton only)
+- PSWQ
+- Y-BOCS, Y-BOCS-SC (skeleton only)
+- DAD (skeleton only)
 - O'Brien group set menu 1
+- CPFT Affective Disorders Research Database set menu 1
 - Bugfix: Diagnosis* edit() code was calling "my_items = self.getMyItems()"
   prior to "self.dbstore()", leading to this crash at task creation on Android:
     E/TiExceptionHandler( 1082): (main) [29136,29136] ----- Titanium Javascript Runtime Error -----

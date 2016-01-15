@@ -89,7 +89,7 @@ lang.extendPrototype(DistressThermometer, {
 
     // Scoring
     getTotalScore: function () {
-        return taskcommon.totalScore(this, "q", 1, nquestions);
+        return taskcommon.totalScoreFromPrefix(this, "q", 1, nquestions);
     },
 
     // Standard task functions
@@ -97,7 +97,7 @@ lang.extendPrototype(DistressThermometer, {
         if (this.distress === null) {
             return false;
         }
-        return taskcommon.isComplete(this, "q", 1, nquestions);
+        return taskcommon.isCompleteFromPrefix(this, "q", 1, nquestions);
     },
 
     getSummary: function () {
