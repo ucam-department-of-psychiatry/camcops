@@ -143,7 +143,7 @@ lang.extendPrototype(MdsUpdrs, {
 
     // Standard task functions
     isComplete: function () {
-        return taskcommon.isCompleteByFieldlistArray(this, extrafields);
+        return taskcommon.isCompleteByFieldspecArray(this, extrafields);
     },
 
     getSummary: function () {

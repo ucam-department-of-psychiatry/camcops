@@ -63,7 +63,7 @@ module.exports = function Gass(patient_id) {
 
     // Scoring
     function getTotalScore(female) {
-        return taskcommon.totalScore(self, "q", 1, 19) +
+        return taskcommon.totalScoreFromPrefix(self, "q", 1, 19) +
             (female ? self.q21 : self.q20) +
             self.q22;
     }
@@ -79,7 +79,7 @@ module.exports = function Gass(patient_id) {
 
     // Standard task functions
     self.isComplete = function () {
-        if (!taskcommon.isComplete(self, "q", 1, 19)) {
+        if (!taskcommon.isCompleteFromPrefix(self, "q", 1, 19)) {
             return false;
         }
         if (self.q22 === null) {

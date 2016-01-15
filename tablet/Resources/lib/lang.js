@@ -495,6 +495,29 @@ function upperCase(string) {
 }
 exports.upperCase = upperCase;
 
+function startsWith(str, prefix) {
+    // http://stackoverflow.com/questions/280634/endswith-in-javascript
+    if (!str) {
+        return false;
+    }
+    return str.slice(0, prefix.length) === prefix;
+}
+exports.startsWith = startsWith;
+
+function endsWith(str, suffix) {
+    // http://stackoverflow.com/questions/280634/endswith-in-javascript
+    if (!str) {
+        return false;
+    }
+    return str.indexOf(suffix, str.length - suffix.length) !== -1;
+}
+exports.endsWith = endsWith;
+
+function stringContains(s1, s2) {
+    return s1.indexOf(s2) > -1;
+}
+exports.stringContains = stringContains;
+
 //=============================================================================
 // Regular expressions
 //=============================================================================

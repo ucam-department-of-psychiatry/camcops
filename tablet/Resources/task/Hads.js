@@ -69,12 +69,12 @@ lang.extendPrototype(Hads, {
 
     // Scoring
     getScore: function (questions) {
-        return taskcommon.totalScoreFromSuffixArray(this, "q", questions);
+        return taskcommon.totalScoreFromSuffixes(this, "q", questions);
     },
 
     // Standard task functions
     isComplete: function () {
-        return taskcommon.isComplete(this, "q", 1, nquestions);
+        return taskcommon.isCompleteFromPrefix(this, "q", 1, nquestions);
     },
 
     getSummary: function () {

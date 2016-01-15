@@ -69,12 +69,12 @@ lang.extendPrototype(Ciwa, {
 
     // Scoring
     getTotalScore: function () {
-        return taskcommon.totalScore(this, "q", 1, nscoredquestions);
+        return taskcommon.totalScoreFromPrefix(this, "q", 1, nscoredquestions);
     },
 
     // Standard task functions
     isComplete: function () {
-        return taskcommon.isComplete(this, "q", 1, nscoredquestions);
+        return taskcommon.isCompleteFromPrefix(this, "q", 1, nscoredquestions);
     },
 
     getSummary: function () {

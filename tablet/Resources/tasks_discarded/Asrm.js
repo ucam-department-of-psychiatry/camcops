@@ -49,12 +49,12 @@ module.exports = function Asrm(patient_id) {
 
     // Scoring
     function getTotalScore() {
-        return taskcommon.totalScore(self, "q", 1, nquestions);
+        return taskcommon.totalScoreFromPrefix(self, "q", 1, nquestions);
     }
 
     // Standard task functions
     self.isComplete = function () {
-        return taskcommon.isComplete(self, "q", 1, nquestions);
+        return taskcommon.isCompleteFromPrefix(self, "q", 1, nquestions);
     };
     self.getSummary = function () {
         return L('total_score') + " " + getTotalScore() + "/20" + self.isCompleteSuffix();

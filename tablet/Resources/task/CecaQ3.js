@@ -346,7 +346,7 @@ lang.extendPrototype(CecaQ3, {
     },
 
     complete_1A_somebody_selected: function () {
-        return taskcommon.atLeastOneTrueByFieldnameArray(this, [
+        return taskcommon.atLeastOneTrue(this, [
             "s1a_motherfigure_birthmother",
             "s1a_motherfigure_stepmother",
             "s1a_motherfigure_femalerelative",
@@ -415,7 +415,7 @@ lang.extendPrototype(CecaQ3, {
         }
         if (this.s1c_separated_from_mother) {
             if (
-                !taskcommon.isCompleteByFieldnameArray(this, [
+                !taskcommon.isComplete(this, [
                     "s1c_first_separated_from_mother_aged",
                     "s1c_mother_how_long_first_separation_years",
                     "s1c_mother_separation_reason"
@@ -426,7 +426,7 @@ lang.extendPrototype(CecaQ3, {
         }
         if (this.s1c_separated_from_father) {
             if (
-                !taskcommon.isCompleteByFieldnameArray(this, [
+                !taskcommon.isComplete(this, [
                     "s1c_first_separated_from_father_aged",
                     "s1c_father_how_long_first_separation_years",
                     "s1c_father_separation_reason"
@@ -525,7 +525,7 @@ lang.extendPrototype(CecaQ3, {
     },
 
     complete_3C: function () {
-        return taskcommon.isCompleteByFieldnameArray(this, [
+        return taskcommon.isComplete(this, [
             "s3c_q1",
             "s3c_q2",
             "s3c_q3",
@@ -557,7 +557,7 @@ lang.extendPrototype(CecaQ3, {
             return true;
         }
         if (
-            !taskcommon.atLeastOneTrueByFieldnameArray(this, [
+            !taskcommon.atLeastOneTrue(this, [
                 "s4a_adultconfidant_mother",
                 "s4a_adultconfidant_father",
                 "s4a_adultconfidant_otherrelative",
@@ -583,7 +583,7 @@ lang.extendPrototype(CecaQ3, {
             return true;
         }
         if (
-            !taskcommon.atLeastOneTrueByFieldnameArray(this, [
+            !taskcommon.atLeastOneTrue(this, [
                 "s4b_childconfidant_sister",
                 "s4b_childconfidant_brother",
                 "s4b_childconfidant_otherrelative",
@@ -633,7 +633,7 @@ lang.extendPrototype(CecaQ3, {
         }
         if (this.s5c_abused_by_mother) {
             if (
-                !taskcommon.isCompleteByFieldnameArray(this, [
+                !taskcommon.isComplete(this, [
                     "s5c_mother_abuse_age_began",
                     "s5c_mother_hit_more_than_once",
                     "s5c_mother_hit_how",
@@ -646,7 +646,7 @@ lang.extendPrototype(CecaQ3, {
         }
         if (this.s5c_abused_by_father) {
             if (
-                !taskcommon.isCompleteByFieldnameArray(this, [
+                !taskcommon.isComplete(this, [
                     "s5c_father_abuse_age_began",
                     "s5c_father_hit_more_than_once",
                     "s5c_father_hit_how",
@@ -672,7 +672,7 @@ lang.extendPrototype(CecaQ3, {
             return true;
         }
         if (
-            !taskcommon.isCompleteByFieldnameArray(this, [
+            !taskcommon.isComplete(this, [
                 "s6_first_age",
                 "s6_first_person_known",
                 "s6_first_relative",

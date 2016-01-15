@@ -71,8 +71,8 @@ lang.extendPrototype(CbiR, {
     },
 
     isCompleteQuestions: function () {
-        return taskcommon.isComplete(this, "frequency", 1, nquestions) &&
-            taskcommon.isComplete(this, "distress", 1, nquestions);
+        return taskcommon.isCompleteFromPrefix(this, "frequency", 1, nquestions) &&
+            taskcommon.isCompleteFromPrefix(this, "distress", 1, nquestions);
     },
 
     getRelationship: function () {

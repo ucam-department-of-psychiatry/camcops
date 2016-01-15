@@ -106,11 +106,11 @@ lang.extendPrototype(Icd10Depressive, {
 
     // Scoring
     n_core: function () {
-        return taskcommon.countBooleansByFieldnameArray(this, CORE_NAMES);
+        return taskcommon.countBooleans(this, CORE_NAMES);
     },
 
     n_additional: function () {
-        return taskcommon.countBooleansByFieldnameArray(this, ADDITIONAL_NAMES);
+        return taskcommon.countBooleans(this, ADDITIONAL_NAMES);
     },
 
     n_total: function () {
@@ -118,14 +118,14 @@ lang.extendPrototype(Icd10Depressive, {
     },
 
     n_somatic: function () {
-        return taskcommon.countBooleansByFieldnameArray(this, SOMATIC_NAMES);
+        return taskcommon.countBooleans(this, SOMATIC_NAMES);
     },
 
     main_complete: function () {
         return (
             this.duration_at_least_2_weeks !== null &&
-            taskcommon.isCompleteByFieldnameArray(this, CORE_NAMES) &&
-            taskcommon.isCompleteByFieldnameArray(this, ADDITIONAL_NAMES)
+            taskcommon.isComplete(this, CORE_NAMES) &&
+            taskcommon.isComplete(this, ADDITIONAL_NAMES)
         ) || (
             this.severe_clinically
         );
@@ -174,11 +174,11 @@ lang.extendPrototype(Icd10Depressive, {
         if (!x) {
             return x;
         }
-        if (!taskcommon.isCompleteByFieldnameArray(this, PSYCHOSIS_NAMES)) {
+        if (!taskcommon.isComplete(this, PSYCHOSIS_NAMES)) {
             return null;
         }
         return (
-            taskcommon.countBooleansByFieldnameArray(this,
+            taskcommon.countBooleans(this,
                                                      PSYCHOSIS_NAMES) === 0
         );
     },
@@ -262,7 +262,7 @@ lang.extendPrototype(Icd10Depressive, {
 
     meets_criteria_somatic: function () {
         var t = this.n_somatic(),
-            u = taskcommon.numIncompleteByFieldnameArray(this, SOMATIC_NAMES);
+            u = taskcommon.numIncomplete(this, SOMATIC_NAMES);
         if (t >= 4) {
             return true;
         }

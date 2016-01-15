@@ -48,8 +48,12 @@ module.exports = function AffectiveMenu() {
             ALLTASKS.TASKLIST.PCLM,
             ALLTASKS.TASKLIST.PCLC,
             ALLTASKS.TASKLIST.PCLS,
+            ALLTASKS.TASKLIST.PDSS,
             ALLTASKS.TASKLIST.PHQ9,
-            ALLTASKS.TASKLIST.PHQ15
+            ALLTASKS.TASKLIST.PHQ15,
+            ALLTASKS.TASKLIST.PSWQ,
+            ALLTASKS.TASKLIST.YBOCS,
+            ALLTASKS.TASKLIST.YBOCSSC
         ],
         self = new MenuWindow({
             title: L('menutitle_affective_b'),

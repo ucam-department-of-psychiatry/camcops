@@ -221,7 +221,7 @@ lang.extendPrototype(Deakin_1_HealthReview, {
 
     // Standard task functions
     isComplete: function () {
-        return taskcommon.isCompleteByFieldnameArray(this, [
+        return taskcommon.isComplete(this, [
             "ethnicity",
             "handedness",
             "education",

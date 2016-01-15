@@ -203,6 +203,14 @@ exports.TASKLIST = {
         subtitle: L('s_cpft_lps_resetresponseclock'),
         info: 'html/clinical.html'
     },
+    DAD: {
+        task: 'task/Dad',
+        title: L('b_dad'),
+        tables: ['dad'],
+        maintitle: L('t_dad'),
+        subtitle: L('s_dad'),
+        info: 'html/dad.html'
+    },
     DAST: {
         task: 'task/Dast',
         title: L('b_dast'),
@@ -536,6 +544,14 @@ exports.TASKLIST = {
         subtitle: L('s_pcl_s'),
         info: 'html/pcl.html'
     },
+    PDSS: {
+        task: 'task/Pdss',
+        title: L('b_pdss'),
+        tables: ['pdss'],
+        maintitle: L('t_pdss'),
+        subtitle: L('s_pdss'),
+        info: 'html/pdss.html'
+    },
     PHOTO: {
         task: 'task/Photo',
         title: L('b_photo'),
@@ -576,6 +592,14 @@ exports.TASKLIST = {
         maintitle: L('t_progressnote'),
         subtitle: L('s_progressnote'),
         info: 'html/clinical.html'
+    },
+    PSWQ: {
+        task: 'task/Pswq',
+        title: L('b_pswq'),
+        tables: ['pswq'],
+        maintitle: L('t_pswq'),
+        subtitle: L('s_pswq'),
+        info: 'html/pswq.html'
     },
     PSYCHIATRICCLERKING: {
         task: 'task/PsychiatricClerking',
@@ -664,6 +688,22 @@ exports.TASKLIST = {
         maintitle: L('t_wsas'),
         subtitle: L('s_wsas'),
         info: 'html/wsas.html'
+    },
+    YBOCS: {
+        task: 'task/Ybocs',
+        title: L('b_ybocs'),
+        tables: ['ybocs'],
+        maintitle: L('t_ybocs'),
+        subtitle: L('s_ybocs'),
+        info: 'html/ybocs.html'
+    },
+    YBOCSSC: {
+        task: 'task/YbocsSc',
+        title: L('b_ybocssc'),
+        tables: ['ybocssc'],
+        maintitle: L('t_ybocssc'),
+        subtitle: L('s_ybocssc'),
+        info: 'html/ybocs.html'
     },
     ZBI12: {
         task: 'task/Zbi12',

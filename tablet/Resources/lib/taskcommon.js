@@ -338,13 +338,70 @@ lang.extendPrototype(BaseTask, {
 exports.BaseTask = BaseTask;
 
 //=============================================================================
+// Different ways of specifying fields. Prefer an array of fieldnames.
+//=============================================================================
+
+function fieldnameArrayFromPrefix(prefix, start, end) {
+    var fieldnames = [],
+        i;
+    for (i = start; i <= end; ++i) {
+        fieldnames.push(prefix + i);
+    }
+    return fieldnames;
+}
+exports.fieldnameArrayFromPrefix = fieldnameArrayFromPrefix;
+
+function fieldnameArrayFromFieldspecArray(fieldspecs) {
+    var fieldnames = [],
+        i;
+    for (i = 0; i < fieldspecs.length; ++i) {
+        fieldnames.push(fieldspecs[i].name);
+    }
+    return fieldnames;
+}
+exports.fieldnameArrayFromFieldspecArray = fieldnameArrayFromFieldspecArray;
+
+function fieldnameArrayFromSuffixArray(prefix, suffixes) {
+    var fieldnames = [],
+        i;
+    for (i = 0; i < suffixes.length; ++i) {
+        fieldnames.push(prefix + suffixes[i]);
+    }
+    return fieldnames;
+}
+
+//=============================================================================
+// Field values
+//=============================================================================
+
+function getFieldValues(object, fields) {
+    var i,
+        values = [];
+    for (i = 0; i < fields.length; ++i) {
+        values.push(object[fields[i]]);
+    }
+    return values;
+}
+exports.getFieldValues = getFieldValues;
+
+function getFieldValuesFromPrefix(object, prefix, start, end) {
+    return getFieldValues(
+        object,
+        fieldnameArrayFromPrefix(prefix, start, end)
+    );
+}
+exports.getFieldValuesFromPrefix = getFieldValuesFromPrefix;
+
+//=============================================================================
 // Complete or not?
 //=============================================================================
 
-function isComplete(object, prefix, start, end) {
-    var i;
-    for (i = start; i <= end; ++i) {
-        if (object[prefix + i] === undefined || object[prefix + i] === null) {
+function isComplete(object, fields) {
+    var i,
+        value;
+    for (i = 0; i < fields.length; ++i) {
+        value = object[fields[i]];
+        if (value === undefined || value === null) {
             return false;
         }
     }
@@ -352,71 +409,112 @@ function isComplete(object, prefix, start, end) {
 }
 exports.isComplete = isComplete;
 
-function isCompleteByFieldnameArray(object, fields) {
-    var i;
-    for (i = 0; i < fields.length; ++i) {
-        if (object[fields[i]] === undefined || object[fields[i]] === null) {
-            return false;
-        }
-    }
-    return true;
+function isCompleteFromPrefix(object, prefix, start, end) {
+    return isComplete(
+        object,
+        fieldnameArrayFromPrefix(prefix, start, end)
+    );
 }
-exports.isCompleteByFieldnameArray = isCompleteByFieldnameArray;
+exports.isCompleteFromPrefix = isCompleteFromPrefix;
 
-function atLeastOneNotNullByFieldnameArray(object, fields) {
-    var i;
+function isCompleteByFieldspecArray(object, fieldspecs) {
+    return isComplete(
+        object,
+        fieldnameArrayFromFieldspecArray(fieldspecs)
+    );
+}
+exports.isCompleteByFieldspecArray = isCompleteByFieldspecArray;
+
+function atLeastOneNotNull(object, fields) {
+    var i,
+        value;
     for (i = 0; i < fields.length; ++i) {
-        if (object[fields[i]] !== undefined && object[fields[i]] !== null) {
+        value = object[fields[i]];
+        if (value !== undefined && value !== null) {
             return true;
         }
     }
     return false;
 }
-exports.atLeastOneNotNullByFieldnameArray = atLeastOneNotNullByFieldnameArray;
+exports.atLeastOneNotNull = atLeastOneNotNull;
 
-function numCompleteByFieldnameArray(object, fields) {
+function numComplete(object, fields) {
     var n = 0,
-        i;
+        i,
+        value;
     for (i = 0; i < fields.length; ++i) {
-        if (object[fields[i]] !== undefined && object[fields[i]] !== null) {
+        value = object[fields[i]];
+        if (value !== undefined && value !== null) {
             n += 1;
         }
     }
     return n;
 }
-exports.numCompleteByFieldnameArray = numCompleteByFieldnameArray;
+exports.numComplete = numComplete;
 
-function numIncompleteByFieldnameArray(object, fields) {
+function numIncomplete(object, fields) {
     var n = 0,
-        i;
+        i,
+        value;
     for (i = 0; i < fields.length; ++i) {
-        if (object[fields[i]] === undefined || object[fields[i]] === null) {
+        value = object[fields[i]];
+        if (value === undefined || value === null) {
             n += 1;
         }
     }
     return n;
 }
-exports.numIncompleteByFieldnameArray = numIncompleteByFieldnameArray;
+exports.numIncomplete = numIncomplete;
 
-function isCompleteByFieldlistArray(object, fieldspecs) {
-    // As for isCompleteByFieldnameArray, but using a list of field definitions
-    var i,
-        fieldname;
-    for (i = 0; i < fieldspecs.length; ++i) {
-        fieldname = fieldspecs[i].name;
-        if (object[fieldname] === undefined || object[fieldname] === null) {
-            return false;
+//=============================================================================
+// Scoring
+//=============================================================================
+
+function totalScore(object, fields) {
+    var total = 0,
+        i,
+        value;
+    for (i = 0; i < fields.length; ++i) {
+        value = object[fields[i]];
+        if (value !== undefined && value !== null) {
+            total += value;
         }
     }
-    return true;
+    return total;
 }
-exports.isCompleteByFieldlistArray = isCompleteByFieldlistArray;
+exports.totalScore = totalScore;
+
+function totalScoreFromPrefix(object, prefix, start, end) {
+    return totalScore(
+        object,
+        fieldnameArrayFromPrefix(prefix, start, end)
+    );
+}
+exports.totalScoreFromPrefix = totalScoreFromPrefix;
+
+function totalScoreFromSuffixes(object, prefix, suffixes) {
+    return totalScore(
+        object,
+        fieldnameArrayFromSuffixArray(prefix, suffixes)
+    );
+}
+exports.totalScoreFromSuffixes = totalScoreFromSuffixes;
+
+function meanScore(object, fields) {
+    return lang.mean(getFieldValues(object, fields));
+}
+exports.meanScore = meanScore;
+
+function meanScoreFromPrefix(object, prefix, start, end) {
+    return lang.mean(getFieldValuesFromPrefix(object, prefix, start, end));
+}
+exports.meanScoreFromPrefix = meanScoreFromPrefix;
 
 //=============================================================================
-// True or not?
+// True or not, and other boolean manipulations
 //=============================================================================
 
-function atLeastOneTrueByFieldnameArray(object, fields) {
+function atLeastOneTrue(object, fields) {
     var i;
     for (i = 0; i < fields.length; ++i) {
         if (object[fields[i]]) {
@@ -425,64 +523,36 @@ function atLeastOneTrueByFieldnameArray(object, fields) {
     }
     return false;
 }
-exports.atLeastOneTrueByFieldnameArray = atLeastOneTrueByFieldnameArray;
-
-function totalScore(object, prefix, start, end) {
-    var total = 0,
-        i;
-    for (i = start; i <= end; ++i) {
-        if (object[prefix + i] !== undefined && object[prefix + i] !== null) {
-            total += object[prefix + i];
-        }
-    }
-    return total;
-}
-exports.totalScore = totalScore;
-
-function totalScoreFromSuffixArray(object, prefix, suffixes) {
-    var i,
-        value,
-        total = 0;
-    for (i = 0; i < suffixes.length; ++i) {
-        value = object[prefix + suffixes[i]];
-        if (value !== null) {
-            total += value;
-        }
-    }
-    return total;
-}
-exports.totalScoreFromSuffixArray = totalScoreFromSuffixArray;
+exports.atLeastOneTrue = atLeastOneTrue;
 
 function asBinary(object, field) {
     return object[field] ? 1 : 0;
 }
 exports.asBinary = asBinary;
 
-function countBooleansByFieldnameArray(object, arr) {
+function countBooleans(object, fields) {
     var total = 0,
         i;
-    for (i = 0; i < arr.length; ++i) {
+    for (i = 0; i < fields.length; ++i) {
         // http://stackoverflow.com/questions/3010840/
-        total += object[arr[i]] ? 1 : 0;
-    }
-    return total;
-}
-exports.countBooleansByFieldnameArray = countBooleansByFieldnameArray;
-
-function countBooleans(object, prefix, start, end) {
-    var total = 0,
-        i;
-    for (i = start; i <= end; ++i) {
-        total += object[prefix + i] ? 1 : 0;
+        total += object[fields[i]] ? 1 : 0;
     }
     return total;
 }
 exports.countBooleans = countBooleans;
 
-function allTrue(object, prefix, start, end) {
+function countBooleansFromPrefix(object, prefix, start, end) {
+    return countBooleans(
+        object,
+        fieldnameArrayFromPrefix(prefix, start, end)
+    );
+}
+exports.countBooleans = countBooleans;
+
+function allTrue(object, fields) {
     var i;
-    for (i = start; i <= end; ++i) {
-        if (!object[prefix + i]) {
+    for (i = 0; i < fields.length; ++i) {
+        if (!object[fields[i]]) {
             return false;
         }
     }
@@ -490,21 +560,18 @@ function allTrue(object, prefix, start, end) {
 }
 exports.allTrue = allTrue;
 
-function allTrueByFieldnameArray(object, arr) {
-    var i;
-    for (i = 0; i < arr.length; ++i) {
-        if (!object[arr[i]]) {
-            return false;
-        }
-    }
-    return true;
+function allTrueFromPrefix(object, prefix, start, end) {
+    return allTrue(
+        object,
+        fieldnameArrayFromPrefix(prefix, start, end)
+    );
 }
-exports.allTrueByFieldnameArray = allTrueByFieldnameArray;
+exports.allTrue = allTrue;
 
-function noneTrue(object, prefix, start, end) {
+function noneTrue(object, fields) {
     var i;
-    for (i = start; i <= end; ++i) {
-        if (object[prefix + i]) {
+    for (i = 0; i < fields.length; ++i) {
+        if (object[fields[i]]) {
             return false;
         }
     }
@@ -512,16 +579,63 @@ function noneTrue(object, prefix, start, end) {
 }
 exports.noneTrue = noneTrue;
 
-function noneTrueByFieldnameArray(object, arr) {
-    var i;
-    for (i = 0; i < arr.length; ++i) {
-        if (object[arr[i]]) {
-            return false;
+function noneTrueFromPrefix(object, prefix, start, end) {
+    return noneTrue(
+        object,
+        fieldnameArrayFromPrefix(prefix, start, end)
+    );
+}
+exports.noneTrue = noneTrue;
+
+//=============================================================================
+// Counting by value
+//=============================================================================
+
+function countWhere(object, fields, wherevalues) {
+    var total = 0,
+        i,
+        j,
+        value,
+        succeeded;
+    for (i = 0; i < fields.length; ++i) {
+        value = object[fields[i]];
+        succeeded = false;
+        for (j = 0; j < wherevalues.length; ++j) {
+            if (value === wherevalues[j]) {
+                succeeded = true;
+                break;
+            }
+        }
+        if (succeeded) {
+            total += 1;
         }
     }
-    return true;
+    return total;
 }
-exports.noneTrueByFieldnameArray = noneTrueByFieldnameArray;
+exports.countWhere = countWhere;
+
+function countWhereNot(object, fields, notvalues) {
+    var total = 0,
+        i,
+        j,
+        value,
+        failed;
+    for (i = 0; i < fields.length; ++i) {
+        value = object[fields[i]];
+        failed = false;
+        for (j = 0; j < notvalues.length; ++j) {
+            if (value === notvalues[j]) {
+                failed = true;
+                break;
+            }
+        }
+        if (!failed) {
+            total += 1;
+        }
+    }
+    return total;
+}
+exports.countWhereNot = countWhereNot;
 
 //=============================================================================
 // More...

@@ -173,18 +173,18 @@ lang.extendPrototype(Icd10Manic, {
             return false;
         }
         var t = (
-                taskcommon.countBooleansByFieldnameArray(
+                taskcommon.countBooleans(
                     this,
                     HYPOMANIA_MANIA_NAMES
                 ) +
-                taskcommon.countBooleansByFieldnameArray(this, MANIA_NAMES)
+                taskcommon.countBooleans(this, MANIA_NAMES)
             ),
             u = (
-                taskcommon.numIncompleteByFieldnameArray(
+                taskcommon.numIncomplete(
                     this,
                     HYPOMANIA_MANIA_NAMES
                 ) +
-                taskcommon.numIncompleteByFieldnameArray(this, MANIA_NAMES)
+                taskcommon.numIncomplete(this, MANIA_NAMES)
             );
         if (this.mood_elevated && (t + u < 3)) {
             // With elevated mood, need at least 3 symptoms
@@ -219,11 +219,11 @@ lang.extendPrototype(Icd10Manic, {
         if (this.sustained4days === false) {
             return false;
         }
-        var t = taskcommon.countBooleansByFieldnameArray(
+        var t = taskcommon.countBooleans(
                 this,
                 HYPOMANIA_MANIA_NAMES
             ),
-            u = taskcommon.numIncompleteByFieldnameArray(
+            u = taskcommon.numIncomplete(
                 this,
                 HYPOMANIA_MANIA_NAMES
             );

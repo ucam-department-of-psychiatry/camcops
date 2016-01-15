@@ -176,6 +176,13 @@ CamCOPS app
 <string name="part">Part</string>
 <string name="on">On</string>
 <string name="off">Off</string>
+<string name="end_matter">End matter</string>
+<string name="past">Past</string>
+<string name="current">Current</string>
+<string name="principal">Principal</string>
+<string name="other">Other</string>
+<string name="specify">Specify</string>
+<string name="not_applicable">Not applicable</string>
 
 <!-- Main menu -->
 
@@ -6242,6 +6249,56 @@ FOR THE STUDY AND SUPPLIED/CONFIGURED BY THE HOSTING INSTITUTION
 <string name="wsas_a6">6: Markedly</string>
 <string name="wsas_a7">7</string>
 <string name="wsas_a8">8: Very severely</string>
+
+<!--
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PDSS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+DATA COLLECTION TOOL ONLY, WITH SERVER-SIDE STRING DISTRIBUTION IF PERMITTED
+FOR THE STUDY AND SUPPLIED/CONFIGURED BY THE HOSTING INSTITUTION
+-->
+
+<string name="t_pdss">Panic Disorder Severity Scale (PDSS) (¶+)</string>
+<string name="s_pdss">7-item self-report scale. Data collection tool ONLY unless host institution adds scale text.</string>
+<string name="b_pdss">PDSS</string>
+
+<!--
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PSWQ
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Uses server-side string file.
+-->
+
+<string name="t_pswq">Penn State Worry Questionnaire (PSWQ)</string>
+<string name="s_pswq">16-item self-report scale.</string>
+<string name="b_pswq">PSWQ</string>
+
+<!--
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+YBOCS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+DATA COLLECTION TOOL ONLY, WITH SERVER-SIDE STRING DISTRIBUTION IF PERMITTED
+FOR THE STUDY AND SUPPLIED/CONFIGURED BY THE HOSTING INSTITUTION
+-->
+
+<string name="t_ybocs">Yale–Brown Obsessive Compulsive Scale (Y-BOCS), 9/89 revision (¶+)</string>
+<string name="s_ybocs">10-item clinician-rated scale. Data collection tool ONLY unless host institution adds scale text.</string>
+<string name="b_ybocs">Y-BOCS</string>
+<string name="t_ybocssc">Y-BOCS Symptom Checklist, 9/89 revision (¶+)</string>
+<string name="s_ybocssc">Symptom checklist (past, current, principal) for Y-BOCS. Data collection tool ONLY unless host institution adds scale text.</string>
+<string name="b_ybocssc">Y-BOCS-SC</string>
+
+<!--
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+DAD
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+DATA COLLECTION TOOL ONLY, WITH SERVER-SIDE STRING DISTRIBUTION IF PERMITTED
+FOR THE STUDY AND SUPPLIED/CONFIGURED BY THE HOSTING INSTITUTION
+-->
+
+<string name="t_dad">Disability Assessment for Dementia (DAD)</string>
+<string name="s_dad">40-item carer-rated scale.</string>
+<string name="b_dad">DAD</string>
 
 <!--
 <string name="XXX">XXX</string>
