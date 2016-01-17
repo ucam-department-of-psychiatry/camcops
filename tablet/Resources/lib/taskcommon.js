@@ -282,33 +282,42 @@ lang.extendPrototype(BaseTask, {
             elements: [ this.getClinicianQuestionnaireBlock() ]
         };
     },
+    
+    isRespondentComplete: function () {
+        return (this.respondent_name && this.respondent_relationship);
+    },
 
-    getRespondentQuestionnaireBlock: function () {
+    getRespondentQuestionnaireBlock: function (secondperson) {
+        secondperson = secondperson !== undefined ? secondperson : false;
         var UICONSTANTS = require('common/UICONSTANTS');
         return {
             type: "QuestionTypedVariables",
-            mandatory: false,
+            mandatory: true,
             useColumns: true,
             variables: [
                 {
                     type: UICONSTANTS.TYPEDVAR_TEXT,
                     field: "respondent_name",
-                    prompt: L("respondent_name")
+                    prompt: L(secondperson ?
+                            "respondent_name_2p" :
+                            "respondent_name")
                 },
                 {
                     type: UICONSTANTS.TYPEDVAR_TEXT,
                     field: "respondent_relationship",
-                    prompt: L("respondent_relationship")
+                    prompt: L(secondperson ?
+                            "respondent_relationship_2p" :
+                            "respondent_relationship")
                 }
             ]
         };
     },
 
-    getRespondentDetailsPage: function () {
+    getRespondentDetailsPage: function (secondperson) {
         return {
             title: L("respondent_details"),
             clinician: true,
-            elements: [ this.getRespondentQuestionnaireBlock() ]
+            elements: [ this.getRespondentQuestionnaireBlock(secondperson) ]
         };
     },
 
@@ -351,7 +360,7 @@ function fieldnameArrayFromPrefix(prefix, start, end) {
 }
 exports.fieldnameArrayFromPrefix = fieldnameArrayFromPrefix;
 
-function fieldnameArrayFromFieldspecArray(fieldspecs) {
+function fieldnameArrayFromFieldspecs(fieldspecs) {
     var fieldnames = [],
         i;
     for (i = 0; i < fieldspecs.length; ++i) {
@@ -359,9 +368,9 @@ function fieldnameArrayFromFieldspecArray(fieldspecs) {
     }
     return fieldnames;
 }
-exports.fieldnameArrayFromFieldspecArray = fieldnameArrayFromFieldspecArray;
+exports.fieldnameArrayFromFieldspecs = fieldnameArrayFromFieldspecs;
 
-function fieldnameArrayFromSuffixArray(prefix, suffixes) {
+function fieldnameArrayFromSuffixes(prefix, suffixes) {
     var fieldnames = [],
         i;
     for (i = 0; i < suffixes.length; ++i) {
@@ -384,13 +393,13 @@ function getFieldValues(object, fields) {
 }
 exports.getFieldValues = getFieldValues;
 
-function getFieldValuesFromPrefix(object, prefix, start, end) {
+function getFieldValuesByPrefix(object, prefix, start, end) {
     return getFieldValues(
         object,
         fieldnameArrayFromPrefix(prefix, start, end)
     );
 }
-exports.getFieldValuesFromPrefix = getFieldValuesFromPrefix;
+exports.getFieldValuesByPrefix = getFieldValuesByPrefix;
 
 //=============================================================================
 // Complete or not?
@@ -409,18 +418,18 @@ function isComplete(object, fields) {
 }
 exports.isComplete = isComplete;
 
-function isCompleteFromPrefix(object, prefix, start, end) {
+function isCompleteByPrefix(object, prefix, start, end) {
     return isComplete(
         object,
         fieldnameArrayFromPrefix(prefix, start, end)
     );
 }
-exports.isCompleteFromPrefix = isCompleteFromPrefix;
+exports.isCompleteByPrefix = isCompleteByPrefix;
 
 function isCompleteByFieldspecArray(object, fieldspecs) {
     return isComplete(
         object,
-        fieldnameArrayFromFieldspecArray(fieldspecs)
+        fieldnameArrayFromFieldspecs(fieldspecs)
     );
 }
 exports.isCompleteByFieldspecArray = isCompleteByFieldspecArray;
@@ -484,31 +493,31 @@ function totalScore(object, fields) {
 }
 exports.totalScore = totalScore;
 
-function totalScoreFromPrefix(object, prefix, start, end) {
+function totalScoreByPrefix(object, prefix, start, end) {
     return totalScore(
         object,
         fieldnameArrayFromPrefix(prefix, start, end)
     );
 }
-exports.totalScoreFromPrefix = totalScoreFromPrefix;
+exports.totalScoreByPrefix = totalScoreByPrefix;
 
-function totalScoreFromSuffixes(object, prefix, suffixes) {
+function totalScoreBySuffixes(object, prefix, suffixes) {
     return totalScore(
         object,
-        fieldnameArrayFromSuffixArray(prefix, suffixes)
+        fieldnameArrayFromSuffixes(prefix, suffixes)
     );
 }
-exports.totalScoreFromSuffixes = totalScoreFromSuffixes;
+exports.totalScoreBySuffixes = totalScoreBySuffixes;
 
 function meanScore(object, fields) {
     return lang.mean(getFieldValues(object, fields));
 }
 exports.meanScore = meanScore;
 
-function meanScoreFromPrefix(object, prefix, start, end) {
-    return lang.mean(getFieldValuesFromPrefix(object, prefix, start, end));
+function meanScoreByPrefix(object, prefix, start, end) {
+    return lang.mean(getFieldValuesByPrefix(object, prefix, start, end));
 }
-exports.meanScoreFromPrefix = meanScoreFromPrefix;
+exports.meanScoreByPrefix = meanScoreByPrefix;
 
 //=============================================================================
 // True or not, and other boolean manipulations
@@ -541,7 +550,7 @@ function countBooleans(object, fields) {
 }
 exports.countBooleans = countBooleans;
 
-function countBooleansFromPrefix(object, prefix, start, end) {
+function countBooleansByPrefix(object, prefix, start, end) {
     return countBooleans(
         object,
         fieldnameArrayFromPrefix(prefix, start, end)
@@ -560,7 +569,7 @@ function allTrue(object, fields) {
 }
 exports.allTrue = allTrue;
 
-function allTrueFromPrefix(object, prefix, start, end) {
+function allTrueByPrefix(object, prefix, start, end) {
     return allTrue(
         object,
         fieldnameArrayFromPrefix(prefix, start, end)
@@ -579,7 +588,7 @@ function noneTrue(object, fields) {
 }
 exports.noneTrue = noneTrue;
 
-function noneTrueFromPrefix(object, prefix, start, end) {
+function noneTrueByPrefix(object, prefix, start, end) {
     return noneTrue(
         object,
         fieldnameArrayFromPrefix(prefix, start, end)

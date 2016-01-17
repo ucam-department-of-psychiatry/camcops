@@ -22,7 +22,9 @@
 """
 
 from cc_modules.cc_constants import (
+    CTV_DICTLIST_INCOMPLETE,
     DATA_COLLECTION_UNLESS_UPGRADED_DIV,
+    RESPONDENT_FIELDSPECS,
     STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldspec
@@ -57,20 +59,13 @@ class Zbi12(Task):
         "could care better"
     ]
     NQUESTIONS = 12
-    QUESTION_FIELDSPECS = repeat_fieldspec(
+    TASK_FIELDSPECS = repeat_fieldspec(
         "q", 1, NQUESTIONS,
         comment_fmt="Q{n}, {s} (0-4, higher worse)",
         min=MIN_SCORE, max=MAX_SCORE,
         comment_strings=QUESTION_SNIPPETS
     )
-    TASK_FIELDSPECS = [
-        dict(name="responder_name", cctype="TEXT",
-             comment="Name of person completing task "),
-        dict(name="responder_relationship", cctype="TEXT",
-             comment="Relationship of responder to patient"),
-    ] + QUESTION_FIELDSPECS
     TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
-    QUESTION_FIELDS = [x["name"] for x in QUESTION_FIELDSPECS]
     EXTRASTRING_TASKNAME = "zbi12"
 
     @classmethod
@@ -87,7 +82,11 @@ class Zbi12(Task):
 
     @classmethod
     def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + cls.TASK_FIELDSPECS
+        return (
+            STANDARD_TASK_FIELDSPECS
+            + RESPONDENT_FIELDSPECS
+            + cls.TASK_FIELDSPECS
+        )
 
     @classmethod
     def provides_trackers(cls):
@@ -101,22 +100,29 @@ class Zbi12(Task):
                  comment="Total score (/ 48)"),
         ]
 
+    def get_clinical_text(self):
+        if not self.is_complete():
+            return CTV_DICTLIST_INCOMPLETE
+        return [{"content": "ZBI-12 total score {}/48".format(
+            self.total_score())}]
+
     def total_score(self):
-        return self.sum_fields(self.QUESTION_FIELDS)
+        return self.sum_fields(self.TASK_FIELDS)
 
     def is_complete(self):
         return (
             self.field_contents_valid()
-            and self.responder_name
-            and self.responder_relationship
-            and self.are_all_fields_complete(self.QUESTION_FIELDS)
+            and self.is_respondent_complete()
+            and self.are_all_fields_complete(self.TASK_FIELDS)
         )
 
     def get_task_html(self):
         OPTION_DICT = {None: None}
         for a in range(self.MIN_SCORE, self.MAX_SCORE + 1):
             OPTION_DICT[a] = WSTRING("zbi_a" + str(a))
-        h = """
+        h = (
+            self.get_standard_respondent_block()
+        ) + """
             <div class="summary">
                 <table class="summary">
                     {complete_tr}
@@ -127,10 +133,6 @@ class Zbi12(Task):
                 </table>
             </div>
             <table class="taskdetail">
-                {tr_responder}
-                {tr_relationship}
-            </table>
-            <table class="taskdetail">
                 <tr>
                     <th width="75%">Question</th>
                     <th width="25%">Answer (0–4)</th>
@@ -138,9 +140,6 @@ class Zbi12(Task):
         """.format(
             complete_tr=self.get_is_complete_tr(),
             total=answer(self.total_score()),
-            tr_responder=tr_qa("Responder’s name", self.responder_name),
-            tr_relationship=tr_qa("Responder’s relationship to patient",
-                                  self.responder_relationship),
         )
         for q in range(1, self.NQUESTIONS + 1):
             a = getattr(self, "q" + str(q))

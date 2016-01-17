@@ -111,7 +111,7 @@ lang.extendPrototype(CopeBrief, {
     // Standard task functions
     isComplete: function () {
         return this.isCompleteResponder() &&
-            taskcommon.isCompleteFromPrefix(this, "q", 1, nquestions);
+            taskcommon.isCompleteByPrefix(this, "q", 1, nquestions);
     },
 
     getSummary: function () {

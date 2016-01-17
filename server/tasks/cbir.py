@@ -24,6 +24,7 @@
 from pythonlib.rnc_lang import AttrDict
 from cc_modules.cc_constants import (
     PV,
+    RESPONDENT_FIELDSPECS,
     STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldspec
@@ -105,12 +106,8 @@ class CbiR(Task):
 
     NQUESTIONS = 45
     TASK_FIELDSPECS = [
-        dict(name="responder_name", cctype="TEXT",
-             comment="Name of person completing task "),
-        dict(name="responder_relationship", cctype="TEXT",
-             comment="Relationship of responder to patient"),
         dict(name="confirm_blanks", cctype="INT", pv=PV.BIT,
-             comment="Responded confirmed that blanks are deliberate (N/A) "
+             comment="Respondent confirmed that blanks are deliberate (N/A) "
                      "(0/NULL no, 1 yes)"),
         dict(name="comments", cctype="TEXT",
              comment="Additional comments"),
@@ -141,7 +138,11 @@ class CbiR(Task):
 
     @classmethod
     def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + cls.TASK_FIELDSPECS
+        return (
+            STANDARD_TASK_FIELDSPECS
+            + RESPONDENT_FIELDSPECS
+            + cls.TASK_FIELDSPECS
+        )
 
     @classmethod
     def provides_trackers(cls):
@@ -231,8 +232,8 @@ class CbiR(Task):
         return self.subscore(first, last, "distress")
 
     def is_complete(self):
-        if (not self.field_contents_valid() or not self.responder_name or
-                not self.responder_relationship):
+        if (not self.field_contents_valid()
+                or not self.is_respondent_complete()):
             return False
         if self.confirm_blanks:
             return True
@@ -273,7 +274,9 @@ class CbiR(Task):
                 )
             return h
 
-        h = """
+        h = (
+            self.get_standard_respondent_block()
+        ) + """
             <div class="summary">
                 <table class="summary">
                     {complete_tr}
@@ -337,8 +340,6 @@ class CbiR(Task):
                 </table>
             </div>
             <table class="taskdetail">
-                {tr_responder}
-                {tr_relationship}
                 {tr_blanks}
                 {tr_comments}
             </table>
@@ -373,12 +374,9 @@ class CbiR(Task):
                 self.frequency_subscore(*self.QNUMS_MOTIVATION)),
             motivation_d=answer(
                 self.distress_subscore(*self.QNUMS_MOTIVATION)),
-            tr_responder=tr_qa("Responder’s name", self.responder_name),
-            tr_relationship=tr_qa("Responder’s relationship to patient",
-                                  self.responder_relationship),
             tr_blanks=tr(
-                "Responded confirmed that blanks are deliberate (N/A)",
-                answer(get_yes_no(self.responder_relationship))),
+                "Respondent confirmed that blanks are deliberate (N/A)",
+                answer(get_yes_no(self.confirm_blanks))),
             tr_comments=tr_qa("Comments",
                               answer(self.comments, default="")),
         )

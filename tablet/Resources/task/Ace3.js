@@ -160,10 +160,10 @@ lang.extendPrototype(Ace3, {
     // Scoring (begin with 0 as 0 + null == 0, it seems)
     getAttnScore: function () {
         return (
-            taskcommon.totalScoreFromPrefix(this, "attn_time", 1, 5) +
-            taskcommon.totalScoreFromPrefix(this, "attn_place", 1, 5) +
-            taskcommon.totalScoreFromPrefix(this, "attn_repeat_word", 1, 3) +
-            taskcommon.totalScoreFromPrefix(this, "attn_serial7_subtraction", 1, 5)
+            taskcommon.totalScoreByPrefix(this, "attn_time", 1, 5) +
+            taskcommon.totalScoreByPrefix(this, "attn_place", 1, 5) +
+            taskcommon.totalScoreByPrefix(this, "attn_repeat_word", 1, 3) +
+            taskcommon.totalScoreByPrefix(this, "attn_serial7_subtraction", 1, 5)
         );
     },
 
@@ -185,10 +185,10 @@ lang.extendPrototype(Ace3, {
 
     getMemScore: function () {
         return (
-            taskcommon.totalScoreFromPrefix(this, "mem_recall_word", 1, 3) +
-            taskcommon.totalScoreFromPrefix(this, "mem_repeat_address_trial3_", 1, 7) +
-            taskcommon.totalScoreFromPrefix(this, "mem_famous", 1, 4) +
-            taskcommon.totalScoreFromPrefix(this, "mem_recall_address", 1, 7) +
+            taskcommon.totalScoreByPrefix(this, "mem_recall_word", 1, 3) +
+            taskcommon.totalScoreByPrefix(this, "mem_repeat_address_trial3_", 1, 7) +
+            taskcommon.totalScoreByPrefix(this, "mem_famous", 1, 4) +
+            taskcommon.totalScoreByPrefix(this, "mem_recall_address", 1, 7) +
             this.getMemRecognitionScore() // 5 points
         );
     },
@@ -220,22 +220,22 @@ lang.extendPrototype(Ace3, {
         if (!this.lang_follow_command_practice) {
             return 0;
         }
-        return taskcommon.totalScoreFromPrefix(this, "lang_follow_command", 1, 3);
+        return taskcommon.totalScoreByPrefix(this, "lang_follow_command", 1, 3);
     },
 
     getRepeatWordScore: function () {
-        var n = taskcommon.totalScoreFromPrefix(this, "lang_repeat_word", 1, 4);
+        var n = taskcommon.totalScoreByPrefix(this, "lang_repeat_word", 1, 4);
         return n >= 4 ? 2 : (n === 3 ? 1 : 0);
     },
 
     getLangScore: function () {
         return (
             this.getFollowCommandScore() + // 3 points
-            taskcommon.totalScoreFromPrefix(this, "lang_write_sentences_point", 1, 2) +
+            taskcommon.totalScoreByPrefix(this, "lang_write_sentences_point", 1, 2) +
             this.getRepeatWordScore() + // 2 points
-            taskcommon.totalScoreFromPrefix(this, "lang_repeat_sentence", 1, 2) +
-            taskcommon.totalScoreFromPrefix(this, "lang_name_picture", 1, 12) +
-            taskcommon.totalScoreFromPrefix(this, "lang_identify_concept", 1, 4) +
+            taskcommon.totalScoreByPrefix(this, "lang_repeat_sentence", 1, 2) +
+            taskcommon.totalScoreByPrefix(this, "lang_name_picture", 1, 12) +
+            taskcommon.totalScoreByPrefix(this, "lang_identify_concept", 1, 4) +
             this.lang_read_words_aloud // 1 point
         );
     },
@@ -245,8 +245,8 @@ lang.extendPrototype(Ace3, {
             this.vsp_copy_infinity + // 1 point
             this.vsp_copy_cube + // 2 points
             this.vsp_draw_clock + // 5 points
-            taskcommon.totalScoreFromPrefix(this, "vsp_count_dots", 1, 4) +
-            taskcommon.totalScoreFromPrefix(this, "vsp_identify_letter", 1, 4)
+            taskcommon.totalScoreByPrefix(this, "vsp_count_dots", 1, 4) +
+            taskcommon.totalScoreByPrefix(this, "vsp_identify_letter", 1, 4)
         );
     },
 
@@ -285,32 +285,32 @@ lang.extendPrototype(Ace3, {
     isComplete: function () {
         // In task order:
         return (
-            taskcommon.isCompleteFromPrefix(this, "attn_time", 1, 5) &&
-            taskcommon.isCompleteFromPrefix(this, "attn_place", 1, 5) &&
-            taskcommon.isCompleteFromPrefix(this, "attn_repeat_word", 1, 3) &&
-            taskcommon.isCompleteFromPrefix(this, "attn_serial7_subtraction", 1, 5) &&
-            taskcommon.isCompleteFromPrefix(this, "mem_recall_word", 1, 3) &&
+            taskcommon.isCompleteByPrefix(this, "attn_time", 1, 5) &&
+            taskcommon.isCompleteByPrefix(this, "attn_place", 1, 5) &&
+            taskcommon.isCompleteByPrefix(this, "attn_repeat_word", 1, 3) &&
+            taskcommon.isCompleteByPrefix(this, "attn_serial7_subtraction", 1, 5) &&
+            taskcommon.isCompleteByPrefix(this, "mem_recall_word", 1, 3) &&
             // this.fluency_letters_correct !== null &&
             // this.fluency_animals_correct !== null &&
             this.fluency_letters_score !== null &&
             this.fluency_animals_score !== null &&
-            taskcommon.isCompleteFromPrefix(this, "mem_repeat_address_trial3_", 1, 7) &&
-            taskcommon.isCompleteFromPrefix(this, "mem_famous", 1, 4) &&
+            taskcommon.isCompleteByPrefix(this, "mem_repeat_address_trial3_", 1, 7) &&
+            taskcommon.isCompleteByPrefix(this, "mem_famous", 1, 4) &&
             this.lang_follow_command_practice !== null &&
             (this.lang_follow_command_practice === 0 ||
-                    taskcommon.isCompleteFromPrefix(this, "lang_follow_command", 1, 3)) &&
-            taskcommon.isCompleteFromPrefix(this, "lang_write_sentences_point", 1, 2) &&
-            taskcommon.isCompleteFromPrefix(this, "lang_repeat_word", 1, 4) &&
-            taskcommon.isCompleteFromPrefix(this, "lang_repeat_sentence", 1, 2) &&
-            taskcommon.isCompleteFromPrefix(this, "lang_name_picture", 1, 12) &&
-            taskcommon.isCompleteFromPrefix(this, "lang_identify_concept", 1, 4) &&
+                    taskcommon.isCompleteByPrefix(this, "lang_follow_command", 1, 3)) &&
+            taskcommon.isCompleteByPrefix(this, "lang_write_sentences_point", 1, 2) &&
+            taskcommon.isCompleteByPrefix(this, "lang_repeat_word", 1, 4) &&
+            taskcommon.isCompleteByPrefix(this, "lang_repeat_sentence", 1, 2) &&
+            taskcommon.isCompleteByPrefix(this, "lang_name_picture", 1, 12) &&
+            taskcommon.isCompleteByPrefix(this, "lang_identify_concept", 1, 4) &&
             this.lang_read_words_aloud !== null &&
             this.vsp_copy_infinity !== null &&
             this.vsp_copy_cube !== null &&
             this.vsp_draw_clock !== null &&
-            taskcommon.isCompleteFromPrefix(this, "vsp_count_dots", 1, 4) &&
-            taskcommon.isCompleteFromPrefix(this, "vsp_identify_letter", 1, 4) &&
-            taskcommon.isCompleteFromPrefix(this, "mem_recall_address", 1, 7) &&
+            taskcommon.isCompleteByPrefix(this, "vsp_count_dots", 1, 4) &&
+            taskcommon.isCompleteByPrefix(this, "vsp_identify_letter", 1, 4) &&
+            taskcommon.isCompleteByPrefix(this, "mem_recall_address", 1, 7) &&
             this.isRecognitionComplete()
         );
     },

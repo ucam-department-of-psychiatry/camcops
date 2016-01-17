@@ -72,7 +72,7 @@ lang.extendPrototype(Caps, {
 
     // Scoring
     getTotalScore: function () {
-        return taskcommon.countBooleansFromPrefix(this, "endorse", 1, nquestions);
+        return taskcommon.countBooleansByPrefix(this, "endorse", 1, nquestions);
     },
 
     getDistressScore: function () {

@@ -73,7 +73,7 @@ lang.extendPrototype(Icd10Schizotypal, {
             return null;
         }
         return (
-            taskcommon.countBooleansFromPrefix(this, "a", 1, N_A) >= 4 &&
+            taskcommon.countBooleansByPrefix(this, "a", 1, N_A) >= 4 &&
             this.b
         );
     },
@@ -82,7 +82,7 @@ lang.extendPrototype(Icd10Schizotypal, {
     isComplete: function () {
         return (
             this.date_pertains_to !== null &&
-            taskcommon.isCompleteFromPrefix(this, "a", 1, N_A) &&
+            taskcommon.isCompleteByPrefix(this, "a", 1, N_A) &&
             this.b !== null
         );
     },

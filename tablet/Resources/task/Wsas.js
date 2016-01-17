@@ -79,11 +79,11 @@ lang.extendPrototype(Wsas, {
 
     // Standard task functions
     isComplete: function () {
-        return taskcommon.isCompleteFromPrefix(this, "q", 1, nquestions);
+        return taskcommon.isCompleteByPrefix(this, "q", 1, nquestions);
     },
 
     getTotalScore: function () {
-        return taskcommon.totalScoreFromPrefix(this, "q", 1, nquestions);
+        return taskcommon.totalScoreByPrefix(this, "q", 1, nquestions);
     },
 
     getSummary: function () {

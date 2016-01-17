@@ -27,7 +27,6 @@ from cc_modules.cc_constants import (
     STANDARD_ANCILLARY_FIELDSPECS,
     STANDARD_TASK_FIELDSPECS,
 )
-from cc_modules.cc_constants import PV
 from cc_modules.cc_html import (
     answer,
     get_yes_no_none,

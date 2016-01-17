@@ -84,7 +84,7 @@ lang.extendPrototype(Dast, {
 
     // Standard task functions
     isComplete: function () {
-        return taskcommon.isCompleteFromPrefix(this, "q", 1, nquestions);
+        return taskcommon.isCompleteByPrefix(this, "q", 1, nquestions);
     },
 
     getSummary: function () {

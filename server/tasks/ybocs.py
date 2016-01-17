@@ -23,6 +23,7 @@
 
 from cc_modules.cc_constants import (
     CLINICIAN_FIELDSPECS,
+    CTV_DICTLIST_INCOMPLETE,
     DATA_COLLECTION_UNLESS_UPGRADED_DIV,
     PV,
     STANDARD_TASK_FIELDSPECS,
@@ -162,6 +163,15 @@ class Ybocs(Task):
                  value=self.compulsion_score(),
                  comment="Compulsion score (/ 20)"),
         ]
+
+    def get_clinical_text(self):
+        if not self.is_complete():
+            return CTV_DICTLIST_INCOMPLETE
+        t = self.total_score()
+        o = self.obsession_score()
+        c = self.compulsion_score()
+        return [{"content": "Y-BOCS total score {t}/40 (obsession {o}/20, "
+                            "compulsion {c}/20)".format(t=t, o=o, c=c)}]
 
     def total_score(self):
         return self.sum_fields(self.SCORED_QUESTIONS)
@@ -407,11 +417,35 @@ class YbocsSc(Task):
     def provides_trackers(cls):
         return False
 
+    def get_clinical_text(self):
+        if not self.is_complete():
+            return CTV_DICTLIST_INCOMPLETE
+        current_list = []
+        past_list = []
+        principal_list = []
+        for item in self.ITEMS:
+            if getattr(self, item + self.SUFFIX_CURRENT):
+                current_list.append(item)
+            if getattr(self, item + self.SUFFIX_PAST):
+                past_list.append(item)
+            if getattr(self, item + self.SUFFIX_PRINCIPAL):
+                principal_list.append(item)
+        return [
+            {"content": "Current symptoms: {}".format(
+                ", ".join(current_list))},
+            {"content": "Past symptoms: {}".format(
+                ", ".join(past_list))},
+            {"content": "Principal symptoms: {}".format(
+                ", ".join(principal_list))},
+        ]
+
     def is_complete(self):
         return True
 
     def get_task_html(self):
-        h = """
+        h = (
+            self.get_standard_clinician_block()
+        ) + """
             <table class="taskdetail">
                 <tr>
                     <th width="55%">Symptom</th>

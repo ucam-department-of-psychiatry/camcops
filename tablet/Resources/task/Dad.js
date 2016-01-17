@@ -187,7 +187,7 @@ lang.extendPrototype(Dad, {
 
     getScoreIgnoringNA: function (fields) {
         var score = taskcommon.countWhere(this, fields, [YES]),
-            possible = taskcommon.countWhereNot(this, fields, [NA]);
+            possible = taskcommon.countWhereNot(this, fields, [null, NA]);
         return score + "/" + possible;
     },
 
@@ -242,7 +242,7 @@ lang.extendPrototype(Dad, {
                 text: (this.XSTRING('instruction_1') + " " +
                        this.getPatientName() + " " +
                        this.XSTRING('instruction_2'))
-            },
+            }
         ];
         for (g = 0; g < GROUPS.length; ++g) {
             groupname = GROUPS[g];
@@ -291,7 +291,7 @@ lang.extendPrototype(Dad, {
         }
         pages.push({
             title: L('t_dad'),
-            clinician: false,
+            clinician: true,
             elements: elements
         });
 

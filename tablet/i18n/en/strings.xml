@@ -552,6 +552,8 @@ CamCOPS app
 <string name="respondent_details">Respondent’s details</string>
 <string name="respondent_name">Respondent’s name</string>
 <string name="respondent_relationship">Respondent’s relationship to patient</string>
+<string name="respondent_name_2p">Your name</string>
+<string name="respondent_relationship_2p">Your relationship to the patient</string>
 <string name="clinician_and_respondent_details">Clinician’s and respondent’s details</string>
 
 <!-- Questionnaires -->
@@ -1663,8 +1665,6 @@ CBI-R
 <string name="s_cbir">45-item caregiver rating scale, applicable to dementias.</string>
 <string name="b_cbir">CBI-R</string>
 <string name="cbir_for_carer">For a family member or close friend to complete</string>
-<string name="cbir_q_responder_name">Your name</string>
-<string name="cbir_q_responder_relationship">Your relationship to the patient</string>
 <string name="cbir_instruction_1">We would like to ask you a number of questions about various changes in the patient’s behaviour that you may have noticed. It is important that we obtain your view as it will help us in our assessment.</string>
 <!-- Phrasing below changed slightly for electronic version -->
 <string name="cbir_instruction_2">Please read the description of each problem carefully. Then choose the option under the heading “FREQUENCY” that best describes the occurrence of the behavioural change. Then choose the option under “HOW MUCH DID IT BOTHER YOU?” that best describes your disturbance by this behaviour. Some of the everyday skill questions may not apply, if for instance the person you care for has never done the shopping. Please enter N/A (not applicable).</string>
@@ -6203,8 +6203,6 @@ FOR THE STUDY AND SUPPLIED/CONFIGURED BY THE HOSTING INSTITUTION
 <string name="t_zbi12">Zarit Burden Interview (ZBI), 12-item version (¶+)</string>
 <string name="s_zbi12">12-item caregiver-report scale. Data collection tool ONLY unless host institution adds scale text.</string>
 <string name="b_zbi12">ZBI-12</string>
-<string name="zbi_q_responder_name">Your name</string>
-<string name="zbi_q_responder_relationship">Your relationship to the patient</string>
 <string name="zbi_a0">Never</string>
 <string name="zbi_a1">Rarely</string>
 <string name="zbi_a2">Sometimes</string>
@@ -6297,8 +6295,20 @@ FOR THE STUDY AND SUPPLIED/CONFIGURED BY THE HOSTING INSTITUTION
 -->
 
 <string name="t_dad">Disability Assessment for Dementia (DAD)</string>
-<string name="s_dad">40-item carer-rated scale.</string>
+<string name="s_dad">40-item clinician-administered, carer-rated scale.</string>
 <string name="b_dad">DAD</string>
+
+<!--
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+BADLS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+DATA COLLECTION TOOL ONLY, WITH SERVER-SIDE STRING DISTRIBUTION IF PERMITTED
+FOR THE STUDY AND SUPPLIED/CONFIGURED BY THE HOSTING INSTITUTION
+-->
+
+<string name="t_badls">Bristol Activities of Daily Living Scale (BADLS)</string>
+<string name="s_badls">20-item carer-rated scale for use in dementia.</string>
+<string name="b_badls">BADLS</string>
 
 <!--
 <string name="XXX">XXX</string>

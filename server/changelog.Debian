@@ -31,6 +31,7 @@ camcops (1.40-1) all; urgency=high
   * PSWQ.
   * Y-BOCS, Y-BOCS-SC (skeleton only).
   * DAD (skeleton only).
+  * BADLS (skeleton only).
   * Diagnosis reports.
   * Device report.
   * update_multiple_databases.py script

@@ -25,7 +25,6 @@ import pythonlib.rnc_web as ws
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
     CLINICIAN_FIELDSPECS,
-    PV,
     RESPONDENT_FIELDSPECS,
     STANDARD_TASK_FIELDSPECS,
 )

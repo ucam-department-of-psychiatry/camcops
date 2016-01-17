@@ -83,20 +83,20 @@ lang.extendPrototype(Ybocs, {
 
     // Scoring
     getObsessionScore: function () {
-        return taskcommon.totalScoreFromPrefix(this, "q", 1, 5);
+        return taskcommon.totalScoreByPrefix(this, "q", 1, 5);
     },
 
     getCompulsionScore: function () {
-        return taskcommon.totalScoreFromPrefix(this, "q", 6, 10);
+        return taskcommon.totalScoreByPrefix(this, "q", 6, 10);
     },
 
     getTotalScore: function () {
-        return taskcommon.totalScoreFromPrefix(this, "q", 1, 10);
+        return taskcommon.totalScoreByPrefix(this, "q", 1, 10);
     },
 
     // Standard task functions
     isComplete: function () {
-        return taskcommon.isCompleteFromPrefix(this, "q", 1, 10);
+        return taskcommon.isCompleteByPrefix(this, "q", 1, 10);
     },
 
     getSummary: function () {

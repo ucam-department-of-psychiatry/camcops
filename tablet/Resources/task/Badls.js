@@ -1,4 +1,4 @@
-// Pswq.js
+// Badls.js
 
 /*
     Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
@@ -20,7 +20,7 @@
     limitations under the License.
 */
 
-/*jslint node: true, newcap: true, nomen: true, plusplus: true, unparam: true, continue:true */
+/*jslint node: true, newcap: true, nomen: true, plusplus: true, unparam: true */
 "use strict";
 /*global Titanium, L */
 
@@ -28,11 +28,12 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
     dbcommon = require('lib/dbcommon'),
     taskcommon = require('lib/taskcommon'),
     lang = require('lib/lang'),
-    tablename = "pswq",
+    tablename = "badls",
     fieldlist = dbcommon.standardTaskFields(),
-    nquestions = 16,
-    REVERSE_SCORE = [1, 3, 8, 10, 11];  // questions scored backwards;
+    nquestions = 20,
+    SCORING = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 0};
 
+fieldlist.push.apply(fieldlist, dbcommon.RESPONDENT_FIELDSPECS);
 dbcommon.appendRepeatedFieldDef(fieldlist, "q", 1, nquestions,
                                 DBCONSTANTS.TYPE_INTEGER);
 
@@ -42,22 +43,22 @@ dbcommon.createTable(tablename, fieldlist);
 
 // TASK
 
-function Pswq(patient_id) {
+function Badls(patient_id) {
     taskcommon.BaseTask.call(this, patient_id); // call base constructor
 }
 
-lang.inheritPrototype(Pswq, taskcommon.BaseTask);
-lang.extendPrototype(Pswq, {
+lang.inheritPrototype(Badls, taskcommon.BaseTask);
+lang.extendPrototype(Badls, {
 
     // KEY DATABASE FIELDS (USED BY DatabaseObject)
 
-    _objecttype: Pswq,
+    _objecttype: Badls,
     _tablename: tablename,
     _fieldlist: fieldlist,
 
     // TASK CLASS FIELD OVERRIDES (USED BY BaseTask)
 
-    _extrastringTaskname: "pswq",
+    _extrastringTaskname: "badls",
     isTaskCrippled: function () {
         return !this.extraStringsPresent();
     },
@@ -74,21 +75,21 @@ lang.extendPrototype(Pswq, {
     },
 
     // OTHER
-
-    // Scoring
-    getTotalScore: function () {
-        var q,
-            x,
-            total = 0;
-        for (q = 1; q <= nquestions; ++q) {
-            x = this["q" + q];
-            if (x === null) {
-                continue;
-            }
-            if (REVERSE_SCORE.indexOf(q) !== -1) {
-                x = 6 - x;  // 5 becomes 1, 1 becomes 5
-            }
-            total += x;
+    score: function (qnum) {
+        var value = this[qnum];
+        if (value in SCORING) {
+            return SCORING[value];
+        } else {
+            // Undefined...
+            return 0;
+        }
+    },
+    
+    totalScore: function () {
+        var total = 0,
+            i;
+        for (i = 1; i <= nquestions; ++i) {
+            total += this.score(i);
         }
         return total;
     },
@@ -100,7 +101,7 @@ lang.extendPrototype(Pswq, {
 
     getSummary: function () {
         return (
-            "Total " + this.getTotalScore() + " (range 16–80) " +
+            "Total score " + this.totalScore() + "/60" +
             this.isCompleteSuffix()
         );
     },
@@ -111,36 +112,54 @@ lang.extendPrototype(Pswq, {
 
     edit: function (readOnly) {
         var self = this,
-            Questionnaire = require('questionnaire/Questionnaire'),
             KeyValuePair = require('lib/KeyValuePair'),
+            Questionnaire = require('questionnaire/Questionnaire'),
+            UICONSTANTS = require('common/UICONSTANTS'),
             elements,
+            i,
             pages,
             questionnaire;
 
         elements = [
+            this.getRespondentQuestionnaireBlock(true),
             {
                 type: "QuestionText",
-                bold: true,
-                text: this.XSTRING('instruction')
+                text: this.XSTRING('instruction_1')
             },
             {
-                type: "QuestionMCQGrid",
-                options: [
-                    new KeyValuePair('1: ' + this.XSTRING('anchor1'), 1),
-                    new KeyValuePair('2', 2),
-                    new KeyValuePair('3', 3),
-                    new KeyValuePair('4', 4),
-                    new KeyValuePair('5: ' + this.XSTRING('anchor5'), 5)
-                ],
-                questions: this.get_questions(),
-                fields: taskcommon.stringArrayFromSequence("q", 1, nquestions),
-                optionsWidthTogether: '65%'
+                type: "QuestionText",
+                text: this.XSTRING('instruction_2')
+            },
+            {
+                type: "QuestionText",
+                text: this.XSTRING('instruction_3')
             }
-        ];
+        ]
+        for (i = 1; i <= nquestions; ++i) {
+            elements.push(
+                {
+                    type: "QuestionText",
+                    bold: true,
+                    text: this.XSTRING('q' + i)
+                },
+                {
+                    type: "QuestionMCQ",
+                    showInstruction: false,
+                    options: [
+                        new KeyValuePair('q' + i + '_a', 'a'),
+                        new KeyValuePair('q' + i + '_b', 'b'),
+                        new KeyValuePair('q' + i + '_c', 'c'),
+                        new KeyValuePair('q' + i + '_d', 'd'),
+                        new KeyValuePair('q' + i + '_e', 'e')
+                    ],
+                    field: 'q' + i
+                },
+            );
+        }
 
         pages = [
             {
-                title: L('t_pswq'),
+                title: L('t_badls'),
                 clinician: false,
                 elements: elements
             }
@@ -160,4 +179,4 @@ lang.extendPrototype(Pswq, {
 
 });
 
-module.exports = Pswq;
+module.exports = Badls;

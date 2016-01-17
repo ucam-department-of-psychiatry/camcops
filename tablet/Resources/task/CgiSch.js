@@ -66,8 +66,8 @@ lang.extendPrototype(CgiSch, {
     // Standard task functions
     isComplete: function () {
         return (
-            taskcommon.isCompleteFromPrefix(this, "severity", 1, NQ_PER_SECTION) &&
-            taskcommon.isCompleteFromPrefix(this, "change", 1, NQ_PER_SECTION)
+            taskcommon.isCompleteByPrefix(this, "severity", 1, NQ_PER_SECTION) &&
+            taskcommon.isCompleteByPrefix(this, "change", 1, NQ_PER_SECTION)
         );
     },
 

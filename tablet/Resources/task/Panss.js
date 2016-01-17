@@ -69,22 +69,22 @@ lang.extendPrototype(Panss, {
 
     // Scoring
     getP: function () {
-        return taskcommon.totalScoreFromPrefix(this, "p", 1, np);
+        return taskcommon.totalScoreByPrefix(this, "p", 1, np);
     },
 
     getN: function () {
-        return taskcommon.totalScoreFromPrefix(this, "n", 1, nn);
+        return taskcommon.totalScoreByPrefix(this, "n", 1, nn);
     },
 
     getG: function () {
-        return taskcommon.totalScoreFromPrefix(this, "g", 1, ng);
+        return taskcommon.totalScoreByPrefix(this, "g", 1, ng);
     },
 
     // Standard task functions
     isComplete: function () {
-        return (taskcommon.isCompleteFromPrefix(this, "p", 1, np) &&
-                taskcommon.isCompleteFromPrefix(this, "n", 1, nn) &&
-                taskcommon.isCompleteFromPrefix(this, "g", 1, ng));
+        return (taskcommon.isCompleteByPrefix(this, "p", 1, np) &&
+                taskcommon.isCompleteByPrefix(this, "n", 1, nn) &&
+                taskcommon.isCompleteByPrefix(this, "g", 1, ng));
     },
 
     getSummary: function () {

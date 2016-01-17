@@ -63,7 +63,7 @@ lang.extendPrototype(Audit, {
 
     // Scoring
     getTotalScore: function () {
-        return taskcommon.totalScoreFromPrefix(this, "q", 1, nquestions);
+        return taskcommon.totalScoreByPrefix(this, "q", 1, nquestions);
     },
 
     // Standard task functions

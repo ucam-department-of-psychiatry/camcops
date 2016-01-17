@@ -23,6 +23,7 @@
 
 import pythonlib.rnc_web as ws
 from cc_modules.cc_constants import (
+    CTV_DICTLIST_INCOMPLETE,
     DATA_COLLECTION_UNLESS_UPGRADED_DIV,
     STANDARD_TASK_FIELDSPECS,
 )
@@ -104,6 +105,14 @@ class Pdss(Task):
                  value=self.composite_score(),
                  comment="Composite score (/ 4)"),
         ]
+
+    def get_clinical_text(self):
+        if not self.is_complete():
+            return CTV_DICTLIST_INCOMPLETE
+        t = self.total_score()
+        c = self.composite_score()
+        return [{"content": "PDSS total score {t}/48 "
+                            "(composite {c}/4)".format(t=t, c=c)}]
 
     def total_score(self):
         return self.sum_fields(self.QUESTION_FIELDS)

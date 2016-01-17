@@ -27,7 +27,6 @@ from cc_modules.cc_constants import (
     PV,
     STANDARD_TASK_FIELDSPECS,
 )
-from cc_modules.cc_constants import PV
 from cc_modules.cc_html import (
     get_yes_no_none,
     tr_qa,

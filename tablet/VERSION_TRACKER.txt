@@ -90,6 +90,7 @@ Version history (new to old)
 - PSWQ
 - Y-BOCS, Y-BOCS-SC (skeleton only)
 - DAD (skeleton only)
+- BADLS (skeleton only)
 - O'Brien group set menu 1
 - CPFT Affective Disorders Research Database set menu 1
 - Bugfix: Diagnosis* edit() code was calling "my_items = self.getMyItems()"

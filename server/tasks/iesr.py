@@ -22,6 +22,7 @@
 """
 
 from cc_modules.cc_constants import (
+    CTV_DICTLIST_INCOMPLETE,
     DATA_COLLECTION_UNLESS_UPGRADED_DIV,
     STANDARD_TASK_FIELDSPECS,
 )
@@ -152,6 +153,17 @@ class Iesr(Task):
                  value=self.hyperarousal_score(),
                  comment="Hyperarousal score (/ 28)"),
         ]
+
+    def get_clinical_text(self):
+        if not self.is_complete():
+            return CTV_DICTLIST_INCOMPLETE
+        t = self.total_score()
+        a = self.avoidance_score()
+        i = self.intrusion_score()
+        h = self.hyperarousal_score()
+        return [{"content": "IES-R total score {t}/48 (avoidance {a}/32 "
+                            "intrusion {i}/28, hyperarousal {h}/28)".format(
+                                t=t, a=a, i=i, h=h)}]
 
     def total_score(self):
         return self.sum_fields(self.QUESTION_FIELDS)

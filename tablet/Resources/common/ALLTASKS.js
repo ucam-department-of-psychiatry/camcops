@@ -59,6 +59,14 @@ exports.TASKLIST = {
         subtitle: L('s_audit_c'),
         info: 'html/audit.html'
     },
+    BADLS: {
+        task: 'task/Badls',
+        title: L('b_badls'),
+        tables: ['badls'],
+        maintitle: L('t_badls'),
+        subtitle: L('s_badls'),
+        info: 'html/badls.html'
+    },
     BDI: {
         task: 'task/Bdi',
         title: L('b_bdi'),

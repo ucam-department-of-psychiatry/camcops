@@ -124,49 +124,49 @@ lang.extendPrototype(Icd10SpecPD, {
             lang.falseNotNull(this.g5) ||
             lang.falseNotNull(this.g6) ||
             (
-                    taskcommon.isCompleteFromPrefix(this, "g1_", 1, N_GENERAL_1) &&
-                    taskcommon.countBooleansFromPrefix(this, "g1_", 1, N_GENERAL_1) <= 1
+                    taskcommon.isCompleteByPrefix(this, "g1_", 1, N_GENERAL_1) &&
+                    taskcommon.countBooleansByPrefix(this, "g1_", 1, N_GENERAL_1) <= 1
                 )
         );
     },
 
     isCompleteGeneral: function () {
         return (
-            taskcommon.isCompleteFromPrefix(this, "g", 1, N_GENERAL) &&
-            taskcommon.isCompleteFromPrefix(this, "g1_", 1, N_GENERAL_1)
+            taskcommon.isCompleteByPrefix(this, "g", 1, N_GENERAL) &&
+            taskcommon.isCompleteByPrefix(this, "g1_", 1, N_GENERAL_1)
         );
     },
 
     isCompleteParanoid: function () {
-        return taskcommon.isCompleteFromPrefix(this, "paranoid", 1, N_PARANOID);
+        return taskcommon.isCompleteByPrefix(this, "paranoid", 1, N_PARANOID);
     },
 
     isCompleteSchizoid: function () {
-        return taskcommon.isCompleteFromPrefix(this, "schizoid", 1, N_SCHIZOID);
+        return taskcommon.isCompleteByPrefix(this, "schizoid", 1, N_SCHIZOID);
     },
 
     isCompleteDissocial: function () {
-        return taskcommon.isCompleteFromPrefix(this, "dissocial", 1, N_DISSOCIAL);
+        return taskcommon.isCompleteByPrefix(this, "dissocial", 1, N_DISSOCIAL);
     },
 
     isCompleteEU: function () {
-        return taskcommon.isCompleteFromPrefix(this, "eu", 1, N_EU);
+        return taskcommon.isCompleteByPrefix(this, "eu", 1, N_EU);
     },
 
     isCompleteHistrionic: function () {
-        return taskcommon.isCompleteFromPrefix(this, "histrionic", 1, N_HISTRIONIC);
+        return taskcommon.isCompleteByPrefix(this, "histrionic", 1, N_HISTRIONIC);
     },
 
     isCompleteAnankastic: function () {
-        return taskcommon.isCompleteFromPrefix(this, "anankastic", 1, N_ANANKASTIC);
+        return taskcommon.isCompleteByPrefix(this, "anankastic", 1, N_ANANKASTIC);
     },
 
     isCompleteAnxious: function () {
-        return taskcommon.isCompleteFromPrefix(this, "anxious", 1, N_ANXIOUS);
+        return taskcommon.isCompleteByPrefix(this, "anxious", 1, N_ANXIOUS);
     },
 
     isCompleteDependent: function () {
-        return taskcommon.isCompleteFromPrefix(this, "dependent", 1, N_DEPENDENT);
+        return taskcommon.isCompleteByPrefix(this, "dependent", 1, N_DEPENDENT);
     },
 
     // Meets criteria? These also return null for unknown.
@@ -178,8 +178,8 @@ lang.extendPrototype(Icd10SpecPD, {
             return null;
         }
         return (
-            taskcommon.allTrueFromPrefix(this, "g", 1, N_GENERAL) &&
-            taskcommon.countBooleansFromPrefix(this, "g1_", 1, N_GENERAL_1) > 1
+            taskcommon.allTrueByPrefix(this, "g", 1, N_GENERAL) &&
+            taskcommon.countBooleansByPrefix(this, "g1_", 1, N_GENERAL_1) > 1
         );
     },
 
@@ -190,7 +190,7 @@ lang.extendPrototype(Icd10SpecPD, {
         if (!this.isCompleteParanoid()) {
             return null;
         }
-        return (taskcommon.countBooleansFromPrefix(this, "paranoid", 1,
+        return (taskcommon.countBooleansByPrefix(this, "paranoid", 1,
                                          N_PARANOID) >= 4);
     },
 
@@ -199,7 +199,7 @@ lang.extendPrototype(Icd10SpecPD, {
             return this.hasPD();
         }
         if (!this.isCompleteSchizoid()) { return null; }
-        return (taskcommon.countBooleansFromPrefix(this, "schizoid", 1,
+        return (taskcommon.countBooleansByPrefix(this, "schizoid", 1,
                                          N_SCHIZOID) >= 4);
     },
 
@@ -208,7 +208,7 @@ lang.extendPrototype(Icd10SpecPD, {
         if (!this.isCompleteDissocial()) {
             return null;
         }
-        return (taskcommon.countBooleansFromPrefix(this, "dissocial", 1,
+        return (taskcommon.countBooleansByPrefix(this, "dissocial", 1,
                                          N_DISSOCIAL) >= 3);
     },
 
@@ -220,7 +220,7 @@ lang.extendPrototype(Icd10SpecPD, {
             return null;
         }
         return (
-            taskcommon.countBooleansFromPrefix(this, "eu", 1, N_EUPD_I) >= 3 &&
+            taskcommon.countBooleansByPrefix(this, "eu", 1, N_EUPD_I) >= 3 &&
             this.eu2
         );
     },
@@ -233,8 +233,8 @@ lang.extendPrototype(Icd10SpecPD, {
             return null;
         }
         return (
-            taskcommon.countBooleansFromPrefix(this, "eu", 1, N_EUPD_I) >= 3 &&
-            taskcommon.countBooleansFromPrefix(this, "eu", N_EUPD_I + 1, N_EU) >= 2
+            taskcommon.countBooleansByPrefix(this, "eu", 1, N_EUPD_I) >= 3 &&
+            taskcommon.countBooleansByPrefix(this, "eu", N_EUPD_I + 1, N_EU) >= 2
         );
     },
 
@@ -245,7 +245,7 @@ lang.extendPrototype(Icd10SpecPD, {
         if (!this.isCompleteHistrionic()) {
             return null;
         }
-        return (taskcommon.countBooleansFromPrefix(this, "histrionic", 1,
+        return (taskcommon.countBooleansByPrefix(this, "histrionic", 1,
                                          N_HISTRIONIC) >= 4);
     },
 
@@ -256,7 +256,7 @@ lang.extendPrototype(Icd10SpecPD, {
         if (!this.isCompleteAnankastic()) {
             return null;
         }
-        return (taskcommon.countBooleansFromPrefix(this, "anankastic", 1,
+        return (taskcommon.countBooleansByPrefix(this, "anankastic", 1,
                                          N_ANANKASTIC) >= 4);
     },
 
@@ -267,7 +267,7 @@ lang.extendPrototype(Icd10SpecPD, {
         if (!this.isCompleteAnxious()) {
             return null;
         }
-        return (taskcommon.countBooleansFromPrefix(this, "anxious", 1, N_ANXIOUS) >= 4);
+        return (taskcommon.countBooleansByPrefix(this, "anxious", 1, N_ANXIOUS) >= 4);
     },
 
     hasDependentPD: function () {
@@ -277,7 +277,7 @@ lang.extendPrototype(Icd10SpecPD, {
         if (!this.isCompleteDependent()) {
             return null;
         }
-        return (taskcommon.countBooleansFromPrefix(this, "dependent", 1,
+        return (taskcommon.countBooleansByPrefix(this, "dependent", 1,
                                          N_DEPENDENT) >= 4);
     },
 

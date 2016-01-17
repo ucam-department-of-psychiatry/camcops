@@ -31,6 +31,7 @@ module.exports = function GlobalMenu() {
         ALLTASKS = require('common/ALLTASKS'),
         data = [
             UICONSTANTS.CHANGE_PATIENT_MENU_LINE,
+            ALLTASKS.TASKLIST.BADLS,
             ALLTASKS.TASKLIST.BPRS,
             ALLTASKS.TASKLIST.BPRSE,
             ALLTASKS.TASKLIST.CBI_R,

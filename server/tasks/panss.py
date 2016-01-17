@@ -24,7 +24,7 @@
 from cc_modules.cc_constants import (
     CLINICIAN_FIELDSPECS,
     CTV_DICTLIST_INCOMPLETE,
-    DATA_COLLECTION_UNLESS_UPGRADED_DIV,
+    DATA_COLLECTION_ONLY_DIV,
     STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec

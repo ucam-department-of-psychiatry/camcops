@@ -1091,6 +1091,11 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         """Does the task have a respondent associated with it, other than the
         patient or clinician?"""
         return "respondent_name" in cls.get_fields()
+    
+    def is_respondent_complete(self):
+        return (
+            getattr(self, "respondent_name")
+            and getattr(self, "respondent_relationship"))
 
     # -------------------------------------------------------------------------
     # About the associated patient
@@ -2767,6 +2772,10 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # Field helper functions for subclasses
     # -------------------------------------------------------------------------
 
+    def get_values(self, fields):
+        """Get list of object's values from list of field names."""
+        return [getattr(self, f) for f in fields]
+
     def is_field_complete(self, field):
         """Is the field not None?"""
         return (getattr(self, field) is not None)
@@ -2810,6 +2819,14 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             if not value:
                 return False
         return True
+
+    def count_where(self, fields, wherevalues):
+        """Count how many field values are in wherevalues."""
+        return sum(1 for x in self.get_values(fields) if x in wherevalues)
+
+    def count_wherenot(self, fields, notvalues):
+        """Count how many field values are NOT in notvalues."""
+        return sum(1 for x in self.get_values(fields) if x not in notvalues)
 
     def sum_fields(self, fields, ignorevalue=None):
         """Sum values stored in all fields (skipping any whose value is

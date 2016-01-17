@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="badls">
+    <!-- Bristol Activities of Daily Living Scale (BADLS) -->
+    <!-- TEMPLATE ONLY: replace 'XXX' with real text if you have the necessary permissions -->
+
+    <string name="instruction_1">XXX</string>
+    <string name="instruction_2">XXX</string>
+    <string name="instruction_3">XXX</string>
+
+    <string name="q1">XXX</string>
+    <string name="q1_a">XXX</string>
+    <string name="q1_b">XXX</string>
+    <string name="q1_c">XXX</string>
+    <string name="q1_d">XXX</string>
+    <string name="q1_e">XXX</string>
+
+    <string name="q2">XXX</string>
+    <string name="q2_a">XXX</string>
+    <string name="q2_b">XXX</string>
+    <string name="q2_c">XXX</string>
+    <string name="q2_d">XXX</string>
+    <string name="q2_e">XXX</string>
+
+    <string name="q3">XXX</string>
+    <string name="q3_a">XXX</string>
+    <string name="q3_b">XXX</string>
+    <string name="q3_c">XXX</string>
+    <string name="q3_d">XXX</string>
+    <string name="q3_e">XXX</string>
+
+    <string name="q4">XXX</string>
+    <string name="q4_a">XXX</string>
+    <string name="q4_b">XXX</string>
+    <string name="q4_c">XXX</string>
+    <string name="q4_d">XXX</string>
+    <string name="q4_e">XXX</string>
+
+    <string name="q5">XXX</string>
+    <string name="q5_a">XXX</string>
+    <string name="q5_b">XXX</string>
+    <string name="q5_c">XXX</string>
+    <string name="q5_d">XXX</string>
+    <string name="q5_e">XXX</string>
+
+    <string name="q6">XXX</string>
+    <string name="q6_a">XXX</string>
+    <string name="q6_b">XXX</string>
+    <string name="q6_c">XXX</string>
+    <string name="q6_d">XXX</string>
+    <string name="q6_e">XXX</string>
+
+    <string name="q7">XXX</string>
+    <string name="q7_a">XXX</string>
+    <string name="q7_b">XXX</string>
+    <string name="q7_c">XXX</string>
+    <string name="q7_d">XXX</string>
+    <string name="q7_e">XXX</string>
+
+    <string name="q8">XXX</string>
+    <string name="q8_a">XXX</string>
+    <string name="q8_b">XXX</string>
+    <string name="q8_c">XXX</string>
+    <string name="q8_d">XXX</string>
+    <string name="q8_e">XXX</string>
+
+    <string name="q9">XXX</string>
+    <string name="q9_a">XXX</string>
+    <string name="q9_b">XXX</string>
+    <string name="q9_c">XXX</string>
+    <string name="q9_d">XXX</string>
+    <string name="q9_e">XXX</string>
+
+    <string name="q10">XXX</string>
+    <string name="q10_a">XXX</string>
+    <string name="q10_b">XXX</string>
+    <string name="q10_c">XXX</string>
+    <string name="q10_d">XXX</string>
+    <string name="q10_e">XXX</string>
+
+    <string name="q11">XXX</string>
+    <string name="q11_a">XXX</string>
+    <string name="q11_b">XXX</string>
+    <string name="q11_c">XXX</string>
+    <string name="q11_d">XXX</string>
+    <string name="q11_e">XXX</string>
+
+    <string name="q12">XXX</string>
+    <string name="q12_a">XXX</string>
+    <string name="q12_b">XXX</string>
+    <string name="q12_c">XXX</string>
+    <string name="q12_d">XXX</string>
+    <string name="q12_e">XXX</string>
+
+    <string name="q13">XXX</string>
+    <string name="q13_a">XXX</string>
+    <string name="q13_b">XXX</string>
+    <string name="q13_c">XXX</string>
+    <string name="q13_d">XXX</string>
+    <string name="q13_e">XXX</string>
+
+    <string name="q14">XXX</string>
+    <string name="q14_a">XXX</string>
+    <string name="q14_b">XXX</string>
+    <string name="q14_c">XXX</string>
+    <string name="q14_d">XXX</string>
+    <string name="q14_e">XXX</string>
+
+    <string name="q15">XXX</string>
+    <string name="q15_a">XXX</string>
+    <string name="q15_b">XXX</string>
+    <string name="q15_c">XXX</string>
+    <string name="q15_d">XXX</string>
+    <string name="q15_e">XXX</string>
+
+    <string name="q16">XXX</string>
+    <string name="q16_a">XXX</string>
+    <string name="q16_b">XXX</string>
+    <string name="q16_c">XXX</string>
+    <string name="q16_d">XXX</string>
+    <string name="q16_e">XXX</string>
+
+    <string name="q17">XXX</string>
+    <string name="q17_a">XXX</string>
+    <string name="q17_b">XXX</string>
+    <string name="q17_c">XXX</string>
+    <string name="q17_d">XXX</string>
+    <string name="q17_e">XXX</string>
+
+    <string name="q18">XXX</string>
+    <string name="q18_a">XXX</string>
+    <string name="q18_b">XXX</string>
+    <string name="q18_c">XXX</string>
+    <string name="q18_d">XXX</string>
+    <string name="q18_e">XXX</string>
+
+    <string name="q19">XXX</string>
+    <string name="q19_a">XXX</string>
+    <string name="q19_b">XXX</string>
+    <string name="q19_c">XXX</string>
+    <string name="q19_d">XXX</string>
+    <string name="q19_e">XXX</string>
+
+    <string name="q20">XXX</string>
+    <string name="q20_a">XXX</string>
+    <string name="q20_b">XXX</string>
+    <string name="q20_c">XXX</string>
+    <string name="q20_d">XXX</string>
+    <string name="q20_e">XXX</string>
+
+    <string name="closing">XXX</string>
+
+  </task>
+</resources>

@@ -60,7 +60,7 @@ lang.extendPrototype(Phq15, {
 
     // Scoring
     getTotalScore: function () {
-        return taskcommon.totalScoreFromPrefix(this, "q", 1, nquestions);
+        return taskcommon.totalScoreByPrefix(this, "q", 1, nquestions);
     },
 
     getNSevere: function () {

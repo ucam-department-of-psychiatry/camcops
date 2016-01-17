@@ -49,12 +49,12 @@ module.exports = function Sas(patient_id) {
 
     // Scoring
     function getTotalScore() {
-        return taskcommon.totalScoreFromPrefix(self, "q", 1, nquestions);
+        return taskcommon.totalScoreByPrefix(self, "q", 1, nquestions);
     }
 
     // Standard task functions
     self.isComplete = function () {
-        return taskcommon.isCompleteFromPrefix(self, "q", 1, nquestions);
+        return taskcommon.isCompleteByPrefix(self, "q", 1, nquestions);
     };
     self.getSummary = function () {
         return L('total_score') + " " + getTotalScore() + "/40" + self.isCompleteSuffix();

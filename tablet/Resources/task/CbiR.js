@@ -32,9 +32,8 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
     fieldlist = dbcommon.standardTaskFields(),
     nquestions = 45;
 
+fieldlist.push.apply(fieldlist, dbcommon.RESPONDENT_FIELDSPECS);
 fieldlist.push(
-    {name: 'responder_name', type: DBCONSTANTS.TYPE_TEXT},
-    {name: 'responder_relationship', type: DBCONSTANTS.TYPE_TEXT},
     {name: 'confirm_blanks', type: DBCONSTANTS.TYPE_BOOLEAN},
     {name: 'comments', type: DBCONSTANTS.TYPE_TEXT}
 );
@@ -66,26 +65,18 @@ lang.extendPrototype(CbiR, {
 
     // OTHER
 
-    isCompleteResponder: function () {
-        return this.responder_name && this.responder_relationship;
-    },
-
     isCompleteQuestions: function () {
-        return taskcommon.isCompleteFromPrefix(this, "frequency", 1, nquestions) &&
-            taskcommon.isCompleteFromPrefix(this, "distress", 1, nquestions);
-    },
-
-    getRelationship: function () {
-        return this.responder_relationship || "";
+        return taskcommon.isCompleteByPrefix(this, "frequency", 1, nquestions) &&
+            taskcommon.isCompleteByPrefix(this, "distress", 1, nquestions);
     },
 
     // Standard task functions
     isComplete: function () {
-        return this.isCompleteResponder() && this.isCompleteQuestions();
+        return this.isRespondentComplete() && this.isCompleteQuestions();
     },
 
     getSummary: function () {
-        return this.getRelationship() + this.isCompleteSuffix();
+        return (this.respondent_relationship || "") + this.isCompleteSuffix();
     },
 
     getDetail: function () {
@@ -159,23 +150,7 @@ lang.extendPrototype(CbiR, {
                 text: L('cbir_for_carer'),
                 italic: true
             },
-            {
-                type: "QuestionTypedVariables",
-                mandatory: true,
-                useColumns: false,
-                variables: [
-                    {
-                        type: UICONSTANTS.TYPEDVAR_TEXT,
-                        field: "responder_name",
-                        prompt: L('cbir_q_responder_name')
-                    },
-                    {
-                        type: UICONSTANTS.TYPEDVAR_TEXT,
-                        field: "responder_relationship",
-                        prompt: L('cbir_q_responder_relationship')
-                    }
-                ]
-            }
+            this.getRespondentQuestionnaireBlock(true)
         ];
 
         elements2 = [

@@ -155,6 +155,7 @@ class DeviceReport(cc_report.Report):
         fieldnames = cc_report.expand_id_descriptions(fieldnames)
         return (rows, fieldnames)
 
+
 # =============================================================================
 # Unit tests
 # =============================================================================

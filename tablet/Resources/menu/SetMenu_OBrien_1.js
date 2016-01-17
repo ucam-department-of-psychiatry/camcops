@@ -32,6 +32,7 @@ module.exports = function SetMenu_OBrien_1() {
         data = [
             UICONSTANTS.CHANGE_PATIENT_MENU_LINE,
             ALLTASKS.TASKLIST.ACE3,
+            ALLTASKS.TASKLIST.BADLS,
             ALLTASKS.TASKLIST.CBI_R,
             ALLTASKS.TASKLIST.COPE_BRIEF,
             ALLTASKS.TASKLIST.DAD,
@@ -41,7 +42,6 @@ module.exports = function SetMenu_OBrien_1() {
             ALLTASKS.TASKLIST.MDS_UPDRS,
             ALLTASKS.TASKLIST.ZBI12
             // *** NPI
-            // *** Bristol ADL
             // *** IFS
             // *** FRS or FTDFRS or whatever it is
         ],

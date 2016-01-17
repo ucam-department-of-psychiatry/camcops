@@ -32,10 +32,7 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
     fieldlist = dbcommon.standardTaskFields(),
     nquestions = 12;
 
-fieldlist.push(
-    {name: 'responder_name', type: DBCONSTANTS.TYPE_TEXT},
-    {name: 'responder_relationship', type: DBCONSTANTS.TYPE_TEXT}
-);
+fieldlist.push.apply(fieldlist, dbcommon.RESPONDENT_FIELDSPECS);
 dbcommon.appendRepeatedFieldDef(fieldlist, "q", 1, nquestions,
                                 DBCONSTANTS.TYPE_INTEGER);
 
@@ -78,25 +75,16 @@ lang.extendPrototype(Zbi12, {
 
     // OTHER
 
-    isCompleteResponder: function () {
-        return this.responder_name && this.responder_relationship;
-    },
-
-    isCompleteQuestions: function () {
-        return taskcommon.isCompleteFromPrefix(this, "q", 1, nquestions);
-    },
-
-    getRelationship: function () {
-        return this.responder_relationship || "";
-    },
-
     // Standard task functions
     isComplete: function () {
-        return this.isCompleteResponder() && this.isCompleteQuestions();
+        return (
+            this.isRespondentComplete()
+            && taskcommon.isCompleteByPrefix(this, "q", 1, nquestions)
+        );
     },
 
     getSummary: function () {
-        return this.getRelationship() + this.isCompleteSuffix();
+        return (this.respondent_relationship || "") + this.isCompleteSuffix();
     },
 
     getDetail: function () {
@@ -113,23 +101,7 @@ lang.extendPrototype(Zbi12, {
             questionnaire;
 
         elements = [
-            {
-                type: "QuestionTypedVariables",
-                mandatory: true,
-                useColumns: false,
-                variables: [
-                    {
-                        type: UICONSTANTS.TYPEDVAR_TEXT,
-                        field: "responder_name",
-                        prompt: L('zbi_q_responder_name')
-                    },
-                    {
-                        type: UICONSTANTS.TYPEDVAR_TEXT,
-                        field: "responder_relationship",
-                        prompt: L('zbi_q_responder_relationship')
-                    }
-                ]
-            },
+            this.getRespondentQuestionnaireBlock(true),
             {
                 type: "QuestionText",
                 bold: true,

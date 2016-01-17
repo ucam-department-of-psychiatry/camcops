@@ -87,7 +87,7 @@ lang.extendPrototype(Honos, {
 
     // Standard task functions
     isComplete: function () {
-        if (!taskcommon.isCompleteFromPrefix(this, "q", 1, nquestions)) {
+        if (!taskcommon.isCompleteByPrefix(this, "q", 1, nquestions)) {
             return false;
         }
         if (this.q8 !== 0 && this.q8 !== 9 && this.q8problemtype === null) {

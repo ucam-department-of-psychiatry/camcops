@@ -88,14 +88,14 @@ lang.extendPrototype(Moca, {
     // Scoring
     getTotalScore: function () {
         return (
-            taskcommon.totalScoreFromPrefix(this, "q", 1, nquestions) +
+            taskcommon.totalScoreByPrefix(this, "q", 1, nquestions) +
             this.education12y_or_less // extra point for this
         );
     },
 
     // Standard task functions
     isComplete: function () {
-        return taskcommon.isCompleteFromPrefix(this, "q", 1, nquestions);
+        return taskcommon.isCompleteByPrefix(this, "q", 1, nquestions);
     },
 
     getSummary: function () {
@@ -104,13 +104,13 @@ lang.extendPrototype(Moca, {
     },
 
     getDetail: function () {
-        var vsp = taskcommon.totalScoreFromPrefix(this, "q", 1, 5),
-            naming = taskcommon.totalScoreFromPrefix(this, "q", 6, 8),
-            attention = taskcommon.totalScoreFromPrefix(this, "q", 9, 12),
-            language = taskcommon.totalScoreFromPrefix(this, "q", 13, 15),
-            abstraction = taskcommon.totalScoreFromPrefix(this, "q", 16, 17),
-            memory = taskcommon.totalScoreFromPrefix(this, "q", 18, 22),
-            orientation = taskcommon.totalScoreFromPrefix(this, "q", 23, 28),
+        var vsp = taskcommon.totalScoreByPrefix(this, "q", 1, 5),
+            naming = taskcommon.totalScoreByPrefix(this, "q", 6, 8),
+            attention = taskcommon.totalScoreByPrefix(this, "q", 9, 12),
+            language = taskcommon.totalScoreByPrefix(this, "q", 13, 15),
+            abstraction = taskcommon.totalScoreByPrefix(this, "q", 16, 17),
+            memory = taskcommon.totalScoreByPrefix(this, "q", 18, 22),
+            orientation = taskcommon.totalScoreByPrefix(this, "q", 23, 28),
             totalscore = this.getTotalScore(),
             category = totalscore >= 26 ? L('normal') : L('abnormal'),
             reg1 = "",

@@ -82,25 +82,25 @@ lang.extendPrototype(Iesr, {
 
     // Standard task functions
     isComplete: function () {
-        return this.event && taskcommon.isCompleteFromPrefix(this, "q", 1, nquestions);
+        return this.event && taskcommon.isCompleteByPrefix(this, "q", 1, nquestions);
     },
 
     getTotalScore: function () {
-        return taskcommon.totalScoreFromPrefix(this, "q", 1, nquestions);
+        return taskcommon.totalScoreByPrefix(this, "q", 1, nquestions);
     },
 
     getAvoidanceScore: function () {
-        return taskcommon.totalScoreFromSuffixes(this, "q",
+        return taskcommon.totalScoreBySuffixes(this, "q",
                                                     AVOIDANCE_QUESTIONS);
     },
 
     getIntrusionScore: function () {
-        return taskcommon.totalScoreFromSuffixes(this, "q",
+        return taskcommon.totalScoreBySuffixes(this, "q",
                                                     INTRUSION_QUESTIONS);
     },
 
     getHyperarousalScore: function () {
-        return taskcommon.totalScoreFromSuffixes(this, "q",
+        return taskcommon.totalScoreBySuffixes(this, "q",
                                                     HYPERAROUSAL_QUESTIONS);
     },
 

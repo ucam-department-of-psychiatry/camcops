@@ -22,7 +22,7 @@
 """
 
 from cc_modules.cc_constants import (
-    DATA_COLLECTION_UNLESS_UPGRADED_DIV,
+    CTV_DICTLIST_INCOMPLETE,
     STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldspec
@@ -105,8 +105,14 @@ class Pswq(Task):
             self.is_complete_summary_field(),
             dict(name="total_score", cctype="INT",
                  value=self.total_score(),
-                 comment="Total score (16–80)"),
+                 comment="Total score (16-80)"),
         ]
+
+    def get_clinical_text(self):
+        if not self.is_complete():
+            return CTV_DICTLIST_INCOMPLETE
+        return [{"content": "PSWQ total score {t} (range 16–80)".format(
+            self.total_score())}]
 
     def score(self, q):
         value = getattr(self, "q" + str(q))
