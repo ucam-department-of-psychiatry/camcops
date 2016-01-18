@@ -24,8 +24,6 @@
 import pythonlib.rnc_web as ws
 from cc_modules.cc_constants import (
     PV,
-    STANDARD_ANCILLARY_FIELDSPECS,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_html import (
     answer,
@@ -48,62 +46,50 @@ def a(x):
 # =============================================================================
 
 class IDED3D_Trial(Ancillary):
-
-    @classmethod
-    def get_tablename(cls):
-        return "ided3d_trials"
-
-    @classmethod
-    def get_fkname(cls):
-        return "ided3d_id"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_ANCILLARY_FIELDSPECS + [
-            dict(name="ided3d_id", notnull=True,
-                 cctype="INT", comment="FK to cardinal_expdet"),
-            dict(name="trial", notnull=True, cctype="INT",
-                 comment="Trial number (1-based)"),
-            dict(name="stage", cctype="INT", comment="Stage number (1-based)"),
-            # Locations
-            dict(name="correct_location", cctype="INT",
-                 comment="Location of correct stimulus "
-                         "(0 top, 1 right, 2 bottom, 3 left)"),
-            dict(name="incorrect_location", cctype="INT",
-                 comment="Location of incorrect stimulus "
-                         "(0 top, 1 right, 2 bottom, 3 left)"),
-            # Stimuli
-            dict(name="correct_shape", cctype="INT",
-                 comment="Shape# of correct stimulus"),
-            dict(name="correct_colour", cctype="TEXT",
-                 comment="HTML colour of correct stimulus"),
-            dict(name="correct_number", cctype="INT",
-                 comment="Number of copies of correct stimulus"),
-            dict(name="incorrect_shape", cctype="INT",
-                 comment="Shape# of incorrect stimulus"),
-            dict(name="incorrect_colour", cctype="TEXT",
-                 comment="HTML colour of incorrect stimulus"),
-            dict(name="incorrect_number", cctype="INT",
-                 comment="Number of copies of incorrect stimulus"),
-            # Trial
-            dict(name="trial_start_time", cctype="ISO8601",
-                 comment="Trial start time / stimuli presented at (ISO-8601)"),
-            # Response
-            dict(name="responded", cctype="BOOL", pv=PV.BIT,
-                 comment="Trial start time / stimuli presented at (ISO-8601)"),
-            dict(name="response_time", cctype="ISO8601",
-                 comment="Time of response (ISO-8601)"),
-            dict(name="response_latency_ms", cctype="INT",
-                 comment="Response latency (ms)"),
-            dict(name="correct", cctype="BOOL", pv=PV.BIT,
-                 comment="Response was correct"),
-            dict(name="incorrect", cctype="BOOL", pv=PV.BIT,
-                 comment="Response was incorrect"),
-        ]
-
-    @classmethod
-    def get_sortfield(self):
-        return "trial"
+    tablename = "ided3d_trials"
+    fkname = "ided3d_id"
+    fieldspecs = [
+        dict(name="ided3d_id", notnull=True,
+             cctype="INT", comment="FK to ided3d"),
+        dict(name="trial", notnull=True, cctype="INT",
+             comment="Trial number (1-based)"),
+        dict(name="stage", cctype="INT", comment="Stage number (1-based)"),
+        # Locations
+        dict(name="correct_location", cctype="INT",
+             comment="Location of correct stimulus "
+                     "(0 top, 1 right, 2 bottom, 3 left)"),
+        dict(name="incorrect_location", cctype="INT",
+             comment="Location of incorrect stimulus "
+                     "(0 top, 1 right, 2 bottom, 3 left)"),
+        # Stimuli
+        dict(name="correct_shape", cctype="INT",
+             comment="Shape# of correct stimulus"),
+        dict(name="correct_colour", cctype="TEXT",
+             comment="HTML colour of correct stimulus"),
+        dict(name="correct_number", cctype="INT",
+             comment="Number of copies of correct stimulus"),
+        dict(name="incorrect_shape", cctype="INT",
+             comment="Shape# of incorrect stimulus"),
+        dict(name="incorrect_colour", cctype="TEXT",
+             comment="HTML colour of incorrect stimulus"),
+        dict(name="incorrect_number", cctype="INT",
+             comment="Number of copies of incorrect stimulus"),
+        # Trial
+        dict(name="trial_start_time", cctype="ISO8601",
+             comment="Trial start time / stimuli presented at (ISO-8601)"),
+        # Response
+        dict(name="responded", cctype="BOOL", pv=PV.BIT,
+             comment="Trial start time / stimuli presented at (ISO-8601)"),
+        dict(name="response_time", cctype="ISO8601",
+             comment="Time of response (ISO-8601)"),
+        dict(name="response_latency_ms", cctype="INT",
+             comment="Response latency (ms)"),
+        dict(name="correct", cctype="BOOL", pv=PV.BIT,
+             comment="Response was correct"),
+        dict(name="incorrect", cctype="BOOL", pv=PV.BIT,
+             comment="Response was incorrect"),
+    ]
+    sortfield = "trial"
 
     @classmethod
     def get_html_table_header(cls):
@@ -151,67 +137,55 @@ class IDED3D_Trial(Ancillary):
 
 
 class IDED3D_Stage(Ancillary):
-
-    @classmethod
-    def get_tablename(cls):
-        return "ided3d_stages"
-
-    @classmethod
-    def get_fkname(cls):
-        return "ided3d_id"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_ANCILLARY_FIELDSPECS + [
-            dict(name="ided3d_id", notnull=True,
-                 cctype="INT", comment="FK to cardinal_expdet"),
-            dict(name="stage", notnull=True, cctype="INT",
-                 comment="Stage number (1-based)"),
-            # Config
-            dict(name="stage_name", cctype="TEXT",
-                 comment="Name of the stage (e.g. SD, EDr)"),
-            dict(name="relevant_dimension", cctype="TEXT",
-                 comment="Relevant dimension (e.g. shape, colour, number)"),
-            dict(name="correct_exemplar", cctype="TEXT",
-                 comment="Correct exemplar (from relevant dimension)"),
-            dict(name="incorrect_exemplar", cctype="TEXT",
-                 comment="Incorrect exemplar (from relevant dimension)"),
-            dict(name="correct_stimulus_shapes", cctype="TEXT",
-                 comment="Possible shapes for correct stimulus "
-                         "(CSV list of shape numbers)"),
-            dict(name="correct_stimulus_colours", cctype="TEXT",
-                 comment="Possible colours for correct stimulus "
-                         "(CSV list of HTML colours)"),
-            dict(name="correct_stimulus_numbers", cctype="TEXT",
-                 comment="Possible numbers for correct stimulus "
-                         "(CSV list of numbers)"),
-            dict(name="incorrect_stimulus_shapes", cctype="TEXT",
-                 comment="Possible shapes for incorrect stimulus "
-                         "(CSV list of shape numbers)"),
-            dict(name="incorrect_stimulus_colours", cctype="TEXT",
-                 comment="Possible colours for incorrect stimulus "
-                         "(CSV list of HTML colours)"),
-            dict(name="incorrect_stimulus_numbers", cctype="TEXT",
-                 comment="Possible numbers for incorrect stimulus "
-                         "(CSV list of numbers)"),
-            # Results
-            dict(name="first_trial_num", cctype="INT",
-                 comment="Number of the first trial of the stage (1-based)"),
-            dict(name="n_completed_trials", cctype="INT",
-                 comment="Number of trials completed"),
-            dict(name="n_correct", cctype="INT",
-                 comment="Number of trials performed correctly"),
-            dict(name="n_incorrect", cctype="INT",
-                 comment="Number of trials performed incorrectly"),
-            dict(name="stage_passed", cctype="BOOL", pv=PV.BIT,
-                 comment="Subject met criterion and passed stage"),
-            dict(name="stage_failed", cctype="BOOL", pv=PV.BIT,
-                 comment="Subject took too many trials and failed stage"),
-        ]
-
-    @classmethod
-    def get_sortfield(self):
-        return "stage"
+    tablename = "ided3d_stages"
+    fkname = "ided3d_id"
+    fieldspecs = [
+        dict(name="ided3d_id", notnull=True,
+             cctype="INT", comment="FK to ided3d"),
+        dict(name="stage", notnull=True, cctype="INT",
+             comment="Stage number (1-based)"),
+        # Config
+        dict(name="stage_name", cctype="TEXT",
+             comment="Name of the stage (e.g. SD, EDr)"),
+        dict(name="relevant_dimension", cctype="TEXT",
+             comment="Relevant dimension (e.g. shape, colour, number)"),
+        dict(name="correct_exemplar", cctype="TEXT",
+             comment="Correct exemplar (from relevant dimension)"),
+        dict(name="incorrect_exemplar", cctype="TEXT",
+             comment="Incorrect exemplar (from relevant dimension)"),
+        dict(name="correct_stimulus_shapes", cctype="TEXT",
+             comment="Possible shapes for correct stimulus "
+                     "(CSV list of shape numbers)"),
+        dict(name="correct_stimulus_colours", cctype="TEXT",
+             comment="Possible colours for correct stimulus "
+                     "(CSV list of HTML colours)"),
+        dict(name="correct_stimulus_numbers", cctype="TEXT",
+             comment="Possible numbers for correct stimulus "
+                     "(CSV list of numbers)"),
+        dict(name="incorrect_stimulus_shapes", cctype="TEXT",
+             comment="Possible shapes for incorrect stimulus "
+                     "(CSV list of shape numbers)"),
+        dict(name="incorrect_stimulus_colours", cctype="TEXT",
+             comment="Possible colours for incorrect stimulus "
+                     "(CSV list of HTML colours)"),
+        dict(name="incorrect_stimulus_numbers", cctype="TEXT",
+             comment="Possible numbers for incorrect stimulus "
+                     "(CSV list of numbers)"),
+        # Results
+        dict(name="first_trial_num", cctype="INT",
+             comment="Number of the first trial of the stage (1-based)"),
+        dict(name="n_completed_trials", cctype="INT",
+             comment="Number of trials completed"),
+        dict(name="n_correct", cctype="INT",
+             comment="Number of trials performed correctly"),
+        dict(name="n_incorrect", cctype="INT",
+             comment="Number of trials performed incorrectly"),
+        dict(name="stage_passed", cctype="BOOL", pv=PV.BIT,
+             comment="Subject met criterion and passed stage"),
+        dict(name="stage_failed", cctype="BOOL", pv=PV.BIT,
+             comment="Subject took too many trials and failed stage"),
+    ]
+    sortfield = "stage"
 
     @classmethod
     def get_html_table_header(cls):
@@ -261,69 +235,53 @@ class IDED3D_Stage(Ancillary):
 
 
 class IDED3D(Task):
-
-    @classmethod
-    def get_tablename(cls):
-        return "ided3d"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "ID/ED-3D"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Three-dimensional ID/ED task"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + [
-            # Config
-            dict(name="last_stage", cctype="INT",
-                 comment="Last stage to offer (1 [SD] - 8 [EDR])"),
-            dict(name="max_trials_per_stage", cctype="INT",
-                 comment="Maximum number of trials allowed per stage before "
-                         "the task aborts"),
-            dict(name="progress_criterion_x", cctype="INT",
-                 comment='Criterion to proceed to next stage: X correct out of'
-                         ' the last Y trials, where this is X'),
-            dict(name="progress_criterion_y", cctype="INT",
-                 comment='Criterion to proceed to next stage: X correct out of'
-                         ' the last Y trials, where this is Y'),
-            dict(name="min_number", cctype="INT",
-                 comment="Minimum number of stimulus element to use"),
-            dict(name="max_number", cctype="INT",
-                 comment="Maximum number of stimulus element to use"),
-            dict(name="pause_after_beep_ms", cctype="INT",
-                 comment="Time to continue visual feedback after auditory "
-                         "feedback finished (ms)"),
-            dict(name="iti_ms", cctype="INT",
-                 comment="Intertrial interval (ms)"),
-            dict(name="counterbalance_dimensions", cctype="INT",
-                 comment="Dimensional counterbalancing condition (0-5)"),
-            dict(name="volume", cctype="FLOAT",
-                 comment="Sound volume (0.0-1.0)"),
-            dict(name="offer_abort", cctype="BOOL", pv=PV.BIT,
-                 comment="Offer an abort button?"),
-            dict(name="debug_display_stimuli_only", cctype="BOOL", pv=PV.BIT,
-                 comment="DEBUG: show stimuli only, don't run task"),
-            # Intrinsic config
-            dict(name="shape_definitions_svg", cctype="TEXT",
-                 comment="JSON-encoded version of shape definition"
-                         " array in SVG format (with arbitrary scale of -60 to"
-                         " +60 in both X and Y dimensions)"),
-            # Results
-            dict(name="aborted", cctype="INT",
-                 comment="Was the task aborted? (0 no, 1 yes)"),
-            dict(name="finished", cctype="INT",
-                 comment="Was the task finished? (0 no, 1 yes)"),
-            dict(name="last_trial_completed", cctype="INT",
-                 comment="Number of last trial completed"),
-        ]
-
-    @classmethod
-    def get_dependent_classes(cls):
-        return [IDED3D_Trial,
-                IDED3D_Stage]
+    tablename = "ided3d"
+    shortname = "ID/ED-3D"
+    longname = "Three-dimensional ID/ED task"
+    fieldspecs = [
+        # Config
+        dict(name="last_stage", cctype="INT",
+             comment="Last stage to offer (1 [SD] - 8 [EDR])"),
+        dict(name="max_trials_per_stage", cctype="INT",
+             comment="Maximum number of trials allowed per stage before "
+                     "the task aborts"),
+        dict(name="progress_criterion_x", cctype="INT",
+             comment='Criterion to proceed to next stage: X correct out of'
+                     ' the last Y trials, where this is X'),
+        dict(name="progress_criterion_y", cctype="INT",
+             comment='Criterion to proceed to next stage: X correct out of'
+                     ' the last Y trials, where this is Y'),
+        dict(name="min_number", cctype="INT",
+             comment="Minimum number of stimulus element to use"),
+        dict(name="max_number", cctype="INT",
+             comment="Maximum number of stimulus element to use"),
+        dict(name="pause_after_beep_ms", cctype="INT",
+             comment="Time to continue visual feedback after auditory "
+                     "feedback finished (ms)"),
+        dict(name="iti_ms", cctype="INT",
+             comment="Intertrial interval (ms)"),
+        dict(name="counterbalance_dimensions", cctype="INT",
+             comment="Dimensional counterbalancing condition (0-5)"),
+        dict(name="volume", cctype="FLOAT",
+             comment="Sound volume (0.0-1.0)"),
+        dict(name="offer_abort", cctype="BOOL", pv=PV.BIT,
+             comment="Offer an abort button?"),
+        dict(name="debug_display_stimuli_only", cctype="BOOL", pv=PV.BIT,
+             comment="DEBUG: show stimuli only, don't run task"),
+        # Intrinsic config
+        dict(name="shape_definitions_svg", cctype="TEXT",
+             comment="JSON-encoded version of shape definition"
+                     " array in SVG format (with arbitrary scale of -60 to"
+                     " +60 in both X and Y dimensions)"),
+        # Results
+        dict(name="aborted", cctype="INT",
+             comment="Was the task aborted? (0 no, 1 yes)"),
+        dict(name="finished", cctype="INT",
+             comment="Was the task finished? (0 no, 1 yes)"),
+        dict(name="last_trial_completed", cctype="INT",
+             comment="Number of last trial completed"),
+    ]
+    dependent_classes = [IDED3D_Trial, IDED3D_Stage]
 
     def is_complete(self):
         return bool(self.finished)

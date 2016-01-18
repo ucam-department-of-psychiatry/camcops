@@ -22,9 +22,6 @@
 """
 
 import pythonlib.rnc_web as ws
-from cc_modules.cc_constants import (
-    STANDARD_TASK_FIELDSPECS,
-)
 from cc_modules.cc_html import tr_qa
 from cc_modules.cc_string import WSTRING
 from cc_modules.cc_task import get_from_dict, Task
@@ -35,29 +32,17 @@ from cc_modules.cc_task import get_from_dict, Task
 # =============================================================================
 
 class Irac(Task):
-    TASK_FIELDSPECS = [
+    tablename = "irac"
+    shortname = "IRAC"
+    longname = "Identify and Rate the Aim of the Contact"
+    fieldspecs = [
         dict(name="aim", cctype="TEXT",
              comment="Main aim of the contact"),
         dict(name="achieved", cctype="INT", min=0, max=2,
              comment="Was the aim achieved? (0 not, 1 partially, 2 fully)"),
     ]
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
 
-    @classmethod
-    def get_tablename(cls):
-        return "irac"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "IRAC"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Identify and Rate the Aim of the Contact"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + cls.TASK_FIELDSPECS
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def is_complete(self):
         return (self.are_all_fields_complete(self.TASK_FIELDS)

@@ -25,11 +25,7 @@ import pythonlib.rnc_web as ws
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import get_yes_no
 from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import (
-    get_from_dict,
-    STANDARD_TASK_FIELDSPECS,
-    Task,
-)
+from cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
@@ -48,32 +44,14 @@ class Gass(Task):
     list_prolactinaemic_male = [17, 18, 19, 20]
     list_weightgain = [22]
 
-    @classmethod
-    def get_tablename(cls):
-        return "gass"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "GASS"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Glasgow Antipsychotic Side-effect Scale"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return (
-            STANDARD_TASK_FIELDSPECS +
-            [
-                dict(name="medication", cctype="TEXT"),
-            ] +
-            repeat_fieldspec("q", 1, Gass.NQUESTIONS) +
-            repeat_fieldspec("d", 1, Gass.NQUESTIONS)
-        )
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    tablename = "gass"
+    shortname = "GASS"
+    longname = "Glasgow Antipsychotic Side-effect Scale"
+    fieldspecs = (
+        [dict(name="medication", cctype="TEXT")] +
+        repeat_fieldspec("q", 1, NQUESTIONS) +
+        repeat_fieldspec("d", 1, NQUESTIONS)
+    )
 
     def get_trackers(self):
         return [
@@ -100,7 +78,7 @@ class Gass(Task):
         return ["d" + str(q) for q in group]
 
     def get_relevant_q_fieldlist(self):
-        qnums = range(1, Gass.NQUESTIONS + 1)
+        qnums = range(1, self.NQUESTIONS + 1)
         if self.is_female():
             qnums.remove(20)
         else:
@@ -117,7 +95,7 @@ class Gass(Task):
         return self.sum_fields(self.get_q_fieldlist(qnums))
 
     def get_subheading(self, subtitle, score, max_score):
-        return u"""
+        return """
             <tr class="subheading">
                 <td>{}</td>
                 <td colspan="2"><i><b>{}</b> / {}</i></td>
@@ -129,7 +107,7 @@ class Gass(Task):
         )
 
     def get_row(self, q, ANSWER_DICT):
-        return u"""<tr><td>{}</td><td><b>{}</b></td><td>{}</td></tr>""".format(
+        return """<tr><td>{}</td><td><b>{}</b></td><td>{}</td></tr>""".format(
             WSTRING("gass_q" + str(q)),
             get_from_dict(ANSWER_DICT, getattr(self, "q" + str(q))),
             get_yes_no(getattr(self, "d" + str(q)))
@@ -150,8 +128,8 @@ class Gass(Task):
         ANSWER_DICT = {None: "?"}
         for option in range(0, 4):
             ANSWER_DICT[option] = (
-                str(option) + u" — " + WSTRING("gass_option" + str(option)))
-        h = u"""
+                str(option) + " — " + WSTRING("gass_option" + str(option)))
+        h = """
             <div class="summary">
                 <table class="summary">
                     {}
@@ -171,38 +149,38 @@ class Gass(Task):
             self.get_is_complete_tr(),
             WSTRING("total_score"), score
         )
-        h += self.get_group_html(Gass.list_sedation,
+        h += self.get_group_html(self.list_sedation,
                                  WSTRING("gass_group_sedation"),
                                  ANSWER_DICT)
-        h += self.get_group_html(Gass.list_cardiovascular,
+        h += self.get_group_html(self.list_cardiovascular,
                                  WSTRING("gass_group_cardiovascular"),
                                  ANSWER_DICT)
-        h += self.get_group_html(Gass.list_epse,
+        h += self.get_group_html(self.list_epse,
                                  WSTRING("gass_group_epse"),
                                  ANSWER_DICT)
-        h += self.get_group_html(Gass.list_anticholinergic,
+        h += self.get_group_html(self.list_anticholinergic,
                                  WSTRING("gass_group_anticholinergic"),
                                  ANSWER_DICT)
-        h += self.get_group_html(Gass.list_gastrointestinal,
+        h += self.get_group_html(self.list_gastrointestinal,
                                  WSTRING("gass_group_gastrointestinal"),
                                  ANSWER_DICT)
-        h += self.get_group_html(Gass.list_genitourinary,
+        h += self.get_group_html(self.list_genitourinary,
                                  WSTRING("gass_group_genitourinary"),
                                  ANSWER_DICT)
         if self.is_female():
-            h += self.get_group_html(Gass.list_prolactinaemic_female,
+            h += self.get_group_html(self.list_prolactinaemic_female,
                                      WSTRING("gass_group_prolactinaemic") +
                                      " (" + WSTRING("female") + ")",
                                      ANSWER_DICT)
         else:
-            h += self.get_group_html(Gass.list_prolactinaemic_male,
+            h += self.get_group_html(self.list_prolactinaemic_male,
                                      WSTRING("gass_group_prolactinaemic") +
                                      " (" + WSTRING("male") + ")",
                                      ANSWER_DICT)
-        h += self.get_group_html(Gass.list_weightgain,
+        h += self.get_group_html(self.list_weightgain,
                                  WSTRING("gass_group_weightgain"),
                                  ANSWER_DICT)
-        h += u"""
+        h += """
                 <tr class="subheading"><td colspan="3">{}</td></tr>
                 <tr><td colspan="3">{}</td></tr>
             </table>

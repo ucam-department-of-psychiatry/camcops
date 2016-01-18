@@ -25,7 +25,6 @@ import pythonlib.rnc_web as ws
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
     DATA_COLLECTION_UNLESS_UPGRADED_DIV,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import (
@@ -55,34 +54,19 @@ class Pdss(Task):
         "interference with social life",
     ]
     NQUESTIONS = 7
-    QUESTION_FIELDSPECS = repeat_fieldspec(
+
+    tablename = "pdss"
+    shortname = "PDSS"
+    longname = "Panic Disorder Severity Scale"
+    fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS,
         comment_fmt="Q{n}, {s} (0-4, higher worse)",
         min=MIN_SCORE, max=MAX_SCORE,
         comment_strings=QUESTION_SNIPPETS
     )
-    QUESTION_FIELDS = [x["name"] for x in QUESTION_FIELDSPECS]
-    EXTRASTRING_TASKNAME = "pdss"
+    extrastring_taskname = "pdss"
 
-    @classmethod
-    def get_tablename(cls):
-        return "pdss"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "PDSS"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Panic Disorder Severity Scale"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + cls.QUESTION_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    QUESTION_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self):
         return [

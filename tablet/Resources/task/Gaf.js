@@ -31,6 +31,7 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
     tablename = "gaf",
     fieldlist = dbcommon.standardTaskFields();
 
+fieldlist.push.apply(fieldlist, dbcommon.CLINICIAN_FIELDSPECS); // Clinician info 1/3
 fieldlist.push({ name: "score", type: DBCONSTANTS.TYPE_INTEGER });
 
 // CREATE THE TABLE
@@ -89,10 +90,13 @@ lang.extendPrototype(Gaf, {
             pages,
             questionnaire;
 
+        self.setDefaultClinicianVariablesAtFirstUse(readOnly); // Clinician info 2/3
+
         pages = [
             {
                 title: L("t_gaf"),
                 elements: [
+                    self.getClinicianQuestionnaireBlock(), // Clinician info 3/3
                     {
                         type: "QuestionText",
                         text: L('data_collection_only'),

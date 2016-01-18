@@ -22,9 +22,7 @@
 """
 
 from cc_modules.cc_constants import (
-    CLINICIAN_FIELDSPECS,
     CTV_DICTLIST_INCOMPLETE,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_html import (
     answer,
@@ -41,7 +39,10 @@ from cc_modules.cc_task import get_from_dict, Task
 # =============================================================================
 
 class Cgi(Task):
-    TASK_FIELDSPECS = [
+    tablename = "cgi"
+    shortname = "CGI"
+    longname = "Clinical Global Impressions"
+    fieldspecs = [
         dict(name="q1", cctype="INT", min=0, max=7,
              comment="Q1. Severity (1-7, higher worse, 0 not assessed)"),
         dict(name="q2", cctype="INT", min=0, max=7,
@@ -55,28 +56,9 @@ class Cgi(Task):
         dict(name="q3", cctype="INT", min=0, max=16,
              comment="Q3 (calculated). Efficacy index [(Q3T - 1) * 4 + Q3S]."),
     ]
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
+    has_clinician = True
 
-    @classmethod
-    def get_tablename(cls):
-        return "cgi"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "CGI"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Clinical Global Impressions"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + CLINICIAN_FIELDSPECS + \
-            cls.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self):
         return [
@@ -152,7 +134,7 @@ class Cgi(Task):
             3: WSTRING("cgi_q3s_option3"),
             4: WSTRING("cgi_q3s_option4"),
         }
-        h = self.get_standard_clinician_block() + """
+        h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
@@ -200,28 +182,16 @@ class Cgi(Task):
 # =============================================================================
 
 class CgiI(Task):
-    TASK_FIELDSPECS = [
+    tablename = "cgi_i"
+    shortname = "CGI-I"
+    longname = "Clinical Global Impressions – Improvement"
+    fieldspecs = [
         dict(name="q", cctype="INT", min=0, max=7,
              comment="Global improvement (1-7, higher worse)"),
     ]
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
+    has_clinician = True
 
-    @classmethod
-    def get_tablename(cls):
-        return "cgi_i"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "CGI-I"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Clinical Global Impressions – Improvement"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + CLINICIAN_FIELDSPECS + \
-            cls.TASK_FIELDSPECS
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_clinical_text(self):
         if not self.is_complete():
@@ -253,7 +223,7 @@ class CgiI(Task):
         }
 
     def get_task_html(self):
-        h = self.get_standard_clinician_block() + """
+        h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr() + """

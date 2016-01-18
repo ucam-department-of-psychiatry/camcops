@@ -22,9 +22,7 @@
 """
 
 from cc_modules.cc_constants import (
-    CLINICIAN_FIELDSPECS,
     CTV_DICTLIST_INCOMPLETE,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import (
@@ -42,7 +40,11 @@ from cc_modules.cc_task import get_from_dict, Task
 
 class Bprse(Task):
     NQUESTIONS = 24
-    TASK_FIELDSPECS = repeat_fieldspec(
+
+    tablename = "bprse"
+    shortname = "BPRS-E"
+    longname = "Brief Psychiatric Rating Scale, Expanded"
+    fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, min=0, max=7,
         comment_fmt="Q{n}, {s} (1-7, higher worse, or 0 for not assessed)",
         comment_strings=[
@@ -54,28 +56,9 @@ class Bprse(Task):
             "emotional withdrawal", "motor retardation", "tension",
             "uncooperativeness", "excitement", "distractibility",
             "motor hyperactivity", "mannerisms and posturing"])
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
+    has_clinician = True
 
-    @classmethod
-    def get_tablename(cls):
-        return "bprse"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "BPRS-E"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Brief Psychiatric Rating Scale, Expanded"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + CLINICIAN_FIELDSPECS + \
-            Bprse.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self):
         return [
@@ -104,12 +87,12 @@ class Bprse(Task):
 
     def is_complete(self):
         return (
-            self.are_all_fields_complete(Bprse.TASK_FIELDS)
+            self.are_all_fields_complete(self.TASK_FIELDS)
             and self.field_contents_valid()
         )
 
     def total_score(self):
-        return self.sum_fields(Bprse.TASK_FIELDS)
+        return self.sum_fields(self.TASK_FIELDS)
 
     def get_task_html(self):
         MAIN_DICT = {
@@ -123,7 +106,7 @@ class Bprse(Task):
             6: "6 — " + WSTRING("bprsold_option6"),
             7: "7 — " + WSTRING("bprsold_option7")
         }
-        h = self.get_standard_clinician_block() + """
+        h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
@@ -143,7 +126,7 @@ class Bprse(Task):
                     <th width="40%">Answer <sup>[1]</sup></th>
                 </tr>
         """
-        for i in range(1, Bprse.NQUESTIONS + 1):
+        for i in range(1, self.NQUESTIONS + 1):
             h += tr_qa(
                 WSTRING("bprse_q" + str(i) + "_s"),
                 get_from_dict(MAIN_DICT, getattr(self, "q" + str(i)))

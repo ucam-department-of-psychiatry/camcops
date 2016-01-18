@@ -23,7 +23,6 @@
 
 from cc_modules.cc_constants import (
     PV,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from cc_modules.cc_html import (
@@ -61,7 +60,11 @@ QUESTION_SNIPPETS = [
 
 class Caps(Task):
     NQUESTIONS = 32
-    TASK_FIELDSPECS = (
+
+    tablename = "caps"
+    shortname = "CAPS"
+    longname = "Cardiff Anomalous Perceptions Scale"
+    fieldspecs = (
         repeat_fieldspec(
             "endorse", 1, NQUESTIONS, pv=PV.BIT,
             comment_fmt="Q{n} ({s}): endorsed? (0 no, 1 yes)",
@@ -80,26 +83,6 @@ class Caps(Task):
             comment_fmt="Q{n} ({s}): frequency (1 low - 5 high), if endorsed",
             comment_strings=QUESTION_SNIPPETS)
     )
-
-    @classmethod
-    def get_tablename(cls):
-        return "caps"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "CAPS"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Cardiff Anomalous Perceptions Scale"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + Caps.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
 
     def get_trackers(self):
         return [

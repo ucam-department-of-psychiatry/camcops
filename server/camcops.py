@@ -433,7 +433,7 @@ def make_tables(drop_superfluous_columns=False):
     for cls in cc_task.get_all_task_classes():
         print(
             "Making table(s) and view(s) for task: "
-            + cls.get_taskshortname()
+            + cls.shortname
         )
         cls.make_tables(drop_superfluous_columns)
 
@@ -485,7 +485,7 @@ def generate_anonymisation_staging_db():
     with codecs.open(ddfilename, mode="w", encoding="utf8") as f:
         written_header = False
         for cls in classes:
-            if cls.is_anonymous():
+            if cls.is_anonymous:
                 continue
             # Drop, make and populate tables
             cls.make_cris_tables(db)
@@ -552,6 +552,10 @@ def enable_user_cli():
 def test():
     """Run all unit tests."""
     # We do some rollbacks so as not to break performance of ongoing tasks.
+
+    print("-- Ensuring all tasks have basic info")
+    cc_task.unit_tests_basic()
+    pls.db.rollback()
 
     print("-- Testing camcopswebview")
     webview.unit_tests()

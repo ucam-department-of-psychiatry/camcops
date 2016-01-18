@@ -23,12 +23,10 @@
 
 import pythonlib.rnc_web as ws
 from cc_modules.cc_constants import (
-    CLINICIAN_FIELDSPECS,
     CTV_DICTLIST_INCOMPLETE,
     DATEFORMAT,
     ICD10_COPYRIGHT_DIV,
     PV,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from cc_modules.cc_dt import format_datetime_string
@@ -64,9 +62,12 @@ class Icd10SpecPD(Task):
     N_ANANKASTIC = 8
     N_ANXIOUS = 5
     N_DEPENDENT = 6
-    TASK_FIELDSPECS = (
-        CLINICIAN_FIELDSPECS
-        + [
+
+    tablename = "icd10specpd"
+    shortname = "ICD10-PD"
+    longname = "ICD-10 criteria for specific personality disorders (F60)"
+    fieldspecs = (
+        [
             dict(name="date_pertains_to", cctype="ISO8601",
                  comment="Date the assessment pertains to"),
             dict(name="comments", cctype="TEXT",
@@ -177,22 +178,7 @@ class Icd10SpecPD(Task):
                              "fears of being left to oneself",
                              "everyday decisions require advice/reassurance"])
     )
-
-    @classmethod
-    def get_tablename(cls):
-        return "icd10specpd"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "ICD10-PD"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "ICD-10 criteria for specific personality disorders (F60)"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + Icd10SpecPD.TASK_FIELDSPECS
+    has_clinician = True
 
     def get_clinical_text(self):
         if not self.is_complete():
@@ -464,7 +450,7 @@ class Icd10SpecPD(Task):
         return html
 
     def get_task_html(self):
-        h = self.get_standard_clinician_block(True, self.comments) + """
+        h = self.get_standard_clinician_comments_block(self.comments) + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()

@@ -25,7 +25,6 @@ import pythonlib.rnc_web as ws
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
     PV,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_html import (
     get_yes_no_none,
@@ -42,57 +41,42 @@ DP = 3
 
 
 class QolSG(Task):
-    @classmethod
-    def get_tablename(cls):
-        return "qolsg"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "QoL-SG"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Quality of Life: Standard Gamble"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + [
-            dict(name="category_start_time", cctype="TEXT",
-                 comment="Time categories were offered (ISO-8601)"),
-            dict(name="category_responded", cctype="INT", pv=PV.BIT,
-                 comment="Responded to category choice? (0 no, 1 yes)"),
-            dict(name="category_response_time", cctype="TEXT",
-                 comment="Time category was chosen (ISO-8601)"),
-            dict(name="category_chosen", cctype="TEXT",
-                 comment="Category chosen: high (QoL > 1), "
-                 "medium (0 <= QoL <= 1), low (QoL < 0)"),
-            dict(name="gamble_fixed_option", cctype="TEXT",
-                 comment="Fixed option in gamble (current, healthy, dead)"),
-            dict(name="gamble_lottery_option_p", cctype="TEXT",
-                 comment="Gamble: option corresponding to p  "
-                 "(current, healthy, dead)"),
-            dict(name="gamble_lottery_option_q", cctype="TEXT",
-                 comment="Gamble: option corresponding to q  "
-                 "(current, healthy, dead) (q = 1 - p)"),
-            dict(name="gamble_lottery_on_left", cctype="INT", pv=PV.BIT,
-                 comment="Gamble: lottery shown on the left (0 no, 1 yes)"),
-            dict(name="gamble_starting_p", cctype="FLOAT", min=0, max=1,
-                 comment="Gamble: starting value of p"),
-            dict(name="gamble_start_time", cctype="TEXT",
-                 comment="Time gamble was offered (ISO-8601)"),
-            dict(name="gamble_responded", cctype="INT", pv=PV.BIT,
-                 comment="Gamble was responded to? (0 no, 1 yes)"),
-            dict(name="gamble_response_time", cctype="TEXT",
-                 comment="Time subject responded to gamble (ISO-8601)"),
-            dict(name="gamble_p", cctype="FLOAT", min=0, max=1,
-                 comment="Final value of p"),
-            dict(name="utility", cctype="FLOAT",
-                 comment="Calculated utility, h"),
-        ]
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    tablename = "qolsg"
+    shortname = "QoL-SG"
+    longname = "Quality of Life: Standard Gamble"
+    fieldspecs = [
+        dict(name="category_start_time", cctype="TEXT",
+             comment="Time categories were offered (ISO-8601)"),
+        dict(name="category_responded", cctype="INT", pv=PV.BIT,
+             comment="Responded to category choice? (0 no, 1 yes)"),
+        dict(name="category_response_time", cctype="TEXT",
+             comment="Time category was chosen (ISO-8601)"),
+        dict(name="category_chosen", cctype="TEXT",
+             comment="Category chosen: high (QoL > 1), "
+             "medium (0 <= QoL <= 1), low (QoL < 0)"),
+        dict(name="gamble_fixed_option", cctype="TEXT",
+             comment="Fixed option in gamble (current, healthy, dead)"),
+        dict(name="gamble_lottery_option_p", cctype="TEXT",
+             comment="Gamble: option corresponding to p  "
+             "(current, healthy, dead)"),
+        dict(name="gamble_lottery_option_q", cctype="TEXT",
+             comment="Gamble: option corresponding to q  "
+             "(current, healthy, dead) (q = 1 - p)"),
+        dict(name="gamble_lottery_on_left", cctype="INT", pv=PV.BIT,
+             comment="Gamble: lottery shown on the left (0 no, 1 yes)"),
+        dict(name="gamble_starting_p", cctype="FLOAT", min=0, max=1,
+             comment="Gamble: starting value of p"),
+        dict(name="gamble_start_time", cctype="TEXT",
+             comment="Time gamble was offered (ISO-8601)"),
+        dict(name="gamble_responded", cctype="INT", pv=PV.BIT,
+             comment="Gamble was responded to? (0 no, 1 yes)"),
+        dict(name="gamble_response_time", cctype="TEXT",
+             comment="Time subject responded to gamble (ISO-8601)"),
+        dict(name="gamble_p", cctype="FLOAT", min=0, max=1,
+             comment="Final value of p"),
+        dict(name="utility", cctype="FLOAT",
+             comment="Calculated utility, h"),
+    ]
 
     def get_trackers(self):
         return [

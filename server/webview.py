@@ -723,7 +723,7 @@ def choose_tracker(session, form):
     )
     classes = cc_task.get_all_task_classes()
     for cls in classes:
-        if cls.provides_trackers():
+        if hasattr(cls, 'get_trackers'):
             html += """
                 <label>
                     <input type="checkbox" name="{PARAM.TASKTYPES}"
@@ -732,8 +732,8 @@ def choose_tracker(session, form):
                 </label><br>
             """.format(
                 PARAM=PARAM,
-                tablename=cls.get_tablename(),
-                shortname=cls.get_taskshortname(),
+                tablename=cls.tablename,
+                shortname=cls.shortname,
             )
     html += """
                 <!-- buttons must have type "button" in order not to submit -->
@@ -1078,8 +1078,8 @@ def offer_basic_dump(session, form):
                 {shortname}
             </label><br>
         """.format(PARAM=PARAM,
-                   tablename=cls.get_tablename(),
-                   shortname=cls.get_taskshortname())
+                   tablename=cls.tablename,
+                   shortname=cls.shortname)
         for cls in classes])
 
     return pls.WEBSTART + """
@@ -1244,7 +1244,7 @@ def basic_dump(session, form):
         if dump_type == VALUE.DUMPTYPE_AS_TASK_FILTER:
             if not cls.filter_allows_task_type(session):
                 continue
-        table = cls.get_tablename()
+        table = cls.tablename
         if dump_type == VALUE.DUMPTYPE_SPECIFIC_TASKS:
             if table not in task_tablename_list:
                 continue
@@ -2141,7 +2141,7 @@ def delete_patient(session, form):
     # If we get here, we'll do the erasure.
     # Delete tasks (with subtables)
     for cls in cc_task.get_all_task_classes():
-        tablename = cls.get_tablename()
+        tablename = cls.tablename
         serverpks = cls.get_task_pks_for_patient_deletion(which_idnum,
                                                           idnum_value)
         for serverpk in serverpks:
@@ -2484,7 +2484,7 @@ def forcibly_finalize(session, form):
         DeviceStoredVar.TABLENAME,
     ]
     for cls in cc_task.get_all_task_classes():
-        tables.append(cls.get_tablename())
+        tables.append(cls.tablename)
         tables.extend(cls.get_extra_table_names())
     for t in tables:
         cc_db.forcibly_preserve_client_table(t, device_id, pls.session.user)

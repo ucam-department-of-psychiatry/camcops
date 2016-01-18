@@ -21,9 +21,6 @@
     limitations under the License.
 """
 
-from cc_modules.cc_constants import (
-    STANDARD_TASK_FIELDSPECS,
-)
 from cc_modules.cc_html import tr_qa
 from cc_modules.cc_string import WSTRING
 from cc_modules.cc_task import get_from_dict, Task
@@ -34,30 +31,18 @@ from cc_modules.cc_task import get_from_dict, Task
 # =============================================================================
 
 class Fft(Task):
-    TASK_FIELDSPECS = [
+    tablename = "fft"
+    shortname = "FFT"
+    longname = "Friends and Family Test"
+    fieldspecs = [
         dict(name="service", cctype="TEXT",
              comment="Clinical service being rated"),
         dict(name="rating", cctype="INT", min=1, max=6,
              comment="Likelihood of recommendation to friends/family (1 "
                      "extremely likely - 5 extremely unlikely, 6 don't know)"),
     ]
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
 
-    @classmethod
-    def get_tablename(cls):
-        return "fft"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "FFT"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Friends and Family Test"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + cls.TASK_FIELDSPECS
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def is_complete(self):
         return self.rating is not None and self.field_contents_valid()

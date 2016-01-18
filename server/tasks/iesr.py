@@ -24,7 +24,6 @@
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
     DATA_COLLECTION_UNLESS_UPGRADED_DIV,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import (
@@ -74,36 +73,21 @@ class Iesr(Task):
         min=MIN_SCORE, max=MAX_SCORE,
         comment_strings=QUESTION_SNIPPETS
     )
-    TASK_FIELDSPECS = [
+
+    tablename = "iesr"
+    shortname = "IES-R"
+    longname = "Impact of Events Scale – Revised"
+    fieldspecs = [
         dict(name="event", cctype="TEXT",
              comment="Relevant event"),
     ] + QUESTION_FIELDSPECS
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
+
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
     QUESTION_FIELDS = [x["name"] for x in QUESTION_FIELDSPECS]
     EXTRASTRING_TASKNAME = "iesr"
     AVOIDANCE_QUESTIONS = [5, 7, 8, 11, 12, 13, 17, 22]
     INTRUSION_QUESTIONS = [1, 2, 3, 6, 9, 16, 20]
     HYPERAROUSAL_QUESTIONS = [4, 10, 14, 15, 18, 19, 21]
-
-    @classmethod
-    def get_tablename(cls):
-        return "iesr"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "IES-R"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Impact of Events Scale – Revised"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + cls.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
 
     def get_trackers(self):
         return [

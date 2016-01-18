@@ -23,7 +23,6 @@
 
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from cc_modules.cc_html import (
@@ -41,42 +40,31 @@ from cc_modules.cc_task import get_from_dict, Task
 # =============================================================================
 
 class Phq9(Task):
-    N_MAIN_QUESTIONS = 9
-
-    @classmethod
-    def get_tablename(cls):
-        return "phq9"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "PHQ-9"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Patient Health Questionnaire-9"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + repeat_fieldspec(
-            "q", 1, 9, min=0, max=3,
-            comment_fmt="Q{n} ({s}) (0 not at all - 3 nearly every day)",
-            comment_strings=[
-                "anhedonia",
-                "mood",
-                "sleep",
-                "energy",
-                "appetite",
-                "self-esteem/guilt",
-                "concentration",
-                "psychomotor",
-                "death/self-harm",
-            ]
-        ) + [
-            dict(name="q10", cctype="INT", min=0, max=3,
-                 comment="Q10 (difficulty in activities) (0 not difficult at "
-                         "all - 3 extremely difficult)"),
-
+    tablename = "phq9"
+    shortname = "PHQ-9"
+    longname = "Patient Health Questionnaire-9"
+    fieldspecs = repeat_fieldspec(
+        "q", 1, 9, min=0, max=3,
+        comment_fmt="Q{n} ({s}) (0 not at all - 3 nearly every day)",
+        comment_strings=[
+            "anhedonia",
+            "mood",
+            "sleep",
+            "energy",
+            "appetite",
+            "self-esteem/guilt",
+            "concentration",
+            "psychomotor",
+            "death/self-harm",
         ]
+    ) + [
+        dict(name="q10", cctype="INT", min=0, max=3,
+             comment="Q10 (difficulty in activities) (0 not difficult at "
+                     "all - 3 extremely difficult)"),
+
+    ]
+
+    N_MAIN_QUESTIONS = 9
 
     def is_complete(self):
         if not self.field_contents_valid():
@@ -85,10 +73,6 @@ class Phq9(Task):
             return False
         if self.total_score() > 0 and self.q10 is None:
             return False
-        return True
-
-    @classmethod
-    def provides_trackers(cls):
         return True
 
     def get_trackers(self):
@@ -239,7 +223,7 @@ class Phq9(Task):
                     <th width="40%">Answer</th>
                 </tr>
         """
-        for i in range(1, Phq9.N_MAIN_QUESTIONS + 1):
+        for i in range(1, self.N_MAIN_QUESTIONS + 1):
             nstr = str(i)
             h += tr_qa(WSTRING("phq9_q" + nstr),
                        get_from_dict(MAIN_DICT, getattr(self, "q" + nstr)))

@@ -77,14 +77,13 @@ lang.extendPrototype(Badls, {
     // OTHER
     score: function (qnum) {
         var value = this[qnum];
-        if (value in SCORING) {
+        if (SCORING.hasOwnProperty(value)) {
             return SCORING[value];
-        } else {
-            // Undefined...
-            return 0;
         }
+        // Undefined...
+        return 0;
     },
-    
+
     totalScore: function () {
         var total = 0,
             i;
@@ -114,7 +113,6 @@ lang.extendPrototype(Badls, {
         var self = this,
             KeyValuePair = require('lib/KeyValuePair'),
             Questionnaire = require('questionnaire/Questionnaire'),
-            UICONSTANTS = require('common/UICONSTANTS'),
             elements,
             i,
             pages,
@@ -134,7 +132,7 @@ lang.extendPrototype(Badls, {
                 type: "QuestionText",
                 text: this.XSTRING('instruction_3')
             }
-        ]
+        ];
         for (i = 1; i <= nquestions; ++i) {
             elements.push(
                 {
@@ -153,7 +151,7 @@ lang.extendPrototype(Badls, {
                         new KeyValuePair('q' + i + '_e', 'e')
                     ],
                     field: 'q' + i
-                },
+                }
             );
         }
 

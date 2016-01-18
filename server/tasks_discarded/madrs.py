@@ -23,12 +23,7 @@
 
 from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import (
-    CLINICIAN_FIELDSPECS,
-    get_from_dict,
-    STANDARD_TASK_FIELDSPECS,
-    Task,
-)
+from cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
@@ -37,33 +32,16 @@ from cc_modules.cc_task import (
 
 class Madrs(Task):
     NQUESTIONS = 10
-    TASK_FIELDSPECS = repeat_fieldspec("q", 1, NQUESTIONS) + [
+
+    tablename = "madrs"
+    shortname = "MADRS"
+    longname = "Montgomery–Åsberg Depression Rating Scale"
+    fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS) + [
         dict(name="period_rated", cctype="TEXT"),
     ]
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
+    has_clinician = True
 
-    @classmethod
-    def get_tablename(cls):
-        return "madrs"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "MADRS"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return u"Montgomery–Åsberg Depression Rating Scale"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return (
-            STANDARD_TASK_FIELDSPECS + CLINICIAN_FIELDSPECS +
-            Madrs.TASK_FIELDSPECS
-        )
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self):
         return [
@@ -94,10 +72,10 @@ class Madrs(Task):
         ]
 
     def is_complete(self):
-        return self.are_all_fields_complete(Madrs.TASK_FIELDS)
+        return self.are_all_fields_complete(self.TASK_FIELDS)
 
     def total_score(self):
-        return self.sum_fields(repeat_fieldname("q", 1, Madrs.NQUESTIONS))
+        return self.sum_fields(repeat_fieldname("q", 1, self.NQUESTIONS))
 
     def get_task_html(self):
         score = self.total_score()
@@ -110,7 +88,7 @@ class Madrs(Task):
         else:
             category = WSTRING("normal")
         ANSWER_DICTS = []
-        for q in range(1, Madrs.NQUESTIONS + 1):
+        for q in range(1, self.NQUESTIONS + 1):
             d = {None: "?"}
             for option in range(0, 7):
                 if option == 1 or option == 3 or option == 5:
@@ -119,7 +97,7 @@ class Madrs(Task):
                     d[option] = WSTRING("madrs_q" + str(q) + "_option" +
                                         str(option))
             ANSWER_DICTS.append(d)
-        h = self.get_standard_clinician_block() + u"""
+        h = """
             <div class="summary">
                 <table class="summary">
                     {}
@@ -142,12 +120,12 @@ class Madrs(Task):
             WSTRING("category"), category,
             WSTRING("madrs_q_period_rated"), self.period_rated
         )
-        for q in range(1, Madrs.NQUESTIONS + 1):
-            h += u"""<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
+        for q in range(1, self.NQUESTIONS + 1):
+            h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
                 WSTRING("madrs_q" + str(q) + "_s"),
                 get_from_dict(ANSWER_DICTS[q - 1], getattr(self, "q" + str(q)))
             )
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] Total score &gt;34 severe, &ge;20 moderate, &ge;7 mild,

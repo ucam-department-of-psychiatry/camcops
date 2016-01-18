@@ -103,3 +103,18 @@ def unit_test_must_raise(message, function, required_asserts, *args, **kwargs):
         raise AssertionError(FAILEDMSG)
     except required_asserts:
         print("OK")
+
+
+def get_object_name(obj):
+    if hasattr(obj, '__name__'):
+        # a class
+        return obj.__name__
+    else:
+        # an instance
+        return type(obj).__name__
+
+
+def unit_test_require_truthy_attribute(obj, attrname):
+    if not getattr(obj, attrname):
+        raise AssertionError("Object {}: missing attribute {}".format(
+            get_object_name(obj), attrname))

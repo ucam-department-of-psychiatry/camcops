@@ -282,7 +282,7 @@ lang.extendPrototype(BaseTask, {
             elements: [ this.getClinicianQuestionnaireBlock() ]
         };
     },
-    
+
     isRespondentComplete: function () {
         return (this.respondent_name && this.respondent_relationship);
     },

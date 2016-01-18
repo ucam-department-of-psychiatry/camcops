@@ -23,12 +23,10 @@
 
 import pythonlib.rnc_web as ws
 from cc_modules.cc_constants import (
-    CLINICIAN_FIELDSPECS,
     CTV_DICTLIST_INCOMPLETE,
     DATEFORMAT,
     ICD10_COPYRIGHT_DIV,
     PV,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_dt import format_datetime_string
 from cc_modules.cc_html import (
@@ -128,9 +126,15 @@ class Icd10Depressive(Task):
     ADDITIONAL_NAMES = [x["name"] for x in ADDITIONAL_FIELDSPECS]
     SOMATIC_NAMES = [x["name"] for x in SOMATIC_FIELDSPECS]
     PSYCHOSIS_NAMES = [x["name"] for x in PSYCHOSIS_FIELDSPECS]
-    TASK_FIELDSPECS = (
-        CLINICIAN_FIELDSPECS
-        + [
+
+    tablename = "icd10depressive"
+    shortname = "ICD10-DEPR"
+    longname = (
+        "ICD-10 symptomatic criteria for a depressive episode "
+        "(as in e.g. F06.3, F25, F31, F32, F33)"
+    )
+    fieldspecs = (
+        [
             dict(name="date_pertains_to", cctype="ISO8601",
                  comment="Date the assessment pertains to"),
             dict(name="comments", cctype="TEXT",
@@ -148,25 +152,7 @@ class Icd10Depressive(Task):
         + SOMATIC_FIELDSPECS
         + PSYCHOSIS_FIELDSPECS
     )
-
-    @classmethod
-    def get_tablename(cls):
-        return "icd10depressive"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "ICD10-DEPR"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return (
-            "ICD-10 symptomatic criteria for a depressive episode "
-            "(as in e.g. F06.3, F25, F31, F32, F33)"
-        )
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + Icd10Depressive.TASK_FIELDSPECS
+    has_clinician = True
 
     def get_clinical_text(self):
         if not self.is_complete():
@@ -390,7 +376,7 @@ class Icd10Depressive(Task):
             fieldname, WSTRING("icd10depressive_" + fieldname))
 
     def get_task_html(self):
-        h = self.get_standard_clinician_block(True, self.comments) + """
+        h = self.get_standard_clinician_comments_block(self.comments) + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()

@@ -23,7 +23,6 @@
 
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from cc_modules.cc_html import (
@@ -42,7 +41,11 @@ from cc_modules.cc_task import get_from_dict, Task
 
 class Phq15(Task):
     NQUESTIONS = 15
-    TASK_FIELDSPECS = repeat_fieldspec(
+
+    tablename = "phq15"
+    shortname = "PHQ-15"
+    longname = "Patient Health Questionnaire-15"
+    fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, min=0, max=2,
         comment_fmt="Q{n} ({s}) (0 not bothered at all - 2 bothered a lot)",
         comment_strings=[
@@ -63,23 +66,8 @@ class Phq15(Task):
             "sleep",
         ]
     )
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
 
-    @classmethod
-    def get_tablename(cls):
-        return "phq15"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "PHQ-15"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Patient Health Questionnaire-15"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + Phq15.TASK_FIELDSPECS
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def is_complete(self):
         if not self.field_contents_valid():
@@ -87,16 +75,12 @@ class Phq15(Task):
         if not self.are_all_fields_complete(repeat_fieldname("q", 1, 3)):
             return False
         if not self.are_all_fields_complete(repeat_fieldname(
-                                            "q", 5, Phq15.NQUESTIONS)):
+                                            "q", 5, self.NQUESTIONS)):
             return False
         if self.is_female():
             return (self.q4 is not None)
         else:
             return True
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
 
     def get_trackers(self):
         return [
@@ -139,11 +123,11 @@ class Phq15(Task):
         ]
 
     def total_score(self):
-        return self.sum_fields(Phq15.TASK_FIELDS)
+        return self.sum_fields(self.TASK_FIELDS)
 
     def num_severe(self):
         n = 0
-        for i in range(1, Phq15.NQUESTIONS + 1):
+        for i in range(1, self.NQUESTIONS + 1):
             value = getattr(self, "q" + str(i))
             if value is not None and value >= 2:
                 n += 1
@@ -192,7 +176,7 @@ class Phq15(Task):
                     <th width="30%">Answer</th>
                 </tr>
         """
-        for q in range(1, Phq15.NQUESTIONS + 1):
+        for q in range(1, self.NQUESTIONS + 1):
             h += tr_qa(
                 WSTRING("phq15_q" + str(q)),
                 get_from_dict(ANSWER_DICT, getattr(self, "q" + str(q)))

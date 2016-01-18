@@ -22,9 +22,7 @@
 """
 
 from cc_modules.cc_constants import (
-    CLINICIAN_FIELDSPECS,
     CTV_DICTLIST_INCOMPLETE,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import (
@@ -42,7 +40,11 @@ from cc_modules.cc_task import get_from_dict, Task
 
 class Hamd7(Task):
     NQUESTIONS = 7
-    TASK_FIELDSPECS = repeat_fieldspec(
+
+    tablename = "hamd7"
+    shortname = "HAMD-7"
+    longname = "Hamilton Rating Scale for Depression (7-item scale)"
+    fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, min=0, max=4,  # see below
         comment_fmt="Q{n}, {s} (0-4, except Q6 0-2; higher worse)",
         comment_strings=["depressed mood", "guilt",
@@ -51,31 +53,12 @@ class Hamd7(Task):
                          "energy/somatic symptoms", "suicide"]
     )
     # Now fix the wrong bits. Hardly elegant!
-    for item in TASK_FIELDSPECS:
+    for item in fieldspecs:
         if item["name"] == "q6":
             item["max"] = 2
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
+    has_clinician = True
 
-    @classmethod
-    def get_tablename(cls):
-        return "hamd7"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "HAMD-7"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Hamilton Rating Scale for Depression (7-item scale)"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + CLINICIAN_FIELDSPECS + \
-            Hamd7.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self):
         return [
@@ -118,12 +101,12 @@ class Hamd7(Task):
 
     def is_complete(self):
         return (
-            self.are_all_fields_complete(Hamd7.TASK_FIELDS)
+            self.are_all_fields_complete(self.TASK_FIELDS)
             and self.field_contents_valid()
         )
 
     def total_score(self):
-        return self.sum_fields(Hamd7.TASK_FIELDS)
+        return self.sum_fields(self.TASK_FIELDS)
 
     def severity(self):
         score = self.total_score()
@@ -140,7 +123,7 @@ class Hamd7(Task):
         score = self.total_score()
         severity = self.severity()
         ANSWER_DICTS = []
-        for q in range(1, Hamd7.NQUESTIONS + 1):
+        for q in range(1, self.NQUESTIONS + 1):
             d = {None: None}
             for option in range(0, 5):
                 if q == 6 and option > 2:
@@ -148,7 +131,7 @@ class Hamd7(Task):
                 d[option] = WSTRING("hamd7_q" + str(q) + "_option" +
                                     str(option))
             ANSWER_DICTS.append(d)
-        h = self.get_standard_clinician_block() + """
+        h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
@@ -163,7 +146,7 @@ class Hamd7(Task):
                     <th width="70%">Answer</th>
                 </tr>
         """
-        for q in range(1, Hamd7.NQUESTIONS + 1):
+        for q in range(1, self.NQUESTIONS + 1):
             h += tr_qa(
                 WSTRING("hamd7_q" + str(q) + "_s"),
                 get_from_dict(ANSWER_DICTS[q - 1], getattr(self, "q" + str(q)))

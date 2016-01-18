@@ -22,9 +22,7 @@
 """
 
 from cc_modules.cc_constants import (
-    CLINICIAN_FIELDSPECS,
     CTV_DICTLIST_INCOMPLETE,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import (
@@ -45,7 +43,10 @@ QUESTION_FRAGMENTS = ["positive", "negative", "depressive", "cognitive",
 
 
 class CgiSch(Task):
-    TASK_FIELDSPECS = (
+    tablename = "cgisch"
+    shortname = "CGI-SCH"
+    longname = "Clinical Global Impression – Schizophrenia"
+    fieldspecs = (
         repeat_fieldspec(
             "severity", 1, 5, min=1, max=7,
             comment_fmt="Severity Q{n}, {s} (1-7, higher worse)",
@@ -55,28 +56,9 @@ class CgiSch(Task):
             comment_fmt="Change Q{n}, {s} (1-7, higher worse, or 9 N/A)",
             comment_strings=QUESTION_FRAGMENTS)
     )
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
+    has_clinician = True
 
-    @classmethod
-    def get_tablename(cls):
-        return "cgisch"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "CGI-SCH"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Clinical Global Impression – Schizophrenia"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + CLINICIAN_FIELDSPECS + \
-            CgiSch.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self):
         prefix = "CGI-SCH severity: "
@@ -145,7 +127,7 @@ class CgiSch(Task):
 
     def is_complete(self):
         return (
-            self.are_all_fields_complete(CgiSch.TASK_FIELDS)
+            self.are_all_fields_complete(self.TASK_FIELDS)
             and self.field_contents_valid()
         )
 
@@ -171,7 +153,7 @@ class CgiSch(Task):
             7: WSTRING("cgisch_ii_option7"),
             9: WSTRING("cgisch_ii_option9"),
         }
-        h = self.get_standard_clinician_block() + """
+        h = """
             <div class="summary">
                 <table class="summary">
                     {}

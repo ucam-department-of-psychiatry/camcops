@@ -24,14 +24,11 @@
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
     DATA_COLLECTION_UNLESS_UPGRADED_DIV,
-    RESPONDENT_FIELDSPECS,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import (
     answer,
     tr,
-    tr_qa,
 )
 from cc_modules.cc_string import WSTRING
 from cc_modules.cc_task import get_from_dict, Task
@@ -59,38 +56,20 @@ class Zbi12(Task):
         "could care better"
     ]
     NQUESTIONS = 12
-    TASK_FIELDSPECS = repeat_fieldspec(
+
+    tablename = "zbi12"
+    shortname = "ZBI-12"
+    longname = "Zarit Burden Interview-12"
+    fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS,
         comment_fmt="Q{n}, {s} (0-4, higher worse)",
         min=MIN_SCORE, max=MAX_SCORE,
         comment_strings=QUESTION_SNIPPETS
     )
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
-    EXTRASTRING_TASKNAME = "zbi12"
+    has_respondent = True
+    extrastring_taskname = "zbi12"
 
-    @classmethod
-    def get_tablename(cls):
-        return "zbi12"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "ZBI-12"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Zarit Burden Interview-12"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return (
-            STANDARD_TASK_FIELDSPECS
-            + RESPONDENT_FIELDSPECS
-            + cls.TASK_FIELDSPECS
-        )
-
-    @classmethod
-    def provides_trackers(cls):
-        return False
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_summaries(self):
         return [
@@ -120,9 +99,7 @@ class Zbi12(Task):
         OPTION_DICT = {None: None}
         for a in range(self.MIN_SCORE, self.MAX_SCORE + 1):
             OPTION_DICT[a] = WSTRING("zbi_a" + str(a))
-        h = (
-            self.get_standard_respondent_block()
-        ) + """
+        h = """
             <div class="summary">
                 <table class="summary">
                     {complete_tr}

@@ -23,7 +23,6 @@
 
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from cc_modules.cc_html import (
@@ -43,7 +42,11 @@ from cc_modules.cc_task import Task
 
 class Rand36(Task):
     NQUESTIONS = 36
-    TASK_FIELDSPECS = [
+
+    tablename = "rand36"
+    shortname = "RAND-36"
+    longname = "RAND 36-Item Short Form Health Survey 1.0"
+    fieldspecs = [
         dict(name="q1", cctype="INT", min=1, max=5,
              comment="Q1 (general health) (1 excellent - 5 poor)"),
         dict(name="q2", cctype="INT", min=1, max=5,
@@ -125,34 +128,15 @@ class Rand36(Task):
             "My health is excellent",
         ]
     )
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
 
-    @classmethod
-    def get_tablename(cls):
-        return "rand36"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "RAND-36"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "RAND 36-Item Short Form Health Survey 1.0"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + Rand36.TASK_FIELDSPECS
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def is_complete(self):
         return (
             self.are_all_fields_complete(
-                repeat_fieldname("q", 1, Rand36.NQUESTIONS))
+                repeat_fieldname("q", 1, self.NQUESTIONS))
             and self.field_contents_valid()
         )
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
 
     @classmethod
     def tracker_element(cls, value, plot_label):
@@ -320,7 +304,7 @@ class Rand36(Task):
 
     def scoreOverall(self):
         values = []
-        for q in range(1, Rand36.NQUESTIONS + 1):
+        for q in range(1, self.NQUESTIONS + 1):
             values.append(self.recode(q))
         return mean(values)
 

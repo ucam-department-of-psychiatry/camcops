@@ -23,11 +23,7 @@
 
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import (
-    get_from_dict,
-    STANDARD_TASK_FIELDSPECS,
-    Task,
-)
+from cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
@@ -46,26 +42,10 @@ class Lunsers(Task):
     list_hormonal_male = [7, 17, 24, 46]
     list_redherrings = [3, 8, 11, 12, 25, 28, 30, 33, 42, 45]
 
-    @classmethod
-    def get_tablename(cls):
-        return "lunsers"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "LUNSERS"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Liverpool University Neuroleptic Side Effect Rating Scale"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + repeat_fieldspec("q", 1,
-                                                           Lunsers.NQUESTIONS)
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    tablename = "lunsers"
+    shortname = "LUNSERS"
+    longname = "Liverpool University Neuroleptic Side Effect Rating Scale"
+    fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
 
     def get_trackers(self):
         return [
@@ -90,7 +70,7 @@ class Lunsers(Task):
         return ["q" + str(q) for q in group]
 
     def get_relevant_fieldlist(self):
-        qnums = range(1, Lunsers.NQUESTIONS + 1)
+        qnums = range(1, self.NQUESTIONS + 1)
         if not self.is_female():
             qnums.remove(13)
             qnums.remove(50)
@@ -106,7 +86,7 @@ class Lunsers(Task):
         return self.sum_fields(self.get_fieldlist(qnums))
 
     def get_subheading(self, subtitle, score, max_score):
-        return u"""
+        return """
             <tr class="subheading">
                 <td>{}</td><td><i><b>{}</b> / {}</i></td>
             </tr>
@@ -117,8 +97,8 @@ class Lunsers(Task):
         )
 
     def get_row(self, q, ANSWER_DICT):
-        return u"""<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
-            "Q" + str(q) + u" — " + WSTRING("lunsers_q" + str(q)),
+        return """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
+            "Q" + str(q) + " — " + WSTRING("lunsers_q" + str(q)),
             get_from_dict(ANSWER_DICT, getattr(self, "q" + str(q)))
         )
 
@@ -141,7 +121,7 @@ class Lunsers(Task):
         ANSWER_DICT = {None: "?"}
         for option in range(0, 5):
             ANSWER_DICT[option] = WSTRING("lunsers_option" + str(option))
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
                     {}
@@ -160,38 +140,38 @@ class Lunsers(Task):
             self.get_is_complete_tr(),
             WSTRING("total_score"), score, self.max_score()
         )
-        h += self.get_group_html(Lunsers.list_epse,
+        h += self.get_group_html(self.list_epse,
                                  WSTRING("lunsers_group_epse"),
                                  ANSWER_DICT)
-        h += self.get_group_html(Lunsers.list_anticholinergic,
+        h += self.get_group_html(self.list_anticholinergic,
                                  WSTRING("lunsers_group_anticholinergic"),
                                  ANSWER_DICT)
-        h += self.get_group_html(Lunsers.list_allergic,
+        h += self.get_group_html(self.list_allergic,
                                  WSTRING("lunsers_group_allergic"),
                                  ANSWER_DICT)
-        h += self.get_group_html(Lunsers.list_miscellaneous,
+        h += self.get_group_html(self.list_miscellaneous,
                                  WSTRING("lunsers_group_miscellaneous"),
                                  ANSWER_DICT)
-        h += self.get_group_html(Lunsers.list_psychic,
+        h += self.get_group_html(self.list_psychic,
                                  WSTRING("lunsers_group_psychic"),
                                  ANSWER_DICT)
-        h += self.get_group_html(Lunsers.list_otherautonomic,
+        h += self.get_group_html(self.list_otherautonomic,
                                  WSTRING("lunsers_group_otherautonomic"),
                                  ANSWER_DICT)
         if self.is_female():
-            h += self.get_group_html(Lunsers.list_hormonal_female,
+            h += self.get_group_html(self.list_hormonal_female,
                                      WSTRING("lunsers_group_hormonal") + " (" +
                                      WSTRING("female") + ")",
                                      ANSWER_DICT)
         else:
-            h += self.get_group_html(Lunsers.list_hormonal_male,
+            h += self.get_group_html(self.list_hormonal_male,
                                      WSTRING("lunsers_group_hormonal") + " (" +
                                      WSTRING("male") + ")",
                                      ANSWER_DICT)
-        h += self.get_group_html(Lunsers.list_redherrings,
+        h += self.get_group_html(self.list_redherrings,
                                  WSTRING("lunsers_group_redherrings"),
                                  ANSWER_DICT)
-        h += u"""
+        h += """
             </table>
         """
         return h

@@ -23,12 +23,7 @@
 
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import (
-    CLINICIAN_FIELDSPECS,
-    get_from_dict,
-    STANDARD_TASK_FIELDSPECS,
-    Task,
-)
+from cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
@@ -37,29 +32,14 @@ from cc_modules.cc_task import (
 
 class Bars(Task):
     NQUESTIONS = 4
-    TASK_FIELDSPECS = repeat_fieldspec("q", 1, NQUESTIONS)
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
 
-    @classmethod
-    def get_tablename(cls):
-        return "bars"
+    tablename = "bars"
+    shortname = "BARS"
+    longname = "Barnes Akathisia Rating Scale"
+    fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
+    has_clinician = True
 
-    @classmethod
-    def get_taskshortname(cls):
-        return "BARS"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Barnes Akathisia Rating Scale"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return (STANDARD_TASK_FIELDSPECS + CLINICIAN_FIELDSPECS +
-                Bars.TASK_FIELDSPECS)
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self):
         return [
@@ -80,22 +60,22 @@ class Bars(Task):
         ]
 
     def is_complete(self):
-        return self.are_all_fields_complete(Bars.TASK_FIELDS)
+        return self.are_all_fields_complete(self.TASK_FIELDS)
 
     def total_score(self):
-        return self.sum_fields(Bars.TASK_FIELDS)
+        return self.sum_fields(self.TASK_FIELDS)
 
     def get_task_html(self):
         score = self.total_score()
         ANSWER_DICTS_DICT = {}
-        for q in Bars.TASK_FIELDS:
+        for q in self.TASK_FIELDS:
             d = {None: "?"}
             for option in range(0, 6):
                 if option > 3 and q == "q4":
                     continue
                 d[option] = WSTRING("bars_" + q + "_option" + str(option))
             ANSWER_DICTS_DICT[q] = d
-        h = self.get_standard_clinician_block() + u"""
+        h = self.get_standard_clinician_block() + """
             <div class="summary">
                 <table class="summary">
                     {}
@@ -111,12 +91,12 @@ class Bars(Task):
             self.get_is_complete_tr(),
             WSTRING("total_score"), score
         )
-        for q in Bars.TASK_FIELDS:
-            h += u"""<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
+        for q in self.TASK_FIELDS:
+            h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
                 WSTRING("bars_" + q + "_s"),
                 get_from_dict(ANSWER_DICTS_DICT[q], getattr(self, q))
             )
-        h += u"""
+        h += """
             </table>
         """
         return h

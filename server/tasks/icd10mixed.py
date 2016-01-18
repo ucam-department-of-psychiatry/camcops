@@ -23,12 +23,10 @@
 
 import pythonlib.rnc_web as ws
 from cc_modules.cc_constants import (
-    CLINICIAN_FIELDSPECS,
     CTV_DICTLIST_INCOMPLETE,
     DATEFORMAT,
     ICD10_COPYRIGHT_DIV,
     PV,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_dt import format_datetime_string
 from cc_modules.cc_html import (
@@ -45,43 +43,28 @@ from cc_modules.cc_task import Task
 # =============================================================================
 
 class Icd10Mixed(Task):
-    TASK_FIELDSPECS = (
-        CLINICIAN_FIELDSPECS
-        + [
-            dict(name="date_pertains_to", cctype="ISO8601",
-                 comment="Date the assessment pertains to"),
-            dict(name="comments", cctype="TEXT",
-                 comment="Clinician's comments"),
-            dict(name="mixture_or_rapid_alternation", cctype="BOOL",
-                 pv=PV.BIT,
-                 comment="The episode is characterized by either a mixture or "
-                 "a rapid alternation (i.e. within a few hours) of hypomanic, "
-                 "manic and depressive symptoms."),
-            dict(name="duration_at_least_2_weeks", cctype="BOOL",
-                 pv=PV.BIT,
-                 comment="Both manic and depressive symptoms must be prominent"
-                 " most of the time during a period of at least two weeks."),
-        ]
+    tablename = "icd10mixed"
+    shortname = "ICD10-MIXED"
+    longname = (
+        "ICD-10 symptomatic criteria for a mixed affective episode "
+        "(as in e.g. F06.3, F25, F38.00, F31.6)"
     )
-
-    @classmethod
-    def get_tablename(cls):
-        return "icd10mixed"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "ICD10-MIXED"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return (
-            "ICD-10 symptomatic criteria for a mixed affective episode "
-            "(as in e.g. F06.3, F25, F38.00, F31.6)"
-        )
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + Icd10Mixed.TASK_FIELDSPECS
+    fieldspecs = [
+        dict(name="date_pertains_to", cctype="ISO8601",
+             comment="Date the assessment pertains to"),
+        dict(name="comments", cctype="TEXT",
+             comment="Clinician's comments"),
+        dict(name="mixture_or_rapid_alternation", cctype="BOOL",
+             pv=PV.BIT,
+             comment="The episode is characterized by either a mixture or "
+             "a rapid alternation (i.e. within a few hours) of hypomanic, "
+             "manic and depressive symptoms."),
+        dict(name="duration_at_least_2_weeks", cctype="BOOL",
+             pv=PV.BIT,
+             comment="Both manic and depressive symptoms must be prominent"
+             " most of the time during a period of at least two weeks."),
+    ]
+    has_clinician = True
 
     def get_clinical_text(self):
         if not self.is_complete():
@@ -126,7 +109,7 @@ class Icd10Mixed(Task):
         )
 
     def get_task_html(self):
-        h = self.get_standard_clinician_block(True, self.comments) + """
+        h = self.get_standard_clinician_comments_block(self.comments) + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()

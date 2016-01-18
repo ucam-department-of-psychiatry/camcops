@@ -718,7 +718,7 @@ def unit_tests():
     # skip: send_pending_hl7_messages
 
     current_pks = pls.db.fetchallfirstvalues(
-        "SELECT _pk FROM {} WHERE _current".format(phq9.Phq9.get_tablename())
+        "SELECT _pk FROM {} WHERE _current".format(phq9.Phq9.tablename)
     )
     pk = current_pks[0] if current_pks else None
     task = phq9.Phq9(pk)

@@ -24,7 +24,6 @@
 from cc_modules.cc_constants import (
     DATA_COLLECTION_ONLY_DIV,
     PV,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_html import tr_qa
 from cc_modules.cc_task import Task
@@ -42,7 +41,13 @@ class MdsUpdrs(Task):
     yn_cmt = " (0 no, 1 yes)"
     on_off_cmt = " (0 off, 1 on)"
     hy_pv = list(range(0, 5 + 1))
-    TASK_FIELDSPECS = [
+
+    tablename = "mds_updrs"
+    shortname = "MDS-UPDRS"
+    longname = (
+        "Movement Disorder Society-Sponsored Revision of the Unified "
+        "Parkinson’s Disease Rating Scale (data collection only)")
+    fieldspecs = [
         # Part I
         dict(name="q1a", cctype="INT", pv=informant_pv,
              comment="Part I: informant for Q1.1-1.6" + informant_cmt),
@@ -196,26 +201,9 @@ class MdsUpdrs(Task):
         dict(name="q4_6", cctype="INT", pv=main_pv,
              comment="Part IV, Q4.6 " + main_cmt),
     ]
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
+
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
     TASK_FIELDS_EXCEPT_3C1 = [x for x in TASK_FIELDS if x != "q3c1"]
-
-    @classmethod
-    def get_tablename(cls):
-        return "mds_updrs"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "MDS-UPDRS"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return (
-            "Movement Disorder Society-Sponsored Revision of the Unified "
-            "Parkinson’s Disease Rating Scale (data collection only)")
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + cls.TASK_FIELDSPECS
 
     def is_complete(self):
         return (
@@ -237,7 +225,7 @@ class MdsUpdrs(Task):
                     <th width="30%">Answer</th>
                 </tr>
         """
-        for fs in self.TASK_FIELDSPECS:
+        for fs in self.fieldspecs:
             question = fs["comment"]
             fieldname = fs["name"]
             value = getattr(self, fieldname)

@@ -22,9 +22,7 @@
 """
 
 from cc_modules.cc_constants import (
-    CLINICIAN_FIELDSPECS,
     CTV_DICTLIST_INCOMPLETE,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from cc_modules.cc_html import (
@@ -43,53 +41,35 @@ from cc_modules.cc_task import get_from_dict, Task
 
 class Ciwa(Task):
     NSCOREDQUESTIONS = 10
-    TASK_FIELDSPECS = (
-        repeat_fieldspec(
-            "q", 1, NSCOREDQUESTIONS - 1, min=0, max=7,
-            comment_fmt="Q{n}, {s} (0-7, higher worse)",
-            comment_strings=[
-                "nausea/vomiting", "tremor", "paroxysmal sweats", "anxiety",
-                "agitation", "tactile disturbances", "auditory disturbances",
-                "visual disturbances", "headache/fullness in head"
-            ]) +
-        [
-            dict(name="q10", cctype="INT", min=0, max=4,
-                 comment="Q10, orientation/clouding of sensorium "
-                 "(0-4, higher worse)"),
-            dict(name="t", cctype="INT",
-                 comment="Temperature (degrees C)"),
-            dict(name="hr", cctype="INT", min=0,
-                 comment="Heart rate (beats/minute)"),
-            dict(name="sbp", cctype="INT", min=0,
-                 comment="Systolic blood pressure (mmHg)"),
-            dict(name="dbp", cctype="INT", min=0,
-                 comment="Diastolic blood pressure (mmHg)"),
-            dict(name="rr", cctype="INT", min=0,
-                 comment="Respiratory rate (breaths/minute)"),
-        ]
-    )
 
-    @classmethod
-    def get_tablename(cls):
-        return "ciwa"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "CIWA-Ar"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return ("Clinical Institute Withdrawal Assessment for Alcohol "
+    tablename = "ciwa"
+    shortname = "CIWA-Ar"
+    longname = ("Clinical Institute Withdrawal Assessment for Alcohol "
                 "Scale, Revised")
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + CLINICIAN_FIELDSPECS + \
-            Ciwa.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    fieldspecs = repeat_fieldspec(
+        "q", 1, NSCOREDQUESTIONS - 1, min=0, max=7,
+        comment_fmt="Q{n}, {s} (0-7, higher worse)",
+        comment_strings=[
+            "nausea/vomiting", "tremor", "paroxysmal sweats", "anxiety",
+            "agitation", "tactile disturbances", "auditory disturbances",
+            "visual disturbances", "headache/fullness in head"
+        ]
+    ) + [
+        dict(name="q10", cctype="INT", min=0, max=4,
+             comment="Q10, orientation/clouding of sensorium "
+             "(0-4, higher worse)"),
+        dict(name="t", cctype="INT",
+             comment="Temperature (degrees C)"),
+        dict(name="hr", cctype="INT", min=0,
+             comment="Heart rate (beats/minute)"),
+        dict(name="sbp", cctype="INT", min=0,
+             comment="Systolic blood pressure (mmHg)"),
+        dict(name="dbp", cctype="INT", min=0,
+             comment="Diastolic blood pressure (mmHg)"),
+        dict(name="rr", cctype="INT", min=0,
+             comment="Respiratory rate (breaths/minute)"),
+    ]
+    has_clinician = True
 
     def get_trackers(self):
         return [
@@ -158,7 +138,7 @@ class Ciwa(Task):
                     continue
                 d[option] = WSTRING("ciwa_" + q + "_option" + str(option))
             ANSWER_DICTS_DICT[q] = d
-        h = self.get_standard_clinician_block() + """
+        h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()

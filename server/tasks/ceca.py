@@ -24,7 +24,6 @@
 import pythonlib.rnc_web as ws
 from cc_modules.cc_constants import (
     PV,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_html import (
     answer,
@@ -46,7 +45,10 @@ FREQUENCY_COMMENT = "Frequency (0 never - 3 often)"
 
 
 class CecaQ3(Task):
-    TASKFIELDSPECS = [
+    tablename = "cecaq3"
+    shortname = "CECA-Q3"
+    longname = "Childhood Experience of Care and Abuse Questionnaire"
+    fieldspecs = [
         dict(name="s1a_motherfigure_birthmother", cctype="BOOL",
              pv=PV.BIT, comment="Raised by, maternal, birth mother?"),
         dict(name="s1a_motherfigure_stepmother", cctype="BOOL",
@@ -560,22 +562,6 @@ class CecaQ3(Task):
         dict(name="any_other_comments", cctype="TEXT",
              comment="Any other comments"),
     ]
-
-    @classmethod
-    def get_tablename(cls):
-        return "cecaq3"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "CECA-Q3"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Childhood Experience of Care and Abuse Questionnaire"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + CecaQ3.TASKFIELDSPECS
 
     def get_summaries(self):
         return [

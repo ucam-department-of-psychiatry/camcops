@@ -24,7 +24,6 @@
 import pythonlib.rnc_web as ws
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_html import (
     answer,
@@ -44,7 +43,10 @@ DP = 3
 
 
 class QolBasic(Task):
-    TASK_FIELDSPECS = [
+    tablename = "qolbasic"
+    shortname = "QoL-Basic"
+    longname = "Quality of Life: basic assessment"
+    fieldspecs = [
         dict(name="tto", cctype="FLOAT", min=0, max=10,
              comment="Time trade-off (QoL * 10). Prompt: ... Indicate... the "
              "number of years in full health [0-10] that you think is of "
@@ -54,27 +56,8 @@ class QolBasic(Task):
              "scale [0-100] that you feel best illustrates your current "
              "quality of life."),
     ]
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
 
-    @classmethod
-    def get_tablename(cls):
-        return "qolbasic"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "QoL-Basic"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Quality of Life: basic assessment"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + QolBasic.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self):
         return [

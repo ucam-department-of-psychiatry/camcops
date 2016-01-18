@@ -23,7 +23,6 @@
 
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import (
@@ -42,34 +41,19 @@ from cc_modules.cc_task import get_from_dict, Task
 
 class Audit(Task):
     NQUESTIONS = 10
-    TASK_FIELDSPECS = repeat_fieldspec(
+
+    tablename = "audit"
+    shortname = "AUDIT"
+    longname = "WHO Alcohol Use Disorders Identification Test"
+    fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, min=0, max=4,
         comment_fmt="Q{n}, {s} (0-4, higher worse)",
         comment_strings=[
             "how often drink", "drinks per day", "how often six drinks",
             "unable to stop", "unable to do what was expected", "eye opener",
             "guilt", "unable to remember", "injuries", "others concerned"])
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
 
-    @classmethod
-    def get_tablename(cls):
-        return "audit"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "AUDIT"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "WHO Alcohol Use Disorders Identification Test"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + cls.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self):
         return [
@@ -181,34 +165,19 @@ class Audit(Task):
 
 class AuditC(Task):
     NQUESTIONS = 3
-    TASK_FIELDSPECS = repeat_fieldspec(
+
+    tablename = "audit_c"
+    shortname = "AUDIT-C"
+    longname = "AUDIT Alcohol Consumption Questions"
+    fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, min=0, max=4,
         comment_fmt="Q{n}, {s} (0-4, higher worse)",
         comment_strings=[
             "how often drink", "drinks per day", "how often six drinks"
         ]
     )
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
 
-    @classmethod
-    def get_tablename(cls):
-        return "audit_c"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "AUDIT-C"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "AUDIT Alcohol Consumption Questions"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + cls.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self):
         return [

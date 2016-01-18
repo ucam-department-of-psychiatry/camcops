@@ -23,7 +23,6 @@
 
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import (
@@ -41,7 +40,11 @@ from cc_modules.cc_task import get_from_dict, Task
 
 class Gad7(Task):
     NQUESTIONS = 7
-    TASK_FIELDSPECS = repeat_fieldspec(
+
+    tablename = "gad7"
+    shortname = "GAD-7"
+    longname = "Generalized Anxiety Disorder Assessment"
+    fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, min=0, max=3,
         comment_fmt="Q{n}, {s} (0 not at all - 3 nearly every day)",
         comment_strings=[
@@ -53,27 +56,8 @@ class Gad7(Task):
             "irritable",
             "afraid"
         ])
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
 
-    @classmethod
-    def get_tablename(cls):
-        return "gad7"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "GAD-7"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Generalized Anxiety Disorder Assessment"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + Gad7.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self):
         return [
@@ -114,12 +98,12 @@ class Gad7(Task):
 
     def is_complete(self):
         return (
-            self.are_all_fields_complete(Gad7.TASK_FIELDS)
+            self.are_all_fields_complete(self.TASK_FIELDS)
             and self.field_contents_valid()
         )
 
     def total_score(self):
-        return self.sum_fields(Gad7.TASK_FIELDS)
+        return self.sum_fields(self.TASK_FIELDS)
 
     def severity(self):
         score = self.total_score()
@@ -160,7 +144,7 @@ class Gad7(Task):
                     <th width="50%">Answer</th>
                 </tr>
         """
-        for q in range(1, Gad7.NQUESTIONS + 1):
+        for q in range(1, self.NQUESTIONS + 1):
             h += tr_qa(
                 WSTRING("gad7_q" + str(q)),
                 get_from_dict(ANSWER_DICT, getattr(self, "q" + str(q)))

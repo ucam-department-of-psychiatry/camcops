@@ -242,6 +242,19 @@ function intersect_safe(a, b) {
 }
 exports.intersect_safe = intersect_safe;
 
+function arrayContains(arr, value) {
+    // http://stackoverflow.com/questions/237104/array-containsobj-in-javascript
+    // https://blogs.oracle.com/greimer/entry/best_way_to_code_a
+    var i = arr.length;
+    while (i--) {
+        if (arr[i] === value) {
+            return true;
+        }
+    }
+    return false;
+}
+exports.arrayContains = arrayContains;
+
 //=============================================================================
 // Key-value pairs (using KeyValuePair objects)
 //=============================================================================

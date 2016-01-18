@@ -23,7 +23,6 @@
 
 from cc_modules.cc_constants import (
     PV,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import tr_qa
@@ -41,7 +40,11 @@ class CopeBrief(Task):
     RELATIONSHIPS_FIRST = 0
     RELATIONSHIPS_FIRST_NON_OTHER = 1
     RELATIONSHIPS_LAST = 9
-    TASK_FIELDSPECS = [
+
+    tablename = "cope_brief"
+    shortname = "COPE-Brief"
+    longname = "Brief COPE Inventory"
+    fieldspecs = [
         dict(name="completed_by_patient", cctype="INT", pv=PV.BIT,
              comment="Task completed by patient? (0 no, 1 yes)"),
         dict(name="completed_by", cctype="TEXT",
@@ -85,27 +88,8 @@ class CopeBrief(Task):
             "praying/meditating",
             "making fun of the situation"  # 28
         ])
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
 
-    @classmethod
-    def get_tablename(cls):
-        return "cope_brief"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "COPE-Brief"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Brief COPE Inventory"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + cls.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return False
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_summaries(self):
         return [

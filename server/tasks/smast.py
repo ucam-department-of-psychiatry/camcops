@@ -23,7 +23,6 @@
 
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import (
@@ -41,7 +40,11 @@ from cc_modules.cc_task import get_from_dict, Task
 
 class Smast(Task):
     NQUESTIONS = 13
-    TASK_FIELDSPECS = repeat_fieldspec(
+
+    tablename = "smast"
+    shortname = "SMAST"
+    longname = "Short Michigan Alcohol Screening Test"
+    fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, "CHAR", pv=['Y', 'N'],
         comment_fmt="Q{n}: {s} (Y or N)",
         comment_strings=[
@@ -60,27 +63,8 @@ class Smast(Task):
             "arrested for other drunken behaviour",
         ]
     )
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
 
-    @classmethod
-    def get_tablename(cls):
-        return "smast"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "SMAST"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Short Michigan Alcohol Screening Test"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + Smast.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self):
         return [
@@ -122,7 +106,7 @@ class Smast(Task):
 
     def is_complete(self):
         return (
-            self.are_all_fields_complete(Smast.TASK_FIELDS)
+            self.are_all_fields_complete(self.TASK_FIELDS)
             and self.field_contents_valid()
         )
 
@@ -138,7 +122,7 @@ class Smast(Task):
 
     def total_score(self):
         total = 0
-        for q in range(1, Smast.NQUESTIONS + 1):
+        for q in range(1, self.NQUESTIONS + 1):
             total += self.get_score(q)
         return total
 
@@ -176,7 +160,7 @@ class Smast(Task):
                     <th width="20%">Answer</th>
                 </tr>
         """
-        for q in range(1, Smast.NQUESTIONS + 1):
+        for q in range(1, self.NQUESTIONS + 1):
             h += tr(
                 WSTRING("smast_q" + str(q)),
                 answer(get_from_dict(MAIN_DICT, getattr(self, "q" + str(q))))

@@ -22,10 +22,8 @@
 """
 
 from cc_modules.cc_constants import (
-    CLINICIAN_FIELDSPECS,
     CTV_DICTLIST_INCOMPLETE,
     PV,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_html import (
     answer,
@@ -106,38 +104,19 @@ class Slums(Task):
              comments="Clinician's comments"),
     ]
 
-    @classmethod
-    def get_tablename(cls):
-        return "slums"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "SLUMS"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "St Louis University Mental Status"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return (
-            STANDARD_TASK_FIELDSPECS +
-            CLINICIAN_FIELDSPECS +
-            Slums.PREAMBLE_FIELDSPECS +
-            Slums.SCORED_FIELDSPECS +
-            Slums.OTHER_FIELDSPECS
-        )
-
-    @classmethod
-    def get_pngblob_name_idfield_rotationfield_list(self):
-        return [
-            ("clockpicture", "clockpicture_blobid", None),
-            ("shapespicture", "shapespicture_blobid", None),
-        ]
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    tablename = "slums"
+    shortname = "SLUMS"
+    longname = "St Louis University Mental Status"
+    fieldspecs = (
+        PREAMBLE_FIELDSPECS +
+        SCORED_FIELDSPECS +
+        OTHER_FIELDSPECS
+    )
+    has_clinician = True
+    pngblob_name_idfield_rotationfield_list = [
+        ("clockpicture", "clockpicture_blobid", None),
+        ("shapespicture", "shapespicture_blobid", None),
+    ]
 
     def get_trackers(self):
         if self.highschooleducation == 1:
@@ -183,13 +162,13 @@ class Slums(Task):
 
     def is_complete(self):
         return (
-            self.are_all_fields_complete(Slums.PREAMBLE_FIELDS
-                                         + Slums.SCORED_FIELDS)
+            self.are_all_fields_complete(self.PREAMBLE_FIELDS
+                                         + self.SCORED_FIELDS)
             and self.field_contents_valid()
         )
 
     def total_score(self):
-        return self.sum_fields(Slums.SCORED_FIELDS)
+        return self.sum_fields(self.SCORED_FIELDS)
 
     def category(self):
         score = self.total_score()
@@ -211,7 +190,7 @@ class Slums(Task):
     def get_task_html(self):
         score = self.total_score()
         category = self.category()
-        h = self.get_standard_clinician_block(True, self.comments) + """
+        h = self.get_standard_clinician_comments_block(self.comments) + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()

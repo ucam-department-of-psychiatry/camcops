@@ -24,10 +24,7 @@
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import get_yes_no, get_yes_no_unknown
 from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import (
-    STANDARD_TASK_FIELDSPECS,
-    Task,
-)
+from cc_modules.cc_task import Task
 
 
 # =============================================================================
@@ -36,28 +33,14 @@ from cc_modules.cc_task import (
 
 class Csi(Task):
     NQUESTIONS = 14
-    TASK_FIELDSPECS = repeat_fieldspec("q", 1, NQUESTIONS)
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
 
-    @classmethod
-    def get_tablename(cls):
-        return "csi"
+    tablename = "csi"
+    shortname = "CSI"
+    longname = "Catatonia Screening Instrument"
+    fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
+    has_clinician = True  # !!! not implemented on tablet; should be
 
-    @classmethod
-    def get_taskshortname(cls):
-        return "CSI"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Catatonia Screening Instrument"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + Csi.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self):
         return [
@@ -81,15 +64,15 @@ class Csi(Task):
         ]
 
     def is_complete(self):
-        return self.are_all_fields_complete(Csi.TASK_FIELDS)
+        return self.are_all_fields_complete(self.TASK_FIELDS)
 
     def total_score(self):
-        return self.sum_fields(Csi.TASK_FIELDS)
+        return self.sum_fields(self.TASK_FIELDS)
 
     def get_task_html(self):
         n_csi_symptoms = self.total_score()
         csi_catatonia = n_csi_symptoms >= 2
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
                     {}
@@ -107,12 +90,12 @@ class Csi(Task):
             WSTRING("csi_num_symptoms_present"), n_csi_symptoms,
             WSTRING("csi_catatonia_present"), get_yes_no(csi_catatonia)
         )
-        for q in range(1, Csi.NQUESTIONS + 1):
-            h += u"""<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
-                "Q" + str(q) + u" — " + WSTRING("bfcrs_q" + str(q) + "_title"),
+        for q in range(1, self.NQUESTIONS + 1):
+            h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
+                "Q" + str(q) + " — " + WSTRING("bfcrs_q" + str(q) + "_title"),
                 get_yes_no_unknown(getattr(self, "q" + str(q)))
             )
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] Number of CSI symptoms ≥2.

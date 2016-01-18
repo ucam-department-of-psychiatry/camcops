@@ -25,7 +25,6 @@ import pythonlib.rnc_web as ws
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
     DATA_COLLECTION_ONLY_DIV,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from cc_modules.cc_html import (
@@ -53,40 +52,24 @@ class Bdi(Task):
                          "indecisive", "worthless", "energy", "sleep",
                          "irritability", "appetite", "concentration",
                          "fatigue", "libido"])
-    TASK_FIELDSPECS = [
+    TASK_SCORED_FIELDS = [x["name"] for x in TASK_SCORED_FIELDSPECS]
+
+    tablename = "bdi"
+    shortname = "BDI"
+    longname = "Beck Depression Inventory (data collection only)"
+    fieldspecs = [
         dict(name="bdi_scale", cctype="TEXT",
              comment="Which BDI scale (BDI-I, BDI-IA, BDI-II)?"),
     ] + TASK_SCORED_FIELDSPECS
-    TASK_SCORED_FIELDS = [x["name"] for x in TASK_SCORED_FIELDSPECS]
-
-    @classmethod
-    def get_tablename(cls):
-        return "bdi"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "BDI"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Beck Depression Inventory (data collection only)"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + Bdi.TASK_FIELDSPECS
 
     def is_complete(self):
         return (
             self.field_contents_valid()
             and self.bdi_scale is not None
             and self.are_all_fields_complete(
-                repeat_fieldname("q", 1, Bdi.NQUESTIONS)
+                repeat_fieldname("q", 1, self.NQUESTIONS)
             )
         )
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
 
     def get_trackers(self):
         return [{
@@ -113,7 +96,7 @@ class Bdi(Task):
         ]
 
     def total_score(self):
-        return self.sum_fields(Bdi.TASK_SCORED_FIELDS)
+        return self.sum_fields(self.TASK_SCORED_FIELDS)
 
     def get_task_html(self):
         score = self.total_score()
@@ -138,7 +121,7 @@ class Bdi(Task):
         """
         h += tr_qa(WSTRING("bdi_which_scale"), ws.webify(self.bdi_scale))
 
-        for q in range(1, Bdi.NQUESTIONS + 1):
+        for q in range(1, self.NQUESTIONS + 1):
             h += tr_qa("{} {}".format(WSTRING("question"), q),
                        getattr(self, "q" + str(q)))
         h += """

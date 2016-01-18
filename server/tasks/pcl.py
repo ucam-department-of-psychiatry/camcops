@@ -23,7 +23,6 @@
 
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from cc_modules.cc_html import (
@@ -70,17 +69,8 @@ class PclCommon(object):
             "jumpy/easily startled",
         ]
     )
-    TASK_FIELDSPECS = []
     TASK_FIELDS = []
     TASK_TYPE = "?"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + cls.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
 
     def is_complete(self):
         return (
@@ -89,7 +79,7 @@ class PclCommon(object):
         )
 
     def total_score(self):
-        return self.sum_fields(repeat_fieldname("q", 1, PclCommon.NQUESTIONS))
+        return self.sum_fields(repeat_fieldname("q", 1, self.NQUESTIONS))
 
     def get_trackers(self):
         return [
@@ -141,7 +131,7 @@ class PclCommon(object):
         return n
 
     def num_symptomatic(self):
-        return self.get_num_symptomatic(1, PclCommon.NQUESTIONS)
+        return self.get_num_symptomatic(1, self.NQUESTIONS)
 
     def num_symptomatic_B(self):
         return self.get_num_symptomatic(1, 5)
@@ -201,7 +191,7 @@ class PclCommon(object):
         if tasktype == "S":
             h += tr_qa(WSTRING("pcl_s_event_s"), self.event)
             h += tr_qa(WSTRING("pcl_s_eventdate_s"), self.eventdate)
-        for q in range(1, PclCommon.NQUESTIONS + 1):
+        for q in range(1, self.NQUESTIONS + 1):
             if q == 1 or q == 6 or q == 13:
                 section = "B" if q == 1 else ("C" if q == 6 else "D")
                 h += subheading_spanning_two_columns(
@@ -227,21 +217,13 @@ class PclCommon(object):
 # -----------------------------------------------------------------------------
 
 class PclC(PclCommon, Task):
-    TASK_FIELDSPECS = PclCommon.CORE_FIELDSPECS
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
+    tablename = "pclc"
+    shortname = "PCL-C"
+    longname = "PTSD Checklist, Civilian version"
+    fieldspecs = PclCommon.CORE_FIELDSPECS
+
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
     TASK_TYPE = "C"
-
-    @classmethod
-    def get_tablename(cls):
-        return "pclc"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "PCL-C"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "PTSD Checklist, Civilian version"
 
 
 # -----------------------------------------------------------------------------
@@ -249,21 +231,13 @@ class PclC(PclCommon, Task):
 # -----------------------------------------------------------------------------
 
 class PclM(PclCommon, Task):
-    TASK_FIELDSPECS = PclCommon.CORE_FIELDSPECS
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
+    tablename = "pclm"
+    shortname = "PCL-M"
+    longname = "PTSD Checklist, Military version"
+    fieldspecs = PclCommon.CORE_FIELDSPECS
+
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
     TASK_TYPE = "M"
-
-    @classmethod
-    def get_tablename(cls):
-        return "pclm"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "PCL-M"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "PTSD Checklist, Military version"
 
 
 # -----------------------------------------------------------------------------
@@ -271,23 +245,15 @@ class PclM(PclCommon, Task):
 # -----------------------------------------------------------------------------
 
 class PclS(PclCommon, Task):
-    TASK_FIELDSPECS = PclCommon.CORE_FIELDSPECS + [
+    tablename = "pcls"
+    shortname = "PCL-S"
+    longname = "PTSD Checklist, Stressor-specific version"
+    fieldspecs = PclCommon.CORE_FIELDSPECS + [
         dict(name="event", cctype="TEXT",
              comment="Traumatic event"),
         dict(name="eventdate", cctype="TEXT",
              comment="Date of traumatic event (free text)"),
     ]
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
+
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
     TASK_TYPE = "S"
-
-    @classmethod
-    def get_tablename(cls):
-        return "pcls"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "PCL-S"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "PTSD Checklist, Stressor-specific version"

@@ -23,9 +23,7 @@
 
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
-    CLINICIAN_FIELDSPECS,
     PV,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from cc_modules.cc_html import (
@@ -45,7 +43,11 @@ from cc_modules.cc_task import get_from_dict, Task
 class Aims(Task):
     NQUESTIONS = 12
     NSCOREDQUESTIONS = 10
-    TASK_FIELDSPECS = (
+
+    tablename = "aims"
+    shortname = "AIMS"
+    longname = "Abnormal Involuntary Movement Scale"
+    fieldspecs = (
         repeat_fieldspec(
             "q", 1, NSCOREDQUESTIONS,
             min=0, max=4,
@@ -59,28 +61,9 @@ class Aims(Task):
             comment_strings=["problems_teeth_dentures",
                              "usually_wears_dentures"])
     )
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
+    has_clinician = True
 
-    @classmethod
-    def get_tablename(cls):
-        return "aims"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "AIMS"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Abnormal Involuntary Movement Scale"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + CLINICIAN_FIELDSPECS + \
-            Aims.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self):
         return [
@@ -123,7 +106,7 @@ class Aims(Task):
                 WSTRING("aims_main_option" + str(option))
             Q10_DICT[option] = str(option) + " — " + \
                 WSTRING("aims_q10_option" + str(option))
-        h = self.get_standard_clinician_block() + """
+        h = """
             <div class="summary">
                 <table class="summary">
         """

@@ -494,7 +494,7 @@ class HL7Message(object):
             return False
         anonymous_ok = (self.recipient_def.using_file()
                         and self.recipient_def.include_anonymous)
-        task_is_anonymous = self.task.is_anonymous()
+        task_is_anonymous = self.task.is_anonymous
         if task_is_anonymous and not anonymous_ok:
             return False
         # After this point, all anonymous tasks must be OK. So:
@@ -578,7 +578,7 @@ class HL7Message(object):
     def send_to_filestore(self):
         """Send a file to a filestore."""
         self.filename = self.recipient_def.get_filename(
-            is_anonymous=self.task.is_anonymous(),
+            is_anonymous=self.task.is_anonymous,
             surname=self.task.get_patient_surname(),
             forename=self.task.get_patient_forename(),
             dob=self.task.get_patient_dob(),
@@ -851,7 +851,7 @@ def unit_tests():
     # skip: send_pending_hl7_messages
 
     current_pks = pls.db.fetchallfirstvalues(
-        "SELECT _pk FROM {} WHERE _current".format(phq9.Phq9.get_tablename())
+        "SELECT _pk FROM {} WHERE _current".format(phq9.Phq9.tablename)
     )
     pk = current_pks[0] if current_pks else None
     task = phq9.Phq9(pk)

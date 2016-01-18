@@ -23,11 +23,7 @@
 
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import (
-    get_from_dict,
-    STANDARD_TASK_FIELDSPECS,
-    Task,
-)
+from cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
@@ -36,28 +32,13 @@ from cc_modules.cc_task import (
 
 class LshsA(Task):
     NQUESTIONS = 12
-    TASK_FIELDSPECS = repeat_fieldspec("q", 1, NQUESTIONS)
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
 
-    @classmethod
-    def get_tablename(cls):
-        return "lshs_a"
+    tablename = "lshs_a"
+    shortname = "LSHS-A"
+    longname = "Launay–Slade Hallucination Scale, revision A"
+    fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
 
-    @classmethod
-    def get_taskshortname(cls):
-        return "LSHS-A"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return u"Launay–Slade Hallucination Scale, revision A"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + LshsA.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self):
         return [
@@ -78,18 +59,18 @@ class LshsA(Task):
         ]
 
     def is_complete(self):
-        return self.are_all_fields_complete(LshsA.TASK_FIELDS)
+        return self.are_all_fields_complete(self.TASK_FIELDS)
 
     def total_score(self):
-        return self.sum_fields(LshsA.TASK_FIELDS)
+        return self.sum_fields(self.TASK_FIELDS)
 
     def get_task_html(self):
         score = self.total_score()
         ANSWER_DICT = {None: "?"}
         for option in range(0, 5):
-            ANSWER_DICT[option] = (str(option) + u" — " +
+            ANSWER_DICT[option] = (str(option) + " — " +
                                    WSTRING("lshs_a_option" + str(option)))
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
                     {}
@@ -105,12 +86,12 @@ class LshsA(Task):
             self.get_is_complete_tr(),
             WSTRING("total_score"), score
         )
-        for q in range(1, LshsA.NQUESTIONS + 1):
-            h += u"""<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
+        for q in range(1, self.NQUESTIONS + 1):
+            h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
                 WSTRING("lshs_a_q" + str(q) + "_question"),
                 get_from_dict(ANSWER_DICT, getattr(self, "q" + str(q)))
             )
-        h += u"""
+        h += """
             </table>
         """
         return h
@@ -122,42 +103,31 @@ class LshsA(Task):
 
 class LshsLaroi2005(Task):
     NQUESTIONS = 16
-    TASK_FIELDSPECS = repeat_fieldspec("q", 1, NQUESTIONS)
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
 
-    @classmethod
-    def get_tablename(cls):
-        return "lshs_laroi2005"
+    tablename = "lshs_laroi2005"
+    shortname = "LSHS-Larøi"
+    longname = (
+        "Launay–Slade Hallucination Scale, revision of "
+        "Larøi et al. (2005)"
+    )
+    fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
 
-    @classmethod
-    def get_taskshortname(cls):
-        return u"LSHS-Larøi"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return (
-            u"Launay–Slade Hallucination Scale, revision of "
-            u"Larøi et al. (2005)"
-        )
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + LshsLaroi2005.TASK_FIELDSPECS
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def is_complete(self):
-        return self.are_all_fields_complete(LshsLaroi2005.TASK_FIELDS)
+        return self.are_all_fields_complete(self.TASK_FIELDS)
 
     def total_score(self):
-        return self.sum_fields(LshsA.TASK_FIELDS)
+        return self.sum_fields(self.TASK_FIELDS)
 
     def get_task_html(self):
         score = self.total_score()
         ANSWER_DICT = {None: "?"}
         for option in range(0, 5):
             ANSWER_DICT[option] = (
-                str(option) + u" — " +
+                str(option) + " — " +
                 WSTRING("lshs_laroi2005_option" + str(option)))
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
                     {}
@@ -173,13 +143,13 @@ class LshsLaroi2005(Task):
             self.get_is_complete_tr(),
             WSTRING("total_score"), score
         )
-        for q in range(1, LshsLaroi2005.NQUESTIONS + 1):
-            h += u"""<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
-                "Q" + str(q) + u" – " +
+        for q in range(1, self.NQUESTIONS + 1):
+            h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
+                "Q" + str(q) + " – " +
                 WSTRING("lshs_laroi2005_q" + str(q) + "_question"),
                 get_from_dict(ANSWER_DICT, getattr(self, "q" + str(q)))
             )
-        h += u"""
+        h += """
             </table>
         """
         return h

@@ -23,7 +23,6 @@
 
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import (
@@ -42,7 +41,11 @@ from cc_modules.cc_task import get_from_dict, Task
 
 class Dast(Task):
     NQUESTIONS = 28
-    TASK_FIELDSPECS = repeat_fieldspec(
+
+    tablename = "dast"
+    shortname = "DAST"
+    longname = "Drug Abuse Screening Test"
+    fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, "CHAR", pv=['Y', 'N'],
         comment_fmt='Q{n}. {s} ("+" = Y scores 1, "-" = N scores 1)',
         comment_strings=[
@@ -75,27 +78,7 @@ class Dast(Task):
             "drug treatment program (+)",
             "outpatient treatment for drug abuse (+)",
         ])
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
-
-    @classmethod
-    def get_tablename(cls):
-        return "dast"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "DAST"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Drug Abuse Screening Test"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + Dast.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self):
         return [

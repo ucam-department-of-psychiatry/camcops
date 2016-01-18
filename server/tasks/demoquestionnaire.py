@@ -21,9 +21,6 @@
     limitations under the License.
 """
 
-from cc_modules.cc_constants import (
-    STANDARD_ANONYMOUS_TASK_FIELDSPECS,
-)
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import (
     answer,
@@ -49,8 +46,10 @@ def divtest(divname):
 
 
 class DemoQuestionnaire(Task):
-    FIELDSPECS = (
-        STANDARD_ANONYMOUS_TASK_FIELDSPECS +
+    tablename = "demoquestionnaire"
+    shortname = "Demo"
+    longname = "Demonstration Questionnaire"
+    fieldspecs = (
         repeat_fieldspec("mcq", 1, N_MCQ) +
         repeat_fieldspec("mcqbool", 1, N_MCQBOOL) +
         repeat_fieldspec("multipleresponse", 1, N_MULTIPLERESPONSE) +
@@ -79,36 +78,14 @@ class DemoQuestionnaire(Task):
             dict(name="canvas_blobid", cctype="INT"),
         ]
     )
-    for d in FIELDSPECS:
+    for d in fieldspecs:
         if "comment" not in d:
             d["comment"] = d["name"]
-
-    @classmethod
-    def get_tablename(cls):
-        return "demoquestionnaire"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "Demo"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Demo Questionnaire"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return DemoQuestionnaire.FIELDSPECS
-
-    @classmethod
-    def get_pngblob_name_idfield_rotationfield_list(self):
-        return [
-            ("photo", "photo_blobid", "photo_rotation"),
-            ("canvas", "canvas_blobid", None),
-        ]
-
-    @classmethod
-    def is_anonymous(cls):
-        return True
+    is_anonymous = True
+    pngblob_name_idfield_rotationfield_list = [
+        ("photo", "photo_blobid", "photo_rotation"),
+        ("canvas", "canvas_blobid", None),
+    ]
 
     def is_complete(self):
         return True

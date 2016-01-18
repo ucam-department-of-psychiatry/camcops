@@ -22,11 +22,9 @@
 """
 
 from cc_modules.cc_constants import (
-    CLINICIAN_FIELDSPECS,
     CTV_DICTLIST_INCOMPLETE,
     DATA_COLLECTION_UNLESS_UPGRADED_DIV,
     PV,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_html import (
     answer,
@@ -85,9 +83,13 @@ class Ybocs(Task):
         ('18', 6, "global improvement"),
         ('19', 3, "reliability"),
     ]
-    TASK_FIELDSPECS = list(TARGET_FIELDSPECS)  # copy
+
+    tablename = "ybocs"
+    shortname = "Y-BOCS"
+    longname = "Yale–Brown Obsessive Compulsive Scale"
+    fieldspecs = list(TARGET_FIELDSPECS)  # copy
     for qnumstr, maxscore, comment in QINFO:
-        TASK_FIELDSPECS.append({
+        fieldspecs.append({
             'name': 'q' + qnumstr,
             'cctype': 'INT',
             'comment': "Q{n}, {s} (0-{m}, higher worse)".format(
@@ -95,35 +97,13 @@ class Ybocs(Task):
             'min': 0,
             'max': maxscore,
         })
+    has_clinician = True
+    extrastring_taskname = "ybocs"
+
     QUESTION_FIELDS = ["q" + x[0] for x in QINFO]
     SCORED_QUESTIONS = ["q" + str(x) for x in range(1, 10 + 1)]
     OBSESSION_QUESTIONS = ["q" + str(x) for x in range(1, 5 + 1)]
     COMPULSION_QUESTIONS = ["q" + str(x) for x in range(6, 10 + 1)]
-    EXTRASTRING_TASKNAME = "ybocs"
-
-    @classmethod
-    def get_tablename(cls):
-        return "ybocs"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "Y-BOCS"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Yale–Brown Obsessive Compulsive Scale"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return (
-            STANDARD_TASK_FIELDSPECS
-            + CLINICIAN_FIELDSPECS
-            + cls.TASK_FIELDSPECS
-        )
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
 
     def get_trackers(self):
         return [
@@ -365,57 +345,38 @@ class YbocsSc(Task):
         "com_misc_self_harm",
         "com_misc_other"
     ]
-    TASK_FIELDSPECS = []
+
+    tablename = "ybocssc"
+    shortname = "Y-BOCS-SC"
+    longname = "Y-BOCS Symptom Checklist"
+    fieldspecs = []
     for item in ITEMS:
-        TASK_FIELDSPECS.append(dict(
+        fieldspecs.append(dict(
             name=item + SUFFIX_CURRENT,
             cctype="BOOL",
             pv=PV.BIT,
             comment=item + " (current symptom)"
         ))
-        TASK_FIELDSPECS.append(dict(
+        fieldspecs.append(dict(
             name=item + SUFFIX_PAST,
             cctype="BOOL",
             pv=PV.BIT,
             comment=item + " (past symptom)"
         ))
-        TASK_FIELDSPECS.append(dict(
+        fieldspecs.append(dict(
             name=item + SUFFIX_PRINCIPAL,
             cctype="BOOL",
             pv=PV.BIT,
             comment=item + " (principal symptom)"
         ))
         if item.endswith(SUFFIX_OTHER):
-            TASK_FIELDSPECS.append(dict(
+            fieldspecs.append(dict(
                 name=item + SUFFIX_DETAIL,
                 cctype="TEXT",
                 comment=item + " (details)"
             ))
-    EXTRASTRING_TASKNAME = "ybocs"  # shares with Y-BOCS
-
-    @classmethod
-    def get_tablename(cls):
-        return "ybocssc"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "Y-BOCS-SC"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Y-BOCS Symptom Checklist"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return (
-            STANDARD_TASK_FIELDSPECS
-            + CLINICIAN_FIELDSPECS
-            + cls.TASK_FIELDSPECS
-        )
-
-    @classmethod
-    def provides_trackers(cls):
-        return False
+    has_clinician = True
+    extrastring_taskname = "ybocs"  # shares with Y-BOCS
 
     def get_clinical_text(self):
         if not self.is_complete():
@@ -443,9 +404,7 @@ class YbocsSc(Task):
         return True
 
     def get_task_html(self):
-        h = (
-            self.get_standard_clinician_block()
-        ) + """
+        h = """
             <table class="taskdetail">
                 <tr>
                     <th width="55%">Symptom</th>

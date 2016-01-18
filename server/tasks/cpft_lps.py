@@ -23,12 +23,10 @@
 
 import pythonlib.rnc_web as ws
 from cc_modules.cc_constants import (
-    CLINICIAN_FIELDSPECS,
     DATEFORMAT,
     INVALID_VALUE,
     PARAM,
     PV,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_dt import format_datetime_string
 from cc_modules.cc_html import (
@@ -56,7 +54,10 @@ from cc_modules.cc_report import Report
 # =============================================================================
 
 class CPFT_LPS_Referral(Task):
-    TASK_FIELDSPECS = [
+    tablename = "cpft_lps_referral"
+    shortname = "CPFT_LPS_Referral"
+    longname = "Referral to CPFT Liaison Psychiatry Service"
+    fieldspecs = [
         dict(name="referral_date_time", cctype="ISO8601"),
         dict(name="lps_division", cctype="TEXT"),
         dict(name="referral_priority", cctype="TEXT"),
@@ -99,24 +100,8 @@ class CPFT_LPS_Referral(Task):
 
         dict(name="referral_reason", cctype="TEXT"),
     ]
-    for d in TASK_FIELDSPECS:
+    for d in fieldspecs:
         d["comment"] = d["name"]
-
-    @classmethod
-    def get_tablename(cls):
-        return "cpft_lps_referral"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "CPFT_LPS_Referral"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Referral to CPFT Liaison Psychiatry Service"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + CPFT_LPS_Referral.TASK_FIELDSPECS
 
     def is_complete(self):
         return (
@@ -305,30 +290,17 @@ class CPFT_LPS_Referral(Task):
 # =============================================================================
 
 class CPFT_LPS_ResetResponseClock(Task):
-    TASK_FIELDSPECS = (CLINICIAN_FIELDSPECS + [
+    tablename = "cpft_lps_resetresponseclock"
+    shortname = "CPFT_LPS_ResetResponseClock"
+    longname = "Reset response clock (CPFT Liaison Psychiatry Service)"
+    fieldspecs = [
         dict(name="reset_start_time_to", cctype="ISO8601"),
         dict(name="reason", cctype="TEXT"),
-    ])
-    for d in TASK_FIELDSPECS:
+    ]
+    for d in fieldspecs:
         if "comment" not in d:
             d["comment"] = d["name"]
-
-    @classmethod
-    def get_tablename(cls):
-        return "cpft_lps_resetresponseclock"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "CPFT_LPS_ResetResponseClock"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Reset response clock (CPFT Liaison Psychiatry Service)"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + \
-            CPFT_LPS_ResetResponseClock.TASK_FIELDSPECS
+    has_clinician = True
 
     def is_complete(self):
         return (
@@ -341,7 +313,7 @@ class CPFT_LPS_ResetResponseClock(Task):
         return [{"content": self.reason}]
 
     def get_task_html(self):
-        h = self.get_standard_clinician_block() + """
+        h = """
             <div class="summary">
                 <table class="summary">
                     {}
@@ -370,7 +342,10 @@ class CPFT_LPS_ResetResponseClock(Task):
 # =============================================================================
 
 class CPFT_LPS_Discharge(Task):
-    TASK_FIELDSPECS = (CLINICIAN_FIELDSPECS + [
+    tablename = "cpft_lps_discharge"
+    shortname = "CPFT_LPS_Discharge"
+    longname = "Discharge from CPFT Liaison Psychiatry Service"
+    fieldspecs = [
         dict(name="discharge_date", cctype="ISO8601"),
         dict(name="discharge_reason_code", cctype="TEXT"),
 
@@ -480,26 +455,11 @@ class CPFT_LPS_Discharge(Task):
         dict(name="outcome", cctype="TEXT"),
         dict(name="outcome_hospital_transfer_detail", cctype="TEXT"),
         dict(name="outcome_other_detail", cctype="TEXT"),
-    ])
-    for d in TASK_FIELDSPECS:
+    ]
+    for d in fieldspecs:
         if "comment" not in d:
             d["comment"] = d["name"]
-
-    @classmethod
-    def get_tablename(cls):
-        return "cpft_lps_discharge"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "CPFT_LPS_Discharge"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Discharge from CPFT Liaison Psychiatry Service"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + CPFT_LPS_Discharge.TASK_FIELDSPECS
+    has_clinician = True
 
     def is_complete(self):
         return (
@@ -634,7 +594,7 @@ class CPFT_LPS_Discharge(Task):
         ]
 
     def get_task_html(self):
-        h = self.get_standard_clinician_block() + """
+        h = """
             <div class="summary">
                 <table class="summary">
                     {}
@@ -711,24 +671,15 @@ ID_NUMBER_TO_LINK_ON_LABEL = "ID number to link on?"
 
 
 class LPS_Report_Referred_Not_Discharged(Report):
-
-    @classmethod
-    def get_report_id(cls):
-        return "cpft_lps_referred_not_subsequently_discharged"
-
-    @classmethod
-    def get_report_title(cls):
-        return "CPFT LPS – referred but not yet discharged"
-
-    @classmethod
-    def get_param_spec_list(cls):
-        return [
-            {
-                "type": PARAM.WHICH_IDNUM,
-                "name": "linking_idnum",
-                "label": ID_NUMBER_TO_LINK_ON_LABEL,
-            },
-        ]
+    report_id = "cpft_lps_referred_not_subsequently_discharged"
+    report_title = "CPFT LPS – referred but not yet discharged"
+    param_spec_list = [
+        {
+            "type": PARAM.WHICH_IDNUM,
+            "name": "linking_idnum",
+            "label": ID_NUMBER_TO_LINK_ON_LABEL,
+        },
+    ]
 
     def get_rows_descriptions(self, linking_idnum=None):
         if not linking_idnum:
@@ -780,24 +731,16 @@ class LPS_Report_Referred_Not_Discharged(Report):
 
 
 class LPS_Report_Referred_Not_Clerked_Or_Discharged(Report):
-
-    @classmethod
-    def get_report_id(cls):
-        return "cpft_lps_referred_not_subsequently_clerked_or_discharged"
-
-    @classmethod
-    def get_report_title(cls):
-        return "CPFT LPS – referred but not yet fully assessed or discharged"
-
-    @classmethod
-    def get_param_spec_list(cls):
-        return [
-            {
-                "type": PARAM.WHICH_IDNUM,
-                "name": "linking_idnum",
-                "label": ID_NUMBER_TO_LINK_ON_LABEL,
-            },
-        ]
+    report_id = "cpft_lps_referred_not_subsequently_clerked_or_discharged"
+    report_title = ("CPFT LPS – referred but not yet fully assessed or "
+                    "discharged")
+    param_spec_list = [
+        {
+            "type": PARAM.WHICH_IDNUM,
+            "name": "linking_idnum",
+            "label": ID_NUMBER_TO_LINK_ON_LABEL,
+        },
+    ]
 
     def get_rows_descriptions(self, linking_idnum=None):
         if not linking_idnum:

@@ -22,9 +22,6 @@
 """
 
 import pythonlib.rnc_web as ws
-from cc_modules.cc_constants import (
-    STANDARD_TASK_FIELDSPECS,
-)
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import (
     answer,
@@ -83,7 +80,10 @@ DP = 2
 
 
 class Cape42(Task):
-    TASK_FIELDSPECS = (
+    tablename = "cape42"
+    shortname = "CAPE-42"
+    longname = "Community Assessment of Psychic Experiences"
+    fieldspecs = (
         repeat_fieldspec(
             "frequency", 1, NQUESTIONS,
             min=MIN_SCORE_PER_Q, max=MAX_SCORE_PER_Q,
@@ -101,26 +101,6 @@ class Cape42(Task):
             ),
             comment_strings=QUESTION_SNIPPETS)
     )
-
-    @classmethod
-    def get_tablename(cls):
-        return "cape42"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "CAPE-42"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Community Assessment of Psychic Experiences"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + Cape42.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
 
     def get_trackers(self):
         fstr1 = "CAPE-42 weighted frequency score: "

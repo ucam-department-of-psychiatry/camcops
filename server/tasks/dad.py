@@ -22,10 +22,7 @@
 """
 
 from cc_modules.cc_constants import (
-    CLINICIAN_FIELDSPECS,
     DATA_COLLECTION_UNLESS_UPGRADED_DIV,
-    RESPONDENT_FIELDSPECS,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_html import (
     answer,
@@ -107,41 +104,22 @@ class Dad(Task):
         "leisure_exec_complete_chores",
         "leisure_exec_safe_at_home"
     ]
-    TASK_FIELDSPECS = []
     explan = " ({} yes, {} no, {} not applicable)".format(YES, NO, NA)
+
+    tablename = "dad"
+    shortname = "DAD"
+    longname = "Disability Assessment for Dementia"
+    fieldspecs = []
     for item in ITEMS:
-        TASK_FIELDSPECS.append(dict(
+        fieldspecs.append(dict(
             name=item,
             cctype="INT",
             pv=[YES, NO, NA],
             comment=item + explan,
         ))
-    EXTRASTRING_TASKNAME = "dad"
-
-    @classmethod
-    def get_tablename(cls):
-        return "dad"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "DAD"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Disability Assessment for Dementia"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return (
-            STANDARD_TASK_FIELDSPECS
-            + CLINICIAN_FIELDSPECS
-            + RESPONDENT_FIELDSPECS
-            + cls.TASK_FIELDSPECS
-        )
-
-    @classmethod
-    def provides_trackers(cls):
-        return False
+    extrastring_taskname = "dad"
+    has_clinician = True
+    has_respondent = True
 
     def get_summaries(self):
         d = self.get_score_dict()
@@ -220,7 +198,7 @@ class Dad(Task):
         return "{} / {}".format(answer(score_tuple[0]), score_tuple[1])
 
     def report_answer(self, field):
-        value = self.getattr(field)
+        value = getattr(self, field)
         if value == YES:
             text = "Yes (1)"
         elif value == NO:
@@ -233,13 +211,10 @@ class Dad(Task):
 
     def get_task_html(self):
         d = self.get_score_dict()
-        h = (
-            self.get_standard_clinician_block()
-            + self.get_standard_respondent_block()
-        ) + """
+        h = """
             <div class="summary">
                 <table class="summary">
-                    {is_complete_tr}
+                    {complete_tr}
                     <tr><td>Total</td><td>{total}</td></tr>
                     <tr><td>Activity: hygiene</td><td>{hygiene}</td></tr>
                     <tr><td>Activity: dressing</td><td>{dressing}</td></tr>
@@ -286,6 +261,7 @@ class Dad(Task):
                     <th width="50%">Answer</th>
                 </tr>
         """.format(
+            complete_tr=self.get_is_complete_tr(),
             total=self.report_score(d['total']),
             hygiene=self.report_score(d['hygiene']),
             dressing=self.report_score(d['dressing']),

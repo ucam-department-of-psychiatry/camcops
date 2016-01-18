@@ -23,7 +23,6 @@
 
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from cc_modules.cc_html import (
@@ -46,50 +45,35 @@ class Wemwbs(Task):
     MINTOTALSCORE = N_QUESTIONS * MINQSCORE
     MAXTOTALSCORE = N_QUESTIONS * MAXQSCORE
 
-    @classmethod
-    def get_tablename(cls):
-        return "wemwbs"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "WEMWBS"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Warwick–Edinburgh Mental Well-Being Scale"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + repeat_fieldspec(
-            "q", 1, Wemwbs.N_QUESTIONS, min=1, max=5,
-            comment_fmt="Q{n} ({s}) (1 none of the time - 5 all of the time)",
-            comment_strings=[
-                "optimistic",
-                "useful",
-                "relaxed",
-                "interested in other people",
-                "energy",
-                "dealing with problems well",
-                "thinking clearly",
-                "feeling good about myself",
-                "feeling close to others",
-                "confident",
-                "able to make up my own mind",
-                "feeling loved",
-                "interested in new things",
-                "cheerful",
-            ]
-        )
+    tablename = "wemwbs"
+    shortname = "WEMWBS"
+    longname = "Warwick–Edinburgh Mental Well-Being Scale"
+    fieldspecs = repeat_fieldspec(
+        "q", 1, N_QUESTIONS, min=1, max=5,
+        comment_fmt="Q{n} ({s}) (1 none of the time - 5 all of the time)",
+        comment_strings=[
+            "optimistic",
+            "useful",
+            "relaxed",
+            "interested in other people",
+            "energy",
+            "dealing with problems well",
+            "thinking clearly",
+            "feeling good about myself",
+            "feeling close to others",
+            "confident",
+            "able to make up my own mind",
+            "feeling loved",
+            "interested in new things",
+            "cheerful",
+        ]
+    )
 
     def is_complete(self):
         if not self.field_contents_valid():
             return False
         return self.are_all_fields_complete(repeat_fieldname(
-            "q", 1, Wemwbs.N_QUESTIONS))
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+            "q", 1, self.N_QUESTIONS))
 
     def get_trackers(self):
         return [
@@ -97,11 +81,11 @@ class Wemwbs(Task):
                 "value": self.total_score(),
                 "plot_label": "WEMWBS total score (rating mental well-being)",
                 "axis_label": "Total score ({}-{})".format(
-                    Wemwbs.MINTOTALSCORE,
-                    Wemwbs.MAXTOTALSCORE
+                    self.MINTOTALSCORE,
+                    self.MAXTOTALSCORE
                 ),
-                "axis_min": Wemwbs.MINTOTALSCORE - 0.5,
-                "axis_max": Wemwbs.MAXTOTALSCORE + 0.5,
+                "axis_min": self.MINTOTALSCORE - 0.5,
+                "axis_max": self.MAXTOTALSCORE + 0.5,
             }
         ]
 
@@ -111,8 +95,8 @@ class Wemwbs(Task):
         return [{
             "content": "WEMWBS total score {} (range {}–{})".format(
                 self.total_score(),
-                Wemwbs.MINTOTALSCORE,
-                Wemwbs.MAXTOTALSCORE)
+                self.MINTOTALSCORE,
+                self.MAXTOTALSCORE)
         }]
 
     def get_summaries(self):
@@ -121,14 +105,14 @@ class Wemwbs(Task):
             dict(
                 name="total", cctype="INT", value=self.total_score(),
                 comment="Total score (range {}-{})".format(
-                    Wemwbs.MINTOTALSCORE,
-                    Wemwbs.MAXTOTALSCORE
+                    self.MINTOTALSCORE,
+                    self.MAXTOTALSCORE
                 )
             ),
         ]
 
     def total_score(self):
-        return self.sum_fields(repeat_fieldname("q", 1, Wemwbs.N_QUESTIONS))
+        return self.sum_fields(repeat_fieldname("q", 1, self.N_QUESTIONS))
 
     def get_task_html(self):
         MAIN_DICT = {
@@ -146,8 +130,8 @@ class Wemwbs(Task):
         h += tr(
             WSTRING("total_score"),
             answer(self.total_score()) + " (range {}–{})".format(
-                Wemwbs.MINTOTALSCORE,
-                Wemwbs.MAXTOTALSCORE
+                self.MINTOTALSCORE,
+                self.MAXTOTALSCORE
             )
         )
         h += """
@@ -162,7 +146,7 @@ class Wemwbs(Task):
                     <th width="40%">Answer</th>
                 </tr>
         """
-        for i in range(1, Wemwbs.N_QUESTIONS + 1):
+        for i in range(1, self.N_QUESTIONS + 1):
             nstr = str(i)
             h += tr_qa(WSTRING("wemwbs_q" + nstr),
                        get_from_dict(MAIN_DICT, getattr(self, "q" + nstr)))
@@ -189,50 +173,35 @@ class Swemwbs(Task):
     MINTOTALSCORE = N_QUESTIONS * MINQSCORE
     MAXTOTALSCORE = N_QUESTIONS * MAXQSCORE
 
-    @classmethod
-    def get_tablename(cls):
-        return "swemwbs"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "SWEMWBS"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Short Warwick–Edinburgh Mental Well-Being Scale"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + repeat_fieldspec(
-            "q", 1, Swemwbs.N_QUESTIONS, min=1, max=5,
-            comment_fmt="Q{n} ({s}) (1 none of the time - 5 all of the time)",
-            comment_strings=[
-                "optimistic",
-                "useful",
-                "relaxed",
-                "interested in other people",
-                "energy",
-                "dealing with problems well",
-                "thinking clearly",
-                "feeling good about myself",
-                "feeling close to others",
-                "confident",
-                "able to make up my own mind",
-                "feeling loved",
-                "interested in new things",
-                "cheerful",
-            ]
-        )
+    tablename = "swemwbs"
+    shortname = "SWEMWBS"
+    longname = "Short Warwick–Edinburgh Mental Well-Being Scale"
+    fieldspecs = repeat_fieldspec(
+        "q", 1, N_QUESTIONS, min=1, max=5,
+        comment_fmt="Q{n} ({s}) (1 none of the time - 5 all of the time)",
+        comment_strings=[
+            "optimistic",
+            "useful",
+            "relaxed",
+            "interested in other people",
+            "energy",
+            "dealing with problems well",
+            "thinking clearly",
+            "feeling good about myself",
+            "feeling close to others",
+            "confident",
+            "able to make up my own mind",
+            "feeling loved",
+            "interested in new things",
+            "cheerful",
+        ]
+    )
 
     def is_complete(self):
         if not self.field_contents_valid():
             return False
         return self.are_all_fields_complete(repeat_fieldname(
-            "q", 1, Swemwbs.N_QUESTIONS))
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+            "q", 1, self.N_QUESTIONS))
 
     def get_trackers(self):
         return [
@@ -240,11 +209,11 @@ class Swemwbs(Task):
                 "value": self.total_score(),
                 "plot_label": "SWEMWBS total score (rating mental well-being)",
                 "axis_label": "Total score ({}-{})".format(
-                    Swemwbs.MINTOTALSCORE,
-                    Swemwbs.MAXTOTALSCORE
+                    self.MINTOTALSCORE,
+                    self.MAXTOTALSCORE
                 ),
-                "axis_min": Swemwbs.MINTOTALSCORE - 0.5,
-                "axis_max": Swemwbs.MAXTOTALSCORE + 0.5,
+                "axis_min": self.MINTOTALSCORE - 0.5,
+                "axis_max": self.MAXTOTALSCORE + 0.5,
             }
         ]
 
@@ -254,8 +223,8 @@ class Swemwbs(Task):
         return [{
             "content": "SWEMWBS total score {} (range {}–{})".format(
                 self.total_score(),
-                Swemwbs.MINTOTALSCORE,
-                Swemwbs.MAXTOTALSCORE)
+                self.MINTOTALSCORE,
+                self.MAXTOTALSCORE)
         }]
 
     def get_summaries(self):
@@ -264,14 +233,14 @@ class Swemwbs(Task):
             dict(
                 name="total", cctype="INT", value=self.total_score(),
                 comment="Total score (range {}-{})".format(
-                    Swemwbs.MINTOTALSCORE,
-                    Swemwbs.MAXTOTALSCORE
+                    self.MINTOTALSCORE,
+                    self.MAXTOTALSCORE
                 )
             ),
         ]
 
     def total_score(self):
-        return self.sum_fields(repeat_fieldname("q", 1, Swemwbs.N_QUESTIONS))
+        return self.sum_fields(repeat_fieldname("q", 1, self.N_QUESTIONS))
 
     def get_task_html(self):
         MAIN_DICT = {
@@ -289,8 +258,8 @@ class Swemwbs(Task):
         h += tr(
             WSTRING("total_score"),
             answer(self.total_score()) + " (range {}–{})".format(
-                Swemwbs.MINTOTALSCORE,
-                Swemwbs.MAXTOTALSCORE
+                self.MINTOTALSCORE,
+                self.MAXTOTALSCORE
             )
         )
         h += """
@@ -305,7 +274,7 @@ class Swemwbs(Task):
                     <th width="40%">Answer</th>
                 </tr>
         """
-        for i in range(1, Swemwbs.N_QUESTIONS + 1):
+        for i in range(1, self.N_QUESTIONS + 1):
             nstr = str(i)
             h += tr_qa(WSTRING("swemwbs_q" + nstr),
                        get_from_dict(MAIN_DICT, getattr(self, "q" + nstr)))

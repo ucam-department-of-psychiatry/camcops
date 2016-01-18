@@ -23,7 +23,6 @@
 
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import (
@@ -42,7 +41,11 @@ from cc_modules.cc_task import get_from_dict, Task
 
 class Mast(Task):
     NQUESTIONS = 24
-    TASK_FIELDSPECS = repeat_fieldspec(
+
+    tablename = "mast"
+    shortname = "MAST"
+    longname = "Michigan Alcohol Screening Test"
+    fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, "CHAR", pv=['Y', 'N'],
         comment_fmt="Q{n}: {s} (Y or N)",
         comment_strings=[
@@ -72,27 +75,8 @@ class Mast(Task):
             "arrested for other drunk behaviour",
         ]
     )
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
 
-    @classmethod
-    def get_tablename(cls):
-        return "mast"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "MAST"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Michigan Alcohol Screening Test"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + Mast.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self):
         return [
@@ -130,7 +114,7 @@ class Mast(Task):
 
     def is_complete(self):
         return (
-            self.are_all_fields_complete(Mast.TASK_FIELDS)
+            self.are_all_fields_complete(self.TASK_FIELDS)
             and self.field_contents_valid()
         )
 
@@ -153,7 +137,7 @@ class Mast(Task):
 
     def total_score(self):
         total = 0
-        for q in range(1, Mast.NQUESTIONS + 1):
+        for q in range(1, self.NQUESTIONS + 1):
             total += self.get_score(q)
         return total
 
@@ -185,7 +169,7 @@ class Mast(Task):
                     <th width="20%">Answer</th>
                 </tr>
         """
-        for q in range(1, Mast.NQUESTIONS + 1):
+        for q in range(1, self.NQUESTIONS + 1):
             h += tr(
                 WSTRING("mast_q" + str(q)),
                 (

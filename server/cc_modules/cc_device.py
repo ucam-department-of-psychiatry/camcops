@@ -27,6 +27,7 @@ from .cc_constants import PARAM
 from . import cc_db
 from .cc_pls import pls
 from . import cc_report
+from .cc_report import Report
 from .cc_unittest import unit_test_ignore
 
 
@@ -123,20 +124,11 @@ def get_device_filter_dropdown(currently_selected=None):
 # Reports
 # =============================================================================
 
-class DeviceReport(cc_report.Report):
+class DeviceReport(Report):
     """Report to show registered devices."""
-
-    @classmethod
-    def get_report_id(cls):
-        return "devices"
-
-    @classmethod
-    def get_report_title(cls):
-        return "(Server) Devices registered with the server"
-
-    @classmethod
-    def get_param_spec_list(cls):
-        return []
+    report_id = "devices"
+    report_title = "(Server) Devices registered with the server"
+    param_spec_list = []
 
     def get_rows_descriptions(self):
         sql = """

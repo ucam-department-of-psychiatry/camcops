@@ -22,9 +22,7 @@
 """
 
 from cc_modules.cc_constants import (
-    CLINICIAN_FIELDSPECS,
     CTV_DICTLIST_INCOMPLETE,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from cc_modules.cc_html import (
@@ -46,7 +44,11 @@ PV_PROBLEMTYPE = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
 
 class Honos(Task):
     NQUESTIONS = 12
-    TASK_FIELDSPECS = repeat_fieldspec(
+
+    tablename = "honos"
+    shortname = "HoNOS"
+    longname = "Health of the Nation Outcome Scales, working age adults"
+    fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, min=0, max=4,
         comment_fmt="Q{n}, {s} (0-4, higher worse)",
         comment_strings=[
@@ -74,6 +76,8 @@ class Honos(Task):
         dict(name="q8otherproblem", cctype="TEXT",
              comment="Q8: other problem: specify"),
     ]
+    has_clinician = True
+
     COPYRIGHT_DIV = """
         <div class="copyright">
             Health of the Nation Outcome Scales:
@@ -81,27 +85,6 @@ class Honos(Task):
             Used here with permission.
         </div>
     """
-
-    @classmethod
-    def get_tablename(cls):
-        return "honos"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "HoNOS"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Health of the Nation Outcome Scales, working age adults"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + CLINICIAN_FIELDSPECS + \
-            Honos.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
 
     def get_trackers(self):
         return [
@@ -132,7 +115,7 @@ class Honos(Task):
         if not self.field_contents_valid():
             return False
         if not self.are_all_fields_complete(
-                repeat_fieldname("q", 1, Honos.NQUESTIONS)):
+                repeat_fieldname("q", 1, self.NQUESTIONS)):
             return False
         if self.q8 != 0 and self.q8 != 9 and self.q8problemtype is None:
             return False
@@ -143,7 +126,7 @@ class Honos(Task):
 
     def total_score(self):
         total = 0
-        for q in range(1, Honos.NQUESTIONS + 1):
+        for q in range(1, self.NQUESTIONS + 1):
             value = getattr(self, "q" + str(q))
             if value is not None and value >= 0 and value <= 4:
                 # i.e. ignore null values and 9 (= not known)
@@ -174,7 +157,7 @@ class Honos(Task):
             "I": WSTRING("honos_q8problemtype_option_i"),
             "J": WSTRING("honos_q8problemtype_option_j"),
         }
-        h = self.get_standard_clinician_block() + """
+        h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
@@ -198,7 +181,7 @@ class Honos(Task):
                    get_from_dict(Q8PROBLEMTYPE_DICT, self.q8problemtype))
         h += tr_qa(WSTRING("honos_q8otherproblem_s"),
                    self.q8otherproblem)
-        for i in range(9, Honos.NQUESTIONS + 1):
+        for i in range(9, self.NQUESTIONS + 1):
             h += tr_qa(
                 self.get_q(i),
                 self.get_answer(i, getattr(self, "q" + str(i)))
@@ -213,7 +196,7 @@ class Honos(Task):
                 4 = severe to very severe problem;
                 9 = not known.
             </div>
-        """ + Honos.COPYRIGHT_DIV
+        """ + self.COPYRIGHT_DIV
         return h
 
 
@@ -223,7 +206,11 @@ class Honos(Task):
 
 class Honos65(Task):
     NQUESTIONS = 12
-    TASK_FIELDSPECS = repeat_fieldspec(
+
+    tablename = "honos65"
+    shortname = "HoNOS 65+"
+    longname = "Health of the Nation Outcome Scales, older adults"
+    fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, min=0, max=4,
         comment_fmt="Q{n}, {s} (0-4, higher worse)",
         comment_strings=[  # not exactly identical to HoNOS
@@ -251,27 +238,7 @@ class Honos65(Task):
         dict(name="q8otherproblem", cctype="TEXT",
              comment="Q8: other problem: specify"),
     ]
-
-    @classmethod
-    def get_tablename(cls):
-        return "honos65"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "HoNOS 65+"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Health of the Nation Outcome Scales, older adults"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + CLINICIAN_FIELDSPECS + \
-            Honos65.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    has_clinician = True
 
     def get_trackers(self):
         return [
@@ -302,7 +269,7 @@ class Honos65(Task):
         if not self.field_contents_valid():
             return False
         if not self.are_all_fields_complete(
-                repeat_fieldname("q", 1, Honos65.NQUESTIONS)):
+                repeat_fieldname("q", 1, self.NQUESTIONS)):
             return False
         if self.q8 != 0 and self.q8 != 9 and self.q8problemtype is None:
             return False
@@ -313,7 +280,7 @@ class Honos65(Task):
 
     def total_score(self):
         total = 0
-        for q in range(1, Honos65.NQUESTIONS + 1):
+        for q in range(1, self.NQUESTIONS + 1):
             value = getattr(self, "q" + str(q))
             if value is not None and value >= 0 and value <= 4:
                 # i.e. ignore null values and 9 (= not known)
@@ -344,7 +311,7 @@ class Honos65(Task):
             "I": WSTRING("honos65_q8problemtype_option_i"),
             "J": WSTRING("honos65_q8problemtype_option_j"),
         }
-        h = self.get_standard_clinician_block() + """
+        h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
@@ -393,7 +360,11 @@ class Honos65(Task):
 
 class Honosca(Task):
     NQUESTIONS = 15
-    TASK_FIELDSPECS = repeat_fieldspec(
+
+    tablename = "honosca"
+    shortname = "HoNOSCA"
+    longname = "Health of the Nation Outcome Scales, Children and Adolescents"
+    fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, min=0, max=4,
         comment_fmt="Q{n}, {s} (0-4, higher worse)",
         comment_strings=[
@@ -417,28 +388,9 @@ class Honosca(Task):
         dict(name="period_rated", cctype="TEXT",
              comment="Period being rated"),
     ]
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
+    has_clinician = True
 
-    @classmethod
-    def get_tablename(cls):
-        return "honosca"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "HoNOSCA"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Health of the Nation Outcome Scales, Children and Adolescents"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + CLINICIAN_FIELDSPECS + \
-            Honosca.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self):
         return [
@@ -467,13 +419,13 @@ class Honosca(Task):
 
     def is_complete(self):
         return (
-            self.are_all_fields_complete(Honosca.TASK_FIELDS)
+            self.are_all_fields_complete(self.TASK_FIELDS)
             and self.field_contents_valid()
         )
 
     def total_score(self):
         total = 0
-        for q in range(1, Honosca.NQUESTIONS + 1):
+        for q in range(1, self.NQUESTIONS + 1):
             value = getattr(self, "q" + str(q))
             if value is not None and value >= 0 and value <= 4:
                 # i.e. ignore null values and 9 (= not known)
@@ -491,7 +443,7 @@ class Honosca(Task):
         return WSTRING("honosca_q" + str(q) + "_option" + str(a))
 
     def get_task_html(self):
-        h = self.get_standard_clinician_block() + """
+        h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
@@ -515,7 +467,7 @@ class Honosca(Task):
             )
         h += subheading_spanning_two_columns(
             WSTRING("honosca_section_b_title"))
-        for i in range(14, Honosca.NQUESTIONS + 1):
+        for i in range(14, self.NQUESTIONS + 1):
             h += tr_qa(
                 self.get_q(i),
                 self.get_answer(i, getattr(self, "q" + str(i)))

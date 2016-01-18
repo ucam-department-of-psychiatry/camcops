@@ -24,7 +24,6 @@
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
     DATA_COLLECTION_UNLESS_UPGRADED_DIV,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import (
@@ -58,34 +57,19 @@ class Wsas(Task):
         min=MIN_SCORE, max=MAX_SCORE,
         comment_strings=QUESTION_SNIPPETS
     )
-    TASK_FIELDSPECS = [
+
+    tablename = "wsas"
+    shortname = "WSAS"
+    longname = "Work and Social Adjustment Scale"
+    fieldspecs = [
         dict(name="retired_etc", cctype="BOOL",
              comment="Retired or choose not to have job for reason unrelated "
              "to problem"),
     ] + QUESTION_FIELDSPECS
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
+    extrastring_taskname = "wsas"
+
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
     QUESTION_FIELDS = [x["name"] for x in QUESTION_FIELDSPECS]
-    EXTRASTRING_TASKNAME = "wsas"
-
-    @classmethod
-    def get_tablename(cls):
-        return "wsas"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "WSAS"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Work and Social Adjustment Scale"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + cls.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
 
     def get_trackers(self):
         return [
@@ -110,7 +94,7 @@ class Wsas(Task):
         if not self.is_complete():
             return CTV_DICTLIST_INCOMPLETE
         return [{"content": "WSAS total score {t}/40".format(
-            self.total_score())}]
+            t=self.total_score())}]
 
     def total_score(self):
         return self.sum_fields(self.QUESTION_FIELDS)

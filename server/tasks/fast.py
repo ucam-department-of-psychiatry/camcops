@@ -23,7 +23,6 @@
 
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import (
@@ -42,32 +41,17 @@ from cc_modules.cc_task import get_from_dict, Task
 
 class Fast(Task):
     NQUESTIONS = 4
-    TASK_FIELDSPECS = repeat_fieldspec(
+
+    tablename = "fast"
+    shortname = "FAST"
+    longname = "Fast Alcohol Screening Test"
+    fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, min=0, max=4,
         comment_fmt="Q{n}. {s} (0-4, higher worse)",
         comment_strings=["M>8, F>6 drinks", "unable to remember",
                          "failed to do what was expected", "others concerned"])
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
 
-    @classmethod
-    def get_tablename(cls):
-        return "fast"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "FAST"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Fast Alcohol Screening Test"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + Fast.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self):
         return [
@@ -100,12 +84,12 @@ class Fast(Task):
 
     def is_complete(self):
         return (
-            self.are_all_fields_complete(Fast.TASK_FIELDS)
+            self.are_all_fields_complete(self.TASK_FIELDS)
             and self.field_contents_valid()
         )
 
     def total_score(self):
-        return self.sum_fields(Fast.TASK_FIELDS)
+        return self.sum_fields(self.TASK_FIELDS)
 
     def is_positive(self):
         if self.q1 is not None and self.q1 == 0:

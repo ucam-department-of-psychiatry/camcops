@@ -27,8 +27,6 @@ import scipy.stats  # http://docs.scipy.org/doc/scipy/reference/stats.html
 
 from cc_modules.cc_constants import (
     FULLWIDTH_PLOT_WIDTH,
-    STANDARD_ANCILLARY_FIELDSPECS,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_html import (
     answer,
@@ -78,77 +76,65 @@ def a(x):
 # =============================================================================
 
 class ExpDet_Trial(Ancillary):
-
-    @classmethod
-    def get_tablename(cls):
-        return "cardinal_expdet_trials"
-
-    @classmethod
-    def get_fkname(cls):
-        return "cardinal_expdet_id"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_ANCILLARY_FIELDSPECS + [
-            dict(name="cardinal_expdet_id", notnull=True,
-                 cctype="INT", comment="FK to cardinal_expdet"),
-            dict(name="trial", notnull=True, cctype="INT",
-                 comment="Trial number"),
-            # Config determines these (via an autogeneration process):
-            dict(name="block", cctype="INT", comment="Block number"),
-            dict(name="group_num", cctype="INT", comment="Group number"),
-            dict(name="cue", cctype="INT", comment="Cue number"),
-            dict(name="raw_cue_number", cctype="INT",
-                 comment="Raw cue number (following counterbalancing)"),
-            dict(name="target_modality", cctype="INT",
-                 comment="Target modality (0 auditory, 1 visual)"),
-            dict(name="target_number", cctype="INT",
-                 comment="Target number"),
-            dict(name="target_present", cctype="INT",
-                 comment="Target present? (0 no, 1 yes)"),
-            dict(name="iti_length_s", cctype="FLOAT",
-                 comment="Intertrial interval (s)"),
-            # Task determines these (on the fly):
-            dict(name="pause_given_before_trial", cctype="INT",
-                 comment="Pause given before trial? (0 no, 1 yes)"),
-            dict(name="pause_start_time", cctype="ISO8601",
-                 comment="Pause start time (ISO-8601)"),
-            dict(name="pause_end_time", cctype="ISO8601",
-                 comment="Pause end time (ISO-8601)"),
-            dict(name="trial_start_time", cctype="ISO8601",
-                 comment="Trial start time (ISO-8601)"),
-            dict(name="cue_start_time", cctype="ISO8601",
-                 comment="Cue start time (ISO-8601)"),
-            dict(name="target_start_time", cctype="ISO8601",
-                 comment="Target start time (ISO-8601)"),
-            dict(name="detection_start_time", cctype="ISO8601",
-                 comment="Detection response start time (ISO-8601)"),
-            dict(name="iti_start_time", cctype="ISO8601",
-                 comment="Intertrial interval start time (ISO-8601)"),
-            dict(name="iti_end_time", cctype="ISO8601",
-                 comment="Intertrial interval end time (ISO-8601)"),
-            dict(name="trial_end_time", cctype="ISO8601",
-                 comment="Trial end time (ISO-8601)"),
-            # Subject decides these:
-            dict(name="responded", cctype="INT",
-                 comment="Responded? (0 no, 1 yes)"),
-            dict(name="response_time", cctype="ISO8601",
-                 comment="Response time (ISO-8601)"),
-            dict(name="response_latency_ms", cctype="INT",
-                 comment="Response latency (ms)"),
-            dict(name="rating", cctype="INT",
-                 comment="Rating (0 definitely not - 4 definitely)"),
-            dict(name="correct", cctype="INT",
-                 comment="Correct side of the middle rating? (0 no, 1 yes)"),
-            dict(name="points", cctype="INT",
-                 comment="Points earned this trial"),
-            dict(name="cumulative_points", cctype="INT",
-                 comment="Cumulative points earned"),
-        ]
-
-    @classmethod
-    def get_sortfield(self):
-        return "trial"
+    tablename = "cardinal_expdet_trials"
+    fkname = "cardinal_expdet_id"
+    fieldspecs = [
+        dict(name="cardinal_expdet_id", notnull=True,
+             cctype="INT", comment="FK to cardinal_expdet"),
+        dict(name="trial", notnull=True, cctype="INT",
+             comment="Trial number"),
+        # Config determines these (via an autogeneration process):
+        dict(name="block", cctype="INT", comment="Block number"),
+        dict(name="group_num", cctype="INT", comment="Group number"),
+        dict(name="cue", cctype="INT", comment="Cue number"),
+        dict(name="raw_cue_number", cctype="INT",
+             comment="Raw cue number (following counterbalancing)"),
+        dict(name="target_modality", cctype="INT",
+             comment="Target modality (0 auditory, 1 visual)"),
+        dict(name="target_number", cctype="INT",
+             comment="Target number"),
+        dict(name="target_present", cctype="INT",
+             comment="Target present? (0 no, 1 yes)"),
+        dict(name="iti_length_s", cctype="FLOAT",
+             comment="Intertrial interval (s)"),
+        # Task determines these (on the fly):
+        dict(name="pause_given_before_trial", cctype="INT",
+             comment="Pause given before trial? (0 no, 1 yes)"),
+        dict(name="pause_start_time", cctype="ISO8601",
+             comment="Pause start time (ISO-8601)"),
+        dict(name="pause_end_time", cctype="ISO8601",
+             comment="Pause end time (ISO-8601)"),
+        dict(name="trial_start_time", cctype="ISO8601",
+             comment="Trial start time (ISO-8601)"),
+        dict(name="cue_start_time", cctype="ISO8601",
+             comment="Cue start time (ISO-8601)"),
+        dict(name="target_start_time", cctype="ISO8601",
+             comment="Target start time (ISO-8601)"),
+        dict(name="detection_start_time", cctype="ISO8601",
+             comment="Detection response start time (ISO-8601)"),
+        dict(name="iti_start_time", cctype="ISO8601",
+             comment="Intertrial interval start time (ISO-8601)"),
+        dict(name="iti_end_time", cctype="ISO8601",
+             comment="Intertrial interval end time (ISO-8601)"),
+        dict(name="trial_end_time", cctype="ISO8601",
+             comment="Trial end time (ISO-8601)"),
+        # Subject decides these:
+        dict(name="responded", cctype="INT",
+             comment="Responded? (0 no, 1 yes)"),
+        dict(name="response_time", cctype="ISO8601",
+             comment="Response time (ISO-8601)"),
+        dict(name="response_latency_ms", cctype="INT",
+             comment="Response latency (ms)"),
+        dict(name="rating", cctype="INT",
+             comment="Rating (0 definitely not - 4 definitely)"),
+        dict(name="correct", cctype="INT",
+             comment="Correct side of the middle rating? (0 no, 1 yes)"),
+        dict(name="points", cctype="INT",
+             comment="Points earned this trial"),
+        dict(name="cumulative_points", cctype="INT",
+             comment="Cumulative points earned"),
+    ]
+    sortfield = "trial"
 
     @classmethod
     def get_html_table_header(cls):
@@ -250,38 +236,28 @@ class ExpDet_Trial(Ancillary):
 
 
 class ExpDet_TrialGroupSpec(Ancillary):
+    DP = 3
 
-    @classmethod
-    def get_tablename(cls):
-        return "cardinal_expdet_trialgroupspec"
-
-    @classmethod
-    def get_fkname(cls):
-        return "cardinal_expdet_id"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_ANCILLARY_FIELDSPECS + [
-            dict(name="cardinal_expdet_id", notnull=True,
-                 cctype="INT",
-                 comment="FK to cardinal_expdet"),
-            dict(name="group_num", notnull=True, cctype="INT",
-                 comment="Group number"),
-            # Group spec
-            dict(name="cue", cctype="INT", comment="Cue number"),
-            dict(name="target_modality", cctype="INT",
-                 comment="Target modality (0 auditory, 1 visual)"),
-            dict(name="target_number", cctype="INT",
-                 comment="Target number"),
-            dict(name="n_target", cctype="INT",
-                 comment="Number of trials with target present"),
-            dict(name="n_no_target", cctype="INT",
-                 comment="Number of trials with target absent"),
-        ]
-
-    @classmethod
-    def get_sortfield(self):
-        return "group_num"
+    tablename = "cardinal_expdet_trialgroupspec"
+    fkname = "cardinal_expdet_id"
+    fieldspecs = [
+        dict(name="cardinal_expdet_id", notnull=True,
+             cctype="INT",
+             comment="FK to cardinal_expdet"),
+        dict(name="group_num", notnull=True, cctype="INT",
+             comment="Group number"),
+        # Group spec
+        dict(name="cue", cctype="INT", comment="Cue number"),
+        dict(name="target_modality", cctype="INT",
+             comment="Target modality (0 auditory, 1 visual)"),
+        dict(name="target_number", cctype="INT",
+             comment="Target number"),
+        dict(name="n_target", cctype="INT",
+             comment="Number of trials with target present"),
+        dict(name="n_no_target", cctype="INT",
+             comment="Number of trials with target absent"),
+    ]
+    sortfield = "group_num"
 
     @classmethod
     def get_html_table_header(cls):
@@ -309,81 +285,148 @@ class ExpDet_TrialGroupSpec(Ancillary):
 
 
 class Cardinal_ExpectationDetection(Task):
-
-    @classmethod
-    def get_tablename(cls):
-        return "cardinal_expdet"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "Cardinal_ExpDet"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Cardinal RN – Expectation–Detection task"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + [
-            # Config
-            dict(name="num_blocks", cctype="INT",
-                 comment="Number of blocks"),
-            dict(name="stimulus_counterbalancing", cctype="INT",
-                 comment="Stimulus counterbalancing condition"),
-            dict(name="is_detection_response_on_right", cctype="INT",
-                 comment='Is the "detection" response on the right? '
-                 '(0 no, 1 yes)'),
-            dict(name="pause_every_n_trials", cctype="INT",
-                 comment="Pause every n trials"),
-            # ... cue
-            dict(name="cue_duration_s", cctype="FLOAT",
-                 comment="Cue duration (s)"),
-            dict(name="visual_cue_intensity", cctype="FLOAT",
-                 comment="Visual cue intensity (0.0-1.0)"),
-            dict(name="auditory_cue_intensity", cctype="FLOAT",
-                 comment="Auditory cue intensity (0.0-1.0)"),
-            # ... ISI
-            dict(name="isi_duration_s", cctype="FLOAT",
-                 comment="Interstimulus interval (s)"),
-            # .. target
-            dict(name="visual_target_duration_s", cctype="FLOAT",
-                 comment="Visual target duration (s)"),
-            dict(name="visual_background_intensity", cctype="FLOAT",
-                 comment="Visual background intensity (0.0-1.0)"),
-            dict(name="visual_target_0_intensity", cctype="FLOAT",
-                 comment="Visual target 0 intensity (0.0-1.0)"),
-            dict(name="visual_target_1_intensity", cctype="FLOAT",
-                 comment="Visual target 1 intensity (0.0-1.0)"),
-            dict(name="auditory_background_intensity", cctype="FLOAT",
-                 comment="Auditory background intensity (0.0-1.0)"),
-            dict(name="auditory_target_0_intensity", cctype="FLOAT",
-                 comment="Auditory target 0 intensity (0.0-1.0)"),
-            dict(name="auditory_target_1_intensity", cctype="FLOAT",
-                 comment="Auditory target 1 intensity (0.0-1.0)"),
-            # ... ITI
-            dict(name="iti_min_s", cctype="FLOAT",
-                 comment="Intertrial interval minimum (s)"),
-            dict(name="iti_max_s", cctype="FLOAT",
-                 comment="Intertrial interval maximum (s)"),
-            # Results
-            dict(name="aborted", cctype="INT",
-                 comment="Was the task aborted? (0 no, 1 yes)"),
-            dict(name="finished", cctype="INT",
-                 comment="Was the task finished? (0 no, 1 yes)"),
-            dict(name="last_trial_completed", cctype="INT",
-                 comment="Number of last trial completed"),
-        ]
-
-    DP = 3
-
-    @classmethod
-    def get_dependent_classes(cls):
-        return [ExpDet_Trial,
-                ExpDet_TrialGroupSpec]
-
-    @classmethod
-    def use_landscape_for_pdf(self):
-        return True
+    tablename = "cardinal_expdet"
+    shortname = "Cardinal_ExpDet"
+    longname = "Cardinal RN – Expectation–Detection task"
+    fieldspecs = [
+        # Config
+        dict(name="num_blocks", cctype="INT",
+             comment="Number of blocks"),
+        dict(name="stimulus_counterbalancing", cctype="INT",
+             comment="Stimulus counterbalancing condition"),
+        dict(name="is_detection_response_on_right", cctype="INT",
+             comment='Is the "detection" response on the right? '
+             '(0 no, 1 yes)'),
+        dict(name="pause_every_n_trials", cctype="INT",
+             comment="Pause every n trials"),
+        # ... cue
+        dict(name="cue_duration_s", cctype="FLOAT",
+             comment="Cue duration (s)"),
+        dict(name="visual_cue_intensity", cctype="FLOAT",
+             comment="Visual cue intensity (0.0-1.0)"),
+        dict(name="auditory_cue_intensity", cctype="FLOAT",
+             comment="Auditory cue intensity (0.0-1.0)"),
+        # ... ISI
+        dict(name="isi_duration_s", cctype="FLOAT",
+             comment="Interstimulus interval (s)"),
+        # .. target
+        dict(name="visual_target_duration_s", cctype="FLOAT",
+             comment="Visual target duration (s)"),
+        dict(name="visual_background_intensity", cctype="FLOAT",
+             comment="Visual background intensity (0.0-1.0)"),
+        dict(name="visual_target_0_intensity", cctype="FLOAT",
+             comment="Visual target 0 intensity (0.0-1.0)"),
+        dict(name="visual_target_1_intensity", cctype="FLOAT",
+             comment="Visual target 1 intensity (0.0-1.0)"),
+        dict(name="auditory_background_intensity", cctype="FLOAT",
+             comment="Auditory background intensity (0.0-1.0)"),
+        dict(name="auditory_target_0_intensity", cctype="FLOAT",
+             comment="Auditory target 0 intensity (0.0-1.0)"),
+        dict(name="auditory_target_1_intensity", cctype="FLOAT",
+             comment="Auditory target 1 intensity (0.0-1.0)"),
+        # ... ITI
+        dict(name="iti_min_s", cctype="FLOAT",
+             comment="Intertrial interval minimum (s)"),
+        dict(name="iti_max_s", cctype="FLOAT",
+             comment="Intertrial interval maximum (s)"),
+        # Results
+        dict(name="aborted", cctype="INT",
+             comment="Was the task aborted? (0 no, 1 yes)"),
+        dict(name="finished", cctype="INT",
+             comment="Was the task finished? (0 no, 1 yes)"),
+        dict(name="last_trial_completed", cctype="INT",
+             comment="Number of last trial completed"),
+    ]
+    use_landscape_for_pdf = True
+    dependent_classes = [ExpDet_Trial, ExpDet_TrialGroupSpec]
+    # -------------------------------------------------------------------------
+    # extra_summary_table_info
+    # -------------------------------------------------------------------------
+    pkfieldname = tablename + "_pk"
+    fs_blockprobs = [
+        dict(name=pkfieldname, cctype="INT", notnull=True,
+             comment="FK to the source table's _pk field"),
+        dict(name="is_complete", cctype="BOOL",
+             comment="Task complete?"),
+        dict(name="when_source_record_created_utc",
+             cctype="DATETIME",
+             comment="When was the source record created?"),
+        dict(name="when_summary_created_utc", cctype="DATETIME",
+             comment="When was this summary created?"),
+        dict(name="n_blocks_overall", cctype="INT",
+             comment="Number of blocks (OVERALL)"),
+        dict(name="block", cctype="INT",
+             comment="Block number"),
+        dict(name="target_probability_low_high", cctype="INT",
+             comment="Target probability given stimulus (0 low, 1 high)"),
+        dict(name="n_trials", cctype="INT",
+             comment="Number of trials in this condition"),
+        dict(name="p_detect_present", cctype="FLOAT",
+             comment="P(detect | present)"),
+        dict(name="p_detect_absent", cctype="FLOAT",
+             comment="P(detect | absent)"),
+        dict(name="c", cctype="FLOAT",
+             comment="c (bias; c > 0 when miss rate > false alarm rate; "
+             "c < 0 when false alarm rate > miss rate)"),
+        dict(name="d", cctype="FLOAT",
+             comment="d' (discriminability)"),
+        dict(name="auditory_n_trials", cctype="INT",
+             comment="Number of auditory trials in this condition"),
+        dict(name="auditory_p_detect_present", cctype="FLOAT",
+             comment="AUDITORY P(detect | present)"),
+        dict(name="auditory_p_detect_absent", cctype="FLOAT",
+             comment="AUDITORY P(detect | absent)"),
+        dict(name="auditory_c", cctype="FLOAT",
+             comment="AUDITORY c"),
+        dict(name="auditory_d", cctype="FLOAT",
+             comment="AUDITORY d'"),
+    ]
+    fs_halfprobs = [
+        dict(name=pkfieldname, cctype="INT", notnull=True,
+             comment="FK to the source table's _pk field"),
+        dict(name="is_complete", cctype="BOOL",
+             comment="Task complete?"),
+        dict(name="when_source_record_created_utc",
+             cctype="DATETIME",
+             comment="When was the source record created?"),
+        dict(name="when_summary_created_utc", cctype="DATETIME",
+             comment="When was this summary created?"),
+        dict(name="half", cctype="INT",
+             comment="Half number"),
+        dict(name="target_probability_low_high", cctype="INT",
+             comment="Target probability given stimulus (0 low, 1 high)"),
+        dict(name="n_trials", cctype="INT",
+             comment="Number of trials in this condition"),
+        dict(name="p_detect_present", cctype="FLOAT",
+             comment="P(detect | present)"),
+        dict(name="p_detect_absent", cctype="FLOAT",
+             comment="P(detect | absent)"),
+        dict(name="c", cctype="FLOAT",
+             comment="c (bias; c > 0 when miss rate > false alarm rate; "
+             "c < 0 when false alarm rate > miss rate)"),
+        dict(name="d", cctype="FLOAT",
+             comment="d' (discriminability)"),
+        dict(name="auditory_n_trials", cctype="INT",
+             comment="Number of auditory trials in this condition"),
+        dict(name="auditory_p_detect_present", cctype="FLOAT",
+             comment="AUDITORY P(detect | present)"),
+        dict(name="auditory_p_detect_absent", cctype="FLOAT",
+             comment="AUDITORY P(detect | absent)"),
+        dict(name="auditory_c", cctype="FLOAT",
+             comment="AUDITORY c"),
+        dict(name="auditory_d", cctype="FLOAT",
+             comment="AUDITORY d'"),
+    ]
+    extra_summary_table_info = [
+        dict(
+            tablename=tablename + "_BLOCKPROBS_TEMP",
+            fieldspecs=fs_blockprobs
+        ),
+        dict(
+            tablename=tablename + "_HALFPROBS_TEMP",
+            fieldspecs=fs_halfprobs
+        )
+    ]
 
     def is_complete(self):
         return bool(self.finished)
@@ -962,95 +1005,6 @@ class Cardinal_ExpectationDetection(Task):
         # false alarms: p_detected_given_absent
         return (p_detected_given_present, p_detected_given_absent, c, dprime,
                 n_trials)
-
-    @classmethod
-    def get_extra_summary_table_info(cls):
-        maintable = cls.get_tablename()
-        pkfieldname = maintable + "_pk"
-        fs_blockprobs = [
-            dict(name=pkfieldname, cctype="INT", notnull=True,
-                 comment="FK to the source table's _pk field"),
-            dict(name="is_complete", cctype="BOOL",
-                 comment="Task complete?"),
-            dict(name="when_source_record_created_utc",
-                 cctype="DATETIME",
-                 comment="When was the source record created?"),
-            dict(name="when_summary_created_utc", cctype="DATETIME",
-                 comment="When was this summary created?"),
-            dict(name="n_blocks_overall", cctype="INT",
-                 comment="Number of blocks (OVERALL)"),
-            dict(name="block", cctype="INT",
-                 comment="Block number"),
-            dict(name="target_probability_low_high", cctype="INT",
-                 comment="Target probability given stimulus (0 low, 1 high)"),
-            dict(name="n_trials", cctype="INT",
-                 comment="Number of trials in this condition"),
-            dict(name="p_detect_present", cctype="FLOAT",
-                 comment="P(detect | present)"),
-            dict(name="p_detect_absent", cctype="FLOAT",
-                 comment="P(detect | absent)"),
-            dict(name="c", cctype="FLOAT",
-                 comment="c (bias; c > 0 when miss rate > false alarm rate; "
-                 "c < 0 when false alarm rate > miss rate)"),
-            dict(name="d", cctype="FLOAT",
-                 comment="d' (discriminability)"),
-            dict(name="auditory_n_trials", cctype="INT",
-                 comment="Number of auditory trials in this condition"),
-            dict(name="auditory_p_detect_present", cctype="FLOAT",
-                 comment="AUDITORY P(detect | present)"),
-            dict(name="auditory_p_detect_absent", cctype="FLOAT",
-                 comment="AUDITORY P(detect | absent)"),
-            dict(name="auditory_c", cctype="FLOAT",
-                 comment="AUDITORY c"),
-            dict(name="auditory_d", cctype="FLOAT",
-                 comment="AUDITORY d'"),
-        ]
-        fs_halfprobs = [
-            dict(name=pkfieldname, cctype="INT", notnull=True,
-                 comment="FK to the source table's _pk field"),
-            dict(name="is_complete", cctype="BOOL",
-                 comment="Task complete?"),
-            dict(name="when_source_record_created_utc",
-                 cctype="DATETIME",
-                 comment="When was the source record created?"),
-            dict(name="when_summary_created_utc", cctype="DATETIME",
-                 comment="When was this summary created?"),
-            dict(name="half", cctype="INT",
-                 comment="Half number"),
-            dict(name="target_probability_low_high", cctype="INT",
-                 comment="Target probability given stimulus (0 low, 1 high)"),
-            dict(name="n_trials", cctype="INT",
-                 comment="Number of trials in this condition"),
-            dict(name="p_detect_present", cctype="FLOAT",
-                 comment="P(detect | present)"),
-            dict(name="p_detect_absent", cctype="FLOAT",
-                 comment="P(detect | absent)"),
-            dict(name="c", cctype="FLOAT",
-                 comment="c (bias; c > 0 when miss rate > false alarm rate; "
-                 "c < 0 when false alarm rate > miss rate)"),
-            dict(name="d", cctype="FLOAT",
-                 comment="d' (discriminability)"),
-            dict(name="auditory_n_trials", cctype="INT",
-                 comment="Number of auditory trials in this condition"),
-            dict(name="auditory_p_detect_present", cctype="FLOAT",
-                 comment="AUDITORY P(detect | present)"),
-            dict(name="auditory_p_detect_absent", cctype="FLOAT",
-                 comment="AUDITORY P(detect | absent)"),
-            dict(name="auditory_c", cctype="FLOAT",
-                 comment="AUDITORY c"),
-            dict(name="auditory_d", cctype="FLOAT",
-                 comment="AUDITORY d'"),
-        ]
-        return [
-            dict(
-                tablename=maintable + "_BLOCKPROBS_TEMP",
-                fieldspecs=fs_blockprobs
-            ),
-            dict(
-                tablename=maintable + "_HALFPROBS_TEMP",
-                fieldspecs=fs_halfprobs
-            )
-        ]
 
     def get_extra_summary_table_data(self, now):
         grouparray = self.get_group_array()

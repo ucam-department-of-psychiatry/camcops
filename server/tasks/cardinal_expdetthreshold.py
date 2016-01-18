@@ -30,8 +30,6 @@ import pythonlib.rnc_web as ws
 
 from cc_modules.cc_constants import (
     FULLWIDTH_PLOT_WIDTH,
-    STANDARD_ANCILLARY_FIELDSPECS,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_html import (
     get_html_from_pyplot_figure,
@@ -58,54 +56,42 @@ DP = 3
 # =============================================================================
 
 class Cardinal_ExpDetThreshold_Trial(Ancillary):
-
-    @classmethod
-    def get_tablename(cls):
-        return "cardinal_expdetthreshold_trials"
-
-    @classmethod
-    def get_fkname(cls):
-        return "cardinal_expdetthreshold_id"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_ANCILLARY_FIELDSPECS + [
-            dict(name="cardinal_expdetthreshold_id", notnull=True,
-                 cctype="INT",
-                 comment="FK to cardinal_expdetthreshold"),
-            dict(name="trial", notnull=True, cctype="INT",
-                 comment="Trial number"),
-            # Results
-            dict(name="trial_ignoring_catch_trials", cctype="INT",
-                 comment="Trial number, ignoring catch trials"),
-            dict(name="target_presented", cctype="INT",
-                 comment="Target presented? (0 no, 1 yes)"),
-            dict(name="target_time", cctype="ISO8601",
-                 comment="Target presentation time (ISO-8601)"),
-            dict(name="intensity", cctype="FLOAT",
-                 comment="Target intensity (0.0-1.0)"),
-            dict(name="choice_time", cctype="ISO8601",
-                 comment="Time choice offered (ISO-8601)"),
-            dict(name="responded", cctype="INT",
-                 comment="Responded? (0 no, 1 yes)"),
-            dict(name="response_time", cctype="ISO8601",
-                 comment="Time of response (ISO-8601)"),
-            dict(name="response_latency_ms", cctype="INT",
-                 comment="Response latency (ms)"),
-            dict(name="yes", cctype="INT",
-                 comment="Subject chose YES? (0 didn't, 1 did)"),
-            dict(name="no", cctype="INT",
-                 comment="Subject chose NO? (0 didn't, 1 did)"),
-            dict(name="caught_out_reset", cctype="INT",
-                 comment="Caught out on catch trial, thus reset? (0 no, "
-                 "1 yes)"),
-            dict(name="trial_num_in_calculation_sequence", cctype="INT",
-                 comment="Trial number as used for threshold calculation"),
-        ]
-
-    @classmethod
-    def get_sortfield(self):
-        return "trial"
+    tablename = "cardinal_expdetthreshold_trials"
+    fkname = "cardinal_expdetthreshold_id"
+    fieldspecs = [
+        dict(name="cardinal_expdetthreshold_id", notnull=True,
+             cctype="INT",
+             comment="FK to cardinal_expdetthreshold"),
+        dict(name="trial", notnull=True, cctype="INT",
+             comment="Trial number"),
+        # Results
+        dict(name="trial_ignoring_catch_trials", cctype="INT",
+             comment="Trial number, ignoring catch trials"),
+        dict(name="target_presented", cctype="INT",
+             comment="Target presented? (0 no, 1 yes)"),
+        dict(name="target_time", cctype="ISO8601",
+             comment="Target presentation time (ISO-8601)"),
+        dict(name="intensity", cctype="FLOAT",
+             comment="Target intensity (0.0-1.0)"),
+        dict(name="choice_time", cctype="ISO8601",
+             comment="Time choice offered (ISO-8601)"),
+        dict(name="responded", cctype="INT",
+             comment="Responded? (0 no, 1 yes)"),
+        dict(name="response_time", cctype="ISO8601",
+             comment="Time of response (ISO-8601)"),
+        dict(name="response_latency_ms", cctype="INT",
+             comment="Response latency (ms)"),
+        dict(name="yes", cctype="INT",
+             comment="Subject chose YES? (0 didn't, 1 did)"),
+        dict(name="no", cctype="INT",
+             comment="Subject chose NO? (0 didn't, 1 did)"),
+        dict(name="caught_out_reset", cctype="INT",
+             comment="Caught out on catch trial, thus reset? (0 no, "
+             "1 yes)"),
+        dict(name="trial_num_in_calculation_sequence", cctype="INT",
+             comment="Trial number as used for threshold calculation"),
+    ]
+    sortfield = "trial"
 
     @classmethod
     def get_html_table_header(cls):
@@ -147,73 +133,56 @@ class Cardinal_ExpDetThreshold_Trial(Ancillary):
 
 
 class Cardinal_ExpDetThreshold(Task):
-    @classmethod
-    def get_tablename(cls):
-        return "cardinal_expdetthreshold"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "Cardinal_ExpDetThreshold"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return ("Cardinal RN – Threshold determination for "
+    tablename = "cardinal_expdetthreshold"
+    shortname = "Cardinal_ExpDetThreshold"
+    longname = ("Cardinal RN – Threshold determination for "
                 "Expectation–Detection task")
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + [
-            # Config
-            dict(name="modality", cctype="INT",
-                 comment="Modality (0 auditory, 1 visual)"),
-            dict(name="target_number", cctype="INT",
-                 comment="Target number (within available targets of that "
-                 "modality)"),
-            dict(name="background_filename", cctype="TEXT",
-                 comment="Filename of media used for background"),
-            dict(name="target_filename", cctype="TEXT",
-                 comment="Filename of media used for target"),
-            dict(name="visual_target_duration_s", cctype="FLOAT",
-                 comment="Visual target duration (s)"),
-            dict(name="background_intensity", cctype="FLOAT",
-                 comment="Intensity of background (0.0-1.0)"),
-            dict(name="start_intensity_min", cctype="FLOAT",
-                 comment="Minimum starting intensity (0.0-1.0)"),
-            dict(name="start_intensity_max", cctype="FLOAT",
-                 comment="Maximum starting intensity (0.0-1.0)"),
-            dict(name="initial_large_intensity_step", cctype="FLOAT",
-                 comment="Initial, large, intensity step (0.0-1.0)"),
-            dict(name="main_small_intensity_step", cctype="FLOAT",
-                 comment="Main, small, intensity step (0.0-1.0)"),
-            dict(name="num_trials_in_main_sequence", cctype="INT",
-                 comment="Number of trials required in main sequence"),
-            dict(name="p_catch_trial", cctype="FLOAT",
-                 comment="Probability of catch trial"),
-            dict(name="prompt", cctype="TEXT",
-                 comment="Prompt given to subject"),
-            dict(name="iti_s", cctype="FLOAT",
-                 comment="Intertrial interval (s)"),
-            # Results
-            dict(name="finished", cctype="INT",
-                 comment="Subject finished successfully (0 no, 1 yes)"),
-            dict(name="intercept", cctype="FLOAT",
-                 comment=EQUATION_COMMENT),
-            dict(name="slope", cctype="FLOAT",
-                 comment=EQUATION_COMMENT),
-            dict(name="k", cctype="FLOAT",
-                 comment=EQUATION_COMMENT + "; k = slope"),
-            dict(name="theta", cctype="FLOAT",
-                 comment=EQUATION_COMMENT +
-                 "; theta = -intercept/k = -intercept/slope "),
-        ]
-
-    @classmethod
-    def get_dependent_classes(cls):
-        return [Cardinal_ExpDetThreshold_Trial]
-
-    @classmethod
-    def use_landscape_for_pdf(self):
-        return True
+    fieldspecs = [
+        # Config
+        dict(name="modality", cctype="INT",
+             comment="Modality (0 auditory, 1 visual)"),
+        dict(name="target_number", cctype="INT",
+             comment="Target number (within available targets of that "
+             "modality)"),
+        dict(name="background_filename", cctype="TEXT",
+             comment="Filename of media used for background"),
+        dict(name="target_filename", cctype="TEXT",
+             comment="Filename of media used for target"),
+        dict(name="visual_target_duration_s", cctype="FLOAT",
+             comment="Visual target duration (s)"),
+        dict(name="background_intensity", cctype="FLOAT",
+             comment="Intensity of background (0.0-1.0)"),
+        dict(name="start_intensity_min", cctype="FLOAT",
+             comment="Minimum starting intensity (0.0-1.0)"),
+        dict(name="start_intensity_max", cctype="FLOAT",
+             comment="Maximum starting intensity (0.0-1.0)"),
+        dict(name="initial_large_intensity_step", cctype="FLOAT",
+             comment="Initial, large, intensity step (0.0-1.0)"),
+        dict(name="main_small_intensity_step", cctype="FLOAT",
+             comment="Main, small, intensity step (0.0-1.0)"),
+        dict(name="num_trials_in_main_sequence", cctype="INT",
+             comment="Number of trials required in main sequence"),
+        dict(name="p_catch_trial", cctype="FLOAT",
+             comment="Probability of catch trial"),
+        dict(name="prompt", cctype="TEXT",
+             comment="Prompt given to subject"),
+        dict(name="iti_s", cctype="FLOAT",
+             comment="Intertrial interval (s)"),
+        # Results
+        dict(name="finished", cctype="INT",
+             comment="Subject finished successfully (0 no, 1 yes)"),
+        dict(name="intercept", cctype="FLOAT",
+             comment=EQUATION_COMMENT),
+        dict(name="slope", cctype="FLOAT",
+             comment=EQUATION_COMMENT),
+        dict(name="k", cctype="FLOAT",
+             comment=EQUATION_COMMENT + "; k = slope"),
+        dict(name="theta", cctype="FLOAT",
+             comment=EQUATION_COMMENT +
+             "; theta = -intercept/k = -intercept/slope "),
+    ]
+    use_landscape_for_pdf = True
+    dependent_classes = [Cardinal_ExpDetThreshold_Trial]
 
     def is_complete(self):
         return bool(self.finished)

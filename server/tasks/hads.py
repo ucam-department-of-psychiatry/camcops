@@ -24,7 +24,6 @@
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
     DATA_COLLECTION_UNLESS_UPGRADED_DIV,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from cc_modules.cc_html import (
@@ -44,7 +43,11 @@ class Hads(Task):
     EXTRASTRING_TASKNAME = "hads"
     ANXIETY_QUESTIONS = [1, 3, 5, 7, 9, 11, 13]
     DEPRESSION_QUESTIONS = [2, 4, 6, 8, 10, 12, 14]
-    TASK_FIELDSPECS = repeat_fieldspec(
+
+    tablename = "hads"
+    shortname = "HADS"
+    longname = "Hospital Anxiety and Depression Scale (data collection only)"
+    fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, min=0, max=3,
         comment_fmt="Q{n}: {s} (0-3)",
         comment_strings=[
@@ -52,31 +55,12 @@ class Hads(Task):
             "cheerful", "relaxed", "slow", "butterflies", "appearance",
             "restless", "anticipate", "panic", "book/TV/radio"
         ])
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
 
-    @classmethod
-    def get_tablename(cls):
-        return "hads"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "HADS"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Hospital Anxiety and Depression Scale (data collection only)"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + cls.TASK_FIELDSPECS
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def is_complete(self):
         return self.field_contents_valid() and self.are_all_fields_complete(
             repeat_fieldname("q", 1, self.NQUESTIONS))
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
 
     def get_trackers(self):
         return [

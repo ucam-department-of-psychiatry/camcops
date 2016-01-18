@@ -22,9 +22,7 @@
 """
 
 from cc_modules.cc_constants import (
-    CLINICIAN_FIELDSPECS,
     CTV_DICTLIST_INCOMPLETE,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from cc_modules.cc_html import (
@@ -50,9 +48,11 @@ MAX_SCORE = (
 class Hamd(Task):
     NSCOREDQUESTIONS = 17
     NQUESTIONS = 21
-    TASK_FIELDSPECS = (
-        STANDARD_TASK_FIELDSPECS +
-        CLINICIAN_FIELDSPECS +
+
+    tablename = "hamd"
+    shortname = "HAM-D"
+    longname = "Hamilton Rating Scale for Depression"
+    fieldspecs = (
         repeat_fieldspec(
             "q", 1, 15, comment_fmt="Q{n}, {s} (scored 0-4, except 0-2 for "
             "Q4-6/12-14, higher worse)", min=0, max=4,  # amended below
@@ -92,7 +92,7 @@ class Hamd(Task):
                              "obsessional/compulsive symptoms"])
     )
     # Now fix the wrong bits. Hardly elegant!
-    for item in TASK_FIELDSPECS:
+    for item in fieldspecs:
         name = item["name"]
         if (name == "q4" or name == "q5" or name == "q6"
                 or name == "q12" or name == "q13" or name == "q14"
@@ -100,26 +100,7 @@ class Hamd(Task):
             item["max"] = 2
         if name == "q20":
             item["max"] = 3
-
-    @classmethod
-    def get_tablename(cls):
-        return "hamd"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "HAM-D"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Hamilton Rating Scale for Depression"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return Hamd.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    has_clinician = True
 
     def get_trackers(self):
         return [
@@ -177,7 +158,7 @@ class Hamd(Task):
         # Otherwise, any null values cause problems
         if self.whichq16 is None:
             return False
-        for i in range(1, Hamd.NSCOREDQUESTIONS + 1):
+        for i in range(1, self.NSCOREDQUESTIONS + 1):
             if i == 16:
                 if (self.whichq16 == 0 and self.q16a is None) \
                         or (self.whichq16 == 1 and self.q16b is None):
@@ -189,7 +170,7 @@ class Hamd(Task):
 
     def total_score(self):
         total = 0
-        for i in range(1, Hamd.NSCOREDQUESTIONS + 1):
+        for i in range(1, self.NSCOREDQUESTIONS + 1):
             if i == 16:
                 relevant_field = "q16a" if self.whichq16 == 0 else "q16b"
                 score = self.sum_fields([relevant_field])
@@ -236,7 +217,7 @@ class Hamd(Task):
                     continue
                 d[option] = WSTRING("hamd_" + q + "_option" + str(option))
             ANSWER_DICTS_DICT[q] = d
-        h = self.get_standard_clinician_block() + """
+        h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
@@ -263,7 +244,7 @@ class Hamd(Task):
                         " <sup>range {}–{}</sup>".format(
                             item.get("min"), item.get("max")
                         )
-                        for item in Hamd.TASK_FIELDSPECS
+                        for item in self.fieldspecs
                         if item["name"] == q
                     ), "")
                     # http://stackoverflow.com/questions/8653516

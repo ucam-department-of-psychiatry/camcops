@@ -24,9 +24,6 @@
 import pythonlib.rnc_web as ws
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
-    CLINICIAN_FIELDSPECS,
-    RESPONDENT_FIELDSPECS,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from cc_modules.cc_html import (
@@ -95,10 +92,11 @@ class Demqol(Task):
     REVERSE_SCORE = [1, 3, 5, 6, 10, 29]  # questions scored backwards
     MIN_SCORE = N_SCORED_QUESTIONS
     MAX_SCORE = MIN_SCORE * 4
-    FIELDSPECS = (
-        STANDARD_TASK_FIELDSPECS
-        + CLINICIAN_FIELDSPECS
-    ) + repeat_fieldspec(
+
+    tablename = "demqol"
+    shortname = "DEMQOL"
+    longname = "Dementia Quality of Life measure, self-report version"
+    fieldspecs = repeat_fieldspec(
         "q", 1, N_SCORED_QUESTIONS, pv=PERMITTED_VALUES,
         comment_fmt="Q{n}. {s} (1 a lot - 4 not at all; -99 no response)",
         comment_strings=[
@@ -123,30 +121,11 @@ class Demqol(Task):
              comment="Q29. Overall quality of life (1 very good - 4 poor; "
                      "-99 no response)."),
     ]
-
-    @classmethod
-    def get_tablename(cls):
-        return "demqol"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "DEMQOL"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Dementia Quality of Life measure, self-report version"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return cls.FIELDSPECS
+    has_clinician = True
 
     def is_complete(self):
         return self.field_contents_valid() and self.are_all_fields_complete(
             repeat_fieldname("q", 1, self.NQUESTIONS))
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
 
     def get_trackers(self):
         return [
@@ -223,7 +202,7 @@ class Demqol(Task):
         }
         # https://docs.python.org/2/library/stdtypes.html#mapping-types-dict
         # http://paltman.com/try-except-performance-in-python-a-simple-test/
-        h = self.get_standard_clinician_block() + """
+        h = """
             <div class="summary">
                 <table class="summary">
                     {is_complete_tr}
@@ -272,11 +251,11 @@ class DemqolProxy(Task):
     REVERSE_SCORE = [1, 4, 6, 8, 11, 32]  # questions scored backwards
     MIN_SCORE = N_SCORED_QUESTIONS
     MAX_SCORE = MIN_SCORE * 4
-    FIELDSPECS = (
-        STANDARD_TASK_FIELDSPECS
-        + CLINICIAN_FIELDSPECS
-        + RESPONDENT_FIELDSPECS
-    ) + repeat_fieldspec(
+
+    tablename = "demqolproxy"
+    shortname = "DEMQOL-Proxy"
+    longname = "Dementia Quality of Life measure, proxy version"
+    fieldspecs = repeat_fieldspec(
         "q", 1, N_SCORED_QUESTIONS, pv=PERMITTED_VALUES,
         comment_fmt="Q{n}. {s} (1 a lot - 4 not at all; -99 no response)",
         comment_strings=[
@@ -304,30 +283,12 @@ class DemqolProxy(Task):
              comment="Q32. Overall quality of life (1 very good - 4 poor; "
                      "-99 no response)."),
     ]
-
-    @classmethod
-    def get_tablename(cls):
-        return "demqolproxy"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "DEMQOL-Proxy"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Dementia Quality of Life measure, proxy version"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return cls.FIELDSPECS
+    has_clinician = True
+    has_respondent = True
 
     def is_complete(self):
         return self.field_contents_valid() and self.are_all_fields_complete(
             repeat_fieldname("q", 1, self.NQUESTIONS))
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
 
     def get_trackers(self):
         return [
@@ -401,10 +362,7 @@ class DemqolProxy(Task):
             21: WSTRING("demqolproxy_instruction13"),
             32: WSTRING("demqolproxy_instruction14"),
         }
-        h = (
-            self.get_standard_clinician_block()
-            + self.get_standard_respondent_block()
-        ) + """
+        h = """
             <div class="summary">
                 <table class="summary">
                     {is_complete_tr}

@@ -24,11 +24,7 @@
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import get_yes_no
 from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import (
-    get_from_dict,
-    STANDARD_TASK_FIELDSPECS,
-    Task,
-)
+from cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
@@ -37,28 +33,13 @@ from cc_modules.cc_task import (
 
 class Epds(Task):
     NQUESTIONS = 10
-    TASK_FIELDSPECS = repeat_fieldspec("q", 1, NQUESTIONS)
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
 
-    @classmethod
-    def get_tablename(cls):
-        return "epds"
+    tablename = "epds"
+    shortname = "EPDS"
+    longname = "Edinburgh Postnatal Depression Scale"
+    fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
 
-    @classmethod
-    def get_taskshortname(cls):
-        return "EPDS"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Edinburgh Postnatal Depression Scale"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + Epds.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self):
         return [
@@ -87,24 +68,24 @@ class Epds(Task):
         ]
 
     def is_complete(self):
-        return self.are_all_fields_complete(Epds.TASK_FIELDS)
+        return self.are_all_fields_complete(self.TASK_FIELDS)
 
     def total_score(self):
-        return self.sum_fields(Epds.TASK_FIELDS)
+        return self.sum_fields(self.TASK_FIELDS)
 
     def get_task_html(self):
         score = self.total_score()
         above_cutoff_1 = score >= 10
         above_cutoff_2 = score >= 13
         ANSWER_DICTS = []
-        for q in range(1, Epds.NQUESTIONS + 1):
+        for q in range(1, self.NQUESTIONS + 1):
             d = {None: "?"}
             for option in range(0, 4):
                 d[option] = (
-                    str(option) + u" — " +
+                    str(option) + " — " +
                     WSTRING("epds_q" + str(q) + "_option" + str(option)))
             ANSWER_DICTS.append(d)
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
                     {}
@@ -129,12 +110,12 @@ class Epds(Task):
             WSTRING("epds_above_cutoff_2"), get_yes_no(above_cutoff_2),
             WSTRING("epds_always_look_at_suicide")
         )
-        for q in range(1, Epds.NQUESTIONS + 1):
-            h += u"""<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
+        for q in range(1, self.NQUESTIONS + 1):
+            h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
                 WSTRING("epds_q" + str(q) + "_question"),
                 get_from_dict(ANSWER_DICTS[q - 1], getattr(self, "q" + str(q)))
             )
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] &ge;10.

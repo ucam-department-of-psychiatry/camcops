@@ -44,6 +44,7 @@ from . import cc_namedtuples
 from .cc_pls import pls
 from . import cc_policy
 from . import cc_report
+from .cc_report import Report
 from . import cc_specialnote
 from .cc_unittest import unit_test_ignore
 from . import cc_xml
@@ -641,20 +642,12 @@ def get_patient_server_pks_by_idnum(which_idnum, idnum_value,
 # Reports
 # =============================================================================
 
-class DistinctPatientReport(cc_report.Report):
+class DistinctPatientReport(Report):
     """Report to show distinct patients."""
-
-    @classmethod
-    def get_report_id(cls):
-        return "patient_distinct"
-
-    @classmethod
-    def get_report_title(cls):
-        return "(Server) Patients, distinct by name, sex, DOB, all ID numbers"
-
-    @classmethod
-    def get_param_spec_list(cls):
-        return []
+    report_id = "patient_distinct"
+    report_title = ("(Server) Patients, distinct by name, sex, DOB, all ID "
+                    "numbers")
+    param_spec_list = []
 
     def get_rows_descriptions(self):
         # Not easy to get UTF-8 fields out of a query in the column headings!

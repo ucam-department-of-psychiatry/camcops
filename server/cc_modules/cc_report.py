@@ -37,7 +37,10 @@ from .cc_constants import (
 from . import cc_dt
 from . import cc_html
 from .cc_pls import pls
-from .cc_unittest import unit_test_ignore
+from .cc_unittest import (
+    unit_test_ignore,
+    unit_test_require_truthy_attribute,
+)
 
 # =============================================================================
 # Other constants
@@ -64,8 +67,8 @@ def offer_report_menu(session):
         html += "<li><a href={}>{}</a></li>".format(
             cc_html.get_generic_action_url(ACTION.OFFER_REPORT)
                 + cc_html.get_url_field_value_pair(PARAM.REPORT_ID,
-                                                   cls.get_report_id()),
-            cls.get_report_title()
+                                                   cls.report_id),
+            cls.report_title
         )
     return html + "</ul>" + WEBEND
 
@@ -117,13 +120,13 @@ def get_all_report_ids():
 
     Report IDs are fixed names defined in each Report subclass.
     """
-    return [cls.get_report_id() for cls in get_all_report_classes()]
+    return [cls.report_id for cls in get_all_report_classes()]
 
 
 def get_report_instance(report_id):
     """Creates an instance of a Report, given its ID (name), or None."""
     for cls in Report.__subclasses__():
-        if cls.get_report_id() == report_id:
+        if cls.report_id == report_id:
             return cls()
     return None
 
@@ -148,13 +151,13 @@ def offer_individual_report(session, form):
                     value="{report_id}">
     """.format(
         userdetails=session.get_current_user_html(),
-        reporttitle=report.get_report_title(),
+        reporttitle=report.report_title,
         script=pls.SCRIPT_NAME,
         ACTION=ACTION,
         PARAM=PARAM,
         report_id=report_id
     )
-    for p in report.get_param_spec_list():
+    for p in report.param_spec_list:
         html += get_param_html(p)
     html += """
                 <br>
@@ -221,7 +224,7 @@ def provide_report(session, form):
         return cc_html.fail_with_error_stay_logged_in("Unknown outputtype")
 
     # Get parameters
-    params = get_params_from_form(report.get_param_spec_list(), form)
+    params = get_params_from_form(report.param_spec_list, form)
 
     # Get query details
     rows, descriptions = report.get_rows_descriptions(**params)
@@ -232,7 +235,7 @@ def provide_report(session, form):
     if outputtype == VALUE.OUTPUTTYPE_TSV:
         filename = (
             "CamCOPS_"
-            + report.get_report_id()
+            + report.report_id
             + "_"
             + cc_dt.format_datetime(pls.NOW_LOCAL_TZ, DATEFORMAT.FILENAME)
             + ".tsv"
@@ -245,7 +248,7 @@ def provide_report(session, form):
             <h1>{}</h1>
         """.format(
             session.get_current_user_html(),
-            report.get_report_title(),
+            report.report_title,
         ) + ws.html_table_from_query(rows, descriptions) + WEBEND
         return html
 
@@ -255,27 +258,32 @@ def provide_report(session, form):
 # =============================================================================
 
 class Report(object):
-    """Abstract base class representing a report."""
+    """
+    Abstract base class representing a report.
 
-    @classmethod
-    def get_report_id(cls):
-        """String used in HTML selector. Must override."""
-        return None
+    Must override attributes:
 
-    @classmethod
-    def get_report_title(cls):
-        """String for display purposes. Must override."""
-        return None
+        report_id
+            String used in HTML selector
+        report_title
+            String for display purposes
 
-    @classmethod
-    def get_param_spec_list(cls):
-        """Returns a list of dictionaries, each of the format: {
-            "type": ... internal code (e.g. which ID number? Integer? etc.)
-            "name": used in URL and in **kwargs to get_rows_descriptions
-            "label": cosmetic, used for offering HTML
-        }
-        Must override."""
-        return []
+    Can override attributes:
+
+        param_spec_list
+            A list of dictionaries, each of the format: {
+                "type": ... internal code (e.g. which ID number? Integer? etc.)
+                "name": used in URL and in **kwargs to get_rows_descriptions
+                "label": cosmetic, used for offering HTML
+            }
+    """
+
+    # -------------------------------------------------------------------------
+    # Attributes that must be provided
+    # -------------------------------------------------------------------------
+    report_id = None
+    report_title = None
+    param_spec_list = []
 
     def get_rows_descriptions(self, **kwargs):
         """Execute the report. Must override. Parameters are passed in via
@@ -289,7 +297,7 @@ class Report(object):
 
 def get_all_report_classes():
     classes = Report.__subclasses__()
-    classes.sort(key=lambda cls: cls.get_report_title())
+    classes.sort(key=lambda cls: cls.report_title)
     return classes
 
 
@@ -320,12 +328,8 @@ def expand_id_descriptions(fieldnames):
 
 def task_unit_test_report(name, r):
     """Unit tests for reports."""
-    unit_test_ignore("Testing {}.get_report_id".format(name),
-                     r.get_report_id)
-    unit_test_ignore("Testing {}.get_report_title".format(name),
-                     r.get_report_title)
-    unit_test_ignore("Testing {}.get_param_spec_list".format(name),
-                     r.get_param_spec_list)
+    unit_test_require_truthy_attribute(r, 'report_id')
+    unit_test_require_truthy_attribute(r, 'report_title')
     unit_test_ignore("Testing {}.get_rows_descriptions".format(name),
                      r.get_rows_descriptions)
 

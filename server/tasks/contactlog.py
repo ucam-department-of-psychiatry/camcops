@@ -23,11 +23,9 @@
 
 import pythonlib.rnc_web as ws
 from cc_modules.cc_constants import (
-    CLINICIAN_FIELDSPECS,
     CTV_DICTLIST_INCOMPLETE,
     DATEFORMAT,
     PV,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_dt import format_datetime_string, get_duration_h_m
 from cc_modules.cc_html import (
@@ -44,35 +42,25 @@ from cc_modules.cc_task import Task
 # =============================================================================
 
 class ContactLog(Task):
-    @classmethod
-    def get_tablename(cls):
-        return "contactlog"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "ContactLog"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Clinical contact log"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + CLINICIAN_FIELDSPECS + [
-            dict(name="location", cctype="TEXT", comment="Location"),
-            dict(name="start", cctype="TEXT",
-                 comment="Date/time that contact started"),
-            dict(name="end", cctype="TEXT",
-                 comment="Date/time that contact ended"),
-            dict(name="patient_contact", cctype="INT", pv=PV.BIT,
-                 comment="Patient contact involved (0 no, 1 yes)?"),
-            dict(name="staff_liaison", cctype="INT", pv=PV.BIT,
-                 comment="Liaison with staff involved (0 no, 1 yes)?"),
-            dict(name="other_liaison", cctype="INT", pv=PV.BIT,
-                 comment="Liaison with others (e.g. family) involved "
-                 "(0 no, 1 yes)?"),
-            dict(name="comment", cctype="TEXT", comment="Comment"),
-        ]
+    tablename = "contactlog"
+    shortname = "ContactLog"
+    longname = "Clinical contact log"
+    fieldspecs = [
+        dict(name="location", cctype="TEXT", comment="Location"),
+        dict(name="start", cctype="TEXT",
+             comment="Date/time that contact started"),
+        dict(name="end", cctype="TEXT",
+             comment="Date/time that contact ended"),
+        dict(name="patient_contact", cctype="INT", pv=PV.BIT,
+             comment="Patient contact involved (0 no, 1 yes)?"),
+        dict(name="staff_liaison", cctype="INT", pv=PV.BIT,
+             comment="Liaison with staff involved (0 no, 1 yes)?"),
+        dict(name="other_liaison", cctype="INT", pv=PV.BIT,
+             comment="Liaison with others (e.g. family) involved "
+             "(0 no, 1 yes)?"),
+        dict(name="comment", cctype="TEXT", comment="Comment"),
+    ]
+    has_clinician = True
 
     def get_clinical_text(self):
         if not self.is_complete():
@@ -91,7 +79,7 @@ class ContactLog(Task):
         )
 
     def get_task_html(self):
-        h = self.get_standard_clinician_block() + """
+        h = """
             <table class="taskdetail">
                 <tr>
                     <td width="33%">Location:</td>

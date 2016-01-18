@@ -23,7 +23,6 @@
 
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import (
@@ -43,31 +42,16 @@ from cc_modules.cc_task import Task
 
 class Cage(Task):
     NQUESTIONS = 4
-    TASK_FIELDSPECS = repeat_fieldspec(
+
+    tablename = "cage"
+    shortname = "CAGE"
+    longname = "CAGE Questionnaire"
+    fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, "CHAR", pv=['Y', 'N'],
         comment_fmt="Q{n}, {s} (Y, N)",
         comment_strings=["C", "A", "G", "E"])
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
 
-    @classmethod
-    def get_tablename(cls):
-        return "cage"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "CAGE"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "CAGE Questionnaire"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + Cage.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self):
         return [

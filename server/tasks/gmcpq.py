@@ -24,7 +24,6 @@
 import pythonlib.rnc_web as ws
 from cc_modules.cc_constants import (
     PV,
-    STANDARD_ANONYMOUS_TASK_FIELDSPECS,
 )
 from cc_modules.cc_html import (
     get_yes_no_none,
@@ -42,100 +41,86 @@ from cc_modules.cc_task import get_from_dict, Task
 # =============================================================================
 
 class GMCPQ(Task):
+    RATING_TEXT = " (1 poor - 5 very good, 0 does not apply)"
+    AGREE_TEXT = (
+        " (1 strongly disagree - 5 strongly agree, 0 does not apply)"
+    )
 
-    @classmethod
-    def get_tablename(cls):
-        return "gmcpq"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "GMC-PQ"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "GMC Patient Questionnaire"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        RATING_TEXT = " (1 poor - 5 very good, 0 does not apply)"
-        AGREE_TEXT = (
-            " (1 strongly disagree - 5 strongly agree, 0 does not apply)"
-        )
-        return STANDARD_ANONYMOUS_TASK_FIELDSPECS + [
-            dict(name="doctor", cctype="TEXT",
-                 comment="Doctor's name"),
-            dict(name="q1", cctype="INT", min=1, max=4,
-                 comment="Filling in questionnaire for... (1 yourself, "
-                 "2 child, 3 spouse/partner, 4 other relative/friend)"),
-            dict(name="q2a", cctype="INT", pv=PV.BIT,
-                 comment="Reason: advice? (0 no, 1 yes)"),
-            dict(name="q2b", cctype="INT", pv=PV.BIT,
-                 comment="Reason: one-off problem? (0 no, 1 yes)"),
-            dict(name="q2c", cctype="INT", pv=PV.BIT,
-                 comment="Reason: ongoing problem? (0 no, 1 yes)"),
-            dict(name="q2d", cctype="INT", pv=PV.BIT,
-                 comment="Reason: routine check? (0 no, 1 yes)"),
-            dict(name="q2e", cctype="INT", pv=PV.BIT,
-                 comment="Reason: treatment? (0 no, 1 yes)"),
-            dict(name="q2f", cctype="INT", pv=PV.BIT,
-                 comment="Reason: other? (0 no, 1 yes)"),
-            dict(name="q2f_details", cctype="TEXT",
-                 comment="Reason, other, details"),
-            dict(name="q3", cctype="INT", min=1, max=5,
-                 comment="How important to health/wellbeing was the reason "
-                 "(1 not very - 5 very)"),
-            dict(name="q4a", cctype="INT", min=0, max=5,
-                 comment="How good: being polite" + RATING_TEXT),
-            dict(name="q4b", cctype="INT", min=0, max=5,
-                 comment="How good: making you feel at ease" + RATING_TEXT),
-            dict(name="q4c", cctype="INT", min=0, max=5,
-                 comment="How good: listening" + RATING_TEXT),
-            dict(name="q4d", cctype="INT", min=0, max=5,
-                 comment="How good: assessing medical condition" +
-                 RATING_TEXT),
-            dict(name="q4e", cctype="INT", min=0, max=5,
-                 comment="How good: explaining" + RATING_TEXT),
-            dict(name="q4f", cctype="INT", min=0, max=5,
-                 comment="How good: involving you in decisions" + RATING_TEXT),
-            dict(name="q4g", cctype="INT", min=0, max=5,
-                 comment="How good: providing/arranging treatment" +
-                 RATING_TEXT),
-            dict(name="q5a", cctype="INT", min=0, max=5,
-                 comment="Agree/disagree: will keep info confidential" +
-                 AGREE_TEXT),
-            dict(name="q5b", cctype="INT", min=0, max=5,
-                 comment="Agree/disagree: honest/trustworthy" + AGREE_TEXT),
-            dict(name="q6", cctype="INT", pv=PV.BIT,
-                 comment="Confident in doctor's ability to provide care "
-                 "(0 no, 1 yes)"),
-            dict(name="q7", cctype="INT", pv=PV.BIT,
-                 comment="Would be completely happy to see this doctor again "
-                 "(0 no, 1 yes)"),
-            dict(name="q8", cctype="INT", pv=PV.BIT,
-                 comment="Was this visit with your usual doctor "
-                 "(0 no, 1 yes)"),
-            dict(name="q9", cctype="TEXT",
-                 comments="Other comments"),
-            dict(name="q10", cctype="TEXT", pv=["M", "F"],
-                 comment="Sex of rater (M, F)"),
-            dict(name="q11", cctype="INT", min=1, max=5,
-                 comment="Age (1 = under 15, 2 = 15-20, 3 = 21-40, "
-                 "4 = 40-60, 5 = 60 or over"),  # yes, I know it's daft
-            dict(name="q12", cctype="INT", min=1, max=16,
-                 comment="Ethnicity (1 = White British, 2 = White Irish, "
-                 "3 = White other, 4 = Mixed W/B Caribbean, "
-                 "5 = Mixed W/B African, 6 = Mixed W/Asian, 7 = Mixed other, "
-                 "8 = Asian/Asian British - Indian, 9 = A/AB - Pakistani, "
-                 "10 = A/AB - Bangladeshi, 11 = A/AB - other, "
-                 "12 = Black/Black British - Caribbean, 13 = B/BB - African, "
-                 "14 = B/BB - other, 15 = Chinese, 16 = other)"),
-            dict(name="q12_details", cctype="TEXT",
-                 comment="Ethnic group, other, details"),
-        ]
-
-    @classmethod
-    def is_anonymous(cls):
-        return True
+    tablename = "gmcpq"
+    shortname = "GMC-PQ"
+    longname = "GMC Patient Questionnaire"
+    fieldspecs = [
+        dict(name="doctor", cctype="TEXT",
+             comment="Doctor's name"),
+        dict(name="q1", cctype="INT", min=1, max=4,
+             comment="Filling in questionnaire for... (1 yourself, "
+             "2 child, 3 spouse/partner, 4 other relative/friend)"),
+        dict(name="q2a", cctype="INT", pv=PV.BIT,
+             comment="Reason: advice? (0 no, 1 yes)"),
+        dict(name="q2b", cctype="INT", pv=PV.BIT,
+             comment="Reason: one-off problem? (0 no, 1 yes)"),
+        dict(name="q2c", cctype="INT", pv=PV.BIT,
+             comment="Reason: ongoing problem? (0 no, 1 yes)"),
+        dict(name="q2d", cctype="INT", pv=PV.BIT,
+             comment="Reason: routine check? (0 no, 1 yes)"),
+        dict(name="q2e", cctype="INT", pv=PV.BIT,
+             comment="Reason: treatment? (0 no, 1 yes)"),
+        dict(name="q2f", cctype="INT", pv=PV.BIT,
+             comment="Reason: other? (0 no, 1 yes)"),
+        dict(name="q2f_details", cctype="TEXT",
+             comment="Reason, other, details"),
+        dict(name="q3", cctype="INT", min=1, max=5,
+             comment="How important to health/wellbeing was the reason "
+             "(1 not very - 5 very)"),
+        dict(name="q4a", cctype="INT", min=0, max=5,
+             comment="How good: being polite" + RATING_TEXT),
+        dict(name="q4b", cctype="INT", min=0, max=5,
+             comment="How good: making you feel at ease" + RATING_TEXT),
+        dict(name="q4c", cctype="INT", min=0, max=5,
+             comment="How good: listening" + RATING_TEXT),
+        dict(name="q4d", cctype="INT", min=0, max=5,
+             comment="How good: assessing medical condition" +
+             RATING_TEXT),
+        dict(name="q4e", cctype="INT", min=0, max=5,
+             comment="How good: explaining" + RATING_TEXT),
+        dict(name="q4f", cctype="INT", min=0, max=5,
+             comment="How good: involving you in decisions" + RATING_TEXT),
+        dict(name="q4g", cctype="INT", min=0, max=5,
+             comment="How good: providing/arranging treatment" +
+             RATING_TEXT),
+        dict(name="q5a", cctype="INT", min=0, max=5,
+             comment="Agree/disagree: will keep info confidential" +
+             AGREE_TEXT),
+        dict(name="q5b", cctype="INT", min=0, max=5,
+             comment="Agree/disagree: honest/trustworthy" + AGREE_TEXT),
+        dict(name="q6", cctype="INT", pv=PV.BIT,
+             comment="Confident in doctor's ability to provide care "
+             "(0 no, 1 yes)"),
+        dict(name="q7", cctype="INT", pv=PV.BIT,
+             comment="Would be completely happy to see this doctor again "
+             "(0 no, 1 yes)"),
+        dict(name="q8", cctype="INT", pv=PV.BIT,
+             comment="Was this visit with your usual doctor "
+             "(0 no, 1 yes)"),
+        dict(name="q9", cctype="TEXT",
+             comments="Other comments"),
+        dict(name="q10", cctype="TEXT", pv=["M", "F"],
+             comment="Sex of rater (M, F)"),
+        dict(name="q11", cctype="INT", min=1, max=5,
+             comment="Age (1 = under 15, 2 = 15-20, 3 = 21-40, "
+             "4 = 40-60, 5 = 60 or over"),  # yes, I know it's daft
+        dict(name="q12", cctype="INT", min=1, max=16,
+             comment="Ethnicity (1 = White British, 2 = White Irish, "
+             "3 = White other, 4 = Mixed W/B Caribbean, "
+             "5 = Mixed W/B African, 6 = Mixed W/Asian, 7 = Mixed other, "
+             "8 = Asian/Asian British - Indian, 9 = A/AB - Pakistani, "
+             "10 = A/AB - Bangladeshi, 11 = A/AB - other, "
+             "12 = Black/Black British - Caribbean, 13 = B/BB - African, "
+             "14 = B/BB - other, 15 = Chinese, 16 = other)"),
+        dict(name="q12_details", cctype="TEXT",
+             comment="Ethnic group, other, details"),
+    ]
+    is_anonymous = True
 
     def is_complete(self):
         return (

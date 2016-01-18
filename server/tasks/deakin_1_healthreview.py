@@ -23,7 +23,6 @@
 
 from cc_modules.cc_constants import (
     PV,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_html import (
     tr_qa,
@@ -41,7 +40,10 @@ FREQUENCY_COMMENT = (
 
 
 class Deakin_1_HealthReview(Task):
-    TASK_FIELDSPECS = [
+    tablename = "deakin_1_healthreview"
+    shortname = "Deakin_1_HealthReview"
+    longname = "Deakin JB – 1 – Health Review"
+    fieldspecs = [
         dict(name="ethnicity", cctype="INT", min=1, max=16,
              comment="Ethnicity code, per GMC Patient Questionnaire (1-16)"),
         dict(name="ethnicity_text", cctype="TEXT",
@@ -200,25 +202,9 @@ class Deakin_1_HealthReview(Task):
         dict(name="willing_to_participate_in_further_studies",
              cctype="BOOL", pv=PV.BIT),
     ]
-    for d in TASK_FIELDSPECS:
+    for d in fieldspecs:
         if "comment" not in d:
             d["comment"] = d["name"]
-
-    @classmethod
-    def get_tablename(cls):
-        return "deakin_1_healthreview"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "Deakin_1_HealthReview"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Deakin JB – 1 – Health Review"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + Deakin_1_HealthReview.TASK_FIELDSPECS
 
     def is_complete(self):
         return (

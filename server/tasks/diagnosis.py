@@ -23,10 +23,7 @@
 
 import pythonlib.rnc_web as ws
 from cc_modules.cc_constants import (
-    CLINICIAN_FIELDSPECS,
     NUMBER_OF_IDNUMS,
-    STANDARD_ANCILLARY_FIELDSPECS,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_hl7core import make_dg1_segment
 from cc_modules.cc_html import (
@@ -37,6 +34,24 @@ from cc_modules.cc_nlp import guess_name_components
 from cc_modules.cc_task import Ancillary, Task
 from cc_modules.cc_pls import pls
 import cc_modules.cc_report as cc_report
+from cc_modules.cc_report import Report
+
+
+# =============================================================================
+# Helpers
+# =============================================================================
+
+def make_diagnosis_item_base_fieldspecs(fkname):
+    return [
+        dict(name=fkname, notnull=True, cctype="INT",
+             comment="FK to parent table"),
+        # ... FK
+        dict(name="seqnum", notnull=True, cctype="INT",
+             comment="Sequence number"),
+        dict(name="code", cctype="TEXT", comment="Diagnostic code"),
+        dict(name="description", cctype="TEXT",
+             comment="Description of the diagnostic code"),
+    ]
 
 
 # =============================================================================
@@ -44,32 +59,11 @@ import cc_modules.cc_report as cc_report
 # =============================================================================
 
 class DiagnosisItemBase(Ancillary):
-    MUST_OVERRIDE = "DiagnosisItemBase: must override fn in derived class"
-
-    @classmethod
-    def get_tablename(cls):
-        raise NotImplementedError(cls.MUST_OVERRIDE)
+    sortfield = "seqnum"
 
     @classmethod
     def get_fkname(cls):
-        raise NotImplementedError(cls.MUST_OVERRIDE)
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_ANCILLARY_FIELDSPECS + [
-            dict(name=cls.get_fkname(), notnull=True, cctype="INT",
-                 comment="FK to parent table"),
-            # ... FK
-            dict(name="seqnum", notnull=True, cctype="INT",
-                 comment="Sequence number"),
-            dict(name="code", cctype="TEXT", comment="Diagnostic code"),
-            dict(name="description", cctype="TEXT",
-                 comment="Description of the diagnostic code"),
-        ]
-
-    @classmethod
-    def get_sortfield(self):
-        return "seqnum"
+        return cls.fkname
 
     def get_html_table_row(self):
         return tr(
@@ -90,41 +84,16 @@ class DiagnosisItemBase(Ancillary):
 
 class DiagnosisBase(object):
     MUST_OVERRIDE = "DiagnosisBase: must override fn in derived class"
-
-    @classmethod
-    def get_tablename(cls):
-        raise NotImplementedError(cls.MUST_OVERRIDE)
-
-    @classmethod
-    def get_taskshortname(cls):
-        raise NotImplementedError(cls.MUST_OVERRIDE)
-
-    @classmethod
-    def get_tasklongname(cls):
-        raise NotImplementedError(cls.MUST_OVERRIDE)
-
-    @classmethod
-    def get_itemclass(cls):
-        raise NotImplementedError(cls.MUST_OVERRIDE)
-
-    @classmethod
-    def get_hl7_coding_system(cls):
-        raise NotImplementedError(cls.MUST_OVERRIDE)
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + CLINICIAN_FIELDSPECS
-
-    @classmethod
-    def get_dependent_classes(cls):
-        return [cls.get_itemclass()]
+    fieldspecs = []
+    has_clinician = True
+    hl7_coding_system = "?"
 
     def get_num_items(self):
-        itemclass = self.get_itemclass()
+        itemclass = self.dependent_classes[0]
         return self.get_ancillary_item_count(itemclass)
 
     def get_items(self):
-        itemclass = self.get_itemclass()
+        itemclass = self.dependent_classes[0]
         return self.get_ancillary_items(itemclass)
 
     def is_complete(self):
@@ -132,7 +101,7 @@ class DiagnosisBase(object):
 
     def get_task_html(self):
         items = self.get_items()
-        html = self.get_standard_clinician_block() + """
+        html = """
             <div class="summary">
                 <table class="summary">
                     {}
@@ -174,7 +143,7 @@ class DiagnosisBase(object):
             segments.append(make_dg1_segment(
                 set_id=set_id,
                 diagnosis_datetime=self.get_creation_datetime(),
-                coding_system=self.get_hl7_coding_system(),
+                coding_system=self.hl7_coding_system,
                 diagnosis_identifier=item.get_code_for_hl7(),
                 diagnosis_text=item.get_text_for_hl7(),
                 clinician_surname=clinician.get("surname") or "",
@@ -190,38 +159,19 @@ class DiagnosisBase(object):
 # =============================================================================
 
 class DiagnosisIcd10Item(DiagnosisItemBase):
-    @classmethod
-    def get_tablename(cls):
-        return "diagnosis_icd10_item"
-
-    @classmethod
-    def get_fkname(cls):
-        return "diagnosis_icd10_id"
+    tablename = "diagnosis_icd10_item"
+    fkname = "diagnosis_icd10_id"
+    fieldspecs = make_diagnosis_item_base_fieldspecs(fkname)
 
 
 class DiagnosisIcd10(DiagnosisBase, Task):
     # Inheritance order crucial (search is from left to right)
-    @classmethod
-    def get_tablename(cls):
-        return "diagnosis_icd10"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "Diagnosis_ICD10"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Diagnostic codes, ICD-10"
-
-    @classmethod
-    def get_itemclass(cls):
-        return DiagnosisIcd10Item
-
-    @classmethod
-    def get_hl7_coding_system(self):
-        # Page A-129 of:
-        # https://www.hl7.org/special/committees/vocab/V26_Appendix_A.pdf
-        return "I10"
+    tablename = "diagnosis_icd10"
+    shortname = "Diagnosis_ICD10"
+    longname = "Diagnostic codes, ICD-10"
+    dependent_classes = [DiagnosisIcd10Item]
+    hl7_coding_system = "I10"
+    # Page A-129 of https://www.hl7.org/special/committees/vocab/V26_Appendix_A.pdf  # noqa
 
 
 # =============================================================================
@@ -229,37 +179,18 @@ class DiagnosisIcd10(DiagnosisBase, Task):
 # =============================================================================
 
 class DiagnosisIcd9CMItem(DiagnosisItemBase):
-    @classmethod
-    def get_tablename(cls):
-        return "diagnosis_icd9cm_item"
-
-    @classmethod
-    def get_fkname(cls):
-        return "diagnosis_icd9cm_id"
+    tablename = "diagnosis_icd9cm_item"
+    fkname = "diagnosis_icd9cm_id"
+    fieldspecs = make_diagnosis_item_base_fieldspecs(fkname)
 
 
 class DiagnosisIcd9CM(DiagnosisBase, Task):
-    @classmethod
-    def get_tablename(cls):
-        return "diagnosis_icd9cm"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "Diagnosis_ICD9CM"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Diagnostic codes, ICD-9-CM (DSM-IV-TR)"
-
-    @classmethod
-    def get_itemclass(cls):
-        return DiagnosisIcd9CMItem
-
-    @classmethod
-    def get_hl7_coding_system(self):
-        # Page A-129 of:
-        # https://www.hl7.org/special/committees/vocab/V26_Appendix_A.pdf
-        return "I9CM"
+    tablename = "diagnosis_icd9cm"
+    shortname = "Diagnosis_ICD9CM"
+    longname = "Diagnostic codes, ICD-9-CM (DSM-IV-TR)"
+    dependent_classes = [DiagnosisIcd9CMItem]
+    hl7_coding_system = "I9CM"
+    # Page A-129 of https://www.hl7.org/special/committees/vocab/V26_Appendix_A.pdf  # noqa
 
 
 # =============================================================================
@@ -320,20 +251,12 @@ def get_diagnosis_report(diagnosis_table, item_table, item_fk_fieldname,
     return (rows, fieldnames)
 
 
-class Diagnosis_ICD9CM_Report(cc_report.Report):
+class Diagnosis_ICD9CM_Report(Report):
     """Report to show ICD-9-CM (DSM-IV-TR) diagnoses."""
-
-    @classmethod
-    def get_report_id(cls):
-        return "diagnoses_icd9cm"
-
-    @classmethod
-    def get_report_title(cls):
-        return "Diagnosis – ICD-9-CM (DSM-IV-TR) diagnoses for all patients"
-
-    @classmethod
-    def get_param_spec_list(cls):
-        return []
+    report_id = "diagnoses_icd9cm"
+    report_title = ("Diagnosis – ICD-9-CM (DSM-IV-TR) diagnoses for all "
+                    "patients")
+    param_spec_list = []
 
     def get_rows_descriptions(self):
         return get_diagnosis_report(
@@ -344,20 +267,11 @@ class Diagnosis_ICD9CM_Report(cc_report.Report):
         )
 
 
-class Diagnosis_ICD10_Report(cc_report.Report):
+class Diagnosis_ICD10_Report(Report):
     """Report to show ICD-10 diagnoses."""
-
-    @classmethod
-    def get_report_id(cls):
-        return "diagnoses_icd10"
-
-    @classmethod
-    def get_report_title(cls):
-        return "Diagnosis – ICD-10 diagnoses for all patients"
-
-    @classmethod
-    def get_param_spec_list(cls):
-        return []
+    report_id = "diagnoses_icd10"
+    report_title = "Diagnosis – ICD-10 diagnoses for all patients"
+    param_spec_list = []
 
     def get_rows_descriptions(self):
         return get_diagnosis_report(
@@ -368,20 +282,11 @@ class Diagnosis_ICD10_Report(cc_report.Report):
         )
 
 
-class Diagnosis_All_Report(cc_report.Report):
+class Diagnosis_All_Report(Report):
     """Report to show all diagnoses."""
-
-    @classmethod
-    def get_report_id(cls):
-        return "diagnoses_all"
-
-    @classmethod
-    def get_report_title(cls):
-        return "Diagnosis – All diagnoses for all patients"
-
-    @classmethod
-    def get_param_spec_list(cls):
-        return []
+    report_id = "diagnoses_all"
+    report_title = "Diagnosis – All diagnoses for all patients"
+    param_spec_list = []
 
     def get_rows_descriptions(self):
         sql_icd9cm = get_diagnosis_report_sql(

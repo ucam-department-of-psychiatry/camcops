@@ -22,9 +22,7 @@
 """
 
 from cc_modules.cc_constants import (
-    CLINICIAN_FIELDSPECS,
     CTV_DICTLIST_INCOMPLETE,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import (
@@ -42,7 +40,11 @@ from cc_modules.cc_task import get_from_dict, Task
 
 class Bprs(Task):
     NQUESTIONS = 20
-    TASK_FIELDSPECS = repeat_fieldspec(
+
+    tablename = "bprs"
+    shortname = "BPRS"
+    longname = "Brief Psychiatric Rating Scale"
+    fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, min=0, max=7,
         comment_fmt="Q{n}, {s} (1-7, higher worse, 0 for unable to rate)",
         comment_strings=[
@@ -53,29 +55,10 @@ class Bprs(Task):
             "motor retardation", "uncooperativeness",
             "unusual thought content", "blunted affect", "excitement",
             "disorientation", "severity of illness", "global improvement"])
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
+    has_clinician = True
+
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
     SCORED_FIELDS = [x for x in TASK_FIELDS if (x != "q19" and x != "q20")]
-
-    @classmethod
-    def get_tablename(cls):
-        return "bprs"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "BPRS"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Brief Psychiatric Rating Scale"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + CLINICIAN_FIELDSPECS + \
-            Bprs.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
 
     def get_trackers(self):
         return [
@@ -145,7 +128,7 @@ class Bprs(Task):
             6: WSTRING("bprs_q20_option6"),
             7: WSTRING("bprs_q20_option7")
         }
-        h = self.get_standard_clinician_block() + """
+        h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()

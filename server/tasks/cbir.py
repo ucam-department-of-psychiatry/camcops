@@ -24,8 +24,6 @@
 from pythonlib.rnc_lang import AttrDict
 from cc_modules.cc_constants import (
     PV,
-    RESPONDENT_FIELDSPECS,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import (
@@ -105,7 +103,11 @@ class CbiR(Task):
     QNUMS_MOTIVATION = (41, 45)
 
     NQUESTIONS = 45
-    TASK_FIELDSPECS = [
+
+    tablename = "cbir"
+    shortname = "CBI-R"
+    longname = "Cambridge Behavioural Inventory, Revised"
+    fieldspecs = [
         dict(name="confirm_blanks", cctype="INT", pv=PV.BIT,
              comment="Respondent confirmed that blanks are deliberate (N/A) "
                      "(0/NULL no, 1 yes)"),
@@ -122,31 +124,9 @@ class CbiR(Task):
         min=MIN_SCORE, max=MAX_SCORE,
         comment_strings=QUESTION_SNIPPETS
     )
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
+    has_respondent = True
 
-    @classmethod
-    def get_tablename(cls):
-        return "cbir"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "CBI-R"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Cambridge Behavioural Inventory, Revised"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return (
-            STANDARD_TASK_FIELDSPECS
-            + RESPONDENT_FIELDSPECS
-            + cls.TASK_FIELDSPECS
-        )
-
-    @classmethod
-    def provides_trackers(cls):
-        return False
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_summaries(self):
         return [
@@ -274,9 +254,7 @@ class CbiR(Task):
                 )
             return h
 
-        h = (
-            self.get_standard_respondent_block()
-        ) + """
+        h = """
             <div class="summary">
                 <table class="summary">
                     {complete_tr}

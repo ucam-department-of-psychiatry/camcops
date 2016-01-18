@@ -24,7 +24,6 @@
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
     DATA_COLLECTION_ONLY_DIV,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_html import (
     answer,
@@ -39,27 +38,16 @@ from cc_modules.cc_task import Task
 # =============================================================================
 
 class Gaf(Task):
-    TASK_FIELDSPECS = [
+    tablename = "gaf"
+    shortname = "GAF"
+    longname = "Global Assessment of Functioning (data collection only)"
+    fieldspecs = [
         dict(name="score", cctype="INT", min=0, max=100,
              comment="GAF score (1-100 or 0 for insufficient information)"),
     ]
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
+    has_clinician = True
 
-    @classmethod
-    def get_tablename(cls):
-        return "gaf"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "GAF"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Global Assessment of Functioning (data collection only)"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + Gaf.TASK_FIELDSPECS
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def is_complete(self):
         return (
@@ -67,10 +55,6 @@ class Gaf(Task):
             and self.field_contents_valid()
             and self.score != 0
         )
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
 
     def get_trackers(self):
         return [{

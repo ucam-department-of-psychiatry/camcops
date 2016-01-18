@@ -24,12 +24,7 @@
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import get_yes_no
 from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import (
-    CLINICIAN_FIELDSPECS,
-    get_from_dict,
-    STANDARD_TASK_FIELDSPECS,
-    Task,
-)
+from cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
@@ -38,29 +33,14 @@ from cc_modules.cc_task import (
 
 class Fab(Task):
     NQUESTIONS = 6
-    TASK_FIELDSPECS = repeat_fieldspec("q", 1, NQUESTIONS)
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
 
-    @classmethod
-    def get_tablename(cls):
-        return "fab"
+    tablename = "fab"
+    shortname = "FAB"
+    longname = "Frontal Assessment Battery"
+    fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
+    has_clinician = True
 
-    @classmethod
-    def get_taskshortname(cls):
-        return "FAB"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Frontal Assessment Battery"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return (STANDARD_TASK_FIELDSPECS + CLINICIAN_FIELDSPECS +
-                Fab.TASK_FIELDSPECS)
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self):
         return [
@@ -87,23 +67,23 @@ class Fab(Task):
         ]
 
     def is_complete(self):
-        return self.are_all_fields_complete(Fab.TASK_FIELDS)
+        return self.are_all_fields_complete(self.TASK_FIELDS)
 
     def total_score(self):
-        return self.sum_fields(Fab.TASK_FIELDS)
+        return self.sum_fields(self.TASK_FIELDS)
 
     def get_task_html(self):
         score = self.total_score()
         below_cutoff = score <= 12
         ANSWER_DICTS = []
-        for q in range(1, Fab.NQUESTIONS + 1):
+        for q in range(1, self.NQUESTIONS + 1):
             d = {None: "?"}
             for option in range(0, 5):
                 d[option] = (
-                    str(option) + u" — " +
+                    str(option) + " — " +
                     WSTRING("fab_q" + str(q) + "_option" + str(option)))
             ANSWER_DICTS.append(d)
-        h = self.get_standard_clinician_block() + u"""
+        h = """
             <div class="summary">
                 <table class="summary">
                     {}
@@ -121,12 +101,12 @@ class Fab(Task):
             WSTRING("total_score"), score,
             WSTRING("fab_below_cutoff"), get_yes_no(below_cutoff),
         )
-        for q in range(1, Fab.NQUESTIONS + 1):
-            h += u"""<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
+        for q in range(1, self.NQUESTIONS + 1):
+            h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
                 WSTRING("fab_q" + str(q) + "_title"),
                 get_from_dict(ANSWER_DICTS[q - 1], getattr(self, "q" + str(q)))
             )
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] Cutoff is &le;12.

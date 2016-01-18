@@ -22,10 +22,6 @@
 """
 
 import pythonlib.rnc_web as ws
-from cc_modules.cc_constants import (
-    CLINICIAN_FIELDSPECS,
-    STANDARD_TASK_FIELDSPECS,
-)
 from cc_modules.cc_string import WSTRING
 from cc_modules.cc_task import Task
 
@@ -35,7 +31,7 @@ from cc_modules.cc_task import Task
 # =============================================================================
 
 class PsychiatricClerking(Task):
-    FIELDSPEC_A = CLINICIAN_FIELDSPECS
+    # FIELDSPEC_A = CLINICIAN_FIELDSPECS  # replaced by has_clinician
     FIELDSPEC_B = [
         dict(name="location", cctype="TEXT"),
         dict(name="contact_type", cctype="TEXT"),
@@ -100,31 +96,19 @@ class PsychiatricClerking(Task):
         # DO NOT write to FIELDSPEC_A like this, because that overwrite
         # CLINICIAN_FIELDSPECS.
 
-    @classmethod
-    def get_tablename(cls):
-        return "psychiatricclerking"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "Clerking"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Psychiatric clerking"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return (
-            STANDARD_TASK_FIELDSPECS
-            + PsychiatricClerking.FIELDSPEC_A
-            + PsychiatricClerking.FIELDSPEC_B
-            + PsychiatricClerking.FIELDSPEC_C
-            + PsychiatricClerking.FIELDSPEC_MSE
-            + PsychiatricClerking.FIELDSPEC_PE
-            + PsychiatricClerking.FIELDSPEC_D
-            + PsychiatricClerking.FIELDSPEC_E
-            + PsychiatricClerking.FIELDSPEC_F
-        )
+    tablename = "psychiatricclerking"
+    shortname = "Clerking"
+    longname = "Psychiatric clerking"
+    fieldspecs = (
+        FIELDSPEC_B
+        + FIELDSPEC_C
+        + FIELDSPEC_MSE
+        + FIELDSPEC_PE
+        + FIELDSPEC_D
+        + FIELDSPEC_E
+        + FIELDSPEC_F
+    )
+    has_clinician = True
 
     def get_ctv_heading(self, wstringname):
         return {
@@ -145,13 +129,13 @@ class PsychiatricClerking(Task):
         }
 
     def get_clinical_text(self):
-        FIELDS_B = [x["name"] for x in PsychiatricClerking.FIELDSPEC_B]
-        FIELDS_C = [x["name"] for x in PsychiatricClerking.FIELDSPEC_C]
-        FIELDS_MSE = [x["name"] for x in PsychiatricClerking.FIELDSPEC_MSE]
-        FIELDS_PE = [x["name"] for x in PsychiatricClerking.FIELDSPEC_PE]
-        FIELDS_D = [x["name"] for x in PsychiatricClerking.FIELDSPEC_D]
-        FIELDS_E = [x["name"] for x in PsychiatricClerking.FIELDSPEC_E]
-        FIELDS_F = [x["name"] for x in PsychiatricClerking.FIELDSPEC_F]
+        FIELDS_B = [x["name"] for x in self.FIELDSPEC_B]
+        FIELDS_C = [x["name"] for x in self.FIELDSPEC_C]
+        FIELDS_MSE = [x["name"] for x in self.FIELDSPEC_MSE]
+        FIELDS_PE = [x["name"] for x in self.FIELDSPEC_PE]
+        FIELDS_D = [x["name"] for x in self.FIELDSPEC_D]
+        FIELDS_E = [x["name"] for x in self.FIELDSPEC_E]
+        FIELDS_F = [x["name"] for x in self.FIELDSPEC_F]
         dictlist = []
         dictlist.append(self.get_ctv_heading(
             "psychiatricclerking_heading_current_contact"))
@@ -208,17 +192,14 @@ class PsychiatricClerking(Task):
 
     def get_task_html(self):
         # Avoid tables - PDF generator crashes if text is too long.
-        # FIELDS_A = [x["name"] for x in PsychiatricClerking.FIELDSPEC_A]
-        FIELDS_B = [x["name"] for x in PsychiatricClerking.FIELDSPEC_B]
-        FIELDS_C = [x["name"] for x in PsychiatricClerking.FIELDSPEC_C]
-        FIELDS_MSE = [x["name"] for x in PsychiatricClerking.FIELDSPEC_MSE]
-        FIELDS_PE = [x["name"] for x in PsychiatricClerking.FIELDSPEC_PE]
-        FIELDS_D = [x["name"] for x in PsychiatricClerking.FIELDSPEC_D]
-        FIELDS_E = [x["name"] for x in PsychiatricClerking.FIELDSPEC_E]
-        FIELDS_F = [x["name"] for x in PsychiatricClerking.FIELDSPEC_F]
-        html = self.get_standard_clinician_block()
-        # for x in FIELDS_A:
-        #     html += self.subsubhead_text(x)
+        FIELDS_B = [x["name"] for x in self.FIELDSPEC_B]
+        FIELDS_C = [x["name"] for x in self.FIELDSPEC_C]
+        FIELDS_MSE = [x["name"] for x in self.FIELDSPEC_MSE]
+        FIELDS_PE = [x["name"] for x in self.FIELDSPEC_PE]
+        FIELDS_D = [x["name"] for x in self.FIELDSPEC_D]
+        FIELDS_E = [x["name"] for x in self.FIELDSPEC_E]
+        FIELDS_F = [x["name"] for x in self.FIELDSPEC_F]
+        html = ""
         html += self.heading("psychiatricclerking_heading_current_contact")
         for x in FIELDS_B:
             html += self.subhead_text(x)

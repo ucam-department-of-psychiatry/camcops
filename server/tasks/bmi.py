@@ -24,7 +24,6 @@
 import pythonlib.rnc_web as ws
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_html import (
     tr_qa,
@@ -43,28 +42,17 @@ M_DP = 3
 
 
 class Bmi(Task):
-    @classmethod
-    def get_tablename(cls):
-        return "bmi"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "BMI"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Body mass index"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + [
-            dict(name="height_m", cctype="FLOAT", min=0,
-                 comment="height (m)"),
-            dict(name="mass_kg", cctype="FLOAT", min=0,
-                 comment="mass (kg)"),
-            dict(name="comment", cctype="TEXT",
-                 comment="Clinician's comment"),
-        ]
+    tablename = "bmi"
+    shortname = "BMI"
+    longname = "Body mass index"
+    fieldspecs = [
+        dict(name="height_m", cctype="FLOAT", min=0,
+             comment="height (m)"),
+        dict(name="mass_kg", cctype="FLOAT", min=0,
+             comment="mass (kg)"),
+        dict(name="comment", cctype="TEXT",
+             comment="Clinician's comment"),
+    ]
 
     def is_complete(self):
         return (
@@ -72,10 +60,6 @@ class Bmi(Task):
             and self.mass_kg is not None
             and self.field_contents_valid()
         )
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
 
     def get_trackers(self):
         # $ signs enable TEX mode for matplotlib, e.g. "$BMI (kg/m^2)$"

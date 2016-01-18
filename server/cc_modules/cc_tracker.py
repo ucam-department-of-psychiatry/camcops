@@ -128,7 +128,7 @@ def get_summary_of_tasks(list_of_task_instance_lists):
             "; ".join(
                 [
                     "({},{},{})".format(
-                        task.get_tablename(),
+                        task.tablename,
                         task._pk,
                         task.get_patient_server_pk()
                     )
@@ -278,10 +278,10 @@ class Tracker(object):
         # Which tasks?
         task_class_list = []
         classes = cc_task.Task.__subclasses__()
-        classes.sort(key=lambda cls: cls.get_taskshortname())
+        classes.sort(key=lambda cls: cls.shortname)
         for cls in classes:
-            if (cls.provides_trackers() and
-                    cls.get_tablename() in task_tablename_list):
+            if (hasattr(cls, 'get_trackers') and
+                    cls.tablename in task_tablename_list):
                 task_class_list.append(cls)
 
         # What filters?
@@ -314,8 +314,8 @@ class Tracker(object):
         # Build task lists
         for cls in task_class_list:
             if DEBUG_TRACKER_TASK_INCLUSION:
-                self.summary += " // " + cls.get_tablename()
-            if cls.is_anonymous():
+                self.summary += " // " + cls.tablename
+            if cls.is_anonymous:
                 if DEBUG_TRACKER_TASK_INCLUSION:
                     self.summary += " (anonymous)"
                 continue
@@ -430,7 +430,7 @@ class Tracker(object):
                                            include_blobs=False))
             audit(
                 "Tracker XML accessed",
-                table=t.get_tablename(),
+                table=t.tablename,
                 server_pk=t._pk,
                 patient_server_pk=t.get_patient_server_pk()
             )
@@ -650,8 +650,8 @@ class Tracker(object):
                     <b>{} ({})</b>
                 </div>
             """.format(
-                ws.webify(task_instance_list[0].get_tasklongname()),
-                ws.webify(task_instance_list[0].get_taskshortname())
+                ws.webify(task_instance_list[0].longname),
+                ws.webify(task_instance_list[0].shortname)
             )
             html += self.get_all_plots_for_one_task_html(task_instance_list)
         return html
@@ -661,7 +661,7 @@ class Tracker(object):
         html = ""
         if len(task_instance_list) == 0:
             return html
-        if not task_instance_list[0].provides_trackers():
+        if not hasattr(task_instance_list[0], 'get_trackers'):
             # ask the first of the task instances
             return html
         ntasks = len(task_instance_list)
@@ -702,7 +702,7 @@ class Tracker(object):
         for task in task_instance_list:
             audit(
                 "Tracker data accessed",
-                table=task.get_tablename(),
+                table=task.tablename,
                 server_pk=task._pk,
                 patient_server_pk=task.get_patient_server_pk()
             )
@@ -907,8 +907,8 @@ class ClinicalTextView(object):
         # ... list (by task class) of lists of task instances
         for cls in task_class_list:
             if DEBUG_CTV_TASK_INCLUSION:
-                self.summary += " // " + cls.get_tablename()
-            if cls.is_anonymous():
+                self.summary += " // " + cls.tablename
+            if cls.is_anonymous:
                 if DEBUG_CTV_TASK_INCLUSION:
                     self.summary += " (anonymous)"
                 continue
@@ -1007,7 +1007,7 @@ class ClinicalTextView(object):
                                            include_blobs=False))
             audit(
                 "Clinical text view XML accessed",
-                table=t.get_tablename(),
+                table=t.tablename,
                 server_pk=t._pk,
                 patient_server_pk=t.get_patient_server_pk()
             )
@@ -1226,13 +1226,13 @@ class ClinicalTextView(object):
                 <div class="ctv_taskheading">{}: {} exists {}</div>
             """.format(
                 datetext,
-                task.get_tasklongname(),
+                task.longname,
                 links,
             )
         # Otherwise, we give relevant details.
         # Clinician
         clinician_html = ""
-        if task.has_clinician():
+        if task.has_clinician:
             clinician_html = "<i>(Clinician: {})</i>".format(
                 task.get_clinician_name()
             )
@@ -1241,7 +1241,7 @@ class ClinicalTextView(object):
             <div class="ctv_taskheading">{dt}: {t} {l} {c}</div>
         """.format(
             dt=datetext,
-            t=task.get_tasklongname(),
+            t=task.longname,
             l=links,
             c=clinician_html,
         )
@@ -1295,7 +1295,7 @@ class ClinicalTextView(object):
         # Done.
         audit(
             "Clinical text view accessed",
-            table=task.get_tablename(),
+            table=task.tablename,
             server_pk=task._pk,
             patient_server_pk=task.get_patient_server_pk()
         )
@@ -1369,7 +1369,7 @@ def unit_tests():
     session = cc_session.Session()
     tasktables = []
     for cls in cc_task.Task.__subclasses__():
-        tasktables.append(cls.get_tablename())
+        tasktables.append(cls.tablename)
     which_idnum = 1
     idnum_value = 3
 

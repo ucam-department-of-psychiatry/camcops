@@ -26,10 +26,8 @@ import numpy
 import pythonlib.rnc_web as ws
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
-    CLINICIAN_FIELDSPECS,
     FULLWIDTH_PLOT_WIDTH,
     PV,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from cc_modules.cc_html import (
@@ -67,9 +65,10 @@ def score_zero_for_absent(x):
 # =============================================================================
 
 class Ace3(Task):
-    FIELDSPECS = (
-        STANDARD_TASK_FIELDSPECS +
-        CLINICIAN_FIELDSPECS +
+    tablename = "ace3"
+    shortname = "ACE-III"
+    longname = "Addenbrooke’s Cognitive Examination III"
+    fieldspecs = (
         [
             dict(name="age_at_leaving_full_time_education",
                  cctype="INT",
@@ -225,33 +224,11 @@ class Ace3(Task):
                  comment="Clinician's comments"),
         ]
     )
-
-    @classmethod
-    def get_tablename(cls):
-        return "ace3"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "ACE-III"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Addenbrooke’s Cognitive Examination III"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return cls.FIELDSPECS
-
-    @classmethod
-    def get_pngblob_name_idfield_rotationfield_list(self):
-        return [
-            ("picture1", "picture1_blobid", "picture1_rotation"),
-            ("picture2", "picture2_blobid", "picture2_rotation"),
-        ]
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    has_clinician = True
+    pngblob_name_idfield_rotationfield_list = [
+        ("picture1", "picture1_blobid", "picture1_rotation"),
+        ("picture2", "picture2_blobid", "picture2_rotation"),
+    ]
 
     def get_trackers(self):
         return [
@@ -465,7 +442,7 @@ class Ace3(Task):
             # fig.autofmt_xdate()
             figurehtml = get_html_from_pyplot_figure(fig)
         return (
-            self.get_standard_clinician_block(True, self.comments)
+            self.get_standard_clinician_comments_block(self.comments)
             + """
                 <div class="summary">
                     <table class="summary">

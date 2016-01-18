@@ -22,10 +22,6 @@
 """
 
 import pythonlib.rnc_web as ws
-from cc_modules.cc_constants import (
-    CLINICIAN_FIELDSPECS,
-    STANDARD_TASK_FIELDSPECS,
-)
 from cc_modules.cc_html import answer
 from cc_modules.cc_string import WSTRING
 from cc_modules.cc_task import Task
@@ -36,24 +32,14 @@ from cc_modules.cc_task import Task
 # =============================================================================
 
 class ProgressNote(Task):
-    @classmethod
-    def get_tablename(cls):
-        return "progressnote"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "ProgressNote"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Clinical progress note"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + CLINICIAN_FIELDSPECS + [
-            dict(name="location", cctype="TEXT", comment="Location"),
-            dict(name="note", cctype="TEXT", comment="Clinical note"),
-        ]
+    tablename = "progressnote"
+    shortname = "ProgressNote"
+    longname = "Clinical progress note"
+    fieldspecs = [
+        dict(name="location", cctype="TEXT", comment="Location"),
+        dict(name="note", cctype="TEXT", comment="Clinical note"),
+    ]
+    has_clinician = True
 
     def get_clinical_text(self):
         return [{"content": ws.webify(self.note)}]
@@ -63,7 +49,7 @@ class ProgressNote(Task):
 
     def get_task_html(self):
         # Avoid tables - PDF generator crashes if text is too long.
-        h = self.get_standard_clinician_block() + """
+        h = """
             <div class="heading">
                 {heading_location}
             </div>

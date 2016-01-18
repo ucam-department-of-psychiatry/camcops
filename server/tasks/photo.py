@@ -23,10 +23,7 @@
 
 import pythonlib.rnc_web as ws
 from cc_modules.cc_constants import (
-    CLINICIAN_FIELDSPECS,
     CTV_DICTLIST_INCOMPLETE,
-    STANDARD_ANCILLARY_FIELDSPECS,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_html import (
     answer,
@@ -40,30 +37,23 @@ from cc_modules.cc_task import Ancillary, Task
 # =============================================================================
 
 class Photo(Task):
-    @classmethod
-    def get_tablename(cls):
-        return "photo"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "Photo"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Photograph"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + CLINICIAN_FIELDSPECS + [
-            dict(name="description", cctype="TEXT",
-                 comment="Description of the photograph"),
-            dict(name="photo_blobid", cctype="INT",
-                 comment="ID of the BLOB (foreign key to blobs.id, given "
-                 "matching device and current/frozen record status)"),
-            dict(name="rotation", cctype="INT",
-                 comment="Rotation (clockwise, in degrees) to be applied for "
-                 "viewing"),
-        ]
+    tablename = "photo"
+    shortname = "Photo"
+    longname = "Photograph"
+    fieldspecs = [
+        dict(name="description", cctype="TEXT",
+             comment="Description of the photograph"),
+        dict(name="photo_blobid", cctype="INT",
+             comment="ID of the BLOB (foreign key to blobs.id, given "
+             "matching device and current/frozen record status)"),
+        dict(name="rotation", cctype="INT",
+             comment="Rotation (clockwise, in degrees) to be applied for "
+             "viewing"),
+    ]
+    has_clinician = True
+    pngblob_name_idfield_rotationfield_list = [
+        ("photo_blob", "photo_blobid", "rotation")
+    ]
 
     def is_complete(self):
         return (self.photo_blobid is not None)
@@ -76,7 +66,7 @@ class Photo(Task):
         return [{"content": self.description}]
 
     def get_task_html(self):
-        return self.get_standard_clinician_block() + """
+        return """
             <table class="taskdetail">
                 <tr class="subheading"><td>Description</td></tr>
                 <tr><td>{}</td></tr>
@@ -90,45 +80,32 @@ class Photo(Task):
             self.get_blob_png_html(self.photo_blobid, self.rotation)
         )
 
-    @classmethod
-    def get_pngblob_name_idfield_rotationfield_list(cls):
-        return [("photo_blob", "photo_blobid", "rotation")]
-
 
 # =============================================================================
 # PhotoSequence
 # =============================================================================
 
 class PhotoSequence_SinglePhoto(Ancillary):
-
-    @classmethod
-    def get_tablename(cls):
-        return "photosequence_photos"
-
-    @classmethod
-    def get_fkname(cls):
-        return "photosequence_id"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_ANCILLARY_FIELDSPECS + [
-            dict(name="photosequence_id", notnull=True, cctype="INT",
-                 comment="FK to photosequence"),
-            dict(name="seqnum", notnull=True, cctype="INT",
-                 comment="Sequence number of this photo"),
-            dict(name="description", cctype="TEXT",
-                 comment="Description of the photograph"),
-            dict(name="photo_blobid", cctype="INT",
-                 comment="ID of the BLOB (foreign key to blobs.id, given "
-                 "matching device and current/frozen record status)"),
-            dict(name="rotation", cctype="INT",
-                 comment="Rotation (clockwise, in degrees) to be applied for "
-                 "viewing"),
-        ]
-
-    @classmethod
-    def get_sortfield(self):
-        return "seqnum"
+    tablename = "photosequence_photos"
+    fkname = "photosequence_id"
+    fieldspecs = [
+        dict(name="photosequence_id", notnull=True, cctype="INT",
+             comment="FK to photosequence"),
+        dict(name="seqnum", notnull=True, cctype="INT",
+             comment="Sequence number of this photo"),
+        dict(name="description", cctype="TEXT",
+             comment="Description of the photograph"),
+        dict(name="photo_blobid", cctype="INT",
+             comment="ID of the BLOB (foreign key to blobs.id, given "
+             "matching device and current/frozen record status)"),
+        dict(name="rotation", cctype="INT",
+             comment="Rotation (clockwise, in degrees) to be applied for "
+             "viewing"),
+    ]
+    sortfield = "seqnum"
+    pngblob_name_idfield_rotationfield_list = [
+        ("photo_blob", "photo_blobid", "rotation")
+    ]
 
     def get_html_table_rows(self):
         return """
@@ -138,10 +115,6 @@ class PhotoSequence_SinglePhoto(Ancillary):
             self.seqnum + 1, ws.webify(self.description),
             self.get_blob_png_html(),
         )
-
-    @classmethod
-    def get_pngblob_name_idfield_rotationfield_list(cls):
-        return [("photo_blob", "photo_blobid", "rotation")]
 
     def get_blob(self):
         return self.get_blob_by_id(self.photo_blobid)
@@ -156,32 +129,15 @@ class PhotoSequence_SinglePhoto(Ancillary):
 
 
 class PhotoSequence(Task):
-    @classmethod
-    def get_tablename(cls):
-        return "photosequence"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "PhotoSequence"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Photograph sequence"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + CLINICIAN_FIELDSPECS + [
-            dict(name="sequence_description", cctype="TEXT",
-                 comment="Description of the sequence of photographs"),
-        ]
-
-    @classmethod
-    def get_dependent_classes(cls):
-        return [PhotoSequence_SinglePhoto]
-
-    @classmethod
-    def provides_clinical_text(cls):
-        return True
+    tablename = "photosequence"
+    shortname = "PhotoSequence"
+    longname = "Photograph sequence"
+    fieldspecs = [
+        dict(name="sequence_description", cctype="TEXT",
+             comment="Description of the sequence of photographs"),
+    ]
+    has_clinician = True
+    dependent_classes = [PhotoSequence_SinglePhoto]
 
     def get_clinical_text(self):
         photos = self.get_photos()
@@ -201,7 +157,7 @@ class PhotoSequence(Task):
 
     def get_task_html(self):
         photos = self.get_photos()
-        html = self.get_standard_clinician_block() + """
+        html = """
             <div class="summary">
                 <table class="summary">
                     {is_complete}

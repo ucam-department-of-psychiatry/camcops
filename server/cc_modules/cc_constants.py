@@ -440,7 +440,7 @@ STANDARD_ANCILLARY_FIELDSPECS = STANDARD_GENERIC_FIELDSPECS + [
          indexed=True),
 ]
 
-CLINICIAN_FIELDSPECS = [  # see also has_clinician()
+CLINICIAN_FIELDSPECS = [  # see also has_clinician
     dict(name="clinician_specialty", cctype="TEXT", anon=True,
          comment="(CLINICIAN) Clinician's specialty (e.g. Liaison "
                  "Psychiatry)"),
@@ -458,7 +458,7 @@ CLINICIAN_FIELDSPECS = [  # see also has_clinician()
          comment="(CLINICIAN) Clinician's contact details (e.g. bleep, "
                  "extension)"),
 ]
-RESPONDENT_FIELDSPECS = [  # see also has_respondent()
+RESPONDENT_FIELDSPECS = [  # see also has_respondent
     dict(name="respondent_name", cctype="TEXT",
          comment="(RESPONDENT) Respondent's name"),
     dict(name="respondent_relationship", cctype="TEXT",

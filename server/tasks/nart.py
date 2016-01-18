@@ -23,10 +23,8 @@
 
 import math
 from cc_modules.cc_constants import (
-    CLINICIAN_FIELDSPECS,
     CTV_DICTLIST_INCOMPLETE,
     PV,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_html import (
     answer,
@@ -99,27 +97,16 @@ ACCENTED_WORDLIST[ACCENTED_WORDLIST.index("detente")] = "détente"
 # =============================================================================
 
 class Nart(Task):
-    @classmethod
-    def get_tablename(cls):
-        return "nart"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "NART"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "National Adult Reading Test"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        fieldspecs = []
-        for w in WORDLIST:
-            fieldspecs.append(
-                dict(name=w, cctype="BOOL", pv=PV.BIT,
-                     comment="Pronounced {} correctly "
-                     "(0 no, 1 yes)".format(w)))
-        return STANDARD_TASK_FIELDSPECS + CLINICIAN_FIELDSPECS + fieldspecs
+    tablename = "nart"
+    shortname = "NART"
+    longname = "National Adult Reading Test"
+    fieldspecs = []
+    for w in WORDLIST:
+        fieldspecs.append(
+            dict(name=w, cctype="BOOL", pv=PV.BIT,
+                 comment="Pronounced {} correctly "
+                 "(0 no, 1 yes)".format(w)))
+    has_clinician = True
 
     def get_clinical_text(self):
         if not self.is_complete():
@@ -169,7 +156,7 @@ class Nart(Task):
         return 123.5 - 0.645 * self.n_errors()
 
     def get_task_html(self):
-        h = self.get_standard_clinician_block() + """
+        h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()

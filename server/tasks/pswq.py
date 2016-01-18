@@ -23,7 +23,6 @@
 
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import (
@@ -60,34 +59,19 @@ class Pswq(Task):
     ]
     NQUESTIONS = 16
     REVERSE_SCORE = [1, 3, 8, 10, 11]
-    TASK_FIELDSPECS = repeat_fieldspec(
+
+    tablename = "pswq"
+    shortname = "PSWQ"
+    longname = "Penn State Worry Questionnaire"
+    fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS,
         comment_fmt="Q{n}, {s} (1-5)",
         min=MIN_SCORE, max=MAX_SCORE,
         comment_strings=QUESTION_SNIPPETS
     )
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
-    EXTRASTRING_TASKNAME = "pswq"
+    extrastring_taskname = "pswq"
 
-    @classmethod
-    def get_tablename(cls):
-        return "pswq"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "PSWQ"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Penn State Worry Questionnaire"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + cls.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self):
         return [
@@ -112,7 +96,7 @@ class Pswq(Task):
         if not self.is_complete():
             return CTV_DICTLIST_INCOMPLETE
         return [{"content": "PSWQ total score {t} (range 16–80)".format(
-            self.total_score())}]
+            t=self.total_score())}]
 
     def score(self, q):
         value = getattr(self, "q" + str(q))

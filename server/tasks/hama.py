@@ -22,9 +22,7 @@
 """
 
 from cc_modules.cc_constants import (
-    CLINICIAN_FIELDSPECS,
     CTV_DICTLIST_INCOMPLETE,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import (
@@ -42,7 +40,11 @@ from cc_modules.cc_task import get_from_dict, Task
 
 class Hama(Task):
     NQUESTIONS = 14
-    TASK_FIELDSPECS = repeat_fieldspec(
+
+    tablename = "hama"
+    shortname = "HAM-A"
+    longname = "Hamilton Rating Scale for Anxiety"
+    fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS,
         comment_fmt="Q{n}, {s} (0-4, higher worse)", min=0, max=4,
         comment_strings=[
@@ -52,28 +54,9 @@ class Hama(Task):
             "gastrointestinal", "genitourinary", "other autonomic",
             "behaviour in interview"
         ])
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
+    has_clinician = True
 
-    @classmethod
-    def get_tablename(cls):
-        return "hama"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "HAM-A"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Hamilton Rating Scale for Anxiety"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + CLINICIAN_FIELDSPECS + \
-            Hama.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self):
         return [
@@ -114,12 +97,12 @@ class Hama(Task):
 
     def is_complete(self):
         return (
-            self.are_all_fields_complete(Hama.TASK_FIELDS)
+            self.are_all_fields_complete(self.TASK_FIELDS)
             and self.field_contents_valid()
         )
 
     def total_score(self):
-        return self.sum_fields(Hama.TASK_FIELDS)
+        return self.sum_fields(self.TASK_FIELDS)
 
     def severity(self):
         score = self.total_score()
@@ -136,13 +119,13 @@ class Hama(Task):
         score = self.total_score()
         severity = self.severity()
         ANSWER_DICTS = []
-        for q in range(1, Hama.NQUESTIONS + 1):
+        for q in range(1, self.NQUESTIONS + 1):
             d = {None: None}
             for option in range(0, 4):
                 d[option] = WSTRING("hama_q" + str(q) + "_option" +
                                     str(option))
             ANSWER_DICTS.append(d)
-        h = self.get_standard_clinician_block() + """
+        h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
@@ -158,7 +141,7 @@ class Hama(Task):
                     <th width="50%">Answer</th>
                 </tr>
         """
-        for q in range(1, Hama.NQUESTIONS + 1):
+        for q in range(1, self.NQUESTIONS + 1):
             h += tr_qa(
                 WSTRING("hama_q" + str(q) + "_s") + " " + WSTRING(
                     "hama_q" + str(q) + "_question"),

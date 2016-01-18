@@ -21,9 +21,6 @@
     limitations under the License.
 """
 
-from cc_modules.cc_constants import (
-    STANDARD_TASK_FIELDSPECS,
-)
 from cc_modules.cc_html import tr_qa
 from cc_modules.cc_string import WSTRING
 from cc_modules.cc_task import get_from_dict, Task
@@ -34,7 +31,7 @@ from cc_modules.cc_task import get_from_dict, Task
 # =============================================================================
 
 class AbstractSatisfaction(object):
-    TASK_FIELDSPECS = [
+    fieldspecs = [
         dict(name="service", cctype="TEXT",
              comment="Clinical service being rated"),
         dict(name="rating", cctype="INT", min=0, max=4,
@@ -44,11 +41,8 @@ class AbstractSatisfaction(object):
         dict(name="bad", cctype="TEXT",
              comment="What could be improved?"),
     ]
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
 
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + cls.TASK_FIELDSPECS
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def is_complete(self):
         return self.rating is not None and self.field_contents_valid()
@@ -96,18 +90,9 @@ class AbstractSatisfaction(object):
 # =============================================================================
 
 class PatientSatisfaction(AbstractSatisfaction, Task):
-
-    @classmethod
-    def get_tablename(cls):
-        return "pt_satis"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "PatientSatisfaction"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Patient Satisfaction Scale"
+    tablename = "pt_satis"
+    shortname = "PatientSatisfaction"
+    longname = "Patient Satisfaction Scale"
 
     def get_task_html(self):
         return self.get_common_task_html(
@@ -122,18 +107,9 @@ class PatientSatisfaction(AbstractSatisfaction, Task):
 # =============================================================================
 
 class ReferrerSatisfactionGen(AbstractSatisfaction, Task):
-
-    @classmethod
-    def get_tablename(cls):
-        return "ref_satis_gen"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "ReferrerSatisfactionSurvey"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Referrer Satisfaction Scale, survey"
+    tablename = "ref_satis_gen"
+    shortname = "ReferrerSatisfactionSurvey"
+    longname = "Referrer Satisfaction Scale, survey"
 
     def get_task_html(self):
         return self.get_common_task_html(
@@ -148,18 +124,9 @@ class ReferrerSatisfactionGen(AbstractSatisfaction, Task):
 # =============================================================================
 
 class ReferrerSatisfactionSpec(AbstractSatisfaction, Task):
-
-    @classmethod
-    def get_tablename(cls):
-        return "ref_satis_spec"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "ReferrerSatisfactionSpecific"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Referrer Satisfaction Scale, patient-specific"
+    tablename = "ref_satis_spec"
+    shortname = "ReferrerSatisfactionSpecific"
+    longname = "Referrer Satisfaction Scale, patient-specific"
 
     def get_task_html(self):
         return self.get_common_task_html(

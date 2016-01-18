@@ -32,6 +32,7 @@ camcops (1.40-1) all; urgency=high
   * Y-BOCS, Y-BOCS-SC (skeleton only).
   * DAD (skeleton only).
   * BADLS (skeleton only).
+  * Add clinician to GAF.
   * Diagnosis reports.
   * Device report.
   * update_multiple_databases.py script
@@ -97,6 +98,8 @@ camcops (1.40-1) all; urgency=high
     EXTRA_STRING_FILES -- added
   * Added process ID to log output.
   * Task counting report.
+  * Restructure Task/Ancillary classes to be more concise.
+  * Better unit testing inc. checking for __dict__/fieldname conflicts.
 
  -- Rudolf Cardinal <rudolf@pobox.com>  Mon, 04 Jan 2016 22:13:00 +0000
 

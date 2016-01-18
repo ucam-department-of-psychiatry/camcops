@@ -24,7 +24,6 @@
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
     NO_CHAR,
-    STANDARD_TASK_FIELDSPECS,
     YES_CHAR,
 )
 from cc_modules.cc_db import repeat_fieldspec
@@ -43,7 +42,11 @@ from cc_modules.cc_task import Task
 
 class Gds15(Task):
     NQUESTIONS = 15
-    TASK_FIELDSPECS = repeat_fieldspec(
+
+    tablename = "gds15"
+    shortname = "GDS-15"
+    longname = "Geriatric Depression Scale, 15-item version"
+    fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, cctype="TEXT", pv=[NO_CHAR, YES_CHAR],
         comment_fmt="Q{n}, {s} ('Y' or 'N')",
         comment_strings=[
@@ -63,29 +66,10 @@ class Gds15(Task):
             "hopeless",
             "others better off",  # 15
         ])
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
+
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
     SCORE_IF_YES = [2, 3, 4, 6, 8, 9, 10, 12, 14, 15]
     SCORE_IF_NO = [1, 5, 7, 11, 13]
-
-    @classmethod
-    def get_tablename(cls):
-        return "gds15"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "GDS-15"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Geriatric Depression Scale, 15-item version"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + cls.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
 
     def get_trackers(self):
         return [

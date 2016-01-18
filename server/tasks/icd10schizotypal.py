@@ -28,7 +28,6 @@ from cc_modules.cc_constants import (
     DATEFORMAT,
     ICD10_COPYRIGHT_DIV,
     PV,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from cc_modules.cc_dt import format_datetime_string
@@ -48,7 +47,11 @@ from cc_modules.cc_task import Task
 
 class Icd10Schizotypal(Task):
     N_A = 9
-    TASK_FIELDSPECS = (
+
+    tablename = "icd10schizotypal"
+    shortname = "ICD10-SZTYP"
+    longname = "ICD-10 criteria for schizotypal disorder (F21)"
+    fieldspecs = (
         CLINICIAN_FIELDSPECS
         + [
             dict(name="date_pertains_to", cctype="ISO8601",
@@ -76,22 +79,7 @@ class Icd10Schizotypal(Task):
             ]
         )
     )
-
-    @classmethod
-    def get_tablename(cls):
-        return "icd10schizotypal"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "ICD10-SZTYP"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "ICD-10 criteria for schizotypal disorder (F21)"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + Icd10Schizotypal.TASK_FIELDSPECS
+    has_clinician = True
 
     def get_clinical_text(self):
         if not self.is_complete():
@@ -152,7 +140,7 @@ class Icd10Schizotypal(Task):
             stem + str(i), WSTRING("icd10_" + stem + "_pd_" + str(i)))
 
     def get_task_html(self):
-        h = self.get_standard_clinician_block(True, self.comments) + """
+        h = self.get_standard_clinician_comments_block(self.comments) + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()

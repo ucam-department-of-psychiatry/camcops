@@ -24,11 +24,7 @@
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import get_yes_no
 from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import (
-    get_from_dict,
-    STANDARD_TASK_FIELDSPECS,
-    Task,
-)
+from cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
@@ -38,28 +34,13 @@ from cc_modules.cc_task import (
 class Bfcrs(Task):
     NQUESTIONS = 23
     N_CSI_QUESTIONS = 14  # the first 14
-    TASK_FIELDSPECS = repeat_fieldspec("q", 1, NQUESTIONS)
-    TASK_FIELDS = [x["name"] for x in TASK_FIELDSPECS]
 
-    @classmethod
-    def get_tablename(cls):
-        return "bfcrs"
+    tablename = "bfcrs"
+    shortname = "BFCRS"
+    longname = "Bush–Francis Catatonia Rating Scale"
+    fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
 
-    @classmethod
-    def get_taskshortname(cls):
-        return "BFCRS"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return u"Bush–Francis Catatonia Rating Scale"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + Bfcrs.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self):
         return [
@@ -80,14 +61,14 @@ class Bfcrs(Task):
         ]
 
     def is_complete(self):
-        return self.are_all_fields_complete(Bfcrs.TASK_FIELDS)
+        return self.are_all_fields_complete(self.TASK_FIELDS)
 
     def total_score(self):
-        return self.sum_fields(Bfcrs.TASK_FIELDS)
+        return self.sum_fields(self.TASK_FIELDS)
 
     def get_num_csi_symptoms(self):
         n = 0
-        for i in range(1, Bfcrs.N_CSI_QUESTIONS + 1):
+        for i in range(1, self.N_CSI_QUESTIONS + 1):
             value = getattr(self, "q" + str(i))
             if value is not None and value > 0:
                 n += 1
@@ -98,7 +79,7 @@ class Bfcrs(Task):
         n_csi_symptoms = self.get_num_csi_symptoms()
         csi_catatonia = n_csi_symptoms >= 2
         ANSWER_DICTS_DICT = {}
-        for q in Bfcrs.TASK_FIELDS:
+        for q in self.TASK_FIELDS:
             d = {None: "?"}
             for option in range(0, 5):
                 if (option != 0 and option != 3) and q in ["q17", "q18", "q19",
@@ -106,7 +87,7 @@ class Bfcrs(Task):
                     continue
                 d[option] = WSTRING("bfcrs_" + q + "_option" + str(option))
             ANSWER_DICTS_DICT[q] = d
-        h = u"""
+        h = """
             <div class="summary">
                 <table class="summary">
                     {}
@@ -126,13 +107,13 @@ class Bfcrs(Task):
             WSTRING("csi_num_symptoms_present"), n_csi_symptoms,
             WSTRING("csi_catatonia_present"), get_yes_no(csi_catatonia)
         )
-        for q in range(1, Bfcrs.NQUESTIONS + 1):
-            h += u"""<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
-                "Q" + str(q) + u" — " + WSTRING("bfcrs_q" + str(q) + "_title"),
+        for q in range(1, self.NQUESTIONS + 1):
+            h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
+                "Q" + str(q) + " — " + WSTRING("bfcrs_q" + str(q) + "_title"),
                 get_from_dict(ANSWER_DICTS_DICT["q" + str(q)],
                               getattr(self, "q" + str(q)))
             )
-        h += u"""
+        h += """
             </table>
             <div class="footnotes">
                 [1] Symptoms 1–14, counted as present if score >0.

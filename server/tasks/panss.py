@@ -22,10 +22,8 @@
 """
 
 from cc_modules.cc_constants import (
-    CLINICIAN_FIELDSPECS,
     CTV_DICTLIST_INCOMPLETE,
     DATA_COLLECTION_ONLY_DIV,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from cc_modules.cc_html import (
@@ -80,32 +78,17 @@ class Panss(Task):
             "preoccupation",
             "active social avoidance",
         ])
-    TASK_FIELDSPECS = P_FIELDSPECS + N_FIELDSPECS + G_FIELDSPECS
+
+    tablename = "panss"
+    shortname = "PANSS"
+    longname = "Positive and Negative Syndrome Scale"
+    fieldspecs = P_FIELDSPECS + N_FIELDSPECS + G_FIELDSPECS
+    has_clinician = True
+
     P_FIELDS = repeat_fieldname("p", 1, 7)
     N_FIELDS = repeat_fieldname("n", 1, 7)
     G_FIELDS = repeat_fieldname("g", 1, 16)
     TASK_FIELDS = P_FIELDS + N_FIELDS + G_FIELDS
-
-    @classmethod
-    def get_tablename(cls):
-        return "panss"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "PANSS"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Positive and Negative Syndrome Scale"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return STANDARD_TASK_FIELDSPECS + CLINICIAN_FIELDSPECS + \
-            Panss.TASK_FIELDSPECS
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
 
     def get_trackers(self):
         return [
@@ -176,21 +159,21 @@ class Panss(Task):
 
     def is_complete(self):
         return (
-            self.are_all_fields_complete(Panss.TASK_FIELDS)
+            self.are_all_fields_complete(self.TASK_FIELDS)
             and self.field_contents_valid()
         )
 
     def total_score(self):
-        return self.sum_fields(Panss.TASK_FIELDS)
+        return self.sum_fields(self.TASK_FIELDS)
 
     def score_p(self):
-        return self.sum_fields(Panss.P_FIELDS)
+        return self.sum_fields(self.P_FIELDS)
 
     def score_n(self):
-        return self.sum_fields(Panss.N_FIELDS)
+        return self.sum_fields(self.N_FIELDS)
 
     def score_g(self):
-        return self.sum_fields(Panss.G_FIELDS)
+        return self.sum_fields(self.G_FIELDS)
 
     def composite(self):
         return self.score_p() - self.score_n()
@@ -211,7 +194,7 @@ class Panss(Task):
             6: WSTRING("panss_option6"),
             7: WSTRING("panss_option7"),
         }
-        h = self.get_standard_clinician_block() + """
+        h = """
             <div class="summary">
                 <table class="summary">
         """
@@ -230,7 +213,7 @@ class Panss(Task):
                     <th width="60%">Answer</th>
                 </tr>
         """
-        for q in Panss.TASK_FIELDS:
+        for q in self.TASK_FIELDS:
             h += tr_qa(
                 WSTRING("panss_" + q + "_s"),
                 get_from_dict(ANSWERS, getattr(self, q))

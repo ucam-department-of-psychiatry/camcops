@@ -22,10 +22,8 @@
 """
 
 from cc_modules.cc_constants import (
-    CLINICIAN_FIELDSPECS,
     CTV_DICTLIST_INCOMPLETE,
     PV,
-    STANDARD_TASK_FIELDSPECS,
 )
 from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from cc_modules.cc_html import (
@@ -49,9 +47,11 @@ WORDLIST = ["FACE", "VELVET", "CHURCH", "DAISY", "RED"]
 
 class Moca(Task):
     NQUESTIONS = 28
-    FIELDSPECS = (
-        STANDARD_TASK_FIELDSPECS +
-        CLINICIAN_FIELDSPECS +
+
+    tablename = "moca"
+    shortname = "MoCA"
+    longname = "Montreal Cognitive Assessment"
+    fieldspecs = (
         repeat_fieldspec(
             "q", 1, NQUESTIONS, min=0, max=1,  # see below
             comment_fmt="{s}",
@@ -117,37 +117,15 @@ class Moca(Task):
         ]
     )
     # Fix error above. Hardly elegant!
-    for item in FIELDSPECS:
+    for item in fieldspecs:
         if item["name"] == "q12":
             item["max"] = 3
-
-    @classmethod
-    def get_tablename(cls):
-        return "moca"
-
-    @classmethod
-    def get_taskshortname(cls):
-        return "MoCA"
-
-    @classmethod
-    def get_tasklongname(cls):
-        return "Montreal Cognitive Assessment"
-
-    @classmethod
-    def get_fieldspecs(cls):
-        return Moca.FIELDSPECS
-
-    @classmethod
-    def get_pngblob_name_idfield_rotationfield_list(self):
-        return [
-            ("trailpicture", "trailpicture_blobid", None),
-            ("cubepicture", "cubepicture_blobid", None),
-            ("clockpicture", "clockpicture_blobid", None),
-        ]
-
-    @classmethod
-    def provides_trackers(cls):
-        return True
+    has_clinician = True
+    pngblob_name_idfield_rotationfield_list = [
+        ("trailpicture", "trailpicture_blobid", None),
+        ("cubepicture", "cubepicture_blobid", None),
+        ("clockpicture", "clockpicture_blobid", None),
+    ]
 
     def get_trackers(self):
         return [
@@ -186,13 +164,13 @@ class Moca(Task):
     def is_complete(self):
         return (
             self.are_all_fields_complete(
-                repeat_fieldname("q", 1, Moca.NQUESTIONS))
+                repeat_fieldname("q", 1, self.NQUESTIONS))
             and self.field_contents_valid()
         )
 
     def total_score(self):
         return self.sum_fields(
-            repeat_fieldname("q", 1, Moca.NQUESTIONS) +
+            repeat_fieldname("q", 1, self.NQUESTIONS) +
             ["education12y_or_less"]  # extra point for this
         )
 
@@ -232,7 +210,7 @@ class Moca(Task):
         totalscore = self.total_score()
         category = self.category()
 
-        h = self.get_standard_clinician_block(True, self.comments) + """
+        h = self.get_standard_clinician_comments_block(self.comments) + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
