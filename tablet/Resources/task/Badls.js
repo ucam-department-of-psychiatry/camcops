@@ -35,7 +35,7 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
 
 fieldlist.push.apply(fieldlist, dbcommon.RESPONDENT_FIELDSPECS);
 dbcommon.appendRepeatedFieldDef(fieldlist, "q", 1, nquestions,
-                                DBCONSTANTS.TYPE_INTEGER);
+                                DBCONSTANTS.TYPE_TEXT);
 
 // CREATE THE TABLE
 
@@ -76,7 +76,7 @@ lang.extendPrototype(Badls, {
 
     // OTHER
     score: function (qnum) {
-        var value = this[qnum];
+        var value = this["q" + qnum];
         if (SCORING.hasOwnProperty(value)) {
             return SCORING[value];
         }
