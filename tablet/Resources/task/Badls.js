@@ -144,11 +144,11 @@ lang.extendPrototype(Badls, {
                     type: "QuestionMCQ",
                     showInstruction: false,
                     options: [
-                        new KeyValuePair('q' + i + '_a', 'a'),
-                        new KeyValuePair('q' + i + '_b', 'b'),
-                        new KeyValuePair('q' + i + '_c', 'c'),
-                        new KeyValuePair('q' + i + '_d', 'd'),
-                        new KeyValuePair('q' + i + '_e', 'e')
+                        new KeyValuePair(this.XSTRING('q' + i + '_a'), 'a'),
+                        new KeyValuePair(this.XSTRING('q' + i + '_b'), 'b'),
+                        new KeyValuePair(this.XSTRING('q' + i + '_c'), 'c'),
+                        new KeyValuePair(this.XSTRING('q' + i + '_d'), 'd'),
+                        new KeyValuePair(this.XSTRING('q' + i + '_e'), 'e')
                     ],
                     field: 'q' + i
                 }
