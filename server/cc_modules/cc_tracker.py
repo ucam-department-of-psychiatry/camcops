@@ -31,6 +31,7 @@ from .cc_constants import (
     ACTION,
     CSS_PAGED_MEDIA,
     DATEFORMAT,
+    FULLWIDTH_PLOT_WIDTH,
     NUMBER_OF_IDNUMS,
     PARAM,
     PDFEND,
@@ -725,8 +726,8 @@ class Tracker(object):
         horizontal_labels = horizontal_labels or []
         if not aspect_ratio:  # duff input
             aspect_ratio = DEFAULT_TRACKER_ASPECT_RATIO
-        FIGSIZE = (cc_task.FULLWIDTH_PLOT_WIDTH,
-                   (1.0/float(aspect_ratio)) * cc_task.FULLWIDTH_PLOT_WIDTH)
+        FIGSIZE = (FULLWIDTH_PLOT_WIDTH,
+                   (1.0/float(aspect_ratio)) * FULLWIDTH_PLOT_WIDTH)
         fig = plt.figure(figsize=FIGSIZE)
         ax = fig.add_subplot(1, 1, 1)
         x = [cc_plot.matplotlib.dates.date2num(t) for t in datetimes]

@@ -1672,14 +1672,17 @@ OPTIMAL: proxy Apache through to Gunicorn
         #     value of "b''", not an empty bytestring.
         # - Ensure that you put the CORRECT PROTOCOL (e.g. https) in the rules
         #   below.
+        # - For ProxyPass options, see https://httpd.apache.org/docs/2.2/mod/mod_proxy.html#proxypass
+        #   ... including "retry=0" to stop Apache disabling the connection for
+        #       a while on failure.
 
         # Port
         # Note the use of "http" (reflecting the backend), not https (like the
         # front end).
-    # ProxyPass /$URLBASE http://127.0.0.1:$DEFAULT_GUNICORN_PORT
+    # ProxyPass /$URLBASE http://127.0.0.1:$DEFAULT_GUNICORN_PORT retry=0
     # ProxyPassReverse /$URLBASE http://127.0.0.1:$DEFAULT_GUNICORN_PORT
         # Socket (Apache 2.4.9 and higher)
-    ProxyPass /$URLBASE unix:$DEFAULT_GUNICORN_SOCKET|https://localhost
+    ProxyPass /$URLBASE unix:$DEFAULT_GUNICORN_SOCKET|https://localhost retry=0
     ProxyPassReverse /$URLBASE unix:$DEFAULT_GUNICORN_SOCKET|https://localhost
         # Allow proxy over SSL.
         # Without this, you will get errors like:
