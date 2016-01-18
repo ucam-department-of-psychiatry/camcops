@@ -30,8 +30,7 @@ from cc_modules.cc_html import (
     answer,
     tr,
 )
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import get_from_dict, Task
+from cc_modules.cc_task import Task
 
 
 # =============================================================================
@@ -39,41 +38,45 @@ from cc_modules.cc_task import get_from_dict, Task
 # =============================================================================
 
 class Badls(Task):
-*** HERE
-
-    MIN_SCORE = 0
-    MAX_SCORE = 4
+    SCORING = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 0}
+    NQUESTIONS = 20
     QUESTION_SNIPPETS = [
-        "insufficient time for self",  # 1
-        "stressed with other responsibilities",
-        "angry",
-        "other relationships affected",
-        "strained",  # 5
-        "health suffered",
-        "insufficient privacy",
-        "social life suffered",
-        "lost control",
-        "uncertain",  # 10
-        "should do more",
-        "could care better"
+        "food",  # 1
+        "eating",
+        "drink",
+        "drinking",
+        "dressing",  # 5
+        "hygiene",
+        "teeth",
+        "bath/shower",
+        "toilet/commode",
+        "transfers",  # 10
+        "mobility",
+        "orientation: time",
+        "orientation: space",
+        "communication",
+        "telephone",  # 15
+        "hosuework/gardening",
+        "shopping",
+        "finances",
+        "games/hobbies",
+        "transport",  # 20
     ]
-    NQUESTIONS = 12
 
     tablename = "badls"
     shortname = "BADLS"
     longname = "Bristol Activities of Daily Living Scale"
     fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS,
-        comment_fmt="Q{n}, {s} (0-4, higher worse)",
-        min=MIN_SCORE, max=MAX_SCORE,
+        comment_fmt="Q{n}, {s} ('a' best [0] to 'd' worst [3]; "
+                    "'e'=N/A [scored 0])",
+        pv=list(SCORING.keys()),
         comment_strings=QUESTION_SNIPPETS
     )
     extrastring_taskname = "badls"
     has_respondent = True
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
-
-# *** HERE
 
     def get_summaries(self):
         return [
@@ -86,11 +89,15 @@ class Badls(Task):
     def get_clinical_text(self):
         if not self.is_complete():
             return CTV_DICTLIST_INCOMPLETE
-        return [{"content": "ZBI-12 total score {}/48".format(
+        return [{"content": "BADLS total score {}/60 (lower is better)".format(
             self.total_score())}]
 
+    def score(self, q):
+        text_value = getattr(self, q)
+        return self.SCORING.get(text_value, 0)
+
     def total_score(self):
-        return self.sum_fields(self.TASK_FIELDS)
+        return sum(self.score(q) for q in self.TASK_FIELDS)
 
     def is_complete(self):
         return (
@@ -100,17 +107,12 @@ class Badls(Task):
         )
 
     def get_task_html(self):
-        OPTION_DICT = {None: None}
-        for a in range(self.MIN_SCORE, self.MAX_SCORE + 1):
-            OPTION_DICT[a] = WSTRING("badls_a" + str(a))
-        h = (
-            self.get_standard_respondent_block()
-        ) + """
+        h = """
             <div class="summary">
                 <table class="summary">
                     {complete_tr}
                     <tr>
-                        <td>Total score (/ 48)</td>
+                        <td>Total score (0–60, higher worse)</td>
                         <td>{total}</td>
                     </td>
                 </table>
@@ -118,18 +120,22 @@ class Badls(Task):
             <table class="taskdetail">
                 <tr>
                     <th width="75%">Question</th>
-                    <th width="25%">Answer (0–4)</th>
+                    <th width="25%">Answer <sup>[1]</sup></th>
                 </tr>
         """.format(
             complete_tr=self.get_is_complete_tr(),
             total=answer(self.total_score()),
         )
         for q in range(1, self.NQUESTIONS + 1):
-            a = getattr(self, "q" + str(q))
-            fa = ("{}: {}".format(a, get_from_dict(OPTION_DICT, a))
-                  if a is not None else None)
-            h += tr(self.WXSTRING("q" + str(q)), answer(fa))
+            qtext = self.WXSTRING("q" + str(q))
+            avalue = getattr(self, "q" + str(q))
+            atext = (self.WXSTRING("q{}_{}".format(q, avalue))
+                     if q is not None else None)
+            h += tr(qtext, answer(atext))
         h += """
             </table>
+            <div class="footnotes">
+                [1] Scored a = 0, b = 1, c = 2, d = 3, e = 0.
+            </div>
         """ + DATA_COLLECTION_UNLESS_UPGRADED_DIV
         return h
