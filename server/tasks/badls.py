@@ -67,7 +67,7 @@ class Badls(Task):
     shortname = "BADLS"
     longname = "Bristol Activities of Daily Living Scale"
     fieldspecs = repeat_fieldspec(
-        "q", 1, NQUESTIONS,
+        "q", 1, NQUESTIONS, cctype="CHAR",
         comment_fmt="Q{n}, {s} ('a' best [0] to 'd' worst [3]; "
                     "'e'=N/A [scored 0])",
         pv=list(SCORING.keys()),
@@ -119,19 +119,22 @@ class Badls(Task):
             </div>
             <table class="taskdetail">
                 <tr>
-                    <th width="75%">Question</th>
-                    <th width="25%">Answer <sup>[1]</sup></th>
+                    <th width="30%">Question</th>
+                    <th width="50%">Answer <sup>[1]</sup></th>
+                    <th width="20%">Score</th>
                 </tr>
         """.format(
             complete_tr=self.get_is_complete_tr(),
             total=answer(self.total_score()),
         )
         for q in range(1, self.NQUESTIONS + 1):
-            qtext = self.WXSTRING("q" + str(q))
+            fieldname = "q" + str(q)
+            qtext = self.WXSTRING(fieldname)  # happens to be the same
             avalue = getattr(self, "q" + str(q))
             atext = (self.WXSTRING("q{}_{}".format(q, avalue))
                      if q is not None else None)
-            h += tr(qtext, answer(atext))
+            score = self.score(fieldname)
+            h += tr(qtext, answer(atext), score)
         h += """
             </table>
             <div class="footnotes">

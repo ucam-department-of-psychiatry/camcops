@@ -171,9 +171,9 @@ class Dad(Task):
         iadl = self.get_score(self.get_items_activities(
             ['mealprep', 'telephone', 'outing', 'finance',
              'medications', 'leisure']))
-        initiation = self.get_score(self.get_items_activity('init'))
-        planning = self.get_score(self.get_items_activity('plan'))
-        execution = self.get_score(self.get_items_activity('exec'))
+        initiation = self.get_score(self.get_items_phase('init'))
+        planning = self.get_score(self.get_items_phase('plan'))
+        execution = self.get_score(self.get_items_phase('exec'))
         # n for numerator, d for denominator
         return dict(
             total=total,
@@ -257,7 +257,8 @@ class Dad(Task):
             </div>
             <table class="taskdetail">
                 <tr>
-                    <th width="50%">Question</th>
+                    <th width="50%">Question (I = initiation, P = planning,
+                        E = execution)</th>
                     <th width="50%">Answer</th>
                 </tr>
         """.format(
