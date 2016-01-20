@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="npiq">
+    <!-- Neuropsychiatric Inventory Questionnaire (NPI-Q) -->
+    <!-- TEMPLATE ONLY: replace 'XXX' with real text if you have the necessary permissions -->
+
+    <string name="instruction_1">XXX</string>
+    <string name="instruction_2">XXX</string>
+    <string name="instruction_3">XXX</string>
+    <string name="instruction_4">XXX</string>
+
+    <string name="t1">XXX</string>
+    <string name="q1">XXX</string>
+    <string name="t2">XXX</string>
+    <string name="q2">XXX</string>
+    <string name="t3">XXX</string>
+    <string name="q3">XXX</string>
+    <string name="t4">XXX</string>
+    <string name="q4">XXX</string>
+    <string name="t5">XXX</string>
+    <string name="q5">XXX</string>
+    <string name="t6">XXX</string>
+    <string name="q6">XXX</string>
+    <string name="t7">XXX</string>
+    <string name="q7">XXX</string>
+    <string name="t8">XXX</string>
+    <string name="q8">XXX</string>
+    <string name="t9">XXX</string>
+    <string name="q9">XXX</string>
+    <string name="t10">XXX</string>
+    <string name="q10">XXX</string>
+    <string name="t11">XXX</string>
+    <string name="q11">XXX</string>
+    <string name="t12">XXX</string>
+    <string name="q12">XXX</string>
+
+    <string name="severity_instruction">XXX</string>
+    <string name="severity_1">XXX</string>
+    <string name="severity_2">XXX</string>
+    <string name="severity_3">XXX</string>
+
+    <string name="distress_instruction">XXX</string>
+    <string name="distress_0">XXX</string>
+    <string name="distress_1">XXX</string>
+    <string name="distress_2">XXX</string>
+    <string name="distress_3">XXX</string>
+    <string name="distress_4">XXX</string>
+    <string name="distress_5">XXX</string>
+  </task>
+</resources>

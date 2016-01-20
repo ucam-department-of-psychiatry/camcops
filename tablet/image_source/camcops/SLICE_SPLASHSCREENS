@@ -6,6 +6,16 @@
 # (3. PDF icon layer: Save for Web > Image Size > width 1000, height auto > Apply > Save > logo_camcops.png ... thence to web site)
 # (4. PDF icon layer: Save for Web > Image Size > width 1000, height auto > Apply > Save > logo_local.png ... thence to web site)
 
+# 5. For 1024x1024 DefaultIcon.png, which is getting too big for Illustrator's export when you have it as the centre ninth:
+#   - Make a 30x30mm new artboard
+#   - Paste the art in
+#   - Save it as camcops_appicon.pdf
+#   - In Linux:
+#       $ identify -verbose camcops_appicon.pdf  # respo
+#       Since it is 1.18056x1.18056 inches (almost 30x30mm) and 72x72 dpi...
+#       ... and we want 1.18056 inches to be 3072 pixels, that's 2602 dpi
+#       $ convert -verbose -density 2602 camcops_appicon.pdf -crop 1024x1024+1024+1024 +repage -resize 1024x1024 DefaultIcon.png
+
 APPICON=appicon_source.png
 SPLASHSCREEN=splashscreen_source.png
 

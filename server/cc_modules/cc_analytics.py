@@ -36,7 +36,7 @@ from . import cc_version
 
 ANALYTICS_FREQUENCY_DAYS = 7  # send analytics weekly
 
-ANALYTICS_URL = "https://131.111.177.41/camcops/analytics"
+ANALYTICS_URL = "https://131.111.177.41/camcops_analytics"
 # 131.111.177.41 is egret.psychol.cam.ac.uk, which hosts www.camcops.org.
 # Using a numerical IP address saves the DNS lookup step.
 # Note that this will fail an SSL validation step, since the site's SSL

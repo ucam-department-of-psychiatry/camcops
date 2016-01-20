@@ -3071,7 +3071,8 @@ def task_class_unit_test(cls):
     conflict = set(attributes).intersection(set(fieldnames))
     if conflict:
         raise AssertionError(
-            "Fields conflict with object attributes: {}".format(conflict))
+            "Fields conflict with object attributes in class {}: {}".format(
+                cls.__name__, conflict))
 
 
 def ancillary_class_unit_test(cls):
