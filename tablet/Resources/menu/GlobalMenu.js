@@ -46,6 +46,7 @@ module.exports = function GlobalMenu() {
             ALLTASKS.TASKLIST.HONOS,
             ALLTASKS.TASKLIST.HONOS65,
             ALLTASKS.TASKLIST.HONOSCA,
+            ALLTASKS.TASKLIST.NPIQ,
             ALLTASKS.TASKLIST.RAND36,
             ALLTASKS.TASKLIST.SWEMWBS,
             ALLTASKS.TASKLIST.WEMWBS,

@@ -60,6 +60,9 @@ Known problems and bugs
 - Alerts with large content no longer scroll under iOS 8.
   Apparently this is an Apple bug:
     https://jira.appcelerator.org/browse/TIMOB-17745
+- test_html_to_attributed_string.jsx not working yet; haven't managed to
+  use gittio to install ti-htmlparser2 module.
+
 
 ===============================================================================
 Version history (new to old)
@@ -91,6 +94,7 @@ Version history (new to old)
 - Y-BOCS, Y-BOCS-SC (skeleton only)
 - DAD (skeleton only)
 - BADLS (skeleton only)
+- NPI-Q (skeleton only)
 - Add clinician to GAF.
 - O'Brien group set menu 1
 - CPFT Affective Disorders Research Database set menu 1
@@ -119,6 +123,62 @@ Version history (new to old)
   use of sections in tables; https://jira.appcelerator.org/browse/TIMOB-18112
 - Failed to get MobileWeb to acknowledge password entry. The problem appears to
   be that the UI is unresponsive until user input is required.
+- Changed analytics URL from https://egret.psychol.cam.ac.uk/camcops/analytics
+  to https://egret.psychol.cam.ac.uk/camcops_analytics
+- Titanium moved from 3.5.1.GA to 4.0.0.GA, with
+    $ titanium sdk install 4.0.0.GA
+    $ titanium setup
+  ... then edit tiapp.xml and SET_ENVIRONMENT.sh to change SDK version.
+  http://docs.appcelerator.com/platform/release-notes/?version=4.0.0.GA
+  Requires Android 5.0 (API 21). On Mac OS X, first get the Java framework:
+    $ brew tap caskroom/cask
+    $ brew install brew-cask
+    $ brew cask install java
+  Then:
+    $ android-sdk/tools/android &
+  Using Android 6.0 (API 23), and Android SDK Built-tools 22.0.1 (as Titanium
+  considers 23.0.2 too new).
+- Then to 5.1.2.GA:
+  https://docs.appcelerator.com/platform/release-notes/?version=5.0.0.GA
+  https://community.appcelerator.com/topic/3339/5-0-0-ga-now-available/5
+  https://docs.appcelerator.com/platform/release-notes/?version=5.1.2.GA
+    $ sudo npm install appcelerator -g
+  As iOS build failed, open camcops/tablet/build/iphone/CamCOPS.xcodeproj in
+  Xcode and run it manually; fails with 'The launch image set named
+  "LaunchImage" did not have any applicable content.' See
+  http://docs.appcelerator.com/platform/latest/#!/guide/Icons_and_Splash_Screens
+    appicon-60@2x.png                # already - removed
+    appicon-60@3x.png                #
+    appicon-76.png                   # already - removed
+    appicon-76@2x.png                # already - removed
+    appicon-Small-40.png             # already - removed
+    appicon-Small-40@2x.png          # already - removed
+    appicon-Small-40@3x.png          #
+    appicon-Small.png                #
+    appicon-Small@2x.png             #
+    appicon-Small@3x.png             #
+    Default@2x.png                   #
+    Default-568h@2x.png              #
+    Default-667h@2x.png              #
+    Default-Landscape-736h@3x.png    #
+    Default-Portrait-736h@3x.png     #
+    Default-Landscape.png            # already
+    Default-Portrait.png             # already
+    Default-Landscape@2x.png         #
+    Default-Portrait@2x.png          #
+    iTunesArtwork (no extension)     #
+    iTunesArtwork@2x (no extension)  #
+  No longer in the list:
+    appicon-72.png
+    appicon.png
+    appicon@2x.png
+  BUT, if you have DefaultIcon.png in the root folder that is at least 180x180
+  (recommended 1024x1024), the Titanium SDK will make any missing appicon*
+  files. So, remove appicon* and create the DefaultIcon.png file.
+  Then resive Default-Landscape.png and Default-Portrait.png, as the default
+  sizes have changed to 1024x768 and 768x1024. Then it works.
+- iOS text field speed now seems good enough to change default for multiline
+  fields (see storedvars.multilineTextFixedHeight).
 
 1.34 (2015-04-26)
 - Probable bugfix: IDED3D performed its stage failure check before its stage

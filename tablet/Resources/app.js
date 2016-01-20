@@ -177,4 +177,6 @@ function camcops() {
 // bugtest("titanium_bug_testing/sqlite_many_accesses.jsx");
 // bugtest("titanium_bug_testing/android_dequeuebuffer_crash.jsx");
 
+// bugtest("titanium_bug_testing/test_html_to_attributed_string.jsx");
+
 camcops();

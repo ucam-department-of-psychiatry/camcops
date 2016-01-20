@@ -512,6 +512,14 @@ exports.TASKLIST = {
         subtitle: L('s_nart'),
         info: 'html/nart.html'
     },
+    NPIQ: {
+        task: 'task/NpiQ',
+        title: L('b_npiq'),
+        tables: ['npiq'],
+        maintitle: L('t_npiq'),
+        subtitle: L('s_npiq'),
+        info: 'html/npiq.html'
+    },
     PANSS: {
         task: 'task/Panss',
         title: L('b_panss'),

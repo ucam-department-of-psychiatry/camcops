@@ -6311,6 +6311,18 @@ FOR THE STUDY AND SUPPLIED/CONFIGURED BY THE HOSTING INSTITUTION
 <string name="b_badls">BADLS</string>
 
 <!--
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NPI-Q
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+DATA COLLECTION TOOL ONLY, WITH SERVER-SIDE STRING DISTRIBUTION IF PERMITTED
+FOR THE STUDY AND SUPPLIED/CONFIGURED BY THE HOSTING INSTITUTION
+-->
+
+<string name="t_npiq">Neuropsychiatry Inventory Questionnaire (NPI-Q)</string>
+<string name="s_npiq">12-item carer-rated scale for use in dementia.</string>
+<string name="b_npiq">NPI-Q</string>
+
+<!--
 <string name="XXX">XXX</string>
 
 Helpful characters: ‘ ’ “ ” – — × • ≤ ≥ ≠ ± →

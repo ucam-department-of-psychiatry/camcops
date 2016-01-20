@@ -11,25 +11,39 @@
     <android xmlns:android="http://schemas.android.com/apk/res/android">
         <manifest android:versionCode="140" android:versionName="1.40">
             <!-- SEE ALSO version ABOVE; there are THREE things to change -->
-            <!-- versionCode is an integer (my convention: float version * 100); versionName is a float or integer
-                 See http://developer.android.com/tools/publishing/versioning.html
+            <!--
+                versionCode is an integer (my convention: float version * 100); versionName is a float or integer
+                See http://developer.android.com/tools/publishing/versioning.html
             -->
-            <!-- stuff within the manifest tag is sent direct to the android manifest.xml
-                 Titanium: see http://docs.appcelerator.com/titanium/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference
-                 Android: see http://developer.android.com/guide/topics/manifest/manifest-intro.html
+            <!--
+                stuff within the manifest tag is sent direct to the android manifest.xml
+                Titanium: see http://docs.appcelerator.com/titanium/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference
+                Android: see http://developer.android.com/guide/topics/manifest/manifest-intro.html
             -->
-            <uses-sdk android:minSdkVersion="14" targetSdkVersion="17"/>
-            <!-- min=11, target=16 to get fullscreen working
-                 min=10 to install on HTC Desire Z (Android 2.3.3 = one of the Gingerbreads)
-                 ... but if you try to run a FullscreenView it'll crash
-                 tool-api-level: min 17 for largeHeap option
-                 ... but as of Titanium 3.2.0GA, tool-api-deprecated (use targetSdkVersion)
-                 android:textCursorDrawable requires API >= 12 (this is used in the platform/android/res/values/theme.xml file)
+            <uses-sdk android:minSdkVersion="14" targetSdkVersion="23" />
+            <!--
+                min=11, target=16 to get fullscreen working
+                min=10 to install on HTC Desire Z (Android 2.3.3 = one of the Gingerbreads)
+                ... but if you try to run a FullscreenView it'll crash
+                tool-api-level: min 17 for largeHeap option
+                ... but as of Titanium 3.2.0GA, tool-api-deprecated (use targetSdkVersion)
+                android:textCursorDrawable requires API >= 12 (this is used in the platform/android/res/values/theme.xml file)
 
-                 AS OF TITANIUM v3.3.0: targetSdkVersion must be 14 or higher.
-                 http://docs.appcelerator.com/titanium/3.0/#!/guide/Android_Themes
+                AS OF TITANIUM v3.3.0: targetSdkVersion must be 14 or higher.
+                http://docs.appcelerator.com/titanium/3.0/#!/guide/Android_Themes
 
-                 AS OF TITANIUM v3.5.0: minSdkVersion must be 14 or higher.
+                AS OF TITANIUM v3.5.0: minSdkVersion must be 14 or higher.
+
+                AS OF TITANIUM v4.0.0.GA: minSdkVersion must be 14 or higher; targetSdkVersion 23;
+                http://docs.appcelerator.com/platform/latest/#!/guide/Titanium_Compatibility_Matrix
+
+                AS OF TITANIUM v5.0.0.GA: to use a camera with Android, targetSdkVersion must be 22, not 23.
+                https://docs.appcelerator.com/platform/release-notes/?version=5.0.0.GA
+                ... bug https://jira.appcelerator.org/browse/TIMOB-19422
+                ... fixed in 5.1.0
+
+                AS OF TITANIUM v5.1.2.GA: targetSdkVersion must be 23
+                http://docs.appcelerator.com/platform/latest/#!/guide/Titanium_Compatibility_Matrix
             -->
             <application
                 android:allowBackup="false"
@@ -84,7 +98,7 @@
         <target device="android">true</target>
         <target device="blackberry">false</target>
     </deployment-targets>
-    <sdk-version>3.5.1.GA</sdk-version>
+    <sdk-version>5.1.2.GA</sdk-version>  <!-- previous: 3.5.1.GA -->
     <icon>appicon.png</icon>
     <persistent-wifi>false</persistent-wifi>
     <prerendered-icon>false</prerendered-icon>

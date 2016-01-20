@@ -39,9 +39,9 @@ module.exports = function SetMenu_OBrien_1() {
             ALLTASKS.TASKLIST.DEMQOL,
             ALLTASKS.TASKLIST.DEMQOL_PROXY,
             ALLTASKS.TASKLIST.HADS,
+            ALLTASKS.TASKLIST.NPIQ,
             ALLTASKS.TASKLIST.MDS_UPDRS,
             ALLTASKS.TASKLIST.ZBI12
-            // *** NPI
             // *** IFS
             // *** FRS or FTDFRS or whatever it is
         ],
