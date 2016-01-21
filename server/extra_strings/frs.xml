@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="frs">
+    <!-- Frontotemporal Dementia Rating Scale (FRS) -->
+
+    <!--
+    All questions have 3 options except:
+    - N/A is an additional option for 9-11, 13-15, 17-21
+    - Q30 doesn't have "sometimes"
+    -->
+
+    <string name="h_behaviour">Behaviour</string>
+
+    <string name="q1_q">1. Lacks interest in doing things – their own interests/leisure activities/new things</string>
+    <string name="q1_detail">• Which are --- leisure activities?\n• Does --- need prompting to do his leisure/hobbies activities?\n\n(Is there a decrease in interest? If informant says patient never had leisure activities before check if they might have had interest in sports on TV, films on TV, reading, etc. Note sometimes there are changes in leisure activities due to physical disability – here, the aim is to evaluate level of interest. If activities have declined due to inability to engage in them, prompt for level of interest in what the patient is still able to do)</string>
+    <string name="q1_a_always">ALL THE TIME: apathy has affected their ability to initiate most activities, even if they can still initiate one or two activities on their own</string>
+    <string name="q1_a_sometimes">SOMETIMES: patient needs some prompting for some activities that they did not need before</string>
+    <string name="q1_a_never">NEVER: patient does not require prompting to do own leisure activities; is generally interested in taking part in the activities they are currently capable of doing. Might even have started new activities after retiring.</string>
+
+    <string name="q2_q">2. Lacks normal affection, lacks interest in family members worries</string>
+    <string name="q2_detail">• How is --- in demonstrating affection?\n• Is he/she affectionate to you, or their children?\n• Does he/she seem concerned about their children/parents?</string>
+    <string name="q2_a_always">ALL THE TIME: patient is oblivious to family concerns; marked lack of affection</string>
+    <string name="q2_a_sometimes">SOMETIMES: patient is less affectionate to spouse or family members; shows less interest in family concerns</string>
+    <string name="q2_a_never">NEVER: patient does not show changes in their affection towards family members or family concerns</string>
+
+    <string name="q3_q">3. Is uncooperative when asked to do something; refuses help</string>
+    <string name="q3_detail">• When you ask --- to do something, does he/she normally agree or try to do as you asked?\n• Is he/she difficult to deal with?\n• If patient is quite impaired, ask if they refuse help\n\nNote: this does not include problems complying with requests due to disorganised behaviour or language comprehension deficits. If the patient is still willing to attempt the request, but fails due to cognitive problems, then score “never”.</string>
+    <string name="q3_a_always">ALL THE TIME: patient does not cooperate with others</string>
+    <string name="q3_a_sometimes">SOMETIMES: patient is less cooperative when asked to do things, or might refuse help at times</string>
+    <string name="q3_a_never">NEVER: patient cooperates with activities to the same level as before the disease onset</string>
+
+    <string name="q4_q">4. Becomes confused or muddled in unusual surroundings</string>
+    <string name="q4_detail">• When --- goes out, is he/she generally good at finding their bearings?\n• If you went to a different shopping centre or visited a friend you don’t see often, would he/she be ok making his/her way around? Would they be able to find the car again?\n• Is it better when it is a familiar place?\n• Has he/she been ever good at orientating themselves – where home is, where the shops are, north/south, etc?</string>
+    <string name="q4_a_always">ALL THE TIME: patient is always confused in unfamiliar areas (even if is still orientated in familiar places)</string>
+    <string name="q4_a_sometimes">SOMETIMES: patient might be confused in unfamiliar areas, but not much more than pre-morbidly</string>
+    <string name="q4_a_never">NEVER: patient is able to orientate themselves in unfamiliar areas</string>
+
+    <string name="q5_q">5. Is restless</string>
+    <string name="q5_detail">• Does --- rummage around the house all the time?\n• Is he/she fidgeting all the time? Or moving their legs, for instance?\n(Informant might mention that patient cannot sit still while watching TV, or patient is pacing all the time)</string>
+    <string name="q5_a_always">ALL THE TIME: patient is pacing around the house, or rummaging cupboards; fidgeting or constantly moving legs</string>
+    <string name="q5_a_sometimes">SOMETIMES: patient is restless sometimes</string>
+    <string name="q5_a_never">NEVER: no changes</string>
+
+    <string name="q6_q">6. Acts impulsively without thinking, lacks judgement</string>
+    <string name="q6_detail">• Does --- say or do things in public that might be embarrassing to you or to your children?\n• Does he/she make comments that might be rude to other people?\n• Does he/she approach strange people and talk as if they were friends?\n• Does he/she make rash decisions (e.g. with spending money)?\n• Have you been concerned about his/her safety when doing activities because they may not be thought through?</string>
+    <string name="q6_a_always">ALL THE TIME: patient does or says things that are embarrassing to family members, which they did not use to do before (e.g. making comments of people’s weight; approaching strangers for a chat as if they were friends) OR patient might do dangerous things without proper judgement (e.g. trying to get out of the car while it is in motion; tries to climb the roof to fix the antenna when is clearly not able to do so)</string>
+    <string name="q6_a_sometimes">SOMETIMES: presents with impulsive behaviour sometimes</string>
+    <string name="q6_a_never">NEVER: no changes</string>
+
+    <string name="q7_q">7. Forgets what day it is</string>
+    <string name="q7_detail">• Does --- keep track of which day it is, or if it is the weekend?\n• Does --- use a calendar, or a diary?\n• Does he/she normally know the appointments of the day/week?\n• Do you need to prompt him/her about the appointments of the day?</string>
+    <string name="q7_a_always">ALL THE TIME: patient is disorientated in time most of the time, or all the time</string>
+    <string name="q7_a_sometimes">SOMETIMES: patient sometimes forgets which day it is</string>
+    <string name="q7_a_never">NEVER: no changes; patient follows correct routine for each day without prompting; informant shows no concern in patient’s ability to follow appointments</string>
+
+    <string name="h_outing">Outing and shopping</string>
+
+    <string name="q8_q">8. Has problems taking his/her usual transportation safely</string>
+    <string name="q8_detail">(Car if pre-morbidly had a driver’s licence; bike or public transport if did not have a driver’s licence. Rating based on pre-morbid level. Does not include modifications made to cater for physical disability.)\n\n• Does --- drive? Did he/she use to drive? (if never driven evaluate ability to take public transport, or ride their bicycles if applicable)\n• Does he/she take the bus/train on their own?</string>
+    <string name="q8_a_always">ALL THE TIME: patient does not drive any longer; or still drives with a restricted licence. Patient does not drive any longer but still takes public transport. Patient does not take public transport any longer</string>
+    <string name="q8_a_sometimes">SOMETIMES: informant might have noticed some subtle changes in driving; cannot say for sure what seems wrong. If patient was not a driver previously: patient might have trouble with bus routes, or taking the train on more than one occasion.</string>
+    <string name="q8_a_never">NEVER: no changes</string>
+
+    <string name="q9_q">9. Has difficulties shopping on their own</string>
+    <string name="q9_detail">(Rating based on pre-morbid level. For instance, if they used to do the big weekly shopping but now can only do a small shopping at the local shops, score this as “All the time”. Or if they only used to get a few items from the local shop, score based on this level.)\n\nAscertain previous level of shopping to determine whether patient can still perform to the same level.\n• Does --- do the grocery shopping?\n• Does --- buy bread and milk at the local shop when needed?\n• Does --- normally bring home what they had planned/were asked to?\n• Do they use a shopping list now? Did they used to?\n• How do they pay: by credit card, cash? [This question can be used later for determining ability in the finances section.]</string>
+    <string name="q9_a_always">ALL THE TIME: patient cannot do the shopping without help, or might still be able to do the small shopping BUT used to do the main weekly shopping. Patient does not go shopping any longer.</string>
+    <string name="q9_a_sometimes">SOMETIMES: patient might have started needing extra aids, such as using a shopping list, which was previously not required; patient may come away with only some of the intended items. A one-off occasion of problems while shopping that seems out of character is scored under “never”.</string>
+    <string name="q9_a_never">NEVER: no changes. Can independently do the grocery shopping (if used to) or small shopping (if used to).</string>
+
+    <string name="h_household">Household chores and telephone</string>
+
+    <string name="houshold_instruction">Ascertain first if the patient was the main person looking after the house. If the patient used to do only a couple of tasks, rate their ability to perform those (questions 10 and 11).</string>
+
+    <string name="q10_q">10. Lacks interest or motivation to perform household chores that he/she used to perform in the past</string>
+    <string name="q10_detail">(Rate based on pre-morbid level)\n\n• If female: does --- look after the house like in the past?\n• Does she need more help than she used to?\n• Does she need PROMPTING to do those tasks?\n• If male: which activities does --- do in the house?\n• Is there an activity he has always done (e.g. ironing; taking rubbish out; mowing the lawn)?\n• Does he need PROMPTING to do those tasks?</string>
+    <string name="q10_a_always">ALL THE TIME: patient does not take initiative to do house chores as they used in the past. Patient used to do all house chores independently but now only does a few without prompting. Patient might still do tasks if asked/prompted/pushed to.</string>
+    <string name="q10_a_sometimes">SOMETIMES: patient needs occasional prompting (do not underscore performance if patient always needed an occasional prompting. If patient used to be prompted pre-morbidly, then score N/A for question 10).</string>
+    <string name="q10_a_never">NEVER: no changes.</string>
+
+    <string name="q11_q">11. Has difficulties completing household chores adequately that he/she used to perform in the past (to the same level)</string>
+    <string name="q11_detail">(This does not include changes in quality caused by physical disability.)\n\n• When she/he does that task, does he/she do a good job?\n• Do you need to re-do them later?</string>
+    <string name="q11_a_always">ALL THE TIME: patient might still do the chores but not to the same standard (e.g. rooms are not sparkling clean as before; dishes need to be re-washed; table is set wrongly). Patient does not execute them even if asked.</string>
+    <string name="q11_a_sometimes">SOMETIMES: occasional problem in executing tasks; occasional lack of quality if compared to previous performance.</string>
+    <string name="q11_a_never">NEVER: no changes.</string>
+
+    <string name="q12_q">12. Has difficulty finding and dialling a telephone number correctly</string>
+    <string name="q12_detail">Bear in mind that patients with Semantic Dementia or PNFA might have trouble using the phone due to language difficulties, but no difficulty in finding and dialling a number – as seen in patients with Alzheimer’s disease.\n\n• Does he/she use the telephone?\n• Does he/she avoid answering the phone?\n• Does he/she make calls?</string>
+    <string name="q12_a_always">ALL THE TIME: patient needs help when finding and dialling a number; patient does not use the telephone any longer.</string>
+    <string name="q12_a_sometimes">SOMETIMES: occasional need for help; is only able to dial people from pre-programmed buttons on the telephone</string>
+    <string name="q12_a_never">NEVER: no changes.</string>
+
+    <string name="h_finances">Finances and correspondence</string>
+
+    <string name="finances_instruction_1">Ascertain first if the patient used to be responsible to the finances of the household before symptom onset. If so, carry out questions regarding finances. If not, still address question 13 but tick N/A for question 14.</string>
+    <string name="finances_instruction_2">Managing correspondence is addressed in question 15, and the underlying function we are evaluating is language skills (writing and/or comprehension). As there is a hierarchy of abilities in managing finances, if patient clearly organises all bills, payments and investments to a high level, question 16 can be answered based on previous 3 questions.</string>
+
+    <string name="q13_q">13. Lacks interest in his/her personal affairs such as finances</string>
+    <string name="q13_detail">• Does he/she used to look after the finances? If yes:\n• Is he/she doing that at the moment? (e.g. paying bills, keeping track of statements, making investments) Does he/she need some help from you?\n• If answer is no: Is he/she still interested in knowing how the finances are going?</string>
+    <string name="q13_a_always">ALL THE TIME: patient is not interested if there is enough money available, or how finances are going. Patient used to be the “manager” of the finances, but now lost interest completely.</string>
+    <string name="q13_a_sometimes">SOMETIMES: patient might still look at the bank statements that arrive but does not initiate any action needed.</string>
+    <string name="q13_a_never">NEVER: no changes.</string>
+
+    <string name="q14_q">14. Has problems organising his/her finances and to pay bills (cheques, bankbook, statements, bills)</string>
+    <string name="q14_detail">• Is he/she doing that at the moment? (e.g. paying bills, keeping track of statements, making investments) Does he/she need some help from you/somebody?\n• (informant might have answered this above)</string>
+    <string name="q14_a_always">ALL THE TIME: patient cannot organise bills/payments/investments without help. Patient does not do any financial transactions any longer.</string>
+    <string name="q14_a_sometimes">SOMETIMES: patient needs occasional help.</string>
+    <string name="q14_a_never">NEVER: no changes.</string>
+
+    <string name="q15_q">15. Has difficulties organising his/her correspondence without help (writing skills)</string>
+    <string name="q15_detail">• Does he/she deal with letters/emails that need to be replied?\n• Does he/she need help with spelling, checking what was written?</string>
+    <string name="q15_a_always">ALL THE TIME: patient does not write letters/emails without help, or might have stopped writing.</string>
+    <string name="q15_a_sometimes">SOMETIMES: patient still deals with letters/emails but sometimes asks spouse/family members to check spelling, etc.</string>
+    <string name="q15_a_never">NEVER: no changes.</string>
+
+    <string name="q16_q">16. Has problems handling adequately cash in shops, petrol stations, etc (give and check change)</string>
+    <string name="q16_detail">(Note this item is more about ability to understand and use cash than the physical skills or holding and manipulating coins)\n\n• Does he/she normally pay for shopping, or a coffee with cash or card (credit or debit?)\n• Does he/she understand the value of the bills?\n• Does he/she pay with one large bill to avoid calculating?\n• Is he/she able to check change given and know if it’s correct?</string>
+    <string name="q16_a_always">ALL THE TIME: patient has difficulties paying by cash; might prefer paying by card or uses only bigger notes. Does not check change, does not understand the value of bank notes or coins, or does not use cash any longer.</string>
+    <string name="q16_a_sometimes">SOMETIMES: might have problems using cash occasionally.</string>
+    <string name="q16_a_never">NEVER: no changes.</string>
+
+    <string name="h_medications">Medications</string>
+
+    <string name="medications_instruction">In this section we evaluate whether the patient just needs a prompt (and knows the doses), if they need to have medication doses prepared (but remembers to take them), or both. Rate based on pre-morbid level (e.g. if patient used to have the medications prepared by the spouse for the last 20 years, score N/A)</string>
+
+    <string name="q17_q">17. Has problems taking his/her medications at the correct time (forgets or refuses to take them)</string>
+    <string name="q17_detail">• Does he/she take any medication at the moment? If no, mark N/A. If yes:\n• Does he/she need any prompting to take the medication at the correct time?</string>
+    <string name="q17_a_always">ALL THE TIME: patient does not take medications without prompting, or medication is given to them. Patient might know the dose but does not to take the medication at the correct time.</string>
+    <string name="q17_a_sometimes">SOMETIMES: patient needs occasional prompting to take medication (clearly more than pre-morbidly). A one-off occasion that seems out of character is scored under “never”.</string>
+    <string name="q17_a_never">NEVER: no changes.</string>
+
+    <string name="q18_q">18. Has difficulties taking his/her medications as prescribed (according to the right dosage)</string>
+    <string name="q18_detail">• Does he/she know how many tablets/pills they should take?\n• Does he/she use a pill box or Webster packs? If yes, who prepares them?</string>
+    <string name="q18_a_always">ALL THE TIME: patient might take medication from the pillbox/Webster packs without prompting but would not know how many tablets are prescribed (follows the days of the week from the pillbox or Webster packs). Medication is given to them.</string>
+    <string name="q18_a_sometimes">SOMETIMES: patient needs occasional help in sorting out medication doses.</string>
+    <string name="q18_a_never">NEVER: no changes.</string>
+
+    <string name="h_mealprep">Meal preparation and eating</string>
+
+    <string name="mealprep_instruction">Ascertain first if patient used to be the main cook in the house, an occasional helper, or did not use to prepare any meals. In this section we evaluate whether the patient needs help to prepare a full meal (if used to be the main cook), OR breakfast/light snack (e.g. used to prepare a sandwich for themselves but was never responsible for meal preparation). The scoring for questions 19, 20 and 21 should be based on the SAME task, e.g. preparing a meal, or preparing a sandwich. Do not start rating one task for initiation and then switch to another task for execution.</string>
+
+    <string name="q19_q">19. Lacks previous interest or motivation to prepare a meal (or breakfast, sandwich) for himself/herself (rating based pre-morbid functioning; score same task for questions 19, 20 and 21)</string>
+    <string name="q19_detail">Ascertain previous level of cooking and then score whether patient can still perform to the same level.\n\n• Does he/she prepare something to eat? (e.g. full meal if used to be the main cook, or light snack such as sandwich, toast, for less proficient cooks)\n• Does he/she need you to prompt them to prepare?\n• If patient does not prepare things to eat and never did, go to Q22</string>
+    <string name="q19_a_always">ALL THE TIME: patient will only do the task if asked; needs prompt most of the time; patient used to do main meals but now can only prepare a light snack/sandwich.</string>
+    <string name="q19_a_sometimes">SOMETIMES: patient needs occasional prompt to carry out a meal preparation/snack when did not use to need before.</string>
+    <string name="q19_a_never">NEVER: no changes.</string>
+
+    <string name="q20_q">20. Has difficulties organising the preparation of meals (or a snack if patient was not the main cook) (choosing ingredients; cookware; sequence of steps)</string>
+    <string name="q20_detail">• Does he/she need help while preparing the meal/snacks?\n• Have they simplified their cooking style (less complex meals)?</string>
+    <string name="q20_a_always">ALL THE TIME: patient cannot prepare a meal or a snack without help in the organisation process. Carer might lay out all ingredients for the patient to prepare a sandwich, for instance.</string>
+    <string name="q20_a_sometimes">SOMETIMES: patient needs occasional help with planning (does not know where ingredients are, or which should be used, or in which order the preparation should happen).</string>
+    <string name="q20_a_never">NEVER: no changes.</string>
+
+    <string name="q21_q">21. Has problems preparing or cooking a meal (or snack if applicable) on their own (needs supervision/help in kitchen)</string>
+    <string name="q21_detail">• Does somebody need to be there while they are cooking?\n• Do they leave the stove on?\n• Do they handle the knives well?</string>
+    <string name="q21_a_always">ALL THE TIME: patient cannot cook on their own (somebody is often overseeing for safety reasons; or patient cannot execute parts of the task because of lack of strength or apraxia). Patient might be at risk if left on their own.</string>
+    <string name="q21_a_sometimes">SOMETIMES: patient needs occasional help. A one-off occasion that seems out of character is scored under “never”, e.g. forgot the stove on ONCE. Patient might have bought a new microwave and struggled to use it a few times.</string>
+    <string name="q21_a_never">NEVER: no changes.</string>
+
+    <string name="q22_q">22. Lacks initiative to eat (if not offered food, might spend the day without eating anything at all)</string>
+    <string name="q22_detail">• When he/she is hungry, does he get something to eat? (e.g. a piece of fruit, a snack)\n• Does he/she rely on you to bring something for them to eat?</string>
+    <string name="q22_a_always">ALL THE TIME: patient does not eat unless food is offered directly, or is obviously at sight.</string>
+    <string name="q22_a_sometimes">SOMETIMES: patient needs occasional prompt.</string>
+    <string name="q22_a_never">NEVER: no changes; will go and get food from the cupboard or fridge if hungry.</string>
+
+    <string name="q23_q">23. Has difficulties choosing appropriate utensils and seasonings when eating</string>
+    <string name="q23_detail">• Does he/she use the cutlery like they used to use before?\n• Any problems with fork or knife?</string>
+    <string name="q23_a_always">ALL THE TIME: patient uses serving spoon to eat own meal; gets confused between fork and knife most of the time; patient has sections of their meal cut up for them so that they do not need to use both knife and fork.</string>
+    <string name="q23_a_sometimes">SOMETIMES: patient needs occasional help (clearly more often than pre-morbidly). A one-off occasion that seems out of character is scored under “never”. Patient was very skilled at using different types of cutlery but is now muddled with them.</string>
+    <string name="q23_a_never">NEVER: no changes.</string>
+
+    <string name="q24_q">24. Has problems eating meals at a normal pace and with appropriate manners</string>
+    <string name="q24_detail">Note, this item does not include changes in eating due to dysphagia.\n\n• Is he/she eating too fast or too slow now?\n• Is he/she putting too much food in the mouth?\n• Is he/she now a messier eater?</string>
+    <string name="q24_a_always">ALL THE TIME: patient eats too fast (might put too much food in mouth); patient eats too slowly (might drop food on table, floor). Patient might take food from others; patient might serve too much food for themselves even if there are other guests at the table.</string>
+    <string name="q24_a_sometimes">SOMETIMES: patient might have had problems with manners on some occasions. A one-off occasion that seems out of character is scored under “never”.</string>
+    <string name="q24_a_never">NEVER: no changes.</string>
+
+    <string name="q25_q">25. Wants to eat the same foods repeatedly</string>
+    <string name="q25_detail">Note, this item does not include changes in eating due to dysphagia (if a patient’s diet has become more restricted as a result of difficulty eating certain foods).\n\n• Does he/she have any favourite foods that he/she has to have most of the time?\n• Which foods are those? (if sweets, score also question 26)</string>
+    <string name="q25_a_always">ALL THE TIME: patient wants to eat same foods for weeks; might change to another type of food for another number of weeks. Fixed on certain foods, or always adds a certain type of sauce/seasoning to the food.</string>
+    <string name="q25_a_sometimes">SOMETIMES: patient might have preferences on occasion, e.g. Christmas sweets at Christmas time.</string>
+    <string name="q25_a_never">NEVER: no changes, e.g. eats a variety of foods.</string>
+
+    <string name="q26_q">26. Prefers sweet foods more than before</string>
+    <string name="q26_detail">Make sure the patient did not already have a sweet tooth prior to disease onset</string>
+    <string name="q26_a_always">ALL THE TIME: patient now prefers cakes, sweets, chocolates, soft drinks etc. Might eat sweets at dinner time. Or always adds a certain type of sweetener to the food (e.g. patient adds cranberry sauce to savoury and sweet dishes to make them all sweet).</string>
+    <string name="q26_a_sometimes">SOMETIMES: patient has preferences on occasion.</string>
+    <string name="q26_a_never">NEVER: no changes.</string>
+
+    <string name="h_selfcare">Self care and mobility</string>
+
+    <string name="selfcare_instruction">In this section we evaluate basic abilities. If patient has scored “never” for most of the questions above, patients will likely score “never” in these 4 remaining questions. Question 30 is scored by observation.</string>
+
+    <string name="q27_q">27. Has problems choosing appropriate clothing (with regard to the occasion, the weather or colour combination)</string>
+    <string name="q27_detail">Ascertain if the spouse might have always laid out the clothes for the patient for the last 20 years. In this situation, score N/A and go to Q28\n\n• When he/she is getting ready for the day, does he/she need help in choosing their clothes?\n• Does he/she always want to wear the same clothes (even if they are dirty)?</string>
+    <string name="q27_a_always">ALL THE TIME: patient might want to always wear the same clothes (even if they are dirty or even if they are going out). Patient might make strange combinations (e.g. sports socks and a cocktail dress) or overdress for an informal occasion.</string>
+    <string name="q27_a_sometimes">SOMETIMES: patient needed help on some occasions, which was clearly more than they used to need. If the patient used to ask for the spouse’s opinion when choosing clothes and still does (habit), score “never”.</string>
+    <string name="q27_a_never">NEVER: no changes.</string>
+    <string name="q27_a_na">N/A: the spouse always laid out the clothes for the patient</string>
+
+    <string name="q28_q">28. Is incontinent</string>
+    <string name="q28_detail">(not including functional incontinence, where mobility problems restricts the ability to get to the toilet on time)\n\nBe aware of carers’ sensitivity to this question. If patient scored never for most of the questions above, it is highly likely they will score never for question 28 as well.\n\n• Does he/she have problems going to the toilet?\n• Has he/she ever had an “accident” when going to the toilet?</string>
+    <string name="q28_a_always">ALL THE TIME: patient uses serving spoon to eat own meal; gets confused between fork and knife most of the time. Or puts too much seasoning (did not use to).</string>
+    <string name="q28_a_sometimes">SOMETIMES: patient needs occasional prompt (clearly more often than pre-morbidly). A one-off occasion of wetting oneself that seems out of character is scored under “never”.</string>
+    <string name="q28_a_never">NEVER: no changes; patient retains bladder control.</string>
+
+    <string name="q29_q">29. Cannot be left at home by himself/herself for a whole day (for safety reasons)</string>
+    <string name="q29_detail">Be aware of carers’ sensitivity to this question. If patient scored never for most of the questions above, it is highly likely they will score never for question 29 as well.\n\n• Are there times when you go out and he/she stays at home by themselves?\n• For how long do they normally stay at home alone?</string>
+    <string name="q29_a_always">ALL THE TIME: carer might leave patient alone for a couple of hours only.</string>
+    <string name="q29_a_sometimes">SOMETIMES: carer leaves patient alone but has to call several times in the day to prompt patient, or check how they are doing.</string>
+    <string name="q29_a_never">NEVER: no changes.</string>
+
+    <string name="q30_q">30. Is restricted to the bed</string>
+    <string name="q30_detail">This question does not need asking and can be scored upon observation.</string>
+    <string name="q30_a_always">ALL THE TIME: patient is bed-ridden.</string>
+    <!-- no "sometimes" option -->
+    <string name="q30_a_never">NEVER: patient is ambulant.</string>
+
+  </task>
+</resources>
