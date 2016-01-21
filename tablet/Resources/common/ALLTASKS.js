@@ -320,6 +320,14 @@ exports.TASKLIST = {
         subtitle: L('s_fft'),
         info: 'html/from_lp.html'
     },
+    FRS: {
+        task: 'task/Frs',
+        title: L('b_frs'),
+        tables: ['frs'],
+        maintitle: L('t_frs'),
+        subtitle: L('s_frs'),
+        info: 'html/frs.html'
+    },
     GAD7: {
         task: 'task/Gad7',
         title: L('b_gad7'),
@@ -511,6 +519,14 @@ exports.TASKLIST = {
         maintitle: L('t_nart'),
         subtitle: L('s_nart'),
         info: 'html/nart.html'
+    },
+    NPIQ: {
+        task: 'task/NpiQ',
+        title: L('b_npiq'),
+        tables: ['npiq'],
+        maintitle: L('t_npiq'),
+        subtitle: L('s_npiq'),
+        info: 'html/npiq.html'
     },
     PANSS: {
         task: 'task/Panss',

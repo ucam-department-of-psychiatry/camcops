@@ -52,7 +52,7 @@ function reportAnalytics() {
         conversion = require('lib/conversion'),
         platform = require('lib/platform'),
         storedvars = require('table/storedvars'),
-        ANALYTICS_URL = "https://egret.psychol.cam.ac.uk/camcops/analytics",
+        ANALYTICS_URL = "https://egret.psychol.cam.ac.uk/camcops_analytics",
             // Using a numerical IP address would save the DNS lookup step,
             // but the SSL certificate is name-based, so certificate validation
             // fails.

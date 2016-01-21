@@ -378,6 +378,7 @@ function fieldnameArrayFromSuffixes(prefix, suffixes) {
     }
     return fieldnames;
 }
+exports.fieldnameArrayFromSuffixes = fieldnameArrayFromSuffixes;
 
 //=============================================================================
 // Field values
@@ -556,7 +557,7 @@ function countBooleansByPrefix(object, prefix, start, end) {
         fieldnameArrayFromPrefix(prefix, start, end)
     );
 }
-exports.countBooleans = countBooleans;
+exports.countBooleansByPrefix = countBooleansByPrefix;
 
 function allTrue(object, fields) {
     var i;
@@ -575,7 +576,7 @@ function allTrueByPrefix(object, prefix, start, end) {
         fieldnameArrayFromPrefix(prefix, start, end)
     );
 }
-exports.allTrue = allTrue;
+exports.allTrueByPrefix = allTrueByPrefix;
 
 function noneTrue(object, fields) {
     var i;
@@ -594,7 +595,7 @@ function noneTrueByPrefix(object, prefix, start, end) {
         fieldnameArrayFromPrefix(prefix, start, end)
     );
 }
-exports.noneTrue = noneTrue;
+exports.noneTrueByPrefix = noneTrueByPrefix;
 
 //=============================================================================
 // Counting by value

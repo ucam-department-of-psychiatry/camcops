@@ -460,9 +460,11 @@ exports.createStoredVariables = function () {
     exports.multilineTextFixedHeight = new StoredVariable({
         name: 'multilineTextFixedHeight',
         type: SV_TYPE_BOOLEAN,
-        defaultValue: true
+        defaultValue: false
         // looks nicer when false, but keyboard unpleasantly slow on iPad
         // unless true
+        // 2015-01-19: under Titanium 5.1.2.GA, may be fast enough under iOS
+        // to switch to False.
     });
     exports.multilineDefaultNLines = new StoredVariable({
         // For when multilineTextFixedHeight is true
