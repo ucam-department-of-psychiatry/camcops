@@ -34,6 +34,7 @@ camcops (1.40-1) all; urgency=high
   * BADLS (skeleton only).
   * NPI-Q (skeleton only).
   * FRS.
+  * INECO Frontal Screening (IFS) (skeleton only).
   * Add clinician to GAF.
   * Diagnosis reports.
   * Device report.

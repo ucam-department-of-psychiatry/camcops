@@ -829,7 +829,7 @@ form.filter {
     margin: $ZERO;
 }
 .footnotes {
-    font-style: italic;
+    /* font-style: italic; */
     font-size: $SMALLFONTSIZE;
     line-height: $SMALLLINEHEIGHT;
 }
