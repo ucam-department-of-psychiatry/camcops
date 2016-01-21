@@ -194,8 +194,14 @@ class NpiQ(Task):
                 self.WXSTRING("q" + qstr),
             )
             etext = get_yes_no_unknown(e)
-            stext = self.WXSTRING("severity_{}".format(s), s)
-            dtext = self.WXSTRING("distress_{}".format(d), d)
+            if e:
+                stext = self.WXSTRING("severity_{}".format(s), s,
+                                      provide_default_if_none=False)
+                dtext = self.WXSTRING("distress_{}".format(d), d,
+                                      provide_default_if_none=False)
+            else:
+                stext = ""
+                dtext = ""
             h += tr(qtext, answer(etext), answer(stext), answer(dtext))
         h += """
             </table>

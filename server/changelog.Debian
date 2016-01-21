@@ -33,6 +33,7 @@ camcops (1.40-1) all; urgency=high
   * DAD (skeleton only).
   * BADLS (skeleton only).
   * NPI-Q (skeleton only).
+  * FRS.
   * Add clinician to GAF.
   * Diagnosis reports.
   * Device report.

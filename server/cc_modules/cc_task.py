@@ -2853,13 +2853,14 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # Extra strings
     # -------------------------------------------------------------------------
 
-    def WXSTRING(self, name, defaultvalue=None):
-        if defaultvalue is None:
+    def WXSTRING(self, name, defaultvalue=None, provide_default_if_none=True):
+        if defaultvalue is None and provide_default_if_none:
             defaultvalue = "[{}: {}]".format(self.extrastring_taskname,
                                              name)
         return WXSTRING(self.extrastring_taskname,
                         name,
-                        defaultvalue)
+                        defaultvalue,
+                        provide_default_if_none=provide_default_if_none)
 
 
 class Ancillary(object):

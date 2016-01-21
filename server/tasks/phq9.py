@@ -61,7 +61,6 @@ class Phq9(Task):
         dict(name="q10", cctype="INT", min=0, max=3,
              comment="Q10 (difficulty in activities) (0 not difficult at "
                      "all - 3 extremely difficult)"),
-
     ]
 
     N_MAIN_QUESTIONS = 9

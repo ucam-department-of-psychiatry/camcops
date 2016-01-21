@@ -32,6 +32,7 @@ from cc_modules.cc_html import (
 )
 from cc_modules.cc_string import task_extrastrings_exist, WSTRING
 from cc_modules.cc_task import Task
+from cc_modules.cc_logger import logger  # ***
 
 
 # =============================================================================
@@ -40,7 +41,6 @@ from cc_modules.cc_task import Task
 
 class Hads(Task):
     NQUESTIONS = 14
-    EXTRASTRING_TASKNAME = "hads"
     ANXIETY_QUESTIONS = [1, 3, 5, 7, 9, 11, 13]
     DEPRESSION_QUESTIONS = [2, 4, 6, 8, 10, 12, 14]
 
@@ -55,6 +55,7 @@ class Hads(Task):
             "cheerful", "relaxed", "slow", "butterflies", "appearance",
             "restless", "anticipate", "panic", "book/TV/radio"
         ])
+    extrastring_taskname = "hads"
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
@@ -111,7 +112,8 @@ class Hads(Task):
     def get_task_html(self):
         MIN_SCORE = 0
         MAX_SCORE = 3
-        crippled = not task_extrastrings_exist(self.EXTRASTRING_TASKNAME)
+        crippled = not task_extrastrings_exist(self.extrastring_taskname)
+        logger.info("crippled: {}".format(crippled))
         a = self.anxiety_score()
         d = self.depression_score()
         h = """

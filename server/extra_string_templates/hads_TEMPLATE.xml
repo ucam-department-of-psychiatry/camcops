@@ -4,6 +4,10 @@
     <!-- Hospital Anxiety and Depression Scale (HADS) -->
     <!-- TEMPLATE ONLY: replace 'XXX' with real text if you have the necessary permissions -->
 
+    <string name="instruction_1">XXX</string>
+    <string name="instruction_2">XXX</string>
+    <string name="instruction_3">XXX</string>
+
     <!-- Q1. A; 3 at the top -->
     <string name="q1_stem">XXX:</string>
     <string name="q1_a0">XXX</string>
@@ -19,84 +23,84 @@
     <string name="q2_a3">XXX</string>
 
     <!-- Q3. A; 3 at the top -->
-    <string name="q3_stem">XXX:</string>
+    <string name="q3_stem">XXX</string>
     <string name="q3_a0">XXX</string>
     <string name="q3_a1">XXX</string>
     <string name="q3_a2">XXX</string>
     <string name="q3_a3">XXX</string>
 
     <!-- Q4. D; 0 at the top -->
-    <string name="q4_stem">XXX:</string>
+    <string name="q4_stem">XXX</string>
     <string name="q4_a0">XXX</string>
     <string name="q4_a1">XXX</string>
     <string name="q4_a2">XXX</string>
     <string name="q4_a3">XXX</string>
 
     <!-- Q5. A; 3 at the top -->
-    <string name="q5_stem">XXX:</string>
+    <string name="q5_stem">XXX</string>
     <string name="q5_a0">XXX</string>
     <string name="q5_a1">XXX</string>
     <string name="q5_a2">XXX</string>
     <string name="q5_a3">XXX</string>
 
     <!-- Q6. D; 3 at the top -->
-    <string name="q6_stem">XXX:</string>
+    <string name="q6_stem">XXX</string>
     <string name="q6_a0">XXX</string>
     <string name="q6_a1">XXX</string>
     <string name="q6_a2">XXX</string>
     <string name="q6_a3">XXX</string>
 
     <!-- Q7. A; 0 at the top -->
-    <string name="q7_stem">XXX:</string>
+    <string name="q7_stem">XXX</string>
     <string name="q7_a0">XXX</string>
     <string name="q7_a1">XXX</string>
     <string name="q7_a2">XXX</string>
     <string name="q7_a3">XXX</string>
 
     <!-- Q8. D; 3 at the top -->
-    <string name="q8_stem">XXX:</string>
+    <string name="q8_stem">XXX</string>
     <string name="q8_a0">XXX</string>
     <string name="q8_a1">XXX</string>
     <string name="q8_a2">XXX</string>
     <string name="q8_a3">XXX</string>
 
     <!-- Q9. A; 0 at the top -->
-    <string name="q9_stem">XXX:</string>
+    <string name="q9_stem">XXX</string>
     <string name="q9_a0">XXX</string>
     <string name="q9_a1">XXX</string>
     <string name="q9_a2">XXX</string>
     <string name="q9_a3">XXX</string>
 
     <!-- Q10. D; 3 at the top -->
-    <string name="q10_stem">XXX:</string>
+    <string name="q10_stem">XXX</string>
     <string name="q10_a0">XXX</string>
     <string name="q10_a1">XXX</string>
     <string name="q10_a2">XXX</string>
     <string name="q10_a3">XXX</string>
 
     <!-- Q11. A; 3 at the top -->
-    <string name="q11_stem">XXX:</string>
+    <string name="q11_stem">XXX</string>
     <string name="q11_a0">XXX</string>
     <string name="q11_a1">XXX</string>
     <string name="q11_a2">XXX</string>
     <string name="q11_a3">XXX</string>
 
     <!-- Q12. D; 0 at the top -->
-    <string name="q12_stem">XXX:</string>
+    <string name="q12_stem">XXX</string>
     <string name="q12_a0">XXX</string>
     <string name="q12_a1">XXX</string>
     <string name="q12_a2">XXX</string>
     <string name="q12_a3">XXX</string>
 
     <!-- Q12. A; 3 at the top -->
-    <string name="q13_stem">XXX:</string>
+    <string name="q13_stem">XXX</string>
     <string name="q13_a0">XXX</string>
     <string name="q13_a1">XXX</string>
     <string name="q13_a2">XXX</string>
     <string name="q13_a3">XXX</string>
 
     <!-- Q13. D; 0 at the top -->
-    <string name="q14_stem">XXX:</string>
+    <string name="q14_stem">XXX</string>
     <string name="q14_a0">XXX</string>
     <string name="q14_a1">XXX</string>
     <string name="q14_a2">XXX</string>
