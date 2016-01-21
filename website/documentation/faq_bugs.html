@@ -71,7 +71,7 @@ global new = &lt;function new&gt;, new.info undefined
   <p>Best thing: change the table format.</p>
   <ol>
     <li>
-      Edit the MySQL config file, e.g. <code>/etc/my.cnf</code>. In the <code>[mysqld]</code> section, add the line:
+      Edit the MySQL config file, e.g. <code>/etc/my.cnf</code>. In the <code>[mysqld]</code> section, add the lines:
       <pre class="code1">innodb_file_per_table
 innodb_file_format = Barracuda</pre>
     </li>
@@ -94,7 +94,11 @@ innodb_file_format = Barracuda</pre>
     <code>/var/lib/mysql/ib_logfile1</code>.</li>
     <li>Restart MySQL</li>
   </ol>
+  <p><b>From CamCOPS v1.32,</b> the server autoconverts tables to Barracuda
+  when using the make-tables command, to avoid this problem.</p>
+
   <p><i>Sources:</i></p>
+  
   <ul>
     <i>
     <li><a href="http://stackoverflow.com/questions/25246074/row-size-too-large-8126-exception-on-adding-appcenter-application">http://stackoverflow.com/questions/25246074/row-size-too-large-8126-exception-on-adding-appcenter-application</a></li>
