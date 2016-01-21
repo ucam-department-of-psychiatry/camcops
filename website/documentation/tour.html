@@ -2,308 +2,395 @@
 
 <html>
 <head>
-  <meta name="generator" content=
-  "HTML Tidy for Linux (vers 25 March 2009), see www.w3.org">
-  <!--#include virtual="/camcops/ssi/camcops_html_head.shtml" -->
+    <!--#include virtual="/camcops/ssi/camcops_html_head.shtml" -->
 
-  <title>CamCOPS – Tour</title><!--
-        Candidate frameworks:
-        
-            iView - http://iprodev.com/2012/07/iview/ - but fixed window size
-            Lightbox2 - http://lokeshdhakar.com/projects/lightbox2/ - no thumbnails
-            Lightview - http://projects.nickstakenburg.com/lightview/documentation/usage
-    -->
-  <!-- lightview block -->
+    <title>CamCOPS – Tour</title>
 
-  <script type="text/javascript" src=
-  "http://code.jquery.com/jquery-1.9.1.min.js">
-</script>
-  <script type="text/javascript" src=
-  "https://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js">
-</script><!--[if lt IE 9]>
-      <script type="text/javascript" src="lightview/js/excanvas/excanvas.js"></script>
-    <![endif]-->
+    <!-- fancybox block -->
 
-  <script type="text/javascript" src="lightview/js/spinners/spinners.min.js">
-</script>
-  <script type="text/javascript" src="lightview/js/lightview/lightview.js">
-</script>
-  <link rel="stylesheet" type="text/css" href=
-  "lightview/css/lightview/lightview.css">
-  <style type="text/css">
-      /* Style to make the links look like buttons */
-        a[class=lightview] {
-            float: left;
-            margin-right: 6px;
-            padding: 1px;
-            background: #667e86;
-            border: 1px solid #667e86;
-            border-top: 1px solid #90a0a3;
-            color: #ffffff;
-            font-family: Arial, "Helvetica Lt Std", Helvetica, "Helvetica Neue", sans-serif;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 9px;
-            text-transform: uppercase;
-            text-shadow: 0 1px 0 rgba(255, 255, 255, .2);
-            -webkit-border-radius: 4px;
-            -moz-border-radius: 4px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+    <!-- Add jQuery library -->
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
 
-        /* Captions on right? http://forum.nickstakenburg.com/index.php?p=/discussion/2552/placing-title-caption-to-the-right-side-of-the-image */
-        /*
-        .lv_title, .lv_caption {
-            float: right;
-        }
-        .lv_window {
-            text-align: right;
-        }
-        */
-  </style>
+    <!-- Add mousewheel plugin (this is optional) -->
+    <script type="text/javascript" src="../fancybox/lib/jquery.mousewheel-3.0.6.pack.js"></script>
+
+    <!-- Add fancyBox -->
+    <link rel="stylesheet" href="../fancybox/source/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen" />
+    <script type="text/javascript" src="../fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+    <!-- Optionally add helpers - button, thumbnail and/or media -->
+    <link rel="stylesheet" href="../fancybox/source/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen" />
+    <script type="text/javascript" src="../fancybox/source/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+    <script type="text/javascript" src="../fancybox/source/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+
+    <link rel="stylesheet" href="../fancybox/source/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen" />
+    <script type="text/javascript" src="../fancybox/source/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+
+    <!-- end of fancybox block -->
+
+    <style>
+
+/* Make the links more decorative */
+a.fancybox {
+    background: green;
+    border-radius: 5px;
+    color: white;
+    font-family: sans-serif;
+    line-height: 2em;
+    margin: 3px;
+    padding: 3px;
+    text-decoration: none;
+}
+
+    </style>
 </head>
 
 <body>
-  <!--#set var="HEADER_TITLE" value="CamCOPS – Tour" -->
-  <!--#set var="HEADER_URL" value="documentation/tour.html" -->
-  <!--#set var="HEADER_BACK_URL" value="index.html" -->
-  <!--#set var="HEADER_BACK_LABEL" value="Documentation" -->
-  <!--#include virtual="/camcops/ssi/camcops_page_header.shtml" -->
+    <!--#set var="HEADER_TITLE" value="CamCOPS – Tour" -->
+    <!--#set var="HEADER_URL" value="documentation/tour.html" -->
+    <!--#set var="HEADER_BACK_URL" value="index.html" -->
+    <!--#set var="HEADER_BACK_LABEL" value="Documentation" -->
+    <!--#include virtual="/camcops/ssi/camcops_page_header.shtml" -->
 
-  <p><b>DRAFT and IN PROGRESS.</b></p>
+    <p>Click any button to view images from the tour. You can use the keyboard
+    left/right arrow keys or the mousewheel, as well as the buttons, to
+    navigate the slide show. (In particular, you can mousewheel over the
+    images to move fast through the slides.)</p>
 
-  <p>Click any button to view images from the tour. You can use the keyboard
-  left/right arrow keys or the mousewheel, as well as the buttons, to navigate
-  the slide show. (In particular, you can mousewheel slowly over the thumbnails
-  to move fast through the slides.)</p><!--
-        controls: thumbnails, relative - but it seems, not both
-        skin: mac, dark - mac takes up less space
-        http://projects.nickstakenburg.com/lightview/documentation/options
-    -->
-  <a href="screenshots/01_main_menu_locked.png" class="lightview"
-  data-lightview-group="tour" data-lightview-group-options=
-  " skin: 'mac', controls: { type: 'relative', type: 'thumbnails' }"
-  data-lightview-title="The main menu" data-lightview-caption=
-  "No patient is selected. The application is locked (red padlock at top right). This is how the application starts. Touch the padlock to unlock.">01
-  (start)</a> <a href="screenshots/02_main_menu_unlocked.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="Unlocked"
-  data-lightview-caption=
-  "The first time you run the application, there is no code to unlock it. Later, you will set one. For now, click 'Choose patient'.">
-  02</a> <a href="screenshots/03_choose_patient_no_patients.png" class=
-  "lightview" data-lightview-group="tour" data-lightview-title="Choose patient"
-  data-lightview-caption=
-  "There are no patients yet. Press the + to add one.">03</a> <a href=
-  "screenshots/04_add_patient.png" class="lightview" data-lightview-group=
-  "tour" data-lightview-title="Add patient" data-lightview-caption=
-  "Enter some details. Touch the X to cancel or the green tick to save.">04</a>
-  <a href="screenshots/05_patient_selected.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="Choose patient"
-  data-lightview-caption=
-  "Now we have a test patient, and she is selected.">05</a> <a href=
-  "screenshots/06_patient_unselected.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="Choose patient"
-  data-lightview-caption=
-  "Touch the patient rows to select and deselect them.">06</a> <a href=
-  "screenshots/07_patient_summary_no_tasks.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="Patient summary"
-  data-lightview-caption=
-  "Having selected the patient (note the line near the top indicating which patient is selected), return to the main menu and choose 'Patient summary'. This patient has no task instances yet.">
-  07</a> <a href="screenshots/08_main_menu_patient_selected.png" class=
-  "lightview" data-lightview-group="tour" data-lightview-title="Main menu"
-  data-lightview-caption=
-  "Having chosen a patient, touch the padlock again to lock the application. In the locked state, no other patient details can be viewed, so you can give the tablet to the patient to perform a task (presuming there is no other sensitive information on it!). Let's choose the 'Affective' menu.">
-  08</a> <a href="screenshots/09_affective_menu.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="Affective disorders"
-  data-lightview-caption=
-  "There's a list of tasks. (THIS DEMONSTRATION LIST DOES NOT NECESSARILY INDICATE TASKS PRESENT IN THE APPLICATION.) Choose 'PHQ-9'.">
-  09</a> <a href="screenshots/10_phq9_task_menu.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="PHQ-9 screen"
-  data-lightview-caption=
-  "For each task, you can see options to choose a patient, and view information about the task. This patient has no instances of the PHQ-9 task yet.">
-  10 (PHQ-9)</a> <a href="screenshots/11_phq9_task_info.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="PHQ-9 information"
-  data-lightview-caption=
-  "The information screen gives details of the tasks, with links and references. Return to the task screen and touch the + symbol to add a new PHQ-9 task.">
-  11</a> <a href="screenshots/12_phq9_top.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="PHQ-9 task (1 of 2)"
-  data-lightview-caption=
-  "Here's the PHQ-9 screen. It's in a big font at the moment! Touch the options to respond to the questions. White backgrounds indicate screens for the patient to complete.">
-  12</a> <a href="screenshots/13_phq9_bottom.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="PHQ-9 task (2 of 2)"
-  data-lightview-caption=
-  "When sufficient information has been entered, a green 'stop' square appears at the top right. Press that to complete the task.">
-  13</a> <a href="screenshots/14_phq9_task_menu_with_task.png" class=
-  "lightview" data-lightview-group="tour" data-lightview-title="PHQ-9 screen"
-  data-lightview-caption=
-  "Now our patient has a PHQ-9 instance listed. Touch it to select it.">14</a>
-  <a href="screenshots/15_phq9_task_menu_task_selected.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title=
-  "PHQ-9 screen, task selected" data-lightview-caption=
-  "When this row is selected, additional icons appear at the top right. Touch the magnifying glass to view more detail.">
-  15</a> <!-- RE-SCREENSHOT --> <a href="screenshots/16_phq9_view_task.png"
-  class="lightview" data-lightview-group="tour" data-lightview-title=
-  "Viewing options for a PHQ-9 task" data-lightview-caption=
-  "Most tasks let you view a 'Facsimile' of the task as if you were performing it, or see a 'Summary'.">
-  16</a> <a href="screenshots/17_phq_summary_a.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="PHQ-9 summary (1 of 2)"
-  data-lightview-caption=
-  "Here's part of the summary. You can see the raw answers...">17</a> <a href=
-  "screenshots/18_phq9_summary_b.png" class="lightview" data-lightview-group=
-  "tour" data-lightview-title="PHQ-9 summary (2 of 2)" data-lightview-caption=
-  "... and some automated scoring. However, it's not very sophisticated. We'll see something better later on.">
-  18</a> <a href="screenshots/19_phq9_facsimile.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="PHQ-9 facsimile"
-  data-lightview-caption=
-  "Here's the facsimile, a read-only copy of what we saw earlier. Now, let's change the font size. Back to the main menu, and choose 'Settings'.">
-  19</a> <a href="screenshots/20_unable_locked.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="Application locked"
-  data-lightview-caption=
-  "Ah. We can't change the settings, because we've locked the application to this patient. Touch the padlock to unlock.">
-  20</a> <a href="screenshots/21_settings_menu.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="Settings"
-  data-lightview-caption=
-  "Now we can get to the settings menu. Choose 'Questionnaire/task appearance'.">
-  21</a> <a href="screenshots/22_questionnaire_settings.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title=
-  "Questionnaire/task appearance" data-lightview-caption=
-  "Use the slider to set the font size.">22</a> <a href=
-  "screenshots/23_phq9_smaller_font.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title=
-  "GAD-7 (now with smaller font)" data-lightview-caption=
-  "Here's the GAD-7 task, accessible from the 'Affective' menu, with our new font size.">
-  23</a> <a href="screenshots/24_bprs_q1.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="BPRS"
-  data-lightview-caption=
-  "The BPRS (accessible from the 'Global function...' menu) is clinician-administered, so it has a different background colour. Also, it's a multi-page task; a green 'Next' arrow appears at the top right when you can progress (and a 'Back' arrow on subsequent pages), replaced by the 'Stop' symbol when you've come to the end.">
-  24 (OTHER TASKS)</a> <a href="screenshots/25_patient_summary_with_tasks.png"
-  class="lightview" data-lightview-group="tour" data-lightview-title=
-  "Patient summary" data-lightview-caption=
-  "Having run three tasks, we now have something more interesting in our 'Patient summary'.">
-  25</a> <a href="screenshots/26_expdetthreshold_a.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title=
-  "Expectation-Detection Threshold task (1 of 5)" data-lightview-caption=
-  "Before we look at the upload process, let's glance at a few more tasks. This one is on the 'Research' menu.">
-  26</a> <a href="screenshots/27_expdetthreshold_b.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title=
-  "Expectation-Detection Threshold task (2 of 5)" data-lightview-caption=
-  "It assesses the ability to detect a stimulus in noise.">27</a> <a href=
-  "screenshots/28_expdetthreshold_c.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title=
-  "Expectation-Detection Threshold task (3 of 5)" data-lightview-caption=
-  "Participants respond on the buttons for a while...">28</a> <a href=
-  "screenshots/29_expdetthreshold_d.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title=
-  "Expectation-Detection Threshold task (4 of 5)" data-lightview-caption=
-  "... finally reaching the end...">29</a> <a href=
-  "screenshots/30_expdetthreshold_e.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title=
-  "Expectation-Detection Threshold task (5 of 5)" data-lightview-caption=
-  "... and a task summary appears as usual. This is dull, but we'll see a fancier view of it later.">
-  30</a> <a href="screenshots/31_clerking.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="Clerking template"
-  data-lightview-caption=
-  "On the 'Clinical' menu are some simple templates for clinical assessment.">31</a>
-  <a href="screenshots/32_help_menu.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="Help menu"
-  data-lightview-caption=
-  "On the 'Help' menu, there's a demonstration task.">32</a> <a href=
-  "screenshots/33_demo_a.png" class="lightview" data-lightview-group="tour"
-  data-lightview-title="Demo (1 of 9)" data-lightview-caption=
-  "Let's look at this; it shows the elements that questionnaire-style tasks can be built from.">
-  33 (QUESTIONNAIRE ELEMENTS)</a> <a href="screenshots/34_demo_b.png" class=
-  "lightview" data-lightview-group="tour" data-lightview-title="Demo (2 of 9)"
-  data-lightview-caption="Types of multiple-choice question.">34</a> <a href=
-  "screenshots/35_demo_c.png" class="lightview" data-lightview-group="tour"
-  data-lightview-title="Demo (3 of 9)" data-lightview-caption=
-  "MCQs with boolean (yes/no) options; subtitles in grids; n-from-many questions.">
-  35</a> <a href="screenshots/36_demo_d.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="Demo (4 of 9)"
-  data-lightview-caption=
-  "Images, boolean (yes/no) images, boolean text, photograph-taking using the tablet's camera.">
-  36</a> <a href="screenshots/37_demo_e.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="Demo (5 of 9)"
-  data-lightview-caption=
-  "Text, multiline text, numerical validation, dates and times.">37</a>
-  <a href="screenshots/38_demo_e.png" class="lightview" data-lightview-group=
-  "tour" data-lightview-title="Demo (6 of 9)" data-lightview-caption=
-  "Timers, sliders, ...">38</a> <a href="screenshots/39_demo_f.png" class=
-  "lightview" data-lightview-group="tour" data-lightview-title="Demo (7 of 9)"
-  data-lightview-caption="... and an image stack.">39</a> <a href=
-  "screenshots/40_demo_g.png" class="lightview" data-lightview-group="tour"
-  data-lightview-title="Demo (8 of 9)" data-lightview-caption=
-  "A sketching canvas.">40</a> <a href="screenshots/41_demo_h.png" class=
-  "lightview" data-lightview-group="tour" data-lightview-title="Demo (9 of 9)"
-  data-lightview-caption=
-  "You can play sounds, too (not live on this help screen!).">41</a> <a href=
-  "screenshots/42_user_settings.png" class="lightview" data-lightview-group=
-  "tour" data-lightview-title="User settings" data-lightview-caption=
-  "Back to the 'Settings' menu, then choose 'User settings'. Some things are cosmetic (device friendly name, default clinician information) but the USERNAME and PASSWORD are important for talking to the server.">
-  42 (user settings)</a> <a href="screenshots/43_ip_settings.png" class=
-  "lightview" data-lightview-group="tour" data-lightview-title=
-  "Intellectual property settings" data-lightview-caption=
-  "Also on the 'Settings' menu, this governs what tasks you may run. Some tasks will not run, for example, in a commercial environment, or if the application doesn't know if it's in a commercial environment or not. BEING DISHONEST HERE MAY CAUSE YOU TO BREAK THE LAW.">
-  43</a> <a href="screenshots/44_privileged_mode.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="Privileged mode"
-  data-lightview-caption=
-  "Before we can edit the access codes or server settings, we must be in Privileged mode. Touch 'Set privileged mode' and note the change in the padlock at the top right.">
-  44</a> <a href="screenshots/45_access_codes.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="Set access codes"
-  data-lightview-caption=
-  "Set the access codes to unlock and to set privileged mode.">45</a> <a href=
-  "screenshots/46_server_settings.png" class="lightview" data-lightview-group=
-  "tour" data-lightview-title="Server settings" data-lightview-caption=
-  "Set these carefully. They determine which server the tablet will talk to.">46</a>
-  <a href="screenshots/47_registering.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="Registering..."
-  data-lightview-caption=
-  "When you point the device at a server for the first time, you must register the device with the server (and your username must be approved to register new devices).">
-  47</a> <a href="screenshots/48_registered.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="Successful registration"
-  data-lightview-caption="This server liked us.">48</a> <a href=
-  "screenshots/49_uploading.png" class="lightview" data-lightview-group="tour"
-  data-lightview-title="Upload" data-lightview-caption=
-  "Now touch 'Upload...' on the main menu, and the data will be squirted over to the server via a secure link.">
-  49</a> <a href="screenshots/50_webview_login.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="Web viewer"
-  data-lightview-caption=
-  "OK, let's move from the tablet application to a web browser, and log in to our CamCOPS server via a secure link.">
-  50 (web viewer)</a> <a href="screenshots/51_webview_main_menu.png" class=
-  "lightview" data-lightview-group="tour" data-lightview-title=
-  "Web viewer: main menu" data-lightview-caption=
-  "Of most interest: 'View tasks'.">51</a> <a href=
-  "screenshots/52_webview_view_tasks.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="View tasks"
-  data-lightview-caption=
-  "We can filter in a number of ways. Each task has a 'PDF' and an 'HTML' option.">
-  52</a> <a href="screenshots/53_webview_phq9_pdf.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="PHQ-9 PDF"
-  data-lightview-caption=
-  "Here's the PHQ-9 task we ran earlier, in a PDF format suitable for printing. You can see the raw results, and some automatic interpretation.">
-  53</a> <a href="screenshots/54_webview_phq9_html.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="PHQ-9 HTML"
-  data-lightview-caption=
-  "Here's the same task in HTML format; this is quicker to browse, but less suited to printing (it won't follow the rules of having patient identifiers on each page).">
-  54</a> <a href="screenshots/55_webview_clerking_pdf.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="Clerking PDF"
-  data-lightview-caption=
-  "Here's our mock clerking in PDF format. Note the headers on each page.">55</a>
-  <a href="screenshots/56_webview_expdetthreshold_a.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title=
-  "Expectation-Detection Threshold (1 of 2)" data-lightview-caption=
-  "Some research tasks give inordinate detail...">56</a> <a href=
-  "screenshots/57_webview_expdetthreshold_b.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title=
-  "Expectation-Detection Threshold (2 of 2)" data-lightview-caption=
-  "... and can automatically plot their results. Here's a plot of intensity against trial number, and a logistic fit to the data, showing the subject's psychometric function.">
-  57</a> <a href="screenshots/58_mysql.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="The underlying database"
-  data-lightview-caption=
-  "Under the hood, CamCOPS uses standard relational databases on the tablets and on the server. Here's a MySQL console on the server.">
-  58 (MySQL)</a> <a href="screenshots/59_R.png" class="lightview"
-  data-lightview-group="tour" data-lightview-title="Analysis using R"
-  data-lightview-caption=
-  "It's easy to fetch data from the CamCOPS database into sophisticated analytical tools like R.">
-  59 (R)</a>
+    <a href="screenshots/01_main_menu_locked.png"
+            class="fancybox" rel="group"
+            data-title="The main menu"
+            data-caption="No patient is selected. The application is locked (red padlock at top right). This is how the application starts. Touch the padlock to unlock.">
+        01 (start)</a>
+    <a href="screenshots/02_main_menu_unlocked.png"
+            class="fancybox" rel="group"
+            data-title="Unlocked"
+            data-caption="The first time you run the application, there is no code to unlock it. Later, you will set one. For now, click 'Choose patient'.">
+        02</a>
+    <a href="screenshots/03_choose_patient_no_patients.png"
+            class="fancybox" rel="group"
+            data-title="Choose patient"
+            data-caption="There are no patients yet. Press the + to add one.">
+        03</a>
+    <a href="screenshots/04_add_patient.png"
+            class="fancybox" rel="group"
+            data-title="Add patient"
+            data-caption="Enter some details. Touch the X to cancel or the green tick to save.">
+        04</a>
+    <a href="screenshots/05_patient_selected.png"
+            class="fancybox" rel="group"
+            data-title="Choose patient"
+            data-caption="Now we have a test patient, and she is selected.">
+        05</a>
+    <a href="screenshots/06_patient_unselected.png"
+            class="fancybox" rel="group"
+            data-title="Choose patient"
+            data-caption="Touch the patient rows to select and deselect them.">
+        06</a>
+    <a href="screenshots/07_patient_summary_no_tasks.png"
+            class="fancybox" rel="group"
+            data-title="Patient summary"
+            data-caption="Having selected the patient (note the line near the top indicating which patient is selected), return to the main menu and choose 'Patient summary'. This patient has no task instances yet.">
+        07</a>
+    <a href="screenshots/08_main_menu_patient_selected.png"
+            class="fancybox" rel="group"
+            data-title="Main menu"
+            data-caption="Having chosen a patient, touch the padlock again to lock the application. In the locked state, no other patient details can be viewed, so you can give the tablet to the patient to perform a task (presuming there is no other sensitive information on it!). Let's choose the 'Affective' menu.">
+        08</a>
+    <a href="screenshots/09_affective_menu.png"
+            class="fancybox" rel="group"
+            data-title="Affective disorders"
+            data-caption="There's a list of tasks. (THIS DEMONSTRATION LIST DOES NOT NECESSARILY INDICATE TASKS PRESENT IN THE APPLICATION.) Choose 'PHQ-9'.">
+        09</a>
+    <a href="screenshots/10_phq9_task_menu.png"
+            class="fancybox" rel="group"
+            data-title="PHQ-9 screen"
+            data-caption="For each task, you can see options to choose a patient, and view information about the task. This patient has no instances of the PHQ-9 task yet.">
+        10 (PHQ-9)</a>
+    <a href="screenshots/11_phq9_task_info.png"
+            class="fancybox" rel="group"
+            data-title="PHQ-9 information"
+            data-caption="The information screen gives details of the tasks, with links and references. Return to the task screen and touch the + symbol to add a new PHQ-9 task.">
+        11</a>
+    <a href="screenshots/12_phq9_top.png"
+            class="fancybox" rel="group"
+            data-title="PHQ-9 task (1 of 2)"
+            data-caption="Here's the PHQ-9 screen. It's in a big font at the moment! Touch the options to respond to the questions. White backgrounds indicate screens for the patient to complete.">
+        12</a>
+    <a href="screenshots/13_phq9_bottom.png"
+            class="fancybox" rel="group"
+            data-title="PHQ-9 task (2 of 2)"
+            data-caption="When sufficient information has been entered, a green 'stop' square appears at the top right. Press that to complete the task.">
+        13</a>
+    <a href="screenshots/14_phq9_task_menu_with_task.png"
+            class="fancybox" rel="group"
+            data-title="PHQ-9 screen"
+            data-caption="Now our patient has a PHQ-9 instance listed. Touch it to select it.">
+        14</a>
+    <a href="screenshots/15_phq9_task_menu_task_selected.png"
+            class="fancybox" rel="group"
+            data-title="PHQ-9 screen, task selected"
+            data-caption="When this row is selected, additional icons appear at the top right. Touch the magnifying glass to view more detail.">
+        15</a>
+    <!-- RE-SCREENSHOT -->
+    <a href="screenshots/16_phq9_view_task.png"
+            class="fancybox" rel="group"
+            data-title="Viewing options for a PHQ-9 task"
+            data-caption="Most tasks let you view a 'Facsimile' of the task as if you were performing it, or see a 'Summary'.">
+        16</a>
+    <a href="screenshots/17_phq_summary_a.png"
+            class="fancybox" rel="group"
+            data-title="PHQ-9 summary (1 of 2)"
+            data-caption="Here's part of the summary. You can see the raw answers...">
+        17</a>
+    <a href="screenshots/18_phq9_summary_b.png"
+            class="fancybox" rel="group"
+            data-title="PHQ-9 summary (2 of 2)"
+            data-caption="... and some automated scoring. However, it's not very sophisticated. We'll see something better later on.">
+        18</a>
+    <a href="screenshots/19_phq9_facsimile.png"
+            class="fancybox" rel="group"
+            data-title="PHQ-9 facsimile"
+            data-caption="Here's the facsimile, a read-only copy of what we saw earlier. Now, let's change the font size. Back to the main menu, and choose 'Settings'.">
+        19</a>
+    <a href="screenshots/20_unable_locked.png"
+            class="fancybox" rel="group"
+            data-title="Application locked"
+            data-caption="Ah. We can't change the settings, because we've locked the application to this patient. Touch the padlock to unlock.">
+        20</a>
+    <a href="screenshots/21_settings_menu.png"
+            class="fancybox" rel="group"
+            data-title="Settings"
+            data-caption="Now we can get to the settings menu. Choose 'Questionnaire/task appearance'.">
+        21</a>
+    <a href="screenshots/22_questionnaire_settings.png"
+            class="fancybox" rel="group"
+            data-title="Questionnaire/task appearance"
+            data-caption="Use the slider to set the font size.">
+        22</a>
+    <a href="screenshots/23_phq9_smaller_font.png"
+            class="fancybox" rel="group"
+            data-title="GAD-7 (now with smaller font)"
+            data-caption="Here's the GAD-7 task, accessible from the 'Affective' menu, with our new font size.">
+        23</a>
+    <a href="screenshots/24_bprs_q1.png"
+            class="fancybox" rel="group"
+            data-title="BPRS"
+            data-caption="The BPRS (accessible from the 'Global function...' menu) is clinician-administered, so it has a different background colour. Also, it's a multi-page task; a green 'Next' arrow appears at the top right when you can progress (and a 'Back' arrow on subsequent pages), replaced by the 'Stop' symbol when you've come to the end.">
+        24 (OTHER TASKS)</a>
+    <a href="screenshots/25_patient_summary_with_tasks.png"
+            class="fancybox" rel="group"
+            data-title="Patient summary"
+            data-caption="Having run three tasks, we now have something more interesting in our 'Patient summary'.">
+        25</a>
+    <a href="screenshots/26_expdetthreshold_a.png"
+            class="fancybox" rel="group"
+            data-title="Expectation-Detection Threshold task (1 of 5)"
+            data-caption="Before we look at the upload process, let's glance at a few more tasks. This one is on the 'Research' menu.">
+        26</a>
+    <a href="screenshots/27_expdetthreshold_b.png"
+            class="fancybox" rel="group"
+            data-title="Expectation-Detection Threshold task (2 of 5)"
+            data-caption="It assesses the ability to detect a stimulus in noise.">
+        27</a>
+    <a href="screenshots/28_expdetthreshold_c.png"
+            class="fancybox" rel="group"
+            data-title="Expectation-Detection Threshold task (3 of 5)"
+            data-caption="Participants respond on the buttons for a while...">
+        28</a>
+    <a href="screenshots/29_expdetthreshold_d.png"
+            class="fancybox" rel="group"
+            data-title="Expectation-Detection Threshold task (4 of 5)"
+            data-caption="... finally reaching the end...">
+        29</a>
+    <a href="screenshots/30_expdetthreshold_e.png"
+            class="fancybox" rel="group"
+            data-title="Expectation-Detection Threshold task (5 of 5)"
+            data-caption="... and a task summary appears as usual. This is dull, but we'll see a fancier view of it later.">
+        30</a>
+    <a href="screenshots/31_clerking.png"
+            class="fancybox" rel="group"
+            data-title="Clerking template"
+            data-caption="On the 'Clinical' menu are some simple templates for clinical assessment.">
+        31</a>
+    <a href="screenshots/32_help_menu.png"
+            class="fancybox" rel="group"
+            data-title="Help menu"
+            data-caption="On the 'Help' menu, there's a demonstration task.">
+        32</a>
+    <a href="screenshots/33_demo_a.png"
+            class="fancybox" rel="group"
+            data-title="Demo (1 of 9)"
+            data-caption="Let's look at this; it shows the elements that questionnaire-style tasks can be built from.">
+        33 (QUESTIONNAIRE ELEMENTS)</a>
+    <a href="screenshots/34_demo_b.png"
+            class="fancybox" rel="group"
+            data-title="Demo (2 of 9)"
+            data-caption="Types of multiple-choice question.">34</a>
+    <a href="screenshots/35_demo_c.png"
+            class="fancybox" rel="group"
+            data-title="Demo (3 of 9)"
+            data-caption="MCQs with boolean (yes/no) options; subtitles in grids; n-from-many questions.">
+            35</a>
+    <a href="screenshots/36_demo_d.png"
+            class="fancybox" rel="group"
+            data-title="Demo (4 of 9)"
+            data-caption="Images, boolean (yes/no) images, boolean text, photograph-taking using the tablet's camera.">
+            36</a>
+    <a href="screenshots/37_demo_e.png"
+            class="fancybox" rel="group"
+            data-title="Demo (5 of 9)"
+            data-caption="Text, multiline text, numerical validation, dates and times.">
+        37</a>
+    <a href="screenshots/38_demo_e.png"
+            class="fancybox" rel="group"
+            data-title="Demo (6 of 9)"
+            data-caption="Timers, sliders, ...">
+        38</a>
+    <a href="screenshots/39_demo_f.png"
+            class="fancybox" rel="group"
+            data-title="Demo (7 of 9)"
+            data-caption="... and an image stack.">
+        39</a>
+    <a href="screenshots/40_demo_g.png"
+            class="fancybox" rel="group"
+            data-title="Demo (8 of 9)"
+            data-caption="A sketching canvas.">
+        40</a>
+    <a href="screenshots/41_demo_h.png"
+            class="fancybox" rel="group"
+            data-title="Demo (9 of 9)"
+            data-caption="You can play sounds, too (not live on this help screen!).">
+        41</a>
+    <a href="screenshots/42_user_settings.png"
+            class="fancybox" rel="group"
+            data-title="User settings"
+            data-caption="Back to the 'Settings' menu, then choose 'User settings'. Some things are cosmetic (device friendly name, default clinician information) but the USERNAME and PASSWORD are important for talking to the server.">
+        42 (user settings)</a>
+    <a href="screenshots/43_ip_settings.png"
+            class="fancybox" rel="group"
+            data-title="Intellectual property settings"
+            data-caption="Also on the 'Settings' menu, this governs what tasks you may run. Some tasks will not run, for example, in a commercial environment, or if the application doesn't know if it's in a commercial environment or not. BEING DISHONEST HERE MAY CAUSE YOU TO BREAK THE LAW.">
+        43</a>
+    <a href="screenshots/44_privileged_mode.png"
+            class="fancybox" rel="group"
+            data-title="Privileged mode"
+            data-caption="Before we can edit the access codes or server settings, we must be in Privileged mode. Touch 'Set privileged mode' and note the change in the padlock at the top right.">
+        44</a>
+    <a href="screenshots/45_access_codes.png"
+            class="fancybox" rel="group"
+            data-title="Set access codes"
+            data-caption="Set the access codes to unlock and to set privileged mode.">
+        45</a>
+    <a href="screenshots/46_server_settings.png"
+            class="fancybox" rel="group"
+            data-title="Server settings"
+            data-caption="Set these carefully. They determine which server the tablet will talk to.">
+        46</a>
+    <a href="screenshots/47_registering.png"
+            class="fancybox" rel="group"
+            data-title="Registering..."
+            data-caption="When you point the device at a server for the first time, you must register the device with the server (and your username must be approved to register new devices).">
+        47</a>
+    <a href="screenshots/48_registered.png"
+            class="fancybox" rel="group"
+            data-title="Successful registration"
+            data-caption="This server liked us.">
+        48</a>
+    <a href="screenshots/49_uploading.png"
+            class="fancybox" rel="group"
+            data-title="Upload"
+            data-caption="Now touch 'Upload...' on the main menu, and the data will be squirted over to the server via a secure link.">
+        49</a>
+    <a href="screenshots/50_webview_login.png"
+            class="fancybox" rel="group"
+            data-title="Web viewer"
+            data-caption="OK, let's move from the tablet application to a web browser, and log in to our CamCOPS server via a secure link.">
+        50 (web viewer)</a>
+    <a href="screenshots/51_webview_main_menu.png"
+            class="fancybox" rel="group"
+            data-title="Web viewer: main menu"
+            data-caption="Of most interest: 'View tasks'.">
+        51</a>
+    <a href="screenshots/52_webview_view_tasks.png"
+            class="fancybox" rel="group"
+            data-title="View tasks"
+            data-caption="We can filter in a number of ways. Each task has a 'PDF' and an 'HTML' option.">
+        52</a>
+    <a href="screenshots/53_webview_phq9_pdf.png"
+            class="fancybox" rel="group"
+            data-title="PHQ-9 PDF"
+            data-caption="Here's the PHQ-9 task we ran earlier, in a PDF format suitable for printing. You can see the raw results, and some automatic interpretation.">
+        53</a>
+    <a href="screenshots/54_webview_phq9_html.png"
+            class="fancybox" rel="group"
+            data-title="PHQ-9 HTML"
+            data-caption="Here's the same task in HTML format; this is quicker to browse, but less suited to printing (it won't follow the rules of having patient identifiers on each page).">
+        54</a>
+    <a href="screenshots/55_webview_clerking_pdf.png"
+            class="fancybox" rel="group"
+            data-title="Clerking PDF"
+            data-caption="Here's our mock clerking in PDF format. Note the headers on each page.">
+        55</a>
+    <a href="screenshots/56_webview_expdetthreshold_a.png"
+            class="fancybox" rel="group"
+            data-title="Expectation-Detection Threshold (1 of 2)"
+            data-caption="Some research tasks give inordinate detail...">
+        56</a>
+    <a href="screenshots/57_webview_expdetthreshold_b.png"
+            class="fancybox" rel="group"
+            data-title="Expectation-Detection Threshold (2 of 2)"
+            data-caption="... and can automatically plot their results. Here's a plot of intensity against trial number, and a logistic fit to the data, showing the subject's psychometric function.">
+        57</a>
+    <a href="screenshots/58_mysql.png"
+            class="fancybox" rel="group"
+            data-title="The underlying database"
+            data-caption="Under the hood, CamCOPS uses standard relational databases on the tablets and on the server. Here's a MySQL console on the server.">
+        58 (MySQL)</a>
+    <a href="screenshots/59_R.png"
+            class="fancybox" rel="group"
+            data-title="Analysis using R"
+            data-caption="It's easy to fetch data from the CamCOPS database into sophisticated analytical tools like R.">
+        59 (R)</a>
+
+    <!-- Configure Fancybox so it can be launched as required -->
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $(".fancybox").fancybox({
+                type: "image",
+                prevEffect: 'none',
+                nextEffect: 'none',
+                helpers: {
+                    title: {
+                        type: 'inside'
+                    },
+                    buttons: {},
+                    thumbs: {
+                        width: 100,
+                        height: 100
+                    },
+                },
+                beforeLoad: function() {
+                    this.title = (
+                        "<b>" + $(this.element).data('title') + "</b>" +
+                        " &mdash; " + $(this.element).data('caption')
+                    );
+                },
+                afterLoad: function () {
+                    this.title = '' + (this.index + 1) + ' of ' + this.group.length + (this.title ? ' - ' + this.title : '');
+                }
+            });
+        });
+    $(".fancybox").fancybox({
+        beforeShow : function() {
+            var alt = this.element.find('img').attr('alt');
+
+            this.inner.find('img').attr('alt', alt);
+
+            this.title = alt;
+        }
+    });
+    </script>
+
 </body>
 </html>

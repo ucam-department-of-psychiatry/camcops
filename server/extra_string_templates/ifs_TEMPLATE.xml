@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="ifs">
+    <!-- INECO Frontal Screening (IFS) -->
+    <!-- TEMPLATE ONLY: replace 'XXX' with real text if you have the necessary permissions -->
+
+    <string name="q1_title">XXX</string>
+    <string name="q1_instruction_1">XXX</string>
+    <string name="q1_instruction_2">XXX</string>
+    <string name="q1_instruction_3">XXX</string>
+    <string name="q1_instruction_4">XXX</string>
+    <string name="q1_instruction_5">XXX</string>
+    <string name="q1_a3">XXX</string>
+    <string name="q1_a2">XXX</string>
+    <string name="q1_a1">XXX</string>
+    <string name="q1_a0">XXX</string>
+
+    <string name="q2_title">XXX</string>
+    <string name="q2_instruction_1">XXX</string>
+    <string name="q2_instruction_2">XXX</string>
+    <string name="q2_instruction_3">XXX</string>
+    <string name="q2_instruction_4">XXX</string>
+    <string name="q2_instruction_5">XXX</string>
+    <string name="q2_a3">XXX</string>
+    <string name="q2_a2">XXX</string>
+    <string name="q2_a1">XXX</string>
+    <string name="q2_a0">XXX</string>
+
+    <string name="q3_title">XXX</string>
+    <string name="q3_instruction_1">XXX</string>
+    <string name="q3_instruction_2">XXX</string>
+    <string name="q3_instruction_3">XXX</string>
+    <string name="q3_instruction_4">XXX</string>
+    <string name="q3_instruction_5">XXX</string>
+    <string name="q3_a3">XXX</string>
+    <string name="q3_a2">XXX</string>
+    <string name="q3_a1">XXX</string>
+    <string name="q3_a0">XXX</string>
+
+    <string name="q4_title">XXX</string>
+    <string name="q4_instruction_1">XXX</string>
+    <string name="q4_seq_len2_1">XXX</string>
+    <string name="q4_seq_len2_2">XXX</string>
+    <string name="q4_seq_len3_1">XXX</string>
+    <string name="q4_seq_len3_2">XXX</string>
+    <string name="q4_seq_len4_1">XXX</string>
+    <string name="q4_seq_len4_2">XXX</string>
+    <string name="q4_seq_len5_1">XXX</string>
+    <string name="q4_seq_len5_2">XXX</string>
+    <string name="q4_seq_len6_1">XXX</string>
+    <string name="q4_seq_len6_2">XXX</string>
+    <string name="q4_seq_len7_1">XXX</string>
+    <string name="q4_seq_len7_2">XXX</string>
+
+    <string name="q5_title">XXX</string>
+    <string name="q5_instruction_1">XXX</string>
+    <string name="q5_instruction_2">XXX</string>
+    <string name="q5_instruction_3">XXX</string>
+    <string name="q5_a2">XXX</string>
+    <string name="q5_a1">XXX</string>
+    <string name="q5_a0">XXX</string>
+
+    <string name="q6_title">XXX</string>
+    <string name="q6_instruction_1">XXX</string>
+    <string name="q6_instruction_2">XXX</string>
+    <string name="q6_seq1">XXX</string>
+    <string name="q6_seq2">XXX</string>
+    <string name="q6_seq3">XXX</string>
+    <string name="q6_seq4">XXX</string>
+
+    <string name="q7_title">XXX</string>
+    <string name="q7_proverb1">XXX</string>
+    <string name="q7_proverb2">XXX</string>
+    <string name="q7_proverb3">XXX</string>
+    <string name="q7_a_1">XXX</string>
+    <string name="q7_a_half">XXX</string>
+    <string name="q7_a_0">XXX</string>
+
+    <string name="q8_title">XXX</string>
+    <string name="q8_instruction_1">XXX</string>
+    <string name="q8_instruction_2">XXX</string>
+    <string name="q8_instruction_3">XXX</string>
+    <string name="q8_instruction_4">XXX</string>
+    <string name="q8_instruction_5">XXX</string>
+    <string name="q8_instruction_6">XXX</string>
+    <string name="q8_instruction_7">XXX</string>
+    <string name="q8_instruction_8">XXX</string>
+    <string name="q8_instruction_9">XXX</string>
+    <string name="q8_sentence_1">XXX</string>
+    <string name="q8_sentence_2">XXX</string>
+    <string name="q8_sentence_3">XXX</string>
+    <string name="q8_a2">XXX</string>
+    <string name="q8_a1">XXX</string>
+    <string name="q8_a0">XXX</string>
+
+  </task>
+</resources>

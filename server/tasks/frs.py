@@ -149,17 +149,23 @@ class Frs(Task):
             dict(name="logit", cctype="FLOAT",
                  value=scoredict['logit'],
                  comment="log(score / (1 - score))"),
+            dict(name="severity", cctype="TEXT",
+                 value=scoredict['severity'],
+                 comment="Severity"),
         ]
 
     def get_clinical_text(self):
         if not self.is_complete():
             return CTV_DICTLIST_INCOMPLETE
+        scoredict = self.get_score()
         return [{
-            "content": "Endorsed: {e}/12; severity {s}/36; "
-            "distress {d}/60".format(
-                e=self.n_endorsed(),
-                s=self.severity_score(),
-                d=self.distress_score(),
+            "content": "Total {total}/n, n = {n}, score = {score}, "
+            "logit score = {logit}, severity = {severity}".format(
+                total=scoredict['total'],
+                n=scoredict['n'],
+                score=scoredict['score'],
+                logit=scoredict['logit'],
+                severity=scoredict['severity'],
             )
         }]
 
@@ -230,8 +236,7 @@ class Frs(Task):
                 <table class="summary">
                     {complete_tr}
                     <tr>
-                        <td>Total (0–n, higher better; ‘never’ scores 1 and
-                            ‘sometimes’/‘always’ score 0)</td>
+                        <td>Total (0–n, higher better) <sup>1</sup></td>
                         <td>{total}</td>
                     </td>
                     <tr>
@@ -247,7 +252,7 @@ class Frs(Task):
                         <td>{logit}</td>
                     </td>
                     <tr>
-                        <td>Severity</td>
+                        <td>Severity <sup>2</sup></td>
                         <td>{severity}</td>
                     </td>
                 </table>
@@ -271,5 +276,19 @@ class Frs(Task):
             h += tr_qa(qtext, atext)
         h += """
             </table>
+            <div class="footnotes">
+                [1] ‘Never’ scores 1 and ‘sometimes’/‘always’ both score 0,
+                i.e. there is no scoring difference between ‘sometimes’ and
+                ‘always’.
+                [2] Where <i>x</i> is the logit score, severity is determined
+                as follows (after Mioshi et al. 2010, Neurology 74: 1591, PMID
+                20479357, with sharp cutoffs).
+                <i>Very mild:</i> <i>x</i> ≥ 4.12.
+                <i>Mild:</i> 1.92 ≤ <i>x</i> &lt; 4.12.
+                <i>Moderate:</i> –0.40 ≤ <i>x</i> &lt; 1.92.
+                <i>Severe:</i> –2.58 ≤ <i>x</i> &lt; –0.40.
+                <i>Very severe:</i> –4.99 ≤ <i>x</i> &lt; –2.58.
+                <i>Profound:</i> <i>x</i> &lt; –4.99.
+            </div>
         """
         return h
