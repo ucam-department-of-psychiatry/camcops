@@ -245,6 +245,8 @@ exports.intersect_safe = intersect_safe;
 function arrayContains(arr, value) {
     // http://stackoverflow.com/questions/237104/array-containsobj-in-javascript
     // https://blogs.oracle.com/greimer/entry/best_way_to_code_a
+
+    /*
     var i = arr.length;
     while (i--) {
         if (arr[i] === value) {
@@ -252,6 +254,8 @@ function arrayContains(arr, value) {
         }
     }
     return false;
+    */
+    return arr.indexOf(value) !== -1;
 }
 exports.arrayContains = arrayContains;
 

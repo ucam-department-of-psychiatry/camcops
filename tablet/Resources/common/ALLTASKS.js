@@ -320,6 +320,14 @@ exports.TASKLIST = {
         subtitle: L('s_fft'),
         info: 'html/from_lp.html'
     },
+    FRS: {
+        task: 'task/Frs',
+        title: L('b_frs'),
+        tables: ['frs'],
+        maintitle: L('t_frs'),
+        subtitle: L('s_frs'),
+        info: 'html/frs.html'
+    },
     GAD7: {
         task: 'task/Gad7',
         title: L('b_gad7'),

@@ -95,6 +95,7 @@ Version history (new to old)
 - DAD (skeleton only)
 - BADLS (skeleton only)
 - NPI-Q (skeleton only)
+- FRS
 - Add clinician to GAF.
 - O'Brien group set menu 1
 - CPFT Affective Disorders Research Database set menu 1
