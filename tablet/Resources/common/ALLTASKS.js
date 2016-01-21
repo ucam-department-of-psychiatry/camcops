@@ -480,6 +480,14 @@ exports.TASKLIST = {
         subtitle: L('s_iesr'),
         info: 'html/iesr.html'
     },
+    IFS: {
+        task: 'task/Ifs',
+        title: L('b_ifs'),
+        tables: ['ifs'],
+        maintitle: L('t_ifs'),
+        subtitle: L('s_ifs'),
+        info: 'html/ifs.html'
+    },
     IRAC: {
         task: 'task/Irac',
         title: L('b_irac'),

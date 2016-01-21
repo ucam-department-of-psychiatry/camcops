@@ -40,10 +40,10 @@ module.exports = function SetMenu_OBrien_1() {
             ALLTASKS.TASKLIST.DEMQOL_PROXY,
             ALLTASKS.TASKLIST.FRS,
             ALLTASKS.TASKLIST.HADS,
+            ALLTASKS.TASKLIST.IFS,
             ALLTASKS.TASKLIST.NPIQ,
             ALLTASKS.TASKLIST.MDS_UPDRS,
             ALLTASKS.TASKLIST.ZBI12
-            // *** IFS
         ],
         self = new MenuWindow({
             title: L('t_set_obrien_1'),

@@ -6337,6 +6337,18 @@ FOR THE STUDY AND SUPPLIED/CONFIGURED BY THE HOSTING INSTITUTION
 <string name="b_frs">FRS</string>
 
 <!--
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+IFS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+DATA COLLECTION TOOL ONLY, WITH SERVER-SIDE STRING DISTRIBUTION IF PERMITTED
+FOR THE STUDY AND SUPPLIED/CONFIGURED BY THE HOSTING INSTITUTION
+-->
+
+<string name="t_ifs">INECO Frontal Screening (IFS)</string>
+<string name="s_ifs">30-point clinician-administered assessment.</string>
+<string name="b_ifs">IFS</string>
+
+<!--
 <string name="XXX">XXX</string>
 
 Helpful characters: ‘ ’ “ ” – — × • ≤ ≥ ≠ ± →

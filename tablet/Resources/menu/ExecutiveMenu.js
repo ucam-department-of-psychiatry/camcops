@@ -29,7 +29,8 @@ module.exports = function ExecutiveMenu() {
     var MenuWindow = require('menulib/MenuWindow'),
         UICONSTANTS = require('common/UICONSTANTS'),
         data = [
-            UICONSTANTS.CHANGE_PATIENT_MENU_LINE
+            UICONSTANTS.CHANGE_PATIENT_MENU_LINE,
+            ALLTASKS.TASKLIST.IFS
         ],
         self = new MenuWindow({
             title: L('menutitle_executive'),

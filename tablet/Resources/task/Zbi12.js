@@ -95,7 +95,6 @@ lang.extendPrototype(Zbi12, {
         var self = this,
             KeyValuePair = require('lib/KeyValuePair'),
             Questionnaire = require('questionnaire/Questionnaire'),
-            UICONSTANTS = require('common/UICONSTANTS'),
             elements,
             pages,
             questionnaire;
