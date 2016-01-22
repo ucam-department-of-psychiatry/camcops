@@ -148,36 +148,7 @@ Version history (new to old)
   Xcode and run it manually; fails with 'The launch image set named
   "LaunchImage" did not have any applicable content.' See
   http://docs.appcelerator.com/platform/latest/#!/guide/Icons_and_Splash_Screens
-    appicon-60@2x.png                # already - removed
-    appicon-60@3x.png                #
-    appicon-76.png                   # already - removed
-    appicon-76@2x.png                # already - removed
-    appicon-Small-40.png             # already - removed
-    appicon-Small-40@2x.png          # already - removed
-    appicon-Small-40@3x.png          #
-    appicon-Small.png                #
-    appicon-Small@2x.png             #
-    appicon-Small@3x.png             #
-    Default@2x.png                   #
-    Default-568h@2x.png              #
-    Default-667h@2x.png              #
-    Default-Landscape-736h@3x.png    #
-    Default-Portrait-736h@3x.png     #
-    Default-Landscape.png            # already
-    Default-Portrait.png             # already
-    Default-Landscape@2x.png         #
-    Default-Portrait@2x.png          #
-    iTunesArtwork (no extension)     #
-    iTunesArtwork@2x (no extension)  #
-  No longer in the list:
-    appicon-72.png
-    appicon.png
-    appicon@2x.png
-  BUT, if you have DefaultIcon.png in the root folder that is at least 180x180
-  (recommended 1024x1024), the Titanium SDK will make any missing appicon*
-  files. So, remove appicon* and create the DefaultIcon.png file.
-  Then resive Default-Landscape.png and Default-Portrait.png, as the default
-  sizes have changed to 1024x768 and 768x1024. Then it works.
+  ... reworked; see SLICE_SPLASHSCREENS.
 - iOS text field speed now seems good enough to change default for multiline
   fields (see storedvars.multilineTextFixedHeight).
 
