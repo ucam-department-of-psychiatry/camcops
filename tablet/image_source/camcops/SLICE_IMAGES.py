@@ -55,14 +55,15 @@ size, but fails to keep the background transparent. So we make them
 manually.
 """
 
+import argparse
 import logging
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
-logging.basicConfig(level=logging.DEBUG)
 import os
 from os.path import join
 import shutil
 import subprocess
+import sys
 import tempfile
 
 
@@ -139,12 +140,15 @@ def crop_pdf(src_filename, dest_filename,
              dest_width_px=None, dest_height_px=None, autocrop=False,
              active_lr=None, active_tb=None,
              img_lr=None, img_tb=None,
-             density_dpi=None, density_default_multiplier=2):
+             density_dpi=None, density_default_multiplier=2,
+             transparent=None):
     """
     Takes a chunk out of a PDF.
     Source:
         src_filename
     Image transformation:
+        transparent: colour to change to transparent, as per
+            http://www.imagemagick.org/script/command-line-options.php#fill
         img_lr } describe the image to be taken; e.g. (1/3, 2/3)
         img_tb }
     Destination:
@@ -254,6 +258,8 @@ def crop_pdf(src_filename, dest_filename,
     ])
     if autocrop:
         args.append('+repage')
+    if transparent:
+        args.extend(['-transparent', transparent])
     args.extend([
         '-crop', '{w}x{h}+{l}+{t}'.format(w=img_width_px,
                                           h=img_height_px,
@@ -269,7 +275,7 @@ def crop_pdf(src_filename, dest_filename,
 
 def tile_pdf(src_filename, dest_filename_format, n_wide, n_high,
              tile_width_px=None, tile_height_px=None, autocrop=True,
-             density_multiplier=4):
+             density_multiplier=4, transparent=None):
     logger.debug("Tiling {} -> {}".format(src_filename, dest_filename_format))
     if tile_width_px is None and tile_height_px is None:
         raise AssertionError("Must specify width/height/both")
@@ -322,6 +328,8 @@ def tile_pdf(src_filename, dest_filename_format, n_wide, n_high,
     ])
     if autocrop:
         args.append('+repage')
+    if transparent:
+        args.extend(['-transparent', transparent])
     args.extend([
         '-crop', '{w}x{h}'.format(w=intermediate_tile_width_px,
                                   h=intermediate_tile_height_px),
@@ -387,23 +395,47 @@ CAMCOPS_LOGO_PDF = join(THIS_DIR, "camcops_logo.pdf")
 BLANK_LOGO_PDF = join(THIS_DIR, "blank_institution_logo.pdf")
 TABLET_ICON_PDF = join(THIS_DIR, "camcops_icons.pdf")
 
-DEST_ROOT_DIR = join(os.path.expanduser("~"), "tmp", "camcops_icons")
-# DEST_ROOT_DIR = PROJECT_BASE_DIR
-
-IOS_DIR = join(DEST_ROOT_DIR, "tablet", "Resources", "iphone")
-ANDROID_PLT_RES = join(DEST_ROOT_DIR, "tablet", "platform", "android", "res")
-ANDROID_RES_DIR = join(DEST_ROOT_DIR, "tablet", "Resources", "android")
-SERVER_STATIC_DIR = join(DEST_ROOT_DIR, "server", "static")
-
-
 # http://docs.appcelerator.com/platform/latest/#!/guide/Icons_and_Splash_Screens
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--base_dir", default=PROJECT_BASE_DIR,
+                    help="Base directory (default: {})".format(
+                        PROJECT_BASE_DIR))
+parser.add_argument("--ios", action='store_true',
+                    help="Process iOS icons/splashscreens")
+parser.add_argument("--android", action='store_true',
+                    help="Process Android icons/splashscreens")
+parser.add_argument("--tablet", action='store_true',
+                    help="Process tablet in-app icons")
+parser.add_argument("--server", action='store_true',
+                    help="Process server logos")
+parser.add_argument("--all", action='store_true', help="Process everything")
+parser.add_argument("-v", "--verbose", action='store_true', help="Verbose")
+args = parser.parse_args()
+logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
+if args.all:
+    args.ios = True
+    args.android = True
+    args.tablet = True
+    args.server = True
+logger.info("Using base directory: {}".format(args.base_dir))
+if not any([args.ios, args.android, args.tablet, args.server]):
+    logger.info("Nothing to do")
+    sys.exit(0)
+
+IOS_DIR = join(args.base_dir, "tablet", "Resources", "iphone")
+ANDROID_PLT_RES = join(args.base_dir, "tablet", "platform", "android", "res")
+ANDROID_RES_DIR = join(args.base_dir, "tablet", "Resources", "android")
+SERVER_STATIC_DIR = join(args.base_dir, "server", "static")
+TABLET_ICON_DIR = join(args.base_dir, "tablet", "Resources",
+                       "images", "camcops")
 
 # =============================================================================
 # iOS
 # =============================================================================
 
-DO_IOS = False
-if DO_IOS:
+if args.ios:
+    logger.info("--- iOS")
     make_appicon(ios("appicon-60@2x.png"), 120)
     make_appicon(ios("appicon-60@3x.png"), 180)
     make_appicon(ios("appicon-76.png"), 76)
@@ -433,8 +465,8 @@ if DO_IOS:
 # Android
 # =============================================================================
 
-DO_ANDROID = False
-if DO_ANDROID:
+if args.android:
+    logger.info("--- Android")
     make_appicon(join(ANDROID_RES_DIR, "appicon.png"), 128)
     make_appicon(join(ANDROID_PLT_RES, "drawable-ldpi", "appicon.png"), 36)
     make_appicon(join(ANDROID_PLT_RES, "drawable-mdpi", "appicon.png"), 48)
@@ -452,8 +484,8 @@ if DO_ANDROID:
 # Web site, CamCOPS server
 # =============================================================================
 
-DO_SERVER = False
-if DO_SERVER:
+if args.server:
+    logger.info("--- Server")
     make_appicon(join(SERVER_STATIC_DIR, "favicon_camcops.png"), 32)
     crop_pdf(CAMCOPS_LOGO_PDF, join(SERVER_STATIC_DIR, "logo_camcops.png"),
              dest_width_px=1000, autocrop=True)
@@ -464,6 +496,25 @@ if DO_SERVER:
 # =============================================================================
 # Tablet
 # =============================================================================
+
+"""
+If transparency is not working, try:
+
+    identify -verbose FILE.pdf
+        # ... is there an alpha channel at all?
+    convert FILE.pdf -alpha extract TEMP.png
+        # ... does the alpha channel have something in it?
+
+It proves hard to have my version of Illustrator export a bunch of images with
+transparency in/between them. Not yet achieved. (The edges of the page, if any,
+are transparent, but that's it.)
+
+Therefore, simpler to get ImageMagick to replace a particular colour with
+transparency. Add a background of an unused colour. Check with:
+
+    convert FILE.pdf -transparent "rgb(240,240,200)" -alpha extract TEMP.png
+"""
+
 
 def row(a, b, c, d, e, f):
     temp = [None, None, a, None, b, None, c, None, d, None, e, None, f, None]
@@ -531,24 +582,37 @@ ICONMAP = [
 
 TEMP_TILE_DIR = SERVER_STATIC_DIR  # ***
 
-DO_TABLET = True
-if DO_TABLET:
-    tile_pdf(TABLET_ICON_PDF, join(TEMP_TILE_DIR, "tile-%d.png"),
-             n_wide=NCOL, n_high=NROW, tile_width_px=96, tile_height_px=96,
-             autocrop=False)
-    tilenum = 0
-    for r in range(NROW):
-        for c in range(NCOL):
-            tilename = join(TEMP_TILE_DIR, "tile-{}.png".format(tilenum))
-            propername = ICONMAP[r][c]
-            if propername is None:
-                os.remove(tilename)
-            else:
-                fullpath = join(TEMP_TILE_DIR, propername)
-                shutil.move(tilename, fullpath)
-            tilenum += 1
+if args.tablet:
+    logger.info("--- Tablet")
+    logger.info("Slicing icons...")
+    mkdirp(TABLET_ICON_DIR)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tile_pdf(TABLET_ICON_PDF, join(tmpdir, "tile-%d.png"),
+                 n_wide=NCOL, n_high=NROW, tile_width_px=96, tile_height_px=96,
+                 autocrop=False, transparent="rgb(240,240,200)")
+        tilenum = 0
+        for r in range(NROW):
+            for c in range(NCOL):
+                tilename = join(tmpdir, "tile-{}.png".format(tilenum))
+                propername = ICONMAP[r][c]
+                if propername is None:
+                    os.remove(tilename)
+                else:
+                    fullpath = join(TABLET_ICON_DIR, propername)
+                    logger.info("Creating {}".format(fullpath))
+                    shutil.move(tilename, fullpath)
+                tilenum += 1
 
-# *** fix transparent background
-# *** divvy up tiles with a grid
-# *** special: resize hasChild
-# *** special: make hasParent
+    # Special: resize hasChild
+    hasChild = join(TABLET_ICON_DIR, 'hasChild.png')
+    logger.info("Resizing " + hasChild)
+    args = ['convert', hasChild, '-resize', '24x24', hasChild]
+    logger.debug(args)
+    subprocess.check_call(args)
+
+    # Special: make hasParent
+    hasParent = join(TABLET_ICON_DIR, 'hasParent.png')
+    logger.info("Making " + hasParent)
+    args = ['convert', hasChild, '-flop', hasParent]
+    logger.debug(args)
+    subprocess.check_call(args)
