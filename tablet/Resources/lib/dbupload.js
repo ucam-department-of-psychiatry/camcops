@@ -742,8 +742,11 @@ function register(sourcewindow) {
     }
 
     function success_2(reply) {
+        // reply can be LONG
+        /*
         Titanium.API.trace("dbupload.register(): get_extra_strings reply = " +
                            JSON.stringify(reply));
+        */
         var title = L('registration_successful'),
             message = (
                 L('registration_successful') + "\n\n" +

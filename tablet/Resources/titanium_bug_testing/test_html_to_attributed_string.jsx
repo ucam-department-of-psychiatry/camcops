@@ -9,7 +9,7 @@ var html_to_attributed_string = require("lib/html_to_attributed_string"),
     as1 = html_to_attributed_string.parseSynchronous(html1),
     label1 = Titanium.UI.createLabel({
         attributedString: as1
-    })
+    }),
     win = Titanium.UI.createWindow({
         title: 'Tab 2',
         backgroundColor: '#fff'

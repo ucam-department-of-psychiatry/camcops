@@ -149,8 +149,8 @@ lang.extendPrototype(Frs, {
         var score = this.getScore();
         return (
             "Total = " + score.total + " (0–n, higher better); " +
-            "n " + score.n + " (out of 30); " +
-            "score " + score.score + " (0–1); " +
+            "n = " + score.n + " (out of 30); " +
+            "score = " + score.score + " (0–1); " +
             "logit of score = " + score.logit + "; " +
             "severity = " + score.severity +
             this.isCompleteSuffix()
