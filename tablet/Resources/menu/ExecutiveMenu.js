@@ -28,6 +28,7 @@ module.exports = function ExecutiveMenu() {
 
     var MenuWindow = require('menulib/MenuWindow'),
         UICONSTANTS = require('common/UICONSTANTS'),
+        ALLTASKS = require('common/ALLTASKS'),
         data = [
             UICONSTANTS.CHANGE_PATIENT_MENU_LINE,
             ALLTASKS.TASKLIST.IFS
