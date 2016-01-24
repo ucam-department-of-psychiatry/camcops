@@ -439,7 +439,7 @@ lang.extendPrototype(Ifs, {
                         elements: [
                             {
                                 type: "QuestionImage",
-                                image: IMAGE_SWM,
+                                image: IMAGE_SWM
                             }
                         ]
                     }
