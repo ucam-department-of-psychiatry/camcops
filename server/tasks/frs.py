@@ -163,8 +163,8 @@ class Frs(Task):
             "logit score = {logit}, severity = {severity}".format(
                 total=scoredict['total'],
                 n=scoredict['n'],
-                score=scoredict['score'],
-                logit=scoredict['logit'],
+                score=ws.number_to_dp(scoredict['score'], DP),
+                logit=ws.number_to_dp(scoredict['logit'], DP),
                 severity=scoredict['severity'],
             )
         }]

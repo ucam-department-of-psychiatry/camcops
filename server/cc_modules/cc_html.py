@@ -451,6 +451,11 @@ def get_ternary(x, value_true=True, value_false=False, value_none=None):
     return value_false
 
 
+def get_correct_incorrect_none(x):
+    return get_ternary(x, "Correct", "Incorrect", None)
+
+
+
 # =============================================================================
 # Pages referred to in this module by simple success/failure messages
 # =============================================================================

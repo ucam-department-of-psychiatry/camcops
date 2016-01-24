@@ -133,7 +133,7 @@ class Demqol(Task):
                 "value": self.total_score(),
                 "plot_label": "DEMQOL total score",
                 "axis_label": (
-                    "Total score (range {}-{}, higher better)".format(
+                    "Total score (range {}–{}, higher better)".format(
                         self.MIN_SCORE, self.MAX_SCORE)),
                 "axis_min": self.MIN_SCORE - 0.5,
                 "axis_max": self.MAX_SCORE + 0.5,
@@ -144,8 +144,9 @@ class Demqol(Task):
         if not self.is_complete():
             return CTV_DICTLIST_INCOMPLETE
         return [{
-            "content": "total score {} (range {}-{}, higher better)".format(
-                       self.total_score(), self.MIN_SCORE, self.MAX_SCORE)
+            "content": "Total score {} (range {}–{}, higher better)".format(
+                       ws.number_to_dp(self.total_score(), DP),
+                       self.MIN_SCORE, self.MAX_SCORE)
         }]
 
     def get_summaries(self):
@@ -296,7 +297,7 @@ class DemqolProxy(Task):
                 "value": self.total_score(),
                 "plot_label": "DEMQOL-Proxy total score",
                 "axis_label": (
-                    "Total score (range {}-{}, higher better)".format(
+                    "Total score (range {}–{}, higher better)".format(
                         self.MIN_SCORE, self.MAX_SCORE)
                 ),
                 "axis_min": self.MIN_SCORE - 0.5,
@@ -308,8 +309,9 @@ class DemqolProxy(Task):
         if not self.is_complete():
             return CTV_DICTLIST_INCOMPLETE
         return [{
-            "content": "total score {} (range {}-{}, higher better)".format(
-                       self.total_score(), self.MIN_SCORE, self.MAX_SCORE)
+            "content": "Total score {} (range {}–{}, higher better)".format(
+                       ws.number_to_dp(self.total_score(), DP),
+                       self.MIN_SCORE, self.MAX_SCORE)
         }]
 
     def get_summaries(self):

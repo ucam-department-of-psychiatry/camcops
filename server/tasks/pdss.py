@@ -94,7 +94,7 @@ class Pdss(Task):
         if not self.is_complete():
             return CTV_DICTLIST_INCOMPLETE
         t = self.total_score()
-        c = self.composite_score()
+        c = ws.number_to_dp(self.composite_score(), DP, default="?")
         return [{"content": "PDSS total score {t}/48 "
                             "(composite {c}/4)".format(t=t, c=c)}]
 
