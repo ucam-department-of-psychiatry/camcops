@@ -622,8 +622,8 @@ Questionnaire.prototype = {
     // Value changed: from questionnaire element to field
     //-------------------------------------------------------------------------
     setFieldValue: function (field, value) {
-        Titanium.API.trace("Questionnaire.setFieldValue: field=" + field +
-                           ", value=" + JSON.stringify(value));
+        Titanium.API.info("Questionnaire.setFieldValue: field=" + field +
+                          ", value=" + JSON.stringify(value));
         if (typeof this.props.fnSetField === "function") {
             this.props.fnSetField.call(this.props.callbackThis,
                                        field, value);

@@ -1270,7 +1270,7 @@ function updateByPK(tablename, fieldlist, object, pkname, pkval) {
         return true;
     }
     standalone_execute_noreturn(query, args);
-    Titanium.API.info("... updateByPK: done");
+    Titanium.API.debug("... updateByPK: done");
     return true;
 }
 exports.updateByPK = updateByPK;
