@@ -48,6 +48,10 @@ var imagecache = require('lib/imagecache'),
 //=============================================================================
 
 function setDefaultProperty(props, propName, defaultValue) {
+    if (!props) {
+        Titanium.API.error("setDefaultProperty: !props (propName = " +
+                           propName + ")");
+    }
     if (props[propName] === undefined) {
         props[propName] = defaultValue;
     }

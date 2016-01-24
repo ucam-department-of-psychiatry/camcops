@@ -31,6 +31,7 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
     tablename = "ifs",
     IMAGE_SWM = '/images/ifs/swm.png',
     DIGIT_ELEMENT_PREFIX = "digit_element_",
+    Q4_PAGETAG = "q4page",
     fieldlist = dbcommon.standardTaskFields();
 
 fieldlist.push.apply(fieldlist, dbcommon.CLINICIAN_FIELDSPECS); // Clinician info 1/3
@@ -91,7 +92,7 @@ lang.extendPrototype(Ifs, {
 
     // OTHER
 
-    score: function () {
+    getScore: function () {
         var total = 0,
             wm = 0,
             q1,
@@ -204,28 +205,6 @@ lang.extendPrototype(Ifs, {
             new KeyValuePair(this.XSTRING("q8_a0"), 0)
         ];
 
-        function make_q4() {
-            var elements = [
-                    {
-                        type: "QuestionText",
-                        text: this.XSTRING("q4_instruction_1")
-                    }
-                ],
-                seqlen,
-                pair;
-            for (seqlen = 2; seqlen <= 7; ++seqlen) {
-                for (pair = 1; pair <= 2; ++pair) {
-                    elements.push({
-                        elementTag: DIGIT_ELEMENT_PREFIX + seqlen,
-                        type: "QuestionBooleanText",
-                        mandatory: true,
-                        text: self.XSTRING("q4_seq_len" + seqlen + "_" + pair),
-                        field: "q4_len" + seqlen + "_" + pair
-                    });
-                }
-            }
-        }
-
         pages = [
             this.getClinicianDetailsPage(), // Clinician info 3/3
 
@@ -302,6 +281,7 @@ lang.extendPrototype(Ifs, {
                     },
                     {
                         type: "QuestionText",
+                        bold: true,
                         text: this.XSTRING("q2_instruction_5")
                     },
                     {
@@ -369,24 +349,9 @@ lang.extendPrototype(Ifs, {
             // ----------------------------------------------------------------
             // Q4
             // ----------------------------------------------------------------
-            make_q4(),
             {
-                title: this.XSTRING('q4_title'),
-                clinician: true,
-                elements: [
-                    {
-                        type: "QuestionText",
-                        text: this.XSTRING("q4_instruction_1")
-                    },
-                    {
-                        type: "QuestionMCQ",
-                        mandatory: true,
-                        horizontal: false,
-                        showInstruction: false,
-                        field: "q5",
-                        options: taskcommon.OPTIONS_INCORRECT_CORRECT_BOOLEAN
-                    }
-                ]
+                onTheFly: true,
+                pageTag: Q4_PAGETAG
             },
 
             // ----------------------------------------------------------------
@@ -431,7 +396,6 @@ lang.extendPrototype(Ifs, {
                 title: this.XSTRING('q6_title'),
                 clinician: true,
                 elements: [
-                    { type: "QuestionImage", image: IMAGE_SWM },
                     {
                         type: "QuestionText",
                         bold: true,
@@ -464,6 +428,20 @@ lang.extendPrototype(Ifs, {
                         mandatory: true,
                         text: this.XSTRING("q6_seq4"),
                         field: "q6_seq4"
+                    },
+                    {
+                        // A simple QuestionImage expands beyond the right-
+                        // hand edge. It would probably be worth fixing this.
+                        // However, the simple quick fix is to put it inside
+                        // a 1-column tabe, and then everything works fine.
+                        type: "ContainerTable",
+                        columns: 1,
+                        elements: [
+                            {
+                                type: "QuestionImage",
+                                image: IMAGE_SWM,
+                            }
+                        ]
                     }
                 ]
             },
@@ -567,12 +545,12 @@ lang.extendPrototype(Ifs, {
                         bold: true,
                         text: this.XSTRING("q8_instruction_9")
                     },
+                    { type: "QuestionHorizontalRule" },
                     {
                         type: "QuestionText",
                         bold: true,
                         text: this.XSTRING("q8_sentence_1")
                     },
-                    { type: "QuestionHorizontalRule" },
                     {
                         type: "QuestionMCQ",
                         mandatory: true,
@@ -615,6 +593,49 @@ lang.extendPrototype(Ifs, {
             readOnly: readOnly,
             pages: pages,
             callbackThis: self,
+            fnMakePageOnTheFly: function (pageId, pageTag) {
+                if (pageTag !== Q4_PAGETAG) {
+                    Titanium.API.error("fnMakePageOnTheFly: bad call");
+                    return;
+                }
+                var elements = [
+                        {
+                            type: "QuestionText",
+                            text: self.XSTRING("q4_instruction_1")
+                        }
+                    ],
+                    seqlen,
+                    pair,
+                    required = true,
+                    val1,
+                    val2;
+                for (seqlen = 2; seqlen <= 7; ++seqlen) {
+                    for (pair = 1; pair <= 2; ++pair) {
+                        elements.push({
+                            elementTag: DIGIT_ELEMENT_PREFIX + seqlen,
+                            type: "QuestionBooleanText",
+                            mandatory: required,
+                            visible: required,
+                            text: self.XSTRING("q4_seq_len" + seqlen +
+                                               "_" + pair),
+                            field: "q4_len" + seqlen + "_" + pair
+                        });
+                    }
+                    val1 = self["q4_len" + seqlen + "_1"];
+                    val2 = self["q4_len" + seqlen + "_2"];
+                    if (!val1 && !val2) {
+                        // ... integers are returned for boolean fields;
+                        // see BooleanWidget.toggle(). So don't use
+                        // "=== false".
+                        required = false;  // for subsequent items
+                    }
+                }
+                return {
+                    title: self.XSTRING('q4_title'),
+                    clinician: true,
+                    elements: elements
+                };
+            },
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: function (field, value) {
                 var required,
@@ -631,8 +652,11 @@ lang.extendPrototype(Ifs, {
                         questionnaire.setVisibleByTag(tag, required);
                         val1 = this["q4_len" + seqlen + "_1"];
                         val2 = this["q4_len" + seqlen + "_2"];
-                        if (val1 === false && val2 === false) {
-                            required = true;  // for subsequent items
+                        if (!val1 && !val2) {
+                            // ... integers are returned for boolean fields;
+                            // see BooleanWidget.toggle(). So don't use
+                            // "=== false".
+                            required = false;  // for subsequent items
                         }
                     }
                 }
