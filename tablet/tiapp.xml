@@ -105,7 +105,7 @@
     <statusbar-style>default</statusbar-style>
     <statusbar-hidden>true</statusbar-hidden>
     <fullscreen>false</fullscreen>
-    <navbar-hidden>false</navbar-hidden>
+    <navbar-hidden>false</navbar-hidden>  <!-- 2015-01-24: setting this to true does NOT fix the "CamCOPS" bar at the top of the screen; see Android Action Bar; see theme_camcops.xml -->
     <analytics>false</analytics>
     <!-- Disable Titanium analytics -->
     <guid>2c50b8da-484f-4fd7-a5a6-ee556ecb7a7a</guid>

@@ -749,7 +749,7 @@ function showHtml(content, title, nobounce, html_not_filename) {
     // showWait();
     if (nobounce === undefined) { nobounce = false; }
     if (html_not_filename === undefined) { html_not_filename = false; }
-    var win = createMenuWindow({modal: true}),
+    var win = createMenuWindow(),  // {modal: true} removed 2015-01-24 as it adds an Android Action Bar
         mainview = Titanium.UI.createView({
             height: Titanium.UI.FILL,
             width: Titanium.UI.FILL,

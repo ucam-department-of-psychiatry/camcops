@@ -6,6 +6,10 @@
         <item name="android:editTextStyle">@style/editText</item>
         <!-- <item name="android:windowBackground">@drawable/background</item> -->
         <!-- not sure whether android:windowBackground is necessary -->
+
+		<!-- AppCompat Compatibility -->  <!-- Added 2015-01-24 as the Android Action Bar had come back; this fixes it -->
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
     </style>
     <style name="editText" parent="@android:style/Widget.EditText">
         <item name="android:textCursorDrawable">@null</item>
