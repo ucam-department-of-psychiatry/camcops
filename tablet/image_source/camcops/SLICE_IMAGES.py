@@ -436,6 +436,12 @@ TABLET_ICON_DIR = join(args.base_dir, "tablet", "Resources",
 
 if args.ios:
     logger.info("--- iOS")
+    make_appicon(ios("appicon.png"), 57)
+    make_appicon(ios("appicon@2x.png"), 114)
+    make_appicon(ios("appicon-72.png"), 72)
+    make_appicon(ios("appicon-72@2x.png"), 144)
+    make_appicon(ios("appicon-Small-50.png"), 50)
+    make_appicon(ios("appicon-Small-50@2x.png"), 100)
     make_appicon(ios("appicon-60@2x.png"), 120)
     make_appicon(ios("appicon-60@3x.png"), 180)
     make_appicon(ios("appicon-76.png"), 76)
@@ -447,6 +453,7 @@ if args.ios:
     make_appicon(ios("appicon-Small@2x.png"), 58)
     make_appicon(ios("appicon-Small@3x.png"), 87)
 
+    make_splashscreen(ios("Default.png"), 320, 480)
     make_splashscreen(ios("Default@2x.png"), 640, 690)
     make_splashscreen(ios("Default-568h@2x.png"), 640, 1136)
     make_splashscreen(ios("Default-667h@2x.png"), 750, 1334)
@@ -580,8 +587,6 @@ ICONMAP = [
     NONE_ROW,
 ]
 
-TEMP_TILE_DIR = SERVER_STATIC_DIR  # ***
-
 if args.tablet:
     logger.info("--- Tablet")
     logger.info("Slicing icons...")
@@ -595,9 +600,7 @@ if args.tablet:
             for c in range(NCOL):
                 tilename = join(tmpdir, "tile-{}.png".format(tilenum))
                 propername = ICONMAP[r][c]
-                if propername is None:
-                    os.remove(tilename)
-                else:
+                if propername is not None:
                     fullpath = join(TABLET_ICON_DIR, propername)
                     logger.info("Creating {}".format(fullpath))
                     shutil.move(tilename, fullpath)
