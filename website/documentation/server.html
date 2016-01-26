@@ -5,6 +5,7 @@
 <head>
   <meta name="generator" content=
   "HTML Tidy for Linux (vers 25 March 2009), see www.w3.org">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <!--#include virtual="/camcops/ssi/camcops_html_head.shtml" -->
 
   <title>CamCOPS – Server</title>
@@ -114,6 +115,11 @@
       <td><code>yum</code></td>
     </tr>
     <tr>
+      <td>General system update</td>
+      <td><code>sudo apt-get update && sudo apt-get dist-upgrade</code></td>
+      <td><code>sudo yum update</code></td>
+    </tr>
+    <tr>
       <td>Package type</td>
       <td><code>deb</code></td>
       <td><code>rpm</code></td>
@@ -124,19 +130,14 @@
       <td>SELinux; <b>file permissions must be set with <code>chcon</code></b></td>
     </tr>
     <tr>
-      <td><b><i>Python, <code>mod_wsgi</code></i></b></td>
+      <td><b><i>Python</i></b></td>
       <td></td>
       <td></td>
     </tr>
     <tr>
-      <td>Default Python versions</td>
+      <td>Default Python versions <b>(CamCOPS requires 3.4)</b></td>
       <td>2.7, 3.4</td>
-      <td>2.6 <b>(too old for CamCOPS)</b></td>
-    </tr>
-    <tr>
-      <td><code>mod_wsgi</code> installation</td>
-      <td>Easy (matches system Python version)</td>
-      <td>Manual <b>(must be built for Python 2.7)</b></td>
+      <td>2.6</td>
     </tr>
     <tr>
       <td><b><i>Apache</i></b></td>
@@ -707,7 +708,13 @@ sudo chcon -R -h system_u:object_r:httpd_sys_content_t /etc/camcops
 
       <li>For every configuration file, re-make the tables (in case new tables
       have been added): <code>sudo camcops -m
-      /etc/camcops/<i>myconfigfile</i></code>.</li>
+      /etc/camcops/<i>myconfigfile</i></code>.
+        <ul>
+          <li>If you have lots, you can use the <code>camcops_meta.py</code>
+          tool, like this: <code>sudo camcops_meta --filespecs
+          /etc/camcops/<b>SOMEFILESPEC</b> --ccargs maketables</code></li>
+        </ul>
+      </li>
 
       <li>Restart Apache (see table above).</li>
     </ol>
@@ -792,6 +799,11 @@ sudo chcon -R -h system_u:object_r:httpd_sys_content_t /etc/camcops
       <pre class="code1">
 sudo chown -R apache:apache /var/lock/camcops
 sudo chcon -R -h system_u:object_r:httpd_sys_content_t /var/lock/camcops</pre></li>
+
+      <li><b>Other Apache errors.</b> See
+      <code>/usr/share/camcops/instructions.txt</code>, which has specimen
+      Apache config sections, and lists some other common misconfiguration
+      errors.</li>
 
     </ul>
   </div><!--#include virtual="/camcops/ssi/camcops_footer.shtml" -->

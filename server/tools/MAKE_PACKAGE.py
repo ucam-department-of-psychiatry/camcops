@@ -223,6 +223,7 @@ WRKTOOLDIR = join(WRKSERVERDIR, 'tools')
 DSTTOOLDIR = join(DSTSERVERDIR, 'tools')
 VENVSCRIPT = 'install_virtualenv.py'
 WKHTMLTOPDFSCRIPT = 'install_wkhtmltopdf.py'
+METASCRIPT = 'camcops_meta.py'
 DSTVENVSCRIPT = join(DSTTOOLDIR, VENVSCRIPT)
 DSTWKHTMLTOPDFSCRIPT = join(DSTTOOLDIR, WKHTMLTOPDFSCRIPT)
 
@@ -236,10 +237,17 @@ DSTPYTHONPATH = DSTSERVERDIR
 WRKMAINSCRIPT = join(WRKSERVERDIR, MAINSCRIPTNAME)
 DSTMAINSCRIPT = join(DSTSERVERDIR, MAINSCRIPTNAME)
 
+METASCRIPTNAME = '{}_meta'.format(PACKAGE)
+DSTMETASCRIPT = join(DSTTOOLDIR, METASCRIPT)
+WRKMETACONSOLEFILE = join(WRKCONSOLEFILEDIR, METASCRIPTNAME)
+DSTMETACONSOLEFILE = join(DSTCONSOLEFILEDIR, METASCRIPTNAME)
+
 DSTMANDIR = '/usr/share/man/man1'  # section 1 for user commands
 WRKMANDIR = workpath(WRKDIR, DSTMANDIR)
 WRKMANFILE = join(WRKMANDIR, SETUPSCRIPTNAME + '.1.gz')
 DSTMANFILE = join(DSTMANDIR, SETUPSCRIPTNAME + '.1.gz')
+WRKMETAMANFILE = join(WRKMANDIR, METASCRIPTNAME + '.1.gz')
+DSTMETAMANFILE = join(DSTMANDIR, METASCRIPTNAME + '.1.gz')
 
 WRKDBDUMPFILE = join(WRKBASEDIR, 'demo_mysql_dump_script')
 WRKMYSQLCREATION = join(WRKBASEDIR, 'demo_mysql_database_creation')
@@ -356,7 +364,7 @@ copyglob(join(SRCEXTRASTRINGTEMPLATES, '*'), WRKEXTRASTRINGTEMPLATES,
          allow_nothing=True)
 copyglob(join(SRCTOOLDIR, VENVSCRIPT), WRKTOOLDIR)
 copyglob(join(SRCTOOLDIR, WKHTMLTOPDFSCRIPT), WRKTOOLDIR)
-copyglob(join(SRCTOOLDIR, 'camcops_meta.py'), WRKTOOLDIR)
+copyglob(join(SRCTOOLDIR, METASCRIPT), WRKTOOLDIR)
 
 print("Copying tablet code")
 TABLETSUBDIRS = [
@@ -437,6 +445,34 @@ http://www.camcops.org/
 Rudolf Cardinal (rudolf@pobox.com)
     """.format(
         SETUPSCRIPTNAME=SETUPSCRIPTNAME,
+        CHANGEDATE=CHANGEDATE,
+        MAINVERSION=MAINVERSION,
+        DSTCONFIGFILE=DSTCONFIGFILE,
+    ), file=outfile)
+
+# =============================================================================
+print("Creating man page. Will be installed as " + DSTMETAMANFILE)
+# =============================================================================
+# http://www.fnal.gov/docs/products/ups/ReferenceManual/html/manpages.html
+
+with gzip.open(WRKMETAMANFILE, 'wt') as outfile:
+    print(r""".\" Manpage for {METASCRIPTNAME}.
+.\" Contact rudolf@pobox.com to correct errors or typos.
+.TH man 1 "{CHANGEDATE}" "{MAINVERSION}" "{METASCRIPTNAME} man page"
+
+.SH NAME
+{METASCRIPTNAME} \- run the CamCOPS meta-command-line
+
+.IP "camcops_meta --help"
+show all options
+
+.SH SEE ALSO
+http://www.camcops.org/
+
+.SH AUTHOR
+Rudolf Cardinal (rudolf@pobox.com)
+    """.format(
+        METASCRIPTNAME=METASCRIPTNAME,
         CHANGEDATE=CHANGEDATE,
         MAINVERSION=MAINVERSION,
         DSTCONFIGFILE=DSTCONFIGFILE,
@@ -1177,7 +1213,26 @@ export PYTHONPATH={DSTPYTHONPATH}
         DSTMAINSCRIPT=DSTMAINSCRIPT,
     ), file=outfile)
 
-# *** change to use virtualenv
+
+# =============================================================================
+print("Creating {} launch script. Will be installed as {}".format(
+    METASCRIPTNAME, DSTMETACONSOLEFILE))
+# =============================================================================
+with open(WRKMETACONSOLEFILE, 'w') as outfile:
+    print("""#!/bin/sh
+# Launch script for CamCOPS meta-command tool tool.
+
+echo 'Launching CamCOPS meta-command tool...' >&2
+
+export PYTHONPATH={DSTPYTHONPATH}
+
+{DSTVENVPYTHON} {DSTMETASCRIPT} "$@"
+    """.format(
+        DSTPYTHONPATH=DSTPYTHONPATH,
+        DSTVENVPYTHON=DSTVENVPYTHON,
+        DSTMETASCRIPT=DSTMETASCRIPT,
+    ), file=outfile)
+
 
 # =============================================================================
 # echo "Creating wkhtmltopdf.sh launch screen to use standalone X server"
@@ -1572,6 +1627,10 @@ To test all configs, with the same filespec:
 (An alternative method is to use "source $DSTBASEDIR/venv/bin/activate",
 and then run things interactively, but this will not work so easily via sudo.)
 
+But a shortcut for all these things is:
+
+    sudo $DSTMETACONSOLEFILE --verbose --filespecs /etc/camcops/camcops_*.conf --ccargs test
+
 ===============================================================================
 Full stack
 ===============================================================================
@@ -1884,6 +1943,7 @@ OPTIMAL: proxy Apache through to Gunicorn
         DSTBASEDIR=DSTBASEDIR,
         DSTCONFIGDIR=DSTCONFIGDIR,
         DSTCONFIGFILE=DSTCONFIGFILE,
+        DSTMETACONSOLEFILE=DSTMETACONSOLEFILE,
         DSTMPLCONFIGDIR=DSTMPLCONFIGDIR,
         DSTPYTHONPATH=DSTPYTHONPATH,
         DSTPYTHONVENV=DSTPYTHONVENV,
@@ -1992,6 +2052,7 @@ subprocess.check_call([
     "a+x",
     WRKCONSOLEFILE,
     WRKMAINSCRIPT,
+    WRKMETACONSOLEFILE,
     WRKDBDUMPFILE,
     join(DEBDIR, 'prerm'),
     join(DEBDIR, 'preinst'),
