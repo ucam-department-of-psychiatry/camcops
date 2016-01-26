@@ -28,7 +28,8 @@ from cc_modules.cc_constants import (
 from cc_modules.cc_html import (
     tr_qa,
 )
-from cc_modules.cc_math import safe_logit
+from cc_modules.cc_lang import BetweenDict
+# from cc_modules.cc_math import safe_logit
 from cc_modules.cc_string import WSTRING
 from cc_modules.cc_task import Task
 
@@ -100,6 +101,75 @@ QUESTION_SNIPPETS = [
 ]
 DP = 3
 
+TABULAR_LOGIT_BETWEENDICT = BetweenDict({
+    # tests a <= x < b
+    (100, float("inf")): 5.39,  # from Python 3.5, can use math.inf
+    (97, 100): 4.12,
+    (93, 97): 3.35,
+    (90, 93): 2.86,
+    (87, 90): 2.49,
+    (83, 87): 2.19,
+    (80, 83): 1.92,
+    (77, 80): 1.68,
+    (73, 77): 1.47,
+    (70, 73): 1.26,
+    (67, 70): 1.07,
+    (63, 67): 0.88,
+    (60, 63): 0.7,
+    (57, 60): 0.52,
+    (53, 57): 0.34,
+    (50, 53): 0.16,
+    (47, 50): -0.02,
+    (43, 47): -0.2,
+    (40, 43): -0.4,
+    (37, 40): -0.59,
+    (33, 37): -0.8,
+    (30, 33): -1.03,
+    (27, 30): -1.27,
+    (23, 27): -1.54,
+    (20, 23): -1.84,
+    (17, 20): -2.18,
+    (13, 17): -2.58,
+    (10, 13): -3.09,
+    (6, 10): -3.8,
+    (3, 6): -4.99,
+    (0, 3): -6.66,
+})
+
+
+def get_severity(logit):
+    # p1593 of Mioshi et al. (2010)
+    # Copes with Infinity comparisons
+    if logit >= 4.12:
+        return "very mild"
+    if logit >= 1.92:
+        return "mild"
+    if logit >= -0.40:
+        return "moderate"
+    if logit >= -2.58:
+        return "severe"
+    if logit >= -4.99:
+        return "very severe"
+    return "profound"
+
+
+def get_tabular_logit(score):
+    """
+    Implements the scoring table accompanying Mioshi et al. (2010).
+    Converts a score (in the table, a percentage; here, a number in the
+    range 0-1) to a logit score of some description, whose true basis (in
+    a Rasch analysis) is a bit obscure.
+    """
+    pct_score = 100 * score
+    return TABULAR_LOGIT_BETWEENDICT[pct_score]
+
+
+# for x in range(100, 0 - 1, -1):
+#     score = x / 100
+#     logit = get_tabular_logit(score)
+#     severity = get_severity(logit)
+#     print(",".join(str(q) for q in [x, logit, severity]))
+
 
 def make_frs_fieldspec(n):
     pv = [NEVER, ALWAYS]
@@ -169,22 +239,6 @@ class Frs(Task):
             )
         }]
 
-    @staticmethod
-    def get_severity(logit):
-        # p1593 of Mioshi et al. (2010)
-        # Copes with Infinity comparisons
-        if logit >= 4.12:
-            return "very mild"
-        if logit >= 1.92:
-            return "mild"
-        if logit >= -0.40:
-            return "moderate"
-        if logit >= -2.58:
-            return "severe"
-        if logit >= -4.99:
-            return "very severe"
-        return "profound"
-
     def get_score(self):
         total = 0
         n = 0
@@ -195,8 +249,9 @@ class Frs(Task):
                 total += SCORE.get(value, 0)
         if n > 0:
             score = total / n
-            logit = safe_logit(score)
-            severity = self.get_severity(logit)
+            # logit = safe_logit(score)
+            logit = get_tabular_logit(score)
+            severity = get_severity(logit)
         else:
             score = None
             logit = None
@@ -248,11 +303,11 @@ class Frs(Task):
                         <td>{score}</td>
                     </td>
                     <tr>
-                        <td>logit score (= log(score/[1 – score]))</td>
+                        <td>logit score <sup>2</sup></td>
                         <td>{logit}</td>
                     </td>
                     <tr>
-                        <td>Severity <sup>2</sup></td>
+                        <td>Severity <sup>3</sup></td>
                         <td>{severity}</td>
                     </td>
                 </table>
@@ -280,7 +335,16 @@ class Frs(Task):
                 [1] ‘Never’ scores 1 and ‘sometimes’/‘always’ both score 0,
                 i.e. there is no scoring difference between ‘sometimes’ and
                 ‘always’.
-                [2] Where <i>x</i> is the logit score, severity is determined
+                [2] This is not the simple logit, log(score/[1 – score]).
+                Instead, it is determined by a lookup table, as per
+                <a href="http://www.ftdrg.org/wp-content/uploads/FRS-Score-conversion.pdf">http://www.ftdrg.org/wp-content/uploads/FRS-Score-conversion.pdf</a>.
+                The logit score that is looked up is very close to the logit
+                of the raw score (on a 0–1 scale); however, it differs in that
+                firstly it is banded rather than continuous, and secondly it
+                is subtly different near the lower scores and at the extremes.
+                The original is based on a Rasch analysis but the raw method of
+                converting the score to the tabulated logit is not given.
+                [3] Where <i>x</i> is the logit score, severity is determined
                 as follows (after Mioshi et al. 2010, Neurology 74: 1591, PMID
                 20479357, with sharp cutoffs).
                 <i>Very mild:</i> <i>x</i> ≥ 4.12.
@@ -290,5 +354,5 @@ class Frs(Task):
                 <i>Very severe:</i> –4.99 ≤ <i>x</i> &lt; –2.58.
                 <i>Profound:</i> <i>x</i> &lt; –4.99.
             </div>
-        """
+        """  # noqa
         return h

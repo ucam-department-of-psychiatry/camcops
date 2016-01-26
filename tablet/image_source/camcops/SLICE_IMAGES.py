@@ -405,6 +405,8 @@ parser.add_argument("--ios", action='store_true',
                     help="Process iOS icons/splashscreens")
 parser.add_argument("--android", action='store_true',
                     help="Process Android icons/splashscreens")
+parser.add_argument("--windows", action='store_true',
+                    help="Process Windows icons/splashscreens")
 parser.add_argument("--tablet", action='store_true',
                     help="Process tablet in-app icons")
 parser.add_argument("--server", action='store_true',
@@ -414,10 +416,11 @@ parser.add_argument("-v", "--verbose", action='store_true', help="Verbose")
 args = parser.parse_args()
 logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
 if args.all:
-    args.ios = True
     args.android = True
-    args.tablet = True
+    args.ios = True
     args.server = True
+    args.tablet = True
+    args.windows = True
 logger.info("Using base directory: {}".format(args.base_dir))
 if not any([args.ios, args.android, args.tablet, args.server]):
     logger.info("Nothing to do")
@@ -429,6 +432,7 @@ ANDROID_RES_DIR = join(args.base_dir, "tablet", "Resources", "android")
 SERVER_STATIC_DIR = join(args.base_dir, "server", "static")
 TABLET_ICON_DIR = join(args.base_dir, "tablet", "Resources",
                        "images", "camcops")
+WINDOWS_DIR = join(args.base_dir, "tablet", "Resources", "windows")
 
 # =============================================================================
 # iOS
@@ -486,6 +490,24 @@ if args.android:
         join(ANDROID_RES_DIR, "images", "res-land", "default.png"), 800, 480)
     make_splashscreen(
         join(ANDROID_RES_DIR, "images", "res-port", "default.png"), 480, 800)
+
+# =============================================================================
+# Windows
+# =============================================================================
+
+if args.windows:
+    logger.info("--- Windows")
+    make_appicon(join(WINDOWS_DIR, "Logo.png"), 150)
+    make_appicon(join(WINDOWS_DIR, "SmallLogo.png"), 30)
+    make_appicon(join(WINDOWS_DIR, "StoreLogo.png"), 50)
+    make_appicon(join(WINDOWS_DIR, "Square150x150Logo.png"), 150)
+    make_appicon(join(WINDOWS_DIR, "Square71x71Logo.png"), 71)
+    make_appicon(join(WINDOWS_DIR, "Square44x44Logo.png"), 44)
+
+    make_splashscreen(join(WINDOWS_DIR, "SplashScreen.png"), 620, 300)
+    make_splashscreen(join(WINDOWS_DIR, "SplashScreen480x800.png"), 480, 800)
+    make_splashscreen(join(WINDOWS_DIR, "SplashScreen480x800.scale-240.png"),
+                      1152, 1920)
 
 # =============================================================================
 # Web site, CamCOPS server

@@ -115,3 +115,42 @@ def mangle_unicode_to_str(s):
         )
     else:
         return str(s)
+
+
+class BetweenDict(dict):
+    # Various alternatives:
+    # http://joshuakugler.com/archives/30-BetweenDict,-a-Python-dict-for-value-ranges.html  # noqa
+    #   ... NB has initialization default argument bug
+    # https://pypi.python.org/pypi/rangedict/0.1.5
+    # http://stackoverflow.com/questions/30254739/is-there-a-library-implemented-rangedict-in-python  # noqa
+    INVALID_MSG_TYPE = "Key must be an iterable with length 2"
+    INVALID_MSG_VALUE = "First element of key must be less than second element"
+
+    def __init__(self, d=None):
+        d = d or {}
+        for k, v in d.items():
+            self[k] = v
+
+    def __getitem__(self, key):
+        for k, v in self.items():
+            if k[0] <= key < k[1]:
+                return v
+        raise KeyError("Key '{}' is not in any ranges".format(key))
+
+    def __setitem__(self, key, value):
+        try:
+            if len(key) != 2:
+                raise ValueError(self.INVALID_MSG_TYPE)
+        except TypeError:
+            raise TypeError(self.INVALID_MSG_TYPE)
+        if key[0] < key[1]:
+            super().__setitem__((key[0], key[1]), value)
+        else:
+            raise RuntimeError(self.INVALID_MSG_VALUE)
+
+    def __contains__(self, key):
+        try:
+            self[key]
+            return True
+        except KeyError:
+            return False
