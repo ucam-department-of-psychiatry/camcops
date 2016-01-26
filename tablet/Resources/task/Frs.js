@@ -38,6 +38,40 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
     NA_QUESTIONS = [9, 10, 11, 13, 14, 15, 17, 18, 19, 20, 21, 27],
     SPECIAL_NA_TEXT_QUESTIONS = [27],
     NO_SOMETIMES_QUESTIONS = [30],
+    TABULAR_LOGIT_RANGES = [
+        // tests a <= x < b
+        [[100, Infinity], 5.39],
+        [[97, 100], 4.12],
+        [[93, 97], 3.35],
+        [[90, 93], 2.86],
+        [[87, 90], 2.49],
+        [[83, 87], 2.19],
+        [[80, 83], 1.92],
+        [[77, 80], 1.68],
+        [[73, 77], 1.47],
+        [[70, 73], 1.26],
+        [[67, 70], 1.07],
+        [[63, 67], 0.88],
+        [[60, 63], 0.7],
+        [[57, 60], 0.52],
+        [[53, 57], 0.34],
+        [[50, 53], 0.16],
+        [[47, 50], -0.02],
+        [[43, 47], -0.2],
+        [[40, 43], -0.4],
+        [[37, 40], -0.59],
+        [[33, 37], -0.8],
+        [[30, 33], -1.03],
+        [[27, 30], -1.27],
+        [[23, 27], -1.54],
+        [[20, 23], -1.84],
+        [[17, 20], -2.18],
+        [[13, 17], -2.58],
+        [[10, 13], -3.09],
+        [[6, 10], -3.8],
+        [[3, 6], -4.99],
+        [[0, 3], -6.66]
+    ],
     /* Don't do this (http://stackoverflow.com/questions/12244483)
     SCORE = {
         NEVER: 1,
@@ -110,6 +144,24 @@ lang.extendPrototype(Frs, {
         return "profound";
     },
 
+    getTabularLogit: function (score) {
+        // Looks up the tabulated logit from the score
+        var pct_score = 100 * score,
+            i,
+            a,
+            b,
+            val;
+        for (i = 0; i < TABULAR_LOGIT_RANGES.length; ++i) {
+            a = TABULAR_LOGIT_RANGES[i][0][0];
+            b = TABULAR_LOGIT_RANGES[i][0][1];
+            if (a <= pct_score && pct_score < b) {
+                val = TABULAR_LOGIT_RANGES[i][1];
+                return val;
+            }
+        }
+        return null;
+    },
+
     getScore: function () {
         var total = 0,
             n = 0,
@@ -127,8 +179,9 @@ lang.extendPrototype(Frs, {
         }
         if (n > 0) {
             score = total / n;
-            logit = Math.log(score / (1 - score));  // base e
-            // Will return Infinity if score == 1
+            // logit = Math.log(score / (1 - score));  // base e
+            // ... Will return Infinity if score == 1
+            logit = this.getTabularLogit(score);
             severity = this.getSeverity(logit);
         }
         return {
@@ -151,7 +204,7 @@ lang.extendPrototype(Frs, {
             "Total = " + score.total + " (0–n, higher better); " +
             "n = " + score.n + " (out of 30); " +
             "score = " + score.score + " (0–1); " +
-            "logit of score = " + score.logit + "; " +
+            "tabulated logit of score = " + score.logit + "; " +
             "severity = " + score.severity +
             this.isCompleteSuffix()
         );
