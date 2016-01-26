@@ -356,7 +356,7 @@ copyglob(join(SRCEXTRASTRINGTEMPLATES, '*'), WRKEXTRASTRINGTEMPLATES,
          allow_nothing=True)
 copyglob(join(SRCTOOLDIR, VENVSCRIPT), WRKTOOLDIR)
 copyglob(join(SRCTOOLDIR, WKHTMLTOPDFSCRIPT), WRKTOOLDIR)
-copyglob(join(SRCTOOLDIR, 'update_multiple_databases.py'), WRKTOOLDIR)
+copyglob(join(SRCTOOLDIR, 'camcops_meta.py'), WRKTOOLDIR)
 
 print("Copying tablet code")
 TABLETSUBDIRS = [
@@ -632,7 +632,7 @@ LOCAL_LOGO_FILE_ABSOLUTE = $DSTSTATICDIR/logo_local.png
 
 # MAIN_STRING_FILE: Main strings.xml file to be used by the server.
 # file and other resources (set by the installation script;
-# default $DSTSERVERDIR).
+# default $DSTSTRINGFILE).
 
 MAIN_STRING_FILE = $DSTSTRINGFILE
 
@@ -1238,9 +1238,19 @@ with open(join(DEBDIR, 'preinst'), 'w') as outfile:
 # Exit on any errors? (Lintian strongly advises this.)
 set -e
 
-echo "If available, stopping supervisor process: {PACKAGE}-gunicorn"
-which supervisorctl >/dev/null && supervisorctl stop {PACKAGE}-gunicorn
+# Would be nice just to shut down camcops processes. But there can be
+# several, on live systems, and it's hard to predict what they're called. We
+# need them shut down if we're going to check/reinstall the virtual
+# environment (otherwise it'll be busy). So although we tried this:
+
+# echo "If available, stopping supervisor process: {PACKAGE}-gunicorn"
+# which supervisorctl >/dev/null && supervisorctl stop {PACKAGE}-gunicorn
 # supervisorctl seems not to emit an error exit status whatever it does
+
+# ... in practice we should perhaps just stop the whole thing:
+
+echo "If available, stopping supervisor service"
+which supervisorctl >/dev/null && service supervisor stop
 
     """.format(
         PACKAGE=PACKAGE,
@@ -1330,8 +1340,14 @@ fi
 # Restart supervisor process(es)
 #------------------------------------------------------------------------------
 
-echo "If available, starting supervisor process: {PACKAGE}-gunicorn"
-which supervisorctl >/dev/null && supervisorctl start {PACKAGE}-gunicorn
+# As before, we tried doing it selectively, but that was tricky, so we
+# do all:
+
+# echo "If available, starting supervisor process: {PACKAGE}-gunicorn"
+# which supervisorctl >/dev/null && supervisorctl start {PACKAGE}-gunicorn
+
+echo "If available, starting supervisor service"
+which supervisorctl >/dev/null && service supervisor restart
 
 #------------------------------------------------------------------------------
 # Other things that we don't want strict dependencies on, or can't install now
@@ -1377,8 +1393,11 @@ with open(join(DEBDIR, 'prerm'), 'w') as outfile:
 set -e
 echo '{PACKAGE} prerm file executing'
 
-echo "If available, stopping supervisor process: {PACKAGE}-gunicorn"
-which supervisorctl >/dev/null && supervisorctl stop {PACKAGE}-gunicorn
+# echo "If available, stopping supervisor process: {PACKAGE}-gunicorn"
+# which supervisorctl >/dev/null && supervisorctl stop {PACKAGE}-gunicorn
+
+echo "If available, stopping supervisor service"
+which supervisorctl >/dev/null && service supervisor stop
 
 # Must use -f or an error will cause the prerm (and package removal) to fail
 # See /var/lib/dpkg/info/MYPACKAGE.prerm for manual removal!
@@ -1452,10 +1471,13 @@ with open(WRK_SUPERVISOR_CONF_FILE, 'w') as outfile:
 ; IF YOU EDIT THIS FILE, run:
 ;       sudo service supervisor restart
 ; TO MONITOR SUPERVISOR, run:
-;       sudo service supervisorctl status
+;       sudo supervisorctl status
 ; TO ADD MORE CAMCOPS INSTANCES, make a copy of the [program:camcops-gunicorn]
-;   section, renaming the copy, and change the CAMCOPS_CONFIG_FILE environment
-;   variable. Then make the main web server point to the copy as well.
+;   section, renaming the copy, and change the following:
+;   - the CAMCOPS_CONFIG_FILE environment variable;
+;   - the port or socket;
+;   - the log files.
+; Then make the main web server point to the copy as well.
 ; NOTES:
 ; - You can't put quotes around the directory variable
 ;   http://stackoverflow.com/questions/10653590
@@ -1530,6 +1552,25 @@ Your system's CamCOPS configuration
 - Static file root to serve:
     $DSTSTATICDIR
   See instructions below re Apache.
+
+===============================================================================
+Running CamCOPS tools within its virtual environment
+===============================================================================
+
+The principle is to use the venv's python executable to run the script.
+
+For example, to run the camcops_meta.py tool to make all tables for all
+databases, assuming all relevant config files are described by
+"/etc/camcops/camcops_*.conf", with sudo prepended to allow access:
+
+    sudo $DSTBASEDIR/venv/bin/python $DSTBASEDIR/server/tools/camcops_meta.py --verbose --filespecs /etc/camcops/camcops_*.conf --ccargs maketables
+
+To test all configs, with the same filespec:
+
+    sudo $DSTBASEDIR/venv/bin/python $DSTBASEDIR/server/tools/camcops_meta.py --verbose --filespecs /etc/camcops/camcops_*.conf --ccargs test
+
+(An alternative method is to use "source $DSTBASEDIR/venv/bin/activate",
+and then run things interactively, but this will not work so easily via sudo.)
 
 ===============================================================================
 Full stack
@@ -1676,20 +1717,73 @@ OPTIMAL: proxy Apache through to Gunicorn
         #   ... including "retry=0" to stop Apache disabling the connection for
         #       a while on failure.
 
+        # Don't ProxyPass the static files; we'll serve them via Apache.
+    ProxyPassMatch ^/$URLBASE/static/ !
+
         # Port
         # Note the use of "http" (reflecting the backend), not https (like the
         # front end).
+
     # ProxyPass /$URLBASE http://127.0.0.1:$DEFAULT_GUNICORN_PORT retry=0
     # ProxyPassReverse /$URLBASE http://127.0.0.1:$DEFAULT_GUNICORN_PORT
+
         # Socket (Apache 2.4.9 and higher)
-    ProxyPass /$URLBASE unix:$DEFAULT_GUNICORN_SOCKET|https://localhost retry=0
-    ProxyPassReverse /$URLBASE unix:$DEFAULT_GUNICORN_SOCKET|https://localhost
+        #
+        # The general syntax is:
+        #   ProxyPass /URL_USER_SEES unix:SOCKETFILE|PROTOCOL://HOST/EXTRA_URL_FOR_BACKEND retry=0
+        # Note that:
+        #   - the protocol should be http, not https (Apache deals with the
+        #     HTTPS part and passes HTTP on)
+        #   - the EXTRA_URL_FOR_BACKEND needs to be (a) unique for each
+        #     instance or Apache will use a single worker for multiple
+        #     instances, and (b) blank for the backend's benefit. Since those
+        #     two conflict when there's >1 instance, there's a problem.
+        #   - Normally, HOST is given as localhost. It may be that this problem
+        #     is solved by using a dummy unique value for HOST:
+        #     https://bz.apache.org/bugzilla/show_bug.cgi?id=54101#c1
+        #
+        # If your Apache version is too old, you will get the error
+        #   "AH00526: Syntax error on line 56 of /etc/apache2/sites-enabled/SOMETHING:
+        #    ProxyPass URL must be absolute!"
+        # On Ubuntu, if your Apache is too old, you could use
+        #   sudo add-apt-repository ppa:ondrej/apache2
+        # ... details at https://launchpad.net/~ondrej/+archive/ubuntu/apache2
+        #
+        # If you get this error:
+        #   AH01146: Ignoring parameter 'retry=0' for worker 'unix:/tmp/.camcops_gunicorn.sock|https://localhost' because of worker sharing
+        #   https://wiki.apache.org/httpd/ListOfErrors
+        # ... then your URLs are overlapping and should be redone or sorted:
+        #   http://httpd.apache.org/docs/2.4/mod/mod_proxy.html#workers
+        # The part that must be unique for each instance, with no part a
+        # leading substring of any other, is THIS_BIT in:
+        #   ProxyPass /URL_USER_SEES unix:SOCKETFILE|https://localhost/THIS_BIT retry=0
+        #
+        # If you get an error like this:
+        #   AH01144: No protocol handler was valid for the URL /SOMEWHERE. If you are using a DSO version of mod_proxy, make sure the proxy submodules are included in the configuration using LoadModule.
+        # Then do this:
+        #   sudo a2enmod proxy proxy_http
+        #   sudo apache2ctl restart
+        #
+        # If you get an error like this:
+        #   ... [proxy_http:error] [pid 32747] (103)Software caused connection abort: [client 109.151.49.173:56898] AH01102: error reading status line from remote server httpd-UDS:0
+        #       [proxy:error] [pid 32747] [client 109.151.49.173:56898] AH00898: Error reading from remote server returned by /camcops_bruhl/webview
+        # then check you are specifying http://, not https://, in the ProxyPass
+        #
+        # Other information sources:
+        #   https://emptyhammock.com/projects/info/pyweb/webconfig.html
+
+    ProxyPass /$URLBASE unix:$DEFAULT_GUNICORN_SOCKET|http://dummy1/ retry=0
+    ProxyPassReverse /$URLBASE unix:$DEFAULT_GUNICORN_SOCKET|http://dummy1/
+
         # Allow proxy over SSL.
         # Without this, you will get errors like:
         #   ... SSL Proxy requested for wombat:443 but not enabled [Hint: SSLProxyEngine]
         #   ... failed to enable ssl support for 0.0.0.0:0 (httpd-UDS)
+
     SSLProxyEngine on
+
         # Allow access
+
     <Location /$URLBASE>
         Require all granted
     </Location>
@@ -1700,10 +1794,11 @@ OPTIMAL: proxy Apache through to Gunicorn
         # a) offer them at the appropriate URL
         # b) provide permission
 
-    Alias /$URLBASE/static/ $DSTSTATICDIR/
-
     #   Change this: aim the alias at your own institutional logo.
-    Alias /$URLBASE/logo_local.png $DSTSERVERDIR/logo_local.png
+    Alias /$URLBASE/static/logo_local.png $DSTSTATICDIR/logo_local.png
+
+    #   The rest
+    Alias /$URLBASE/static/ $DSTSTATICDIR/
 
     <Directory $DSTSTATICDIR>
         Require all granted
@@ -1717,6 +1812,17 @@ OPTIMAL: proxy Apache through to Gunicorn
         # (b) you will also need to create an additional Gunicorn instance,
         #     as above;
         # (c) add additional static aliases (in section 2 above).
+        # Example (using sockets):
+
+    # ProxyPassMatch ^/camcops_instance2/static/ !
+    # ProxyPass /camcops_instance2 unix:/tmp/.camcops_gunicorn_instance2.sock|http://dummy2/ retry=0
+    # ProxyPassReverse /camcops_instance2 unix:/tmp/.camcops_gunicorn_instance2.sock|http://dummy2/
+    # <Location /camcops_instance2>
+    #     Require all granted
+    # </Location>
+    # Alias /camcops_instance2/static/logo_local.png $DSTSTATICDIR/logo_local.png
+    # Alias /camcops_instance2/static/ $DSTSTATICDIR/
+
 
     #==========================================================================
     # SSL security (for HTTPS)
@@ -1775,6 +1881,7 @@ OPTIMAL: proxy Apache through to Gunicorn
     """).substitute(  # noqa
         DEFAULT_GUNICORN_PORT=DEFAULT_GUNICORN_PORT,
         DEFAULT_GUNICORN_SOCKET=DEFAULT_GUNICORN_SOCKET,
+        DSTBASEDIR=DSTBASEDIR,
         DSTCONFIGDIR=DSTCONFIGDIR,
         DSTCONFIGFILE=DSTCONFIGFILE,
         DSTMPLCONFIGDIR=DSTMPLCONFIGDIR,

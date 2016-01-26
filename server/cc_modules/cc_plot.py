@@ -80,7 +80,7 @@ matplotlib.use("Agg")  # also the default backend
 
 # Load this once so we can tell the user we're importing it and it's slow
 import matplotlib.pyplot
-logger.info("... done")
+logger.info("... finished importing matplotlib")
 
 # THEN DO e.g. # import matplotlib.pyplot as plt
 

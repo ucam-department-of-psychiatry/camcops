@@ -1,6 +1,6 @@
 camcops (1.40-1) all; urgency=high
 
-  * From May 2015 to Jan 2016.
+  * From May 2015 to 26 Jan 2016.
   * REQUIRES COMMAND TO UPGRADE EACH DATABASE:
         camcops --maketables /etc/camcops/MYCONFIGNAME.conf
   * Brief COPE Inventory.
@@ -96,13 +96,14 @@ camcops (1.40-1) all; urgency=high
   * Changes to config variables:
     RESOURCES_DIRECTORY -- removed
     INTROSPECTION_DIRECTORY -- removed
-    CAMCOPS_LOGO_FILE_ABSOLUTE -- added
-    MAIN_STRING_FILE -- added
-    EXTRA_STRING_FILES -- added
+    CAMCOPS_LOGO_FILE_ABSOLUTE -- added (optional)
+    MAIN_STRING_FILE -- added (optional)
+    EXTRA_STRING_FILES -- added (optional)
   * Added process ID to log output.
   * Task counting report.
   * Restructure Task/Ancillary classes to be more concise.
   * Better unit testing inc. checking for __dict__/fieldname conflicts.
+  * camcops_meta.py script for e.g. upgrading multiple databases.
 
  -- Rudolf Cardinal <rudolf@pobox.com>  Mon, 04 Jan 2016 22:13:00 +0000
 

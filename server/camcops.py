@@ -155,7 +155,8 @@ def application(environ, start_response):
             # ... it will commit (the earlier the better for speed)
         else:
             # No URL matches
-            msg = "Not found."
+            msg = ("URL not found (message from camcops.py). "
+                   "URL path was: {}.".format(path))
             output = msg.encode('utf-8')
             start_response('404 Not Found', [
                 ('Content-Type', 'text/plain'),

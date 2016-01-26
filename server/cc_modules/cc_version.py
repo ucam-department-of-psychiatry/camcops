@@ -26,6 +26,6 @@
 # =============================================================================
 
 CAMCOPS_SERVER_VERSION = 1.40
-CAMCOPS_CHANGEDATE = "2016-01-04"
+CAMCOPS_CHANGEDATE = "2016-01-26"
 # ... must use double quotes; read by a Perl regex in MAKE_PACKAGE
 MINIMUM_TABLET_VERSION = 1.14

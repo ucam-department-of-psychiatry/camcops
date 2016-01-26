@@ -488,6 +488,7 @@ class Cardinal_ExpectationDetection(Task):
         # Probabilities and cumulative probabilities
         p_stimulus = count_stimulus / numpy.sum(count_stimulus)
         p_nostimulus = count_nostimulus / numpy.sum(count_nostimulus)
+        # ... may produce a RuntimeWarning in case of division by zero
         cump_stimulus = numpy.cumsum(p_stimulus)  # hit rates
         cump_nostimulus = numpy.cumsum(p_nostimulus)  # false alarm rates
         # We're interested in all pairs except the last:
@@ -620,8 +621,8 @@ class Cardinal_ExpectationDetection(Task):
         for half in range(2):
             ax = fig.add_subplot(1, 2, half+1)
             # ... rows, cols, plotnum (in reading order from 1)
-            blocks = list(range(half * self.num_blocks/2,
-                                self.num_blocks/(2 - half)))
+            blocks = list(range(half * self.num_blocks // 2,
+                                self.num_blocks // (2 - half)))
             rocinfo = self.get_roc_info(trialarray, blocks, None)
             if rocinfo["rating_out_of_range"]:
                 return ERROR_RATING_OUT_OF_RANGE
@@ -839,8 +840,8 @@ class Cardinal_ExpectationDetection(Task):
         )
         for half in [0, 1]:
             for prob in [0, 1]:
-                blocks = list(range(half * self.num_blocks/2,
-                                    self.num_blocks/(2 - half)))
+                blocks = list(range(half * self.num_blocks // 2,
+                                    self.num_blocks // (2 - half)))
                 groups = groups_lowprob if prob == 0 else groups_highprob
                 (p_detected_given_present,
                  p_detected_given_absent,
@@ -1060,8 +1061,8 @@ class Cardinal_ExpectationDetection(Task):
         # Now another one...
         halfprob_values = []
         for half in range(2):
-            blocks = list(range(half * self.num_blocks/2,
-                                self.num_blocks/(2 - half)))
+            blocks = list(range(half * self.num_blocks // 2,
+                                self.num_blocks // (2 - half)))
             for target_probability_low_high in (0, 1):
                 groups = (
                     groups_lowprob if target_probability_low_high == 0
