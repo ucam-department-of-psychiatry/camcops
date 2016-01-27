@@ -97,7 +97,7 @@
     <tr>
       <th></th>
       <th>Ubuntu</th>
-      <th>CentOS</th>
+      <th>CentOS 6.5</th>
     </tr>
     <tr>
       <td><b><i>System</i></b></td>
@@ -215,6 +215,11 @@
 
   <div>
     <ol>
+      <li>Install Apache and MySQL. (As part of the MySQL installation, you
+      will create a root database user. Remember the password!)
+      <pre class="code1">
+<b>sudo apt-get install apache2 mysql-client mysql-server</b></pre></li>
+
       <li><a href="../download/index.html">Download</a> the Debian package,
       which will be called <code>camcops_<i>VERSION</i>_all.deb</code>, where
       <i>VERSION</i> is the current version number.</li>
@@ -224,26 +229,16 @@
 <b>sudo gdebi camcops_</b><i>VERSION</i><b>_all.deb</b>
 </pre>(If you don’t have <code>gdebi</code>, install it with <code>sudo apt-get
 install gdebi</code>.)
+      CamCOPS will now be installed in <code>/usr/share/camcops</code>.
       </li>
     </ol>
-
-    <ul>
-      <li>CamCOPS will now be installed in
-      <code>/usr/share/camcops</code>.</li>
-
-      <li>The installation process will also install Apache, MySQL, and
-      Python libraries.</li>
-
-      <li>As part of the MySQL installation, you will create a root database
-      user. Remember the password!</li>
-    </ul>
   </div>
 
   <h3>CentOS 6.5 (an RPM-based Linux)</h3>
 
   <div>
     <p>CamCOPS is designed for Debian Linux, so the installation procedure is
-    much simpler there. Frankly, achieving this on CentOS 6.5 is very hard; try
+    much simpler there. Frankly, achieving this on CentOS 6.5 is fiddly; try
     to get a Ubuntu server. Nevertheless, it can be done:</p>
 
     <ol>
@@ -270,29 +265,32 @@ install gdebi</code>.)
 </pre>
       </li>
 
-      <li>Prerequisites for what follows (e.g. development libraries needed for
-      Python package compilation; <code>mod_ssl</code> not included with Apache
-      by default):
-        <pre class="code1"><b>sudo yum install blas-devel httpd-devel lapack-devel libffi-devel libpng-devel links mod_ssl mysql-devel nano openssl-devel python-devel</b></pre>
+      <li>Potential prerequisites for what follows:
+        <pre class="code1"><b>sudo yum install blas-devel lapack-devel libffi-devel libpng-devel links nano openssl-devel python-devel</b></pre>
       </li>
 
-      <li>Install Python 3.4:
+      <li>Install Python 3.4 (which comes with pip and setuptools).
+      <i>Note: CentOS 6.5 (December 2013) provides Python 2.6 (2009).
+      You can’t just replace it, because its system scripts need Python 2.6.
+      CentOS is based on Red Hat Enterprise Linux.
+      Fedora 14 (another Red Hat derivative) moved to Python 2.7 in 2010.
+      CamCOPS needs Python 3 (e.g. 3.4).</i>
       <pre class="code1">
-# Download and install Python 3.4 (which comes with pip and setuptools)
-
 <b>sudo yum install python34u</b>
 
 # Test:
-<b>python3 --version</b>
+<b>python3 --version
+pip3 --version</b>
 </pre>
-
-          <ul><li><i>Note: CentOS 6.5 (December 2013) provides Python 2.6 (2009)
-          and not Python 2.7 (2010). You can’t just replace it, because its
-          system scripts need Python 2.6. CentOS is based on Red Hat Enterprise
-          Linux. Fedora 14 (another Red Hat derivative) moved to Python 2.7 in
-          2010. CamCOPS needs Python 3 (e.g. 3.4).</i></li></ul
-        </ul>
       </li>
+
+      <li>Install MySQL:
+      <pre class="code1">
+<b>sudo yum install mysql55 mysql55-server mysql-devel</b></pre></li>
+
+      <li>Install Apache:
+      <pre class="code1">
+<b>sudo yum install httpd httpd-devel mod_ssl</b></pre></li>
 
       <li><a href="../download/index.html">Download</a> the CamCOPS RPM
       package. This will be called
@@ -436,32 +434,7 @@ max_allowed_packet = 32M</pre>
         <b>Create the CamCOPS database.</b> Log in to MySQL using the root user
         details you created earlier, and follow these commands (which you’ll
         find at <code>/usr/share/camcops/demo_mysql_database_creation</code>):
-        <pre class="code1">
-# First, from the Linux command line, log in to MySQL as root:
-
-<b>mysql --host=127.0.0.1 --port=3306 --user=root --password</b>
-# ... or the usual short form: <b>mysql -u root -p</b>
-
-# Create the database:
-
-<b>CREATE DATABASE </b><i>camcops</i><b>;</b>
-
-# Ideally, create another user that only has access to the CamCOPS database.
-# You should do this, so that you don’t use the root account unnecessarily.
-
-<b>GRANT ALL PRIVILEGES ON </b><i>camcops</i><b>.* TO '</b><i>YYYYYY_REPLACE_ME</i><b>'@'localhost' IDENTIFIED BY '</b><i>ZZZZZZ_REPLACE_ME</i><b>';</b>
-
-# For future use: if you plan to explore your database directly for analysis,
-# you may want to create a read-only user. Though it may not be ideal (check:
-# are you happy the user can see the audit trail?), you can create a user with
-# read-only access to the entire database like this:
-
-<b>GRANT SELECT </b><i>camcops</i><b>.* TO '</b><i>QQQQQQ_REPLACE_ME</i><b>'@'localhost' IDENTIFIED BY '</b><i>PPPPPP_REPLACE_ME</i><b>';</b>
-
-# All done. Quit MySQL:
-
-<b>exit</b>
-</pre>
+        <pre class="code1"><!--#include virtual="demo_mysql_database_creation" --></pre>
       </li>
 
       <li>Ensure MySQL restarts on boot. On Ubuntu, this should be automatic.
@@ -518,25 +491,17 @@ max_allowed_packet = 32M</pre>
     <p>for details.</p>
   </div>
 
-  <h2>Configure Apache</h2>
+  <h2>Configure Apache or other front-end web server</h2>
 
   <div>
     <ol>
       <li>Add sections to the HTTPS (SSL) site file (see table above),
       which is referred to by the main Apache configuration file (see table
       above).
-      <b>You should read the demonstration section at
-      <code>/usr/share/camcops/demo_apache_config_section</code>. Copy this
-      into your own HTTPS site file and edit it.</b> (These scripts use
-      <a href="https://code.google.com/p/modwsgi/">mod_wsgi</a> in order to
-      speed up Python script execution markedly.)</li>
-
-      <li>As part of that, ensure that the institutional local logos point to
-      your own institutional logo, not the dummy one at
-      <code>/usr/share/camcops/logo_local.png</code> (just change the alias,
-      don’t edit that file; fiddling with things in
-      <code>/usr/share/camcops</code> is not necessary and will make
-      un-installation harder.</li>
+      <b>You should read the instructions at
+      <code>/usr/share/camcops/instructions.txt</code>, reproduced below.
+      <pre class="code1"><!--#include virtual="instructions.txt" --></pre>
+      </li>
 
       <li>Ensure file ownerships/permissions are correct (including, on CentOS,
       SELinux permissions: see <a href=
@@ -587,10 +552,13 @@ sudo chcon -R -h system_u:object_r:httpd_sys_content_t /etc/camcops
   <div>
     <p>Your backup strategy is up to you. However, one option is to use a
     script to dump all MySQL databases. A sample script is in
-    <code>/usr/share/camcops/demo_mysql_dump_script</code>; you will need to
+    <code>/usr/share/camcops/demo_mysql_dump_script</code>, reproduced below.
+    You will need to
     copy this and edit the copy. <b>Be sure your copy of the script is readable
     only by root, as it contains a password.</b> You can then run your script
     regularly from <code>/etc/crontab</code>.</p>
+
+    <pre class="code1"><!--#include virtual="demo_mysql_dump_script" --></pre>
 
     <p>Obviously, you will also need the dumped files to be backed up to a
     physically secure location regularly.</p>
