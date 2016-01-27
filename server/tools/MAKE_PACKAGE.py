@@ -19,6 +19,7 @@ Note that you can get CentOS version/architecture with:
 # ... actually, let's do that, using mkdtemp(), so it'll linger if the build
 # fails.
 
+import cgi
 import getpass
 import glob
 import gzip
@@ -120,6 +121,12 @@ def get_lines_without_comments(filename):
             if line:
                 lines.append(line)
     return lines
+
+
+def webify_file(srcfilename, destfilename):
+    with open(srcfilename) as infile, open(destfilename, 'w') as outfile:
+        for line in infile:
+            outfile.write(cgi.escape(line))
 
 
 # =============================================================================
@@ -1196,7 +1203,7 @@ SCRIPT_AFTER_FILE_EXPORT =
         DSTSUMMARYTABLELOCKFILESTEM=DSTSUMMARYTABLELOCKFILESTEM,
         INSTITUTIONURL=INSTITUTIONURL,
     ), file=outfile)
-shutil.copy(WRKCONFIGFILE, WEBDOCSCONFIGFILE)
+webify_file(WRKCONFIGFILE, WEBDOCSCONFIGFILE)
 
 # =============================================================================
 print("Creating launch script. Will be installed as " + DSTCONSOLEFILE)
@@ -1968,7 +1975,7 @@ OPTIMAL: proxy Apache through to Gunicorn
         URLBASE=URLBASE,
         WEBVIEWSCRIPT=WEBVIEWSCRIPT,
     ), file=outfile)
-shutil.copy(WRKINSTRUCTIONS, WEBDOCINSTRUCTIONS)
+webify_file(WRKINSTRUCTIONS, WEBDOCINSTRUCTIONS)
 
 # In <Files "$DBSCRIPTNAME"> section, we did have:
     # The next line prevents XMLHttpRequest Access-Control-Allow-Origin errors.
@@ -2015,7 +2022,7 @@ exit
         DEFAULT_DB_READONLY_USER=DEFAULT_DB_READONLY_USER,
         DEFAULT_DB_READONLY_PASSWORD=DEFAULT_DB_READONLY_PASSWORD,
     ), file=outfile)
-shutil.copy(WRKMYSQLCREATION, WEBDOCSMYSQLCREATION)
+webify_file(WRKMYSQLCREATION, WEBDOCSMYSQLCREATION)
 
 # =============================================================================
 print("Creating demonstration backup script. Will be installed within "
@@ -2051,7 +2058,7 @@ chmod -R o-rwx *
 chmod -R ug+rw *
     """,  # noqa
     file=outfile)
-shutil.copy(WRKDBDUMPFILE, WEBDOCDBDUMPFILE)
+webify_file(WRKDBDUMPFILE, WEBDOCDBDUMPFILE)
 
 # =============================================================================
 print("Setting ownership and permissions")

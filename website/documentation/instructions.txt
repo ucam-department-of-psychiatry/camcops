@@ -10,7 +10,7 @@ Your system's CamCOPS configuration
     /etc/supervisor/conf.d/camcops.conf
   This this should be edited to point to the correct CamCOPS config.
   (And copied, changing the CAMCOPS_CONFIG_FILE environment variable, should
-  you want to run >1 instance.)
+  you want to run &gt;1 instance.)
 
 - Gunicorn default port is:
     8006
@@ -157,7 +157,7 @@ OPTIMAL: proxy Apache through to Gunicorn
 (b) Configure Apache for CamCOPS.
     Use a section like this in the Apache config file:
 
-<VirtualHost *:443>
+&lt;VirtualHost *:443&gt;
     # ...
 
     # =========================================================================
@@ -210,7 +210,7 @@ OPTIMAL: proxy Apache through to Gunicorn
         #   - the EXTRA_URL_FOR_BACKEND needs to be (a) unique for each
         #     instance or Apache will use a single worker for multiple
         #     instances, and (b) blank for the backend's benefit. Since those
-        #     two conflict when there's >1 instance, there's a problem.
+        #     two conflict when there's &gt;1 instance, there's a problem.
         #   - Normally, HOST is given as localhost. It may be that this problem
         #     is solved by using a dummy unique value for HOST:
         #     https://bz.apache.org/bugzilla/show_bug.cgi?id=54101#c1
@@ -257,9 +257,9 @@ OPTIMAL: proxy Apache through to Gunicorn
 
         # Allow access
 
-    <Location /camcops>
+    &lt;Location /camcops&gt;
         Require all granted
-    </Location>
+    &lt;/Location&gt;
 
         # ---------------------------------------------------------------------
         # 2. Serve static files
@@ -273,9 +273,9 @@ OPTIMAL: proxy Apache through to Gunicorn
     #   The rest
     Alias /camcops/static/ /usr/share/camcops/server/static/
 
-    <Directory /usr/share/camcops/server/static>
+    &lt;Directory /usr/share/camcops/server/static&gt;
         Require all granted
-    </Directory>
+    &lt;/Directory&gt;
 
         # ---------------------------------------------------------------------
         # 3. For additional instances
@@ -290,9 +290,9 @@ OPTIMAL: proxy Apache through to Gunicorn
     # ProxyPassMatch ^/camcops_instance2/static/ !
     # ProxyPass /camcops_instance2 unix:/tmp/.camcops_gunicorn_instance2.sock|http://dummy2/ retry=0
     # ProxyPassReverse /camcops_instance2 unix:/tmp/.camcops_gunicorn_instance2.sock|http://dummy2/
-    # <Location /camcops_instance2>
+    # &lt;Location /camcops_instance2&gt;
     #     Require all granted
-    # </Location>
+    # &lt;/Location&gt;
     # Alias /camcops_instance2/static/logo_local.png /usr/share/camcops/server/static/logo_local.png
     # Alias /camcops_instance2/static/ /usr/share/camcops/server/static/
 
@@ -333,7 +333,7 @@ OPTIMAL: proxy Apache through to Gunicorn
         # the CA. For example, mine is univcam.ca-bundle, made with the
         # command:
         #
-        # cat TERENASSLCA.crt UTNAddTrustServer_CA.crt AddTrustExternalCARoot.crt > univcam.ca-bundle
+        # cat TERENASSLCA.crt UTNAddTrustServer_CA.crt AddTrustExternalCARoot.crt &gt; univcam.ca-bundle
 
     #==========================================================================
     # GZIP COMPRESSION FOR APPROPRIATE CONTENT TYPES (OPTIONAL)

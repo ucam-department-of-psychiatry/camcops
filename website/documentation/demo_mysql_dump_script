@@ -4,8 +4,8 @@
 # This file must be READABLE ONLY BY ROOT (or equivalent, backup)!
 # The password is in cleartext.
 # Once you have copied this file and edited it, perform:
-#     sudo chown root:root <filename>
-#     sudo chmod 700 <filename>
+#     sudo chown root:root &lt;filename&gt;
+#     sudo chmod 700 &lt;filename&gt;
 # Then you can add it to your /etc/crontab for regular execution.
 
 BACKUPDIR='/var/backups/mysql'
@@ -17,7 +17,7 @@ PASSWORD='PPPPPP_REPLACE_ME'  # MySQL password
 mkdir -p $BACKUPDIR
 
 # Dump the database:
-mysqldump -u $USERNAME -p$PASSWORD --all-databases --force > $BACKUPDIR/$BACKUPFILE
+mysqldump -u $USERNAME -p$PASSWORD --all-databases --force &gt; $BACKUPDIR/$BACKUPFILE
 
 # Make sure the backups (which may contain sensitive information) are only
 # readable by the 'backup' user group:
