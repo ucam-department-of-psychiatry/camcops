@@ -1431,13 +1431,13 @@ echo "        sudo apt-get install apache2 libapache2-mod-proxy-html libapache2-
 echo "        sudo a2enmod proxy_http  # may be unnecessary"
 echo "        sudo apt-get install mysql-client mysql-server"
 echo "    [CentOS]"
-echo "        yum install httpd mod_proxy mod_xsendfile"
+echo "        sudo yum install httpd mod_proxy mod_xsendfile"
 # mod_wsgi
-echo "        yum install mysql55 mysql55-server libmysqlclient-dev"
+echo "        sudo yum install mysql55 mysql55-server libmysqlclient-dev"
 echo
 echo "2.  Can't install wkhtmltopdf right now (dpkg database will be locked)."
 echo "    Later, run this once:"
-echo "    {DSTSYSTEMPYTHON} {DSTWKHTMLTOPDFSCRIPT}"
+echo "    sudo {DSTSYSTEMPYTHON} {DSTWKHTMLTOPDFSCRIPT}"
 echo "========================================================================"
 
 echo '{PACKAGE}: postinst file finished'

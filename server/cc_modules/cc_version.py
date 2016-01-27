@@ -26,6 +26,6 @@
 # =============================================================================
 
 CAMCOPS_SERVER_VERSION = 1.40
-CAMCOPS_CHANGEDATE = "2016-01-26"
-# ... must use double quotes; read by a Perl regex in MAKE_PACKAGE
+CAMCOPS_CHANGEDATE = "2016-01-27"
+# ... must use double quotes; read by a regex in MAKE_PACKAGE.py
 MINIMUM_TABLET_VERSION = 1.14

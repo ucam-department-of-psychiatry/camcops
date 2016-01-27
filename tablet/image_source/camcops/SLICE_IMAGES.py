@@ -527,7 +527,9 @@ if args.server:
     crop_pdf(BLANK_LOGO_PDF, join(SERVER_STATIC_DIR, "logo_local.png"),
              dest_width_px=1000, autocrop=True)
     crop_pdf(SERVER_DIAGRAM_PDF, join(WEB_IMAGE_DIR, "server_diagram.png"),
-             dest_width_px=500, autocrop=True)
+             dest_width_px=600, autocrop=True)
+    crop_pdf(SERVER_DIAGRAM_PDF, join(WEB_IMAGE_DIR, "scaling_logos.png"),
+             dest_width_px=600, autocrop=True)
 
 
 # =============================================================================
