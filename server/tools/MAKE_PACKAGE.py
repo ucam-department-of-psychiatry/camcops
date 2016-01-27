@@ -269,6 +269,7 @@ WRKSUPERVISORCONFDIR = workpath(WRKDIR, DSTSUPERVISORCONFDIR)
 DST_SUPERVISOR_CONF_FILE = os.path.join(DSTSUPERVISORCONFDIR,
                                         PACKAGE + '.conf')
 WRK_SUPERVISOR_CONF_FILE = workpath(WRKDIR, DST_SUPERVISOR_CONF_FILE)
+WEBDOC_SUPERVISOR_CONF_FILE = os.path.join(WEBDOCSDIR, 'supervisord_camcops.conf')
 
 DSTCONFIGDIR = join('/etc', PACKAGE)
 WRKCONFIGDIR = workpath(WRKDIR, DSTCONFIGDIR)
@@ -1543,45 +1544,50 @@ print("Creating supervisor conf file. Will be " + DST_SUPERVISOR_CONF_FILE)
 with open(WRK_SUPERVISOR_CONF_FILE, 'w') as outfile:
     print(string.Template("""
 
-; IF YOU EDIT THIS FILE, run:
-;       sudo service supervisor restart
-; TO MONITOR SUPERVISOR, run:
-;       sudo supervisorctl status
-; TO ADD MORE CAMCOPS INSTANCES, make a copy of the [program:camcops-gunicorn]
-;   section, renaming the copy, and change the following:
-;   - the CAMCOPS_CONFIG_FILE environment variable;
-;   - the port or socket;
-;   - the log files.
-; Then make the main web server point to the copy as well.
-; NOTES:
-; - You can't put quotes around the directory variable
-;   http://stackoverflow.com/questions/10653590
-; - Programs like celery and gunicorn that are installed within a virtual
-;   environment use the virtualenv's python via their shebang.
-; - The "environment" setting sets the OS environment. The "--env" parameter
-;   to gunicorn sets the WSGI environment.
+# IF YOU EDIT THIS FILE, run:
+#       sudo service supervisor restart
+# TO MONITOR SUPERVISOR, run:
+#       sudo supervisorctl status
+# TO ADD MORE CAMCOPS INSTANCES, make a copy of the [program:camcops-gunicorn]
+#   section, renaming the copy, and change the following:
+#   - the CAMCOPS_CONFIG_FILE environment variable;
+#   - the port or socket;
+#   - the log files.
+# Then make the main web server point to the copy as well.
+# NOTES:
+# - You can't put quotes around the directory variable
+#   http://stackoverflow.com/questions/10653590
+# - Programs like celery and gunicorn that are installed within a virtual
+#   environment use the virtualenv's python via their shebang.
+# - The "environment" setting sets the OS environment. The "--env" parameter
+#   to gunicorn sets the WSGI environment.
 
-[program:camcops-gunicorn]
+# As RPM reinstalls this file (inconveniently), everything is commented out
+# so it doesn't cause disruption in its starting state.
+#
+# Uncomment and edit what you need.
 
-command = $DSTPYTHONVENV/bin/gunicorn camcops:application
-    --workers 4
-    --bind=unix:$DEFAULT_GUNICORN_SOCKET
-    --env CAMCOPS_CONFIG_FILE=$DSTCONFIGFILE
-
-; Alternative methods (port and socket respectively):
-;   --bind=127.0.0.1:$DEFAULT_GUNICORN_PORT
-;   --bind=unix:$DEFAULT_GUNICORN_SOCKET
-directory = $DSTSERVERDIR
-environment = PYTHONPATH="$DSTPYTHONPATH",MPLCONFIGDIR="$DSTMPLCONFIGDIR"
-user = www-data
-; ... Ubuntu: typically www-data
-; ... CentOS: typically apache
-stdout_logfile = /var/log/supervisor/${PACKAGE}_gunicorn.log
-stderr_logfile = /var/log/supervisor/${PACKAGE}_gunicorn_err.log
-autostart = true
-autorestart = true
-startsecs = 10
-stopwaitsecs = 60
+# [program:camcops-gunicorn]
+#
+# command = $DSTPYTHONVENV/bin/gunicorn camcops:application
+#     --workers 4
+#     --bind=unix:$DEFAULT_GUNICORN_SOCKET
+#     --env CAMCOPS_CONFIG_FILE=$DSTCONFIGFILE
+#
+# # Alternative methods (port and socket respectively):
+# #   --bind=127.0.0.1:$DEFAULT_GUNICORN_PORT
+# #   --bind=unix:$DEFAULT_GUNICORN_SOCKET
+# directory = $DSTSERVERDIR
+# environment = PYTHONPATH="$DSTPYTHONPATH",MPLCONFIGDIR="$DSTMPLCONFIGDIR"
+# user = www-data
+# # ... Ubuntu: typically www-data
+# # ... CentOS: typically apache
+# stdout_logfile = /var/log/supervisor/${PACKAGE}_gunicorn.log
+# stderr_logfile = /var/log/supervisor/${PACKAGE}_gunicorn_err.log
+# autostart = true
+# autorestart = true
+# startsecs = 10
+# stopwaitsecs = 60
 
     """).substitute(  # noqa
         DSTPYTHONVENV=DSTPYTHONVENV,
@@ -1593,6 +1599,7 @@ stopwaitsecs = 60
         DSTCONFIGFILE=DSTCONFIGFILE,
         PACKAGE=PACKAGE,
     ), file=outfile)
+webify_file(WRK_SUPERVISOR_CONF_FILE, WEBDOC_SUPERVISOR_CONF_FILE)
 
 # =============================================================================
 print("Creating instructions. Will be installed within " + DSTBASEDIR)
@@ -1622,7 +1629,8 @@ Your system's CamCOPS configuration
     $DEFAULT_GUNICORN_PORT
   To change this, edit
     $DST_SUPERVISOR_CONF_FILE
-  Copy this script to run another instance on another port/socket.
+  (or copy and edit the copy). Duplicate entries in this script to run another
+  instance on another port/socket.
 
 - Static file root to serve:
     $DSTSTATICDIR

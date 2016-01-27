@@ -506,6 +506,10 @@ max_allowed_packet = 32M</pre>
       <pre class="code1"><!--#include virtual="instructions.txt" --></pre>
       </li>
 
+      <li>You will need to ensure the <code>/etc/supervisor/conf.d/*</code>
+      file(s) are correct. Here's an example:</li>
+      <pre class="code1"><!--#include virtual="supervisord_camcops.conf" --></pre>
+
       <li>Ensure file ownerships/permissions are correct (including, on CentOS,
       SELinux permissions: see <a href=
       "http://wiki.apache.org/httpd/13PermissionDenied">13PermissionDenied</a>

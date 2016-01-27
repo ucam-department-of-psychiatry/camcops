@@ -16,7 +16,8 @@ Your system's CamCOPS configuration
     8006
   To change this, edit
     /etc/supervisor/conf.d/camcops.conf
-  Copy this script to run another instance on another port/socket.
+  (or copy and edit the copy). Duplicate entries in this script to run another
+  instance on another port/socket.
 
 - Static file root to serve:
     /usr/share/camcops/server/static
