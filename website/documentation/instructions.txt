@@ -1,0 +1,354 @@
+
+===============================================================================
+Your system's CamCOPS configuration
+===============================================================================
+- Default CamCOPS config is:
+    /etc/camcops/camcops.conf
+  This must be edited before it will run properly.
+
+- Gunicorn/Celery are being supervised as per:
+    /etc/supervisor/conf.d/camcops.conf
+  This this should be edited to point to the correct CamCOPS config.
+  (And copied, changing the CAMCOPS_CONFIG_FILE environment variable, should
+  you want to run >1 instance.)
+
+- Gunicorn default port is:
+    8006
+  To change this, edit
+    /etc/supervisor/conf.d/camcops.conf
+  Copy this script to run another instance on another port/socket.
+
+- Static file root to serve:
+    /usr/share/camcops/server/static
+  See instructions below re Apache.
+
+===============================================================================
+Running CamCOPS tools within its virtual environment
+===============================================================================
+
+The principle is to use the venv's python executable to run the script.
+
+For example, to run the camcops_meta.py tool to make all tables for all
+databases, assuming all relevant config files are described by
+"/etc/camcops/camcops_*.conf", with sudo prepended to allow access:
+
+    sudo /usr/share/camcops/venv/bin/python /usr/share/camcops/server/tools/camcops_meta.py --verbose --filespecs /etc/camcops/camcops_*.conf --ccargs maketables
+
+To test all configs, with the same filespec:
+
+    sudo /usr/share/camcops/venv/bin/python /usr/share/camcops/server/tools/camcops_meta.py --verbose --filespecs /etc/camcops/camcops_*.conf --ccargs test
+
+(An alternative method is to use "source /usr/share/camcops/venv/bin/activate",
+and then run things interactively, but this will not work so easily via sudo.)
+
+But a shortcut for all these things is:
+
+    sudo /usr/bin/camcops_meta --verbose --filespecs /etc/camcops/camcops_*.conf --ccargs test
+
+===============================================================================
+Full stack
+===============================================================================
+
+- Gunicorn serves CamCOPS via WSGI
+  ... serving via an internal port (in the default configuration, 8006).
+  ... or an internal socket (such as /tmp/.camcops_gunicorn.sock)
+
+- supervisord keeps Gunicorn running
+
+- You should use a proper web server like Apache or nginx to:
+
+    (a) serve static files
+
+    (b) proxy requests to the WSGI app via Gunicorn
+
+===============================================================================
+Monitoring with supervisord
+===============================================================================
+
+    sudo supervisorctl  # assuming it's running as root
+
+===============================================================================
+Advanced configuration
+===============================================================================
+
+CamCOPS uses operating system environment variables (os.environ, from a Python
+perspective) for things that influence early startup, such as module loading.
+This is because it's often convenient to load all relevant modules before
+reading the configuration file. These govern low-level settings and are not
+typically needed, or are typically set up for you as part of the default
+CamCOPS installation.
+
+Essential environment variables
+-------------------------------
+
+CAMCOPS_CONFIG_FILE
+    Points to the configuration file itself (e.g. /etc/camcops.conf).
+
+Common environment variables
+----------------------------
+
+MPLCONFIGDIR
+    A temporary cache directory for matplotlib to store information (e.g. font
+    lists). Specifying this dramatically reduces matplotlib's startup time
+    (from e.g. 3 seconds the first time, to a fraction of that subsequently).
+    If you don't specify it, CamCOPS uses a fresh temporary directory, so you
+    don't get the speedup. The default is
+        {DSTMPLCONFIGDIR}
+    The directory must be writable by the user running CamCOPS.
+
+Debugging environment variables
+-------------------------------
+
+CAMCOPS_DEBUG_TO_HTTP_CLIENT
+    Boolean string (e.g. 'True', 'Y', '1' / 'False', 'N', '0').
+    Enables exception reporting to the HTTP client. Should be DISABLED for
+    production systems. Default is False.
+
+CAMCOPS_PROFILE
+    Boolean string.
+    Enable a profiling layer on HTTP requests. The output goes to the system
+    console. Default is False.
+
+CAMCOPS_SERVE_STATIC_FILES
+    Boolean string.
+    The CamCOPS program will itself serve static files. Default is True.
+    In a production server, you can ignore this setting, but you should serve
+    static files from a proper web server (e.g. Apache) instead, for
+    performance.
+
+Note regarding environment variables
+------------------------------------
+
+Operating system environment variables are read at PROGRAM LOAD TIME, not WSGI
+call time. They are distinct from WSGI environment variables (which are passed
+from the WSGI web server to CamCOPS at run-time and contain per-request
+information).
+
+===============================================================================
+Testing with just gunicorn
+===============================================================================
+
+- Assuming your www-data has the necessary access, then configure gunicorn
+  for a test port on 8000:
+
+    sudo -u www-data \
+        PYTHONPATH="/usr/share/camcops/server" \
+        CAMCOPS_CONFIG_FILE="/etc/camcops/camcops.conf" \
+        /usr/share/camcops/venv/bin/gunicorn camcops:application \
+        --workers 4 \
+        --bind=127.0.0.1:8000
+
+===============================================================================
+Apache
+===============================================================================
+-------------------------------------------------------------------------------
+OPTIMAL: proxy Apache through to Gunicorn
+-------------------------------------------------------------------------------
+(a) Add Ubuntu/Apache prerequisites
+
+    [Ubuntu]
+        sudo apt-get install apache2 libapache2-mod-wsgi libapache2-mod-proxy-html libapache2-mod-xsendfile
+        sudo a2enmod proxy_http  # may be unnecessary
+        sudo apt-get install mysql-client mysql-server
+    [CentOS]
+        yum install httpd mod_wsgi mod_proxy mod_xsendfile
+        yum install mysql55 mysql55-server libmysqlclient-dev
+
+(b) Configure Apache for CamCOPS.
+    Use a section like this in the Apache config file:
+
+<VirtualHost *:443>
+    # ...
+
+    # =========================================================================
+    # CamCOPS
+    # =========================================================================
+
+        # ---------------------------------------------------------------------
+        # 1. Proxy requests to the Gunicorn server and back, and allow access
+        # ---------------------------------------------------------------------
+        #    ... either via port 8006
+        #    ... or, better, via socket /tmp/.camcops_gunicorn.sock
+        # NOTES
+        # - When you ProxyPass /camcops, you should browse to
+        #       https://YOURSITE/camcops/webview
+        #   and point your tablets to
+        #       https://YOURSITE/camcops/database
+        # - Don't specify trailing slashes.
+        #   If you do, http://host/camcops will fail though;
+        #              http://host/camcops/ will succeed.
+        # - Using a socket
+        #   - this requires Apache 2.4.9, and passes after the '|' character a
+        #     URL that determines the Host: value of the request; see
+        #       https://httpd.apache.org/docs/trunk/mod/mod_proxy.html#proxypass
+        #   - The Django debug toolbar will then require the bizarre entry in
+        #     the Django settings: INTERNAL_IPS = ("b''", ) -- i.e. the string
+        #     value of "b''", not an empty bytestring.
+        # - Ensure that you put the CORRECT PROTOCOL (e.g. https) in the rules
+        #   below.
+        # - For ProxyPass options, see https://httpd.apache.org/docs/2.2/mod/mod_proxy.html#proxypass
+        #   ... including "retry=0" to stop Apache disabling the connection for
+        #       a while on failure.
+
+        # Don't ProxyPass the static files; we'll serve them via Apache.
+    ProxyPassMatch ^/camcops/static/ !
+
+        # Port
+        # Note the use of "http" (reflecting the backend), not https (like the
+        # front end).
+
+    # ProxyPass /camcops http://127.0.0.1:8006 retry=0
+    # ProxyPassReverse /camcops http://127.0.0.1:8006
+
+        # Socket (Apache 2.4.9 and higher)
+        #
+        # The general syntax is:
+        #   ProxyPass /URL_USER_SEES unix:SOCKETFILE|PROTOCOL://HOST/EXTRA_URL_FOR_BACKEND retry=0
+        # Note that:
+        #   - the protocol should be http, not https (Apache deals with the
+        #     HTTPS part and passes HTTP on)
+        #   - the EXTRA_URL_FOR_BACKEND needs to be (a) unique for each
+        #     instance or Apache will use a single worker for multiple
+        #     instances, and (b) blank for the backend's benefit. Since those
+        #     two conflict when there's >1 instance, there's a problem.
+        #   - Normally, HOST is given as localhost. It may be that this problem
+        #     is solved by using a dummy unique value for HOST:
+        #     https://bz.apache.org/bugzilla/show_bug.cgi?id=54101#c1
+        #
+        # If your Apache version is too old, you will get the error
+        #   "AH00526: Syntax error on line 56 of /etc/apache2/sites-enabled/SOMETHING:
+        #    ProxyPass URL must be absolute!"
+        # On Ubuntu, if your Apache is too old, you could use
+        #   sudo add-apt-repository ppa:ondrej/apache2
+        # ... details at https://launchpad.net/~ondrej/+archive/ubuntu/apache2
+        #
+        # If you get this error:
+        #   AH01146: Ignoring parameter 'retry=0' for worker 'unix:/tmp/.camcops_gunicorn.sock|https://localhost' because of worker sharing
+        #   https://wiki.apache.org/httpd/ListOfErrors
+        # ... then your URLs are overlapping and should be redone or sorted:
+        #   http://httpd.apache.org/docs/2.4/mod/mod_proxy.html#workers
+        # The part that must be unique for each instance, with no part a
+        # leading substring of any other, is THIS_BIT in:
+        #   ProxyPass /URL_USER_SEES unix:SOCKETFILE|https://localhost/THIS_BIT retry=0
+        #
+        # If you get an error like this:
+        #   AH01144: No protocol handler was valid for the URL /SOMEWHERE. If you are using a DSO version of mod_proxy, make sure the proxy submodules are included in the configuration using LoadModule.
+        # Then do this:
+        #   sudo a2enmod proxy proxy_http
+        #   sudo apache2ctl restart
+        #
+        # If you get an error like this:
+        #   ... [proxy_http:error] [pid 32747] (103)Software caused connection abort: [client 109.151.49.173:56898] AH01102: error reading status line from remote server httpd-UDS:0
+        #       [proxy:error] [pid 32747] [client 109.151.49.173:56898] AH00898: Error reading from remote server returned by /camcops_bruhl/webview
+        # then check you are specifying http://, not https://, in the ProxyPass
+        #
+        # Other information sources:
+        #   https://emptyhammock.com/projects/info/pyweb/webconfig.html
+
+    ProxyPass /camcops unix:/tmp/.camcops_gunicorn.sock|http://dummy1/ retry=0
+    ProxyPassReverse /camcops unix:/tmp/.camcops_gunicorn.sock|http://dummy1/
+
+        # Allow proxy over SSL.
+        # Without this, you will get errors like:
+        #   ... SSL Proxy requested for wombat:443 but not enabled [Hint: SSLProxyEngine]
+        #   ... failed to enable ssl support for 0.0.0.0:0 (httpd-UDS)
+
+    SSLProxyEngine on
+
+        # Allow access
+
+    <Location /camcops>
+        Require all granted
+    </Location>
+
+        # ---------------------------------------------------------------------
+        # 2. Serve static files
+        # ---------------------------------------------------------------------
+        # a) offer them at the appropriate URL
+        # b) provide permission
+
+    #   Change this: aim the alias at your own institutional logo.
+    Alias /camcops/static/logo_local.png /usr/share/camcops/server/static/logo_local.png
+
+    #   The rest
+    Alias /camcops/static/ /usr/share/camcops/server/static/
+
+    <Directory /usr/share/camcops/server/static>
+        Require all granted
+    </Directory>
+
+        # ---------------------------------------------------------------------
+        # 3. For additional instances
+        # ---------------------------------------------------------------------
+        # (a) duplicate section 1 above, editing the base URL and Gunicorn
+        #     connection (socket/port);
+        # (b) you will also need to create an additional Gunicorn instance,
+        #     as above;
+        # (c) add additional static aliases (in section 2 above).
+        # Example (using sockets):
+
+    # ProxyPassMatch ^/camcops_instance2/static/ !
+    # ProxyPass /camcops_instance2 unix:/tmp/.camcops_gunicorn_instance2.sock|http://dummy2/ retry=0
+    # ProxyPassReverse /camcops_instance2 unix:/tmp/.camcops_gunicorn_instance2.sock|http://dummy2/
+    # <Location /camcops_instance2>
+    #     Require all granted
+    # </Location>
+    # Alias /camcops_instance2/static/logo_local.png /usr/share/camcops/server/static/logo_local.png
+    # Alias /camcops_instance2/static/ /usr/share/camcops/server/static/
+
+
+    #==========================================================================
+    # SSL security (for HTTPS)
+    #==========================================================================
+
+    # You will also need to install your SSL certificate; see the instructions
+    # that came with it. You get a certificate by creating a certificate
+    # signing request (CSR). You enter some details about your site, and a
+    # software tool makes (1) a private key, which you keep utterly private,
+    # and (2) a CSR, which you send to a Certificate Authority (CA) for
+    # signing. They send back a signed certificate, and a chain of certificates
+    # leading from yours to a trusted root CA.
+
+    # You can create your own (a 'snake-oil' certificate), but your tablets
+    # and browsers will not trust it, so this is a bad idea.
+
+    # Once you have your certificate: edit and uncomment these lines:
+
+    # SSLEngine on
+
+    # SSLCertificateKeyFile /etc/ssl/private/my.private.key
+
+        # ... a private file that you made before creating the certificate
+        # request, and NEVER GAVE TO ANYBODY, and NEVER WILL (or your
+        # security is broken and you need a new certificate).
+
+    # SSLCertificateFile /etc/ssl/certs/my.public.cert
+
+        # ... signed and supplied to you by the certificate authority (CA),
+        # from the public certificate you sent to them.
+
+    # SSLCertificateChainFile /etc/ssl/certs/my-institution.ca-bundle
+
+        # ... made from additional certificates in a chain, supplied to you by
+        # the CA. For example, mine is univcam.ca-bundle, made with the
+        # command:
+        #
+        # cat TERENASSLCA.crt UTNAddTrustServer_CA.crt AddTrustExternalCARoot.crt > univcam.ca-bundle
+
+    #==========================================================================
+    # GZIP COMPRESSION FOR APPROPRIATE CONTENT TYPES (OPTIONAL)
+    # Run "sudo a2enmod deflate" from the command line if not already enabled.
+    #==========================================================================
+    # http://stackoverflow.com/questions/12367858/how-can-i-get-apache-gzip-compression-to-work
+    # testing it: curl -I --compress http://mysite.mydomain/index.html
+    # http://serverfault.com/questions/81609/how-to-check-if-apache-compression-is-working
+    SetOutputFilter DEFLATE
+    AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/x-javascript application/x-httpd-php
+    BrowserMatch ^Mozilla/4 gzip-only-text/html
+    BrowserMatch ^Mozilla/4\.0[678] no-gzip
+    BrowserMatch MSIE !no-gzip !gzip-only-text/html
+    BrowserMatch MSI[E] !no-gzip !gzip-only-text/html
+    SetEnvIfNoCase Request_URI \.(?:gif|jpe?g|png)$ no-gzip
+    Header append Vary User-Agent env=!dont-vary
+
+    

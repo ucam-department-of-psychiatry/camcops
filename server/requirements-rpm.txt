@@ -4,7 +4,7 @@ openssl-devel
 libxml2-devel
 libxslt-devel
 python
-python3
+python34u  # python3 isn't a standard package on Centos 6.5, but python34u (Python 3.4) is available via an additional repository
 python-devel
 supervisor
 swig

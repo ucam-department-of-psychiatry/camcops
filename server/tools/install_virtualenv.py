@@ -56,12 +56,22 @@ def get_lines_without_comments(filename):
     return lines
 
 
+def cmd_returns_zero_success(cmdargs):
+    print("Checking result of command: {}".format(cmdargs))
+    try:
+        subprocess.check_call(cmdargs)
+        return True
+    except subprocess.CalledProcessError:
+        return False
+
+
+def check_call(cmdargs):
+    print("Command: {}".format(cmdargs))
+    subprocess.check_call(cmdargs)
+
+
 def require_deb(package):
-    proc = subprocess.Popen(['dpkg', '-l', package],
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    proc.communicate()
-    retcode = proc.returncode
-    if retcode == 0:
+    if cmd_returns_zero_success(['dpkg', '-l', package]):
         return
     print("You must install the package {package}. On Ubuntu, use the command:"
           "\n"
@@ -70,11 +80,8 @@ def require_deb(package):
 
 
 def require_rpm(package):
-    proc = subprocess.Popen(['yum', 'list', 'installed', package],
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    proc.communicate()
-    retcode = proc.returncode
-    if retcode == 0:
+    # PROBLEM: can't call yum inside yum. See --skippackagechecks option.
+    if cmd_returns_zero_success(['yum', 'list', 'installed', package]):
         return
     print("You must install the package {package}. On CentOS, use the command:"
           "\n"
@@ -91,6 +98,10 @@ if __name__ == '__main__':
     parser.add_argument("virtualenv", help="New virtual environment directory")
     parser.add_argument("--virtualenv_minimum_version", default="13.1.2",
                         help="Minimum version of virtualenv tool")
+    parser.add_argument("--skippackagechecks", action="store_true",
+                        help="Skip verification of system packages (use this "
+                             "when calling script from a yum install, for "
+                             "example).")
     args = parser.parse_args()
 
     VENV_TOOL = 'virtualenv'
@@ -100,40 +111,40 @@ if __name__ == '__main__':
 
     print("XDG_CACHE_HOME: {}".format(os.environ.get('XDG_CACHE_HOME',
                                                      None)))
-    if DEB:
-        title("Prerequisites, from " + DEB_REQ_FILE)
-        packages = get_lines_without_comments(DEB_REQ_FILE)
-        for package in packages:
-            require_deb(package)
-    elif RPM:
-        title("Prerequisites, from " + RPM_REQ_FILE)
-        packages = get_lines_without_comments(RPM_REQ_FILE)
-        for package in packages:
-            require_rpm(package)
-    else:
-        raise AssertionError("Not DEB, not RPM; don't know what to do")
-    print('OK')
+    if not args.skippackagechecks:
+        if DEB:
+            title("Prerequisites, from " + DEB_REQ_FILE)
+            packages = get_lines_without_comments(DEB_REQ_FILE)
+            for package in packages:
+                require_deb(package)
+        elif RPM:
+            title("Prerequisites, from " + RPM_REQ_FILE)
+            packages = get_lines_without_comments(RPM_REQ_FILE)
+            for package in packages:
+                require_rpm(package)
+        else:
+            raise AssertionError("Not DEB, not RPM; don't know what to do")
+        print('OK')
 
     title("Ensuring virtualenv is installed for system"
           " Python ({})".format(PYTHON))
-    subprocess.check_call([
-        PIP, 'install',
-        'virtualenv>={}'.format(args.virtualenv_minimum_version)])
+    check_call([PIP, 'install',
+                'virtualenv>={}'.format(args.virtualenv_minimum_version)])
     print('OK')
 
     title("Using system Python ({}) and virtualenv ({}) to make {}".format(
           PYTHON, VENV_TOOL, args.virtualenv))
-    subprocess.check_call([PYTHON, '-m', VENV_TOOL, args.virtualenv])
+    check_call([PYTHON, '-m', VENV_TOOL, args.virtualenv])
     print('OK')
 
     title("Checking version of tools within new virtualenv")
     print(VENV_PYTHON)
-    subprocess.check_call([VENV_PYTHON, '--version'])
+    check_call([VENV_PYTHON, '--version'])
     print(VENV_PIP)
-    subprocess.check_call([VENV_PIP, '--version'])
+    check_call([VENV_PIP, '--version'])
 
     title("Use pip within the new virtualenv to install dependencies")
-    subprocess.check_call([VENV_PIP, 'install', '-r', PIP_REQ_FILE])
+    check_call([VENV_PIP, 'install', '-r', PIP_REQ_FILE])
     print('OK')
     print('--- Virtual environment installed successfully')
 

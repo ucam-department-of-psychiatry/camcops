@@ -250,9 +250,12 @@ WRKMETAMANFILE = join(WRKMANDIR, METASCRIPTNAME + '.1.gz')
 DSTMETAMANFILE = join(DSTMANDIR, METASCRIPTNAME + '.1.gz')
 
 WRKDBDUMPFILE = join(WRKBASEDIR, 'demo_mysql_dump_script')
+WEBDOCDBDUMPFILE = join(WEBDOCSDIR, 'demo_mysql_dump_script')
 WRKMYSQLCREATION = join(WRKBASEDIR, 'demo_mysql_database_creation')
+WEBDOCSMYSQLCREATION = join(WEBDOCSDIR, 'demo_mysql_database_creation')
 WRKINSTRUCTIONS = os.path.join(WRKBASEDIR, 'instructions.txt')
 DSTINSTRUCTIONS = os.path.join(DSTBASEDIR, 'instructions.txt')
+WEBDOCINSTRUCTIONS = os.path.join(WEBDOCSDIR, 'instructions.txt')
 
 DSTSUPERVISORCONFDIR = '/etc/supervisor/conf.d'
 WRKSUPERVISORCONFDIR = workpath(WRKDIR, DSTSUPERVISORCONFDIR)
@@ -1193,7 +1196,7 @@ SCRIPT_AFTER_FILE_EXPORT =
         DSTSUMMARYTABLELOCKFILESTEM=DSTSUMMARYTABLELOCKFILESTEM,
         INSTITUTIONURL=INSTITUTIONURL,
     ), file=outfile)
-    shutil.copy(WRKCONFIGFILE, WEBDOCSCONFIGFILE)
+shutil.copy(WRKCONFIGFILE, WEBDOCSCONFIGFILE)
 
 # =============================================================================
 print("Creating launch script. Will be installed as " + DSTCONSOLEFILE)
@@ -1293,6 +1296,8 @@ with open(join(DEBDIR, 'preinst'), 'w') as outfile:
 # Exit on any errors? (Lintian strongly advises this.)
 set -e
 
+echo '{PACKAGE}: preinst file executing'
+
 # Would be nice just to shut down camcops processes. But there can be
 # several, on live systems, and it's hard to predict what they're called. We
 # need them shut down if we're going to check/reinstall the virtual
@@ -1305,7 +1310,9 @@ set -e
 # ... in practice we should perhaps just stop the whole thing:
 
 echo "If available, stopping supervisor service"
-which supervisorctl >/dev/null && service supervisor stop
+service supervisor stop || echo "no supervisor service or unable to stop"
+
+echo '{PACKAGE}: preinst file finished'
 
     """.format(
         PACKAGE=PACKAGE,
@@ -1353,7 +1360,7 @@ command_exists()
 
 echo 'About to install virtual environment'
 export XDG_CACHE_HOME={DSTPYTHONCACHE}
-{DSTSYSTEMPYTHON} {DSTVENVSCRIPT} {DSTPYTHONVENV}
+{DSTSYSTEMPYTHON} {DSTVENVSCRIPT} {DSTPYTHONVENV} --skippackagechecks
 
 #------------------------------------------------------------------------------
 echo 'Creating lockfile directory'
@@ -1402,7 +1409,7 @@ fi
 # which supervisorctl >/dev/null && supervisorctl start {PACKAGE}-gunicorn
 
 echo "If available, starting supervisor service"
-which supervisorctl >/dev/null && service supervisor restart
+service supervisor stop || echo "no supervisor service or unable to stop"
 
 #------------------------------------------------------------------------------
 # Other things that we don't want strict dependencies on, or can't install now
@@ -1425,6 +1432,8 @@ echo "    Later, run this once:"
 echo "    {DSTSYSTEMPYTHON} {DSTWKHTMLTOPDFSCRIPT}"
 echo "========================================================================"
 
+echo '{PACKAGE}: postinst file finished'
+
     """.format(  # noqa
         PACKAGE=PACKAGE,
         DSTPYTHONCACHE=DSTPYTHONCACHE,
@@ -1446,18 +1455,22 @@ print("Creating prerm file. Will be installed as "
 with open(join(DEBDIR, 'prerm'), 'w') as outfile:
     print("""#!/bin/sh
 set -e
-echo '{PACKAGE} prerm file executing'
+
+echo '{PACKAGE}: prerm file executing'
 
 # echo "If available, stopping supervisor process: {PACKAGE}-gunicorn"
 # which supervisorctl >/dev/null && supervisorctl stop {PACKAGE}-gunicorn
 
 echo "If available, stopping supervisor service"
-which supervisorctl >/dev/null && service supervisor stop
+service supervisor stop || echo "no supervisor service or unable to stop"
 
 # Must use -f or an error will cause the prerm (and package removal) to fail
 # See /var/lib/dpkg/info/MYPACKAGE.prerm for manual removal!
 find {DSTBASEDIR} -name '*.pyc' -delete
 find {DSTBASEDIR} -name '*.pyo' -delete
+
+echo '{PACKAGE}: prerm file finished'
+
     """.format(
         PACKAGE=PACKAGE,
         DSTBASEDIR=DSTBASEDIR,
@@ -1955,6 +1968,7 @@ OPTIMAL: proxy Apache through to Gunicorn
         URLBASE=URLBASE,
         WEBVIEWSCRIPT=WEBVIEWSCRIPT,
     ), file=outfile)
+shutil.copy(WRKINSTRUCTIONS, WEBDOCINSTRUCTIONS)
 
 # In <Files "$DBSCRIPTNAME"> section, we did have:
     # The next line prevents XMLHttpRequest Access-Control-Allow-Origin errors.
@@ -2001,6 +2015,7 @@ exit
         DEFAULT_DB_READONLY_USER=DEFAULT_DB_READONLY_USER,
         DEFAULT_DB_READONLY_PASSWORD=DEFAULT_DB_READONLY_PASSWORD,
     ), file=outfile)
+shutil.copy(WRKMYSQLCREATION, WEBDOCSMYSQLCREATION)
 
 # =============================================================================
 print("Creating demonstration backup script. Will be installed within "
@@ -2036,6 +2051,7 @@ chmod -R o-rwx *
 chmod -R ug+rw *
     """,  # noqa
     file=outfile)
+shutil.copy(WRKDBDUMPFILE, WEBDOCDBDUMPFILE)
 
 # =============================================================================
 print("Setting ownership and permissions")

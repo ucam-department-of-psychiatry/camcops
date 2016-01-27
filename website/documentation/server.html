@@ -262,7 +262,10 @@ install gdebi</code>.)
 
 <b>sudo rpm -Uvh https://anorien.csc.warwick.ac.uk/mirrors/epel/6/i386/epel-release-6-8.noarch.rpm</b>
 
-# We need MySQL 5.5: http://www.webtatic.com/packages/mysql55/
+# Something providing Python 3 in package form (see <a href="http://stackoverflow.com/questions/8087184/installing-python3-on-rhel">http://stackoverflow.com/questions/8087184</a>):
+<b>sudo yum install https://centos6.iuscommunity.org/ius-release.rpm</b>
+
+# We need MySQL 5.5: <a href="http://www.webtatic.com/packages/mysql55/">http://www.webtatic.com/packages/mysql55/</a>
 <b>sudo rpm -Uvh http://mirror.webtatic.com/yum/el6/latest.rpm</b>
 </pre>
       </li>
@@ -273,71 +276,21 @@ install gdebi</code>.)
         <pre class="code1"><b>sudo yum install blas-devel httpd-devel lapack-devel libffi-devel libpng-devel links mod_ssl mysql-devel nano openssl-devel python-devel</b></pre>
       </li>
 
-      <li>Install Python 2.7 (the default will be Python 2.6, which is old),
-      <b>carefully</b>, along with a set of packages for the Python 2.7
-      environment.
+      <li>Install Python 3.4:
+      <pre class="code1">
+# Download and install Python 3.4 (which comes with pip and setuptools)
 
-        <ul>
-          <li>Based on <a href=
-          "http://toomuchdata.com/2012/06/25/how-to-install-python-2-7-3-on-centos-6-2/">
-            these instructions</a>, <a href=
-            "http://www.sdkit.com/2011/09/how-to-install-python-27-with-modwsgi_3.html">
-            these</a>, and <a href=
-            "http://jonathandbaker.com/blog/posts/29/centos-6-4-python-2-7-5-modwsgi-3-4/">
-            these</a>:
-            <pre class="code1">
-# Python 2.7, mod_wsgi 3.4
-<b>sudo su
-service httpd stop</b>
-# also: ensure no previous mod_wsgi installation
+<b>sudo yum install python34u</b>
 
-<b>PYROOT=/usr/local
-PYFULLVERSION=2.7.5
-cd /usr/local/src
-wget http://python.org/ftp/python/$PYFULLVERSION/Python-$PYFULLVERSION.tar.bz2
-tar xf Python-$PYFULLVERSION.tar.bz2 &amp;&amp; cd Python-$PYFULLVERSION
-./configure --prefix=$PYROOT --with-threads --enable-shared
-make &amp;&amp; make altinstall
-ln -s $PYROOT/bin/python2.7 /usr/bin/python2.7
-
-WSGIVERSION=3.4
-cd /usr/local/src
-wget https://modwsgi.googlecode.com/files/mod_wsgi-$WSGIVERSION.tar.gz
-tar xf mod_wsgi-$WSGIVERSION.tar.gz &amp;&amp; cd mod_wsgi-$WSGIVERSION
-export LD_LIBRARY_PATH=$PYROOT/lib
-./configure --with-apxs=/usr/sbin/apxs --with-python=$PYROOT/bin/python2.7
-make &amp;&amp; make install
-
-echo $LD_LIBRARY_PATH &gt;&gt; /etc/ld.so.conf
-ldconfig</b>
-
-# Test
-<b>/usr/bin/python2.7</b>
-# ... then exit
-
-<b>nano /etc/httpd/conf/httpd.conf</b>
-# paste in:
-#   <b>LoadModule wsgi_module modules/mod_wsgi.so</b>
-# When CamCOPS is installed, you will also want:
-#   <b>WSGIPythonHome /usr/share/camcops/virtualenv</b>
-# Also add:
-#   <b>WSGISocketPrefix /var/run/wsgi</b>
-
-<b>service httpd configtest</b>
-
-# ... and if OK:
-<b>service httpd start</b>
-
-# If it goes wrong, recheck the Python version (it seems easy to get another version slipping in there...):
-<b>ldd /usr/lib64/httpd/modules/mod_wsgi.so</b>
+# Test:
+<b>python3 --version</b>
 </pre>
-          </li>
 
-          <li><i>Note: CentOS 6.5 (December 2013) provides Python 2.6 (2009)
+          <ul><li><i>Note: CentOS 6.5 (December 2013) provides Python 2.6 (2009)
           and not Python 2.7 (2010). You can’t just replace it, because its
           system scripts need Python 2.6. CentOS is based on Red Hat Enterprise
           Linux. Fedora 14 (another Red Hat derivative) moved to Python 2.7 in
-          2010. CamCOPS needs Python 2.7.</i></li>
+          2010. CamCOPS needs Python 3 (e.g. 3.4).</i></li></ul
         </ul>
       </li>
 
@@ -348,7 +301,17 @@ ldconfig</b>
 
       <li>Install the package (which will automatically install its
       dependencies):
-      <pre class="code1"><b>sudo yum install camcops_</b><i>VERSION</i><b>.noarch.rpm</b></pre>
+      <pre class="code1">
+<b>sudo yum install camcops_</b><i>VERSION</i><b>.noarch.rpm</b>
+
+# Or, for more verbosity and to say yes to everything, use this command instead:
+# <b>sudo yum --assumeyes --verbose --rpmverbosity=debug install camcops_</b><i>VERSION</i><b>.noarch.rpm</b>
+# ... but, curiously, yum temporarily swallows the output from the post-install
+#     scripts and only spits it out at the end. This makes it look like the
+#     installation has got stuck (because packages like numpy are very slow
+#     to install); use <b>watch pstree</b> or <b>top</b> to reassure yourself
+#     that progress is indeed happening.
+</pre>
       <b>Recognizing success:</b> if you type <code>camcops</code>, see an
       announcement of the CamCOPS version, and get asked for a configuration
       filename, CamCOPS is running happily from the command line.</li>

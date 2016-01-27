@@ -1,0 +1,28 @@
+#!/bin/sh
+
+# Minimal simple script to dump all current MySQL databases.
+# This file must be READABLE ONLY BY ROOT (or equivalent, backup)!
+# The password is in cleartext.
+# Once you have copied this file and edited it, perform:
+#     sudo chown root:root <filename>
+#     sudo chmod 700 <filename>
+# Then you can add it to your /etc/crontab for regular execution.
+
+BACKUPDIR='/var/backups/mysql'
+BACKUPFILE='all_my_mysql_databases.sql'
+USERNAME='root'  # MySQL username
+PASSWORD='PPPPPP_REPLACE_ME'  # MySQL password
+
+# Make directory unless it exists already:
+mkdir -p $BACKUPDIR
+
+# Dump the database:
+mysqldump -u $USERNAME -p$PASSWORD --all-databases --force > $BACKUPDIR/$BACKUPFILE
+
+# Make sure the backups (which may contain sensitive information) are only
+# readable by the 'backup' user group:
+cd $BACKUPDIR
+chown -R backup:backup *
+chmod -R o-rwx *
+chmod -R ug+rw *
+    

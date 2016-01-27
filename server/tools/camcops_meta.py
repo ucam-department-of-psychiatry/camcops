@@ -20,7 +20,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description="Run commands across multiple CamCOPS databases")
     parser.add_argument(
-        '--filespecs', nargs='+',
+        '--filespecs', nargs='+', required=True,
         help="List of CamCOPS config files (wildcards OK)")
     parser.add_argument(
         '--ccargs', nargs='+', default=DEFAULT_CCARGS,
@@ -40,6 +40,8 @@ if __name__ == '__main__':
         help="Make tables")
     parser.add_argument('-v', '--verbose', action="store_true", help="Verbose")
     args = parser.parse_args()
+    if args.verbose:
+        print("Arguments: {}".format(args))
 
     did_something = False
     for filespec in args.filespecs:
@@ -49,7 +51,7 @@ if __name__ == '__main__':
             cmdargs = [args.python, args.camcops, filename] + [
                 '--{}'.format(x) for x in args.ccargs]
             if args.verbose:
-                print(cmdargs)
+                print("Executing command: {}".format(cmdargs))
             if args.dummyrun:
                 continue
             subprocess.check_call(cmdargs)

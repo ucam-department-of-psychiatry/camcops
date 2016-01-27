@@ -1,0 +1,26 @@
+
+# First, from the Linux command line, log in to MySQL as root:
+
+mysql --host=127.0.0.1 --port=3306 --user=root --password
+# ... or the usual short form: mysql -u root -p
+
+# Create the database:
+
+CREATE DATABASE camcops;
+
+# Ideally, create another user that only has access to the CamCOPS database.
+# You should do this, so that you don’t use the root account unnecessarily.
+
+GRANT ALL PRIVILEGES ON camcops.* TO 'YYYYYY_REPLACE_ME'@'localhost' IDENTIFIED BY 'ZZZZZZ_REPLACE_ME';
+
+# For future use: if you plan to explore your database directly for analysis,
+# you may want to create a read-only user. Though it may not be ideal (check:
+# are you happy the user can see the audit trail?), you can create a user with
+# read-only access to the entire database like this:
+
+GRANT SELECT camcops.* TO 'QQQQQQ_REPLACE_ME'@'localhost' IDENTIFIED BY 'PPPPPP_REPLACE_ME';
+
+# All done. Quit MySQL:
+
+exit
+    
