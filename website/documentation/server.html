@@ -133,6 +133,11 @@
       <td>SELinux; <b>file permissions must be set with <code>chcon</code></b></td>
     </tr>
     <tr>
+      <td>Autostarting daemons at boot</td>
+      <td>Usually happens automatically</td>
+      <td>Usually need to configure with <code>chkconfig</code></td>
+    </tr>
+    <tr>
       <td><b><i>Python</i></b></td>
       <td></td>
       <td></td>
@@ -158,6 +163,11 @@
       <td>Usually <code>/etc/httpd/conf.d/ssl.conf</code></td>
     </tr>
     <tr>
+      <td>Granting access in Apache config file</td>
+      <td><b>Apache 2.4:</b><br><code>Require all granted</code></td>
+      <td><b>Apache 2.2:</b><br><code>Order allow,deny</code><br><code>Allow from all</code></td>
+    </tr>
+    <tr>
       <td>Default Apache system user</td>
       <td><code>www-data</code></td>
       <td><code>apache</code></td>
@@ -176,6 +186,21 @@
       <td>Restarting Apache</td>
       <td><code>sudo service apache2 [start|stop|restart]</code><br><code>sudo apache2ctl [start|stop|restart]</code><br><code>sudo apachectl [start|stop|restart]</code></td>
       <td><code>sudo service httpd [start|stop|restart]</code><br><code>sudo apachectl [start|stop|restart]</code></td>
+    </tr>
+    <tr>
+      <td><b><i>supervisord</i></b></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>supervisord configuration file</td>
+      <td>Usually <code>/etc/supervisor/supervisord.conf</code></td>
+      <td>Usually <code>/etc/supervisord.conf</code></td>
+    </tr>
+    <tr>
+      <td>Restarting supervisord</td>
+      <td><code>sudo service supervisor [start|stop|restart]</code><br><code>sudo supervisorctl</code></td>
+      <td><code>sudo service supervisor<b>d</b> [start|stop|restart]</code><br><code>sudo supervisorctl</code></td>
     </tr>
     <tr>
       <td><b><i>MySQL</i></b></td>
@@ -494,7 +519,8 @@ max_allowed_packet = 32M</pre>
     <p>for details.</p>
   </div>
 
-  <h2>Configure Apache or other front-end web server</h2>
+  <h2>Configure Apache or other front-end web server, and interface to back-end
+  web server</h2>
 
   <div>
     <ol>
@@ -507,8 +533,29 @@ max_allowed_packet = 32M</pre>
       </li>
 
       <li>You will need to ensure the <code>/etc/supervisor/conf.d/*</code>
-      file(s) are correct. Here's an example:</li>
+      file(s) are correct. Here’s an example:</li>
       <pre class="code1"><!--#include virtual="supervisord_camcops.conf" --></pre>
+
+      <li><b>On CentOS,</b> the default version (via yum installation) is of
+      supervisord==2.1 (version obtained from <code>pip freeze</code>), which
+      is too old for the <code>[include]</code> directive (which came in with
+      version 3.0). To upgrade:
+      <pre class="code1">
+pip install requests[security]  # because Python 2.6 doesn't have SSL otherwise
+pip install supervisor==3.2.0
+echo_supervisord_conf > /etc/supervisord.conf  # make a new blank config</pre>
+
+      Then add these lines to <code>/etc/supervisord.conf</code>:
+      <pre class="code1">
+[include]
+files = /etc/supervisor/conf.d/*.conf
+</pre>
+      Then ensure supervisord restarts on boot. On Ubuntu, this is automatic.
+      On CentOS, run
+      <pre class="code1">
+sudo chkconfig --add supervisord
+sudo chkconfig supervisord on  # default runlevels (--level 2345) are fine </pre>
+      </li>
 
       <li>Ensure file ownerships/permissions are correct (including, on CentOS,
       SELinux permissions: see <a href=
@@ -530,6 +577,8 @@ sudo chown -R apache:apache /etc/camcops
 sudo chcon -R -h system_u:object_r:httpd_sys_content_t /etc/camcops
 sudo chown -R apache:apache /var/cache/camcops
 sudo chcon -R -h system_u:object_r:httpd_sys_content_t /var/cache/camcops
+sudo chown -R apache:apache /usr/share/camcops/server/static
+sudo chcon -R -h system_u:object_r:httpd_sys_content_t /usr/share/camcops/server/static
 </pre>
       </li>
 
@@ -600,6 +649,14 @@ sudo chcon -R -h system_u:object_r:httpd_sys_content_t /var/cache/camcops
       restart Apache.</li>
     </ul>
   </div>
+
+  <h1>Cosmetics</h1>
+
+  <h2>Your logo</h2>
+  <p>Your logos will be scaled to 45% of the active page width. You may need
+  to add blank space to the left if they look funny. See picture below.</p>
+
+  <img alt="Logo scaling" src="../images/scaling_logos.png">
 
   <h1>Performance tuning</h1>
 
