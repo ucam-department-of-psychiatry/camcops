@@ -8,6 +8,8 @@
     <![endif]-->
     <script src="/camcops/scripts/toc.js" type="text/javascript"></script>
 
+    <link rel="icon" type="image/png" href="/camcops/images/favicon.png">
+
     <!-- Helpful characters: ‘ ’ “ ” – — × • ≤ ≥ ≠ -->
 
 <!-- camcops_html_head.shtml END -->

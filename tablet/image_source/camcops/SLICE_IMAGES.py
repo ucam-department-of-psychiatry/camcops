@@ -394,6 +394,7 @@ SPLASHSCREEN_PDF = join(THIS_DIR, "camcops_splashscreens.pdf")
 CAMCOPS_LOGO_PDF = join(THIS_DIR, "camcops_logo.pdf")
 BLANK_LOGO_PDF = join(THIS_DIR, "blank_institution_logo.pdf")
 TABLET_ICON_PDF = join(THIS_DIR, "camcops_icons.pdf")
+SERVER_DIAGRAM_PDF = join(THIS_DIR, "camcops_server_diagram.pdf")
 
 # http://docs.appcelerator.com/platform/latest/#!/guide/Icons_and_Splash_Screens
 
@@ -423,7 +424,7 @@ if args.all:
     args.windows = True
 logger.info("Using base directory: {}".format(args.base_dir))
 if not any([args.ios, args.android, args.tablet, args.server]):
-    logger.info("Nothing to do")
+    logger.info("Nothing to do. Missing flags? Try --help for help.")
     sys.exit(0)
 
 IOS_DIR = join(args.base_dir, "tablet", "Resources", "iphone")
@@ -433,6 +434,7 @@ SERVER_STATIC_DIR = join(args.base_dir, "server", "static")
 TABLET_ICON_DIR = join(args.base_dir, "tablet", "Resources",
                        "images", "camcops")
 WINDOWS_DIR = join(args.base_dir, "tablet", "Resources", "windows")
+WEB_IMAGE_DIR = join(args.base_dir, "website", "images")
 
 # =============================================================================
 # iOS
@@ -516,10 +518,16 @@ if args.windows:
 if args.server:
     logger.info("--- Server")
     make_appicon(join(SERVER_STATIC_DIR, "favicon_camcops.png"), 32)
+    make_appicon(join(WEB_IMAGE_DIR, "camcops.png"), 96)
+    make_appicon(join(WEB_IMAGE_DIR, "favicon.png"), 32)
     crop_pdf(CAMCOPS_LOGO_PDF, join(SERVER_STATIC_DIR, "logo_camcops.png"),
              dest_width_px=1000, autocrop=True)
     crop_pdf(BLANK_LOGO_PDF, join(SERVER_STATIC_DIR, "logo_local.png"),
              dest_width_px=1000, autocrop=True)
+    crop_pdf(BLANK_LOGO_PDF, join(SERVER_STATIC_DIR, "logo_local.png"),
+             dest_width_px=1000, autocrop=True)
+    crop_pdf(SERVER_DIAGRAM_PDF, join(WEB_IMAGE_DIR, "server_diagram.png"),
+             dest_width_px=500, autocrop=True)
 
 
 # =============================================================================
