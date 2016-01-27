@@ -1604,7 +1604,7 @@ print("Creating instructions. Will be installed within " + DSTBASEDIR)
 # - http://stackoverflow.com/questions/9581197/two-django-projects-running-simultaneously-and-mod-wsgi-acting-werid  # noqa
 
 with open(WRKINSTRUCTIONS, 'w') as outfile:
-    print(string.Template("""
+    print(string.Template(r"""
 ===============================================================================
 Your system's CamCOPS configuration
 ===============================================================================
@@ -1737,11 +1737,11 @@ Testing with just gunicorn
 - Assuming your www-data has the necessary access, then configure gunicorn
   for a test port on 8000:
 
-    sudo -u www-data \\
-        PYTHONPATH="$DSTPYTHONPATH" \\
-        CAMCOPS_CONFIG_FILE="$DSTCONFIGFILE" \\
-        $DSTPYTHONVENV/bin/gunicorn camcops:application \\
-        --workers 4 \\
+    sudo -u www-data \
+        PYTHONPATH="$DSTPYTHONPATH" \
+        CAMCOPS_CONFIG_FILE="$DSTCONFIGFILE" \
+        $DSTPYTHONVENV/bin/gunicorn camcops:application \
+        --workers 4 \
         --bind=127.0.0.1:8000
 
 ===============================================================================
