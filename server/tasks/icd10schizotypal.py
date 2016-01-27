@@ -23,7 +23,6 @@
 
 import pythonlib.rnc_web as ws
 from cc_modules.cc_constants import (
-    CLINICIAN_FIELDSPECS,
     CTV_DICTLIST_INCOMPLETE,
     DATEFORMAT,
     ICD10_COPYRIGHT_DIV,
@@ -52,8 +51,7 @@ class Icd10Schizotypal(Task):
     shortname = "ICD10-SZTYP"
     longname = "ICD-10 criteria for schizotypal disorder (F21)"
     fieldspecs = (
-        CLINICIAN_FIELDSPECS
-        + [
+        [
             dict(name="date_pertains_to", cctype="ISO8601",
                  comment="Date the assessment pertains to"),
             dict(name="comments", cctype="TEXT",

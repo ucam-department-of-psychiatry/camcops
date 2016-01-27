@@ -3066,9 +3066,15 @@ def task_class_unit_test(cls):
     if cls.fieldspecs is None:
         raise AssertionError("Class {} has fieldspecs = None".format(
             get_object_name(cls)))
-    # Field names don't conflict
-    attributes = list(cls.__dict__)
     fieldnames = cls.get_fieldnames()
+    # No duplicate field names
+    duplicate_fieldnames = [
+        x for x, count in collections.Counter(fieldnames).items() if count > 1]
+    if duplicate_fieldnames:
+        raise AssertionError("Class {}: duplicate fieldnames: {}".format(
+            get_object_name(cls), duplicate_fieldnames))
+    # Field names don't conflict with object attributes
+    attributes = list(cls.__dict__)
     conflict = set(attributes).intersection(set(fieldnames))
     if conflict:
         raise AssertionError(
