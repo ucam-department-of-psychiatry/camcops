@@ -395,6 +395,7 @@ CAMCOPS_LOGO_PDF = join(THIS_DIR, "camcops_logo.pdf")
 BLANK_LOGO_PDF = join(THIS_DIR, "blank_institution_logo.pdf")
 TABLET_ICON_PDF = join(THIS_DIR, "camcops_icons.pdf")
 SERVER_DIAGRAM_PDF = join(THIS_DIR, "camcops_server_diagram.pdf")
+SCALING_LOGOS_PDF = join(THIS_DIR, "camcops_scaling_logos.pdf")
 
 # http://docs.appcelerator.com/platform/latest/#!/guide/Icons_and_Splash_Screens
 
@@ -528,7 +529,7 @@ if args.server:
              dest_width_px=1000, autocrop=True)
     crop_pdf(SERVER_DIAGRAM_PDF, join(WEB_IMAGE_DIR, "server_diagram.png"),
              dest_width_px=600, autocrop=True)
-    crop_pdf(SERVER_DIAGRAM_PDF, join(WEB_IMAGE_DIR, "scaling_logos.png"),
+    crop_pdf(SCALING_LOGOS_PDF, join(WEB_IMAGE_DIR, "scaling_logos.png"),
              dest_width_px=600, autocrop=True)
 
 
