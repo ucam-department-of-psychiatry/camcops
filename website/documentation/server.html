@@ -524,6 +524,8 @@ sudo chown -R apache:apache /var/www
 sudo chcon -R -h system_u:object_r:httpd_sys_content_t /var/www
 sudo chown -R apache:apache /etc/camcops
 sudo chcon -R -h system_u:object_r:httpd_sys_content_t /etc/camcops
+sudo chown -R apache:apache /var/cache/camcops
+sudo chcon -R -h system_u:object_r:httpd_sys_content_t /var/cache/camcops
 </pre>
       </li>
 
