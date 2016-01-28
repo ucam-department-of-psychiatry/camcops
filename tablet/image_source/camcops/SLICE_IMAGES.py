@@ -521,6 +521,7 @@ if args.server:
     make_appicon(join(SERVER_STATIC_DIR, "favicon_camcops.png"), 32)
     make_appicon(join(WEB_IMAGE_DIR, "camcops.png"), 96)
     make_appicon(join(WEB_IMAGE_DIR, "favicon.png"), 32)
+    make_appicon(join(WEB_IMAGE_DIR, "camcops_icon_500.png"), 500)
     crop_pdf(CAMCOPS_LOGO_PDF, join(SERVER_STATIC_DIR, "logo_camcops.png"),
              dest_width_px=1000, autocrop=True)
     crop_pdf(BLANK_LOGO_PDF, join(SERVER_STATIC_DIR, "logo_local.png"),

@@ -20,7 +20,7 @@ APK=camcops_${CAMCOPS_VERSION}.apk
 REMOTEUSER="rudolf"
 REMOTEHOST="egret"
 CONN=$REMOTEUSER@$REMOTEHOST
-REMOTEANDROIDDIR="/srv/www/camcops/download/android"
+REMOTEANDROIDDIR="/srv/www/camcops/website/download/android"
 
 echo "Distributing $LOCALAPKPATH/$APK to $CONN:$REMOTEANDROIDDIR/$APK"
 
