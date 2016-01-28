@@ -1,6 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
   <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <!--#include virtual="/camcops/ssi/camcops_html_head.shtml" -->
     <title>CamCOPS – Download</title>
   </head>
@@ -13,7 +14,7 @@
     <!--#include virtual="/camcops/ssi/camcops_page_header.shtml" -->
 
     <!-- SET MAIN VERSION HERE. WILL APPLY TO ALL DOWNLOAD PRIMARY LINKS. -->
-    <!--#set var="CAMCOPS_VERSION" value="1.33" -->
+    <!--#set var="CAMCOPS_VERSION" value="1.40" -->
 
     <h1>Current versions</h1>
     <ul>
@@ -27,8 +28,8 @@
               <li>You will need to enable installation of APK files directly, e.g. <i>Settings</i> → <i>Security</i> → <i>Unknown sources (Allow installation of apps from unknown sources)</i>.</li>
               <li>Download <b><a href="android/camcops_<!--#echo var="CAMCOPS_VERSION" -->.apk">camcops_<!--#echo var="CAMCOPS_VERSION" -->.apk</a></b> to your tablet.</li>
               <li>
-                <b>While this area is password-protected, the default Android browser (“Browser”) will fail to download it.
-                Use another browser, such as <a href="https://play.google.com/store/apps/details?id=com.android.chrome">Chrome</a> instead.</b>
+                <i>If this area is password-protected, the default Android browser (“Browser”) will fail to download it.
+                Use another browser, such as <a href="https://play.google.com/store/apps/details?id=com.android.chrome">Chrome</a> instead.</i>
                 This is a <a href="https://code.google.com/p/android/issues/detail?id=1353">bug in Android</a>
                 (also <a href="http://stackoverflow.com/questions/17601647/apk-download-failure-if-behind-password-protected-site-on-stock-browser">here</a>)
                 long known about but not yet fixed.
@@ -63,6 +64,7 @@
           </li>
         </ul>
       </li>
+      <li><i>Pending: Windows client app</i></li>
       <li>
         <b>Server package:</b>
         <ul>
@@ -94,23 +96,10 @@
       <li><a href="../documentation/version/changelog.Debian">Server</a></li>
     </ul>
 
-    <h1>Source code, via Subversion (SVN) repositories</h1>
-    <ul>
-        <li>
-            Tablet app (Android, iOS): <a href="https://egret.psychol.cam.ac.uk/svn/camcops_titanium/">/svn/camcops_titanium/</a> (or <a href="https://egret.psychol.cam.ac.uk/websvn/listing.php?repname=camcops_titanium">nicer WebSVN browser</a>)
-            <ul>
-                <li>Androidtipaint module (painting canvas): <a href="https://egret.psychol.cam.ac.uk/svn/camcops_androidtipaint/">/svn/camcops_androidtipaint/</a> (or <a href="https://egret.psychol.cam.ac.uk/websvn/listing.php?repname=camcops_androidtipaint">WebSVN</a>); this is a bugfix for Ti.Paint (free at the <a href="https://marketplace.appcelerator.com/apps/4977?1190566307&amp;restoreSearch=true">Titanium marketplace</a>; <a href="https://github.com/appcelerator/titanium_modules/tree/master/paint">github source</a>)</li>
-                <li>Androidtibugfix module: <a href="https://egret.psychol.cam.ac.uk/svn/camcops_androidtibugfix/">/svn/camcops_androidbugfix/</a> (or <a href="https://egret.psychol.cam.ac.uk/websvn/listing.php?repname=camcops_androidtibugfix">WebSVN</a>); this is a bugfix for Ti.UI.TextArea (see <a href="https://jira.appcelerator.org/browse/TIMOB-15535">TIMOB-15535</a>)</li>
-                <li>Androiduitools module (fullscreen modes for Android): <a href="https://egret.psychol.cam.ac.uk/svn/camcops_androiduitools/">/svn/camcops_androiduitools/</a> (or <a href="https://egret.psychol.cam.ac.uk/websvn/listing.php?repname=camcops_androiduitools">WebSVN</a>)</li>
-            </ul>
-        </li>
-        <li>
-            Server package (for Debian/Ubuntu Linux): <a href="https://egret.psychol.cam.ac.uk/svn/camcops_server/">/svn/camcops_server/</a> (or <a href="https://egret.psychol.cam.ac.uk/websvn/listing.php?repname=camcops_server">WebSVN</a>)
-            <ul>
-                <li>pythonlib collection (simple Python modules): <a href="https://egret.psychol.cam.ac.uk/svn/pythonlib/">/svn/pythonlib/</a> (or <a href="https://egret.psychol.cam.ac.uk/websvn/listing.php?repname=pythonlib">WebSVN</a>)</li>
-            </ul>
-        </li>
-    </ul>
+    <h1>Source code</h1>
+
+    <p>Source code for the entire project is at
+    <a href="https://github.com/RudolfCardinal/camcops">https://github.com/RudolfCardinal/camcops</a>.</p>
 
     <!--#include virtual="/camcops/ssi/camcops_footer.shtml" -->
 
