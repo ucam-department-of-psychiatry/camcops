@@ -2,11 +2,20 @@
 CAMCOPS SERVER THINGS TO DO NOW
 ===============================================================================
 
-*** CentOS installation at CPFT, inc. wkhtmltopdf
-
 ===============================================================================
 CAMCOPS SERVER THINGS TO DO
 ===============================================================================
+
+- O'Brien group study template (when details available).
+
+- Giant "all tasks in full" view (like a clinical text view but for
+  researchers)?
+
+- Edit existing (finalized) task instances? Do this in a generic way, i.e.
+  offer table with fieldname, comment, old value, new value; constrain to
+  min/max or permitted values where applicable; at first "submit", show
+  differences and ask for confirmation; audit changes. For BLOBs, allow
+  option to upload file (or leave unchanged).
 
 - document that anonymisation for research exports is supported as a basic
   framework, but use CRATE if you want to do it properly.
@@ -21,7 +30,7 @@ CAMCOPS SERVER THINGS TO DO
         - on the server side, point to one or more directories to scan
         - on the tablet, have an XFILE() function, keyed to the task
 
-- index of tasks by patient ID, to speed up lookup?
+- index of tasks by patient ID, to speed up lookup? Pros and cons to this.
 
 ===============================================================================
 THOUGHTS/POTENTIAL THINGS TO DO

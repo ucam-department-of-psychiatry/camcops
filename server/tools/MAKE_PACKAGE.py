@@ -129,6 +129,75 @@ def webify_file(srcfilename, destfilename):
             outfile.write(cgi.escape(line))
 
 
+BASHFUNC = r"""
+
+#------------------------------------------------------------------------------
+# Helper functions
+#------------------------------------------------------------------------------
+
+command_exists()
+{
+    # arguments: $1 is the command to test
+    # returns 0 (true) for found, 1 (false) for not found
+    if command -v $1 >/dev/null; then return 0; else return 1; fi
+}
+
+running_centos()
+{
+    if [ -f /etc/system-release ] ; then
+        SYSTEM=`cat /etc/system-release | cut -d' ' -f1`
+        # VERSION=`cat /etc/system-release | cut -d' ' -f3`
+        # SYSTEM_ID=\$SYSTEM-\$VERSION
+        if ["$SYSTEM" == "CentOS"] ; then
+            return 0  # true
+        fi
+    fi
+    return 1  # false
+}
+
+service_exists()
+{
+    servicename=$1
+    if service $servicename status 2>&1 | grep "unrecognized service" >/dev/null ; then
+        return 1  # false
+    fi
+    return 0  # true
+}
+
+service_supervisord_command()
+{
+    # The exact supervisor program name is impossible to predict (e.g. in
+    # "supervisorctl stop camcops-gunicorn"), so we just start/stop everything.
+    # Ubuntu: service supervisor
+    # CentOS: service supervisord
+
+    cmd=$1
+    if service_exists supervisord ; then
+        echo "Executing: service supervisord $cmd"
+        service supervisord $cmd || echo "Can't $cmd supervisord"
+    else
+        if service_exists supervisor ; then
+            echo "Executing: service supervisor $cmd"
+            service supervisor $cmd || echo "Can't $cmd supervisor"
+        else
+            echo "Don't know which supervisor/supervisord service to $cmd"
+        fi
+    fi
+}
+
+stop_supervisord()
+{
+    service_supervisord_command stop
+}
+
+restart_supervisord()
+{
+    service_supervisord_command restart
+}
+
+"""
+
+
 # =============================================================================
 # Check prerequisites
 # =============================================================================
@@ -1210,7 +1279,7 @@ webify_file(WRKCONFIGFILE, WEBDOCSCONFIGFILE)
 print("Creating launch script. Will be installed as " + DSTCONSOLEFILE)
 # =============================================================================
 with open(WRKCONSOLEFILE, 'w') as outfile:
-    print("""#!/bin/sh
+    print("""#!/bin/bash
 # Launch script for CamCOPS command-line tool.
 
 echo 'Launching CamCOPS command-line tool...' >&2
@@ -1230,7 +1299,7 @@ print("Creating {} launch script. Will be installed as {}".format(
     METASCRIPTNAME, DSTMETACONSOLEFILE))
 # =============================================================================
 with open(WRKMETACONSOLEFILE, 'w') as outfile:
-    print("""#!/bin/sh
+    print("""#!/bin/bash
 # Launch script for CamCOPS meta-command tool tool.
 
 echo 'Launching CamCOPS meta-command tool...' >&2
@@ -1304,6 +1373,8 @@ with open(join(DEBDIR, 'preinst'), 'w') as outfile:
 # Exit on any errors? (Lintian strongly advises this.)
 set -e
 
+{BASHFUNC}
+
 echo '{PACKAGE}: preinst file executing'
 
 # Would be nice just to shut down camcops processes. But there can be
@@ -1311,18 +1382,12 @@ echo '{PACKAGE}: preinst file executing'
 # need them shut down if we're going to check/reinstall the virtual
 # environment (otherwise it'll be busy). So although we tried this:
 
-# echo "If available, stopping supervisor process: {PACKAGE}-gunicorn"
-# which supervisorctl >/dev/null && supervisorctl stop {PACKAGE}-gunicorn
-# supervisorctl seems not to emit an error exit status whatever it does
-
-# ... in practice we should perhaps just stop the whole thing:
-
-echo "If available, stopping supervisor service"
-service supervisor stop || echo "no supervisor service or unable to stop"
+stop_supervisord
 
 echo '{PACKAGE}: preinst file finished'
 
     """.format(
+        BASHFUNC=BASHFUNC,
         PACKAGE=PACKAGE,
     ), file=outfile)
 
@@ -1338,29 +1403,7 @@ set -e
 
 echo '{PACKAGE}: postinst file executing'
 
-#------------------------------------------------------------------------------
-# Helper functions
-#------------------------------------------------------------------------------
-
-command_exists()
-{{
-    # arguments: $1 is the command to test
-    # returns 0 (true) for found, 1 (false) for not found
-    if command -v $1 >/dev/null; then return 0; else return 1; fi
-}}
-
-# running_centos()
-# {{
-#     if [ -f /etc/system-release ] ; then
-#         SYSTEM=`cat /etc/system-release | cut -d' ' -f1`
-#         # VERSION=`cat /etc/system-release | cut -d' ' -f3`
-#         # SYSTEM_ID=\$SYSTEM-\$VERSION
-#         if ["$SYSTEM" == "CentOS"] ; then
-#             return 0 # true
-#         fi
-#     fi
-#     return 1 # false
-# }}
+{BASHFUNC}
 
 #------------------------------------------------------------------------------
 # Install Python virtual environment with packages
@@ -1410,14 +1453,7 @@ fi
 # Restart supervisor process(es)
 #------------------------------------------------------------------------------
 
-# As before, we tried doing it selectively, but that was tricky, so we
-# do all:
-
-# echo "If available, starting supervisor process: {PACKAGE}-gunicorn"
-# which supervisorctl >/dev/null && supervisorctl start {PACKAGE}-gunicorn
-
-echo "If available, starting supervisor service"
-service supervisor stop || echo "no supervisor service or unable to stop"
+restart_supervisord
 
 #------------------------------------------------------------------------------
 # Other things that we don't want strict dependencies on, or can't install now
@@ -1443,6 +1479,7 @@ echo "========================================================================"
 echo '{PACKAGE}: postinst file finished'
 
     """.format(  # noqa
+        BASHFUNC=BASHFUNC,
         PACKAGE=PACKAGE,
         DSTPYTHONCACHE=DSTPYTHONCACHE,
         DSTSYSTEMPYTHON=DSTSYSTEMPYTHON,
@@ -1461,16 +1498,14 @@ print("Creating prerm file. Will be installed as "
       + join(DSTDPKGDIR, PACKAGE + '.prerm'))
 # =============================================================================
 with open(join(DEBDIR, 'prerm'), 'w') as outfile:
-    print("""#!/bin/sh
+    print("""#!/bin/bash
 set -e
+
+{BASHFUNC}
 
 echo '{PACKAGE}: prerm file executing'
 
-# echo "If available, stopping supervisor process: {PACKAGE}-gunicorn"
-# which supervisorctl >/dev/null && supervisorctl stop {PACKAGE}-gunicorn
-
-echo "If available, stopping supervisor service"
-service supervisor stop || echo "no supervisor service or unable to stop"
+stop_supervisord
 
 # Must use -f or an error will cause the prerm (and package removal) to fail
 # See /var/lib/dpkg/info/MYPACKAGE.prerm for manual removal!
@@ -1480,6 +1515,29 @@ find {DSTBASEDIR} -name '*.pyo' -delete
 echo '{PACKAGE}: prerm file finished'
 
     """.format(
+        BASHFUNC=BASHFUNC,
+        PACKAGE=PACKAGE,
+        DSTBASEDIR=DSTBASEDIR,
+    ), file=outfile)
+
+# =============================================================================
+print("Creating postrm file. Will be installed as "
+      + join(DSTDPKGDIR, PACKAGE + '.postrm'))
+# =============================================================================
+with open(join(DEBDIR, 'postrm'), 'w') as outfile:
+    print("""#!/bin/bash
+set -e
+
+{BASHFUNC}
+
+echo '{PACKAGE}: postrm file executing'
+
+restart_supervisord
+
+echo '{PACKAGE}: postrm file finished'
+
+    """.format(
+        BASHFUNC=BASHFUNC,
         PACKAGE=PACKAGE,
         DSTBASEDIR=DSTBASEDIR,
     ), file=outfile)
@@ -2037,7 +2095,7 @@ print("Creating demonstration backup script. Will be installed within "
       + DSTBASEDIR)
 # =============================================================================
 with open(WRKDBDUMPFILE, 'w') as outfile:
-    print("""#!/bin/sh
+    print("""#!/bin/bash
 
 # Minimal simple script to dump all current MySQL databases.
 # This file must be READABLE ONLY BY ROOT (or equivalent, backup)!
@@ -2086,6 +2144,7 @@ subprocess.check_call([
     WRKMETACONSOLEFILE,
     WRKDBDUMPFILE,
     join(DEBDIR, 'prerm'),
+    join(DEBDIR, 'postrm'),
     join(DEBDIR, 'preinst'),
     join(DEBDIR, 'postinst'),
 ])
