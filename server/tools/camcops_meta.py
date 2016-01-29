@@ -35,9 +35,6 @@ if __name__ == '__main__':
     parser.add_argument(
         '-d', '--dummyrun', action="store_true",
         help="Dummy run (show filenames only)")
-    parser.add_argument(
-        '-m', '--maketables', action="store_true",
-        help="Make tables")
     parser.add_argument('-v', '--verbose', action="store_true", help="Verbose")
     args = parser.parse_args()
     if args.verbose:

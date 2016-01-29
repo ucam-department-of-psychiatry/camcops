@@ -1,3 +1,12 @@
+camcops (1.41-1) all; urgency=high
+
+  * Bugfix to large research data dumps (were timing out due to inefficient
+    SQL). Changed cc_task.get_ancillary_items(), with some back-end functions
+    in rnc_db too (changed fetch_all_objects_from_db_where(); added
+    create_object_from_list() ).
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Fri, 29 Jan 2016 22:13:00 +0000
+
 camcops (1.40-1) all; urgency=high
 
   * From May 2015 to 28 Jan 2016.
@@ -110,7 +119,7 @@ camcops (1.40-1) all; urgency=high
     inserting BLOBs ("TypeError: can't use a string pattern on a bytes-like
     object").
 
- -- Rudolf Cardinal <rudolf@pobox.com>  Mon, 04 Jan 2016 22:13:00 +0000
+ -- Rudolf Cardinal <rudolf@pobox.com>  Thu, 28 Jan 2016 22:13:00 +0000
 
 camcops (1.34-1) all; urgency=medium
 

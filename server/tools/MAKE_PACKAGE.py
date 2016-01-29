@@ -157,8 +157,8 @@ running_centos()
 
 service_exists()
 {
-    servicename=$1
-    if service $servicename status 2>&1 | grep "unrecognized service" >/dev/null ; then
+    # arguments: $1 is the service being tested
+    if service $1 status 2>&1 | grep "unrecognized service" >/dev/null ; then
         return 1  # false
     fi
     return 0  # true
@@ -195,7 +195,7 @@ restart_supervisord()
     service_supervisord_command restart
 }
 
-"""
+"""  # noqa
 
 
 # =============================================================================
@@ -338,7 +338,8 @@ WRKSUPERVISORCONFDIR = workpath(WRKDIR, DSTSUPERVISORCONFDIR)
 DST_SUPERVISOR_CONF_FILE = os.path.join(DSTSUPERVISORCONFDIR,
                                         PACKAGE + '.conf')
 WRK_SUPERVISOR_CONF_FILE = workpath(WRKDIR, DST_SUPERVISOR_CONF_FILE)
-WEBDOC_SUPERVISOR_CONF_FILE = os.path.join(WEBDOCSDIR, 'supervisord_camcops.conf')
+WEBDOC_SUPERVISOR_CONF_FILE = os.path.join(WEBDOCSDIR,
+                                           'supervisord_camcops.conf')
 
 DSTCONFIGDIR = join('/etc', PACKAGE)
 WRKCONFIGDIR = workpath(WRKDIR, DSTCONFIGDIR)
@@ -2044,12 +2045,12 @@ OPTIMAL: proxy Apache through to Gunicorn
 webify_file(WRKINSTRUCTIONS, WEBDOCINSTRUCTIONS)
 
 # In <Files "$DBSCRIPTNAME"> section, we did have:
-    # The next line prevents XMLHttpRequest Access-Control-Allow-Origin errors.
-    # Also need headers.load as a module:
-    # http://harthur.wordpress.com/2009/10/15/configure-apache-to-accept-cross-site-xmlhttprequests-on-ubuntu/  # noqa
-    # ln -s /etc/apache2/mods-available/headers.load /etc/apache2/mods-enabled/headers.load  # noqa
+#   # The next line prevents XMLHttpRequest Access-Control-Allow-Origin errors.
+#   # Also need headers.load as a module:
+#   # http://harthur.wordpress.com/2009/10/15/configure-apache-to-accept-cross-site-xmlhttprequests-on-ubuntu/  # noqa
+#   # ln -s /etc/apache2/mods-available/headers.load /etc/apache2/mods-enabled/headers.load  # noqa
 
-    # Header set Access-Control-Allow-Origin "*"
+#   # Header set Access-Control-Allow-Origin "*"
 
 # =============================================================================
 print("Creating demonstration MySQL database creation commands. Will be "

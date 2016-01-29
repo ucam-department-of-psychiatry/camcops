@@ -32,6 +32,7 @@ from .cc_constants import (
     STANDARD_TASK_FIELDSPECS,
 )
 from . import cc_dt
+from .cc_logger import logger
 from .cc_pls import pls
 
 
@@ -233,21 +234,27 @@ def get_all_current_server_pks(table):
 
 def get_contemporaneous_matching_field_pks_by_fk(
         table, pkname, fk_fieldname, fk_value, device, era,
-        referrer_added_utc, referrer_removed_utc):
+        referrer_added_utc, referrer_removed_utc,
+        count_only=False):
     """Look up contemporaneous (i.e. potentially old) records using a
-    foreign key and client-side details."""
+    foreign key and client-side details.
+    If count_only is True, return the count instead."""
+    if count_only:
+        select = "SELECT COUNT(*)"
+    else:
+        select = "SELECT {}".format(pls.db.delimit(pkname))
     sql = """
-        SELECT {}
-        FROM {}
+        {select}
+        FROM {table}
         WHERE
-            {} = ?
+            {fkfield} = ?
             AND _device = ?
             AND _era = ?
             AND _when_added_batch_utc <= ?
             AND """.format(
-        pls.db.delimit(pkname),
-        pls.db.delimit(table),
-        pls.db.delimit(fk_fieldname),
+        select=select,
+        table=pls.db.delimit(table),
+        fkfield=pls.db.delimit(fk_fieldname),
     )
     # _when_added_batch_utc condition:
     #       if it was added later, it wasn't contemporaneous
@@ -267,7 +274,46 @@ def get_contemporaneous_matching_field_pks_by_fk(
         args.append(referrer_removed_utc)
     else:
         sql += "_when_removed_batch_utc IS NULL"
-    return pls.db.fetchallfirstvalues(sql, *args)
+    if count_only:
+        return pls.db.fetchvalue(sql, *args)
+    else:
+        return pls.db.fetchallfirstvalues(sql, *args)
+
+
+def get_contemporaneous_matching_ancillary_objects_by_fk(
+        cls, fk_value,
+        device, era, referrer_added_utc, referrer_removed_utc):
+    fieldlist = cls.get_fieldnames()
+    sql = """
+        SELECT {fields}
+        FROM {table}
+        WHERE {fkfield} = ?
+        AND _device = ?
+        AND _era = ?
+        AND _when_added_batch_utc <= ?
+        AND
+    """.format(
+        fields=",".join([pls.db.delimit(x) for x in fieldlist]),
+        table=pls.db.delimit(cls.tablename),
+        fkfield=pls.db.delimit(cls.fkname),
+    )
+    args = [
+        fk_value,
+        device,
+        era,
+        referrer_added_utc
+    ]
+    # As above:
+    if referrer_removed_utc is not None:
+        sql += "_when_removed_batch_utc >= ?"
+        args.append(referrer_removed_utc)
+    else:
+        sql += "_when_removed_batch_utc IS NULL"
+    rows = pls.db.fetchall(sql, *args)
+    objects = []
+    for row in rows:
+        objects.append(rnc_db.create_object_from_list(cls, fieldlist, row))
+    return objects
 
 
 def get_server_pks_of_record_group(table, pkname, keyfieldname, keyvalue,
