@@ -567,7 +567,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # -------------------------------------------------------------------------
 
     def get_ancillary_item_pks(self, itemclass):
-        return cc_db.get_contemporaneous_matching_field_pks_by_fk(
+        return cc_db.get_contemporaneous_matching_fields_by_fk(
             itemclass.tablename, PKNAME,
             itemclass.fkname, self.id,
             self._device, self._era,
@@ -575,10 +575,19 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         )
 
     def get_ancillary_item_count(self, itemclass):
-        pklist = self.get_ancillary_item_pks(itemclass)
-        return len(pklist)
+        # pklist = self.get_ancillary_item_pks(itemclass)
+        # return len(pklist)
+        return cc_db.get_contemporaneous_matching_field_pks_by_fk(
+            itemclass.tablename, PKNAME,
+            itemclass.fkname, self.id,
+            self._device, self._era,
+            self._when_added_batch_utc, self._when_removed_batch_utc,
+            count_only=True
+        )
 
     def get_ancillary_items(self, itemclass, sortfield=None):
+        # Very inefficient method: removed
+        """
         pklist = self.get_ancillary_item_pks(itemclass)
         items = pls.db.fetch_all_objects_from_db_by_pklist(
             itemclass,
@@ -586,6 +595,12 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             itemclass.get_fieldnames(),
             pklist,
             True  # construct_with_pk
+        )
+        """
+        items = cc_db.get_contemporaneous_matching_ancillary_objects_by_fk(
+            itemclass, self.id,
+            self._device, self._era,
+            self._when_added_batch_utc, self._when_removed_batch_utc
         )
         if sortfield is None:
             sortfield = itemclass.sortfield
@@ -2892,12 +2907,16 @@ class Ancillary(object):
     def get_fieldnames(cls):
         return [x["name"] for x in cls.get_full_fieldspecs()]
 
-    def __init__(self, serverpk):
-        pls.db.fetch_object_from_db_by_pk(
-            self,
-            self.tablename,
-            self.get_fieldnames(),
-            serverpk)
+    def __init__(self, serverpk=None):
+        """Only call with serverpk=None if you will populate all fields
+        manually (see e.g.
+        get_contemporaneous_matching_ancillary_objects_by_fk)."""
+        if serverpk is not None:
+            pls.db.fetch_object_from_db_by_pk(
+                self,
+                self.tablename,
+                self.get_fieldnames(),
+                serverpk)
 
     @classmethod
     def get_pngblob_name_idfield_rotationfield_list(cls):

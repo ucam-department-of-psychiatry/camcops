@@ -1,8 +1,19 @@
+camcops (1.41-1) all; urgency=high
+
+  * Bugfix to large research data dumps (were timing out due to inefficient
+    SQL). Changed cc_task.get_ancillary_items(), with some back-end functions
+    in rnc_db too (changed fetch_all_objects_from_db_where(); added
+    create_object_from_list() ).
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Fri, 29 Jan 2016 22:13:00 +0000
+
 camcops (1.40-1) all; urgency=high
 
-  * From May 2015 to 26 Jan 2016.
+  * From May 2015 to 28 Jan 2016.
   * REQUIRES COMMAND TO UPGRADE EACH DATABASE:
-        camcops --maketables /etc/camcops/MYCONFIGNAME.conf
+      camcops --maketables /etc/camcops/MYCONFIGNAME.conf
+    NOTE THAT THE camcops_meta command is now available, e.g.
+      camcops_meta --filespecs /etc/camcops/camcops_*.conf --ccargs maketables
   * Brief COPE Inventory.
   * CBI-R.
   * ZBI (data collection tool only with option for institution to supply text).
@@ -104,8 +115,11 @@ camcops (1.40-1) all; urgency=high
   * Restructure Task/Ancillary classes to be more concise.
   * Better unit testing inc. checking for __dict__/fieldname conflicts.
   * camcops_meta.py script for e.g. upgrading multiple databases.
+  * PyMySQL==0.7.1 (upgraded from PyMySQL==0.6.7) to eliminate error on
+    inserting BLOBs ("TypeError: can't use a string pattern on a bytes-like
+    object").
 
- -- Rudolf Cardinal <rudolf@pobox.com>  Mon, 04 Jan 2016 22:13:00 +0000
+ -- Rudolf Cardinal <rudolf@pobox.com>  Thu, 28 Jan 2016 22:13:00 +0000
 
 camcops (1.34-1) all; urgency=medium
 

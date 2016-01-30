@@ -25,7 +25,7 @@
 # Version constants and configuration variables read by shell scripts
 # =============================================================================
 
-CAMCOPS_SERVER_VERSION = 1.40
-CAMCOPS_CHANGEDATE = "2016-01-27"
+CAMCOPS_SERVER_VERSION = 1.41
+CAMCOPS_CHANGEDATE = "2016-01-29"
 # ... must use double quotes; read by a regex in MAKE_PACKAGE.py
 MINIMUM_TABLET_VERSION = 1.14

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Minimal simple script to dump all current MySQL databases.
 # This file must be READABLE ONLY BY ROOT (or equivalent, backup)!
