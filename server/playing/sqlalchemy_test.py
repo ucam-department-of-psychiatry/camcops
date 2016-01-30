@@ -1,5 +1,22 @@
 #!/usr/bin/python
 
+"""
+
+Things to achieve before a switch to SQL Alchemy is viable:
+
+- Proper processing of dates in our text-based ISO-8601 format.
+
+- Ability to specify fieldspecs (etc.) in a table class, with CamCOPS extras
+  like permitted values and comments, and then have them be mapped, via
+  SQLA's mapper() function, to objects.
+
+  See
+
+    http://stackoverflow.com/questions/5424942/sqlalchemy-model-definition-at-execution
+    http://stackoverflow.com/questions/4678115/how-to-dynamically-create-sqlalchemy-columns
+
+"""  # noqa
+
 import dateutil.parser
 import sqlalchemy  # sudo apt-get install python-sqlalchemy
 import sqlalchemy.types
