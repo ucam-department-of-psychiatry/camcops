@@ -38,8 +38,8 @@ titanium setup
 
 # gittio install -g  # see http://gitt.io/cli
 # [from project directory]
-# gittio info ti-htmlparser2
-# gittio install ti-htmlparser2
+# gittio info ti-htmlparser2  # WORKS
+# gittio install ti-htmlparser2  # NOT WORKING
 
 # $ sudo npm install htmlparser2
 # $ sudo npm install entities
