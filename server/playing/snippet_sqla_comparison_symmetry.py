@@ -1,206 +1,9 @@
 #!/usr/bin/env python3
 
 """
-
-===============================================================================
-Things to achieve before a switch to SQL Alchemy is viable:
-===============================================================================
-
-- Proper processing of dates in our text-based ISO-8601 format.
-
-    Recent changes to SQLA allow hybrid attributes:
-    http://stackoverflow.com/questions/21126371/converting-string-to-date-timestamp-in-sqlalchemy
-
-  My pending question:
-
-    http://stackoverflow.com/questions/35117920/cant-override-custom-comparison-in-sqlalchemy-symmetrically
-    https://groups.google.com/forum/#!topic/sqlalchemy/w91vSBZxHhs
-
-- Ability to specify fieldspecs (etc.) in a table class, with CamCOPS extras
-  like permitted values and comments, and then have them be mapped, via
-  SQLA's mapper() function, to objects.
-
-  See
-
-    http://stackoverflow.com/questions/5424942/sqlalchemy-model-definition-at-execution
-    http://stackoverflow.com/questions/4678115/how-to-dynamically-create-sqlalchemy-columns
-
-===============================================================================
-Custom date/time field as ISO-8601 text including timezone
-===============================================================================
-
-What do we expect to have to do, as a minimum?
-- A Python representation-to-value and value-to-representation function
-- A SQL representation-to-value function, for SELECT statements to pick out
-  relevant values before anything gets to Python
-
-Comparisons should be done with the UTC version of the datetime (not, for
-example, the "ignore timezone" version).
-- Python representation-to-value: dateutil.parser.parse()
-- Python value-to-representation: strftime
-- SQL representation-to-value: chop up the strings into bits and fiddle.
-  (See below.) String looks like: 2015-01-30T21:30:42.123456+01:00
-                                                         ^^^
-                                                         may be absent
-
-Example (Javascript output):
-    2015-07-15T14:45:14.630+01:00           length = 29
-Also acceptable (Python output):
-    2015-07-15T14:45:14.630123+01:00        length = 32
-Note that Python doesn't put the colon in the timezone by default, so we
-insert it using python_datetime_to_iso().
-
-http://docs.sqlalchemy.org/en/rel_1_0/core/custom_types.html
-http://docs.sqlalchemy.org/en/latest/orm/extensions/hybrid.html#building-custom-comparators
-
-Relevant methods:
-
-- use TypeDecorator to augment existing type
-    Python representation-to-value      process_bind_param
-    Python value-to-representation      process_result_value
-    SQL representation-to-value         ?
-
-- use UserDefinedType to create a new type
-    Python representation-to-value      bind_processor
-    Python value-to-representation      result_processor
-    SQL representation-to-value         ?
-
-- create a custom Comparator for SQL comparison
-    Python representation-to-value      -
-    Python value-to-representation      -
-    SQL representation-to-value         yes
-
-- create a hybrid property, e.g.
-    - class field is someisodatetime
-    - class hybrid property is someisodatetime_utc, defined with
-
-        @hybrid_property
-        def someisodatetime_utc(self):
-            return SomeComparator(self.someisodatetime)
-
-    - another example, using the "@someproperty.expression" notation:
-        http://stackoverflow.com/questions/21126371/converting-string-to-date-timestamp-in-sqlalchemy
-
-However, what we'd like is a single field type, not a necessity for additional
-hybrid_property attributes.
-
-So, combining a TypeDecorator with a Comparator:
-
-- https://bitbucket.org/zzzeek/sqlalchemy/wiki/UsageRecipes/DatabaseCrypt
-- https://bitbucket.org/zzzeek/sqlalchemy/wiki/UsageRecipes/SymmetricEncryption
-    ... *** explore this; no explicit Comparator used; does it work?
-
-Testing:
-
-    SELECT
-        when_created,
-        LEFT(when_created, LENGTH(when_created) - 6) AS timepart,
-        STR_TO_DATE(
-            LEFT(when_created, LENGTH(when_created) - 6),
-            '%Y-%m-%dT%H:%i:%S.%f'
-        ) AS timepart_as_datetime,
-        RIGHT(when_created, 6) AS timezone,
-        CONVERT_TZ(
-            STR_TO_DATE(
-                LEFT(when_created, LENGTH(when_created) - 6),
-                '%Y-%m-%dT%H:%i:%S.%f'
-            ),
-            RIGHT(when_created, 6),          -- timezone
-            "+00:00"                    -- UTC
-        ) AS final_datetime,
-
-        when_deleted,
-        LEFT(when_deleted, LENGTH(when_deleted) - 6) AS timepart,
-        STR_TO_DATE(
-            LEFT(when_deleted, LENGTH(when_deleted) - 6),
-            '%Y-%m-%dT%H:%i:%S.%f'
-        ) AS timepart_as_datetime,
-        RIGHT(when_deleted, 6) AS timezone,
-        CONVERT_TZ(
-            STR_TO_DATE(
-                LEFT(when_deleted, LENGTH(when_deleted) - 6),
-                '%Y-%m-%dT%H:%i:%S.%f'
-            ),
-            RIGHT(when_deleted, 6),          -- timezone
-            "+00:00"                    -- UTC
-        ) AS final_datetime
-    FROM phq9;
-
-Re the comparator_factory:
-
-
-        We start by overriding operate(self, op, other).
-        operate() is the lowest level of operation.
-        http://docs.sqlalchemy.org/en/rel_1_0/core/sqlelement.html
-
-        However, we need to know what "other" is.
-        If it's a literal (e.g. datetime), we shouldn't convert it.
-        Likewise if it is a real DATETIME field, we shouldn't convert it.
-        But if it's another of our kin, we should.
-
-        http://docs.sqlalchemy.org/en/latest/core/custom_types.html#types-operators  # noqa
-        http://docs.sqlalchemy.org/en/latest/core/type_api.html#sqlalchemy.types.TypeEngine.Comparator  # noqa
-        http://docs.sqlalchemy.org/en/latest/core/sqlelement.html#sqlalchemy.sql.operators.Operators  # noqa
-
-        So we could do:
-
-        def operate(self, op, other):
-            if isinstance(other, datetime.datetime):
-                processed_other = other
-            else:
-                processed_other = mysql_isotzdatetime_to_utcdatetime(other)
-            return op(mysql_isotzdatetime_to_utcdatetime(self.expr),
-                      processed_other)
-
-        However, that fails to distinguish between situations where "other"
-        is a plain DATETIME field and when "other" is one of our kin.
-
-        So, is the solution to leave "other" unprocessed but also to implement
-        reverse_operate?
-
-        def operate(self, op, other):
-            return op(mysql_isotzdatetime_to_utcdatetime(self.expr),
-                      other)
-
-        def reverse_operate(self, op, other):
-            return op(other,
-                      mysql_isotzdatetime_to_utcdatetime(self.expr))
-
-        No; reverse_operate wasn't called.
-            ... for literals, SQL Alchemy reverses it automatically.
-            ... reverse_operate only called for comparison of
-                ANOTHERFIELD op THISFIELD ?? ... no... not called then either
-
-        So we have a working system, but not perfect for comparison of
-            DATETIME field VERSUS DateTimeAsIsoText field (in that order)
-
-        I am also unclear whether inheriting from String.Comparator versus e.g.
-        DateTime.Comparator makes any difference.
-
-# =============================================================================
-# Alternative: others' support for Arrow?
-# =============================================================================
-# http://sqlalchemy-utils.readthedocs.org/en/latest/data_types.html#module-sqlalchemy_utils.types.arrow
-
-
-# =============================================================================
-# CamCOPS task structure, and field definition
-# =============================================================================
-
-class Task():
-    # don't inherit from Base, because we don't want to define an actual table
-    # for Task. It merely serves to include common fields and functions - but
-    # that works OK.
-
-    def create_view(self):
-        print("CREATE VIEW {}_current AS SELECT * FROM {} WHERE blah".format(
-            self.__tablename__,
-            self.__tablename__,
-        ))
-
-
-"""  # noqa
-
+http://stackoverflow.com/questions/35117920/cant-override-custom-comparison-in-sqlalchemy-symmetrically  # noqa
+https://groups.google.com/forum/#!topic/sqlalchemy/w91vSBZxHhs
+"""
 import datetime
 import dateutil.parser
 import getpass
@@ -472,7 +275,7 @@ def test():
     session.add(edgar)
     session.commit()
 
-    heading("DateTimeAsIsoText test: DateTimeAsIsoText field VERSUS literal")
+    heading("A. DateTimeAsIsoText test: DateTimeAsIsoText field VERSUS literal")
     q = session.query(TestIso).filter(TestIso.when_created < t2)
     assert q.all() == [alice]
     q = session.query(TestIso).filter(TestIso.when_created == t2)
@@ -480,7 +283,8 @@ def test():
     q = session.query(TestIso).filter(TestIso.when_created > t2)
     assert q.all() == [celia, david]
 
-    heading("DateTimeAsIsoText test: literal VERSUS DateTimeAsIsoText field")
+    heading("B. DateTimeAsIsoText test: literal VERSUS DateTimeAsIsoText "
+            "field")
     q = session.query(TestIso).filter(t2 > TestIso.when_created)
     assert q.all() == [alice]
     q = session.query(TestIso).filter(t2 == TestIso.when_created)
@@ -488,7 +292,7 @@ def test():
     q = session.query(TestIso).filter(t2 < TestIso.when_created)
     assert q.all() == [celia, david]
 
-    heading("DateTimeAsIsoText test: DateTimeAsIsoText field VERSUS "
+    heading("C. DateTimeAsIsoText test: DateTimeAsIsoText field VERSUS "
             "DateTimeAsIsoText field")
     q = session.query(TestIso).filter(TestIso.when_created <
                                       TestIso.when_deleted)
@@ -500,7 +304,7 @@ def test():
                                       TestIso.when_deleted)
     assert q.all() == [celia]
 
-    heading("DateTimeAsIsoText test: DateTimeAsIsoText field VERSUS "
+    heading("D. DateTimeAsIsoText test: DateTimeAsIsoText field VERSUS "
             "plain DATETIME field")
     q = session.query(TestIso).filter(TestIso.when_created <
                                       TestIso.plain_datetime)
@@ -514,7 +318,7 @@ def test():
                                       TestIso.plain_datetime)
     assert q.all() == [bob, celia, david]
 
-    heading("DateTimeAsIsoText testplain DATETIME field VERSUS "
+    heading("E. DateTimeAsIsoText testplain DATETIME field VERSUS "
             "DateTimeAsIsoText field")
     q = session.query(TestIso).filter(TestIso.plain_datetime >
                                       TestIso.when_created)
@@ -526,7 +330,7 @@ def test():
                                       TestIso.when_created)
     assert q.all() == [bob, celia, david]
 
-    heading("DateTimeAsIsoText test: SELECT everything")
+    heading("F. DateTimeAsIsoText test: SELECT everything")
     q = session.query(TestIso)
     assert q.all() == [alice, bob, celia, david, edgar]
 

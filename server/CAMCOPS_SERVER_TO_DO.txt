@@ -21,6 +21,14 @@ CAMCOPS SERVER THINGS TO DO
   differences and ask for confirmation; audit changes. For BLOBs, allow
   option to upload file (or leave unchanged).
 
+- split pls into config (read at startup - maybe also preload strings for
+  later speed) and WSGI request (e.g. "now").
+
+  ... consider combining with any shift to SQLAlchemy, as the session object
+  relates to this.
+  
+- shift to Arrow for dates/times? (With sqlalchemy-utils?)
+
 - document that anonymisation for research exports is supported as a basic
   framework, but use CRATE if you want to do it properly.
 
