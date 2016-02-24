@@ -11,11 +11,23 @@ CAMCOPS SERVER THINGS TO DO
 - Giant "all tasks in full" view (like a clinical text view but for
   researchers)?
 
+  ... maybe abstract a common core of the CTV and tracker into some sort of
+      "agglomeration" class, then subclass this again for a research multi-task
+      view.
+
 - Edit existing (finalized) task instances? Do this in a generic way, i.e.
   offer table with fieldname, comment, old value, new value; constrain to
   min/max or permitted values where applicable; at first "submit", show
   differences and ask for confirmation; audit changes. For BLOBs, allow
   option to upload file (or leave unchanged).
+
+- split pls into config (read at startup - maybe also preload strings for
+  later speed) and WSGI request (e.g. "now").
+
+  ... consider combining with any shift to SQLAlchemy, as the session object
+  relates to this.
+  
+- shift to Arrow for dates/times? (With sqlalchemy-utils?)
 
 - document that anonymisation for research exports is supported as a basic
   framework, but use CRATE if you want to do it properly.
@@ -31,18 +43,25 @@ CAMCOPS SERVER THINGS TO DO
         - on the tablet, have an XFILE() function, keyed to the task
 
 - index of tasks by patient ID, to speed up lookup? Pros and cons to this.
+  Maybe defer (on the server side) until SQL Alchemy properly considered.
+  On the tablet side, may be worthwhile, though, as the number of tasks grows.
+
+===============================================================================
+TABLET THINGS TO DO
+===============================================================================
+
+- Get "attributed strings" working (= HTML support, for bold/italic, etc.).
+  In progress on tablet side (see the bugtest directory) but support (HTML
+  parser) module not installing properly via gittio.
 
 ===============================================================================
 THOUGHTS/POTENTIAL THINGS TO DO
 ===============================================================================
 
-- SFTP file export
-    http://stackoverflow.com/questions/432385/sftp-in-python-platform-independent
-    http://stackoverflow.com/questions/5195427/twisted-conch-filetransfer
-  ... but can always NFS mount.
 - refine unit testing, i.e. more branch coverage, and use of real or dummy
   database-record instances in more cases
 - see also Python modules for unit testing
+
 - internationalization of web interface (framework done)
 
 - SQLAlchemy would be an alternative engine.
@@ -85,10 +104,15 @@ THOUGHTS/POTENTIAL THINGS TO DO
 CONSIDERED BUT NOT IMPLEMENTED
 ===============================================================================
 
+- SFTP export.
+  Not necessary, as one can mount an SFTP directory via NFS, then just export
+  as a plain file.
+    http://stackoverflow.com/questions/432385/sftp-in-python-platform-independent
+    http://stackoverflow.com/questions/5195427/twisted-conch-filetransfer
+
 - Option to pass set of patient identifying data to an external tool (e.g.
   user's custom Python) to generate a research ID, for the anonymisation step,
   e.g. hashing an NHS number using a secret method not known to CamCOPS.
-
   ... anonymisation is Somebody Else's Business; we have a separate tool for
       that.
 

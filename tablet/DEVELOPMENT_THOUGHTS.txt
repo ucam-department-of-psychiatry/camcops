@@ -2,7 +2,7 @@
     Copyright (C) 2012-2014 Rudolf Cardinal (rudolf@pobox.com)
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
-    
+
     This file is part of CamCOPS.
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
-    limitations under the License.    
+    limitations under the License.
 ===============================================================================
 
 ===============================================================================
@@ -24,7 +24,7 @@ Legal advice from the University of Cambridge, 25 June 2013
 - Adjoa Tamakloe advises:
   (a) copyright is personally held by RNC unless re-assigned,
       despite employer/funder relationships
-  (b) mention dept, university, funder 
+  (b) mention dept, university, funder
   (c) thus, generic statement:
 	"Copyright (C) [year] Rudolf Cardinal
 	Department of Psychiatry, University of Cambridge
@@ -75,15 +75,15 @@ NOTES ON JAVASCRIPT
     ... in which case, omitting "new" will cause a problem.
 - should less go into Patient(), i.e. separate out methods?
   ... probably makes no difference: http://eloquentjavascript.net/chapter8.html
-  
+
 - var f = function () {} versus function x() {}...
   http://stackoverflow.com/questions/336859/javascript-var-functionname-function-vs-function-functionname
   http://javascriptweblog.wordpress.com/2010/07/06/function-declarations-vs-function-expressions/
-  
+
 - BE CLEAR ABOUT INSTANCE-SPECIFIC VERSUS GLOBAL:
   http://stackoverflow.com/questions/9572029/implementing-private-instance-variables-in-javascript -- not sure it's correct
   http://javascript.crockford.com/private.html
- 
+
     function Thing(passedInstanceSpecific) {
         var self = this;
         var localInstanceSpecific = passedInstanceSpecific + 1;
@@ -223,9 +223,9 @@ extendPrototype(TestDatabaseObject, {
         {name: "c", type: "sometype", defaultValue: 93},
     ],
     _sortorder: "a",
-    
+
     // OTHER
-    
+
     greet: function() {
         console.log("Hello, " + this._x);
     },
@@ -260,7 +260,7 @@ DEVELOPING
   	http://www.howtogeek.com/164570/how-to-install-android-in-virtualbox/
   		... used Android 4.2 ISO...
   		... after boot: disable mouse integration
-  		
+
 - Debugging is tricky.
   Web Tools Platform: install from http://download.eclipse.org/webtools/repository/indigo/
   Then Preferences / search for "validat": http://developer.appcelerator.com/question/107581/debug-how-to-do-it-propperly
@@ -270,14 +270,14 @@ DEVELOPING
 - Android emulator speedup:
 	http://stackoverflow.com/questions/2662650/making-the-android-emulator-run-faster
 	https://help.ubuntu.com/community/KVM/Installation
-	
+
 	sudo kvm-ok # check if KVM supported
 	sudo apt-get install qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils
 	sudo apt-get install virt-manager
 	sudo adduser `id -un` libvirtd
 	[log out, log in again]
 	sudo virsh -c qemu:///system list # verify installation
-	
+
 	android avd
 	[Create AVD with "Intel atom x86" CPU/ABI, e.g.
 		titanium_android_emulator
@@ -290,7 +290,7 @@ DEVELOPING
   	# e.g.
   	emulator -avd titanium_android_emulator -qemu -m 512 -enable-kvm &
   	# ... however, not currently working; also, QEMU KVM conflicts with VBOXDRV KVM
-  	
+
 ===============================================================================
 ECLIPSE
 ===============================================================================
@@ -308,7 +308,7 @@ TITANIUM SDK INSTALLATION, INC. BETAS
   	Windows: http://builds.appcelerator.com.s3.amazonaws.com/mobile/3_0_X/mobilesdk-3.0.0.v20121207120202-win32.zip
 - Linux installation of new version of Titanium Studio with SDK 3.0:
 	sudo apt-get install nodejs nodejs-dbg nodejs-dev npm
-	
+
 - Installing up-to-date NodeJS:
 
 	https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager
@@ -326,7 +326,7 @@ TITANIUM SDK INSTALLATION, INC. BETAS
 - Also, PATH should include e.g.
 
     /home/rudolf/android-sdk-linux/tools:/home/rudolf/android-sdk-linux_x86/platform-tools
-    
+
 - then somehow
 
     npm install alloy titanium
@@ -357,12 +357,12 @@ TITANIUM BUGS AND TECHNIQUES
   ... http://wiki.appcelerator.org/display/guides/Using+density-specific+resources+on+Android
   RIGHT. HERE'S WHAT TO DO (all are: width x height -- and all are case-sensitive):
 
-    
+
     Splashscreen
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
-  	NO POINT -- Resources/android/default.png -- default splashscreen, e.g. large -- but on its own, this works on a tablet but *crashes* the HTC Desire Z (use "adb shell" > "reboot") 
-  	
+
+  	NO POINT -- Resources/android/default.png -- default splashscreen, e.g. large -- but on its own, this works on a tablet but *crashes* the HTC Desire Z (use "adb shell" > "reboot")
+
   	NO POINT -- Resources/android/images/res-long-land-hdpi/default.png			800 x 480
   	NO POINT -- Resources/android/images/res-long-land-ldpi/default.png			400 x 240
   	NO POINT -- Resources/android/images/res-long-port-hdpi/default.png			480 x 800
@@ -373,18 +373,18 @@ TITANIUM BUGS AND TECHNIQUES
   	NO POINT -- Resources/android/images/res-notlong-port-hdpi/default.png		480 x 800
   	NO POINT -- Resources/android/images/res-notlong-port-mdpi/default.png		320 x 480
   	NO POINT -- Resources/android/images/res-notlong-port-ldpi/default.png		240 x 320
-  	
+
   	OR SIMPLY E.G.:
-  	
+
   	Resources/android/images/res-land/default.png		e.g. 800 x 480
   	Resources/android/images/res-port/default.png		e.g. 480 x 800
-  	
+
   	NO POINT -- Resources/iphone/Default.png									320 x 480
   	NO POINT -- Resources/iphone/Default@2x.png									640 x 960
-  	
+
   	Resources/iphone/Default-Landscape.png							748 x 1024
   	Resources/iphone/Default-Portrait.png							768 x 1004
-  	
+
   	appicon
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -394,7 +394,7 @@ TITANIUM BUGS AND TECHNIQUES
     Resources/iphone/appicon@2x.png - 114 x 114
     Resources/iphone/appicon-72.png - 72 x 72
 
-  	
+
 - Paths to CommonJS modules: https://wiki.appcelerator.org/display/guides/CommonJS+Modules+in+Titanium#CommonJSModulesinTitanium-JavaScriptModulePathResolution
   ... HOWEVER, this fails from menu/menu_common.js: var ui = require('../common/ui');
   ... crashing with a runtype error:
@@ -452,7 +452,7 @@ TITANIUM BUGS AND TECHNIQUES
 - Titanium docs: http://docs.appcelerator.com/titanium/2.1/index.html
 - Date picker: problems solved, using the original, but went through this:
 	// DatePicker.js
-	
+
 		// There's a problem with the Titanium one.
 		// Firstly, .value doesn't change properly.
 		// Secondly, .getValue() doesn't exist, despite the documentation.
@@ -461,10 +461,10 @@ TITANIUM BUGS AND TECHNIQUES
 		// http://developer.appcelerator.com/question/139653/dynamically-reset-the-date-picker-in-android#comment-133000
 		// So, alternatives:
 		//		http://developer.appcelerator.com/question/139756/alternative-for-the-broken-date-picker-on-android
-	
+
 	// http://developer.appcelerator.com/question/139756/alternative-for-the-broken-date-picker-on-android
 	// http://jsbin.com/etiyuw/1/edit
-	
+
 	// RNC edits:
 	// ... the basics
 	// HOWEVER, problem: if it's within a scrollview, it can't scroll... or, doesn't, anyway
@@ -516,13 +516,13 @@ LAYOUT
   Was: <property name="ti.ui.defaultunit">system</property>
   Now: <property name="ti.ui.defaultunit">dip</property>
   Can use "14sp" for text.
-  96 DIP = 1 inch. So 10mm = 38 DIP; 8mm = 30 DIP. Let's go for 36 DIP (36 * 25.4 / 96 = 9.5 mm). 
+  96 DIP = 1 inch. So 10mm = 38 DIP; 8mm = 30 DIP. Let's go for 36 DIP (36 * 25.4 / 96 = 9.5 mm).
   Most icons on phone/tablet are 8-10mm.
   Well, that was the theory. In practice, 36 DIP is about 6mm. So let's use... 64 DIP.
-- TableViewRow, height: Titanium.UI.SIZE - doesn't work. Use height: 'auto' instead. BUG. 
+- TableViewRow, height: Titanium.UI.SIZE - doesn't work. Use height: 'auto' instead. BUG.
   http://developer.appcelerator.com/question/138633/tableviewrow-tiuisize-not-working-on-android
 - Tab group example: http://pastie.org/1136090
-  
+
 ===============================================================================
 IMAGE PROVENANCE
 ===============================================================================
@@ -600,7 +600,7 @@ SOUND PROVENANCE
 SOUND CREATION
 ===============================================================================
 - http://audacity.sourceforge.net/
-- see my Sim/03.../sounds/sound_creation.txt 
+- see my Sim/03.../sounds/sound_creation.txt
 
 ===============================================================================
 OUTSTANDING BUT NOT VITAL
@@ -614,8 +614,8 @@ OUTSTANDING BUT NOT VITAL
 
 - Patient selection view should probably use dynamic scrolling (for large databases); see Kitchen Sink demo
 
-- demo for RadioGroupHorizontalCaptionsAbove 
-	
+- demo for RadioGroupHorizontalCaptionsAbove
+
 ===============================================================================
 DATABASE SYNCHRONIZATION TO SERVER
 ===============================================================================
@@ -623,20 +623,20 @@ DATABASE SYNCHRONIZATION TO SERVER
 - Database synchronization to server:
 
   Sample table:
-  
+
   Device:		id
   				a
   				b
   				c
   				modification_date
-  				
+
   Master:		_master_id		PK
   				_current 		boolean
   				_deleted		boolean
   				_modified		boolean
   				_date_added
   				_date_removed
-  				
+
   				id
   				a
   				b
@@ -690,7 +690,7 @@ DATABASE SYNCHRONIZATION TO SERVER
 
 - http://developer.appcelerator.com/question/107241/http-post-request
   http://developer.appcelerator.com/question/90981/http-post-setrequestheader-communication-failed
-  
+
 ===============================================================================
 BLOBs in the database
 ===============================================================================
@@ -755,16 +755,16 @@ ANDROID SYSTEM UI VISIBILITY
     or something else with "import android.view.View"...
     perhaps titanium_mobile/android/titanium/src/java/org/appcelerator/titanium/proxy/TiWindowProxy.java
     - add it as a custom module?
-    
+
     	... get current activity:
     		http://builds.appcelerator.com.s3.amazonaws.com/module-apidoc/2.0.0/android/index.html
     		... class TiApplication
     			... getAppCurrentActivity()
-    
+
     	.. once you have an activity:
     		http://stackoverflow.com/questions/10448654/android-call-api-14-method-but-should-stay-compatible-with-api-4
     		http://stackoverflow.com/questions/9231336/android-4-0-setting-system-ui-flag-low-profile-system-ui-flag-hide-navigation
-    
+
     cd ~/Sim/cognitivetest/titanium_modules/
 	titanium create --platform=android --type=module --name=calc --id=org.appcelerator.calc --android=/path/to/android-sdk
 
@@ -784,7 +784,7 @@ WEBVIEWS
 - IF CALLBACKS NEEDED, SEE ALSO: http://developer.appcelerator.com/question/27781/pass-data-to-webview
 - Audio in webview:
 	http://developer.appcelerator.com/question/126879/playing-audio-from-webview
-	
+
 	<!-- We can't access Titanium.Media.createSound, so sounds either have to be via events to the main code, or via audio tags -->
 	<!-- Tried this:
 		<audio id="audio_cue_1" src="sounds/expdet/A_cue_1.wav" preload>HTML5-audio unsupported</audio>
@@ -801,7 +801,7 @@ WEBVIEWS
 	-->
 
 - PASSING DATA FROM WEBVIEW TO MAIN CODE:
-	// When I tried to copy properties to the event directly, it crashed upon fireEvent(). 
+	// When I tried to copy properties to the event directly, it crashed upon fireEvent().
 	// It was this bug: http://www.tristanwaddington.com/2012/07/appcelerator-titanium-krolldict-fails-to-sanitize-jsonobject-null-values/comment-page-1/
 	// Indeed, recursively removing null values makes things work.
 	// However, the moment values are getting mangled (loss of their "_a" field).
@@ -822,7 +822,7 @@ WEBVIEWS
 			... *any* bugs and the webview silently dies
 
 
-	
+
 ===============================================================================
 IPAD
 ===============================================================================
@@ -891,7 +891,7 @@ IPAD
   /Users/rudolf/Library/Application Support/iPhone Simulator/6.0/Applications/9AF1B7E4-321A-4A4F-800E-D57610BAF8F1/Library/Private Documents/camcops.db.sql
 - NOTE: function () { x; } seems to return x in iOS, whereas Android requires function () { return x; }
   ... confusing when a bug (missing return statement) is ignored under iOS
-  
+
 *** HTTP errors not being reported back (iOS differs from Android here) (common reason for failure: device unregistered)
 *** iOS doesn't show the hint on multiline text fields (Android does)
 
@@ -913,12 +913,12 @@ Gerhard, Martin 2013-05-03
   Probably best answer is to mandate secure VPN use for NHS.
   Additional safeguard: HTTPS does the job as long as certificates are checked/trusted.
   ... http://stackoverflow.com/questions/188266/how-are-ssl-certificates-verified
-  
+
 - All devices for NHS use must be
   (*) encrypted
   (*) Mobile Device Managed (MDM) (server controls e.g. security policies)
   (*) owned by the Trust
-  
+
 - Q. Multiple users per device? e.g. sharing
   A. Let's think how this would work
   - iOS/Android devices are designed for single-user use (one password/PIN)
@@ -1075,7 +1075,7 @@ See missing_tasks.html.
     http://www.sabp.nhs.uk/Documents/D1.3d2.pdf
 - QIDS: pen-and-paper versions downloadable for free.
   Other electronic versions require specific permission: http://www.ids-qids.org/index2.html#MOREINFO
-  
+
 ===============================================================================
 PERMISSIONS AND SCALES TO IMPLEMENT
 ===============================================================================
@@ -1116,4 +1116,18 @@ LESS URGENT CODE
     rather than the buttons is so that (a) it's simple, and (b) it's easy
     to have it such that touching the text associated with an MCQ
     (controlled by RadioGroup) also triggers the button selection.
-    
+
+*** Windows support
+	http://docs.appcelerator.com/platform/latest/#!/guide/Windows_Platform_Overview
+	2015-01-12: http://www.tidev.io/2015/01/12/how-to-try-the-titanium-windows-platform-preview-for-free/
+	As of 8 Sep 2015:
+		- Windows 8 supported.
+		- Windows 10 not supported.
+		- Studio -> Windows Store not supported
+			... need CLI -> Windows Store
+				https://archive.appcelerator.com/topic/2924/can-t-add-windows-local-machine-in-run-configuration-for-writing-the-apps-for-windows-8-1-store-desktop
+		- Visual Studio 2015 not supported (just VS 2013)
+		https://jira.appcelerator.org/browse/TIMOB-19471
+
+	University software purchases: http://www.ucs.cam.ac.uk/compsoft
+		Visual Studio 2015 Pro: http://software.uis.cam.ac.uk/product/9610
