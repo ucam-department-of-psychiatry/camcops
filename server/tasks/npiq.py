@@ -99,14 +99,16 @@ class NpiQ(Task):
     def get_clinical_text(self):
         if not self.is_complete():
             return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content": "Endorsed: {e}/12; severity {s}/36; "
-            "distress {d}/60".format(
-                e=self.n_endorsed(),
-                s=self.severity_score(),
-                d=self.distress_score(),
-            )
-        }]
+        return [
+            {
+                "content": "Endorsed: {e}/12; severity {s}/36; "
+                "distress {d}/60".format(
+                    e=self.n_endorsed(),
+                    s=self.severity_score(),
+                    d=self.distress_score(),
+                )
+            }
+        ]
 
     def q_endorsed(self, q):
         return bool(getattr(self, ENDORSED + str(q)))

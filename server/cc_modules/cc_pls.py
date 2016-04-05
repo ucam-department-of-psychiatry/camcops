@@ -36,8 +36,8 @@ import urllib.parse
 import urllib.request
 import logging
 
-import pythonlib.rnc_db as rnc_db
-import pythonlib.rnc_pdf as rnc_pdf
+import cardinal_pythonlib.rnc_db as rnc_db
+import cardinal_pythonlib.rnc_pdf as rnc_pdf
 
 from .cc_configfile import (
     get_config_parameter,

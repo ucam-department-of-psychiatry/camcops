@@ -25,9 +25,9 @@ import http.cookies
 import datetime
 import math
 
-import pythonlib.rnc_crypto as rnc_crypto
-import pythonlib.rnc_db as rnc_db
-import pythonlib.rnc_web as ws
+import cardinal_pythonlib.rnc_crypto as rnc_crypto
+import cardinal_pythonlib.rnc_db as rnc_db
+import cardinal_pythonlib.rnc_web as ws
 
 from . import cc_analytics
 from .cc_constants import ACTION, DATEFORMAT, NUMBER_OF_IDNUMS, PARAM

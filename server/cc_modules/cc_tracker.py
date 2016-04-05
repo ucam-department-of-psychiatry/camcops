@@ -23,8 +23,8 @@
 
 import datetime
 
-import pythonlib.rnc_pdf as rnc_pdf
-import pythonlib.rnc_web as ws
+import cardinal_pythonlib.rnc_pdf as rnc_pdf
+import cardinal_pythonlib.rnc_web as ws
 
 from .cc_audit import audit
 from .cc_constants import (

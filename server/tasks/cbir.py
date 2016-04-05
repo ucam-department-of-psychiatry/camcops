@@ -21,7 +21,7 @@
     limitations under the License.
 """
 
-from pythonlib.rnc_lang import AttrDict
+from cardinal_pythonlib.rnc_lang import AttrDict
 from cc_modules.cc_constants import (
     PV,
 )

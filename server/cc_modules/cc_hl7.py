@@ -30,9 +30,9 @@ import socket
 import subprocess
 import sys
 
-import pythonlib.rnc_db as rnc_db
-import pythonlib.rnc_web as ws
-from pythonlib.rnc_net import ping
+import cardinal_pythonlib.rnc_db as rnc_db
+import cardinal_pythonlib.rnc_web as ws
+from cardinal_pythonlib.rnc_net import ping
 
 from .cc_constants import (
     ACTION,

@@ -7,8 +7,8 @@ import os
 import StringIO
 import sys
 
-import pythonlib.rnc_db as rnc_db
-import pythonlib.rnc_web as ws
+import cardinal_pythonlib.rnc_db as rnc_db
+import cardinal_pythonlib.rnc_web as ws
 
 
 # =============================================================================

@@ -21,7 +21,7 @@
     limitations under the License.
 """
 
-import pythonlib.rnc_web as ws
+import cardinal_pythonlib.rnc_web as ws
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
     PV,

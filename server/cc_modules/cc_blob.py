@@ -25,8 +25,8 @@
 import wand.image
 # ... sudo apt-get install libmagickwand-dev; sudo pip install Wand
 
-import pythonlib.rnc_db as rnc_db
-import pythonlib.rnc_web as ws
+import cardinal_pythonlib.rnc_db as rnc_db
+import cardinal_pythonlib.rnc_web as ws
 
 from .cc_constants import ERA_NOW, STANDARD_GENERIC_FIELDSPECS
 from . import cc_db

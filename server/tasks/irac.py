@@ -21,7 +21,7 @@
     limitations under the License.
 """
 
-import pythonlib.rnc_web as ws
+import cardinal_pythonlib.rnc_web as ws
 from cc_modules.cc_html import tr_qa
 from cc_modules.cc_string import WSTRING
 from cc_modules.cc_task import get_from_dict, Task

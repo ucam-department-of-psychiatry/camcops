@@ -24,7 +24,7 @@
 import cgi
 import re
 
-import pythonlib.rnc_web as ws
+import cardinal_pythonlib.rnc_web as ws
 
 from .cc_constants import (
     ACTION,

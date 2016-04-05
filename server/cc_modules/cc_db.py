@@ -21,8 +21,8 @@
     limitations under the License.
 """
 
-import pythonlib.rnc_db as rnc_db
-from pythonlib.rnc_lang import AttrDict
+import cardinal_pythonlib.rnc_db as rnc_db
+from cardinal_pythonlib.rnc_lang import AttrDict
 
 from .cc_constants import (
     DATEFORMAT,
@@ -32,7 +32,7 @@ from .cc_constants import (
     STANDARD_TASK_FIELDSPECS,
 )
 from . import cc_dt
-from .cc_logger import logger
+# from .cc_logger import logger
 from .cc_pls import pls
 
 

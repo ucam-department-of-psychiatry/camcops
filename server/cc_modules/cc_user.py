@@ -24,9 +24,9 @@
 import datetime
 import re
 
-import pythonlib.rnc_crypto as rnc_crypto
-from pythonlib.rnc_lang import AttrDict
-import pythonlib.rnc_web as ws
+import cardinal_pythonlib.rnc_crypto as rnc_crypto
+from cardinal_pythonlib.rnc_lang import AttrDict
+import cardinal_pythonlib.rnc_web as ws
 
 from .cc_audit import audit
 from .cc_constants import ACTION, PARAM, DATEFORMAT, WEBEND

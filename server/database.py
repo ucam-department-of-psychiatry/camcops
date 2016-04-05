@@ -36,9 +36,9 @@ PROFILE = False
 import re
 import time
 
-import pythonlib.rnc_db as rnc_db
-from pythonlib.rnc_lang import AttrDict
-import pythonlib.rnc_web as ws
+import cardinal_pythonlib.rnc_db as rnc_db
+from cardinal_pythonlib.rnc_lang import AttrDict
+import cardinal_pythonlib.rnc_web as ws
 
 import cc_modules.cc_audit as cc_audit
 from cc_modules.cc_constants import (

@@ -25,7 +25,7 @@
 
 import os
 import string
-from pythonlib.rnc_lang import AttrDict, merge_dicts
+from cardinal_pythonlib.rnc_lang import AttrDict, merge_dicts
 
 # =============================================================================
 # Number of ID numbers. Don't alter this lightly; influences database fields.

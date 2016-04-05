@@ -23,7 +23,7 @@
 
 import matplotlib.pyplot as plt
 import numpy
-import pythonlib.rnc_web as ws
+import cardinal_pythonlib.rnc_web as ws
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
     FULLWIDTH_PLOT_WIDTH,

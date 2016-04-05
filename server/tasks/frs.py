@@ -21,7 +21,7 @@
     limitations under the License.
 """
 
-import pythonlib.rnc_web as ws
+import cardinal_pythonlib.rnc_web as ws
 from cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
 )
@@ -228,16 +228,18 @@ class Frs(Task):
         if not self.is_complete():
             return CTV_DICTLIST_INCOMPLETE
         scoredict = self.get_score()
-        return [{
-            "content": "Total {total}/n, n = {n}, score = {score}, "
-            "logit score = {logit}, severity = {severity}".format(
-                total=scoredict['total'],
-                n=scoredict['n'],
-                score=ws.number_to_dp(scoredict['score'], DP),
-                logit=ws.number_to_dp(scoredict['logit'], DP),
-                severity=scoredict['severity'],
-            )
-        }]
+        return [
+            {
+                "content": "Total {total}/n, n = {n}, score = {score}, "
+                "logit score = {logit}, severity = {severity}".format(
+                    total=scoredict['total'],
+                    n=scoredict['n'],
+                    score=ws.number_to_dp(scoredict['score'], DP),
+                    logit=ws.number_to_dp(scoredict['logit'], DP),
+                    severity=scoredict['severity'],
+                )
+            }
+        ]
 
     def get_score(self):
         total = 0

@@ -27,7 +27,7 @@ import xml.etree.cElementTree as ElementTree
 # ... http://docs.python.org/2/library/xml.etree.elementtree.html
 # ... http://effbot.org/zone/celementtree.htm
 
-import pythonlib.rnc_web as ws
+import cardinal_pythonlib.rnc_web as ws
 
 from .cc_convert import unescape_newlines
 from .cc_logger import logger

@@ -21,7 +21,7 @@
     limitations under the License.
 """
 
-import pythonlib.rnc_web as ws
+import cardinal_pythonlib.rnc_web as ws
 from cc_modules.cc_db import repeat_fieldspec
 from cc_modules.cc_html import (
     answer,

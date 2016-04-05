@@ -137,12 +137,14 @@ class Ifs(Task):
         scoredict = self.get_score()
         if not self.is_complete():
             return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content": "Total: {t}/30; working memory index {w}/10".format(
-                t=scoredict['total'],
-                w=scoredict['wm'],
-            )
-        }]
+        return [
+            {
+                "content": "Total: {t}/30; working memory index {w}/10".format(
+                    t=scoredict['total'],
+                    w=scoredict['wm'],
+                )
+            }
+        ]
 
     def get_score(self):
         q1 = getattr(self, "q1", 0) or 0

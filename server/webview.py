@@ -60,8 +60,8 @@ import pygments.formatters
 import zipfile
 
 # local:
-from pythonlib.rnc_lang import import_submodules
-import pythonlib.rnc_web as ws
+from cardinal_pythonlib.rnc_lang import import_submodules
+import cardinal_pythonlib.rnc_web as ws
 
 # CamCOPS support modules
 from cc_modules.cc_audit import (

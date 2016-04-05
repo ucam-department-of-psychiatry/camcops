@@ -23,8 +23,8 @@
 
 import configparser
 
-import pythonlib.rnc_db as rnc_db
-from pythonlib.rnc_lang import AttrDict
+import cardinal_pythonlib.rnc_db as rnc_db
+from cardinal_pythonlib.rnc_lang import AttrDict
 
 from .cc_configfile import get_config_parameter, get_config_parameter_boolean
 from .cc_constants import NUMBER_OF_IDNUMS, VALUE

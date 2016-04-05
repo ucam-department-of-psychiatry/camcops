@@ -7,7 +7,7 @@ class Base(object):  # make it a new-style class by inheriting from object
 
     @classmethod
     def cm(cls):
-        print "classmethod: base"
+        print("classmethod: base")
 
     def __init__(self):
         print("Base.__init__")
@@ -62,3 +62,24 @@ d.cm()
 
 for cls in Base.__subclasses__():
     cls.cm()
+
+
+class B1(object):
+    def foo(self):
+        print("B1.foo")
+
+
+class B2(object):
+    def foo(self):
+        print("B2.foo")
+
+
+class D(B1, B2):
+    def foo(self):
+        # http://python-history.blogspot.co.uk/2010/06/method-resolution-order.html
+        print("D.foo; calling super().foo()")
+        super().foo()
+
+x = D()
+x.foo()
+

@@ -25,7 +25,7 @@ import base64
 import binascii
 import re
 
-import pythonlib.rnc_db as rnc_db
+import cardinal_pythonlib.rnc_db as rnc_db
 from cc_modules.cc_pls import pls
 
 REGEX_WHITESPACE = re.compile("\s")

@@ -25,8 +25,8 @@ import math
 import matplotlib.pyplot as plt
 import numpy
 
-import pythonlib.rnc_plot as rnc_plot
-import pythonlib.rnc_web as ws
+import cardinal_pythonlib.rnc_plot as rnc_plot
+import cardinal_pythonlib.rnc_web as ws
 
 from cc_modules.cc_constants import (
     FULLWIDTH_PLOT_WIDTH,

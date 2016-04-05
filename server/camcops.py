@@ -12,10 +12,10 @@ import sys
 from werkzeug.contrib.profiler import ProfilerMiddleware
 from werkzeug.wsgi import SharedDataMiddleware
 
-import pythonlib.rnc_db as rnc_db
-from pythonlib.rnc_lang import convert_to_bool
-from pythonlib.wsgi_errorreporter import ErrorReportingMiddleware
-from pythonlib.wsgi_cache import DisableClientSideCachingMiddleware
+import cardinal_pythonlib.rnc_db as rnc_db
+from cardinal_pythonlib.rnc_lang import convert_to_bool
+from cardinal_pythonlib.wsgi_errorreporter import ErrorReportingMiddleware
+from cardinal_pythonlib.wsgi_cache import DisableClientSideCachingMiddleware
 
 import cc_modules.cc_analytics as cc_analytics
 from cc_modules.cc_audit import (
