@@ -229,8 +229,8 @@ class Deakin_1_HealthReview(Task):
                 "mri_previous_brain_scan",
                 "other_relevant_things",
                 "willing_to_participate_in_further_studies"
-            ])
-            and self.field_contents_valid()
+            ]) and
+            self.field_contents_valid()
         )
 
     def get_drug_frequency_row(self, fieldname):

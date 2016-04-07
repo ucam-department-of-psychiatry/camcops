@@ -30,7 +30,7 @@ import cardinal_pythonlib.rnc_web as ws
 
 from .cc_constants import ERA_NOW, STANDARD_GENERIC_FIELDSPECS
 from . import cc_db
-from .cc_logger import logger
+from .cc_logger import log
 from .cc_pls import pls
 from .cc_unittest import unit_test_ignore
 from . import cc_xml
@@ -139,7 +139,7 @@ def get_current_blob_by_client_info(device, clientpk, era):
     serverpk = cc_db.get_current_server_pk_by_client_info(
         Blob.TABLENAME, device, clientpk, era)
     if serverpk is None:
-        logger.debug("FAILED TO FIND BLOB: " + str(clientpk))
+        log.debug("FAILED TO FIND BLOB: " + str(clientpk))
         return None
     return Blob(serverpk)
 
@@ -155,7 +155,7 @@ def get_contemporaneous_blob_by_client_info(device, clientpk, era,
         Blob.TABLENAME, device, clientpk, era,
         referrer_added_utc, referrer_removed_utc)
     if serverpk is None:
-        logger.debug("FAILED TO FIND BLOB: " + str(clientpk))
+        log.debug("FAILED TO FIND BLOB: " + str(clientpk))
         return None
     return Blob(serverpk)
 

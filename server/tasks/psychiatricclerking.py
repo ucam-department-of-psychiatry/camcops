@@ -100,13 +100,13 @@ class PsychiatricClerking(Task):
     shortname = "Clerking"
     longname = "Psychiatric clerking"
     fieldspecs = (
-        FIELDSPEC_B
-        + FIELDSPEC_C
-        + FIELDSPEC_MSE
-        + FIELDSPEC_PE
-        + FIELDSPEC_D
-        + FIELDSPEC_E
-        + FIELDSPEC_F
+        FIELDSPEC_B +
+        FIELDSPEC_C +
+        FIELDSPEC_MSE +
+        FIELDSPEC_PE +
+        FIELDSPEC_D +
+        FIELDSPEC_E +
+        FIELDSPEC_F
     )
     has_clinician = True
 

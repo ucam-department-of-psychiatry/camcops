@@ -25,7 +25,7 @@ import cardinal_pythonlib.rnc_db as rnc_db
 
 from .cc_constants import STANDARD_GENERIC_FIELDSPECS
 from . import cc_db
-from .cc_logger import logger
+from .cc_logger import log
 from .cc_pls import pls
 
 
@@ -67,10 +67,10 @@ class DeviceStoredVar(StoredVarBase):
     FIELDSPECS = STANDARD_GENERIC_FIELDSPECS + [
         dict(name="id", cctype="INT_UNSIGNED", notnull=True,
              comment="Arbitrary numerical primary key on the source "
-                     + "tablet device"),  # client PK
+                     "tablet device"),  # client PK
         dict(name="name", cctype="STOREDVARNAME", notnull=True,
              comment="Variable name (effectively the actual primary key on "
-                     + "the source tablet device)",
+                     "the source tablet device)",
              indexed=True, index_nchar=50),
         dict(name="type", cctype="STOREDVARTYPE", notnull=True,
              comment="Variable type ('integer', 'real', 'text')"),
@@ -91,7 +91,7 @@ class DeviceStoredVar(StoredVarBase):
             drop_superfluous_columns=drop_superfluous_columns)
 
     def dump(self):
-        """Dump to the logger."""
+        """Dump to the log."""
         rnc_db.dump_database_object(self, DeviceStoredVar.FIELDS)
 
     def __init__(self, serverpk):
@@ -125,7 +125,7 @@ class ServerStoredVar(StoredVarBase):
             drop_superfluous_columns=drop_superfluous_columns)
 
     def dump(self):
-        """Dump to the logger."""
+        """Dump to the log."""
         rnc_db.dump_database_object(self, ServerStoredVar.FIELDS)
 
     def __init__(self, namepk, typeOnCreation="integer", defaultValue=None):
@@ -164,7 +164,7 @@ def get_device_storedvar(device, name, era):
         )
     except Exception as inst:
         # May fail if e.g. no storedvar table created yet
-        logger.error(str(inst))
+        log.error(str(inst))
         return None
     if row is None or row[0] is None:
         return None
@@ -188,7 +188,7 @@ def get_server_storedvar(name):
         )
     except Exception as inst:
         # May fail if e.g. no storedvar table created yet
-        logger.error(str(inst))
+        log.error(str(inst))
         return None
     if row is None or row[0] is None:
         return None

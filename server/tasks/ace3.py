@@ -362,17 +362,18 @@ class Ace3(Task):
 
     def is_recognition_complete(self):
         return (
-            ((self.mem_recall_address1 == 1 and self.mem_recall_address2 == 1)
-                or self.mem_recognize_address1 is not None)
-            and (self.mem_recall_address3 == 1
-                 or self.mem_recognize_address2 is not None)
-            and ((self.mem_recall_address4 == 1
-                  and self.mem_recall_address5 == 1)
-                 or self.mem_recognize_address3 is not None)
-            and (self.mem_recall_address6 == 1
-                 or self.mem_recognize_address4 is not None)
-            and (self.mem_recall_address7 == 1
-                 or self.mem_recognize_address5 is not None)
+            ((self.mem_recall_address1 == 1 and
+                self.mem_recall_address2 == 1) or
+                self.mem_recognize_address1 is not None) and
+            (self.mem_recall_address3 == 1 or
+                self.mem_recognize_address2 is not None) and
+            ((self.mem_recall_address4 == 1 and
+                self.mem_recall_address5 == 1) or
+                self.mem_recognize_address3 is not None) and
+            (self.mem_recall_address6 == 1 or
+                self.mem_recognize_address4 is not None) and
+            (self.mem_recall_address7 == 1 or
+                self.mem_recognize_address5 is not None)
         )
 
     def is_complete(self):
@@ -442,8 +443,8 @@ class Ace3(Task):
             # fig.autofmt_xdate()
             figurehtml = get_html_from_pyplot_figure(fig)
         return (
-            self.get_standard_clinician_comments_block(self.comments)
-            + """
+            self.get_standard_clinician_comments_block(self.comments) +
+            """
                 <div class="summary">
                     <table class="summary">
                         <tr>
@@ -451,14 +452,14 @@ class Ace3(Task):
                             <td class="figure" rowspan="7">{figure}</td>
                         </td>
             """.format(is_complete=self.get_is_complete_td_pair(),
-                       figure=figurehtml)
-            + tr("Total ACE-III score <sup>[1]</sup>", answer(t) + " / 100")
-            + tr("Attention", answer(a) + " / 18 ({}%)".format(100*a/18))
-            + tr("Memory", answer(m) + " / 26 ({}%)".format(100*m/26))
-            + tr("Fluency", answer(f) + " / 14 ({}%)".format(100*f/14))
-            + tr("Language", answer(l) + " / 26 ({}%)".format(100*l/26))
-            + tr("Visuospatial", answer(v) + " / 16 ({}%)".format(100*v/16))
-            + """
+                       figure=figurehtml) +
+            tr("Total ACE-III score <sup>[1]</sup>", answer(t) + " / 100") +
+            tr("Attention", answer(a) + " / 18 ({}%)".format(100*a/18)) +
+            tr("Memory", answer(m) + " / 26 ({}%)".format(100*m/26)) +
+            tr("Fluency", answer(f) + " / 14 ({}%)".format(100*f/14)) +
+            tr("Language", answer(l) + " / 26 ({}%)".format(100*l/26)) +
+            tr("Visuospatial", answer(v) + " / 16 ({}%)".format(100*v/16)) +
+            """
                     </table>
                 </div>
                 <table class="taskdetail">
@@ -466,33 +467,33 @@ class Ace3(Task):
                         <th width="75%">Question</th>
                         <th width="25%">Answer/score</td>
                     </tr>
-            """
-            + tr_qa("Age on leaving full-time education",
-                    self.age_at_leaving_full_time_education)
-            + tr_qa("Occupation", ws.webify(self.occupation))
-            + tr_qa("Handedness", ws.webify(self.handedness))
+            """ +
+            tr_qa("Age on leaving full-time education",
+                  self.age_at_leaving_full_time_education) +
+            tr_qa("Occupation", ws.webify(self.occupation)) +
+            tr_qa("Handedness", ws.webify(self.handedness)) +
 
-            + subheading_spanning_two_columns("Attention")
-            + tr("Day? Date? Month? Year? Season?",
-                 ", ".join([answer(x) for x in [self.attn_time1,
-                                                self.attn_time2,
-                                                self.attn_time3,
-                                                self.attn_time4,
-                                                self.attn_time5]]))
-            + tr("House number/floor? Street/hospital? Town? County? Country?",
-                 ", ".join([answer(x) for x in [self.attn_place1,
-                                                self.attn_place2,
-                                                self.attn_place3,
-                                                self.attn_place4,
-                                                self.attn_place5]]))
-            + tr("Repeat: Lemon? Key? Ball?",
-                 ", ".join([answer(x) for x in [self.attn_repeat_word1,
-                                                self.attn_repeat_word2,
-                                                self.attn_repeat_word3]]))
-            + tr("Repetition: number of trials <i>(not scored)</i>",
-                 answer(self.attn_num_registration_trials,
-                        formatter_answer=italic))
-            + tr(
+            subheading_spanning_two_columns("Attention") +
+            tr("Day? Date? Month? Year? Season?",
+               ", ".join([answer(x) for x in [self.attn_time1,
+                                              self.attn_time2,
+                                              self.attn_time3,
+                                              self.attn_time4,
+                                              self.attn_time5]])) +
+            tr("House number/floor? Street/hospital? Town? County? Country?",
+               ", ".join([answer(x) for x in [self.attn_place1,
+                                              self.attn_place2,
+                                              self.attn_place3,
+                                              self.attn_place4,
+                                              self.attn_place5]])) +
+            tr("Repeat: Lemon? Key? Ball?",
+               ", ".join([answer(x) for x in [self.attn_repeat_word1,
+                                              self.attn_repeat_word2,
+                                              self.attn_repeat_word3]])) +
+            tr("Repetition: number of trials <i>(not scored)</i>",
+               answer(self.attn_num_registration_trials,
+                      formatter_answer=italic)) +
+            tr(
                 "Serial subtractions: First correct? Second? Third? Fourth? "
                 "Fifth?",
                 ", ".join([answer(x) for x in [
@@ -500,26 +501,26 @@ class Ace3(Task):
                     self.attn_serial7_subtraction2,
                     self.attn_serial7_subtraction3,
                     self.attn_serial7_subtraction4,
-                    self.attn_serial7_subtraction5]]))
+                    self.attn_serial7_subtraction5]])) +
 
-            + subheading_spanning_two_columns("Memory (1)")
-            + tr("Recall: Lemon? Key? Ball?",
-                 ", ".join([answer(x) for x in [self.mem_recall_word1,
-                                                self.mem_recall_word2,
-                                                self.mem_recall_word3]]))
+            subheading_spanning_two_columns("Memory (1)") +
+            tr("Recall: Lemon? Key? Ball?",
+               ", ".join([answer(x) for x in [self.mem_recall_word1,
+                                              self.mem_recall_word2,
+                                              self.mem_recall_word3]])) +
 
-            + subheading_spanning_two_columns("Fluency")
-            + tr("Score for words beginning with ‘P’ <i>(≥18 scores 7, 14–17 "
-                 "scores 6, 11–13 scores 5, 8–10 scores 4, 6–7 scores 3, "
-                 "4–5 scores 2, 2–3 scores 1, 0–1 scores 0)</i>",
-                 answer(self.fluency_letters_score) + " / 7")
-            + tr("Score for animals <i>(≥22 scores 7, 17–21 scores 6, "
-                 "14–16 scores 5, 11–13 scores 4, 9–10 scores 3, "
-                 "7–8 scores 2, 5–6 scores 1, &lt;5 scores 0)</i>",
-                 answer(self.fluency_animals_score) + " / 7")
+            subheading_spanning_two_columns("Fluency") +
+            tr("Score for words beginning with ‘P’ <i>(≥18 scores 7, 14–17 "
+               "scores 6, 11–13 scores 5, 8–10 scores 4, 6–7 scores 3, "
+               "4–5 scores 2, 2–3 scores 1, 0–1 scores 0)</i>",
+               answer(self.fluency_letters_score) + " / 7") +
+            tr("Score for animals <i>(≥22 scores 7, 17–21 scores 6, "
+               "14–16 scores 5, 11–13 scores 4, 9–10 scores 3, "
+               "7–8 scores 2, 5–6 scores 1, &lt;5 scores 0)</i>",
+               answer(self.fluency_animals_score) + " / 7") +
 
-            + subheading_spanning_two_columns("Memory (2)")
-            + tr(
+            subheading_spanning_two_columns("Memory (2)") +
+            tr(
                 "Third trial of address registration: Harry? Barnes? 73? "
                 "Orchard? Close? Kingsbridge? Devon?",
                 ", ".join([answer(x) for x in [
@@ -529,32 +530,32 @@ class Ace3(Task):
                     self.mem_repeat_address_trial3_4,
                     self.mem_repeat_address_trial3_5,
                     self.mem_repeat_address_trial3_6,
-                    self.mem_repeat_address_trial3_7]]))
-            + tr("Current PM? Woman who was PM? USA president? USA president "
-                 "assassinated in 1960s?",
-                 ", ".join([answer(x) for x in [self.mem_famous1,
-                                                self.mem_famous2,
-                                                self.mem_famous3,
-                                                self.mem_famous4]]))
+                    self.mem_repeat_address_trial3_7]])) +
+            tr("Current PM? Woman who was PM? USA president? USA president "
+               "assassinated in 1960s?",
+               ", ".join([answer(x) for x in [self.mem_famous1,
+                                              self.mem_famous2,
+                                              self.mem_famous3,
+                                              self.mem_famous4]])) +
 
-            + subheading_spanning_two_columns("Language")
-            + tr("<i>Practice trial (“Pick up the pencil and then the "
-                 "paper”)</i>",
-                 answer(self.lang_follow_command_practice,
-                        formatter_answer=italic))
-            + tr_qa("“Place the paper on top of the pencil”",
-                    self.lang_follow_command1)
-            + tr_qa("“Pick up the pencil but not the paper”",
-                    self.lang_follow_command2)
-            + tr_qa("“Pass me the pencil after touching the paper”",
-                    self.lang_follow_command3)
-            + tr(
+            subheading_spanning_two_columns("Language") +
+            tr("<i>Practice trial (“Pick up the pencil and then the "
+               "paper”)</i>",
+               answer(self.lang_follow_command_practice,
+                      formatter_answer=italic)) +
+            tr_qa("“Place the paper on top of the pencil”",
+                  self.lang_follow_command1) +
+            tr_qa("“Pick up the pencil but not the paper”",
+                  self.lang_follow_command2) +
+            tr_qa("“Pass me the pencil after touching the paper”",
+                  self.lang_follow_command3) +
+            tr(
                 "Sentence-writing: point for ≥2 complete sentences about "
                 "the one topic? Point for correct grammar and spelling?",
                 ", ".join([answer(x) for x in [
                     self.lang_write_sentences_point1,
-                    self.lang_write_sentences_point2]]))
-            + tr(
+                    self.lang_write_sentences_point2]])) +
+            tr(
                 "Repeat: caterpillar? eccentricity? unintelligible? "
                 "statistician? <i>(score 2 if all correct, 1 if 3 correct, "
                 "0 if ≤2 correct)</i>",
@@ -564,93 +565,93 @@ class Ace3(Task):
                     answer(self.lang_repeat_word3, formatter_answer=italic),
                     answer(self.lang_repeat_word4, formatter_answer=italic),
                     self.get_repeat_word_score(),
-                ))
-            + tr_qa("Repeat: “All that glitters is not gold”?",
-                    self.lang_repeat_sentence1)
-            + tr_qa("Repeat: “A stitch in time saves nine”?",
-                    self.lang_repeat_sentence2)
-            + tr("Name pictures: spoon, book, kangaroo/wallaby",
-                 ", ".join([answer(x) for x in [self.lang_name_picture1,
-                                                self.lang_name_picture2,
-                                                self.lang_name_picture3]]))
-            + tr("Name pictures: penguin, anchor, camel/dromedary",
-                 ", ".join([answer(x) for x in [self.lang_name_picture4,
-                                                self.lang_name_picture5,
-                                                self.lang_name_picture6]]))
-            + tr("Name pictures: harp, rhinoceros/rhino, barrel/keg/tub",
-                 ", ".join([answer(x) for x in [self.lang_name_picture7,
-                                                self.lang_name_picture8,
-                                                self.lang_name_picture9]]))
-            + tr("Name pictures: crown, alligator/crocodile, "
-                 "accordion/piano accordion/squeeze box",
-                 ", ".join([answer(x) for x in [self.lang_name_picture10,
-                                                self.lang_name_picture11,
-                                                self.lang_name_picture12]]))
-            + tr(
+                )) +
+            tr_qa("Repeat: “All that glitters is not gold”?",
+                  self.lang_repeat_sentence1) +
+            tr_qa("Repeat: “A stitch in time saves nine”?",
+                  self.lang_repeat_sentence2) +
+            tr("Name pictures: spoon, book, kangaroo/wallaby",
+               ", ".join([answer(x) for x in [self.lang_name_picture1,
+                                              self.lang_name_picture2,
+                                              self.lang_name_picture3]])) +
+            tr("Name pictures: penguin, anchor, camel/dromedary",
+               ", ".join([answer(x) for x in [self.lang_name_picture4,
+                                              self.lang_name_picture5,
+                                              self.lang_name_picture6]])) +
+            tr("Name pictures: harp, rhinoceros/rhino, barrel/keg/tub",
+               ", ".join([answer(x) for x in [self.lang_name_picture7,
+                                              self.lang_name_picture8,
+                                              self.lang_name_picture9]])) +
+            tr("Name pictures: crown, alligator/crocodile, "
+               "accordion/piano accordion/squeeze box",
+               ", ".join([answer(x) for x in [self.lang_name_picture10,
+                                              self.lang_name_picture11,
+                                              self.lang_name_picture12]])) +
+            tr(
                 "Identify pictures: monarchy? marsupial? Antarctic? nautical?",
                 ", ".join([answer(x) for x in [self.lang_identify_concept1,
                                                self.lang_identify_concept2,
                                                self.lang_identify_concept3,
-                                               self.lang_identify_concept4]]))
-            + tr_qa("Read all successfully: sew, pint, soot, dough, height",
-                    self.lang_read_words_aloud)
+                                               self.lang_identify_concept4]])
+            ) +
+            tr_qa("Read all successfully: sew, pint, soot, dough, height",
+                  self.lang_read_words_aloud) +
 
-            + subheading_spanning_two_columns("Visuospatial")
-            + tr("Copy infinity", answer(self.vsp_copy_infinity) + " / 1")
-            + tr("Copy cube", answer(self.vsp_copy_cube) + " / 2")
-            + tr("Draw clock with numbers and hands at 5:10",
-                 answer(self.vsp_draw_clock) + " / 5")
-            + tr("Count dots: 8, 10, 7, 9",
-                 ", ".join([answer(x) for x in [self.vsp_count_dots1,
-                                                self.vsp_count_dots2,
-                                                self.vsp_count_dots3,
-                                                self.vsp_count_dots4]]))
-            + tr("Identify letters: K, M, A, T",
-                 ", ".join([answer(x) for x in [self.vsp_identify_letter1,
-                                                self.vsp_identify_letter2,
-                                                self.vsp_identify_letter3,
-                                                self.vsp_identify_letter4]]))
+            subheading_spanning_two_columns("Visuospatial") +
+            tr("Copy infinity", answer(self.vsp_copy_infinity) + " / 1") +
+            tr("Copy cube", answer(self.vsp_copy_cube) + " / 2") +
+            tr("Draw clock with numbers and hands at 5:10",
+               answer(self.vsp_draw_clock) + " / 5") +
+            tr("Count dots: 8, 10, 7, 9",
+               ", ".join([answer(x) for x in [self.vsp_count_dots1,
+                                              self.vsp_count_dots2,
+                                              self.vsp_count_dots3,
+                                              self.vsp_count_dots4]])) +
+            tr("Identify letters: K, M, A, T",
+               ", ".join([answer(x) for x in [self.vsp_identify_letter1,
+                                              self.vsp_identify_letter2,
+                                              self.vsp_identify_letter3,
+                                              self.vsp_identify_letter4]])) +
 
-            + subheading_spanning_two_columns("Memory (3)")
-            + tr("Recall address: Harry? Barnes? 73? Orchard? Close? "
-                 "Kingsbridge? Devon?",
-                 ", ".join([answer(x) for x in [self.mem_recall_address1,
-                                                self.mem_recall_address2,
-                                                self.mem_recall_address3,
-                                                self.mem_recall_address4,
-                                                self.mem_recall_address5,
-                                                self.mem_recall_address6,
-                                                self.mem_recall_address7]]))
-            + tr("Recognize address: Jerry Barnes/Harry Barnes/Harry "
-                 "Bradford?",
-                 self.get_recog_text((self.mem_recall_address1 == 1
-                                      and self.mem_recall_address2 == 1),
-                                     self.mem_recognize_address1))
-            + tr("Recognize address: 37/73/76?",
-                 self.get_recog_text((self.mem_recall_address3 == 1),
-                                     self.mem_recognize_address2))
-            + tr(
+            subheading_spanning_two_columns("Memory (3)") +
+            tr("Recall address: Harry? Barnes? 73? Orchard? Close? "
+               "Kingsbridge? Devon?",
+               ", ".join([answer(x) for x in [self.mem_recall_address1,
+                                              self.mem_recall_address2,
+                                              self.mem_recall_address3,
+                                              self.mem_recall_address4,
+                                              self.mem_recall_address5,
+                                              self.mem_recall_address6,
+                                              self.mem_recall_address7]])) +
+            tr("Recognize address: Jerry Barnes/Harry Barnes/Harry Bradford?",
+               self.get_recog_text((self.mem_recall_address1 == 1 and
+                                    self.mem_recall_address2 == 1),
+                                   self.mem_recognize_address1)) +
+            tr("Recognize address: 37/73/76?",
+               self.get_recog_text((self.mem_recall_address3 == 1),
+                                   self.mem_recognize_address2)) +
+            tr(
                 "Recognize address: Orchard Place/Oak Close/Orchard "
                 "Close?",
                 self.get_recog_text(
-                    (self.mem_recall_address4 == 1
-                     and self.mem_recall_address5 == 1),
-                    self.mem_recognize_address3))
-            + tr("Recognize address: Oakhampton/Kingsbridge/Dartington?",
-                 self.get_recog_text((self.mem_recall_address6 == 1),
-                                     self.mem_recognize_address4))
-            + tr("Recognize address: Devon/Dorset/Somerset?",
-                 self.get_recog_text((self.mem_recall_address7 == 1),
-                                     self.mem_recognize_address5))
+                    (self.mem_recall_address4 == 1 and
+                        self.mem_recall_address5 == 1),
+                    self.mem_recognize_address3)) +
+            tr("Recognize address: Oakhampton/Kingsbridge/Dartington?",
+               self.get_recog_text((self.mem_recall_address6 == 1),
+                                   self.mem_recognize_address4)) +
+            tr("Recognize address: Devon/Dorset/Somerset?",
+               self.get_recog_text((self.mem_recall_address7 == 1),
+                                   self.mem_recognize_address5)) +
 
-            + subheading_spanning_two_columns("Photos of test sheet")
-            + tr_span_col(self.get_blob_png_html(self.picture1_blobid,
-                                                 self.picture1_rotation),
-                          td_class="photo")
-            + tr_span_col(self.get_blob_png_html(self.picture2_blobid,
-                                                 self.picture2_rotation),
-                          td_class="photo")
-            + """
+            subheading_spanning_two_columns("Photos of test sheet") +
+            tr_span_col(self.get_blob_png_html(self.picture1_blobid,
+                                               self.picture1_rotation),
+                        td_class="photo") +
+            tr_span_col(self.get_blob_png_html(self.picture2_blobid,
+                                               self.picture2_rotation),
+                        td_class="photo") +
+            """
                 </table>
                 <div class="footnotes">
                     [1] In the ACE-R (the predecessor of the ACE-III),

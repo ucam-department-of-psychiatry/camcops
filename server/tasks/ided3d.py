@@ -349,9 +349,9 @@ class IDED3D(Task):
         h += tr_qa(WSTRING("ided3d_pause_after_beep_ms"),
                    self.pause_after_beep_ms)
         h += tr_qa(WSTRING("ided3d_iti_ms"), self.iti_ms)
-        h += tr_qa(WSTRING("ided3d_counterbalance_dimensions")
-                   + "<sup>[1]</sup>",
-                   self.counterbalance_dimensions)
+        h += tr_qa(
+            WSTRING("ided3d_counterbalance_dimensions") + "<sup>[1]</sup>",
+            self.counterbalance_dimensions)
         h += tr_qa(WSTRING("volume"), self.volume)
         h += tr_qa(WSTRING("ided3d_offer_abort"), self.offer_abort)
         h += tr_qa(WSTRING("ided3d_debug_display_stimuli_only"),
@@ -371,11 +371,11 @@ class IDED3D(Task):
             """
                 </table>
                 <div>Stage specifications and results:</div>
+            """ +
+            self.get_stage_html(stagearray) +
+            "<div>Trial-by-trial results:</div>" +
+            self.get_trial_html(trialarray) +
             """
-            + self.get_stage_html(stagearray)
-            + "<div>Trial-by-trial results:</div>"
-            + self.get_trial_html(trialarray)
-            + """
                 <div class="footnotes">
                     [1] Counterbalancing of dimensions is as follows, with
                     notation X/Y indicating that X is the first relevant

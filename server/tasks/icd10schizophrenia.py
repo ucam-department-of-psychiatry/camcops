@@ -201,15 +201,15 @@ class Icd10Schizophrenia(Task):
                  comment="Date the assessment pertains to"),
             dict(name="comments", cctype="TEXT",
                  comment="Clinician's comments"),
-        ]
-        + A_FIELDSPECS
-        + B_FIELDSPECS
-        + C_FIELDSPECS
-        + D_FIELDSPECS
-        + E_FIELDSPECS
-        + F_FIELDSPECS
-        + G_FIELDSPECS
-        + H_FIELDSPECS
+        ] +
+        A_FIELDSPECS +
+        B_FIELDSPECS +
+        C_FIELDSPECS +
+        D_FIELDSPECS +
+        E_FIELDSPECS +
+        F_FIELDSPECS +
+        G_FIELDSPECS +
+        H_FIELDSPECS
     )
     has_clinician = True
 
@@ -255,27 +255,27 @@ class Icd10Schizophrenia(Task):
             return False
         if self.present_one_month is not None and not self.present_one_month:
             return False
-        if ((self.also_manic or self.also_depressive)
-                and is_false(self.if_mood_psychosis_first)):
+        if ((self.also_manic or self.also_depressive) and
+                is_false(self.if_mood_psychosis_first)):
             return False
         if is_false(self.not_organic_or_substance):
             return False
-        if ((t_a >= 1 or t_b >= 2)
-                and self.present_one_month
-                and (
-                    (is_false(self.also_manic)
-                        and is_false(self.also_depressive))
-                    or self.if_mood_psychosis_first
-                )
-                and self.not_organic_or_substance):
+        if ((t_a >= 1 or t_b >= 2) and
+                self.present_one_month and
+                (
+                    (is_false(self.also_manic) and
+                        is_false(self.also_depressive)) or
+                    self.if_mood_psychosis_first
+                ) and
+                self.not_organic_or_substance):
             return True
         return None
 
     def is_complete(self):
         return (
-            self.date_pertains_to is not None
-            and self.meets_general_criteria() is not None
-            and self.field_contents_valid()
+            self.date_pertains_to is not None and
+            self.meets_general_criteria() is not None and
+            self.field_contents_valid()
         )
 
     def heading_row(self, wstringname, extra=None):
@@ -302,9 +302,9 @@ class Icd10Schizophrenia(Task):
         h += tr_qa(WSTRING("date_pertains_to"),
                    format_datetime_string(self.date_pertains_to,
                                           DATEFORMAT.LONG_DATE, default=None))
-        h += tr_qa(WSTRING("icd10sz_meets_general_criteria")
-                   + " <sup>[1]</sup>",
-                   get_true_false_none(self.meets_general_criteria()))
+        h += tr_qa(
+            WSTRING("icd10sz_meets_general_criteria") + " <sup>[1]</sup>",
+            get_true_false_none(self.meets_general_criteria()))
         h += """
                 </table>
             </div>

@@ -124,21 +124,21 @@ class GMCPQ(Task):
 
     def is_complete(self):
         return (
-            self.is_field_complete("q1")
-            and self.is_field_complete("q3")
-            and self.is_field_complete("q4a")
-            and self.is_field_complete("q4b")
-            and self.is_field_complete("q4c")
-            and self.is_field_complete("q4d")
-            and self.is_field_complete("q4e")
-            and self.is_field_complete("q4f")
-            and self.is_field_complete("q4g")
-            and self.is_field_complete("q5a")
-            and self.is_field_complete("q5b")
-            and self.is_field_complete("q6")
-            and self.is_field_complete("q7")
-            and self.is_field_complete("q8")
-            and self.field_contents_valid()
+            self.is_field_complete("q1") and
+            self.is_field_complete("q3") and
+            self.is_field_complete("q4a") and
+            self.is_field_complete("q4b") and
+            self.is_field_complete("q4c") and
+            self.is_field_complete("q4d") and
+            self.is_field_complete("q4e") and
+            self.is_field_complete("q4f") and
+            self.is_field_complete("q4g") and
+            self.is_field_complete("q5a") and
+            self.is_field_complete("q5b") and
+            self.is_field_complete("q6") and
+            self.is_field_complete("q7") and
+            self.is_field_complete("q8") and
+            self.field_contents_valid()
         )
 
     def get_task_html(self):

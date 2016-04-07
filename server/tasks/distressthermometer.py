@@ -99,8 +99,8 @@ class DistressThermometer(Task):
     def is_complete(self):
         return (
             self.are_all_fields_complete(repeat_fieldname(
-                "q", 1, self.NQUESTIONS) + ["distress"])
-            and self.field_contents_valid()
+                "q", 1, self.NQUESTIONS) + ["distress"]) and
+            self.field_contents_valid()
         )
 
     def get_task_html(self):

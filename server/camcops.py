@@ -36,7 +36,7 @@ import cc_modules.cc_blob as cc_blob
 import cc_modules.cc_db as cc_db
 import cc_modules.cc_device as cc_device
 import cc_modules.cc_dump as cc_dump
-from cc_modules.cc_logger import logger, dblogger
+from cc_modules.cc_logger import log, dblog
 import cc_modules.cc_hl7 as cc_hl7
 import cc_modules.cc_hl7core as cc_hl7core
 import cc_modules.cc_patient as cc_patient
@@ -82,7 +82,7 @@ CAMCOPS_PROFILE = convert_to_bool(os.environ.get("CAMCOPS_PROFILE", False))
 CAMCOPS_SERVE_STATIC_FILES = convert_to_bool(
     os.environ.get("CAMCOPS_SERVE_STATIC_FILES", True))
 
-# The other debugging control is in cc_shared: see the logger.setLevel() calls,
+# The other debugging control is in cc_shared: see the log.setLevel() calls,
 # controlled primarily by the configuration file's DEBUG_OUTPUT option.
 
 # =============================================================================
@@ -132,16 +132,16 @@ def application(environ, start_response):
     """
 
     if environ["wsgi.multithread"]:
-        logger.critical("Error: started in multithreaded mode")
+        log.critical("Error: started in multithreaded mode")
         raise RuntimeError("Cannot be run in multithreaded mode")
 
     # Set global variables, connect/reconnect to database, etc.
     pls.set_from_environ_and_ping_db(environ)
 
-    logger.debug("WSGI environment: {}".format(repr(environ)))
+    log.debug("WSGI environment: {}".format(repr(environ)))
 
     path = environ['PATH_INFO']
-    # logger.debug("PATH_INFO: {}".format(path))
+    # log.debug("PATH_INFO: {}".format(path))
 
     # Trap any errors from here.
     # http://doughellmann.com/2009/06/19/python-exception-handling-techniques.html  # noqa
@@ -225,8 +225,7 @@ def upgrade_database(old_version):
         CAMCOPS_SERVER_VERSION
     ))
     if old_version is None:
-        logger.warning("Don't know old database version; can't upgrade "
-                       "structure")
+        log.warning("Don't know old database version; can't upgrade structure")
         return
 
     # Proceed IN SEQUENCE from older to newer versions.
@@ -354,13 +353,13 @@ def make_tables(drop_superfluous_columns=False):
     failed = False
     INSERTMSG = " into my.cnf [mysqld] section, and restart MySQL"
     if not pls.db.mysql_using_innodb_strict_mode():
-        logger.error("NOT USING innodb_strict_mode; please insert "
-                     "'innodb_strict_mode = 1'" + INSERTMSG)
+        log.error("NOT USING innodb_strict_mode; please insert "
+                  "'innodb_strict_mode = 1'" + INSERTMSG)
         failed = True
     max_allowed_packet = pls.db.mysql_get_max_allowed_packet()
     size_32M = 32 * 1024 * 1024
     if max_allowed_packet < size_32M:
-        logger.error(
+        log.error(
             "MySQL max_allowed_packet < 32M (it's {} and needs to be {}); "
             "please insert 'max_allowed_packet = 32M'".format(
                 max_allowed_packet,
@@ -368,12 +367,12 @@ def make_tables(drop_superfluous_columns=False):
             ) + INSERTMSG)
         failed = True
     if not pls.db.mysql_using_file_per_table():
-        logger.error(
+        log.error(
             "NOT USING innodb_file_per_table; please insert "
             "'innodb_file_per_table = 1'" + INSERTMSG)
         failed = True
     if not pls.db.mysql_using_innodb_barracuda():
-        logger.error(
+        log.error(
             "innodb_file_format IS NOT Barracuda; please insert "
             "'innodb_file_per_table = Barracuda'" + INSERTMSG)
         failed = True
@@ -432,10 +431,7 @@ def make_tables(drop_superfluous_columns=False):
     print("Making task tables")
     print(SEPARATOR_HYPHENS)
     for cls in cc_task.get_all_task_classes():
-        print(
-            "Making table(s) and view(s) for task: "
-            + cls.shortname
-        )
+        print("Making table(s) and view(s) for task: " + cls.shortname)
         cls.make_tables(drop_superfluous_columns)
 
     audit("Created/recreated main tables", from_console=True)
@@ -698,8 +694,8 @@ def cli_main():
 
     # Initial log level (overridden later by config file but helpful for start)
     loglevel = logging.DEBUG if args.verbose >= 1 else logging.INFO
-    logger.setLevel(loglevel)
-    dblogger.setLevel(loglevel)
+    log.setLevel(loglevel)
+    dblog.setLevel(loglevel)
 
     if args.show_hl7_queue:
         silent = True
@@ -744,8 +740,8 @@ database, for example, in MySQL:
 
     if args.maketables:
         drop_superfluous_columns = False
-        if (args.dropsuperfluous and args.confirm_drop_superfluous_1
-                and args.confirm_drop_superfluous_2):
+        if (args.dropsuperfluous and args.confirm_drop_superfluous_1 and
+                args.confirm_drop_superfluous_2):
             drop_superfluous_columns = True
         make_tables(drop_superfluous_columns)
         n_actions += 1

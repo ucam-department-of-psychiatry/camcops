@@ -65,9 +65,9 @@ def offer_report_menu(session):
     )
     for cls in get_all_report_classes():
         html += "<li><a href={}>{}</a></li>".format(
-            cc_html.get_generic_action_url(ACTION.OFFER_REPORT)
-                + cc_html.get_url_field_value_pair(PARAM.REPORT_ID,
-                                                   cls.report_id),
+            cc_html.get_generic_action_url(ACTION.OFFER_REPORT) +
+                cc_html.get_url_field_value_pair(PARAM.REPORT_ID,
+                                                 cls.report_id),
             cls.report_title
         )
     return html + "</ul>" + WEBEND
@@ -219,8 +219,8 @@ def provide_report(session, form):
     outputtype = ws.get_cgi_parameter_str(form, PARAM.OUTPUTTYPE)
     if outputtype is not None:
         outputtype = outputtype.lower()
-    if (outputtype != VALUE.OUTPUTTYPE_HTML
-            and outputtype != VALUE.OUTPUTTYPE_TSV):
+    if (outputtype != VALUE.OUTPUTTYPE_HTML and
+            outputtype != VALUE.OUTPUTTYPE_TSV):
         return cc_html.fail_with_error_stay_logged_in("Unknown outputtype")
 
     # Get parameters
@@ -234,11 +234,11 @@ def provide_report(session, form):
 
     if outputtype == VALUE.OUTPUTTYPE_TSV:
         filename = (
-            "CamCOPS_"
-            + report.report_id
-            + "_"
-            + cc_dt.format_datetime(pls.NOW_LOCAL_TZ, DATEFORMAT.FILENAME)
-            + ".tsv"
+            "CamCOPS_" +
+            report.report_id +
+            "_" +
+            cc_dt.format_datetime(pls.NOW_LOCAL_TZ, DATEFORMAT.FILENAME) +
+            ".tsv"
         )
         return ws.tsv_result(tsv_from_query(rows, descriptions), [], filename)
     else:

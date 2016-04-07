@@ -51,9 +51,9 @@ class Gaf(Task):
 
     def is_complete(self):
         return (
-            self.score is not None
-            and self.field_contents_valid()
-            and self.score != 0
+            self.score is not None and
+            self.field_contents_valid() and
+            self.score != 0
         )
 
     def get_trackers(self):

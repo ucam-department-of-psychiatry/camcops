@@ -87,8 +87,8 @@ class Bprse(Task):
 
     def is_complete(self):
         return (
-            self.are_all_fields_complete(self.TASK_FIELDS)
-            and self.field_contents_valid()
+            self.are_all_fields_complete(self.TASK_FIELDS) and
+            self.field_contents_valid()
         )
 
     def total_score(self):

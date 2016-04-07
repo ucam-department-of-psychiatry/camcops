@@ -207,9 +207,9 @@ class MdsUpdrs(Task):
 
     def is_complete(self):
         return (
-            self.field_contents_valid()
-            and self.are_all_fields_complete(self.TASK_FIELDS_EXCEPT_3C1)
-            and (self.q3c1 is not None or not self.q3c)
+            self.field_contents_valid() and
+            self.are_all_fields_complete(self.TASK_FIELDS_EXCEPT_3C1) and
+            (self.q3c1 is not None or not self.q3c)
         )
 
     def get_task_html(self):

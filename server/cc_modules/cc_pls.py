@@ -77,8 +77,7 @@ from .cc_constants import (
 )
 from . import cc_dt
 from . import cc_filename
-from . import cc_logger
-from .cc_logger import logger
+from .cc_logger import dblog, log
 from . import cc_namedtuples
 from . import cc_policy
 from . import cc_recipdef
@@ -231,10 +230,10 @@ class LocalStorage(object):
             host = environ.get("SERVER_NAME", "")
         port = ""
         server_port = environ.get("SERVER_PORT")
-        if (server_port
-                and ":" not in host
-                and not(protocol == "https" and server_port == "443")
-                and not(protocol == "http" and server_port == "80")):
+        if (server_port and
+                ":" not in host and
+                not(protocol == "https" and server_port == "443") and
+                not(protocol == "http" and server_port == "80")):
             port = ":" + server_port
         script = urllib.parse.quote(environ.get("SCRIPT_NAME", ""))
         path = urllib.parse.quote(environ.get("PATH_INFO", ""))
@@ -272,7 +271,7 @@ class LocalStorage(object):
             self.CAMCOPS_CONFIG_FILE = os.environ.get("CAMCOPS_CONFIG_FILE")
         if not self.CAMCOPS_CONFIG_FILE:
             raise AssertionError("CAMCOPS_CONFIG_FILE not specified")
-        logger.info("Reading from {}".format(self.CAMCOPS_CONFIG_FILE))
+        log.info("Reading from {}".format(self.CAMCOPS_CONFIG_FILE))
         config = configparser.ConfigParser()
         config.readfp(codecs.open(self.CAMCOPS_CONFIG_FILE, "r", "utf8"))
 
@@ -307,7 +306,7 @@ class LocalStorage(object):
 
         self.DBCLIENT_LOGLEVEL = get_config_parameter_loglevel(
             config, section, "DBCLIENT_LOGLEVEL", logging.INFO)
-        cc_logger.dblogger.setLevel(self.DBCLIENT_LOGLEVEL)
+        dblog.setLevel(self.DBCLIENT_LOGLEVEL)
 
         self.DBENGINE_LOGLEVEL = get_config_parameter_loglevel(
             config, section, "DBENGINE_LOGLEVEL", logging.INFO)
@@ -383,7 +382,7 @@ class LocalStorage(object):
 
         self.WEBVIEW_LOGLEVEL = get_config_parameter_loglevel(
             config, section, "WEBVIEW_LOGLEVEL", logging.INFO)
-        cc_logger.logger.setLevel(self.WEBVIEW_LOGLEVEL)
+        log.setLevel(self.WEBVIEW_LOGLEVEL)
 
         self.WKHTMLTOPDF_FILENAME = get_config_parameter(
             config, section, "WKHTMLTOPDF_FILENAME", str, None)
@@ -397,13 +396,13 @@ class LocalStorage(object):
         try:
             hl7_items = config.items(CONFIG_FILE_RECIPIENTLIST_SECTION)
             for key, recipientdef_name in hl7_items:
-                logger.debug("HL7 config: key={}, recipientdef_name="
-                             "{}".format(key, recipientdef_name))
+                log.debug("HL7 config: key={}, recipientdef_name="
+                          "{}".format(key, recipientdef_name))
                 h = cc_recipdef.RecipientDefinition(config, recipientdef_name)
                 if h.valid:
                     self.HL7_RECIPIENT_DEFS.append(h)
         except configparser.NoSectionError:
-            logger.info("No config file section [{}]".format(
+            log.info("No config file section [{}]".format(
                 CONFIG_FILE_RECIPIENTLIST_SECTION
             ))
 

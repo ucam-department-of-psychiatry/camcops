@@ -134,8 +134,8 @@ class Rand36(Task):
     def is_complete(self):
         return (
             self.are_all_fields_complete(
-                repeat_fieldname("q", 1, self.NQUESTIONS))
-            and self.field_contents_valid()
+                repeat_fieldname("q", 1, self.NQUESTIONS)) and
+            self.field_contents_valid()
         )
 
     @classmethod

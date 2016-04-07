@@ -85,8 +85,8 @@ class Cgi(Task):
         ]
 
     def is_complete(self):
-        if not (self.are_all_fields_complete(self.TASK_FIELDS)
-                and self.field_contents_valid()):
+        if not (self.are_all_fields_complete(self.TASK_FIELDS) and
+                self.field_contents_valid()):
             return False
         if self.q1 == 0 or self.q2 == 0 or self.q3t == 0 or self.q3s == 0:
             return False
@@ -201,8 +201,8 @@ class CgiI(Task):
         }]
 
     def is_complete(self):
-        return (self.are_all_fields_complete(self.TASK_FIELDS)
-                and self.field_contents_valid())
+        return (self.are_all_fields_complete(self.TASK_FIELDS) and
+                self.field_contents_valid())
 
     def get_rating_text(self):
         qdict = self.get_q_dict()

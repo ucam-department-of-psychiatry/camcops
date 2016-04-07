@@ -59,8 +59,8 @@ class Icd10Schizotypal(Task):
             dict(name="b", cctype="BOOL", pv=PV.BIT,
                  comment="Criterion (B). True if: the subject has never met "
                  "the criteria for any disorder in F20 (Schizophrenia)."),
-        ]
-        + repeat_fieldspec(
+        ] +
+        repeat_fieldspec(
             "a", 1, N_A, "BOOL", pv=PV.BIT,
             comment_fmt="Criterion A({n}), {s}",
             comment_strings=[
@@ -114,18 +114,18 @@ class Icd10Schizotypal(Task):
         if not self.is_complete:
             return None
         return (
-            self.count_booleans(repeat_fieldname("a", 1,
-                                                 Icd10Schizotypal.N_A)) >= 4
-            and self.b
+            self.count_booleans(
+                repeat_fieldname("a", 1, Icd10Schizotypal.N_A)) >= 4 and
+            self.b
         )
 
     def is_complete(self):
         return (
-            self.date_pertains_to is not None
-            and self.are_all_fields_complete(repeat_fieldname(
-                "a", 1, Icd10Schizotypal.N_A))
-            and self.b is not None
-            and self.field_contents_valid()
+            self.date_pertains_to is not None and
+            self.are_all_fields_complete(repeat_fieldname(
+                "a", 1, Icd10Schizotypal.N_A)) and
+            self.b is not None and
+            self.field_contents_valid()
         )
 
     def text_row(self, wstringname):

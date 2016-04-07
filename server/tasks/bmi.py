@@ -56,9 +56,9 @@ class Bmi(Task):
 
     def is_complete(self):
         return (
-            self.height_m is not None
-            and self.mass_kg is not None
-            and self.field_contents_valid()
+            self.height_m is not None and
+            self.mass_kg is not None and
+            self.field_contents_valid()
         )
 
     def get_trackers(self):

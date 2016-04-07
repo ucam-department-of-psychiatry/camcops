@@ -89,16 +89,16 @@ def get_permitted_tables_views_sorted_labelled():
     valid_taskviews = list(set(tables_that_exist).intersection(taskviews))
 
     system_list = (
-        [{"view": False, "name": x} for x in valid_system_tables]
-        + [{"view": True, "name": x} for x in valid_system_views]
+        [{"view": False, "name": x} for x in valid_system_tables] +
+        [{"view": True, "name": x} for x in valid_system_views]
     )
     task_list = (
-        [{"view": False, "name": x} for x in valid_tasktables]
-        + [{"view": True, "name": x} for x in valid_taskviews]
+        [{"view": False, "name": x} for x in valid_tasktables] +
+        [{"view": True, "name": x} for x in valid_taskviews]
     )
     return (
-        sorted(system_list, key=lambda k: k["name"])
-        + sorted(task_list, key=lambda k: k["name"])
+        sorted(system_list, key=lambda k: k["name"]) +
+        sorted(task_list, key=lambda k: k["name"])
     )
     # ... makes system tables be at one end of the list for visibility
 
@@ -225,9 +225,9 @@ def get_view_data_as_tsv(view, prevalidated=False, audit_individually=True):
     # Special blob handling...
     if view == cc_blob.Blob.TABLENAME:
         query = (
-            "SELECT "
-            + ",".join(cc_blob.Blob.FIELDS_WITHOUT_BLOB)
-            + ",HEX(theblob) FROM " + cc_blob.Blob.TABLENAME
+            "SELECT " +
+            ",".join(cc_blob.Blob.FIELDS_WITHOUT_BLOB) +
+            ",HEX(theblob) FROM " + cc_blob.Blob.TABLENAME
         )
     else:
         query = "SELECT * FROM " + view

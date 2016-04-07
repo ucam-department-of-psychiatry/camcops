@@ -81,8 +81,8 @@ class Cage(Task):
 
     def is_complete(self):
         return (
-            self.are_all_fields_complete(Cage.TASK_FIELDS)
-            and self.field_contents_valid()
+            self.are_all_fields_complete(Cage.TASK_FIELDS) and
+            self.field_contents_valid()
         )
 
     def get_value(self, q):

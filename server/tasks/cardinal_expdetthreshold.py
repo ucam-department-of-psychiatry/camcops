@@ -298,13 +298,14 @@ class Cardinal_ExpDetThreshold(Task):
                         precision=DP_TO_CONSIDER_SAME_FOR_JITTER
                     )
                     if t.yes:
-                        detected_y.append(1 - detected_x_approx.count(approx_x)
-                                          * JITTER_STEP)
+                        detected_y.append(
+                            1 -
+                            detected_x_approx.count(approx_x) * JITTER_STEP)
                         detected_x.append(t.intensity)
                         detected_x_approx.append(approx_x)
                     else:
-                        missed_y.append(0 + missed_x_approx.count(approx_x)
-                                        * JITTER_STEP)
+                        missed_y.append(
+                            0 + missed_x_approx.count(approx_x) * JITTER_STEP)
                         missed_x.append(t.intensity)
                         missed_x_approx.append(approx_x)
             fit_x = numpy.arange(0.0 - X_EXTRA_SPACE, 1.0 + X_EXTRA_SPACE,

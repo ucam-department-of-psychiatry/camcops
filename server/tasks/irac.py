@@ -45,8 +45,8 @@ class Irac(Task):
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def is_complete(self):
-        return (self.are_all_fields_complete(self.TASK_FIELDS)
-                and self.field_contents_valid())
+        return (self.are_all_fields_complete(self.TASK_FIELDS) and
+                self.field_contents_valid())
 
     def get_achieved_text(self):
         achieveddict = {

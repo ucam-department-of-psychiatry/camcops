@@ -70,8 +70,8 @@ class Icd10Mixed(Task):
         if not self.is_complete():
             return CTV_DICTLIST_INCOMPLETE
         category = (
-            ("Meets" if self.meets_criteria() else "Does not meet")
-            + " criteria for mixed affective episode"
+            ("Meets" if self.meets_criteria() else "Does not meet") +
+            " criteria for mixed affective episode"
         )
         dl = [{
             "content": "Pertains to: {}. {}.".format(
@@ -104,8 +104,8 @@ class Icd10Mixed(Task):
 
     def is_complete(self):
         return (
-            self.meets_criteria() is not None
-            and self.field_contents_valid()
+            self.meets_criteria() is not None and
+            self.field_contents_valid()
         )
 
     def get_task_html(self):

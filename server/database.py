@@ -22,14 +22,6 @@
 """
 
 # =============================================================================
-# Debugging options
-# =============================================================================
-
-# Report profiling information to the HTTPD log? (Adds overhead; do not enable
-# for production systems.)
-PROFILE = False
-
-# =============================================================================
 # Imports
 # =============================================================================
 
@@ -59,7 +51,7 @@ from cc_modules.cc_convert import (
     unescape_newlines,
 )
 from cc_modules.cc_dt import format_datetime
-from cc_modules.cc_logger import dblogger as logger
+from cc_modules.cc_logger import dblog as log
 from cc_modules.cc_pls import pls
 import cc_modules.cc_session as cc_session
 import cc_modules.cc_string as cc_string
@@ -69,6 +61,14 @@ from cc_modules.cc_unittest import (
     unit_test_verify
 )
 import cc_modules.cc_version as cc_version
+
+# =============================================================================
+# Debugging options
+# =============================================================================
+
+# Report profiling information to the HTTPD log? (Adds overhead; do not enable
+# for production systems.)
+PROFILE = False
 
 # =============================================================================
 # Constants
@@ -228,7 +228,7 @@ def get_fields_from_post_var(form, var, mandatory=True):
     fields = [x.strip() for x in csfields.split(",")]
     for f in fields:
         ensure_valid_field_name(f)
-    # logger.debug("get_fields_from_post_var: fields={}".format(fields))
+    # log.debug("get_fields_from_post_var: fields={}".format(fields))
     return fields
 
 
@@ -595,7 +595,7 @@ def upload_record_core(device, table, clientpk_name, valuedict, recordnum,
             # UNLESS MOVE_OFF_TABLET_FIELDNAME is set
             if valuedict[MOVE_OFF_TABLET_FIELD]:
                 flag_record_for_preservation(table, oldserverpk)
-                logger.debug(
+                log.debug(
                     "Table {table}, uploaded record {recordnum}: identical "
                     "but moving off tablet".format(
                         table=table,
@@ -603,7 +603,7 @@ def upload_record_core(device, table, clientpk_name, valuedict, recordnum,
                     )
                 )
             else:
-                logger.debug(
+                log.debug(
                     "Table {table}, uploaded record {recordnum}: "
                     "identical".format(
                         table=table,
@@ -615,7 +615,7 @@ def upload_record_core(device, table, clientpk_name, valuedict, recordnum,
             newserverpk = insert_record(device, table, valuedict, oldserverpk,
                                         tablet_camcops_version)
             flag_modified(device, table, oldserverpk, newserverpk)
-            logger.debug("Table {table}, record {recordnum}: modified".format(
+            log.debug("Table {table}, record {recordnum}: modified".format(
                 table=table,
                 recordnum=recordnum,
             ))
@@ -718,7 +718,7 @@ def get_device_upload_batch_details(device, user):
         # previous pending changes)
         start_device_upload_batch(device, user)
         return pls.NOW_UTC_NO_TZ
-    logger.debug(
+    log.debug(
         "get_device_upload_batch_details: upload_batch_utc = {}".format(
             repr(upload_batch_utc)))
     return upload_batch_utc, currently_preserving
@@ -1190,15 +1190,15 @@ def upload_table(form):
     flag_deleted(device, table, server_pks_for_deletion)
 
     # Success
-    logger.debug("server_active_record_pks: {}".format(
+    log.debug("server_active_record_pks: {}".format(
         server_active_record_pks))
-    logger.debug("server_uploaded_pks: {}".format(server_uploaded_pks))
-    logger.debug("server_pks_for_deletion: {}".format(
+    log.debug("server_uploaded_pks: {}".format(server_uploaded_pks))
+    log.debug("server_pks_for_deletion: {}".format(
         server_pks_for_deletion))
-    logger.debug("Table {table}, number of missing records (deleted): "
-                 "{d}".format(table=table, d=len(server_pks_for_deletion)))
+    log.debug("Table {table}, number of missing records (deleted): "
+              "{d}".format(table=table, d=len(server_pks_for_deletion)))
     # Auditing occurs at commit_all.
-    logger.info("Upload successful; {n} records uploaded to table {t}".format(
+    log.info("Upload successful; {n} records uploaded to table {t}".format(
         n=nrecords, t=table))
     return "Table {} upload successful".format(table)
 
@@ -1223,7 +1223,7 @@ def upload_record(form):
     if not serverpks:
         # Insert
         insert_record(device, table, valuedict, None, camcops_version)
-        logger.info("upload-insert")
+        log.info("upload-insert")
         return "UPLOAD-INSERT"
     else:
         # Update
@@ -1232,7 +1232,7 @@ def upload_record(form):
         flag_modified(device, table, oldserverpk, newserverpk)
         update_new_copy_of_record(table, newserverpk, valuedict, oldserverpk,
                                   camcops_version)
-        logger.info("upload-update")
+        log.info("upload-update")
         return "UPLOAD-UPDATE"
     # Auditing occurs at commit_all.
 
@@ -1248,7 +1248,7 @@ def upload_empty_tables(form):
     batchtime, preserving = get_device_upload_batch_details(device, user)
     for table in tables:
         flag_all_records_deleted(device, table)
-    logger.info("upload_empty_tables")
+    log.info("upload_empty_tables")
     # Auditing occurs at commit_all.
     return "UPLOAD-EMPTY-TABLES"
 
@@ -1266,7 +1266,7 @@ def start_preservation(form):
 
     batchtime, preserving = get_device_upload_batch_details(device, user)
     start_preserving(device)
-    logger.info("start_preservation successful")
+    log.info("start_preservation successful")
     # Auditing occurs at commit_all.
     return "STARTPRESERVATION"
 
@@ -1284,7 +1284,7 @@ def delete_where_key_not(form):
     flag_deleted_where_clientpk_not(device, table, clientpk_name,
                                     clientpk_values)
     # Auditing occurs at commit_all.
-    logger.info("delete_where_key_not successful; table {} trimmed".format(
+    log.info("delete_where_key_not successful; table {} trimmed".format(
         table))
     return "Trimmed"
 
@@ -1333,7 +1333,7 @@ def which_keys_to_send(form):
 
     # Success
     pk_csv_list = ",".join([str(x) for x in pks_needed if x is not None])
-    logger.info("which_keys_to_send successful: table {}".format(table))
+    log.info("which_keys_to_send successful: table {}".format(table))
     return pk_csv_list
 
 
@@ -1354,9 +1354,9 @@ def count(form):
     c = count_records(device, table, wheredict, wherenotdict)
     auditstring = ("webclient SELECT COUNT(*) FROM {t} WHERE {w} AND WHERE "
                    "NOT {wn}".format(t=table, w=wheredict, wn=wherenotdict))
-    logger.debug(auditstring)
+    log.debug(auditstring)
     audit(auditstring, user=user, device=device, table=table)
-    logger.info("COUNT")
+    log.info("COUNT")
     return c
 
 
@@ -1389,9 +1389,9 @@ def select(form):
             wn=wherenotdict,
         )
     )
-    logger.debug(auditstring)
+    log.debug(auditstring)
     audit(auditstring, user=user, device=device, table=table)
-    logger.info("SELECT")
+    log.info("SELECT")
     return reply
 
 
@@ -1422,7 +1422,7 @@ def insert(form):
     commit_table(device, user, pls.NOW_UTC_NO_TZ, False, table)
     audit("webclient INSERT", user=user, device=device, table=table,
           server_pk=serverpk)
-    logger.info("INSERT")
+    log.info("INSERT")
     return clientpk_value
 
 
@@ -1458,7 +1458,7 @@ def update(form):
         audit("webclient UPDATE: new record inserted",
               user=user, device=device, table=table, server_pk=newserverpk)
     commit_table(device, user, pls.NOW_UTC_NO_TZ, False, table)
-    logger.info("UPDATE")
+    log.info("UPDATE")
     return "Updated"
 
 
@@ -1475,7 +1475,7 @@ def delete(form):
     # ... doesn't need a separate commit_table
     audit("webclient DELETE WHERE {}".format(wheredict),
           user=user, device=device, table=table)
-    logger.info("DELETE")
+    log.info("DELETE")
     return "Deleted"
 
 
@@ -1521,7 +1521,7 @@ def main_http_processor(env):
     #   text:   main text to send (will use status '200 OK')
     # For failure, raises an exception.
 
-    logger.info("CamCOPS database script starting at {}".format(
+    log.info("CamCOPS database script starting at {}".format(
         format_datetime(pls.NOW_LOCAL_TZ, DATEFORMAT.ISO8601)
     ))
     form = ws.get_cgi_fieldstorage_from_wsgi_env(env)
@@ -1531,12 +1531,12 @@ def main_http_processor(env):
     #    # config file). However, the raw CGI form will include the client's
     #    # cleartext password.
 
-    #    # logger.debug("Environment: {}".format(env))
+    #    # log.debug("Environment: {}".format(env))
     #    cleanform = dict([
     #        (k, form.getvalue(k) if k != PARAM.PASSWORD else "*"*8)
     #        for k in form.keys()
     #    ])
-    #    logger.debug("CGI form: {}".format(cleanform))
+    #    log.debug("CGI form: {}".format(cleanform))
 
     if not ws.cgi_method_is_post(env):
         fail_user_error("Must use POST method")
@@ -1549,8 +1549,8 @@ def main_http_processor(env):
     session_token = ws.get_cgi_parameter_str(form, PARAM.SESSION_TOKEN)
     tablet_version = ws.get_cgi_parameter_float(form, PARAM.CAMCOPS_VERSION)
 
-    if (tablet_version is None
-            or tablet_version < cc_version.MINIMUM_TABLET_VERSION):
+    if (tablet_version is None or
+            tablet_version < cc_version.MINIMUM_TABLET_VERSION):
         fail_user_error(
             "Tablet CamCOPS version too old: is {v}, need {r}".format(
                 v=tablet_version,
@@ -1559,7 +1559,7 @@ def main_http_processor(env):
     cc_session.establish_session_for_tablet(
         session_id, session_token, pls.remote_addr, username, password)
 
-    logger.info(
+    log.info(
         "Incoming connection from IP={i}, port={p}, device={d}, user={u}, "
         "operation={o}".format(
             i=pls.remote_addr,
@@ -1611,14 +1611,14 @@ def database_application(environ, start_response):
         resultdict[PARAM.SUCCESS] = 1
         status = '200 OK'
     except UserErrorException as e:
-        logger.warn("CLIENT-SIDE SCRIPT ERROR: " + str(e))
+        log.warn("CLIENT-SIDE SCRIPT ERROR: " + str(e))
         resultdict = {
             PARAM.SUCCESS: 0,
             PARAM.ERROR: escape_newlines(str(e))
         }
         status = '200 OK'
     except ServerErrorException as e:
-        logger.error("SERVER-SIDE SCRIPT ERROR: " + str(e))
+        log.error("SERVER-SIDE SCRIPT ERROR: " + str(e))
         pls.db.rollback()
         resultdict = {
             PARAM.SUCCESS: 0,
@@ -1629,7 +1629,7 @@ def database_application(environ, start_response):
         # All other exceptions. May include database write failures.
         # Let's return with status '200 OK'; though this seems dumb, it means
         # the tablet user will at least see the message.
-        logger.exception("Unhandled exception")
+        log.exception("Unhandled exception")
         pls.db.rollback()
         resultdict = {
             PARAM.SUCCESS: 0,
@@ -1651,9 +1651,9 @@ def database_application(environ, start_response):
     pls.db.commit()
     t2 = time.time()
 
-    # logger.debug("Reply: {}".format(repr(output)))
-    # ... don't send Unicode to the logger...
-    logger.info(
+    # log.debug("Reply: {}".format(repr(output)))
+    # ... don't send Unicode to the log...
+    log.info(
         "Total time (s): {t} (script {s}, commit {c})".format(
             t=t2 - t0,
             s=t1 - t0,

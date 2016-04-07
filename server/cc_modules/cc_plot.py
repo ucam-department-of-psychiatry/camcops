@@ -32,7 +32,7 @@ import tempfile
 
 import cardinal_pythonlib.rnc_plot as rnc_plot
 
-from .cc_logger import logger
+from .cc_logger import log
 
 # =============================================================================
 # Import matplotlib
@@ -68,9 +68,9 @@ if 'HOME' in os.environ:
     del os.environ['HOME']
 
 # 5. Import matplotlib
-logger.info("importing matplotlib (can be slow) (MPLCONFIGDIR={})...".format(
+log.info("importing matplotlib (can be slow) (MPLCONFIGDIR={})...".format(
     MPLCONFIGDIR))
-import matplotlib
+import matplotlib  # noqa
 
 # 6. Set the backend
 matplotlib.use("Agg")  # also the default backend
@@ -79,8 +79,8 @@ matplotlib.use("Agg")  # also the default backend
 # matplotlib.use("cairo") # cairo backend corrupts some SVG figures
 
 # Load this once so we can tell the user we're importing it and it's slow
-import matplotlib.pyplot
-logger.info("... finished importing matplotlib")
+import matplotlib.pyplot  # noqa
+log.info("... finished importing matplotlib")
 
 # THEN DO e.g. # import matplotlib.pyplot as plt
 

@@ -439,9 +439,9 @@ class Cape42(Task):
         )
         for q in ALL:
             h += tr(
-                "{q}. ".format(q=q)
-                + WSTRING("cape42_q" + str(q))
-                + " (<i>" + self.question_category(q) + "</i>)",
+                "{q}. ".format(q=q) +
+                WSTRING("cape42_q" + str(q)) +
+                " (<i>" + self.question_category(q) + "</i>)",
                 answer(self.get_frequency(q)),
                 answer(
                     self.get_distress_score(q) if self.endorsed(q) else None,

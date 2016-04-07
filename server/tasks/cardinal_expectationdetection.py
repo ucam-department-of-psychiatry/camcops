@@ -507,14 +507,14 @@ class Cardinal_ExpectationDetection(Task):
         z_fa = scipy.stats.norm.ppf(fa)
         z_h = scipy.stats.norm.ppf(h)
 
-        # logger.debug("p_stimulus: " + str(p_stimulus))
-        # logger.debug("p_nostimulus: " + str(p_nostimulus))
-        # logger.debug("cump_stimulus: " + str(cump_stimulus))
-        # logger.debug("cump_nostimulus: " + str(cump_nostimulus))
-        # logger.debug("h: " + str(h))
-        # logger.debug("fa: " + str(fa))
-        # logger.debug("z_h: " + str(z_h))
-        # logger.debug("z_fa: " + str(z_fa))
+        # log.debug("p_stimulus: " + str(p_stimulus))
+        # log.debug("p_nostimulus: " + str(p_nostimulus))
+        # log.debug("cump_stimulus: " + str(cump_stimulus))
+        # log.debug("cump_nostimulus: " + str(cump_nostimulus))
+        # log.debug("h: " + str(h))
+        # log.debug("fa: " + str(fa))
+        # log.debug("z_h: " + str(z_h))
+        # log.debug("z_fa: " + str(z_fa))
 
         return {
             "fa": fa,
@@ -728,47 +728,47 @@ class Cardinal_ExpectationDetection(Task):
                     Trial group specifications (one block is a full set of
                     all these trials):
                 </div>
+            """ +
+            self.get_group_html(grouparray) +
             """
-            + self.get_group_html(grouparray)
-            + """
                 <div>
                     Detection probabilities by block and group (c &gt; 0 when
                     miss rate &gt; false alarm rate; c &lt; 0 when false alarm
                     rate &gt; miss rate):
                 </div>
+            """ +
+            self.get_html_correct_by_group_and_block(trialarray) +
+            "<div>Detection probabilities by block:</div>" +
+            self.get_html_correct_by_block(trialarray) +
+            "<div>Detection probabilities by group:</div>" +
+            self.get_html_correct_by_group(trialarray) +
             """
-            + self.get_html_correct_by_group_and_block(trialarray)
-            + "<div>Detection probabilities by block:</div>"
-            + self.get_html_correct_by_block(trialarray)
-            + "<div>Detection probabilities by group:</div>"
-            + self.get_html_correct_by_group(trialarray)
-            + """
                 <div>
                     Detection probabilities by half and high/low association
                     probability:
                 </div>
+            """ +
+            self.get_html_correct_by_half_and_probability(trialarray,
+                                                          grouparray) +
             """
-            + self.get_html_correct_by_half_and_probability(trialarray,
-                                                            grouparray)
-            + """
                 <div>
                     Detection probabilities by block and high/low association
                     probability:
                 </div>
+            """ +
+            self.get_html_correct_by_block_and_probability(trialarray,
+                                                           grouparray) +
             """
-            + self.get_html_correct_by_block_and_probability(trialarray,
-                                                             grouparray)
-            + """
                 <div>
                     Receiver operating characteristic (ROC) curves by group:
                 </div>
-            """
-            + self.get_roc_figure_by_group(trialarray, grouparray, True)
-            + self.get_roc_figure_by_group(trialarray, grouparray, False)
-            + "<div>First-half/last-half ROCs:</div>"
-            + self.get_roc_figure_firsthalf_lasthalf(trialarray, True)
-            + "<div>Trial-by-trial results:</div>"
-            + self.get_trial_html(trialarray)
+            """ +
+            self.get_roc_figure_by_group(trialarray, grouparray, True) +
+            self.get_roc_figure_by_group(trialarray, grouparray, False) +
+            "<div>First-half/last-half ROCs:</div>" +
+            self.get_roc_figure_firsthalf_lasthalf(trialarray, True) +
+            "<div>Trial-by-trial results:</div>" +
+            self.get_trial_html(trialarray)
         )
         return h
 
@@ -981,9 +981,9 @@ class Cardinal_ExpectationDetection(Task):
         n_detected_given_absent = 0
         n_trials = 0
         for t in trialarray:
-            if (not t.responded
-                    or (blocks is not None and t.block not in blocks)
-                    or (groups is not None and t.group_num not in groups)):
+            if (not t.responded or
+                    (blocks is not None and t.block not in blocks) or
+                    (groups is not None and t.group_num not in groups)):
                 continue
             if t.target_present:
                 n_present += 1

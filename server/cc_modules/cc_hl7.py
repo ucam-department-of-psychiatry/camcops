@@ -56,7 +56,7 @@ from .cc_hl7core import (
     SEGMENT_SEPARATOR,
 )
 from . import cc_html
-from .cc_logger import logger
+from .cc_logger import log
 from . import cc_namedtuples
 from .cc_pls import pls
 from . import cc_recipdef
@@ -139,16 +139,16 @@ def send_all_pending_hl7_messages(show_queue_only=False):
     """
     queue_stdout = sys.stdout
     if not pls.HL7_LOCKFILE:
-        logger.error("send_all_pending_hl7_messages: No HL7_LOCKFILE specified"
-                     " in config; can't proceed")
+        log.error("send_all_pending_hl7_messages: No HL7_LOCKFILE specified"
+                  " in config; can't proceed")
         return
     # On UNIX, lockfile uses LinkLockFile
     # https://github.com/smontanaro/pylockfile/blob/master/lockfile/
     #         linklockfile.py
     lock = lockfile.FileLock(pls.HL7_LOCKFILE)
     if lock.is_locked():
-        logger.warning("send_all_pending_hl7_messages: locked by another"
-                       " process; aborting")
+        log.warning("send_all_pending_hl7_messages: locked by another"
+                    " process; aborting")
         return
     with lock:
         if show_queue_only:
@@ -164,11 +164,11 @@ def send_pending_hl7_messages(recipient_def, show_queue_only, queue_stdout):
     HL7Run, then sends all pending HL7/file messages to a specific
     recipient."""
     # Called once per recipient.
-    logger.debug("send_pending_hl7_messages: " + str(recipient_def))
+    log.debug("send_pending_hl7_messages: " + str(recipient_def))
 
-    use_ping = (recipient_def.using_hl7()
-                and not recipient_def.divert_to_file
-                and recipient_def.ping_first)
+    use_ping = (recipient_def.using_hl7() and
+                not recipient_def.divert_to_file and
+                recipient_def.ping_first)
     if use_ping:
         # No HL7 PING method yet. Proposal is:
         # http://hl7tsc.org/wiki/index.php?title=FTSD-ConCalls-20081028
@@ -177,11 +177,11 @@ def send_pending_hl7_messages(recipient_def, show_queue_only, queue_stdout):
             timeout_s = min(recipient_def.network_timeout_ms // 1000, 1)
             if not ping(hostname=recipient_def.host,
                         timeout_s=timeout_s):
-                logger.error("Failed to ping {}".format(recipient_def.host))
+                log.error("Failed to ping {}".format(recipient_def.host))
                 return
         except socket.error:
-            logger.error("Socket error trying to ping {}; likely need to "
-                         "run as root".format(recipient_def.host))
+            log.error("Socket error trying to ping {}; likely need to "
+                      "run as root".format(recipient_def.host))
             return
 
     if show_queue_only:
@@ -197,7 +197,7 @@ def send_pending_hl7_messages(recipient_def, show_queue_only, queue_stdout):
                 send_pending_hl7_messages_2(recipient_def, show_queue_only,
                                             queue_stdout, hl7run, f)
         except Exception as e:
-            logger.error("Couldn't open file {} for appending: {}".format(
+            log.error("Couldn't open file {} for appending: {}".format(
                 recipient_def.divert_to_file, e))
             return
     else:
@@ -274,7 +274,7 @@ def send_pending_hl7_messages_2(recipient_def, show_queue_only, queue_stdout,
             args.append(ERA_NOW)
 
         # OK. Fetch PKs and send information.
-        # logger.debug("{}, args={}".format(sql, args))
+        # log.debug("{}, args={}".format(sql, args))
         pklist = pls.db.fetchallfirstvalues(sql, *args)
         for serverpk in pklist:
             msg = HL7Message(bt, serverpk, hl7run, recipient_def,
@@ -296,9 +296,9 @@ def send_pending_hl7_messages_2(recipient_def, show_queue_only, queue_stdout,
     if hl7run:
         hl7run.call_script(files_exported)
         hl7run.finish()
-    logger.info("{} HL7 messages sent, {} successful, {} failed".format(
+    log.info("{} HL7 messages sent, {} successful, {} failed".format(
         n_hl7_sent, n_hl7_successful, n_hl7_sent - n_hl7_successful))
-    logger.info("{} files sent, {} successful, {} failed".format(
+    log.info("{} files sent, {} successful, {} failed".format(
         n_file_sent, n_file_successful, n_file_sent - n_file_successful))
 
 
@@ -492,8 +492,8 @@ class HL7Message(object):
             return False
         if not self.task:
             return False
-        anonymous_ok = (self.recipient_def.using_file()
-                        and self.recipient_def.include_anonymous)
+        anonymous_ok = (self.recipient_def.using_file() and
+                        self.recipient_def.include_anonymous)
         task_is_anonymous = self.task.is_anonymous
         if task_is_anonymous and not anonymous_ok:
             return False
@@ -525,7 +525,7 @@ class HL7Message(object):
         print(infomsg, file=f)
         print(str(self.msg), file=f)
         print("\n", file=f)
-        logger.debug(infomsg)
+        log.debug(infomsg)
         self.host = self.recipient_def.divert_to_file
         if self.recipient_def.treat_diverted_as_sent:
             self.success = True
@@ -565,7 +565,7 @@ class HL7Message(object):
             raise AssertionError("HL7Message.send: invalid recipient_def.type")
         self.save()
 
-        logger.debug(
+        log.debug(
             "HL7Message.send: recipient={}, basetable={}, "
             "serverpk={}".format(
                 self.recipient_def.recipient,

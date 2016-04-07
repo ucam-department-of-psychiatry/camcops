@@ -162,9 +162,9 @@ class Phq15(Task):
                 answer(score) + " / 30")
         h += tr_qa(WSTRING("phq15_n_severe_symptoms") + " <sup>[2]</sup>",
                    nsevere)
-        h += tr_qa(WSTRING("phq15_exceeds_somatoform_cutoff")
-                   + " <sup>[3]</sup>",
-                   get_yes_no(somatoform_likely))
+        h += tr_qa(
+            WSTRING("phq15_exceeds_somatoform_cutoff") + " <sup>[3]</sup>",
+            get_yes_no(somatoform_likely))
         h += tr_qa(WSTRING("phq15_symptom_severity") + " <sup>[4]</sup>",
                    severity)
         h += """

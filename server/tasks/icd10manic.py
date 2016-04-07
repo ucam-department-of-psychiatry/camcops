@@ -143,12 +143,12 @@ class Icd10Manic(Task):
                  comment="Date the assessment pertains to"),
             dict(name="comments", cctype="TEXT",
                  comment="Clinician's comments"),
-        ]
-        + CORE_FIELDSPECS
-        + HYPOMANIA_MANIA_FIELDSPECS
-        + MANIA_FIELDSPECS
-        + OTHER_CRITERIA_FIELDSPECS
-        + PSYCHOSIS_FIELDSPECS
+        ] +
+        CORE_FIELDSPECS +
+        HYPOMANIA_MANIA_FIELDSPECS +
+        MANIA_FIELDSPECS +
+        OTHER_CRITERIA_FIELDSPECS +
+        PSYCHOSIS_FIELDSPECS
     )
     has_clinician = True
 
@@ -188,8 +188,8 @@ class Icd10Manic(Task):
             return None  # might be manic psychosis
         if self.hallucinations_schizophrenic or self.delusions_schizophrenic:
             return True
-        if (self.hallucinations_schizophrenic is None
-                or self.delusions_schizophrenic is None):
+        if (self.hallucinations_schizophrenic is None or
+                self.delusions_schizophrenic is None):
             return None
         return False
 
@@ -207,15 +207,15 @@ class Icd10Manic(Task):
         x = self.meets_criteria_mania_ignoring_psychosis()
         if not x:
             return x
-        if (self.hallucinations_schizophrenic is None
-                or self.delusions_schizophrenic is None
-                or self.hallucinations_other is None
-                or self.delusions_other is None):
+        if (self.hallucinations_schizophrenic is None or
+                self.delusions_schizophrenic is None or
+                self.hallucinations_other is None or
+                self.delusions_other is None):
             return None
-        if (self.hallucinations_schizophrenic
-                or self.delusions_schizophrenic
-                or self.hallucinations_other
-                or self.delusions_other):
+        if (self.hallucinations_schizophrenic or
+                self.delusions_schizophrenic or
+                self.hallucinations_other or
+                self.delusions_other):
             return False
         return True
 
@@ -238,11 +238,11 @@ class Icd10Manic(Task):
         if is_false(self.severe_interference_functioning):
             return False
         # OK. When can we say "yes"?
-        if ((self.mood_elevated or self.mood_irritable)
-                and (self.sustained7days or self.admission_required)
-                and ((self.mood_elevated and t >= 3)
-                     or (self.mood_irritable and t >= 4))
-                and self.severe_interference_functioning):
+        if ((self.mood_elevated or self.mood_irritable) and
+                (self.sustained7days or self.admission_required) and
+                ((self.mood_elevated and t >= 3) or
+                    (self.mood_irritable and t >= 4)) and
+                self.severe_interference_functioning):
             return True
         return None
 
@@ -262,10 +262,10 @@ class Icd10Manic(Task):
         if is_false(self.some_interference_functioning):
             return False
         # OK. When can we say "yes"?
-        if ((self.mood_elevated or self.mood_irritable)
-                and self.sustained4days
-                and t >= 3
-                and self.some_interference_functioning):
+        if ((self.mood_elevated or self.mood_irritable) and
+                self.sustained4days and
+                t >= 3 and
+                self.some_interference_functioning):
             return True
         return None
 
@@ -279,15 +279,15 @@ class Icd10Manic(Task):
         return None
 
     def psychosis_present(self):
-        if (self.hallucinations_other
-                or self.hallucinations_schizophrenic
-                or self.delusions_other
-                or self.delusions_schizophrenic):
+        if (self.hallucinations_other or
+                self.hallucinations_schizophrenic or
+                self.delusions_other or
+                self.delusions_schizophrenic):
             return True
-        if (self.hallucinations_other is None
-                or self.hallucinations_schizophrenic is None
-                or self.delusions_other is None
-                or self.delusions_schizophrenic is None):
+        if (self.hallucinations_other is None or
+                self.hallucinations_schizophrenic is None or
+                self.delusions_other is None or
+                self.delusions_schizophrenic is None):
             return None
         return False
 
@@ -307,9 +307,9 @@ class Icd10Manic(Task):
 
     def is_complete(self):
         return (
-            self.date_pertains_to is not None
-            and self.meets_criteria_none() is not None
-            and self.field_contents_valid()
+            self.date_pertains_to is not None and
+            self.meets_criteria_none() is not None and
+            self.field_contents_valid()
         )
 
     def text_row(self, wstringname):
@@ -329,9 +329,9 @@ class Icd10Manic(Task):
                                           DATEFORMAT.LONG_DATE, default=None))
         h += tr_qa(WSTRING("category") + " <sup>[1,2]</sup>",
                    self.get_description())
-        h += tr_qa(WSTRING("icd10manic_psychotic_symptoms")
-                   + " <sup>[2]</sup>",
-                   get_present_absent_none(self.psychosis_present()))
+        h += tr_qa(
+            WSTRING("icd10manic_psychotic_symptoms") + " <sup>[2]</sup>",
+            get_present_absent_none(self.psychosis_present()))
         h += """
                 </table>
             </div>

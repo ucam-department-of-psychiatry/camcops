@@ -25,7 +25,7 @@ import io
 import tokenize
 
 from .cc_constants import NUMBER_OF_IDNUMS
-# from cc_logger import logger
+# from cc_logger import log
 from . import cc_namedtuples
 from .cc_unittest import unit_test_ignore
 
@@ -278,11 +278,11 @@ def id_policy_chunk(policy, ptinfo):
     index = 0
     value = None
     while index < len(policy):
-        # logger.debug("index:" + str(index) + ", want_content:"
+        # log.debug("index:" + str(index) + ", want_content:"
         #              + str(want_content) + ", policy:" + str(policy))
         if want_content:
             (nextchunk, index) = id_policy_content(policy, ptinfo, index)
-            # logger.debug("nextchunk:" + str(nextchunk))
+            # log.debug("nextchunk:" + str(nextchunk))
             if nextchunk is None:
                 return None  # fail
             if value is None:
@@ -299,7 +299,7 @@ def id_policy_chunk(policy, ptinfo):
         else:
             # Want operator
             (operator, index) = id_policy_op(policy, index)
-            # logger.debug("operator:" + str(operator))
+            # log.debug("operator:" + str(operator))
             if operator is None:
                 return None  # fail
             if operator == TK_AND:
@@ -311,9 +311,9 @@ def id_policy_chunk(policy, ptinfo):
                 return None
         want_content = not want_content
     if value is None or want_content:
-        # logger.debug("id_policy_chunk returning None")
+        # log.debug("id_policy_chunk returning None")
         return None
-    # logger.debug("id_policy_chunk returning " + str(value))
+    # log.debug("id_policy_chunk returning " + str(value))
     return value
 
 

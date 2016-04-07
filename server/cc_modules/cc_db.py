@@ -32,7 +32,7 @@ from .cc_constants import (
     STANDARD_TASK_FIELDSPECS,
 )
 from . import cc_dt
-# from .cc_logger import logger
+# from .cc_logger import log
 from .cc_pls import pls
 
 
@@ -189,8 +189,8 @@ def get_current_server_pk_by_client_info(table, device, clientpk, era):
     """Looks up the current server's PK given a device/clientpk/era triplet."""
     row = pls.db.fetchone(
         (
-            "SELECT _pk FROM " + table
-            + " WHERE _current AND _device=? AND id=? AND _era=?"
+            "SELECT _pk FROM " + table +
+            " WHERE _current AND _device=? AND id=? AND _era=?"
         ),
         device,
         clientpk,
@@ -206,8 +206,8 @@ def get_contemporaneous_server_pk_by_client_info(
         referrer_added_utc, referrer_removed_utc):
     """Looks up a contemporaneous (i.e. potentially old) server PK given
     client-side details."""
-    sql = ("SELECT _pk FROM " + table
-           + " WHERE id=? AND _device=? AND _era=?"
+    sql = ("SELECT _pk FROM " + table +
+           " WHERE id=? AND _device=? AND _era=?"
            " AND _when_added_batch_utc <= ? AND ")
     args = [
         clientpk,

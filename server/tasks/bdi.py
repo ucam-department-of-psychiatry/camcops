@@ -64,9 +64,9 @@ class Bdi(Task):
 
     def is_complete(self):
         return (
-            self.field_contents_valid()
-            and self.bdi_scale is not None
-            and self.are_all_fields_complete(
+            self.field_contents_valid() and
+            self.bdi_scale is not None and
+            self.are_all_fields_complete(
                 repeat_fieldname("q", 1, self.NQUESTIONS)
             )
         )

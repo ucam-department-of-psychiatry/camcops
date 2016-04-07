@@ -90,9 +90,9 @@ class Zbi12(Task):
 
     def is_complete(self):
         return (
-            self.field_contents_valid()
-            and self.is_respondent_complete()
-            and self.are_all_fields_complete(self.TASK_FIELDS)
+            self.field_contents_valid() and
+            self.is_respondent_complete() and
+            self.are_all_fields_complete(self.TASK_FIELDS)
         )
 
     def get_task_html(self):

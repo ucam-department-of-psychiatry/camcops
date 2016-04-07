@@ -21,28 +21,14 @@
     limitations under the License.
 """
 
-# =============================================================================
-# Check Python version (the shebang is not a guarantee)
-# =============================================================================
-
 import sys
-
-# if sys.version_info[0] != 2 or sys.version_info[1] != 7:
-#     # ... sys.version_info.major (etc.) require Python 2.7 in any case!
-#     raise RuntimeError(
-#         "CamCOPS needs Python 2.7, and this Python version is: "
-#         + sys.version)
-
-if sys.version_info[0] != 3:
-    raise RuntimeError(
-        "CamCOPS needs Python 3, and this Python version is: " + sys.version)
 
 # =============================================================================
 # Command-line "respond quickly" point
 # =============================================================================
 
-if __name__ == '__main__':
-    print("CamCOPS loading...", file=sys.stderr)
+# if __name__ == '__main__':
+#     print("CamCOPS loading...", file=sys.stderr)
 
 # =============================================================================
 # Imports
@@ -92,10 +78,9 @@ from cc_modules.cc_dt import (
 import cc_modules.cc_dump as cc_dump
 import cc_modules.cc_hl7 as cc_hl7
 import cc_modules.cc_html as cc_html
-from cc_modules.cc_logger import logger
+from cc_modules.cc_logger import log
 import cc_modules.cc_patient as cc_patient
 import cc_modules.cc_plot as cc_plot
-cc_plot.do_nothing()
 from cc_modules.cc_pls import pls
 import cc_modules.cc_policy as cc_policy
 import cc_modules.cc_report as cc_report
@@ -108,9 +93,25 @@ from cc_modules.cc_unittest import unit_test_ignore
 import cc_modules.cc_user as cc_user
 from cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
+cc_plot.do_nothing()
+
 # Task imports
 import_submodules("tasks")
 
+
+# =============================================================================
+# Check Python version (the shebang is not a guarantee)
+# =============================================================================
+
+# if sys.version_info[0] != 2 or sys.version_info[1] != 7:
+#     # ... sys.version_info.major (etc.) require Python 2.7 in any case!
+#     raise RuntimeError(
+#         "CamCOPS needs Python 2.7, and this Python version is: "
+#         + sys.version)
+
+if sys.version_info[0] != 3:
+    raise RuntimeError(
+        "CamCOPS needs Python 3, and this Python version is: " + sys.version)
 
 # =============================================================================
 # Constants
@@ -209,7 +210,7 @@ def fail_unknown_action(action):
 def login(session, form):
     """Processes a login request."""
 
-    logger.debug("Validating user login.")
+    log.debug("Validating user login.")
     username = ws.get_cgi_parameter_str(form, PARAM.USERNAME)
     password = ws.get_cgi_parameter_str(form, PARAM.PASSWORD)
     redirect = ws.get_cgi_parameter_str(form, PARAM.REDIRECT)
@@ -520,8 +521,8 @@ def view_tasks(session, form):
         warn_restricted = RESTRICTED_WARNING
     else:
         warn_restricted = ""
-    if (not session.user_may_view_all_patients_when_unfiltered()
-            and not session.any_specific_patient_filtering()):
+    if (not session.user_may_view_all_patients_when_unfiltered() and
+            not session.any_specific_patient_filtering()):
         warn_other_pts = NOT_ALL_PATIENTS_UNFILTERED_WARNING
     else:
         warn_other_pts = ""
@@ -1409,9 +1410,9 @@ def serve_table_dump(session, form):
     if outputtype is not None:
         outputtype = outputtype.lower()
     tables = (
-        ws.get_cgi_parameter_list(form, PARAM.TABLES)
-        + ws.get_cgi_parameter_list(form, PARAM.VIEWS)
-        + ws.get_cgi_parameter_list(form, PARAM.TABLES_BLOB)
+        ws.get_cgi_parameter_list(form, PARAM.TABLES) +
+        ws.get_cgi_parameter_list(form, PARAM.VIEWS) +
+        ws.get_cgi_parameter_list(form, PARAM.TABLES_BLOB)
     )
     if outputtype == VALUE.OUTPUTTYPE_SQL:
         filename = "CamCOPS_dump_" + format_datetime(
@@ -1866,7 +1867,7 @@ def introspect(session, form):
             INTROSPECTION_INVALID_FILE_MSG)
     index = possible_filenames.index(filename)
     ft = pls.INTROSPECTION_FILES[index]
-    # logger.debug("INTROSPECTION: " + str(ft))
+    # log.debug("INTROSPECTION: " + str(ft))
     fullpath = ft.fullpath
     if fullpath.endswith(".jsx"):
         lexer = pygments.lexers.web.JavascriptLexer()
@@ -1877,7 +1878,7 @@ def introspect(session, form):
         with codecs.open(fullpath, "r", "utf8") as f:
             code = f.read()
     except Exception as e:
-        logger.debug("INTROSPECTION ERROR: " + str(e))
+        log.debug("INTROSPECTION ERROR: " + str(e))
         return cc_html.fail_with_error_not_logged_in(INTROSPECTION_FAILED_MSG)
     body = pygments.highlight(code, lexer, formatter)
     css = formatter.get_style_defs('.highlight')
@@ -1912,9 +1913,9 @@ def add_special_note(session, form):
     task = cc_task.TaskFactory(tablename, serverpk)
     if task is None:
         return fail_task_not_found()
-    if (confirmation_sequence is None
-            or confirmation_sequence < 0
-            or confirmation_sequence > N_CONFIRMATIONS):
+    if (confirmation_sequence is None or
+            confirmation_sequence < 0 or
+            confirmation_sequence > N_CONFIRMATIONS):
         confirmation_sequence = 0
     textarea = ""
     if confirmation_sequence == N_CONFIRMATIONS - 1:
@@ -1994,9 +1995,9 @@ def erase_task(session, form):
         return cc_html.fail_with_error_stay_logged_in("Task already erased.")
     if task.is_live_on_tablet():
         return cc_html.fail_with_error_stay_logged_in(ERROR_TASK_LIVE)
-    if (confirmation_sequence is None
-            or confirmation_sequence < 0
-            or confirmation_sequence > N_CONFIRMATIONS):
+    if (confirmation_sequence is None or
+            confirmation_sequence < 0 or
+            confirmation_sequence > N_CONFIRMATIONS):
         confirmation_sequence = 0
     if confirmation_sequence < N_CONFIRMATIONS:
         return pls.WEBSTART + """
@@ -2055,9 +2056,9 @@ def delete_patient(session, form):
     idnum_value = ws.get_cgi_parameter_int(form, PARAM.IDNUM_VALUE)
     confirmation_sequence = ws.get_cgi_parameter_int(
         form, PARAM.CONFIRMATION_SEQUENCE)
-    if (confirmation_sequence is None
-            or confirmation_sequence < 0
-            or confirmation_sequence > N_CONFIRMATIONS):
+    if (confirmation_sequence is None or
+            confirmation_sequence < 0 or
+            confirmation_sequence > N_CONFIRMATIONS):
         confirmation_sequence = 0
     patient_server_pks = cc_patient.get_patient_server_pks_by_idnum(
         which_idnum, idnum_value, current_only=False)
@@ -2212,9 +2213,9 @@ def edit_patient(session, form):
             changes["idshortdesc" + nstr] = pls.get_id_shortdesc(n)
     # Calculations
     N_CONFIRMATIONS = 2
-    if (confirmation_sequence is None
-            or confirmation_sequence < 0
-            or confirmation_sequence > N_CONFIRMATIONS):
+    if (confirmation_sequence is None or
+            confirmation_sequence < 0 or
+            confirmation_sequence > N_CONFIRMATIONS):
         confirmation_sequence = 0
     patient = cc_patient.Patient(patient_server_pk)
     if patient._pk is None:
@@ -2240,25 +2241,25 @@ def edit_patient(session, form):
             details = (
                 info_html_for_patient_edit("Forename", changes["forename"],
                                            PARAM.FORENAME, changes["forename"],
-                                           patient.forename)
-                + info_html_for_patient_edit("Surname", changes["surname"],
-                                             PARAM.SURNAME, changes["surname"],
-                                             patient.surname)
-                + info_html_for_patient_edit("DOB", changes["dob"],
-                                             PARAM.DOB, changes["dob"],
-                                             patient.dob)
-                + info_html_for_patient_edit("Sex", changes["sex"],
-                                             PARAM.SEX, changes["sex"],
-                                             patient.sex)
-                + info_html_for_patient_edit("Address", changes["address"],
-                                             PARAM.ADDRESS, changes["address"],
-                                             patient.address)
-                + info_html_for_patient_edit("GP", changes["gp"],
-                                             PARAM.GP, changes["gp"],
-                                             patient.gp)
-                + info_html_for_patient_edit("Other", changes["other"],
-                                             PARAM.OTHER, changes["other"],
-                                             patient.other)
+                                           patient.forename) +
+                info_html_for_patient_edit("Surname", changes["surname"],
+                                           PARAM.SURNAME, changes["surname"],
+                                           patient.surname) +
+                info_html_for_patient_edit("DOB", changes["dob"],
+                                           PARAM.DOB, changes["dob"],
+                                           patient.dob) +
+                info_html_for_patient_edit("Sex", changes["sex"],
+                                           PARAM.SEX, changes["sex"],
+                                           patient.sex) +
+                info_html_for_patient_edit("Address", changes["address"],
+                                           PARAM.ADDRESS, changes["address"],
+                                           patient.address) +
+                info_html_for_patient_edit("GP", changes["gp"],
+                                           PARAM.GP, changes["gp"],
+                                           patient.gp) +
+                info_html_for_patient_edit("Other", changes["other"],
+                                           PARAM.OTHER, changes["other"],
+                                           patient.other)
             )
             for n in range(1, NUMBER_OF_IDNUMS + 1):
                 desc = pls.get_id_desc(n)
@@ -2358,8 +2359,8 @@ def edit_patient(session, form):
             ))
             setattr(patient, k, v)
     # Valid?
-    if (not patient.satisfies_upload_id_policy()
-            or not patient.satisfies_finalize_id_policy()):
+    if (not patient.satisfies_upload_id_policy() or
+            not patient.satisfies_finalize_id_policy()):
         return cc_html.fail_with_error_stay_logged_in(
             "New version does not satisfy uploading or finalizing policy; "
             "no changes made.")
@@ -2403,9 +2404,9 @@ def forcibly_finalize(session, form):
     device_id = ws.get_cgi_parameter_str(form, PARAM.DEVICE)
     confirmation_sequence = ws.get_cgi_parameter_int(
         form, PARAM.CONFIRMATION_SEQUENCE)
-    if (confirmation_sequence is None
-            or confirmation_sequence < 0
-            or confirmation_sequence > N_CONFIRMATIONS):
+    if (confirmation_sequence is None or
+            confirmation_sequence < 0 or
+            confirmation_sequence > N_CONFIRMATIONS):
         confirmation_sequence = 0
     if confirmation_sequence > 0 and device_id is None:
         return cc_html.fail_with_error_stay_logged_in("Device not specified.")
@@ -2501,8 +2502,8 @@ def enter_new_password(session, form):
     """Ask for a new password."""
 
     user_to_change = ws.get_cgi_parameter_str(form, PARAM.USERNAME)
-    if (user_to_change != session.user
-            and not session.authorized_as_superuser()):
+    if (user_to_change != session.user and
+            not session.authorized_as_superuser()):
         return cc_html.fail_with_error_stay_logged_in(
             CAN_ONLY_CHANGE_OWN_PASSWORD)
     return cc_user.enter_new_password(
@@ -2518,8 +2519,8 @@ def change_password(session, form):
     user_to_change = ws.get_cgi_parameter_str(form, PARAM.USERNAME)
     if user_to_change is None or session.user is None:
         return cc_html.fail_with_error_stay_logged_in(MISSING_PARAMETERS_MSG)
-    if (user_to_change != session.user
-            and not session.authorized_as_superuser()):
+    if (user_to_change != session.user and
+            not session.authorized_as_superuser()):
         return cc_html.fail_with_error_stay_logged_in(
             CAN_ONLY_CHANGE_OWN_PASSWORD)
     return cc_user.change_password(
@@ -2667,24 +2668,24 @@ def get_tsv_line_from_dict(d):
 def get_url_next_page(ntasks):
     """URL to move to next page in task list."""
     return (
-        cc_html.get_generic_action_url(ACTION.NEXT_PAGE)
-        + cc_html.get_url_field_value_pair(PARAM.NTASKS, ntasks)
+        cc_html.get_generic_action_url(ACTION.NEXT_PAGE) +
+        cc_html.get_url_field_value_pair(PARAM.NTASKS, ntasks)
     )
 
 
 def get_url_last_page(ntasks):
     """URL to move to last page in task list."""
     return (
-        cc_html.get_generic_action_url(ACTION.LAST_PAGE)
-        + cc_html.get_url_field_value_pair(PARAM.NTASKS, ntasks)
+        cc_html.get_generic_action_url(ACTION.LAST_PAGE) +
+        cc_html.get_url_field_value_pair(PARAM.NTASKS, ntasks)
     )
 
 
 def get_url_introspect(filename):
     """URL to view specific source code file."""
     return (
-        cc_html.get_generic_action_url(ACTION.INTROSPECT)
-        + cc_html.get_url_field_value_pair(PARAM.FILENAME, filename)
+        cc_html.get_generic_action_url(ACTION.INTROSPECT) +
+        cc_html.get_url_field_value_pair(PARAM.FILENAME, filename)
     )
 
 
@@ -2801,7 +2802,7 @@ def main_http_processor(env):
     form = ws.get_cgi_fieldstorage_from_wsgi_env(env)
     action = ws.get_cgi_parameter_str(form, PARAM.ACTION)
 
-    logger.info(
+    log.info(
         "Incoming connection from IP={i}, port={p}, user={u}, "
         "action={a}".format(
             i=pls.remote_addr,
@@ -2925,7 +2926,7 @@ def get_database_title():
 
 def make_summary_tables(from_console=True):
     """Drop and rebuild summary tables."""
-    # Don't use print; this may run from the web interface. Use the logger.
+    # Don't use print; this may run from the web interface. Use the log.
     LOCKED_ERROR = (
         "make_summary_tables: couldn't open lockfile ({}.lock); "
         "may not have permissions, or file may be locked by "
@@ -2937,15 +2938,15 @@ def make_summary_tables(from_console=True):
         "specified in config; can't proceed"
     )
     if not pls.SUMMARY_TABLES_LOCKFILE:
-        logger.error(MISCONFIGURED_ERROR)
+        log.error(MISCONFIGURED_ERROR)
         return False, MISCONFIGURED_ERROR
     lock = lockfile.FileLock(pls.SUMMARY_TABLES_LOCKFILE)
     if lock.is_locked():
-        logger.warning(LOCKED_ERROR)
+        log.warning(LOCKED_ERROR)
         return False, LOCKED_ERROR
     try:
         with lock:
-            logger.info("MAKING SUMMARY TABLES")
+            log.info("MAKING SUMMARY TABLES")
             for cls in cc_task.get_all_task_classes():
                 cls.make_summary_table()
             audit("Created/recreated summary tables",
@@ -2954,7 +2955,7 @@ def make_summary_tables(from_console=True):
             # file lock)
         return True, ""
     except lockfile.LockFailed:
-        logger.warning(LOCKED_ERROR)
+        log.warning(LOCKED_ERROR)
         return False, LOCKED_ERROR
 
 

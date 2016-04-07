@@ -99,8 +99,8 @@ class QolSG(Task):
 
     def is_complete(self):
         return (
-            self.utility is not None
-            and self.field_contents_valid()
+            self.utility is not None and
+            self.field_contents_valid()
         )
 
     def get_task_html(self):

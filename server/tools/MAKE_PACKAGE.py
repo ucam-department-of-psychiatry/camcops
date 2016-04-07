@@ -1354,8 +1354,8 @@ Description: Cambridge Cognitive and Psychiatric Test Kit (CamCOPS), server
     ), file=outfile)
 
 # =============================================================================
-print("Creating conffiles file. Will be installed as "
-      + join(DSTDPKGDIR, PACKAGE + '.conffiles'))
+print("Creating conffiles file. Will be installed as " +
+      join(DSTDPKGDIR, PACKAGE + '.conffiles'))
 # =============================================================================
 configfiles = [DSTCONFIGFILE,
                DST_SUPERVISOR_CONF_FILE]
@@ -1366,8 +1366,8 @@ with open(join(DEBDIR, 'conffiles'), 'w') as outfile:
 # In this situation, do "sudo aptitude purge camcops" then reinstall.
 
 # =============================================================================
-print("Creating preinst file. Will be installed as "
-      + join(DSTDPKGDIR, PACKAGE + '.preinst'))
+print("Creating preinst file. Will be installed as " +
+      join(DSTDPKGDIR, PACKAGE + '.preinst'))
 # =============================================================================
 with open(join(DEBDIR, 'preinst'), 'w') as outfile:
     print("""#!/bin/bash
@@ -1393,8 +1393,8 @@ echo '{PACKAGE}: preinst file finished'
     ), file=outfile)
 
 # =============================================================================
-print("Creating postinst file. Will be installed as "
-      + join(DSTDPKGDIR, PACKAGE + '.postinst'))
+print("Creating postinst file. Will be installed as " +
+      join(DSTDPKGDIR, PACKAGE + '.postinst'))
 # =============================================================================
 
 with open(join(DEBDIR, 'postinst'), 'w') as outfile:
@@ -1495,8 +1495,8 @@ echo '{PACKAGE}: postinst file finished'
 
 
 # =============================================================================
-print("Creating prerm file. Will be installed as "
-      + join(DSTDPKGDIR, PACKAGE + '.prerm'))
+print("Creating prerm file. Will be installed as " +
+      join(DSTDPKGDIR, PACKAGE + '.prerm'))
 # =============================================================================
 with open(join(DEBDIR, 'prerm'), 'w') as outfile:
     print("""#!/bin/bash
@@ -1522,8 +1522,8 @@ echo '{PACKAGE}: prerm file finished'
     ), file=outfile)
 
 # =============================================================================
-print("Creating postrm file. Will be installed as "
-      + join(DSTDPKGDIR, PACKAGE + '.postrm'))
+print("Creating postrm file. Will be installed as " +
+      join(DSTDPKGDIR, PACKAGE + '.postrm'))
 # =============================================================================
 with open(join(DEBDIR, 'postrm'), 'w') as outfile:
     print("""#!/bin/bash
@@ -1557,8 +1557,8 @@ with open(join(DEBOVERRIDEDIR, PACKAGE), 'w') as outfile:
     ), file=outfile)
 
 # =============================================================================
-print("Creating copyright file. Will be installed as "
-      + join(DSTDOCDIR, 'copyright'))
+print("Creating copyright file. Will be installed as " +
+      join(DSTDOCDIR, 'copyright'))
 # =============================================================================
 with open(join(WRKDOCDIR, 'copyright'), 'w') as outfile:
     print("""{PACKAGE}
@@ -2092,8 +2092,8 @@ exit
 webify_file(WRKMYSQLCREATION, WEBDOCSMYSQLCREATION)
 
 # =============================================================================
-print("Creating demonstration backup script. Will be installed within "
-      + DSTBASEDIR)
+print("Creating demonstration backup script. Will be installed within " +
+      DSTBASEDIR)
 # =============================================================================
 with open(WRKDBDUMPFILE, 'w') as outfile:
     print("""#!/bin/bash

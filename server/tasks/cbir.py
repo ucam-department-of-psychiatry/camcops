@@ -212,8 +212,8 @@ class CbiR(Task):
         return self.subscore(first, last, "distress")
 
     def is_complete(self):
-        if (not self.field_contents_valid()
-                or not self.is_respondent_complete()):
+        if (not self.field_contents_valid() or
+                not self.is_respondent_complete()):
             return False
         if self.confirm_blanks:
             return True

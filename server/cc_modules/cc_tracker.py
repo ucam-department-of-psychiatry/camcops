@@ -45,7 +45,7 @@ from . import cc_dt
 from . import cc_filename
 from . import cc_html
 from . import cc_lang
-from .cc_logger import logger
+from .cc_logger import log
 from . import cc_namedtuples
 from . import cc_plot
 from .cc_pls import pls
@@ -110,7 +110,7 @@ def consistency(values, servervalue=None, case_sensitive=True):
         return True, "consistent (no values)"
     if len(unique) == 1:
         return True, "consistent ({})".format(unique[0])
-    # logger.debug("consistency: values = {}, unique = {}".format(repr(values),
+    # log.debug("consistency: values = {}, unique = {}".format(repr(values),
     #                                                            repr(unique)))
     if len(unique) == 2:
         if None in unique:
@@ -202,12 +202,12 @@ class ConsistencyInfo(object):
                 self.consistent_iddescs.append(result)
                 self.msg_iddescs.append(msg)
         self.all_consistent = (
-            self.consistent_forename
-            and self.consistent_surname
-            and self.consistent_dob
-            and self.consistent_sex
-            and all(self.consistent_idnums)
-            and all(self.consistent_iddescs)
+            self.consistent_forename and
+            self.consistent_surname and
+            self.consistent_dob and
+            self.consistent_sex and
+            all(self.consistent_idnums) and
+            all(self.consistent_iddescs)
         )
 
     def are_all_consistent(self):
@@ -296,9 +296,9 @@ class Tracker(object):
             self.end_datetime_extended = (
                 self.end_datetime + datetime.timedelta(days=1)
             )
-        logger.debug("start_datetime: " + str(self.start_datetime))
-        logger.debug("end_datetime: " + str(self.end_datetime))
-        logger.debug("end_datetime_extended: " + str(
+        log.debug("start_datetime: " + str(self.start_datetime))
+        log.debug("end_datetime: " + str(self.end_datetime))
+        log.debug("end_datetime_extended: " + str(
             self.end_datetime_extended))
 
         self.restricted_warning = (
@@ -342,13 +342,13 @@ class Tracker(object):
                     continue
                 dt = task.get_creation_datetime()
                 # Second check on datetimes
-                if (self.start_datetime is not None
-                        and dt < self.start_datetime):
+                if (self.start_datetime is not None and
+                        dt < self.start_datetime):
                     if DEBUG_TRACKER_TASK_INCLUSION:
                         self.summary += " (start date wrong)"
                     continue
-                if (self.end_datetime_extended is not None
-                        and dt > self.end_datetime_extended):
+                if (self.end_datetime_extended is not None and
+                        dt > self.end_datetime_extended):
                     if DEBUG_TRACKER_TASK_INCLUSION:
                         self.summary += " (end date wrong)"
                     continue
@@ -373,8 +373,8 @@ class Tracker(object):
                 key=lambda task: task.get_creation_datetime())
 
         # Fetch patient information
-        if (len(self.list_of_task_instance_lists) > 0
-                and len(self.list_of_task_instance_lists[0]) > 0):
+        if (len(self.list_of_task_instance_lists) > 0 and
+                len(self.list_of_task_instance_lists[0]) > 0):
             self._patient = self.list_of_task_instance_lists[0][0]._patient
             # patient details from the first of our tasks
 
@@ -452,13 +452,13 @@ class Tracker(object):
         cc_plot.set_matplotlib_fontsize(pls.PLOT_FONTSIZE)
         pls.switch_output_to_svg()
         return (
-            self.get_html_start()
-            + self.get_all_plots_for_all_tasks_html()
-            + self.get_office_html()
-            + """<div class="navigation">"""
-            + self.get_hyperlink_pdf("View PDF for printing/saving")
-            + "</div>"
-            + PDFEND
+            self.get_html_start() +
+            self.get_all_plots_for_all_tasks_html() +
+            self.get_office_html() +
+            """<div class="navigation">""" +
+            self.get_hyperlink_pdf("View PDF for printing/saving") +
+            "</div>" +
+            PDFEND
         )
 
     # -------------------------------------------------------------------------
@@ -488,10 +488,10 @@ class Tracker(object):
     def get_pdf_html(self):
         """Get HTML used to generate PDF representing tracker."""
         return (
-            self.get_pdf_start()
-            + self.get_all_plots_for_all_tasks_html()
-            + self.get_office_html()
-            + PDFEND
+            self.get_pdf_start() +
+            self.get_all_plots_for_all_tasks_html() +
+            self.get_office_html() +
+            PDFEND
         )
 
     def suggested_pdf_filename(self):
@@ -592,10 +592,10 @@ class Tracker(object):
             head = PDF_HEAD_NO_PAGED_MEDIA
             pdf_header_footer = ""
         return (
-            head
-            + pdf_header_footer
-            + pls.PDF_LOGO_LINE
-            + self.get_tracker_header_html()
+            head +
+            pdf_header_footer +
+            pls.PDF_LOGO_LINE +
+            self.get_tracker_header_html()
         )
 
     def get_office_html(self):
@@ -629,8 +629,8 @@ class Tracker(object):
 
     def get_all_plots_for_all_tasks_html(self):
         """HTML for all plots."""
-        if (self.task_tablename_list is None
-                or len(self.task_tablename_list) == 0):
+        if (self.task_tablename_list is None or
+                len(self.task_tablename_list) == 0):
             return """
                 <div class="warning">
                     Unable to generate tracker: no task types specified
@@ -742,9 +742,9 @@ class Tracker(object):
         ax.set_xlabel("Date/time")
         ax.set_xticks(x)
         ax.set_xticklabels(datelabels)
-        if (self.earliest is not None
-                and self.latest is not None
-                and self.earliest != self.latest):
+        if (self.earliest is not None and
+                self.latest is not None and
+                self.earliest != self.latest):
             xlim = cc_plot.matplotlib.dates.date2num((self.earliest,
                                                       self.latest))
             margin = (2.5 / 95.0) * (xlim[1] - xlim[0])
@@ -891,10 +891,9 @@ class ClinicalTextView(object):
             self.end_datetime_extended = (
                 self.end_datetime + datetime.timedelta(days=1)
             )
-        logger.debug("start_datetime: " + str(self.start_datetime))
-        logger.debug("end_datetime: " + str(self.end_datetime))
-        logger.debug("end_datetime_extended: "
-                     + str(self.end_datetime_extended))
+        log.debug("start_datetime: " + str(self.start_datetime))
+        log.debug("end_datetime: " + str(self.end_datetime))
+        log.debug("end_datetime_extended: " + str(self.end_datetime_extended))
 
         if session.restricted_to_viewing_user():
             self.restricted_warning = RESTRICTED_WARNING_SINGULAR
@@ -935,13 +934,13 @@ class ClinicalTextView(object):
                     continue
                 dt = task.get_creation_datetime()
                 # Second check on datetimes
-                if (self.start_datetime is not None
-                        and dt < self.start_datetime):
+                if (self.start_datetime is not None and
+                        dt < self.start_datetime):
                     if DEBUG_CTV_TASK_INCLUSION:
                         self.summary += " (start date wrong)"
                     continue
-                if (self.end_datetime_extended is not None
-                        and dt > self.end_datetime_extended):
+                if (self.end_datetime_extended is not None and
+                        dt > self.end_datetime_extended):
                     if DEBUG_CTV_TASK_INCLUSION:
                         self.summary += " (end date wrong)"
                     continue
@@ -1027,13 +1026,13 @@ class ClinicalTextView(object):
     def get_html(self):
         """Get HTML representing CTV."""
         return (
-            self.get_html_start()
-            + self.get_clinicaltextview_main_html(as_pdf=False)
-            + self.get_office_html()
-            + """<div class="navigation">"""
-            + self.get_hyperlink_pdf("View PDF for printing/saving")
-            + "</div>"
-            + PDFEND
+            self.get_html_start() +
+            self.get_clinicaltextview_main_html(as_pdf=False) +
+            self.get_office_html() +
+            """<div class="navigation">""" +
+            self.get_hyperlink_pdf("View PDF for printing/saving") +
+            "</div>" +
+            PDFEND
         )
 
     # -------------------------------------------------------------------------
@@ -1047,10 +1046,10 @@ class ClinicalTextView(object):
     def get_pdf_html(self):
         """Get HTML used to generate PDF representing CTV."""
         return (
-            self.get_pdf_start()
-            + self.get_clinicaltextview_main_html(as_pdf=True)
-            + self.get_office_html()
-            + PDFEND
+            self.get_pdf_start() +
+            self.get_clinicaltextview_main_html(as_pdf=True) +
+            self.get_office_html() +
+            PDFEND
         )
 
     def suggested_pdf_filename(self):
@@ -1248,9 +1247,9 @@ class ClinicalTextView(object):
         )
         # Warnings
         warnings = (
-            task.get_erasure_notice()  # if applicable
-            + task.get_special_notes()  # if applicable
-            + task.get_invalid_warning()  # if applicable
+            task.get_erasure_notice() +  # if applicable
+            task.get_special_notes() +  # if applicable
+            task.get_invalid_warning()  # if applicable
             # task.get_not_current_warning() not required (CTV: all current)
         )
         if warnings:

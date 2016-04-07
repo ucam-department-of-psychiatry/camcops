@@ -93,11 +93,9 @@ def get_date_regex_string(dt):
         year + sep + month + sep + day,  # e.g. 2014/09/13
     ]
     return (
-        "("
-        + "|".join(
-            [wb + x + wb for x in basic_regexes]
-        )
-        + ")"
+        "(" +
+        "|".join([wb + x + wb for x in basic_regexes]) +
+        ")"
     )
 
 # Testing:

@@ -24,7 +24,7 @@
 import configparser
 import logging
 
-from .cc_logger import logger
+from .cc_logger import log
 
 
 # =============================================================================
@@ -46,8 +46,8 @@ def get_config_parameter(config, section, param, fn, default):
     try:
         value = fn(config.get(section, param))
     except (TypeError, ValueError, configparser.NoOptionError):
-        logger.warning("Configuration variable {} not found or improper; "
-                       "using default of {}".format(param, default))
+        log.warning("Configuration variable {} not found or improper; "
+                    "using default of {}".format(param, default))
         if default is None:
             value = default
         else:
@@ -69,8 +69,8 @@ def get_config_parameter_boolean(config, section, param, default):
     try:
         value = config.getboolean(section, param)
     except (TypeError, ValueError, configparser.NoOptionError):
-        logger.warning("Configuration variable {} not found or improper; "
-                       "using default of {}".format(param, default))
+        log.warning("Configuration variable {} not found or improper; "
+                    "using default of {}".format(param, default))
         value = default
     return value
 
@@ -101,8 +101,8 @@ def get_config_parameter_loglevel(config, section, param, default):
         else:
             raise ValueError
     except (TypeError, ValueError, configparser.NoOptionError, AttributeError):
-        logger.warning("Configuration variable {} not found or improper; "
-                       "using default of {}".format(param, default))
+        log.warning("Configuration variable {} not found or improper; "
+                    "using default of {}".format(param, default))
         return default
 
 
@@ -111,6 +111,6 @@ def get_config_parameter_multiline(config, section, param, default):
         multiline = config.get(section, param)
         return [x.strip() for x in multiline.splitlines() if x.strip()]
     except (TypeError, ValueError, configparser.NoOptionError):
-        logger.warning("Configuration variable {} not found or improper; "
-                       "using default of {}".format(param, default))
+        log.warning("Configuration variable {} not found or improper; "
+                    "using default of {}".format(param, default))
         return default

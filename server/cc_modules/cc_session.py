@@ -35,7 +35,7 @@ from . import cc_db
 # from . import cc_device
 from . import cc_dt
 from . import cc_html
-from .cc_logger import logger
+from .cc_logger import log
 from .cc_pls import pls
 from .cc_unittest import unit_test_ignore
 from . import cc_task
@@ -54,10 +54,10 @@ DEFAULT_NUMBER_OF_TASKS_TO_VIEW = 25
 
 def delete_old_sessions():
     """Delete all expired sessions."""
-    logger.info("Deleting expired sessions")
+    log.info("Deleting expired sessions")
     cutoff = pls.NOW_UTC_NO_TZ - pls.SESSION_TIMEOUT
-    pls.db.db_exec("DELETE FROM " + Session.TABLENAME
-                   + " WHERE last_activity_utc < ?", cutoff)
+    pls.db.db_exec("DELETE FROM " + Session.TABLENAME +
+                   " WHERE last_activity_utc < ?", cutoff)
 
 
 def is_token_in_use(token):
@@ -87,14 +87,14 @@ def establish_session(env):
     process-local storage)."""
     ip_address = env["REMOTE_ADDR"]
     try:
-        # logger.debug('HTTP_COOKIE: {}'.format(repr(env["HTTP_COOKIE"])))
+        # log.debug('HTTP_COOKIE: {}'.format(repr(env["HTTP_COOKIE"])))
         cookie = http.cookies.SimpleCookie(env["HTTP_COOKIE"])
         session_id = cookie["session_id"].value
         session_token = cookie["session_token"].value
-        logger.debug("Found cookie token: ID {}, token {}".format(
+        log.debug("Found cookie token: ID {}, token {}".format(
             session_id, session_token))
     except (http.cookies.CookieError, KeyError):
-        logger.debug("No cookie yet. Creating new one.")
+        log.debug("No cookie yet. Creating new one.")
         session_id = None
         session_token = None
     pls.session = Session(session_id, session_token, ip_address)
@@ -106,7 +106,7 @@ def establish_session_for_tablet(session_id, session_token, ip_address,
     """As for establish_session, but without using HTTP cookies.
     Resulting session is stored in pls.session."""
     if not session_id or not session_token:
-        logger.debug("No session yet for tablet. Creating new one.")
+        log.debug("No session yet for tablet. Creating new one.")
         session_id = None
         session_token = None
     pls.session = Session(session_id, session_token, ip_address)
@@ -120,8 +120,8 @@ def establish_session_for_tablet(session_id, session_token, ip_address,
         pls.session = Session(None, None, ip_address)
     if not pls.session.userobject and username:
         userobject = cc_user.get_user(username, password)  # checks password
-        if userobject is not None and (userobject.may_upload
-                                       or userobject.may_use_webstorage):
+        if userobject is not None and (userobject.may_upload or
+                                       userobject.may_use_webstorage):
             # Successful login.
             pls.session.login(userobject)
 
@@ -201,23 +201,23 @@ class Session:
         expiry_if_before = pls.NOW_UTC_NO_TZ - pls.SESSION_TIMEOUT
         make_new_session = False
         if self.id is None:  # couldn't find one...
-            logger.debug("session id missing")
+            log.debug("session id missing")
             make_new_session = True
         elif self.token is None:  # something went wrong...
-            logger.debug("no token")
+            log.debug("no token")
             make_new_session = True
         elif self.token != token:  # token not what we were expecting
-            logger.debug(
+            log.debug(
                 "token mismatch (existing = {}, incoming = {})".format(
                     self.token, token))
             make_new_session = True
         elif self.ip_address != ip_address:  # from wrong IP address
-            logger.debug(
+            log.debug(
                 "IP address mismatch (existing = {}, incoming = {}".format(
                     self.ip_address, ip_address))
             make_new_session = True
         elif self.last_activity_utc < expiry_if_before:  # expired
-            logger.debug("session expired")
+            log.debug("session expired")
             make_new_session = True
 
         if make_new_session:
@@ -228,7 +228,7 @@ class Session:
             self.ip_address = ip_address
         self.save()  # assigns self.id
         if make_new_session:
-            logger.debug("Making new session. ID: {}. Token: {}".format(
+            log.debug("Making new session. ID: {}. Token: {}".format(
                 self.id, self.token))
         if self.user:
             self.userobject = cc_user.User(self.user,
@@ -291,7 +291,7 @@ class Session:
     def login(self, userobject):
         """Log in. Associates the user with the session and makes a new
         token."""
-        logger.debug("login: username = {}".format(userobject.user))
+        log.debug("login: username = {}".format(userobject.user))
         self.user = userobject.user
         self.userobject = userobject
         self.token = generate_token()
@@ -301,7 +301,7 @@ class Session:
     def authorized_as_viewer(self):
         """Is the user authorized as a viewer?"""
         if self.userobject is None:
-            logger.debug("not authorized as viewer: userobject is None")
+            log.debug("not authorized as viewer: userobject is None")
             return False
         return self.userobject.may_use_webviewer or self.userobject.superuser
 
@@ -327,8 +327,8 @@ class Session:
         """Is the user authorized to register tablet devices??"""
         if self.userobject is None:
             return False
-        return (self.userobject.may_register_devices
-                or self.userobject.superuser)
+        return (self.userobject.may_register_devices or
+                self.userobject.superuser)
 
     def user_must_change_password(self):
         """Must the user change their password now?"""
@@ -640,10 +640,10 @@ class Session:
             self.filter_sex = filter_sex.upper()
         which_idnum = ws.get_cgi_parameter_int(form, PARAM.WHICH_IDNUM)
         idnum_value = ws.get_cgi_parameter_int(form, PARAM.IDNUM_VALUE)
-        if (which_idnum
-                and idnum_value is not None
-                and which_idnum >= 1
-                and which_idnum <= NUMBER_OF_IDNUMS):
+        if (which_idnum and
+                idnum_value is not None and
+                which_idnum >= 1 and
+                which_idnum <= NUMBER_OF_IDNUMS):
             self.clear_filter_idnums()  # Only filter on one ID at a time.
             setattr(self, "filter_idnum" + str(which_idnum), idnum_value)
         filter_task = ws.get_cgi_parameter_str_or_none(form, PARAM.TASK)
@@ -969,8 +969,7 @@ class Session:
         """Go to last page."""
         if self.number_to_view and ntasks:
             self.first_task_to_view = (
-                (self.get_npages(ntasks) - 1)
-                * self.number_to_view
+                (self.get_npages(ntasks) - 1) * self.number_to_view
             )
             self.save()
 
@@ -988,11 +987,8 @@ def get_filter_html(filter_name,
     """HTML to view or change a filter."""
     # returns: found a filter?
     no_filter_value = (
-        filter_value is None
-        or (
-            isinstance(filter_value, str)
-            and not filter_value
-        )
+        filter_value is None or (isinstance(filter_value, str) and
+                                 not filter_value)
     )
     if no_filter_value:
         filter_list.append("""

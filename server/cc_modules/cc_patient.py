@@ -155,10 +155,10 @@ class Patient:
             [
                 self.forename,
                 self.surname,
-            ]
-            + address.split(",")
-            + other.split(",")
-            + self.get_idnum_array()
+            ] +
+            address.split(",") +
+            other.split(",") +
+            self.get_idnum_array()
         )
 
     def get_dates_for_anonymisation(self):
@@ -206,7 +206,7 @@ class Patient:
         return cc_policy.satisfies_id_policy(policy, self.get_bare_ptinfo())
 
     def dump(self):
-        """Dump object to database's logger."""
+        """Dump object to database's log."""
         rnc_db.dump_database_object(self, Patient.FIELDS)
 
     def get_surname(self):

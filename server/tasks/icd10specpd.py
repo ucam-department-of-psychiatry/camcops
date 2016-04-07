@@ -90,25 +90,25 @@ class Icd10SpecPD(Task):
                  comment="Skip questions for dependent PD?"),
             dict(name="vignette", cctype="TEXT", pv=PV.BIT,
                  comment="Vignette"),
-        ]
-        + repeat_fieldspec(
+        ] +
+        repeat_fieldspec(
             "g", 1, N_GENERAL, "BOOL", pv=PV.BIT,
             comment_fmt="G{n}: {s}",
             comment_strings=["pathological 1", "pervasive",
                              "pathological 2", "persistent",
-                             "primary 1", "primary 2"])
-        + repeat_fieldspec(
+                             "primary 1", "primary 2"]) +
+        repeat_fieldspec(
             "g1_", 1, N_GENERAL_1, "BOOL", pv=PV.BIT,
             comment_fmt="G1{n}: {s}",
             comment_strings=["cognition", "affectivity",
-                             "impulse control", "interpersonal"])
-        + repeat_fieldspec(
+                             "impulse control", "interpersonal"]) +
+        repeat_fieldspec(
             "paranoid", 1, N_PARANOID, "BOOL", pv=PV.BIT,
             comment_fmt="Paranoid ({n}): {s}",
             comment_strings=["sensitive", "grudges", "suspicious",
                              "personal rights", "sexual jealousy",
-                             "self-referential", "conspiratorial"])
-        + repeat_fieldspec(
+                             "self-referential", "conspiratorial"]) +
+        repeat_fieldspec(
             "schizoid", 1, N_SCHIZOID, "BOOL", pv=PV.BIT,
             comment_fmt="Schizoid ({n}): {s}",
             comment_strings=["little pleasure",
@@ -119,16 +119,16 @@ class Icd10SpecPD(Task):
                              "solitary",
                              "fantasy/introspection",
                              "0/1 close friends/confidants",
-                             "insensitive to social norms"])
-        + repeat_fieldspec(
+                             "insensitive to social norms"]) +
+        repeat_fieldspec(
             "dissocial", 1, N_DISSOCIAL, "BOOL", pv=PV.BIT,
             comment_fmt="Dissocial ({n}): {s}",
             comment_strings=["unconcern", "irresponsibility",
                              "incapacity to maintain relationships",
                              "low tolerance to frustration",
                              "incapacity for guilt",
-                             "prone to blame others"])
-        + repeat_fieldspec(
+                             "prone to blame others"]) +
+        repeat_fieldspec(
             "eu", 1, N_EU, "BOOL", pv=PV.BIT,
             comment_fmt="Emotionally unstable ({n}): {s}",
             comment_strings=["act without considering consequences",
@@ -139,8 +139,8 @@ class Icd10SpecPD(Task):
                              "intense/unstable relationships",
                              "avoids abandonment",
                              "threats/acts of self-harm",
-                             "feelings of emptiness"])
-        + repeat_fieldspec(
+                             "feelings of emptiness"]) +
+        repeat_fieldspec(
             "histrionic", 1, N_HISTRIONIC, "BOOL", pv=PV.BIT,
             comment_fmt="Histrionic ({n}): {s}",
             comment_strings=["theatricality",
@@ -148,8 +148,8 @@ class Icd10SpecPD(Task):
                              "shallow/labile affect",
                              "centre of attention",
                              "inappropriately seductive",
-                             "concerned with attractivness"])
-        + repeat_fieldspec(
+                             "concerned with attractivness"]) +
+        repeat_fieldspec(
             "anankastic", 1, N_ANANKASTIC, "BOOL", pv=PV.BIT,
             comment_fmt="Anankastic ({n}): {s}",
             comment_strings=["doubt/caution",
@@ -159,16 +159,16 @@ class Icd10SpecPD(Task):
                              "preoccupied with productivity",
                              "excessive pedantry",
                              "rigid/stubborn",
-                             "require others do things specific way"])
-        + repeat_fieldspec(
+                             "require others do things specific way"]) +
+        repeat_fieldspec(
             "anxious", 1, N_ANXIOUS, "BOOL", pv=PV.BIT,
             comment_fmt="Anxious ({n}), {s}",
             comment_strings=["tension/apprehension",
                              "preoccupied with criticism/rejection",
                              "won't get involved unless certain liked",
                              "need for security restricts lifestyle",
-                             "avoidance of interpersonal contact"])
-        + repeat_fieldspec(
+                             "avoidance of interpersonal contact"]) +
+        repeat_fieldspec(
             "dependent", 1, N_DEPENDENT, "BOOL", pv=PV.BIT,
             comment_fmt="Dependent ({n}): {s}",
             comment_strings=["others decide",
@@ -243,16 +243,16 @@ class Icd10SpecPD(Task):
 
     def isPDExcluded(self):
         return (
-            is_false(self.g1)
-            or is_false(self.g2)
-            or is_false(self.g3)
-            or is_false(self.g4)
-            or is_false(self.g5)
-            or is_false(self.g6)
-            or (
+            is_false(self.g1) or
+            is_false(self.g2) or
+            is_false(self.g3) or
+            is_false(self.g4) or
+            is_false(self.g5) or
+            is_false(self.g6) or
+            (
                 self.are_all_fields_complete(
-                    repeat_fieldname("g1_", 1, Icd10SpecPD.N_GENERAL_1))
-                and self.count_booleans(
+                    repeat_fieldname("g1_", 1, Icd10SpecPD.N_GENERAL_1)) and
+                self.count_booleans(
                     repeat_fieldname("g1_", 1, Icd10SpecPD.N_GENERAL_1)) <= 1
             )
         )
@@ -260,8 +260,8 @@ class Icd10SpecPD(Task):
     def isCompleteGeneral(self):
         return (
             self.are_all_fields_complete(
-                repeat_fieldname("g", 1, Icd10SpecPD.N_GENERAL))
-            and self.are_all_fields_complete(
+                repeat_fieldname("g", 1, Icd10SpecPD.N_GENERAL)) and
+            self.are_all_fields_complete(
                 repeat_fieldname("g1_", 1, Icd10SpecPD.N_GENERAL_1))
         )
 
@@ -304,8 +304,8 @@ class Icd10SpecPD(Task):
         if not self.isCompleteGeneral():
             return None
         return (
-            self.all_true(repeat_fieldname("g", 1, Icd10SpecPD.N_GENERAL))
-            and self.count_booleans(
+            self.all_true(repeat_fieldname("g", 1, Icd10SpecPD.N_GENERAL)) and
+            self.count_booleans(
                 repeat_fieldname("g1_", 1, Icd10SpecPD.N_GENERAL_1)) > 1
         )
 
@@ -340,8 +340,8 @@ class Icd10SpecPD(Task):
             return None
         return (
             self.count_booleans(
-                repeat_fieldname("eu", 1, Icd10SpecPD.N_EUPD_I)) >= 3
-            and self.eu2
+                repeat_fieldname("eu", 1, Icd10SpecPD.N_EUPD_I)) >= 3 and
+            self.eu2
         )
 
     def hasEUPD_B(self):
@@ -351,8 +351,8 @@ class Icd10SpecPD(Task):
             return None
         return (
             self.count_booleans(
-                repeat_fieldname("eu", 1, Icd10SpecPD.N_EUPD_I)) >= 3
-            and self.count_booleans(
+                repeat_fieldname("eu", 1, Icd10SpecPD.N_EUPD_I)) >= 3 and
+            self.count_booleans(
                 repeat_fieldname("eu",
                                  Icd10SpecPD.N_EUPD_I + 1,
                                  Icd10SpecPD.N_EU)) >= 2
@@ -392,21 +392,20 @@ class Icd10SpecPD(Task):
 
     def is_complete(self):
         return (
-            self.date_pertains_to is not None
-            and (
+            self.date_pertains_to is not None and (
                 self.isPDExcluded() or (
-                    self.isCompleteGeneral()
-                    and (self.skip_paranoid or self.isCompleteParanoid())
-                    and (self.skip_schizoid or self.isCompleteSchizoid())
-                    and (self.skip_dissocial or self.isCompleteDissocial())
-                    and (self.skip_eu or self.isCompleteEU())
-                    and (self.skip_histrionic or self.isCompleteHistrionic())
-                    and (self.skip_anankastic or self.isCompleteAnankastic())
-                    and (self.skip_anxious or self.isCompleteAnxious())
-                    and (self.skip_dependent or self.isCompleteDependent())
+                    self.isCompleteGeneral() and
+                    (self.skip_paranoid or self.isCompleteParanoid()) and
+                    (self.skip_schizoid or self.isCompleteSchizoid()) and
+                    (self.skip_dissocial or self.isCompleteDissocial()) and
+                    (self.skip_eu or self.isCompleteEU()) and
+                    (self.skip_histrionic or self.isCompleteHistrionic()) and
+                    (self.skip_anankastic or self.isCompleteAnankastic()) and
+                    (self.skip_anxious or self.isCompleteAnxious()) and
+                    (self.skip_dependent or self.isCompleteDependent())
                 )
-            )
-            and self.field_contents_valid()
+            ) and
+            self.field_contents_valid()
         )
 
     def pd_heading(self, wstringname):

@@ -30,7 +30,7 @@ import xml.etree.cElementTree as ElementTree
 import cardinal_pythonlib.rnc_web as ws
 
 from .cc_convert import unescape_newlines
-from .cc_logger import logger
+from .cc_logger import log
 from . import cc_pls
 
 
@@ -55,7 +55,7 @@ def cache_strings():
             "pls.MAIN_STRING_FILE is None -- likely use of "
             "LSTRING/WSTRING in classmethod, before initialization via "
             "the WSGI application entry point")
-    logger.info("Loading XML file: " + cc_pls.pls.MAIN_STRING_FILE)
+    log.info("Loading XML file: " + cc_pls.pls.MAIN_STRING_FILE)
     parser = ElementTree.XMLParser(encoding="UTF-8")
     tree = ElementTree.parse(cc_pls.pls.MAIN_STRING_FILE, parser=parser)
     cc_pls.pls.stringDict = {}
@@ -106,7 +106,7 @@ def cache_extra_strings():
         filenames.extend(possibles)
     filenames = list(set(filenames))  # just unique ones
     for filename in filenames:
-        logger.info("Loading XML file: " + filename)
+        log.info("Loading XML file: " + filename)
         parser = ElementTree.XMLParser(encoding="UTF-8")
         tree = ElementTree.parse(filename, parser=parser)
         root = tree.getroot()

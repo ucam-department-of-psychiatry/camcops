@@ -48,10 +48,10 @@ class Ifs(Task):
     Q7_PROVERB_NUMS = list(range(1, 3 + 1))
     Q8_SENTENCE_NUMS = list(range(1, 3 + 1))
     SIMPLE_Q = (
-        ["q1", "q2", "q3", "q5"]
-        + ["q6_seq{}".format(n) for n in Q6_SEQUENCE_NUMS]
-        + ["q7_proverb{}".format(n) for n in Q7_PROVERB_NUMS]
-        + ["q8_sentence{}".format(n) for n in Q8_SENTENCE_NUMS]
+        ["q1", "q2", "q3", "q5"] +
+        ["q6_seq{}".format(n) for n in Q6_SEQUENCE_NUMS] +
+        ["q7_proverb{}".format(n) for n in Q7_PROVERB_NUMS] +
+        ["q8_sentence{}".format(n) for n in Q8_SENTENCE_NUMS]
     )
 
     tablename = "ifs"
@@ -233,17 +233,16 @@ class Ifs(Task):
             val1 = getattr(self, "q4_len{}_1".format(n))
             val2 = getattr(self, "q4_len{}_2".format(n))
             q = (
-                "… "
-                + self.WXSTRING("q4_seq_len{}_1".format(n))
-                + " / "
-                + self.WXSTRING("q4_seq_len{}_2".format(n))
+                "… " +
+                self.WXSTRING("q4_seq_len{}_1".format(n)) +
+                " / " + self.WXSTRING("q4_seq_len{}_2".format(n))
             )
             if required:
                 score = 1 if val1 or val2 else 0
                 a = (
-                    answer(get_correct_incorrect_none(val1))
-                    + " / " + answer(get_correct_incorrect_none(val2))
-                    + " (scores {})".format(score)
+                    answer(get_correct_incorrect_none(val1)) +
+                    " / " + answer(get_correct_incorrect_none(val2)) +
+                    " (scores {})".format(score)
                 )
             else:
                 a = ""

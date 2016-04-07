@@ -126,10 +126,10 @@ class Aims(Task):
             h += tr_qa(WSTRING("aims_q" + str(q) + "_s"),
                        get_from_dict(MAIN_DICT, getattr(self, "q" + str(q))))
         h += (
-            tr_qa(WSTRING("aims_q10_s"), get_from_dict(Q10_DICT, self.q10))
-            + tr_qa(WSTRING("aims_q11_s"), get_yes_no_none(self.q11))
-            + tr_qa(WSTRING("aims_q12_s"), get_yes_no_none(self.q12))
-            + """
+            tr_qa(WSTRING("aims_q10_s"), get_from_dict(Q10_DICT, self.q10)) +
+            tr_qa(WSTRING("aims_q11_s"), get_yes_no_none(self.q11)) +
+            tr_qa(WSTRING("aims_q12_s"), get_yes_no_none(self.q12)) +
+            """
                 </table>
                 <div class="footnotes">
                     [1] Only Q1–10 are scored.

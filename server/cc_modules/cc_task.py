@@ -19,9 +19,8 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-"""
 
-"""
+NOTES:
     Core export methods:
     - HTML
         ... the task in a user-friendly format
@@ -90,7 +89,7 @@ from . import cc_filename
 from . import cc_hl7core
 from . import cc_html
 from . import cc_lang
-from .cc_logger import logger
+from .cc_logger import log
 from . import cc_namedtuples
 from . import cc_patient
 from . import cc_plot
@@ -295,24 +294,19 @@ def get_cris_dd_row(taskname, tablename, fieldspec):
     else:
         valid_values = ""
 
-    might_need_scrubbing = (
-        cctype in ["TEXT"]
-        and not anon
-    )
+    might_need_scrubbing = cctype in ["TEXT"] and not anon
     tlfa = "Y" if might_need_scrubbing else ""
 
     system_id = (
-        colname == "id"
-        or colname == "patient_id"
-        or colname == TSV_PATIENT_FIELD_PREFIX + "id"
-        or (colname[:1] == "_" and colname[-3:] == "_pk")
+        colname == "id" or
+        colname == "patient_id" or
+        colname == TSV_PATIENT_FIELD_PREFIX + "id" or
+        (colname[:1] == "_" and colname[-3:] == "_pk")
     )
     internal_field = (
-        colname[:1] == "_"
-        and not patientfield
+        colname[:1] == "_" and not patientfield
     ) or (
-        patientfield
-        and colname[patientlen:patientlen + 1] == "_"
+        patientfield and colname[patientlen:patientlen + 1] == "_"
     )
 
     if system_id or internal_field:
@@ -869,7 +863,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         table = cls.tablename
         if not cls.provides_summaries():
             return
-        logger.info("Generating summary tables for: {}".format(
+        log.info("Generating summary tables for: {}".format(
                     cls.shortname))
 
         # Table
@@ -1008,7 +1002,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # -------------------------------------------------------------------------
 
     def dump(self):
-        """Dump to logger."""
+        """Dump to log."""
         rnc_db.dump_database_object(self, self.get_fields())
 
     # -------------------------------------------------------------------------
@@ -1027,8 +1021,8 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         datetimes = self._patient.get_dates_for_anonymisation()
         datetimes = [x for x in datetimes if x]  # remove blanks
         regexes = (
-            [get_literal_regex(x) for x in literals]
-            + [cc_dt.get_date_regex(dt) for dt in datetimes]
+            [get_literal_regex(x) for x in literals] +
+            [cc_dt.get_date_regex(dt) for dt in datetimes]
         )
 
         # Wipe the core fields
@@ -1102,9 +1096,8 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # -------------------------------------------------------------------------
 
     def is_respondent_complete(self):
-        return (
-            getattr(self, "respondent_name")
-            and getattr(self, "respondent_relationship"))
+        return (getattr(self, "respondent_name") and
+                getattr(self, "respondent_relationship"))
 
     # -------------------------------------------------------------------------
     # About the associated patient
@@ -1535,8 +1528,8 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             )
             if not session.filter_include_old_versions:
                 wheres.append("_current")
-        elif (not session.user_may_view_all_patients_when_unfiltered()
-                and not session.any_specific_patient_filtering()):
+        elif (not session.user_may_view_all_patients_when_unfiltered() and
+                not session.any_specific_patient_filtering()):
             # not anonymous; no patient filtering; user not authorized for all
             # records under such circumstances
             return []
@@ -1600,29 +1593,29 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
     def allowed_to_user(self, session):
         """Is the current user allowed to see this task?"""
-        if (session.restricted_to_viewing_user() is not None
-                and session.restricted_to_viewing_user() != self._adding_user):
+        if (session.restricted_to_viewing_user() is not None and
+                session.restricted_to_viewing_user() != self._adding_user):
             return False
         return True
 
     @classmethod
     def filter_allows_task_type(cls, session):
-        return (session.filter_task is None
-                or session.filter_task == cls.tablename)
+        return (session.filter_task is None or
+                session.filter_task == cls.tablename)
 
     def is_compatible_with_filter(self, session):
         """Is this task allowed through the filter?"""
         # 1. Quick things
         if not self.allowed_to_user(session):
             return False
-        if (session.filter_device is not None
-                and session.filter_device != self._device):
+        if (session.filter_device is not None and
+                session.filter_device != self._device):
             return False
-        if (session.filter_user is not None
-                and session.filter_user != self._adding_user):
+        if (session.filter_user is not None and
+                session.filter_user != self._adding_user):
             return False
-        if (session.filter_task is not None
-                and session.filter_task != self.tablename):
+        if (session.filter_task is not None and
+                session.filter_task != self.tablename):
             return False
         start_datetime = session.get_filter_start_datetime()
         end_datetime = session.get_filter_end_datetime_corrected_1day()
@@ -1633,8 +1626,8 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             return False
 
         # 2. Medium-speed things
-        if (session.filter_complete is not None
-                and session.filter_complete != self.is_complete()):
+        if (session.filter_complete is not None and
+                session.filter_complete != self.is_complete()):
             return False
 
         # 3. Since we've already loaded patient info, not slow:
@@ -1912,7 +1905,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     @classmethod
     def make_cris_tables(cls, db):
         # DO NOT CONFUSE pls.db and db. HERE WE ONLY USE db.
-        logger.info("Generating CRIS staging tables for: {}".format(
+        log.info("Generating CRIS staging tables for: {}".format(
                     cls.shortname))
         cc_db.set_db_to_utf8(db)
         task_table = CRIS_TABLENAME_PREFIX + cls.tablename
@@ -2100,20 +2093,20 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         cc_plot.set_matplotlib_fontsize(pls.PLOT_FONTSIZE)
         pls.switch_output_to_svg()
         return (
-            self.get_html_start()
-            + self.get_core_html()
-            + self.get_office_html()
-            + self.get_xml_nav_html()
-            + self.get_superuser_nav_options(offer_add_note, offer_erase,
-                                             offer_edit_patient)
-            + """<div class="navigation">"""
-            + self.get_predecessor_html_line()
-            + self.get_successor_html_line()
-            + "<p>"
-            + self.get_hyperlink_pdf("View PDF for printing/saving")
-            + "</p>"
-            + "</div>"
-            + PDFEND
+            self.get_html_start() +
+            self.get_core_html() +
+            self.get_office_html() +
+            self.get_xml_nav_html() +
+            self.get_superuser_nav_options(offer_add_note, offer_erase,
+                                           offer_edit_patient) +
+            """<div class="navigation">""" +
+            self.get_predecessor_html_line() +
+            self.get_successor_html_line() +
+            "<p>" +
+            self.get_hyperlink_pdf("View PDF for printing/saving") +
+            "</p>" +
+            "</div>" +
+            PDFEND
         )
 
     def get_hyperlink_html(self, text):
@@ -2182,11 +2175,11 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         """Gets HTML used to make PDF (slightly different from plain HTML)."""
         signature = self.has_clinician
         return (
-            self.get_pdf_start()
-            + self.get_core_html()
-            + self.get_office_html()
-            + (SIGNATURE_BLOCK if signature else "")
-            + PDFEND
+            self.get_pdf_start() +
+            self.get_core_html() +
+            self.get_office_html() +
+            (SIGNATURE_BLOCK if signature else "") +
+            PDFEND
         )
 
     def get_hyperlink_pdf(self, text):
@@ -2311,8 +2304,8 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     def get_html_start(self):
         """Opening HTML, including CSS."""
         return (
-            pls.WEBSTART
-            + self.get_task_header_html()
+            pls.WEBSTART +
+            self.get_task_header_html()
         )
 
     def get_pdf_header_content(self):
@@ -2344,10 +2337,10 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             head = PDF_HEAD_NO_PAGED_MEDIA
             pdf_header_footer = ""
         return (
-            head
-            + pdf_header_footer
-            + pls.PDF_LOGO_LINE
-            + self.get_task_header_html()
+            head +
+            pdf_header_footer +
+            pls.PDF_LOGO_LINE +
+            self.get_task_header_html()
         )
 
     def get_anonymous_page_header_html(self):
@@ -2399,11 +2392,11 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             age=age,
         )
         return (
-            pt_info
-            + main_task_header
-            + self.get_erasure_notice()  # if applicable
-            + self.get_special_notes()  # if applicable
-            + self.get_not_current_warning()  # if applicable
+            pt_info +
+            main_task_header +
+            self.get_erasure_notice() +  # if applicable
+            self.get_special_notes() +  # if applicable
+            self.get_not_current_warning()  # if applicable
         )
 
     def get_not_current_warning(self):
@@ -2569,10 +2562,10 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                     get_url_erase_task(self.tablename, self._pk),
                 )
             )
-        if (offer_edit_patient
-                and not self.is_anonymous
-                and self._patient
-                and self._era != ERA_NOW):
+        if (offer_edit_patient and
+                not self.is_anonymous and
+                self._patient and
+                self._era != ERA_NOW):
             options.append(
                 '<a href="{}">Edit patient details</a>'.format(
                     self._patient.get_url_edit_patient()
@@ -3152,8 +3145,8 @@ def task_instance_unit_test(name, instance):
     literals = ["hello"]
     datetimes = [datetime.date(2014, 1, 1)]
     regexes = (
-        [get_literal_regex(x) for x in literals]
-        + [cc_dt.get_date_regex(dt) for dt in datetimes]
+        [get_literal_regex(x) for x in literals] +
+        [cc_dt.get_date_regex(dt) for dt in datetimes]
     )
     unit_test_ignore("Testing {}.anonymise_subtables".format(name),
                      instance.anonymise_subtables, regexes)

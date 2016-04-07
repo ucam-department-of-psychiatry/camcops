@@ -33,7 +33,7 @@ from .cc_constants import ACTION, PARAM, DATEFORMAT, WEBEND
 from . import cc_db
 from . import cc_dt
 from . import cc_html
-from .cc_logger import logger
+from .cc_logger import log
 from .cc_pls import pls
 from . import cc_storedvar
 from .cc_unittest import unit_test_ignore
@@ -233,7 +233,7 @@ def clear_dummy_login_failures_if_necessary():
             return
 
     clear_login_failures_for_nonexistent_users()
-    logger.debug("Dummy login failures cleared.")
+    log.debug("Dummy login failures cleared.")
     now_as_utc_iso_string = cc_dt.format_datetime(pls.NOW_UTC_WITH_TZ,
                                                   DATEFORMAT.ISO8601)
     lastClearedVar.setValue(now_as_utc_iso_string)
@@ -265,30 +265,30 @@ class User:
         dict(name="may_register_devices", cctype="BOOL",
              comment="May the user register tablet devices?"),
         dict(name="may_use_webstorage", cctype="BOOL",
-             comment="May the user use the mobileweb database to run CamCOPS "
-                     + "tasks via a web browser?"),
+             comment="May the user use the mobileweb database to run "
+                     "CamCOPS tasks via a web browser?"),
         dict(name="may_use_webviewer", cctype="BOOL",
              comment="May the user use the web front end to view "
-                     + "CamCOPS data?"),
+                     "CamCOPS data?"),
         dict(name="may_view_other_users_records", cctype="BOOL",
              comment="May the user see records uploaded by another user?"),
         dict(name="view_all_patients_when_unfiltered", cctype="BOOL",
              comment="When no record filters are applied, can the user see "
-                     + "all records? (If not, then none are shown.)"),
+                     "all records? (If not, then none are shown.)"),
         dict(name="superuser", cctype="BOOL", comment="Superuser?"),
         dict(name="may_dump_data", cctype="BOOL",
              comment="May the user run database data dumps via the web "
-                     + "interface? (Overrides other view restrictions.)"),
+                     "interface? (Overrides other view restrictions.)"),
         dict(name="may_run_reports", cctype="BOOL",
              comment="May the user run reports via the web interface? "
-                     + "(Overrides other view restrictions.)"),
+                     "(Overrides other view restrictions.)"),
         dict(name="may_add_notes", cctype="BOOL",
              comment="May the user add special notes to tasks?"),
         dict(name="must_change_password", cctype="BOOL",
              comment="Must change password at next webview login"),
         dict(name="when_agreed_terms_of_use", cctype="ISO8601",
              comment="Date/time this user acknowledged the Terms and "
-             "Conditions of Use (ISO 8601)"),
+                     "Conditions of Use (ISO 8601)"),
     ]
     FIELDS = [x["name"] for x in FIELDSPECS]
 
@@ -478,24 +478,24 @@ def is_username_permissible(username):
 def get_url_edit_user(username):
     """URL to edit a specific user."""
     return (
-        cc_html.get_generic_action_url(ACTION.EDIT_USER)
-        + cc_html.get_url_field_value_pair(PARAM.USERNAME, username)
+        cc_html.get_generic_action_url(ACTION.EDIT_USER) +
+        cc_html.get_url_field_value_pair(PARAM.USERNAME, username)
     )
 
 
 def get_url_ask_delete_user(username):
     """URL to ask for confirmation to delete a specific user."""
     return (
-        cc_html.get_generic_action_url(ACTION.ASK_DELETE_USER)
-        + cc_html.get_url_field_value_pair(PARAM.USERNAME, username)
+        cc_html.get_generic_action_url(ACTION.ASK_DELETE_USER) +
+        cc_html.get_url_field_value_pair(PARAM.USERNAME, username)
     )
 
 
 def get_url_enable_user(username):
     """URL to enable a specific user."""
     return (
-        cc_html.get_generic_action_url(ACTION.ENABLE_USER)
-        + cc_html.get_url_field_value_pair(PARAM.USERNAME, username)
+        cc_html.get_generic_action_url(ACTION.ENABLE_USER) +
+        cc_html.get_url_field_value_pair(PARAM.USERNAME, username)
     )
 
 

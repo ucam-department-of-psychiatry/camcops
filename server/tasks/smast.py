@@ -106,8 +106,8 @@ class Smast(Task):
 
     def is_complete(self):
         return (
-            self.are_all_fields_complete(self.TASK_FIELDS)
-            and self.field_contents_valid()
+            self.are_all_fields_complete(self.TASK_FIELDS) and
+            self.field_contents_valid()
         )
 
     def get_score(self, q):
@@ -163,8 +163,8 @@ class Smast(Task):
         for q in range(1, self.NQUESTIONS + 1):
             h += tr(
                 WSTRING("smast_q" + str(q)),
-                answer(get_from_dict(MAIN_DICT, getattr(self, "q" + str(q))))
-                + " — " + str(self.get_score(q))
+                answer(get_from_dict(MAIN_DICT, getattr(self, "q" + str(q)))) +
+                " — " + str(self.get_score(q))
             )
         h += """
             </table>

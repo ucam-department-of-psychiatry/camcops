@@ -202,9 +202,9 @@ class Phq9(Task):
         h += tr(
             "Number of symptoms: core <sup>[3]</sup>, other <sup>[4]</sup>, "
             "total",
-            answer(self.n_core()) + "/2, "
-            + answer(self.n_other()) + "/7, "
-            + answer(self.n_total()) + "/9"
+            answer(self.n_core()) + "/2, " +
+            answer(self.n_other()) + "/7, " +
+            answer(self.n_total()) + "/9"
         )
         h += tr_qa(WSTRING("phq9_mds") + " <sup>[5]</sup>",
                    get_yes_no(self.is_mds()))

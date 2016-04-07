@@ -146,11 +146,11 @@ class Icd10Depressive(Task):
                  comment="Clinical impression of severe depression, in a "
                  "patient unwilling or unable to describe many symptoms in "
                  "detail"),
-        ]
-        + CORE_FIELDSPECS
-        + ADDITIONAL_FIELDSPECS
-        + SOMATIC_FIELDSPECS
-        + PSYCHOSIS_FIELDSPECS
+        ] +
+        CORE_FIELDSPECS +
+        ADDITIONAL_FIELDSPECS +
+        SOMATIC_FIELDSPECS +
+        PSYCHOSIS_FIELDSPECS
     )
     has_clinician = True
 
@@ -205,9 +205,9 @@ class Icd10Depressive(Task):
 
     def main_complete(self):
         return (
-            self.duration_at_least_2_weeks is not None
-            and self.are_all_fields_complete(Icd10Depressive.CORE_NAMES)
-            and self.are_all_fields_complete(Icd10Depressive.ADDITIONAL_NAMES)
+            self.duration_at_least_2_weeks is not None and
+            self.are_all_fields_complete(Icd10Depressive.CORE_NAMES) and
+            self.are_all_fields_complete(Icd10Depressive.ADDITIONAL_NAMES)
         ) or (
             self.severe_clinically
         )
@@ -219,13 +219,13 @@ class Icd10Depressive(Task):
             return x
         if self.stupor or self.hallucinations_other or self.delusions_other:
             return False  # that counts as F32.3
-        if (self.stupor is None or self.hallucinations_other is None
-                or self.delusions_other is None):
+        if (self.stupor is None or self.hallucinations_other is None or
+                self.delusions_other is None):
             return None  # might be F32.3
         if self.hallucinations_schizophrenic or self.delusions_schizophrenic:
             return True
-        if self.hallucinations_schizophrenic is None \
-                or self.delusions_schizophrenic is None:
+        if (self.hallucinations_schizophrenic is None or
+                self.delusions_schizophrenic is None):
             return None
         return False
 
@@ -235,8 +235,9 @@ class Icd10Depressive(Task):
             return x
         if self.stupor or self.hallucinations_other or self.delusions_other:
             return True
-        if self.stupor is None or self.hallucinations_other is None \
-                or self.delusions_other is None:
+        if (self.stupor is None or
+                self.hallucinations_other is None or
+                self.delusions_other is None):
             return None
         return False
 
@@ -345,8 +346,8 @@ class Icd10Depressive(Task):
     def get_full_description(self):
         skipSomatic = self.main_complete() and self.meets_criteria_none()
         return (
-            self.get_main_description()
-            + ("" if skipSomatic else " " + self.get_somatic_description())
+            self.get_main_description() +
+            ("" if skipSomatic else " " + self.get_somatic_description())
         )
 
     def is_psychotic_or_stupor(self):
@@ -359,9 +360,9 @@ class Icd10Depressive(Task):
 
     def is_complete(self):
         return (
-            self.date_pertains_to is not None
-            and self.main_complete()
-            and self.field_contents_valid()
+            self.date_pertains_to is not None and
+            self.main_complete() and
+            self.field_contents_valid()
         )
 
     def text_row(self, wstringname):
@@ -392,8 +393,8 @@ class Icd10Depressive(Task):
                 answer(self.n_total()) + " / 10")
         h += tr(WSTRING("icd10depressive_n_somatic"),
                 answer(self.n_somatic()) + " / 8")
-        h += tr(WSTRING("icd10depressive_psychotic_symptoms_or_stupor")
-                + " <sup>[2]</sup>",
+        h += tr(WSTRING("icd10depressive_psychotic_symptoms_or_stupor") +
+                " <sup>[2]</sup>",
                 answer(get_present_absent_none(self.is_psychotic_or_stupor())))
         h += """
                 </table>

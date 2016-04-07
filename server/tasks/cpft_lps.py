@@ -105,9 +105,9 @@ class CPFT_LPS_Referral(Task):
 
     def is_complete(self):
         return (
-            self.patient_location
-            and self.referral_reason
-            and self.field_contents_valid()
+            self.patient_location and
+            self.referral_reason and
+            self.field_contents_valid()
         )
 
     def get_clinical_text(self):
@@ -207,8 +207,8 @@ class CPFT_LPS_Referral(Task):
             WSTRING("cpft_lps_referral_f_referral_method"),
             answer(self.referral_method),
             WSTRING("cpft_lps_referral_f_referral_priority"),
-            answer(self.referral_priority, default_for_blank_strings=True)
-            + ": " + answer(priority_name)
+            answer(self.referral_priority, default_for_blank_strings=True) +
+            ": " + answer(priority_name)
         )
         h += self.four_column_row(
             WSTRING("cpft_lps_referral_f_referrer_name"),
@@ -304,9 +304,9 @@ class CPFT_LPS_ResetResponseClock(Task):
 
     def is_complete(self):
         return (
-            self.reset_start_time_to
-            and self.reason
-            and self.field_contents_valid()
+            self.reset_start_time_to and
+            self.reason and
+            self.field_contents_valid()
         )
 
     def get_clinical_text(self):
@@ -463,10 +463,10 @@ class CPFT_LPS_Discharge(Task):
 
     def is_complete(self):
         return (
-            self.discharge_date
-            and self.discharge_reason_code
-            and self.outcome
-            and self.field_contents_valid()
+            self.discharge_date and
+            self.discharge_reason_code and
+            self.outcome and
+            self.field_contents_valid()
         )
 
     def get_discharge_reason(self):
@@ -551,10 +551,10 @@ class CPFT_LPS_Discharge(Task):
             if getattr(self, "diagnosis_psych_" + str(i) + "_icd10code"):
                 psychiatric_diagnoses.append(
                     ws.webify(getattr(self, "diagnosis_psych_" +
-                                      str(i) + "_icd10code"))
-                    + " – "
-                    + ws.webify(getattr(self, "diagnosis_psych_" +
-                                        str(i) + "_description"))
+                                      str(i) + "_icd10code")) +
+                    " – " +
+                    ws.webify(getattr(self, "diagnosis_psych_" +
+                                      str(i) + "_description"))
                 )
         return psychiatric_diagnoses
 

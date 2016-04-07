@@ -149,9 +149,9 @@ class NpiQ(Task):
 
     def is_complete(self):
         return (
-            self.field_contents_valid()
-            and self.is_respondent_complete()
-            and all(self.q_complete(q) for q in range(1, self.NQUESTIONS + 1))
+            self.field_contents_valid() and
+            self.is_respondent_complete() and
+            all(self.q_complete(q) for q in range(1, self.NQUESTIONS + 1))
         )
 
     def get_task_html(self):

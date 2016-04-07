@@ -28,7 +28,7 @@ import urllib.request
 
 from .cc_constants import DATEFORMAT
 from . import cc_dt
-from .cc_logger import logger
+from .cc_logger import log
 from .cc_pls import pls
 from . import cc_storedvar
 from .cc_unittest import unit_test_ignore
@@ -93,11 +93,11 @@ def send_analytics_if_necessary():
         # don't care about any response
     except (urllib.error.URLError, urllib.error.HTTPError):
         # something broke; try again next time
-        logger.info("Failed to send analytics to {}".format(ANALYTICS_URL))
+        log.info("Failed to send analytics to {}".format(ANALYTICS_URL))
         return
 
     # Store current time as last-sent time
-    logger.debug("Analytics sent.")
+    log.debug("Analytics sent.")
     lastSentVar.setValue(now_as_utc_iso_string)
 
 

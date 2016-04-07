@@ -39,9 +39,9 @@ from cc_modules.cc_task import get_from_dict, Task
 # =============================================================================
 
 MAX_SCORE = (
-    4 * 15  # Q1-15 scored 0-5
-    - (2 * 6)  # except Q4-6, 12-14 scored 0-2
-    + 2 * 2  # Q16-17
+    4 * 15 -  # Q1-15 scored 0-5
+    (2 * 6) +  # except Q4-6, 12-14 scored 0-2
+    2 * 2  # Q16-17
 )  # ... and not scored beyond Q17... total 52
 
 
@@ -94,9 +94,9 @@ class Hamd(Task):
     # Now fix the wrong bits. Hardly elegant!
     for item in fieldspecs:
         name = item["name"]
-        if (name == "q4" or name == "q5" or name == "q6"
-                or name == "q12" or name == "q13" or name == "q14"
-                or name == "q21"):
+        if (name == "q4" or name == "q5" or name == "q6" or
+                name == "q12" or name == "q13" or name == "q14" or
+                name == "q21"):
             item["max"] = 2
         if name == "q20":
             item["max"] = 3
@@ -211,9 +211,9 @@ class Hamd(Task):
         for q in TASK_FIELD_LIST_FOR_DISPLAY:
             d = {None: None}
             for option in range(0, 5):
-                if (q == "q4" or q == "q5" or q == "q6" or q == "q12"
-                        or q == "q13" or q == "q14" or q == "q17"
-                        or q == "q18" or q == "q21") and option > 2:
+                if (q == "q4" or q == "q5" or q == "q6" or q == "q12" or
+                        q == "q13" or q == "q14" or q == "q17" or
+                        q == "q18" or q == "q21") and option > 2:
                     continue
                 d[option] = WSTRING("hamd_" + q + "_option" + str(option))
             ANSWER_DICTS_DICT[q] = d

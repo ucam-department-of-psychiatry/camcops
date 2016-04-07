@@ -30,7 +30,7 @@ from .cc_configfile import get_config_parameter, get_config_parameter_boolean
 from .cc_constants import NUMBER_OF_IDNUMS, VALUE
 from . import cc_dt
 from . import cc_filename
-from .cc_logger import logger
+from .cc_logger import log
 from . import cc_policy
 
 
@@ -244,13 +244,13 @@ class RecipientDefinition(object):
             self.check_valid()
 
         except configparser.NoSectionError:
-            logger.warning("Config file section missing: [{}]".format(
+            log.warning("Config file section missing: [{}]".format(
                 section
             ))
             self.valid = False
 
     def report_error(self, msg):
-        logger.error("RecipientDefinition: {}".format(msg))
+        log.error("RecipientDefinition: {}".format(msg))
 
     def check_valid(self):
         """Performs validity check and sets self.valid"""
@@ -335,9 +335,9 @@ class RecipientDefinition(object):
                     self.report_error(
                         "invalid rio_idnum: {}".format(self.rio_idnum))
                     return
-                if (not self.rio_uploading_user
-                        or " " in self.rio_uploading_user
-                        or len(self.rio_uploading_user) > RIO_MAX_USER_LEN):
+                if (not self.rio_uploading_user or
+                        " " in self.rio_uploading_user or
+                        len(self.rio_uploading_user) > RIO_MAX_USER_LEN):
                     self.report_error(
                         "missing/invalid rio_uploading_user: {} (must be "
                         "present, contain no spaces, and max length "

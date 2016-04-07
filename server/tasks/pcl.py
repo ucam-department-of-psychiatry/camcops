@@ -74,8 +74,8 @@ class PclCommon(object):
 
     def is_complete(self):
         return (
-            self.are_all_fields_complete(self.TASK_FIELDS)
-            and self.field_contents_valid()
+            self.are_all_fields_complete(self.TASK_FIELDS) and
+            self.field_contents_valid()
         )
 
     def total_score(self):
@@ -169,14 +169,10 @@ class PclCommon(object):
         h += tr_qa("{} (17–85)".format(WSTRING("total_score")),
                    score)
         h += tr("Number symptomatic <sup>[1]</sup>: B, C, D (total)",
-                answer(num_symptomatic_B)
-                + ", "
-                + answer(num_symptomatic_C)
-                + ", "
-                + answer(num_symptomatic_D)
-                + " ("
-                + answer(num_symptomatic)
-                + ")")
+                answer(num_symptomatic_B) + ", " +
+                answer(num_symptomatic_C) + ", " +
+                answer(num_symptomatic_D) +
+                " (" + answer(num_symptomatic) + ")")
         h += tr_qa(WSTRING("pcl_dsm_criteria_met") + " <sup>[2]</sup>",
                    get_yes_no(ptsd))
         h += """

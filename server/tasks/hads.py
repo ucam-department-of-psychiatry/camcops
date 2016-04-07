@@ -32,7 +32,7 @@ from cc_modules.cc_html import (
 )
 from cc_modules.cc_string import task_extrastrings_exist, WSTRING
 from cc_modules.cc_task import Task
-from cc_modules.cc_logger import logger  # ***
+from cc_modules.cc_logger import log
 
 
 # =============================================================================
@@ -113,7 +113,7 @@ class Hads(Task):
         MIN_SCORE = 0
         MAX_SCORE = 3
         crippled = not task_extrastrings_exist(self.extrastring_taskname)
-        logger.info("crippled: {}".format(crippled))
+        log.info("crippled: {}".format(crippled))
         a = self.anxiety_score()
         d = self.depression_score()
         h = """

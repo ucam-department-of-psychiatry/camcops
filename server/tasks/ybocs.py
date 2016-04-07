@@ -164,8 +164,8 @@ class Ybocs(Task):
 
     def is_complete(self):
         return (
-            self.field_contents_valid()
-            and self.are_all_fields_complete(self.SCORED_QUESTIONS)
+            self.field_contents_valid() and
+            self.are_all_fields_complete(self.SCORED_QUESTIONS)
         )
 
     def get_task_html(self):

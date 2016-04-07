@@ -215,17 +215,17 @@ def decode_single_value(v):
     # some cases because some base-64 encoders insert newline characters
     # (e.g. Titanium iOS).
     if REGEX_BLOB_HEX.match(t):
-        # logger.debug("MATCHES HEX-ENCODED BLOB")
+        # log.debug("MATCHES HEX-ENCODED BLOB")
         return special_hex_decode(t)
     if REGEX_BLOB_BASE64.match(t):
-        # logger.debug("MATCHES BASE64-ENCODED BLOB")
+        # log.debug("MATCHES BASE64-ENCODED BLOB")
         return special_base64_decode(t)
 
     if len(v) >= 2 and v[0] == SQLQUOTE and v[-1] == SQLQUOTE:
         # v is a quoted string
         s = rnc_db.sql_dequote_string(v)
         # s is the underlying string that the source started with
-        # logger.debug("UNDERLYING STRING: {}".format(s))
+        # log.debug("UNDERLYING STRING: {}".format(s))
         return s
 
     # Not a quoted string.
@@ -247,9 +247,9 @@ def decode_single_value(v):
 def decode_values(valuelist):
     """Takes a SQL CSV value list and returns the corresponding list of decoded
     values."""
-    # logger.debug("decode_values: valuelist={}".format(valuelist))
+    # log.debug("decode_values: valuelist={}".format(valuelist))
     v = [decode_single_value(v) for v in gen_items_from_sql_csv(valuelist)]
-    # logger.debug("decode_values: values={}".format(v))
+    # log.debug("decode_values: values={}".format(v))
     return v
 
 

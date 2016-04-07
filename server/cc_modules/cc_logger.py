@@ -36,12 +36,12 @@ logging.basicConfig(format=LOG_FORMAT, datefmt=LOG_DATEFMT)
 # =============================================================================
 
 # Webview logger
-logger = logging.getLogger("camcops_wv")
-logger.setLevel(logging.INFO)
+log = logging.getLogger("camcops_wv")
+log.setLevel(logging.INFO)
 
 # Database client logger
-dblogger = logging.getLogger("camcops_db")
-dblogger.setLevel(logging.INFO)
+dblog = logging.getLogger("camcops_db")
+dblog.setLevel(logging.INFO)
 
 # levels are DEBUG, INFO, WARN/WARNING, ERROR, CRITICAL/FATAL
 # -- level may be changed by config

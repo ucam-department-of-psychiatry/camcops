@@ -106,8 +106,8 @@ class Pdss(Task):
 
     def is_complete(self):
         return (
-            self.field_contents_valid()
-            and self.are_all_fields_complete(self.QUESTION_FIELDS)
+            self.field_contents_valid() and
+            self.are_all_fields_complete(self.QUESTION_FIELDS)
         )
 
     def get_task_html(self):

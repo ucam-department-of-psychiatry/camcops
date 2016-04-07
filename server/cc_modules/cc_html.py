@@ -174,8 +174,8 @@ def table_row(columns, classes=None, colspans=None, colwidths=None,
         ]
 
     return (
-        "<tr>"
-        + "".join([
+        "<tr>" +
+        "".join([
             "<{cellspec}{classdetail}{colspan}{colwidth}>"
             "{contents}</{cellspec}>".format(
                 cellspec="th" if heading else "td",
@@ -184,8 +184,8 @@ def table_row(columns, classes=None, colspans=None, colwidths=None,
                 colspan=colspans[i],
                 colwidth=colwidths[i],
             ) for i in range(n)
-        ])
-        + "</tr>\n"
+        ]) +
+        "</tr>\n"
     )
 
 
@@ -330,9 +330,9 @@ def get_html_from_pyplot_figure(fig):
     """Make HTML (as PNG or SVG) from pyplot figure."""
     if USE_SVG_IN_HTML and cc_pls.pls.useSVG:
         return (
-            rnc_plot.svg_html_from_pyplot_figure(fig)
-            + rnc_plot.png_img_html_from_pyplot_figure(fig, DEFAULT_PLOT_DPI,
-                                                       "pngfallback")
+            rnc_plot.svg_html_from_pyplot_figure(fig) +
+            rnc_plot.png_img_html_from_pyplot_figure(fig, DEFAULT_PLOT_DPI,
+                                                     "pngfallback")
         )
         # return both an SVG and a PNG image, for browsers that can't deal with
         # SVG; the Javascript header will sort this out
@@ -570,6 +570,6 @@ def get_url_main_menu():
 def get_url_enter_new_password(username):
     """URL to enter new password."""
     return (
-        get_generic_action_url(ACTION.ENTER_NEW_PASSWORD)
-        + get_url_field_value_pair(PARAM.USERNAME, username)
+        get_generic_action_url(ACTION.ENTER_NEW_PASSWORD) +
+        get_url_field_value_pair(PARAM.USERNAME, username)
     )
