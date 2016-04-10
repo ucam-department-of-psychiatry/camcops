@@ -209,6 +209,15 @@ class Patient:
         """Dump object to database's log."""
         rnc_db.dump_database_object(self, Patient.FIELDS)
 
+    def get_pk(self):
+        return self._pk
+
+    def get_era(self):
+        return self._era
+
+    def get_device(self):
+        return self._device
+
     def get_surname(self):
         """Get surname (in upper case) or ""."""
         return self.surname.upper() if self.surname else ""
@@ -355,7 +364,8 @@ class Patient:
             return None
         return getattr(self, "idshortdesc" + str(n))
 
-    def get_id_generic(self, longform, idnum, desc, shortdesc, serverdesc,
+    @staticmethod
+    def get_id_generic(longform, idnum, desc, shortdesc, serverdesc,
                        servershortdesc, idnumtext, label_id_numbers=False):
         """Returns (conflict, description).
 
@@ -531,7 +541,7 @@ class Patient:
 
     def is_preserved(self):
         """Is the patient record preserved and erased from the tablet?"""
-        return (self._pk is not None and self._era != ERA_NOW)
+        return self._pk is not None and self._era != ERA_NOW
 
     def save(self):
         """Saves patient record back to database. UNUSUAL."""
@@ -675,7 +685,7 @@ class DistinctPatientReport(Report):
         """
         (rows, fieldnames) = pls.db.fetchall_with_fieldnames(sql)
         fieldnames = cc_report.expand_id_descriptions(fieldnames)
-        return (rows, fieldnames)
+        return rows, fieldnames
 
 
 # =============================================================================

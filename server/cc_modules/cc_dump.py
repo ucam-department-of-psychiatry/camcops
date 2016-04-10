@@ -59,7 +59,7 @@ def get_possible_task_tables_views():
         (tasktables, taskviews) = cls.get_all_table_and_view_names()
         tables.extend(tasktables)
         views.extend(taskviews)
-    return (tables, views)
+    return tables, views
 
 
 def get_permitted_tables_and_views():
@@ -112,7 +112,7 @@ def validate_table_list(tables):
 
 def validate_single_table(table):
     """Returns the table name supplied, or None if it's not valid."""
-    tl = list(set([table]).intersection(get_permitted_tables_and_views()))
+    tl = list({table}.intersection(get_permitted_tables_and_views()))
     if not tl:
         return None
     return tl[0]
@@ -168,6 +168,7 @@ def get_database_dump_as_sql(tables=None):
                            "details concealed for security reasons")
     finally:
         # Executed whether an exception is raised or not.
+        # noinspection PyUnusedLocal
         DB_PASSWORD = None
 
 
@@ -210,6 +211,7 @@ def get_query_as_tsv(sql):
                            "details concealed for security reasons")
     finally:
         # Executed whether an exception is raised or not.
+        # noinspection PyUnusedLocal
         DB_PASSWORD = None
 
 

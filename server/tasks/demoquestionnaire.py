@@ -87,7 +87,8 @@ class DemoQuestionnaire(Task):
         ("canvas", "canvas_blobid", None),
     ]
 
-    def is_complete(self):
+    @staticmethod
+    def is_complete():
         return True
 
     def get_task_html(self):

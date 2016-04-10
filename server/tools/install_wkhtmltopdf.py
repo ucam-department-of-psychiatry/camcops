@@ -90,6 +90,8 @@ elif LINUX_DIST == 'centos':
     else:
         distro = 'centos7'
         arch = 'amd64'
+else:
+    distro = 'UNKNOWN'
 
 url_stem = (
     'http://download.gna.org/wkhtmltopdf/{MAJOR_VERSION}/'

@@ -312,7 +312,8 @@ class Icd10Manic(Task):
             self.field_contents_valid()
         )
 
-    def text_row(self, wstringname):
+    @staticmethod
+    def text_row(wstringname):
         return heading_spanning_two_columns(WSTRING(wstringname))
 
     def row_true_false(self, fieldname):

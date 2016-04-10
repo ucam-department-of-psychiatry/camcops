@@ -157,11 +157,10 @@ class Phq9(Task):
         return self.n_core() + self.n_other()
 
     def is_mds(self):
-        return True if self.n_core() >= 1 and self.n_total() >= 5 else False
+        return self.n_core() >= 1 and self.n_total() >= 5
 
     def is_ods(self):
-        return True if self.n_core() >= 1 and self.n_total() >= 2 and \
-            self.n_total() <= 4 else False
+        return self.n_core() >= 1 and 2 <= self.n_total() <= 4
 
     def severity(self):
         total = self.total_score()

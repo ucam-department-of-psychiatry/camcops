@@ -114,7 +114,7 @@ def get_all_tables_with_record_counts():
         # No need to distinguish current/non-current, since the "*_current"
         # views do that already.
         record_counts.append(pls.db.count_where(table))  # count all records
-    return (table_names, record_counts)
+    return table_names, record_counts
 
 
 def unit_tests():

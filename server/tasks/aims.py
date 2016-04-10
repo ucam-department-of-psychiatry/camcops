@@ -97,6 +97,7 @@ class Aims(Task):
     def total_score(self):
         return self.sum_fields(repeat_fieldname("q", 1, Aims.NSCOREDQUESTIONS))
 
+    # noinspection PyPep8Naming
     def get_task_html(self):
         score = self.total_score()
         MAIN_DICT = {None: None}

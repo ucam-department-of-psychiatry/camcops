@@ -45,7 +45,7 @@ class ProgressNote(Task):
         return [{"content": ws.webify(self.note)}]
 
     def is_complete(self):
-        return (self.note is not None)
+        return self.note is not None
 
     def get_task_html(self):
         # Avoid tables - PDF generator crashes if text is too long.

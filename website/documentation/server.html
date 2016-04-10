@@ -533,8 +533,10 @@ max_allowed_packet = 32M</pre>
       </li>
 
       <li>You will need to ensure the <code>/etc/supervisor/conf.d/*</code>
-      file(s) are correct. Here’s an example:</li>
-      <pre class="code1"><!--#include virtual="supervisord_camcops.conf" --></pre>
+      file(s) are correct. Here’s an example:
+        <pre class="code1"><!--#include virtual="supervisord_camcops.conf" --></pre>
+      </li>
+
 
       <li><b>On CentOS,</b> the default version (via yum installation) is of
       supervisord==2.1 (version obtained from <code>pip freeze</code>), which

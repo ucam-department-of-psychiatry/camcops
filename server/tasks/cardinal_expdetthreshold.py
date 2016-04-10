@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# cardinal_expdetthreshold.py
+# CardinalExpDetThreshold.py
 
 """
     Copyright (C) 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
@@ -52,16 +52,16 @@ DP = 3
 
 
 # =============================================================================
-# Cardinal_ExpDetThreshold
+# CardinalExpDetThreshold
 # =============================================================================
 
-class Cardinal_ExpDetThreshold_Trial(Ancillary):
-    tablename = "cardinal_expdetthreshold_trials"
-    fkname = "cardinal_expdetthreshold_id"
+class CardinalExpDetThreshold_Trial(Ancillary):
+    tablename = "CardinalExpDetThreshold_trials"
+    fkname = "CardinalExpDetThreshold_id"
     fieldspecs = [
-        dict(name="cardinal_expdetthreshold_id", notnull=True,
+        dict(name="CardinalExpDetThreshold_id", notnull=True,
              cctype="INT",
-             comment="FK to cardinal_expdetthreshold"),
+             comment="FK to CardinalExpDetThreshold"),
         dict(name="trial", notnull=True, cctype="INT",
              comment="Trial number"),
         # Results
@@ -132,9 +132,9 @@ class Cardinal_ExpDetThreshold_Trial(Ancillary):
         )
 
 
-class Cardinal_ExpDetThreshold(Task):
-    tablename = "cardinal_expdetthreshold"
-    shortname = "Cardinal_ExpDetThreshold"
+class CardinalExpDetThreshold(Task):
+    tablename = "CardinalExpDetThreshold"
+    shortname = "CardinalExpDetThreshold"
     longname = ("Cardinal RN – Threshold determination for "
                 "Expectation–Detection task")
     fieldspecs = [
@@ -182,21 +182,22 @@ class Cardinal_ExpDetThreshold(Task):
              "; theta = -intercept/k = -intercept/slope "),
     ]
     use_landscape_for_pdf = True
-    dependent_classes = [Cardinal_ExpDetThreshold_Trial]
+    dependent_classes = [CardinalExpDetThreshold_Trial]
 
     def is_complete(self):
         return bool(self.finished)
 
     def get_trial_array(self):
-        return self.get_ancillary_items(Cardinal_ExpDetThreshold_Trial)
+        return self.get_ancillary_items(CardinalExpDetThreshold_Trial)
 
+    # noinspection PyPep8Naming
     def get_trial_html(self):
 
         # Fetch trial details
         trialarray = self.get_trial_array()
 
         # Provide HTML
-        html = Cardinal_ExpDetThreshold_Trial.get_html_table_header()
+        html = CardinalExpDetThreshold_Trial.get_html_table_header()
         for t in trialarray:
             html += t.get_html_table_row()
         html += """</table>"""

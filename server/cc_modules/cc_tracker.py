@@ -130,7 +130,7 @@ def get_summary_of_tasks(list_of_task_instance_lists):
                 [
                     "({},{},{})".format(
                         task.tablename,
-                        task._pk,
+                        task.get_pk(),
                         task.get_patient_server_pk()
                     )
                     for task in tasklist
@@ -163,33 +163,27 @@ class ConsistencyInfo(object):
     def __init__(self, flattasklist):
         """Initialize values, from a list of task instances."""
         self.consistent_forename, self.msg_forename = consistency(
-            [task._patient.forename for task in flattasklist],
+            [task.get_patient_forename() for task in flattasklist],
             servervalue=None, case_sensitive=False)
         self.consistent_surname, self.msg_surname = consistency(
-            [task._patient.surname for task in flattasklist],
+            [task.get_patient_surname() for task in flattasklist],
             servervalue=None, case_sensitive=False)
-        self.consistent_dob, self.msg_dob = consistency([
-            (task._patient.dob[:10] if task._patient.dob else None)
-            for task in flattasklist
-        ])
+        self.consistent_dob, self.msg_dob = consistency(
+            [task.get_patient_dob_first10chars() for task in flattasklist])
         self.consistent_sex, self.msg_sex = consistency(
-            [task._patient.sex for task in flattasklist])
+            [task.get_patient_sex() for task in flattasklist])
         self.consistent_idnums = []
         self.msg_idnums = []
         self.consistent_iddescs = []
         self.msg_iddescs = []
         for n in range(1, NUMBER_OF_IDNUMS + 1):
-            nstr = str(n)
-            result, msg = consistency([
-                getattr(task._patient, "idnum" + nstr)
-                for task in flattasklist
-            ])
+            result, msg = consistency(
+                [task.get_patient_idnum(n) for task in flattasklist])
             self.consistent_idnums.append(result)
             self.msg_idnums.append(msg)
             if result and (len(flattasklist) == 0 or (
                     len(flattasklist) > 0 and
-                    getattr(flattasklist[0]._patient,
-                            "idnum" + nstr) is None)):
+                    flattasklist[0].get_patient_idnum(n) is None)):
                 # Values consistent; either no values, or all values are
                 # None... we don't care about description consistency
                 self.consistent_iddescs.append(True)
@@ -197,7 +191,7 @@ class ConsistencyInfo(object):
             else:
                 # Description consistent?
                 result, msg = consistency(
-                    [task._patient.get_iddesc(n) for task in flattasklist],
+                    [task.get_patient_iddesc(n) for task in flattasklist],
                     pls.get_id_desc(n))
                 self.consistent_iddescs.append(result)
                 self.msg_iddescs.append(msg)
@@ -375,7 +369,8 @@ class Tracker(object):
         # Fetch patient information
         if (len(self.list_of_task_instance_lists) > 0 and
                 len(self.list_of_task_instance_lists[0]) > 0):
-            self._patient = self.list_of_task_instance_lists[0][0]._patient
+            self._patient = (
+                self.list_of_task_instance_lists[0][0].get_patient())
             # patient details from the first of our tasks
 
         # Summary information
@@ -432,7 +427,7 @@ class Tracker(object):
             audit(
                 "Tracker XML accessed",
                 table=t.tablename,
-                server_pk=t._pk,
+                server_pk=t.get_pk(),
                 patient_server_pk=t.get_patient_server_pk()
             )
         tree = cc_namedtuples.XmlElementTuple(name="tracker", value=branches)
@@ -575,7 +570,8 @@ class Tracker(object):
             ptinfo = ""
         return cc_html.pdf_header_content(ptinfo)
 
-    def get_pdf_footer_content(self):
+    @staticmethod
+    def get_pdf_footer_content():
         accessed = cc_dt.format_datetime(pls.NOW_LOCAL_TZ,
                                          DATEFORMAT.LONG_DATETIME)
         content = "Tracker accessed {}.".format(accessed)
@@ -701,6 +697,7 @@ class Tracker(object):
                 aspect_ratio
             )
         for task in task_instance_list:
+            # noinspection PyProtectedMember
             audit(
                 "Tracker data accessed",
                 table=task.tablename,
@@ -957,6 +954,7 @@ class ClinicalTextView(object):
 
         # Fetch patient information
         if len(self.flattasklist) > 0:
+            # noinspection PyProtectedMember
             self._patient = self.flattasklist[0]._patient
             # patient details from the first of our tasks
 
@@ -1008,7 +1006,7 @@ class ClinicalTextView(object):
             audit(
                 "Clinical text view XML accessed",
                 table=t.tablename,
-                server_pk=t._pk,
+                server_pk=t.get_pk(),
                 patient_server_pk=t.get_patient_server_pk()
             )
         tree = cc_namedtuples.XmlElementTuple(name="tracker", value=branches)
@@ -1205,7 +1203,8 @@ class ClinicalTextView(object):
         )
         return html
 
-    def get_textview_for_one_task_instance_html(self, task, as_pdf=False):
+    @staticmethod
+    def get_textview_for_one_task_instance_html(task, as_pdf=False):
         """HTML for the CTV contribution of a single task."""
         datetext = cc_dt.format_datetime(task.get_creation_datetime(),
                                          DATEFORMAT.LONG_DATETIME_WITH_DAY)
@@ -1296,7 +1295,7 @@ class ClinicalTextView(object):
         audit(
             "Clinical text view accessed",
             table=task.tablename,
-            server_pk=task._pk,
+            server_pk=task.get_pk(),
             patient_server_pk=task.get_patient_server_pk()
         )
         return html

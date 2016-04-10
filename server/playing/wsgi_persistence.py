@@ -5,6 +5,7 @@ import http.cookies
 import os
 
 
+# noinspection PyUnusedLocal
 def application(environ, start_response):
     status = '200 OK'
     output = 'Hello'.encode('utf-8')

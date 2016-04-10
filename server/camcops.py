@@ -186,9 +186,9 @@ if CAMCOPS_SERVE_STATIC_FILES:
 def ask_user(prompt, default=None):
     """Prompts the user, with a default. Returns a string."""
     if default is None:
-        prompt = prompt + ": "
+        prompt += ": "
     else:
-        prompt = prompt + " [" + default + "]: "
+        prompt += " [" + default + "]: "
     result = input(prompt)
     return result if len(result) > 0 else default
 
@@ -234,15 +234,15 @@ def upgrade_database(old_version):
     # make any new columns required, and thereby block column renaming).
     # DO NOT DO THINGS THAT WOULD DESTROY USERS' DATA.
 
-    if (old_version < 1.06):
+    if old_version < 1.06:
         report_database_upgrade_step("1.06")
         pls.db.drop_table("_dirty_tables")
 
-    if (old_version < 1.07):
+    if old_version < 1.07:
         report_database_upgrade_step("1.07")
         pls.db.drop_table("_security_webviewer_sessions")
 
-    if (old_version < 1.08):
+    if old_version < 1.08:
         report_database_upgrade_step("1.08")
         change_column("_security_users",
                       "may_alter_users", "superuser", "BOOLEAN")
@@ -253,14 +253,14 @@ def upgrade_database(old_version):
         change_column("icd10schizophrenia",
                       "tpah_from_body", "hv_from_body", "BOOLEAN")
 
-    if (old_version < 1.10):
+    if old_version < 1.10:
         report_database_upgrade_step("1.10")
         modify_column("patient", "forename", "VARCHAR(255) NULL")
         modify_column("patient", "surname", "VARCHAR(255) NULL")
         modify_column("patient", "dob", "VARCHAR(32) NULL")
         modify_column("patient", "sex", "VARCHAR(1) NULL")
 
-    if (old_version < 1.11):
+    if old_version < 1.11:
         report_database_upgrade_step("1.11")
         # session
         modify_column("session", "ip_address", "VARCHAR(45) NULL")  # was 40
@@ -300,7 +300,7 @@ def upgrade_database(old_version):
         change_column("cardinal_expdet_trialgroupspec",
                       "expectationdetection_id", "cardinal_expdet_id", "INT")
 
-    if (old_version < 1.15):
+    if old_version < 1.15:
         report_database_upgrade_step("1.15")
         # these were INT UNSIGNED:
         modify_column("patient", "idnum1", "BIGINT UNSIGNED")

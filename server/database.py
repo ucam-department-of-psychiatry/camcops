@@ -420,7 +420,7 @@ def record_exists(device, table, clientpk_name, clientpk_value):
     pklist = pls.db.fetchallfirstvalues(query, *args)
     exists = bool(len(pklist) >= 1)
     serverpk = pklist[0] if exists else None
-    return (exists, serverpk)
+    return exists, serverpk
     # Consider a warning/failure if we have >1 row meeting these criteria.
     # Not currently checked for.
 
@@ -559,7 +559,7 @@ def record_identical_full(table, serverpk, wheredict):
     args = [serverpk]
     query = append_where_sql_and_values(query, args, wheredict=wheredict)
     count = pls.db.fetchvalue(query, *args)
-    return (count > 0)
+    return count > 0
 
 
 def record_identical_by_date(table, serverpk, client_date_value):
@@ -578,7 +578,7 @@ def record_identical_by_date(table, serverpk, client_date_value):
     )
     args = [serverpk, client_date_value]
     count = pls.db.fetchvalue(query, *args)
-    return (count > 0)
+    return count > 0
 
 
 def upload_record_core(device, table, clientpk_name, valuedict, recordnum,
@@ -1675,8 +1675,8 @@ def database_application(environ, start_response):
 def unit_tests():
     """Unit tests for database script."""
     # a = (UserErrorException, ServerErrorException)
-    u = (UserErrorException)
-    s = (ServerErrorException)
+    u = UserErrorException
+    s = ServerErrorException
 
     print("pls.VALID_TABLE_NAMES: {}".format(pls.VALID_TABLE_NAMES))
 

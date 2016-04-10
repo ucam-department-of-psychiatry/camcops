@@ -1064,7 +1064,7 @@ class CecaQ3(Task):
             return None
         if self.s5c_mother_hit_how is None:
             return None
-        if (self.s5c_mother_hit_how == 1 or self.s5c_mother_hit_how == 2):
+        if self.s5c_mother_hit_how == 1 or self.s5c_mother_hit_how == 2:
             total += 1
         return total
 
@@ -1083,7 +1083,7 @@ class CecaQ3(Task):
             return None
         if self.s5c_father_hit_how is None:
             return None
-        if (self.s5c_father_hit_how == 1 or self.s5c_father_hit_how == 2):
+        if self.s5c_father_hit_how == 1 or self.s5c_father_hit_how == 2:
             total += 1
         return total
 

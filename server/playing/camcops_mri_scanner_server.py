@@ -104,6 +104,7 @@ class MRI_Protocol(Protocol):
         logger.info("Received from scanner: {}".format(data))
         self.network.from_scanner(data, now)
 
+    # noinspection PyMethodMayBeStatic
     def tell_scanner(self, data):
         """
         Send information to scanner.
@@ -135,6 +136,7 @@ class ButtonBoxProtocol(Protocol):
         logger.info("Received from button box: {}".format(data))
         self.network.from_buttonbox(data, now)
 
+    # noinspection PyMethodMayBeStatic
     def tell_buttonbox(self, data):
         """
         Send information to button box.
@@ -214,6 +216,7 @@ class TabletServerProtocol(LineReceiver):
         if hasattr(peer, "host") and hasattr(peer, "port"):
             self.peer = "{h}:{p}".format(h=peer.host, p=peer.port)
 
+    # noinspection PyUnusedLocal
     def connectionLost(self, reason):
         """
         Overrides Twisted function.
@@ -236,7 +239,7 @@ class TabletServerProtocol(LineReceiver):
                 ... for "pulse": pulse number (1-based)
         """
         abs_time, rel_time = self.get_abs_rel_time(now)
-        msg = "{d},{r},{a}".format(d=data, r=rel_time, a=abs_time)
+        # msg = "{d},{r},{a}".format(d=data, r=rel_time, a=abs_time)
         msg = ",".join(str(x) for x in [
             rel_time,
             abs_time,
@@ -426,7 +429,7 @@ def main():
     # Fetch command-line options.
     parser = argparse.ArgumentParser(
         prog="camcops_mri_scanner_server",  # name the user will use to call it
-        description=("CamCOPS MRI scanner/button box interface server.")
+        description="CamCOPS MRI scanner/button box interface server."
     )
     parser.add_argument("--port", type=int, default=3233,
                         help="TCP port for network communications")

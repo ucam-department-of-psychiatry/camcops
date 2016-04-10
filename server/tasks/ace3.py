@@ -284,12 +284,14 @@ class Ace3(Task):
                   repeat_fieldname("attn_serial7_subtraction", 1, 5))
         return self.sum_fields(fields)
 
-    def get_recog_score(self, recalled, recognized):
+    @staticmethod
+    def get_recog_score(recalled, recognized):
         if recalled == 1:
             return 1
         return score_zero_for_absent(recognized)
 
-    def get_recog_text(self, recalled, recognized):
+    @staticmethod
+    def get_recog_text(recalled, recognized):
         if recalled:
             return "<i>1 (already recalled)</i>"
         return answer(recognized)
@@ -415,6 +417,7 @@ class Ace3(Task):
             return False
         return self.is_recognition_complete()
 
+    # noinspection PyPep8Naming
     def get_task_html(self):
         a = self.attn_score()
         m = self.mem_score()

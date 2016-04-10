@@ -19,10 +19,10 @@ Note that you can get CentOS version/architecture with:
 # ... actually, let's do that, using mkdtemp(), so it'll linger if the build
 # fails.
 
-import cgi
 import getpass
 import glob
 import gzip
+from html import escape
 import os
 from os.path import join
 import re
@@ -126,7 +126,7 @@ def get_lines_without_comments(filename):
 def webify_file(srcfilename, destfilename):
     with open(srcfilename) as infile, open(destfilename, 'w') as outfile:
         for line in infile:
-            outfile.write(cgi.escape(line))
+            outfile.write(escape(line))
 
 
 BASHFUNC = r"""

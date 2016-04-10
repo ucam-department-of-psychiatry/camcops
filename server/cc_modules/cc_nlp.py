@@ -54,7 +54,6 @@ def guess_name_components(s, uppercase=True):
 
     prefix = ""
     forename = ""
-    surname = ""
 
     # 1. Separate on spaces, chucking any blanks
     if s:
@@ -65,7 +64,7 @@ def guess_name_components(s, uppercase=True):
     # 2. Prefix?
     if len(parts) > 0:
         p = parts[0]
-        if ("." in p or p.replace(".", "").upper() in TITLES):
+        if "." in p or p.replace(".", "").upper() in TITLES:
             prefix = p
             parts = parts[1:]
 

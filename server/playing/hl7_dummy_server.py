@@ -53,6 +53,7 @@ class Echo(protocol.Protocol):
 
 
 class EchoFactory(protocol.Factory):
+    # noinspection PyMethodMayBeStatic,PyUnusedLocal
     def buildProtocol(self, addr):
         return Echo()
 
@@ -64,6 +65,7 @@ class Hello(protocol.Protocol):
 
 
 class HelloFactory(protocol.Factory):
+    # noinspection PyMethodMayBeStatic,PyUnusedLocal
     def buildProtocol(self, addr):
         return Hello()
 
@@ -95,6 +97,7 @@ class HL7Server(protocol.Protocol):
 
 
 class HL7ServerFactory(protocol.Factory):
+    # noinspection PyMethodMayBeStatic,PyUnusedLocal
     def buildProtocol(self, addr):
         return HL7Server()
 

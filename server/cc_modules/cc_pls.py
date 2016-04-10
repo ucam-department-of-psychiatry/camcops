@@ -25,10 +25,10 @@
 # minimize the number of modules loaded when this is used in the context of the
 # client-side database script, rather than the webview.
 
-import cgi
 import codecs
 import configparser
 import datetime
+from html import escape
 import operator
 import os
 import urllib.error
@@ -252,7 +252,7 @@ class LocalStorage(object):
             path=path,
         )
 
-        self.SCRIPT_PUBLIC_URL_ESCAPED = cgi.escape(url)
+        self.SCRIPT_PUBLIC_URL_ESCAPED = escape(url)
 
     def set(self, environ):
         """Set all variables from environment and thus config file."""
@@ -273,7 +273,7 @@ class LocalStorage(object):
             raise AssertionError("CAMCOPS_CONFIG_FILE not specified")
         log.info("Reading from {}".format(self.CAMCOPS_CONFIG_FILE))
         config = configparser.ConfigParser()
-        config.readfp(codecs.open(self.CAMCOPS_CONFIG_FILE, "r", "utf8"))
+        config.read_file(codecs.open(self.CAMCOPS_CONFIG_FILE, "r", "utf8"))
 
         # ---------------------------------------------------------------------
         # Read from the config file: 1. Most stuff, in alphabetical order
@@ -652,7 +652,7 @@ class LocalStorage(object):
         an exception upon a connection error."""
         # Follows same security principles as above.
         config = configparser.ConfigParser()
-        config.readfp(codecs.open(self.CAMCOPS_CONFIG_FILE, "r", "utf8"))
+        config.read_file(codecs.open(self.CAMCOPS_CONFIG_FILE, "r", "utf8"))
         section = CONFIG_FILE_MAIN_SECTION
 
         server = get_config_parameter(

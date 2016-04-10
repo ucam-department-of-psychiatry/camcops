@@ -133,7 +133,8 @@ class Dad(Task):
             ])
         return s
 
-    def is_complete(self):
+    @staticmethod
+    def is_complete():
         return True
 
     @classmethod
@@ -152,7 +153,7 @@ class Dad(Task):
     def get_score(self, fields):
         score = self.count_where(fields, [YES])
         possible = self.count_wherenot(fields, [None, NA])
-        return (score, possible)
+        return score, possible
 
     def get_score_dict(self):
         total = self.get_score(self.ITEMS)
@@ -194,7 +195,8 @@ class Dad(Task):
             execution=execution,
         )
 
-    def report_score(self, score_tuple):
+    @staticmethod
+    def report_score(score_tuple):
         return "{} / {}".format(answer(score_tuple[0]), score_tuple[1])
 
     def report_answer(self, field):

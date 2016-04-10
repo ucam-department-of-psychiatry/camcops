@@ -30,6 +30,7 @@ class Derived(Base):
     def cm(cls):
         print("classmethod: derived")
 
+    # noinspection PyMissingConstructor
     def __init__(self):
         print("Derived.__init__")
         self.x = 15

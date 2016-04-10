@@ -95,6 +95,7 @@ class Bprs(Task):
         return self.sum_fields(Bprs.SCORED_FIELDS, ignorevalue=0)
         # "0" means "not rated"
 
+    # noinspection PyPep8Naming
     def get_task_html(self):
         MAIN_DICT = {
             None: None,

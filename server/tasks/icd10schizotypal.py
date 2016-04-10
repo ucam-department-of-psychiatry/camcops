@@ -128,7 +128,8 @@ class Icd10Schizotypal(Task):
             self.field_contents_valid()
         )
 
-    def text_row(self, wstringname):
+    @staticmethod
+    def text_row(wstringname):
         return tr(td(WSTRING(wstringname)),
                   td("", td_class="subheading"),
                   literal=True)

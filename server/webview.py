@@ -651,7 +651,7 @@ def serve_task(session, form):
         return fail_task_not_found()
     # Is the user restricted so they can't see this particular one?
     if (session.restricted_to_viewing_user() is not None and
-            session.restricted_to_viewing_user() != task._adding_user):
+            session.restricted_to_viewing_user() != task.get_adding_user()):
         return fail_not_authorized_for_task()
     task.audit("Viewed " + outputtype.upper())
     if anonymise:
@@ -2218,7 +2218,7 @@ def edit_patient(session, form):
             confirmation_sequence > N_CONFIRMATIONS):
         confirmation_sequence = 0
     patient = cc_patient.Patient(patient_server_pk)
-    if patient._pk is None:
+    if patient.get_pk() is None:
         return cc_html.fail_with_error_stay_logged_in(
             "No such patient found.")
     if not patient.is_preserved():
@@ -2228,7 +2228,7 @@ def edit_patient(session, form):
         # First call. Offer method.
         tasks = AFFECTED_TASKS_HTML + task_list_from_generator(
             cc_task.gen_tasks_using_patient(
-                patient.id, patient._device, patient._era))
+                patient.id, patient.get_device(), patient.get_era()))
         if confirmation_sequence > 0:
             warning = """
                 <div class="warning">
@@ -2373,8 +2373,9 @@ def edit_patient(session, form):
     msg += "; ".join(changemessages) + "."
     patient.apply_special_note(msg, session.user,
                                audit_msg="Patient details edited")
-    for task in cc_task.gen_tasks_using_patient(patient.id, patient._device,
-                                                patient._era):
+    for task in cc_task.gen_tasks_using_patient(patient.id,
+                                                patient.get_device(),
+                                                patient.get_era()):
         # Patient details changed, so resend any tasks via HL7
         task.delete_from_hl7_message_log()
     return cc_html.simple_success_message(msg)
@@ -2703,7 +2704,7 @@ def redirect_to(location):
     extraheaders = [("Location", location)]
     contenttype = "text/plain"
     output = "Redirecting to {}".format(location)
-    return (contenttype, extraheaders, output, status)
+    return contenttype, extraheaders, output, status
 
 
 # =============================================================================

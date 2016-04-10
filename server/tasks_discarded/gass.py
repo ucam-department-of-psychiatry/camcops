@@ -71,10 +71,12 @@ class Gass(Task):
                  value=self.total_score(), comment="Total score"),
         ]
 
-    def get_q_fieldlist(self, group):
+    @staticmethod
+    def get_q_fieldlist(group):
         return ["q" + str(q) for q in group]
 
-    def get_d_fieldlist(self, group):
+    @staticmethod
+    def get_d_fieldlist(group):
         return ["d" + str(q) for q in group]
 
     def get_relevant_q_fieldlist(self):
@@ -94,7 +96,8 @@ class Gass(Task):
     def group_score(self, qnums):
         return self.sum_fields(self.get_q_fieldlist(qnums))
 
-    def get_subheading(self, subtitle, score, max_score):
+    @staticmethod
+    def get_subheading(subtitle, score, max_score):
         return """
             <tr class="subheading">
                 <td>{}</td>

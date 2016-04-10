@@ -75,10 +75,10 @@ def calc_total_score(obj, n_scored_questions, reverse_score_qs,
         n += 1
         total += x
     if n < minimum_n_for_total_score:
-        return (None, False)
+        return None, False
     if n < n_scored_questions:
-        return (n_scored_questions * total / n, True)
-    return (total, False)
+        return n_scored_questions * total / n, True
+    return total, False
 
 
 # =============================================================================
@@ -173,7 +173,8 @@ class Demqol(Task):
         (total, extrapolated) = self.totalscore_extrapolated()
         return total
 
-    def get_q(self, n):
+    @staticmethod
+    def get_q(n):
         nstr = str(n)
         return "Q" + nstr + ". " + WSTRING("demqol_q" + nstr)
 
@@ -336,7 +337,8 @@ class DemqolProxy(Task):
         (total, extrapolated) = self.totalscore_extrapolated()
         return total
 
-    def get_q(self, n):
+    @staticmethod
+    def get_q(n):
         nstr = str(n)
         return "Q" + nstr + ". " + WSTRING("demqolproxy_q" + nstr)
 

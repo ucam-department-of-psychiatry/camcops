@@ -239,12 +239,12 @@ class Rand36(Task):
             if x > 5:
                 return None
             return 100 - 25 * (x - 1)
-        elif q >= 3 and q <= 12:
+        elif 3 <= q <= 12:
             # 1 => 0, 2 => 50, 3 => 100
             if x > 3:
                 return None
             return 50 * (x - 1)
-        elif q >= 13 and q <= 19:
+        elif 13 <= q <= 19:
             # 1 => 0, 2 => 100
             if x > 2:
                 return None
@@ -297,7 +297,8 @@ class Rand36(Task):
         return mean([self.recode(1), self.recode(33), self.recode(34),
                      self.recode(35), self.recode(36)])
 
-    def format_float_for_display(self, val):
+    @staticmethod
+    def format_float_for_display(val):
         if val is None:
             return None
         return "{:.1f}".format(val)
@@ -308,22 +309,24 @@ class Rand36(Task):
             values.append(self.recode(q))
         return mean(values)
 
-    def section_row_html(self, text):
+    @staticmethod
+    def section_row_html(text):
         return tr_span_col(text, cols=3, tr_class="subheading")
 
-    def answer_text(self, q, v):
+    @staticmethod
+    def answer_text(q, v):
         if v is None:
             return None
         # WSTRING has its own validity checking, so we can do:
-        if q == 1 or q == 2 or (q >= 20 and q <= 22) or q == 32:
+        if q == 1 or q == 2 or (20 <= q <= 22) or q == 32:
             return WSTRING("rand36_q" + str(q) + "_option" + str(v))
-        elif q >= 3 and q <= 12:
+        elif 3 <= q <= 12:
             return WSTRING("rand36_activities_option" + str(v))
-        elif q >= 13 and q <= 19:
+        elif 13 <= q <= 19:
             return WSTRING("rand36_yesno_option" + str(v))
-        elif q >= 23 and q <= 31:
+        elif 23 <= q <= 31:
             return WSTRING("rand36_last4weeks_option" + str(v))
-        elif q >= 33 and q <= 36:
+        elif 33 <= q <= 36:
             return WSTRING("rand36_q33to36_option" + str(v))
         else:
             return None
@@ -339,7 +342,8 @@ class Rand36(Task):
             answer(s, formatter_answer=identity)
         )
 
-    def scoreline(self, text, footnote_num, score):
+    @staticmethod
+    def scoreline(text, footnote_num, score):
         return tr(
             text + " <sup>[{}]</sup>".format(footnote_num),
             answer(score) + " / 100"

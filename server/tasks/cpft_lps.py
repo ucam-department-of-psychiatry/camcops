@@ -117,7 +117,8 @@ class CPFT_LPS_Referral(Task):
             "content": self.referral_reason
         }]
 
-    def four_column_row(self, q1, a1, q2, a2, default=""):
+    @staticmethod
+    def four_column_row(q1, a1, q2, a2, default=""):
         return """
             <tr>
                 <td>{}</td><td>{}</td>
@@ -130,7 +131,8 @@ class CPFT_LPS_Referral(Task):
             answer(a2, default=default),
         )
 
-    def tr_qa(self, q, a, default=""):
+    @staticmethod
+    def tr_qa(q, a, default=""):
         return """
             <tr><td colspan="2">{}</td><td colspan="2"><b>{}</b></td></tr>
         """.format(q, default if a is None else a)
@@ -681,7 +683,8 @@ class LPS_Report_Referred_Not_Discharged(Report):
         },
     ]
 
-    def get_rows_descriptions(self, linking_idnum=None):
+    @staticmethod
+    def get_rows_descriptions(linking_idnum=None):
         if not linking_idnum:
             return [], []
         sql = """
@@ -742,7 +745,8 @@ class LPS_Report_Referred_Not_Clerked_Or_Discharged(Report):
         },
     ]
 
-    def get_rows_descriptions(self, linking_idnum=None):
+    @staticmethod
+    def get_rows_descriptions(linking_idnum=None):
         if not linking_idnum:
             return [], []
         sql = """

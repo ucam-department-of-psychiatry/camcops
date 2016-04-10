@@ -253,6 +253,7 @@ def ask_user(prompt, default=None, returntype=None, mask=False):
                 print("Bad value, try again")
         else:
             success = True
+    # noinspection PyUnboundLocalVariable
     return value
 
 
@@ -345,7 +346,7 @@ def mysql_unknown_field_to_utcdatetime(x):
 
 
 class DateTimeAsIsoText(TypeDecorator):
-    '''Stores date/time values as ISO-8601.'''
+    """Stores date/time values as ISO-8601."""
     impl = sqlalchemy.types.String(32)  # underlying SQL type
 
     def process_bind_param(self, value, dialect):
@@ -390,6 +391,7 @@ class DateTimeAsIsoText(TypeDecorator):
             # NOT YET IMPLEMENTED: dialects other than MySQL, and how to
             # detect the dialect at this point.
 
+        # noinspection PyMethodMayBeStatic
         def reverse_operate(self, op, other):
             assert False, "I don't think this is ever being called"
 

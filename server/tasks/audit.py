@@ -102,6 +102,7 @@ class Audit(Task):
     def total_score(self):
         return self.sum_fields(self.TASK_FIELDS)
 
+    # noinspection PyPep8Naming
     def get_task_html(self):
         score = self.total_score()
         exceeds_cutoff = score >= 8
@@ -210,6 +211,7 @@ class AuditC(Task):
     def total_score(self):
         return self.sum_fields(self.TASK_FIELDS)
 
+    # noinspection PyPep8Naming
     def get_task_html(self):
         score = self.total_score()
         Q1_DICT = {None: None}

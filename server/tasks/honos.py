@@ -122,21 +122,23 @@ class Honos(Task):
         if self.q8 != 0 and self.q8 != 9 and self.q8problemtype == "J" \
                 and self.q8otherproblem is None:
             return False
-        return (self.period_rated is not None)
+        return self.period_rated is not None
 
     def total_score(self):
         total = 0
         for q in range(1, self.NQUESTIONS + 1):
             value = getattr(self, "q" + str(q))
-            if value is not None and value >= 0 and value <= 4:
+            if value is not None and 0 <= value <= 4:
                 # i.e. ignore null values and 9 (= not known)
                 total += value
         return total
 
-    def get_q(self, q):
+    @staticmethod
+    def get_q(q):
         return WSTRING("honos_q" + str(q) + "_s")
 
-    def get_answer(self, q, a):
+    @staticmethod
+    def get_answer(q, a):
         if a == 9:
             return WSTRING("honos_option9")
         if a is None or a < 0 or a > 4:
@@ -276,21 +278,23 @@ class Honos65(Task):
         if self.q8 != 0 and self.q8 != 9 and self.q8problemtype == "J" \
                 and self.q8otherproblem is None:
             return False
-        return (self.period_rated is not None)
+        return self.period_rated is not None
 
     def total_score(self):
         total = 0
         for q in range(1, self.NQUESTIONS + 1):
             value = getattr(self, "q" + str(q))
-            if value is not None and value >= 0 and value <= 4:
+            if value is not None and 0 <= value <= 4:
                 # i.e. ignore null values and 9 (= not known)
                 total += value
         return total
 
-    def get_q(self, q):
+    @staticmethod
+    def get_q(q):
         return WSTRING("honos65_q" + str(q) + "_s")
 
-    def get_answer(self, q, a):
+    @staticmethod
+    def get_answer(q, a):
         if a == 9:
             return WSTRING("honos_option9")
         if a is None or a < 0 or a > 4:
@@ -427,15 +431,17 @@ class Honosca(Task):
         total = 0
         for q in range(1, self.NQUESTIONS + 1):
             value = getattr(self, "q" + str(q))
-            if value is not None and value >= 0 and value <= 4:
+            if value is not None and 0 <= value <= 4:
                 # i.e. ignore null values and 9 (= not known)
                 total += value
         return total
 
-    def get_q(self, q):
+    @staticmethod
+    def get_q(q):
         return WSTRING("honosca_q" + str(q) + "_s")
 
-    def get_answer(self, q, a):
+    @staticmethod
+    def get_answer(q, a):
         if a == 9:
             return WSTRING("honos_option9")
         if a is None or a < 0 or a > 4:

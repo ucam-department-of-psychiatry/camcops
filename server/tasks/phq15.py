@@ -78,7 +78,7 @@ class Phq15(Task):
                                             "q", 5, self.NQUESTIONS)):
             return False
         if self.is_female():
-            return (self.q4 is not None)
+            return self.q4 is not None
         else:
             return True
 

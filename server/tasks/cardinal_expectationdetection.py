@@ -196,7 +196,7 @@ class ExpDet_Trial(Ancillary):
     def didnt_know(self):
         if not self.responded:
             return None
-        return (self.rating == 2)
+        return self.rating == 2
 
     def get_html_table_row(self):
         return tr(
@@ -453,16 +453,18 @@ class Cardinal_ExpectationDetection(Task):
             return None
         return trialarray[-1].cumulative_points
 
-    def get_group_html(self, grouparray):
+    @staticmethod
+    def get_group_html(grouparray):
         html = ExpDet_TrialGroupSpec.get_html_table_header()
         for g in grouparray:
             html += g.get_html_table_row()
         html += """</table>"""
         return html
 
-    def get_c_dprime(self, h, fa, two_alternative_forced_choice=False):
+    @staticmethod
+    def get_c_dprime(h, fa, two_alternative_forced_choice=False):
         if h is None or fa is None:
-            return (None, None)
+            return None, None
         # In this task, we're only presenting a single alternative.
         if fa == 0:
             fa = CONVERT_0_P_TO
@@ -482,9 +484,10 @@ class Cardinal_ExpectationDetection(Task):
         # c is zero when FA rate and miss rate (1 - H) are equal
         # c is negative when FA > miss
         # c is positive when miss > FA
-        return (c, dprime)
+        return c, dprime
 
-    def get_sdt_values(self, count_stimulus, count_nostimulus):
+    @staticmethod
+    def get_sdt_values(count_stimulus, count_nostimulus):
         # Probabilities and cumulative probabilities
         p_stimulus = count_stimulus / numpy.sum(count_stimulus)
         p_nostimulus = count_nostimulus / numpy.sum(count_nostimulus)
@@ -547,7 +550,8 @@ class Cardinal_ExpectationDetection(Task):
         ax.set_ylabel(ylabel if show_y_label else "")
         ax.set_title(subtitle)
 
-    def get_roc_info(self, trialarray, blocks, groups):
+    @staticmethod
+    def get_roc_info(trialarray, blocks, groups):
         # Collect counts (Macmillan & Creelman p61)
         total_n = 0
         count_stimulus = numpy.zeros(NRATINGS)
@@ -646,7 +650,8 @@ class Cardinal_ExpectationDetection(Task):
         html += get_html_from_pyplot_figure(fig)
         return html
 
-    def get_trial_html(self, trialarray):
+    @staticmethod
+    def get_trial_html(trialarray):
         html = ExpDet_Trial.get_html_table_header()
         for t in trialarray:
             html += t.get_html_table_row()

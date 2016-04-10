@@ -375,7 +375,7 @@ class User:
 
     def must_agree_terms(self):
         """Does the user still need to agree the terms/conditions of use?"""
-        return (self.when_agreed_terms_of_use is None)
+        return self.when_agreed_terms_of_use is None
 
     def agree_terms(self):
         """Mark the user as having agreed to the terms/conditions of use

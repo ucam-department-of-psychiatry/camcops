@@ -249,7 +249,8 @@ class RecipientDefinition(object):
             ))
             self.valid = False
 
-    def report_error(self, msg):
+    @staticmethod
+    def report_error(msg):
         log.error("RecipientDefinition: {}".format(msg))
 
     def check_valid(self):

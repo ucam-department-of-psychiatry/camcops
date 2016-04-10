@@ -110,13 +110,15 @@ class PsychiatricClerking(Task):
     )
     has_clinician = True
 
-    def get_ctv_heading(self, wstringname):
+    @staticmethod
+    def get_ctv_heading(wstringname):
         return {
             "heading": ws.webify(WSTRING(wstringname)),
             "skip_if_no_content": False
         }
 
-    def get_ctv_subheading(self, wstringname):
+    @staticmethod
+    def get_ctv_subheading(wstringname):
         return {
             "subheading": ws.webify(WSTRING(wstringname)),
             "skip_if_no_content": False
@@ -136,9 +138,8 @@ class PsychiatricClerking(Task):
         FIELDS_D = [x["name"] for x in self.FIELDSPEC_D]
         FIELDS_E = [x["name"] for x in self.FIELDSPEC_E]
         FIELDS_F = [x["name"] for x in self.FIELDSPEC_F]
-        dictlist = []
-        dictlist.append(self.get_ctv_heading(
-            "psychiatricclerking_heading_current_contact"))
+        dictlist = [self.get_ctv_heading(
+            "psychiatricclerking_heading_current_contact")]
         for x in FIELDS_B:
             dictlist.append(self.get_ctv_description_content(x))
         dictlist.append(self.get_ctv_heading(
@@ -167,16 +168,20 @@ class PsychiatricClerking(Task):
             dictlist.append(self.get_ctv_description_content(x))
         return dictlist
 
-    def is_complete(self):
+    @staticmethod
+    def is_complete():
         return True
 
-    def heading(self, wstringname):
+    @staticmethod
+    def heading(wstringname):
         return '<div class="heading">{}</div>'.format(WSTRING(wstringname))
 
-    def subheading(self, wstringname):
+    @staticmethod
+    def subheading(wstringname):
         return '<div class="subheading">{}</div>'.format(WSTRING(wstringname))
 
-    def subsubheading(self, wstringname):
+    @staticmethod
+    def subsubheading(wstringname):
         return '<div class="subsubheading">{}</div>'.format(
             WSTRING(wstringname))
 

@@ -56,7 +56,7 @@ class Photo(Task):
     ]
 
     def is_complete(self):
-        return (self.photo_blobid is not None)
+        return self.photo_blobid is not None
 
     def get_clinical_text(self):
         if not self.is_complete():

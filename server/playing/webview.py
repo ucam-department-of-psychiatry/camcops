@@ -35,7 +35,8 @@ class ErrorReportingMiddleware(object):
     def __init__(self, app):
         self.app = app
 
-    def format_exception(self, exc_info):
+    @staticmethod
+    def format_exception(exc_info):
         dummy_file = StringIO.StringIO()
         hook = cgitb.Hook(file=dummy_file)
         hook(*exc_info)

@@ -311,7 +311,7 @@ def get_cris_dd_row(taskname, tablename, fieldspec):
 
     if system_id or internal_field:
         security_status = "1"  # drop (e.g. for pointless internal keys)
-    elif (identifies_patient and colname == TSV_PATIENT_FIELD_PREFIX + "dob"):
+    elif identifies_patient and colname == TSV_PATIENT_FIELD_PREFIX + "dob":
         security_status = "3"  # truncate (e.g. DOB, postcode)
     elif identifies_patient:
         security_status = "2"  # use to scrub
@@ -398,6 +398,7 @@ def get_blob_by_id(obj, blobid):
     """Get Blob() object from blob ID, or None."""
     if blobid is None:
         return None
+    # noinspection PyProtectedMember
     return cc_blob.get_contemporaneous_blob_by_client_info(
         obj._device, blobid, obj._era,
         obj._when_added_batch_utc, obj._when_removed_batch_utc)
@@ -427,7 +428,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                 (non-patient-identifiable) information only.
 
     dependent_classes
-        Overridse this if your task uses sub-tables (or sub-sub-tables,
+        Override this if your task uses sub-tables (or sub-sub-tables,
         etc.). Give a list of classes that inherit from Ancillary, e.g.
 
             dependent_classes = [ClassRepresentingObject]
@@ -667,6 +668,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # Override to provide clinical text
     # -------------------------------------------------------------------------
 
+    # noinspection PyMethodMayBeStatic
     def get_clinical_text(self):
         """Tasks that provide clinical text information should override this
         to provide a list of dictionaries.
@@ -692,6 +694,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # Override some of these if you provide summaries
     # -------------------------------------------------------------------------
 
+    # noinspection PyMethodMayBeStatic
     def get_summaries(self):
         """Return a list of summaries.
 
@@ -700,6 +703,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         """
         return []
 
+    # noinspection PyMethodMayBeStatic
     def get_extra_summary_table_data(self, now):
         """If used, must correspond exactly to extra_summary_table_info,
         but returning the data.
@@ -714,6 +718,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # Other potential overrides
     # -------------------------------------------------------------------------
 
+    # noinspection PyMethodMayBeStatic
     def anonymise_subtables(self, regexes):
         """Anonymise non-core tables. Override if your task provides extra
         tables that might contain patient-identifiable information."""
@@ -784,16 +789,19 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         return explanations
 
     @classmethod
-    def get_blob_fields(self):
-        return [x[1] for x in self.pngblob_name_idfield_rotationfield_list]
+    def get_blob_fields(cls):
+        return [x[1] for x in cls.pngblob_name_idfield_rotationfield_list]
 
     # -------------------------------------------------------------------------
     # Server field calculations
     # -------------------------------------------------------------------------
 
+    def get_pk(self):
+        return self._pk
+
     def is_preserved(self):
         """Is the task preserved and erased from the tablet?"""
-        return (self._pk is not None and self._era != ERA_NOW)
+        return self._pk is not None and self._era != ERA_NOW
 
     def was_forcibly_preserved(self):
         """Was it forcibly preserved?"""
@@ -833,6 +841,9 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     def whencreated_fieldexpr_as_local(cls):
         return cc_db.mysql_select_local_date_field_from_iso8601_field(
             "{}.when_created".format(cls.tablename))
+
+    def get_adding_user(self):
+        return self._adding_user
 
     # -------------------------------------------------------------------------
     # Summary tables
@@ -888,6 +899,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         pls.db.drop_table(summarytable)
         pls.db.make_table(summarytable, fieldspecs, dynamic=True)
         for i in cls.gen_all_current_tasks():
+            # noinspection PyProtectedMember
             values = [
                 i._pk,  # tablename_pk
                 i.get_creation_datetime_utc(),
@@ -983,7 +995,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                 # ... includes patient info too
                 views.append(est + "_current_withpt")
 
-        return (tables, views)
+        return tables, views
 
     @classmethod
     def get_extra_summary_table_names(cls):
@@ -1119,7 +1131,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         """Get the server PK of the patient, or None."""
         if self.is_anonymous:
             return None
-        return self._patient._pk
+        return self._patient.get_pk()
 
     def get_patient(self):
         """Get the associated Patient() object."""
@@ -1143,6 +1155,14 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             return None
         return self._patient.get_dob()
 
+    def get_patient_dob_first10chars(self):
+        if not self._patient:
+            return None
+        dob = self._patient.get_dob()
+        if not dob or len(dob) < 10:
+            return None
+        return dob[:10]
+
     def get_patient_sex(self):
         """Get the patient's sex, or ""."""
         if not self._patient:
@@ -1154,6 +1174,16 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         if not self._patient:
             return ""
         return self._patient.get_address()
+
+    def get_patient_iddesc(self, idnum):
+        """Get the patient's ID description, or None.
+
+        Args:
+            idnum: integer between 1 and NUMBER_OF_IDNUMS inclusive
+        """
+        if not self._patient:
+            return None
+        return self._patient.get_iddesc(idnum)
 
     def get_patient_idnum(self, idnum):
         """Get the patient's ID number, or None.
@@ -1209,6 +1239,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             obx_segment
         ] + self.get_hl7_extra_data_segments(recipient_def)
 
+    # noinspection PyMethodMayBeStatic
     def get_hl7_extra_data_segments(self, recipient_def):
         """Return a list of any extra HL7 data segments.
 
@@ -1435,7 +1466,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
     def is_live_on_tablet(self):
         """Is the instance live on a tablet?"""
-        return (self._era == ERA_NOW)
+        return self._era == ERA_NOW
 
     def get_task_list_row(self):
         """HTML table row for including in task summary list."""
@@ -1801,7 +1832,6 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                                               sort=False, reverse=False):
         if not cls.filter_allows_task_type(session):
             return
-            yield
             # http://stackoverflow.com/questions/13243766
         pk_wc = cls.get_session_candidate_task_pks_whencreated(
             session, sort=sort, reverse=reverse)
@@ -2343,11 +2373,13 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             self.get_task_header_html()
         )
 
+    # noinspection PyMethodMayBeStatic
     def get_anonymous_page_header_html(self):
         """Page header for anonymous tasks. Goes in the page margins for PDFs.
         """
         return WSTRING("anonymous_task")
 
+    # noinspection PyMethodMayBeStatic
     def get_anonymous_task_header_html(self):
         """Task header for anonymous tasks. Goes on the main page at the top of
         the task."""
@@ -2529,7 +2561,8 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             ),
             preserved=cc_html.get_yes_no(preserved),
             preserved_by=preserved_by,
-            patient_server_pk=self._patient._pk if not anonymous else "N/A",
+            patient_server_pk=(
+                self.get_patient_server_pk() if not anonymous else "N/A"),
             server_url=pls.SCRIPT_PUBLIC_URL_ESCAPED,
             server_version=cc_version.CAMCOPS_SERVER_VERSION,
             now=format_datetime(pls.NOW_LOCAL_TZ,
@@ -2654,6 +2687,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         """
         return html
 
+    # noinspection PyMethodMayBeStatic
     def get_standard_clinician_comments_block(self, comments):
         """HTML DIV for clinician's comments."""
         return """
@@ -2777,7 +2811,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
     def is_field_complete(self, field):
         """Is the field not None?"""
-        return (getattr(self, field) is not None)
+        return getattr(self, field) is not None
 
     def are_all_fields_complete(self, fields):
         """Are all fields not None?"""
@@ -2851,10 +2885,12 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         except:
             return None
 
-    def fieldnames_from_prefix(self, prefix, start, end):
+    @staticmethod
+    def fieldnames_from_prefix(prefix, start, end):
         return [prefix + str(x) for x in range(start, end + 1)]
 
-    def fieldnames_from_list(self, prefix, suffixes):
+    @staticmethod
+    def fieldnames_from_list(prefix, suffixes):
         return [prefix + str(x) for x in suffixes]
 
     # -------------------------------------------------------------------------
@@ -2987,6 +3023,7 @@ class TaskCountReport(Report):
 
     def get_rows_descriptions(self):
         final_rows = []
+        fieldnames = []
         classes = Task.__subclasses__()
         classes.sort(key=lambda cls: cls.tablename)
         for cls in classes:
@@ -3009,7 +3046,7 @@ class TaskCountReport(Report):
             )
             (rows, fieldnames) = pls.db.fetchall_with_fieldnames(sql)
             final_rows.extend(rows)
-        return (final_rows, fieldnames)
+        return final_rows, fieldnames
 
 
 # =============================================================================
@@ -3377,12 +3414,12 @@ def task_instance_unit_test(name, instance):
         raise AssertionError(
             "extra_summary_table_info: different # tables to "
             "get_extra_summary_table_data()")
-        for table_index in range(ntables):
-            for row_valuelist in data[i]:
-                if len(row_valuelist) != len(info[i]):
-                    raise AssertionError(
-                        "extra_summary_table_info: different # fields to"
-                        " get_extra_summary_table_data()")
+    for i in range(ntables):
+        for row_valuelist in data[i]:
+            if len(row_valuelist) != len(info[i]):
+                raise AssertionError(
+                    "extra_summary_table_info: different # fields to"
+                    " get_extra_summary_table_data()")
 
     # -------------------------------------------------------------------------
     # Ensure the summary names don't overlap with the field names, etc.

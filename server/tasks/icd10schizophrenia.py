@@ -278,12 +278,14 @@ class Icd10Schizophrenia(Task):
             self.field_contents_valid()
         )
 
-    def heading_row(self, wstringname, extra=None):
+    @staticmethod
+    def heading_row(wstringname, extra=None):
         return heading_spanning_two_columns(
             WSTRING(wstringname) + (extra or "")
         )
 
-    def text_row(self, wstringname):
+    @staticmethod
+    def text_row(wstringname):
         return subheading_spanning_two_columns(WSTRING(wstringname))
 
     def row_true_false(self, fieldname):

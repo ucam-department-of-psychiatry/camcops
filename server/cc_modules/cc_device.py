@@ -145,7 +145,7 @@ class DeviceReport(Report):
         )
         (rows, fieldnames) = pls.db.fetchall_with_fieldnames(sql)
         fieldnames = cc_report.expand_id_descriptions(fieldnames)
-        return (rows, fieldnames)
+        return rows, fieldnames
 
 
 # =============================================================================

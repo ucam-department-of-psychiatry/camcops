@@ -286,14 +286,16 @@ class IDED3D(Task):
     def is_complete(self):
         return bool(self.finished)
 
-    def get_stage_html(self, stagearray):
+    @staticmethod
+    def get_stage_html(stagearray):
         html = IDED3D_Stage.get_html_table_header()
         for s in stagearray:
             html += s.get_html_table_row()
         html += """</table>"""
         return html
 
-    def get_trial_html(self, trialarray):
+    @staticmethod
+    def get_trial_html(trialarray):
         html = IDED3D_Trial.get_html_table_header()
         for t in trialarray:
             html += t.get_html_table_row()

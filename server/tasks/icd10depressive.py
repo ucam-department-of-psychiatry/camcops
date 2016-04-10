@@ -247,7 +247,7 @@ class Icd10Depressive(Task):
             return x
         if not self.are_all_fields_complete(Icd10Depressive.PSYCHOSIS_NAMES):
             return None
-        return (self.count_booleans(Icd10Depressive.PSYCHOSIS_NAMES) == 0)
+        return self.count_booleans(Icd10Depressive.PSYCHOSIS_NAMES) == 0
 
     def meets_criteria_severe_ignoring_psychosis(self):
         if self.severe_clinically:
@@ -365,7 +365,8 @@ class Icd10Depressive(Task):
             self.field_contents_valid()
         )
 
-    def text_row(self, wstringname):
+    @staticmethod
+    def text_row(wstringname):
         return heading_spanning_two_columns(WSTRING(wstringname))
 
     def row_true_false(self, fieldname):

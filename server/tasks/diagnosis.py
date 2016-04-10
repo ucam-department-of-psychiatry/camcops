@@ -248,7 +248,7 @@ def get_diagnosis_report(diagnosis_table, item_table, item_fk_fieldname,
                                    item_fk_fieldname, system)
     (rows, fieldnames) = pls.db.fetchall_with_fieldnames(sql)
     fieldnames = cc_report.expand_id_descriptions(fieldnames)
-    return (rows, fieldnames)
+    return rows, fieldnames
 
 
 class Diagnosis_ICD9CM_Report(Report):
@@ -258,7 +258,8 @@ class Diagnosis_ICD9CM_Report(Report):
                     "patients")
     param_spec_list = []
 
-    def get_rows_descriptions(self):
+    @staticmethod
+    def get_rows_descriptions():
         return get_diagnosis_report(
             diagnosis_table='diagnosis_icd9cm',
             item_table='diagnosis_icd9cm_item',
@@ -273,7 +274,8 @@ class Diagnosis_ICD10_Report(Report):
     report_title = "Diagnosis – ICD-10 diagnoses for all patients"
     param_spec_list = []
 
-    def get_rows_descriptions(self):
+    @staticmethod
+    def get_rows_descriptions():
         return get_diagnosis_report(
             diagnosis_table='diagnosis_icd10',
             item_table='diagnosis_icd10_item',
@@ -288,7 +290,8 @@ class Diagnosis_All_Report(Report):
     report_title = "Diagnosis – All diagnoses for all patients"
     param_spec_list = []
 
-    def get_rows_descriptions(self):
+    @staticmethod
+    def get_rows_descriptions():
         sql_icd9cm = get_diagnosis_report_sql(
             diagnosis_table='diagnosis_icd9cm',
             item_table='diagnosis_icd9cm_item',
@@ -319,4 +322,4 @@ class Diagnosis_All_Report(Report):
         )
         (rows, fieldnames) = pls.db.fetchall_with_fieldnames(sql)
         fieldnames = cc_report.expand_id_descriptions(fieldnames)
-        return (rows, fieldnames)
+        return rows, fieldnames

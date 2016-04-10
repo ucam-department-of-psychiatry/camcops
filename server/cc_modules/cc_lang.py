@@ -99,7 +99,7 @@ def is_false(x):
     # http://legacy.python.org/dev/peps/pep-0008/
     # ... so use e.g. "bool(x)" or "x" or "not x"
     # http://google-styleguide.googlecode.com/svn/trunk/pyguide.html?showone=True/False_evaluations#True/False_evaluations  # noqa
-    return (not x and x is not None)
+    return not x and x is not None
 
 
 def mangle_unicode_to_str(s):
@@ -126,6 +126,7 @@ class BetweenDict(dict):
     INVALID_MSG_TYPE = "Key must be an iterable with length 2"
     INVALID_MSG_VALUE = "First element of key must be less than second element"
 
+    # noinspection PyMissingConstructor
     def __init__(self, d=None):
         d = d or {}
         for k, v in d.items():

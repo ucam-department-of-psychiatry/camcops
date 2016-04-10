@@ -320,11 +320,11 @@ def id_policy_chunk(policy, ptinfo):
 def id_policy_content(policy, ptinfo, start):
     """Applies part of a policy to ptinfo. Called by id_policy_chunk (q.v.)."""
     if start >= len(policy):
-        return (None, start)
+        return None, start
     token = policy[start]
     if token == TK_RPAREN or token == TK_AND or token == TK_OR:
         # Chunks mustn't start with these; bad policy
-        return (None, start)
+        return None, start
     elif token == TK_LPAREN:
         subchunkstart = start + 1  # exclude the opening bracket
         # Find closing parenthesis
@@ -333,7 +333,7 @@ def id_policy_content(policy, ptinfo, start):
         while depth > 0:
             if searchidx >= len(policy):
                 # unmatched left parenthesis; bad policy
-                return (None, start)
+                return None, start
             elif policy[searchidx] == TK_LPAREN:
                 depth += 1
             elif policy[searchidx] == TK_RPAREN:
@@ -342,22 +342,22 @@ def id_policy_content(policy, ptinfo, start):
         subchunkend = searchidx - 1
         # ... to exclude the closing bracket from the analysed subchunk
         chunk = id_policy_chunk(policy[subchunkstart:subchunkend], ptinfo)
-        return (chunk, subchunkend + 1)  # to move past the closing bracket
+        return chunk, subchunkend + 1  # to move past the closing bracket
     else:
         # meaningful token
-        return (id_policy_element(ptinfo, token), start + 1)
+        return id_policy_element(ptinfo, token), start + 1
 
 
 def id_policy_op(policy, start):
     """Returns an operator from the policy, or None."""
     if start >= len(policy):
-        return (None, start)
+        return None, start
     token = policy[start]
     if token == TK_AND or token == TK_OR:
-        return (token, start + 1)
+        return token, start + 1
     else:
         # Not an operator
-        return (None, start)
+        return None, start
 
 
 def id_policy_element(ptinfo, token):

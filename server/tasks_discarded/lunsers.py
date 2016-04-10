@@ -66,7 +66,8 @@ class Lunsers(Task):
                  value=self.total_score(), comment="Total score"),
         ]
 
-    def get_fieldlist(self, group):
+    @staticmethod
+    def get_fieldlist(group):
         return ["q" + str(q) for q in group]
 
     def get_relevant_fieldlist(self):
@@ -85,7 +86,8 @@ class Lunsers(Task):
     def group_score(self, qnums):
         return self.sum_fields(self.get_fieldlist(qnums))
 
-    def get_subheading(self, subtitle, score, max_score):
+    @staticmethod
+    def get_subheading(subtitle, score, max_score):
         return """
             <tr class="subheading">
                 <td>{}</td><td><i><b>{}</b> / {}</i></td>

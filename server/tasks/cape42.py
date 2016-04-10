@@ -338,7 +338,8 @@ class Cape42(Task):
             return None
         return score / n
 
-    def question_category(self, q):
+    @staticmethod
+    def question_category(q):
         if q in POSITIVE:
             return "P"
         if q in NEGATIVE:

@@ -121,7 +121,7 @@ def repeat_fieldspec(prefix, start, end, cctype="INT",
         )
         if comment_fmt:
             s = ""
-            if i >= 0 and i < len(comment_strings):
+            if 0 <= i < len(comment_strings):
                 s = comment_strings[i] or ""
             d["comment"] = comment_fmt.format(n=n, s=s)
         if min is not None:
@@ -148,7 +148,7 @@ def repeat_fieldname(prefix, start, end):
 
 def ensure_valid_cctype(cctype):
     """Raises KeyError if cctype is not a valid key to SQLTYPE."""
-    SQLTYPE[cctype]
+    assert SQLTYPE[cctype]
 
 
 def cctype_is_string(cctype):
@@ -341,6 +341,7 @@ def delete_from_table_by_pklist(tablename, pkname, pklist):
         pls.db.db_exec(query, pk)
 
 
+# noinspection PyProtectedMember
 def manually_erase_record_object_and_save(obj, table, fields, username):
     """Manually erases a standard record and marks it so erased.
     The object remains _current, as a placeholder, but its contents are wiped.

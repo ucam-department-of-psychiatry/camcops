@@ -642,8 +642,7 @@ class Session:
         idnum_value = ws.get_cgi_parameter_int(form, PARAM.IDNUM_VALUE)
         if (which_idnum and
                 idnum_value is not None and
-                which_idnum >= 1 and
-                which_idnum <= NUMBER_OF_IDNUMS):
+                1 <= which_idnum <= NUMBER_OF_IDNUMS):
             self.clear_filter_idnums()  # Only filter on one ID at a time.
             setattr(self, "filter_idnum" + str(which_idnum), idnum_value)
         filter_task = ws.get_cgi_parameter_str_or_none(form, PARAM.TASK)
@@ -711,7 +710,7 @@ class Session:
         self.clear_filter_idnums()  # Only filter on one ID at a time.
         which_idnum = ws.get_cgi_parameter_int(form, PARAM.WHICH_IDNUM)
         idnum_value = ws.get_cgi_parameter_int(form, PARAM.IDNUM_VALUE)
-        if which_idnum >= 1 and which_idnum <= NUMBER_OF_IDNUMS:
+        if 1 <= which_idnum <= NUMBER_OF_IDNUMS:
             setattr(self, "filter_idnum" + str(which_idnum), idnum_value)
             self.reset_pagination()
 
