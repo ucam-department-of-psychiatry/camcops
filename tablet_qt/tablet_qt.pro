@@ -17,7 +17,8 @@ SOURCES += main.cpp\
     menu/main_menu.cpp \
     lib/uifunc.cpp \
     menulib/menu_item.cpp \
-    common/gv.cpp
+    common/gv.cpp \
+    lib/filefunc.cpp
 
 HEADERS  += \
     menulib/menu_window.h \
@@ -25,7 +26,8 @@ HEADERS  += \
     menulib/menu_item.h \
     common/ui_constants.h \
     lib/uifunc.h \
-    common/gv.h
+    common/gv.h \
+    lib/filefunc.h
 
 CONFIG += mobility
 MOBILITY = 
@@ -34,5 +36,7 @@ RESOURCES += \
     camcops.qrc
 
 DISTFILES += \
-    notes/qt_notes.txt
+    notes/qt_notes.txt \
+    stylesheets/camcops.css \
+    stylesheets/camcops_menu.css
 

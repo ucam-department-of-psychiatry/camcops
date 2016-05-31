@@ -38,3 +38,5 @@ void alert(const QString& text, const QString& title)
     msgBox.setStandardButtons(QMessageBox::Ok);
     msgBox.exec();
 }
+
+

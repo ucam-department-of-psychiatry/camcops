@@ -1,4 +1,45 @@
 ===============================================================================
+Licensing
+===============================================================================
+- Qt Community requires the LGPL.
+- The LGPL appears to be compatible with app stores (Apple, Google) AS LONG AS
+  the work is:
+    - fully open-sourced (if static linking required, which it is for older
+      iOS versions) (secret source code is compatible with dynamic linking
+      but I don't plan to have any secret source code anyway)
+    - Qt source is distributed
+        *** need to do this; link to Qt not enough; see https://www.qt.io/faq/
+    - full instructions for rebuilding are supplied
+  See
+    https://www.qt.io/faq/
+    http://blog.qt.io/blog/2014/10/01/benefits-of-the-indie-mobile-licensing/
+    https://wiki.qt.io/Licensing-talk-about-mobile-platforms
+- License should therefore be LGPL v3 (+/- others if dual licensing required).
+
+===============================================================================
 UI elements
 ===============================================================================
 
+===============================================================================
+String encoding
+===============================================================================
+- Follow Qt policy: all source is UTF-8.
+
+===============================================================================
+Short notes on bugs
+===============================================================================
+- "undefined vtable"? Re-run qmake (from the Build menu).
+  This happens when you add something using Q_OBJECT and don't create a new
+  source file, I think.
+  http://stackoverflow.com/questions/2555816/qt-linker-error-undefined-reference-to-vtable
+
+===============================================================================
+Platforms
+===============================================================================
+Confirmed:
+- Works on Linux
+- Works on Android emulator
+- Windows native:
+    Visual Studio 2015 Community
+    ... which doesn't install C++ by default!
+        http://stackoverflow.com/questions/31953769/visual-studio-doesnt-have-cl-exe

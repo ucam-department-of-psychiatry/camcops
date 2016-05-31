@@ -4,7 +4,8 @@
 #include <QVBoxLayout>
 #include "menu_window.h"
 #include "common/ui_constants.h"
-#include "lib/uifunc.h"
+#include "lib/filefunc.h"
+// #include "lib/uifunc.h"
 
 MenuWindow::MenuWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -30,6 +31,7 @@ void MenuWindow::show()
         listitem->setData(Qt::UserRole, QVariant(i));
         listitem->setSizeHint(rowheight);
         listwidget->setItemWidget(listitem, row);
+        listwidget->setStyleSheet(get_textfile_contents(CSS_CAMCOPS_MENU));
     }
     connect(listwidget, SIGNAL(itemClicked(QListWidgetItem*)),
             this, SLOT(onClicked(QListWidgetItem*)));

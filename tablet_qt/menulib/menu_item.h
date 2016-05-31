@@ -1,5 +1,9 @@
 #pragma once
 #include <QCoreApplication>
+#include <QLabel>
+#include <QString>
+#include <Qt>
+#include <QWidget>
 
 
 class MenuItem
@@ -33,4 +37,37 @@ public:
     bool m_chain;
 //    SOMETHING m_chainList;
     bool m_labelOnly;
+};
+
+
+// ============================================================================
+// The following classes exist just for CSS.
+// ============================================================================
+
+class MenuTitle : public QLabel
+{
+    Q_OBJECT
+public:
+    MenuTitle(QWidget* parent = 0, Qt::WindowFlags f = 0) :
+        QLabel(parent, f)
+    {}
+    MenuTitle(const QString& text, QWidget* parent = 0,
+              Qt::WindowFlags f = 0) :
+        QLabel(text, parent, f)
+    {}
+    virtual ~MenuTitle() {}
+};
+
+class MenuSubtitle : public QLabel
+{
+    Q_OBJECT
+public:
+    MenuSubtitle(QWidget* parent = 0, Qt::WindowFlags f = 0) :
+        QLabel(parent, f)
+    {}
+    MenuSubtitle(const QString& text, QWidget* parent = 0,
+                 Qt::WindowFlags f = 0) :
+        QLabel(text, parent, f)
+    {}
+    virtual ~MenuSubtitle() {}
 };

@@ -1,0 +1,21 @@
+QLabel {
+    color: white;
+}
+
+QListWidget {
+    background: black;
+}
+QListWidget::item {
+    background: black;
+}
+QListWidget::item:selected {
+    background: blue;
+}
+
+MenuTitle {
+    color: white;
+    font-weight: bold;
+}
+MenuSubtitle {
+    color: grey;
+}

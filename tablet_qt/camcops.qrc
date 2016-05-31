@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file>images/camcops/camcops.png</file>
         <file>images/camcops/hasChild.png</file>
+        <file>stylesheets/camcops.css</file>
+        <file>stylesheets/camcops_menu.css</file>
     </qresource>
 </RCC>

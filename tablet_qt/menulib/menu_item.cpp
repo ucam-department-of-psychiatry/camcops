@@ -43,7 +43,7 @@ QWidget* MenuItem::get_row_widget()
         rowlayout->addWidget(iconLabel);
     }
 
-    QLabel* title = new QLabel(m_title);
+    MenuTitle* title = new MenuTitle(m_title);
     rowlayout->addWidget(title);
 
     if (m_arrowOnRight) {
