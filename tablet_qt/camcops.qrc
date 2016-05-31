@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/camcops/camcops.png</file>
+        <file>images/camcops/hasChild.png</file>
+    </qresource>
+</RCC>

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# camcops/server/tools/MAKE_PACKAGE.py
 
 """
 For CentOS, you need to get Python 3 installed. For Centos 6, 64-bit:
