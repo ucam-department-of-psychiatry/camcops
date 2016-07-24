@@ -199,7 +199,6 @@ class Frs(Task):
     fieldspecs = [make_frs_fieldspec(n) for n in range(1, NQUESTIONS + 1)]
     fieldspecs.append(dict(name="comments", cctype="TEXT",
                            comment="Clinician's comments"))
-    extrastring_taskname = "frs"
     has_clinician = True
     has_respondent = True
 

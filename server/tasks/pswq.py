@@ -69,7 +69,6 @@ class Pswq(Task):
         min=MIN_SCORE, max=MAX_SCORE,
         comment_strings=QUESTION_SNIPPETS
     )
-    extrastring_taskname = "pswq"
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 

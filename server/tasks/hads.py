@@ -55,7 +55,6 @@ class Hads(Task):
             "cheerful", "relaxed", "slow", "butterflies", "appearance",
             "restless", "anticipate", "panic", "book/TV/radio"
         ])
-    extrastring_taskname = "hads"
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
@@ -112,7 +111,7 @@ class Hads(Task):
     def get_task_html(self):
         MIN_SCORE = 0
         MAX_SCORE = 3
-        crippled = not task_extrastrings_exist(self.extrastring_taskname)
+        crippled = not self.extrastrings_exist()
         log.info("crippled: {}".format(crippled))
         a = self.anxiety_score()
         d = self.depression_score()

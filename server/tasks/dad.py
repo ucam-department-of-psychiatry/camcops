@@ -117,7 +117,6 @@ class Dad(Task):
             pv=[YES, NO, NA],
             comment=item + explan,
         ))
-    extrastring_taskname = "dad"
     has_clinician = True
     has_respondent = True
 

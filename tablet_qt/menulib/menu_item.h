@@ -4,20 +4,27 @@
 #include <QString>
 #include <Qt>
 #include <QWidget>
+#include "common/camcops_app.h"
 
+class MenuWindow;
 
 class MenuItem
 {
     Q_DECLARE_TR_FUNCTIONS(MenuItem)
 
 public:
-    MenuItem();
-    ~MenuItem() {}
-    QWidget* get_row_widget();
-    void validate();
-    void act();
+    typedef MenuWindow* (*MenuWindowBuilder)(CamcopsApp &app);
+    typedef void (*ActionFuncPtr)();
 
 public:
+    MenuItem(QWidget* parent = 0);
+    ~MenuItem() {}
+    QWidget* getRowWidget();
+    void validate();
+    void act(CamcopsApp& app);
+
+public:
+    QWidget* m_parent;
     QString m_title;
     QString m_subtitle;
     QString m_icon;
@@ -28,9 +35,9 @@ public:
     bool m_crippled;
     bool m_needsPrivilege;
     bool m_notIfLocked;
-//    QMenuWindow* m_window;
+    MenuWindowBuilder m_menu;  // pointer to function, as above
 //    SOMETHING m_event;
-//    SOMETHING m_func;
+    ActionFuncPtr m_func;
 //    SOMETHING m_task;
 //    SOMETHING m_html;
 //    SOMETHING m_info;
@@ -38,6 +45,13 @@ public:
 //    SOMETHING m_chainList;
     bool m_labelOnly;
 };
+
+
+template<typename Derived>
+MenuWindow* MenuBuilder()
+{
+    return new Derived();
+}
 
 
 // ============================================================================

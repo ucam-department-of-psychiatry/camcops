@@ -257,6 +257,7 @@ class Patient:
 
         Args:
             when: date or datetime
+            default: default
         """
         dob = self.get_dob()  # date; timezone-naive
         if dob is None:

@@ -67,7 +67,6 @@ class Zbi12(Task):
         comment_strings=QUESTION_SNIPPETS
     )
     has_respondent = True
-    extrastring_taskname = "zbi12"
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 

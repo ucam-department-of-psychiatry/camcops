@@ -73,7 +73,6 @@ class Badls(Task):
         pv=list(SCORING.keys()),
         comment_strings=QUESTION_SNIPPETS
     )
-    extrastring_taskname = "badls"
     has_respondent = True
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]

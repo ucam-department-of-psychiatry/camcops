@@ -98,7 +98,6 @@ class Ybocs(Task):
             'max': maxscore,
         })
     has_clinician = True
-    extrastring_taskname = "ybocs"
 
     QUESTION_FIELDS = ["q" + x[0] for x in QINFO]
     SCORED_QUESTIONS = ["q" + str(x) for x in range(1, 10 + 1)]

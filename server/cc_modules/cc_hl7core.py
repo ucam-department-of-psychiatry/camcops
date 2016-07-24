@@ -264,6 +264,7 @@ def make_pid_segment(forename,
     return segment
 
 
+# noinspection PyUnusedLocal
 def make_obr_segment(task):
     """Creates an HL7 observation request (OBR) segment."""
     # -------------------------------------------------------------------------

@@ -97,7 +97,7 @@ from .cc_pls import pls
 from . import cc_recipdef
 from .cc_report import Report
 from . import cc_specialnote
-from .cc_string import WSTRING, WXSTRING
+from .cc_string import task_extrastrings_exist, WSTRING, WXSTRING
 from .cc_unittest import (
     get_object_name,
     unit_test_ignore,
@@ -474,7 +474,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # -------------------------------------------------------------------------
     # Attributes that can be overridden
     # -------------------------------------------------------------------------
-    extrastring_taskname = None
+    extrastring_taskname = None  # if None, tablename is used instead
     is_anonymous = False  # Alters fields/HTML
     has_clinician = False  # Will add fields/HTML
     has_respondent = False  # Will add fields/HTML
@@ -2897,11 +2897,17 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # Extra strings
     # -------------------------------------------------------------------------
 
+    def get_extrastring_taskname(self):
+        return self.extrastring_taskname or self.tablename
+
+    def extrastrings_exist(self):
+        return task_extrastrings_exist(self.get_extrastring_taskname())
+
     def WXSTRING(self, name, defaultvalue=None, provide_default_if_none=True):
         if defaultvalue is None and provide_default_if_none:
-            defaultvalue = "[{}: {}]".format(self.extrastring_taskname,
+            defaultvalue = "[{}: {}]".format(self.get_extrastring_taskname(),
                                              name)
-        return WXSTRING(self.extrastring_taskname,
+        return WXSTRING(self.get_extrastring_taskname(),
                         name,
                         defaultvalue,
                         provide_default_if_none=provide_default_if_none)

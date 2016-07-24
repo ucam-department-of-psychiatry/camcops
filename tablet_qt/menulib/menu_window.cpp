@@ -1,51 +1,67 @@
 #include <QDebug>
 #include <QListWidget>
 #include <QListWidgetItem>
+#include <QPushButton>
+#include <QScrollArea>
 #include <QVBoxLayout>
 #include "menu_window.h"
 #include "common/ui_constants.h"
 #include "lib/filefunc.h"
 // #include "lib/uifunc.h"
 
-MenuWindow::MenuWindow(QWidget *parent)
-    : QMainWindow(parent)
+MenuWindow::MenuWindow(CamcopsApp& app, bool top) :
+    QWidget(),
+    m_app(app),
+    m_top(top)
 {
 }
 
 MenuWindow::~MenuWindow()
 {
-
 }
 
-void MenuWindow::show()
+void MenuWindow::buildMenu()
 {
-    QVBoxLayout *mainlayout = new QVBoxLayout;
-    QListWidget *listwidget = new QListWidget();
-    QSize rowheight = QSize(0, ICONSIZE + 20);  // ***
+    QVBoxLayout* mainlayout = new QVBoxLayout();
 
+    if (!m_top) {
+        QPushButton* back = new QPushButton("back", this);
+        mainlayout->addWidget(back);
+        connect(back, &QPushButton::clicked,
+                this, &MenuWindow::backClicked);
+    }
+
+    QListWidget* listwidget = new QListWidget();
+    QSize rowheight = QSize(0, ICONSIZE + 20);  // ***
     for (int i = 0; i < m_items.size(); ++i) {
         MenuItem item = m_items.at(i);
         item.validate();
-        QWidget* row = item.get_row_widget();
-        QListWidgetItem *listitem = new QListWidgetItem("", listwidget);
+        QWidget* row = item.getRowWidget();
+        QListWidgetItem* listitem = new QListWidgetItem("", listwidget);
         listitem->setData(Qt::UserRole, QVariant(i));
         listitem->setSizeHint(rowheight);
         listwidget->setItemWidget(listitem, row);
-        listwidget->setStyleSheet(get_textfile_contents(CSS_CAMCOPS_MENU));
+        listwidget->setStyleSheet(textfileContents(CSS_CAMCOPS_MENU));
     }
-    connect(listwidget, SIGNAL(itemClicked(QListWidgetItem*)),
-            this, SLOT(onClicked(QListWidgetItem*)));
-    mainlayout->addWidget(listwidget);
+    connect(listwidget, &QListWidget::itemClicked,
+            this, &MenuWindow::menuItemClicked);
 
-    // http://stackoverflow.com/questions/1508939/qt-layout-on-qmainwindow
-    QWidget *mainwidget = new QWidget();
-    mainwidget->setLayout(mainlayout);
-    setCentralWidget(mainwidget);
+    // Using a scroll area unbreaks a bug when you use a list widget on
+    // an area too small (and then it picks the wrong item when you click,
+    // sometimes, after scrolling).
+    QScrollArea* scrollarea = new QScrollArea();
+    scrollarea->setWidget(listwidget);
+    mainlayout->addWidget(scrollarea);
 
-    QMainWindow::show();
+    setLayout(mainlayout);
 }
 
-void MenuWindow::onClicked(QListWidgetItem* item)
+void MenuWindow::backClicked()
+{
+    m_app.popScreen();
+}
+
+void MenuWindow::menuItemClicked(QListWidgetItem* item)
 {
     // WHAT'S BEEN CHOSEN?
     QVariant v = item->data(Qt::UserRole);
@@ -59,5 +75,5 @@ void MenuWindow::onClicked(QListWidgetItem* item)
     qDebug() << "Selected:" << m.m_title;
 
     // ACT ON IT.
-    m.act();
+    m.act(m_app);
 }

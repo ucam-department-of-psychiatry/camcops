@@ -1,9 +1,10 @@
-QLabel {
-    color: white;
-}
+/* http://doc.qt.io/qt-5/stylesheet-syntax.html */
 
 QListWidget {
     background: black;
+    border: 0;
+    padding: 0;
+    margin: 0;
 }
 QListWidget::item {
     background: black;
@@ -11,11 +12,24 @@ QListWidget::item {
 QListWidget::item:selected {
     background: blue;
 }
+QVBoxLayout {
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
 
 MenuTitle {
     color: white;
     font-weight: bold;
+    border: 0;
+    margin: 0;
+    padding: 0;
 }
 MenuSubtitle {
+    /* background-color: red; */
+    border: 1px solid blue;
     color: grey;
+    border: 0;
+    margin: 0;
+    padding: 0;
 }

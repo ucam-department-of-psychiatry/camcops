@@ -7,12 +7,13 @@
 #include <QUrl>
 #include <QVBoxLayout>
 #include "menu_item.h"
-#include "common/gv.h"
+#include "menu_window.h"
 #include "common/ui_constants.h"
 #include "lib/uifunc.h"
 
 
-MenuItem::MenuItem() :
+MenuItem::MenuItem(QWidget* parent) :
+    m_parent(parent),
     m_arrowOnRight(false),
     m_copyrightDetailsPending(false),
     m_notImplemented(false),
@@ -20,6 +21,8 @@ MenuItem::MenuItem() :
     m_crippled(false),
     m_needsPrivilege(false),
     m_notIfLocked(false),
+    m_menu(NULL),
+    m_func(NULL),
     m_chain(false),
     m_labelOnly(false)
 {
@@ -28,26 +31,35 @@ MenuItem::MenuItem() :
 
 void MenuItem::validate()
 {
-    // stop_app("test stop");
+    // stopApp("test stop");
 }
 
 
-QWidget* MenuItem::get_row_widget()
+QWidget* MenuItem::getRowWidget()
 {
     QWidget* row = new QWidget();
     QHBoxLayout* rowlayout = new QHBoxLayout();
 
     QString iconFilename = m_chain ? ICON_CHAIN : m_icon;
     if (!iconFilename.isEmpty()) {
-        QLabel* iconLabel = icon_widget(iconFilename);
+        QLabel* iconLabel = iconWidget(iconFilename);
         rowlayout->addWidget(iconLabel);
+    } else {
+        rowlayout->addSpacing(ICONSIZE);
     }
 
+    QVBoxLayout* textLayout = new QVBoxLayout();
     MenuTitle* title = new MenuTitle(m_title);
-    rowlayout->addWidget(title);
+    textLayout->addWidget(title);
+    if (!m_subtitle.isEmpty()) {
+        MenuSubtitle* subtitle = new MenuSubtitle(m_subtitle);
+        textLayout->addWidget(subtitle);
+    }
+    rowlayout->addLayout(textLayout);
 
     if (m_arrowOnRight) {
-        QLabel* iconLabel = icon_widget(ICON_TABLE_CHILDARROW);
+        rowlayout->addStretch();
+        QLabel* iconLabel = iconWidget(ICON_TABLE_CHILDARROW, false);
         rowlayout->addWidget(iconLabel);
     }
 
@@ -56,7 +68,7 @@ QWidget* MenuItem::get_row_widget()
 }
 
 
-void MenuItem::act()
+void MenuItem::act(CamcopsApp& app)
 {
     if (m_notImplemented) {
         alert(tr("Not implemented yet!"));
@@ -66,7 +78,7 @@ void MenuItem::act()
         alert(tr("Not supported on this platform!"));
         return;
     }
-    if (m_needsPrivilege && !g_privileged) {
+    if (m_needsPrivilege && !app.m_privileged) {
         alert(tr("You must set Privileged Mode first"));
         return;
     }
@@ -74,11 +86,19 @@ void MenuItem::act()
         qDebug() << "Label-only row touched; ignored";
         return;
     }
-    if (m_notIfLocked && g_patientLocked) {
+    if (m_notIfLocked && app.m_patientLocked) {
         alert(tr("Can’t perform this action when CamCOPS is locked"),
               tr("Unlock first"));
         return;
     }
-
-    alert("boo!");
+    if (m_menu) {
+        MenuWindow* pWindow = m_menu(app);
+        app.pushScreen(pWindow);
+        return;
+    }
+    if (m_func) {
+        m_func();
+        return;
+    }
+    alert("boo! No other action specified ***");
 }

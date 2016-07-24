@@ -77,7 +77,6 @@ class NpiQ(Task):
         comment_fmt="Q{n}, {s}, distress (0-5), if endorsed",
         comment_strings=QUESTION_SNIPPETS
     )
-    extrastring_taskname = "npiq"
     has_respondent = True
 
     ENDORSED_FIELDS = [ENDORSED + str(n) for n in range(1, NQUESTIONS + 1)]

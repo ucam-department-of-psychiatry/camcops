@@ -99,7 +99,6 @@ class Ifs(Task):
             dict(name="q8_sentence{}".format(n), cctype="INT", pv=[0, 1, 2],
                  comment="Q8. Hayling, sentence {}".format(n)),
         ])
-    extrastring_taskname = "ifs"
     has_clinician = True
 
     def get_trackers(self):

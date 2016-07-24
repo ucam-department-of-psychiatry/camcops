@@ -1,4 +1,43 @@
 ===============================================================================
+Overall design changes 2016
+===============================================================================
+- Titanium doesn't support Windows binaries well at present (and not at all
+  for Windows prior to Win 10). Qt supports all of {Linux, Windows, iOS,
+  OS X, Android} and will probably run faster. We're already had speed problems
+  at various times with all of: menus, questionnaires, typing.
+  CONSIDER: QT FOR TABLETS.
+
+- Code will then be harder for novices to write, but more robust (e.g.
+  compiled and type-checked).
+
+- The user interface for web-based editing should be different to that of the
+  tablet. The experience with Titanium suggests that running the "tablet" code
+  on the web site is dreadful. One could envisage creating a scripting language
+  that both the tablet and the web site interpreted (differently). However,
+  that'd be pretty tricky and some tasks wouldn't work across platforms (Photo;
+  ID/ED; ...).
+  So probably best to write separate web editing code (e.g. with Django) for
+  questionnaire tasks.
+
+- Could use two databases on the tablet, to simplify the selection process for
+  upload (i.e. a 'data' database and a 'system' database).
+
+- Could return BLOBs to the database. Nothing else would change.
+  SQLite can handle BLOBs up to 1 GB by default:
+  https://www.sqlite.org/limits.html
+
+- Web site to SQLAlchemy and then also Django? Or ??use Django ORM?
+  Looks tricky to mix the two.
+  http://lethain.com/replacing-django-s-orm-with-sqlalchemy/
+  https://www.quora.com/Which-is-better-and-why-Djangos-ORM-or-SQLAlchemy
+
+  BUT will need to think about
+    - core fields
+    - tablet upload script
+    - dual use of dictionaries for XML (etc.) and databases, e.g. summary
+      fields
+
+===============================================================================
 Licensing
 ===============================================================================
 - Qt Community requires the LGPL.
@@ -20,10 +59,25 @@ Licensing
 UI elements
 ===============================================================================
 
+- Core choice is QML (with Javascript) versus QWidgets (with C++).
+  I'd prefer C++, for speed and compilation checks.
+- Also, there's significant work in the C++/QML interface: e.g.
+    https://wiki.qt.io/How_to_Use_a_QSqlQueryModel_in_QML
+
+- Android CSS not working properly for list widgets. Fixed as per:
+  https://bugreports.qt.io/browse/QTBUG-45517
+
 ===============================================================================
 String encoding
 ===============================================================================
 - Follow Qt policy: all source is UTF-8.
+
+===============================================================================
+Resources
+===============================================================================
+- For FILENAMES, use :/dirname/filename.ext
+- For URLs, use qrc:///dirname/filename.ext
+- http://doc.qt.io/qt-5/resources.html
 
 ===============================================================================
 Short notes on bugs
@@ -34,12 +88,123 @@ Short notes on bugs
   http://stackoverflow.com/questions/2555816/qt-linker-error-undefined-reference-to-vtable
 
 ===============================================================================
+Coding conventions
+===============================================================================
+- ClassName
+- functionName, as per Qt
+- g_global_variable
+- m_member_variable
+- any_old_variable
+
+===============================================================================
+Language and speed
+===============================================================================
+- Index-based iteration is fastest:
+  http://blog.qt.io/blog/2009/01/23/iterating-efficiently/
+
+===============================================================================
 Platforms
 ===============================================================================
 Confirmed:
 - Works on Linux
 - Works on Android emulator
-- Windows native:
+    *** SQLITE NOT YET WORKING; NEEDS QT RECOMPILE
+- Works on Windows 10 native 64-bit (as a .exe)
     Visual Studio 2015 Community
     ... which doesn't install C++ by default!
         http://stackoverflow.com/questions/31953769/visual-studio-doesnt-have-cl-exe
+    ... then works (with Qt edition for Visual Studio 2015).
+  The "add component" tool doesn't seem to come with Windows, so install ALL
+  versions you might need (e.g. including 32-bit versions).
+- *** NOT YET DONE: standalone .EXE
+    http://wiki.qt.io/Build_Standalone_Qt_Application_for_Windows
+    http://stackoverflow.com/questions/12654613/static-linking-qt-with-open-source-version
+    https://wiki.qt.io/Licensing-talk-about-mobile-platforms#Legal_advice_on_statically_linking_Qt_and_the_LGPL_license
+- *** NOT YET TESTED: Windows XP 32-bit
+- Works on Mac OS X native
+- Works on iOS
+
+===============================================================================
+Compilation
+===============================================================================
+- See my built_qt.sh
+- To compile projects in parallel, see
+    http://stackoverflow.com/questions/9420825/how-to-compile-on-multiple-cores-using-mingw-inside-qtcreator
+
+===============================================================================
+Menu structure, class factories, ...
+===============================================================================
+
+- no harm in encoding menus fairly manually
+- TaskFactory works fine
+- *** main thing to consider then is the Questionnaire implementation
+    - a questionnaire has
+        simple properties
+        a list of pages
+            a page has a list of elements
+            ...
+        can pass in callbacks
+
+    - can't (realistically) use named parameters:
+        https://www.reddit.com/r/programming/comments/19bul0/c11_named_parameters_using_operator_suffixes_and/
+    - so use this idiom:
+        - use setters that return *this
+          https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Named_Parameter
+    - for list construction, C++11 saves us:
+        http://stackoverflow.com/questions/18998488/what-is-the-right-way-to-initialize-a-qlist
+        http://stackoverflow.com/questions/16948382/how-to-enable-c11-in-qt-creator
+
+    - so: nice way to specify a list?
+        e.g.
+            elements = {
+                QuestionText("my text").setBold(true),
+                QuestionMCQ(
+                    "q10",
+                    {
+                        KeyValuePair("blah0", 0),
+                        KeyValuePair("blah1", 1)
+                    }
+                )
+            }
+    - so we have setters that return *this
+      https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Named_Parameter
+
+- *** and field member variables
+
+    - QDjango?
+        note also http://doc.qt.io/qt-4.8/qmetaobject.html#details
+        ... no
+    - a custom DatabaseObject class with fieldname/variant mappings?
+        ... no
+    - QSqlField / QSqlRecord?
+        ... yes?
+    - ODB? http://www.codesynthesis.com/products/odb/doc/manual.xhtml
+    - https://en.wikipedia.org/wiki/List_of_object-relational_mapping_software#C.2B.2B
+    - Seems natural to subclass QSqlField, but then we couldn't use it
+      in non-pointer ways e.g. for QSqlRecord
+      ... so we should implement our own.
+
+- HTTPS
+
+- *** webviews
+    http://stackoverflow.com/questions/19282255/qwebview-on-qt4-and-qt5
+    http://doc.qt.io/qt-5/qtwebenginewidgets-qtwebkitportingguide.html
+    http://doc.qt.io/qt-4.8/qtwebkit-bridge.html -- old?
+    https://www.kdab.com/qt-webchannel-bridging-gap-cqml-web/
+    http://doc.qt.io/qt-5.6/qwebchannel.html
+    http://doc.qt.io/qt-5.6/qtwebchannel-standalone-example.html
+    http://doc.qt.io/qt-5.6/qtwebchannel-javascript.html
+    http://stackoverflow.com/questions/9615194/is-it-possible-to-call-a-c-function-from-javascript-in-a-qwebview
+
+
+===============================================================================
+TO DO
+===============================================================================
+- SQL framework, inc. translation to textual format for DateTime values
+- For SQL bulk reads (uploading), see
+    http://stackoverflow.com/questions/18829018/qt-sql-get-column-type-and-name-from-table-without-record
+- Factory for registering things that must create tables
+    ... of which tasks are just one (but task registration should do this automatically)
+    ... once database is opened, call each one
+- HTTPS POST
+    http://stackoverflow.com/questions/2599423/how-can-i-post-data-to-a-url-using-qnetworkaccessmanager

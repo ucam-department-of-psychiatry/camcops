@@ -790,7 +790,7 @@ class MLLPTimeoutClient(object):
         """For use with "with" statement."""
         return self
 
-    def __exit__(self, exc_type, exc_val, trackeback):
+    def __exit__(self, exc_type, exc_val, traceback):
         """For use with "with" statement."""
         self.close()
 

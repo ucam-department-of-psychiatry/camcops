@@ -3,7 +3,8 @@
 #include <QObject>
 #include <QString>
 
+// #define DEBUG_ICON_LOAD
 
-QLabel* icon_widget(const QString& filename);
-void stop_app(const QString& error);
+QLabel* iconWidget(const QString& filename, bool scale = true);
+void stopApp(const QString& error);
 void alert(const QString& text, const QString& title = QObject::tr("Alert"));

@@ -421,6 +421,7 @@ class LocalStorage(object):
         try:
             db_password = config.get(section, "DB_PASSWORD")
         except:  # deliberately conceal details for security
+            # noinspection PyUnusedLocal
             db_password = None
             raise RuntimeError("Problem reading DB_PASSWORD from config")
 
@@ -451,6 +452,7 @@ class LocalStorage(object):
                 "for security reasons")
         finally:
             # Executed whether an exception is raised or not.
+            # noinspection PyUnusedLocal
             db_password = None
         # ---------------------------------------------------------------------
         # Password is now re-obscured in all situations. Onwards...
@@ -682,6 +684,7 @@ class LocalStorage(object):
             password = get_config_parameter(
                 config, section, "ANONSTAG_DB_PASSWORD", str, None)
         except:  # deliberately conceal details for security
+            # noinspection PyUnusedLocal
             password = None
             raise RuntimeError("Problem reading ANONSTAG_DB_PASSWORD from "
                                "config")
@@ -704,6 +707,7 @@ class LocalStorage(object):
                 "for security reasons")
         finally:
             # Executed whether an exception is raised or not.
+            # noinspection PyUnusedLocal
             password = None
         # ---------------------------------------------------------------------
         # Password is now re-obscured in all situations. Onwards...

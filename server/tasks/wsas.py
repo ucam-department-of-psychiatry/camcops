@@ -66,7 +66,6 @@ class Wsas(Task):
              comment="Retired or choose not to have job for reason unrelated "
              "to problem"),
     ] + QUESTION_FIELDSPECS
-    extrastring_taskname = "wsas"
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
     QUESTION_FIELDS = [x["name"] for x in QUESTION_FIELDSPECS]

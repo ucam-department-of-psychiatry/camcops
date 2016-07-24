@@ -1,4 +1,5 @@
 #pragma once
+#include "common/camcops_app.h"
 #include "menulib/menu_window.h"
 
 
@@ -7,7 +8,7 @@ class MainMenu : public MenuWindow
     Q_OBJECT
 
 public:
-    MainMenu(QWidget *parent = 0);
+    MainMenu(CamcopsApp& app);
     ~MainMenu();
 
 };

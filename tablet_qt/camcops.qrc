@@ -4,5 +4,6 @@
         <file>images/camcops/hasChild.png</file>
         <file>stylesheets/camcops.css</file>
         <file>stylesheets/camcops_menu.css</file>
+        <file>sounds/camcops/portal_still_alive.mp3</file>
     </qresource>
 </RCC>

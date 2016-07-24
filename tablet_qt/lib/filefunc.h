@@ -1,5 +1,6 @@
 #pragma once
 #include <QString>
 
+// #define DEBUG_READ_FILE
 
-QString get_textfile_contents(const QString& filename);
+QString textfileContents(const QString& filename);

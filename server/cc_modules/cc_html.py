@@ -254,7 +254,8 @@ def th(contents, th_class="", th_width=""):
 def tr_qa(q, a, default="?", default_for_blank_strings=False):
     """Make HTML two-column data row, with right-hand column formatted as an
     answer."""
-    return tr(q, answer(a, default=default))
+    return tr(q, answer(a, default=default,
+                        default_for_blank_strings=default_for_blank_strings))
 
 
 def heading_spanning_two_columns(s):
@@ -314,6 +315,7 @@ def tr_span_col(x, cols=2, tr_class="", td_class="", th_not_td=False):
         x: Data.
         cols: Number of columns to span.
         tr_class: CSS class to apply to tr.
+        td_class: CSS class to apply to td.
         th_not_td: make it a th, not a td.
     """
     cell = "th" if th_not_td else "td"

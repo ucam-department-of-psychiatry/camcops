@@ -655,7 +655,7 @@ function createTable(tablename, fieldlist) {
     // We deal with fields of incorrect type similarly (in this case, any
     // conversion occurs as we SELECT back the values into the new, proper
     // fields). Not sure it really is important, though:
-    /// http://sqlite.org/datatype3.html
+    // http://sqlite.org/datatype3.html
     if (superfluous_fields.length > 0) {
         Titanium.API.info("createTable: Dropping superfluous database " +
                           "fields. Table=" + tablename + ", fields: " +

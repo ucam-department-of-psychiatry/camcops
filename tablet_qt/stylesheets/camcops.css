@@ -1,4 +1,15 @@
 MenuWindow {
+    background-color: black;
+    /* background-color: red; */
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+QMainWindow {
     background-color: red;
 }
 
+QStackedWidget {
+    background-color: green;
+}

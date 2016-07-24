@@ -6,20 +6,29 @@
 #include "common/ui_constants.h"
 
 
-QLabel* icon_widget(const QString& filename)
+QLabel* iconWidget(const QString& filename, bool scale)
 {
-    qDebug() << "icon_widget:" << filename;
+#ifdef DEBUG_ICON_LOAD
+    qDebug() << "iconWidget:" << filename;
+#endif
     QPixmap iconimage = QPixmap(filename);
     QLabel* iconlabel = new QLabel();
-    iconlabel->setFixedHeight(ICONSIZE);
-    iconlabel->setFixedWidth(ICONSIZE);
-    iconlabel->setPixmap(iconimage.scaled(ICONSIZE, ICONSIZE, Qt::IgnoreAspectRatio));
+    if (scale) {
+        iconlabel->setFixedHeight(ICONSIZE);
+        iconlabel->setFixedWidth(ICONSIZE);
+        iconlabel->setPixmap(iconimage.scaled(ICONSIZE, ICONSIZE,
+                                              Qt::IgnoreAspectRatio));
+    } else {
+        iconlabel->setPixmap(iconimage);
+    }
     return iconlabel;
 }
 
-
-void stop_app(const QString& error)
+void stopApp(const QString& error)
 {
+    // MODAL DIALOGUE, FOLLOWED BY HARD KILL,
+    // so callers don't need to worry about what happens afterwards.
+    qDebug() << "ABORTING:" << qPrintable(error);
     QMessageBox msgBox;
     msgBox.setWindowTitle("CamCOPS internal bug: stopping");
     msgBox.setText(error);
@@ -28,7 +37,6 @@ void stop_app(const QString& error)
     // QApplication::quit();
     exit(EXIT_FAILURE);
 }
-
 
 void alert(const QString& text, const QString& title)
 {
