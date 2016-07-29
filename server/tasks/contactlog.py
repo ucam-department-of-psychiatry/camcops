@@ -65,10 +65,10 @@ class ContactLog(Task):
     def get_clinical_text(self):
         if not self.is_complete():
             return CTV_DICTLIST_INCOMPLETE
-        type = "Patient" if self.patient_contact else "Non-patient"
+        contact_type = "Patient" if self.patient_contact else "Non-patient"
         return [{
             "content": "{} contact. Duration (hours:minutes) {}.".format(
-                type, get_duration_h_m(self.start, self.end))
+                contact_type, get_duration_h_m(self.start, self.end))
         }]
 
     def is_complete(self):

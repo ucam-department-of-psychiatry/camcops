@@ -23,6 +23,7 @@
 
 import configparser
 import logging
+from typing import Any, Callable, List
 
 from .cc_logger import log
 
@@ -31,7 +32,11 @@ from .cc_logger import log
 # Reading config files
 # =============================================================================
 
-def get_config_parameter(config, section, param, fn, default):
+def get_config_parameter(config: configparser.ConfigParser,
+                         section: str,
+                         param: str,
+                         fn: Callable[[Any], Any],
+                         default: Any) -> Any:
     """Fetch parameter from configparser INI file.
 
     Args:
@@ -55,7 +60,10 @@ def get_config_parameter(config, section, param, fn, default):
     return value
 
 
-def get_config_parameter_boolean(config, section, param, default):
+def get_config_parameter_boolean(config: configparser.ConfigParser,
+                                 section: str,
+                                 param: str,
+                                 default: bool) -> bool:
     """Get Boolean parameter from configparser INI file.
 
     Args:
@@ -75,7 +83,10 @@ def get_config_parameter_boolean(config, section, param, default):
     return value
 
 
-def get_config_parameter_loglevel(config, section, param, default):
+def get_config_parameter_loglevel(config: configparser.ConfigParser,
+                                  section: str,
+                                  param: str,
+                                  default: int) -> int:
     """Get loglevel parameter from configparser INI file.
 
     Args:
@@ -106,7 +117,10 @@ def get_config_parameter_loglevel(config, section, param, default):
         return default
 
 
-def get_config_parameter_multiline(config, section, param, default):
+def get_config_parameter_multiline(config: configparser.ConfigParser,
+                                   section: str,
+                                   param: str,
+                                   default: List[str]) -> List[str]:
     try:
         multiline = config.get(section, param)
         return [x.strip() for x in multiline.splitlines() if x.strip()]

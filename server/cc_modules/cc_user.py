@@ -21,8 +21,10 @@
     limitations under the License.
 """
 
+import cgi
 import datetime
 import re
+from typing import Optional
 
 import cardinal_pythonlib.rnc_crypto as rnc_crypto
 from cardinal_pythonlib.rnc_lang import AttrDict
@@ -35,6 +37,7 @@ from . import cc_dt
 from . import cc_html
 from .cc_logger import log
 from .cc_pls import pls
+from .cc_session import Session  # *** may clash/circular
 from . import cc_storedvar
 from .cc_unittest import unit_test_ignore
 
@@ -106,13 +109,13 @@ CLEAR_DUMMY_LOGIN_PERIOD = datetime.timedelta(
 # login failures for non-existent users, and pretend they're locked out
 # (to prevent username discovery that way)
 
-def delete_old_account_lockouts():
+def delete_old_account_lockouts() -> None:
     """Delete all expired account lockouts."""
     pls.db.db_exec("DELETE FROM " + SECURITY_ACCOUNT_LOCKOUT_TABLENAME +
                    " WHERE locked_until <= ?", pls.NOW_UTC_NO_TZ)
 
 
-def is_user_locked_out(username):
+def is_user_locked_out(username: str) -> bool:
     """Is the user currently locked out?"""
     count = pls.db.fetchvalue(
         "SELECT COUNT(*) FROM " + SECURITY_ACCOUNT_LOCKOUT_TABLENAME +
@@ -122,7 +125,7 @@ def is_user_locked_out(username):
     return count > 0
 
 
-def user_locked_out_until(username):
+def user_locked_out_until(username: str) -> Optional[datetime.datetime]:
     """When is the user locked out until?
 
     Returns datetime in local timezone (or None).
@@ -136,7 +139,7 @@ def user_locked_out_until(username):
     return cc_dt.convert_utc_datetime_without_tz_to_local(utc_no_tz)
 
 
-def lock_user_out(username, lockout_minutes):
+def lock_user_out(username: str, lockout_minutes: int) -> None:
     """Lock user out for a specified number of minutes."""
     lock_until = pls.NOW_UTC_NO_TZ + datetime.timedelta(
         minutes=lockout_minutes)
@@ -149,7 +152,7 @@ def lock_user_out(username, lockout_minutes):
                                                         lockout_minutes))
 
 
-def unlock_user(username):
+def unlock_user(username: str) -> None:
     """Unlock a user."""
     pls.db.db_exec(
         "DELETE FROM " + SECURITY_ACCOUNT_LOCKOUT_TABLENAME +
@@ -157,7 +160,7 @@ def unlock_user(username):
         username)
 
 
-def record_login_failure(username):
+def record_login_failure(username: str) -> None:
     """Record that a user has failed to log in."""
     pls.db.db_exec(
         "INSERT INTO " + SECURITY_LOGIN_FAILURE_TABLENAME +
@@ -166,7 +169,7 @@ def record_login_failure(username):
         pls.NOW_UTC_NO_TZ)
 
 
-def act_on_login_failure(username):
+def act_on_login_failure(username: str) -> None:
     """Record login failure and lock out user if necessary."""
     audit("Failed login as user: {}".format(username))
     record_login_failure(username)
@@ -179,7 +182,7 @@ def act_on_login_failure(username):
         lock_user_out(username, lockout_minutes)
 
 
-def clear_login_failures(username):
+def clear_login_failures(username: str) -> None:
     """Clear login failures for a user."""
     pls.db.db_exec(
         "DELETE FROM " + SECURITY_LOGIN_FAILURE_TABLENAME +
@@ -187,7 +190,7 @@ def clear_login_failures(username):
         username)
 
 
-def how_many_login_failures(username):
+def how_many_login_failures(username: str) -> int:
     """How many times has the user failed to log in (recently)?"""
     return pls.db.fetchvalue(
         "SELECT COUNT(*) FROM " + SECURITY_LOGIN_FAILURE_TABLENAME +
@@ -195,14 +198,14 @@ def how_many_login_failures(username):
         username)
 
 
-def enable_user(username):
+def enable_user(username: str) -> None:
     """Unlock user and clear login failures."""
     unlock_user(username)
     clear_login_failures(username)
     audit("User {} re-enabled".format(username))
 
 
-def clear_login_failures_for_nonexistent_users():
+def clear_login_failures_for_nonexistent_users() -> None:
     """Clear login failures for nonexistent users.
 
     Login failues are recorded for nonexistent users to mimic the lockout seen
@@ -217,14 +220,14 @@ def clear_login_failures_for_nonexistent_users():
     """)
 
 
-def clear_dummy_login_failures_if_necessary():
+def clear_dummy_login_failures_if_necessary() -> None:
     """Clear dummy login failures if we haven't done so for a while.
 
     Not too often! See CLEAR_DUMMY_LOGIN_FREQUENCY_DAYS.
     """
     lastClearedVar = cc_storedvar.ServerStoredVar(
         "lastDummyLoginFailureClearanceAt", "text", None)
-    lastClearedVal = lastClearedVar.getValue()
+    lastClearedVal = lastClearedVar.get_value()
     if lastClearedVal:
         elapsed = pls.NOW_UTC_WITH_TZ - cc_dt.get_datetime_from_string(
             lastClearedVal)
@@ -236,10 +239,10 @@ def clear_dummy_login_failures_if_necessary():
     log.debug("Dummy login failures cleared.")
     now_as_utc_iso_string = cc_dt.format_datetime(pls.NOW_UTC_WITH_TZ,
                                                   DATEFORMAT.ISO8601)
-    lastClearedVar.setValue(now_as_utc_iso_string)
+    lastClearedVar.set_value(now_as_utc_iso_string)
 
 
-def take_some_time_mimicking_password_encryption():
+def take_some_time_mimicking_password_encryption() -> None:
     """Waste some time. We use this when an attempt has been made to log in
     with a nonexistent user; we know the user doesn't exist very quickly, but
     we mimic the time it takes to check a real user's password."""
@@ -293,7 +296,7 @@ class User:
     FIELDS = [x["name"] for x in FIELDSPECS]
 
     @classmethod
-    def make_tables(cls, drop_superfluous_columns=False):
+    def make_tables(cls, drop_superfluous_columns: bool = False) -> None:
         """Make underlying database tables."""
         cc_db.create_or_update_table(
             cls.TABLENAME, cls.FIELDSPECS,
@@ -308,7 +311,9 @@ class User:
             SECURITY_LOGIN_FAILURE_FIELDSPECS,
             drop_superfluous_columns=drop_superfluous_columns)
 
-    def __init__(self, username, create_if_not_exists=False):
+    def __init__(self,
+                 username: str,
+                 create_if_not_exists: bool = False) -> None:
         """Initialize. Lower case usernames are enforced internally."""
         # CASE CONVERSION HERE: ENFORCE LOWER CASE
         if username:
@@ -321,7 +326,7 @@ class User:
         if (not exists_already) and create_if_not_exists:
             self.user = username
 
-    def save(self):
+    def save(self) -> None:
         """Save to database."""
         if self.user is None or self.hashedpw is None:
             return False  # can't save a user with no name or password
@@ -331,23 +336,23 @@ class User:
                                  not already_exists)
         return True
 
-    def set_password(self, new_password):
+    def set_password(self, new_password: str) -> None:
         """Set a user's password."""
         self.hashedpw = rnc_crypto.hash_password(new_password,
                                                  BCRYPT_DEFAULT_LOG_ROUNDS)
         self.last_password_change_utc = pls.NOW_UTC_NO_TZ
         self.must_change_password = False
 
-    def is_password_valid(self, password):
+    def is_password_valid(self, password: str) -> bool:
         """Is the supplied password valid?"""
         return rnc_crypto.is_password_valid(password, self.hashedpw)
 
-    def force_password_change(self):
+    def force_password_change(self) -> None:
         """Make the user change their password at next login."""
         self.must_change_password = True
         self.save()
 
-    def login(self):
+    def login(self) -> None:
         """Called when the framework has determined a successful login.
 
         Clears any login failures.
@@ -356,7 +361,7 @@ class User:
         self.clear_login_failures()
         self.set_password_change_flag_if_necessary()
 
-    def set_password_change_flag_if_necessary(self):
+    def set_password_change_flag_if_necessary(self) -> None:
         """If we're requiring users to change their passwords, then check to
         see if they must do so now."""
         if self.must_change_password:
@@ -373,30 +378,30 @@ class User:
         if delta.days >= pls.PASSWORD_CHANGE_FREQUENCY_DAYS:
             self.force_password_change()
 
-    def must_agree_terms(self):
+    def must_agree_terms(self) -> bool:
         """Does the user still need to agree the terms/conditions of use?"""
         return self.when_agreed_terms_of_use is None
 
-    def agree_terms(self):
+    def agree_terms(self) -> None:
         """Mark the user as having agreed to the terms/conditions of use
         now."""
         self.when_agreed_terms_of_use = cc_dt.format_datetime(
             pls.NOW_LOCAL_TZ, DATEFORMAT.ISO8601)
         self.save()
 
-    def clear_login_failures(self):
+    def clear_login_failures(self) -> None:
         """Clear login failures."""
         if not self.user:
             return
         clear_login_failures(self.user)
 
-    def is_locked_out(self):
+    def is_locked_out(self) -> bool:
         """Is the user locked out because of multiple login failures?"""
         if not self.user:
             return False
         return is_user_locked_out(self.user)
 
-    def locked_out_until(self):
+    def locked_out_until(self) -> Optional[datetime.datetime]:
         """When is the user locked out until (or None)?
 
         Returns datetime in local timezone (or None).
@@ -405,7 +410,7 @@ class User:
             return None
         return user_locked_out_until(self.user)
 
-    def enable(self):
+    def enable(self) -> None:
         """Re-enables a user, unlocking them and clearing login failures."""
         if not self.user:
             return
@@ -416,7 +421,7 @@ class User:
 # Ancillary functions
 # =============================================================================
 
-def user_exists(username):
+def user_exists(username: str) -> bool:
     """Does the user exist?"""
     user = User(username, False)
     if user.user:
@@ -424,7 +429,7 @@ def user_exists(username):
     return False
 
 
-def create_superuser(username, password):
+def create_superuser(username: str, password: str) -> bool:
     """Create a superuser."""
     user = User(username, False)
     if user.user:
@@ -449,7 +454,9 @@ def create_superuser(username, password):
     return True
 
 
-def get_user(username, password, take_time_for_nonexistent_user=True):
+def get_user(username: str,
+             password: str,
+             take_time_for_nonexistent_user: bool = True) -> Optional[User]:
     """Retrieve a User object from the supplied username, if the password is
     correct; otherwise, return None."""
     user = User(username, False)
@@ -466,7 +473,7 @@ def get_user(username, password, take_time_for_nonexistent_user=True):
     return user
 
 
-def is_username_permissible(username):
+def is_username_permissible(username: str) -> bool:
     """Is this a permissible username?"""
     return re.match(VALID_USERNAME_REGEX, username)
 
@@ -475,7 +482,7 @@ def is_username_permissible(username):
 # User management
 # =============================================================================
 
-def get_url_edit_user(username):
+def get_url_edit_user(username: str) -> str:
     """URL to edit a specific user."""
     return (
         cc_html.get_generic_action_url(ACTION.EDIT_USER) +
@@ -483,7 +490,7 @@ def get_url_edit_user(username):
     )
 
 
-def get_url_ask_delete_user(username):
+def get_url_ask_delete_user(username: str) -> str:
     """URL to ask for confirmation to delete a specific user."""
     return (
         cc_html.get_generic_action_url(ACTION.ASK_DELETE_USER) +
@@ -491,7 +498,7 @@ def get_url_ask_delete_user(username):
     )
 
 
-def get_url_enable_user(username):
+def get_url_enable_user(username: str) -> str:
     """URL to enable a specific user."""
     return (
         cc_html.get_generic_action_url(ACTION.ENABLE_USER) +
@@ -499,8 +506,10 @@ def get_url_enable_user(username):
     )
 
 
-def enter_new_password(session, username, as_manager=False,
-                       because_password_expired=False):
+def enter_new_password(session: Session,
+                       username: str,
+                       as_manager: bool = False,
+                       because_password_expired: bool = False) -> str:
     """HTML to change password."""
     if as_manager:
         changepw = """
@@ -550,7 +559,9 @@ def enter_new_password(session, username, as_manager=False,
     ) + WEBEND
 
 
-def change_password(username, form, as_manager=False):
+def change_password(username: str,
+                    form: cgi.FieldStorage,
+                    as_manager: bool = False) -> str:
     """Change password, and return success/failure HTML."""
     user = User(username, False)
     if not user.user:
@@ -600,7 +611,7 @@ def change_password(username, form, as_manager=False):
     )
 
 
-def set_password_directly(username, password):
+def set_password_directly(username: str, password: str) -> bool:
     """If the user exists, set its password. Returns Boolean success."""
     user = User(username, False)
     if not user.user:
@@ -612,7 +623,7 @@ def set_password_directly(username, password):
     return True
 
 
-def manage_users(session):
+def manage_users(session: Session) -> str:
     """HTML to view/edit users."""
     allusers = pls.db.fetch_all_objects_from_db(User, User.TABLENAME,
                                                 User.FIELDS, True)
@@ -706,7 +717,7 @@ def manage_users(session):
     return output
 
 
-def edit_user(session, username):
+def edit_user(session: Session, username: str) -> str:
     """HTML form to edit a single user's permissions."""
     user = User(username, False)
     if not user.user:
@@ -794,7 +805,7 @@ def edit_user(session, username):
     ) + WEBEND
 
 
-def change_user(form):
+def change_user(form: cgi.FieldStorage) -> str:
     """Apply changes to a user, and return success/failure HTML."""
     username = ws.get_cgi_parameter_str(form, PARAM.USERNAME)
     may_use_webviewer = ws.get_cgi_parameter_bool(
@@ -860,7 +871,7 @@ def change_user(form):
         "Details updated for user " + user.user)
 
 
-def ask_to_add_user(session):
+def ask_to_add_user(session: Session) -> str:
     """HTML form to add a user."""
     return pls.WEBSTART + """
         {userdetails}
@@ -951,7 +962,7 @@ def ask_to_add_user(session):
     ) + WEBEND
 
 
-def add_user(form):
+def add_user(form: cgi.FieldStorage) -> str:
     """Add a user, and return HTML success/failure message."""
     username = ws.get_cgi_parameter_str(form, PARAM.USERNAME)
     password_1 = ws.get_cgi_parameter_str(form, PARAM.PASSWORD_1)
@@ -1040,7 +1051,7 @@ def add_user(form):
     return user_management_success_message("User " + user.user + " created")
 
 
-def ask_delete_user(session, username):
+def ask_delete_user(session: Session, username: str) -> str:
     """HTML form to delete a user."""
     return pls.WEBSTART + """
         {userdetails}
@@ -1060,7 +1071,7 @@ def ask_delete_user(session, username):
     ) + WEBEND
 
 
-def delete_user(username):
+def delete_user(username: str) -> str:
     """Delete a user, and return HTML success/failure message."""
     user = User(username, False)
     if not user.user:
@@ -1070,7 +1081,7 @@ def delete_user(username):
     return user_management_success_message("User " + user.user + " deleted")
 
 
-def enable_user_webview(username):
+def enable_user_webview(username: str) -> str:
     """Enable a user, and return HTML success/failure message."""
     user = User(username, False)
     if not user.user:
@@ -1079,7 +1090,9 @@ def enable_user_webview(username):
     return user_management_success_message("User " + user.user + " enabled")
 
 
-def user_management_success_message(msg, as_manager=True, additional_html=""):
+def user_management_success_message(msg: str,
+                                    as_manager: bool = True,
+                                    additional_html: str = "") -> str:
     """Generic success HTML for user management."""
     extra_html = ""
     if as_manager:
@@ -1093,7 +1106,7 @@ def user_management_success_message(msg, as_manager=True, additional_html=""):
     return cc_html.simple_success_message(msg, additional_html + extra_html)
 
 
-def user_management_failure_message(msg, as_manager=True):
+def user_management_failure_message(msg: str, as_manager: bool = True) -> str:
     """Generic failure HTML for user management."""
     extra_html = ""
     if as_manager:
@@ -1111,7 +1124,7 @@ def user_management_failure_message(msg, as_manager=True):
 # Unit testing
 # =============================================================================
 
-def unit_tests():
+def unit_tests() -> None:
     """Unit tests for cc_user module."""
     # -------------------------------------------------------------------------
     # Delayed imports (UNIT TESTING ONLY)

@@ -115,13 +115,13 @@ if __name__ == '__main__':
         if DEB:
             title("Prerequisites, from " + DEB_REQ_FILE)
             packages = get_lines_without_comments(DEB_REQ_FILE)
-            for package in packages:
-                require_deb(package)
+            for pkg in packages:
+                require_deb(pkg)
         elif RPM:
             title("Prerequisites, from " + RPM_REQ_FILE)
             packages = get_lines_without_comments(RPM_REQ_FILE)
-            for package in packages:
-                require_rpm(package)
+            for pkg in packages:
+                require_rpm(pkg)
         else:
             raise AssertionError("Not DEB, not RPM; don't know what to do")
         print('OK')

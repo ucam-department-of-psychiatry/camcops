@@ -133,6 +133,7 @@ class DiagnosisBase(object):
             })
         return fielddictlist
 
+    # noinspection PyUnusedLocal
     def get_hl7_extra_data_segments(self, recipient_def):
         segments = []
         items = self.get_items()

@@ -1,3 +1,9 @@
+camcops (1.5) all; urgency=low
+
+  * Static type checking
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Fri, 29 Jul 2016 22:13:00 +0000
+
 camcops (1.41-1) all; urgency=high
 
   * Bugfix to large research data dumps (were timing out due to inefficient

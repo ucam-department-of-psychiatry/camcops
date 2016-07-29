@@ -22,7 +22,10 @@
 """
 
 import datetime
+from typing import Any, List, Optional, Sequence, Tuple, Union
+
 import dateutil.relativedelta
+import hl7
 
 import cardinal_pythonlib.rnc_db as rnc_db
 import cardinal_pythonlib.rnc_web as ws
@@ -41,9 +44,11 @@ from . import cc_dt
 from . import cc_hl7core
 from . import cc_html
 from . import cc_namedtuples
+from .cc_namedtuples import BarePatientInfo, XmlElementTuple
 from .cc_pls import pls
 from . import cc_policy
 from . import cc_report
+from .cc_recipdef import RecipientDefinition
 from .cc_report import Report
 from . import cc_specialnote
 from .cc_unittest import unit_test_ignore
@@ -105,20 +110,20 @@ class Patient:
     FIELDS = [x["name"] for x in FIELDSPECS]
 
     @classmethod
-    def make_tables(cls, drop_superfluous_columns=False):
+    def make_tables(cls, drop_superfluous_columns: bool = False) -> None:
         """Make underlying database tables."""
         cc_db.create_standard_table(
             cls.TABLENAME, cls.FIELDSPECS,
             drop_superfluous_columns=drop_superfluous_columns)
 
-    def __init__(self, serverpk=None):
+    def __init__(self, serverpk: int = None) -> None:
         """Initialize, loading from database."""
         pls.db.fetch_object_from_db_by_pk(self, Patient.TABLENAME,
                                           Patient.FIELDS, serverpk)
         # Don't load special notes, for speed (retrieved on demand)
         self._special_notes = None
 
-    def get_xml_root(self, skip_fields=None):
+    def get_xml_root(self, skip_fields: List[str] = None) -> XmlElementTuple:
         """Get root of XML tree, as an XmlElementTuple."""
         skip_fields = skip_fields or []
         branches = cc_xml.make_xml_branches_from_fieldspecs(
@@ -128,10 +133,10 @@ class Patient:
         branches.append(cc_xml.XML_COMMENT_SPECIAL_NOTES)
         for sn in self._special_notes:
             branches.append(sn.get_xml_root())
-        return cc_namedtuples.XmlElementTuple(name=self.TABLENAME,
-                                              value=branches)
+        return XmlElementTuple(name=self.TABLENAME,
+                               value=branches)
 
-    def anonymise(self):
+    def anonymise(self) -> None:
         """Wipes the object's patient-identifiable content.
         Does NOT write to database."""
         # Save temporarily
@@ -146,7 +151,7 @@ class Patient:
             self.dob = cc_dt.format_datetime(dob,
                                              DATEFORMAT.ISO8601_DATE_ONLY)
 
-    def get_literals_for_anonymisation(self):
+    def get_literals_for_anonymisation(self) -> List[str]:
         """Return a list of strings that require removing from other fields in
         the anonymisation process."""
         address = self.address or ""  # get rid of None values
@@ -161,16 +166,17 @@ class Patient:
             self.get_idnum_array()
         )
 
-    def get_dates_for_anonymisation(self):
+    def get_dates_for_anonymisation(self) -> List[Union[datetime.date,
+                                                        datetime.datetime]]:
         """Return a list of dates/datetimes that require removing from other
         fields in the anonymisation process."""
         return [
             self.get_dob(),
         ]
 
-    def get_bare_ptinfo(self):
+    def get_bare_ptinfo(self) -> BarePatientInfo:
         """Get basic identifying information, as a BarePatientInfo."""
-        return cc_namedtuples.BarePatientInfo(
+        return BarePatientInfo(
             forename=self.forename,
             surname=self.surname,
             dob=self.dob,
@@ -178,14 +184,14 @@ class Patient:
             idnum_array=self.get_idnum_array()
         )
 
-    def get_idnum_array(self):
+    def get_idnum_array(self) -> List[Optional[int]]:
         """Return array (length NUMBER_OF_IDNUMS) containing ID numbers."""
         arr = []
         for n in range(1, NUMBER_OF_IDNUMS + 1):
             arr.append(self.get_idnum(n))
         return arr
 
-    def get_idshortdesc_array(self):
+    def get_idshortdesc_array(self) -> List[Optional[str]]:
         """Return array (length NUMBER_OF_IDNUMS) containing ID short
         descriptions."""
         arr = []
@@ -193,47 +199,47 @@ class Patient:
             arr.append(self.get_idshortdesc(n))
         return arr
 
-    def satisfies_upload_id_policy(self):
+    def satisfies_upload_id_policy(self) -> bool:
         """Does the patient satisfy the uploading ID policy?"""
         return cc_policy.satisfies_upload_id_policy(self.get_bare_ptinfo())
 
-    def satisfies_finalize_id_policy(self):
+    def satisfies_finalize_id_policy(self) -> bool:
         """Does the patient satisfy the finalizing ID policy?"""
         return cc_policy.satisfies_finalize_id_policy(self.get_bare_ptinfo())
 
-    def satisfies_id_policy(self, policy):
+    def satisfies_id_policy(self, policy: str) -> bool:
         """Does the patient satisfy a particular ID policy?"""
         return cc_policy.satisfies_id_policy(policy, self.get_bare_ptinfo())
 
-    def dump(self):
+    def dump(self) -> None:
         """Dump object to database's log."""
         rnc_db.dump_database_object(self, Patient.FIELDS)
 
-    def get_pk(self):
+    def get_pk(self) -> Optional[int]:
         return self._pk
 
-    def get_era(self):
+    def get_era(self) -> Optional[str]:
         return self._era
 
-    def get_device(self):
+    def get_device(self) -> Optional[str]:
         return self._device
 
-    def get_surname(self):
+    def get_surname(self) -> str:
         """Get surname (in upper case) or ""."""
         return self.surname.upper() if self.surname else ""
 
-    def get_forename(self):
+    def get_forename(self) -> str:
         """Get forename (in upper case) or ""."""
         return self.forename.upper() if self.forename else ""
 
-    def get_surname_forename_upper(self):
+    def get_surname_forename_upper(self) -> str:
         """Get "SURNAME, FORENAME" in HTML-safe format, using "UNKNOWN" for
         missing details."""
         s = self.surname.upper() if self.surname else "(UNKNOWN)"
         f = self.forename.upper() if self.surname else "(UNKNOWN)"
         return ws.webify(s + ", " + f)
 
-    def get_dob_html(self, longform):
+    def get_dob_html(self, longform: bool) -> str:
         """HTML fragment for date of birth."""
         if longform:
             return "<br>Date of birth: {}".format(
@@ -242,17 +248,25 @@ class Patient:
         return "DOB: {}.".format(cc_dt.format_datetime_string(
             self.dob, DATEFORMAT.SHORT_DATE))
 
-    def get_age(self, default=""):
+    def get_age(self, default: str = "") -> Union[int, str]:
         """Age (in whole years) today, or default."""
         return self.get_age_at(pls.TODAY, default=default)
 
-    def get_dob(self):
+    def get_dob(self) -> Optional[datetime.date]:
         """Date of birth, as a a timezone-naive date."""
         if self.dob is None:
             return None
         return cc_dt.get_date_from_string(self.dob)
 
-    def get_age_at(self, when, default=""):
+    def get_dob_str(self) -> Optional[str]:
+        dob_dt = self.get_dob()
+        if dob_dt is None:
+            return None
+        return cc_dt.format_datetime(dob_dt, DATEFORMAT.SHORT_DATE)
+
+    def get_age_at(self,
+                   when: Union[datetime.datetime, datetime.date],
+                   default: str = "") -> Union[int, str]:
         """Age (in whole years) at a particular date, or default.
 
         Args:
@@ -269,37 +283,41 @@ class Patient:
         # now = now.replace(tzinfo = None)
         return dateutil.relativedelta.relativedelta(when, dob).years
 
-    def get_age_at_string(self, now_string, default=""):
+    def get_age_at_string(self,
+                          now_string: str,
+                          default: str = "") -> Union[int, str]:
         """Age (in whole years) at a particular date, or default.
 
         Args:
             now_string: date/time in string format, e.g. ISO-8601
+            default: default string to use
         """
         if now_string is None:
             return default
         return self.get_age_at(cc_dt.get_datetime_from_string(now_string))
 
-    def is_female(self):
+    def is_female(self) -> bool:
         """Is sex 'F'?"""
         return self.sex == "F"
 
-    def is_male(self):
+    def is_male(self) -> bool:
         """Is sex 'M'?"""
         return self.sex == "M"
 
-    def get_sex(self):
+    def get_sex(self) -> str:
         """Return sex or ""."""
         return "" if not self.sex else self.sex
 
-    def get_sex_verbose(self, default="sex unknown"):
+    def get_sex_verbose(self, default: str = "sex unknown") -> str:
         """Returns HTML-safe version of sex, or default."""
         return default if not self.sex else ws.webify(self.sex)
 
-    def get_address(self):
+    def get_address(self) -> Optional[str]:
         """Returns address (NOT necessarily web-safe)."""
         return self.address
 
-    def get_hl7_pid_segment(self, recipient_def):
+    def get_hl7_pid_segment(self,
+                            recipient_def: RecipientDefinition) -> hl7.Segment:
         """Get HL7 patient identifier (PID) segment."""
         # Put the primary one first:
         patient_id_tuple_list = [
@@ -334,7 +352,7 @@ class Patient:
             patient_id_tuple_list=patient_id_tuple_list,
         )
 
-    def get_idnum(self, idnum):
+    def get_idnum(self, idnum: int) -> Optional[int]:
         """Get value of a specific ID number.
 
         Args:
@@ -345,29 +363,35 @@ class Patient:
         nstr = str(idnum)
         return getattr(self, "idnum" + nstr)
 
-    def get_iddesc(self, n):
+    def get_iddesc(self, n: int) -> Optional[str]:
         """Get value of a specific ID description.
 
         Args:
-            idnum: integer from 1 to NUMBER_OF_IDNUMS inclusive
+            n: integer from 1 to NUMBER_OF_IDNUMS inclusive
         """
         if n < 1 or n > NUMBER_OF_IDNUMS:
             return None
         return getattr(self, "iddesc" + str(n))
 
-    def get_idshortdesc(self, n):
+    def get_idshortdesc(self, n: int) -> Optional[str]:
         """Get value of a specific ID short description.
 
         Args:
-            idnum: integer from 1 to NUMBER_OF_IDNUMS inclusive
+            n: integer from 1 to NUMBER_OF_IDNUMS inclusive
         """
         if n < 1 or n > NUMBER_OF_IDNUMS:
             return None
         return getattr(self, "idshortdesc" + str(n))
 
     @staticmethod
-    def get_id_generic(longform, idnum, desc, shortdesc, serverdesc,
-                       servershortdesc, idnumtext, label_id_numbers=False):
+    def get_id_generic(longform: bool,
+                       idnum: int,
+                       desc: str,
+                       shortdesc: str,
+                       serverdesc: str,
+                       servershortdesc: str,
+                       idnumtext: str,
+                       label_id_numbers: bool = False) -> Tuple[bool, str]:
         """Returns (conflict, description).
 
         Gets ID description/number in HTML format, or "", plus conflict
@@ -420,12 +444,17 @@ class Patient:
                 idnum
             )
 
-    def get_idnum_conflict_and_html(self, n, longform, label_id_numbers=False):
+    def get_idnum_conflict_and_html(self,
+                                    n: int,
+                                    longform: bool,
+                                    label_id_numbers: bool = False) \
+            -> Tuple[bool, str]:
         """Returns (conflict, description HTML).
 
         Args:
             n: which ID number? From 1 to NUMBER_OF_IDNUMS inclusive.
             longform: see get_id_generic
+            label_id_numbers: whether to use prefix
         """
         if n < 1 or n > NUMBER_OF_IDNUMS:
             return False, "Invalid ID number: {}".format(n)
@@ -441,7 +470,7 @@ class Patient:
             label_id_numbers
         )
 
-    def get_idother_html(self, longform):
+    def get_idother_html(self, longform: bool) -> str:
         """Get HTML for 'other' information."""
         if not self.other:
             return ""
@@ -449,7 +478,7 @@ class Patient:
             return "<br>Other details: <b>{}</b>".format(ws.webify(self.other))
         return ws.webify(self.other)
 
-    def get_gp_html(self, longform):
+    def get_gp_html(self, longform: bool) -> str:
         """Get HTML for general practitioner details."""
         if not self.gp:
             return ""
@@ -457,7 +486,7 @@ class Patient:
             return "<br>GP: <b>{}</b>".format(ws.webify(self.gp))
         return ws.webify(self.gp)
 
-    def get_address_html(self, longform):
+    def get_address_html(self, longform: bool) -> str:
         """Get HTML for address details."""
         if not self.address:
             return ""
@@ -465,7 +494,7 @@ class Patient:
             return "<br>Address: <b>{}</b>".format(ws.webify(self.address))
         return ws.webify(self.address)
 
-    def get_html_for_page_header(self):
+    def get_html_for_page_header(self) -> str:
         """Get HTML used for PDF page header."""
         h = "<b>{}</b> ({}). {}".format(
             self.get_surname_forename_upper(),
@@ -478,7 +507,7 @@ class Patient:
         h += " " + self.get_idother_html(False)
         return h
 
-    def get_html_for_task_header(self, label_id_numbers=False):
+    def get_html_for_task_header(self, label_id_numbers: bool = False) -> str:
         """Get HTML used for patient details in tasks."""
         h = """
             <div class="patient">
@@ -511,7 +540,7 @@ class Patient:
         h += self.get_special_notes()
         return h
 
-    def get_html_for_webview_patient_column(self):
+    def get_html_for_webview_patient_column(self) -> str:
         """Get HTML for patient details in task summary view."""
         return """
             <b>{}</b> ({}, {}, aged {})
@@ -523,7 +552,7 @@ class Patient:
             self.get_age(default="?"),
         )
 
-    def get_conflict_html_for_id_col(self):
+    def get_conflict_html_for_id_col(self) -> Tuple[bool, str]:
         """Returns (conflict, html) used for patient ID column in task summary
         view."""
         h = ""
@@ -535,16 +564,16 @@ class Patient:
         h += " " + self.get_idother_html(False)
         return conflict, h
 
-    def get_url_edit_patient(self):
+    def get_url_edit_patient(self) -> str:
         url = cc_html.get_generic_action_url(ACTION.EDIT_PATIENT)
         url += cc_html.get_url_field_value_pair(PARAM.SERVERPK, self._pk)
         return url
 
-    def is_preserved(self):
+    def is_preserved(self) -> bool:
         """Is the patient record preserved and erased from the tablet?"""
         return self._pk is not None and self._era != ERA_NOW
 
-    def save(self):
+    def save(self) -> None:
         """Saves patient record back to database. UNUSUAL."""
         if self._pk is None:
             return
@@ -554,7 +583,7 @@ class Patient:
     # Audit
     # -------------------------------------------------------------------------
 
-    def audit(self, details, from_console=False):
+    def audit(self, details: str, from_console: bool = False) -> None:
         """Audits actions to this patient."""
         audit(details,
               patient_server_pk=self._pk,
@@ -566,17 +595,21 @@ class Patient:
     # Special notes
     # -------------------------------------------------------------------------
 
-    def ensure_special_notes_loaded(self):
+    def ensure_special_notes_loaded(self) -> None:
         if self._special_notes is None:
             self.load_special_notes()
 
-    def load_special_notes(self):
+    def load_special_notes(self) -> None:
         self._special_notes = cc_specialnote.SpecialNote.get_all_instances(
             Patient.TABLENAME, self.id, self._device, self._era)
         # Will now be a list (though possibly an empty one).
 
-    def apply_special_note(self, note, user, from_console=False,
-                           audit_msg="Special note applied manually"):
+    def apply_special_note(self,
+                           note: str,
+                           user: str,
+                           from_console: bool = False,
+                           audit_msg: str = "Special note applied manually") \
+            -> None:
         """Manually applies a special note to a patient.
         WRITES TO DATABASE.
         """
@@ -594,7 +627,7 @@ class Patient:
         # HL7 deletion of corresponding tasks is done in camcops.py
         self._special_notes = None   # will be reloaded if needed
 
-    def get_special_notes(self):
+    def get_special_notes(self) -> str:
         self.ensure_special_notes_loaded()
         if not self._special_notes:
             return ""
@@ -614,7 +647,9 @@ class Patient:
 # Database lookup
 # =============================================================================
 
-def get_current_version_of_patient_by_client_info(device, clientpk, era):
+def get_current_version_of_patient_by_client_info(device: str,
+                                                  clientpk: int,
+                                                  era: str) -> Patient:
     """Returns current Patient object, or None."""
     serverpk = cc_db.get_current_server_pk_by_client_info(
         Patient.TABLENAME, device, clientpk, era)
@@ -632,8 +667,10 @@ def get_current_version_of_patient_by_client_info(device, clientpk, era):
 # Thus, always complete and contemporaneous.
 
 
-def get_patient_server_pks_by_idnum(which_idnum, idnum_value,
-                                    current_only=True):
+def get_patient_server_pks_by_idnum(
+        which_idnum: int,
+        idnum_value: int,
+        current_only: bool = True) -> Sequence[int]:
     if not which_idnum or which_idnum < 1 or which_idnum > NUMBER_OF_IDNUMS:
         return []
     if idnum_value is None:
@@ -660,7 +697,8 @@ class DistinctPatientReport(Report):
                     "numbers")
     param_spec_list = []
 
-    def get_rows_descriptions(self):
+    def get_rows_descriptions(self) -> Tuple[Sequence[Sequence[Any]],
+                                             Sequence[str]]:
         # Not easy to get UTF-8 fields out of a query in the column headings!
         # So don't do SELECT idnum8 AS 'idnum8 (Addenbrooke's number)';
         # change it post hoc using cc_report.expand_id_descriptions()
@@ -693,7 +731,7 @@ class DistinctPatientReport(Report):
 # Unit tests
 # =============================================================================
 
-def unit_tests_patient(p):
+def unit_tests_patient(p: Patient) -> None:
     """Unit tests for Patient class."""
     # skip make_tables
     unit_test_ignore("", p.get_xml_root)
@@ -754,7 +792,7 @@ def unit_tests_patient(p):
     unit_test_ignore("", p.anonymise)
 
 
-def unit_tests():
+def unit_tests() -> None:
     """Unit tests for cc_patient module."""
     current_pks = pls.db.fetchallfirstvalues(
         "SELECT _pk FROM {} WHERE _current".format(Patient.TABLENAME)

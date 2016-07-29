@@ -22,10 +22,14 @@
 """
 
 import base64
+from typing import Dict, List, Optional
 import xml.sax.saxutils
+
+from cardinal_pythonlib.rnc_db import FIELDSPEC_TYPE, FIELDSPECLIST_TYPE
 
 from . import cc_db
 from . import cc_namedtuples
+from .cc_namedtuples import XmlElementTuple
 
 # =============================================================================
 # Constants
@@ -59,7 +63,10 @@ XML_IGNORE_NAMESPACES = [
 # However, they do look quite fiddly and we only want to create something
 # simple. Therefore, let's roll our own:
 
-def make_xml_branches_from_fieldspecs(obj, fieldspecs, skip_fields=None):
+def make_xml_branches_from_fieldspecs(
+        obj,
+        fieldspecs: FIELDSPECLIST_TYPE,
+        skip_fields: List[str] = None) -> List[XmlElementTuple]:
     """Returns a list of XML branches, each an XmlElementTuple, from an
     objects and the list of fieldspecs that define/describe its fields."""
     skip_fields = skip_fields or []
@@ -68,7 +75,7 @@ def make_xml_branches_from_fieldspecs(obj, fieldspecs, skip_fields=None):
         name = fs["name"]
         if name in skip_fields:
             continue
-        branches.append(cc_namedtuples.XmlElementTuple(
+        branches.append(XmlElementTuple(
             name=name,
             value=getattr(obj, name),
             datatype=get_xml_datatype_from_fieldspec(fs),
@@ -77,7 +84,9 @@ def make_xml_branches_from_fieldspecs(obj, fieldspecs, skip_fields=None):
     return branches
 
 
-def make_xml_branches_from_summaries(summaries, skip_fields=None):
+def make_xml_branches_from_summaries(
+        summaries: List[Dict],
+        skip_fields: List[str] = None) -> List[XmlElementTuple]:
     """Returns a list of XML branches, each an XmlElementTuple, from a
     list of summary data provided by a task."""
     skip_fields = skip_fields or []
@@ -95,7 +104,7 @@ def make_xml_branches_from_summaries(summaries, skip_fields=None):
     return branches
 
 
-def xml_header(eol='\n'):
+def xml_header(eol: str = '\n') -> str:
     """XML declaration header."""
     return (
         '<?xml version="1.0" encoding="UTF-8"?>{eol}'.format(
@@ -104,7 +113,7 @@ def xml_header(eol='\n'):
     )
 
 
-def get_xml_datatype_from_fieldspec(fs):
+def get_xml_datatype_from_fieldspec(fs: FIELDSPEC_TYPE) -> Optional[str]:
     """Returns the XML schema datatype from a fieldspec."""
     # http://www.xml.dvint.com/docs/SchemaDataTypesQR-2.pdf
     # http://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html
@@ -123,9 +132,11 @@ def get_xml_datatype_from_fieldspec(fs):
     return None
 
 
-def get_xml_blob_tuple(name, blobdata, comment=None):
+def get_xml_blob_tuple(name: str,
+                       blobdata: bytes,
+                       comment: str = None) -> XmlElementTuple:
     """Returns an XmlElementTuple representing a base-64-encoded BLOB."""
-    return cc_namedtuples.XmlElementTuple(
+    return XmlElementTuple(
         name=name,
         value=base64.b64encode(blobdata) if blobdata else None,
         datatype="base64Binary",
@@ -134,14 +145,14 @@ def get_xml_blob_tuple(name, blobdata, comment=None):
     # http://www.w3.org/TR/2001/REC-xmlschema-2-20010502/#base64Binary
 
 
-def xml_escape_value(value):
+def xml_escape_value(value: str) -> str:
     """Escape a value for XML."""
     # http://stackoverflow.com/questions/1091945/
     # https://wiki.python.org/moin/EscapingXml
     return xml.sax.saxutils.escape(value)
 
 
-def xml_quote_attribute(attr):
+def xml_quote_attribute(attr: str) -> str:
     """Escapes and quotes an attribute for XML.
 
     More stringent than value escaping.
@@ -149,8 +160,11 @@ def xml_quote_attribute(attr):
     return xml.sax.saxutils.quoteattr(attr)
 
 
-def get_xml_tree(element, level=0, indent_spaces=4, eol='\n',
-                 include_comments=False):
+def get_xml_tree(element: XmlElementTuple,
+                 level: int = 0,
+                 indent_spaces: int = 4,
+                 eol: str = '\n',
+                 include_comments: bool = False) -> str:
     """Returns an entire XML tree as text, given the root XmlElementTuple."""
     # We will represent NULL values with xsi:nil, but this requires a
     # namespace: http://stackoverflow.com/questions/774192
@@ -158,7 +172,7 @@ def get_xml_tree(element, level=0, indent_spaces=4, eol='\n',
     # Comments:
     # - http://blog.galasoft.ch/posts/2010/02/quick-tip-commenting-out-properties-in-xaml/  # noqa
     # - http://stackoverflow.com/questions/2073140/
-    xml = ""
+    xmltext = ""
     prefix = ' ' * level * indent_spaces
 
     if isinstance(element, cc_namedtuples.XmlElementTuple):
@@ -183,7 +197,7 @@ def get_xml_tree(element, level=0, indent_spaces=4, eol='\n',
         # Assemble
         if element.value is None:
             # NULL handling
-            xml += '{pr}<{name}{attributes} xsi:nil="true"/>{eol}'.format(
+            xmltext += '{pr}<{name}{attributes} xsi:nil="true"/>{eol}'.format(
                 name=element.name,
                 pr=prefix,
                 eol=eol,
@@ -200,7 +214,7 @@ def get_xml_tree(element, level=0, indent_spaces=4, eol='\n',
             # raw XML.
             nl = eol if complex_value else ""
             pr2 = prefix if complex_value else ""
-            xml += (
+            xmltext += (
                 '{pr}<{name}{attributes}>{nl}'
                 '{value}{pr2}</{name}>{eol}'.format(
                     name=element.name,
@@ -221,25 +235,30 @@ def get_xml_tree(element, level=0, indent_spaces=4, eol='\n',
 
     elif isinstance(element, list):
         for subelement in element:
-            xml += get_xml_tree(subelement, level, indent_spaces=indent_spaces,
-                                eol=eol, include_comments=include_comments)
+            xmltext += get_xml_tree(subelement, level,
+                                    indent_spaces=indent_spaces,
+                                    eol=eol,
+                                    include_comments=include_comments)
         # recursive
 
     elif isinstance(element, cc_namedtuples.XmlSimpleValue):
         # The lowest-level thing a value. No extra indent.
-        xml += xml_escape_value(str(element.value))
+        xmltext += xml_escape_value(str(element.value))
         # Regarding newlines: no need to do anything special (although some
         # browsers may fail to display them correctly):
         # http://stackoverflow.com/questions/2004386
 
     else:
         # A user-inserted piece of XML. Insert, but indent.
-        xml += prefix + str(element) + eol
+        xmltext += prefix + str(element) + eol
 
-    return xml
+    return xmltext
 
 
-def get_xml_document(root, indent_spaces=4, eol='\n', include_comments=False):
+def get_xml_document(root: XmlElementTuple,
+                     indent_spaces: int = 4,
+                     eol: str = '\n',
+                     include_comments: bool = False) -> str:
     """Returns an entire XML document as text, given the root
     XmlElementTuple."""
     if not isinstance(root, cc_namedtuples.XmlElementTuple):

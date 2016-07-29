@@ -22,6 +22,7 @@
 """
 
 import glob
+from typing import List, Tuple
 import xml.etree.cElementTree as ElementTree
 # ... cElementTree is a faster implementation
 # ... http://docs.python.org/2/library/xml.etree.elementtree.html
@@ -38,7 +39,7 @@ from . import cc_pls
 # Localization strings
 # =============================================================================
 
-def cache_strings():
+def cache_strings() -> None:
     """
     Caches strings from the main XML string file.
     The string file looks like this:
@@ -64,19 +65,19 @@ def cache_strings():
         cc_pls.pls.stringDict[e.attrib.get("name")] = unescape_newlines(e.text)
 
 
-def LSTRING(stringname):  # equivalent of Titanium's L()
+def LSTRING(stringname: str) -> str:  # equivalent of Titanium's L()
     """Looks up a string from the XML string file."""
     cache_strings()
     return cc_pls.pls.stringDict.get(stringname,
                                      "XML_STRING_NOT_FOUND_" + stringname)
 
 
-def WSTRING(stringname):
+def WSTRING(stringname: str) -> str:
     """Returns a web-safe version of a string from the XML string file."""
     return ws.webify(LSTRING(stringname))
 
 
-def cache_extra_strings():
+def cache_extra_strings() -> None:
     """
     Caches strings from the all the extra XML string files.
     The extra string files look like this:
@@ -121,7 +122,10 @@ def cache_extra_strings():
                 )
 
 
-def XSTRING(taskname, stringname, default=None, provide_default_if_none=True):
+def XSTRING(taskname: str,
+            stringname: str,
+            default: str = None,
+            provide_default_if_none: bool = True) -> Optional[str]:
     """Looks up a string from one of the optional extra XML string files."""
     if default is None and provide_default_if_none:
         default = "EXTRA_STRING_NOT_FOUND({}.{})".format(taskname, stringname)
@@ -131,7 +135,10 @@ def XSTRING(taskname, stringname, default=None, provide_default_if_none=True):
     return cc_pls.pls.extraStringDicts[taskname].get(stringname, default)
 
 
-def WXSTRING(taskname, stringname, default=None, provide_default_if_none=True):
+def WXSTRING(taskname: str,
+             stringname: str,
+             default: str = None,
+             provide_default_if_none: bool = True) -> str:
     """Returns a web-safe version of an XSTRING (see above)."""
     value = XSTRING(taskname, stringname, default,
                     provide_default_if_none=provide_default_if_none)
@@ -140,7 +147,7 @@ def WXSTRING(taskname, stringname, default=None, provide_default_if_none=True):
     return ws.webify(value)
 
 
-def get_all_extra_strings():
+def get_all_extra_strings() -> List[Tuple[str, str, str]]:
     """Returns all extra strings, as a list of (task, name, value) tuples."""
     cache_extra_strings()
     rows = []
@@ -150,7 +157,7 @@ def get_all_extra_strings():
     return rows
 
 
-def task_extrastrings_exist(taskname):
+def task_extrastrings_exist(taskname: str) -> bool:
     """Has the server been supplied with extra strings for a specific task?"""
     cache_extra_strings()
     return taskname in cc_pls.pls.extraStringDicts

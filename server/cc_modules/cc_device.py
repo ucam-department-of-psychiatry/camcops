@@ -21,6 +21,8 @@
     limitations under the License.
 """
 
+from typing import Any, Sequence, Tuple
+
 import cardinal_pythonlib.rnc_web as ws
 
 from .cc_constants import PARAM
@@ -63,34 +65,34 @@ class Device(object):
     FIELDS = [x["name"] for x in FIELDSPECS]
 
     @classmethod
-    def make_tables(cls, drop_superfluous_columns=False):
+    def make_tables(cls, drop_superfluous_columns: bool = False) -> None:
         """Create underlying database tables."""
         cc_db.create_or_update_table(
             cls.TABLENAME, cls.FIELDSPECS,
             drop_superfluous_columns=drop_superfluous_columns)
 
-    def __init__(self, devicename=None):
+    def __init__(self, devicename: str = None) -> None:
         """Initializes, reading from database if necessary."""
         pls.db.fetch_object_from_db_by_pk(self, Device.TABLENAME,
                                           Device.FIELDS, devicename)
 
-    def get_friendly_name(self):
+    def get_friendly_name(self) -> str:
         """Get device friendly name (or failing that, device name)."""
         if self.friendly_name is None:
             return self.device
         return self.friendly_name
 
-    def get_friendly_name_and_id(self):
+    def get_friendly_name_and_id(self) -> str:
         """Get device ID with friendly name (or failing that, device name)."""
         if self.friendly_name is None:
             return self.device
         return "{} ({})".format(self.device, self.friendly_name)
 
-    def get_id(self):
+    def get_id(self) -> str:
         """Get device ID."""
         return self.device
 
-    def is_valid(self):
+    def is_valid(self) -> bool:
         """Valid device (having been instantiated with Device(device_id), i.e.
         is it in the database?"""
         return self.device is not None
@@ -100,7 +102,7 @@ class Device(object):
 # Support functions
 # =============================================================================
 
-def get_device_filter_dropdown(currently_selected=None):
+def get_device_filter_dropdown(currently_selected: str = None) -> str:
     """Get HTML list of all known tablet devices."""
     s = """
         <select name="{}">
@@ -130,7 +132,8 @@ class DeviceReport(Report):
     report_title = "(Server) Devices registered with the server"
     param_spec_list = []
 
-    def get_rows_descriptions(self):
+    def get_rows_descriptions(self) -> Tuple[Sequence[Sequence[Any]],
+                                             Sequence[str]]:
         sql = """
             SELECT
                 device,
@@ -152,7 +155,7 @@ class DeviceReport(Report):
 # Unit tests
 # =============================================================================
 
-def unit_tests_device(d):
+def unit_tests_device(d: Device) -> None:
     """Unit tests for Device class."""
     # skip make_tables
     unit_test_ignore("", d.get_friendly_name)
@@ -160,7 +163,7 @@ def unit_tests_device(d):
     unit_test_ignore("", d.get_id)
 
 
-def unit_tests():
+def unit_tests() -> None:
     """Unit tests for cc_device module."""
     current_pks = pls.db.fetchallfirstvalues(
         "SELECT device FROM {}".format(Device.TABLENAME)

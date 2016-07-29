@@ -95,7 +95,7 @@ class Bprse(Task):
         return self.sum_fields(self.TASK_FIELDS)
 
     def get_task_html(self):
-        MAIN_DICT = {
+        main_dict = {
             None: None,
             0: "0 — " + WSTRING("bprsold_option0"),
             1: "1 — " + WSTRING("bprsold_option1"),
@@ -129,7 +129,7 @@ class Bprse(Task):
         for i in range(1, self.NQUESTIONS + 1):
             h += tr_qa(
                 WSTRING("bprse_q" + str(i) + "_s"),
-                get_from_dict(MAIN_DICT, getattr(self, "q" + str(i)))
+                get_from_dict(main_dict, getattr(self, "q" + str(i)))
             )
         h += """
             </table>

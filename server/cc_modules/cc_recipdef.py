@@ -22,6 +22,8 @@
 """
 
 import configparser
+import datetime
+from typing import List, Optional
 
 import cardinal_pythonlib.rnc_db as rnc_db
 from cardinal_pythonlib.rnc_lang import AttrDict
@@ -104,7 +106,7 @@ class RecipientDefinition(object):
     # ... fieldspecs are actually used by HL7Run class
     FIELDS = [x["name"] for x in FIELDSPECS]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """Initialize. Possible methods:
 
             RecipientDefinition()
@@ -250,10 +252,10 @@ class RecipientDefinition(object):
             self.valid = False
 
     @staticmethod
-    def report_error(msg):
+    def report_error(msg) -> None:
         log.error("RecipientDefinition: {}".format(msg))
 
-    def check_valid(self):
+    def check_valid(self) -> None:
         """Performs validity check and sets self.valid"""
         self.valid = False
         if self.type not in RECIPIENT_TYPE.values():
@@ -356,15 +358,15 @@ class RecipientDefinition(object):
         # Done
         self.valid = True
 
-    def using_hl7(self):
+    def using_hl7(self) -> bool:
         """Is the recipient an HL7 recipient?"""
         return self.type == RECIPIENT_TYPE.HL7
 
-    def using_file(self):
+    def using_file(self) -> bool:
         """Is the recipient a filestore?"""
         return self.type == RECIPIENT_TYPE.FILE
 
-    def get_id_type(self, idnum):
+    def get_id_type(self, idnum: int) -> str:
         """Get HL7 ID type for a specific ID number.
 
         Args:
@@ -374,7 +376,7 @@ class RecipientDefinition(object):
             return None
         return self.idnum_type_list[idnum - 1]
 
-    def get_id_aa(self, idnum):
+    def get_id_aa(self, idnum: int) -> str:
         """Get HL7 ID type for a specific ID number.
 
         Args:
@@ -384,10 +386,17 @@ class RecipientDefinition(object):
             return None
         return self.idnum_aa_list[idnum - 1]
 
-    def get_filename(self, is_anonymous=False, surname=None, forename=None,
-                     dob=None, sex=None, idnums=[None]*NUMBER_OF_IDNUMS,
-                     idshortdescs=[""]*NUMBER_OF_IDNUMS,
-                     creation_datetime=None, basetable=None, serverpk=None):
+    def get_filename(self,
+                     is_anonymous: bool = False,
+                     surname: str = None,
+                     forename: str = None,
+                     dob: datetime.datetime = None,
+                     sex: str = None,
+                     idnums: List[Optional[int]] = [None]*NUMBER_OF_IDNUMS,
+                     idshortdescs: List[str] = [""]*NUMBER_OF_IDNUMS,
+                     creation_datetime: datetime.datetime = None,
+                     basetable: str = None,
+                     serverpk: int = None) -> str:
         """Get filename, for file transfers."""
         return cc_filename.get_export_filename(
             self.patient_spec_if_anonymous,

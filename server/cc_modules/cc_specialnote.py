@@ -21,11 +21,13 @@
     limitations under the License.
 """
 
+from typing import List
+
 import cardinal_pythonlib.rnc_web as ws
 
 from .cc_constants import ISO8601_STRING_LENGTH
 from . import cc_db
-from . import cc_namedtuples
+from .cc_namedtuples import XmlElementTuple
 from .cc_pls import pls
 from . import cc_xml
 
@@ -33,6 +35,9 @@ from . import cc_xml
 # =============================================================================
 # SpecialNote class
 # =============================================================================
+
+SPECIALNOTE_FWD_REF = "SpecialNote"
+
 
 class SpecialNote(object):
     """Represents a special note, attached server-side to a task.
@@ -67,23 +72,23 @@ class SpecialNote(object):
     FIELDS = [x["name"] for x in FIELDSPECS]
 
     @classmethod
-    def make_tables(cls, drop_superfluous_columns=False):
+    def make_tables(cls, drop_superfluous_columns: bool = False) -> None:
         """Create underlying database tables."""
         cc_db.create_or_update_table(
             cls.TABLENAME, cls.FIELDSPECS,
             drop_superfluous_columns=drop_superfluous_columns)
 
-    def __init__(self, note_id=None):
+    def __init__(self, note_id: int = None) -> None:
         """Initializes, reading from database if necessary."""
         pls.db.fetch_object_from_db_by_pk(self, SpecialNote.TABLENAME,
                                           SpecialNote.FIELDS, note_id)
 
-    def save(self):
+    def save(self) -> None:
         """Saves note to database. """
         pls.db.save_object_to_db(self, self.TABLENAME, self.FIELDS,
                                  self.note_id is None)
 
-    def get_note_as_string(self):
+    def get_note_as_string(self) -> str:
         """Return a string-formatted version of the note."""
         return "[{dt}, {user}]\n{note}".format(
             dt=self.note_at or "?",
@@ -91,7 +96,7 @@ class SpecialNote(object):
             note=self.note or "",
         )
 
-    def get_note_as_html(self):
+    def get_note_as_html(self) -> str:
         """Return an HTML-formatted version of the note."""
         return "[{dt}, {user}]<br><b>{note}</b>".format(
             dt=self.note_at or "?",
@@ -99,16 +104,19 @@ class SpecialNote(object):
             note=ws.webify(self.note) or "",
         )
 
-    def get_xml_root(self, skip_fields=None):
+    def get_xml_root(self, skip_fields: List[str] = None) -> XmlElementTuple:
         """Get root of XML tree, as an XmlElementTuple."""
         skip_fields = skip_fields or []
         branches = cc_xml.make_xml_branches_from_fieldspecs(
             self, self.FIELDSPECS, skip_fields=skip_fields)
-        return cc_namedtuples.XmlElementTuple(name=self.TABLENAME,
-                                              value=branches)
+        return XmlElementTuple(name=self.TABLENAME, value=branches)
 
     @classmethod
-    def get_all_instances(cls, basetable, task_id, device, era):
+    def get_all_instances(cls,
+                          basetable: str,
+                          task_id: int,
+                          device: str,
+                          era: str) -> List[SPECIALNOTE_FWD_REF]:
         """Return all SpecialNote objects applicable to a task."""
         wheredict = dict(
             basetable=basetable,

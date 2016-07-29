@@ -58,9 +58,15 @@ SECURITY_AUDIT_FIELDSPECS = [
 # Audit function
 # =============================================================================
 
-def audit(details, patient_server_pk=None, table=None, server_pk=None,
-          device=None, remote_addr=None, user=None,
-          from_console=False, from_dbclient=False):
+def audit(details: str,
+          patient_server_pk: int = None,
+          table: str = None,
+          server_pk: int = None,
+          device: str = None,
+          remote_addr: str = None,
+          user: str = None,
+          from_console: bool = False,
+          from_dbclient: bool = False) -> None:
     """Write an entry to the audit log."""
     if not remote_addr:
         remote_addr = pls.session.ip_address if pls.session else None

@@ -23,10 +23,12 @@
 
 import io
 import tokenize
+from typing import List, Optional, Tuple
 
 from .cc_constants import NUMBER_OF_IDNUMS
 # from cc_logger import log
 from . import cc_namedtuples
+from .cc_namedtuples import BarePatientInfo
 from .cc_unittest import unit_test_ignore
 
 # =============================================================================
@@ -55,8 +57,8 @@ POLICY_TOKEN_DICT = {
     "DOB": TK_DOB,
     "SEX": TK_SEX
 }
-for n in range(1, NUMBER_OF_IDNUMS + 1):
-    POLICY_TOKEN_DICT["IDNUM" + str(n)] = TK_IDNUM_BASE + n
+for n_ in range(1, NUMBER_OF_IDNUMS + 1):
+    POLICY_TOKEN_DICT["IDNUM" + str(n_)] = TK_IDNUM_BASE + n_
 
 ID_POLICY_UPLOAD_TOKENIZED = None
 ID_POLICY_FINALIZE_TOKENIZED = None
@@ -75,7 +77,7 @@ FINALIZE_POLICY_PRINCIPAL_NUMERIC_ID = None
 # Patient ID policy functions: specific
 # =============================================================================
 
-def tokenize_upload_id_policy(policy):
+def tokenize_upload_id_policy(policy: str) -> None:
     """Takes a policy, as a string, and writes it in tokenized format to the
     internal uploading policy."""
     global ID_POLICY_UPLOAD_TOKENIZED
@@ -97,7 +99,7 @@ def tokenize_upload_id_policy(policy):
             find_critical_single_numerical_id(ID_POLICY_UPLOAD_TOKENIZED)
 
 
-def tokenize_finalize_id_policy(policy):
+def tokenize_finalize_id_policy(policy: str) -> None:
     """Takes a policy, as a string, and writes it in tokenized format to the
     internal finalizing policy."""
     global ID_POLICY_FINALIZE_TOKENIZED
@@ -119,7 +121,7 @@ def tokenize_finalize_id_policy(policy):
             find_critical_single_numerical_id(ID_POLICY_FINALIZE_TOKENIZED)
 
 
-def is_idnum_mandatory_in_upload_policy(idnum):
+def is_idnum_mandatory_in_upload_policy(idnum: int) -> bool:
     """Is the ID number mandatory in the upload policy?"""
     return is_idnum_mandatory_in_policy(
         idnum,
@@ -127,7 +129,7 @@ def is_idnum_mandatory_in_upload_policy(idnum):
     )
 
 
-def is_idnum_mandatory_in_finalize_policy(idnum):
+def is_idnum_mandatory_in_finalize_policy(idnum: int) -> bool:
     """Is the ID number mandatory in the finalizing policy?"""
     return is_idnum_mandatory_in_policy(
         idnum,
@@ -135,46 +137,42 @@ def is_idnum_mandatory_in_finalize_policy(idnum):
     )
 
 
-def upload_id_policy_valid():
+def upload_id_policy_valid() -> bool:
     """Is the tokenized upload ID policy valid?"""
     return ID_POLICY_UPLOAD_TOKENIZED is not None
 
 
-def finalize_id_policy_valid():
+def finalize_id_policy_valid() -> bool:
     """Is the tokenized finalizing ID policy valid?"""
     return ID_POLICY_FINALIZE_TOKENIZED is not None
 
 
-def id_policies_valid():
+def id_policies_valid() -> bool:
     """Are all ID policies tokenized and valid?"""
     return upload_id_policy_valid() and finalize_id_policy_valid()
 
 
-def get_upload_id_policy_principal_numeric_id():
+def get_upload_id_policy_principal_numeric_id() -> Optional[int]:
     """Returns the single critical ID number in the upload policy, or None."""
     return UPLOAD_POLICY_PRINCIPAL_NUMERIC_ID
 
 
-def get_finalize_id_policy_principal_numeric_id():
+def get_finalize_id_policy_principal_numeric_id() -> Optional[int]:
     """Returns the single critical ID number in the finalizing policy, or
     None."""
     return FINALIZE_POLICY_PRINCIPAL_NUMERIC_ID
 
 
-def satisfies_upload_id_policy(ptinfo):
+def satisfies_upload_id_policy(ptinfo: BarePatientInfo) -> bool:
     """Does the patient information in ptinfo satisfy the upload ID policy?
-
-    ptinfo is an instance of cc_namedtuples.BarePatientInfo
     """
     if ID_POLICY_UPLOAD_TOKENIZED is None:
         return False
     return satisfies_id_policy(ID_POLICY_UPLOAD_TOKENIZED, ptinfo)
 
 
-def satisfies_finalize_id_policy(ptinfo):
+def satisfies_finalize_id_policy(ptinfo: BarePatientInfo) -> bool:
     """Does the patient information in ptinfo satisfy the finalizing ID policy?
-
-    ptinfo is an instance of cc_namedtuples.BarePatientInfo
     """
     if ID_POLICY_FINALIZE_TOKENIZED is None:
         return False
@@ -185,18 +183,22 @@ def satisfies_finalize_id_policy(ptinfo):
 # Patient ID policy functions: generic
 # =============================================================================
 
-def get_tokenized_id_policy(policy):
+TOKEN_TYPE = int
+TOKENIZED_POLICY_TYPE = List[TOKEN_TYPE]
+
+
+def get_tokenized_id_policy(policy: str) -> Optional[TOKENIZED_POLICY_TYPE]:
     """Takes a string policy and returns a tokenized policy, or None."""
     if policy is None:
         return None
     # http://stackoverflow.com/questions/88613
-    STRING = 1
+    string_index = 1
     try:
         tokenstrings = list(
-            token[STRING]
+            token[string_index]
             for token in tokenize.generate_tokens(
                 io.StringIO(policy.upper()).readline)
-            if token[STRING]
+            if token[string_index]
         )
     except tokenize.TokenError:
         # something went wrong
@@ -207,7 +209,8 @@ def get_tokenized_id_policy(policy):
     return [POLICY_TOKEN_DICT[k] for k in tokenstrings]
 
 
-def find_critical_single_numerical_id(tokenized_policy):
+def find_critical_single_numerical_id(
+        tokenized_policy: Optional[TOKENIZED_POLICY_TYPE]) -> Optional[int]:
     """If the policy involves a single mandatory ID number, return that ID
     number; otherwise return None."""
     # This method is a bit silly, but it should work.
@@ -236,7 +239,9 @@ def find_critical_single_numerical_id(tokenized_policy):
         # one ID number satisfies the requirement.
 
 
-def is_idnum_mandatory_in_policy(idnum, tokenized_policy):
+def is_idnum_mandatory_in_policy(
+        idnum: int,
+        tokenized_policy: TOKENIZED_POLICY_TYPE) -> bool:
     """Is the ID number mandatory in the specified policy?"""
     if idnum is None or idnum < 1 or idnum > NUMBER_OF_IDNUMS:
         return False
@@ -256,16 +261,15 @@ def is_idnum_mandatory_in_policy(idnum, tokenized_policy):
     return True
 
 
-def satisfies_id_policy(policy, ptinfo):
+def satisfies_id_policy(policy: str, ptinfo: BarePatientInfo) -> bool:
     """Does the patient information in ptinfo satisfy the specified ID policy?
-
-    ptinfo is an instance of cc_namedtuples.BarePatientInfo
     """
     return id_policy_chunk(policy, ptinfo)
     # ... which is recursive
 
 
-def id_policy_chunk(policy, ptinfo):
+def id_policy_chunk(policy: TOKENIZED_POLICY_TYPE,
+                    ptinfo: BarePatientInfo) -> bool:
     """Applies the policy to the patient info in ptinfo.
 
     Args:
@@ -317,7 +321,9 @@ def id_policy_chunk(policy, ptinfo):
     return value
 
 
-def id_policy_content(policy, ptinfo, start):
+def id_policy_content(policy: TOKENIZED_POLICY_TYPE,
+                      ptinfo: BarePatientInfo,
+                      start: int) -> Tuple[bool, int]:
     """Applies part of a policy to ptinfo. Called by id_policy_chunk (q.v.)."""
     if start >= len(policy):
         return None, start
@@ -348,7 +354,8 @@ def id_policy_content(policy, ptinfo, start):
         return id_policy_element(ptinfo, token), start + 1
 
 
-def id_policy_op(policy, start):
+def id_policy_op(policy: TOKENIZED_POLICY_TYPE, start: int) \
+        -> Tuple[Optional[TOKEN_TYPE], int]:
     """Returns an operator from the policy, or None."""
     if start >= len(policy):
         return None, start
@@ -360,7 +367,8 @@ def id_policy_op(policy, start):
         return None, start
 
 
-def id_policy_element(ptinfo, token):
+def id_policy_element(ptinfo: BarePatientInfo, token: TOKEN_TYPE) \
+        -> Optional[bool]:
     """Returns a Boolean corresponding to whether the token's information is
     present in the ptinfo."""
     if token == TK_FORENAME:
@@ -382,7 +390,7 @@ def id_policy_element(ptinfo, token):
 # Unit tests
 # =============================================================================
 
-def unit_tests():
+def unit_tests() -> None:
     """Unit tests for cc_policy module."""
     test_policies = [
         "",

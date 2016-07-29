@@ -35,6 +35,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import logging
+from typing import Dict, Optional
 
 import cardinal_pythonlib.rnc_db as rnc_db
 import cardinal_pythonlib.rnc_pdf as rnc_pdf
@@ -99,7 +100,7 @@ class LocalStorage(object):
     """Process-local storage class. One instance per process. Persists across
     sessions thanks to mod_wsgi."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize with blank values."""
         self.ALLOW_INSECURE_COOKIES = False
         self.ALLOW_MOBILEWEB = False
@@ -165,7 +166,7 @@ class LocalStorage(object):
         self.WEBVIEW_LOGLEVEL = logging.INFO
         self.WKHTMLTOPDF_FILENAME = None
 
-    def get_id_desc(self, n):
+    def get_id_desc(self, n: int) -> Optional[str]:
         """Get server's ID description.
 
         Args:
@@ -175,7 +176,7 @@ class LocalStorage(object):
             return None
         return self.IDDESC[n - 1]
 
-    def get_id_shortdesc(self, n):
+    def get_id_shortdesc(self, n: int) -> Optional[str]:
         """Get server's short ID description.
 
         Args:
@@ -185,15 +186,15 @@ class LocalStorage(object):
             return None
         return self.IDSHORTDESC[n - 1]
 
-    def switch_output_to_png(self):
+    def switch_output_to_png(self) -> None:
         """Switch server to producing figures in PNG."""
         self.useSVG = False
 
-    def switch_output_to_svg(self):
+    def switch_output_to_svg(self) -> None:
         """Switch server to producing figures in SVG."""
         self.useSVG = True
 
-    def set_always(self, environ):
+    def set_always(self, environ: Dict) -> None:
         """Set the things we set every time the script is invoked (time!)."""
 
         # ---------------------------------------------------------------------
@@ -254,7 +255,7 @@ class LocalStorage(object):
 
         self.SCRIPT_PUBLIC_URL_ESCAPED = escape(url)
 
-    def set(self, environ):
+    def set(self, environ: Dict) -> None:
         """Set all variables from environment and thus config file."""
 
         self.set_always(environ)
@@ -367,11 +368,11 @@ class LocalStorage(object):
 
         self.SEND_ANALYTICS = get_config_parameter_boolean(
             config, section, "SEND_ANALYTICS", True)
-        SESSION_TIMEOUT_MINUTES = get_config_parameter(
+        session_timeout_minutes = get_config_parameter(
             config, section, "SESSION_TIMEOUT_MINUTES",
             int, DEFAULT_TIMEOUT_MINUTES)
         self.SESSION_TIMEOUT = datetime.timedelta(
-            minutes=SESSION_TIMEOUT_MINUTES)
+            minutes=session_timeout_minutes)
         self.SUMMARY_TABLES_LOCKFILE = get_config_parameter(
             config, section, "SUMMARY_TABLES_LOCKFILE", str, None)
 
@@ -629,7 +630,7 @@ class LocalStorage(object):
         # ---------------------------------------------------------------------
         self.PERSISTENT_CONSTANTS_INITIALIZED = True
 
-    def set_from_environ_and_ping_db(self, environ):
+    def set_from_environ_and_ping_db(self, environ: Dict) -> None:
         """Set up process-local storage from the incoming environment (which
         may be very fast if already cached) and ensure we have an active
         database connection."""
@@ -648,7 +649,7 @@ class LocalStorage(object):
         #   http://stackoverflow.com/questions/2582506
         self.db.ping()
 
-    def get_anonymisation_database(self):
+    def get_anonymisation_database(self) -> rnc_db.DatabaseSupporter:
         """Open the anonymisation staging database. That is not performance-
         critical and the connection does not need to be cached. Will raise
         an exception upon a connection error."""

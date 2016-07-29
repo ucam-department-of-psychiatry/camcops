@@ -39,13 +39,23 @@ import datetime
 import operator
 import re
 import statistics
+import typing
+from typing import (Any, Dict, Iterable, Iterator, List, Optional, Sequence,
+                    Tuple, Type, Union)
 
 import cardinal_pythonlib.rnc_db as rnc_db
+from cardinal_pythonlib.rnc_db import (
+    DatabaseSupporter,
+    FIELDSPEC_TYPE,
+    FIELDSPECLIST_TYPE,
+)
 import cardinal_pythonlib.rnc_pdf as rnc_pdf
 import cardinal_pythonlib.rnc_web as ws
+import hl7
 
 from .cc_audit import audit
 from . import cc_blob
+from .cc_blob import Blob
 from .cc_constants import (
     ACTION,
     ANON_PATIENT,
@@ -91,11 +101,13 @@ from . import cc_html
 from . import cc_lang
 from .cc_logger import log
 from . import cc_namedtuples
+from .cc_namedtuples import XmlElementTuple
 from . import cc_patient
 from . import cc_plot
 from .cc_pls import pls
-from . import cc_recipdef
+from .cc_recipdef import RecipientDefinition
 from .cc_report import Report
+from .cc_session import Session
 from . import cc_specialnote
 from .cc_string import task_extrastrings_exist, WSTRING, WXSTRING
 from .cc_unittest import (
@@ -110,148 +122,15 @@ from . import cc_version
 from . import cc_xml
 
 
-# =============================================================================
-# Task factory
-# =============================================================================
-
-def TaskFactory(basetable, serverpk):
-    """Make a task, or return None.
-
-    Args:
-        basetable: string
-        serverpk: integer
-    """
-    for cls in Task.__subclasses__():
-        if basetable == cls.tablename:
-            return cls(serverpk)
-    return None
-    # raise ValueError, "Could not find a task for table {}".format(basetable)
-
-
-# =============================================================================
-# Cross-class generators and the like
-# =============================================================================
-
-def gen_tasks_matching_session_filter(session):
-    """Generate tasks that match the session's filter settings."""
-
-    # Find candidate tasks meeting the filters
-    cls_pk_wc = []
-    for cls in Task.__subclasses__():
-        if cls.filter_allows_task_type(session):
-            pk_wc = cls.get_session_candidate_task_pks_whencreated(session)
-            cls_pk_wc.extend([(cls, row[0], row[1]) for row in pk_wc])
-    # Sort by when_created (conjointly across task classes)
-    cls_pk_wc = sorted(cls_pk_wc, key=operator.itemgetter(2), reverse=True)
-    # Yield those that really do match the filter
-    for cls, pk, wc in cls_pk_wc:
-        task = cls(pk)
-        if task is not None and task.is_compatible_with_filter(session):
-            yield task
-
-
-def gen_tasks_live_on_tablet(device_id):
-    """Generate tasks that are live on the device.
-    Includes non-current ones."""
-
-    cls_pk_wc = []
-    for cls in Task.__subclasses__():
-        table = cls.tablename
-        wcfield_utc = cls.whencreated_fieldexpr_as_utc()
-        query = """
-            SELECT  _pk, {wcfield_utc}
-            FROM    {t}
-            WHERE   _era = ?
-            AND     _device = ?
-        """.format(
-            wcfield_utc=wcfield_utc,
-            t=table,
-        )
-        args = [ERA_NOW, device_id]
-        pk_wc = pls.db.fetchall(query, *args)
-        cls_pk_wc.extend([(cls, row[0], row[1]) for row in pk_wc])
-    # Sort by when_created (conjointly across task classes)
-    cls_pk_wc = sorted(cls_pk_wc, key=operator.itemgetter(2), reverse=True)
-    # Yield them up
-    for cls, pk, wc in cls_pk_wc:
-        task = cls(pk)
-        if task is not None:
-            yield task
-
-
-def gen_tasks_using_patient(patient_id, device_id, era):
-    """Generate tasks sharing a particular patient record.
-    Includes non-current ones."""
-
-    cls_pk_wc = []
-    for cls in Task.__subclasses__():
-        if cls.is_anonymous:
-            continue
-        table = cls.tablename
-        wcfield_utc = cls.whencreated_fieldexpr_as_utc()
-        query = """
-            SELECT  _pk, {wcfield_utc}
-            FROM    {t}
-            WHERE   patient_id = ?
-            AND     _device = ?
-            AND     _era = ?
-        """.format(
-            wcfield_utc=wcfield_utc,
-            t=table,
-        )
-        args = [
-            patient_id,
-            device_id,
-            era
-        ]
-        pk_wc = pls.db.fetchall(query, *args)
-        cls_pk_wc.extend([(cls, row[0], row[1]) for row in pk_wc])
-    # Sort by when_created (conjointly across task classes)
-    cls_pk_wc = sorted(cls_pk_wc, key=operator.itemgetter(2), reverse=True)
-    # Yield them up
-    for cls, pk, wc in cls_pk_wc:
-        task = cls(pk)
-        if task is not None:
-            yield task
-
-
-def gen_tasks_for_patient_deletion(which_idnum, idnum_value):
-    """Generate tasks to be affected by a delete-patient command."""
-
-    cls_pk_wc = []
-    for cls in Task.__subclasses__():
-        if cls.is_anonymous:
-            continue
-        pk_wc = cls.get_task_pks_wc_for_patient_deletion(which_idnum,
-                                                         idnum_value)
-        cls_pk_wc.extend([(cls, row[0], row[1]) for row in pk_wc])
-    # Sort by when_created (conjointly across task classes)
-    cls_pk_wc = sorted(cls_pk_wc, key=operator.itemgetter(2), reverse=True)
-    # Yield them up
-    for cls, pk, wc in cls_pk_wc:
-        task = cls(pk)
-        if task is not None:
-            yield task
-
-
-# =============================================================================
-# Tables used by tasks suitable for HL-7 export (i.e. not anonymous ones)
-# =============================================================================
-
-def get_base_tables(include_anonymous=True):
-    """Get a list of all tasks' base tables."""
-    return [
-        cls.tablename
-        for cls in Task.__subclasses__()
-        if (not cls.is_anonymous or include_anonymous)
-    ]
+ANCILLARY_FWD_REF = "Ancillary"
+TASK_FWD_REF = "Task"
 
 
 # =============================================================================
 # For anonymisation
 # =============================================================================
 
-def get_literal_regex(x):
+def get_literal_regex(x: str) -> typing.re.Pattern:
     """Regex for anonymisation. Literal at word boundaries."""
     # http://stackoverflow.com/questions/919056
     wb = "\\b"  # word boundary; escape the slash
@@ -262,7 +141,7 @@ def get_literal_regex(x):
 # For anonymisation staging database
 # =============================================================================
 
-def get_type_size_as_text_from_sqltype(sqltype):
+def get_type_size_as_text_from_sqltype(sqltype: str) -> Tuple[str, str]:
     size = ""
     finaltype = sqltype
     m = re.match("(\w+)\((\w+)\)", sqltype)  # e.g. VARCHAR(10)
@@ -272,7 +151,9 @@ def get_type_size_as_text_from_sqltype(sqltype):
     return finaltype, size
 
 
-def get_cris_dd_row(taskname, tablename, fieldspec):
+def get_cris_dd_row(taskname: str,
+                    tablename: str,
+                    fieldspec: FIELDSPEC_TYPE) -> Dict:
     """Returns an OrderedDict with information for a CRIS Data Dictionary row,
     given a fieldspec."""
 
@@ -356,52 +237,14 @@ def get_cris_dd_row(taskname, tablename, fieldspec):
     ])
 
 
-def get_cris_dd_rows_from_fieldspecs(taskname, tablename, fieldspecs):
+def get_cris_dd_rows_from_fieldspecs(
+        taskname: str,
+        tablename: str,
+        fieldspecs: FIELDSPECLIST_TYPE) -> List[Dict]:
     rows = []
     for fs in fieldspecs:
         rows.append(get_cris_dd_row(taskname, tablename, fs))
     return rows
-
-
-# =============================================================================
-# BLOB functions (shared between Task and Ancillary)
-# =============================================================================
-
-def make_xml_branches_for_blob_fields(obj, skip_fields=None):
-    """Returns list of XmlElementTuple elements for BLOB fields."""
-    skip_fields = skip_fields or []
-    branches = []
-    for t in obj.pngblob_name_idfield_rotationfield_list:
-        name = t[0]
-        blobid_field = t[1]
-        rotation_field = t[2]
-        if blobid_field in skip_fields:
-            continue
-        blobid = getattr(obj, blobid_field)
-        rotation = getattr(obj, rotation_field) \
-            if rotation_field else None
-        branches.append(
-            obj.get_blob_png_xml_tuple(blobid, name, rotation)
-        )
-    return branches
-
-
-def get_blob_png_xml_tuple(obj, blobid, name, rotation_clockwise_deg=0):
-    """Get XmlElementTuple for a PNG BLOB."""
-    blob = obj.get_blob_by_id(blobid)
-    if blob is None:
-        return cc_xml.get_xml_blob_tuple(name, None)
-    return blob.get_png_xml_tuple(name, rotation_clockwise_deg)
-
-
-def get_blob_by_id(obj, blobid):
-    """Get Blob() object from blob ID, or None."""
-    if blobid is None:
-        return None
-    # noinspection PyProtectedMember
-    return cc_blob.get_contemporaneous_blob_by_client_info(
-        obj._device, blobid, obj._era,
-        obj._when_added_batch_utc, obj._when_removed_batch_utc)
 
 
 # =============================================================================
@@ -483,7 +326,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     pngblob_name_idfield_rotationfield_list = []
     extra_summary_table_info = []
 
-    def __init__(self, serverpk):
+    def __init__(self, serverpk: Optional[int]) -> None:
         """Initialize (loading details from database)."""
         # in derived classes: avoid super()?: https://fuhm.net/super-harmful/
         # or not: http://stackoverflow.com/questions/3694371
@@ -509,14 +352,14 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # Methods always overridden
     # -------------------------------------------------------------------------
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         """Is the task instance complete?
 
         Must be overridden.
         """
         raise NotImplementedError("Task.is_complete must be overridden")
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         """HTML for the main task content.
 
         Overridden by derived classes."""
@@ -528,7 +371,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # -------------------------------------------------------------------------
 
     @classmethod
-    def get_full_fieldspecs(cls):
+    def get_full_fieldspecs(cls) -> FIELDSPECLIST_TYPE:
         """
         Uses the following attributes:
             is_anonymous
@@ -554,14 +397,15 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # -------------------------------------------------------------------------
 
     @classmethod
-    def get_fieldnames(cls):
+    def get_fieldnames(cls) -> List[str]:
         return [x["name"] for x in cls.get_full_fieldspecs()]
 
     # -------------------------------------------------------------------------
     # Dealing with ancillary items
     # -------------------------------------------------------------------------
 
-    def get_ancillary_item_pks(self, itemclass):
+    def get_ancillary_item_pks(self, itemclass: Type[ANCILLARY_FWD_REF]) \
+            -> List[int]:
         return cc_db.get_contemporaneous_matching_fields_by_fk(
             itemclass.tablename, PKNAME,
             itemclass.fkname, self.id,
@@ -569,7 +413,8 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             self._when_added_batch_utc, self._when_removed_batch_utc
         )
 
-    def get_ancillary_item_count(self, itemclass):
+    def get_ancillary_item_count(self, itemclass: Type[ANCILLARY_FWD_REF]) \
+            -> int:
         # pklist = self.get_ancillary_item_pks(itemclass)
         # return len(pklist)
         return cc_db.get_contemporaneous_matching_field_pks_by_fk(
@@ -580,7 +425,9 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             count_only=True
         )
 
-    def get_ancillary_items(self, itemclass, sortfield=None):
+    def get_ancillary_items(self,
+                            itemclass: Type[ANCILLARY_FWD_REF],
+                            sortfield: str = None) -> List[ANCILLARY_FWD_REF]:
         # Very inefficient method: removed
         """
         pklist = self.get_ancillary_item_pks(itemclass)
@@ -604,7 +451,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         return items
 
     @classmethod
-    def make_tables(cls, drop_superfluous_columns=False):
+    def make_tables(cls, drop_superfluous_columns: bool = False) -> None:
         """Make underlying database tables.
 
         OVERRIDE THIS if your task uses sub-tables AND does something more
@@ -627,7 +474,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             )
 
     @classmethod
-    def get_extra_table_names(cls):
+    def get_extra_table_names(cls) -> List[str]:
         """Get a list of any extra tables used by the task."""
         return [depclass.tablename for depclass in cls.dependent_classes]
 
@@ -636,7 +483,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # -------------------------------------------------------------------------
 
     '''
-    def get_trackers(self):
+    def get_trackers(self) -> List[Dict[]]:
         """Tasks that provide quantitative information for tracking over time
         should override this and return a list of dictionaries, one dictionary
         per tracker.
@@ -669,7 +516,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # -------------------------------------------------------------------------
 
     # noinspection PyMethodMayBeStatic
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> Optional[List[Dict]]:
         """Tasks that provide clinical text information should override this
         to provide a list of dictionaries.
 
@@ -695,7 +542,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # -------------------------------------------------------------------------
 
     # noinspection PyMethodMayBeStatic
-    def get_summaries(self):
+    def get_summaries(self) -> List[Dict]:
         """Return a list of summaries.
 
         Each summary is a dictionary, with keys as for fieldspecs, but also
@@ -703,12 +550,13 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         """
         return []
 
-    # noinspection PyMethodMayBeStatic
-    def get_extra_summary_table_data(self, now):
+    # noinspection PyMethodMayBeStatic,PyUnusedLocal
+    def get_extra_summary_table_data(self, now: datetime.datetime) \
+            -> List[List[List[Any]]]:
         """If used, must correspond exactly to extra_summary_table_info,
         but returning the data.
 
-        LIST OF TABLES (matching tables aboveextra_summary_table_info),
+        LIST OF TABLES (matching tables in extra_summary_table_info),
             each containing a list of ZERO OR MORE ROWS,
                 each containing a list of VALUES (matching fieldspecs above).
         """
@@ -719,13 +567,13 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # -------------------------------------------------------------------------
 
     # noinspection PyMethodMayBeStatic
-    def anonymise_subtables(self, regexes):
+    def anonymise_subtables(self, regexes: List[typing.re.Pattern]) -> None:
         """Anonymise non-core tables. Override if your task provides extra
         tables that might contain patient-identifiable information."""
         pass
 
     @classmethod
-    def unit_tests(cls):
+    def unit_tests(cls) -> None:
         """Perform unit tests on the task.
 
         May be overridden.
@@ -737,11 +585,11 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # -------------------------------------------------------------------------
 
     @classmethod
-    def get_fields(cls):
+    def get_fields(cls) -> List[str]:
         """Returns a list of database field names."""
         return [x["name"] for x in cls.get_full_fieldspecs()]
 
-    def field_contents_valid(self):
+    def field_contents_valid(self) -> bool:
         """
         Checks field contents validity against fieldspecs.
         This is a high-speed function that doesn't bother with explanations,
@@ -762,7 +610,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                 return False
         return True
 
-    def field_contents_invalid_because(self):
+    def field_contents_invalid_because(self) -> List[str]:
         """Explains why contents are invalid."""
         fieldspecs = self.get_full_fieldspecs()
         explanations = []
@@ -789,36 +637,36 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         return explanations
 
     @classmethod
-    def get_blob_fields(cls):
+    def get_blob_fields(cls) -> List[str]:
         return [x[1] for x in cls.pngblob_name_idfield_rotationfield_list]
 
     # -------------------------------------------------------------------------
     # Server field calculations
     # -------------------------------------------------------------------------
 
-    def get_pk(self):
+    def get_pk(self) -> Optional[int]:
         return self._pk
 
-    def is_preserved(self):
+    def is_preserved(self) -> bool:
         """Is the task preserved and erased from the tablet?"""
         return self._pk is not None and self._era != ERA_NOW
 
-    def was_forcibly_preserved(self):
+    def was_forcibly_preserved(self) -> bool:
         """Was it forcibly preserved?"""
         return self._forcibly_preserved and self.is_preserved()
 
-    def get_creation_datetime(self):
+    def get_creation_datetime(self) -> Optional[datetime.datetime]:
         """Creation datetime, or None."""
         return get_datetime_from_string(self.when_created)
 
-    def get_creation_datetime_utc(self):
+    def get_creation_datetime_utc(self) -> Optional[datetime.datetime]:
         """Creation datetime in UTC, or None."""
         localtime = self.get_creation_datetime()
         if localtime is None:
             return None
         return cc_dt.convert_datetime_to_utc(localtime)
 
-    def get_seconds_from_creation_to_first_finish(self):
+    def get_seconds_from_creation_to_first_finish(self) -> Optional[float]:
         """Time in seconds from creation time to first finish (i.e. first exit
         if the first exit was a finish rather than an abort), or None."""
         if not self.firstexit_is_finish:
@@ -829,16 +677,16 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         return diff.total_seconds()
 
     @classmethod
-    def whencreated_field_iso8601(cls):
+    def whencreated_field_iso8601(cls) -> str:
         return "{}.when_created".format(cls.tablename)
 
     @classmethod
-    def whencreated_fieldexpr_as_utc(cls):
+    def whencreated_fieldexpr_as_utc(cls) -> str:
         return cc_db.mysql_select_utc_date_field_from_iso8601_field(
             "{}.when_created".format(cls.tablename))
 
     @classmethod
-    def whencreated_fieldexpr_as_local(cls):
+    def whencreated_fieldexpr_as_local(cls) -> str:
         return cc_db.mysql_select_local_date_field_from_iso8601_field(
             "{}.when_created".format(cls.tablename))
 
@@ -850,18 +698,18 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # -------------------------------------------------------------------------
 
     @classmethod
-    def get_standard_summary_table_name(cls):
+    def get_standard_summary_table_name(cls) -> str:
         """Returns the main summary table for the task."""
         return cls.tablename + "_SUMMARY_TEMP"
 
     @classmethod
-    def provides_summaries(cls):
+    def provides_summaries(cls) -> str:
         """Does the task provide summary information?"""
         specimen_instance = cls(None)  # blank PK
         return len(specimen_instance.get_summaries()) > 0
 
     @classmethod
-    def make_summary_table(cls):
+    def make_summary_table(cls) -> str:
         """Make (temporary) summary tables."""
         now = cc_dt.get_now_utc()
         cls.make_standard_summary_table(now)
@@ -869,7 +717,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         # ... in case the task wants to make extra tables
 
     @classmethod
-    def make_standard_summary_table(cls, now):
+    def make_standard_summary_table(cls, now: datetime.datetime) -> None:
         """Make the task's main summary table."""
         table = cls.tablename
         if not cls.provides_summaries():
@@ -918,7 +766,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                                                            pkfieldname)
 
     @classmethod
-    def make_extra_summary_tables(cls, now):
+    def make_extra_summary_tables(cls, now: datetime.datetime) -> None:
         # Get details of what the task wants
         infolist = list(cls.extra_summary_table_info)
         # ... copy; one entry per table
@@ -953,11 +801,11 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                                                                basetable,
                                                                pkfieldname)
 
-    def is_complete_summary_field(self):
+    def is_complete_summary_field(self) -> Dict:
         return dict(name="is_complete", cctype="BOOL",
                     value=self.is_complete(), comment=COMMENT_IS_COMPLETE)
 
-    def get_summary_names(self):
+    def get_summary_names(self) -> List[str]:
         """Returns a list of summary field names."""
         return [x["name"] for x in self.get_summaries()]
 
@@ -966,7 +814,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # -------------------------------------------------------------------------
 
     @classmethod
-    def get_all_table_and_view_names(cls):
+    def get_all_table_and_view_names(cls) -> Tuple[List[str], List[str]]:
         """Returns a tuple (tables, views) with lists of all tables and views
         used by this task."""
         basetablename = cls.tablename
@@ -998,14 +846,14 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         return tables, views
 
     @classmethod
-    def get_extra_summary_table_names(cls):
+    def get_extra_summary_table_names(cls) -> List[str]:
         return [x["tablename"] for x in cls.extra_summary_table_info]
 
     # -------------------------------------------------------------------------
     # BLOB fetching
     # -------------------------------------------------------------------------
 
-    def get_blob_by_id(self, blobid):
+    def get_blob_by_id(self, blobid: int) -> Optional[Blob]:
         """Get Blob() object from blob ID, or None."""
         return get_blob_by_id(self, blobid)
 
@@ -1013,7 +861,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # Testing
     # -------------------------------------------------------------------------
 
-    def dump(self):
+    def dump(self) -> None:
         """Dump to log."""
         rnc_db.dump_database_object(self, self.get_fields())
 
@@ -1021,7 +869,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # Anonymisation
     # -------------------------------------------------------------------------
 
-    def anonymise(self):
+    def anonymise(self) -> None:
         """Anonymises content. Does NOT write to database."""
         if self.is_anonymous or not self._patient:
             return
@@ -1065,16 +913,19 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # Special notes
     # -------------------------------------------------------------------------
 
-    def ensure_special_notes_loaded(self):
+    def ensure_special_notes_loaded(self) -> None:
         if self._special_notes is None:
             self.load_special_notes()
 
-    def load_special_notes(self):
+    def load_special_notes(self) -> None:
         self._special_notes = cc_specialnote.SpecialNote.get_all_instances(
             self.tablename, self.id, self._device, self._era)
         # Will now be a list (though possibly an empty one).
 
-    def apply_special_note(self, note, user, from_console=False):
+    def apply_special_note(self,
+                           note: str,
+                           user: str,
+                           from_console: bool = False) -> None:
         """Manually applies a special note to a task.
 
         Applies it to all predecessor/successor versions as well.
@@ -1097,7 +948,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # Clinician
     # -------------------------------------------------------------------------
 
-    def get_clinician_name(self):
+    def get_clinician_name(self) -> str:
         """Get the clinician's name, or ''."""
         if not self.has_clinician:
             return ""
@@ -1107,7 +958,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # Respondent
     # -------------------------------------------------------------------------
 
-    def is_respondent_complete(self):
+    def is_respondent_complete(self) -> bool:
         return (getattr(self, "respondent_name") and
                 getattr(self, "respondent_relationship"))
 
@@ -1115,67 +966,67 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # About the associated patient
     # -------------------------------------------------------------------------
 
-    def is_female(self):
+    def is_female(self) -> bool:
         """Is the patient female?"""
         if self.is_anonymous:
             return False
         return self._patient.is_female()
 
-    def is_male(self):
+    def is_male(self) -> bool:
         """Is the patient male?"""
         if self.is_anonymous:
             return False
         return self._patient.is_male()
 
-    def get_patient_server_pk(self):
+    def get_patient_server_pk(self) -> Optional[int]:
         """Get the server PK of the patient, or None."""
         if self.is_anonymous:
             return None
         return self._patient.get_pk()
 
-    def get_patient(self):
+    def get_patient(self) -> Optional[cc_patient.Patient]:
         """Get the associated Patient() object."""
         return self._patient
 
-    def get_patient_forename(self):
+    def get_patient_forename(self) -> str:
         """Get the patient's forename, in upper case, or ""."""
         if not self._patient:
             return ""
         return self._patient.get_forename()
 
-    def get_patient_surname(self):
+    def get_patient_surname(self) -> str:
         """Get the patient's surname, in upper case, or ""."""
         if not self._patient:
             return ""
         return self._patient.get_surname()
 
-    def get_patient_dob(self):
+    def get_patient_dob(self) -> Optional[datetime.date]:
         """Get the patient's DOB, or None."""
         if not self._patient:
             return None
         return self._patient.get_dob()
 
-    def get_patient_dob_first10chars(self):
+    def get_patient_dob_first10chars(self) -> Optional[str]:
         if not self._patient:
             return None
-        dob = self._patient.get_dob()
-        if not dob or len(dob) < 10:
+        dob_str = self._patient.get_dob_str()
+        if not dob_str:
             return None
-        return dob[:10]
+        return dob_str[:10]
 
-    def get_patient_sex(self):
+    def get_patient_sex(self) -> str:
         """Get the patient's sex, or ""."""
         if not self._patient:
             return ""
         return self._patient.get_sex()
 
-    def get_patient_address(self):
+    def get_patient_address(self) -> str:
         """Get the patient's address, or ""."""
         if not self._patient:
             return ""
         return self._patient.get_address()
 
-    def get_patient_iddesc(self, idnum):
+    def get_patient_iddesc(self, idnum: int) -> str:
         """Get the patient's ID description, or None.
 
         Args:
@@ -1185,7 +1036,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             return None
         return self._patient.get_iddesc(idnum)
 
-    def get_patient_idnum(self, idnum):
+    def get_patient_idnum(self, idnum: int) -> str:
         """Get the patient's ID number, or None.
 
         Args:
@@ -1195,19 +1046,20 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             return None
         return self._patient.get_idnum(idnum)
 
-    def get_patient_idnum_array(self):
+    def get_patient_idnum_array(self) -> List[Optional[int]]:
         """Get array (length NUMBER_OF_IDNUMS) of ID numbers."""
         if not self._patient:
             return [None] * NUMBER_OF_IDNUMS
         return self._patient.get_idnum_array()
 
-    def get_patient_idshortdesc_array(self):
+    def get_patient_idshortdesc_array(self) -> List[Optional[str]]:
         """Get array (length NUMBER_OF_IDNUMS) of ID short descriptions."""
         if not self._patient:
             return [None] * NUMBER_OF_IDNUMS
         return self._patient.get_idshortdesc_array()
 
-    def get_patient_hl7_pid_segment(self, recipient_def):
+    def get_patient_hl7_pid_segment(
+            self, recipient_def: RecipientDefinition) -> hl7.Segment:
         """Get patient HL7 PID segment, or ""."""
         if not self._patient:
             return ""
@@ -1217,7 +1069,8 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # HL7
     # -------------------------------------------------------------------------
 
-    def get_hl7_data_segments(self, recipient_def):
+    def get_hl7_data_segments(self, recipient_def: RecipientDefinition) \
+            -> List[hl7.Segment]:
         """Returns a list of HL7 data segments.
 
         These will be:
@@ -1239,15 +1092,16 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             obx_segment
         ] + self.get_hl7_extra_data_segments(recipient_def)
 
-    # noinspection PyMethodMayBeStatic
-    def get_hl7_extra_data_segments(self, recipient_def):
+    # noinspection PyMethodMayBeStatic,PyUnusedLocal
+    def get_hl7_extra_data_segments(self, recipient_def: RecipientDefinition) \
+            -> List[hl7.Segment]:
         """Return a list of any extra HL7 data segments.
 
         May be overridden.
         """
         return []
 
-    def delete_from_hl7_message_log(self, from_console=False):
+    def delete_from_hl7_message_log(self, from_console: bool = False) -> None:
         """Erases the object from the HL7 message log (so it will be resent).
         """
         if self._pk is None:
@@ -1276,7 +1130,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # Audit
     # -------------------------------------------------------------------------
 
-    def audit(self, details, from_console=False):
+    def audit(self, details: str, from_console: bool = False) -> None:
         """Audits actions to this task."""
         audit(details,
               patient_server_pk=self.get_patient_server_pk(),
@@ -1299,7 +1153,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # Erasure (wiping, leaving record as placeholder)
     # -------------------------------------------------------------------------
 
-    def manually_erase(self, username):
+    def manually_erase(self, username: str) -> None:
         """Manually erases a task (including sub-tables).
         Also erases linked non-current records.
         This WIPES THE CONTENTS but LEAVES THE RECORD AS A PLACEHOLDER.
@@ -1317,9 +1171,9 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         # 2. Erase BLOBs
         blob_pks = self.get_blob_pks_of_record_group()
         for bpk in blob_pks:
-            blob = cc_blob.Blob(bpk)
+            blob = Blob(bpk)
             cc_db.manually_erase_record_object_and_save(
-                blob, cc_blob.Blob.TABLENAME, cc_blob.Blob.FIELDS, username)
+                blob, Blob.TABLENAME, Blob.FIELDS, username)
 
         # 3. Erase tasks
         tablename = self.tablename
@@ -1334,7 +1188,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         self.audit("Task details erased manually")
         self.delete_from_hl7_message_log()
 
-    def get_server_pks_of_record_group(self):
+    def get_server_pks_of_record_group(self) -> List[int]:
         """Returns server PKs of all records that represent versions of this
         one."""
         return cc_db.get_server_pks_of_record_group(
@@ -1346,10 +1200,10 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             self._era
         )
 
-    def is_erased(self):
+    def is_erased(self) -> bool:
         return self._manually_erased
 
-    def erase_subtable_records_even_noncurrent(self, username):
+    def erase_subtable_records_even_noncurrent(self, username: str) -> None:
         """Override to erase contents of subtable records that are linked to
         this record, and save to database.
 
@@ -1372,7 +1226,10 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # -------------------------------------------------------------------------
 
     @classmethod
-    def get_task_pks_wc_for_patient_deletion(cls, which_idnum, idnum_value):
+    def get_task_pks_wc_for_patient_deletion(
+            cls,
+            which_idnum: int,
+            idnum_value: int) -> Sequence[Sequence[int, datetime.datetime]]:
         if cls.is_anonymous:
             return []
         table = cls.tablename
@@ -1395,12 +1252,14 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         return pls.db.fetchall(query, *args)
 
     @classmethod
-    def get_task_pks_for_patient_deletion(cls, which_idnum, idnum_value):
+    def get_task_pks_for_patient_deletion(cls,
+                                          which_idnum: int,
+                                          idnum_value: int) -> Sequence[int]:
         pk_wc = cls.get_task_pks_wc_for_patient_deletion(which_idnum,
                                                          idnum_value)
         return [row[0] for row in pk_wc]
 
-    def delete_entirely(self):
+    def delete_entirely(self) -> None:
         if self._pk is None:
             return
 
@@ -1410,7 +1269,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
         # 2. Get rid of BLOBs
         blob_pks = self.get_blob_pks_of_record_group()
-        cc_db.delete_from_table_by_pklist(cc_blob.Blob.TABLENAME,
+        cc_db.delete_from_table_by_pklist(Blob.TABLENAME,
                                           PKNAME, blob_pks)
 
         # 3. Get rid of tasks
@@ -1424,7 +1283,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
               table=tablename,
               server_pk=self._pk)
 
-    def delete_subtable_records_even_noncurrent(self):
+    def delete_subtable_records_even_noncurrent(self) -> None:
         """Override to DELETE subtable records from the database that are
         linked to this record (even non-current, historical ones).
 
@@ -1438,13 +1297,13 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                 tablename, PKNAME,
                 fkname, self.id, self._device, self._era)
 
-    def get_blob_ids(self):
+    def get_blob_ids(self) -> List[int]:
         blob_fields = self.get_blob_fields()
         blob_ids = [getattr(self, f) for f in blob_fields]
         blob_ids = [x for x in blob_ids if x is not None]
         return blob_ids
 
-    def get_blob_pks_of_record_group(self):
+    def get_blob_pks_of_record_group(self) -> List[int]:
         tablename = self.tablename
         taskpks = self.get_server_pks_of_record_group()
         tasks = [TaskFactory(tablename, pk) for pk in taskpks]
@@ -1453,7 +1312,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         blob_ids = list(set(blob_ids))  # remove duplicates
         list_of_blob_pk_lists = [
             cc_db.get_server_pks_of_record_group(
-                cc_blob.Blob.TABLENAME, PKNAME, "id", i,
+                Blob.TABLENAME, PKNAME, "id", i,
                 self._device, self._era)
             for i in blob_ids]
         blob_pks = cc_lang.flatten_list(list_of_blob_pk_lists)
@@ -1464,11 +1323,11 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # Viewing the task in the list of tasks
     # -------------------------------------------------------------------------
 
-    def is_live_on_tablet(self):
+    def is_live_on_tablet(self) -> bool:
         """Is the instance live on a tablet?"""
         return self._era == ERA_NOW
 
-    def get_task_list_row(self):
+    def get_task_list_row(self) -> str:
         """HTML table row for including in task summary list."""
         complete = self.is_complete()
         anonymous = self.is_anonymous
@@ -1532,8 +1391,11 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # -------------------------------------------------------------------------
 
     @classmethod
-    def get_session_candidate_task_pks_whencreated(cls, session, sort=False,
-                                                   reverse=False):
+    def get_session_candidate_task_pks_whencreated(
+            cls,
+            session: Session,
+            sort: bool = False,
+            reverse: bool = False) -> List[List[int, datetime.datetime]]:
         """Get all current server PKs/creation dates for this task that are
         likely to make it through the session filter.
 
@@ -1622,7 +1484,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                 query += " DESC"
         return pls.db.fetchall(query, *args)
 
-    def allowed_to_user(self, session):
+    def allowed_to_user(self, session: Session) -> bool:
         """Is the current user allowed to see this task?"""
         if (session.restricted_to_viewing_user() is not None and
                 session.restricted_to_viewing_user() != self._adding_user):
@@ -1630,11 +1492,11 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         return True
 
     @classmethod
-    def filter_allows_task_type(cls, session):
+    def filter_allows_task_type(cls, session: Session) -> bool:
         return (session.filter_task is None or
                 session.filter_task == cls.tablename)
 
-    def is_compatible_with_filter(self, session):
+    def is_compatible_with_filter(self, session: Session) -> bool:
         """Is this task allowed through the filter?"""
         # 1. Quick things
         if not self.allowed_to_user(session):
@@ -1695,11 +1557,11 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                 return False
         return True
 
-    def compatible_with_text_filter(self, filter):
+    def compatible_with_text_filter(self, filtertext: str) -> bool:
         """Is this task allowed through the text contents filter?"""
         # Search all text fields. Is the filter text within one?
         # filter will not be None (checked beforehand)
-        filter = filter.upper()
+        filtertext = filtertext.upper()
         fieldspecs = self.get_full_fieldspecs()
         for fs in fieldspecs:
             if fs["name"] in TEXT_FILTER_EXEMPT_FIELDS:
@@ -1709,7 +1571,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             value = getattr(self, fs["name"])
             if value is None:
                 continue
-            if filter in value.upper():
+            if filtertext in value.upper():
                 return True
         return False
 
@@ -1718,8 +1580,11 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # -------------------------------------------------------------------------
 
     @classmethod
-    def get_task_pks_for_tracker(cls, idnumarray, start_datetime,
-                                 end_datetime):
+    def get_task_pks_for_tracker(
+            cls,
+            idnumarray: List[Optional[int]],
+            start_datetime: Optional[datetime.datetime],
+            end_datetime: Optional[datetime.datetime]) -> List[int]:
         """Get server PKs for tracker information matching the requested
         criteria, or []."""
         if not hasattr(cls, 'get_trackers'):
@@ -1728,8 +1593,11 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             idnumarray, start_datetime, end_datetime)
 
     @classmethod
-    def get_task_pks_for_clinical_text_view(cls, idnumarray, start_datetime,
-                                            end_datetime):
+    def get_task_pks_for_clinical_text_view(
+            cls,
+            idnumarray: List[Optional[int]],
+            start_datetime: Optional[datetime.datetime],
+            end_datetime: Optional[datetime.datetime]) -> List[int]:
         """Get server PKs for CTV information matching the requested criteria,
         or []."""
         # Return ALL tasks (those not providing clinical text appear as
@@ -1738,9 +1606,11 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             idnumarray, start_datetime, end_datetime)
 
     @classmethod
-    def get_task_pks_for_tracker_or_clinical_text_view(cls, idnumarray,
-                                                       start_datetime,
-                                                       end_datetime):
+    def get_task_pks_for_tracker_or_clinical_text_view(
+            cls,
+            idnumarray: List[Optional[int]],
+            start_datetime: Optional[datetime.datetime],
+            end_datetime: Optional[datetime.datetime]) -> List[int]:
         """Get server PKs matching requested criteria.
 
         Args:
@@ -1790,8 +1660,12 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # -------------------------------------------------------------------------
 
     @classmethod
-    def get_all_current_pks(cls, start_datetime=None, end_datetime=None,
-                            sort=False, reverse=False):
+    def get_all_current_pks(
+            cls,
+            start_datetime: datetime.datetime = None,
+            end_datetime: datetime.datetime = None,
+            sort: bool = False,
+            reverse: bool = False) -> List[int]:
         """Returns PKs for all current tasks, optionally within the specified
         date range."""
         table = cls.tablename
@@ -1818,8 +1692,12 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         return pls.db.fetchallfirstvalues(query, *args)
 
     @classmethod
-    def gen_all_current_tasks(cls, start_datetime=None, end_datetime=None,
-                              sort=False, reverse=False):
+    def gen_all_current_tasks(
+            cls,
+            start_datetime: datetime.datetime = None,
+            end_datetime: datetime.datetime = None,
+            sort: bool = False,
+            reverse: bool = False) -> Iterator[TASK_FWD_REF]:
         """Gets all tasks that are current within the specified date range.
         Either date may be None."""
         pks = cls.get_all_current_pks(start_datetime, end_datetime,
@@ -1828,8 +1706,11 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             yield cls(pk)
 
     @classmethod
-    def gen_all_tasks_matching_session_filter(cls, session,
-                                              sort=False, reverse=False):
+    def gen_all_tasks_matching_session_filter(
+            cls,
+            session: Session,
+            sort: bool = False,
+            reverse: bool = False) -> Iterator[TASK_FWD_REF]:
         if not cls.filter_allows_task_type(session):
             return
             # http://stackoverflow.com/questions/13243766
@@ -1845,7 +1726,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # TSV export for basic research dump
     # -------------------------------------------------------------------------
 
-    def get_dictlist_for_tsv(self):
+    def get_dictlist_for_tsv(self) -> List[Dict]:
         """Returns information for the basic research dump in TSV format.
 
         Returns
@@ -1876,7 +1757,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         }
         return [maindict] + self.get_extra_dictlist_for_tsv()
 
-    def get_extra_dictlist_for_tsv(self):
+    def get_extra_dictlist_for_tsv(self) -> List[Dict]:
         """Override for tasks with subtables to be encoded as separate files
         in the TSV output.
 
@@ -1891,7 +1772,10 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             ))
         return dictlist
 
-    def get_extra_dict_for_tsv(self, subtable, fields, items):
+    def get_extra_dict_for_tsv(self,
+                               subtable: str,
+                               fields: Iterable[str],
+                               items: Iterable[Dict]):
         maintable = self.tablename
         mainpk = self._pk
         rows = []
@@ -1910,7 +1794,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # -------------------------------------------------------------------------
 
     @classmethod
-    def get_cris_dd_rows(cls):
+    def get_cris_dd_rows(cls) -> List[Dict]:
         if cls.is_anonymous:
             return []
         taskname = cls.shortname
@@ -1933,7 +1817,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # -------------------------------------------------------------------------
 
     @classmethod
-    def make_cris_tables(cls, db):
+    def make_cris_tables(cls, db: DatabaseSupporter) -> None:
         # DO NOT CONFUSE pls.db and db. HERE WE ONLY USE db.
         log.info("Generating CRIS staging tables for: {}".format(
                     cls.shortname))
@@ -1963,7 +1847,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                     db.insert_record_by_fieldspecs_with_values(item_table,
                                                                item_fsv)
 
-    def get_cris_common_fieldspecs_values(self):
+    def get_cris_common_fieldspecs_values(self) -> FIELDSPECLIST_TYPE:
         # Store the task's PK in its own but all linked records
         clusterpk_fs = copy.deepcopy(CRIS_CLUSTER_KEY_FIELDSPEC)
         clusterpk_fs["value"] = self._pk
@@ -1979,7 +1863,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                 fieldspecs.append(fs)
         return fieldspecs
 
-    def get_cris_fieldspecs_values(self, common_fsv):
+    def get_cris_fieldspecs_values(self, common_fsv) -> FIELDSPECLIST_TYPE:
         fieldspecs = copy.deepcopy(self.get_full_fieldspecs())
         for fs in fieldspecs:
             fs["value"] = getattr(self, fs["name"])
@@ -1996,9 +1880,14 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # XML view
     # -------------------------------------------------------------------------
 
-    def get_xml(self, include_calculated=True, include_blobs=True,
-                include_patient=True, indent_spaces=4, eol='\n',
-                skip_fields=None, include_comments=False):
+    def get_xml(self,
+                include_calculated: bool = True,
+                include_blobs: bool = True,
+                include_patient: bool = True,
+                indent_spaces: int = 4,
+                eol: str = '\n',
+                skip_fields: List[str] = None,
+                include_comments: bool = False) -> str:
         """Returns XML UTF-8 document representing task."""
         skip_fields = skip_fields or []
         tree = self.get_xml_root(include_calculated=include_calculated,
@@ -2012,9 +1901,11 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             include_comments=include_comments
         )
 
-    def get_xml_root(self, include_calculated=True, include_blobs=True,
-                     include_patient=True,
-                     skip_fields=None):
+    def get_xml_root(self,
+                     include_calculated: bool = True,
+                     include_blobs: bool = True,
+                     include_patient: bool = True,
+                     skip_fields: List[str] =None) -> XmlElementTuple:
         """Returns XML tree. Return value is the root XmlElementTuple.
 
         Override to include other tables, or to deal with BLOBs, if the default
@@ -2038,7 +1929,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             blobinfo = depclass.pngblob_name_idfield_rotationfield_list
             for it in items:
                 # Simple fields for ancillary items
-                itembranches.append(cc_namedtuples.XmlElementTuple(
+                itembranches.append(XmlElementTuple(
                     name=tablename,
                     value=cc_xml.make_xml_branches_from_fieldspecs(
                         it,
@@ -2051,17 +1942,19 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                     itembranches.extend(it.make_xml_branches_for_blob_fields(
                         skip_fields=skip_fields))
             branches.append("<!-- Items for {} -->\n".format(tablename))
-            branches.append(cc_namedtuples.XmlElementTuple(
+            branches.append(XmlElementTuple(
                 name=tablename,
                 value=itembranches
             ))
-        tree = cc_namedtuples.XmlElementTuple(name=self.tablename,
-                                              value=branches)
+        tree = XmlElementTuple(name=self.tablename, value=branches)
         return tree
 
-    def get_xml_core_branches(self, include_calculated=True,
-                              include_blobs=True, include_patient=True,
-                              skip_fields=None):
+    def get_xml_core_branches(
+            self,
+            include_calculated: bool = True,
+            include_blobs: bool = True,
+            include_patient: bool = True,
+            skip_fields: List[str] = None) -> List[XmlElementTuple]:
         """Returns a list of XmlElementTuple elements representing stored,
         calculated, patient, and/or BLOB fields, depending on the options."""
         skip_fields = skip_fields or []
@@ -2094,12 +1987,18 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                 skip_fields=skip_fields))
         return branches
 
-    def make_xml_branches_for_blob_fields(self, skip_fields=None):
+    def make_xml_branches_for_blob_fields(
+            self,
+            skip_fields: List[str] = None) -> List[XmlElementTuple]:
         """Returns list of XmlElementTuple elements for BLOB fields."""
         skip_fields = skip_fields or []
         return make_xml_branches_for_blob_fields(self, skip_fields=skip_fields)
 
-    def get_blob_png_xml_tuple(self, blobid, name, rotation_clockwise_deg=0):
+    def get_blob_png_xml_tuple(
+            self,
+            blobid: int,
+            name: str,
+            rotation_clockwise_deg: float = 0) -> XmlElementTuple:
         """Get XmlElementTuple for a PNG BLOB."""
         return get_blob_png_xml_tuple(self, blobid, name,
                                       rotation_clockwise_deg)
@@ -2108,7 +2007,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # HTML view
     # -------------------------------------------------------------------------
 
-    def get_core_html(self):
+    def get_core_html(self) -> str:
         html = ""
         if self.has_clinician:
             html += self.get_standard_clinician_block()
@@ -2117,8 +2016,10 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         html += self.get_task_html()
         return html
 
-    def get_html(self, offer_add_note=False, offer_erase=False,
-                 offer_edit_patient=False):
+    def get_html(self,
+                 offer_add_note: bool = False,
+                 offer_erase: bool = False,
+                 offer_edit_patient: bool = False) -> str:
         """Returns HTML representing task."""
         cc_plot.set_matplotlib_fontsize(pls.PLOT_FONTSIZE)
         pls.switch_output_to_svg()
@@ -2139,7 +2040,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             PDFEND
         )
 
-    def get_hyperlink_html(self, text):
+    def get_hyperlink_html(self, text: str) -> str:
         """Hyperlink to HTML version."""
         return """<a href="{}" target="_blank">{}</a>""".format(
             get_url_task_html(self.tablename, self._pk),
@@ -2150,7 +2051,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # PDF view
     # -------------------------------------------------------------------------
 
-    def get_pdf(self):
+    def get_pdf(self) -> bytes:
         """Returns PDF representing task."""
         cc_plot.set_matplotlib_fontsize(pls.PLOT_FONTSIZE)
         if CSS_PAGED_MEDIA:
@@ -2175,7 +2076,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                                          footer_html=footer,
                                          wkhtmltopdf_options=options)
 
-    def suggested_pdf_filename(self):
+    def suggested_pdf_filename(self) -> str:
         """Suggested filename for PDF."""
         return cc_filename.get_export_filename(
             pls.PATIENT_SPEC_IF_ANONYMOUS,
@@ -2196,12 +2097,12 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             basetable=self.tablename,
             serverpk=self._pk)
 
-    def write_pdf_to_disk(self, filename):
+    def write_pdf_to_disk(self, filename: str) -> None:
         """Writes PDF to disk, using filename."""
         pdffile = open(filename, "wb")
         pdffile.write(self.get_pdf())
 
-    def get_pdf_html(self):
+    def get_pdf_html(self) -> str:
         """Gets HTML used to make PDF (slightly different from plain HTML)."""
         signature = self.has_clinician
         return (
@@ -2212,7 +2113,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             PDFEND
         )
 
-    def get_hyperlink_pdf(self, text):
+    def get_hyperlink_pdf(self, text: str) -> str:
         """Hyperlink to PDF version."""
         return """<a href="{}" target="_blank">{}</a>""".format(
             get_url_task_pdf(self.tablename, self._pk),
@@ -2223,7 +2124,10 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # Metadata for e.g. RiO
     # -------------------------------------------------------------------------
 
-    def get_rio_metadata(self, which_idnum, uploading_user_id, document_type):
+    def get_rio_metadata(self,
+                         which_idnum: int,
+                         uploading_user_id: str,
+                         document_type: str) -> str:
         """Called by cc_hl7.send_to_filestore().
 
         From Servelec (Lee Meredith) to Rudolf Cardinal, 2014-12-04:
@@ -2331,14 +2235,14 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # HTML components
     # -------------------------------------------------------------------------
 
-    def get_html_start(self):
+    def get_html_start(self) -> str:
         """Opening HTML, including CSS."""
         return (
             pls.WEBSTART +
             self.get_task_header_html()
         )
 
-    def get_pdf_header_content(self):
+    def get_pdf_header_content(self) -> str:
         anonymous = self.is_anonymous
         if anonymous:
             content = self.get_anonymous_page_header_html()
@@ -2346,14 +2250,14 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             content = self._patient.get_html_for_page_header()
         return cc_html.pdf_header_content(content)
 
-    def get_pdf_footer_content(self):
+    def get_pdf_footer_content(self) -> str:
         taskname = ws.webify(self.shortname)
         created = format_datetime_string(self.when_created,
                                          DATEFORMAT.LONG_DATETIME)
         content = "{} created {}.".format(taskname, created)
         return cc_html.pdf_footer_content(content)
 
-    def get_pdf_start(self):
+    def get_pdf_start(self) -> str:
         """Opening HTML for PDF, including CSS."""
         if CSS_PAGED_MEDIA:
             if self.use_landscape_for_pdf:
@@ -2374,13 +2278,13 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         )
 
     # noinspection PyMethodMayBeStatic
-    def get_anonymous_page_header_html(self):
+    def get_anonymous_page_header_html(self) -> str:
         """Page header for anonymous tasks. Goes in the page margins for PDFs.
         """
         return WSTRING("anonymous_task")
 
     # noinspection PyMethodMayBeStatic
-    def get_anonymous_task_header_html(self):
+    def get_anonymous_task_header_html(self) -> str:
         """Task header for anonymous tasks. Goes on the main page at the top of
         the task."""
         return """
@@ -2391,7 +2295,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             WSTRING("anonymous_task")
         )
 
-    def get_task_header_html(self):
+    def get_task_header_html(self) -> str:
         """HTML for task header, giving details of task type, creation date
         (with patient age), etc."""
         anonymous = self.is_anonymous
@@ -2431,7 +2335,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             self.get_not_current_warning()  # if applicable
         )
 
-    def get_not_current_warning(self):
+    def get_not_current_warning(self) -> str:
         """HTML warning that the record is not current, or ""."""
         if self._current:
             return ""
@@ -2460,7 +2364,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             </div>
         """.format(reason, when)
 
-    def get_invalid_warning(self):
+    def get_invalid_warning(self) -> str:
         if self.field_contents_valid():
             return ""
         explanations = self.field_contents_invalid_because()
@@ -2473,7 +2377,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             </div>
         """.format("<br>".join(explanations))
 
-    def get_erasure_notice(self):
+    def get_erasure_notice(self) -> str:
         if not self._manually_erased:
             return ""
         return """
@@ -2485,7 +2389,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             self._manually_erased_at,
         )
 
-    def get_special_notes(self):
+    def get_special_notes(self) -> str:
         self.ensure_special_notes_loaded()
         if not self._special_notes:
             return ""
@@ -2500,7 +2404,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             note_html
         )
 
-    def get_office_html(self):
+    def get_office_html(self) -> str:
         """Tedious HTML that goes at the bottom."""
         device = cc_device.Device(self._device)
         anonymous = self.is_anonymous
@@ -2569,7 +2473,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                                 DATEFORMAT.SHORT_DATETIME_SECONDS),
         )
 
-    def get_xml_nav_html(self):
+    def get_xml_nav_html(self) -> str:
         """HTML DIV with hyperlink to XML version."""
         return """
             <div class="office">
@@ -2579,8 +2483,10 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             get_url_task_xml(self.tablename, self._pk)
         )
 
-    def get_superuser_nav_options(self, offer_add_note, offer_erase,
-                                  offer_edit_patient):
+    def get_superuser_nav_options(self,
+                                  offer_add_note: bool,
+                                  offer_erase: bool,
+                                  offer_edit_patient: bool) -> str:
         options = []
         if offer_add_note:
             options.append(
@@ -2612,7 +2518,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             </div>
         """.format("<br>".join(options))
 
-    def get_predecessor_html_line(self):
+    def get_predecessor_html_line(self) -> str:
         """HTML with hyperlink to predecessor version, or ""."""
         if self._predecessor_pk is None:
             return ""
@@ -2625,7 +2531,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             get_url_task_html(self.tablename, self._predecessor_pk)
         )
 
-    def get_successor_html_line(self):
+    def get_successor_html_line(self) -> str:
         """HTML with hyperlink to successor version, or ""."""
         if self._successor_pk is None:
             return ""
@@ -2642,7 +2548,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # HTML elements used by tasks
     # -------------------------------------------------------------------------
 
-    def get_standard_clinician_block(self):
+    def get_standard_clinician_block(self) -> str:
         """HTML DIV for clinician information, or ""."""
         if not self.has_clinician:
             return ""
@@ -2688,7 +2594,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         return html
 
     # noinspection PyMethodMayBeStatic
-    def get_standard_clinician_comments_block(self, comments):
+    def get_standard_clinician_comments_block(self, comments: str) -> str:
         """HTML DIV for clinician's comments."""
         return """
             <div class="clinician">
@@ -2703,7 +2609,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             ws.bold_if_not_blank(ws.webify(comments))
         )
 
-    def get_standard_respondent_block(self):
+    def get_standard_respondent_block(self) -> str:
         """HTML DIV for respondent information, or ""."""
         if not self.has_respondent:
             return ""
@@ -2725,7 +2631,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             relationship=ws.webify(self.respondent_relationship),
         )
 
-    def get_is_complete_td_pair(self):
+    def get_is_complete_td_pair(self) -> str:
         """HTML to indicate whether task is complete or not, and to make it
         very obvious visually when it isn't."""
         c = self.is_complete()
@@ -2734,12 +2640,14 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             cc_html.get_yes_no(c)
         )
 
-    def get_is_complete_tr(self):
+    def get_is_complete_tr(self) -> str:
         """HTML table row to indicate whether task is complete or not, and to
         make it very obvious visually when it isn't."""
         return "<tr>" + self.get_is_complete_td_pair() + "</tr>"
 
-    def get_blob_png_html(self, blobid, rotation_clockwise_deg=0):
+    def get_blob_png_html(self,
+                          blobid: Optional[int],
+                          rotation_clockwise_deg: float = 0) -> str:
         """Get HTML IMG tag with embedded PNG, or HTML error message."""
         if blobid is None:
             return "<i>(No picture)</i>"
@@ -2750,7 +2658,10 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         #    return "<i>Invalid PNG<i>"
         return blob.get_png_img_html(rotation_clockwise_deg)
 
-    def get_twocol_val_row(self, fieldname, default=None, label=None):
+    def get_twocol_val_row(self,
+                           fieldname: str,
+                           default: str = None,
+                           label: str = None) -> str:
         """HTML table row, two columns, without web-safing of value."""
         val = getattr(self, fieldname)
         if val is None:
@@ -2759,13 +2670,17 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             label = fieldname
         return cc_html.tr_qa(label, val)
 
-    def get_twocol_string_row(self, fieldname, label=None):
+    def get_twocol_string_row(self,
+                              fieldname: str,
+                              label: str = None) -> str:
         """HTML table row, two columns, with web-safing of value."""
         if label is None:
             label = fieldname
         return cc_html.tr_qa(label, ws.webify(getattr(self, fieldname)))
 
-    def get_twocol_bool_row(self, fieldname, label=None):
+    def get_twocol_bool_row(self,
+                            fieldname: str,
+                            label: str = None) -> str:
         """HTML table row, two columns, with Boolean Y/N formatter."""
         if label is None:
             label = fieldname
@@ -2773,7 +2688,9 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             label,
             cc_html.get_yes_no_none(getattr(self, fieldname)))
 
-    def get_twocol_bool_row_true_false(self, fieldname, label=None):
+    def get_twocol_bool_row_true_false(self,
+                                       fieldname: str,
+                                       label: str = None) -> str:
         """HTML table row, two columns, with Boolean T/F formatter."""
         if label is None:
             label = fieldname
@@ -2781,7 +2698,9 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             label,
             cc_html.get_true_false_none(getattr(self, fieldname)))
 
-    def get_twocol_bool_row_present_absent(self, fieldname, label=None):
+    def get_twocol_bool_row_present_absent(self,
+                                           fieldname: str,
+                                           label: str = None) -> str:
         """HTML table row, two columns, with Boolean P/A formatter."""
         if label is None:
             label = fieldname
@@ -2789,7 +2708,10 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             label,
             cc_html.get_present_absent_none(getattr(self, fieldname)))
 
-    def get_twocol_picture_row(self, fieldname, rotationfieldname, label=None):
+    def get_twocol_picture_row(self,
+                               fieldname: str,
+                               rotationfieldname: str,
+                               label: str = None) -> str:
         """HTML table row, two columns, with PNG on right."""
         if label is None:
             label = fieldname
@@ -2805,22 +2727,22 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # Field helper functions for subclasses
     # -------------------------------------------------------------------------
 
-    def get_values(self, fields):
+    def get_values(self, fields: List[str]) -> List:
         """Get list of object's values from list of field names."""
         return [getattr(self, f) for f in fields]
 
-    def is_field_complete(self, field):
+    def is_field_complete(self, field: str) -> bool:
         """Is the field not None?"""
         return getattr(self, field) is not None
 
-    def are_all_fields_complete(self, fields):
+    def are_all_fields_complete(self, fields: List[str]) -> bool:
         """Are all fields not None?"""
         for f in fields:
             if getattr(self, f) is None:
                 return False
         return True
 
-    def n_complete(self, fields):
+    def n_complete(self, fields: List[str]) -> int:
         """How many of the fields are not None?"""
         total = 0
         for f in fields:
@@ -2828,7 +2750,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                 total += 1
         return total
 
-    def n_incomplete(self, fields):
+    def n_incomplete(self, fields: List[str]) -> int:
         """How many of the fields are None?"""
         total = 0
         for f in fields:
@@ -2836,7 +2758,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                 total += 1
         return total
 
-    def count_booleans(self, fields):
+    def count_booleans(self, fields: List[str]) -> int:
         """How many fields evaluate to True?"""
         total = 0
         for f in fields:
@@ -2845,7 +2767,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                 total += 1
         return total
 
-    def all_true(self, fields):
+    def all_true(self, fields: List[str]) -> bool:
         """Do all fields evaluate to True?"""
         for f in fields:
             value = getattr(self, f)
@@ -2853,15 +2775,21 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                 return False
         return True
 
-    def count_where(self, fields, wherevalues):
+    def count_where(self,
+                    fields: List[str],
+                    wherevalues: List[Any]) -> int:
         """Count how many field values are in wherevalues."""
         return sum(1 for x in self.get_values(fields) if x in wherevalues)
 
-    def count_wherenot(self, fields, notvalues):
+    def count_wherenot(self,
+                       fields: List[str],
+                       notvalues: List[Any]) -> int:
         """Count how many field values are NOT in notvalues."""
         return sum(1 for x in self.get_values(fields) if x not in notvalues)
 
-    def sum_fields(self, fields, ignorevalue=None):
+    def sum_fields(self,
+                   fields: List[str],
+                   ignorevalue: Any = None) -> Union[int, float]:
         """Sum values stored in all fields (skipping any whose value is
         ignorevalue; treating fields containing None as zero)."""
         total = 0
@@ -2872,7 +2800,9 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             total += value if value is not None else 0
         return total
 
-    def mean_fields(self, fields, ignorevalue=None):
+    def mean_fields(self,
+                    fields: List[str],
+                    ignorevalue: Any = None) -> Union[int, float]:
         """Mean of values stored in all fields (skipping any whose value is
         ignorevalue)."""
         values = []
@@ -2886,24 +2816,28 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             return None
 
     @staticmethod
-    def fieldnames_from_prefix(prefix, start, end):
+    def fieldnames_from_prefix(prefix: str, start: int, end: int) -> List[str]:
         return [prefix + str(x) for x in range(start, end + 1)]
 
     @staticmethod
-    def fieldnames_from_list(prefix, suffixes):
+    def fieldnames_from_list(prefix: str,
+                             suffixes: Iterable[Any]) -> List[str]:
         return [prefix + str(x) for x in suffixes]
 
     # -------------------------------------------------------------------------
     # Extra strings
     # -------------------------------------------------------------------------
 
-    def get_extrastring_taskname(self):
+    def get_extrastring_taskname(self) -> str:
         return self.extrastring_taskname or self.tablename
 
-    def extrastrings_exist(self):
+    def extrastrings_exist(self) -> bool:
         return task_extrastrings_exist(self.get_extrastring_taskname())
 
-    def WXSTRING(self, name, defaultvalue=None, provide_default_if_none=True):
+    def WXSTRING(self,
+                 name: str,
+                 defaultvalue: str = None,
+                 provide_default_if_none: bool = True) -> str:
         if defaultvalue is None and provide_default_if_none:
             defaultvalue = "[{}: {}]".format(self.get_extrastring_taskname(),
                                              name)
@@ -2933,16 +2867,16 @@ class Ancillary(object):
     pngblob_name_idfield_rotationfield_list = []
 
     @classmethod
-    def get_full_fieldspecs(cls):
+    def get_full_fieldspecs(cls) -> FIELDSPECLIST_TYPE:
         full_fieldspecs = list(STANDARD_ANCILLARY_FIELDSPECS)  # copy
         full_fieldspecs.extend(cls.fieldspecs)
         return full_fieldspecs
 
     @classmethod
-    def get_fieldnames(cls):
+    def get_fieldnames(cls) -> List[st]:
         return [x["name"] for x in cls.get_full_fieldspecs()]
 
-    def __init__(self, serverpk=None):
+    def __init__(self, serverpk: int = None) -> None:
         """Only call with serverpk=None if you will populate all fields
         manually (see e.g.
         get_contemporaneous_matching_ancillary_objects_by_fk)."""
@@ -2954,25 +2888,31 @@ class Ancillary(object):
                 serverpk)
 
     @classmethod
-    def get_pngblob_name_idfield_rotationfield_list(cls):
+    def get_pngblob_name_idfield_rotationfield_list(cls) -> List[str]:
         """As for Task. Override if the ancillary table implements BLOBs."""
         return []
 
-    def make_xml_branches_for_blob_fields(self, skip_fields=None):
+    def make_xml_branches_for_blob_fields(
+            self, skip_fields: List[str] = None) -> List[XmlElementTuple]:
         """Returns list of XmlElementTuple elements for BLOB fields."""
         skip_fields = skip_fields or []
         return make_xml_branches_for_blob_fields(self, skip_fields=skip_fields)
 
-    def get_blob_png_xml_tuple(self, blobid, name, rotation_clockwise_deg=0):
+    def get_blob_png_xml_tuple(
+            self,
+            blobid: int,
+            name: str,
+            rotation_clockwise_deg: float = 0) -> XmlElementTuple:
         """Get XmlElementTuple for a PNG BLOB."""
         return get_blob_png_xml_tuple(self, blobid, name,
                                       rotation_clockwise_deg)
 
-    def get_blob_by_id(self, blobid):
+    def get_blob_by_id(self, blobid: int) -> Optional[Blob]:
         """Get Blob() object from blob ID, or None."""
         return get_blob_by_id(self, blobid)
 
-    def get_cris_fieldspecs_values(self, common_fsv):
+    def get_cris_fieldspecs_values(self, common_fsv: FIELDSPECLIST_TYPE) \
+            -> FIELDSPECLIST_TYPE:
         fieldspecs = copy.deepcopy(self.get_full_fieldspecs())
         for fs in fieldspecs:
             fs["value"] = getattr(self, fs["name"])
@@ -2980,10 +2920,198 @@ class Ancillary(object):
 
 
 # =============================================================================
+# Task factory
+# =============================================================================
+
+def TaskFactory(basetable: str, serverpk: int) -> Task:
+    """Make a task, or return None.
+
+    Args:
+        basetable: string
+        serverpk: integer
+    """
+    for cls in Task.__subclasses__():
+        if basetable == cls.tablename:
+            return cls(serverpk)
+    return None
+    # raise ValueError, "Could not find a task for table {}".format(basetable)
+
+
+# =============================================================================
+# BLOB functions (shared between Task and Ancillary)
+# =============================================================================
+
+def make_xml_branches_for_blob_fields(
+        obj: Union[Task, Ancillary], 
+        skip_fields: bool = None) -> List[XmlElementTuple]:
+    """Returns list of XmlElementTuple elements for BLOB fields."""
+    skip_fields = skip_fields or []
+    branches = []
+    for t in obj.pngblob_name_idfield_rotationfield_list:
+        name = t[0]
+        blobid_field = t[1]
+        rotation_field = t[2]
+        if blobid_field in skip_fields:
+            continue
+        blobid = getattr(obj, blobid_field)
+        rotation = getattr(obj, rotation_field) \
+            if rotation_field else None
+        branches.append(
+            obj.get_blob_png_xml_tuple(blobid, name, rotation)
+        )
+    return branches
+
+
+def get_blob_png_xml_tuple(obj: Union[Task, Ancillary],
+                           blobid: int, 
+                           name: str, 
+                           rotation_clockwise_deg: float = 0) \
+        -> XmlElementTuple:
+    """Get XmlElementTuple for a PNG BLOB."""
+    blob = obj.get_blob_by_id(blobid)
+    if blob is None:
+        return cc_xml.get_xml_blob_tuple(name, None)
+    return blob.get_png_xml_tuple(name, rotation_clockwise_deg)
+
+
+def get_blob_by_id(obj: Union[Task, Ancillary],
+                   blobid: int) -> Optional[Blob]:
+    """Get Blob() object from blob ID, or None."""
+    if blobid is None:
+        return None
+    # noinspection PyProtectedMember
+    return cc_blob.get_contemporaneous_blob_by_client_info(
+        obj._device, blobid, obj._era,
+        obj._when_added_batch_utc, obj._when_removed_batch_utc)
+
+
+# =============================================================================
+# Cross-class generators and the like
+# =============================================================================
+
+def gen_tasks_matching_session_filter(session: Session) -> Iterator(Task):
+    """Generate tasks that match the session's filter settings."""
+
+    # Find candidate tasks meeting the filters
+    cls_pk_wc = []
+    for cls in Task.__subclasses__():
+        if cls.filter_allows_task_type(session):
+            pk_wc = cls.get_session_candidate_task_pks_whencreated(session)
+            cls_pk_wc.extend([(cls, row[0], row[1]) for row in pk_wc])
+    # Sort by when_created (conjointly across task classes)
+    cls_pk_wc = sorted(cls_pk_wc, key=operator.itemgetter(2), reverse=True)
+    # Yield those that really do match the filter
+    for cls, pk, wc in cls_pk_wc:
+        task = cls(pk)
+        if task is not None and task.is_compatible_with_filter(session):
+            yield task
+
+
+def gen_tasks_live_on_tablet(device_id: str) -> Iterator(Task):
+    """Generate tasks that are live on the device.
+    Includes non-current ones."""
+
+    cls_pk_wc = []
+    for cls in Task.__subclasses__():
+        table = cls.tablename
+        wcfield_utc = cls.whencreated_fieldexpr_as_utc()
+        query = """
+            SELECT  _pk, {wcfield_utc}
+            FROM    {t}
+            WHERE   _era = ?
+            AND     _device = ?
+        """.format(
+            wcfield_utc=wcfield_utc,
+            t=table,
+        )
+        args = [ERA_NOW, device_id]
+        pk_wc = pls.db.fetchall(query, *args)
+        cls_pk_wc.extend([(cls, row[0], row[1]) for row in pk_wc])
+    # Sort by when_created (conjointly across task classes)
+    cls_pk_wc = sorted(cls_pk_wc, key=operator.itemgetter(2), reverse=True)
+    # Yield them up
+    for cls, pk, wc in cls_pk_wc:
+        task = cls(pk)
+        if task is not None:
+            yield task
+
+
+def gen_tasks_using_patient(patient_id: int,
+                            device_id: str,
+                            era: str) -> Iterator(Task):
+    """Generate tasks sharing a particular patient record.
+    Includes non-current ones."""
+
+    cls_pk_wc = []
+    for cls in Task.__subclasses__():
+        if cls.is_anonymous:
+            continue
+        table = cls.tablename
+        wcfield_utc = cls.whencreated_fieldexpr_as_utc()
+        query = """
+            SELECT  _pk, {wcfield_utc}
+            FROM    {t}
+            WHERE   patient_id = ?
+            AND     _device = ?
+            AND     _era = ?
+        """.format(
+            wcfield_utc=wcfield_utc,
+            t=table,
+        )
+        args = [
+            patient_id,
+            device_id,
+            era
+        ]
+        pk_wc = pls.db.fetchall(query, *args)
+        cls_pk_wc.extend([(cls, row[0], row[1]) for row in pk_wc])
+    # Sort by when_created (conjointly across task classes)
+    cls_pk_wc = sorted(cls_pk_wc, key=operator.itemgetter(2), reverse=True)
+    # Yield them up
+    for cls, pk, wc in cls_pk_wc:
+        task = cls(pk)
+        if task is not None:
+            yield task
+
+
+def gen_tasks_for_patient_deletion(which_idnum: int,
+                                   idnum_value: int) -> Iterator(Task):
+    """Generate tasks to be affected by a delete-patient command."""
+
+    cls_pk_wc = []
+    for cls in Task.__subclasses__():
+        if cls.is_anonymous:
+            continue
+        pk_wc = cls.get_task_pks_wc_for_patient_deletion(which_idnum,
+                                                         idnum_value)
+        cls_pk_wc.extend([(cls, row[0], row[1]) for row in pk_wc])
+    # Sort by when_created (conjointly across task classes)
+    cls_pk_wc = sorted(cls_pk_wc, key=operator.itemgetter(2), reverse=True)
+    # Yield them up
+    for cls, pk, wc in cls_pk_wc:
+        task = cls(pk)
+        if task is not None:
+            yield task
+
+
+# =============================================================================
+# Tables used by tasks suitable for HL-7 export (i.e. not anonymous ones)
+# =============================================================================
+
+def get_base_tables(include_anonymous: bool = True) -> List[str]:
+    """Get a list of all tasks' base tables."""
+    return [
+        cls.tablename
+        for cls in Task.__subclasses__()
+        if (not cls.is_anonymous or include_anonymous)
+    ]
+
+
+# =============================================================================
 # Support functions
 # =============================================================================
 
-def get_task_filter_dropdown(currently_selected=None):
+def get_task_filter_dropdown(currently_selected: str = None) -> str:
     """Iterates through all tasks, generating a drop-down list."""
     taskoptions = []
     for cls in Task.__subclasses__():
@@ -3006,12 +3134,12 @@ def get_task_filter_dropdown(currently_selected=None):
     ) + "</select>"
 
 
-def get_from_dict(d, key, default=INVALID_VALUE):
+def get_from_dict(d: Dict, key: str, default: Any = INVALID_VALUE) -> Any:
     """Returns a value from a dictionary."""
     return d.get(key, default)
 
 
-def get_all_task_classes():
+def get_all_task_classes() -> List[Type[Task]]:
     classes = Task.__subclasses__()
     classes.sort(key=lambda cls: cls.shortname)
     return classes
@@ -3027,11 +3155,12 @@ class TaskCountReport(Report):
     report_title = "(Server) Count current task instances, by creation date"
     param_spec_list = []
 
-    def get_rows_descriptions(self):
+    def get_rows_descriptions(self) -> Tuple[Sequence[Sequence[Any]],
+                                             Sequence[str]]:
         final_rows = []
         fieldnames = []
         classes = Task.__subclasses__()
-        classes.sort(key=lambda cls: cls.tablename)
+        classes.sort(key=lambda cls_: cls_.tablename)
         for cls in classes:
             sql = """
                 SELECT
@@ -3059,7 +3188,7 @@ class TaskCountReport(Report):
 # URLs
 # =============================================================================
 
-def get_url_task(tablename, serverpk, outputtype):
+def get_url_task(tablename: str, serverpk: int, outputtype: str) -> str:
     """URL to view a particular task."""
     url = cc_html.get_generic_action_url(ACTION.TASK)
     url += cc_html.get_url_field_value_pair(PARAM.OUTPUTTYPE, outputtype)
@@ -3068,17 +3197,17 @@ def get_url_task(tablename, serverpk, outputtype):
     return url
 
 
-def get_url_task_pdf(tablename, serverpk):
+def get_url_task_pdf(tablename: str, serverpk: int) -> str:
     """URL to view a particular task as PDF."""
     return get_url_task(tablename, serverpk, VALUE.OUTPUTTYPE_PDF)
 
 
-def get_url_task_html(tablename, serverpk):
+def get_url_task_html(tablename: str, serverpk: int) -> str:
     """URL to view a particular task as HTML."""
     return get_url_task(tablename, serverpk, VALUE.OUTPUTTYPE_HTML)
 
 
-def get_url_task_xml(tablename, serverpk):
+def get_url_task_xml(tablename: str, serverpk: int) -> str:
     """URL to view a particular task as XML (with default options)."""
     url = get_url_task(tablename, serverpk, VALUE.OUTPUTTYPE_XML)
     url += cc_html.get_url_field_value_pair(PARAM.INCLUDE_BLOBS, 1)
@@ -3088,14 +3217,14 @@ def get_url_task_xml(tablename, serverpk):
     return url
 
 
-def get_url_erase_task(tablename, serverpk):
+def get_url_erase_task(tablename: str, serverpk: int) -> str:
     url = cc_html.get_generic_action_url(ACTION.ERASE_TASK)
     url += cc_html.get_url_field_value_pair(PARAM.TABLENAME, tablename)
     url += cc_html.get_url_field_value_pair(PARAM.SERVERPK, serverpk)
     return url
 
 
-def get_url_add_special_note(tablename, serverpk):
+def get_url_add_special_note(tablename: str, serverpk: int) -> str:
     url = cc_html.get_generic_action_url(ACTION.ADD_SPECIAL_NOTE)
     url += cc_html.get_url_field_value_pair(PARAM.TABLENAME, tablename)
     url += cc_html.get_url_field_value_pair(PARAM.SERVERPK, serverpk)
@@ -3106,7 +3235,9 @@ def get_url_add_special_note(tablename, serverpk):
 # Unit testing
 # =============================================================================
 
-def require_implementation(class_name, instance, method_name):
+def require_implementation(class_name: str,
+                           instance: Task,
+                           method_name: str) -> None:
     if not cc_lang.derived_class_implements_method(instance, Task,
                                                    method_name):
         raise NotImplementedError("class {} must implement {}".format(
@@ -3114,7 +3245,7 @@ def require_implementation(class_name, instance, method_name):
         ))
 
 
-def task_class_unit_test(cls):
+def task_class_unit_test(cls: Type[Task]) -> None:
     unit_test_require_truthy_attribute(cls, 'tablename')
     unit_test_require_truthy_attribute(cls, 'shortname')
     unit_test_require_truthy_attribute(cls, 'longname')
@@ -3123,6 +3254,7 @@ def task_class_unit_test(cls):
             get_object_name(cls)))
     fieldnames = cls.get_fieldnames()
     # No duplicate field names
+    # noinspection PyArgumentList
     duplicate_fieldnames = [
         x for x, count in collections.Counter(fieldnames).items() if count > 1]
     if duplicate_fieldnames:
@@ -3137,7 +3269,7 @@ def task_class_unit_test(cls):
                 cls.__name__, conflict))
 
 
-def ancillary_class_unit_test(cls):
+def ancillary_class_unit_test(cls: Type[Ancillary]) -> None:
     unit_test_require_truthy_attribute(cls, 'tablename')
     unit_test_require_truthy_attribute(cls, 'fkname')
     unit_test_require_truthy_attribute(cls, 'fieldspecs')
@@ -3150,9 +3282,9 @@ def ancillary_class_unit_test(cls):
             "Fields conflict with object attributes: {}".format(conflict))
 
 
-def task_instance_unit_test(name, instance):
+def task_instance_unit_test(name: str, instance: Task) -> None:
     """Unit test for an named instance of Task."""
-    recipient_def = cc_recipdef.RecipientDefinition()
+    recipient_def = RecipientDefinition()
 
     # -------------------------------------------------------------------------
     # Test methods
@@ -3462,12 +3594,15 @@ def task_instance_unit_test(name, instance):
                      instance.unit_tests)
 
 
-def task_instance_unit_test_slow(name, instance, skip_tasks=None):
+# noinspection PyUnusedLocal
+def task_instance_unit_test_slow(name: str,
+                                 instance: Task,
+                                 skip_tasks: List[str] = None) -> None:
     unit_test_ignore("Testing {}.get_pdf".format(name),
                      instance.get_pdf)
 
 
-def task_unit_test(cls):
+def task_unit_test(cls: Type[Task]) -> None:
     """Unit test for a Task subclass."""
     name = cls.__name__
     # Test class framework
@@ -3490,7 +3625,7 @@ def task_unit_test(cls):
     # Other classmethod tests
 
 
-def unit_tests():
+def unit_tests() -> None:
     """Unit tests for cc_task module."""
     unit_test_ignore("", TaskFactory, "xxx", 0)
     unit_test_ignore("", TaskFactory, "phq9", 0)
@@ -3512,7 +3647,7 @@ def unit_tests():
 
     skip_tasks = []
     classes = Task.__subclasses__()
-    classes.sort(key=lambda cls: cls.shortname)
+    classes.sort(key=lambda cls_: cls_.shortname)
     longnames = set()
     shortnames = set()
     tasktables = set()
@@ -3559,7 +3694,7 @@ def unit_tests():
         pls.db.rollback()
 
 
-def unit_tests_basic():
+def unit_tests_basic() -> None:
     "Preliminary quick checks."""
     classes = Task.__subclasses__()  # Don't sort yet, in case sortname missing
     for cls in classes:

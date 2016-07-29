@@ -21,9 +21,11 @@
     limitations under the License.
 """
 
+import cgi
 import http.cookies
 import datetime
 import math
+from typing import Any, Dict, List, Optional
 
 import cardinal_pythonlib.rnc_crypto as rnc_crypto
 import cardinal_pythonlib.rnc_db as rnc_db
@@ -52,7 +54,7 @@ DEFAULT_NUMBER_OF_TASKS_TO_VIEW = 25
 # Security for web sessions
 # =============================================================================
 
-def delete_old_sessions():
+def delete_old_sessions() -> None:
     """Delete all expired sessions."""
     log.info("Deleting expired sessions")
     cutoff = pls.NOW_UTC_NO_TZ - pls.SESSION_TIMEOUT
@@ -60,12 +62,12 @@ def delete_old_sessions():
                    " WHERE last_activity_utc < ?", cutoff)
 
 
-def is_token_in_use(token):
+def is_token_in_use(token: str) -> bool:
     """Is the session token already present in the database?"""
     return pls.db.does_row_exist(Session.TABLENAME, "token", token)
 
 
-def generate_token(num_bytes=16):
+def generate_token(num_bytes: int = 16) -> str:
     """Make a new session token that's not in use."""
     # http://stackoverflow.com/questions/817882/unique-session-id-in-python
     while True:
@@ -81,7 +83,7 @@ def generate_token(num_bytes=16):
 # Establishing sessions
 # =============================================================================
 
-def establish_session(env):
+def establish_session(env: Dict) -> None:
     """Look up details from the HTTP environment. Load existing session or
     create a new one. Session is then stored in pls.session (pls being
     process-local storage)."""
@@ -101,8 +103,11 @@ def establish_session(env):
     # Creates a new session if necessary
 
 
-def establish_session_for_tablet(session_id, session_token, ip_address,
-                                 username, password):
+def establish_session_for_tablet(session_id: Optional[int],
+                                 session_token: Optional[str],
+                                 ip_address: str,
+                                 username: str,
+                                 password: str) -> None:
     """As for establish_session, but without using HTTP cookies.
     Resulting session is stored in pls.session."""
     if not session_id or not session_token:
@@ -186,13 +191,16 @@ class Session:
     FIELDS = [x["name"] for x in FIELDSPECS]
 
     @classmethod
-    def make_tables(cls, drop_superfluous_columns=False):
+    def make_tables(cls, drop_superfluous_columns: bool = False) -> None:
         """Make underlying tables."""
         cc_db.create_or_update_table(
             cls.TABLENAME, cls.FIELDSPECS,
             drop_superfluous_columns=drop_superfluous_columns)
 
-    def __init__(self, pk=None, token=None, ip_address=None):
+    def __init__(self,
+                 pk: int = None,
+                 token: str = None,
+                 ip_address: str = None) -> None:
         """Initialize. Fetch existing session from database, or create a new
         session. Perform security checks if retrieving an existing session."""
         # Fetch-or-create process. Fetching requires a PK and a matching token.
@@ -236,12 +244,12 @@ class Session:
         else:
             self.userobject = None
 
-    def __set_defaults(self):
+    def __set_defaults(self) -> None:
         """Set some sensible default values."""
         self.number_to_view = DEFAULT_NUMBER_OF_TASKS_TO_VIEW
         self.first_task_to_view = 0
 
-    def logout(self):
+    def logout(self) -> None:
         """Log out, wiping session details. Also, perform periodic
         maintenance for the server, as this is a good time."""
         # First, the logout process.
@@ -260,7 +268,7 @@ class Session:
         cc_user.clear_dummy_login_failures_if_necessary()
         cc_analytics.send_analytics_if_necessary()
 
-    def save(self):
+    def save(self) -> None:
         """Save to database."""
         self.last_activity_utc = pls.NOW_UTC_NO_TZ
         if self.id is None:
@@ -288,7 +296,7 @@ class Session:
         ]
         # http://stackoverflow.com/questions/14107260
 
-    def login(self, userobject):
+    def login(self, userobject: cc_user.User) -> None:
         """Log in. Associates the user with the session and makes a new
         token."""
         log.debug("login: username = {}".format(userobject.user))
@@ -298,75 +306,75 @@ class Session:
         # fresh token: https://www.owasp.org/index.php/Session_fixation
         self.save()
 
-    def authorized_as_viewer(self):
+    def authorized_as_viewer(self) -> bool:
         """Is the user authorized as a viewer?"""
         if self.userobject is None:
             log.debug("not authorized as viewer: userobject is None")
             return False
         return self.userobject.may_use_webviewer or self.userobject.superuser
 
-    def authorized_to_add_special_note(self):
+    def authorized_to_add_special_note(self) -> bool:
         """Is the user authorized to add special notes?"""
         if self.userobject is None:
             return False
         return self.userobject.may_add_notes or self.userobject.superuser
 
-    def authorized_to_upload(self):
+    def authorized_to_upload(self) -> bool:
         """Is the user authorized to upload from tablet devices?"""
         if self.userobject is None:
             return False
         return self.userobject.may_upload or self.userobject.superuser
 
-    def authorized_for_webstorage(self):
+    def authorized_for_webstorage(self) -> bool:
         """Is the user authorized to upload for web storage?"""
         if self.userobject is None:
             return False
         return self.userobject.may_use_webstorage or self.userobject.superuser
 
-    def authorized_for_registration(self):
+    def authorized_for_registration(self) -> bool:
         """Is the user authorized to register tablet devices??"""
         if self.userobject is None:
             return False
         return (self.userobject.may_register_devices or
                 self.userobject.superuser)
 
-    def user_must_change_password(self):
+    def user_must_change_password(self) -> bool:
         """Must the user change their password now?"""
         if self.userobject is None:
             return False
         return self.userobject.must_change_password
 
-    def user_must_agree_terms(self):
+    def user_must_agree_terms(self) -> bool:
         """Must the user agree to the terms/conditions now?"""
         if self.userobject is None:
             return False
         return self.userobject.must_agree_terms()
 
-    def agree_terms(self):
+    def agree_terms(self) -> None:
         """Marks the user as having agreed to the terms/conditions now."""
         if self.userobject is None:
             return
         self.userobject.agree_terms()
 
-    def authorized_as_superuser(self):
+    def authorized_as_superuser(self) -> bool:
         """Is the user authorized as a superuser?"""
         if self.userobject is None:
             return False
         return self.userobject.superuser
 
-    def authorized_to_dump(self):
+    def authorized_to_dump(self) -> bool:
         """Is the user authorized to dump data?"""
         if self.userobject is None:
             return False
         return self.userobject.may_dump_data or self.userobject.superuser
 
-    def authorized_for_reports(self):
+    def authorized_for_reports(self) -> bool:
         """Is the user authorized to run reports?"""
         if self.userobject is None:
             return False
         return self.userobject.may_run_reports or self.userobject.superuser
 
-    def restricted_to_viewing_user(self):
+    def restricted_to_viewing_user(self) -> Optional[str]:
         """If the user is restricted to viewing only their own records, returns
         the name of the user to which they're restricted. Otherwise, returns
         None."""
@@ -378,14 +386,14 @@ class Session:
             return None
         return self.userobject.user
 
-    def user_may_view_all_patients_when_unfiltered(self):
+    def user_may_view_all_patients_when_unfiltered(self) -> bool:
         """May the user view all patients when no filters are applied?"""
         if self.userobject is None:
             return False
         return self.userobject.view_all_patients_when_unfiltered
         # For superusers, this is a preference.
 
-    def get_current_user_html(self, offer_main_menu=True):
+    def get_current_user_html(self, offer_main_menu: bool = True) -> str:
         """HTML showing current database/user, +/- link to main menu."""
         if self.user:
             user = "Logged in as <b>{}</b>.".format(ws.webify(self.user))
@@ -405,7 +413,7 @@ class Session:
     # Filters
     # -------------------------------------------------------------------------
 
-    def any_patient_filtering(self):
+    def any_patient_filtering(self) -> bool:
         """Is there some sort of patient filtering being applied?"""
         for n in range(1, NUMBER_OF_IDNUMS + 1):
             if getattr(self, "filter_idnum" + str(n)) is not None:
@@ -417,7 +425,7 @@ class Session:
             self.filter_sex is not None
         )
 
-    def any_specific_patient_filtering(self):
+    def any_specific_patient_filtering(self) -> bool:
         """Are there filters that would restrict to one or a few patients?"""
         # differs from any_patient_filtering w.r.t. sex
         for n in range(1, NUMBER_OF_IDNUMS + 1):
@@ -429,7 +437,7 @@ class Session:
             self.filter_dob_iso8601 is not None
         )
 
-    def get_current_filter_html(self):
+    def get_current_filter_html(self) -> str:
         """HTML showing current filters and offering ways to set them."""
         # Consider also multiple buttons in a single form:
         # http://stackoverflow.com/questions/942772
@@ -622,7 +630,7 @@ class Session:
     # Apply filters
     # -------------------------------------------------------------------------
 
-    def apply_filters(self, form):
+    def apply_filters(self, form: cgi.FieldStorage) -> None:
         """Apply filters from details in the CGI form."""
         filter_surname = ws.get_cgi_parameter_str_or_none(form, PARAM.SURNAME)
         if filter_surname:
@@ -675,7 +683,7 @@ class Session:
             self.filter_text = filter_text
         self.reset_pagination()
 
-    def apply_filter_surname(self, form):
+    def apply_filter_surname(self, form: cgi.FieldStorage) -> None:
         """Apply the surname filter."""
         self.filter_surname = ws.get_cgi_parameter_str_or_none(form,
                                                                PARAM.SURNAME)
@@ -683,7 +691,7 @@ class Session:
             self.filter_surname = self.filter_surname.upper()
         self.reset_pagination()
 
-    def apply_filter_forename(self, form):
+    def apply_filter_forename(self, form: cgi.FieldStorage) -> None:
         """Apply the forename filter."""
         self.filter_forename = ws.get_cgi_parameter_str_or_none(form,
                                                                 PARAM.FORENAME)
@@ -691,21 +699,21 @@ class Session:
             self.filter_forename = self.filter_forename.upper()
         self.reset_pagination()
 
-    def apply_filter_dob(self, form):
+    def apply_filter_dob(self, form: cgi.FieldStorage) -> None:
         """Apply the DOB filter."""
         dt = ws.get_cgi_parameter_datetime(form, PARAM.DOB)
         self.filter_dob_iso8601 = cc_dt.format_datetime(
             dt, DATEFORMAT.ISO8601_DATE_ONLY)  # NB date only
         self.reset_pagination()
 
-    def apply_filter_sex(self, form):
+    def apply_filter_sex(self, form: cgi.FieldStorage) -> None:
         """Apply the sex filter."""
         self.filter_sex = ws.get_cgi_parameter_str_or_none(form, PARAM.SEX)
         if self.filter_sex:
             self.filter_sex = self.filter_sex.upper()
         self.reset_pagination()
 
-    def apply_filter_idnums(self, form):
+    def apply_filter_idnums(self, form: cgi.FieldStorage) -> None:
         """Apply the ID number filter. Only one ID number filter at a time."""
         self.clear_filter_idnums()  # Only filter on one ID at a time.
         which_idnum = ws.get_cgi_parameter_int(form, PARAM.WHICH_IDNUM)
@@ -714,49 +722,49 @@ class Session:
             setattr(self, "filter_idnum" + str(which_idnum), idnum_value)
             self.reset_pagination()
 
-    def apply_filter_task(self, form):
+    def apply_filter_task(self, form: cgi.FieldStorage) -> None:
         """Apply the task filter."""
         self.filter_task = ws.get_cgi_parameter_str_or_none(form, PARAM.TASK)
         self.reset_pagination()
 
-    def apply_filter_complete(self, form):
+    def apply_filter_complete(self, form: cgi.FieldStorage) -> None:
         """Apply the "complete Y/N" filter."""
         self.filter_complete = ws.get_cgi_parameter_bool_or_none(
             form, PARAM.COMPLETE)
         self.reset_pagination()
 
-    def apply_filter_include_old_versions(self, form):
+    def apply_filter_include_old_versions(self, form: cgi.FieldStorage) -> None:
         """Apply "allow old versions" unusual filter."""
         self.filter_include_old_versions = ws.get_cgi_parameter_bool_or_none(
             form, PARAM.INCLUDE_OLD_VERSIONS)
         self.reset_pagination()
 
-    def apply_filter_device(self, form):
+    def apply_filter_device(self, form: cgi.FieldStorage) -> None:
         """Apply the device filter."""
         self.filter_device = ws.get_cgi_parameter_str_or_none(form,
                                                               PARAM.DEVICE)
         self.reset_pagination()
 
-    def apply_filter_user(self, form):
+    def apply_filter_user(self, form: cgi.FieldStorage) -> None:
         """Apply the uploading user filter."""
         self.filter_user = ws.get_cgi_parameter_str_or_none(form, PARAM.USER)
         self.reset_pagination()
 
-    def apply_filter_start_datetime(self, form):
+    def apply_filter_start_datetime(self, form: cgi.FieldStorage) -> None:
         """Apply the start date filter."""
         dt = ws.get_cgi_parameter_datetime(form, PARAM.START_DATETIME)
         self.filter_start_datetime_iso8601 = cc_dt.format_datetime(
             dt, DATEFORMAT.ISO8601)
         self.reset_pagination()
 
-    def apply_filter_end_datetime(self, form):
+    def apply_filter_end_datetime(self, form: cgi.FieldStorage) -> None:
         """Apply the end date filter."""
         dt = ws.get_cgi_parameter_datetime(form, PARAM.END_DATETIME)
         self.filter_end_datetime_iso8601 = cc_dt.format_datetime(
             dt, DATEFORMAT.ISO8601)
         self.reset_pagination()
 
-    def apply_filter_text(self, form):
+    def apply_filter_text(self, form: cgi.FieldStorage) -> None:
         """Apply the text contents filter."""
         self.filter_text = ws.get_cgi_parameter_str_or_none(form, "text")
         self.reset_pagination()
@@ -765,7 +773,7 @@ class Session:
     # Clear filters
     # -------------------------------------------------------------------------
 
-    def clear_filters(self):
+    def clear_filters(self) -> None:
         """Clear all filters."""
         self.filter_surname = None
         self.filter_forename = None
@@ -783,68 +791,68 @@ class Session:
         self.filter_text = None
         self.reset_pagination()
 
-    def clear_filter_surname(self):
+    def clear_filter_surname(self) -> None:
         """Clear surname filter."""
         self.filter_surname = None
         self.reset_pagination()
 
-    def clear_filter_forename(self):
+    def clear_filter_forename(self) -> None:
         """Clear forename filter."""
         self.filter_forename = None
         self.reset_pagination()
 
-    def clear_filter_dob(self):
+    def clear_filter_dob(self) -> None:
         """Clear DOB filter."""
         self.filter_dob_iso8601 = None
         self.reset_pagination()
 
-    def clear_filter_sex(self):
+    def clear_filter_sex(self) -> None:
         """Clear sex filter."""
         self.filter_sex = None
         self.reset_pagination()
 
-    def clear_filter_idnums(self):
+    def clear_filter_idnums(self) -> None:
         """Clear all ID number filters."""
         for n in range(1, NUMBER_OF_IDNUMS + 1):
             setattr(self, "filter_idnum" + str(n), None)
         self.reset_pagination()
 
-    def clear_filter_task(self):
+    def clear_filter_task(self) -> None:
         """Clear task filter."""
         self.filter_task = None
         self.reset_pagination()
 
-    def clear_filter_complete(self):
+    def clear_filter_complete(self) -> None:
         """Clear "complete Y/N" filter."""
         self.filter_complete = None
         self.reset_pagination()
 
-    def clear_filter_include_old_versions(self):
+    def clear_filter_include_old_versions(self) -> None:
         """Clear "allow old versions" unusual filter."""
         self.filter_include_old_versions = None
         self.reset_pagination()
 
-    def clear_filter_device(self):
+    def clear_filter_device(self) -> None:
         """Clear device filter."""
         self.filter_device = None
         self.reset_pagination()
 
-    def clear_filter_user(self):
+    def clear_filter_user(self) -> None:
         """Clear uploading user filter."""
         self.filter_user = None
         self.reset_pagination()
 
-    def clear_filter_start_datetime(self):
+    def clear_filter_start_datetime(self) -> None:
         """Clear start date filter."""
         self.filter_start_datetime_iso8601 = None
         self.reset_pagination()
 
-    def clear_filter_end_datetime(self):
+    def clear_filter_end_datetime(self) -> None:
         """Clear end date filter."""
         self.filter_end_datetime_iso8601 = None
         self.reset_pagination()
 
-    def clear_filter_text(self):
+    def clear_filter_text(self) -> None:
         """Clear text contents filter."""
         self.filter_text = None
         self.reset_pagination()
@@ -853,20 +861,21 @@ class Session:
     # Additional for date/time filters
     # -------------------------------------------------------------------------
 
-    def get_filter_dob(self):
+    def get_filter_dob(self) -> Optional[datetime.datetime]:
         """Get filtering DOB as a datetime."""
         return cc_dt.get_datetime_from_string(self.filter_dob_iso8601)
 
-    def get_filter_start_datetime(self):
+    def get_filter_start_datetime(self) -> Optional[datetime.datetime]:
         """Get start date filter as a datetime."""
         return cc_dt.get_datetime_from_string(
             self.filter_start_datetime_iso8601)
 
-    def get_filter_end_datetime(self):
+    def get_filter_end_datetime(self) -> Optional[datetime.datetime]:
         """Get end date filter as a datetime."""
         return cc_dt.get_datetime_from_string(self.filter_end_datetime_iso8601)
 
-    def get_filter_end_datetime_corrected_1day(self):
+    def get_filter_end_datetime_corrected_1day(self) \
+            -> Optional[datetime.datetime]:
         """When we say "From Monday to Tuesday", we mean "including all of
         Tuesday", i.e. up to the start of Wednesday."""
         # End date will be midnight at the START of the day;
@@ -880,37 +889,37 @@ class Session:
     # Pagination
     # -------------------------------------------------------------------------
 
-    def get_first_task_to_view(self):
+    def get_first_task_to_view(self) -> int:
         """Task number to start the page with."""
         if self.first_task_to_view is None:
             return 0
         return self.first_task_to_view
 
-    def get_last_task_to_view(self, ntasks):
+    def get_last_task_to_view(self, ntasks: int) -> int:
         """Task number to end the page with."""
         if self.number_to_view is None:
             return ntasks
         return min(ntasks, self.get_first_task_to_view() + self.number_to_view)
 
-    def get_npages(self, ntasks):
+    def get_npages(self, ntasks: int) -> int:
         """Number of pages."""
         if not ntasks or not self.number_to_view:
             return 1
         return math.ceil(ntasks / self.number_to_view)
 
-    def get_current_page(self):
+    def get_current_page(self) -> int:
         """Current page we're on."""
         if not self.number_to_view:
             return 1
         return (self.get_first_task_to_view() // self.number_to_view) + 1
 
-    def change_number_to_view(self, form):
+    def change_number_to_view(self, form: cgi.FieldStorage) -> None:
         """Set how many tasks to view per page (from CGI form)."""
         self.number_to_view = ws.get_cgi_parameter_int(form,
                                                        PARAM.NUMBER_TO_VIEW)
         self.reset_pagination()
 
-    def get_number_to_view_selector(self):
+    def get_number_to_view_selector(self) -> str:
         """HTML form to choose how many tasks to view."""
         options = [5, 25, 50, 100]
         html = """
@@ -938,16 +947,16 @@ class Session:
         """
         return html
 
-    def reset_pagination(self):
+    def reset_pagination(self) -> None:
         """Return to first page. Use whenever page length changes."""
         self.first_task_to_view = 0
         self.save()
 
-    def first_page(self):
+    def first_page(self) -> None:
         """Go to first page."""
         self.reset_pagination()
 
-    def previous_page(self):
+    def previous_page(self) -> None:
         """Go to previous page."""
         if self.number_to_view:
             self.first_task_to_view = max(
@@ -955,7 +964,7 @@ class Session:
                 self.first_task_to_view - self.number_to_view)
             self.save()
 
-    def next_page(self, ntasks):
+    def next_page(self, ntasks: int) -> None:
         """Go to next page."""
         if self.number_to_view:
             self.first_task_to_view = min(
@@ -964,7 +973,7 @@ class Session:
             )
             self.save()
 
-    def last_page(self, ntasks):
+    def last_page(self, ntasks: int) -> None:
         """Go to last page."""
         if self.number_to_view and ntasks:
             self.first_task_to_view = (
@@ -977,12 +986,13 @@ class Session:
 # More on filters
 # =============================================================================
 
-def get_filter_html(filter_name,
-                    filter_value,
-                    clear_action,
-                    apply_field_html,
-                    apply_action,
-                    filter_list):
+# noinspection PyUnusedLocal
+def get_filter_html(filter_name: str,
+                    filter_value: Any,
+                    clear_action: str,
+                    apply_field_html: str,
+                    apply_action: str,
+                    filter_list: List[str]) -> bool:
     """HTML to view or change a filter."""
     # returns: found a filter?
     no_filter_value = (
@@ -1021,7 +1031,7 @@ def get_filter_html(filter_name,
 # Unit tests
 # =============================================================================
 
-def unit_tests_session(s):
+def unit_tests_session(s: Session) -> None:
     """Unit tests for Session class."""
     ntasks = 75
 
@@ -1093,7 +1103,7 @@ def unit_tests_session(s):
     # get_filter_html: tested implicitly
 
 
-def unit_tests():
+def unit_tests() -> None:
     """Unit tests for cc_session module."""
     unit_test_ignore("", delete_old_sessions)
     unit_test_ignore("", is_token_in_use, "dummytoken")

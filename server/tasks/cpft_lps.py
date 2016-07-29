@@ -46,7 +46,7 @@ from cc_modules.cc_nhs import (
 from cc_modules.cc_pls import pls
 from cc_modules.cc_string import WSTRING
 from cc_modules.cc_task import Task
-from cc_modules.cc_report import Report
+from cc_modules.cc_report import Report, ReportParamSpec
 
 
 # =============================================================================
@@ -675,13 +675,9 @@ ID_NUMBER_TO_LINK_ON_LABEL = "ID number to link on?"
 class LPS_Report_Referred_Not_Discharged(Report):
     report_id = "cpft_lps_referred_not_subsequently_discharged"
     report_title = "CPFT LPS – referred but not yet discharged"
-    param_spec_list = [
-        {
-            "type": PARAM.WHICH_IDNUM,
-            "name": "linking_idnum",
-            "label": ID_NUMBER_TO_LINK_ON_LABEL,
-        },
-    ]
+    param_spec_list = [ReportParamSpec(type=PARAM.WHICH_IDNUM,
+                                       name="linking_idnum",
+                                       label=ID_NUMBER_TO_LINK_ON_LABEL)]
 
     @staticmethod
     def get_rows_descriptions(linking_idnum=None):
@@ -737,13 +733,9 @@ class LPS_Report_Referred_Not_Clerked_Or_Discharged(Report):
     report_id = "cpft_lps_referred_not_subsequently_clerked_or_discharged"
     report_title = ("CPFT LPS – referred but not yet fully assessed or "
                     "discharged")
-    param_spec_list = [
-        {
-            "type": PARAM.WHICH_IDNUM,
-            "name": "linking_idnum",
-            "label": ID_NUMBER_TO_LINK_ON_LABEL,
-        },
-    ]
+    param_spec_list = [ReportParamSpec(type=PARAM.WHICH_IDNUM,
+                                       name="linking_idnum",
+                                       label=ID_NUMBER_TO_LINK_ON_LABEL)]
 
     @staticmethod
     def get_rows_descriptions(linking_idnum=None):

@@ -391,7 +391,7 @@ class DateTimeAsIsoText(TypeDecorator):
             # NOT YET IMPLEMENTED: dialects other than MySQL, and how to
             # detect the dialect at this point.
 
-        # noinspection PyMethodMayBeStatic
+        # noinspection PyMethodMayBeStatic,PyUnusedLocal
         def reverse_operate(self, op, other):
             assert False, "I don't think this is ever being called"
 

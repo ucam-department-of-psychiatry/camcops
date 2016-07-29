@@ -1116,11 +1116,13 @@ def get_extra_strings(form):
 # Action processors that require UPLOAD privilege
 # =============================================================================
 
+# noinspection PyUnusedLocal
 def check_upload_user_and_device(form):
     """Stub function for the operation to check that a user is valid."""
     pass  # don't need to do anything!
 
 
+# noinspection PyUnusedLocal
 def get_id_info(form):
     """Fetch server ID information."""
     return get_server_id_info()
@@ -1341,7 +1343,7 @@ def which_keys_to_send(form):
 # Action processors that require MOBILEWEB privilege
 # =============================================================================
 
-def count(form):
+def mw_count(form):
     """Count records in a table, given a set of WHERE/WHERE NOT conditions,
     joined by AND."""
     device = get_post_var(form, PARAM.DEVICE)
@@ -1360,7 +1362,7 @@ def count(form):
     return c
 
 
-def select(form):
+def mw_select(form):
     """Select fields from a table, specified by WHERE/WHERE NOT criteria,
     joined by AND. Return format: see get_select_reply() help.
     """
@@ -1395,7 +1397,7 @@ def select(form):
     return reply
 
 
-def insert(form):
+def mw_insert(form):
     """Mobileweb client non-transactional INSERT."""
     # Non-transactional
     #
@@ -1426,7 +1428,7 @@ def insert(form):
     return clientpk_value
 
 
-def update(form):
+def mw_update(form):
     """Mobileweb client non-transactional UPDATE."""
     # Non-transactional
     device = get_post_var(form, PARAM.DEVICE)
@@ -1462,7 +1464,7 @@ def update(form):
     return "Updated"
 
 
-def delete(form):
+def mw_delete(form):
     """Mobileweb client non-transactional DELETE."""
     # Non-transactional
     device = get_post_var(form, PARAM.DEVICE)
@@ -1503,11 +1505,11 @@ OPERATIONS_UPLOAD = {
     "which_keys_to_send": which_keys_to_send,
 }
 OPERATIONS_MOBILEWEB = {
-    "count": count,
-    "select": select,
-    "insert": insert,
-    "update": update,
-    "delete": delete,
+    "count": mw_count,
+    "select": mw_select,
+    "insert": mw_insert,
+    "update": mw_update,
+    "delete": mw_delete,
 }
 
 
@@ -1694,7 +1696,7 @@ def unit_tests():
     not_enc_2 = "64'aGVsbG8='"
     teststring = """one, two, 3, 4.5, NULL, 'hello "hi
         with linebreak"', 'NULL', 'quote''s here', {b}, {h}, {s1}, {s2}"""
-    SQL_CSV_TESTDICT = {
+    sql_csv_testdict = {
         teststring.format(
             b=enc_b64data,
             h=enc_hexdata,
@@ -1716,7 +1718,7 @@ def unit_tests():
         ],
         "": [],
     }
-    for k, v in SQL_CSV_TESTDICT.items():
+    for k, v in sql_csv_testdict.items():
         r = decode_values(k)
         if r != v:
             raise AssertionError(

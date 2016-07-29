@@ -23,13 +23,14 @@
 
 import unicodedata
 import six
+from typing import Any, Dict, List, Optional, Sequence, Type, TypeVar, Union
 
 
 # =============================================================================
 # Misc language-oriented functions
 # =============================================================================
 
-def mean(values):
+def mean(values: Sequence[Union[int, float, None]]) -> Optional[float]:
     """Return mean of a list of numbers, or None."""
     total = 0.0  # starting with "0.0" causes automatic conversion to float
     n = 0
@@ -73,8 +74,13 @@ derived_class_implements_method(Derived, Base, 'three')  # should be False
 
 """
 
+T1 = TypeVar['T1']
+T2 = TypeVar['T2']
 
-def derived_class_implements_method(derived, base, method_name):
+
+def derived_class_implements_method(derived: Type[T1],
+                                    base: Type[T2],
+                                    method_name: str) -> bool:
     derived_method = getattr(derived, method_name, None)
     if derived_method is None:
         return False
@@ -85,12 +91,12 @@ def derived_class_implements_method(derived, base, method_name):
         return derived_method is not base_method
 
 
-def flatten_list(l):
+def flatten_list(l) -> List[Any]:
     return [item for sublist in l for item in sublist]
     # http://stackoverflow.com/questions/952914/
 
 
-def is_false(x):
+def is_false(x: Any) -> bool:
     """Positively false? Evaluates: not x and x is not None."""
     # beware: "0 is False" evaluates to False -- AVOID "is False"!
     # ... but "0 == False" evaluates to True
@@ -102,7 +108,7 @@ def is_false(x):
     return not x and x is not None
 
 
-def mangle_unicode_to_str(s):
+def mangle_unicode_to_str(s: Any) -> str:  # TODO: recheck for Python 3
     """Mangle unicode to str, losing accents etc. in the process."""
     # http://stackoverflow.com/questions/1207457
     if s is None:
@@ -127,7 +133,7 @@ class BetweenDict(dict):
     INVALID_MSG_VALUE = "First element of key must be less than second element"
 
     # noinspection PyMissingConstructor
-    def __init__(self, d=None):
+    def __init__(self, d: Dict = None) -> None:
         d = d or {}
         for k, v in d.items():
             self[k] = v
@@ -151,6 +157,7 @@ class BetweenDict(dict):
 
     def __contains__(self, key):
         try:
+            # noinspection PyStatementEffect
             self[key]
             return True
         except KeyError:

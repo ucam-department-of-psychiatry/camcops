@@ -67,14 +67,14 @@ class Bars(Task):
 
     def get_task_html(self):
         score = self.total_score()
-        ANSWER_DICTS_DICT = {}
+        answer_dicts_dict = {}
         for q in self.TASK_FIELDS:
             d = {None: "?"}
             for option in range(0, 6):
                 if option > 3 and q == "q4":
                     continue
                 d[option] = WSTRING("bars_" + q + "_option" + str(option))
-            ANSWER_DICTS_DICT[q] = d
+            answer_dicts_dict[q] = d
         h = self.get_standard_clinician_block() + """
             <div class="summary">
                 <table class="summary">
@@ -94,7 +94,7 @@ class Bars(Task):
         for q in self.TASK_FIELDS:
             h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
                 WSTRING("bars_" + q + "_s"),
-                get_from_dict(ANSWER_DICTS_DICT[q], getattr(self, q))
+                get_from_dict(answer_dicts_dict[q], getattr(self, q))
             )
         h += """
             </table>

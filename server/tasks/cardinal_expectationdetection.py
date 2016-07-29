@@ -75,7 +75,7 @@ def a(x):
 # Cardinal_ExpectationDetection
 # =============================================================================
 
-class ExpDet_Trial(Ancillary):
+class ExpDetTrial(Ancillary):
     tablename = "cardinal_expdet_trials"
     fkname = "cardinal_expdet_id"
     fieldspecs = [
@@ -235,7 +235,7 @@ class ExpDet_Trial(Ancillary):
         )
 
 
-class ExpDet_TrialGroupSpec(Ancillary):
+class ExpDetTrialGroupSpec(Ancillary):
     DP = 3
 
     tablename = "cardinal_expdet_trialgroupspec"
@@ -284,7 +284,7 @@ class ExpDet_TrialGroupSpec(Ancillary):
         )
 
 
-class Cardinal_ExpectationDetection(Task):
+class CardinalExpectationDetection(Task):
     tablename = "cardinal_expdet"
     shortname = "Cardinal_ExpDet"
     longname = "Cardinal RN – Expectation–Detection task"
@@ -338,7 +338,7 @@ class Cardinal_ExpectationDetection(Task):
              comment="Number of last trial completed"),
     ]
     use_landscape_for_pdf = True
-    dependent_classes = [ExpDet_Trial, ExpDet_TrialGroupSpec]
+    dependent_classes = [ExpDetTrial, ExpDetTrialGroupSpec]
     # -------------------------------------------------------------------------
     # extra_summary_table_info
     # -------------------------------------------------------------------------
@@ -455,7 +455,7 @@ class Cardinal_ExpectationDetection(Task):
 
     @staticmethod
     def get_group_html(grouparray):
-        html = ExpDet_TrialGroupSpec.get_html_table_header()
+        html = ExpDetTrialGroupSpec.get_html_table_header()
         for g in grouparray:
             html += g.get_html_table_row()
         html += """</table>"""
@@ -528,7 +528,7 @@ class Cardinal_ExpectationDetection(Task):
 
     def plot_roc(self, ax, count_stimulus, count_nostimulus, show_x_label,
                  show_y_label, plainroc, subtitle):
-        EXTRASPACE = 0.05
+        extraspace = 0.05
         sdtval = self.get_sdt_values(count_stimulus, count_nostimulus)
 
         # Calculate d' for all pairs but the last
@@ -537,8 +537,8 @@ class Cardinal_ExpectationDetection(Task):
             y = sdtval["h"]
             xlabel = "FA"
             ylabel = "H"
-            ax.set_xlim(0 - EXTRASPACE, 1 + EXTRASPACE)
-            ax.set_ylim(0 - EXTRASPACE, 1 + EXTRASPACE)
+            ax.set_xlim(0 - extraspace, 1 + extraspace)
+            ax.set_ylim(0 - extraspace, 1 + extraspace)
         else:
             x = sdtval["z_fa"]
             y = sdtval["z_h"]
@@ -585,9 +585,9 @@ class Cardinal_ExpectationDetection(Task):
     def get_roc_figure_by_group(self, trialarray, grouparray, plainroc):
         if not trialarray or not grouparray:
             return WARNING_INSUFFICIENT_DATA
-        FIGSIZE = (FULLWIDTH_PLOT_WIDTH*2, FULLWIDTH_PLOT_WIDTH)
+        figsize = (FULLWIDTH_PLOT_WIDTH*2, FULLWIDTH_PLOT_WIDTH)
         html = ""
-        fig = plt.figure(figsize=FIGSIZE)
+        fig = plt.figure(figsize=figsize)
         warned = False
         for groupnum in range(len(grouparray)):
             ax = fig.add_subplot(2, 4, groupnum+1)
@@ -618,9 +618,9 @@ class Cardinal_ExpectationDetection(Task):
     def get_roc_figure_firsthalf_lasthalf(self, trialarray, plainroc):
         if not trialarray or not self.num_blocks:
             return WARNING_INSUFFICIENT_DATA
-        FIGSIZE = (FULLWIDTH_PLOT_WIDTH, FULLWIDTH_PLOT_WIDTH/2)
+        figsize = (FULLWIDTH_PLOT_WIDTH, FULLWIDTH_PLOT_WIDTH/2)
         html = ""
-        fig = plt.figure(figsize=FIGSIZE)
+        fig = plt.figure(figsize=figsize)
         warned = False
         for half in range(2):
             ax = fig.add_subplot(1, 2, half+1)
@@ -652,7 +652,7 @@ class Cardinal_ExpectationDetection(Task):
 
     @staticmethod
     def get_trial_html(trialarray):
-        html = ExpDet_Trial.get_html_table_header()
+        html = ExpDetTrial.get_html_table_header()
         for t in trialarray:
             html += t.get_html_table_row()
         html += """</table>"""
@@ -660,11 +660,11 @@ class Cardinal_ExpectationDetection(Task):
 
     def get_group_array(self):
         # Fetch group details
-        return self.get_ancillary_items(ExpDet_TrialGroupSpec)
+        return self.get_ancillary_items(ExpDetTrialGroupSpec)
 
     def get_trial_array(self):
         # Fetch trial details
-        return self.get_ancillary_items(ExpDet_Trial)
+        return self.get_ancillary_items(ExpDetTrial)
 
     def get_task_html(self):
         grouparray = self.get_group_array()

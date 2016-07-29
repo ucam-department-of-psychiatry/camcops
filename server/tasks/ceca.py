@@ -619,17 +619,17 @@ class CecaQ3(Task):
 
     def is_complete(self):
         return (
-            self.complete_1A() and
-            self.complete_1B() and
-            self.complete_1C() and
-            self.complete_2A() and
-            self.complete_2B() and
-            self.complete_3A() and
-            self.complete_3B() and
-            self.complete_3C() and
-            self.complete_4A() and
-            self.complete_4B() and
-            self.complete_4C() and
+            self.complete_1a() and
+            self.complete_1b() and
+            self.complete_1c() and
+            self.complete_2a() and
+            self.complete_2b() and
+            self.complete_3a() and
+            self.complete_3b() and
+            self.complete_3c() and
+            self.complete_4a() and
+            self.complete_4b() and
+            self.complete_4c() and
             self.complete_5() and
             self.complete_6() and
             self.field_contents_valid()
@@ -641,7 +641,7 @@ class CecaQ3(Task):
                 return True
         return True
 
-    def complete_1A(self):
+    def complete_1a(self):
         if not self.is_at_least_one_field_true([
             "s1a_motherfigure_birthmother",
             "s1a_motherfigure_stepmother",
@@ -673,14 +673,14 @@ class CecaQ3(Task):
             return False
         return True
 
-    def complete_1B(self):
+    def complete_1b(self):
         if self.s1b_institution is None:
             return False
         if self.s1b_institution and self.s1b_institution_time_years is None:
             return False
         return True
 
-    def complete_1C(self):
+    def complete_1c(self):
         if self.s1c_mother_died is None or self.s1c_father_died is None:
             return False
         if self.s1c_mother_died and self.s1c_mother_died_subject_aged is None:
@@ -706,7 +706,7 @@ class CecaQ3(Task):
                 return False
         return True
 
-    def complete_2A(self):
+    def complete_2a(self):
         if self.s2a_which_mother_figure is None:
             return False
         if self.s2a_which_mother_figure == 0:
@@ -719,7 +719,7 @@ class CecaQ3(Task):
                 return False
         return True
 
-    def complete_2B(self):
+    def complete_2b(self):
         abuse = False
         if self.s2a_which_mother_figure == 0:
             return True
@@ -734,7 +734,7 @@ class CecaQ3(Task):
             return False
         return True
 
-    def complete_3A(self):
+    def complete_3a(self):
         if self.s3a_which_father_figure is None:
             return False
         if self.s3a_which_father_figure == 0:
@@ -747,7 +747,7 @@ class CecaQ3(Task):
                 return False
         return True
 
-    def complete_3B(self):
+    def complete_3b(self):
         abuse = False
         if self.s3a_which_father_figure == 0:
             return True
@@ -762,7 +762,7 @@ class CecaQ3(Task):
             return False
         return True
 
-    def complete_3C(self):
+    def complete_3c(self):
         return self.are_all_fields_complete([
             "s3c_q1",
             "s3c_q2",
@@ -786,7 +786,7 @@ class CecaQ3(Task):
             "s3c_parent_physical_problem"
         ])
 
-    def complete_4A(self):
+    def complete_4a(self):
         if self.s4a_adultconfidant is None:
             return False
         if not self.s4a_adultconfidant:
@@ -805,7 +805,7 @@ class CecaQ3(Task):
             return False
         return True
 
-    def complete_4B(self):
+    def complete_4b(self):
         if self.s4b_childconfidant is None:
             return False
         if not self.s4b_childconfidant:
@@ -824,7 +824,7 @@ class CecaQ3(Task):
             return False
         return True
 
-    def complete_4C(self):
+    def complete_4c(self):
         n = 0
         if self.s4c_closest_mother:
             n += 1

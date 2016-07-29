@@ -21,6 +21,8 @@
     limitations under the License.
 """
 
+import datetime
+from typing import Optional
 
 import wand.image
 # ... sudo apt-get install libmagickwand-dev; sudo pip install Wand
@@ -31,6 +33,7 @@ import cardinal_pythonlib.rnc_web as ws
 from .cc_constants import ERA_NOW, STANDARD_GENERIC_FIELDSPECS
 from . import cc_db
 from .cc_logger import log
+from .cc_namedtuples import XmlElementTuple
 from .cc_pls import pls
 from .cc_unittest import unit_test_ignore
 from . import cc_xml
@@ -81,23 +84,23 @@ class Blob(object):
     FIELDS = [x["name"] for x in FIELDSPECS]
 
     @classmethod
-    def make_tables(cls, drop_superfluous_columns=False):
+    def make_tables(cls, drop_superfluous_columns: bool = False) -> None:
         """Make associated database tables."""
         cc_db.create_standard_table(
             cls.TABLENAME, cls.FIELDSPECS,
             drop_superfluous_columns=drop_superfluous_columns)
 
-    def __init__(self, serverpk):
+    def __init__(self, serverpk: Optional[int]) -> None:
         """Initialize, loading from the database if necessary."""
         pls.db.fetch_object_from_db_by_pk(self, Blob.TABLENAME, Blob.FIELDS,
                                           serverpk)
         # self.dump()
 
-    def dump(self):
+    def dump(self) -> None:
         """Debugging option to dump the object."""
         rnc_db.dump_database_object(self, Blob.FIELDS_WITHOUT_BLOB)
 
-    def get_rotated_image(self, rotation_clockwise_deg=0):
+    def get_rotated_image(self, rotation_clockwise_deg: float = 0) -> bytes:
         """Returns a binary PNG image, having rotated if necessary, or None."""
         if not self.theblob:
             return None
@@ -107,25 +110,28 @@ class Blob(object):
             img.rotate(rotation_clockwise_deg)
             return img.make_blob('png')
 
-    def get_png_img_html(self, rotation_clockwise_deg=0):
+    def get_png_img_html(self, rotation_clockwise_deg: float = 0) -> str:
         """Returns an HTML IMG tag encoding the PNG, or ''."""
         image_bits = self.get_rotated_image(rotation_clockwise_deg)
         if not image_bits:
             return ""
         return ws.get_png_img_html(image_bits)
 
-    def get_png_xml_tuple(self, name, rotation_clockwise_deg=0):
+    def get_png_xml_tuple(self,
+                          name: str,
+                          rotation_clockwise_deg: float = 0) \
+            -> XmlElementTuple:
         """Returns an XmlElementTuple for this object."""
         image_bits = self.get_rotated_image(rotation_clockwise_deg)
         return cc_xml.get_xml_blob_tuple(name, image_bits)
 
-    def get_png_data_url(self):
+    def get_png_data_url(self) -> str:
         """Returns a data URL encapsulating the PNG, or ''."""
         if not self.theblob:
             return ""
         return ws.get_png_data_url(self.theblob)
 
-    def is_valid_png(self):
+    def is_valid_png(self) -> bool:
         """Checks to see if the BLOB appears to be a valid PNG."""
         return ws.is_valid_png(self.theblob)
 
@@ -134,7 +140,9 @@ class Blob(object):
 # Database lookup
 # =============================================================================
 
-def get_current_blob_by_client_info(device, clientpk, era):
+def get_current_blob_by_client_info(device: str,
+                                    clientpk: int,
+                                    era: str) -> Optional[Blob]:
     """Returns the current Blob object, or None."""
     serverpk = cc_db.get_current_server_pk_by_client_info(
         Blob.TABLENAME, device, clientpk, era)
@@ -144,9 +152,12 @@ def get_current_blob_by_client_info(device, clientpk, era):
     return Blob(serverpk)
 
 
-def get_contemporaneous_blob_by_client_info(device, clientpk, era,
-                                            referrer_added_utc,
-                                            referrer_removed_utc):
+def get_contemporaneous_blob_by_client_info(
+        device: str,
+        clientpk: int,
+        era: str,
+        referrer_added_utc: datetime.datetime,
+        referrer_removed_utc: datetime.datetime) -> Optional[Blob]:
     """Returns a contemporaneous Blob object, or None.
 
     Use particularly to look up BLOBs matching old task records.
@@ -164,7 +175,7 @@ def get_contemporaneous_blob_by_client_info(device, clientpk, era,
 # Unit tests
 # =============================================================================
 
-def unit_tests_blob(blob):
+def unit_tests_blob(blob: Blob) -> None:
     """Unit tests for the Blob class."""
     # skip Blob.make_tables
     unit_test_ignore("", blob.dump)
@@ -179,7 +190,7 @@ def unit_tests_blob(blob):
     unit_test_ignore("", blob.is_valid_png)
 
 
-def unit_tests():
+def unit_tests() -> None:
     """Unit tests for the cc_blob module."""
     current_pks = pls.db.fetchallfirstvalues(
         "SELECT _pk FROM {} WHERE _current".format(Blob.TABLENAME)

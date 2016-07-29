@@ -351,30 +351,30 @@ def make_tables(drop_superfluous_columns=False):
 
     # MySQL engine settings
     failed = False
-    INSERTMSG = " into my.cnf [mysqld] section, and restart MySQL"
+    insertmsg = " into my.cnf [mysqld] section, and restart MySQL"
     if not pls.db.mysql_using_innodb_strict_mode():
         log.error("NOT USING innodb_strict_mode; please insert "
-                  "'innodb_strict_mode = 1'" + INSERTMSG)
+                  "'innodb_strict_mode = 1'" + insertmsg)
         failed = True
     max_allowed_packet = pls.db.mysql_get_max_allowed_packet()
-    size_32M = 32 * 1024 * 1024
-    if max_allowed_packet < size_32M:
+    size_32m = 32 * 1024 * 1024
+    if max_allowed_packet < size_32m:
         log.error(
             "MySQL max_allowed_packet < 32M (it's {} and needs to be {}); "
             "please insert 'max_allowed_packet = 32M'".format(
                 max_allowed_packet,
-                size_32M,
-            ) + INSERTMSG)
+                size_32m,
+            ) + insertmsg)
         failed = True
     if not pls.db.mysql_using_file_per_table():
         log.error(
             "NOT USING innodb_file_per_table; please insert "
-            "'innodb_file_per_table = 1'" + INSERTMSG)
+            "'innodb_file_per_table = 1'" + insertmsg)
         failed = True
     if not pls.db.mysql_using_innodb_barracuda():
         log.error(
             "innodb_file_format IS NOT Barracuda; please insert "
-            "'innodb_file_per_table = Barracuda'" + INSERTMSG)
+            "'innodb_file_per_table = Barracuda'" + insertmsg)
         failed = True
     if failed:
         raise AssertionError("MySQL settings need fixing")
@@ -392,10 +392,10 @@ def make_tables(drop_superfluous_columns=False):
     # Read old version number, and perform any special version-specific
     # upgrade tasks
     sv_version = ServerStoredVar("serverCamcopsVersion", "real")
-    old_version = sv_version.getValue()
+    old_version = sv_version.get_value()
     upgrade_database(old_version)
     # Important that we write the new version now:
-    sv_version.setValue(CAMCOPS_SERVER_VERSION)
+    sv_version.set_value(CAMCOPS_SERVER_VERSION)
     # This value must only be written in conjunction with the database
     # upgrade process.
 
@@ -460,18 +460,18 @@ def reset_storedvars():
     """
     print("Setting database title/ID descriptions from configuration file")
     dbt = ServerStoredVar("databaseTitle", "text")
-    dbt.setValue(pls.DATABASE_TITLE)
+    dbt.set_value(pls.DATABASE_TITLE)
     for n in range(1, NUMBER_OF_IDNUMS + 1):
         i = n - 1
         nstr = str(n)
         sv_id = ServerStoredVar("idDescription" + nstr, "text")
-        sv_id.setValue(pls.IDDESC[i])
+        sv_id.set_value(pls.IDDESC[i])
         sv_sd = ServerStoredVar("idShortDescription" + nstr, "text")
-        sv_sd.setValue(pls.IDSHORTDESC[i])
+        sv_sd.set_value(pls.IDSHORTDESC[i])
     sv_id_policy_upload = ServerStoredVar("idPolicyUpload", "text")
-    sv_id_policy_upload.setValue(pls.ID_POLICY_UPLOAD_STRING)
+    sv_id_policy_upload.set_value(pls.ID_POLICY_UPLOAD_STRING)
     sv_id_policy_finalize = ServerStoredVar("idPolicyFinalize", "text")
-    sv_id_policy_finalize.setValue(pls.ID_POLICY_FINALIZE_STRING)
+    sv_id_policy_finalize.set_value(pls.ID_POLICY_FINALIZE_STRING)
     audit("Reset stored variables", from_console=True)
 
 

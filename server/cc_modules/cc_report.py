@@ -23,6 +23,8 @@
 
 import cgi
 import re
+from typing import (Any, Dict, Iterable, List, Optional, Sequence, Tuple,
+                    Type, TypeVar)
 
 import cardinal_pythonlib.rnc_web as ws
 
@@ -41,6 +43,7 @@ from .cc_unittest import (
     unit_test_ignore,
     unit_test_require_truthy_attribute,
 )
+from .cc_session import Session
 
 # =============================================================================
 # Other constants
@@ -51,10 +54,61 @@ NEWLINE_REGEX = re.compile("\n", re.MULTILINE)
 
 
 # =============================================================================
+# ReportParamSpec
+# =============================================================================
+
+class ReportParamSpec(object):
+    # noinspection PyShadowingBuiltins
+    def __init__(self, type: str, name: str, label: str):
+        self.type = type
+        self.name = name
+        self.label = label
+
+
+# =============================================================================
+# Report class
+# =============================================================================
+
+class Report(object):
+    """
+    Abstract base class representing a report.
+
+    Must override attributes:
+
+        report_id
+            String used in HTML selector
+        report_title
+            String for display purposes
+
+    Can override attributes:
+
+        param_spec_list
+            A list of dictionaries, each of the format: {
+                "type": ... internal code (e.g. which ID number? Integer? etc.)
+                "name": used in URL and in **kwargs to get_rows_descriptions
+                "label": cosmetic, used for offering HTML
+            }
+    """
+
+    # -------------------------------------------------------------------------
+    # Attributes that must be provided
+    # -------------------------------------------------------------------------
+    report_id = None
+    report_title = None
+    param_spec_list = []
+
+    def get_rows_descriptions(self, **kwargs) -> Tuple[Sequence[Sequence[Any]],
+                                                       Sequence[str]]:
+        """Execute the report. Must override. Parameters are passed in via
+        **kwargs."""
+        return [], []
+
+
+# =============================================================================
 # Report framework
 # =============================================================================
 
-def offer_report_menu(session):
+def offer_report_menu(session: Session) -> str:
     """HTML page offering available reports."""
     html = pls.WEBSTART + """
         {}
@@ -73,20 +127,17 @@ def offer_report_menu(session):
     return html + "</ul>" + WEBEND
 
 
-def get_param_html(paramspec):
+def get_param_html(paramspec: ReportParamSpec) -> str:
     """Return HTML selector from paramspec."""
-    paramtype = paramspec[PARAM.TYPE]
-    paramname = paramspec[PARAM.NAME]
-    paramlabel = paramspec[PARAM.LABEL]
-    if paramtype == PARAM.WHICH_IDNUM:
+    if paramspec.type == PARAM.WHICH_IDNUM:
         return """
             {}
             <select name="{}">
                 {}
             </select>
         """.format(
-            paramlabel,
-            paramname,
+            paramspec.label,
+            paramspec.name,
             " ".join([
                 """<option value="{}">{}</option>""".format(
                     str(n), pls.get_id_desc(n))
@@ -94,28 +145,27 @@ def get_param_html(paramspec):
             ])
         )
     else:
-        # Invalid paramtype
+        # Invalid type
         return ""
 
 
-def get_params_from_form(paramspeclist, form):
+def get_params_from_form(paramspeclist: List[ReportParamSpec],
+                         form: cgi.FieldStorage) -> Dict:
     """Returns key/value dictionary of applicable parameters from form."""
     kwargs = {}
     for paramspec in paramspeclist:
-        paramtype = paramspec[PARAM.TYPE]
-        paramname = paramspec[PARAM.NAME]
-        if paramtype == PARAM.WHICH_IDNUM:
-            idnum = ws.get_cgi_parameter_int(form, paramname)
+        if paramspec.type == PARAM.WHICH_IDNUM:
+            idnum = ws.get_cgi_parameter_int(form, paramspec.name)
             if idnum is None or idnum < 1 or idnum > NUMBER_OF_IDNUMS:
                 continue
-            kwargs[paramname] = idnum
+            kwargs[paramspec.name] = idnum
         else:
             # Invalid paramtype
             continue
     return kwargs
 
 
-def get_all_report_ids():
+def get_all_report_ids() -> List[str]:
     """Get all report IDs.
 
     Report IDs are fixed names defined in each Report subclass.
@@ -123,7 +173,7 @@ def get_all_report_ids():
     return [cls.report_id for cls in get_all_report_classes()]
 
 
-def get_report_instance(report_id):
+def get_report_instance(report_id: str) -> Optional[Report]:
     """Creates an instance of a Report, given its ID (name), or None."""
     for cls in Report.__subclasses__():
         if cls.report_id == report_id:
@@ -131,7 +181,7 @@ def get_report_instance(report_id):
     return None
 
 
-def offer_individual_report(session, form):
+def offer_individual_report(session: Session, form: cgi.FieldStorage) -> str:
     """For a specific report (specified within the CGI form), offers an HTML
     page with the parameters to be configured for that report."""
     # Which report?
@@ -183,7 +233,7 @@ def offer_individual_report(session, form):
     return html + WEBEND
 
 
-def escape_for_tsv(value):
+def escape_for_tsv(value: Optional[Any]) -> str:
     """Escapes value for tab-separated value (TSV) format.
 
     Converts to unicode/str and escapes tabs/newlines.
@@ -197,7 +247,8 @@ def escape_for_tsv(value):
     return s
 
 
-def tsv_from_query(rows, descriptions):
+def tsv_from_query(rows: Iterable[Iterable[Any]],
+                   descriptions: Iterable[str]) -> str:
     """Converts rows from an SQL query result to TSV format."""
     tsv = "\t".join([escape_for_tsv(x) for x in descriptions]) + "\n"
     for row in rows:
@@ -205,7 +256,7 @@ def tsv_from_query(rows, descriptions):
     return tsv
 
 
-def provide_report(session, form):
+def provide_report(session: Session, form: cgi.FieldStorage) -> str:
     """Extracts report type, report parameters, and output type from the CGI
     form; offers up the results in the chosen format."""
 
@@ -254,54 +305,19 @@ def provide_report(session, form):
 
 
 # =============================================================================
-# Report class
-# =============================================================================
-
-class Report(object):
-    """
-    Abstract base class representing a report.
-
-    Must override attributes:
-
-        report_id
-            String used in HTML selector
-        report_title
-            String for display purposes
-
-    Can override attributes:
-
-        param_spec_list
-            A list of dictionaries, each of the format: {
-                "type": ... internal code (e.g. which ID number? Integer? etc.)
-                "name": used in URL and in **kwargs to get_rows_descriptions
-                "label": cosmetic, used for offering HTML
-            }
-    """
-
-    # -------------------------------------------------------------------------
-    # Attributes that must be provided
-    # -------------------------------------------------------------------------
-    report_id = None
-    report_title = None
-    param_spec_list = []
-
-    def get_rows_descriptions(self, **kwargs):
-        """Execute the report. Must override. Parameters are passed in via
-        **kwargs."""
-        return [], []
-
-
-# =============================================================================
 # Helper functions
 # =============================================================================
 
-def get_all_report_classes():
+T = TypeVar['T']
+
+
+def get_all_report_classes() -> List[Type[T]]:
     classes = Report.__subclasses__()
     classes.sort(key=lambda cls: cls.report_title)
     return classes
 
 
-def expand_id_descriptions(fieldnames):
+def expand_id_descriptions(fieldnames: Iterable[str]) -> List[str]:
     """
     Not easy to get UTF-8 fields out of a query in the column headings!
     So don't do SELECT idnum8 AS 'idnum8 (Addenbrooke's number)';
@@ -326,7 +342,7 @@ def expand_id_descriptions(fieldnames):
 # Unit testing
 # =============================================================================
 
-def task_unit_test_report(name, r):
+def task_unit_test_report(name: str, r: Report) -> None:
     """Unit tests for reports."""
     unit_test_require_truthy_attribute(r, 'report_id')
     unit_test_require_truthy_attribute(r, 'report_title')
@@ -334,7 +350,7 @@ def task_unit_test_report(name, r):
                      r.get_rows_descriptions)
 
 
-def unit_tests():
+def unit_tests() -> None:
     """Unit tests for cc_report module."""
     # -------------------------------------------------------------------------
     # DELAYED IMPORTS (UNIT TESTING ONLY)

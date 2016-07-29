@@ -25,6 +25,7 @@ import datetime
 import urllib.error
 import urllib.parse
 import urllib.request
+from typing import List, Tuple
 
 from .cc_constants import DATEFORMAT
 from . import cc_dt
@@ -46,7 +47,7 @@ ANALYTICS_TIMEOUT_MS = 5000
 ANALYTICS_PERIOD = datetime.timedelta(days=ANALYTICS_FREQUENCY_DAYS)
 
 
-def send_analytics_if_necessary():
+def send_analytics_if_necessary() -> None:
     """Send analytics to the CamCOPS base server, if required.
 
     If analytics reporting is enabled, and analytics have not been sent
@@ -56,12 +57,12 @@ def send_analytics_if_necessary():
     if not pls.SEND_ANALYTICS:
         # User has disabled analytics reporting.
         return
-    lastSentVar = cc_storedvar.ServerStoredVar("lastAnalyticsSentAt", "text",
-                                               None)
-    lastSentVal = lastSentVar.getValue()
-    if lastSentVal:
+    last_sent_var = cc_storedvar.ServerStoredVar("lastAnalyticsSentAt", "text",
+                                                 None)
+    last_sent_val = last_sent_var.get_value()
+    if last_sent_val:
         elapsed = pls.NOW_UTC_WITH_TZ - cc_dt.get_datetime_from_string(
-            lastSentVal)
+            last_sent_val)
         if elapsed < ANALYTICS_PERIOD:
             # We sent analytics recently.
             return
@@ -98,10 +99,10 @@ def send_analytics_if_necessary():
 
     # Store current time as last-sent time
     log.debug("Analytics sent.")
-    lastSentVar.setValue(now_as_utc_iso_string)
+    last_sent_var.set_value(now_as_utc_iso_string)
 
 
-def get_all_tables_with_record_counts():
+def get_all_tables_with_record_counts() -> Tuple[List[str], List[int]]:
     """Returns all database table names ad their associated record counts.
 
     Returns a tuple (table_names, record_counts); the first element is a
@@ -117,7 +118,7 @@ def get_all_tables_with_record_counts():
     return table_names, record_counts
 
 
-def unit_tests():
+def unit_tests() -> None:
     """Unit tests for the cc_analytics module."""
     unit_test_ignore("", send_analytics_if_necessary)
     unit_test_ignore("", get_all_tables_with_record_counts)

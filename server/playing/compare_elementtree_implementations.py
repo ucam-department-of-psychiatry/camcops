@@ -11,7 +11,7 @@ total_cet = 0.0
 for i in range(n):
     start = time.time()
     parser = ET.XMLParser(encoding="UTF-8")
-    tree = ET.parse("/usr/share/camcops/server/strings.xml", parser)
+    tree1 = ET.parse("/usr/share/camcops/server/strings.xml", parser)
     end = time.time()
     total_et += end - start
 
@@ -21,5 +21,7 @@ for i in range(n):
     end = time.time()
     total_et += end - start
 
+# noinspection PyStatementEffect
 print "ElementTree mean: ", total_et/n
+# noinspection PyStatementEffect
 print "cElementTree mean: ", total_cet/n

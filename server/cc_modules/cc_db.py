@@ -21,7 +21,15 @@
     limitations under the License.
 """
 
+import datetime
+from typing import Any, Iterable, List, Union, Type, TypeVar
+
 import cardinal_pythonlib.rnc_db as rnc_db
+from cardinal_pythonlib.rnc_db import (
+    DatabaseSupporter,
+    FIELDSPEC_TYPE,
+    FIELDSPECLIST_TYPE,
+)
 from cardinal_pythonlib.rnc_lang import AttrDict
 
 from .cc_constants import (
@@ -35,6 +43,7 @@ from . import cc_dt
 # from .cc_logger import log
 from .cc_pls import pls
 
+T = TypeVar('T')
 
 # =============================================================================
 # Field types
@@ -89,9 +98,16 @@ SQLTYPE = AttrDict({
 # Field creation assistance
 # =============================================================================
 
-def repeat_fieldspec(prefix, start, end, cctype="INT",
-                     comment_fmt=None, comment_strings=None,
-                     min=None, max=None, pv=None):
+# noinspection PyShadowingBuiltins
+def repeat_fieldspec(prefix: str,
+                     start: int,
+                     end: int,
+                     cctype: str = "INT",
+                     comment_fmt: str = None,
+                     comment_strings: List[str] = None,
+                     min: int = None,  # TODO: float?
+                     max: int = None,  # TODO: float?
+                     pv: List[Any] = None) -> FIELDSPECLIST_TYPE:
     """Return a list of field specifications for numerically sequenced
     fields.
 
@@ -134,7 +150,7 @@ def repeat_fieldspec(prefix, start, end, cctype="INT",
     return fieldspecs
 
 
-def repeat_fieldname(prefix, start, end):
+def repeat_fieldname(prefix: str, start: int, end: int) -> List[str]:
     """Return a list of fieldnames for numerically sequenced fields."""
     fd = []
     for i in range(start, end + 1):  # iterate from start to end inclusive
@@ -146,21 +162,21 @@ def repeat_fieldname(prefix, start, end):
 # Add sqltype field to fieldspecs defined by cctype
 # =============================================================================
 
-def ensure_valid_cctype(cctype):
+def ensure_valid_cctype(cctype: str) -> None:
     """Raises KeyError if cctype is not a valid key to SQLTYPE."""
     assert SQLTYPE[cctype]
 
 
-def cctype_is_string(cctype):
+def cctype_is_string(cctype: str) -> bool:
     s = SQLTYPE[cctype].upper()
     return s[:7] == "VARCHAR" or s == "TEXT" or s == "LONGTEXT"
 
 
-def cctype_is_date(cctype):
+def cctype_is_date(cctype: str) -> bool:
     return cctype in ["DATETIME", "ISO8601"]
 
 
-def add_sqltype_to_fieldspec_in_place(fieldspec):
+def add_sqltype_to_fieldspec_in_place(fieldspec: FIELDSPEC_TYPE) -> None:
     """Add sqltype field to fieldspec defined by cctype, where cctype is one of
     the keys to SQLTYPE. Returns the new fieldspec.
     """
@@ -168,7 +184,8 @@ def add_sqltype_to_fieldspec_in_place(fieldspec):
     fieldspec["sqltype"] = SQLTYPE[cctype]  # raise KeyError if invalid
 
 
-def add_sqltype_to_fieldspeclist_in_place(fieldspeclist):
+def add_sqltype_to_fieldspeclist_in_place(fieldspeclist: FIELDSPECLIST_TYPE) \
+        -> None:
     """Add sqltype field to fieldspeclist having fieldspecs defined by
     cctype, where cctype is one of the keys to SQLTYPE.
     """
@@ -180,12 +197,15 @@ def add_sqltype_to_fieldspeclist_in_place(fieldspeclist):
 # Database routines.
 # =============================================================================
 
-def set_db_to_utf8(db):
+def set_db_to_utf8(db: DatabaseSupporter) -> None:
     db.db_exec_literal("ALTER DATABASE DEFAULT CHARACTER SET utf8 "
                        "DEFAULT COLLATE utf8_general_ci")
 
 
-def get_current_server_pk_by_client_info(table, device, clientpk, era):
+def get_current_server_pk_by_client_info(table: str,
+                                         device: str,
+                                         clientpk: int,
+                                         era: str):
     """Looks up the current server's PK given a device/clientpk/era triplet."""
     row = pls.db.fetchone(
         (
@@ -202,8 +222,12 @@ def get_current_server_pk_by_client_info(table, device, clientpk, era):
 
 
 def get_contemporaneous_server_pk_by_client_info(
-        table, device, clientpk, era,
-        referrer_added_utc, referrer_removed_utc):
+        table: str,
+        device: str,
+        clientpk: int,
+        era: str,
+        referrer_added_utc: datetime.datetime,
+        referrer_removed_utc: datetime.datetime) -> Optional[int]:
     """Looks up a contemporaneous (i.e. potentially old) server PK given
     client-side details."""
     sql = ("SELECT _pk FROM " + table +
@@ -226,16 +250,22 @@ def get_contemporaneous_server_pk_by_client_info(
     return row[0]
 
 
-def get_all_current_server_pks(table):
+def get_all_current_server_pks(table: str) -> List[int]:
     """Get all server PKs from the table for current records."""
     return pls.db.fetchallfirstvalues(
         "SELECT _pk FROM " + table + " WHERE _current")
 
 
 def get_contemporaneous_matching_field_pks_by_fk(
-        table, pkname, fk_fieldname, fk_value, device, era,
-        referrer_added_utc, referrer_removed_utc,
-        count_only=False):
+        table: str,
+        pkname: str,
+        fk_fieldname: str,
+        fk_value: Any,
+        device: str,
+        era: str,
+        referrer_added_utc: datetime.datetime,
+        referrer_removed_utc: datetime.datetime,
+        count_only: bool = False) -> Union[int, List[int]]:
     """Look up contemporaneous (i.e. potentially old) records using a
     foreign key and client-side details.
     If count_only is True, return the count instead."""
@@ -281,8 +311,12 @@ def get_contemporaneous_matching_field_pks_by_fk(
 
 
 def get_contemporaneous_matching_ancillary_objects_by_fk(
-        cls, fk_value,
-        device, era, referrer_added_utc, referrer_removed_utc):
+        cls: Type[T],
+        fk_value: Any,
+        device: str,
+        era: str,
+        referrer_added_utc: datetime.datetime,
+        referrer_removed_utc: datetime.datetime) -> List[T]:
     fieldlist = cls.get_fieldnames()
     sql = """
         SELECT {fields}
@@ -316,8 +350,12 @@ def get_contemporaneous_matching_ancillary_objects_by_fk(
     return objects
 
 
-def get_server_pks_of_record_group(table, pkname, keyfieldname, keyvalue,
-                                   device, era):
+def get_server_pks_of_record_group(table: str,
+                                   pkname: str,
+                                   keyfieldname: str,
+                                   keyvalue: Any,
+                                   device: str,
+                                   era: str) -> List[int]:
     """Returns server PKs of all records that represent versions of a specified
     one."""
     query = """
@@ -335,14 +373,19 @@ def get_server_pks_of_record_group(table, pkname, keyfieldname, keyvalue,
     return pls.db.fetchallfirstvalues(query, *args)
 
 
-def delete_from_table_by_pklist(tablename, pkname, pklist):
+def delete_from_table_by_pklist(tablename: str,
+                                pkname: str,
+                                pklist: Iterable[int]) -> None:
     query = "DELETE FROM {} WHERE {} = ?".format(tablename, pkname)
     for pk in pklist:
         pls.db.db_exec(query, pk)
 
 
 # noinspection PyProtectedMember
-def manually_erase_record_object_and_save(obj, table, fields, username):
+def manually_erase_record_object_and_save(obj: T,
+                                          table: str,
+                                          fields: Iterable[str],
+                                          username: str) -> None:
     """Manually erases a standard record and marks it so erased.
     The object remains _current, as a placeholder, but its contents are wiped.
     WRITES TO DATABASE."""
@@ -363,16 +406,27 @@ def manually_erase_record_object_and_save(obj, table, fields, username):
     pls.db.update_object_in_db(obj, table, fields)
 
 
-def delete_subtable_records_common(tablename, pkname, fkname, fkvalue,
-                                   device, era):
+def delete_subtable_records_common(tablename: str,
+                                   pkname: str,
+                                   fkname: str,
+                                   fkvalue: Any,
+                                   device: str,
+                                   era: str) -> None:
     """Used to delete records entirely from the database."""
     pklist = get_server_pks_of_record_group(
         tablename, pkname, fkname, fkvalue, device, era)
     delete_from_table_by_pklist(tablename, pkname, pklist)
 
 
-def erase_subtable_records_common(itemclass, tablename, fieldnames, pkname,
-                                  fkname, fkvalue, device, era, username):
+def erase_subtable_records_common(itemclass: Type[T],
+                                  tablename: str,
+                                  fieldnames: Iterable[str],
+                                  pkname: str,
+                                  fkname: str,
+                                  fkvalue: Any,
+                                  device: str,
+                                  era: str,
+                                  username: str) -> None:
     """Used to wipe objects and re-save them."""
     pklist = get_server_pks_of_record_group(
         tablename, pkname, fkname, fkvalue, device, era)
@@ -383,7 +437,9 @@ def erase_subtable_records_common(itemclass, tablename, fieldnames, pkname,
                                               username)
 
 
-def forcibly_preserve_client_table(table, device_id, username):
+def forcibly_preserve_client_table(table: str,
+                                   device_id: str,
+                                   username: str) -> None:
     """WRITES TO DATABASE."""
     new_era = cc_dt.format_datetime(pls.NOW_UTC_NO_TZ, DATEFORMAT.ERA)
     query = """
@@ -402,7 +458,7 @@ def forcibly_preserve_client_table(table, device_id, username):
     pls.db.db_exec(query, *args)
 
 
-def forcibly_preserve_special_notes(device_id):
+def forcibly_preserve_special_notes(device_id: str) -> None:
     """WRITES TO DATABASE."""
     new_era = cc_dt.format_datetime(pls.NOW_UTC_NO_TZ, DATEFORMAT.ERA)
     query = """
@@ -422,7 +478,7 @@ def forcibly_preserve_special_notes(device_id):
 # More SQL
 # =============================================================================
 
-def mysql_select_utc_date_field_from_iso8601_field(fieldname):
+def mysql_select_utc_date_field_from_iso8601_field(fieldname: str) -> str:
     """SQL expression: converts ISO-8601 field into UTC DATETIME."""
     return ("CONVERT_TZ(STR_TO_DATE(LEFT({0}, 23), '%Y-%m-%dT%H:%i:%s.%f'), "
             "RIGHT({0},6), '+00:00')".format(fieldname))
@@ -439,7 +495,7 @@ def mysql_select_utc_date_field_from_iso8601_field(fieldname):
 # so using the code above to convert everything to UTC should be fine.
 
 
-def mysql_select_local_date_field_from_iso8601_field(fieldname):
+def mysql_select_local_date_field_from_iso8601_field(fieldname: str) -> str:
     """SQL expression: converts ISO-8601 field into local DATETIME."""
     return ("STR_TO_DATE(LEFT({0}, 23), '%Y-%m-%dT%H:%i:%s.%f')".format(
         fieldname))
@@ -447,8 +503,9 @@ def mysql_select_local_date_field_from_iso8601_field(fieldname):
     #    giving microsecond precision, but not correct for timezone
 
 
-def create_or_update_table(tablename, fieldspecs_with_cctype,
-                           drop_superfluous_columns=False):
+def create_or_update_table(tablename: str,
+                           fieldspecs_with_cctype: FIELDSPECLIST_TYPE,
+                           drop_superfluous_columns: bool = False) -> None:
     """Adds the sqltype to a set of fieldspecs using cctype, then creates the
     table."""
     add_sqltype_to_fieldspeclist_in_place(fieldspecs_with_cctype)
@@ -461,16 +518,19 @@ def create_or_update_table(tablename, fieldspecs_with_cctype,
         pls.db.mysql_convert_table_to_barracuda(tablename, compressed=False)
 
 
-def create_standard_table(tablename, fieldspeclist,
-                          drop_superfluous_columns=False):
+def create_standard_table(tablename: str,
+                          fieldspeclist: FIELDSPECLIST_TYPE,
+                          drop_superfluous_columns: bool = False) -> None:
     """Create a table and its associated current view."""
     create_or_update_table(tablename, fieldspeclist,
                            drop_superfluous_columns=drop_superfluous_columns)
     create_simple_current_view(tablename)
 
 
-def create_standard_task_table(tablename, fieldspeclist, anonymous=False,
-                               drop_superfluous_columns=False):
+def create_standard_task_table(tablename: str,
+                               fieldspeclist: FIELDSPECLIST_TYPE,
+                               anonymous: bool = False,
+                               drop_superfluous_columns: bool = False) -> None:
     """Create a task's table and its associated current view."""
     create_standard_table(tablename, fieldspeclist,
                           drop_superfluous_columns=drop_superfluous_columns)
@@ -480,15 +540,19 @@ def create_standard_task_table(tablename, fieldspeclist, anonymous=False,
         create_task_current_view(tablename)
 
 
-def create_standard_ancillary_table(tablename, fieldspeclist, ancillaryfk,
-                                    tasktable, drop_superfluous_columns=False):
+def create_standard_ancillary_table(
+        tablename: str,
+        fieldspeclist: FIELDSPECLIST_TYPE,
+        ancillaryfk: str,
+        tasktable: str,
+        drop_superfluous_columns: bool = False) -> None:
     """Create an ancillary table and its associated current view."""
     create_standard_table(tablename, fieldspeclist,
                           drop_superfluous_columns=drop_superfluous_columns)
     create_ancillary_current_view(tablename, ancillaryfk, tasktable)
 
 
-def create_simple_current_view(table):
+def create_simple_current_view(table: str) -> None:
     """Create a current view for a table."""
     sql = """
         CREATE OR REPLACE VIEW {0}_current AS
@@ -499,7 +563,7 @@ def create_simple_current_view(table):
     pls.db.db_exec_literal(sql)
 
 
-def create_task_current_view(tasktable):
+def create_task_current_view(tasktable: str) -> None:
     """Create tasks views that link to patient information (either giving the
     FK to the patient table, or bringing across more detail for convenience).
 
@@ -547,7 +611,9 @@ def create_task_current_view(tasktable):
     # MySQL can't add comments to view columns.
 
 
-def create_ancillary_current_view(ancillarytable, ancillaryfk, tasktable):
+def create_ancillary_current_view(ancillarytable: str,
+                                  ancillaryfk: str,
+                                  tasktable: str) -> None:
     """Create an ancillary view that links to its task's table."""
     sql = """
         CREATE OR REPLACE VIEW {1}_current AS
@@ -564,8 +630,10 @@ def create_ancillary_current_view(ancillarytable, ancillaryfk, tasktable):
     pls.db.db_exec_literal(sql)
 
 
-def create_summary_table_current_view_withpt(summarytable, basetable,
-                                             summarytable_fkfieldname):
+def create_summary_table_current_view_withpt(
+        summarytable: str,
+        basetable: str,
+        summarytable_fkfieldname: str) -> None:
     """Create a current view for the summary table, in versions with simple
     (FK) or more detailed patient information.
 

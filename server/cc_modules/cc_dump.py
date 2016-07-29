@@ -24,6 +24,7 @@
 import configparser
 import io
 import subprocess
+from typing import Dict, List, Optional, Sequence, Tuple
 import zipfile
 
 from .cc_audit import audit
@@ -51,7 +52,7 @@ POSSIBLE_SYSTEM_VIEWS = [
 # Ancillary functions
 # =============================================================================
 
-def get_possible_task_tables_views():
+def get_possible_task_tables_views() -> Tuple[List[str], List[str]]:
     """Returns (tables, views) pertaining to tasks."""
     tables = []
     views = []
@@ -62,7 +63,7 @@ def get_possible_task_tables_views():
     return tables, views
 
 
-def get_permitted_tables_and_views():
+def get_permitted_tables_and_views() -> List[str]:
     """Returns list of tables/views suitable for downloading."""
     tables_that_exist = pls.db.get_all_table_names()
     (tasktables, taskviews) = get_possible_task_tables_views()
@@ -72,7 +73,7 @@ def get_permitted_tables_and_views():
                                                     taskviews))
 
 
-def get_permitted_tables_views_sorted_labelled():
+def get_permitted_tables_views_sorted_labelled() -> List[Dict[str, bool]]:
     """Returns sorted list of tables/views suitable for downloading.
 
     Each list element is a dictionary with attributes:
@@ -103,14 +104,14 @@ def get_permitted_tables_views_sorted_labelled():
     # ... makes system tables be at one end of the list for visibility
 
 
-def validate_table_list(tables):
+def validate_table_list(tables: Sequence[str]) -> List[str]:
     """Returns the list supplied, minus any invalid tables/views."""
     return sorted(list(
         set(tables).intersection(get_permitted_tables_and_views())
     ))
 
 
-def validate_single_table(table):
+def validate_single_table(table: str) -> Optional[str]:
     """Returns the table name supplied, or None if it's not valid."""
     tl = list({table}.intersection(get_permitted_tables_and_views()))
     if not tl:
@@ -122,7 +123,7 @@ def validate_single_table(table):
 # Providing user with database dump output in various formats
 # =============================================================================
 
-def get_database_dump_as_sql(tables=None):
+def get_database_dump_as_sql(tables: List[str] = None) -> str:
     """Returns a database dump of all the tables requested, in SQL format."""
     tables = tables or []
     tables = validate_table_list(tables)
@@ -139,11 +140,11 @@ def get_database_dump_as_sql(tables=None):
     # password leaking via a debugging exception handler
     # -------------------------------------------------------------------------
     try:
-        DB_PASSWORD = config.get(CONFIG_FILE_MAIN_SECTION, "DB_PASSWORD")
+        db_password = config.get(CONFIG_FILE_MAIN_SECTION, "DB_PASSWORD")
     except Exception as e:  # deliberately conceal details for security
         raise RuntimeError(
             "Problem reading DB_PASSWORD from config: {}".format(e))
-    if DB_PASSWORD is None:
+    if db_password is None:
         raise RuntimeError("No database password specified")
         # OK from a security perspective: if there's no password, there's no
         # password to leak via a debugging exception handler
@@ -156,7 +157,7 @@ def get_database_dump_as_sql(tables=None):
             "-h", pls.DB_SERVER,  # rather than --host=X
             "-P", str(pls.DB_PORT),  # rather than --port=X
             "-u", pls.DB_USER,  # rather than --user=X
-            "-p{}".format(DB_PASSWORD),
+            "-p{}".format(db_password),
             # neither -pPASSWORD nor --password=PASSWORD accept spaces
             "--opt",
             "--hex-blob",
@@ -169,19 +170,19 @@ def get_database_dump_as_sql(tables=None):
     finally:
         # Executed whether an exception is raised or not.
         # noinspection PyUnusedLocal
-        DB_PASSWORD = None
+        db_password = None
 
 
-def get_query_as_tsv(sql):
+def get_query_as_tsv(sql: str) -> str:
     """Returns the result of the SQL query supplied, in TSV format."""
     # Security considerations as above.
     config = configparser.ConfigParser()
     config.read(pls.CAMCOPS_CONFIG_FILE)
     try:
-        DB_PASSWORD = config.get(CONFIG_FILE_MAIN_SECTION, "DB_PASSWORD")
+        db_password = config.get(CONFIG_FILE_MAIN_SECTION, "DB_PASSWORD")
     except:  # deliberately conceal details for security
         raise RuntimeError("Problem reading DB_PASSWORD from config")
-    if DB_PASSWORD is None:
+    if db_password is None:
         raise RuntimeError("No database password specified")
     try:
         return subprocess.check_output([
@@ -191,7 +192,7 @@ def get_query_as_tsv(sql):
             # with spaces much better (e.g. escaping for us)
             "-P", str(pls.DB_PORT),  # rather than --port=X
             "-u", pls.DB_USER,  # rather than --user=X
-            "-p{}".format(DB_PASSWORD),
+            "-p{}".format(db_password),
             # ... neither -pPASSWORD nor --password=PASSWORD accept spaces
             "-D", pls.DB_NAME,  # rather than --database=X
             "-e", sql,
@@ -212,10 +213,12 @@ def get_query_as_tsv(sql):
     finally:
         # Executed whether an exception is raised or not.
         # noinspection PyUnusedLocal
-        DB_PASSWORD = None
+        db_password = None
 
 
-def get_view_data_as_tsv(view, prevalidated=False, audit_individually=True):
+def get_view_data_as_tsv(view: str,
+                         prevalidated: bool = False,
+                         audit_individually: bool = True) -> str:
     """Returns the data from the view specified, in TSV format."""
     # Views need special handling: mysqldump will provide the view-generating
     # SQL, not the contents. If the output is saved as .XLS, Excel will open it
@@ -238,7 +241,7 @@ def get_view_data_as_tsv(view, prevalidated=False, audit_individually=True):
     return get_query_as_tsv(query)
 
 
-def get_multiple_views_data_as_tsv_zip(tables):
+def get_multiple_views_data_as_tsv_zip(tables: List[str]) -> bytes:
     """Returns the data from multiple views, as multiple TSV files in a ZIP."""
     tables = validate_table_list(tables)
     if not tables:
@@ -258,7 +261,7 @@ def get_multiple_views_data_as_tsv_zip(tables):
 # Unit tests
 # =============================================================================
 
-def unit_tests():
+def unit_tests() -> None:
     """Unit tests for the cc_dump module."""
     unit_test_ignore("", get_possible_task_tables_views)
     unit_test_ignore("", get_permitted_tables_and_views)

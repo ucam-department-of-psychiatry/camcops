@@ -13,7 +13,7 @@ SQL="
     ;
 "
 
-echo $SQL \
+echo ${SQL} \
 	| mysql -u root -p \
 	| sed "s/^/<tr><td>/;s/\t/<\/td><td>/g;s/$/<\/td<\/tr>/" \
 	> camcops_column_definitions.txt

@@ -21,6 +21,7 @@
     limitations under the License.
 """
 
+from typing import Dict
 
 # =============================================================================
 # Processing names
@@ -37,7 +38,7 @@ TITLES = [
 ]
 
 
-def guess_name_components(s, uppercase=True):
+def guess_name_components(s: str, uppercase: bool = True) -> Dict[str, str]:
     """Takes a string such as 'Dr James T. Smith, M.D.' and returns parts.
 
     This will not be perfect! If it isn't reasonably sure, it returns

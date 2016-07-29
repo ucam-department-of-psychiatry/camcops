@@ -220,12 +220,12 @@ class CbiR(Task):
         return self.are_all_fields_complete(self.TASK_FIELDS)
 
     def get_task_html(self):
-        FREQ_DICT = {None: None}
-        DISTRESS_DICT = {None: None}
+        freq_dict = {None: None}
+        distress_dict = {None: None}
         for a in range(self.MIN_SCORE, self.MAX_SCORE + 1):
-            FREQ_DICT[a] = WSTRING("cbir_f" + str(a))
-            DISTRESS_DICT[a] = WSTRING("cbir_d" + str(a))
-        HEADINGS = AttrDict({
+            freq_dict[a] = WSTRING("cbir_f" + str(a))
+            distress_dict[a] = WSTRING("cbir_d" + str(a))
+        headings = AttrDict({
             "memory": WSTRING("cbir_h_memory"),
             "everyday": WSTRING("cbir_h_everyday"),
             "selfcare": WSTRING("cbir_h_selfcare"),
@@ -239,20 +239,20 @@ class CbiR(Task):
         })
 
         def get_question_rows(first, last):
-            h = ""
+            html = ""
             for q in range(first, last + 1):
                 f = getattr(self, "frequency" + str(q))
                 d = getattr(self, "distress" + str(q))
-                fa = ("{}: {}".format(f, get_from_dict(FREQ_DICT, f))
+                fa = ("{}: {}".format(f, get_from_dict(freq_dict, f))
                       if f is not None else None)
-                da = ("{}: {}".format(d, get_from_dict(DISTRESS_DICT, d))
+                da = ("{}: {}".format(d, get_from_dict(distress_dict, d))
                       if d is not None else None)
-                h += tr(
+                html += tr(
                     WSTRING("cbir_q" + str(q)),
                     answer(fa),
                     answer(da),
                 )
-            return h
+            return html
 
         h = """
             <div class="summary">
@@ -266,52 +266,52 @@ class CbiR(Task):
                         <th>Distress (% of max)</th>
                     </tr>
                     <tr>
-                        <td>{HEADINGS.memory}</td>
+                        <td>{headings.memory}</td>
                         <td>{mem_f}</td>
                         <td>{mem_d}</td>
                     </tr>
                     <tr>
-                        <td>{HEADINGS.everyday}</td>
+                        <td>{headings.everyday}</td>
                         <td>{everyday_f}</td>
                         <td>{everyday_d}</td>
                     </tr>
                     <tr>
-                        <td>{HEADINGS.selfcare}</td>
+                        <td>{headings.selfcare}</td>
                         <td>{self_f}</td>
                         <td>{self_d}</td>
                     </tr>
                     <tr>
-                        <td>{HEADINGS.behaviour}</td>
+                        <td>{headings.behaviour}</td>
                         <td>{behav_f}</td>
                         <td>{behav_d}</td>
                     </tr>
                     <tr>
-                        <td>{HEADINGS.mood}</td>
+                        <td>{headings.mood}</td>
                         <td>{mood_f}</td>
                         <td>{mood_d}</td>
                     </tr>
                     <tr>
-                        <td>{HEADINGS.beliefs}</td>
+                        <td>{headings.beliefs}</td>
                         <td>{beliefs_f}</td>
                         <td>{beliefs_d}</td>
                     </tr>
                     <tr>
-                        <td>{HEADINGS.eating}</td>
+                        <td>{headings.eating}</td>
                         <td>{eating_f}</td>
                         <td>{eating_d}</td>
                     </tr>
                     <tr>
-                        <td>{HEADINGS.sleep}</td>
+                        <td>{headings.sleep}</td>
                         <td>{sleep_f}</td>
                         <td>{sleep_d}</td>
                     </tr>
                     <tr>
-                        <td>{HEADINGS.motor}</td>
+                        <td>{headings.motor}</td>
                         <td>{motor_f}</td>
                         <td>{motor_d}</td>
                     </tr>
                     <tr>
-                        <td>{HEADINGS.motivation}</td>
+                        <td>{headings.motivation}</td>
                         <td>{motivation_f}</td>
                         <td>{motivation_d}</td>
                     </tr>
@@ -329,7 +329,7 @@ class CbiR(Task):
                 </tr>
         """.format(
             complete_tr=self.get_is_complete_tr(),
-            HEADINGS=HEADINGS,
+            headings=headings,
             mem_f=answer(self.frequency_subscore(*self.QNUMS_MEMORY)),
             mem_d=answer(self.distress_subscore(*self.QNUMS_MEMORY)),
             everyday_f=answer(self.frequency_subscore(*self.QNUMS_EVERYDAY)),
@@ -358,25 +358,25 @@ class CbiR(Task):
             tr_comments=tr_qa("Comments",
                               answer(self.comments, default="")),
         )
-        h += subheading_spanning_three_columns(HEADINGS.memory)
+        h += subheading_spanning_three_columns(headings.memory)
         h += get_question_rows(*self.QNUMS_MEMORY)
-        h += subheading_spanning_three_columns(HEADINGS.everyday)
+        h += subheading_spanning_three_columns(headings.everyday)
         h += get_question_rows(*self.QNUMS_EVERYDAY)
-        h += subheading_spanning_three_columns(HEADINGS.selfcare)
+        h += subheading_spanning_three_columns(headings.selfcare)
         h += get_question_rows(*self.QNUMS_SELF)
-        h += subheading_spanning_three_columns(HEADINGS.behaviour)
+        h += subheading_spanning_three_columns(headings.behaviour)
         h += get_question_rows(*self.QNUMS_BEHAVIOUR)
-        h += subheading_spanning_three_columns(HEADINGS.mood)
+        h += subheading_spanning_three_columns(headings.mood)
         h += get_question_rows(*self.QNUMS_MOOD)
-        h += subheading_spanning_three_columns(HEADINGS.beliefs)
+        h += subheading_spanning_three_columns(headings.beliefs)
         h += get_question_rows(*self.QNUMS_BELIEFS)
-        h += subheading_spanning_three_columns(HEADINGS.eating)
+        h += subheading_spanning_three_columns(headings.eating)
         h += get_question_rows(*self.QNUMS_EATING)
-        h += subheading_spanning_three_columns(HEADINGS.sleep)
+        h += subheading_spanning_three_columns(headings.sleep)
         h += get_question_rows(*self.QNUMS_SLEEP)
-        h += subheading_spanning_three_columns(HEADINGS.motor)
+        h += subheading_spanning_three_columns(headings.motor)
         h += get_question_rows(*self.QNUMS_STEREOTYPY)
-        h += subheading_spanning_three_columns(HEADINGS.motivation)
+        h += subheading_spanning_three_columns(headings.motivation)
         h += get_question_rows(*self.QNUMS_MOTIVATION)
         h += """
             </table>

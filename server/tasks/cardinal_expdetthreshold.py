@@ -55,7 +55,7 @@ DP = 3
 # CardinalExpDetThreshold
 # =============================================================================
 
-class CardinalExpDetThreshold_Trial(Ancillary):
+class CardinalExpDetThresholdTrial(Ancillary):
     tablename = "CardinalExpDetThreshold_trials"
     fkname = "CardinalExpDetThreshold_id"
     fieldspecs = [
@@ -182,13 +182,13 @@ class CardinalExpDetThreshold(Task):
              "; theta = -intercept/k = -intercept/slope "),
     ]
     use_landscape_for_pdf = True
-    dependent_classes = [CardinalExpDetThreshold_Trial]
+    dependent_classes = [CardinalExpDetThresholdTrial]
 
     def is_complete(self):
         return bool(self.finished)
 
     def get_trial_array(self):
-        return self.get_ancillary_items(CardinalExpDetThreshold_Trial)
+        return self.get_ancillary_items(CardinalExpDetThresholdTrial)
 
     # noinspection PyPep8Naming
     def get_trial_html(self):
@@ -197,7 +197,7 @@ class CardinalExpDetThreshold(Task):
         trialarray = self.get_trial_array()
 
         # Provide HTML
-        html = CardinalExpDetThreshold_Trial.get_html_table_header()
+        html = CardinalExpDetThresholdTrial.get_html_table_header()
         for t in trialarray:
             html += t.get_html_table_row()
         html += """</table>"""

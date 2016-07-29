@@ -21,6 +21,8 @@
     limitations under the License.
 """
 
+from typing import Optional, Union
+
 import cardinal_pythonlib.rnc_db as rnc_db
 
 from .cc_constants import STANDARD_GENERIC_FIELDSPECS
@@ -33,9 +35,12 @@ from .cc_pls import pls
 # StoredVar classes and lookup functions
 # =============================================================================
 
+VALUE_TYPE = Union[int, str, float, None]
+
+
 class StoredVarBase(object):
     """Abstract base class for type-varying values stored in the database."""
-    def getValue(self):
+    def get_value(self) -> VALUE_TYPE:
         """Get the stored value."""
         if self.type == "integer":
             return self.valueInteger
@@ -46,7 +51,7 @@ class StoredVarBase(object):
         else:
             raise RuntimeError("UNKNOWN_TYPE_IN_STOREDVAR")
 
-    def setValue(self, value, save=True):
+    def set_value(self, value: VALUE_TYPE, save: bool = True) -> None:
         """Sets the stored value (and optionally saves it in the database.)"""
         if self.type == "integer":
             self.valueInteger = value
@@ -84,7 +89,7 @@ class DeviceStoredVar(StoredVarBase):
     FIELDS = [x["name"] for x in FIELDSPECS]
 
     @classmethod
-    def make_tables(cls, drop_superfluous_columns=False):
+    def make_tables(cls, drop_superfluous_columns: bool = False) -> None:
         """Make underlying database tables."""
         cc_db.create_standard_table(
             cls.TABLENAME, cls.FIELDSPECS,
@@ -94,7 +99,7 @@ class DeviceStoredVar(StoredVarBase):
         """Dump to the log."""
         rnc_db.dump_database_object(self, DeviceStoredVar.FIELDS)
 
-    def __init__(self, serverpk):
+    def __init__(self, serverpk: Optional[int]) -> None:
         """Initialize and load from database."""
         pls.db.fetch_object_from_db_by_pk(self, DeviceStoredVar.TABLENAME,
                                           DeviceStoredVar.FIELDS, serverpk)
@@ -118,17 +123,20 @@ class ServerStoredVar(StoredVarBase):
     FIELDS = [x["name"] for x in FIELDSPECS]
 
     @classmethod
-    def make_tables(cls, drop_superfluous_columns=False):
+    def make_tables(cls, drop_superfluous_columns: bool = False) -> None:
         """Make underlying database tables."""
         cc_db.create_or_update_table(
             cls.TABLENAME, cls.FIELDSPECS,
             drop_superfluous_columns=drop_superfluous_columns)
 
-    def dump(self):
+    def dump(self) -> None:
         """Dump to the log."""
         rnc_db.dump_database_object(self, ServerStoredVar.FIELDS)
 
-    def __init__(self, namepk, typeOnCreation="integer", defaultValue=None):
+    def __init__(self,
+                 namepk: str,
+                 typeOnCreation: str = "integer",
+                 defaultValue: VALUE_TYPE = None) -> None:
         """Initialize (fetch from database or create)."""
         if not pls.db.fetch_object_from_db_by_pk(
                 self,
@@ -138,17 +146,18 @@ class ServerStoredVar(StoredVarBase):
             # Doesn't exist; create it
             self.name = namepk
             self.type = typeOnCreation
-            self.setValue(defaultValue, False)
+            self.set_value(defaultValue, False)
             pls.db.insert_object_into_db_pk_known(
                 self, ServerStoredVar.TABLENAME, ServerStoredVar.FIELDS)
 
-    def save(self):
+    def save(self) -> None:
         """Store to database."""
         pls.db.update_object_in_db(
             self, ServerStoredVar.TABLENAME, ServerStoredVar.FIELDS)
 
 
-def get_device_storedvar(device, name, era):
+def get_device_storedvar(device: str, name: str, era: str) \
+        -> Optional[DeviceStoredVar]:
     """Fetches a DeviceStoredVar() object, or None."""
     # lookup by name, not client ID
     try:
@@ -171,13 +180,13 @@ def get_device_storedvar(device, name, era):
     return DeviceStoredVar(row[0])
 
 
-def get_device_storedvar_value(device, name, era):
+def get_device_storedvar_value(device: str, name: str, era: str) -> VALUE_TYPE:
     """Fetches a DeviceStoredVar() object and returns its value, or None."""
     sv = get_device_storedvar(device, name, era)
-    return sv.getValue() if sv is not None else ""
+    return sv.get_value() if sv is not None else ""
 
 
-def get_server_storedvar(name):
+def get_server_storedvar(name: str) -> ServerStoredVar:
     """Fetches a ServerStoredVar() object, or None."""
     # lookup by name, not client ID
     try:
@@ -195,7 +204,7 @@ def get_server_storedvar(name):
     return ServerStoredVar(name)
 
 
-def get_server_storedvar_value(name):
+def get_server_storedvar_value(name: str) -> VALUE_TYPE:
     """Fetches a ServerStoredVar() object and returns its value, or None."""
     sv = get_server_storedvar(name)
-    return sv.getValue() if sv is not None else ""
+    return sv.get_value() if sv is not None else ""

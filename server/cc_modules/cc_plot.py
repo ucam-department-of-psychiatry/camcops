@@ -89,12 +89,12 @@ log.info("... finished importing matplotlib")
 # Functions to configure matplotlib
 # =============================================================================
 
-def set_matplotlib_fontsize(fontsize):
+def set_matplotlib_fontsize(fontsize: float) -> None:
     """Sets the font size for matplotlib."""
     rnc_plot.set_matplotlib_fontsize(matplotlib, fontsize)
 
 
-def do_nothing():
+def do_nothing() -> None:
     """Call to justify an import, as seen by pyflakes, whereas the real
     justification is to configure matplotlib at first import."""
     pass

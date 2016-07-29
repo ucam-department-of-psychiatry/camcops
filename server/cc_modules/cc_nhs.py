@@ -21,6 +21,7 @@
     limitations under the License.
 """
 
+from typing import Dict, Optional
 from .cc_string import WSTRING
 
 
@@ -36,7 +37,7 @@ PV_NHS_ETHNIC_CATEGORY = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K',
                           'L', 'M', 'N', 'P', 'R', 'S', 'Z']
 
 
-def get_nhs_dd_person_marital_status():
+def get_nhs_dd_person_marital_status() -> Dict[Optional[str], Optional[str]]:
     return {
         None: None,
         "S": WSTRING("nhs_person_marital_status_code_S"),
@@ -48,7 +49,7 @@ def get_nhs_dd_person_marital_status():
     }
 
 
-def get_nhs_dd_ethnic_category_code():
+def get_nhs_dd_ethnic_category_code() -> Dict[Optional[str], Optional[str]]:
     return {
         None: None,
         "A": WSTRING("nhs_ethnic_category_code_A"),

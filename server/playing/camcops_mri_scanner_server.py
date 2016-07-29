@@ -88,7 +88,7 @@ def coin(p):
 # =============================================================================
 # http://stackoverflow.com/questions/4715340
 
-class MRI_Protocol(Protocol):
+class MRIProtocol(Protocol):
     delimiter = '\n'
 
     def __init__(self, network):
@@ -481,7 +481,7 @@ def main():
             b=args.mri_bytesize,
             p=args.mri_parity,
             s=args.mri_stopbits))
-    SerialPort(protocol=MRI_Protocol(tcpfactory),
+    SerialPort(protocol=MRIProtocol(tcpfactory),
                deviceNameOrPortNumber=args.mri_serialdev,
                reactor=reactor,
                baudrate=args.mri_baudrate,

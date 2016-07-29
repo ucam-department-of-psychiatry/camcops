@@ -50,11 +50,11 @@ from cardinal_pythonlib.rnc_lang import import_submodules
 import cardinal_pythonlib.rnc_web as ws
 
 # CamCOPS support modules
-from cc_modules.cc_audit import (
+from .cc_modules.cc_audit import (
     audit,
     SECURITY_AUDIT_TABLENAME,
 )
-from cc_modules.cc_constants import (
+from .cc_modules.cc_constants import (
     ACTION,
     CAMCOPS_URL,
     COMMON_HEAD,
@@ -67,31 +67,31 @@ from cc_modules.cc_constants import (
     VALUE,
     WEBEND,
 )
-import cc_modules.cc_blob as cc_blob
-import cc_modules.cc_db as cc_db
-import cc_modules.cc_device as cc_device
-from cc_modules.cc_dt import (
+from .cc_modules import cc_blob
+from .cc_modules import cc_db
+from .cc_modules import cc_device
+from .cc_modules.cc_dt import (
     get_now_localtz,
     format_datetime,
     format_datetime_string
 )
-import cc_modules.cc_dump as cc_dump
-import cc_modules.cc_hl7 as cc_hl7
-import cc_modules.cc_html as cc_html
-from cc_modules.cc_logger import log
-import cc_modules.cc_patient as cc_patient
-import cc_modules.cc_plot as cc_plot
-from cc_modules.cc_pls import pls
-import cc_modules.cc_policy as cc_policy
-import cc_modules.cc_report as cc_report
-import cc_modules.cc_session as cc_session
-from cc_modules.cc_storedvar import DeviceStoredVar
-from cc_modules.cc_string import WSTRING
-import cc_modules.cc_task as cc_task
-import cc_modules.cc_tracker as cc_tracker
-from cc_modules.cc_unittest import unit_test_ignore
-import cc_modules.cc_user as cc_user
-from cc_modules.cc_version import CAMCOPS_SERVER_VERSION
+from .cc_modules import cc_dump
+from .cc_modules import cc_hl7
+from .cc_modules import cc_html
+from .cc_modules.cc_logger import log
+from .cc_modules import cc_patient
+from .cc_modules import cc_plot
+from .cc_modules.cc_pls import pls
+from .cc_modules import cc_policy
+from .cc_modules import cc_report
+from .cc_modules import cc_session
+from .cc_modules.cc_storedvar import DeviceStoredVar
+from .cc_modules.cc_string import WSTRING
+from .cc_modules import cc_task
+from .cc_modules import cc_tracker
+from .cc_modules.cc_unittest import unit_test_ignore
+from .cc_modules import cc_user
+from .cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
 cc_plot.do_nothing()
 
@@ -226,6 +226,7 @@ def login(session, form):
         )
     # 3. Is the username/password combination correct?
     userobject = cc_user.get_user(username, password)  # checks password
+    # noinspection PyUnresolvedReferences
     if userobject is not None and userobject.may_use_webviewer:
         # Successful login.
         userobject.login()  # will clear login failure record
@@ -263,6 +264,7 @@ def login(session, form):
     return main_menu(session, form)
 
 
+# noinspection PyUnusedLocal
 def logout(session, form):
     """Logs a session out."""
 
@@ -278,6 +280,7 @@ def agree_terms(session, form):
     return main_menu(session, form)
 
 
+# noinspection PyUnusedLocal
 def main_menu(session, form):
     """Main HTML menu."""
 
@@ -391,6 +394,7 @@ def main_menu(session, form):
     return html
 
 
+# noinspection PyUnusedLocal
 def offer_terms(session, form):
     """HTML offering terms/conditions and requesting acknowledgement."""
 
@@ -417,6 +421,7 @@ def offer_terms(session, form):
     return html
 
 
+# noinspection PyUnusedLocal
 def view_policies(session, form):
     """HTML showing server's ID policies."""
 
@@ -460,6 +465,7 @@ def view_policies(session, form):
     return html + WEBEND
 
 
+# noinspection PyUnusedLocal
 def view_tasks(session, form):
     """HTML displaying tasks and applicable filters."""
 
@@ -686,6 +692,7 @@ def serve_task(session, form):
         raise AssertionError("ACTION.TASK: Invalid outputtype")
 
 
+# noinspection PyUnusedLocal
 def choose_tracker(session, form):
     """HTML form for tracker selection."""
 
@@ -817,6 +824,7 @@ def serve_tracker(session, form):
         raise AssertionError("ACTION.TRACKER: Invalid outputtype")
 
 
+# noinspection PyUnusedLocal
 def choose_clinicaltextview(session, form):
     """HTML form for CTV selection."""
 
@@ -991,6 +999,7 @@ def change_task_filters(session, form):
     return view_tasks(session, form)
 
 
+# noinspection PyUnusedLocal
 def reports_menu(session, form):
     """Offer a menu of reports."""
 
@@ -1016,6 +1025,7 @@ def provide_report(session, form):
     # ... unusual: manages the content type itself
 
 
+# noinspection PyUnusedLocal
 def offer_regenerate_summary_tables(session, form):
     """Ask for confirmation to regenerate summary tables."""
 
@@ -1036,6 +1046,7 @@ def offer_regenerate_summary_tables(session, form):
     ) + WEBEND
 
 
+# noinspection PyUnusedLocal
 def regenerate_summary_tables(session, form):
     """Drop and regenerated cached/temporary summary data tables."""
 
@@ -1049,6 +1060,7 @@ def regenerate_summary_tables(session, form):
             "Couldn’t regenerate summary tables. Error was: " + errormsg)
 
 
+# noinspection PyUnusedLocal
 def inspect_table_defs(session, form):
     """Inspect table definitions with field comments."""
 
@@ -1057,6 +1069,7 @@ def inspect_table_defs(session, form):
     return get_descriptions_comments_html(include_views=False)
 
 
+# noinspection PyUnusedLocal
 def inspect_table_view_defs(session, form):
     """Inspect table and view definitions with field comments."""
 
@@ -1065,6 +1078,7 @@ def inspect_table_view_defs(session, form):
     return get_descriptions_comments_html(include_views=True)
 
 
+# noinspection PyUnusedLocal
 def offer_basic_dump(session, form):
     """Offer options for a basic research data dump."""
 
@@ -1293,6 +1307,7 @@ def basic_dump(session, form):
     return ws.zip_result(zip_contents, [], filename)
 
 
+# noinspection PyUnusedLocal
 def offer_table_dump(session, form):
     """HTML form to request dump of table data."""
 
@@ -1444,6 +1459,7 @@ def serve_table_dump(session, form):
         )
 
 
+# noinspection PyUnusedLocal
 def offer_audit_trail_options(session, form):
     """HTML form to request audit trail."""
 
@@ -1582,6 +1598,7 @@ def view_audit_trail(session, form):
     return html
 
 
+# noinspection PyUnusedLocal
 def offer_hl7_log_options(session, form):
     """HTML form to request HL7 message log view."""
 
@@ -1727,6 +1744,7 @@ def view_hl7_log(session, form):
     """ + WEBEND
 
 
+# noinspection PyUnusedLocal
 def offer_hl7_run_options(session, form):
     """HTML form to request HL7 run log view."""
 
@@ -1832,6 +1850,7 @@ def view_hl7_run(session, form):
     """ + WEBEND
 
 
+# noinspection PyUnusedLocal
 def offer_introspection(session, form):
     """HTML form to offer CamCOPS server source code."""
 
@@ -1855,6 +1874,7 @@ def offer_introspection(session, form):
     return html + WEBEND
 
 
+# noinspection PyUnusedLocal
 def introspect(session, form):
     """Provide formatted source code."""
 
@@ -1873,7 +1893,7 @@ def introspect(session, form):
         lexer = pygments.lexers.web.JavascriptLexer()
     else:
         lexer = pygments.lexers.get_lexer_for_filename(fullpath)
-    formatter = pygments.formatters.HtmlFormatter()
+    formatter = pygments.formatters.get_formatter_by_name('HtmlFormatter')
     try:
         with codecs.open(fullpath, "r", "utf8") as f:
             code = f.read()
@@ -1904,7 +1924,7 @@ def add_special_note(session, form):
 
     if not session.authorized_to_add_special_note():
         return cc_html.fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
-    N_CONFIRMATIONS = 2
+    n_confirmations = 2
     tablename = ws.get_cgi_parameter_str(form, PARAM.TABLENAME)
     serverpk = ws.get_cgi_parameter_int(form, PARAM.SERVERPK)
     confirmation_sequence = ws.get_cgi_parameter_int(
@@ -1915,17 +1935,17 @@ def add_special_note(session, form):
         return fail_task_not_found()
     if (confirmation_sequence is None or
             confirmation_sequence < 0 or
-            confirmation_sequence > N_CONFIRMATIONS):
+            confirmation_sequence > n_confirmations):
         confirmation_sequence = 0
     textarea = ""
-    if confirmation_sequence == N_CONFIRMATIONS - 1:
+    if confirmation_sequence == n_confirmations - 1:
         textarea = """
                 <textarea name="{PARAM.NOTE}" rows="20" cols="80"></textarea>
                 <br>
         """.format(
             PARAM=PARAM,
         )
-    if confirmation_sequence < N_CONFIRMATIONS:
+    if confirmation_sequence < n_confirmations:
         return pls.WEBSTART + """
             {user}
             <h1>Add special note to task instance irrevocably</h1>
@@ -2212,10 +2232,10 @@ def edit_patient(session, form):
             changes["iddesc" + nstr] = pls.get_id_desc(n)
             changes["idshortdesc" + nstr] = pls.get_id_shortdesc(n)
     # Calculations
-    N_CONFIRMATIONS = 2
+    n_confirmations = 2
     if (confirmation_sequence is None or
             confirmation_sequence < 0 or
-            confirmation_sequence > N_CONFIRMATIONS):
+            confirmation_sequence > n_confirmations):
         confirmation_sequence = 0
     patient = cc_patient.Patient(patient_server_pk)
     if patient.get_pk() is None:
@@ -2224,7 +2244,7 @@ def edit_patient(session, form):
     if not patient.is_preserved():
         return cc_html.fail_with_error_stay_logged_in(
             "Patient record is still live on tablet; cannot edit.")
-    if confirmation_sequence < N_CONFIRMATIONS:
+    if confirmation_sequence < n_confirmations:
         # First call. Offer method.
         tasks = AFFECTED_TASKS_HTML + task_list_from_generator(
             cc_task.gen_tasks_using_patient(
@@ -2300,7 +2320,6 @@ def edit_patient(session, form):
                 other=patient.other or "",
             )
             for n in range(1, NUMBER_OF_IDNUMS + 1):
-                desc = pls.get_id_desc(n)
                 details += """
                     ID number {n} ({desc}):
                     <input type="number" name="{paramprefix}{n}"
@@ -2401,16 +2420,17 @@ def forcibly_finalize(session, form):
 
     if not session.authorized_as_superuser():
         return cc_html.fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
-    N_CONFIRMATIONS = 3
+    n_confirmations = 3
     device_id = ws.get_cgi_parameter_str(form, PARAM.DEVICE)
     confirmation_sequence = ws.get_cgi_parameter_int(
         form, PARAM.CONFIRMATION_SEQUENCE)
     if (confirmation_sequence is None or
             confirmation_sequence < 0 or
-            confirmation_sequence > N_CONFIRMATIONS):
+            confirmation_sequence > n_confirmations):
         confirmation_sequence = 0
     if confirmation_sequence > 0 and device_id is None:
         return cc_html.fail_with_error_stay_logged_in("Device not specified.")
+    d = None
     if device_id is not None:
         # A device was asked for...
         d = cc_device.Device(device_id)
@@ -2418,7 +2438,7 @@ def forcibly_finalize(session, form):
             # ... but not found
             return cc_html.fail_with_error_stay_logged_in(
                 "No such device found.")
-    if confirmation_sequence < N_CONFIRMATIONS:
+    if confirmation_sequence < n_confirmations:
         # First call. Offer method.
         tasks = ""
         if device_id is not None:
@@ -2440,7 +2460,8 @@ def forcibly_finalize(session, form):
             """.format(
                 PARAM=PARAM,
                 device_id=device_id,
-                device_nicename=ws.webify(d.get_friendly_name_and_id())
+                device_nicename=(ws.webify(d.get_friendly_name_and_id())
+                                 if d is not None else ''),
             )
         else:
             warning = ""
@@ -2531,6 +2552,7 @@ def change_password(session, form):
     )
 
 
+# noinspection PyUnusedLocal
 def manage_users(session, form):
     """Offer user management menu."""
 
@@ -2539,6 +2561,7 @@ def manage_users(session, form):
     return cc_user.manage_users(session)
 
 
+# noinspection PyUnusedLocal
 def ask_to_add_user(session, form):
     """Ask for details to add a user."""
 
@@ -2599,6 +2622,7 @@ def enable_user(session, form):
     return cc_user.enable_user_webview(user_to_enable)
 
 
+# noinspection PyUnusedLocal
 def crash(session, form):
     """Deliberately raises an exception."""
 

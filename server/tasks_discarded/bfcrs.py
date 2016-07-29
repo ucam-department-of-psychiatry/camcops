@@ -78,7 +78,7 @@ class Bfcrs(Task):
         score = self.total_score()
         n_csi_symptoms = self.get_num_csi_symptoms()
         csi_catatonia = n_csi_symptoms >= 2
-        ANSWER_DICTS_DICT = {}
+        answer_dicts_dict = {}
         for q in self.TASK_FIELDS:
             d = {None: "?"}
             for option in range(0, 5):
@@ -86,7 +86,7 @@ class Bfcrs(Task):
                                                            "q20", "q21"]:
                     continue
                 d[option] = WSTRING("bfcrs_" + q + "_option" + str(option))
-            ANSWER_DICTS_DICT[q] = d
+            answer_dicts_dict[q] = d
         h = """
             <div class="summary">
                 <table class="summary">
@@ -110,7 +110,7 @@ class Bfcrs(Task):
         for q in range(1, self.NQUESTIONS + 1):
             h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
                 "Q" + str(q) + " — " + WSTRING("bfcrs_q" + str(q) + "_title"),
-                get_from_dict(ANSWER_DICTS_DICT["q" + str(q)],
+                get_from_dict(answer_dicts_dict["q" + str(q)],
                               getattr(self, "q" + str(q)))
             )
         h += """

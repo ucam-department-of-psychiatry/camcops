@@ -115,19 +115,19 @@ def chown_r(path, user, group):
 def get_lines_without_comments(filename):
     lines = []
     with open(filename) as f:
-        for line in f:
-            line = line.partition('#')[0]
-            line = line.rstrip()
-            line = line.lstrip()
-            if line:
-                lines.append(line)
+        for line_ in f:
+            line_ = line_.partition('#')[0]
+            line_ = line_.rstrip()
+            line_ = line_.lstrip()
+            if line_:
+                lines.append(line_)
     return lines
 
 
 def webify_file(srcfilename, destfilename):
-    with open(srcfilename) as infile, open(destfilename, 'w') as outfile:
-        for line in infile:
-            outfile.write(escape(line))
+    with open(srcfilename) as infile, open(destfilename, 'w') as ofile:
+        for line_ in infile:
+            ofile.write(escape(line_))
 
 
 BASHFUNC = r"""
@@ -379,6 +379,8 @@ WRKMPLCONFIGDIR = workpath(WRKDIR, DSTMPLCONFIGDIR)
 VERSIONFILE = join(SRCSERVERDIR, 'cc_modules', 'cc_version.py')
 version_regex = re.compile(r'^CAMCOPS_SERVER_VERSION\s*=\s*([\d\.]*)')
 changedate_regex = re.compile(r'CAMCOPS_CHANGEDATE\s*=\s*\"(\S*)\"')
+MAINVERSION = None
+CHANGEDATE = None
 for i, line in enumerate(open(VERSIONFILE)):
     m = version_regex.match(line)
     if m:
@@ -386,6 +388,8 @@ for i, line in enumerate(open(VERSIONFILE)):
     m = changedate_regex.match(line)
     if m:
         CHANGEDATE = m.group(1)
+if MAINVERSION is None or CHANGEDATE is None:
+    raise ValueError("Failed to get version or date")
 DEBVERSION = MAINVERSION + '-1'
 PACKAGENAME = join(
     PACKAGEDIR,

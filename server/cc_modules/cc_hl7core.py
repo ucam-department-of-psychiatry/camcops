@@ -21,11 +21,15 @@
     limitations under the License.
 """
 
+import datetime
 import base64
 import hl7
+from typing import List, Optional, Tuple, Union
 
 from .cc_constants import DATEFORMAT, VALUE
 from . import cc_dt
+from .cc_namedtuples import PatientIdentifierTuple
+from .cc_task import Task
 from .cc_unittest import unit_test_ignore
 
 
@@ -60,7 +64,7 @@ ESCAPE_CHARACTER = "\\"
 # HL7 helper functions
 # =============================================================================
 
-def get_mod11_checkdigit(strnum):
+def get_mod11_checkdigit(strnum: str) -> str:
     """Input: string containing integer. Output: MOD11 check digit (string)."""
     # http://www.mexi.be/documents/hl7/ch200025.htm
     # http://stackoverflow.com/questions/7006109
@@ -84,8 +88,8 @@ def get_mod11_checkdigit(strnum):
         return ""
 
 
-def make_msh_segment(message_datetime,
-                     message_control_id):
+def make_msh_segment(message_datetime: datetime.datetime,
+                     message_control_id: str) -> hl7.Segment:
     """Creates an HL7 message header (MSH) segment."""
     # We're making an ORU^R01 message = unsolicited result.
     # ORU = Observational Report - Unsolicited
@@ -151,12 +155,13 @@ def make_msh_segment(message_datetime,
     return segment
 
 
-def make_pid_segment(forename,
-                     surname,
-                     dob,
-                     sex,
-                     address,
-                     patient_id_tuple_list=None):
+def make_pid_segment(forename: str,
+                     surname: str,
+                     dob: datetime.datetime,
+                     sex: str,
+                     address: str,
+                     patient_id_tuple_list: List[
+                         PatientIdentifierTuple] = None) -> hl7.Segment:
     """Creates an HL7 patient identification (PID) segment."""
     patient_id_tuple_list = patient_id_tuple_list or []
 
@@ -182,13 +187,13 @@ def make_pid_segment(forename,
     for i in range(len(patient_id_tuple_list)):
         if not patient_id_tuple_list[i].id:
             continue
-        id = patient_id_tuple_list[i].id
-        check_digit = get_mod11_checkdigit(id)
+        pid = patient_id_tuple_list[i].id
+        check_digit = get_mod11_checkdigit(pid)
         check_digit_scheme = "M11"  # Mod 11 algorithm
         type_id = patient_id_tuple_list[i].id_type
         assigning_authority = patient_id_tuple_list[i].assigning_authority
         internal_id_element = hl7.Field(COMPONENT_SEPARATOR, [
-            id,
+            pid,
             check_digit,
             check_digit_scheme,
             assigning_authority,
@@ -265,7 +270,7 @@ def make_pid_segment(forename,
 
 
 # noinspection PyUnusedLocal
-def make_obr_segment(task):
+def make_obr_segment(task: Task) -> hl7.Segment:
     """Creates an HL7 observation request (OBR) segment."""
     # -------------------------------------------------------------------------
     # Observation request segment (OBR)
@@ -372,12 +377,12 @@ def make_obr_segment(task):
     return segment
 
 
-def make_obx_segment(task,
-                     task_format,
-                     observation_identifier,
-                     observation_datetime,
-                     responsible_observer,
-                     xml_field_comments=True):
+def make_obx_segment(task: Task,
+                     task_format: str,
+                     observation_identifier: str,
+                     observation_datetime: datetime.datetime,
+                     responsible_observer: str,
+                     xml_field_comments: bool = True) -> hl7.Segment:
     """Creates an HL7 observation result (OBX) segment."""
     # -------------------------------------------------------------------------
     # Observation result segment (OBX)
@@ -470,30 +475,31 @@ def make_obx_segment(task,
     return segment
 
 
-def make_dg1_segment(set_id,
-                     diagnosis_datetime,
-                     coding_system,
-                     diagnosis_identifier,
-                     diagnosis_text,
-                     alternate_coding_system="",
-                     alternate_diagnosis_identifier="",
-                     alternate_diagnosis_text="",
-                     diagnosis_type="F",
-                     diagnosis_classification="D",
-                     confidential_indicator="N",
-                     clinician_id_number=None,
-                     clinician_surname="",
-                     clinician_forename="",
-                     clinician_middle_name_or_initial="",
-                     clinician_suffix="",
-                     clinician_prefix="",
-                     clinician_degree="",
-                     clinician_source_table="",
-                     clinician_assigning_authority="",
-                     clinician_name_type_code="",
-                     clinician_identifier_type_code="",
-                     clinician_assigning_facility="",
-                     attestation_datetime=None):
+def make_dg1_segment(set_id: int,
+                     diagnosis_datetime: datetime.date,
+                     coding_system: str,
+                     diagnosis_identifier: str,
+                     diagnosis_text: str,
+                     alternate_coding_system: str = "",
+                     alternate_diagnosis_identifier: str = "",
+                     alternate_diagnosis_text: str = "",
+                     diagnosis_type: str = "F",
+                     diagnosis_classification: str = "D",
+                     confidential_indicator: str = "N",
+                     clinician_id_number: Union[str, int] = None,
+                     clinician_surname: str = "",
+                     clinician_forename: str = "",
+                     clinician_middle_name_or_initial: str = "",
+                     clinician_suffix: str = "",
+                     clinician_prefix: str = "",
+                     clinician_degree: str = "",
+                     clinician_source_table: str = "",
+                     clinician_assigning_authority: str = "",
+                     clinician_name_type_code: str = "",
+                     clinician_identifier_type_code: str = "",
+                     clinician_assigning_facility: str = "",
+                     attestation_datetime: datetime.datetime = None) \
+        -> hl7.Segment:
     """Creates an HL7 diagnosis (DG1) segment.
 
     Args:
@@ -634,7 +640,7 @@ def make_dg1_segment(set_id,
     return segment
 
 
-def escape_hl7_text(s):
+def escape_hl7_text(s: str) -> str:
     """Escapes HL7 special characters."""
     # http://www.mexi.be/documents/hl7/ch200034.htm
     # http://www.mexi.be/documents/hl7/ch200071.htm
@@ -659,7 +665,7 @@ def escape_hl7_text(s):
     return s
 
 
-def msg_is_successful_ack(msg):
+def msg_is_successful_ack(msg: str) -> Tuple[bool, Optional[str]]:
     """Checks whether msg represents a successful acknowledgement message."""
     # http://hl7reference.com/HL7%20Specifications%20ORM-ORU.PDF
 
@@ -706,7 +712,7 @@ def msg_is_successful_ack(msg):
 # Unit tests
 # =============================================================================
 
-def unit_tests():
+def unit_tests() -> None:
     """Unit tests for cc_hl7 module."""
     # -------------------------------------------------------------------------
     # DELAYED IMPORTS (UNIT TESTING ONLY)

@@ -21,6 +21,7 @@
     limitations under the License.
 """
 
+import datetime
 import errno
 import codecs
 import hl7
@@ -29,6 +30,8 @@ import os
 import socket
 import subprocess
 import sys
+import typing
+from typing import List, Optional, Tuple, Union
 
 import cardinal_pythonlib.rnc_db as rnc_db
 import cardinal_pythonlib.rnc_web as ws
@@ -59,7 +62,7 @@ from . import cc_html
 from .cc_logger import log
 from . import cc_namedtuples
 from .cc_pls import pls
-from . import cc_recipdef
+from .cc_recipdef import RecipientDefinition
 from . import cc_task
 from .cc_unittest import unit_test_ignore
 
@@ -129,10 +132,527 @@ from .cc_unittest import unit_test_ignore
 
 
 # =============================================================================
+# HL7Run class
+# =============================================================================
+
+class HL7Run(object):
+    """Class representing an HL7/file run for a specific recipient.
+
+    May be associated with multiple HL7/file messages.
+    """
+    TABLENAME = "_hl7_run_log"
+    FIELDSPECS = [
+        dict(name="run_id", cctype="BIGINT_UNSIGNED", pk=True,
+             autoincrement=True, comment="Arbitrary primary key"),
+        # 4294967296 values, so at 1/minute, 8165 years.
+        dict(name="start_at_utc", cctype="DATETIME",
+             comment="Time run was started (UTC)"),
+        dict(name="finish_at_utc", cctype="DATETIME",
+             comment="Time run was finished (UTC)"),
+    ] + RecipientDefinition.FIELDSPECS + [
+        dict(name="script_retcode", cctype="INT",
+             comment="Return code from the script_after_file_export script"),
+        dict(name="script_stdout", cctype="TEXT",
+             comment="stdout from the script_after_file_export script"),
+        dict(name="script_stderr", cctype="TEXT",
+             comment="stderr from the script_after_file_export script"),
+    ]
+    FIELDS = [x["name"] for x in FIELDSPECS]
+
+    @classmethod
+    def make_tables(cls, drop_superfluous_columns: bool = False) -> None:
+        cc_db.create_or_update_table(
+            cls.TABLENAME, cls.FIELDSPECS,
+            drop_superfluous_columns=drop_superfluous_columns)
+
+    def __init__(self, param: Union[RecipientDefinition, int]) -> None:
+        if isinstance(param, RecipientDefinition):
+            rnc_db.blank_object(self, HL7Run.FIELDS)
+            # Copy all attributes from the RecipientDefinition
+            self.__dict__.update(param.__dict__)
+
+            self.start_at_utc = cc_dt.get_now_utc_notz()
+            self.finish_at_utc = None
+            self.save()
+        else:
+            pls.db.fetch_object_from_db_by_pk(self, HL7Run.TABLENAME,
+                                              HL7Run.FIELDS, param)
+
+    def save(self) -> None:
+        pls.db.save_object_to_db(self, HL7Run.TABLENAME, HL7Run.FIELDS,
+                                 self.run_id is None)
+
+    def call_script(self, files_exported: Optional[List[str]]) -> None:
+        if not self.script_after_file_export:
+            # No script to call
+            return
+        if not files_exported:
+            # Didn't export any files; nothing to do.
+            self.script_after_file_export = None  # wasn't called
+            return
+        args = [self.script_after_file_export] + files_exported
+        try:
+            p = subprocess.Popen(args, stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
+            self.script_stdout, self.script_stderr = p.communicate()
+            self.script_retcode = p.returncode
+        except Exception as e:
+            self.script_stdout = "Failed to run script"
+            self.script_stderr = str(e)
+
+    def finish(self) -> None:
+        self.finish_at_utc = cc_dt.get_now_utc_notz()
+        self.save()
+
+    @classmethod
+    def get_html_header_row(cls) -> str:
+        html = "<tr>"
+        for fs in cls.FIELDSPECS:
+            html += "<th>{}</th>".format(fs["name"])
+        html += "</tr>\n"
+        return html
+
+    def get_html_data_row(self) -> str:
+        html = "<tr>"
+        for fs in self.FIELDSPECS:
+            name = fs["name"]
+            value = ws.webify(getattr(self, name))
+            html += "<td>{}</td>".format(value)
+        html += "</tr>\n"
+        return html
+
+
+# =============================================================================
+# HL7Message class
+# =============================================================================
+
+class HL7Message(object):
+    TABLENAME = HL7MESSAGE_TABLENAME
+    FIELDSPECS = [
+        dict(name="msg_id", cctype="INT_UNSIGNED", pk=True,
+             autoincrement=True, comment="Arbitrary primary key"),
+        dict(name="run_id", cctype="INT_UNSIGNED",
+             comment="FK to _hl7_run_log.run_id"),
+        dict(name="basetable", cctype="TABLENAME", indexed=True,
+             comment="Base table of task concerned"),
+        dict(name="serverpk", cctype="INT_UNSIGNED", indexed=True,
+             comment="Server PK of task in basetable (_pk field)"),
+        dict(name="sent_at_utc", cctype="DATETIME",
+             comment="Time message was sent at (UTC)"),
+        dict(name="reply_at_utc", cctype="DATETIME",
+             comment="(HL7) Time message was replied to (UTC)"),
+        dict(name="success", cctype="BOOL",
+             comment="Message sent successfully (and, for HL7, acknowledged)"),
+        dict(name="failure_reason", cctype="TEXT",
+             comment="Reason for failure"),
+        dict(name="message", cctype="LONGTEXT",
+             comment="(HL7) Message body, if kept"),
+        dict(name="reply", cctype="TEXT",
+             comment="(HL7) Server's reply, if kept"),
+        dict(name="filename", cctype="TEXT",
+             comment="(FILE) Destination filename"),
+        dict(name="rio_metadata_filename", cctype="TEXT",
+             comment="(FILE) RiO metadata filename, if used"),
+        dict(name="cancelled", cctype="BOOL",
+             comment="Message subsequently invalidated (may trigger resend)"),
+        dict(name="cancelled_at_utc", cctype="DATETIME",
+             comment="Time message was cancelled at (UTC)"),
+    ]
+    FIELDS = [x["name"] for x in FIELDSPECS]
+
+    @classmethod
+    def make_tables(cls, drop_superfluous_columns: bool = False) -> None:
+        """Creates underlying database tables."""
+        cc_db.create_or_update_table(
+            cls.TABLENAME, cls.FIELDSPECS,
+            drop_superfluous_columns=drop_superfluous_columns)
+
+    def __init__(self, *args, **kwargs) -> None:
+        """Initializes.
+
+        Use either:
+            HL7Message(msg_id)
+        or:
+            HL7Message(basetable, serverpk, hl7run, recipient_def)
+        """
+        nargs = len(args)
+        if nargs == 1:
+            # HL7Message(msg_id)
+            msg_id = args[0]
+            pls.db.fetch_object_from_db_by_pk(self, HL7Message.TABLENAME,
+                                              HL7Message.FIELDS, msg_id)
+            self.hl7run = HL7Run(self.run_id)
+
+        elif nargs == 4:
+            # HL7Message(basetable, serverpk, hl7run, recipient_def)
+            rnc_db.blank_object(self, HL7Message.FIELDS)
+            self.basetable = args[0]
+            self.serverpk = args[1]
+            self.hl7run = args[2]
+            if self.hl7run:
+                self.run_id = self.hl7run.run_id
+            self.recipient_def = args[3]
+            self.show_queue_only = kwargs.get("show_queue_only", False)
+            self.no_saving = self.show_queue_only
+            self.task = cc_task.TaskFactory(self.basetable, self.serverpk)
+
+        else:
+            raise AssertionError("Bad call to HL7Message.__init__")
+
+    def valid(self) -> bool:
+        """Checks for internal validity; returns Boolean."""
+        if not self.recipient_def or not self.recipient_def.valid:
+            return False
+        if not self.basetable or self.serverpk is None:
+            return False
+        if not self.task:
+            return False
+        anonymous_ok = (self.recipient_def.using_file() and
+                        self.recipient_def.include_anonymous)
+        task_is_anonymous = self.task.is_anonymous
+        if task_is_anonymous and not anonymous_ok:
+            return False
+        # After this point, all anonymous tasks must be OK. So:
+        task_has_primary_id = self.task.get_patient_idnum(
+            self.recipient_def.primary_idnum) is not None
+        if not task_is_anonymous and not task_has_primary_id:
+            return False
+        return True
+
+    def save(self) -> None:
+        """Writes to database, unless saving is prohibited."""
+        if self.no_saving:
+            return
+        if self.basetable is None or self.serverpk is None:
+            return
+        is_new_record = self.msg_id is None
+        pls.db.save_object_to_db(self, HL7Message.TABLENAME,
+                                 HL7Message.FIELDS, is_new_record)
+
+    def divert_to_file(self, f: typing.io.TextIO) -> None:
+        """Write an HL7 message to a file."""
+        infomsg = (
+            "OUTBOUND MESSAGE DIVERTED FROM RECIPIENT {} AT {}\n".format(
+                self.recipient_def.recipient,
+                cc_dt.format_datetime(self.sent_at_utc, DATEFORMAT.ISO8601)
+            )
+        )
+        print(infomsg, file=f)
+        print(str(self.msg), file=f)
+        print("\n", file=f)
+        log.debug(infomsg)
+        self.host = self.recipient_def.divert_to_file
+        if self.recipient_def.treat_diverted_as_sent:
+            self.success = True
+
+    def send(self,
+             queue_file: typing.io.TextIO = None,
+             divert_file: typing.io.TextIO = None) -> Tuple[bool, bool]:
+        """Send an outbound HL7/file message, by the appropriate method."""
+        # returns: tried, succeeded
+        if not self.valid():
+            return False, False
+
+        if self.show_queue_only:
+            print("{},{},{},{},{}".format(
+                self.recipient_def.recipient,
+                self.recipient_def.type,
+                self.basetable,
+                self.serverpk,
+                self.task.when_created
+            ), file=queue_file)
+            return False, True
+
+        if not self.hl7run:
+            return True, False
+
+        self.save()  # creates self.msg_id
+        now = cc_dt.get_now_localtz()
+        self.sent_at_utc = cc_dt.convert_datetime_to_utc_notz(now)
+
+        if self.recipient_def.using_hl7():
+            self.make_hl7_message(now)  # will write its own error msg/flags
+            if self.recipient_def.divert_to_file:
+                self.divert_to_file(divert_file)
+            else:
+                self.transmit_hl7()
+        elif self.recipient_def.using_file():
+            self.send_to_filestore()
+        else:
+            raise AssertionError("HL7Message.send: invalid recipient_def.type")
+        self.save()
+
+        log.debug(
+            "HL7Message.send: recipient={}, basetable={}, "
+            "serverpk={}".format(
+                self.recipient_def.recipient,
+                self.basetable,
+                self.serverpk
+            )
+        )
+        return True, self.success
+
+    def send_to_filestore(self) -> None:
+        """Send a file to a filestore."""
+        self.filename = self.recipient_def.get_filename(
+            is_anonymous=self.task.is_anonymous,
+            surname=self.task.get_patient_surname(),
+            forename=self.task.get_patient_forename(),
+            dob=self.task.get_patient_dob(),
+            sex=self.task.get_patient_sex(),
+            idnums=self.task.get_patient_idnum_array(),
+            idshortdescs=self.task.get_patient_idshortdesc_array(),
+            creation_datetime=self.task.get_creation_datetime(),
+            basetable=self.basetable,
+            serverpk=self.serverpk,
+        )
+
+        filename = self.filename
+        directory = os.path.dirname(filename)
+        task = self.task
+        task_format = self.recipient_def.task_format
+        allow_overwrite = self.recipient_def.overwrite_files
+
+        if task_format == VALUE.OUTPUTTYPE_PDF:
+            data = task.get_pdf()
+        elif task_format == VALUE.OUTPUTTYPE_HTML:
+            data = task.get_html()
+        elif task_format == VALUE.OUTPUTTYPE_XML:
+            data = task.get_xml()
+        else:
+            raise AssertionError("write_to_filestore_file: bug")
+
+        if not allow_overwrite and os.path.isfile(filename):
+            self.failure_reason = "File already exists"
+            return
+
+        if self.recipient_def.make_directory:
+            try:
+                make_sure_path_exists(directory)
+            except Exception as e:
+                self.failure_reason = "Couldn't make directory {} ({})".format(
+                    directory, e)
+                return
+
+        try:
+            if task_format == VALUE.OUTPUTTYPE_PDF:
+                # binary for PDF
+                with open(filename, mode="wb") as f:
+                    f.write(data)
+            else:
+                # UTF-8 for HTML, XML
+                with codecs.open(filename, mode="w", encoding="utf8") as f:
+                    f.write(data)
+        except Exception as e:
+            self.failure_reason = "Failed to open or write file: {}".format(e)
+            return
+
+        # RiO metadata too?
+        if self.recipient_def.rio_metadata:
+            # No spaces in filename
+            self.rio_metadata_filename = cc_filename.change_filename_ext(
+                self.filename, ".metadata").replace(" ", "")
+            self.rio_metadata_filename = self.rio_metadata_filename
+            metadata = task.get_rio_metadata(
+                self.recipient_def.rio_idnum,
+                self.recipient_def.rio_uploading_user,
+                self.recipient_def.rio_document_type
+            )
+            try:
+                dos_newline = "\r\n"
+                # ... Servelec say CR = "\r", but DOS is \r\n.
+                with codecs.open(self.rio_metadata_filename, mode="w",
+                                 encoding="ascii") as f:
+                    # codecs.open() means that file writing is in binary mode,
+                    # so newline conversion has to be manual:
+                    f.write(metadata.replace("\n", dos_newline))
+                # UTF-8 is NOT supported by RiO for metadata.
+            except Exception as e:
+                self.failure_reason = ("Failed to open or write RiO metadata "
+                                       "file: {}".format(e))
+                return
+
+        self.success = True
+
+    def make_hl7_message(self, now: datetime.datetime) -> None:
+        """Stores HL7 message in self.msg.
+
+        May also store it in self.message (which is saved to the database), if
+        we're saving HL7 messages.
+        """
+        # http://python-hl7.readthedocs.org/en/latest/index.html
+
+        msh_segment = make_msh_segment(
+            message_datetime=now,
+            message_control_id=str(self.msg_id)
+        )
+        pid_segment = self.task.get_patient_hl7_pid_segment(self.recipient_def)
+        other_segments = self.task.get_hl7_data_segments(self.recipient_def)
+
+        # ---------------------------------------------------------------------
+        # Whole message
+        # ---------------------------------------------------------------------
+        segments = [msh_segment, pid_segment] + other_segments
+        self.msg = hl7.Message(SEGMENT_SEPARATOR, segments)
+        if self.recipient_def.keep_message:
+            self.message = str(self.msg)
+
+    def transmit_hl7(self) -> None:
+        """Sends HL7 message over TCP/IP."""
+        # Default MLLP/HL7 port is 2575
+        # ... MLLP = minimum lower layer protocol
+        # ... http://www.cleo.com/support/byproduct/lexicom/usersguide/mllp_configuration.htm  # noqa
+        # ... http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?search=hl7  # noqa
+        # Essentially just a TCP socket with a minimal wrapper:
+        #   http://stackoverflow.com/questions/11126918
+
+        self.host = self.recipient_def.host
+        self.port = self.recipient_def.port
+        self.success = False
+
+        # http://python-hl7.readthedocs.org/en/latest/api.html
+        # ... but we've modified that
+        try:
+            with MLLPTimeoutClient(self.recipient_def.host,
+                                   self.recipient_def.port,
+                                   self.recipient_def.network_timeout_ms) \
+                    as client:
+                server_replied, reply = client.send_message(self.msg)
+        except socket.timeout:
+            self.failure_reason = "Failed to send message via MLLP: timeout"
+            return
+        except Exception as e:
+            self.failure_reason = "Failed to send message via MLLP: {}".format(
+                str(e))
+            return
+
+        if not server_replied:
+            self.failure_reason = "No response from server"
+            return
+        self.reply_at_utc = cc_dt.get_now_utc_notz()
+        if self.recipient_def.keep_reply:
+            self.reply = reply
+        try:
+            replymsg = hl7.parse(reply)
+        except Exception as e:
+            self.failure_reason = "Malformed reply: {}".format(e)
+            return
+
+        self.success, self.failure_reason = msg_is_successful_ack(replymsg)
+
+    @classmethod
+    def get_html_header_row(cls,
+                            showmessage: bool = False,
+                            showreply: bool = False) -> str:
+        """Returns HTML table header row for this class."""
+        html = "<tr>"
+        for fs in cls.FIELDSPECS:
+            if fs["name"] == "message" and not showmessage:
+                continue
+            if fs["name"] == "reply" and not showreply:
+                continue
+            html += "<th>{}</th>".format(fs["name"])
+        html += "</tr>\n"
+        return html
+
+    def get_html_data_row(self,
+                          showmessage: str = False,
+                          showreply: str = False) -> bool:
+        """Returns HTML table data row for this instance."""
+        html = "<tr>"
+        for fs in self.FIELDSPECS:
+            name = fs["name"]
+            if name == "message" and not showmessage:
+                continue
+            if name == "reply" and not showreply:
+                continue
+            value = ws.webify(getattr(self, name))
+            if name == "serverpk":
+                contents = "<a href={}>{}</a>".format(
+                    cc_task.get_url_task_html(self.basetable, self.serverpk),
+                    value
+                )
+            elif name == "run_id":
+                contents = "<a href={}>{}</a>".format(
+                    get_url_hl7_run(value),
+                    value
+                )
+            else:
+                contents = str(value)
+            html += "<td>{}</td>".format(contents)
+        html += "</tr>\n"
+        return html
+
+# =============================================================================
+# MLLPTimeoutClient
+# =============================================================================
+# Modification of MLLPClient from python-hl7, to allow timeouts and failure.
+
+SB = '\x0b'  # <SB>, vertical tab
+EB = '\x1c'  # <EB>, file separator
+CR = '\x0d'  # <CR>, \r
+FF = '\x0c'  # <FF>, new page form feed
+
+RECV_BUFFER = 4096
+
+
+class MLLPTimeoutClient(object):
+    """Class for MLLP TCP/IP transmission that implements timeouts."""
+
+    def __init__(self, host: str, port: int, timeout_ms: int = None) -> None:
+        """Creates MLLP client and opens socket."""
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        timeout_s = float(timeout_ms) / float(1000) \
+            if timeout_ms is not None else None
+        self.socket.settimeout(timeout_s)
+        self.socket.connect((host, port))
+
+    def __enter__(self):
+        """For use with "with" statement."""
+        return self
+
+    # noinspection PyUnusedLocal
+    def __exit__(self, exc_type, exc_val, traceback):
+        """For use with "with" statement."""
+        self.close()
+
+    def close(self):
+        """Release the socket connection"""
+        self.socket.close()
+
+    def send_message(self, message: Union[str, hl7.Message]) \
+            -> Tuple[bool, Optional[str]]:
+        """Wraps a str, unicode, or :py:class:`hl7.Message` in a MLLP container
+        and send the message to the server
+        """
+        if isinstance(message, hl7.Message):
+            message = str(message)
+        # wrap in MLLP message container
+        data = SB + message + CR + EB + CR
+        # ... the CR immediately after the message is my addition, because
+        # HL7 Inspector otherwise says: "Warning: last segment have no segment
+        # termination char 0x0d !" (sic).
+        return self.send(data.encode('utf-8'))
+
+    def send(self, data: bytes) -> Tuple[bool, Optional[str]]:
+        """Low-level, direct access to the socket.send (data must be already
+        wrapped in an MLLP container).  Blocks until the server returns.
+        """
+        # upload the data
+        self.socket.send(data)
+        # wait for the ACK/NACK
+        try:
+            ack_msg = self.socket.recv(RECV_BUFFER)
+            return True, ack_msg
+        except socket.timeout:
+            return False, None
+
+
+# =============================================================================
 # Main functions
 # =============================================================================
 
-def send_all_pending_hl7_messages(show_queue_only=False):
+def send_all_pending_hl7_messages(show_queue_only: bool = False) -> None:
     """Sends all pending HL7 or file messages.
 
     Obtains a file lock, then iterates through all recipients.
@@ -159,7 +679,9 @@ def send_all_pending_hl7_messages(show_queue_only=False):
         pls.db.commit()  # HL7 commit (prior to releasing file lock)
 
 
-def send_pending_hl7_messages(recipient_def, show_queue_only, queue_stdout):
+def send_pending_hl7_messages(recipient_def: RecipientDefinition,
+                              show_queue_only: bool,
+                              queue_stdout: typing.io.TextIO) -> None:
     """Pings recipient if necessary, opens any files required, creates an
     HL7Run, then sends all pending HL7/file messages to a specific
     recipient."""
@@ -205,8 +727,11 @@ def send_pending_hl7_messages(recipient_def, show_queue_only, queue_stdout):
                                     queue_stdout, hl7run, None)
 
 
-def send_pending_hl7_messages_2(recipient_def, show_queue_only, queue_stdout,
-                                hl7run, divert_file):
+def send_pending_hl7_messages_2(recipient_def: RecipientDefinition,
+                                show_queue_only: bool,
+                                queue_stdout: typing.io.TextIO,
+                                hl7run: HL7Run,
+                                divert_file: typing.io.TextIO) -> None:
     """Sends all pending HL7/file messages to a specific recipient."""
     # Also called once per recipient, but after diversion files safely
     # opened and recipient pinged successfully (if desired).
@@ -306,7 +831,7 @@ def send_pending_hl7_messages_2(recipient_def, show_queue_only, queue_stdout,
 # File-handling functions
 # =============================================================================
 
-def make_sure_path_exists(path):
+def make_sure_path_exists(path: str) -> None:
     """Creates a directory/directories if the path doesn't already exist."""
     # http://stackoverflow.com/questions/273192
     try:
@@ -317,519 +842,10 @@ def make_sure_path_exists(path):
 
 
 # =============================================================================
-# HL7Run class
-# =============================================================================
-
-class HL7Run(object):
-    """Class representing an HL7/file run for a specific recipient.
-
-    May be associated with multiple HL7/file messages.
-    """
-    TABLENAME = "_hl7_run_log"
-    FIELDSPECS = [
-        dict(name="run_id", cctype="BIGINT_UNSIGNED", pk=True,
-             autoincrement=True, comment="Arbitrary primary key"),
-        # 4294967296 values, so at 1/minute, 8165 years.
-        dict(name="start_at_utc", cctype="DATETIME",
-             comment="Time run was started (UTC)"),
-        dict(name="finish_at_utc", cctype="DATETIME",
-             comment="Time run was finished (UTC)"),
-    ] + cc_recipdef.RecipientDefinition.FIELDSPECS + [
-        dict(name="script_retcode", cctype="INT",
-             comment="Return code from the script_after_file_export script"),
-        dict(name="script_stdout", cctype="TEXT",
-             comment="stdout from the script_after_file_export script"),
-        dict(name="script_stderr", cctype="TEXT",
-             comment="stderr from the script_after_file_export script"),
-    ]
-    FIELDS = [x["name"] for x in FIELDSPECS]
-
-    @classmethod
-    def make_tables(cls, drop_superfluous_columns=False):
-        cc_db.create_or_update_table(
-            cls.TABLENAME, cls.FIELDSPECS,
-            drop_superfluous_columns=drop_superfluous_columns)
-
-    def __init__(self, param):
-        if isinstance(param, cc_recipdef.RecipientDefinition):
-            rnc_db.blank_object(self, HL7Run.FIELDS)
-            # Copy all attributes from the RecipientDefinition
-            self.__dict__.update(param.__dict__)
-
-            self.start_at_utc = cc_dt.get_now_utc_notz()
-            self.finish_at_utc = None
-            self.save()
-        else:
-            pls.db.fetch_object_from_db_by_pk(self, HL7Run.TABLENAME,
-                                              HL7Run.FIELDS, param)
-
-    def save(self):
-        pls.db.save_object_to_db(self, HL7Run.TABLENAME, HL7Run.FIELDS,
-                                 self.run_id is None)
-
-    def call_script(self, files_exported):
-        if not self.script_after_file_export:
-            # No script to call
-            return
-        if not files_exported:
-            # Didn't export any files; nothing to do.
-            self.script_after_file_export = None  # wasn't called
-            return
-        args = [self.script_after_file_export] + files_exported
-        try:
-            p = subprocess.Popen(args, stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE)
-            self.script_stdout, self.script_stderr = p.communicate()
-            self.script_retcode = p.returncode
-        except Exception as e:
-            self.script_stdout = "Failed to run script"
-            self.script_stderr = str(e)
-
-    def finish(self):
-        self.finish_at_utc = cc_dt.get_now_utc_notz()
-        self.save()
-
-    @classmethod
-    def get_html_header_row(cls):
-        html = "<tr>"
-        for fs in cls.FIELDSPECS:
-            html += "<th>{}</th>".format(fs["name"])
-        html += "</tr>\n"
-        return html
-
-    def get_html_data_row(self):
-        html = "<tr>"
-        for fs in self.FIELDSPECS:
-            name = fs["name"]
-            value = ws.webify(getattr(self, name))
-            html += "<td>{}</td>".format(value)
-        html += "</tr>\n"
-        return html
-
-
-# =============================================================================
-# HL7Message class
-# =============================================================================
-
-class HL7Message(object):
-    TABLENAME = HL7MESSAGE_TABLENAME
-    FIELDSPECS = [
-        dict(name="msg_id", cctype="INT_UNSIGNED", pk=True,
-             autoincrement=True, comment="Arbitrary primary key"),
-        dict(name="run_id", cctype="INT_UNSIGNED",
-             comment="FK to _hl7_run_log.run_id"),
-        dict(name="basetable", cctype="TABLENAME", indexed=True,
-             comment="Base table of task concerned"),
-        dict(name="serverpk", cctype="INT_UNSIGNED", indexed=True,
-             comment="Server PK of task in basetable (_pk field)"),
-        dict(name="sent_at_utc", cctype="DATETIME",
-             comment="Time message was sent at (UTC)"),
-        dict(name="reply_at_utc", cctype="DATETIME",
-             comment="(HL7) Time message was replied to (UTC)"),
-        dict(name="success", cctype="BOOL",
-             comment="Message sent successfully (and, for HL7, acknowledged)"),
-        dict(name="failure_reason", cctype="TEXT",
-             comment="Reason for failure"),
-        dict(name="message", cctype="LONGTEXT",
-             comment="(HL7) Message body, if kept"),
-        dict(name="reply", cctype="TEXT",
-             comment="(HL7) Server's reply, if kept"),
-        dict(name="filename", cctype="TEXT",
-             comment="(FILE) Destination filename"),
-        dict(name="rio_metadata_filename", cctype="TEXT",
-             comment="(FILE) RiO metadata filename, if used"),
-        dict(name="cancelled", cctype="BOOL",
-             comment="Message subsequently invalidated (may trigger resend)"),
-        dict(name="cancelled_at_utc", cctype="DATETIME",
-             comment="Time message was cancelled at (UTC)"),
-    ]
-    FIELDS = [x["name"] for x in FIELDSPECS]
-
-    @classmethod
-    def make_tables(cls, drop_superfluous_columns=False):
-        """Creates underlying database tables."""
-        cc_db.create_or_update_table(
-            cls.TABLENAME, cls.FIELDSPECS,
-            drop_superfluous_columns=drop_superfluous_columns)
-
-    def __init__(self, *args, **kwargs):
-        """Initializes.
-
-        Use either:
-            HL7Message(msg_id)
-        or:
-            HL7Message(basetable, serverpk, hl7run, recipient_def)
-        """
-        nargs = len(args)
-        if nargs == 1:
-            # HL7Message(msg_id)
-            msg_id = args[0]
-            pls.db.fetch_object_from_db_by_pk(self, HL7Message.TABLENAME,
-                                              HL7Message.FIELDS, msg_id)
-            self.hl7run = HL7Run(self.run_id)
-
-        elif nargs == 4:
-            # HL7Message(basetable, serverpk, hl7run, recipient_def)
-            rnc_db.blank_object(self, HL7Message.FIELDS)
-            self.basetable = args[0]
-            self.serverpk = args[1]
-            self.hl7run = args[2]
-            if self.hl7run:
-                self.run_id = self.hl7run.run_id
-            self.recipient_def = args[3]
-            self.show_queue_only = kwargs.get("show_queue_only", False)
-            self.no_saving = self.show_queue_only
-            self.task = cc_task.TaskFactory(self.basetable, self.serverpk)
-
-        else:
-            raise AssertionError("Bad call to HL7Message.__init__")
-
-    def valid(self):
-        """Checks for internal validity; returns Boolean."""
-        if not self.recipient_def or not self.recipient_def.valid:
-            return False
-        if not self.basetable or self.serverpk is None:
-            return False
-        if not self.task:
-            return False
-        anonymous_ok = (self.recipient_def.using_file() and
-                        self.recipient_def.include_anonymous)
-        task_is_anonymous = self.task.is_anonymous
-        if task_is_anonymous and not anonymous_ok:
-            return False
-        # After this point, all anonymous tasks must be OK. So:
-        task_has_primary_id = self.task.get_patient_idnum(
-            self.recipient_def.primary_idnum) is not None
-        if not task_is_anonymous and not task_has_primary_id:
-            return False
-        return True
-
-    def save(self):
-        """Writes to database, unless saving is prohibited."""
-        if self.no_saving:
-            return
-        if self.basetable is None or self.serverpk is None:
-            return
-        is_new_record = self.msg_id is None
-        pls.db.save_object_to_db(self, HL7Message.TABLENAME,
-                                 HL7Message.FIELDS, is_new_record)
-
-    def divert_to_file(self, f):
-        """Write an HL7 message to a file."""
-        infomsg = (
-            "OUTBOUND MESSAGE DIVERTED FROM RECIPIENT {} AT {}\n".format(
-                self.recipient_def.recipient,
-                cc_dt.format_datetime(self.sent_at_utc, DATEFORMAT.ISO8601)
-            )
-        )
-        print(infomsg, file=f)
-        print(str(self.msg), file=f)
-        print("\n", file=f)
-        log.debug(infomsg)
-        self.host = self.recipient_def.divert_to_file
-        if self.recipient_def.treat_diverted_as_sent:
-            self.success = True
-
-    def send(self, queue_file=None, divert_file=None):
-        """Send an outbound HL7/file message, by the appropriate method."""
-        # returns: tried, succeeded
-        if not self.valid():
-            return False, False
-
-        if self.show_queue_only:
-            print("{},{},{},{},{}".format(
-                self.recipient_def.recipient,
-                self.recipient_def.type,
-                self.basetable,
-                self.serverpk,
-                self.task.when_created
-            ), file=queue_file)
-            return False, True
-
-        if not self.hl7run:
-            return True, False
-
-        self.save()  # creates self.msg_id
-        now = cc_dt.get_now_localtz()
-        self.sent_at_utc = cc_dt.convert_datetime_to_utc_notz(now)
-
-        if self.recipient_def.using_hl7():
-            self.make_hl7_message(now)  # will write its own error msg/flags
-            if self.recipient_def.divert_to_file:
-                self.divert_to_file(divert_file)
-            else:
-                self.transmit_hl7()
-        elif self.recipient_def.using_file():
-            self.send_to_filestore()
-        else:
-            raise AssertionError("HL7Message.send: invalid recipient_def.type")
-        self.save()
-
-        log.debug(
-            "HL7Message.send: recipient={}, basetable={}, "
-            "serverpk={}".format(
-                self.recipient_def.recipient,
-                self.basetable,
-                self.serverpk
-            )
-        )
-        return True, self.success
-
-    def send_to_filestore(self):
-        """Send a file to a filestore."""
-        self.filename = self.recipient_def.get_filename(
-            is_anonymous=self.task.is_anonymous,
-            surname=self.task.get_patient_surname(),
-            forename=self.task.get_patient_forename(),
-            dob=self.task.get_patient_dob(),
-            sex=self.task.get_patient_sex(),
-            idnums=self.task.get_patient_idnum_array(),
-            idshortdescs=self.task.get_patient_idshortdesc_array(),
-            creation_datetime=self.task.get_creation_datetime(),
-            basetable=self.basetable,
-            serverpk=self.serverpk,
-        )
-
-        filename = self.filename
-        directory = os.path.dirname(filename)
-        task = self.task
-        task_format = self.recipient_def.task_format
-        allow_overwrite = self.recipient_def.overwrite_files
-
-        if task_format == VALUE.OUTPUTTYPE_PDF:
-            data = task.get_pdf()
-        elif task_format == VALUE.OUTPUTTYPE_HTML:
-            data = task.get_html()
-        elif task_format == VALUE.OUTPUTTYPE_XML:
-            data = task.get_xml()
-        else:
-            raise AssertionError("write_to_filestore_file: bug")
-
-        if not allow_overwrite and os.path.isfile(filename):
-            self.failure_reason = "File already exists"
-            return
-
-        if self.recipient_def.make_directory:
-            try:
-                make_sure_path_exists(directory)
-            except Exception as e:
-                self.failure_reason = "Couldn't make directory {} ({})".format(
-                    directory, e)
-                return
-
-        try:
-            if task_format == VALUE.OUTPUTTYPE_PDF:
-                # binary for PDF
-                with open(filename, mode="wb") as f:
-                    f.write(data)
-            else:
-                # UTF-8 for HTML, XML
-                with codecs.open(filename, mode="w", encoding="utf8") as f:
-                    f.write(data)
-        except Exception as e:
-            self.failure_reason = "Failed to open or write file: {}".format(e)
-            return
-
-        # RiO metadata too?
-        if self.recipient_def.rio_metadata:
-            # No spaces in filename
-            self.rio_metadata_filename = cc_filename.change_filename_ext(
-                self.filename, ".metadata").replace(" ", "")
-            self.rio_metadata_filename = self.rio_metadata_filename
-            metadata = task.get_rio_metadata(
-                self.recipient_def.rio_idnum,
-                self.recipient_def.rio_uploading_user,
-                self.recipient_def.rio_document_type
-            )
-            try:
-                DOS_NEWLINE = "\r\n"
-                # ... Servelec say CR = "\r", but DOS is \r\n.
-                with codecs.open(self.rio_metadata_filename, mode="w",
-                                 encoding="ascii") as f:
-                    # codecs.open() means that file writing is in binary mode,
-                    # so newline conversion has to be manual:
-                    f.write(metadata.replace("\n", DOS_NEWLINE))
-                # UTF-8 is NOT supported by RiO for metadata.
-            except Exception as e:
-                self.failure_reason = ("Failed to open or write RiO metadata "
-                                       "file: {}".format(e))
-                return
-
-        self.success = True
-
-    def make_hl7_message(self, now):
-        """Stores HL7 message in self.msg.
-
-        May also store it in self.message (which is saved to the database), if
-        we're saving HL7 messages.
-        """
-        # http://python-hl7.readthedocs.org/en/latest/index.html
-
-        msh_segment = make_msh_segment(
-            message_datetime=now,
-            message_control_id=str(self.msg_id)
-        )
-        pid_segment = self.task.get_patient_hl7_pid_segment(self.recipient_def)
-        other_segments = self.task.get_hl7_data_segments(self.recipient_def)
-
-        # ---------------------------------------------------------------------
-        # Whole message
-        # ---------------------------------------------------------------------
-        segments = [msh_segment, pid_segment] + other_segments
-        self.msg = hl7.Message(SEGMENT_SEPARATOR, segments)
-        if self.recipient_def.keep_message:
-            self.message = str(self.msg)
-
-    def transmit_hl7(self):
-        """Sends HL7 message over TCP/IP."""
-        # Default MLLP/HL7 port is 2575
-        # ... MLLP = minimum lower layer protocol
-        # ... http://www.cleo.com/support/byproduct/lexicom/usersguide/mllp_configuration.htm  # noqa
-        # ... http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?search=hl7  # noqa
-        # Essentially just a TCP socket with a minimal wrapper:
-        #   http://stackoverflow.com/questions/11126918
-
-        self.host = self.recipient_def.host
-        self.port = self.recipient_def.port
-        self.success = False
-
-        # http://python-hl7.readthedocs.org/en/latest/api.html
-        # ... but we've modified that
-        try:
-            with MLLPTimeoutClient(self.recipient_def.host,
-                                   self.recipient_def.port,
-                                   self.recipient_def.network_timeout_ms) \
-                    as client:
-                server_replied, reply = client.send_message(self.msg)
-        except socket.timeout:
-            self.failure_reason = "Failed to send message via MLLP: timeout"
-            return
-        except Exception as e:
-            self.failure_reason = "Failed to send message via MLLP: {}".format(
-                str(e))
-            return
-
-        if not server_replied:
-            self.failure_reason = "No response from server"
-            return
-        self.reply_at_utc = cc_dt.get_now_utc_notz()
-        if self.recipient_def.keep_reply:
-            self.reply = reply
-        try:
-            replymsg = hl7.parse(reply)
-        except Exception as e:
-            self.failure_reason = "Malformed reply: {}".format(e)
-            return
-
-        self.success, self.failure_reason = msg_is_successful_ack(replymsg)
-
-    @classmethod
-    def get_html_header_row(cls, showmessage=False, showreply=False):
-        """Returns HTML table header row for this class."""
-        html = "<tr>"
-        for fs in cls.FIELDSPECS:
-            if fs["name"] == "message" and not showmessage:
-                continue
-            if fs["name"] == "reply" and not showreply:
-                continue
-            html += "<th>{}</th>".format(fs["name"])
-        html += "</tr>\n"
-        return html
-
-    def get_html_data_row(self, showmessage=False, showreply=False):
-        """Returns HTML table data row for this instance."""
-        html = "<tr>"
-        for fs in self.FIELDSPECS:
-            name = fs["name"]
-            if name == "message" and not showmessage:
-                continue
-            if name == "reply" and not showreply:
-                continue
-            value = ws.webify(getattr(self, name))
-            if name == "serverpk":
-                contents = "<a href={}>{}</a>".format(
-                    cc_task.get_url_task_html(self.basetable, self.serverpk),
-                    value
-                )
-            elif name == "run_id":
-                contents = "<a href={}>{}</a>".format(
-                    get_url_hl7_run(value),
-                    value
-                )
-            else:
-                contents = str(value)
-            html += "<td>{}</td>".format(contents)
-        html += "</tr>\n"
-        return html
-
-# =============================================================================
-# MLLPTimeoutClient
-# =============================================================================
-# Modification of MLLPClient from python-hl7, to allow timeouts and failure.
-
-SB = '\x0b'  # <SB>, vertical tab
-EB = '\x1c'  # <EB>, file separator
-CR = '\x0d'  # <CR>, \r
-FF = '\x0c'  # <FF>, new page form feed
-
-RECV_BUFFER = 4096
-
-
-class MLLPTimeoutClient(object):
-    """Class for MLLP TCP/IP transmission that implements timeouts."""
-
-    def __init__(self, host, port, timeout_ms=None):
-        """Creates MLLP client and opens socket."""
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        timeout_s = float(timeout_ms) / float(1000) \
-            if timeout_ms is not None else None
-        self.socket.settimeout(timeout_s)
-        self.socket.connect((host, port))
-
-    def __enter__(self):
-        """For use with "with" statement."""
-        return self
-
-    def __exit__(self, exc_type, exc_val, traceback):
-        """For use with "with" statement."""
-        self.close()
-
-    def close(self):
-        """Release the socket connection"""
-        self.socket.close()
-
-    def send_message(self, message):
-        """Wraps a str, unicode, or :py:class:`hl7.Message` in a MLLP container
-        and send the message to the server
-        """
-        if isinstance(message, hl7.Message):
-            message = str(message)
-        # wrap in MLLP message container
-        data = SB + message + CR + EB + CR
-        # ... the CR immediately after the message is my addition, because
-        # HL7 Inspector otherwise says: "Warning: last segment have no segment
-        # termination char 0x0d !" (sic).
-        return self.send(data.encode('utf-8'))
-
-    def send(self, data):
-        """Low-level, direct access to the socket.send (data must be already
-        wrapped in an MLLP container).  Blocks until the server returns.
-        """
-        # upload the data
-        self.socket.send(data)
-        # wait for the ACK/NACK
-        try:
-            ack_msg = self.socket.recv(RECV_BUFFER)
-            return True, ack_msg
-        except socket.timeout:
-            return False, None
-
-
-# =============================================================================
 # URLs
 # =============================================================================
 
-def get_url_hl7_run(run_id):
+def get_url_hl7_run(run_id: int) -> str:
     """URL to view an HL7Run instance."""
     url = cc_html.get_generic_action_url(ACTION.VIEW_HL7_RUN)
     url += cc_html.get_url_field_value_pair(PARAM.HL7RUNID, run_id)
@@ -840,7 +856,7 @@ def get_url_hl7_run(run_id):
 # Unit tests
 # =============================================================================
 
-def unit_tests():
+def unit_tests() -> None:
     """Unit tests for cc_hl7 module."""
     # -------------------------------------------------------------------------
     # DELAYED IMPORTS (UNIT TESTING ONLY)

@@ -71,14 +71,14 @@ class Asrm(Task):
     def get_task_html(self):
         score = self.total_score()
         above_cutoff = score >= 6
-        ANSWER_DICTS = []
+        answer_dicts = []
         for q in range(1, self.NQUESTIONS + 1):
             d = {None: "?"}
             for option in range(0, 5):
                 d[option] = (
                     str(option) + " — " +
                     WSTRING("asrm_q" + str(q) + "_option" + str(option)))
-            ANSWER_DICTS.append(d)
+            answer_dicts.append(d)
         h = """
             <div class="summary">
                 <table class="summary">
@@ -103,7 +103,7 @@ class Asrm(Task):
         for q in range(1, self.NQUESTIONS + 1):
             h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
                 WSTRING("asrm_q" + str(q) + "_s"),
-                get_from_dict(ANSWER_DICTS[q - 1], getattr(self, "q" + str(q)))
+                get_from_dict(answer_dicts[q - 1], getattr(self, "q" + str(q)))
             )
         h += """
             </table>

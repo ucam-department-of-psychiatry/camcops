@@ -22,9 +22,10 @@
 """
 
 import math
+from typing import Optional, Union
 
 
-def safe_logit(x):
+def safe_logit(x: Union[float, int]) -> Optional[float]:
     if x > 1 or x < 0:
         return None  # can't take log of negative number
     if x == 1:

@@ -21,7 +21,9 @@
     limitations under the License.
 """
 
+import datetime
 import os
+from typing import List, Optional, Union
 
 from .cc_constants import DATEFORMAT, NUMBER_OF_IDNUMS
 from . import cc_dt
@@ -32,7 +34,7 @@ from . import cc_lang
 # Ancillary functions for export filenames
 # =============================================================================
 
-def patient_spec_for_filename_is_valid(patient_spec):
+def patient_spec_for_filename_is_valid(patient_spec: str) -> bool:
     """Returns True if the patient_spec appears valid; otherwise False."""
     testdict = dict(
         surname="surname",
@@ -53,7 +55,7 @@ def patient_spec_for_filename_is_valid(patient_spec):
         return False
 
 
-def filename_spec_is_valid(filename_spec):
+def filename_spec_is_valid(filename_spec: str) -> bool:
     """Returns True if the filename_spec appears valid; otherwise False."""
     testdict = dict(
         # As above:
@@ -83,13 +85,20 @@ def filename_spec_is_valid(filename_spec):
         return False
 
 
-def get_export_filename(patient_spec_if_anonymous, patient_spec,
-                        filename_spec, task_format,
-                        is_anonymous=False,
-                        surname=None, forename=None, dob=None, sex=None,
-                        idnums=[None]*NUMBER_OF_IDNUMS,
-                        idshortdescs=[""]*NUMBER_OF_IDNUMS,
-                        creation_datetime=None, basetable=None, serverpk=None):
+def get_export_filename(patient_spec_if_anonymous: str,
+                        patient_spec: str,
+                        filename_spec: str,
+                        task_format: str,
+                        is_anonymous: bool = False,
+                        surname: str = None,
+                        forename: str = None,
+                        dob: Union[datetime.date, datetime.datetime] = None,
+                        sex: str = None,
+                        idnums: List[Optional[int]] = [None]*NUMBER_OF_IDNUMS,
+                        idshortdescs: List[str] = [""]*NUMBER_OF_IDNUMS,
+                        creation_datetime: datetime.datetime = None,
+                        basetable: str = None,
+                        serverpk: int = None) -> str:
     """Get filename, for file exports/transfers."""
     if idnums is None:
         idnums = [None]*NUMBER_OF_IDNUMS
@@ -134,7 +143,7 @@ def get_export_filename(patient_spec_if_anonymous, patient_spec,
         str(filename_spec).format(**d), allow_paths=True)
 
 
-def convert_string_for_filename(s, allow_paths=False):
+def convert_string_for_filename(s: str, allow_paths: bool = False) -> str:
     """Remove characters that don't play nicely in filenames across multiple
     operating systems."""
     # http://stackoverflow.com/questions/7406102
@@ -148,7 +157,7 @@ def convert_string_for_filename(s, allow_paths=False):
     return s
 
 
-def change_filename_ext(filename, new_extension_with_dot):
+def change_filename_ext(filename: str, new_extension_with_dot: str) -> str:
     """Replaces the extension, i.e. the part of the filename after its last
     '.'."""
     (root, ext) = os.path.splitext(filename)

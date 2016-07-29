@@ -22,6 +22,7 @@
 """
 
 import string
+from typing import Any, Callable, List, Optional
 
 import cardinal_pythonlib.rnc_plot as rnc_plot
 import cardinal_pythonlib.rnc_web as ws
@@ -44,7 +45,7 @@ from .cc_string import WSTRING
 # Header/footer blocks for PDFs
 # =============================================================================
 
-def wkhtmltopdf_header(inner_html):
+def wkhtmltopdf_header(inner_html: str) -> str:
     # doctype is mandatory
     # https://github.com/wkhtmltopdf/wkhtmltopdf/issues/1645
     return string.Template("""
@@ -65,7 +66,7 @@ def wkhtmltopdf_header(inner_html):
     """).substitute(WKHTMLTOPDF_CSS=WKHTMLTOPDF_CSS, INNER=inner_html)
 
 
-def wkhtmltopdf_footer(inner_text):
+def wkhtmltopdf_footer(inner_text: str) -> str:
     return string.Template("""
         <!DOCTYPE html>
         <html>
@@ -112,7 +113,7 @@ def wkhtmltopdf_footer(inner_text):
     """).substitute(WKHTMLTOPDF_CSS=WKHTMLTOPDF_CSS, INNER=inner_text)
 
 
-def csspagedmedia_header(inner_html):
+def csspagedmedia_header(inner_html: str) -> str:
     return """
         <div id="headerContent">
             {}
@@ -120,7 +121,7 @@ def csspagedmedia_header(inner_html):
     """.format(inner_html)
 
 
-def csspagedmedia_footer(inner_text):
+def csspagedmedia_footer(inner_text: str) -> str:
     return """
         <div id="footerContent">
             Page <pdf:pagenumber> of <pdf:pagecount>.
@@ -129,14 +130,14 @@ def csspagedmedia_footer(inner_text):
     """.format(inner_text)
 
 
-def pdf_header_content(inner_html):
+def pdf_header_content(inner_html: str) -> str:
     if CSS_PAGED_MEDIA:
         return csspagedmedia_header(inner_html)
     else:
         return wkhtmltopdf_header(inner_html)
 
 
-def pdf_footer_content(inner_text):
+def pdf_footer_content(inner_text: str) -> str:
     if CSS_PAGED_MEDIA:
         return csspagedmedia_footer(inner_text)
     else:
@@ -147,8 +148,12 @@ def pdf_footer_content(inner_text):
 # HTML elements
 # =============================================================================
 
-def table_row(columns, classes=None, colspans=None, colwidths=None,
-              default="", heading=False):
+def table_row(columns: List[str],
+              classes: List[str] = None,
+              colspans: List[str] = None,
+              colwidths: List[str] = None,
+              default: str = "",
+              heading: bool = False) -> str:
     """Make HTML table row."""
     n = len(columns)
 
@@ -189,7 +194,7 @@ def table_row(columns, classes=None, colspans=None, colwidths=None,
     )
 
 
-def div(content, div_class=""):
+def div(content: str, div_class: str = "") -> str:
     """Make simple HTML div."""
     return """
         <div{div_class}>
@@ -201,7 +206,7 @@ def div(content, div_class=""):
     )
 
 
-def table(content, table_class=""):
+def table(content: str, table_class: str = "") -> str:
     """Make simple HTML table."""
     return """
         <table{table_class}>
@@ -213,7 +218,7 @@ def table(content, table_class=""):
     )
 
 
-def tr(*args, **kwargs):
+def tr(*args, **kwargs) -> str:
     """Make simple HTML table data row.
 
     *args: Set of columns data.
@@ -233,7 +238,7 @@ def tr(*args, **kwargs):
     )
 
 
-def td(contents, td_class="", td_width=""):
+def td(contents: str, td_class: str = "", td_width: str = "") -> str:
     """Make simple HTML table data cell."""
     return "<td{td_class}{td_width}>{contents}</td>\n".format(
         td_class=' class="{}"'.format(td_class) if td_class else '',
@@ -242,7 +247,7 @@ def td(contents, td_class="", td_width=""):
     )
 
 
-def th(contents, th_class="", th_width=""):
+def th(contents: str, th_class: str = "", th_width: str = "") -> str:
     """Make simple HTML table header cell."""
     return "<th{th_class}{th_width}>{contents}</th>\n".format(
         th_class=' class="{}"'.format(th_class) if th_class else '',
@@ -251,50 +256,56 @@ def th(contents, th_class="", th_width=""):
     )
 
 
-def tr_qa(q, a, default="?", default_for_blank_strings=False):
+def tr_qa(q: str,
+          a: str,
+          default: str = "?",
+          default_for_blank_strings: bool = False) -> str:
     """Make HTML two-column data row, with right-hand column formatted as an
     answer."""
     return tr(q, answer(a, default=default,
                         default_for_blank_strings=default_for_blank_strings))
 
 
-def heading_spanning_two_columns(s):
+def heading_spanning_two_columns(s: str) -> str:
     """HTML table heading spanning 2 columns."""
     return tr_span_col(s, cols=2, tr_class="heading")
 
 
-def subheading_spanning_two_columns(s, th_not_td=False):
+def subheading_spanning_two_columns(s: str, th_not_td: bool = False) -> str:
     """HTML table subheading spanning 2 columns."""
     return tr_span_col(s, cols=2, tr_class="subheading", th_not_td=th_not_td)
 
 
-def subheading_spanning_three_columns(s, th_not_td=False):
+def subheading_spanning_three_columns(s: str, th_not_td: bool = False) -> str:
     """HTML table subheading spanning 3 columns."""
     return tr_span_col(s, cols=3, tr_class="subheading", th_not_td=th_not_td)
 
 
-def subheading_spanning_four_columns(s, th_not_td=False):
+def subheading_spanning_four_columns(s: str, th_not_td: bool = False) -> str:
     """HTML table subheading spanning 4 columns."""
     return tr_span_col(s, cols=4, tr_class="subheading", th_not_td=th_not_td)
 
 
-def bold(x):
+def bold(x: str) -> str:
     """Applies HTML bold."""
     return "<b>{}</b>".format(x)
 
 
-def italic(x):
+def italic(x: str) -> str:
     """Applies HTML italic."""
     return "<i>{}</i>".format(x)
 
 
-def identity(x):
+def identity(x: Any) -> Any:
     """Returns argument unchanged."""
     return x
 
 
-def answer(x, default="?", default_for_blank_strings=False,
-           formatter_answer=bold, formatter_blank=italic):
+def answer(x: Any,
+           default: str = "?",
+           default_for_blank_strings: bool = False,
+           formatter_answer: Callable[[str], str] = bold,
+           formatter_blank: Callable[[str], str] = italic) -> str:
     """Formats answer in bold, or the default value if None.
 
     Avoid the word None for the default, e.g.
@@ -308,7 +319,11 @@ def answer(x, default="?", default_for_blank_strings=False,
     return formatter_answer(x)
 
 
-def tr_span_col(x, cols=2, tr_class="", td_class="", th_not_td=False):
+def tr_span_col(x: str,
+                cols: int = 2,
+                tr_class: str = "",
+                td_class: str = "",
+                th_not_td: bool = False) -> str:
     """HTML table data row spanning several columns.
 
     Args:
@@ -328,7 +343,7 @@ def tr_span_col(x, cols=2, tr_class="", td_class="", th_not_td=False):
     )
 
 
-def get_html_from_pyplot_figure(fig):
+def get_html_from_pyplot_figure(fig) -> str:
     """Make HTML (as PNG or SVG) from pyplot figure."""
     if USE_SVG_IN_HTML and cc_pls.pls.useSVG:
         return (
@@ -343,7 +358,8 @@ def get_html_from_pyplot_figure(fig):
         return rnc_plot.png_img_html_from_pyplot_figure(fig, DEFAULT_PLOT_DPI)
 
 
-def get_html_which_idnum_picker(param=PARAM.WHICH_IDNUM, selected=None):
+def get_html_which_idnum_picker(param: str = PARAM.WHICH_IDNUM,
+                                selected: int = None) -> str:
     html = """
         <select name="{param}">
     """.format(
@@ -363,7 +379,9 @@ def get_html_which_idnum_picker(param=PARAM.WHICH_IDNUM, selected=None):
     return html
 
 
-def get_html_sex_picker(param=PARAM.SEX, selected=None, offer_all=False):
+def get_html_sex_picker(param: str = PARAM.SEX,
+                        selected: str = None,
+                        offer_all: bool = False) -> str:
     if offer_all:
         option_all = '<option value="">(all)</option>'
     else:
@@ -388,64 +406,67 @@ def get_html_sex_picker(param=PARAM.SEX, selected=None, offer_all=False):
 # Field formatting
 # =============================================================================
 
-def get_yes_no(x):
+def get_yes_no(x: Any) -> str:
     """'Yes' if x else 'No'"""
     return WSTRING("Yes") if x else WSTRING("No")
 
 
-def get_yes_no_none(x):
+def get_yes_no_none(x: Any) -> Optional[str]:
     """Returns 'Yes' for True, 'No' for False, or None for None."""
     if x is None:
         return None
     return get_yes_no(x)
 
 
-def get_yes_no_unknown(x):
+def get_yes_no_unknown(x: Any) -> str:
     """Returns 'Yes' for True, 'No' for False, or '?' for None."""
     if x is None:
         return "?"
     return get_yes_no(x)
 
 
-def get_true_false(x):
+def get_true_false(x: Any) -> str:
     """'True' if x else 'False'"""
     return WSTRING("True") if x else WSTRING("False")
 
 
-def get_true_false_none(x):
+def get_true_false_none(x: Any) -> Optional[str]:
     """Returns 'True' for True, 'False' for False, or None for None."""
     if x is None:
         return None
     return get_true_false(x)
 
 
-def get_true_false_unknown(x):
+def get_true_false_unknown(x: Any) -> str:
     """Returns 'True' for True, 'False' for False, or '?' for None."""
     if x is None:
         return "?"
     return get_true_false(x)
 
 
-def get_present_absent(x):
+def get_present_absent(x: Any) -> str:
     """'Present' if x else 'Absent'"""
     return WSTRING("Present") if x else WSTRING("Absent")
 
 
-def get_present_absent_none(x):
+def get_present_absent_none(x: Any) -> Optional[str]:
     """Returns 'Present' for True, 'Absent' for False, or None for None."""
     if x is None:
         return None
     return get_present_absent(x)
 
 
-def get_present_absent_unknown(x):
+def get_present_absent_unknown(x: str) -> str:
     """Returns 'Present' for True, 'Absent' for False, or '?' for None."""
     if x is None:
         return "?"
     return get_present_absent(x)
 
 
-def get_ternary(x, value_true=True, value_false=False, value_none=None):
+def get_ternary(x: Any,
+                value_true: Any = True,
+                value_false: Any = False,
+                value_none: Any = None) -> Any:
     if x is None:
         return value_none
     if x:
@@ -453,7 +474,7 @@ def get_ternary(x, value_true=True, value_false=False, value_none=None):
     return value_false
 
 
-def get_correct_incorrect_none(x):
+def get_correct_incorrect_none(x: Any) -> Optional[str]:
     return get_ternary(x, "Correct", "Incorrect", None)
 
 
@@ -461,7 +482,7 @@ def get_correct_incorrect_none(x):
 # Pages referred to in this module by simple success/failure messages
 # =============================================================================
 
-def login_page(extra_msg="", redirect=None):
+def login_page(extra_msg: str = "", redirect=None):
     """HTML for main login page."""
     disable_autocomplete = (' autocomplete="off"'
                             if cc_pls.pls.DISABLE_PASSWORD_AUTOCOMPLETE
@@ -517,12 +538,12 @@ def error_msg(msg):
     return """<h2 class="error">{}</h2>""".format(msg)
 
 
-def fail_with_error_not_logged_in(error, redirect=None):
+def fail_with_error_not_logged_in(error: str, redirect: str = None) -> str:
     """HTML for you-have-failed-and-are-not-logged-in message."""
     return login_page(error_msg(error), redirect)
 
 
-def fail_with_error_stay_logged_in(error, extra_html=""):
+def fail_with_error_stay_logged_in(error: str, extra_html: str = "") -> str:
     """HTML for errors where the user stays logged in."""
     return cc_pls.pls.WEBSTART + """
         {}
@@ -535,7 +556,7 @@ def fail_with_error_stay_logged_in(error, extra_html=""):
     ) + WEBEND
 
 
-def get_return_to_main_menu_line():
+def get_return_to_main_menu_line() -> str:
     """HTML DIV for returning to the main menu."""
     return """
         <div>
@@ -544,7 +565,7 @@ def get_return_to_main_menu_line():
     """.format(get_url_main_menu())
 
 
-def get_database_title_string():
+def get_database_title_string() -> str:
     """Database title as HTML-safe unicode."""
     if not cc_pls.pls.DATABASE_TITLE:
         return ""
@@ -555,21 +576,21 @@ def get_database_title_string():
 # URLs
 # =============================================================================
 
-def get_generic_action_url(action):
+def get_generic_action_url(action: str) -> str:
     """Make generic URL with initial action name/value pair."""
     return "{}?{}={}".format(cc_pls.pls.SCRIPT_NAME, PARAM.ACTION, action)
 
 
-def get_url_field_value_pair(field, value):
+def get_url_field_value_pair(field: str, value: Any) -> str:
     """Make generic "&field=value" pair to append to URL, with ampersand."""
     return "&amp;{}={}".format(field, value)
 
 
-def get_url_main_menu():
+def get_url_main_menu() -> str:
     return get_generic_action_url(ACTION.MAIN_MENU)
 
 
-def get_url_enter_new_password(username):
+def get_url_enter_new_password(username: str) -> str:
     """URL to enter new password."""
     return (
         get_generic_action_url(ACTION.ENTER_NEW_PASSWORD) +

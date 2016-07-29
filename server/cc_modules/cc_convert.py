@@ -24,6 +24,7 @@
 import base64
 import binascii
 import re
+from typing import Any, Iterator, List
 
 import cardinal_pythonlib.rnc_db as rnc_db
 from cc_modules.cc_pls import pls
@@ -52,12 +53,12 @@ SQLQUOTE = "'"
 # Conversion to/from quoted SQL values
 # =============================================================================
 
-def special_hex_encode(v):
+def special_hex_encode(v: bytes) -> str:
     """Encode in X'{hex}' format."""
     return "X'{}'".format(binascii.hexlify(v))
 
 
-def special_hex_decode(s):
+def special_hex_decode(s: str) -> bytearray:  # TODO: change to bytes?
     """Reverse special_hex_encode()."""
     # SPECIAL HANDLING for BLOBs: a string like X'01FF' means a hex-
     # encoded BLOB. Titanium is rubbish at blobs, so we encode them as
@@ -68,12 +69,12 @@ def special_hex_decode(s):
     return bytearray.fromhex(s[2:-1])
 
 
-def special_base64_encode(v):
+def special_base64_encode(v: bytes) -> str:
     """Encode in 64'{base64encoded}' format."""
     return "64'{}'".format(base64.b64encode(v))
 
 
-def special_base64_decode(s):
+def special_base64_decode(s: str) -> bytearray:  # TODO: change to bytes?
     """Reverse special_base64_encode()."""
     # OTHER WAY OF DOING BLOBS: base64 encoding
     # e.g. a string like 64'cGxlYXN1cmUu' is a base-64-encoded BLOB
@@ -83,7 +84,7 @@ def special_base64_decode(s):
     return bytearray(base64.b64decode(s[3:-1]))
 
 
-def escape_newlines(s):
+def escape_newlines(s: str) -> str:
     """Escapes CR, LF, and backslashes.
     Tablet counterpart is unescape_newlines() in conversion.js."""
     # s.encode("string_escape") and s.encode("unicode_escape") are
@@ -97,7 +98,7 @@ def escape_newlines(s):
     return s
 
 
-def unescape_newlines(s):
+def unescape_newlines(s: str) -> str:
     """Reverses escape_newlines. Just for testing purposes."""
     # See also http://stackoverflow.com/questions/4020539
     if not s:
@@ -122,7 +123,7 @@ def unescape_newlines(s):
     return d
 
 
-def encode_single_value(v, is_blob=False):
+def encode_single_value(v: Any, is_blob=False) -> str:
     """Encodes a value for incorporation into an SQL CSV value string.
 
     Note that this also escapes newlines (not necessary when receiving data
@@ -143,7 +144,7 @@ def encode_single_value(v, is_blob=False):
     return str(v)
 
 
-def gen_items_from_sql_csv(s):
+def gen_items_from_sql_csv(s: str) -> Iterator[str]:
     """Splits a comma-separated list of quoted SQL values, with ' as the quote
     character. Allows escaping of the quote character by doubling it. Returns
     the quotes (and escaped quotes) as part of the result. Allows newlines etc.
@@ -178,7 +179,7 @@ def gen_items_from_sql_csv(s):
     yield s[startpos:].strip()
 
 
-def decode_single_value(v):
+def decode_single_value(v: str) -> Any:
     """Takes a string representing an SQL value. Returns the value. Value
     types/examples:
 
@@ -244,7 +245,7 @@ def decode_single_value(v):
     return v
 
 
-def decode_values(valuelist):
+def decode_values(valuelist: str) -> List[Any]:
     """Takes a SQL CSV value list and returns the corresponding list of decoded
     values."""
     # log.debug("decode_values: valuelist={}".format(valuelist))
@@ -253,6 +254,6 @@ def decode_values(valuelist):
     return v
 
 
-def delimit(f):
+def delimit(f: str) -> str:
     """Delimits a field for SQL queries."""
     return pls.db.delimit(f)

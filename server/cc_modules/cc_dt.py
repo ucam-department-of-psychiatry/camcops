@@ -22,10 +22,13 @@
 """
 
 import datetime
+import re
+import typing
+from typing import Optional, Union
+
 import dateutil
 import dateutil.parser
 import dateutil.tz
-import re
 import pytz
 # don't use pytz.reference: http://stackoverflow.com/questions/17733139
 
@@ -34,28 +37,30 @@ import pytz
 # Processing dates and times
 # =============================================================================
 
-def get_datetime_from_string(s):
+def get_datetime_from_string(s: str) -> datetime.datetime:
     """Convert string (e.g. ISO-8601) to datetime, or None."""
     if not s:
         return None  # if you parse() an empty string, you get today's date
     return dateutil.parser.parse(s)  # deals with ISO8601 automatically
 
 
-def get_date_from_string(s):
+def get_date_from_string(s: str) -> datetime.date:
     """Convert string (e.g. ISO-8601) to date, or None."""
     if not s:
         return None  # if you parse() an empty string, you get today's date
     return dateutil.parser.parse(s).date()  # deals with ISO8601 automatically
 
 
-def format_datetime(d, fmt, default=None):
+def format_datetime(d: Union[datetime.datetime, datetime.date],
+                    fmt: str,
+                    default: str = None) -> Optional[str]:
     """Format a datetime with a format string, or return default if None."""
     if d is None:
         return default
     return d.strftime(fmt)
 
 
-def format_datetime_string(s, fmt, default="(None)"):
+def format_datetime_string(s: str, fmt: str, default: str = "(None)") -> str:
     """Converts a string representation of a date (usually from the database)
     into a specified strftime() format."""
     if s is None:
@@ -66,7 +71,7 @@ def format_datetime_string(s, fmt, default="(None)"):
     return dt.strftime(fmt)
 
 
-def get_date_regex_string(dt):
+def get_date_regex_string(dt: datetime.datetime) -> str:
     # Reminders: ? zero or one, + one or more, * zero or more
     wb = "\\b"  # word boundary; escape the slash
     ws = "\\s"  # whitespace; includes newlines
@@ -126,40 +131,40 @@ print(r.sub(replacement, teststring))
 '''
 
 
-def get_date_regex(dt):
+def get_date_regex(dt: datetime.datetime) -> typing.re.Pattern:
     """Regex for anonymisation. Date."""
     return re.compile(get_date_regex_string(dt), re.IGNORECASE)
 
 
-def get_now_localtz():
+def get_now_localtz() -> datetime.datetime:
     """Get the time now in the local timezone."""
     localtz = dateutil.tz.tzlocal()
     return datetime.datetime.now(localtz)
 
 
-def get_now_utc():
+def get_now_utc() -> datetime.datetime:
     """Get the time now in the UTC timezone."""
     return datetime.datetime.now(pytz.utc)
 
 
-def get_now_utc_notz():
+def get_now_utc_notz() -> datetime.datetime:
     """Get the UTC time now, but with no timezone information."""
     return get_now_utc().replace(tzinfo=None)
 
 
-def convert_datetime_to_utc(datetime_tz):
+def convert_datetime_to_utc(datetime_tz) -> datetime.datetime:
     """Convert date/time with timezone to UTC (with UTC timezone)."""
     return datetime_tz.astimezone(pytz.utc)
 
 
-def convert_datetime_to_utc_notz(datetime_tz):
+def convert_datetime_to_utc_notz(datetime_tz) -> datetime.datetime:
     """Convert date/time with timezone to UTC without timezone."""
     # Incoming: date/time with timezone
     utc_tz = datetime_tz.astimezone(pytz.utc)
     return utc_tz.replace(tzinfo=None)
 
 
-def convert_datetime_to_local(datetime_tz):
+def convert_datetime_to_local(datetime_tz) -> datetime.datetime:
     """Convert date/time with timezone to local timezone."""
     # Establish the local timezone
     localtz = dateutil.tz.tzlocal()
@@ -167,7 +172,8 @@ def convert_datetime_to_local(datetime_tz):
     return datetime_tz.astimezone(localtz)
 
 
-def convert_utc_datetime_without_tz_to_local(datetime_utc_notz):
+def convert_utc_datetime_without_tz_to_local(datetime_utc_notz) \
+        -> datetime.datetime:
     """Convert UTC date/time without timezone to local timezone."""
     # 1. Make it explicitly in the UTC timezone.
     datetime_utc_tz = datetime_utc_notz.replace(tzinfo=pytz.utc)
@@ -177,7 +183,9 @@ def convert_utc_datetime_without_tz_to_local(datetime_utc_notz):
     return datetime_utc_tz.astimezone(localtz)
 
 
-def get_duration_h_m(start_string, end_string, default="N/A"):
+def get_duration_h_m(start_string: str,
+                     end_string: str,
+                     default: str = "N/A") -> str:
     """Calculate the time between two dates/times expressed as strings.
 
     Return format: string, as one of:
