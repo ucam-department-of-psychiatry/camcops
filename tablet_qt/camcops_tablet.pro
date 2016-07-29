@@ -10,9 +10,16 @@
 
 # http://doc.qt.io/qt-5/qtmultimedia-index.html
 # http://wiki.qt.io/Qt_5.5.0_Multimedia_Backends
+# http://doc.qt.io/qt-4.8/qmake-variable-reference.html#qt
+# http://doc.qt.io/qt-5/qtmodules.html
 
-QT += core gui multimedia multimediawidgets sql widgets
-# network
+QT += core  # included by default; QtCore module
+QT += gui  # included by default; QtGui module
+QT += widgets  # required to #include <QApplication>
+QT += sql  # required to #include <QSqlDatabase>
+QT += network  # required to #include <QtNetwork/*>
+QT += multimedia  # or: undefined reference to QMedia*::*
+QT += multimediawidgets
 
 # http://stackoverflow.com/questions/20351155/how-can-i-enable-ssl-in-qt-windows-application
 # http://stackoverflow.com/questions/18663331/how-to-check-the-selected-version-of-qt-in-a-pro-file

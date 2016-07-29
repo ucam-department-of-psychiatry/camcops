@@ -62,7 +62,6 @@ CamcopsApp::~CamcopsApp()
 
 int CamcopsApp::run()
 {
-    /*
     m_pMainWindow = new QMainWindow();
     m_pWindowStack = new QStackedWidget(m_pMainWindow);
     m_pMainWindow->setCentralWidget(m_pWindowStack);
@@ -70,11 +69,11 @@ int CamcopsApp::run()
     MainMenu* menu = new MainMenu(*this);
     pushScreen(menu);
 
-    m_pMainWindow->show();
-    */
+    qDebug() << "*** Screen pushed";
 
-    QPushButton button("Hello, world!");
-    button.show();
+    m_pMainWindow->show();
+
+    qDebug() << "*** Window shown";
 
     // run_tests(*this);
     qDebug() << "Starting Qt event processor...";

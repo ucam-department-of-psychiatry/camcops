@@ -6,73 +6,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d507af95-9eb5-49a8-90aa-7921b1aee6f4" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/common/camcops_app.cpp" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/common/camcops_app.h" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/common/db_constants.h" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/lib/databaseobject.cpp" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/lib/databaseobject.h" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/lib/datetimefunc.cpp" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/lib/datetimefunc.h" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/lib/dbfunc.cpp" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/lib/dbfunc.h" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/lib/field.cpp" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/lib/field.h" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/lib/netcore.cpp" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/lib/netcore.h" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/menu/test_menu.cpp" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/menu/test_menu.h" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/sounds/camcops/.gitignore" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/tasklib/inittasks.cpp" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/tasklib/inittasks.h" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/tasklib/task.cpp" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/tasklib/task.h" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/tasklib/taskfactory.cpp" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/tasklib/taskfactory.h" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/tasks/phq9.cpp" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/tasks/phq9.h" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/tests/master_test.cpp" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/tests/master_test.h" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/tools/build_qt.py" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/tablet_qt/common/gv.cpp" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/tablet_qt/common/gv.h" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/tablet_qt.pro" afterPath="$PROJECT_DIR$/tablet_qt/camcops_tablet.pro" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/camcops.iml" afterPath="$PROJECT_DIR$/.idea/camcops.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/cc_modules/cc_hl7.py" afterPath="$PROJECT_DIR$/server/cc_modules/cc_hl7.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/cc_modules/cc_hl7core.py" afterPath="$PROJECT_DIR$/server/cc_modules/cc_hl7core.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/cc_modules/cc_html.py" afterPath="$PROJECT_DIR$/server/cc_modules/cc_html.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/cc_modules/cc_patient.py" afterPath="$PROJECT_DIR$/server/cc_modules/cc_patient.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/cc_modules/cc_pls.py" afterPath="$PROJECT_DIR$/server/cc_modules/cc_pls.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/cc_modules/cc_task.py" afterPath="$PROJECT_DIR$/server/cc_modules/cc_task.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/badls.py" afterPath="$PROJECT_DIR$/server/tasks/badls.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/dad.py" afterPath="$PROJECT_DIR$/server/tasks/dad.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/frs.py" afterPath="$PROJECT_DIR$/server/tasks/frs.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/hads.py" afterPath="$PROJECT_DIR$/server/tasks/hads.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/ifs.py" afterPath="$PROJECT_DIR$/server/tasks/ifs.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/npiq.py" afterPath="$PROJECT_DIR$/server/tasks/npiq.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/pdss.py" afterPath="$PROJECT_DIR$/server/tasks/pdss.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/pswq.py" afterPath="$PROJECT_DIR$/server/tasks/pswq.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/wsas.py" afterPath="$PROJECT_DIR$/server/tasks/wsas.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/ybocs.py" afterPath="$PROJECT_DIR$/server/tasks/ybocs.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/zbi.py" afterPath="$PROJECT_DIR$/server/tasks/zbi.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/lib/dbsqlite.js" afterPath="$PROJECT_DIR$/tablet/Resources/lib/dbsqlite.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/camcops.qrc" afterPath="$PROJECT_DIR$/tablet_qt/camcops.qrc" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/common/ui_constants.h" afterPath="$PROJECT_DIR$/tablet_qt/common/ui_constants.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/filefunc.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/filefunc.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/filefunc.h" afterPath="$PROJECT_DIR$/tablet_qt/lib/filefunc.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/uifunc.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/uifunc.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/uifunc.h" afterPath="$PROJECT_DIR$/tablet_qt/lib/uifunc.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/main.cpp" afterPath="$PROJECT_DIR$/tablet_qt/main.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/main_menu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/main_menu.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/main_menu.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/main_menu.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/menu_item.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menulib/menu_item.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/menu_item.h" afterPath="$PROJECT_DIR$/tablet_qt/menulib/menu_item.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/menu_window.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menulib/menu_window.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/menu_window.h" afterPath="$PROJECT_DIR$/tablet_qt/menulib/menu_window.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/notes/qt_notes.txt" afterPath="$PROJECT_DIR$/tablet_qt/notes/qt_notes.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/stylesheets/camcops.css" afterPath="$PROJECT_DIR$/tablet_qt/stylesheets/camcops.css" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/stylesheets/camcops_menu.css" afterPath="$PROJECT_DIR$/tablet_qt/stylesheets/camcops_menu.css" />
     </list>
     <ignored path="camcops.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -96,7 +30,7 @@
       <file leaf-file-name="database.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/server/database.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1406">
+            <state relative-caret-position="431">
               <caret line="1660" column="9" selection-start-line="1660" selection-start-column="9" selection-end-line="1660" selection-end-column="9" />
               <folding>
                 <marker date="1460330531012" expanded="true" signature="11163:11216" ph="SELECT COUNT... _" />
@@ -205,7 +139,7 @@
       <file leaf-file-name="cc_task.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_task.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="494">
+            <state relative-caret-position="6071">
               <caret line="541" column="49" selection-start-line="541" selection-start-column="49" selection-end-line="541" selection-end-column="49" />
               <folding>
                 <marker date="1464884714436" expanded="true" signature="4672:4783" ph="SELECT _pk, " />
@@ -226,7 +160,7 @@
       <file leaf-file-name="cc_constants.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_constants.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="256">
+            <state relative-caret-position="4225">
               <caret line="327" column="0" selection-start-line="327" selection-start-column="0" selection-end-line="327" selection-end-column="0" />
               <folding />
             </state>
@@ -363,7 +297,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -382,41 +316,9 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="camcops" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="camcops" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="server" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="camcops" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="camcops" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="server" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="cc_modules" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
         </subPane>
       </pane>
-      <pane id="Scratches" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -665,9 +567,9 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-1" y="48" width="1202" height="1556" extended-state="0" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2550167" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2550167" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="LuaJ" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
@@ -982,10 +884,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3029">
           <caret line="259" column="28" selection-start-line="259" selection-start-column="28" selection-end-line="259" selection-end-column="28" />
-          <folding>
-            <marker date="1469316099900" expanded="true" signature="23201:23258" ph="SELECT _pk F... " />
-            <marker date="1469316099900" expanded="true" signature="28129:28162" ph="SELECT _pk F... " />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -993,10 +891,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="9776">
           <caret line="792" column="0" selection-start-line="792" selection-start-column="0" selection-end-line="792" selection-end-column="0" />
-          <folding>
-            <marker date="1469316329911" expanded="true" signature="8240:8306" ph="SELECT _pk F... " />
-            <marker date="1469316329911" expanded="true" signature="32792:32825" ph="SELECT _pk F... " />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1062,7 +956,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_task.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="494">
+        <state relative-caret-position="6071">
           <caret line="541" column="49" selection-start-line="541" selection-start-column="49" selection-end-line="541" selection-end-column="49" />
           <folding>
             <marker date="1464884714436" expanded="true" signature="4672:4783" ph="SELECT _pk, " />
@@ -1081,7 +975,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_constants.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="256">
+        <state relative-caret-position="4225">
           <caret line="327" column="0" selection-start-line="327" selection-start-column="0" selection-end-line="327" selection-end-column="0" />
           <folding />
         </state>
@@ -1089,7 +983,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/server/database.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1406">
+        <state relative-caret-position="431">
           <caret line="1660" column="9" selection-start-line="1660" selection-start-column="9" selection-end-line="1660" selection-end-column="9" />
           <folding>
             <marker date="1460330531012" expanded="true" signature="11163:11216" ph="SELECT COUNT... _" />

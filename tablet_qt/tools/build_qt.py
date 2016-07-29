@@ -4,11 +4,13 @@
 When is it NECESSARY to compile OpenSSL from source?
     - OpenSSL for Android
       http://doc.qt.io/qt-5/opensslsupport.html
+      ... so: necessary.
 
 When is it NECESSARY to compile Qt from source?
     - Static linking of OpenSSL (non-critical)
     - SQLite support (critical)
       http://doc.qt.io/qt-5/sql-driver.html
+      ... so: necessary.
 """
 
 # configure: http://doc.qt.io/qt-5/configure-options.html
@@ -104,7 +106,7 @@ def build_openssl_android(args, cpu):
     targets = [join(workdir, "libssl.so"),
                join(workdir, "libcrypto.so")]
     if all(isfile(x) for x in targets):
-        log.info("All targets exist already: {}".format(targets))
+        log.info("OpenSSL: All targets exist already: {}".format(targets))
         return
 
     # https://wiki.openssl.org/index.php/Android
@@ -281,7 +283,7 @@ def build_qt_android(args, cpu, static_openssl=False, verbose=True):
 
     targets = [join(installdir, "bin", "qmake")]
     if all(isfile(x) for x in targets):
-        log.info("All targets exist already: {}".format(targets))
+        log.info("Qt: All targets exist already: {}".format(targets))
         return installdir
 
     # env = os.environ.copy()

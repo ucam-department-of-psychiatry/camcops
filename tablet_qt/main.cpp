@@ -1,4 +1,4 @@
-// #define TEST_QT_BASIC
+#define TEST_QT_BASIC
 
 #ifdef TEST_QT_BASIC
 #include <QApplication>  // for minimal_qt_app

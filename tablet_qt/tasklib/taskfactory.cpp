@@ -52,7 +52,9 @@ QStringList TaskFactory::tablenames() const
 
 Task* TaskFactory::build(const QString& key, int loadPk) const
 {
+    qDebug() << "TaskFactoryBuild(" << key << ", " << loadPk << ")";
     if (!m_map.contains(key)) {
+        qDebug() << "... no such task";
         return NULL;
     }
     ProxyType proxy = m_map[key].proxy;

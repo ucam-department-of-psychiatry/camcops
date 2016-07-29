@@ -4,6 +4,7 @@
 Phq9::Phq9(const QSqlDatabase& db, int loadPk) :
     Task(db)
 {
+    qDebug() << "Phq9::Phq9";
     initDatabaseObject(loadPk);  // MUST ALWAYS CALL from derived constructor.
 }
 

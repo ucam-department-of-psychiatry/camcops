@@ -104,7 +104,9 @@ QString DatabaseObject::sqlCreateTable() const
 
 bool DatabaseObject::loadByPk(int pk)
 {
-    qDebug() << "*** MISSING CODE: DatabaseObject::loadByPk ***";
+    qDebug() << "*** MISSING CODE: DatabaseObject::loadByPk("
+             << pk << ") ***";
+    return false;
 }
 
 void DatabaseObject::save()
