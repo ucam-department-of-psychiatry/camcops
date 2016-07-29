@@ -21,18 +21,18 @@
     limitations under the License.
 """
 
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
     DATA_COLLECTION_UNLESS_UPGRADED_DIV,
 )
-from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
-from cc_modules.cc_html import (
+from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_html import (
     answer,
     tr_qa,
 )
-from cc_modules.cc_string import task_extrastrings_exist, WSTRING
-from cc_modules.cc_task import Task
-from cc_modules.cc_logger import log
+from ..cc_modules.cc_string import task_extrastrings_exist, WSTRING
+from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_logger import log
 
 
 # =============================================================================
@@ -109,8 +109,8 @@ class Hads(Task):
         return self.score(self.DEPRESSION_QUESTIONS)
 
     def get_task_html(self):
-        MIN_SCORE = 0
-        MAX_SCORE = 3
+        min_score = 0
+        max_score = 3
         crippled = not self.extrastrings_exist()
         log.info("crippled: {}".format(crippled))
         a = self.anxiety_score()
@@ -156,7 +156,7 @@ class Hads(Task):
             if n in self.DEPRESSION_QUESTIONS:
                 q += " (D)"
             v = getattr(self, "q" + str(n))
-            if crippled or v is None or v < MIN_SCORE or v > MAX_SCORE:
+            if crippled or v is None or v < min_score or v > max_score:
                 a = v
             else:
                 a = "{}: {}".format(v, self.WXSTRING("q{}_a{}".format(n, v)))

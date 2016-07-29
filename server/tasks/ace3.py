@@ -24,13 +24,13 @@
 import matplotlib.pyplot as plt
 import numpy
 import cardinal_pythonlib.rnc_web as ws
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
     FULLWIDTH_PLOT_WIDTH,
     PV,
 )
-from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
-from cc_modules.cc_html import (
+from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_html import (
     answer,
     get_html_from_pyplot_figure,
     italic,
@@ -39,7 +39,7 @@ from cc_modules.cc_html import (
     tr_qa,
     tr_span_col,
 )
-from cc_modules.cc_task import Task
+from ..cc_modules.cc_task import Task
 
 
 # =============================================================================
@@ -433,8 +433,9 @@ class Ace3(Task):
             ax = fig.add_subplot(1, 1, 1)
             scores = numpy.array([a, m, f, l, v])
             maxima = numpy.array([18, 26, 14, 26, 16])
-            y = 100 * scores/maxima
+            y = 100 * scores / maxima
             x_labels = ["Attn", "Mem", "Flu", "Lang", "VSp"]
+            # noinspection PyTypeChecker
             N = len(y)
             xvar = numpy.arange(N)
             ax.bar(xvar, y, WIDTH, color="b")

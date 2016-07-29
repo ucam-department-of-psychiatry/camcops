@@ -22,18 +22,18 @@
 """
 
 import cardinal_pythonlib.rnc_web as ws
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
 )
-from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
-from cc_modules.cc_html import (
+from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_html import (
     answer,
     get_yes_no,
     subheading_spanning_two_columns,
     tr_qa,
 )
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import get_from_dict, Task
 
 # =============================================================================
 # Constants
@@ -180,7 +180,7 @@ class Demqol(Task):
 
     def get_task_html(self):
         (total, extrapolated) = self.totalscore_extrapolated()
-        MAIN_DICT = {
+        main_dict = {
             None: None,
             1: "1 — " + WSTRING("demqol_a1"),
             2: "2 — " + WSTRING("demqol_a2"),
@@ -188,7 +188,7 @@ class Demqol(Task):
             4: "4 — " + WSTRING("demqol_a4"),
             MISSING_VALUE: WSTRING("demqol_no_response")
         }
-        LASTQ_DICT = {
+        last_q_dict = {
             None: None,
             1: "1 — " + WSTRING("demqol_q29_a1"),
             2: "2 — " + WSTRING("demqol_q29_a2"),
@@ -196,7 +196,7 @@ class Demqol(Task):
             4: "4 — " + WSTRING("demqol_q29_a4"),
             MISSING_VALUE: WSTRING("demqol_no_response")
         }
-        INSTRUCTIONDICT = {
+        instruction_dict = {
             1: WSTRING("demqol_instruction11"),
             14: WSTRING("demqol_instruction12"),
             20: WSTRING("demqol_instruction13"),
@@ -232,9 +232,9 @@ class Demqol(Task):
             e=answer(get_yes_no(extrapolated)),
         )
         for n in range(1, self.NQUESTIONS + 1):
-            if n in INSTRUCTIONDICT:
-                h += subheading_spanning_two_columns(INSTRUCTIONDICT.get(n))
-            d = MAIN_DICT if n <= self.N_SCORED_QUESTIONS else LASTQ_DICT
+            if n in instruction_dict:
+                h += subheading_spanning_two_columns(instruction_dict.get(n))
+            d = main_dict if n <= self.N_SCORED_QUESTIONS else last_q_dict
             q = self.get_q(n)
             a = get_from_dict(d, getattr(self, "q" + str(n)))
             h += tr_qa(q, a)
@@ -344,7 +344,7 @@ class DemqolProxy(Task):
 
     def get_task_html(self):
         (total, extrapolated) = self.totalscore_extrapolated()
-        MAIN_DICT = {
+        main_dict = {
             None: None,
             1: "1 — " + WSTRING("demqol_a1"),
             2: "2 — " + WSTRING("demqol_a2"),
@@ -352,7 +352,7 @@ class DemqolProxy(Task):
             4: "4 — " + WSTRING("demqol_a4"),
             MISSING_VALUE: WSTRING("demqol_no_response")
         }
-        LASTQ_DICT = {
+        last_q_dict = {
             None: None,
             1: "1 — " + WSTRING("demqol_q29_a1"),
             2: "2 — " + WSTRING("demqol_q29_a2"),
@@ -360,7 +360,7 @@ class DemqolProxy(Task):
             4: "4 — " + WSTRING("demqol_q29_a4"),
             MISSING_VALUE: WSTRING("demqol_no_response")
         }
-        INSTRUCTIONDICT = {
+        instruction_dict = {
             1: WSTRING("demqolproxy_instruction11"),
             12: WSTRING("demqolproxy_instruction12"),
             21: WSTRING("demqolproxy_instruction13"),
@@ -394,9 +394,9 @@ class DemqolProxy(Task):
             e=answer(get_yes_no(extrapolated)),
         )
         for n in range(1, self.NQUESTIONS + 1):
-            if n in INSTRUCTIONDICT:
-                h += subheading_spanning_two_columns(INSTRUCTIONDICT.get(n))
-            d = MAIN_DICT if n <= self.N_SCORED_QUESTIONS else LASTQ_DICT
+            if n in instruction_dict:
+                h += subheading_spanning_two_columns(instruction_dict.get(n))
+            d = main_dict if n <= self.N_SCORED_QUESTIONS else last_q_dict
             q = self.get_q(n)
             a = get_from_dict(d, getattr(self, "q" + str(n)))
             h += tr_qa(q, a)

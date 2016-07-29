@@ -22,9 +22,9 @@
 """
 
 import cardinal_pythonlib.rnc_web as ws
-from cc_modules.cc_html import answer
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import Task
+from ..cc_modules.cc_html import answer
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import Task
 
 
 # =============================================================================

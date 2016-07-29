@@ -22,14 +22,14 @@
 """
 
 import cardinal_pythonlib.rnc_web as ws
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
 )
-from cc_modules.cc_html import (
+from ..cc_modules.cc_html import (
     answer,
     tr_qa,
 )
-from cc_modules.cc_task import Ancillary, Task
+from ..cc_modules.cc_task import Ancillary, Task
 
 
 # =============================================================================
@@ -85,7 +85,7 @@ class Photo(Task):
 # PhotoSequence
 # =============================================================================
 
-class PhotoSequence_SinglePhoto(Ancillary):
+class PhotoSequenceSinglePhoto(Ancillary):
     tablename = "photosequence_photos"
     fkname = "photosequence_id"
     fieldspecs = [
@@ -137,7 +137,7 @@ class PhotoSequence(Task):
              comment="Description of the sequence of photographs"),
     ]
     has_clinician = True
-    dependent_classes = [PhotoSequence_SinglePhoto]
+    dependent_classes = [PhotoSequenceSinglePhoto]
 
     def get_clinical_text(self):
         photos = self.get_photos()
@@ -147,10 +147,10 @@ class PhotoSequence(Task):
         return d
 
     def get_num_photos(self):
-        return self.get_ancillary_item_count(PhotoSequence_SinglePhoto)
+        return self.get_ancillary_item_count(PhotoSequenceSinglePhoto)
 
     def get_photos(self):
-        return self.get_ancillary_items(PhotoSequence_SinglePhoto)
+        return self.get_ancillary_items(PhotoSequenceSinglePhoto)
 
     def is_complete(self):
         return bool(self.sequence_description and self.get_num_photos() > 0)

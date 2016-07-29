@@ -1,6 +1,8 @@
 #!/usr/bin/python2.7
 
+# noinspection PyPep8Naming
 import xml.etree.ElementTree as ET
+# noinspection PyPep8Naming
 import xml.etree.ElementTree as CET
 import time
 

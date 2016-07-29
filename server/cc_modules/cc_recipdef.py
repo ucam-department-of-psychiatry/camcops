@@ -106,7 +106,9 @@ class RecipientDefinition(object):
     # ... fieldspecs are actually used by HL7Run class
     FIELDS = [x["name"] for x in FIELDSPECS]
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self,
+                 config: configparser.ConfigParser = None,
+                 section: str = None) -> None:
         """Initialize. Possible methods:
 
             RecipientDefinition()
@@ -135,8 +137,7 @@ class RecipientDefinition(object):
         self.valid = False
 
         # Variable constructor...
-        nargs = len(args)
-        if nargs == 0:
+        if config is None and section is None:
             # dummy one
             self.type = RECIPIENT_TYPE.FILE
             self.primary_idnum = 1
@@ -155,13 +156,10 @@ class RecipientDefinition(object):
             self.overwrite_files = False
             self.make_directory = True
             return
-        elif nargs != 2:
-            raise AssertionError("RecipientDefinition: bad __init__ call")
+
+        assert config and section, "RecipientDefinition: bad __init__ call"
 
         # Standard constructor
-        config = args[0]
-        section = args[1]
-
         self.recipient = section
         try:
             self.type = get_config_parameter(

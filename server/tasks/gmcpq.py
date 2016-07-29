@@ -22,18 +22,18 @@
 """
 
 import cardinal_pythonlib.rnc_web as ws
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     PV,
 )
-from cc_modules.cc_html import (
+from ..cc_modules.cc_html import (
     get_yes_no_none,
     subheading_spanning_two_columns,
     td,
     tr,
     tr_qa,
 )
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
@@ -142,23 +142,23 @@ class GMCPQ(Task):
         )
 
     def get_task_html(self):
-        DICTQ1 = {None: None}
-        DICTQ3 = {None: None}
-        DICTQ4 = {None: None}
-        DICTQ5 = {None: None}
-        DICTQ11 = {None: None}
-        DICTQ12 = {None: None}
+        dict_q1 = {None: None}
+        dict_q3 = {None: None}
+        dict_q4 = {None: None}
+        dict_q5 = {None: None}
+        dict_q11 = {None: None}
+        dict_q12 = {None: None}
         for option in range(1, 5):
-            DICTQ1[option] = WSTRING("gmcpq_q1_option" + str(option))
+            dict_q1[option] = WSTRING("gmcpq_q1_option" + str(option))
         for option in range(1, 6):
-            DICTQ3[option] = WSTRING("gmcpq_q3_option" + str(option))
-            DICTQ11[option] = WSTRING("gmcpq_q11_option" + str(option))
+            dict_q3[option] = WSTRING("gmcpq_q3_option" + str(option))
+            dict_q11[option] = WSTRING("gmcpq_q11_option" + str(option))
         for option in range(0, 6):
             prefix = str(option) + " – " if option > 0 else ""
-            DICTQ4[option] = prefix + WSTRING("gmcpq_q4_option" + str(option))
-            DICTQ5[option] = prefix + WSTRING("gmcpq_q5_option" + str(option))
+            dict_q4[option] = prefix + WSTRING("gmcpq_q4_option" + str(option))
+            dict_q5[option] = prefix + WSTRING("gmcpq_q5_option" + str(option))
         for option in range(1, 17):
-            DICTQ12[option] = WSTRING("gmcpq_ethnicity_option" + str(option))
+            dict_q12[option] = WSTRING("gmcpq_ethnicity_option" + str(option))
         h = """
             <div class="summary">
                 <table class="summary">
@@ -176,7 +176,7 @@ class GMCPQ(Task):
         blank_cell = td("", td_class="subheading")
         h += tr_qa(WSTRING("gmcpq_q_doctor"), ws.webify(self.doctor))
         h += sep_row
-        h += tr_qa(WSTRING("gmcpq_q1"), get_from_dict(DICTQ1, self.q1))
+        h += tr_qa(WSTRING("gmcpq_q1"), get_from_dict(dict_q1, self.q1))
         h += tr(td(WSTRING("gmcpq_q2")), blank_cell, literal=True)
         h += tr_qa(ell + WSTRING("gmcpq_q2_a"), get_yes_no_none(self.q2a))
         h += tr_qa(ell + WSTRING("gmcpq_q2_b"), get_yes_no_none(self.q2b))
@@ -186,35 +186,35 @@ class GMCPQ(Task):
         h += tr_qa(ell + WSTRING("gmcpq_q2_f"), get_yes_no_none(self.q2f))
         h += tr_qa(ell + ell + WSTRING("gmcpq_q2f_s"),
                    ws.webify(self.q2f_details))
-        h += tr_qa(WSTRING("gmcpq_q3"), get_from_dict(DICTQ3, self.q3))
+        h += tr_qa(WSTRING("gmcpq_q3"), get_from_dict(dict_q3, self.q3))
         h += tr(td(WSTRING("gmcpq_q4")), blank_cell, literal=True)
         h += tr_qa(ell + WSTRING("gmcpq_q4_a"),
-                   get_from_dict(DICTQ4, self.q4a))
+                   get_from_dict(dict_q4, self.q4a))
         h += tr_qa(ell + WSTRING("gmcpq_q4_b"),
-                   get_from_dict(DICTQ4, self.q4b))
+                   get_from_dict(dict_q4, self.q4b))
         h += tr_qa(ell + WSTRING("gmcpq_q4_c"),
-                   get_from_dict(DICTQ4, self.q4c))
+                   get_from_dict(dict_q4, self.q4c))
         h += tr_qa(ell + WSTRING("gmcpq_q4_d"),
-                   get_from_dict(DICTQ4, self.q4d))
+                   get_from_dict(dict_q4, self.q4d))
         h += tr_qa(ell + WSTRING("gmcpq_q4_e"),
-                   get_from_dict(DICTQ4, self.q4e))
+                   get_from_dict(dict_q4, self.q4e))
         h += tr_qa(ell + WSTRING("gmcpq_q4_f"),
-                   get_from_dict(DICTQ4, self.q4f))
+                   get_from_dict(dict_q4, self.q4f))
         h += tr_qa(ell + WSTRING("gmcpq_q4_g"),
-                   get_from_dict(DICTQ4, self.q4g))
+                   get_from_dict(dict_q4, self.q4g))
         h += tr(td(WSTRING("gmcpq_q5")), blank_cell, literal=True)
         h += tr_qa(ell + WSTRING("gmcpq_q5_a"),
-                   get_from_dict(DICTQ5, self.q5a))
+                   get_from_dict(dict_q5, self.q5a))
         h += tr_qa(ell + WSTRING("gmcpq_q5_b"),
-                   get_from_dict(DICTQ5, self.q5b))
+                   get_from_dict(dict_q5, self.q5b))
         h += tr_qa(WSTRING("gmcpq_q6"), get_yes_no_none(self.q6))
         h += tr_qa(WSTRING("gmcpq_q7"), get_yes_no_none(self.q7))
         h += tr_qa(WSTRING("gmcpq_q8"), get_yes_no_none(self.q8))
         h += tr_qa(WSTRING("gmcpq_q9_s"), ws.webify(self.q9))
         h += sep_row
         h += tr_qa(WSTRING("sex"), ws.webify(self.q10))
-        h += tr_qa(WSTRING("gmcpq_q11"), get_from_dict(DICTQ11, self.q11))
-        h += tr_qa(WSTRING("gmcpq_q12"), get_from_dict(DICTQ12, self.q12))
+        h += tr_qa(WSTRING("gmcpq_q11"), get_from_dict(dict_q11, self.q11))
+        h += tr_qa(WSTRING("gmcpq_q12"), get_from_dict(dict_q12, self.q12))
         h += tr_qa(ell + WSTRING("gmcpq_ethnicity_other_s"),
                    ws.webify(self.q12_details))
         h += """

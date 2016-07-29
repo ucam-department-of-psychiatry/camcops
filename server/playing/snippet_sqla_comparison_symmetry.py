@@ -62,7 +62,7 @@ def ask_user(prompt, default=None, returntype=None, mask=False):
 
 def engine_mysql(user, password, host, port, database, echo=True,
                  interface="pymysql"):
-    CONNECTSTRING = (
+    connectstring = (
         "mysql+{interface}://{user}:{password}@{host}:{port}/"
         "{database}".format(
             interface=interface,
@@ -76,7 +76,7 @@ def engine_mysql(user, password, host, port, database, echo=True,
     # TypeError: 'str' does not support the buffer interface
     # because dates come back as e.g. b'2013-05-30 06:00:00' and then the
     # convert_datetime function in pymysql/converters.py chokes.
-    return sqlalchemy.create_engine(CONNECTSTRING, echo=echo)
+    return sqlalchemy.create_engine(connectstring, echo=echo)
 
 
 def engine_mysql_commandline(echo=True):
@@ -173,6 +173,7 @@ class DateTimeAsIsoText(TypeDecorator):
                 repr(self), repr(value), repr(dialect)))
         return iso_to_python_datetime(value)
 
+    # noinspection PyPep8Naming
     class comparator_factory(TypeDecorator.Comparator):
         """Process SQL for when we are comparing our column, in the database,
         to something else."""
@@ -227,6 +228,7 @@ def test():
 
     engine = engine_mysql_commandline(echo=True)
     engine.connect()
+    # noinspection PyPep8Naming
     Session = sessionmaker()
     Session.configure(bind=engine)  # once engine is available
     session = Session()

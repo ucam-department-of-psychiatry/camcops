@@ -475,6 +475,7 @@ def get_ternary(x: Any,
 
 
 def get_correct_incorrect_none(x: Any) -> Optional[str]:
+    # noinspection PyTypeChecker
     return get_ternary(x, "Correct", "Incorrect", None)
 
 

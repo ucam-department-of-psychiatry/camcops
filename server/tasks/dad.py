@@ -21,15 +21,15 @@
     limitations under the License.
 """
 
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     DATA_COLLECTION_UNLESS_UPGRADED_DIV,
 )
-from cc_modules.cc_html import (
+from ..cc_modules.cc_html import (
     answer,
     subheading_spanning_two_columns,
     tr,
 )
-from cc_modules.cc_task import Task
+from ..cc_modules.cc_task import Task
 
 YES = 1
 NO = 0

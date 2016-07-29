@@ -731,9 +731,9 @@ class Tracker(object):
         horizontal_labels = horizontal_labels or []
         if not aspect_ratio:  # duff input
             aspect_ratio = DEFAULT_TRACKER_ASPECT_RATIO
-        FIGSIZE = (FULLWIDTH_PLOT_WIDTH,
+        figsize = (FULLWIDTH_PLOT_WIDTH,
                    (1.0/float(aspect_ratio)) * FULLWIDTH_PLOT_WIDTH)
-        fig = plt.figure(figsize=FIGSIZE)
+        fig = plt.figure(figsize=figsize)
         ax = fig.add_subplot(1, 1, 1)
         x = [cc_plot.matplotlib.dates.date2num(t) for t in datetimes]
         datelabels = [dt.strftime(TRACKER_DATEFORMAT) for dt in datetimes]
@@ -789,10 +789,10 @@ class Tracker(object):
         ax.set_title(plot_label)
 
         # Horizontal lines
-        STUPID_JITTER = 0.001
+        stupid_jitter = 0.001
         if horizontal_lines is not None:
             for y in horizontal_lines:
-                plt.plot(xlim, [y, y+STUPID_JITTER], color="0.5",
+                plt.plot(xlim, [y, y+stupid_jitter], color="0.5",
                          linestyle=":")
                 # PROBLEM: horizontal lines becoming invisible
                 # (whether from ax.axhline or plot)

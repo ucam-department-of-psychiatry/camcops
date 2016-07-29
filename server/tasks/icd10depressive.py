@@ -22,22 +22,22 @@
 """
 
 import cardinal_pythonlib.rnc_web as ws
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
     DATEFORMAT,
     ICD10_COPYRIGHT_DIV,
     PV,
 )
-from cc_modules.cc_dt import format_datetime_string
-from cc_modules.cc_html import (
+from ..cc_modules.cc_dt import format_datetime_string
+from ..cc_modules.cc_html import (
     answer,
     get_present_absent_none,
     heading_spanning_two_columns,
     tr,
     tr_qa,
 )
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import Task
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import Task
 
 
 # =============================================================================
@@ -344,10 +344,10 @@ class Icd10Depressive(Task):
             return WSTRING("Unknown")
 
     def get_full_description(self):
-        skipSomatic = self.main_complete() and self.meets_criteria_none()
+        skip_somatic = self.main_complete() and self.meets_criteria_none()
         return (
             self.get_main_description() +
-            ("" if skipSomatic else " " + self.get_somatic_description())
+            ("" if skip_somatic else " " + self.get_somatic_description())
         )
 
     def is_psychotic_or_stupor(self):

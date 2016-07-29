@@ -21,18 +21,18 @@
     limitations under the License.
 """
 
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
 )
-from cc_modules.cc_db import repeat_fieldspec
-from cc_modules.cc_html import (
+from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_html import (
     answer,
     get_yes_no,
     tr,
     tr_qa,
 )
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
@@ -99,7 +99,7 @@ class Fast(Task):
         return self.total_score() >= 3
 
     def get_task_html(self):
-        MAIN_DICT = {
+        main_dict = {
             None: None,
             0: "0 — " + WSTRING("fast_q1to3_option0"),
             1: "1 — " + WSTRING("fast_q1to3_option1"),
@@ -107,7 +107,7 @@ class Fast(Task):
             3: "3 — " + WSTRING("fast_q1to3_option3"),
             4: "4 — " + WSTRING("fast_q1to3_option4"),
         }
-        Q4_DICT = {
+        q4_dict = {
             None: None,
             0: "0 — " + WSTRING("fast_q4_option0"),
             2: "2 — " + WSTRING("fast_q4_option2"),
@@ -129,10 +129,10 @@ class Fast(Task):
                     <th width="40%">Answer</th>
                 </tr>
         """
-        h += tr_qa(WSTRING("fast_q1"), get_from_dict(MAIN_DICT, self.q1))
-        h += tr_qa(WSTRING("fast_q2"), get_from_dict(MAIN_DICT, self.q2))
-        h += tr_qa(WSTRING("fast_q3"), get_from_dict(MAIN_DICT, self.q3))
-        h += tr_qa(WSTRING("fast_q4"), get_from_dict(Q4_DICT, self.q4))
+        h += tr_qa(WSTRING("fast_q1"), get_from_dict(main_dict, self.q1))
+        h += tr_qa(WSTRING("fast_q2"), get_from_dict(main_dict, self.q2))
+        h += tr_qa(WSTRING("fast_q3"), get_from_dict(main_dict, self.q3))
+        h += tr_qa(WSTRING("fast_q4"), get_from_dict(q4_dict, self.q4))
         h += """
             </table>
             <div class="footnotes">

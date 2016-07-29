@@ -21,13 +21,13 @@
     limitations under the License.
 """
 
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     PV,
 )
-from cc_modules.cc_html import (
+from ..cc_modules.cc_html import (
     tr_qa,
 )
-from cc_modules.cc_task import Task
+from ..cc_modules.cc_task import Task
 
 
 # =============================================================================
@@ -39,7 +39,7 @@ FREQUENCY_COMMENT = (
 )
 
 
-class Deakin_1_HealthReview(Task):
+class Deakin1HealthReview(Task):
     tablename = "deakin_1_healthreview"
     shortname = "Deakin_1_HealthReview"
     longname = "Deakin JB – 1 – Health Review"
@@ -234,14 +234,14 @@ class Deakin_1_HealthReview(Task):
         )
 
     def get_drug_frequency_row(self, fieldname):
-        DRUG_FREQUENCY_DICT = {
+        drug_frequency_dict = {
             0: "Did not use",
             1: "Occasionally",
             2: "Monthly",
             3: "Weekly",
             4: "Daily"
         }
-        frequency = DRUG_FREQUENCY_DICT.get(getattr(self, fieldname), None)
+        frequency = drug_frequency_dict.get(getattr(self, fieldname), None)
         return tr_qa(fieldname, frequency)
 
     def get_task_html(self):

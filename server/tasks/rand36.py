@@ -21,19 +21,19 @@
     limitations under the License.
 """
 
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
 )
-from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
-from cc_modules.cc_html import (
+from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_html import (
     answer,
     identity,
     tr,
     tr_span_col,
 )
-from cc_modules.cc_lang import mean
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import Task
+from ..cc_modules.cc_lang import mean
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import Task
 
 
 # =============================================================================
@@ -150,25 +150,25 @@ class Rand36(Task):
 
     def get_trackers(self):
         return [
-            self.tracker_element(self.scoreOverall(),
+            self.tracker_element(self.score_overall(),
                                  WSTRING("rand36_score_overall")),
-            self.tracker_element(self.scorePhysicalFunctioning(),
+            self.tracker_element(self.score_physical_functioning(),
                                  WSTRING("rand36_score_physical_functioning")),
             self.tracker_element(
-                self.scoreRoleLimitationsPhysical(),
+                self.score_role_limitations_physical(),
                 WSTRING("rand36_score_role_limitations_physical")),
             self.tracker_element(
-                self.scoreRoleLimitationsEmotional(),
+                self.score_role_limitations_emotional(),
                 WSTRING("rand36_score_role_limitations_emotional")),
-            self.tracker_element(self.scoreEnergy(),
+            self.tracker_element(self.score_energy(),
                                  WSTRING("rand36_score_energy")),
-            self.tracker_element(self.scoreEmotionalWellbeing(),
+            self.tracker_element(self.score_emotional_wellbeing(),
                                  WSTRING("rand36_score_emotional_wellbeing")),
-            self.tracker_element(self.scoreSocialFunctioning(),
+            self.tracker_element(self.score_social_functioning(),
                                  WSTRING("rand36_score_social_functioning")),
-            self.tracker_element(self.scorePain(),
+            self.tracker_element(self.score_pain(),
                                  WSTRING("rand36_score_pain")),
-            self.tracker_element(self.scoreGeneralHealth(),
+            self.tracker_element(self.score_general_health(),
                                  WSTRING("rand36_score_general_health")),
         ]
 
@@ -181,15 +181,15 @@ class Rand36(Task):
                         "limitations {}, emotional role limitations {}, "
                         "energy {}, emotional wellbeing {}, social "
                         "functioning {}, pain {}, general health {}.".format(
-                            self.scoreOverall(),
-                            self.scorePhysicalFunctioning(),
-                            self.scoreRoleLimitationsPhysical(),
-                            self.scoreRoleLimitationsEmotional(),
-                            self.scoreEnergy(),
-                            self.scoreEmotionalWellbeing(),
-                            self.scoreSocialFunctioning(),
-                            self.scorePain(),
-                            self.scoreGeneralHealth(),
+                            self.score_overall(),
+                            self.score_physical_functioning(),
+                            self.score_role_limitations_physical(),
+                            self.score_role_limitations_emotional(),
+                            self.score_energy(),
+                            self.score_emotional_wellbeing(),
+                            self.score_social_functioning(),
+                            self.score_pain(),
+                            self.score_general_health(),
                         )
         }]
 
@@ -197,33 +197,33 @@ class Rand36(Task):
         return [
             self.is_complete_summary_field(),
             dict(name="overall", cctype="FLOAT",
-                 value=self.scoreOverall(),
+                 value=self.score_overall(),
                  comment="Overall mean score (0-100, higher better)"),
             dict(name="physical_functioning", cctype="FLOAT",
-                 value=self.scorePhysicalFunctioning(),
+                 value=self.score_physical_functioning(),
                  comment="Physical functioning score (0-100, higher better)"),
             dict(name="role_limitations_physical", cctype="FLOAT",
-                 value=self.scoreRoleLimitationsPhysical(),
+                 value=self.score_role_limitations_physical(),
                  comment="Role limitations due to physical health score "
                  "(0-100, higher better)"),
             dict(name="role_limitations_emotional", cctype="FLOAT",
-                 value=self.scoreRoleLimitationsEmotional(),
+                 value=self.score_role_limitations_emotional(),
                  comment="Role limitations due to emotional problems score "
                  "(0-100, higher better)"),
             dict(name="energy", cctype="FLOAT",
-                 value=self.scoreEnergy(),
+                 value=self.score_energy(),
                  comment="Energy/fatigue score (0-100, higher better)"),
             dict(name="emotional_wellbeing", cctype="FLOAT",
-                 value=self.scoreEmotionalWellbeing(),
+                 value=self.score_emotional_wellbeing(),
                  comment="Emotional well-being score (0-100, higher better)"),
             dict(name="social_functioning", cctype="FLOAT",
-                 value=self.scoreSocialFunctioning(),
+                 value=self.score_social_functioning(),
                  comment="Social functioning score (0-100, higher better)"),
             dict(name="pain", cctype="FLOAT",
-                 value=self.scorePain(),
+                 value=self.score_pain(),
                  comment="Pain score (0-100, higher better)"),
             dict(name="general_health", cctype="FLOAT",
-                 value=self.scoreGeneralHealth(),
+                 value=self.score_general_health(),
                  comment="General health score (0-100, higher better)"),
         ]
 
@@ -266,34 +266,34 @@ class Rand36(Task):
             return 25 * (x - 1)
         return None
 
-    def scorePhysicalFunctioning(self):
+    def score_physical_functioning(self):
         return mean([self.recode(3), self.recode(4), self.recode(5),
                      self.recode(6), self.recode(7), self.recode(8),
                      self.recode(9), self.recode(10), self.recode(11),
                      self.recode(12)])
 
-    def scoreRoleLimitationsPhysical(self):
+    def score_role_limitations_physical(self):
         return mean([self.recode(13), self.recode(14), self.recode(15),
                      self.recode(16)])
 
-    def scoreRoleLimitationsEmotional(self):
+    def score_role_limitations_emotional(self):
         return mean([self.recode(17), self.recode(18), self.recode(19)])
 
-    def scoreEnergy(self):
+    def score_energy(self):
         return mean([self.recode(23), self.recode(27), self.recode(29),
                      self.recode(31)])
 
-    def scoreEmotionalWellbeing(self):
+    def score_emotional_wellbeing(self):
         return mean([self.recode(24), self.recode(25), self.recode(26),
                      self.recode(28), self.recode(30)])
 
-    def scoreSocialFunctioning(self):
+    def score_social_functioning(self):
         return mean([self.recode(20), self.recode(32)])
 
-    def scorePain(self):
+    def score_pain(self):
         return mean([self.recode(21), self.recode(22)])
 
-    def scoreGeneralHealth(self):
+    def score_general_health(self):
         return mean([self.recode(1), self.recode(33), self.recode(34),
                      self.recode(35), self.recode(36)])
 
@@ -303,7 +303,7 @@ class Rand36(Task):
             return None
         return "{:.1f}".format(val)
 
-    def scoreOverall(self):
+    def score_overall(self):
         values = []
         for q in range(1, self.NQUESTIONS + 1):
             values.append(self.recode(q))
@@ -350,9 +350,9 @@ class Rand36(Task):
         )
 
     def get_task_html(self):
-        ANSWER_DICT = {None: "?"}
+        answer_dict = {None: "?"}
         for option in range(0, 3):
-            ANSWER_DICT[option] = str(option) + " – " + \
+            answer_dict[option] = str(option) + " – " + \
                 WSTRING("phq15_a" + str(option))
         h = """
             <div class="summary">
@@ -360,32 +360,33 @@ class Rand36(Task):
         """ + self.get_is_complete_tr()
         h += self.scoreline(
             WSTRING("rand36_score_overall"), 1,
-            self.format_float_for_display(self.scoreOverall()))
+            self.format_float_for_display(self.score_overall()))
         h += self.scoreline(
             WSTRING("rand36_score_physical_functioning"), 2,
-            self.format_float_for_display(self.scorePhysicalFunctioning()))
+            self.format_float_for_display(self.score_physical_functioning()))
         h += self.scoreline(
             WSTRING("rand36_score_role_limitations_physical"), 3,
-            self.format_float_for_display(self.scoreRoleLimitationsPhysical()))
+            self.format_float_for_display(
+                self.score_role_limitations_physical()))
         h += self.scoreline(
             WSTRING("rand36_score_role_limitations_emotional"), 4,
             self.format_float_for_display(
-                self.scoreRoleLimitationsEmotional()))
+                self.score_role_limitations_emotional()))
         h += self.scoreline(
             WSTRING("rand36_score_energy"), 5,
-            self.format_float_for_display(self.scoreEnergy()))
+            self.format_float_for_display(self.score_energy()))
         h += self.scoreline(
             WSTRING("rand36_score_emotional_wellbeing"), 6,
-            self.format_float_for_display(self.scoreEmotionalWellbeing()))
+            self.format_float_for_display(self.score_emotional_wellbeing()))
         h += self.scoreline(
             WSTRING("rand36_score_social_functioning"), 7,
-            self.format_float_for_display(self.scoreSocialFunctioning()))
+            self.format_float_for_display(self.score_social_functioning()))
         h += self.scoreline(
             WSTRING("rand36_score_pain"), 8,
-            self.format_float_for_display(self.scorePain()))
+            self.format_float_for_display(self.score_pain()))
         h += self.scoreline(
             WSTRING("rand36_score_general_health"), 9,
-            self.format_float_for_display(self.scoreGeneralHealth()))
+            self.format_float_for_display(self.score_general_health()))
         h += """
                 </table>
             </div>

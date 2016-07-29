@@ -21,17 +21,17 @@
     limitations under the License.
 """
 
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
 )
-from cc_modules.cc_html import (
+from ..cc_modules.cc_html import (
     answer,
     italic,
     tr,
     tr_qa,
 )
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
@@ -96,7 +96,7 @@ class Cgi(Task):
         return self.sum_fields(["q1", "q2", "q3"])
 
     def get_task_html(self):
-        Q1_DICT = {
+        q1_dict = {
             None: None,
             0: WSTRING("cgi_q1_option0"),
             1: WSTRING("cgi_q1_option1"),
@@ -107,7 +107,7 @@ class Cgi(Task):
             6: WSTRING("cgi_q1_option6"),
             7: WSTRING("cgi_q1_option7"),
         }
-        Q2_DICT = {
+        q2_dict = {
             None: None,
             0: WSTRING("cgi_q2_option0"),
             1: WSTRING("cgi_q2_option1"),
@@ -118,7 +118,7 @@ class Cgi(Task):
             6: WSTRING("cgi_q2_option6"),
             7: WSTRING("cgi_q2_option7"),
         }
-        Q3T_DICT = {
+        q3t_dict = {
             None: None,
             0: WSTRING("cgi_q3t_option0"),
             1: WSTRING("cgi_q3t_option1"),
@@ -126,7 +126,7 @@ class Cgi(Task):
             3: WSTRING("cgi_q3t_option3"),
             4: WSTRING("cgi_q3t_option4"),
         }
-        Q3S_DICT = {
+        q3s_dict = {
             None: None,
             0: WSTRING("cgi_q3s_option0"),
             1: WSTRING("cgi_q3s_option1"),
@@ -149,13 +149,13 @@ class Cgi(Task):
                 </tr>
         """
         h += tr_qa(WSTRING("cgi_q1_s") + " <sup>[2]</sup>",
-                   get_from_dict(Q1_DICT, self.q1))
+                   get_from_dict(q1_dict, self.q1))
         h += tr_qa(WSTRING("cgi_q2_s") + " <sup>[2]</sup>",
-                   get_from_dict(Q2_DICT, self.q2))
+                   get_from_dict(q2_dict, self.q2))
         h += tr_qa(WSTRING("cgi_q3t_s") + " <sup>[3]</sup>",
-                   get_from_dict(Q3T_DICT, self.q3t))
+                   get_from_dict(q3t_dict, self.q3t))
         h += tr_qa(WSTRING("cgi_q3s_s") + " <sup>[3]</sup>",
-                   get_from_dict(Q3S_DICT, self.q3s))
+                   get_from_dict(q3s_dict, self.q3s))
         h += tr(
             """
                 {} <sup>[4]</sup>

@@ -135,8 +135,8 @@ class ServerStoredVar(StoredVarBase):
 
     def __init__(self,
                  namepk: str,
-                 typeOnCreation: str = "integer",
-                 defaultValue: VALUE_TYPE = None) -> None:
+                 type_on_creation: str = "integer",
+                 default_value: VALUE_TYPE = None) -> None:
         """Initialize (fetch from database or create)."""
         if not pls.db.fetch_object_from_db_by_pk(
                 self,
@@ -145,8 +145,8 @@ class ServerStoredVar(StoredVarBase):
                 namepk):
             # Doesn't exist; create it
             self.name = namepk
-            self.type = typeOnCreation
-            self.set_value(defaultValue, False)
+            self.type = type_on_creation
+            self.set_value(default_value, False)
             pls.db.insert_object_into_db_pk_known(
                 self, ServerStoredVar.TABLENAME, ServerStoredVar.FIELDS)
 

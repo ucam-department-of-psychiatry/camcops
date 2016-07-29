@@ -17,13 +17,13 @@ from cardinal_pythonlib.rnc_lang import convert_to_bool
 from cardinal_pythonlib.wsgi_errorreporter import ErrorReportingMiddleware
 from cardinal_pythonlib.wsgi_cache import DisableClientSideCachingMiddleware
 
-import cc_modules.cc_analytics as cc_analytics
-from cc_modules.cc_audit import (
+from .cc_modules import cc_analytics
+from .cc_modules.cc_audit import (
     audit,
     SECURITY_AUDIT_TABLENAME,
     SECURITY_AUDIT_FIELDSPECS
 )
-from cc_modules.cc_constants import (
+from .cc_modules.cc_constants import (
     CAMCOPS_URL,
     NUMBER_OF_IDNUMS,
     SEPARATOR_EQUALS,
@@ -32,32 +32,32 @@ from cc_modules.cc_constants import (
     URL_ROOT_STATIC,
     URL_ROOT_WEBVIEW,
 )
-import cc_modules.cc_blob as cc_blob
-import cc_modules.cc_db as cc_db
-import cc_modules.cc_device as cc_device
-import cc_modules.cc_dump as cc_dump
-from cc_modules.cc_logger import log, dblog
-import cc_modules.cc_hl7 as cc_hl7
-import cc_modules.cc_hl7core as cc_hl7core
-import cc_modules.cc_patient as cc_patient
-from cc_modules.cc_pls import pls
-import cc_modules.cc_policy as cc_policy
-import cc_modules.cc_report as cc_report
-import cc_modules.cc_session as cc_session
-from cc_modules.cc_specialnote import SpecialNote
-from cc_modules.cc_storedvar import DeviceStoredVar, ServerStoredVar
-import cc_modules.cc_task as cc_task
-import cc_modules.cc_tracker as cc_tracker  # imports matplotlib; SLOW
-import cc_modules.cc_user as cc_user
-from cc_modules.cc_version import CAMCOPS_SERVER_VERSION
-import webview
-from webview import (
+from .cc_modules import cc_blob
+from .cc_modules import cc_db
+from .cc_modules import cc_device
+from .cc_modules import cc_dump
+from .cc_modules.cc_logger import log, dblog
+from .cc_modules import cc_hl7
+from .cc_modules import cc_hl7core
+from .cc_modules import cc_patient
+from .cc_modules.cc_pls import pls
+from .cc_modules import cc_policy
+from .cc_modules import cc_report
+from .cc_modules import cc_session
+from .cc_modules.cc_specialnote import SpecialNote
+from .cc_modules.cc_storedvar import DeviceStoredVar, ServerStoredVar
+from .cc_modules import cc_task
+from .cc_modules import cc_tracker  # imports matplotlib; SLOW
+from .cc_modules import cc_user
+from .cc_modules.cc_version import CAMCOPS_SERVER_VERSION
+from . import webview
+from .webview import (
     get_database_title,
     make_summary_tables,
     webview_application,
 )
-import database
-from database import database_application
+from . import database
+from .database import database_application
 
 
 # =============================================================================

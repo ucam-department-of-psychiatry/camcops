@@ -21,9 +21,9 @@
     limitations under the License.
 """
 
-from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
@@ -87,7 +87,7 @@ class Madrs(Task):
             category = WSTRING("mild")
         else:
             category = WSTRING("normal")
-        ANSWER_DICTS = []
+        answer_dicts = []
         for q in range(1, self.NQUESTIONS + 1):
             d = {None: "?"}
             for option in range(0, 7):
@@ -96,7 +96,7 @@ class Madrs(Task):
                 else:
                     d[option] = WSTRING("madrs_q" + str(q) + "_option" +
                                         str(option))
-            ANSWER_DICTS.append(d)
+            answer_dicts.append(d)
         h = """
             <div class="summary">
                 <table class="summary">
@@ -123,7 +123,7 @@ class Madrs(Task):
         for q in range(1, self.NQUESTIONS + 1):
             h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
                 WSTRING("madrs_q" + str(q) + "_s"),
-                get_from_dict(ANSWER_DICTS[q - 1], getattr(self, "q" + str(q)))
+                get_from_dict(answer_dicts[q - 1], getattr(self, "q" + str(q)))
             )
         h += """
             </table>

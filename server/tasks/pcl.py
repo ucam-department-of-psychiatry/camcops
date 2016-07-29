@@ -21,19 +21,19 @@
     limitations under the License.
 """
 
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
 )
-from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
-from cc_modules.cc_html import (
+from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_html import (
     answer,
     get_yes_no,
     subheading_spanning_two_columns,
     tr,
     tr_qa,
 )
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
@@ -107,15 +107,15 @@ class PclCommon(object):
                  comment="Total number of symptoms considered symptomatic "
                  "(meaning scoring 3 or more)"),
             dict(name="num_symptomatic_B", cctype="INT",
-                 value=self.num_symptomatic_B(),
+                 value=self.num_symptomatic_b(),
                  comment="Number of group B symptoms considered symptomatic "
                  "(meaning scoring 3 or more)"),
             dict(name="num_symptomatic_C", cctype="INT",
-                 value=self.num_symptomatic_C(),
+                 value=self.num_symptomatic_c(),
                  comment="Number of group C symptoms considered symptomatic "
                  "(meaning scoring 3 or more)"),
             dict(name="num_symptomatic_D", cctype="INT",
-                 value=self.num_symptomatic_D(),
+                 value=self.num_symptomatic_d(),
                  comment="Number of group D symptoms considered symptomatic "
                  "(meaning scoring 3 or more)"),
             dict(name="ptsd", cctype="BOOL", value=self.ptsd(),
@@ -133,33 +133,33 @@ class PclCommon(object):
     def num_symptomatic(self):
         return self.get_num_symptomatic(1, self.NQUESTIONS)
 
-    def num_symptomatic_B(self):
+    def num_symptomatic_b(self):
         return self.get_num_symptomatic(1, 5)
 
-    def num_symptomatic_C(self):
+    def num_symptomatic_c(self):
         return self.get_num_symptomatic(6, 12)
 
-    def num_symptomatic_D(self):
+    def num_symptomatic_d(self):
         return self.get_num_symptomatic(13, 17)
 
     def ptsd(self):
-        num_symptomatic_B = self.num_symptomatic_B()
-        num_symptomatic_C = self.num_symptomatic_C()
-        num_symptomatic_D = self.num_symptomatic_D()
-        return num_symptomatic_B >= 1 and num_symptomatic_C >= 3 and \
-            num_symptomatic_D >= 2
+        num_symptomatic_b = self.num_symptomatic_b()
+        num_symptomatic_c = self.num_symptomatic_c()
+        num_symptomatic_d = self.num_symptomatic_d()
+        return num_symptomatic_b >= 1 and num_symptomatic_c >= 3 and \
+            num_symptomatic_d >= 2
 
     def get_task_html(self):
         tasktype = self.TASK_TYPE
         score = self.total_score()
         num_symptomatic = self.num_symptomatic()
-        num_symptomatic_B = self.num_symptomatic_B()
-        num_symptomatic_C = self.num_symptomatic_C()
-        num_symptomatic_D = self.num_symptomatic_D()
+        num_symptomatic_b = self.num_symptomatic_b()
+        num_symptomatic_c = self.num_symptomatic_c()
+        num_symptomatic_d = self.num_symptomatic_d()
         ptsd = self.ptsd()
-        ANSWER_DICT = {None: None}
+        answer_dict = {None: None}
         for option in range(1, 6):
-            ANSWER_DICT[option] = str(option) + " – " + \
+            answer_dict[option] = str(option) + " – " + \
                 WSTRING("pcl_option" + str(option))
         h = """
             <div class="summary">
@@ -169,9 +169,9 @@ class PclCommon(object):
         h += tr_qa("{} (17–85)".format(WSTRING("total_score")),
                    score)
         h += tr("Number symptomatic <sup>[1]</sup>: B, C, D (total)",
-                answer(num_symptomatic_B) + ", " +
-                answer(num_symptomatic_C) + ", " +
-                answer(num_symptomatic_D) +
+                answer(num_symptomatic_b) + ", " +
+                answer(num_symptomatic_c) + ", " +
+                answer(num_symptomatic_d) +
                 " (" + answer(num_symptomatic) + ")")
         h += tr_qa(WSTRING("pcl_dsm_criteria_met") + " <sup>[2]</sup>",
                    get_yes_no(ptsd))
@@ -195,7 +195,7 @@ class PclCommon(object):
                 )
             h += tr_qa(
                 WSTRING("pcl_q" + str(q) + "_s"),
-                get_from_dict(ANSWER_DICT, getattr(self, "q" + str(q)))
+                get_from_dict(answer_dict, getattr(self, "q" + str(q)))
             )
         h += """
             </table>

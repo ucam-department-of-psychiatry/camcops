@@ -13,6 +13,12 @@
           <option value="server.playing.camcops_mri_scanner_server.TabletServerProtocol" />
           <option value="server.playing.camcops_mri_scanner_server.TabletServerProtocol" />
           <option value="server.playing.camcops_mri_scanner_server.MRIProtocol" />
+          <option value="server.playing.hl7_dummy_server.Echo" />
+          <option value="server.playing.hl7_dummy_server.EchoFactory" />
+          <option value="server.playing.hl7_dummy_server.Hello" />
+          <option value="server.playing.hl7_dummy_server.HelloFactory" />
+          <option value="server.playing.hl7_dummy_server.HL7Server" />
+          <option value="server.playing.hl7_dummy_server.HL7ServerFactory" />
         </list>
       </option>
     </inspection_tool>

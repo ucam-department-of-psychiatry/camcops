@@ -21,12 +21,12 @@
     limitations under the License.
 """
 
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     DATA_COLLECTION_ONLY_DIV,
     PV,
 )
-from cc_modules.cc_html import tr_qa
-from cc_modules.cc_task import Task
+from ..cc_modules.cc_html import tr_qa
+from ..cc_modules.cc_task import Task
 
 
 # =============================================================================

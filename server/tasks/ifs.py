@@ -21,21 +21,21 @@
     limitations under the License.
 """
 
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
     DATA_COLLECTION_UNLESS_UPGRADED_DIV,
     INVALID_VALUE,
     PV,
 )
-from cc_modules.cc_html import (
+from ..cc_modules.cc_html import (
     answer,
     get_correct_incorrect_none,
     td,
     tr,
     tr_qa,
 )
-# from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import Task
+# from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import Task
 
 
 # =============================================================================

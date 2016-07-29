@@ -22,8 +22,8 @@
 """
 
 import cardinal_pythonlib.rnc_web as ws
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import Task
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import Task
 
 
 # =============================================================================
@@ -131,40 +131,40 @@ class PsychiatricClerking(Task):
         }
 
     def get_clinical_text(self):
-        FIELDS_B = [x["name"] for x in self.FIELDSPEC_B]
-        FIELDS_C = [x["name"] for x in self.FIELDSPEC_C]
-        FIELDS_MSE = [x["name"] for x in self.FIELDSPEC_MSE]
-        FIELDS_PE = [x["name"] for x in self.FIELDSPEC_PE]
-        FIELDS_D = [x["name"] for x in self.FIELDSPEC_D]
-        FIELDS_E = [x["name"] for x in self.FIELDSPEC_E]
-        FIELDS_F = [x["name"] for x in self.FIELDSPEC_F]
+        fields_b = [x["name"] for x in self.FIELDSPEC_B]
+        fields_c = [x["name"] for x in self.FIELDSPEC_C]
+        fields_mse = [x["name"] for x in self.FIELDSPEC_MSE]
+        fields_pe = [x["name"] for x in self.FIELDSPEC_PE]
+        fields_d = [x["name"] for x in self.FIELDSPEC_D]
+        fields_e = [x["name"] for x in self.FIELDSPEC_E]
+        fields_f = [x["name"] for x in self.FIELDSPEC_F]
         dictlist = [self.get_ctv_heading(
             "psychiatricclerking_heading_current_contact")]
-        for x in FIELDS_B:
+        for x in fields_b:
             dictlist.append(self.get_ctv_description_content(x))
         dictlist.append(self.get_ctv_heading(
             "psychiatricclerking_heading_background"))
-        for x in FIELDS_C:
+        for x in fields_c:
             dictlist.append(self.get_ctv_description_content(x))
         dictlist.append(self.get_ctv_heading(
             "psychiatricclerking_heading_examination_investigations"))
         dictlist.append(self.get_ctv_subheading("mental_state_examination"))
-        for x in FIELDS_MSE:
+        for x in fields_mse:
             dictlist.append(self.get_ctv_description_content(x))
         dictlist.append(self.get_ctv_subheading("physical_examination"))
-        for x in FIELDS_PE:
+        for x in fields_pe:
             dictlist.append(self.get_ctv_description_content(x))
         dictlist.append(self.get_ctv_subheading(
             "assessments_and_investigations"))
-        for x in FIELDS_D:
+        for x in fields_d:
             dictlist.append(self.get_ctv_description_content(x))
         dictlist.append(self.get_ctv_heading(
             "psychiatricclerking_heading_risk_legal"))
-        for x in FIELDS_E:
+        for x in fields_e:
             dictlist.append(self.get_ctv_description_content(x))
         dictlist.append(self.get_ctv_heading(
             "psychiatricclerking_heading_summary_plan"))
-        for x in FIELDS_F:
+        for x in fields_f:
             dictlist.append(self.get_ctv_description_content(x))
         return dictlist
 
@@ -197,34 +197,34 @@ class PsychiatricClerking(Task):
 
     def get_task_html(self):
         # Avoid tables - PDF generator crashes if text is too long.
-        FIELDS_B = [x["name"] for x in self.FIELDSPEC_B]
-        FIELDS_C = [x["name"] for x in self.FIELDSPEC_C]
-        FIELDS_MSE = [x["name"] for x in self.FIELDSPEC_MSE]
-        FIELDS_PE = [x["name"] for x in self.FIELDSPEC_PE]
-        FIELDS_D = [x["name"] for x in self.FIELDSPEC_D]
-        FIELDS_E = [x["name"] for x in self.FIELDSPEC_E]
-        FIELDS_F = [x["name"] for x in self.FIELDSPEC_F]
+        fields_b = [x["name"] for x in self.FIELDSPEC_B]
+        fields_c = [x["name"] for x in self.FIELDSPEC_C]
+        fields_mse = [x["name"] for x in self.FIELDSPEC_MSE]
+        fields_pe = [x["name"] for x in self.FIELDSPEC_PE]
+        fields_d = [x["name"] for x in self.FIELDSPEC_D]
+        fields_e = [x["name"] for x in self.FIELDSPEC_E]
+        fields_f = [x["name"] for x in self.FIELDSPEC_F]
         html = ""
         html += self.heading("psychiatricclerking_heading_current_contact")
-        for x in FIELDS_B:
+        for x in fields_b:
             html += self.subhead_text(x)
         html += self.heading("psychiatricclerking_heading_background")
-        for x in FIELDS_C:
+        for x in fields_c:
             html += self.subhead_text(x)
         html += self.heading(
             "psychiatricclerking_heading_examination_investigations")
         html += self.subheading("mental_state_examination")
-        for x in FIELDS_MSE:
+        for x in fields_mse:
             html += self.subsubhead_text(x)
         html += self.subheading("physical_examination")
-        for x in FIELDS_PE:
+        for x in fields_pe:
             html += self.subsubhead_text(x)
-        for x in FIELDS_D:
+        for x in fields_d:
             html += self.subhead_text(x)
         html += self.heading("psychiatricclerking_heading_risk_legal")
-        for x in FIELDS_E:
+        for x in fields_e:
             html += self.subhead_text(x)
         html += self.heading("psychiatricclerking_heading_summary_plan")
-        for x in FIELDS_F:
+        for x in fields_f:
             html += self.subhead_text(x)
         return html

@@ -21,18 +21,18 @@
     limitations under the License.
 """
 
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
 )
-from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
-from cc_modules.cc_html import (
+from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_html import (
     answer,
     get_yes_no,
     tr,
     tr_qa,
 )
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
@@ -149,9 +149,9 @@ class Phq15(Task):
         nsevere = self.num_severe()
         somatoform_likely = nsevere >= 3
         severity = self.severity()
-        ANSWER_DICT = {None: None}
+        answer_dict = {None: None}
         for option in range(0, 3):
-            ANSWER_DICT[option] = str(option) + " – " + \
+            answer_dict[option] = str(option) + " – " + \
                 WSTRING("phq15_a" + str(option))
         h = """
             <div class="summary">
@@ -179,7 +179,7 @@ class Phq15(Task):
         for q in range(1, self.NQUESTIONS + 1):
             h += tr_qa(
                 WSTRING("phq15_q" + str(q)),
-                get_from_dict(ANSWER_DICT, getattr(self, "q" + str(q)))
+                get_from_dict(answer_dict, getattr(self, "q" + str(q)))
             )
         h += """
             </table>

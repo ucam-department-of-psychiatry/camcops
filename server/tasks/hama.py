@@ -21,17 +21,17 @@
     limitations under the License.
 """
 
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
 )
-from cc_modules.cc_db import repeat_fieldspec
-from cc_modules.cc_html import (
+from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_html import (
     answer,
     tr,
     tr_qa,
 )
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
@@ -118,13 +118,13 @@ class Hama(Task):
     def get_task_html(self):
         score = self.total_score()
         severity = self.severity()
-        ANSWER_DICTS = []
+        answer_dicts = []
         for q in range(1, self.NQUESTIONS + 1):
             d = {None: None}
             for option in range(0, 4):
                 d[option] = WSTRING("hama_q" + str(q) + "_option" +
                                     str(option))
-            ANSWER_DICTS.append(d)
+            answer_dicts.append(d)
         h = """
             <div class="summary">
                 <table class="summary">
@@ -145,7 +145,7 @@ class Hama(Task):
             h += tr_qa(
                 WSTRING("hama_q" + str(q) + "_s") + " " + WSTRING(
                     "hama_q" + str(q) + "_question"),
-                get_from_dict(ANSWER_DICTS[q - 1], getattr(self, "q" + str(q)))
+                get_from_dict(answer_dicts[q - 1], getattr(self, "q" + str(q)))
             )
         h += """
             </table>

@@ -21,10 +21,10 @@
     limitations under the License.
 """
 
-from cc_modules.cc_db import repeat_fieldspec
-from cc_modules.cc_html import get_yes_no, get_yes_no_unknown
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import Task
+from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_html import get_yes_no, get_yes_no_unknown
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import Task
 
 
 # =============================================================================

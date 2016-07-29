@@ -133,7 +133,7 @@ def get_xml_datatype_from_fieldspec(fs: FIELDSPEC_TYPE) -> Optional[str]:
 
 
 def get_xml_blob_tuple(name: str,
-                       blobdata: bytes,
+                       blobdata: Optional[bytes],
                        comment: str = None) -> XmlElementTuple:
     """Returns an XmlElementTuple representing a base-64-encoded BLOB."""
     return XmlElementTuple(

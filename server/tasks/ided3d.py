@@ -22,18 +22,18 @@
 """
 
 import cardinal_pythonlib.rnc_web as ws
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     PV,
 )
-from cc_modules.cc_html import (
+from ..cc_modules.cc_html import (
     answer,
     get_yes_no_none,
     identity,
     tr,
     tr_qa,
 )
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import Ancillary, Task
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import Ancillary, Task
 
 
 def a(x):
@@ -45,7 +45,7 @@ def a(x):
 # IDED3D
 # =============================================================================
 
-class IDED3D_Trial(Ancillary):
+class IDED3DTrial(Ancillary):
     tablename = "ided3d_trials"
     fkname = "ided3d_id"
     fieldspecs = [
@@ -136,7 +136,7 @@ class IDED3D_Trial(Ancillary):
         )
 
 
-class IDED3D_Stage(Ancillary):
+class IDED3DStage(Ancillary):
     tablename = "ided3d_stages"
     fkname = "ided3d_id"
     fieldspecs = [
@@ -281,14 +281,14 @@ class IDED3D(Task):
         dict(name="last_trial_completed", cctype="INT",
              comment="Number of last trial completed"),
     ]
-    dependent_classes = [IDED3D_Trial, IDED3D_Stage]
+    dependent_classes = [IDED3DTrial, IDED3DStage]
 
     def is_complete(self):
         return bool(self.finished)
 
     @staticmethod
     def get_stage_html(stagearray):
-        html = IDED3D_Stage.get_html_table_header()
+        html = IDED3DStage.get_html_table_header()
         for s in stagearray:
             html += s.get_html_table_row()
         html += """</table>"""
@@ -296,7 +296,7 @@ class IDED3D(Task):
 
     @staticmethod
     def get_trial_html(trialarray):
-        html = IDED3D_Trial.get_html_table_header()
+        html = IDED3DTrial.get_html_table_header()
         for t in trialarray:
             html += t.get_html_table_row()
         html += """</table>"""
@@ -304,11 +304,11 @@ class IDED3D(Task):
 
     def get_stage_array(self):
         # Fetch group details
-        return self.get_ancillary_items(IDED3D_Stage)
+        return self.get_ancillary_items(IDED3DStage)
 
     def get_trial_array(self):
         # Fetch trial details
-        return self.get_ancillary_items(IDED3D_Trial)
+        return self.get_ancillary_items(IDED3DTrial)
 
     def get_task_html(self):
         stagearray = self.get_stage_array()

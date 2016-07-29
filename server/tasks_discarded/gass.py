@@ -22,10 +22,10 @@
 """
 
 import cardinal_pythonlib.rnc_web as ws
-from cc_modules.cc_db import repeat_fieldspec
-from cc_modules.cc_html import get_yes_no
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_html import get_yes_no
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
@@ -109,28 +109,28 @@ class Gass(Task):
             max_score
         )
 
-    def get_row(self, q, ANSWER_DICT):
+    def get_row(self, q, answer_dict):
         return """<tr><td>{}</td><td><b>{}</b></td><td>{}</td></tr>""".format(
             WSTRING("gass_q" + str(q)),
-            get_from_dict(ANSWER_DICT, getattr(self, "q" + str(q))),
+            get_from_dict(answer_dict, getattr(self, "q" + str(q))),
             get_yes_no(getattr(self, "d" + str(q)))
         )
 
-    def get_group_html(self, qnums, subtitle, ANSWER_DICT):
+    def get_group_html(self, qnums, subtitle, answer_dict):
         h = self.get_subheading(
             subtitle,
             self.group_score(qnums),
             len(qnums) * 3
         )
         for q in qnums:
-            h += self.get_row(q, ANSWER_DICT)
+            h += self.get_row(q, answer_dict)
         return h
 
     def get_task_html(self):
         score = self.total_score()
-        ANSWER_DICT = {None: "?"}
+        answer_dict = {None: "?"}
         for option in range(0, 4):
-            ANSWER_DICT[option] = (
+            answer_dict[option] = (
                 str(option) + " — " + WSTRING("gass_option" + str(option)))
         h = """
             <div class="summary">
@@ -154,35 +154,35 @@ class Gass(Task):
         )
         h += self.get_group_html(self.list_sedation,
                                  WSTRING("gass_group_sedation"),
-                                 ANSWER_DICT)
+                                 answer_dict)
         h += self.get_group_html(self.list_cardiovascular,
                                  WSTRING("gass_group_cardiovascular"),
-                                 ANSWER_DICT)
+                                 answer_dict)
         h += self.get_group_html(self.list_epse,
                                  WSTRING("gass_group_epse"),
-                                 ANSWER_DICT)
+                                 answer_dict)
         h += self.get_group_html(self.list_anticholinergic,
                                  WSTRING("gass_group_anticholinergic"),
-                                 ANSWER_DICT)
+                                 answer_dict)
         h += self.get_group_html(self.list_gastrointestinal,
                                  WSTRING("gass_group_gastrointestinal"),
-                                 ANSWER_DICT)
+                                 answer_dict)
         h += self.get_group_html(self.list_genitourinary,
                                  WSTRING("gass_group_genitourinary"),
-                                 ANSWER_DICT)
+                                 answer_dict)
         if self.is_female():
             h += self.get_group_html(self.list_prolactinaemic_female,
                                      WSTRING("gass_group_prolactinaemic") +
                                      " (" + WSTRING("female") + ")",
-                                     ANSWER_DICT)
+                                     answer_dict)
         else:
             h += self.get_group_html(self.list_prolactinaemic_male,
                                      WSTRING("gass_group_prolactinaemic") +
                                      " (" + WSTRING("male") + ")",
-                                     ANSWER_DICT)
+                                     answer_dict)
         h += self.get_group_html(self.list_weightgain,
                                  WSTRING("gass_group_weightgain"),
-                                 ANSWER_DICT)
+                                 answer_dict)
         h += """
                 <tr class="subheading"><td colspan="3">{}</td></tr>
                 <tr><td colspan="3">{}</td></tr>

@@ -22,20 +22,20 @@
 """
 
 import cardinal_pythonlib.rnc_web as ws
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
     DATEFORMAT,
     ICD10_COPYRIGHT_DIV,
     PV,
 )
-from cc_modules.cc_dt import format_datetime_string
-from cc_modules.cc_html import (
+from ..cc_modules.cc_dt import format_datetime_string
+from ..cc_modules.cc_html import (
     get_true_false_none,
     tr_qa,
 )
-from cc_modules.cc_lang import is_false
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import Task
+from ..cc_modules.cc_lang import is_false
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import Task
 
 
 # =============================================================================

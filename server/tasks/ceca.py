@@ -22,10 +22,10 @@
 """
 
 import cardinal_pythonlib.rnc_web as ws
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     PV,
 )
-from cc_modules.cc_html import (
+from ..cc_modules.cc_html import (
     answer,
     get_yes_no,
     get_yes_no_none,
@@ -33,8 +33,8 @@ from cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
@@ -1044,22 +1044,22 @@ class CecaQ3(Task):
         return total
 
     def physical_abuse_screen(self):
-        FIELDS = [
+        fields = [
             "s5c_physicalabuse"
         ]
-        return self.total_nonzero_scores_1_abort_if_none(FIELDS)
+        return self.total_nonzero_scores_1_abort_if_none(fields)
 
     def physical_abuse_severity_mother(self):
         if self.physical_abuse_screen() == 0:
             return 0
         if self.s5c_abused_by_mother == 0:
             return 0
-        MAINFIELDS = [
+        mainfields = [
             "s5c_mother_hit_more_than_once",
             "s5c_mother_injured",
             "s5c_mother_out_of_control"
         ]
-        total = self.total_nonzero_scores_1_abort_if_none(MAINFIELDS)
+        total = self.total_nonzero_scores_1_abort_if_none(mainfields)
         if total is None:
             return None
         if self.s5c_mother_hit_how is None:
@@ -1073,12 +1073,12 @@ class CecaQ3(Task):
             return 0
         if self.s5c_abused_by_father == 0:
             return 0
-        MAINFIELDS = [
+        mainfields = [
             "s5c_father_hit_more_than_once",
             "s5c_father_injured",
             "s5c_father_out_of_control"
         ]
-        total = self.total_nonzero_scores_1_abort_if_none(MAINFIELDS)
+        total = self.total_nonzero_scores_1_abort_if_none(mainfields)
         if total is None:
             return None
         if self.s5c_father_hit_how is None:
@@ -1088,17 +1088,17 @@ class CecaQ3(Task):
         return total
 
     def sexual_abuse_screen(self):
-        FIELDS = [
+        fields = [
             "s6_any_unwanted_sexual_experience",
             "s6_unwanted_intercourse",
             "s6_upsetting_sexual_adult_authority"
         ]
-        return self.total_nonzero_scores_1_abort_if_none(FIELDS)
+        return self.total_nonzero_scores_1_abort_if_none(fields)
 
     def sexual_abuse_score_first(self):
         if self.sexual_abuse_screen() == 0:
             return 0
-        FIELDS = [
+        fields = [
             "s6_first_person_known",
             "s6_first_relative",
             "s6_first_in_household",
@@ -1107,12 +1107,12 @@ class CecaQ3(Task):
             "s6_first_touch_privates_other",
             "s6_first_intercourse"
         ]
-        return self.total_nonzero_scores_1_abort_if_none(FIELDS)
+        return self.total_nonzero_scores_1_abort_if_none(fields)
 
     def sexual_abuse_score_other(self):
         if self.sexual_abuse_screen() == 0:
             return 0
-        FIELDS = [
+        fields = [
             "s6_other_person_known",
             "s6_other_relative",
             "s6_other_in_household",
@@ -1121,14 +1121,14 @@ class CecaQ3(Task):
             "s6_other_touch_privates_other",
             "s6_other_intercourse"
         ]
-        return self.total_nonzero_scores_1_abort_if_none(FIELDS)
+        return self.total_nonzero_scores_1_abort_if_none(fields)
 
     # -------------------------------------------------------------------------
     # HTML
     # -------------------------------------------------------------------------
 
     def get_task_html(self):
-        SEPARATION_MAP = {
+        separation_map = {
             None: None,
             1: "1 — " + WSTRING("cecaq3_1c_separation_reason1"),
             2: "2 — " + WSTRING("cecaq3_1c_separation_reason2"),
@@ -1137,7 +1137,7 @@ class CecaQ3(Task):
             5: "5 — " + WSTRING("cecaq3_1c_separation_reason5"),
             6: "6 — " + WSTRING("cecaq3_1c_separation_reason6"),
         }
-        MOTHERFIGURE_MAP = {
+        motherfigure_map = {
             None: None,
             0: "0 — " + WSTRING("cecaq3_2a_which_option0"),
             1: "1 — " + WSTRING("cecaq3_2a_which_option1"),
@@ -1146,7 +1146,7 @@ class CecaQ3(Task):
             4: "4 — " + WSTRING("cecaq3_2a_which_option4"),
             5: "5 — " + WSTRING("cecaq3_2a_which_option5"),
         }
-        FATHERFIGURE_MAP = {
+        fatherfigure_map = {
             None: None,
             0: "0 — " + WSTRING("cecaq3_3a_which_option0"),
             1: "1 — " + WSTRING("cecaq3_3a_which_option1"),
@@ -1155,7 +1155,7 @@ class CecaQ3(Task):
             4: "4 — " + WSTRING("cecaq3_3a_which_option4"),
             5: "5 — " + WSTRING("cecaq3_3a_which_option5"),
         }
-        NO_YES_5WAY_MAP = {
+        no_yes_5way_map = {
             None: None,
             1: "1 — " + WSTRING("cecaq3_options5way_notoyes_1"),
             2: "2 — (between not-at-all and unsure)",
@@ -1163,20 +1163,20 @@ class CecaQ3(Task):
             4: "4 — (between unsure and yes-definitely)",
             5: "5 — " + WSTRING("cecaq3_options5way_notoyes_5"),
         }
-        NO_YES_3WAY_MAP = {
+        no_yes_3way_map = {
             None: None,
             0: "0 — " + WSTRING("cecaq3_options3way_noto_yes_0"),
             1: "1 — " + WSTRING("cecaq3_options3way_noto_yes_1"),
             2: "2 — " + WSTRING("cecaq3_options3way_noto_yes_2"),
         }
-        FREQUENCY_MAP = {
+        frequency_map = {
             None: None,
             0: "0 — " + WSTRING("cecaq3_optionsfrequency0"),
             1: "1 — " + WSTRING("cecaq3_optionsfrequency1"),
             2: "2 — " + WSTRING("cecaq3_optionsfrequency2"),
             3: "3 — " + WSTRING("cecaq3_optionsfrequency3"),
         }
-        PARENT_CARED_FOR_MAP = {
+        parent_cared_for_map = {
             None: None,
             0: "0 — " + WSTRING("cecaq3_3c_whichparentcaredfor_option0"),
             1: "1 — " + WSTRING("cecaq3_3c_whichparentcaredfor_option1"),
@@ -1184,7 +1184,7 @@ class CecaQ3(Task):
             3: "3 — " + WSTRING("cecaq3_3c_whichparentcaredfor_option3"),
             4: "4 — " + WSTRING("cecaq3_3c_whichparentcaredfor_option4"),
         }
-        HITTING_MAP = {
+        hitting_map = {
             None: None,
             1: "1 — " + WSTRING("cecaq3_5_hit_option_1"),
             2: "2 — " + WSTRING("cecaq3_5_hit_option_2"),
@@ -1293,7 +1293,7 @@ class CecaQ3(Task):
             wstring_numeric("cecaq3_1c_how_long_separation",
                             self.s1c_mother_how_long_first_separation_years) +
             wstring_dict("cecaq3_1c_separation_reason",
-                         self.s1c_mother_separation_reason, SEPARATION_MAP) +
+                         self.s1c_mother_separation_reason, separation_map) +
 
             subsubheading_from_wstring("cecaq3_father") +
             string_boolean("Father died before age 17", self.s1c_father_died) +
@@ -1306,13 +1306,13 @@ class CecaQ3(Task):
             wstring_numeric("cecaq3_1c_how_long_separation",
                             self.s1c_father_how_long_first_separation_years) +
             wstring_dict("cecaq3_1c_separation_reason",
-                         self.s1c_father_separation_reason, SEPARATION_MAP) +
+                         self.s1c_father_separation_reason, separation_map) +
             wstring_string("cecaq3_please_describe_experience",
                            self.s1c_describe_experience) +
 
             subheading_from_string("2A: " + WSTRING("cecaq3_2a_heading")) +
             wstring_dict("cecaq3_2a_which",
-                         self.s2a_which_mother_figure, MOTHERFIGURE_MAP) +
+                         self.s2a_which_mother_figure, motherfigure_map) +
             wstring_string("cecaq3_rnc_if_other_describe",
                            self.s2a_which_mother_figure_other_detail)
         )
@@ -1320,7 +1320,7 @@ class CecaQ3(Task):
             html += string_dict(str(i) + ". " + WSTRING("cecaq3_2a_q" +
                                                         str(i)),
                                 getattr(self, "s2a_q" + str(i)),
-                                NO_YES_5WAY_MAP)
+                                no_yes_5way_map)
         html += (
             wstring_string("cecaq3_2a_add_anything", self.s2a_extra) +
             subheading_from_string("2B: " + WSTRING("cecaq3_2b_heading"))
@@ -1328,11 +1328,11 @@ class CecaQ3(Task):
         for i in range(1, 18):
             html += tr(
                 str(i) + ". " + WSTRING("cecaq3_2b_q" + str(i)),
-                answer(get_from_dict(NO_YES_3WAY_MAP,
+                answer(get_from_dict(no_yes_3way_map,
                                      getattr(self, "s2b_q" + str(i)))) +
                 " (" +
                 answer(get_from_dict(
-                    FREQUENCY_MAP,
+                    frequency_map,
                     getattr(self, "s2b_q" + str(i) + "_frequency"))) +
                 ")"
             )
@@ -1343,14 +1343,14 @@ class CecaQ3(Task):
 
             subheading_from_string("3A: " + WSTRING("cecaq3_3a_heading")) +
             wstring_dict("cecaq3_2a_which",
-                         self.s3a_which_father_figure, FATHERFIGURE_MAP) +
+                         self.s3a_which_father_figure, fatherfigure_map) +
             wstring_string("cecaq3_rnc_if_other_describe",
                            self.s3a_which_father_figure_other_detail)
         )
         for i in range(1, 17):
             html += string_dict(
                 str(i) + ". " + WSTRING("cecaq3_3a_q" + str(i)),
-                getattr(self, "s3a_q" + str(i)), NO_YES_5WAY_MAP)
+                getattr(self, "s3a_q" + str(i)), no_yes_5way_map)
         html += (
             wstring_string("cecaq3_3a_add_anything", self.s3a_extra) +
             subheading_from_string("3B: " + WSTRING("cecaq3_3b_heading"))
@@ -1358,11 +1358,11 @@ class CecaQ3(Task):
         for i in range(1, 18):
             html += tr(
                 str(i) + ". " + WSTRING("cecaq3_3b_q" + str(i)),
-                answer(get_from_dict(NO_YES_3WAY_MAP,
+                answer(get_from_dict(no_yes_3way_map,
                                      getattr(self, "s3b_q" + str(i)))) +
                 " (" +
                 answer(get_from_dict(
-                    FREQUENCY_MAP,
+                    frequency_map,
                     getattr(self, "s3b_q" + str(i) + "_frequency"))) +
                 ")"
             )
@@ -1375,11 +1375,11 @@ class CecaQ3(Task):
         for i in range(1, 18):
             html += string_dict(
                 str(i) + ". " + WSTRING("cecaq3_3c_q" + str(i)),
-                getattr(self, "s3c_q" + str(i)), NO_YES_5WAY_MAP)
+                getattr(self, "s3c_q" + str(i)), no_yes_5way_map)
         html += (
             wstring_dict("cecaq3_3c_which_parent_cared_for",
                          self.s3c_which_parent_cared_for,
-                         PARENT_CARED_FOR_MAP) +
+                         parent_cared_for_map) +
             wstring_boolean("cecaq3_3c_parent_mental_problem",
                             self.s3c_parent_mental_problem) +
             wstring_boolean("cecaq3_3c_parent_physical_problem",
@@ -1452,7 +1452,7 @@ class CecaQ3(Task):
             wstring_boolean("cecaq3_5_hit_more_than_once",
                             self.s5c_mother_hit_more_than_once) +
             wstring_dict("cecaq3_5_how_hit",
-                         self.s5c_mother_hit_how, HITTING_MAP) +
+                         self.s5c_mother_hit_how, hitting_map) +
             wstring_boolean("cecaq3_5_injured", self.s5c_mother_injured) +
             wstring_boolean("cecaq3_5_outofcontrol",
                             self.s5c_mother_out_of_control) +
@@ -1464,7 +1464,7 @@ class CecaQ3(Task):
             wstring_boolean("cecaq3_5_hit_more_than_once",
                             self.s5c_father_hit_more_than_once) +
             wstring_dict("cecaq3_5_how_hit",
-                         self.s5c_father_hit_how, HITTING_MAP) +
+                         self.s5c_father_hit_how, hitting_map) +
             wstring_boolean("cecaq3_5_injured", self.s5c_father_injured) +
             wstring_boolean("cecaq3_5_outofcontrol",
                             self.s5c_father_out_of_control) +
@@ -1479,12 +1479,12 @@ class CecaQ3(Task):
             subheading_from_string("6: " + WSTRING("cecaq3_6_heading")) +
             wstring_dict("cecaq3_6_any_unwanted",
                          self.s6_any_unwanted_sexual_experience,
-                         NO_YES_3WAY_MAP) +
+                         no_yes_3way_map) +
             wstring_dict("cecaq3_6_intercourse",
-                         self.s6_unwanted_intercourse, NO_YES_3WAY_MAP) +
+                         self.s6_unwanted_intercourse, no_yes_3way_map) +
             wstring_dict("cecaq3_6_upset_adult_authority",
                          self.s6_upsetting_sexual_adult_authority,
-                         NO_YES_3WAY_MAP) +
+                         no_yes_3way_map) +
 
             subsubheading_from_wstring("cecaq3_6_first_experience") +
             wstring_numeric("cecaq3_6_q1", self.s6_first_age) +

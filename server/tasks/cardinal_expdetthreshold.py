@@ -28,16 +28,16 @@ import numpy
 import cardinal_pythonlib.rnc_plot as rnc_plot
 import cardinal_pythonlib.rnc_web as ws
 
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     FULLWIDTH_PLOT_WIDTH,
 )
-from cc_modules.cc_html import (
+from ..cc_modules.cc_html import (
     get_html_from_pyplot_figure,
     get_yes_no_none,
     tr_qa,
 )
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import Ancillary, Task
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import Ancillary, Task
 
 
 LOWER_MARKER = 0.25

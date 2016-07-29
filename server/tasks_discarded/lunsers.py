@@ -21,9 +21,9 @@
     limitations under the License.
 """
 
-from cc_modules.cc_db import repeat_fieldspec
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
@@ -98,20 +98,20 @@ class Lunsers(Task):
             max_score
         )
 
-    def get_row(self, q, ANSWER_DICT):
+    def get_row(self, q, answer_dict):
         return """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
             "Q" + str(q) + " — " + WSTRING("lunsers_q" + str(q)),
-            get_from_dict(ANSWER_DICT, getattr(self, "q" + str(q)))
+            get_from_dict(answer_dict, getattr(self, "q" + str(q)))
         )
 
-    def get_group_html(self, qnums, subtitle, ANSWER_DICT):
+    def get_group_html(self, qnums, subtitle, answer_dict):
         h = self.get_subheading(
             subtitle,
             self.group_score(qnums),
             len(qnums) * 4
         )
         for q in qnums:
-            h += self.get_row(q, ANSWER_DICT)
+            h += self.get_row(q, answer_dict)
         return h
 
     def max_score(self):
@@ -120,9 +120,9 @@ class Lunsers(Task):
     def get_task_html(self):
         score = self.total_score()
 
-        ANSWER_DICT = {None: "?"}
+        answer_dict = {None: "?"}
         for option in range(0, 5):
-            ANSWER_DICT[option] = WSTRING("lunsers_option" + str(option))
+            answer_dict[option] = WSTRING("lunsers_option" + str(option))
         h = """
             <div class="summary">
                 <table class="summary">
@@ -144,35 +144,35 @@ class Lunsers(Task):
         )
         h += self.get_group_html(self.list_epse,
                                  WSTRING("lunsers_group_epse"),
-                                 ANSWER_DICT)
+                                 answer_dict)
         h += self.get_group_html(self.list_anticholinergic,
                                  WSTRING("lunsers_group_anticholinergic"),
-                                 ANSWER_DICT)
+                                 answer_dict)
         h += self.get_group_html(self.list_allergic,
                                  WSTRING("lunsers_group_allergic"),
-                                 ANSWER_DICT)
+                                 answer_dict)
         h += self.get_group_html(self.list_miscellaneous,
                                  WSTRING("lunsers_group_miscellaneous"),
-                                 ANSWER_DICT)
+                                 answer_dict)
         h += self.get_group_html(self.list_psychic,
                                  WSTRING("lunsers_group_psychic"),
-                                 ANSWER_DICT)
+                                 answer_dict)
         h += self.get_group_html(self.list_otherautonomic,
                                  WSTRING("lunsers_group_otherautonomic"),
-                                 ANSWER_DICT)
+                                 answer_dict)
         if self.is_female():
             h += self.get_group_html(self.list_hormonal_female,
                                      WSTRING("lunsers_group_hormonal") + " (" +
                                      WSTRING("female") + ")",
-                                     ANSWER_DICT)
+                                     answer_dict)
         else:
             h += self.get_group_html(self.list_hormonal_male,
                                      WSTRING("lunsers_group_hormonal") + " (" +
                                      WSTRING("male") + ")",
-                                     ANSWER_DICT)
+                                     answer_dict)
         h += self.get_group_html(self.list_redherrings,
                                  WSTRING("lunsers_group_redherrings"),
-                                 ANSWER_DICT)
+                                 answer_dict)
         h += """
             </table>
         """

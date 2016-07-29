@@ -22,19 +22,19 @@
 """
 
 import cardinal_pythonlib.rnc_web as ws
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     NUMBER_OF_IDNUMS,
 )
-from cc_modules.cc_hl7core import make_dg1_segment
-from cc_modules.cc_html import (
+from ..cc_modules.cc_hl7core import make_dg1_segment
+from ..cc_modules.cc_html import (
     answer,
     tr,
 )
-from cc_modules.cc_nlp import guess_name_components
-from cc_modules.cc_task import Ancillary, Task
-from cc_modules.cc_pls import pls
+from ..cc_modules.cc_nlp import guess_name_components
+from ..cc_modules.cc_task import Ancillary, Task
+from ..cc_modules.cc_pls import pls
 import cc_modules.cc_report as cc_report
-from cc_modules.cc_report import Report
+from ..cc_modules.cc_report import Report
 
 
 # =============================================================================
@@ -252,7 +252,7 @@ def get_diagnosis_report(diagnosis_table, item_table, item_fk_fieldname,
     return rows, fieldnames
 
 
-class Diagnosis_ICD9CM_Report(Report):
+class DiagnosisICD9CMReport(Report):
     """Report to show ICD-9-CM (DSM-IV-TR) diagnoses."""
     report_id = "diagnoses_icd9cm"
     report_title = ("Diagnosis – ICD-9-CM (DSM-IV-TR) diagnoses for all "
@@ -269,7 +269,7 @@ class Diagnosis_ICD9CM_Report(Report):
         )
 
 
-class Diagnosis_ICD10_Report(Report):
+class DiagnosisICD10Report(Report):
     """Report to show ICD-10 diagnoses."""
     report_id = "diagnoses_icd10"
     report_title = "Diagnosis – ICD-10 diagnoses for all patients"
@@ -285,7 +285,7 @@ class Diagnosis_ICD10_Report(Report):
         )
 
 
-class Diagnosis_All_Report(Report):
+class DiagnosisAllReport(Report):
     """Report to show all diagnoses."""
     report_id = "diagnoses_all"
     report_title = "Diagnosis – All diagnoses for all patients"

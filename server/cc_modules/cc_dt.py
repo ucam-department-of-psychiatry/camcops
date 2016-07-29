@@ -60,7 +60,9 @@ def format_datetime(d: Union[datetime.datetime, datetime.date],
     return d.strftime(fmt)
 
 
-def format_datetime_string(s: str, fmt: str, default: str = "(None)") -> str:
+def format_datetime_string(s: str,
+                           fmt: str,
+                           default: Optional[str] = "(None)") -> str:
     """Converts a string representation of a date (usually from the database)
     into a specified strftime() format."""
     if s is None:

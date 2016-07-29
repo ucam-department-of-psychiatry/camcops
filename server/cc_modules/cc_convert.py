@@ -27,7 +27,7 @@ import re
 from typing import Any, Iterator, List
 
 import cardinal_pythonlib.rnc_db as rnc_db
-from cc_modules.cc_pls import pls
+from ..cc_modules.cc_pls import pls
 
 REGEX_WHITESPACE = re.compile("\s")
 REGEX_BLOB_HEX = re.compile("""

@@ -261,7 +261,8 @@ def is_idnum_mandatory_in_policy(
     return True
 
 
-def satisfies_id_policy(policy: str, ptinfo: BarePatientInfo) -> bool:
+def satisfies_id_policy(policy: TOKENIZED_POLICY_TYPE,
+                        ptinfo: BarePatientInfo) -> bool:
     """Does the patient information in ptinfo satisfy the specified ID policy?
     """
     return id_policy_chunk(policy, ptinfo)

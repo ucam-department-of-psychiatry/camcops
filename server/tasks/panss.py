@@ -21,16 +21,16 @@
     limitations under the License.
 """
 
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
     DATA_COLLECTION_ONLY_DIV,
 )
-from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
-from cc_modules.cc_html import (
+from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_html import (
     tr_qa,
 )
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
@@ -184,7 +184,7 @@ class Panss(Task):
         g = self.score_g()
         composite = self.composite()
         total = p + n + g
-        ANSWERS = {
+        answers = {
             None: None,
             1: WSTRING("panss_option1"),
             2: WSTRING("panss_option2"),
@@ -216,7 +216,7 @@ class Panss(Task):
         for q in self.TASK_FIELDS:
             h += tr_qa(
                 WSTRING("panss_" + q + "_s"),
-                get_from_dict(ANSWERS, getattr(self, q))
+                get_from_dict(answers, getattr(self, q))
             )
         h += """
             </table>

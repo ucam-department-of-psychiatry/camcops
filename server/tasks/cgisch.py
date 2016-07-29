@@ -21,17 +21,17 @@
     limitations under the License.
 """
 
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
 )
-from cc_modules.cc_db import repeat_fieldspec
-from cc_modules.cc_html import (
+from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_html import (
     subheading_spanning_two_columns,
     tr_qa,
     tr_span_col,
 )
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
@@ -132,7 +132,7 @@ class CgiSch(Task):
         )
 
     def get_task_html(self):
-        SEVERITY_DICT = {
+        severity_dict = {
             None: None,
             1: WSTRING("cgisch_i_option1"),
             2: WSTRING("cgisch_i_option2"),
@@ -142,7 +142,7 @@ class CgiSch(Task):
             6: WSTRING("cgisch_i_option6"),
             7: WSTRING("cgisch_i_option7"),
         }
-        CHANGE_DICT = {
+        change_dict = {
             None: None,
             1: WSTRING("cgisch_ii_option1"),
             2: WSTRING("cgisch_ii_option2"),
@@ -168,27 +168,27 @@ class CgiSch(Task):
         h += subheading_spanning_two_columns(WSTRING("cgisch_i_title"))
         h += tr_span_col(WSTRING("cgisch_i_question"), cols=2)
         h += tr_qa(WSTRING("cgisch_q1"),
-                   get_from_dict(SEVERITY_DICT, self.severity1))
+                   get_from_dict(severity_dict, self.severity1))
         h += tr_qa(WSTRING("cgisch_q2"),
-                   get_from_dict(SEVERITY_DICT, self.severity2))
+                   get_from_dict(severity_dict, self.severity2))
         h += tr_qa(WSTRING("cgisch_q3"),
-                   get_from_dict(SEVERITY_DICT, self.severity3))
+                   get_from_dict(severity_dict, self.severity3))
         h += tr_qa(WSTRING("cgisch_q4"),
-                   get_from_dict(SEVERITY_DICT, self.severity4))
+                   get_from_dict(severity_dict, self.severity4))
         h += tr_qa(WSTRING("cgisch_q5"),
-                   get_from_dict(SEVERITY_DICT, self.severity5))
+                   get_from_dict(severity_dict, self.severity5))
         h += subheading_spanning_two_columns(WSTRING("cgisch_ii_title"))
         h += tr_span_col(WSTRING("cgisch_ii_question"), cols=2)
         h += tr_qa(WSTRING("cgisch_q1"),
-                   get_from_dict(CHANGE_DICT, self.change1))
+                   get_from_dict(change_dict, self.change1))
         h += tr_qa(WSTRING("cgisch_q2"),
-                   get_from_dict(CHANGE_DICT, self.change2))
+                   get_from_dict(change_dict, self.change2))
         h += tr_qa(WSTRING("cgisch_q3"),
-                   get_from_dict(CHANGE_DICT, self.change3))
+                   get_from_dict(change_dict, self.change3))
         h += tr_qa(WSTRING("cgisch_q4"),
-                   get_from_dict(CHANGE_DICT, self.change4))
+                   get_from_dict(change_dict, self.change4))
         h += tr_qa(WSTRING("cgisch_q5"),
-                   get_from_dict(CHANGE_DICT, self.change5))
+                   get_from_dict(change_dict, self.change5))
         h += """
             </table>
             <div class="footnotes">

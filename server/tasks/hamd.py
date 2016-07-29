@@ -21,17 +21,17 @@
     limitations under the License.
 """
 
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
 )
-from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
-from cc_modules.cc_html import (
+from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_html import (
     answer,
     tr,
     tr_qa,
 )
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
@@ -196,7 +196,7 @@ class Hamd(Task):
     def get_task_html(self):
         score = self.total_score()
         severity = self.severity()
-        TASK_FIELD_LIST_FOR_DISPLAY = (
+        task_field_list_for_display = (
             repeat_fieldname("q", 1, 15) +
             [
                 "whichq16",
@@ -207,8 +207,8 @@ class Hamd(Task):
             ] +
             repeat_fieldname("q", 19, 21)
         )
-        ANSWER_DICTS_DICT = {}
-        for q in TASK_FIELD_LIST_FOR_DISPLAY:
+        answer_dicts_dict = {}
+        for q in task_field_list_for_display:
             d = {None: None}
             for option in range(0, 5):
                 if (q == "q4" or q == "q5" or q == "q6" or q == "q12" or
@@ -216,7 +216,7 @@ class Hamd(Task):
                         q == "q18" or q == "q21") and option > 2:
                     continue
                 d[option] = WSTRING("hamd_" + q + "_option" + str(option))
-            ANSWER_DICTS_DICT[q] = d
+            answer_dicts_dict[q] = d
         h = """
             <div class="summary">
                 <table class="summary">
@@ -233,7 +233,7 @@ class Hamd(Task):
                     <th width="60%">Answer</th>
                 </tr>
         """
-        for q in TASK_FIELD_LIST_FOR_DISPLAY:
+        for q in task_field_list_for_display:
             if q == "whichq16":
                 qstr = WSTRING("hamd_whichq16_title")
             else:
@@ -249,7 +249,7 @@ class Hamd(Task):
                     ), "")
                     # http://stackoverflow.com/questions/8653516
                 qstr = WSTRING("hamd_" + q + "_s") + rangestr
-            h += tr_qa(qstr, get_from_dict(ANSWER_DICTS_DICT[q],
+            h += tr_qa(qstr, get_from_dict(answer_dicts_dict[q],
                                            getattr(self, q)))
         h += """
             </table>

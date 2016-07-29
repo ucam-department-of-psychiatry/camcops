@@ -21,18 +21,18 @@
     limitations under the License.
 """
 
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
 )
-from cc_modules.cc_db import repeat_fieldspec
-from cc_modules.cc_html import (
+from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_html import (
     answer,
     get_yes_no,
     tr,
     tr_qa,
 )
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
@@ -134,7 +134,7 @@ class Dast(Task):
         score = self.total_score()
         exceeds_cutoff_1 = score >= 6
         exceeds_cutoff_2 = score >= 11
-        MAIN_DICT = {
+        main_dict = {
             None: None,
             "Y": WSTRING("Yes"),
             "N": WSTRING("No")
@@ -160,7 +160,7 @@ class Dast(Task):
         for q in range(1, Dast.NQUESTIONS + 1):
             h += tr(
                 WSTRING("dast_q" + str(q)),
-                answer(get_from_dict(MAIN_DICT, getattr(self, "q" + str(q)))) +
+                answer(get_from_dict(main_dict, getattr(self, "q" + str(q)))) +
                 " — " + answer(str(self.get_score(q)))
             )
         h += """

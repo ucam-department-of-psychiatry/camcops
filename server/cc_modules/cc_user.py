@@ -225,12 +225,12 @@ def clear_dummy_login_failures_if_necessary() -> None:
 
     Not too often! See CLEAR_DUMMY_LOGIN_FREQUENCY_DAYS.
     """
-    lastClearedVar = cc_storedvar.ServerStoredVar(
+    last_cleared_var = cc_storedvar.ServerStoredVar(
         "lastDummyLoginFailureClearanceAt", "text", None)
-    lastClearedVal = lastClearedVar.get_value()
-    if lastClearedVal:
+    last_cleared_val = last_cleared_var.get_value()
+    if last_cleared_val:
         elapsed = pls.NOW_UTC_WITH_TZ - cc_dt.get_datetime_from_string(
-            lastClearedVal)
+            last_cleared_val)
         if elapsed < CLEAR_DUMMY_LOGIN_PERIOD:
             # We cleared it recently.
             return
@@ -239,7 +239,7 @@ def clear_dummy_login_failures_if_necessary() -> None:
     log.debug("Dummy login failures cleared.")
     now_as_utc_iso_string = cc_dt.format_datetime(pls.NOW_UTC_WITH_TZ,
                                                   DATEFORMAT.ISO8601)
-    lastClearedVar.set_value(now_as_utc_iso_string)
+    last_cleared_var.set_value(now_as_utc_iso_string)
 
 
 def take_some_time_mimicking_password_encryption() -> None:

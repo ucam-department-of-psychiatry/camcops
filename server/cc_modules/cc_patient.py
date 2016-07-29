@@ -207,7 +207,8 @@ class Patient:
         """Does the patient satisfy the finalizing ID policy?"""
         return cc_policy.satisfies_finalize_id_policy(self.get_bare_ptinfo())
 
-    def satisfies_id_policy(self, policy: str) -> bool:
+    def satisfies_id_policy(self,
+                            policy: cc_policy.TOKENIZED_POLICY_TYPE) -> bool:
         """Does the patient satisfy a particular ID policy?"""
         return cc_policy.satisfies_id_policy(policy, self.get_bare_ptinfo())
 

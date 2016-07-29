@@ -157,7 +157,7 @@ def make_msh_segment(message_datetime: datetime.datetime,
 
 def make_pid_segment(forename: str,
                      surname: str,
-                     dob: datetime.datetime,
+                     dob: Union[datetime.datetime, datetime.date],
                      sex: str,
                      address: str,
                      patient_id_tuple_list: List[
@@ -665,7 +665,7 @@ def escape_hl7_text(s: str) -> str:
     return s
 
 
-def msg_is_successful_ack(msg: str) -> Tuple[bool, Optional[str]]:
+def msg_is_successful_ack(msg: hl7.Message) -> Tuple[bool, Optional[str]]:
     """Checks whether msg represents a successful acknowledgement message."""
     # http://hl7reference.com/HL7%20Specifications%20ORM-ORU.PDF
 

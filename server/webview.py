@@ -652,7 +652,7 @@ def serve_task(session, form):
                 str(allowed_types)
             )
         )
-    task = cc_task.TaskFactory(tablename, serverpk)
+    task = cc_task.task_factory(tablename, serverpk)
     if task is None:
         return fail_task_not_found()
     # Is the user restricted so they can't see this particular one?
@@ -1930,7 +1930,7 @@ def add_special_note(session, form):
     confirmation_sequence = ws.get_cgi_parameter_int(
         form, PARAM.CONFIRMATION_SEQUENCE)
     note = ws.get_cgi_parameter_str(form, PARAM.NOTE)
-    task = cc_task.TaskFactory(tablename, serverpk)
+    task = cc_task.task_factory(tablename, serverpk)
     if task is None:
         return fail_task_not_found()
     if (confirmation_sequence is None or
@@ -2003,12 +2003,12 @@ def erase_task(session, form):
 
     if not session.authorized_as_superuser():
         return cc_html.fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
-    N_CONFIRMATIONS = 3
+    n_confirmations = 3
     tablename = ws.get_cgi_parameter_str(form, PARAM.TABLENAME)
     serverpk = ws.get_cgi_parameter_int(form, PARAM.SERVERPK)
     confirmation_sequence = ws.get_cgi_parameter_int(
         form, PARAM.CONFIRMATION_SEQUENCE)
-    task = cc_task.TaskFactory(tablename, serverpk)
+    task = cc_task.task_factory(tablename, serverpk)
     if task is None:
         return fail_task_not_found()
     if task.is_erased():
@@ -2017,9 +2017,9 @@ def erase_task(session, form):
         return cc_html.fail_with_error_stay_logged_in(ERROR_TASK_LIVE)
     if (confirmation_sequence is None or
             confirmation_sequence < 0 or
-            confirmation_sequence > N_CONFIRMATIONS):
+            confirmation_sequence > n_confirmations):
         confirmation_sequence = 0
-    if confirmation_sequence < N_CONFIRMATIONS:
+    if confirmation_sequence < n_confirmations:
         return pls.WEBSTART + """
             {user}
             <h1>Erase task instance irrevocably</h1>
@@ -2071,14 +2071,14 @@ def delete_patient(session, form):
 
     if not session.authorized_as_superuser():
         return cc_html.fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
-    N_CONFIRMATIONS = 3
+    n_confirmations = 3
     which_idnum = ws.get_cgi_parameter_int(form, PARAM.WHICH_IDNUM)
     idnum_value = ws.get_cgi_parameter_int(form, PARAM.IDNUM_VALUE)
     confirmation_sequence = ws.get_cgi_parameter_int(
         form, PARAM.CONFIRMATION_SEQUENCE)
     if (confirmation_sequence is None or
             confirmation_sequence < 0 or
-            confirmation_sequence > N_CONFIRMATIONS):
+            confirmation_sequence > n_confirmations):
         confirmation_sequence = 0
     patient_server_pks = cc_patient.get_patient_server_pks_by_idnum(
         which_idnum, idnum_value, current_only=False)
@@ -2088,7 +2088,7 @@ def delete_patient(session, form):
             # ... but not found
             return cc_html.fail_with_error_stay_logged_in(
                 "No such patient found.")
-    if confirmation_sequence < N_CONFIRMATIONS:
+    if confirmation_sequence < n_confirmations:
         # First call. Offer method.
         tasks = ""
         if which_idnum is not None and idnum_value is not None:
@@ -2166,7 +2166,7 @@ def delete_patient(session, form):
         serverpks = cls.get_task_pks_for_patient_deletion(which_idnum,
                                                           idnum_value)
         for serverpk in serverpks:
-            task = cc_task.TaskFactory(tablename, serverpk)
+            task = cc_task.task_factory(tablename, serverpk)
             task.delete_entirely()
     # Delete patients
     for ppk in patient_server_pks:
@@ -2952,23 +2952,23 @@ def get_database_title():
 def make_summary_tables(from_console=True):
     """Drop and rebuild summary tables."""
     # Don't use print; this may run from the web interface. Use the log.
-    LOCKED_ERROR = (
+    locked_error = (
         "make_summary_tables: couldn't open lockfile ({}.lock); "
         "may not have permissions, or file may be locked by "
         "another process; aborting".format(
             pls.SUMMARY_TABLES_LOCKFILE)
     )
-    MISCONFIGURED_ERROR = (
+    misconfigured_error = (
         "make_summary_tables: No SUMMARY_TABLES_LOCKFILE "
         "specified in config; can't proceed"
     )
     if not pls.SUMMARY_TABLES_LOCKFILE:
-        log.error(MISCONFIGURED_ERROR)
-        return False, MISCONFIGURED_ERROR
+        log.error(misconfigured_error)
+        return False, misconfigured_error
     lock = lockfile.FileLock(pls.SUMMARY_TABLES_LOCKFILE)
     if lock.is_locked():
-        log.warning(LOCKED_ERROR)
-        return False, LOCKED_ERROR
+        log.warning(locked_error)
+        return False, locked_error
     try:
         with lock:
             log.info("MAKING SUMMARY TABLES")
@@ -2980,8 +2980,8 @@ def make_summary_tables(from_console=True):
             # file lock)
         return True, ""
     except lockfile.LockFailed:
-        log.warning(LOCKED_ERROR)
-        return False, LOCKED_ERROR
+        log.warning(locked_error)
+        return False, locked_error
 
 
 # =============================================================================

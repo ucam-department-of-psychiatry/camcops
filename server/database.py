@@ -32,8 +32,8 @@ import cardinal_pythonlib.rnc_db as rnc_db
 from cardinal_pythonlib.rnc_lang import AttrDict
 import cardinal_pythonlib.rnc_web as ws
 
-import cc_modules.cc_audit as cc_audit
-from cc_modules.cc_constants import (
+from .cc_modules import cc_audit
+from .cc_modules.cc_constants import (
     CLIENT_DATE_FIELD,
     DATEFORMAT,
     ERA_NOW,
@@ -41,7 +41,7 @@ from cc_modules.cc_constants import (
     NUMBER_OF_IDNUMS,
     STANDARD_GENERIC_FIELDSPECS
 )
-from cc_modules.cc_convert import (
+from .cc_modules.cc_convert import (
     decode_values,
     delimit,
     encode_single_value,
@@ -50,17 +50,17 @@ from cc_modules.cc_convert import (
     special_hex_encode,
     unescape_newlines,
 )
-from cc_modules.cc_dt import format_datetime
-from cc_modules.cc_logger import dblog as log
-from cc_modules.cc_pls import pls
-import cc_modules.cc_session as cc_session
-import cc_modules.cc_string as cc_string
-from cc_modules.cc_unittest import (
+from .cc_modules.cc_dt import format_datetime
+from .cc_modules.cc_logger import dblog as log
+from .cc_modules.cc_pls import pls
+from .cc_modules import cc_session
+from .cc_modules import cc_string
+from .cc_modules.cc_unittest import (
     unit_test_ignore,
     unit_test_must_raise,
     unit_test_verify
 )
-import cc_modules.cc_version as cc_version
+from .cc_modules import cc_version
 
 # =============================================================================
 # Debugging options

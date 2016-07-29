@@ -65,6 +65,7 @@ def cache_strings() -> None:
         cc_pls.pls.stringDict[e.attrib.get("name")] = unescape_newlines(e.text)
 
 
+# noinspection PyPep8Naming
 def LSTRING(stringname: str) -> str:  # equivalent of Titanium's L()
     """Looks up a string from the XML string file."""
     cache_strings()
@@ -72,6 +73,7 @@ def LSTRING(stringname: str) -> str:  # equivalent of Titanium's L()
                                      "XML_STRING_NOT_FOUND_" + stringname)
 
 
+# noinspection PyPep8Naming
 def WSTRING(stringname: str) -> str:
     """Returns a web-safe version of a string from the XML string file."""
     return ws.webify(LSTRING(stringname))
@@ -122,6 +124,7 @@ def cache_extra_strings() -> None:
                 )
 
 
+# noinspection PyPep8Naming
 def XSTRING(taskname: str,
             stringname: str,
             default: str = None,
@@ -135,6 +138,7 @@ def XSTRING(taskname: str,
     return cc_pls.pls.extraStringDicts[taskname].get(stringname, default)
 
 
+# noinspection PyPep8Naming
 def WXSTRING(taskname: str,
              stringname: str,
              default: str = None,

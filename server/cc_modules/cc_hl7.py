@@ -294,7 +294,7 @@ class HL7Message(object):
             self.recipient_def = args[3]
             self.show_queue_only = kwargs.get("show_queue_only", False)
             self.no_saving = self.show_queue_only
-            self.task = cc_task.TaskFactory(self.basetable, self.serverpk)
+            self.task = cc_task.task_factory(self.basetable, self.serverpk)
 
         else:
             raise AssertionError("Bad call to HL7Message.__init__")
@@ -727,11 +727,12 @@ def send_pending_hl7_messages(recipient_def: RecipientDefinition,
                                     queue_stdout, hl7run, None)
 
 
-def send_pending_hl7_messages_2(recipient_def: RecipientDefinition,
-                                show_queue_only: bool,
-                                queue_stdout: typing.io.TextIO,
-                                hl7run: HL7Run,
-                                divert_file: typing.io.TextIO) -> None:
+def send_pending_hl7_messages_2(
+        recipient_def: RecipientDefinition,
+        show_queue_only: bool,
+        queue_stdout: typing.io.TextIO,
+        hl7run: HL7Run,
+        divert_file: Optional[typing.io.TextIO]) -> None:
     """Sends all pending HL7/file messages to a specific recipient."""
     # Also called once per recipient, but after diversion files safely
     # opened and recipient pinged successfully (if desired).

@@ -21,17 +21,17 @@
     limitations under the License.
 """
 
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
 )
-from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
-from cc_modules.cc_html import (
+from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_html import (
     answer,
     tr,
     tr_qa,
 )
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
@@ -115,7 +115,7 @@ class Wemwbs(Task):
         return self.sum_fields(repeat_fieldname("q", 1, self.N_QUESTIONS))
 
     def get_task_html(self):
-        MAIN_DICT = {
+        main_dict = {
             None: None,
             1: "1 — " + WSTRING("wemwbs_a1"),
             2: "2 — " + WSTRING("wemwbs_a2"),
@@ -149,7 +149,7 @@ class Wemwbs(Task):
         for i in range(1, self.N_QUESTIONS + 1):
             nstr = str(i)
             h += tr_qa(WSTRING("wemwbs_q" + nstr),
-                       get_from_dict(MAIN_DICT, getattr(self, "q" + nstr)))
+                       get_from_dict(main_dict, getattr(self, "q" + nstr)))
         h += """
             </table>
             <div class="copyright">
@@ -243,7 +243,7 @@ class Swemwbs(Task):
         return self.sum_fields(repeat_fieldname("q", 1, self.N_QUESTIONS))
 
     def get_task_html(self):
-        MAIN_DICT = {
+        main_dict = {
             None: None,
             1: "1 — " + WSTRING("wemwbs_a1"),
             2: "2 — " + WSTRING("wemwbs_a2"),
@@ -277,7 +277,7 @@ class Swemwbs(Task):
         for i in range(1, self.N_QUESTIONS + 1):
             nstr = str(i)
             h += tr_qa(WSTRING("swemwbs_q" + nstr),
-                       get_from_dict(MAIN_DICT, getattr(self, "q" + nstr)))
+                       get_from_dict(main_dict, getattr(self, "q" + nstr)))
         h += """
             </table>
             <div class="copyright">

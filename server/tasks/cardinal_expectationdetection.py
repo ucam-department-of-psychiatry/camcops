@@ -25,10 +25,10 @@ import matplotlib.pyplot as plt
 import numpy
 import scipy.stats  # http://docs.scipy.org/doc/scipy/reference/stats.html
 
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     FULLWIDTH_PLOT_WIDTH,
 )
-from cc_modules.cc_html import (
+from ..cc_modules.cc_html import (
     answer,
     div,
     get_html_from_pyplot_figure,
@@ -39,7 +39,7 @@ from cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from cc_modules.cc_task import Ancillary, Task
+from ..cc_modules.cc_task import Ancillary, Task
 
 
 CONVERT_0_P_TO = 0.001  # for Z-transformed ROC plot

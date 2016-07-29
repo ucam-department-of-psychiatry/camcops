@@ -21,9 +21,9 @@
     limitations under the License.
 """
 
-from cc_modules.cc_db import repeat_fieldspec
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================

@@ -21,17 +21,17 @@
     limitations under the License.
 """
 
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
 )
-from cc_modules.cc_db import repeat_fieldspec
-from cc_modules.cc_html import (
+from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_html import (
     answer,
     tr,
     tr_qa,
 )
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
@@ -138,7 +138,7 @@ class Smast(Task):
     def get_task_html(self):
         score = self.total_score()
         likelihood = self.likelihood()
-        MAIN_DICT = {
+        main_dict = {
             None: None,
             "Y": WSTRING("Yes"),
             "N": WSTRING("No")
@@ -163,7 +163,7 @@ class Smast(Task):
         for q in range(1, self.NQUESTIONS + 1):
             h += tr(
                 WSTRING("smast_q" + str(q)),
-                answer(get_from_dict(MAIN_DICT, getattr(self, "q" + str(q)))) +
+                answer(get_from_dict(main_dict, getattr(self, "q" + str(q)))) +
                 " — " + str(self.get_score(q))
             )
         h += """

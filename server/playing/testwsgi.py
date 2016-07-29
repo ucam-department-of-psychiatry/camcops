@@ -17,27 +17,27 @@ import cardinal_pythonlib.rnc_web as ws
 
 def connect_to_database(environ):
     # Specific to our setup. Select a database engine.
-    CAMCOPS_DB_NAME = environ.get("CAMCOPS_DB_NAME", "camcops")
-    CAMCOPS_DB_USER = environ.get("CAMCOPS_DB_USER", "root")
-    CAMCOPS_DB_PASSWORD = environ.get("CAMCOPS_DB_PASSWORD")
-    CAMCOPS_DB_SERVER = environ.get("CAMCOPS_DB_SERVER", "localhost")
-    CAMCOPS_DB_PORT = int(environ.get("CAMCOPS_DB_PORT", "3306"))
+    camcops_db_name = environ.get("CAMCOPS_DB_NAME", "camcops")
+    camcops_db_user = environ.get("CAMCOPS_DB_USER", "root")
+    camcops_db_password = environ.get("CAMCOPS_DB_PASSWORD")
+    camcops_db_server = environ.get("CAMCOPS_DB_SERVER", "localhost")
+    camcops_db_port = int(environ.get("CAMCOPS_DB_PORT", "3306"))
 
-    if CAMCOPS_DB_PASSWORD is None:
+    if camcops_db_password is None:
         raise Exception("No database password specified")
     db = rnc_db.DatabaseSupporter()
     db.connect_to_database_mysql(
-        server=CAMCOPS_DB_SERVER,
-        port=CAMCOPS_DB_PORT,
-        database=CAMCOPS_DB_NAME,
-        user=CAMCOPS_DB_USER,
-        password=CAMCOPS_DB_PASSWORD
+        server=camcops_db_server,
+        port=camcops_db_port,
+        database=camcops_db_name,
+        user=camcops_db_user,
+        password=camcops_db_password
     )
     return db
 
 
 def application_show_environment_test_database(environ, start_response):
-    LINEBREAK = "=" * 79 + "\n"
+    linebreak = "=" * 79 + "\n"
 
     status = '200 OK'
     if not environ['mod_wsgi.process_group']:
@@ -45,23 +45,23 @@ def application_show_environment_test_database(environ, start_response):
     else:
         output = 'mod_wsgi DAEMON MODE'
 
-    output += "\n\nenviron parameter:\n" + LINEBREAK
+    output += "\n\nenviron parameter:\n" + linebreak
     for (k, v) in sorted(environ.iteritems()):
         output += str(k) + ": " + str(v) + "\n"
 
-    output += "\nos.environ:\n" + LINEBREAK
+    output += "\nos.environ:\n" + linebreak
     for (k, v) in sorted(os.environ.iteritems()):
         output += str(k) + ": " + str(v) + "\n"
 
-    output += "\nCGI form:\n" + LINEBREAK
+    output += "\nCGI form:\n" + linebreak
     form = ws.get_cgi_fieldstorage_from_wsgi_env(environ)
     for k in form.keys():
         output += "{0} = {1}\n".format(k, form.getvalue(k))
 
-    output += "\nCGI value for 'test' field:\n" + LINEBREAK
+    output += "\nCGI value for 'test' field:\n" + linebreak
     output += "{}\n".format(ws.get_cgi_parameter_str(form, "test"))
 
-    output += "\nCGI value for 'Test' field:\n" + LINEBREAK
+    output += "\nCGI value for 'Test' field:\n" + linebreak
     output += "{}\n".format(ws.get_cgi_parameter_str(form, "Test"))
 
     # This successfully writes to the Apache log:
@@ -70,10 +70,10 @@ def application_show_environment_test_database(environ, start_response):
     # Let's not bother with a persistent database connection for now.
     # http://stackoverflow.com/questions/405352/mysql-connection-pooling-question-is-it-worth-it  # noqa
 
-    testDatabase = False
-    if testDatabase:
+    test_database = False
+    if test_database:
         db = connect_to_database(environ)
-        output += "\nCONNECTED TO DATABASE\n" + LINEBREAK
+        output += "\nCONNECTED TO DATABASE\n" + linebreak
         output += (
             "Count: " +
             str(db.fetchvalue("SELECT COUNT(*) FROM expdetthreshold")) + "\n"

@@ -21,18 +21,18 @@
     limitations under the License.
 """
 
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
 )
-from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
-from cc_modules.cc_html import (
+from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_html import (
     answer,
     subheading_spanning_two_columns,
     tr,
     tr_qa,
 )
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import get_from_dict, Task
 
 
 PV_PROBLEMTYPE = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
@@ -146,7 +146,7 @@ class Honos(Task):
         return WSTRING("honos_q" + str(q) + "_option" + str(a))
 
     def get_task_html(self):
-        Q8PROBLEMTYPE_DICT = {
+        q8_problem_type_dict = {
             None: None,
             "A": WSTRING("honos_q8problemtype_option_a"),
             "B": WSTRING("honos_q8problemtype_option_b"),
@@ -180,7 +180,7 @@ class Honos(Task):
                 self.get_answer(i, getattr(self, "q" + str(i)))
             )
         h += tr_qa(WSTRING("honos_q8problemtype_s"),
-                   get_from_dict(Q8PROBLEMTYPE_DICT, self.q8problemtype))
+                   get_from_dict(q8_problem_type_dict, self.q8problemtype))
         h += tr_qa(WSTRING("honos_q8otherproblem_s"),
                    self.q8otherproblem)
         for i in range(9, self.NQUESTIONS + 1):
@@ -302,7 +302,7 @@ class Honos65(Task):
         return WSTRING("honos65_q" + str(q) + "_option" + str(a))
 
     def get_task_html(self):
-        Q8PROBLEMTYPE_DICT = {
+        q8_problem_type_dict = {
             None: None,
             "A": WSTRING("honos65_q8problemtype_option_a"),
             "B": WSTRING("honos65_q8problemtype_option_b"),
@@ -336,7 +336,7 @@ class Honos65(Task):
                 self.get_answer(i, getattr(self, "q" + str(i)))
             )
         h += tr_qa(WSTRING("honos65_q8problemtype_s"),
-                   get_from_dict(Q8PROBLEMTYPE_DICT, self.q8problemtype))
+                   get_from_dict(q8_problem_type_dict, self.q8problemtype))
         h += tr_qa(WSTRING("honos65_q8otherproblem_s"),
                    self.q8otherproblem)
         for i in range(9, Honos.NQUESTIONS + 1):

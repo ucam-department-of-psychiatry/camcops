@@ -22,14 +22,14 @@
 """
 
 import cardinal_pythonlib.rnc_web as ws
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     DATEFORMAT,
     INVALID_VALUE,
     PARAM,
     PV,
 )
-from cc_modules.cc_dt import format_datetime_string
-from cc_modules.cc_html import (
+from ..cc_modules.cc_dt import format_datetime_string
+from ..cc_modules.cc_html import (
     answer,
     get_yes_no_none,
     subheading_spanning_four_columns,
@@ -37,23 +37,23 @@ from cc_modules.cc_html import (
     tr_qa,
     tr_span_col,
 )
-from cc_modules.cc_nhs import (
+from ..cc_modules.cc_nhs import (
     get_nhs_dd_ethnic_category_code,
     get_nhs_dd_person_marital_status,
     PV_NHS_ETHNIC_CATEGORY,
     PV_NHS_MARITAL_STATUS
 )
-from cc_modules.cc_pls import pls
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import Task
-from cc_modules.cc_report import Report, ReportParamSpec
+from ..cc_modules.cc_pls import pls
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_report import Report, ReportParamSpec
 
 
 # =============================================================================
 # CPFT_LPS_Referral
 # =============================================================================
 
-class CPFT_LPS_Referral(Task):
+class CPFTLPSReferral(Task):
     tablename = "cpft_lps_referral"
     shortname = "CPFT_LPS_Referral"
     longname = "Referral to CPFT Liaison Psychiatry Service"
@@ -138,8 +138,8 @@ class CPFT_LPS_Referral(Task):
         """.format(q, default if a is None else a)
 
     def get_task_html(self):
-        PERSON_MARITAL_STATUS = get_nhs_dd_person_marital_status()
-        ETHNIC_CATEGORY_CODE = get_nhs_dd_ethnic_category_code()
+        person_marital_status = get_nhs_dd_person_marital_status()
+        ethnic_category_code = get_nhs_dd_ethnic_category_code()
         if self.lps_division == "G":
             banner_class = "banner_referral_general_adult"
             division_name = WSTRING("cpft_lps_service_G")
@@ -254,13 +254,13 @@ class CPFT_LPS_Referral(Task):
         )
         h += self.four_column_row(
             WSTRING("cpft_lps_referral_f_marital_status"),
-            PERSON_MARITAL_STATUS.get(self.marital_status_code, INVALID_VALUE),
+            person_marital_status.get(self.marital_status_code, INVALID_VALUE),
             WSTRING("cpft_lps_referral_f_interpreter_required"),
             get_yes_no_none(self.interpreter_required)
         )
         h += self.four_column_row(
             WSTRING("cpft_lps_referral_f_ethnic_category"),
-            ETHNIC_CATEGORY_CODE.get(self.ethnic_category_code, INVALID_VALUE),
+            ethnic_category_code.get(self.ethnic_category_code, INVALID_VALUE),
             WSTRING("cpft_lps_referral_f_sensory_impairment"),
             get_yes_no_none(self.sensory_impairment)
         )
@@ -291,7 +291,7 @@ class CPFT_LPS_Referral(Task):
 # CPFT_LPS_ResetResponseClock
 # =============================================================================
 
-class CPFT_LPS_ResetResponseClock(Task):
+class CPFTLPSResetResponseClock(Task):
     tablename = "cpft_lps_resetresponseclock"
     shortname = "CPFT_LPS_ResetResponseClock"
     longname = "Reset response clock (CPFT Liaison Psychiatry Service)"
@@ -343,7 +343,7 @@ class CPFT_LPS_ResetResponseClock(Task):
 # CPFT_LPS_Discharge
 # =============================================================================
 
-class CPFT_LPS_Discharge(Task):
+class CPFTLPSDischarge(Task):
     tablename = "cpft_lps_discharge"
     shortname = "CPFT_LPS_Discharge"
     longname = "Discharge from CPFT Liaison Psychiatry Service"
@@ -672,7 +672,7 @@ class CPFT_LPS_Discharge(Task):
 ID_NUMBER_TO_LINK_ON_LABEL = "ID number to link on?"
 
 
-class LPS_Report_Referred_Not_Discharged(Report):
+class LPSReportReferredNotDischarged(Report):
     report_id = "cpft_lps_referred_not_subsequently_discharged"
     report_title = "CPFT LPS – referred but not yet discharged"
     param_spec_list = [ReportParamSpec(type=PARAM.WHICH_IDNUM,
@@ -729,7 +729,7 @@ class LPS_Report_Referred_Not_Discharged(Report):
         return pls.db.fetchall_with_fieldnames(sql)
 
 
-class LPS_Report_Referred_Not_Clerked_Or_Discharged(Report):
+class LPSReportReferredNotClerkedOrDischarged(Report):
     report_id = "cpft_lps_referred_not_subsequently_clerked_or_discharged"
     report_title = ("CPFT LPS – referred but not yet fully assessed or "
                     "discharged")

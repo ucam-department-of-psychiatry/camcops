@@ -1180,7 +1180,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         fields = self.get_fields()
         pklist = self.get_server_pks_of_record_group()
         for pk in pklist:
-            task = TaskFactory(tablename, pk)
+            task = task_factory(tablename, pk)
             cc_db.manually_erase_record_object_and_save(task, tablename,
                                                         fields, username)
 
@@ -1306,7 +1306,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     def get_blob_pks_of_record_group(self) -> List[int]:
         tablename = self.tablename
         taskpks = self.get_server_pks_of_record_group()
-        tasks = [TaskFactory(tablename, pk) for pk in taskpks]
+        tasks = [task_factory(tablename, pk) for pk in taskpks]
         list_of_blob_id_lists = [t.get_blob_ids() for t in tasks]
         blob_ids = cc_lang.flatten_list(list_of_blob_id_lists)
         blob_ids = list(set(blob_ids))  # remove duplicates
@@ -1775,7 +1775,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     def get_extra_dict_for_tsv(self,
                                subtable: str,
                                fields: Iterable[str],
-                               items: Iterable[Dict]):
+                               items: Iterable[Any]) -> Dict:
         maintable = self.tablename
         mainpk = self._pk
         rows = []
@@ -2834,6 +2834,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     def extrastrings_exist(self) -> bool:
         return task_extrastrings_exist(self.get_extrastring_taskname())
 
+    # noinspection PyPep8Naming
     def WXSTRING(self,
                  name: str,
                  defaultvalue: str = None,
@@ -2923,7 +2924,7 @@ class Ancillary(object):
 # Task factory
 # =============================================================================
 
-def TaskFactory(basetable: str, serverpk: int) -> Task:
+def task_factory(basetable: str, serverpk: int) -> Task:
     """Make a task, or return None.
 
     Args:
@@ -3627,8 +3628,8 @@ def task_unit_test(cls: Type[Task]) -> None:
 
 def unit_tests() -> None:
     """Unit tests for cc_task module."""
-    unit_test_ignore("", TaskFactory, "xxx", 0)
-    unit_test_ignore("", TaskFactory, "phq9", 0)
+    unit_test_ignore("", task_factory, "xxx", 0)
+    unit_test_ignore("", task_factory, "phq9", 0)
     unit_test_show("", get_base_tables, True)
     unit_test_show("", get_base_tables, False)
     unit_test_ignore("", get_literal_regex, "hello")

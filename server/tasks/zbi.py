@@ -21,17 +21,17 @@
     limitations under the License.
 """
 
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
     DATA_COLLECTION_UNLESS_UPGRADED_DIV,
 )
-from cc_modules.cc_db import repeat_fieldspec
-from cc_modules.cc_html import (
+from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_html import (
     answer,
     tr,
 )
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
@@ -95,9 +95,9 @@ class Zbi12(Task):
         )
 
     def get_task_html(self):
-        OPTION_DICT = {None: None}
+        option_dict = {None: None}
         for a in range(self.MIN_SCORE, self.MAX_SCORE + 1):
-            OPTION_DICT[a] = WSTRING("zbi_a" + str(a))
+            option_dict[a] = WSTRING("zbi_a" + str(a))
         h = """
             <div class="summary">
                 <table class="summary">
@@ -119,7 +119,7 @@ class Zbi12(Task):
         )
         for q in range(1, self.NQUESTIONS + 1):
             a = getattr(self, "q" + str(q))
-            fa = ("{}: {}".format(a, get_from_dict(OPTION_DICT, a))
+            fa = ("{}: {}".format(a, get_from_dict(option_dict, a))
                   if a is not None else None)
             h += tr(self.WXSTRING("q" + str(q)), answer(fa))
         h += """

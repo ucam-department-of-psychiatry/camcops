@@ -58,28 +58,24 @@ BarePatientInfo = collections.namedtuple("BarePatientInfo", [
 # XML element
 # =============================================================================
 
-class XmlElementTuple(collections.namedtuple("XmlElementTuple",
-                                             ["name",
-                                              "value",
-                                              "datatype",
-                                              "comment"])):
+class XmlElementTuple(collections.namedtuple(
+        "XmlElementTuple", ["name", "value", "datatype", "comment"])):
     """Represents XML data in a tree. See functions in cc_xml.py"""
     def __new__(cls, name, value=None, datatype=None, comment=None):
         # Special: boolean requires lower case "true"/"false" (or 0/1)
         if datatype == "boolean" and value is not None:
             value = str(value).lower()
-        return super(XmlElementTuple, cls).__new__(cls, name, value, datatype,
-                                                   comment)
+        return super().__new__(cls, name, value, datatype, comment)
 
 
 # =============================================================================
 # Raw XML value
 # =============================================================================
 
-class XmlSimpleValue(collections.namedtuple("XmlSimpleValue", ["value"])):
-    """Represents XML lowest-level items. See functions in cc_xml.py"""
-    def __new__(cls, value):
-        return super(XmlSimpleValue, cls).__new__(cls, value)
+XmlSimpleValue = collections.namedtuple("XmlSimpleValue", [
+    "value"
+])
+# Represents XML lowest-level items. See functions in cc_xml.py
 
 
 # =============================================================================

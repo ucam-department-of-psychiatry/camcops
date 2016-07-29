@@ -21,18 +21,18 @@
     limitations under the License.
 """
 
-from cc_modules.cc_constants import (
+from ..cc_modules.cc_constants import (
     CTV_DICTLIST_INCOMPLETE,
 )
-from cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
-from cc_modules.cc_html import (
+from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_html import (
     answer,
     get_yes_no,
     tr,
     tr_qa,
 )
-from cc_modules.cc_string import WSTRING
-from cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
@@ -176,14 +176,14 @@ class Phq9(Task):
             return WSTRING("none")
 
     def get_task_html(self):
-        MAIN_DICT = {
+        main_dict = {
             None: None,
             0: "0 — " + WSTRING("phq9_a0"),
             1: "1 — " + WSTRING("phq9_a1"),
             2: "2 — " + WSTRING("phq9_a2"),
             3: "3 — " + WSTRING("phq9_a3")
         }
-        Q10_DICT = {
+        q10_dict = {
             None: None,
             0: "0 — " + WSTRING("phq9_fa0"),
             1: "1 — " + WSTRING("phq9_fa1"),
@@ -224,9 +224,9 @@ class Phq9(Task):
         for i in range(1, self.N_MAIN_QUESTIONS + 1):
             nstr = str(i)
             h += tr_qa(WSTRING("phq9_q" + nstr),
-                       get_from_dict(MAIN_DICT, getattr(self, "q" + nstr)))
+                       get_from_dict(main_dict, getattr(self, "q" + nstr)))
         h += tr_qa("10. " + WSTRING("phq9_finalq"),
-                   get_from_dict(Q10_DICT, self.q10))
+                   get_from_dict(q10_dict, self.q10))
         h += """
             </table>
             <div class="footnotes">
