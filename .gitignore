@@ -1,2 +1,7 @@
 .DS_Store
-build-tablet_qt*
+
+build-*/
+# ... Qt
+
+tablet_qt/camcops_tablet.pro.user
+
