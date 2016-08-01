@@ -21,9 +21,8 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-)
+from typing import Dict, List
+
 from ..cc_modules.cc_html import (
     answer,
     italic,
@@ -31,7 +30,13 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    CtvInfo,
+    CTV_INCOMPLETE,
+    get_from_dict,
+    Task,
+    TrackerInfo,
+)
 
 
 # =============================================================================
@@ -60,23 +65,21 @@ class Cgi(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "CGI total score",
-                "axis_label": "Total score (out of 30)",
-                "axis_min": -0.5,
-                "axis_max": 30.5,
-            }
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="CGI total score",
+            axis_label="Total score (out of 30)",
+            axis_min=-0.5,
+            axis_max=30.5
+        )]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content": "CGI total score {}/30".format(self.total_score())
-        }]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="CGI total score {}/30".format(self.total_score())
+        )]
 
     def get_summaries(self):
         return [
@@ -84,7 +87,7 @@ class Cgi(Task):
             dict(name="total", cctype="INT", value=self.total_score()),
         ]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         if not (self.are_all_fields_complete(self.TASK_FIELDS) and
                 self.field_contents_valid()):
             return False
@@ -92,10 +95,10 @@ class Cgi(Task):
             return False
         return True
 
-    def total_score(self):
+    def total_score(self) -> int:
         return self.sum_fields(["q1", "q2", "q3"])
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         q1_dict = {
             None: None,
             0: WSTRING("cgi_q1_option0"),
@@ -193,23 +196,23 @@ class CgiI(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content": "CGI-I rating: {}".format(self.get_rating_text())
-        }]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="CGI-I rating: {}".format(self.get_rating_text())
+        )]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (self.are_all_fields_complete(self.TASK_FIELDS) and
                 self.field_contents_valid())
 
-    def get_rating_text(self):
+    def get_rating_text(self) -> str:
         qdict = self.get_q_dict()
         return get_from_dict(qdict, self.q)
 
     @staticmethod
-    def get_q_dict():
+    def get_q_dict() -> Dict:
         return {
             None: None,
             0: WSTRING("cgi_q2_option0"),
@@ -222,7 +225,7 @@ class CgiI(Task):
             7: WSTRING("cgi_q2_option7"),
         }
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         h = """
             <div class="summary">
                 <table class="summary">

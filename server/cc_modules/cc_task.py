@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # cc_task.py
 
 """
@@ -36,6 +35,7 @@ NOTES:
 import collections
 import copy
 import datetime
+from enum import Enum
 import operator
 import re
 import statistics
@@ -100,13 +100,12 @@ from . import cc_hl7core
 from . import cc_html
 from . import cc_lang
 from .cc_logger import log
-from . import cc_namedtuples
 from .cc_namedtuples import XmlElementTuple
 from . import cc_patient
 from . import cc_plot
 from .cc_pls import pls
 from .cc_recipdef import RecipientDefinition
-from .cc_report import Report
+from .cc_report import Report, REPORT_RESULT_TYPE
 from .cc_session import Session
 from . import cc_specialnote
 from .cc_string import task_extrastrings_exist, WSTRING, WXSTRING
@@ -124,6 +123,13 @@ from . import cc_xml
 
 ANCILLARY_FWD_REF = "Ancillary"
 TASK_FWD_REF = "Task"
+
+
+# =============================================================================
+# Constants
+# =============================================================================
+
+DEFAULT_TRACKER_ASPECT_RATIO = 2.0  # width / height
 
 
 # =============================================================================
@@ -245,6 +251,119 @@ def get_cris_dd_rows_from_fieldspecs(
     for fs in fieldspecs:
         rows.append(get_cris_dd_row(taskname, tablename, fs))
     return rows
+
+
+# =============================================================================
+# CtvInfo
+# =============================================================================
+
+class CtvInfo(object):
+    def __init__(self,
+                 heading: str = None,
+                 subheading: str = None,
+                 description: str = None,
+                 content: str = None,
+                 skip_if_no_content: bool = True):
+        """
+        Args:
+            heading: optional text used for heading
+            subheading: optional text used for subheading
+            description: optional text used for field description
+            content: text
+            skip_if_no_content: if True, no other fields will be printed
+                unless content evaluates to True
+
+        These will be NOT webified by the ClinicalTextView class, meaning
+        (a) do it yourself if it's necessary, and
+        (b) you can pass HTML formatting.
+        """
+        self.heading = heading
+        self.subheading = subheading
+        self.description = description
+        self.content = content
+        self.skip_if_no_content = skip_if_no_content
+
+    def get_html(self) -> str:
+        html = ""
+        if self.content or not self.skip_if_no_content:
+            if self.heading:
+                html += """
+                    <div class="ctv_fieldheading">
+                        {}
+                    </div>
+                """.format(self.heading)
+            if self.subheading:
+                html += """
+                    <div class="ctv_fieldsubheading">
+                        {}
+                    </div>
+                """.format(self.subheading)
+            if self.description:
+                html += """
+                    <div class="ctv_fielddescription">
+                        {}
+                    </div>
+                """.format(self.description)
+        if self.content:
+            html += """
+                <div class="ctv_fieldcontent">
+                    {}
+                </div>
+            """.format(self.content)
+        return html
+
+
+CTV_INCOMPLETE = [CtvInfo(description="Incomplete",
+                          skip_if_no_content=False)]
+
+
+# =============================================================================
+# TrackerInfo
+# =============================================================================
+
+class LabelAlignment(Enum):
+    center = "center"
+    top = "top"
+    bottom = "bottom"
+    baseline = "baseline"
+
+
+class TrackerLabel(object):
+    def __init__(self,
+                 y: float,
+                 label: str,
+                 vertical_alignment: LabelAlignment = LabelAlignment.center):
+        self.y = y
+        self.label = label
+        self.vertical_alignment = vertical_alignment
+
+
+class TrackerAxisTick(object):
+    def __init__(self, y: float, label: str):
+        self.y = y
+        self.label = label
+
+
+class TrackerInfo(object):
+    def __init__(self,
+                 value: float,
+                 plot_label: str = None,
+                 axis_label: str = None,
+                 axis_min: float = None,
+                 axis_max: float = None,
+                 axis_ticks: Optional[List[TrackerAxisTick]] = None,
+                 horizontal_lines: Optional[List[float]] = None,
+                 horizontal_labels: Optional[List[TrackerLabel]] = None,
+                 aspect_ratio: Optional[float] = DEFAULT_TRACKER_ASPECT_RATIO):
+        self.value = value
+        self.plot_label = plot_label
+        self.axis_label = axis_label
+        self.axis_min = axis_min
+        self.axis_max = axis_max
+        self.axis_ticks = axis_ticks or []
+        self.horizontal_lines = horizontal_lines or []
+        self.horizontal_labels = horizontal_labels or []
+        self.aspect_ratio = aspect_ratio
 
 
 # =============================================================================
@@ -474,6 +593,42 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             )
 
     @classmethod
+    def drop_views(cls) -> None:
+        # Some views below (e.g. "_withpt" views) may not exist, but that's OK
+        # because we're using DROP VIEW IF EXISTS.
+
+        # Base table
+        pls.db.drop_view(cls.tablename + "_current")
+        pls.db.drop_view(cls.tablename + "_current_withpt")
+        # Ancillary tables
+        for depclass in cls.dependent_classes:
+            pls.db.drop_view(depclass.tablename + "_current")
+        if not cls.is_anonymous:
+            # Summary table
+            summarytable = cls.get_standard_summary_table_name()
+            pls.db.drop_view(summarytable + "_current")
+            pls.db.drop_view(summarytable + "_current_withpt")
+            # Extra summary tables
+            infolist = list(cls.extra_summary_table_info)
+            for i in range(len(infolist)):
+                extrasummarytable = infolist[i]["tablename"]
+                pls.db.drop_view(extrasummarytable + "_current")
+                pls.db.drop_view(extrasummarytable + "_current_withpt")
+
+    @classmethod
+    def drop_summary_tables(cls) -> None:
+        """Doesn't drop important data, but drops summaries (which can be
+        rebuilt."""
+        # Summary table
+        summarytable = cls.get_standard_summary_table_name()
+        pls.db.drop_table(summarytable)
+        # Extra summary tables
+        infolist = list(cls.extra_summary_table_info)
+        for i in range(len(infolist)):
+            extrasummarytable = infolist[i]["tablename"]
+            pls.db.drop_table(extrasummarytable)
+
+    @classmethod
     def get_extra_table_names(cls) -> List[str]:
         """Get a list of any extra tables used by the task."""
         return [depclass.tablename for depclass in cls.dependent_classes]
@@ -484,23 +639,9 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
     '''
     def get_trackers(self) -> List[Dict[]]:
-        """Tasks that provide quantitative information for tracking over time
-        should override this and return a list of dictionaries, one dictionary
-        per tracker.
-
-        Each dictionary MUST contain:
-            "value": number
-        and MAY contain several other things:
-            "plot_label": string
-            "axis_label": number
-            "axis_min": number
-            "axis_max": number
-            "axis_ticks": list of numbers
-            "horizontal_lines": list of y coordinates
-            "horizontal_labels": list of (y, label) tuples, or optionally
-                (y, label, verticalalignment) where verticalalignment is one
-                of "center", "top", "bottom", "baseline" (default: "center").
-            "aspect_ratio": (number, default DEFAULT_TRACKER_ASPECT_RATIO)
+        """
+        Tasks that provide quantitative information for tracking over time
+        should override this and return a list of TrackerInfo, one per tracker.
 
         The information is read by get_all_plots_for_one_task_html() in
         cc_tracker.py -- q.v.
@@ -516,24 +657,12 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # -------------------------------------------------------------------------
 
     # noinspection PyMethodMayBeStatic
-    def get_clinical_text(self) -> Optional[List[Dict]]:
+    def get_clinical_text(self) -> Optional[List[CtvInfo]]:
         """Tasks that provide clinical text information should override this
         to provide a list of dictionaries.
 
         Return None (default) for a task that doesn't provide clinical text,
-        or [] for one with no information, or a list of dictionaries.
-
-        Each dictionary can contain:
-            "heading": text, used for heading, can be None
-            "subheading": text, used for subheading, can be None
-            "description": text, used for field description, can be None
-            "content": text, can be None
-            "skip_if_no_content": if True, no other fields will be printed
-                unless "content" evaluates to True
-
-        These will be NOT webified by the ClinicalTextView class, meaning
-        (a) do it yourself if it's necessary, and
-        (b) you can pass HTML formatting.
+        or [] for one with no information, or a list of CtvInfo objects.
         """
         return None
 
@@ -710,8 +839,9 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
     @classmethod
     def make_summary_table(cls) -> str:
-        """Make (temporary) summary tables."""
+        """Drop and remake (temporary) summary tables."""
         now = cc_dt.get_now_utc()
+        cls.drop_summary_tables()
         cls.make_standard_summary_table(now)
         cls.make_extra_summary_tables(now)
         # ... in case the task wants to make extra tables
@@ -744,7 +874,6 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         ] + dummy_instance.get_summaries()
         cc_db.add_sqltype_to_fieldspeclist_in_place(fieldspecs)
         fields = [d["name"] for d in fieldspecs]
-        pls.db.drop_table(summarytable)
         pls.db.make_table(summarytable, fieldspecs, dynamic=True)
         for i in cls.gen_all_current_tasks():
             # noinspection PyProtectedMember
@@ -779,7 +908,6 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             summarytable = infolist[i]["tablename"]
             fieldspecs = infolist[i]["fieldspecs"]
             cc_db.add_sqltype_to_fieldspeclist_in_place(fieldspecs)
-            pls.db.drop_table(summarytable)
             pls.db.make_table(summarytable, fieldspecs, dynamic=True)
         # Populate tables
         for task in cls.gen_all_current_tasks():
@@ -2202,7 +2330,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
         try:
             client_id = self._patient.get_idnum(which_idnum)
-        except:
+        except AttributeError:
             client_id = ""
         title = "CamCOPS_" + self.shortname
         description = self.longname
@@ -2226,7 +2354,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         ]
         # UTF-8 is NOT supported by RiO for metadata. So:
         csv_line = ",".join([
-            '"{}"'.format(cc_lang.mangle_unicode_to_str(x))
+            '"{}"'.format(cc_lang.mangle_unicode_to_ascii(x))
             for x in item_list
         ])
         return csv_line + "\n"
@@ -2710,7 +2838,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
     def get_twocol_picture_row(self,
                                fieldname: str,
-                               rotationfieldname: str,
+                               rotationfieldname: Optional[str],
                                label: str = None) -> str:
         """HTML table row, two columns, with PNG on right."""
         if label is None:
@@ -2812,7 +2940,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                 values.append(value)
         try:
             return statistics.mean(values)
-        except:
+        except (TypeError, statistics.StatisticsError):
             return None
 
     @staticmethod
@@ -3156,8 +3284,7 @@ class TaskCountReport(Report):
     report_title = "(Server) Count current task instances, by creation date"
     param_spec_list = []
 
-    def get_rows_descriptions(self) -> Tuple[Sequence[Sequence[Any]],
-                                             Sequence[str]]:
+    def get_rows_descriptions(self) -> REPORT_RESULT_TYPE:
         final_rows = []
         fieldnames = []
         classes = Task.__subclasses__()

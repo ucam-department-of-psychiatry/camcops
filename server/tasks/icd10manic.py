@@ -21,9 +21,11 @@
     limitations under the License.
 """
 
+from typing import List, Optional
+
 import cardinal_pythonlib.rnc_web as ws
+
 from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
     DATEFORMAT,
     ICD10_COPYRIGHT_DIV,
     PV,
@@ -37,7 +39,7 @@ from ..cc_modules.cc_html import (
 )
 from ..cc_modules.cc_lang import is_false
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
 
 
 # =============================================================================
@@ -152,19 +154,19 @@ class Icd10Manic(Task):
     )
     has_clinician = True
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        dl = [{
-            "content": "Pertains to: {}. Category: {}.".format(
+            return CTV_INCOMPLETE
+        infolist = [CtvInfo(
+            content="Pertains to: {}. Category: {}.".format(
                 format_datetime_string(self.date_pertains_to,
                                        DATEFORMAT.LONG_DATE),
                 self.get_description()
             )
-        }]
+        )]
         if self.comments:
-            dl.append({"content": ws.webify(self.comments)})
-        return dl
+            infolist.append(CtvInfo(content=ws.webify(self.comments)))
+        return infolist
 
     def get_summaries(self):
         return [
@@ -178,7 +180,7 @@ class Icd10Manic(Task):
         ]
 
     # Meets criteria? These also return null for unknown.
-    def meets_criteria_mania_psychotic_schizophrenic(self):
+    def meets_criteria_mania_psychotic_schizophrenic(self) -> Optional[bool]:
         x = self.meets_criteria_mania_ignoring_psychosis()
         if not x:
             return x
@@ -193,7 +195,7 @@ class Icd10Manic(Task):
             return None
         return False
 
-    def meets_criteria_mania_psychotic_icd(self):
+    def meets_criteria_mania_psychotic_icd(self) -> Optional[bool]:
         x = self.meets_criteria_mania_ignoring_psychosis()
         if not x:
             return x
@@ -203,7 +205,7 @@ class Icd10Manic(Task):
             return None
         return False
 
-    def meets_criteria_mania_nonpsychotic(self):
+    def meets_criteria_mania_nonpsychotic(self) -> Optional[bool]:
         x = self.meets_criteria_mania_ignoring_psychosis()
         if not x:
             return x
@@ -219,7 +221,7 @@ class Icd10Manic(Task):
             return False
         return True
 
-    def meets_criteria_mania_ignoring_psychosis(self):
+    def meets_criteria_mania_ignoring_psychosis(self) -> Optional[bool]:
         # When can we say "definitely not"?
         if is_false(self.mood_elevated) and is_false(self.mood_irritable):
             return False
@@ -246,7 +248,7 @@ class Icd10Manic(Task):
             return True
         return None
 
-    def meets_criteria_hypomania(self):
+    def meets_criteria_hypomania(self) -> Optional[bool]:
         # When can we say "definitely not"?
         if self.meets_criteria_mania_ignoring_psychosis():
             return False  # silly to call it hypomania if it's mania
@@ -269,7 +271,7 @@ class Icd10Manic(Task):
             return True
         return None
 
-    def meets_criteria_none(self):
+    def meets_criteria_none(self) -> Optional[bool]:
         h = self.meets_criteria_hypomania()
         m = self.meets_criteria_mania_ignoring_psychosis()
         if h or m:
@@ -278,7 +280,7 @@ class Icd10Manic(Task):
             return True
         return None
 
-    def psychosis_present(self):
+    def psychosis_present(self) -> Optional[bool]:
         if (self.hallucinations_other or
                 self.hallucinations_schizophrenic or
                 self.delusions_other or
@@ -291,7 +293,7 @@ class Icd10Manic(Task):
             return None
         return False
 
-    def get_description(self):
+    def get_description(self) -> str:
         if self.meets_criteria_mania_psychotic_schizophrenic():
             return WSTRING("icd10manic_category_manic_psychotic_schizophrenic")
         elif self.meets_criteria_mania_psychotic_icd():
@@ -305,7 +307,7 @@ class Icd10Manic(Task):
         else:
             return WSTRING("Unknown")
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.date_pertains_to is not None and
             self.meets_criteria_none() is not None and
@@ -313,14 +315,14 @@ class Icd10Manic(Task):
         )
 
     @staticmethod
-    def text_row(wstringname):
+    def text_row(wstringname: str) -> str:
         return heading_spanning_two_columns(WSTRING(wstringname))
 
-    def row_true_false(self, fieldname):
+    def row_true_false(self, fieldname: str) -> str:
         return self.get_twocol_bool_row_true_false(
             fieldname, WSTRING("icd10manic_" + fieldname))
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         h = self.get_standard_clinician_comments_block(self.comments) + """
             <div class="summary">
                 <table class="summary">

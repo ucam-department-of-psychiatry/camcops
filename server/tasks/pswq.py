@@ -21,15 +21,11 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-)
+from typing import List, Optional
+
 from ..cc_modules.cc_db import repeat_fieldspec
-from ..cc_modules.cc_html import (
-    answer,
-    tr,
-)
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_html import answer, tr
+from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
 
 
 # =============================================================================
@@ -72,16 +68,14 @@ class Pswq(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "PSWQ total score (lower is better)",
-                "axis_label": "Total score (16–80)",
-                "axis_min": 15.5,
-                "axis_max": 80.5,
-            },
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="PSWQ total score (lower is better)",
+            axis_label="Total score (16–80)",
+            axis_min=15.5,
+            axis_max=80.5
+        )]
 
     def get_summaries(self):
         return [
@@ -91,13 +85,15 @@ class Pswq(Task):
                  comment="Total score (16-80)"),
         ]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{"content": "PSWQ total score {t} (range 16–80)".format(
-            t=self.total_score())}]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="PSWQ total score {t} (range 16–80)".format(
+                t=self.total_score())
+        )]
 
-    def score(self, q):
+    def score(self, q: int) -> Optional[int]:
         value = getattr(self, "q" + str(q))
         if value is None:
             return None
@@ -106,17 +102,17 @@ class Pswq(Task):
         else:
             return value
 
-    def total_score(self):
+    def total_score(self) -> int:
         values = [self.score(q) for q in range(1, self.NQUESTIONS + 1)]
         return sum(v for v in values if v is not None)
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.field_contents_valid() and
             self.are_all_fields_complete(self.TASK_FIELDS)
         )
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         h = """
             <div class="summary">
                 <table class="summary">

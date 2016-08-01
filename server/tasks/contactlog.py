@@ -21,9 +21,11 @@
     limitations under the License.
 """
 
+from typing import List
+
 import cardinal_pythonlib.rnc_web as ws
+
 from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
     DATEFORMAT,
     PV,
 )
@@ -34,7 +36,7 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
 
 
 # =============================================================================
@@ -62,23 +64,23 @@ class ContactLog(Task):
     ]
     has_clinician = True
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
+            return CTV_INCOMPLETE
         contact_type = "Patient" if self.patient_contact else "Non-patient"
-        return [{
-            "content": "{} contact. Duration (hours:minutes) {}.".format(
+        return [CtvInfo(
+            content="{} contact. Duration (hours:minutes) {}.".format(
                 contact_type, get_duration_h_m(self.start, self.end))
-        }]
+        )]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.start is not None and
             self.end is not None and
             self.field_contents_valid()
         )
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         h = """
             <table class="taskdetail">
                 <tr>

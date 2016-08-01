@@ -21,10 +21,10 @@
     limitations under the License.
 """
 
+from typing import List
+
 from ..cc_modules.cc_db import repeat_fieldspec
-from ..cc_modules.cc_html import (
-    answer,
-)
+from ..cc_modules.cc_html import answer
 from ..cc_modules.cc_task import Task
 
 
@@ -87,11 +87,12 @@ class DemoQuestionnaire(Task):
         ("canvas", "canvas_blobid", None),
     ]
 
+    # noinspection PyMethodOverriding
     @staticmethod
-    def is_complete():
+    def is_complete() -> bool:
         return True
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         h = """
             <div class="summary">
                 <table class="summary">

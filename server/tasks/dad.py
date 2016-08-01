@@ -21,9 +21,9 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    DATA_COLLECTION_UNLESS_UPGRADED_DIV,
-)
+from typing import Iterable, List, Tuple
+
+from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV
 from ..cc_modules.cc_html import (
     answer,
     subheading_spanning_two_columns,
@@ -132,29 +132,30 @@ class Dad(Task):
             ])
         return s
 
+    # noinspection PyMethodOverriding
     @staticmethod
-    def is_complete():
+    def is_complete() -> bool:
         return True
 
     @classmethod
-    def get_items_activity(cls, activity):
+    def get_items_activity(cls, activity: str) -> List[str]:
         return [item for item in cls.ITEMS if item.startswith(activity)]
 
     @classmethod
-    def get_items_activities(cls, activities):
+    def get_items_activities(cls, activities: Iterable[str]) -> List[str]:
         return [item for item in cls.ITEMS
                 if any(item.startswith(activity) for activity in activities)]
 
     @classmethod
-    def get_items_phase(cls, phase):
+    def get_items_phase(cls, phase: str) -> List[str]:
         return [item for item in cls.ITEMS if phase in item]
 
-    def get_score(self, fields):
+    def get_score(self, fields: List[str]) -> Tuple[int, int]:
         score = self.count_where(fields, [YES])
         possible = self.count_wherenot(fields, [None, NA])
         return score, possible
 
-    def get_score_dict(self):
+    def get_score_dict(self) -> Dict:
         total = self.get_score(self.ITEMS)
         hygiene = self.get_score(self.get_items_activity('hygiene'))
         dressing = self.get_score(self.get_items_activity('dressing'))
@@ -195,10 +196,10 @@ class Dad(Task):
         )
 
     @staticmethod
-    def report_score(score_tuple):
+    def report_score(score_tuple: Tuple[int, int]) -> str:
         return "{} / {}".format(answer(score_tuple[0]), score_tuple[1])
 
-    def report_answer(self, field):
+    def report_answer(self, field: str) -> str:
         value = getattr(self, field)
         if value == YES:
             text = "Yes (1)"
@@ -210,7 +211,7 @@ class Dad(Task):
             text = None
         return answer(text)
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         d = self.get_score_dict()
         h = """
             <div class="summary">

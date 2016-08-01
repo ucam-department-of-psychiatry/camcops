@@ -21,17 +21,19 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-)
+from typing import List
+
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
-from ..cc_modules.cc_html import (
-    answer,
-    tr,
-    tr_qa,
-)
+from ..cc_modules.cc_html import answer, tr, tr_qa
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    CtvInfo,
+    CTV_INCOMPLETE,
+    get_from_dict,
+    Task,
+    TrackerInfo,
+    TrackerLabel,
+)
 
 
 # =============================================================================
@@ -102,37 +104,30 @@ class Hamd(Task):
             item["max"] = 3
     has_clinician = True
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "HAM-D total score",
-                "axis_label": "Total score (out of {})".format(MAX_SCORE),
-                "axis_min": -0.5,
-                "axis_max": MAX_SCORE + 0.5,
-                "horizontal_lines": [
-                    22.5,
-                    19.5,
-                    14.5,
-                    7.5
-                ],
-                "horizontal_labels": [
-                    (25, WSTRING("hamd_severity_verysevere")),
-                    (21, WSTRING("hamd_severity_severe")),
-                    (17, WSTRING("hamd_severity_moderate")),
-                    (11, WSTRING("hamd_severity_mild")),
-                    (3.75, WSTRING("hamd_severity_none"))
-                ]
-            }
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="HAM-D total score",
+            axis_label="Total score (out of {})".format(MAX_SCORE),
+            axis_min=-0.5,
+            axis_max=MAX_SCORE + 0.5,
+            horizontal_lines=[22.5, 19.5, 14.5, 7.5],
+            horizontal_labels=[
+                TrackerLabel(25, WSTRING("hamd_severity_verysevere")),
+                TrackerLabel(21, WSTRING("hamd_severity_severe")),
+                TrackerLabel(17, WSTRING("hamd_severity_moderate")),
+                TrackerLabel(11, WSTRING("hamd_severity_mild")),
+                TrackerLabel(3.75, WSTRING("hamd_severity_none")),
+            ]
+        )]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content": "HAM-D total score {}/{} ({})".format(
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="HAM-D total score {}/{} ({})".format(
                 self.total_score(), MAX_SCORE, self.severity())
-        }]
+        )]
 
     def get_summaries(self):
         return [
@@ -143,7 +138,7 @@ class Hamd(Task):
                  comment="Severity"),
         ]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         if not self.field_contents_valid():
             return False
         if self.q1 is None or self.q9 is None or self.q10 is None:
@@ -168,7 +163,7 @@ class Hamd(Task):
                     return False
         return True
 
-    def total_score(self):
+    def total_score(self) -> int:
         total = 0
         for i in range(1, self.NSCOREDQUESTIONS + 1):
             if i == 16:
@@ -180,7 +175,7 @@ class Hamd(Task):
                 total += self.sum_fields(["q" + str(i)])
         return total
 
-    def severity(self):
+    def severity(self) -> str:
         score = self.total_score()
         if score >= 23:
             return WSTRING("hamd_severity_verysevere")
@@ -193,7 +188,7 @@ class Hamd(Task):
         else:
             return WSTRING("hamd_severity_none")
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         score = self.total_score()
         severity = self.severity()
         task_field_list_for_display = (

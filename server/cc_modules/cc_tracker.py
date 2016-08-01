@@ -51,7 +51,7 @@ from .cc_namedtuples import XmlElementTuple
 from . import cc_plot
 from .cc_pls import pls
 from .cc_session import Session
-from .cc_task import Task
+from .cc_task import CtvInfo, Task
 from .cc_unittest import unit_test_ignore
 from . import cc_version
 from . import cc_xml
@@ -62,7 +62,6 @@ import matplotlib.pyplot as plt  # ONLY AFTER IMPORTING cc_plot
 # Constants
 # =============================================================================
 
-DEFAULT_TRACKER_ASPECT_RATIO = 2.0  # width / height
 TRACKER_DATEFORMAT = "%Y-%m-%d"
 WARNING_NO_PATIENT_FOUND = """
     <div class="warning">
@@ -678,30 +677,13 @@ class Tracker(object):
         # ... number of trackers supplied by the first task (and all tasks)
         for tracker in range(ntrackers):
             values = [
-                alltrackers[tasknum][tracker]["value"]
+                alltrackers[tasknum][tracker].value
                 for tasknum in range(ntasks)
             ]
-            specimen_tracker = alltrackers[0][tracker]
-            plot_label = specimen_tracker.get("plot_label", None)
-            axis_label = specimen_tracker.get("axis_label", None)
-            axis_min = specimen_tracker.get("axis_min", None)
-            axis_max = specimen_tracker.get("axis_max", None)
-            axis_ticks = specimen_tracker.get("axis_ticks", None)
-            horizontal_lines = specimen_tracker.get("horizontal_lines", None)
-            horizontal_labels = specimen_tracker.get("horizontal_labels", None)
-            aspect_ratio = specimen_tracker.get("aspect_ratio",
-                                                DEFAULT_TRACKER_ASPECT_RATIO)
             html += self.get_single_plot_html(
                 datetimes,
                 values,
-                plot_label,
-                axis_label,
-                axis_min,
-                axis_max,
-                axis_ticks,
-                horizontal_lines,
-                horizontal_labels,
-                aspect_ratio
+                specimen_tracker=alltrackers[0][tracker]
             )
         for task in task_instance_list:
             # noinspection PyProtectedMember
@@ -717,20 +699,17 @@ class Tracker(object):
             self,
             datetimes: List[datetime.datetime],
             values: List[float],
-            plot_label: str = None,
-            axis_label: str = None,
-            axis_min: float = None,
-            axis_max: float = None,
-            axis_ticks: List[float] = None,
-            horizontal_lines: List[float] = None,
-            horizontal_labels: List[str] = None,
-            aspect_ratio: float = DEFAULT_TRACKER_ASPECT_RATIO) -> str:
+            specimen_tracker: TrackerInfo) -> str:
         """HTML for a single figure."""
-        axis_ticks = axis_ticks or []
-        horizontal_lines = horizontal_lines or []
-        horizontal_labels = horizontal_labels or []
-        if not aspect_ratio:  # duff input
-            aspect_ratio = DEFAULT_TRACKER_ASPECT_RATIO
+        plot_label = specimen_tracker.plot_label
+        axis_label = specimen_tracker.axis_label
+        axis_min = specimen_tracker.axis_min
+        axis_max = specimen_tracker.axis_max
+        axis_ticks = specimen_tracker.axis_ticks
+        horizontal_lines = specimen_tracker.horizontal_lines
+        horizontal_labels = specimen_tracker.horizontal_labels
+        aspect_ratio = specimen_tracker.aspect_ratio
+
         figsize = (FULLWIDTH_PLOT_WIDTH,
                    (1.0/float(aspect_ratio)) * FULLWIDTH_PLOT_WIDTH)
         fig = plt.figure(figsize=figsize)
@@ -761,8 +740,8 @@ class Tracker(object):
         # ... autofmt_xdate must be BEFORE twinx:
         # http://stackoverflow.com/questions/8332395
         if axis_ticks is not None and len(axis_ticks) > 0:
-            tick_positions = [m[0] for m in axis_ticks]
-            tick_labels = [m[1] for m in axis_ticks]
+            tick_positions = [m.y for m in axis_ticks]
+            tick_labels = [m.label for m in axis_ticks]
             ax.set_yticks(tick_positions)
             ax.set_yticklabels(tick_labels)
 
@@ -792,7 +771,7 @@ class Tracker(object):
         stupid_jitter = 0.001
         if horizontal_lines is not None:
             for y in horizontal_lines:
-                plt.plot(xlim, [y, y+stupid_jitter], color="0.5",
+                plt.plot(xlim, [y, y + stupid_jitter], color="0.5",
                          linestyle=":")
                 # PROBLEM: horizontal lines becoming invisible
                 # (whether from ax.axhline or plot)
@@ -800,13 +779,10 @@ class Tracker(object):
         # Horizontal labels
         if horizontal_labels is not None:
             label_left = xlim[0] + 0.01 * (xlim[1] - xlim[0])
-            for t in horizontal_labels:
-                y = t[0]
-                l = t[1]
-                if len(t) > 2:
-                    va = t[2]
-                else:
-                    va = "center"
+            for lab in horizontal_labels:
+                y = lab.y
+                l = lab.label
+                va = lab.vertical_alignment.value
                 ax.text(label_left, y, l, verticalalignment=va, alpha=0.5)
                 # was "0.5" rather than 0.5, which led to a tricky-to-find
                 # "TypeError: a float is required" exception after switching
@@ -1229,10 +1205,10 @@ class ClinicalTextView(object):
                 task.get_hyperlink_pdf("PDF"),
             )
         # Get information from the task.
-        ctv_dict_list = task.get_clinical_text()
+        ctvinfo_list = task.get_clinical_text()
         # If it provides none, we offer a line indicating just the existence of
         # the task, with no further details.
-        if ctv_dict_list is None:
+        if ctvinfo_list is None:
             return """
                 <div class="ctv_taskheading">{}: {} exists {}</div>
             """.format(
@@ -1270,39 +1246,8 @@ class ClinicalTextView(object):
                 </div>
             """.format(warnings)
         # Contents
-        nfields = len(ctv_dict_list)
-        for i in range(nfields):
-            fielddict = ctv_dict_list[i]
-            heading = fielddict.get("heading", None)
-            subheading = fielddict.get("subheading", None)
-            description = fielddict.get("description", None)
-            content = fielddict.get("content", None)
-            skip_if_no_content = fielddict.get("skip_if_no_content", True)
-            if content or (not skip_if_no_content):
-                if heading:
-                    html += """
-                        <div class="ctv_fieldheading">
-                            {}
-                        </div>
-                    """.format(heading)
-                if subheading:
-                    html += """
-                        <div class="ctv_fieldsubheading">
-                            {}
-                        </div>
-                    """.format(subheading)
-                if description:
-                    html += """
-                        <div class="ctv_fielddescription">
-                            {}
-                        </div>
-                    """.format(description)
-            if content:
-                html += """
-                    <div class="ctv_fieldcontent">
-                        {}
-                    </div>
-                """.format(content)
+        for ctvinfo in ctvinfo_list:
+            html += ctvinfo.get_html()
         # Done.
         audit(
             "Clinical text view accessed",

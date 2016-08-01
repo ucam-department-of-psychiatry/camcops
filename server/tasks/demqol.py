@@ -21,10 +21,10 @@
     limitations under the License.
 """
 
+from typing import List, Tuple, Union
+
 import cardinal_pythonlib.rnc_web as ws
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-)
+
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import (
     answer,
@@ -33,7 +33,13 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    CtvInfo,
+    CTV_INCOMPLETE,
+    get_from_dict,
+    Task,
+    TrackerInfo,
+)
 
 # =============================================================================
 # Constants
@@ -55,30 +61,6 @@ COPYRIGHT_DIV = """
         College London. Reproduced with permission.
     </div>
 """
-
-
-# =============================================================================
-# Common scoring function
-# =============================================================================
-
-def calc_total_score(obj, n_scored_questions, reverse_score_qs,
-                     minimum_n_for_total_score):
-    """Returns (total, extrapolated?)."""
-    n = 0
-    total = 0
-    for q in range(1, n_scored_questions + 1):
-        x = getattr(obj, "q" + str(q))
-        if x is None or x == MISSING_VALUE:
-            continue
-        if q in reverse_score_qs:
-            x = 5 - x
-        n += 1
-        total += x
-    if n < minimum_n_for_total_score:
-        return None, False
-    if n < n_scored_questions:
-        return n_scored_questions * total / n, True
-    return total, False
 
 
 # =============================================================================
@@ -123,37 +105,34 @@ class Demqol(Task):
     ]
     has_clinician = True
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return self.field_contents_valid() and self.are_all_fields_complete(
             repeat_fieldname("q", 1, self.NQUESTIONS))
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "DEMQOL total score",
-                "axis_label": (
-                    "Total score (range {}–{}, higher better)".format(
-                        self.MIN_SCORE, self.MAX_SCORE)),
-                "axis_min": self.MIN_SCORE - 0.5,
-                "axis_max": self.MAX_SCORE + 0.5,
-            },
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="DEMQOL total score",
+            axis_label="Total score (range {}–{}, higher better)".format(
+                self.MIN_SCORE, self.MAX_SCORE),
+            axis_min=self.MIN_SCORE - 0.5,
+            axis_max=self.MAX_SCORE + 0.5
+        )]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content": "Total score {} (range {}–{}, higher better)".format(
-                       ws.number_to_dp(self.total_score(), DP),
-                       self.MIN_SCORE, self.MAX_SCORE)
-        }]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="Total score {} (range {}–{}, higher better)".format(
+                ws.number_to_dp(self.total_score(), DP),
+                self.MIN_SCORE, self.MAX_SCORE)
+        )]
 
     def get_summaries(self):
         return [
             self.is_complete_summary_field(),
             dict(
-                name="total", cctype="INT",
+                name="total", cctype="FLOAT",
                 value=self.total_score(),
                 comment=(
                     "Total score ({}-{})".format(
@@ -161,7 +140,7 @@ class Demqol(Task):
                 ),
         ]
 
-    def totalscore_extrapolated(self):
+    def totalscore_extrapolated(self) -> Tuple[float, bool]:
         return calc_total_score(
             obj=self,
             n_scored_questions=self.N_SCORED_QUESTIONS,
@@ -169,16 +148,16 @@ class Demqol(Task):
             minimum_n_for_total_score=self.MINIMUM_N_FOR_TOTAL_SCORE
         )
 
-    def total_score(self):
+    def total_score(self) -> float:
         (total, extrapolated) = self.totalscore_extrapolated()
         return total
 
     @staticmethod
-    def get_q(n):
+    def get_q(n: int) -> str:
         nstr = str(n)
         return "Q" + nstr + ". " + WSTRING("demqol_q" + nstr)
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         (total, extrapolated) = self.totalscore_extrapolated()
         main_dict = {
             None: None,
@@ -288,44 +267,40 @@ class DemqolProxy(Task):
     has_clinician = True
     has_respondent = True
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return self.field_contents_valid() and self.are_all_fields_complete(
             repeat_fieldname("q", 1, self.NQUESTIONS))
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "DEMQOL-Proxy total score",
-                "axis_label": (
-                    "Total score (range {}–{}, higher better)".format(
-                        self.MIN_SCORE, self.MAX_SCORE)
-                ),
-                "axis_min": self.MIN_SCORE - 0.5,
-                "axis_max": self.MAX_SCORE + 0.5,
-            },
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="DEMQOL-Proxy total score",
+            axis_label="Total score (range {}–{}, higher better)".format(
+                self.MIN_SCORE, self.MAX_SCORE),
+            axis_min=self.MIN_SCORE - 0.5,
+            axis_max=self.MAX_SCORE + 0.5
+        )]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content": "Total score {} (range {}–{}, higher better)".format(
-                       ws.number_to_dp(self.total_score(), DP),
-                       self.MIN_SCORE, self.MAX_SCORE)
-        }]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="Total score {} (range {}–{}, higher better)".format(
+                ws.number_to_dp(self.total_score(), DP),
+                self.MIN_SCORE, self.MAX_SCORE)
+        )]
 
     def get_summaries(self):
         return [
             self.is_complete_summary_field(),
             dict(
-                name="total", cctype="INT",
+                name="total", cctype="FLOAT",
                 value=self.total_score(),
                 comment="Total score ({}-{})".format(
                     self.MIN_SCORE, self.MAX_SCORE)),
         ]
 
-    def totalscore_extrapolated(self):
+    def totalscore_extrapolated(self) -> Tuple[float, bool]:
         return calc_total_score(
             obj=self,
             n_scored_questions=self.N_SCORED_QUESTIONS,
@@ -333,16 +308,16 @@ class DemqolProxy(Task):
             minimum_n_for_total_score=self.MINIMUM_N_FOR_TOTAL_SCORE
         )
 
-    def total_score(self):
+    def total_score(self) -> float:
         (total, extrapolated) = self.totalscore_extrapolated()
         return total
 
     @staticmethod
-    def get_q(n):
+    def get_q(n: int) -> str:
         nstr = str(n)
         return "Q" + nstr + ". " + WSTRING("demqolproxy_q" + nstr)
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         (total, extrapolated) = self.totalscore_extrapolated()
         main_dict = {
             None: None,
@@ -402,3 +377,29 @@ class DemqolProxy(Task):
             h += tr_qa(q, a)
         h += END_DIV + COPYRIGHT_DIV
         return h
+
+
+# =============================================================================
+# Common scoring function
+# =============================================================================
+
+def calc_total_score(obj: Union[Demqol, DemqolProxy],
+                     n_scored_questions: int,
+                     reverse_score_qs: List[int],
+                     minimum_n_for_total_score: int) -> Tuple[float, bool]:
+    """Returns (total, extrapolated?)."""
+    n = 0
+    total = 0
+    for q in range(1, n_scored_questions + 1):
+        x = getattr(obj, "q" + str(q))
+        if x is None or x == MISSING_VALUE:
+            continue
+        if q in reverse_score_qs:
+            x = 5 - x
+        n += 1
+        total += x
+    if n < minimum_n_for_total_score:
+        return None, False
+    if n < n_scored_questions:
+        return n_scored_questions * total / n, True
+    return total, False

@@ -21,17 +21,19 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-)
+from typing import List
+
 from ..cc_modules.cc_db import repeat_fieldspec
-from ..cc_modules.cc_html import (
-    answer,
-    tr,
-    tr_qa,
-)
+from ..cc_modules.cc_html import answer, tr, tr_qa
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    CtvInfo,
+    CTV_INCOMPLETE,
+    get_from_dict,
+    Task,
+    TrackerInfo,
+    TrackerLabel,
+)
 
 
 # =============================================================================
@@ -60,35 +62,29 @@ class Hamd7(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "HAM-D-7 total score",
-                "axis_label": "Total score (out of 26)",
-                "axis_min": -0.5,
-                "axis_max": 26.5,
-                "horizontal_lines": [
-                    19.5,
-                    11.5,
-                    3.5,
-                ],
-                "horizontal_labels": [
-                    (23, WSTRING("hamd7_severity_severe")),
-                    (15.5, WSTRING("hamd7_severity_moderate")),
-                    (7.5, WSTRING("hamd7_severity_mild")),
-                    (1.75, WSTRING("hamd7_severity_none")),
-                ]
-            }
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="HAM-D-7 total score",
+            axis_label="Total score (out of 26)",
+            axis_min=-0.5,
+            axis_max=26.5,
+            horizontal_lines=[19.5, 11.5, 3.5],
+            horizontal_labels=[
+                TrackerLabel(23, WSTRING("hamd7_severity_severe")),
+                TrackerLabel(15.5, WSTRING("hamd7_severity_moderate")),
+                TrackerLabel(7.5, WSTRING("hamd7_severity_mild")),
+                TrackerLabel(1.75, WSTRING("hamd7_severity_none")),
+            ]
+        )]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content": "HAM-D-7 total score {}/26 ({})".format(
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="HAM-D-7 total score {}/26 ({})".format(
                 self.total_score(), self.severity())
-        }]
+        )]
 
     def get_summaries(self):
         return [
@@ -99,16 +95,16 @@ class Hamd7(Task):
                  comment="Severity"),
         ]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.are_all_fields_complete(self.TASK_FIELDS) and
             self.field_contents_valid()
         )
 
-    def total_score(self):
+    def total_score(self) -> int:
         return self.sum_fields(self.TASK_FIELDS)
 
-    def severity(self):
+    def severity(self) -> str:
         score = self.total_score()
         if score >= 20:
             return WSTRING("hamd7_severity_severe")
@@ -119,7 +115,7 @@ class Hamd7(Task):
         else:
             return WSTRING("hamd7_severity_none")
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         score = self.total_score()
         severity = self.severity()
         answer_dicts = []

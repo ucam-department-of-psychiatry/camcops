@@ -108,19 +108,18 @@ def is_false(x: Any) -> bool:
     return not x and x is not None
 
 
-def mangle_unicode_to_str(s: Any) -> str:  # TODO: recheck for Python 3
-    """Mangle unicode to str, losing accents etc. in the process."""
+def mangle_unicode_to_ascii(s: Any) -> str:
+    """Mangle unicode to ASCII, losing accents etc. in the process."""
     # http://stackoverflow.com/questions/1207457
     if s is None:
         return ""
-    elif isinstance(s, str):
-        return (
-            unicodedata.normalize('NFKD', s)
-                       .encode('ascii', 'ignore')  # gets rid of accents
-                       .decode('ascii')  # back to a string
-        )
-    else:
-        return str(s)
+    if not isinstance(s, str):
+        s = str(s)
+    return (
+        unicodedata.normalize('NFKD', s)
+                   .encode('ascii', 'ignore')  # gets rid of accents
+                   .decode('ascii')  # back to a string
+    )
 
 
 class BetweenDict(dict):

@@ -21,17 +21,18 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-)
+from typing import List
+
 from ..cc_modules.cc_db import repeat_fieldspec
-from ..cc_modules.cc_html import (
-    answer,
-    tr,
-    tr_qa,
-)
+from ..cc_modules.cc_html import answer, tr, tr_qa
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    CtvInfo,
+    CTV_INCOMPLETE,
+    get_from_dict,
+    Task,
+    TrackerInfo,
+)
 
 
 # =============================================================================
@@ -60,23 +61,21 @@ class Bprs(Task):
     TASK_FIELDS = [x["name"] for x in fieldspecs]
     SCORED_FIELDS = [x for x in TASK_FIELDS if (x != "q19" and x != "q20")]
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "BPRS total score",
-                "axis_label": "Total score (out of 126)",
-                "axis_min": -0.5,
-                "axis_max": 126.5,
-            }
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="BPRS total score",
+            axis_label="Total score (out of 126)",
+            axis_min=-0.5,
+            axis_max=126.5,
+        )]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content": "BPRS total score {}/126".format(self.total_score())
-        }]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="BPRS total score {}/126".format(self.total_score())
+        )]
 
     def get_summaries(self):
         return [
@@ -85,19 +84,18 @@ class Bprs(Task):
                  comment="Total score (/126)"),
         ]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.are_all_fields_complete(Bprs.TASK_FIELDS) and
             self.field_contents_valid()
         )
 
-    def total_score(self):
+    def total_score(self) -> int:
         return self.sum_fields(Bprs.SCORED_FIELDS, ignorevalue=0)
         # "0" means "not rated"
 
-    # noinspection PyPep8Naming
-    def get_task_html(self):
-        MAIN_DICT = {
+    def get_task_html(self) -> str:
+        main_dict = {
             None: None,
             0: "0 — " + WSTRING("bprsold_option0"),
             1: "1 — " + WSTRING("bprsold_option1"),
@@ -108,7 +106,7 @@ class Bprs(Task):
             6: "6 — " + WSTRING("bprsold_option6"),
             7: "7 — " + WSTRING("bprsold_option7")
         }
-        Q19_DICT = {
+        q19_dict = {
             None: None,
             1: WSTRING("bprs_q19_option1"),
             2: WSTRING("bprs_q19_option2"),
@@ -118,7 +116,7 @@ class Bprs(Task):
             6: WSTRING("bprs_q19_option6"),
             7: WSTRING("bprs_q19_option7")
         }
-        Q20_DICT = {
+        q20_dict = {
             None: None,
             0: WSTRING("bprs_q20_option0"),
             1: WSTRING("bprs_q20_option1"),
@@ -153,12 +151,12 @@ class Bprs(Task):
         for i in range(1, Bprs.NQUESTIONS - 1):  # only does 1-18
             h += tr_qa(
                 WSTRING("bprs_q" + str(i) + "_title"),
-                get_from_dict(MAIN_DICT, getattr(self, "q" + str(i)))
+                get_from_dict(main_dict, getattr(self, "q" + str(i)))
             )
         h += tr_qa(WSTRING("bprs_q19_title"),
-                   get_from_dict(Q19_DICT, self.q19))
+                   get_from_dict(q19_dict, self.q19))
         h += tr_qa(WSTRING("bprs_q20_title"),
-                   get_from_dict(Q20_DICT, self.q20))
+                   get_from_dict(q20_dict, self.q20))
         h += """
             </table>
             <div class="footnotes">

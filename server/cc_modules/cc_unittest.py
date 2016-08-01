@@ -22,7 +22,7 @@
 """
 
 import sys
-from typing import Any, Tuple
+from typing import Any, Tuple, Union
 
 
 # =============================================================================
@@ -74,7 +74,8 @@ def unit_test_verify_not(message: str, function,
 
 def unit_test_ignore_except(message: str,
                             function,
-                            allowed_asserts: Tuple[Exception],
+                            allowed_asserts: Union[Exception,
+                                                   Tuple[Exception]],
                             *args, **kwargs) -> None:
     """Print message; call function(*args, **kwargs); allow any exceptions
     passed in the tuple allowed_asserts."""
@@ -88,7 +89,8 @@ def unit_test_ignore_except(message: str,
 def unit_test_verify_except(message: str,
                             function,
                             intended_result: any,
-                            allowed_asserts: Tuple[Exception],
+                            allowed_asserts: Union[Exception,
+                                                   Tuple[Exception]],
                             *args, **kwargs) -> None:
     """Print message; call function(*args, **kwargs); raise an AssertionError
     if the result was not intended_result; allow any exceptions passed in
@@ -104,7 +106,8 @@ def unit_test_verify_except(message: str,
 
 def unit_test_must_raise(message: str,
                          function,
-                         required_asserts: Tuple[Exception],
+                         required_asserts: Union[Exception,
+                                                 Tuple[Exception]],
                          *args, **kwargs) -> None:
     """Print message; call function(*args, **kwargs); raise an AssertionError
     if the function does not raise an exception within the tuple

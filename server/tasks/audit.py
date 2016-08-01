@@ -21,9 +21,8 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-)
+from typing import List
+
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import (
     answer,
@@ -32,7 +31,13 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    CtvInfo,
+    CTV_INCOMPLETE,
+    get_from_dict,
+    Task,
+    TrackerInfo,
+)
 
 
 # =============================================================================
@@ -55,26 +60,22 @@ class Audit(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "AUDIT total score",
-                "axis_label": "Total score (out of 40)",
-                "axis_min": -0.5,
-                "axis_max": 40.5,
-                "horizontal_lines": [
-                    7.5,
-                ],
-            }
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="AUDIT total score",
+            axis_label="Total score (out of 40)",
+            axis_min=-0.5,
+            axis_max=40.5,
+            horizontal_lines=[7.5]
+        )]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content": "AUDIT total score {}/40".format(self.total_score())
-        }]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="AUDIT total score {}/40".format(self.total_score())
+        )]
 
     def get_summaries(self):
         return [
@@ -83,7 +84,7 @@ class Audit(Task):
                  comment="Total score (/40)"),
         ]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         if not self.field_contents_valid():
             return False
         if self.q1 is None or self.q9 is None or self.q10 is None:
@@ -99,26 +100,25 @@ class Audit(Task):
         # Otherwise, any null values cause problems
         return self.are_all_fields_complete(self.TASK_FIELDS)
 
-    def total_score(self):
+    def total_score(self) -> int:
         return self.sum_fields(self.TASK_FIELDS)
 
-    # noinspection PyPep8Naming
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         score = self.total_score()
         exceeds_cutoff = score >= 8
-        Q1_DICT = {None: None}
-        Q2_DICT = {None: None}
-        Q3_TO_8_DICT = {None: None}
-        Q9_TO_10_DICT = {None: None}
+        q1_dict = {None: None}
+        q2_dict = {None: None}
+        q3_to_8_dict = {None: None}
+        q9_to_10_dict = {None: None}
         for option in range(0, 5):
-            Q1_DICT[option] = str(option) + " – " + \
+            q1_dict[option] = str(option) + " – " + \
                 WSTRING("audit_q1_option" + str(option))
-            Q2_DICT[option] = str(option) + " – " + \
+            q2_dict[option] = str(option) + " – " + \
                 WSTRING("audit_q2_option" + str(option))
-            Q3_TO_8_DICT[option] = str(option) + " – " + \
+            q3_to_8_dict[option] = str(option) + " – " + \
                 WSTRING("audit_q3to8_option" + str(option))
             if option != 1 and option != 3:
-                Q9_TO_10_DICT[option] = str(option) + " – " + \
+                q9_to_10_dict[option] = str(option) + " – " + \
                     WSTRING("audit_q9to10_option" + str(option))
         h = """
             <div class="summary">
@@ -137,17 +137,17 @@ class Audit(Task):
                     <th width="50%">Answer</th>
                 </tr>
         """
-        h += tr_qa(WSTRING("audit_q1_s"), get_from_dict(Q1_DICT, self.q1))
-        h += tr_qa(WSTRING("audit_q2_s"), get_from_dict(Q2_DICT, self.q2))
+        h += tr_qa(WSTRING("audit_q1_s"), get_from_dict(q1_dict, self.q1))
+        h += tr_qa(WSTRING("audit_q2_s"), get_from_dict(q2_dict, self.q2))
         for q in range(3, 8 + 1):
             h += tr_qa(
                 WSTRING("audit_q" + str(q) + "_s"),
-                get_from_dict(Q3_TO_8_DICT, getattr(self, "q" + str(q)))
+                get_from_dict(q3_to_8_dict, getattr(self, "q" + str(q)))
             )
         h += tr_qa(WSTRING("audit_q9_s"),
-                   get_from_dict(Q9_TO_10_DICT, self.q9))
+                   get_from_dict(q9_to_10_dict, self.q9))
         h += tr_qa(WSTRING("audit_q10_s"),
-                   get_from_dict(Q9_TO_10_DICT, self.q10))
+                   get_from_dict(q9_to_10_dict, self.q10))
         h += """
             </table>
             <div class="copyright">
@@ -180,23 +180,21 @@ class AuditC(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "AUDIT-C total score",
-                "axis_label": "Total score (out of 12)",
-                "axis_min": -0.5,
-                "axis_max": 12.5,
-            }
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="AUDIT-C total score",
+            axis_label="Total score (out of 12)",
+            axis_min=-0.5,
+            axis_max=12.5,
+        )]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content": "AUDIT-C total score {}/12".format(self.total_score())
-        }]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="AUDIT-C total score {}/12".format(self.total_score())
+        )]
 
     def get_summaries(self):
         return [
@@ -205,28 +203,27 @@ class AuditC(Task):
                  comment="Total score (/12)"),
         ]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return self.are_all_fields_complete(self.TASK_FIELDS)
 
-    def total_score(self):
+    def total_score(self) -> int:
         return self.sum_fields(self.TASK_FIELDS)
 
-    # noinspection PyPep8Naming
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         score = self.total_score()
-        Q1_DICT = {None: None}
-        Q2_DICT = {None: None}
-        Q3_DICT = {None: None}
+        q1_dict = {None: None}
+        q2_dict = {None: None}
+        q3_dict = {None: None}
         for option in range(0, 5):
-            Q1_DICT[option] = str(option) + " – " + \
+            q1_dict[option] = str(option) + " – " + \
                 WSTRING("audit_q1_option" + str(option))
             if option == 0:  # special!
-                Q2_DICT[option] = str(option) + " – " + \
+                q2_dict[option] = str(option) + " – " + \
                     WSTRING("audit_c_q2_option0")
             else:
-                Q2_DICT[option] = str(option) + " – " + \
+                q2_dict[option] = str(option) + " – " + \
                     WSTRING("audit_q2_option" + str(option))
-            Q3_DICT[option] = str(option) + " – " + \
+            q3_dict[option] = str(option) + " – " + \
                 WSTRING("audit_q3to8_option" + str(option))
         h = """
             <div class="summary">
@@ -244,11 +241,11 @@ class AuditC(Task):
                 </tr>
         """
         h += tr_qa(WSTRING("audit_c_q1_question"),
-                   get_from_dict(Q1_DICT, self.q1))
+                   get_from_dict(q1_dict, self.q1))
         h += tr_qa(WSTRING("audit_c_q2_question"),
-                   get_from_dict(Q2_DICT, self.q2))
+                   get_from_dict(q2_dict, self.q2))
         h += tr_qa(WSTRING("audit_c_q3_question"),
-                   get_from_dict(Q3_DICT, self.q3))
+                   get_from_dict(q3_dict, self.q3))
         h += """
             </table>
             <div class="copyright">

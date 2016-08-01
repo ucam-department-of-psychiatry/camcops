@@ -257,7 +257,7 @@ def th(contents: str, th_class: str = "", th_width: str = "") -> str:
 
 
 def tr_qa(q: str,
-          a: str,
+          a: Any,
           default: str = "?",
           default_for_blank_strings: bool = False) -> str:
     """Make HTML two-column data row, with right-hand column formatted as an

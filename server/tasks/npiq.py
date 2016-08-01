@@ -21,18 +21,12 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-    DATA_COLLECTION_UNLESS_UPGRADED_DIV,
-    PV,
-)
+from typing import List
+
+from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV, PV
 from ..cc_modules.cc_db import repeat_fieldspec
-from ..cc_modules.cc_html import (
-    answer,
-    get_yes_no_unknown,
-    tr,
-)
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_html import answer, get_yes_no_unknown, tr
+from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
 
 
 # =============================================================================
@@ -69,11 +63,11 @@ class NpiQ(Task):
         comment_fmt="Q{n}, {s}, endorsed?",
         comment_strings=QUESTION_SNIPPETS
     ) + repeat_fieldspec(
-        SEVERITY, 1, NQUESTIONS, pv=range(1, 3 + 1),
+        SEVERITY, 1, NQUESTIONS, pv=list(range(1, 3 + 1)),
         comment_fmt="Q{n}, {s}, severity (1-3), if endorsed",
         comment_strings=QUESTION_SNIPPETS
     ) + repeat_fieldspec(
-        DISTRESS, 1, NQUESTIONS, pv=range(0, 5 + 1),
+        DISTRESS, 1, NQUESTIONS, pv=list(range(0, 5 + 1)),
         comment_fmt="Q{n}, {s}, distress (0-5), if endorsed",
         comment_strings=QUESTION_SNIPPETS
     )
@@ -95,27 +89,26 @@ class NpiQ(Task):
                  comment="Distress score (/ 60)"),
         ]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [
-            {
-                "content": "Endorsed: {e}/12; severity {s}/36; "
-                "distress {d}/60".format(
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content=(
+                "Endorsed: {e}/12; severity {s}/36; distress {d}/60".format(
                     e=self.n_endorsed(),
                     s=self.severity_score(),
                     d=self.distress_score(),
                 )
-            }
-        ]
+            )
+        )]
 
-    def q_endorsed(self, q):
+    def q_endorsed(self, q: int) -> str:
         return bool(getattr(self, ENDORSED + str(q)))
 
-    def n_endorsed(self):
+    def n_endorsed(self) -> int:
         return self.count_booleans(self.ENDORSED_FIELDS)
 
-    def severity_score(self):
+    def severity_score(self) -> int:
         total = 0
         for q in range(1, self.NQUESTIONS + 1):
             if self.q_endorsed(q):
@@ -124,7 +117,7 @@ class NpiQ(Task):
                     total += s
         return total
 
-    def distress_score(self):
+    def distress_score(self) -> int:
         total = 0
         for q in range(1, self.NQUESTIONS + 1):
             if self.q_endorsed(q):
@@ -133,7 +126,7 @@ class NpiQ(Task):
                     total += d
         return total
 
-    def q_complete(self, q):
+    def q_complete(self, q: int) -> bool:
         qstr = str(q)
         endorsed = getattr(self, ENDORSED + qstr)
         if endorsed is None:
@@ -146,14 +139,14 @@ class NpiQ(Task):
             return False
         return True
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.field_contents_valid() and
             self.is_respondent_complete() and
             all(self.q_complete(q) for q in range(1, self.NQUESTIONS + 1))
         )
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         h = """
             <div class="summary">
                 <table class="summary">

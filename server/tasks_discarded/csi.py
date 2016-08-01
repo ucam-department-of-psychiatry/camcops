@@ -21,10 +21,12 @@
     limitations under the License.
 """
 
+from typing import List
+
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import get_yes_no, get_yes_no_unknown
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import Task, TrackerInfo
 
 
 # =============================================================================
@@ -42,19 +44,15 @@ class Csi(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "CSI total score",
-                "axis_label": "Total score (out of 14)",
-                "axis_min": -0.5,
-                "axis_max": 14.5,
-                "horizontal_lines": [
-                    1.5
-                ],
-            }
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="CSI total score",
+            axis_label="Total score (out of 14)",
+            axis_min=-0.5,
+            axis_max=14.5,
+            horizontal_lines=[1.5]
+        )]
 
     def get_summaries(self):
         return [
@@ -63,13 +61,13 @@ class Csi(Task):
                  value=self.total_score(), comment="Total score"),
         ]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return self.are_all_fields_complete(self.TASK_FIELDS)
 
-    def total_score(self):
+    def total_score(self) -> int:
         return self.sum_fields(self.TASK_FIELDS)
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         n_csi_symptoms = self.total_score()
         csi_catatonia = n_csi_symptoms >= 2
         h = """

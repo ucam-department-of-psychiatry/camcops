@@ -22,9 +22,7 @@
 """
 
 import cardinal_pythonlib.rnc_web as ws
-from ..cc_modules.cc_constants import (
-    PV,
-)
+from ..cc_modules.cc_constants import PV
 from ..cc_modules.cc_html import (
     get_yes_no_none,
     subheading_spanning_two_columns,
@@ -122,7 +120,7 @@ class GMCPQ(Task):
     ]
     is_anonymous = True
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.is_field_complete("q1") and
             self.is_field_complete("q3") and
@@ -141,7 +139,7 @@ class GMCPQ(Task):
             self.field_contents_valid()
         )
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         dict_q1 = {None: None}
         dict_q3 = {None: None}
         dict_q4 = {None: None}

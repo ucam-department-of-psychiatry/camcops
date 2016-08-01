@@ -21,10 +21,13 @@
     limitations under the License.
 """
 
+from typing import List
+
 import cardinal_pythonlib.rnc_web as ws
+
 from ..cc_modules.cc_html import answer
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import CtvInfo, Task
 
 
 # =============================================================================
@@ -41,13 +44,13 @@ class ProgressNote(Task):
     ]
     has_clinician = True
 
-    def get_clinical_text(self):
-        return [{"content": ws.webify(self.note)}]
+    def get_clinical_text(self) -> List[CtvInfo]:
+        return [CtvInfo(content=ws.webify(self.note))]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return self.note is not None
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         # Avoid tables - PDF generator crashes if text is too long.
         h = """
             <div class="heading">

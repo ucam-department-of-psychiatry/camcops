@@ -21,10 +21,7 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    DATA_COLLECTION_ONLY_DIV,
-    PV,
-)
+from ..cc_modules.cc_constants import DATA_COLLECTION_ONLY_DIV, PV
 from ..cc_modules.cc_html import tr_qa
 from ..cc_modules.cc_task import Task
 
@@ -205,14 +202,14 @@ class MdsUpdrs(Task):
     TASK_FIELDS = [x["name"] for x in fieldspecs]
     TASK_FIELDS_EXCEPT_3C1 = [x for x in TASK_FIELDS if x != "q3c1"]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.field_contents_valid() and
             self.are_all_fields_complete(self.TASK_FIELDS_EXCEPT_3C1) and
             (self.q3c1 is not None or not self.q3c)
         )
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         h = """
             <div class="summary">
                 <table class="summary">

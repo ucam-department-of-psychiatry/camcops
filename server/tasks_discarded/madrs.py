@@ -21,9 +21,11 @@
     limitations under the License.
 """
 
+from typing import List
+
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import get_from_dict, Task, TrackerInfo, TrackerLabel
 
 
 # =============================================================================
@@ -43,27 +45,25 @@ class Madrs(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "MADRS total score",
-                "axis_label": "Total score (out of 60)",
-                "axis_min": -0.5,
-                "axis_max": 60.5,
-                "horizontal_lines": [
-                    33.5,
-                    19.5,
-                    6.5,
-                ],
-                "horizontal_labels": [
-                    (35, WSTRING("severe")),
-                    (25, WSTRING("moderate")),
-                    (14, WSTRING("mild")),
-                    (3, WSTRING("normal"))
-                ]
-            }
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="MADRS total score",
+            axis_label="Total score (out of 60)",
+            axis_min=-0.5,
+            axis_max=60.5,
+            horizontal_lines=[
+                33.5,
+                19.5,
+                6.5,
+            ],
+            horizontal_labels=[
+                TrackerLabel(35, WSTRING("severe")),
+                TrackerLabel(25, WSTRING("moderate")),
+                TrackerLabel(14, WSTRING("mild")),
+                TrackerLabel(3, WSTRING("normal"))
+            ]
+        )]
 
     def get_summaries(self):
         return [
@@ -71,13 +71,13 @@ class Madrs(Task):
             dict(name="total", cctype="INT", value=self.total_score()),
         ]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return self.are_all_fields_complete(self.TASK_FIELDS)
 
-    def total_score(self):
+    def total_score(self) -> int:
         return self.sum_fields(repeat_fieldname("q", 1, self.NQUESTIONS))
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         score = self.total_score()
         if score > 34:
             category = WSTRING("severe")

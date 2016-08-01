@@ -21,7 +21,10 @@
     limitations under the License.
 """
 
+from typing import List, Optional
+
 from cardinal_pythonlib.rnc_lang import AttrDict
+
 from ..cc_modules.cc_constants import (
     PV,
 )
@@ -195,7 +198,8 @@ class CbiR(Task):
                  comment="Motivation: distress score (% of max)"),
         ]
 
-    def subscore(self, first, last, fieldprefix):
+    def subscore(self, first: int, last: int, fieldprefix: str) \
+            -> Optional[float]:
         score = 0
         n = 0
         for q in range(first, last + 1):
@@ -205,13 +209,13 @@ class CbiR(Task):
                 n += 1
         return 100 * score / n if n > 0 else None
 
-    def frequency_subscore(self, first, last):
+    def frequency_subscore(self, first: int, last: int) -> Optional[float]:
         return self.subscore(first, last, "frequency")
 
-    def distress_subscore(self, first, last):
+    def distress_subscore(self, first: int, last: int) -> Optional[float]:
         return self.subscore(first, last, "distress")
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         if (not self.field_contents_valid() or
                 not self.is_respondent_complete()):
             return False
@@ -219,7 +223,7 @@ class CbiR(Task):
             return True
         return self.are_all_fields_complete(self.TASK_FIELDS)
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         freq_dict = {None: None}
         distress_dict = {None: None}
         for a in range(self.MIN_SCORE, self.MAX_SCORE + 1):

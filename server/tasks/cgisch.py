@@ -21,9 +21,8 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-)
+from typing import List
+
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import (
     subheading_spanning_two_columns,
@@ -31,7 +30,13 @@ from ..cc_modules.cc_html import (
     tr_span_col,
 )
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    CtvInfo,
+    CTV_INCOMPLETE,
+    get_from_dict,
+    Task,
+    TrackerInfo,
+)
 
 
 # =============================================================================
@@ -60,78 +65,80 @@ class CgiSch(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_trackers(self):
+    def get_trackers(self) -> List[TrackerInfo]:
         prefix = "CGI-SCH severity: "
         ylabel = "Score (1-7)"
         return [
-            {
-                "value": self.severity1,
-                "plot_label": prefix + "positive symptoms",
-                "axis_label": ylabel,
-                "axis_min": 0.5,
-                "axis_max": 7.5,
-            },
-            {
-                "value": self.severity2,
-                "plot_label": prefix + "negative symptoms",
-                "axis_label": ylabel,
-                "axis_min": 0.5,
-                "axis_max": 7.5,
-            },
-            {
-                "value": self.severity3,
-                "plot_label": prefix + "depressive symptoms",
-                "axis_label": ylabel,
-                "axis_min": 0.5,
-                "axis_max": 7.5,
-            },
-            {
-                "value": self.severity4,
-                "plot_label": prefix + "cognitive symptoms",
-                "axis_label": ylabel,
-                "axis_min": 0.5,
-                "axis_max": 7.5,
-            },
-            {
-                "value": self.severity5,
-                "plot_label": prefix + "overall severity",
-                "axis_label": ylabel,
-                "axis_min": 0.5,
-                "axis_max": 7.5,
-            },
+            TrackerInfo(
+                value=self.severity1,
+                plot_label=prefix + "positive symptoms",
+                axis_label=ylabel,
+                axis_min=0.5,
+                axis_max=7.5
+            ),
+            TrackerInfo(
+                value=self.severity2,
+                plot_label=prefix + "negative symptoms",
+                axis_label=ylabel,
+                axis_min=0.5,
+                axis_max=7.5
+            ),
+            TrackerInfo(
+                value=self.severity3,
+                plot_label=prefix + "depressive symptoms",
+                axis_label=ylabel,
+                axis_min=0.5,
+                axis_max=7.5
+            ),
+            TrackerInfo(
+                value=self.severity4,
+                plot_label=prefix + "cognitive symptoms",
+                axis_label=ylabel,
+                axis_min=0.5,
+                axis_max=7.5
+            ),
+            TrackerInfo(
+                value=self.severity5,
+                plot_label=prefix + "overall severity",
+                axis_label=ylabel,
+                axis_min=0.5,
+                axis_max=7.5
+            ),
         ]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content": ("CGI-SCH. Severity: positive {}, negative {}, "
-                        "depressive {}, cognitive {}, overall {}. Change: "
-                        "positive {}, negative {}, depressive {}, "
-                        "cognitive {}, overall {}.".format(
-                            self.severity1,
-                            self.severity2,
-                            self.severity3,
-                            self.severity4,
-                            self.severity5,
-                            self.change1,
-                            self.change2,
-                            self.change3,
-                            self.change4,
-                            self.change5,
-                        ))
-        }]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content=(
+                "CGI-SCH. Severity: positive {}, negative {}, "
+                "depressive {}, cognitive {}, overall {}. Change: "
+                "positive {}, negative {}, depressive {}, "
+                "cognitive {}, overall {}.".format(
+                    self.severity1,
+                    self.severity2,
+                    self.severity3,
+                    self.severity4,
+                    self.severity5,
+                    self.change1,
+                    self.change2,
+                    self.change3,
+                    self.change4,
+                    self.change5,
+                )
+            )
+        )]
 
     def get_summaries(self):
         return [self.is_complete_summary_field()]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.are_all_fields_complete(self.TASK_FIELDS) and
             self.field_contents_valid()
         )
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         severity_dict = {
             None: None,
             1: WSTRING("cgisch_i_option1"),

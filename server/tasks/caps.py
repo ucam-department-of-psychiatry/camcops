@@ -21,9 +21,9 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    PV,
-)
+from typing import List
+
+from ..cc_modules.cc_constants import PV
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import (
     answer,
@@ -32,7 +32,7 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import Task, TrackerInfo
 
 
 # =============================================================================
@@ -84,16 +84,14 @@ class Caps(Task):
             comment_strings=QUESTION_SNIPPETS)
     )
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "CAPS total score",
-                "axis_label": "Total score (out of 32)",
-                "axis_min": -0.5,
-                "axis_max": 32.5,
-            }
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="CAPS total score",
+            axis_label="Total score (out of 32)",
+            axis_min=-0.5,
+            axis_max=32.5
+        )]
 
     def get_summaries(self):
         return [
@@ -111,7 +109,7 @@ class Caps(Task):
                  comment="Frequency score (/160)"),
         ]
 
-    def is_question_complete(self, q):
+    def is_question_complete(self, q: int) -> bool:
         if getattr(self, "endorse" + str(q)) is None:
             return False
         if getattr(self, "endorse" + str(q)):
@@ -123,7 +121,7 @@ class Caps(Task):
                 return False
         return True
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         if not self.field_contents_valid():
             return False
         for i in range(1, Caps.NQUESTIONS + 1):
@@ -131,11 +129,11 @@ class Caps(Task):
                 return False
         return True
 
-    def total_score(self):
+    def total_score(self) -> int:
         return self.count_booleans(repeat_fieldname("endorse", 1,
                                                     Caps.NQUESTIONS))
 
-    def distress_score(self):
+    def distress_score(self) -> int:
         score = 0
         for q in range(1, Caps.NQUESTIONS + 1):
             if getattr(self, "endorse" + str(q)) \
@@ -143,7 +141,7 @@ class Caps(Task):
                 score += self.sum_fields(["distress" + str(q)])
         return score
 
-    def intrusiveness_score(self):
+    def intrusiveness_score(self) -> int:
         score = 0
         for q in range(1, Caps.NQUESTIONS + 1):
             if getattr(self, "endorse" + str(q)) \
@@ -151,7 +149,7 @@ class Caps(Task):
                 score += self.sum_fields(["intrusiveness" + str(q)])
         return score
 
-    def frequency_score(self):
+    def frequency_score(self) -> int:
         score = 0
         for q in range(1, Caps.NQUESTIONS + 1):
             if getattr(self, "endorse" + str(q)) \
@@ -159,7 +157,7 @@ class Caps(Task):
                 score += self.sum_fields(["frequency" + str(q)])
         return score
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         total = self.total_score()
         distress = self.distress_score()
         intrusiveness = self.intrusiveness_score()

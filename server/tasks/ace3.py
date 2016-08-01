@@ -21,14 +21,13 @@
     limitations under the License.
 """
 
+from typing import List, Optional
+
 import matplotlib.pyplot as plt
 import numpy
 import cardinal_pythonlib.rnc_web as ws
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-    FULLWIDTH_PLOT_WIDTH,
-    PV,
-)
+
+from ..cc_modules.cc_constants import FULLWIDTH_PLOT_WIDTH, PV
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import (
     answer,
@@ -39,7 +38,7 @@ from ..cc_modules.cc_html import (
     tr_qa,
     tr_span_col,
 )
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
 
 
 # =============================================================================
@@ -55,7 +54,7 @@ RECALL_WORDS = ["lemon", "key", "ball"]
 # Ancillary functions
 # =============================================================================
 
-def score_zero_for_absent(x):
+def score_zero_for_absent(x: Optional[int]) -> int:
     """0 if x is None else x"""
     return 0 if x is None else x
 
@@ -230,24 +229,19 @@ class Ace3(Task):
         ("picture2", "picture2_blobid", "picture2_rotation"),
     ]
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "ACE-III total score",
-                "axis_label": "Total score (out of 100)",
-                "axis_min": -0.5,
-                "axis_max": 100.5,
-                "horizontal_lines": [
-                    82.5,
-                    88.5,
-                ],
-            }
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="ACE-III total score",
+            axis_label="Total score (out of 100)",
+            axis_min=-0.5,
+            axis_max=100.5,
+            horizontal_lines=[82.5, 88.5]
+        )]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
+            return CTV_INCOMPLETE
         a = self.attn_score()
         m = self.mem_score()
         f = self.fluency_score()
@@ -258,7 +252,7 @@ class Ace3(Task):
             "ACE-III total: {}/100 (attention {}/18, memory {}/26, "
             "fluency {}/14, language {}/26, visuospatial {}/16)"
         ).format(t, a, m, f, l, v)
-        return [{"content": text}]
+        return [CtvInfo(content=text)]
 
     def get_summaries(self):
         return [
@@ -277,7 +271,7 @@ class Ace3(Task):
                  value=self.vsp_score(), comment="Visuospatial (/16)"),
         ]
 
-    def attn_score(self):
+    def attn_score(self) -> int:
         fields = (repeat_fieldname("attn_time", 1, 5) +
                   repeat_fieldname("attn_place", 1, 5) +
                   repeat_fieldname("attn_repeat_word", 1, 3) +
@@ -285,18 +279,20 @@ class Ace3(Task):
         return self.sum_fields(fields)
 
     @staticmethod
-    def get_recog_score(recalled, recognized):
+    def get_recog_score(recalled: Optional[int],
+                        recognized: Optional[int]) -> int:
         if recalled == 1:
             return 1
         return score_zero_for_absent(recognized)
 
     @staticmethod
-    def get_recog_text(recalled, recognized):
+    def get_recog_text(recalled: Optional[int],
+                       recognized: Optional[int]) -> int:
         if recalled:
             return "<i>1 (already recalled)</i>"
         return answer(recognized)
 
-    def get_mem_recognition_score(self):
+    def get_mem_recognition_score(self) -> int:
         score = 0
         score += self.get_recog_score(
             (self.mem_recall_address1 == 1 and self.mem_recall_address2 == 1),
@@ -315,29 +311,29 @@ class Ace3(Task):
             self.mem_recognize_address5)
         return score
 
-    def mem_score(self):
+    def mem_score(self) -> int:
         fields = (repeat_fieldname("mem_recall_word", 1, 3) +
                   repeat_fieldname("mem_repeat_address_trial3_", 1, 7) +
                   repeat_fieldname("mem_famous", 1, 4) +
                   repeat_fieldname("mem_recall_address", 1, 7))
         return self.sum_fields(fields) + self.get_mem_recognition_score()
 
-    def fluency_score(self):
+    def fluency_score(self) -> int:
         return (
             score_zero_for_absent(self.fluency_letters_score) +
             score_zero_for_absent(self.fluency_animals_score)
         )
 
-    def get_follow_command_score(self):
+    def get_follow_command_score(self) -> int:
         if self.lang_follow_command_practice != 1:
             return 0
         return self.sum_fields(repeat_fieldname("lang_follow_command", 1, 3))
 
-    def get_repeat_word_score(self):
+    def get_repeat_word_score(self) -> int:
         n = self.sum_fields(repeat_fieldname("lang_repeat_word", 1, 4))
         return 2 if n >= 4 else (1 if n == 3 else 0)
 
-    def lang_score(self):
+    def lang_score(self) -> int:
         fields = (repeat_fieldname("lang_write_sentences_point", 1, 2) +
                   repeat_fieldname("lang_repeat_sentence", 1, 2) +
                   repeat_fieldname("lang_name_picture", 1, 12) +
@@ -347,7 +343,7 @@ class Ace3(Task):
                 self.get_repeat_word_score() +
                 score_zero_for_absent(self.lang_read_words_aloud))
 
-    def vsp_score(self):
+    def vsp_score(self) -> int:
         fields = (repeat_fieldname("vsp_count_dots", 1, 4) +
                   repeat_fieldname("vsp_identify_letter", 1, 4))
         return (self.sum_fields(fields) +
@@ -355,14 +351,14 @@ class Ace3(Task):
                 score_zero_for_absent(self.vsp_copy_cube) +
                 score_zero_for_absent(self.vsp_draw_clock))
 
-    def total_score(self):
+    def total_score(self) -> int:
         return (self.attn_score() +
                 self.mem_score() +
                 self.fluency_score() +
                 self.lang_score() +
                 self.vsp_score())
 
-    def is_recognition_complete(self):
+    def is_recognition_complete(self) -> bool:
         return (
             ((self.mem_recall_address1 == 1 and
                 self.mem_recall_address2 == 1) or
@@ -378,7 +374,7 @@ class Ace3(Task):
                 self.mem_recognize_address5 is not None)
         )
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         if not self.field_contents_valid():
             return False
         if not self.are_all_fields_complete(
@@ -417,8 +413,7 @@ class Ace3(Task):
             return False
         return self.is_recognition_complete()
 
-    # noinspection PyPep8Naming
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         a = self.attn_score()
         m = self.mem_score()
         f = self.fluency_score()
@@ -427,22 +422,22 @@ class Ace3(Task):
         t = a + m + f + l + v
         figurehtml = ""
         if self.is_complete():
-            FIGSIZE = (FULLWIDTH_PLOT_WIDTH/3, FULLWIDTH_PLOT_WIDTH/4)
-            WIDTH = 0.9
-            fig = plt.figure(figsize=FIGSIZE)
+            figsize = (FULLWIDTH_PLOT_WIDTH/3, FULLWIDTH_PLOT_WIDTH/4)
+            width = 0.9
+            fig = plt.figure(figsize=figsize)
             ax = fig.add_subplot(1, 1, 1)
             scores = numpy.array([a, m, f, l, v])
             maxima = numpy.array([18, 26, 14, 26, 16])
             y = 100 * scores / maxima
             x_labels = ["Attn", "Mem", "Flu", "Lang", "VSp"]
             # noinspection PyTypeChecker
-            N = len(y)
-            xvar = numpy.arange(N)
-            ax.bar(xvar, y, WIDTH, color="b")
+            n = len(y)
+            xvar = numpy.arange(n)
+            ax.bar(xvar, y, width, color="b")
             ax.set_ylabel("%")
-            ax.set_xticks(xvar + WIDTH/2)
+            ax.set_xticks(xvar + width/2)
             ax.set_xticklabels(x_labels)
-            ax.set_xlim(0 - (1 - WIDTH), len(scores))
+            ax.set_xlim(0 - (1 - width), len(scores))
             plt.tight_layout()  # or the ylabel drops off the figure
             # fig.autofmt_xdate()
             figurehtml = get_html_from_pyplot_figure(fig)

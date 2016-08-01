@@ -21,16 +21,20 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-    DATA_COLLECTION_ONLY_DIV,
-)
+from typing import List
+
+from ..cc_modules.cc_constants import DATA_COLLECTION_ONLY_DIV
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
-from ..cc_modules.cc_html import (
-    tr_qa,
-)
+from ..cc_modules.cc_html import tr_qa
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    CtvInfo,
+    CTV_INCOMPLETE,
+    get_from_dict,
+    Task,
+    TrackerInfo,
+    TrackerLabel,
+)
 
 
 # =============================================================================
@@ -90,56 +94,58 @@ class Panss(Task):
     G_FIELDS = repeat_fieldname("g", 1, 16)
     TASK_FIELDS = P_FIELDS + N_FIELDS + G_FIELDS
 
-    def get_trackers(self):
+    def get_trackers(self) -> List[TrackerInfo]:
         return [
-            {
-                "value": self.total_score(),
-                "plot_label": "PANSS total score",
-                "axis_label": "Total score (30-210)",
-                "axis_min": -0.5,
-                "axis_max": 210.5,
-            },
-            {
-                "value": self.score_p(),
-                "plot_label": "PANSS P score",
-                "axis_label": "P score (7-49)",
-                "axis_min": 6.5,
-                "axis_max": 49.5,
-            },
-            {
-                "value": self.score_n(),
-                "plot_label": "PANSS N score",
-                "axis_label": "N score (7-49)",
-                "axis_min": 6.5,
-                "axis_max": 49.5,
-            },
-            {
-                "value": self.score_g(),
-                "plot_label": "PANSS G score",
-                "axis_label": "G score (16-112)",
-                "axis_min": 15.5,
-                "axis_max": 112.5,
-            },
-            {
-                "value": self.composite(),
-                "plot_label": "PANSS composite score",
-                "axis_label": "P - N",
-            },
+            TrackerInfo(
+                value=self.total_score(),
+                plot_label="PANSS total score",
+                axis_label="Total score (30-210)",
+                axis_min=-0.5,
+                axis_max=210.5
+            ),
+            TrackerInfo(
+                value=self.score_p(),
+                plot_label="PANSS P score",
+                axis_label="P score (7-49)",
+                axis_min=6.5,
+                axis_max=49.5
+            ),
+            TrackerInfo(
+                value=self.score_n(),
+                plot_label="PANSS N score",
+                axis_label="N score (7-49)",
+                axis_min=6.5,
+                axis_max=49.5
+            ),
+            TrackerInfo(
+                value=self.score_g(),
+                plot_label="PANSS G score",
+                axis_label="G score (16-112)",
+                axis_min=15.5,
+                axis_max=112.5
+            ),
+            TrackerInfo(
+                value=self.composite(),
+                plot_label="PANSS composite score",
+                axis_label="P - N"
+            ),
         ]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content":  "PANSS total score {} (P {}, N {}, G {}, "
-                        "composite P–N {})".format(
-                            self.total_score(),
-                            self.score_p(),
-                            self.score_n(),
-                            self.score_g(),
-                            self.composite()
-                        )
-        }]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content=(
+                "PANSS total score {} (P {}, N {}, G {}, "
+                "composite P–N {})".format(
+                    self.total_score(),
+                    self.score_p(),
+                    self.score_n(),
+                    self.score_g(),
+                    self.composite()
+                )
+            )
+        )]
 
     def get_summaries(self):
         return [
@@ -157,28 +163,28 @@ class Panss(Task):
                  comment="Composite score (P - N)"),
         ]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.are_all_fields_complete(self.TASK_FIELDS) and
             self.field_contents_valid()
         )
 
-    def total_score(self):
+    def total_score(self) -> int:
         return self.sum_fields(self.TASK_FIELDS)
 
-    def score_p(self):
+    def score_p(self) -> int:
         return self.sum_fields(self.P_FIELDS)
 
-    def score_n(self):
+    def score_n(self) -> int:
         return self.sum_fields(self.N_FIELDS)
 
-    def score_g(self):
+    def score_g(self) -> int:
         return self.sum_fields(self.G_FIELDS)
 
-    def composite(self):
+    def composite(self) -> int:
         return self.score_p() - self.score_n()
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         p = self.score_p()
         n = self.score_n()
         g = self.score_g()

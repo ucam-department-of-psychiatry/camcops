@@ -21,19 +21,13 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-)
+from typing import Any, List, Optional
+
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
-from ..cc_modules.cc_html import (
-    answer,
-    identity,
-    tr,
-    tr_span_col,
-)
+from ..cc_modules.cc_html import answer, identity, tr, tr_span_col
 from ..cc_modules.cc_lang import mean
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
 
 
 # =============================================================================
@@ -131,7 +125,7 @@ class Rand36(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.are_all_fields_complete(
                 repeat_fieldname("q", 1, self.NQUESTIONS)) and
@@ -139,16 +133,16 @@ class Rand36(Task):
         )
 
     @classmethod
-    def tracker_element(cls, value, plot_label):
-        return {
-            "value": value,
-            "plot_label": "RAND-36: " + plot_label,
-            "axis_label": "Scale score (out of 100)",
-            "axis_min": -0.5,
-            "axis_max": 100.5,
-        }
+    def tracker_element(cls, value: float, plot_label: str) -> TrackerInfo:
+        return TrackerInfo(
+            value=value,
+            plot_label="RAND-36: " + plot_label,
+            axis_label="Scale score (out of 100)",
+            axis_min=-0.5,
+            axis_max=100.5
+        )
 
-    def get_trackers(self):
+    def get_trackers(self) -> List[TrackerInfo]:
         return [
             self.tracker_element(self.score_overall(),
                                  WSTRING("rand36_score_overall")),
@@ -172,26 +166,28 @@ class Rand36(Task):
                                  WSTRING("rand36_score_general_health")),
         ]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content":  "RAND-36 (scores out of 100, 100 best): overall {}, "
-                        "physical functioning {}, physical role "
-                        "limitations {}, emotional role limitations {}, "
-                        "energy {}, emotional wellbeing {}, social "
-                        "functioning {}, pain {}, general health {}.".format(
-                            self.score_overall(),
-                            self.score_physical_functioning(),
-                            self.score_role_limitations_physical(),
-                            self.score_role_limitations_emotional(),
-                            self.score_energy(),
-                            self.score_emotional_wellbeing(),
-                            self.score_social_functioning(),
-                            self.score_pain(),
-                            self.score_general_health(),
-                        )
-        }]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content=(
+                "RAND-36 (scores out of 100, 100 best): overall {}, "
+                "physical functioning {}, physical role "
+                "limitations {}, emotional role limitations {}, "
+                "energy {}, emotional wellbeing {}, social "
+                "functioning {}, pain {}, general health {}.".format(
+                    self.score_overall(),
+                    self.score_physical_functioning(),
+                    self.score_role_limitations_physical(),
+                    self.score_role_limitations_emotional(),
+                    self.score_energy(),
+                    self.score_emotional_wellbeing(),
+                    self.score_social_functioning(),
+                    self.score_pain(),
+                    self.score_general_health(),
+                )
+            )
+        )]
 
     def get_summaries(self):
         return [
@@ -228,7 +224,7 @@ class Rand36(Task):
         ]
 
     # Scoring
-    def recode(self, q):
+    def recode(self, q: int) -> Optional[float]:
         x = getattr(self, "q" + str(q))  # response
         if x is None or x < 1:
             return None
@@ -266,55 +262,55 @@ class Rand36(Task):
             return 25 * (x - 1)
         return None
 
-    def score_physical_functioning(self):
+    def score_physical_functioning(self) -> Optional[float]:
         return mean([self.recode(3), self.recode(4), self.recode(5),
                      self.recode(6), self.recode(7), self.recode(8),
                      self.recode(9), self.recode(10), self.recode(11),
                      self.recode(12)])
 
-    def score_role_limitations_physical(self):
+    def score_role_limitations_physical(self) -> Optional[float]:
         return mean([self.recode(13), self.recode(14), self.recode(15),
                      self.recode(16)])
 
-    def score_role_limitations_emotional(self):
+    def score_role_limitations_emotional(self) -> Optional[float]:
         return mean([self.recode(17), self.recode(18), self.recode(19)])
 
-    def score_energy(self):
+    def score_energy(self) -> Optional[float]:
         return mean([self.recode(23), self.recode(27), self.recode(29),
                      self.recode(31)])
 
-    def score_emotional_wellbeing(self):
+    def score_emotional_wellbeing(self) -> Optional[float]:
         return mean([self.recode(24), self.recode(25), self.recode(26),
                      self.recode(28), self.recode(30)])
 
-    def score_social_functioning(self):
+    def score_social_functioning(self) -> Optional[float]:
         return mean([self.recode(20), self.recode(32)])
 
-    def score_pain(self):
+    def score_pain(self) -> Optional[float]:
         return mean([self.recode(21), self.recode(22)])
 
-    def score_general_health(self):
+    def score_general_health(self) -> Optional[float]:
         return mean([self.recode(1), self.recode(33), self.recode(34),
                      self.recode(35), self.recode(36)])
 
     @staticmethod
-    def format_float_for_display(val):
+    def format_float_for_display(val: Optional[float]) -> Optional[str]:
         if val is None:
             return None
         return "{:.1f}".format(val)
 
-    def score_overall(self):
+    def score_overall(self) -> Optional[float]:
         values = []
         for q in range(1, self.NQUESTIONS + 1):
             values.append(self.recode(q))
         return mean(values)
 
     @staticmethod
-    def section_row_html(text):
+    def section_row_html(text: str) -> str:
         return tr_span_col(text, cols=3, tr_class="subheading")
 
     @staticmethod
-    def answer_text(q, v):
+    def answer_text(q: int, v: Any) -> Optional[str]:
         if v is None:
             return None
         # WSTRING has its own validity checking, so we can do:
@@ -331,7 +327,7 @@ class Rand36(Task):
         else:
             return None
 
-    def answer_row_html(self, q):
+    def answer_row_html(self, q: int) -> str:
         qtext = WSTRING("rand36_q" + str(q))
         v = getattr(self, "q" + str(q))
         atext = self.answer_text(q, v)
@@ -343,13 +339,13 @@ class Rand36(Task):
         )
 
     @staticmethod
-    def scoreline(text, footnote_num, score):
+    def scoreline(text: str, footnote_num: int, score: Optional[float]) -> str:
         return tr(
             text + " <sup>[{}]</sup>".format(footnote_num),
             answer(score) + " / 100"
         )
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         answer_dict = {None: "?"}
         for option in range(0, 3):
             answer_dict[option] = str(option) + " – " + \

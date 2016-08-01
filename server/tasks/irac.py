@@ -22,6 +22,7 @@
 """
 
 import cardinal_pythonlib.rnc_web as ws
+
 from ..cc_modules.cc_html import tr_qa
 from ..cc_modules.cc_string import WSTRING
 from ..cc_modules.cc_task import get_from_dict, Task
@@ -44,11 +45,11 @@ class Irac(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (self.are_all_fields_complete(self.TASK_FIELDS) and
                 self.field_contents_valid())
 
-    def get_achieved_text(self):
+    def get_achieved_text(self) -> str:
         achieveddict = {
             None: None,
             0: WSTRING("irac_achieved_0"),
@@ -57,7 +58,7 @@ class Irac(Task):
         }
         return get_from_dict(achieveddict, self.achieved)
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         if self.achieved is not None:
             achieved = "{}. {}".format(self.achieved,
                                        self.get_achieved_text())

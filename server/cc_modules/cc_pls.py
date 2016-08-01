@@ -116,6 +116,7 @@ class LocalStorage(object):
         self.DB_SERVER = DEFAULT_DB_SERVER
         self.DB_USER = ""
         self.DISABLE_PASSWORD_AUTOCOMPLETE = False
+        self.EXPORT_CRIS_DATA_DICTIONARY_TSV_FILE = None
         self.extraStringDicts = None  # dictionary of dictionaries
         self.EXTRA_STRING_FILES = None
         self.HL7_LOCKFILE = None
@@ -161,6 +162,7 @@ class LocalStorage(object):
         self.TODAY = None
         self.TRACKER_FILENAME_SPEC = ""
         self.useSVG = False
+        self.VALID_TABLE_NAMES = []
         self.WEB_LOGO = None
         self.WEBSTART = None
         self.WEBVIEW_LOGLEVEL = logging.INFO

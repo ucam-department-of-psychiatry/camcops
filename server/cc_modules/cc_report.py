@@ -49,6 +49,7 @@ from .cc_session import Session
 # Other constants
 # =============================================================================
 
+REPORT_RESULT_TYPE = Tuple[Sequence[Sequence[Any]], Sequence[str]]
 TAB_REGEX = re.compile("\t", re.MULTILINE)
 NEWLINE_REGEX = re.compile("\n", re.MULTILINE)
 
@@ -97,8 +98,7 @@ class Report(object):
     report_title = None
     param_spec_list = []
 
-    def get_rows_descriptions(self, **kwargs) -> Tuple[Sequence[Sequence[Any]],
-                                                       Sequence[str]]:
+    def get_rows_descriptions(self, **kwargs) -> REPORT_RESULT_TYPE:
         """Execute the report. Must override. Parameters are passed in via
         **kwargs."""
         return [], []

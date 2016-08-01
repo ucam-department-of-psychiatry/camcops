@@ -21,16 +21,13 @@
     limitations under the License.
 """
 
+from typing import List
+
 import cardinal_pythonlib.rnc_web as ws
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-    PV,
-)
-from ..cc_modules.cc_html import (
-    get_yes_no_none,
-    tr_qa,
-)
-from ..cc_modules.cc_task import Task
+
+from ..cc_modules.cc_constants import PV
+from ..cc_modules.cc_html import get_yes_no_none, tr_qa
+from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
 
 
 # =============================================================================
@@ -78,32 +75,30 @@ class QolSG(Task):
              comment="Calculated utility, h"),
     ]
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.utility,
-                "plot_label": "Quality of life: standard gamble",
-                "axis_label": "QoL (0-1)",
-                "axis_min": 0,
-                "axis_max": 1,
-            }
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.utility,
+            plot_label="Quality of life: standard gamble",
+            axis_label="QoL (0-1)",
+            axis_min=0,
+            axis_max=1
+        )]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content":  "Quality of life: {}".format(
-                        ws.number_to_dp(self.utility, DP))
-        }]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="Quality of life: {}".format(
+                ws.number_to_dp(self.utility, DP))
+        )]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.utility is not None and
             self.field_contents_valid()
         )
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         h = """
             <div class="summary">
                 <table class="summary">

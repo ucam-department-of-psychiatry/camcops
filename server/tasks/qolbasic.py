@@ -21,18 +21,14 @@
     limitations under the License.
 """
 
+from typing import List, Optional
+
 import cardinal_pythonlib.rnc_web as ws
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-)
-from ..cc_modules.cc_html import (
-    answer,
-    identity,
-    tr,
-)
+
+from ..cc_modules.cc_html import answer, identity, tr
 from ..cc_modules.cc_lang import mean
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
 
 
 # =============================================================================
@@ -59,38 +55,40 @@ class QolBasic(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_trackers(self):
+    def get_trackers(self) -> List[TrackerInfo]:
         return [
-            {
-                "value": self.get_tto_qol(),
-                "plot_label": "Quality of life: time trade-off",
-                "axis_label": "TTO QoL (0-1)",
-                "axis_min": 0,
-                "axis_max": 1,
-            },
-            {
-                "value": self.get_rs_qol(),
-                "plot_label": "Quality of life: rating scale",
-                "axis_label": "RS QoL (0-1)",
-                "axis_min": 0,
-                "axis_max": 1,
-            },
+            TrackerInfo(
+                value=self.get_tto_qol(),
+                plot_label="Quality of life: time trade-off",
+                axis_label="TTO QoL (0-1)",
+                axis_min=0,
+                axis_max=1
+            ),
+            TrackerInfo(
+                value=self.get_rs_qol(),
+                plot_label="Quality of life: rating scale",
+                axis_label="RS QoL (0-1)",
+                axis_min=0,
+                axis_max=1
+            ),
         ]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
+            return CTV_INCOMPLETE
         tto_qol = self.get_tto_qol()
         rs_qol = self.get_rs_qol()
         mean_qol = mean([tto_qol, rs_qol])
-        return [{
-            "content":  "Quality of life: time trade-off {}, rating scale {},"
-                        " mean {}.".format(
-                            ws.number_to_dp(tto_qol, DP),
-                            ws.number_to_dp(rs_qol, DP),
-                            ws.number_to_dp(mean_qol, DP)
-                        )
-        }]
+        return [CtvInfo(
+            content=(
+                "Quality of life: time trade-off {}, rating scale {}, "
+                "mean {}.".format(
+                    ws.number_to_dp(tto_qol, DP),
+                    ws.number_to_dp(rs_qol, DP),
+                    ws.number_to_dp(mean_qol, DP)
+                )
+            )
+        )]
 
     def get_summaries(self):
         return [
@@ -103,19 +101,19 @@ class QolBasic(Task):
                  comment="Quality of life (0-1), from rating scale method"),
         ]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.are_all_fields_complete(QolBasic.TASK_FIELDS) and
             self.field_contents_valid()
         )
 
-    def get_tto_qol(self):
+    def get_tto_qol(self) -> Optional[float]:
         return self.tto / 10 if self.tto is not None else None
 
-    def get_rs_qol(self):
+    def get_rs_qol(self) -> Optional[float]:
         return self.rs / 100 if self.rs is not None else None
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         tto_qol = self.get_tto_qol()
         rs_qol = self.get_rs_qol()
         mean_qol = mean([tto_qol, rs_qol])

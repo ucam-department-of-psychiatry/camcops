@@ -21,10 +21,9 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-    PV,
-)
+from typing import List
+
+from ..cc_modules.cc_constants import PV
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import (
     answer,
@@ -35,7 +34,14 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import (
+    CtvInfo,
+    CTV_INCOMPLETE,
+    LabelAlignment,
+    Task,
+    TrackerInfo,
+    TrackerLabel,
+)
 
 
 WORDLIST = ["FACE", "VELVET", "CHURCH", "DAISY", "RED"]
@@ -127,30 +133,26 @@ class Moca(Task):
         ("clockpicture", "clockpicture_blobid", None),
     ]
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "MOCA total score",
-                "axis_label": "Total score (out of 30)",
-                "axis_min": -0.5,
-                "axis_max": 30.5,
-                "horizontal_lines": [
-                    25.5,
-                ],
-                "horizontal_labels": [
-                    (26, WSTRING("normal"), "bottom"),
-                    (25, WSTRING("abnormal"), "top"),
-                ]
-            }
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="MOCA total score",
+            axis_label="Total score (out of 30)",
+            axis_min=-0.5,
+            axis_max=30.5,
+            horizontal_lines=[25.5],
+            horizontal_labels=[
+                TrackerLabel(26, WSTRING("normal"), LabelAlignment.bottom),
+                TrackerLabel(25, WSTRING("abnormal"), LabelAlignment.top),
+            ]
+        )]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content": "MOCA total score {}/30".format(self.total_score())
-        }]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="MOCA total score {}/30".format(self.total_score())
+        )]
 
     def get_summaries(self):
         return [
@@ -161,45 +163,45 @@ class Moca(Task):
                  comment="Categorization"),
         ]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.are_all_fields_complete(
                 repeat_fieldname("q", 1, self.NQUESTIONS)) and
             self.field_contents_valid()
         )
 
-    def total_score(self):
+    def total_score(self) -> int:
         return self.sum_fields(
             repeat_fieldname("q", 1, self.NQUESTIONS) +
             ["education12y_or_less"]  # extra point for this
         )
 
-    def score_vsp(self):
+    def score_vsp(self) -> int:
         return self.sum_fields(repeat_fieldname("q", 1, 5))
 
-    def score_naming(self):
+    def score_naming(self) -> int:
         return self.sum_fields(repeat_fieldname("q", 6, 8))
 
-    def score_attention(self):
+    def score_attention(self) -> int:
         return self.sum_fields(repeat_fieldname("q", 9, 12))
 
-    def score_language(self):
+    def score_language(self) -> int:
         return self.sum_fields(repeat_fieldname("q", 13, 15))
 
-    def score_abstraction(self):
+    def score_abstraction(self) -> int:
         return self.sum_fields(repeat_fieldname("q", 16, 17))
 
-    def score_memory(self):
+    def score_memory(self) -> int:
         return self.sum_fields(repeat_fieldname("q", 18, 22))
 
-    def score_orientation(self):
+    def score_orientation(self) -> int:
         return self.sum_fields(repeat_fieldname("q", 23, 28))
 
-    def category(self):
+    def category(self) -> str:
         totalscore = self.total_score()
         return WSTRING("normal") if totalscore >= 26 else WSTRING("abnormal")
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         vsp = self.score_vsp()
         naming = self.score_naming()
         attention = self.score_attention()

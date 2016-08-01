@@ -21,8 +21,9 @@
     limitations under the License.
 """
 
+from typing import List
+
 from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
     DATA_COLLECTION_UNLESS_UPGRADED_DIV,
 )
 from ..cc_modules.cc_db import repeat_fieldspec
@@ -30,7 +31,7 @@ from ..cc_modules.cc_html import (
     answer,
     tr,
 )
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
 
 
 # =============================================================================
@@ -85,27 +86,29 @@ class Badls(Task):
                  comment="Total score (/ 48)"),
         ]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{"content": "BADLS total score {}/60 (lower is better)".format(
-            self.total_score())}]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="BADLS total score {}/60 (lower is better)".format(
+                self.total_score())
+        )]
 
-    def score(self, q):
+    def score(self, q: str) -> int:
         text_value = getattr(self, q)
         return self.SCORING.get(text_value, 0)
 
-    def total_score(self):
+    def total_score(self) -> int:
         return sum(self.score(q) for q in self.TASK_FIELDS)
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.field_contents_valid() and
             self.is_respondent_complete() and
             self.are_all_fields_complete(self.TASK_FIELDS)
         )
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         h = """
             <div class="summary">
                 <table class="summary">

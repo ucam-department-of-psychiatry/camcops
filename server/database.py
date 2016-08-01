@@ -1547,7 +1547,7 @@ def main_http_processor(env):
     device = ws.get_cgi_parameter_str(form, PARAM.DEVICE)
     username = ws.get_cgi_parameter_str(form, PARAM.USER)
     password = ws.get_cgi_parameter_str(form, PARAM.PASSWORD)
-    session_id = ws.get_cgi_parameter_str(form, PARAM.SESSION_ID)
+    session_id = ws.get_cgi_parameter_int(form, PARAM.SESSION_ID)
     session_token = ws.get_cgi_parameter_str(form, PARAM.SESSION_TOKEN)
     tablet_version = ws.get_cgi_parameter_float(form, PARAM.CAMCOPS_VERSION)
 
@@ -1689,7 +1689,8 @@ def unit_tests():
     unit_test_verify("", nvp, "n:v\n", "n", "v")
 
     # Encoding/decoding tests
-    data = bytearray("hello")
+    # data = bytearray("hello")
+    data = b"hello"
     enc_b64data = special_base64_encode(data)
     enc_hexdata = special_hex_encode(data)
     not_enc_1 = "X'012345'"

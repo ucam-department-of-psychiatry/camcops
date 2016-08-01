@@ -21,9 +21,11 @@
     limitations under the License.
 """
 
+from typing import List, Optional
+
 import cardinal_pythonlib.rnc_web as ws
+
 from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
     DATEFORMAT,
     ICD10_COPYRIGHT_DIV,
     PV,
@@ -37,7 +39,7 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
 
 
 # =============================================================================
@@ -154,21 +156,19 @@ class Icd10Depressive(Task):
     )
     has_clinician = True
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        dl = [
-            {
-                "content": "Pertains to: {}. Category: {}.".format(
-                    format_datetime_string(self.date_pertains_to,
-                                           DATEFORMAT.LONG_DATE),
-                    self.get_full_description()
-                )
-            }
-        ]
+            return CTV_INCOMPLETE
+        infolist = [CtvInfo(
+            content="Pertains to: {}. Category: {}.".format(
+                format_datetime_string(self.date_pertains_to,
+                                       DATEFORMAT.LONG_DATE),
+                self.get_full_description()
+            )
+        )]
         if self.comments:
-            dl.append({"content": ws.webify(self.comments)})
-        return dl
+            infolist.append(CtvInfo(content=ws.webify(self.comments)))
+        return infolist
 
     def get_summaries(self):
         return [
@@ -191,19 +191,19 @@ class Icd10Depressive(Task):
         ]
 
     # Scoring
-    def n_core(self):
+    def n_core(self) -> int:
         return self.count_booleans(Icd10Depressive.CORE_NAMES)
 
-    def n_additional(self):
+    def n_additional(self) -> int:
         return self.count_booleans(Icd10Depressive.ADDITIONAL_NAMES)
 
-    def n_total(self):
+    def n_total(self) -> int:
         return self.n_core() + self.n_additional()
 
-    def n_somatic(self):
+    def n_somatic(self) -> int:
         return self.count_booleans(Icd10Depressive.SOMATIC_NAMES)
 
-    def main_complete(self):
+    def main_complete(self) -> bool:
         return (
             self.duration_at_least_2_weeks is not None and
             self.are_all_fields_complete(Icd10Depressive.CORE_NAMES) and
@@ -213,7 +213,7 @@ class Icd10Depressive(Task):
         )
 
     # Meets criteria? These also return null for unknown.
-    def meets_criteria_severe_psychotic_schizophrenic(self):
+    def meets_criteria_severe_psychotic_schizophrenic(self) -> Optional[bool]:
         x = self.meets_criteria_severe_ignoring_psychosis()
         if not x:
             return x
@@ -229,7 +229,7 @@ class Icd10Depressive(Task):
             return None
         return False
 
-    def meets_criteria_severe_psychotic_icd(self):
+    def meets_criteria_severe_psychotic_icd(self) -> Optional[bool]:
         x = self.meets_criteria_severe_ignoring_psychosis()
         if not x:
             return x
@@ -241,7 +241,7 @@ class Icd10Depressive(Task):
             return None
         return False
 
-    def meets_criteria_severe_nonpsychotic(self):
+    def meets_criteria_severe_nonpsychotic(self) -> Optional[bool]:
         x = self.meets_criteria_severe_ignoring_psychosis()
         if not x:
             return x
@@ -249,7 +249,7 @@ class Icd10Depressive(Task):
             return None
         return self.count_booleans(Icd10Depressive.PSYCHOSIS_NAMES) == 0
 
-    def meets_criteria_severe_ignoring_psychosis(self):
+    def meets_criteria_severe_ignoring_psychosis(self) -> Optional[bool]:
         if self.severe_clinically:
             return True
         if self.duration_at_least_2_weeks is not None \
@@ -261,7 +261,7 @@ class Icd10Depressive(Task):
             return None  # addition of more information might increase severity
         return False
 
-    def meets_criteria_moderate(self):
+    def meets_criteria_moderate(self) -> Optional[bool]:
         if self.severe_clinically:
             return False  # too severe
         if self.duration_at_least_2_weeks is not None \
@@ -275,7 +275,7 @@ class Icd10Depressive(Task):
             return True
         return False
 
-    def meets_criteria_mild(self):
+    def meets_criteria_mild(self) -> Optional[bool]:
         if self.severe_clinically:
             return False  # too severe
         if self.duration_at_least_2_weeks is not None \
@@ -289,7 +289,7 @@ class Icd10Depressive(Task):
             return True
         return False
 
-    def meets_criteria_none(self):
+    def meets_criteria_none(self) -> Optional[bool]:
         if self.severe_clinically:
             return False  # too severe
         if self.duration_at_least_2_weeks is not None \
@@ -301,7 +301,7 @@ class Icd10Depressive(Task):
             return None  # addition of more information might increase severity
         return True
 
-    def meets_criteria_somatic(self):
+    def meets_criteria_somatic(self) -> Optional[bool]:
         t = self.n_somatic()
         u = self.n_incomplete(Icd10Depressive.SOMATIC_NAMES)
         if t >= 4:
@@ -311,7 +311,7 @@ class Icd10Depressive(Task):
         else:
             return None
 
-    def get_somatic_description(self):
+    def get_somatic_description(self) -> str:
         s = self.meets_criteria_somatic()
         if s is None:
             return WSTRING("icd10depressive_category_somatic_unknown")
@@ -320,7 +320,7 @@ class Icd10Depressive(Task):
         else:
             return WSTRING("icd10depressive_category_without_somatic")
 
-    def get_main_description(self):
+    def get_main_description(self) -> str:
         if self.meets_criteria_severe_psychotic_schizophrenic():
             return WSTRING(
                 "icd10depressive_category_severe_psychotic_schizophrenic")
@@ -343,14 +343,14 @@ class Icd10Depressive(Task):
         else:
             return WSTRING("Unknown")
 
-    def get_full_description(self):
+    def get_full_description(self) -> str:
         skip_somatic = self.main_complete() and self.meets_criteria_none()
         return (
             self.get_main_description() +
             ("" if skip_somatic else " " + self.get_somatic_description())
         )
 
-    def is_psychotic_or_stupor(self):
+    def is_psychotic_or_stupor(self) -> str:
         if self.count_booleans(Icd10Depressive.PSYCHOSIS_NAMES) > 0:
             return True
         elif self.are_all_fields_complete(Icd10Depressive.PSYCHOSIS_NAMES) > 0:
@@ -358,7 +358,7 @@ class Icd10Depressive(Task):
         else:
             return None
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.date_pertains_to is not None and
             self.main_complete() and
@@ -366,18 +366,18 @@ class Icd10Depressive(Task):
         )
 
     @staticmethod
-    def text_row(wstringname):
+    def text_row(wstringname: str) -> str:
         return heading_spanning_two_columns(WSTRING(wstringname))
 
-    def row_true_false(self, fieldname):
+    def row_true_false(self, fieldname: str) -> str:
         return self.get_twocol_bool_row_true_false(
             fieldname, WSTRING("icd10depressive_" + fieldname))
 
-    def row_present_absent(self, fieldname):
+    def row_present_absent(self, fieldname: str) -> str:
         return self.get_twocol_bool_row_present_absent(
             fieldname, WSTRING("icd10depressive_" + fieldname))
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         h = self.get_standard_clinician_comments_block(self.comments) + """
             <div class="summary">
                 <table class="summary">

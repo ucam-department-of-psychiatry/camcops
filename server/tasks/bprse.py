@@ -21,17 +21,18 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-)
+from typing import List
+
 from ..cc_modules.cc_db import repeat_fieldspec
-from ..cc_modules.cc_html import (
-    answer,
-    tr,
-    tr_qa,
-)
+from ..cc_modules.cc_html import answer, tr, tr_qa
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    CtvInfo,
+    CTV_INCOMPLETE,
+    get_from_dict,
+    Task,
+    TrackerInfo,
+)
 
 
 # =============================================================================
@@ -60,23 +61,21 @@ class Bprse(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "BPRS-E total score",
-                "axis_label": "Total score (out of 168)",
-                "axis_min": -0.5,
-                "axis_max": 168.5,
-            }
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="BPRS-E total score",
+            axis_label="Total score (out of 168)",
+            axis_min=-0.5,
+            axis_max=168.5,
+        )]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content": "BPRS-E total score {}/168".format(self.total_score())
-        }]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="BPRS-E total score {}/168".format(self.total_score())
+        )]
 
     def get_summaries(self):
         return [
@@ -85,16 +84,16 @@ class Bprse(Task):
                  comment="Total score (/168)"),
         ]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.are_all_fields_complete(self.TASK_FIELDS) and
             self.field_contents_valid()
         )
 
-    def total_score(self):
+    def total_score(self) -> int:
         return self.sum_fields(self.TASK_FIELDS)
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         main_dict = {
             None: None,
             0: "0 — " + WSTRING("bprsold_option0"),

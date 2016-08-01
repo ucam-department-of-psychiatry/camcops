@@ -21,7 +21,10 @@
     limitations under the License.
 """
 
+from typing import Any, List, Optional, Tuple
+
 import matplotlib.pyplot as plt
+from matplotlib.axes import SubplotBase
 import numpy
 import scipy.stats  # http://docs.scipy.org/doc/scipy/reference/stats.html
 
@@ -66,7 +69,7 @@ AUDITORY = 0
 VISUAL = 1
 
 
-def a(x):
+def a(x: Any) -> str:
     """Answer formatting for this task."""
     return answer(x, formatter_answer=identity, default="")
 
@@ -137,7 +140,7 @@ class ExpDetTrial(Ancillary):
     sortfield = "trial"
 
     @classmethod
-    def get_html_table_header(cls):
+    def get_html_table_header(cls) -> str:
         return """
             <table class="extradetail">
                 <tr>
@@ -177,7 +180,7 @@ class ExpDetTrial(Ancillary):
         """
 
     # ratings: 0, 1 absent -- 2 don't know -- 3, 4 present
-    def judged_present(self):
+    def judged_present(self) -> Optional[bool]:
         if not self.responded:
             return None
         elif self.rating >= 3:
@@ -185,7 +188,7 @@ class ExpDetTrial(Ancillary):
         else:
             return False
 
-    def judged_absent(self):
+    def judged_absent(self) -> Optional[bool]:
         if not self.responded:
             return None
         elif self.rating <= 1:
@@ -193,12 +196,12 @@ class ExpDetTrial(Ancillary):
         else:
             return False
 
-    def didnt_know(self):
+    def didnt_know(self) -> Optional[bool]:
         if not self.responded:
             return None
         return self.rating == 2
 
-    def get_html_table_row(self):
+    def get_html_table_row(self) -> str:
         return tr(
             a(self.trial),
             a(self.block),
@@ -260,7 +263,7 @@ class ExpDetTrialGroupSpec(Ancillary):
     sortfield = "group_num"
 
     @classmethod
-    def get_html_table_header(cls):
+    def get_html_table_header(cls) -> str:
         return """
             <table class="extradetail">
                 <tr>
@@ -273,7 +276,7 @@ class ExpDetTrialGroupSpec(Ancillary):
                 </tr>
         """
 
-    def get_html_table_row(self):
+    def get_html_table_row(self) -> str:
         return tr(
             a(self.group_num),
             a(self.cue),
@@ -428,7 +431,7 @@ class CardinalExpectationDetection(Task):
         )
     ]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return bool(self.finished)
 
     def get_summaries(self):
@@ -447,14 +450,14 @@ class CardinalExpectationDetection(Task):
                  value=self.get_overall_d()),
         ]
 
-    def get_final_score(self):
+    def get_final_score(self) -> Optional[int]:
         trialarray = self.get_trial_array()
         if not trialarray:
             return None
         return trialarray[-1].cumulative_points
 
     @staticmethod
-    def get_group_html(grouparray):
+    def get_group_html(grouparray) -> str:
         html = ExpDetTrialGroupSpec.get_html_table_header()
         for g in grouparray:
             html += g.get_html_table_row()
@@ -462,7 +465,10 @@ class CardinalExpectationDetection(Task):
         return html
 
     @staticmethod
-    def get_c_dprime(h, fa, two_alternative_forced_choice=False):
+    def get_c_dprime(h: Optional[float],
+                     fa: Optional[float],
+                     two_alternative_forced_choice: bool = False) \
+            -> Tuple[Optional[float], Optional[float]]:
         if h is None or fa is None:
             return None, None
         # In this task, we're only presenting a single alternative.
@@ -487,7 +493,8 @@ class CardinalExpectationDetection(Task):
         return c, dprime
 
     @staticmethod
-    def get_sdt_values(count_stimulus, count_nostimulus):
+    def get_sdt_values(count_stimulus: Sequence[int],
+                       count_nostimulus: Sequence[int]) -> Dict:
         # Probabilities and cumulative probabilities
         p_stimulus = count_stimulus / numpy.sum(count_stimulus)
         p_nostimulus = count_nostimulus / numpy.sum(count_nostimulus)
@@ -526,8 +533,14 @@ class CardinalExpectationDetection(Task):
             "z_h": z_h,
         }
 
-    def plot_roc(self, ax, count_stimulus, count_nostimulus, show_x_label,
-                 show_y_label, plainroc, subtitle):
+    def plot_roc(self,
+                 ax: SubplotBase,
+                 count_stimulus: Sequence[int],
+                 count_nostimulus: Sequence[int],
+                 show_x_label: bool,
+                 show_y_label: bool,
+                 plainroc: bool,
+                 subtitle: str) -> None:
         extraspace = 0.05
         sdtval = self.get_sdt_values(count_stimulus, count_nostimulus)
 
@@ -551,7 +564,9 @@ class CardinalExpectationDetection(Task):
         ax.set_title(subtitle)
 
     @staticmethod
-    def get_roc_info(trialarray, blocks, groups):
+    def get_roc_info(trialarray: List[ExpDetTrial],
+                     blocks: List[int],
+                     groups: Optional[List[int]]) -> Dict:
         # Collect counts (Macmillan & Creelman p61)
         total_n = 0
         count_stimulus = numpy.zeros(NRATINGS)
@@ -582,7 +597,10 @@ class CardinalExpectationDetection(Task):
             "rating_out_of_range": rating_out_of_range,
         }
 
-    def get_roc_figure_by_group(self, trialarray, grouparray, plainroc):
+    def get_roc_figure_by_group(self,
+                                trialarray: List[ExpDetTrial],
+                                grouparray: List[ExpDetTrialGroupSpec],
+                                plainroc: bool) -> str:
         if not trialarray or not grouparray:
             return WARNING_INSUFFICIENT_DATA
         figsize = (FULLWIDTH_PLOT_WIDTH*2, FULLWIDTH_PLOT_WIDTH)
@@ -615,7 +633,9 @@ class CardinalExpectationDetection(Task):
         html += get_html_from_pyplot_figure(fig)
         return html
 
-    def get_roc_figure_firsthalf_lasthalf(self, trialarray, plainroc):
+    def get_roc_figure_firsthalf_lasthalf(self,
+                                          trialarray: List[ExpDetTrial],
+                                          plainroc: bool) -> str:
         if not trialarray or not self.num_blocks:
             return WARNING_INSUFFICIENT_DATA
         figsize = (FULLWIDTH_PLOT_WIDTH, FULLWIDTH_PLOT_WIDTH/2)
@@ -651,22 +671,22 @@ class CardinalExpectationDetection(Task):
         return html
 
     @staticmethod
-    def get_trial_html(trialarray):
+    def get_trial_html(trialarray: List[ExpDetTrial]) -> str:
         html = ExpDetTrial.get_html_table_header()
         for t in trialarray:
             html += t.get_html_table_row()
         html += """</table>"""
         return html
 
-    def get_group_array(self):
+    def get_group_array(self) -> List[ExpDetTrialGroupSpec]:
         # Fetch group details
         return self.get_ancillary_items(ExpDetTrialGroupSpec)
 
-    def get_trial_array(self):
+    def get_trial_array(self) -> List[ExpDetTrial]:
         # Fetch trial details
         return self.get_ancillary_items(ExpDetTrial)
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         grouparray = self.get_group_array()
         trialarray = self.get_trial_array()
         # THIS IS A NON-EDITABLE TASK, so we *ignore* the problem
@@ -777,7 +797,9 @@ class CardinalExpectationDetection(Task):
         )
         return h
 
-    def get_html_correct_by_group_and_block(self, trialarray):
+    def get_html_correct_by_group_and_block(
+            self,
+            trialarray: List[ExpDetTrial]) -> str:
         if not trialarray:
             return div(italic("No trials"))
         html = """
@@ -814,7 +836,10 @@ class CardinalExpectationDetection(Task):
         """
         return html
 
-    def get_html_correct_by_half_and_probability(self, trialarray, grouparray):
+    def get_html_correct_by_half_and_probability(
+            self,
+            trialarray: List[ExpDetTrial],
+            grouparray: List[ExpDetTrialGroupSpec]) -> str:
         if (not trialarray) or (not grouparray):
             return div(italic("No trials or no groups"))
         n_target_highprob = max([x.n_target for x in grouparray])
@@ -866,8 +891,10 @@ class CardinalExpectationDetection(Task):
         """
         return html
 
-    def get_html_correct_by_block_and_probability(self, trialarray,
-                                                  grouparray):
+    def get_html_correct_by_block_and_probability(
+            self,
+            trialarray: List[ExpDetTrial],
+            grouparray: List[ExpDetTrialGroupSpec]) -> str:
         if (not trialarray) or (not grouparray):
             return div(italic("No trials or no groups"))
         n_target_highprob = max([x.n_target for x in grouparray])
@@ -917,7 +944,7 @@ class CardinalExpectationDetection(Task):
         """
         return html
 
-    def get_html_correct_by_group(self, trialarray):
+    def get_html_correct_by_group(self, trialarray: List[ExpDetTrial]) -> str:
         if not trialarray:
             return div(italic("No trials"))
         html = """
@@ -948,7 +975,7 @@ class CardinalExpectationDetection(Task):
         """
         return html
 
-    def get_html_correct_by_block(self, trialarray):
+    def get_html_correct_by_block(self, trialarray: List[ExpDetTrial]) -> str:
         if not trialarray:
             return div(italic("No trials"))
         html = """
@@ -979,7 +1006,13 @@ class CardinalExpectationDetection(Task):
         """
         return html
 
-    def get_p_detected(self, trialarray, blocks, groups):
+    def get_p_detected(self,
+                       trialarray: List[ExpDetTrial],
+                       blocks: Optional[List[int]],
+                       groups: Optional[List[int]]) -> \
+            Tuple[Optional[float], Optional[float],
+                  Optional[float], Optional[float],
+                  int]:
         n_present = 0
         n_absent = 0
         n_detected_given_present = 0
@@ -1012,7 +1045,8 @@ class CardinalExpectationDetection(Task):
         return (p_detected_given_present, p_detected_given_absent, c, dprime,
                 n_trials)
 
-    def get_extra_summary_table_data(self, now):
+    def get_extra_summary_table_data(self, now: datetime.datetime) \
+            -> List[List[List[Any]]]:
         grouparray = self.get_group_array()
         trialarray = self.get_trial_array()
         trialarray_auditory = [x for x in trialarray
@@ -1106,7 +1140,7 @@ class CardinalExpectationDetection(Task):
 
         return [blockprob_values, halfprob_values]
 
-    def get_overall_p_detect_present(self):
+    def get_overall_p_detect_present(self) -> Optional[float]:
         trialarray = self.get_trial_array()
         (p_detected_given_present,
          p_detected_given_absent,
@@ -1115,7 +1149,7 @@ class CardinalExpectationDetection(Task):
          n_trials) = self.get_p_detected(trialarray, None, None)
         return p_detected_given_present
 
-    def get_overall_p_detect_absent(self):
+    def get_overall_p_detect_absent(self) -> Optional[float]:
         trialarray = self.get_trial_array()
         (p_detected_given_present,
          p_detected_given_absent,
@@ -1124,7 +1158,7 @@ class CardinalExpectationDetection(Task):
          n_trials) = self.get_p_detected(trialarray, None, None)
         return p_detected_given_absent
 
-    def get_overall_c(self):
+    def get_overall_c(self) -> Optional[float]:
         trialarray = self.get_trial_array()
         (p_detected_given_present,
          p_detected_given_absent,
@@ -1133,7 +1167,7 @@ class CardinalExpectationDetection(Task):
          n_trials) = self.get_p_detected(trialarray, None, None)
         return c
 
-    def get_overall_d(self):
+    def get_overall_d(self) -> Optional[float]:
         trialarray = self.get_trial_array()
         (p_detected_given_present,
          p_detected_given_absent,

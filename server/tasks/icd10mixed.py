@@ -21,9 +21,11 @@
     limitations under the License.
 """
 
+from typing import List, Optional
+
 import cardinal_pythonlib.rnc_web as ws
+
 from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
     DATEFORMAT,
     ICD10_COPYRIGHT_DIV,
     PV,
@@ -35,7 +37,7 @@ from ..cc_modules.cc_html import (
 )
 from ..cc_modules.cc_lang import is_false
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
 
 
 # =============================================================================
@@ -66,22 +68,23 @@ class Icd10Mixed(Task):
     ]
     has_clinician = True
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
+            return CTV_INCOMPLETE
         category = (
             ("Meets" if self.meets_criteria() else "Does not meet") +
             " criteria for mixed affective episode"
         )
-        dl = [{
-            "content": "Pertains to: {}. {}.".format(
+        infolist = [CtvInfo(
+            content="Pertains to: {}. {}.".format(
                 format_datetime_string(self.date_pertains_to,
                                        DATEFORMAT.LONG_DATE),
-                category)
-        }]
+                category
+            )
+        )]
         if self.comments:
-            dl.append({"content": ws.webify(self.comments)})
-        return dl
+            infolist.append(CtvInfo(content=ws.webify(self.comments)))
+        return infolist
 
     def get_summaries(self):
         return [
@@ -92,7 +95,7 @@ class Icd10Mixed(Task):
         ]
 
     # Meets criteria? These also return null for unknown.
-    def meets_criteria(self):
+    def meets_criteria(self) -> Optional[bool]:
         if (self.mixture_or_rapid_alternation and
                 self.duration_at_least_2_weeks):
             return True
@@ -102,13 +105,13 @@ class Icd10Mixed(Task):
             return False
         return None
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.meets_criteria() is not None and
             self.field_contents_valid()
         )
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         h = self.get_standard_clinician_comments_block(self.comments) + """
             <div class="summary">
                 <table class="summary">

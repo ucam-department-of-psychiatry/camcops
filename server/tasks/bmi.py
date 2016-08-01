@@ -21,15 +21,19 @@
     limitations under the License.
 """
 
+from typing import List
+
 import cardinal_pythonlib.rnc_web as ws
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-)
-from ..cc_modules.cc_html import (
-    tr_qa,
-)
+from ..cc_modules.cc_html import tr_qa
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import (
+    CtvInfo,
+    CTV_INCOMPLETE,
+    LabelAlignment,
+    Task,
+    TrackerInfo,
+    TrackerLabel,
+)
 
 
 # =============================================================================
@@ -54,23 +58,23 @@ class Bmi(Task):
              comment="Clinician's comment"),
     ]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.height_m is not None and
             self.mass_kg is not None and
             self.field_contents_valid()
         )
 
-    def get_trackers(self):
+    def get_trackers(self) -> List[TrackerInfo]:
         # $ signs enable TEX mode for matplotlib, e.g. "$BMI (kg/m^2)$"
         return [
-            {
-                "value": self.bmi(),
-                "plot_label": "Body mass index",
-                "axis_label": "BMI (kg/m^2)",
-                "axis_min": 10,
-                "axis_max": 42,
-                "horizontal_lines": [
+            TrackerInfo(
+                value=self.bmi(),
+                plot_label="Body mass index",
+                axis_label="BMI (kg/m^2)",
+                axis_min=10,
+                axis_max=42,
+                horizontal_lines=[
                     13,
                     15,
                     16,
@@ -82,41 +86,45 @@ class Bmi(Task):
                     35,
                     40
                 ],
-                "horizontal_labels": [
+                horizontal_labels=[
                     # positioned near the mid-range for some:
-                    (12.5, WSTRING("bmi_underweight_under_13"), "top"),
-                    (14, WSTRING("bmi_underweight_13_15")),
-                    (15.5, WSTRING("bmi_underweight_15_16")),
-                    (16.5, WSTRING("bmi_underweight_16_17")),
-                    (17.25, WSTRING("bmi_underweight_17_17.5")),
-                    (18, WSTRING("bmi_underweight_17.5_18.5")),
-                    (21.75, WSTRING("bmi_normal")),
-                    (27.5, WSTRING("bmi_overweight")),
-                    (32.5, WSTRING("bmi_obese_1")),
-                    (37.6, WSTRING("bmi_obese_2")),
-                    (40.5, WSTRING("bmi_obese_3"), "bottom"),
+                    TrackerLabel(12.5, WSTRING("bmi_underweight_under_13"),
+                                 LabelAlignment.top),
+                    TrackerLabel(14, WSTRING("bmi_underweight_13_15")),
+                    TrackerLabel(15.5, WSTRING("bmi_underweight_15_16")),
+                    TrackerLabel(16.5, WSTRING("bmi_underweight_16_17")),
+                    TrackerLabel(17.25, WSTRING("bmi_underweight_17_17.5")),
+                    TrackerLabel(18, WSTRING("bmi_underweight_17.5_18.5")),
+                    TrackerLabel(21.75, WSTRING("bmi_normal")),
+                    TrackerLabel(27.5, WSTRING("bmi_overweight")),
+                    TrackerLabel(32.5, WSTRING("bmi_obese_1")),
+                    TrackerLabel(37.6, WSTRING("bmi_obese_2")),
+                    TrackerLabel(40.5, WSTRING("bmi_obese_3"),
+                                 LabelAlignment.bottom),
                 ],
-                "aspect_ratio": 1.0,
-            },
-            {
-                "value": self.mass_kg,
-                "plot_label": "Mass (kg)",
-                "axis_label": "Mass (kg)",
-            }
+                aspect_ratio=1.0,
+            ),
+            TrackerInfo(
+                value=self.mass_kg,
+                plot_label="Mass (kg)",
+                axis_label="Mass (kg)"
+            ),
         ]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content":  "BMI: {} kg⋅m<sup>–2</sup> [{}]. Mass: {} kg. "
-                        "Height: {} m.".format(
-                            ws.number_to_dp(self.bmi(), BMI_DP),
-                            self.category(),
-                            ws.number_to_dp(self.mass_kg, KG_DP),
-                            ws.number_to_dp(self.height_m, M_DP)
-                        )
-        }]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content=(
+                "BMI: {} kg⋅m<sup>–2</sup> [{}]. Mass: {} kg. "
+                "Height: {} m.".format(
+                    ws.number_to_dp(self.bmi(), BMI_DP),
+                    self.category(),
+                    ws.number_to_dp(self.mass_kg, KG_DP),
+                    ws.number_to_dp(self.height_m, M_DP)
+                )
+            )
+        )]
 
     def get_summaries(self):
         return [
@@ -125,12 +133,12 @@ class Bmi(Task):
                  value=self.bmi(), comment="BMI (kg/m^2)"),
         ]
 
-    def bmi(self):
+    def bmi(self) -> float:
         if not self.is_complete():
             return None
         return self.mass_kg / (self.height_m * self.height_m)
 
-    def category(self):
+    def category(self) -> str:
         bmi = self.bmi()
         if bmi is None:
             return "?"
@@ -157,7 +165,7 @@ class Bmi(Task):
         else:
             return WSTRING("bmi_underweight_under_13")
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         h = """
             <div class="summary">
                 <table class="summary">

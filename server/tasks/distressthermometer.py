@@ -22,7 +22,6 @@
 """
 
 from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
     PV,
 )
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
@@ -32,7 +31,7 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
 
 
 # =============================================================================
@@ -91,19 +90,21 @@ class DistressThermometer(Task):
         dict(name="other", cctype="TEXT", comment="Other problems"),
     ]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if self.distress is None:
-            return CTV_DICTLIST_INCOMPLETE
-        return [{"content": "Overall distress: {}/10".format(self.distress)}]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="Overall distress: {}/10".format(self.distress)
+        )]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.are_all_fields_complete(repeat_fieldname(
                 "q", 1, self.NQUESTIONS) + ["distress"]) and
             self.field_contents_valid()
         )
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         h = """
             <div class="summary">
                 <table class="summary">

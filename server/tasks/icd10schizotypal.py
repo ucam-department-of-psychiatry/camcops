@@ -21,9 +21,11 @@
     limitations under the License.
 """
 
+from typing import List, Optional
+
 import cardinal_pythonlib.rnc_web as ws
+
 from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
     DATEFORMAT,
     ICD10_COPYRIGHT_DIV,
     PV,
@@ -37,7 +39,7 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
 
 
 # =============================================================================
@@ -79,9 +81,9 @@ class Icd10Schizotypal(Task):
     )
     has_clinician = True
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
+            return CTV_INCOMPLETE
         c = self.meets_criteria()
         if c is None:
             category = "Unknown if met or not met"
@@ -89,17 +91,19 @@ class Icd10Schizotypal(Task):
             category = "Met"
         else:
             category = "Not met"
-        dl = [{
-            "content":  "Pertains to: {}. Criteria for schizotypal "
-                        "disorder: {}.".format(
-                            format_datetime_string(self.date_pertains_to,
-                                                   DATEFORMAT.LONG_DATE),
-                            category
-                        )
-        }]
+        infolist = [CtvInfo(
+            content=(
+                "Pertains to: {}. Criteria for schizotypal "
+                "disorder: {}.".format(
+                    format_datetime_string(self.date_pertains_to,
+                                           DATEFORMAT.LONG_DATE),
+                    category
+                )
+            )
+        )]
         if self.comments:
-            dl.append({"content": ws.webify(self.comments)})
-        return dl
+            infolist.append(CtvInfo(content=ws.webify(self.comments)))
+        return infolist
 
     def get_summaries(self):
         return [
@@ -110,7 +114,7 @@ class Icd10Schizotypal(Task):
         ]
 
     # Meets criteria? These also return null for unknown.
-    def meets_criteria(self):
+    def meets_criteria(self) -> Optional[bool]:
         if not self.is_complete:
             return None
         return (
@@ -119,7 +123,7 @@ class Icd10Schizotypal(Task):
             self.b
         )
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.date_pertains_to is not None and
             self.are_all_fields_complete(repeat_fieldname(
@@ -129,16 +133,16 @@ class Icd10Schizotypal(Task):
         )
 
     @staticmethod
-    def text_row(wstringname):
+    def text_row(wstringname: str) -> str:
         return tr(td(WSTRING(wstringname)),
                   td("", td_class="subheading"),
                   literal=True)
 
-    def basic_row(self, stem, i):
+    def basic_row(self, stem: str, i: int) -> str:
         return self.get_twocol_bool_row(
             stem + str(i), WSTRING("icd10_" + stem + "_pd_" + str(i)))
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         h = self.get_standard_clinician_comments_block(self.comments) + """
             <div class="summary">
                 <table class="summary">

@@ -29,7 +29,7 @@ from .cc_constants import PARAM
 from . import cc_db
 from .cc_pls import pls
 from . import cc_report
-from .cc_report import Report
+from .cc_report import Report, REPORT_RESULT_TYPE
 from .cc_unittest import unit_test_ignore
 
 
@@ -132,8 +132,7 @@ class DeviceReport(Report):
     report_title = "(Server) Devices registered with the server"
     param_spec_list = []
 
-    def get_rows_descriptions(self) -> Tuple[Sequence[Sequence[Any]],
-                                             Sequence[str]]:
+    def get_rows_descriptions(self) -> REPORT_RESULT_TYPE:
         sql = """
             SELECT
                 device,

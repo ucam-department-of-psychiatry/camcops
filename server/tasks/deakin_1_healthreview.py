@@ -21,12 +21,10 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    PV,
-)
-from ..cc_modules.cc_html import (
-    tr_qa,
-)
+from typing import List
+
+from ..cc_modules.cc_constants import PV
+from ..cc_modules.cc_html import tr_qa
 from ..cc_modules.cc_task import Task
 
 
@@ -206,7 +204,7 @@ class Deakin1HealthReview(Task):
         if "comment" not in d:
             d["comment"] = d["name"]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.are_all_fields_complete([
                 "ethnicity",
@@ -233,7 +231,7 @@ class Deakin1HealthReview(Task):
             self.field_contents_valid()
         )
 
-    def get_drug_frequency_row(self, fieldname):
+    def get_drug_frequency_row(self, fieldname: str) -> str:
         drug_frequency_dict = {
             0: "Did not use",
             1: "Occasionally",
@@ -244,7 +242,7 @@ class Deakin1HealthReview(Task):
         frequency = drug_frequency_dict.get(getattr(self, fieldname), None)
         return tr_qa(fieldname, frequency)
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         return """
             <div class="summary">
                 <table class="summary">

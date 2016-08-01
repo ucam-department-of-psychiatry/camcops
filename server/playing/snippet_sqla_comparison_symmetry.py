@@ -52,7 +52,7 @@ def ask_user(prompt, default=None, returntype=None, mask=False):
             try:
                 value = returntype(value)
                 success = True
-            except:
+            except (TypeError, ValueError):
                 print("Bad value, try again")
         else:
             success = True

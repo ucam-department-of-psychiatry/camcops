@@ -22,9 +22,10 @@
 """
 
 import math
+from typing import List, Optional
+
 import matplotlib.pyplot as plt
 import numpy
-
 import cardinal_pythonlib.rnc_plot as rnc_plot
 import cardinal_pythonlib.rnc_web as ws
 
@@ -94,7 +95,7 @@ class CardinalExpDetThresholdTrial(Ancillary):
     sortfield = "trial"
 
     @classmethod
-    def get_html_table_header(cls):
+    def get_html_table_header(cls) -> str:
         return """
             <table class="extradetail">
                 <tr>
@@ -114,7 +115,7 @@ class CardinalExpDetThresholdTrial(Ancillary):
                 </tr>
         """
 
-    def get_html_table_row(self):
+    def get_html_table_row(self) -> str:
         return ("<tr>" + "<td>{}</td>" * 13 + "</th>").format(
             self.trial,
             self.trial_ignoring_catch_trials,
@@ -184,15 +185,13 @@ class CardinalExpDetThreshold(Task):
     use_landscape_for_pdf = True
     dependent_classes = [CardinalExpDetThresholdTrial]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return bool(self.finished)
 
-    def get_trial_array(self):
+    def get_trial_array(self) -> List[CardinalExpDetThresholdTrial]:
         return self.get_ancillary_items(CardinalExpDetThresholdTrial)
 
-    # noinspection PyPep8Naming
-    def get_trial_html(self):
-
+    def get_trial_html(self) -> str:
         # Fetch trial details
         trialarray = self.get_trial_array()
 
@@ -208,12 +207,12 @@ class CardinalExpDetThreshold(Task):
 
         # Add figures
 
-        FIGSIZE = (FULLWIDTH_PLOT_WIDTH/2, FULLWIDTH_PLOT_WIDTH/2)
-        JITTER_STEP = 0.02
-        DP_TO_CONSIDER_SAME_FOR_JITTER = 3
-        Y_EXTRA_SPACE = 0.1
-        X_EXTRA_SPACE = 0.02
-        trialfig = plt.figure(figsize=FIGSIZE)
+        figsize = (FULLWIDTH_PLOT_WIDTH/2, FULLWIDTH_PLOT_WIDTH/2)
+        jitter_step = 0.02
+        dp_to_consider_same_for_jitter = 3
+        y_extra_space = 0.1
+        x_extra_space = 0.02
+        trialfig = plt.figure(figsize=figsize)
         notcalc_detected_x = []
         notcalc_detected_y = []
         notcalc_missed_x = []
@@ -278,12 +277,12 @@ class CardinalExpDetThreshold(Task):
         leg.get_frame().set_alpha(0.5)
         plt.xlabel("Trial number")
         plt.ylabel("Intensity")
-        plt.ylim(0 - Y_EXTRA_SPACE, 1 + Y_EXTRA_SPACE)
+        plt.ylim(0 - y_extra_space, 1 + y_extra_space)
         plt.xlim(-0.5, len(trialarray) - 0.5)
 
         fitfig = None
         if self.k is not None and self.theta is not None:
-            fitfig = plt.figure(figsize=FIGSIZE)
+            fitfig = plt.figure(figsize=figsize)
             detected_x = []
             detected_x_approx = []
             detected_y = []
@@ -296,20 +295,20 @@ class CardinalExpDetThreshold(Task):
                     all_x.append(t.intensity)
                     approx_x = "{0:.{precision}f}".format(
                         t.intensity,
-                        precision=DP_TO_CONSIDER_SAME_FOR_JITTER
+                        precision=dp_to_consider_same_for_jitter
                     )
                     if t.yes:
                         detected_y.append(
                             1 -
-                            detected_x_approx.count(approx_x) * JITTER_STEP)
+                            detected_x_approx.count(approx_x) * jitter_step)
                         detected_x.append(t.intensity)
                         detected_x_approx.append(approx_x)
                     else:
                         missed_y.append(
-                            0 + missed_x_approx.count(approx_x) * JITTER_STEP)
+                            0 + missed_x_approx.count(approx_x) * jitter_step)
                         missed_x.append(t.intensity)
                         missed_x_approx.append(approx_x)
-            fit_x = numpy.arange(0.0 - X_EXTRA_SPACE, 1.0 + X_EXTRA_SPACE,
+            fit_x = numpy.arange(0.0 - x_extra_space, 1.0 + x_extra_space,
                                  0.001)
             fit_y = rnc_plot.logistic(fit_x, self.k, self.theta)
             plt.plot(fit_x,      fit_y,
@@ -318,9 +317,9 @@ class CardinalExpDetThreshold(Task):
                      color="r", linestyle="None")
             plt.plot(detected_x, detected_y, marker="+",
                      color="b", linestyle="None")
-            plt.ylim(0 - Y_EXTRA_SPACE, 1 + Y_EXTRA_SPACE)
-            plt.xlim(numpy.amin(all_x) - X_EXTRA_SPACE,
-                     numpy.amax(all_x) + X_EXTRA_SPACE)
+            plt.ylim(0 - y_extra_space, 1 + y_extra_space)
+            plt.xlim(numpy.amin(all_x) - x_extra_space,
+                     numpy.amax(all_x) + x_extra_space)
             marker_points = []
             for y in (LOWER_MARKER, 0.5, UPPER_MARKER):
                 x = rnc_plot.inv_logistic(y, self.k, self.theta)
@@ -345,13 +344,13 @@ class CardinalExpDetThreshold(Task):
 
         return html
 
-    def logistic_x_from_p(self, p):
+    def logistic_x_from_p(self, p: Optional[float]) -> Optional[float]:
         try:
             return (math.log(p / (1 - p)) - self.intercept) / self.slope
         except (TypeError, ValueError):
             return None
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         if self.modality == MODALITY_AUDITORY:
             modality = WSTRING("auditory")
         elif self.modality == MODALITY_VISUAL:

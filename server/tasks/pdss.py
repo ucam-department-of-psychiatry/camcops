@@ -21,17 +21,14 @@
     limitations under the License.
 """
 
+from typing import List
+
 import cardinal_pythonlib.rnc_web as ws
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-    DATA_COLLECTION_UNLESS_UPGRADED_DIV,
-)
+
+from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV
 from ..cc_modules.cc_db import repeat_fieldspec
-from ..cc_modules.cc_html import (
-    answer,
-    tr,
-)
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_html import answer, tr
+from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
 
 
 # =============================================================================
@@ -67,16 +64,14 @@ class Pdss(Task):
 
     QUESTION_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "PDSS total score (lower is better)",
-                "axis_label": "Total score (out of 28)",
-                "axis_min": -0.5,
-                "axis_max": 28.5,
-            },
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="PDSS total score (lower is better)",
+            axis_label="Total score (out of 28)",
+            axis_min=-0.5,
+            axis_max=28.5
+        )]
 
     def get_summaries(self):
         return [
@@ -89,27 +84,29 @@ class Pdss(Task):
                  comment="Composite score (/ 4)"),
         ]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
+            return CTV_INCOMPLETE
         t = self.total_score()
         c = ws.number_to_dp(self.composite_score(), DP, default="?")
-        return [{"content": "PDSS total score {t}/48 "
-                            "(composite {c}/4)".format(t=t, c=c)}]
+        return [CtvInfo(
+            content="PDSS total score {t}/48 (composite {c}/4)".format(
+                t=t, c=c)
+        )]
 
-    def total_score(self):
+    def total_score(self) -> int:
         return self.sum_fields(self.QUESTION_FIELDS)
 
-    def composite_score(self):
+    def composite_score(self) -> int:
         return self.mean_fields(self.QUESTION_FIELDS)
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.field_contents_valid() and
             self.are_all_fields_complete(self.QUESTION_FIELDS)
         )
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         h = """
             <div class="summary">
                 <table class="summary">

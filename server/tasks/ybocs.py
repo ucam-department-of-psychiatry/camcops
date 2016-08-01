@@ -21,18 +21,16 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-    DATA_COLLECTION_UNLESS_UPGRADED_DIV,
-    PV,
-)
+from typing import List
+
+from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV, PV
 from ..cc_modules.cc_html import (
     answer,
     get_ternary,
     subheading_spanning_four_columns,
     tr,
 )
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
 
 
 # =============================================================================
@@ -104,29 +102,29 @@ class Ybocs(Task):
     OBSESSION_QUESTIONS = ["q" + str(x) for x in range(1, 5 + 1)]
     COMPULSION_QUESTIONS = ["q" + str(x) for x in range(6, 10 + 1)]
 
-    def get_trackers(self):
+    def get_trackers(self) -> List[TrackerInfo]:
         return [
-            {
-                "value": self.total_score(),
-                "plot_label": "Y-BOCS total score (lower is better)",
-                "axis_label": "Total score (out of 40)",
-                "axis_min": -0.5,
-                "axis_max": 40.5,
-            },
-            {
-                "value": self.obsession_score(),
-                "plot_label": "Y-BOCS obsession score (lower is better)",
-                "axis_label": "Total score (out of 20)",
-                "axis_min": -0.5,
-                "axis_max": 20.5,
-            },
-            {
-                "value": self.compulsion_score(),
-                "plot_label": "Y-BOCS compulsion score (lower is better)",
-                "axis_label": "Total score (out of 20)",
-                "axis_min": -0.5,
-                "axis_max": 20.5,
-            },
+            TrackerInfo(
+                value=self.total_score(),
+                plot_label="Y-BOCS total score (lower is better)",
+                axis_label="Total score (out of 40)",
+                axis_min=-0.5,
+                axis_max=40.5
+            ),
+            TrackerInfo(
+                value=self.obsession_score(),
+                plot_label="Y-BOCS obsession score (lower is better)",
+                axis_label="Total score (out of 20)",
+                axis_min=-0.5,
+                axis_max=20.5
+            ),
+            TrackerInfo(
+                value=self.compulsion_score(),
+                plot_label="Y-BOCS compulsion score (lower is better)",
+                axis_label="Total score (out of 20)",
+                axis_min=-0.5,
+                axis_max=20.5
+            ),
         ]
 
     def get_summaries(self):
@@ -143,31 +141,31 @@ class Ybocs(Task):
                  comment="Compulsion score (/ 20)"),
         ]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
+            return CTV_INCOMPLETE
         t = self.total_score()
         o = self.obsession_score()
         c = self.compulsion_score()
-        return [{"content": "Y-BOCS total score {t}/40 (obsession {o}/20, "
-                            "compulsion {c}/20)".format(t=t, o=o, c=c)}]
+        return [CtvInfo(content="Y-BOCS total score {t}/40 (obsession {o}/20, "
+                                "compulsion {c}/20)".format(t=t, o=o, c=c))]
 
-    def total_score(self):
+    def total_score(self) -> int:
         return self.sum_fields(self.SCORED_QUESTIONS)
 
-    def obsession_score(self):
+    def obsession_score(self) -> int:
         return self.sum_fields(self.OBSESSION_QUESTIONS)
 
-    def compulsion_score(self):
+    def compulsion_score(self) -> int:
         return self.sum_fields(self.COMPULSION_QUESTIONS)
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.field_contents_valid() and
             self.are_all_fields_complete(self.SCORED_QUESTIONS)
         )
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         h = """
             <div class="summary">
                 <table class="summary">
@@ -377,9 +375,9 @@ class YbocsSc(Task):
     has_clinician = True
     extrastring_taskname = "ybocs"  # shares with Y-BOCS
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
+            return CTV_INCOMPLETE
         current_list = []
         past_list = []
         principal_list = []
@@ -391,19 +389,19 @@ class YbocsSc(Task):
             if getattr(self, item + self.SUFFIX_PRINCIPAL):
                 principal_list.append(item)
         return [
-            {"content": "Current symptoms: {}".format(
-                ", ".join(current_list))},
-            {"content": "Past symptoms: {}".format(
-                ", ".join(past_list))},
-            {"content": "Principal symptoms: {}".format(
-                ", ".join(principal_list))},
+            CtvInfo(content="Current symptoms: {}".format(
+                ", ".join(current_list))),
+            CtvInfo(content="Past symptoms: {}".format(
+                ", ".join(past_list))),
+            CtvInfo(content="Principal symptoms: {}".format(
+                ", ".join(principal_list))),
         ]
 
     @staticmethod
-    def is_complete():
+    def is_complete() -> bool:
         return True
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         h = """
             <table class="taskdetail">
                 <tr>

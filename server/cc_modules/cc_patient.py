@@ -49,7 +49,7 @@ from .cc_pls import pls
 from . import cc_policy
 from . import cc_report
 from .cc_recipdef import RecipientDefinition
-from .cc_report import Report
+from .cc_report import Report, REPORT_RESULT_TYPE
 from . import cc_specialnote
 from .cc_unittest import unit_test_ignore
 from . import cc_xml
@@ -698,8 +698,7 @@ class DistinctPatientReport(Report):
                     "numbers")
     param_spec_list = []
 
-    def get_rows_descriptions(self) -> Tuple[Sequence[Sequence[Any]],
-                                             Sequence[str]]:
+    def get_rows_descriptions(self) -> REPORT_RESULT_TYPE:
         # Not easy to get UTF-8 fields out of a query in the column headings!
         # So don't do SELECT idnum8 AS 'idnum8 (Addenbrooke's number)';
         # change it post hoc using cc_report.expand_id_descriptions()

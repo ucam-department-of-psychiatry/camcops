@@ -21,15 +21,13 @@
     limitations under the License.
 """
 
+from typing import List, Optional
+
 import cardinal_pythonlib.rnc_web as ws
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-)
-from ..cc_modules.cc_html import (
-    answer,
-    tr_qa,
-)
-from ..cc_modules.cc_task import Ancillary, Task
+
+from ..cc_modules.cc_blob import Blob
+from ..cc_modules.cc_html import answer, tr_qa
+from ..cc_modules.cc_task import Ancillary, CtvInfo, CTV_INCOMPLETE, Task
 
 
 # =============================================================================
@@ -55,17 +53,17 @@ class Photo(Task):
         ("photo_blob", "photo_blobid", "rotation")
     ]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return self.photo_blobid is not None
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
+            return CTV_INCOMPLETE
         if not self.description:
             return []
-        return [{"content": self.description}]
+        return [CtvInfo(content=self.description)]
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         return """
             <table class="taskdetail">
                 <tr class="subheading"><td>Description</td></tr>
@@ -107,7 +105,7 @@ class PhotoSequenceSinglePhoto(Ancillary):
         ("photo_blob", "photo_blobid", "rotation")
     ]
 
-    def get_html_table_rows(self):
+    def get_html_table_rows(self) -> str:
         return """
             <tr class="subheading"><td>Photo {}: <b>{}</b></td></tr>
             <tr><td>{}</td></tr>
@@ -116,10 +114,10 @@ class PhotoSequenceSinglePhoto(Ancillary):
             self.get_blob_png_html(),
         )
 
-    def get_blob(self):
+    def get_blob(self) -> Optional[Blob]:
         return self.get_blob_by_id(self.photo_blobid)
 
-    def get_blob_png_html(self):
+    def get_blob_png_html(self) -> str:
         if self.photo_blobid is None:
             return "<i>(No picture)</i>"
         blob = self.get_blob()
@@ -139,23 +137,23 @@ class PhotoSequence(Task):
     has_clinician = True
     dependent_classes = [PhotoSequenceSinglePhoto]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         photos = self.get_photos()
-        d = [{"content": self.sequence_description}]
+        infolist = [CtvInfo(content=self.sequence_description)]
         for p in photos:
-            d.append({"content": p.description})
-        return d
+            infolist.append(CtvInfo(content=p.description))
+        return infolist
 
-    def get_num_photos(self):
+    def get_num_photos(self) -> int:
         return self.get_ancillary_item_count(PhotoSequenceSinglePhoto)
 
-    def get_photos(self):
+    def get_photos(self) -> List[PhotoSequenceSinglePhoto]:
         return self.get_ancillary_items(PhotoSequenceSinglePhoto)
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return bool(self.sequence_description and self.get_num_photos() > 0)
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         photos = self.get_photos()
         html = """
             <div class="summary">

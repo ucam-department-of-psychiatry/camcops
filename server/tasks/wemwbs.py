@@ -21,17 +21,18 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-)
+from typing import List
+
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
-from ..cc_modules.cc_html import (
-    answer,
-    tr,
-    tr_qa,
-)
+from ..cc_modules.cc_html import answer, tr, tr_qa
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    CtvInfo,
+    CTV_INCOMPLETE,
+    get_from_dict,
+    Task,
+    TrackerInfo,
+)
 
 
 # =============================================================================
@@ -69,35 +70,31 @@ class Wemwbs(Task):
         ]
     )
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         if not self.field_contents_valid():
             return False
         return self.are_all_fields_complete(repeat_fieldname(
             "q", 1, self.N_QUESTIONS))
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "WEMWBS total score (rating mental well-being)",
-                "axis_label": "Total score ({}-{})".format(
-                    self.MINTOTALSCORE,
-                    self.MAXTOTALSCORE
-                ),
-                "axis_min": self.MINTOTALSCORE - 0.5,
-                "axis_max": self.MAXTOTALSCORE + 0.5,
-            }
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="WEMWBS total score (rating mental well-being)",
+            axis_label="Total score ({}-{})".format(
+                self.MINTOTALSCORE, self.MAXTOTALSCORE),
+            axis_min=self.MINTOTALSCORE - 0.5,
+            axis_max=self.MAXTOTALSCORE + 0.5
+        )]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content": "WEMWBS total score {} (range {}–{})".format(
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="WEMWBS total score {} (range {}–{})".format(
                 self.total_score(),
                 self.MINTOTALSCORE,
                 self.MAXTOTALSCORE)
-        }]
+        )]
 
     def get_summaries(self):
         return [
@@ -111,10 +108,10 @@ class Wemwbs(Task):
             ),
         ]
 
-    def total_score(self):
+    def total_score(self) -> int:
         return self.sum_fields(repeat_fieldname("q", 1, self.N_QUESTIONS))
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         main_dict = {
             None: None,
             1: "1 — " + WSTRING("wemwbs_a1"),
@@ -197,35 +194,31 @@ class Swemwbs(Task):
         ]
     )
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         if not self.field_contents_valid():
             return False
         return self.are_all_fields_complete(repeat_fieldname(
             "q", 1, self.N_QUESTIONS))
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "SWEMWBS total score (rating mental well-being)",
-                "axis_label": "Total score ({}-{})".format(
-                    self.MINTOTALSCORE,
-                    self.MAXTOTALSCORE
-                ),
-                "axis_min": self.MINTOTALSCORE - 0.5,
-                "axis_max": self.MAXTOTALSCORE + 0.5,
-            }
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="SWEMWBS total score (rating mental well-being)",
+            axis_label="Total score ({}-{})".format(
+                self.MINTOTALSCORE, self.MAXTOTALSCORE),
+            axis_min=self.MINTOTALSCORE - 0.5,
+            axis_max=self.MAXTOTALSCORE + 0.5
+        )]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content": "SWEMWBS total score {} (range {}–{})".format(
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="SWEMWBS total score {} (range {}–{})".format(
                 self.total_score(),
                 self.MINTOTALSCORE,
                 self.MAXTOTALSCORE)
-        }]
+        )]
 
     def get_summaries(self):
         return [
@@ -239,10 +232,10 @@ class Swemwbs(Task):
             ),
         ]
 
-    def total_score(self):
+    def total_score(self) -> int:
         return self.sum_fields(repeat_fieldname("q", 1, self.N_QUESTIONS))
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         main_dict = {
             None: None,
             1: "1 — " + WSTRING("wemwbs_a1"),

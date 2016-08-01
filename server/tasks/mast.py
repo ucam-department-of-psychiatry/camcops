@@ -21,18 +21,20 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-)
+from typing import List
+
 from ..cc_modules.cc_db import repeat_fieldspec
-from ..cc_modules.cc_html import (
-    answer,
-    get_yes_no,
-    tr,
-    tr_qa,
-)
+from ..cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    CtvInfo,
+    CTV_INCOMPLETE,
+    get_from_dict,
+    LabelAlignment,
+    Task,
+    TrackerInfo,
+    TrackerLabel,
+)
 
 
 # =============================================================================
@@ -78,29 +80,25 @@ class Mast(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "MAST total score",
-                "axis_label": "Total score (out of 53)",
-                "axis_min": -0.5,
-                "axis_max": 53.5,
-                "horizontal_lines": [
-                    12.5
-                ],
-                "horizontal_labels": [
-                    (13, "Ross threshold", "bottom"),
-                ]
-            }
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="MAST total score",
+            axis_label="Total score (out of 53)",
+            axis_min=-0.5,
+            axis_max=53.5,
+            horizontal_lines=[12.5],
+            horizontal_labels=[
+                TrackerLabel(13, "Ross threshold", LabelAlignment.bottom)
+            ]
+        )]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content": "MAST total score {}/53".format(self.total_score())
-        }]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="MAST total score {}/53".format(self.total_score())
+        )]
 
     def get_summaries(self):
         return [
@@ -112,13 +110,13 @@ class Mast(Task):
                  comment="Exceeds Ross threshold (total score >= 13)"),
         ]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.are_all_fields_complete(self.TASK_FIELDS) and
             self.field_contents_valid()
         )
 
-    def get_score(self, q):
+    def get_score(self, q: int) -> int:
         yes = "Y"
         value = getattr(self, "q" + str(q))
         if value is None:
@@ -135,17 +133,17 @@ class Mast(Task):
             points = 2
         return points * presence
 
-    def total_score(self):
+    def total_score(self) -> int:
         total = 0
         for q in range(1, self.NQUESTIONS + 1):
             total += self.get_score(q)
         return total
 
-    def exceeds_ross_threshold(self):
+    def exceeds_ross_threshold(self) -> bool:
         score = self.total_score()
         return score >= 13
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         score = self.total_score()
         exceeds_threshold = self.exceeds_ross_threshold()
         main_dict = {

@@ -21,9 +21,11 @@
     limitations under the License.
 """
 
+from typing import List, Optional
+
 import cardinal_pythonlib.rnc_web as ws
+
 from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
     DATEFORMAT,
     ICD10_COPYRIGHT_DIV,
     PV,
@@ -39,15 +41,15 @@ from ..cc_modules.cc_html import (
 )
 from ..cc_modules.cc_lang import is_false
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
 
 
 # =============================================================================
 # Icd10SpecPD
 # =============================================================================
 
-def ctv_dict_pd(condition, has_it):
-    return {"content": condition + ": " + get_yes_no_unknown(has_it)}
+def ctv_info_pd(condition, has_it):
+    return CtvInfo(content=condition + ": " + get_yes_no_unknown(has_it))
 
 
 class Icd10SpecPD(Task):
@@ -180,30 +182,30 @@ class Icd10SpecPD(Task):
     )
     has_clinician = True
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        dl = [ctv_dict_pd(WSTRING("icd10pd_meets_general_criteria"),
-                          self.has_pd()),
-              ctv_dict_pd(WSTRING("icd10_paranoid_pd_title"),
-                          self.has_paranoid_pd()),
-              ctv_dict_pd(WSTRING("icd10_schizoid_pd_title"),
-                          self.has_schizoid_pd()),
-              ctv_dict_pd(WSTRING("icd10_dissocial_pd_title"),
-                          self.has_dissocial_pd()),
-              ctv_dict_pd(WSTRING("icd10_eu_pd_i_title"),
-                          self.has_eupd_i()),
-              ctv_dict_pd(WSTRING("icd10_eu_pd_b_title"),
-                          self.has_eupd_b()),
-              ctv_dict_pd(WSTRING("icd10_histrionic_pd_title"),
-                          self.has_histrionic_pd()),
-              ctv_dict_pd(WSTRING("icd10_anankastic_pd_title"),
-                          self.has_anankastic_pd()),
-              ctv_dict_pd(WSTRING("icd10_anxious_pd_title"),
-                          self.has_anxious_pd()),
-              ctv_dict_pd(WSTRING("icd10_dependent_pd_title"),
-                          self.has_dependent_pd())]
-        return dl
+            return CTV_INCOMPLETE
+        infolist = [ctv_info_pd(WSTRING("icd10pd_meets_general_criteria"),
+                                self.has_pd()),
+                    ctv_info_pd(WSTRING("icd10_paranoid_pd_title"),
+                                self.has_paranoid_pd()),
+                    ctv_info_pd(WSTRING("icd10_schizoid_pd_title"),
+                                self.has_schizoid_pd()),
+                    ctv_info_pd(WSTRING("icd10_dissocial_pd_title"),
+                                self.has_dissocial_pd()),
+                    ctv_info_pd(WSTRING("icd10_eu_pd_i_title"),
+                                self.has_eupd_i()),
+                    ctv_info_pd(WSTRING("icd10_eu_pd_b_title"),
+                                self.has_eupd_b()),
+                    ctv_info_pd(WSTRING("icd10_histrionic_pd_title"),
+                                self.has_histrionic_pd()),
+                    ctv_info_pd(WSTRING("icd10_anankastic_pd_title"),
+                                self.has_anankastic_pd()),
+                    ctv_info_pd(WSTRING("icd10_anxious_pd_title"),
+                                self.has_anxious_pd()),
+                    ctv_info_pd(WSTRING("icd10_dependent_pd_title"),
+                                self.has_dependent_pd())]
+        return infolist
 
     def get_summaries(self):
         return [
@@ -240,7 +242,7 @@ class Icd10SpecPD(Task):
                  comment="Meets criteria for dependent PD?"),
         ]
 
-    def is_pd_excluded(self):
+    def is_pd_excluded(self) -> bool:
         return (
             is_false(self.g1) or
             is_false(self.g2) or
@@ -256,7 +258,7 @@ class Icd10SpecPD(Task):
             )
         )
 
-    def is_complete_general(self):
+    def is_complete_general(self) -> bool:
         return (
             self.are_all_fields_complete(
                 repeat_fieldname("g", 1, Icd10SpecPD.N_GENERAL)) and
@@ -264,40 +266,40 @@ class Icd10SpecPD(Task):
                 repeat_fieldname("g1_", 1, Icd10SpecPD.N_GENERAL_1))
         )
 
-    def is_complete_paranoid(self):
+    def is_complete_paranoid(self) -> bool:
         return self.are_all_fields_complete(
             repeat_fieldname("paranoid", 1, Icd10SpecPD.N_PARANOID))
 
-    def is_complete_schizoid(self):
+    def is_complete_schizoid(self) -> bool:
         return self.are_all_fields_complete(
             repeat_fieldname("schizoid", 1, Icd10SpecPD.N_SCHIZOID))
 
-    def is_complete_dissocial(self):
+    def is_complete_dissocial(self) -> bool:
         return self.are_all_fields_complete(
             repeat_fieldname("dissocial", 1, Icd10SpecPD.N_DISSOCIAL))
 
-    def is_complete_eu(self):
+    def is_complete_eu(self) -> bool:
         return self.are_all_fields_complete(
             repeat_fieldname("eu", 1, Icd10SpecPD.N_EU))
 
-    def is_complete_histrionic(self):
+    def is_complete_histrionic(self) -> bool:
         return self.are_all_fields_complete(
             repeat_fieldname("histrionic", 1, Icd10SpecPD.N_HISTRIONIC))
 
-    def is_complete_anankastic(self):
+    def is_complete_anankastic(self) -> bool:
         return self.are_all_fields_complete(
             repeat_fieldname("anankastic", 1, Icd10SpecPD.N_ANANKASTIC))
 
-    def is_complete_anxious(self):
+    def is_complete_anxious(self) -> bool:
         return self.are_all_fields_complete(
             repeat_fieldname("anxious", 1, Icd10SpecPD.N_ANXIOUS))
 
-    def is_complete_dependent(self):
+    def is_complete_dependent(self) -> bool:
         return self.are_all_fields_complete(
             repeat_fieldname("dependent", 1, Icd10SpecPD.N_DEPENDENT))
 
     # Meets criteria? These also return null for unknown.
-    def has_pd(self):
+    def has_pd(self) -> Optional[bool]:
         if self.is_pd_excluded():
             return False
         if not self.is_complete_general():
@@ -308,7 +310,7 @@ class Icd10SpecPD(Task):
                 repeat_fieldname("g1_", 1, Icd10SpecPD.N_GENERAL_1)) > 1
         )
 
-    def has_paranoid_pd(self):
+    def has_paranoid_pd(self) -> Optional[bool]:
         if not self.has_pd():
             return self.has_pd()
         if not self.is_complete_paranoid():
@@ -316,7 +318,7 @@ class Icd10SpecPD(Task):
         return (self.count_booleans(
             repeat_fieldname("paranoid", 1, Icd10SpecPD.N_PARANOID)) >= 4)
 
-    def has_schizoid_pd(self):
+    def has_schizoid_pd(self) -> Optional[bool]:
         if not self.has_pd():
             return self.has_pd()
         if not self.is_complete_schizoid():
@@ -324,7 +326,7 @@ class Icd10SpecPD(Task):
         return (self.count_booleans(
             repeat_fieldname("schizoid", 1, Icd10SpecPD.N_SCHIZOID)) >= 4)
 
-    def has_dissocial_pd(self):
+    def has_dissocial_pd(self) -> Optional[bool]:
         if not self.has_pd():
             return self.has_pd()
         if not self.is_complete_dissocial():
@@ -332,7 +334,7 @@ class Icd10SpecPD(Task):
         return (self.count_booleans(
             repeat_fieldname("dissocial", 1, Icd10SpecPD.N_DISSOCIAL)) >= 3)
 
-    def has_eupd_i(self):
+    def has_eupd_i(self) -> Optional[bool]:
         if not self.has_pd():
             return self.has_pd()
         if not self.is_complete_eu():
@@ -343,7 +345,7 @@ class Icd10SpecPD(Task):
             self.eu2
         )
 
-    def has_eupd_b(self):
+    def has_eupd_b(self) -> Optional[bool]:
         if not self.has_pd():
             return self.has_pd()
         if not self.is_complete_eu():
@@ -357,7 +359,7 @@ class Icd10SpecPD(Task):
                                  Icd10SpecPD.N_EU)) >= 2
         )
 
-    def has_histrionic_pd(self):
+    def has_histrionic_pd(self) -> Optional[bool]:
         if not self.has_pd():
             return self.has_pd()
         if not self.is_complete_histrionic():
@@ -365,7 +367,7 @@ class Icd10SpecPD(Task):
         return (self.count_booleans(
             repeat_fieldname("histrionic", 1, Icd10SpecPD.N_HISTRIONIC)) >= 4)
 
-    def has_anankastic_pd(self):
+    def has_anankastic_pd(self) -> Optional[bool]:
         if not self.has_pd():
             return self.has_pd()
         if not self.is_complete_anankastic():
@@ -373,7 +375,7 @@ class Icd10SpecPD(Task):
         return (self.count_booleans(
             repeat_fieldname("anankastic", 1, Icd10SpecPD.N_ANANKASTIC)) >= 4)
 
-    def has_anxious_pd(self):
+    def has_anxious_pd(self) -> Optional[bool]:
         if not self.has_pd():
             return self.has_pd()
         if not self.is_complete_anxious():
@@ -381,7 +383,7 @@ class Icd10SpecPD(Task):
         return (self.count_booleans(
             repeat_fieldname("anxious", 1, Icd10SpecPD.N_ANXIOUS)) >= 4)
 
-    def has_dependent_pd(self):
+    def has_dependent_pd(self) -> Optional[bool]:
         if not self.has_pd():
             return self.has_pd()
         if not self.is_complete_dependent():
@@ -389,7 +391,7 @@ class Icd10SpecPD(Task):
         return (self.count_booleans(
             repeat_fieldname("dependent", 1, Icd10SpecPD.N_DEPENDENT)) >= 4)
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.date_pertains_to is not None and (
                 self.is_pd_excluded() or (
@@ -408,22 +410,22 @@ class Icd10SpecPD(Task):
         )
 
     @staticmethod
-    def pd_heading(wstringname):
+    def pd_heading(wstringname: str) -> str:
         return """
             <tr class="heading"><td colspan="2">{}</td></tr>
         """.format(WSTRING(wstringname))
 
-    def pd_skiprow(self, stem):
+    def pd_skiprow(self, stem: str) -> str:
         return self.get_twocol_bool_row("skip_" + stem,
                                         label=WSTRING("icd10pd_skip_this_pd"))
 
     @staticmethod
-    def pd_subheading(wstringname):
+    def pd_subheading(wstringname: str) -> str:
         return """
             <tr class="subheading"><td colspan="2">{}</td></tr>
         """.format(WSTRING(wstringname))
 
-    def pd_general_criteria_bits(self):
+    def pd_general_criteria_bits(self) -> str:
         return """
             <tr><td>{}</td><td><i><b>{}</b></i></td></tr>
         """.format(
@@ -432,16 +434,16 @@ class Icd10SpecPD(Task):
         )
 
     @staticmethod
-    def pd_b_text(wstringname):
+    def pd_b_text(wstringname: str) -> str:
         return """
             <tr><td>{}</td><td class="subheading"></td></tr>
         """.format(WSTRING(wstringname))
 
-    def pd_basic_row(self, stem, i):
+    def pd_basic_row(self, stem: str, i: int) -> str:
         return self.get_twocol_bool_row_true_false(
             stem + str(i), WSTRING("icd10_" + stem + "_pd_" + str(i)))
 
-    def standard_pd_html(self, stem, n):
+    def standard_pd_html(self, stem: str, n: int) -> str:
         html = self.pd_heading("icd10_" + stem + "_pd_title")
         html += self.pd_skiprow(stem)
         html += self.pd_general_criteria_bits()
@@ -450,7 +452,7 @@ class Icd10SpecPD(Task):
             html += self.pd_basic_row(stem, i)
         return html
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         h = self.get_standard_clinician_comments_block(self.comments) + """
             <div class="summary">
                 <table class="summary">

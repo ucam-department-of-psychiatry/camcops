@@ -21,18 +21,19 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-)
+from typing import List
+
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
-from ..cc_modules.cc_html import (
-    answer,
-    get_yes_no,
-    tr,
-    tr_qa,
-)
+from ..cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    CtvInfo,
+    CTV_INCOMPLETE,
+    get_from_dict,
+    Task,
+    TrackerInfo,
+    TrackerLabel,
+)
 
 
 # =============================================================================
@@ -69,7 +70,7 @@ class Phq15(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         if not self.field_contents_valid():
             return False
         if not self.are_all_fields_complete(repeat_fieldname("q", 1, 3)):
@@ -82,36 +83,29 @@ class Phq15(Task):
         else:
             return True
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "PHQ-15 total score (rating somatic symptoms)",
-                "axis_label": "Score for Q1-15 (out of 30)",
-                "axis_min": -0.5,
-                "axis_max": 30.5,
-                "horizontal_lines": [
-                    14.5,
-                    9.5,
-                    4.5
-                ],
-                "horizontal_labels": [
-                    (22, WSTRING("severe")),
-                    (12, WSTRING("moderate")),
-                    (7, WSTRING("mild")),
-                    (2.25, WSTRING("none"))
-                ],
-            }
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="PHQ-15 total score (rating somatic symptoms)",
+            axis_label="Score for Q1-15 (out of 30)",
+            axis_min=-0.5,
+            axis_max=30.5,
+            horizontal_lines=[14.5, 9.5, 4.5],
+            horizontal_labels=[
+                TrackerLabel(22, WSTRING("severe")),
+                TrackerLabel(12, WSTRING("moderate")),
+                TrackerLabel(7, WSTRING("mild")),
+                TrackerLabel(2.25, WSTRING("none")),
+            ]
+        )]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content":
-            "PHQ-15 total score {}/30 ({})".format(self.total_score(),
-                                                   self.severity())
-        }]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="PHQ-15 total score {}/30 ({})".format(
+                self.total_score(), self.severity())
+        )]
 
     def get_summaries(self):
         return [
@@ -122,10 +116,10 @@ class Phq15(Task):
                  comment="Severity"),
         ]
 
-    def total_score(self):
+    def total_score(self) -> int:
         return self.sum_fields(self.TASK_FIELDS)
 
-    def num_severe(self):
+    def num_severe(self) -> int:
         n = 0
         for i in range(1, self.NQUESTIONS + 1):
             value = getattr(self, "q" + str(i))
@@ -133,7 +127,7 @@ class Phq15(Task):
                 n += 1
         return n
 
-    def severity(self):
+    def severity(self) -> str:
         score = self.total_score()
         if score >= 15:
             return WSTRING("severe")
@@ -144,7 +138,7 @@ class Phq15(Task):
         else:
             return WSTRING("none")
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         score = self.total_score()
         nsevere = self.num_severe()
         somatoform_likely = nsevere >= 3

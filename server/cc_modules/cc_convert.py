@@ -233,12 +233,12 @@ def decode_single_value(v: str) -> Any:
     # int?
     try:
         return int(v)
-    except:
+    except (TypeError, ValueError):
         pass
     # float?
     try:
         return float(v)
-    except:
+    except (TypeError, ValueError):
         pass
     # Who knows; something odd. Allow it as a string. "Be conservative in what
     # you send, liberal in what you accept", and all that.

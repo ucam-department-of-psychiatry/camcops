@@ -21,17 +21,15 @@
     limitations under the License.
 """
 
+from typing import Dict, List, Optional
+
 import cardinal_pythonlib.rnc_web as ws
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-)
-from ..cc_modules.cc_html import (
-    tr_qa,
-)
+
+from ..cc_modules.cc_html import tr_qa
 from ..cc_modules.cc_lang import BetweenDict
 # from ..cc_modules.cc_math import safe_logit
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
 
 
 # =============================================================================
@@ -137,7 +135,7 @@ TABULAR_LOGIT_BETWEENDICT = BetweenDict({
 })
 
 
-def get_severity(logit):
+def get_severity(logit: float) -> str:
     # p1593 of Mioshi et al. (2010)
     # Copes with Infinity comparisons
     if logit >= 4.12:
@@ -153,7 +151,7 @@ def get_severity(logit):
     return "profound"
 
 
-def get_tabular_logit(score):
+def get_tabular_logit(score: float) -> float:
     """
     Implements the scoring table accompanying Mioshi et al. (2010).
     Converts a score (in the table, a percentage; here, a number in the
@@ -171,7 +169,7 @@ def get_tabular_logit(score):
 #     print(",".join(str(q) for q in [x, logit, severity]))
 
 
-def make_frs_fieldspec(n):
+def make_frs_fieldspec(n: int):
     pv = [NEVER, ALWAYS]
     pc = ["{} = never".format(NEVER), "{} = always".format(ALWAYS)]
     if n not in NO_SOMETIMES_QUESTIONS:
@@ -223,13 +221,13 @@ class Frs(Task):
                  comment="Severity"),
         ]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
+            return CTV_INCOMPLETE
         scoredict = self.get_score()
-        return [
-            {
-                "content": "Total {total}/n, n = {n}, score = {score}, "
+        return [CtvInfo(
+            content=(
+                "Total {total}/n, n = {n}, score = {score}, "
                 "logit score = {logit}, severity = {severity}".format(
                     total=scoredict['total'],
                     n=scoredict['n'],
@@ -237,10 +235,10 @@ class Frs(Task):
                     logit=ws.number_to_dp(scoredict['logit'], DP),
                     severity=scoredict['severity'],
                 )
-            }
-        ]
+            )
+        )]
 
-    def get_score(self):
+    def get_score(self) -> Dict:
         total = 0
         n = 0
         for q in range(1, NQUESTIONS + 1):
@@ -260,14 +258,14 @@ class Frs(Task):
         return dict(total=total, n=n, score=score, logit=logit,
                     severity=severity)
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.field_contents_valid() and
             self.is_respondent_complete() and
             self.are_all_fields_complete(self.TASK_FIELDS)
         )
 
-    def get_answer(self, q):
+    def get_answer(self, q: int) -> Optional[str]:
         qstr = str(q)
         value = getattr(self, "q" + qstr)
         if value is None:
@@ -285,7 +283,7 @@ class Frs(Task):
             return WSTRING("NA")
         return None
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         scoredict = self.get_score()
         h = """
             <div class="summary">

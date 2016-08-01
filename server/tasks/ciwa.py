@@ -21,9 +21,8 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-)
+from typing import List
+
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import (
     answer,
@@ -32,7 +31,14 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    CtvInfo,
+    CTV_INCOMPLETE,
+    get_from_dict,
+    Task,
+    TrackerInfo,
+    TrackerLabel,
+)
 
 
 # =============================================================================
@@ -71,32 +77,27 @@ class Ciwa(Task):
     ]
     has_clinician = True
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "CIWA total score",
-                "axis_label": "Total score (out of 67)",
-                "axis_min": -0.5,
-                "axis_max": 67.5,
-                "horizontal_lines": [
-                    14.5,
-                    7.5,
-                ],
-                "horizontal_labels": [
-                    (17, WSTRING("severe")),
-                    (11, WSTRING("moderate")),
-                    (3.75, WSTRING("mild")),
-                ]
-            }
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="CIWA total score",
+            axis_label="Total score (out of 67)",
+            axis_min=-0.5,
+            axis_max=67.5,
+            horizontal_lines=[14.5, 7.5],
+            horizontal_labels=[
+                TrackerLabel(17, WSTRING("severe")),
+                TrackerLabel(11, WSTRING("moderate")),
+                TrackerLabel(3.75, WSTRING("mild")),
+            ]
+        )]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content": "CIWA total score: {}/67".format(self.total_score())
-        }]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="CIWA total score: {}/67".format(self.total_score())
+        )]
 
     def get_summaries(self):
         return [
@@ -107,17 +108,17 @@ class Ciwa(Task):
                  comment="Likely severity"),
         ]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.are_all_fields_complete(repeat_fieldname(
                 "q", 1, Ciwa.NSCOREDQUESTIONS)) and
             self.field_contents_valid()
         )
 
-    def total_score(self):
+    def total_score(self) -> int:
         return self.sum_fields(repeat_fieldname("q", 1, Ciwa.NSCOREDQUESTIONS))
 
-    def severity(self):
+    def severity(self) -> str:
         score = self.total_score()
         if score >= 15:
             severity = WSTRING("ciwa_category_severe")
@@ -127,7 +128,7 @@ class Ciwa(Task):
             severity = WSTRING("ciwa_category_mild")
         return severity
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         score = self.total_score()
         severity = self.severity()
         answer_dicts_dict = {}

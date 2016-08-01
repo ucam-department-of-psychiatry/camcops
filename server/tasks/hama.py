@@ -21,17 +21,19 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-)
+from typing import List
+
 from ..cc_modules.cc_db import repeat_fieldspec
-from ..cc_modules.cc_html import (
-    answer,
-    tr,
-    tr_qa,
-)
+from ..cc_modules.cc_html import answer, tr, tr_qa
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    CtvInfo,
+    CTV_INCOMPLETE,
+    get_from_dict,
+    Task,
+    TrackerInfo,
+    TrackerLabel,
+)
 
 
 # =============================================================================
@@ -58,33 +60,29 @@ class Hama(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "HAM-A total score",
-                "axis_label": "Total score (out of 56)",
-                "axis_min": -0.5,
-                "axis_max": 56.5,
-                "horizontal_lines": [
-                    30.5,
-                    24.5,
-                    17.5,
-                ],
-                "horizontal_labels": [
-                    (33, WSTRING("very_severe")),
-                    (27.5, WSTRING("moderate_to_severe")),
-                    (21, WSTRING("mild_to_moderate")),
-                    (8.75, WSTRING("mild")),
-                ]
-            }
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="HAM-A total score",
+            axis_label="Total score (out of 56)",
+            axis_min=-0.5,
+            axis_max=56.5,
+            horizontal_lines=[30.5, 24.5, 17.5],
+            horizontal_labels=[
+                TrackerLabel(33, WSTRING("very_severe")),
+                TrackerLabel(27.5, WSTRING("moderate_to_severe")),
+                TrackerLabel(21, WSTRING("mild_to_moderate")),
+                TrackerLabel(8.75, WSTRING("mild")),
+            ]
+        )]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{"content": "HAM-A total score {}/56 ({})".format(
-            self.total_score(), self.severity())}]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="HAM-A total score {}/56 ({})".format(
+                self.total_score(), self.severity())
+        )]
 
     def get_summaries(self):
         return [
@@ -95,16 +93,16 @@ class Hama(Task):
                  comment="Severity"),
         ]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.are_all_fields_complete(self.TASK_FIELDS) and
             self.field_contents_valid()
         )
 
-    def total_score(self):
+    def total_score(self) -> int:
         return self.sum_fields(self.TASK_FIELDS)
 
-    def severity(self):
+    def severity(self) -> str:
         score = self.total_score()
         if score >= 31:
             return WSTRING("very_severe")
@@ -115,7 +113,7 @@ class Hama(Task):
         else:
             return WSTRING("mild")
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         score = self.total_score()
         severity = self.severity()
         answer_dicts = []

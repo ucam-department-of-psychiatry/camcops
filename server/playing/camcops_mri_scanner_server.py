@@ -1,19 +1,21 @@
 #!/usr/bin/python2.7
 
-from __future__ import print_function
 import argparse
 import datetime
 import dateutil.tz
 import logging
 import random
+from typing import Any, Tuple
+
 from twisted.internet import reactor
 # from twisted.internet.stdio import StandardIO
-from twisted.internet.protocol import Factory, Protocol
+from twisted.internet.protocol import connectionDone, Factory, Protocol
 from twisted.internet.serialport import (
     SerialPort, EIGHTBITS, PARITY_NONE, STOPBITS_ONE
 )
 from twisted.internet.task import LoopingCall
 from twisted.protocols.basic import LineReceiver
+from twisted.python.failure import Failure
 # http://twistedmatrix.com/documents/current/core/howto/servers.html
 
 """
@@ -66,6 +68,7 @@ FT_FAKE_PULSE = "fake_pulse"  # for debugging
 # Other constants
 # =============================================================================
 
+ENCODING = "utf-8"
 LOCALTZ = dateutil.tz.tzlocal()  # constant for a given run
 ISO8601_FMT = "%Y-%m-%dT%H:%M:%S.%f%z"  # e.g. 2013-07-24T20:04:07.000000+0100
 KEYBOARD_TICK_S = 0.001
@@ -75,11 +78,11 @@ KEYBOARD_TICK_S = 0.001
 # Support functions
 # =============================================================================
 
-def get_now():
+def get_now() -> datetime.datetime:
     return datetime.datetime.now(LOCALTZ)
 
 
-def coin(p):
+def coin(p: float) -> bool:
     return random.random() < p
 
 
@@ -91,29 +94,31 @@ def coin(p):
 class MRIProtocol(Protocol):
     delimiter = '\n'
 
-    def __init__(self, network):
+    def __init__(self, network: TabletServerProtocolFactory) -> None:
         self.network = network
         network.scanner = self
 
-    def dataReceived(self, data):
+    def dataReceived(self, data: bytes) -> None:
         """
         Data received from scanner.
         Timestamp as early as possible.
         """
         now = get_now()
+        data = data.decode(ENCODING)
         logger.info("Received from scanner: {}".format(data))
         self.network.from_scanner(data, now)
 
     # noinspection PyMethodMayBeStatic
-    def tell_scanner(self, data):
+    def tell_scanner(self, data: str) -> None:
         """
         Send information to scanner.
         """
         logger.info("Sending to scanner: {}".format(data))
+        # WOULD DO SOMETHING HERE
 
     def fake_pulse(self):
         logger.debug("FAKING A PULSE")
-        self.dataReceived(FS_PULSE)
+        self.dataReceived(FS_PULSE.encode(ENCODING))
 
 
 # =============================================================================
@@ -123,25 +128,27 @@ class MRIProtocol(Protocol):
 
 class ButtonBoxProtocol(Protocol):
 
-    def __init__(self, network):
+    def __init__(self, network: TabletServerProtocolFactory) -> None:
         self.network = network
         network.buttonbox = self
 
-    def dataReceived(self, data):
+    def dataReceived(self, data: bytes) -> None:
         """
         Data received from button box.
         Timestamp as early as possible.
         """
         now = get_now()
+        data = data.decode(ENCODING)
         logger.info("Received from button box: {}".format(data))
         self.network.from_buttonbox(data, now)
 
     # noinspection PyMethodMayBeStatic
-    def tell_buttonbox(self, data):
+    def tell_buttonbox(self, data: str) -> None:
         """
         Send information to button box.
         """
         logger.info("Sending to button box: {}".format(data))
+        # WOULD DO SOMETHING HERE
 
 
 # =============================================================================
@@ -150,20 +157,24 @@ class ButtonBoxProtocol(Protocol):
 
 class StubbornlyLineBasedKeyboardProtocol(LineReceiver):
 
-    def __init__(self, network):
+    def __init__(self, network: TabletServerProtocolFactory) -> None:
         self.network = network
 
-    def connectionMade(self):
+    def connectionMade(self) -> None:
         self.setRawMode()
 
-    def rawDataReceived(self, data):
+    def rawDataReceived(self, data: bytes) -> None:
         """
         Data received from keyboard.
         Timestamp as early as possible.
         """
         now = get_now()
+        data = data.decode(ENCODING)
         logger.info("Received from keyboard: {}".format(data))
         self.network.from_keyboard(data, now)
+
+    def lineReceived(self, line: bytes) -> None:
+        pass
 
 
 # may need pygame
@@ -173,16 +184,16 @@ class StubbornlyLineBasedKeyboardProtocol(LineReceiver):
 
 class KeyboardPoller(object):
 
-    def __init__(self, network):
+    def __init__(self, network: TabletServerProtocolFactory) -> None:
         self.network = network
         # self.nticks = 0
 
-    def send_key(self, key):
+    def send_key(self, key: str) -> None:
         now = get_now()
         logger.info("Received from keyboard: {}".format(key))
         self.network.from_keyboard(key, now)
 
-    def tick(self):
+    def tick(self) -> None:
         # self.nticks += 1
         # if self.nticks % 1000 == 0:
         #     logger.info("tock: {} ticks".format(self.nticks))
@@ -197,7 +208,7 @@ class KeyboardPoller(object):
 class TabletServerProtocol(LineReceiver):
     # alter "delimiter" if necessary
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.start_time = get_now()
         self.peer = None
         self.npulses = 0
@@ -206,7 +217,7 @@ class TabletServerProtocol(LineReceiver):
     # Connection handling
     # -------------------------------------------------------------------------
 
-    def connectionMade(self):
+    def connectionMade(self) -> None:
         """
         Overrides Twisted function.
         """
@@ -217,7 +228,7 @@ class TabletServerProtocol(LineReceiver):
             self.peer = "{h}:{p}".format(h=peer.host, p=peer.port)
 
     # noinspection PyUnusedLocal
-    def connectionLost(self, reason):
+    def connectionLost(self, reason: Failure = connectionDone) -> None:
         """
         Overrides Twisted function.
         """
@@ -228,7 +239,10 @@ class TabletServerProtocol(LineReceiver):
     # Outbound information
     # -------------------------------------------------------------------------
 
-    def tell_tablet(self, data, now=None, *args):
+    def tell_tablet(self,
+                    data: str,
+                    now: datetime.datetime = None,
+                    *args: Any) -> None:
         """
         Send information to tablet, with timestamps.
         Comma-separed columns, containing:
@@ -247,15 +261,15 @@ class TabletServerProtocol(LineReceiver):
         ] + list(args))
         logger.info("Sending to tablet<{p}>: {m}".format(
             p=self.peer, m=msg))
-        self.sendLine(msg)
+        self.sendLine(msg.encode(ENCODING))
 
-    def tell_scanner(self, data):
+    def tell_scanner(self, data: str) -> None:
         """
         Send information to scanner.
         """
         self.factory.tell_scanner(data)
 
-    def tell_buttonbox(self, data):
+    def tell_buttonbox(self, data: str) -> None:
         """
         Send information to buttonbox.
         """
@@ -265,7 +279,8 @@ class TabletServerProtocol(LineReceiver):
     # Support functions
     # -------------------------------------------------------------------------
 
-    def get_abs_rel_time(self, now=None):
+    def get_abs_rel_time(self, now: datetime.datetime = None) \
+            -> Tuple[str, float]:
         """
         Returns tuple:
             absolute time in ISO-8601 format
@@ -281,10 +296,14 @@ class TabletServerProtocol(LineReceiver):
     # From tablet
     # -------------------------------------------------------------------------
 
-    def lineReceived(self, data):
+    def rawDataReceived(self, data: bytes) -> None:
+        pass
+
+    def lineReceived(self, data: bytes) -> None:
         """
         Override of Twisted function. Data received from tablet via TCP.
         """
+        data = data.decode(ENCODING)
         logger.debug("Line received from tablet<{p}>: {d}".format(
             p=self.peer, d=data))
         if data == FT_START_TIMING_PULSES:
@@ -298,7 +317,7 @@ class TabletServerProtocol(LineReceiver):
                            "{d}".format(p=self.peer, d=data))
             self.tell_tablet(TT_SYNTAX_ERROR)
 
-    def ft_trigger(self):
+    def ft_trigger(self) -> None:
         """
         Tablet has sent us a trigger. Tell the scanner.
         """
@@ -306,7 +325,7 @@ class TabletServerProtocol(LineReceiver):
         self.tell_scanner(TS_TRIGGER)
         self.tell_tablet(TT_TRIGGER, now)
 
-    def ft_want_pulses(self):
+    def ft_want_pulses(self) -> None:
         """
         Tablet wants timing pulses from the scanner.
         Tell the scanner. Reset local timing.
@@ -320,7 +339,7 @@ class TabletServerProtocol(LineReceiver):
     # From scanner
     # -------------------------------------------------------------------------
 
-    def from_scanner(self, data, now):
+    def from_scanner(self, data: str, now: datetime.datetime) -> None:
         """
         Information received from scanner, via factory. Parse.
         """
@@ -330,7 +349,7 @@ class TabletServerProtocol(LineReceiver):
             logger.warning("Unknown command received from scanner: "
                            "{}".format(data))
 
-    def fs_pulse(self, now):
+    def fs_pulse(self, now: datetime.datetime) -> None:
         """
         Scanner has sent us a pulse. Tell the tablet.
         """
@@ -341,7 +360,7 @@ class TabletServerProtocol(LineReceiver):
     # From button box
     # -------------------------------------------------------------------------
 
-    def from_buttonbox(self, data, now):
+    def from_buttonbox(self, data: str, now: datetime.datetime) -> None:
         """
         Information received from button box. Parse.
         """
@@ -351,7 +370,7 @@ class TabletServerProtocol(LineReceiver):
     # From keyboard
     # -------------------------------------------------------------------------
 
-    def from_keyboard(self, data, now):
+    def from_keyboard(self, data: str, now: datetime.datetime) -> None:
         self.tell_tablet(TT_KEY, now, data)
 
 
@@ -373,14 +392,14 @@ class TabletServerProtocolFactory(Factory):
         self.scanner = None
         self.buttonbox = None
 
-    def from_scanner(self, data, now):
+    def from_scanner(self, data: str, now: datetime.datetime) -> None:
         """
         Pass information from scanner to tablet(s).
         """
         for client in self.client_list:
             client.from_scanner(data, now)
 
-    def tell_scanner(self, data):
+    def tell_scanner(self, data: str) -> None:
         """
         Pass command to scanner.
         """
@@ -388,21 +407,21 @@ class TabletServerProtocolFactory(Factory):
             return
         self.scanner.tell_scanner(data)
 
-    def fake_pulse(self):
+    def fake_pulse(self) -> None:
         """
         Ask the scanner handler to fake a pulse."""
         if not self.scanner:
             return
         self.scanner.fake_pulse()
 
-    def from_buttonbox(self, data, now):
+    def from_buttonbox(self, data: str, now: datetime.datetime) -> None:
         """
         Pass information from buttonbox to tablet(s).
         """
         for client in self.client_list:
             client.from_buttonbox(data, now)
 
-    def tell_buttonbox(self, data):
+    def tell_buttonbox(self, data: str) -> None:
         """
         Pass command to button box.
         """
@@ -410,7 +429,7 @@ class TabletServerProtocolFactory(Factory):
             return
         self.buttonbox.tell_buttonbox(data)
 
-    def from_keyboard(self, data, now):
+    def from_keyboard(self, data: str, now: datetime.datetime) -> None:
         """
         Pass information from keyboard to tablet(s).
         """
@@ -422,7 +441,7 @@ class TabletServerProtocolFactory(Factory):
 # Main
 # =============================================================================
 
-def main():
+def main() -> None:
     """
     Connect to MRI scanner and button box. Start network comms.
     """

@@ -21,6 +21,8 @@
     limitations under the License.
 """
 
+from typing import Optional
+
 from ..cc_modules.cc_html import tr_qa
 from ..cc_modules.cc_string import WSTRING
 from ..cc_modules.cc_task import get_from_dict, Task
@@ -44,10 +46,10 @@ class AbstractSatisfaction(object):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return self.rating is not None and self.field_contents_valid()
 
-    def get_rating_text(self):
+    def get_rating_text(self) -> Optional[str]:
         ratingdict = {
             None: None,
             0: WSTRING("service_satis_rating_a0"),
@@ -58,7 +60,10 @@ class AbstractSatisfaction(object):
         }
         return get_from_dict(ratingdict, self.rating)
 
-    def get_common_task_html(self, rating_q, good_q, bad_q):
+    def get_common_task_html(self,
+                             rating_q: str,
+                             good_q: str,
+                             bad_q: str) -> str:
         if self.rating is not None:
             r = "{}. {}".format(self.rating, self.get_rating_text())
         else:
@@ -94,7 +99,7 @@ class PatientSatisfaction(AbstractSatisfaction, Task):
     shortname = "PatientSatisfaction"
     longname = "Patient Satisfaction Scale"
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         return self.get_common_task_html(
             WSTRING("pt_satis_rating_q"),
             WSTRING("pt_satis_good_q"),
@@ -111,7 +116,7 @@ class ReferrerSatisfactionGen(AbstractSatisfaction, Task):
     shortname = "ReferrerSatisfactionSurvey"
     longname = "Referrer Satisfaction Scale, survey"
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         return self.get_common_task_html(
             WSTRING("ref_satis_rating_gen_q"),
             WSTRING("ref_satis_good_q"),
@@ -128,7 +133,7 @@ class ReferrerSatisfactionSpec(AbstractSatisfaction, Task):
     shortname = "ReferrerSatisfactionSpecific"
     longname = "Referrer Satisfaction Scale, patient-specific"
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         return self.get_common_task_html(
             WSTRING("ref_satis_rating_spec_q"),
             WSTRING("ref_satis_good_q"),

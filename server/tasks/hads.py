@@ -21,17 +21,13 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-    DATA_COLLECTION_UNLESS_UPGRADED_DIV,
-)
+from typing import List
+
+from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
-from ..cc_modules.cc_html import (
-    answer,
-    tr_qa,
-)
-from ..cc_modules.cc_string import task_extrastrings_exist, WSTRING
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_html import answer, tr_qa
+from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
 from ..cc_modules.cc_logger import log
 
 
@@ -58,35 +54,35 @@ class Hads(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return self.field_contents_valid() and self.are_all_fields_complete(
             repeat_fieldname("q", 1, self.NQUESTIONS))
 
-    def get_trackers(self):
+    def get_trackers(self) -> List[TrackerInfo]:
         return [
-            {
-                "value": self.anxiety_score(),
-                "plot_label": "HADS anxiety score",
-                "axis_label": "Anxiety score (out of 21)",
-                "axis_min": -0.5,
-                "axis_max": 21.5,
-            },
-            {
-                "value": self.depression_score(),
-                "plot_label": "HADS depression score",
-                "axis_label": "Depression score (out of 21)",
-                "axis_min": -0.5,
-                "axis_max": 21.5,
-            },
+            TrackerInfo(
+                value=self.anxiety_score(),
+                plot_label="HADS anxiety score",
+                axis_label="Anxiety score (out of 21)",
+                axis_min=-0.5,
+                axis_max=21.5,
+            ),
+            TrackerInfo(
+                value=self.depression_score(),
+                plot_label="HADS depression score",
+                axis_label="Depression score (out of 21)",
+                axis_min=-0.5,
+                axis_max=21.5
+            ),
         ]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content": "anxiety score {}/21, depression score {}/21".format(
-                       self.anxiety_score(), self.depression_score())
-        }]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="anxiety score {}/21, depression score {}/21".format(
+                self.anxiety_score(), self.depression_score())
+        )]
 
     def get_summaries(self):
         return [
@@ -98,17 +94,17 @@ class Hads(Task):
                  comment="Depression score (/21)"),
         ]
 
-    def score(self, questions):
+    def score(self, questions: List[int]) -> int:
         fields = self.fieldnames_from_list("q", questions)
         return self.sum_fields(fields)
 
-    def anxiety_score(self):
+    def anxiety_score(self) -> int:
         return self.score(self.ANXIETY_QUESTIONS)
 
-    def depression_score(self):
+    def depression_score(self) -> int:
         return self.score(self.DEPRESSION_QUESTIONS)
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         min_score = 0
         max_score = 3
         crippled = not self.extrastrings_exist()

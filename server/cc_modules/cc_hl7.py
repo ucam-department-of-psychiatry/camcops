@@ -267,7 +267,13 @@ class HL7Message(object):
             cls.TABLENAME, cls.FIELDSPECS,
             drop_superfluous_columns=drop_superfluous_columns)
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self,
+                 msg_id: int = None,
+                 basetable: str = None,
+                 serverpk: int = None,
+                 hl7run: HL7Run = None,
+                 recipient_def: RecipientDefinition = None,
+                 show_queue_only: bool = False) -> None:
         """Initializes.
 
         Use either:
@@ -275,29 +281,23 @@ class HL7Message(object):
         or:
             HL7Message(basetable, serverpk, hl7run, recipient_def)
         """
-        nargs = len(args)
-        if nargs == 1:
+        if basetable and serverpk and recipient_def:
+            # HL7Message(basetable, serverpk, hl7run, recipient_def)
+            rnc_db.blank_object(self, HL7Message.FIELDS)
+            self.basetable = basetable
+            self.serverpk = serverpk
+            self.hl7run = hl7run
+            if self.hl7run:
+                self.run_id = self.hl7run.run_id
+            self.recipient_def = recipient_def
+            self.show_queue_only = show_queue_only
+            self.no_saving = show_queue_only
+            self.task = cc_task.task_factory(self.basetable, self.serverpk)
+        else:
             # HL7Message(msg_id)
-            msg_id = args[0]
             pls.db.fetch_object_from_db_by_pk(self, HL7Message.TABLENAME,
                                               HL7Message.FIELDS, msg_id)
             self.hl7run = HL7Run(self.run_id)
-
-        elif nargs == 4:
-            # HL7Message(basetable, serverpk, hl7run, recipient_def)
-            rnc_db.blank_object(self, HL7Message.FIELDS)
-            self.basetable = args[0]
-            self.serverpk = args[1]
-            self.hl7run = args[2]
-            if self.hl7run:
-                self.run_id = self.hl7run.run_id
-            self.recipient_def = args[3]
-            self.show_queue_only = kwargs.get("show_queue_only", False)
-            self.no_saving = self.show_queue_only
-            self.task = cc_task.task_factory(self.basetable, self.serverpk)
-
-        else:
-            raise AssertionError("Bad call to HL7Message.__init__")
 
     def valid(self) -> bool:
         """Checks for internal validity; returns Boolean."""
@@ -556,8 +556,8 @@ class HL7Message(object):
         return html
 
     def get_html_data_row(self,
-                          showmessage: str = False,
-                          showreply: str = False) -> bool:
+                          showmessage: bool = False,
+                          showreply: bool = False) -> bool:
         """Returns HTML table data row for this instance."""
         html = "<tr>"
         for fs in self.FIELDSPECS:
@@ -803,7 +803,10 @@ def send_pending_hl7_messages_2(
         # log.debug("{}, args={}".format(sql, args))
         pklist = pls.db.fetchallfirstvalues(sql, *args)
         for serverpk in pklist:
-            msg = HL7Message(bt, serverpk, hl7run, recipient_def,
+            msg = HL7Message(basetable=bt,
+                             serverpk=serverpk,
+                             hl7run=hl7run,
+                             recipient_def=recipient_def,
                              show_queue_only=show_queue_only)
             tried, succeeded = msg.send(queue_stdout, divert_file)
             if not tried:
@@ -846,7 +849,7 @@ def make_sure_path_exists(path: str) -> None:
 # URLs
 # =============================================================================
 
-def get_url_hl7_run(run_id: int) -> str:
+def get_url_hl7_run(run_id: Any) -> str:
     """URL to view an HL7Run instance."""
     url = cc_html.get_generic_action_url(ACTION.VIEW_HL7_RUN)
     url += cc_html.get_url_field_value_pair(PARAM.HL7RUNID, run_id)

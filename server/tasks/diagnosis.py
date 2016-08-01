@@ -21,27 +21,30 @@
     limitations under the License.
 """
 
+from typing import List
+
 import cardinal_pythonlib.rnc_web as ws
-from ..cc_modules.cc_constants import (
-    NUMBER_OF_IDNUMS,
-)
+import hl7
+
+from ..cc_modules.cc_constants import NUMBER_OF_IDNUMS
 from ..cc_modules.cc_hl7core import make_dg1_segment
-from ..cc_modules.cc_html import (
-    answer,
-    tr,
-)
+from ..cc_modules.cc_html import answer, tr
 from ..cc_modules.cc_nlp import guess_name_components
-from ..cc_modules.cc_task import Ancillary, Task
+from ..cc_modules.cc_task import Ancillary, CtvInfo, Task
 from ..cc_modules.cc_pls import pls
-import cc_modules.cc_report as cc_report
-from ..cc_modules.cc_report import Report
+from ..cc_modules.cc_recipdef import RecipientDefinition
+from ..cc_modules.cc_report import (
+    expand_id_descriptions,
+    Report,
+    REPORT_RESULT_TYPE,
+)
 
 
 # =============================================================================
 # Helpers
 # =============================================================================
 
-def make_diagnosis_item_base_fieldspecs(fkname):
+def make_diagnosis_item_base_fieldspecs(fkname: str):
     return [
         dict(name=fkname, notnull=True, cctype="INT",
              comment="FK to parent table"),
@@ -62,23 +65,23 @@ class DiagnosisItemBase(Ancillary):
     sortfield = "seqnum"
 
     @classmethod
-    def get_fkname(cls):
+    def get_fkname(cls) -> str:
         return cls.fkname
 
-    def get_html_table_row(self):
+    def get_html_table_row(self) -> str:
         return tr(
             self.seqnum + 1,
             answer(ws.webify(self.code)),
             answer(ws.webify(self.description)),
         )
 
-    def get_code_for_hl7(self):
+    def get_code_for_hl7(self) -> str:
         # Normal format is to strip out periods, e.g. "F20.0" becomes "F200"
         if not self.code:
             return ""
         return self.code.replace(".", "").upper()
 
-    def get_text_for_hl7(self):
+    def get_text_for_hl7(self) -> str:
         return self.description or ""
 
 
@@ -88,18 +91,18 @@ class DiagnosisBase(object):
     has_clinician = True
     hl7_coding_system = "?"
 
-    def get_num_items(self):
+    def get_num_items(self) -> int:
         itemclass = self.dependent_classes[0]
         return self.get_ancillary_item_count(itemclass)
 
-    def get_items(self):
+    def get_items(self) -> List[DiagnosisItemBase]:
         itemclass = self.dependent_classes[0]
         return self.get_ancillary_items(itemclass)
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return self.get_num_items() > 0
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         items = self.get_items()
         html = """
             <div class="summary">
@@ -123,18 +126,19 @@ class DiagnosisBase(object):
         """
         return html
 
-    def get_clinical_text(self):
-        fielddictlist = []
+    def get_clinical_text(self) -> List[CtvInfo]:
+        infolist = []
         items = self.get_items()
         for item in items:
-            fielddictlist.append({
-                "content": "<b>{}</b>: {}".format(ws.webify(item.code),
-                                                  ws.webify(item.description))
-            })
-        return fielddictlist
+            infolist.append(CtvInfo(
+                content="<b>{}</b>: {}".format(ws.webify(item.code),
+                                               ws.webify(item.description))
+            ))
+        return infolist
 
     # noinspection PyUnusedLocal
-    def get_hl7_extra_data_segments(self, recipient_def):
+    def get_hl7_extra_data_segments(self, recipient_def: RecipientDefinition) \
+            -> List[hl7.Segment]:
         segments = []
         items = self.get_items()
         clinician = guess_name_components(self.clinician_name)
@@ -198,8 +202,10 @@ class DiagnosisIcd9CM(DiagnosisBase, Task):
 # Reports
 # =============================================================================
 
-def get_diagnosis_report_sql(diagnosis_table, item_table, item_fk_fieldname,
-                             system):
+def get_diagnosis_report_sql(diagnosis_table: str,
+                             item_table: str,
+                             item_fk_fieldname: str,
+                             system: str) -> str:
     select_idnums = ["p.idnum{n} AS idnum{n}".format(n=n)
                      for n in range(1, NUMBER_OF_IDNUMS + 1)]
     sql = """
@@ -243,12 +249,14 @@ def get_diagnosis_report_sql(diagnosis_table, item_table, item_fk_fieldname,
     return sql
 
 
-def get_diagnosis_report(diagnosis_table, item_table, item_fk_fieldname,
-                         system):
+def get_diagnosis_report(diagnosis_table: str,
+                         item_table: str,
+                         item_fk_fieldname: str,
+                         system: str) -> REPORT_RESULT_TYPE:
     sql = get_diagnosis_report_sql(diagnosis_table, item_table,
                                    item_fk_fieldname, system)
     (rows, fieldnames) = pls.db.fetchall_with_fieldnames(sql)
-    fieldnames = cc_report.expand_id_descriptions(fieldnames)
+    fieldnames = expand_id_descriptions(fieldnames)
     return rows, fieldnames
 
 
@@ -260,7 +268,7 @@ class DiagnosisICD9CMReport(Report):
     param_spec_list = []
 
     @staticmethod
-    def get_rows_descriptions():
+    def get_rows_descriptions() -> REPORT_RESULT_TYPE:
         return get_diagnosis_report(
             diagnosis_table='diagnosis_icd9cm',
             item_table='diagnosis_icd9cm_item',
@@ -276,7 +284,7 @@ class DiagnosisICD10Report(Report):
     param_spec_list = []
 
     @staticmethod
-    def get_rows_descriptions():
+    def get_rows_descriptions() -> REPORT_RESULT_TYPE:
         return get_diagnosis_report(
             diagnosis_table='diagnosis_icd10',
             item_table='diagnosis_icd10_item',
@@ -292,7 +300,7 @@ class DiagnosisAllReport(Report):
     param_spec_list = []
 
     @staticmethod
-    def get_rows_descriptions():
+    def get_rows_descriptions() -> REPORT_RESULT_TYPE:
         sql_icd9cm = get_diagnosis_report_sql(
             diagnosis_table='diagnosis_icd9cm',
             item_table='diagnosis_icd9cm_item',
@@ -322,5 +330,5 @@ class DiagnosisAllReport(Report):
             sql_icd10=sql_icd10,
         )
         (rows, fieldnames) = pls.db.fetchall_with_fieldnames(sql)
-        fieldnames = cc_report.expand_id_descriptions(fieldnames)
+        fieldnames = expand_id_descriptions(fieldnames)
         return rows, fieldnames

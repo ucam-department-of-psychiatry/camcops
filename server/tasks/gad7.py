@@ -21,17 +21,19 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-)
+from typing import List
+
 from ..cc_modules.cc_db import repeat_fieldspec
-from ..cc_modules.cc_html import (
-    answer,
-    tr,
-    tr_qa,
-)
+from ..cc_modules.cc_html import answer, tr, tr_qa
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    CtvInfo,
+    CTV_INCOMPLETE,
+    get_from_dict,
+    Task,
+    TrackerInfo,
+    TrackerLabel,
+)
 
 
 # =============================================================================
@@ -59,33 +61,29 @@ class Gad7(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "GAD-7 total score",
-                "axis_label": "Total score (out of 21)",
-                "axis_min": -0.5,
-                "axis_max": 21.5,
-                "horizontal_lines": [
-                    14.5,
-                    9.5,
-                    4.5
-                ],
-                "horizontal_labels": [
-                    (17, WSTRING("severe")),
-                    (12, WSTRING("moderate")),
-                    (7, WSTRING("mild")),
-                    (2.25, WSTRING("none"))
-                ]
-            }
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="GAD-7 total score",
+            axis_label="Total score (out of 21)",
+            axis_min=-0.5,
+            axis_max=21.5,
+            horizontal_lines=[14.5, 9.5, 4.5],
+            horizontal_labels=[
+                TrackerLabel(17, WSTRING("severe")),
+                TrackerLabel(12, WSTRING("moderate")),
+                TrackerLabel(7, WSTRING("mild")),
+                TrackerLabel(2.25, WSTRING("none")),
+            ]
+        )]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{"content": "GAD-7 total score {}/21 ({})".format(
-            self.total_score(), self.severity())}]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="GAD-7 total score {}/21 ({})".format(
+                self.total_score(), self.severity())
+        )]
 
     def get_summaries(self):
         return [
@@ -96,16 +94,16 @@ class Gad7(Task):
                  comment="Severity"),
         ]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.are_all_fields_complete(self.TASK_FIELDS) and
             self.field_contents_valid()
         )
 
-    def total_score(self):
+    def total_score(self) -> int:
         return self.sum_fields(self.TASK_FIELDS)
 
-    def severity(self):
+    def severity(self) -> str:
         score = self.total_score()
         if score >= 15:
             severity = WSTRING("severe")
@@ -117,7 +115,7 @@ class Gad7(Task):
             severity = WSTRING("none")
         return severity
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         score = self.total_score()
         severity = self.severity()
         answer_dict = {None: None}

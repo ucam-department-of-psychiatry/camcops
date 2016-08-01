@@ -21,8 +21,9 @@
     limitations under the License.
 """
 
+from typing import List
+
 from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
     PV,
 )
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
@@ -33,7 +34,13 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    CtvInfo,
+    CTV_INCOMPLETE,
+    get_from_dict,
+    Task,
+    TrackerInfo,
+)
 
 
 # =============================================================================
@@ -65,23 +72,21 @@ class Aims(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "AIMS total score",
-                "axis_label": "Total score (out of 40)",
-                "axis_min": -0.5,
-                "axis_max": 40.5,
-            }
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="AIMS total score",
+            axis_label="Total score (out of 40)",
+            axis_min=-0.5,
+            axis_max=40.5
+        )]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content": "AIMS total score {}/40".format(self.total_score())
-        }]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="AIMS total score {}/40".format(self.total_score())
+        )]
 
     def get_summaries(self):
         return [
@@ -90,22 +95,21 @@ class Aims(Task):
                  comment="Total score (/40)"),
         ]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (self.are_all_fields_complete(Aims.TASK_FIELDS) and
                 self.field_contents_valid())
 
-    def total_score(self):
+    def total_score(self) -> int:
         return self.sum_fields(repeat_fieldname("q", 1, Aims.NSCOREDQUESTIONS))
 
-    # noinspection PyPep8Naming
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         score = self.total_score()
-        MAIN_DICT = {None: None}
-        Q10_DICT = {None: None}
+        main_dict = {None: None}
+        q10_dict = {None: None}
         for option in range(0, 5):
-            MAIN_DICT[option] = str(option) + " — " + \
+            main_dict[option] = str(option) + " — " + \
                 WSTRING("aims_main_option" + str(option))
-            Q10_DICT[option] = str(option) + " — " + \
+            q10_dict[option] = str(option) + " — " + \
                 WSTRING("aims_q10_option" + str(option))
         h = """
             <div class="summary">
@@ -125,9 +129,9 @@ class Aims(Task):
         """
         for q in range(1, 10):
             h += tr_qa(WSTRING("aims_q" + str(q) + "_s"),
-                       get_from_dict(MAIN_DICT, getattr(self, "q" + str(q))))
+                       get_from_dict(main_dict, getattr(self, "q" + str(q))))
         h += (
-            tr_qa(WSTRING("aims_q10_s"), get_from_dict(Q10_DICT, self.q10)) +
+            tr_qa(WSTRING("aims_q10_s"), get_from_dict(q10_dict, self.q10)) +
             tr_qa(WSTRING("aims_q11_s"), get_yes_no_none(self.q11)) +
             tr_qa(WSTRING("aims_q12_s"), get_yes_no_none(self.q12)) +
             """

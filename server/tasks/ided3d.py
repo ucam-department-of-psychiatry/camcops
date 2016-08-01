@@ -21,10 +21,11 @@
     limitations under the License.
 """
 
+from typing import List
+
 import cardinal_pythonlib.rnc_web as ws
-from ..cc_modules.cc_constants import (
-    PV,
-)
+
+from ..cc_modules.cc_constants import PV
 from ..cc_modules.cc_html import (
     answer,
     get_yes_no_none,
@@ -36,7 +37,7 @@ from ..cc_modules.cc_string import WSTRING
 from ..cc_modules.cc_task import Ancillary, Task
 
 
-def a(x):
+def a(x: Any) -> str:
     """Answer formatting for this task."""
     return answer(x, formatter_answer=identity, default="")
 
@@ -92,7 +93,7 @@ class IDED3DTrial(Ancillary):
     sortfield = "trial"
 
     @classmethod
-    def get_html_table_header(cls):
+    def get_html_table_header(cls) -> str:
         return """
             <table class="extradetail">
                 <tr>
@@ -115,7 +116,7 @@ class IDED3DTrial(Ancillary):
                 </tr>
         """
 
-    def get_html_table_row(self):
+    def get_html_table_row(self) -> str:
         return tr(
             a(self.trial),
             a(self.stage),
@@ -188,7 +189,7 @@ class IDED3DStage(Ancillary):
     sortfield = "stage"
 
     @classmethod
-    def get_html_table_header(cls):
+    def get_html_table_header(cls) -> str:
         return """
             <table class="extradetail">
                 <tr>
@@ -212,7 +213,7 @@ class IDED3DStage(Ancillary):
                 </tr>
         """
 
-    def get_html_table_row(self):
+    def get_html_table_row(self) -> str:
         return tr(
             a(self.stage),
             a(self.stage_name),
@@ -283,11 +284,11 @@ class IDED3D(Task):
     ]
     dependent_classes = [IDED3DTrial, IDED3DStage]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return bool(self.finished)
 
     @staticmethod
-    def get_stage_html(stagearray):
+    def get_stage_html(stagearray: List[IDED3DStage]) -> str:
         html = IDED3DStage.get_html_table_header()
         for s in stagearray:
             html += s.get_html_table_row()
@@ -295,22 +296,22 @@ class IDED3D(Task):
         return html
 
     @staticmethod
-    def get_trial_html(trialarray):
+    def get_trial_html(trialarray: List[IDED3DTrial]) -> str:
         html = IDED3DTrial.get_html_table_header()
         for t in trialarray:
             html += t.get_html_table_row()
         html += """</table>"""
         return html
 
-    def get_stage_array(self):
+    def get_stage_array(self) -> List[IDED3DStage]:
         # Fetch group details
         return self.get_ancillary_items(IDED3DStage)
 
-    def get_trial_array(self):
+    def get_trial_array(self) -> List[IDED3DTrial]:
         # Fetch trial details
         return self.get_ancillary_items(IDED3DTrial)
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         stagearray = self.get_stage_array()
         trialarray = self.get_trial_array()
         # THIS IS A NON-EDITABLE TASK, so we *ignore* the problem

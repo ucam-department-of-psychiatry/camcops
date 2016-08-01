@@ -21,14 +21,14 @@
     limitations under the License.
 """
 
+from typing import List, Optional
+
 import cardinal_pythonlib.rnc_web as ws
+
 from ..cc_modules.cc_db import repeat_fieldspec
-from ..cc_modules.cc_html import (
-    answer,
-    tr,
-)
+from ..cc_modules.cc_html import answer, tr
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import Task, TrackerInfo
 
 
 # =============================================================================
@@ -102,7 +102,7 @@ class Cape42(Task):
             comment_strings=QUESTION_SNIPPETS)
     )
 
-    def get_trackers(self):
+    def get_trackers(self) -> List[TrackerInfo]:
         fstr1 = "CAPE-42 weighted frequency score: "
         dstr1 = "CAPE-42 weighted distress score: "
         wtr = " ({low}–{high})".format(
@@ -113,62 +113,62 @@ class Cape42(Task):
         axis_min = MIN_SCORE_PER_Q - 0.2
         axis_max = MAX_SCORE_PER_Q + 0.2
         return [
-            {
-                "value": self.weighted_frequency_score(ALL),
-                "plot_label": fstr1 + "overall",
-                "axis_label": "Overall" + fstr2,
-                "axis_min": axis_min,
-                "axis_max": axis_max,
-            },
-            {
-                "value": self.weighted_distress_score(ALL),
-                "plot_label": dstr1 + "overall",
-                "axis_label": "Overall" + dstr2,
-                "axis_min": axis_min,
-                "axis_max": axis_max,
-            },
-            {
-                "value": self.weighted_frequency_score(POSITIVE),
-                "plot_label": fstr1 + "positive symptoms",
-                "axis_label": "Positive Sx" + fstr2,
-                "axis_min": axis_min,
-                "axis_max": axis_max,
-            },
-            {
-                "value": self.weighted_distress_score(POSITIVE),
-                "plot_label": dstr1 + "positive symptoms",
-                "axis_label": "Positive Sx" + dstr2,
-                "axis_min": axis_min,
-                "axis_max": axis_max,
-            },
-            {
-                "value": self.weighted_frequency_score(NEGATIVE),
-                "plot_label": fstr1 + "negative symptoms",
-                "axis_label": "Negative Sx" + fstr2,
-                "axis_min": axis_min,
-                "axis_max": axis_max,
-            },
-            {
-                "value": self.weighted_distress_score(NEGATIVE),
-                "plot_label": dstr1 + "negative symptoms",
-                "axis_label": "Negative Sx" + dstr2,
-                "axis_min": axis_min,
-                "axis_max": axis_max,
-            },
-            {
-                "value": self.weighted_frequency_score(DEPRESSIVE),
-                "plot_label": fstr1 + "depressive symptoms",
-                "axis_label": "Depressive Sx" + fstr2,
-                "axis_min": axis_min,
-                "axis_max": axis_max,
-            },
-            {
-                "value": self.weighted_distress_score(DEPRESSIVE),
-                "plot_label": dstr1 + "depressive symptoms",
-                "axis_label": "Depressive Sx" + dstr2,
-                "axis_min": axis_min,
-                "axis_max": axis_max,
-            },
+            TrackerInfo(
+                value=self.weighted_frequency_score(ALL),
+                plot_label=fstr1 + "overall",
+                axis_label="Overall" + fstr2,
+                axis_min=axis_min,
+                axis_max=axis_max
+            ),
+            TrackerInfo(
+                value=self.weighted_distress_score(ALL),
+                plot_label=dstr1 + "overall",
+                axis_label="Overall" + dstr2,
+                axis_min=axis_min,
+                axis_max=axis_max,
+            ),
+            TrackerInfo(
+                value=self.weighted_frequency_score(POSITIVE),
+                plot_label=fstr1 + "positive symptoms",
+                axis_label="Positive Sx" + fstr2,
+                axis_min=axis_min,
+                axis_max=axis_max
+            ),
+            TrackerInfo(
+                value=self.weighted_distress_score(POSITIVE),
+                plot_label=dstr1 + "positive symptoms",
+                axis_label="Positive Sx" + dstr2,
+                axis_min=axis_min,
+                axis_max=axis_max
+            ),
+            TrackerInfo(
+                value=self.weighted_frequency_score(NEGATIVE),
+                plot_label=fstr1 + "negative symptoms",
+                axis_label="Negative Sx" + fstr2,
+                axis_min=axis_min,
+                axis_max=axis_max,
+            ),
+            TrackerInfo(
+                value=self.weighted_distress_score(NEGATIVE),
+                plot_label=dstr1 + "negative symptoms",
+                axis_label="Negative Sx" + dstr2,
+                axis_min=axis_min,
+                axis_max=axis_max,
+            ),
+            TrackerInfo(
+                value=self.weighted_frequency_score(DEPRESSIVE),
+                plot_label=fstr1 + "depressive symptoms",
+                axis_label="Depressive Sx" + fstr2,
+                axis_min=axis_min,
+                axis_max=axis_max,
+            ),
+            TrackerInfo(
+                value=self.weighted_distress_score(DEPRESSIVE),
+                plot_label=dstr1 + "depressive symptoms",
+                axis_label="Depressive Sx" + dstr2,
+                axis_min=axis_min,
+                axis_max=axis_max,
+            ),
         ]
 
     def get_summaries(self):
@@ -266,7 +266,7 @@ class Cape42(Task):
                 comment="Weighted distress score: depressive symptoms" + wtr),
         ]
 
-    def is_question_complete(self, q):
+    def is_question_complete(self, q: int) -> bool:
         f = self.get_frequency(q)
         if f is None:
             return False
@@ -274,7 +274,7 @@ class Cape42(Task):
             return False
         return True
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         if not self.field_contents_valid():
             return False
         for q in ALL:
@@ -282,22 +282,22 @@ class Cape42(Task):
                 return False
         return True
 
-    def get_frequency(self, q):
+    def get_frequency(self, q: int) -> Optional[int]:
         return getattr(self, "frequency" + str(q))
 
-    def get_distress(self, q):
+    def get_distress(self, q: int) -> Optional[int]:
         return getattr(self, "distress" + str(q))
 
-    def get_distress_score(self, q):
+    def get_distress_score(self, q: int) -> Optional[int]:
         if not self.endorsed(q):
             return MIN_SCORE_PER_Q
         return self.get_distress(q)
 
-    def endorsed(self, q):
+    def endorsed(self, q: int) -> bool:
         f = self.get_frequency(q)
         return f is not None and f > MIN_SCORE_PER_Q
 
-    def distress_score(self, qlist):
+    def distress_score(self, qlist: List[int]) -> int:
         score = 0
         for q in qlist:
             d = self.get_distress_score(q)
@@ -305,7 +305,7 @@ class Cape42(Task):
                 score += d
         return score
 
-    def frequency_score(self, qlist):
+    def frequency_score(self, qlist: List[int]) -> int:
         score = 0
         for q in qlist:
             f = self.get_frequency(q)
@@ -313,7 +313,7 @@ class Cape42(Task):
                 score += f
         return score
 
-    def weighted_frequency_score(self, qlist):
+    def weighted_frequency_score(self, qlist: List[int]) -> Optional[float]:
         score = 0
         n = 0
         for q in qlist:
@@ -325,7 +325,7 @@ class Cape42(Task):
             return None
         return score / n
 
-    def weighted_distress_score(self, qlist):
+    def weighted_distress_score(self, qlist: List[int]) -> Optional[float]:
         score = 0
         n = 0
         for q in qlist:
@@ -339,7 +339,7 @@ class Cape42(Task):
         return score / n
 
     @staticmethod
-    def question_category(q):
+    def question_category(q: int) -> str:
         if q in POSITIVE:
             return "P"
         if q in NEGATIVE:
@@ -348,7 +348,7 @@ class Cape42(Task):
             return "D"
         return "?"
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         h = """
             <div class="summary">
                 <table class="summary">

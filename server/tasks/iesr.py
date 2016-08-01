@@ -21,18 +21,19 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-    DATA_COLLECTION_UNLESS_UPGRADED_DIV,
-)
+from typing import List
+
+from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV
 from ..cc_modules.cc_db import repeat_fieldspec
-from ..cc_modules.cc_html import (
-    answer,
-    tr,
-    tr_qa,
-)
+from ..cc_modules.cc_html import answer, tr, tr_qa
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    CtvInfo,
+    CTV_INCOMPLETE,
+    get_from_dict,
+    Task,
+    TrackerInfo,
+)
 
 
 # =============================================================================
@@ -89,36 +90,36 @@ class Iesr(Task):
     INTRUSION_QUESTIONS = [1, 2, 3, 6, 9, 16, 20]
     HYPERAROUSAL_QUESTIONS = [4, 10, 14, 15, 18, 19, 21]
 
-    def get_trackers(self):
+    def get_trackers(self) -> List[TrackerInfo]:
         return [
-            {
-                "value": self.total_score(),
-                "plot_label": "IES-R total score (lower is better)",
-                "axis_label": "Total score (out of 88)",
-                "axis_min": -0.5,
-                "axis_max": 88.5,
-            },
-            {
-                "value": self.avoidance_score(),
-                "plot_label": "IES-R avoidance score",
-                "axis_label": "Avoidance score (out of 32)",
-                "axis_min": -0.5,
-                "axis_max": 32.5,
-            },
-            {
-                "value": self.intrusion_score(),
-                "plot_label": "IES-R intrusion score",
-                "axis_label": "Intrusion score (out of 28)",
-                "axis_min": -0.5,
-                "axis_max": 28.5,
-            },
-            {
-                "value": self.hyperarousal_score(),
-                "plot_label": "IES-R hyperarousal score",
-                "axis_label": "Hyperarousal score (out of 28)",
-                "axis_min": -0.5,
-                "axis_max": 28.5,
-            },
+            TrackerInfo(
+                value=self.total_score(),
+                plot_label="IES-R total score (lower is better)",
+                axis_label="Total score (out of 88)",
+                axis_min=-0.5,
+                axis_max=88.5
+            ),
+            TrackerInfo(
+                value=self.avoidance_score(),
+                plot_label="IES-R avoidance score",
+                axis_label="Avoidance score (out of 32)",
+                axis_min=-0.5,
+                axis_max=32.5
+            ),
+            TrackerInfo(
+                value=self.intrusion_score(),
+                plot_label="IES-R intrusion score",
+                axis_label="Intrusion score (out of 28)",
+                axis_min=-0.5,
+                axis_max=28.5
+            ),
+            TrackerInfo(
+                value=self.hyperarousal_score(),
+                plot_label="IES-R hyperarousal score",
+                axis_label="Hyperarousal score (out of 28)",
+                axis_min=-0.5,
+                axis_max=28.5
+            ),
         ]
 
     def get_summaries(self):
@@ -138,40 +139,45 @@ class Iesr(Task):
                  comment="Hyperarousal score (/ 28)"),
         ]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
+            return CTV_INCOMPLETE
         t = self.total_score()
         a = self.avoidance_score()
         i = self.intrusion_score()
         h = self.hyperarousal_score()
-        return [{"content": "IES-R total score {t}/48 (avoidance {a}/32 "
-                            "intrusion {i}/28, hyperarousal {h}/28)".format(
-                                t=t, a=a, i=i, h=h)}]
+        return [CtvInfo(
+            content=(
+                "IES-R total score {t}/48 (avoidance {a}/32 "
+                "intrusion {i}/28, hyperarousal {h}/28)".format(
+                    t=t, a=a, i=i, h=h
+                )
+            )
+        )]
 
-    def total_score(self):
+    def total_score(self) -> int:
         return self.sum_fields(self.QUESTION_FIELDS)
 
-    def avoidance_score(self):
+    def avoidance_score(self) -> int:
         return self.sum_fields(
             self.fieldnames_from_list("q", self.AVOIDANCE_QUESTIONS))
 
-    def intrusion_score(self):
+    def intrusion_score(self) -> int:
         return self.sum_fields(
             self.fieldnames_from_list("q", self.INTRUSION_QUESTIONS))
 
-    def hyperarousal_score(self):
+    def hyperarousal_score(self) -> int:
         return self.sum_fields(
             self.fieldnames_from_list("q", self.HYPERAROUSAL_QUESTIONS))
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.field_contents_valid() and
             self.event and
             self.are_all_fields_complete(self.QUESTION_FIELDS)
         )
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         option_dict = {None: None}
         for a in range(self.MIN_SCORE, self.MAX_SCORE + 1):
             option_dict[a] = WSTRING("iesr_a" + str(a))

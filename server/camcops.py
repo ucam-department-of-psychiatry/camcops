@@ -146,6 +146,7 @@ def application(environ, start_response):
     # Trap any errors from here.
     # http://doughellmann.com/2009/06/19/python-exception-handling-techniques.html  # noqa
 
+    # noinspection PyBroadException
     try:
         if path == URL_ROOT_WEBVIEW:
             return webview_application(environ, start_response)
@@ -167,6 +168,7 @@ def application(environ, start_response):
         try:
             raise  # re-raise the original error
         finally:
+            # noinspection PyBroadException
             try:
                 pls.db.rollback()
             except:
@@ -217,6 +219,95 @@ def change_column(tablename, oldfieldname, newfieldname, newdef):
 
 def rename_table(from_table, to_table):
     pls.db.rename_table(from_table, to_table)
+
+
+def v1_5_alter_device_table():
+    tablename = '_security_devices'
+    if pls.db.column_exists(tablename, 'id'):
+        log.warning("Column 'id' already exists in table {}".format(tablename))
+        return
+    sql = """
+        ALTER TABLE {table}
+            ADD COLUMN id INT UNSIGNED UNIQUE KEY AUTO_INCREMENT;
+        ALTER TABLE {table} DROP PRIMARY KEY;
+        ALTER TABLE {table} ADD PRIMARY KEY (id);
+        ALTER TABLE {table} CHANGE COLUMN device name VARCHAR(255);
+        ALTER TABLE {table} ADD UNIQUE KEY (name);
+    """.format(table=tablename)
+    # Must be a key to be AUTO_INCREMENT
+    # The manual addition of the PRIMARY KEY may be superfluous.
+    pls.db.db_exec_literal(sql)
+
+
+def v1_5_alter_user_table():
+    tablename = '_security_users'
+    if pls.db.column_exists(tablename, 'id'):
+        log.warning("Column 'id' already exists in table {}".format(tablename))
+        return
+    sql = """
+        ALTER TABLE {table}
+        ADD COLUMN id INT UNSIGNED UNIQUE KEY AUTO_INCREMENT;
+        ALTER TABLE {table} DROP PRIMARY KEY;
+        ALTER TABLE {table} ADD PRIMARY KEY (id);
+        ALTER TABLE {table} CHANGE COLUMN user username VARCHAR(255);
+        ALTER TABLE {table} ADD UNIQUE KEY (username);
+    """.format(table='')
+    pls.db.db_exec_literal(sql)
+
+
+def v1_5_alter_generic_table_usercol(tablename, from_col, to_col):
+    if pls.db.column_exists(tablename, to_col):
+        log.warning("Column '{}' already exists in table {}".format(
+            to_col, tablename))
+        return
+    sql = """
+        ALTER TABLE {table} ADD COLUMN {to_col} INT UNSIGNED;
+        UPDATE {table} AS altering
+                INNER JOIN {lookup} AS lookup
+                ON altering.{from_col} = lookup.username
+            SET altering.{to_col} = lookup.id;
+        ALTER TABLE {table} DROP COLUMN {from_col};
+    """.format(table=tablename,
+               lookup="_security_users",
+               to_col=to_col,
+               from_col=from_col)
+    pls.db.db_exec_literal(sql)
+
+
+def v1_5_alter_generic_table(tablename):
+    # -------------------------------------------------------------------------
+    # Device ID
+    # -------------------------------------------------------------------------
+    sql = """
+        ALTER TABLE {table} ADD COLUMN _device_id INT UNSIGNED;
+        UPDATE {table} AS altering
+                INNER JOIN {lookup} AS lookup
+                ON altering._device = lookup.name
+            SET altering._device_id = lookup.id;
+        CREATE INDEX _idx__device_id ON qqq (_device_id);
+        ALTER TABLE {table} DROP COLUMN _device;
+    """.format(table=tablename, lookup="_security_devices")
+    if pls.db.column_exists(tablename, '_device_id'):
+        log.warning("Column '_device_id' already exists in table {}".format(
+            tablename))
+    else:
+        pls.db.db_exec_literal(sql)
+
+    # -------------------------------------------------------------------------
+    # User IDs
+    # -------------------------------------------------------------------------
+    v1_5_alter_generic_table_usercol(tablename,
+                                     '_adding_user',
+                                     '_adding_user_id')
+    v1_5_alter_generic_table_usercol(tablename,
+                                     '_removing_user',
+                                     '_removing_user_id')
+    v1_5_alter_generic_table_usercol(tablename,
+                                     '_preserving_user',
+                                     '_preserving_user_id')
+    v1_5_alter_generic_table_usercol(tablename,
+                                     '_manually_erasing_user',
+                                     '_manually_erasing_user_id')
 
 
 def upgrade_database(old_version):
@@ -311,6 +402,38 @@ def upgrade_database(old_version):
         modify_column("patient", "idnum6", "BIGINT UNSIGNED")
         modify_column("patient", "idnum7", "BIGINT UNSIGNED")
         modify_column("patient", "idnum8", "BIGINT UNSIGNED")
+
+    if old_version < 1.5:
+        report_database_upgrade_step("1.5")
+        # ---------------------------------------------------------------------
+        # 1.
+        #   Create:
+        #     _security_devices.id INT UNSIGNED (autoincrement)
+        #   Rename:
+        #     _security_devices.device -> _security_devices.name
+        #   Change references in everything else:
+        #     _device VARCHAR(255) -> _device_id INT UNSIGNED
+        # 2.
+        #   Create:
+        #     _security_users.id
+        #   Rename:
+        #     _security_users.user -> _security_users.username
+        #   Change all references:
+        #     _adding_user VARCHAR(255) -> _adding_user_id INT UNSIGNED
+        #     _removing_user VARCHAR(255) -> _removing_user_id INT UNSIGNED
+        #     _preserving_user VARCHAR(255) -> _preserving_user_id INT UNSIGNED
+        #     _manually_erasing_user VARCHAR(255) -> _manually_erasing_user_id INT UNSIGNED  # noqa
+        # ---------------------------------------------------------------------
+        v1_5_alter_device_table()
+        v1_5_alter_user_table()
+        for cls in cc_task.get_all_task_classes():
+            cls.drop_views()
+            cls.drop_summary_tables()
+            tables, views = cls.get_all_table_and_view_names()
+            for tablename in tables:
+                v1_5_alter_generic_table(tablename)
+        # Note: OK to drop columns even if a view is looking at them,
+        # though the view will then be invalid.
 
     # (etc.)
 

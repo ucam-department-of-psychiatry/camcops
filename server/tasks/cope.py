@@ -21,9 +21,9 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    PV,
-)
+from typing import List
+
+from ..cc_modules.cc_constants import PV
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import tr_qa
 from ..cc_modules.cc_string import WSTRING
@@ -138,7 +138,7 @@ class CopeBrief(Task):
                  comment="Self-blame (2-8)"),
         ]
 
-    def is_complete_responder(self):
+    def is_complete_responder(self) -> bool:
         if self.completed_by_patient is None:
             return False
         if self.completed_by_patient:
@@ -150,7 +150,7 @@ class CopeBrief(Task):
             return False
         return True
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.is_complete_responder() and
             self.are_all_fields_complete(
@@ -158,49 +158,49 @@ class CopeBrief(Task):
             self.field_contents_valid()
         )
 
-    def self_distraction(self):
+    def self_distraction(self) -> int:
         return self.sum_fields(["q1", "q19"])
 
-    def active_coping(self):
+    def active_coping(self) -> int:
         return self.sum_fields(["q2", "q7"])
 
-    def denial(self):
+    def denial(self) -> int:
         return self.sum_fields(["q3", "q8"])
 
-    def substance_use(self):
+    def substance_use(self) -> int:
         return self.sum_fields(["q4", "q11"])
 
-    def emotional_support(self):
+    def emotional_support(self) -> int:
         return self.sum_fields(["q5", "q15"])
 
-    def instrumental_support(self):
+    def instrumental_support(self) -> int:
         return self.sum_fields(["q10", "q23"])
 
-    def behavioural_disengagement(self):
+    def behavioural_disengagement(self) -> int:
         return self.sum_fields(["q6", "q16"])
 
-    def venting(self):
+    def venting(self) -> int:
         return self.sum_fields(["q9", "q21"])
 
-    def positive_reframing(self):
+    def positive_reframing(self) -> int:
         return self.sum_fields(["q12", "q17"])
 
-    def planning(self):
+    def planning(self) -> int:
         return self.sum_fields(["q14", "q25"])
 
-    def humour(self):
+    def humour(self) -> int:
         return self.sum_fields(["q18", "q28"])
 
-    def acceptance(self):
+    def acceptance(self) -> int:
         return self.sum_fields(["q20", "q24"])
 
-    def religion(self):
+    def religion(self) -> int:
         return self.sum_fields(["q22", "q27"])
 
-    def self_blame(self):
+    def self_blame(self) -> int:
         return self.sum_fields(["q13", "q26"])
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         answer_dict = {None: None}
         for option in range(0, 3 + 1):
             answer_dict[option] = (

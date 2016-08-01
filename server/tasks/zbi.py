@@ -21,17 +21,13 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-    DATA_COLLECTION_UNLESS_UPGRADED_DIV,
-)
+from typing import List
+
+from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV
 from ..cc_modules.cc_db import repeat_fieldspec
-from ..cc_modules.cc_html import (
-    answer,
-    tr,
-)
+from ..cc_modules.cc_html import answer, tr
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, get_from_dict, Task
 
 
 # =============================================================================
@@ -78,23 +74,23 @@ class Zbi12(Task):
                  comment="Total score (/ 48)"),
         ]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{"content": "ZBI-12 total score {}/48".format(
-            self.total_score())}]
+            return CTV_INCOMPLETE
+        return [CtvInfo(content="ZBI-12 total score {}/48".format(
+            self.total_score()))]
 
-    def total_score(self):
+    def total_score(self) -> int:
         return self.sum_fields(self.TASK_FIELDS)
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.field_contents_valid() and
             self.is_respondent_complete() and
             self.are_all_fields_complete(self.TASK_FIELDS)
         )
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         option_dict = {None: None}
         for a in range(self.MIN_SCORE, self.MAX_SCORE + 1):
             option_dict[a] = WSTRING("zbi_a" + str(a))

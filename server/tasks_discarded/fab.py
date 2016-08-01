@@ -21,10 +21,12 @@
     limitations under the License.
 """
 
+from typing import List
+
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import get_yes_no
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import get_from_dict, Task, TrackerInfo, TrackerLabel
 
 
 # =============================================================================
@@ -42,22 +44,20 @@ class Fab(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "FAB total score",
-                "axis_label": "Total score (out of 18)",
-                "axis_min": -0.5,
-                "axis_max": 30.5,
-                "horizontal_lines": [
-                    12.5,
-                ],
-                "horizontal_labels": [
-                    (11, "suggests frontal dysfunction"),
-                ]
-            }
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="FAB total score",
+            axis_label="Total score (out of 18)",
+            axis_min=-0.5,
+            axis_max=30.5,
+            horizontal_lines=[
+                12.5,
+            ],
+            horizontal_labels=[
+                TrackerLabel(11, "suggests frontal dysfunction"),
+            ]
+        )]
 
     def get_summaries(self):
         return [
@@ -66,13 +66,13 @@ class Fab(Task):
                  value=self.total_score(), comment="Total score"),
         ]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return self.are_all_fields_complete(self.TASK_FIELDS)
 
-    def total_score(self):
+    def total_score(self) -> int:
         return self.sum_fields(self.TASK_FIELDS)
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         score = self.total_score()
         below_cutoff = score <= 12
         answer_dicts = []

@@ -21,11 +21,14 @@
     limitations under the License.
 """
 
+from typing import Dict, List
+
 import cardinal_pythonlib.rnc_web as ws
+
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import get_yes_no
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import get_from_dict, Task, TrackerInfo
 
 
 # =============================================================================
@@ -53,16 +56,14 @@ class Gass(Task):
         repeat_fieldspec("d", 1, NQUESTIONS)
     )
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "GASS total score",
-                "axis_label": "Total score (out of 63)",
-                "axis_min": -0.5,
-                "axis_max": 63.5,
-            }
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="GASS total score",
+            axis_label="Total score (out of 63)",
+            axis_min=-0.5,
+            axis_max=63.5
+        )]
 
     def get_summaries(self):
         return [
@@ -72,14 +73,14 @@ class Gass(Task):
         ]
 
     @staticmethod
-    def get_q_fieldlist(group):
+    def get_q_fieldlist(group) -> List[str]:
         return ["q" + str(q) for q in group]
 
     @staticmethod
-    def get_d_fieldlist(group):
+    def get_d_fieldlist(group) -> List[str]:
         return ["d" + str(q) for q in group]
 
-    def get_relevant_q_fieldlist(self):
+    def get_relevant_q_fieldlist(self) -> List[str]:
         qnums = range(1, self.NQUESTIONS + 1)
         if self.is_female():
             qnums.remove(20)
@@ -87,17 +88,17 @@ class Gass(Task):
             qnums.remove(21)
         return ["q" + str(q) for q in qnums]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return self.are_all_fields_complete(self.get_relevant_q_fieldlist())
 
-    def total_score(self):
+    def total_score(self) -> int:
         return self.sum_fields(self.get_relevant_q_fieldlist())
 
-    def group_score(self, qnums):
+    def group_score(self, qnums: List[int]) -> int:
         return self.sum_fields(self.get_q_fieldlist(qnums))
 
     @staticmethod
-    def get_subheading(subtitle, score, max_score):
+    def get_subheading(subtitle: str, score: int, max_score: int) -> str:
         return """
             <tr class="subheading">
                 <td>{}</td>
@@ -109,14 +110,17 @@ class Gass(Task):
             max_score
         )
 
-    def get_row(self, q, answer_dict):
+    def get_row(self, q: int, answer_dict: Dict) -> str:
         return """<tr><td>{}</td><td><b>{}</b></td><td>{}</td></tr>""".format(
             WSTRING("gass_q" + str(q)),
             get_from_dict(answer_dict, getattr(self, "q" + str(q))),
             get_yes_no(getattr(self, "d" + str(q)))
         )
 
-    def get_group_html(self, qnums, subtitle, answer_dict):
+    def get_group_html(self,
+                       qnums: List[int],
+                       subtitle: str,
+                       answer_dict: Dict) -> str:
         h = self.get_subheading(
             subtitle,
             self.group_score(qnums),
@@ -126,7 +130,7 @@ class Gass(Task):
             h += self.get_row(q, answer_dict)
         return h
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         score = self.total_score()
         answer_dict = {None: "?"}
         for option in range(0, 4):

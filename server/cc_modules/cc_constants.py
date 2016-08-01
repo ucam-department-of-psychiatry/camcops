@@ -354,8 +354,9 @@ STANDARD_GENERIC_FIELDSPECS = [
          comment="(SERVER) 'NOW', or when this row was preserved and removed "
                  "from the source device (UTC ISO 8601)",
          indexed=True, index_nchar=ISO8601_STRING_LENGTH),
-    # ... note that _era is TEXT so that plain comparison
-    # with "=" always works, i.e. no NULLs
+    # ... note that _era is textual so that plain comparison
+    # with "=" always works, i.e. no NULLs -- for USER comparison too, not
+    # just in CamCOPS code
     dict(name="_current", cctype="BOOL", notnull=True,
          comment="(SERVER) Is the row current (1) or not (0)?", indexed=True),
     dict(name="_when_added_exact", cctype="ISO8601",
@@ -547,7 +548,7 @@ PDF_LOGO_HEIGHT = "20mm"
 
 CSS_PAGED_MEDIA = (PDF_ENGINE != "pdfkit")
 
-COMMON_DEFINITIONS = {
+COMMON_DEFINITIONS = {  # dict for CSS substitutions
     "SMALLFONTSIZE": "0.85em",
     "TINYFONTSIZE": "0.7em",
     "LARGEFONTSIZE": "1.2em",
@@ -575,7 +576,7 @@ COMMON_DEFINITIONS = {
     "PDF_LOGO_HEIGHT": PDF_LOGO_HEIGHT,
 }
 
-WEB_SIZES = {
+WEB_SIZES = {  # dict for CSS substitutions
     "MAINFONTSIZE": "medium",
     "SMALLGAP": "2px",
     "ELEMENTGAP": "5px",
@@ -598,7 +599,7 @@ WEB_SIZES = {
 # - bottom: HP Laserjet 1100 e.g. clips at about 15mm
 # ... so 20mm all round about right
 
-PDF_SIZES = {
+PDF_SIZES = {  # dict for CSS substitutions
     "MAINFONTSIZE": "10pt",
     "SMALLGAP": "0.2mm",
     "ELEMENTGAP": "1mm",
@@ -1153,7 +1154,7 @@ WKHTMLTOPDF_CSS = string.Template("""
 """).substitute(merge_dicts(COMMON_DEFINITIONS, PDF_SIZES))
 # http://stackoverflow.com/questions/11447672/fix-wkhtmltopdf-headers-clipping-content  # noqa
 
-WKHTMLTOPDF_OPTIONS = {
+WKHTMLTOPDF_OPTIONS = {  # dict for pdfkit
     "page-size": "A4",
     "margin-left": "20mm",
     "margin-right": "20mm",
@@ -1184,10 +1185,6 @@ HL7MESSAGE_TABLENAME = "_hl7_message_log"
 
 ANON_PATIENT = "XXXX"
 COMMENT_IS_COMPLETE = "Task complete?"
-CTV_DICTLIST_INCOMPLETE = [{
-    "description": "Incomplete",
-    "skip_if_no_content": False
-}]
 DATA_COLLECTION_ONLY_DIV = """
     <div class="copyright">
         Reproduction of the original task/scale is not permitted.

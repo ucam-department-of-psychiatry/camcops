@@ -21,7 +21,10 @@
     limitations under the License.
 """
 
+from typing import Any, Dict, List, Optional
+
 import cardinal_pythonlib.rnc_web as ws
+
 from ..cc_modules.cc_constants import (
     PV,
 )
@@ -617,7 +620,7 @@ class CecaQ3(Task):
     # Complete?
     # -------------------------------------------------------------------------
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.complete_1a() and
             self.complete_1b() and
@@ -635,13 +638,13 @@ class CecaQ3(Task):
             self.field_contents_valid()
         )
 
-    def is_at_least_one_field_true(self, fields):
+    def is_at_least_one_field_true(self, fields: List[str]) -> bool:
         for f in fields:
             if getattr(self, f):
                 return True
         return True
 
-    def complete_1a(self):
+    def complete_1a(self) -> bool:
         if not self.is_at_least_one_field_true([
             "s1a_motherfigure_birthmother",
             "s1a_motherfigure_stepmother",
@@ -673,14 +676,14 @@ class CecaQ3(Task):
             return False
         return True
 
-    def complete_1b(self):
+    def complete_1b(self) -> bool:
         if self.s1b_institution is None:
             return False
         if self.s1b_institution and self.s1b_institution_time_years is None:
             return False
         return True
 
-    def complete_1c(self):
+    def complete_1c(self) -> bool:
         if self.s1c_mother_died is None or self.s1c_father_died is None:
             return False
         if self.s1c_mother_died and self.s1c_mother_died_subject_aged is None:
@@ -706,7 +709,7 @@ class CecaQ3(Task):
                 return False
         return True
 
-    def complete_2a(self):
+    def complete_2a(self) -> bool:
         if self.s2a_which_mother_figure is None:
             return False
         if self.s2a_which_mother_figure == 0:
@@ -719,7 +722,7 @@ class CecaQ3(Task):
                 return False
         return True
 
-    def complete_2b(self):
+    def complete_2b(self) -> bool:
         abuse = False
         if self.s2a_which_mother_figure == 0:
             return True
@@ -747,7 +750,7 @@ class CecaQ3(Task):
                 return False
         return True
 
-    def complete_3b(self):
+    def complete_3b(self) -> bool:
         abuse = False
         if self.s3a_which_father_figure == 0:
             return True
@@ -762,7 +765,7 @@ class CecaQ3(Task):
             return False
         return True
 
-    def complete_3c(self):
+    def complete_3c(self) -> bool:
         return self.are_all_fields_complete([
             "s3c_q1",
             "s3c_q2",
@@ -786,7 +789,7 @@ class CecaQ3(Task):
             "s3c_parent_physical_problem"
         ])
 
-    def complete_4a(self):
+    def complete_4a(self) -> bool:
         if self.s4a_adultconfidant is None:
             return False
         if not self.s4a_adultconfidant:
@@ -805,7 +808,7 @@ class CecaQ3(Task):
             return False
         return True
 
-    def complete_4b(self):
+    def complete_4b(self) -> bool:
         if self.s4b_childconfidant is None:
             return False
         if not self.s4b_childconfidant:
@@ -824,7 +827,7 @@ class CecaQ3(Task):
             return False
         return True
 
-    def complete_4c(self):
+    def complete_4c(self) -> bool:
         n = 0
         if self.s4c_closest_mother:
             n += 1
@@ -846,7 +849,7 @@ class CecaQ3(Task):
             return False
         return True
 
-    def complete_5(self):
+    def complete_5(self) -> bool:
         if self.s5c_physicalabuse is None:
             return False
         if self.s5c_physicalabuse == 0:
@@ -878,7 +881,7 @@ class CecaQ3(Task):
             return False
         return True
 
-    def complete_6(self):
+    def complete_6(self) -> bool:
         if (self.s6_any_unwanted_sexual_experience is None or
                 self.s6_unwanted_intercourse is None or
                 self.s6_upsetting_sexual_adult_authority is None):
@@ -905,7 +908,7 @@ class CecaQ3(Task):
     # Scoring
     # -------------------------------------------------------------------------
 
-    def total_sum_abort_if_none(self, fields):
+    def total_sum_abort_if_none(self, fields: List[str]) -> Optional[int]:
         total = 0
         for field in fields:
             value = getattr(self, field)
@@ -914,7 +917,8 @@ class CecaQ3(Task):
             total += value
         return total
 
-    def total_nonzero_scores_1_abort_if_none(self, fields):
+    def total_nonzero_scores_1_abort_if_none(self, fields: List[str]) \
+            -> Optional[int]:
         total = 0
         for field in fields:
             value = getattr(self, field)
@@ -924,16 +928,16 @@ class CecaQ3(Task):
                 total += 1
         return total
 
-    def parental_loss_risk(self):
-        return (
+    def parental_loss_risk(self) -> bool:
+        return bool(
             self.s1c_mother_died or
             self.s1c_father_died or
             self.s1c_separated_from_mother or
             self.s1c_separated_from_father
         )
 
-    def parental_loss_high_risk(self):
-        return (
+    def parental_loss_high_risk(self) -> bool:
+        return bool(
             self.s1c_separated_from_mother and (
                 self.s1c_mother_separation_reason == 5 or
                 self.s1c_mother_separation_reason == 6
@@ -944,7 +948,7 @@ class CecaQ3(Task):
             )
         )
 
-    def mother_antipathy(self):
+    def mother_antipathy(self) -> Optional[int]:
         if self.s2a_which_mother_figure == 0:
             return None
         total = 0
@@ -960,7 +964,7 @@ class CecaQ3(Task):
             total += score
         return total
 
-    def father_antipathy(self):
+    def father_antipathy(self) -> Optional[int]:
         if self.s3a_which_father_figure == 0:
             return None
         total = 0
@@ -976,7 +980,7 @@ class CecaQ3(Task):
             total += score
         return total
 
-    def mother_neglect(self):
+    def mother_neglect(self) -> Optional[int]:
         if self.s2a_which_mother_figure == 0:
             return None
         total = 0
@@ -989,7 +993,7 @@ class CecaQ3(Task):
             total += score
         return total
 
-    def father_neglect(self):
+    def father_neglect(self) -> Optional[int]:
         if self.s3a_which_father_figure == 0:
             return None
         total = 0
@@ -1002,7 +1006,7 @@ class CecaQ3(Task):
             total += score
         return total
 
-    def mother_psychological_abuse(self):
+    def mother_psychological_abuse(self) -> Optional[int]:
         if self.s2a_which_mother_figure == 0:
             return None
         total = 0
@@ -1018,7 +1022,7 @@ class CecaQ3(Task):
                 total += freqscore
         return total
 
-    def father_psychological_abuse(self):
+    def father_psychological_abuse(self) -> Optional[int]:
         if self.s3a_which_father_figure == 0:
             return None
         total = 0
@@ -1034,7 +1038,7 @@ class CecaQ3(Task):
                 total += freqscore
         return total
 
-    def role_reversal(self):
+    def role_reversal(self) -> Optional[int]:
         total = 0
         for i in range(1, 18):
             score = getattr(self, "s3c_q" + str(i))
@@ -1043,13 +1047,13 @@ class CecaQ3(Task):
             total += score
         return total
 
-    def physical_abuse_screen(self):
+    def physical_abuse_screen(self) -> Optional[int]:
         fields = [
             "s5c_physicalabuse"
         ]
         return self.total_nonzero_scores_1_abort_if_none(fields)
 
-    def physical_abuse_severity_mother(self):
+    def physical_abuse_severity_mother(self) -> Optional[int]:
         if self.physical_abuse_screen() == 0:
             return 0
         if self.s5c_abused_by_mother == 0:
@@ -1068,7 +1072,7 @@ class CecaQ3(Task):
             total += 1
         return total
 
-    def physical_abuse_severity_father(self):
+    def physical_abuse_severity_father(self) -> Optional[int]:
         if self.physical_abuse_screen() == 0:
             return 0
         if self.s5c_abused_by_father == 0:
@@ -1087,7 +1091,7 @@ class CecaQ3(Task):
             total += 1
         return total
 
-    def sexual_abuse_screen(self):
+    def sexual_abuse_screen(self) -> Optional[int]:
         fields = [
             "s6_any_unwanted_sexual_experience",
             "s6_unwanted_intercourse",
@@ -1095,7 +1099,7 @@ class CecaQ3(Task):
         ]
         return self.total_nonzero_scores_1_abort_if_none(fields)
 
-    def sexual_abuse_score_first(self):
+    def sexual_abuse_score_first(self) -> Optional[int]:
         if self.sexual_abuse_screen() == 0:
             return 0
         fields = [
@@ -1109,7 +1113,7 @@ class CecaQ3(Task):
         ]
         return self.total_nonzero_scores_1_abort_if_none(fields)
 
-    def sexual_abuse_score_other(self):
+    def sexual_abuse_score_other(self) -> Optional[int]:
         if self.sexual_abuse_screen() == 0:
             return 0
         fields = [
@@ -1127,7 +1131,7 @@ class CecaQ3(Task):
     # HTML
     # -------------------------------------------------------------------------
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         separation_map = {
             None: None,
             1: "1 — " + WSTRING("cecaq3_1c_separation_reason1"),
@@ -1548,53 +1552,53 @@ class CecaQ3(Task):
 # Helper functions
 # =============================================================================
 
-def subheading_from_string(s):
+def subheading_from_string(s: str) -> str:
     return subheading_spanning_two_columns(s)
 
 
-def subheading_from_wstring(ws):
-    return subheading_from_string(WSTRING(ws))
+def subheading_from_wstring(wstringname: str) -> str:
+    return subheading_from_string(WSTRING(wstringname))
 
 
-def subsubheading_from_string(s):
+def subsubheading_from_string(s: str) -> str:
     return """<tr><td></td><td class="subheading">{}</td></tr>""".format(s)
 
 
-def subsubheading_from_wstring(ws):
-    return subsubheading_from_string(WSTRING(ws))
+def subsubheading_from_wstring(wstringname: str) -> str:
+    return subsubheading_from_string(WSTRING(wstringname))
 
 
-def row(label, value, default=""):
+def row(label: str, value: Any, default: str = "") -> str:
     return tr_qa(label, value, default=default)
 
 
-def string_boolean(string, value):
+def string_boolean(string: str, value: Any) -> str:
     return row(string, get_yes_no_none(value))
 
 
-def string_numeric(string, value):
+def string_numeric(string: str, value: Any) -> str:
     return row(string, value)
 
 
-def string_string(string, value):
+def string_string(string: str, value: str) -> str:
     return row(string, ws.webify(value))
 
 
-def string_dict(string, value, d):
+def string_dict(string: str, value: Any, d: Dict) -> str:
     return row(string, get_from_dict(d, value))
 
 
-def wstring_boolean(wstring, value):
+def wstring_boolean(wstring: str, value: Any) -> str:
     return string_boolean(WSTRING(wstring), value)
 
 
-def wstring_numeric(wstring, value):
+def wstring_numeric(wstring: str, value: Any) -> str:
     return string_numeric(WSTRING(wstring), value)
 
 
-def wstring_string(wstring, value):
+def wstring_string(wstring: str, value: str) -> str:
     return string_string(WSTRING(wstring), value)
 
 
-def wstring_dict(wstring, value, d):
+def wstring_dict(wstring: str, value: Any, d: Dict) -> str:
     return string_dict(WSTRING(wstring), value, d)

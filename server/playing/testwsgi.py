@@ -102,6 +102,7 @@ class ErrorReportingMiddleware(object):
         return [dummy_file.getvalue()]
 
     def __call__(self, environ, start_response):
+        # noinspection PyBroadException
         try:
             return self.app(environ, start_response)
         except:

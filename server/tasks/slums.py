@@ -21,10 +21,9 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-    PV,
-)
+from typing import List
+
+from ..cc_modules.cc_constants import PV
 from ..cc_modules.cc_html import (
     answer,
     get_yes_no_none,
@@ -34,7 +33,13 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import (
+    CtvInfo,
+    CTV_INCOMPLETE,
+    Task,
+    TrackerInfo,
+    TrackerLabel,
+)
 
 
 # =============================================================================
@@ -118,7 +123,7 @@ class Slums(Task):
         ("shapespicture", "shapespicture_blobid", None),
     ]
 
-    def get_trackers(self):
+    def get_trackers(self) -> List[TrackerInfo]:
         if self.highschooleducation == 1:
             hlines = [26.5, 20.5]
             y_upper = 28.25
@@ -127,29 +132,27 @@ class Slums(Task):
             hlines = [24.5, 19.5]
             y_upper = 27.25
             y_middle = 22
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "SLUMS total score",
-                "axis_label": "Total score (out of 30)",
-                "axis_min": -0.5,
-                "axis_max": 30.5,
-                "horizontal_lines": hlines,
-                "horizontal_labels": [
-                    (y_upper, WSTRING("normal")),
-                    (y_middle, WSTRING("slums_category_mci")),
-                    (17, WSTRING("slums_category_dementia")),
-                ]
-            }
-        ]
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="SLUMS total score",
+            axis_label="Total score (out of 30)",
+            axis_min=-0.5,
+            axis_max=30.5,
+            horizontal_lines=hlines,
+            horizontal_labels=[
+                TrackerLabel(y_upper, WSTRING("normal")),
+                TrackerLabel(y_middle, WSTRING("slums_category_mci")),
+                TrackerLabel(17, WSTRING("slums_category_dementia")),
+            ]
+        )]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content": "SLUMS total score {}/30 ({})".format(
-                       self.total_score(), self.category())
-        }]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="SLUMS total score {}/30 ({})".format(
+                self.total_score(), self.category())
+        )]
 
     def get_summaries(self):
         return [
@@ -160,17 +163,17 @@ class Slums(Task):
                  comment="Category"),
         ]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.are_all_fields_complete(self.PREAMBLE_FIELDS +
                                          self.SCORED_FIELDS) and
             self.field_contents_valid()
         )
 
-    def total_score(self):
+    def total_score(self) -> int:
         return self.sum_fields(self.SCORED_FIELDS)
 
-    def category(self):
+    def category(self) -> str:
         score = self.total_score()
         if self.highschooleducation == 1:
             if score >= 27:
@@ -187,7 +190,7 @@ class Slums(Task):
             else:
                 return WSTRING("slums_category_dementia")
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         score = self.total_score()
         category = self.category()
         h = self.get_standard_clinician_comments_block(self.comments) + """

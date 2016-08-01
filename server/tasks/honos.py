@@ -21,9 +21,8 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-)
+from typing import List
+
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import (
     answer,
@@ -32,7 +31,13 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    CtvInfo,
+    CTV_INCOMPLETE,
+    get_from_dict,
+    Task,
+    TrackerInfo,
+)
 
 
 PV_PROBLEMTYPE = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
@@ -86,23 +91,21 @@ class Honos(Task):
         </div>
     """
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "HoNOS total score",
-                "axis_label": "Total score (out of 48)",
-                "axis_min": -0.5,
-                "axis_max": 48.5,
-            }
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="HoNOS total score",
+            axis_label="Total score (out of 48)",
+            axis_min=-0.5,
+            axis_max=48.5
+        )]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content": "HoNOS total score {}/48".format(self.total_score())
-        }]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="HoNOS total score {}/48".format(self.total_score())
+        )]
 
     def get_summaries(self):
         return [
@@ -111,7 +114,7 @@ class Honos(Task):
                  comment="Total score (/48)"),
         ]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         if not self.field_contents_valid():
             return False
         if not self.are_all_fields_complete(
@@ -124,7 +127,7 @@ class Honos(Task):
             return False
         return self.period_rated is not None
 
-    def total_score(self):
+    def total_score(self) -> int:
         total = 0
         for q in range(1, self.NQUESTIONS + 1):
             value = getattr(self, "q" + str(q))
@@ -134,18 +137,18 @@ class Honos(Task):
         return total
 
     @staticmethod
-    def get_q(q):
+    def get_q(q: int) -> str:
         return WSTRING("honos_q" + str(q) + "_s")
 
     @staticmethod
-    def get_answer(q, a):
+    def get_answer(q: int, a: int) -> str:
         if a == 9:
             return WSTRING("honos_option9")
         if a is None or a < 0 or a > 4:
             return None
         return WSTRING("honos_q" + str(q) + "_option" + str(a))
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         q8_problem_type_dict = {
             None: None,
             "A": WSTRING("honos_q8problemtype_option_a"),
@@ -242,23 +245,21 @@ class Honos65(Task):
     ]
     has_clinician = True
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "HoNOS-65+ total score",
-                "axis_label": "Total score (out of 48)",
-                "axis_min": -0.5,
-                "axis_max": 48.5,
-            }
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="HoNOS-65+ total score",
+            axis_label="Total score (out of 48)",
+            axis_min=-0.5,
+            axis_max=48.5
+        )]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content": "HoNOS-65+ total score {}/48".format(self.total_score())
-        }]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="HoNOS-65+ total score {}/48".format(self.total_score())
+        )]
 
     def get_summaries(self):
         return [
@@ -267,7 +268,7 @@ class Honos65(Task):
                  comment="Total score (/48)"),
         ]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         if not self.field_contents_valid():
             return False
         if not self.are_all_fields_complete(
@@ -280,7 +281,7 @@ class Honos65(Task):
             return False
         return self.period_rated is not None
 
-    def total_score(self):
+    def total_score(self) -> int:
         total = 0
         for q in range(1, self.NQUESTIONS + 1):
             value = getattr(self, "q" + str(q))
@@ -290,18 +291,18 @@ class Honos65(Task):
         return total
 
     @staticmethod
-    def get_q(q):
+    def get_q(q: int) -> str:
         return WSTRING("honos65_q" + str(q) + "_s")
 
     @staticmethod
-    def get_answer(q, a):
+    def get_answer(q: int, a: int) -> str:
         if a == 9:
             return WSTRING("honos_option9")
         if a is None or a < 0 or a > 4:
             return None
         return WSTRING("honos65_q" + str(q) + "_option" + str(a))
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         q8_problem_type_dict = {
             None: None,
             "A": WSTRING("honos65_q8problemtype_option_a"),
@@ -396,23 +397,21 @@ class Honosca(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "HoNOSCA total score",
-                "axis_label": "Total score (out of 60)",
-                "axis_min": -0.5,
-                "axis_max": 60.5,
-            }
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="HoNOSCA total score",
+            axis_label="Total score (out of 60)",
+            axis_min=-0.5,
+            axis_max=60.5
+        )]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content": "HoNOSCA total score {}/60".format(self.total_score())
-        }]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="HoNOSCA total score {}/60".format(self.total_score())
+        )]
 
     def get_summaries(self):
         return [
@@ -421,13 +420,13 @@ class Honosca(Task):
                  comment="Total score (/60)"),
         ]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.are_all_fields_complete(self.TASK_FIELDS) and
             self.field_contents_valid()
         )
 
-    def total_score(self):
+    def total_score(self) -> int:
         total = 0
         for q in range(1, self.NQUESTIONS + 1):
             value = getattr(self, "q" + str(q))
@@ -437,18 +436,18 @@ class Honosca(Task):
         return total
 
     @staticmethod
-    def get_q(q):
+    def get_q(q: int) -> str:
         return WSTRING("honosca_q" + str(q) + "_s")
 
     @staticmethod
-    def get_answer(q, a):
+    def get_answer(q: int, a: int) -> str:
         if a == 9:
             return WSTRING("honos_option9")
         if a is None or a < 0 or a > 4:
             return None
         return WSTRING("honosca_q" + str(q) + "_option" + str(a))
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         h = """
             <div class="summary">
                 <table class="summary">

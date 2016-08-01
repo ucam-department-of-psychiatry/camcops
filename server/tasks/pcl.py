@@ -21,9 +21,8 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-)
+from typing import List
+
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import (
     answer,
@@ -33,7 +32,13 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    CtvInfo,
+    CTV_INCOMPLETE,
+    get_from_dict,
+    Task,
+    TrackerInfo,
+)
 
 
 # =============================================================================
@@ -43,6 +48,9 @@ from ..cc_modules.cc_task import get_from_dict, Task
 # -----------------------------------------------------------------------------
 # PCL: common class
 # -----------------------------------------------------------------------------
+# This derives from object, not Task (so the base class doesn't appear in the
+# main task list itself), and serves as a mixin for other classes.
+# As a result, it calls "self" methods that it doesn't actually possess.
 
 class PclCommon(object):
     NQUESTIONS = 17
@@ -72,30 +80,30 @@ class PclCommon(object):
     TASK_FIELDS = []
     TASK_TYPE = "?"
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.are_all_fields_complete(self.TASK_FIELDS) and
             self.field_contents_valid()
         )
 
-    def total_score(self):
+    def total_score(self) -> int:
         return self.sum_fields(repeat_fieldname("q", 1, self.NQUESTIONS))
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "PCL total score",
-                "axis_label": "Total score (17-85)",
-                "axis_min": 16.5,
-                "axis_max": 85.5,
-            }
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="PCL total score",
+            axis_label="Total score (17-85)",
+            axis_min=16.5,
+            axis_max=85.5
+        )]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{"content": "PCL total score {}".format(self.total_score())}]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="PCL total score {}".format(self.total_score())
+        )]
 
     def get_summaries(self):
         return [
@@ -122,7 +130,7 @@ class PclCommon(object):
                  comment="Meets DSM-IV criteria for PTSD"),
         ]
 
-    def get_num_symptomatic(self, first, last):
+    def get_num_symptomatic(self, first: int, last: int) -> int:
         n = 0
         for i in range(first, last + 1):
             value = getattr(self, "q" + str(i))
@@ -130,26 +138,26 @@ class PclCommon(object):
                 n += 1
         return n
 
-    def num_symptomatic(self):
+    def num_symptomatic(self) -> int:
         return self.get_num_symptomatic(1, self.NQUESTIONS)
 
-    def num_symptomatic_b(self):
+    def num_symptomatic_b(self) -> int:
         return self.get_num_symptomatic(1, 5)
 
-    def num_symptomatic_c(self):
+    def num_symptomatic_c(self) -> int:
         return self.get_num_symptomatic(6, 12)
 
-    def num_symptomatic_d(self):
+    def num_symptomatic_d(self) -> int:
         return self.get_num_symptomatic(13, 17)
 
-    def ptsd(self):
+    def ptsd(self) -> bool:
         num_symptomatic_b = self.num_symptomatic_b()
         num_symptomatic_c = self.num_symptomatic_c()
         num_symptomatic_d = self.num_symptomatic_d()
         return num_symptomatic_b >= 1 and num_symptomatic_c >= 3 and \
             num_symptomatic_d >= 2
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         tasktype = self.TASK_TYPE
         score = self.total_score()
         num_symptomatic = self.num_symptomatic()

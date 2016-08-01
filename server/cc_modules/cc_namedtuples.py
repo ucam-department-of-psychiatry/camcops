@@ -65,6 +65,7 @@ class XmlElementTuple(collections.namedtuple(
         # Special: boolean requires lower case "true"/"false" (or 0/1)
         if datatype == "boolean" and value is not None:
             value = str(value).lower()
+        # noinspection PyTypeChecker
         return super().__new__(cls, name, value, datatype, comment)
 
 

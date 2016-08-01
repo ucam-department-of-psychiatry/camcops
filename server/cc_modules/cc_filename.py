@@ -47,6 +47,7 @@ def patient_spec_for_filename_is_valid(patient_spec: str) -> bool:
         nstr = str(n)
         testdict["idshortdesc"+nstr] = "idshortdesc"+nstr
         testdict["idnum"+nstr] = "idnum"+nstr
+    # noinspection PyBroadException
     try:
         # Legal substitutions only?
         patient_spec.format(**testdict)
@@ -77,6 +78,7 @@ def filename_spec_is_valid(filename_spec: str) -> bool:
         nstr = str(n)
         testdict["idshortdesc"+nstr] = "idshortdesc"+nstr
         testdict["idnum"+nstr] = "idnum"+nstr
+    # noinspection PyBroadException
     try:
         # Legal substitutions only?
         filename_spec.format(**testdict)
@@ -148,7 +150,7 @@ def convert_string_for_filename(s: str, allow_paths: bool = False) -> str:
     operating systems."""
     # http://stackoverflow.com/questions/7406102
     # ... modified
-    s = cc_lang.mangle_unicode_to_str(s)
+    s = cc_lang.mangle_unicode_to_ascii(s)
     s = s.replace(" ", "_")
     keepcharacters = ['.', '_', '-']
     if allow_paths:

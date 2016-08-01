@@ -22,16 +22,11 @@
 """
 
 import math
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-    PV,
-)
-from ..cc_modules.cc_html import (
-    answer,
-    td,
-    tr_qa,
-)
-from ..cc_modules.cc_task import Task
+from typing import List, Optional
+
+from ..cc_modules.cc_constants import PV
+from ..cc_modules.cc_html import answer, td, tr_qa
+from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
 
 
 WORDLIST = [
@@ -108,13 +103,13 @@ class Nart(Task):
                  "(0 no, 1 yes)".format(w)))
     has_clinician = True
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content": "NART predicted FSIQ {}, VIQ {}, PIQ {}".format(
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="NART predicted FSIQ {}, VIQ {}, PIQ {}".format(
                 self.fsiq(), self.viq(), self.piq())
-        }]
+        )]
 
     def get_summaries(self):
         return [
@@ -127,35 +122,35 @@ class Nart(Task):
                  comment="Predicted performance IQ"),
         ]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.are_all_fields_complete(WORDLIST) and
             self.field_contents_valid()
         )
 
-    def n_errors(self):
+    def n_errors(self) -> int:
         e = 0
         for w in WORDLIST:
             if getattr(self, w) is not None and not getattr(self, w):
                 e += 1
         return e
 
-    def fsiq(self):
+    def fsiq(self) -> Optional[float]:
         if not self.is_complete():
             return None
         return 127.7 - 0.826 * self.n_errors()
 
-    def viq(self):
+    def viq(self) -> Optional[float]:
         if not self.is_complete():
             return None
         return 129.0 - 0.919 * self.n_errors()
 
-    def piq(self):
+    def piq(self) -> Optional[float]:
         if not self.is_complete():
             return None
         return 123.5 - 0.645 * self.n_errors()
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         h = """
             <div class="summary">
                 <table class="summary">

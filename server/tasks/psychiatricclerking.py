@@ -21,9 +21,12 @@
     limitations under the License.
 """
 
+from typing import List
+
 import cardinal_pythonlib.rnc_web as ws
+
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import CtvInfo, Task
 
 
 # =============================================================================
@@ -111,26 +114,26 @@ class PsychiatricClerking(Task):
     has_clinician = True
 
     @staticmethod
-    def get_ctv_heading(wstringname):
-        return {
-            "heading": ws.webify(WSTRING(wstringname)),
-            "skip_if_no_content": False
-        }
+    def get_ctv_heading(wstringname) -> CtvInfo:
+        return CtvInfo(
+            heading=ws.webify(WSTRING(wstringname)),
+            skip_if_no_content=False
+        )
 
     @staticmethod
-    def get_ctv_subheading(wstringname):
-        return {
-            "subheading": ws.webify(WSTRING(wstringname)),
-            "skip_if_no_content": False
-        }
+    def get_ctv_subheading(wstringname) -> CtvInfo:
+        return CtvInfo(
+            subheading=ws.webify(WSTRING(wstringname)),
+            skip_if_no_content=False
+        )
 
-    def get_ctv_description_content(self, x):
-        return {
-            "description": ws.webify(WSTRING(x)),
-            "content": ws.webify(getattr(self, x))
-        }
+    def get_ctv_description_content(self, x: str) -> CtvInfo:
+        return CtvInfo(
+            description=ws.webify(WSTRING(x)),
+            content=ws.webify(getattr(self, x))
+        )
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         fields_b = [x["name"] for x in self.FIELDSPEC_B]
         fields_c = [x["name"] for x in self.FIELDSPEC_C]
         fields_mse = [x["name"] for x in self.FIELDSPEC_MSE]
@@ -138,64 +141,65 @@ class PsychiatricClerking(Task):
         fields_d = [x["name"] for x in self.FIELDSPEC_D]
         fields_e = [x["name"] for x in self.FIELDSPEC_E]
         fields_f = [x["name"] for x in self.FIELDSPEC_F]
-        dictlist = [self.get_ctv_heading(
+        infolist = [self.get_ctv_heading(
             "psychiatricclerking_heading_current_contact")]
         for x in fields_b:
-            dictlist.append(self.get_ctv_description_content(x))
-        dictlist.append(self.get_ctv_heading(
+            infolist.append(self.get_ctv_description_content(x))
+        infolist.append(self.get_ctv_heading(
             "psychiatricclerking_heading_background"))
         for x in fields_c:
-            dictlist.append(self.get_ctv_description_content(x))
-        dictlist.append(self.get_ctv_heading(
+            infolist.append(self.get_ctv_description_content(x))
+        infolist.append(self.get_ctv_heading(
             "psychiatricclerking_heading_examination_investigations"))
-        dictlist.append(self.get_ctv_subheading("mental_state_examination"))
+        infolist.append(self.get_ctv_subheading("mental_state_examination"))
         for x in fields_mse:
-            dictlist.append(self.get_ctv_description_content(x))
-        dictlist.append(self.get_ctv_subheading("physical_examination"))
+            infolist.append(self.get_ctv_description_content(x))
+        infolist.append(self.get_ctv_subheading("physical_examination"))
         for x in fields_pe:
-            dictlist.append(self.get_ctv_description_content(x))
-        dictlist.append(self.get_ctv_subheading(
+            infolist.append(self.get_ctv_description_content(x))
+        infolist.append(self.get_ctv_subheading(
             "assessments_and_investigations"))
         for x in fields_d:
-            dictlist.append(self.get_ctv_description_content(x))
-        dictlist.append(self.get_ctv_heading(
+            infolist.append(self.get_ctv_description_content(x))
+        infolist.append(self.get_ctv_heading(
             "psychiatricclerking_heading_risk_legal"))
         for x in fields_e:
-            dictlist.append(self.get_ctv_description_content(x))
-        dictlist.append(self.get_ctv_heading(
+            infolist.append(self.get_ctv_description_content(x))
+        infolist.append(self.get_ctv_heading(
             "psychiatricclerking_heading_summary_plan"))
         for x in fields_f:
-            dictlist.append(self.get_ctv_description_content(x))
-        return dictlist
+            infolist.append(self.get_ctv_description_content(x))
+        return infolist
 
+    # noinspection PyMethodOverriding
     @staticmethod
-    def is_complete():
+    def is_complete() -> bool:
         return True
 
     @staticmethod
-    def heading(wstringname):
+    def heading(wstringname: str) -> str:
         return '<div class="heading">{}</div>'.format(WSTRING(wstringname))
 
     @staticmethod
-    def subheading(wstringname):
+    def subheading(wstringname: str) -> str:
         return '<div class="subheading">{}</div>'.format(WSTRING(wstringname))
 
     @staticmethod
-    def subsubheading(wstringname):
+    def subsubheading(wstringname: str) -> str:
         return '<div class="subsubheading">{}</div>'.format(
             WSTRING(wstringname))
 
-    def subhead_text(self, fieldname):
+    def subhead_text(self, fieldname: str) -> str:
         return self.subheading(fieldname) + '<div><b>{}</b></div>'.format(
             ws.webify(getattr(self, fieldname))
         )
 
-    def subsubhead_text(self, fieldname):
+    def subsubhead_text(self, fieldname: str) -> str:
         return self.subsubheading(fieldname) + '<div><b>{}</b></div>'.format(
             ws.webify(getattr(self, fieldname))
         )
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         # Avoid tables - PDF generator crashes if text is too long.
         fields_b = [x["name"] for x in self.FIELDSPEC_B]
         fields_c = [x["name"] for x in self.FIELDSPEC_C]

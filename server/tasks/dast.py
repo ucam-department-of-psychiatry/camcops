@@ -21,9 +21,8 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-)
+from typing import List
+
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import (
     answer,
@@ -32,7 +31,13 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    CtvInfo,
+    CTV_INCOMPLETE,
+    get_from_dict,
+    Task,
+    TrackerInfo,
+)
 
 
 # =============================================================================
@@ -80,27 +85,22 @@ class Dast(Task):
         ])
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_trackers(self):
-        return [
-            {
-                "value": self.total_score(),
-                "plot_label": "DAST total score",
-                "axis_label": "Total score (out of 28)",
-                "axis_min": -0.5,
-                "axis_max": 28.5,
-                "horizontal_lines": [
-                    10.5,
-                    5.5,
-                ],
-            }
-        ]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="DAST total score",
+            axis_label="Total score (out of 28)",
+            axis_min=-0.5,
+            axis_max=28.5,
+            horizontal_lines=[10.5, 5.5]
+        )]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{
-            "content": "DAST total score {}/28".format(self.total_score())
-        }]
+            return CTV_INCOMPLETE
+        return [CtvInfo(
+            content="DAST total score {}/28".format(self.total_score())
+        )]
 
     def get_summaries(self):
         return [
@@ -108,13 +108,13 @@ class Dast(Task):
             dict(name="total", cctype="INT", value=self.total_score()),
         ]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.are_all_fields_complete(Dast.TASK_FIELDS) and
             self.field_contents_valid()
         )
 
-    def get_score(self, q):
+    def get_score(self, q: int) -> int:
         yes = "Y"
         value = getattr(self, "q" + str(q))
         if value is None:
@@ -124,13 +124,13 @@ class Dast(Task):
         else:
             return 1 if value == yes else 0
 
-    def total_score(self):
+    def total_score(self) -> int:
         total = 0
         for q in range(1, Dast.NQUESTIONS + 1):
             total += self.get_score(q)
         return total
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         score = self.total_score()
         exceeds_cutoff_1 = score >= 6
         exceeds_cutoff_2 = score >= 11

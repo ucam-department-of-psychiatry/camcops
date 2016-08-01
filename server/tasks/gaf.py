@@ -21,16 +21,12 @@
     limitations under the License.
 """
 
-from ..cc_modules.cc_constants import (
-    CTV_DICTLIST_INCOMPLETE,
-    DATA_COLLECTION_ONLY_DIV,
-)
-from ..cc_modules.cc_html import (
-    answer,
-    tr,
-)
+from typing import List, Optional
+
+from ..cc_modules.cc_constants import DATA_COLLECTION_ONLY_DIV
+from ..cc_modules.cc_html import answer, tr
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
 
 
 # =============================================================================
@@ -49,36 +45,36 @@ class Gaf(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.score is not None and
             self.field_contents_valid() and
             self.score != 0
         )
 
-    def get_trackers(self):
-        return [{
-            "value": self.total_score(),
-            "plot_label": "GAF score (rating overall functioning)",
-            "axis_label": "Score (1-100)",
-            "axis_min": 0.5,
-            "axis_max": 100.5,
-        }]
+    def get_trackers(self) -> List[TrackerInfo]:
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="GAF score (rating overall functioning)",
+            axis_label="Score (1-100)",
+            axis_min=0.5,
+            axis_max=100.5
+        )]
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():
-            return CTV_DICTLIST_INCOMPLETE
-        return [{"content": "GAF score {}".format(self.total_score())}]
+            return CTV_INCOMPLETE
+        return [CtvInfo(content="GAF score {}".format(self.total_score()))]
 
     def get_summaries(self):
         return [self.is_complete_summary_field()]
 
-    def total_score(self):
+    def total_score(self) -> Optional[int]:
         if self.score == 0:
             return None
         return self.score
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         h = """
             <div class="summary">
                 <table class="summary">

@@ -21,7 +21,10 @@
     limitations under the License.
 """
 
+from typing import List, Optional
+
 import cardinal_pythonlib.rnc_web as ws
+
 from ..cc_modules.cc_constants import (
     DATEFORMAT,
     INVALID_VALUE,
@@ -45,8 +48,8 @@ from ..cc_modules.cc_nhs import (
 )
 from ..cc_modules.cc_pls import pls
 from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import Task
-from ..cc_modules.cc_report import Report, ReportParamSpec
+from ..cc_modules.cc_task import CtvInfo, Task
+from ..cc_modules.cc_report import Report, ReportParamSpec, REPORT_RESULT_TYPE
 
 
 # =============================================================================
@@ -103,22 +106,24 @@ class CPFTLPSReferral(Task):
     for d in fieldspecs:
         d["comment"] = d["name"]
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.patient_location and
             self.referral_reason and
             self.field_contents_valid()
         )
 
-    def get_clinical_text(self):
-        return [{
-            "heading": ws.webify(WSTRING(
+    def get_clinical_text(self) -> List[CtvInfo]:
+        return [CtvInfo(
+            heading=ws.webify(WSTRING(
                 "cpft_lps_referral_f_referral_reason")),
-            "content": self.referral_reason
-        }]
+            content=self.referral_reason
+        )]
 
     @staticmethod
-    def four_column_row(q1, a1, q2, a2, default=""):
+    def four_column_row(q1: str, a1: Any,
+                        q2: str, a2: Any,
+                        default: str = "") -> str:
         return """
             <tr>
                 <td>{}</td><td>{}</td>
@@ -132,12 +137,12 @@ class CPFTLPSReferral(Task):
         )
 
     @staticmethod
-    def tr_qa(q, a, default=""):
+    def tr_qa(q: str, a: Any, default: str = "") -> str:
         return """
             <tr><td colspan="2">{}</td><td colspan="2"><b>{}</b></td></tr>
         """.format(q, default if a is None else a)
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         person_marital_status = get_nhs_dd_person_marital_status()
         ethnic_category_code = get_nhs_dd_ethnic_category_code()
         if self.lps_division == "G":
@@ -304,17 +309,17 @@ class CPFTLPSResetResponseClock(Task):
             d["comment"] = d["name"]
     has_clinician = True
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.reset_start_time_to and
             self.reason and
             self.field_contents_valid()
         )
 
-    def get_clinical_text(self):
-        return [{"content": self.reason}]
+    def get_clinical_text(self) -> List[CtvInfo]:
+        return [CtvInfo(content=self.reason)]
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         h = """
             <div class="summary">
                 <table class="summary">
@@ -463,7 +468,7 @@ class CPFTLPSDischarge(Task):
             d["comment"] = d["name"]
     has_clinician = True
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return (
             self.discharge_date and
             self.discharge_reason_code and
@@ -471,7 +476,7 @@ class CPFTLPSDischarge(Task):
             self.field_contents_valid()
         )
 
-    def get_discharge_reason(self):
+    def get_discharge_reason(self) -> Optional[str]:
         if self.discharge_reason_code == "F":
             return WSTRING("cpft_lps_discharge_reason_code_F")
         elif self.discharge_reason_code == "A":
@@ -483,7 +488,7 @@ class CPFTLPSDischarge(Task):
         else:
             return None
 
-    def get_referral_reasons(self):
+    def get_referral_reasons(self) -> List[str]:
         potential_referral_reasons = [
             "referral_reason_self_harm_overdose",
             "referral_reason_self_harm_other",
@@ -513,7 +518,7 @@ class CPFTLPSDischarge(Task):
                 referral_reasons.append(WSTRING("cpft_lps_dis_" + r))
         return referral_reasons
 
-    def get_managements(self):
+    def get_managements(self) -> List[str]:
         potential_managements = [
             "management_assessment_diagnostic",
             "management_medication",
@@ -545,7 +550,7 @@ class CPFTLPSDischarge(Task):
                 managements.append(WSTRING("cpft_lps_dis_" + r))
         return managements
 
-    def get_psychiatric_diagnoses(self):
+    def get_psychiatric_diagnoses(self) -> List[str]:
         psychiatric_diagnoses = [
             WSTRING("cpft_lps_dis_diagnosis_no_active_mental_health_problem")
         ] if self.diagnosis_no_active_mental_health_problem else []
@@ -560,7 +565,7 @@ class CPFTLPSDischarge(Task):
                 )
         return psychiatric_diagnoses
 
-    def get_medical_diagnoses(self):
+    def get_medical_diagnoses(self) -> List[str]:
         medical_diagnoses = []
         for i in range(1, 4 + 1):  # magic number
             if getattr(self, "diagnosis_medical_" + str(i)):
@@ -568,34 +573,34 @@ class CPFTLPSDischarge(Task):
                     ws.webify(getattr(self, "diagnosis_medical_" + str(i))))
         return medical_diagnoses
 
-    def get_clinical_text(self):
+    def get_clinical_text(self) -> List[CtvInfo]:
         diagnoses = self.get_psychiatric_diagnoses() + \
             self.get_medical_diagnoses()
         return [
-            {
-                "heading": ws.webify(WSTRING("cpft_lps_dis_discharge_reason")),
-                "content": self.get_discharge_reason()
-            },
-            {
-                "heading": ws.webify(
+            CtvInfo(
+                heading=ws.webify(WSTRING("cpft_lps_dis_discharge_reason")),
+                content=self.get_discharge_reason()
+            ),
+            CtvInfo(
+                heading=ws.webify(
                     WSTRING("cpft_lps_dis_referral_reason_t")),
-                "content": ", ".join(self.get_referral_reasons())
-            },
-            {
-                "heading": ws.webify(WSTRING("cpft_lps_dis_diagnoses_t")),
-                "content": ", ".join(diagnoses)
-            },
-            {
-                "heading": ws.webify(WSTRING("cpft_lps_dis_management_t")),
-                "content": ", ".join(self.get_managements())
-            },
-            {
-                "heading": ws.webify(WSTRING("cpft_lps_dis_outcome_t")),
-                "content": self.outcome
-            },
+                content=", ".join(self.get_referral_reasons())
+            ),
+            CtvInfo(
+                heading=ws.webify(WSTRING("cpft_lps_dis_diagnoses_t")),
+                content=", ".join(diagnoses)
+            ),
+            CtvInfo(
+                heading=ws.webify(WSTRING("cpft_lps_dis_management_t")),
+                content=", ".join(self.get_managements())
+            ),
+            CtvInfo(
+                heading=ws.webify(WSTRING("cpft_lps_dis_outcome_t")),
+                content=self.outcome
+            ),
         ]
 
-    def get_task_html(self):
+    def get_task_html(self) -> str:
         h = """
             <div class="summary">
                 <table class="summary">
@@ -680,7 +685,7 @@ class LPSReportReferredNotDischarged(Report):
                                        label=ID_NUMBER_TO_LINK_ON_LABEL)]
 
     @staticmethod
-    def get_rows_descriptions(linking_idnum=None):
+    def get_rows_descriptions(linking_idnum: int = None) -> REPORT_RESULT_TYPE:
         if not linking_idnum:
             return [], []
         sql = """
@@ -738,7 +743,7 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
                                        label=ID_NUMBER_TO_LINK_ON_LABEL)]
 
     @staticmethod
-    def get_rows_descriptions(linking_idnum=None):
+    def get_rows_descriptions(linking_idnum: int = None) -> REPORT_RESULT_TYPE:
         if not linking_idnum:
             return [], []
         sql = """
