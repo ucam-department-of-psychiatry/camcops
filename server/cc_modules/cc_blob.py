@@ -92,6 +92,7 @@ class Blob(object):
 
     @classmethod
     def drop_views(cls) -> None:
+        pls.db.drop_view(cls.TABLENAME + "_current")
 
     def __init__(self, serverpk: Optional[int]) -> None:
         """Initialize, loading from the database if necessary."""

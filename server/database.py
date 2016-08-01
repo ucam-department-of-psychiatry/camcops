@@ -29,8 +29,8 @@ import cgi
 import datetime
 import re
 import time
-from typing import (Any, Callable, Dict, Generic, Iterable, List,
-                    Optional, Sequence, Tuple)
+from typing import (Any, Callable, Dict, Iterable, List,
+                    Optional, Sequence, Tuple, Type)
 
 import cardinal_pythonlib.rnc_db as rnc_db
 from cardinal_pythonlib.rnc_lang import AttrDict
@@ -199,7 +199,7 @@ class SessionManager(object):
 
         # Ensure table version is OK
         if (self.tablet_version is None or
-                    self.tablet_version < cc_version.MINIMUM_TABLET_VERSION):
+                self.tablet_version < cc_version.MINIMUM_TABLET_VERSION):
             fail_user_error(
                 "Tablet CamCOPS version too old: is {v}, need {r}".format(
                     v=self.tablet_version,
@@ -228,7 +228,7 @@ class SessionManager(object):
 def get_post_var(form: cgi.FieldStorage,
                  var: str,
                  mandatory: bool = True,
-                 valtype: Generic = None) -> Any:
+                 valtype: Type[Any] = None) -> Any:
     """Retrieves a variable from a CGI form.
 
     Args:
@@ -718,7 +718,7 @@ def upload_record_core(device: str,
 def insert_record(device: str,
                   table: str,
                   valuedict: Dict,
-                  predecessor_pk: int,
+                  predecessor_pk: Optional[int],
                   tablet_camcops_version: float) -> int:
     """Inserts a record, or raises an exception if that fails."""
     mark_table_dirty(device, table)

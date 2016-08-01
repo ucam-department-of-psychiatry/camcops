@@ -55,8 +55,7 @@ class SpecialNote(object):
              comment="Base table of task concerned (part of FK)"),
         dict(name="task_id", cctype="INT_UNSIGNED", indexed=True,
              comment="Client-side ID of the task concerned (part of FK)"),
-        dict(name="device", cctype="DEVICE", indexed=True,
-             index_nchar=50,
+        dict(name="device_id", cctype="INT_UNSIGNED", indexed=True,
              comment="Source tablet device (part of FK)"),
         dict(name="era", cctype="ISO8601", indexed=True,
              index_nchar=ISO8601_STRING_LENGTH,
@@ -64,7 +63,7 @@ class SpecialNote(object):
         # Details of note
         dict(name="note_at", cctype="ISO8601",
              comment="Date/time of note entry (ISO 8601)"),
-        dict(name="user", cctype="USERNAME",
+        dict(name="user_id", cctype="INT_UNSIGNED",
              comment="User that entered this note"),
         dict(name="note", cctype="TEXT",
              comment="Special note, added manually"),

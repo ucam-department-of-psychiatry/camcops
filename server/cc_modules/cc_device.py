@@ -42,11 +42,11 @@ class Device(object):
     TABLENAME = "_security_devices"
     FIELDSPECS = [
         dict(name="id", cctype="INT_UNSIGNED", pk=True,
-             comment="Short cryptic name of the source tablet device"),
-        dict(name="device", cctype="DEVICE", indexed=True,
+             comment="ID of the source tablet device"),
+        dict(name="name", cctype="DEVICE", indexed=True,
              # TODO: make index unique
              comment="Short cryptic name of the source tablet device"),
-        dict(name="registered_by_user", cctype="INT_UNSIGNED",
+        dict(name="registered_by_user_id", cctype="INT_UNSIGNED",
              comment="ID of user that registered the device"),
         dict(name="when_registered_utc", cctype="DATETIME",
              comment="Date/time when the device was registered (UTC)"),

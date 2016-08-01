@@ -95,6 +95,10 @@ class DeviceStoredVar(StoredVarBase):
             cls.TABLENAME, cls.FIELDSPECS,
             drop_superfluous_columns=drop_superfluous_columns)
 
+    @classmethod
+    def drop_views(cls) -> None:
+        pls.db.drop_view(cls.TABLENAME + "_current")
+
     def dump(self):
         """Dump to the log."""
         rnc_db.dump_database_object(self, DeviceStoredVar.FIELDS)
@@ -128,6 +132,10 @@ class ServerStoredVar(StoredVarBase):
         cc_db.create_or_update_table(
             cls.TABLENAME, cls.FIELDSPECS,
             drop_superfluous_columns=drop_superfluous_columns)
+
+    @classmethod
+    def drop_views(cls) -> None:
+        pass
 
     def dump(self) -> None:
         """Dump to the log."""

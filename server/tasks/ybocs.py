@@ -397,6 +397,7 @@ class YbocsSc(Task):
                 ", ".join(principal_list))),
         ]
 
+    # noinspection PyMethodOverriding
     @staticmethod
     def is_complete() -> bool:
         return True

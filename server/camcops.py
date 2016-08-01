@@ -35,6 +35,7 @@ from .cc_modules.cc_constants import (
     URL_ROOT_WEBVIEW,
 )
 from .cc_modules import cc_blob
+from .cc_modules.cc_blob import Blob
 from .cc_modules import cc_db
 from .cc_modules import cc_device
 from .cc_modules.cc_device import Device
@@ -43,6 +44,7 @@ from .cc_modules.cc_logger import log, dblog
 from .cc_modules import cc_hl7
 from .cc_modules import cc_hl7core
 from .cc_modules import cc_patient
+from .cc_modules.cc_patient import Patient
 from .cc_modules.cc_pls import pls
 from .cc_modules import cc_policy
 from .cc_modules import cc_report
@@ -470,13 +472,22 @@ def upgrade_database(old_version: float) -> None:
             tables, views = cls.get_all_table_and_view_names()
             for tablename in tables:
                 v1_5_alter_generic_table(tablename)
-        # Special tables:
-        cc_patient.Patient.drop_views() ***
-        cc_blob.Blob.drop_views()
+        # Special tables with device or patient references:
+        Blob.drop_views()
+        v1_5_alter_generic_table(Blob.TABLENAME)
+        Patient.drop_views()
+        v1_5_alter_generic_table(Patient.TABLENAME)
         DeviceStoredVar.drop_views()
+        v1_5_alter_generic_table(DeviceStoredVar.TABLENAME)
+        v1_5_alter_generic_table_usercol(SpecialNote.TABLENAME,
+                                         'user',
+                                         'user_id')
+        v1_5_alter_generic_table_devicecol(SpecialNote.TABLENAME,
+                                           'device',
+                                           'device_id',
+                                           with_index=True)
 
-
-                # (etc.)
+    # (etc.)
 
 
 # =============================================================================
@@ -494,7 +505,7 @@ def upgrade_database(old_version: float) -> None:
 # p.dump()
 # p.write_pdf_to_disk("phq9test.pdf")
 
-# b = cc_blob.Blob(3)
+# b = Blob(3)
 
 # create_demo_user()
 
@@ -576,8 +587,8 @@ def make_tables(drop_superfluous_columns: bool = False) -> None:
     SpecialNote.make_tables(drop_superfluous_columns)
 
     # Core client tables
-    cc_patient.Patient.make_tables(drop_superfluous_columns)
-    cc_blob.Blob.make_tables(drop_superfluous_columns)
+    Patient.make_tables(drop_superfluous_columns)
+    Blob.make_tables(drop_superfluous_columns)
     DeviceStoredVar.make_tables(drop_superfluous_columns)
 
     # System tables without a class representation

@@ -24,7 +24,7 @@
 import datetime
 import sys
 import typing
-from typing import Callable, Dict, Iterable, Tuple, Union
+from typing import Any, Callable, Dict, Iterable, Optional, Tuple, Union
 
 # =============================================================================
 # Command-line "respond quickly" point
@@ -94,7 +94,7 @@ from .cc_modules.cc_storedvar import DeviceStoredVar
 from .cc_modules.cc_string import WSTRING
 from .cc_modules import cc_task
 from .cc_modules.cc_task import Task
-from .cc_modules import cc_tracker
+from .cc_modules.cc_tracker import ClinicalTextView, Tracker
 from .cc_modules.cc_unittest import unit_test_ignore
 from .cc_modules import cc_user
 from .cc_modules.cc_version import CAMCOPS_SERVER_VERSION
@@ -2656,7 +2656,7 @@ def crash(session: Session, form: cgi.FieldStorage) -> str:
 # Ancillary to the main pages/actions
 # =============================================================================
 
-def get_tracker(session: Session, form: cgi.FieldStorage) -> str:
+def get_tracker(session: Session, form: cgi.FieldStorage) -> Tracker:
     """Returns a Tracker() object specified by the CGI form."""
 
     task_tablename_list = ws.get_cgi_parameter_list(form, PARAM.TASKTYPES)
@@ -2664,7 +2664,7 @@ def get_tracker(session: Session, form: cgi.FieldStorage) -> str:
     idnum_value = ws.get_cgi_parameter_int(form, PARAM.IDNUM_VALUE)
     start_datetime = ws.get_cgi_parameter_datetime(form, PARAM.START_DATETIME)
     end_datetime = ws.get_cgi_parameter_datetime(form, PARAM.END_DATETIME)
-    return cc_tracker.Tracker(
+    return Tracker(
         session,
         task_tablename_list,
         which_idnum,
@@ -2674,14 +2674,15 @@ def get_tracker(session: Session, form: cgi.FieldStorage) -> str:
     )
 
 
-def get_clinicaltextview(session: Session, form: cgi.FieldStorage) -> str:
+def get_clinicaltextview(session: Session,
+                         form: cgi.FieldStorage) -> ClinicalTextView:
     """Returns a ClinicalTextView() object defined by the CGI form."""
 
     which_idnum = ws.get_cgi_parameter_int(form, PARAM.WHICH_IDNUM)
     idnum_value = ws.get_cgi_parameter_int(form, PARAM.IDNUM_VALUE)
     start_datetime = ws.get_cgi_parameter_datetime(form, PARAM.START_DATETIME)
     end_datetime = ws.get_cgi_parameter_datetime(form, PARAM.END_DATETIME)
-    return cc_tracker.ClinicalTextView(
+    return ClinicalTextView(
         session,
         which_idnum,
         idnum_value,
@@ -2976,7 +2977,7 @@ def get_database_title() -> str:
     return pls.DATABASE_TITLE
 
 
-def make_summary_tables(from_console: bool = True) -> None:
+def make_summary_tables(from_console: bool = True) -> Tuple[bool, str]:
     """Drop and rebuild summary tables."""
     # Don't use print; this may run from the web interface. Use the log.
     locked_error = (

@@ -116,6 +116,10 @@ class Patient:
             cls.TABLENAME, cls.FIELDSPECS,
             drop_superfluous_columns=drop_superfluous_columns)
 
+    @classmethod
+    def drop_views(cls) -> None:
+        pls.db.drop_view(cls.TABLENAME + "_current")
+
     def __init__(self, serverpk: int = None) -> None:
         """Initialize, loading from database."""
         pls.db.fetch_object_from_db_by_pk(self, Patient.TABLENAME,
