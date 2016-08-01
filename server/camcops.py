@@ -8,12 +8,14 @@ import getpass
 import logging
 import os
 import sys
+from typing import Callable, Dict, Iterable
 
 from werkzeug.contrib.profiler import ProfilerMiddleware
 from werkzeug.wsgi import SharedDataMiddleware
 
 import cardinal_pythonlib.rnc_db as rnc_db
 from cardinal_pythonlib.rnc_lang import convert_to_bool
+from cardinal_pythonlib.rnc_web import HEADERS_TYPE
 from cardinal_pythonlib.wsgi_errorreporter import ErrorReportingMiddleware
 from cardinal_pythonlib.wsgi_cache import DisableClientSideCachingMiddleware
 
@@ -35,6 +37,7 @@ from .cc_modules.cc_constants import (
 from .cc_modules import cc_blob
 from .cc_modules import cc_db
 from .cc_modules import cc_device
+from .cc_modules.cc_device import Device
 from .cc_modules import cc_dump
 from .cc_modules.cc_logger import log, dblog
 from .cc_modules import cc_hl7
@@ -49,6 +52,7 @@ from .cc_modules.cc_storedvar import DeviceStoredVar, ServerStoredVar
 from .cc_modules import cc_task
 from .cc_modules import cc_tracker  # imports matplotlib; SLOW
 from .cc_modules import cc_user
+from .cc_modules.cc_user import User
 from .cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 from . import webview
 from .webview import (
@@ -121,7 +125,9 @@ if CAMCOPS_PROFILE:
     database_application = ProfilerMiddleware(database_application)
 
 
-def application(environ, start_response):
+def application(environ: Dict[str, str],
+                start_response: Callable[[str, HEADERS_TYPE], None]) \
+        -> Iterable[bytes]:
     """
     Master WSGI entry point.
 
@@ -185,7 +191,7 @@ if CAMCOPS_SERVE_STATIC_FILES:
 # User command-line interaction
 # =============================================================================
 
-def ask_user(prompt, default=None):
+def ask_user(prompt: str, default: str = None) -> str:
     """Prompts the user, with a default. Returns a string."""
     if default is None:
         prompt += ": "
@@ -195,7 +201,7 @@ def ask_user(prompt, default=None):
     return result if len(result) > 0 else default
 
 
-def ask_user_password(prompt):
+def ask_user_password(prompt: str) -> str:
     """Read a password from the console."""
     return getpass.getpass(prompt + ": ")
 
@@ -204,25 +210,28 @@ def ask_user_password(prompt):
 # Version-specific database changes
 # =============================================================================
 
-def report_database_upgrade_step(version):
+def report_database_upgrade_step(version: float) -> None:
     print("PERFORMING UPGRADE TASKS FOR VERSION {}".format(version))
 
 
-def modify_column(table, field, newdef):
+def modify_column(table: str, field: str, newdef: str) -> None:
     pls.db.modify_column_if_table_exists(table, field, newdef)
 
 
-def change_column(tablename, oldfieldname, newfieldname, newdef):
+def change_column(tablename: str,
+                  oldfieldname: str,
+                  newfieldname: str,
+                  newdef: str) -> None:
     pls.db.change_column_if_table_exists(tablename, oldfieldname, newfieldname,
                                          newdef)
 
 
-def rename_table(from_table, to_table):
+def rename_table(from_table: str, to_table: str) -> None:
     pls.db.rename_table(from_table, to_table)
 
 
-def v1_5_alter_device_table():
-    tablename = '_security_devices'
+def v1_5_alter_device_table() -> None:
+    tablename = Device.TABLENAME
     if pls.db.column_exists(tablename, 'id'):
         log.warning("Column 'id' already exists in table {}".format(tablename))
         return
@@ -239,8 +248,8 @@ def v1_5_alter_device_table():
     pls.db.db_exec_literal(sql)
 
 
-def v1_5_alter_user_table():
-    tablename = '_security_users'
+def v1_5_alter_user_table() -> None:
+    tablename = User.TABLENAME
     if pls.db.column_exists(tablename, 'id'):
         log.warning("Column 'id' already exists in table {}".format(tablename))
         return
@@ -255,7 +264,37 @@ def v1_5_alter_user_table():
     pls.db.db_exec_literal(sql)
 
 
-def v1_5_alter_generic_table_usercol(tablename, from_col, to_col):
+def v1_5_alter_generic_table_devicecol(tablename: str,
+                                       from_col: str,
+                                       to_col: str,
+                                       with_index: bool = True) -> None:
+    if pls.db.column_exists(tablename, to_col):
+        log.warning("Column '{}' already exists in table {}".format(
+            to_col, tablename))
+        return
+    sql = """
+        ALTER TABLE {table} ADD COLUMN {to_col} INT UNSIGNED;
+        UPDATE {table} AS altering
+                INNER JOIN {lookup} AS lookup
+                ON altering.{from_col} = lookup.name
+            SET altering.{to_col} = lookup.id;
+        ALTER TABLE {table} DROP COLUMN {from_col};
+    """.format(table=tablename,
+               lookup=Device.TABLENAME,
+               to_col=to_col,
+               from_col=from_col)
+    pls.db.db_exec_literal(sql)
+    if with_index:
+        indexsql = "CREATE INDEX _idx_{to_col} ON {table} ({to_col});".format(
+            to_col=to_col,
+            table=tablename
+        )
+        pls.db.db_exec_literal(indexsql)
+
+
+def v1_5_alter_generic_table_usercol(tablename: str,
+                                     from_col: str,
+                                     to_col: str) -> None:
     if pls.db.column_exists(tablename, to_col):
         log.warning("Column '{}' already exists in table {}".format(
             to_col, tablename))
@@ -268,34 +307,18 @@ def v1_5_alter_generic_table_usercol(tablename, from_col, to_col):
             SET altering.{to_col} = lookup.id;
         ALTER TABLE {table} DROP COLUMN {from_col};
     """.format(table=tablename,
-               lookup="_security_users",
+               lookup=User.TABLENAME,
                to_col=to_col,
                from_col=from_col)
     pls.db.db_exec_literal(sql)
 
 
-def v1_5_alter_generic_table(tablename):
-    # -------------------------------------------------------------------------
+def v1_5_alter_generic_table(tablename: str) -> None:
     # Device ID
-    # -------------------------------------------------------------------------
-    sql = """
-        ALTER TABLE {table} ADD COLUMN _device_id INT UNSIGNED;
-        UPDATE {table} AS altering
-                INNER JOIN {lookup} AS lookup
-                ON altering._device = lookup.name
-            SET altering._device_id = lookup.id;
-        CREATE INDEX _idx__device_id ON qqq (_device_id);
-        ALTER TABLE {table} DROP COLUMN _device;
-    """.format(table=tablename, lookup="_security_devices")
-    if pls.db.column_exists(tablename, '_device_id'):
-        log.warning("Column '_device_id' already exists in table {}".format(
-            tablename))
-    else:
-        pls.db.db_exec_literal(sql)
-
-    # -------------------------------------------------------------------------
+    v1_5_alter_generic_table_devicecol(tablename,
+                                       '_device',
+                                       '_device_id')
     # User IDs
-    # -------------------------------------------------------------------------
     v1_5_alter_generic_table_usercol(tablename,
                                      '_adding_user',
                                      '_adding_user_id')
@@ -310,7 +333,7 @@ def v1_5_alter_generic_table(tablename):
                                      '_manually_erasing_user_id')
 
 
-def upgrade_database(old_version):
+def upgrade_database(old_version: float) -> None:
     print("Old database version: {}. New version: {}.".format(
         old_version,
         CAMCOPS_SERVER_VERSION
@@ -424,18 +447,36 @@ def upgrade_database(old_version):
         #     _preserving_user VARCHAR(255) -> _preserving_user_id INT UNSIGNED
         #     _manually_erasing_user VARCHAR(255) -> _manually_erasing_user_id INT UNSIGNED  # noqa
         # ---------------------------------------------------------------------
+        # Note: OK to drop columns even if a view is looking at them,
+        # though the view will then be invalid.
         v1_5_alter_device_table()
         v1_5_alter_user_table()
+        v1_5_alter_generic_table_usercol(Device.TABLENAME,
+                                         'registered_by_user',
+                                         'registered_by_user_id')
+        v1_5_alter_generic_table_usercol(Device.TABLENAME,
+                                         'uploading_user',
+                                         'uploading_user_id')
+        v1_5_alter_generic_table_usercol(SECURITY_AUDIT_TABLENAME,
+                                         'user',
+                                         'user_id')
+        v1_5_alter_generic_table_devicecol(SECURITY_AUDIT_TABLENAME,
+                                           'device',
+                                           'device_id',
+                                           with_index=False)
         for cls in cc_task.get_all_task_classes():
             cls.drop_views()
             cls.drop_summary_tables()
             tables, views = cls.get_all_table_and_view_names()
             for tablename in tables:
                 v1_5_alter_generic_table(tablename)
-        # Note: OK to drop columns even if a view is looking at them,
-        # though the view will then be invalid.
+        # Special tables:
+        cc_patient.Patient.drop_views() ***
+        cc_blob.Blob.drop_views()
+        DeviceStoredVar.drop_views()
 
-    # (etc.)
+
+                # (etc.)
 
 
 # =============================================================================
@@ -462,7 +503,7 @@ def upgrade_database(old_version):
 # Command-line functions
 # =============================================================================
 
-def make_tables(drop_superfluous_columns=False):
+def make_tables(drop_superfluous_columns: bool = False) -> None:
     """Make database tables."""
 
     print(SEPARATOR_EQUALS)
@@ -560,7 +601,7 @@ def make_tables(drop_superfluous_columns=False):
     audit("Created/recreated main tables", from_console=True)
 
 
-def export_descriptions_comments():
+def export_descriptions_comments() -> None:
     """Export an HTML version of database fields/comments to a file of the
     user's choice."""
     filename = ask_user("Output HTML file",
@@ -573,7 +614,7 @@ def export_descriptions_comments():
     print("Done.")
 
 
-def reset_storedvars():
+def reset_storedvars() -> None:
     """Copy key descriptions (database title, ID descriptions, policies) from
     the config file to the database.
 
@@ -598,7 +639,7 @@ def reset_storedvars():
     audit("Reset stored variables", from_console=True)
 
 
-def generate_anonymisation_staging_db():
+def generate_anonymisation_staging_db() -> None:
     db = pls.get_anonymisation_database()  # may raise
     ddfilename = pls.EXPORT_CRIS_DATA_DICTIONARY_TSV_FILE
     classes = cc_task.get_all_task_classes()
@@ -622,7 +663,7 @@ def generate_anonymisation_staging_db():
     print("Draft data dictionary written to {}".format(ddfilename))
 
 
-def make_superuser():
+def make_superuser() -> None:
     """Make a superuser from the command line."""
     print("MAKE SUPERUSER")
     username = ask_user("New superuser")
@@ -638,7 +679,7 @@ def make_superuser():
     print("Success: " + str(result))
 
 
-def reset_password():
+def reset_password() -> None:
     """Reset a password from the command line."""
     print("RESET PASSWORD")
     username = ask_user("Username")
@@ -654,7 +695,7 @@ def reset_password():
     print("Success: " + str(result))
 
 
-def enable_user_cli():
+def enable_user_cli() -> None:
     """Re-enable a locked user account from the command line."""
     print("ENABLE LOCKED USER ACCOUNT")
     username = ask_user("Username")
@@ -669,7 +710,7 @@ def enable_user_cli():
 # Test rig
 # -----------------------------------------------------------------------------
 
-def test():
+def test() -> None:
     """Run all unit tests."""
     # We do some rollbacks so as not to break performance of ongoing tasks.
 
@@ -743,7 +784,7 @@ def test():
 # Command-line processor
 # =============================================================================
 
-def cli_main():
+def cli_main() -> None:
     """Command-line entry point."""
     # Fetch command-line options.
     silent = False

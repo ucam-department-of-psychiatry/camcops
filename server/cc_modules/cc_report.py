@@ -24,9 +24,10 @@
 import cgi
 import re
 from typing import (Any, Dict, Iterable, List, Optional, Sequence, Tuple,
-                    Type, TypeVar)
+                    Type, TypeVar, Union)
 
 import cardinal_pythonlib.rnc_web as ws
+from cardinal_pythonlib.rnc_web import WSGI_TUPLE_TYPE
 
 from .cc_constants import (
     ACTION,
@@ -256,7 +257,8 @@ def tsv_from_query(rows: Iterable[Iterable[Any]],
     return tsv
 
 
-def provide_report(session: Session, form: cgi.FieldStorage) -> str:
+def provide_report(session: Session, form: cgi.FieldStorage) \
+        -> Union[str, WSGI_TUPLE_TYPE]:
     """Extracts report type, report parameters, and output type from the CGI
     form; offers up the results in the chosen format."""
 

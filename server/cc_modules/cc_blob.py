@@ -90,6 +90,9 @@ class Blob(object):
             cls.TABLENAME, cls.FIELDSPECS,
             drop_superfluous_columns=drop_superfluous_columns)
 
+    @classmethod
+    def drop_views(cls) -> None:
+
     def __init__(self, serverpk: Optional[int]) -> None:
         """Initialize, loading from the database if necessary."""
         pls.db.fetch_object_from_db_by_pk(self, Blob.TABLENAME, Blob.FIELDS,

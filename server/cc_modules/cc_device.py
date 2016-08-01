@@ -41,10 +41,13 @@ class Device(object):
     """Represents a tablet device."""
     TABLENAME = "_security_devices"
     FIELDSPECS = [
-        dict(name="device", cctype="DEVICE", pk=True,
-             comment="ID of the source tablet device"),
-        dict(name="registered_by_user", cctype="USERNAME",
-             comment="User that registered the device"),
+        dict(name="id", cctype="INT_UNSIGNED", pk=True,
+             comment="Short cryptic name of the source tablet device"),
+        dict(name="device", cctype="DEVICE", indexed=True,
+             # TODO: make index unique
+             comment="Short cryptic name of the source tablet device"),
+        dict(name="registered_by_user", cctype="INT_UNSIGNED",
+             comment="ID of user that registered the device"),
         dict(name="when_registered_utc", cctype="DATETIME",
              comment="Date/time when the device was registered (UTC)"),
         dict(name="friendly_name", cctype="TEXT",
@@ -57,8 +60,8 @@ class Device(object):
         dict(name="ongoing_upload_batch_utc", cctype="DATETIME",
              comment="Date/time when the device's ongoing upload batch "
                      "started (UTC)"),
-        dict(name="uploading_user", cctype="USERNAME",
-             comment="User in the process of uploading right now"),
+        dict(name="uploading_user_id", cctype="INT_UNSIGNED",
+             comment="ID of user in the process of uploading right now"),
         dict(name="currently_preserving", cctype="BOOL",
              comment="Preservation currently in progress"),
     ]

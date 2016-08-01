@@ -9,115 +9,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d507af95-9eb5-49a8-90aa-7921b1aee6f4" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/server/to_do.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops.py" afterPath="$PROJECT_DIR$/server/camcops.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/cc_modules/cc_constants.py" afterPath="$PROJECT_DIR$/server/cc_modules/cc_constants.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/cc_modules/cc_convert.py" afterPath="$PROJECT_DIR$/server/cc_modules/cc_convert.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/cc_modules/cc_audit.py" afterPath="$PROJECT_DIR$/server/cc_modules/cc_audit.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/cc_modules/cc_blob.py" afterPath="$PROJECT_DIR$/server/cc_modules/cc_blob.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/cc_modules/cc_device.py" afterPath="$PROJECT_DIR$/server/cc_modules/cc_device.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/cc_modules/cc_filename.py" afterPath="$PROJECT_DIR$/server/cc_modules/cc_filename.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/cc_modules/cc_hl7.py" afterPath="$PROJECT_DIR$/server/cc_modules/cc_hl7.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/cc_modules/cc_html.py" afterPath="$PROJECT_DIR$/server/cc_modules/cc_html.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/cc_modules/cc_lang.py" afterPath="$PROJECT_DIR$/server/cc_modules/cc_lang.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/cc_modules/cc_namedtuples.py" afterPath="$PROJECT_DIR$/server/cc_modules/cc_namedtuples.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/cc_modules/cc_patient.py" afterPath="$PROJECT_DIR$/server/cc_modules/cc_patient.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/cc_modules/cc_pls.py" afterPath="$PROJECT_DIR$/server/cc_modules/cc_pls.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/cc_modules/cc_report.py" afterPath="$PROJECT_DIR$/server/cc_modules/cc_report.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/cc_modules/cc_task.py" afterPath="$PROJECT_DIR$/server/cc_modules/cc_task.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/cc_modules/cc_tracker.py" afterPath="$PROJECT_DIR$/server/cc_modules/cc_tracker.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/cc_modules/cc_unittest.py" afterPath="$PROJECT_DIR$/server/cc_modules/cc_unittest.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/database.py" afterPath="$PROJECT_DIR$/server/database.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/playing/camcops_mri_scanner_server.py" afterPath="$PROJECT_DIR$/server/playing/camcops_mri_scanner_server.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/playing/compare_elementtree_implementations.py" afterPath="$PROJECT_DIR$/server/playing/compare_elementtree_implementations.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/playing/snippet_sqla_comparison_symmetry.py" afterPath="$PROJECT_DIR$/server/playing/snippet_sqla_comparison_symmetry.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/playing/sqlalchemy_test.py" afterPath="$PROJECT_DIR$/server/playing/sqlalchemy_test.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/playing/testwsgi.py" afterPath="$PROJECT_DIR$/server/playing/testwsgi.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/playing/webview.py" afterPath="$PROJECT_DIR$/server/playing/webview.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/ace3.py" afterPath="$PROJECT_DIR$/server/tasks/ace3.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/aims.py" afterPath="$PROJECT_DIR$/server/tasks/aims.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/audit.py" afterPath="$PROJECT_DIR$/server/tasks/audit.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/badls.py" afterPath="$PROJECT_DIR$/server/tasks/badls.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/bdi.py" afterPath="$PROJECT_DIR$/server/tasks/bdi.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/bmi.py" afterPath="$PROJECT_DIR$/server/tasks/bmi.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/bprs.py" afterPath="$PROJECT_DIR$/server/tasks/bprs.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/bprse.py" afterPath="$PROJECT_DIR$/server/tasks/bprse.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/cage.py" afterPath="$PROJECT_DIR$/server/tasks/cage.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/cape42.py" afterPath="$PROJECT_DIR$/server/tasks/cape42.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/caps.py" afterPath="$PROJECT_DIR$/server/tasks/caps.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/cardinal_expdetthreshold.py" afterPath="$PROJECT_DIR$/server/tasks/cardinal_expdetthreshold.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/cardinal_expectationdetection.py" afterPath="$PROJECT_DIR$/server/tasks/cardinal_expectationdetection.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/cbir.py" afterPath="$PROJECT_DIR$/server/tasks/cbir.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/ceca.py" afterPath="$PROJECT_DIR$/server/tasks/ceca.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/cgi_task.py" afterPath="$PROJECT_DIR$/server/tasks/cgi_task.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/cgisch.py" afterPath="$PROJECT_DIR$/server/tasks/cgisch.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/ciwa.py" afterPath="$PROJECT_DIR$/server/tasks/ciwa.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/contactlog.py" afterPath="$PROJECT_DIR$/server/tasks/contactlog.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/cope.py" afterPath="$PROJECT_DIR$/server/tasks/cope.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/cpft_lps.py" afterPath="$PROJECT_DIR$/server/tasks/cpft_lps.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/dad.py" afterPath="$PROJECT_DIR$/server/tasks/dad.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/dast.py" afterPath="$PROJECT_DIR$/server/tasks/dast.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/deakin_1_healthreview.py" afterPath="$PROJECT_DIR$/server/tasks/deakin_1_healthreview.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/demoquestionnaire.py" afterPath="$PROJECT_DIR$/server/tasks/demoquestionnaire.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/demqol.py" afterPath="$PROJECT_DIR$/server/tasks/demqol.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/diagnosis.py" afterPath="$PROJECT_DIR$/server/tasks/diagnosis.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/distressthermometer.py" afterPath="$PROJECT_DIR$/server/tasks/distressthermometer.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/fast.py" afterPath="$PROJECT_DIR$/server/tasks/fast.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/fft.py" afterPath="$PROJECT_DIR$/server/tasks/fft.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/frs.py" afterPath="$PROJECT_DIR$/server/tasks/frs.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/gad7.py" afterPath="$PROJECT_DIR$/server/tasks/gad7.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/gaf.py" afterPath="$PROJECT_DIR$/server/tasks/gaf.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/gds.py" afterPath="$PROJECT_DIR$/server/tasks/gds.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/gmcpq.py" afterPath="$PROJECT_DIR$/server/tasks/gmcpq.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/hads.py" afterPath="$PROJECT_DIR$/server/tasks/hads.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/hama.py" afterPath="$PROJECT_DIR$/server/tasks/hama.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/hamd.py" afterPath="$PROJECT_DIR$/server/tasks/hamd.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/hamd7.py" afterPath="$PROJECT_DIR$/server/tasks/hamd7.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/honos.py" afterPath="$PROJECT_DIR$/server/tasks/honos.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/icd10depressive.py" afterPath="$PROJECT_DIR$/server/tasks/icd10depressive.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/icd10manic.py" afterPath="$PROJECT_DIR$/server/tasks/icd10manic.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/icd10mixed.py" afterPath="$PROJECT_DIR$/server/tasks/icd10mixed.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/icd10schizophrenia.py" afterPath="$PROJECT_DIR$/server/tasks/icd10schizophrenia.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/icd10schizotypal.py" afterPath="$PROJECT_DIR$/server/tasks/icd10schizotypal.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/icd10specpd.py" afterPath="$PROJECT_DIR$/server/tasks/icd10specpd.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/ided3d.py" afterPath="$PROJECT_DIR$/server/tasks/ided3d.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/iesr.py" afterPath="$PROJECT_DIR$/server/tasks/iesr.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/ifs.py" afterPath="$PROJECT_DIR$/server/tasks/ifs.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/irac.py" afterPath="$PROJECT_DIR$/server/tasks/irac.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/mast.py" afterPath="$PROJECT_DIR$/server/tasks/mast.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/mds_updrs.py" afterPath="$PROJECT_DIR$/server/tasks/mds_updrs.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/moca.py" afterPath="$PROJECT_DIR$/server/tasks/moca.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/nart.py" afterPath="$PROJECT_DIR$/server/tasks/nart.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/npiq.py" afterPath="$PROJECT_DIR$/server/tasks/npiq.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/panss.py" afterPath="$PROJECT_DIR$/server/tasks/panss.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/pcl.py" afterPath="$PROJECT_DIR$/server/tasks/pcl.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/pdss.py" afterPath="$PROJECT_DIR$/server/tasks/pdss.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/photo.py" afterPath="$PROJECT_DIR$/server/tasks/photo.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/phq15.py" afterPath="$PROJECT_DIR$/server/tasks/phq15.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/phq9.py" afterPath="$PROJECT_DIR$/server/tasks/phq9.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/progressnote.py" afterPath="$PROJECT_DIR$/server/tasks/progressnote.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/pswq.py" afterPath="$PROJECT_DIR$/server/tasks/pswq.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/psychiatricclerking.py" afterPath="$PROJECT_DIR$/server/tasks/psychiatricclerking.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/qolbasic.py" afterPath="$PROJECT_DIR$/server/tasks/qolbasic.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/qolsg.py" afterPath="$PROJECT_DIR$/server/tasks/qolsg.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/rand36.py" afterPath="$PROJECT_DIR$/server/tasks/rand36.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/service_satisfaction.py" afterPath="$PROJECT_DIR$/server/tasks/service_satisfaction.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/slums.py" afterPath="$PROJECT_DIR$/server/tasks/slums.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/smast.py" afterPath="$PROJECT_DIR$/server/tasks/smast.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/wemwbs.py" afterPath="$PROJECT_DIR$/server/tasks/wemwbs.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/wsas.py" afterPath="$PROJECT_DIR$/server/tasks/wsas.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/ybocs.py" afterPath="$PROJECT_DIR$/server/tasks/ybocs.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks/zbi.py" afterPath="$PROJECT_DIR$/server/tasks/zbi.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks_discarded/asrm.py" afterPath="$PROJECT_DIR$/server/tasks_discarded/asrm.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks_discarded/bars.py" afterPath="$PROJECT_DIR$/server/tasks_discarded/bars.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks_discarded/bfcrs.py" afterPath="$PROJECT_DIR$/server/tasks_discarded/bfcrs.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks_discarded/csi.py" afterPath="$PROJECT_DIR$/server/tasks_discarded/csi.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks_discarded/epds.py" afterPath="$PROJECT_DIR$/server/tasks_discarded/epds.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks_discarded/fab.py" afterPath="$PROJECT_DIR$/server/tasks_discarded/fab.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks_discarded/gass.py" afterPath="$PROJECT_DIR$/server/tasks_discarded/gass.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks_discarded/lshs.py" afterPath="$PROJECT_DIR$/server/tasks_discarded/lshs.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks_discarded/lunsers.py" afterPath="$PROJECT_DIR$/server/tasks_discarded/lunsers.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks_discarded/madrs.py" afterPath="$PROJECT_DIR$/server/tasks_discarded/madrs.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tasks_discarded/sas.py" afterPath="$PROJECT_DIR$/server/tasks_discarded/sas.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/webview.py" afterPath="$PROJECT_DIR$/server/webview.py" />
     </list>
     <ignored path="camcops.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -161,48 +59,77 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="maketables.pl" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/server/playing/maketables.pl">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="328">
-                  <caret line="453" column="0" selection-start-line="453" selection-start-column="0" selection-end-line="453" selection-end-column="0" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="sqlalchemy_test.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/server/playing/sqlalchemy_test.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="523">
-                  <caret line="210" column="11" selection-start-line="210" selection-start-column="11" selection-end-line="210" selection-end-column="11" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="camcops.py" pinned="false" current-in-tab="true">
+          <file leaf-file-name="camcops.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/server/camcops.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="982">
-                  <caret line="477" column="48" selection-start-line="477" selection-start-column="48" selection-end-line="477" selection-end-column="48" />
+                <state relative-caret-position="478">
+                  <caret line="280" column="0" selection-start-line="280" selection-start-column="0" selection-end-line="280" selection-end-column="0" />
                   <folding>
-                    <marker date="1470058025167" expanded="true" signature="7976:8060" ph="ALTER TABLE zzz... " />
-                    <marker date="1470058025167" expanded="true" signature="8070:8106" ph="ALTER TABLE zzz... " />
-                    <marker date="1470058025167" expanded="true" signature="8116:8156" ph="ALTER TABLE zzz... " />
-                    <marker date="1470058025167" expanded="true" signature="8166:8224" ph="ALTER TABLE zzz... " />
-                    <marker date="1470058025167" expanded="true" signature="8234:8275" ph="ALTER TABLE zzz... " />
-                    <marker date="1470058025167" expanded="true" signature="8675:8755" ph="ALTER TABLE zzz... " />
-                    <marker date="1470058025167" expanded="true" signature="8765:8801" ph="ALTER TABLE zzz... " />
-                    <marker date="1470058025167" expanded="true" signature="8811:8851" ph="ALTER TABLE zzz... " />
-                    <marker date="1470058025167" expanded="true" signature="8861:8921" ph="ALTER TABLE zzz... " />
-                    <marker date="1470058025167" expanded="true" signature="8931:8976" ph="ALTER TABLE zzz... " />
-                    <marker date="1470058025167" expanded="true" signature="9290:9342" ph="ALTER TABLE missing_value... " />
-                    <marker date="1470058025167" expanded="true" signature="9352:9527" ph="UPDATE missi... " />
-                    <marker date="1470058025167" expanded="true" signature="9537:9569" ph="ALTER TABLE missing_value... " />
-                    <marker date="1470058025167" expanded="true" signature="9991:10045" ph="ALTER TABLE qqq... " />
-                    <marker date="1470058025167" expanded="true" signature="10055:10225" ph="UPDATE qqq A... " />
-                    <marker date="1470058025167" expanded="true" signature="10293:10332" ph="ALTER TABLE qqq... " />
+                    <marker date="1470059866844" expanded="true" signature="8422:8506" ph="ALTER TABLE zzz... " />
+                    <marker date="1470059866844" expanded="true" signature="8516:8552" ph="ALTER TABLE zzz... " />
+                    <marker date="1470059866844" expanded="true" signature="8562:8602" ph="ALTER TABLE zzz... " />
+                    <marker date="1470059866844" expanded="true" signature="8612:8670" ph="ALTER TABLE zzz... " />
+                    <marker date="1470059866844" expanded="true" signature="8680:8721" ph="ALTER TABLE zzz... " />
+                    <marker date="1470059866844" expanded="true" signature="9126:9206" ph="ALTER TABLE zzz... " />
+                    <marker date="1470059866844" expanded="true" signature="9216:9252" ph="ALTER TABLE zzz... " />
+                    <marker date="1470059866844" expanded="true" signature="9262:9302" ph="ALTER TABLE zzz... " />
+                    <marker date="1470059866844" expanded="true" signature="9312:9372" ph="ALTER TABLE zzz... " />
+                    <marker date="1470059866844" expanded="true" signature="9382:9427" ph="ALTER TABLE zzz... " />
+                    <marker date="1470059866844" expanded="true" signature="9721:10566" ph="..." />
+                    <marker date="1470059866844" expanded="true" signature="9908:9960" ph="ALTER TABLE missing_value... " />
+                    <marker date="1470059866844" expanded="true" signature="9970:10141" ph="UPDATE missi... " />
+                    <marker date="1470059866844" expanded="true" signature="10151:10183" ph="ALTER TABLE missing_value... " />
+                    <marker date="1470059866844" expanded="true" signature="10381:10566" ph="..." />
+                    <marker date="1470059866844" expanded="true" signature="10919:10971" ph="ALTER TABLE missing_value... " />
+                    <marker date="1470059866844" expanded="true" signature="10981:11156" ph="UPDATE missi... " />
+                    <marker date="1470059866844" expanded="true" signature="11166:11198" ph="ALTER TABLE missing_value... " />
+                    <marker date="1470059866844" expanded="true" signature="12327:19266" ph="..." />
+                    <marker date="1470059866844" expanded="true" signature="16859:19266" ph="..." />
+                    <marker date="1470059866844" expanded="true" signature="19099:19266" ph="..." />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="cc_report.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_report.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="7">
+                  <caret line="260" column="16" selection-start-line="260" selection-start-column="11" selection-end-line="260" selection-end-column="16" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="cc_audit.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_audit.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="546">
+                  <caret line="42" column="0" selection-start-line="42" selection-start-column="0" selection-end-line="42" selection-end-column="0" />
+                  <folding>
+                    <marker date="1470058998042" expanded="true" signature="3077:3304" ph="INSERT INTO missing_value... " />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="rnc_web.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/../cardinal_pythonlib/cardinal_pythonlib/rnc_web.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="328">
+                  <caret line="46" column="0" selection-start-line="46" selection-start-column="0" selection-end-line="46" selection-end-column="0" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="cc_blob.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_blob.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="663">
+                  <caret line="93" column="31" selection-start-line="93" selection-start-column="31" selection-end-line="93" selection-end-column="31" />
+                  <folding>
+                    <marker date="1470059866900" expanded="true" signature="7873:7906" ph="SELECT _pk F... " />
                   </folding>
                 </state>
               </provider>
@@ -211,92 +138,182 @@
           <file leaf-file-name="webview.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/server/webview.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="640">
-                  <caret line="2975" column="34" selection-start-line="2975" selection-start-column="34" selection-end-line="2975" selection-end-column="34" />
+                <state relative-caret-position="698">
+                  <caret line="3089" column="36" selection-start-line="3089" selection-start-column="36" selection-end-line="3089" selection-end-column="36" />
                   <folding>
-                    <marker date="1469817836459" expanded="true" signature="55522:55709" ph="SELECT when_... missing_value" />
-                    <marker date="1469817836459" expanded="true" signature="60386:60413" ph="SELECT msg_i... missing_value" />
-                    <marker date="1469817836459" expanded="true" signature="64201:64228" ph="SELECT run_i... missing_value" />
-                    <marker date="1469817836459" expanded="true" signature="78464:78497" ph="DELETE FROM " />
-                    <marker date="1469817836459" expanded="true" signature="106077:106435" ph="SELECT t.tab... columns" />
+                    <marker date="1470060496407" expanded="true" signature="57339:57526" ph="SELECT when_... missing_value" />
+                    <marker date="1470060496407" expanded="true" signature="62271:62298" ph="SELECT msg_i... missing_value" />
+                    <marker date="1470060496407" expanded="true" signature="66154:66181" ph="SELECT run_i... missing_value" />
+                    <marker date="1470060496407" expanded="true" signature="80587:80620" ph="DELETE FROM " />
+                    <marker date="1470060496407" expanded="true" signature="109208:109566" ph="SELECT t.tab... columns" />
                   </folding>
                 </state>
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="cc_blob.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_blob.py">
+          <file leaf-file-name="database.py" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/server/database.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="52">
+                  <caret line="1647" column="41" selection-start-line="1647" selection-start-column="41" selection-end-line="1647" selection-end-column="41" />
+                  <folding>
+                    <marker date="1470062552541" expanded="true" signature="14003:14056" ph="SELECT COUNT... _" />
+                    <marker date="1470062552541" expanded="true" signature="16556:16633" ph="SELECT _pk F... " />
+                    <marker date="1470062552541" expanded="true" signature="17175:17264" ph="SELECT _pk F... " />
+                    <marker date="1470062552541" expanded="true" signature="18051:18128" ph="SELECT _pk F... " />
+                    <marker date="1470062552541" expanded="true" signature="19820:19902" ph="SELECT COUNT... missing_value" />
+                    <marker date="1470062552541" expanded="true" signature="20592:20677" ph="SELECT missi... missing_value" />
+                    <marker date="1470062552541" expanded="true" signature="21228:21312" ph="SELECT MAX(m... missing_value" />
+                    <marker date="1470062552541" expanded="true" signature="21807:22078" ph="UPDATE missi... " />
+                    <marker date="1470062552541" expanded="true" signature="22864:22912" ph="SELECT COUNT... missing_value" />
+                    <marker date="1470062552541" expanded="true" signature="23704:23764" ph="SELECT COUNT... missing_value" />
+                    <marker date="1470062552541" expanded="true" signature="27033:27066" ph="SELECT * fro... missing_value" />
+                    <marker date="1470062552541" expanded="true" signature="28003:28148" ph="UPDATE missi... " />
+                    <marker date="1470062552541" expanded="true" signature="29255:29378" ph="SELECT ongoi... _" />
+                    <marker date="1470062552541" expanded="true" signature="30155:30320" ph="UPDATE _secu... " />
+                    <marker date="1470062552541" expanded="true" signature="30730:30900" ph="UPDATE _secu... " />
+                    <marker date="1470062552541" expanded="true" signature="31141:31223" ph="UPDATE _secu... " />
+                    <marker date="1470062552541" expanded="true" signature="31726:31776" ph="SELECT table... _" />
+                    <marker date="1470062552541" expanded="true" signature="32004:32089" ph="UPDATE missi... " />
+                    <marker date="1470062552541" expanded="true" signature="32396:32515" ph="UPDATE missi... " />
+                    <marker date="1470062552541" expanded="true" signature="33029:33148" ph="UPDATE missi... " />
+                    <marker date="1470062552541" expanded="true" signature="33705:33787" ph="UPDATE missi... " />
+                    <marker date="1470062552541" expanded="true" signature="34061:34133" ph="UPDATE missi... " />
+                    <marker date="1470062552541" expanded="true" signature="35536:35762" ph="UPDATE missi... " />
+                    <marker date="1470062552541" expanded="true" signature="35902:36132" ph="UPDATE missi... " />
+                    <marker date="1470062552541" expanded="true" signature="36402:36579" ph="UPDATE missi... " />
+                    <marker date="1470062552541" expanded="true" signature="36931:37072" ph="UPDATE _spec... " />
+                    <marker date="1470062552541" expanded="true" signature="37243:37408" ph="UPDATE missi... " />
+                    <marker date="1470062552541" expanded="true" signature="37758:38133" ph="UPDATE _spec... " />
+                    <marker date="1470062552541" expanded="true" signature="37955:38066" ph="SELECT * FRO... missing_value" />
+                    <marker date="1470062552541" expanded="true" signature="38352:38408" ph="DELETE FROM " />
+                    <marker date="1470062552541" expanded="true" signature="38974:39031" ph="DELETE FROM " />
+                    <marker date="1470062552541" expanded="true" signature="39145:39392" ph="UPDATE missi... " />
+                    <marker date="1470062552541" expanded="true" signature="39554:39642" ph="UPDATE missi... " />
+                    <marker date="1470062552541" expanded="true" signature="39892:39932" ph="DELETE FROM " />
+                    <marker date="1470062552541" expanded="true" signature="40798:40841" ph="SELECT COUNT... missing_value" />
+                    <marker date="1470062552541" expanded="true" signature="40994:41195" ph="UPDATE missi... " />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="cc_session.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_session.py">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="328">
-                  <caret line="86" column="4" selection-start-line="86" selection-start-column="4" selection-end-line="86" selection-end-column="4" />
+                  <caret line="105" column="4" selection-start-line="105" selection-start-column="4" selection-end-line="105" selection-end-column="4" />
                   <folding>
-                    <marker date="1469783635314" expanded="true" signature="7822:7855" ph="SELECT _pk F... " />
+                    <marker date="1469811983298" expanded="true" signature="45345:45360" ph="SELECT id FR... missing_value" />
                   </folding>
                 </state>
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="cc_pls.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_pls.py">
+          <file leaf-file-name="cc_html.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_html.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="345">
-                  <caret line="437" column="30" selection-start-line="437" selection-start-column="30" selection-end-line="437" selection-end-column="30" />
+                <state relative-caret-position="328">
+                  <caret line="541" column="4" selection-start-line="541" selection-start-column="4" selection-end-line="541" selection-end-column="4" />
                   <folding />
                 </state>
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="cc_version.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_version.py">
+        </leaf>
+      </split-first>
+      <split-second>
+        <leaf>
+          <file leaf-file-name="cc_task.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_task.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="0">
-                  <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="rnc_db.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/../cardinal_pythonlib/cardinal_pythonlib/rnc_db.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="351">
-                  <caret line="2601" column="18" selection-start-line="2601" selection-start-column="18" selection-end-line="2601" selection-end-column="18" />
+                <state relative-caret-position="540">
+                  <caret line="1416" column="0" selection-start-line="1416" selection-start-column="0" selection-end-line="1416" selection-end-column="0" />
                   <folding>
-                    <marker date="1470041322794" expanded="true" signature="13058:13313" ph="SELECT MSysO... MSysObjects" />
-                    <marker date="1470041322794" expanded="true" signature="13592:13818" ph="SELECT * FRO... MSysObjects" />
-                    <marker date="1470041322794" expanded="true" signature="16399:16483" ph="SELECT table... tables" />
-                    <marker date="1470041322794" expanded="true" signature="16672:16762" ph="SELECT * FRO... tables" />
-                    <marker date="1470041322794" expanded="true" signature="17046:17139" ph="SELECT * FRO... columns" />
-                    <marker date="1470041322794" expanded="true" signature="17402:17505" ph="SELECT colum... columns" />
-                    <marker date="1470041322794" expanded="true" signature="17825:17944" ph="SELECT data_... columns" />
-                    <marker date="1470041322794" expanded="true" signature="18255:18376" ph="SELECT missi... columns" />
-                    <marker date="1470041322794" expanded="true" signature="18691:18815" ph="SELECT colum... columns" />
-                    <marker date="1470041322794" expanded="true" signature="19968:20099" ph="SELECT engin... tables" />
-                    <marker date="1470041322794" expanded="true" signature="20916:20989" ph="ALTER TABLE missing_value... " />
-                    <marker date="1470041322794" expanded="true" signature="22620:23105" ph="SELECT db, /... db" />
-                    <marker date="1470041322794" expanded="true" signature="22654:22674" ph="/* must not " />
-                    <marker date="1470041322794" expanded="true" signature="23954:24766" ph="SELECT /* mu... user" />
-                    <marker date="1470041322794" expanded="true" signature="23961:23981" ph="/* must not " />
-                    <marker date="1470041322794" expanded="true" signature="26977:27025" ph="SELECT table... tables" />
-                    <marker date="1470041322794" expanded="true" signature="27175:27214" ph="SELECT * FRO... tables" />
-                    <marker date="1470041322794" expanded="true" signature="27570:27644" ph="SELECT * FRO... columns" />
-                    <marker date="1470041322794" expanded="true" signature="27868:27952" ph="SELECT colum... columns" />
-                    <marker date="1470041322794" expanded="true" signature="28547:28666" ph="SELECT data_... columns" />
-                    <marker date="1470041322794" expanded="true" signature="29291:29412" ph="SELECT missi... columns" />
-                    <marker date="1470041322794" expanded="true" signature="32510:32597" ph="INSERT INTO missing_value... " />
-                    <marker date="1470041322794" expanded="true" signature="32598:32605" ph="UPDATE missi... " />
-                    <marker date="1470041322794" expanded="true" signature="78229:78315" ph="INSERT INTO missing_value... " />
-                    <marker date="1470041322794" expanded="true" signature="96241:96345" ph="SELECT COUNT... statistics" />
-                    <marker date="1470041322794" expanded="true" signature="101120:101239" ph="SELECT COUNT... tables" />
-                    <marker date="1470041322794" expanded="true" signature="101517:101667" ph="SELECT COUNT... columns" />
-                    <marker date="1470041322794" expanded="true" signature="101926:101947" ph="DROP TABLE I... " />
-                    <marker date="1470041322794" expanded="true" signature="102180:102200" ph="DROP VIEW IF... " />
-                    <marker date="1470041322794" expanded="true" signature="102974:103074" ph="CREATE TABLE... IF" />
-                    <marker date="1470041322794" expanded="true" signature="104249:104275" ph="ALTER TABLE missing_value... " />
-                    <marker date="1470041322794" expanded="true" signature="104562:104589" ph="ALTER TABLE missing_value... " />
-                    <marker date="1470041322794" expanded="true" signature="105040:105078" ph="ALTER TABLE missing_value... " />
-                    <marker date="1470041322794" expanded="true" signature="105737:105779" ph="ALTER TABLE missing_value... " />
-                    <marker date="1470041322794" expanded="true" signature="110048:110222" ph="SELECT COUNT... table_constraints" />
+                    <marker date="1470058025195" expanded="true" signature="45367:45577" ph="UPDATE missi... " />
+                    <marker date="1470058025195" expanded="true" signature="50146:50453" ph="SELECT missi... " />
+                    <marker date="1470058025195" expanded="true" signature="57343:57390" ph="SELECT _pk, " />
+                    <marker date="1470058025195" expanded="true" signature="58015:58257" ph="SELECT missi... " />
+                    <marker date="1470058025195" expanded="true" signature="66499:66790" ph="SELECT missi... " />
+                    <marker date="1470058025195" expanded="true" signature="68141:68198" ph="SELECT _pk F... " />
+                    <marker date="1470058025195" expanded="true" signature="121291:121402" ph="SELECT _pk, " />
+                    <marker date="1470058025195" expanded="true" signature="122373:122519" ph="SELECT _pk, " />
+                    <marker date="1470058025195" expanded="true" signature="126325:126853" ph="SELECT 'miss... " />
+                    <marker date="1470058025195" expanded="true" signature="147333:147366" ph="SELECT _pk F... " />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="camcops.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/server/camcops.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="234">
+                  <caret line="18" column="0" selection-start-line="17" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
+                  <folding>
+                    <marker date="1470059866844" expanded="true" signature="8422:8506" ph="ALTER TABLE zzz... " />
+                    <marker date="1470059866844" expanded="true" signature="8516:8552" ph="ALTER TABLE zzz... " />
+                    <marker date="1470059866844" expanded="true" signature="8562:8602" ph="ALTER TABLE zzz... " />
+                    <marker date="1470059866844" expanded="true" signature="8612:8670" ph="ALTER TABLE zzz... " />
+                    <marker date="1470059866844" expanded="true" signature="8680:8721" ph="ALTER TABLE zzz... " />
+                    <marker date="1470059866844" expanded="true" signature="9126:9206" ph="ALTER TABLE zzz... " />
+                    <marker date="1470059866844" expanded="true" signature="9216:9252" ph="ALTER TABLE zzz... " />
+                    <marker date="1470059866844" expanded="true" signature="9262:9302" ph="ALTER TABLE zzz... " />
+                    <marker date="1470059866844" expanded="true" signature="9312:9372" ph="ALTER TABLE zzz... " />
+                    <marker date="1470059866844" expanded="true" signature="9382:9427" ph="ALTER TABLE zzz... " />
+                    <marker date="1470059866844" expanded="true" signature="9908:9960" ph="ALTER TABLE missing_value... " />
+                    <marker date="1470059866844" expanded="true" signature="9970:10141" ph="UPDATE missi... " />
+                    <marker date="1470059866844" expanded="true" signature="10151:10183" ph="ALTER TABLE missing_value... " />
+                    <marker date="1470059866844" expanded="true" signature="10919:10971" ph="ALTER TABLE missing_value... " />
+                    <marker date="1470059866844" expanded="true" signature="10981:11156" ph="UPDATE missi... " />
+                    <marker date="1470059866844" expanded="true" signature="11166:11198" ph="ALTER TABLE missing_value... " />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="database.py" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/server/database.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="319">
+                  <caret line="424" column="14" selection-start-line="424" selection-start-column="0" selection-end-line="424" selection-end-column="14" />
+                  <folding>
+                    <marker date="1470062552541" expanded="true" signature="14003:14056" ph="SELECT COUNT... _" />
+                    <marker date="1470062552541" expanded="true" signature="16556:16633" ph="SELECT _pk F... " />
+                    <marker date="1470062552541" expanded="true" signature="17175:17264" ph="SELECT _pk F... " />
+                    <marker date="1470062552541" expanded="true" signature="18051:18128" ph="SELECT _pk F... " />
+                    <marker date="1470062552541" expanded="true" signature="19820:19902" ph="SELECT COUNT... missing_value" />
+                    <marker date="1470062552541" expanded="true" signature="20592:20677" ph="SELECT missi... missing_value" />
+                    <marker date="1470062552541" expanded="true" signature="21228:21312" ph="SELECT MAX(m... missing_value" />
+                    <marker date="1470062552541" expanded="true" signature="21807:22078" ph="UPDATE missi... " />
+                    <marker date="1470062552541" expanded="true" signature="22864:22912" ph="SELECT COUNT... missing_value" />
+                    <marker date="1470062552541" expanded="true" signature="23704:23764" ph="SELECT COUNT... missing_value" />
+                    <marker date="1470062552541" expanded="true" signature="27033:27066" ph="SELECT * fro... missing_value" />
+                    <marker date="1470062552541" expanded="true" signature="28003:28148" ph="UPDATE missi... " />
+                    <marker date="1470062552541" expanded="true" signature="29255:29378" ph="SELECT ongoi... _" />
+                    <marker date="1470062552541" expanded="true" signature="30155:30320" ph="UPDATE _secu... " />
+                    <marker date="1470062552541" expanded="true" signature="30730:30900" ph="UPDATE _secu... " />
+                    <marker date="1470062552541" expanded="true" signature="31141:31223" ph="UPDATE _secu... " />
+                    <marker date="1470062552541" expanded="true" signature="31726:31776" ph="SELECT table... _" />
+                    <marker date="1470062552541" expanded="true" signature="32004:32089" ph="UPDATE missi... " />
+                    <marker date="1470062552541" expanded="true" signature="32396:32515" ph="UPDATE missi... " />
+                    <marker date="1470062552541" expanded="true" signature="33029:33148" ph="UPDATE missi... " />
+                    <marker date="1470062552541" expanded="true" signature="33705:33787" ph="UPDATE missi... " />
+                    <marker date="1470062552541" expanded="true" signature="34061:34133" ph="UPDATE missi... " />
+                    <marker date="1470062552541" expanded="true" signature="35536:35762" ph="UPDATE missi... " />
+                    <marker date="1470062552541" expanded="true" signature="35902:36132" ph="UPDATE missi... " />
+                    <marker date="1470062552541" expanded="true" signature="36402:36579" ph="UPDATE missi... " />
+                    <marker date="1470062552541" expanded="true" signature="36931:37072" ph="UPDATE _spec... " />
+                    <marker date="1470062552541" expanded="true" signature="37243:37408" ph="UPDATE missi... " />
+                    <marker date="1470062552541" expanded="true" signature="37758:38133" ph="UPDATE _spec... " />
+                    <marker date="1470062552541" expanded="true" signature="37955:38066" ph="SELECT * FRO... missing_value" />
+                    <marker date="1470062552541" expanded="true" signature="38352:38408" ph="DELETE FROM " />
+                    <marker date="1470062552541" expanded="true" signature="38974:39031" ph="DELETE FROM " />
+                    <marker date="1470062552541" expanded="true" signature="39145:39392" ph="UPDATE missi... " />
+                    <marker date="1470062552541" expanded="true" signature="39554:39642" ph="UPDATE missi... " />
+                    <marker date="1470062552541" expanded="true" signature="39892:39932" ph="DELETE FROM " />
+                    <marker date="1470062552541" expanded="true" signature="40798:40841" ph="SELECT COUNT... missing_value" />
+                    <marker date="1470062552541" expanded="true" signature="40994:41195" ph="UPDATE missi... " />
                   </folding>
                 </state>
               </provider>
@@ -305,8 +322,8 @@
           <file leaf-file-name="cc_db.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_db.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="907">
-                  <caret line="681" column="0" selection-start-line="681" selection-start-column="0" selection-end-line="681" selection-end-column="0" />
+                <state relative-caret-position="319">
+                  <caret line="201" column="50" selection-start-line="201" selection-start-column="45" selection-end-line="201" selection-end-column="50" />
                   <folding>
                     <marker date="1470057602823" expanded="true" signature="10596:10756" ph="SELECT missi... missing_value" />
                     <marker date="1470057602823" expanded="true" signature="11826:11948" ph="SELECT missi... missing_value" />
@@ -324,26 +341,67 @@
               </provider>
             </entry>
           </file>
-        </leaf>
-      </split-first>
-      <split-second>
-        <leaf>
-          <file leaf-file-name="cc_task.py" pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_task.py">
+          <file leaf-file-name="cc_constants.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_constants.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="319">
-                  <caret line="953" column="26" selection-start-line="953" selection-start-column="26" selection-end-line="953" selection-end-column="26" />
+                <state relative-caret-position="345">
+                  <caret line="392" column="31" selection-start-line="392" selection-start-column="15" selection-end-line="392" selection-end-column="31" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="cc_dump.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_dump.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="0">
+                  <caret line="0" column="14" selection-start-line="0" selection-start-column="13" selection-end-line="0" selection-end-column="14" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="rnc_db.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/../cardinal_pythonlib/cardinal_pythonlib/rnc_db.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="328">
+                  <caret line="2086" column="35" selection-start-line="2086" selection-start-column="35" selection-end-line="2086" selection-end-column="35" />
                   <folding>
-                    <marker date="1470058025195" expanded="true" signature="45367:45577" ph="UPDATE missi... " />
-                    <marker date="1470058025195" expanded="true" signature="50146:50453" ph="SELECT missi... " />
-                    <marker date="1470058025195" expanded="true" signature="57343:57390" ph="SELECT _pk, " />
-                    <marker date="1470058025195" expanded="true" signature="58015:58257" ph="SELECT missi... " />
-                    <marker date="1470058025195" expanded="true" signature="66499:66790" ph="SELECT missi... " />
-                    <marker date="1470058025195" expanded="true" signature="68141:68198" ph="SELECT _pk F... " />
-                    <marker date="1470058025195" expanded="true" signature="121291:121402" ph="SELECT _pk, " />
-                    <marker date="1470058025195" expanded="true" signature="122373:122519" ph="SELECT _pk, " />
-                    <marker date="1470058025195" expanded="true" signature="126325:126853" ph="SELECT 'miss... " />
-                    <marker date="1470058025195" expanded="true" signature="147333:147366" ph="SELECT _pk F... " />
+                    <marker date="1470061870082" expanded="true" signature="13058:13313" ph="SELECT MSysO... MSysObjects" />
+                    <marker date="1470061870082" expanded="true" signature="13592:13818" ph="SELECT * FRO... MSysObjects" />
+                    <marker date="1470061870082" expanded="true" signature="16399:16483" ph="SELECT table... tables" />
+                    <marker date="1470061870082" expanded="true" signature="16672:16762" ph="SELECT * FRO... tables" />
+                    <marker date="1470061870082" expanded="true" signature="17046:17139" ph="SELECT * FRO... columns" />
+                    <marker date="1470061870082" expanded="true" signature="17402:17505" ph="SELECT colum... columns" />
+                    <marker date="1470061870082" expanded="true" signature="17825:17944" ph="SELECT data_... columns" />
+                    <marker date="1470061870082" expanded="true" signature="18255:18376" ph="SELECT missi... columns" />
+                    <marker date="1470061870082" expanded="true" signature="18691:18815" ph="SELECT colum... columns" />
+                    <marker date="1470061870082" expanded="true" signature="19968:20099" ph="SELECT engin... tables" />
+                    <marker date="1470061870082" expanded="true" signature="20916:20989" ph="ALTER TABLE missing_value... " />
+                    <marker date="1470061870082" expanded="true" signature="22620:23105" ph="SELECT db, /... db" />
+                    <marker date="1470061870082" expanded="true" signature="22654:22674" ph="/* must not " />
+                    <marker date="1470061870082" expanded="true" signature="23954:24766" ph="SELECT /* mu... user" />
+                    <marker date="1470061870082" expanded="true" signature="23961:23981" ph="/* must not " />
+                    <marker date="1470061870082" expanded="true" signature="26977:27025" ph="SELECT table... tables" />
+                    <marker date="1470061870082" expanded="true" signature="27175:27214" ph="SELECT * FRO... tables" />
+                    <marker date="1470061870082" expanded="true" signature="27570:27644" ph="SELECT * FRO... columns" />
+                    <marker date="1470061870082" expanded="true" signature="27868:27952" ph="SELECT colum... columns" />
+                    <marker date="1470061870082" expanded="true" signature="28547:28666" ph="SELECT data_... columns" />
+                    <marker date="1470061870082" expanded="true" signature="29291:29412" ph="SELECT missi... columns" />
+                    <marker date="1470061870082" expanded="true" signature="32510:32597" ph="INSERT INTO missing_value... " />
+                    <marker date="1470061870082" expanded="true" signature="32598:32605" ph="UPDATE missi... " />
+                    <marker date="1470061870082" expanded="true" signature="78228:78314" ph="INSERT INTO missing_value... " />
+                    <marker date="1470061870082" expanded="true" signature="96240:96344" ph="SELECT COUNT... statistics" />
+                    <marker date="1470061870082" expanded="true" signature="101119:101238" ph="SELECT COUNT... tables" />
+                    <marker date="1470061870082" expanded="true" signature="101516:101666" ph="SELECT COUNT... columns" />
+                    <marker date="1470061870082" expanded="true" signature="101925:101946" ph="DROP TABLE I... " />
+                    <marker date="1470061870082" expanded="true" signature="102179:102199" ph="DROP VIEW IF... " />
+                    <marker date="1470061870082" expanded="true" signature="102973:103073" ph="CREATE TABLE... IF" />
+                    <marker date="1470061870082" expanded="true" signature="104248:104274" ph="ALTER TABLE missing_value... " />
+                    <marker date="1470061870082" expanded="true" signature="104561:104588" ph="ALTER TABLE missing_value... " />
+                    <marker date="1470061870082" expanded="true" signature="105039:105077" ph="ALTER TABLE missing_value... " />
+                    <marker date="1470061870082" expanded="true" signature="105736:105778" ph="ALTER TABLE missing_value... " />
+                    <marker date="1470061870082" expanded="true" signature="110047:110221" ph="SELECT COUNT... table_constraints" />
                   </folding>
                 </state>
               </provider>
@@ -359,12 +417,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/server/tasks_discarded/bars.py" />
-        <option value="$PROJECT_DIR$/server/tasks_discarded/bfcrs.py" />
-        <option value="$PROJECT_DIR$/server/tasks_discarded/csi.py" />
-        <option value="$PROJECT_DIR$/server/tasks_discarded/epds.py" />
-        <option value="$PROJECT_DIR$/server/tasks_discarded/fab.py" />
-        <option value="$PROJECT_DIR$/server/tasks_discarded/gass.py" />
         <option value="$PROJECT_DIR$/server/tasks_discarded/lshs.py" />
         <option value="$PROJECT_DIR$/server/tasks_discarded/lunsers.py" />
         <option value="$PROJECT_DIR$/server/tasks_discarded/madrs.py" />
@@ -399,7 +451,6 @@
         <option value="$PROJECT_DIR$/server/cc_modules/cc_namedtuples.py" />
         <option value="$PROJECT_DIR$/server/cc_modules/cc_policy.py" />
         <option value="$PROJECT_DIR$/server/cc_modules/cc_unittest.py" />
-        <option value="$PROJECT_DIR$/server/database.py" />
         <option value="$PROJECT_DIR$/server/tasks/diagnosis.py" />
         <option value="$PROJECT_DIR$/server/tasks/frs.py" />
         <option value="$PROJECT_DIR$/server/tasks/npiq.py" />
@@ -409,7 +460,14 @@
         <option value="$PROJECT_DIR$/server/cc_modules/cc_constants.py" />
         <option value="$PROJECT_DIR$/server/cc_modules/cc_db.py" />
         <option value="$PROJECT_DIR$/server/cc_modules/cc_task.py" />
+        <option value="$PROJECT_DIR$/server/cc_modules/cc_device.py" />
+        <option value="$PROJECT_DIR$/server/cc_modules/cc_audit.py" />
+        <option value="$PROJECT_DIR$/server/cc_modules/cc_blob.py" />
         <option value="$PROJECT_DIR$/server/camcops.py" />
+        <option value="$PROJECT_DIR$/server/cc_modules/cc_report.py" />
+        <option value="$PROJECT_DIR$/server/webview.py" />
+        <option value="$PROJECT_DIR$/../cardinal_pythonlib/cardinal_pythonlib/rnc_db.py" />
+        <option value="$PROJECT_DIR$/server/database.py" />
       </list>
     </option>
   </component>
@@ -469,56 +527,7 @@
     </navigator>
     <panes>
       <pane id="ProjectPane">
-        <subPane>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="camcops" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="camcops" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="camcops" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="camcops" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="camcops" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="server" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="camcops" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="camcops" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="server" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="cc_modules" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
+        <subPane />
       </pane>
       <pane id="Scratches" />
       <pane id="Scope" />
@@ -532,6 +541,17 @@
     <property name="js-jscs-nodeInterpreter" value="/usr/local/bin/node" />
   </component>
   <component name="RunManager">
+    <configuration default="true" type="BashConfigurationType" factoryName="Bash">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="INTERPRETER_PATH" value="/bin/bash" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <module name="" />
+      <envs />
+      <method />
+    </configuration>
     <configuration default="true" type="DjangoTestsConfigurationType" factoryName="Django tests">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -775,11 +795,11 @@
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.19" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="LuaJ" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection Results" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32845744" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32845744" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" x="-2" y="594" width="1204" height="475" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32845744" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" x="-2" y="594" width="1204" height="475" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -825,7 +845,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/server/database.py</url>
-          <line>27</line>
+          <line>29</line>
           <option name="timeStamp" value="3" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
@@ -844,38 +864,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$USER_HOME$/dev/venvs/camcops/lib/python3.5/site-packages/twisted/protocols/basic.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="319">
-          <caret line="627" column="8" selection-start-line="627" selection-start-column="8" selection-end-line="627" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/dev/venvs/camcops/lib/python3.5/site-packages/twisted/internet/default.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="715">
-          <caret line="55" column="0" selection-start-line="55" selection-start-column="0" selection-end-line="55" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/dev/venvs/camcops/lib/python3.5/site-packages/twisted/internet/reactor.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="507">
-          <caret line="39" column="0" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/playing/camcops_mri_scanner_server.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="894">
-          <caret line="547" column="10" selection-start-line="547" selection-start-column="10" selection-end-line="547" selection-end-column="10" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/server/tasks/cardinal_expdetthreshold.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="302">
@@ -906,14 +894,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="881">
           <caret line="1175" column="53" selection-start-line="1175" selection-start-column="53" selection-end-line="1175" selection-end-column="53" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_html.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="712">
-          <caret line="584" column="4" selection-start-line="584" selection-start-column="4" selection-end-line="584" selection-end-column="4" />
           <folding />
         </state>
       </provider>
@@ -1012,16 +992,6 @@
         <state relative-caret-position="319">
           <caret line="77" column="14" selection-start-line="77" selection-start-column="4" selection-end-line="77" selection-end-column="14" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_session.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="328">
-          <caret line="105" column="4" selection-start-line="105" selection-start-column="4" selection-end-line="105" selection-end-column="4" />
-          <folding>
-            <marker date="1469811983298" expanded="true" signature="45345:45360" ph="SELECT id FR... missing_value" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1126,29 +1096,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_hl7.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="354">
-          <caret line="559" column="0" selection-start-line="559" selection-start-column="0" selection-end-line="559" selection-end-column="0" />
-          <folding>
-            <marker date="1470048641712" expanded="true" signature="29207:29273" ph="SELECT _pk F... " />
-            <marker date="1470048641712" expanded="true" signature="33993:34026" ph="SELECT _pk F... " />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/server/tasks/ybocs.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="783">
           <caret line="350" column="31" selection-start-line="350" selection-start-column="31" selection-end-line="350" selection-end-column="31" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_report.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="328">
-          <caret line="277" column="4" selection-start-line="277" selection-start-column="4" selection-end-line="277" selection-end-column="4" />
           <folding />
         </state>
       </provider>
@@ -1158,51 +1109,6 @@
         <state relative-caret-position="377">
           <caret line="29" column="0" selection-start-line="29" selection-start-column="0" selection-end-line="29" selection-end-column="0" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/database.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="484">
-          <caret line="1061" column="12" selection-start-line="1061" selection-start-column="12" selection-end-line="1061" selection-end-column="12" />
-          <folding>
-            <marker date="1470048492022" expanded="true" signature="11140:11193" ph="SELECT COUNT... _" />
-            <marker date="1470048492022" expanded="true" signature="13563:13640" ph="SELECT _pk F... " />
-            <marker date="1470048492022" expanded="true" signature="14078:14167" ph="SELECT _pk F... " />
-            <marker date="1470048492022" expanded="true" signature="14845:14922" ph="SELECT _pk F... " />
-            <marker date="1470048492022" expanded="true" signature="16428:16510" ph="SELECT COUNT... missing_value" />
-            <marker date="1470048492022" expanded="true" signature="17140:17225" ph="SELECT missi... missing_value" />
-            <marker date="1470048492022" expanded="true" signature="17700:17784" ph="SELECT MAX(m... missing_value" />
-            <marker date="1470048492022" expanded="true" signature="18163:18434" ph="UPDATE missi... " />
-            <marker date="1470048492022" expanded="true" signature="19144:19192" ph="SELECT COUNT... missing_value" />
-            <marker date="1470048492022" expanded="true" signature="19903:19963" ph="SELECT COUNT... missing_value" />
-            <marker date="1470048492022" expanded="true" signature="22977:23010" ph="SELECT * fro... missing_value" />
-            <marker date="1470048492022" expanded="true" signature="23821:23966" ph="UPDATE missi... " />
-            <marker date="1470048492022" expanded="true" signature="24999:25122" ph="SELECT ongoi... _" />
-            <marker date="1470048492022" expanded="true" signature="25874:26039" ph="UPDATE _secu... " />
-            <marker date="1470048492022" expanded="true" signature="26322:26492" ph="UPDATE _secu... " />
-            <marker date="1470048492022" expanded="true" signature="26720:26802" ph="UPDATE _secu... " />
-            <marker date="1470048492022" expanded="true" signature="27265:27315" ph="SELECT table... _" />
-            <marker date="1470048492022" expanded="true" signature="27510:27595" ph="UPDATE missi... " />
-            <marker date="1470048492022" expanded="true" signature="27884:28003" ph="UPDATE missi... " />
-            <marker date="1470048492022" expanded="true" signature="28407:28526" ph="UPDATE missi... " />
-            <marker date="1470048492022" expanded="true" signature="29055:29137" ph="UPDATE missi... " />
-            <marker date="1470048492022" expanded="true" signature="29393:29465" ph="UPDATE missi... " />
-            <marker date="1470048492022" expanded="true" signature="30640:30866" ph="UPDATE missi... " />
-            <marker date="1470048492022" expanded="true" signature="31006:31236" ph="UPDATE missi... " />
-            <marker date="1470048492022" expanded="true" signature="31506:31683" ph="UPDATE missi... " />
-            <marker date="1470048492022" expanded="true" signature="32035:32176" ph="UPDATE _spec... " />
-            <marker date="1470048492022" expanded="true" signature="32347:32512" ph="UPDATE missi... " />
-            <marker date="1470048492022" expanded="true" signature="32862:33237" ph="UPDATE _spec... " />
-            <marker date="1470048492022" expanded="true" signature="33059:33170" ph="SELECT * FRO... missing_value" />
-            <marker date="1470048492022" expanded="true" signature="33456:33512" ph="DELETE FROM " />
-            <marker date="1470048492022" expanded="true" signature="34047:34104" ph="DELETE FROM " />
-            <marker date="1470048492022" expanded="true" signature="34218:34465" ph="UPDATE missi... " />
-            <marker date="1470048492022" expanded="true" signature="34627:34715" ph="UPDATE missi... " />
-            <marker date="1470048492022" expanded="true" signature="34952:34992" ph="DELETE FROM " />
-            <marker date="1470048492022" expanded="true" signature="35780:35823" ph="SELECT COUNT... missing_value" />
-            <marker date="1470048492022" expanded="true" signature="35976:36177" ph="UPDATE missi... " />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1222,26 +1128,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_device.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="809">
-          <caret line="78" column="39" selection-start-line="78" selection-start-column="39" selection-end-line="78" selection-end-column="39" />
-          <folding>
-            <marker date="1470041322726" expanded="true" signature="4322:4341" ph="SELECT devic... missing_value" />
-            <marker date="1470041322726" expanded="true" signature="5205:5428" ph="SELECT devic... missing_value" />
-            <marker date="1470041322726" expanded="true" signature="6214:6233" ph="SELECT devic... missing_value" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_constants.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="319">
-          <caret line="366" column="27" selection-start-line="366" selection-start-column="22" selection-end-line="366" selection-end-column="27" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_version.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -1250,65 +1136,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../cardinal_pythonlib/cardinal_pythonlib/rnc_db.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="351">
-          <caret line="2601" column="18" selection-start-line="2601" selection-start-column="18" selection-end-line="2601" selection-end-column="18" />
-          <folding>
-            <marker date="1470041322794" expanded="true" signature="13058:13313" ph="SELECT MSysO... MSysObjects" />
-            <marker date="1470041322794" expanded="true" signature="13592:13818" ph="SELECT * FRO... MSysObjects" />
-            <marker date="1470041322794" expanded="true" signature="16399:16483" ph="SELECT table... tables" />
-            <marker date="1470041322794" expanded="true" signature="16672:16762" ph="SELECT * FRO... tables" />
-            <marker date="1470041322794" expanded="true" signature="17046:17139" ph="SELECT * FRO... columns" />
-            <marker date="1470041322794" expanded="true" signature="17402:17505" ph="SELECT colum... columns" />
-            <marker date="1470041322794" expanded="true" signature="17825:17944" ph="SELECT data_... columns" />
-            <marker date="1470041322794" expanded="true" signature="18255:18376" ph="SELECT missi... columns" />
-            <marker date="1470041322794" expanded="true" signature="18691:18815" ph="SELECT colum... columns" />
-            <marker date="1470041322794" expanded="true" signature="19968:20099" ph="SELECT engin... tables" />
-            <marker date="1470041322794" expanded="true" signature="20916:20989" ph="ALTER TABLE missing_value... " />
-            <marker date="1470041322794" expanded="true" signature="22620:23105" ph="SELECT db, /... db" />
-            <marker date="1470041322794" expanded="true" signature="22654:22674" ph="/* must not " />
-            <marker date="1470041322794" expanded="true" signature="23954:24766" ph="SELECT /* mu... user" />
-            <marker date="1470041322794" expanded="true" signature="23961:23981" ph="/* must not " />
-            <marker date="1470041322794" expanded="true" signature="26977:27025" ph="SELECT table... tables" />
-            <marker date="1470041322794" expanded="true" signature="27175:27214" ph="SELECT * FRO... tables" />
-            <marker date="1470041322794" expanded="true" signature="27570:27644" ph="SELECT * FRO... columns" />
-            <marker date="1470041322794" expanded="true" signature="27868:27952" ph="SELECT colum... columns" />
-            <marker date="1470041322794" expanded="true" signature="28547:28666" ph="SELECT data_... columns" />
-            <marker date="1470041322794" expanded="true" signature="29291:29412" ph="SELECT missi... columns" />
-            <marker date="1470041322794" expanded="true" signature="32510:32597" ph="INSERT INTO missing_value... " />
-            <marker date="1470041322794" expanded="true" signature="32598:32605" ph="UPDATE missi... " />
-            <marker date="1470041322794" expanded="true" signature="78229:78315" ph="INSERT INTO missing_value... " />
-            <marker date="1470041322794" expanded="true" signature="96241:96345" ph="SELECT COUNT... statistics" />
-            <marker date="1470041322794" expanded="true" signature="101120:101239" ph="SELECT COUNT... tables" />
-            <marker date="1470041322794" expanded="true" signature="101517:101667" ph="SELECT COUNT... columns" />
-            <marker date="1470041322794" expanded="true" signature="101926:101947" ph="DROP TABLE I... " />
-            <marker date="1470041322794" expanded="true" signature="102180:102200" ph="DROP VIEW IF... " />
-            <marker date="1470041322794" expanded="true" signature="102974:103074" ph="CREATE TABLE... IF" />
-            <marker date="1470041322794" expanded="true" signature="104249:104275" ph="ALTER TABLE missing_value... " />
-            <marker date="1470041322794" expanded="true" signature="104562:104589" ph="ALTER TABLE missing_value... " />
-            <marker date="1470041322794" expanded="true" signature="105040:105078" ph="ALTER TABLE missing_value... " />
-            <marker date="1470041322794" expanded="true" signature="105737:105779" ph="ALTER TABLE missing_value... " />
-            <marker date="1470041322794" expanded="true" signature="110048:110222" ph="SELECT COUNT... table_constraints" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_pls.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="345">
           <caret line="437" column="30" selection-start-line="437" selection-start-column="30" selection-end-line="437" selection-end-column="30" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_blob.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="328">
-          <caret line="86" column="4" selection-start-line="86" selection-start-column="4" selection-end-line="86" selection-end-column="4" />
-          <folding>
-            <marker date="1469783635314" expanded="true" signature="7822:7855" ph="SELECT _pk F... " />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1328,36 +1160,43 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_db.py">
+    <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_hl7.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="907">
-          <caret line="681" column="0" selection-start-line="681" selection-start-column="0" selection-end-line="681" selection-end-column="0" />
+        <state relative-caret-position="510">
+          <caret line="144" column="57" selection-start-line="144" selection-start-column="54" selection-end-line="144" selection-end-column="57" />
           <folding>
-            <marker date="1470057602823" expanded="true" signature="10596:10756" ph="SELECT missi... missing_value" />
-            <marker date="1470057602823" expanded="true" signature="11826:11948" ph="SELECT missi... missing_value" />
-            <marker date="1470057602823" expanded="true" signature="12309:12336" ph="DELETE FROM " />
-            <marker date="1470057602823" expanded="true" signature="15112:15290" ph="UPDATE missi... " />
-            <marker date="1470057602823" expanded="true" signature="15625:15728" ph="UPDATE _spec... " />
-            <marker date="1470057602823" expanded="true" signature="19598:19646" ph="SELECT * FRO... missing_value" />
-            <marker date="1470057602823" expanded="true" signature="20054:20346" ph="SELECT missi... " />
-            <marker date="1470057602823" expanded="true" signature="20515:20761" ph="SELECT missi... " />
-            <marker date="1470057602823" expanded="true" signature="21642:21900" ph="SELECT missi... " />
-            <marker date="1470057602823" expanded="true" signature="22415:22763" ph="SELECT missi... " />
-            <marker date="1470057602823" expanded="true" signature="22975:23221" ph="SELECT missi... " />
+            <marker date="1470048641712" expanded="true" signature="29207:29273" ph="SELECT _pk F... " />
+            <marker date="1470048641712" expanded="true" signature="33993:34026" ph="SELECT _pk F... " />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server/webview.py">
+    <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_device.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="640">
-          <caret line="2975" column="34" selection-start-line="2975" selection-start-column="34" selection-end-line="2975" selection-end-column="34" />
+        <state relative-caret-position="614">
+          <caret line="63" column="0" selection-start-line="63" selection-start-column="0" selection-end-line="63" selection-end-column="0" />
           <folding>
-            <marker date="1469817836459" expanded="true" signature="55522:55709" ph="SELECT when_... missing_value" />
-            <marker date="1469817836459" expanded="true" signature="60386:60413" ph="SELECT msg_i... missing_value" />
-            <marker date="1469817836459" expanded="true" signature="64201:64228" ph="SELECT run_i... missing_value" />
-            <marker date="1469817836459" expanded="true" signature="78464:78497" ph="DELETE FROM " />
-            <marker date="1469817836459" expanded="true" signature="106077:106435" ph="SELECT t.tab... columns" />
+            <marker date="1470058998050" expanded="true" signature="4533:4552" ph="SELECT devic... missing_value" />
+            <marker date="1470058998050" expanded="true" signature="5416:5639" ph="SELECT devic... missing_value" />
+            <marker date="1470058998050" expanded="true" signature="6425:6444" ph="SELECT devic... missing_value" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_analytics.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_audit.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="546">
+          <caret line="42" column="0" selection-start-line="42" selection-start-column="0" selection-end-line="42" selection-end-column="0" />
+          <folding>
+            <marker date="1470058998042" expanded="true" signature="3077:3304" ph="INSERT INTO missing_value... " />
           </folding>
         </state>
       </provider>
@@ -1381,27 +1220,215 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_dump.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="14" selection-start-line="0" selection-start-column="13" selection-end-line="0" selection-end-column="14" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_html.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="328">
+          <caret line="541" column="4" selection-start-line="541" selection-start-column="4" selection-end-line="541" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_report.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="7">
+          <caret line="260" column="16" selection-start-line="260" selection-start-column="11" selection-end-line="260" selection-end-column="16" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../cardinal_pythonlib/cardinal_pythonlib/rnc_web.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="328">
+          <caret line="46" column="0" selection-start-line="46" selection-start-column="0" selection-end-line="46" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/webview.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="698">
+          <caret line="3089" column="36" selection-start-line="3089" selection-start-column="36" selection-end-line="3089" selection-end-column="36" />
+          <folding>
+            <marker date="1470060496407" expanded="true" signature="57339:57526" ph="SELECT when_... missing_value" />
+            <marker date="1470060496407" expanded="true" signature="62271:62298" ph="SELECT msg_i... missing_value" />
+            <marker date="1470060496407" expanded="true" signature="66154:66181" ph="SELECT run_i... missing_value" />
+            <marker date="1470060496407" expanded="true" signature="80587:80620" ph="DELETE FROM " />
+            <marker date="1470060496407" expanded="true" signature="109208:109566" ph="SELECT t.tab... columns" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_db.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="319">
+          <caret line="201" column="50" selection-start-line="201" selection-start-column="45" selection-end-line="201" selection-end-column="50" />
+          <folding>
+            <marker date="1470057602823" expanded="true" signature="10596:10756" ph="SELECT missi... missing_value" />
+            <marker date="1470057602823" expanded="true" signature="11826:11948" ph="SELECT missi... missing_value" />
+            <marker date="1470057602823" expanded="true" signature="12309:12336" ph="DELETE FROM " />
+            <marker date="1470057602823" expanded="true" signature="15112:15290" ph="UPDATE missi... " />
+            <marker date="1470057602823" expanded="true" signature="15625:15728" ph="UPDATE _spec... " />
+            <marker date="1470057602823" expanded="true" signature="19598:19646" ph="SELECT * FRO... missing_value" />
+            <marker date="1470057602823" expanded="true" signature="20054:20346" ph="SELECT missi... " />
+            <marker date="1470057602823" expanded="true" signature="20515:20761" ph="SELECT missi... " />
+            <marker date="1470057602823" expanded="true" signature="21642:21900" ph="SELECT missi... " />
+            <marker date="1470057602823" expanded="true" signature="22415:22763" ph="SELECT missi... " />
+            <marker date="1470057602823" expanded="true" signature="22975:23221" ph="SELECT missi... " />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_constants.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="392" column="31" selection-start-line="392" selection-start-column="15" selection-end-line="392" selection-end-column="31" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_session.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="328">
+          <caret line="105" column="4" selection-start-line="105" selection-start-column="4" selection-end-line="105" selection-end-column="4" />
+          <folding>
+            <marker date="1469811983298" expanded="true" signature="45345:45360" ph="SELECT id FR... missing_value" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/server/camcops.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="982">
-          <caret line="477" column="48" selection-start-line="477" selection-start-column="48" selection-end-line="477" selection-end-column="48" />
+        <state relative-caret-position="478">
+          <caret line="280" column="0" selection-start-line="280" selection-start-column="0" selection-end-line="280" selection-end-column="0" />
           <folding>
-            <marker date="1470058025167" expanded="true" signature="7976:8060" ph="ALTER TABLE zzz... " />
-            <marker date="1470058025167" expanded="true" signature="8070:8106" ph="ALTER TABLE zzz... " />
-            <marker date="1470058025167" expanded="true" signature="8116:8156" ph="ALTER TABLE zzz... " />
-            <marker date="1470058025167" expanded="true" signature="8166:8224" ph="ALTER TABLE zzz... " />
-            <marker date="1470058025167" expanded="true" signature="8234:8275" ph="ALTER TABLE zzz... " />
-            <marker date="1470058025167" expanded="true" signature="8675:8755" ph="ALTER TABLE zzz... " />
-            <marker date="1470058025167" expanded="true" signature="8765:8801" ph="ALTER TABLE zzz... " />
-            <marker date="1470058025167" expanded="true" signature="8811:8851" ph="ALTER TABLE zzz... " />
-            <marker date="1470058025167" expanded="true" signature="8861:8921" ph="ALTER TABLE zzz... " />
-            <marker date="1470058025167" expanded="true" signature="8931:8976" ph="ALTER TABLE zzz... " />
-            <marker date="1470058025167" expanded="true" signature="9290:9342" ph="ALTER TABLE missing_value... " />
-            <marker date="1470058025167" expanded="true" signature="9352:9527" ph="UPDATE missi... " />
-            <marker date="1470058025167" expanded="true" signature="9537:9569" ph="ALTER TABLE missing_value... " />
-            <marker date="1470058025167" expanded="true" signature="9991:10045" ph="ALTER TABLE qqq... " />
-            <marker date="1470058025167" expanded="true" signature="10055:10225" ph="UPDATE qqq A... " />
-            <marker date="1470058025167" expanded="true" signature="10293:10332" ph="ALTER TABLE qqq... " />
+            <marker date="1470059866844" expanded="true" signature="8422:8506" ph="ALTER TABLE zzz... " />
+            <marker date="1470059866844" expanded="true" signature="8516:8552" ph="ALTER TABLE zzz... " />
+            <marker date="1470059866844" expanded="true" signature="8562:8602" ph="ALTER TABLE zzz... " />
+            <marker date="1470059866844" expanded="true" signature="8612:8670" ph="ALTER TABLE zzz... " />
+            <marker date="1470059866844" expanded="true" signature="8680:8721" ph="ALTER TABLE zzz... " />
+            <marker date="1470059866844" expanded="true" signature="9126:9206" ph="ALTER TABLE zzz... " />
+            <marker date="1470059866844" expanded="true" signature="9216:9252" ph="ALTER TABLE zzz... " />
+            <marker date="1470059866844" expanded="true" signature="9262:9302" ph="ALTER TABLE zzz... " />
+            <marker date="1470059866844" expanded="true" signature="9312:9372" ph="ALTER TABLE zzz... " />
+            <marker date="1470059866844" expanded="true" signature="9382:9427" ph="ALTER TABLE zzz... " />
+            <marker date="1470059866844" expanded="true" signature="9721:10566" ph="..." />
+            <marker date="1470059866844" expanded="true" signature="9908:9960" ph="ALTER TABLE missing_value... " />
+            <marker date="1470059866844" expanded="true" signature="9970:10141" ph="UPDATE missi... " />
+            <marker date="1470059866844" expanded="true" signature="10151:10183" ph="ALTER TABLE missing_value... " />
+            <marker date="1470059866844" expanded="true" signature="10381:10566" ph="..." />
+            <marker date="1470059866844" expanded="true" signature="10919:10971" ph="ALTER TABLE missing_value... " />
+            <marker date="1470059866844" expanded="true" signature="10981:11156" ph="UPDATE missi... " />
+            <marker date="1470059866844" expanded="true" signature="11166:11198" ph="ALTER TABLE missing_value... " />
+            <marker date="1470059866844" expanded="true" signature="12327:19266" ph="..." />
+            <marker date="1470059866844" expanded="true" signature="16859:19266" ph="..." />
+            <marker date="1470059866844" expanded="true" signature="19099:19266" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../cardinal_pythonlib/cardinal_pythonlib/rnc_db.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="328">
+          <caret line="2086" column="35" selection-start-line="2086" selection-start-column="35" selection-end-line="2086" selection-end-column="35" />
+          <folding>
+            <marker date="1470061870082" expanded="true" signature="13058:13313" ph="SELECT MSysO... MSysObjects" />
+            <marker date="1470061870082" expanded="true" signature="13592:13818" ph="SELECT * FRO... MSysObjects" />
+            <marker date="1470061870082" expanded="true" signature="16399:16483" ph="SELECT table... tables" />
+            <marker date="1470061870082" expanded="true" signature="16672:16762" ph="SELECT * FRO... tables" />
+            <marker date="1470061870082" expanded="true" signature="17046:17139" ph="SELECT * FRO... columns" />
+            <marker date="1470061870082" expanded="true" signature="17402:17505" ph="SELECT colum... columns" />
+            <marker date="1470061870082" expanded="true" signature="17825:17944" ph="SELECT data_... columns" />
+            <marker date="1470061870082" expanded="true" signature="18255:18376" ph="SELECT missi... columns" />
+            <marker date="1470061870082" expanded="true" signature="18691:18815" ph="SELECT colum... columns" />
+            <marker date="1470061870082" expanded="true" signature="19968:20099" ph="SELECT engin... tables" />
+            <marker date="1470061870082" expanded="true" signature="20916:20989" ph="ALTER TABLE missing_value... " />
+            <marker date="1470061870082" expanded="true" signature="22620:23105" ph="SELECT db, /... db" />
+            <marker date="1470061870082" expanded="true" signature="22654:22674" ph="/* must not " />
+            <marker date="1470061870082" expanded="true" signature="23954:24766" ph="SELECT /* mu... user" />
+            <marker date="1470061870082" expanded="true" signature="23961:23981" ph="/* must not " />
+            <marker date="1470061870082" expanded="true" signature="26977:27025" ph="SELECT table... tables" />
+            <marker date="1470061870082" expanded="true" signature="27175:27214" ph="SELECT * FRO... tables" />
+            <marker date="1470061870082" expanded="true" signature="27570:27644" ph="SELECT * FRO... columns" />
+            <marker date="1470061870082" expanded="true" signature="27868:27952" ph="SELECT colum... columns" />
+            <marker date="1470061870082" expanded="true" signature="28547:28666" ph="SELECT data_... columns" />
+            <marker date="1470061870082" expanded="true" signature="29291:29412" ph="SELECT missi... columns" />
+            <marker date="1470061870082" expanded="true" signature="32510:32597" ph="INSERT INTO missing_value... " />
+            <marker date="1470061870082" expanded="true" signature="32598:32605" ph="UPDATE missi... " />
+            <marker date="1470061870082" expanded="true" signature="78228:78314" ph="INSERT INTO missing_value... " />
+            <marker date="1470061870082" expanded="true" signature="96240:96344" ph="SELECT COUNT... statistics" />
+            <marker date="1470061870082" expanded="true" signature="101119:101238" ph="SELECT COUNT... tables" />
+            <marker date="1470061870082" expanded="true" signature="101516:101666" ph="SELECT COUNT... columns" />
+            <marker date="1470061870082" expanded="true" signature="101925:101946" ph="DROP TABLE I... " />
+            <marker date="1470061870082" expanded="true" signature="102179:102199" ph="DROP VIEW IF... " />
+            <marker date="1470061870082" expanded="true" signature="102973:103073" ph="CREATE TABLE... IF" />
+            <marker date="1470061870082" expanded="true" signature="104248:104274" ph="ALTER TABLE missing_value... " />
+            <marker date="1470061870082" expanded="true" signature="104561:104588" ph="ALTER TABLE missing_value... " />
+            <marker date="1470061870082" expanded="true" signature="105039:105077" ph="ALTER TABLE missing_value... " />
+            <marker date="1470061870082" expanded="true" signature="105736:105778" ph="ALTER TABLE missing_value... " />
+            <marker date="1470061870082" expanded="true" signature="110047:110221" ph="SELECT COUNT... table_constraints" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/cc_modules/cc_blob.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="663">
+          <caret line="93" column="31" selection-start-line="93" selection-start-column="31" selection-end-line="93" selection-end-column="31" />
+          <folding>
+            <marker date="1470059866900" expanded="true" signature="7873:7906" ph="SELECT _pk F... " />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/database.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="52">
+          <caret line="1647" column="41" selection-start-line="1647" selection-start-column="41" selection-end-line="1647" selection-end-column="41" />
+          <folding>
+            <marker date="1470062552541" expanded="true" signature="14003:14056" ph="SELECT COUNT... _" />
+            <marker date="1470062552541" expanded="true" signature="16556:16633" ph="SELECT _pk F... " />
+            <marker date="1470062552541" expanded="true" signature="17175:17264" ph="SELECT _pk F... " />
+            <marker date="1470062552541" expanded="true" signature="18051:18128" ph="SELECT _pk F... " />
+            <marker date="1470062552541" expanded="true" signature="19820:19902" ph="SELECT COUNT... missing_value" />
+            <marker date="1470062552541" expanded="true" signature="20592:20677" ph="SELECT missi... missing_value" />
+            <marker date="1470062552541" expanded="true" signature="21228:21312" ph="SELECT MAX(m... missing_value" />
+            <marker date="1470062552541" expanded="true" signature="21807:22078" ph="UPDATE missi... " />
+            <marker date="1470062552541" expanded="true" signature="22864:22912" ph="SELECT COUNT... missing_value" />
+            <marker date="1470062552541" expanded="true" signature="23704:23764" ph="SELECT COUNT... missing_value" />
+            <marker date="1470062552541" expanded="true" signature="27033:27066" ph="SELECT * fro... missing_value" />
+            <marker date="1470062552541" expanded="true" signature="28003:28148" ph="UPDATE missi... " />
+            <marker date="1470062552541" expanded="true" signature="29255:29378" ph="SELECT ongoi... _" />
+            <marker date="1470062552541" expanded="true" signature="30155:30320" ph="UPDATE _secu... " />
+            <marker date="1470062552541" expanded="true" signature="30730:30900" ph="UPDATE _secu... " />
+            <marker date="1470062552541" expanded="true" signature="31141:31223" ph="UPDATE _secu... " />
+            <marker date="1470062552541" expanded="true" signature="31726:31776" ph="SELECT table... _" />
+            <marker date="1470062552541" expanded="true" signature="32004:32089" ph="UPDATE missi... " />
+            <marker date="1470062552541" expanded="true" signature="32396:32515" ph="UPDATE missi... " />
+            <marker date="1470062552541" expanded="true" signature="33029:33148" ph="UPDATE missi... " />
+            <marker date="1470062552541" expanded="true" signature="33705:33787" ph="UPDATE missi... " />
+            <marker date="1470062552541" expanded="true" signature="34061:34133" ph="UPDATE missi... " />
+            <marker date="1470062552541" expanded="true" signature="35536:35762" ph="UPDATE missi... " />
+            <marker date="1470062552541" expanded="true" signature="35902:36132" ph="UPDATE missi... " />
+            <marker date="1470062552541" expanded="true" signature="36402:36579" ph="UPDATE missi... " />
+            <marker date="1470062552541" expanded="true" signature="36931:37072" ph="UPDATE _spec... " />
+            <marker date="1470062552541" expanded="true" signature="37243:37408" ph="UPDATE missi... " />
+            <marker date="1470062552541" expanded="true" signature="37758:38133" ph="UPDATE _spec... " />
+            <marker date="1470062552541" expanded="true" signature="37955:38066" ph="SELECT * FRO... missing_value" />
+            <marker date="1470062552541" expanded="true" signature="38352:38408" ph="DELETE FROM " />
+            <marker date="1470062552541" expanded="true" signature="38974:39031" ph="DELETE FROM " />
+            <marker date="1470062552541" expanded="true" signature="39145:39392" ph="UPDATE missi... " />
+            <marker date="1470062552541" expanded="true" signature="39554:39642" ph="UPDATE missi... " />
+            <marker date="1470062552541" expanded="true" signature="39892:39932" ph="DELETE FROM " />
+            <marker date="1470062552541" expanded="true" signature="40798:40841" ph="SELECT COUNT... missing_value" />
+            <marker date="1470062552541" expanded="true" signature="40994:41195" ph="UPDATE missi... " />
           </folding>
         </state>
       </provider>

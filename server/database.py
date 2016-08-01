@@ -25,12 +25,17 @@
 # Imports
 # =============================================================================
 
+import cgi
+import datetime
 import re
 import time
+from typing import (Any, Callable, Dict, Generic, Iterable, List,
+                    Optional, Sequence, Tuple)
 
 import cardinal_pythonlib.rnc_db as rnc_db
 from cardinal_pythonlib.rnc_lang import AttrDict
 import cardinal_pythonlib.rnc_web as ws
+from cardinal_pythonlib.rnc_web import HEADERS_TYPE
 
 from .cc_modules import cc_audit
 from .cc_modules.cc_constants import (
@@ -138,16 +143,16 @@ class ServerErrorException(Exception):
     pass
 
 
-def exception_description(e):
+def exception_description(e: Exception) -> str:
     return "{t}: {m}".format(t=type(e).__name__, m=str(e))
 
 
-def succeed_generic(operation):
+def succeed_generic(operation: str) -> str:
     """Generic success message to tablet."""
     return "CamCOPS: {}".format(operation)
 
 
-def fail_user_error(msg):
+def fail_user_error(msg: str) -> None:
     """Function to abort the script when the input is dodgy."""
     # While Titanium-Android can extract error messages from e.g.
     # finish("400 Bad Request: @_"), Titanium-iOS can't, and we need the error
@@ -156,20 +161,20 @@ def fail_user_error(msg):
     raise UserErrorException(msg)
 
 
-def fail_user_error_from_exception(e):
+def fail_user_error_from_exception(e: Exception) -> None:
     fail_user_error(exception_description(e))
 
 
-def fail_server_error(msg):
+def fail_server_error(msg: str) -> None:
     """Function to abort the script when something's broken server-side."""
     raise ServerErrorException(msg)
 
 
-def fail_server_error_from_exception(e):
+def fail_server_error_from_exception(e: Exception) -> None:
     fail_server_error(exception_description(e))
 
 
-def fail_unsupported_operation(operation):
+def fail_unsupported_operation(operation: str) -> None:
     """Abort the script when the operation is invalid."""
     fail_user_error("operation={}: not supported".format(operation))
 
@@ -178,7 +183,52 @@ def fail_unsupported_operation(operation):
 # CGI handling
 # =============================================================================
 
-def get_post_var(form, var, mandatory=True, valtype=None):
+class SessionManager(object):
+    def __init__(self, form: cgi.FieldStorage):
+        # Read key things
+        self.form = form
+        self.operation = ws.get_cgi_parameter_str(form, PARAM.OPERATION)
+        self.device = ws.get_cgi_parameter_str(form, PARAM.DEVICE)
+        self.username = ws.get_cgi_parameter_str(form, PARAM.USER)
+        self.password = ws.get_cgi_parameter_str(form, PARAM.PASSWORD)
+        self.session_id = ws.get_cgi_parameter_int(form, PARAM.SESSION_ID)
+        self.session_token = ws.get_cgi_parameter_str(form,
+                                                      PARAM.SESSION_TOKEN)
+        self.tablet_version = ws.get_cgi_parameter_float(form,
+                                                         PARAM.CAMCOPS_VERSION)
+
+        # Ensure table version is OK
+        if (self.tablet_version is None or
+                    self.tablet_version < cc_version.MINIMUM_TABLET_VERSION):
+            fail_user_error(
+                "Tablet CamCOPS version too old: is {v}, need {r}".format(
+                    v=self.tablet_version,
+                    r=cc_version.MINIMUM_TABLET_VERSION))
+
+        # Establish session
+        cc_session.establish_session_for_tablet(self.session_id,
+                                                self.session_token,
+                                                pls.remote_addr,
+                                                self.username,
+                                                self.password)
+
+        # Report
+        log.info(
+            "Incoming connection from IP={i}, port={p}, device={d}, user={u}, "
+            "operation={o}".format(
+                i=pls.remote_addr,
+                p=pls.remote_port,
+                d=self.device,
+                u=self.username,
+                o=self.operation,
+            )
+        )
+
+
+def get_post_var(form: cgi.FieldStorage,
+                 var: str,
+                 mandatory: bool = True,
+                 valtype: Generic = None) -> Any:
     """Retrieves a variable from a CGI form.
 
     Args:
@@ -201,7 +251,7 @@ def get_post_var(form, var, mandatory=True, valtype=None):
     return val
 
 
-def get_table_from_post_var(form, var):
+def get_table_from_post_var(form: cgi.FieldStorage, var: str) -> str:
     """Retrieves a table name from a CGI form and checks it's a valid
     table."""
     table = get_post_var(form, var, mandatory=True)
@@ -209,7 +259,9 @@ def get_table_from_post_var(form, var):
     return table
 
 
-def get_single_field_from_post_var(form, var, mandatory=True):
+def get_single_field_from_post_var(form: cgi.FieldStorage,
+                                   var: str,
+                                   mandatory: bool = True) -> str:
     """Retrieves a field name from a CGI form and checks it's not a bad
     fieldname."""
     field = get_post_var(form, var, mandatory=mandatory)
@@ -217,7 +269,9 @@ def get_single_field_from_post_var(form, var, mandatory=True):
     return field
 
 
-def get_fields_from_post_var(form, var, mandatory=True):
+def get_fields_from_post_var(form: cgi.FieldStorage,
+                             var: str,
+                             mandatory: bool = True) -> List[str]:
     """Get a comma-separated list of field names from a CGI and checks that
     all are acceptable. Returns a list of fieldnames."""
     csfields = get_post_var(form, var, mandatory=mandatory)
@@ -232,7 +286,9 @@ def get_fields_from_post_var(form, var, mandatory=True):
     return fields
 
 
-def get_values_from_post_var(form, var, mandatory=True):
+def get_values_from_post_var(form: cgi.FieldStorage,
+                             var: str,
+                             mandatory: bool = True) -> List[Any]:
     """Retrieves a list of values from a CSV-separated list of SQL values
     stored in a CGI form (including e.g. NULL, numbers, quoted strings, and
     special handling for base-64/hex-encoded BLOBs.)"""
@@ -242,7 +298,10 @@ def get_values_from_post_var(form, var, mandatory=True):
     return decode_values(csvalues)
 
 
-def get_fields_and_values(form, fields_var, values_var, mandatory=True):
+def get_fields_and_values(form: cgi.FieldStorage,
+                          fields_var: str,
+                          values_var: str,
+                          mandatory: bool = True) -> Dict[str, Any]:
     """Gets fieldnames and matching values from two variables in a CGI form."""
     fields = get_fields_from_post_var(form, fields_var, mandatory=mandatory)
     values = get_values_from_post_var(form, values_var, mandatory=mandatory)
@@ -257,7 +316,9 @@ def get_fields_and_values(form, fields_var, values_var, mandatory=True):
     return dict(list(zip(fields, values)))
 
 
-def get_tables_from_post_var(form, var, mandatory=True):
+def get_tables_from_post_var(form: cgi.FieldStorage,
+                             var: str,
+                             mandatory: bool = True) -> List[str]:
     """Gets a list of tables from a CGI form variable, and ensures all are
     valid."""
     cstables = get_post_var(form, var, mandatory=mandatory)
@@ -275,7 +336,7 @@ def get_tables_from_post_var(form, var, mandatory=True):
 # Validators
 # =============================================================================
 
-def ensure_valid_table_name(t):
+def ensure_valid_table_name(t: str) -> None:
     """Ensures a table name doesn't contain bad characters, isn't a reserved
     table that the user is prohibited from accessing, and is a valid table name
     that's in the database. Raises UserErrorException upon failure."""
@@ -288,7 +349,7 @@ def ensure_valid_table_name(t):
         fail_user_error("Table doesn't exist on the server: {}".format(t))
 
 
-def ensure_valid_field_name(f):
+def ensure_valid_field_name(f: str) -> None:
     """Ensures a field name contains only valid characters, and isn't a
     reserved fieldname that the user isn't allowed to access.
     Raises UserErrorException upon failure."""
@@ -299,14 +360,14 @@ def ensure_valid_field_name(f):
             "Invalid attempt to access a reserved field name: {}".format(f))
 
 
-def ensure_valid_user_for_device_registration():
+def ensure_valid_user_for_device_registration() -> None:
     """Ensure the username/password combination is valid for device
     registration. Raises UserErrorException on failure."""
     if not pls.session.authorized_for_registration():
         fail_user_error(INVALID_USERNAME_PASSWORD)
 
 
-def ensure_valid_user_for_webstorage(username, device):
+def ensure_valid_user_for_webstorage(username: str, device: str) -> None:
     """Ensure the username/password combination is valid for mobileweb storage
     access. Raises UserErrorException on failure."""
     # mobileweb storage is per-user; the device is "mobileweb_USERNAME".
@@ -317,7 +378,7 @@ def ensure_valid_user_for_webstorage(username, device):
     # otherwise, happy
 
 
-def ensure_device_registered(device):
+def ensure_device_registered(device: str) -> None:
     """Ensure the device is registered. Raises UserErrorException on
     failure."""
     count = pls.db.fetchvalue(
@@ -327,7 +388,7 @@ def ensure_device_registered(device):
         fail_user_error("Unregistered device")
 
 
-def ensure_valid_device_and_user_for_uploading(device):
+def ensure_valid_device_and_user_for_uploading(device: str) -> None:
     """Ensure the device/username/password combination is valid for uploading.
     Raises UserErrorException on failure."""
     if not pls.session.authorized_to_upload():
@@ -340,12 +401,12 @@ def ensure_valid_device_and_user_for_uploading(device):
 # Sending stuff to the client
 # =============================================================================
 
-def nvp(name, value):
+def nvp(name: str, value: Any) -> str:
     """Returns name/value pair in 'name:value\n' format."""
     return "{}:{}\n".format(name, value)
 
 
-def get_server_id_info():
+def get_server_id_info() -> Dict:
     """Returns a reply for the tablet giving details of the server."""
     reply = {
         "databaseTitle": pls.DATABASE_TITLE,
@@ -361,7 +422,8 @@ def get_server_id_info():
     return reply
 
 
-def get_select_reply(fields, rows):
+def get_select_reply(fields: Sequence[str],
+                     rows: Sequence(Sequence[Any])) -> Dict:
     """Return format:
         nfields:X
         fields:X
@@ -389,7 +451,7 @@ def get_select_reply(fields, rows):
 # CamCOPS table functions
 # =============================================================================
 
-def get_server_pks_of_active_records(device, table):
+def get_server_pks_of_active_records(device: str, table: str) -> List[int]:
     """Gets server PKs of active records (_current and in the 'NOW' era) for
     the specified device/table."""
     query = """
@@ -403,7 +465,10 @@ def get_server_pks_of_active_records(device, table):
     return pls.db.fetchallfirstvalues(query, *args)
 
 
-def record_exists(device, table, clientpk_name, clientpk_value):
+def record_exists(device: str,
+                  table: str,
+                  clientpk_name: str,
+                  clientpk_value: Any) -> Tuple[bool, Optional[int]]:
     """Checks if a record exists, using the device's perspective of a
     table/client PK combination.
     Returns (exists, serverpk), where exists is Boolean.
@@ -425,7 +490,9 @@ def record_exists(device, table, clientpk_name, clientpk_value):
     # Not currently checked for.
 
 
-def get_server_pks_of_specified_records(device, table, wheredict):
+def get_server_pks_of_specified_records(device: str,
+                                        table: str,
+                                        wheredict: Dict) -> List[int]:
     """Retrieves server PKs for a table, for a given device, given a set of
     'where' conditions specified in wheredict (as field/value combinations,
     joined with AND)."""
@@ -441,8 +508,10 @@ def get_server_pks_of_specified_records(device, table, wheredict):
     return pls.db.fetchallfirstvalues(query, *args)
 
 
-def append_where_sql_and_values(query, args, wheredict=None,
-                                wherenotdict=None):
+def append_where_sql_and_values(query: str,
+                                args: List[Any],
+                                wheredict: Dict = None,
+                                wherenotdict: Dict = None) -> str:
     """Appends a set of conditions, joined with AND, to the WHERE clause of
     an SQL query. Note that there WHERE clause must already have been started.
     Allows WHERE and WHERE NOT clauses.
@@ -467,7 +536,10 @@ def append_where_sql_and_values(query, args, wheredict=None,
     return query
 
 
-def count_records(device, table, wheredict, wherenotdict):
+def count_records(device: str,
+                  table: str,
+                  wheredict: Dict,
+                  wherenotdict: Dict) -> int:
     """Returns a count of records for a device/table combination, subject to
     WHERE and WHERE NOT fields (combined with AND)."""
     query = """
@@ -483,8 +555,12 @@ def count_records(device, table, wheredict, wherenotdict):
     return pls.db.fetchvalue(query, *args)
 
 
-def select_records_with_specified_fields(device, table, wheredict,
-                                         wherenotdict, fields):
+def select_records_with_specified_fields(
+        device: str,
+        table: str,
+        wheredict: Dict,
+        wherenotdict: Dict,
+        fields: List[str]) -> Sequence[Sequence[Any]]:
     """Returns a list of rows, for specified fields in a device/table
     combination, subject to WHERE and WHERE NOT conditions (joined by AND)."""
     fieldlist = ",".join([delimit(x) for x in fields])
@@ -502,7 +578,9 @@ def select_records_with_specified_fields(device, table, wheredict,
     return pls.db.fetchall(query, *args)
 
 
-def get_max_client_pk(device, table, clientpk_name):
+def get_max_client_pk(device: str,
+                      table: str,
+                      clientpk_name: str) -> Optional[int]:
     """Retrieves the maximum current client PK in a given device/table
     combination, or None."""
     query = """
@@ -517,7 +595,10 @@ def get_max_client_pk(device, table, clientpk_name):
     return pls.db.fetchvalue(query, *args)
 
 
-def webclient_delete_records(device, user, table, wheredict):
+def webclient_delete_records(device: str,
+                             user: str,
+                             table: str,
+                             wheredict: Dict) -> None:
     """Deletes records from a table, from a mobileweb client's perspective,
     where a 'device' is 'mobileweb_{username}'."""
     query = """
@@ -544,7 +625,9 @@ def webclient_delete_records(device, user, table, wheredict):
     pls.db.db_exec(query, *args)
 
 
-def record_identical_full(table, serverpk, wheredict):
+def record_identical_full(table: str,
+                          serverpk: int,
+                          wheredict: Dict) -> bool:
     """If a record with the specified server PK exists in the specified table
     having all its values matching the field/value combinations in wheredict
     (joined with AND), returns True. Otherwise, returns False.
@@ -562,7 +645,9 @@ def record_identical_full(table, serverpk, wheredict):
     return count > 0
 
 
-def record_identical_by_date(table, serverpk, client_date_value):
+def record_identical_by_date(table: str,
+                             serverpk: int,
+                             client_date_value: str) -> bool:
     """Shortcut to detecting a record being identical. Returns true if the
     record (defined by its table/server PK) has a CLIENT_DATE_FIELD field
     that matches that of the incoming record. As long as the tablet always
@@ -581,8 +666,12 @@ def record_identical_by_date(table, serverpk, client_date_value):
     return count > 0
 
 
-def upload_record_core(device, table, clientpk_name, valuedict, recordnum,
-                       tablet_camcops_version):
+def upload_record_core(device: str,
+                       table: str,
+                       clientpk_name: str,
+                       valuedict: Dict,
+                       recordnum: int,
+                       tablet_camcops_version: float) -> Tuple[int, int]:
     """Uploads a record. Deals with IDENTICAL, NEW, and MODIFIED records."""
     clientpk_value = valuedict[clientpk_name]
     found, oldserverpk = record_exists(device, table, clientpk_name,
@@ -626,8 +715,11 @@ def upload_record_core(device, table, clientpk_name, valuedict, recordnum,
     return oldserverpk, newserverpk
 
 
-def insert_record(device, table, valuedict, predecessor_pk,
-                  tablet_camcops_version):
+def insert_record(device: str,
+                  table: str,
+                  valuedict: Dict,
+                  predecessor_pk: int,
+                  tablet_camcops_version: float) -> int:
     """Inserts a record, or raises an exception if that fails."""
     mark_table_dirty(device, table)
     valuedict.update({
@@ -642,7 +734,7 @@ def insert_record(device, table, valuedict, predecessor_pk,
     return pls.db.insert_record_by_dict(table, valuedict)
 
 
-def duplicate_record(device, table, serverpk):
+def duplicate_record(device: str, table: str, serverpk: int) -> int:
     """Duplicates the record defined by the table/serverpk combination.
     Will raise an exception if the insert fails. Otherwise...
     The old record then NEEDS MODIFICATION by flag_modified().
@@ -665,8 +757,11 @@ def duplicate_record(device, table, serverpk):
     return pls.db.insert_record_by_dict(table, d)
 
 
-def update_new_copy_of_record(table, serverpk, valuedict, predecessor_pk,
-                              tablet_camcops_version):
+def update_new_copy_of_record(table: str,
+                              serverpk: int,
+                              valuedict: Dict,
+                              predecessor_pk: int,
+                              tablet_camcops_version: float) -> None:
     """Following duplicate_record(), use this to modify the new copy (defined
     by the table/serverpk combination)."""
     query = """
@@ -692,7 +787,8 @@ def update_new_copy_of_record(table, serverpk, valuedict, predecessor_pk,
 # Batch (atomic) upload and preserving
 # =============================================================================
 
-def get_device_upload_batch_details(device, user):
+def get_device_upload_batch_details(device: str, user: str) \
+        -> Tuple[Optional[datetime.datetime], Optional[bool]]:
     """Gets a (upload_batch_utc, currently_preserving) tuple.
 
     upload_batch_utc: the batchtime; UTC date/time of the current upload batch.
@@ -717,14 +813,14 @@ def get_device_upload_batch_details(device, user):
         # SIDE EFFECT: if the username changes, we restart (and thus roll back
         # previous pending changes)
         start_device_upload_batch(device, user)
-        return pls.NOW_UTC_NO_TZ
+        return pls.NOW_UTC_NO_TZ, False
     log.debug(
         "get_device_upload_batch_details: upload_batch_utc = {}".format(
             repr(upload_batch_utc)))
     return upload_batch_utc, currently_preserving
 
 
-def start_device_upload_batch(device, user):
+def start_device_upload_batch(device: str, user: str) -> None:
     """Starts an upload batch for a device."""
     rollback_all(device)
     pls.db.db_exec("""
@@ -737,7 +833,10 @@ def start_device_upload_batch(device, user):
     """, pls.NOW_UTC_NO_TZ, pls.NOW_UTC_NO_TZ, user, device)
 
 
-def end_device_upload_batch(device, user, batchtime, preserving):
+def end_device_upload_batch(device: str,
+                            user: str,
+                            batchtime: datetime.datetime,
+                            preserving: bool) -> None:
     """Ends an upload batch, committing all changes made thus far."""
     commit_all(device, user, batchtime, preserving)
     pls.db.db_exec("""
@@ -750,7 +849,7 @@ def end_device_upload_batch(device, user, batchtime, preserving):
     """, device)
 
 
-def start_preserving(device):
+def start_preserving(device: str) -> None:
     """Starts preservation (the process of moving records from the NOW era to
     an older era, so they can be removed safely from the tablet)."""
     pls.db.db_exec("""
@@ -760,7 +859,7 @@ def start_preserving(device):
     """, device)
 
 
-def mark_table_dirty(device, table):
+def mark_table_dirty(device: str, table: str) -> None:
     """Marks a table as having been modified during the current upload."""
     pls.db.db_exec("""
         REPLACE INTO _dirty_tables
@@ -770,14 +869,14 @@ def mark_table_dirty(device, table):
     # http://dev.mysql.com/doc/refman/5.0/en/replace.html
 
 
-def get_dirty_tables(device):
+def get_dirty_tables(device: str) -> Sequence[str]:
     """Returns tables marked as dirty for this device."""
     return pls.db.fetchallfirstvalues(
         "SELECT tablename FROM _dirty_tables WHERE device=?",
         device)
 
 
-def flag_deleted(device, table, pklist):
+def flag_deleted(device: str, table: str, pklist: Iterable[int]) -> None:
     """Marks record(s) as deleted, specified by a list of server PKs."""
     mark_table_dirty(device, table)
     query = """
@@ -789,7 +888,7 @@ def flag_deleted(device, table, pklist):
         pls.db.db_exec(query, pk)
 
 
-def flag_all_records_deleted(device, table):
+def flag_all_records_deleted(device: str, table: str) -> None:
     """Marks all records in a table as deleted (that are current and in the
     current era)."""
     mark_table_dirty(device, table)
@@ -804,8 +903,10 @@ def flag_all_records_deleted(device, table):
     pls.db.db_exec(query, device)
 
 
-def flag_deleted_where_clientpk_not(device, table, clientpk_name,
-                                    clientpk_values):
+def flag_deleted_where_clientpk_not(device: str,
+                                    table: str,
+                                    clientpk_name: str,
+                                    clientpk_values: Sequence[Any]) -> None:
     """Marks for deletion all current/current-era records for a device, defined
     by a list of client-side PK values."""
     mark_table_dirty(device, table)
@@ -827,7 +928,7 @@ def flag_deleted_where_clientpk_not(device, table, clientpk_name,
     pls.db.db_exec(query, *args)
 
 
-def flag_modified(device, table, pk, successor_pk):
+def flag_modified(device: str, table: str, pk: int, successor_pk: int) -> None:
     """Marks a record as old, storing its successor's details."""
     mark_table_dirty(device, table)
     query = """
@@ -840,7 +941,7 @@ def flag_modified(device, table, pk, successor_pk):
     pls.db.db_exec(query, successor_pk, pk)
 
 
-def flag_record_for_preservation(table, pk):
+def flag_record_for_preservation(table: str, pk: int) -> None:
     """Marks a record for preservation (moving off the tablet, changing its
     era details)."""
     query = """
@@ -854,7 +955,10 @@ def flag_record_for_preservation(table, pk):
     pls.db.db_exec(query, pk)
 
 
-def commit_all(device, user, batchtime, preserving):
+def commit_all(device: str,
+               user: str,
+               batchtime: datetime.datetime,
+               preserving: bool) -> None:
     """Commits additions, removals, and preservations for all tables."""
     tables = get_dirty_tables(device)
     auditsegments = []
@@ -876,8 +980,12 @@ def commit_all(device, user, batchtime, preserving):
     audit(details, user=user, device=device)
 
 
-def commit_table(device, user, batchtime, preserving, table,
-                 clear_dirty=True):
+def commit_table(device: str,
+                 user: str,
+                 batchtime: datetime.datetime,
+                 preserving: bool,
+                 table: str,
+                 clear_dirty: bool = True) -> Tuple[int, int, int]:
     """Commits additions, removals, and preservations for one table."""
     exacttime = pls.NOW_LOCAL_TZ_ISO8601
     # Additions
@@ -973,7 +1081,7 @@ def commit_table(device, user, batchtime, preserving, table,
     return n_added, n_removed, n_preserved
 
 
-def rollback_all(device):
+def rollback_all(device: str) -> None:
     """Rolls back all pending changes for a device."""
     tables = get_dirty_tables(device)
     for table in tables:
@@ -981,7 +1089,7 @@ def rollback_all(device):
     clear_dirty_tables(device)
 
 
-def rollback_table(device, table):
+def rollback_table(device: str, table: str) -> None:
     """Rolls back changes for an individual table for a device."""
     # Pending additions
     pls.db.db_exec(
@@ -1015,7 +1123,7 @@ def rollback_table(device, table):
     pls.db.db_exec(query, device)
 
 
-def clear_dirty_tables(device):
+def clear_dirty_tables(device: str) -> None:
     """Clears the dirty-table list for a device."""
     pls.db.db_exec("DELETE FROM _dirty_tables WHERE device=?", device)
 
@@ -1024,7 +1132,7 @@ def clear_dirty_tables(device):
 # Audit functions
 # =============================================================================
 
-def audit(*args, **kwargs):
+def audit(*args, **kwargs) -> None:
     """Audit something."""
     # Add parameters and pass on:
     kwargs["from_dbclient"] = True
@@ -1036,8 +1144,10 @@ def audit(*args, **kwargs):
 # Actions
 # =============================================================================
 
-def register_device(device, user, device_friendly_name,
-                    tablet_camcops_version):
+def register_device(device: str,
+                    user: str,
+                    device_friendly_name: str,
+                    tablet_camcops_version: float) -> None:
     """Registers a device with the server."""
     table = "_security_devices"
     count = pls.db.fetchvalue(
@@ -1079,7 +1189,7 @@ def register_device(device, user, device_friendly_name,
 # the success message. Not returning anything is the same as returning None.
 # Authentication is performed in advance of these.
 
-def check_device_registered(form):
+def check_device_registered(form: cgi.FieldStorage) -> None:
     """Check that a device is registered, or raise UserErrorException."""
     device = get_post_var(form, PARAM.DEVICE)
     ensure_device_registered(device)
@@ -1089,7 +1199,7 @@ def check_device_registered(form):
 # Action processors that require REGISTRATION privilege
 # =============================================================================
 
-def register(form):
+def register(form: cgi.FieldStorage) -> Dict:
     """Register a device with the server."""
     device = get_post_var(form, PARAM.DEVICE)
     user = get_post_var(form, PARAM.USER)
@@ -1101,7 +1211,7 @@ def register(form):
     return get_server_id_info()
 
 
-def get_extra_strings(form):
+def get_extra_strings(form: cgi.FieldStorage) -> Dict:
     """Fetch all local extra strings from the server."""
     device = get_post_var(form, PARAM.DEVICE)
     user = get_post_var(form, PARAM.USER)
@@ -1117,25 +1227,25 @@ def get_extra_strings(form):
 # =============================================================================
 
 # noinspection PyUnusedLocal
-def check_upload_user_and_device(form):
+def check_upload_user_and_device(form: cgi.FieldStorage) -> None:
     """Stub function for the operation to check that a user is valid."""
     pass  # don't need to do anything!
 
 
 # noinspection PyUnusedLocal
-def get_id_info(form):
+def get_id_info(form: cgi.FieldStorage) -> Dict:
     """Fetch server ID information."""
     return get_server_id_info()
 
 
-def start_upload(form):
+def start_upload(form: cgi.FieldStorage) -> None:
     """Begin an upload."""
     device = get_post_var(form, PARAM.DEVICE)
     user = get_post_var(form, PARAM.USER)
     start_device_upload_batch(device, user)
 
 
-def end_upload(form):
+def end_upload(form: cgi.FieldStorage) -> None:
     """Ends an upload and commits changes."""
     device = get_post_var(form, PARAM.DEVICE)
     user = get_post_var(form, PARAM.USER)
@@ -1144,7 +1254,7 @@ def end_upload(form):
     end_device_upload_batch(device, user, batchtime, preserving)
 
 
-def upload_table(form):
+def upload_table(form: cgi.FieldStorage) -> str:
     """Upload a table. Incoming information in the CGI form includes a CSV list
     of fields, a count of the number of records being provided, and a set of
     CGI variables named record0 ... record{nrecords}, each containing a CSV
@@ -1205,7 +1315,7 @@ def upload_table(form):
     return "Table {} upload successful".format(table)
 
 
-def upload_record(form):
+def upload_record(form: cgi.FieldStorage) -> str:
     """Upload an individual record. (Typically used for BLOBs.) Incoming
     CGI information includes a CSV list of fields and a CSV list of values."""
     device = get_post_var(form, PARAM.DEVICE)
@@ -1239,7 +1349,7 @@ def upload_record(form):
     # Auditing occurs at commit_all.
 
 
-def upload_empty_tables(form):
+def upload_empty_tables(form: cgi.FieldStorage) -> str:
     """The tablet supplies a list of tables that are empty at its end, and we
     will 'wipe' all appropriate tables; this reduces the number of HTTP
     requests."""
@@ -1255,7 +1365,7 @@ def upload_empty_tables(form):
     return "UPLOAD-EMPTY-TABLES"
 
 
-def start_preservation(form):
+def start_preservation(form: cgi.FieldStorage) -> str:
     """Marks this upload batch as one in which all records will be preserved
     (i.e. moved from NOW-era to an older era, so they can be deleted safely
     from the tablet).
@@ -1273,7 +1383,7 @@ def start_preservation(form):
     return "STARTPRESERVATION"
 
 
-def delete_where_key_not(form):
+def delete_where_key_not(form: cgi.FieldStorage) -> str:
     """Marks records for deletion, for a device/table, where the client PK
     is not in a specified list."""
     device = get_post_var(form, PARAM.DEVICE)
@@ -1291,7 +1401,7 @@ def delete_where_key_not(form):
     return "Trimmed"
 
 
-def which_keys_to_send(form):
+def which_keys_to_send(form: cgi.FieldStorage) -> str:
     """Intended use: "For my device, and a specified table, here are my client-
     side PKs (as a CSV list), and the modification dates for each corresponding
     record (as a CSV list). Please tell me which records have mismatching dates
@@ -1343,7 +1453,7 @@ def which_keys_to_send(form):
 # Action processors that require MOBILEWEB privilege
 # =============================================================================
 
-def mw_count(form):
+def mw_count(form: cgi.FieldStorage) -> int:
     """Count records in a table, given a set of WHERE/WHERE NOT conditions,
     joined by AND."""
     device = get_post_var(form, PARAM.DEVICE)
@@ -1362,7 +1472,7 @@ def mw_count(form):
     return c
 
 
-def mw_select(form):
+def mw_select(form: cgi.FieldStorage) -> Dict:
     """Select fields from a table, specified by WHERE/WHERE NOT criteria,
     joined by AND. Return format: see get_select_reply() help.
     """
@@ -1397,7 +1507,7 @@ def mw_select(form):
     return reply
 
 
-def mw_insert(form):
+def mw_insert(form: cgi.FieldStorage) -> int:
     """Mobileweb client non-transactional INSERT."""
     # Non-transactional
     #
@@ -1428,7 +1538,7 @@ def mw_insert(form):
     return clientpk_value
 
 
-def mw_update(form):
+def mw_update(form: cgi.FieldStorage) -> str:
     """Mobileweb client non-transactional UPDATE."""
     # Non-transactional
     device = get_post_var(form, PARAM.DEVICE)
@@ -1464,7 +1574,7 @@ def mw_update(form):
     return "Updated"
 
 
-def mw_delete(form):
+def mw_delete(form: cgi.FieldStorage) -> str:
     """Mobileweb client non-transactional DELETE."""
     # Non-transactional
     device = get_post_var(form, PARAM.DEVICE)
@@ -1517,7 +1627,7 @@ OPERATIONS_MOBILEWEB = {
 # Main action processor
 # =============================================================================
 
-def main_http_processor(env):
+def main_http_processor(env: Dict[str, str]) -> Dict:
     """Main HTTP processor."""
     # For success, returns:
     #   text:   main text to send (will use status '200 OK')
@@ -1528,73 +1638,34 @@ def main_http_processor(env):
     ))
     form = ws.get_cgi_fieldstorage_from_wsgi_env(env)
 
-    # if pls.DBCLIENT_LOGLEVEL <= logging.DEBUG:
-    #    # Raw environment will not include database password (that's in the
-    #    # config file). However, the raw CGI form will include the client's
-    #    # cleartext password.
-
-    #    # log.debug("Environment: {}".format(env))
-    #    cleanform = dict([
-    #        (k, form.getvalue(k) if k != PARAM.PASSWORD else "*"*8)
-    #        for k in form.keys()
-    #    ])
-    #    log.debug("CGI form: {}".format(cleanform))
-
     if not ws.cgi_method_is_post(env):
         fail_user_error("Must use POST method")
 
-    operation = ws.get_cgi_parameter_str(form, PARAM.OPERATION)
-    device = ws.get_cgi_parameter_str(form, PARAM.DEVICE)
-    username = ws.get_cgi_parameter_str(form, PARAM.USER)
-    password = ws.get_cgi_parameter_str(form, PARAM.PASSWORD)
-    session_id = ws.get_cgi_parameter_int(form, PARAM.SESSION_ID)
-    session_token = ws.get_cgi_parameter_str(form, PARAM.SESSION_TOKEN)
-    tablet_version = ws.get_cgi_parameter_float(form, PARAM.CAMCOPS_VERSION)
-
-    if (tablet_version is None or
-            tablet_version < cc_version.MINIMUM_TABLET_VERSION):
-        fail_user_error(
-            "Tablet CamCOPS version too old: is {v}, need {r}".format(
-                v=tablet_version,
-                r=cc_version.MINIMUM_TABLET_VERSION))
-
-    cc_session.establish_session_for_tablet(
-        session_id, session_token, pls.remote_addr, username, password)
-
-    log.info(
-        "Incoming connection from IP={i}, port={p}, device={d}, user={u}, "
-        "operation={o}".format(
-            i=pls.remote_addr,
-            p=pls.remote_port,
-            d=device,
-            u=username,
-            o=operation,
-        )
-    )
+    sm = SessionManager(form)
 
     fn = None
 
-    if operation in OPERATIONS_ANYONE:
-        fn = OPERATIONS_ANYONE.get(operation)
+    if sm.operation in OPERATIONS_ANYONE:
+        fn = OPERATIONS_ANYONE.get(sm.operation)
 
-    if operation in OPERATIONS_REGISTRATION:
+    if sm.operation in OPERATIONS_REGISTRATION:
         ensure_valid_user_for_device_registration()
-        fn = OPERATIONS_REGISTRATION.get(operation)
+        fn = OPERATIONS_REGISTRATION.get(sm.operation)
 
-    if operation in OPERATIONS_UPLOAD:
-        ensure_valid_device_and_user_for_uploading(device)
-        fn = OPERATIONS_UPLOAD.get(operation)
+    if sm.operation in OPERATIONS_UPLOAD:
+        ensure_valid_device_and_user_for_uploading(sm.device)
+        fn = OPERATIONS_UPLOAD.get(sm.operation)
 
     if pls.ALLOW_MOBILEWEB:
-        if operation in OPERATIONS_MOBILEWEB:
-            ensure_valid_user_for_webstorage(username, device)
-            fn = OPERATIONS_MOBILEWEB.get(operation)
+        if sm.operation in OPERATIONS_MOBILEWEB:
+            ensure_valid_user_for_webstorage(sm.username, sm.device)
+            fn = OPERATIONS_MOBILEWEB.get(sm.operation)
 
     if not fn:
-        fail_unsupported_operation(operation)
+        fail_unsupported_operation(sm.operation)
     result = fn(form)
     if result is None:
-        result = {PARAM.RESULT: operation}
+        result = {PARAM.RESULT: sm.operation}
     elif not isinstance(result, dict):
         result = {PARAM.RESULT: result}
     return result
@@ -1604,7 +1675,9 @@ def main_http_processor(env):
 # WSGI application
 # =============================================================================
 
-def database_application(environ, start_response):
+def database_application(environ: Dict[str, str],
+                         start_response: Callable[[str, HEADERS_TYPE], None]) \
+        -> Iterable[bytes]:
     """Main WSGI application handler. Very simple."""
     # Call main
     t0 = time.time()  # in seconds
@@ -1674,7 +1747,7 @@ def database_application(environ, start_response):
 # Unit tests
 # =============================================================================
 
-def unit_tests():
+def unit_tests() -> None:
     """Unit tests for database script."""
     # a = (UserErrorException, ServerErrorException)
     u = UserErrorException

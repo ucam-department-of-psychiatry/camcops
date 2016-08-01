@@ -21,7 +21,10 @@
     limitations under the License.
 """
 
+import datetime
 import sys
+import typing
+from typing import Callable, Dict, Iterable, Tuple, Union
 
 # =============================================================================
 # Command-line "respond quickly" point
@@ -48,6 +51,7 @@ import zipfile
 # local:
 from cardinal_pythonlib.rnc_lang import import_submodules
 import cardinal_pythonlib.rnc_web as ws
+from cardinal_pythonlib.rnc_web import HEADERS_TYPE, WSGI_TUPLE_TYPE
 
 # CamCOPS support modules
 from .cc_modules.cc_audit import (
@@ -85,9 +89,11 @@ from .cc_modules.cc_pls import pls
 from .cc_modules import cc_policy
 from .cc_modules import cc_report
 from .cc_modules import cc_session
+from .cc_modules.cc_session import Session
 from .cc_modules.cc_storedvar import DeviceStoredVar
 from .cc_modules.cc_string import WSTRING
 from .cc_modules import cc_task
+from .cc_modules.cc_task import Task
 from .cc_modules import cc_tracker
 from .cc_modules.cc_unittest import unit_test_ignore
 from .cc_modules import cc_user
@@ -98,6 +104,9 @@ cc_plot.do_nothing()
 # Task imports
 import_submodules("tasks")
 
+
+WSGI_TUPLE_TYPE_WITH_STATUS = Tuple[str, HEADERS_TYPE, bytes, str]
+# ... contenttype, extraheaders, output, status
 
 # =============================================================================
 # Check Python version (the shebang is not a guarantee)
@@ -149,14 +158,15 @@ ID_POLICY_INVALID_DIV = """
 # Page components
 # =============================================================================
 
-def login_failed(redirect=None):
+def login_failed(redirect: str = None) -> str:
     """HTML given after login failure."""
     return cc_html.fail_with_error_not_logged_in(
         "Invalid username/password. Try again.",
         redirect)
 
 
-def account_locked(locked_until, redirect=None):
+def account_locked(locked_until: datetime.datetime, 
+                   redirect: str = None) -> str:
     """HTML given when account locked out."""
     return cc_html.fail_with_error_not_logged_in(
         "Account locked until {} due to multiple login failures. "
@@ -170,7 +180,7 @@ def account_locked(locked_until, redirect=None):
         redirect)
 
 
-def fail_not_user(action, redirect=None):
+def fail_not_user(action: str, redirect: str = None) -> str:
     """HTML given when action failed because not logged in properly."""
     return cc_html.fail_with_error_not_logged_in(
         "Can't process action {} — not logged in as a valid user, "
@@ -178,25 +188,25 @@ def fail_not_user(action, redirect=None):
         redirect)
 
 
-def fail_not_authorized_for_task():
+def fail_not_authorized_for_task() -> str:
     """HTML given when user isn't allowed to see a specific task."""
     return cc_html.fail_with_error_stay_logged_in(
         "Not authorized to view that task.")
 
 
-def fail_task_not_found():
+def fail_task_not_found() -> str:
     """HTML given when task not found."""
     return cc_html.fail_with_error_stay_logged_in("Task not found.")
 
 
-def fail_not_manager(action):
+def fail_not_manager(action: str) -> str:
     """HTML given when user doesn't have management rights."""
     return cc_html.fail_with_error_stay_logged_in(
         "Can't process action {} - not logged in as a manager.".format(action)
     )
 
 
-def fail_unknown_action(action):
+def fail_unknown_action(action: str) -> str:
     """HTML given when action unknown."""
     return cc_html.fail_with_error_stay_logged_in(
         "Can't process action {} - action not recognized.".format(action)
@@ -207,7 +217,8 @@ def fail_unknown_action(action):
 # Pages/actions
 # =============================================================================
 
-def login(session, form):
+def login(session: Session, form: cgi.FieldStorage) \
+        -> Union[str, WSGI_TUPLE_TYPE_WITH_STATUS]:
     """Processes a login request."""
 
     log.debug("Validating user login.")
@@ -265,7 +276,7 @@ def login(session, form):
 
 
 # noinspection PyUnusedLocal
-def logout(session, form):
+def logout(session: Session, form: cgi.FieldStorage) -> str:
     """Logs a session out."""
 
     audit("Logout")
@@ -273,7 +284,7 @@ def logout(session, form):
     return cc_html.login_page()
 
 
-def agree_terms(session, form):
+def agree_terms(session: Session, form: cgi.FieldStorage) -> str:
     """The user has agreed the terms. Log this, then offer the main menu."""
 
     session.agree_terms()
@@ -281,7 +292,7 @@ def agree_terms(session, form):
 
 
 # noinspection PyUnusedLocal
-def main_menu(session, form):
+def main_menu(session: Session, form: cgi.FieldStorage) -> str:
     """Main HTML menu."""
 
     # Main clinical/task section
@@ -395,7 +406,7 @@ def main_menu(session, form):
 
 
 # noinspection PyUnusedLocal
-def offer_terms(session, form):
+def offer_terms(session: Session, form: cgi.FieldStorage) -> str:
     """HTML offering terms/conditions and requesting acknowledgement."""
 
     html = pls.WEBSTART + """
@@ -422,7 +433,7 @@ def offer_terms(session, form):
 
 
 # noinspection PyUnusedLocal
-def view_policies(session, form):
+def view_policies(session: Session, form: cgi.FieldStorage) -> str:
     """HTML showing server's ID policies."""
 
     html = pls.WEBSTART + """
@@ -466,7 +477,7 @@ def view_policies(session, form):
 
 
 # noinspection PyUnusedLocal
-def view_tasks(session, form):
+def view_tasks(session: Session, form: cgi.FieldStorage) -> str:
     """HTML displaying tasks and applicable filters."""
 
     # Which tasks to view?
@@ -596,28 +607,28 @@ def view_tasks(session, form):
     ) + WEBEND
 
 
-def change_number_to_view(session, form):
+def change_number_to_view(session: Session, form: cgi.FieldStorage) -> str:
     """Change the number of tasks visible on a single screen."""
 
     session.change_number_to_view(form)
     return view_tasks(session, form)
 
 
-def first_page(session, form):
+def first_page(session: Session, form: cgi.FieldStorage) -> str:
     """Navigate to the first page of tasks."""
 
     session.first_page()
     return view_tasks(session, form)
 
 
-def previous_page(session, form):
+def previous_page(session: Session, form: cgi.FieldStorage) -> str:
     """Navigate to the previous page of tasks."""
 
     session.previous_page()
     return view_tasks(session, form)
 
 
-def next_page(session, form):
+def next_page(session: Session, form: cgi.FieldStorage) -> str:
     """Navigate to the next page of tasks."""
 
     ntasks = ws.get_cgi_parameter_int(form, PARAM.NTASKS)
@@ -625,14 +636,15 @@ def next_page(session, form):
     return view_tasks(session, form)
 
 
-def last_page(session, form):
+def last_page(session: Session, form: cgi.FieldStorage) -> str:
     """Navigate to the last page of tasks."""
     ntasks = ws.get_cgi_parameter_int(form, PARAM.NTASKS)
     session.last_page(ntasks)
     return view_tasks(session, form)
 
 
-def serve_task(session, form):
+def serve_task(session: Session, form: cgi.FieldStorage) \
+        -> Union[str, WSGI_TUPLE_TYPE]:
     """Serves an individual task."""
 
     outputtype = ws.get_cgi_parameter_str(form, PARAM.OUTPUTTYPE)
@@ -693,7 +705,7 @@ def serve_task(session, form):
 
 
 # noinspection PyUnusedLocal
-def choose_tracker(session, form):
+def choose_tracker(session: Session, form: cgi.FieldStorage) -> str:
     """HTML form for tracker selection."""
 
     if session.restricted_to_viewing_user():
@@ -792,7 +804,8 @@ def choose_tracker(session, form):
     return html + WEBEND
 
 
-def serve_tracker(session, form):
+def serve_tracker(session: Session, form: cgi.FieldStorage) \
+        -> Union[str, WSGI_TUPLE_TYPE]:
     """Serve up a tracker."""
 
     outputtype = ws.get_cgi_parameter_str(form, PARAM.OUTPUTTYPE)
@@ -825,7 +838,7 @@ def serve_tracker(session, form):
 
 
 # noinspection PyUnusedLocal
-def choose_clinicaltextview(session, form):
+def choose_clinicaltextview(session: Session, form: cgi.FieldStorage) -> str:
     """HTML form for CTV selection."""
 
     if session.restricted_to_viewing_user():
@@ -889,7 +902,8 @@ def choose_clinicaltextview(session, form):
     return html + WEBEND
 
 
-def serve_clinicaltextview(session, form):
+def serve_clinicaltextview(session: Session, form: cgi.FieldStorage) \
+        -> Union[str, WSGI_TUPLE_TYPE]:
     """Returns a CTV."""
 
     outputtype = ws.get_cgi_parameter_str(form, PARAM.OUTPUTTYPE)
@@ -921,7 +935,7 @@ def serve_clinicaltextview(session, form):
         raise AssertionError("ACTION.CLINICALTEXTVIEW: Invalid outputtype")
 
 
-def change_task_filters(session, form):
+def change_task_filters(session: Session, form: cgi.FieldStorage) -> str:
     """Apply/clear filter parameters, then redisplay task list."""
 
     if ws.cgi_parameter_exists(form, ACTION.APPLY_FILTERS):
@@ -1000,7 +1014,7 @@ def change_task_filters(session, form):
 
 
 # noinspection PyUnusedLocal
-def reports_menu(session, form):
+def reports_menu(session: Session, form: cgi.FieldStorage) -> str:
     """Offer a menu of reports."""
 
     if not session.authorized_for_reports():
@@ -1008,7 +1022,7 @@ def reports_menu(session, form):
     return cc_report.offer_report_menu(session)
 
 
-def offer_report(session, form):
+def offer_report(session: Session, form: cgi.FieldStorage) -> str:
     """Offer configuration options for a single report."""
 
     if not session.authorized_for_reports():
@@ -1016,7 +1030,8 @@ def offer_report(session, form):
     return cc_report.offer_individual_report(session, form)
 
 
-def provide_report(session, form):
+def provide_report(session: Session, form: cgi.FieldStorage) \
+        -> Union[str, WSGI_TUPLE_TYPE]:
     """Serve up a configured report."""
 
     if not session.authorized_for_reports():
@@ -1026,7 +1041,8 @@ def provide_report(session, form):
 
 
 # noinspection PyUnusedLocal
-def offer_regenerate_summary_tables(session, form):
+def offer_regenerate_summary_tables(session: Session,
+                                    form: cgi.FieldStorage) -> str:
     """Ask for confirmation to regenerate summary tables."""
 
     if not session.authorized_to_dump():
@@ -1047,7 +1063,7 @@ def offer_regenerate_summary_tables(session, form):
 
 
 # noinspection PyUnusedLocal
-def regenerate_summary_tables(session, form):
+def regenerate_summary_tables(session: Session, form: cgi.FieldStorage) -> str:
     """Drop and regenerated cached/temporary summary data tables."""
 
     if not session.authorized_to_dump():
@@ -1061,7 +1077,7 @@ def regenerate_summary_tables(session, form):
 
 
 # noinspection PyUnusedLocal
-def inspect_table_defs(session, form):
+def inspect_table_defs(session: Session, form: cgi.FieldStorage) -> str:
     """Inspect table definitions with field comments."""
 
     if not session.authorized_to_dump():
@@ -1070,7 +1086,7 @@ def inspect_table_defs(session, form):
 
 
 # noinspection PyUnusedLocal
-def inspect_table_view_defs(session, form):
+def inspect_table_view_defs(session: Session, form: cgi.FieldStorage) -> str:
     """Inspect table and view definitions with field comments."""
 
     if not session.authorized_to_dump():
@@ -1079,7 +1095,7 @@ def inspect_table_view_defs(session, form):
 
 
 # noinspection PyUnusedLocal
-def offer_basic_dump(session, form):
+def offer_basic_dump(session: Session, form: cgi.FieldStorage) -> str:
     """Offer options for a basic research data dump."""
 
     if not session.authorized_to_dump():
@@ -1226,7 +1242,8 @@ def offer_basic_dump(session, form):
     ) + WEBEND
 
 
-def basic_dump(session, form):
+def basic_dump(session: Session, form: cgi.FieldStorage) \
+        -> Union[str, WSGI_TUPLE_TYPE]:
     """Provides a basic research dump (ZIP of TSV files)."""
 
     # Permissions
@@ -1308,7 +1325,7 @@ def basic_dump(session, form):
 
 
 # noinspection PyUnusedLocal
-def offer_table_dump(session, form):
+def offer_table_dump(session: Session, form: cgi.FieldStorage) -> str:
     """HTML form to request dump of table data."""
 
     if not session.authorized_to_dump():
@@ -1416,7 +1433,8 @@ def offer_table_dump(session, form):
     return html + WEBEND
 
 
-def serve_table_dump(session, form):
+def serve_table_dump(session: Session, form: cgi.FieldStorage) \
+        -> Union[str, WSGI_TUPLE_TYPE]:
     """Serve a dump of table +/- view data."""
 
     if not session.authorized_to_dump():
@@ -1460,7 +1478,7 @@ def serve_table_dump(session, form):
 
 
 # noinspection PyUnusedLocal
-def offer_audit_trail_options(session, form):
+def offer_audit_trail_options(session: Session, form: cgi.FieldStorage) -> str:
     """HTML form to request audit trail."""
 
     if not session.authorized_as_superuser():
@@ -1517,7 +1535,7 @@ def offer_audit_trail_options(session, form):
     )
 
 
-def view_audit_trail(session, form):
+def view_audit_trail(session: Session, form: cgi.FieldStorage) -> str:
     """Show audit trail."""
 
     if not session.authorized_as_superuser():
@@ -1599,7 +1617,7 @@ def view_audit_trail(session, form):
 
 
 # noinspection PyUnusedLocal
-def offer_hl7_log_options(session, form):
+def offer_hl7_log_options(session: Session, form: cgi.FieldStorage) -> str:
     """HTML form to request HL7 message log view."""
 
     if not session.authorized_as_superuser():
@@ -1663,7 +1681,7 @@ def offer_hl7_log_options(session, form):
     )
 
 
-def view_hl7_log(session, form):
+def view_hl7_log(session: Session, form: cgi.FieldStorage) -> str:
     """Show HL7 message log."""
 
     if not session.authorized_as_superuser():
@@ -1745,7 +1763,7 @@ def view_hl7_log(session, form):
 
 
 # noinspection PyUnusedLocal
-def offer_hl7_run_options(session, form):
+def offer_hl7_run_options(session: Session, form: cgi.FieldStorage) -> str:
     """HTML form to request HL7 run log view."""
 
     if not session.authorized_as_superuser():
@@ -1787,7 +1805,7 @@ def offer_hl7_run_options(session, form):
     )
 
 
-def view_hl7_run(session, form):
+def view_hl7_run(session: Session, form: cgi.FieldStorage) -> str:
     """Show HL7 run log."""
 
     if not session.authorized_as_superuser():
@@ -1851,7 +1869,7 @@ def view_hl7_run(session, form):
 
 
 # noinspection PyUnusedLocal
-def offer_introspection(session, form):
+def offer_introspection(session: Session, form: cgi.FieldStorage) -> str:
     """HTML form to offer CamCOPS server source code."""
 
     if not pls.INTROSPECTION:
@@ -1875,7 +1893,7 @@ def offer_introspection(session, form):
 
 
 # noinspection PyUnusedLocal
-def introspect(session, form):
+def introspect(session: Session, form: cgi.FieldStorage) -> str:
     """Provide formatted source code."""
 
     if not pls.INTROSPECTION:
@@ -1919,7 +1937,7 @@ def introspect(session, form):
     """.format(css=css, body=body)
 
 
-def add_special_note(session, form):
+def add_special_note(session: Session, form: cgi.FieldStorage) -> str:
     """Add a special note to a task (after confirmation)."""
 
     if not session.authorized_to_add_special_note():
@@ -1995,7 +2013,7 @@ def add_special_note(session, form):
     )
 
 
-def erase_task(session, form):
+def erase_task(session: Session, form: cgi.FieldStorage) -> str:
     """Wipe all data from a task (after confirmation).
 
     Leaves the task record as a placeholder.
@@ -2066,7 +2084,7 @@ def erase_task(session, form):
     )
 
 
-def delete_patient(session, form):
+def delete_patient(session: Session, form: cgi.FieldStorage) -> str:
     """Completely delete all data from a patient (after confirmation)."""
 
     if not session.authorized_as_superuser():
@@ -2178,7 +2196,11 @@ def delete_patient(session, form):
     return cc_html.simple_success_message(msg)
 
 
-def info_html_for_patient_edit(title, display, param, value, oldvalue):
+def info_html_for_patient_edit(title: str,
+                               display: str,
+                               param: str,
+                               value: Optional[str],
+                               oldvalue: Optional[str]) -> str:
     different = value != oldvalue
     newblank = (value is None or value == "")
     oldblank = (oldvalue is None or oldvalue == "")
@@ -2198,7 +2220,7 @@ def info_html_for_patient_edit(title, display, param, value, oldvalue):
     )
 
 
-def edit_patient(session, form):
+def edit_patient(session: Session, form: cgi.FieldStorage) -> str:
     if not session.authorized_as_superuser():
         return cc_html.fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
     # Inputs. We operate with text, for HTML reasons.
@@ -2400,7 +2422,7 @@ def edit_patient(session, form):
     return cc_html.simple_success_message(msg)
 
 
-def task_list_from_generator(generator):
+def task_list_from_generator(generator: Iterable[Task]) -> str:
     tasklist_html = ""
     for task in generator:
         tasklist_html += task.get_task_list_row()
@@ -2415,7 +2437,7 @@ def task_list_from_generator(generator):
     )
 
 
-def forcibly_finalize(session, form):
+def forcibly_finalize(session: Session, form: cgi.FieldStorage) -> str:
     """Force-finalize all live (_era == ERA_NOW) records from a device."""
 
     if not session.authorized_as_superuser():
@@ -2520,7 +2542,7 @@ def forcibly_finalize(session, form):
     return cc_html.simple_success_message(msg)
 
 
-def enter_new_password(session, form):
+def enter_new_password(session: Session, form: cgi.FieldStorage) -> str:
     """Ask for a new password."""
 
     user_to_change = ws.get_cgi_parameter_str(form, PARAM.USERNAME)
@@ -2535,7 +2557,7 @@ def enter_new_password(session, form):
     )
 
 
-def change_password(session, form):
+def change_password(session: Session, form: cgi.FieldStorage) -> str:
     """Implement a password change."""
 
     user_to_change = ws.get_cgi_parameter_str(form, PARAM.USERNAME)
@@ -2553,7 +2575,7 @@ def change_password(session, form):
 
 
 # noinspection PyUnusedLocal
-def manage_users(session, form):
+def manage_users(session: Session, form: cgi.FieldStorage) -> str:
     """Offer user management menu."""
 
     if not session.authorized_as_superuser():
@@ -2562,7 +2584,7 @@ def manage_users(session, form):
 
 
 # noinspection PyUnusedLocal
-def ask_to_add_user(session, form):
+def ask_to_add_user(session: Session, form: cgi.FieldStorage) -> str:
     """Ask for details to add a user."""
 
     if not session.authorized_as_superuser():
@@ -2570,7 +2592,7 @@ def ask_to_add_user(session, form):
     return cc_user.ask_to_add_user(session)
 
 
-def add_user(session, form):
+def add_user(session: Session, form: cgi.FieldStorage) -> str:
     """Adds a user using the details supplied."""
 
     if not session.authorized_as_superuser():
@@ -2578,7 +2600,7 @@ def add_user(session, form):
     return cc_user.add_user(form)
 
 
-def edit_user(session, form):
+def edit_user(session: Session, form: cgi.FieldStorage) -> str:
     """Offers a user editing page."""
 
     if not session.authorized_as_superuser():
@@ -2587,7 +2609,7 @@ def edit_user(session, form):
     return cc_user.edit_user(session, user_to_edit)
 
 
-def change_user(session, form):
+def change_user(session: Session, form: cgi.FieldStorage) -> str:
     """Applies edits to a user."""
 
     if not session.authorized_as_superuser():
@@ -2595,7 +2617,7 @@ def change_user(session, form):
     return cc_user.change_user(form)
 
 
-def ask_delete_user(session, form):
+def ask_delete_user(session: Session, form: cgi.FieldStorage) -> str:
     """Asks for confirmation to delete a user."""
 
     if not session.authorized_as_superuser():
@@ -2604,7 +2626,7 @@ def ask_delete_user(session, form):
     return cc_user.ask_delete_user(session, user_to_delete)
 
 
-def delete_user(session, form):
+def delete_user(session: Session, form: cgi.FieldStorage) -> str:
     """Deletes a user."""
 
     if not session.authorized_as_superuser():
@@ -2613,7 +2635,7 @@ def delete_user(session, form):
     return cc_user.delete_user(user_to_delete)
 
 
-def enable_user(session, form):
+def enable_user(session: Session, form: cgi.FieldStorage) -> str:
     """Enables a user (unlocks, clears login failures)."""
 
     if not session.authorized_as_superuser():
@@ -2623,7 +2645,7 @@ def enable_user(session, form):
 
 
 # noinspection PyUnusedLocal
-def crash(session, form):
+def crash(session: Session, form: cgi.FieldStorage) -> str:
     """Deliberately raises an exception."""
 
     raise RuntimeError("Deliberately crashed. Should not affect other "
@@ -2634,7 +2656,7 @@ def crash(session, form):
 # Ancillary to the main pages/actions
 # =============================================================================
 
-def get_tracker(session, form):
+def get_tracker(session: Session, form: cgi.FieldStorage) -> str:
     """Returns a Tracker() object specified by the CGI form."""
 
     task_tablename_list = ws.get_cgi_parameter_list(form, PARAM.TASKTYPES)
@@ -2652,7 +2674,7 @@ def get_tracker(session, form):
     )
 
 
-def get_clinicaltextview(session, form):
+def get_clinicaltextview(session: Session, form: cgi.FieldStorage) -> str:
     """Returns a ClinicalTextView() object defined by the CGI form."""
 
     which_idnum = ws.get_cgi_parameter_int(form, PARAM.WHICH_IDNUM)
@@ -2668,7 +2690,7 @@ def get_clinicaltextview(session, form):
     )
 
 
-def tsv_escape(x):
+def tsv_escape(x: Any) -> str:
     if x is None:
         return ""
     if not isinstance(x, str):
@@ -2676,12 +2698,12 @@ def tsv_escape(x):
     return x.replace("\t", "\\t").replace("\n", "\\n")
 
 
-def get_tsv_header_from_dict(d):
+def get_tsv_header_from_dict(d: Dict) -> str:
     """Returns a TSV header line from a dictionary."""
     return "\t".join([tsv_escape(x) for x in d.keys()])
 
 
-def get_tsv_line_from_dict(d):
+def get_tsv_line_from_dict(d: Dict) -> str:
     """Returns a TSV data line from a dictionary."""
     return "\t".join([tsv_escape(x) for x in d.values()])
 
@@ -2690,7 +2712,7 @@ def get_tsv_line_from_dict(d):
 # URLs
 # =============================================================================
 
-def get_url_next_page(ntasks):
+def get_url_next_page(ntasks: int) -> str:
     """URL to move to next page in task list."""
     return (
         cc_html.get_generic_action_url(ACTION.NEXT_PAGE) +
@@ -2698,7 +2720,7 @@ def get_url_next_page(ntasks):
     )
 
 
-def get_url_last_page(ntasks):
+def get_url_last_page(ntasks: int) -> str:
     """URL to move to last page in task list."""
     return (
         cc_html.get_generic_action_url(ACTION.LAST_PAGE) +
@@ -2706,7 +2728,7 @@ def get_url_last_page(ntasks):
     )
 
 
-def get_url_introspect(filename):
+def get_url_introspect(filename: str) -> str:
     """URL to view specific source code file."""
     return (
         cc_html.get_generic_action_url(ACTION.INTROSPECT) +
@@ -2718,7 +2740,7 @@ def get_url_introspect(filename):
 # Redirection
 # =============================================================================
 
-def redirect_to(location):
+def redirect_to(location: str) -> WSGI_TUPLE_TYPE_WITH_STATUS:
     """Return an HTTP response redirecting to another location.
 
     Typically, this is used to allow a user to log in again after a timeout,
@@ -2816,7 +2838,11 @@ ACTIONDICT = {
 }
 
 
-def main_http_processor(env):
+def main_http_processor(env: Dict[str, str]) \
+        -> Union[
+            str,
+            WSGI_TUPLE_TYPE,
+            WSGI_TUPLE_TYPE_WITH_STATUS]:
     """Main processor of HTTP requests."""
 
     # Sessions details are already in pls.session
@@ -2880,7 +2906,8 @@ def main_http_processor(env):
 # Functions suitable for calling from the command line or webview
 # =============================================================================
 
-def write_descriptions_comments(file, include_views=False):
+def write_descriptions_comments(file: typing.io.TextIO,
+                                include_views: bool = False) -> None:
     """Save database fields/comments to a file in HTML format."""
 
     sql = """
@@ -2935,21 +2962,21 @@ def write_descriptions_comments(file, include_views=False):
     # - or other methods at http://stackoverflow.com/questions/6752169
 
 
-def get_descriptions_comments_html(include_views=False):
+def get_descriptions_comments_html(include_views: bool = False) -> str:
     """Returns HTML of database field descriptions/comments."""
     f = io.StringIO()
     write_descriptions_comments(f, include_views)
     return f.getvalue()
 
 
-def get_database_title():
+def get_database_title() -> str:
     """Returns database title, or ""."""
     if not pls.DATABASE_TITLE:
         return ""
     return pls.DATABASE_TITLE
 
 
-def make_summary_tables(from_console=True):
+def make_summary_tables(from_console: bool = True) -> None:
     """Drop and rebuild summary tables."""
     # Don't use print; this may run from the web interface. Use the log.
     locked_error = (
@@ -2988,7 +3015,9 @@ def make_summary_tables(from_console=True):
 # WSGI application
 # =============================================================================
 
-def webview_application(environ, start_response):
+def webview_application(environ: Dict[str, str],
+                        start_response: Callable[[str, HEADERS_TYPE], None]) \
+        -> Iterable[bytes]:
     """Main WSGI application handler."""
     # Establish a session based on incoming details
     cc_session.establish_session(environ)  # writes to pls.session
@@ -3026,7 +3055,7 @@ def webview_application(environ, start_response):
 # Unit tests
 # =============================================================================
 
-def unit_tests():
+def unit_tests() -> None:
     """Unit tests for camcops.py"""
     session = cc_session.Session()
     form = cgi.FieldStorage()
