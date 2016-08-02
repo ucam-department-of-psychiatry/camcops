@@ -6,14 +6,13 @@ import os
 
 import cherrypy
 
-from ..webview import webview_application as wsgi_application
+from ..camcops import application as wsgi_application
 from ..cc_modules.cc_constants import STATIC_ROOT_DIR, URL_ROOT_STATIC
 
 log = logging.getLogger(__name__)
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_ROOT = '/' # TODO: from config file?
-
+DEFAULT_ROOT = '/'  # TODO: from config file?
 
 
 class Missing(object):
@@ -43,6 +42,7 @@ def start_server(opts):
         'server.socket_host': opts.host,
         'server.socket_port': opts.port,
         'server.thread_pool': opts.threads,
+        'server.thread_pool_max': opts.threads,
         'server.server_name': opts.server_name,
         'server.log_screen': opts.log_screen,
     })
@@ -61,6 +61,7 @@ def start_server(opts):
         URL_ROOT_STATIC))
     log.info("CRATE will be at: {}".format(opts.root_path))
     log.info("Thread pool size: {}".format(opts.threads))
+    log.info("Thread pool max size: {}".format(opts.threads))
 
     static_config = {
         '/': {
@@ -103,8 +104,9 @@ def main():
     #     "--workdir", type=str,
     #     help="change to this directory when daemonizing")
     parser.add_argument(
-        "--threads", type=int, default=10,
-        help="Number of threads for server to use (default: 10)")
+        "--threads", type=int, default=1,
+        help="Number of threads for server to use (default: 1)")
+    # TODO: fix: CamCOPS is not thread-safe (and will abort with >1 thread)
     parser.add_argument(
         "--ssl_certificate", type=str,
         help="SSL certificate file "
@@ -119,12 +121,15 @@ def main():
     # parser.add_argument(
     #     "--server_group", type=str, default="www-data",
     #     help="group to run daemonized process (default: www-data)")
+
     parser.add_argument(
         "--log_screen", dest="log_screen", action="store_true",
         help="log access requests etc. to terminal (default)")
     parser.add_argument(
         "--no_log_screen", dest="log_screen", action="store_false",
         help="don't log access requests etc. to terminal")
+    parser.set_defaults(log_screen=True)
+
     parser.add_argument(
         "--debug_static", action="store_true",
         help="show debug info for static file requests")
@@ -132,11 +137,14 @@ def main():
         "--root_path", type=str, default=DEFAULT_ROOT,
         help="Root path to serve CRATE at. Default: {}".format(
             DEFAULT_ROOT))
-    parser.set_defaults(log_screen=True)
     # parser.add_argument(
     #     "--stop", action="store_true",
     #     help="stop server")
     opts = parser.parse_args()
+
+    rootlogger = logging.getLogger()
+    rootlogger.setLevel(logging.DEBUG)
+    logging.basicConfig(level=logging.DEBUG)
 
     # Start the webserver
     log.info('starting server with options {}'.format(opts))

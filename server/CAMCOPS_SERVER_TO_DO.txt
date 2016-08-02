@@ -2,6 +2,10 @@
 CAMCOPS SERVER THINGS TO DO NOW
 ===============================================================================
 
+- sort out SQLAlchemy, field type, and get_summaries()
+    - use mixins to inherit fields; see
+    http://docs.sqlalchemy.org/en/latest/orm/extensions/declarative/mixins.html
+
 ===============================================================================
 CAMCOPS SERVER THINGS TO DO
 ===============================================================================
@@ -42,9 +46,12 @@ CAMCOPS SERVER THINGS TO DO
         - on the server side, point to one or more directories to scan
         - on the tablet, have an XFILE() function, keyed to the task
 
-- index of tasks by patient ID, to speed up lookup? Pros and cons to this.
+- index of tasks by patient ID, to speed up lookup on the tablet?
+  Pros and cons to this.
   Maybe defer (on the server side) until SQL Alchemy properly considered.
+  (In any case, the fields are indexed on the server; see Patient.)
   On the tablet side, may be worthwhile, though, as the number of tasks grows.
+  Defer until we try Qt/C++.
 
 ===============================================================================
 TABLET THINGS TO DO
@@ -53,6 +60,7 @@ TABLET THINGS TO DO
 - Get "attributed strings" working (= HTML support, for bold/italic, etc.).
   In progress on tablet side (see the bugtest directory) but support (HTML
   parser) module not installing properly via gittio.
+  -- may be able to replace with Qt.
 
 ===============================================================================
 THOUGHTS/POTENTIAL THINGS TO DO

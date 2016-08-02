@@ -1,15 +1,17 @@
 # pip requirements file for CamCOPS
 
+# mysqlclient==1.3.6
+
+colorlog==2.6.1  # colour in logs
 gunicorn==19.3.0  # 'Internal' web server
 hl7==0.3.3  # For HL7 export
 lockfile==0.12.2  # File locking for background tasks
 matplotlib==1.5.0  # Used for trackers and some tasks. SLOW INSTALLATION.
-# mysqlclient==1.3.6
-PyMySQL==0.7.1  # One of the options for MySQL interfacing via rnc_db.py.
 numpy==1.10.2  # Used by some tasks. SLOW INSTALLATION.
 pdfkit==0.5.0  # wkhtmltopdf interface, for PDF generation from HTML
 py-bcrypt==0.4  # Used by rnc_crypto; for bcrypt
 Pygments==2.0.2  # Syntax highlighting for introspection
+PyMySQL==0.7.1  # One of the options for MySQL interfacing via rnc_db.py.
 PyPDF2==1.25.1  # Used by rnc_pdf.py
 python-dateutil==2.4.2  # Date/time extensions.
 pytz==2015.7  # Timezone definitions, specifically UTC.
@@ -18,4 +20,4 @@ typing==3.5.2.2  # part of stdlib in Python 3.5, but not 3.4
 Wand==0.4.2  # ImageMagick for Python; used e.g. for BLOB PNG display
 Werkzeug==0.11.3  # Profiling middleware
 
-cardinal_pythonlib==0.2.2  # RNC libraries
+cardinal_pythonlib==0.2.3  # RNC libraries

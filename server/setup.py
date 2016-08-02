@@ -89,7 +89,8 @@ camcops_server
             # Format is 'script=module:function".
             'camcops=camcops_server.camcops:cli_main',
             'camcops_meta=camcops_server.camcops_meta:main',
-            'camcops_launch_cherrypy_dev_server=camcops_server.tools.launch_cherrypy_dev_server:main',
+            'camcops_launch_cherrypy_server=camcops_server.tools.launch_cherrypy_server:main',  # noqa
+            'camcops_launch_gunicorn_server=camcops_server.tools.launch_gunicorn_server:main',  # noqa
         ],
     },
 )

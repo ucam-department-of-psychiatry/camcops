@@ -1,3 +1,0 @@
-sort out SQLA, field type, and get_summaries()
-
-PARAM etc as StrEnum

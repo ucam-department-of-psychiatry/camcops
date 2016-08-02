@@ -57,7 +57,7 @@ lang.extendPrototype(BaseTask, {
     _editable: true,
     _prohibitCommercial: false,
     _prohibitResearch: false,
-    _extrastringTaskname: "",
+    _extrastringTaskname: "",  // if blank, _tablename will be used instead
 
     // OTHER
 
@@ -93,7 +93,7 @@ lang.extendPrototype(BaseTask, {
 
     extraStringsPresent: function () {
         var extrastrings = require('table/extrastrings');
-        return extrastrings.task_exists(this._extrastringTaskname);
+        return extrastrings.task_exists(this.getExtrastringTaskname());
     },
 
     whyNotPermissible: function () {
@@ -332,15 +332,15 @@ lang.extendPrototype(BaseTask, {
         };
     },
 
+    getExtrastringTaskname: function () {
+        return this._extrastringTaskname || this._tablename;
+    },
+
     XSTRING: function (name, defaultvalue) {
-        var extrastrings = require('table/extrastrings');
-        defaultvalue = defaultvalue || ("[" + this._extrastringTaskname +
-                                        ": " + name + "]");
-        return extrastrings.get(
-            this._extrastringTaskname,
-            name,
-            defaultvalue
-        );
+        var extrastrings = require('table/extrastrings'),
+            estn = this.getExtrastringTaskname();
+        defaultvalue = defaultvalue || ("[" + estn + ": " + name + "]");
+        return extrastrings.get(estn, name, defaultvalue);
     }
 
 });
@@ -931,8 +931,9 @@ function getDeviceHeightWidth(landscape) {
     if (Titanium.Platform.osname === 'iphone' ||
             Titanium.Platform.osname === 'ipad' ||
             Titanium.Platform.osname === 'android') {
-        Titanium.API.info('Titanium.Platform.displayCaps.logicalDensityFactor: '
-                          + Titanium.Platform.displayCaps.logicalDensityFactor);
+        Titanium.API.info(
+            'Titanium.Platform.displayCaps.logicalDensityFactor: ' +
+            Titanium.Platform.displayCaps.logicalDensityFactor);
     }
     if (Titanium.Platform.osname === 'android') {
         Titanium.API.info('Titanium.Platform.displayCaps.xdpi: ' +

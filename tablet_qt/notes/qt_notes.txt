@@ -106,10 +106,17 @@ Language and speed
 Platforms
 ===============================================================================
 Confirmed:
-- Works on Linux
-- Works on Android emulator
-    *** SQLITE NOT YET WORKING; NEEDS QT RECOMPILE
-- Works on Windows 10 native 64-bit (as a .exe)
+
+- Works on Linux with predistributed Qt
+- Works on Android emulator with predistributed Qt
+- Works on Mac OS X native with predistributed Qt
+- Works on iOS with predistributed Qt
+
+- Custom-compiled Qt on Android ARM working
+- Custom-compiled Qt on Android x86 working (inc. fast emulator)
+
+*** SQLITE NOT YET WORKING; NEEDS QT RECOMPILE
+- Works on Windows 10 native 64-bit with predistributed Qt (as a .exe)
     Visual Studio 2015 Community
     ... which doesn't install C++ by default!
         http://stackoverflow.com/questions/31953769/visual-studio-doesnt-have-cl-exe
@@ -121,8 +128,6 @@ Confirmed:
     http://stackoverflow.com/questions/12654613/static-linking-qt-with-open-source-version
     https://wiki.qt.io/Licensing-talk-about-mobile-platforms#Legal_advice_on_statically_linking_Qt_and_the_LGPL_license
 - *** NOT YET TESTED: Windows XP 32-bit
-- Works on Mac OS X native
-- Works on iOS
 
 ===============================================================================
 JDK

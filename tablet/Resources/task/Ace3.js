@@ -22,7 +22,8 @@
 
 /*jslint node: true, newcap: true, nomen: true, plusplus: true, continue: true, unparam: true */
 "use strict";
-/*global Titanium, L */
+/*global L */
+/* jshint -W100 */
 
 var DBCONSTANTS = require('common/DBCONSTANTS'),
     dbcommon = require('lib/dbcommon'),
@@ -324,11 +325,11 @@ lang.extendPrototype(Ace3, {
             t = a + m + f + l + v;
         return (
             L('total_score') + " " + t + "/100. " +
-            L('ace3_cat_attn') + " " + a + "/18 (" + Math.round(100 * a / 18) + "%). " +
-            L('ace3_cat_mem') + " " + m + "/26 (" + Math.round(100 * m / 26) + "%). " +
-            L('ace3_cat_fluency') + " " + f + "/14 (" + Math.round(100 * f / 14) + "%). " +
-            L('ace3_cat_lang') + " " + l + "/26 (" + Math.round(100 * l / 26) + "%). " +
-            L('ace3_cat_vsp') + " " + v + "/16 (" + Math.round(100 * v / 16) + "%)." +
+            this.XSTRING('cat_attn') + " " + a + "/18 (" + Math.round(100 * a / 18) + "%). " +
+            this.XSTRING('cat_mem') + " " + m + "/26 (" + Math.round(100 * m / 26) + "%). " +
+            this.XSTRING('cat_fluency') + " " + f + "/14 (" + Math.round(100 * f / 14) + "%). " +
+            this.XSTRING('cat_lang') + " " + l + "/26 (" + Math.round(100 * l / 26) + "%). " +
+            this.XSTRING('cat_vsp') + " " + v + "/16 (" + Math.round(100 * v / 16) + "%)." +
             this.isCompleteSuffix()
         );
     },
@@ -370,22 +371,22 @@ lang.extendPrototype(Ace3, {
         case 11: // December
         case 0: // January
         case 1:
-            season = L('ace3_season_winter');
+            season = this.XSTRING('season_winter');
             break;
         case 2:
         case 3:
         case 4:
-            season = L('ace3_season_spring');
+            season = this.XSTRING('season_spring');
             break;
         case 5:
         case 6:
         case 7:
-            season = L('ace3_season_summer');
+            season = this.XSTRING('season_summer');
             break;
         case 8:
         case 9:
         case 10:
-            season = L('ace3_season_autumn');
+            season = this.XSTRING('season_autumn');
             break;
         }
         correct_date = (
@@ -397,19 +398,19 @@ lang.extendPrototype(Ace3, {
 
         pages = [
             {
-                title: L("ace3_title_prefix") + " " + (pagenum++),
+                title: this.XSTRING("title_prefix") + " " + (pagenum++),
                 clinician: true,
                 elements: [
                     // Preamble
                     {
                         type: "QuestionText",
-                        text: L("ace3_instruction_need_paper"),
+                        text: this.XSTRING("instruction_need_paper"),
                         bold: true
                     },
                     self.getClinicianQuestionnaireBlock(), // Clinician info 3/3
                     {
                         type: "QuestionText",
-                        text: L("ace3_preamble_instruction")
+                        text: this.XSTRING("preamble_instruction")
                     },
                     {
                         type: "QuestionTypedVariables",
@@ -418,12 +419,12 @@ lang.extendPrototype(Ace3, {
                             {
                                 type: UICONSTANTS.TYPEDVAR_INTEGER,
                                 field: "age_at_leaving_full_time_education",
-                                prompt: L("ace3_q_age_leaving_fte")
+                                prompt: this.XSTRING("q_age_leaving_fte")
                             },
                             {
                                 type: UICONSTANTS.TYPEDVAR_TEXT,
                                 field: "occupation",
-                                prompt: L("ace3_q_occupation")
+                                prompt: this.XSTRING("q_occupation")
                             }
                         ]
                     },
@@ -434,107 +435,107 @@ lang.extendPrototype(Ace3, {
                         showInstruction: false,
                         field: "handedness",
                         options: [
-                            new KeyValuePair(L("ace3_left_handed"), "L"),
-                            new KeyValuePair(L("ace3_right_handed"), "R")
+                            new KeyValuePair(this.XSTRING("left_handed"), "L"),
+                            new KeyValuePair(this.XSTRING("right_handed"), "R")
                         ]
                     }
                 ]
             },
             {
-                title: L("ace3_title_prefix") + " " + (pagenum++),
+                title: this.XSTRING("title_prefix") + " " + (pagenum++),
                 clinician: true,
                 elements: [
                     // Orientation
-                    { type: "QuestionHeading", text: L("ace3_cat_attn") },
-                    { type: "QuestionText", text: L("ace3_attn_q_time") },
+                    { type: "QuestionHeading", text: this.XSTRING("cat_attn") },
+                    { type: "QuestionText", text: this.XSTRING("attn_q_time") },
                     {
                         type: "ContainerHorizontal",
                         elements: [
                             {
                                 type: "QuestionBooleanText",
                                 mandatory: true,
-                                text: L("ace3_attn_time1"),
+                                text: this.XSTRING("attn_time1"),
                                 field: "attn_time1"
                             },
                             {
                                 type: "QuestionBooleanText",
                                 mandatory: true,
-                                text: L("ace3_attn_time2"),
+                                text: this.XSTRING("attn_time2"),
                                 field: "attn_time2"
                             },
                             {
                                 type: "QuestionBooleanText",
                                 mandatory: true,
-                                text: L("ace3_attn_time3"),
+                                text: this.XSTRING("attn_time3"),
                                 field: "attn_time3"
                             },
                             {
                                 type: "QuestionBooleanText",
                                 mandatory: true,
-                                text: L("ace3_attn_time4"),
+                                text: this.XSTRING("attn_time4"),
                                 field: "attn_time4"
                             },
                             {
                                 type: "QuestionBooleanText",
                                 mandatory: true,
-                                text: L("ace3_attn_time5"),
+                                text: this.XSTRING("attn_time5"),
                                 field: "attn_time5"
                             }
                         ]
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_instruction_time"),
+                        text: this.XSTRING("instruction_time"),
                         italic: true
                     },
                     { type: "QuestionText", text: correct_date, italic: true },
-                    { type: "QuestionText", text: L("ace3_attn_q_place") },
+                    { type: "QuestionText", text: this.XSTRING("attn_q_place") },
                     {
                         type: "ContainerHorizontal",
                         elements: [
                             {
                                 type: "QuestionBooleanText",
                                 mandatory: true,
-                                text: L("ace3_attn_place1"),
+                                text: this.XSTRING("attn_place1"),
                                 field: "attn_place1"
                             },
                             {
                                 type: "QuestionBooleanText",
                                 mandatory: true,
-                                text: L("ace3_attn_place2"),
+                                text: this.XSTRING("attn_place2"),
                                 field: "attn_place2"
                             },
                             {
                                 type: "QuestionBooleanText",
                                 mandatory: true,
-                                text: L("ace3_attn_place3"),
+                                text: this.XSTRING("attn_place3"),
                                 field: "attn_place3"
                             },
                             {
                                 type: "QuestionBooleanText",
                                 mandatory: true,
-                                text: L("ace3_attn_place4"),
+                                text: this.XSTRING("attn_place4"),
                                 field: "attn_place4"
                             },
                             {
                                 type: "QuestionBooleanText",
                                 mandatory: true,
-                                text: L("ace3_attn_place5"),
+                                text: this.XSTRING("attn_place5"),
                                 field: "attn_place5"
                             }
                         ]
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_instruction_place"),
+                        text: this.XSTRING("instruction_place"),
                         italic: true
                     },
                     // Lemon, key, ball (registration)
-                    { type: "QuestionHeading", text: L("ace3_cat_attn") },
-                    { type: "QuestionText", text: L("ace3_attn_q_words") },
+                    { type: "QuestionHeading", text: this.XSTRING("cat_attn") },
+                    { type: "QuestionText", text: this.XSTRING("attn_q_words") },
                     {
                         type: "QuestionText",
-                        text: L("ace3_attn_instruction_words"),
+                        text: this.XSTRING("attn_instruction_words"),
                         italic: true
                     },
                     {
@@ -543,19 +544,19 @@ lang.extendPrototype(Ace3, {
                             {
                                 type: "QuestionBooleanText",
                                 mandatory: true,
-                                text: L("ace3_mem_word1"),
+                                text: this.XSTRING("mem_word1"),
                                 field: "attn_repeat_word1"
                             },
                             {
                                 type: "QuestionBooleanText",
                                 mandatory: true,
-                                text: L("ace3_mem_word2"),
+                                text: this.XSTRING("mem_word2"),
                                 field: "attn_repeat_word2"
                             },
                             {
                                 type: "QuestionBooleanText",
                                 mandatory: true,
-                                text: L("ace3_mem_word3"),
+                                text: this.XSTRING("mem_word3"),
                                 field: "attn_repeat_word3"
                             }
                         ]
@@ -563,7 +564,7 @@ lang.extendPrototype(Ace3, {
                     {
                         type: "ContainerHorizontal",
                         elements: [
-                            { type: "QuestionText", text: L("ace3_attn_q_register_n_trials") },
+                            { type: "QuestionText", text: this.XSTRING("attn_q_register_n_trials") },
                             {
                                 type: "QuestionMCQ",
                                 mandatory: false,
@@ -581,14 +582,14 @@ lang.extendPrototype(Ace3, {
                         ]
                     },
                     // Serial 7s
-                    { type: "QuestionHeading", text: L("ace3_cat_attn") },
+                    { type: "QuestionHeading", text: this.XSTRING("cat_attn") },
                     {
                         type: "QuestionText",
-                        text: L("ace3_attn_q_serial_sevens")
+                        text: this.XSTRING("attn_q_serial_sevens")
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_attn_instruction_sevens"),
+                        text: this.XSTRING("attn_instruction_sevens"),
                         italic: true
                     },
                     {
@@ -597,44 +598,44 @@ lang.extendPrototype(Ace3, {
                             {
                                 type: "QuestionBooleanText",
                                 mandatory: true,
-                                text: L("ace3_attn_subtraction1"),
+                                text: this.XSTRING("attn_subtraction1"),
                                 field: "attn_serial7_subtraction1"
                             },
                             {
                                 type: "QuestionBooleanText",
                                 mandatory: true,
-                                text: L("ace3_attn_subtraction2"),
+                                text: this.XSTRING("attn_subtraction2"),
                                 field: "attn_serial7_subtraction2"
                             },
                             {
                                 type: "QuestionBooleanText",
                                 mandatory: true,
-                                text: L("ace3_attn_subtraction3"),
+                                text: this.XSTRING("attn_subtraction3"),
                                 field: "attn_serial7_subtraction3"
                             },
                             {
                                 type: "QuestionBooleanText",
                                 mandatory: true,
-                                text: L("ace3_attn_subtraction4"),
+                                text: this.XSTRING("attn_subtraction4"),
                                 field: "attn_serial7_subtraction4"
                             },
                             {
                                 type: "QuestionBooleanText",
                                 mandatory: true,
-                                text: L("ace3_attn_subtraction5"),
+                                text: this.XSTRING("attn_subtraction5"),
                                 field: "attn_serial7_subtraction5"
                             }
                         ]
                     },
                     // Lemon, key, ball (recall)
-                    { type: "QuestionHeading", text: L("ace3_cat_mem") },
+                    { type: "QuestionHeading", text: this.XSTRING("cat_mem") },
                     {
                         type: "QuestionText",
-                        text: L("ace3_mem_q_recall_words")
+                        text: this.XSTRING("mem_q_recall_words")
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_mem_instruction_recall"),
+                        text: this.XSTRING("mem_instruction_recall"),
                         italic: true
                     },
                     {
@@ -643,19 +644,19 @@ lang.extendPrototype(Ace3, {
                             {
                                 type: "QuestionBooleanText",
                                 mandatory: true,
-                                text: L("ace3_mem_word1"),
+                                text: this.XSTRING("mem_word1"),
                                 field: "mem_recall_word1"
                             },
                             {
                                 type: "QuestionBooleanText",
                                 mandatory: true,
-                                text: L("ace3_mem_word2"),
+                                text: this.XSTRING("mem_word2"),
                                 field: "mem_recall_word2"
                             },
                             {
                                 type: "QuestionBooleanText",
                                 mandatory: true,
-                                text: L("ace3_mem_word3"),
+                                text: this.XSTRING("mem_word3"),
                                 field: "mem_recall_word3"
                             }
                         ]
@@ -663,19 +664,19 @@ lang.extendPrototype(Ace3, {
                 ]
             },
             {
-                title: L("ace3_title_prefix") + " " + (pagenum++),
+                title: this.XSTRING("title_prefix") + " " + (pagenum++),
                 clinician: true,
                 elements: [
                     // Fluency
-                    { type: "QuestionHeading", text: L("ace3_cat_fluency") },
+                    { type: "QuestionHeading", text: this.XSTRING("cat_fluency") },
                     {
                         type: "QuestionText",
-                        text: L("ace3_fluency_subhead_letters"),
+                        text: this.XSTRING("fluency_subhead_letters"),
                         bold: true
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_fluency_q_letters")
+                        text: this.XSTRING("fluency_q_letters")
                     },
                     {
                         type: "QuestionCountdown",
@@ -689,24 +690,24 @@ lang.extendPrototype(Ace3, {
                             {
                                 type: UICONSTANTS.TYPEDVAR_INTEGER,
                                 field: "fluency_letters_correct",
-                                prompt: L("ace3_fluency_prompt_letters_cor")
+                                prompt: this.XSTRING("fluency_prompt_letters_cor")
                             },
                             {
                                 type: UICONSTANTS.TYPEDVAR_INTEGER,
                                 field: "fluency_letters_incorrect",
-                                prompt: L("ace3_fluency_prompt_inc")
+                                prompt: this.XSTRING("fluency_prompt_inc")
                             },
                         ],
                     },
                     */
                     {
                         type: "QuestionText",
-                        text: L("ace3_fluency_instruction_letters"),
+                        text: this.XSTRING("fluency_instruction_letters"),
                         italic: true
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_fluency_prompt_letters_cor")
+                        text: this.XSTRING("fluency_prompt_letters_cor")
                     },
                     {
                         type: "QuestionMCQ",
@@ -727,12 +728,12 @@ lang.extendPrototype(Ace3, {
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_fluency_subheading_animals"),
+                        text: this.XSTRING("fluency_subheading_animals"),
                         bold: true
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_fluency_q_animals")
+                        text: this.XSTRING("fluency_q_animals")
                     },
                     {
                         type: "QuestionCountdown",
@@ -746,24 +747,24 @@ lang.extendPrototype(Ace3, {
                             {
                                 type: UICONSTANTS.TYPEDVAR_INTEGER,
                                 field: "fluency_animals_correct",
-                                prompt: L("ace3_fluency_prompt_animals_cor")
+                                prompt: this.XSTRING("fluency_prompt_animals_cor")
                             },
                             {
                                 type: UICONSTANTS.TYPEDVAR_INTEGER,
                                 field: "fluency_animals_incorrect",
-                                prompt: L("ace3_fluency_prompt_inc")
+                                prompt: this.XSTRING("fluency_prompt_inc")
                             },
                         ],
                     },
                     */
                     {
                         type: "QuestionText",
-                        text: L("ace3_fluency_instruction_animals"),
+                        text: this.XSTRING("fluency_instruction_animals"),
                         italic: true
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_fluency_prompt_animals_cor")
+                        text: this.XSTRING("fluency_prompt_animals_cor")
                     },
                     {
                         type: "QuestionMCQ",
@@ -785,23 +786,23 @@ lang.extendPrototype(Ace3, {
                 ]
             },
             {
-                title: L("ace3_title_prefix") + " " + (pagenum++),
+                title: this.XSTRING("title_prefix") + " " + (pagenum++),
                 clinician: true,
                 elements: [
                     // Learning the address
-                    { type: "QuestionHeading", text: L("ace3_cat_mem") },
+                    { type: "QuestionHeading", text: this.XSTRING("cat_mem") },
                     {
                         type: "QuestionText",
-                        text: L("ace3_memory_q_address")
+                        text: this.XSTRING("memory_q_address")
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_memory_instruction_address_1"),
+                        text: this.XSTRING("memory_instruction_address_1"),
                         italic: true
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_memory_instruction_address_2"),
+                        text: this.XSTRING("memory_instruction_address_2"),
                         italic: true
                     },
                     {
@@ -812,20 +813,20 @@ lang.extendPrototype(Ace3, {
                                 elements: [
                                     {
                                         type: "QuestionText",
-                                        text: L("ace3_trial") + " 1"
+                                        text: this.XSTRING("trial") + " 1"
                                     },
                                     {
                                         type: "ContainerHorizontal",
                                         elements: [
                                             {
                                                 type: "QuestionBooleanText",
-                                                text: L("ace3_address_1"),
+                                                text: this.XSTRING("address_1"),
                                                 field: "mem_repeat_address_trial1_1",
                                                 mandatory: false
                                             },
                                             {
                                                 type: "QuestionBooleanText",
-                                                text: L("ace3_address_2"),
+                                                text: this.XSTRING("address_2"),
                                                 field: "mem_repeat_address_trial1_2",
                                                 mandatory: false
                                             }
@@ -836,19 +837,19 @@ lang.extendPrototype(Ace3, {
                                         elements: [
                                             {
                                                 type: "QuestionBooleanText",
-                                                text: L("ace3_address_3"),
+                                                text: this.XSTRING("address_3"),
                                                 field: "mem_repeat_address_trial1_3",
                                                 mandatory: false
                                             },
                                             {
                                                 type: "QuestionBooleanText",
-                                                text: L("ace3_address_4"),
+                                                text: this.XSTRING("address_4"),
                                                 field: "mem_repeat_address_trial1_4",
                                                 mandatory: false
                                             },
                                             {
                                                 type: "QuestionBooleanText",
-                                                text: L("ace3_address_5"),
+                                                text: this.XSTRING("address_5"),
                                                 field: "mem_repeat_address_trial1_5",
                                                 mandatory: false
                                             }
@@ -856,13 +857,13 @@ lang.extendPrototype(Ace3, {
                                     },
                                     {
                                         type: "QuestionBooleanText",
-                                        text: L("ace3_address_6"),
+                                        text: this.XSTRING("address_6"),
                                         field: "mem_repeat_address_trial1_6",
                                         mandatory: false
                                     },
                                     {
                                         type: "QuestionBooleanText",
-                                        text: L("ace3_address_7"),
+                                        text: this.XSTRING("address_7"),
                                         field: "mem_repeat_address_trial1_7",
                                         mandatory: false
                                     }
@@ -873,20 +874,20 @@ lang.extendPrototype(Ace3, {
                                 elements: [
                                     {
                                         type: "QuestionText",
-                                        text: L("ace3_trial") + " 2"
+                                        text: this.XSTRING("trial") + " 2"
                                     },
                                     {
                                         type: "ContainerHorizontal",
                                         elements: [
                                             {
                                                 type: "QuestionBooleanText",
-                                                text: L("ace3_address_1"),
+                                                text: this.XSTRING("address_1"),
                                                 field: "mem_repeat_address_trial2_1",
                                                 mandatory: false
                                             },
                                             {
                                                 type: "QuestionBooleanText",
-                                                text: L("ace3_address_2"),
+                                                text: this.XSTRING("address_2"),
                                                 field: "mem_repeat_address_trial2_2",
                                                 mandatory: false
                                             }
@@ -897,19 +898,19 @@ lang.extendPrototype(Ace3, {
                                         elements: [
                                             {
                                                 type: "QuestionBooleanText",
-                                                text: L("ace3_address_3"),
+                                                text: this.XSTRING("address_3"),
                                                 field: "mem_repeat_address_trial2_3",
                                                 mandatory: false
                                             },
                                             {
                                                 type: "QuestionBooleanText",
-                                                text: L("ace3_address_4"),
+                                                text: this.XSTRING("address_4"),
                                                 field: "mem_repeat_address_trial2_4",
                                                 mandatory: false
                                             },
                                             {
                                                 type: "QuestionBooleanText",
-                                                text: L("ace3_address_5"),
+                                                text: this.XSTRING("address_5"),
                                                 field: "mem_repeat_address_trial2_5",
                                                 mandatory: false
                                             }
@@ -917,13 +918,13 @@ lang.extendPrototype(Ace3, {
                                     },
                                     {
                                         type: "QuestionBooleanText",
-                                        text: L("ace3_address_6"),
+                                        text: this.XSTRING("address_6"),
                                         field: "mem_repeat_address_trial2_6",
                                         mandatory: false
                                     },
                                     {
                                         type: "QuestionBooleanText",
-                                        text: L("ace3_address_7"),
+                                        text: this.XSTRING("address_7"),
                                         field: "mem_repeat_address_trial2_7",
                                         mandatory: false
                                     }
@@ -934,7 +935,7 @@ lang.extendPrototype(Ace3, {
                                 elements: [
                                     {
                                         type: "QuestionText",
-                                        text: L("ace3_trial") + " 3"
+                                        text: this.XSTRING("trial") + " 3"
                                     },
                                     {
                                         type: "ContainerHorizontal",
@@ -942,13 +943,13 @@ lang.extendPrototype(Ace3, {
                                             {
                                                 type: "QuestionBooleanText",
                                                 mandatory: true,
-                                                text: L("ace3_address_1"),
+                                                text: this.XSTRING("address_1"),
                                                 field: "mem_repeat_address_trial3_1"
                                             },
                                             {
                                                 type: "QuestionBooleanText",
                                                 mandatory: true,
-                                                text: L("ace3_address_2"),
+                                                text: this.XSTRING("address_2"),
                                                 field: "mem_repeat_address_trial3_2"
                                             }
                                         ]
@@ -959,19 +960,19 @@ lang.extendPrototype(Ace3, {
                                             {
                                                 type: "QuestionBooleanText",
                                                 mandatory: true,
-                                                text: L("ace3_address_3"),
+                                                text: this.XSTRING("address_3"),
                                                 field: "mem_repeat_address_trial3_3"
                                             },
                                             {
                                                 type: "QuestionBooleanText",
                                                 mandatory: true,
-                                                text: L("ace3_address_4"),
+                                                text: this.XSTRING("address_4"),
                                                 field: "mem_repeat_address_trial3_4"
                                             },
                                             {
                                                 type: "QuestionBooleanText",
                                                 mandatory: true,
-                                                text: L("ace3_address_5"),
+                                                text: this.XSTRING("address_5"),
                                                 field: "mem_repeat_address_trial3_5"
                                             }
                                         ]
@@ -979,13 +980,13 @@ lang.extendPrototype(Ace3, {
                                     {
                                         type: "QuestionBooleanText",
                                         mandatory: true,
-                                        text: L("ace3_address_6"),
+                                        text: this.XSTRING("address_6"),
                                         field: "mem_repeat_address_trial3_6"
                                     },
                                     {
                                         type: "QuestionBooleanText",
                                         mandatory: true,
-                                        text: L("ace3_address_7"),
+                                        text: this.XSTRING("address_7"),
                                         field: "mem_repeat_address_trial3_7"
                                     }
                                 ]
@@ -994,214 +995,214 @@ lang.extendPrototype(Ace3, {
                     },
 
                     // Famous people
-                    { type: "QuestionHeading", text: L("ace3_cat_mem") },
+                    { type: "QuestionHeading", text: this.XSTRING("cat_mem") },
                     {
                         type: "QuestionBooleanText",
                         mandatory: true,
-                        text: L("ace3_famous_1"),
+                        text: this.XSTRING("famous_1"),
                         field: "mem_famous1"
                     },
                     {
                         type: "QuestionBooleanText",
                         mandatory: true,
-                        text: L("ace3_famous_2"),
+                        text: this.XSTRING("famous_2"),
                         field: "mem_famous2"
                     },
                     {
                         type: "QuestionBooleanText",
                         mandatory: true,
-                        text: L("ace3_famous_3"),
+                        text: this.XSTRING("famous_3"),
                         field: "mem_famous3"
                     },
                     {
                         type: "QuestionBooleanText",
                         mandatory: true,
-                        text: L("ace3_famous_4"),
+                        text: this.XSTRING("famous_4"),
                         field: "mem_famous4"
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_instruction_famous"),
+                        text: this.XSTRING("instruction_famous"),
                         italic: true
                     }
                 ]
             },
             {
-                title: L("ace3_title_prefix") + " " + (pagenum++),
+                title: this.XSTRING("title_prefix") + " " + (pagenum++),
                 clinician: true,
                 pageTag: LANG_COMMANDS_SENTENCES,
                 elements: [
                     // Commands
-                    { type: "QuestionHeading", text: L("ace3_cat_lang") },
+                    { type: "QuestionHeading", text: this.XSTRING("cat_lang") },
                     {
                         type: "QuestionText",
-                        text: L("ace3_lang_q_command_1")
+                        text: this.XSTRING("lang_q_command_1")
                     },
                     {
                         type: "QuestionBooleanText",
                         mandatory: true,
-                        text: L("ace3_lang_command_practice"),
+                        text: this.XSTRING("lang_command_practice"),
                         field: "lang_follow_command_practice"
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_lang_q_command_2")
+                        text: this.XSTRING("lang_q_command_2")
                     },
                     {
                         elementTag: LANG_OPTIONAL_COMMAND,
                         type: "QuestionBooleanText",
-                        text: L("ace3_lang_command1"),
+                        text: this.XSTRING("lang_command1"),
                         field: "lang_follow_command1"
                     },
                     {
                         elementTag: LANG_OPTIONAL_COMMAND,
                         type: "QuestionBooleanText",
-                        text: L("ace3_lang_command2"),
+                        text: this.XSTRING("lang_command2"),
                         field: "lang_follow_command2"
                     },
                     {
                         elementTag: LANG_OPTIONAL_COMMAND,
                         type: "QuestionBooleanText",
-                        text: L("ace3_lang_command3"),
+                        text: this.XSTRING("lang_command3"),
                         field: "lang_follow_command3"
                     },
 
                     // Writing sentences
-                    { type: "QuestionHeading", text: L("ace3_cat_lang") },
+                    { type: "QuestionHeading", text: this.XSTRING("cat_lang") },
                     {
                         type: "QuestionText",
-                        text: L("ace3_lang_q_sentences")
+                        text: this.XSTRING("lang_q_sentences")
                     },
                     {
                         type: "QuestionBooleanText",
                         mandatory: true,
-                        text: L("ace3_lang_sentences_point1"),
+                        text: this.XSTRING("lang_sentences_point1"),
                         field: "lang_write_sentences_point1"
                     },
                     {
                         type: "QuestionBooleanText",
                         mandatory: true,
-                        text: L("ace3_lang_sentences_point2"),
+                        text: this.XSTRING("lang_sentences_point2"),
                         field: "lang_write_sentences_point2"
                     }
                 ]
             },
             {
-                title: L("ace3_title_prefix") + " " + (pagenum++),
+                title: this.XSTRING("title_prefix") + " " + (pagenum++),
                 clinician: true,
                 elements: [
 
                     // Repeating words
-                    { type: "QuestionHeading", text: L("ace3_cat_lang") },
-                    { type: "QuestionText", text: L("ace3_lang_q_repeat") },
+                    { type: "QuestionHeading", text: this.XSTRING("cat_lang") },
+                    { type: "QuestionText", text: this.XSTRING("lang_q_repeat") },
                     {
                         type: "QuestionBooleanText",
                         mandatory: true,
-                        text: L("ace3_lang_repeat_word1"),
+                        text: this.XSTRING("lang_repeat_word1"),
                         field: "lang_repeat_word1"
                     },
                     {
                         type: "QuestionBooleanText",
                         mandatory: true,
-                        text: L("ace3_lang_repeat_word2"),
+                        text: this.XSTRING("lang_repeat_word2"),
                         field: "lang_repeat_word2"
                     },
                     {
                         type: "QuestionBooleanText",
                         mandatory: true,
-                        text: L("ace3_lang_repeat_word3"),
+                        text: this.XSTRING("lang_repeat_word3"),
                         field: "lang_repeat_word3"
                     },
                     {
                         type: "QuestionBooleanText",
                         mandatory: true,
-                        text: L("ace3_lang_repeat_word4"),
+                        text: this.XSTRING("lang_repeat_word4"),
                         field: "lang_repeat_word4"
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_lang_instruction_repeat"),
+                        text: this.XSTRING("lang_instruction_repeat"),
                         italic: true
                     },
 
                     // Repeating sentences
-                    { type: "QuestionHeading", text: L("ace3_cat_lang") },
-                    { type: "QuestionText", text: L("ace3_lang_q_repeat") },
+                    { type: "QuestionHeading", text: this.XSTRING("cat_lang") },
+                    { type: "QuestionText", text: this.XSTRING("lang_q_repeat") },
                     {
                         type: "QuestionBooleanText",
                         mandatory: true,
-                        text: L("ace3_lang_sentence1"),
+                        text: this.XSTRING("lang_sentence1"),
                         field: "lang_repeat_sentence1"
                     },
                     {
                         type: "QuestionBooleanText",
                         mandatory: true,
-                        text: L("ace3_lang_sentence2"),
+                        text: this.XSTRING("lang_sentence2"),
                         field: "lang_repeat_sentence2"
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_lang_instruction_sentences_1"),
+                        text: this.XSTRING("lang_instruction_sentences_1"),
                         italic: true
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_lang_instruction_sentences_2"),
+                        text: this.XSTRING("lang_instruction_sentences_2"),
                         italic: true
                     },
 
                     // Preparation for clinician for pictures
                     {
                         type: "QuestionHeading",
-                        text: L("ace3_advance_warning_1"),
+                        text: this.XSTRING("advance_warning_1"),
                         bold: true
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_advance_warning_2"),
+                        text: this.XSTRING("advance_warning_2"),
                         italic: true
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_advance_warning_3"),
+                        text: this.XSTRING("advance_warning_3"),
                         italic: true
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_advance_warning_4"),
+                        text: this.XSTRING("advance_warning_4"),
                         italic: true
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_advance_warning_5"),
+                        text: this.XSTRING("advance_warning_5"),
                         italic: true
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_advance_warning_6"),
+                        text: this.XSTRING("advance_warning_6"),
                         italic: true
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_advance_warning_7"),
+                        text: this.XSTRING("advance_warning_7"),
                         italic: true
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_advance_warning_8"),
+                        text: this.XSTRING("advance_warning_8"),
                         italic: true
                     }
                 ]
             },
             {
-                title: L("ace3_title_prefix") + " " + (pagenum++),
+                title: this.XSTRING("title_prefix") + " " + (pagenum++),
                 clinicianAssisted: true,
                 elements: [
                     // Naming pictures
-                    { type: "QuestionHeading", text: L("ace3_cat_lang") },
+                    { type: "QuestionHeading", text: this.XSTRING("cat_lang") },
                     {
                         type: "QuestionText",
-                        text: L("ace3_lang_q_identify_pic")
+                        text: this.XSTRING("lang_q_identify_pic")
                     },
                     {
                         type: "ContainerTable",
@@ -1282,95 +1283,95 @@ lang.extendPrototype(Ace3, {
                         ]
                     },
                     // Choosing pictures by concept
-                    { type: "QuestionHeading", text: L("ace3_cat_lang") },
+                    { type: "QuestionHeading", text: this.XSTRING("cat_lang") },
                     {
                         type: "QuestionText",
-                        text: L("ace3_lang_q_identify_concept")
+                        text: this.XSTRING("lang_q_identify_concept")
                     },
                     {
                         type: "QuestionBooleanText",
                         mandatory: true,
-                        text: L("ace3_lang_concept1"),
+                        text: this.XSTRING("lang_concept1"),
                         field: "lang_identify_concept1"
                     },
                     {
                         type: "QuestionBooleanText",
                         mandatory: true,
-                        text: L("ace3_lang_concept2"),
+                        text: this.XSTRING("lang_concept2"),
                         field: "lang_identify_concept2"
                     },
                     {
                         type: "QuestionBooleanText",
                         mandatory: true,
-                        text: L("ace3_lang_concept3"),
+                        text: this.XSTRING("lang_concept3"),
                         field: "lang_identify_concept3"
                     },
                     {
                         type: "QuestionBooleanText",
                         mandatory: true,
-                        text: L("ace3_lang_concept4"),
+                        text: this.XSTRING("lang_concept4"),
                         field: "lang_identify_concept4"
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_lang_instruction_identify_concept"),
+                        text: this.XSTRING("lang_instruction_identify_concept"),
                         italic: true
                     }
                 ]
             },
             {
-                title: L("ace3_title_prefix") + " " + (pagenum++),
+                title: this.XSTRING("title_prefix") + " " + (pagenum++),
                 clinicianAssisted: true,
                 elements: [
                     // Reading irregular words aloud
-                    { type: "QuestionHeading", text: L("ace3_cat_lang") },
+                    { type: "QuestionHeading", text: this.XSTRING("cat_lang") },
                     {
                         type: "QuestionText",
-                        text: L("ace3_lang_q_read_aloud")
+                        text: this.XSTRING("lang_q_read_aloud")
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_lang_read_aloud_words"),
+                        text: this.XSTRING("lang_read_aloud_words"),
                         bold: true,
                         big: true
                     },
                     {
                         type: "QuestionBooleanText",
                         mandatory: true,
-                        text: L("ace3_lang_read_aloud_all_correct"),
+                        text: this.XSTRING("lang_read_aloud_all_correct"),
                         field: "lang_read_words_aloud"
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_lang_instruction_read_aloud"),
+                        text: this.XSTRING("lang_instruction_read_aloud"),
                         italic: true
                     }
                 ]
             },
             {
-                title: L("ace3_title_prefix") + " " + (pagenum++),
+                title: this.XSTRING("title_prefix") + " " + (pagenum++),
                 clinicianAssisted: true,
                 elements: [
                     // Copy infinity
-                    { type: "QuestionHeading", text: L("ace3_cat_vsp") },
-                    { type: "QuestionText", text: L("ace3_vsp_q_infinity") },
+                    { type: "QuestionHeading", text: this.XSTRING("cat_vsp") },
+                    { type: "QuestionText", text: this.XSTRING("vsp_q_infinity") },
                     { type: "QuestionImage", image: IMAGE_INFINITY },
                     {
                         type: "QuestionBooleanText",
                         mandatory: true,
-                        text: L("ace3_vsp_infinity_correct"),
+                        text: this.XSTRING("vsp_infinity_correct"),
                         field: "vsp_copy_infinity"
                     }
                 ]
             },
             {
-                title: L("ace3_title_prefix") + " " + (pagenum++),
+                title: this.XSTRING("title_prefix") + " " + (pagenum++),
                 clinicianAssisted: true,
                 elements: [
                     // Copy cube
-                    { type: "QuestionText", text: L("ace3_vsp_q_cube") },
+                    { type: "QuestionText", text: this.XSTRING("vsp_q_cube") },
                     { type: "QuestionImage", image: IMAGE_CUBE },
-                    { type: "QuestionText", text: L("ace3_vsp_score_cube") },
+                    { type: "QuestionText", text: this.XSTRING("vsp_score_cube") },
                     {
                         type: "QuestionMCQ",
                         mandatory: true,
@@ -1386,19 +1387,19 @@ lang.extendPrototype(Ace3, {
                 ]
             },
             {
-                title: L("ace3_title_prefix") + " " + (pagenum++),
+                title: this.XSTRING("title_prefix") + " " + (pagenum++),
                 clinician: true,
                 elements: [
                     // Draw clock
-                    { type: "QuestionText", text: L("ace3_vsp_q_clock") },
+                    { type: "QuestionText", text: this.XSTRING("vsp_q_clock") },
                     {
                         type: "QuestionText",
-                        text: L("ace3_vsp_instruction_clock"),
+                        text: this.XSTRING("vsp_instruction_clock"),
                         italic: true
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_vsp_score_clock")
+                        text: this.XSTRING("vsp_score_clock")
                     },
                     {
                         type: "QuestionMCQ",
@@ -1418,12 +1419,12 @@ lang.extendPrototype(Ace3, {
                 ]
             },
             {
-                title: L("ace3_title_prefix") + " " + (pagenum++),
+                title: this.XSTRING("title_prefix") + " " + (pagenum++),
                 clinicianAssisted: true,
                 elements: [
                     // Count the dots
-                    { type: "QuestionHeading", text: L("ace3_cat_vsp") },
-                    { type: "QuestionText", text: L("ace3_vsp_q_dots") },
+                    { type: "QuestionHeading", text: this.XSTRING("cat_vsp") },
+                    { type: "QuestionText", text: this.XSTRING("vsp_q_dots") },
                     {
                         type: "ContainerTable",
                         columns: 2,
@@ -1457,12 +1458,12 @@ lang.extendPrototype(Ace3, {
                 ]
             },
             {
-                title: L("ace3_title_prefix") + " " + (pagenum++),
+                title: this.XSTRING("title_prefix") + " " + (pagenum++),
                 clinicianAssisted: true,
                 elements: [
                     // Identify the badly-printed letters
-                    { type: "QuestionHeading", text: L("ace3_cat_vsp") },
-                    { type: "QuestionText", text: L("ace3_vsp_q_letters") },
+                    { type: "QuestionHeading", text: this.XSTRING("cat_vsp") },
+                    { type: "QuestionText", text: this.XSTRING("vsp_q_letters") },
                     {
                         type: "ContainerTable",
                         columns: 2,
@@ -1496,14 +1497,14 @@ lang.extendPrototype(Ace3, {
                 ]
             },
             {
-                title: L("ace3_title_prefix") + " " + (pagenum++),
+                title: this.XSTRING("title_prefix") + " " + (pagenum++),
                 clinician: true,
                 elements: [
                     // Recall the address
-                    { type: "QuestionHeading", text: L("ace3_cat_mem") },
+                    { type: "QuestionHeading", text: this.XSTRING("cat_mem") },
                     {
                         type: "QuestionText",
-                        text: L("ace3_mem_q_recall_address")
+                        text: this.XSTRING("mem_q_recall_address")
                     },
                     {
                         type: "ContainerVertical",
@@ -1514,13 +1515,13 @@ lang.extendPrototype(Ace3, {
                                     {
                                         type: "QuestionBooleanText",
                                         mandatory: true,
-                                        text: L("ace3_address_1"),
+                                        text: this.XSTRING("address_1"),
                                         field: "mem_recall_address1"
                                     },
                                     {
                                         type: "QuestionBooleanText",
                                         mandatory: true,
-                                        text: L("ace3_address_2"),
+                                        text: this.XSTRING("address_2"),
                                         field: "mem_recall_address2"
                                     }
                                 ]
@@ -1531,19 +1532,19 @@ lang.extendPrototype(Ace3, {
                                     {
                                         type: "QuestionBooleanText",
                                         mandatory: true,
-                                        text: L("ace3_address_3"),
+                                        text: this.XSTRING("address_3"),
                                         field: "mem_recall_address3"
                                     },
                                     {
                                         type: "QuestionBooleanText",
                                         mandatory: true,
-                                        text: L("ace3_address_4"),
+                                        text: this.XSTRING("address_4"),
                                         field: "mem_recall_address4"
                                     },
                                     {
                                         type: "QuestionBooleanText",
                                         mandatory: true,
-                                        text: L("ace3_address_5"),
+                                        text: this.XSTRING("address_5"),
                                         field: "mem_recall_address5"
                                     }
                                 ]
@@ -1551,13 +1552,13 @@ lang.extendPrototype(Ace3, {
                             {
                                 type: "QuestionBooleanText",
                                 mandatory: true,
-                                text: L("ace3_address_6"),
+                                text: this.XSTRING("address_6"),
                                 field: "mem_recall_address6"
                             },
                             {
                                 type: "QuestionBooleanText",
                                 mandatory: true,
-                                text: L("ace3_address_7"),
+                                text: this.XSTRING("address_7"),
                                 field: "mem_recall_address7"
                             }
                         ]
@@ -1566,12 +1567,12 @@ lang.extendPrototype(Ace3, {
             },
             {
                 // Recognize bits you didn't recall
-                title: L("ace3_title_prefix") + " " + (pagenum++),
+                title: this.XSTRING("title_prefix") + " " + (pagenum++),
                 onTheFly: true,
                 pageTag: MEM_RECOGNIZE
             },
             {
-                title: L("ace3_title_prefix") + " " + (pagenum++),
+                title: this.XSTRING("title_prefix") + " " + (pagenum++),
                 clinician: true,
                 elements: [
                     {
@@ -1590,22 +1591,22 @@ lang.extendPrototype(Ace3, {
                 ]
             },
             {
-                title: L("ace3_title_prefix") + " " + (pagenum++),
+                title: this.XSTRING("title_prefix") + " " + (pagenum++),
                 clinician: true,
                 elements: [
                     // Take picture #1 of piece of paper
                     {
                         type: "QuestionText",
-                        text: L("ace3_picture1_q"),
+                        text: this.XSTRING("picture1_q"),
                         bold: true
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_picture_instruction1")
+                        text: this.XSTRING("picture_instruction1")
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_picture_instruction2")
+                        text: this.XSTRING("picture_instruction2")
                     },
                     {
                         type: "QuestionPhoto",
@@ -1616,22 +1617,22 @@ lang.extendPrototype(Ace3, {
                 ]
             },
             {
-                title: L("ace3_title_prefix") + " " + (pagenum++),
+                title: this.XSTRING("title_prefix") + " " + (pagenum++),
                 clinician: true,
                 elements: [
                     // Take picture #2 of piece of paper
                     {
                         type: "QuestionText",
-                        text: L("ace3_picture2_q"),
+                        text: this.XSTRING("picture2_q"),
                         bold: true
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_picture_instruction1")
+                        text: this.XSTRING("picture_instruction1")
                     },
                     {
                         type: "QuestionText",
-                        text: L("ace3_picture_instruction2")
+                        text: this.XSTRING("picture_instruction2")
                     },
                     {
                         type: "QuestionPhoto",
@@ -1653,10 +1654,11 @@ lang.extendPrototype(Ace3, {
                 self.defaultFinishedFn(result, editing_time_s);
                 questionnaire = null; // for garbage collection, since we have closures referring to questionnaire
             },
+            /* jshint unused:true */
             fnMakePageOnTheFly: function (currentPage, pageTag) {
                 var elements = [
                         // Recognize the address
-                        { type: "QuestionHeading", text: L("ace3_cat_mem") }
+                        { type: "QuestionHeading", text: this.XSTRING("cat_mem") }
                     ];
                 if (pageTag !== MEM_RECOGNIZE) {
                     throw new Error("Ace3/fnMakePageOnTheFly: called for " +
@@ -1672,14 +1674,14 @@ lang.extendPrototype(Ace3, {
                     elements.push(
                         {
                             type: "QuestionText",
-                            text: L("ace3_no_need_for_extra_recall")
+                            text: this.XSTRING("no_need_for_extra_recall")
                         }
                     );
                 } else {
                     elements.push(
                         {
                             type: "QuestionText",
-                            text: L("ace3_mem_q_recognize_address")
+                            text: this.XSTRING("mem_q_recognize_address")
                         }
                     );
                     if (!self.mem_recall_address1 ||
@@ -1691,9 +1693,9 @@ lang.extendPrototype(Ace3, {
                             showInstruction: false,
                             field: "mem_recognize_address1",
                             options: [
-                                new KeyValuePair(L("ace3_mem_recall_option1_line1"), 0),
-                                new KeyValuePair(L("ace3_mem_recall_option2_line1"), 1),
-                                new KeyValuePair(L("ace3_mem_recall_option3_line1"), 0)
+                                new KeyValuePair(this.XSTRING("mem_recall_option1_line1"), 0),
+                                new KeyValuePair(this.XSTRING("mem_recall_option2_line1"), 1),
+                                new KeyValuePair(this.XSTRING("mem_recall_option3_line1"), 0)
                             ]
                         });
                     }
@@ -1705,9 +1707,9 @@ lang.extendPrototype(Ace3, {
                             showInstruction: false,
                             field: "mem_recognize_address2",
                             options: [
-                                new KeyValuePair(L("ace3_mem_recall_option1_line2"), 0),
-                                new KeyValuePair(L("ace3_mem_recall_option2_line2"), 1),
-                                new KeyValuePair(L("ace3_mem_recall_option3_line2"), 0)
+                                new KeyValuePair(this.XSTRING("mem_recall_option1_line2"), 0),
+                                new KeyValuePair(this.XSTRING("mem_recall_option2_line2"), 1),
+                                new KeyValuePair(this.XSTRING("mem_recall_option3_line2"), 0)
                             ]
                         });
                     }
@@ -1719,9 +1721,9 @@ lang.extendPrototype(Ace3, {
                             showInstruction: false,
                             field: "mem_recognize_address3",
                             options: [
-                                new KeyValuePair(L("ace3_mem_recall_option1_line3"), 0),
-                                new KeyValuePair(L("ace3_mem_recall_option2_line3"), 0),
-                                new KeyValuePair(L("ace3_mem_recall_option3_line3"), 1)
+                                new KeyValuePair(this.XSTRING("mem_recall_option1_line3"), 0),
+                                new KeyValuePair(this.XSTRING("mem_recall_option2_line3"), 0),
+                                new KeyValuePair(this.XSTRING("mem_recall_option3_line3"), 1)
                             ]
                         });
                     }
@@ -1732,9 +1734,9 @@ lang.extendPrototype(Ace3, {
                             showInstruction: false,
                             field: "mem_recognize_address4",
                             options: [
-                                new KeyValuePair(L("ace3_mem_recall_option1_line4"), 0),
-                                new KeyValuePair(L("ace3_mem_recall_option2_line4"), 1),
-                                new KeyValuePair(L("ace3_mem_recall_option3_line4"), 0)
+                                new KeyValuePair(this.XSTRING("mem_recall_option1_line4"), 0),
+                                new KeyValuePair(this.XSTRING("mem_recall_option2_line4"), 1),
+                                new KeyValuePair(this.XSTRING("mem_recall_option3_line4"), 0)
                             ]
                         });
                     }
@@ -1746,19 +1748,20 @@ lang.extendPrototype(Ace3, {
                             showInstruction: false,
                             field: "mem_recognize_address5",
                             options: [
-                                new KeyValuePair(L("ace3_mem_recall_option1_line5"), 1),
-                                new KeyValuePair(L("ace3_mem_recall_option2_line5"), 0),
-                                new KeyValuePair(L("ace3_mem_recall_option3_line5"), 0)
+                                new KeyValuePair(this.XSTRING("mem_recall_option1_line5"), 1),
+                                new KeyValuePair(this.XSTRING("mem_recall_option2_line5"), 0),
+                                new KeyValuePair(this.XSTRING("mem_recall_option3_line5"), 0)
                             ]
                         });
                     }
                 }
                 return {
-                    title: L("ace3_title_prefix") + " 15", // magic number: memory page number
+                    title: this.XSTRING("title_prefix") + " 15", // magic number: memory page number
                     clinician: true,
                     elements: elements
                 };
             },
+            /* jshint unused:true */
             fnShowNext: function (currentPage, pageTag) {
                 if (pageTag === LANG_COMMANDS_SENTENCES) {
                     questionnaire.setMandatoryByTag(

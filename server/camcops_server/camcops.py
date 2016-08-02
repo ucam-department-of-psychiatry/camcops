@@ -616,9 +616,9 @@ def export_descriptions_comments() -> None:
     user's choice."""
     filename = ask_user("Output HTML file",
                         "camcops_table_descriptions.html")
-    include_views = ask_user(
+    include_views = bool(ask_user(
         "Include views (leave blank for no, anything else for yes)? "
-    )
+    ))
     with open(filename, 'wb') as file:
         webview.write_descriptions_comments(file, include_views)
     print("Done.")

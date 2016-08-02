@@ -22,7 +22,8 @@
 
 /*jslint node: true, newcap: true, nomen: true, plusplus: true, unparam: true, continue:true */
 "use strict";
-/*global Titanium, L */
+/*global L */
+/* jshint -W100 */
 
 var DBCONSTANTS = require('common/DBCONSTANTS'),
     dbcommon = require('lib/dbcommon'),
@@ -57,7 +58,6 @@ lang.extendPrototype(Pswq, {
 
     // TASK CLASS FIELD OVERRIDES (USED BY BaseTask)
 
-    _extrastringTaskname: "pswq",
     isTaskCrippled: function () {
         return !this.extraStringsPresent();
     },

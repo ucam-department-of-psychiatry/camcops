@@ -1568,7 +1568,7 @@ def view_audit_trail(session: Session, form: cgi.FieldStorage) -> str:
             when_access_utc
             , source
             , remote_addr
-            , user
+            , user_id
             , table_name
             , server_pk
             , {details}
@@ -1915,7 +1915,7 @@ def introspect(session: Session, form: cgi.FieldStorage) -> str:
         lexer = pygments.lexers.web.JavascriptLexer()
     else:
         lexer = pygments.lexers.get_lexer_for_filename(fullpath)
-    formatter = pygments.formatters.get_formatter_by_name('HtmlFormatter')
+    formatter = pygments.formatters.HtmlFormatter()
     try:
         with codecs.open(fullpath, "r", "utf8") as f:
             code = f.read()
@@ -2536,7 +2536,7 @@ def forcibly_finalize(session: Session, form: cgi.FieldStorage) -> str:
         tables.append(cls.tablename)
         tables.extend(cls.get_extra_table_names())
     for t in tables:
-        cc_db.forcibly_preserve_client_table(t, device_id, pls.session.user)
+        cc_db.forcibly_preserve_client_table(t, device_id, pls.session.user_id)
     # Field names are different in server-side tables, so they need special
     # handling:
     forcibly_preserve_special_notes(device_id)
@@ -2890,7 +2890,7 @@ def main_http_processor(env: Dict[str, str]) \
     if pls.session.user_must_change_password():
         if action != ACTION.CHANGE_PASSWORD:
             return cc_user.enter_new_password(
-                pls.session, pls.session.user,
+                pls.session, pls.session.username,
                 as_manager=False, because_password_expired=True
             )
     elif pls.session.user_must_agree_terms() and action != ACTION.AGREE_TERMS:
