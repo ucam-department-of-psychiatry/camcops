@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="mast">
+    <!-- Michigan Alcohol Screening Test (MAST) -->
+
+    <string name="title">Michigan Alcoholism Screening Test (MAST)</string>
+    <string name="stem">Please choose either Yes or No for each item as it applies to you.</string>
+    <string name="q1">1. Do you feel you are a normal drinker? (By normal we mean you drink less than or as much as most other people.)</string>
+    <string name="q2">2. Have you ever awakened the morning after some drinking the night before and found that you could not remember a part of the evening?</string>
+    <string name="q3">3. Does your wife, husband, a parent, or other near relative ever worry or complain about your drinking?</string>
+    <string name="q4">4. Can you stop drinking without a struggle after one or two drinks?</string>
+    <string name="q5">5. Do you ever feel guilty about your drinking?</string>
+    <string name="q6">6. Do friends or relatives think you are a normal drinker?</string>
+    <string name="q7">7. Are you able to stop drinking when you want to?</string>
+    <string name="q8">8. Have you ever attended a meeting of Alcoholics Anonymous (AA)?</string>
+    <string name="q9">9. Have you gotten into physical fights when drinking?</string>
+    <string name="q10">10. Has your drinking ever created problems between you and your wife, husband, a parent, or other relative?</string>
+    <string name="q11">11. Has your wife, husband (or other family members) ever gone to anyone for help about your drinking?</string>
+    <string name="q12">12. Have you ever lost friends because of drinking?</string>
+    <string name="q13">13. Have you ever gotten into trouble at work or school because of drinking?</string>
+    <string name="q14">14. Have you ever lost a job because of drinking?</string>
+    <string name="q15">15. Have you ever neglected your obligations, your family or your work for two or more days in a row because you were drinking?</string>
+    <string name="q16">16. Do you drink before noon fairly often?</string>
+    <string name="q17">17. Have you ever been told you have liver trouble? Cirrhosis?</string>
+    <string name="q18">18. After heavy drinking have you ever had Delirium Tremens (D.T.s) or severe shaking, or heard voices or seen things that really were not there?</string>
+    <string name="q19">19. Have you ever gone to anyone for help about your drinking?</string>
+    <string name="q20">20. Have you ever been in a hospital because of drinking?</string>
+    <string name="q21">21. Have you ever been a patient in a psychiatric hospital or on a psychiatric ward of a general hospital where drinking was part of the problem that resulted in hospitalization?</string>
+    <string name="q22">22. Have you ever been seen at a psychiatric or mental health clinic, or gone to any doctor, social worker, or clergyman for help with an emotional problem, where drinking was part of the problem?</string>
+    <string name="q23">23. Have you ever been arrested for drunk driving, driving while intoxicated, or driving under the influence of alcoholic beverages?</string>
+    <string name="q24">24. Have you ever been arrested, or taken into custody even for a few hours, because of other drunk behavior?</string>
+    <string name="q1_s">Q1 (normal drinker):</string>
+    <string name="q2_s">Q2 (blackout):</string>
+    <string name="q3_s">Q3 (family worry):</string>
+    <string name="q4_s">Q4 (stop bout without struggle):</string>
+    <string name="q5_s">Q5 (guilty):</string>
+    <string name="q6_s">Q6 (family think normal):</string>
+    <string name="q7_s">Q7 (stop when want):</string>
+    <string name="q8_s">Q8 (attended AA):</string>
+    <string name="q9_s">Q9 (fights):</string>
+    <string name="q10_s">Q10 (problems with family):</string>
+    <string name="q11_s">Q11 (family sought help):</string>
+    <string name="q12_s">Q12 (lost friends):</string>
+    <string name="q13_s">Q13 (trouble at work):</string>
+    <string name="q14_s">Q14 (lost job):</string>
+    <string name="q15_s">Q15 (neglected obligations):</string>
+    <string name="q16_s">Q16 (drink before noon):</string>
+    <string name="q17_s">Q17 (liver trouble):</string>
+    <string name="q18_s">Q18 (DTs):</string>
+    <string name="q19_s">Q19 (sought help):</string>
+    <string name="q20_s">Q20 (hospitalised):</string>
+    <string name="q21_s">Q21 (psychiatric admission):</string>
+    <string name="q22_s">Q22 (professional help for emotional problem):</string>
+    <string name="q23_s">Q23 (drink driving):</string>
+    <string name="q24_s">Q24 (other arrest):</string>
+    <string name="scores">scores</string>
+    <string name="exceeds_threshold">Exceeds Ross threshold (13 or more):</string>
+
+  </task>
+</resources>

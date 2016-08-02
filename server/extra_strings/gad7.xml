@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="gad7">
+    <!-- Generalized Anxiety Disorder Assessment (GAD-7) -->
+
+    <string name="title">GAD-7: questions</string>
+    <string name="stem">Over the last 2 weeks, how often have you been bothered by any of the following problems?</string>
+    <string name="q1">1. Feeling nervous, anxious or on edge</string>
+    <string name="q2">2. Not being able to stop or control worrying</string>
+    <string name="q3">3. Worrying too much about different things</string>
+    <string name="q4">4. Trouble relaxing</string>
+    <string name="q5">5. Being so restless that it is hard to sit still</string>
+    <string name="q6">6. Becoming easily annoyed or irritable</string>
+    <string name="q7">7. Feeling afraid as if something awful might happen</string>
+    <string name="a0">Not at all</string>
+    <string name="a1">Several days</string>
+    <string name="a2">More than half the days</string>
+    <string name="a3">Nearly every day</string>
+    <string name="q1_s">Q1 (nervous):</string>
+    <string name="q2_s">Q2 (uncontrolled worry):</string>
+    <string name="q3_s">Q3 (worrying too much):</string>
+    <string name="q4_s">Q4 (can’t relax):</string>
+    <string name="q5_s">Q5 (restless):</string>
+    <string name="q6_s">Q6 (irritable):</string>
+    <string name="q7_s">Q7 (afraid):</string>
+    <string name="anxiety_severity">GAD7 anxiety severity:</string>
+
+  </task>
+</resources>

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="honosca">
+    <!-- Health of the Nation Outcome Scales, Children and Adolescents (HoNOSCA) -->
+
+<!--
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Health of the Nation Outcome Scales (HoNOS, HoNOS 65+, HoNOSCA)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Copyright © Royal College of Psychiatrists.
+Used here with permission.
+-->
+
+    <string name="firstpage_title">HoNOSCA: period to be rated</string>
+    <string name="section_a_title">HoNOSCA: section A</string>
+    <string name="section_a_instructions">1) Rate each scale in order from 1 to 13 followed by the additional Scales 14 – 15 if required.\n2) Do not include information rated in an earlier item.\n3) Rate the MOST SEVERE problem that occurred during the period rated.\n4) All scales follow the format:\n0 = no problem\n1 = minor problem requiring no action\n2 = mild problem but definitely present\n3 = moderately severe problem\n4 = severe to very severe problem</string>
+    <string name="section_a_title_prefix">HoNOSCA: section A, Q</string>
+    <string name="section_b_title_prefix">HoNOSCA: section B, Q</string>
+    <string name="q1">1. Problems with disruptive, antisocial or aggressive behaviour\n\n• Include behaviour associated with any disorder, such as hyperkinetic disorder, depression, autism, drugs or alcohol.\n• Include physical or verbal aggression (e.g. pushing, hitting, vandalism, teasing) , or physical or sexual abuse of other children.\n• Include antisocial behaviour (e.g. thieving, lying, cheating) or oppositional behaviour (e.g. defiance, opposition to authority or tantrums).\n\nDo not include overactivity (rated at scale 2), truancy (rated at scale 13), self-harm (rated at scale 3).</string>
+    <string name="q1_s">Q1 (disruptive/antisocial/aggressive):</string>
+    <string name="q1_option0">0 – No problems of this kind during the period rated.</string>
+    <string name="q1_option1">1 – Minor quarrelling, demanding behaviour, undue irritability, lying etc.</string>
+    <string name="q1_option2">2 – Mild but definite disruptive or antisocial behaviour, lesser damage to property, or aggression, or defiant behaviour.</string>
+    <string name="q1_option3">3 – Moderately severe aggressive or antisocial behaviour such as fighting or persistently threatening or very oppositional or more serious destruction to property or moderate delinquent acts.</string>
+    <string name="q1_option4">4 – Disruptive in almost all activities, or at least one serious physical attack on others or animals, or serious destruction to property.</string>
+    <string name="q2">2. Problems with overactivity, attention or concentration\n\n• Include overactive behaviour associated with any cause such as hyperkinetic disorder, mania or arising from drugs.\n• Include problems with restlessness, fidgeting, inattention, or concentration due to any cause, including depression.</string>
+    <string name="q2_s">Q2 (overactive/inattentive):</string>
+    <string name="q2_option0">0 – No problems of this kind during the period rated.</string>
+    <string name="q2_option1">1 – Slight overactivity or minor restlessness etc.</string>
+    <string name="q2_option2">2 – Mild but definite overactivity and/or attentional problems but these can usually be controlled.</string>
+    <string name="q2_option3">3 – Moderately severe overactivity and/or attentional problems that are sometimes uncontrollable.</string>
+    <string name="q2_option4">4 – Severe overactivity and/or attentional problems that are present in most activities and almost never controllable.</string>
+    <string name="q3">3. Non-accidental self injury\n\n• Include self harm such as hitting self and self cutting.\n• Include suicide attempts, overdoses, hanging, drowning etc.\n• Do not include scratching, picking as a direct result of a physical illness (rated at scale 6).\n• Do not include accidental self injury due e.g. to severe learning or physical disability (rated at scale 6), illness or injury as a direct consequence of drug/alcohol use (rated at scale 6).</string>
+    <string name="q3_s">Q3 (self-harm):</string>
+    <string name="q3_option0">0 – No problem of this kind during the period rated.</string>
+    <string name="q3_option1">1 – Occasional thoughts about death, or of self harm not leading to injury. No self harm or suicidal thoughts.</string>
+    <string name="q3_option2">2 – Non-hazardous self-harm, such as wrist scratching, whether or not associated with suicidal thoughts.</string>
+    <string name="q3_option3">3 – Moderately severe suicidal intent (including preparatory acts e.g. collecting tablets) or moderate non-hazardous self harm (e.g. small overdose).</string>
+    <string name="q3_option4">4 – Serious suicidal attempt (e.g serious overdose), or serious deliberate self injury.</string>
+    <string name="q4">4. Problems with alcohol, substance/solvent misuse\n\nInclude problems with alcohol substance/solvent misuse taking into account current age and societal norms.\nDo not include aggressive/disruptive behaviour due to alcohol or drug use (rated at scale 1).\nDo not include physical illness or disability due to alcohol or drug use (rated at scale 6).</string>
+    <string name="q4_s">Q4 (alcohol/drug misuse):</string>
+    <string name="q4_option0">0 – No problems of this kind during the period rated.</string>
+    <string name="q4_option1">1 – Minor alcohol or drug use, within age norms.</string>
+    <string name="q4_option2">2 – Mildly excessive alcohol or drug use.</string>
+    <string name="q4_option3">3 – Moderately severe drug or alcohol problems significantly out of keeping with age norms.</string>
+    <string name="q4_option4">4 – Severe drug or alcohol problems leading to dependency or incapacity.</string>
+    <string name="q5">5. Problems with scholastic or language skills\n\n• Include problems in reading, spelling, arithmetic, speech or language associated with any disorder or problem, such as a specific developmental learning problem, or physical disability such as a hearing problem.\n• Children with generalised learning disability should not be included unless their functioning is below the expected level.\n• Include reduced scholastic performance associated with emotional or behavioural problems.\n• Do not include temporary problems resulting purely from inadequate education.</string>
+    <string name="q5_s">Q5 (scholastic/language problems):</string>
+    <string name="q5_option0">0 – No problems of this kind during the period rated.</string>
+    <string name="q5_option1">1 – Minor impairment within the normal range of variation.</string>
+    <string name="q5_option2">2 – Mild but definite impairment of clinical significance.</string>
+    <string name="q5_option3">3 – Moderately severe problems, below the level expected on the basis of mental age, past performance or physical disability.</string>
+    <string name="q5_option4">4 – Severe impairment much below the level expected on the basis of mental age, past performance or physical disability.</string>
+    <string name="q6">6. Physical illness or disability problems\n\n• Include physical illness or disability problems that limit or prevent movement, impair sight or hearing, or otherwise interfere with personal functioning.\n• Include movement disorder, side effects from medication, physical effects from drug/alcohol use, or physical complications of psychological disorders such as severe weight loss.\n• Include self injury due to severe learning or physical disability or as a consequence of self-injury such as head banging.\n• Do not include somatic complaints with no organic basis, rated at scale 8.</string>
+    <string name="q6_s">Q6 (physical illness/disability):</string>
+    <string name="q6_option0">0 – No incapacity as a result of physical health problem during the period rated.</string>
+    <string name="q6_option1">1 – Slight incapacity as a result of a health problem during the period (e.g. cold, non serious fall etc.).</string>
+    <string name="q6_option2">2 – Physical health problem imposes mild but definite functional restriction.</string>
+    <string name="q6_option3">3 – Moderate degree of restriction on activity due to physical health problem.</string>
+    <string name="q6_option4">4 – Complete or severe incapacity due to physical health problems.</string>
+    <string name="q7">7. Problems associated with hallucinations, delusions or abnormal perceptions\n\n• Include hallucinations, delusions or abnormal perceptions irrespective of diagnosis.\n• Include odd and bizarre behaviour associated with hallucinations and delusions.\n• Include problems with other abnormal perceptions such as illusions or pseudo-hallucinations, or over-valued ideas such as distorted body image, suspicious or paranoid thoughts.\n• Do not include disruptive or aggressive behaviour associated with hallucinations or delusions, rated at scale 1.\n• Do not include overactive behaviour associated with hallucinations or delusions, rated at scale 2.</string>
+    <string name="q7_s">Q7 (delusions/hallucinations):</string>
+    <string name="q7_option0">0 – No evidence of abnormal thoughts or perceptions during the period rated.</string>
+    <string name="q7_option1">1 – Somewhat odd or eccentric beliefs not in keeping with cultural norms.</string>
+    <string name="q7_option2">2 – Abnormal thoughts or perceptions are present (e.g. paranoid ideas, illusions or body image disturbance) but there is little distress or manifestation in bizarre behaviour, i.e. clinically present but mild.</string>
+    <string name="q7_option3">3 – Moderate preoccupation with, abnormal thoughts or perceptions or delusions, hallucinations, causing much distress and/or manifested in obviously bizarre behaviour.</string>
+    <string name="q7_option4">4 – Mental state and behaviour is seriously and adversely affected by delusions or hallucinations or abnormal perceptions, with severe impact on child/adolescent or others.</string>
+    <string name="q8">8. Problems with non-organic somatic symptoms\n\n• Include problems with gastrointestinal symptoms such as non-organic vomiting or cardiovascular symptoms or neurological symptoms or non-organic enuresis or encopresis or sleep problems or chronic fatigue.\n• Do not include movement disorders such as tics (rated at scale 6); physical illnesses that complicate non-organic somatic symptoms (rated at scale 6).</string>
+    <string name="q8_s">Q8 (non-organic somatic symptoms):</string>
+    <string name="q8_option0">0 – No problems of this kind during the period rated.</string>
+    <string name="q8_option1">1 – Slight problems only; such as occasional enuresis, minor sleep problems, headaches or stomach-aches without organic basis.</string>
+    <string name="q8_option2">2 – Mild but definite problem with non-organic somatic symptoms.</string>
+    <string name="q8_option3">3 – Moderately severe, symptoms produce a moderate degree of restriction in some activities.</string>
+    <string name="q8_option4">4 – Very severe or symptoms persist into most activities. The child is seriously or adversely affected.</string>
+    <string name="q9">9. Problems with emotional and related symptoms\n\n• Rate only the most severe clinical problem not considered previously.\n• Include depression, anxiety, worries, fears, phobias, obsessions or compulsions, arising from any clinical condition including eating disorders.\n• Do not include aggressive, destructive or overactive behaviours attributed to fears, phobias, rated at scale 1.\n• Do not include physical complications of psychological disorders, such as severe weight loss, rated at scale 6.\n</string>
+    <string name="q9_s">Q9 (emotional symptoms):</string>
+    <string name="q9_option0">0 – No evidence of depression, anxieties, fears or phobias during the period rated.</string>
+    <string name="q9_option1">1 – Mildly anxious; gloomy; or transient mood changes.</string>
+    <string name="q9_option2">2 – A mild but definite emotional symptom is clinically present but is not preoccupying.</string>
+    <string name="q9_option3">3 – Moderately severe emotional symptoms, which are preoccupying, intrude into some activities and are uncontrollable at least sometimes.</string>
+    <string name="q9_option4">4 – Severe emotional symptoms which intrude into all activities and are nearly always uncontrollable.</string>
+    <string name="q10">10. Problems with peer relationships\n\n• Include problems with school mates and social network.\n• Include problems associated with active or passive withdrawal from social relationships or problems with over-intrusiveness or problems with the ability to form satisfying peer relationships.\n• Include social rejection as a result of aggressive behaviour or bullying.\n• Do not include aggressive behaviour, bullying (rated at scale 1); problems with family or siblings (rated at scale 12).</string>
+    <string name="q10_s">Q10 (peer relationships):</string>
+    <string name="q10_option0">0 – No significant problems during the period rated.</string>
+    <string name="q10_option1">1 – Either transient or slight problems, occasional social withdrawal.</string>
+    <string name="q10_option2">2 – Mild but definite problems in making or sustaining peer relationships. Problems causing distress due to social withdrawal, over-intrusiveness, rejection or being bullied.</string>
+    <string name="q10_option3">3 – Moderate problems due to active or passive withdrawal from social relationships, over-intrusiveness and/or to relationships that provide little or no comfort or support: e.g. as a result of being severely bullied.</string>
+    <string name="q10_option4">4 – Severe social isolation with no friends due to inability to communicate socially and/or withdrawal from social relationships.</string>
+    <string name="q11">11. Problems with self-care and independence\n\n• Rate the overall level of functioning: e.g. problems with basic activities of self-care such as feeding, washing, dressing, toileting, also complex skills such as managing money, travelling independently, shopping etc., taking into account the norm for the child’s chronological age.\n• Include poor levels of functioning arising from lack of motivation, mood or any other disorder.\n• Do not include lack of opportunities for exercising intact abilities and skills, as might occur in an over-restrictive family (rated at scale 12); enuresis and encopresis (rated at scale 8).</string>
+    <string name="q11_s">Q11 (self-care and independence):</string>
+    <string name="q11_option0">0 – No problems during the period rated; good ability to function in all areas.</string>
+    <string name="q11_option1">1 – Minor problems only; e.g. untidy, disorganised.</string>
+    <string name="q11_option2">2 – Self-care adequate, but definite inability to perform one or more complex skills (see above).</string>
+    <string name="q11_option3">3 – Major problems in one or more areas of self-care (eating, washing, dressing) or inability to perform several complex skills.</string>
+    <string name="q11_option4">4 – Severe disability in all or nearly all areas of self care and/or complex skills.</string>
+    <string name="q12">12. Problems with family life and relationships\n\n• Include parent–child and sibling relationship problems. Include relationships with foster parents, social workers/teachers in residential placements. Relationships in the home and with separated parents/siblings should both be included. Parental personality problems, mental illness, marital difficulties should only be rated here if they have an effect on the child.\n• Include problems with emotional abuse such as poor communication, arguments, verbal or physical hostility, criticism and denigration, parental neglect/rejection, over restriction, sexual and/or physical abuse.\n• Include sibling jealousy, physical or coercive sexual abusive by sibling.\n• Include problems with enmeshment and overprotection.\n• Include problems associated with family bereavement leading to re-organisation.\n• Do not include aggressive behaviour by child, rated at scale 1.</string>
+    <string name="q12_s">Q12 (family life/relationships):</string>
+    <string name="q12_option0">0 – No problems during the period rated.</string>
+    <string name="q12_option1">1 – Slight or transient problems.</string>
+    <string name="q12_option2">2 – Mild but definite problem e.g. some episodes of neglect or hostility or enmeshment or overprotection.</string>
+    <string name="q12_option3">3 – Moderate problems e.g. neglect, abuse, hostility. Problems associated with family/carer breakdown or reorganisation.</string>
+    <string name="q12_option4">4 – Serious problems with child feeling or being victimised, abused or seriously neglected by family or carer.</string>
+    <string name="q13">13. Poor school attendance\n\nInclude truancy, school refusal, school withdrawal or suspension for any cause.\nInclude attendance at type of school at the time of rating e.g. hospital school, home tuition etc.\nIf school holiday, rate the last two weeks of the previous term.</string>
+    <string name="q13_s">Q13 (school attendance):</string>
+    <string name="q13_option0">0 – No problems of this kind during the period rated.</string>
+    <string name="q13_option1">1 – Slight problems, e.g. late for two or more lessons.</string>
+    <string name="q13_option2">2 – Definite but mild problems, e.g. missed several lessons because of truancy or refusal to go to school.</string>
+    <string name="q13_option3">3 – Marked problems, absent several days during the period rated.</string>
+    <string name="q13_option4">4 – Severe problems, absent most or all days. Any school suspension, exclusion or expulsion for any cause during the period rated.</string>
+    <string name="section_b_title">HoNOSCA: section B</string>
+    <string name="section_b_instructions">Scales 14 and 15 are concerned with problems for the child, parent or carer relating to lack of information or access to services. These are not direct measures of the child’s mental health but changes here may result in long term benefits for the child.</string>
+    <string name="q14">14. Problems with knowledge or understanding about the nature of the child’s/adolescent’s difficulties (in the previous two weeks)\n\n• Include lack of useful information or understanding available to the child/adolescent, parents or carers.\n• Include lack of explanation about the diagnosis or the cause of the problem or the prognosis.</string>
+    <string name="q14_s">Q14 (problems with knowledge/understanding of child’s problems):</string>
+    <string name="q14_option0">0 – No problems during the period rated. Parents/carers have been adequately informed about the child’s problems.</string>
+    <string name="q14_option1">1 – Slight problems only.</string>
+    <string name="q14_option2">2 – Mild but definite problem.</string>
+    <string name="q14_option3">3 – Moderately severe problems. Parents/carers have very little or incorrect knowledge about the problem which is causing difficulties such as confusion or self blame.</string>
+    <string name="q14_option4">4 – Very severe problem. Parents have no understanding about the nature of their child’s problems.</string>
+    <string name="q15">15. Problems with lack of information about services or management of the child’s/adolescents difficulties\n\n• Include lack of useful information available to the child/adolescent, parents or carers or referrers.\n• Include lack of information about the most appropriate way of providing services to the child such as care arrangements or educational placements or respite care or statementing.</string>
+    <string name="q15_s">Q15 (lack of information about services):</string>
+    <string name="q15_option0">0 – No problems during the period rated. The need for all necessary services has been recognised.</string>
+    <string name="q15_option1">1 – Slight problems only.</string>
+    <string name="q15_option2">2 – Mild but definite problem.</string>
+    <string name="q15_option3">3 – Moderately severe problems. Parents/carers have been given little information about appropriate services or professionals are not sure where a child should be managed.</string>
+    <string name="q15_option4">4 – Very severe problem. Parents have no information about appropriate services or professionals do not know where a child should be managed.</string>
+    <string name="section_a_total">Section A (Q1–13) total:</string>
+    <string name="section_b_total">Section B (Q14–15) total:</string>
+
+    <string name="option9">9 – Not known</string>
+    <string name="period_rated">Period rated</string>
+
+  </task>
+</resources>

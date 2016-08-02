@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="demqol">
+    <!-- Dementia Quality of Life measure, self-report version (DEMQOL) -->
+
+<!--
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+DEMQOL; DEMQOL-Proxy
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Copyright (C) Institute of Psychiatry, King's College London.
+
+Permission granted for reproduction in CamCOPS. Sube Banerjee (author and
+principal investigator) to Rudolf Cardinal, 2015-06-25:
+
+"If this is product/system that is free to use I would have no problem in DEMQOL
+and DEMQOL-Proxy being included.
+1. There is no licence needed or need to register its use.  It is a free to use
+   system but we assert copyright so no-one else does.
+2. There are no costs due for its use.
+3. There is a manual which is available on our website
+   http://www.bsms.ac.uk/research/our-researchers/sube-banerjee/demqol/
+   which also includes the instruments.
+4. The information on scoring is contained in the DEMQOL manual and monograph
+   which are available freely on our website.
+5. You can generate your own electronic format but we would not cede copyright
+   on the instrument."
+
+-->
+
+    <!-- DEMQOL -->
+
+    <string name="instruction1">Read each of the following questions (in bold) verbatim and show the respondent the response card.</string>
+    <string name="instruction2">I would like to ask you about your life. There are no right or wrong answers. Just give the answer that best describes how you have felt in the last week. Don’t worry if some questions appear not to apply to you. We have to ask the same questions of everybody.</string>
+    <string name="instruction3">Before we start we’ll do a practise question; that’s one that doesn’t count.</string>
+    <string name="instruction4">(Show the response card and ask respondent to say or point to the answer)</string>
+    <string name="instruction5">In the last week, how much have you enjoyed watching television?</string>
+    <string name="instruction6">Follow up with a prompt question:</string>
+    <string name="instruction7">Why is that?</string>
+    <string name="instruction8">or</string>
+    <string name="instruction9">Tell me a bit more about that.</string>
+    <string name="instruction10">For all of the questions I’m going to ask you, I want you to think about the last week.</string>
+    <string name="instruction11">First I’m going to ask about your feelings. In the last week, have you felt...</string>
+    <string name="q1">cheerful?</string>
+    <string name="q2">worried or anxious?</string>
+    <string name="q3">that you are enjoying life?</string>
+    <string name="q4">frustrated?</string>
+    <string name="q5">confident?</string>
+    <string name="q6">full of energy?</string>
+    <string name="q7">sad?</string>
+    <string name="q8">lonely?</string>
+    <string name="q9">distressed?</string>
+    <string name="q10">lively?</string>
+    <string name="q11">irritable?</string>
+    <string name="q12">fed-up?</string>
+    <string name="q13">that there are things that you wanted to do but couldn’t?</string>
+    <string name="instruction12">Next, I’m going to ask you about your memory. In the last week, how worried have you been about...</string>
+    <string name="q14">forgetting things that happened recently?</string>
+    <string name="q15">forgetting who people are?</string>
+    <string name="q16">forgetting what day it is?</string>
+    <string name="q17">your thoughts being muddled?</string>
+    <string name="q18">difficulty making decisions?</string>
+    <string name="q19">poor concentration?</string>
+    <string name="instruction13">Now, I’m going to ask you about your everyday life. In the last week, how worried have you been about...</string>
+    <string name="q20">not having enough company?</string>
+    <string name="q21">how you get on with people close to you?</string>
+    <string name="q22">getting the affection that you want?</string>
+    <string name="q23">people not listening to you?</string>
+    <string name="q24">making yourself understood?</string>
+    <string name="q25">getting help when you need it?</string>
+    <string name="q26">getting to the toilet in time?</string>
+    <string name="q27">how you feel in yourself?</string>
+    <string name="q28">your health overall?</string>
+    <string name="instruction14">We’ve already talked about lots of things: your feelings, memory and everyday life. Thinking about all of these things in the last week, how would you rate...</string>
+    <string name="q29">your quality of life overall?</string>
+
+    <!-- These scores are prespecified (1 = a lot, etc.); see demo SPSS analysis;
+    then for some questions, the direction is reversed at the point of scoring -->
+    <string name="a1">a lot</string>
+    <string name="a2">quite a bit</string>
+    <string name="a3">a little</string>
+    <string name="a4">not at all</string>
+    <string name="q29_a1">very good</string>
+    <string name="q29_a2">good</string>
+    <string name="q29_a3">fair</string>
+    <string name="q29_a4">poor</string>
+    <string name="no_response">NO RESPONSE</string>  <!-- coded as -99; different from NULL, meaning no answer recorded by interviewer yet -->
+
+    <!-- DEMQOL-Proxy -->
+
+    <string name="proxy_instruction1">Read each of the following questions (in bold) verbatim and show the respondent the response card.</string>
+    <string name="proxy_instruction2">I would like to ask you about ___ [your relative’s] life, as you are the person who knows him/her best. There are no right or wrong answers. Just give the answer that best describes how ___ [your relative] has felt in the last week. If possible try and give the answer that you think ___ [your relative] would give. Don’t worry if some questions appear not to apply to ___ [your relative]. We have to ask the same questions of everybody.</string>
+    <string name="proxy_instruction3">Before we start we’ll do a practise question; that’s one that doesn’t count.</string>
+    <string name="proxy_instruction4">(Show the response card and ask respondent to say or point to the answer)</string>
+    <string name="proxy_instruction5">In the last week, how much has ___ [your relative] enjoyed watching television?</string>
+    <string name="proxy_instruction6">Follow up with a prompt question:</string>
+    <string name="proxy_instruction7">Why is that?</string>
+    <string name="proxy_instruction8">or</string>
+    <string name="proxy_instruction9">Tell me a bit more about that.</string>
+    <string name="proxy_instruction10">For all of the questions I’m going to ask you, I want you to think about the last week.</string>
+    <string name="proxy_instruction11">First I’m going to ask about ___ [your relative’s] feelings. In the last week, would you say that ___ [your relative ] has felt...</string>
+    <string name="proxy_q1">cheerful?</string>
+    <string name="proxy_q2">worried or anxious?</string>
+    <string name="proxy_q3">frustrated?</string>
+    <string name="proxy_q4">full of energy?</string>
+    <string name="proxy_q5">sad?</string>
+    <string name="proxy_q6">content?</string>
+    <string name="proxy_q7">distressed?</string>
+    <string name="proxy_q8">lively?</string>
+    <string name="proxy_q9">irritable?</string>
+    <string name="proxy_q10">fed-up?</string>
+    <string name="proxy_q11">that he/she has things to look forward to?</string>
+    <string name="proxy_instruction12">Next, I’m going to ask you about ___ [your relative’s] memory. In the last week, how worried would you say ___ [your relative] has been about...</string>
+    <string name="proxy_q12">his/her memory in general?</string>
+    <string name="proxy_q13">forgetting things that happened a long time ago?</string>
+    <string name="proxy_q14">forgetting things that happened recently?</string>
+    <string name="proxy_q15">forgetting people’s names?</string>
+    <string name="proxy_q16">forgetting where he/she is?</string>
+    <string name="proxy_q17">forgetting what day it is?</string>
+    <string name="proxy_q18">his/her thoughts being muddled?</string>
+    <string name="proxy_q19">difficulty making decisions?</string>
+    <string name="proxy_q20">making him/herself understood?</string>
+    <string name="proxy_instruction13">Now, I’m going to ask you about ___ [your relative’s] everyday life. In the last week, how worried would you say ___ [your relative] has been about...</string>
+    <string name="proxy_q21">keeping him/herself clean (e.g. washing and bathing)?</string>
+    <string name="proxy_q22">keeping him/herself looking nice?</string>
+    <string name="proxy_q23">getting what he/she wants from the shops?</string>
+    <string name="proxy_q24">using money to pay for things?</string>
+    <string name="proxy_q25">looking after his/her finances?</string>
+    <string name="proxy_q26">things taking longer than they used to?</string>
+    <string name="proxy_q27">getting in touch with people?</string>
+    <string name="proxy_q28">not having enough company?</string>
+    <string name="proxy_q29">not being able to help other people?</string>
+    <string name="proxy_q30">not playing a useful part in things?</string>
+    <string name="proxy_q31">his/her physical health?</string>
+    <string name="proxy_instruction14">We’ve already talked about lots of things: ___ [your relative’s] feelings, memory and everyday life. Thinking about all of these things in the last week, how would you say ___ [your relative] would rate...</string>
+    <string name="proxy_q32">his/her quality of life overall?</string>
+
+  </task>
+</resources>

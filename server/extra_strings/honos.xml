@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="honos">
+    <!-- Health of the Nation Outcome Scales, working age adults (HoNOS) -->
+
+<!--
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Health of the Nation Outcome Scales (HoNOS, HoNOS 65+, HoNOSCA)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Copyright © Royal College of Psychiatrists.
+Used here with permission.
+-->
+
+    <string name="firstpage_title">HoNOS: period to be rated, instructions</string>
+    <string name="title_prefix">HoNOS: Q</string>
+    <string name="instructions">(a) Rate each scale in order from 1–12.\n(b) Do not include information rated in an earlier item, except for Item 10 which is an overall rating.\n(c) Rate the MOST SEVERE problem that occurred during the period rated.\n(d) All scales follow the format:\n0 = no problem;\n1 = minor problem requiring no action;\n2 = mild problem but definitely present;\n3 = moderately severe problem;\n4 = severe to very severe problem.\n\nRate 9 if not known.</string>
+    <string name="q1">1. Overactive, aggressive, disruptive or agitated behaviour\n\n• Include such behaviour due to any cause (e.g. drugs, alcohol, dementia, psychosis, depression, etc.).\n• Do not include bizarre behaviour rated at Scale 6.</string>
+    <string name="q1_s">Q1 (overactive/aggressive/disruptive/agitated):</string>
+    <string name="q1_option0">0 – No problem of this kind during the period rated.</string>
+    <string name="q1_option1">1 – Irritability, quarrels, restlessness etc. not requiring action.</string>
+    <string name="q1_option2">2 – Includes aggressive gestures, pushing or pestering others; threats or verbal aggression; lesser damage to property (e.g. broken cup, window); marked overactivity or agitation.</string>
+    <string name="q1_option3">3 – Physically aggressive to others or animals (short of rating 4); threatening manner; more serious overactivity or destruction of property.</string>
+    <string name="q1_option4">4 – At least one serious physical attack on others or on animals; destructive of property (e.g. fire-setting); serious intimidation or obscene behaviour.</string>
+    <string name="q2">2. Non-accidental self-injury\n\n• Do not include accidental self-injury (due e.g. to dementia or severe learning disability); the cognitive problem is rated at Scale 4 and the injury at Scale 5.\n• Do not include illness or injury as a direct consequence of drug/alcohol use rated at Scale 3 (e.g. cirrhosis of the liver or injury resulting from drink driving are rated at Scale 5).</string>
+    <string name="q2_s">Q2 (deliberate self-harm):</string>
+    <string name="q2_option0">0 – No problem of this kind during the period rated.</string>
+    <string name="q2_option1">1 – Fleeting thoughts about ending it all but little risk during the period rated; no self-harm.</string>
+    <string name="q2_option2">2 – Mild risk during the period rated; includes non-hazardous self-harm (e.g. wrist-scratching).</string>
+    <string name="q2_option3">3 – Moderate to serious risk of deliberate self-harm during the period rated; includes preparatory acts (e.g. collecting tablets).</string>
+    <string name="q2_option4">4 – Serious suicidal attempt and/or serious deliberate self-injury during the period rated.</string>
+    <string name="q3">3. Problem-drinking or drug-taking\n\n• Do not include aggressive/destructive behaviour due to alcohol or drug use, rated at Scale 1.\n• Do not include physical illness or disability due to alcohol or drug use, rated at Scale 5.</string>
+    <string name="q3_s">Q3 (problem-drinking/drug-taking):</string>
+    <string name="q3_option0">0 – No problem of this kind during the period rated.</string>
+    <string name="q3_option1">1 – Some over-indulgence but within social norm.</string>
+    <string name="q3_option2">2 – Loss of control of drinking or drug-taking, but not seriously addicted.</string>
+    <string name="q3_option3">3 – Marked craving or dependence on alcohol or drugs with frequent loss of control; risk taking under the influence.</string>
+    <string name="q3_option4">4 – Incapacitated by alcohol/drug problem.</string>
+    <string name="q4">4. Cognitive problems\n\n• Include problems of memory, orientation and understanding associated with any disorder: learning disability, dementia, schizophrenia, etc.\n• Do not include temporary problems (e.g. hangovers) resulting from drug/alcohol use, rated at Scale 3.</string>
+    <string name="q4_s">Q4 (cognitive problems):</string>
+    <string name="q4_option0">0 – No problem of this kind during the period rated.</string>
+    <string name="q4_option1">1 – Minor problems with memory or understanding (e.g. forgets names occasionally).</string>
+    <string name="q4_option2">2 – Mild but definite problems (e.g. has lost the way in a familiar place or failed to recognise a familiar person); sometimes mixed up about simple decisions.</string>
+    <string name="q4_option3">3 – Marked disorientation in time, place or person; bewildered by everyday events; speech is sometimes incoherent; mental slowing.</string>
+    <string name="q4_option4">4 – Severe disorientation (e.g. unable to recognise relatives); at risk of accidents; speech incomprehensible; clouding or stupor.</string>
+    <string name="q5">5. Physical illness or disability problems\n\n• Include illness or disability from any cause that limits or prevents movement, or impairs sight or hearing, or otherwise interferes with personal functioning.\n• Include side-effects from medication; effects of drug/alcohol use; physical disabilities resulting from accidents or self-harm associated with cognitive problems, drink-driving, etc.\n• Do not include mental or behavioural problems rated at Scale 4.</string>
+    <string name="q5_s">Q5 (physical illness/disability):</string>
+    <string name="q5_option0">0 – No physical health problem during the period rated.</string>
+    <string name="q5_option1">1 – Minor health problems during the period (e.g. cold, non-serious fall, etc.).</string>
+    <string name="q5_option2">2 – Physical health problem imposes mild restriction on mobility and activity.</string>
+    <string name="q5_option3">3 – Moderate degree of restriction on activity due to physical health problem.</string>
+    <string name="q5_option4">4 – Severe or complete incapacity due to physical health problem.</string>
+    <string name="q6">6. Problems associated with hallucinations and delusions\n\n• Include hallucinations and delusions irrespective of diagnosis.\n• Include odd and bizarre behaviour associated with hallucinations or delusions.\n• Do not include aggressive, destructive or overactive behaviours attributed to hallucinations or delusions, rated at Scale 1.</string>
+    <string name="q6_s">Q6 (hallucinations/delusions):</string>
+    <string name="q6_option0">0 – No evidence of hallucinations or delusions during the period rated.</string>
+    <string name="q6_option1">1 – Somewhat odd or eccentric beliefs not in keeping with cultural norms.</string>
+    <string name="q6_option2">2 – Delusions or hallucinations (e.g. voices, visions) are present, but there is little distress to patient or manifestation in bizarre behaviour, i.e. clinically present but mild.</string>
+    <string name="q6_option3">3 – Marked preoccupation with delusions or hallucinations, causing much distress and/or manifested in obviously bizarre behaviour, i.e. moderately severe clinical problem.</string>
+    <string name="q6_option4">4 – Mental state and behaviour is seriously and adversely affected by delusions or hallucinations, with severe impact on patient.</string>
+    <string name="q7">7. Problems with depressed mood\n\n• Do not include overactivity or agitation, rated at Scale 1.\n• Do not include suicidal ideation or attempts, rated at Scale 2.\n• Do not include delusions or hallucinations, rated at Scale 6.</string>
+    <string name="q7_s">Q7 (depressed mood):</string>
+    <string name="q7_option0">0 – No problem associated with depressed mood during the period rated.</string>
+    <string name="q7_option1">1 – Gloomy; or minor changes in mood.</string>
+    <string name="q7_option2">2 – Mild but definite depression and distress (e.g. feelings of guilt; loss of self-esteem).</string>
+    <string name="q7_option3">3 – Depression with inappropriate self-blame; preoccupied with feelings of guilt.</string>
+    <string name="q7_option4">4 – Severe or very severe depression, with guilt or self-accusation.</string>
+    <string name="q8">8. Other mental and behavioural problems\n\n• Rate only the most severe clinical problem not considered at items 6 and 7 as follows.\n• Specify the type of problem by the entering the appropriate letter.</string>
+    <string name="q8_s">Q8 (other mental/behavioural problem):</string>
+    <string name="q8problemtype_s">Q8 (... nature of problem):</string>
+    <string name="q8otherproblem_s">Q8 (... other, specify):</string>
+    <string name="q8_option0">0 – No evidence of any of these problems during period rated.</string>
+    <string name="q8_option1">1 – Minor problems only.</string>
+    <string name="q8_option2">2 – A problem is clinically present at a mild level (e.g. patient has a degree of control).</string>
+    <string name="q8_option3">3 – Occasional severe attack or distress, with loss of control (e.g. has to avoid anxiety provoking situations altogether, call in a neighbour to help, etc.) i.e. moderately severe level of problem.</string>
+    <string name="q8_option4">4 – Severe problem dominates most activities.</string>
+    <string name="q8problemtype_prompt">Specify the type of problem by the entering the appropriate letter:</string>
+    <string name="q8problemtype_option_a">A – phobic</string>
+    <string name="q8problemtype_option_b">B – anxiety</string>
+    <string name="q8problemtype_option_c">C – obsessive–compulsive</string>
+    <string name="q8problemtype_option_d">D – mental strain/tension</string>
+    <string name="q8problemtype_option_e">E – dissociative</string>
+    <string name="q8problemtype_option_f">F – somatoform</string>
+    <string name="q8problemtype_option_g">G – eating</string>
+    <string name="q8problemtype_option_h">H – sleep</string>
+    <string name="q8problemtype_option_i">I – sexual</string>
+    <string name="q8problemtype_option_j">J – other, specify</string>
+    <string name="q8otherproblem_prompt">Specify other problem:</string>
+    <string name="q8otherproblem_hint">Other problem</string>
+    <string name="q9">9. Problems with relationships\n\n• Rate the patient’s most severe problem associated with active or passive withdrawal from social relationships, and/or non-supportive, destructive or self-damaging relationships.</string>
+    <string name="q9_s">Q9 (relationship problems):</string>
+    <string name="q9_option0">0 – No significant problem during the period.</string>
+    <string name="q9_option1">1 – Minor non-clinical problems.</string>
+    <string name="q9_option2">2 – Definite problem in making or sustaining supportive relationships: patient complains and/or problems are evident to others.</string>
+    <string name="q9_option3">3 – Persisting major problem due to active or passive withdrawal from social relationships and/or to relationships that provide little or no comfort or support.</string>
+    <string name="q9_option4">4 – Severe and distressing social isolation due to inability to communicate socially and/or withdrawal from social relationships.</string>
+    <string name="q10">10. Problems with activities of daily living\n\n• Rate the overall level of functioning in activities of daily living (ADL) (e.g. problems with basic activities of self-care such as eating, washing, dressing, toilet; also complex skills such as budgeting, organising where to live, occupation and recreation, mobility and use of transport, shopping, self-development, etc.).\n• Include any lack of motivation for using self-help opportunities, since this contributes to a lower overall level of functioning.\n• Do not include lack of opportunities for exercising intact abilities and skills, rated at Scales 11–12.</string>
+    <string name="q10_s">Q10 (activities of daily living):</string>
+    <string name="q10_option0">0 – No problem during period rated; good ability to function in all areas.</string>
+    <string name="q10_option1">1 – Minor problems only (e.g. untidy, disorganised).</string>
+    <string name="q10_option2">2 – Self-care adequate, but major lack of performance of one or more complex skills (see above).</string>
+    <string name="q10_option3">3 – Major problem in one or more areas of self-care (eating, washing, dressing, toilet) as well as major inability to perform several complex skills.</string>
+    <string name="q10_option4">4 – Severe disability or incapacity in all or nearly all areas of self-care and complex skills.</string>
+    <string name="q11">11. Problems with living conditions\n\n• Rate the overall severity of problems with the quality of living conditions and daily domestic routine.\n• Are the basic necessities met (heat, light, hygiene)? If so, is there help to cope with disabilities and a choice of opportunities to use skills and develop new ones?\n• Do not rate the level of functional disability itself, rated at Scale 10.\n\nNB: Rate patient’s usual situation. If in acute ward, rate activities during period before admission. If information not available, rate 9.</string>
+    <string name="q11_s">Q11 (problems with living conditions):</string>
+    <string name="q11_option0">0 – Accommodation and living conditions are acceptable; helpful in keeping any disability rated at Scale 10 to the lowest level possible, and supportive of self-help.</string>
+    <string name="q11_option1">1 – Accommodation is reasonably acceptable although there are minor or transient problems (e.g. not ideal location, not preferred option, doesn’t like the food, etc.).</string>
+    <string name="q11_option2">2 – Significant problem with one or more aspects of the accommodation and/or regime (e.g. restricted choice; staff or household have little understanding of how to limit disability or how to help use or develop new or intact skills).</string>
+    <string name="q11_option3">3 – Distressing multiple problems with accommodation (e.g. some basic necessities absent); housing environment has minimal or no facilities to improve patient’s independence.</string>
+    <string name="q11_option4">4 – Accommodation is unacceptable (e.g. lack of basic necessities, patient is at risk of eviction, or ‘roofless’, or living conditions are otherwise intolerable) making patient’s problems worse.</string>
+    <string name="q12">12. Problems with occupation and activities\n\n• Rate the overall level of problems with quality of day-time environment. Is there help to cope with disabilities, and opportunities for maintaining or improving occupational and recreational skills and activities? Consider factors such as stigma, lack of qualified staff, access to supportive facilities e.g. staffing and equipment of day centres, workshops, social clubs, etc.\n• Do not rate the level of functional disability itself, rated at Scale 10.\n\nNB: Rate patient’s usual situation. If in acute ward, rate activities during period before admission. If information not available, rate 9.</string>
+    <string name="q12_s">Q12 (occupation/activities):</string>
+    <string name="q12_option0">0 – Patient’s day-time environment is acceptable: helpful in keeping any disability rated at Scale 10 to the lowest level possible, and supportive of self-help.</string>
+    <string name="q12_option1">1 – Minor or temporary problems (e.g. late giro cheques): reasonable facilities available but not always at desired times, etc.</string>
+    <string name="q12_option2">2 – Limited choice of activities; lack of reasonable tolerance (e.g. unfairly refused entry to public library or baths, etc.); handicapped by lack of a permanent address; insufficient carer or professional support; helpful day setting available but for very limited hours.</string>
+    <string name="q12_option3">3 – Marked deficiency in skilled services available to help minimise level of existing disability; no opportunities to use intact skills or add new ones; unskilled care difficult to access.</string>
+    <string name="q12_option4">4 – Lack of any opportunity for daytime activities makes patient’s problems worse.</string>
+
+    <string name="option9">9 – Not known</string>
+    <string name="period_rated">Period rated</string>
+
+  </task>
+</resources>

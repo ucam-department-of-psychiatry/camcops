@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="slums">
+    <!-- St Louis University Mental Status (SLUMS) Exam -->
+
+    <string name="title_preamble">SLUMS: preamble</string>
+    <string name="title_prefix_singular">SLUMS: question</string>
+    <string name="title_prefix_plural">SLUMS: questions</string>
+    <string name="q_alert">Is the patient alert?</string>
+    <string name="q_highschool">Does the patient have at least a high-school level of education?</string>
+    <string name="q1">1. What day of the week is it?</string>
+    <string name="q2">2. What is the year?</string>
+    <string name="q3">3. What state are we in?</string>
+    <string name="q4">4. Please remember these five objects. I will ask you what they are later.\n\nApple\nPen\nTie\nHouse\nCar</string>
+    <string name="q5">5. You have $100 and you go to the store and buy a dozen apples for $3 and a tricycle for $20.\n\nHow much did you spend?\n\nHow much do you have left?</string>
+    <string name="q5a">“How much did you spend?” [... should be $56]</string>
+    <string name="q5b">“How much do you have left?” [... should be $44]</string>
+    <string name="q6">6. Please name as many animals as you can in one minute.</string>
+    <string name="q6_option0">0–4 animals</string>
+    <string name="q6_option1">5–9 animals</string>
+    <string name="q6_option2">10–14 animals</string>
+    <string name="q6_option3">15+ animals</string>
+    <string name="q7">7. What were the five objects I asked you to remember?</string>
+    <string name="q7a">Apple</string>
+    <string name="q7b">Pen</string>
+    <string name="q7c">Tie</string>
+    <string name="q7d">House</string>
+    <string name="q7e">Car</string>
+    <string name="q8">8. I am going to give you a series of numbers and I would like you to give them to me backwards. For example, if I say 42, you would say 24.\n\n87 (PRACTICE: NOT SCORED)\n\n648\n\n8537</string>
+    <string name="q8b">648 [... to 846]</string>
+    <string name="q8c">8537 [... to 7358]</string>
+    <string name="q9">9. This is a clock face. Please put in the hour markers and the time at ten minutes to eleven o’clock.</string>
+    <string name="q9a">Hour markers okay</string>
+    <string name="q9b">Time correct</string>
+    <string name="q10_part1">10. Please place an X in the triangle.</string>
+    <string name="q10_part2">Which of the figures is largest?</string>
+    <!-- <string name="q10_part2">Which of the above figures is largest?</string> -->
+    <string name="q10a">Placing X</string>
+    <string name="q10b">Largest figure</string>
+    <string name="q11">11. I am going to tell you a story. Please listen carefully because afterwards, I’m going to ask you some questions about it.\n\nJill was a very successful stockbroker. She made a lot of money on the stock market. She then met Jack, a devastatingly handsome man. She married him and had three children. They lived in Chicago. She then stopped work and stayed at home to bring up her children. When they were teenagers, she went back to work. She and Jack lived happily ever after.</string>
+    <string name="q11a">What was the female’s name?</string>
+    <string name="q11b">What work did she do?</string>
+    <string name="q11c">When did she go back to work?</string>
+    <string name="q11d">What state did she live in? [... should be “Illinois”]</string>
+    <string name="alert_s">Alert:</string>
+    <string name="highschool_s">High-school education:</string>
+    <string name="q1_s">Q1 (day):</string>
+    <string name="q2_s">Q2 (year):</string>
+    <string name="q3_s">Q3 (state):</string>
+    <string name="q5a_s">Q5a (money spent):</string>
+    <string name="q5b_s">Q5b (money left):</string>
+    <string name="q6_s">Q6 (animal naming):</string>
+    <string name="q7a_s">Q7a (recall apple):</string>
+    <string name="q7b_s">Q7b (recall pen):</string>
+    <string name="q7c_s">Q7c (recall tie):</string>
+    <string name="q7d_s">Q7d (recall house):</string>
+    <string name="q7e_s">Q7e (recall car):</string>
+    <string name="q8b_s">Q8b (reverse 648):</string>
+    <string name="q8c_s">Q8c (reverse 8537):</string>
+    <string name="q9a_s">Q9a (clock – hour markers):</string>
+    <string name="q9b_s">Q9b (clock – time):</string>
+    <string name="q10a_s">Q10a (X in triangle):</string>
+    <string name="q10b_s">Q10b (biggest figure):</string>
+    <string name="q11a_s">Q11a (story – name):</string>
+    <string name="q11b_s">Q11b (story – occupation):</string>
+    <string name="q11c_s">Q11c (story – back to work):</string>
+    <string name="q11d_s">Q11d (story – state):</string>
+    <string name="scoring">(scoring)</string>
+    <string name="category_mci">mild neurocognitive disorder</string>
+    <string name="category_dementia">dementia</string>
+    <string name="date_now_is">Current date is:</string>
+
+  </task>
+</resources>

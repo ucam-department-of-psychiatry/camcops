@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="phq9">
+    <!-- Patient Health Questionnaire-9 (PHQ-9) -->
+
+    <string name="title_main">Patient Health Questionnaire (PHQ-9)</string>
+    <string name="stem">Over the last 2 weeks, how often have you been bothered by any of the following problems?</string>
+    <string name="q1">1. Little interest or pleasure in doing things</string>
+    <string name="q2">2. Feeling down, depressed, or hopeless</string>
+    <string name="q3">3. Trouble falling or staying asleep, or sleeping too much</string>
+    <string name="q4">4. Feeling tired or having little energy</string>
+    <string name="q5">5. Poor appetite or overeating</string>
+    <string name="q6">6. Feeling bad about yourself — or that you are a failure or have let yourself or your family down</string>
+    <string name="q7">7. Trouble concentrating on things, such as reading the newspaper or watching television</string>
+    <string name="q8">8. Moving or speaking so slowly that other people could have noticed? Or the opposite — being so fidgety or restless that you have been moving around a lot more than usual</string>
+    <string name="q9">9. Thoughts that you would be better off dead or of hurting yourself in some way</string>
+    <string name="a0">Not at all</string>
+    <string name="a1">Several days</string>
+    <string name="a2">More than half the days</string>
+    <string name="a3">Nearly every day</string>
+    <string name="finalq">If you checked off any problems, how difficult have these problems made it for you to do your work, take care of things at home, or get along with other people?</string>
+    <string name="fa0">Not difficult at all</string>
+    <string name="fa1">Somewhat difficult</string>
+    <string name="fa2">Very difficult</string>
+    <string name="fa3">Extremely difficult</string>
+    <string name="q1_s">Q1 (anhedonia):</string>
+    <string name="q2_s">Q2 (mood):</string>
+    <string name="q3_s">Q3 (sleep):</string>
+    <string name="q4_s">Q4 (energy):</string>
+    <string name="q5_s">Q5 (appetite):</string>
+    <string name="q6_s">Q6 (self-esteem/guilt):</string>
+    <string name="q7_s">Q7 (concentration):</string>
+    <string name="q8_s">Q8 (psychomotor):</string>
+    <string name="q9_s">Q9 (death/self-harm):</string>
+    <string name="q10_s">Extra (daily living):</string>
+    <string name="mds">PHQ9 major depressive syndrome?</string>
+    <string name="ods">PHQ9 other depressive syndrome?</string>
+    <string name="depression_severity">PHQ9 depression severity:</string>
+
+  </task>
+</resources>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="icd10schizophrenia">
+    <!-- ICD-10 criteria for schizophrenia (F20) -->
+
+<!--
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ICD-10 criteria
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Copyright © 1992 World Health Organization
+- The ICD-10 Classification of Mental and Behavioural Disorders:
+  Clinical descriptions and diagnostic guidelines (CDDG).
+  http://www.who.int/entity/classifications/icd/en/bluebook.pdf
+  Accessed 2013-05-08.
+- The ICD-10 Classification of Mental and Behavioural Disorders:
+  Diagnostic Criteria for Research (DCR-10).
+  http://www.who.int/classifications/icd/en/GRNBOOK.pdf
+  Accessed 2013-05-08.
+
+Used here with permission:
+
+“On behalf of the World Health Organization, we are pleased to authorize
+your request to reproduce the WHO material as detailed in the form below.
+    This permission is subject to the following conditions:
+- This is a non-exclusive permission to reproduce the material detailed below.
+- Please ensure that the original WHO source is appropriately acknowledged
+with the appropriate bibliographical reference including publication title,
+author, publisher, volume/edition number, page numbers, copyright notice year
+and the URL reference and the date accessed.
+- The material will be reproduced as it was published by WHO and no changes
+should be made to the content or meaning.
+Publishers may reformat the material in the style of the publication.
+- The use of WHO materials should be factual and used in an appropriate context;
+- The material should not be reproduced for use in association with product
+marketing or promotional activities.
+- The copyright in ICD-10 is vested in WHO, any further redistribution of
+the text requires permission from WHO.
+- There should be no suggestion that WHO endorses any specific company or
+products in the article, book etc or in the manner of distribution of the
+article, book etc.
+- The WHO logo and emblem shall not be reproduced.
+- WHO reserves the right to withdraw the permission in the event a condition
+is not respected.”
+-->
+
+    <string name="comments">In evaluating the presence of the these abnormal subjective experiences and behaviour, special care should be taken to avoid false-positive assessments, especially where culturally or sub-culturally influenced modes of expression and behaviour, or a subnormal level of intelligence, are involved.</string>
+    <string name="core">A. Core symptoms of schizophrenia</string>
+    <string name="schneider">(These are essentially Schneider’s first-rank symptoms of schizophrenia, with the addition of persistent delusions not related to passivity.)</string>
+    <string name="passivity_bodily">Passivity: delusions of control, influence, or passivity, clearly referred to body or limb movements…</string>
+    <string name="passivity_mental">… or to specific thoughts, actions, or sensations.</string>
+    <string name="hv_commentary">Hallucinatory voices giving a running commentary on the patient’s behaviour</string>
+    <string name="hv_discussing">Hallucinatory voices discussing the patient among themselves</string>
+    <string name="hv_from_body">Other types of hallucinatory voices coming from some part of the body.</string>
+    <string name="delusions">Delusions: persistent delusions of other kinds that are culturally inappropriate and completely impossible, such as religious or political identity, or superhuman powers and abilities (e.g. being able to control the weather, or being in communication with aliens from another world).</string>
+    <string name="delusional_perception">Delusional perception [a normal perception, delusionally interpreted]</string>
+    <string name="thought_echo">Thought echo [hearing one’s own thoughts aloud, just before, just after, or simultaneously with the thought]</string>
+    <string name="thought_withdrawal">… thought withdrawal [the feeling that one’s thoughts have been removed by an outside agency]</string>
+    <string name="thought_insertion">… thought insertion [the feeling that one’s thoughts have been placed there from outside]</string>
+    <string name="thought_broadcasting">… or thought broadcasting [the feeling that one’s thoughts leave oneself and are diffused widely, or are audible to others, or that others think the same thoughts in unison]</string>
+    <string name="other_positive">B. Other positive symptoms of schizophrenia</string>
+    <string name="hallucinations_other">Hallucinations: persistent hallucinations in any modality, when accompanied either by fleeting or half-formed delusions without clear affective content, or by persistent over-valued ideas, or when occurring every day for weeks or months on end.</string>
+    <string name="thought_disorder">Thought disorder: breaks or interpolations in the train of thought, resulting in incoherence or irrelevant speech, or neologisms.</string>
+    <string name="catatonia">Catatonia: catatonic behaviour, such as excitement, posturing, or waxy flexibility, negativism, mutism, and stupor.</string>
+    <string name="negative_title">C. Negative symptoms of schizophrenia</string>
+    <string name="negative">Negative symptoms: “negative” symptoms such as marked apathy, paucity of speech, and blunting or incongruity of emotional responses, usually resulting in social withdrawal and lowering of social performance; it must be clear that these are not due to depression or to neuroleptic medication.</string>
+    <string name="other_criteria">D. Criteria relating to duration, preceding affective episodes, or other causes</string>
+    <string name="present_one_month">Symptoms in A–C above present for most of the time during an episode of psychotic illness lasting for at least one month (or at some time during most of the days).</string>
+    <string name="duration_comment">[If false, consider acute polymorphic psychotic disorder with symptoms of schizophrenia (F23.1) and acute schizophrenia-like psychoticd disorder (F23.2).]</string>
+    <string name="also_manic">Also meets criteria for manic episode (F30)?</string>
+    <string name="also_depressive">Also meets criteria for depressive episode (F32)?</string>
+    <string name="if_mood_psychosis_first">If the patient also meets criteria for manic episode (F30) or depressive episode (F32), the criteria listed above must have been met before the disturbance of mood developed.</string>
+    <string name="affective_comment">[If false, consider the affective psychoses, including an atypical schizoaffective episode in the context of bipolar affective disorder, and schizoaffective disorder.]</string>
+    <string name="not_organic_or_substance">The disorder is not attributable to organic brain disease (in the sense of F0), or to alcohol- or drug-related intoxication, dependence or withdrawal.</string>
+    <string name="simple_title">Additional criteria used in the diagnosis of simple schizophrenia</string>
+    <string name="behaviour_change">A significant and consistent change in the overall quality of some aspects of personal behaviour, manifest as loss of interest, aimlessness, idleness, a self-absorbed attitude, and social withdrawal.</string>
+    <string name="performance_decline">Marked decline in social, scholastic, or occupational performance.</string>
+    <string name="subtypes">Subtypes of schizophrenia (for formal criteria, see ICD-10/DCR-10):</string>
+    <string name="subtype_paranoid">PARANOID (F20.0): dominated by delusions or hallucinations.</string>
+    <string name="subtype_hebephrenic">HEBEPHRENIC (F20.1): dominated by affective changes (shallow, flat, incongruous, or inappropriate affect) and either pronounced thought disorder or aimless, disjointed behaviour is present.</string>
+    <string name="subtype_catatonic">CATATONIC (F20.2): psychomotor disturbances dominate (such as stupor, mutism, excitement, posturing, negativism, rigidity, waxy flexibility, command automatisms, or verbal perseveration).</string>
+    <string name="subtype_undifferentiated">UNDIFFERENTIATED (F20.3): schizophrenia with active psychosis fitting none or more than one of the above three types.</string>
+    <string name="subtype_postschizophrenic_depression">POST-SCHIZOPHRENIC DEPRESSION (F20.4): in which a depressive episode has developed for at least 2 weeks following a schizophrenic episode within the last 12 months and in which schizophrenic symptoms persist but are not as prominent as the depression.</string>
+    <string name="subtype_residual">RESIDUAL (F20.5): in which previous psychotic episodes of schizophrenia have given way to a chronic condition with “negative” symptoms of schizophrenia for at least 1 year.</string>
+    <string name="subtype_simple">SIMPLE SCHIZOPHRENIA (F20.6), in which “negative” symptoms (C) with a change in personal behaviour (D) develop for at least one year without any psychotic episodes (no symptoms from groups A or B or other hallucinations or well-formed delusions), and with a marked decline in social, scholastic, or occupational performance.</string>
+    <string name="subtype_cenesthopathic">CENESTHOPATHIC (within OTHER F20.8): body image aberration (e.g. desomatization, loss of bodily boundaries, feelings of body size change) or abnormal bodily sensations (e.g. numbness, stiffness, feeling strange, depersonalization, or sensations of pain, temperature, electricity, heaviness, lightness, or discomfort when touched) dominate.</string>
+    <string name="meets_general_criteria">Meets general criteria for paranoid/hebephrenic/catatonic/undifferentiated schizophrenia (F20.0-F20.3)?</string>
+
+  </task>
+</resources>

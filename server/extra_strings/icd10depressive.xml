@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="icd10depressive">
+    <!-- ICD-10 symptomatic criteria for a depressive episode (as in e.g. F06.3, F25, F31, F32, F33) -->
+
+<!--
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ICD-10 criteria
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Copyright © 1992 World Health Organization
+- The ICD-10 Classification of Mental and Behavioural Disorders:
+  Clinical descriptions and diagnostic guidelines (CDDG).
+  http://www.who.int/entity/classifications/icd/en/bluebook.pdf
+  Accessed 2013-05-08.
+- The ICD-10 Classification of Mental and Behavioural Disorders:
+  Diagnostic Criteria for Research (DCR-10).
+  http://www.who.int/classifications/icd/en/GRNBOOK.pdf
+  Accessed 2013-05-08.
+
+Used here with permission:
+
+“On behalf of the World Health Organization, we are pleased to authorize
+your request to reproduce the WHO material as detailed in the form below.
+    This permission is subject to the following conditions:
+- This is a non-exclusive permission to reproduce the material detailed below.
+- Please ensure that the original WHO source is appropriately acknowledged
+with the appropriate bibliographical reference including publication title,
+author, publisher, volume/edition number, page numbers, copyright notice year
+and the URL reference and the date accessed.
+- The material will be reproduced as it was published by WHO and no changes
+should be made to the content or meaning.
+Publishers may reformat the material in the style of the publication.
+- The use of WHO materials should be factual and used in an appropriate context;
+- The material should not be reproduced for use in association with product
+marketing or promotional activities.
+- The copyright in ICD-10 is vested in WHO, any further redistribution of
+the text requires permission from WHO.
+- There should be no suggestion that WHO endorses any specific company or
+products in the article, book etc or in the manner of distribution of the
+article, book etc.
+- The WHO logo and emblem shall not be reproduced.
+- WHO reserves the right to withdraw the permission in the event a condition
+is not respected.”
+-->
+
+    <string name="duration_text">Duration criterion:</string>
+    <string name="duration_at_least_2_weeks">The depressive episode should last for at least 2 weeks.</string>
+    <string name="core">Core diagnostic symptoms:</string>
+    <string name="mood">[MOOD] Depressed mood to a degree that is definitely abnormal for the individual, present for most of the day and almost every day, largely uninfluenced by circumstances, and sustained for at least 2 weeks.</string>
+    <string name="anhedonia">[ANHEDONIA] Loss of interest or pleasure in activities that are normally pleasurable.</string>
+    <string name="energy">[ENERGY] Decreased energy or increased fatiguability.</string>
+    <string name="additional">Additional diagnostic symptoms:</string>
+    <string name="sleep">[SLEEP] Sleep disturbance of any type.</string>
+    <string name="worth">[WORTH] Loss of confidence and self-esteem.</string>
+    <string name="appetite">[APPETITE] Change in appetite (decrease or increase) with corresponding weight change.</string>
+    <string name="guilt">[GUILT] Unreasonable feelings of self-reproach or excessive and inappropriate guilt.</string>
+    <string name="concentration">[CONCENTRATION] Complaints or evidence of diminished ability to think or concentrate, such as indecisiveness or vacillation.</string>
+    <string name="activity">[ACTIVITY] Change in psychomotor activity, with agitation or retardation (either subjective or objective).</string>
+    <string name="death">[DEATH] Recurrent thoughts of death or suicide, or any suicidal behaviour.</string>
+    <string name="clinical_text">Clinical judgement when interview impossible:</string>
+    <string name="severe_clinically">Clinical impression of severe depression, in a patient unwilling or unable to describe many symptoms in detail</string>
+    <string name="somatic">To qualify for the somatic syndrome, four of the following symptoms should be present:</string>
+    <string name="somatic_anhedonia">(1) marked loss of interest or pleasure in activities that are normally pleasurable;</string>
+    <string name="somatic_emotional_unreactivity">(2) lack of emotional reactions to events or activities that normally produce an emotional response;</string>
+    <string name="somatic_early_morning_waking">(3) waking in the morning 2 hours or more before the usual time;</string>
+    <string name="somatic_mood_worse_morning">(4) depression worse in the morning;</string>
+    <string name="somatic_psychomotor">(5) objective evidence of marked psychomotor retardation or agitation (remarked on or reported by other people);</string>
+    <string name="somatic_appetite">(6) marked loss of appetite;</string>
+    <string name="somatic_weight" formatted="false">(7) weight loss (5% or more of body weight in the past month);</string>
+    <string name="somatic_libido">(8) marked loss of libido.</string>
+    <string name="psychotic">Regarding psychotic depression:</string>
+    <string name="hallucinations_schizophrenic">Hallucinations that are “typically schizophrenic” (hallucinatory voices giving a running commentary on the patient’s behaviour, or discussing him between themselves, or other types of hallucinatory voices coming from some part of the body).</string>
+    <string name="hallucinations_other">Hallucinations (of any other kind).</string>
+    <string name="delusions_schizophrenic">Delusions that are “typically schizophrenic” (delusions of control, influence or passivity, clearly referred to body or limb movements or specific thoughts, actions, or sensations; delusional perception; persistent delusions of other kinds that are culturally inappropriate and completely impossible).</string>
+    <string name="delusions_other">Delusions (of any other kind).</string>
+    <string name="stupor">Depressive stupor.</string>
+    <string name="category_severe_psychotic_schizophrenic">Severe depressive episode with psychotic symptoms of schizophrenic type [ICD-10 no-man’s land]</string>
+    <string name="category_severe_psychotic">Severe depressive episode with psychotic symptoms</string>
+    <string name="category_severe_nonpsychotic">Severe depressive episode without psychotic symptoms</string>
+    <string name="category_moderate">Moderate depressive episode</string>
+    <string name="category_mild">Mild depressive episode</string>
+    <string name="category_none">No depressive episode</string>
+    <string name="category_with_somatic">(with somatic syndrome)</string>
+    <string name="category_without_somatic">(without somatic syndrome)</string>
+    <string name="category_somatic_unknown">(somatic syndrome: unknown)</string>
+    <string name="n_core">Number of core diagnostic symptoms</string>
+    <string name="n_additional">Number of addditional diagnostic symptoms</string>
+    <string name="n_total">Total number of diagnostic symptoms</string>
+    <string name="n_somatic">Number of somatic syndrome symptoms</string>
+    <string name="psychotic_symptoms_or_stupor">Psychotic symptoms or stupor?</string>
+
+  </task>
+</resources>

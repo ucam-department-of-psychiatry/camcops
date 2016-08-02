@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="cpft_lps_resetresponseclock">
+    <!-- CPFT LPS – reset response clock -->
+
+    <string name="to">Reset response clock start time to</string>
+    <string name="reason">Reason</string>
+
+  </task>
+</resources>

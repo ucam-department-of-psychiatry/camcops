@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="cpft_lps_referral">
+    <!-- CPFT LPS – referral -->
+
+    <string name="t_about_referral">About the referral, referrer, and referring team:</string>
+    <string name="f_referral_date_time">Referral date/time</string>
+    <string name="f_lps_division">LPS division</string>
+    <string name="f_referral_priority">Referral priority</string>
+    <string name="f_referral_method">Referral method</string>
+    <string name="f_referrer_name">Referrer’s name</string>
+    <string name="f_referrer_contact_details">Referrer’s contact details (bleep, extension)</string>
+    <string name="f_referring_consultant">Referring consultant</string>
+    <string name="f_referring_specialty">Referring specialty</string>
+    <string name="f_referring_specialty_other">If OTHER specialty: please specify</string>
+    <string name="t_patient">About the patient:</string>
+    <string name="f_patient_location">Patient’s location (ward)</string>
+    <string name="f_admission_date">Admission date</string>
+    <string name="f_estimated_discharge_date">Estimated discharge date</string>
+    <string name="f_patient_aware_of_referral">Patient aware of referral?</string>
+    <string name="f_interpreter_required">Interpreter required?</string>
+    <string name="f_sensory_impairment">Sensory impairment?</string>
+    <string name="f_marital_status">Marital status</string>
+    <string name="f_ethnic_category">Ethnic category</string>
+    <string name="t_admission_reason">The reason(s) for admission:</string>
+    <string name="f_admission_reason_overdose">Overdose</string>
+    <string name="f_admission_reason_self_harm_not_overdose">Self-harm (not overdose)</string>
+    <string name="f_admission_reason_confusion">Confusion</string>
+    <string name="f_admission_reason_trauma">Trauma</string>
+    <string name="f_admission_reason_falls">Falls</string>
+    <string name="f_admission_reason_infection">Infection</string>
+    <string name="f_admission_reason_poor_adherence">Poor adherence</string>
+    <string name="f_admission_reason_other">Other</string>
+    <string name="t_other_people">About other people/teams involved:</string>
+    <string name="f_existing_psychiatric_teams">Psychiatric team(s) known to</string>
+    <string name="f_care_coordinator">Care coordinator</string>
+    <string name="f_other_contact_details">Other contact details</string>
+    <string name="t_referral_reason">Reason(s) for referral:</string>
+    <string name="f_referral_reason">Referral reason/question</string>
+    <string name="priority_E">Emergency (within 60 minutes)</string>
+    <string name="priority_U">Urgent (same working day)</string>
+    <string name="priority_R">Routine (2 working days)</string>
+    <string name="service_G">General adult (17–64)</string>
+    <string name="service_O">OPMH (65+)</string>
+    <string name="service_S">Drug/alcohol (substance misuse)</string>
+
+  </task>
+</resources>

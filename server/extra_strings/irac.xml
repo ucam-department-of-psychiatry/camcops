@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="irac">
+    <!-- Identify and Rate the Aim of the Contact (IRAC) -->
+
+    <string name="q_aim">Specify the main aim of the contact:</string>
+    <string name="aim_1">Assessment and diagnosis/formulation</string>
+    <string name="aim_2">Providing guidance / advice</string>
+    <string name="aim_3">Signposting / referring on</string>
+    <string name="aim_4">Assessment and management of risk</string>
+    <string name="aim_5">Assessment of mental capacity</string>
+    <string name="aim_6">Assessment re: Mental Health Act</string>
+    <string name="aim_7">Medication management</string>
+    <string name="aim_8">Management of disturbed behaviour</string>
+    <string name="aim_9">Brief psychological interventions</string>
+    <string name="aim_10">Treatment (other)</string>
+    <string name="q_achieved">Was this achieved?</string>
+    <string name="achieved_0">Not achieved</string>
+    <string name="achieved_1">Partially achieved</string>
+    <string name="achieved_2">Fully achieved</string>
+
+  </task>
+</resources>

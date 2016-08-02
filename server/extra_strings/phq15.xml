@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="phq19">
+    <!-- Patient Health Questionnaire-15 (PHQ-15) -->
+
+    <string name="title">Physical symptoms (PHQ-15)</string>
+    <string name="stem">During the past 4 weeks, how much have you been bothered by any of the following problems?</string>
+    <string name="q1">a. Stomach pain</string>
+    <string name="q2">b. Back pain</string>
+    <string name="q3">c. Pain in your arms, legs, or joints (knees, hips, etc.)</string>
+    <string name="q4">d. Menstrual cramps or other problems with your periods (WOMEN ONLY)</string>
+    <string name="q5">e. Headaches</string>
+    <string name="q6">f. Chest pain</string>
+    <string name="q7">g. Dizziness</string>
+    <string name="q8">h. Fainting spells</string>
+    <string name="q9">i. Feeling your heart pound or race</string>
+    <string name="q10">j. Shortness of breath</string>
+    <string name="q11">k. Pain or problems during sexual intercourse</string>
+    <string name="q12">l. Constipation, loose bowels, or diarrhea</string>
+    <string name="q13">m. Nausea, gas, or indigestion</string>
+    <string name="q14">n. Feeling tired or having low energy</string>
+    <string name="q15">o. Trouble sleeping</string>
+    <string name="a0">Not bothered at all</string>
+    <string name="a1">Bothered a little</string>
+    <string name="a2">Bothered a lot</string>
+    <string name="q1_s">Q1 (stomach pain):</string>
+    <string name="q2_s">Q2 (back pain):</string>
+    <string name="q3_s">Q3 (limb/joint pain):</string>
+    <string name="q4_s">Q4 (F – menstrual):</string>
+    <string name="q5_s">Q5 (headaches):</string>
+    <string name="q6_s">Q6 (chest pain):</string>
+    <string name="q7_s">Q7 (dizziness):</string>
+    <string name="q8_s">Q8 (fainting):</string>
+    <string name="q9_s">Q9 (palpitations):</string>
+    <string name="q10_s">Q10 (breathless):</string>
+    <string name="q11_s">Q11 (sex):</string>
+    <string name="q12_s">Q12 (constipation/diarrhoea):</string>
+    <string name="q13_s">Q13 (nausea/indigestion):</string>
+    <string name="q14_s">Q14 (energy):</string>
+    <string name="q15_s">Q15 (sleep):</string>
+    <string name="n_severe_symptoms">Number of severe symptoms:</string>
+    <string name="exceeds_somatoform_cutoff">Exceeds standard somatoform disorder cutoff?</string>
+    <string name="symptom_severity">PHQ15 symptom severity:</string>
+
+  </task>
+</resources>

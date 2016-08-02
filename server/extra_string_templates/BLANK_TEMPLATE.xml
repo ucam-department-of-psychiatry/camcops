@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="INSERT_EXTRASTRING_TASKNAME">
+    <!-- INSERT_TASK_NAME_AND_ABBREVIATION -->
+
+    <string name="XXX">XXX</string>
+    <string name="XXX">XXX</string>
+    <string name="XXX">XXX</string>
+
+  </task>
+</resources>

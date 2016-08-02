@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="fast">
+    <!-- Fast Alcohol Screening Test (FAST) -->
+
+    <string name="title">Fast Alcohol Screening Test</string>
+    <string name="info">For the following questions please circle the answer which best applies.\n\n1 drink = ½ pint of beer or 1 glass of wine or 1 single spirits</string>
+    <string name="q1">1. MEN: How often do you have EIGHT or more drinks on one occasion?\nWOMEN: How often do you have SIX or more drinks on one occasion?</string>
+    <string name="q2">2. How often during the last year have you been unable to remember what happened the night before because you had been drinking?</string>
+    <string name="q3">3. How often during the last year have you failed to do what was normally expected of you because of drinking?</string>
+    <string name="q1to3_option0">Never</string>
+    <string name="q1to3_option1">Less than monthly</string>
+    <string name="q1to3_option2">Monthly</string>
+    <string name="q1to3_option3">Weekly</string>
+    <string name="q1to3_option4">Daily or almost daily</string>
+    <string name="q4">4. In the last year has a relative or friend, or a doctor or other health worker been concerned about your drinking or suggested you cut down?</string>
+    <string name="q4_option0">No</string>
+    <string name="q4_option2">Yes, on one occasion</string>
+    <string name="q4_option4">Yes, on more than one occasion</string>
+    <string name="q1_s">Q1 (M≥8, F≥6 drinks):</string>
+    <string name="q2_s">Q2 (unable to remember night before):</string>
+    <string name="q3_s">Q3 (failed to do what was expected):</string>
+    <string name="q4_s">Q4 (someone else concerned):</string>
+    <string name="positive">FAST positive (harmful/hazardous):</string>
+
+  </task>
+</resources>

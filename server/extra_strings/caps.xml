@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="caps">
+
+    <!--
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Cardiff Anomalous Perceptions Scale (CAPS)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Copyright © 2005, Bell, Halligan & Ellis.
+    Original article:
+        Bell V, Halligan PW, Ellis HD (2006). The Cardiff Anomalous Perceptions
+        Scale (CAPS): a new validated measure of anomalous perceptual experience.
+        Schizophrenia Bulletin 32: 366–377.
+    Published by Oxford University Press on behalf of the Maryland Psychiatric
+    Research Center. All rights reserved. The online version of this article
+    has been published under an open access model. Users are entitled to use,
+    reproduce, disseminate, or display the open access version of this article for
+    non-commercial purposes provided that: the original authorship is properly and
+    fully attributed; the Journal and Oxford University Press are attributed as
+    the original place of publication with the correct citation details given;
+    if an article is subsequently reproduced or disseminated not in its entirety
+    but only in part or as a derivative work this must be clearly indicated.
+    For commercial re-use, please contact journals.permissions@oxfordjournals.org.
+    -->
+
+    <string name="instruction_title">CAPS</string>
+    <string name="instruction_1">Introduction</string>
+    <string name="instruction_2">This questionnaire asks questions about sensations and perceptions you may have experienced. Some of the experiences are unusual, some of them are more everyday.</string>
+    <string name="instruction_3">We realise selecting answers may not always represent your experience as accurately as you might like. However, we would ask you to select the answers that most closely match your experience and avoid missing any questions out.</string>
+    <string name="instruction_4">We would appreciate it if you could be as honest as possible when giving your answers.</string>
+    <string name="instruction_5">The only experiences we are not interested in are those that may have occurred whilst under the influence of drugs.</string>
+    <string name="instruction_6">Instructions</string>
+    <string name="instruction_7">Each item has a question. Please read the question and select either YES or NO.</string> <!-- original: "a question on the left hand side" -->
+    <string name="instruction_8">If you select NO please move straight on to the next question.</string>
+    <string name="instruction_9">If you select YES please rate the experience in all of the three scales below the item by selecting a number between 1 and 5.</string> <!-- original: "circle YES" instead of "select YES" -->
+    <string name="instruction_10">These ask about how distressing you found the experience, how distracting you found it, and how often the experience occurs.</string>
+    <string name="instruction_11">Example questions</string>
+    <string name="instruction_12">You do not need to answer these questions, they are just examples to illustrate the instructions.</string>
+    <string name="q1">1) Do you ever notice that sounds are much louder than they normally would be?</string>
+    <string name="q2">2) Do you ever sense the presence of another being, despite being unable to see any evidence?</string>
+    <string name="q3">3) Do you ever hear your own thoughts repeated or echoed?</string>
+    <string name="q4">4) Do you ever see shapes, lights or colours even though there is nothing really there?</string>
+    <string name="q5">5) Do you ever experience unusual burning sensations or other strange feelings in or on your body?</string>
+    <string name="q6">6) Do you ever hear noises or sounds when there is nothing about to explain them?</string>
+    <string name="q7">7) Do you ever hear your own thoughts spoken aloud in your head, so that someone near might be able to hear them?</string>
+    <string name="q8">8) Do you ever detect smells which don’t seem to come from your surroundings?</string>
+    <string name="q9">9) Do you ever have the sensation that your body, or a part of it, is changing or has changed shape?</string>
+    <string name="q10">10) Do you ever have the sensation that your limbs might not be your own or might not be properly connected to your body?</string>
+    <string name="q11">11) Do you ever hear voices commenting on what you are thinking or doing?</string>
+    <string name="q12">12) Do you ever feel that someone is touching you, but when you look nobody is there?</string>
+    <string name="q13">13) Do you ever hear voices saying words or sentences when there is no-one around that might account for it?</string>
+    <string name="q14">14) Do you ever experience unexplained tastes in your mouth?</string>
+    <string name="q15">15) Do you ever find that sensations happen all at once and flood you with information?</string>
+    <string name="q16">16) Do you ever find that sounds are distorted in strange or unusual ways?</string>
+    <string name="q17">17) Do you ever have difficulty distinguishing one sensation from another?</string>
+    <string name="q18">18) Do you ever smell everyday odours and think that they are unusually strong?</string>
+    <string name="q19">19) Do you ever find the appearance of things or people seems to change in a puzzling way, e.g. distorted shapes or sizes or colour?</string>
+    <string name="q20">20) Do you ever find that your skin is more sensitive to touch, heat or cold than usual?</string>
+    <string name="q21">21) Do you ever think that food or drink tastes much stronger than it normally would?</string>
+    <string name="q22">22) Do you ever look in the mirror and think that your face seems different from usual?</string>
+    <string name="q23">23) Do you ever have days where lights or colours seem brighter or more intense than usual?</string>
+    <string name="q24">24) Do you ever have the feeling of being uplifted, as if driving or rolling over a road while sitting quietly?</string>
+    <string name="q25">25) Do you ever find that common smells sometimes seem unusually different?</string>
+    <string name="q26">26) Do you ever think that everyday things look abnormal to you?</string>
+    <string name="q27">27) Do you ever find that your experience of time changes dramatically?</string>
+    <string name="q28">28) Have you ever heard two or more unexplained voices talking with each other?</string>
+    <string name="q29">29) Do you ever notice smells or odours that people next to you seem unaware of?</string>
+    <string name="q30">30) Do you ever notice that food or drink seems to have an unusual taste?</string>
+    <string name="q31">31) Do you ever see things that other people cannot?</string>
+    <string name="q32">32) Do you ever hear sounds or music that people near you don’t hear?</string>
+    <string name="if_yes_please_rate">If YES, please rate below:</string>
+    <string name="distress_option1">1 – not at all distressing</string>
+    <string name="distress_option5">5 – very distressing</string>
+    <string name="intrusiveness_option1">1 – not at all distracting</string>
+    <string name="intrusiveness_option5">5 – completely intrusive</string>
+    <string name="frequency_option1">1 – hardly happens at all</string>
+    <string name="frequency_option5">5 – happens all the time</string>
+    <string name="distress">Distress</string>
+    <string name="intrusiveness">Intrusiveness</string>
+    <string name="frequency">Frequency</string>
+
+  </task>
+</resources>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="cape42">
+
+    <!--
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Community Assessment of Psychic Experiences (CAPE)
+    (CAPE-42)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    By Jim van Os and colleagues. Original article:
+        Stefanis NC, Hanssen M, Smirnis NK, Avramopoulos DA, Evdokimidis IK,
+        Stefanis CN, Verdoux H, Van Os J (2002). Evidence that three dimensions of
+        psychosis have a distribution in the general population. Psychological
+        Medicine 32: 347–358.
+    "[T]otally freeware” (personal communication, Jim van Os to Rudolf Cardinal,
+    2014-10-16).
+
+    -->
+
+    <string name="frequency_option1">Never</string>
+    <string name="frequency_option2">Sometimes</string>
+    <string name="frequency_option3">Often</string>
+    <string name="frequency_option4">Nearly always</string>
+    <string name="distress_option1">Not distressed</string>
+    <string name="distress_option2">A bit distressed</string>
+    <string name="distress_option3">Quite distressed</string>
+    <string name="distress_option4">Very distressed</string>
+    <string name="distress_stem">Please indicate how distressed you are by this experience:</string>
+    <string name="q1">Do you ever feel sad?</string>
+    <string name="q2">Do you ever feel as if people seem to drop hints about you or say things with a double meaning?</string>
+    <string name="q3">Do you ever feel that you are not a very animated person?</string>
+    <string name="q4">Do you ever feel that you are not much of a talker when you are conversing with other people?</string>
+    <string name="q5">Do you ever feel as if things in magazines or on TV were written especially for you?</string>
+    <string name="q6">Do you ever feel as if some people are not what they seem to be?</string>
+    <string name="q7">Do you ever feel as if you are being persecuted in some way?</string>
+    <string name="q8">Do you ever feel that you experience few or no emotions at important events?</string>
+    <string name="q9">Do you ever feel pessimistic about everything?</string>
+    <string name="q10">Do you ever feel as if there is a conspiracy against you?</string>
+    <string name="q11">Do you ever feel as if you are destined to be someone very important?</string>
+    <string name="q12">Do you ever feel as if there is no future for you?</string>
+    <string name="q13">Do you ever feel that you are a very special or unusual person?</string>
+    <string name="q14">Do you ever feel as if you do not want to live anymore?</string>
+    <string name="q15">Do you ever think that people can communicate telepathically?</string>
+    <string name="q16">Do you ever feel that you have no interest to be with other people?</string>
+    <string name="q17">Do you ever feel as if electrical devices such as computers can influence the way you think?</string>
+    <string name="q18">Do you ever feel that you are lacking in motivation to do things?</string>
+    <string name="q19">Do you ever cry about nothing?</string>
+    <string name="q20">Do you believe in the power of witchcraft, voodoo or the occult?</string>
+    <string name="q21">Do you ever feel that you are lacking in energy?</string>
+    <string name="q22">Do you ever feel that people look at you oddly because of your appearance?</string>
+    <string name="q23">Do you ever feel that your mind is empty?</string>
+    <string name="q24">Do you ever feel as if the thoughts in your head are being taken away from you?</string>
+    <string name="q25">Do you ever feel that you are spending all your days doing nothing?</string>
+    <string name="q26">Do you ever feel as if the thoughts in your head are not your own?</string>
+    <string name="q27">Do you ever feel that your feelings are lacking in intensity?</string>
+    <string name="q28">Have your thoughts ever been so vivid that you were worried other people would hear them?</string>
+    <string name="q29">Do you ever feel that you are lacking in spontaneity?</string>
+    <string name="q30">Do you ever hear your own thoughts being echoed back to you?</string>
+    <string name="q31">Do you ever feel as if you are under the control of some force or power other than yourself?</string>
+    <string name="q32">Do you ever feel that your emotions are blunted?</string>
+    <string name="q33">Do you ever hear voices when you are alone?</string>
+    <string name="q34">Do you ever hear voices talking to each other when you are alone?</string>
+    <string name="q35">Do you ever feel that you are neglecting your appearance or personal hygiene?</string>
+    <string name="q36">Do you ever feel that you can never get things done?</string>
+    <string name="q37">Do you ever feel that you have only few hobbies or interests?</string>
+    <string name="q38">Do you ever feel guilty?</string>
+    <string name="q39">Do you ever feel like a failure?</string>
+    <string name="q40">Do you ever feel tense?</string>
+    <string name="q41">Do you ever feel as if a double has taken the place of a family member, friend or acquaintance?</string>
+    <string name="q42">Do you ever see objects, people or animals that other people cannot see?</string>
+
+  </task>
+</resources>

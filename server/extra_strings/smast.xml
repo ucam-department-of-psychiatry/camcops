@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="smast">
+    <!-- Short Michigan Alcohol Screening Test (SMAST) -->
+
+    <string name="title">Short Michigan Alcoholism Screening Test (SMAST)</string>
+    <string name="stem">Please choose either Yes or No for each item as it applies to you.</string>
+    <string name="q1">1. Do you believe that you are a normal drinker (meaning that you drink less than or as much as the average person)?</string>
+    <string name="q2">2. Does your husband, wife, parent or other near relative ever worry or complain about your drinking?</string>
+    <string name="q3">3. Do you ever feel guilty about your drinking?</string>
+    <string name="q4">4. Do your friends and relatives think that you are a normal drinker (meaning that you drink less than or as much as the average person)?</string>
+    <string name="q5">5. Are you always able to stop drinking when you want to stop?</string>
+    <string name="q6">6. Have you ever attended a meeting of Alcoholics Anonymous (AA)?</string>
+    <string name="q7">7. Has your drinking ever created problems between you and your wife, husband, a parent or other near relative?</string>
+    <string name="q8">8. Have you ever been in trouble at work because of your drinking?</string>
+    <string name="q9">9. Have you ever neglected your obligations, your family or your work for two or more days in a row because of your drinking?</string>
+    <string name="q10">10. Have you ever gone to anyone for help about your drinking?</string>
+    <string name="q11">11. Have you ever been in the hospital because of drinking?</string>
+    <string name="q12">12. Have you ever been arrested for drunken driving, driving while intoxicated, or driving under the influence of alcoholic beverages?</string>
+    <string name="q13">13. Have you ever been arrested, even for a few hours, because of other drunken behavior?</string>
+    <string name="q1_s">Q1 (normal drinker):</string>
+    <string name="q2_s">Q2 (relative worries):</string>
+    <string name="q3_s">Q3 (guilty):</string>
+    <string name="q4_s">Q4 (friends think normal):</string>
+    <string name="q5_s">Q5 (stop when want):</string>
+    <string name="q6_s">Q6 (attended AA):</string>
+    <string name="q7_s">Q7 (problems with relative):</string>
+    <string name="q8_s">Q8 (trouble at work):</string>
+    <string name="q9_s">Q9 (neglected obligations):</string>
+    <string name="q10_s">Q10 (sought help):</string>
+    <string name="q11_s">Q11 (hospitalised):</string>
+    <string name="q12_s">Q12 (drink driving):</string>
+    <string name="q13_s">Q13 (other arrests):</string>
+    <string name="scores">scores</string>
+    <string name="problem_likelihood">Likelihood of problem:</string>
+    <string name="problem_unlikely">problem unlikely</string>
+    <string name="problem_possible">problem possible</string>
+    <string name="problem_probable">problem probable</string>
+
+  </task>
+</resources>

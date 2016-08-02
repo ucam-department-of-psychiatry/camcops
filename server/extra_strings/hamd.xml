@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="hamd">
+    <!-- Hamilton Depression Rating Scale (HDRS, HAM-D, HRSD) -->
+
+    <string name="q1_title">HAM-D: 1. Depressed mood</string>
+    <string name="q1_s">Q1 (depressed mood):</string>
+    <string name="q1_question">1. DEPRESSED MOOD (sadness, hopeless, helpless, worthless)</string>
+    <string name="q1_option0">0= Absent.</string>
+    <string name="q1_option1">1= These feeling states indicated only on questioning.</string>
+    <string name="q1_option2">2= These feeling states spontaneously reported verbally.</string>
+    <string name="q1_option3">3= Communicates feeling states non-verbally, i.e., through facial expression, posture, voice, and tendency to weep.</string>
+    <string name="q1_option4">4= Patient reports virtually only these feeling states in his/her spontaneous verbal and non-verbal communication.</string>
+    <string name="q2_title">HAM-D: 2. Feelings of guilt</string>
+    <string name="q2_s">Q2 (guilt):</string>
+    <string name="q2_question">2. FEELINGS OF GUILT</string>
+    <string name="q2_option0">0= Absent.</string>
+    <string name="q2_option1">1= Self reproach, feels he/she has let people down.</string>
+    <string name="q2_option2">2= Ideas of guilt or rumination over past errors or sinful deeds.</string>
+    <string name="q2_option3">3= Present illness is a punishment. Delusions of guilt.</string>
+    <string name="q2_option4">4= Hears accusatory or denunciatory voices and/or experiences threatening visual hallucinations.</string>
+    <string name="q3_title">HAM-D: 3. Suicide</string>
+    <string name="q3_s">Q3 (suicide):</string>
+    <string name="q3_question">3. SUICIDE</string>
+    <string name="q3_option0">0= Absent.</string>
+    <string name="q3_option1">1= Feels life is not worth living.</string>
+    <string name="q3_option2">2= Wishes he/she were dead or any thoughts of possible death to self.</string>
+    <string name="q3_option3">3= Suicidal ideas or gesture.</string>
+    <string name="q3_option4">4= Attempts at suicide (any serious attempt rates 4).</string>
+    <string name="q4_title">HAM-D: 4. Early insomnia</string>
+    <string name="q4_s">Q4 (early insomnia):</string>
+    <string name="q4_question">4. INSOMNIA: EARLY IN THE NIGHT</string>
+    <string name="q4_option0">0= No difficulty falling asleep.</string>
+    <string name="q4_option1">1= Complains of occasional difficulty falling asleep, i.e. more than ½ hour.</string>
+    <string name="q4_option2">2= Complains of nightly difficulty falling asleep.</string>
+    <string name="q5_title">HAM-D: 5. Middle insomnia</string>
+    <string name="q5_s">Q5 (middle insomnia):</string>
+    <string name="q5_question">5. INSOMNIA: MIDDLE OF THE NIGHT</string>
+    <string name="q5_option0">0= No difficulty.</string>
+    <string name="q5_option1">1= Patient complains of being restless and disturbed during the night.</string>
+    <string name="q5_option2">2= Waking during the night — any getting out of bed rates 2 (except for purposes of voiding).</string>
+    <string name="q6_title">HAM-D: 6. Late insomnia</string>
+    <string name="q6_s">Q6 (late insomnia):</string>
+    <string name="q6_question">6. INSOMNIA: EARLY HOURS OF THE MORNING</string>
+    <string name="q6_option0">0= No difficulty.</string>
+    <string name="q6_option1">1= Waking in early hours of the morning but goes back to sleep.</string>
+    <string name="q6_option2">2= Unable to fall asleep again if he/she gets out of bed.</string>
+    <string name="q7_title">HAM-D: 7. Work and activities</string>
+    <string name="q7_s">Q7 (work/activities):</string>
+    <string name="q7_question">7. WORK AND ACTIVITIES</string>
+    <string name="q7_option0">0= No difficulty.</string>
+    <string name="q7_option1">1= Thoughts and feelings of incapacity, fatigue or weakness related to activities; work or hobbies.</string>
+    <string name="q7_option2">2= Loss of interest in activity; hobbies or work — either directly reported by patient, or indirect in listlessness, indecision and vacillation (feels he/she has to push self to work or activities).</string>
+    <string name="q7_option3">3= Decrease in actual time spent in activities or decrease in productivity. Rate 3 if the patient does not spend at least three hours a day in activities (job or hobbies) excluding routine chores.</string>
+    <string name="q7_option4">4= Stopped working because of present illness. Rate 4 if patient engages in no activities except routine chores, or if patient fails to perform routine chores unassisted.</string>
+    <string name="q8_title">HAM-D: 8. Psychomotor retardation</string>
+    <string name="q8_s">Q8 (psychomotor retardation):</string>
+    <string name="q8_question">8. RETARDATION (slowness of thought and speech, impaired ability to concentrate, decreased motor activity)</string>
+    <string name="q8_option0">0= Normal speech and thought.</string>
+    <string name="q8_option1">1= Slight retardation at interview.</string>
+    <string name="q8_option2">2= Obvious retardation at interview.</string>
+    <string name="q8_option3">3= Interview difficult.</string>
+    <string name="q8_option4">4= Complete stupor.</string>
+    <string name="q9_title">HAM-D: 9. Agitation</string>
+    <string name="q9_s">Q9 (agitation):</string>
+    <string name="q9_question">9. AGITATION</string>
+    <string name="q9_option0">0= None.</string>
+    <string name="q9_option1">1= Fidgetiness.</string>
+    <string name="q9_option2">2= Playing with hands, hair, etc.</string>
+    <string name="q9_option3">3= Moving about, can’t sit still.</string>
+    <string name="q9_option4">4= Hand wringing, nail biting, hair-pulling, biting of lips.</string>
+    <string name="q10_title">HAM-D: 10. Anxiety (psychological)</string>
+    <string name="q10_s">Q10 (anxiety, psychological):</string>
+    <string name="q10_question">10. ANXIETY (PSYCHOLOGICAL)</string>
+    <string name="q10_option0">0= No difficulty.</string>
+    <string name="q10_option1">1= Subjective tension and irritability.</string>
+    <string name="q10_option2">2= Worrying about minor matters.</string>
+    <string name="q10_option3">3= Apprehensive attitude apparent in face or speech.</string>
+    <string name="q10_option4">4= Fears expressed without questioning.</string>
+    <string name="q11_title">HAM-D: 11. Anxiety (somatic)</string>
+    <string name="q11_s">Q11 (anxiety, somatic):</string>
+    <string name="q11_question">11. ANXIETY SOMATIC (physiological concomitants of anxiety) such as:\ngastrointestinal – dry mouth, wind, indigestion, diarrhea, cramps, belching\ncardiovascular – palpitations, headaches\nrespiratory – hyperventilation, sighing\nurinary frequency\nsweating</string>
+    <string name="q11_option0">0= Absent.</string>
+    <string name="q11_option1">1= Mild.</string>
+    <string name="q11_option2">2= Moderate.</string>
+    <string name="q11_option3">3= Severe.</string>
+    <string name="q11_option4">4= Incapacitating.</string>
+    <string name="q12_title">HAM-D: 12. Somatic symptoms (gastrointestinal)</string>
+    <string name="q12_s">Q12 (somatic symptoms, gastrointestinal):</string>
+    <string name="q12_question">12. SOMATIC SYMPTOMS (GASTROINTESTINAL)</string>
+    <string name="q12_option0">0= None.</string>
+    <string name="q12_option1">1= Loss of appetite but eating without staff encouragement. Heavy feelings in abdomen.</string>
+    <string name="q12_option2">2= Difficulty eating without staff urging. Requests or requires laxatives or medication for bowels or medication for gastro-intestinal symptoms.</string>
+    <string name="q13_title">HAM-D: 13. Somatic symptoms (general)</string>
+    <string name="q13_s">Q12 (somatic symptoms, general):</string>
+    <string name="q13_question">13. GENERAL SOMATIC SYMPTOMS</string>
+    <string name="q13_option0">0= None.</string>
+    <string name="q13_option1">1= Heaviness in limbs, back or head. Backaches, headache, muscle aches. Loss of energy and fatigability.</string>
+    <string name="q13_option2">2= Any clear-cut symptom rates 2.</string>
+    <string name="q14_title">HAM-D: 14. Genital symptoms</string>
+    <string name="q14_s">Q14 (genital symptoms):</string>
+    <string name="q14_question">14. GENITAL SYMPTOMS (symptoms such as: loss of libido, impaired sexual performance, menstrual disturbances)</string>
+    <string name="q14_option0">0= Absent.</string>
+    <string name="q14_option1">1= Mild.</string>
+    <string name="q14_option2">2= Severe.</string>
+    <string name="q15_title">HAM-D: 15. Hypochondriasis</string>
+    <string name="q15_s">Q15 (hypochondriasis):</string>
+    <string name="q15_question">15. HYPOCHONDRIASIS</string>
+    <string name="q15_option0">0= Not present.</string>
+    <string name="q15_option1">1= Self-absorption (bodily).</string>
+    <string name="q15_option2">2= Preoccupation with health.</string>
+    <string name="q15_option3">3= Frequent complaints, requests for help, etc.</string>
+    <string name="q15_option4">4= Hypochondriacal delusions.</string>
+    <string name="whichq16_title">HAM-D: Which method of assessing weight?</string>
+    <string name="whichq16_s">Weight method (0=history, 1=measured):</string>
+    <string name="whichq16_question">How will you rate weight changes?</string>
+    <string name="whichq16_option0">A. By history, according to the patient</string>
+    <string name="whichq16_option1">B. By measured change in the past week</string>
+    <string name="q16a_title">HAM-D: 16A. Weight loss (by history)</string>
+    <string name="q16a_s">Q16A (weight loss, by history):</string>
+    <string name="q16a_question">16A. LOSS OF WEIGHT, according to the patient</string>
+    <string name="q16a_option0">0= No weight loss.</string>
+    <string name="q16a_option1">1= Probably weight loss associated with present illness.</string>
+    <string name="q16a_option2">2= Definite (according to patient) weight loss.</string>
+    <string name="q16a_option3">3= Not assessed.</string>
+    <string name="q16b_title">HAM-D: 16B. Weight loss (by measurement)</string>
+    <string name="q16b_s">Q16B (weight loss, by measurement):</string>
+    <string name="q16b_question">16B. LOSS OF WEIGHT, according to weekly measurements</string>
+    <string name="q16b_option0">0= Less than 1 lb [0.45kg] weight loss in week.</string>
+    <string name="q16b_option1">1= Greater than 1 lb [0.45kg] weight loss in week.</string>
+    <string name="q16b_option2">2= Greater than 2 lb [0.91kg] weight loss in week.</string>
+    <string name="q16b_option3">3= Not assessed.</string>
+    <string name="q17_title">HAM-D: 17. Insight</string>
+    <string name="q17_s">Q17 (insight):</string>
+    <string name="q17_question">17. INSIGHT</string>
+    <string name="q17_option0">0= Acknowledges being depressed and ill.</string>
+    <string name="q17_option1">1= Acknowledges illness but attributes cause to bad food, climate, overwork, virus, need for rest, etc.</string>
+    <string name="q17_option2">2= Denies being ill at all.</string>
+    <string name="q18a_title">HAM-D: 18(A). Diurnal variation: presence</string>
+    <string name="q18a_s">Q18A (diurnal variation, presence):</string>
+    <string name="q18a_question">(Subtyping only.)\n18. DIURNAL VARIATION.\nA. Note whether symptoms are worse in morning or evening. If NO diurnal variation, mark none</string>
+    <string name="q18a_option0">0= No variation.</string>
+    <string name="q18a_option1">1= Worse in A.M.</string>
+    <string name="q18a_option2">2= Worse in P.M.</string>
+    <string name="q18b_title">HAM-D: 18(B). Diurnal variation: severity</string>
+    <string name="q18b_s">Q18B (diurnal variation, severity):</string>
+    <string name="q18b_question">(Subtyping only.)\n18. DIURNAL VARIATION.\nB. When present, mark the severity of the variation. Mark “None” if NO variation</string>
+    <string name="q18b_option0">0= None.</string>
+    <string name="q18b_option1">1= Mild.</string>
+    <string name="q18b_option2">2= Severe.</string>
+    <string name="q19_title">HAM-D: 19. Depersonalization/derealization</string>
+    <string name="q19_s">Q19 (depersonalization/derealization):</string>
+    <string name="q19_question">(Subtyping only.)\n19. DEPERSONALIZATION AND DEREALIZATION (such as: feelings of unreality, nihilistic ideas)</string>
+    <string name="q19_option0">0= Absent.</string>
+    <string name="q19_option1">1= Mild.</string>
+    <string name="q19_option2">2= Moderate.</string>
+    <string name="q19_option3">3= Severe.</string>
+    <string name="q19_option4">4= Incapacitating.</string>
+    <string name="q20_title">HAM-D: 20. Paranoid symptoms</string>
+    <string name="q20_s">Q20 (paranoid symptoms):</string>
+    <string name="q20_question">(Subtyping only.)\n20. PARANOID SYMPTOMS</string>
+    <string name="q20_option0">0= None.</string>
+    <string name="q20_option1">1= Suspicious.</string>
+    <string name="q20_option2">2= Ideas of reference.</string>
+    <string name="q20_option3">3= Delusions of reference and persecution.</string>
+    <string name="q21_title">HAM-D: 21. Obsessional and compulsive symptoms</string>
+    <string name="q21_s">Q21 (obsessional and compulsive symptoms)</string>
+    <string name="q21_question">(Subtyping only.)\n21. OBSESSIONAL AND COMPULSIVE SYMPTOMS</string>
+    <string name="q21_option0">0= Absent.</string>
+    <string name="q21_option1">1= Mild.</string>
+    <string name="q21_option2">2= Severe.</string>
+    <string name="total_score">HAM-D(17) total score</string>
+    <string name="severity">Severity:</string>
+    <string name="severity_none">No depression</string>
+    <string name="severity_mild">Mild depression</string>
+    <string name="severity_moderate">Moderate depression</string>
+    <string name="severity_severe">Severe depression</string>
+    <string name="severity_verysevere">Very severe depression</string>
+
+  </task>
+</resources>

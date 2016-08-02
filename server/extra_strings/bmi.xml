@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="bmi">
+    <!-- Body Mass Index (BMI) -->
+
+    <string name="height">Height</string>
+    <string name="mass">Mass</string>
+    <string name="underweight_under_13">Very severely underweight (WHO grade 3; RCPsych severe AN, high risk)</string>
+    <string name="underweight_13_15">Very severely underweight (WHO grade 3; RCPsych severe AN, medium risk)</string>
+    <string name="underweight_15_16">Severely underweight (WHO grade 3; AN)</string>
+    <string name="underweight_16_17">Underweight (WHO grade 2; AN)</string>
+    <string name="underweight_17_17.5">Underweight (WHO grade 1; below ICD-10/RCPsych AN cutoff)</string>
+    <string name="underweight_17.5_18.5">Underweight (WHO grade 1)</string>
+    <string name="normal">Normal (healthy weight)</string>
+    <string name="overweight">Overweight</string>
+    <string name="obese_1">Obese class I (moderately obese)</string>
+    <string name="obese_2">Obese class II (severely obese)</string>
+    <string name="obese_3">Obese class III (very severely obese)</string>
+    <string name="title_1">BMI (1/4): Units for height</string>
+    <string name="title_2">BMI (2/4): Height</string>
+    <string name="title_3">BMI (3/4): Units for mass</string>
+    <string name="title_4">BMI (4/4): Mass</string>
+    <string name="metric_height">Metric (metres)</string>
+    <string name="imperial_height">Imperial (feet, inches)</string>
+    <string name="m">metres (m)</string>
+    <string name="ft">Feet</string>
+    <string name="in">Inches</string>
+    <string name="metric_mass">Metric (kg)</string>
+    <string name="imperial_mass">Imperial (stones, pounds)</string>
+    <string name="kg">kilograms (kg)</string>
+    <string name="st">stones (st)</string>
+    <string name="lb">pounds (lb)</string>
+
+  </task>
+</resources>
