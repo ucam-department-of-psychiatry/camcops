@@ -22,7 +22,7 @@
 
 /*jslint node: true, newcap: true, nomen: true, plusplus: true */
 "use strict";
-/*global Titanium, L */
+/*global L */
 
 var DBCONSTANTS = require('common/DBCONSTANTS'),
     dbcommon = require('lib/dbcommon'),
@@ -30,9 +30,7 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
     lang = require('lib/lang'),
     tablename = "fast",
     fieldlist = dbcommon.standardTaskFields(),
-    nquestions = 4,
-    yes = "Y",
-    no = "N";
+    nquestions = 4;
 
 dbcommon.appendRepeatedFieldDef(fieldlist, "q", 1, nquestions,
                                 DBCONSTANTS.TYPE_INTEGER);
@@ -57,6 +55,10 @@ lang.extendPrototype(Fast, {
     _fieldlist: fieldlist,
 
     // TASK CLASS FIELD OVERRIDES (USED BY BaseTask)
+
+    isTaskCrippled: function () {
+        return !this.extraStringsPresent();
+    },
 
     // OTHER
 

@@ -22,7 +22,7 @@
 
 /*jslint node: true, newcap: true, nomen: true, plusplus: true */
 "use strict";
-/*global Titanium, L */
+/*global L */
 
 var DBCONSTANTS = require('common/DBCONSTANTS'),
     dbcommon = require('lib/dbcommon'),
@@ -64,6 +64,10 @@ lang.extendPrototype(Cage, {
 
     // TASK CLASS FIELD OVERRIDES (USED BY BaseTask)
 
+    isTaskCrippled: function () {
+        return !this.extraStringsPresent();
+    },
+
     // OTHER
 
     // Scoring
@@ -92,12 +96,13 @@ lang.extendPrototype(Cage, {
     getDetail: function () {
         var uifunc = require('lib/uifunc'),
             total = this.getTotalScore();
-        return taskcommon.valueDetail(this, "cage_q", "_s", " ", "q", 1,
-                                      nquestions) +
+        return (
+            this.xValueDetail("q", "_s", " ", "q", 1, nquestions) +
             "\n" +
             this.getSummary() + "\n" +
             "\n" +
-            L('cage_over_threshold') + " " + uifunc.yesNo(total >= 2);
+            this.XSTRING('over_threshold') + " " + uifunc.yesNo(total >= 2)
+        );
     },
 
     edit: function (readOnly) {
@@ -108,17 +113,17 @@ lang.extendPrototype(Cage, {
 
         pages = [
             {
-                title: L('cage_title'),
+                title: this.XSTRING('title'),
                 elements: [
-                    { type: "QuestionText", text: L('cage_stem') },
+                    { type: "QuestionText", text: this.XSTRING('stem') },
                     {
                         type: "QuestionMCQGrid",
                         options: taskcommon.OPTIONS_YES_NO_CHAR,
                         questions: [
-                            L('cage_q1'),
-                            L('cage_q2'),
-                            L('cage_q3'),
-                            L('cage_q4')
+                            this.XSTRING('q1'),
+                            this.XSTRING('q2'),
+                            this.XSTRING('q3'),
+                            this.XSTRING('q4')
                         ],
                         fields: [ 'q1', 'q2', 'q3', 'q4' ],
                         optionsWidthTogether: '25%'

@@ -23,6 +23,7 @@
 /*jslint node: true, newcap: true, nomen: true, plusplus: true, unparam: true */
 "use strict";
 /*global Titanium, L */
+/* jshint -W100 */
 
 var DBCONSTANTS = require('common/DBCONSTANTS'),
     dbcommon = require('lib/dbcommon'),
@@ -553,6 +554,7 @@ lang.extendPrototype(Moca, {
             fnGetFieldValue: self.defaultGetFieldValueFn,
             fnSetField: self.defaultSetFieldFn,
             fnFinished: self.defaultFinishedFn,
+            /* jshint unused:true */
             fnShowNext: function (currentPage, pageTag) {
                 if (pageTag === CATEGORY_RECALL || pageTag === MC_RECALL) {
                     // the optional cued recall pages

@@ -72,8 +72,8 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
     // Other
     //-------------------------------------------------------------------------
     EVENT_FROM_WEBVIEW = 'IDED3D_EVENT_FROM_WEBVIEW',
-    EVENT_TO_WEBVIEW = 'IDED3D_EVENT_TO_WEBVIEW',
-    DISPLAY_DP = 3,
+    // EVENT_TO_WEBVIEW = 'IDED3D_EVENT_TO_WEBVIEW',
+    // DISPLAY_DP = 3,
     MAX_STAGES = 8,
     MAX_NUMBER = 9,
     MAX_COUNTERBALANCE_DIMENSIONS = 5,

@@ -22,7 +22,7 @@
 
 /*jslint node: true, newcap: true, nomen: true, plusplus: true */
 "use strict";
-/*global Titanium, L */
+/*global L */
 
 var taskcommon = require('lib/taskcommon'),
     lang = require('lib/lang');

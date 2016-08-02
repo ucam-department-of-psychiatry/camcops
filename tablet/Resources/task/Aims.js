@@ -22,7 +22,7 @@
 
 /*jslint node: true, newcap: true, nomen: true, plusplus: true */
 "use strict";
-/*global Titanium, L */
+/*global L */
 
 var DBCONSTANTS = require('common/DBCONSTANTS'),
     dbcommon = require('lib/dbcommon'),
@@ -59,6 +59,10 @@ lang.extendPrototype(Aims, {
 
     // TASK CLASS FIELD OVERRIDES (USED BY BaseTask)
 
+    isTaskCrippled: function () {
+        return !this.extraStringsPresent();
+    },
+
     // OTHER
 
     // Scoring
@@ -80,9 +84,8 @@ lang.extendPrototype(Aims, {
 
     getDetail: function () {
         return (
-            taskcommon.valueDetail(this, "aims_q", "_s", " ", "q", 1, 10) +
-            taskcommon.yesNoNullDetail(this, "aims_q", "_s", " ",
-                                       "q", 11, 12) +
+            this.xValueDetail("q", "_s", " ", "q", 1, 10) +
+            this.xYesNoNullDetail("q", "_s", " ", "q", 11, 12) +
             "\n" + this.getSummary()
         );
     },
@@ -97,98 +100,98 @@ lang.extendPrototype(Aims, {
 
         pages = [
             {
-                title: L('aims_intro_title'),
+                title: this.XSTRING('intro_title'),
                 clinician: true,
                 elements: [
                     self.getClinicianQuestionnaireBlock(), // Clinician info 3/3
                     {
                         type: "QuestionText",
-                        text: L('aims_intro_info')
+                        text: this.XSTRING('intro_info')
                     }
                 ]
             },
             {
-                title: L('aims_section1_title'),
+                title: this.XSTRING('section1_title'),
                 clinician: true,
                 elements: [
-                    { type: "QuestionText", text: L('aims_section1_stem') },
+                    { type: "QuestionText", text: this.XSTRING('section1_stem') },
                     {
                         type: "QuestionMCQGrid",
                         options: [
-                            new KeyValuePair(L('aims_main_option0'), 0),
-                            new KeyValuePair(L('aims_main_option1'), 1),
-                            new KeyValuePair(L('aims_main_option2'), 2),
-                            new KeyValuePair(L('aims_main_option3'), 3),
-                            new KeyValuePair(L('aims_main_option4'), 4)
+                            new KeyValuePair(this.XSTRING('main_option0'), 0),
+                            new KeyValuePair(this.XSTRING('main_option1'), 1),
+                            new KeyValuePair(this.XSTRING('main_option2'), 2),
+                            new KeyValuePair(this.XSTRING('main_option3'), 3),
+                            new KeyValuePair(this.XSTRING('main_option4'), 4)
                         ],
                         questions: [
-                            L('aims_q1_question'),
-                            L('aims_q2_question'),
-                            L('aims_q3_question'),
-                            L('aims_q4_question'),
-                            L('aims_q5_question'),
-                            L('aims_q6_question'),
-                            L('aims_q7_question'),
-                            L('aims_q8_question')
+                            this.XSTRING('q1_question'),
+                            this.XSTRING('q2_question'),
+                            this.XSTRING('q3_question'),
+                            this.XSTRING('q4_question'),
+                            this.XSTRING('q5_question'),
+                            this.XSTRING('q6_question'),
+                            this.XSTRING('q7_question'),
+                            this.XSTRING('q8_question')
                         ],
                         fields: [
                             'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8'
                         ],
                         subtitles: [
-                            {beforeIndex: 1 - 1, subtitle: L('aims_q1_subtitle') },
-                            {beforeIndex: 5 - 1, subtitle: L('aims_q5_subtitle') },
-                            {beforeIndex: 7 - 1, subtitle: L('aims_q7_subtitle') },
-                            {beforeIndex: 8 - 1, subtitle: L('aims_q8_subtitle') }
+                            {beforeIndex: 1 - 1, subtitle: this.XSTRING('q1_subtitle') },
+                            {beforeIndex: 5 - 1, subtitle: this.XSTRING('q5_subtitle') },
+                            {beforeIndex: 7 - 1, subtitle: this.XSTRING('q7_subtitle') },
+                            {beforeIndex: 8 - 1, subtitle: this.XSTRING('q8_subtitle') }
                         ]
                     }
                 ]
             },
             {
-                title: L('aims_section2_title'),
+                title: this.XSTRING('section2_title'),
                 clinician: true,
                 elements: [
-                    { type: "QuestionText", text: L('aims_q9_question') },
+                    { type: "QuestionText", text: this.XSTRING('q9_question') },
                     {
                         type: "QuestionMCQ",
                         options: [
-                            new KeyValuePair(L('aims_q9_option0'), 0), // different one
-                            new KeyValuePair(L('aims_main_option1'), 1),
-                            new KeyValuePair(L('aims_main_option2'), 2),
-                            new KeyValuePair(L('aims_main_option3'), 3),
-                            new KeyValuePair(L('aims_main_option4'), 4)
+                            new KeyValuePair(this.XSTRING('q9_option0'), 0), // different one
+                            new KeyValuePair(this.XSTRING('main_option1'), 1),
+                            new KeyValuePair(this.XSTRING('main_option2'), 2),
+                            new KeyValuePair(this.XSTRING('main_option3'), 3),
+                            new KeyValuePair(this.XSTRING('main_option4'), 4)
                         ],
                         field: "q9"
                     }
                 ]
             },
             {
-                title: L('aims_section3_title'),
+                title: this.XSTRING('section3_title'),
                 clinician: true,
                 elements: [
-                    { type: "QuestionText", text: L('aims_q10_question') },
+                    { type: "QuestionText", text: this.XSTRING('q10_question') },
                     {
                         type: "QuestionMCQ",
                         options: [
-                            new KeyValuePair(L('aims_q10_option0'), 0),
-                            new KeyValuePair(L('aims_q10_option1'), 1),
-                            new KeyValuePair(L('aims_q10_option2'), 2),
-                            new KeyValuePair(L('aims_q10_option3'), 3),
-                            new KeyValuePair(L('aims_q10_option4'), 4)
+                            new KeyValuePair(this.XSTRING('q10_option0'), 0),
+                            new KeyValuePair(this.XSTRING('q10_option1'), 1),
+                            new KeyValuePair(this.XSTRING('q10_option2'), 2),
+                            new KeyValuePair(this.XSTRING('q10_option3'), 3),
+                            new KeyValuePair(this.XSTRING('q10_option4'), 4)
                         ],
                         field: "q10"
                     }
                 ]
             },
             {
-                title: L('aims_section4_title'),
+                title: this.XSTRING('section4_title'),
                 clinician: true,
                 elements: [
                     {
                         type: "QuestionMCQGrid",
                         options: taskcommon.OPTIONS_NO_YES_INTEGER,
                         questions: [
-                            L('aims_q11_question'),
-                            L('aims_q12_question')
+                            this.XSTRING('q11_question'),
+                            this.XSTRING('q12_question')
                         ],
                         fields: [ 'q11', 'q12' ]
                     }

@@ -387,6 +387,7 @@ lang.extendPrototype(Cardinal_ExpDetThreshold, {
                 self.defaultSetFieldFn(fieldname, value);
             },
             okIconAtEnd: true,
+            /* jshint unused:true */
             fnMakePageOnTheFly: function (currentPage, pageTag) {
                 if (pageTag !== PAGE_TARGET) {
                     throw new Error("Cardinal_ExpDetThreshold/fnMakePageOnTheFly: " +

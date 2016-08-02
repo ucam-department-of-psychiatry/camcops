@@ -23,6 +23,7 @@
 /*jslint node: true, newcap: true, nomen: true, plusplus: true */
 "use strict";
 /*global Titanium, L */
+/* jshint -W100 */
 
 var DBCONSTANTS = require('common/DBCONSTANTS'),
     dbcommon = require('lib/dbcommon'),

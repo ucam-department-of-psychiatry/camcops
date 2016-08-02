@@ -22,7 +22,6 @@
 
 /*jslint node: true, newcap: true, nomen: true, plusplus: true */
 "use strict";
-/*global Titanium, L */
 
 var DBCONSTANTS = require('common/DBCONSTANTS'),
     dbcommon = require('lib/dbcommon'),
@@ -61,6 +60,10 @@ lang.extendPrototype(Bprs, {
 
     // TASK CLASS FIELD OVERRIDES (USED BY BaseTask)
 
+    isTaskCrippled: function () {
+        return !this.extraStringsPresent();
+    },
+
     // OTHER
 
     // Scoring
@@ -74,14 +77,14 @@ lang.extendPrototype(Bprs, {
     },
 
     getSummary: function () {
-        return (L('bprs18_total_score') + " " + this.getTotalScore() + "/126" +
+        return (this.XSTRING('bprs18_total_score') + " " +
+                this.getTotalScore() + "/126" +
                 this.isCompleteSuffix());
     },
 
     getDetail: function () {
         return (
-            taskcommon.valueDetail(this, "bprs_q", "_s", " ", "q", 1,
-                                   nquestions) +
+            this.xValueDetail("q", "_s", " ", "q", 1, nquestions) +
             "\n" + this.getSummary()
         );
     },
@@ -101,20 +104,20 @@ lang.extendPrototype(Bprs, {
             var options = [],
                 i;
             for (i = 1; i <= 7; ++i) {
-                options.push(new KeyValuePair(L("bprs_q" + n +
-                                                "_option" + i), i));
+                options.push(new KeyValuePair(self.XSTRING("q" + n +
+                                                           "_option" + i), i));
             }
             if (includeNA) {
-                options.push(new KeyValuePair(L("bprs_q" + n +
-                                                "_option0"), 0));
+                options.push(new KeyValuePair(self.XSTRING("q" + n +
+                                                           "_option0"), 0));
             }
             return {
-                title: L("bprs_q" + n + "_title"),
+                title: self.XSTRING("q" + n + "_title"),
                 clinician: true,
                 elements: [
                     {
                         type: "QuestionText",
-                        text: L("bprs_q" + n + "_question")
+                        text: self.XSTRING("q" + n + "_question")
                     },
                     {
                         type: "QuestionMCQ",

@@ -64,6 +64,10 @@ lang.extendPrototype(Bmi, {
 
     // TASK CLASS FIELD OVERRIDES (USED BY BaseTask)
 
+    isTaskCrippled: function () {
+        return !this.extraStringsPresent();
+    },
+
     // OTHER
 
     bmi: function () {
@@ -85,27 +89,27 @@ lang.extendPrototype(Bmi, {
             commenttext = "";
         if (bmi !== null) {
             if (bmi >= 40) {
-                category = L('bmi_obese_3');
+                category = this.XSTRING('obese_3');
             } else if (bmi >= 35) {
-                category = L('bmi_obese_2');
+                category = this.XSTRING('obese_2');
             } else if (bmi >= 30) {
-                category = L('bmi_obese_1');
+                category = this.XSTRING('obese_1');
             } else if (bmi >= 25) {
-                category = L('bmi_overweight');
+                category = this.XSTRING('overweight');
             } else if (bmi >= 18.5) {
-                category = L('bmi_normal');
+                category = this.XSTRING('normal');
             } else if (bmi >= 17.5) {
-                category = L('bmi_underweight_17.5_18.5');
+                category = this.XSTRING('underweight_17.5_18.5');
             } else if (bmi > 17) {
-                category = L('bmi_underweight_17_17.5');
+                category = this.XSTRING('underweight_17_17.5');
             } else if (bmi > 16) {
-                category = L('bmi_underweight_16_17');
+                category = this.XSTRING('underweight_16_17');
             } else if (bmi > 15) {
-                category = L('bmi_underweight_15_16');
+                category = this.XSTRING('underweight_15_16');
             } else if (bmi > 13) {
-                category = L('bmi_underweight_13_15');
+                category = this.XSTRING('underweight_13_15');
             } else {
-                category = L('bmi_underweight_under_13');
+                category = this.XSTRING('underweight_under_13');
             }
         }
         if (this.comment) {
@@ -168,13 +172,13 @@ lang.extendPrototype(Bmi, {
 
         pages = [
             {
-                title: L('bmi_title_1'),
+                title: this.XSTRING('title_1'),
                 elements: [
                     {
                         type: "QuestionMCQ",
                         options: [
-                            new KeyValuePair(L('bmi_metric_height'), 0),
-                            new KeyValuePair(L('bmi_imperial_height'), 1)
+                            new KeyValuePair(this.XSTRING('metric_height'), 0),
+                            new KeyValuePair(this.XSTRING('imperial_height'), 1)
                         ],
                         field: 'isHeightInImperial'
                     }
@@ -185,13 +189,13 @@ lang.extendPrototype(Bmi, {
                 pageTag: PAGE_HEIGHT
             },
             {
-                title: L('bmi_title_3'),
+                title: this.XSTRING('title_3'),
                 elements: [
                     {
                         type: "QuestionMCQ",
                         options: [
-                            new KeyValuePair(L('bmi_metric_mass'), 0),
-                            new KeyValuePair(L('bmi_imperial_mass'), 1)
+                            new KeyValuePair(this.XSTRING('metric_mass'), 0),
+                            new KeyValuePair(this.XSTRING('imperial_mass'), 1)
                         ],
                         field: 'isMassInImperial'
                     }
@@ -262,11 +266,12 @@ lang.extendPrototype(Bmi, {
                 }
                 self.dbstore();
             },
+            /* jshint unused:true */
             fnMakePageOnTheFly: function (currentPage, pageTag) {
                 var title,
                     elements;
                 if (pageTag === PAGE_HEIGHT) {
-                    title = L('bmi_title_2');
+                    title = this.XSTRING('title_2');
                     if (self.isHeightInImperial) {
                         elements = [
                             {
@@ -274,12 +279,12 @@ lang.extendPrototype(Bmi, {
                                 variables: [
                                     {
                                         field: "height_ft",
-                                        prompt: L('bmi_ft'),
+                                        prompt: this.XSTRING('ft'),
                                         type: UICONSTANTS.TYPEDVAR_REAL
                                     },
                                     {
                                         field: "height_in",
-                                        prompt: L('bmi_in'),
+                                        prompt: this.XSTRING('in'),
                                         type: UICONSTANTS.TYPEDVAR_REAL
                                     }
                                 ]
@@ -292,7 +297,7 @@ lang.extendPrototype(Bmi, {
                                 variables: [
                                     {
                                         field: "height_m",
-                                        prompt: L('bmi_m'),
+                                        prompt: this.XSTRING('m'),
                                         type: UICONSTANTS.TYPEDVAR_REAL
                                     }
                                 ]
@@ -300,7 +305,7 @@ lang.extendPrototype(Bmi, {
                         ];
                     }
                 } else if (pageTag === PAGE_MASS) {
-                    title = L('bmi_title_4');
+                    title = this.XSTRING('title_4');
                     if (self.isMassInImperial) {
                         elements = [
                             {
@@ -308,12 +313,12 @@ lang.extendPrototype(Bmi, {
                                 variables: [
                                     {
                                         field: "mass_st",
-                                        prompt: L('bmi_st'),
+                                        prompt: this.XSTRING('st'),
                                         type: UICONSTANTS.TYPEDVAR_REAL
                                     },
                                     {
                                         field: "mass_lb",
-                                        prompt: L('bmi_lb'),
+                                        prompt: this.XSTRING('lb'),
                                         type: UICONSTANTS.TYPEDVAR_REAL
                                     }
                                 ]
@@ -338,7 +343,7 @@ lang.extendPrototype(Bmi, {
                                 variables: [
                                     {
                                         field: "mass_kg",
-                                        prompt: L('bmi_kg'),
+                                        prompt: this.XSTRING('kg'),
                                         type: UICONSTANTS.TYPEDVAR_REAL
                                     }
                                 ]

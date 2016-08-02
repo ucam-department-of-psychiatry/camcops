@@ -22,7 +22,7 @@
 
 /*jslint node: true, newcap: true, nomen: true, plusplus: true */
 "use strict";
-/*global Titanium, L */
+/*global L */
 
 var DBCONSTANTS = require('common/DBCONSTANTS'),
     dbcommon = require('lib/dbcommon'),
@@ -58,6 +58,10 @@ lang.extendPrototype(BprsE, {
 
     // TASK CLASS FIELD OVERRIDES (USED BY BaseTask)
 
+    isTaskCrippled: function () {
+        return !this.extraStringsPresent();
+    },
+
     // OTHER
 
     // Scoring
@@ -77,8 +81,7 @@ lang.extendPrototype(BprsE, {
 
     getDetail: function () {
         return (
-            taskcommon.valueDetail(this, "bprse_q", "_s", " ", "q", 1,
-                                   nquestions) +
+            this.xValueDetail("q", "_s", " ", "q", 1, nquestions) +
             "\n" + this.getSummary()
         );
     },
@@ -97,12 +100,12 @@ lang.extendPrototype(BprsE, {
 
         function makepages(n) {
             return {
-                title: L("bprse_q" + n + "_title"),
+                title: self.XSTRING("q" + n + "_title"),
                 clinician: true,
                 elements: [
                     {
                         type: "QuestionText",
-                        text: L("bprse_q" + n + "_question")
+                        text: self.XSTRING("q" + n + "_question")
                     },
                     {
                         type: "QuestionMCQ",
@@ -110,12 +113,12 @@ lang.extendPrototype(BprsE, {
                         options: [
                             option0,
                             option1,
-                            new KeyValuePair(L("bprse_q" + n + "_option2"), 2),
-                            new KeyValuePair(L("bprse_q" + n + "_option3"), 3),
-                            new KeyValuePair(L("bprse_q" + n + "_option4"), 4),
-                            new KeyValuePair(L("bprse_q" + n + "_option5"), 5),
-                            new KeyValuePair(L("bprse_q" + n + "_option6"), 6),
-                            new KeyValuePair(L("bprse_q" + n + "_option7"), 7)
+                            new KeyValuePair(self.XSTRING("q" + n + "_option2"), 2),
+                            new KeyValuePair(self.XSTRING("q" + n + "_option3"), 3),
+                            new KeyValuePair(self.XSTRING("q" + n + "_option4"), 4),
+                            new KeyValuePair(self.XSTRING("q" + n + "_option5"), 5),
+                            new KeyValuePair(self.XSTRING("q" + n + "_option6"), 6),
+                            new KeyValuePair(self.XSTRING("q" + n + "_option7"), 7)
                         ]
                     }
                 ]

@@ -22,7 +22,8 @@
 
 /*jslint node: true, newcap: true, nomen: true, plusplus: true, unparam: true */
 "use strict";
-/*global Titanium, L */
+/*global L */
+/* jshint -W100 */
 
 var DBCONSTANTS = require('common/DBCONSTANTS'),
     dbcommon = require('lib/dbcommon'),
@@ -73,6 +74,10 @@ lang.extendPrototype(Cape42, {
     _fieldlist: fieldlist,
 
     // TASK CLASS FIELD OVERRIDES (USED BY BaseTask)
+
+    isTaskCrippled: function () {
+        return !this.extraStringsPresent();
+    },
 
     // OTHER
 
@@ -187,16 +192,16 @@ lang.extendPrototype(Cape42, {
             KeyValuePair = require('lib/KeyValuePair'),
             Questionnaire = require('questionnaire/Questionnaire'),
             options_distress = [
-                new KeyValuePair(L('cape42_distress_option1'), 1),
-                new KeyValuePair(L('cape42_distress_option2'), 2),
-                new KeyValuePair(L('cape42_distress_option3'), 3),
-                new KeyValuePair(L('cape42_distress_option4'), 4)
+                new KeyValuePair(this.XSTRING('distress_option1'), 1),
+                new KeyValuePair(this.XSTRING('distress_option2'), 2),
+                new KeyValuePair(this.XSTRING('distress_option3'), 3),
+                new KeyValuePair(this.XSTRING('distress_option4'), 4)
             ],
             options_frequency = [
-                new KeyValuePair(L('cape42_frequency_option1'), 1),
-                new KeyValuePair(L('cape42_frequency_option2'), 2),
-                new KeyValuePair(L('cape42_frequency_option3'), 3),
-                new KeyValuePair(L('cape42_frequency_option4'), 4)
+                new KeyValuePair(this.XSTRING('frequency_option1'), 1),
+                new KeyValuePair(this.XSTRING('frequency_option2'), 2),
+                new KeyValuePair(this.XSTRING('frequency_option3'), 3),
+                new KeyValuePair(this.XSTRING('frequency_option4'), 4)
             ],
             pages,
             q,
@@ -227,7 +232,7 @@ lang.extendPrototype(Cape42, {
                     {
                         elementTag: RATING_STATIC_ELEMENT,
                         type: "QuestionText",
-                        text: L("cape42_distress_stem"),
+                        text: self.XSTRING('distress_stem'),
                         bold: true,
                         visible: visible
                     },
@@ -254,6 +259,7 @@ lang.extendPrototype(Cape42, {
             readOnly: readOnly,
             pages: pages,
             callbackThis: self,
+            /* jshint unused:true */
             fnMakePageOnTheFly: function (pageId, pageTag) {
                 return makepage(pageTag);
             },

@@ -22,7 +22,7 @@
 
 /*jslint node: true, newcap: true, nomen: true, plusplus: true, unparam: true */
 "use strict";
-/*global Titanium, L */
+/*global L */
 
 var DBCONSTANTS = require('common/DBCONSTANTS'),
     dbcommon = require('lib/dbcommon'),
@@ -88,6 +88,9 @@ lang.extendPrototype(GmcPq, {
     // TASK CLASS FIELD OVERRIDES (USED BY BaseTask)
 
     _anonymous: true,
+    isTaskCrippled: function () {
+        return !this.extraStringsPresent();
+    },
 
     // OTHER
 
@@ -493,6 +496,7 @@ lang.extendPrototype(GmcPq, {
                 // for garbage collection, since we have closures referring to
                 // questionnaire
             },
+            /* jshint unused:true */
             fnShowNext: function (currentPage, pageTag) {
                 switch (pageTag) {
                 case PT_ETHNICITY:

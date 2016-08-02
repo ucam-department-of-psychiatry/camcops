@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="AnalysisUIOptions">
-    <option name="SCOPE_TYPE" value="8" />
+    <option name="SCOPE_TYPE" value="3" />
     <option name="CUSTOM_SCOPE_NAME" value="server" />
   </component>
   <component name="BookmarkManager">
@@ -9,24 +9,93 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d507af95-9eb5-49a8-90aa-7921b1aee6f4" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/server/camcops_server/tools/launch_gunicorn_server.py" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/server/to_do.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/server/tools/launch_gunicorn_dev_server.py" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/server/camcops_server/tools/launch_cherrypy_dev_server.py" afterPath="$PROJECT_DIR$/server/camcops_server/tools/launch_cherrypy_server.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/CAMCOPS_SERVER_TO_DO.txt" afterPath="$PROJECT_DIR$/server/CAMCOPS_SERVER_TO_DO.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/camcops.py" afterPath="$PROJECT_DIR$/server/camcops_server/camcops.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/webview.py" afterPath="$PROJECT_DIR$/server/camcops_server/webview.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/changelog.Debian" afterPath="$PROJECT_DIR$/server/changelog.Debian" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/requirements-pip.txt" afterPath="$PROJECT_DIR$/server/requirements-pip.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/setup.py" afterPath="$PROJECT_DIR$/server/setup.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/database.py" afterPath="$PROJECT_DIR$/server/camcops_server/database.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/common/ALLTASKS.js" afterPath="$PROJECT_DIR$/tablet/Resources/common/ALLTASKS.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/lib/taskcommon.js" afterPath="$PROJECT_DIR$/tablet/Resources/lib/taskcommon.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Ace3.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Ace3.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Frs.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Frs.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Pswq.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Pswq.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Aims.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Aims.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Audit.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Audit.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/AuditC.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/AuditC.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Badls.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Badls.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Bdi.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Bdi.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Bmi.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Bmi.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Bprs.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Bprs.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/BprsE.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/BprsE.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/CPFT_LPS_Discharge.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/CPFT_LPS_Discharge.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/CPFT_LPS_Referral.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/CPFT_LPS_Referral.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/CPFT_LPS_ResetResponseClock.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/CPFT_LPS_ResetResponseClock.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Cage.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Cage.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Cape42.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Cape42.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Caps.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Caps.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Cardinal_ExpDetThreshold.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Cardinal_ExpDetThreshold.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/CbiR.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/CbiR.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/CecaQ3.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/CecaQ3.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Cgi.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Cgi.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/CgiI.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/CgiI.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/CgiSch.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/CgiSch.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Ciwa.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Ciwa.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/ContactLog.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/ContactLog.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/CopeBrief.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/CopeBrief.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Dad.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Dad.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Dast.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Dast.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Deakin_1_HealthReview.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Deakin_1_HealthReview.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/DemoQuestionnaire.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/DemoQuestionnaire.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Demqol.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Demqol.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/DemqolProxy.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/DemqolProxy.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/DistressThermometer.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/DistressThermometer.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Fast.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Fast.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Fft.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Fft.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Gad7.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Gad7.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Gaf.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Gaf.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Gds15.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Gds15.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/GmcPq.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/GmcPq.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Hads.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Hads.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/HamA.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/HamA.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/HamD.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/HamD.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/HamD7.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/HamD7.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Honos.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Honos.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Honos65.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Honos65.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Honosca.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Honosca.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/IDED3D.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/IDED3D.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Icd10Depressive.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Icd10Depressive.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Icd10Manic.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Icd10Manic.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Icd10Mixed.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Icd10Mixed.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Icd10Schizophrenia.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Icd10Schizophrenia.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Icd10Schizotypal.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Icd10Schizotypal.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Icd10SpecPD.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Icd10SpecPD.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Iesr.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Iesr.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Ifs.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Ifs.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Irac.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Irac.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Mast.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Mast.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/MdsUpdrs.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/MdsUpdrs.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Moca.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Moca.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Nart.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Nart.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/NpiQ.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/NpiQ.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Panss.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Panss.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/PatientSatisfaction.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/PatientSatisfaction.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/PclCommon.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/PclCommon.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Pdss.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Pdss.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Photo.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Photo.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Phq15.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Phq15.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Phq9.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Phq9.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/ProgressNote.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/ProgressNote.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/PsychiatricClerking.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/PsychiatricClerking.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/QoLBasic.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/QoLBasic.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/QoLSG.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/QoLSG.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Rand36.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Rand36.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/ReferrerSatisfactionGen.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/ReferrerSatisfactionGen.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/ReferrerSatisfactionSpec.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/ReferrerSatisfactionSpec.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Slums.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Slums.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Smast.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Smast.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Swemwbs.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Swemwbs.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Wemwbs.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Wemwbs.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Wsas.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Wsas.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Ybocs.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Ybocs.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/YbocsSc.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/YbocsSc.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Zbi12.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Zbi12.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/diagnosiscommon.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/diagnosiscommon.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/i18n/en/strings.xml" afterPath="$PROJECT_DIR$/tablet/i18n/en/strings.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/notes/qt_notes.txt" afterPath="$PROJECT_DIR$/tablet_qt/notes/qt_notes.txt" />
     </list>
     <ignored path="camcops.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -50,8 +119,8 @@
       <file leaf-file-name="cc_task.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_task.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="702">
-              <caret line="2992" column="37" selection-start-line="2992" selection-start-column="37" selection-end-line="2992" selection-end-column="37" />
+            <state relative-caret-position="329">
+              <caret line="110" column="0" selection-start-line="110" selection-start-column="0" selection-end-line="110" selection-end-column="65" />
               <folding>
                 <marker date="1470143208236" expanded="true" signature="45944:46154" ph="UPDATE missi... " />
                 <marker date="1470143208236" expanded="true" signature="50720:51033" ph="SELECT missi... " />
@@ -68,129 +137,91 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ace3.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/ace3.py">
+      <file leaf-file-name="audit.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/audit.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="286">
-              <caret line="419" column="29" selection-start-line="419" selection-start-column="29" selection-end-line="419" selection-end-column="29" />
+            <state relative-caret-position="0">
+              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="cpft_lps.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/cpft_lps.py">
+      <file leaf-file-name="bmi.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/bmi.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="380">
-              <caret line="110" column="37" selection-start-line="110" selection-start-column="37" selection-end-line="110" selection-end-column="37" />
-              <folding>
-                <marker date="1470140493833" expanded="true" signature="28071:29551" ph="SELECT r.lps... patient" />
-                <marker date="1470140493833" expanded="true" signature="28416:28439" ph="/* standard " />
-                <marker date="1470140493833" expanded="true" signature="28642:28666" ph="/* not yet d... " />
-                <marker date="1470140493833" expanded="true" signature="28885:28901" ph="/* link on I... " />
-                <marker date="1470140493833" expanded="true" signature="28976:29011" ph="/* discharge... " />
-                <marker date="1470140493833" expanded="true" signature="29153:29176" ph="/* standard " />
-                <marker date="1470140493833" expanded="true" signature="30260:32534" ph="SELECT r.lps... patient" />
-                <marker date="1470140493833" expanded="true" signature="30605:30628" ph="/* standard " />
-                <marker date="1470140493833" expanded="true" signature="30831:30855" ph="/* not yet d... " />
-                <marker date="1470140493833" expanded="true" signature="31074:31090" ph="/* link on I... " />
-                <marker date="1470140493833" expanded="true" signature="31165:31200" ph="/* discharge... " />
-                <marker date="1470140493833" expanded="true" signature="31342:31365" ph="/* standard " />
-                <marker date="1470140493833" expanded="true" signature="31630:31651" ph="/* not yet c... " />
-                <marker date="1470140493833" expanded="true" signature="31871:31887" ph="/* link on I... " />
-                <marker date="1470140493833" expanded="true" signature="31962:31996" ph="/* clerking " />
-                <marker date="1470140493833" expanded="true" signature="32136:32159" ph="/* standard " />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="pswq.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/pswq.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="247">
-              <caret line="34" column="12" selection-start-line="34" selection-start-column="12" selection-end-line="34" selection-end-column="12" />
+            <state relative-caret-position="329">
+              <caret line="42" column="0" selection-start-line="42" selection-start-column="0" selection-end-line="42" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="launch_cherrypy_server.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/camcops_server/tools/launch_cherrypy_server.py">
+      <file leaf-file-name="bprs.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/bprs.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="17" column="0" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
+            <state relative-caret-position="846">
+              <caret line="131" column="39" selection-start-line="131" selection-start-column="39" selection-end-line="131" selection-end-column="39" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="launch_gunicorn_server.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/camcops_server/tools/launch_gunicorn_server.py">
+      <file leaf-file-name="cage.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/cage.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="832">
-              <caret line="64" column="0" selection-start-line="64" selection-start-column="0" selection-end-line="64" selection-end-column="0" />
+            <state relative-caret-position="0">
+              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="cc_logger.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_logger.py">
+      <file leaf-file-name="cape42.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/cape42.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="413">
-              <caret line="63" column="32" selection-start-line="63" selection-start-column="32" selection-end-line="63" selection-end-column="32" />
+            <state relative-caret-position="433">
+              <caret line="431" column="50" selection-start-line="431" selection-start-column="50" selection-end-line="431" selection-end-column="50" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="camcops.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/camcops_server/camcops.py">
+      <file leaf-file-name="caps.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/caps.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="302">
-              <caret line="620" column="6" selection-start-line="620" selection-start-column="6" selection-end-line="620" selection-end-column="6" />
-              <folding>
-                <marker date="1470145723304" expanded="true" signature="8387:8406" ph="ALTER TABLE " />
-                <marker date="1470145723304" expanded="true" signature="8387:8469" ph="ALTER TABLE " />
-                <marker date="1470145723304" expanded="true" signature="8545:8581" ph="ALTER TABLE " />
-                <marker date="1470145723304" expanded="true" signature="8681:8721" ph="ALTER TABLE " />
-                <marker date="1470145723304" expanded="true" signature="8756:8824" ph="ALTER TABLE " />
-                <marker date="1470145723304" expanded="true" signature="8859:8900" ph="ALTER TABLE " />
-                <marker date="1470145723304" expanded="true" signature="9178:9260" ph="ALTER TABLE missing_value... " />
-                <marker date="1470145723304" expanded="true" signature="9336:9372" ph="ALTER TABLE missing_value... " />
-                <marker date="1470145723304" expanded="true" signature="9472:9512" ph="ALTER TABLE missing_value... " />
-                <marker date="1470145723304" expanded="true" signature="9547:9617" ph="ALTER TABLE missing_value... " />
-                <marker date="1470145723304" expanded="true" signature="9652:9697" ph="ALTER TABLE missing_value... " />
-                <marker date="1470145723304" expanded="true" signature="10164:10216" ph="ALTER TABLE " />
-                <marker date="1470145723304" expanded="true" signature="10275:10432" ph="UPDATE missi... " />
-                <marker date="1470145723304" expanded="true" signature="10543:10575" ph="ALTER TABLE missing_value... " />
-                <marker date="1470145723304" expanded="true" signature="10543:10585" ph="ALTER TABLE " />
-                <marker date="1470145723304" expanded="true" signature="11194:11246" ph="ALTER TABLE missing_value... " />
-                <marker date="1470145723304" expanded="true" signature="11305:11466" ph="UPDATE missi... " />
-                <marker date="1470145723304" expanded="true" signature="11575:11607" ph="ALTER TABLE missing_value... " />
-              </folding>
+            <state relative-caret-position="417">
+              <caret line="171" column="28" selection-start-line="171" selection-start-column="28" selection-end-line="171" selection-end-column="28" />
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="cardinal_expdetthreshold.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/cardinal_expdetthreshold.py">
+      <file leaf-file-name="cbir.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/cbir.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="328">
-              <caret line="312" column="38" selection-start-line="312" selection-start-column="38" selection-end-line="312" selection-end-column="38" />
-              <folding>
-                <element signature="e#811#822#0" expanded="false" />
-              </folding>
+            <state relative-caret-position="2185">
+              <caret line="358" column="25" selection-start-line="358" selection-start-column="25" selection-end-line="358" selection-end-column="25" />
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="cc_policy.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_policy.py">
+      <file leaf-file-name="bprse.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/bprse.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="328">
-              <caret line="127" column="8" selection-start-line="127" selection-start-column="8" selection-end-line="127" selection-end-column="8" />
+            <state relative-caret-position="222">
+              <caret line="96" column="24" selection-start-line="96" selection-start-column="17" selection-end-line="96" selection-end-column="24" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="cc_string.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_string.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="339">
+              <caret line="128" column="4" selection-start-line="128" selection-start-column="4" selection-end-line="128" selection-end-column="4" />
               <folding />
             </state>
           </provider>
@@ -211,16 +242,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/server/cc_modules/cc_specialnote.py" />
-        <option value="$PROJECT_DIR$/server/cc_modules/cc_user.py" />
-        <option value="$PROJECT_DIR$/server/camcops.py" />
-        <option value="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_version.py" />
-        <option value="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_lang.py" />
-        <option value="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_string.py" />
-        <option value="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_hl7core.py" />
-        <option value="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_report.py" />
-        <option value="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_hl7.py" />
-        <option value="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_tracker.py" />
         <option value="$PROJECT_DIR$/server/camcops_server/tasks/cardinal_expectationdetection.py" />
         <option value="$PROJECT_DIR$/server/camcops_server/tasks/contactlog.py" />
         <option value="$PROJECT_DIR$/server/camcops_server/tasks/__init__.py" />
@@ -236,7 +257,6 @@
         <option value="$PROJECT_DIR$/server/camcops_server/camcops_meta.py" />
         <option value="$PROJECT_DIR$/server/camcops_server/tasks/cardinal_expdetthreshold.py" />
         <option value="$PROJECT_DIR$/server/tools/launch_dev_server.sh" />
-        <option value="$PROJECT_DIR$/server/camcops_server/database.py" />
         <option value="$PROJECT_DIR$/server/tools/launch_dev_server.py" />
         <option value="$PROJECT_DIR$/server/tools/launch_cherrypy_dev_server.py" />
         <option value="$PROJECT_DIR$/server/camcops_server/tools/launch_cherrypy_dev_server.py" />
@@ -262,6 +282,17 @@
         <option value="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_logger.py" />
         <option value="$PROJECT_DIR$/server/camcops_server/camcops.py" />
         <option value="$PROJECT_DIR$/server/camcops_server/tasks/ace3.py" />
+        <option value="$PROJECT_DIR$/server/camcops_server/database.py" />
+        <option value="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_string.py" />
+        <option value="$PROJECT_DIR$/server/camcops_server/tasks/aims.py" />
+        <option value="$PROJECT_DIR$/server/camcops_server/tasks/audit.py" />
+        <option value="$PROJECT_DIR$/server/camcops_server/tasks/bmi.py" />
+        <option value="$PROJECT_DIR$/server/camcops_server/tasks/bprse.py" />
+        <option value="$PROJECT_DIR$/server/camcops_server/tasks/bprs.py" />
+        <option value="$PROJECT_DIR$/server/camcops_server/tasks/cage.py" />
+        <option value="$PROJECT_DIR$/server/camcops_server/tasks/cape42.py" />
+        <option value="$PROJECT_DIR$/server/camcops_server/tasks/caps.py" />
+        <option value="$PROJECT_DIR$/server/camcops_server/tasks/cbir.py" />
       </list>
     </option>
   </component>
@@ -368,6 +399,28 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="camcops_server" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="camcops" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="camcops" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="server" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="camcops_server" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tasks_discarded" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -660,7 +713,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-3" y="48" width="1206" height="1555" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
@@ -670,9 +723,9 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26833335" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="LuaJ" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Inspection Results" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32845744" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection Results" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3282967" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32845744" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" x="-2" y="594" width="1204" height="475" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3392857" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" x="-2" y="594" width="1204" height="475" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -732,192 +785,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/../cardinal_pythonlib/cardinal_pythonlib/rnc_lang.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="582">
-          <caret line="501" column="6" selection-start-line="501" selection-start-column="6" selection-end-line="501" selection-end-column="77" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/caps.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/cape42.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/contactlog.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="351">
-          <caret line="27" column="0" selection-start-line="27" selection-start-column="0" selection-end-line="27" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="312">
-          <caret line="24" column="10" selection-start-line="24" selection-start-column="10" selection-end-line="24" selection-end-column="10" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/icd10depressive.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="328">
-          <caret line="32" column="6" selection-start-line="32" selection-start-column="6" selection-end-line="32" selection-end-column="6" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/icd10manic.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="328">
-          <caret line="27" column="6" selection-start-line="27" selection-start-column="6" selection-end-line="27" selection-end-column="6" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/icd10mixed.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="328">
-          <caret line="27" column="6" selection-start-line="27" selection-start-column="6" selection-end-line="27" selection-end-column="6" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/icd10schizophrenia.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="328">
-          <caret line="27" column="6" selection-start-line="27" selection-start-column="6" selection-end-line="27" selection-end-column="6" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/icd10schizotypal.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="328">
-          <caret line="33" column="6" selection-start-line="33" selection-start-column="6" selection-end-line="33" selection-end-column="6" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/icd10specpd.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="328">
-          <caret line="27" column="0" selection-start-line="27" selection-start-column="0" selection-end-line="27" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/dad.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="299">
-          <caret line="23" column="25" selection-start-line="23" selection-start-column="25" selection-end-line="23" selection-end-column="25" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/distressthermometer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="299">
-          <caret line="23" column="0" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/ided3d.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="299">
-          <caret line="23" column="24" selection-start-line="23" selection-start-column="24" selection-end-line="23" selection-end-column="24" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/camcops_meta.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="676">
-          <caret line="52" column="61" selection-start-line="52" selection-start-column="61" selection-end-line="52" selection-end-column="61" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_pls.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="328">
-          <caret line="68" column="32" selection-start-line="68" selection-start-column="4" selection-end-line="68" selection-end-column="32" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/cardinal_expectationdetection.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="13">
-          <caret line="248" column="15" selection-start-line="248" selection-start-column="15" selection-end-line="248" selection-end-column="15" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/playing/snippet_sqla_comparison_symmetry.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="410">
-          <caret line="161" column="52" selection-start-line="161" selection-start-column="52" selection-end-line="161" selection-end-column="52" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/requirements-deb.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="143">
-          <caret line="11" column="0" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/setup.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="777">
-          <caret line="86" column="0" selection-start-line="86" selection-start-column="0" selection-end-line="86" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/requirements-pip.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="299">
-          <caret line="23" column="0" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tablet/Resources/menu/ClinicalMenu.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="559">
-          <caret line="43" column="44" selection-start-line="43" selection-start-column="44" selection-end-line="43" selection-end-column="44" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/diagnosis.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="644">
-          <caret line="224" column="43" selection-start-line="224" selection-start-column="43" selection-end-line="224" selection-end-column="43" />
-          <folding>
-            <marker date="1470140337379" expanded="true" signature="7312:8167" ph="SELECT p.sur... patient" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_report.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="907">
@@ -943,49 +810,6 @@
         <state relative-caret-position="319">
           <caret line="275" column="35" selection-start-line="275" selection-start-column="31" selection-end-line="275" selection-end-column="35" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/database.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="328">
-          <caret line="1125" column="22" selection-start-line="1125" selection-start-column="22" selection-end-line="1125" selection-end-column="22" />
-          <folding>
-            <marker date="1470093503437" expanded="true" signature="18128:18208" ph="SELECT _pk F... " />
-            <marker date="1470093503437" expanded="true" signature="18763:18855" ph="SELECT _pk F... " />
-            <marker date="1470093503437" expanded="true" signature="19655:19735" ph="SELECT _pk F... " />
-            <marker date="1470093503437" expanded="true" signature="21440:21525" ph="SELECT COUNT... missing_value" />
-            <marker date="1470093503437" expanded="true" signature="22228:22316" ph="SELECT missi... missing_value" />
-            <marker date="1470093503437" expanded="true" signature="22880:22967" ph="SELECT MAX(m... missing_value" />
-            <marker date="1470093503437" expanded="true" signature="23435:23712" ph="UPDATE missi... " />
-            <marker date="1470093503437" expanded="true" signature="24510:24558" ph="SELECT COUNT... missing_value" />
-            <marker date="1470093503437" expanded="true" signature="25350:25410" ph="SELECT COUNT... missing_value" />
-            <marker date="1470093503437" expanded="true" signature="28463:28496" ph="SELECT * fro... missing_value" />
-            <marker date="1470093503437" expanded="true" signature="29422:29567" ph="UPDATE missi... " />
-            <marker date="1470093503437" expanded="true" signature="30667:30807" ph="SELECT ongoi... missing_value" />
-            <marker date="1470093503437" expanded="true" signature="31605:31763" ph="UPDATE missi... " />
-            <marker date="1470093503437" expanded="true" signature="32275:32434" ph="UPDATE missi... " />
-            <marker date="1470093503437" expanded="true" signature="32719:32791" ph="UPDATE missi... " />
-            <marker date="1470093503437" expanded="true" signature="33385:33432" ph="SELECT table... missing_value" />
-            <marker date="1470093503437" expanded="true" signature="33719:33804" ph="UPDATE missi... " />
-            <marker date="1470093503437" expanded="true" signature="34114:34236" ph="UPDATE missi... " />
-            <marker date="1470093503437" expanded="true" signature="34759:34881" ph="UPDATE missi... " />
-            <marker date="1470093503437" expanded="true" signature="35501:35583" ph="UPDATE missi... " />
-            <marker date="1470093503437" expanded="true" signature="35857:35929" ph="UPDATE missi... " />
-            <marker date="1470093503437" expanded="true" signature="37252:37484" ph="UPDATE missi... " />
-            <marker date="1470093503437" expanded="true" signature="37752:37988" ph="UPDATE missi... " />
-            <marker date="1470093503437" expanded="true" signature="38394:38577" ph="UPDATE missi... " />
-            <marker date="1470093503437" expanded="true" signature="38941:39078" ph="UPDATE missi... " />
-            <marker date="1470093503437" expanded="true" signature="39284:39455" ph="UPDATE missi... " />
-            <marker date="1470093503437" expanded="true" signature="39817:40191" ph="UPDATE missi... " />
-            <marker date="1470093503437" expanded="true" signature="40461:40534" ph="DELETE FROM " />
-            <marker date="1470093503437" expanded="true" signature="41142:41202" ph="DELETE FROM " />
-            <marker date="1470093503437" expanded="true" signature="41322:41575" ph="UPDATE missi... " />
-            <marker date="1470093503437" expanded="true" signature="41743:41834" ph="UPDATE missi... " />
-            <marker date="1470093503437" expanded="true" signature="42097:42140" ph="DELETE FROM " />
-            <marker date="1470093503437" expanded="true" signature="43986:44027" ph="SELECT COUNT... missing_value" />
-            <marker date="1470093503437" expanded="true" signature="44188:44390" ph="UPDATE missi... " />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1147,14 +971,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_constants.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-218">
-          <caret line="345" column="0" selection-start-line="345" selection-start-column="0" selection-end-line="345" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_plot.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="712">
@@ -1222,16 +1038,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/cardinal_expdetthreshold.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="328">
-          <caret line="312" column="38" selection-start-line="312" selection-start-column="38" selection-end-line="312" selection-end-column="38" />
-          <folding>
-            <element signature="e#811#822#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_policy.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="328">
@@ -1240,10 +1046,103 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/pswq.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="247">
+          <caret line="34" column="12" selection-start-line="34" selection-start-column="12" selection-end-line="34" selection-end-column="12" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/ace3.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="663">
+          <caret line="448" column="28" selection-start-line="448" selection-start-column="28" selection-end-line="448" selection-end-column="28" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/database.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="523">
+          <caret line="1277" column="26" selection-start-line="1277" selection-start-column="26" selection-end-line="1277" selection-end-column="26" />
+          <folding>
+            <marker date="1470149836198" expanded="true" signature="18129:18209" ph="SELECT _pk F... " />
+            <marker date="1470149836198" expanded="true" signature="18764:18856" ph="SELECT _pk F... " />
+            <marker date="1470149836198" expanded="true" signature="19656:19736" ph="SELECT _pk F... " />
+            <marker date="1470149836198" expanded="true" signature="21441:21526" ph="SELECT COUNT... missing_value" />
+            <marker date="1470149836198" expanded="true" signature="22229:22317" ph="SELECT missi... missing_value" />
+            <marker date="1470149836198" expanded="true" signature="22881:22968" ph="SELECT MAX(m... missing_value" />
+            <marker date="1470149836198" expanded="true" signature="23436:23713" ph="UPDATE missi... " />
+            <marker date="1470149836198" expanded="true" signature="24511:24559" ph="SELECT COUNT... missing_value" />
+            <marker date="1470149836198" expanded="true" signature="25351:25411" ph="SELECT COUNT... missing_value" />
+            <marker date="1470149836198" expanded="true" signature="28464:28497" ph="SELECT * fro... missing_value" />
+            <marker date="1470149836198" expanded="true" signature="29423:29568" ph="UPDATE missi... " />
+            <marker date="1470149836198" expanded="true" signature="30668:30808" ph="SELECT ongoi... missing_value" />
+            <marker date="1470149836198" expanded="true" signature="31606:31764" ph="UPDATE missi... " />
+            <marker date="1470149836198" expanded="true" signature="32276:32435" ph="UPDATE missi... " />
+            <marker date="1470149836198" expanded="true" signature="32720:32792" ph="UPDATE missi... " />
+            <marker date="1470149836198" expanded="true" signature="33386:33433" ph="SELECT table... missing_value" />
+            <marker date="1470149836198" expanded="true" signature="33720:33805" ph="UPDATE missi... " />
+            <marker date="1470149836198" expanded="true" signature="34115:34237" ph="UPDATE missi... " />
+            <marker date="1470149836198" expanded="true" signature="34760:34882" ph="UPDATE missi... " />
+            <marker date="1470149836198" expanded="true" signature="35502:35584" ph="UPDATE missi... " />
+            <marker date="1470149836198" expanded="true" signature="35858:35930" ph="UPDATE missi... " />
+            <marker date="1470149836198" expanded="true" signature="37253:37485" ph="UPDATE missi... " />
+            <marker date="1470149836198" expanded="true" signature="37753:37989" ph="UPDATE missi... " />
+            <marker date="1470149836198" expanded="true" signature="38395:38578" ph="UPDATE missi... " />
+            <marker date="1470149836198" expanded="true" signature="38942:39079" ph="UPDATE missi... " />
+            <marker date="1470149836198" expanded="true" signature="39285:39456" ph="UPDATE missi... " />
+            <marker date="1470149836198" expanded="true" signature="39818:40192" ph="UPDATE missi... " />
+            <marker date="1470149836198" expanded="true" signature="40462:40535" ph="DELETE FROM " />
+            <marker date="1470149836198" expanded="true" signature="41143:41203" ph="DELETE FROM " />
+            <marker date="1470149836198" expanded="true" signature="41323:41576" ph="UPDATE missi... " />
+            <marker date="1470149836198" expanded="true" signature="41744:41835" ph="UPDATE missi... " />
+            <marker date="1470149836198" expanded="true" signature="42098:42141" ph="DELETE FROM " />
+            <marker date="1470149836198" expanded="true" signature="43987:44028" ph="SELECT COUNT... missing_value" />
+            <marker date="1470149836198" expanded="true" signature="44189:44391" ph="UPDATE missi... " />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/cardinal_expdetthreshold.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="429">
+          <caret line="134" column="0" selection-start-line="134" selection-start-column="0" selection-end-line="134" selection-end-column="0" />
+          <folding>
+            <element signature="e#811#822#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/cardinal_expectationdetection.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="572">
+          <caret line="291" column="32" selection-start-line="291" selection-start-column="17" selection-end-line="291" selection-end-column="32" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/cgi_task.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/cgisch.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/cpft_lps.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="380">
-          <caret line="110" column="37" selection-start-line="110" selection-start-column="37" selection-end-line="110" selection-end-column="37" />
+        <state relative-caret-position="355">
+          <caret line="299" column="44" selection-start-line="299" selection-start-column="17" selection-end-line="299" selection-end-column="44" />
           <folding>
             <marker date="1470140493833" expanded="true" signature="28071:29551" ph="SELECT r.lps... patient" />
             <marker date="1470140493833" expanded="true" signature="28416:28439" ph="/* standard " />
@@ -1265,18 +1164,132 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/pswq.py">
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/distressthermometer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="247">
-          <caret line="34" column="12" selection-start-line="34" selection-start-column="12" selection-end-line="34" selection-end-column="12" />
+        <state relative-caret-position="143">
+          <caret line="23" column="0" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/fft.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/gmcpq.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="663">
+          <caret line="51" column="38" selection-start-line="51" selection-start-column="38" selection-end-line="51" selection-end-column="38" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_constants.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="312">
+          <caret line="97" column="0" selection-start-line="97" selection-start-column="0" selection-end-line="97" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/icd10depressive.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="303">
+          <caret line="131" column="9" selection-start-line="131" selection-start-column="4" selection-end-line="131" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/icd10specpd.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="354">
+          <caret line="44" column="0" selection-start-line="44" selection-start-column="0" selection-end-line="44" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/diagnosis.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="598">
+          <caret line="190" column="0" selection-start-line="190" selection-start-column="0" selection-end-line="190" selection-end-column="0" />
+          <folding>
+            <marker date="1470140337379" expanded="true" signature="7312:8167" ph="SELECT p.sur... patient" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/ided3d.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="355">
+          <caret line="240" column="16" selection-start-line="240" selection-start-column="16" selection-end-line="240" selection-end-column="44" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/mds_updrs.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/qolbasic.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/qolsg.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/aims.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="495">
+          <caret line="118" column="23" selection-start-line="118" selection-start-column="16" selection-end-line="118" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/audit.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/bmi.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="329">
+          <caret line="42" column="0" selection-start-line="42" selection-start-column="0" selection-end-line="42" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_string.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="339">
+          <caret line="128" column="4" selection-start-line="128" selection-start-column="4" selection-end-line="128" selection-end-column="4" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_task.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="702">
-          <caret line="2992" column="37" selection-start-line="2992" selection-start-column="37" selection-end-line="2992" selection-end-column="37" />
+        <state relative-caret-position="329">
+          <caret line="110" column="0" selection-start-line="110" selection-start-column="0" selection-end-line="110" selection-end-column="65" />
           <folding>
             <marker date="1470143208236" expanded="true" signature="45944:46154" ph="UPDATE missi... " />
             <marker date="1470143208236" expanded="true" signature="50720:51033" ph="SELECT missi... " />
@@ -1292,10 +1305,50 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/ace3.py">
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/bprse.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="286">
-          <caret line="419" column="29" selection-start-line="419" selection-start-column="29" selection-end-line="419" selection-end-column="29" />
+        <state relative-caret-position="222">
+          <caret line="96" column="24" selection-start-line="96" selection-start-column="17" selection-end-line="96" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/bprs.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="846">
+          <caret line="131" column="39" selection-start-line="131" selection-start-column="39" selection-end-line="131" selection-end-column="39" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/cage.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/cape42.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="433">
+          <caret line="431" column="50" selection-start-line="431" selection-start-column="50" selection-end-line="431" selection-end-column="50" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/caps.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="417">
+          <caret line="171" column="28" selection-start-line="171" selection-start-column="28" selection-end-line="171" selection-end-column="28" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/cbir.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2185">
+          <caret line="358" column="25" selection-start-line="358" selection-start-column="25" selection-end-line="358" selection-end-column="25" />
           <folding />
         </state>
       </provider>

@@ -22,7 +22,8 @@
 
 /*jslint node: true, newcap: true, nomen: true, plusplus: true, unparam: true */
 "use strict";
-/*global Titanium, L */
+/*global L */
+/* jshint -W100 */
 
 var DBCONSTANTS = require('common/DBCONSTANTS'),
     dbcommon = require('lib/dbcommon'),
@@ -1007,6 +1008,7 @@ lang.extendPrototype(Deakin_1_HealthReview, {
                 self.defaultFinishedFn(result, editing_time_s);
                 questionnaire = null; // for garbage collection, since we have closures referring to questionnaire
             },
+            /* jshint unused:true */
             fnShowNext: function (currentPage, pageTag) {
                 switch (pageTag) {
                 case PT_ETHNICITY:

@@ -287,21 +287,21 @@ exports.TASKLIST = {
     },
     EXPDETTHRESHOLD: {
         task: 'task/Cardinal_ExpDetThreshold',
-        title: L('b_expdetthreshold'),
+        title: L('b_cardinal_expdetthreshold'),
         tables: ['cardinal_expdetthreshold',
                  'cardinal_expdetthreshold_trials'],
-        maintitle: L('t_expdetthreshold'),
-        subtitle: L('s_expdetthreshold'),
+        maintitle: L('t_cardinal_expdetthreshold'),
+        subtitle: L('s_cardinal_expdetthreshold'),
         info: 'html/cardinal_expdetthreshold.html'
     },
     EXPECTATIONDETECTION: {
         task: 'task/Cardinal_ExpectationDetection',
-        title: L('b_expectationdetection'),
+        title: L('b_cardinal_expdet'),
         tables: ['cardinal_expdet',
                  'cardinal_expdet_trialgroupspec',
                  'cardinal_expdet_trials'],
-        maintitle: L('t_expectationdetection'),
-        subtitle: L('s_expectationdetection'),
+        maintitle: L('t_cardinal_expdet'),
+        subtitle: L('s_cardinal_expdet'),
         info: 'html/cardinal_expdet_info.html'
     },
     FAST: {

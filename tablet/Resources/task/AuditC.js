@@ -22,7 +22,7 @@
 
 /*jslint node: true, newcap: true, nomen: true, plusplus: true */
 "use strict";
-/*global Titanium, L */
+/*global L */
 
 var DBCONSTANTS = require('common/DBCONSTANTS'),
     dbcommon = require('lib/dbcommon'),
@@ -60,6 +60,9 @@ lang.extendPrototype(AuditC, {
     // TASK CLASS FIELD OVERRIDES (USED BY BaseTask)
 
     _prohibitCommercial: true,
+    isTaskCrippled: function () {
+        return !this.extraStringsPresent();
+    },
 
     // OTHER
 
@@ -83,8 +86,7 @@ lang.extendPrototype(AuditC, {
 
     getDetail: function () {
         return (
-            taskcommon.valueDetail(this, "audit_q", "_s", " ", "q", 1,
-                                   nquestions) +
+            this.xValueDetail("q", "_s", " ", "q", 1, nquestions) +
             "\n" +
             this.getSummary()
         );
@@ -101,93 +103,93 @@ lang.extendPrototype(AuditC, {
                     elements: [
                         {
                             type: "QuestionText",
-                            text: L("audit_instructions_1")
+                            text: this.XSTRING("instructions_1")
                         },
                         {
                             type: "QuestionText",
-                            text: L("audit_instructions_3")
+                            text: this.XSTRING("instructions_3")
                         },
                         {
                             type: "QuestionText",
                             bold: true,
-                            text: L("audit_instructions_4")
+                            text: this.XSTRING("instructions_4")
                         },
                         {
                             type: "QuestionText",
-                            text: L("audit_instructions_5")
+                            text: this.XSTRING("instructions_5")
                         }
                     ]
                 },
                 {
-                    title: L("audit_c_qprefix") + " 1",
+                    title: this.XSTRING("c_qprefix") + " 1",
                     clinician: true,
                     elements: [
                         {
                             type: "QuestionText",
                             bold: true,
-                            text: L("audit_c_q1_question")
+                            text: this.XSTRING("c_q1_question")
                         },
                         {
                             type: "QuestionText",
-                            text: L("audit_c_instruction")
+                            text: this.XSTRING("c_instruction")
                         },
                         {
                             type: "QuestionMCQ",
                             field: "q1",
                             showInstruction: false,
                             options: [
-                                new KeyValuePair(L("audit_q1_option0"), 0),
-                                new KeyValuePair(L("audit_q1_option1"), 1),
-                                new KeyValuePair(L("audit_q1_option2"), 2),
-                                new KeyValuePair(L("audit_q1_option3"), 3),
-                                new KeyValuePair(L("audit_q1_option4"), 4)
+                                new KeyValuePair(this.XSTRING("q1_option0"), 0),
+                                new KeyValuePair(this.XSTRING("q1_option1"), 1),
+                                new KeyValuePair(this.XSTRING("q1_option2"), 2),
+                                new KeyValuePair(this.XSTRING("q1_option3"), 3),
+                                new KeyValuePair(this.XSTRING("q1_option4"), 4)
                             ]
                         }
                     ]
                 },
                 {
-                    title: L("audit_c_qprefix") + " 2",
+                    title: this.XSTRING("c_qprefix") + " 2",
                     clinician: true,
                     elements: [
                         {
                             type: "QuestionText",
                             bold: true,
-                            text: L("audit_c_q2_question")
+                            text: this.XSTRING("c_q2_question")
                         },
                         {
                             type: "QuestionMCQ",
                             field: "q2",
                             showInstruction: false,
                             options: [
-                                new KeyValuePair(L("audit_c_q2_option0"), 0),
+                                new KeyValuePair(this.XSTRING("c_q2_option0"), 0),
                                 // ... modified
-                                new KeyValuePair(L("audit_q2_option1"), 1),
-                                new KeyValuePair(L("audit_q2_option2"), 2),
-                                new KeyValuePair(L("audit_q2_option3"), 3),
-                                new KeyValuePair(L("audit_q2_option4"), 4)
+                                new KeyValuePair(this.XSTRING("q2_option1"), 1),
+                                new KeyValuePair(this.XSTRING("q2_option2"), 2),
+                                new KeyValuePair(this.XSTRING("q2_option3"), 3),
+                                new KeyValuePair(this.XSTRING("q2_option4"), 4)
                             ]
                         }
                     ]
                 },
                 {
-                    title: L("audit_c_qprefix") + " 3",
+                    title: this.XSTRING("c_qprefix") + " 3",
                     clinician: true,
                     elements: [
                         {
                             type: "QuestionText",
                             bold: true,
-                            text: L("audit_c_q3_question")
+                            text: this.XSTRING("c_q3_question")
                         },
                         {
                             type: "QuestionMCQ",
                             field: "q3",
                             showInstruction: false,
                             options: [
-                                new KeyValuePair(L("audit_q3to8_option0"), 0),
-                                new KeyValuePair(L("audit_q3to8_option1"), 1),
-                                new KeyValuePair(L("audit_q3to8_option2"), 2),
-                                new KeyValuePair(L("audit_q3to8_option3"), 3),
-                                new KeyValuePair(L("audit_q3to8_option4"), 4)
+                                new KeyValuePair(this.XSTRING("q3to8_option0"), 0),
+                                new KeyValuePair(this.XSTRING("q3to8_option1"), 1),
+                                new KeyValuePair(this.XSTRING("q3to8_option2"), 2),
+                                new KeyValuePair(this.XSTRING("q3to8_option3"), 3),
+                                new KeyValuePair(this.XSTRING("q3to8_option4"), 4)
                             ]
                         }
                     ]
