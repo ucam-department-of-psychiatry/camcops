@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="cgisch">
+    <!-- Clinical Global Impression – Schizophrenia (CGI-SCH) -->
+
+    <string name="i_title">I. Severity of illness</string>
+    <string name="i_question">Considering your total clinical experience with patients with schizophrenia, how severely ill has the patient been during the last week?</string>
+    <string name="i_option1">1 – Normal, not ill</string>
+    <string name="i_option2">2 – Minimally ill</string>
+    <string name="i_option3">3 – Mildly ill</string>
+    <string name="i_option4">4 – Moderately ill</string>
+    <string name="i_option5">5 – Markedly ill</string>
+    <string name="i_option6">6 – Severely ill</string>
+    <string name="i_option7">7 – Among the most severely ill</string>
+    <string name="q1">1. Positive symptoms (e.g. hallucinations, delusions or bizarre behaviour)</string>
+    <string name="q2">2. Negative symptoms (e.g. affective flattening, avolition or anhedonia)</string>
+    <string name="q3">3. Depressive symptoms (e.g. sadness, depressed mood or hopelessness)</string>
+    <string name="q4">4. Cognitive symptoms (e.g. impaired attention, concentration or memory)</string>
+    <string name="q5">5. Overall severity</string>
+    <string name="ii_title">II. Degree of change</string>
+    <string name="ii_question">Compared to the previous evaluation (*), how much has the patient changed? Rate improvement whether or not, in your judgement, it is due entirely to treatment.</string>
+    <string name="ii_option1">1 – Very much improved</string>
+    <string name="ii_option2">2 – Much improved</string>
+    <string name="ii_option3">3 – Minimally improved</string>
+    <string name="ii_option4">4 – No change</string>
+    <string name="ii_option5">5 – Minimally worse</string>
+    <string name="ii_option6">6 – Much worse</string>
+    <string name="ii_option7">7 – Very much worse</string>
+    <string name="ii_option9">9 – N/A</string>
+    <string name="ii_postscript">(*) In treatment trials with several evaluation points, use ‘Compared to the phase immediately preceding this treatment trial’ instead of ‘Compared to the previous evaluation’.</string>
+    <string name="summary_i_5">Severity (overall)</string>
+    <string name="summary_ii_5">Change (overall)</string>
+
+  </task>
+</resources>

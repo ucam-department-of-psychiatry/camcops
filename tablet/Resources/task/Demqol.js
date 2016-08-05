@@ -22,7 +22,8 @@
 
 /*jslint node: true, newcap: true, nomen: true, plusplus: true, continue: true */
 "use strict";
-/*global Titanium, L */
+/*global L */
+/* jshint -W100 */
 
 var DBCONSTANTS = require('common/DBCONSTANTS'),
     dbcommon = require('lib/dbcommon'),
@@ -60,6 +61,10 @@ lang.extendPrototype(Demqol, {
     _fieldlist: fieldlist,
 
     // TASK CLASS FIELD OVERRIDES (USED BY BaseTask)
+
+    isTaskCrippled: function () {
+        return !this.extraStringsPresent();
+    },
 
     // OTHER
 

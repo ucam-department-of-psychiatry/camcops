@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="gds15">
+    <!-- Geriatric Depression Scale, 15-item version (GDS-15) -->
+
+    <string name="instruction">Choose the best answer for how you have felt over the past week:</string>
+    <string name="q1">Are you basically satisfied with your life?</string>
+    <string name="q2">Have you dropped many of your activities and interests?</string>
+    <string name="q3">Do you feel that your life is empty?</string>
+    <string name="q4">Do you often get bored?</string>
+    <string name="q5">Are you in good spirits most of the time?</string>
+    <string name="q6">Are you afraid that something bad is going to happen to you?</string>
+    <string name="q7">Do you feel happy most of the time?</string>
+    <string name="q8">Do you often feel helpless?</string>
+    <string name="q9">Do you prefer to stay at home, rather than going out and doing new things?</string>
+    <string name="q10">Do you feel you have more problems with memory than most?</string>
+    <string name="q11">Do you think it is wonderful to be alive now?</string>
+    <string name="q12">Do you feel pretty worthless the way you are now?</string>
+    <string name="q13">Do you feel full of energy?</string>
+    <string name="q14">Do you feel that your situation is hopeless?</string>
+    <string name="q15">Do you think that most people are better off than you are?</string>
+
+  </task>
+</resources>

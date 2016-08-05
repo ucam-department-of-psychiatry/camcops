@@ -238,7 +238,7 @@ class SessionManager(object):
                                                 self.password)
         # Report
         log.info(
-            "Incoming connection from IP={i}, port={p}, device_name={dn},"
+            "Incoming connection from IP={i}, port={p}, device_name={dn}, "
             "device_id={di}, user={u}, operation={o}".format(
                 i=pls.remote_addr,
                 p=pls.remote_port,
@@ -1684,7 +1684,7 @@ def main_http_processor(env: Dict[str, str]) -> Dict:
 
     if not fn:
         fail_unsupported_operation(sm.operation)
-    result = fn(form)
+    result = fn(sm)
     if result is None:
         result = {PARAM.RESULT: sm.operation}
     elif not isinstance(result, dict):

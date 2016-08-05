@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="cpft_lps_discharge">
+    <!-- CPFT LPS – discharge -->
+
+    <string name="reason_code_F">F: Referral finished/completed</string>
+    <string name="reason_code_A">A: Advice only</string>
+    <string name="reason_code_O">O: Passed to on-call clinician</string>
+    <string name="reason_code_C">C: Cancelled</string>
+    <string name="discharge_date">Discharge date</string>
+    <string name="discharge_reason">Reason for discharge</string>
+    <string name="leaflet_or_discharge_card_given">Leaflet or discharge card given?</string>
+    <string name="frequent_attender">Is patient a frequent attender (>5/year)?</string>
+    <string name="patient_wanted_copy_of_letter">Did patient want copy of letter?</string>
+    <string name="gaf_at_first_assessment">GAF score at first assessment</string>
+    <string name="gaf_at_discharge">GAF score at discharge</string>
+    <string name="referral_reason_t">Retrospective reason(s) for referral:</string>
+    <string name="referral_reason_self_harm_overdose">Overdose</string>
+    <string name="referral_reason_self_harm_other">Other self-harm</string>
+    <string name="referral_reason_suicidal_ideas">Suicidal ideas</string>
+    <string name="referral_reason_behavioural_disturbance">Behavioural disturbance</string>
+    <string name="referral_reason_low_mood">Low mood</string>
+    <string name="referral_reason_elevated_mood">Elevated mood</string>
+    <string name="referral_reason_psychosis">Psychosis</string>
+    <string name="referral_reason_pre_transplant">Transplant (PRE)</string>
+    <string name="referral_reason_post_transplant">Transplant (POST)</string>
+    <string name="referral_reason_delirium">Delirium</string>
+    <string name="referral_reason_anxiety">Anxiety</string>
+    <string name="referral_reason_somatoform_mus">Somatoform disorder/MUS</string>
+    <string name="referral_reason_motivation_adherence">Motivation/adherence</string>
+    <string name="referral_reason_capacity">Capacity</string>
+    <string name="referral_reason_eating_disorder">Eating disorder</string>
+    <string name="referral_reason_safeguarding">Safeguarding</string>
+    <string name="referral_reason_discharge_placement">Discharge/placement</string>
+    <string name="referral_reason_cognitive_problem">Cognitive problem</string>
+    <string name="referral_reason_substance_alcohol">Substance misuse (ALCOHOL)</string>
+    <string name="referral_reason_substance_other">Substance misuse (OTHER)</string>
+    <string name="referral_reason_other">Other</string>
+    <string name="referral_reason_transplant_organ">For TRANSPLANT: which organ?</string>
+    <string name="referral_reason_other_detail">For OTHER: give details</string>
+    <string name="diagnoses_t">Diagnoses</string>
+    <string name="diagnosis_no_active_mental_health_problem">No active MH problem</string>
+    <string name="psychiatric_t">Psychiatric</string>
+    <string name="medical_t">Medical</string>
+    <string name="diagnosis_psych">Psychiatric diagnosis</string>
+    <string name="diagnosis_medical">Medical diagnosis</string>
+    <string name="management_t">Management</string>
+    <string name="management_assessment_diagnostic">Assessment/diagnostic</string>
+    <string name="management_medication">Medication</string>
+    <string name="management_specialling_behavioural_disturbance">Specialling/behavioural disturbance</string>
+    <string name="management_supportive_patient">Supportive (patient)</string>
+    <string name="management_supportive_carers">Supportive (carers)</string>
+    <string name="management_supportive_staff">Supportive (staff)</string>
+    <string name="management_nursing_management">Nursing management</string>
+    <string name="management_therapy_cbt">Therapy (CBT)</string>
+    <string name="management_therapy_cat">Therapy (CAT)</string>
+    <string name="management_therapy_other">Therapy (other)</string>
+    <string name="management_treatment_adherence">Treatment adherence</string>
+    <string name="management_capacity">Capacity/MCA</string>
+    <string name="management_education_patient">Education (patient)</string>
+    <string name="management_education_carers">Education (carers)</string>
+    <string name="management_education_staff">Education (staff)</string>
+    <string name="management_accommodation_placement">Accommodation/placement</string>
+    <string name="management_signposting_external_referral">Signposting/external onward referral</string>
+    <string name="management_mha_s136">MHA s136</string>
+    <string name="management_mha_s5_2">MHA s5(2)</string>
+    <string name="management_mha_s2">MHA s2</string>
+    <string name="management_mha_s3">MHA s3</string>
+    <string name="management_complex_case_conference">Complex case conference</string>
+    <string name="management_other">Other</string>
+    <string name="management_other_detail">For OTHER: give detail</string>
+    <string name="outcome_t">Outcome/destination/follow-up</string>
+    <string name="outcome_hospital_transfer_detail">For HOSPITAL TRANSFER: specify which</string>
+    <string name="outcome_other_detail">For OTHER: give detail</string>
+
+  </task>
+</resources>

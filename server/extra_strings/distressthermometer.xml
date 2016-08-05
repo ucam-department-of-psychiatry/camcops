@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="distressthermometer">
+    <!-- Distress Thermometer -->
+
+    <string name="section1_title">Distress Thermometer: 1. Distress</string>
+    <string name="distress_question">Please choose the number (0–10) that best describes how much distress you have been experiencing in the past week including today.</string>
+    <string name="distress_extreme">Extreme distress</string>
+    <string name="distress_none">No distress</string>
+    <string name="distress_s">Distress:</string>
+    <string name="section2_title">Distress Thermometer: 2. Problems</string>
+    <string name="section2_stem">Second, please indicate if any of the following has been a problem for you in the past week including today. Be sure to check YES or NO for each.</string>
+    <string name="subtitle1">Practical problems</string>
+    <string name="subtitle2">Family problems</string>
+    <string name="subtitle3">Emotional problems</string>
+    <string name="subtitle4">Spiritual/religious problems</string>
+    <string name="subtitle5">Physical problems</string>
+    <string name="q1">Child care</string>
+    <string name="q2">Housing</string>
+    <string name="q3">Insurance/financial</string>
+    <string name="q4">Transportation</string>
+    <string name="q5">Work/school</string>
+    <string name="q6">Dealing with children</string>
+    <string name="q7">Dealing with partner</string>
+    <string name="q8">Dealing with close friend/relative</string>
+    <string name="q9">Depression</string>
+    <string name="q10">Fears</string>
+    <string name="q11">Nervousness</string>
+    <string name="q12">Sadness</string>
+    <string name="q13">Worry</string>
+    <string name="q14">Loss of interest in usual activities</string>
+    <string name="q15">Spiritual/religious concerns</string>
+    <string name="q16">Appearance</string>
+    <string name="q17">Bathing/dressing</string>
+    <string name="q18">Breathing</string>
+    <string name="q19">Changes in urination</string>
+    <string name="q20">Constipation</string>
+    <string name="q21">Diarrhoea</string>
+    <string name="q22">Eating</string>
+    <string name="q23">Fatigue</string>
+    <string name="q24">Feeling swollen</string>
+    <string name="q25">Fevers</string>
+    <string name="q26">Getting around</string>
+    <string name="q27">Indigestion</string>
+    <string name="q28">Memory/concentration</string>
+    <string name="q29">Mouth sores</string>
+    <string name="q30">Nausea</string>
+    <string name="q31">Nose dry/congested</string>
+    <string name="q32">Pain</string>
+    <string name="q33">Sexual</string>
+    <string name="q34">Skin dry/itchy</string>
+    <string name="q35">Sleep</string>
+    <string name="q36">Tingling in hands/feet</string>
+    <string name="section3_title">Distress Thermometer: 3. Other problems</string>
+    <string name="other_question">Finally, please enter any other problems in the space below.</string>
+    <string name="other_s">Other problems:</string>
+    <string name="other_prompt">Other problems</string>
+
+  </task>
+</resources>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="pcl">
+    <!-- PTSD Checklist (PCL) -->
+
+    <!-- ... common to all -->
+    <string name="option1">Not at all</string>
+    <string name="option2">A little bit</string>
+    <string name="option3">Moderately</string>
+    <string name="option4">Quite a bit</string>
+    <string name="option5">Extremely</string>
+    <string name="q1_s">Q1 (disturbing memories/thoughts/images):</string>
+    <string name="q2_s">Q2 (disturbing dreams):</string>
+    <string name="q3_s">Q3 (reliving):</string>
+    <string name="q4_s">Q4 (upset at reminders):</string>
+    <string name="q5_s">Q5 (physical reactions to reminders):</string>
+    <string name="q6_s">Q6 (avoid thinking/talking/feelings relating to experience):</string>
+    <string name="q7_s">Q7 (avoid activities/situations because they remind):</string>
+    <string name="q8_s">Q8 (trouble remembering important parts of stressful event):</string>
+    <string name="q9_s">Q9 (loss of interest in previously enjoyed activities):</string>
+    <string name="q10_s">Q10 (feeling distant/cut off from people):</string>
+    <string name="q11_s">Q11 (feeling emotionally numb):</string>
+    <string name="q12_s">Q12 (feeling future will be cut short):</string>
+    <string name="q13_s">Q13 (hard to sleep):</string>
+    <string name="q14_s">Q14 (irritable):</string>
+    <string name="q15_s">Q15 (difficulty concentrating):</string>
+    <string name="q16_s">Q16 (super alert/on guard):</string>
+    <string name="q17_s">Q17 (jumpy/easily startled):</string>
+    <string name="q9">Loss of interest in things that you used to enjoy? </string>
+    <string name="q10">Feeling distant or cut off from other people?</string>
+    <string name="q11">Feeling emotionally numb or being unable to have loving feelings for those close to you?</string>
+    <string name="q12">Feeling as if your future will somehow be cut short?</string>
+    <string name="q13">Trouble falling or staying asleep?</string>
+    <string name="q14">Feeling irritable or having angry outbursts?</string>
+    <string name="q15">Having difficulty concentrating?</string>
+    <string name="q16">Being “super alert” or watchful on guard?</string>
+    <string name="q17">Feeling jumpy or easily startled?</string>
+    <string name="dsm_criteria_met">Meets DSM-IV criteria for PTSD?</string>
+
+    <!-- ... military -->
+    <string name="m_title">PCL (Military)</string>
+    <string name="m_instructions">Below is a list of problems and complaints that veterans sometimes have in response to a stressful military experience. Please read each one carefully, and mark in the box to indicate how much you have been bothered by that problem in the last month.</string>
+    <string name="m_q1">Repeated, disturbing memories, thoughts, or images of a stressful military experience?</string>
+    <string name="m_q2">Repeated, disturbing dreams of a stressful military experience?</string>
+    <string name="m_q3">Suddenly acting or feeling as if a stressful military experience were happening again (as if you were reliving it)?</string>
+    <string name="m_q4">Feeling very upset when something reminded you of a stressful military experience?</string>
+    <string name="m_q5">Having physical reactions (e.g., heart pounding, trouble breathing, or sweating) when something reminded you of a stressful military experience?</string>
+    <string name="m_q6">Avoid thinking about or talking about a stressful military experience or avoid having feelings related to it?</string>
+    <string name="m_q7">Avoid activities or talking about a stressful military experience or avoid having feelings related to it?</string>
+    <string name="m_q8">Trouble remembering important parts of a stressful military experience?</string>
+
+    <!-- civilian -->
+    <string name="c_title">PCL (Civilian)</string>
+    <string name="c_instructions">Below is a list of problems and complaints that people sometimes have in response to stressful life experiences. Please read each one carefully, and mark in the box to indicate how much you have been bothered by that problem in the last month.</string>
+    <string name="c_q1">Repeated, disturbing memories, thoughts, or images of a stressful experience from the past?</string>
+    <string name="c_q2">Repeated, disturbing dreams of a stressful experience from the past?</string>
+    <string name="c_q3">Suddenly acting or feeling as if a stressful experience were happening again (as if you were reliving it)?</string>
+    <string name="c_q4">Feeling very upset when something reminded you of a stressful experience from the past?</string>
+    <string name="c_q5">Having physical reactions (e.g., heart pounding, trouble breathing, or sweating) when something reminded you of a stressful experience from the past?</string>
+    <string name="c_q6">Avoid thinking about or talking about a stressful experience from the past or avoid having feelings related to it?</string>
+    <string name="c_q7">Avoid activities or situations because they remind you of a stressful experience from the past?</string>
+    <string name="c_q8">Trouble remembering important parts of a stressful experience from the past?</string>
+
+    <!-- specific -->
+    <string name="s_title">PCL (Specific event)</string>
+    <string name="s_event_prompt">The event you experienced was:</string>
+    <string name="s_event_hint">stressful event</string>
+    <string name="s_eventdate_prompt">on:</string>
+    <string name="s_eventdate_hint">event date</string>
+    <string name="s_instructions">Below is a list of problems and complaints that people sometimes have in response to stressful experiences. Please read each one carefully, and mark in the box to indicate how much you have been bothered by that problem in the last month.</string>
+    <string name="s_event_s">Event:</string>
+    <string name="s_eventdate_s">Event date:</string>
+    <string name="s_q1">Repeated, disturbing memories,thoughts, or images of the stressful experience?</string>
+    <string name="s_q2">Repeated, disturbing dreams of the stressful experience?</string>
+    <string name="s_q3">Suddenly acting or feeling as if the stressful experience were happening again (as if you were reliving it)?</string>
+    <string name="s_q4">Feeling very upset when something reminded you of the stressful experience?</string>
+    <string name="s_q5">Having physical reactions (e.g., heart pounding, trouble breathing, or sweating) when something reminded you of the stressful experience?</string>
+    <string name="s_q6">Avoid thinking about or talking about the stressful experience or avoid having feelings related to it?</string>
+    <string name="s_q7">Avoid activities or situations because they remind you of the stressful experience?</string>
+    <string name="s_q8">Trouble remembering important parts of the stressful experience?</string>
+
+  </task>
+</resources>

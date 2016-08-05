@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="icd10manic">
+    <!-- ICD-10 symptomatic criteria for a manic/hypomanic episode (as in e.g. F06.3, F25, F30, F31) -->
+
+<!--
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ICD-10 criteria
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Copyright © 1992 World Health Organization
+- The ICD-10 Classification of Mental and Behavioural Disorders:
+  Clinical descriptions and diagnostic guidelines (CDDG).
+  http://www.who.int/entity/classifications/icd/en/bluebook.pdf
+  Accessed 2013-05-08.
+- The ICD-10 Classification of Mental and Behavioural Disorders:
+  Diagnostic Criteria for Research (DCR-10).
+  http://www.who.int/classifications/icd/en/GRNBOOK.pdf
+  Accessed 2013-05-08.
+
+Used here with permission:
+
+“On behalf of the World Health Organization, we are pleased to authorize
+your request to reproduce the WHO material as detailed in the form below.
+    This permission is subject to the following conditions:
+- This is a non-exclusive permission to reproduce the material detailed below.
+- Please ensure that the original WHO source is appropriately acknowledged
+with the appropriate bibliographical reference including publication title,
+author, publisher, volume/edition number, page numbers, copyright notice year
+and the URL reference and the date accessed.
+- The material will be reproduced as it was published by WHO and no changes
+should be made to the content or meaning.
+Publishers may reformat the material in the style of the publication.
+- The use of WHO materials should be factual and used in an appropriate context;
+- The material should not be reproduced for use in association with product
+marketing or promotional activities.
+- The copyright in ICD-10 is vested in WHO, any further redistribution of
+the text requires permission from WHO.
+- There should be no suggestion that WHO endorses any specific company or
+products in the article, book etc or in the manner of distribution of the
+article, book etc.
+- The WHO logo and emblem shall not be reproduced.
+- WHO reserves the right to withdraw the permission in the event a condition
+is not respected.”
+-->
+
+    <string name="title">Hypomanic and manic episodes (as in e.g. F25, F30, F31)</string>
+    <string name="core">Core symptom of hypomania and mania:</string>
+    <string name="mood_elevated">[MOOD ELEVATED] The mood is “elevated” [hypomania] or “predominantly elevated [or] expansive” [mania] to a degree that is definitely abnormal for the individual concerned.</string>
+    <string name="mood_irritable">[MOOD IRRITABLE] The mood is “irritable” [hypomania] or “predominantly irritable” [mania] to a degree that is definitely abnormal for the individual concerned.</string>
+    <string name="hypomania_mania">Other symptoms of hypomania and mania:</string>
+    <string name="distractible">[DISTRACTIBLE] Difficulty in concentration or distractibility [from the criteria for hypomania]; distractibility or constant changes in activity or plans [from the criteria for mania].</string>
+    <string name="activity">[ACTIVITY] Increased activity or physical restlessness.</string>
+    <string name="sleep">[SLEEP] Decreased need for sleep.</string>
+    <string name="talkativeness">[TALKATIVENESS] Increased talkativeness (pressure of speech).</string>
+    <string name="recklessness">[RECKLESSNESS] Mild spending sprees, or other types of reckless or irresponsible behaviour [hypomania]; behaviour which is foolhardy or reckless and whose risks the subject does not recognize e.g. spending sprees, foolish enterprises, reckless driving [mania].</string>
+    <string name="social_disinhibition">[DISINHIBITION SOCIALLY] Increased sociability or over-familiarity [hypomania]; loss of normal social inhibitions resulting in behaviour which is inappropriate to the circumstances [mania].</string>
+    <string name="sexual">[SEXUAL ENERGY] Increased sexual energy [hypomania]; marked sexual energy or sexual indiscretions [mania].</string>
+    <string name="other_mania">Other symptoms of mania:</string>
+    <string name="grandiosity">[GRANDIOSITY] Inflated self-esteem or grandiosity.</string>
+    <string name="flight_of_ideas">[FLIGHT OF IDEAS] Flight of ideas or the subjective experience of thoughts racing.</string>
+    <string name="other_criteria">Criteria relating to duration/severity/psychosis:</string>
+    <string name="sustained4days">Elevated/irritable mood sustained for at least 4 days.</string>
+    <string name="sustained7days">Elevated/irritable mood sustained for at least 7 days.</string>
+    <string name="admission_required">Elevated/irritable mood severe enough to require hospital admission.</string>
+    <string name="some_interference_functioning">Some interference with personal functioning in daily living.</string>
+    <string name="severe_interference_functioning">Severe interference with personal functioning in daily living.</string>
+    <string name="psychosis">Regarding manic psychosis and related symptoms:</string>
+    <string name="perceptual_alterations">Perceptual alterations (e.g. subjective hyperacusis, appreciation of colours as specially vivid, etc.).</string>
+    <string name="hallucinations_schizophrenic">Hallucinations that are “typically schizophrenic” (hallucinatory voices giving a running commentary on the patient’s behaviour, or discussing him between themselves, or other types of hallucinatory voices coming from some part of the body).</string>
+    <string name="hallucinations_other">Hallucinations (of any other kind).</string>
+    <string name="delusions_schizophrenic">Delusions that are “typically schizophrenic” (delusions of control, influence or passivity, clearly referred to body or limb movements or specific thoughts, actions, or sensations; delusional perception; persistent delusions of other kinds that are culturally inappropriate and completely impossible).</string>
+    <string name="delusions_other">Delusions (of any other kind).</string>
+    <string name="category_manic_psychotic_schizophrenic">Manic episode with psychotic symptoms of schizophrenic type [ICD-10 no-man’s land]</string>
+    <string name="category_manic_psychotic">Manic episode with psychotic symptoms</string>
+    <string name="category_manic_nonpsychotic">Manic episode without psychotic symptoms</string>
+    <string name="category_hypomanic">Hypomanic episode</string>
+    <string name="category_none">No manic/hypomanic episode</string>
+    <string name="psychotic_symptoms">Psychotic symptoms?</string>
+
+  </task>
+</resources>

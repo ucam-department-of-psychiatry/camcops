@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="icd10schizotypal">
+    <!-- ICD-10 criteria for schizotypal disorder (F21) -->
+
+<!--
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ICD-10 criteria
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Copyright © 1992 World Health Organization
+- The ICD-10 Classification of Mental and Behavioural Disorders:
+  Clinical descriptions and diagnostic guidelines (CDDG).
+  http://www.who.int/entity/classifications/icd/en/bluebook.pdf
+  Accessed 2013-05-08.
+- The ICD-10 Classification of Mental and Behavioural Disorders:
+  Diagnostic Criteria for Research (DCR-10).
+  http://www.who.int/classifications/icd/en/GRNBOOK.pdf
+  Accessed 2013-05-08.
+
+Used here with permission:
+
+“On behalf of the World Health Organization, we are pleased to authorize
+your request to reproduce the WHO material as detailed in the form below.
+    This permission is subject to the following conditions:
+- This is a non-exclusive permission to reproduce the material detailed below.
+- Please ensure that the original WHO source is appropriately acknowledged
+with the appropriate bibliographical reference including publication title,
+author, publisher, volume/edition number, page numbers, copyright notice year
+and the URL reference and the date accessed.
+- The material will be reproduced as it was published by WHO and no changes
+should be made to the content or meaning.
+Publishers may reformat the material in the style of the publication.
+- The use of WHO materials should be factual and used in an appropriate context;
+- The material should not be reproduced for use in association with product
+marketing or promotional activities.
+- The copyright in ICD-10 is vested in WHO, any further redistribution of
+the text requires permission from WHO.
+- There should be no suggestion that WHO endorses any specific company or
+products in the article, book etc or in the manner of distribution of the
+article, book etc.
+- The WHO logo and emblem shall not be reproduced.
+- WHO reserves the right to withdraw the permission in the event a condition
+is not respected.”
+-->
+
+    <string name="title">F21 Schizotypal disorder</string>
+    <string name="a">A. The subject must have manifested, over a period of at least two years, at least four of the following, either continuously or repeatedly:</string>
+    <string name="a1">(1) Inappropriate or constricted affect, subject appears cold and aloof;</string>
+    <string name="a2">(2) Behaviour or appearance which is odd, eccentric or peculiar;</string>
+    <string name="a3">(3) Poor rapport with others and a tendency to social withdrawal;</string>
+    <string name="a4">(4) Odd beliefs or magical thinking influencing behaviour and inconsistent with subcultural norms;</string>
+    <string name="a5">(5) Suspiciousness or paranoid ideas;</string>
+    <string name="a6">(6) Ruminations without inner resistance, often with dysmorphophobic, sexual or aggressive contents;</string>
+    <string name="a7">(7) Unusual perceptual experiences including somatosensory (bodily) or other illusions, depersonalization or derealization;</string>
+    <string name="a8">(8) Vague, circumstantial, metaphorical, over-elaborate or often stereotyped thinking, manifested by odd speech or in other ways, without gross incoherence;</string>
+    <string name="a9">(9) Occasional transient quasi-psychotic episodes with intense illusions, auditory or other hallucinations and delusion-like ideas, usually occurring without external provocation.</string>
+    <string name="b">B. The subject must never have met the criteria for any disorder in F20 (Schizophrenia).</string>
+
+  </task>
+</resources>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="gmcpq">
+    <!-- GMC Patient Questionnaire -->
+
+    <string name="titleprefix">GMC Patient Questionnaire: Q</string>
+    <string name="info1">Licensed doctors are expected to seek feedback from colleagues and patients and review and act upon that feedback where appropriate.\n\nThe purpose of this exercise is to provide doctors with information about their work through the eyes of those they work with and treat, and is intended to help inform their further development.</string>
+    <string name="please_enter_doctor">Please enter the doctor’s name:</string>
+    <string name="info2">Please base your answers only on the consultation you have had today.</string>
+    <string name="q_doctor">Doctor’s name:</string>
+    <string name="q1">1. Are you filling in this questionnaire for:</string>
+    <string name="q1_option1">Yourself</string>
+    <string name="q1_option2">Your child</string>
+    <string name="q1_option3">Your spouse or partner</string>
+    <string name="q1_option4">Another relative or friend</string>
+    <string name="info3">If you are filling this in for someone else, please answer the following questions from the patient’s point of view.</string>
+    <string name="q2">2. Which of the following best describes the reason you saw the doctor today? (Please tick all the boxes that apply)</string>
+    <string name="q2_a">To ask for advice</string>
+    <string name="q2_b">Because of a one-off problem</string>
+    <string name="q2_c">Because of an ongoing problem</string>
+    <string name="q2_d">For a routine check</string>
+    <string name="q2_e">For treatment (including prescriptions)</string>
+    <string name="q2_f">Other (please give details)</string>
+    <string name="q2f_s">Other reason</string>
+    <string name="q3">3. On a scale of 1 to 5, how important to your health and wellbeing was your reason for visiting the doctor today?</string>
+    <string name="q3_option1">1 – Not very important</string>
+    <string name="q3_option2">2</string>
+    <string name="q3_option3">3</string>
+    <string name="q3_option4">4</string>
+    <string name="q3_option5">5 – Very important</string>
+    <string name="q4">4. How good was your doctor today at each of the following? (Please tick one box in each line)</string>
+    <string name="q4_option1">Poor</string>
+    <string name="q4_option2">Less than satisfactory</string>
+    <string name="q4_option3">Satisfactory</string>
+    <string name="q4_option4">Good</string>
+    <string name="q4_option5">Very good</string>
+    <string name="q4_option0">Does not apply</string>
+    <string name="q4_a">Being polite</string>
+    <string name="q4_b">Making you feel at ease</string>
+    <string name="q4_c">Listening to you</string>
+    <string name="q4_d">Assessing your medical condition</string>
+    <string name="q4_e">Explaining your condition and treatment</string>
+    <string name="q4_f">Involving you in decisions about your treatment</string>
+    <string name="q4_g">Providing or arranging treatment for you</string>
+    <string name="q5">5. Please decide how strongly you agree or disagree with the following statements by ticking one box in each line.</string>
+    <string name="q5_option1">Strongly disagree</string>
+    <string name="q5_option2">Disagree</string>
+    <string name="q5_option3">Neutral</string>
+    <string name="q5_option4">Agree</string>
+    <string name="q5_option5">Strongly agree</string>
+    <string name="q5_option0">Does not apply</string>
+    <string name="q5_a">This doctor will keep information about me confidential</string>
+    <string name="q5_b">This doctor is honest and trustworthy</string>
+    <string name="q6">6. I am confident about this doctor’s ability to provide care</string>
+    <string name="q7">7. I would be completely happy to see this doctor again</string>
+    <string name="q8">8. Was this visit with your usual doctor?</string>
+    <string name="q9">9. Please add any other comments you want to make about this doctor.\nPlease note: No patients will be identified when this information is given to the doctor.</string>
+    <string name="q9_s">Other comments</string>
+    <string name="info4">The next questions will provide the doctor with some basic information about who took part in the survey. If you are filling this in on behalf of a child or a patient with a disability, please provide details about the patient.</string>
+    <string name="q10">10. Are you:</string> <!-- male, female -->
+    <string name="q11">11. Age:</string>
+    <string name="q11_option1">Under 15</string>
+    <string name="q11_option2">15–20</string>
+    <string name="q11_option3">21–40</string>
+    <string name="q11_option4">40–60</string>
+    <string name="q11_option5">60 or over</string> <!-- surely non-overlapping age categories not too much to ask? Still, we follow the original. -->
+    <string name="q12">12. What is your ethnic group?</string>
+    <string name="ethnicity_option1">White – British</string>
+    <string name="ethnicity_option2">White – Irish</string>
+    <string name="ethnicity_option3">White – Any other white background (please write in below)</string>
+    <string name="ethnicity_option4">Mixed – White and Black Caribbean</string>
+    <string name="ethnicity_option5">Mixed – White and Black African</string>
+    <string name="ethnicity_option6">Mixed – White and Asian</string>
+    <string name="ethnicity_option7">Mixed – Any other Mixed background (please write in below)</string>
+    <string name="ethnicity_option8">Asian or Asian British – Indian</string>
+    <string name="ethnicity_option9">Asian or Asian British – Pakistani</string>
+    <string name="ethnicity_option10">Asian or Asian British – Bangladeshi</string>
+    <string name="ethnicity_option11">Asian or Asian British – Any other Asian background (please write in below)</string>
+    <string name="ethnicity_option12">Black or Black British – Caribbean</string>
+    <string name="ethnicity_option13">Black or Black British – African</string>
+    <string name="ethnicity_option14">Black or Black British – Any other Black background (please write in below)</string>
+    <string name="ethnicity_option15">Chinese or other ethnic group – Chinese</string>
+    <string name="ethnicity_option16">Chinese or other ethnic group – other (please write in below)</string>
+    <string name="ethnicity_other_s">Other ethnic group</string>
+
+  </task>
+</resources>

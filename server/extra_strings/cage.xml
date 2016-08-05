@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="cage">
+    <!-- CAGE questionnaire -->
+
+    <string name="title">CAGE Questionnaire</string>
+    <string name="stem">Please answer the following 4 questions:</string>
+    <string name="q1">Have you ever felt you should cut down on your drinking?</string>
+    <string name="q2">Have people annoyed you by criticizing your drinking?</string>
+    <string name="q3">Have you ever felt bad or guilty about your drinking?</string>
+    <string name="q4">Have you ever had a drink first thing in the morning to steady your nerves or get rid of a hangover (eye-opener)?</string>
+    <string name="q1_s">Q1 (cut down):</string>
+    <string name="q2_s">Q2 (annoyed):</string>
+    <string name="q3_s">Q3 (guilty):</string>
+    <string name="q4_s">Q4 (eye-opener):</string>
+    <string name="over_threshold">Exceeds threshold for potential problem drinking (2 or more):</string>
+
+  </task>
+</resources>

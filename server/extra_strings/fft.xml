@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="fft">
+    <!-- Friends and Family Test (FFT) -->
+
+    <string name="q">How likely are you to recommend this service to friends and family if they need care or treatment?</string>
+    <string name="a1">Extremely likely</string>
+    <string name="a2">Likely</string>
+    <string name="a3">Neither likely nor unlikely</string>
+    <string name="a4">Unlikely</string>
+    <string name="a5">Extremely unlikely</string>
+    <string name="a6">Don’t know</string>
+
+  </task>
+</resources>

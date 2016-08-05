@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="ace3">
+
+<!--
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Addenbrooke’s Cognitive Examination, revision 3 (ACE-III)
+(UK English version)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Copyright © 2012, John Hodges.
+“The ACE-III is available for free. The copyright is held by Professor
+John Hodges who is happy for the test to be used in clinical practice and
+research projects. There is no need to contact us if you wish to use the
+ACE-III in clinical practice.” (ACE-III FAQ, 7 July 2013,
+http://www.neura.edu.au/sites/neura.edu.au/files/page-downloads/ACE-III%20FAQ%20July%202013.pdf,
+accessed 2013-07-31.)
+-->
+
+    <string name="cat_attn">Attention</string>
+    <string name="cat_mem">Memory</string>
+    <string name="cat_fluency">Fluency</string>
+    <string name="cat_lang">Language</string>
+    <string name="cat_vsp">Visuospatial</string>
+    <string name="title_prefix">ACE-III, page</string>
+    <string name="instruction_need_paper">You will need a pencil and paper, (a) for you to write their verbal fluency responses on, (b) for the instructions involving a physical pencil and paper, and (c) for the subject to draw shapes and clocks on. You’ll be able to take up to two photographs of it (one of each side) at the end.</string>
+    <!-- <string name="q_tester">Tester’s name</string> -->
+    <string name="preamble_instruction">Ask the patient:</string>
+    <string name="q_age_leaving_fte">Age at leaving full-time education</string>
+    <string name="q_occupation">Occupation</string>
+    <string name="q_handedness">Handedness</string>
+    <string name="left_handed">Left-handed</string>
+    <string name="right_handed">Right-handed</string>
+    <string name="attn_q_time">Ask: What is the</string>
+    <string name="attn_time1">Day</string>
+    <string name="attn_time2">Date</string>
+    <string name="attn_time3">Month</string>
+    <string name="attn_time4">Year</string>
+    <string name="attn_time5">Season</string>
+    <string name="instruction_time">DATE: allow ±2 days. MONTH: require name, not number. SEASON: offer alternative in transition months. Correct answer today:</string>
+    <string name="season_spring">Spring</string>
+    <string name="season_summer">Summer</string>
+    <string name="season_autumn">Autumn</string>
+    <string name="season_winter">Winter</string>
+    <string name="attn_q_place">Ask: Which</string>
+    <string name="attn_place1">No./Floor</string>
+    <string name="attn_place2">Street/Hospital</string>
+    <string name="attn_place3">Town</string>
+    <string name="attn_place4">County</string>
+    <string name="attn_place5">Country</string>
+    <string name="instruction_place">If the participant is at home, ask for the name of the place such as the apartment complex/retirement village and, for the floor, you might ask for the name of the room (e.g., kitchen, living room, etc). If at a single storey health setting, you could ask about a local landmark.</string>
+    <string name="attn_q_words">Tell: “I’m going to give you three words and I’d like you to repeat them after me: lemon, key and ball.”\nAfter subject repeats, say “Try to remember them because I’m going to ask you later”.</string>
+    <string name="attn_instruction_words">Score only the first trial (repeat 3 times if necessary).</string>
+    <string name="attn_q_register_n_trials">Number of trials it took to learn all 3 words</string>
+    <string name="attn_q_serial_sevens">Ask the subject: “Could you take 7 away from 100? I’d like you to keep taking 7 away from each new number until I tell you to stop.”</string>
+    <string name="attn_instruction_sevens">If subject makes a mistake, do not stop them. Let the subject carry on and check subsequent answers (e.g., 93, 84, 77, 70, 63 – score 4). Stop after five subtractions (93, 86, 79, 72, 65):</string>
+    <string name="attn_subtraction1">First subtraction</string>
+    <string name="attn_subtraction2">Second</string>
+    <string name="attn_subtraction3">Third</string>
+    <string name="attn_subtraction4">Fourth</string>
+    <string name="attn_subtraction5">Fifth</string>
+    <string name="mem_q_recall_words">Ask: “Which 3 words did I asked you to repeat and remember?”</string>
+    <string name="mem_instruction_recall">Do not prompt the participant for the items.</string>
+    <string name="mem_word1">lemon</string>
+    <string name="mem_word2">key</string>
+    <string name="mem_word3">ball</string>
+    <string name="fluency_subhead_letters">Letters</string>
+    <string name="fluency_q_letters">Say: “I’m going to give you a letter of the alphabet and I’d like you to generate as many words as you can beginning with that letter, but not names of people or places. For example, if I give you the letter ‘C’, you could give me words like ‘cat, cry, clock’ and so on. But, you can’t give me words like Catherine or Canada. Do you understand? Are you ready? You have one minute. The letter I want you to use is the letter ‘P’.”</string>
+    <string name="fluency_subheading_animals">Animals</string>
+    <string name="fluency_instruction_letters">First, record the total number of words that the participant generates. Then, count the number of correct words, which do not include: (1) repetitions, (2) perseverations (e.g., pay, paid, pays – correct = 1), (3) intrusions (i.e., words beginning with other letters), (4) proper names (i.e., names of people or places) and (5) plurals (e.g., pot, pots – total = 2, correct = 1).</string>
+    <string name="fluency_q_animals">Say: “Now can you name as many animals as possible. It can begin with any letter.”</string>
+    <string name="fluency_prompt_letters_cor">Number of correct, unique P words generated:</string>
+    <string name="fluency_prompt_animals_cor">Number of unique, correct animal words generated:</string>
+    <string name="fluency_instruction_animals">Again, record the total number of animals that the participant generates. Then, count the total number of correct words, which do not include higher order categories when specific exemplars are given (e.g., “fish” followed by “salmon” and “trout” – total = 3; correct = 2). All types of animals are accepted, including insects, humans, prehistoric, extinct as well as mythical creatures (e.g., unicorn). If the participant misunderstands the instructions and perseverates by naming animals beginning with “p” (e.g., panda, possum, platypus etc), then reiterate to the participant that they should name animals beginning with any letter.</string>
+    <!-- <string name="fluency_prompt_inc">Number of incorrect words generated</string> -->
+    <string name="memory_q_address">Tell: “I’m going to give you a name and address and I’d like you to repeat the name and address after me. So you have a chance to learn, we’ll be doing that 3 times. I’ll ask you the name and address later.”</string>
+    <string name="memory_instruction_address_1">If the participant starts repeating along with you, ask them to wait until you give it in full.</string>
+    <string name="memory_instruction_address_2">Record all trials (but only the third is scored).</string>
+    <string name="trial">Trial</string>
+    <string name="address_1">Harry</string>
+    <string name="address_2">Barnes</string>
+    <string name="address_3">73</string>
+    <string name="address_4">Orchard</string>
+    <string name="address_5">Close</string>
+    <string name="address_6">Kingsbridge</string>
+    <string name="address_7">Devon</string>
+    <string name="famous_1">Name of the current Prime Minister</string>
+    <string name="famous_2">Name of the woman who was Prime Minister</string>
+    <string name="famous_3">Name of the USA president</string>
+    <string name="famous_4">Name of the USA president who was assassinated in the 1960s</string>
+    <string name="instruction_famous">Allow surnames (e.g., “Obama”) and ask for a surname if only the first name is given (e.g., “Maggie”). If the full name given is incorrect (e.g., “June Thatcher”), then the score would be 0. If there has been a recent change in leaders, probe for the name of the outgoing politician.</string>
+    <string name="lang_q_command_1">Place a pencil and a piece of paper in front of the subject. As a practice trial, ask the subject to:</string>
+    <string name="lang_command_practice">“Pick up the pencil and then the paper.”</string>
+    <string name="lang_command1">“Place the paper on top of the pencil.”</string>
+    <string name="lang_command2">“Pick up the pencil but not the paper.”</string>
+    <string name="lang_command3">“Pass me the pencil after touching the paper.”</string>
+    <string name="lang_q_command_2">If incorrect, score 0 and do not continue further. If the subject is correct on the practice trial, continue with the following three commands below. Before beginning each trial, always place the pencil and piece of paper in front of the participant.</string>
+    <string name="lang_q_sentences">Ask the subject to write two (or more) complete sentences about his/her last holiday / weekend / Christmas. Write in complete sentences and do not use abbreviations.</string>
+    <string name="lang_sentences_point1">Two (or more) complete sentences about the one topic?</string>
+    <string name="lang_sentences_point2">Grammar and spelling are correct?</string>
+    <string name="lang_q_repeat">Ask the subject to repeat:</string>
+    <string name="lang_repeat_word1">caterpillar</string>
+    <string name="lang_repeat_word2">eccentricity</string>
+    <string name="lang_repeat_word3">unintelligible</string>
+    <string name="lang_repeat_word4">statistician</string>
+    <string name="lang_instruction_repeat">Only the first attempt is scored.</string>
+    <string name="lang_sentence1">“All that glitters is not gold”</string>
+    <string name="lang_sentence2">“A stitch in time saves nine”</string>
+    <string name="lang_instruction_sentences_1">Do not accept partially correct repetitions (e.g., “all that glistens is not gold”).</string>
+    <string name="lang_instruction_sentences_2">Note: Following the repetition of each proverb, the examiner may wish to ask the participant “What does this proverb mean?” or “How would you explain this proverb to someone who has not heard it before?” This additional measure can aid the clinician in the qualitative assessment of verbal abstract thinking.</string>
+    <string name="advance_warning_1">On the next few pages:</string>
+    <string name="advance_warning_2">PICTURE IDENTIFICATION. Correct answers are: spoon; book; penguin; anchor; camel or dromedary; barrel, keg, or tub; crown; crocodile or alligator; harp; rhinoceros or rhino; kangaroo or wallaby; piano accordion, accordion or squeeze box.</string>
+    <string name="advance_warning_3">INFINITY SCORING. A score of 1 is given if two infinity loops are drawn and overlap. Both infinity loops must come to a point/cross and not look like circles.</string>
+    <string name="advance_warning_4">CUBE SCORING. The cube should have 12 lines to score 2 points, even if the proportions are not perfect. A score of 1 is given if the cube has fewer than 12 lines but a general cube shape is maintained.</string>
+    <string name="advance_warning_5">CLOCK SCORING: CIRCLE. 1 point maximum if it is a reasonable circle.</string>
+    <string name="advance_warning_6">CLOCK SCORING: NUMBERS. 2 points if all numbers are included and well distributed within the circle. 1 point if all numbers are included but poorly distributed or outside of the circle. 0 points if not all numbers are included.</string>
+    <string name="advance_warning_7">CLOCK SCORING: HANDS. 2 points if both hands are well drawn, different lengths and placed on correct numbers (you might ask which one is the small and big one). 1 point if both placed on the correct numbers but wrong lengths OR 1 point if one hand is placed on the correct number and drawn with correct length OR 1 point if only one hand is drawn and placed at the correct number i.e. 5 for ‘ten past five’.</string>
+    <string name="advance_warning_8">LETTER RECOGNITION: FOR APHASIC PATIENTS. If the participant is unable to say the number of dots or letter name, allow them to write their answer. For the letter, allow them to say the correct letter sounds (e.g., “mmm”).</string>
+    <string name="lang_q_identify_pic">Ask the subject to name the following pictures:</string>
+    <string name="lang_q_identify_concept">Using the pictures above, ask the subject to:</string>
+    <string name="lang_instruction_identify_concept">Self-corrections are allowed. Do not provide any feedback regarding the word meaning.</string>
+    <string name="lang_concept1">Point to the one which is associated with the monarchy</string>
+    <string name="lang_concept2">Point to the one which is a marsupial</string>
+    <string name="lang_concept3">Point to the one which is found in the Antarctic</string>
+    <string name="lang_concept4">Point to the one which has a nautical connection</string>
+    <string name="lang_q_read_aloud">Ask the subject to read the following words:</string>
+    <string name="lang_instruction_read_aloud">Record the mistakes using the phonetic alphabet, if possible.</string>
+    <string name="lang_read_aloud_words">sew\npint\nsoot\ndough\nheight\n</string>
+    <string name="lang_read_aloud_all_correct">All correct?</string>
+    <string name="vsp_q_infinity">Infinity diagram: Ask the subject to copy this diagram:</string>
+    <string name="vsp_infinity_correct">Infinity diagram correct?</string>
+    <string name="vsp_q_cube">Wire cube: Ask the subject to copy this drawing (for scoring, see page 6 or the administration/scoring guide).</string>
+    <string name="vsp_score_cube">Score cube</string>
+    <string name="vsp_q_clock">Ask the participant to draw a clock face with numbers on it. When he/she has finished, ask them to put the hands at “ten past five”.</string>
+    <string name="vsp_instruction_clock">If the participant does not like their first drawing and would like to do it again, you can allow for that and score the second clock. Participants may correct their mistakes by erasing it while drawing.</string>
+    <string name="vsp_score_clock">Score clock (see page 6 or the administration/scoring guide; circle = 1, numbers = 2, hands = 2 if all correct):</string>
+    <string name="vsp_q_dots">Ask the subject to count the dots without pointing to them:</string>
+    <string name="vsp_q_letters">Ask the subject to identify the letters</string>
+    <string name="mem_q_recall_address">Ask: “Now tell me what you remember about that name and address we were repeating at the beginning.”</string>
+    <string name="mem_q_recognize_address">Test items not recalled by telling the subject “ok, I’ll give you some hints: was the name X, Y or Z?” and so on.</string>
+    <string name="mem_recall_option1_line1">Jerry Barnes</string>
+    <string name="mem_recall_option2_line1">Harry Barnes</string>
+    <string name="mem_recall_option3_line1">Harry Bradford</string>
+    <string name="mem_recall_option1_line2">37</string>
+    <string name="mem_recall_option2_line2">73</string>
+    <string name="mem_recall_option3_line2">76</string>
+    <string name="mem_recall_option1_line3">Orchard Place</string>
+    <string name="mem_recall_option2_line3">Oak Close</string>
+    <string name="mem_recall_option3_line3">Orchard Close</string>
+    <string name="mem_recall_option1_line4">Oakhampton</string>
+    <string name="mem_recall_option2_line4">Kingsbridge</string>
+    <string name="mem_recall_option3_line4">Dartington</string>
+    <string name="mem_recall_option1_line5">Devon</string>
+    <string name="mem_recall_option2_line5">Dorset</string>
+    <string name="mem_recall_option3_line5">Somerset</string>
+    <string name="no_need_for_extra_recall">Nothing to do here (subject has already recalled everything).</string>
+    <string name="picture1_q">Picture 1 of 2</string>
+    <string name="picture2_q">Picture 2 of 2</string>
+    <string name="picture_instruction1">Finally, please take up to 2 photos of the subject’s test sheet.</string>
+    <string name="picture_instruction2">Include (a) words generated beginning with P, (b) animals generated, (c) subject’s two sentences, (d) infinity, (e) cube, (f) clock.</string>
+
+  </task>
+</resources>

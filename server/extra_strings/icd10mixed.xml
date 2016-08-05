@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="icd10mixed">
+    <!-- ICD-10 symptomatic criteria for a mixed affective episode (as in e.g. F06.3, F25, F38.00, F31.6) -->
+
+<!--
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ICD-10 criteria
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Copyright © 1992 World Health Organization
+- The ICD-10 Classification of Mental and Behavioural Disorders:
+  Clinical descriptions and diagnostic guidelines (CDDG).
+  http://www.who.int/entity/classifications/icd/en/bluebook.pdf
+  Accessed 2013-05-08.
+- The ICD-10 Classification of Mental and Behavioural Disorders:
+  Diagnostic Criteria for Research (DCR-10).
+  http://www.who.int/classifications/icd/en/GRNBOOK.pdf
+  Accessed 2013-05-08.
+
+Used here with permission:
+
+“On behalf of the World Health Organization, we are pleased to authorize
+your request to reproduce the WHO material as detailed in the form below.
+    This permission is subject to the following conditions:
+- This is a non-exclusive permission to reproduce the material detailed below.
+- Please ensure that the original WHO source is appropriately acknowledged
+with the appropriate bibliographical reference including publication title,
+author, publisher, volume/edition number, page numbers, copyright notice year
+and the URL reference and the date accessed.
+- The material will be reproduced as it was published by WHO and no changes
+should be made to the content or meaning.
+Publishers may reformat the material in the style of the publication.
+- The use of WHO materials should be factual and used in an appropriate context;
+- The material should not be reproduced for use in association with product
+marketing or promotional activities.
+- The copyright in ICD-10 is vested in WHO, any further redistribution of
+the text requires permission from WHO.
+- There should be no suggestion that WHO endorses any specific company or
+products in the article, book etc or in the manner of distribution of the
+article, book etc.
+- The WHO logo and emblem shall not be reproduced.
+- WHO reserves the right to withdraw the permission in the event a condition
+is not respected.”
+-->
+
+<string name="a">A. The episode is characterized by either a mixture or a rapid alternation (i.e. within a few hours) of hypomanic, manic and depressive symptoms.</string>
+<string name="b">B. Both manic and depressive symptoms must be prominent most of the time during a period of at least two weeks.</string>
+
+  </task>
+</resources>

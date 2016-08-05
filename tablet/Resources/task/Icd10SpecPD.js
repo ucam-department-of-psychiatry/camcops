@@ -22,7 +22,7 @@
 
 /*jslint node: true, newcap: true, nomen: true, plusplus: true, unparam: true */
 "use strict";
-/*global Titanium, L */
+/*global L */
 
 var DBCONSTANTS = require('common/DBCONSTANTS'),
     dbcommon = require('lib/dbcommon'),
@@ -111,6 +111,10 @@ lang.extendPrototype(Icd10SpecPD, {
     _fieldlist: fieldlist,
 
     // TASK CLASS FIELD OVERRIDES (USED BY BaseTask)
+
+    isTaskCrippled: function () {
+        return !this.extraStringsPresent();
+    },
 
     // OTHER
 
@@ -839,6 +843,7 @@ lang.extendPrototype(Icd10SpecPD, {
                 questionnaire = null; // for garbage collection, since we have
                 // closures referring to questionnaire
             },
+            /* jshint unused:true */
             fnShowNext: function (currentPage, pageTag) {
                 switch (pageTag) {
                 case TAG_GENERAL:

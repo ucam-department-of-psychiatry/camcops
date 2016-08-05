@@ -22,7 +22,7 @@
 
 /*jslint node: true, newcap: true, nomen: true, plusplus: true */
 "use strict";
-/*global Titanium, L */
+/*global L */
 
 var DBCONSTANTS = require('common/DBCONSTANTS'),
     dbcommon = require('lib/dbcommon'),
@@ -58,6 +58,9 @@ lang.extendPrototype(Audit, {
     // TASK CLASS FIELD OVERRIDES (USED BY BaseTask)
 
     _prohibitCommercial: true,
+    isTaskCrippled: function () {
+        return !this.extraStringsPresent();
+    },
 
     // OTHER
 
@@ -103,12 +106,11 @@ lang.extendPrototype(Audit, {
     getDetail: function () {
         var uifunc = require('lib/uifunc');
         return (
-            taskcommon.valueDetail(this, "audit_q", "_s", " ", "q", 1,
-                                   nquestions) +
+            this.xValueDetail("q", "_s", " ", "q", 1, nquestions) +
             "\n" +
             this.getSummary() + "\n" +
             "\n" +
-            L('audit_exceeds_standard_cutoff') + " " +
+            this.XSTRING('exceeds_standard_cutoff') + " " +
             uifunc.yesNo(this.getTotalScore() >= 8)
         );
     },
@@ -118,30 +120,30 @@ lang.extendPrototype(Audit, {
             KeyValuePair = require('lib/KeyValuePair'),
             Questionnaire = require('questionnaire/Questionnaire'),
             options1 = [
-                new KeyValuePair(L("audit_q1_option0"), 0),
-                new KeyValuePair(L("audit_q1_option1"), 1),
-                new KeyValuePair(L("audit_q1_option2"), 2),
-                new KeyValuePair(L("audit_q1_option3"), 3),
-                new KeyValuePair(L("audit_q1_option4"), 4)
+                new KeyValuePair(this.XSTRING("q1_option0"), 0),
+                new KeyValuePair(this.XSTRING("q1_option1"), 1),
+                new KeyValuePair(this.XSTRING("q1_option2"), 2),
+                new KeyValuePair(this.XSTRING("q1_option3"), 3),
+                new KeyValuePair(this.XSTRING("q1_option4"), 4)
             ],
             options2 = [
-                new KeyValuePair(L("audit_q2_option0"), 0),
-                new KeyValuePair(L("audit_q2_option1"), 1),
-                new KeyValuePair(L("audit_q2_option2"), 2),
-                new KeyValuePair(L("audit_q2_option3"), 3),
-                new KeyValuePair(L("audit_q2_option4"), 4)
+                new KeyValuePair(this.XSTRING("q2_option0"), 0),
+                new KeyValuePair(this.XSTRING("q2_option1"), 1),
+                new KeyValuePair(this.XSTRING("q2_option2"), 2),
+                new KeyValuePair(this.XSTRING("q2_option3"), 3),
+                new KeyValuePair(this.XSTRING("q2_option4"), 4)
             ],
             options3to8 = [
-                new KeyValuePair(L("audit_q3to8_option0"), 0),
-                new KeyValuePair(L("audit_q3to8_option1"), 1),
-                new KeyValuePair(L("audit_q3to8_option2"), 2),
-                new KeyValuePair(L("audit_q3to8_option3"), 3),
-                new KeyValuePair(L("audit_q3to8_option4"), 4)
+                new KeyValuePair(this.XSTRING("q3to8_option0"), 0),
+                new KeyValuePair(this.XSTRING("q3to8_option1"), 1),
+                new KeyValuePair(this.XSTRING("q3to8_option2"), 2),
+                new KeyValuePair(this.XSTRING("q3to8_option3"), 3),
+                new KeyValuePair(this.XSTRING("q3to8_option4"), 4)
             ],
             options9to10 = [
-                new KeyValuePair(L("audit_q9to10_option0"), 0),
-                new KeyValuePair(L("audit_q9to10_option2"), 2),
-                new KeyValuePair(L("audit_q9to10_option4"), 4)
+                new KeyValuePair(this.XSTRING("q9to10_option0"), 0),
+                new KeyValuePair(this.XSTRING("q9to10_option2"), 2),
+                new KeyValuePair(this.XSTRING("q9to10_option4"), 4)
             ],
             pages = [{
                 title: L("t_audit"),
@@ -149,25 +151,25 @@ lang.extendPrototype(Audit, {
                 elements: [
                     {
                         type: "QuestionText",
-                        text: L("audit_instructions_1")
+                        text: this.XSTRING("instructions_1")
                     },
                     {
                         type: "QuestionText",
                         bold: true,
-                        text: L("audit_instructions_2")
+                        text: this.XSTRING("instructions_2")
                     },
                     {
                         type: "QuestionText",
-                        text: L("audit_instructions_3")
+                        text: this.XSTRING("instructions_3")
                     },
                     {
                         type: "QuestionText",
                         bold: true,
-                        text: L("audit_instructions_4")
+                        text: this.XSTRING("instructions_4")
                     },
                     {
                         type: "QuestionText",
-                        text: L("audit_instructions_5")
+                        text: this.XSTRING("instructions_5")
                     }
                 ]
             }],
@@ -175,12 +177,12 @@ lang.extendPrototype(Audit, {
 
         function makepage(question, options) {
             return {
-                title: L("audit_q" + question + "_title"),
+                title: self.XSTRING("q" + question + "_title"),
                 clinician: true,
                 elements: [
                     {
                         type: "QuestionText",
-                        text: L("audit_q" + question + "_question")
+                        text: self.XSTRING("q" + question + "_question")
                     },
                     {
                         type: "QuestionMCQ",

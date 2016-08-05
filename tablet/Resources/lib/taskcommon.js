@@ -341,6 +341,30 @@ lang.extendPrototype(BaseTask, {
             estn = this.getExtrastringTaskname();
         defaultvalue = defaultvalue || ("[" + estn + ": " + name + "]");
         return extrastrings.get(estn, name, defaultvalue);
+    },
+
+    xValueDetail: function (stringprefix, stringsuffix, spacer, fieldprefix,
+                            start, end) {
+        // replaces valueDetail() for WXSTRING strings
+        var msg = "",
+            i;
+        for (i = start; i <= end; ++i) {
+            msg += (this.XSTRING(stringprefix + i + stringsuffix) + spacer +
+                    this[fieldprefix + i] + "\n");
+        }
+        return msg;
+    },
+
+    xYesNoNullDetail: function (stringprefix, stringsuffix, spacer,
+                                fieldprefix, start, end) {
+        // replaces yesNoNullDetail for WXSTRING strings
+        var msg = "",
+            i;
+        for (i = start; i <= end; ++i) {
+            msg += (this.XSTRING(stringprefix + i + stringsuffix) + spacer +
+                    uifunc.yesNoNull(this[fieldprefix + i]) + "\n");
+        }
+        return msg;
     }
 
 });
@@ -668,6 +692,7 @@ function descriptionValuePair(object, description, fieldname, transform,
 }
 exports.descriptionValuePair = descriptionValuePair;
 
+/*
 function lstringValuePair(object, lstringname, fieldname, transform, spacer) {
     if (transform === undefined) {
         transform = identity;
@@ -678,6 +703,7 @@ function lstringValuePair(object, lstringname, fieldname, transform, spacer) {
     return L(lstringname) + spacer + transform(object[fieldname]) + "\n";
 }
 exports.lstringValuePair = lstringValuePair;
+*/
 
 function valueDetail(object, stringprefix, stringsuffix, spacer, fieldprefix,
                      start, end) {

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="wemwbs">
+
+<!--
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+(Shorter) Warwick-Edinburgh Mental Well-Being Scale (WEMWBS, SWEMWBS)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Published as open data in multiple open-access articles, under the Creative
+Commons Attribution License.
+
+1. WEMBWS: Tennant et al. (2007), Health and Quality of Life Outcomes 5:63,
+    doi:10.1186/1477-7525-5-63,
+    http://www.hqlo.com/content/5/1/63:
+
+    “© 2007 Tennant et al; licensee BioMed Central Ltd.”
+    “This is an Open Access article distributed under the terms of the Creative
+    Commons Attribution License (http://creativecommons.org/licenses/by/2.0),
+    which permits unrestricted use, distribution, and reproduction in any
+    medium, provided the original work is properly cited.”
+
+    Scale in Figure 1.
+    Scale also in supplementary data, annotated “© NHS Health Scotland,
+    University of Warwick and University of Edinburgh, 2006, all rights
+    reserved” and additionally marked “Open Data”:
+    “By 'open data' BioMed Central means that these data are freely available
+    on the public internet permitting any user to download, copy, analyse,
+    re-process, pass them to software or use them for any other purpose without
+    financial, legal, or technical barriers other than those inseparable from
+    gaining access to the internet itself. BioMed Central encourages the use of
+    fully open formats wherever possible.”
+    (http://www.hqlo.com/about/access/#opendata)
+
+2. SWEMWBS: Stewart-Brown et al. (2009), Health and Quality of Life Outcomes
+    7:15, doi:10.1186/1477-7525-7-15, http://www.hqlo.com/content/7/1/15:
+
+    “© 2009 Stewart-Brown et al; licensee BioMed Central Ltd.”
+    “This is an Open Access article distributed under the terms of the Creative
+    Commons Attribution License (http://creativecommons.org/licenses/by/2.0),
+    which permits unrestricted use, distribution, and reproduction in any
+    medium, provided the original work is properly cited.”
+
+    WEMWBS and SWEWMBS scales annotated “© NHS Health Scotland, University of
+    Warwick and University of Edinburgh, 2006, all rights reserved” (WEMWBS) or
+    “… 2008 …” (SWEMWBS) and both additionally marked “Open Data”:
+    “By 'open data' BioMed Central means that these data are freely available
+    on the public internet permitting any user to download, copy, analyse,
+    re-process, pass them to software or use them for any other purpose without
+    financial, legal, or technical barriers other than those inseparable from
+    gaining access to the internet itself. BioMed Central encourages the use of
+    fully open formats wherever possible.”
+    (http://www.hqlo.com/about/access/#opendata)
+-->
+
+    <string name="wemwbs_prompt">Below are some statements about feelings and thoughts. Please select the option that best describes your experience of each over the last 2 weeks.</string> <!-- original: "tick the box", not "select the option" -->
+    <string name="wemwbs_a1">None of the time</string>
+    <string name="wemwbs_a2">Rarely</string>
+    <string name="wemwbs_a3">Some of the time</string>
+    <string name="wemwbs_a4">Often</string>
+    <string name="wemwbs_a5">All of the time</string>
+    <string name="wemwbs_q1">I’ve been feeling optimistic about the future</string>
+    <string name="wemwbs_q2">I’ve been feeling useful</string>
+    <string name="wemwbs_q3">I’ve been feeling relaxed</string>
+    <string name="wemwbs_q4">I’ve been feeling interested in other people</string>
+    <string name="wemwbs_q5">I’ve had energy to spare</string>
+    <string name="wemwbs_q6">I’ve been dealing with problems well</string>
+    <string name="wemwbs_q7">I’ve been thinking clearly</string>
+    <string name="wemwbs_q8">I’ve been feeling good about myself</string>
+    <string name="wemwbs_q9">I’ve been feeling close to other people</string>
+    <string name="wemwbs_q10">I’ve been feeling confident</string>
+    <string name="wemwbs_q11">I’ve been able to make up my own mind about things</string>
+    <string name="wemwbs_q12">I’ve been feeling loved</string>
+    <string name="wemwbs_q13">I’ve been interested in new things</string>
+    <string name="wemwbs_q14">I’ve been feeling cheerful</string>
+    <string name="swemwbs_q1">I’ve been feeling optimistic about the future</string>
+    <string name="swemwbs_q2">I’ve been feeling useful</string>
+    <string name="swemwbs_q3">I’ve been feeling relaxed</string>
+    <string name="swemwbs_q4">I’ve been dealing with problems well</string>
+    <string name="swemwbs_q5">I’ve been thinking clearly</string>
+    <string name="swemwbs_q6">I’ve been feeling close to other people</string>
+    <string name="swemwbs_q7">I’ve been able to make up my own mind about things</string>
+
+  </task>
+</resources>

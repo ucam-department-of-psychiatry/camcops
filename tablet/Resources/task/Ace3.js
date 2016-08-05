@@ -155,6 +155,9 @@ lang.extendPrototype(Ace3, {
     // TASK CLASS FIELD OVERRIDES (USED BY BaseTask)
 
     _prohibitCommercial: true,
+    isTaskCrippled: function () {
+        return !this.extraStringsPresent();
+    },
 
     // OTHER
 

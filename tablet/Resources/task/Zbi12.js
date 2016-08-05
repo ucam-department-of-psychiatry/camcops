@@ -22,7 +22,7 @@
 
 /*jslint node: true, newcap: true, nomen: true, plusplus: true, unparam: true */
 "use strict";
-/*global Titanium, L */
+/*global L */
 
 var DBCONSTANTS = require('common/DBCONSTANTS'),
     dbcommon = require('lib/dbcommon'),
@@ -78,8 +78,8 @@ lang.extendPrototype(Zbi12, {
     // Standard task functions
     isComplete: function () {
         return (
-            this.isRespondentComplete()
-            && taskcommon.isCompleteByPrefix(this, "q", 1, nquestions)
+            this.isRespondentComplete() &&
+            taskcommon.isCompleteByPrefix(this, "q", 1, nquestions)
         );
     },
 

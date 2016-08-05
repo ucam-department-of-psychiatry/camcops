@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="hamd7">
+    <!-- Hamilton Depression Rating Scale, 7-item version (HAMD-7) -->
+
+    <string name="q1_title">HAMD-7: 1. Depressed mood</string>
+    <string name="q1_s">Q1 (depressed mood):</string>
+    <string name="q1_question">1. Depressed mood (sadness, the blues, weepiness)\n\n- Have you been feeling down or depressed this past week?\n- How often have you felt this way, and for how long?</string>
+    <string name="q1_option0">0= Absent.</string>
+    <string name="q1_option1">1= Indicated only on questioning.</string>
+    <string name="q1_option2">2= Spontaneously reported verbally.</string>
+    <string name="q1_option3">3= Communicates non-verbally (facial expression, posture, voice, tendency to weep).</string>
+    <string name="q1_option4">4= Patient reports virtually only these feeling states in spontaneous verbal and non-verbal communication.</string>
+    <string name="q2_title">HAMD-7: 2. Feelings of guilt</string>
+    <string name="q2_s">Q2 (guilt):</string>
+    <string name="q2_question">2. Feelings of guilt (self-criticism, self-reproach)\n\n- In the past week, have you felt guilty about something you’ve done, or that you’ve let others down?\n- Do you feel you’re being punished by being sick?</string>
+    <string name="q2_option0">0= Absent.</string>
+    <string name="q2_option1">1= Self-reproach (letting people down).</string>
+    <string name="q2_option2">2= Ideas of guilt or rumination over past errors or sinful deeds.</string>
+    <string name="q2_option3">3= Present illness seen as punishment; delusions of guilt.</string>
+    <string name="q2_option4">4= Hears accusatory or denunciatory voices or experiences threatening visual hallucinations.</string>
+    <string name="q3_title">HAMD-7: 3. Interest, pleasure, level of activities</string>
+    <string name="q3_s">Q3 (interest/pleasure/level of activities):</string>
+    <string name="q3_question">3. Interest, pleasure, level of activities (work and activities of daily living)\n\n- Are you as productive at work and at home as usual?\n- Have you felt interested in doing things that usually interest you?</string>
+    <string name="q3_option0">0= No difficulty.</string>
+    <string name="q3_option1">1= Fatigue, weakness or thoughts incapacity (related to activities, work or hobbies).</string>
+    <string name="q3_option2">2= Loss of interest in activity (directly reported or indirectly through listlessness, indecision and vacillation).</string>
+    <string name="q3_option3">3= Decrease in actual time spent in activities or in productivity.</string>
+    <string name="q3_option4">4= Stopped working because of current illness.</string>
+    <string name="q4_title">HAMD-7: 4. Tension, nervousness (psychological anxiety)</string>
+    <string name="q4_s">Q4 (psychological anxiety):</string>
+    <string name="q4_question">4. Tension, nervousness (psychological anxiety)\n\n- Have you been feeling more tense or nervous than usual this week?\n- Have you been worrying a lot?</string>
+    <string name="q4_option0">0= No difficulty.</string>
+    <string name="q4_option1">1= Subjective tension and irritability.</string>
+    <string name="q4_option2">2= Worrying about minor matters.</string>
+    <string name="q4_option3">3= Apprehensive attitude apparent in face or speech.</string>
+    <string name="q4_option4">4= Fears expressed without questioning.</string>
+    <string name="q5_title">HAMD-7: 5. Physical symptoms of anxiety (somatic anxiety)</string>
+    <string name="q5_s">Q5 (somatic anxiety):</string>
+    <string name="q5_question">5. Physical symptoms of anxiety (somatic anxiety)\n\n- How much have these things been bothering you in this past week?\n- In the past week, have you had any of these symptoms?\n\n... Gastrointestinal: dry mouth, gas, indigestion, diarrhea, cramps, belching\n... Cardiovascular: heart palpitations, headaches\n... Respiratory: hyperventilation, sighing\n... Having to urinate frequently\n... Sweating\n\nDON’T RATE IF SYMPTOMS ARE CLEARLY DUE TO MEDICATION.</string>
+    <string name="q5_option0">0= Absent.</string>
+    <string name="q5_option1">1= Mild.</string>
+    <string name="q5_option2">2= Moderate.</string>
+    <string name="q5_option3">3= Severe.</string>
+    <string name="q5_option4">4= Incapacitating.</string>
+    <string name="q6_title">HAMD-7: 6. Energy level (somatic symptoms)</string>
+    <string name="q6_s">Q6 (energy/somatic symptoms):</string>
+    <string name="q6_question">6. Energy level (somatic symptoms)\n\n- How has your energy been this past week?\n- Have you felt tired?\n- Have you had any aches or pains or felt any heaviness in your limbs, back or head?</string>
+    <string name="q6_option0">0= None.</string>
+    <string name="q6_option1">1= Heaviness in limbs, back or head (backache, headache, muscle aches; loss of energy and fatigability).</string>
+    <string name="q6_option2">2= Any clear-cut symptom rates 2 points.</string>
+    <string name="q7_title">HAMD-7: 7. Suicide</string>
+    <string name="q7_s">Q7 (suicide):</string>
+    <string name="q7_question">7. Suicide (ideation, thoughts, plans, attempts)\n\n- Have you any thoughts life is not worth living or you’d be better off dead?\n- Have you thoughts of hurting or killing yourself?\n- Have you done anything to hurt yourself?</string>
+    <string name="q7_option0">0= Absent.</string>
+    <string name="q7_option1">1= Feels life is not worth living.</string>
+    <string name="q7_option2">2= Wishes to be dead (or any thoughts of possible death to self).</string>
+    <string name="q7_option3">3= Suicidal ideas or gesture.</string>
+    <string name="q7_option4">4= Attempts at suicide (any serious attempt rates 4).</string>
+    <string name="severity">Severity:</string>
+    <string name="severity_none">No depression</string>
+    <string name="severity_mild">Mild depression</string>
+    <string name="severity_moderate">Moderate depression</string>
+    <string name="severity_severe">Severe depression</string>
+
+  </task>
+</resources>

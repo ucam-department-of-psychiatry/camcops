@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="bprs">
+    <!-- Brief Psychiatric Rating Scale (BPRS)) -->
+    <!-- OLD – SUPERSEDED -->
+
+    <string name="bprs18_total_score">BPRS-18 total score:</string>
+
+    <string name="bprs_q1_title">BPRS: 1. Somatic concern</string>
+    <string name="bprs_q2_title">BPRS: 2. Anxiety</string>
+    <string name="bprs_q3_title">BPRS: 3. Emotional withdrawal</string>
+    <string name="bprs_q4_title">BPRS: 4. Conceptual disorganization</string>
+    <string name="bprs_q5_title">BPRS: 5. Guilt feelings</string>
+    <string name="bprs_q6_title">BPRS: 6. Tension</string>
+    <string name="bprs_q7_title">BPRS: 7. Mannerisms and posturing</string>
+    <string name="bprs_q8_title">BPRS: 8. Grandiosity</string>
+    <string name="bprs_q9_title">BPRS: 9. Depressive mood</string>
+    <string name="bprs_q10_title">BPRS: 10. Hostility</string>
+    <string name="bprs_q11_title">BPRS: 11. Suspiciousness</string>
+    <string name="bprs_q12_title">BPRS: 12. Hallucinatory behaviour</string>
+    <string name="bprs_q13_title">BPRS: 13. Motor retardation</string>
+    <string name="bprs_q14_title">BPRS: 14. Uncooperativeness</string>
+    <string name="bprs_q15_title">BPRS: 15. Unusual thought content</string>
+    <string name="bprs_q16_title">BPRS: 16. Blunted affect</string>
+    <string name="bprs_q17_title">BPRS: 17. Excitement</string>
+    <string name="bprs_q18_title">BPRS: 18. Disorientation</string>
+    <string name="bprs_q19_title">BPRS: 19. Severity of illness</string>
+    <string name="bprs_q20_title">BPRS: 20. Global improvement</string>
+    <string name="bprs_q1_s">Q1 (somatic concern):</string>
+    <string name="bprs_q2_s">Q2 (anxiety):</string>
+    <string name="bprs_q3_s">Q3 (emotional withdrawal):</string>
+    <string name="bprs_q5_s">Q5 (guilt):</string>
+    <string name="bprs_q4_s">Q4 (conceptual disorganization):</string>
+    <string name="bprs_q6_s">Q6 (tension):</string>
+    <string name="bprs_q7_s">Q7 (mannerisms/posturing):</string>
+    <string name="bprs_q8_s">Q8 (grandiosity):</string>
+    <string name="bprs_q9_s">Q9 (depressive mood):</string>
+    <string name="bprs_q10_s">Q10 (hostility):</string>
+    <string name="bprs_q11_s">Q11 (suspiciousness):</string>
+    <string name="bprs_q12_s">Q12 (hallucination):</string>
+    <string name="bprs_q13_s">Q13 (motor retardation):</string>
+    <string name="bprs_q14_s">Q14 (uncooperativeness):</string>
+    <string name="bprs_q15_s">Q15 (thought content):</string>
+    <string name="bprs_q16_s">Q16 (blunted affect):</string>
+    <string name="bprs_q17_s">Q17 (excitement):</string>
+    <string name="bprs_q18_s">Q18 (disorientation):</string>
+    <string name="bprs_q19_s">Q19 (severity of illness):</string>
+    <string name="bprs_q20_s">Q20 (global improvement):</string>
+
+    <!-- older/original one: 18 questions, no detail to prompts -->
+    <!--
+    <string name="old_q1_question">Degree of concern over present bodily health. Rate the degree to which physical health is perceived as a problem by the patient, whether complaints have a realistic basis or not.</string>
+    <string name="old_q2_question">Worry, fear, or over-concern for present or future. Rate solely on the basis of verbal report of patient’s own subjective experiences. Do not infer anxiety from physical signs or from neurotic defense mechanisms.</string>
+    <string name="old_q3_question">Deficiency in relating to the interviewer and to the interview situation. Rate only the degree to which the patient gives the impression of failing to be in emotional contact with other people in the interview situation.</string>
+    <string name="old_q4_question">Degree to which the thought processes are confused, disconnected, or disorganized. Rate on the basis of integration of the verbal products of the patient; do not rate on the basis of patient’s subjective impression of his own level of functioning.</string>
+    <string name="old_q5_question">Over-concern or remorse for past behavior. Rate on the basis of the patient’s subjective experiences of guilt as evidenced by verbal report with appropriate affect; do not infer guilt feelings from depression, anxiety or neurotic defenses.</string>
+    <string name="old_q6_question">Physical and motor manifestations of tension, “nervousness”, and heightened activation level. Tension should be rated solely on the basis of physical signs and motor behavior and not on the basis of subjective experiences of tension reported by the patient.</string>
+    <string name="old_q7_question">Unusual and unnatural motor behavior, the type of motor behavior which causes certain mental patients to stand out in a crowd of normal people. Rate only abnormality of movements; do not rate simple heightened motor activity here.</string>
+    <string name="old_q8_question">Exaggerated self-opinion, conviction of unusual ability or powers. Rate only on the basis of patient’s statements about himself or self-in-relation-to-others, not on the basis of his demeanor in the interview situation.</string>
+    <string name="old_q9_question">Despondency in mood. sadness. Rate only degree of despondency; do not rate on the basis of inferences concerning depression based upon general retardation and somatic complaints.</string>
+    <string name="old_q10_question">Animosity, contempt, belligerence, disdain for other people outside the interview situation. Rate solely on the basis of the verbal report of feelings and actions of the patient toward others; do not infer hostility from neurotic defenses, anxiety, nor somatic complaints. (Rate attitude toward interviewer under “uncooperativeness” [Q14].)</string>
+    <string name="old_q11_question">Belief (delusional or otherwise) that others have now, or have had in the past, malicious or discriminatory intent toward the patient. On the basis of verbal report, rate only those suspicions which are currently held whether they concern past or present circumstances.</string>
+    <string name="old_q12_question">Perceptions without normal external stimulus correspondence. Rate only those experiences which are reported to have occurred within the last week and which are described as distinctly different from the thought and imagery processes of normal people.</string>
+    <string name="old_q13_question">Reduction in energy level evidenced in slowed movements. Rate on the basis of observed behavior of the patient only; do not rate on the basis of patient’s subjective impression of own energy level.</string>
+    <string name="old_q14_question">Evidence of resistance, unfriendliness, resentment and lack of readiness to cooperate with the interviewer. Rate only on the basis of the patient’s attitude and responses to the interviewer and the interview situation; do not rate on basis of reported resentment or uncooperativeness outside the interview situation.</string>
+    <string name="old_q15_question">Unusual, odd, strange or bizarre thought content. Rate here the degree of unusualness, not the degree of disorganization of thought processes.</string>
+    <string name="old_q16_question">Reduced emotional tone, apparent lack of normal feeling or involvement.</string>
+    <string name="old_q17_question">Heightened emotional tone, agitation, increased reactivity.</string>
+    <string name="old_q18_question">Confusion or lack of proper association for person, place or time.</string>
+    -->
+
+    <string name="old_option0">Not assessed</string>
+    <string name="old_option1">Not present</string>
+    <string name="old_option2">Very mild</string>
+    <string name="old_option3">Mild</string>
+    <string name="old_option4">Moderate</string>
+    <string name="old_option5">Moderately severe</string>
+    <string name="old_option6">Severe</string>
+    <string name="old_option7">Extremely severe</string>
+
+    <!-- newer one, as in Kaplan & Sadock 2005, p. 939 -->
+    <string name="bprs_q1_question">Degree of concern over present bodily health. Rate the degree to which physical health is perceived as a problem by the patient, whether complaints have a realistic basis or not. Do not rate mere reporting of somatic symptoms. Rate only concern for (or worrying about) physical problems (real or imagined). Rate on the basis of reported (i.e., subjective) information pertaining to the past week.</string>
+    <string name="bprs_q1_option1">1 = Not reported.</string>
+    <string name="bprs_q1_option2">2 = Very Mild: occasionally is somewhat concerned about body, symptoms, or physical illness.</string>
+    <string name="bprs_q1_option3">3 = Mild: occasionally is moderately concerned, or often is somewhat concerned.</string>
+    <string name="bprs_q1_option4">4 = Moderate: occasionally is very concerned, or often is moderately concerned.</string>
+    <string name="bprs_q1_option5">5 = Moderately Severe: often is very concerned.</string>
+    <string name="bprs_q1_option6">6 = Severe: is very concerned most of the time.</string>
+    <string name="bprs_q1_option7">7 = Very Severe: is very concerned nearly all of the time.</string>
+    <string name="bprs_q1_option0">0 = Cannot be assessed adequately because of severe formal thought disorder, uncooperativeness, or marked evasiveness/guardedness; or Not assessed.</string>
+    <string name="bprs_q2_question">Worry, fear, or overconcern for present or future: Rate solely on the basis of verbal report of patient’s own subjective experiences pertaining to the past week. Do not infer anxiety from physical signs or from neurotic defense mechanisms. Do not rate if restricted to somatic concern.</string>
+    <string name="bprs_q2_option1">1 = Not reported.</string>
+    <string name="bprs_q2_option2">2 = Very Mild: occasionally feels somewhat anxious.</string>
+    <string name="bprs_q2_option3">3 = Mild: occasionally feels moderately anxious, or often feels somewhat anxious.</string>
+    <string name="bprs_q2_option4">4 = Moderate: occasionally feels very anxious, or often feels moderately anxious.</string>
+    <string name="bprs_q2_option5">5 = Moderately Severe: often feels very anxious.</string>
+    <string name="bprs_q2_option6">6 = Severe: feels very anxious most of the time.</string>
+    <string name="bprs_q2_option7">7 = Very Severe: feels very anxious nearly all of the time.</string>
+    <string name="bprs_q2_option0">0 = Cannot be assessed adequately because of severe formal thought disorder, uncooperativeness, or marked evasiveness/guardedness; or Not assessed.</string>
+    <string name="bprs_q3_question">Deficiency in relating to the interview and to the interview situation. Overt manifestations of this deficiency include poor/absence of eye contact, failure to orient oneself physically toward the interviewer, and a general lack of involvement or engagement in the interview. Distinguish from BLUNTED AFFECT, in which deficits in facial expression, body gesture, and voice pattern are scored. Rate on the basis of observations made during the interview.</string>
+    <string name="bprs_q3_option1">1 = Not observed.</string>
+    <string name="bprs_q3_option2">2 = Very Mild: e.g., occasionally exhibits poor eye contact.</string>
+    <string name="bprs_q3_option3">3 = Mild: e.g., as above, but more frequent.</string>
+    <string name="bprs_q3_option4">4 = Moderate: e.g., exhibits little eye contact, but still seems engaged in the interview and is appropriately responsive to all questions.</string>
+    <string name="bprs_q3_option5">5 = Moderately Severe: e.g., stares at floor or orients self away from interviewer but still seems moderately engaged.</string>
+    <string name="bprs_q3_option6">6 = Severe: e.g., as above, but more persistent or pervasive.</string>
+    <string name="bprs_q3_option7">7 = Very Severe: e.g., appears “spacey” or “out of it” (total absence of emotional relatedness) and is disproportionately uninvolved or unengaged in the interview (DO NOT SCORE IF EXPLAINED BY DISORIENTATION).</string>
+    <string name="bprs_q4_question">4. Degree of speech incomprehensibility. Include any type of formal thought disorder (e.g., loose associations, incoherence, flight of ideas, neologisms). DO NOT include mere circumstantiality or pressured speech, even if marked. DO NOT rate on the basis of the patient’s subjective impressions (e.g. “my thoughts are racing. I can’t hold a thought,” “my thinking gets all mixed up”). Rate ONLY on the basis of observations made during the interview.</string>
+    <string name="bprs_q4_option1">1 = Not observed.</string>
+    <string name="bprs_q4_option2">2 = Very Mild: e.g., somewhat vague, but of doubtful clinical significance.</string>
+    <string name="bprs_q4_option3">3 = Mild: e.g., frequently vague, but the interview is able to progress smoothly; occasional loosening of associations.</string>
+    <string name="bprs_q4_option4">4 = Moderate: e.g., occasional irrelevant statements, infrequent use of neologisms, or moderate loosening of associations.</string>
+    <string name="bprs_q4_option5">5 = Moderately Severe: as above, but more frequent.</string>
+    <string name="bprs_q4_option6">6 = Severe: formal thought disorder is present for most of the interview, and the interview is severely strained.</string>
+    <string name="bprs_q4_option7">7 = Very Severe: very little coherent information can be obtained.</string>
+    <string name="bprs_q5_question">Overconcern or remorse for past behavior. Rate on the basis of the patient’s subjective experiences of guilt as evidenced by verbal report pertaining to the past week. Do not infer guilt feelings from depression, anxiety or neurotic defenses.</string>
+    <string name="bprs_q5_option1">1 = Not reported.</string>
+    <string name="bprs_q5_option2">2 = Very Mild: occasionally feels somewhat guilty.</string>
+    <string name="bprs_q5_option3">3 = Mild: occasionally feels moderately guilty, or often feels somewhat guilty.</string>
+    <string name="bprs_q5_option4">4 = Moderate: occasionally feels very guilty, or often feels moderately guilty.</string>
+    <string name="bprs_q5_option5">5 = Moderately Severe: often feels very guilty.</string>
+    <string name="bprs_q5_option6">6 = Severe: feels very guilty most of the time, or encapsulated delusions of guilt.</string>
+    <string name="bprs_q5_option7">7 = Very Severe: agonizing constant feelings of guilt, or pervasive delusion(s) of guilt.</string>
+    <string name="bprs_q5_option0">0 = Cannot be assessed adequately because of severe formal thought disorder, uncooperativeness, or marked evasiveness/guardedness; or Not assessed.</string>
+    <string name="bprs_q6_question">Rate motor restlessness (agitation) observed during the interview. DO NOT rate on the basis of subjective experiences reported by the patient. Disregard suspected pathogenesis (e.g., tardive dyskinesia).</string>
+    <string name="bprs_q6_option1">1 = Not observed.</string>
+    <string name="bprs_q6_option2">2 = Very Mild: e.g., occasionally fidgets.</string>
+    <string name="bprs_q6_option3">3 = Mild: e.g., frequently fidgets.</string>
+    <string name="bprs_q6_option4">4 = Moderate: e.g., constantly fidgets, or frequently fidgets, wrings hands and pulls clothing.</string>
+    <string name="bprs_q6_option5">5 = Moderately Severe: e.g., constantly fidgets, wrings hands and pulls clothing.</string>
+    <string name="bprs_q6_option6">6 = Severe: e.g., cannot remain seated (i.e., must pace).</string>
+    <string name="bprs_q6_option7">7 = Very Severe: e.g., paces in a frantic manner.</string>
+    <string name="bprs_q7_question">Unusual and unnatural motor behavior. Rate only abnormality of movements. Do not rate simple heightened motor activity here. Consider frequency, duration, and degree of bizarreness. Disregard suspected pathogenesis.</string>
+    <string name="bprs_q7_option1">1 = Not observed.</string>
+    <string name="bprs_q7_option2">2 = Very Mild: odd behavior but of doubtful clinical significance, e.g., occasional unprompted smiling, infrequent lip movements.</string>
+    <string name="bprs_q7_option3">3 = Mild: strange behavior but not obviously bizarre, e.g., infrequent head-tilting (side to side) in a rhythmic fashion, intermittent abnormal finger movements.</string>
+    <string name="bprs_q7_option4">4 = Moderate: e.g., assumes unnatural position for a brief period of time, infrequent tongue protrusions, rocking, facial grimacing.</string>
+    <string name="bprs_q7_option5">5 = Moderately Severe: e.g., assumes and maintains unnatural position throughout interview, unusual movements in several body areas.</string>
+    <string name="bprs_q7_option6">6 = Severe: as above, but more frequent, intense, or pervasive.</string>
+    <string name="bprs_q7_option7">7 = Very Severe: e.g., bizarre posturing throughout most of the interview, continuous abnormal movements in several body areas.</string>
+    <string name="bprs_q8_question">Inflated self-esteem (self-confidence), or inflated appraisal of one’s talents, powers, abilities, accomplishments, knowledge, importance, or identity. Do not score mere grandiose quality of claims (e.g., “I’m the worst sinner in the world,” “The entire country is trying to kill me”) unless the guilt/persecution is related to some special, exaggerated attributes of the individual. Also, the patient must claim exaggerated attributes: e.g., if patient denies talents, powers, etc., even if he or she states that others indicate that he/she has these attributes, this item should not be scored. Rate on the basis of reported (i.e. subjective) information pertaining to the past week.</string>
+    <string name="bprs_q8_option1">1 = Not reported.</string>
+    <string name="bprs_q8_option2">2 = Very Mild: occasionally feels somewhat guilty.</string>
+    <string name="bprs_q8_option3">3 = Mild: occasionally feels moderately guilty, or often feels somewhat guilty.</string>
+    <string name="bprs_q8_option4">4 = Moderate: occasionally feels very guilty, or often feels moderately guilty.</string>
+    <string name="bprs_q8_option5">5 = Moderately Severe: often feels very guilty.</string>
+    <string name="bprs_q8_option6">6 = Severe: feels very guilty most of the time, or encapsulated delusions of guilt.</string>
+    <string name="bprs_q8_option7">7 = Very Severe: agonizing constant feelings of guilt, or pervasive delusion(s) of guilt.</string>
+    <string name="bprs_q8_option0">0 = Cannot be assessed adequately because of severe formal thought disorder, uncooperativeness, or marked evasiveness/guardedness; or Not assessed.</string>
+    <string name="bprs_q9_question">Subjective report of feeling depressed, blue, “down in the dumps,” etc. Rate only degree of reported depression. Do not rate on the basis of inferences concerning depression based upon general retardation and somatic complaints. Rate on the basis of report (i.e., subjective) information pertaining to the past week.</string>
+    <string name="bprs_q9_option1">1 = Not reported.</string>
+    <string name="bprs_q9_option2">2 = Very Mild: occasionally feels somewhat depressed.</string>
+    <string name="bprs_q9_option3">3 = Mild: occasionally feels moderately depressed, or often feels somewhat depressed.</string>
+    <string name="bprs_q9_option4">4 = Moderate: occasionally feels very depressed, or often feels moderately depressed.</string>
+    <string name="bprs_q9_option5">5 = Moderately Severe: often feels very depressed.</string>
+    <string name="bprs_q9_option6">6 = Severe: feels very depressed most of the time.</string>
+    <string name="bprs_q9_option7">7 = Very Severe: feels very depressed nearly all of the time.</string>
+    <string name="bprs_q9_option0">0 = Cannot be assessed adequately because of severe formal thought disorder, uncooperativeness, or marked evasiveness/guardedness; or Not assessed.</string>
+    <string name="bprs_q10_question">Animosity, contempt, belligerence, disdain for other people outside the interview situation. Rate solely on the basis of the verbal report of feelings and actions of the patient toward others during the past week. Do not infer hostility from neurotic defenses, anxiety, somatic complaints.</string>
+    <string name="bprs_q10_option1">1 = Not reported.</string>
+    <string name="bprs_q10_option2">2 = Very Mild: occasionally feels somewhat angry.</string>
+    <string name="bprs_q10_option3">3 = Mild: often feels somewhat angry, or occasionally feels moderately angry.</string>
+    <string name="bprs_q10_option4">4 = Moderate: occasionally feels very angry, or often feels moderately angry.</string>
+    <string name="bprs_q10_option5">5 = Moderately Severe: often feels very angry.</string>
+    <string name="bprs_q10_option6">6 = Severe: has acted on his anger by becoming verbally or physically abusive on one or two occasions.</string>
+    <string name="bprs_q10_option7">7 = Very Severe: has acted on his anger on several occasions.</string>
+    <string name="bprs_q10_option0">0 = Cannot be assessed adequately because of severe formal thought disorder, uncooperativeness, or marked evasiveness/guardedness; or Not assessed.</string>
+    <string name="bprs_q11_question">Belief (delusional or otherwise) that other have now, or have had in the past, malicious or discriminatory intent toward the patient. On the basis of verbal report, rate only those suspicions which are currently held whether they concern past or present circumstances. Rate on the basis of reported (i.e. subjective) information pertaining to the past week.</string>
+    <string name="bprs_q11_option1">1 = Not reported.</string>
+    <string name="bprs_q11_option2">2 = Very Mild: rare instances of distrustfulness which may or may not be warranted by the situation.</string>
+    <string name="bprs_q11_option3">3 = Mild: occasional instances of suspiciousness that are definitely not warranted by the situation.</string>
+    <string name="bprs_q11_option4">4 = Moderate: more frequent suspiciousness, or transient ideas of reference.</string>
+    <string name="bprs_q11_option5">5 = Moderately Severe: pervasive suspiciousness, frequent ideas of reference, or an encapsulated delusion.</string>
+    <string name="bprs_q11_option6">6 = Severe: definite, delusion(s) of reference or persecution that is (are) not wholly pervasive (e.g., an encapsulated delusion).</string>
+    <string name="bprs_q11_option7">7 = Very Severe: as above, but more widespread, frequent, or intense.</string>
+    <string name="bprs_q11_option0">0 = Cannot be assessed adequately because of severe formal thought disorder, uncooperativeness, or marked evasiveness/guardedness; or Not assessed.</string>
+    <string name="bprs_q12_question">Perceptions (in any sensory modality) in the absence of an identifiable external stimulus. Rate only those experiences that have occurred during the last week. DO NOT rate “voices in my head,” or “visions in my mind” unless the patient can differentiate between these experiences and his or her thoughts.</string>
+    <string name="bprs_q12_option1">1 = Not reported.</string>
+    <string name="bprs_q12_option2">2 = Very Mild: suspected hallucinations only.</string>
+    <string name="bprs_q12_option3">3 = Mild: definite hallucinations, but insignificant, infrequent, or transient (e.g. occasional formless visual hallucinations, a voice calling the patient’s name).</string>
+    <string name="bprs_q12_option4">4 = Moderate: as above, but more frequent or extensive (e.g., frequently sees the devil’s face, two voices carry on length conversation).</string>
+    <string name="bprs_q12_option5">5 = Moderately Severe: hallucinations are experienced nearly every day, or are a source of extreme distress.</string>
+    <string name="bprs_q12_option6">6 = Severe: as above, and has had a moderate impact on the patient’s behavior (e.g., concentration difficulties leading to impaired work functioning).</string>
+    <string name="bprs_q12_option7">7 = Very Severe: as above, and has had a severe impact (e.g., attempts suicide in response to command hallucinations).</string>
+    <string name="bprs_q12_option0">0 = Cannot be assessed adequately because of severe formal thought disorder, uncooperativeness, or marked evasiveness/guardedness; or Not assessed.</string>
+    <string name="bprs_q13_question">Reduction in energy level evidenced in slowed movements. Rate on the basis of observed behavior of the patient only. Do not rate on the basis of the patient’s subjective impression of his or her own energy level.</string>
+    <string name="bprs_q13_option1">1 = Not observed.</string>
+    <string name="bprs_q13_option2">2 = Very Mild and of doubtful clinical significance.</string>
+    <string name="bprs_q13_option3">3 = Mild: e.g., conversation is somewhat retarded, movements somewhat slowed.</string>
+    <string name="bprs_q13_option4">4 = Moderate: e.g., conversation is noticeably retarded but not strained.</string>
+    <string name="bprs_q13_option5">5 = Moderately Severe: e.g., conversation is strained, moves very slowly.</string>
+    <string name="bprs_q13_option6">6 = Severe: e.g., conversation is difficult to maintain, hardly moves at all.</string>
+    <string name="bprs_q13_option7">7 = Very Severe: e.g., conversation is almost impossible, does not move at all throughout interview.</string>
+    <string name="bprs_q14_question">Evidence of resistance, unfriendliness, resentment, and lack of readiness to cooperate with the interviewer. Rate only on the basis of the patient’s attitude and responses to the interviewer and the interview situation. Do not rate on the basis of reported resentment or uncooperativeness outside the interview situation.</string>
+    <string name="bprs_q14_option1">1 = Not observed.</string>
+    <string name="bprs_q14_option2">2 = Very Mild: e.g., does not seem motivated.</string>
+    <string name="bprs_q14_option3">3 = Mild: e.g., seems evasive in certain areas.</string>
+    <string name="bprs_q14_option4">4 = Moderate: e.g., monosyllabic, fails to elaborate spontaneously, somewhat unfriendly.</string>
+    <string name="bprs_q14_option5">5 = Moderately Severe: e.g., expresses resentment and is unfriendly throughout the interview.</string>
+    <string name="bprs_q14_option6">6 = Severe: e.g., refuses to answer a number of questions.</string>
+    <string name="bprs_q14_option7">7 = Very Severe: e.g., refuses to answer most questions.</string>
+    <string name="bprs_q15_question">Severity of delusions of any type—consider conviction, and effect on actions. Assume full conviction if patient has acted on his or her beliefs. Rate on the basis of reported (i.e. subjective) information pertaining to past week.</string>
+    <string name="bprs_q15_option1">1 = Not reported.</string>
+    <string name="bprs_q15_option2">2 = Very Mild: delusion(s) suspected or likely.</string>
+    <string name="bprs_q15_option3">3 = Mild: at times, patient questions his or her belief(s) (partial delusion).</string>
+    <string name="bprs_q15_option4">4 = Moderate: full delusional conviction, but delusion(s) has little or no influence on behavior.</string>
+    <string name="bprs_q15_option5">5 = Moderately Severe: full delusional conviction, but delusion(s) has only occasional impact on behavior.</string>
+    <string name="bprs_q15_option6">6 = Severe: delusion(s) has significant effect, e.g., neglects responsibilities because of preoccupation with belief that he/she is God.</string>
+    <string name="bprs_q15_option7">7 = Very Severe: delusion(s) has major impact, e.g., stops eating because believes food is poisoned.</string>
+    <string name="bprs_q15_option0">0 = Cannot be assessed adequately because of severe formal thought disorder, uncooperativeness, or marked evasiveness/guardedness; or Not assessed.</string>
+    <string name="bprs_q16_question">Diminished affective responsivity, as characterized by deficits in facial expression, body gesture, and voice pattern. Distinguish from EMOTIONAL WITHDRAWAL, in which the focus is on interpersonal impairment rather than affect. Consider degree and consistency of impairment. Rate based on observations made during interview.</string>
+    <string name="bprs_q16_option1">1 = Not observed.</string>
+    <string name="bprs_q16_option2">2 = Very Mild: e.g., occasionally seems indifferent to material that is usually accompanied by some show of emotion.</string>
+    <string name="bprs_q16_option3">3 = Mild: e.g., somewhat diminished facial expression, or somewhat monotonous voice or somewhat restricted gestures.</string>
+    <string name="bprs_q16_option4">4 = Moderate: e.g., as above, but more intense, prolonged, or frequent.</string>
+    <string name="bprs_q16_option5">5 = Moderately Severe: e.g., flattening of affect, including at least two of the three features: severe lack of facial expression, monotonous voice or restricted body gestures.</string>
+    <string name="bprs_q16_option6">6 = Severe: e.g., profound flattening of affect.</string>
+    <string name="bprs_q16_option7">7 = Very Severe: e.g., totally monotonous voice, and total lack of expressive gestures throughout the evaluation.</string>
+    <string name="bprs_q17_question">Heightened emotional tone, including irritability and expansiveness (hypomanic affect). Do not infer affect from statements of grandiose delusions. Rate based on observations made during interview.</string>
+    <string name="bprs_q17_option1">1 = Not observed.</string>
+    <string name="bprs_q17_option2">2 = Very Mild and of doubtful clinical significance.</string>
+    <string name="bprs_q17_option3">3 = Mild: e.g., irritable or expansive at times.</string>
+    <string name="bprs_q17_option4">4 = Moderate: e.g., frequently irritable or expansive.</string>
+    <string name="bprs_q17_option5">5 = Moderately Severe: e.g., constantly irritable or expansive; or, at times, enraged or euphoric.</string>
+    <string name="bprs_q17_option6">6 = Severe: e.g., enraged or euphoric throughout most of the interview.</string>
+    <string name="bprs_q17_option7">7 = Very Severe: e.g., as above, but to such a degree that the interview must be terminated prematurely.</string>
+    <string name="bprs_q18_question">18. Confusion or lack of proper association for person, place or time. Rate based on observations made during interview.</string>
+    <string name="bprs_q18_option1">1 = Not observed.</string>
+    <string name="bprs_q18_option2">2 = Very Mild: e.g., seems somewhat confused.</string>
+    <string name="bprs_q18_option3">3 = Mild: e.g., indicated 1982 when, in fact, it is 1983.</string>
+    <string name="bprs_q18_option4">4 = Moderate: e.g., indicates 1978.</string>
+    <string name="bprs_q18_option5">5 = Moderately Severe: e.g., is unsure where he/she is.</string>
+    <string name="bprs_q18_option6">6 = Severe: e.g., has no idea where he/she is.</string>
+    <string name="bprs_q18_option7">7 = Very Severe: e.g., does not know who he/she is.</string>
+    <string name="bprs_q18_option0">0 = Cannot be assessed adequately because of severe formal thought disorder, uncooperativeness, or marked evasiveness/guardedness; or Not assessed.</string>
+    <string name="bprs_q19_question">19. Considering your total clinical experience with this patient population, how mentally ill is the patient at this time?</string>
+    <string name="bprs_q19_option1">1 = Normal, not at all ill.</string>
+    <string name="bprs_q19_option2">2 = Borderline mentally ill.</string>
+    <string name="bprs_q19_option3">3 = Mildly ill.</string>
+    <string name="bprs_q19_option4">4 = Moderately ill.</string>
+    <string name="bprs_q19_option5">5 = Markedly ill.</string>
+    <string name="bprs_q19_option6">6 = Severely ill.</string>
+    <string name="bprs_q19_option7">7 = Among the most severely ill patients.</string>
+    <string name="bprs_q20_question">20. Rate total improvement whether or not, in your judgement, it is due to treatment.\nAt baseline assessment, mark “Not assessed” for item 20.\nFor assessments up to the start of double-blind medication, rate Global Improvement compared to baseline.\nFor assessments following the start of double-blind medication, rate Global Improvement compared to the start of double-blind.</string>
+    <string name="bprs_q20_option1">1 = Very much improved.</string>
+    <string name="bprs_q20_option2">2 = Much improved.</string>
+    <string name="bprs_q20_option3">3 = Minimally improved.</string>
+    <string name="bprs_q20_option4">4 = No change.</string>
+    <string name="bprs_q20_option5">5 = Minimally worse.</string>
+    <string name="bprs_q20_option6">6 = Much worse.</string>
+    <string name="bprs_q20_option7">7 = Very much worse.</string>
+    <string name="bprs_q20_option0">0 = Not assessed.</string>
+
+  </task>
+</resources>

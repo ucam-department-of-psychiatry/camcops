@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="cbir">
+    <!-- Cambridge Behavioural Inventory, Revised (CBI-R) -->
+
+    <string name="for_carer">For a family member or close friend to complete</string>
+    <string name="instruction_1">We would like to ask you a number of questions about various changes in the patient’s behaviour that you may have noticed. It is important that we obtain your view as it will help us in our assessment.</string>
+    <!-- Phrasing below changed slightly for electronic version -->
+    <string name="instruction_2">Please read the description of each problem carefully. Then choose the option under the heading “FREQUENCY” that best describes the occurrence of the behavioural change. Then choose the option under “HOW MUCH DID IT BOTHER YOU?” that best describes your disturbance by this behaviour. Some of the everyday skill questions may not apply, if for instance the person you care for has never done the shopping. Please enter N/A (not applicable).</string>
+    <string name="instruction_3">All questions apply to CHANGES in the patient’s behaviour from how they were BEFORE THE ILLNESS UNTIL NOW, which have been present OVER THE PAST MONTH.</string>
+    <string name="stem_frequency">FREQUENCY</string>
+    <string name="f0">Never</string>
+    <string name="f1">A few times per month</string>
+    <string name="f2">A few times per week</string>
+    <string name="f3">Daily</string>
+    <string name="f4">Constantly</string>
+    <string name="stem_distress">HOW MUCH DID IT BOTHER YOU?</string>
+    <string name="d0">Not at all</string>
+    <string name="d1">A little</string>
+    <string name="d2">Moderately</string>
+    <string name="d3">Very much</string>
+    <string name="d4">Extremely</string>
+    <string name="h_memory">Memory and orientation</string>
+    <string name="q1">Has poor day-to-day memory (e.g. about conversations, trips etc.)</string>
+    <string name="q2">Asks the same questions over and over again</string>
+    <string name="q3">Loses or misplaces things</string>
+    <string name="q4">Forgets the names of familiar people</string>
+    <string name="q5">Forgets the names of objects and things</string>
+    <string name="q6">Shows poor concentration when reading or watching television</string>
+    <string name="q7">Forgets what day it is</string>
+    <string name="q8">Becomes confused or muddled in unusual surroundings</string>
+    <string name="h_everyday">Everyday skills</string>
+    <string name="q9">Has difficulties using electrical appliances (e.g. TV, radio, cooker, washing machine)</string>
+    <string name="q10">Has difficulties writing (letters, Christmas cards, lists etc.)</string>
+    <string name="q11">Has difficulties using the telephone</string>
+    <string name="q12">Has difficulties making a hot drink (e.g. tea/coffee)</string>
+    <string name="q13">Has problems handling money or paying bills</string>
+    <string name="h_selfcare">Self care</string>
+    <string name="q14">Has difficulties grooming self (e.g. shaving or putting on make-up)</string>
+    <string name="q15">Has difficulties dressing self</string>
+    <string name="q16">Has problems feeding self without assistance</string>
+    <string name="q17">Has problems bathing or showering self</string>
+    <string name="h_abnormalbehaviour">Abnormal behaviour</string>
+    <string name="q18">Finds humour or laughs at things others do not find funny</string>
+    <string name="q19">Has temper outbursts</string>
+    <string name="q20">Is uncooperative when asked to do something</string>
+    <string name="q21">Shows socially embarrassing behaviour</string>
+    <string name="q22">Makes tactless or suggestive remarks</string>
+    <string name="q23">Acts impulsively without thinking </string>
+    <string name="h_mood">Mood</string>
+    <string name="q24">Cries </string>
+    <string name="q25">Appears sad or depressed</string>
+    <string name="q26">Is very restless or agitated</string>
+    <string name="q27">Is very irritable</string>
+    <string name="h_beliefs">Beliefs</string>
+    <string name="q28">Sees things that are not really there (visual hallucinations)</string>
+    <string name="q29">Hears voices that are not really there (auditory hallucinations)</string>
+    <string name="q30">Has odd or bizarre ideas that cannot be true</string>
+    <string name="h_eating">Eating habits</string>
+    <string name="q31">Prefers sweet foods more than before</string>
+    <string name="q32">Wants to eat the same foods repeatedly</string>
+    <string name="q33">Her/his appetite is greater, s/he eats more than before </string>
+    <string name="q34">Table manners are declining e.g. stuffing food into mouth</string>
+    <string name="h_sleep">Sleep</string>
+    <string name="q35">Sleep is disturbed at night </string>
+    <string name="q36">Sleeps more by day than before (cat naps etc.) </string>
+    <string name="h_stereotypy_motor">Stereotypic and motor behaviours</string>
+    <string name="q37">Is rigid and fixed in her/his ideas and opinions </string>
+    <string name="q38">Develops routines from which s/he can not easily be discouraged e.g. wanting to eat or go for walks at fixed times </string>
+    <string name="q39">Clock watches or appears pre-occupied with time </string>
+    <string name="q40">Repeatedly uses the same expression or catch phrase</string>
+    <string name="h_motivation">Motivation</string>
+    <string name="q41">Shows less enthusiasm for his or her usual interests</string>
+    <string name="q42">Shows little interest in doing new things</string>
+    <string name="q43">Fails to maintain motivation to keep in contact with friends or family </string>
+    <string name="q44">Appears indifferent to the worries and concerns of family members</string>
+    <string name="q45">Shows reduced affection</string>
+    <string name="confirmblanks_q">If you’ve left some items blank because they are not applicable, please confirm this:</string>
+    <string name="confirmblanks_a">I meant to leave them blank</string>
+    <string name="comments">Any other comments</string>
+    <string name="thanks">Thank you for your time.</string>
+
+  </task>
+</resources>

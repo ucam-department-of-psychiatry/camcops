@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="cope">
+    <!-- Brief COPE Inventory -->
+
+    <!-- Format: the "time-limited" format (present perfect tense, "I have
+        been...") as per the original Brief COPE.
+        Instructions from http://www.psy.miami.edu/faculty/ccarver/sclBrCOPE.html,
+        modified to be less specific (the original refers to "operations"),
+        following Eneida Mioshi (e-mails May 2015). -->
+
+    <string name="q_patient">Are you the patient</string>
+    <string name="q_completedby">Please give your name:</string>
+    <string name="q_relationship">Please specify your relationship to the patient:</string>
+    <string name="q_relationship_other">If OTHER, please give details:</string>
+    <string name="relationship_0">Other</string> <!-- NB number -->
+    <string name="relationship_1">Wife</string>
+    <string name="relationship_2">Husband</string>
+    <string name="relationship_3">Daughter</string>
+    <string name="relationship_4">Son</string>
+    <string name="relationship_5">Sister</string>
+    <string name="relationship_6">Brother</string>
+    <string name="relationship_7">Mother</string>
+    <string name="relationship_8">Father</string>
+    <string name="relationship_9">Friend</string>
+    <string name="instructions">We are interested in how people response when they confront difficult or stressful events in their lives. These items deal with ways you’ve been coping with recent stress in your life. Obviously, different people deal with things in different ways, but we’re interested in how you’ve tried to deal with it.\n\nEach item says something about a particular way of coping. We want to know to what extent you’ve been doing what the item says. How much or how frequently. Don’t answer on the basis of whether it seems to be working or not — just whether or not you’re doing it. Try to rate each item separately in your mind from the others. Make your answers as true FOR YOU as you can.\n\nThere are 28 questions. Please answer them all (scroll down to see more). A green STOP icon will appear at the top-right corner when you’ve finished.</string>
+    <string name="a0">I haven’t been doing this at all.</string>
+    <string name="a1">I’ve been doing this a little bit.</string>
+    <string name="a2">I’ve been doing this a medium amount.</string>
+    <string name="a3">I’ve been doing this a lot.</string>
+    <string name="q1">I’ve been turning to work or other activities to take my mind off things.</string>
+    <string name="q2">I’ve been concentrating my efforts on doing something about the situation I’m in.</string>
+    <string name="q3">I’ve been saying to myself “this isn’t real”.</string>
+    <string name="q4">I’ve been using alcohol or other drugs to make myself feel better.</string>
+    <string name="q5">I’ve been getting emotional support from others.</string>
+    <string name="q6">I’ve been giving up trying to deal with it.</string>
+    <string name="q7">I’ve been taking action to try to make the situation better.</string>
+    <string name="q8">I’ve been refusing to believe that it has happened.</string>
+    <string name="q9">I’ve been saying things to let my unpleasant feelings escape.</string>
+    <string name="q10">I’ve been getting help and advice from other people.</string>
+    <string name="q11">I’ve been using alcohol or other drugs to help me get through it.</string>
+    <string name="q12">I’ve been trying to see it in a different light, to make it seem more positive.</string>
+    <string name="q13">I’ve been criticizing myself.</string>
+    <string name="q14">I’ve been trying to come up with a strategy about what to do.</string>
+    <string name="q15">I’ve been getting comfort and understanding from someone.</string>
+    <string name="q16">I’ve been giving up the attempt to cope.</string>
+    <string name="q17">I’ve been looking for something good in what is happening.</string>
+    <string name="q18">I’ve been making jokes about it.</string>
+    <string name="q19">I’ve been doing something to think about it less, such as going to movies, watching TV, reading, daydreaming, sleeping, or shopping.</string>
+    <string name="q20">I’ve been accepting the reality of the fact that it has happened.</string>
+    <string name="q21">I’ve been expressing my negative feelings.</string>
+    <string name="q22">I’ve been trying to find comfort in my religion or spiritual beliefs.</string>
+    <string name="q23">I’ve been trying to get advice or help from other people about what to do.</string>
+    <string name="q24">I’ve been learning to live with it.</string>
+    <string name="q25">I’ve been thinking hard about what steps to take.</string>
+    <string name="q26">I’ve been blaming myself for things that happened.</string>
+    <string name="q27">I’ve been praying or meditating.</string>
+    <string name="q28">I’ve been making fun of the situation.</string>
+
+  </task>
+</resources>

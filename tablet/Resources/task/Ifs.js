@@ -22,7 +22,7 @@
 
 /*jslint node: true, newcap: true, nomen: true, plusplus: true, unparam: true */
 "use strict";
-/*global Titanium, L */
+/*global Titanium */
 
 var DBCONSTANTS = require('common/DBCONSTANTS'),
     dbcommon = require('lib/dbcommon'),
@@ -593,6 +593,7 @@ lang.extendPrototype(Ifs, {
             readOnly: readOnly,
             pages: pages,
             callbackThis: self,
+            /* jshint unused:true */
             fnMakePageOnTheFly: function (pageId, pageTag) {
                 if (pageTag !== Q4_PAGETAG) {
                     Titanium.API.error("fnMakePageOnTheFly: bad call");

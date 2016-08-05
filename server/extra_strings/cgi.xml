@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="cgi">
+    <!-- Clinical Global Impressions (CGI) -->
+
+    <string name="q1_title">CGI: 1. Severity of illness</string>
+    <string name="q1_s">Q1 (severity):</string>
+    <string name="q1_question">Considering your total clinical experience with this particular population, how mentally ill is the patient at this time?</string>
+    <string name="q1_option0">0 – Not assessed</string>
+    <string name="q1_option1">1 – Normal, not at all ill</string>
+    <string name="q1_option2">2 – Borderline mentally ill</string>
+    <string name="q1_option3">3 – Mildly ill</string>
+    <string name="q1_option4">4 – Moderately ill</string>
+    <string name="q1_option5">5 – Markedly ill</string>
+    <string name="q1_option6">6 – Severely ill</string>
+    <string name="q1_option7">7 – Among the most extremely ill patients</string>
+    <string name="q2_title">CGI: 2. Global improvement</string>
+    <string name="q2_s">Q2 (global improvement):</string>
+    <string name="q2_question">Rate total improvement whether or not, in your judgment, it is due entirely to drug treatment.\n\nCompared to his condition at admission to the project, how much has he changed?</string>
+    <string name="q2_option0">0 – Not assessed</string>
+    <string name="q2_option1">1 – Very much improved</string>
+    <string name="q2_option2">2 – Much improved</string>
+    <string name="q2_option3">3 – Minimally improved</string>
+    <string name="q2_option4">4 – No change</string>
+    <string name="q2_option5">5 – Minimally worse</string>
+    <string name="q2_option6">6 – Much worse</string>
+    <string name="q2_option7">7 – Very much worse</string>
+    <string name="q3t_title">CGI: 3(T). Therapeutic effect</string>
+    <string name="q3t_s">Q3T (therapeutic effect):</string>
+    <string name="q3t_question">Rate this item on the basis of DRUG EFFECT ONLY.\n\nSelect the term which best describes the degree of therapeutic effect.</string>
+    <string name="q3t_option0">0 – Not assessed.</string>
+    <string name="q3t_option1">1 – MARKED – Vast improvement. Complete or nearly complete remission of all symptoms.</string>
+    <string name="q3t_option2">2 – MODERATE – Decided improvement. Partial remission of symptoms.</string>
+    <string name="q3t_option3">3 – MINIMAL – Slight improvement which doesn’t alter status of care of patient.</string>
+    <string name="q3t_option4">4 – UNCHANGED OR WORSE.</string>
+    <string name="q3s_title">CGI: 3(S). Side effects</string>
+    <string name="q3s_s">Q3S (side effects):</string>
+    <string name="q3s_question">Rate this item on the basis of DRUG EFFECT ONLY.\n\nSelect the term which best describes the degree of side effects.</string>
+    <string name="q3s_option0">0 – Not assessed.</string>
+    <string name="q3s_option1">1 – None.</string>
+    <string name="q3s_option2">2 – Do not significantly interfere with patient’s functioning.</string>
+    <string name="q3s_option3">3 – Significantly interfere with patient’s functioning.</string>
+    <string name="q3s_option4">4 – Outweigh therapeutic effect.</string>
+    <string name="q3_s">Q3 (efficacy index):</string>
+    <string name="severity">severity</string>
+    <string name="improvement">improvement</string>
+    <string name="efficacy">efficacy</string>
+
+    <!-- CGI-I extra -->
+
+    <string name="i_q">Compared to the patient’s condition at the start of assessment, his/her condition is:</string>
+
+  </task>
+</resources>

@@ -30,8 +30,8 @@ var DBCONSTANTS = require('common/DBCONSTANTS'),
     lang = require('lib/lang'),
     tablename = "qolsg",
     fieldlist = dbcommon.standardTaskFields(),
-    EVENT_FROM_WEBVIEW = 'QOLSG_EVENT_FROM_WEBVIEW',
-    EVENT_TO_WEBVIEW = 'QOLSG_EVENT_TO_WEBVIEW';
+    // EVENT_TO_WEBVIEW = 'QOLSG_EVENT_TO_WEBVIEW',
+    EVENT_FROM_WEBVIEW = 'QOLSG_EVENT_FROM_WEBVIEW';
 
 fieldlist.push(
     // Results

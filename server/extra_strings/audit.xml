@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="audit">
+
+    <!--
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Alcohol Use Disorders Identification Test (AUDIT)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Copyright © World Health Organization.
+    Reproduced here under the permissions granted for NON-COMMERCIAL use only.
+    You must obtain permission from the copyright holder for any other use.
+    -->
+
+    <string name="instructions_1">Read questions as written. Record answers carefully.</string>
+    <string name="instructions_2">Begin the AUDIT by saying “Now I am going to ask you some questions about your use of alcoholic beverages during this past year.”</string>
+    <string name="instructions_3">Explain what is meant by “alcoholic beverages” by using local examples of beer, wine, vodka, etc.</string>
+    <string name="instructions_4">Code answers in terms of “standard drinks”.</string>
+    <string name="instructions_5">A US “standard drink” is 14 g of ethanol (http://www.cdc.gov/alcohol/faqs.htm#standDrink), which is 17.8 ml. A UK unit is 10 ml of ethanol, so a US standard drink is about 1.8 UK units, and a UK unit is about 0.56 US standard drinks.</string>
+    <string name="q1_title">AUDIT: question 1</string>
+    <string name="q2_title">AUDIT: question 2</string>
+    <string name="q3_title">AUDIT: question 3</string>
+    <string name="q4_title">AUDIT: question 4</string>
+    <string name="q5_title">AUDIT: question 5</string>
+    <string name="q6_title">AUDIT: question 6</string>
+    <string name="q7_title">AUDIT: question 7</string>
+    <string name="q8_title">AUDIT: question 8</string>
+    <string name="q9_title">AUDIT: question 9</string>
+    <string name="q10_title">AUDIT: question 10</string>
+    <string name="q1_question">How often do you have a drink containing alcohol?</string>
+    <string name="q1_s">Q1 (how often do you drink):</string>
+    <string name="q1_option0">Never</string>
+    <string name="q1_option1">Monthly or less</string>
+    <string name="q1_option2">2 to 4 times a month</string>
+    <string name="q1_option3">2 to 3 times a week</string>
+    <string name="q1_option4">4 or more times a week</string>
+    <string name="q2_question">How many drinks containing alcohol do you have on a typical day when you are drinking?</string>
+    <string name="q2_s">Q2 (drinks per typical day):</string>
+    <string name="q2_option0">1 or 2</string>
+    <string name="q2_option1">3 or 4</string>
+    <string name="q2_option2">5 or 6</string>
+    <string name="q2_option3">7, 8, or 9</string>
+    <string name="q2_option4">10 or more</string>
+    <string name="q3_question">How often do you have six or more drinks on one occasion?</string>
+    <string name="q3_s">Q3 (how often six or more in a go):</string>
+    <string name="q3to8_option0">Never</string>
+    <string name="q3to8_option1">Less than monthly</string>
+    <string name="q3to8_option2">Monthly</string>
+    <string name="q3to8_option3">Weekly</string>
+    <string name="q3to8_option4">Daily or almost daily</string>
+    <string name="q4_question">How often during the last year have you found that you were not able to stop drinking once you had started?</string>
+    <string name="q4_s">Q4 (can’t stop once started):</string>
+    <string name="q5_question">How often during the last year have you failed to do what was normally expected from you because of drinking?</string>
+    <string name="q5_s">Q5 (failed to do what’s expected):</string>
+    <string name="q6_question">How often during the last year have you needed a first drink in the morning to get yourself going after a heavy drinking session?</string>
+    <string name="q6_s">Q6 (eye-opener):</string>
+    <string name="q7_question">How often during the last year have you had a feeling of guilt or remorse after drinking?</string>
+    <string name="q7_s">Q7 (guilt):</string>
+    <string name="q8_question">How often during the last year have you been unable to remember what happened the night before because you had been drinking?</string>
+    <string name="q8_s">Q8 (blackout):</string>
+    <string name="q9_question">Have you or someone else been injured as a result of your drinking?</string>
+    <string name="q9_s">Q9 (injury):</string>
+    <string name="q9to10_option0">No</string>
+    <string name="q9to10_option2">Yes, but not in the last year</string>
+    <string name="q9to10_option4">Yes, during the last year</string>
+    <string name="q10_question">Has a relative or friend or a doctor or another health worker been concerned about your drinking or suggested you cut down?</string>
+    <string name="q10_s">Q10 (someone concerned):</string>
+    <string name="exceeds_standard_cutoff">Exceeds standard cut-off (8 or more)?</string>
+
+    <!-- AUDIT-C extra -->
+
+    <string name="c_instruction">Consider a “drink” to be a can or bottle of beer, a glass of wine, a wine cooler, or one cocktail or a shot of hard liquor (like scotch, gin, or vodka).</string>
+    <string name="c_qprefix">AUDIT-C: question</string>
+    <!-- Version from Bush et al. (1998) / http://www.integration.samhsa.gov/images/res/tool_auditc.pdf -->
+    <string name="c_q1_question">How often did you have a drink containing alcohol in the past year?</string>
+    <string name="c_q2_question">How many drinks did you have on a typical day when you were drinking in the past year?</string>
+    <string name="c_q3_question">How often did you have 6 or more drinks on one occasion in the past year?</string>
+    <string name="c_q2_option0">0, 1, or 2</string>
+
+  </task>
+</resources>

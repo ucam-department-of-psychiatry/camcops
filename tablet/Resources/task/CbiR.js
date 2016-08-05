@@ -22,7 +22,7 @@
 
 /*jslint node: true, newcap: true, nomen: true, plusplus: true, unparam: true */
 "use strict";
-/*global Titanium, L */
+/*global L */
 
 var DBCONSTANTS = require('common/DBCONSTANTS'),
     dbcommon = require('lib/dbcommon'),
@@ -63,6 +63,10 @@ lang.extendPrototype(CbiR, {
 
     // TASK CLASS FIELD OVERRIDES (USED BY BaseTask)
 
+    isTaskCrippled: function () {
+        return !this.extraStringsPresent();
+    },
+
     // OTHER
 
     isCompleteQuestions: function () {
@@ -94,18 +98,18 @@ lang.extendPrototype(CbiR, {
             pages,
             questionnaire,
             freq_options = [
-                new KeyValuePair(L('cbir_f0'), 0),
-                new KeyValuePair(L('cbir_f1'), 1),
-                new KeyValuePair(L('cbir_f2'), 2),
-                new KeyValuePair(L('cbir_f3'), 3),
-                new KeyValuePair(L('cbir_f4'), 4)
+                new KeyValuePair(this.XSTRING('f0'), 0),
+                new KeyValuePair(this.XSTRING('f1'), 1),
+                new KeyValuePair(this.XSTRING('f2'), 2),
+                new KeyValuePair(this.XSTRING('f3'), 3),
+                new KeyValuePair(this.XSTRING('f4'), 4)
             ],
             distress_options = [
-                new KeyValuePair(L('cbir_d0'), 0),
-                new KeyValuePair(L('cbir_d1'), 1),
-                new KeyValuePair(L('cbir_d2'), 2),
-                new KeyValuePair(L('cbir_d3'), 3),
-                new KeyValuePair(L('cbir_d4'), 4)
+                new KeyValuePair(this.XSTRING('d0'), 0),
+                new KeyValuePair(this.XSTRING('d1'), 1),
+                new KeyValuePair(this.XSTRING('d2'), 2),
+                new KeyValuePair(this.XSTRING('d3'), 3),
+                new KeyValuePair(this.XSTRING('d4'), 4)
             ],
             ET_MAIN = "m",
             ET_BLANKS = "b";
@@ -125,14 +129,14 @@ lang.extendPrototype(CbiR, {
                         first,
                         last
                     ),
-                    stem_1: L('cbir_stem_frequency'),
+                    stem_1: self.XSTRING('stem_frequency'),
                     options_1: freq_options,
                     fields_1: taskcommon.stringArrayFromSequence(
                         "frequency",
                         first,
                         last
                     ),
-                    stem_2: L('cbir_stem_distress'),
+                    stem_2: self.XSTRING('stem_distress'),
                     options_2: distress_options,
                     fields_2: taskcommon.stringArrayFromSequence(
                         "distress",
@@ -147,7 +151,7 @@ lang.extendPrototype(CbiR, {
         elements1 = [
             {
                 type: "QuestionText",
-                text: L('cbir_for_carer'),
+                text: this.XSTRING('for_carer'),
                 italic: true
             },
             this.getRespondentQuestionnaireBlock(true)
@@ -156,40 +160,40 @@ lang.extendPrototype(CbiR, {
         elements2 = [
             {
                 type: "QuestionText",
-                text: L('cbir_instruction_1')
+                text: this.XSTRING('instruction_1')
             },
             {
                 type: "QuestionText",
-                text: L('cbir_instruction_2')
+                text: this.XSTRING('instruction_2')
             },
             {
                 type: "QuestionText",
-                text: L('cbir_instruction_3')
+                text: this.XSTRING('instruction_3')
             }
         ];
-        lang.appendArray(elements2, makeBlock(L('cbir_h_memory'), 1, 8));
-        lang.appendArray(elements2, makeBlock(L('cbir_h_everyday'), 9, 13));
-        lang.appendArray(elements2, makeBlock(L('cbir_h_selfcare'), 14, 17));
+        lang.appendArray(elements2, makeBlock(this.XSTRING('h_memory'), 1, 8));
+        lang.appendArray(elements2, makeBlock(this.XSTRING('h_everyday'), 9, 13));
+        lang.appendArray(elements2, makeBlock(this.XSTRING('h_selfcare'), 14, 17));
         lang.appendArray(elements2,
-                         makeBlock(L('cbir_h_abnormalbehaviour'), 18, 23));
-        lang.appendArray(elements2, makeBlock(L('cbir_h_mood'), 24, 27));
-        lang.appendArray(elements2, makeBlock(L('cbir_h_beliefs'), 28, 30));
-        lang.appendArray(elements2, makeBlock(L('cbir_h_eating'), 31, 34));
-        lang.appendArray(elements2, makeBlock(L('cbir_h_sleep'), 35, 36));
+                         makeBlock(this.XSTRING('h_abnormalbehaviour'), 18, 23));
+        lang.appendArray(elements2, makeBlock(this.XSTRING('h_mood'), 24, 27));
+        lang.appendArray(elements2, makeBlock(this.XSTRING('h_beliefs'), 28, 30));
+        lang.appendArray(elements2, makeBlock(this.XSTRING('h_eating'), 31, 34));
+        lang.appendArray(elements2, makeBlock(this.XSTRING('h_sleep'), 35, 36));
         lang.appendArray(elements2,
-                         makeBlock(L('cbir_h_stereotypy_motor'), 37, 40));
-        lang.appendArray(elements2, makeBlock(L('cbir_h_motivation'), 41, 45));
+                         makeBlock(this.XSTRING('h_stereotypy_motor'), 37, 40));
+        lang.appendArray(elements2, makeBlock(this.XSTRING('h_motivation'), 41, 45));
         lang.appendArray(elements2, [
             {
                 elementTag: ET_BLANKS,
                 type: "QuestionText",
                 bold: true,
-                text: L('cbi_confirmblanks_q')
+                text: this.XSTRING('confirmblanks_q')
             },
             {
                 elementTag: ET_BLANKS,
                 type: "QuestionBooleanText",
-                text: L('cbi_confirmblanks_a'),
+                text: this.XSTRING('confirmblanks_a'),
                 field: "confirm_blanks",
                 mandatory: true
             }
@@ -204,14 +208,14 @@ lang.extendPrototype(CbiR, {
                     {
                         type: UICONSTANTS.TYPEDVAR_TEXT_MULTILINE,
                         field: "comments",
-                        prompt: L('cbir_comments')
+                        prompt: this.XSTRING('comments')
                     }
                 ]
             },
             {
                 type: "QuestionText",
                 bold: true,
-                text: L('cbir_thanks')
+                text: this.XSTRING('thanks')
             }
         ];
 
