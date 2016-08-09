@@ -11,4 +11,5 @@ public:
     MainMenu(CamcopsApp& app);
     ~MainMenu();
 
+    static MenuWindow* makeTestMenu(CamcopsApp& app);
 };

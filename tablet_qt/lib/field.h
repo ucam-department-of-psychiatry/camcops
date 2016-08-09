@@ -21,8 +21,8 @@ public:
     QString sqlColumnType() const;
     QVariant value() const;
     bool setValue(const QVariant& value);  // returns: changed?
-    void setFromDatabase(const QVariant& dbValue); // convert SQLite -> C++
-    QVariant getDatabaseValue();
+    void setFromDatabase(const QVariant& db_value); // convert SQLite -> C++
+    QVariant getDatabaseValue(); // convert C++ -> SQLite
     void setDirty();
     void clearDirty();
     friend QDebug operator<<(QDebug debug, const Field& f);
@@ -35,6 +35,6 @@ protected:
     bool m_mandatory;
     bool m_set;
     bool m_dirty;
-    QVariant m_defaultValue;
+    QVariant m_default_value;  // C++, not database
     QVariant m_value;
 };

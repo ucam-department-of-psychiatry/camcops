@@ -13,15 +13,13 @@
 #include "tests/master_test.h"
 
 
-CamcopsApp::CamcopsApp(int argc, char *argv[]) :
-    m_pdb(NULL),
-    m_psysdb(NULL),
-    m_pTaskFactory(NULL),
+CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
+    m_p_task_factory(NULL),
     m_privileged(false),
-    m_patientLocked(false),
-    m_pMainWindow(NULL),
-    m_pWindowStack(NULL),
-    m_pQApp(NULL)
+    m_patient_locked(false),
+    m_p_main_window(NULL),
+    m_p_window_stack(NULL),
+    m_p_qapp(NULL)
 {
     // - The VERY FIRST THING we do is to create a QApplication, and that
     //   requires one bit of preamble.
@@ -29,70 +27,76 @@ CamcopsApp::CamcopsApp(int argc, char *argv[]) :
     // - Prevent native styling, which makes (for example) QListWidget colours
     //   not work from the stylsheet. This must be done before the app is
     //   created. See https://bugreports.qt.io/browse/QTBUG-45517
-    // QApplication::setStyle("fusion");
-    m_pQApp = new QApplication(argc, argv);
-    // However, we can't do things like opening the database until we have
-    // created the app. So don't open the database in the initializer list!
+
+    QApplication::setStyle("fusion");
+    m_p_qapp = new QApplication(argc, argv);
 
     QDateTime dt = now();
     qDebug() << "CamCOPS starting at:" << qPrintable(datetimeToIsoMs(dt))
              << "=" << qPrintable(datetimeToIsoMsUtc(dt));
 
-    // m_db = QSqlDatabase::addDatabase("QSQLITE", "data");
-    // m_sysdb = QSqlDatabase::addDatabase("QSQLITE", "sys");
-    // openDatabaseOrDie(m_db, DATA_DATABASE_FILENAME);
-    // openDatabaseOrDie(m_sysdb, SYSTEM_DATABASE_FILENAME);
+    // However, we can't do things like opening the database until we have
+    // created the app. So don't open the database in the initializer list!
 
-    // m_pTaskFactory = new TaskFactory(*this);
-    // InitTasks(m_taskFactory);  // ensures all tasks are registered
-    // m_taskFactory.finishRegistration();
-    // qDebug() << "Registered tasks:" << m_pTaskFactory->tablenames();
+    // Database lifetime:
+    // http://stackoverflow.com/questions/7669987/what-is-the-correct-way-of-qsqldatabase-qsqlquery
+    m_db = QSqlDatabase::addDatabase("QSQLITE", "data");
+    m_sysdb = QSqlDatabase::addDatabase("QSQLITE", "sys");
+    openDatabaseOrDie(m_db, DATA_DATABASE_FILENAME);
+    openDatabaseOrDie(m_sysdb, SYSTEM_DATABASE_FILENAME);
 
-    // m_taskFactory.makeAllTables();
+    m_p_task_factory = new TaskFactory(*this);
+    InitTasks(*m_p_task_factory);  // ensures all tasks are registered
+    m_p_task_factory->finishRegistration();
+    qDebug() << "Registered tasks:" << m_p_task_factory->tablenames();
+
+    m_p_task_factory->makeAllTables();
     // *** also need to make the special tables at this point
 
-    // m_pQApp->setStyleSheet(textfileContents(CSS_CAMCOPS));
+    m_p_qapp->setStyleSheet(textfileContents(CSS_CAMCOPS));
 }
+
 
 CamcopsApp::~CamcopsApp()
 {
-    delete m_pMainWindow;  // owns m_pWindowStack
-    delete m_pQApp;
+    delete m_p_main_window;  // owns m_pWindowStack
+    delete m_p_qapp;
 }
+
 
 int CamcopsApp::run()
 {
-    m_pMainWindow = new QMainWindow();
-    m_pWindowStack = new QStackedWidget(m_pMainWindow);
-    m_pMainWindow->setCentralWidget(m_pWindowStack);
+    qDebug("CamcopsApp::run()");
+
+    m_p_main_window = new QMainWindow();
+    m_p_window_stack = new QStackedWidget(m_p_main_window);
+    m_p_main_window->setCentralWidget(m_p_window_stack);
 
     MainMenu* menu = new MainMenu(*this);
     pushScreen(menu);
-
-    qDebug() << "*** Screen pushed";
-
-    m_pMainWindow->show();
-
-    qDebug() << "*** Window shown";
+    m_p_main_window->show();
 
     // run_tests(*this);
+
     qDebug() << "Starting Qt event processor...";
-    return m_pQApp->exec();
+    return m_p_qapp->exec();
 }
+
 
 void CamcopsApp::pushScreen(QWidget *widget)
 {
     qDebug() << "Pushing screen";
-    int index = m_pWindowStack->addWidget(widget);
+    int index = m_p_window_stack->addWidget(widget);
     // The stack takes over ownership.
-    m_pWindowStack->setCurrentIndex(index);
+    m_p_window_stack->setCurrentIndex(index);
 }
+
 
 void CamcopsApp::popScreen()
 {
-    QWidget* top = m_pWindowStack->currentWidget();
+    QWidget* top = m_p_window_stack->currentWidget();
     qDebug() << "Popping screen";
-    m_pWindowStack->removeWidget(top);
+    m_p_window_stack->removeWidget(top);
     // Ownership is returned to the application, so...
     delete top;
 }

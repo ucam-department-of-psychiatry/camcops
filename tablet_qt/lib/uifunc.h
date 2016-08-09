@@ -3,7 +3,6 @@
 #include <QObject>
 #include <QString>
 
-// #define DEBUG_ICON_LOAD
 
 QLabel* iconWidget(const QString& filename, bool scale = true);
 void stopApp(const QString& error);

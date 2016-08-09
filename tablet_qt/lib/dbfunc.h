@@ -8,11 +8,10 @@
 #include <QVariant>
 #include "lib/field.h"
 
-#define DEBUG_SQL
-
 const QString DATA_DATABASE_FILENAME = "camcops_data.sqlite";
 const QString SYSTEM_DATABASE_FILENAME = "camcops_sys.sqlite";
 const QString TABLE_TEMP_SUFFIX = "_temp";
+
 
 class SqlitePragmaInfo {
 public:
@@ -26,18 +25,20 @@ public:
     friend QDebug operator<<(QDebug debug, const SqlitePragmaInfo& info);
 };
 
+
 class FieldCreationPlan {
 public:
     QString name;
-    const Field* pIntendedField = NULL;
-    bool existsInDb = false;
-    QString existingType;
+    const Field* intended_field = NULL;
+    bool exists_in_db = false;
+    QString existing_type;
     bool add = false;
     bool drop = false;
     bool change = false;
 public:
     friend QDebug operator<<(QDebug debug, const FieldCreationPlan& plan);
 };
+
 
 // Database operations
 

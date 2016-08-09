@@ -5,17 +5,18 @@
 #include "tasklib/taskfactory.h"
 
 
-void test_task(CamcopsApp& app, const QString& tablename)
+void testTask(CamcopsApp& app, const QString& tablename)
 {
-    Task* task = app.m_pTaskFactory->build(tablename);
-    if (!task) {
+    Task* p_task = app.m_p_task_factory->build(tablename);
+    if (!p_task) {
         qDebug() << "Failed to create task: " << qPrintable(tablename);
         return;
     }
-    qDebug() << *task;
+    qDebug() << *p_task;
 }
 
-void run_tests(CamcopsApp& app)
+
+void runTests(CamcopsApp& app)
 {
-    test_task(app, "phq9");
+    testTask(app, "phq9");
 }

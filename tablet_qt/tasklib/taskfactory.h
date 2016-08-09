@@ -27,6 +27,7 @@ class Task;
 class CamcopsApp;
 class TaskFactory;
 
+
 // ===========================================================================
 // Base "descriptor" class, so we can do more things with the class as an
 // entity than just instantiate one.
@@ -38,11 +39,12 @@ public:
     TaskProxy(TaskFactory& factory);  // Registers itself with the factory.
     // We do want to create instances...
     virtual Task* createObject(const QSqlDatabase& db,
-                               int loadPk = NONEXISTENT_PK) const = 0;
+                               int load_pk = NONEXISTENT_PK) const = 0;
     // But we might do other things without creating an instance, using
     // static member functions of Task...
     // ... no, too much hassle; work with instances (see notes in task.h)
 };
+
 
 // ===========================================================================
 // Wrapper that makes a TaskProxy out of any Task-derived class
@@ -55,11 +57,12 @@ public:
         TaskProxy(factory)  // does the registration
     {}
     Task* createObject(const QSqlDatabase& db,
-                       int loadPk = NONEXISTENT_PK) const
+                       int load_pk = NONEXISTENT_PK) const
     {
-        return new Derived(db, loadPk);
+        return new Derived(db, load_pk);
     }
 };
+
 
 // ===========================================================================
 // The factory does the work.
@@ -88,7 +91,7 @@ public:
     QStringList tablenames() const;
     void makeAllTables() const;
     // Operations relating to specific tasks
-    Task* build(const QString& key, int loadPk = NONEXISTENT_PK) const;
+    Task* build(const QString& key, int load_pk = NONEXISTENT_PK) const;
     QString getShortName(const QString& key) const;
     QString getLongName(const QString& key) const;
     void makeTables(const QString& key) const;

@@ -1,21 +1,51 @@
 #include "phq9.h"
 #include "tasklib/taskfactory.h"
 
-Phq9::Phq9(const QSqlDatabase& db, int loadPk) :
+const QString phq9_tablename = "phq9";
+
+// ============================================================================
+// Phq9Record
+// ============================================================================
+
+Phq9Record::Phq9Record(const QSqlDatabase& db)
+    : TaskMainRecord(phq9_tablename, db, false, false, false)
+{
+    addField("q1", QVariant::Int);
+}
+
+
+// ============================================================================
+// Phq9
+// ============================================================================
+
+Phq9::Phq9(const QSqlDatabase& db, int load_pk) :
     Task(db)
 {
     qDebug() << "Phq9::Phq9";
-    initDatabaseObject(loadPk);  // MUST ALWAYS CALL from derived constructor.
+    m_p_dbobject = new Phq9Record(db);
+    loadByPk(load_pk);  // MUST ALWAYS CALL from derived constructor.
 }
 
-DatabaseObject* Phq9::makeDatabaseObject()
+
+QString Phq9::tablename() const
 {
-    DatabaseObject* dbo = makeBaseDatabaseObject();
-    dbo->addField("q1", QVariant::Int);
-    return dbo;
+    return phq9_tablename;
 }
 
-void InitializePhq9(TaskFactory& factory)
+
+QString Phq9::shortname() const
 {
-    static TaskRegistrar<Phq9> registeredPhq9(factory);
+    return "PHQ-9";
+}
+
+
+QString Phq9::longname() const
+{
+    return "Patient Health Questionnaire-9";
+}
+
+
+void initializePhq9(TaskFactory& factory)
+{
+    static TaskRegistrar<Phq9> registered_phq9(factory);
 }

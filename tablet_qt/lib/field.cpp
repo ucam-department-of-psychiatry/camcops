@@ -18,12 +18,13 @@ Field::Field(const QString& name, QVariant::Type type,
         m_mandatory = true;
     }
     if (type == QVariant::String || type == QVariant::Char) {
-        m_defaultValue = "";  // empty string, not NULL, as per Django
+        m_default_value = "";  // empty string, not NULL, as per Django
     } else {
-        m_defaultValue = QVariant(type);  // NULL
+        m_default_value = QVariant(type);  // NULL
     }
-    m_value = m_defaultValue;
+    m_value = m_default_value;
 }
+
 
 Field::Field() :  // needed by QMap
     Field("", QVariant::Int)
@@ -31,61 +32,71 @@ Field::Field() :  // needed by QMap
     // delegating constructor (C++11)
 }
 
+
 void Field::setPk(bool pk)
 {
     m_pk = pk;
 }
+
 
 void Field::setUnique(bool unique)
 {
     m_unique = unique;
 }
 
+
 void Field::setMandatory(bool mandatory)
 {
     m_mandatory = mandatory;
 }
 
+
 void Field::setDefaultValue(QVariant value)
 {
-    m_defaultValue = value;
+    m_default_value = value;
     if (!m_set) {
-        m_value = m_defaultValue;
+        m_value = m_default_value;
     }
 }
+
 
 QString Field::name() const
 {
     return m_name;
 }
 
+
 bool Field::isPk() const
 {
     return m_pk;
 }
+
 
 bool Field::isUnique() const
 {
     return m_unique;
 }
 
+
 bool Field::isMandatory() const
 {
     return m_mandatory;
 }
 
-void Field::setFromDatabase(const QVariant& dbValue)
+
+void Field::setFromDatabase(const QVariant& db_value)
 {
     switch (m_type) {
         case QVariant::DateTime:
-            m_value = QVariant(isoToDateTime(dbValue.toString()));
+            m_value = QVariant(isoToDateTime(db_value.toString()));
             break;
         default:
-            m_value = dbValue;
+            m_value = db_value;
             break;
     }
     m_dirty = false;
 }
+
 
 QVariant Field::getDatabaseValue()
 {
@@ -96,6 +107,7 @@ QVariant Field::getDatabaseValue()
             return m_value;
     }
 }
+
 
 QString Field::sqlColumnDef() const
 {
@@ -112,6 +124,7 @@ QString Field::sqlColumnDef() const
     }
     return type;
 }
+
 
 QString Field::sqlColumnType() const
 {
@@ -149,10 +162,12 @@ QString Field::sqlColumnType() const
     return "";
 }
 
+
 QVariant Field::value() const
 {
     return m_value;
 }
+
 
 bool Field::setValue(const QVariant& value)
 {
@@ -164,15 +179,18 @@ bool Field::setValue(const QVariant& value)
     return m_dirty;
 }
 
+
 void Field::setDirty()
 {
     m_dirty = true;
 }
 
+
 void Field::clearDirty()
 {
     m_dirty = false;
 }
+
 
 QDebug operator<<(QDebug debug, const Field& f)
 {

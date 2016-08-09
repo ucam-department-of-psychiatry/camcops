@@ -1,7 +1,5 @@
 #pragma once
-
 #include <QString>
-
 
 // ============================================================================
 // Sizes
@@ -16,16 +14,16 @@ const int MEDIUMSPACE = 8;
 // Images
 // ============================================================================
 
-#define camcops_icon(filename) (":/images/camcops/" filename)
+#define camcopsIcon(filename) (":/images/camcops/" filename)
 
-const QString ICON_TABLE_CHILDARROW = camcops_icon("hasChild.png");
-const QString ICON_CHAIN = camcops_icon("chain.png");
+const QString ICON_TABLE_CHILDARROW = camcopsIcon("hasChild.png");
+const QString ICON_CHAIN = camcopsIcon("chain.png");
 
 // ============================================================================
 // Stylesheets
 // ============================================================================
 
-#define camcops_stylesheet(filename) (":/stylesheets/" filename)
+#define camcopsStylesheet(filename) (":/stylesheets/" filename)
 
-const QString CSS_CAMCOPS = camcops_stylesheet("camcops.css");
-const QString CSS_CAMCOPS_MENU = camcops_stylesheet("camcops_menu.css");
+const QString CSS_CAMCOPS = camcopsStylesheet("camcops.css");
+const QString CSS_CAMCOPS_MENU = camcopsStylesheet("camcops_menu.css");

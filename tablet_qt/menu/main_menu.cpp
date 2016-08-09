@@ -14,18 +14,26 @@ MainMenu::MainMenu(CamcopsApp& app)
     MenuItem second_item = MenuItem();
     second_item.m_title = "number two";
     second_item.m_subtitle = "subtitle";
-    second_item.m_arrowOnRight = true;
-    second_item.m_needsPrivilege = true;
+    second_item.m_needs_privilege = true;
 
-    MenuItem test_menu = MenuItem();
-    test_menu.m_title = "Testing menu";
-    test_menu.m_menu = &buildTestWindow;
-
-    m_items = {first_item, second_item, test_menu};
+    m_items = {
+        first_item,
+        second_item,
+        MenuItem::makeMenuItem(
+            "Testing menu",
+            &MainMenu::makeTestMenu)
+    };
 
     buildMenu();
 }
 
+
 MainMenu::~MainMenu()
 {
+}
+
+
+MenuWindow* MainMenu::makeTestMenu(CamcopsApp& app)
+{
+    return new TestMenu(app);
 }

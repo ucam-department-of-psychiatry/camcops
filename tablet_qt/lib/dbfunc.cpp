@@ -1,10 +1,15 @@
+#define DEBUG_SQL_QUERY
+#define DEBUG_SQL_RESULT
+
 #include "dbfunc.h"
 #include <QDebug>
 #include <QDir>
 #include <QSqlError>
 #include <QSqlQuery>
+#include <QSqlRecord>
 #include <QStandardPaths>
 #include "lib/uifunc.h"
+
 
 QDebug operator<<(QDebug debug, const SqlitePragmaInfo& info)
 {
@@ -18,24 +23,26 @@ QDebug operator<<(QDebug debug, const SqlitePragmaInfo& info)
     return debug;
 }
 
+
 QDebug operator<<(QDebug debug, const FieldCreationPlan& plan)
 {
     debug.nospace()
         << "FieldCreationPlan(name=" << plan.name
         << ", intended=";
-    if (plan.pIntendedField) {
-        debug.nospace() << plan.pIntendedField->sqlColumnDef();
+    if (plan.intended_field) {
+        debug.nospace() << plan.intended_field->sqlColumnDef();
     } else {
         debug.nospace() << "<none>";
     }
     debug.nospace()
-        << ", existsInDb=" << plan.existsInDb
-        << ", existingType=" << plan.existingType
+        << ", existsInDb=" << plan.exists_in_db
+        << ", existingType=" << plan.existing_type
         << ", add=" << plan.add
         << ", drop=" << plan.drop
         << ", change=" << plan.change << ")";
     return debug;
 }
+
 
 void openDatabaseOrDie(QSqlDatabase& db, const QString& filename)
 {
@@ -66,6 +73,7 @@ void openDatabaseOrDie(QSqlDatabase& db, const QString& filename)
     }
 }
 
+
 QString delimit(const QString& fieldname)
 {
     // Delimts a table or fieldname, by ANSI SQL standards.
@@ -77,6 +85,7 @@ QString delimit(const QString& fieldname)
     return "\"" + fieldname + "\"";
 }
 
+
 void addArgs(QSqlQuery& query, const QList<QVariant>& args)
 {
     // Adds arguments to a query from a QList.
@@ -86,24 +95,55 @@ void addArgs(QSqlQuery& query, const QList<QVariant>& args)
     }
 }
 
+
 bool execQuery(QSqlQuery& query, const QString& sql,
                 const QList<QVariant>& args)
 {
     // Executes an existing query (in place) with the supplied SQL/args.
     query.prepare(sql);
     addArgs(query, args);
-#ifdef DEBUG_SQL
+
+#ifdef DEBUG_SQL_QUERY
     qDebug() << "Executing:" << qPrintable(sql);
     qDebug() << "... args:" << args;
 #endif
+
+#ifdef DEBUG_SQL_RESULT
+    bool success = query.exec();
+    if (query.isSelect() && !query.isForwardOnly()) {
+        qDebug() << "Resultset preview:";
+        int row = 0;
+        while (query.next()) {
+            QDebug debug = qDebug().nospace();
+            QSqlRecord rec = query.record();
+            int ncols = rec.count();
+            debug << "... row " << row << ": ";
+            for (int col = 0; col < ncols; ++col) {
+                if (col > 0) {
+                    debug << "; ";
+                }
+                debug << rec.fieldName(col) << "=" << query.value(col);
+            }
+            ++row;
+        }
+        query.seek(QSql::BeforeFirstRow);  // the original starting position
+    }
+    return success;
+#else
     return query.exec();
+#endif
+    // The return value is boolean (success?).
+    // Use query.next() to iterate through a result set; see
+    // http://doc.qt.io/qt-4.8/sql-sqlstatements.html
 }
+
 
 bool execQuery(QSqlQuery& query, const QString& sql)
 {
     QList<QVariant> args;
     return execQuery(query, sql, args);
 }
+
 
 bool exec(QSqlDatabase& db, const QString& sql, const QList<QVariant>& args)
 {
@@ -112,12 +152,14 @@ bool exec(QSqlDatabase& db, const QString& sql, const QList<QVariant>& args)
     return execQuery(query, sql, args);
 }
 
+
 // http://stackoverflow.com/questions/2816293/passing-optional-parameter-by-reference-in-c
 bool exec(QSqlDatabase& db, const QString& sql)
 {
     QList<QVariant> args;
     return exec(db, sql, args);
 }
+
 
 QVariant dbFetchFirstValue(QSqlDatabase& db, const QString& sql,
                               const QList<QVariant>& args)
@@ -130,11 +172,13 @@ QVariant dbFetchFirstValue(QSqlDatabase& db, const QString& sql,
     return query.value(0);
 }
 
+
 QVariant dbFetchFirstValue(QSqlDatabase& db, const QString& sql)
 {
     QList<QVariant> args;
     return dbFetchFirstValue(db, sql, args);
 }
+
 
 int dbFetchInt(QSqlDatabase& db, const QString& sql,
                  const QList<QVariant>& args,
@@ -150,12 +194,14 @@ int dbFetchInt(QSqlDatabase& db, const QString& sql,
     return query.value(0).toInt();
 }
 
+
 int dbFetchInt(QSqlDatabase& db, const QString& sql,
                  int failureDefault)
 {
     QList<QVariant> args;
     return dbFetchInt(db, sql, args, failureDefault);
 }
+
 
 bool tableExists(QSqlDatabase& db, const QString& tablename)
 {
@@ -164,6 +210,7 @@ bool tableExists(QSqlDatabase& db, const QString& tablename)
     QList<QVariant> args({tablename});
     return dbFetchInt(db, sql, args) > 0;
 }
+
 
 QList<SqlitePragmaInfo> getPragmaInfo(QSqlDatabase& db,
                                       const QString& tablename)
@@ -187,6 +234,7 @@ QList<SqlitePragmaInfo> getPragmaInfo(QSqlDatabase& db,
     return infolist;
 }
 
+
 QStringList fieldNamesFromPragmaInfo(const QList<SqlitePragmaInfo>& infolist,
                                      bool delimited)
 {
@@ -202,11 +250,13 @@ QStringList fieldNamesFromPragmaInfo(const QList<SqlitePragmaInfo>& infolist,
     return fieldnames;
 }
 
+
 QStringList dbFieldNames(QSqlDatabase& db, const QString& tablename)
 {
     QList<SqlitePragmaInfo> infolist = getPragmaInfo(db, tablename);
     return fieldNamesFromPragmaInfo(infolist);
 }
+
 
 QString makeCreationSqlFromPragmaInfo(const QString& tablename,
                                       const QList<SqlitePragmaInfo>& infolist)
@@ -234,12 +284,14 @@ QString makeCreationSqlFromPragmaInfo(const QString& tablename,
         delimit(tablename), fieldspecs.join(", "));
 }
 
+
 QString dbTableDefinitionSql(QSqlDatabase& db, const QString& tablename)
 {
     QString sql = "SELECT sql FROM sqlite_master WHERE tbl_name=?";
     QList<QVariant> args({tablename});
     return dbFetchFirstValue(db, sql, args).toString();
 }
+
 
 bool createIndex(QSqlDatabase& db, const QString& indexname,
                  const QString& tablename, QStringList fieldnames)
@@ -256,6 +308,7 @@ bool createIndex(QSqlDatabase& db, const QString& indexname,
         delimit(indexname), delimit(tablename), fieldnames.join(""));
     return exec(db, sql);
 }
+
 
 void renameColumns(QSqlDatabase& db, QString tablename,
                    const QList<QPair<QString, QString>>& from_to,
@@ -328,6 +381,7 @@ void renameColumns(QSqlDatabase& db, QString tablename,
     exec(db, "COMMIT");
 }
 
+
 void renameTable(QSqlDatabase& db, const QString& from, const QString& to)
 {
     if (!tableExists(db, from)) {
@@ -342,6 +396,7 @@ void renameTable(QSqlDatabase& db, const QString& from, const QString& to)
     exec(db, QString("ALTER TABLE %1 RENAME TO %2").arg(from, to));
     // don't COMMIT (error: "cannot commit - no transaction is active")
 }
+
 
 void changeColumnTypes(QSqlDatabase& db, const QString& tablename,
                        const QList<QPair<QString, QString>>& changes,
@@ -394,6 +449,7 @@ void changeColumnTypes(QSqlDatabase& db, const QString& tablename,
     exec(db, "COMMIT");
 }
 
+
 QString sqlCreateTable(const QString& tablename, const QList<Field>& fieldlist)
 {
     QStringList coldefs;
@@ -406,6 +462,7 @@ QString sqlCreateTable(const QString& tablename, const QList<Field>& fieldlist)
         delimit(tablename), coldefs.join(", "));
     return sql;
 }
+
 
 void createTable(QSqlDatabase& db, const QString& tablename,
                  const QList<Field>& fieldlist, QString tempsuffix)
@@ -422,7 +479,7 @@ void createTable(QSqlDatabase& db, const QString& tablename,
         const Field& field = fieldlist.at(i);
         FieldCreationPlan p;
         p.name = field.name();
-        p.pIntendedField = &field;
+        p.intended_field = &field;
         p.add = true;
         planlist.append(p);
         goodfieldlist.append(delimit(p.name));
@@ -434,34 +491,34 @@ void createTable(QSqlDatabase& db, const QString& tablename,
         bool existing_is_superfluous = true;
         for (int j = 0; j < planlist.size(); ++j) {
             FieldCreationPlan& plan = planlist[j];
-            if (!plan.existsInDb && plan.pIntendedField->name() == info.name) {
-                plan.existsInDb = true;
+            if (!plan.exists_in_db && plan.intended_field->name() == info.name) {
+                plan.exists_in_db = true;
                 plan.add = false;
-                plan.change = info.type != plan.pIntendedField->sqlColumnType();
-                plan.existingType = info.type;
+                plan.change = info.type != plan.intended_field->sqlColumnType();
+                plan.existing_type = info.type;
                 existing_is_superfluous = false;
             }
         }
         if (existing_is_superfluous) {
             FieldCreationPlan plan;
             plan.name = info.name;
-            plan.existsInDb = true;
-            plan.existingType = info.type;
+            plan.exists_in_db = true;
+            plan.existing_type = info.type;
             plan.drop = true;
         }
     }
     bool modifications_required = false;
     for (int i = 0; i < planlist.size(); ++i) {
         const FieldCreationPlan& plan = planlist.at(i);
-        if (plan.add && plan.pIntendedField) {
-            if (plan.pIntendedField->isPk()) {
+        if (plan.add && plan.intended_field) {
+            if (plan.intended_field->isPk()) {
                 stopApp(QString("Cannot add a PRIMARY KEY column (%s.%s)").arg(
                     tablename, plan.name));
             }
             exec(db, QString("ALTER TABLE %1 ADD COLUMN %2 %3").arg(
                 tablename,
                 delimit(plan.name),
-                plan.pIntendedField->sqlColumnDef()));
+                plan.intended_field->sqlColumnDef()));
         }
         if (plan.drop || plan.change) {
             modifications_required = true;

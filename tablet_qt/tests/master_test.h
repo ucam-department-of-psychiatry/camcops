@@ -1,4 +1,4 @@
 #pragma once
 #include "common/camcops_app.h"
 
-void run_tests(CamcopsApp& app);
+void runTests(CamcopsApp& app);

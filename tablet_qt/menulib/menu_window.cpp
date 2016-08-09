@@ -9,6 +9,7 @@
 #include "lib/filefunc.h"
 // #include "lib/uifunc.h"
 
+
 MenuWindow::MenuWindow(CamcopsApp& app, bool top) :
     QWidget(),
     m_app(app),
@@ -16,13 +17,21 @@ MenuWindow::MenuWindow(CamcopsApp& app, bool top) :
 {
 }
 
+
 MenuWindow::~MenuWindow()
 {
 }
 
+
 void MenuWindow::buildMenu()
 {
+    qDebug() << "MenuWindow::buildMenu()";
+
     QVBoxLayout* mainlayout = new QVBoxLayout();
+    setLayout(mainlayout);
+
+    //QScrollArea* scrollarea = new QScrollArea();
+    //mainlayout->addWidget(scrollarea);
 
     if (!m_top) {
         QPushButton* back = new QPushButton("back", this);
@@ -32,6 +41,7 @@ void MenuWindow::buildMenu()
     }
 
     QListWidget* listwidget = new QListWidget();
+    mainlayout->addWidget(listwidget);
     QSize rowheight = QSize(0, ICONSIZE + 20);  // ***
     for (int i = 0; i < m_items.size(); ++i) {
         MenuItem item = m_items.at(i);
@@ -45,21 +55,14 @@ void MenuWindow::buildMenu()
     }
     connect(listwidget, &QListWidget::itemClicked,
             this, &MenuWindow::menuItemClicked);
-
-    // Using a scroll area unbreaks a bug when you use a list widget on
-    // an area too small (and then it picks the wrong item when you click,
-    // sometimes, after scrolling).
-    QScrollArea* scrollarea = new QScrollArea();
-    scrollarea->setWidget(listwidget);
-    mainlayout->addWidget(scrollarea);
-
-    setLayout(mainlayout);
 }
+
 
 void MenuWindow::backClicked()
 {
     m_app.popScreen();
 }
+
 
 void MenuWindow::menuItemClicked(QListWidgetItem* item)
 {

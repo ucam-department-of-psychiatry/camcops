@@ -6,5 +6,5 @@ void InitTasks(TaskFactory& factory)
 {
     // Change these lines to determine which tasks are available:
 
-    InitializePhq9(factory);
+    initializePhq9(factory);
 }

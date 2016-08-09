@@ -1,3 +1,5 @@
+// #define DEBUG_READ_FILE
+
 #include "filefunc.h"
 #include <QDebug>
 #include <QFile>

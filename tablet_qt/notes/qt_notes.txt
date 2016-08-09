@@ -95,6 +95,12 @@ Coding conventions
 - g_global_variable
 - m_member_variable
 - any_old_variable
+- p_ pointer, m_p_ member pointer (optional in local variables)
+- CONSTANT, LONG_CONSTANT
+- (avoid Hungarian notation)
+- functions:
+    - prefer clear verbs, e.g. getX, setX, isX/hasX/doesX
+    - but for simple objects, can use e.g. x, setX
 
 ===============================================================================
 Language and speed
@@ -114,6 +120,10 @@ Confirmed:
 
 - Custom-compiled Qt on Android ARM working
 - Custom-compiled Qt on Android x86 working (inc. fast emulator)
+- Custom-compiled Qt on Linux (x86 64) working
+
+- Custom compilation required for SQLite
+- Custom compilation required for SSL
 
 *** SQLITE NOT YET WORKING; NEEDS QT RECOMPILE
 - Works on Windows 10 native 64-bit with predistributed Qt (as a .exe)
@@ -139,7 +149,7 @@ JDK
   Then the JDK directory is /usr/lib/jvm/java-8-openjdk-amd64
 
 ===============================================================================
-Compilation
+Compiling, linking
 ===============================================================================
 - See my build_qt.py
 - To compile projects in parallel, see
@@ -150,6 +160,14 @@ Compilation
   RIGHT: <meta-data android:name="android.app.lib_name" android:value="camcops_tablet"/>
 - Use multiple cores: add "-j 8" to the "make" part of the project Build Steps
   http://doc.qt.io/qtcreator/creator-faq.html
+- /usr/bin/ld: cannot find -lGL
+  must do: sudo apt-get install libgl1-mesa-dev
+
+===============================================================================
+Core dump
+===============================================================================
+- http://stackoverflow.com/questions/2065912/core-dumped-but-core-file-is-not-in-current-directory
+  ulimit -c unlimited
 
 ===============================================================================
 Menu structure, class factories, ...
@@ -215,6 +233,60 @@ Menu structure, class factories, ...
     http://doc.qt.io/qt-5.6/qtwebchannel-standalone-example.html
     http://doc.qt.io/qt-5.6/qtwebchannel-javascript.html
     http://stackoverflow.com/questions/9615194/is-it-possible-to-call-a-c-function-from-javascript-in-a-qwebview
+
+
+===============================================================================
+Database objects
+===============================================================================
+
+- Since C++ static methods cannot be virtual, the approaches possible to
+  override field lists are:
+  - curiously recurring template pattern, e.g.
+    http://stackoverflow.com/questions/2721846
+  - plain virtual functions, and instantiate a class to get field list for
+    table creation (etc).
+  Since a reasonable proportion of "day-to-day" work with fields involves
+  knowing fieldspec information (e.g. field types), perfectly reasonable
+  to use the latter (which also makes for clearer code).
+- Create a derived class for each type of database object, with addField()
+  calls in the constructor.
+
+- Previous notes on this:
+
+// To make makeTables() static, we need something like:
+// - a static member object detailing the fields, via that static member's
+//   constructor - e.g. a TableSpec class:
+//      static MyTableSpec m_tablespec;
+//      ...
+//      MyTableSpec::MyTableSpec()
+//      {
+//          addField("thing", QVariant::Int);
+//          ...
+//      }
+// - a normal member object containing field values for those fields, e.g.
+//      MyFieldValues m_fields;
+//      ...
+//      MyTask::MyTask() :
+//          m_fields(m_tablespec)
+//      {
+//      }
+// - however, I don't see how the static constructor for the fieldspec is going
+//   to be able to read other static properties like hasClinician().
+//   Others agree:
+//      http://stackoverflow.com/questions/1197106/static-constructors-in-c-need-to-initialize-private-static-objects
+// - Then beware static init order:
+//   https://isocpp.org/wiki/faq/ctors#static-init-order
+// - Moreover, functions cannot be both static and virtual.
+//   http://stackoverflow.com/questions/1820477/c-static-virtual-members
+//   So you can't do, e.g. "virtual static bool anonymous() const { return false; }"
+//   and override that in derived classes.
+//   All sorts of nasty template hacks follow...
+// - So we're probably better off with the idiom that isolated class instances
+//   perform "static" functions.
+// - http://cplusplus.bordoon.com/static_initialization.html
+//   "... the basic rule that class object constructors and static variable
+//   initializer expressions should not refer to class static methods or
+//   external variables."
 
 
 ===============================================================================

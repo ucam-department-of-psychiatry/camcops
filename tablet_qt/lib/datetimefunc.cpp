@@ -15,16 +15,16 @@ QString datetimeToIsoMs(const QDateTime& dt)
     //      dt;  // QDateTime(2016-06-02 10:28:06.708 BST Qt::TimeSpec(LocalTime))
     //      dt.toString(Qt::ISODate);  // "2016-06-02T10:28:06" -- DROPS timezone
     QString localtime = dt.toString("yyyy-MM-ddTHH:mm:ss.zzz");
-    int offsetFromUtcSec = dt.offsetFromUtc();
+    int offset_from_utc_s = dt.offsetFromUtc();
     // FOR TESTING: offsetFromUtcSec = -(3600 * 2.5);
     QString tzinfo;
-    if (offsetFromUtcSec == 0) {
+    if (offset_from_utc_s == 0) {
         tzinfo = "Z";
     } else {
-        QString sign = offsetFromUtcSec < 0 ? "-" : "+";
-        offsetFromUtcSec = abs(offsetFromUtcSec);
-        int hours = offsetFromUtcSec / 3600;
-        int minutes = (offsetFromUtcSec % 3600) / 60;
+        QString sign = offset_from_utc_s < 0 ? "-" : "+";
+        offset_from_utc_s = abs(offset_from_utc_s);
+        int hours = offset_from_utc_s / 3600;
+        int minutes = (offset_from_utc_s % 3600) / 60;
         tzinfo += QString("%1%2:%3").arg(sign)
             .arg(hours, 2, 10, QChar('0'))
             .arg(minutes, 2, 10, QChar('0'));
@@ -33,16 +33,19 @@ QString datetimeToIsoMs(const QDateTime& dt)
     return localtime + tzinfo;
 }
 
+
 QString datetimeToIsoMsUtc(const QDateTime& dt)
 {
     QDateTime utc_dt = dt.toTimeSpec(Qt::UTC);
     return datetimeToIsoMs(utc_dt);
 }
 
+
 QDateTime isoToDateTime(const QString& iso)
 {
     return QDateTime::fromString(iso, Qt::ISODate);
 }
+
 
 QDateTime now()
 {

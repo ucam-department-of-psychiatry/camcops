@@ -45,7 +45,8 @@ SOURCES += main.cpp\
     tests/master_test.cpp \
     menu/test_menu.cpp \
     tasklib/inittasks.cpp \
-    common/camcops_app.cpp
+    common/camcops_app.cpp \
+    tasklib/taskmainrecord.cpp
 
 HEADERS  += \
     menulib/menu_window.h \
@@ -66,7 +67,8 @@ HEADERS  += \
     menu/test_menu.h \
     tasklib/inittasks.h \
     common/db_constants.h \
-    common/camcops_app.h
+    common/camcops_app.h \
+    tasklib/taskmainrecord.h
 
 CONFIG += debug
 CONFIG += mobility

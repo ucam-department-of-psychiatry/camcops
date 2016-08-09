@@ -1,15 +1,42 @@
 #include "test_menu.h"
 #include <QDebug>
 #include <QMediaPlayer>
-#include "lib/netcore.h"
 
 
-void test_debug_console()
+TestMenu::TestMenu(CamcopsApp& app)
+    : MenuWindow(app),
+      m_p_netmgr(NULL)
+{
+    m_items = {
+        MenuItem::makeFuncItem(
+            "Test debug console",
+            std::bind(&TestMenu::testDebugConsole, this)),
+        MenuItem::makeFuncItem(
+            "Test sound",
+            std::bind(&TestMenu::testSound, this)),
+        MenuItem::makeFuncItem(
+            "Test network (HTTP)",
+            std::bind(&TestMenu::testHttp, this)),
+        MenuItem::makeFuncItem(
+            "Test network (HTTPS/SSL)",
+            std::bind(&TestMenu::testHttps, this)),
+    };
+    buildMenu();
+}
+
+
+TestMenu::~TestMenu()
+{
+}
+
+
+void TestMenu::testDebugConsole()
 {
     qDebug() << "Testing debug console. This is the entire test. Success.";
 }
 
-void test_sound()
+
+void TestMenu::testSound()
 {
     QMediaPlayer* player = new QMediaPlayer;
     QUrl url("qrc:///sounds/camcops/portal_still_alive.mp3");
@@ -20,39 +47,18 @@ void test_sound()
 }
 
 
-void test_https()
+void TestMenu::testHttps()
 {
-    NetworkManager netmgr("http://egret.psychol.cam.ac.uk/git/crate");
-    netmgr.test_https();
+    delete m_p_netmgr;
+    m_p_netmgr = new NetworkManager("https://egret.psychol.cam.ac.uk/index.html");
+    m_p_netmgr->testHttps();
 }
 
 
-MenuItem make_func_item(const QString& title, MenuItem::ActionFuncPtr func)
+void TestMenu::testHttp()
 {
-    MenuItem item = MenuItem();
-    item.m_title = title;
-    item.m_func = func;
-    return item;
+    delete m_p_netmgr;
+    m_p_netmgr = new NetworkManager("http://egret.psychol.cam.ac.uk/index.html");
+    m_p_netmgr->testHttp();
 }
 
-
-TestMenu::TestMenu(CamcopsApp& app)
-    : MenuWindow(app)
-{
-    m_items = {
-        make_func_item("Test debug console", &test_debug_console),
-        make_func_item("Test sound", &test_sound),
-        make_func_item("Test network (HTTPS/SSL)", &test_https),
-    };
-
-    buildMenu();
-}
-
-TestMenu::~TestMenu()
-{
-}
-
-MenuWindow* buildTestWindow(CamcopsApp& app)
-{
-    return new TestMenu(app);
-}

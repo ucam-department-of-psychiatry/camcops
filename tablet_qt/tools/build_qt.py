@@ -29,6 +29,10 @@ import urllib.request
 log = logging.getLogger(__name__)
 
 
+# =============================================================================
+# Ancillary
+# =============================================================================
+
 def run(args, env=None):
     log.info("Running external command: {}".format(args))
     if env is not None:
@@ -90,8 +94,8 @@ def fetch_openssl(args):
     #                       args.openssl_android_script_fullpath)
 
 
-def get_openssl_android_rootdir_workdir(args, cpu):
-    rootdir = join(args.root_dir, "openssl_android_{}_build".format(cpu))
+def get_openssl_rootdir_workdir(args, system):
+    rootdir = join(args.root_dir, "openssl_{}_build".format(system))
     workdir = join(rootdir, args.openssl_version)
     return rootdir, workdir
 
@@ -101,8 +105,12 @@ def root_path():
     return os.path.abspath(os.sep)
 
 
+# =============================================================================
+# Building OpenSSL
+# =============================================================================
+
 def build_openssl_android(args, cpu):
-    rootdir, workdir = get_openssl_android_rootdir_workdir(args, cpu)
+    rootdir, workdir = get_openssl_rootdir_workdir(args, "android_" + cpu)
     targets = [join(workdir, "libssl.so"),
                join(workdir, "libcrypto.so")]
     if all(isfile(x) for x in targets):
@@ -259,6 +267,58 @@ def build_openssl_android(args, cpu):
     # ... looks OK
 
 
+
+def build_openssl_linux(args):
+    rootdir, workdir = get_openssl_rootdir_workdir(args, "linux")
+    targets = [join(workdir, "libssl.so"),
+               join(workdir, "libcrypto.so")]
+    if all(isfile(x) for x in targets):
+        log.info("OpenSSL: All targets exist already: {}".format(targets))
+        return
+
+    env = {  # clean environment
+        'PATH': os.environ['PATH'],
+    }
+    mkdir_p(rootdir)
+    run(["tar", "-xvf", args.openssl_src_fullpath, "-C", rootdir])
+
+    makefile_org = join(workdir, "Makefile.org")
+    replace(makefile_org,
+            "install: all install_docs install_sw",
+            "install: install_docs install_sw")
+
+    os.chdir(workdir)
+
+    common_ssl_config_options = [
+        "shared",  # make .so files (needed by Qt sometimes) as well as .a
+        "no-ssl2",  # SSL-2 is broken
+        "no-ssl3",  # SSL-3 is broken. Is an SSL-3 build required for TLS 1.2?
+        # "no-comp",  # disable compression independent of zlib
+    ]
+
+    target_os = "linux-x86_64"
+    configure_args = [
+        "shared",
+        target_os,
+    ] + common_ssl_config_options
+    run(["perl", join(workdir, "Configure")] + configure_args, env)
+
+    # Have to remove version numbers from final library filenames:
+    # http://doc.qt.io/qt-5/opensslsupport.html
+    makefile = join(workdir, "Makefile")
+    replace_multiple(makefile, [
+        ('LIBNAME=$$i LIBVERSION=$(SHLIB_MAJOR).$(SHLIB_MINOR)',
+            'LIBNAME=$$i'),
+        ('LIBCOMPATVERSIONS=";$(SHLIB_VERSION_HISTORY)"', ''),
+    ])
+    run(["make", "depend", "-j", str(args.nparallel)], env)
+    run(["make", "build_libs", "-j", str(args.nparallel)], env)
+
+
+# =============================================================================
+# Building Qt
+# =============================================================================
+
 def build_qt_android(args, cpu, static_openssl=False, verbose=True):
     # For testing a new OpenSSL build, have static_openssl=False, or you have
     # to rebuild Qt every time... extremely slow.
@@ -267,8 +327,8 @@ def build_qt_android(args, cpu, static_openssl=False, verbose=True):
     # http://doc.qt.io/qt-5/opensslsupport.html
     # Windows: ?also http://simpleit.us/2010/05/30/enabling-openssl-for-qt-c-on-windows/  # noqa
 
-    opensslrootdir, opensslworkdir = get_openssl_android_rootdir_workdir(
-        args, cpu)
+    opensslrootdir, opensslworkdir = get_openssl_rootdir_workdir(
+        args, "android_" + cpu)
     openssl_include_root = join(opensslworkdir, "include")
     openssl_lib_root = opensslworkdir
     if cpu == "x86":
@@ -331,7 +391,7 @@ def build_qt_android(args, cpu, static_openssl=False, verbose=True):
     env["ANDROID_API_VERSION"] = args.android_api
     env["ANDROID_NDK_ROOT"] = args.android_ndk_root
     env["ANDROID_SDK_ROOT"] = args.android_sdk_root
-    run(["make"], env)  # The make step takes a few hours.
+    run(["make", "-j", str(args.nparallel)], env)  # The make step takes a few hours.  # noqa
 
     # PROBLEM WITH "make install":
     #       mkdir: cannot create directory ‘/libs’: Permission denied
@@ -352,15 +412,76 @@ def build_qt_android(args, cpu, static_openssl=False, verbose=True):
     return installdir
 
 
+
+def build_qt_linux(args, static_openssl=False, verbose=True):
+    # For testing a new OpenSSL build, have static_openssl=False, or you have
+    # to rebuild Qt every time... extremely slow.
+    opensslrootdir, opensslworkdir = get_openssl_rootdir_workdir(args, "linux")
+    openssl_include_root = join(opensslworkdir, "include")
+    openssl_lib_root = opensslworkdir
+    builddir = join(args.root_dir, "qt_linux_build")
+    installdir = join(args.root_dir, "qt_linux_install")
+
+    targets = [join(installdir, "bin", "qmake")]
+    if all(isfile(x) for x in targets):
+        log.info("Qt: All targets exist already: {}".format(targets))
+        return installdir
+
+    env = {  # clean environment
+        'PATH': os.environ['PATH'],
+    }
+    env["OPENSSL_LIBS"] = "-L{} -lssl -lcrypto".format(openssl_lib_root)
+    # ... unnecessary? But suggested by Qt.
+
+    log.info("Configuring Linux build in {}".format(builddir))
+    mkdir_p(builddir)
+    mkdir_p(installdir)
+    os.chdir(builddir)
+    qt_config_args = [
+        join(args.qt_src_gitdir, "configure"),
+        "-I", openssl_include_root,  # OpenSSL
+        "-L", openssl_lib_root,  # OpenSSL
+        "-opensource", "-confirm-license",
+        "-prefix", installdir,
+        "-qt-sql-sqlite",  # SQLite
+        "-qt-xcb",  # use XCB source bundled with Qt?
+        "-no-warnings-are-errors",
+        "-nomake", "tests",
+        "-nomake", "examples",
+        "-skip", "qttranslations",
+        "-skip", "qtwebkit",
+        "-skip", "qtserialport",
+        "-skip", "qtwebkit-examples",
+    ]
+    if static_openssl:
+        qt_config_args.append("-openssl-linked")  # OpenSSL
+    else:
+        qt_config_args.append("-openssl")  # OpenSSL
+    if verbose:
+        qt_config_args.append("-v")  # verbose
+    run(qt_config_args)  # The configure step takes a few seconds.
+
+    log.info("Making Qt Linux build into {}".format(installdir))
+    os.chdir(builddir)
+    run(["make", "-j", str(args.nparallel)], env)  # The make step takes a few hours.  # noqa
+
+    # makefile = join(builddir, "qttools", "src", "qtplugininfo", "Makefile")
+    # baddir = join("$(INSTALL_ROOT)", "libs", android_arch_short, "")
+    # gooddir = join(installdir, "libs", android_arch_short, "")
+    # replace(makefile, " " + baddir, " " + gooddir)
+
+    run(["make", "install"], env)
+    # ... installs to installdir because of -prefix earlier
+    return installdir
+
+
+# =============================================================================
+# Main
+# =============================================================================
+
 def main():
     logging.basicConfig(level=logging.DEBUG)
     user_dir = expanduser("~")
-
-    # CPU/architecture
-    default_cpus = [
-        "x86",  # for a fast emulator under Linux
-        "arm",  # for real Android devices (armeabi-v7a)
-    ]
 
     # Android
     default_android_api_num = 23
@@ -379,16 +500,23 @@ def main():
     default_openssl_src_url = (
         "https://www.openssl.org/source/{}.tar.gz".format(
             default_openssl_version))
-    #default_openssl_android_script = "Setenv-android.sh"
-    #default_openssl_android_script_url = (
-    #    "https://wiki.openssl.org/images/7/70/{}".format(
-    #        default_openssl_android_script))
 
     parser = argparse.ArgumentParser(description="Build Qt for CamCOPS")
 
+    # Architectures
     parser.add_argument(
-        "--cpus", nargs="*", default=default_cpus,
-        help="CPUs to build for (default: {})".format(default_cpus))
+        "--android_x86", action="store_true",
+        help="An architecture target")
+    parser.add_argument(
+        "--android_arm", action="store_true",
+        help="An architecture target")
+    parser.add_argument(
+        "--linux_x86_64", action="store_true",
+        help="An architecture target")
+
+    parser.add_argument(
+        "--nparallel", type=int, default=8,
+        help="Number of parallel processes to run")
 
     # Qt
     parser.add_argument(
@@ -433,15 +561,6 @@ def main():
         "--openssl_src_url", default=default_openssl_src_url,
         help="OpenSSL source URL (default: {})".format(
             default_openssl_src_url))
-    #parser.add_argument(
-    #    "--openssl_android_script", default=default_openssl_android_script,
-    #    help="OpenSSL Android assistance script name (default: {})".format(
-    #        default_openssl_android_script))
-    #parser.add_argument(
-    #    "--openssl_android_script_url",
-    #    default=default_openssl_android_script_url,
-    #    help="OpenSSL Android assistance script download URL "
-    #         "(default: {})".format(default_openssl_android_script_url))
 
     args = parser.parse_args()
 
@@ -458,8 +577,6 @@ def main():
     args.openssl_src_filename = "{}.tar.gz".format(args.openssl_version)
     args.openssl_src_fullpath = join(args.openssl_src_dir,
                                      args.openssl_src_filename)
-    #args.openssl_android_script_fullpath = join(args.openssl_src_dir,
-    #                                            args.openssl_android_script)
 
     log.info(args)
 
@@ -473,11 +590,28 @@ def main():
     # Build
     # =========================================================================
     installdirs = []
-    for cpu in args.cpus:
-        log.info("Qt shadow build: Android {} +SQLite +OpenSSL".format(cpu))
-        build_openssl_android(args, cpu)
-        installdir = build_qt_android(args, cpu)
+
+    if args.android_x86:
+        log.info("Qt build: Android x86 +SQLite +OpenSSL")
+        build_openssl_android(args, "x86")
+        installdir = build_qt_android(args, "x86")
         installdirs.append(installdir)
+
+    if args.android_x86:
+        log.info("Qt build: Android ARM +SQLite +OpenSSL")
+        build_openssl_android(args, "arm")
+        installdir = build_qt_android(args, "arm")
+        installdirs.append(installdir)
+
+    if args.linux_x86_64:
+        log.info("Qt build: Linux x86 64-bit +SQLite +OpenSSL")
+        build_openssl_linux(args)
+        installdir = build_qt_linux(args)
+        installdirs.append(installdir)
+
+    if not installdirs:
+        log.warning("Nothing to do. Run with --help argument for help.")
+        sys.exit(1)
 
     print("""
 ===============================================================================
@@ -490,12 +624,15 @@ Now, in Qt Creator:
 2. Create kit
       Tools > Options > Build & Run > Kits > Add (manual)
       ... Qt version = the one you added in the preceding step
-      ... compiler = Android GCC (i686-4.9)
-      ... debugger = Android Debugger for GCC (i686-4.9)
+      ... compiler =
+            for Android: Android GCC (i686-4.9)
+      ... debugger =
+            for Android: Android Debugger for GCC (i686-4.9)
 Then for your project,
       - click on the "Projects" tab
       - Add Kit > choose the kit you created.
-      - Build Settings > Android APK > Details > Additional Libraries > Add
+      - For Android:
+        - Build Settings > Android APK > Details > Additional Libraries > Add
     """.format(
         bindirs=", ".join(join(x, "bin") for x in installdirs)
     ))

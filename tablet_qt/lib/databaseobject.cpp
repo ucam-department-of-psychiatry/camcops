@@ -11,19 +11,20 @@
 
 DatabaseObject::DatabaseObject(const QString& tablename,
                                const QSqlDatabase db,
-                               bool hasDefaultPkField,
-                               bool hasModificationTimestamp) :
+                               bool has_default_pk_field,
+                               bool has_modification_timestamp) :
     m_tablename(tablename),
     m_db(db),
-    m_hasModificationTimestamp(hasModificationTimestamp)
+    m_has_modification_timestamp(has_modification_timestamp)
 {
-    if (hasDefaultPkField) {
+    if (has_default_pk_field) {
         addField(PK_FIELDNAME, QVariant::Int, true, true, true);
     }
-    if (hasModificationTimestamp) {
+    if (has_modification_timestamp) {
         addField(MODIFICATION_TIMESTAMP_FIELDNAME, QVariant::DateTime);
     }
 }
+
 
 void DatabaseObject::setAllDirty()
 {
@@ -34,6 +35,7 @@ void DatabaseObject::setAllDirty()
     }
 }
 
+
 void DatabaseObject::addField(const QString& fieldname, QVariant::Type type,
                               bool mandatory, bool unique, bool pk)
 {
@@ -41,10 +43,12 @@ void DatabaseObject::addField(const QString& fieldname, QVariant::Type type,
     m_record.insert(fieldname, field);
 }
 
+
 void DatabaseObject::addField(const Field& field)
 {
     m_record.insert(field.name(), field);
 }
+
 
 void DatabaseObject::requireField(const QString &fieldname)
 {
@@ -53,11 +57,13 @@ void DatabaseObject::requireField(const QString &fieldname)
     }
 }
 
-QVariant DatabaseObject::value(const QString& fieldname)
+
+QVariant DatabaseObject::getValue(const QString& fieldname)
 {
     requireField(fieldname);
     return m_record[fieldname].value();
 }
+
 
 bool DatabaseObject::setValue(const QString& fieldname, const QVariant& value)
 {
@@ -69,38 +75,47 @@ bool DatabaseObject::setValue(const QString& fieldname, const QVariant& value)
     return dirty;
 }
 
+
 void DatabaseObject::touch()
 {
-    if (!m_hasModificationTimestamp) {
+    if (!m_has_modification_timestamp) {
         return;
     }
     QDateTime now = QDateTime::currentDateTime();
     setValue(MODIFICATION_TIMESTAMP_FIELDNAME, now);
 }
 
+
 QString DatabaseObject::tablename() const
 {
     return m_tablename;
 }
 
-QString DatabaseObject::pkname() const
+
+QString DatabaseObject::pkname()
 {
+    if (!m_cached_pkname.isEmpty()) {
+        return m_cached_pkname;
+    }
     MapIteratorType i(m_record);
     while (i.hasNext()) {
         i.next();
         QString fieldname = i.key();
         Field field = i.value();
         if (field.isPk()) {
-            return fieldname;
+            m_cached_pkname = fieldname;
+            return m_cached_pkname;
         }
     }
     return "";
 }
 
+
 QString DatabaseObject::sqlCreateTable() const
 {
     return ::sqlCreateTable(m_tablename, m_record.values());
 }
+
 
 bool DatabaseObject::loadByPk(int pk)
 {
@@ -109,6 +124,7 @@ bool DatabaseObject::loadByPk(int pk)
     return false;
 }
 
+
 void DatabaseObject::save()
 {
     QString pkfieldname = pkname();
@@ -116,10 +132,12 @@ void DatabaseObject::save()
     qDebug() << "*** MISSING CODE: DatabaseObject::save ***";
 }
 
+
 void DatabaseObject::makeTable()
 {
     createTable(m_db, m_tablename, m_record.values());
 }
+
 
 QDebug operator<<(QDebug debug, const DatabaseObject& d)
 {

@@ -10,12 +10,12 @@
 class DatabaseObject
 {
     // A database object supporting a single PK field, and a default
-    // modification timestamp field.
+    // modification timestamp field, extensible to add other fields.
 public:
     DatabaseObject(const QString& tablename,
                    const QSqlDatabase db,
-                   bool hasDefaultPkField = true,
-                   bool hasModificationTimestamp = true);
+                   bool has_default_pk_field = true,
+                   bool has_modification_timestamp = true);
     void addField(const QString& fieldname,
                   QVariant::Type type,
                   bool mandatory = false,
@@ -24,7 +24,7 @@ public:
     void addField(const Field& field);
     void setAllDirty();
     // Field access:
-    QVariant value(const QString& fieldname);
+    QVariant getValue(const QString& fieldname);
     bool setValue(const QString& fieldname, const QVariant& value);  // returns: changed?
     // Loading, saving:
     bool loadByPk(int pk);
@@ -32,7 +32,7 @@ public:
     void requireField(const QString& fieldname);
     QString sqlCreateTable() const;
     QString tablename() const;
-    QString pkname() const;
+    QString pkname();
     void touch();
     void save();
     void makeTable();
@@ -40,11 +40,12 @@ public:
 protected:
     QString m_tablename;  // also used as key for extra strings
     QSqlDatabase m_db;
-    bool m_hasModificationTimestamp;
+    bool m_has_modification_timestamp;
     typedef QMap<QString, Field> MapType;
     typedef QMapIterator<QString, Field> MapIteratorType;
     typedef QMutableMapIterator<QString, Field> MutableMapIteratorType;
     MapType m_record;
+    QString m_cached_pkname;
 
 public:
     friend QDebug operator<<(QDebug debug, const DatabaseObject& d);

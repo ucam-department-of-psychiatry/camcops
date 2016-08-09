@@ -9,7 +9,8 @@ class NetworkManager : public QObject
     Q_OBJECT
 public:
     NetworkManager(const QString& url);
-    void test_https();
+    void testHttp();
+    void testHttps();
 protected:
     void replyFinished(QNetworkReply* reply);
 protected:

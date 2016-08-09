@@ -1,3 +1,5 @@
+#define DEBUG_ICON_LOAD
+
 #include <QApplication>
 #include <QDebug>
 #include <QMessageBox>
@@ -24,27 +26,29 @@ QLabel* iconWidget(const QString& filename, bool scale)
     return iconlabel;
 }
 
+
 void stopApp(const QString& error)
 {
     // MODAL DIALOGUE, FOLLOWED BY HARD KILL,
     // so callers don't need to worry about what happens afterwards.
     qDebug() << "ABORTING:" << qPrintable(error);
-    QMessageBox msgBox;
-    msgBox.setWindowTitle("CamCOPS internal bug: stopping");
-    msgBox.setText(error);
-    msgBox.setStandardButtons(QMessageBox::Abort);
-    msgBox.exec();
+    QMessageBox msgbox;
+    msgbox.setWindowTitle("CamCOPS internal bug: stopping");
+    msgbox.setText(error);
+    msgbox.setStandardButtons(QMessageBox::Abort);
+    msgbox.exec();
     // QApplication::quit();
     exit(EXIT_FAILURE);
 }
 
+
 void alert(const QString& text, const QString& title)
 {
-    QMessageBox msgBox;
-    msgBox.setWindowTitle(title);
-    msgBox.setText(text);
-    msgBox.setStandardButtons(QMessageBox::Ok);
-    msgBox.exec();
+    QMessageBox msgbox;
+    msgbox.setWindowTitle(title);
+    msgbox.setText(text);
+    msgbox.setStandardButtons(QMessageBox::Ok);
+    msgbox.exec();
 }
 
 
