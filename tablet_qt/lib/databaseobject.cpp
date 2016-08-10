@@ -1,13 +1,13 @@
 #include "databaseobject.h"
 #include <iostream>
 #include <QDateTime>
-#include <QDebug>
 #include <QMapIterator>
 #include <QSqlField>
 #include <QSqlQuery>
 #include <QStringList>
 #include "lib/dbfunc.h"
 #include "lib/uifunc.h"
+
 
 DatabaseObject::DatabaseObject(const QString& tablename,
                                const QSqlDatabase db,
@@ -36,6 +36,16 @@ void DatabaseObject::setAllDirty()
 }
 
 
+void DatabaseObject::clearAllDirty()
+{
+    MutableMapIteratorType i(m_record);
+    while (i.hasNext()) {
+        i.next();
+        i.value().clearDirty();
+    }
+}
+
+
 void DatabaseObject::addField(const QString& fieldname, QVariant::Type type,
                               bool mandatory, bool unique, bool pk)
 {
@@ -50,7 +60,7 @@ void DatabaseObject::addField(const Field& field)
 }
 
 
-void DatabaseObject::requireField(const QString &fieldname)
+void DatabaseObject::requireField(const QString &fieldname) const
 {
     if (!m_record.contains(fieldname)) {
         stopApp("Database object does not contain field: " + fieldname);
@@ -58,7 +68,7 @@ void DatabaseObject::requireField(const QString &fieldname)
 }
 
 
-QVariant DatabaseObject::getValue(const QString& fieldname)
+QVariant DatabaseObject::getValue(const QString& fieldname) const
 {
     requireField(fieldname);
     return m_record[fieldname].value();
@@ -76,13 +86,18 @@ bool DatabaseObject::setValue(const QString& fieldname, const QVariant& value)
 }
 
 
-void DatabaseObject::touch()
+void DatabaseObject::touch(bool only_if_unset)
 {
     if (!m_has_modification_timestamp) {
         return;
     }
+    if (only_if_unset &&
+            !m_record[MODIFICATION_TIMESTAMP_FIELDNAME].isNull()) {
+        return;
+    }
+    // Don't set the timestamp value with setValue()! Infinite loop.
     QDateTime now = QDateTime::currentDateTime();
-    setValue(MODIFICATION_TIMESTAMP_FIELDNAME, now);
+    m_record[MODIFICATION_TIMESTAMP_FIELDNAME].setValue(now);
 }
 
 
@@ -92,7 +107,7 @@ QString DatabaseObject::tablename() const
 }
 
 
-QString DatabaseObject::pkname()
+QString DatabaseObject::pkname() const
 {
     if (!m_cached_pkname.isEmpty()) {
         return m_cached_pkname;
@@ -111,25 +126,142 @@ QString DatabaseObject::pkname()
 }
 
 
+QVariant DatabaseObject::pkvalue() const
+{
+    return getValue(pkname());
+}
+
+
+bool DatabaseObject::isPkNull() const
+{
+    QVariant v = pkvalue();
+    return v.isNull();
+}
+
+
 QString DatabaseObject::sqlCreateTable() const
 {
     return ::sqlCreateTable(m_tablename, m_record.values());
 }
 
 
+void DatabaseObject::nullify()
+{
+    MapIteratorType i(m_record);
+    while (i.hasNext()) {
+        i.next();
+        Field field = i.value();
+        field.nullify();
+    }
+}
+
+
 bool DatabaseObject::loadByPk(int pk)
 {
-    qDebug() << "*** MISSING CODE: DatabaseObject::loadByPk("
-             << pk << ") ***";
-    return false;
+    QList<QVariant> args;
+    QStringList fieldnames;
+    MapIteratorType i(m_record);
+    while (i.hasNext()) {
+        i.next();
+        QString fieldname = i.key();
+        fieldnames.append(delimit(fieldname));
+    }
+    QString sql = (
+        "SELECT " + fieldnames.join(", ") + " FROM " + delimit(m_tablename) +
+        " WHERE " + delimit(pkname()) + "=?"
+    );
+    args.append(pk);
+    QSqlQuery query(m_db);
+    bool success = exec(m_db, sql, args);
+    if (success) {
+        // Note: QMap iteration is ordered; http://doc.qt.io/qt-5/qmap.html
+        // So we can re-iterate in the same way:
+        MutableMapIteratorType it(m_record);
+        int field_index = -1;
+        while (it.hasNext()) {
+            it.next();
+            ++field_index;
+            it.value().setFromDatabaseValue(query.value(field_index));
+        }
+    } else {
+        nullify();
+    }
+    return success;
 }
 
 
 void DatabaseObject::save()
 {
-    QString pkfieldname = pkname();
+    touch(true);  // set timestamp only if timestamp not set
+    if (isPkNull()) {
+        saveInsert();
+    } else {
+        saveUpdate();
+    }
+    clearAllDirty();
+}
+
+
+bool DatabaseObject::saveInsert()
+{
+    QList<QVariant> args;
+    QStringList fieldnames;
+    QStringList placeholders;
+    MapIteratorType i(m_record);
+    while (i.hasNext()) {
+        i.next();
+        QString fieldname = i.key();
+        Field field = i.value();
+        if (field.isPk()) {
+            continue;
+        }
+        fieldnames.append(delimit(fieldname));
+        args.append(field.getDatabaseValue());  // not field.value()
+        placeholders.append("?");
+    }
+    QString sql = (
+        "INSERT OR REPLACE INTO " + delimit(m_tablename) +
+        " (" +
+        fieldnames.join(", ") +
+        ") VALUES (" +
+        placeholders.join(", ") +
+        ")"
+    );
     QSqlQuery query(m_db);
-    qDebug() << "*** MISSING CODE: DatabaseObject::save ***";
+    bool success = execQuery(query, sql, args);
+    if (!success) {
+        qCritical() << "Failed to insert record into table" << m_tablename;
+        return success;
+    }
+    QVariant new_pk = query.lastInsertId();
+    setValue(pkname(), new_pk);
+    qDebug().nospace() << "Save/insert: " << qUtf8Printable(m_tablename)
+                       << ", " << pkname() << "=" << new_pk;
+    return success;
+}
+
+
+bool DatabaseObject::saveUpdate()
+{
+    QList<QVariant> args;
+    QStringList fieldnames;
+    MapIteratorType i(m_record);
+    while (i.hasNext()) {
+        i.next();
+        QString fieldname = i.key();
+        Field field = i.value();
+        fieldnames.append(delimit(fieldname) + "=?");
+        args.append(field.getDatabaseValue());  // not field.value()
+    }
+    QString sql = (
+        "UPDATE " + delimit(m_tablename) + " SET " +
+        fieldnames.join(", ") +
+        " WHERE " + delimit(pkname()) + "=?"
+    );
+    args.append(pkvalue());
+    qDebug().nospace() << "Save/update: " << qUtf8Printable(m_tablename)
+                       << ", " << pkname() << "=" << pkvalue();
+    return exec(m_db, sql, args);
 }
 
 
@@ -146,6 +278,6 @@ QDebug operator<<(QDebug debug, const DatabaseObject& d)
     // use m_record.field(i) to get the field at position i
     // use m_record.value(i) to get the value at position i
     // use m_record.value(fieldname) similarly
-    // debug << "... Creation: " << qPrintable(d.sqlCreateTable());
+    // debug << "... Creation: " << qUtf8Printable(d.sqlCreateTable());
     return debug;
 }

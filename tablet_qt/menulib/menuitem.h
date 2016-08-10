@@ -23,9 +23,9 @@ public:
 public:
     MenuItem(QWidget* parent = 0);
     ~MenuItem() {}
-    QWidget* getRowWidget();
-    void validate();
-    void act(CamcopsApp& app);
+    QWidget* getRowWidget() const;
+    void validate() const;
+    void act(CamcopsApp& app) const;
 
     static MenuItem makeFuncItem(const QString& title,
                                  const ActionFunction& func);
@@ -40,7 +40,7 @@ public:
     QString m_icon;
     bool m_arrow_on_right;
     bool m_copyright_details_pending;
-    bool m_not_implemented;
+    bool m_implemented;
     bool m_unsupported;
     bool m_crippled;
     bool m_needs_privilege;
@@ -55,8 +55,8 @@ public:
     bool m_chain;
 //    SOMETHING m_chainList;
     bool m_labelOnly;
-    bool getNotImplemented() const;
-    void setNotImplemented(bool not_implemented);
+    bool isImplemented() const;
+    void setImplemented(bool implemented);
 };
 
 

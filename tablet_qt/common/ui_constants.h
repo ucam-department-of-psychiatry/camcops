@@ -10,20 +10,12 @@ const int SPACE = 4;
 const int BIGSPACE = 16;
 const int MEDIUMSPACE = 8;
 
-// ============================================================================
-// Images
-// ============================================================================
-
-#define camcopsIcon(filename) (":/images/camcops/" filename)
-
-const QString ICON_TABLE_CHILDARROW = camcopsIcon("hasChild.png");
-const QString ICON_CHAIN = camcopsIcon("chain.png");
 
 // ============================================================================
 // Stylesheets
 // ============================================================================
 
-#define camcopsStylesheet(filename) (":/stylesheets/" filename)
+#define stylesheetFilename(filename) (":/stylesheets/" filename)
 
-const QString CSS_CAMCOPS = camcopsStylesheet("camcops.css");
-const QString CSS_CAMCOPS_MENU = camcopsStylesheet("camcops_menu.css");
+const QString CSS_CAMCOPS = stylesheetFilename("camcops.css");
+const QString CSS_CAMCOPS_MENU = stylesheetFilename("camcops_menu.css");

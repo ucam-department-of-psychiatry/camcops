@@ -28,6 +28,24 @@ import urllib.request
 
 log = logging.getLogger(__name__)
 
+QT_CONFIG_COMMON_ARGS = [  # use "configure -help" to list all of them
+    "-opensource", "-confirm-license",
+    "-qt-sql-sqlite",  # SQLite
+    "-no-warnings-are-errors",
+    "-nomake", "tests",
+    "-nomake", "examples",
+    "-skip", "qttranslations",
+    "-skip", "qtwebkit",
+    "-skip", "qtserialport",
+    "-skip", "qtwebkit-examples",
+]
+OPENSSL_COMMON_OPTIONS = [
+    "shared",  # make .so files (needed by Qt sometimes) as well as .a
+    "no-ssl2",  # SSL-2 is broken
+    "no-ssl3",  # SSL-3 is broken. Is an SSL-3 build required for TLS 1.2?
+    # "no-comp",  # disable compression independent of zlib
+]
+
 
 # =============================================================================
 # Ancillary
@@ -80,10 +98,10 @@ def fetch_qt(args):
     if isdir(args.qt_src_gitdir):
         log.info("Using Qt source in {}".format(args.qt_src_gitdir))
         return
-    log.info("Fetching Qt source from {} into {}".format(args.qt_git_url,
-                                                         args.qt_src_gitdir))
+    log.info("Fetching Qt source from {} (branch {}) into {}".format(
+        args.qt_git_url, args.qt_git_branch, args.qt_src_gitdir))
     os.chdir(args.src_rootdir)
-    run(["git", "clone", args.qt_git_url])
+    run(["git", "clone", "--branch", args.qt_git_branch, args.qt_git_url])
     os.chdir(args.qt_src_gitdir)
     run(["perl", "init-repository"])
 
@@ -113,7 +131,7 @@ def build_openssl_android(args, cpu):
     rootdir, workdir = get_openssl_rootdir_workdir(args, "android_" + cpu)
     targets = [join(workdir, "libssl.so"),
                join(workdir, "libcrypto.so")]
-    if all(isfile(x) for x in targets):
+    if not args.force and all(isfile(x) for x in targets):
         log.info("OpenSSL: All targets exist already: {}".format(targets))
         return
 
@@ -167,11 +185,7 @@ def build_openssl_android(args, cpu):
     # running "config".
     # However, it does seem to be screwing up. Let's try Configure instead.
 
-    common_ssl_config_options = [
-        "shared",  # make .so files (needed by Qt sometimes) as well as .a
-        "no-ssl2",  # SSL-2 is broken
-        "no-ssl3",  # SSL-3 is broken. Is an SSL-3 build required for TLS 1.2?
-        # "no-comp",  # disable compression independent of zlib
+    common_ssl_config_options = OPENSSL_COMMON_OPTIONS + [
         "no-hw",  # disable hardware support ("useful on mobile devices")
         "no-engine",  # disable hardware support ("useful on mobile devices")
     ]
@@ -221,7 +235,7 @@ def build_openssl_android(args, cpu):
         configure_args = [
             "shared",
             target_os,
-        ] + common_ssl_config_options
+        ] + OPENSSL_COMMON_OPTIONS
         # print(env)
         # sys.exit(1)
         run(["perl", join(workdir, "Configure")] + configure_args, env)
@@ -272,7 +286,7 @@ def build_openssl_linux(args):
     rootdir, workdir = get_openssl_rootdir_workdir(args, "linux")
     targets = [join(workdir, "libssl.so"),
                join(workdir, "libcrypto.so")]
-    if all(isfile(x) for x in targets):
+    if not args.force and all(isfile(x) for x in targets):
         log.info("OpenSSL: All targets exist already: {}".format(targets))
         return
 
@@ -289,12 +303,7 @@ def build_openssl_linux(args):
 
     os.chdir(workdir)
 
-    common_ssl_config_options = [
-        "shared",  # make .so files (needed by Qt sometimes) as well as .a
-        "no-ssl2",  # SSL-2 is broken
-        "no-ssl3",  # SSL-3 is broken. Is an SSL-3 build required for TLS 1.2?
-        # "no-comp",  # disable compression independent of zlib
-    ]
+    common_ssl_config_options = OPENSSL_COMMON_OPTIONS
 
     target_os = "linux-x86_64"
     configure_args = [
@@ -342,7 +351,7 @@ def build_qt_android(args, cpu, static_openssl=False, verbose=True):
     installdir = join(args.root_dir, "qt_android_{}_install".format(cpu))
 
     targets = [join(installdir, "bin", "qmake")]
-    if all(isfile(x) for x in targets):
+    if not args.force and all(isfile(x) for x in targets):
         log.info("Qt: All targets exist already: {}".format(targets))
         return installdir
 
@@ -359,25 +368,20 @@ def build_qt_android(args, cpu, static_openssl=False, verbose=True):
     os.chdir(builddir)
     qt_config_args = [
         join(args.qt_src_gitdir, "configure"),
+
+        # General options:
+        "-I", openssl_include_root,  # OpenSSL
+        "-L", openssl_lib_root,  # OpenSSL
+        "-prefix", installdir,
+
+        # Android options:
         "-android-sdk", args.android_sdk_root,
         "-android-ndk", args.android_ndk_root,
         "-android-ndk-host", args.ndk_host,
         "-android-arch", android_arch_short,
         "-android-toolchain-version", args.toolchain_version,
-        "-I", openssl_include_root,  # OpenSSL
-        "-L", openssl_lib_root,  # OpenSSL
-        "-opensource", "-confirm-license",
-        "-prefix", installdir,
-        "-qt-sql-sqlite",  # SQLite
-        "-no-warnings-are-errors",
-        "-nomake", "tests",
-        "-nomake", "examples",
-        "-skip", "qttranslations",
-        "-skip", "qtwebkit",
-        "-skip", "qtserialport",
-        "-skip", "qtwebkit-examples",
         "-xplatform", "android-g++",
-    ]
+    ] + QT_CONFIG_COMMON_ARGS
     if static_openssl:
         qt_config_args.append("-openssl-linked")  # OpenSSL
     else:
@@ -439,20 +443,16 @@ def build_qt_linux(args, static_openssl=False, verbose=True):
     os.chdir(builddir)
     qt_config_args = [
         join(args.qt_src_gitdir, "configure"),
+
+        # General options:
         "-I", openssl_include_root,  # OpenSSL
         "-L", openssl_lib_root,  # OpenSSL
-        "-opensource", "-confirm-license",
         "-prefix", installdir,
-        "-qt-sql-sqlite",  # SQLite
+
+        # Linux options:
         "-qt-xcb",  # use XCB source bundled with Qt?
-        "-no-warnings-are-errors",
-        "-nomake", "tests",
-        "-nomake", "examples",
-        "-skip", "qttranslations",
-        "-skip", "qtwebkit",
-        "-skip", "qtserialport",
-        "-skip", "qtwebkit-examples",
-    ]
+        "-gstreamer", "1.0",  # gstreamer version (for Unix); requires sudo apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev  # noqa
+    ] + QT_CONFIG_COMMON_ARGS
     if static_openssl:
         qt_config_args.append("-openssl-linked")  # OpenSSL
     else:
@@ -494,6 +494,7 @@ def main():
     # Qt
     default_qt_src_dirname = "qt5"
     default_qt_git_url = "git://code.qt.io/qt/qt5.git"
+    default_qt_git_branch = "5.7.0"
 
     # OpenSSL
     default_openssl_version = "openssl-1.0.2h"
@@ -514,9 +515,11 @@ def main():
         "--linux_x86_64", action="store_true",
         help="An architecture target")
 
+    # General
     parser.add_argument(
         "--nparallel", type=int, default=8,
         help="Number of parallel processes to run")
+    parser.add_argument("--force", action="store_true", help="Force build")
 
     # Qt
     parser.add_argument(
@@ -530,6 +533,9 @@ def main():
     parser.add_argument(
         "--qt_git_url", default=default_qt_git_url,
         help="Qt Git URL (default: {})".format(default_qt_git_url))
+    parser.add_argument(
+        "--qt_git_branch", default=default_qt_git_branch,
+        help="Qt Git branch (default: {})".format(default_qt_git_branch))
 
     # Android
     parser.add_argument(

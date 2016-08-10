@@ -24,18 +24,26 @@ public:
     void addField(const Field& field);
     void setAllDirty();
     // Field access:
-    QVariant getValue(const QString& fieldname);
+    QVariant getValue(const QString& fieldname) const;
     bool setValue(const QString& fieldname, const QVariant& value);  // returns: changed?
     // Loading, saving:
     bool loadByPk(int pk);
     // Debugging:
-    void requireField(const QString& fieldname);
+    void requireField(const QString& fieldname) const;
     QString sqlCreateTable() const;
     QString tablename() const;
-    QString pkname();
-    void touch();
+    QString pkname() const;
+    QVariant pkvalue() const;
+    bool isPkNull() const;
+    void touch(bool only_if_unset = false);
     void save();
     void makeTable();
+    void nullify();
+
+protected:
+    bool saveInsert();
+    bool saveUpdate();
+    void clearAllDirty();
 
 protected:
     QString m_tablename;  // also used as key for extra strings
@@ -45,7 +53,7 @@ protected:
     typedef QMapIterator<QString, Field> MapIteratorType;
     typedef QMutableMapIterator<QString, Field> MutableMapIteratorType;
     MapType m_record;
-    QString m_cached_pkname;
+    mutable QString m_cached_pkname;
 
 public:
     friend QDebug operator<<(QDebug debug, const DatabaseObject& d);

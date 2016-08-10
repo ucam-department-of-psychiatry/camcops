@@ -1,8 +1,8 @@
 #pragma once
 #include "common/camcops_app.h"
 #include "lib/netcore.h"
-#include "menulib/menu_item.h"
-#include "menulib/menu_window.h"
+#include "menulib/menuitem.h"
+#include "menulib/menuwindow.h"
 
 
 class TestMenu : public MenuWindow

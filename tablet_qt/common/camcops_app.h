@@ -5,8 +5,16 @@
 #include "tasklib/taskfactory.h"
 
 
-class CamcopsApp
+enum class LockState {
+    Unlocked,
+    Locked,
+    Privileged
+};
+
+
+class CamcopsApp : public QApplication
 {
+    Q_OBJECT
 public:
     CamcopsApp(int& argc, char *argv[]);
     ~CamcopsApp();
@@ -17,10 +25,17 @@ public:
     QSqlDatabase m_db;
     QSqlDatabase m_sysdb;
     TaskFactory* m_p_task_factory;
-    bool m_privileged;
-    bool m_patient_locked;
+    bool privileged() const;
+    bool locked() const;
+    LockState lockstate() const;
+    void unlock();
+    void lock();
+    void grantPrivilege();
+signals:
+    void lockStateChanged(LockState lockstate);
 protected:
+    void setLockState(LockState lockstate);
+    LockState m_lockstate;
     QMainWindow* m_p_main_window;
     QStackedWidget* m_p_window_stack;
-    QApplication* m_p_qapp;
 };

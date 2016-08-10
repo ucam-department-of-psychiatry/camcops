@@ -1,6 +1,6 @@
 #pragma once
 #include "common/camcops_app.h"
-#include "menulib/menu_window.h"
+#include "menulib/menuwindow.h"
 
 
 class MainMenu : public MenuWindow

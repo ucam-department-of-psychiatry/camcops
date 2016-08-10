@@ -2,7 +2,6 @@
 #define DEBUG_SQL_RESULT
 
 #include "dbfunc.h"
-#include <QDebug>
 #include <QDir>
 #include <QSqlError>
 #include <QSqlQuery>
@@ -60,11 +59,11 @@ void openDatabaseOrDie(QSqlDatabase& db, const QString& filename)
     QString fullpath = QDir::cleanPath(dir + "/" + filename);
     db.setDatabaseName(fullpath);
     if (db.open()) {
-        qDebug() << "Opened database:" << fullpath;
+        qInfo() << "Opened database:" << fullpath;
     } else {
         QSqlError error = db.lastError();
-        qDebug() << "Last database error:" << error;
-        qDebug() << "Database:" << db;
+        qCritical() << "Last database error:" << error;
+        qCritical() << "Database:" << db;
         QString errmsg = QString(
             "Error: connection to database failed. Database = %1; "
             "error number = %2; error text = %3"
@@ -76,7 +75,7 @@ void openDatabaseOrDie(QSqlDatabase& db, const QString& filename)
 
 QString delimit(const QString& fieldname)
 {
-    // Delimts a table or fieldname, by ANSI SQL standards.
+    // Delimits a table or fieldname, by ANSI SQL standards.
 
     // http://www.sqlite.org/lang_keywords.html
     // http://stackoverflow.com/questions/2901453/sql-standard-to-escape-column-names
@@ -96,21 +95,26 @@ void addArgs(QSqlQuery& query, const QList<QVariant>& args)
 }
 
 
-bool execQuery(QSqlQuery& query, const QString& sql,
-                const QList<QVariant>& args)
+bool execQuery(QSqlQuery& query,
+               const QString& sql,
+               const QList<QVariant>& args)
 {
     // Executes an existing query (in place) with the supplied SQL/args.
+    // THIS IS THE MAIN POINT THROUGH WHICH ALL QUERIES SHOULD BE EXECUTED.
     query.prepare(sql);
     addArgs(query, args);
 
 #ifdef DEBUG_SQL_QUERY
-    qDebug() << "Executing:" << qPrintable(sql);
+    qDebug() << "Executing:" << qUtf8Printable(sql);
     qDebug() << "... args:" << args;
 #endif
 
-#ifdef DEBUG_SQL_RESULT
     bool success = query.exec();
-    if (query.isSelect() && !query.isForwardOnly()) {
+    if (!success) {
+        qCritical() << "Query failed; error was:" << query.lastError();
+    }
+#ifdef DEBUG_SQL_RESULT
+    if (success && query.isSelect() && !query.isForwardOnly()) {
         qDebug() << "Resultset preview:";
         int row = 0;
         while (query.next()) {
@@ -128,10 +132,8 @@ bool execQuery(QSqlQuery& query, const QString& sql,
         }
         query.seek(QSql::BeforeFirstRow);  // the original starting position
     }
-    return success;
-#else
-    return query.exec();
 #endif
+    return success;
     // The return value is boolean (success?).
     // Use query.next() to iterate through a result set; see
     // http://doc.qt.io/qt-4.8/sql-sqlstatements.html
@@ -145,7 +147,9 @@ bool execQuery(QSqlQuery& query, const QString& sql)
 }
 
 
-bool exec(QSqlDatabase& db, const QString& sql, const QList<QVariant>& args)
+bool exec(const QSqlDatabase& db,
+          const QString& sql,
+          const QList<QVariant>& args)
 {
     // Executes a new query and returns success.
     QSqlQuery query(db);
@@ -154,15 +158,17 @@ bool exec(QSqlDatabase& db, const QString& sql, const QList<QVariant>& args)
 
 
 // http://stackoverflow.com/questions/2816293/passing-optional-parameter-by-reference-in-c
-bool exec(QSqlDatabase& db, const QString& sql)
+bool exec(const QSqlDatabase& db,
+          const QString& sql)
 {
     QList<QVariant> args;
     return exec(db, sql, args);
 }
 
 
-QVariant dbFetchFirstValue(QSqlDatabase& db, const QString& sql,
-                              const QList<QVariant>& args)
+QVariant dbFetchFirstValue(const QSqlDatabase& db,
+                           const QString& sql,
+                           const QList<QVariant>& args)
 {
     QSqlQuery query(db);
     execQuery(query, sql, args);
@@ -173,16 +179,15 @@ QVariant dbFetchFirstValue(QSqlDatabase& db, const QString& sql,
 }
 
 
-QVariant dbFetchFirstValue(QSqlDatabase& db, const QString& sql)
+QVariant dbFetchFirstValue(const QSqlDatabase& db, const QString& sql)
 {
     QList<QVariant> args;
     return dbFetchFirstValue(db, sql, args);
 }
 
 
-int dbFetchInt(QSqlDatabase& db, const QString& sql,
-                 const QList<QVariant>& args,
-                 int failureDefault)
+int dbFetchInt(const QSqlDatabase& db, const QString& sql,
+               const QList<QVariant>& args, int failureDefault)
 {
     // Executes the specified SQL/args and returns the integer value of the
     // first field of the first result (or failureDefault).
@@ -195,15 +200,15 @@ int dbFetchInt(QSqlDatabase& db, const QString& sql,
 }
 
 
-int dbFetchInt(QSqlDatabase& db, const QString& sql,
-                 int failureDefault)
+int dbFetchInt(const QSqlDatabase& db, const QString& sql,
+               int failureDefault)
 {
     QList<QVariant> args;
     return dbFetchInt(db, sql, args, failureDefault);
 }
 
 
-bool tableExists(QSqlDatabase& db, const QString& tablename)
+bool tableExists(const QSqlDatabase& db, const QString& tablename)
 {
     QString sql = "SELECT COUNT(*) FROM sqlite_master "
                   "WHERE type='table' AND name=?";
@@ -212,7 +217,7 @@ bool tableExists(QSqlDatabase& db, const QString& tablename)
 }
 
 
-QList<SqlitePragmaInfo> getPragmaInfo(QSqlDatabase& db,
+QList<SqlitePragmaInfo> getPragmaInfo(const QSqlDatabase& db,
                                       const QString& tablename)
 {
     QString sql = QString("PRAGMA table_info(%1)").arg(delimit(tablename));
@@ -251,7 +256,7 @@ QStringList fieldNamesFromPragmaInfo(const QList<SqlitePragmaInfo>& infolist,
 }
 
 
-QStringList dbFieldNames(QSqlDatabase& db, const QString& tablename)
+QStringList dbFieldNames(const QSqlDatabase& db, const QString& tablename)
 {
     QList<SqlitePragmaInfo> infolist = getPragmaInfo(db, tablename);
     return fieldNamesFromPragmaInfo(infolist);
@@ -285,7 +290,7 @@ QString makeCreationSqlFromPragmaInfo(const QString& tablename,
 }
 
 
-QString dbTableDefinitionSql(QSqlDatabase& db, const QString& tablename)
+QString dbTableDefinitionSql(const QSqlDatabase& db, const QString& tablename)
 {
     QString sql = "SELECT sql FROM sqlite_master WHERE tbl_name=?";
     QList<QVariant> args({tablename});
@@ -293,12 +298,12 @@ QString dbTableDefinitionSql(QSqlDatabase& db, const QString& tablename)
 }
 
 
-bool createIndex(QSqlDatabase& db, const QString& indexname,
+bool createIndex(const QSqlDatabase& db, const QString& indexname,
                  const QString& tablename, QStringList fieldnames)
 {
     if (!tableExists(db, tablename)) {
-        qDebug() << "WARNING: ignoring createIndex for non-existent table:"
-                 << tablename;
+        qWarning() << "WARNING: ignoring createIndex for non-existent table:"
+                   << tablename;
         return false;
     }
     for (int i = 0; i < fieldnames.size(); ++i) {
@@ -310,13 +315,13 @@ bool createIndex(QSqlDatabase& db, const QString& indexname,
 }
 
 
-void renameColumns(QSqlDatabase& db, QString tablename,
+void renameColumns(const QSqlDatabase& db, QString tablename,
                    const QList<QPair<QString, QString>>& from_to,
-                   QString tempsuffix)
+                   const QString& tempsuffix)
 {
     if (!tableExists(db, tablename)) {
-        qDebug() << "WARNING: ignoring renameColumns for non-existent table:"
-                 << tablename;
+        qWarning() << "WARNING: ignoring renameColumns for non-existent table:"
+                   << tablename;
         return;
     }
     QString creation_sql = dbTableDefinitionSql(db, tablename);
@@ -382,11 +387,12 @@ void renameColumns(QSqlDatabase& db, QString tablename,
 }
 
 
-void renameTable(QSqlDatabase& db, const QString& from, const QString& to)
+void renameTable(const QSqlDatabase& db, const QString& from,
+                 const QString& to)
 {
     if (!tableExists(db, from)) {
-        qDebug() << "WARNING: ignoring renameTable for non-existent table:"
-                 << from;
+        qWarning() << "WARNING: ignoring renameTable for non-existent table:"
+                   << from;
         return;
     }
     if (tableExists(db, to)) {
@@ -398,14 +404,14 @@ void renameTable(QSqlDatabase& db, const QString& from, const QString& to)
 }
 
 
-void changeColumnTypes(QSqlDatabase& db, const QString& tablename,
+void changeColumnTypes(const QSqlDatabase& db, const QString& tablename,
                        const QList<QPair<QString, QString>>& changes,
-                       QString tempsuffix)
+                       const QString& tempsuffix)
 {
     // changes: pairs <fieldname, newtype>
     if (!tableExists(db, tablename)) {
-        qDebug() << "WARNING: ignoring changeColumnTypes for "
-                    "non-existent table:" << tablename;
+        qWarning() << "WARNING: ignoring changeColumnTypes for non-existent "
+                      "table:" << tablename;
         return;
     }
     QString dummytable = tablename + tempsuffix;
@@ -464,8 +470,8 @@ QString sqlCreateTable(const QString& tablename, const QList<Field>& fieldlist)
 }
 
 
-void createTable(QSqlDatabase& db, const QString& tablename,
-                 const QList<Field>& fieldlist, QString tempsuffix)
+void createTable(const QSqlDatabase& db, const QString& tablename,
+                 const QList<Field>& fieldlist, const QString& tempsuffix)
 {
     QString creation_sql = sqlCreateTable(tablename, fieldlist);
     if (!tableExists(db, tablename)) {
@@ -528,7 +534,7 @@ void createTable(QSqlDatabase& db, const QString& tablename,
         return;
     }
     qDebug().nospace() << "createTable amendment plan for" << tablename
-                       << ": " << planlist;
+                             << ": " << planlist;
     // Deleting columns: http://www.sqlite.org/faq.html#q11
     // ... also http://stackoverflow.com/questions/8442147/
     // Basically, requires (a) copy data to temporary table; (b) drop original;

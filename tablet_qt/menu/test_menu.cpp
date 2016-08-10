@@ -1,11 +1,10 @@
 #include "test_menu.h"
-#include <QDebug>
 #include <QMediaPlayer>
 
 
 TestMenu::TestMenu(CamcopsApp& app)
     : MenuWindow(app),
-      m_p_netmgr(NULL)
+      m_p_netmgr(nullptr)
 {
     m_items = {
         MenuItem::makeFuncItem(
@@ -32,7 +31,8 @@ TestMenu::~TestMenu()
 
 void TestMenu::testDebugConsole()
 {
-    qDebug() << "Testing debug console. This is the entire test. Success.";
+    qInfo() << "Testing debug console. This is the entire test. Success.";
+    alert("Success! See the debug console for output.");
 }
 
 
@@ -49,8 +49,13 @@ void TestMenu::testSound()
 
 void TestMenu::testHttps()
 {
+    // To find bad certificates, see
+    // https://www.ssllabs.com/ssltest/analyze.html
+    QString url = "https://egret.psychol.cam.ac.uk/index.html";  // good cert
+    // QString url = "https://www.veltigroup.com/";  // bad cert (then Forbidden)
+
     delete m_p_netmgr;
-    m_p_netmgr = new NetworkManager("https://egret.psychol.cam.ac.uk/index.html");
+    m_p_netmgr = new NetworkManager(url);
     m_p_netmgr->testHttps();
 }
 

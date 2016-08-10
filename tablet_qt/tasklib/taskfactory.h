@@ -7,6 +7,7 @@
 #include "common/db_constants.h"
 #include "lib/uifunc.h"
 
+
 // Two of the best articles on this sort of factory method in C++:
 // - http://accu.org/index.php/journals/597
 // - http://www.drdobbs.com/cpp/self-registering-objects-in-c/184410633?pgno=1

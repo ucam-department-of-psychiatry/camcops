@@ -2,7 +2,6 @@
 #define DEBUG_NETWORK_REPLIES
 
 #include "netcore.h"
-#include <QDebug>
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkReply>
@@ -15,55 +14,63 @@ NetworkManager::NetworkManager(const QString& url) :
 {
 }
 
-
 void NetworkManager::testHttp()
 {
-#ifdef DEBUG_NETWORK_REQUESTS
-    qDebug() << "Testing HTTP connection to:" << m_url;
-#endif
+    qInfo() << "Testing HTTP connection to:" << m_url;
     QNetworkAccessManager* manager = new QNetworkAccessManager();
     QNetworkRequest request;
     // URL
     request.setUrl(QUrl(m_url));
     // Callback
     connect(manager, &QNetworkAccessManager::finished,
-            this, &NetworkManager::replyFinished);
+            this, &NetworkManager::testReplyFinished);
     // GET
     manager->get(request);
-#ifdef DEBUG_NETWORK_REQUESTS
-    qDebug() << "... sent request to: " << m_url;
-#endif
+    qInfo() << "... sent request to: " << m_url;
 }
 
 
-void NetworkManager::testHttps()
+void NetworkManager::testHttps(bool ignore_ssl_errors)
 {
-#ifdef DEBUG_NETWORK_REQUESTS
-    qDebug() << "Testing HTTPS connection to:" << m_url;
-#endif
+    qInfo() << "Testing HTTPS connection to:" << m_url;
     QNetworkAccessManager* manager = new QNetworkAccessManager();
     QNetworkRequest request;
     // SSL
     QSslConfiguration config = QSslConfiguration::defaultConfiguration();
     config.setProtocol(QSsl::TlsV1_2);
+    // NB the OpenSSL version must also support it; see also
+    // https://bugreports.qt.io/browse/QTBUG-31230
+    // ... but working fine with manually compiled OpenSSL
     request.setSslConfiguration(config);
     // URL
     request.setUrl(QUrl(m_url));
     // Callback
     // http://wiki.qt.io/New_Signal_Slot_Syntax
     connect(manager, &QNetworkAccessManager::finished,
-            this, &NetworkManager::replyFinished);
+            this, &NetworkManager::testReplyFinished);
+    if (ignore_ssl_errors) {
+        connect(manager, &QNetworkAccessManager::sslErrors,
+                this, &NetworkManager::sslIgnoringErrorHandler);
+    }
     // GET
     manager->get(request);
-#ifdef DEBUG_NETWORK_REQUESTS
-    qDebug() << "... sent request to: " << m_url;
-#endif
+    qInfo() << "... sent request to: " << m_url;
 }
 
 
-void NetworkManager::replyFinished(QNetworkReply* reply)
+void NetworkManager::sslIgnoringErrorHandler(QNetworkReply* reply,
+                                             const QList<QSslError> & errlist)
 {
-#ifdef DEBUG_NETWORK_REPLIES
-    qDebug() << "Result from" << m_url <<":" << reply->readAll();
-#endif
+    qWarning() << "Ignoring SSL errors:" << errlist;
+    reply->ignoreSslErrors();
+}
+
+
+void NetworkManager::testReplyFinished(QNetworkReply* reply)
+{
+    if (reply->error() == QNetworkReply::NoError) {
+        qInfo() << "Result from" << m_url <<":" << reply->readAll();
+    } else {
+        qWarning() << "Network error:" << reply->errorString();
+    }
 }

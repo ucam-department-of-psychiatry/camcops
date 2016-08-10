@@ -17,11 +17,12 @@ Field::Field(const QString& name, QVariant::Type type,
         m_unique = true;
         m_mandatory = true;
     }
-    if (type == QVariant::String || type == QVariant::Char) {
-        m_default_value = "";  // empty string, not NULL, as per Django
-    } else {
-        m_default_value = QVariant(type);  // NULL
-    }
+//    if (type == QVariant::String || type == QVariant::Char) {
+//        m_default_value = "";  // empty string, not NULL (as per Django)
+//    } else {
+//        m_default_value = QVariant(type);  // NULL
+//    }
+    m_default_value = QVariant(type);  // NULL
     m_value = m_default_value;
 }
 
@@ -54,6 +55,7 @@ void Field::setMandatory(bool mandatory)
 void Field::setDefaultValue(QVariant value)
 {
     m_default_value = value;
+    m_default_value.convert(m_type);
     if (!m_set) {
         m_value = m_default_value;
     }
@@ -84,7 +86,7 @@ bool Field::isMandatory() const
 }
 
 
-void Field::setFromDatabase(const QVariant& db_value)
+void Field::setFromDatabaseValue(const QVariant& db_value)
 {
     switch (m_type) {
         case QVariant::DateTime:
@@ -94,14 +96,18 @@ void Field::setFromDatabase(const QVariant& db_value)
             m_value = db_value;
             break;
     }
+    m_value.convert(m_type);
     m_dirty = false;
 }
 
 
-QVariant Field::getDatabaseValue()
+QVariant Field::getDatabaseValue() const
 {
     switch (m_type) {
         case QVariant::DateTime:
+            if (m_value.isNull()) {
+                return QVariant(QString());  // NULL string
+            }
             return QVariant(datetimeToIsoMs(m_value.toDateTime()));
         default:
             return m_value;
@@ -175,8 +181,26 @@ bool Field::setValue(const QVariant& value)
         m_dirty = true;
     }
     m_value = value;
+    m_value.convert(m_type);
     m_set = true;
     return m_dirty;
+}
+
+
+bool Field::nullify()
+{
+    if (!m_set || !isNull()) {
+        m_dirty = true;
+    }
+    m_value = QVariant(m_type);
+    m_set = true;
+    return m_dirty;
+}
+
+
+bool Field::isNull() const
+{
+    return m_value.isNull();
 }
 
 

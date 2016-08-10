@@ -9,7 +9,7 @@ void testTask(CamcopsApp& app, const QString& tablename)
 {
     Task* p_task = app.m_p_task_factory->build(tablename);
     if (!p_task) {
-        qDebug() << "Failed to create task: " << qPrintable(tablename);
+        qCritical() << "Failed to create task: " << qUtf8Printable(tablename);
         return;
     }
     qDebug() << *p_task;

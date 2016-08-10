@@ -1,5 +1,4 @@
 #include "task.h"
-#include <QDebug>
 #include <QVariant>
 
 
@@ -16,12 +15,21 @@ Task::Task(const QSqlDatabase& db) :
 
 void Task::loadByPk(int loadPk)
 {
-    if (m_p_dbobject == NULL) {
+    if (m_p_dbobject == nullptr) {
         return;
     }
     if (loadPk != NONEXISTENT_PK) {
         m_p_dbobject->loadByPk(loadPk);
     }
+}
+
+
+void Task::save()
+{
+    if (m_p_dbobject == nullptr) {
+        return;
+    }
+    m_p_dbobject->save();
 }
 
 

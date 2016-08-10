@@ -58,11 +58,15 @@ QStringList TaskFactory::tablenames() const
 
 Task* TaskFactory::build(const QString& key, int load_pk) const
 {
-    qDebug() << "TaskFactoryBuild(" << key << ", " << load_pk << ")";
     if (!m_map.contains(key)) {
-        qDebug() << "... no such task";
-        return NULL;
+        qWarning().nospace() << "TaskFactoryBuild(" << key << ", "
+                             << load_pk << ")" << "... no such task";
+        return nullptr;
     }
+    qDebug().nospace() << "TaskFactoryBuild(" << key << ", "
+
+
+                       << load_pk << ")";
     ProxyType proxy = m_map[key].proxy;
     return proxy->createObject(m_app.m_db, load_pk);
 }
@@ -76,6 +80,7 @@ void TaskFactory::makeAllTables() const
         ProxyType proxy = it.value().proxy;
         Task* p_task = proxy->createObject(m_app.m_db);
         p_task->makeTables();
+        p_task->save(); // *** FOR TESTING ONLY!
         delete p_task;
     }
 }
@@ -84,7 +89,7 @@ void TaskFactory::makeAllTables() const
 QString TaskFactory::getShortName(const QString& key) const
 {
     if (!m_map.contains(key)) {
-        return NULL;
+        return nullptr;
     }
     return m_map[key].shortname;
 }
@@ -93,7 +98,7 @@ QString TaskFactory::getShortName(const QString& key) const
 QString TaskFactory::getLongName(const QString& key) const
 {
     if (!m_map.contains(key)) {
-        return NULL;
+        return nullptr;
     }
     return m_map[key].longname;
 }

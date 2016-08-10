@@ -1,5 +1,4 @@
 #include "datetimefunc.h"
-#include <QDebug>
 #include <QTimeZone>
 
 // http://stackoverflow.com/questions/21976264/qt-isodate-formatted-date-time-including-timezone
@@ -14,6 +13,9 @@ QString datetimeToIsoMs(const QDateTime& dt)
     // In Qt, BEWARE:
     //      dt;  // QDateTime(2016-06-02 10:28:06.708 BST Qt::TimeSpec(LocalTime))
     //      dt.toString(Qt::ISODate);  // "2016-06-02T10:28:06" -- DROPS timezone
+    if (!dt.isValid()) {
+        return "";
+    }
     QString localtime = dt.toString("yyyy-MM-ddTHH:mm:ss.zzz");
     int offset_from_utc_s = dt.offsetFromUtc();
     // FOR TESTING: offsetFromUtcSec = -(3600 * 2.5);

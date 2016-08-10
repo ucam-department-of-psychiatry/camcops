@@ -1,9 +1,9 @@
 #pragma once
 #include <QListWidgetItem>
- #include <QMainWindow>
+#include <QMainWindow>
 #include <QWidget>
 #include "common/camcops_app.h"
-#include "menulib/menu_item.h"
+#include "menulib/menuitem.h"
 
 
 class MenuWindow : public QWidget
@@ -23,4 +23,5 @@ protected:
     CamcopsApp& m_app;
     bool m_top;
     QVector<MenuItem> m_items;
+    QListWidget* m_p_listwidget;
 };

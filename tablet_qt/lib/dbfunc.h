@@ -29,7 +29,7 @@ public:
 class FieldCreationPlan {
 public:
     QString name;
-    const Field* intended_field = NULL;
+    const Field* intended_field = nullptr;
     bool exists_in_db = false;
     QString existing_type;
     bool add = false;
@@ -54,42 +54,44 @@ void addArgs(QSqlQuery& query, const QList<QVariant>& args);
 bool execQuery(QSqlQuery& query, const QString& sql,
                 const QList<QVariant>& args);
 bool execQuery(QSqlQuery& query, const QString& sql);
-bool exec(QSqlDatabase& db, const QString& sql);
+bool exec(const QSqlDatabase& db, const QString& sql);
 bool exec(const QSqlDatabase& db,
           const QString& sql,
           const QList<QVariant>& args);
 QVariant dbFetchFirstValue(QSqlDatabase& db, const QString& sql,
                               const QList<QVariant>& args);
 QVariant dbFetchFirstValue(QSqlDatabase& db, const QString& sql);
-int dbFetchInt(QSqlDatabase& db,
-                 const QString& sql,
-                 const QList<QVariant>& args = QList<QVariant>(),
-                 int failureDefault = -1);
-int dbFetchInt(QSqlDatabase& db, const QString& sql,
-                 int failureDefault = -1);
+int dbFetchInt(const QSqlDatabase& db,
+               const QString& sql,
+               const QList<QVariant>& args = QList<QVariant>(),
+               int failureDefault = -1);
+int dbFetchInt(const QSqlDatabase& db,
+               const QString& sql,
+               int failureDefault = -1);
 
 // Database structure
 
-bool tableExists(QSqlDatabase& db, const QString& tablename);
-QList<SqlitePragmaInfo> getPragmaInfo(QSqlDatabase& db,
+bool tableExists(const QSqlDatabase& db, const QString& tablename);
+QList<SqlitePragmaInfo> getPragmaInfo(const QSqlDatabase& db,
                                       const QString& tablename);
 QStringList fieldNamesFromPragmaInfo(const QList<SqlitePragmaInfo>& infolist,
                                      bool delimited = false);
-QStringList dbFieldNames(QSqlDatabase& db, const QString& tablename);
+QStringList dbFieldNames(const QSqlDatabase& db, const QString& tablename);
 QString makeCreationSqlFromPragmaInfo(const QString& tablename,
                                       const QList<SqlitePragmaInfo>& infolist);
-QString dbTableDefinitionSql(QSqlDatabase& db, const QString& tablename);
-bool createIndex(QSqlDatabase& db, const QString& indexname,
+QString dbTableDefinitionSql(const QSqlDatabase& db, const QString& tablename);
+bool createIndex(const QSqlDatabase& db, const QString& indexname,
                  const QString& tablename, QStringList fieldnames);
-void renameColumns(QSqlDatabase& db, QString tablename,
+void renameColumns(const QSqlDatabase& db, QString tablename,
                    const QList<QPair<QString, QString>>& from_to,
-                   QString tempsuffix = TABLE_TEMP_SUFFIX);
-void renameTable(QSqlDatabase& db, const QString& from, const QString& to);
-void changeColumnTypes(QSqlDatabase& db, const QString& tablename,
+                   const QString& tempsuffix = TABLE_TEMP_SUFFIX);
+void renameTable(const QSqlDatabase& db, const QString& from,
+                 const QString& to);
+void changeColumnTypes(const QSqlDatabase& db, const QString& tablename,
                        const QList<QPair<QString, QString>>& field_newtype,
-                       QString tempsuffix = TABLE_TEMP_SUFFIX);
+                       const QString& tempsuffix = TABLE_TEMP_SUFFIX);
 QString sqlCreateTable(const QString& tablename,
                        const QList<Field>& fieldlist);
-void createTable(QSqlDatabase& db, const QString& tablename,
+void createTable(const QSqlDatabase& db, const QString& tablename,
                  const QList<Field>& fieldlist,
-                 QString tempsuffix = TABLE_TEMP_SUFFIX);
+                 const QString& tempsuffix = TABLE_TEMP_SUFFIX);

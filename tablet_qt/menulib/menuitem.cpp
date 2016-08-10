@@ -1,13 +1,12 @@
 #include <QDebug>
 #include <QLabel>
 #include <QHBoxLayout>
-#include <QPixmap>
 #include <QPushButton>
 #include <QSize>
 #include <QUrl>
 #include <QVBoxLayout>
-#include "menu_item.h"
-#include "menu_window.h"
+#include "menuitem.h"
+#include "menuwindow.h"
 #include "common/ui_constants.h"
 #include "lib/uifunc.h"
 
@@ -16,33 +15,32 @@ MenuItem::MenuItem(QWidget* parent) :
     m_p_parent(parent),
     m_arrow_on_right(false),
     m_copyright_details_pending(false),
-    m_not_implemented(false),
+    m_implemented(true),
     m_unsupported(false),
     m_crippled(false),
     m_needs_privilege(false),
     m_not_if_locked(false),
-    m_menu(NULL),
-    m_func(NULL),
+    m_menu(nullptr),
+    m_func(nullptr),
     m_chain(false),
     m_labelOnly(false)
 {
 }
 
 
-void MenuItem::validate()
+void MenuItem::validate() const
 {
     // stopApp("test stop");
 }
 
 
-QWidget* MenuItem::getRowWidget()
+QWidget* MenuItem::getRowWidget() const
 {
     QWidget* row = new QWidget();
     QHBoxLayout* rowlayout = new QHBoxLayout();
 
-    QString icon_filename = m_chain ? ICON_CHAIN : m_icon;
-    if (!icon_filename.isEmpty()) {
-        QLabel* iconLabel = iconWidget(icon_filename);
+    if (m_chain) {
+        QLabel* iconLabel = ICON_CHAIN(row);
         rowlayout->addWidget(iconLabel);
     } else {
         rowlayout->addSpacing(ICONSIZE);
@@ -59,7 +57,7 @@ QWidget* MenuItem::getRowWidget()
 
     if (m_arrow_on_right) {
         rowlayout->addStretch();
-        QLabel* iconLabel = iconWidget(ICON_TABLE_CHILDARROW, false);
+        QLabel* iconLabel = ICON_TABLE_CHILDARROW(nullptr);
         rowlayout->addWidget(iconLabel);
     }
 
@@ -68,9 +66,9 @@ QWidget* MenuItem::getRowWidget()
 }
 
 
-void MenuItem::act(CamcopsApp& app)
+void MenuItem::act(CamcopsApp& app) const
 {
-    if (m_not_implemented) {
+    if (!m_implemented) {
         alert(tr("Not implemented yet!"));
         return;
     }
@@ -78,7 +76,7 @@ void MenuItem::act(CamcopsApp& app)
         alert(tr("Not supported on this platform!"));
         return;
     }
-    if (m_needs_privilege && !app.m_privileged) {
+    if (m_needs_privilege && !app.privileged()) {
         alert(tr("You must set Privileged Mode first"));
         return;
     }
@@ -86,7 +84,7 @@ void MenuItem::act(CamcopsApp& app)
         qDebug() << "Label-only row touched; ignored";
         return;
     }
-    if (m_not_if_locked && app.m_patient_locked) {
+    if (m_not_if_locked && app.locked()) {
         alert(tr("Can’t perform this action when CamCOPS is locked"),
               tr("Unlock first"));
         return;
@@ -100,7 +98,8 @@ void MenuItem::act(CamcopsApp& app)
         m_func();
         return;
     }
-    alert("boo! No other action specified ***");
+    qWarning() << "Menu item selected but no action specified:"
+               << m_title;
 }
 
 
@@ -126,12 +125,12 @@ MenuItem MenuItem::makeMenuItem(const QString& title,
     return item;
 }
 
-bool MenuItem::getNotImplemented() const
+bool MenuItem::isImplemented() const
 {
-    return m_not_implemented;
+    return m_implemented;
 }
 
-void MenuItem::setNotImplemented(bool not_implemented)
+void MenuItem::setImplemented(bool implemented)
 {
-    m_not_implemented = not_implemented;
+    m_implemented = implemented;
 }

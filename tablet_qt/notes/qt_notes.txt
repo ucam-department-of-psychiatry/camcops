@@ -58,7 +58,6 @@ Licensing
 ===============================================================================
 UI elements
 ===============================================================================
-
 - Core choice is QML (with Javascript) versus QWidgets (with C++).
   I'd prefer C++, for speed and compilation checks.
 - Also, there's significant work in the C++/QML interface: e.g.
@@ -122,10 +121,9 @@ Confirmed:
 - Custom-compiled Qt on Android x86 working (inc. fast emulator)
 - Custom-compiled Qt on Linux (x86 64) working
 
-- Custom compilation required for SQLite
-- Custom compilation required for SSL
+- Custom compilation required for SQLite - done.
+- Custom compilation required for SSL - done.
 
-*** SQLITE NOT YET WORKING; NEEDS QT RECOMPILE
 - Works on Windows 10 native 64-bit with predistributed Qt (as a .exe)
     Visual Studio 2015 Community
     ... which doesn't install C++ by default!
@@ -162,58 +160,30 @@ Compiling, linking
   http://doc.qt.io/qtcreator/creator-faq.html
 - /usr/bin/ld: cannot find -lGL
   must do: sudo apt-get install libgl1-mesa-dev
+- Undefined reference to vtable...
+  Just added a Q_OBJECT macro? You need to re-run qmake from the Build menu.
+  http://stackoverflow.com/questions/2555816/qt-linker-error-undefined-reference-to-vtable
 
 ===============================================================================
 Core dump
 ===============================================================================
 - http://stackoverflow.com/questions/2065912/core-dumped-but-core-file-is-not-in-current-directory
   ulimit -c unlimited
+- use also:
+    gdb PROGNAME
+    run
+    bt
 
 ===============================================================================
-Menu structure, class factories, ...
+Database objects
 ===============================================================================
-
-- no harm in encoding menus fairly manually
-- TaskFactory works fine
-- *** main thing to consider then is the Questionnaire implementation
-    - a questionnaire has
-        simple properties
-        a list of pages
-            a page has a list of elements
-            ...
-        can pass in callbacks
-
-    - can't (realistically) use named parameters:
-        https://www.reddit.com/r/programming/comments/19bul0/c11_named_parameters_using_operator_suffixes_and/
-    - so use this idiom:
-        - use setters that return *this
-          https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Named_Parameter
-    - for list construction, C++11 saves us:
-        http://stackoverflow.com/questions/18998488/what-is-the-right-way-to-initialize-a-qlist
-        http://stackoverflow.com/questions/16948382/how-to-enable-c11-in-qt-creator
-
-    - so: nice way to specify a list?
-        e.g.
-            elements = {
-                QuestionText("my text").setBold(true),
-                QuestionMCQ(
-                    "q10",
-                    {
-                        KeyValuePair("blah0", 0),
-                        KeyValuePair("blah1", 1)
-                    }
-                )
-            }
-    - so we have setters that return *this
-      https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Named_Parameter
-
-- *** and field member variables
+- field member variables: initial thoughts:
 
     - QDjango?
         note also http://doc.qt.io/qt-4.8/qmetaobject.html#details
         ... no
     - a custom DatabaseObject class with fieldname/variant mappings?
-        ... no
+        ... no ... YES, see below.
     - QSqlField / QSqlRecord?
         ... yes?
     - ODB? http://www.codesynthesis.com/products/odb/doc/manual.xhtml
@@ -221,23 +191,6 @@ Menu structure, class factories, ...
     - Seems natural to subclass QSqlField, but then we couldn't use it
       in non-pointer ways e.g. for QSqlRecord
       ... so we should implement our own.
-
-- HTTPS
-
-- *** webviews
-    http://stackoverflow.com/questions/19282255/qwebview-on-qt4-and-qt5
-    http://doc.qt.io/qt-5/qtwebenginewidgets-qtwebkitportingguide.html
-    http://doc.qt.io/qt-4.8/qtwebkit-bridge.html -- old?
-    https://www.kdab.com/qt-webchannel-bridging-gap-cqml-web/
-    http://doc.qt.io/qt-5.6/qwebchannel.html
-    http://doc.qt.io/qt-5.6/qtwebchannel-standalone-example.html
-    http://doc.qt.io/qt-5.6/qtwebchannel-javascript.html
-    http://stackoverflow.com/questions/9615194/is-it-possible-to-call-a-c-function-from-javascript-in-a-qwebview
-
-
-===============================================================================
-Database objects
-===============================================================================
 
 - Since C++ static methods cannot be virtual, the approaches possible to
   override field lists are:
@@ -290,9 +243,129 @@ Database objects
 
 
 ===============================================================================
+Audio
+===============================================================================
+- Out-of-the-box Qt 5.7:
+    Trying to play: QUrl("qrc:///sounds/camcops/portal_still_alive.mp3")
+    GStreamer; Unable to pause - "qrc:///sounds/camcops/portal_still_alive.mp3"
+    Warning: "No decoder available for type 'application/x-id3'."
+    ^^^ RNC: ERROR MESSAGE TYPE 2: gstreamer present but not properly configured
+    Error: "Your GStreamer installation is missing a plug-in."
+  ... not helped by:
+    sudo apt install gstreamer1.0-plugins-bad
+    sudo apt install ffmpeg
+  ... not helped by:
+    sudo apt install gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav ffmpeg
+    # http://doc.qt.io/qt-5/linux-requirements.html
+  Others having same problem:
+    https://forum.qt.io/topic/43468/qtmultimedia-media-player-example-can-t-play-any-video-on-ubuntu-14-04/11
+  Use:
+    strace ./camcops_tablet 2>&1 | grep gstreamer
+  ... shows that gstreamer 0.1, not 1.0, being loaded.
+  THEREFORE:
+    sudo apt install gstreamer0.1-plugins-good gstreamer0.1-plugins-bad gstreamer0.1-plugins-ugly gstreamer0.1-libav ffmpeg
+  ... no, not accepted by Ubuntu 16.04
+  SO:
+      $ sudo apt remove libgstreamer0.10-0
+      Reading package lists... Done
+      Building dependency tree
+      Reading state information... Done
+      The following packages were automatically installed and are no longer required:
+        libcdaudio1 libenca0 libfaac0 libpam-freerdp libslv2-9 thin-client-config-agent
+      Use 'sudo apt autoremove' to remove them.
+      The following packages will be REMOVED
+        gstreamer0.10-alsa gstreamer0.10-plugins-base gstreamer0.10-plugins-base-apps gstreamer0.10-tools libgstreamer-plugins-base0.10-0 libgstreamer0.10-0
+      0 to upgrade, 0 to newly install, 6 to remove and 42 not to upgrade.
+      After this operation, 7,625 kB disk space will be freed.
+      Do you want to continue? [Y/n]
+   THEN Qt says:
+      defaultServiceProvider::requestService(): no service found for - "org.qt-project.qt.mediaplayer"
+      ^^^ RNC: ERROR MESSAGE TYPE 1 = can't find gstreamer
+      Trying to play: QUrl("qrc:///sounds/camcops/portal_still_alive.mp3")
+   UNDO things with:
+      sudo apt-get install libgstreamer0.10-0 gstreamer0.10-alsa gstreamer0.10-plugins-base gstreamer0.10-plugins-base-apps gstreamer0.10-tools libgstreamer-plugins-base0.10-0 libgstreamer0.10-0
+   SO SEE THIS:
+      http://doc.qt.io/qt-5/whatsnew55.html
+      ... configure Qt with -gstreamer 1.0
+      ... needs: sudo apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+
+
+===============================================================================
+Logging
+===============================================================================
+- Docs say qDebug() etc. include __FILE__, __LINE__...
+  http://doc.qt.io/qt-5/qmessagelogger.html
+  but they don't.
+- There's the qCDebug() etc. framework using
+    header
+        #include <QLoggingCategory>
+        Q_DECLARE_LOGGING_CATEGORY(something)
+    source
+        Q_LOGGING_CATEGORY(something)
+        qCDebug(something) << blah;
+- But also qSetMessagePattern, which does more.
+
+
+===============================================================================
+Menu structure, class factories, ...
+===============================================================================
+- no harm in encoding menus fairly manually
+- TaskFactory works fine
+- *** main thing to consider then is the Questionnaire implementation
+    - a questionnaire has
+        simple properties
+        a list of pages
+            a page has a list of elements
+            ...
+        can pass in callbacks
+
+    - can't (realistically) use named parameters:
+        https://www.reddit.com/r/programming/comments/19bul0/c11_named_parameters_using_operator_suffixes_and/
+    - so use this idiom:
+        - use setters that return *this
+          https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Named_Parameter
+    - for list construction, C++11 saves us:
+        http://stackoverflow.com/questions/18998488/what-is-the-right-way-to-initialize-a-qlist
+        http://stackoverflow.com/questions/16948382/how-to-enable-c11-in-qt-creator
+
+    - so: nice way to specify a list?
+        e.g.
+            elements = {
+                QuestionText("my text").setBold(true),
+                QuestionMCQ(
+                    "q10",
+                    {
+                        KeyValuePair("blah0", 0),
+                        KeyValuePair("blah1", 1)
+                    }
+                )
+            }
+    - so we have setters that return *this
+      https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Named_Parameter
+
+- *** webviews
+    http://stackoverflow.com/questions/19282255/qwebview-on-qt4-and-qt5
+    http://doc.qt.io/qt-5/qtwebenginewidgets-qtwebkitportingguide.html
+    http://doc.qt.io/qt-4.8/qtwebkit-bridge.html -- old?
+    https://www.kdab.com/qt-webchannel-bridging-gap-cqml-web/
+    http://doc.qt.io/qt-5.6/qwebchannel.html
+    http://doc.qt.io/qt-5.6/qtwebchannel-standalone-example.html
+    http://doc.qt.io/qt-5.6/qtwebchannel-javascript.html
+    http://stackoverflow.com/questions/9615194/is-it-possible-to-call-a-c-function-from-javascript-in-a-qwebview
+
+
+===============================================================================
+Questionnaire
+===============================================================================
+- For elements, use SomeElement(...).bold().italic(), using method chaining
+  https://en.wikipedia.org/wiki/Method_chaining
+  ... the essence being "return *this;"
+  ***
+
+===============================================================================
 TO DO
 ===============================================================================
-- SQL framework, inc. translation to textual format for DateTime values
+- *** MenuHeader, with signals
 - For SQL bulk reads (uploading), see
     http://stackoverflow.com/questions/18829018/qt-sql-get-column-type-and-name-from-table-without-record
 - Factory for registering things that must create tables
@@ -311,20 +384,3 @@ http://www.qtcentre.org/threads/62787-Accessing-android-camera
 http://doc.qt.io/qt-5/platform-notes-android.html
 
 ... ARE POPUPS ALWAYS FULL-SCREEN?
-
-BUTTON IMAGES for hover/touched:
-
-- border image method:
-    http://stackoverflow.com/questions/18388098/qt-pushbutton-hover-pressed-icons
-    http://stackoverflow.com/questions/20207224/styling-a-qpushbutton-with-two-images - ... ALSO CHECK DOUBLE COLON USED FOR SPECIFIERS (re Android apparent ListView failure) unless that's a typo - pressed image method:
-   http://stackoverflow.com/questions/12391125/qpushbutton-css-pressed
-
-LISTVIEW STYLESHEETS:
-- may be relevant:
-   http://www.qtcentre.org/threads/35930-QListView-stylesheet-problem
-
-- [QTBUG-31230] QSslSocket::setProtocol() does not work for TLS v1.2 - Qt Bug Tracker
-  https://bugreports.qt.io/browse/QTBUG-31230
-
-- Redirect qDebug, qWarning, qCritical etc.
-  http://stackoverflow.com/questions/4954140/how-to-redirect-qdebug-qwarning-qcritical-etc-output

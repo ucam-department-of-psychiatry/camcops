@@ -9,6 +9,9 @@ class Task
 public:
     Task(const QSqlDatabase& db);
     virtual ~Task() {}
+    // ------------------------------------------------------------------------
+    // INFO
+    // ------------------------------------------------------------------------
     // Things that should ideally be class methods but we'll do by instance:
     virtual QString tablename() const = 0;
     virtual QString shortname() const = 0;
@@ -18,16 +21,26 @@ public:
     virtual bool hasRespondent() const { return false; }
     virtual bool prohibitsCommercial() const { return false; }
     virtual bool prohibitsResearch() const { return false; }
-    virtual void makeTables();
-    virtual void makeAncillaryTables() {}
-    // No need to override, but do need to CALL FROM CONSTRUCTOR:
-    void loadByPk(int loadPk = NONEXISTENT_PK);
+    // ------------------------------------------------------------------------
+    // Other info
+    // ------------------------------------------------------------------------
     // Setters:
     void setEditable(bool editable);
     void setCrippled(bool crippled);
     // Getters:
     bool isEditable() const { return m_editable; }
     bool isCrippled() const { return m_crippled; }
+    // ------------------------------------------------------------------------
+    // Tables
+    // ------------------------------------------------------------------------
+    virtual void makeTables();
+    virtual void makeAncillaryTables() {}
+    // ------------------------------------------------------------------------
+    // Field access
+    // ------------------------------------------------------------------------
+    // No need to override, but do need to CALL FROM CONSTRUCTOR:
+    void loadByPk(int loadPk = NONEXISTENT_PK);
+    void save();
     // Field access:
     QVariant getValue(const QString& fieldname);
     bool setValue(const QString& fieldname, const QVariant& value);  // returns: changed?

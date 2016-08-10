@@ -29,10 +29,8 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-    menulib/menu_window.cpp \
     menu/main_menu.cpp \
     lib/uifunc.cpp \
-    menulib/menu_item.cpp \
     lib/filefunc.cpp \
     tasklib/taskfactory.cpp \
     tasklib/task.cpp \
@@ -46,12 +44,13 @@ SOURCES += main.cpp\
     menu/test_menu.cpp \
     tasklib/inittasks.cpp \
     common/camcops_app.cpp \
-    tasklib/taskmainrecord.cpp
+    tasklib/taskmainrecord.cpp \
+    menulib/menuheader.cpp \
+    menulib/menuitem.cpp \
+    menulib/menuwindow.cpp
 
 HEADERS  += \
-    menulib/menu_window.h \
     menu/main_menu.h \
-    menulib/menu_item.h \
     common/ui_constants.h \
     lib/uifunc.h \
     lib/filefunc.h \
@@ -68,7 +67,10 @@ HEADERS  += \
     tasklib/inittasks.h \
     common/db_constants.h \
     common/camcops_app.h \
-    tasklib/taskmainrecord.h
+    tasklib/taskmainrecord.h \
+    menulib/menuheader.h \
+    menulib/menuitem.h \
+    menulib/menuwindow.h
 
 CONFIG += debug
 CONFIG += mobility

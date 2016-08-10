@@ -6,10 +6,9 @@ MenuWindow {
     padding: 0;
 }
 
-QMainWindow {
-    background-color: red;
+QMainWindow {  /* not relevant because QStackedWidget superimposes */
 }
 
-QStackedWidget {
+QStackedWidget {  /* the stack of menus; thus, the background of all menus */
     background-color: green;
 }

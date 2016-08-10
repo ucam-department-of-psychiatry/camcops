@@ -10,8 +10,10 @@ QListWidget::item {
     background: black;
 }
 QListWidget::item:selected {
+    /* excellent diagnostic to see if this stylesheet is in use */
     background: blue;
 }
+
 QVBoxLayout {
     border: 0;
     margin: 0;
@@ -25,6 +27,7 @@ MenuTitle {
     margin: 0;
     padding: 0;
 }
+
 MenuSubtitle {
     /* background-color: red; */
     border: 1px solid blue;
