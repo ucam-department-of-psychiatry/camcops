@@ -6,6 +6,8 @@
 #include "common/db_constants.h"
 #include "lib/field.h"
 
+class FieldRef;
+
 
 class DatabaseObject
 {
@@ -16,29 +18,35 @@ public:
                    const QSqlDatabase db,
                    bool has_default_pk_field = true,
                    bool has_modification_timestamp = true);
+    // Adding fields
     void addField(const QString& fieldname,
                   QVariant::Type type,
                   bool mandatory = false,
                   bool unique = false,
                   bool pk = false);
     void addField(const Field& field);
-    void setAllDirty();
+    QStringList getFieldnames() const;
     // Field access:
     QVariant getValue(const QString& fieldname) const;
     bool setValue(const QString& fieldname, const QVariant& value);  // returns: changed?
+    FieldRef fieldRef(const QString& fieldname);
     // Loading, saving:
-    bool loadByPk(int pk);
+    virtual bool load(int pk);
+    virtual void setFromQuery(const QSqlQuery& query,
+                              bool correct_order = false);
+    virtual bool save();
+    void nullify();  // set all fields to null values
+    bool isPkNull() const;
+    void touch(bool only_if_unset = false);
+    void setAllDirty();
     // Debugging:
     void requireField(const QString& fieldname) const;
+    // DDL
     QString sqlCreateTable() const;
     QString tablename() const;
     QString pkname() const;
     QVariant pkvalue() const;
-    bool isPkNull() const;
-    void touch(bool only_if_unset = false);
-    void save();
     void makeTable();
-    void nullify();
 
 protected:
     bool saveInsert();

@@ -6,7 +6,7 @@
 #include <QPushButton>  // for minimal_qt_app
 #endif
 #include <QDebug>  // for qSetMessagePattern
-#include "common/camcops_app.h"
+#include "common/camcopsapp.h"
 
 #ifdef FULL_LOG_FORMAT
 const QString message_pattern =

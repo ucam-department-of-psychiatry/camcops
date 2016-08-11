@@ -85,6 +85,26 @@ QString delimit(const QString& fieldname)
 }
 
 
+void addWhereClause(const QMap<QString, QVariant>& where,
+                    QString& output_sql,
+                    QList<QVariant>& output_args)
+{
+    if (where.isEmpty()) {
+        return;
+    }
+    QStringList whereclauses;
+    QMapIterator<QString, QVariant> it(where);
+    while (it.hasNext()) {
+        it.next();
+        QString wherefield = it.key();
+        QVariant wherevalue = it.value();
+        whereclauses.append(delimit(wherefield) + "=?");
+        output_args.append(wherevalue);
+    }
+    output_sql += " WHERE " + whereclauses.join(" AND ");
+}
+
+
 void addArgs(QSqlQuery& query, const QList<QVariant>& args)
 {
     // Adds arguments to a query from a QList.
@@ -564,3 +584,5 @@ void createTable(const QSqlDatabase& db, const QString& tablename,
     exec(db, QString("DROP TABLE %1").arg(delimited_dummytable));
     exec(db, "COMMIT");
 }
+
+

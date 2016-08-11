@@ -27,8 +27,8 @@ TaskFactory::TaskFactory(CamcopsApp& app) :
 void TaskFactory::registerTask(ProxyType proxy)
 {
     m_initial_proxy_list.append(proxy);
-    // We are here from WITHIN A CONSTRUCTOR, so don't call back
-    // to the proxy.
+    // We are here from WITHIN A CONSTRUCTOR (TaskProxy::TaskProxy), so don't
+    // call back to the proxy.
 }
 
 
@@ -36,15 +36,14 @@ void TaskFactory::finishRegistration()
 {
     for (int i = 0; i < m_initial_proxy_list.size(); ++i) {
         ProxyType proxy = m_initial_proxy_list[i];
-        Task* p_task = proxy->createObject(m_app.m_db);
+        TaskPtr p_task = proxy->createObject(m_app.m_db);
         TaskCache cache;
         cache.tablename = p_task->tablename();
         cache.shortname = p_task->shortname();
         cache.longname = p_task->longname();
         cache.proxy = proxy;
-        m_map.insert(cache.tablename, cache);
+        m_map.insert(cache.tablename, cache);  // tablenames are the keys
         m_tablenames.append(cache.tablename);
-        delete p_task;
     }
     m_tablenames.sort();
 }
@@ -56,12 +55,12 @@ QStringList TaskFactory::tablenames() const
 }
 
 
-Task* TaskFactory::build(const QString& key, int load_pk) const
+TaskPtr TaskFactory::build(const QString& key, int load_pk) const
 {
     if (!m_map.contains(key)) {
         qWarning().nospace() << "TaskFactoryBuild(" << key << ", "
                              << load_pk << ")" << "... no such task";
-        return nullptr;
+        return TaskPtr(nullptr);
     }
     qDebug().nospace() << "TaskFactoryBuild(" << key << ", "
 
@@ -78,10 +77,9 @@ void TaskFactory::makeAllTables() const
     while (it.hasNext()) {
         it.next();
         ProxyType proxy = it.value().proxy;
-        Task* p_task = proxy->createObject(m_app.m_db);
+        TaskPtr p_task = proxy->createObject(m_app.m_db);
         p_task->makeTables();
         p_task->save(); // *** FOR TESTING ONLY!
-        delete p_task;
     }
 }
 
@@ -89,6 +87,7 @@ void TaskFactory::makeAllTables() const
 QString TaskFactory::getShortName(const QString& key) const
 {
     if (!m_map.contains(key)) {
+        qWarning() << "Bad task: " << key;
         return nullptr;
     }
     return m_map[key].shortname;
@@ -98,6 +97,7 @@ QString TaskFactory::getShortName(const QString& key) const
 QString TaskFactory::getLongName(const QString& key) const
 {
     if (!m_map.contains(key)) {
+        qWarning() << "Bad task: " << key;
         return nullptr;
     }
     return m_map[key].longname;
@@ -106,10 +106,33 @@ QString TaskFactory::getLongName(const QString& key) const
 
 void TaskFactory::makeTables(const QString& key) const
 {
-    Task* p_task = build(key);
+    TaskPtr p_task = build(key);
     if (!p_task) {
         return;
     }
     p_task->makeTables();
-    delete p_task;
+}
+
+
+TaskPtrList TaskFactory::fetch(const QString& tablename, int patient_id)
+{
+    if (tablename.isEmpty()) {
+        // All tasks
+        TaskPtrList tasklist;
+        MapIteratorType it(m_map);
+        while (it.hasNext()) {
+            it.next();
+            ProxyType proxy = it.value().proxy;
+            tasklist += proxy->fetch(m_app.m_db, patient_id);
+        }
+        return tasklist;
+    }
+    if (!m_map.contains(tablename)) {
+        // Duff task
+        qWarning() << "Bad task: " << tablename;
+        return TaskPtrList();
+    }
+    // Specific task
+    ProxyType proxy = m_map[tablename].proxy;
+    return proxy->fetch(m_app.m_db, patient_id);
 }

@@ -1,5 +1,5 @@
 #include "tasks/phq9.h"
-#include "common/camcops_app.h"
+#include "common/camcopsapp.h"
 
 
 void InitTasks(TaskFactory& factory)

@@ -1,9 +1,10 @@
-#include "test_menu.h"
+#include "testmenu.h"
 #include <QMediaPlayer>
 
 
 TestMenu::TestMenu(CamcopsApp& app)
     : MenuWindow(app),
+      m_app(app),
       m_p_netmgr(nullptr)
 {
     m_items = {
@@ -19,6 +20,9 @@ TestMenu::TestMenu(CamcopsApp& app)
         MenuItem::makeFuncItem(
             "Test network (HTTPS/SSL)",
             std::bind(&TestMenu::testHttps, this)),
+        MenuItem::makeFuncItem(
+            "Test PHQ9 creation",
+            std::bind(&TestMenu::testPhq9Creation, this)),
     };
     buildMenu();
 }
@@ -54,16 +58,27 @@ void TestMenu::testHttps()
     QString url = "https://egret.psychol.cam.ac.uk/index.html";  // good cert
     // QString url = "https://www.veltigroup.com/";  // bad cert (then Forbidden)
 
-    delete m_p_netmgr;
-    m_p_netmgr = new NetworkManager(url);
+    m_p_netmgr = QSharedPointer<NetworkManager>(new NetworkManager(url));
     m_p_netmgr->testHttps();
 }
 
 
 void TestMenu::testHttp()
 {
-    delete m_p_netmgr;
-    m_p_netmgr = new NetworkManager("http://egret.psychol.cam.ac.uk/index.html");
+    QString url = "http://egret.psychol.cam.ac.uk/index.html";
+    m_p_netmgr = QSharedPointer<NetworkManager>(new NetworkManager(url));
     m_p_netmgr->testHttp();
 }
 
+
+void TestMenu::testPhq9Creation()
+{
+    QString tablename = "phq9";
+    TaskPtr p_task = m_app.m_p_task_factory->build(tablename);
+    if (!p_task) {
+        qCritical() << "Failed to create task: " << qUtf8Printable(tablename);
+        return;
+    }
+    qDebug() << *p_task;
+    alert("Done; see console");
+}

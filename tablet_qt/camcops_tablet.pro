@@ -29,7 +29,6 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-    menu/main_menu.cpp \
     lib/uifunc.cpp \
     lib/filefunc.cpp \
     tasklib/taskfactory.cpp \
@@ -40,18 +39,17 @@ SOURCES += main.cpp\
     lib/dbfunc.cpp \
     lib/field.cpp \
     lib/datetimefunc.cpp \
-    tests/master_test.cpp \
-    menu/test_menu.cpp \
     tasklib/inittasks.cpp \
-    common/camcops_app.cpp \
-    tasklib/taskmainrecord.cpp \
     menulib/menuheader.cpp \
     menulib/menuitem.cpp \
-    menulib/menuwindow.cpp
+    menulib/menuwindow.cpp \
+    questionnairelib/namevaluepair.cpp \
+    lib/fieldref.cpp \
+    menu/mainmenu.cpp \
+    menu/testmenu.cpp \
+    common/camcopsapp.cpp
 
 HEADERS  += \
-    menu/main_menu.h \
-    common/ui_constants.h \
     lib/uifunc.h \
     lib/filefunc.h \
     tasklib/taskfactory.h \
@@ -62,15 +60,17 @@ HEADERS  += \
     lib/dbfunc.h \
     lib/field.h \
     lib/datetimefunc.h \
-    tests/master_test.h \
-    menu/test_menu.h \
     tasklib/inittasks.h \
-    common/db_constants.h \
-    common/camcops_app.h \
-    tasklib/taskmainrecord.h \
     menulib/menuheader.h \
     menulib/menuitem.h \
-    menulib/menuwindow.h
+    menulib/menuwindow.h \
+    questionnairelib/namevaluepair.h \
+    lib/fieldref.h \
+    menu/testmenu.h \
+    menu/mainmenu.h \
+    common/camcopsapp.h \
+    common/dbconstants.h \
+    common/uiconstants.h
 
 CONFIG += debug
 CONFIG += mobility

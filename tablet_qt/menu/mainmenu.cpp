@@ -1,7 +1,7 @@
-#include "main_menu.h"
+#include "mainmenu.h"
 #include <QDebug>
 #include "menulib/menuitem.h"
-#include "menu/test_menu.h"
+#include "menu/testmenu.h"
 
 
 MainMenu::MainMenu(CamcopsApp& app)

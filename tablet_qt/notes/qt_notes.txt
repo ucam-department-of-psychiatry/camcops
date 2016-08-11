@@ -243,6 +243,16 @@ Database objects
 
 
 ===============================================================================
+Pointer management
+===============================================================================
+- QScopedPointer: for very short lifetimes
+- QSharedPointer - MAIN ONE, I THINK
+- QWeakPointer - weak reference to a shared pointer
+- QPointer - guarded pointers to QObject
+- QSharedDataPointer - pointer to an implicitly shared object
+    http://doc.qt.io/qt-5/implicit-sharing.html
+
+===============================================================================
 Audio
 ===============================================================================
 - Out-of-the-box Qt 5.7:

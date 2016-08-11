@@ -2,7 +2,7 @@
 #include <QListWidgetItem>
 #include <QMainWindow>
 #include <QWidget>
-#include "common/camcops_app.h"
+#include "common/camcopsapp.h"
 #include "menulib/menuitem.h"
 
 

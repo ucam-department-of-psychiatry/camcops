@@ -25,6 +25,7 @@ public:
     bool isNull() const;
     void setFromDatabaseValue(const QVariant& db_value); // SQLite -> C++
     QVariant getDatabaseValue() const; // C++ -> SQLite
+    bool isDirty() const;
     void setDirty();
     void clearDirty();
     friend QDebug operator<<(QDebug debug, const Field& f);

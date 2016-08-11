@@ -1,71 +1,56 @@
 #include "task.h"
 #include <QVariant>
 
+const QString PATIENT_FK_FIELDNAME = "patient_id";
 
-Task::Task(const QSqlDatabase& db) :
-    m_db(db),
-    m_editable(true),
-    m_crippled(false)
+
+Task::Task(const QSqlDatabase& db,
+           const QString& tablename,
+           bool is_anonymous,
+           bool has_clinician,
+           bool has_respondent) :
+    DatabaseObject(tablename, db, true, true)
 {
     // WATCH OUT: you can't call a derived class's overloaded function
     // here; its vtable is incomplete.
     // http://stackoverflow.com/questions/6561429/calling-virtual-function-of-derived-class-from-base-class-constructor
-}
 
+    addField("when_created", QVariant::DateTime);
+    addField("firstexit_is_finish", QVariant::Bool);
+    addField("firstexit_is_abort", QVariant::Bool);
+    addField("when_firstexit", QVariant::DateTime);
+    Field editing_time_s("editing_time_s", QVariant::Double);
+    editing_time_s.setDefaultValue(0.0);
+    addField(editing_time_s);
 
-void Task::loadByPk(int loadPk)
-{
-    if (m_p_dbobject == nullptr) {
-        return;
+    if (!is_anonymous) {
+        addField(PATIENT_FK_FIELDNAME, QVariant::Int);
     }
-    if (loadPk != NONEXISTENT_PK) {
-        m_p_dbobject->loadByPk(loadPk);
+    if (has_clinician) {
+        addField("clinician_specialty", QVariant::String);
+        addField("clinician_name", QVariant::String);
+        addField("clinician_professional_registration", QVariant::String);
+        addField("clinician_post", QVariant::String);
+        addField("clinician_service", QVariant::String);
+        addField("clinician_contact_details", QVariant::String);
     }
-}
-
-
-void Task::save()
-{
-    if (m_p_dbobject == nullptr) {
-        return;
+    if (has_respondent) {
+        addField("respondent_name", QVariant::String);
+        addField("respondent_relationship", QVariant::String);
     }
-    m_p_dbobject->save();
-}
-
-
-void Task::setEditable(bool editable)
-{
-    m_editable = editable;
-}
-
-
-void Task::setCrippled(bool crippled)
-{
-    m_crippled = crippled;
-}
-
-
-QVariant Task::getValue(const QString& fieldname)
-{
-    return m_p_dbobject->getValue(fieldname);
-}
-
-
-bool Task::setValue(const QString& fieldname, const QVariant& value)
-{
-    return m_p_dbobject->setValue(fieldname, value);
 }
 
 
 void Task::makeTables()
 {
-    m_p_dbobject->makeTable();
+    makeTable();
     makeAncillaryTables();
 }
 
-
-QDebug operator<<(QDebug debug, const Task& t)
+bool Task::load(int pk)
 {
-    debug.nospace() << *t.m_p_dbobject;
-    return debug;
+    if (pk == NONEXISTENT_PK) {
+        return false;
+    }
+    return DatabaseObject::load(pk);
 }

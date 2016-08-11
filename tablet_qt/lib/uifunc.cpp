@@ -7,7 +7,7 @@
 #include <QToolButton>
 
 #include "uifunc.h"
-#include "common/ui_constants.h"
+#include "common/uiconstants.h"
 
 // ============================================================================
 // QPixmap loader

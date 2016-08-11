@@ -1,5 +1,5 @@
 #pragma once
-#include "common/camcops_app.h"
+#include "common/camcopsapp.h"
 #include "menulib/menuwindow.h"
 
 

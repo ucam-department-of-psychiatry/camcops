@@ -1,4 +1,5 @@
 #pragma once
+#include <QSharedPointer>
 #include "common/camcops_app.h"
 #include "lib/netcore.h"
 #include "menulib/menuitem.h"
@@ -13,10 +14,12 @@ public:
     TestMenu(CamcopsApp& app);
     ~TestMenu();
 protected:
+    void testPhq9Creation();
     void testDebugConsole();
     void testSound();
     void testHttp();
     void testHttps();
 protected:
-    NetworkManager* m_p_netmgr;
+    CamcopsApp& m_app;
+    QSharedPointer<NetworkManager> m_p_netmgr;
 };

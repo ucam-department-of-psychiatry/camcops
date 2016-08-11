@@ -1,6 +1,6 @@
 #pragma once
 #include <QWidget>
-#include "common/camcops_app.h"
+#include "common/camcopsapp.h"
 
 
 class MenuHeader : public QWidget

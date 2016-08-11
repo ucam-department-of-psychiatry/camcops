@@ -7,6 +7,7 @@
 #include <QStringList>
 #include "lib/dbfunc.h"
 #include "lib/uifunc.h"
+#include "fieldref.h"
 
 
 DatabaseObject::DatabaseObject(const QString& tablename,
@@ -60,6 +61,18 @@ void DatabaseObject::addField(const Field& field)
 }
 
 
+QStringList DatabaseObject::getFieldnames() const
+{
+    QStringList fieldnames;
+    MapIteratorType i(m_record);
+    while (i.hasNext()) {
+        i.next();
+        fieldnames.append(i.key());
+    }
+    return fieldnames;
+}
+
+
 void DatabaseObject::requireField(const QString &fieldname) const
 {
     if (!m_record.contains(fieldname)) {
@@ -97,7 +110,7 @@ void DatabaseObject::touch(bool only_if_unset)
     }
     // Don't set the timestamp value with setValue()! Infinite loop.
     QDateTime now = QDateTime::currentDateTime();
-    m_record[MODIFICATION_TIMESTAMP_FIELDNAME].setValue(now);
+    m_record[MODIFICATION_TIMESTAMP_FIELDNAME].setValue(now);  // also: dirty
 }
 
 
@@ -156,7 +169,7 @@ void DatabaseObject::nullify()
 }
 
 
-bool DatabaseObject::loadByPk(int pk)
+bool DatabaseObject::load(int pk)
 {
     QList<QVariant> args;
     QStringList fieldnames;
@@ -172,17 +185,12 @@ bool DatabaseObject::loadByPk(int pk)
     );
     args.append(pk);
     QSqlQuery query(m_db);
-    bool success = exec(m_db, sql, args);
+    bool success = execQuery(query, sql, args);
     if (success) {
         // Note: QMap iteration is ordered; http://doc.qt.io/qt-5/qmap.html
         // So we can re-iterate in the same way:
-        MutableMapIteratorType it(m_record);
-        int field_index = -1;
-        while (it.hasNext()) {
-            it.next();
-            ++field_index;
-            it.value().setFromDatabaseValue(query.value(field_index));
-        }
+        query.next();
+        setFromQuery(query, true);
     } else {
         nullify();
     }
@@ -190,15 +198,39 @@ bool DatabaseObject::loadByPk(int pk)
 }
 
 
-void DatabaseObject::save()
+void DatabaseObject::setFromQuery(const QSqlQuery& query, bool correct_order)
+{
+    MutableMapIteratorType it(m_record);
+    // Note: QMap iteration is ordered; http://doc.qt.io/qt-5/qmap.html
+    if (correct_order) {  // faster
+        int field_index = -1;
+        while (it.hasNext()) {
+            it.next();
+            ++field_index;
+            it.value().setFromDatabaseValue(query.value(field_index));
+        }
+    } else {
+        while (it.hasNext()) {
+            it.next();
+            QString fieldname = it.key();
+            it.value().setFromDatabaseValue(query.value(fieldname));
+            // *** will names be right with field delimiters?
+        }
+    }
+}
+
+
+bool DatabaseObject::save()
 {
     touch(true);  // set timestamp only if timestamp not set
+    bool success;
     if (isPkNull()) {
-        saveInsert();
+        success = saveInsert();
     } else {
-        saveUpdate();
+        success = saveUpdate();
     }
     clearAllDirty();
+    return success;
 }
 
 
@@ -243,6 +275,8 @@ bool DatabaseObject::saveInsert()
 
 bool DatabaseObject::saveUpdate()
 {
+    qDebug().nospace() << "Save/update: " << qUtf8Printable(m_tablename)
+                       << ", " << pkname() << "=" << pkvalue();
     QList<QVariant> args;
     QStringList fieldnames;
     MapIteratorType i(m_record);
@@ -250,8 +284,14 @@ bool DatabaseObject::saveUpdate()
         i.next();
         QString fieldname = i.key();
         Field field = i.value();
-        fieldnames.append(delimit(fieldname) + "=?");
-        args.append(field.getDatabaseValue());  // not field.value()
+        if (field.isDirty()) {
+            fieldnames.append(delimit(fieldname) + "=?");
+            args.append(field.getDatabaseValue());  // not field.value()
+        }
+    }
+    if (fieldnames.isEmpty()) {
+        qDebug() << "... no dirty fields; nothing to do";
+        return true;
     }
     QString sql = (
         "UPDATE " + delimit(m_tablename) + " SET " +
@@ -259,8 +299,6 @@ bool DatabaseObject::saveUpdate()
         " WHERE " + delimit(pkname()) + "=?"
     );
     args.append(pkvalue());
-    qDebug().nospace() << "Save/update: " << qUtf8Printable(m_tablename)
-                       << ", " << pkname() << "=" << pkvalue();
     return exec(m_db, sql, args);
 }
 
@@ -268,6 +306,15 @@ bool DatabaseObject::saveUpdate()
 void DatabaseObject::makeTable()
 {
     createTable(m_db, m_tablename, m_record.values());
+}
+
+
+FieldRef DatabaseObject::fieldRef(const QString& fieldname)
+{
+    requireField(fieldname);
+    Field* p_field = &m_record[fieldname];
+    FieldRef fieldref(p_field);
+    return fieldref;
 }
 
 

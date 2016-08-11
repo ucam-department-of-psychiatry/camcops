@@ -7,7 +7,7 @@
 #include "lib/datetimefunc.h"
 #include "lib/dbfunc.h"
 #include "lib/filefunc.h"
-#include "menu/main_menu.h"
+#include "menu/mainmenu.h"
 #include "tasklib/inittasks.h"
 #include "tests/master_test.h"
 

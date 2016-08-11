@@ -204,6 +204,12 @@ bool Field::isNull() const
 }
 
 
+bool Field::isDirty() const
+{
+    return m_dirty;
+}
+
+
 void Field::setDirty()
 {
     m_dirty = true;

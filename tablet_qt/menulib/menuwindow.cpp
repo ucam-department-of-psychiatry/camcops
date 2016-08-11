@@ -6,7 +6,7 @@
 #include <QScrollArea>
 #include <QVBoxLayout>
 #include "menuheader.h"
-#include "common/ui_constants.h"
+#include "common/uiconstants.h"
 #include "lib/filefunc.h"
 // #include "lib/uifunc.h"
 

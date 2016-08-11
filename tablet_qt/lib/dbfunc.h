@@ -47,6 +47,9 @@ void openDatabaseOrDie(QSqlDatabase& db, const QString& filename);
 // SQL fragments
 
 QString delimit(const QString& fieldname);
+void addWhereClause(const QMap<QString, QVariant>& where,
+                    QString& output_sql,
+                    QList<QVariant>& output_args);
 
 // Queries
 
