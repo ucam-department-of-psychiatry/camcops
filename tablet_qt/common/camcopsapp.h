@@ -31,11 +31,15 @@ public:
     void unlock();
     void lock();
     void grantPrivilege();
+    bool whiskerConnected() const;
+    void setWhiskerConnected(bool connected);
 signals:
     void lockStateChanged(LockState lockstate);
+    void whiskerConnectionStateChanged(bool connected);
 protected:
     void setLockState(LockState lockstate);
     LockState m_lockstate;
+    bool m_whisker_connected;
     QMainWindow* m_p_main_window;
     QStackedWidget* m_p_window_stack;
 };

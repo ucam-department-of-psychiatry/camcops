@@ -1,21 +1,21 @@
-#include "camcops_app.h"
+#include "camcopsapp.h"
 #include <QApplication>
 #include <QDateTime>
 #include <QDialog>
 #include <QPushButton>
-#include "common/ui_constants.h"
+#include "common/uiconstants.h"
 #include "lib/datetimefunc.h"
 #include "lib/dbfunc.h"
 #include "lib/filefunc.h"
 #include "menu/mainmenu.h"
 #include "tasklib/inittasks.h"
-#include "tests/master_test.h"
 
 
 CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     QApplication(argc, argv),
     m_p_task_factory(nullptr),
     m_lockstate(LockState::Locked),
+    m_whisker_connected(false),
     m_p_main_window(nullptr),
     m_p_window_stack(nullptr)
 {
@@ -134,4 +134,20 @@ void CamcopsApp::grantPrivilege()
 {
     // *** security check
     setLockState(LockState::Privileged);
+}
+
+
+bool CamcopsApp::whiskerConnected() const
+{
+    return m_whisker_connected;
+}
+
+
+void CamcopsApp::setWhiskerConnected(bool connected)
+{
+    bool changed = connected != m_whisker_connected;
+    m_whisker_connected = connected;
+    if (changed) {
+        emit whiskerConnectionStateChanged(connected);
+    }
 }

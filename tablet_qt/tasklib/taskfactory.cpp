@@ -1,6 +1,6 @@
 #include "taskfactory.h"
 #include <algorithm>
-#include "common/camcops_app.h"
+#include "common/camcopsapp.h"
 #include "task.h"
 
 
@@ -114,7 +114,7 @@ void TaskFactory::makeTables(const QString& key) const
 }
 
 
-TaskPtrList TaskFactory::fetch(const QString& tablename, int patient_id)
+TaskPtrList TaskFactory::fetch(const QString& tablename, int patient_id) const
 {
     if (tablename.isEmpty()) {
         // All tasks

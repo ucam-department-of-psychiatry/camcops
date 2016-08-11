@@ -6,7 +6,7 @@
 #include <QStringList>
 #include <QSqlDatabase>
 #include <QSqlQuery>
-#include "common/db_constants.h"
+#include "common/dbconstants.h"
 #include "lib/dbfunc.h"
 #include "lib/uifunc.h"
 #include "tasklib/task.h"
@@ -159,7 +159,7 @@ public:
     QString getLongName(const QString& key) const;
     void makeTables(const QString& key) const;
     TaskPtrList fetch(const QString& tablename = "",
-                      int patient_id = NONEXISTENT_PK);
+                      int patient_id = NONEXISTENT_PK) const;
 protected:
     CamcopsApp& m_app;
     QStringList m_tablenames;

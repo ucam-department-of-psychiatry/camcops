@@ -15,8 +15,9 @@ public:
          bool has_clinician,
          bool has_respondent);
     virtual ~Task() {}
+    void setPatient(int patient_id);
     // ------------------------------------------------------------------------
-    // INFO
+    // General info
     // ------------------------------------------------------------------------
     // Things that should ideally be class methods but we'll do by instance:
     // tablename(): already implemented by DatabaseObject
@@ -43,4 +44,11 @@ public:
     // No need to override, but do need to CALL load() FROM CONSTRUCTOR:
     virtual bool load(int pk = NONEXISTENT_PK);
     // virtual bool save();
+    // ------------------------------------------------------------------------
+    // Specific info
+    // ------------------------------------------------------------------------
+    virtual bool isComplete() const = 0;
+    virtual QString getSummary() const { return "?"; }
+    virtual QString getDetail() const { return ""; }
+    virtual void edit() {}
 };

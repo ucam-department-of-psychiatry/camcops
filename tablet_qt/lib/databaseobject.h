@@ -3,7 +3,7 @@
 #include <QSqlDatabase>
 #include <QSqlRecord>
 #include <QString>
-#include "common/db_constants.h"
+#include "common/dbconstants.h"
 #include "lib/field.h"
 
 class FieldRef;

@@ -43,6 +43,30 @@ QString Phq9::menusubtitle() const
 }
 
 
+bool Phq9::isComplete() const
+{
+    return false;  // ***
+}
+
+
+QString Phq9::getSummary() const
+{
+    return "***";
+}
+
+
+QString Phq9::getDetail() const
+{
+    return "***";
+}
+
+
+void Phq9::edit()
+{
+    // ***
+}
+
+
 void initializePhq9(TaskFactory& factory)
 {
     static TaskRegistrar<Phq9> registered_phq9(factory);

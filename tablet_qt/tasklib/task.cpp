@@ -41,6 +41,19 @@ Task::Task(const QSqlDatabase& db,
 }
 
 
+void Task::setPatient(int patient_id)
+{
+    if (isAnonymous()) {
+        qCritical() << "Attempt to set patient ID for an anonymous task";
+        return;
+    }
+    if (!getValue(PATIENT_FK_FIELDNAME).isNull()) {
+        qWarning() << "Setting patient ID, but it was already set";
+    }
+    setValue(PATIENT_FK_FIELDNAME, patient_id);
+}
+
+
 void Task::makeTables()
 {
     makeTable();

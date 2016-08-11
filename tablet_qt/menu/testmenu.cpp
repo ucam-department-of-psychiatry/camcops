@@ -80,5 +80,7 @@ void TestMenu::testPhq9Creation()
         return;
     }
     qDebug() << *p_task;
+    m_app.setWhiskerConnected(true);
     alert("Done; see console");
+    m_app.setWhiskerConnected(false);
 }

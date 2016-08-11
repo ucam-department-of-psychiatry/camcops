@@ -5,7 +5,7 @@
 #include <QString>
 #include <Qt>
 #include <QWidget>
-#include "common/camcops_app.h"
+#include "common/camcopsapp.h"
 
 
 class MenuWindow;

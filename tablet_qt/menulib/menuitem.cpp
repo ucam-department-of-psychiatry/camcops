@@ -7,7 +7,7 @@
 #include <QVBoxLayout>
 #include "menuitem.h"
 #include "menuwindow.h"
-#include "common/ui_constants.h"
+#include "common/uiconstants.h"
 #include "lib/uifunc.h"
 
 
@@ -40,7 +40,7 @@ QWidget* MenuItem::getRowWidget() const
     QHBoxLayout* rowlayout = new QHBoxLayout();
 
     if (m_chain) {
-        QLabel* iconLabel = ICON_CHAIN(row);
+        QLabel* iconLabel = iconWidget(ICON_CHAIN, row);
         rowlayout->addWidget(iconLabel);
     } else {
         rowlayout->addSpacing(ICONSIZE);
@@ -57,7 +57,7 @@ QWidget* MenuItem::getRowWidget() const
 
     if (m_arrow_on_right) {
         rowlayout->addStretch();
-        QLabel* iconLabel = ICON_TABLE_CHILDARROW(nullptr);
+        QLabel* iconLabel = iconWidget(ICON_HASCHILD, nullptr, false);
         rowlayout->addWidget(iconLabel);
     }
 
