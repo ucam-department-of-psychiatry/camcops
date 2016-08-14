@@ -34,31 +34,35 @@ Field::Field() :  // needed by QMap
 }
 
 
-void Field::setPk(bool pk)
+Field& Field::setPk(bool pk)
 {
     m_pk = pk;
+    return *this;
 }
 
 
-void Field::setUnique(bool unique)
+Field& Field::setUnique(bool unique)
 {
     m_unique = unique;
+    return *this;
 }
 
 
-void Field::setMandatory(bool mandatory)
+Field& Field::setMandatory(bool mandatory)
 {
     m_mandatory = mandatory;
+    return *this;
 }
 
 
-void Field::setDefaultValue(QVariant value)
+Field& Field::setDefaultValue(QVariant value)
 {
     m_default_value = value;
     m_default_value.convert(m_type);
     if (!m_set) {
         m_value = m_default_value;
     }
+    return *this;
 }
 
 

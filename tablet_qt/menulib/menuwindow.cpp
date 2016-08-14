@@ -17,7 +17,7 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
     m_subtitle(""),
     m_icon(icon),
     m_top(top),
-    m_offer_add_task(false),
+    m_offer_add(false),
     m_mainlayout(new QVBoxLayout()),
     m_p_header(nullptr),
     m_p_listwidget(nullptr)
@@ -50,13 +50,13 @@ void MenuWindow::buildMenu()
     delete m_p_listwidget;
 
     m_p_header = new MenuHeader(this, m_app, m_top, m_title, m_icon,
-                                m_offer_add_task);
+                                m_offer_add);
     m_mainlayout->addWidget(m_p_header);
-    connect(m_p_header, &MenuHeader::back,
+    connect(m_p_header, &MenuHeader::backClicked,
             this, &MenuWindow::backClicked,
             Qt::UniqueConnection);  // unique as we may rebuild... safer.
-    connect(this, &MenuWindow::taskSelectionChanged,
-            m_p_header, &MenuHeader::taskSelectionChanged,
+    connect(this, &MenuWindow::offerViewEditDelete,
+            m_p_header, &MenuHeader::offerViewEditDelete,
             Qt::UniqueConnection);
 
     // Method 1: QListWidget, QListWidgetItem
@@ -66,7 +66,6 @@ void MenuWindow::buildMenu()
     m_mainlayout->addWidget(m_p_listwidget);
     for (int i = 0; i < m_items.size(); ++i) {
         MenuItem item = m_items.at(i);
-        item.validate();
         QWidget* row = item.getRowWidget(m_app);
         QListWidgetItem* listitem = new QListWidgetItem("", m_p_listwidget);
         listitem->setData(Qt::UserRole, QVariant(i));
@@ -127,11 +126,11 @@ void MenuWindow::menuItemClicked(QListWidgetItem* item)
 
     if (m.m_p_task) {
         // Notify the header (with its verb buttons). Leave it selected.
-        emit taskSelectionChanged(m.m_p_task.data());
+        emit offerViewEditDelete(true, m.m_p_task->isEditable(), true);
     }
     else {
         // ACT ON IT. And clear the selection.
-        emit taskSelectionChanged(nullptr);
+        emit offerViewEditDelete(false, false, false);
         // ... in case a task was selected before
         m.act(m_app);
         m_p_listwidget->clearSelection();

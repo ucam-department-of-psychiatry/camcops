@@ -13,7 +13,8 @@
 DatabaseObject::DatabaseObject(const QString& tablename,
                                const QSqlDatabase db,
                                bool has_default_pk_field,
-                               bool has_modification_timestamp) :
+                               bool has_modification_timestamp,
+                               bool has_creation_timestamp) :
     m_tablename(tablename),
     m_db(db),
     m_has_modification_timestamp(has_modification_timestamp)
@@ -23,6 +24,11 @@ DatabaseObject::DatabaseObject(const QString& tablename,
     }
     if (has_modification_timestamp) {
         addField(MODIFICATION_TIMESTAMP_FIELDNAME, QVariant::DateTime);
+    }
+    if (has_creation_timestamp) {
+        addField(CREATION_TIMESTAMP_FIELDNAME, QVariant::DateTime);
+        QDateTime now = QDateTime::currentDateTime();
+        m_record[CREATION_TIMESTAMP_FIELDNAME].setValue(now);  // also: dirty
     }
 }
 

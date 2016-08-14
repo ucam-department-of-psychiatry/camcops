@@ -17,7 +17,8 @@ public:
     DatabaseObject(const QString& tablename,
                    const QSqlDatabase db,
                    bool has_default_pk_field = true,
-                   bool has_modification_timestamp = true);
+                   bool has_modification_timestamp = true,
+                   bool has_creation_timestamp = false);
     // Adding fields
     void addField(const QString& fieldname,
                   QVariant::Type type,

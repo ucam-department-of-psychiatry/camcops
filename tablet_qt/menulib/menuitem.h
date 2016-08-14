@@ -38,7 +38,8 @@ public:
              CamcopsApp& app, QWidget* parent = nullptr);
     MenuItem(const TaskMenuItem& taskmenuitem,
              CamcopsApp& app, QWidget* parent = nullptr);
-    MenuItem(TaskPtr p_task, QWidget* parent = nullptr);
+    MenuItem(TaskPtr p_task, bool task_shows_taskname = true,
+             QWidget* parent = nullptr);
 
     ~MenuItem() {}
 
@@ -50,7 +51,6 @@ public:
     MenuItem& setUnsupported(bool unsupported = true);
 
     QWidget* getRowWidget(CamcopsApp& app) const;
-    void validate() const;
     void act(CamcopsApp& app) const;
     bool isImplemented() const;
 
@@ -67,6 +67,7 @@ public:
     bool m_label_only;
     bool m_needs_privilege;
     bool m_not_if_locked;
+    bool m_task_shows_taskname;
     bool m_unsupported;
     ActionFunction m_func;
     MenuProxyPtr m_p_menuproxy;
@@ -76,6 +77,9 @@ public:
 //    SOMETHING m_task;
 //    SOMETHING m_info;
 //    SOMETHING m_chainList;
+
+private:
+    void setDefaults();
 };
 
 
@@ -97,6 +101,8 @@ public:
 // The following classes exist just for CSS.
 // ============================================================================
 
+// This works, but using setObjectName and #selector is simpler!
+/*
 class MenuItemTitle : public QLabel
 {
     Q_OBJECT
@@ -110,18 +116,4 @@ public:
     {}
     virtual ~MenuItemTitle() {}
 };
-
-
-class MenuItemSubtitle : public QLabel
-{
-    Q_OBJECT
-public:
-    MenuItemSubtitle(QWidget* parent = nullptr, Qt::WindowFlags f = 0) :
-        QLabel(parent, f)
-    {}
-    MenuItemSubtitle(const QString& text, QWidget* parent = nullptr,
-                     Qt::WindowFlags f = 0) :
-        QLabel(text, parent, f)
-    {}
-    virtual ~MenuItemSubtitle() {}
-};
+*/

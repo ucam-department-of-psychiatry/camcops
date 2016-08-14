@@ -1,5 +1,7 @@
 #include "task.h"
+#include <QObject>
 #include <QVariant>
+#include "lib/datetimefunc.h"
 
 const QString PATIENT_FK_FIELDNAME = "patient_id";
 
@@ -9,19 +11,16 @@ Task::Task(const QSqlDatabase& db,
            bool is_anonymous,
            bool has_clinician,
            bool has_respondent) :
-    DatabaseObject(tablename, db, true, true)
+    DatabaseObject(tablename, db, true, true, true)
 {
     // WATCH OUT: you can't call a derived class's overloaded function
     // here; its vtable is incomplete.
     // http://stackoverflow.com/questions/6561429/calling-virtual-function-of-derived-class-from-base-class-constructor
 
-    addField("when_created", QVariant::DateTime);
     addField("firstexit_is_finish", QVariant::Bool);
     addField("firstexit_is_abort", QVariant::Bool);
     addField("when_firstexit", QVariant::DateTime);
-    Field editing_time_s("editing_time_s", QVariant::Double);
-    editing_time_s.setDefaultValue(0.0);
-    addField(editing_time_s);
+    addField(Field("editing_time_s", QVariant::Double).setDefaultValue(0.0));
 
     if (!is_anonymous) {
         addField(PATIENT_FK_FIELDNAME, QVariant::Int);
@@ -60,10 +59,30 @@ void Task::makeTables()
     makeAncillaryTables();
 }
 
+
 bool Task::load(int pk)
 {
     if (pk == NONEXISTENT_PK) {
         return false;
     }
     return DatabaseObject::load(pk);
+}
+
+
+QString Task::whenCreatedMenuFormat() const
+{
+    return "boo! ***";
+    return getValue(CREATION_TIMESTAMP_FIELDNAME)
+        .toDateTime()
+        .toString(SHORT_DATETIME_FORMAT);
+}
+
+
+QString Task::getSummaryWithCompleteSuffix() const
+{
+    QString result = getSummary();
+    if (!isComplete()) {
+        result += QObject::tr(" (INCOMPLETE)");
+    }
+    return result;
 }

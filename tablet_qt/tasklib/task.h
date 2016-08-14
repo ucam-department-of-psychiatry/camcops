@@ -50,4 +50,9 @@ public:
     virtual QString getSummary() const { return "?"; }
     virtual QString getDetail() const { return ""; }
     virtual void edit() {}
+    // ------------------------------------------------------------------------
+    // Assistance functions
+    // ------------------------------------------------------------------------
+    QString whenCreatedMenuFormat() const;
+    QString getSummaryWithCompleteSuffix() const;
 };

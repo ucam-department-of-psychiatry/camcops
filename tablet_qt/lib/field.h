@@ -9,10 +9,10 @@ public:
     Field();
     Field(const QString& name, QVariant::Type type,
           bool mandatory = false, bool unique = false, bool pk = false);
-    void setPk(bool pk);
-    void setUnique(bool unique);
-    void setMandatory(bool pk);
-    void setDefaultValue(QVariant value);
+    Field& setPk(bool pk);
+    Field& setUnique(bool unique);
+    Field& setMandatory(bool pk);
+    Field& setDefaultValue(QVariant value);
     QString name() const;
     bool isPk() const;
     bool isUnique() const;

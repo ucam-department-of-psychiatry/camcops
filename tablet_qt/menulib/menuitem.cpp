@@ -13,98 +13,51 @@
 #include "menu/singletaskmenu.h"
 #include "tasklib/taskfactory.h"  // for TaskPtr
 
+const int STRETCH_3COL_TASKNAME = 2;
+const int STRETCH_3COL_TIMESTAMP = 2;
+const int STRETCH_3COL_SUMMARY = 6;
 
-const QColor COLOUR_LOCKED(255, 0, 0, 50);
-const QColor COLOUR_NEEDS_PRIVILEGE(255, 255, 0, 100);
+const int STRETCH_2COL_TIMESTAMP = 2;
+const int STRETCH_2COL_SUMMARY = 8;
 
 
 MenuItem::MenuItem(QWidget* parent) :
     m_p_parent(parent),
-    m_title("?"),
-    m_subtitle(""),
-    m_icon(""),
-    m_arrow_on_right(false),
-    m_chain(false),
-    m_copyright_details_pending(false),
-    m_crippled(false),
-    m_implemented(true),
-    m_label_only(false),
-    m_needs_privilege(false),
-    m_not_if_locked(false),
-    m_unsupported(false),
-    m_func(nullptr),
-    m_p_menuproxy(nullptr),
-    m_task_tablename(""),
-    m_p_task(nullptr)
+    m_title("?")
 {
+    setDefaults();
 }
 
 
 MenuItem::MenuItem(const QString& title, QWidget* parent) :
     m_p_parent(parent),
-    m_title(title),
-    m_subtitle(""),
-    m_icon(""),
-    m_arrow_on_right(false),
-    m_chain(false),
-    m_copyright_details_pending(false),
-    m_crippled(false),
-    m_implemented(false),  // placeholder for not-implemented stuff
-    m_label_only(false),
-    m_needs_privilege(false),
-    m_not_if_locked(false),
-    m_unsupported(false),
-    m_func(nullptr),
-    m_p_menuproxy(nullptr),
-    m_task_tablename(""),
-    m_p_task(nullptr)
+    m_title(title)
 {
+    // this constructor used for placeholders for not-implemented stuff
+    setDefaults();
+    m_implemented = false;
 }
 
 
 MenuItem::MenuItem(const QString& title, const MenuItem::ActionFunction& func,
                    const QString& icon, QWidget* parent) :
     m_p_parent(parent),
-    m_title(title),
-    m_subtitle(""),
-    m_icon(icon),
-    m_arrow_on_right(false),
-    m_chain(false),
-    m_copyright_details_pending(false),
-    m_crippled(false),
-    m_implemented(true),
-    m_label_only(false),
-    m_needs_privilege(false),
-    m_not_if_locked(false),
-    m_unsupported(false),
-    m_func(func),
-    m_p_menuproxy(nullptr),
-    m_task_tablename(""),
-    m_p_task(nullptr)
+    m_title(title)
 {
+    setDefaults();
+    m_func = func;
+    m_icon = icon;
 }
 
 
 MenuItem::MenuItem(MenuProxyPtr p_menuproxy,
                    CamcopsApp& app, QWidget* parent) :
-    m_p_parent(parent),
+    m_p_parent(parent)
     // m_title: below
-    // m_subtitle: below,
-    // m_icon: below
-    m_arrow_on_right(true),
-    m_chain(false),
-    m_copyright_details_pending(false),
-    m_crippled(false),
-    m_implemented(true),
-    m_label_only(false),
-    m_needs_privilege(false),
-    m_not_if_locked(false),
-    m_unsupported(false),
-    m_func(nullptr),
-    m_p_menuproxy(p_menuproxy),
-    m_task_tablename(""),
-    m_p_task(nullptr)
 {
+    setDefaults();
+    m_p_menuproxy = p_menuproxy;
+
     QScopedPointer<MenuWindow> mw(m_p_menuproxy->create(app));
     m_title = mw->title();
     m_subtitle = mw->subtitle();
@@ -114,24 +67,12 @@ MenuItem::MenuItem(MenuProxyPtr p_menuproxy,
 
 MenuItem::MenuItem(const TaskMenuItem& taskmenuitem,
                    CamcopsApp& app, QWidget* parent) :
-    m_p_parent(parent),
+    m_p_parent(parent)
     // m_title: below
-    m_subtitle(""),  // may be replaced below
-    m_icon(""),  // may be replaced below
-    m_arrow_on_right(false),
-    m_chain(false),
-    m_copyright_details_pending(false),
-    m_crippled(false),  // may be replaced below
-    m_implemented(true),
-    m_label_only(false),
-    m_needs_privilege(false),
-    m_not_if_locked(false),
-    m_unsupported(false),
-    m_func(nullptr),
-    m_p_menuproxy(nullptr),
-    m_task_tablename(taskmenuitem.tablename),
-    m_p_task(nullptr)
 {
+    setDefaults();
+    m_task_tablename = taskmenuitem.tablename;
+
     TaskPtr task = app.m_p_task_factory->create(m_task_tablename);
     if (task == nullptr) {
         m_title = tr("UNKNOWN TASK") + ": " + taskmenuitem.tablename;
@@ -147,32 +88,39 @@ MenuItem::MenuItem(const TaskMenuItem& taskmenuitem,
 }
 
 
-MenuItem::MenuItem(TaskPtr p_task, QWidget* parent) :
+MenuItem::MenuItem(TaskPtr p_task, bool task_shows_taskname, QWidget* parent) :
     m_p_parent(parent),
-    m_title("?"),
-    m_subtitle(""),
-    m_icon(""),
-    m_arrow_on_right(false),
-    m_chain(false),
-    m_copyright_details_pending(false),
-    m_crippled(false),
-    m_implemented(true),
-    m_label_only(false),
-    m_needs_privilege(false),
-    m_not_if_locked(false),
-    m_unsupported(false),
-    m_func(nullptr),
-    m_p_menuproxy(nullptr),
-    m_task_tablename(""),
-    m_p_task(p_task)
+    m_title("?")
 {
+    setDefaults();
+    m_p_task = p_task;
+    m_task_shows_taskname = task_shows_taskname;
 }
 
 
-
-void MenuItem::validate() const
+void MenuItem::setDefaults()
 {
-    // stopApp("test stop");
+    // Not the most efficient, but saves lots of duplication
+
+    // not m_p_parent
+    // not m_title
+    m_subtitle = "";
+    m_icon = "";
+
+    m_arrow_on_right = false;
+    m_chain = false;
+    m_copyright_details_pending = false;
+    m_crippled = false;
+    m_implemented = true;
+    m_label_only = false;
+    m_needs_privilege = false;
+    m_not_if_locked = false;
+    m_unsupported = false;
+
+    m_func = nullptr;
+    m_p_menuproxy = MenuProxyPtr(nullptr);
+    m_task_tablename = "";
+    m_p_task = TaskPtr(nullptr);
 }
 
 
@@ -182,51 +130,101 @@ QWidget* MenuItem::getRowWidget(CamcopsApp& app) const
     QHBoxLayout* rowlayout = new QHBoxLayout();
     row->setLayout(rowlayout);
 
-    // Icon
-    if (!m_label_only && !m_p_task) {  // Labels/task instances go full-left
-        if (!m_icon.isEmpty()) {
-            QLabel* icon = iconWidget(m_icon, row);
-            rowlayout->addWidget(icon);
-        } else if (m_chain) {
-            QLabel* icon = iconWidget(ICON_CHAIN, row);
-            rowlayout->addWidget(icon);
-        } else {
-            rowlayout->addWidget(blankIcon(row));
+    if (m_p_task) {
+        // --------------------------------------------------------------------
+        // Task instance
+        // --------------------------------------------------------------------
+        // Stretch: http://stackoverflow.com/questions/14561516/qt-qhboxlayout-percentage-size
+
+        bool complete = m_p_task->isComplete();
+        const bool& threecols = m_task_shows_taskname;
+
+        // Taskname
+        if (m_task_shows_taskname) {
+            QLabel* taskname = new QLabel(m_p_task->shortname());
+            taskname->setObjectName(complete
+                                    ? "task_item_taskname_complete"
+                                    : "task_item_taskname_incomplete");
+            QSizePolicy spTaskname(QSizePolicy::Preferred,
+                                   QSizePolicy::Preferred);
+            spTaskname.setHorizontalStretch(STRETCH_3COL_TASKNAME);
+            taskname->setSizePolicy(spTaskname);
+            rowlayout->addWidget(taskname);
         }
-    }
+        // Timestamp
+        QLabel* timestamp = new QLabel(m_p_task->whenCreatedMenuFormat());
+        timestamp->setObjectName(complete ? "task_item_timestamp_complete"
+                                          : "task_item_timestamp_incomplete");
+        QSizePolicy spTimestamp(QSizePolicy::Preferred,
+                                QSizePolicy::Preferred);
+        spTimestamp.setHorizontalStretch(threecols ? STRETCH_3COL_TIMESTAMP
+                                                   : STRETCH_2COL_TIMESTAMP);
+        timestamp->setSizePolicy(spTimestamp);
+        rowlayout->addWidget(timestamp);
+        // Summary
+        QLabel* summary = new QLabel(m_p_task->getSummaryWithCompleteSuffix());
+        summary->setObjectName(complete ? "task_item_summary_complete"
+                                        : "task_item_summary_incomplete");
+        QSizePolicy spSummary(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        spSummary.setHorizontalStretch(threecols ? STRETCH_3COL_SUMMARY
+                                                 : STRETCH_2COL_SUMMARY);
+        timestamp->setSizePolicy(spSummary);
+        rowlayout->addWidget(summary);
+        // *** stretch not quite right yet, but close
+    } else {
+        // --------------------------------------------------------------------
+        // Conventional menu item
+        // --------------------------------------------------------------------
 
-    // Title/subtitle
-    QVBoxLayout* textlayout = new QVBoxLayout();
-    MenuItemTitle* title = new MenuItemTitle(m_title);
-    textlayout->addWidget(title);
-    if (!m_subtitle.isEmpty()) {
-        MenuItemSubtitle* subtitle = new MenuItemSubtitle(m_subtitle);
-        textlayout->addWidget(subtitle);
-    }
-    rowlayout->addLayout(textlayout);
+        // Icon
+        if (!m_label_only) {  // Labels go full-left
+            if (!m_icon.isEmpty()) {
+                QLabel* icon = iconWidget(m_icon, row);
+                rowlayout->addWidget(icon);
+            } else if (m_chain) {
+                QLabel* icon = iconWidget(ICON_CHAIN, row);
+                rowlayout->addWidget(icon);
+            } else {
+                rowlayout->addWidget(blankIcon(row));
+            }
+        }
 
-    // Arrow on right
-    if (m_arrow_on_right) {
-        rowlayout->addStretch();
-        QLabel* iconLabel = iconWidget(ICON_HASCHILD, nullptr, false);
-        rowlayout->addWidget(iconLabel);
-    }
+        // Title/subtitle
+        QVBoxLayout* textlayout = new QVBoxLayout();
 
-    // Background colour, via stylesheets
-    if (m_label_only) {
-        row->setObjectName("label_only");
-    } else if (!m_implemented) {
-        row->setObjectName("not_implemented");
-    } else if (m_unsupported) {
-        row->setObjectName("unsupported");
-    } else if (m_not_if_locked && app.locked()) {
-        row->setObjectName("locked");
-    } else if (m_needs_privilege && !app.privileged()) {
-        row->setObjectName("needs_privilege");
+        QLabel* title = new QLabel(m_title);
+        title->setObjectName("menu_item_title");
+        textlayout->addWidget(title);
+        if (!m_subtitle.isEmpty()) {
+            QLabel* subtitle = new QLabel(m_subtitle);
+            subtitle->setObjectName("menu_item_subtitle");
+            textlayout->addWidget(subtitle);
+        }
+        rowlayout->addLayout(textlayout);
+
+        // Arrow on right
+        if (m_arrow_on_right) {
+            rowlayout->addStretch();
+            QLabel* iconLabel = iconWidget(ICON_HASCHILD, nullptr, false);
+            rowlayout->addWidget(iconLabel);
+        }
+
+        // Background colour, via stylesheets
+        if (m_label_only) {
+            row->setObjectName("label_only");
+        } else if (!m_implemented) {
+            row->setObjectName("not_implemented");
+        } else if (m_unsupported) {
+            row->setObjectName("unsupported");
+        } else if (m_not_if_locked && app.locked()) {
+            row->setObjectName("locked");
+        } else if (m_needs_privilege && !app.privileged()) {
+            row->setObjectName("needs_privilege");
+        }
+        // ... but not for locked/needs privilege, as otherwise we'd need
+        // to refresh the whole menu? Well, we could try it.
+        // On Linux desktop, it's extremely fast.
     }
-    // ... but not for locked/needs privilege, as otherwise we'd need
-    // to refresh the whole menu? Well, we could try it.
-    // On Linux desktop, it's extremely fast.
 
     // Size policy
     QSizePolicy size_policy(QSizePolicy::MinimumExpanding,  // horizontal

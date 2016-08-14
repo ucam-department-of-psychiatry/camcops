@@ -21,21 +21,21 @@ QVBoxLayout {
 }
 
 /* Menu header */
-MenuWindowTitle {
+#menu_window_title {
     color: white;
     font-weight: bold;
     border: 0;
     margin: 0;
     padding: 0;
 }
-MenuHeaderPatientInfo {
+#menu_header_patient_info {
     color: yellow;
     font-weight: bold;
     border: 0;
     margin: 0;
     padding: 0;
 }
-MenuHeaderNoPatient {
+#menu_header_no_patient {
     color: magenta;
     font-weight: bold;
     border: 0;
@@ -44,19 +44,37 @@ MenuHeaderNoPatient {
 }
 
 /* Menu items */
-MenuItemTitle {
+#menu_item_title {
     color: white;
     font-weight: bold;
     border: 0;
     margin: 0;
     padding: 0;
 }
-MenuItemSubtitle {
+#menu_item_subtitle {
     /* background-color: red; */
     color: rgb(200, 200, 200);
     border: 0;
     margin: 0;
     padding: 0;
+}
+#task_item_taskname_complete {
+    color: white;
+}
+#task_item_timestamp_complete {
+    color: white;
+}
+#task_item_summary_complete {
+    color: white;
+}
+#task_item_taskname_incomplete {
+    color: rgb(200, 200, 200);
+}
+#task_item_timestamp_incomplete {
+    color: rgb(200, 200, 200);
+}
+#task_item_summary_incomplete {
+    color: rgb(200, 200, 200);
 }
 
 /* Background colour modifications */

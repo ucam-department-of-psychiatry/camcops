@@ -14,7 +14,7 @@ SingleTaskMenu::SingleTaskMenu(const QString& tablename, CamcopsApp& app) :
     m_title = specimen->menutitle();
 
     // Offer task addition
-    m_offer_add_task = true;
+    m_offer_add = true;
 
     // Common items
     m_items = {
@@ -27,7 +27,7 @@ SingleTaskMenu::SingleTaskMenu(const QString& tablename, CamcopsApp& app) :
     // Task items
     TaskPtrList tasklist = factory->fetch(tablename);
     for (auto task : tasklist) {
-        m_items.append(MenuItem(task));
+        m_items.append(MenuItem(task, false));
     }
 
     // Build

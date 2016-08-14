@@ -1,6 +1,7 @@
 #include "menuheader.h"
 #include <QAbstractButton>
 #include <QFrame>
+#include <QLabel>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include "lib/uifunc.h"
@@ -11,7 +12,7 @@ MenuHeader::MenuHeader(QWidget* parent,
                        bool top,
                        const QString& title,
                        const QString& icon_filename,
-                       bool offer_add_task)
+                       bool offer_add)
     : QWidget(parent),
       m_app(app),
       m_button_add(nullptr)
@@ -40,7 +41,8 @@ MenuHeader::MenuHeader(QWidget* parent,
     }
 
     // Title
-    MenuWindowTitle* title_label = new MenuWindowTitle(title);
+    QLabel* title_label = new QLabel(title);
+    title_label->setObjectName("menu_window_title");
     toprowlayout->addWidget(title_label);
 
     // Spacing
@@ -55,18 +57,18 @@ MenuHeader::MenuHeader(QWidget* parent,
     toprowlayout->addWidget(m_button_view);
     toprowlayout->addWidget(m_button_edit);
     toprowlayout->addWidget(m_button_delete);
-    taskSelectionChanged();
+    offerViewEditDelete();
     connect(m_button_view, &QAbstractButton::clicked,
-            this, &MenuHeader::viewTask);
+            this, &MenuHeader::viewClicked);
     connect(m_button_edit, &QAbstractButton::clicked,
-            this, &MenuHeader::editTask);
+            this, &MenuHeader::editClicked);
     connect(m_button_delete, &QAbstractButton::clicked,
-            this, &MenuHeader::deleteTask);
-    if (offer_add_task) {
+            this, &MenuHeader::deleteClicked);
+    if (offer_add) {
         m_button_add = CAMCOPS_BUTTON_ADD(this);
         toprowlayout->addWidget(m_button_add);
         connect(m_button_add, &QAbstractButton::clicked,
-                this, &MenuHeader::addTask);
+                this, &MenuHeader::addClicked);
     }
 
     // (b) Whisker
@@ -100,9 +102,11 @@ MenuHeader::MenuHeader(QWidget* parent,
     // ------------------------------------------------------------------------
     // Selected patient
     // ------------------------------------------------------------------------
-    m_patient_info = new MenuHeaderPatientInfo();
+    m_patient_info = new QLabel();
+    m_patient_info->setObjectName("menu_header_patient_info");
     mainlayout->addWidget(m_patient_info);
-    m_no_patient = new MenuHeaderNoPatient(tr("No patient selected"));
+    m_no_patient = new QLabel(tr("No patient selected"));
+    m_no_patient->setObjectName("menu_header_no_patient");
     mainlayout->addWidget(m_no_patient);
     selectedPatientChanged(m_app.patientSelected(),
                            m_app.patientDetails());
@@ -116,12 +120,6 @@ MenuHeader::MenuHeader(QWidget* parent,
             this, &MenuHeader::lockStateChanged);
     connect(&m_app, &CamcopsApp::selectedPatientChanged,
             this, &MenuHeader::selectedPatientChanged);
-}
-
-
-void MenuHeader::backClicked()
-{
-    emit back();
 }
 
 
@@ -147,10 +145,10 @@ void MenuHeader::selectedPatientChanged(bool selected, const QString& details)
 }
 
 
-void MenuHeader::taskSelectionChanged(Task* p_task)
+void MenuHeader::offerViewEditDelete(bool offer_view, bool offer_edit,
+                                     bool offer_delete)
 {
-    bool selected = p_task != nullptr;
-    m_button_view->setVisible(selected);
-    m_button_edit->setVisible(selected && p_task->isEditable());
-    m_button_delete->setVisible(selected);
+    m_button_view->setVisible(offer_view);
+    m_button_edit->setVisible(offer_edit);
+    m_button_delete->setVisible(offer_delete);
 }

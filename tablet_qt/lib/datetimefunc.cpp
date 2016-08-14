@@ -1,6 +1,9 @@
 #include "datetimefunc.h"
 #include <QTimeZone>
 
+const QString SHORT_DATETIME_FORMAT = "yyyy-MM-dd HH:mm";
+
+
 // http://stackoverflow.com/questions/21976264/qt-isodate-formatted-date-time-including-timezone
 
 QString datetimeToIsoMs(const QDateTime& dt)
@@ -52,4 +55,10 @@ QDateTime isoToDateTime(const QString& iso)
 QDateTime now()
 {
     return QDateTime::currentDateTime();
+}
+
+
+QString shortDateTime(const QDateTime& dt)
+{
+    return dt.toString(SHORT_DATETIME_FORMAT);
 }
