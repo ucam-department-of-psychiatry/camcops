@@ -15,6 +15,7 @@ const QString TABLE_TEMP_SUFFIX = "_temp";
 
 class SqlitePragmaInfo {
 public:
+    // http://www.stroustrup.com/C++11FAQ.html#member-init
     int cid = -1;
     QString name;
     QString type;
@@ -40,6 +41,20 @@ public:
 };
 
 
+typedef QList<QVariant> ArgList;
+typedef QMap<QString, QVariant> WhereConditions;
+
+
+class SqlArgs {
+public:
+    SqlArgs(const QString& sql, const ArgList& args) :
+        sql(sql), args(args) {}
+public:
+    QString sql;
+    ArgList args;
+};
+
+
 // Database operations
 
 void openDatabaseOrDie(QSqlDatabase& db, const QString& filename);
@@ -47,26 +62,24 @@ void openDatabaseOrDie(QSqlDatabase& db, const QString& filename);
 // SQL fragments
 
 QString delimit(const QString& fieldname);
-void addWhereClause(const QMap<QString, QVariant>& where,
-                    QString& output_sql,
-                    QList<QVariant>& output_args);
+void addWhereClause(const WhereConditions& where, SqlArgs& sqlargs_altered);
 
 // Queries
 
-void addArgs(QSqlQuery& query, const QList<QVariant>& args);
+void addArgs(QSqlQuery& query, const ArgList& args);
 bool execQuery(QSqlQuery& query, const QString& sql,
-                const QList<QVariant>& args);
+                const ArgList& args);
 bool execQuery(QSqlQuery& query, const QString& sql);
+bool execQuery(QSqlQuery& query, const SqlArgs& sqlargs);
 bool exec(const QSqlDatabase& db, const QString& sql);
-bool exec(const QSqlDatabase& db,
-          const QString& sql,
-          const QList<QVariant>& args);
+bool exec(const QSqlDatabase& db, const QString& sql, const ArgList& args);
+bool exec(const QSqlDatabase& db, const SqlArgs& sqlargs);
 QVariant dbFetchFirstValue(QSqlDatabase& db, const QString& sql,
-                              const QList<QVariant>& args);
+                           const ArgList& args);
 QVariant dbFetchFirstValue(QSqlDatabase& db, const QString& sql);
 int dbFetchInt(const QSqlDatabase& db,
                const QString& sql,
-               const QList<QVariant>& args = QList<QVariant>(),
+               const ArgList& args = ArgList(),
                int failureDefault = -1);
 int dbFetchInt(const QSqlDatabase& db,
                const QString& sql,

@@ -1,35 +1,40 @@
 #include "testmenu.h"
 #include <QMediaPlayer>
+#include "menulib/menuitem.h"
+#include "tasklib/taskfactory.h"  // for TaskPtr
 
 
 TestMenu::TestMenu(CamcopsApp& app)
-    : MenuWindow(app),
-      m_app(app),
+    : MenuWindow(app, tr("CamCOPS self-tests"), ""),
       m_p_netmgr(nullptr)
 {
     m_items = {
-        MenuItem::makeFuncItem(
-            "Test debug console",
-            std::bind(&TestMenu::testDebugConsole, this)),
-        MenuItem::makeFuncItem(
+        MenuItem(tr("User testing")).setLabelOnly(),
+        MenuItem(
             "Test sound",
-            std::bind(&TestMenu::testSound, this)),
-        MenuItem::makeFuncItem(
+            std::bind(&TestMenu::testSound, this)
+        ).setNotIfLocked(),
+        MenuItem(tr("Developer testing")).setLabelOnly(),
+        MenuItem(
+            "Test debug console",
+            std::bind(&TestMenu::testDebugConsole, this)
+        ).setNotIfLocked(),
+        MenuItem(
             "Test network (HTTP)",
-            std::bind(&TestMenu::testHttp, this)),
-        MenuItem::makeFuncItem(
+            std::bind(&TestMenu::testHttp, this)
+        ).setNotIfLocked(),
+        MenuItem(
             "Test network (HTTPS/SSL)",
-            std::bind(&TestMenu::testHttps, this)),
-        MenuItem::makeFuncItem(
+            std::bind(&TestMenu::testHttps, this)
+        ).setNotIfLocked(),
+        MenuItem(
             "Test PHQ9 creation",
-            std::bind(&TestMenu::testPhq9Creation, this)),
+            std::bind(&TestMenu::testPhq9Creation, this)
+        ).setNotIfLocked(),
+        MenuItem(tr("Test card 1 (black, white)")),  // ***
+        MenuItem(tr("Test card 2 (scaling, scrolling)")),  // ***
     };
     buildMenu();
-}
-
-
-TestMenu::~TestMenu()
-{
 }
 
 
@@ -74,7 +79,7 @@ void TestMenu::testHttp()
 void TestMenu::testPhq9Creation()
 {
     QString tablename = "phq9";
-    TaskPtr p_task = m_app.m_p_task_factory->build(tablename);
+    TaskPtr p_task = m_app.m_p_task_factory->create(tablename);
     if (!p_task) {
         qCritical() << "Failed to create task: " << qUtf8Printable(tablename);
         return;

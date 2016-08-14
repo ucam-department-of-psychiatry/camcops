@@ -1,8 +1,9 @@
 #pragma once
-#include <QAbstractButton>
 #include <QLabel>
 #include <QObject>
 #include <QString>
+
+class QAbstractButton;
 
 #define iconFilename(filename) (":/images/camcops/" filename)
 #define iconPngFilename(stem) iconFilename(stem ".png")
@@ -21,10 +22,12 @@ QPixmap getPixmap(const QString& filename);
 QLabel* iconWidget(const QString& filename,
                    QWidget* parent = nullptr,
                    bool scale = true);
+QLabel* blankIcon(QWidget* parent);
 
 
 #define ICON_ADDICTION iconFilename("addiction.png")
-#define ICON_ALLTASKS iconFilename("affective.png")
+#define ICON_AFFECTIVE iconFilename("affective.png")
+#define ICON_ALLTASKS iconFilename("alltasks.png")
 #define ICON_ANONYMOUS iconFilename("anonymous.png")
 #define ICON_CAMCOPS iconFilename("camcops.png")
 #define ICON_CATATONIA iconFilename("catatonia.png")
@@ -97,6 +100,15 @@ QAbstractButton* iconButton(const QString& normal_filename,
 #define CAMCOPS_BUTTON_TIME_NOW(p) makeIconButton("time_now", p)
 #define CAMCOPS_BUTTON_UNLOCKED(p) makeIconButton("unlocked", p)
 #define CAMCOPS_BUTTON_ZOOM(p) makeIconButton("zoom", p)
+
+
+// ============================================================================
+// Widget manipulations, and other Qt internals
+// ============================================================================
+
+// QString cssColour(const QColor& colour);
+// void setBackgroundColour(QWidget* widget, const QColor& colour);
+void removeAllChildWidgets(QObject* object);
 
 
 // ============================================================================

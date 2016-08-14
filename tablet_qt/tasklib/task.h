@@ -1,6 +1,5 @@
 #pragma once
 #include <QString>
-#include <QVariant>
 #include "lib/databaseobject.h"
 
 extern const QString PATIENT_FK_FIELDNAME;

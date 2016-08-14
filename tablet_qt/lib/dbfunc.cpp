@@ -85,9 +85,7 @@ QString delimit(const QString& fieldname)
 }
 
 
-void addWhereClause(const QMap<QString, QVariant>& where,
-                    QString& output_sql,
-                    QList<QVariant>& output_args)
+void addWhereClause(const WhereConditions& where, SqlArgs& sqlargs_altered)
 {
     if (where.isEmpty()) {
         return;
@@ -99,13 +97,13 @@ void addWhereClause(const QMap<QString, QVariant>& where,
         QString wherefield = it.key();
         QVariant wherevalue = it.value();
         whereclauses.append(delimit(wherefield) + "=?");
-        output_args.append(wherevalue);
+        sqlargs_altered.args.append(wherevalue);
     }
-    output_sql += " WHERE " + whereclauses.join(" AND ");
+    sqlargs_altered.sql += " WHERE " + whereclauses.join(" AND ");
 }
 
 
-void addArgs(QSqlQuery& query, const QList<QVariant>& args)
+void addArgs(QSqlQuery& query, const ArgList& args)
 {
     // Adds arguments to a query from a QList.
     const int size = args.size();
@@ -117,7 +115,7 @@ void addArgs(QSqlQuery& query, const QList<QVariant>& args)
 
 bool execQuery(QSqlQuery& query,
                const QString& sql,
-               const QList<QVariant>& args)
+               const ArgList& args)
 {
     // Executes an existing query (in place) with the supplied SQL/args.
     // THIS IS THE MAIN POINT THROUGH WHICH ALL QUERIES SHOULD BE EXECUTED.
@@ -162,14 +160,20 @@ bool execQuery(QSqlQuery& query,
 
 bool execQuery(QSqlQuery& query, const QString& sql)
 {
-    QList<QVariant> args;
+    ArgList args;
     return execQuery(query, sql, args);
+}
+
+
+bool execQuery(QSqlQuery& query, const SqlArgs& sqlargs)
+{
+    return execQuery(query, sqlargs.sql, sqlargs.args);
 }
 
 
 bool exec(const QSqlDatabase& db,
           const QString& sql,
-          const QList<QVariant>& args)
+          const ArgList& args)
 {
     // Executes a new query and returns success.
     QSqlQuery query(db);
@@ -181,14 +185,20 @@ bool exec(const QSqlDatabase& db,
 bool exec(const QSqlDatabase& db,
           const QString& sql)
 {
-    QList<QVariant> args;
+    ArgList args;
     return exec(db, sql, args);
+}
+
+
+bool exec(const QSqlDatabase& db, const SqlArgs& sqlargs)
+{
+    return exec(db, sqlargs.sql, sqlargs.args);
 }
 
 
 QVariant dbFetchFirstValue(const QSqlDatabase& db,
                            const QString& sql,
-                           const QList<QVariant>& args)
+                           const ArgList& args)
 {
     QSqlQuery query(db);
     execQuery(query, sql, args);
@@ -201,13 +211,13 @@ QVariant dbFetchFirstValue(const QSqlDatabase& db,
 
 QVariant dbFetchFirstValue(const QSqlDatabase& db, const QString& sql)
 {
-    QList<QVariant> args;
+    ArgList args;
     return dbFetchFirstValue(db, sql, args);
 }
 
 
 int dbFetchInt(const QSqlDatabase& db, const QString& sql,
-               const QList<QVariant>& args, int failureDefault)
+               const ArgList& args, int failureDefault)
 {
     // Executes the specified SQL/args and returns the integer value of the
     // first field of the first result (or failureDefault).
@@ -223,7 +233,7 @@ int dbFetchInt(const QSqlDatabase& db, const QString& sql,
 int dbFetchInt(const QSqlDatabase& db, const QString& sql,
                int failureDefault)
 {
-    QList<QVariant> args;
+    ArgList args;
     return dbFetchInt(db, sql, args, failureDefault);
 }
 
@@ -232,7 +242,7 @@ bool tableExists(const QSqlDatabase& db, const QString& tablename)
 {
     QString sql = "SELECT COUNT(*) FROM sqlite_master "
                   "WHERE type='table' AND name=?";
-    QList<QVariant> args({tablename});
+    ArgList args({tablename});
     return dbFetchInt(db, sql, args) > 0;
 }
 
@@ -313,7 +323,7 @@ QString makeCreationSqlFromPragmaInfo(const QString& tablename,
 QString dbTableDefinitionSql(const QSqlDatabase& db, const QString& tablename)
 {
     QString sql = "SELECT sql FROM sqlite_master WHERE tbl_name=?";
-    QList<QVariant> args({tablename});
+    ArgList args({tablename});
     return dbFetchFirstValue(db, sql, args).toString();
 }
 

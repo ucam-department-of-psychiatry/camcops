@@ -1,9 +1,9 @@
 #pragma once
 #include <QMap>
 #include <QSqlDatabase>
-#include <QSqlRecord>
 #include <QString>
 #include "common/dbconstants.h"
+#include "lib/dbfunc.h"
 #include "lib/field.h"
 
 class FieldRef;
@@ -32,6 +32,7 @@ public:
     FieldRef fieldRef(const QString& fieldname);
     // Loading, saving:
     virtual bool load(int pk);
+    virtual SqlArgs fetchQuerySql(const WhereConditions& where);
     virtual void setFromQuery(const QSqlQuery& query,
                               bool correct_order = false);
     virtual bool save();

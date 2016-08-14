@@ -171,7 +171,7 @@ void DatabaseObject::nullify()
 
 bool DatabaseObject::load(int pk)
 {
-    QList<QVariant> args;
+    ArgList args;
     QStringList fieldnames;
     MapIteratorType i(m_record);
     while (i.hasNext()) {
@@ -195,6 +195,24 @@ bool DatabaseObject::load(int pk)
         nullify();
     }
     return success;
+}
+
+
+SqlArgs DatabaseObject::fetchQuerySql(const WhereConditions& where)
+{
+    QStringList fieldnames = getFieldnames();
+    QStringList delimited_fieldnames;
+    for (int i = 0; i < fieldnames.size(); ++i) {
+        delimited_fieldnames.append(delimit(fieldnames.at(i)));
+    }
+    QString sql = (
+        "SELECT " + delimited_fieldnames.join(", ") + " FROM " +
+        delimit(tablename())
+    );
+    ArgList args;
+    SqlArgs sqlargs(sql, args);
+    addWhereClause(where, sqlargs);
+    return sqlargs;
 }
 
 
@@ -236,7 +254,7 @@ bool DatabaseObject::save()
 
 bool DatabaseObject::saveInsert()
 {
-    QList<QVariant> args;
+    ArgList args;
     QStringList fieldnames;
     QStringList placeholders;
     MapIteratorType i(m_record);
@@ -277,7 +295,7 @@ bool DatabaseObject::saveUpdate()
 {
     qDebug().nospace() << "Save/update: " << qUtf8Printable(m_tablename)
                        << ", " << pkname() << "=" << pkvalue();
-    QList<QVariant> args;
+    ArgList args;
     QStringList fieldnames;
     MapIteratorType i(m_record);
     while (i.hasNext()) {

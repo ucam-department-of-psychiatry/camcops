@@ -204,6 +204,10 @@ Database objects
 - Create a derived class for each type of database object, with addField()
   calls in the constructor.
 
+- [Could have non-virtual static member functions, of course, e.g.
+  getFieldSpecs() or some such, but then you can't inherit helpful
+  defaults.]
+
 - Previous notes on this:
 
 // To make makeTables() static, we need something like:
@@ -241,6 +245,118 @@ Database objects
 //   initializer expressions should not refer to class static methods or
 //   external variables."
 
+
+===============================================================================
+Factory methods; CRTP; making derived classes from base class; etc.
+===============================================================================
+
+- Standard CRTP methods for adding functions
+    ... https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern#Polymorphic_copy_construction
+  can become overly complex when you try to add a second level of inheritance
+    e.g. https://katyscode.wordpress.com/2013/08/22/c-polymorphic-cloning-and-the-crtp-curiously-recurring-template-pattern/
+  though the comments have some good ideas, e.g.:
+
+        #include <iostream>
+
+        class Vehicle
+        {
+        protected:
+            int fuelCapacity;
+
+        public:
+            Vehicle() {}
+            Vehicle(int fuelCapacity) : fuelCapacity(fuelCapacity) {}
+            virtual ~Vehicle() {}
+
+            virtual void describe() const = 0;
+            virtual Vehicle* clone() const = 0;
+        };
+
+        template <typename Base, typename Derived>
+        class VehicleCloneable : virtual public Base  // <-- NOTE THIS virtual
+        {
+        public:
+            virtual Base *clone() const
+            {
+                return new Derived(static_cast<Derived const &>(*this));
+            }
+        };
+
+        class Car : public VehicleCloneable<Vehicle, Car>
+        {
+        public:
+            Car() {}
+            Car(int fuelCapacity) : Vehicle(fuelCapacity) {}
+
+            virtual void describe() const
+            {
+                std::cout << "I am a car" << std::endl;
+            }
+        };
+
+        class Plane : public VehicleCloneable<Vehicle, Plane>
+        {
+        protected:
+            int wingSpan;
+
+        public:
+            Plane() {}
+            Plane(int fuelCapacity, int wingSpan) : Vehicle(fuelCapacity), wingSpan(wingSpan) {}
+
+            virtual void describe() const
+            {
+                std::cout << "I am a plane" << std::endl;
+            }
+        };
+
+        class FighterPlane : public VehicleCloneable<Plane, FighterPlane>
+        {
+        protected:
+            int numberOfBombs;
+
+        public:
+            FighterPlane() {}
+            FighterPlane(int fuelCapacity, int wingSpan, int numberOfBombs)
+                : Plane(fuelCapacity, wingSpan), numberOfBombs(numberOfBombs) {}
+
+            virtual void describe() const
+            {
+                std::cout << "I am a fighter plane" << std::endl;
+            }
+        };
+
+        int main()
+        {
+            Vehicle *car = new Car();
+            Vehicle *plane = new Plane();
+            Vehicle*fighterplane = new FighterPlane();
+
+            car->describe();
+            plane->describe();
+            fighterplane->describe();
+
+            Vehicle *vehicleUnknown = plane->clone();
+
+            vehicleUnknown->describe();
+        }
+
+    ... which works fine (including cloning fighterplane; NB use g++ to
+    compile).
+
+- Anyway, the current method works well, based on:
+
+// Two of the best articles on this sort of factory method in C++:
+// - http://accu.org/index.php/journals/597
+// - http://www.drdobbs.com/cpp/self-registering-objects-in-c/184410633?pgno=1
+// Note that:
+// - To do more than one thing, and to deal with classes in the abstract
+//   without having to instantiate one, we use a proxy class.
+// See also:
+// - https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern
+
+- Others also think it reasonable to use a dummy instance for "static"
+  purposes:
+  http://stackoverflow.com/questions/1820477/c-static-virtual-members
 
 ===============================================================================
 Pointer management
@@ -375,6 +491,7 @@ Questionnaire
 ===============================================================================
 TO DO
 ===============================================================================
+- screwdriver icon for test menu
 - *** MenuHeader, with signals
 - For SQL bulk reads (uploading), see
     http://stackoverflow.com/questions/18829018/qt-sql-get-column-type-and-name-from-table-without-record

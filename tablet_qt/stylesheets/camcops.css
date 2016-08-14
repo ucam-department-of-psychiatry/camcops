@@ -10,5 +10,5 @@ QMainWindow {  /* not relevant because QStackedWidget superimposes */
 }
 
 QStackedWidget {  /* the stack of menus; thus, the background of all menus */
-    background-color: green;
+    background-color: black;
 }

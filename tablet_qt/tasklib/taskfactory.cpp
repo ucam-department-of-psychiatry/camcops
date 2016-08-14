@@ -36,7 +36,7 @@ void TaskFactory::finishRegistration()
 {
     for (int i = 0; i < m_initial_proxy_list.size(); ++i) {
         ProxyType proxy = m_initial_proxy_list[i];
-        TaskPtr p_task = proxy->createObject(m_app.m_db);
+        TaskPtr p_task = proxy->create(m_app.m_db);
         TaskCache cache;
         cache.tablename = p_task->tablename();
         cache.shortname = p_task->shortname();
@@ -55,19 +55,17 @@ QStringList TaskFactory::tablenames() const
 }
 
 
-TaskPtr TaskFactory::build(const QString& key, int load_pk) const
+TaskPtr TaskFactory::create(const QString& key, int load_pk) const
 {
     if (!m_map.contains(key)) {
-        qWarning().nospace() << "TaskFactoryBuild(" << key << ", "
+        qWarning().nospace() << "TaskFactory::create(" << key << ", "
                              << load_pk << ")" << "... no such task";
         return TaskPtr(nullptr);
     }
-    qDebug().nospace() << "TaskFactoryBuild(" << key << ", "
-
-
+    qDebug().nospace() << "TaskFactory::create(" << key << ", "
                        << load_pk << ")";
     ProxyType proxy = m_map[key].proxy;
-    return proxy->createObject(m_app.m_db, load_pk);
+    return proxy->create(m_app.m_db, load_pk);
 }
 
 
@@ -77,7 +75,7 @@ void TaskFactory::makeAllTables() const
     while (it.hasNext()) {
         it.next();
         ProxyType proxy = it.value().proxy;
-        TaskPtr p_task = proxy->createObject(m_app.m_db);
+        TaskPtr p_task = proxy->create(m_app.m_db);
         p_task->makeTables();
         p_task->save(); // *** FOR TESTING ONLY!
     }
@@ -106,7 +104,7 @@ QString TaskFactory::getLongName(const QString& key) const
 
 void TaskFactory::makeTables(const QString& key) const
 {
-    TaskPtr p_task = build(key);
+    TaskPtr p_task = create(key);
     if (!p_task) {
         return;
     }
@@ -114,8 +112,10 @@ void TaskFactory::makeTables(const QString& key) const
 }
 
 
-TaskPtrList TaskFactory::fetch(const QString& tablename, int patient_id) const
+TaskPtrList TaskFactory::fetch(const QString& tablename) const
 {
+    int patient_id = m_app.currentPatientId();
+    // *** implement any necessary locked/no-patient filtering here; think; may be OK, but maybe not
     if (tablename.isEmpty()) {
         // All tasks
         TaskPtrList tasklist;

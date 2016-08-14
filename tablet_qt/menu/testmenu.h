@@ -2,7 +2,6 @@
 #include <QSharedPointer>
 #include "common/camcopsapp.h"
 #include "lib/netcore.h"
-#include "menulib/menuitem.h"
 #include "menulib/menuwindow.h"
 
 
@@ -12,7 +11,6 @@ class TestMenu : public MenuWindow
 
 public:
     TestMenu(CamcopsApp& app);
-    ~TestMenu();
 protected:
     void testPhq9Creation();
     void testDebugConsole();
@@ -20,6 +18,5 @@ protected:
     void testHttp();
     void testHttps();
 protected:
-    CamcopsApp& m_app;
     QSharedPointer<NetworkManager> m_p_netmgr;
 };

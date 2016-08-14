@@ -2,7 +2,9 @@
 #include <QApplication>
 #include <QDateTime>
 #include <QDialog>
+#include <QMainWindow>
 #include <QPushButton>
+#include <QStackedWidget>
 #include "common/uiconstants.h"
 #include "lib/datetimefunc.h"
 #include "lib/dbfunc.h"
@@ -17,7 +19,8 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     m_lockstate(LockState::Locked),
     m_whisker_connected(false),
     m_p_main_window(nullptr),
-    m_p_window_stack(nullptr)
+    m_p_window_stack(nullptr),
+    m_patient_id(NONEXISTENT_PK)
 {
     QDateTime dt = now();
     qInfo() << "CamCOPS starting at:" << qUtf8Printable(datetimeToIsoMs(dt))
@@ -33,7 +36,7 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     openDatabaseOrDie(m_db, DATA_DATABASE_FILENAME);
     openDatabaseOrDie(m_sysdb, SYSTEM_DATABASE_FILENAME);
 
-    m_p_task_factory = new TaskFactory(*this);
+    m_p_task_factory = TaskFactoryPtr(new TaskFactory(*this));
     InitTasks(*m_p_task_factory);  // ensures all tasks are registered
     m_p_task_factory->finishRegistration();
     qInfo() << "Registered tasks:" << m_p_task_factory->tablenames();
@@ -150,4 +153,31 @@ void CamcopsApp::setWhiskerConnected(bool connected)
     if (changed) {
         emit whiskerConnectionStateChanged(connected);
     }
+}
+
+bool CamcopsApp::patientSelected() const
+{
+    return m_patient_id != NONEXISTENT_PK;
+}
+
+
+QString CamcopsApp::patientDetails() const
+{
+    return "*** patient details ***";
+}
+
+
+void CamcopsApp::setSelectedPatient(int patient_id)
+{
+    bool changed = patient_id != m_patient_id;
+    m_patient_id = patient_id;
+    if (changed) {
+
+    }
+}
+
+
+int CamcopsApp::currentPatientId() const
+{
+    return m_patient_id;
 }

@@ -20,19 +20,58 @@ QVBoxLayout {
     padding: 0;
 }
 
-MenuTitle {
+/* Menu header */
+MenuWindowTitle {
     color: white;
     font-weight: bold;
     border: 0;
     margin: 0;
     padding: 0;
 }
-
-MenuSubtitle {
-    /* background-color: red; */
-    border: 1px solid blue;
-    color: grey;
+MenuHeaderPatientInfo {
+    color: yellow;
+    font-weight: bold;
     border: 0;
     margin: 0;
     padding: 0;
+}
+MenuHeaderNoPatient {
+    color: magenta;
+    font-weight: bold;
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+/* Menu items */
+MenuItemTitle {
+    color: white;
+    font-weight: bold;
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+MenuItemSubtitle {
+    /* background-color: red; */
+    color: rgb(200, 200, 200);
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+/* Background colour modifications */
+#not_implemented {
+    background-color: rgba(0, 0, 255, 100);
+}
+#label_only {
+    background-color: rgba(150, 150, 150, 100);
+}
+#locked {
+    background-color: rgba(255, 0, 0, 100);
+}
+#needs_privilege {
+    background-color: rgba(255, 255, 0, 100);
+}
+#unsupported {
+    background-color: rgba(50, 50, 200, 100);
 }

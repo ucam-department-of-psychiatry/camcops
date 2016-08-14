@@ -1,4 +1,5 @@
 #pragma once
+#include <type_traits>  // for std::is_base_of
 #include <QList>
 #include <QMap>
 #include <QSharedPointer>
@@ -18,6 +19,8 @@
 // Note that:
 // - To do more than one thing, and to deal with classes in the abstract
 //   without having to instantiate one, we use a proxy class.
+// See also:
+// - https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern
 
 // ===========================================================================
 // We happen to want to know about this too, for the proxy definitions:
@@ -44,17 +47,13 @@ class TaskProxy
 public:
     TaskProxy(TaskFactory& factory);  // Registers itself with the factory.
     // We do want to create instances...
-    virtual TaskPtr createObject(const QSqlDatabase& db,
-                                 int load_pk = NONEXISTENT_PK) const = 0;
-    // But we might do other things without creating an instance, using
-    // static member functions of Task...
-    // ... no, too much hassle; work with instances (see notes on database
-    // objects)
-
+    virtual TaskPtr create(const QSqlDatabase& db,
+                           int load_pk = NONEXISTENT_PK) const = 0;
     virtual TaskPtrList fetch(const QSqlDatabase& db,
                               int patient_id = NONEXISTENT_PK) const = 0;
+protected:
     virtual TaskPtrList fetchWhere(const QSqlDatabase& db,
-                                   QMap<QString, QVariant> where) const = 0;
+                                   const WhereConditions& where) const = 0;
 };
 
 
@@ -64,58 +63,49 @@ public:
 
 template<class Derived> class TaskRegistrar : public TaskProxy
 {
+    static_assert(std::is_base_of<Task, Derived>::value,
+                  "You can only use Task-derived classes here.");
 public:
     TaskRegistrar(TaskFactory& factory) :
-        TaskProxy(factory)  // does the registration; see TaskProxy::TaskProxy
+        TaskProxy(factory)  // registers proxy with factory (see TaskProxy::TaskProxy)
     {}
-    TaskPtr createObject(const QSqlDatabase& db,
-                         int load_pk = NONEXISTENT_PK) const
+
+    TaskPtr create(const QSqlDatabase& db,
+                   int load_pk = NONEXISTENT_PK) const override
     {
         // Create a single instance of a task (optionally, loading it)
         return TaskPtr(new Derived(db, load_pk));
     }
+
     TaskPtrList fetch(const QSqlDatabase& db,
-                      int patient_id = NONEXISTENT_PK) const
+                      int patient_id = NONEXISTENT_PK) const override
     {
         // Fetch multiple tasks, either matching a patient_id, or all for
         // the task type.
         Derived specimen(db, NONEXISTENT_PK);
         bool anonymous = specimen.isAnonymous();
         if (patient_id != NONEXISTENT_PK && anonymous) {
-            // No anonymous tasks will match.
+            // No anonymous tasks will match a specific patient.
             return TaskPtrList();
         }
-        QMap<QString, QVariant> where;
+        WhereConditions where;
         if (patient_id != NONEXISTENT_PK) {
             where[PATIENT_FK_FIELDNAME] = QVariant(patient_id);
         }
         return fetchWhere(db, where);
     }
+
+protected:
     TaskPtrList fetchWhere(const QSqlDatabase& db,
-                            QMap<QString, QVariant> where) const
+                           const WhereConditions& where) const override
     {
         // Fetch multiple tasks according to the field/value "where" criteria
-        // CALLER TAKES OWNERSHIP OF POINTERS
         TaskPtrList tasklist;
-
-        // Build SQL
         Derived specimen(db, NONEXISTENT_PK);
-        QStringList fieldnames = specimen.getFieldnames();
-        QStringList delimited_fieldnames;
-        for (int i = 0; i < fieldnames.size(); ++i) {
-            delimited_fieldnames.append(delimit(fieldnames.at(i)));
-        }
-        QString sql = (
-            "SELECT " + delimited_fieldnames.join(", ") + " FROM " +
-            delimit(specimen.tablename())
-        );
-        QList<QVariant> args;
-        addWhereClause(where, sql, args);
-
-        // Execute SQL
+        SqlArgs sqlargs = specimen.fetchQuerySql(where);
         QSqlQuery query(db);
-        bool success = execQuery(query, sql, args);
-        if (success) {
+        bool success = execQuery(query, sqlargs);
+        if (success) {  // success check may be redundant (cf. while clause)
             while (query.next()) {
                 TaskPtr p_new_task(new Derived(db, NONEXISTENT_PK));
                 p_new_task->setFromQuery(query, true);
@@ -154,15 +144,17 @@ public:
     QStringList tablenames() const;
     void makeAllTables() const;
     // Operations relating to specific tasks
-    TaskPtr build(const QString& key, int load_pk = NONEXISTENT_PK) const;
+    TaskPtr create(const QString& key, int load_pk = NONEXISTENT_PK) const;
     QString getShortName(const QString& key) const;
     QString getLongName(const QString& key) const;
     void makeTables(const QString& key) const;
-    TaskPtrList fetch(const QString& tablename = "",
-                      int patient_id = NONEXISTENT_PK) const;
+    TaskPtrList fetch(const QString& tablename = "") const;
 protected:
     CamcopsApp& m_app;
     QStringList m_tablenames;
     QList<ProxyType> m_initial_proxy_list;
     MapType m_map;
 };
+
+
+typedef QSharedPointer<TaskFactory> TaskFactoryPtr;

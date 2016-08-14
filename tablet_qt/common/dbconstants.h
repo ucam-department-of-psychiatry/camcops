@@ -1,6 +1,7 @@
 #pragma once
+#include <QString>
 
-const QString PK_FIELDNAME = "id";
-const QString MODIFICATION_TIMESTAMP_FIELDNAME = "when_last_modified";
-const int NONEXISTENT_PK = -1;
+extern const QString PK_FIELDNAME;
+extern const QString MODIFICATION_TIMESTAMP_FIELDNAME;
+extern const int NONEXISTENT_PK;
 

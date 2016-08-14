@@ -47,7 +47,32 @@ SOURCES += main.cpp\
     lib/fieldref.cpp \
     menu/mainmenu.cpp \
     menu/testmenu.cpp \
-    common/camcopsapp.cpp
+    common/camcopsapp.cpp \
+    menu/affectivemenu.cpp \
+    common/dbconstants.cpp \
+    menu/addictionmenu.cpp \
+    menu/anonymousmenu.cpp \
+    menu/alltasksmenu.cpp \
+    menu/catatoniaepsemenu.cpp \
+    menu/clinicalmenu.cpp \
+    menu/clinicalsetsmenu.cpp \
+    menu/cognitivemenu.cpp \
+    menu/executivemenu.cpp \
+    menu/globalmenu.cpp \
+    menu/helpmenu.cpp \
+    menu/personalitymenu.cpp \
+    menu/psychosismenu.cpp \
+    menu/researchmenu.cpp \
+    menu/researchsetsmenu.cpp \
+    menu/settingsmenu.cpp \
+    menu/whiskermenu.cpp \
+    menu/setmenucpftaffective1.cpp \
+    menu/setmenudeakin1.cpp \
+    menu/setmenufromlp.cpp \
+    menu/setmenuobrien1.cpp \
+    common/platform.cpp \
+    menu/singletaskmenu.cpp \
+    menu/patientsummarymenu.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -70,7 +95,32 @@ HEADERS  += \
     menu/mainmenu.h \
     common/camcopsapp.h \
     common/dbconstants.h \
-    common/uiconstants.h
+    common/uiconstants.h \
+    menulib/menuproxy.h \
+    menu/affectivemenu.h \
+    menu/addictionmenu.h \
+    menu/anonymousmenu.h \
+    menu/alltasksmenu.h \
+    menu/catatoniaepsemenu.h \
+    menu/clinicalmenu.h \
+    menu/clinicalsetsmenu.h \
+    menu/cognitivemenu.h \
+    menu/executivemenu.h \
+    menu/globalmenu.h \
+    menu/helpmenu.h \
+    menu/personalitymenu.h \
+    menu/psychosismenu.h \
+    menu/researchmenu.h \
+    menu/researchsetsmenu.h \
+    menu/settingsmenu.h \
+    menu/whiskermenu.h \
+    menu/setmenucpftaffective1.h \
+    menu/setmenudeakin1.h \
+    menu/setmenufromlp.h \
+    menu/setmenuobrien1.h \
+    common/platform.h \
+    menu/singletaskmenu.h \
+    menu/patientsummarymenu.h
 
 CONFIG += debug
 CONFIG += mobility

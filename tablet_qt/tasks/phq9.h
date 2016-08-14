@@ -13,17 +13,17 @@ public:
     // ------------------------------------------------------------------------
     // General info
     // ------------------------------------------------------------------------
-    virtual QString shortname() const;
-    virtual QString longname() const;
-    virtual QString menutitle() const;
-    virtual QString menusubtitle() const;
+    virtual QString shortname() const override;
+    virtual QString longname() const override;
+    virtual QString menutitle() const override;
+    virtual QString menusubtitle() const override;
     // ------------------------------------------------------------------------
     // Specific info
     // ------------------------------------------------------------------------
-    virtual bool isComplete() const;
-    virtual QString getSummary() const;
-    virtual QString getDetail() const;
-    virtual void edit();
+    virtual bool isComplete() const override;
+    virtual QString getSummary() const override;
+    virtual QString getDetail() const override;
+    virtual void edit() override;
 };
 
 void initializePhq9(TaskFactory& factory);

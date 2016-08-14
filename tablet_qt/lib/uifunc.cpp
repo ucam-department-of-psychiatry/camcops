@@ -1,6 +1,7 @@
-#define DEBUG_ICON_LOAD
+// #define DEBUG_ICON_LOAD
 
 #include <QApplication>
+#include <QAbstractButton>
 #include <QDebug>
 #include <QMessageBox>
 #include <QObject>
@@ -35,13 +36,24 @@ QLabel* iconWidget(const QString& filename, QWidget* parent, bool scale)
     QPixmap iconimage = getPixmap(filename);
     QLabel* iconlabel = new QLabel(parent);
     if (scale) {
-        iconlabel->setFixedHeight(ICONSIZE);
-        iconlabel->setFixedWidth(ICONSIZE);
+        iconlabel->setFixedSize(QSize(ICONSIZE, ICONSIZE));
         iconlabel->setPixmap(iconimage.scaled(ICONSIZE, ICONSIZE,
                                               Qt::IgnoreAspectRatio));
     } else {
+        iconlabel->setFixedSize(iconimage.size());
         iconlabel->setPixmap(iconimage);
     }
+    return iconlabel;
+}
+
+
+QLabel* blankIcon(QWidget* parent)
+{
+    QPixmap iconimage(ICONSIZE, ICONSIZE);
+    iconimage.fill(QColor(0, 0, 0, 0));  // a=0 means fully transparent
+    QLabel* iconlabel = new QLabel(parent);
+    iconlabel->setFixedSize(QSize(ICONSIZE, ICONSIZE));
+    iconlabel->setPixmap(iconimage);
     return iconlabel;
 }
 
@@ -74,6 +86,59 @@ QAbstractButton* iconButton(const QString& normal_filename,
 
     button->setStyleSheet(stylesheet);
     return button;
+}
+
+
+// ============================================================================
+// Widget manipulations
+// ============================================================================
+
+/*
+QString cssColour(const QColor& colour)
+{
+    QString css = QString("rgba(%1,%2,%3,%4)").arg(
+        QString::number(colour.red()),
+        QString::number(colour.green()),
+        QString::number(colour.blue()),
+        QString::number(colour.alpha()));
+    return css;
+}
+*/
+
+
+/*
+void setBackgroundColour(QWidget* widget, const QColor& colour)
+{
+    // https://wiki.qt.io/How_to_Change_the_Background_Color_of_QWidget
+
+    // Palette method not working. (Conflict with stylesheet?)
+    //
+    // QPalette palette(widget->palette());
+    // palette.setColor(QPalette::Background, Qt::red);
+    // widget->setPalette(palette);
+    // widget->setAutoFillBackground(true);
+
+    // Stylesheet method working.
+    widget->setStyleSheet("background-color:" + cssColour(colour) + ";");
+}
+*/
+
+
+void removeAllChildWidgets(QObject* object)
+{
+    // http://stackoverflow.com/questions/22643853/qt-clear-all-widgets-from-inside-a-qwidgets-layout
+    // ... modified a little
+    qDebug() << "removeAllChildWidgets";
+    for (QWidget* w : object->findChildren<QWidget*>()) {
+        qDebug() << "1";
+        if (!(w->windowFlags() & Qt::Window)) {
+            qDebug() << "2";
+            delete w;
+        }
+    }
+
+    // BUT layouts do not become parents of their widgets:
+    // http://stackoverflow.com/questions/4065378/qt-get-children-from-layout
 }
 
 

@@ -1,7 +1,9 @@
 #pragma once
 #include <QObject>
 #include <QString>
-#include <QtNetwork/QNetworkReply>
+#include <QSslError>
+
+class QNetworkReply;
 
 
 class NetworkManager : public QObject
@@ -14,7 +16,7 @@ public:
 protected:
     void testReplyFinished(QNetworkReply* reply);
     void sslIgnoringErrorHandler(QNetworkReply* reply,
-                                 const QList<QSslError> & errlist);
+                                 const QList<QSslError>& errlist);
 protected:
     QString m_url;
 };
