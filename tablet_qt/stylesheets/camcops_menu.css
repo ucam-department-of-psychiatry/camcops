@@ -1,32 +1,40 @@
-/* http://doc.qt.io/qt-5/stylesheet-syntax.html */
+/*
+- http://doc.qt.io/qt-5/stylesheet-syntax.html
+- Empirically (!): Layouts don't have CSS. Widgets do.
+    http://doc.qt.io/qt-5/stylesheet.html
+*/
 
-QListWidget {
-    background: black;
+/* =========================================================================
+   Outer containers
+   ========================================================================= */
+
+#menu_window_outer_object {
+    /* background-color ignored, for unclear QStackedWidget reason */
     border: 0;
     padding: 0;
     margin: 0;
 }
-QListWidget::item {
-    background: black;
-}
-QListWidget::item:selected {
-    /* excellent diagnostic to see if this stylesheet is in use */
-    background: blue;
-}
-
-QVBoxLayout {
+#menu_window_background {
+    background-color: black;
     border: 0;
-    margin: 0;
     padding: 0;
+    margin: 0;
 }
 
-/* Menu header */
+/* =========================================================================
+   Menu header
+   ========================================================================= */
+
 #menu_window_title {
     color: white;
     font-weight: bold;
     border: 0;
     margin: 0;
     padding: 0;
+}
+#header_horizontal_line {
+    color: white;  /* setLineWidth */
+    background-color: white;  /* frame around the line, if visible */
 }
 #menu_header_patient_info {
     color: yellow;
@@ -41,6 +49,25 @@ QVBoxLayout {
     border: 0;
     margin: 0;
     padding: 0;
+}
+
+/* =========================================================================
+   Menu content
+   ========================================================================= */
+
+QListWidget {
+    background-color: black;
+    /* ... vertically below all menu items; seen if menu shorter than screen */
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+QListWidget::item {
+    background-color: black;
+}
+QListWidget::item:selected {
+    /* excellent diagnostic to see if this stylesheet is in use */
+    background-color: blue;
 }
 
 /* Menu items */

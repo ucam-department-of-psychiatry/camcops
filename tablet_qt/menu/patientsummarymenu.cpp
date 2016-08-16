@@ -7,7 +7,7 @@
 PatientSummaryMenu::PatientSummaryMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Patient summary"), ICON_PATIENT_SUMMARY)
 {
-    TaskFactoryPtr factory = app.m_p_task_factory;
+    TaskFactoryPtr factory = app.factory();
 
     // Common items
     m_items = {

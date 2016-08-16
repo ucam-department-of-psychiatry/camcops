@@ -53,6 +53,18 @@ void Task::setPatient(int patient_id)
 }
 
 
+QString Task::menutitle() const
+{
+    return QString("%1 (%2)").arg(longname(), shortname());
+}
+
+
+bool Task::hasExtraStrings() const
+{
+    return false;  // ***
+}
+
+
 void Task::makeTables()
 {
     makeTable();
@@ -82,7 +94,14 @@ QString Task::getSummaryWithCompleteSuffix() const
 {
     QString result = getSummary();
     if (!isComplete()) {
-        result += QObject::tr(" (INCOMPLETE)");
+        result += tr(" (INCOMPLETE)");
     }
     return result;
+}
+
+
+void Task::edit(CamcopsApp &app)
+{
+    (void)app;
+    qWarning() << "Base class Task::edit called - not a good thing!";
 }

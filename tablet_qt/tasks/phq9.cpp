@@ -5,17 +5,9 @@
 Phq9::Phq9(const QSqlDatabase& db, int load_pk) :
     Task(db, "phq9", false, false, false)
 {
-    qDebug() << "Phq9::Phq9";
-
     addField("q1", QVariant::Int);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
-}
-
-
-Phq9::~Phq9()
-{
-    qDebug() << "Phq9::~Phq9";
 }
 
 
@@ -28,12 +20,6 @@ QString Phq9::shortname() const
 QString Phq9::longname() const
 {
     return "Patient Health Questionnaire-9";
-}
-
-
-QString Phq9::menutitle() const
-{
-    return "Patient Health Questionnaire-9 (PHQ-9)";
 }
 
 
@@ -61,13 +47,14 @@ QString Phq9::getDetail() const
 }
 
 
-void Phq9::edit()
+void Phq9::edit(CamcopsApp& app)
 {
+    (void)app;
     // ***
 }
 
 
 void initializePhq9(TaskFactory& factory)
 {
-    static TaskRegistrar<Phq9> registered_phq9(factory);
+    static TaskRegistrar<Phq9> registered(factory);
 }

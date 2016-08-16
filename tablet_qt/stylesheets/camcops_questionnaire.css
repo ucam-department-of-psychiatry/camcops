@@ -1,0 +1,74 @@
+/* http://doc.qt.io/qt-5/stylesheet-syntax.html */
+
+/* =========================================================================
+   General styling
+   ========================================================================= */
+
+QWidget {
+    color: black;
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+QLabel {
+    background-color: green;
+}
+
+/* =========================================================================
+   Outer containers
+   ========================================================================= */
+
+#questionnaire_outer_object {
+    /* background-color ignored, for unclear QStackedWidget reason */
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+#questionnaire_background_patient {
+    background-color: white;
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+#questionnaire_background_clinician {
+    /* background-color: #FFFFD0; */  /* pale yellow */
+    background-color: green;
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+#questionnaire_background_config {
+    background-color: #E6E6FA;  /* lavender */
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+
+/* =========================================================================
+   Questionnaire header
+   ========================================================================= */
+
+#questionnaire_title {
+}
+#header_horizontal_line {
+    color: black;  /* setLineWidth */
+    background-color: black;  /* frame around the line, if visible */
+}
+
+/* =========================================================================
+   Debugging
+   ========================================================================= */
+
+#debug_green {
+    background-color: green;
+}
+#debug_red {
+    background-color: red;
+}
+#debug_blue {
+    background-color: blue;
+}
+#debug_yellow {
+    background-color: yellow;
+}

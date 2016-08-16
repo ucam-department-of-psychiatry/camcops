@@ -21,16 +21,14 @@ const int STRETCH_2COL_TIMESTAMP = 2;
 const int STRETCH_2COL_SUMMARY = 8;
 
 
-MenuItem::MenuItem(QWidget* parent) :
-    m_p_parent(parent),
+MenuItem::MenuItem() :
     m_title("?")
 {
     setDefaults();
 }
 
 
-MenuItem::MenuItem(const QString& title, QWidget* parent) :
-    m_p_parent(parent),
+MenuItem::MenuItem(const QString& title) :
     m_title(title)
 {
     // this constructor used for placeholders for not-implemented stuff
@@ -40,8 +38,7 @@ MenuItem::MenuItem(const QString& title, QWidget* parent) :
 
 
 MenuItem::MenuItem(const QString& title, const MenuItem::ActionFunction& func,
-                   const QString& icon, QWidget* parent) :
-    m_p_parent(parent),
+                   const QString& icon) :
     m_title(title)
 {
     setDefaults();
@@ -50,9 +47,7 @@ MenuItem::MenuItem(const QString& title, const MenuItem::ActionFunction& func,
 }
 
 
-MenuItem::MenuItem(MenuProxyPtr p_menuproxy,
-                   CamcopsApp& app, QWidget* parent) :
-    m_p_parent(parent)
+MenuItem::MenuItem(MenuProxyPtr p_menuproxy, CamcopsApp& app)
     // m_title: below
 {
     setDefaults();
@@ -65,15 +60,13 @@ MenuItem::MenuItem(MenuProxyPtr p_menuproxy,
 }
 
 
-MenuItem::MenuItem(const TaskMenuItem& taskmenuitem,
-                   CamcopsApp& app, QWidget* parent) :
-    m_p_parent(parent)
+MenuItem::MenuItem(const TaskMenuItem& taskmenuitem, CamcopsApp& app)
     // m_title: below
 {
     setDefaults();
     m_task_tablename = taskmenuitem.tablename;
 
-    TaskPtr task = app.m_p_task_factory->create(m_task_tablename);
+    TaskPtr task = app.factory()->create(m_task_tablename);
     if (task == nullptr) {
         m_title = tr("UNKNOWN TASK") + ": " + taskmenuitem.tablename;
         m_implemented = false;
@@ -88,8 +81,7 @@ MenuItem::MenuItem(const TaskMenuItem& taskmenuitem,
 }
 
 
-MenuItem::MenuItem(TaskPtr p_task, bool task_shows_taskname, QWidget* parent) :
-    m_p_parent(parent),
+MenuItem::MenuItem(TaskPtr p_task, bool task_shows_taskname) :
     m_title("?")
 {
     setDefaults();
@@ -102,7 +94,6 @@ void MenuItem::setDefaults()
 {
     // Not the most efficient, but saves lots of duplication
 
-    // not m_p_parent
     // not m_title
     m_subtitle = "";
     m_icon = "";
@@ -121,6 +112,18 @@ void MenuItem::setDefaults()
     m_p_menuproxy = MenuProxyPtr(nullptr);
     m_task_tablename = "";
     m_p_task = TaskPtr(nullptr);
+}
+
+
+QString MenuItem::title()
+{
+    return m_title;
+}
+
+
+TaskPtr MenuItem::task()
+{
+    return m_p_task;
 }
 
 

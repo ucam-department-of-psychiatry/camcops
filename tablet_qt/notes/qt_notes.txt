@@ -175,6 +175,54 @@ Core dump
     bt
 
 ===============================================================================
+Other debugging
+===============================================================================
+- sudo apt-get install valgrind
+- Analyze -> Valgrind Memory Analyzer
+  http://doc.qt.io/qtcreator/creator-analyzer.html
+  ... but can't see any useful output
+- http://stackoverflow.com/questions/1593717/is-anyone-using-valgrind-and-qt
+- valgrind --leak-check=full ./camcops_tablet 2>leaks.txt
+
+- Qt Inspector
+        http://kdemonkey.blogspot.co.uk/2011/07/qt-inspector.html
+        https://www.cs.swarthmore.edu/~adanner/tips/cmake.php
+    cd ~/dev
+    git clone https://github.com/robertknight/Qt-Inspector
+    cd Qt-Inspector
+    mkdir build
+    cd build
+    cmake ..
+    # ... doesn't work; complains about protobuf
+
+    sudo apt install libprotobuf-dev
+    cmake ..
+    # success
+    make
+    # failure; PROTOBUF_PROTOC_EXECUTABLE-NOTFOUND: not found
+    # ... Google suggests missing is protoc
+
+    sudo apt install protobuf-compiler
+    make
+    # fails
+
+    # clean everything and redo
+    # succeeds, in that it builds/runs
+
+    ... but no success in actually connecting to a program
+
+- Basyskom-Inspector
+
+    cd ~/dev
+    git clone https://www.gitorious.org/basyskom-inspector/basyskom-inspector.git/
+
+    # doesn't build (simply) with Qt
+
+- Step into Qt source
+    Tools -> Options -> Debugger -> Add Qt sources... [then pick "qt5" directory]
+    ... nope
+
+===============================================================================
 Database objects
 ===============================================================================
 - field member variables: initial thoughts:

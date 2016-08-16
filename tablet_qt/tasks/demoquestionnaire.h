@@ -5,16 +5,17 @@
 #include "tasklib/taskfactory.h"
 
 
-class Phq9 : public Task
+class DemoQuestionnaire : public Task
 {
 public:
-    Phq9(const QSqlDatabase& db, int load_pk = NONEXISTENT_PK);
+    DemoQuestionnaire(const QSqlDatabase& db, int load_pk = NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // General info
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString menusubtitle() const override;
+    virtual bool isAnonymous() const { return true; }
     // ------------------------------------------------------------------------
     // Specific info
     // ------------------------------------------------------------------------
@@ -24,4 +25,4 @@ public:
     virtual void edit(CamcopsApp& app) override;
 };
 
-void initializePhq9(TaskFactory& factory);
+void initializeDemoQuestionnaire(TaskFactory& factory);

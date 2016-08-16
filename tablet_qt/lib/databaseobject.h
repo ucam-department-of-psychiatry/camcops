@@ -1,4 +1,6 @@
 #pragma once
+#include <QDate>
+#include <QDateTime>
 #include <QMap>
 #include <QSqlDatabase>
 #include <QString>
@@ -28,9 +30,15 @@ public:
     void addField(const Field& field);
     QStringList getFieldnames() const;
     // Field access:
-    QVariant getValue(const QString& fieldname) const;
     bool setValue(const QString& fieldname, const QVariant& value);  // returns: changed?
-    FieldRef fieldRef(const QString& fieldname);
+    QVariant getValue(const QString& fieldname) const;
+    bool getValueBool(const QString& fieldname) const;
+    int getValueInt(const QString& fieldname) const;
+    qlonglong getValueLongLong(const QString& fieldname) const;
+    double getValueDouble(const QString& fieldname) const;
+    QDateTime getValueDateTime(const QString& fieldname) const;
+    QDate getValueDate(const QString& fieldname) const;
+    FieldRef fieldRef(const QString& fieldname, bool autosave = true);
     // Loading, saving:
     virtual bool load(int pk);
     virtual SqlArgs fetchQuerySql(const WhereConditions& where);

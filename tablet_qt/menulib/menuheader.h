@@ -1,4 +1,5 @@
 #pragma once
+#include <QPointer>
 #include <QWidget>
 #include "common/camcopsapp.h"
 
@@ -14,8 +15,7 @@ public:
                CamcopsApp& app,
                bool top,
                const QString& title,
-               const QString& icon_filename = "",
-               bool offer_add = false);
+               const QString& icon_filename = "");
 signals:
     void backClicked();
     void viewClicked();
@@ -27,22 +27,21 @@ public slots:
     void offerViewEditDelete(bool offer_view = false,
                              bool offer_edit = false,
                              bool offer_delete = false);
-
-protected slots:
+    void offerAdd(bool offer_add = false);
     void lockStateChanged(LockState lockstate);
     void whiskerConnectionStateChanged(bool connected);
     void selectedPatientChanged(bool selected, const QString& details = "");
 
 protected:
     CamcopsApp& m_app;
-    QLabel* m_icon_whisker_connected;
-    QAbstractButton* m_button_view;
-    QAbstractButton* m_button_edit;
-    QAbstractButton* m_button_delete;
-    QAbstractButton* m_button_add;
-    QAbstractButton* m_button_locked;
-    QAbstractButton* m_button_unlocked;
-    QAbstractButton* m_button_privileged;
-    QLabel* m_patient_info;
-    QLabel* m_no_patient;
+    QPointer<QLabel> m_icon_whisker_connected;
+    QPointer<QAbstractButton> m_button_view;
+    QPointer<QAbstractButton> m_button_edit;
+    QPointer<QAbstractButton> m_button_delete;
+    QPointer<QAbstractButton> m_button_add;
+    QPointer<QAbstractButton> m_button_locked;
+    QPointer<QAbstractButton> m_button_unlocked;
+    QPointer<QAbstractButton> m_button_privileged;
+    QPointer<QLabel> m_patient_info;
+    QPointer<QLabel> m_no_patient;
 };

@@ -66,10 +66,29 @@ int CamcopsApp::run()
 
     MainMenu* menu = new MainMenu(*this);
     pushScreen(menu);
-    m_p_main_window->showFullScreen();
+    m_p_main_window->showMaximized();
+    // m_p_main_window->showFullScreen();
 
     qInfo() << "Starting Qt event processor...";
     return exec();
+}
+
+
+QSqlDatabase& CamcopsApp::db()
+{
+    return m_db;
+}
+
+
+QSqlDatabase& CamcopsApp::sysdb()
+{
+    return m_sysdb;
+}
+
+
+TaskFactoryPtr CamcopsApp::factory()
+{
+    return m_p_task_factory;
 }
 
 
@@ -88,7 +107,7 @@ void CamcopsApp::popScreen()
     qDebug() << "Popping screen";
     m_p_window_stack->removeWidget(top);
     // Ownership is returned to the application, so...
-    delete top;
+    top->deleteLater();  // later, in case it was this object that called us
 }
 
 
@@ -180,4 +199,19 @@ void CamcopsApp::setSelectedPatient(int patient_id)
 int CamcopsApp::currentPatientId() const
 {
     return m_patient_id;
+}
+
+
+int CamcopsApp::fontSizePt(FontSize fontsize) const
+{
+    // *** font size: use configured variables instead
+    switch (fontsize) {
+    case FontSize::Normal:
+    default:
+        return 10;
+    case FontSize::Big:
+        return 15;
+    case FontSize::Title:
+        return 20;
+    }
 }

@@ -1,4 +1,5 @@
 #pragma once
+#include <QPointer>
 #include <QWidget>
 #include "common/camcopsapp.h"
 #include "menulib/menuitem.h"
@@ -27,7 +28,6 @@ signals:
                              bool offer_delete);
 
 public slots:
-    void backClicked();
     void menuItemClicked(QListWidgetItem* item);
     void lockStateChanged(LockState lockstate);
 
@@ -37,9 +37,8 @@ protected:
     QString m_subtitle;
     QString m_icon;
     bool m_top;
-    bool m_offer_add;
     QVector<MenuItem> m_items;
-    QVBoxLayout* m_mainlayout;
-    MenuHeader* m_p_header;
-    QListWidget* m_p_listwidget;
+    QPointer<QVBoxLayout> m_mainlayout;
+    QPointer<MenuHeader> m_p_header;
+    QPointer<QListWidget> m_p_listwidget;
 };

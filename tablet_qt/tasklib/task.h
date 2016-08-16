@@ -1,5 +1,6 @@
 #pragma once
 #include <QString>
+#include "common/camcopsapp.h"
 #include "lib/databaseobject.h"
 
 extern const QString PATIENT_FK_FIELDNAME;
@@ -7,6 +8,7 @@ extern const QString PATIENT_FK_FIELDNAME;
 
 class Task : public DatabaseObject
 {
+    Q_DECLARE_TR_FUNCTIONS(Task)
 public:
     Task(const QSqlDatabase& db,
          const QString& tablename,
@@ -22,7 +24,7 @@ public:
     // tablename(): already implemented by DatabaseObject
     virtual QString shortname() const = 0;
     virtual QString longname() const = 0;
-    virtual QString menutitle() const = 0;  // usually "longname (shortname)"
+    virtual QString menutitle() const;  // default: "longname (shortname)"
     virtual QString menusubtitle() const = 0;  // descriptive
     virtual bool isAnonymous() const { return false; }
     virtual bool hasClinician() const { return false; }
@@ -31,7 +33,7 @@ public:
     virtual bool prohibitsResearch() const { return false; }
     virtual bool isEditable() const { return true; }
     virtual bool isCrippled() const { return !hasExtraStrings(); }
-    virtual bool hasExtraStrings() const { return false; }  // ***
+    virtual bool hasExtraStrings() const;
     // ------------------------------------------------------------------------
     // Tables
     // ------------------------------------------------------------------------
@@ -47,9 +49,9 @@ public:
     // Specific info
     // ------------------------------------------------------------------------
     virtual bool isComplete() const = 0;
-    virtual QString getSummary() const { return "?"; }
-    virtual QString getDetail() const { return ""; }
-    virtual void edit() {}
+    virtual QString getSummary() const { return "MISSING SUMMARY"; }
+    virtual QString getDetail() const { return getSummary(); }
+    virtual void edit(CamcopsApp& app);
     // ------------------------------------------------------------------------
     // Assistance functions
     // ------------------------------------------------------------------------

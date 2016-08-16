@@ -79,7 +79,7 @@ void TestMenu::testHttp()
 void TestMenu::testPhq9Creation()
 {
     QString tablename = "phq9";
-    TaskPtr p_task = m_app.m_p_task_factory->create(tablename);
+    TaskPtr p_task = m_app.factory()->create(tablename);
     if (!p_task) {
         qCritical() << "Failed to create task: " << qUtf8Printable(tablename);
         return;

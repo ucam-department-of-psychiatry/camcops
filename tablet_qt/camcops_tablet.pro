@@ -24,6 +24,8 @@ QT += multimediawidgets
 # http://stackoverflow.com/questions/20351155/how-can-i-enable-ssl-in-qt-windows-application
 # http://stackoverflow.com/questions/18663331/how-to-check-the-selected-version-of-qt-in-a-pro-file
 
+QMAKE_CXXFLAGS += -Werror  # warnings become errors
+
 TARGET = camcops_tablet
 TEMPLATE = app
 
@@ -72,7 +74,14 @@ SOURCES += main.cpp\
     menu/setmenuobrien1.cpp \
     common/platform.cpp \
     menu/singletaskmenu.cpp \
-    menu/patientsummarymenu.cpp
+    menu/patientsummarymenu.cpp \
+    questionnairelib/questionnaireheader.cpp \
+    tasks/demoquestionnaire.cpp \
+    questionnairelib/questionnaire.cpp \
+    common/uiconstants.cpp \
+    questionnairelib/element.cpp \
+    questionnairelib/page.cpp \
+    questionnairelib/text.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -120,12 +129,18 @@ HEADERS  += \
     menu/setmenuobrien1.h \
     common/platform.h \
     menu/singletaskmenu.h \
-    menu/patientsummarymenu.h
+    menu/patientsummarymenu.h \
+    questionnairelib/questionnaireheader.h \
+    tasks/demoquestionnaire.h \
+    questionnairelib/questionnaire.h \
+    questionnairelib/element.h \
+    questionnairelib/page.h \
+    questionnairelib/text.h
 
 CONFIG += debug
 CONFIG += mobility
 CONFIG += c++11
-MOBILITY = 
+MOBILITY =
 
 RESOURCES += \
     camcops.qrc
@@ -133,7 +148,6 @@ RESOURCES += \
 DISTFILES += \
     notes/qt_notes.txt \
     stylesheets/camcops.css \
-    stylesheets/camcops_menu.css \
     tools/build_qt.py \
     android/AndroidManifest.xml \
     android/gradle/wrapper/gradle-wrapper.jar \
@@ -141,7 +155,9 @@ DISTFILES += \
     android/res/values/libs.xml \
     android/build.gradle \
     android/gradle/wrapper/gradle-wrapper.properties \
-    android/gradlew.bat
+    android/gradlew.bat \
+    stylesheets/camcops_menu.css \
+    stylesheets/camcops_questionnaire.css
 
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android

@@ -1,14 +1,15 @@
-MenuWindow {
-    background-color: black;
-    /* background-color: red; */
+QMainWindow {
+    /* not relevant because QStackedWidget superimposes */
+    /* background-color: yellow; */
     border: 0;
     margin: 0;
     padding: 0;
 }
 
-QMainWindow {  /* not relevant because QStackedWidget superimposes */
-}
-
-QStackedWidget {  /* the stack of menus; thus, the background of all menus */
-    background-color: black;
+QStackedWidget {
+    /* the stack of menus; thus, the background of all menus */
+    background-color: red;
+    border: 0;
+    margin: 0;
+    padding: 0;
 }

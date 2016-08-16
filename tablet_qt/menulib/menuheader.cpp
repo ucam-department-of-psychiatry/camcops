@@ -4,6 +4,7 @@
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include "common/uiconstants.h"
 #include "lib/uifunc.h"
 
 
@@ -11,8 +12,7 @@ MenuHeader::MenuHeader(QWidget* parent,
                        CamcopsApp& app,
                        bool top,
                        const QString& title,
-                       const QString& icon_filename,
-                       bool offer_add)
+                       const QString& icon_filename)
     : QWidget(parent),
       m_app(app),
       m_button_add(nullptr)
@@ -54,22 +54,21 @@ MenuHeader::MenuHeader(QWidget* parent,
     m_button_view = CAMCOPS_BUTTON_ZOOM(this);
     m_button_edit = CAMCOPS_BUTTON_EDIT(this);
     m_button_delete = CAMCOPS_BUTTON_DELETE(this);
+    m_button_add = CAMCOPS_BUTTON_ADD(this);
     toprowlayout->addWidget(m_button_view);
     toprowlayout->addWidget(m_button_edit);
     toprowlayout->addWidget(m_button_delete);
+    toprowlayout->addWidget(m_button_add);
     offerViewEditDelete();
+    offerAdd();
     connect(m_button_view, &QAbstractButton::clicked,
             this, &MenuHeader::viewClicked);
     connect(m_button_edit, &QAbstractButton::clicked,
             this, &MenuHeader::editClicked);
     connect(m_button_delete, &QAbstractButton::clicked,
             this, &MenuHeader::deleteClicked);
-    if (offer_add) {
-        m_button_add = CAMCOPS_BUTTON_ADD(this);
-        toprowlayout->addWidget(m_button_add);
-        connect(m_button_add, &QAbstractButton::clicked,
-                this, &MenuHeader::addClicked);
-    }
+    connect(m_button_add, &QAbstractButton::clicked,
+            this, &MenuHeader::addClicked);
 
     // (b) Whisker
     m_icon_whisker_connected = iconWidget(ICON_WHISKER, this);
@@ -95,8 +94,10 @@ MenuHeader::MenuHeader(QWidget* parent,
     // Horizontal line
     // ------------------------------------------------------------------------
     QFrame* horizline = new QFrame();
+    horizline->setObjectName("header_horizontal_line");
     horizline->setFrameShape(QFrame::HLine);
-    horizline->setFrameShadow(QFrame::Sunken);
+    horizline->setFrameShadow(QFrame::Plain);
+    horizline->setLineWidth(HEADER_HLINE_WIDTH);
     mainlayout->addWidget(horizline);
 
     // ------------------------------------------------------------------------
@@ -151,4 +152,10 @@ void MenuHeader::offerViewEditDelete(bool offer_view, bool offer_edit,
     m_button_view->setVisible(offer_view);
     m_button_edit->setVisible(offer_edit);
     m_button_delete->setVisible(offer_delete);
+}
+
+
+void MenuHeader::offerAdd(bool offer_add)
+{
+    m_button_add->setVisible(offer_add);
 }

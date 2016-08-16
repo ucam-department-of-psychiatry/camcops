@@ -1,6 +1,7 @@
 #pragma once
 #include <functional>  // for std::function
 #include <QLabel>
+#include <QSharedPointer>
 #include <QString>
 #include <Qt>
 #include "common/camcopsapp.h"
@@ -8,9 +9,11 @@
 
 class QWidget;
 class MenuWindow;
+class Task;
+typedef QSharedPointer<Task> TaskPtr;
 
 
-class TaskMenuItem
+struct TaskMenuItem
 {
     // Exists only to improve polymorphic constructor of MenuItem
 public:
@@ -30,18 +33,16 @@ public:
     // http://stackoverflow.com/questions/14189440
 
 public:
-    MenuItem(QWidget* parent = nullptr);
-    MenuItem(const QString &title, QWidget* parent = nullptr);  // for dummy use
+    MenuItem();
+    MenuItem(const QString &title);  // for dummy use
     MenuItem(const QString& title, const ActionFunction& func,
-             const QString& icon = "", QWidget* parent = nullptr);
-    MenuItem(MenuProxyPtr p_menuproxy,
-             CamcopsApp& app, QWidget* parent = nullptr);
-    MenuItem(const TaskMenuItem& taskmenuitem,
-             CamcopsApp& app, QWidget* parent = nullptr);
-    MenuItem(TaskPtr p_task, bool task_shows_taskname = true,
-             QWidget* parent = nullptr);
+             const QString& icon = "");
+    MenuItem(MenuProxyPtr p_menuproxy, CamcopsApp& app);
+    MenuItem(const TaskMenuItem& taskmenuitem, CamcopsApp& app);
+    MenuItem(TaskPtr p_task, bool task_shows_taskname = true);
 
-    ~MenuItem() {}
+    QString title();
+    TaskPtr task();
 
     // https://en.wikipedia.org/wiki/Method_chaining
     MenuItem& setImplemented(bool implemented);
@@ -54,8 +55,7 @@ public:
     void act(CamcopsApp& app) const;
     bool isImplemented() const;
 
-public:
-    QWidget* m_p_parent;
+protected:
     QString m_title;
     QString m_subtitle;
     QString m_icon;

@@ -177,3 +177,22 @@ void alert(const QString& text, const QString& title)
     msgbox.setStandardButtons(QMessageBox::Ok);
     msgbox.exec();
 }
+
+
+// ============================================================================
+// CSS
+// ============================================================================
+
+QString textCSS(int fontsize_pt, bool bold, bool italic)
+{
+    QString css = QString("font-size: %1pt;").arg(fontsize_pt);
+    // Only pt and px supported
+    // http://doc.qt.io/qt-5.7/stylesheet-reference.html
+    if (bold) {
+        css += "font-weight: bold;";
+    }
+    if (italic) {
+        css += "font-style: italic";
+    }
+    return css;
+}

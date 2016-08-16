@@ -45,7 +45,7 @@ typedef QList<QVariant> ArgList;
 typedef QMap<QString, QVariant> WhereConditions;
 
 
-class SqlArgs {
+struct SqlArgs {
 public:
     SqlArgs(const QString& sql, const ArgList& args) :
         sql(sql), args(args) {}

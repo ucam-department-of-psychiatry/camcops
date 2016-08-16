@@ -36,12 +36,19 @@ void TaskFactory::finishRegistration()
 {
     for (int i = 0; i < m_initial_proxy_list.size(); ++i) {
         ProxyType proxy = m_initial_proxy_list[i];
-        TaskPtr p_task = proxy->create(m_app.m_db);
+        TaskPtr p_task = proxy->create(m_app.db());
         TaskCache cache;
         cache.tablename = p_task->tablename();
         cache.shortname = p_task->shortname();
         cache.longname = p_task->longname();
         cache.proxy = proxy;
+        if (m_map.contains(cache.tablename)) {
+            QString msg = QString(
+                "BAD TASK REGISTRATION: table %1 being registered for a second"
+                " time by task with longname %2").arg(
+                    cache.tablename, cache.longname);
+            qFatal("%s", qPrintable(msg));
+        }
         m_map.insert(cache.tablename, cache);  // tablenames are the keys
         m_tablenames.append(cache.tablename);
     }
@@ -65,7 +72,7 @@ TaskPtr TaskFactory::create(const QString& key, int load_pk) const
     qDebug().nospace() << "TaskFactory::create(" << key << ", "
                        << load_pk << ")";
     ProxyType proxy = m_map[key].proxy;
-    return proxy->create(m_app.m_db, load_pk);
+    return proxy->create(m_app.db(), load_pk);
 }
 
 
@@ -75,7 +82,7 @@ void TaskFactory::makeAllTables() const
     while (it.hasNext()) {
         it.next();
         ProxyType proxy = it.value().proxy;
-        TaskPtr p_task = proxy->create(m_app.m_db);
+        TaskPtr p_task = proxy->create(m_app.db());
         p_task->makeTables();
         p_task->save(); // *** FOR TESTING ONLY!
     }
@@ -123,7 +130,7 @@ TaskPtrList TaskFactory::fetch(const QString& tablename) const
         while (it.hasNext()) {
             it.next();
             ProxyType proxy = it.value().proxy;
-            tasklist += proxy->fetch(m_app.m_db, patient_id);
+            tasklist += proxy->fetch(m_app.db(), patient_id);
         }
         return tasklist;
     }
@@ -134,5 +141,5 @@ TaskPtrList TaskFactory::fetch(const QString& tablename) const
     }
     // Specific task
     ProxyType proxy = m_map[tablename].proxy;
-    return proxy->fetch(m_app.m_db, patient_id);
+    return proxy->fetch(m_app.db(), patient_id);
 }

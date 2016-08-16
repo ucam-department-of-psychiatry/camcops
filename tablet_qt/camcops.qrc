@@ -95,5 +95,6 @@
         <file>images/camcops/whisker.png</file>
         <file>images/camcops/zoom_T.png</file>
         <file>images/camcops/zoom.png</file>
+        <file>stylesheets/camcops_questionnaire.css</file>
     </qresource>
 </RCC>

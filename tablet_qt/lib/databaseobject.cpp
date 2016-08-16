@@ -87,13 +87,6 @@ void DatabaseObject::requireField(const QString &fieldname) const
 }
 
 
-QVariant DatabaseObject::getValue(const QString& fieldname) const
-{
-    requireField(fieldname);
-    return m_record[fieldname].value();
-}
-
-
 bool DatabaseObject::setValue(const QString& fieldname, const QVariant& value)
 {
     requireField(fieldname);
@@ -102,6 +95,55 @@ bool DatabaseObject::setValue(const QString& fieldname, const QVariant& value)
         touch();
     }
     return dirty;
+}
+
+
+QVariant DatabaseObject::getValue(const QString& fieldname) const
+{
+    requireField(fieldname);
+    return m_record[fieldname].value();
+}
+
+
+bool DatabaseObject::getValueBool(const QString& fieldname) const
+{
+    QVariant value = getValue(fieldname);
+    return value.toBool();
+}
+
+
+int DatabaseObject::getValueInt(const QString& fieldname) const
+{
+    QVariant value = getValue(fieldname);
+    return value.toInt();
+}
+
+
+qlonglong DatabaseObject::getValueLongLong(const QString& fieldname) const
+{
+    QVariant value = getValue(fieldname);
+    return value.toLongLong();
+}
+
+
+double DatabaseObject::getValueDouble(const QString& fieldname) const
+{
+    QVariant value = getValue(fieldname);
+    return value.toDouble();
+}
+
+
+QDateTime DatabaseObject::getValueDateTime(const QString& fieldname) const
+{
+    QVariant value = getValue(fieldname);
+    return value.toDateTime();
+}
+
+
+QDate DatabaseObject::getValueDate(const QString& fieldname) const
+{
+    QVariant value = getValue(fieldname);
+    return value.toDate();
 }
 
 
@@ -237,8 +279,10 @@ void DatabaseObject::setFromQuery(const QSqlQuery& query, bool correct_order)
         while (it.hasNext()) {
             it.next();
             QString fieldname = it.key();
+            // Empirically, these fieldnames are fine: no delimiting quotes,
+            // despite use of delimiters in the SELECT SQL.
+            // qDebug().noquote() << "fieldname:" << fieldname;
             it.value().setFromDatabaseValue(query.value(fieldname));
-            // *** will names be right with field delimiters?
         }
     }
 }
@@ -333,12 +377,15 @@ void DatabaseObject::makeTable()
 }
 
 
-FieldRef DatabaseObject::fieldRef(const QString& fieldname)
+FieldRef DatabaseObject::fieldRef(const QString& fieldname, bool autosave)
 {
     requireField(fieldname);
-    Field* p_field = &m_record[fieldname];
-    FieldRef fieldref(p_field);
-    return fieldref;
+    if (autosave) {
+        return FieldRef(this, fieldname, true);
+    } else {
+        Field* p_field = &m_record[fieldname];
+        return FieldRef(p_field);
+    }
 }
 
 

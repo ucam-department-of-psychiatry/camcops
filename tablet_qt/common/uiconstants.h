@@ -5,17 +5,26 @@
 // Sizes
 // ============================================================================
 
-const int ICONSIZE = 48;
-const int SPACE = 4;
-const int BIGSPACE = 16;
-const int MEDIUMSPACE = 8;
-
+extern const int ICONSIZE;
+extern const int SPACE;
+extern const int BIGSPACE;
+extern const int MEDIUMSPACE;
+extern const int HEADER_HLINE_WIDTH;
 
 // ============================================================================
 // Stylesheets
 // ============================================================================
 
-#define stylesheetFilename(filename) (":/stylesheets/" filename)
+extern const QString CSS_CAMCOPS;
+extern const QString CSS_CAMCOPS_MENU;
+extern const QString CSS_CAMCOPS_QUESTIONNAIRE;
 
-const QString CSS_CAMCOPS = stylesheetFilename("camcops.css");
-const QString CSS_CAMCOPS_MENU = stylesheetFilename("camcops_menu.css");
+// ============================================================================
+// Fonts
+// ============================================================================
+
+enum class FontSize {
+    Normal,
+    Big,
+    Title,
+};
