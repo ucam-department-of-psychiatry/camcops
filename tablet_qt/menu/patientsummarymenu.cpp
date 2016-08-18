@@ -7,7 +7,15 @@
 PatientSummaryMenu::PatientSummaryMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Patient summary"), ICON_PATIENT_SUMMARY)
 {
-    TaskFactoryPtr factory = app.factory();
+    // m_items is EXPENSIVE, so leave it to buildMenu()
+}
+
+// *** think about the "lock changed" signal (a call to buildMenu() is probably insufficient as task eligibility may change?)
+
+
+void PatientSummaryMenu::buildMenu()
+{
+    TaskFactoryPtr factory = m_app.factory();
 
     // Common items
     m_items = {
@@ -18,12 +26,11 @@ PatientSummaryMenu::PatientSummaryMenu(CamcopsApp& app) :
 
     // Task items
     TaskPtrList tasklist = factory->fetch();
+    qDebug() << "PatientSummaryMenu::buildMenu:" << tasklist.size() << "tasks";
     for (auto task : tasklist) {
         m_items.append(MenuItem(task));
     }
 
-    // Build
-    buildMenu();
+    // Call parent buildMenu()
+    MenuWindow::buildMenu();
 }
-
-// *** think about the "lock changed" signal (a call to buildMenu() is probably insufficient as task eligibility may change?)

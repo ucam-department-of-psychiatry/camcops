@@ -65,11 +65,6 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
 }
 
 
-MenuWindow::~MenuWindow()
-{
-}
-
-
 void MenuWindow::buildMenu()
 {
     // qDebug() << "MenuWindow::buildMenu()";

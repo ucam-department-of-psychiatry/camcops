@@ -29,5 +29,4 @@ SetMenuFromLp::SetMenuFromLp(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM("bmi", app),
         // *** EQ-5D-5L, if permitted?
     };
-    buildMenu();
 }

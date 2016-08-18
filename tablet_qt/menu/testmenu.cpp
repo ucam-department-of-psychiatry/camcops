@@ -1,5 +1,6 @@
 #include "testmenu.h"
 #include <QMediaPlayer>
+#include "lib/filefunc.h"
 #include "menulib/menuitem.h"
 #include "tasklib/taskfactory.h"  // for TaskPtr
 
@@ -33,12 +34,11 @@ TestMenu::TestMenu(CamcopsApp& app)
         ).setNotIfLocked(),
         MenuItem(
             "Test HTML display",
-            HtmlMenuItem("*** SOME FILENAME ***")
+            HtmlMenuItem("Example HTML", taskHtmlFilename("ace3"))
         ),
         MenuItem(tr("Test card 1 (black, white)")),  // ***
         MenuItem(tr("Test card 2 (scaling, scrolling)")),  // ***
     };
-    buildMenu();
 }
 
 

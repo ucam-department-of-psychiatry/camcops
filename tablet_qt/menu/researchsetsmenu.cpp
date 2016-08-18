@@ -16,5 +16,4 @@ ResearchSetsMenu::ResearchSetsMenu(CamcopsApp& app) :
         MAKE_MENU_MENU_ITEM(SetMenuDeakin1, app),
         MAKE_MENU_MENU_ITEM(SetMenuOBrien1, app),
     };
-    buildMenu();
 }

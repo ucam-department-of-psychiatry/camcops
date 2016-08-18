@@ -96,5 +96,67 @@
         <file>images/camcops/zoom_T.png</file>
         <file>images/camcops/zoom.png</file>
         <file>stylesheets/camcops_questionnaire.css</file>
+        <file>taskinfo/ace3.html</file>
+        <file>taskinfo/aims.html</file>
+        <file>taskinfo/audit.html</file>
+        <file>taskinfo/badls.html</file>
+        <file>taskinfo/bdi.html</file>
+        <file>taskinfo/bmi.html</file>
+        <file>taskinfo/bprs.html</file>
+        <file>taskinfo/bprse.html</file>
+        <file>taskinfo/cage.html</file>
+        <file>taskinfo/cape.html</file>
+        <file>taskinfo/caps.html</file>
+        <file>taskinfo/cardinal_expdetthreshold.html</file>
+        <file>taskinfo/catatoniaexam.html</file>
+        <file>taskinfo/cbir.html</file>
+        <file>taskinfo/cecaq3.html</file>
+        <file>taskinfo/cgi.html</file>
+        <file>taskinfo/cgisch.html</file>
+        <file>taskinfo/ciwa.html</file>
+        <file>taskinfo/clinical.html</file>
+        <file>taskinfo/cope.html</file>
+        <file>taskinfo/dad.html</file>
+        <file>taskinfo/dast.html</file>
+        <file>taskinfo/deakin_1.html</file>
+        <file>taskinfo/demoquestionnaire.html</file>
+        <file>taskinfo/demqol.html</file>
+        <file>taskinfo/distressthermometer.html</file>
+        <file>taskinfo/fast.html</file>
+        <file>taskinfo/from_lp.html</file>
+        <file>taskinfo/frs.html</file>
+        <file>taskinfo/gad7.html</file>
+        <file>taskinfo/gaf.html</file>
+        <file>taskinfo/gds.html</file>
+        <file>taskinfo/hads.html</file>
+        <file>taskinfo/hama.html</file>
+        <file>taskinfo/hamd.html</file>
+        <file>taskinfo/honos.html</file>
+        <file>taskinfo/icd.html</file>
+        <file>taskinfo/ided3d.html</file>
+        <file>taskinfo/iesr.html</file>
+        <file>taskinfo/ifs.html</file>
+        <file>taskinfo/mast.html</file>
+        <file>taskinfo/mds.html</file>
+        <file>taskinfo/MISSING_TASKS.html</file>
+        <file>taskinfo/moca.html</file>
+        <file>taskinfo/nart.html</file>
+        <file>taskinfo/npiq.html</file>
+        <file>taskinfo/panss.html</file>
+        <file>taskinfo/pcl.html</file>
+        <file>taskinfo/pdss.html</file>
+        <file>taskinfo/phq15.html</file>
+        <file>taskinfo/phq9.html</file>
+        <file>taskinfo/pswq.html</file>
+        <file>taskinfo/qol.html</file>
+        <file>taskinfo/rand36.html</file>
+        <file>taskinfo/slums.html</file>
+        <file>taskinfo/task.css</file>
+        <file>taskinfo/wemwbs.html</file>
+        <file>taskinfo/wsas.html</file>
+        <file>taskinfo/ybocs.html</file>
+        <file>taskinfo/zbi.html</file>
+        <file>taskinfo/cardinal_expdet.html</file>
+        <file>taskinfo/gmcpq.html</file>
     </qresource>
 </RCC>

@@ -65,6 +65,7 @@ int CamcopsApp::run()
     m_p_main_window->setCentralWidget(m_p_window_stack);
 
     MainMenu* menu = new MainMenu(*this);
+    menu->buildMenu();
     pushScreen(menu);
     m_p_main_window->showMaximized();
     // m_p_main_window->showFullScreen();
@@ -210,7 +211,9 @@ int CamcopsApp::fontSizePt(FontSize fontsize) const
     default:
         return 10;
     case FontSize::Big:
-        return 15;
+        return 12;
+    case FontSize::Heading:
+        return 16;
     case FontSize::Title:
         return 20;
     }

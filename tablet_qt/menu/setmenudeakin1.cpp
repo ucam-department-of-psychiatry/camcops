@@ -25,5 +25,4 @@ SetMenuDeakin1::SetMenuDeakin1(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM("nart", app),
         MAKE_TASK_MENU_ITEM("panss", app),
     };
-    buildMenu();
 }

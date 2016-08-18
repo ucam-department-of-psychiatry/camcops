@@ -119,3 +119,10 @@ QString FieldRef::getString() const
     QVariant value = get();
     return value.toString();
 }
+
+
+QByteArray FieldRef::getByteArray() const
+{
+    QVariant value = get();
+    return value.toByteArray();
+}

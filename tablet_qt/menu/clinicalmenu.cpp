@@ -23,5 +23,4 @@ ClinicalMenu::ClinicalMenu(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM("psychiatricclerking", app),
         MAKE_TASK_MENU_ITEM("ref_satis_spec", app),
     };
-    buildMenu();
 }

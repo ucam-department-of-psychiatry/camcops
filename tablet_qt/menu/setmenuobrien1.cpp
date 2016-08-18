@@ -24,5 +24,4 @@ SetMenuOBrien1::SetMenuOBrien1(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM("mds_updrs", app),
         MAKE_TASK_MENU_ITEM("zbi12", app),
     };
-    buildMenu();
 }

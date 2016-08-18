@@ -11,5 +11,4 @@ ExecutiveMenu::ExecutiveMenu(CamcopsApp& app) :
         MAKE_CHANGE_PATIENT(app),
         MAKE_TASK_MENU_ITEM("ifs", app),
     };
-    buildMenu();
 }

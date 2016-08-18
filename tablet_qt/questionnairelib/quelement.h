@@ -1,4 +1,5 @@
 #pragma once
+#include <QList>
 #include <QObject>
 #include <QPointer>
 #include <QSharedPointer>
@@ -15,6 +16,9 @@ class QuElement : public QObject  // derivation allows signals for children
 {
     Q_OBJECT
     friend class QuPage;
+    friend class QuContainerHorizontal;
+    friend class QuContainerVertical;
+    friend class QuContainerTable;
 public:
     QuElement();
     virtual ~QuElement();
@@ -27,7 +31,7 @@ protected:
     void hide();
     void setVisible(bool visible);
     virtual QList<QuElementPtr> subelements() const;
-    bool missingInput() const;  // block progress because required input is missing?
+    bool missingInput() const;  // block progress because required input is missing? Default false
 protected:
     QPointer<QWidget> m_widget;  // used to cache a widget pointer
     QStringList m_tags;

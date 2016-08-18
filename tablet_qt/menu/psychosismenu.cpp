@@ -15,5 +15,4 @@ PsychosisMenu::PsychosisMenu(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM("icd10schizophrenia", app),
         MAKE_TASK_MENU_ITEM("icd10schizotypal", app),
     };
-    buildMenu();
 }

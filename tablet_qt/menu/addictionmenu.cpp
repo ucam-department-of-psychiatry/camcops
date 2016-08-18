@@ -17,5 +17,4 @@ AddictionMenu::AddictionMenu(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM("mast", app),
         MAKE_TASK_MENU_ITEM("smast", app),
     };
-    buildMenu();
 }

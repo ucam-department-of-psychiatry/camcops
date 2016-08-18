@@ -127,7 +127,8 @@ void alert(const QString& text, const QString& title = QObject::tr("Alert"));
 // Fonts; CSS
 // ============================================================================
 
-QString textCSS(int fontsize_pt, bool bold = false, bool italic = false);
+QString textCSS(int fontsize_pt, bool bold = false, bool italic = false,
+                const QString& colour = "");
 
 // ============================================================================
 // Opening URLS

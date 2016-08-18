@@ -11,11 +11,12 @@
 #include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "menu/singletaskmenu.h"
+#include "menulib/htmlinfowindow.h"
 #include "tasklib/taskfactory.h"  // for TaskPtr
 
-const int STRETCH_3COL_TASKNAME = 2;
+const int STRETCH_3COL_TASKNAME = 1;
 const int STRETCH_3COL_TIMESTAMP = 2;
-const int STRETCH_3COL_SUMMARY = 6;
+const int STRETCH_3COL_SUMMARY = 7;
 
 const int STRETCH_2COL_TIMESTAMP = 2;
 const int STRETCH_2COL_SUMMARY = 8;
@@ -81,11 +82,13 @@ MenuItem::MenuItem(const TaskMenuItem& taskmenuitem, CamcopsApp& app)
 }
 
 
-MenuItem::MenuItem(const QString& title, const HtmlMenuItem& htmlmenuitem) :
-    m_title(title)
+MenuItem::MenuItem(const QString& title, const HtmlMenuItem& htmlmenuitem,
+                   const QString& icon) :
+    m_title(title),
+    m_html(htmlmenuitem)  // extra
 {
     setDefaults();
-    m_html_filename = htmlmenuitem.filename;
+    m_icon = icon;
 }
 
 
@@ -121,7 +124,6 @@ void MenuItem::setDefaults()
     m_p_menuproxy = MenuProxyPtr(nullptr);
     m_task_tablename = "";
     m_p_task = TaskPtr(nullptr);
-    m_html_filename = "";
 }
 
 
@@ -181,9 +183,8 @@ QWidget* MenuItem::getRowWidget(CamcopsApp& app) const
         QSizePolicy spSummary(QSizePolicy::Preferred, QSizePolicy::Preferred);
         spSummary.setHorizontalStretch(threecols ? STRETCH_3COL_SUMMARY
                                                  : STRETCH_2COL_SUMMARY);
-        timestamp->setSizePolicy(spSummary);
+        summary->setSizePolicy(spSummary);
         rowlayout->addWidget(summary);
-        // *** stretch not quite right yet, but close
     } else {
         // --------------------------------------------------------------------
         // Conventional menu item
@@ -245,9 +246,6 @@ QWidget* MenuItem::getRowWidget(CamcopsApp& app) const
     row->setSizePolicy(size_policy);
 
     return row;
-
-    // *** deal with different ways of displaying tasks
-    // (taskname/date/detail, or date/detail)
 }
 
 
@@ -286,6 +284,7 @@ void MenuItem::act(CamcopsApp& app) const
     // ========================================================================
     if (m_p_menuproxy) {
         MenuWindow* pWindow = m_p_menuproxy->create(app);
+        pWindow->buildMenu();
         app.pushScreen(pWindow);
         return;
     }
@@ -295,22 +294,18 @@ void MenuItem::act(CamcopsApp& app) const
     }
     if (!m_task_tablename.isEmpty()) {
         SingleTaskMenu* pWindow = new SingleTaskMenu(m_task_tablename, app);
+        pWindow->buildMenu();
         app.pushScreen(pWindow);
         return;
     }
-    if (!m_html_filename.isEmpty()) {
-        showHtml(m_html_filename);
+    if (!m_html.filename.isEmpty()) {
+        HtmlInfoWindow* pWindow = new HtmlInfoWindow(
+            app, m_html.title, m_html.filename, m_html.icon);
+        app.pushScreen(pWindow);
         return;
     }
     qWarning() << "Menu item selected but no action specified:"
                << m_title;
-}
-
-
-void MenuItem::showHtml(const QString& filename) const
-{
-    alert("*** showHtml: " + filename);
-    // http://doc.qt.io/qt-5/qtextbrowser.html
 }
 
 

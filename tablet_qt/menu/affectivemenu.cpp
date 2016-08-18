@@ -33,5 +33,4 @@ AffectiveMenu::AffectiveMenu(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM("ybocs", app),
         MAKE_TASK_MENU_ITEM("ybocssc", app),
     };
-    buildMenu();
 }

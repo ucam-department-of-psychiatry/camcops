@@ -17,5 +17,4 @@ ResearchMenu::ResearchMenu(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM("ided3d", app),
         MenuItem("*** chain: qolbasic -> phq9 -> phq15"),
     };
-    buildMenu();
 }

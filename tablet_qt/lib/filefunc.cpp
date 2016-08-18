@@ -7,6 +7,16 @@
 #include <QTextStream>
 
 
+bool fileExists(const QString& filename)
+{
+    QFile file(filename);
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        return false;
+    }
+    return true;
+}
+
+
 QString textfileContents(const QString& filename)
 {
     QFile file(filename);
@@ -25,4 +35,10 @@ QString textfileContents(const QString& filename)
     qDebug() << text;
 #endif
     return text;
+}
+
+
+QString taskHtmlFilename(const QString& stem)
+{
+    return QString(":/taskinfo/%1.html").arg(stem);
 }

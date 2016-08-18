@@ -26,6 +26,7 @@ public:
     virtual QString longname() const = 0;
     virtual QString menutitle() const;  // default: "longname (shortname)"
     virtual QString menusubtitle() const = 0;  // descriptive
+    virtual QString getInfoFilenameStem() const;  // default: tablename
     virtual bool isAnonymous() const { return false; }
     virtual bool hasClinician() const { return false; }
     virtual bool hasRespondent() const { return false; }
@@ -58,3 +59,11 @@ public:
     QString whenCreatedMenuFormat() const;
     QString getSummaryWithCompleteSuffix() const;
 };
+
+
+// ===========================================================================
+// Typedefs
+// ===========================================================================
+
+typedef QSharedPointer<Task> TaskPtr;
+typedef QList<TaskPtr> TaskPtrList;

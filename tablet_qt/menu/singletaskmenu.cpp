@@ -1,4 +1,5 @@
 #include "singletaskmenu.h"
+#include "lib/filefunc.h"
 #include "lib/uifunc.h"
 #include "menulib/menuheader.h"
 #include "menulib/menuitem.h"
@@ -9,34 +10,43 @@ SingleTaskMenu::SingleTaskMenu(const QString& tablename, CamcopsApp& app) :
     MenuWindow(app, ""),  // start with a blank title
     m_tablename(tablename)
 {
-    TaskFactoryPtr factory = app.factory();
-
     // Title
-    TaskPtr specimen = factory->create(tablename);
+    TaskFactoryPtr factory = app.factory();
+    TaskPtr specimen = factory->create(m_tablename);
     m_title = specimen->menutitle();
     m_anonymous = specimen->isAnonymous();
 
-    // Common items
-    m_items = {
-        MenuItem(tr("Options")).setLabelOnly(),
-        MAKE_CHANGE_PATIENT(app),
-        MenuItem(tr("Task information")),  // ***
-        MenuItem(tr("Task instances") + ": " + m_title).setLabelOnly(),
-    };
-
-    // Task items
-    TaskPtrList tasklist = factory->fetch(tablename);
-    for (auto task : tasklist) {
-        m_items.append(MenuItem(task, false));
-    }
-
-    // Build
-    buildMenu();
+    // m_items is EXPENSIVE, so leave it to buildMenu()
 }
 
 
 void SingleTaskMenu::buildMenu()
 {
+    TaskFactoryPtr factory = m_app.factory();
+    TaskPtr specimen = factory->create(m_tablename);
+
+    // Common items
+    m_items = {
+        MenuItem(tr("Options")).setLabelOnly(),
+        MAKE_CHANGE_PATIENT(app),
+        MenuItem(
+            tr("Task information"),
+            HtmlMenuItem(m_title,
+                         taskHtmlFilename(specimen->getInfoFilenameStem()),
+                         ICON_INFO),
+            ICON_INFO
+        ),
+        MenuItem(tr("Task instances") + ": " + m_title).setLabelOnly(),
+    };
+
+    // Task items
+    TaskPtrList tasklist = factory->fetch(m_tablename);
+    qDebug() << "SingleTaskMenu::buildMenu:" << tasklist.size() << "tasks";
+    for (auto task : tasklist) {
+        m_items.append(MenuItem(task, false));
+    }
+
+    // Call parent buildMenu()
     MenuWindow::buildMenu();
 
     // Signals
@@ -65,6 +75,7 @@ void SingleTaskMenu::addTask()
         }
         task->setPatient(m_app.currentPatientId());
     }
+    task->save();
     task->edit(m_app);
 }
 

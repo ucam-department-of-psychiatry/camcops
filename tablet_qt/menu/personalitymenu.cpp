@@ -12,5 +12,4 @@ PersonalityMenu::PersonalityMenu(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM("icd10specpd", app),
         MAKE_TASK_MENU_ITEM("icd10schizotypal", app),
     };
-    buildMenu();
 }

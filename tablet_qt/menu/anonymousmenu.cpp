@@ -11,5 +11,4 @@ AnonymousMenu::AnonymousMenu(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM("gmcpq", app),
         MAKE_TASK_MENU_ITEM("ref_satis_gen", app),
     };
-    buildMenu();
 }

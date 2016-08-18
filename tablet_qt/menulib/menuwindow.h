@@ -17,8 +17,15 @@ class MenuWindow : public QWidget
 public:
     MenuWindow(CamcopsApp& app, const QString& title,
                const QString& icon = "", bool top = false);
-    ~MenuWindow();
-    virtual void buildMenu();  // call after m_items is set up
+    // Derived constructors should be LIGHTWEIGHT, as
+    // MenuItem::MenuItem(MenuProxyPtr, CamcopsApp&) will create an INSTANCE
+    // to get the title/subtitle.
+    // If it's cheap, populate m_items in the constructor.
+    // If it's expensive (e.g. task lists), override buildMenu() to do:
+    // (a) populate m_items;
+    // (b) call MenuWindow::buildMenu();
+    // (c) +/- any additional work (e.g. signals/slots).
+    virtual void buildMenu();  // called by framework prior to opening
     QString title() const;
     QString subtitle() const;
     QString icon() const;

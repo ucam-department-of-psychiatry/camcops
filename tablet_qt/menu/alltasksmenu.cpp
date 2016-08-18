@@ -12,5 +12,4 @@ AllTasksMenu::AllTasksMenu(CamcopsApp& app) :
     for (auto tablename : tablenames) {
         m_items.append(MAKE_TASK_MENU_ITEM(tablename, app));
     }
-    buildMenu();
 }

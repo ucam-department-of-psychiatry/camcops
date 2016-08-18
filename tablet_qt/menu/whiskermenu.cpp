@@ -13,5 +13,4 @@ WhiskerMenu::WhiskerMenu(CamcopsApp& app) :
         MenuItem(tr("Test network latency to Whisker server")),  // ***
         MenuItem(tr("Configure Whisker")),  // ***
     };
-    buildMenu();
 }

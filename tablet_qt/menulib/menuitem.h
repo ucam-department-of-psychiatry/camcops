@@ -20,6 +20,7 @@ public:
     TaskMenuItem(const QString& tablename) :
         tablename(tablename)
     {}
+public:
     QString tablename;
 };
 
@@ -27,10 +28,16 @@ public:
 struct HtmlMenuItem
 {
 public:
-    HtmlMenuItem(const QString& filename) :
-        filename(filename)
+    HtmlMenuItem(const QString& title = "", const QString& filename = "",
+                 const QString& icon = "") :
+        title(title),
+        filename(filename),
+        icon(icon)
     {}
+public:
+    QString title;
     QString filename;
+    QString icon;
 };
 
 
@@ -50,7 +57,8 @@ public:
              const QString& icon = "");
     MenuItem(MenuProxyPtr p_menuproxy, CamcopsApp& app);
     MenuItem(const TaskMenuItem& taskmenuitem, CamcopsApp& app);
-    MenuItem(const QString& title, const HtmlMenuItem& htmlmenuitem);
+    MenuItem(const QString& title, const HtmlMenuItem& htmlmenuitem,
+             const QString& icon = "");
     MenuItem(TaskPtr p_task, bool task_shows_taskname = true);
 
     QString title();
@@ -86,10 +94,9 @@ protected:
     MenuProxyPtr m_p_menuproxy;
     QString m_task_tablename;
     TaskPtr m_p_task;
-    QString m_html_filename;
-//    SOMETHING m_event;
-//    SOMETHING m_info;
-//    SOMETHING m_chainList;
+    HtmlMenuItem m_html;
+//    SOMETHING m_event; // ***
+//    SOMETHING m_chainList; // ***
 
 private:
     void setDefaults();

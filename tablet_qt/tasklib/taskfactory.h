@@ -29,13 +29,6 @@
 class CamcopsApp;
 class TaskFactory;
 
-// ===========================================================================
-// Typedefs
-// ===========================================================================
-
-typedef QSharedPointer<Task> TaskPtr;
-typedef QList<TaskPtr> TaskPtrList;
-
 
 // ===========================================================================
 // Base "descriptor" class, so we can do more things with the class as an
@@ -148,7 +141,7 @@ public:
     QString getShortName(const QString& key) const;
     QString getLongName(const QString& key) const;
     void makeTables(const QString& key) const;
-    TaskPtrList fetch(const QString& tablename = "") const;
+    TaskPtrList fetch(const QString& tablename = "", bool sort = true) const;
 protected:
     CamcopsApp& m_app;
     QStringList m_tablenames;

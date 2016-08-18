@@ -36,5 +36,4 @@ SettingsMenu::SettingsMenu(CamcopsApp& app) :
                     "stream)")
         ).setNeedsPrivilege(),  // ***
     };
-    buildMenu();
 }

@@ -16,5 +16,4 @@ ClinicalSetsMenu::ClinicalSetsMenu(CamcopsApp& app) :
         MAKE_MENU_MENU_ITEM(SetMenuCpftAffective1, app),
         MAKE_MENU_MENU_ITEM(SetMenuFromLp, app),
     };
-    buildMenu();
 }

@@ -65,6 +65,12 @@ bool Task::hasExtraStrings() const
 }
 
 
+QString Task::getInfoFilenameStem() const
+{
+    return m_tablename;
+}
+
+
 void Task::makeTables()
 {
     makeTable();
@@ -83,7 +89,6 @@ bool Task::load(int pk)
 
 QString Task::whenCreatedMenuFormat() const
 {
-    return "boo! ***";
     return getValue(CREATION_TIMESTAMP_FIELDNAME)
         .toDateTime()
         .toString(SHORT_DATETIME_FORMAT);

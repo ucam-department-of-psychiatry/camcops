@@ -33,5 +33,4 @@ GlobalMenu::GlobalMenu(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM("wsas", app),
         MAKE_TASK_MENU_ITEM("zbi12", app),
     };
-    buildMenu();
 }

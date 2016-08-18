@@ -534,13 +534,42 @@ Questionnaire
 - For elements, use SomeElement(...).bold().italic(), using method chaining
   https://en.wikipedia.org/wiki/Method_chaining
   ... the essence being "return *this;"
-  ***
+  ... or "return this" with pointer versions (used this in the end)
+
+- TO DO: ***
+QuestionAudioPlayer.js
+QuestionBooleanImage.js
+QuestionBooleanText.js
+QuestionCanvas.js
+QuestionCountdown.js
+QuestionDateTime.js
+QuestionDiagnosticCode.js
+QuestionMCQGridDouble.js
+QuestionMCQGrid.js
+QuestionMCQGridWithSingleBoolean.js
+QuestionMCQ.js
+QuestionMultipleResponse.js
+QuestionPhoto.js
+QuestionPickerInline.js
+QuestionPickerPopup.js
+QuestionSlider.js
+QuestionThermometer.js
+QuestionTypedVariables.js
+
 
 ===============================================================================
 TO DO
 ===============================================================================
+- *** view (summary, facsimile...), edit, delete
+- *** default "details" view -- using new Field method of "prettyString" that uses the stored field-type information
+- *** single task list not autorefreshing after task created/edited
+
+- *** scrolling by touch on Android menus and questionnaires
+    http://doc.qt.io/qt-5.7/gestures-overview.html
+    *** https://forum.qt.io/topic/30546/kinetic-scrolling-on-qscrollarea-on-android-device/5
+    *** http://falsinsoft.blogspot.co.uk/2015/09/qt-snippet-use-qscroller-with.html
+    *** http://nootka-app.blogspot.co.uk/2015/11/story-of-porting-complex-qt-application_18.html
 - screwdriver icon for test menu
-- *** MenuHeader, with signals
 - For SQL bulk reads (uploading), see
     http://stackoverflow.com/questions/18829018/qt-sql-get-column-type-and-name-from-table-without-record
 - Factory for registering things that must create tables

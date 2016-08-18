@@ -22,6 +22,7 @@ import argparse
 import logging
 import os
 from os.path import abspath, expanduser, isdir, isfile, join, split
+import shutil
 import subprocess
 import sys
 import urllib.request
@@ -55,7 +56,7 @@ def run(args, env=None):
     log.info("Running external command: {}".format(args))
     if env is not None:
         log.info("Using environment: {}".format(env))
-    subprocess.check_call(args, env=env)
+    subprocess.check_call(args, env=env)  # PROBLEM: sometimes (e.g. for make) failure is OK!? Just retry the first time.  # noqa
 
 
 def replace(filename, text_from, text_to):
@@ -66,6 +67,11 @@ def replace(filename, text_from, text_to):
     contents = contents.replace(text_from, text_to)
     with open(filename, 'w') as outfile:
         outfile.write(contents)
+
+
+def require(command):
+    if not shutil.which(command):
+        raise ValueError("Missing OS command: {}".format(command))
 
 
 def replace_multiple(filename, replacements):
@@ -336,6 +342,12 @@ def build_qt_android(args, cpu, static_openssl=False, verbose=True):
     # http://doc.qt.io/qt-5/opensslsupport.html
     # Windows: ?also http://simpleit.us/2010/05/30/enabling-openssl-for-qt-c-on-windows/  # noqa
 
+    require("javac")  # try: sudo apt install openjdk-8-jdk
+    # ... will be called by the make process; better to know now, since the
+    # relevant messages are easily lost in the torrent
+
+    require("ant")  # will be needed later; try: sudo apt install ant
+
     opensslrootdir, opensslworkdir = get_openssl_rootdir_workdir(
         args, "android_" + cpu)
     openssl_include_root = join(opensslworkdir, "include")
@@ -603,7 +615,7 @@ def main():
         installdir = build_qt_android(args, "x86")
         installdirs.append(installdir)
 
-    if args.android_x86:
+    if args.android_arm:
         log.info("Qt build: Android ARM +SQLite +OpenSSL")
         build_openssl_android(args, "arm")
         installdir = build_qt_android(args, "arm")

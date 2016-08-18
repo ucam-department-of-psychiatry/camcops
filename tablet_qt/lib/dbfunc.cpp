@@ -1,5 +1,6 @@
 #define DEBUG_SQL_QUERY
-#define DEBUG_SQL_RESULT
+#define DEBUG_QUERY_END
+// #define DEBUG_SQL_RESULT
 
 #include "dbfunc.h"
 #include <QDir>
@@ -128,6 +129,9 @@ bool execQuery(QSqlQuery& query,
 #endif
 
     bool success = query.exec();
+#ifdef DEBUG_QUERY_END
+    qDebug() << "... query finished";
+#endif
     if (!success) {
         qCritical() << "Query failed; error was:" << query.lastError();
     }

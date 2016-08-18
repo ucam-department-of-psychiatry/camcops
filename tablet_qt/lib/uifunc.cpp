@@ -185,7 +185,7 @@ void alert(const QString& text, const QString& title)
 // CSS
 // ============================================================================
 
-QString textCSS(int fontsize_pt, bool bold, bool italic)
+QString textCSS(int fontsize_pt, bool bold, bool italic, const QString& colour)
 {
     QString css = QString("font-size: %1pt;").arg(fontsize_pt);
     // Only pt and px supported
@@ -195,6 +195,9 @@ QString textCSS(int fontsize_pt, bool bold, bool italic)
     }
     if (italic) {
         css += "font-style: italic";
+    }
+    if (!colour.isEmpty()) {
+        css += QString("color: %1").arg(colour);
     }
     return css;
 }

@@ -2,6 +2,7 @@
 #include <algorithm>
 #include "common/camcopsapp.h"
 #include "task.h"
+#include "tasksorter.h"
 
 
 // ===========================================================================
@@ -84,7 +85,6 @@ void TaskFactory::makeAllTables() const
         ProxyType proxy = it.value().proxy;
         TaskPtr p_task = proxy->create(m_app.db());
         p_task->makeTables();
-        p_task->save(); // *** FOR TESTING ONLY!
     }
 }
 
@@ -119,27 +119,33 @@ void TaskFactory::makeTables(const QString& key) const
 }
 
 
-TaskPtrList TaskFactory::fetch(const QString& tablename) const
+TaskPtrList TaskFactory::fetch(const QString& tablename, bool sort) const
 {
     int patient_id = m_app.currentPatientId();
     // *** implement any necessary locked/no-patient filtering here; think; may be OK, but maybe not
+    TaskPtrList tasklist;
     if (tablename.isEmpty()) {
         // All tasks
-        TaskPtrList tasklist;
         MapIteratorType it(m_map);
         while (it.hasNext()) {
             it.next();
             ProxyType proxy = it.value().proxy;
             tasklist += proxy->fetch(m_app.db(), patient_id);
         }
-        return tasklist;
-    }
-    if (!m_map.contains(tablename)) {
+    } else if (!m_map.contains(tablename)) {
         // Duff task
         qWarning() << "Bad task: " << tablename;
-        return TaskPtrList();
+    } else {
+        // Specific task
+        ProxyType proxy = m_map[tablename].proxy;
+        tasklist = proxy->fetch(m_app.db(), patient_id);
     }
-    // Specific task
-    ProxyType proxy = m_map[tablename].proxy;
-    return proxy->fetch(m_app.db(), patient_id);
+
+    if (sort) {
+        qDebug() << "Starting sort...";
+        qSort(tasklist.begin(), tasklist.end(), TaskSorter());
+        qDebug() << "... finished sort";
+    }
+
+    return tasklist;
 }

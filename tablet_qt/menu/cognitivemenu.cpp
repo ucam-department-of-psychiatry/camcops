@@ -13,5 +13,4 @@ CognitiveMenu::CognitiveMenu(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM("slums", app),
         MAKE_TASK_MENU_ITEM("nart", app),
     };
-    buildMenu();
 }

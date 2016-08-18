@@ -86,7 +86,17 @@ SOURCES += main.cpp\
     questionnairelib/qutext.cpp \
     widgets/verticalscrollarea.cpp \
     widgets/labelwordwrapwide.cpp \
-    questionnairelib/qubutton.cpp
+    questionnairelib/qubutton.cpp \
+    menulib/htmlinfowindow.cpp \
+    questionnairelib/qucontainerhorizontal.cpp \
+    questionnairelib/quhorizontalline.cpp \
+    questionnairelib/quspacer.cpp \
+    widgets/spacer.cpp \
+    questionnairelib/qucontainervertical.cpp \
+    questionnairelib/qucontainertable.cpp \
+    questionnairelib/quheading.cpp \
+    questionnairelib/quimage.cpp \
+    tasklib/tasksorter.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -143,7 +153,17 @@ HEADERS  += \
     questionnairelib/qupage.h \
     widgets/verticalscrollarea.h \
     widgets/labelwordwrapwide.h \
-    questionnairelib/qubutton.h
+    questionnairelib/qubutton.h \
+    menulib/htmlinfowindow.h \
+    questionnairelib/qucontainerhorizontal.h \
+    questionnairelib/quhorizontalline.h \
+    questionnairelib/quspacer.h \
+    widgets/spacer.h \
+    questionnairelib/qucontainervertical.h \
+    questionnairelib/qucontainertable.h \
+    questionnairelib/quheading.h \
+    questionnairelib/quimage.h \
+    tasklib/tasksorter.h
 
 CONFIG += debug
 CONFIG += mobility

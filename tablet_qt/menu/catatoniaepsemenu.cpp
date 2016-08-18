@@ -19,5 +19,4 @@ CatatoniaEpseMenu::CatatoniaEpseMenu(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM("updrs", app),
         // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("sas", app),
     };
-    buildMenu();
 }

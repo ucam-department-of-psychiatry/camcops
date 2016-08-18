@@ -31,6 +31,7 @@ MainMenu::MainMenu(CamcopsApp& app)
           ICON_CAMCOPS,
           true)
 {
+    qDebug() << "MainMenu *********** ctor 1";
     m_items = {
         MAKE_CHANGE_PATIENT(app),
         MAKE_MENU_MENU_ITEM(PatientSummaryMenu, app),
@@ -52,6 +53,5 @@ MainMenu::MainMenu(CamcopsApp& app)
         MAKE_MENU_MENU_ITEM(ResearchSetsMenu, app),
         MAKE_MENU_MENU_ITEM(AllTasksMenu, app),
     };
-
-    buildMenu();
+    qDebug() << "MainMenu *********** ctor 2";
 }

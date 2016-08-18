@@ -34,6 +34,7 @@ public:
     QDateTime getDateTime() const;
     QDate getDate() const;
     QString getString() const;
+    QByteArray getByteArray() const;
 
 protected:
     FieldRefMethod m_method;
