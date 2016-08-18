@@ -1,26 +1,40 @@
 #pragma once
+#include <QObject>
 #include <QPointer>
 #include <QSharedPointer>
+#include <QStringList>
 
 class QWidget;
 class Questionnaire;
+class QuElement;
+
+typedef QSharedPointer<QuElement> QuElementPtr;
 
 
-class Element
+class QuElement : public QObject  // derivation allows signals for children
 {
-    friend class Page;
+    Q_OBJECT
+    friend class QuPage;
 public:
-    Element();
-    virtual ~Element();
+    QuElement();
+    virtual ~QuElement();
+    QuElement* addTag(const QString& tag);
 protected:
     virtual QPointer<QWidget> getWidget(Questionnaire* questionnaire);
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) = 0;
+    bool hasTag(const QString& tag);
+    void show();
+    void hide();
+    void setVisible(bool visible);
+    virtual QList<QuElementPtr> subelements() const;
+    bool missingInput() const;  // block progress because required input is missing?
 protected:
     QPointer<QWidget> m_widget;  // used to cache a widget pointer
+    QStringList m_tags;
+    bool m_visible;
 };
 
 
-typedef QSharedPointer<Element> ElementPtr;
 /*
 ===============================================================================
 Constructing element lists and pages

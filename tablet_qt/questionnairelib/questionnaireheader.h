@@ -2,7 +2,7 @@
 #include <QPointer>
 #include <QWidget>
 #include "common/camcopsapp.h"
-#include "page.h"
+#include "qupage.h"
 
 class QAbstractButton;
 class QLabel;

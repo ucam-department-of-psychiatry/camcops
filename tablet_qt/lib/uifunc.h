@@ -128,3 +128,9 @@ void alert(const QString& text, const QString& title = QObject::tr("Alert"));
 // ============================================================================
 
 QString textCSS(int fontsize_pt, bool bold = false, bool italic = false);
+
+// ============================================================================
+// Opening URLS
+// ============================================================================
+
+void visitUrl(const QString& url);

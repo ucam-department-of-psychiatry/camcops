@@ -3,12 +3,14 @@
 #include <QApplication>
 #include <QAbstractButton>
 #include <QDebug>
+#include <QDesktopServices>
 #include <QMessageBox>
 #include <QObject>
 #include <QToolButton>
-
+#include <QUrl>
 #include "uifunc.h"
 #include "common/uiconstants.h"
+
 
 // ============================================================================
 // QPixmap loader
@@ -195,4 +197,17 @@ QString textCSS(int fontsize_pt, bool bold, bool italic)
         css += "font-style: italic";
     }
     return css;
+}
+
+
+// ============================================================================
+// Opening URLS
+// ============================================================================
+
+void visitUrl(const QString& url)
+{
+    bool success = QDesktopServices::openUrl(QUrl(url));
+    if (!success) {
+        alert(QObject::tr("Failed to open browser"));
+    }
 }

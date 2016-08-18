@@ -1,11 +1,11 @@
-#include "text.h"
+#include "qutext.h"
 #include <QDebug>
-#include <QLabel>
 #include "lib/uifunc.h"
 #include "questionnaire.h"
+#include "widgets/labelwordwrapwide.h"
 
 
-Text::Text(const QString& text) :
+QuText::QuText(const QString& text) :
     m_text(text),
     m_fieldref(nullptr),
     m_big(false),
@@ -16,7 +16,7 @@ Text::Text(const QString& text) :
 }
 
 
-Text::Text(FieldRefPtr fieldref) :
+QuText::QuText(FieldRefPtr fieldref) :
     m_text(""),
     m_fieldref(fieldref),
     m_big(false),
@@ -27,45 +27,42 @@ Text::Text(FieldRefPtr fieldref) :
 }
 
 
-Text* Text::big(bool big)
+QuText* QuText::big(bool big)
 {
     m_big = big;
     return this;
 }
 
 
-Text* Text::bold(bool bold)
+QuText* QuText::bold(bool bold)
 {
     m_bold = bold;
     return this;
 }
 
 
-Text* Text::italic(bool italic)
+QuText* QuText::italic(bool italic)
 {
     m_italic = italic;
     return this;
 }
 
 
-Text* Text::setFormat(Qt::TextFormat format)
+QuText* QuText::setFormat(Qt::TextFormat format)
 {
     m_text_format = format;
     return this;
 }
 
 
-QPointer<QWidget> Text::makeWidget(Questionnaire* questionnaire)
+QPointer<QWidget> QuText::makeWidget(Questionnaire* questionnaire)
 {
     QString text = m_fieldref ? m_fieldref->getString() : m_text;
-    QLabel* label = new QLabel(text);
+    LabelWordWrapWide* label = new LabelWordWrapWide(text);
     int fontsize = questionnaire->fontSizePt(m_big ? FontSize::Big
                                                    : FontSize::Normal);
     QString css = textCSS(fontsize, m_bold, m_italic);
     label->setStyleSheet(css);
     label->setTextFormat(m_text_format);
-    label->setWordWrap(true);
-    // QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Minimum);
-    // label->setSizePolicy(sp);
     return QPointer<QWidget>(label);
 }

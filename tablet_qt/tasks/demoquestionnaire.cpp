@@ -1,9 +1,10 @@
 #include "demoquestionnaire.h"
 #include "tasklib/taskfactory.h"
 #include "questionnairelib/questionnaire.h"
-#include "questionnairelib/page.h"
-#include "questionnairelib/element.h"
-#include "questionnairelib/text.h"
+#include "questionnairelib/qupage.h"
+#include "questionnairelib/quelement.h"
+#include "questionnairelib/qubutton.h"
+#include "questionnairelib/qutext.h"
 
 
 DemoQuestionnaire::DemoQuestionnaire(const QSqlDatabase& db, int load_pk) :
@@ -54,7 +55,7 @@ QString DemoQuestionnaire::getDetail() const
 void DemoQuestionnaire::edit(CamcopsApp& app)
 {
     qDebug() << "DemoQuestionnaire::edit()";
-    QString longtext = (
+    QString longtext = (  // http://www.lipsum.com/
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent "
         "sed cursus mauris. Ut vulputate felis quis dolor molestie convallis. "
         "Donec lectus diam, accumsan quis tortor at, congue laoreet augue. Ut "
@@ -74,55 +75,74 @@ void DemoQuestionnaire::edit(CamcopsApp& app)
         "<i>italic</i>, and others as per Qt rich text syntax at "
         "<a href=\"%1\">%1</a>."
     ).arg(url);
-    PagePtr p1 = PagePtr((new Page({
-        ElementPtr((new Text("normal text"))),
-        ElementPtr((new Text("bold text"))->bold()),
-        ElementPtr((new Text("italic text"))->italic()),
-        ElementPtr((new Text(html))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text(longtext))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("big text"))->big()),
-        ElementPtr((new Text("... was that enough to scroll "
-                             "vertically?"))->bold()),
-    }))->setTitle("Page 1"));
-    Questionnaire* questionnaire = new Questionnaire(app, {p1});
+
+    // *** page 1 text, page 2 buttons
+    QuPagePtr p1 = QuPagePtr((new QuPage({
+        QuElementPtr((new QuText("normal text"))->addTag("tag1")),
+        QuElementPtr((new QuText("bold text"))->bold()),
+        QuElementPtr((new QuText("italic text"))->italic()),
+        QuElementPtr(new QuText(html)),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText(longtext))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("big text"))->big()),
+        QuElementPtr((new QuText("... was that enough to scroll "
+                                 "vertically?"))->bold()),
+    }))->setTitle("Page 1: text "
+                  "[With a long title: Lorem ipsum dolor sit amet, "
+                  "consectetur adipiscing elit. Praesent sed cursus mauris. "
+                  "Ut vulputate felis quis dolor molestie convallis.]"));
+
+    QuPagePtr p2 = QuPagePtr((new QuPage({
+    QuElementPtr(new QuButton(
+        "Say hello",
+        std::bind(&DemoQuestionnaire::callback_hello, this))),
+    QuElementPtr(new QuButton(
+        "Button with args ('foo')",
+        std::bind(&DemoQuestionnaire::callback_arg, this, "foo"))),
+    QuElementPtr(new QuButton(
+        "Button with args ('bar')",
+        std::bind(&DemoQuestionnaire::callback_arg, this, "bar"))),
+    }))->setTitle("Page 2: buttons"));
+
     // ***
+
+    Questionnaire* questionnaire = new Questionnaire(app, {p1, p2});
     questionnaire->open();
 }
 
@@ -130,4 +150,16 @@ void DemoQuestionnaire::edit(CamcopsApp& app)
 void initializeDemoQuestionnaire(TaskFactory& factory)
 {
     static TaskRegistrar<DemoQuestionnaire> registered(factory);
+}
+
+
+void DemoQuestionnaire::callback_hello()
+{
+    alert("Hello!");
+}
+
+
+void DemoQuestionnaire::callback_arg(const QString& arg)
+{
+    alert("Function argument was: " + arg);
 }

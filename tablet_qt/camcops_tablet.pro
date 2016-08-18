@@ -20,6 +20,8 @@ QT += sql  # required to #include <QSqlDatabase>
 QT += network  # required to #include <QtNetwork/*>
 QT += multimedia  # or: undefined reference to QMedia*::*
 QT += multimediawidgets
+# QT += webkit  # for QWebView -- no, not used
+# QT += webkitwidgets  # for QWebView -- no, not used
 
 # http://stackoverflow.com/questions/20351155/how-can-i-enable-ssl-in-qt-windows-application
 # http://stackoverflow.com/questions/18663331/how-to-check-the-selected-version-of-qt-in-a-pro-file
@@ -79,9 +81,12 @@ SOURCES += main.cpp\
     tasks/demoquestionnaire.cpp \
     questionnairelib/questionnaire.cpp \
     common/uiconstants.cpp \
-    questionnairelib/element.cpp \
-    questionnairelib/page.cpp \
-    questionnairelib/text.cpp
+    questionnairelib/quelement.cpp \
+    questionnairelib/qupage.cpp \
+    questionnairelib/qutext.cpp \
+    widgets/verticalscrollarea.cpp \
+    widgets/labelwordwrapwide.cpp \
+    questionnairelib/qubutton.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -133,9 +138,12 @@ HEADERS  += \
     questionnairelib/questionnaireheader.h \
     tasks/demoquestionnaire.h \
     questionnairelib/questionnaire.h \
-    questionnairelib/element.h \
-    questionnairelib/page.h \
-    questionnairelib/text.h
+    questionnairelib/quelement.h \
+    questionnairelib/qutext.h \
+    questionnairelib/qupage.h \
+    widgets/verticalscrollarea.h \
+    widgets/labelwordwrapwide.h \
+    questionnairelib/qubutton.h
 
 CONFIG += debug
 CONFIG += mobility
@@ -157,7 +165,8 @@ DISTFILES += \
     android/gradle/wrapper/gradle-wrapper.properties \
     android/gradlew.bat \
     stylesheets/camcops_menu.css \
-    stylesheets/camcops_questionnaire.css
+    stylesheets/camcops_questionnaire.css \
+    android/res/drawable-ldpi/icon.png
 
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android

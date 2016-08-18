@@ -81,6 +81,15 @@ MenuItem::MenuItem(const TaskMenuItem& taskmenuitem, CamcopsApp& app)
 }
 
 
+MenuItem::MenuItem(const QString& title, const HtmlMenuItem& htmlmenuitem) :
+    m_title(title)
+{
+    setDefaults();
+    m_html_filename = htmlmenuitem.filename;
+}
+
+
+
 MenuItem::MenuItem(TaskPtr p_task, bool task_shows_taskname) :
     m_title("?")
 {
@@ -112,6 +121,7 @@ void MenuItem::setDefaults()
     m_p_menuproxy = MenuProxyPtr(nullptr);
     m_task_tablename = "";
     m_p_task = TaskPtr(nullptr);
+    m_html_filename = "";
 }
 
 
@@ -288,8 +298,19 @@ void MenuItem::act(CamcopsApp& app) const
         app.pushScreen(pWindow);
         return;
     }
+    if (!m_html_filename.isEmpty()) {
+        showHtml(m_html_filename);
+        return;
+    }
     qWarning() << "Menu item selected but no action specified:"
                << m_title;
+}
+
+
+void MenuItem::showHtml(const QString& filename) const
+{
+    alert("*** showHtml: " + filename);
+    // http://doc.qt.io/qt-5/qtextbrowser.html
 }
 
 

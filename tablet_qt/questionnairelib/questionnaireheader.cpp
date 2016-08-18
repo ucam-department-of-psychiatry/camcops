@@ -5,6 +5,7 @@
 #include <QVBoxLayout>
 #include "common/uiconstants.h"
 #include "lib/uifunc.h"
+#include "widgets/labelwordwrapwide.h"
 
 
 QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
@@ -41,18 +42,13 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
         toprowlayout->addWidget(read_only_icon);
     }
 
-    // Spacing
-    toprowlayout->addStretch();
-
     // Title
-    QLabel* title_label = new QLabel(title);
+    LabelWordWrapWide* title_label = new LabelWordWrapWide(title);
+    title_label->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
     title_label->setObjectName("questionnaire_title");
     QString title_css = textCSS(fontsize);
     title_label->setStyleSheet(title_css);
     toprowlayout->addWidget(title_label);
-
-    // Spacing
-    toprowlayout->addStretch();
 
     // Right-hand icons
     if (jump_allowed) {

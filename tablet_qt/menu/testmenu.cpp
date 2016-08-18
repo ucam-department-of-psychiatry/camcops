@@ -31,6 +31,10 @@ TestMenu::TestMenu(CamcopsApp& app)
             "Test PHQ9 creation",
             std::bind(&TestMenu::testPhq9Creation, this)
         ).setNotIfLocked(),
+        MenuItem(
+            "Test HTML display",
+            HtmlMenuItem("*** SOME FILENAME ***")
+        ),
         MenuItem(tr("Test card 1 (black, white)")),  // ***
         MenuItem(tr("Test card 2 (scaling, scrolling)")),  // ***
     };

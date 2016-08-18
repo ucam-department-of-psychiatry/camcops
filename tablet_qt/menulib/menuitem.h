@@ -18,8 +18,19 @@ struct TaskMenuItem
     // Exists only to improve polymorphic constructor of MenuItem
 public:
     TaskMenuItem(const QString& tablename) :
-        tablename(tablename) {}
+        tablename(tablename)
+    {}
     QString tablename;
+};
+
+
+struct HtmlMenuItem
+{
+public:
+    HtmlMenuItem(const QString& filename) :
+        filename(filename)
+    {}
+    QString filename;
 };
 
 
@@ -39,6 +50,7 @@ public:
              const QString& icon = "");
     MenuItem(MenuProxyPtr p_menuproxy, CamcopsApp& app);
     MenuItem(const TaskMenuItem& taskmenuitem, CamcopsApp& app);
+    MenuItem(const QString& title, const HtmlMenuItem& htmlmenuitem);
     MenuItem(TaskPtr p_task, bool task_shows_taskname = true);
 
     QString title();
@@ -53,6 +65,7 @@ public:
 
     QWidget* getRowWidget(CamcopsApp& app) const;
     void act(CamcopsApp& app) const;
+    void showHtml(const QString& filename) const;
     bool isImplemented() const;
 
 protected:
@@ -73,8 +86,8 @@ protected:
     MenuProxyPtr m_p_menuproxy;
     QString m_task_tablename;
     TaskPtr m_p_task;
+    QString m_html_filename;
 //    SOMETHING m_event;
-//    SOMETHING m_task;
 //    SOMETHING m_info;
 //    SOMETHING m_chainList;
 

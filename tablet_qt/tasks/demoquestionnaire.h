@@ -1,5 +1,7 @@
 #pragma once
+#include <QMap>
 #include <QString>
+#include <QVariant>
 #include "common/camcopsapp.h"
 #include "tasklib/task.h"
 #include "tasklib/taskfactory.h"
@@ -23,6 +25,9 @@ public:
     virtual QString getSummary() const override;
     virtual QString getDetail() const override;
     virtual void edit(CamcopsApp& app) override;
+protected:
+    void callback_hello();
+    void callback_arg(const QString& arg);
 };
 
 void initializeDemoQuestionnaire(TaskFactory& factory);

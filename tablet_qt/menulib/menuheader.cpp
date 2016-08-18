@@ -6,6 +6,7 @@
 #include <QVBoxLayout>
 #include "common/uiconstants.h"
 #include "lib/uifunc.h"
+#include "widgets/labelwordwrapwide.h"
 
 
 MenuHeader::MenuHeader(QWidget* parent,
@@ -41,7 +42,7 @@ MenuHeader::MenuHeader(QWidget* parent,
     }
 
     // Title
-    QLabel* title_label = new QLabel(title);
+    LabelWordWrapWide* title_label = new LabelWordWrapWide(title);
     title_label->setObjectName("menu_window_title");
     toprowlayout->addWidget(title_label);
 
