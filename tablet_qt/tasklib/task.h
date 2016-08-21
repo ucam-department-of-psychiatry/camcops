@@ -1,7 +1,11 @@
 #pragma once
+#include <QCoreApplication>  // for Q_DECLARE_TR_FUNCTIONS
+#include <QDateTime>
 #include <QString>
-#include "common/camcopsapp.h"
 #include "lib/databaseobject.h"
+
+class CamcopsApp;
+class OpenableWidget;
 
 extern const QString PATIENT_FK_FIELDNAME;
 
@@ -26,7 +30,8 @@ public:
     virtual QString longname() const = 0;
     virtual QString menutitle() const;  // default: "longname (shortname)"
     virtual QString menusubtitle() const = 0;  // descriptive
-    virtual QString getInfoFilenameStem() const;  // default: tablename
+    virtual QString infoFilenameStem() const;  // default: tablename
+    virtual QString instanceTitle() const;
     virtual bool isAnonymous() const { return false; }
     virtual bool hasClinician() const { return false; }
     virtual bool hasRespondent() const { return false; }
@@ -50,14 +55,14 @@ public:
     // Specific info
     // ------------------------------------------------------------------------
     virtual bool isComplete() const = 0;
-    virtual QString getSummary() const { return "MISSING SUMMARY"; }
-    virtual QString getDetail() const { return getSummary(); }
-    virtual void edit(CamcopsApp& app);
+    virtual QString summary() const;
+    virtual QString detail() const;
+    virtual OpenableWidget* editor(CamcopsApp& app, bool read_only = false);
     // ------------------------------------------------------------------------
     // Assistance functions
     // ------------------------------------------------------------------------
-    QString whenCreatedMenuFormat() const;
-    QString getSummaryWithCompleteSuffix() const;
+    QDateTime whenCreated() const;
+    QString summaryWithCompleteSuffix() const;
 };
 
 
@@ -66,4 +71,5 @@ public:
 // ===========================================================================
 
 typedef QSharedPointer<Task> TaskPtr;
+typedef QWeakPointer<Task> TaskWeakPtr;
 typedef QList<TaskPtr> TaskPtrList;

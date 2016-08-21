@@ -20,11 +20,12 @@ public:
     QString sqlColumnDef() const;
     QString sqlColumnType() const;
     QVariant value() const;
+    QString prettyValue() const;  // returns a QString representation
     bool setValue(const QVariant& value);  // returns: dirty?
     bool nullify();  // returns: dirty?
     bool isNull() const;
     void setFromDatabaseValue(const QVariant& db_value); // SQLite -> C++
-    QVariant getDatabaseValue() const; // C++ -> SQLite
+    QVariant databaseValue() const; // C++ -> SQLite
     bool isDirty() const;
     void setDirty();
     void clearDirty();

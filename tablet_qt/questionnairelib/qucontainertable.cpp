@@ -21,10 +21,10 @@ QuContainerTable::QuContainerTable(std::initializer_list<QuTableCell> cells) :
 }
 
 
-QuContainerTable* QuContainerTable::addCell(const QuTableCell& cells)
+QuContainerTable& QuContainerTable::addCell(const QuTableCell& cells)
 {
     m_cells.append(cells);
-    return this;
+    return *this;
 }
 
 
@@ -35,7 +35,7 @@ QPointer<QWidget> QuContainerTable::makeWidget(Questionnaire* questionnaire)
     widget->setLayout(layout);
     for (auto c : m_cells) {
         QuElementPtr e = c.element;
-        QPointer<QWidget> w = e->getWidget(questionnaire);
+        QPointer<QWidget> w = e->widget(questionnaire);
         layout->addWidget(w, c.row, c.column,
                           c.row_span, c.column_span, c.alignment);
     }

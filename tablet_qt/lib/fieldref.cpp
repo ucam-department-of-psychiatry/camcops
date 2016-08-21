@@ -39,7 +39,7 @@ FieldRef::FieldRef(const GetterFunction& getterfunc,
 }
 
 
-void FieldRef::set(const QVariant& value)
+void FieldRef::setValue(const QVariant& value)
 {
     switch (m_method) {
     case FieldRefMethod::Field:
@@ -58,13 +58,13 @@ void FieldRef::set(const QVariant& value)
 }
 
 
-QVariant FieldRef::get() const
+QVariant FieldRef::value() const
 {
     switch (m_method) {
     case FieldRefMethod::Field:
         return m_p_field->value();
     case FieldRefMethod::DatabaseObject:
-        return m_p_dbobject->getValue(m_fieldname);
+        return m_p_dbobject->value(m_fieldname);
     case FieldRefMethod::Functions:
     default:  // to remove warning
         return m_getterfunc();
@@ -72,57 +72,57 @@ QVariant FieldRef::get() const
 }
 
 
-int FieldRef::getInt() const
+int FieldRef::valueInt() const
 {
-    QVariant value = get();
-    return value.toInt();
+    QVariant v = value();
+    return v.toInt();
 }
 
 
-qlonglong FieldRef::getLongLong() const
+qlonglong FieldRef::valueLongLong() const
 {
-    QVariant value = get();
-    return value.toLongLong();
+    QVariant v = value();
+    return v.toLongLong();
 }
 
 
-double FieldRef::getDouble() const
+double FieldRef::valueDouble() const
 {
-    QVariant value = get();
-    return value.toDouble();
+    QVariant v = value();
+    return v.toDouble();
 }
 
 
-bool FieldRef::getBool() const
+bool FieldRef::valueBool() const
 {
-    QVariant value = get();
-    return value.toBool();
+    QVariant v = value();
+    return v.toBool();
 }
 
 
-QDateTime FieldRef::getDateTime() const
+QDateTime FieldRef::valueDateTime() const
 {
-    QVariant value = get();
-    return value.toDateTime();
+    QVariant v = value();
+    return v.toDateTime();
 }
 
 
-QDate FieldRef::getDate() const
+QDate FieldRef::valueDate() const
 {
-    QVariant value = get();
-    return value.toDate();
+    QVariant v = value();
+    return v.toDate();
 }
 
 
-QString FieldRef::getString() const
+QString FieldRef::valueString() const
 {
-    QVariant value = get();
-    return value.toString();
+    QVariant v = value();
+    return v.toString();
 }
 
 
-QByteArray FieldRef::getByteArray() const
+QByteArray FieldRef::valueByteArray() const
 {
-    QVariant value = get();
-    return value.toByteArray();
+    QVariant v = value();
+    return v.toByteArray();
 }

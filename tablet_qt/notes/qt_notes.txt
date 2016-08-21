@@ -485,7 +485,7 @@ Menu structure, class factories, ...
 ===============================================================================
 - no harm in encoding menus fairly manually
 - TaskFactory works fine
-- *** main thing to consider then is the Questionnaire implementation
+- main thing to consider then is the Questionnaire implementation
     - a questionnaire has
         simple properties
         a list of pages
@@ -560,10 +560,16 @@ QuestionTypedVariables.js
 ===============================================================================
 TO DO
 ===============================================================================
-- *** view (summary, facsimile...), edit, delete
-- *** default "details" view -- using new Field method of "prettyString" that uses the stored field-type information
-- *** single task list not autorefreshing after task created/edited
-
+- *** storedvars
+    abstract base class StoredVar
+        ... a DatabaseObject with a single table
+    specifics, e.g. StoredVarInt(const QSqlDatabase& db)
+        int value();
+        void setValue(int);
+    use an integer PK, but look up by name
+    cache
+        ... but are type-specific subclasses incompatible with a cache?
+- *** patients
 - *** scrolling by touch on Android menus and questionnaires
     http://doc.qt.io/qt-5.7/gestures-overview.html
     *** https://forum.qt.io/topic/30546/kinetic-scrolling-on-qscrollarea-on-android-device/5

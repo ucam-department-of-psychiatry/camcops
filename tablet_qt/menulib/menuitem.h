@@ -1,13 +1,12 @@
 #pragma once
 #include <functional>  // for std::function
-#include <QLabel>
+#include <QCoreApplication>  // for Q_DECLARE_TR_FUNCTIONS
 #include <QSharedPointer>
 #include <QString>
-#include <Qt>
-#include "common/camcopsapp.h"
 #include "menulib/menuproxy.h"
 
 class QWidget;
+class CamcopsApp;
 class MenuWindow;
 class Task;
 typedef QSharedPointer<Task> TaskPtr;
@@ -35,6 +34,7 @@ public:
         icon(icon)
     {}
 public:
+    // These are the title/icon shown on the HTML page, not the menu
     QString title;
     QString filename;
     QString icon;
@@ -54,15 +54,15 @@ public:
     MenuItem();
     MenuItem(const QString &title);  // for dummy use
     MenuItem(const QString& title, const ActionFunction& func,
-             const QString& icon = "");
+             const QString& icon = "", const QString& subtitle = "");
     MenuItem(MenuProxyPtr p_menuproxy, CamcopsApp& app);
     MenuItem(const TaskMenuItem& taskmenuitem, CamcopsApp& app);
     MenuItem(const QString& title, const HtmlMenuItem& htmlmenuitem,
-             const QString& icon = "");
+             const QString& icon = "", const QString& subtitle = "");
     MenuItem(TaskPtr p_task, bool task_shows_taskname = true);
 
-    QString title();
-    TaskPtr task();
+    QString title() const;
+    TaskPtr task() const;
 
     // https://en.wikipedia.org/wiki/Method_chaining
     MenuItem& setImplemented(bool implemented);
@@ -71,7 +71,7 @@ public:
     MenuItem& setNotIfLocked(bool not_if_locked = true);
     MenuItem& setUnsupported(bool unsupported = true);
 
-    QWidget* getRowWidget(CamcopsApp& app) const;
+    QWidget* rowWidget(CamcopsApp& app) const;
     void act(CamcopsApp& app) const;
     void showHtml(const QString& filename) const;
     bool isImplemented() const;

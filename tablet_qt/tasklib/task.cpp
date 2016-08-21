@@ -1,6 +1,7 @@
 #include "task.h"
 #include <QObject>
 #include <QVariant>
+#include "common/camcopsapp.h"
 #include "lib/datetimefunc.h"
 
 const QString PATIENT_FK_FIELDNAME = "patient_id";
@@ -11,7 +12,7 @@ Task::Task(const QSqlDatabase& db,
            bool is_anonymous,
            bool has_clinician,
            bool has_respondent) :
-    DatabaseObject(tablename, db, true, true, true)
+    DatabaseObject(db, tablename, PK_FIELDNAME, true, true)
 {
     // WATCH OUT: you can't call a derived class's overloaded function
     // here; its vtable is incomplete.
@@ -46,7 +47,7 @@ void Task::setPatient(int patient_id)
         qCritical() << "Attempt to set patient ID for an anonymous task";
         return;
     }
-    if (!getValue(PATIENT_FK_FIELDNAME).isNull()) {
+    if (!value(PATIENT_FK_FIELDNAME).isNull()) {
         qWarning() << "Setting patient ID, but it was already set";
     }
     setValue(PATIENT_FK_FIELDNAME, patient_id);
@@ -65,9 +66,24 @@ bool Task::hasExtraStrings() const
 }
 
 
-QString Task::getInfoFilenameStem() const
+QString Task::infoFilenameStem() const
 {
     return m_tablename;
+}
+
+
+QString Task::instanceTitle() const
+{
+    if (isAnonymous()) {
+        return QString("%1, %2").arg(
+            shortname(),
+            whenCreated().toString(SHORT_DATETIME_FORMAT));
+    } else {
+        return QString("%1, ***PATIENT***, %2").arg(
+            shortname(),
+            // *** patient info
+            whenCreated().toString(SHORT_DATETIME_FORMAT));
+    }
 }
 
 
@@ -87,17 +103,16 @@ bool Task::load(int pk)
 }
 
 
-QString Task::whenCreatedMenuFormat() const
+QDateTime Task::whenCreated() const
 {
-    return getValue(CREATION_TIMESTAMP_FIELDNAME)
-        .toDateTime()
-        .toString(SHORT_DATETIME_FORMAT);
+    return value(CREATION_TIMESTAMP_FIELDNAME)
+        .toDateTime();
 }
 
 
-QString Task::getSummaryWithCompleteSuffix() const
+QString Task::summaryWithCompleteSuffix() const
 {
-    QString result = getSummary();
+    QString result = summary();
     if (!isComplete()) {
         result += tr(" (INCOMPLETE)");
     }
@@ -105,8 +120,22 @@ QString Task::getSummaryWithCompleteSuffix() const
 }
 
 
-void Task::edit(CamcopsApp &app)
+QString Task::summary() const
+{
+    return "MISSING SUMMARY";
+}
+
+
+QString Task::detail() const
+{
+    return recordSummary();
+}
+
+
+OpenableWidget* Task::editor(CamcopsApp &app, bool read_only)
 {
     (void)app;
+    (void)read_only;
     qWarning() << "Base class Task::edit called - not a good thing!";
+    return nullptr;
 }

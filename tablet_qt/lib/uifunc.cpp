@@ -4,6 +4,7 @@
 #include <QAbstractButton>
 #include <QDebug>
 #include <QDesktopServices>
+#include <QLabel>
 #include <QMessageBox>
 #include <QObject>
 #include <QToolButton>

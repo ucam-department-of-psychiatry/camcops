@@ -3,7 +3,7 @@
 #include "qutext.h"
 
 
-class QuHeading : public QuText
+class QuHeading : public MutilevelCloneable<QuElement, QuText, QuHeading>
 {
 public:
     QuHeading(const QString& text);

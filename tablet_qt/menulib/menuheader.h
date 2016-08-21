@@ -1,7 +1,7 @@
 #pragma once
 #include <QPointer>
 #include <QWidget>
-#include "common/camcopsapp.h"
+#include "common/camcopsapp.h"  // for LockState
 
 class QAbstractButton;
 class QLabel;

@@ -13,10 +13,10 @@ QuElement::~QuElement()
 {
 }
 
-QuElement* QuElement::addTag(const QString& tag)
+QuElement& QuElement::addTag(const QString& tag)
 {
     m_tags.append(tag);
-    return this;
+    return *this;
 }
 
 
@@ -26,7 +26,7 @@ bool QuElement::hasTag(const QString &tag)
 }
 
 
-QPointer<QWidget> QuElement::getWidget(Questionnaire* questionnaire)
+QPointer<QWidget> QuElement::widget(Questionnaire* questionnaire)
 {
     if (!m_widget) {
         // not yet made, or deleted by Qt

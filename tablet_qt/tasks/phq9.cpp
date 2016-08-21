@@ -35,22 +35,17 @@ bool Phq9::isComplete() const
 }
 
 
-QString Phq9::getSummary() const
+QString Phq9::summary() const
 {
     return "***";
 }
 
 
-QString Phq9::getDetail() const
-{
-    return "***";
-}
-
-
-void Phq9::edit(CamcopsApp& app)
+OpenableWidget* Phq9::editor(CamcopsApp& app, bool read_only)
 {
     (void)app;
-    // ***
+    (void)read_only;
+    return nullptr; // ***
 }
 
 

@@ -1,9 +1,10 @@
 #pragma once
-#include <QWidget>
-#include "common/camcopsapp.h"
+#include "widgets/openablewidget.h"
+
+class CamcopsApp;
 
 
-class HtmlInfoWindow : public QWidget
+class HtmlInfoWindow : public OpenableWidget
 {
     Q_OBJECT
 public:

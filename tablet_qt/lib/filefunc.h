@@ -1,5 +1,5 @@
 #pragma once
-#include <QString>
+class QString;
 
 bool fileExists(const QString& filename);
 QString textfileContents(const QString& filename);

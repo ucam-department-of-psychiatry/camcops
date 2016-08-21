@@ -105,7 +105,7 @@ void Field::setFromDatabaseValue(const QVariant& db_value)
 }
 
 
-QVariant Field::getDatabaseValue() const
+QVariant Field::databaseValue() const
 {
     switch (m_type) {
         case QVariant::DateTime:
@@ -176,6 +176,12 @@ QString Field::sqlColumnType() const
 QVariant Field::value() const
 {
     return m_value;
+}
+
+
+QString Field::prettyValue() const
+{
+    return m_value.toString();  // *** prettyValue working?
 }
 
 

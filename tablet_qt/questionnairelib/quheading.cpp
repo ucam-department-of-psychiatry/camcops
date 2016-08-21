@@ -1,5 +1,6 @@
 #include "quheading.h"
 #include "common/uiconstants.h"
+#include "lib/uifunc.h"
 #include "questionnaire.h"
 #include "widgets/labelwordwrapwide.h"
 
@@ -18,7 +19,7 @@ QuHeading::QuHeading(FieldRefPtr fieldref) :
 
 QPointer<QWidget> QuHeading::makeWidget(Questionnaire* questionnaire)
 {
-    QString text = m_fieldref ? m_fieldref->getString() : m_text;
+    QString text = m_fieldref ? m_fieldref->valueString() : m_text;
     LabelWordWrapWide* label = new LabelWordWrapWide(text);
     int fontsize = questionnaire->fontSizePt(FontSize::Heading);
     QString colour = "";

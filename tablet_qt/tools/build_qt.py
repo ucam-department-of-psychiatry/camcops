@@ -282,7 +282,7 @@ def build_openssl_android(args, cpu):
     # - Compare to files on the Android emulator:
     #
     #   adb pull /system/lib/libz.so  # system
-    #   adb pull /data/data/org.camcops.camcops_tablet_qt/lib/  # ours
+    #   adb pull /data/data/org.camcops.camcops/lib/  # ours
     #
     # ... looks OK
 

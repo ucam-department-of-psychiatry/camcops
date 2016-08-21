@@ -10,18 +10,20 @@
 #include "fieldref.h"
 
 
-DatabaseObject::DatabaseObject(const QString& tablename,
-                               const QSqlDatabase db,
-                               bool has_default_pk_field,
+DatabaseObject::DatabaseObject(const QSqlDatabase& db,
+                               const QString& tablename,
+                               const QString& pk_fieldname,
                                bool has_modification_timestamp,
                                bool has_creation_timestamp) :
-    m_tablename(tablename),
     m_db(db),
+    m_tablename(tablename),
+    m_pk_fieldname(pk_fieldname),
     m_has_modification_timestamp(has_modification_timestamp)
 {
-    if (has_default_pk_field) {
-        addField(PK_FIELDNAME, QVariant::Int, true, true, true);
+    if (pk_fieldname.isEmpty()) {
+        stopApp(QString("Missing pk_fieldname; table=%1").arg(m_tablename));
     }
+    addField(pk_fieldname, QVariant::Int, true, true, true);
     if (has_modification_timestamp) {
         addField(MODIFICATION_TIMESTAMP_FIELDNAME, QVariant::DateTime);
     }
@@ -67,7 +69,7 @@ void DatabaseObject::addField(const Field& field)
 }
 
 
-QStringList DatabaseObject::getFieldnames() const
+QStringList DatabaseObject::fieldnames() const
 {
     QStringList fieldnames;
     MapIteratorType i(m_record);
@@ -98,52 +100,59 @@ bool DatabaseObject::setValue(const QString& fieldname, const QVariant& value)
 }
 
 
-QVariant DatabaseObject::getValue(const QString& fieldname) const
+QVariant DatabaseObject::value(const QString& fieldname) const
 {
     requireField(fieldname);
     return m_record[fieldname].value();
 }
 
 
-bool DatabaseObject::getValueBool(const QString& fieldname) const
+QString DatabaseObject::prettyValue(const QString &fieldname) const
 {
-    QVariant value = getValue(fieldname);
-    return value.toBool();
+    requireField(fieldname);
+    return m_record[fieldname].prettyValue();
 }
 
 
-int DatabaseObject::getValueInt(const QString& fieldname) const
+bool DatabaseObject::valueBool(const QString& fieldname) const
 {
-    QVariant value = getValue(fieldname);
-    return value.toInt();
+    QVariant v = value(fieldname);
+    return v.toBool();
 }
 
 
-qlonglong DatabaseObject::getValueLongLong(const QString& fieldname) const
+int DatabaseObject::valueInt(const QString& fieldname) const
 {
-    QVariant value = getValue(fieldname);
-    return value.toLongLong();
+    QVariant v = value(fieldname);
+    return v.toInt();
 }
 
 
-double DatabaseObject::getValueDouble(const QString& fieldname) const
+qlonglong DatabaseObject::valueLongLong(const QString& fieldname) const
 {
-    QVariant value = getValue(fieldname);
-    return value.toDouble();
+    QVariant v = value(fieldname);
+    return v.toLongLong();
 }
 
 
-QDateTime DatabaseObject::getValueDateTime(const QString& fieldname) const
+double DatabaseObject::valueDouble(const QString& fieldname) const
 {
-    QVariant value = getValue(fieldname);
-    return value.toDateTime();
+    QVariant v = value(fieldname);
+    return v.toDouble();
 }
 
 
-QDate DatabaseObject::getValueDate(const QString& fieldname) const
+QDateTime DatabaseObject::valueDateTime(const QString& fieldname) const
 {
-    QVariant value = getValue(fieldname);
-    return value.toDate();
+    QVariant v = value(fieldname);
+    return v.toDateTime();
+}
+
+
+QDate DatabaseObject::valueDate(const QString& fieldname) const
+{
+    QVariant v = value(fieldname);
+    return v.toDate();
 }
 
 
@@ -170,26 +179,13 @@ QString DatabaseObject::tablename() const
 
 QString DatabaseObject::pkname() const
 {
-    if (!m_cached_pkname.isEmpty()) {
-        return m_cached_pkname;
-    }
-    MapIteratorType i(m_record);
-    while (i.hasNext()) {
-        i.next();
-        QString fieldname = i.key();
-        Field field = i.value();
-        if (field.isPk()) {
-            m_cached_pkname = fieldname;
-            return m_cached_pkname;
-        }
-    }
-    return "";
+    return m_pk_fieldname;
 }
 
 
 QVariant DatabaseObject::pkvalue() const
 {
-    return getValue(pkname());
+    return value(pkname());
 }
 
 
@@ -248,10 +244,10 @@ bool DatabaseObject::load(int pk)
 
 SqlArgs DatabaseObject::fetchQuerySql(const WhereConditions& where)
 {
-    QStringList fieldnames = getFieldnames();
+    QStringList fields = fieldnames();
     QStringList delimited_fieldnames;
-    for (int i = 0; i < fieldnames.size(); ++i) {
-        delimited_fieldnames.append(delimit(fieldnames.at(i)));
+    for (int i = 0; i < fields.size(); ++i) {
+        delimited_fieldnames.append(delimit(fields.at(i)));
     }
     QString sql = (
         "SELECT " + delimited_fieldnames.join(", ") + " FROM " +
@@ -316,7 +312,7 @@ bool DatabaseObject::saveInsert()
             continue;
         }
         fieldnames.append(delimit(fieldname));
-        args.append(field.getDatabaseValue());  // not field.value()
+        args.append(field.databaseValue());  // not field.value()
         placeholders.append("?");
     }
     QString sql = (
@@ -354,7 +350,7 @@ bool DatabaseObject::saveUpdate()
         Field field = i.value();
         if (field.isDirty()) {
             fieldnames.append(delimit(fieldname) + "=?");
-            args.append(field.getDatabaseValue());  // not field.value()
+            args.append(field.databaseValue());  // not field.value()
         }
     }
     if (fieldnames.isEmpty()) {
@@ -389,6 +385,19 @@ FieldRef DatabaseObject::fieldRef(const QString& fieldname, bool autosave)
 }
 
 
+QString DatabaseObject::recordSummary() const
+{
+    QStringList list;
+    MapIteratorType i(m_record);
+    while (i.hasNext()) {
+        i.next();
+        const Field& field = i.value();
+        list.append(QString("%1 = %2").arg(field.name(), field.prettyValue()));
+    }
+    return list.join("\n");
+}
+
+
 QDebug operator<<(QDebug debug, const DatabaseObject& d)
 {
     debug << d.m_tablename << " record: " << d.m_record << "\n";
@@ -398,4 +407,28 @@ QDebug operator<<(QDebug debug, const DatabaseObject& d)
     // use m_record.value(fieldname) similarly
     // debug << "... Creation: " << qUtf8Printable(d.sqlCreateTable());
     return debug;
+}
+
+
+void DatabaseObject::deleteFromDatabase()
+{
+    QVariant pk = pkvalue();
+    if (pk.isNull()) {
+        qWarning() << "Attempting to delete a DatabaseObject with a "
+                      "NULL PK; ignored";
+        return;
+    }
+    ArgList args;
+    QString sql = (
+        "DELETE FROM " + delimit(m_tablename) +
+        " WHERE " + delimit(pkname()) + "=?"
+    );
+    args.append(pk);
+    bool success = exec(m_db, sql, args);
+    if (success) {
+        nullify();
+    } else {
+        qWarning() << "Failed to delete object with PK" << pk
+                   << "from table" << m_tablename;
+    }
 }

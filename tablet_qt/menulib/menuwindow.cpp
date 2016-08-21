@@ -2,16 +2,19 @@
 #include <QDebug>
 #include <QListWidget>
 #include <QListWidgetItem>
+#include <QMessageBox>
 #include <QVBoxLayout>
 #include "menuheader.h"
 #include "common/uiconstants.h"
 #include "lib/filefunc.h"
 #include "tasklib/task.h"
 
+#define BAD_INDEX -1
+
 
 MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
                        const QString& icon, bool top) :
-    QWidget(),
+    OpenableWidget(),
     m_app(app),
     m_title(title),
     m_subtitle(""),
@@ -65,9 +68,9 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
 }
 
 
-void MenuWindow::buildMenu()
+void MenuWindow::build()
 {
-    // qDebug() << "MenuWindow::buildMenu()";
+    // qDebug() << "MenuWindow::build()";
 
     // You can't call setLayout() twice. So clear the existing layout if
     // rebuilding.
@@ -83,7 +86,7 @@ void MenuWindow::buildMenu()
     m_p_header = new MenuHeader(this, m_app, m_top, m_title, m_icon);
     m_mainlayout->addWidget(m_p_header);
     connect(m_p_header, &MenuHeader::backClicked,
-            &m_app, &CamcopsApp::popScreen,
+            this, &MenuWindow::finished,
             Qt::UniqueConnection);  // unique as we may rebuild... safer.
     connect(this, &MenuWindow::offerViewEditDelete,
             m_p_header, &MenuHeader::offerViewEditDelete,
@@ -96,7 +99,7 @@ void MenuWindow::buildMenu()
     m_mainlayout->addWidget(m_p_listwidget);
     for (int i = 0; i < m_items.size(); ++i) {
         MenuItem item = m_items.at(i);
-        QWidget* row = item.getRowWidget(m_app);
+        QWidget* row = item.rowWidget(m_app);
         QListWidgetItem* listitem = new QListWidgetItem("", m_p_listwidget);
         listitem->setData(Qt::UserRole, QVariant(i));
         QSize rowsize = row->sizeHint();
@@ -105,6 +108,15 @@ void MenuWindow::buildMenu()
     }
     connect(m_p_listwidget, &QListWidget::itemClicked,
             this, &MenuWindow::menuItemClicked,
+            Qt::UniqueConnection);
+    connect(m_p_header, &MenuHeader::viewClicked,
+            this, &MenuWindow::viewItem,
+            Qt::UniqueConnection);
+    connect(m_p_header, &MenuHeader::editClicked,
+            this, &MenuWindow::editItem,
+            Qt::UniqueConnection);
+    connect(m_p_header, &MenuHeader::deleteClicked,
+            this, &MenuWindow::deleteItem,
             Qt::UniqueConnection);
 
     // Method 2: QListView, QStandardItemModel, custom delegate
@@ -143,13 +155,13 @@ void MenuWindow::menuItemClicked(QListWidgetItem* item)
     // WHAT'S BEEN CHOSEN?
     QVariant v = item->data(Qt::UserRole);
     int i = v.toInt();
-    if (i < 0 || i > m_items.size()) {
+    if (i < 0 || i >= m_items.size()) {
         qWarning() << "Selection out of range:" << i
                    << "(vector size:" << m_items.size() << ")";
         return;
     }
     MenuItem& m = m_items[i];
-    qDebug() << "Selected:" << m.title();
+    qInfo() << "Selected:" << m.title();
 
     if (m.task()) {
         // Notify the header (with its verb buttons). Leave it selected.
@@ -168,5 +180,134 @@ void MenuWindow::menuItemClicked(QListWidgetItem* item)
 void MenuWindow::lockStateChanged(LockState lockstate)
 {
     (void)lockstate;  // mark as unused; http://stackoverflow.com/questions/1486904/how-do-i-best-silence-a-warning-about-unused-variables
-    buildMenu();
+    build();  // calls down to derived class
+}
+
+
+void MenuWindow::viewItem()
+{
+    // View a task, if one is selected.
+    TaskPtr task = currentTask();
+    if (!task) {
+        return;
+    }
+    bool facsimile_available = task->isEditable();
+    QString instance_title = task->instanceTitle();
+    QMessageBox::StandardButtons buttons = (QMessageBox::Yes |
+                                            QMessageBox::Ok |
+                                            QMessageBox::Cancel);
+    if (facsimile_available) {
+        buttons |= QMessageBox::Open;
+    }
+    QMessageBox msgbox(QMessageBox::Question,  // icon
+                       tr("View task"),  // title
+                       tr("View in what format?"),  // text
+                       buttons,  // buttons
+                       this);  // parent
+    msgbox.setButtonText(QMessageBox::Yes, tr("Summary"));
+    msgbox.setButtonText(QMessageBox::Ok, tr("Detail"));
+    msgbox.setButtonText(QMessageBox::Cancel, tr("Cancel"));
+    if (facsimile_available) {
+        msgbox.setButtonText(QMessageBox::Open, tr("Facsimile"));
+    }
+    int reply = msgbox.exec();
+    switch (reply) {
+    case QMessageBox::Open:  // facsimile
+        if (facsimile_available) {
+            qInfo() << "View as facsimile:" << instance_title;
+            OpenableWidget* widget = task->editor(m_app, true);
+            m_app.open(widget, task);
+        }
+        break;
+    case QMessageBox::Ok:  // detail
+        qInfo() << "View detail:" << instance_title;
+        alert(task->detail(), instance_title);
+        break;
+    case QMessageBox::Yes:  // summary
+        qInfo() << "View summary:" << instance_title;
+        alert(task->summary(), instance_title);
+        break;
+    case QMessageBox::No:  // cancel
+    default:
+        break;
+    }
+}
+
+
+void MenuWindow::editItem()
+{
+    // Edit a task, if one is selected and editable
+    TaskPtr task = currentTask();
+    if (!task || !task->isEditable()) {
+        return;
+    }
+    QString instance_title = task->instanceTitle();
+    QMessageBox msgbox(
+        QMessageBox::Question,  // icon
+        tr("Edit"),  // title
+        tr("Edit this task?") + "\n\n" +  instance_title,  // text
+        QMessageBox::Yes | QMessageBox::No,  // buttons
+        this);  // parent
+    msgbox.setButtonText(QMessageBox::Yes, tr("Yes, edit"));
+    msgbox.setButtonText(QMessageBox::No, tr("No, cancel"));
+    int reply = msgbox.exec();
+    if (reply != QMessageBox::Yes) {
+        return;
+    }
+    qInfo() << "Edit:" << instance_title;
+    OpenableWidget* widget = task->editor(m_app);
+    m_app.open(widget, task, true);
+}
+
+
+void MenuWindow::deleteItem()
+{
+    // Edit a task, if one is selected and editable
+    TaskPtr task = currentTask();
+    if (!task || !task->isEditable()) {
+        return;
+    }
+    QString instance_title = task->instanceTitle();
+    QMessageBox msgbox(
+        QMessageBox::Warning,  // icon
+        tr("Delete"),  // title
+        tr("Delete this task?") + "\n\n" +  instance_title,  // text
+        QMessageBox::Yes | QMessageBox::No,  // buttons
+        this);  // parent
+    msgbox.setButtonText(QMessageBox::Yes, tr("Yes, delete"));
+    msgbox.setButtonText(QMessageBox::No, tr("No, cancel"));
+    int reply = msgbox.exec();
+    if (reply != QMessageBox::Yes) {
+        return;
+    }
+    qInfo() << "Delete:" << instance_title;
+    task->deleteFromDatabase();
+    build();
+}
+
+
+int MenuWindow::currentIndex() const
+{
+    QListWidgetItem* item = m_p_listwidget->currentItem();
+    if (!item) {
+        return BAD_INDEX;
+    }
+    QVariant v = item->data(Qt::UserRole);
+    int i = v.toInt();
+    if (i >= m_items.size() || i <= -1) {
+        // Out of bounds; coerce to -1
+        return BAD_INDEX;
+    }
+    return i;
+}
+
+
+TaskPtr MenuWindow::currentTask() const
+{
+    int index = currentIndex();
+    if (index == BAD_INDEX) {
+        return TaskPtr(nullptr);
+    }
+    const MenuItem& item = m_items[index];
+    return item.task();
 }

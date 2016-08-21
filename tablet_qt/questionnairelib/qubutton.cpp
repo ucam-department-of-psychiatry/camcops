@@ -16,8 +16,8 @@ QPointer<QWidget> QuButton::makeWidget(Questionnaire* questionnaire)
     QPushButton* button = new QPushButton(m_label);
     QSizePolicy sp(QSizePolicy::Fixed, QSizePolicy::Fixed);
     button->setSizePolicy(sp);
-    connect(button, &QPushButton::clicked,
-            this, &QuButton::clicked);
+    QObject::connect(button, &QPushButton::clicked,
+                     std::bind(&QuButton::clicked, this));
     return QPointer<QWidget>(button);
 }
 

@@ -2,7 +2,7 @@
 #include "quelement.h"
 
 
-class QuHorizontalLine : public QuElement
+class QuHorizontalLine : public Cloneable<QuElement, QuHorizontalLine>
 {
 public:
     QuHorizontalLine();

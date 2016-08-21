@@ -1,16 +1,20 @@
 #pragma once
 #include <QPointer>
-#include <QWidget>
-#include "common/camcopsapp.h"
+#include <QSharedPointer>
+#include <QVector>
+#include "common/camcopsapp.h"  // for LockState
 #include "menulib/menuitem.h"
+#include "widgets/openablewidget.h"
 
 class QListWidget;
 class QListWidgetItem;
 class QVBoxLayout;
 class MenuHeader;
+class Task;
+typedef QSharedPointer<Task> TaskPtr;
 
 
-class MenuWindow : public QWidget
+class MenuWindow : public OpenableWidget
 {
     Q_OBJECT
 
@@ -21,14 +25,17 @@ public:
     // MenuItem::MenuItem(MenuProxyPtr, CamcopsApp&) will create an INSTANCE
     // to get the title/subtitle.
     // If it's cheap, populate m_items in the constructor.
-    // If it's expensive (e.g. task lists), override buildMenu() to do:
+    // If it's expensive (e.g. task lists), override build() to do:
     // (a) populate m_items;
-    // (b) call MenuWindow::buildMenu();
+    // (b) call MenuWindow::build();
     // (c) +/- any additional work (e.g. signals/slots).
-    virtual void buildMenu();  // called by framework prior to opening
+    virtual void build() override;  // called by framework prior to opening
+
     QString title() const;
     QString subtitle() const;
     QString icon() const;
+    int currentIndex() const;
+    TaskPtr currentTask() const;
 
 signals:
     void offerViewEditDelete(bool offer_view, bool offer_edit,
@@ -37,6 +44,9 @@ signals:
 public slots:
     void menuItemClicked(QListWidgetItem* item);
     void lockStateChanged(LockState lockstate);
+    void viewItem();
+    void editItem();
+    void deleteItem();
 
 protected:
     CamcopsApp& m_app;

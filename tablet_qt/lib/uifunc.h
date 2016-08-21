@@ -1,9 +1,9 @@
 #pragma once
-#include <QLabel>
 #include <QObject>
 #include <QString>
 
 class QAbstractButton;
+class QLabel;
 
 #define iconFilename(filename) (":/images/camcops/" filename)
 #define iconPngFilename(stem) iconFilename(stem ".png")

@@ -7,13 +7,11 @@
 PatientSummaryMenu::PatientSummaryMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Patient summary"), ICON_PATIENT_SUMMARY)
 {
-    // m_items is EXPENSIVE, so leave it to buildMenu()
+    // m_items is EXPENSIVE (and depends on security), so leave it to build()
 }
 
-// *** think about the "lock changed" signal (a call to buildMenu() is probably insufficient as task eligibility may change?)
 
-
-void PatientSummaryMenu::buildMenu()
+void PatientSummaryMenu::build()
 {
     TaskFactoryPtr factory = m_app.factory();
 
@@ -26,11 +24,11 @@ void PatientSummaryMenu::buildMenu()
 
     // Task items
     TaskPtrList tasklist = factory->fetch();
-    qDebug() << "PatientSummaryMenu::buildMenu:" << tasklist.size() << "tasks";
+    qDebug() << "PatientSummaryMenu::build:" << tasklist.size() << "tasks";
     for (auto task : tasklist) {
         m_items.append(MenuItem(task));
     }
 
-    // Call parent buildMenu()
-    MenuWindow::buildMenu();
+    // Call parent build()
+    MenuWindow::build();
 }

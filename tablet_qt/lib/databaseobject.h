@@ -13,12 +13,12 @@ class FieldRef;
 
 class DatabaseObject
 {
-    // A database object supporting a single PK field, and a default
+    // A database object supporting a single integer PK field, and a default
     // modification timestamp field, extensible to add other fields.
 public:
-    DatabaseObject(const QString& tablename,
-                   const QSqlDatabase db,
-                   bool has_default_pk_field = true,
+    DatabaseObject(const QSqlDatabase& db,
+                   const QString& tablename,
+                   const QString& pk_fieldname = PK_FIELDNAME,
                    bool has_modification_timestamp = true,
                    bool has_creation_timestamp = false);
     // Adding fields
@@ -28,17 +28,20 @@ public:
                   bool unique = false,
                   bool pk = false);
     void addField(const Field& field);
-    QStringList getFieldnames() const;
+    QStringList fieldnames() const;
     // Field access:
     bool setValue(const QString& fieldname, const QVariant& value);  // returns: changed?
-    QVariant getValue(const QString& fieldname) const;
-    bool getValueBool(const QString& fieldname) const;
-    int getValueInt(const QString& fieldname) const;
-    qlonglong getValueLongLong(const QString& fieldname) const;
-    double getValueDouble(const QString& fieldname) const;
-    QDateTime getValueDateTime(const QString& fieldname) const;
-    QDate getValueDate(const QString& fieldname) const;
+    QVariant value(const QString& fieldname) const;
+    QString prettyValue(const QString& fieldname) const;
+    bool valueBool(const QString& fieldname) const;
+    int valueInt(const QString& fieldname) const;
+    qlonglong valueLongLong(const QString& fieldname) const;
+    double valueDouble(const QString& fieldname) const;
+    QDateTime valueDateTime(const QString& fieldname) const;
+    QDate valueDate(const QString& fieldname) const;
     FieldRef fieldRef(const QString& fieldname, bool autosave = true);
+    // Whole-object summary:
+    QString recordSummary() const;
     // Loading, saving:
     virtual bool load(int pk);
     virtual SqlArgs fetchQuerySql(const WhereConditions& where);
@@ -49,6 +52,8 @@ public:
     bool isPkNull() const;
     void touch(bool only_if_unset = false);
     void setAllDirty();
+    // Deleting
+    void deleteFromDatabase();
     // Debugging:
     void requireField(const QString& fieldname) const;
     // DDL
@@ -64,14 +69,14 @@ protected:
     void clearAllDirty();
 
 protected:
-    QString m_tablename;  // also used as key for extra strings
     QSqlDatabase m_db;
+    QString m_tablename;  // also used as key for extra strings
+    QString m_pk_fieldname;
     bool m_has_modification_timestamp;
     typedef QMap<QString, Field> MapType;
     typedef QMapIterator<QString, Field> MapIteratorType;
     typedef QMutableMapIterator<QString, Field> MutableMapIteratorType;
     MapType m_record;
-    mutable QString m_cached_pkname;
 
 public:
     friend QDebug operator<<(QDebug debug, const DatabaseObject& d);

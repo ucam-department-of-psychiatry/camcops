@@ -24,24 +24,30 @@ QuPage::QuPage(std::initializer_list<QuElementPtr> elements) :
 }
 
 
-QuPage* QuPage::setType(QuPageType type)
+QuPagePtr QuPage::clone() const
+{
+    return QuPagePtr(new QuPage(*this));
+}
+
+
+QuPage& QuPage::setType(QuPageType type)
 {
     m_type = type;
-    return this;
+    return *this;
 }
 
 
-QuPage* QuPage::setTitle(const QString& title)
+QuPage& QuPage::setTitle(const QString& title)
 {
     m_title = title;
-    return this;
+    return *this;
 }
 
 
-QuPage* QuPage::addElement(const QuElementPtr& element)
+QuPage& QuPage::addElement(const QuElementPtr& element)
 {
     m_elements.append(element);
-    return this;
+    return *this;
 }
 
 
@@ -63,7 +69,7 @@ QPointer<QWidget> QuPage::widget(Questionnaire* questionnaire) const
     QVBoxLayout* pagelayout = new QVBoxLayout;
     pagewidget->setLayout(pagelayout);
     for (QuElementPtr e : m_elements) {
-        QPointer<QWidget> w = e->getWidget(questionnaire);
+        QPointer<QWidget> w = e->widget(questionnaire);
         pagelayout->addWidget(w);
     }
 //    // In case the questionnaire is vertically short:

@@ -1,8 +1,10 @@
 #pragma once
 #include <QString>
-#include "common/camcopsapp.h"
 #include "tasklib/task.h"
-#include "tasklib/taskfactory.h"
+
+class CamcopsApp;
+class TaskFactory;
+class OpenableWidget;
 
 
 class Phq9 : public Task
@@ -19,9 +21,9 @@ public:
     // Specific info
     // ------------------------------------------------------------------------
     virtual bool isComplete() const override;
-    virtual QString getSummary() const override;
-    virtual QString getDetail() const override;
-    virtual void edit(CamcopsApp& app) override;
+    virtual QString summary() const override;
+    virtual OpenableWidget* editor(CamcopsApp& app,
+                                   bool read_only = false) override;
 };
 
 void initializePhq9(TaskFactory& factory);

@@ -28,7 +28,7 @@ QT += multimediawidgets
 
 QMAKE_CXXFLAGS += -Werror  # warnings become errors
 
-TARGET = camcops_tablet
+TARGET = camcops
 TEMPLATE = app
 
 
@@ -96,7 +96,8 @@ SOURCES += main.cpp\
     questionnairelib/qucontainertable.cpp \
     questionnairelib/quheading.cpp \
     questionnairelib/quimage.cpp \
-    tasklib/tasksorter.cpp
+    tasklib/tasksorter.cpp \
+    widgets/openablewidget.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -163,7 +164,9 @@ HEADERS  += \
     questionnairelib/qucontainertable.h \
     questionnairelib/quheading.h \
     questionnairelib/quimage.h \
-    tasklib/tasksorter.h
+    tasklib/tasksorter.h \
+    lib/cloneable.h \
+    widgets/openablewidget.h
 
 CONFIG += debug
 CONFIG += mobility

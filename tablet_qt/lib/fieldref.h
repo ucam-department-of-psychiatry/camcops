@@ -25,16 +25,16 @@ public:
              bool autosave = true);
     FieldRef(const GetterFunction& getterfunc,
              const SetterFunction& setterfunc);
-    void set(const QVariant& value);
-    QVariant get() const;
-    bool getBool() const;
-    int getInt() const;
-    qlonglong getLongLong() const;
-    double getDouble() const;
-    QDateTime getDateTime() const;
-    QDate getDate() const;
-    QString getString() const;
-    QByteArray getByteArray() const;
+    void setValue(const QVariant& value);
+    QVariant value() const;
+    bool valueBool() const;
+    int valueInt() const;
+    qlonglong valueLongLong() const;
+    double valueDouble() const;
+    QDateTime valueDateTime() const;
+    QDate valueDate() const;
+    QString valueString() const;
+    QByteArray valueByteArray() const;
 
 protected:
     FieldRefMethod m_method;

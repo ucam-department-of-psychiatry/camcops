@@ -104,10 +104,10 @@ MenuHeader::MenuHeader(QWidget* parent,
     // ------------------------------------------------------------------------
     // Selected patient
     // ------------------------------------------------------------------------
-    m_patient_info = new QLabel();
+    m_patient_info = new LabelWordWrapWide(); // *** patient info
     m_patient_info->setObjectName("menu_header_patient_info");
     mainlayout->addWidget(m_patient_info);
-    m_no_patient = new QLabel(tr("No patient selected"));
+    m_no_patient = new LabelWordWrapWide(tr("No patient selected"));
     m_no_patient->setObjectName("menu_header_no_patient");
     mainlayout->addWidget(m_no_patient);
     selectedPatientChanged(m_app.patientSelected(),

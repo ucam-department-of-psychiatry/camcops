@@ -2,33 +2,39 @@
 #include <initializer_list>
 #include <QList>
 #include <QPointer>
-#include <QWidget>
-#include "common/camcopsapp.h"
-#include "lib/uifunc.h"
+#include <QSharedPointer>
+#include "common/uiconstants.h"  // for FontSize
+#include "widgets/openablewidget.h"
 #include "qupage.h"
 
 class QVBoxLayout;
+class QWidget;
+
+class CamcopsApp;
+class Questionnaire;
+typedef QSharedPointer<Questionnaire> QuestionnairePtr;
 class QuestionnaireHeader;
 
 
-class Questionnaire : public QWidget
+class Questionnaire : public OpenableWidget
 {
     Q_OBJECT
 public:
     Questionnaire(CamcopsApp& app);
     Questionnaire(CamcopsApp& app, const QList<QuPagePtr>& pages);
     Questionnaire(CamcopsApp& app, std::initializer_list<QuPagePtr> pages);
-    Questionnaire* setType(QuPageType type);
-    Questionnaire* addPage(const QuPagePtr& page);
-    Questionnaire* setReadOnly(bool read_only = true);
-    Questionnaire* setJumpAllowed(bool jump_allowed = true);
-    Questionnaire* setWithinChain(bool within_chain = true);
 
-    void open();
+    virtual void build() override;
+
+    void setType(QuPageType type);
+    void addPage(const QuPagePtr& page);
+    void setReadOnly(bool read_only = true);
+    void setJumpAllowed(bool jump_allowed = true);
+    void setWithinChain(bool within_chain = true);
+
     int fontSizePt(FontSize fontsize) const;
 protected:
     void commonConstructor();
-    void rebuild();
     int currentPageNumOneBased() const;
     int nPages() const;
     QuPagePtr currentPagePtr() const;

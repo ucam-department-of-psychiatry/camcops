@@ -8,7 +8,14 @@
    Generic styles
    ========================================================================= */
 
-/* Avoid restyling QLabel; for example, the "About Qt" dialog uses it. */
+/* Avoid restyling QLabel, except for debugging;
+   for example, the "About Qt" dialog uses it. */
+
+/*
+QLabel {
+    background-color: green;
+}
+*/
 
 /* =========================================================================
    Outer containers

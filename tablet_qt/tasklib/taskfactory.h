@@ -138,8 +138,8 @@ public:
     void makeAllTables() const;
     // Operations relating to specific tasks
     TaskPtr create(const QString& key, int load_pk = NONEXISTENT_PK) const;
-    QString getShortName(const QString& key) const;
-    QString getLongName(const QString& key) const;
+    QString shortname(const QString& key) const;
+    QString longname(const QString& key) const;
     void makeTables(const QString& key) const;
     TaskPtrList fetch(const QString& tablename = "", bool sort = true) const;
 protected:

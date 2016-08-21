@@ -49,6 +49,7 @@ void openDatabaseOrDie(QSqlDatabase& db, const QString& filename)
     // Opens a database.
     QString dir = QStandardPaths::standardLocations(
         QStandardPaths::AppDataLocation).first();
+    // Under Linux: ~/.local/share/camcops/
     if (!QDir(dir).exists()) {
         if (QDir().mkdir(dir)) {
             qDebug() << "Made directory:" << dir;

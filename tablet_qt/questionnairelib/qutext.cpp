@@ -32,58 +32,58 @@ QuText::QuText(FieldRefPtr fieldref) :
 }
 
 
-QuText* QuText::big(bool big)
+QuText& QuText::big(bool big)
 {
     m_big = big;
-    return this;
+    return *this;
 }
 
 
-QuText* QuText::bold(bool bold)
+QuText& QuText::bold(bool bold)
 {
     m_bold = bold;
-    return this;
+    return *this;
 }
 
 
-QuText* QuText::italic(bool italic)
+QuText& QuText::italic(bool italic)
 {
     m_italic = italic;
-    return this;
+    return *this;
 }
 
 
-QuText* QuText::warning(bool warning)
+QuText& QuText::warning(bool warning)
 {
     m_warning = warning;
-    return this;
+    return *this;
 }
 
 
-QuText* QuText::setFormat(Qt::TextFormat format)
+QuText& QuText::setFormat(Qt::TextFormat format)
 {
     m_text_format = format;
-    return this;
+    return *this;
 }
 
 
-QuText* QuText::setOpenLinks(bool open_links)
+QuText& QuText::setOpenLinks(bool open_links)
 {
     m_open_links = open_links;
-    return this;
+    return *this;
 }
 
 
-QuText* QuText::setAlignment(Qt::Alignment alignment)
+QuText& QuText::setAlignment(Qt::Alignment alignment)
 {
     m_alignment = alignment;
-    return this;
+    return *this;
 }
 
 
 QPointer<QWidget> QuText::makeWidget(Questionnaire* questionnaire)
 {
-    QString text = m_fieldref ? m_fieldref->getString() : m_text;
+    QString text = m_fieldref ? m_fieldref->valueString() : m_text;
     LabelWordWrapWide* label = new LabelWordWrapWide(text);
     int fontsize = questionnaire->fontSizePt(m_big ? FontSize::Big
                                                    : FontSize::Normal);

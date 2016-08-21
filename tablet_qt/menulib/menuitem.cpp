@@ -1,3 +1,4 @@
+#include "menuitem.h"
 #include <QDebug>
 #include <QLabel>
 #include <QHBoxLayout>
@@ -6,13 +7,15 @@
 #include <QSize>
 #include <QUrl>
 #include <QVBoxLayout>
-#include "menuitem.h"
-#include "menuwindow.h"
+#include "common/camcopsapp.h"
 #include "common/uiconstants.h"
+#include "lib/datetimefunc.h"  // for SHORT_DATETIME_FORMAT
 #include "lib/uifunc.h"
 #include "menu/singletaskmenu.h"
-#include "menulib/htmlinfowindow.h"
-#include "tasklib/taskfactory.h"  // for TaskPtr
+#include "tasklib/taskfactory.h"
+#include "widgets/labelwordwrapwide.h"
+#include "htmlinfowindow.h"
+#include "menuwindow.h"
 
 const int STRETCH_3COL_TASKNAME = 1;
 const int STRETCH_3COL_TIMESTAMP = 2;
@@ -39,12 +42,13 @@ MenuItem::MenuItem(const QString& title) :
 
 
 MenuItem::MenuItem(const QString& title, const MenuItem::ActionFunction& func,
-                   const QString& icon) :
+                   const QString& icon, const QString& subtitle) :
     m_title(title)
 {
     setDefaults();
     m_func = func;
     m_icon = icon;
+    m_subtitle = subtitle;
 }
 
 
@@ -83,12 +87,13 @@ MenuItem::MenuItem(const TaskMenuItem& taskmenuitem, CamcopsApp& app)
 
 
 MenuItem::MenuItem(const QString& title, const HtmlMenuItem& htmlmenuitem,
-                   const QString& icon) :
+                   const QString& icon, const QString& subtitle) :
     m_title(title),
     m_html(htmlmenuitem)  // extra
 {
     setDefaults();
     m_icon = icon;
+    m_subtitle = subtitle;
 }
 
 
@@ -127,19 +132,22 @@ void MenuItem::setDefaults()
 }
 
 
-QString MenuItem::title()
+QString MenuItem::title() const
 {
+    if (m_p_task) {
+        return m_p_task->instanceTitle();
+    }
     return m_title;
 }
 
 
-TaskPtr MenuItem::task()
+TaskPtr MenuItem::task() const
 {
     return m_p_task;
 }
 
 
-QWidget* MenuItem::getRowWidget(CamcopsApp& app) const
+QWidget* MenuItem::rowWidget(CamcopsApp& app) const
 {
     QWidget* row = new QWidget();
     QHBoxLayout* rowlayout = new QHBoxLayout();
@@ -156,7 +164,7 @@ QWidget* MenuItem::getRowWidget(CamcopsApp& app) const
 
         // Taskname
         if (m_task_shows_taskname) {
-            QLabel* taskname = new QLabel(m_p_task->shortname());
+            QLabel* taskname = new LabelWordWrapWide(m_p_task->shortname());
             taskname->setObjectName(complete
                                     ? "task_item_taskname_complete"
                                     : "task_item_taskname_incomplete");
@@ -167,7 +175,8 @@ QWidget* MenuItem::getRowWidget(CamcopsApp& app) const
             rowlayout->addWidget(taskname);
         }
         // Timestamp
-        QLabel* timestamp = new QLabel(m_p_task->whenCreatedMenuFormat());
+        QLabel* timestamp = new LabelWordWrapWide(
+                    m_p_task->whenCreated().toString(SHORT_DATETIME_FORMAT));
         timestamp->setObjectName(complete ? "task_item_timestamp_complete"
                                           : "task_item_timestamp_incomplete");
         QSizePolicy spTimestamp(QSizePolicy::Preferred,
@@ -177,7 +186,8 @@ QWidget* MenuItem::getRowWidget(CamcopsApp& app) const
         timestamp->setSizePolicy(spTimestamp);
         rowlayout->addWidget(timestamp);
         // Summary
-        QLabel* summary = new QLabel(m_p_task->getSummaryWithCompleteSuffix());
+        QLabel* summary = new LabelWordWrapWide(
+                    m_p_task->summaryWithCompleteSuffix());
         summary->setObjectName(complete ? "task_item_summary_complete"
                                         : "task_item_summary_incomplete");
         QSizePolicy spSummary(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -206,11 +216,11 @@ QWidget* MenuItem::getRowWidget(CamcopsApp& app) const
         // Title/subtitle
         QVBoxLayout* textlayout = new QVBoxLayout();
 
-        QLabel* title = new QLabel(m_title);
+        QLabel* title = new LabelWordWrapWide(m_title);
         title->setObjectName("menu_item_title");
         textlayout->addWidget(title);
         if (!m_subtitle.isEmpty()) {
-            QLabel* subtitle = new QLabel(m_subtitle);
+            QLabel* subtitle = new LabelWordWrapWide(m_subtitle);
             subtitle->setObjectName("menu_item_subtitle");
             textlayout->addWidget(subtitle);
         }
@@ -284,8 +294,8 @@ void MenuItem::act(CamcopsApp& app) const
     // ========================================================================
     if (m_p_menuproxy) {
         MenuWindow* pWindow = m_p_menuproxy->create(app);
-        pWindow->buildMenu();
-        app.pushScreen(pWindow);
+        pWindow->build();
+        app.open(pWindow);
         return;
     }
     if (m_func) {
@@ -294,14 +304,14 @@ void MenuItem::act(CamcopsApp& app) const
     }
     if (!m_task_tablename.isEmpty()) {
         SingleTaskMenu* pWindow = new SingleTaskMenu(m_task_tablename, app);
-        pWindow->buildMenu();
-        app.pushScreen(pWindow);
+        pWindow->build();
+        app.open(pWindow);
         return;
     }
     if (!m_html.filename.isEmpty()) {
         HtmlInfoWindow* pWindow = new HtmlInfoWindow(
             app, m_html.title, m_html.filename, m_html.icon);
-        app.pushScreen(pWindow);
+        app.open(pWindow);
         return;
     }
     qWarning() << "Menu item selected but no action specified:"

@@ -1,9 +1,9 @@
 #pragma once
 #include <QList>
-#include <QObject>
 #include <QPointer>
 #include <QSharedPointer>
 #include <QStringList>
+#include "lib/cloneable.h"
 
 class QWidget;
 class Questionnaire;
@@ -12,9 +12,8 @@ class QuElement;
 typedef QSharedPointer<QuElement> QuElementPtr;
 
 
-class QuElement : public QObject  // derivation allows signals for children
+class QuElement
 {
-    Q_OBJECT
     friend class QuPage;
     friend class QuContainerHorizontal;
     friend class QuContainerVertical;
@@ -22,9 +21,10 @@ class QuElement : public QObject  // derivation allows signals for children
 public:
     QuElement();
     virtual ~QuElement();
-    QuElement* addTag(const QString& tag);
+    virtual QuElementPtr clone() const = 0;
+    QuElement& addTag(const QString& tag);
 protected:
-    virtual QPointer<QWidget> getWidget(Questionnaire* questionnaire);
+    virtual QPointer<QWidget> widget(Questionnaire* questionnaire);
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) = 0;
     bool hasTag(const QString& tag);
     void show();
@@ -78,6 +78,33 @@ Constructing element lists and pages
  - It therefore seems a bit inconsistent to create Page objects on the stack
    and copy them, as that'd give odd-one-out usage.
  - So, pointers all the way in the Questionnaire system.
+
+ - AH, NO. MORE ELEGANT (AND MUCH MORE READABLE FOR TASKS) IS THIS:
+
+    - implement clone() method
+    - Text& bold() { ... return *this; }
+    - Text("content").bold().clone()
+
+ - We could, ordinarily, implement the clone method automatically using CRTP.
+   Search for "FighterPlane" in qt_notes.txt.
+   However, this throws up a whole bunch of errors in QObject-derived objects,
+   relating to
+     - cannot convert from pointer to base class 'QObject' to pointer to
+       derived class 'QuButton' via virtual base 'QuElement'
+     - use of deleted function...
+     - QObject::QObject(const QObject&) is private
+       in definition of macro 'Q_DISABLE_COPY'
+ - ... so do that by hand?
+ - Still have similar problems relating to Q_DISABLE_COPY
+    http://doc.qt.io/qt-5/qobject.html#Q_DISABLE_COPY
+    http://stackoverflow.com/questions/2855495/qobject-cloning
+ - So can we make elements *not* inherit from QObject? We're only deriving
+   so we can receive signals.
+   Yes, we can use a Handler:
+        http://stackoverflow.com/questions/7502600/how-to-use-signal-and-slot-without-deriving-from-qobject
+   or a lambda/more generic functor:
+        http://stackoverflow.com/questions/26937517/qt-connect-without-qobject-or-slots
+        http://doc.qt.io/qt-5.7/qobject.html#connect-4
 
 ===============================================================================
 Widgets

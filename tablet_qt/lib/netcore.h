@@ -1,14 +1,12 @@
 #pragma once
-#include <QObject>
-#include <QString>
 #include <QSslError>
 
 class QNetworkReply;
+class QString;
 
 
-class NetworkManager : public QObject
+class NetworkManager
 {
-    Q_OBJECT
 public:
     NetworkManager(const QString& url);
     void testHttp();

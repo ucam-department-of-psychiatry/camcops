@@ -7,6 +7,9 @@
 
 class QWidget;
 class Questionnaire;
+class QuPage;
+
+typedef QSharedPointer<QuPage> QuPagePtr;
 
 
 enum class QuPageType {
@@ -26,9 +29,11 @@ public:
     QuPage(const QList<QuElementPtr>& elements);
     QuPage(std::initializer_list<QuElementPtr> elements);
 
-    QuPage* setType(QuPageType type);
-    QuPage* setTitle(const QString& title);
-    QuPage* addElement(const QuElementPtr& element);
+    QuPagePtr clone() const;
+
+    QuPage& setType(QuPageType type);
+    QuPage& setTitle(const QString& title);
+    QuPage& addElement(const QuElementPtr& element);
 
     QuPageType type() const;
     QString title() const;
@@ -43,4 +48,3 @@ protected:
 };
 
 
-typedef QSharedPointer<QuPage> QuPagePtr;

@@ -6,14 +6,14 @@
 #include <QVariant>
 
 
-class QuButton : public QuElement
+class QuButton : public Cloneable<QuElement, QuButton>
 {
-    Q_OBJECT
 public:
     typedef QMap<QString, QVariant> Args;
     typedef std::function<void()> CallbackFunction;
     // To pass other arguments, use std::bind to bind them before passing here
     QuButton(const QString& label, const CallbackFunction& callback);
+    // *** icon (+ icon-touchable-state), callback
 protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
 protected slots:

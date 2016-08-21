@@ -1,6 +1,8 @@
 #include "quimage.h"
 #include <QLabel>
+#include "lib/uifunc.h"
 #include "questionnaire.h"
+
 
 QuImage::QuImage(const QString& filename) :
     m_filename(filename),
@@ -22,7 +24,7 @@ QPointer<QWidget> QuImage::makeWidget(Questionnaire* questionnaire)
     QLabel* label = new QLabel();
     QPixmap image;
     if (m_fieldref) {
-        QByteArray data = m_fieldref->getByteArray();
+        QByteArray data = m_fieldref->valueByteArray();
         image.loadFromData(data);
     } else {
         image = getPixmap(m_filename);

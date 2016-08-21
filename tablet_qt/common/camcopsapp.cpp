@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QMainWindow>
 #include <QPushButton>
+#include <QSqlDatabase>
 #include <QStackedWidget>
 #include "common/uiconstants.h"
 #include "lib/datetimefunc.h"
@@ -11,6 +12,7 @@
 #include "lib/filefunc.h"
 #include "menu/mainmenu.h"
 #include "tasklib/inittasks.h"
+#include "questionnairelib/questionnaire.h"
 
 
 CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
@@ -61,17 +63,16 @@ int CamcopsApp::run()
     qDebug() << "CamcopsApp::run()";
 
     m_p_main_window = new QMainWindow();
+    m_p_main_window->showMaximized();
+    // m_p_main_window->showFullScreen();
     m_p_window_stack = new QStackedWidget(m_p_main_window);
     m_p_main_window->setCentralWidget(m_p_window_stack);
 
     MainMenu* menu = new MainMenu(*this);
-    menu->buildMenu();
-    pushScreen(menu);
-    m_p_main_window->showMaximized();
-    // m_p_main_window->showFullScreen();
+    open(menu);
 
     qInfo() << "Starting Qt event processor...";
-    return exec();
+    return exec();  // Main Qt event loop
 }
 
 
@@ -93,22 +94,56 @@ TaskFactoryPtr CamcopsApp::factory()
 }
 
 
-void CamcopsApp::pushScreen(QWidget *widget)
+void CamcopsApp::open(OpenableWidget* widget, TaskPtr task,
+                      bool may_alter_task)
 {
+    if (!widget) {
+        qCritical() << "CamcopsApp::open: attempt to open nullptr";
+        return;
+    }
+
+    Qt::WindowStates prev_window_state = m_p_main_window->windowState();
+    QPointer<OpenableWidget> guarded_widget = QPointer<OpenableWidget>(widget);
+
+    widget->build();
     qDebug() << "Pushing screen";
     int index = m_p_window_stack->addWidget(widget);
     // The stack takes over ownership.
     m_p_window_stack->setCurrentIndex(index);
+    if (widget->wantsFullscreen()) {
+        m_p_main_window->showFullScreen();
+    }
+
+    // 3. Signal
+    connect(widget, &OpenableWidget::finished,
+            this, &CamcopsApp::close);
+
+    m_info_stack.push(OpenableInfo(guarded_widget, task, prev_window_state,
+                                   may_alter_task));
+    // This stores a QSharedPointer to the task (if supplied), so keeping that
+    // keeps the task "alive" whilst its widget is doing things.
 }
 
 
-void CamcopsApp::popScreen()
+void CamcopsApp::close()
 {
+    if (m_info_stack.isEmpty()) {
+        stopApp("No more windows; closing");
+    }
+    OpenableInfo info = m_info_stack.pop();
+    // on function exit, will delete the task if it's the last pointer to it
+
     QWidget* top = m_p_window_stack->currentWidget();
     qDebug() << "Popping screen";
     m_p_window_stack->removeWidget(top);
     // Ownership is returned to the application, so...
     top->deleteLater();  // later, in case it was this object that called us
+
+    m_p_main_window->setWindowState(info.prev_window_state);
+
+    if (info.may_alter_task) {
+        emit taskAlterationFinished(info.task);
+    }
 }
 
 

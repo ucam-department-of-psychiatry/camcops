@@ -89,7 +89,7 @@ void TaskFactory::makeAllTables() const
 }
 
 
-QString TaskFactory::getShortName(const QString& key) const
+QString TaskFactory::shortname(const QString& key) const
 {
     if (!m_map.contains(key)) {
         qWarning() << "Bad task: " << key;
@@ -99,7 +99,7 @@ QString TaskFactory::getShortName(const QString& key) const
 }
 
 
-QString TaskFactory::getLongName(const QString& key) const
+QString TaskFactory::longname(const QString& key) const
 {
     if (!m_map.contains(key)) {
         qWarning() << "Bad task: " << key;

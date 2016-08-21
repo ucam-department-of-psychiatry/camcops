@@ -8,7 +8,8 @@
 
 SingleTaskMenu::SingleTaskMenu(const QString& tablename, CamcopsApp& app) :
     MenuWindow(app, ""),  // start with a blank title
-    m_tablename(tablename)
+    m_tablename(tablename),
+    m_current_task(nullptr)
 {
     // Title
     TaskFactoryPtr factory = app.factory();
@@ -16,11 +17,11 @@ SingleTaskMenu::SingleTaskMenu(const QString& tablename, CamcopsApp& app) :
     m_title = specimen->menutitle();
     m_anonymous = specimen->isAnonymous();
 
-    // m_items is EXPENSIVE, so leave it to buildMenu()
+    // m_items is EXPENSIVE (and depends on security), so leave it to build()
 }
 
 
-void SingleTaskMenu::buildMenu()
+void SingleTaskMenu::build()
 {
     TaskFactoryPtr factory = m_app.factory();
     TaskPtr specimen = factory->create(m_tablename);
@@ -32,7 +33,7 @@ void SingleTaskMenu::buildMenu()
         MenuItem(
             tr("Task information"),
             HtmlMenuItem(m_title,
-                         taskHtmlFilename(specimen->getInfoFilenameStem()),
+                         taskHtmlFilename(specimen->infoFilenameStem()),
                          ICON_INFO),
             ICON_INFO
         ),
@@ -41,30 +42,36 @@ void SingleTaskMenu::buildMenu()
 
     // Task items
     TaskPtrList tasklist = factory->fetch(m_tablename);
-    qDebug() << "SingleTaskMenu::buildMenu:" << tasklist.size() << "tasks";
+    qDebug() << "SingleTaskMenu::build:" << tasklist.size() << "tasks";
     for (auto task : tasklist) {
         m_items.append(MenuItem(task, false));
     }
 
     // Call parent buildMenu()
-    MenuWindow::buildMenu();
+    MenuWindow::build();
 
     // Signals
     connect(&m_app, &CamcopsApp::selectedPatientChanged,
-            this, &SingleTaskMenu::selectedPatientChanged);
+            this, &SingleTaskMenu::selectedPatientChanged,
+            Qt::UniqueConnection);
+    connect(&m_app, &CamcopsApp::taskAlterationFinished,
+            this, &SingleTaskMenu::taskFinished,
+            Qt::UniqueConnection);
     connect(this, &SingleTaskMenu::offerAdd,
-            m_p_header, &MenuHeader::offerAdd);
+            m_p_header, &MenuHeader::offerAdd,
+            Qt::UniqueConnection);
     connect(m_p_header, &MenuHeader::addClicked,
-            this, &SingleTaskMenu::addTask);
+            this, &SingleTaskMenu::addTask,
+            Qt::UniqueConnection);
 
     emit offerAdd(m_anonymous || m_app.patientSelected());
 }
 
 
-// *** think about the "lock changed" signal (a call to buildMenu() is probably insufficient as task eligibility may change?)
-
 void SingleTaskMenu::addTask()
 {
+    // The task we create here needs to stay in scope for the duration of the
+    // editing! The simplest way is to use a member object to hold the pointer.
     TaskFactoryPtr factory = m_app.factory();
     TaskPtr task = factory->create(m_tablename);
     if (!task->isAnonymous()) {
@@ -76,7 +83,8 @@ void SingleTaskMenu::addTask()
         task->setPatient(m_app.currentPatientId());
     }
     task->save();
-    task->edit(m_app);
+    OpenableWidget* widget = task->editor(m_app);
+    m_app.open(widget, task, true);
 }
 
 
@@ -84,5 +92,12 @@ void SingleTaskMenu::selectedPatientChanged(bool selected,
                                             const QString& details)
 {
     (void)details;
+    // ... mark as unused; http://stackoverflow.com/questions/1486904/how-do-i-best-silence-a-warning-about-unused-variables
     emit offerAdd(m_anonymous || selected);
+}
+
+
+void SingleTaskMenu::taskFinished()
+{
+    build();
 }

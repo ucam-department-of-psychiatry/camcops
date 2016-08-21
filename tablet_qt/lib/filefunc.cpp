@@ -4,6 +4,7 @@
 #include "filefunc.h"
 #include <QDebug>
 #include <QFile>
+#include <QString>
 #include <QTextStream>
 
 

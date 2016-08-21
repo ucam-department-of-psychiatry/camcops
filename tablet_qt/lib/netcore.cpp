@@ -2,6 +2,8 @@
 #define DEBUG_NETWORK_REPLIES
 
 #include "netcore.h"
+#include <functional>
+#include <QObject>
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkReply>
@@ -22,8 +24,9 @@ void NetworkManager::testHttp()
     // URL
     request.setUrl(QUrl(m_url));
     // Callback
-    connect(manager, &QNetworkAccessManager::finished,
-            this, &NetworkManager::testReplyFinished);
+    QObject::connect(manager, &QNetworkAccessManager::finished,
+                     std::bind(&NetworkManager::testReplyFinished,
+                               this, std::placeholders::_1));
     // GET
     manager->get(request);
     qInfo() << "... sent request to: " << m_url;
@@ -46,11 +49,14 @@ void NetworkManager::testHttps(bool ignore_ssl_errors)
     request.setUrl(QUrl(m_url));
     // Callback
     // http://wiki.qt.io/New_Signal_Slot_Syntax
-    connect(manager, &QNetworkAccessManager::finished,
-            this, &NetworkManager::testReplyFinished);
+    QObject::connect(manager, &QNetworkAccessManager::finished,
+                     std::bind(&NetworkManager::testReplyFinished, this,
+                               std::placeholders::_1));
     if (ignore_ssl_errors) {
-        connect(manager, &QNetworkAccessManager::sslErrors,
-                this, &NetworkManager::sslIgnoringErrorHandler);
+        QObject::connect(manager, &QNetworkAccessManager::sslErrors,
+                         std::bind(&NetworkManager::sslIgnoringErrorHandler,
+                                   this, std::placeholders::_1,
+                                   std::placeholders::_2));
     }
     // GET
     manager->get(request);

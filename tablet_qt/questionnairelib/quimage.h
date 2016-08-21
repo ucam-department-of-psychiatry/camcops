@@ -3,7 +3,7 @@
 #include "quelement.h"
 
 
-class QuImage : public QuElement
+class QuImage : public Cloneable<QuElement, QuImage>
 {
 public:
     QuImage(const QString& filename);

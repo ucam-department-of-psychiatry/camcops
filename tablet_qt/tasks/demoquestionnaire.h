@@ -1,10 +1,10 @@
 #pragma once
-#include <QMap>
 #include <QString>
-#include <QVariant>
-#include "common/camcopsapp.h"
 #include "tasklib/task.h"
-#include "tasklib/taskfactory.h"
+
+class CamcopsApp;
+class TaskFactory;
+class OpenableWidget;
 
 
 class DemoQuestionnaire : public Task
@@ -22,9 +22,9 @@ public:
     // Specific info
     // ------------------------------------------------------------------------
     virtual bool isComplete() const override;
-    virtual QString getSummary() const override;
-    virtual QString getDetail() const override;
-    virtual void edit(CamcopsApp& app) override;
+    virtual QString summary() const override;
+    virtual OpenableWidget* editor(CamcopsApp& app,
+                                   bool read_only = false) override;
 protected:
     void callback_hello();
     void callback_arg(const QString& arg);

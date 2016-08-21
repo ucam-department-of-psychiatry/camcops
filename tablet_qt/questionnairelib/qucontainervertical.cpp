@@ -22,11 +22,11 @@ QuContainerVertical::QuContainerVertical(
 }
 
 
-QuContainerVertical* QuContainerVertical::addElement(
+QuContainerVertical& QuContainerVertical::addElement(
         const QuElementPtr& element)
 {
     m_elements.append(element);
-    return this;
+    return *this;
 }
 
 
@@ -36,7 +36,7 @@ QPointer<QWidget> QuContainerVertical::makeWidget(Questionnaire* questionnaire)
     QVBoxLayout* layout = new QVBoxLayout();
     widget->setLayout(layout);
     for (auto e : m_elements) {
-        QPointer<QWidget> w = e->getWidget(questionnaire);
+        QPointer<QWidget> w = e->widget(questionnaire);
         layout->addWidget(w);
     }
     return widget;

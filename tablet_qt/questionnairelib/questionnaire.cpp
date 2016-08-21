@@ -1,16 +1,18 @@
 #include "questionnaire.h"
+#include <functional>
 #include <QDebug>
 #include <QMessageBox>
 #include <QLabel>
 #include <QVBoxLayout>
-#include "common/uiconstants.h"
+#include "common/camcopsapp.h"
 #include "lib/filefunc.h"
 #include "questionnaireheader.h"
+#include "widgets/labelwordwrapwide.h"
+#include "widgets/openablewidget.h"
 #include "widgets/verticalscrollarea.h"
 
 
 Questionnaire::Questionnaire(CamcopsApp& app) :
-    QWidget(),
     m_app(app)
 {
     commonConstructor();
@@ -18,7 +20,6 @@ Questionnaire::Questionnaire(CamcopsApp& app) :
 
 
 Questionnaire::Questionnaire(CamcopsApp& app, const QList<QuPagePtr>& pages) :
-    QWidget(),
     m_app(app),
     m_pages(pages)
 {
@@ -28,7 +29,6 @@ Questionnaire::Questionnaire(CamcopsApp& app, const QList<QuPagePtr>& pages) :
 
 Questionnaire::Questionnaire(CamcopsApp& app,
                              std::initializer_list<QuPagePtr> pages) :
-    QWidget(),
     m_app(app),
     m_pages(pages)
 {
@@ -56,7 +56,7 @@ void Questionnaire::commonConstructor()
 }
 
 
-Questionnaire* Questionnaire::setType(QuPageType type)
+void Questionnaire::setType(QuPageType type)
 {
     if (type == QuPageType::Inherit) {
         qWarning() << "Can only set PageType::Inherit on Page, not "
@@ -64,39 +64,34 @@ Questionnaire* Questionnaire::setType(QuPageType type)
     } else {
         m_type = type;
     }
-    return this;
 }
 
 
-Questionnaire* Questionnaire::addPage(const QuPagePtr& page)
+void Questionnaire::addPage(const QuPagePtr& page)
 {
     m_pages.append(page);
-    return this;
 }
 
 
-Questionnaire* Questionnaire::setReadOnly(bool read_only)
+void Questionnaire::setReadOnly(bool read_only)
 {
     m_read_only = read_only;
-    return this;
 }
 
 
-Questionnaire* Questionnaire::setJumpAllowed(bool jump_allowed)
+void Questionnaire::setJumpAllowed(bool jump_allowed)
 {
     m_jump_allowed = jump_allowed;
-    return this;
 }
 
 
-Questionnaire* Questionnaire::setWithinChain(bool within_chain)
+void Questionnaire::setWithinChain(bool within_chain)
 {
     m_within_chain = within_chain;
-    return this;
 }
 
 
-void Questionnaire::rebuild()
+void Questionnaire::build()
 {
     if (m_p_header) {
         m_p_header->deleteLater();  // later, in case it's currently calling us
@@ -121,7 +116,7 @@ void Questionnaire::rebuild()
             m_current_pagenum_zero_based > m_pages.size()) {
         // Duff page!
         qWarning() << "Bad page number:" << m_current_pagenum_zero_based;
-        m_mainlayout->addWidget(new QLabel("BUG! Bad page number"));
+        m_mainlayout->addWidget(new LabelWordWrapWide("BUG! Bad page number"));
         m_built = true;
         return;
     }
@@ -159,16 +154,16 @@ void Questionnaire::rebuild()
         m_read_only, m_jump_allowed, m_within_chain,
         fontSizePt(FontSize::Title), header_css_name);
     m_mainlayout->addWidget(m_p_header);
-    connect(m_p_header, &QuestionnaireHeader::cancelClicked,
-            this, &Questionnaire::cancelClicked);
-    connect(m_p_header, &QuestionnaireHeader::jumpClicked,
-            this, &Questionnaire::jumpClicked);
-    connect(m_p_header, &QuestionnaireHeader::previousClicked,
-            this, &Questionnaire::previousClicked);
-    connect(m_p_header, &QuestionnaireHeader::nextClicked,
-            this, &Questionnaire::nextClicked);
-    connect(m_p_header, &QuestionnaireHeader::finishClicked,
-            this, &Questionnaire::finishClicked);
+    QObject::connect(m_p_header, &QuestionnaireHeader::cancelClicked,
+                     std::bind(&Questionnaire::cancelClicked, this));
+    QObject::connect(m_p_header, &QuestionnaireHeader::jumpClicked,
+                     std::bind(&Questionnaire::jumpClicked, this));
+    QObject::connect(m_p_header, &QuestionnaireHeader::previousClicked,
+                     std::bind(&Questionnaire::previousClicked, this));
+    QObject::connect(m_p_header, &QuestionnaireHeader::nextClicked,
+                     std::bind(&Questionnaire::nextClicked, this));
+    QObject::connect(m_p_header, &QuestionnaireHeader::finishClicked,
+                     std::bind(&Questionnaire::finishClicked, this));
 
     // Content
     // The QScrollArea (a) makes text word wrap, by setting a horizontal size
@@ -194,15 +189,6 @@ void Questionnaire::rebuild()
     );
 
     // *** deal with multiple pages
-}
-
-
-void Questionnaire::open()
-{
-    if (!m_built) {
-        rebuild();
-    }
-    m_app.pushScreen(this);
 }
 
 
@@ -243,12 +229,17 @@ void Questionnaire::cancelClicked()
         doCancel();
     }
     */
-    QMessageBox msgbox(QMessageBox::Question,
-                       tr("Abort"),
-                       tr("Abort this questionnaire?"),
-                       QMessageBox::Yes | QMessageBox::No);
-    msgbox.setButtonText(QMessageBox::Yes, "Yes, abort");
-    msgbox.setButtonText(QMessageBox::No, "No, go back");
+    if (m_read_only) {
+        doCancel();
+        return;
+    }
+    QMessageBox msgbox(QMessageBox::Question,  // icon
+                       tr("Abort"),  // title
+                       tr("Abort this questionnaire?"),  // text
+                       QMessageBox::Yes | QMessageBox::No,  // buttons
+                       this);  // parent
+    msgbox.setButtonText(QMessageBox::Yes, tr("Yes, abort"));
+    msgbox.setButtonText(QMessageBox::No, tr("No, go back"));
     int reply = msgbox.exec();
     if (reply == QMessageBox::Yes) {
         doCancel();
@@ -269,7 +260,7 @@ void Questionnaire::previousClicked()
         return;
     }
     --m_current_pagenum_zero_based;
-    rebuild();
+    build();
 }
 
 
@@ -285,7 +276,7 @@ void Questionnaire::nextClicked()
         return;
     }
     ++m_current_pagenum_zero_based;
-    rebuild();
+    build();
 }
 
 
@@ -307,12 +298,12 @@ void Questionnaire::finishClicked()
 void Questionnaire::doCancel()
 {
     // *** mark task as cancelled, or whatever
-    m_app.popScreen();
+    emit finished();
 }
 
 
 void Questionnaire::doFinish()
 {
     // *** mark task as finished, or whatever
-    m_app.popScreen();
+    emit finished();
 }

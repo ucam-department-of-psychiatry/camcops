@@ -1,6 +1,5 @@
 #pragma once
 #include <QSharedPointer>
-#include "common/camcopsapp.h"
 #include "lib/netcore.h"
 #include "menulib/menuwindow.h"
 

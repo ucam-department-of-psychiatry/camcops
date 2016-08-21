@@ -2,8 +2,10 @@
 #include <QLabel>
 #include <QTextBrowser>
 #include <QVBoxLayout>
+#include "common/camcopsapp.h"
 #include "lib/filefunc.h"
 #include "menuheader.h"
+#include "widgets/labelwordwrapwide.h"
 
 // http://doc.qt.io/qt-5/qtextbrowser.html
 
@@ -29,7 +31,7 @@ HtmlInfoWindow::HtmlInfoWindow(CamcopsApp& app, const QString& title,
     MenuHeader* header = new MenuHeader(this, m_app, false, title, icon);
     mainlayout->addWidget(header);
     connect(header, &MenuHeader::backClicked,
-            &m_app, &CamcopsApp::popScreen);
+            this, &HtmlInfoWindow::finished);
 
     // HTML
     if (fileExists(filename)) {
@@ -40,7 +42,8 @@ HtmlInfoWindow::HtmlInfoWindow(CamcopsApp& app, const QString& title,
         mainlayout->addWidget(browser);
         // It manages scrolling itself.
     } else {
-        QLabel* label = new QLabel(tr("No such file") + ": " + filename);
+        QLabel* label = new LabelWordWrapWide(tr("No such file") + ": " +
+                                              filename);
         label->setObjectName("warning");
         mainlayout->addWidget(label);
         mainlayout->addStretch();
