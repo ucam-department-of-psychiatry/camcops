@@ -41,9 +41,9 @@ public:
     TaskProxy(TaskFactory& factory);  // Registers itself with the factory.
     // We do want to create instances...
     virtual TaskPtr create(const QSqlDatabase& db,
-                           int load_pk = NONEXISTENT_PK) const = 0;
+                           int load_pk = DbConst::NONEXISTENT_PK) const = 0;
     virtual TaskPtrList fetch(const QSqlDatabase& db,
-                              int patient_id = NONEXISTENT_PK) const = 0;
+                              int patient_id = DbConst::NONEXISTENT_PK) const = 0;
 protected:
     virtual TaskPtrList fetchWhere(const QSqlDatabase& db,
                                    const WhereConditions& where) const = 0;
@@ -64,25 +64,25 @@ public:
     {}
 
     TaskPtr create(const QSqlDatabase& db,
-                   int load_pk = NONEXISTENT_PK) const override
+                   int load_pk = DbConst::NONEXISTENT_PK) const override
     {
         // Create a single instance of a task (optionally, loading it)
         return TaskPtr(new Derived(db, load_pk));
     }
 
     TaskPtrList fetch(const QSqlDatabase& db,
-                      int patient_id = NONEXISTENT_PK) const override
+                      int patient_id = DbConst::NONEXISTENT_PK) const override
     {
         // Fetch multiple tasks, either matching a patient_id, or all for
         // the task type.
-        Derived specimen(db, NONEXISTENT_PK);
+        Derived specimen(db, DbConst::NONEXISTENT_PK);
         bool anonymous = specimen.isAnonymous();
-        if (patient_id != NONEXISTENT_PK && anonymous) {
+        if (patient_id != DbConst::NONEXISTENT_PK && anonymous) {
             // No anonymous tasks will match a specific patient.
             return TaskPtrList();
         }
         WhereConditions where;
-        if (patient_id != NONEXISTENT_PK) {
+        if (patient_id != DbConst::NONEXISTENT_PK) {
             where[PATIENT_FK_FIELDNAME] = QVariant(patient_id);
         }
         return fetchWhere(db, where);
@@ -94,13 +94,13 @@ protected:
     {
         // Fetch multiple tasks according to the field/value "where" criteria
         TaskPtrList tasklist;
-        Derived specimen(db, NONEXISTENT_PK);
+        Derived specimen(db, DbConst::NONEXISTENT_PK);
         SqlArgs sqlargs = specimen.fetchQuerySql(where);
         QSqlQuery query(db);
-        bool success = execQuery(query, sqlargs);
+        bool success = DbFunc::execQuery(query, sqlargs);
         if (success) {  // success check may be redundant (cf. while clause)
             while (query.next()) {
-                TaskPtr p_new_task(new Derived(db, NONEXISTENT_PK));
+                TaskPtr p_new_task(new Derived(db, DbConst::NONEXISTENT_PK));
                 p_new_task->setFromQuery(query, true);
                 tasklist.append(p_new_task);
             }
@@ -137,7 +137,8 @@ public:
     QStringList tablenames() const;
     void makeAllTables() const;
     // Operations relating to specific tasks
-    TaskPtr create(const QString& key, int load_pk = NONEXISTENT_PK) const;
+    TaskPtr create(const QString& key,
+                   int load_pk = DbConst::NONEXISTENT_PK) const;
     QString shortname(const QString& key) const;
     QString longname(const QString& key) const;
     void makeTables(const QString& key) const;

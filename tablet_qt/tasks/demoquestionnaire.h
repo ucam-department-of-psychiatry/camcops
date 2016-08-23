@@ -10,7 +10,8 @@ class OpenableWidget;
 class DemoQuestionnaire : public Task
 {
 public:
-    DemoQuestionnaire(const QSqlDatabase& db, int load_pk = NONEXISTENT_PK);
+    DemoQuestionnaire(const QSqlDatabase& db,
+                      int load_pk = DbConst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // General info
     // ------------------------------------------------------------------------

@@ -1,11 +1,12 @@
 #include "affectivemenu.h"
+#include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
 
 AffectiveMenu::AffectiveMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Affective (mood and anxiety) disorders"),
-               ICON_AFFECTIVE)
+               UiFunc::iconFilename(UiConst::ICON_AFFECTIVE))
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),

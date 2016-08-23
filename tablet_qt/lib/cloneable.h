@@ -12,6 +12,11 @@ public:
             new Derived(static_cast<Derived const &>(*this))
         );
     }
+    // Absence of virtual destructor here can lead to a crash,
+    // even if Base has a virtual destructor? I'm not sure - either that,
+    // or it was a QMediaPlayer destructor problem.
+    virtual ~Cloneable()
+    {}
 };
 
 
@@ -27,4 +32,8 @@ public:
             new Derived(static_cast<Derived const &>(*this))
         );
     }
+    // (Absence of virtual destructor here can lead to a crash, presumably,
+    // as above.)
+    virtual ~MutilevelCloneable()
+    {}
 };

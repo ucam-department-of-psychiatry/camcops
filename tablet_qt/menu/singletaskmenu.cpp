@@ -1,4 +1,5 @@
 #include "singletaskmenu.h"
+#include "common/uiconstants.h"
 #include "lib/filefunc.h"
 #include "lib/uifunc.h"
 #include "menulib/menuheader.h"
@@ -27,15 +28,17 @@ void SingleTaskMenu::build()
     TaskPtr specimen = factory->create(m_tablename);
 
     // Common items
+    QString info_icon_filename = UiFunc::iconFilename(UiConst::ICON_INFO);
     m_items = {
         MenuItem(tr("Options")).setLabelOnly(),
         MAKE_CHANGE_PATIENT(app),
         MenuItem(
             tr("Task information"),
-            HtmlMenuItem(m_title,
-                         taskHtmlFilename(specimen->infoFilenameStem()),
-                         ICON_INFO),
-            ICON_INFO
+            HtmlMenuItem(
+                m_title,
+                FileFunc::taskHtmlFilename(specimen->infoFilenameStem()),
+                info_icon_filename),
+            info_icon_filename
         ),
         MenuItem(tr("Task instances") + ": " + m_title).setLabelOnly(),
     };
@@ -76,7 +79,7 @@ void SingleTaskMenu::addTask()
     TaskPtr task = factory->create(m_tablename);
     if (!task->isAnonymous()) {
         int patient_id = m_app.currentPatientId();
-        if (patient_id == NONEXISTENT_PK) {
+        if (patient_id == DbConst::NONEXISTENT_PK) {
             qCritical() << "SingleTaskMenu::addTask(): no patient selected";
             return;
         }

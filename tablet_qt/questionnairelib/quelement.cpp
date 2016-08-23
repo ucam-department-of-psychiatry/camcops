@@ -13,10 +13,11 @@ QuElement::~QuElement()
 {
 }
 
-QuElement& QuElement::addTag(const QString& tag)
+
+QuElement* QuElement::addTag(const QString& tag)
 {
     m_tags.append(tag);
-    return *this;
+    return this;
 }
 
 
@@ -67,4 +68,9 @@ void QuElement::setVisible(bool visible)
 bool QuElement::missingInput() const
 {
     return false;
+}
+
+
+void QuElement::closing()
+{
 }

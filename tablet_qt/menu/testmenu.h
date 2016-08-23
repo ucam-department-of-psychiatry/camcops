@@ -3,6 +3,8 @@
 #include "lib/netcore.h"
 #include "menulib/menuwindow.h"
 
+class QMediaPlayer;
+
 
 class TestMenu : public MenuWindow
 {
@@ -10,6 +12,7 @@ class TestMenu : public MenuWindow
 
 public:
     TestMenu(CamcopsApp& app);
+    ~TestMenu();
 protected:
     void testPhq9Creation();
     void testDebugConsole();
@@ -17,5 +20,6 @@ protected:
     void testHttp();
     void testHttps();
 protected:
-    QSharedPointer<NetworkManager> m_p_netmgr;
+    QSharedPointer<NetworkManager> m_netmgr;
+    QSharedPointer<QMediaPlayer> m_player;
 };

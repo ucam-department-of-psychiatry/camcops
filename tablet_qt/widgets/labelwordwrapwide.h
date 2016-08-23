@@ -1,8 +1,8 @@
 #pragma once
-#include <QLabel>
+#include "widgets/clickablelabel.h"
 
 
-class LabelWordWrapWide : public QLabel
+class LabelWordWrapWide : public ClickableLabel
 {
     Q_OBJECT
 public:

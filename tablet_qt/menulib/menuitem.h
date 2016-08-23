@@ -28,16 +28,18 @@ struct HtmlMenuItem
 {
 public:
     HtmlMenuItem(const QString& title = "", const QString& filename = "",
-                 const QString& icon = "") :
+                 const QString& icon = "", bool fullscreen = false) :
         title(title),
         filename(filename),
-        icon(icon)
+        icon(icon),
+        fullscreen(fullscreen)
     {}
 public:
     // These are the title/icon shown on the HTML page, not the menu
     QString title;
     QString filename;
     QString icon;
+    bool fullscreen;
 };
 
 
@@ -113,8 +115,7 @@ private:
     MenuItem(TaskMenuItem(tablename), app)
 #define MAKE_CHANGE_PATIENT(app) \
     MenuItem(tr("Change patient")).setNotIfLocked()
-    // *** function, using app? Or menu?
-    // *** ICON_CHOOSE_PATIENT
+    // *** MAKE_CHANGE_PATIENT: function, using app? Or menu? Use ICON_CHOOSE_PATIENT
 
 
 // ============================================================================

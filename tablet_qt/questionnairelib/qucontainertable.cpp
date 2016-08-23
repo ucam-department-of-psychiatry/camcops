@@ -21,10 +21,10 @@ QuContainerTable::QuContainerTable(std::initializer_list<QuTableCell> cells) :
 }
 
 
-QuContainerTable& QuContainerTable::addCell(const QuTableCell& cells)
+QuContainerTable* QuContainerTable::addCell(const QuTableCell& cells)
 {
     m_cells.append(cells);
-    return *this;
+    return this;
 }
 
 

@@ -81,7 +81,7 @@ MenuItem::MenuItem(const TaskMenuItem& taskmenuitem, CamcopsApp& app)
     m_subtitle = task->menusubtitle();
     m_crippled = task->isCrippled();
     if (task->isAnonymous()) {
-        m_icon = ICON_ANONYMOUS;
+        m_icon = UiFunc::iconFilename(UiConst::ICON_ANONYMOUS);
     }
 }
 
@@ -176,7 +176,7 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         }
         // Timestamp
         QLabel* timestamp = new LabelWordWrapWide(
-                    m_p_task->whenCreated().toString(SHORT_DATETIME_FORMAT));
+            m_p_task->whenCreated().toString(DateTime::SHORT_DATETIME_FORMAT));
         timestamp->setObjectName(complete ? "task_item_timestamp_complete"
                                           : "task_item_timestamp_incomplete");
         QSizePolicy spTimestamp(QSizePolicy::Preferred,
@@ -203,13 +203,14 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         // Icon
         if (!m_label_only) {  // Labels go full-left
             if (!m_icon.isEmpty()) {
-                QLabel* icon = iconWidget(m_icon, row);
+                QLabel* icon = UiFunc::iconWidget(m_icon, row);
                 rowlayout->addWidget(icon);
             } else if (m_chain) {
-                QLabel* icon = iconWidget(ICON_CHAIN, row);
+                QLabel* icon = UiFunc::iconWidget(
+                    UiFunc::iconFilename(UiConst::ICON_CHAIN), row);
                 rowlayout->addWidget(icon);
             } else {
-                rowlayout->addWidget(blankIcon(row));
+                rowlayout->addWidget(UiFunc::blankIcon(row));
             }
         }
 
@@ -229,7 +230,9 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         // Arrow on right
         if (m_arrow_on_right) {
             rowlayout->addStretch();
-            QLabel* iconLabel = iconWidget(ICON_HASCHILD, nullptr, false);
+            QLabel* iconLabel = UiFunc::iconWidget(
+                UiFunc::iconFilename(UiConst::ICON_HASCHILD),
+                nullptr, false);
             rowlayout->addWidget(iconLabel);
         }
 
@@ -273,20 +276,20 @@ void MenuItem::act(CamcopsApp& app) const
         return;
     }
     if (!m_implemented) {
-        alert(tr("Not implemented yet!"));
+        UiFunc::alert(tr("Not implemented yet!"));
         return;
     }
     if (m_unsupported) {
-        alert(tr("Not supported on this platform!"));
+        UiFunc::alert(tr("Not supported on this platform!"));
         return;
     }
     if (m_needs_privilege && !app.privileged()) {
-        alert(tr("You must set Privileged Mode first"));
+        UiFunc::alert(tr("You must set Privileged Mode first"));
         return;
     }
     if (m_not_if_locked && app.locked()) {
-        alert(tr("Can’t perform this action when CamCOPS is locked"),
-              tr("Unlock first"));
+        UiFunc::alert(tr("Can’t perform this action when CamCOPS is locked"),
+                      tr("Unlock first"));
         return;
     }
     // ========================================================================
@@ -310,7 +313,7 @@ void MenuItem::act(CamcopsApp& app) const
     }
     if (!m_html.filename.isEmpty()) {
         HtmlInfoWindow* pWindow = new HtmlInfoWindow(
-            app, m_html.title, m_html.filename, m_html.icon);
+            app, m_html.title, m_html.filename, m_html.icon, m_html.fullscreen);
         app.open(pWindow);
         return;
     }

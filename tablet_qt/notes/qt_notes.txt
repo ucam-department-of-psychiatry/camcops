@@ -222,6 +222,12 @@ Other debugging
     Tools -> Options -> Debugger -> Add Qt sources... [then pick "qt5" directory]
     ... nope
 
+- Linker fails with "undefined reference to..." and you disbelieve it
+    objdump -t myfile.o -C
+  ... then realize that you should use namespaces to prevent problems where
+  a .h and .cpp file differ by omission (for example) of a "const".
+  http://stackoverflow.com/questions/8474456/how-to-detect-if-h-files-contains-functions-that-arent-defined-in-cpp-file
+
 ===============================================================================
 Database objects
 ===============================================================================
@@ -534,42 +540,56 @@ Questionnaire
 - For elements, use SomeElement(...).bold().italic(), using method chaining
   https://en.wikipedia.org/wiki/Method_chaining
   ... the essence being "return *this;"
-  ... or "return this" with pointer versions (used this in the end)
+  ... or "return this" with pointer versions
 
 - TO DO: ***
-QuestionAudioPlayer.js
-QuestionBooleanImage.js
-QuestionBooleanText.js
-QuestionCanvas.js
-QuestionCountdown.js
+
+QuestionMCQ.js
 QuestionDateTime.js
+QuestionTypedVariables.js
+
+
+QuestionCanvas.js
+    http://stackoverflow.com/questions/28947235/qt-draw-on-canvas
 QuestionDiagnosticCode.js
 QuestionMCQGridDouble.js
 QuestionMCQGrid.js
 QuestionMCQGridWithSingleBoolean.js
-QuestionMCQ.js
 QuestionMultipleResponse.js
 QuestionPhoto.js
 QuestionPickerInline.js
 QuestionPickerPopup.js
 QuestionSlider.js
 QuestionThermometer.js
-QuestionTypedVariables.js
+
+===============================================================================
+Stored variables
+===============================================================================
+- This was easy in Javascript because everything is type-free.
+- Database storage is easy in Qt, using a QVariant.
+- The trick here is the C++ interface.
+- Easy part:
+
+    app.setvar("myvarname", value);
+    // value will be auto-casted to a QVariant
+
+- Less optimal part:
+
+    app.getvar("myvarname").toInt();  // best we can do?
+
+- Could hard-code some of those...
+
+    int myvar() const {
+        return getvar("myvarname").toInt();
+    }
 
 
 ===============================================================================
 TO DO
 ===============================================================================
-- *** storedvars
-    abstract base class StoredVar
-        ... a DatabaseObject with a single table
-    specifics, e.g. StoredVarInt(const QSqlDatabase& db)
-        int value();
-        void setValue(int);
-    use an integer PK, but look up by name
-    cache
-        ... but are type-specific subclasses incompatible with a cache?
 - *** patients
+- *** edit icons to make centre of check-boxes/radio buttons transparent
+  (and can remove backgrounds for _T versions, though probably too much effort!)
 - *** scrolling by touch on Android menus and questionnaires
     http://doc.qt.io/qt-5.7/gestures-overview.html
     *** https://forum.qt.io/topic/30546/kinetic-scrolling-on-qscrollarea-on-android-device/5

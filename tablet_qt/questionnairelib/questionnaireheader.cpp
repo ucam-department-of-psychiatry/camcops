@@ -5,6 +5,7 @@
 #include <QVBoxLayout>
 #include "common/uiconstants.h"
 #include "lib/uifunc.h"
+#include "widgets/imagebutton.h"
 #include "widgets/labelwordwrapwide.h"
 
 
@@ -31,14 +32,15 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     mainlayout->addLayout(toprowlayout);
 
     // Cancel button
-    QAbstractButton* cancel = CAMCOPS_BUTTON_CANCEL(this);
+    QAbstractButton* cancel = new ImageButton(UiConst::CBS_CANCEL);
     toprowlayout->addWidget(cancel);
     connect(cancel, &QAbstractButton::clicked,
             this, &QuestionnaireHeader::cancelClicked);
 
     // Read-only icon
     if (read_only) {
-        QLabel* read_only_icon = iconWidget(ICON_READ_ONLY, this);
+        QLabel* read_only_icon = UiFunc::iconWidget(
+            UiFunc::iconFilename(UiConst::ICON_READ_ONLY), this);
         toprowlayout->addWidget(read_only_icon);
     }
 
@@ -46,23 +48,23 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     LabelWordWrapWide* title_label = new LabelWordWrapWide(title);
     title_label->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
     title_label->setObjectName("questionnaire_title");
-    QString title_css = textCSS(fontsize);
+    QString title_css = UiFunc::textCSS(fontsize);
     title_label->setStyleSheet(title_css);
     toprowlayout->addWidget(title_label);
 
     // Right-hand icons
     if (jump_allowed) {
-        m_button_jump = CAMCOPS_BUTTON_CHOOSE_PAGE(this);
+        m_button_jump = new ImageButton(UiConst::CBS_CHOOSE_PAGE);
         toprowlayout->addWidget(m_button_jump);
         connect(m_button_jump, &QAbstractButton::clicked,
                 this, &QuestionnaireHeader::jumpClicked);
     }
-    m_button_previous = CAMCOPS_BUTTON_BACK(this);
-    m_button_next = CAMCOPS_BUTTON_NEXT(this);
+    m_button_previous = new ImageButton(UiConst::CBS_BACK);
+    m_button_next = new ImageButton(UiConst::CBS_NEXT);
     if (within_chain) {
-        m_button_finish = CAMCOPS_BUTTON_FAST_FORWARD(this);
+        m_button_finish = new ImageButton(UiConst::CBS_FAST_FORWARD);
     } else {
-        m_button_finish = CAMCOPS_BUTTON_FINISH(this);
+        m_button_finish = new ImageButton(UiConst::CBS_FINISH);
     }
     toprowlayout->addWidget(m_button_previous);
     toprowlayout->addWidget(m_button_next);
@@ -82,7 +84,7 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     horizline->setObjectName("header_horizontal_line");
     horizline->setFrameShape(QFrame::HLine);
     horizline->setFrameShadow(QFrame::Plain);
-    horizline->setLineWidth(HEADER_HLINE_WIDTH);
+    horizline->setLineWidth(UiConst::HEADER_HLINE_WIDTH);
     mainlayout->addWidget(horizline);
 }
 

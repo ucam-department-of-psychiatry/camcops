@@ -11,5 +11,5 @@ Spacer::Spacer(QWidget* parent) :
 
 QSize Spacer::sizeHint() const
 {
-    return QSize(SPACE, SPACE);
+    return QSize(UiConst::SPACE, UiConst::SPACE);
 }

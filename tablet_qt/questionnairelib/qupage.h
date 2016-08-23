@@ -1,6 +1,7 @@
 #pragma once
 #include <initializer_list>
 #include <QList>
+#include <QObject>
 #include <QPointer>
 #include <QSharedPointer>
 #include "quelement.h"
@@ -12,39 +13,36 @@ class QuPage;
 typedef QSharedPointer<QuPage> QuPagePtr;
 
 
-enum class QuPageType {
-    Inherit,
-    Patient,
-    Clinician,
-    ClinicianWithPatient,
-    Config,
-};
-
-
-class QuPage
+class QuPage : public QObject
 {
+    Q_OBJECT
     friend class Questionnaire;
+public:
+    enum class PageType {
+        Inherit,
+        Patient,
+        Clinician,
+        ClinicianWithPatient,
+        Config,
+    };
 public:
     QuPage();
     QuPage(const QList<QuElementPtr>& elements);
     QuPage(std::initializer_list<QuElementPtr> elements);
 
-    QuPagePtr clone() const;
+    QuPage* setType(PageType type);
+    QuPage* setTitle(const QString& title);
+    QuPage* addElement(const QuElementPtr& element);
 
-    QuPage& setType(QuPageType type);
-    QuPage& setTitle(const QString& title);
-    QuPage& addElement(const QuElementPtr& element);
-
-    QuPageType type() const;
+    PageType type() const;
     QString title() const;
 protected:
     QPointer<QWidget> widget(Questionnaire* questionnaire) const;
     QList<QuElementPtr> allElements() const;
     bool missingInput() const;
+    void closing();
 protected:
-    QuPageType m_type;
+    PageType m_type;
     QString m_title;
     QList<QuElementPtr> m_elements;
 };
-
-

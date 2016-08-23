@@ -1,5 +1,6 @@
 #include "settingsmenu.h"
 #include "common/platform.h"
+#include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
@@ -8,7 +9,8 @@
 
 
 SettingsMenu::SettingsMenu(CamcopsApp& app) :
-    MenuWindow(app, tr("Settings"), ICON_SETTINGS)
+    MenuWindow(app, tr("Settings"),
+               UiFunc::iconFilename(UiConst::ICON_SETTINGS))
 {
     m_items = {
         MenuItem(tr("Questionnaire font size")).setNotIfLocked(),  // ***
@@ -29,9 +31,9 @@ SettingsMenu::SettingsMenu(CamcopsApp& app) :
         MenuItem(tr("(†) View local database as SQL")).setNeedsPrivilege(),  // ***
         MenuItem(tr("(†) Send local database to USB debugging stream (tablet "
                     "devices only)")
-        ).setNeedsPrivilege().setUnsupported(!PLATFORM_TABLET),  // ***
+        ).setNeedsPrivilege().setUnsupported(!Platform::PLATFORM_TABLET),  // ***
         MenuItem(tr("(†) Dump local database to SQL file (Android only)")
-        ).setNeedsPrivilege().setUnsupported(!PLATFORM_ANDROID),  // ***
+        ).setNeedsPrivilege().setUnsupported(!Platform::PLATFORM_ANDROID),  // ***
         MenuItem(tr("(†) Run software unit tests (reporting to debugging "
                     "stream)")
         ).setNeedsPrivilege(),  // ***

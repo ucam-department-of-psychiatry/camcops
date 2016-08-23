@@ -12,7 +12,7 @@ Task::Task(const QSqlDatabase& db,
            bool is_anonymous,
            bool has_clinician,
            bool has_respondent) :
-    DatabaseObject(db, tablename, PK_FIELDNAME, true, true)
+    DatabaseObject(db, tablename, DbConst::PK_FIELDNAME, true, true)
 {
     // WATCH OUT: you can't call a derived class's overloaded function
     // here; its vtable is incomplete.
@@ -77,12 +77,12 @@ QString Task::instanceTitle() const
     if (isAnonymous()) {
         return QString("%1, %2").arg(
             shortname(),
-            whenCreated().toString(SHORT_DATETIME_FORMAT));
+            whenCreated().toString(DateTime::SHORT_DATETIME_FORMAT));
     } else {
         return QString("%1, ***PATIENT***, %2").arg(
             shortname(),
             // *** patient info
-            whenCreated().toString(SHORT_DATETIME_FORMAT));
+            whenCreated().toString(DateTime::SHORT_DATETIME_FORMAT));
     }
 }
 
@@ -96,7 +96,7 @@ void Task::makeTables()
 
 bool Task::load(int pk)
 {
-    if (pk == NONEXISTENT_PK) {
+    if (pk == DbConst::NONEXISTENT_PK) {
         return false;
     }
     return DatabaseObject::load(pk);
@@ -105,7 +105,7 @@ bool Task::load(int pk)
 
 QDateTime Task::whenCreated() const
 {
-    return value(CREATION_TIMESTAMP_FIELDNAME)
+    return value(DbConst::CREATION_TIMESTAMP_FIELDNAME)
         .toDateTime();
 }
 

@@ -1,11 +1,12 @@
 #include "whiskermenu.h"
+#include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
 
 WhiskerMenu::WhiskerMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Whisker networked hardware"),
-               ICON_WHISKER)
+               UiFunc::iconFilename(UiConst::ICON_WHISKER))
 {
     m_items = {
         MenuItem(tr("Connect to Whisker server")),  // ***

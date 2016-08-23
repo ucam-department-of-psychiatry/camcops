@@ -1,6 +1,7 @@
 #include "mainmenu.h"
 #include <QDebug>
 #include <QSharedPointer>
+#include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 #include "menulib/menuproxy.h"
@@ -28,7 +29,7 @@ MainMenu::MainMenu(CamcopsApp& app)
     : MenuWindow(
           app,
           tr("CamCOPS: Cambridge Cognitive and Psychiatric Assessment Kit"),
-          ICON_CAMCOPS,
+          UiFunc::iconFilename(UiConst::ICON_CAMCOPS),
           true)
 {
     m_items = {

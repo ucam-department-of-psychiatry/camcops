@@ -11,10 +11,11 @@
 
 
 HtmlInfoWindow::HtmlInfoWindow(CamcopsApp& app, const QString& title,
-                               const QString& filename, const QString& icon) :
+                               const QString& filename, const QString& icon,
+                               bool fullscreen) :
     m_app(app)
 {
-    setStyleSheet(textfileContents(CSS_CAMCOPS_MENU));
+    setStyleSheet(FileFunc::textfileContents(UiConst::CSS_CAMCOPS_MENU));
     setObjectName("menu_window_outer_object");
 
     // Layouts
@@ -34,8 +35,8 @@ HtmlInfoWindow::HtmlInfoWindow(CamcopsApp& app, const QString& title,
             this, &HtmlInfoWindow::finished);
 
     // HTML
-    if (fileExists(filename)) {
-        QString html = textfileContents(filename);
+    if (FileFunc::fileExists(filename)) {
+        QString html = FileFunc::textfileContents(filename);
         QTextBrowser* browser = new QTextBrowser();
         browser->setHtml(html);
         browser->setOpenExternalLinks(true);
@@ -48,4 +49,7 @@ HtmlInfoWindow::HtmlInfoWindow(CamcopsApp& app, const QString& title,
         mainlayout->addWidget(label);
         mainlayout->addStretch();
     }
+
+    // Fullscreen?
+    setWantsFullscreen(fullscreen);
 }

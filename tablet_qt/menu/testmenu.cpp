@@ -7,7 +7,8 @@
 
 TestMenu::TestMenu(CamcopsApp& app)
     : MenuWindow(app, tr("CamCOPS self-tests"), ""),
-      m_p_netmgr(nullptr)
+      m_netmgr(nullptr),
+      m_player(nullptr)
 {
     m_items = {
         MenuItem(tr("User testing")).setLabelOnly(),
@@ -33,8 +34,10 @@ TestMenu::TestMenu(CamcopsApp& app)
             std::bind(&TestMenu::testPhq9Creation, this)
         ).setNotIfLocked(),
         MenuItem(
-            "Test HTML display",
-            HtmlMenuItem("Example HTML", taskHtmlFilename("ace3"))
+            "Test HTML display, and fullscreen display",
+            HtmlMenuItem("Example HTML: this window should be full-screen",
+                         FileFunc::taskHtmlFilename("ace3"),
+                         "", true)
         ),
         MenuItem(tr("Test card 1 (black, white)")),  // ***
         MenuItem(tr("Test card 2 (scaling, scrolling)")),  // ***
@@ -42,21 +45,34 @@ TestMenu::TestMenu(CamcopsApp& app)
 }
 
 
+TestMenu::~TestMenu()
+{
+    // Unsure if necessary - but similar code in QuAudioPlayer was crashing.
+    if (m_player) {
+        m_player->stop();
+    }
+}
+
+
 void TestMenu::testDebugConsole()
 {
     qInfo() << "Testing debug console. This is the entire test. Success.";
-    alert("Success! See the debug console for output.");
+    UiFunc::alert("Success! See the debug console for output.");
 }
 
 
 void TestMenu::testSound()
 {
-    QMediaPlayer* player = new QMediaPlayer;
-    QUrl url("qrc:///sounds/camcops/portal_still_alive.mp3");
+    m_player = QSharedPointer<QMediaPlayer>(new QMediaPlayer(),
+                                            &QObject::deleteLater);
+    // http://doc.qt.io/qt-5/qsharedpointer.html
+    // Failing to use deleteLater() can cause crashes, as there may be
+    // outstanding events relating to this object.
+    QUrl url(UiConst::DEMO_SOUND_URL);
     qDebug() << "Trying to play:" << url;
-    player->setMedia(url);
-    player->setVolume(50);
-    player->play();
+    m_player->setMedia(url);
+    m_player->setVolume(50);
+    m_player->play();
 }
 
 
@@ -67,16 +83,16 @@ void TestMenu::testHttps()
     QString url = "https://egret.psychol.cam.ac.uk/index.html";  // good cert
     // QString url = "https://www.veltigroup.com/";  // bad cert (then Forbidden)
 
-    m_p_netmgr = QSharedPointer<NetworkManager>(new NetworkManager(url));
-    m_p_netmgr->testHttps();
+    m_netmgr = QSharedPointer<NetworkManager>(new NetworkManager(url));
+    m_netmgr->testHttps();
 }
 
 
 void TestMenu::testHttp()
 {
     QString url = "http://egret.psychol.cam.ac.uk/index.html";
-    m_p_netmgr = QSharedPointer<NetworkManager>(new NetworkManager(url));
-    m_p_netmgr->testHttp();
+    m_netmgr = QSharedPointer<NetworkManager>(new NetworkManager(url));
+    m_netmgr->testHttp();
 }
 
 
@@ -90,6 +106,6 @@ void TestMenu::testPhq9Creation()
     }
     qDebug() << *p_task;
     m_app.setWhiskerConnected(true);
-    alert("Done; see console");
+    UiFunc::alert("Done; see console");
     m_app.setWhiskerConnected(false);
 }

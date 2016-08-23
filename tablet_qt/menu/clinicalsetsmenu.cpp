@@ -1,4 +1,5 @@
 #include "clinicalsetsmenu.h"
+#include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
@@ -9,7 +10,7 @@
 ClinicalSetsMenu::ClinicalSetsMenu(CamcopsApp& app) :
     MenuWindow(app,
                tr("Sets of tasks collected together for clinical purposes"),
-               ICON_SETS_CLINICAL)
+               UiFunc::iconFilename(UiConst::ICON_SETS_CLINICAL))
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),

@@ -1,6 +1,18 @@
 #include "fieldref.h"
 
 
+FieldRef::FieldRef() :
+    m_method(FieldRefMethod::Invalid),
+    m_p_field(nullptr),
+    m_p_dbobject(nullptr),
+    m_fieldname(""),
+    m_autosave(false),
+    m_getterfunc(nullptr),
+    m_setterfunc(nullptr)
+{
+}
+
+
 FieldRef::FieldRef(Field* p_field) :
     m_method(FieldRefMethod::Field),
     m_p_field(p_field),
@@ -39,9 +51,34 @@ FieldRef::FieldRef(const GetterFunction& getterfunc,
 }
 
 
-void FieldRef::setValue(const QVariant& value)
+bool FieldRef::valid() const
 {
     switch (m_method) {
+    case FieldRefMethod::Invalid:
+        return false;
+    case FieldRefMethod::Field:
+        return m_p_field != nullptr;
+    case FieldRefMethod::DatabaseObject:
+        return m_p_dbobject != nullptr;
+    case FieldRefMethod::Functions:
+        return m_getterfunc != nullptr && m_setterfunc != nullptr;
+    }
+    // Shouldn't get here
+    return false;
+}
+
+
+void FieldRef::setValue(const QVariant& value)
+{
+    // User feedback before database save:
+    qDebug().nospace() << "FieldRef: emitting valueChanged: this=" << this
+                       << ", value=" << value;
+    emit valueChanged(value);
+    // Now save:
+    switch (m_method) {
+    case FieldRefMethod::Invalid:
+        qWarning() << "Attempt to set invalid field reference";
+        return;
     case FieldRefMethod::Field:
         m_p_field->setValue(value);
         break;
@@ -61,6 +98,9 @@ void FieldRef::setValue(const QVariant& value)
 QVariant FieldRef::value() const
 {
     switch (m_method) {
+    case FieldRefMethod::Invalid:
+        qWarning() << "Attempt to get invalid field reference";
+        return QVariant();
     case FieldRefMethod::Field:
         return m_p_field->value();
     case FieldRefMethod::DatabaseObject:

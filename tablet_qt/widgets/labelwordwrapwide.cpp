@@ -14,12 +14,17 @@
 
 
 LabelWordWrapWide::LabelWordWrapWide(const QString& text, QWidget* parent) :
-    QLabel(text, parent)
+    ClickableLabel(text, parent)
 {
     setWordWrap(true);
     QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    // If the horizontal policy if Preferred (with vertical Minimum), then
+    // the text tries to wrap (increasing height) when other things tell it
+    // that it can. So Expanding/Minimum is better.
+    // However, that does sometimes mean that the widget expands horizontally
+    // when you don't want it to.
     setSizePolicy(sp);
-    setObjectName("debug_green"); // ***
+    // setObjectName("debug_green");
 }
 
 
@@ -30,6 +35,13 @@ void LabelWordWrapWide::resizeEvent(QResizeEvent* event)
         // heightForWidth relies on minimumSize to evaulate, so reset it...
         setMinimumHeight(0);
         // ... before defining minimum height:
-        setMinimumHeight(heightForWidth(width()));
+        int w = width();
+        setMinimumHeight(heightForWidth(w));
+
+        // The heightForWidth() function, in qlabel.cpp,
+        // works out (for a text label) a size, using sizeForWidth(),
+        // then returns the height of that size.
+        //
+        // The complex bit is then in QLabelPrivate::sizeForWidth
     }
 }

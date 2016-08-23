@@ -2,8 +2,9 @@
 #include "quelement.h"
 
 
-class QuSpacer : public Cloneable<QuElement, QuSpacer>
+class QuSpacer : public QuElement
 {
+    Q_OBJECT
 public:
     QuSpacer();
 protected:

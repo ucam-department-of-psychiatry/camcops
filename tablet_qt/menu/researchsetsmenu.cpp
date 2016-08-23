@@ -1,4 +1,5 @@
 #include "researchsetsmenu.h"
+#include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
@@ -9,7 +10,7 @@
 ResearchSetsMenu::ResearchSetsMenu(CamcopsApp& app) :
     MenuWindow(app,
                tr("Sets of tasks collected together for research purposes"),
-               ICON_SETS_RESEARCH)
+               UiFunc::iconFilename(UiConst::ICON_SETS_RESEARCH))
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),

@@ -1,10 +1,12 @@
 #include "psychosismenu.h"
+#include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
 
 PsychosisMenu::PsychosisMenu(CamcopsApp& app) :
-    MenuWindow(app, tr("Psychosis"), ICON_PSYCHOSIS)
+    MenuWindow(app, tr("Psychosis"),
+               UiFunc::iconFilename(UiConst::ICON_PSYCHOSIS))
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),

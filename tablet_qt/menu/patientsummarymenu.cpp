@@ -1,11 +1,13 @@
 #include "patientsummarymenu.h"
+#include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 #include "tasklib/taskfactory.h"
 
 
 PatientSummaryMenu::PatientSummaryMenu(CamcopsApp& app) :
-    MenuWindow(app, tr("Patient summary"), ICON_PATIENT_SUMMARY)
+    MenuWindow(app, tr("Patient summary"),
+               UiFunc::iconFilename(UiConst::ICON_PATIENT_SUMMARY))
 {
     // m_items is EXPENSIVE (and depends on security), so leave it to build()
 }

@@ -2,28 +2,49 @@
 
 #include <QApplication>
 #include <QAbstractButton>
+#include <QBrush>
 #include <QDebug>
 #include <QDesktopServices>
 #include <QLabel>
 #include <QMessageBox>
 #include <QObject>
+#include <QPainter>
+#include <QPen>
+#include <QPixmapCache>
 #include <QToolButton>
 #include <QUrl>
 #include "uifunc.h"
 #include "common/uiconstants.h"
 
-
 // ============================================================================
 // QPixmap loader
 // ============================================================================
 
-QPixmap getPixmap(const QString& filename)
+QPixmap UiFunc::getPixmap(const QString& filename, const QSize& size,
+                          bool cache)
 {
-    QPixmap pixmap(filename);
-    if (pixmap.isNull()) {
+    QPixmap pm;
+    bool success = true;
+    if (cache) {
+        if (!QPixmapCache::find(filename, &pm)) {
+#ifdef DEBUG_ICON_LOAD
+            qDebug() << "Loading icon:" << filename;
+#endif
+            success = pm.load(filename);
+            QPixmapCache::insert(filename, pm);
+        }
+    } else {
+        success = pm.load(filename);
+    }
+    if (success) {
+        if (size.isValid()) {
+            // Rescale
+            pm = pm.scaled(size, Qt::IgnoreAspectRatio);
+        }
+    } else {
         qCritical() << "Unable to load icon:" << filename;
     }
-    return pixmap;
+    return pm;
 }
 
 
@@ -31,33 +52,84 @@ QPixmap getPixmap(const QString& filename)
 // Icons
 // ============================================================================
 
-QLabel* iconWidget(const QString& filename, QWidget* parent, bool scale)
+QLabel* UiFunc::iconWidget(const QString& filename, QWidget* parent, bool scale)
 {
 #ifdef DEBUG_ICON_LOAD
     qDebug() << "iconWidget:" << filename;
 #endif
-    QPixmap iconimage = getPixmap(filename);
-    QLabel* iconlabel = new QLabel(parent);
+    QSize size;  // invalid size
     if (scale) {
-        iconlabel->setFixedSize(QSize(ICONSIZE, ICONSIZE));
-        iconlabel->setPixmap(iconimage.scaled(ICONSIZE, ICONSIZE,
-                                              Qt::IgnoreAspectRatio));
-    } else {
-        iconlabel->setFixedSize(iconimage.size());
-        iconlabel->setPixmap(iconimage);
+        size = UiConst::ICONSIZE;
     }
+    QPixmap iconimage = getPixmap(filename, size);
+    QLabel* iconlabel = new QLabel(parent);
+    iconlabel->setFixedSize(iconimage.size());
+    iconlabel->setPixmap(iconimage);
     return iconlabel;
 }
 
 
-QLabel* blankIcon(QWidget* parent)
+QPixmap UiFunc::addCircleBackground(const QPixmap& image, const QColor& colour,
+                                    bool behind, qreal pixmap_opacity)
 {
-    QPixmap iconimage(ICONSIZE, ICONSIZE);
-    iconimage.fill(QColor(0, 0, 0, 0));  // a=0 means fully transparent
+    // Assumes it is of size ICONSIZE
+    QSize size(image.size());
+    QPixmap pm(size);
+    pm.fill(UiConst::BLACK_TRANSPARENT);
+    QPainter painter(&pm);
+    QBrush brush(colour);
+    painter.setBrush(brush);
+    QPen pen(UiConst::BLACK_TRANSPARENT);
+    painter.setPen(pen);
+    if (behind) {
+        // Background to indicate "being touched"
+        painter.drawEllipse(0, 0, size.width(), size.height());
+        // Icon
+        painter.setOpacity(pixmap_opacity);
+        painter.drawPixmap(0, 0, image);
+    } else {
+        // The other way around
+        painter.setOpacity(pixmap_opacity);
+        painter.drawPixmap(0, 0, image);
+        painter.drawEllipse(0, 0, size.width(), size.height());
+    }
+    return pm;
+}
+
+
+QPixmap UiFunc::addPressedBackground(const QPixmap& image, bool behind)
+{
+    return addCircleBackground(image, UiConst::BUTTON_PRESSED_COLOUR, behind);
+}
+
+
+QPixmap UiFunc::addUnpressedBackground(const QPixmap& image, bool behind)
+{
+    return addCircleBackground(image, UiConst::BUTTON_UNPRESSED_COLOUR, behind);
+}
+
+
+QPixmap UiFunc::makeDisabledIcon(const QPixmap& image)
+{
+    return addCircleBackground(image, UiConst::BUTTON_DISABLED_COLOUR,
+                               true, UiConst::DISABLED_ICON_OPACITY);
+}
+
+
+QLabel* UiFunc::blankIcon(QWidget* parent)
+{
+    QPixmap iconimage(UiConst::ICONSIZE);
+    iconimage.fill(UiConst::BLACK_TRANSPARENT);
     QLabel* iconlabel = new QLabel(parent);
-    iconlabel->setFixedSize(QSize(ICONSIZE, ICONSIZE));
+    iconlabel->setFixedSize(UiConst::ICONSIZE);
     iconlabel->setPixmap(iconimage);
     return iconlabel;
+}
+
+
+QString UiFunc::iconFilename(const QString& basefile)
+{
+    return QString(":/images/camcops/%1").arg(basefile);
 }
 
 
@@ -65,14 +137,9 @@ QLabel* blankIcon(QWidget* parent)
 // Buttons
 // ============================================================================
 
-QAbstractButton* iconButton(const QString& normal_filename,
-                            const QString& pressed_filename,
-                            QWidget* parent)
+QString UiFunc::iconButtonStylesheet(const QString& normal_filename,
+                                     const QString& pressed_filename)
 {
-    QToolButton* button = new QToolButton(parent);
-    button->setIconSize(QSize(ICONSIZE, ICONSIZE));
-    // Impossible to do this without stylesheets!
-    // But you can do stylesheets in code...
     QString stylesheet = "QToolButton {"
                          "border-image: url('" + normal_filename + "');"
                          "}";
@@ -86,10 +153,35 @@ QAbstractButton* iconButton(const QString& normal_filename,
     // http://stackoverflow.com/questions/18388098/qt-pushbutton-hover-pressed-icons
     // http://stackoverflow.com/questions/12391125/qpushbutton-css-pressed
     // http://stackoverflow.com/questions/20207224/styling-a-qpushbutton-with-two-images
+    return stylesheet;
+}
 
-    button->setStyleSheet(stylesheet);
+
+QAbstractButton* UiFunc::iconButton(const QString& normal_filename,
+                                    const QString& pressed_filename,
+                                    QWidget* parent)
+{
+    QToolButton* button = new QToolButton(parent);
+    button->setIconSize(UiConst::ICONSIZE);
+    // Impossible to do this without stylesheets!
+    // But you can do stylesheets in code...
+    button->setStyleSheet(iconButtonStylesheet(normal_filename,
+                                               pressed_filename));
     return button;
 }
+
+/*
+QString UiFunc::iconPngFilename(const QString& stem)
+{
+    return iconFilename(stem + ".png");
+}
+
+
+QString UiFunc::iconTouchedPngFilename(const QString& stem)
+{
+    return iconFilename(stem + "_T.png");
+}
+*/
 
 
 // ============================================================================
@@ -127,7 +219,7 @@ void setBackgroundColour(QWidget* widget, const QColor& colour)
 */
 
 
-void removeAllChildWidgets(QObject* object)
+void UiFunc::removeAllChildWidgets(QObject* object)
 {
     // http://stackoverflow.com/questions/22643853/qt-clear-all-widgets-from-inside-a-qwidgets-layout
     // ... modified a little
@@ -145,11 +237,23 @@ void removeAllChildWidgets(QObject* object)
 }
 
 
+const Qt::Alignment HALIGN_MASK = (Qt::AlignLeft | Qt::AlignRight |
+                                   Qt::AlignHCenter | Qt::AlignJustify);
+const Qt::Alignment VALIGN_MASK = (Qt::AlignTop | Qt::AlignBottom |
+                                   Qt::AlignVCenter | Qt::AlignBaseline);
+
+Qt::Alignment UiFunc::combineAlignment(Qt::Alignment halign,
+                                       Qt::Alignment valign)
+{
+    return (halign & HALIGN_MASK) | (valign & VALIGN_MASK);
+}
+
+
 // ============================================================================
 // Killing the app
 // ============================================================================
 
-void stopApp(const QString& error)
+void UiFunc::stopApp(const QString& error)
 {
     // MODAL DIALOGUE, FOLLOWED BY HARD KILL,
     // so callers don't need to worry about what happens afterwards.
@@ -172,7 +276,7 @@ void stopApp(const QString& error)
 // Alerts
 // ============================================================================
 
-void alert(const QString& text, const QString& title)
+void UiFunc::alert(const QString& text, const QString& title)
 {
     QMessageBox msgbox;
     msgbox.setWindowTitle(title);
@@ -186,7 +290,8 @@ void alert(const QString& text, const QString& title)
 // CSS
 // ============================================================================
 
-QString textCSS(int fontsize_pt, bool bold, bool italic, const QString& colour)
+QString UiFunc::textCSS(int fontsize_pt, bool bold, bool italic,
+                        const QString& colour)
 {
     QString css = QString("font-size: %1pt;").arg(fontsize_pt);
     // Only pt and px supported
@@ -208,7 +313,7 @@ QString textCSS(int fontsize_pt, bool bold, bool italic, const QString& colour)
 // Opening URLS
 // ============================================================================
 
-void visitUrl(const QString& url)
+void UiFunc::visitUrl(const QString& url)
 {
     bool success = QDesktopServices::openUrl(QUrl(url));
     if (!success) {

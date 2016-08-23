@@ -9,7 +9,8 @@ class HtmlInfoWindow : public OpenableWidget
     Q_OBJECT
 public:
     HtmlInfoWindow(CamcopsApp& app, const QString& title,
-                   const QString& filename, const QString& icon);
+                   const QString& filename, const QString& icon,
+                   bool fullscreen = false);
 protected:
     CamcopsApp& m_app;
 };

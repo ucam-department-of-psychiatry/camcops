@@ -9,6 +9,7 @@
 #include "lib/field.h"
 
 class FieldRef;
+typedef QSharedPointer<FieldRef> FieldRefPtr;
 
 
 class DatabaseObject
@@ -18,9 +19,10 @@ class DatabaseObject
 public:
     DatabaseObject(const QSqlDatabase& db,
                    const QString& tablename,
-                   const QString& pk_fieldname = PK_FIELDNAME,
+                   const QString& pk_fieldname = DbConst::PK_FIELDNAME,
                    bool has_modification_timestamp = true,
                    bool has_creation_timestamp = false);
+    ~DatabaseObject();
     // Adding fields
     void addField(const QString& fieldname,
                   QVariant::Type type,
@@ -39,7 +41,7 @@ public:
     double valueDouble(const QString& fieldname) const;
     QDateTime valueDateTime(const QString& fieldname) const;
     QDate valueDate(const QString& fieldname) const;
-    FieldRef fieldRef(const QString& fieldname, bool autosave = true);
+    FieldRefPtr fieldRef(const QString& fieldname, bool autosave = true);
     // Whole-object summary:
     QString recordSummary() const;
     // Loading, saving:
@@ -64,9 +66,12 @@ public:
     void makeTable();
 
 protected:
+    virtual bool load(const QString& fieldname, const QVariant& where_value);
+    virtual bool load(const WhereConditions& where);
     bool saveInsert();
     bool saveUpdate();
     void clearAllDirty();
+    bool anyDirty() const;
 
 protected:
     QSqlDatabase m_db;
@@ -77,6 +82,7 @@ protected:
     typedef QMapIterator<QString, Field> MapIteratorType;
     typedef QMutableMapIterator<QString, Field> MutableMapIteratorType;
     MapType m_record;
+    QMap<QString, FieldRefPtr> m_fieldrefs;
 
 public:
     friend QDebug operator<<(QDebug debug, const DatabaseObject& d);

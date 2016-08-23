@@ -1,10 +1,12 @@
 #include "clinicalmenu.h"
+#include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
 
 ClinicalMenu::ClinicalMenu(CamcopsApp& app) :
-    MenuWindow(app, tr("Clinical notes and logs"), ICON_CLINICAL)
+    MenuWindow(app, tr("Clinical notes and logs"),
+               UiFunc::iconFilename(UiConst::ICON_CLINICAL))
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),

@@ -6,6 +6,7 @@
 #include <QVBoxLayout>
 #include "common/camcopsapp.h"
 #include "lib/filefunc.h"
+#include "lib/uifunc.h"
 #include "questionnaireheader.h"
 #include "widgets/labelwordwrapwide.h"
 #include "widgets/openablewidget.h"
@@ -38,7 +39,7 @@ Questionnaire::Questionnaire(CamcopsApp& app,
 
 void Questionnaire::commonConstructor()
 {
-    m_type = QuPageType::ClinicianWithPatient;
+    m_type = QuPage::PageType::ClinicianWithPatient;
     m_read_only = false;
     m_jump_allowed = false;
     m_within_chain = false;
@@ -46,7 +47,8 @@ void Questionnaire::commonConstructor()
     m_built = false;
     m_current_pagenum_zero_based = 0;
 
-    setStyleSheet(textfileContents(CSS_CAMCOPS_QUESTIONNAIRE));
+    setStyleSheet(FileFunc::textfileContents(
+        UiConst::CSS_CAMCOPS_QUESTIONNAIRE));
 
     m_outer_layout = new QVBoxLayout();
     setLayout(m_outer_layout);
@@ -56,9 +58,9 @@ void Questionnaire::commonConstructor()
 }
 
 
-void Questionnaire::setType(QuPageType type)
+void Questionnaire::setType(QuPage::PageType type)
 {
-    if (type == QuPageType::Inherit) {
+    if (type == QuPage::PageType::Inherit) {
         qWarning() << "Can only set PageType::Inherit on Page, not "
                       "Questionnaire";
     } else {
@@ -93,6 +95,9 @@ void Questionnaire::setWithinChain(bool within_chain)
 
 void Questionnaire::build()
 {
+    // ========================================================================
+    // Clean up any old page widgets
+    // ========================================================================
     if (m_p_header) {
         m_p_header->deleteLater();  // later, in case it's currently calling us
     }
@@ -106,6 +111,9 @@ void Questionnaire::build()
         m_background_widget->deleteLater();
     }
 
+    // ========================================================================
+    // Create new
+    // ========================================================================
     m_background_widget = new QWidget();
     m_outer_layout->addWidget(m_background_widget);
     m_mainlayout = new QVBoxLayout();
@@ -123,21 +131,21 @@ void Questionnaire::build()
     QuPagePtr page = currentPagePtr();
 
     // Background
-    QuPageType page_type = page->type();
-    if (page_type == QuPageType::Inherit) {
+    QuPage::PageType page_type = page->type();
+    if (page_type == QuPage::PageType::Inherit) {
         page_type = m_type;
     }
     QString background_css_name;
     switch (page_type) {
-    case QuPageType::Patient:
-    case QuPageType::ClinicianWithPatient:
+    case QuPage::PageType::Patient:
+    case QuPage::PageType::ClinicianWithPatient:
     default:
         background_css_name = "questionnaire_background_patient";
         break;
-    case QuPageType::Clinician:
+    case QuPage::PageType::Clinician:
         background_css_name = "questionnaire_background_clinician";
         break;
-    case QuPageType::Config:
+    case QuPage::PageType::Config:
         background_css_name = "questionnaire_background_config";
         break;
     }
@@ -145,25 +153,25 @@ void Questionnaire::build()
 
     // Header
     QString header_css_name;
-    if (page_type == QuPageType::ClinicianWithPatient) {
+    if (page_type == QuPage::PageType::ClinicianWithPatient) {
         // Header has "clinician" style; main page has "patient" style
         header_css_name = "questionnaire_background_clinician";
     }
     m_p_header = new QuestionnaireHeader(
         this, page->title(),
         m_read_only, m_jump_allowed, m_within_chain,
-        fontSizePt(FontSize::Title), header_css_name);
+        fontSizePt(UiConst::FontSize::Title), header_css_name);
     m_mainlayout->addWidget(m_p_header);
-    QObject::connect(m_p_header, &QuestionnaireHeader::cancelClicked,
-                     std::bind(&Questionnaire::cancelClicked, this));
-    QObject::connect(m_p_header, &QuestionnaireHeader::jumpClicked,
-                     std::bind(&Questionnaire::jumpClicked, this));
-    QObject::connect(m_p_header, &QuestionnaireHeader::previousClicked,
-                     std::bind(&Questionnaire::previousClicked, this));
-    QObject::connect(m_p_header, &QuestionnaireHeader::nextClicked,
-                     std::bind(&Questionnaire::nextClicked, this));
-    QObject::connect(m_p_header, &QuestionnaireHeader::finishClicked,
-                     std::bind(&Questionnaire::finishClicked, this));
+    connect(m_p_header, &QuestionnaireHeader::cancelClicked,
+            this, &Questionnaire::cancelClicked);
+    connect(m_p_header, &QuestionnaireHeader::jumpClicked,
+            this, &Questionnaire::jumpClicked);
+    connect(m_p_header, &QuestionnaireHeader::previousClicked,
+            this, &Questionnaire::previousClicked);
+    connect(m_p_header, &QuestionnaireHeader::nextClicked,
+            this, &Questionnaire::nextClicked);
+    connect(m_p_header, &QuestionnaireHeader::finishClicked,
+            this, &Questionnaire::finishClicked);
 
     // Content
     // The QScrollArea (a) makes text word wrap, by setting a horizontal size
@@ -206,11 +214,21 @@ int Questionnaire::nPages() const
 
 QuPagePtr Questionnaire::currentPagePtr() const
 {
+    if (m_current_pagenum_zero_based < 0 ||
+            m_current_pagenum_zero_based >= m_pages.size()) {
+        return QuPagePtr(nullptr);
+    }
     return m_pages.at(m_current_pagenum_zero_based);
 }
 
 
-int Questionnaire::fontSizePt(FontSize fontsize) const
+bool Questionnaire::readOnly() const
+{
+    return m_read_only;
+}
+
+
+int Questionnaire::fontSizePt(UiConst::FontSize fontsize) const
 {
     return m_app.fontSizePt(fontsize);
 }
@@ -249,7 +267,7 @@ void Questionnaire::cancelClicked()
 
 void Questionnaire::jumpClicked()
 {
-    alert("*** jump");
+    UiFunc::alert("*** jump");
 }
 
 
@@ -259,6 +277,7 @@ void Questionnaire::previousClicked()
         // On the first page already
         return;
     }
+    pageClosing();
     --m_current_pagenum_zero_based;
     build();
 }
@@ -275,6 +294,7 @@ void Questionnaire::nextClicked()
         // Can't progress
         return;
     }
+    pageClosing();
     ++m_current_pagenum_zero_based;
     build();
 }
@@ -292,6 +312,16 @@ void Questionnaire::finishClicked()
         return;
     }
     doFinish();
+}
+
+
+void Questionnaire::pageClosing()
+{
+    QuPagePtr page = currentPagePtr();
+    if (!page) {
+        return;
+    }
+    page->closing();
 }
 
 

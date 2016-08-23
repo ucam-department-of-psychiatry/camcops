@@ -7,12 +7,15 @@
 #include <QSqlDatabase>
 #include <QStackedWidget>
 #include "common/uiconstants.h"
+#include "dbobjects/storedvar.h"
 #include "lib/datetimefunc.h"
 #include "lib/dbfunc.h"
 #include "lib/filefunc.h"
 #include "menu/mainmenu.h"
 #include "tasklib/inittasks.h"
 #include "questionnairelib/questionnaire.h"
+
+const QString VAR_QUESTIONNAIRE_SIZE_PERCENT = "questionnaireTextSizePercent";
 
 
 CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
@@ -22,31 +25,55 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     m_whisker_connected(false),
     m_p_main_window(nullptr),
     m_p_window_stack(nullptr),
-    m_patient_id(NONEXISTENT_PK)
+    m_patient_id(DbConst::NONEXISTENT_PK)
 {
-    QDateTime dt = now();
-    qInfo() << "CamCOPS starting at:" << qUtf8Printable(datetimeToIsoMs(dt))
-            << "=" << qUtf8Printable(datetimeToIsoMsUtc(dt));
+    // ------------------------------------------------------------------------
+    // Announce startup
+    // ------------------------------------------------------------------------
+    QDateTime dt = DateTime::now();
+    qInfo() << "CamCOPS starting at:"
+            << qUtf8Printable(DateTime::datetimeToIsoMs(dt))
+            << "=" << qUtf8Printable(DateTime::datetimeToIsoMsUtc(dt));
 
-    // However, we can't do things like opening the database until we have
+    // ------------------------------------------------------------------------
+    // Create databases
+    // ------------------------------------------------------------------------
+    // We can't do things like opening the database until we have
     // created the app. So don't open the database in the initializer list!
-
     // Database lifetime:
     // http://stackoverflow.com/questions/7669987/what-is-the-correct-way-of-qsqldatabase-qsqlquery
     m_db = QSqlDatabase::addDatabase("QSQLITE", "data");
     m_sysdb = QSqlDatabase::addDatabase("QSQLITE", "sys");
-    openDatabaseOrDie(m_db, DATA_DATABASE_FILENAME);
-    openDatabaseOrDie(m_sysdb, SYSTEM_DATABASE_FILENAME);
+    DbFunc::openDatabaseOrDie(m_db, DATA_DATABASE_FILENAME);
+    DbFunc::openDatabaseOrDie(m_sysdb, SYSTEM_DATABASE_FILENAME);
 
+    // ------------------------------------------------------------------------
+    // Register tasks
+    // ------------------------------------------------------------------------
     m_p_task_factory = TaskFactoryPtr(new TaskFactory(*this));
     InitTasks(*m_p_task_factory);  // ensures all tasks are registered
     m_p_task_factory->finishRegistration();
     qInfo() << "Registered tasks:" << m_p_task_factory->tablenames();
 
+    // ------------------------------------------------------------------------
+    // Make tables
+    // ------------------------------------------------------------------------
+    // Make task tables
     m_p_task_factory->makeAllTables();
+    // Make special tables
+    StoredVar storedvar_specimen(m_sysdb);
+    storedvar_specimen.makeTable();
     // *** also need to make the special tables at this point
 
-    setStyleSheet(textfileContents(CSS_CAMCOPS));
+    // ------------------------------------------------------------------------
+    // Create stored variables
+    // ------------------------------------------------------------------------
+    createVar(VAR_QUESTIONNAIRE_SIZE_PERCENT, QVariant::Int, 100);
+
+    // ------------------------------------------------------------------------
+    // Qt stuff
+    // ------------------------------------------------------------------------
+    setStyleSheet(FileFunc::textfileContents(UiConst::CSS_CAMCOPS));
 }
 
 
@@ -64,7 +91,6 @@ int CamcopsApp::run()
 
     m_p_main_window = new QMainWindow();
     m_p_main_window->showMaximized();
-    // m_p_main_window->showFullScreen();
     m_p_window_stack = new QStackedWidget(m_p_main_window);
     m_p_main_window->setCentralWidget(m_p_window_stack);
 
@@ -103,7 +129,7 @@ void CamcopsApp::open(OpenableWidget* widget, TaskPtr task,
     }
 
     Qt::WindowStates prev_window_state = m_p_main_window->windowState();
-    QPointer<OpenableWidget> guarded_widget = QPointer<OpenableWidget>(widget);
+    QPointer<OpenableWidget> guarded_widget = widget;
 
     widget->build();
     qDebug() << "Pushing screen";
@@ -128,7 +154,7 @@ void CamcopsApp::open(OpenableWidget* widget, TaskPtr task,
 void CamcopsApp::close()
 {
     if (m_info_stack.isEmpty()) {
-        stopApp("No more windows; closing");
+        UiFunc::stopApp("No more windows; closing");
     }
     OpenableInfo info = m_info_stack.pop();
     // on function exit, will delete the task if it's the last pointer to it
@@ -159,7 +185,7 @@ bool CamcopsApp::locked() const
 }
 
 
-LockState CamcopsApp::lockstate() const
+CamcopsApp::LockState CamcopsApp::lockstate() const
 {
     return m_lockstate;
 }
@@ -212,7 +238,7 @@ void CamcopsApp::setWhiskerConnected(bool connected)
 
 bool CamcopsApp::patientSelected() const
 {
-    return m_patient_id != NONEXISTENT_PK;
+    return m_patient_id != DbConst::NONEXISTENT_PK;
 }
 
 
@@ -227,7 +253,7 @@ void CamcopsApp::setSelectedPatient(int patient_id)
     bool changed = patient_id != m_patient_id;
     m_patient_id = patient_id;
     if (changed) {
-
+        // *** emit something? check what calls this
     }
 }
 
@@ -238,18 +264,49 @@ int CamcopsApp::currentPatientId() const
 }
 
 
-int CamcopsApp::fontSizePt(FontSize fontsize) const
+int CamcopsApp::fontSizePt(UiConst::FontSize fontsize) const
 {
-    // *** font size: use configured variables instead
+    double factor = var(VAR_QUESTIONNAIRE_SIZE_PERCENT).toDouble() / 100;
     switch (fontsize) {
-    case FontSize::Normal:
+    case UiConst::FontSize::Normal:
     default:
-        return 10;
-    case FontSize::Big:
-        return 12;
-    case FontSize::Heading:
-        return 16;
-    case FontSize::Title:
-        return 20;
+        return factor * 12;
+    case UiConst::FontSize::Big:
+        return factor * 14;
+    case UiConst::FontSize::Heading:
+        return factor * 16;
+    case UiConst::FontSize::Title:
+        return factor * 20;
     }
+}
+
+
+void CamcopsApp::createVar(const QString &name, QVariant::Type type,
+                                 const QVariant &default_value)
+{
+    if (m_storedvars.contains(name)) {  // Already exists
+        return;
+    }
+    m_storedvars[name] = StoredVarPtr(
+        new StoredVar(m_sysdb, name, type, default_value));
+}
+
+
+void CamcopsApp::setVar(const QString& name, const QVariant& value)
+{
+    if (!m_storedvars.contains(name)) {
+        UiFunc::stopApp(QString("Attempt to set nonexistent storedvar: "
+                                "%1").arg(name));
+    }
+    m_storedvars[name]->setValue(value);
+}
+
+
+QVariant CamcopsApp::var(const QString& name) const
+{
+    if (!m_storedvars.contains(name)) {
+        UiFunc::stopApp(QString("Attempt to get nonexistent storedvar: "
+                                "%1").arg(name));
+    }
+    return m_storedvars[name]->value();
 }

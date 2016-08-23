@@ -1,12 +1,12 @@
 #include "datetimefunc.h"
 #include <QTimeZone>
 
-const QString SHORT_DATETIME_FORMAT = "yyyy-MM-dd HH:mm";
+const QString DateTime::SHORT_DATETIME_FORMAT = "yyyy-MM-dd HH:mm";
 
 
 // http://stackoverflow.com/questions/21976264/qt-isodate-formatted-date-time-including-timezone
 
-QString datetimeToIsoMs(const QDateTime& dt)
+QString DateTime::datetimeToIsoMs(const QDateTime& dt)
 {
     // An ISO-8601 format preserving millisecond accuracy and timezone.
     // Equivalent in moment.js: thing.format("YYYY-MM-DDTHH:mm:ss.SSSZ")
@@ -39,26 +39,26 @@ QString datetimeToIsoMs(const QDateTime& dt)
 }
 
 
-QString datetimeToIsoMsUtc(const QDateTime& dt)
+QString DateTime::datetimeToIsoMsUtc(const QDateTime& dt)
 {
     QDateTime utc_dt = dt.toTimeSpec(Qt::UTC);
     return datetimeToIsoMs(utc_dt);
 }
 
 
-QDateTime isoToDateTime(const QString& iso)
+QDateTime DateTime::isoToDateTime(const QString& iso)
 {
     return QDateTime::fromString(iso, Qt::ISODate);
 }
 
 
-QDateTime now()
+QDateTime DateTime::now()
 {
     return QDateTime::currentDateTime();
 }
 
 
-QString shortDateTime(const QDateTime& dt)
+QString DateTime::shortDateTime(const QDateTime& dt)
 {
     return dt.toString(SHORT_DATETIME_FORMAT);
 }

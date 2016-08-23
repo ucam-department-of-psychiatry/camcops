@@ -15,6 +15,6 @@ QPointer<QWidget> QuHorizontalLine::makeWidget(Questionnaire* questionnaire)
     horizline->setObjectName("questionnaire_horizontal_line");
     horizline->setFrameShape(QFrame::HLine);
     horizline->setFrameShadow(QFrame::Plain);
-    horizline->setLineWidth(QUESTIONNAIRE_HLINE_WIDTH);
+    horizline->setLineWidth(UiConst::QUESTIONNAIRE_HLINE_WIDTH);
     return QPointer<QWidget>(horizline);
 }

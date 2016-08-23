@@ -25,13 +25,14 @@ public:
 };
 
 
-class QuContainerTable : public Cloneable<QuElement, QuContainerTable>
+class QuContainerTable : public QuElement
 {
+    Q_OBJECT
 public:
     QuContainerTable();
     QuContainerTable(const QList<QuTableCell>& cells);
     QuContainerTable(std::initializer_list<QuTableCell> cells);
-    QuContainerTable& addCell(const QuTableCell& cell);
+    QuContainerTable* addCell(const QuTableCell& cell);
 protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual QList<QuElementPtr> subelements() const override;

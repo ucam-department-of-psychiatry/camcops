@@ -7,9 +7,10 @@
 #include "menuheader.h"
 #include "common/uiconstants.h"
 #include "lib/filefunc.h"
+#include "lib/uifunc.h"
 #include "tasklib/task.h"
 
-#define BAD_INDEX -1
+const int BAD_INDEX = -1;
 
 
 MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
@@ -47,7 +48,7 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
                             widgets of interest
     */
 
-    setStyleSheet(textfileContents(CSS_CAMCOPS_MENU));
+    setStyleSheet(FileFunc::textfileContents(UiConst::CSS_CAMCOPS_MENU));
     setObjectName("menu_window_outer_object");
 
     QVBoxLayout* dummy_layout = new QVBoxLayout();
@@ -177,7 +178,7 @@ void MenuWindow::menuItemClicked(QListWidgetItem* item)
 }
 
 
-void MenuWindow::lockStateChanged(LockState lockstate)
+void MenuWindow::lockStateChanged(CamcopsApp::LockState lockstate)
 {
     (void)lockstate;  // mark as unused; http://stackoverflow.com/questions/1486904/how-do-i-best-silence-a-warning-about-unused-variables
     build();  // calls down to derived class
@@ -221,11 +222,11 @@ void MenuWindow::viewItem()
         break;
     case QMessageBox::Ok:  // detail
         qInfo() << "View detail:" << instance_title;
-        alert(task->detail(), instance_title);
+        UiFunc::alert(task->detail(), instance_title);
         break;
     case QMessageBox::Yes:  // summary
         qInfo() << "View summary:" << instance_title;
-        alert(task->summary(), instance_title);
+        UiFunc::alert(task->summary(), instance_title);
         break;
     case QMessageBox::No:  // cancel
     default:

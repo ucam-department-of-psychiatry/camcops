@@ -1,4 +1,5 @@
 #include "catatoniaepsemenu.h"
+#include "common/uiconstants.h"
 #include "lib/filefunc.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
@@ -6,7 +7,7 @@
 
 CatatoniaEpseMenu::CatatoniaEpseMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Catatonia and extrapyramidal side effects"),
-               ICON_CATATONIA)
+               UiFunc::iconFilename(UiConst::ICON_CATATONIA))
 {
     QString examtitle = tr("Catatonia examination technique");
     QString examsubtitle = tr("Standardized technique (for BFCRS, BFCSI)");
@@ -17,7 +18,8 @@ CatatoniaEpseMenu::CatatoniaEpseMenu(CamcopsApp& app) :
         // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("bfcrs", app),
 
         MenuItem(examtitle,
-                 HtmlMenuItem(examtitle, taskHtmlFilename("catatoniaexam")),
+                 HtmlMenuItem(examtitle,
+                              FileFunc::taskHtmlFilename("catatoniaexam")),
                  "",
                  examsubtitle),
         // *** COPYRIGHT PROBLEM? CATATONIA EXAMINATION. GONE FROM UKPPG SITE. REMOVE ***

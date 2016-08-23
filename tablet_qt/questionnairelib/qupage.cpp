@@ -4,54 +4,48 @@
 
 
 QuPage::QuPage() :
-    m_type(QuPageType::Inherit)
+    m_type(PageType::Inherit)
 {
 
 }
 
 
 QuPage::QuPage(const QList<QuElementPtr>& elements) :
-    m_type(QuPageType::Inherit),
+    m_type(PageType::Inherit),
     m_elements(elements)
 {
 }
 
 
 QuPage::QuPage(std::initializer_list<QuElementPtr> elements) :
-    m_type(QuPageType::Inherit),
+    m_type(PageType::Inherit),
     m_elements(elements)
 {
 }
 
 
-QuPagePtr QuPage::clone() const
-{
-    return QuPagePtr(new QuPage(*this));
-}
-
-
-QuPage& QuPage::setType(QuPageType type)
+QuPage* QuPage::setType(PageType type)
 {
     m_type = type;
-    return *this;
+    return this;
 }
 
 
-QuPage& QuPage::setTitle(const QString& title)
+QuPage* QuPage::setTitle(const QString& title)
 {
     m_title = title;
-    return *this;
+    return this;
 }
 
 
-QuPage& QuPage::addElement(const QuElementPtr& element)
+QuPage* QuPage::addElement(const QuElementPtr& element)
 {
     m_elements.append(element);
-    return *this;
+    return this;
 }
 
 
-QuPageType QuPage::type() const
+QuPage::PageType QuPage::type() const
 {
     return m_type;
 }
@@ -70,13 +64,11 @@ QPointer<QWidget> QuPage::widget(Questionnaire* questionnaire) const
     pagewidget->setLayout(pagelayout);
     for (QuElementPtr e : m_elements) {
         QPointer<QWidget> w = e->widget(questionnaire);
-        pagelayout->addWidget(w);
+        pagelayout->addWidget(w);  // takes ownership
     }
-//    // In case the questionnaire is vertically short:
-//    pagelayout->addStretch(); // ***
     QSizePolicy sp(QSizePolicy::Ignored, QSizePolicy::Minimum);
     pagewidget->setSizePolicy(sp);
-    pagewidget->setObjectName("debug_yellow"); // ***
+    // pagewidget->setObjectName("debug_yellow");
     return pagewidget;
 }
 
@@ -101,4 +93,13 @@ bool QuPage::missingInput() const
         }
     }
     return false;
+}
+
+
+void QuPage::closing()
+{
+    QList<QuElementPtr> elements = allElements();
+    for (QuElementPtr e : elements) {
+        e->closing();
+    }
 }

@@ -1,4 +1,5 @@
 #include "globalmenu.h"
+#include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
@@ -6,7 +7,7 @@
 GlobalMenu::GlobalMenu(CamcopsApp& app) :
     MenuWindow(app,
                tr("Global function and multiple aspects of psychopathology"),
-               ICON_GLOBAL)
+               UiFunc::iconFilename(UiConst::ICON_GLOBAL))
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),

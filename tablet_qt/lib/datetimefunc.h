@@ -1,10 +1,14 @@
 #pragma once
 #include <QDateTime>
 
-extern const QString SHORT_DATETIME_FORMAT;
+namespace DateTime {
 
-QString datetimeToIsoMs(const QDateTime& dt);
-QString datetimeToIsoMsUtc(const QDateTime& dt);
-QDateTime isoToDateTime(const QString& iso);
-QDateTime now();
-QString shortDateTime(const QDateTime& dt);
+    extern const QString SHORT_DATETIME_FORMAT;
+
+    QString datetimeToIsoMs(const QDateTime& dt);
+    QString datetimeToIsoMsUtc(const QDateTime& dt);
+    QDateTime isoToDateTime(const QString& iso);
+    QDateTime now();
+    QString shortDateTime(const QDateTime& dt);
+
+}

@@ -21,17 +21,25 @@ DatabaseObject::DatabaseObject(const QSqlDatabase& db,
     m_has_modification_timestamp(has_modification_timestamp)
 {
     if (pk_fieldname.isEmpty()) {
-        stopApp(QString("Missing pk_fieldname; table=%1").arg(m_tablename));
+        UiFunc::stopApp(
+            QString("Missing pk_fieldname; table=%1").arg(m_tablename));
     }
     addField(pk_fieldname, QVariant::Int, true, true, true);
     if (has_modification_timestamp) {
-        addField(MODIFICATION_TIMESTAMP_FIELDNAME, QVariant::DateTime);
+        addField(DbConst::MODIFICATION_TIMESTAMP_FIELDNAME,
+                 QVariant::DateTime);
     }
     if (has_creation_timestamp) {
-        addField(CREATION_TIMESTAMP_FIELDNAME, QVariant::DateTime);
+        addField(DbConst::CREATION_TIMESTAMP_FIELDNAME,
+                 QVariant::DateTime);
         QDateTime now = QDateTime::currentDateTime();
-        m_record[CREATION_TIMESTAMP_FIELDNAME].setValue(now);  // also: dirty
+        m_record[DbConst::CREATION_TIMESTAMP_FIELDNAME].setValue(now);  // also: dirty
     }
+}
+
+
+DatabaseObject::~DatabaseObject()
+{
 }
 
 
@@ -52,6 +60,19 @@ void DatabaseObject::clearAllDirty()
         i.next();
         i.value().clearDirty();
     }
+}
+
+
+bool DatabaseObject::anyDirty() const
+{
+    MapIteratorType i(m_record);
+    while (i.hasNext()) {
+        i.next();
+        if (i.value().isDirty()) {
+            return true;
+        }
+    }
+    return false;
 }
 
 
@@ -84,7 +105,7 @@ QStringList DatabaseObject::fieldnames() const
 void DatabaseObject::requireField(const QString &fieldname) const
 {
     if (!m_record.contains(fieldname)) {
-        stopApp("Database object does not contain field: " + fieldname);
+        UiFunc::stopApp("Database object does not contain field: " + fieldname);
     }
 }
 
@@ -162,12 +183,12 @@ void DatabaseObject::touch(bool only_if_unset)
         return;
     }
     if (only_if_unset &&
-            !m_record[MODIFICATION_TIMESTAMP_FIELDNAME].isNull()) {
+            !m_record[DbConst::MODIFICATION_TIMESTAMP_FIELDNAME].isNull()) {
         return;
     }
     // Don't set the timestamp value with setValue()! Infinite loop.
     QDateTime now = QDateTime::currentDateTime();
-    m_record[MODIFICATION_TIMESTAMP_FIELDNAME].setValue(now);  // also: dirty
+    m_record[DbConst::MODIFICATION_TIMESTAMP_FIELDNAME].setValue(now);  // also: dirty
 }
 
 
@@ -198,7 +219,7 @@ bool DatabaseObject::isPkNull() const
 
 QString DatabaseObject::sqlCreateTable() const
 {
-    return ::sqlCreateTable(m_tablename, m_record.values());
+    return DbFunc::sqlCreateTable(m_tablename, m_record.values());
 }
 
 
@@ -215,30 +236,42 @@ void DatabaseObject::nullify()
 
 bool DatabaseObject::load(int pk)
 {
-    ArgList args;
-    QStringList fieldnames;
-    MapIteratorType i(m_record);
-    while (i.hasNext()) {
-        i.next();
-        QString fieldname = i.key();
-        fieldnames.append(delimit(fieldname));
+    WhereConditions where;
+    where[pkname()] = QVariant(pk);
+    return load(where);
+}
+
+
+bool DatabaseObject::load(const QString& fieldname,
+                          const QVariant& where_value)
+{
+    if (!m_record.contains(fieldname)) {
+        qCritical() << "Attempt to load with nonexistent fieldname:"
+                    << fieldname;
+        nullify();
+        return false;
     }
-    QString sql = (
-        "SELECT " + fieldnames.join(", ") + " FROM " + delimit(m_tablename) +
-        " WHERE " + delimit(pkname()) + "=?"
-    );
-    args.append(pk);
+    WhereConditions where;
+    where[fieldname] = where_value;
+    return load(where);
+}
+
+
+bool DatabaseObject::load(const WhereConditions& where)
+{
+    SqlArgs sqlargs = fetchQuerySql(where);
     QSqlQuery query(m_db);
-    bool success = execQuery(query, sql, args);
-    if (success) {
-        // Note: QMap iteration is ordered; http://doc.qt.io/qt-5/qmap.html
-        // So we can re-iterate in the same way:
-        query.next();
+    bool success = DbFunc::execQuery(query, sqlargs);
+    bool found = false;
+    if (success) {  // SQL didn't have errors
+        found = query.next();
+    }
+    if (success && found) {
         setFromQuery(query, true);
     } else {
         nullify();
     }
-    return success;
+    return success && found;
 }
 
 
@@ -247,15 +280,15 @@ SqlArgs DatabaseObject::fetchQuerySql(const WhereConditions& where)
     QStringList fields = fieldnames();
     QStringList delimited_fieldnames;
     for (int i = 0; i < fields.size(); ++i) {
-        delimited_fieldnames.append(delimit(fields.at(i)));
+        delimited_fieldnames.append(DbFunc::delimit(fields.at(i)));
     }
     QString sql = (
         "SELECT " + delimited_fieldnames.join(", ") + " FROM " +
-        delimit(tablename())
+        DbFunc::delimit(tablename())
     );
     ArgList args;
     SqlArgs sqlargs(sql, args);
-    addWhereClause(where, sqlargs);
+    DbFunc::addWhereClause(where, sqlargs);
     return sqlargs;
 }
 
@@ -287,6 +320,9 @@ void DatabaseObject::setFromQuery(const QSqlQuery& query, bool correct_order)
 bool DatabaseObject::save()
 {
     touch(true);  // set timestamp only if timestamp not set
+    if (!anyDirty()) {
+        return true;  // nothing to do, so let's not bother the database
+    }
     bool success;
     if (isPkNull()) {
         success = saveInsert();
@@ -311,12 +347,12 @@ bool DatabaseObject::saveInsert()
         if (field.isPk()) {
             continue;
         }
-        fieldnames.append(delimit(fieldname));
+        fieldnames.append(DbFunc::delimit(fieldname));
         args.append(field.databaseValue());  // not field.value()
         placeholders.append("?");
     }
     QString sql = (
-        "INSERT OR REPLACE INTO " + delimit(m_tablename) +
+        "INSERT OR REPLACE INTO " + DbFunc::delimit(m_tablename) +
         " (" +
         fieldnames.join(", ") +
         ") VALUES (" +
@@ -324,7 +360,7 @@ bool DatabaseObject::saveInsert()
         ")"
     );
     QSqlQuery query(m_db);
-    bool success = execQuery(query, sql, args);
+    bool success = DbFunc::execQuery(query, sql, args);
     if (!success) {
         qCritical() << "Failed to insert record into table" << m_tablename;
         return success;
@@ -349,7 +385,7 @@ bool DatabaseObject::saveUpdate()
         QString fieldname = i.key();
         Field field = i.value();
         if (field.isDirty()) {
-            fieldnames.append(delimit(fieldname) + "=?");
+            fieldnames.append(DbFunc::delimit(fieldname) + "=?");
             args.append(field.databaseValue());  // not field.value()
         }
     }
@@ -358,30 +394,40 @@ bool DatabaseObject::saveUpdate()
         return true;
     }
     QString sql = (
-        "UPDATE " + delimit(m_tablename) + " SET " +
+        "UPDATE " + DbFunc::delimit(m_tablename) + " SET " +
         fieldnames.join(", ") +
-        " WHERE " + delimit(pkname()) + "=?"
+        " WHERE " + DbFunc::delimit(pkname()) + "=?"
     );
     args.append(pkvalue());
-    return exec(m_db, sql, args);
+    return DbFunc::exec(m_db, sql, args);
 }
 
 
 void DatabaseObject::makeTable()
 {
-    createTable(m_db, m_tablename, m_record.values());
+    DbFunc::createTable(m_db, m_tablename, m_record.values());
 }
 
 
-FieldRef DatabaseObject::fieldRef(const QString& fieldname, bool autosave)
+FieldRefPtr DatabaseObject::fieldRef(const QString& fieldname, bool autosave)
 {
+    // If we ask for two fieldrefs to the same field, they need to be linked
+    // (in terms of signals), and therefore the same underlying FieldRef
+    // object. So we maintain a map.
+    // If an existing FieldRef has been created for this field, that field
+    // reference is re-used, regardless of the (subsequent) autosave setting.
     requireField(fieldname);
-    if (autosave) {
-        return FieldRef(this, fieldname, true);
-    } else {
-        Field* p_field = &m_record[fieldname];
-        return FieldRef(p_field);
+    if (!m_fieldrefs.contains(fieldname)) {
+        if (autosave) {
+            m_fieldrefs[fieldname] = FieldRefPtr(
+                new FieldRef(this, fieldname, true));
+        } else {
+            Field* p_field = &m_record[fieldname];
+            m_fieldrefs[fieldname] = FieldRefPtr(
+                new FieldRef(p_field));
+        }
     }
+    return m_fieldrefs[fieldname];
 }
 
 
@@ -420,11 +466,11 @@ void DatabaseObject::deleteFromDatabase()
     }
     ArgList args;
     QString sql = (
-        "DELETE FROM " + delimit(m_tablename) +
-        " WHERE " + delimit(pkname()) + "=?"
+        "DELETE FROM " + DbFunc::delimit(m_tablename) +
+        " WHERE " + DbFunc::delimit(pkname()) + "=?"
     );
     args.append(pk);
-    bool success = exec(m_db, sql, args);
+    bool success = DbFunc::exec(m_db, sql, args);
     if (success) {
         nullify();
     } else {

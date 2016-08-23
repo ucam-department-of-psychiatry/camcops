@@ -43,7 +43,7 @@ signals:
 
 public slots:
     void menuItemClicked(QListWidgetItem* item);
-    void lockStateChanged(LockState lockstate);
+    void lockStateChanged(CamcopsApp::LockState lockstate);
     void viewItem();
     void editItem();
     void deleteItem();

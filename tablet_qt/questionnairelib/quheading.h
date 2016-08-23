@@ -3,8 +3,9 @@
 #include "qutext.h"
 
 
-class QuHeading : public MutilevelCloneable<QuElement, QuText, QuHeading>
+class QuHeading : public QuText
 {
+    Q_OBJECT
 public:
     QuHeading(const QString& text);
     QuHeading(FieldRefPtr fieldref);

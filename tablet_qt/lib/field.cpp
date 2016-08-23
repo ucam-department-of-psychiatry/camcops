@@ -94,7 +94,7 @@ void Field::setFromDatabaseValue(const QVariant& db_value)
 {
     switch (m_type) {
         case QVariant::DateTime:
-            m_value = QVariant(isoToDateTime(db_value.toString()));
+            m_value = QVariant(DateTime::isoToDateTime(db_value.toString()));
             break;
         default:
             m_value = db_value;
@@ -112,7 +112,7 @@ QVariant Field::databaseValue() const
             if (m_value.isNull()) {
                 return QVariant(QString());  // NULL string
             }
-            return QVariant(datetimeToIsoMs(m_value.toDateTime()));
+            return QVariant(DateTime::datetimeToIsoMs(m_value.toDateTime()));
         default:
             return m_value;
     }
@@ -167,7 +167,7 @@ QString Field::sqlColumnType() const
         case QVariant::ByteArray:
             return "BLOB";
         default:
-            stopApp("Unknown field type: " + m_type);
+            UiFunc::stopApp("Unknown field type: " + m_type);
     }
     return "";
 }

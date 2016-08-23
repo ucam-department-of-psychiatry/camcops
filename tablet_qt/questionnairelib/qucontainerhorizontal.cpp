@@ -23,11 +23,11 @@ QuContainerHorizontal::QuContainerHorizontal(
 }
 
 
-QuContainerHorizontal& QuContainerHorizontal::addElement(
+QuContainerHorizontal* QuContainerHorizontal::addElement(
         const QuElementPtr& element)
 {
     m_elements.append(element);
-    return *this;
+    return this;
 }
 
 

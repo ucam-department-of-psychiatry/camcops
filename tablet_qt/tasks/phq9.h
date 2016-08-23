@@ -10,7 +10,7 @@ class OpenableWidget;
 class Phq9 : public Task
 {
 public:
-    Phq9(const QSqlDatabase& db, int load_pk = NONEXISTENT_PK);
+    Phq9(const QSqlDatabase& db, int load_pk = DbConst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // General info
     // ------------------------------------------------------------------------

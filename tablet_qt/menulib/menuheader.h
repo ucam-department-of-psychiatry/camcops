@@ -28,7 +28,7 @@ public slots:
                              bool offer_edit = false,
                              bool offer_delete = false);
     void offerAdd(bool offer_add = false);
-    void lockStateChanged(LockState lockstate);
+    void lockStateChanged(CamcopsApp::LockState lockstate);
     void whiskerConnectionStateChanged(bool connected);
     void selectedPatientChanged(bool selected, const QString& details = "");
 

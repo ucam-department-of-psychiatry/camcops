@@ -1,10 +1,12 @@
 #include "addictionmenu.h"
+#include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
 
 AddictionMenu::AddictionMenu(CamcopsApp& app) :
-    MenuWindow(app, tr("Drug/alcohol abuse and addiction"), ICON_ADDICTION)
+    MenuWindow(app, tr("Drug/alcohol abuse and addiction"),
+               UiFunc::iconFilename(UiConst::ICON_ADDICTION))
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),

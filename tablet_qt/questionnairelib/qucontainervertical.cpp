@@ -22,11 +22,11 @@ QuContainerVertical::QuContainerVertical(
 }
 
 
-QuContainerVertical& QuContainerVertical::addElement(
+QuContainerVertical* QuContainerVertical::addElement(
         const QuElementPtr& element)
 {
     m_elements.append(element);
-    return *this;
+    return this;
 }
 
 

@@ -2,14 +2,14 @@
 #include "quelement.h"
 
 
-class QuContainerHorizontal : public Cloneable<QuElement,
-                                               QuContainerHorizontal>
+class QuContainerHorizontal : public QuElement
 {
+    Q_OBJECT
 public:
     QuContainerHorizontal();
     QuContainerHorizontal(const QList<QuElementPtr>& elements);
     QuContainerHorizontal(std::initializer_list<QuElementPtr> elements);
-    QuContainerHorizontal& addElement(const QuElementPtr& element);
+    QuContainerHorizontal* addElement(const QuElementPtr& element);
 protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual QList<QuElementPtr> subelements() const override;

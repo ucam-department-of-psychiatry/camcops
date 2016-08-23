@@ -97,7 +97,14 @@ SOURCES += main.cpp\
     questionnairelib/quheading.cpp \
     questionnairelib/quimage.cpp \
     tasklib/tasksorter.cpp \
-    widgets/openablewidget.cpp
+    widgets/openablewidget.cpp \
+    dbobjects/storedvar.cpp \
+    questionnairelib/quaudioplayer.cpp \
+    questionnairelib/qucountdown.cpp \
+    widgets/booleanwidget.cpp \
+    widgets/imagebutton.cpp \
+    questionnairelib/quboolean.cpp \
+    widgets/clickablelabel.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -166,7 +173,14 @@ HEADERS  += \
     questionnairelib/quimage.h \
     tasklib/tasksorter.h \
     lib/cloneable.h \
-    widgets/openablewidget.h
+    widgets/openablewidget.h \
+    dbobjects/storedvar.h \
+    questionnairelib/quaudioplayer.h \
+    questionnairelib/qucountdown.h \
+    widgets/booleanwidget.h \
+    widgets/imagebutton.h \
+    questionnairelib/quboolean.h \
+    widgets/clickablelabel.h
 
 CONFIG += debug
 CONFIG += mobility

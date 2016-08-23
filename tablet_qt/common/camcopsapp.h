@@ -1,22 +1,22 @@
 #pragma once
 #include <QApplication>
 #include <QPointer>
+#include <QSharedPointer>
+#include <QSqlDatabase>
 #include <QStack>
-#include "common/dbconstants.h"
-#include "common/uiconstants.h"
-#include "tasklib/taskfactory.h"
-#include "widgets/openablewidget.h"
+#include "common/dbconstants.h"  // for NONEXISTENT_PK
+#include "common/uiconstants.h"  // for FontSize
+#include "tasklib/task.h"  // for TaskPtr
 
 class QSqlDatabase;
 class QMainWindow;
 class QStackedWidget;
 
-
-enum class LockState {
-    Unlocked,
-    Locked,
-    Privileged
-};
+class OpenableWidget;
+class StoredVar;
+typedef QSharedPointer<StoredVar> StoredVarPtr;
+class TaskFactory;
+typedef QSharedPointer<TaskFactory> TaskFactoryPtr;
 
 
 struct OpenableInfo {
@@ -41,6 +41,14 @@ public:
 class CamcopsApp : public QApplication
 {
     Q_OBJECT
+
+public:
+    enum class LockState {
+        Unlocked,
+        Locked,
+        Privileged
+    };
+
 public:
     CamcopsApp(int& argc, char *argv[]);
     ~CamcopsApp();
@@ -50,9 +58,15 @@ public:
     QSqlDatabase& sysdb();
     TaskFactoryPtr factory();
 
+    // ------------------------------------------------------------------------
+    // Opening windows
+    // ------------------------------------------------------------------------
     void open(OpenableWidget* widget, TaskPtr task = TaskPtr(nullptr),
               bool may_alter_task = false);
 
+    // ------------------------------------------------------------------------
+    // Security
+    // ------------------------------------------------------------------------
     bool privileged() const;
     bool locked() const;
     LockState lockstate() const;
@@ -60,15 +74,24 @@ public:
     void lock();
     void grantPrivilege();
 
+    // ------------------------------------------------------------------------
+    // Whisker
+    // ------------------------------------------------------------------------
     bool whiskerConnected() const;
     void setWhiskerConnected(bool connected);
 
+    // ------------------------------------------------------------------------
+    // Patient
+    // ------------------------------------------------------------------------
     bool patientSelected() const;
     QString patientDetails() const;
-    void setSelectedPatient(int patient_id = NONEXISTENT_PK);
+    void setSelectedPatient(int patient_id = DbConst::NONEXISTENT_PK);
     int currentPatientId() const;
 
-    int fontSizePt(FontSize fontsize) const;
+    // ------------------------------------------------------------------------
+    // Stored variables: specific
+    // ------------------------------------------------------------------------
+    int fontSizePt(UiConst::FontSize fontsize) const;
 
 signals:
     void lockStateChanged(LockState lockstate);
@@ -78,6 +101,15 @@ signals:
 
 public slots:
     void close();
+
+protected:
+    // ------------------------------------------------------------------------
+    // Stored variables: generic
+    // ------------------------------------------------------------------------
+    void createVar(const QString& name, QVariant::Type type,
+                         const QVariant& default_value);
+    void setVar(const QString& name, const QVariant& value);
+    QVariant var(const QString& name) const;
 
 protected:
     QSqlDatabase m_db;
@@ -90,6 +122,7 @@ protected:
     QPointer<QStackedWidget> m_p_window_stack;
     int m_patient_id;
     QStack<OpenableInfo> m_info_stack;
+    QMap<QString, StoredVarPtr> m_storedvars;
 };
 
 /*

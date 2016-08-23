@@ -22,13 +22,18 @@ QPushButton {
     border-style: outset;
     border-width: 2px;
     border-radius: 10px;
-    border-color: black;
+    border-color: darkgray;
+    color: black;
     font: bold 14px;
     padding: 6px;
 }
 QPushButton:pressed {
     background-color: red;
     border-style: inset;
+}
+QPushButton:disabled {
+    color: lightgray;
+    background-color: gray;
 }
 
 /* =========================================================================

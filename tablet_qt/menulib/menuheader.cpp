@@ -6,6 +6,7 @@
 #include <QVBoxLayout>
 #include "common/uiconstants.h"
 #include "lib/uifunc.h"
+#include "widgets/imagebutton.h"
 #include "widgets/labelwordwrapwide.h"
 
 
@@ -29,7 +30,7 @@ MenuHeader::MenuHeader(QWidget* parent,
 
     // Back button (unless top)
     if (!top) {
-        QAbstractButton* back = CAMCOPS_BUTTON_BACK(this);
+        QAbstractButton* back = new ImageButton(UiConst::CBS_BACK);
         toprowlayout->addWidget(back);
         connect(back, &QAbstractButton::clicked,
                 this, &MenuHeader::backClicked);
@@ -37,7 +38,7 @@ MenuHeader::MenuHeader(QWidget* parent,
 
     // Icon
     if (!icon_filename.isEmpty()) {
-        QLabel* icon = iconWidget(icon_filename, this);
+        QLabel* icon = UiFunc::iconWidget(icon_filename, this);
         toprowlayout->addWidget(icon);
     }
 
@@ -52,10 +53,10 @@ MenuHeader::MenuHeader(QWidget* parent,
     // Right-hand icons
 
     // (a) Task verb buttons
-    m_button_view = CAMCOPS_BUTTON_ZOOM(this);
-    m_button_edit = CAMCOPS_BUTTON_EDIT(this);
-    m_button_delete = CAMCOPS_BUTTON_DELETE(this);
-    m_button_add = CAMCOPS_BUTTON_ADD(this);
+    m_button_view = new ImageButton(UiConst::CBS_ZOOM);
+    m_button_edit = new ImageButton(UiConst::CBS_EDIT);
+    m_button_delete = new ImageButton(UiConst::CBS_DELETE);
+    m_button_add = new ImageButton(UiConst::CBS_ADD);
     toprowlayout->addWidget(m_button_view);
     toprowlayout->addWidget(m_button_edit);
     toprowlayout->addWidget(m_button_delete);
@@ -72,14 +73,15 @@ MenuHeader::MenuHeader(QWidget* parent,
             this, &MenuHeader::addClicked);
 
     // (b) Whisker
-    m_icon_whisker_connected = iconWidget(ICON_WHISKER, this);
+    m_icon_whisker_connected = UiFunc::iconWidget(
+        UiFunc::iconFilename(UiConst::ICON_WHISKER), this);
     toprowlayout->addWidget(m_icon_whisker_connected);
     whiskerConnectionStateChanged(m_app.whiskerConnected());
 
     // (c) Locked/unlocked/privileged
-    m_button_locked = CAMCOPS_BUTTON_LOCKED(this);
-    m_button_unlocked = CAMCOPS_BUTTON_UNLOCKED(this);
-    m_button_privileged = CAMCOPS_BUTTON_PRIVILEGED(this);
+    m_button_locked = new ImageButton(UiConst::CBS_LOCKED);
+    m_button_unlocked = new ImageButton(UiConst::CBS_UNLOCKED);
+    m_button_privileged = new ImageButton(UiConst::CBS_PRIVILEGED);
     toprowlayout->addWidget(m_button_locked);
     toprowlayout->addWidget(m_button_unlocked);
     toprowlayout->addWidget(m_button_privileged);
@@ -98,7 +100,7 @@ MenuHeader::MenuHeader(QWidget* parent,
     horizline->setObjectName("header_horizontal_line");
     horizline->setFrameShape(QFrame::HLine);
     horizline->setFrameShadow(QFrame::Plain);
-    horizline->setLineWidth(HEADER_HLINE_WIDTH);
+    horizline->setLineWidth(UiConst::HEADER_HLINE_WIDTH);
     mainlayout->addWidget(horizline);
 
     // ------------------------------------------------------------------------
@@ -125,11 +127,11 @@ MenuHeader::MenuHeader(QWidget* parent,
 }
 
 
-void MenuHeader::lockStateChanged(LockState lockstate)
+void MenuHeader::lockStateChanged(CamcopsApp::LockState lockstate)
 {
-    m_button_locked->setVisible(lockstate == LockState::Locked);
-    m_button_unlocked->setVisible(lockstate == LockState::Unlocked);
-    m_button_privileged->setVisible(lockstate == LockState::Privileged);
+    m_button_locked->setVisible(lockstate == CamcopsApp::LockState::Locked);
+    m_button_unlocked->setVisible(lockstate == CamcopsApp::LockState::Unlocked);
+    m_button_privileged->setVisible(lockstate == CamcopsApp::LockState::Privileged);
 }
 
 

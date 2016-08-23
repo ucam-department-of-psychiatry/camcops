@@ -1,10 +1,12 @@
 #include "researchmenu.h"
+#include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
 
 ResearchMenu::ResearchMenu(CamcopsApp& app) :
-    MenuWindow(app, tr("Research tasks (experimental)"), ICON_RESEARCH)
+    MenuWindow(app, tr("Research tasks (experimental)"),
+               UiFunc::iconFilename(UiConst::ICON_RESEARCH))
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),

@@ -1,9 +1,11 @@
 #pragma once
+#include <QCoreApplication>  // for Q_DECLARE_TR_FUNCTIONS
 #include <QList>
+#include <QObject>
 #include <QPointer>
 #include <QSharedPointer>
 #include <QStringList>
-#include "lib/cloneable.h"
+// #include "lib/cloneable.h"
 
 class QWidget;
 class Questionnaire;
@@ -12,8 +14,9 @@ class QuElement;
 typedef QSharedPointer<QuElement> QuElementPtr;
 
 
-class QuElement
+class QuElement : public QObject
 {
+    Q_OBJECT
     friend class QuPage;
     friend class QuContainerHorizontal;
     friend class QuContainerVertical;
@@ -21,8 +24,7 @@ class QuElement
 public:
     QuElement();
     virtual ~QuElement();
-    virtual QuElementPtr clone() const = 0;
-    QuElement& addTag(const QString& tag);
+    QuElement* addTag(const QString& tag);
 protected:
     virtual QPointer<QWidget> widget(Questionnaire* questionnaire);
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) = 0;
@@ -32,6 +34,7 @@ protected:
     void setVisible(bool visible);
     virtual QList<QuElementPtr> subelements() const;
     bool missingInput() const;  // block progress because required input is missing? Default false
+    virtual void closing();  // called prior to focus leaving this page (e.g. silence audio)
 protected:
     QPointer<QWidget> m_widget;  // used to cache a widget pointer
     QStringList m_tags;
@@ -105,6 +108,17 @@ Constructing element lists and pages
    or a lambda/more generic functor:
         http://stackoverflow.com/questions/26937517/qt-connect-without-qobject-or-slots
         http://doc.qt.io/qt-5.7/qobject.html#connect-4
+
+ - HOWEVER, ONCE YOU ADD SIGNALS TO NON-QOBJECT OBJECTS WITH std::bind,
+   the process of copying BREAKS THE SIGNAL.
+   So either we have to have a two-phase process, saying "whatever you do,
+   don't set up signals in your creation process", and have the Questionnaire
+   set them up later (ugly, dangerous), or we just have to PROHIBIT COPYING,
+   like QObject does. You see why...
+ - In which case, we're back to the slightly uglier way, using pointers.
+ - Ho hum, it's worth it for flexibility.
+ - And if you're going to make them non-copyable, make them QObjects,
+   to prevent accidental copying. Embrace the QObject!
 
 ===============================================================================
 Widgets

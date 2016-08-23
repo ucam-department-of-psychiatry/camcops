@@ -26,13 +26,14 @@ public:
 
     virtual void build() override;
 
-    void setType(QuPageType type);
+    void setType(QuPage::PageType type);
     void addPage(const QuPagePtr& page);
     void setReadOnly(bool read_only = true);
     void setJumpAllowed(bool jump_allowed = true);
     void setWithinChain(bool within_chain = true);
 
-    int fontSizePt(FontSize fontsize) const;
+    bool readOnly() const;
+    int fontSizePt(UiConst::FontSize fontsize) const;
 protected:
     void commonConstructor();
     int currentPageNumOneBased() const;
@@ -40,6 +41,7 @@ protected:
     QuPagePtr currentPagePtr() const;
     void doFinish();
     void doCancel();
+    void pageClosing();
 protected slots:
     void cancelClicked();
     void jumpClicked();
@@ -49,7 +51,7 @@ protected slots:
 protected:
     CamcopsApp& m_app;
     QList<QuPagePtr> m_pages;
-    QuPageType m_type;
+    QuPage::PageType m_type;
     bool m_read_only;
     bool m_jump_allowed;
     bool m_within_chain;

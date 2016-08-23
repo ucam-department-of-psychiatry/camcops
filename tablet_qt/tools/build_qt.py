@@ -20,6 +20,7 @@ When is it NECESSARY to compile Qt from source?
 
 import argparse
 import logging
+import multiprocessing
 import os
 from os.path import abspath, expanduser, isdir, isfile, join, split
 import shutil
@@ -514,7 +515,9 @@ def main():
         "https://www.openssl.org/source/{}.tar.gz".format(
             default_openssl_version))
 
-    parser = argparse.ArgumentParser(description="Build Qt for CamCOPS")
+    parser = argparse.ArgumentParser(
+        description="Build Qt for CamCOPS",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     # Architectures
     parser.add_argument(
@@ -529,56 +532,48 @@ def main():
 
     # General
     parser.add_argument(
-        "--nparallel", type=int, default=8,
+        "--nparallel", type=int, default=multiprocessing.cpu_count(),
         help="Number of parallel processes to run")
     parser.add_argument("--force", action="store_true", help="Force build")
 
     # Qt
     parser.add_argument(
         "--root_dir", default=default_root_dir,
-        help="Root directory for source and builds (default: {})".format(
-            default_root_dir))
+        help="Root directory for source and builds")
     parser.add_argument(
         "--qt_src_dirname", default=default_qt_src_dirname,
-        help="Qt source directory (default: {})".format(
-            default_qt_src_dirname))
+        help="Qt source directory")
     parser.add_argument(
         "--qt_git_url", default=default_qt_git_url,
-        help="Qt Git URL (default: {})".format(default_qt_git_url))
+        help="Qt Git URL")
     parser.add_argument(
         "--qt_git_branch", default=default_qt_git_branch,
-        help="Qt Git branch (default: {})".format(default_qt_git_branch))
+        help="Qt Git branch")
 
     # Android
     parser.add_argument(
         "--android_api_number", type=int, default=default_android_api_num,
-        help="Android API number (default: {})".format(
-            default_android_api_num))
+        help="Android API number")
     parser.add_argument(
         "--android_sdk_root", default=default_android_sdk,
-        help="Android SDK root directory (default: {})".format(
-            default_android_sdk))
+        help="Android SDK root directory")
     parser.add_argument(
         "--android_ndk_root", default=default_android_ndk,
-        help="Android NDK root directory (default: {})".format(
-            default_android_ndk))
+        help="Android NDK root directory")
     parser.add_argument(
         "--ndk_host", default=default_ndk_host,
-        help="Android NDK host architecture (default: {})".format(
-            default_ndk_host))
+        help="Android NDK host architecture")
     parser.add_argument(
         "--toolchain_version", default=default_toolchain_version,
-        help="Android toolchain version (default: {})".format(
-            default_toolchain_version))
+        help="Android toolchain version")
 
     # OpenSSL
     parser.add_argument(
         "--openssl_version", default=default_openssl_version,
-        help="OpenSSL version (default: {})".format(default_openssl_version))
+        help="OpenSSL version")
     parser.add_argument(
         "--openssl_src_url", default=default_openssl_src_url,
-        help="OpenSSL source URL (default: {})".format(
-            default_openssl_src_url))
+        help="OpenSSL source URL")
 
     args = parser.parse_args()
 

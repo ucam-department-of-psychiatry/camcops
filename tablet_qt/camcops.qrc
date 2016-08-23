@@ -158,5 +158,7 @@
         <file>taskinfo/zbi.html</file>
         <file>taskinfo/cardinal_expdet.html</file>
         <file>taskinfo/gmcpq.html</file>
+        <file>sounds/camcops/soundtest.wav</file>
+        <file>sounds/camcops/countdown_finished.wav</file>
     </qresource>
 </RCC>
