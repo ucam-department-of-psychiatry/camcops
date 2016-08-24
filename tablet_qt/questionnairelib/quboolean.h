@@ -19,7 +19,6 @@ public:
     QuBoolean* setBigText(bool big = true);
     QuBoolean* setBold(bool bold = true);
     QuBoolean* setItalic(bool italic = true);
-    QuBoolean* setMandatory(bool mandatory = true);
     QuBoolean* setAllowUnset(bool allow_unset = true);
     QuBoolean* setAsTextButton(bool as_text_button = true);
     QuBoolean* setVAlign(Qt::Alignment alignment);  // horizontal part will be ignored
@@ -30,6 +29,7 @@ protected slots:
 protected:
     void commonConstructor();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual bool complete() const override;
 protected:
     QString m_text;
     QString m_image_filename;
@@ -41,7 +41,6 @@ protected:
     bool m_big_text;
     bool m_bold;
     bool m_italic;
-    bool m_mandatory;
     bool m_allow_unset;
     bool m_as_text_button;
     Qt::Alignment m_alignment;

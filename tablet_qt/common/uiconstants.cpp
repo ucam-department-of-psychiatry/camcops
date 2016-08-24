@@ -28,6 +28,7 @@ namespace UiConst {
     // Fonts, colours
     // ========================================================================
 
+    const QString MCQ_INSTRUCTION_COLOUR = "darkgray";
     const QString WARNING_COLOUR = "red";
 
     const QColor BLACK_TRANSPARENT(0, 0, 0, 0);  // a=0 means fully transparent

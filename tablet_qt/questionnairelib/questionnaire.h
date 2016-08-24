@@ -48,6 +48,7 @@ protected slots:
     void previousClicked();
     void nextClicked();
     void finishClicked();
+    void resetButtons();
 protected:
     CamcopsApp& m_app;
     QList<QuPagePtr> m_pages;

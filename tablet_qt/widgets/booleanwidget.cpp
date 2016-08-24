@@ -21,8 +21,8 @@ BooleanWidget::BooleanWidget(QWidget* parent) :
     ImageButton(parent),
     m_read_only(false),
     m_big(true),
-    m_state(State::Null),
-    m_appearance(Appearance::CheckRed)
+    m_appearance(Appearance::CheckRed),
+    m_state(State::Null)
 {
 }
 
@@ -45,10 +45,26 @@ void BooleanWidget::setAppearance(BooleanWidget::Appearance appearance)
 }
 
 
+void BooleanWidget::setValue(const QVariant& value, bool mandatory,
+                             bool disabled)
+{
+    if (disabled) {
+        setState(State::Disabled);
+    } else if (value.isNull()) {
+        setState(mandatory ? State::NullRequired : State::Null);
+    } else if (value.toBool()) {
+        setState(State::True);
+    } else {
+        setState(State::False);
+    }
+}
+
+
 void BooleanWidget::setState(BooleanWidget::State state)
 {
     m_state = state;
     QString img;
+    bool as_image = true;
     switch (m_appearance) {
     case Appearance::CheckBlack:
         switch (m_state) {
@@ -109,25 +125,19 @@ void BooleanWidget::setState(BooleanWidget::State state)
             break;
         }
         break;
+    case Appearance::Text:
+        as_image = false;
+        // *** set CSS
+        break;
     }
-    setImageSize(m_big ? UiConst::ICONSIZE : UiConst::SMALL_ICONSIZE);
-    setImages(img, true, false, false, false, m_read_only);
-    // ... don't alter unpressed images
-    // ... FOR NOW, put pressed marker on top (as PNGs are not transparent
-    //     inside the check boxes etc.)
-}
-
-
-void BooleanWidget::setValue(const QVariant& value, bool mandatory,
-                             bool disabled)
-{
-    if (disabled) {
-        setState(State::Disabled);
-    } else if (value.isNull()) {
-        setState(mandatory ? State::NullRequired : State::Null);
-    } else if (value.toBool()) {
-        setState(State::True);
+    if (as_image) {
+        setAsText(false);
+        setImageSize(m_big ? UiConst::ICONSIZE : UiConst::SMALL_ICONSIZE);
+        setImages(img, true, false, false, false, m_read_only);
+        // ... don't alter unpressed images
+        // ... FOR NOW, put pressed marker on top (as PNGs are not transparent
+        //     inside the check boxes etc.)
     } else {
-        setState(State::False);
+        setAsText(true);
     }
 }

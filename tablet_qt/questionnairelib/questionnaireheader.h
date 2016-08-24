@@ -28,4 +28,5 @@ protected:
     QPointer<QAbstractButton> m_button_previous;
     QPointer<QAbstractButton> m_button_next;
     QPointer<QAbstractButton> m_button_finish;
+    QPointer<QLabel> m_icon_no_next;
 };

@@ -1,17 +1,21 @@
 #pragma once
+#include <QList>
 #include <QString>
+#include <QVariant>
 
 
-template<typename T> class NameValuePair
+class NameValuePair
 {
 public:
-    NameValuePair(const QString& name, const T& value) :
-        m_name(name),
-        m_value(value)
-    {}
-    QString name() const { return m_name; }
-    T value() const { return m_value; }
+    NameValuePair(const QString& name, const QVariant& value);
+    QString name() const;  // function access write-protects the members
+    QVariant value() const;
 protected:
     QString m_name;
-    T m_value;
+    QVariant m_value;
 };
+
+
+typedef QList<NameValuePair> NameValuePairList;
+
+

@@ -557,6 +557,7 @@ QuestionMCQGrid.js
 QuestionMCQGridWithSingleBoolean.js
 QuestionMultipleResponse.js
 QuestionPhoto.js
+    http://doc.qt.io/qt-5/cameraoverview.html
 QuestionPickerInline.js
 QuestionPickerPopup.js
 QuestionSlider.js
@@ -596,6 +597,9 @@ TO DO
     *** http://falsinsoft.blogspot.co.uk/2015/09/qt-snippet-use-qscroller-with.html
     *** http://nootka-app.blogspot.co.uk/2015/11/story-of-porting-complex-qt-application_18.html
 - screwdriver icon for test menu
+- "webview"-like tasks, e.g. ID/ED
+  aspect ratio:
+  http://stackoverflow.com/questions/452333/how-to-maintain-widgets-aspect-ratio-in-qt
 - For SQL bulk reads (uploading), see
     http://stackoverflow.com/questions/18829018/qt-sql-get-column-type-and-name-from-table-without-record
 - Factory for registering things that must create tables

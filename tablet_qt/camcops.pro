@@ -101,10 +101,14 @@ SOURCES += main.cpp\
     dbobjects/storedvar.cpp \
     questionnairelib/quaudioplayer.cpp \
     questionnairelib/qucountdown.cpp \
-    widgets/booleanwidget.cpp \
     widgets/imagebutton.cpp \
     questionnairelib/quboolean.cpp \
-    widgets/clickablelabel.cpp
+    widgets/clickablelabel.cpp \
+    questionnairelib/qumcq.cpp \
+    common/random.cpp \
+    questionnairelib/questionnairefunc.cpp \
+    widgets/flowlayout.cpp \
+    widgets/booleanwidget.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -177,10 +181,14 @@ HEADERS  += \
     dbobjects/storedvar.h \
     questionnairelib/quaudioplayer.h \
     questionnairelib/qucountdown.h \
-    widgets/booleanwidget.h \
     widgets/imagebutton.h \
     questionnairelib/quboolean.h \
-    widgets/clickablelabel.h
+    widgets/clickablelabel.h \
+    questionnairelib/qumcq.h \
+    common/random.h \
+    questionnairelib/questionnairefunc.h \
+    widgets/flowlayout.h \
+    widgets/booleanwidget.h
 
 CONFIG += debug
 CONFIG += mobility

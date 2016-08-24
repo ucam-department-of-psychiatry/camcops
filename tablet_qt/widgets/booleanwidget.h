@@ -11,6 +11,11 @@ class BooleanWidget : public ImageButton
     // - RESIST the temptation to have this widget do value logic.
     //   That's the job of its owner.
 
+    // - DON'T try multiple inheritance (inheriting from a custom ABC and
+    //   a QObject). It just messes up ("can't convert to QObject", when
+    //   access is from ABC pointer; etc.).
+
+    Q_OBJECT
 public:
     enum class State {
         Disabled,
@@ -23,12 +28,12 @@ public:
         CheckBlack,
         CheckRed,
         Radio,
+        Text,
     };
-
 public:
     BooleanWidget(QWidget* parent = nullptr);
     // Used at construction time:
-    void setReadOnly(bool read_only = false);
+    virtual void setReadOnly(bool read_only = false);
     void setSize(bool big = false);
     void setAppearance(BooleanWidget::Appearance appearance);
     // Used live:
@@ -38,6 +43,6 @@ public:
 protected:
     bool m_read_only;
     bool m_big;
-    State m_state;
     Appearance m_appearance;
+    State m_state;
 };

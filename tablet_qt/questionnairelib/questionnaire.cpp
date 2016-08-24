@@ -179,7 +179,10 @@ void Questionnaire::build()
     // But it doesn't get the horizontal widths right. So we use a substitute.
     VerticalScrollArea* scroll = new VerticalScrollArea();
     scroll->setObjectName(background_css_name);
-    scroll->setWidget(page->widget(this));
+    scroll->setWidget(page->widget(this));  // adds the content
+    connect(page.data(), &QuPage::elementValueChanged,
+            this, &Questionnaire::resetButtons,
+            Qt::UniqueConnection);
 
     m_mainlayout->addWidget(scroll);
 
@@ -188,6 +191,18 @@ void Questionnaire::build()
 
     m_built = true;
 
+    resetButtons();
+
+    // *** deal with multiple pages
+}
+
+
+void Questionnaire::resetButtons()
+{
+    QuPagePtr page = currentPagePtr();
+    if (!page || !m_p_header) {
+        return;
+    }
     bool on_last_page = currentPageNumOneBased() == nPages();
     bool missing_input = page->missingInput();
     m_p_header->setButtons(
@@ -195,8 +210,6 @@ void Questionnaire::build()
         !on_last_page && !missing_input,  // next
         on_last_page && !missing_input  // finish
     );
-
-    // *** deal with multiple pages
 }
 
 

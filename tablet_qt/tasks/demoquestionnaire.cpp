@@ -17,6 +17,7 @@
 #include "questionnairelib/quheading.h"
 #include "questionnairelib/quhorizontalline.h"
 #include "questionnairelib/quimage.h"
+#include "questionnairelib/qumcq.h"
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 
@@ -26,6 +27,9 @@ DemoQuestionnaire::DemoQuestionnaire(const QSqlDatabase& db, int load_pk) :
 {
     // *** change to match previous version in terms of field names
     addField("q1", QVariant::Bool);
+    addField("q2", QVariant::Int);
+    addField("q3", QVariant::Int);
+    addField("q4", QVariant::Int);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -138,9 +142,9 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
         QuElementPtr(new QuHeading("This is a heading")),
         QuElementPtr(new QuHeading("Horizontal container:")),
         QuElementPtr(new QuContainerHorizontal{
-            QuElementPtr(new QuText("Text 1 (left/vcentre)" + lipsum2)),
-            QuElementPtr(new QuText("Text 2 (left/vcentre)" + lipsum2)),
-            QuElementPtr(new QuText("Text 3 (left/vcentre)" + lipsum2)),
+            QuElementPtr(new QuText("Text 1 (left/vcentre) " + lipsum2)),
+            QuElementPtr(new QuText("Text 2 (left/vcentre) " + lipsum2)),
+            QuElementPtr(new QuText("Text 3 (left/vcentre) " + lipsum2)),
         }),
         QuElementPtr(new QuHeading("Horizontal line, line, spacer, line:")),
         QuElementPtr(new QuHorizontalLine()),
@@ -213,7 +217,65 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
                                    QSize(), fieldRef("q1"))),
     })->setTitle("Page 5: booleans; multiple views on a single field"));
 
-    // *** mcq
+    // ========================================================================
+    // Page 5: MCQ
+    // ========================================================================
+
+    NameValuePairList options_A{
+        {"option_1", 1},
+        {"option_2", 2},
+        {"option_3, with much longer text: " + longtext, 3},
+    };
+    NameValuePairList options_B{
+        {"option_1", 1},
+        {"option_2", 2},
+        {"option_3", 3},
+        {"option_4", 4},
+        {"option_5", 5},
+        {"option_6", 6},
+        {"option_7", 7},
+        {"option_8", 8},
+        {"option_9", 9},
+        {"option_10", 10},
+        {"option_11", 11},
+        {"option_12", 12},
+        {"option_13", 13},
+        {"option_14", 14},
+        {"option_15", 15},
+        {"option_16", 16},
+        {"option_17", 17},
+    };
+    NameValuePairList options_C{
+        {"option_1", 1},
+        {"option_2", 2},
+        {"option_NULL", QVariant()},
+    };
+    QuPagePtr p6((new QuPage{
+        QuElementPtr(new QuHeading("Plain MCQ:")),
+        QuElementPtr(new QuMCQ(fieldRef("q2"), options_A)),
+        QuElementPtr(new QuHeading("Same MCQ/field, reconfigured (randomized, "
+                      "instructions, horizontal, as text button:")),
+        QuElementPtr((new QuMCQ(fieldRef("q2"), options_A))
+                      ->setRandomize(true)
+                      ->setShowInstruction(true)
+                      ->setHorizontal(true)
+                      ->setAsTextButton(true)),
+        QuElementPtr(new QuHeading("Same MCQ/field, reconfigured:")),
+        QuElementPtr((new QuMCQ(fieldRef("q2"), options_A))
+                        ->setAsTextButton(true)),
+        QuElementPtr(new QuHeading("Another:")),
+        QuElementPtr(new QuMCQ(fieldRef("q3"), options_B)),
+        QuElementPtr(new QuHeading("The second, reconfigured:")),
+        QuElementPtr((new QuMCQ(fieldRef("q3"), options_B))
+                        ->setHorizontal(true)),
+        QuElementPtr(new QuHeading("The second, as text:")),
+        QuElementPtr((new QuMCQ(fieldRef("q3"), options_B))
+                          ->setHorizontal(true)
+                          ->setAsTextButton(true)),
+        QuElementPtr(new QuHeading("One with a NULL option:")),
+        QuElementPtr(new QuMCQ(fieldRef("q4"), options_C)),
+    })->setTitle("Page 6: multiple-choice questions (MCQs) and variants"));
+
     // *** pickers
     // *** text
     // *** datetime
@@ -228,7 +290,7 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
     // ========================================================================
 
     Questionnaire* questionnaire = new Questionnaire(app, {
-        p1, p2, p3, p4, p5
+        p1, p2, p3, p4, p5, p6
     });
     questionnaire->setReadOnly(read_only);
     return questionnaire;

@@ -86,13 +86,6 @@ QuBoolean* QuBoolean::setItalic(bool italic)
 }
 
 
-QuBoolean* QuBoolean::setMandatory(bool mandatory)
-{
-    m_mandatory = mandatory;
-    return this;
-}
-
-
 QuBoolean* QuBoolean::setAllowUnset(bool allow_unset)
 {
     m_allow_unset = allow_unset;
@@ -124,24 +117,25 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire *questionnaire)
     widget->setLayout(layout);
 
     // Label
-    ClickableLabel* label;
+    ClickableLabel* label = nullptr;
     if (!m_text.isEmpty()) {
         // Text label
         label = new LabelWordWrapWide(m_text);
-        int fontsize = questionnaire->fontSizePt(m_big_text ? UiConst::FontSize::Big
-                                                       : UiConst::FontSize::Normal);
+        int fontsize = questionnaire->fontSizePt(
+            m_big_text ? UiConst::FontSize::Big : UiConst::FontSize::Normal);
         QString css = UiFunc::textCSS(fontsize, m_bold, m_italic);
         label->setStyleSheet(css);
         Qt::Alignment alignment = UiFunc::combineAlignment(Qt::AlignLeft,
                                                            m_alignment);
         label->setAlignment(alignment);
-    } else {
+    } else if (!m_image_filename.isEmpty()) {
         // Image label
         QPixmap image = UiFunc::getPixmap(m_image_filename, m_image_size);
         label = new ClickableLabel();
         label->setFixedSize(image.size());
         label->setPixmap(image);
     }
+    // otherwise... no label, just the indicator
 
     // Indicator
     m_indicator = new BooleanWidget();
@@ -150,25 +144,30 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire *questionnaire)
     m_indicator->setAppearance(BooleanWidget::Appearance::CheckRed);
 
     // Whole thing
-    if (m_indicator_on_left) {
-        layout->addWidget(m_indicator);
-        layout->addWidget(label);
+    if (label) {
+        if (m_indicator_on_left) {
+            layout->addWidget(m_indicator);
+            layout->addWidget(label);
+        } else {
+            layout->addWidget(label);
+            layout->addWidget(m_indicator);
+        }
+        layout->setAlignment(label, layout_alignment);
     } else {
-        layout->addWidget(label);
+        // Just the indicator
         layout->addWidget(m_indicator);
     }
     // To align things in a QHBoxLayout, align the widgets within the layout:
     //      layout->setAlignment(widget, alignment)
     // not the layout:
     //      layout->setAlignment(alignment)
-    layout->setAlignment(label, layout_alignment);
     layout->setAlignment(m_indicator, layout_alignment);
     layout->addStretch();
 
     if (!read_only) {
         connect(m_indicator, &BooleanWidget::clicked,
                 this, &QuBoolean::clicked);
-        if (m_content_clickable) {
+        if (m_content_clickable && label) {
             label->setClickable(true);
             connect(label, &ClickableLabel::clicked,
                     this, &QuBoolean::clicked);
@@ -200,6 +199,7 @@ void QuBoolean::clicked()
         newvalue = m_allow_unset ? QVariant() : true;
     }
     m_fieldref->setValue(newvalue);  // Will trigger valueChanged
+    emit elementValueChanged();
 }
 
 
@@ -212,4 +212,10 @@ void QuBoolean::valueChanged(const QVariant &value)
         return;
     }
     m_indicator->setValue(value, m_mandatory);
+}
+
+
+bool QuBoolean::complete() const
+{
+    return !m_fieldref->value().isNull();
 }

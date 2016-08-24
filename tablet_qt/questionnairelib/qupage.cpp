@@ -65,6 +65,9 @@ QPointer<QWidget> QuPage::widget(Questionnaire* questionnaire) const
     for (QuElementPtr e : m_elements) {
         QPointer<QWidget> w = e->widget(questionnaire);
         pagelayout->addWidget(w);  // takes ownership
+        connect(e.data(), &QuElement::elementValueChanged,
+                this, &QuPage::elementValueChanged,
+                Qt::UniqueConnection);
     }
     QSizePolicy sp(QSizePolicy::Ignored, QSizePolicy::Minimum);
     pagewidget->setSizePolicy(sp);

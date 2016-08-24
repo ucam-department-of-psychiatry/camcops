@@ -36,6 +36,7 @@ namespace UiConst {
         Heading,
     };
 
+    extern const QString MCQ_INSTRUCTION_COLOUR;
     extern const QString WARNING_COLOUR;
 
     extern const QColor BLACK_TRANSPARENT;

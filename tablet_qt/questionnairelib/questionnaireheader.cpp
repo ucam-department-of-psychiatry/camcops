@@ -40,7 +40,7 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     // Read-only icon
     if (read_only) {
         QLabel* read_only_icon = UiFunc::iconWidget(
-            UiFunc::iconFilename(UiConst::ICON_READ_ONLY), this);
+            UiFunc::iconFilename(UiConst::ICON_READ_ONLY));
         toprowlayout->addWidget(read_only_icon);
     }
 
@@ -61,6 +61,8 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     }
     m_button_previous = new ImageButton(UiConst::CBS_BACK);
     m_button_next = new ImageButton(UiConst::CBS_NEXT);
+    m_icon_no_next = UiFunc::iconWidget(
+        UiFunc::iconFilename(UiConst::ICON_WARNING));
     if (within_chain) {
         m_button_finish = new ImageButton(UiConst::CBS_FAST_FORWARD);
     } else {
@@ -69,6 +71,7 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     toprowlayout->addWidget(m_button_previous);
     toprowlayout->addWidget(m_button_next);
     toprowlayout->addWidget(m_button_finish);
+    toprowlayout->addWidget(m_icon_no_next);
     setButtons(false, false, false);
     connect(m_button_previous, &QAbstractButton::clicked,
             this, &QuestionnaireHeader::previousClicked);
@@ -94,4 +97,5 @@ void QuestionnaireHeader::setButtons(bool previous, bool next, bool finish)
     m_button_previous->setVisible(previous);
     m_button_next->setVisible(next);
     m_button_finish->setVisible(finish);
+    m_icon_no_next->setVisible(!next && !finish);
 }

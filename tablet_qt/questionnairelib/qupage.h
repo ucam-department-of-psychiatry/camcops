@@ -36,6 +36,8 @@ public:
 
     PageType type() const;
     QString title() const;
+signals:
+    void elementValueChanged();
 protected:
     QPointer<QWidget> widget(Questionnaire* questionnaire) const;
     QList<QuElementPtr> allElements() const;

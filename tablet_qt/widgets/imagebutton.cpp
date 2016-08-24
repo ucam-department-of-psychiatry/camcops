@@ -4,8 +4,11 @@
 #include "lib/uifunc.h"
 
 
+const int MAX_TEXT_WIDTH_PIXELS = 300;
+
+
 ImageButton::ImageButton(QWidget* parent) :
-    QAbstractButton(parent)
+    QPushButton(parent)
 {
     commonConstructor(UiConst::ICONSIZE);
 }
@@ -15,7 +18,7 @@ ImageButton::ImageButton(const QString& normal_filename,
                          const QString& pressed_filename,
                          const QSize& size,
                          QWidget* parent) :
-    QAbstractButton(parent)
+    QPushButton(parent)
 {
     commonConstructor(size);
     setNormalImage(normal_filename, size);
@@ -28,7 +31,7 @@ ImageButton::ImageButton(const QString& base_filename,
                          bool alter_unpressed_image,
                          bool disabled,
                          QWidget* parent) :
-    QAbstractButton(parent)
+    QPushButton(parent)
 {
     QSize size = UiConst::ICONSIZE;
     commonConstructor(size);
@@ -76,8 +79,7 @@ void ImageButton::setImages(const QString& base_filename,
 void ImageButton::commonConstructor(const QSize& size)
 {
     m_image_size = size;
-    QSizePolicy sp(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    setSizePolicy(sp);
+    setAsText(false);
 }
 
 
@@ -123,7 +125,17 @@ void ImageButton::rescale(QPixmap& pm)
 
 QSize ImageButton::sizeHint() const
 {
-    return m_image_size;
+    if (m_as_text) {
+        // INELEGANT! Hard to get a button to word-wrap. ***
+        // Alternative would be to derive from a QLabel that does word wrap.
+        QSize size = QPushButton::sizeHint();
+        if (size.width() > MAX_TEXT_WIDTH_PIXELS) {
+            size.setWidth(MAX_TEXT_WIDTH_PIXELS);
+        }
+        return size;
+    } else {
+        return m_image_size;
+    }
 }
 
 
@@ -137,9 +149,23 @@ void ImageButton::setImageSize(const QSize &size, bool scale)
 }
 
 
+void ImageButton::setAsText(bool as_text)
+{
+    m_as_text = as_text;
+    QSizePolicy sp(
+        as_text ? QSizePolicy::Expanding : QSizePolicy::Fixed,
+        as_text ? QSizePolicy::Expanding : QSizePolicy::Fixed
+    );
+    setSizePolicy(sp);
+}
+
+
 void ImageButton::paintEvent(QPaintEvent *e)
 {
-    (void)e;
+    if (m_as_text) {
+        QPushButton::paintEvent(e);
+        return;
+    }
     QPainter p(this);
     QPixmap& pm = isDown() ? m_pressed_pixmap : m_normal_pixmap;
     p.drawPixmap(0, 0, pm);

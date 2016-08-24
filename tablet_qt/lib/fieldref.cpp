@@ -70,11 +70,11 @@ bool FieldRef::valid() const
 
 void FieldRef::setValue(const QVariant& value)
 {
-    // User feedback before database save:
-    qDebug().nospace() << "FieldRef: emitting valueChanged: this=" << this
-                       << ", value=" << value;
-    emit valueChanged(value);
-    // Now save:
+    // Try for user feedback before database save.
+    // HOWEVER, we have to set the value first, because the signal may lead
+    // to other code reading our value.
+
+    // Store value
     switch (m_method) {
     case FieldRefMethod::Invalid:
         qWarning() << "Attempt to set invalid field reference";
@@ -84,13 +84,20 @@ void FieldRef::setValue(const QVariant& value)
         break;
     case FieldRefMethod::DatabaseObject:
         m_p_dbobject->setValue(m_fieldname, value);
-        if (m_autosave) {
-            m_p_dbobject->save();
-        }
         break;
     case FieldRefMethod::Functions:
         m_setterfunc(value);
         break;
+    }
+
+    // Signal
+    qDebug().nospace() << "FieldRef: emitting valueChanged: this=" << this
+                       << ", value=" << value;
+    emit valueChanged(value);
+
+    // Delayed save (databases are slow):
+    if (m_method == FieldRefMethod::DatabaseObject && m_autosave) {
+        m_p_dbobject->save();
     }
 }
 

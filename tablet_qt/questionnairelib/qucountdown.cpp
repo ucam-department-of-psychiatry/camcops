@@ -126,7 +126,8 @@ void QuCountdown::tick()
         bong();
         stop();  // will call updateDisplay()
     } else {
-        qDebug() << "QuCountdown::tick()" << m_whole_seconds_left << "s left";
+        qDebug() << "QuCountdown::tick()" << m_whole_seconds_left
+                 << "whole seconds left";
         updateDisplay();
     }
 }

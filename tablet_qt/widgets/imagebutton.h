@@ -1,10 +1,10 @@
 #pragma once
-#include <QAbstractButton>
 #include <QPixmap>
+#include <QPushButton>
 #include <QSize>
 
 
-class ImageButton : public QAbstractButton
+class ImageButton : public QPushButton
 {
     // Button that shows a CamCOPS icon image, and another when being pressed.
     // This should be more efficient than an equivalent method using
@@ -36,11 +36,13 @@ public:
     void setPressedImage(const QPixmap& pixmap, bool scale = true);
     QSize sizeHint() const;
     void setImageSize(const QSize& size, bool scale = false);
+    void setAsText(bool as_text);
 protected:
     void commonConstructor(const QSize& size);
     virtual void paintEvent(QPaintEvent *e);
     void rescale(QPixmap& pm);
 protected:
+    bool m_as_text;
     QPixmap m_normal_pixmap;
     QPixmap m_pressed_pixmap;
     QSize m_image_size;
