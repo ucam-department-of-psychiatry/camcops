@@ -1,21 +1,19 @@
 /*
-- http://doc.qt.io/qt-5/stylesheet-syntax.html
-- Empirically (!): Layouts don't have CSS. Widgets do.
-    http://doc.qt.io/qt-5/stylesheet.html
+- See the questionnaire CSS for notes.
+
+- Font size mappings (see questionnaire CSS):
+
+    %1  base menu font size
+
 */
 
 /* =========================================================================
    Generic styles
    ========================================================================= */
 
-/* Avoid restyling QLabel, except for debugging;
-   for example, the "About Qt" dialog uses it. */
-
-/*
-QLabel {
-    background-color: green;
+QWidget {
+    font-size: %1pt;
 }
-*/
 
 /* =========================================================================
    Outer containers

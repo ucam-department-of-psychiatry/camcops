@@ -160,5 +160,27 @@
         <file>taskinfo/gmcpq.html</file>
         <file>sounds/camcops/soundtest.wav</file>
         <file>sounds/camcops/countdown_finished.wav</file>
+        <file>images/dt/dt_sel_0.png</file>
+        <file>images/dt/dt_sel_1.png</file>
+        <file>images/dt/dt_sel_2.png</file>
+        <file>images/dt/dt_sel_3.png</file>
+        <file>images/dt/dt_sel_4.png</file>
+        <file>images/dt/dt_sel_5.png</file>
+        <file>images/dt/dt_sel_6.png</file>
+        <file>images/dt/dt_sel_7.png</file>
+        <file>images/dt/dt_sel_8.png</file>
+        <file>images/dt/dt_sel_9.png</file>
+        <file>images/dt/dt_sel_10.png</file>
+        <file>images/dt/dt_unsel_0.png</file>
+        <file>images/dt/dt_unsel_1.png</file>
+        <file>images/dt/dt_unsel_2.png</file>
+        <file>images/dt/dt_unsel_3.png</file>
+        <file>images/dt/dt_unsel_4.png</file>
+        <file>images/dt/dt_unsel_5.png</file>
+        <file>images/dt/dt_unsel_6.png</file>
+        <file>images/dt/dt_unsel_7.png</file>
+        <file>images/dt/dt_unsel_8.png</file>
+        <file>images/dt/dt_unsel_9.png</file>
+        <file>images/dt/dt_unsel_10.png</file>
     </qresource>
 </RCC>

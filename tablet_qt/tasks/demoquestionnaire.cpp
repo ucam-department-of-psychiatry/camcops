@@ -18,8 +18,11 @@
 #include "questionnairelib/quhorizontalline.h"
 #include "questionnairelib/quimage.h"
 #include "questionnairelib/qumcq.h"
+#include "questionnairelib/qupickerinline.h"
+#include "questionnairelib/qupickerpopup.h"
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
+#include "questionnairelib/quthermometer.h"
 
 
 DemoQuestionnaire::DemoQuestionnaire(const QSqlDatabase& db, int load_pk) :
@@ -30,6 +33,8 @@ DemoQuestionnaire::DemoQuestionnaire(const QSqlDatabase& db, int load_pk) :
     addField("q2", QVariant::Int);
     addField("q3", QVariant::Int);
     addField("q4", QVariant::Int);
+    addField("q5", QVariant::Int);
+    addField("q6", QVariant::Int);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -221,12 +226,12 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
     // Page 5: MCQ
     // ========================================================================
 
-    NameValuePairList options_A{
+    NameValueOptions options_A{
         {"option_1", 1},
         {"option_2", 2},
         {"option_3, with much longer text: " + longtext, 3},
     };
-    NameValuePairList options_B{
+    NameValueOptions options_B{
         {"option_1", 1},
         {"option_2", 2},
         {"option_3", 3},
@@ -245,7 +250,7 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
         {"option_16", 16},
         {"option_17", 17},
     };
-    NameValuePairList options_C{
+    NameValueOptions options_C{
         {"option_1", 1},
         {"option_2", 2},
         {"option_NULL", QVariant()},
@@ -254,7 +259,7 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
         QuElementPtr(new QuHeading("Plain MCQ:")),
         QuElementPtr(new QuMCQ(fieldRef("q2"), options_A)),
         QuElementPtr(new QuHeading("Same MCQ/field, reconfigured (randomized, "
-                      "instructions, horizontal, as text button:")),
+                      "instructions, horizontal, as text button):")),
         QuElementPtr((new QuMCQ(fieldRef("q2"), options_A))
                       ->setRandomize(true)
                       ->setShowInstruction(true)
@@ -263,34 +268,94 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
         QuElementPtr(new QuHeading("Same MCQ/field, reconfigured:")),
         QuElementPtr((new QuMCQ(fieldRef("q2"), options_A))
                         ->setAsTextButton(true)),
+        QuElementPtr(new QuHeading("One with a NULL option:")),
+        QuElementPtr(new QuMCQ(fieldRef("q4"), options_C)),
         QuElementPtr(new QuHeading("Another:")),
         QuElementPtr(new QuMCQ(fieldRef("q3"), options_B)),
-        QuElementPtr(new QuHeading("The second, reconfigured:")),
+        QuElementPtr(new QuHeading("The previous MCQ, reconfigured:")),
         QuElementPtr((new QuMCQ(fieldRef("q3"), options_B))
                         ->setHorizontal(true)),
-        QuElementPtr(new QuHeading("The second, as text:")),
+        QuElementPtr(new QuHeading("The previous MCQ, as text:")),
         QuElementPtr((new QuMCQ(fieldRef("q3"), options_B))
                           ->setHorizontal(true)
                           ->setAsTextButton(true)),
-        QuElementPtr(new QuHeading("One with a NULL option:")),
-        QuElementPtr(new QuMCQ(fieldRef("q4"), options_C)),
-    })->setTitle("Page 6: multiple-choice questions (MCQs) and variants"));
+    })->setTitle("Page 6: multiple-choice questions (MCQs)"));
 
-    // *** pickers
+    // ========================================================================
+    // Pickers
+    // ========================================================================
+
+    QuPagePtr page_pickers((new QuPage{
+        QuElementPtr(new QuHeading("Inline picker:")),
+        QuElementPtr(new QuPickerInline(fieldRef("q5"), options_A)),
+        QuElementPtr(new QuHeading("Its clone:")),
+        QuElementPtr(new QuPickerInline(fieldRef("q5"), options_A)),
+        QuElementPtr(new QuHeading("Popup picker:")),
+        QuElementPtr((new QuPickerPopup(fieldRef("q5"), options_A))
+                      ->setPopupTitle("Pickers; question 5")),
+    })->setTitle("Pickers"));
+
+    // ========================================================================
+    // *** MCQ variants
+    // ========================================================================
+
+    // ========================================================================
     // *** text
+    // ========================================================================
+
+    // ========================================================================
     // *** datetime
+    // ========================================================================
+
+    // ========================================================================
     // *** slider
+    // ========================================================================
+
+    // ========================================================================
     // *** thermometer
+    // ========================================================================
+
+    QList<QuThermometerItem> thermometer_items;
+    for (int i = 0; i <= 10; ++i) {
+        QString text = QString::number(i);
+        if (i == 10) {
+            text += " - very distressed";
+        } else if (i == 0) {
+            text += " - chilled out";
+        }
+        QuThermometerItem item(
+            UiFunc::imageFilename(QString("dt/dt_sel_%1.png").arg(i)),
+            UiFunc::imageFilename(QString("dt/dt_unsel_%1.png").arg(i)),
+            text,
+            i
+        );
+        thermometer_items.append(item);
+    }
+    QuPagePtr page_thermometer((new QuPage{
+        QuElementPtr(new QuHeading("Thermometer:")),
+        QuElementPtr((new QuThermometer(fieldRef("q6"), thermometer_items))
+                                    ->setRescale(true, 0.4)),
+    })->setTitle("Thermometers"));
+
+    // ========================================================================
     // *** diagnostic code
+    // ========================================================================
+
+    // ========================================================================
     // *** canvas
+    // ========================================================================
+
+    // ========================================================================
     // *** photo
+    // ========================================================================
 
     // ========================================================================
     // Questionnaire
     // ========================================================================
 
     Questionnaire* questionnaire = new Questionnaire(app, {
-        p1, p2, p3, p4, p5, p6
+        p1, p2, p3, p4, p5, p6, page_pickers,
+        page_thermometer,
     });
     questionnaire->setReadOnly(read_only);
     return questionnaire;

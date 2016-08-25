@@ -544,7 +544,7 @@ Questionnaire
 
 - TO DO: ***
 
-QuestionMCQ.js
+QuestionSlider.js
 QuestionDateTime.js
 QuestionTypedVariables.js
 
@@ -558,10 +558,6 @@ QuestionMCQGridWithSingleBoolean.js
 QuestionMultipleResponse.js
 QuestionPhoto.js
     http://doc.qt.io/qt-5/cameraoverview.html
-QuestionPickerInline.js
-QuestionPickerPopup.js
-QuestionSlider.js
-QuestionThermometer.js
 
 ===============================================================================
 Stored variables
@@ -588,6 +584,20 @@ Stored variables
 ===============================================================================
 TO DO
 ===============================================================================
+- *** all network access via a dialogue that's the child of its caller,
+      with a log view (cf. my Python code), and "Cancel" and "OK"/"Acknowledge" buttons, of
+      which the former is visible during operations and the latter at the end.
+  - general form:
+        NetworkManager(CamcopsApp& app, const QString& url);
+        void post(QMap<QString, QString>& dict, callback_if_succeeds, callback_if_fails, bool add_standard_info);
+                // NB pass by reference; password may be added
+		// callback if fails should include "user cancelled" reason
+                // both callbacks should include reply (blank if cancelled etc.)
+        void get(...);  // as above - unlikely to be used
+        void status(const QString& message, enum level);  // + facility for colour-coding by level
+        void finished();  // show OK button and await dismissal
+        void failed();  // show Ack button and await dismissal
+
 - *** patients
 - *** edit icons to make centre of check-boxes/radio buttons transparent
   (and can remove backgrounds for _T versions, though probably too much effort!)

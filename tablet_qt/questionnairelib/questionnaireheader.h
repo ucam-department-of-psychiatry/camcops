@@ -14,7 +14,7 @@ class QuestionnaireHeader : public QWidget
 public:
     QuestionnaireHeader(QWidget* parent, const QString& title,
                         bool read_only, bool jump_allowed, bool within_chain,
-                        int fontsize, const QString& css_name);
+                        const QString& css_name);
     void setButtons(bool previous, bool next, bool finish);
 signals:
     void cancelClicked();

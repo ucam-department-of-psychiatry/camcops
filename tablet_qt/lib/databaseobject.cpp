@@ -438,9 +438,10 @@ QString DatabaseObject::recordSummary() const
     while (i.hasNext()) {
         i.next();
         const Field& field = i.value();
-        list.append(QString("%1 = %2").arg(field.name(), field.prettyValue()));
+        list.append(QString("<b>%1 =</b> %2").arg(field.name(),
+                                                  field.prettyValue()));
     }
-    return list.join("\n");
+    return list.join("<br>");
 }
 
 

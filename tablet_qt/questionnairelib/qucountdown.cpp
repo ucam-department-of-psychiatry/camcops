@@ -50,9 +50,7 @@ QPointer<QWidget> QuCountdown::makeWidget(Questionnaire* questionnaire)
     m_reset_button = new QPushButton(tr("Reset"));
     layout->addWidget(m_reset_button);
     m_label = new QLabel();
-    int fontsize = questionnaire->fontSizePt(UiConst::FontSize::Normal);
-    QString css = UiFunc::textCSS(fontsize, true);
-    m_label->setStyleSheet(css);
+    m_label->setObjectName("countdown_label");
     layout->addWidget(m_label);
     layout->addStretch();
 

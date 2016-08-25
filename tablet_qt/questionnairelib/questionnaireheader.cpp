@@ -14,7 +14,6 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
                                          bool read_only,
                                          bool jump_allowed,
                                          bool within_chain,
-                                         int fontsize,
                                          const QString& css_name) :
     QWidget(parent),
     m_title(title)
@@ -48,8 +47,6 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     LabelWordWrapWide* title_label = new LabelWordWrapWide(title);
     title_label->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
     title_label->setObjectName("questionnaire_title");
-    QString title_css = UiFunc::textCSS(fontsize);
-    title_label->setStyleSheet(title_css);
     toprowlayout->addWidget(title_label);
 
     // Right-hand icons

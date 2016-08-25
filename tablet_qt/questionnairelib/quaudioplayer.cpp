@@ -41,7 +41,7 @@ QuAudioPlayer::~QuAudioPlayer()
 
 QuAudioPlayer* QuAudioPlayer::setVolume(int volume)
 {
-    qDebug().nospace() << "QuAudioPlayer::setVolume(" << volume << ")";
+    // qDebug().nospace() << "QuAudioPlayer::setVolume(" << volume << ")";
     m_volume = qBound(UiConst::MIN_VOLUME, volume, UiConst::MAX_VOLUME);
     if (m_player) {
         m_player->setVolume(m_volume);

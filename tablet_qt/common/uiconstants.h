@@ -1,5 +1,6 @@
 #pragma once
 #include <QColor>
+#include <QMargins>
 #include <QSize>
 #include <QString>
 
@@ -16,6 +17,8 @@ namespace UiConst {
     extern const int MEDIUMSPACE;
     extern const int HEADER_HLINE_WIDTH;
     extern const int QUESTIONNAIRE_HLINE_WIDTH;
+
+    extern const QMargins NO_MARGINS;
 
     // ========================================================================
     // Stylesheets
@@ -34,9 +37,9 @@ namespace UiConst {
         Big,
         Title,
         Heading,
+        Menus,
     };
 
-    extern const QString MCQ_INSTRUCTION_COLOUR;
     extern const QString WARNING_COLOUR;
 
     extern const QColor BLACK_TRANSPARENT;
@@ -117,4 +120,17 @@ namespace UiConst {
     extern const QString DEMO_SOUND_URL;
     extern const QString DEMO_SOUND_URL_2;
     extern const QString SOUND_COUNTDOWN_FINISHED;
+
+    // ========================================================================
+    // CSS
+    // ========================================================================
+
+    extern const QString CSS_PROP_ITALIC;
+    extern const QString CSS_PROP_MISSING;
+
+    // ========================================================================
+    // Common text
+    // ========================================================================
+
+    extern const QString NOT_SPECIFIED;
 }

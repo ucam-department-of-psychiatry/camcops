@@ -7,13 +7,13 @@ NameValuePair::NameValuePair(const QString& name, const QVariant& value) :
 }
 
 
-QString NameValuePair::name() const
+const QString& NameValuePair::name() const
 {
     return m_name;
 }
 
 
-QVariant NameValuePair::value() const
+const QVariant& NameValuePair::value() const
 {
     return m_value;
 }

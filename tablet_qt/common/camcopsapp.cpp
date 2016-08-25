@@ -264,12 +264,32 @@ int CamcopsApp::currentPatientId() const
 }
 
 
+QString CamcopsApp::getMenuCss() const
+{
+    return (
+        FileFunc::textfileContents(UiConst::CSS_CAMCOPS_MENU)
+            .arg(fontSizePt(UiConst::FontSize::Menus))  // %1
+    );
+}
+
+
+QString CamcopsApp::getQuestionnaireCss() const
+{
+    return (
+        FileFunc::textfileContents(UiConst::CSS_CAMCOPS_QUESTIONNAIRE)
+            .arg(fontSizePt(UiConst::FontSize::Normal))  // %1
+            .arg(fontSizePt(UiConst::FontSize::Big))  // %2
+            .arg(fontSizePt(UiConst::FontSize::Heading))  // %3
+            .arg(fontSizePt(UiConst::FontSize::Title))  // %4
+    );
+}
+
+
 int CamcopsApp::fontSizePt(UiConst::FontSize fontsize) const
 {
     double factor = var(VAR_QUESTIONNAIRE_SIZE_PERCENT).toDouble() / 100;
     switch (fontsize) {
     case UiConst::FontSize::Normal:
-    default:
         return factor * 12;
     case UiConst::FontSize::Big:
         return factor * 14;
@@ -277,6 +297,9 @@ int CamcopsApp::fontSizePt(UiConst::FontSize fontsize) const
         return factor * 16;
     case UiConst::FontSize::Title:
         return factor * 20;
+    case UiConst::FontSize::Menus:
+    default:
+        return factor * 12;
     }
 }
 

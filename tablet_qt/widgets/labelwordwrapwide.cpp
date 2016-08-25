@@ -16,6 +16,7 @@
 LabelWordWrapWide::LabelWordWrapWide(const QString& text, QWidget* parent) :
     ClickableLabel(text, parent)
 {
+    setClickable(false);  // by default; change if you want
     setWordWrap(true);
     QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Minimum);
     // If the horizontal policy if Preferred (with vertical Minimum), then

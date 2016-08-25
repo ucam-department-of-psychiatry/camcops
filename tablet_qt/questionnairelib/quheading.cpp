@@ -19,6 +19,7 @@ QuHeading::QuHeading(FieldRefPtr fieldref) :
 
 QPointer<QWidget> QuHeading::makeWidget(Questionnaire* questionnaire)
 {
+    (void)questionnaire;
     QString text;
     if (m_fieldref && m_fieldref->valid()) {
         text = m_fieldref->valueString();
@@ -26,9 +27,6 @@ QPointer<QWidget> QuHeading::makeWidget(Questionnaire* questionnaire)
         text = m_text;
     }
     LabelWordWrapWide* label = new LabelWordWrapWide(text);
-    int fontsize = questionnaire->fontSizePt(UiConst::FontSize::Heading);
-    QString colour = "";
-    QString css = UiFunc::textCSS(fontsize, true, false, colour);
-    label->setStyleSheet(css);
+    label->setObjectName("heading");
     return QPointer<QWidget>(label);
 }

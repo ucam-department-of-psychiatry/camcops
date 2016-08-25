@@ -2,7 +2,7 @@
 
 ClickableLabel::ClickableLabel(const QString& text, QWidget* parent) :
     QLabel(text, parent),
-    m_clickable(false)
+    m_clickable(true)  // if that's not the default, the name's confusing!
 {
 }
 

@@ -108,7 +108,13 @@ SOURCES += main.cpp\
     common/random.cpp \
     questionnairelib/questionnairefunc.cpp \
     widgets/flowlayout.cpp \
-    widgets/booleanwidget.cpp
+    widgets/booleanwidget.cpp \
+    questionnairelib/qupickerinline.cpp \
+    questionnairelib/namevalueoptions.cpp \
+    questionnairelib/qupickerpopup.cpp \
+    widgets/nvpchoicedialog.cpp \
+    questionnairelib/quthermometer.cpp \
+    questionnairelib/quthermometeritem.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -188,7 +194,13 @@ HEADERS  += \
     common/random.h \
     questionnairelib/questionnairefunc.h \
     widgets/flowlayout.h \
-    widgets/booleanwidget.h
+    widgets/booleanwidget.h \
+    questionnairelib/qupickerinline.h \
+    questionnairelib/namevalueoptions.h \
+    questionnairelib/qupickerpopup.h \
+    widgets/nvpchoicedialog.h \
+    questionnairelib/quthermometer.h \
+    questionnairelib/quthermometeritem.h
 
 CONFIG += debug
 CONFIG += mobility
@@ -211,7 +223,29 @@ DISTFILES += \
     android/gradlew.bat \
     stylesheets/camcops_menu.css \
     stylesheets/camcops_questionnaire.css \
-    android/res/drawable-ldpi/icon.png
+    android/res/drawable-ldpi/icon.png \
+    images/dt/dt_sel_0.png \
+    images/dt/dt_sel_1.png \
+    images/dt/dt_sel_2.png \
+    images/dt/dt_sel_3.png \
+    images/dt/dt_sel_4.png \
+    images/dt/dt_sel_5.png \
+    images/dt/dt_sel_6.png \
+    images/dt/dt_sel_7.png \
+    images/dt/dt_sel_8.png \
+    images/dt/dt_sel_9.png \
+    images/dt/dt_sel_10.png \
+    images/dt/dt_unsel_0.png \
+    images/dt/dt_unsel_1.png \
+    images/dt/dt_unsel_2.png \
+    images/dt/dt_unsel_3.png \
+    images/dt/dt_unsel_4.png \
+    images/dt/dt_unsel_5.png \
+    images/dt/dt_unsel_6.png \
+    images/dt/dt_unsel_7.png \
+    images/dt/dt_unsel_8.png \
+    images/dt/dt_unsel_9.png \
+    images/dt/dt_unsel_10.png
 
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android

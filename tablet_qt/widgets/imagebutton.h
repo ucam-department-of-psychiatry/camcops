@@ -37,10 +37,12 @@ public:
     QSize sizeHint() const;
     void setImageSize(const QSize& size, bool scale = false);
     void setAsText(bool as_text);
+    void resizeImages(double factor);
 protected:
     void commonConstructor(const QSize& size);
     virtual void paintEvent(QPaintEvent *e);
     void rescale(QPixmap& pm);
+    void resizeIfNoSize();
 protected:
     bool m_as_text;
     QPixmap m_normal_pixmap;

@@ -1,4 +1,5 @@
 #include "booleanwidget.h"
+#include <QDebug>
 #include <QVariant>
 #include "common/uiconstants.h"
 #include "lib/uifunc.h"
@@ -24,6 +25,7 @@ BooleanWidget::BooleanWidget(QWidget* parent) :
     m_appearance(Appearance::CheckRed),
     m_state(State::Null)
 {
+    setObjectName("boolean_widget");
 }
 
 
@@ -126,8 +128,29 @@ void BooleanWidget::setState(BooleanWidget::State state)
         }
         break;
     case Appearance::Text:
-        as_image = false;
-        // *** set CSS
+        // http://wiki.qt.io/DynamicPropertiesAndStylesheets
+        {
+            as_image = false;
+            QString property = "state";
+            switch (m_state) {
+            case State::Disabled:
+                UiFunc::setProperty(this, property, "disabled");
+                break;
+            case State::Null:
+                UiFunc::setProperty(this, property, "null");
+                break;
+            case State::NullRequired:
+                UiFunc::setProperty(this, property, "nullrequired");
+                break;
+            case State::False:
+                UiFunc::setProperty(this, property, "false");
+                break;
+            case State::True:
+                UiFunc::setProperty(this, property, "true");
+                break;
+            }
+            setProperty("readonly", UiFunc::cssBoolean(m_read_only));
+        }
         break;
     }
     if (as_image) {
@@ -139,5 +162,6 @@ void BooleanWidget::setState(BooleanWidget::State state)
         //     inside the check boxes etc.)
     } else {
         setAsText(true);
+        UiFunc::repolish(this);
     }
 }

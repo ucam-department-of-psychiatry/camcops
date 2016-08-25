@@ -132,6 +132,7 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire *questionnaire)
         // Image label
         QPixmap image = UiFunc::getPixmap(m_image_filename, m_image_size);
         label = new ClickableLabel();
+        label->setClickable(m_content_clickable && !read_only);
         label->setFixedSize(image.size());
         label->setPixmap(image);
     }
@@ -168,7 +169,6 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire *questionnaire)
         connect(m_indicator, &BooleanWidget::clicked,
                 this, &QuBoolean::clicked);
         if (m_content_clickable && label) {
-            label->setClickable(true);
             connect(label, &ClickableLabel::clicked,
                     this, &QuBoolean::clicked);
         }
@@ -188,7 +188,7 @@ void QuBoolean::setFromField()
 
 void QuBoolean::clicked()
 {
-    qDebug() << "QuBooleanText::clicked()";
+    // qDebug() << "QuBooleanText::clicked()";
     QVariant value = m_fieldref->value();
     QVariant newvalue;
     if (value.isNull()) {  // NULL -> true
@@ -205,8 +205,8 @@ void QuBoolean::clicked()
 
 void QuBoolean::valueChanged(const QVariant &value)
 {
-    qDebug().nospace() << "QuBooleanText: receiving valueChanged: this="
-                       << this  << ", value=" << value;
+    // qDebug().nospace() << "QuBooleanText: receiving valueChanged: this="
+    //                    << this  << ", value=" << value;
     if (!m_indicator) {
         qDebug() << "... NO INDICATOR";
         return;

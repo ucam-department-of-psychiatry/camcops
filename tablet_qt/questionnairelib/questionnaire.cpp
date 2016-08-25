@@ -47,8 +47,7 @@ void Questionnaire::commonConstructor()
     m_built = false;
     m_current_pagenum_zero_based = 0;
 
-    setStyleSheet(FileFunc::textfileContents(
-        UiConst::CSS_CAMCOPS_QUESTIONNAIRE));
+    setStyleSheet(m_app.getQuestionnaireCss());
 
     m_outer_layout = new QVBoxLayout();
     setLayout(m_outer_layout);
@@ -116,7 +115,9 @@ void Questionnaire::build()
     // ========================================================================
     m_background_widget = new QWidget();
     m_outer_layout->addWidget(m_background_widget);
+    m_outer_layout->setContentsMargins(UiConst::NO_MARGINS);
     m_mainlayout = new QVBoxLayout();
+    m_mainlayout->setContentsMargins(UiConst::NO_MARGINS);
     m_background_widget->setLayout(m_mainlayout);
 
     // Get page
@@ -160,7 +161,7 @@ void Questionnaire::build()
     m_p_header = new QuestionnaireHeader(
         this, page->title(),
         m_read_only, m_jump_allowed, m_within_chain,
-        fontSizePt(UiConst::FontSize::Title), header_css_name);
+        header_css_name);
     m_mainlayout->addWidget(m_p_header);
     connect(m_p_header, &QuestionnaireHeader::cancelClicked,
             this, &Questionnaire::cancelClicked);
@@ -204,11 +205,11 @@ void Questionnaire::resetButtons()
         return;
     }
     bool on_last_page = currentPageNumOneBased() == nPages();
-    bool missing_input = page->missingInput();
+    bool allow_progression = readOnly() || !page->missingInput();
     m_p_header->setButtons(
         m_current_pagenum_zero_based > 0,  // previous
-        !on_last_page && !missing_input,  // next
-        on_last_page && !missing_input  // finish
+        !on_last_page && allow_progression,  // next
+        on_last_page && allow_progression  // finish
     );
 }
 
@@ -303,7 +304,7 @@ void Questionnaire::nextClicked()
         return;
     }
     QuPagePtr page = currentPagePtr();
-    if (page->missingInput()) {
+    if (!readOnly() && page->missingInput()) {
         // Can't progress
         return;
     }
@@ -320,7 +321,7 @@ void Questionnaire::finishClicked()
         return;
     }
     QuPagePtr page = currentPagePtr();
-    if (page->missingInput()) {
+    if (!readOnly() && page->missingInput()) {
         // Can't progress
         return;
     }
@@ -340,13 +341,17 @@ void Questionnaire::pageClosing()
 
 void Questionnaire::doCancel()
 {
-    // *** mark task as cancelled, or whatever
+    if (!readOnly()) {
+        // *** mark task as cancelled, or whatever
+    }
     emit finished();
 }
 
 
 void Questionnaire::doFinish()
 {
-    // *** mark task as finished, or whatever
+    if (!readOnly()) {
+        // *** mark task as finished, or whatever
+    }
     emit finished();
 }

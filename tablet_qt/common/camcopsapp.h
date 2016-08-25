@@ -89,6 +89,12 @@ public:
     int currentPatientId() const;
 
     // ------------------------------------------------------------------------
+    // CSS convenience
+    // ------------------------------------------------------------------------
+    QString getMenuCss() const;
+    QString getQuestionnaireCss() const;
+
+    // ------------------------------------------------------------------------
     // Stored variables: specific
     // ------------------------------------------------------------------------
     int fontSizePt(UiConst::FontSize fontsize) const;

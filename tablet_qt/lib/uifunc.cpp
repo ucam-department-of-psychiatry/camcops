@@ -11,6 +11,7 @@
 #include <QPainter>
 #include <QPen>
 #include <QPixmapCache>
+#include <QStyle>
 #include <QToolButton>
 #include <QUrl>
 #include "uifunc.h"
@@ -127,9 +128,15 @@ QLabel* UiFunc::blankIcon(QWidget* parent)
 }
 
 
+QString UiFunc::imageFilename(const QString& imagepath)
+{
+    return QString(":/images/%1").arg(imagepath);
+}
+
+
 QString UiFunc::iconFilename(const QString& basefile)
 {
-    return QString(":/images/camcops/%1").arg(basefile);
+    return imageFilename(QString("camcops/%1").arg(basefile));
 }
 
 
@@ -242,10 +249,51 @@ const Qt::Alignment HALIGN_MASK = (Qt::AlignLeft | Qt::AlignRight |
 const Qt::Alignment VALIGN_MASK = (Qt::AlignTop | Qt::AlignBottom |
                                    Qt::AlignVCenter | Qt::AlignBaseline);
 
+
 Qt::Alignment UiFunc::combineAlignment(Qt::Alignment halign,
                                        Qt::Alignment valign)
 {
     return (halign & HALIGN_MASK) | (valign & VALIGN_MASK);
+}
+
+
+void UiFunc::repolish(QWidget* widget)
+{
+    // http://wiki.qt.io/DynamicPropertiesAndStylesheets
+    widget->style()->unpolish(widget);
+    widget->style()->polish(widget);
+    widget->update();
+}
+
+
+void UiFunc::setProperty(QWidget* widget, const QString& property,
+                         const QVariant& value, bool repolish)
+{
+    const char* propname = property.toLatin1().data();
+    widget->setProperty(propname, value);
+    if (repolish) {
+        UiFunc::repolish(widget);
+    }
+}
+
+
+QString UiFunc::cssBoolean(bool value)
+{
+    return value ? "true" : "false";
+}
+
+
+void UiFunc::setPropertyItalic(QWidget* widget, bool italic, bool repolish)
+{
+    setProperty(widget, UiConst::CSS_PROP_ITALIC, cssBoolean(italic),
+                repolish);
+}
+
+
+void UiFunc::setPropertyMissing(QWidget* widget, bool italic, bool repolish)
+{
+    setProperty(widget, UiConst::CSS_PROP_MISSING, cssBoolean(italic),
+                repolish);
 }
 
 

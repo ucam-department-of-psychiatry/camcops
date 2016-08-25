@@ -10,7 +10,7 @@ const int MAX_TEXT_WIDTH_PIXELS = 300;
 ImageButton::ImageButton(QWidget* parent) :
     QPushButton(parent)
 {
-    commonConstructor(UiConst::ICONSIZE);
+    commonConstructor(QSize());
 }
 
 
@@ -23,6 +23,7 @@ ImageButton::ImageButton(const QString& normal_filename,
     commonConstructor(size);
     setNormalImage(normal_filename, size);
     setPressedImage(pressed_filename, size);
+    resizeIfNoSize();
 }
 
 
@@ -37,6 +38,7 @@ ImageButton::ImageButton(const QString& base_filename,
     commonConstructor(size);
     setImages(base_filename, filename_is_camcops_stem, alter_unpressed_image,
               true, disabled);
+    resizeIfNoSize();
 }
 
 
@@ -72,8 +74,8 @@ void ImageButton::setImages(const QString& base_filename,
                                                        pressed_marker_behind);
         setPressedImage(pressed, false);
     }
+    resizeIfNoSize();
 }
-
 
 
 void ImageButton::commonConstructor(const QSize& size)
@@ -120,6 +122,25 @@ void ImageButton::setPressedImage(const QPixmap& pixmap, bool scale)
 void ImageButton::rescale(QPixmap& pm)
 {
     pm = pm.scaled(m_image_size, Qt::IgnoreAspectRatio);
+}
+
+
+void ImageButton::resizeIfNoSize()
+{
+    if (m_image_size.isEmpty()) {
+        m_image_size = m_normal_pixmap.size();
+    }
+}
+
+
+void ImageButton::resizeImages(double factor)
+{
+    m_image_size = QSize(
+        factor * m_normal_pixmap.size().width(),
+        factor * m_normal_pixmap.size().height()
+    );
+    rescale(m_normal_pixmap);
+    rescale(m_pressed_pixmap);
 }
 
 

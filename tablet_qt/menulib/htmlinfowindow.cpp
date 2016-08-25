@@ -15,7 +15,7 @@ HtmlInfoWindow::HtmlInfoWindow(CamcopsApp& app, const QString& title,
                                bool fullscreen) :
     m_app(app)
 {
-    setStyleSheet(FileFunc::textfileContents(UiConst::CSS_CAMCOPS_MENU));
+    setStyleSheet(m_app.getMenuCss());
     setObjectName("menu_window_outer_object");
 
     // Layouts

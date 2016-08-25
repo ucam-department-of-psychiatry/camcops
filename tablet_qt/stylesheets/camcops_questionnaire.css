@@ -1,4 +1,61 @@
-/* http://doc.qt.io/qt-5/stylesheet-syntax.html */
+/*
+    http://doc.qt.io/qt-5/stylesheet-syntax.html
+
+    REMEMBER: Layouts don't have CSS. Widgets do.
+        http://doc.qt.io/qt-5/stylesheet.html
+        https://bugreports.qt.io/browse/QTBUG-22862
+    BUT layouts do have spacing; use e.g.
+        setSpacing() -- between widgets inside the layout
+            ... typically leave this one
+        setContentsMargins()  -- around the whole set of widgets
+            ... typically reduce this one
+
+    Avoid restyling QWidget/QLabel in any major way, except for debugging;
+    for example, the "About Qt" dialog uses QLabel.
+
+    You'd hope that you could specify a base font here (e.g. by text
+    substitution) and then have all other fonts specified relative to it.
+    In Qt 4.8, there was no way to do that: pt or px only. And that
+    remains true for font sizes:
+
+    http://doc.qt.io/qt-5.7/stylesheet-reference.html#font-size
+    http://doc.qt.io/qt-5.7/stylesheet-reference.html#length
+
+    So, since one can't use percentages or "1.2em", there are two options:
+    (1) all elements using fonts need custom CSS, done in code. Silly!
+    (2) We do it in CSS but with multiple search/replace - better.
+    We will do a replacement that uses Qt QString arg format, with percentages,
+    with the following mapping:
+
+        %1      normal
+        %2      big
+        %3      heading
+        %4      title
+
+    ... plus custom code-applied CSS for text whose size is determined
+    dynamically.
+
+    Selector mechanisms include:
+
+        classname
+            ... applies to this class and any C++ derived classes
+            ... BUT: doesn't apply to "child widgets" of another C++ class
+        .classname
+            ... this C++ class but not its derived classes
+        parent child
+            ... applies to child class that's within a parent widget
+        classname[property="value"]
+            ... specific property
+        *[property="value"]
+            ... general property
+        .customproperty
+            ... ? http://stackoverflow.com/questions/4596903
+        A, B
+            either A or B
+        #id
+            ... matches by setObjectName()
+
+*/
 
 /* =========================================================================
    General styling
@@ -9,27 +66,53 @@ QWidget {
     border: 0;
     margin: 0;
     padding: 0;
+    font-size: %1pt;
 }
 
 QLabel {
-    border: 0;
-    margin: 0;
-    padding: 0;
+    background-color: green;
 }
 
-QPushButton {
+/* =========================================================================
+   Modifiers, using dynamic properties
+   ========================================================================= */
+
+*[missing="true"] {
+    background-color: yellow;
+}
+
+*[italic="true"] {
+    font-style: italic;
+}
+
+/* Things that look like buttons */
+
+QPushButton,
+QComboBox#picker_inline,
+QLabel#picker_popup,
+NvpChoiceDialog LabelWordWrapWide {
+    font-weight: bold;
     background-color: lightgray;
-    border-style: outset;
+    border-style: solid;
     border-width: 2px;
     border-radius: 10px;
     border-color: darkgray;
-    color: black;
-    font: bold 14px;
     padding: 6px;
 }
-QPushButton:pressed {
-    background-color: red;
-    border-style: inset;
+QPushButton:pressed,
+QComboBox#picker_inline:pressed,
+QLabel#picker_popup:pressed,
+NvpChoiceDialog LabelWordWrapWide:pressed {
+    background-color: rgba(100, 100, 255, 200);  /* to match BUTTON_PRESSED_COLOUR */
+}
+/* They will override the generic dynamic modifiers, so we re-specify... */
+QComboBox#picker_inline[missing="true"],
+QLabel#picker_popup[missing="true"] {
+    background-color: yellow;
+}
+
+QPushButton {
+    color: black;
 }
 QPushButton:disabled {
     color: lightgray;
@@ -42,35 +125,23 @@ QPushButton:disabled {
 
 #questionnaire_outer_object {
     /* background-color ignored, for unclear QStackedWidget reason */
-    border: 0;
-    padding: 0;
-    margin: 0;
 }
 #questionnaire_background_patient {
     background-color: white;
-    border: 0;
-    padding: 0;
-    margin: 0;
 }
 #questionnaire_background_clinician {
-    /* background-color: #FFFFD0; */  /* pale yellow */
-    background-color: green;
-    border: 0;
-    padding: 0;
-    margin: 0;
+    background-color: #FFFFD0;  /* pale yellow */
 }
 #questionnaire_background_config {
     background-color: #E6E6FA;  /* lavender */
-    border: 0;
-    padding: 0;
-    margin: 0;
 }
 
 /* =========================================================================
    Questionnaire header
    ========================================================================= */
 
-#questionnaire_title {
+QuestionnaireHeader QLabel {
+    font-size: %4pt;
 }
 #header_horizontal_line {
     color: black;  /* setLineWidth */
@@ -85,6 +156,73 @@ QPushButton:disabled {
     color: black;  /* setLineWidth */
     background-color: black;  /* frame around the line, if visible */
 }
+
+/* =========================================================================
+   Widgets
+   ========================================================================= */
+
+/* BooleanWidget in its Text appearance */
+#boolean_widget {
+}
+#boolean_widget[state="disabled"] {
+    background-color: darkgrey;
+}
+#boolean_widget[state="null"] {
+    background-color: white;
+}
+#boolean_widget[state="nullrequired"] {
+    background-color: yellow;
+}
+#boolean_widget[state="false"] {
+    background-color: white;
+}
+#boolean_widget[state="true"] {
+    background-color: red;
+}
+#boolean_widget[readonly="true"]:pressed {
+    background-color: grey;
+}
+#boolean_widget[readonly="false"]:pressed {
+    background-color: lightblue;
+}
+
+#countdown_label {
+    font-weight: bold;
+}
+
+#heading {
+    font-size: %3pt;
+    font-weight: bold;
+}
+
+#mcq_instruction {
+    color: darkgray;
+    font-weight: bold;
+}
+
+/* For QuPickerInline */
+QComboBox#picker_inline {
+    /* http://stackoverflow.com/questions/29939990 */
+    color: blue;
+    selection-color: red;
+}
+QComboBox#picker_inline:item:selected {
+    border: 1px solid black;
+}
+QComboBox#picker_inline:item:checked {
+    font-weight: bold;
+}
+QLabel#picker_inline {  /* read-only version */
+    color: blue;
+    font-weight: bold;
+}
+
+/* For QuPickerPopup */
+QLabel#picker_popup {
+    color: blue;
+    background-color: lightgray;
+}
+
 
 /* =========================================================================
    Debugging

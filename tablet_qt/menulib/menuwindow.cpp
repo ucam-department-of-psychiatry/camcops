@@ -48,15 +48,17 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
                             widgets of interest
     */
 
-    setStyleSheet(FileFunc::textfileContents(UiConst::CSS_CAMCOPS_MENU));
+    setStyleSheet(m_app.getMenuCss());
     setObjectName("menu_window_outer_object");
 
     QVBoxLayout* dummy_layout = new QVBoxLayout();
+    dummy_layout->setContentsMargins(UiConst::NO_MARGINS);
     setLayout(dummy_layout);
     QWidget* dummy_widget = new QWidget();
     dummy_widget->setObjectName("menu_window_background");
     dummy_layout->addWidget(dummy_widget);
 
+    m_mainlayout->setContentsMargins(UiConst::NO_MARGINS);
     dummy_widget->setLayout(m_mainlayout);
 
     // QListWidget objects scroll themselves.

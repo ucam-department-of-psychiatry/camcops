@@ -1,4 +1,5 @@
 #include "uiconstants.h"
+#include <QObject>  // for tr()
 
 namespace UiConst {
 
@@ -14,6 +15,8 @@ namespace UiConst {
     const int HEADER_HLINE_WIDTH = 3;
     const int QUESTIONNAIRE_HLINE_WIDTH = 1;
 
+    const QMargins NO_MARGINS(0, 0, 0, 0);
+
     // ========================================================================
     // Stylesheets
     // ========================================================================
@@ -28,7 +31,6 @@ namespace UiConst {
     // Fonts, colours
     // ========================================================================
 
-    const QString MCQ_INSTRUCTION_COLOUR = "darkgray";
     const QString WARNING_COLOUR = "red";
 
     const QColor BLACK_TRANSPARENT(0, 0, 0, 0);  // a=0 means fully transparent
@@ -107,4 +109,17 @@ namespace UiConst {
     const QString DEMO_SOUND_URL_2 = "qrc:///sounds/camcops/soundtest.wav";  // *** change; copyright
     const QString SOUND_COUNTDOWN_FINISHED = "qrc:///sounds/camcops/countdown_finished.wav";
 
+    // ========================================================================
+    // CSS
+    // ========================================================================
+    // Must match CSS...
+
+    const QString CSS_PROP_ITALIC = "italic";
+    const QString CSS_PROP_MISSING = "missing";
+
+    // ========================================================================
+    // Common text
+    // ========================================================================
+
+    const QString NOT_SPECIFIED = QObject::tr("<not specified>");
 }

@@ -1,7 +1,6 @@
 #include "qumcq.h"
 #include <QVBoxLayout>
 #include <QWidget>
-#include "common/random.h"
 #include "lib/uifunc.h"
 #include "widgets/booleanwidget.h"
 #include "widgets/labelwordwrapwide.h"
@@ -10,7 +9,7 @@
 #include "questionnairefunc.h"
 
 
-QuMCQ::QuMCQ(FieldRefPtr fieldref, const NameValuePairList& options) :
+QuMCQ::QuMCQ(FieldRefPtr fieldref, const NameValueOptions& options) :
     m_fieldref(fieldref),
     m_options(options),
     m_randomize(false),
@@ -18,7 +17,7 @@ QuMCQ::QuMCQ(FieldRefPtr fieldref, const NameValuePairList& options) :
     m_horizontal(false),
     m_as_text_button(false)
 {
-    QuestionnaireFunc::ensureValidNvpList(m_options);
+    m_options.validateOrDie();
     Q_ASSERT(m_fieldref);
     connect(m_fieldref.data(), &FieldRef::valueChanged,
             this, &QuMCQ::valueChanged);
@@ -48,43 +47,42 @@ QuMCQ* QuMCQ::setHorizontal(bool horizontal)
 
 QuMCQ* QuMCQ::setAsTextButton(bool as_text_button)
 {
-    m_as_text_button = as_text_button; // ***
+    m_as_text_button = as_text_button;
     return this;
 }
 
 
 QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
 {
-    bool read_only = questionnaire->readOnly();
-    int fontsize = questionnaire->fontSizePt(UiConst::FontSize::Normal);
+    // Clear old stuff (BEWARE: "empty()" = "isEmpty()" != "clear()")
+    m_widgets.clear();
 
+    // Randomize?
+    if (m_randomize) {
+        m_options.shuffle();
+    }
+
+    bool read_only = questionnaire->readOnly();
+
+    // Actual MCQ: widget containing {widget +/- label} for each option
     QPointer<QWidget> mainwidget = new QWidget();
     QLayout* mainlayout;
     if (m_horizontal) {
-        // mainlayout = new QHBoxLayout();
         mainlayout = new FlowLayout();
     } else {
         mainlayout = new QVBoxLayout();
     }
+    mainlayout->setContentsMargins(UiConst::NO_MARGINS);
     mainwidget->setLayout(mainlayout);
-
-    if (m_randomize) {
-        std::shuffle(m_options.begin(), m_options.end(), Random::rng);
-    }
-    m_widgets.empty();
-    m_value_to_index.empty();
-    m_index_to_value.empty();
     // QGridLayout, but not QVBoxLayout or QHBoxLayout, can use addChildLayout;
     // the latter use addWidget.
+    // FlowLayout is better than QHBoxLayout.
+
     Qt::Alignment align = Qt::AlignLeft | Qt::AlignVCenter;
     for (int i = 0; i < m_options.size(); ++i) {
         const NameValuePair& nvp = m_options.at(i);
-        qDebug() << "Option:" << nvp.name() << "->" << nvp.value();
 
-        m_value_to_index[nvp.value()] = i;
-        m_index_to_value[i] = nvp.value();
-
-        // Widget
+        // MCQ touch-me widget
         QPointer<BooleanWidget> w = new BooleanWidget();
         w->setReadOnly(read_only);
         w->setAppearance(m_as_text_button ? BooleanWidget::Appearance::Text
@@ -102,18 +100,18 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
             mainlayout->addWidget(w);
             mainlayout->setAlignment(w, align);
         } else {
-            // Label
+            // MCQ option label
             // Even in a horizontal layout, encapsulating widget/label pairs
             // prevents them being split apart.
             QWidget* itemwidget = new QWidget();
             LabelWordWrapWide* namelabel = new LabelWordWrapWide(nvp.name());
-            namelabel->setStyleSheet(UiFunc::textCSS(fontsize));
             if (!read_only) {
                 namelabel->setClickable(true);
                 connect(namelabel, &LabelWordWrapWide::clicked,
                         std::bind(&QuMCQ::clicked, this, i));
             }
             QHBoxLayout* itemlayout = new QHBoxLayout();
+            itemlayout->setContentsMargins(UiConst::NO_MARGINS);
             itemwidget->setLayout(itemlayout);
             itemlayout->addWidget(w);
             itemlayout->addWidget(namelabel);
@@ -130,12 +128,12 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
 
     QPointer<QWidget> final_widget;
     if (m_show_instruction) {
+        // Higher-level widget containing {instructions, actual MCQ}
         QVBoxLayout* layout_w_instr = new QVBoxLayout();
+        layout_w_instr->setContentsMargins(UiConst::NO_MARGINS);
         LabelWordWrapWide* instructions = new LabelWordWrapWide(
             tr("Pick one:"));
-        QString css = UiFunc::textCSS(fontsize, false, false,
-                                      UiConst::MCQ_INSTRUCTION_COLOUR);
-        instructions->setStyleSheet(css);
+        instructions->setObjectName("mcq_instruction");
         layout_w_instr->addWidget(instructions);
         layout_w_instr->addWidget(mainwidget);
         QPointer<QWidget> widget_w_instr = new QWidget();
@@ -154,22 +152,19 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
 bool QuMCQ::complete() const
 {
     QVariant value = m_fieldref->value();
-    if (chosenIndex(value) != -1) {
-        // Something actively chosen, even if that something is null
-        return true;
-    }
-    return !value.isNull();
+    return m_options.indexFromValue(value) != -1;
+    // something actively chosen (even if it's NULL)
 }
 
 
 void QuMCQ::clicked(int index)
 {
-    qDebug() << "QuMCQ::clicked:" << index;
-    if (!m_index_to_value.contains(index)) {
+    // qDebug() << "QuMCQ::clicked:" << index;
+    if (!m_options.validIndex(index)) {
         qWarning() << "QuMCQ::clicked - out of range";
         return;
     }
-    const QVariant& newvalue = m_index_to_value[index];
+    const QVariant& newvalue = m_options.value(index);
     m_fieldref->setValue(newvalue);  // Will trigger valueChanged
     emit elementValueChanged();
 }
@@ -181,29 +176,23 @@ void QuMCQ::setFromField()
 }
 
 
-int QuMCQ::chosenIndex(const QVariant& value) const
-{
-    int index = -1;
-    if (m_value_to_index.contains(value)) {
-        index = m_value_to_index[value];
-    }
-    return index;
-}
-
-
 void QuMCQ::valueChanged(const QVariant &value)
 {
-    qDebug().nospace() << "QuBooleanText: receiving valueChanged: this="
-                       << this  << ", value=" << value;
+    // qDebug().nospace() << "QuBooleanText: receiving valueChanged: this="
+    //                    << this  << ", value=" << value;
     // We can have a "not chosen" null and an "actively chosen" null.
     bool null = value.isNull();
-    int index = chosenIndex(value);
+    int index = m_options.indexFromValue(value);
     if (!null && index == -1) {
         qWarning() << "QuMCQ::valueChanged - unknown value";
         return;
     }
     for (int i = 0; i < m_widgets.size(); ++i) {
         QPointer<BooleanWidget> w = m_widgets.at(i);
+        if (!w) {
+            qCritical() << "QuMCQ::valueChanged(): defunct pointer!";
+            continue;
+        }
         if (i == index) {
             w->setState(BooleanWidget::State::True);
         } else if (index == -1) {  // null but not selected

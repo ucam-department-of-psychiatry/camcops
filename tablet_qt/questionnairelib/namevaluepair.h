@@ -8,14 +8,9 @@ class NameValuePair
 {
 public:
     NameValuePair(const QString& name, const QVariant& value);
-    QString name() const;  // function access write-protects the members
-    QVariant value() const;
+    const QString& name() const;  // function access write-protects the members
+    const QVariant& value() const;
 protected:
     QString m_name;
     QVariant m_value;
 };
-
-
-typedef QList<NameValuePair> NameValuePairList;
-
-

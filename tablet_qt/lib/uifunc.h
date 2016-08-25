@@ -30,6 +30,7 @@ namespace UiFunc {
     QPixmap addUnpressedBackground(const QPixmap& image, bool behind = true);
     QPixmap makeDisabledIcon(const QPixmap& image);
     QLabel* blankIcon(QWidget* parent);
+    QString imageFilename(const QString& imagepath);
     QString iconFilename(const QString& basefile);
 
     // ========================================================================
@@ -52,6 +53,13 @@ namespace UiFunc {
     // void setBackgroundColour(QWidget* widget, const QColor& colour);
     void removeAllChildWidgets(QObject* object);
     Qt::Alignment combineAlignment(Qt::Alignment halign, Qt::Alignment valign);
+    void repolish(QWidget* widget);
+    void setProperty(QWidget* widget, const QString& property,
+                     const QVariant& value, bool repolish = true);
+    QString cssBoolean(bool value);
+    // And some specific ones:
+    void setPropertyItalic(QWidget* widget, bool italic, bool repolish = true);
+    void setPropertyMissing(QWidget* widget, bool italic, bool repolish = true);
 
     // ========================================================================
     // Killing the app
