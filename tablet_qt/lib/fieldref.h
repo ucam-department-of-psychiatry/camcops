@@ -36,13 +36,16 @@ public:
     typedef std::function<void(const QVariant&)> SetterFunction;
 public:
     FieldRef();
-    FieldRef(Field* p_field);
+    FieldRef(Field* p_field, bool mandatory);
     FieldRef(DatabaseObject* p_dbobject, const QString& fieldname,
-             bool autosave = true);
+             bool mandatory, bool autosave);
     FieldRef(const GetterFunction& getterfunc,
-             const SetterFunction& setterfunc);
+             const SetterFunction& setterfunc,
+             bool mandatory);
     bool valid() const;
-    void setValue(const QVariant& value);
+    void setValue(const QVariant& value, const QObject* originator = nullptr);
+    // ... originator is optional and used as a performance hint (see QSlider)
+
     QVariant value() const;
     bool valueBool() const;
     int valueInt() const;
@@ -52,12 +55,30 @@ public:
     QDate valueDate() const;
     QString valueString() const;
     QByteArray valueByteArray() const;
+    bool isNull() const;
+
+    bool mandatory() const;
+    void setMandatory(bool mandatory, const QObject* originator = nullptr);
+    // ... originator is optional and used as a performance hint (see QSlider)
+    bool complete() const;  // not null?
+    bool missingInput() const;  // block progress because (mandatory() && !complete())?
+protected:
+    void commonConstructor();
 
 signals:
-    void valueChanged(const QVariant& value) const;
+    void valueChanged(const FieldRef* fieldref,
+                      const QObject* originator) const;
+    void mandatoryChanged(const FieldRef* fieldref,
+                          const QObject* originator) const;
+    // You should NOT cause a valueChanged() signal to be emitted whilst in a
+    // mandatoryChanged() signal, but it's fine to emit mandatoryChanged()
+    // signals (typically on other fields) whilst processing valueChanged()
+    // signals.
 
 protected:
     FieldRefMethod m_method;
+    bool m_mandatory;
+
     Field* m_p_field;
 
     DatabaseObject* m_p_dbobject;
@@ -70,3 +91,4 @@ protected:
 
 
 typedef QSharedPointer<FieldRef> FieldRefPtr;
+typedef QList<FieldRefPtr> FieldRefPtrList;

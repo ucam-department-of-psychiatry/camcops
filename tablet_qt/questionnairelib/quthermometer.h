@@ -20,12 +20,12 @@ public:
 protected:
     void commonConstructor();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
-    virtual bool complete() const override;
+    virtual FieldRefPtrList fieldrefs() const override;
     int indexFromValue(const QVariant& value) const;
     QVariant valueFromIndex(int index) const;
 protected slots:
     void clicked(int index);
-    void valueChanged(const QVariant& value);
+    void valueChanged(const FieldRef* fieldref);
 protected:
     FieldRefPtr m_fieldref;
     QList<QuThermometerItem> m_items;

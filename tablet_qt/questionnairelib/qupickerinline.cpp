@@ -55,21 +55,13 @@ QPointer<QWidget> QuPickerInline::makeWidget(Questionnaire* questionnaire)
 }
 
 
-bool QuPickerInline::complete() const
-{
-    QVariant value = m_fieldref->value();
-    return m_options.indexFromValue(value) != -1;
-    // something actively chosen (even if it's NULL)
-}
-
-
 void QuPickerInline::currentIndexChanged(int index)
 {
     // qDebug().nospace() << "QuPickerInline::currentIndexChanged(" << index << ")";
     if (!m_options.validIndex(index)) {
         return;
     }
-    const QVariant& newvalue = m_options.at(index).value();
+    QVariant newvalue = m_options.at(index).value();
     m_fieldref->setValue(newvalue);  // Will trigger valueChanged
     emit elementValueChanged();
 }
@@ -77,17 +69,16 @@ void QuPickerInline::currentIndexChanged(int index)
 
 void QuPickerInline::setFromField()
 {
-    valueChanged(m_fieldref->value());
+    valueChanged(m_fieldref.data());
 }
 
 
-void QuPickerInline::valueChanged(const QVariant &value)
+void QuPickerInline::valueChanged(const FieldRef* fieldref)
 {
-    // We can have a "not chosen" null and an "actively chosen" null.
-    int index = m_options.indexFromValue(value);
-    bool missing = missingInput();
+    int index = m_options.indexFromValue(fieldref->value());
+    bool missing = fieldref->missingInput();
     if (m_cbox) {
-        qDebug() << "QuPickerInline::valueChanged(): index =" << index;
+        // qDebug() << "QuPickerInline::valueChanged(): index =" << index;
         m_cbox->setCurrentIndex(index);  // it's happy with -1
         UiFunc::setPropertyMissing(m_cbox, missing);
     } else if (m_label) {
@@ -100,4 +91,10 @@ void QuPickerInline::valueChanged(const QVariant &value)
         m_label->setText(text);
         UiFunc::setPropertyMissing(m_label, missing);
     }
+}
+
+
+FieldRefPtrList QuPickerInline::fieldrefs() const
+{
+    return FieldRefPtrList{m_fieldref};
 }

@@ -15,6 +15,7 @@ QuThermometerItem::QuThermometerItem(const QString& active_filename,
     m_text(text),
     m_value(value)
 {
+    Q_ASSERT(!m_value.isNull());
 }
 
 

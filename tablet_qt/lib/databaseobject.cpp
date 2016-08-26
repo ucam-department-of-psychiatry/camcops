@@ -1,3 +1,5 @@
+// #define DEBUG_SAVES
+
 #include "databaseobject.h"
 #include <iostream>
 #include <QDateTime>
@@ -367,16 +369,20 @@ bool DatabaseObject::saveInsert()
     }
     QVariant new_pk = query.lastInsertId();
     setValue(pkname(), new_pk);
+#ifdef DEBUG_SAVES
     qDebug().nospace() << "Save/insert: " << qUtf8Printable(m_tablename)
                        << ", " << pkname() << "=" << new_pk;
+#endif
     return success;
 }
 
 
 bool DatabaseObject::saveUpdate()
 {
+#ifdef DEBUG_SAVES
     qDebug().nospace() << "Save/update: " << qUtf8Printable(m_tablename)
                        << ", " << pkname() << "=" << pkvalue();
+#endif
     ArgList args;
     QStringList fieldnames;
     MapIteratorType i(m_record);
@@ -390,7 +396,9 @@ bool DatabaseObject::saveUpdate()
         }
     }
     if (fieldnames.isEmpty()) {
+#ifdef DEBUG_SAVES
         qDebug() << "... no dirty fields; nothing to do";
+#endif
         return true;
     }
     QString sql = (
@@ -409,7 +417,8 @@ void DatabaseObject::makeTable()
 }
 
 
-FieldRefPtr DatabaseObject::fieldRef(const QString& fieldname, bool autosave)
+FieldRefPtr DatabaseObject::fieldRef(const QString& fieldname, bool mandatory,
+                                     bool autosave)
 {
     // If we ask for two fieldrefs to the same field, they need to be linked
     // (in terms of signals), and therefore the same underlying FieldRef
@@ -420,11 +429,11 @@ FieldRefPtr DatabaseObject::fieldRef(const QString& fieldname, bool autosave)
     if (!m_fieldrefs.contains(fieldname)) {
         if (autosave) {
             m_fieldrefs[fieldname] = FieldRefPtr(
-                new FieldRef(this, fieldname, true));
+                new FieldRef(this, fieldname, mandatory, autosave));
         } else {
             Field* p_field = &m_record[fieldname];
             m_fieldrefs[fieldname] = FieldRefPtr(
-                new FieldRef(p_field));
+                new FieldRef(p_field, mandatory));
         }
     }
     return m_fieldrefs[fieldname];

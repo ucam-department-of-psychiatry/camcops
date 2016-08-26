@@ -69,9 +69,11 @@ QWidget {
     font-size: %1pt;
 }
 
+/*
 QLabel {
     background-color: green;
 }
+*/
 
 /* =========================================================================
    Modifiers, using dynamic properties
@@ -85,7 +87,9 @@ QLabel {
     font-style: italic;
 }
 
-/* Things that look like buttons */
+/* =========================================================================
+   Things that look or behave like buttons
+   ========================================================================= */
 
 QPushButton,
 QComboBox#picker_inline,
@@ -221,6 +225,103 @@ QLabel#picker_inline {  /* read-only version */
 QLabel#picker_popup {
     color: blue;
     background-color: lightgray;
+}
+
+/*
+    For QuSlider
+    - this is quite hard
+    - http://doc.qt.io/qt-5.7/stylesheet-examples.html#customizing-qslider
+    - http://thesmithfam.org/blog/2010/03/10/fancy-qslider-stylesheet/
+    - https://forum.qt.io/topic/52150/proportions-of-elemnts-like-sliders
+
+    groove border not always shown; apply the border to the sub-page/add-page
+
+    sub-page:
+        The part of the slider to the LEFT or ABOVE the handle.
+        This makes sense for scrollbars that control pages (down -> +),
+        but we have to invert it for sliders where up is more.
+
+    hover colour: to match BUTTON_PRESSED_COLOUR, except not transparent
+
+    QSlider padding is essential to get the handle outside the groove
+
+    four-dimensional CSS parameters are: top, right, bottom, left
+    three-dimensional CSS parameters are: top, right/left, bottom
+    two-dimensional CSS parameters are: vertical, horizontal
+*/
+/*
+QSlider {
+    background-color: green;
+}
+*/
+QSlider:horizontal {
+    padding: 10px 0;
+}
+QSlider:vertical {
+    padding: 0 10px;
+}
+
+QSlider::groove {
+    border: 2px solid black;
+    background: lightgray;
+}
+QSlider::groove:horizontal {
+    height: 10px;
+    margin: 2px 0;
+}
+QSlider::groove:vertical {
+    width: 10px;
+    margin: 0 2px;
+}
+
+QSlider::add-page,
+QSlider::sub-page {
+    border: 2px solid black;
+}
+QSlider::sub-page:horizontal,
+QSlider::add-page:vertical {
+    background: red;
+}
+QSlider::add-page:horizontal,
+QSlider::sub-page:vertical {
+    background: white;
+}
+
+QSlider::handle {
+    background: darkgray;
+    border: 2px solid black;
+    border-radius: 10px;
+}
+QSlider::handle:horizontal {
+    width: 20px;
+    margin: -10px 0;
+}
+QSlider::handle:vertical {
+    height: 20px;
+    margin: 0 -10px;
+}
+QSlider::handle:horizontal:hover,
+QSlider::handle:vertical:hover {
+    background: rgba(100, 100, 255);
+}
+
+QSlider::sub-page:horizontal:disabled,
+QSlider::add-page:vertical:disabled {
+    border-color: #999;
+}
+QSlider::add-page:horizontal:disabled,
+QSlider::add-page:vertical:disabled {
+    border-color: #999;
+}
+QSlider::handle:disabled {
+    background: #eee;
+    border-color: #aaa;
+}
+
+/* The value label */
+QLabel#slider {
+    color: red;
+    font-weight: bold;
 }
 
 

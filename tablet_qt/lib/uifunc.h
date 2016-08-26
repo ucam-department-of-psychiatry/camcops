@@ -5,6 +5,8 @@
 
 class QAbstractButton;
 class QLabel;
+class QPainter;
+class QPointF;
 
 
 namespace UiFunc {
@@ -59,7 +61,13 @@ namespace UiFunc {
     QString cssBoolean(bool value);
     // And some specific ones:
     void setPropertyItalic(QWidget* widget, bool italic, bool repolish = true);
-    void setPropertyMissing(QWidget* widget, bool italic, bool repolish = true);
+    void setPropertyMissing(QWidget* widget, bool missing,
+                            bool repolish = true);
+    // Drawing text with alignment at a point (not a rectangle):
+    void drawText(QPainter& painter, qreal x, qreal y, Qt::Alignment flags,
+                  const QString& text, QRectF* boundingRect = 0);
+    void drawText(QPainter& painter, const QPointF& point, Qt::Alignment flags,
+                  const QString& text, QRectF* boundingRect = 0);
 
     // ========================================================================
     // Killing the app

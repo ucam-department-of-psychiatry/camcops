@@ -12,7 +12,7 @@ public:
     QuImage(const QString& filename);
     QuImage(FieldRefPtr fieldref);  // field provides raw image data
 protected slots:
-    void valueChanged(const QVariant& value);
+    void valueChanged(const FieldRef* fieldref);
 protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
 protected:

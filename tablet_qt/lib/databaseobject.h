@@ -41,7 +41,9 @@ public:
     double valueDouble(const QString& fieldname) const;
     QDateTime valueDateTime(const QString& fieldname) const;
     QDate valueDate(const QString& fieldname) const;
-    FieldRefPtr fieldRef(const QString& fieldname, bool autosave = true);
+    FieldRefPtr fieldRef(const QString& fieldname,
+                         bool mandatory = true,
+                         bool autosave = true);
     // Whole-object summary:
     QString recordSummary() const;
     // Loading, saving:

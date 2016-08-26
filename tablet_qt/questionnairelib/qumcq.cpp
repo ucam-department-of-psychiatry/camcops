@@ -149,14 +149,6 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
 }
 
 
-bool QuMCQ::complete() const
-{
-    QVariant value = m_fieldref->value();
-    return m_options.indexFromValue(value) != -1;
-    // something actively chosen (even if it's NULL)
-}
-
-
 void QuMCQ::clicked(int index)
 {
     // qDebug() << "QuMCQ::clicked:" << index;
@@ -164,7 +156,7 @@ void QuMCQ::clicked(int index)
         qWarning() << "QuMCQ::clicked - out of range";
         return;
     }
-    const QVariant& newvalue = m_options.value(index);
+    QVariant newvalue = m_options.value(index);
     m_fieldref->setValue(newvalue);  // Will trigger valueChanged
     emit elementValueChanged();
 }
@@ -172,15 +164,16 @@ void QuMCQ::clicked(int index)
 
 void QuMCQ::setFromField()
 {
-    valueChanged(m_fieldref->value());
+    valueChanged(m_fieldref.data());
 }
 
 
-void QuMCQ::valueChanged(const QVariant &value)
+void QuMCQ::valueChanged(const FieldRef* fieldref)
 {
     // qDebug().nospace() << "QuBooleanText: receiving valueChanged: this="
     //                    << this  << ", value=" << value;
     // We can have a "not chosen" null and an "actively chosen" null.
+    QVariant value = fieldref->value();
     bool null = value.isNull();
     int index = m_options.indexFromValue(value);
     if (!null && index == -1) {
@@ -196,10 +189,17 @@ void QuMCQ::valueChanged(const QVariant &value)
         if (i == index) {
             w->setState(BooleanWidget::State::True);
         } else if (index == -1) {  // null but not selected
-            w->setState(m_mandatory ? BooleanWidget::State::NullRequired
-                                    : BooleanWidget::State::Null);
+            w->setState(fieldref->mandatory()
+                        ? BooleanWidget::State::NullRequired
+                        : BooleanWidget::State::Null);
         } else {
             w->setState(BooleanWidget::State::False);
         }
     }
+}
+
+
+FieldRefPtrList QuMCQ::fieldrefs() const
+{
+    return FieldRefPtrList{m_fieldref};
 }

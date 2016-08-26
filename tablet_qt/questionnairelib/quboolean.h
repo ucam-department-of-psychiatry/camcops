@@ -25,11 +25,11 @@ public:
     void setFromField();
 protected slots:
     void clicked();
-    void valueChanged(const QVariant& value);
+    void valueChanged(const FieldRef* fieldref);
 protected:
     void commonConstructor();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
-    virtual bool complete() const override;
+    virtual FieldRefPtrList fieldrefs() const override;
 protected:
     QString m_text;
     QString m_image_filename;

@@ -8,9 +8,11 @@
 // #include "lib/cloneable.h"
 
 class QWidget;
+class FieldRef;
+typedef QSharedPointer<FieldRef> FieldRefPtr;
+typedef QList<FieldRefPtr> FieldRefPtrList;
 class Questionnaire;
 class QuElement;
-
 typedef QSharedPointer<QuElement> QuElementPtr;
 
 
@@ -24,7 +26,6 @@ class QuElement : public QObject
 public:
     QuElement();
     virtual ~QuElement();
-    QuElement* setMandatory(bool mandatory);
     QuElement* addTag(const QString& tag);
 signals:
     void elementValueChanged();
@@ -36,15 +37,12 @@ protected:
     void hide();
     void setVisible(bool visible);
     virtual QList<QuElementPtr> subelements() const;
-    virtual bool mandatory() const;
-    virtual bool complete() const;  // is input complete? Default true
-    virtual bool missingInput() const;  // block progress because (mandatory() && !complete())?
+    virtual FieldRefPtrList fieldrefs() const;
     virtual void closing();  // called prior to focus leaving this page (e.g. silence audio)
 protected:
     QPointer<QWidget> m_widget;  // used to cache a widget pointer
     QStringList m_tags;
     bool m_visible;
-    bool m_mandatory;
 };
 
 

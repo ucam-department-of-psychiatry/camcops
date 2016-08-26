@@ -4,21 +4,13 @@
 
 QuElement::QuElement() :
     m_widget(nullptr),
-    m_visible(true),
-    m_mandatory(true)
+    m_visible(true)
 {
 }
 
 
 QuElement::~QuElement()
 {
-}
-
-
-QuElement* QuElement::setMandatory(bool mandatory)
-{
-    m_mandatory = mandatory;
-    return this;
 }
 
 
@@ -51,6 +43,12 @@ QList<QuElementPtr> QuElement::subelements() const
 }
 
 
+FieldRefPtrList QuElement::fieldrefs() const
+{
+    return FieldRefPtrList();
+}
+
+
 void QuElement::show()
 {
     setVisible(true);
@@ -69,24 +67,6 @@ void QuElement::setVisible(bool visible)
         return;
     }
     m_widget->setVisible(visible);
-}
-
-
-bool QuElement::mandatory() const
-{
-    return m_mandatory;
-}
-
-
-bool QuElement::complete() const
-{
-    return true;
-}
-
-
-bool QuElement::missingInput() const
-{
-    return mandatory() && !complete();
 }
 
 

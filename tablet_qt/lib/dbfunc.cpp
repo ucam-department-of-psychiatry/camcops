@@ -1,4 +1,4 @@
-#define DEBUG_SQL_QUERY
+// #define DEBUG_SQL_QUERY
 // #define DEBUG_QUERY_END
 // #define DEBUG_SQL_RESULT
 

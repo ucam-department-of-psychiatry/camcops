@@ -228,6 +228,20 @@ Other debugging
   a .h and .cpp file differ by omission (for example) of a "const".
   http://stackoverflow.com/questions/8474456/how-to-detect-if-h-files-contains-functions-that-arent-defined-in-cpp-file
 
+- GammaRay
+    # https://github.com/KDAB/GammaRay/wiki/Getting-GammaRay
+    cd ~/dev
+    git clone git://github.com/KDAB/GammaRay.git
+    cd GammaRay
+    cd build
+    export PATH="/home/rudolf/dev/qt_local_build/qt_linux_install/bin:${PATH}"
+    # ... so the right qmake is found for a custom Qt installation
+    cmake ..
+    make
+    make install
+
+  ... runs, but "there is no default attach injector on this platform"
+
 ===============================================================================
 Database objects
 ===============================================================================
@@ -535,31 +549,6 @@ Menu structure, class factories, ...
 
 
 ===============================================================================
-Questionnaire
-===============================================================================
-- For elements, use SomeElement(...).bold().italic(), using method chaining
-  https://en.wikipedia.org/wiki/Method_chaining
-  ... the essence being "return *this;"
-  ... or "return this" with pointer versions
-
-- TO DO: ***
-
-QuestionSlider.js
-QuestionDateTime.js
-QuestionTypedVariables.js
-
-
-QuestionCanvas.js
-    http://stackoverflow.com/questions/28947235/qt-draw-on-canvas
-QuestionDiagnosticCode.js
-QuestionMCQGridDouble.js
-QuestionMCQGrid.js
-QuestionMCQGridWithSingleBoolean.js
-QuestionMultipleResponse.js
-QuestionPhoto.js
-    http://doc.qt.io/qt-5/cameraoverview.html
-
-===============================================================================
 Stored variables
 ===============================================================================
 - This was easy in Javascript because everything is type-free.
@@ -580,10 +569,56 @@ Stored variables
         return getvar("myvarname").toInt();
     }
 
+===============================================================================
+Questionnaire
+===============================================================================
+- For elements, use SomeElement(...).bold().italic(), using method chaining
+  https://en.wikipedia.org/wiki/Method_chaining
+  ... the essence being "return *this;"
+  ... or "return this" with pointer versions
+
+- Change events:
+
+    FieldRef owns value and mandatory flag
+    NULL always means "incomplete"; you can't actively select NULL
+    element changes value
+        FieldRef::setValue()
+            writes internal value for others to read
+            emit valueChanged();
+                ... any widgets viewing this field get to respond
+                ... any other functions (from a task) get to call
+                    setMandatory() on other FieldRefs
+                    ... widgets get to respond
+                        *** could this also be via valueChanged?
+        element: emit elementValueChanged();
+            page: update things like next button status
+
+    BEWARE: infinite loop (value changed -> mandatory changed -> ...)
+
+- TO DO: ***
+
+QuestionDateTime.js
+QuestionTypedVariables.js
+
+
+QuestionCanvas.js
+    http://stackoverflow.com/questions/28947235/qt-draw-on-canvas
+QuestionDiagnosticCode.js
+QuestionMCQGridDouble.js
+QuestionMCQGrid.js
+QuestionMCQGridWithSingleBoolean.js
+QuestionMultipleResponse.js
+QuestionPhoto.js
+    http://doc.qt.io/qt-5/cameraoverview.html
+    http://doc.qt.io/qt-5/platform-notes-android.html
+    http://www.qtcentre.org/threads/62787-Accessing-android-camera
+
 
 ===============================================================================
 TO DO
 ===============================================================================
+- QString toSqlLiteral(const QVariant& value);
+  QVariant fromSqlLiteral(const QString& literal);
 - *** all network access via a dialogue that's the child of its caller,
       with a log view (cf. my Python code), and "Cancel" and "OK"/"Acknowledge" buttons, of
       which the former is visible during operations and the latter at the end.
@@ -599,8 +634,6 @@ TO DO
         void failed();  // show Ack button and await dismissal
 
 - *** patients
-- *** edit icons to make centre of check-boxes/radio buttons transparent
-  (and can remove backgrounds for _T versions, though probably too much effort!)
 - *** scrolling by touch on Android menus and questionnaires
     http://doc.qt.io/qt-5.7/gestures-overview.html
     *** https://forum.qt.io/topic/30546/kinetic-scrolling-on-qscrollarea-on-android-device/5
@@ -621,10 +654,4 @@ TO DO
   (as it's not feasible to generate a proper user- and machine-specific ID
   across all OSs).
 
-http://www.qtcentre.org/threads/62787-Accessing-android-camera
 
-... TEST ANDROID CAMERA
-
-http://doc.qt.io/qt-5/platform-notes-android.html
-
-... ARE POPUPS ALWAYS FULL-SCREEN?

@@ -182,7 +182,7 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire *questionnaire)
 
 void QuBoolean::setFromField()
 {
-    valueChanged(m_fieldref->value());
+    valueChanged(m_fieldref.data());
 }
 
 
@@ -203,7 +203,7 @@ void QuBoolean::clicked()
 }
 
 
-void QuBoolean::valueChanged(const QVariant &value)
+void QuBoolean::valueChanged(const FieldRef* fieldref)
 {
     // qDebug().nospace() << "QuBooleanText: receiving valueChanged: this="
     //                    << this  << ", value=" << value;
@@ -211,11 +211,11 @@ void QuBoolean::valueChanged(const QVariant &value)
         qDebug() << "... NO INDICATOR";
         return;
     }
-    m_indicator->setValue(value, m_mandatory);
+    m_indicator->setValue(fieldref->value(), fieldref->mandatory());
 }
 
 
-bool QuBoolean::complete() const
+FieldRefPtrList QuBoolean::fieldrefs() const
 {
-    return !m_fieldref->value().isNull();
+    return FieldRefPtrList{m_fieldref};
 }

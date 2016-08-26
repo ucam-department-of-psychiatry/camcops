@@ -44,13 +44,6 @@ QPointer<QWidget> QuPickerPopup::makeWidget(Questionnaire* questionnaire)
 }
 
 
-bool QuPickerPopup::complete() const
-{
-    QVariant value = m_fieldref->value();
-    return m_options.indexFromValue(value) != -1;
-}
-
-
 void QuPickerPopup::clicked()
 {
     if (!m_label) {
@@ -69,17 +62,24 @@ void QuPickerPopup::clicked()
 
 void QuPickerPopup::setFromField()
 {
-    valueChanged(m_fieldref->value());
+    valueChanged(m_fieldref.data());
 }
 
 
-void QuPickerPopup::valueChanged(const QVariant &value)
+void QuPickerPopup::valueChanged(const FieldRef* fieldref)
 {
     if (!m_label) {
         return;
     }
-    int index = m_options.indexFromValue(value);
+    int index = m_options.indexFromValue(fieldref->value());
+    bool missing = fieldref->missingInput();
     QString text = m_options.name(index).left(MAX_LENGTH);
     m_label->setText(text);
-    UiFunc::setPropertyMissing(m_label, missingInput());
+    UiFunc::setPropertyMissing(m_label, missing);
+}
+
+
+FieldRefPtrList QuPickerPopup::fieldrefs() const
+{
+    return FieldRefPtrList{m_fieldref};
 }

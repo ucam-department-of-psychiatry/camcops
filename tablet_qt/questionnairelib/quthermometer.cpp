@@ -87,14 +87,7 @@ QPointer<QWidget> QuThermometer::makeWidget(Questionnaire* questionnaire)
 
 void QuThermometer::setFromField()
 {
-    valueChanged(m_fieldref->value());
-}
-
-
-bool QuThermometer::complete() const
-{
-    QVariant value = m_fieldref->value();
-    return indexFromValue(value) != -1;
+    valueChanged(m_fieldref.data());
 }
 
 
@@ -104,7 +97,7 @@ void QuThermometer::clicked(int index)
         qWarning() << "QuThermometer::clicked - out of range";
         return;
     }
-    const QVariant& newvalue = m_items.at(index).value();
+    QVariant newvalue = m_items.at(index).value();
     m_fieldref->setValue(newvalue);  // Will trigger valueChanged
     emit elementValueChanged();
 }
@@ -130,9 +123,14 @@ QVariant QuThermometer::valueFromIndex(int index) const
 }
 
 
-void QuThermometer::valueChanged(const QVariant &value)
+void QuThermometer::valueChanged(const FieldRef* fieldref)
 {
-    int index = indexFromValue(value);
+    if (fieldref->missingInput()) {
+        // *** set background to yellow
+    } else {
+        // *** set background to normal
+    }
+    int index = indexFromValue(fieldref->value());
     int n = m_active_widgets.size();
     int index_row = (n - 1) - index;  // operating in reverse
     for (int i = 0; i < m_active_widgets.size(); ++ i) {
@@ -146,4 +144,10 @@ void QuThermometer::valueChanged(const QVariant &value)
             inactive->show();
         }
     }
+}
+
+
+FieldRefPtrList QuThermometer::fieldrefs() const
+{
+    return FieldRefPtrList{m_fieldref};
 }

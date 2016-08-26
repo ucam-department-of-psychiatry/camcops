@@ -20,6 +20,7 @@
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qupickerinline.h"
 #include "questionnairelib/qupickerpopup.h"
+#include "questionnairelib/quslider.h"
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/quthermometer.h"
@@ -35,6 +36,9 @@ DemoQuestionnaire::DemoQuestionnaire(const QSqlDatabase& db, int load_pk) :
     addField("q4", QVariant::Int);
     addField("q5", QVariant::Int);
     addField("q6", QVariant::Int);
+    addField("q7", QVariant::Int);
+    addField("q8", QVariant::Double);
+    addField("q9", QVariant::Int);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -253,7 +257,8 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
     NameValueOptions options_C{
         {"option_1", 1},
         {"option_2", 2},
-        {"option_NULL", QVariant()},
+        // {"option_NULL", QVariant()},  // will assert
+        {"option_99", 99},
     };
     QuPagePtr p6((new QuPage{
         QuElementPtr(new QuHeading("Plain MCQ:")),
@@ -268,7 +273,7 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
         QuElementPtr(new QuHeading("Same MCQ/field, reconfigured:")),
         QuElementPtr((new QuMCQ(fieldRef("q2"), options_A))
                         ->setAsTextButton(true)),
-        QuElementPtr(new QuHeading("One with a NULL option:")),
+        QuElementPtr(new QuHeading("A second MCQ:")),
         QuElementPtr(new QuMCQ(fieldRef("q4"), options_C)),
         QuElementPtr(new QuHeading("Another:")),
         QuElementPtr(new QuMCQ(fieldRef("q3"), options_B)),
@@ -308,11 +313,45 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
     // ========================================================================
 
     // ========================================================================
-    // *** slider
+    // Slider
     // ========================================================================
 
+    QuPagePtr page_sliders((new QuPage{
+        QuElementPtr(new QuHeading("Integer slider:")),
+        QuElementPtr((new QuSlider(fieldRef("q7"), 0, 10, 1))
+                                ->setTickInterval(1)
+                                ->setTickPosition(QSlider::TicksBothSides)
+                                ->setShowValue(true)),
+        QuElementPtr(new QuHeading("Integer slider (same field as above):")),
+        QuElementPtr((new QuSlider(fieldRef("q7"), 0, 10, 1))
+                                ->setShowValue(true)
+                                ->setTickInterval(2)
+                                ->setTickPosition(QSlider::TicksBothSides)
+                                ->setUseDefaultTickLabels(true)
+                                ->setTickLabelPosition(QSlider::TicksBothSides)
+                                ->setHorizontal(false)),
+        QuElementPtr(new QuHeading("Real/float slider:")),
+        QuElementPtr((new QuSlider(fieldRef("q8"), 0, 10, 1))
+                                ->setShowValue(true)
+                                ->setTickInterval(1)
+                                ->setTickPosition(QSlider::TicksBelow)
+                                ->setConvertForRealField(true, 5, 6)),
+        QuElementPtr(new QuHeading("Integer slider with custom labels:")),
+        QuElementPtr((new QuSlider(fieldRef("q9"), 1, 5, 1))
+                                ->setShowValue(false)
+                                ->setTickInterval(1)
+                                ->setTickPosition(QSlider::TicksAbove)
+                                ->setTickLabelPosition(QSlider::TicksBelow)
+                                ->setTickLabels({
+                                    {1, "one: low"},
+                                    {3, "three: medium"},
+                                    {5, "five: maximum!"},
+                                })
+                                ->setShowValue(true)),
+    })->setTitle("Sliders"));
+
     // ========================================================================
-    // *** thermometer
+    // Thermometer
     // ========================================================================
 
     QList<QuThermometerItem> thermometer_items;
@@ -355,7 +394,7 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
 
     Questionnaire* questionnaire = new Questionnaire(app, {
         p1, p2, p3, p4, p5, p6, page_pickers,
-        page_thermometer,
+        page_sliders, page_thermometer,
     });
     questionnaire->setReadOnly(read_only);
     return questionnaire;

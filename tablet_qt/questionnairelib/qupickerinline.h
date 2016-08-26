@@ -15,10 +15,10 @@ public:
     void setFromField();
 protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
-    virtual bool complete() const override;
+    virtual FieldRefPtrList fieldrefs() const override;
 protected slots:
     void currentIndexChanged(int index);
-    void valueChanged(const QVariant& value);
+    void valueChanged(const FieldRef* fieldref);
 protected:
     FieldRefPtr m_fieldref;
     NameValueOptions m_options;

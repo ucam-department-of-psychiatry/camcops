@@ -290,10 +290,45 @@ void UiFunc::setPropertyItalic(QWidget* widget, bool italic, bool repolish)
 }
 
 
-void UiFunc::setPropertyMissing(QWidget* widget, bool italic, bool repolish)
+void UiFunc::setPropertyMissing(QWidget* widget, bool missing, bool repolish)
 {
-    setProperty(widget, UiConst::CSS_PROP_MISSING, cssBoolean(italic),
+    setProperty(widget, UiConst::CSS_PROP_MISSING, cssBoolean(missing),
                 repolish);
+}
+
+
+void UiFunc::drawText(QPainter& painter, qreal x, qreal y, Qt::Alignment flags,
+              const QString& text, QRectF* boundingRect)
+{
+    // http://stackoverflow.com/questions/24831484
+   const qreal size = 32767.0;
+   QPointF corner(x, y - size);
+   if (flags & Qt::AlignHCenter) {
+       corner.rx() -= size / 2.0;
+   }
+   else if (flags & Qt::AlignRight) {
+       corner.rx() -= size;
+   }
+   if (flags & Qt::AlignVCenter) {
+       corner.ry() += size / 2.0;
+   }
+   else if (flags & Qt::AlignTop) {
+       corner.ry() += size;
+   }
+   else {
+       flags |= Qt::AlignBottom;
+   }
+   QRectF rect(corner, QSizeF(size, size));
+   painter.drawText(rect, flags, text, boundingRect);
+}
+
+
+void UiFunc::drawText(QPainter& painter, const QPointF& point,
+                      Qt::Alignment flags, const QString& text,
+                      QRectF* boundingRect)
+{
+    // http://stackoverflow.com/questions/24831484
+   drawText(painter, point.x(), point.y(), flags, text, boundingRect);
 }
 
 

@@ -4,6 +4,7 @@ NameValuePair::NameValuePair(const QString& name, const QVariant& value) :
     m_name(name),
     m_value(value)
 {
+    Q_ASSERT(!m_value.isNull());
 }
 
 

@@ -3,6 +3,7 @@
 #include <QtNetwork/QSslSocket>
 #include <QtSql/QtSqlVersion>
 #include "common/uiconstants.h"
+#include "common/version.h"
 #include "lib/dbfunc.h"
 #include "lib/filefunc.h"
 #include "lib/uifunc.h"
@@ -55,7 +56,8 @@ void HelpMenu::softwareVersions()
     QStringList versions;
 
     // CamCOPS
-    versions.append(QString("CamCOPS tablet version: %1").arg("??? *** ???"));
+    versions.append(QString("CamCOPS tablet version: %1").arg(
+                        Version::CAMCOPS_VERSION_STRING));
 
     // Qt
     versions.append(QString("Qt version: %1").arg(QT_VERSION_STR));

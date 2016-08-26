@@ -1,6 +1,7 @@
 #include "qupage.h"
 #include <QVBoxLayout>
 #include <QWidget>
+#include "lib/fieldref.h"
 
 
 QuPage::QuPage() :
@@ -91,8 +92,11 @@ bool QuPage::missingInput() const
 {
     QList<QuElementPtr> elements = allElements();
     for (QuElementPtr e : elements) {
-        if (e->missingInput()) {
-            return true;
+        FieldRefPtrList fieldrefs = e->fieldrefs();
+        for (FieldRefPtr f : fieldrefs) {
+            if (f->missingInput()) {
+                return true;
+            }
         }
     }
     return false;

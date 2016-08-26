@@ -114,7 +114,10 @@ SOURCES += main.cpp\
     questionnairelib/qupickerpopup.cpp \
     widgets/nvpchoicedialog.cpp \
     questionnairelib/quthermometer.cpp \
-    questionnairelib/quthermometeritem.cpp
+    questionnairelib/quthermometeritem.cpp \
+    questionnairelib/quslider.cpp \
+    widgets/tickslider.cpp \
+    common/version.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -200,7 +203,10 @@ HEADERS  += \
     questionnairelib/qupickerpopup.h \
     widgets/nvpchoicedialog.h \
     questionnairelib/quthermometer.h \
-    questionnairelib/quthermometeritem.h
+    questionnairelib/quthermometeritem.h \
+    questionnairelib/quslider.h \
+    widgets/tickslider.h \
+    common/version.h
 
 CONFIG += debug
 CONFIG += mobility

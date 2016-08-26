@@ -22,7 +22,7 @@ protected:
     void commonConstructor();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
 protected slots:
-    void valueChanged(const QVariant& value);
+    void valueChanged(const FieldRef* fieldref);
 protected:
     QString m_text;
     FieldRefPtr m_fieldref;

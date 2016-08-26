@@ -40,12 +40,12 @@ QPointer<QWidget> QuImage::makeWidget(Questionnaire* questionnaire)
 }
 
 
-void QuImage::valueChanged(const QVariant &value)
+void QuImage::valueChanged(const FieldRef* fieldref)
 {
     if (!m_label) {
         return;
     }
     QPixmap image;
-    image.loadFromData(value.toByteArray());
+    image.loadFromData(fieldref->valueByteArray());
     m_label->setPixmap(image);
 }
