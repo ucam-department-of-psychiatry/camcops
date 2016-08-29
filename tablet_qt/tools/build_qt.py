@@ -604,23 +604,32 @@ def main():
     # =========================================================================
     installdirs = []
 
-    if args.android_x86:
+    if args.android_x86:  # for x86 Android emulator
         log.info("Qt build: Android x86 +SQLite +OpenSSL")
         build_openssl_android(args, "x86")
         installdir = build_qt_android(args, "x86")
         installdirs.append(installdir)
 
-    if args.android_arm:
+    if args.android_arm:  # for native Android
         log.info("Qt build: Android ARM +SQLite +OpenSSL")
         build_openssl_android(args, "arm")
         installdir = build_qt_android(args, "arm")
         installdirs.append(installdir)
 
-    if args.linux_x86_64:
+    if args.linux_x86_64:  # for 64-bit Linux
         log.info("Qt build: Linux x86 64-bit +SQLite +OpenSSL")
         build_openssl_linux(args)
         installdir = build_qt_linux(args)
         installdirs.append(installdir)
+
+    # *** args.osx*  # for Mac OS X
+    #     http://doc.qt.io/qt-5/osx.html
+
+    # *** args.ios*  # for iOS (iPad, etc.)
+    #     http://doc.qt.io/qt-5/building-from-source-ios.html
+    #     http://doc.qt.io/qt-5/ios-support.html
+
+    # *** args.windows*  # for Windows
 
     if not installdirs:
         log.warning("Nothing to do. Run with --help argument for help.")
@@ -646,7 +655,12 @@ Then for your project,
       - Add Kit > choose the kit you created.
       - For Android:
         - Build Settings > Android APK > Details > Additional Libraries > Add
-    """.format(
+
+LINUX
+- Also need:
+    sudo apt-get install mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev  # for gl.h (OpenGL)
+
+    """.format(  # noqa
         bindirs=", ".join(join(x, "bin") for x in installdirs)
     ))
 

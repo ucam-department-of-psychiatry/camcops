@@ -14,15 +14,22 @@
 #include "questionnairelib/quboolean.h"
 #include "questionnairelib/qubutton.h"
 #include "questionnairelib/qucountdown.h"
+#include "questionnairelib/qudatetime.h"
 #include "questionnairelib/quheading.h"
 #include "questionnairelib/quhorizontalline.h"
 #include "questionnairelib/quimage.h"
+#include "questionnairelib/qulineedit.h"
+#include "questionnairelib/qulineeditdouble.h"
+#include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qupickerinline.h"
 #include "questionnairelib/qupickerpopup.h"
 #include "questionnairelib/quslider.h"
 #include "questionnairelib/quspacer.h"
+#include "questionnairelib/quspinboxinteger.h"
+#include "questionnairelib/quspinboxdouble.h"
 #include "questionnairelib/qutext.h"
+#include "questionnairelib/qutextedit.h"
 #include "questionnairelib/quthermometer.h"
 
 
@@ -39,6 +46,16 @@ DemoQuestionnaire::DemoQuestionnaire(const QSqlDatabase& db, int load_pk) :
     addField("q7", QVariant::Int);
     addField("q8", QVariant::Double);
     addField("q9", QVariant::Int);
+    addField("q10", QVariant::DateTime);
+    addField("q11", QVariant::Date);
+    addField("q12", QVariant::Time);
+    addField("q13", QVariant::Int);
+    addField("q14", QVariant::Double);
+    addField("q15", QVariant::String);
+    addField("q16", QVariant::String);
+    addField("q17", QVariant::String);
+    addField("q18", QVariant::Int);
+    addField("q19", QVariant::Double);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -305,17 +322,25 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
     // ========================================================================
 
     // ========================================================================
-    // *** text
+    // Sliders, thermometer
     // ========================================================================
 
-    // ========================================================================
-    // *** datetime
-    // ========================================================================
-
-    // ========================================================================
-    // Slider
-    // ========================================================================
-
+    QList<QuThermometerItem> thermometer_items;
+    for (int i = 0; i <= 10; ++i) {
+        QString text = QString::number(i);
+        if (i == 10) {
+            text += " - very distressed";
+        } else if (i == 0) {
+            text += " - chilled out";
+        }
+        QuThermometerItem item(
+            UiFunc::imageFilename(QString("dt/dt_sel_%1.png").arg(i)),
+            UiFunc::imageFilename(QString("dt/dt_unsel_%1.png").arg(i)),
+            text,
+            i
+        );
+        thermometer_items.append(item);
+    }
     QuPagePtr page_sliders((new QuPage{
         QuElementPtr(new QuHeading("Integer slider:")),
         QuElementPtr((new QuSlider(fieldRef("q7"), 0, 10, 1))
@@ -348,33 +373,57 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
                                     {5, "five: maximum!"},
                                 })
                                 ->setShowValue(true)),
-    })->setTitle("Sliders"));
-
-    // ========================================================================
-    // Thermometer
-    // ========================================================================
-
-    QList<QuThermometerItem> thermometer_items;
-    for (int i = 0; i <= 10; ++i) {
-        QString text = QString::number(i);
-        if (i == 10) {
-            text += " - very distressed";
-        } else if (i == 0) {
-            text += " - chilled out";
-        }
-        QuThermometerItem item(
-            UiFunc::imageFilename(QString("dt/dt_sel_%1.png").arg(i)),
-            UiFunc::imageFilename(QString("dt/dt_unsel_%1.png").arg(i)),
-            text,
-            i
-        );
-        thermometer_items.append(item);
-    }
-    QuPagePtr page_thermometer((new QuPage{
         QuElementPtr(new QuHeading("Thermometer:")),
-        QuElementPtr((new QuThermometer(fieldRef("q6"), thermometer_items))
+        QuElementPtr((new QuThermometer(fieldRef("q7"), thermometer_items))
                                     ->setRescale(true, 0.4)),
-    })->setTitle("Thermometers"));
+    })->setTitle("Sliders and thermometers"));
+
+    // ========================================================================
+    // Editable variables inc. datetime
+    // ========================================================================
+
+    QuPagePtr page_vars((new QuPage{
+        QuElementPtr(new QuHeading("Date/time:")),
+        QuElementPtr(new QuDateTime(fieldRef("q10"))),
+        QuElementPtr(new QuHeading("Date/time (custom format):")),
+        QuElementPtr((new QuDateTime(fieldRef("q10")))
+                             ->setMode(QuDateTime::CustomDateTime)
+                             ->setCustomFormat("yyyy MM dd HH:mm:ss:zzz")),
+        QuElementPtr(new QuHeading("Date:")),
+        QuElementPtr((new QuDateTime(fieldRef("q11")))
+                             ->setMode(QuDateTime::DefaultDate)),
+        QuElementPtr(new QuHeading("Date (custom format):")),
+        QuElementPtr((new QuDateTime(fieldRef("q11")))
+                             ->setMode(QuDateTime::CustomDate)
+                             ->setCustomFormat("yyyy MM dd")),
+        QuElementPtr(new QuHeading("Time:")),
+        QuElementPtr((new QuDateTime(fieldRef("q12")))
+                             ->setMode(QuDateTime::DefaultTime)),
+        QuElementPtr(new QuHeading("Time (custom format):")),
+        QuElementPtr((new QuDateTime(fieldRef("q12")))
+                             ->setMode(QuDateTime::CustomTime)
+                             ->setCustomFormat("HH:mm:ss")),
+        QuElementPtr(new QuHeading("Integer spinbox (range 5–10):")),
+        QuElementPtr(new QuSpinBoxInteger(fieldRef("q13"), 5, 10)),
+        QuElementPtr(new QuHeading("Double spinbox (range 7.1–7.9):")),
+        QuElementPtr(new QuSpinBoxDouble(fieldRef("q14"), 7.1, 7.9)),
+        QuElementPtr(new QuHeading("Text editor (plain text):")),
+        QuElementPtr(new QuTextEdit(fieldRef("q15"), false)),
+        QuElementPtr(new QuHeading("Text editor (clone of previous):")),
+        QuElementPtr(new QuTextEdit(fieldRef("q15"), false)),
+        QuElementPtr(new QuHeading("Text editor (rich text):")),
+        QuElementPtr((new QuTextEdit(fieldRef("q16"), true))
+                    ->setHint("This one has a hint (placeholder text)")),
+        QuElementPtr(new QuHeading("Line editor (plain):")),
+        QuElementPtr((new QuLineEdit(fieldRef("q17")))
+                             ->setHint("hint: plain text")),
+        QuElementPtr(new QuHeading("Line editor (integer, range 13–19):")),
+        QuElementPtr((new QuLineEditInteger(fieldRef("q18"), 13, 19))
+                             ->setHint("hint: integer, range 13–19")),
+        QuElementPtr(new QuHeading("Line editor (double, range -0.05–-0.09, 2dp):")),
+        QuElementPtr((new QuLineEditDouble(fieldRef("q19"), -0.05, -0.09, 2))
+                             ->setHint("hint: double")),
+    })->setTitle("Editable variable including dates/times"));
 
     // ========================================================================
     // *** diagnostic code
@@ -394,7 +443,7 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
 
     Questionnaire* questionnaire = new Questionnaire(app, {
         p1, p2, p3, p4, p5, p6, page_pickers,
-        page_sliders, page_thermometer,
+        page_sliders, page_vars,
     });
     questionnaire->setReadOnly(read_only);
     return questionnaire;

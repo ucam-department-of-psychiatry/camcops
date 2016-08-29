@@ -1,6 +1,7 @@
 #pragma once
 #include "lib/fieldref.h"
 #include "quelement.h"
+#include "common/uiconstants.h"
 
 class LabelWordWrapWide;
 
@@ -22,11 +23,11 @@ protected:
     void commonConstructor();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
 protected slots:
-    void valueChanged(const FieldRef* fieldref);
+    void fieldValueChanged(const FieldRef* fieldref);
 protected:
     QString m_text;
     FieldRefPtr m_fieldref;
-    bool m_big;
+    UiConst::FontSize m_fontsize;
     bool m_bold;
     bool m_italic;
     bool m_warning;

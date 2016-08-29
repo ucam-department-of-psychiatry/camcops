@@ -8,25 +8,14 @@
 QuHeading::QuHeading(const QString& text) :
     QuText(text)
 {
+    m_fontsize = UiConst::FontSize::Heading;
+    m_bold = true;
 }
 
 
 QuHeading::QuHeading(FieldRefPtr fieldref) :
     QuText(fieldref)
 {
-}
-
-
-QPointer<QWidget> QuHeading::makeWidget(Questionnaire* questionnaire)
-{
-    (void)questionnaire;
-    QString text;
-    if (m_fieldref && m_fieldref->valid()) {
-        text = m_fieldref->valueString();
-    } else {
-        text = m_text;
-    }
-    LabelWordWrapWide* label = new LabelWordWrapWide(text);
-    label->setObjectName("heading");
-    return QPointer<QWidget>(label);
+    m_fontsize = UiConst::FontSize::Heading;
+    m_bold = true;
 }

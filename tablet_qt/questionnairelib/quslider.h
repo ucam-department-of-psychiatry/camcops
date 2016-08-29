@@ -63,6 +63,7 @@ protected:
     QMap<int, QString> m_tick_labels;
     QSlider::TickPosition m_tick_label_position;
     // Internals
+    QPointer<QWidget> m_container_widget;
     QPointer<QLabel> m_value_label;
     QPointer<TickSlider> m_slider;
     bool m_field_write_pending;

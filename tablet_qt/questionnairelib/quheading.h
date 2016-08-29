@@ -9,6 +9,4 @@ class QuHeading : public QuText
 public:
     QuHeading(const QString& text);
     QuHeading(FieldRefPtr fieldref);
-protected:
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
 };

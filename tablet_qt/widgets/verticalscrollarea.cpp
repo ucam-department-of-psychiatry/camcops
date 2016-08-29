@@ -20,19 +20,26 @@ bool VerticalScrollArea::eventFilter(QObject* o, QEvent* e)
 {
     // This works because QScrollArea::setWidget installs an eventFilter on the
     // widget
-    if (o && o == widget() && e->type() == QEvent::Resize) {
+    if (o && o == widget() && e && e->type() == QEvent::Resize) {
         // RNC: HORIZONTAL: this plus the Expanding policy.
         setMinimumWidth(widget()->minimumSizeHint().width() +
                         verticalScrollBar()->width());
-        /*
+
         // RNC:
-        qDebug() << "minimumHeight():" << minimumHeight();
-        qDebug() << "minimumSizeHint():" << minimumSizeHint();
-        qDebug() << "size():" << size();
-        qDebug() << "sizeHint():" << sizeHint();
-        qDebug() << "widget()->size():" << widget()->size();
-        qDebug() << "widget()->sizeHint():" << widget()->sizeHint();
-        */
+        qDebug().nospace()
+                << "VerticalScrollArea::eventFilter [QEvent::Resize]"
+                << "; minimumHeight(): " << minimumHeight()
+                << "; minimumSizeHint(): " << minimumSizeHint()
+                << "; size(): " << size()
+                << "; sizeHint(): " << sizeHint()
+                << "; widget()->size(): " << widget()->size()
+                << "; widget()->sizeHint(): " << widget()->sizeHint();
+
+        // If the scrollbox starts out small (because its contents are small),
+        // and the contents grow, we will learn about it here -- and we need
+        // to grow ourselves. When your sizeHint() changes, you should call
+        // updateGeometry().
+        updateGeometry();
     }
     return QScrollArea::eventFilter(o, e);
 }

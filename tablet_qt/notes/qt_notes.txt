@@ -136,6 +136,7 @@ Confirmed:
     http://stackoverflow.com/questions/12654613/static-linking-qt-with-open-source-version
     https://wiki.qt.io/Licensing-talk-about-mobile-platforms#Legal_advice_on_statically_linking_Qt_and_the_LGPL_license
 - *** NOT YET TESTED: Windows XP 32-bit
+- *** NOT YET TESTED: custom compilation on OSX / iOS
 
 ===============================================================================
 JDK
@@ -588,18 +589,32 @@ Questionnaire
                 ... any widgets viewing this field get to respond
                 ... any other functions (from a task) get to call
                     setMandatory() on other FieldRefs
-                    ... widgets get to respond
-                        *** could this also be via valueChanged?
+                    ... emit mandatoryChanged();
+                        ... widgets get to respond
         element: emit elementValueChanged();
             page: update things like next button status
 
     BEWARE: infinite loop (value changed -> mandatory changed -> ...)
 
+- Widget updates: prefer update() to repaint()
+  http://doc.qt.io/qt-4.8/qwidget.html#paintEvent
+
 - TO DO: ***
 
-QuestionDateTime.js
-QuestionTypedVariables.js
+lineedit
+    - integer
+    - double
 
+QuestionTypedVariables.js
+- integer
+- float
+- text (inc. -- or always? -- multiline) -- or: vertically expanding widget, option to allow newline entry
+... with hint
+
+... use grids to make up everything else
+... have a default two-column format, allowing specification of L/R split proportion
+
+Note: have to have the complex MCQs as single entities as they need to align *sub*components in a grid.
 
 QuestionCanvas.js
     http://stackoverflow.com/questions/28947235/qt-draw-on-canvas
@@ -617,6 +632,7 @@ QuestionPhoto.js
 ===============================================================================
 TO DO
 ===============================================================================
+- *** wait dialog when task lists being constructed, using RAII
 - QString toSqlLiteral(const QVariant& value);
   QVariant fromSqlLiteral(const QString& literal);
 - *** all network access via a dialogue that's the child of its caller,
@@ -653,5 +669,3 @@ TO DO
 - Server-side generation of device ID
   (as it's not feasible to generate a proper user- and machine-specific ID
   across all OSs).
-
-

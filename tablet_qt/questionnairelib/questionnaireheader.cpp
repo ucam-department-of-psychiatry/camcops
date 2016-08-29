@@ -30,9 +30,12 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     QHBoxLayout* toprowlayout = new QHBoxLayout();
     mainlayout->addLayout(toprowlayout);
 
+    Qt::Alignment button_align = Qt::AlignHCenter | Qt::AlignTop;
+
     // Cancel button
     QAbstractButton* cancel = new ImageButton(UiConst::CBS_CANCEL);
     toprowlayout->addWidget(cancel);
+    toprowlayout->setAlignment(cancel, button_align);
     connect(cancel, &QAbstractButton::clicked,
             this, &QuestionnaireHeader::cancelClicked);
 
@@ -41,6 +44,7 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
         QLabel* read_only_icon = UiFunc::iconWidget(
             UiFunc::iconFilename(UiConst::ICON_READ_ONLY));
         toprowlayout->addWidget(read_only_icon);
+        toprowlayout->setAlignment(read_only_icon, button_align);
     }
 
     // Title
@@ -53,6 +57,7 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     if (jump_allowed) {
         m_button_jump = new ImageButton(UiConst::CBS_CHOOSE_PAGE);
         toprowlayout->addWidget(m_button_jump);
+        toprowlayout->setAlignment(m_button_jump, button_align);
         connect(m_button_jump, &QAbstractButton::clicked,
                 this, &QuestionnaireHeader::jumpClicked);
     }
@@ -69,6 +74,10 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     toprowlayout->addWidget(m_button_next);
     toprowlayout->addWidget(m_button_finish);
     toprowlayout->addWidget(m_icon_no_next);
+    toprowlayout->setAlignment(m_button_previous, button_align);
+    toprowlayout->setAlignment(m_button_next, button_align);
+    toprowlayout->setAlignment(m_button_finish, button_align);
+    toprowlayout->setAlignment(m_icon_no_next, button_align);
     setButtons(false, false, false);
     connect(m_button_previous, &QAbstractButton::clicked,
             this, &QuestionnaireHeader::previousClicked);

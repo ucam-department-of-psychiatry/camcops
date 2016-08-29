@@ -25,12 +25,13 @@ protected:
     QVariant valueFromIndex(int index) const;
 protected slots:
     void clicked(int index);
-    void valueChanged(const FieldRef* fieldref);
+    void fieldValueChanged(const FieldRef* fieldref);
 protected:
     FieldRefPtr m_fieldref;
     QList<QuThermometerItem> m_items;
     bool m_rescale;
     double m_rescale_factor;
+    QPointer<QWidget> m_main_widget;
     QList<QPointer<ImageButton>> m_active_widgets;
     QList<QPointer<ImageButton>> m_inactive_widgets;
 };

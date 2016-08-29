@@ -25,9 +25,6 @@ public:
     virtual void setInterlabelGap(int gap);
     virtual void setGapToSlider(int gap);
 
-    virtual void setReadOnly(bool read_only);
-    virtual bool readOnly() const;
-
     virtual void paintEvent(QPaintEvent *ev) override;
     virtual QSize sizeHint() const override;
 
@@ -41,21 +38,12 @@ public:
     virtual void setReverseHorizontalLabels(bool reverse);
     virtual void setReverseVerticalLabels(bool reverse);
 
-    virtual void mousePressEvent(QMouseEvent* event) override;
-    virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
-    virtual void mouseReleaseEvent(QMouseEvent* event) override;
-    virtual void mouseMoveEvent(QMouseEvent* event) override;
-    virtual void keyPressEvent(QKeyEvent* event) override;
-    virtual void keyReleaseEvent(QKeyEvent* event) override;
-
-
 protected:
     void commonConstructor();
     QSize biggestLabel() const;
     QStyle::SubControls getHoverControl() const;
 
 protected:
-    bool m_read_only;
     QColor m_tick_colour;
     int m_tick_thickness;
     int m_tick_length;

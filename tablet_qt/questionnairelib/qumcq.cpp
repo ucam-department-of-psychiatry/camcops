@@ -20,7 +20,9 @@ QuMCQ::QuMCQ(FieldRefPtr fieldref, const NameValueOptions& options) :
     m_options.validateOrDie();
     Q_ASSERT(m_fieldref);
     connect(m_fieldref.data(), &FieldRef::valueChanged,
-            this, &QuMCQ::valueChanged);
+            this, &QuMCQ::fieldValueChanged);
+    connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
+            this, &QuMCQ::fieldValueChanged);
 }
 
 
@@ -164,11 +166,11 @@ void QuMCQ::clicked(int index)
 
 void QuMCQ::setFromField()
 {
-    valueChanged(m_fieldref.data());
+    fieldValueChanged(m_fieldref.data());
 }
 
 
-void QuMCQ::valueChanged(const FieldRef* fieldref)
+void QuMCQ::fieldValueChanged(const FieldRef* fieldref)
 {
     // qDebug().nospace() << "QuBooleanText: receiving valueChanged: this="
     //                    << this  << ", value=" << value;

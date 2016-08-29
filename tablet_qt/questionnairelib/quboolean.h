@@ -25,7 +25,7 @@ public:
     void setFromField();
 protected slots:
     void clicked();
-    void valueChanged(const FieldRef* fieldref);
+    void fieldValueChanged(const FieldRef* fieldref);
 protected:
     void commonConstructor();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;

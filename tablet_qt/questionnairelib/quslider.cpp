@@ -38,6 +38,8 @@ QuSlider::QuSlider(FieldRefPtr fieldref, int minimum, int maximum, int step) :
     m_big_step = 2 * step;
     connect(m_fieldref.data(), &FieldRef::valueChanged,
             this, &QuSlider::fieldValueChanged);
+    connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
+            this, &QuSlider::fieldValueChanged);
     m_timer->setSingleShot(true);
     connect(m_timer.data(), &QTimer::timeout,
             this, &QuSlider::completePendingFieldWrite);
@@ -156,7 +158,7 @@ QVariant QuSlider::fieldValueFromSlider(int slider_value) const
 QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
 {
     bool read_only = questionnaire->readOnly();
-    QPointer<QWidget> widget = new QWidget();
+    m_container_widget = new QWidget();
     m_value_label = nullptr;
 
     // 1. Value label
@@ -183,11 +185,8 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
     if (!read_only) {
         connect(m_slider.data(), &QSlider::valueChanged,
                 this, &QuSlider::sliderValueChanged);
-    } else {
-        // Prevent it from moving around
-        m_slider->setReadOnly(true);
-        // disabled appearance ***
     }
+    m_slider->setEnabled(!read_only);
 
     // Layout
     if (m_horizontal) {
@@ -203,7 +202,7 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
         QSizePolicy sp(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
         m_slider->setSizePolicy(sp);
         layout->addWidget(m_slider);
-        widget->setLayout(layout);
+        m_container_widget->setLayout(layout);
     } else {
         // --------------------------------------------------------------------
         // Vertical
@@ -223,11 +222,11 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
         innerlayout->addWidget(m_slider);
         outerlayout->addLayout(innerlayout);
         outerlayout->addStretch();
-        widget->setLayout(outerlayout);
+        m_container_widget->setLayout(outerlayout);
     }
 
     setFromField();
-    return widget;
+    return m_container_widget;
 }
 
 
@@ -239,6 +238,7 @@ void QuSlider::sliderValueChanged(int slider_value)
     m_field_write_slider_value = slider_value;
     m_field_write_pending = true;
     m_timer->start(WRITE_DELAY_MS);  // fires in same thread via event loop
+    // ... goes to completePendingFieldWrite()
 }
 
 
@@ -251,6 +251,7 @@ void QuSlider::completePendingFieldWrite()
     QVariant newvalue = fieldValueFromSlider(m_field_write_slider_value);
     m_fieldref->setValue(newvalue, this);  // Will trigger valueChanged
     m_field_write_pending = false;
+    emit elementValueChanged();
 }
 
 
@@ -263,8 +264,10 @@ void QuSlider::closing()
 void QuSlider::fieldValueChanged(const FieldRef* fieldref,
                                  const QObject* originator)
 {
-    // Background
-    UiFunc::setPropertyMissing(m_slider, fieldref->missingInput());
+    if (m_container_widget) {
+        UiFunc::setPropertyMissing(m_container_widget,
+                                   fieldref->missingInput());
+    }
 
     // Slider
     if (m_slider) {
@@ -273,13 +276,14 @@ void QuSlider::fieldValueChanged(const FieldRef* fieldref,
         if (originator != this) {
             // Imperative that the slider doesn't generate an infinite loop
             // by emitting further "valueChanged" signals, which it will do
-            // when you use its setValue() command, unless you do this:
-            bool was_blocked = m_slider->blockSignals(true);
+            // when you use its setValue() command, unless you use blockSignals
+            // (and the safe way to do that is with a QSignalBlocker).
+            const QSignalBlocker blocker(m_slider);
             int slider_value = sliderValueFromField(fieldref->value());
             // qDebug() << "Setting slider value to:" << slider_value;
             m_slider->setValue(slider_value);
-            m_slider->blockSignals(was_blocked);
         }
+        m_slider->update();
     }
 
     // Text

@@ -95,6 +95,10 @@ bool QuPage::missingInput() const
         FieldRefPtrList fieldrefs = e->fieldrefs();
         for (FieldRefPtr f : fieldrefs) {
             if (f->missingInput()) {
+                if (!e->visible()) {
+                    qWarning() << "TASK BUG: invisible widget blocking "
+                                  "progress";
+                }
                 return true;
             }
         }

@@ -40,7 +40,9 @@ void QuBoolean::commonConstructor()
     m_indicator = nullptr;
     Q_ASSERT(m_fieldref);
     connect(m_fieldref.data(), &FieldRef::valueChanged,
-            this, &QuBoolean::valueChanged);
+            this, &QuBoolean::fieldValueChanged);
+    connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
+            this, &QuBoolean::fieldValueChanged);
 }
 
 
@@ -182,7 +184,7 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire *questionnaire)
 
 void QuBoolean::setFromField()
 {
-    valueChanged(m_fieldref.data());
+    fieldValueChanged(m_fieldref.data());
 }
 
 
@@ -203,7 +205,7 @@ void QuBoolean::clicked()
 }
 
 
-void QuBoolean::valueChanged(const FieldRef* fieldref)
+void QuBoolean::fieldValueChanged(const FieldRef* fieldref)
 {
     // qDebug().nospace() << "QuBooleanText: receiving valueChanged: this="
     //                    << this  << ", value=" << value;

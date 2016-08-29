@@ -31,7 +31,6 @@ TickSlider::TickSlider(Qt::Orientation orientation,
 
 void TickSlider::commonConstructor()
 {
-    m_read_only = false;
     m_tick_colour = DEFAULT_TICK_COLOR;
     m_tick_thickness = DEFAULT_TICK_WIDTH;
     m_tick_length = DEFAULT_TICK_LENGTH;
@@ -77,19 +76,6 @@ void TickSlider::setGapToSlider(int gap)
 {
     m_gap_to_slider = gap;
 }
-
-
-void TickSlider::setReadOnly(bool read_only)
-{
-    m_read_only = read_only;
-}
-
-
-bool TickSlider::readOnly() const
-{
-    return m_read_only;
-}
-
 
 void TickSlider::setTickLabelPosition(QSlider::TickPosition position)
 {
@@ -196,6 +182,11 @@ void TickSlider::paintEvent(QPaintEvent *ev)
 
     QRect handle = style()->subControlRect(QStyle::CC_Slider, &opt,
                                            QStyle::SC_SliderHandle, this);
+
+    // Draw the slider first
+    opt.subControls = QStyle::SC_SliderGroove | QStyle::SC_SliderHandle;
+    opt.activeSubControls = getHoverControl();  // addition here
+    p.drawComplexControl(QStyle::CC_Slider, opt);
 
     // draw tick marks
     // do this manually because they are very badly behaved with style sheets
@@ -333,15 +324,6 @@ void TickSlider::paintEvent(QPaintEvent *ev)
             }
         }
     }
-
-    // draw the slider
-    opt.subControls = QStyle::SC_SliderGroove;
-    p.drawComplexControl(QStyle::CC_Slider, opt);
-
-    // draw the slider handle, marking it as "active" (CSS :hover)
-    opt.subControls = QStyle::SC_SliderHandle;
-    opt.activeSubControls = getHoverControl();  // addition here
-    p.drawComplexControl(QStyle::CC_Slider, opt);
 }
 
 
@@ -427,52 +409,4 @@ QStyle::SubControls TickSlider::getHoverControl() const
     }
 
     return hoverControl;
-}
-
-
-void TickSlider::mousePressEvent(QMouseEvent* event)
-{
-    if (!readOnly()) {
-        QSlider::mousePressEvent(event);
-    }
-}
-
-
-void TickSlider::mouseDoubleClickEvent(QMouseEvent *event)
-{
-    if (!readOnly()) {
-        QSlider::mouseDoubleClickEvent(event);
-    }
-}
-
-
-void TickSlider::mouseReleaseEvent(QMouseEvent* event)
-{
-    if (!readOnly()) {
-        QSlider::mouseReleaseEvent(event);
-    }
-}
-
-
-void TickSlider::mouseMoveEvent(QMouseEvent* event)
-{
-    if (!readOnly()) {
-        QSlider::mouseMoveEvent(event);
-    }
-}
-
-
-void TickSlider::keyPressEvent(QKeyEvent* event)
-{
-    if (!readOnly()) {
-        QSlider::keyPressEvent(event);
-    }
-}
-
-
-void TickSlider::keyReleaseEvent(QKeyEvent* event)
-{
-    if (!readOnly()) {
-        QSlider::keyReleaseEvent(event);
-    }
 }

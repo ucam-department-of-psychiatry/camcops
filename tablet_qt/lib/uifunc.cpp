@@ -214,6 +214,7 @@ void setBackgroundColour(QWidget* widget, const QColor& colour)
     // https://wiki.qt.io/How_to_Change_the_Background_Color_of_QWidget
 
     // Palette method not working. (Conflict with stylesheet?)
+    // http://doc.qt.io/qt-5/qwidget.html#autoFillBackground-prop
     //
     // QPalette palette(widget->palette());
     // palette.setColor(QPalette::Background, Qt::red);
@@ -260,6 +261,8 @@ Qt::Alignment UiFunc::combineAlignment(Qt::Alignment halign,
 void UiFunc::repolish(QWidget* widget)
 {
     // http://wiki.qt.io/DynamicPropertiesAndStylesheets
+    // http://stackoverflow.com/questions/18187376/stylesheet-performance-hits-with-qt
+
     widget->style()->unpolish(widget);
     widget->style()->polish(widget);
     widget->update();
@@ -269,6 +272,10 @@ void UiFunc::repolish(QWidget* widget)
 void UiFunc::setProperty(QWidget* widget, const QString& property,
                          const QVariant& value, bool repolish)
 {
+    if (!widget) {
+        qWarning() << "Attempt blocked to call setProperty with null widget";
+        return;
+    }
     const char* propname = property.toLatin1().data();
     widget->setProperty(propname, value);
     if (repolish) {
@@ -294,6 +301,7 @@ void UiFunc::setPropertyMissing(QWidget* widget, bool missing, bool repolish)
 {
     setProperty(widget, UiConst::CSS_PROP_MISSING, cssBoolean(missing),
                 repolish);
+    // *** INTERMITTENTLY not setting widget to yellow, e.g. slider, thermometer
 }
 
 

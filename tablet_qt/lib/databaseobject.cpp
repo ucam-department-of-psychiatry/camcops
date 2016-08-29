@@ -11,6 +11,9 @@
 #include "lib/uifunc.h"
 #include "fieldref.h"
 
+const QString NOT_NULL_ERROR = "Error: attempting to save NULL to a NOT NULL "
+                               "field:";
+
 
 DatabaseObject::DatabaseObject(const QSqlDatabase& db,
                                const QString& tablename,
@@ -352,6 +355,9 @@ bool DatabaseObject::saveInsert()
         fieldnames.append(DbFunc::delimit(fieldname));
         args.append(field.databaseValue());  // not field.value()
         placeholders.append("?");
+        if (field.isMandatory() && field.isNull()) {
+            qWarning() << NOT_NULL_ERROR << fieldname;
+        }
     }
     QString sql = (
         "INSERT OR REPLACE INTO " + DbFunc::delimit(m_tablename) +
@@ -393,6 +399,9 @@ bool DatabaseObject::saveUpdate()
         if (field.isDirty()) {
             fieldnames.append(DbFunc::delimit(fieldname) + "=?");
             args.append(field.databaseValue());  // not field.value()
+            if (field.isMandatory() && field.isNull()) {
+                qWarning() << NOT_NULL_ERROR << fieldname;
+            }
         }
     }
     if (fieldnames.isEmpty()) {

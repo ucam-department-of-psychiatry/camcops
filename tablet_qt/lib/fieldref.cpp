@@ -1,3 +1,4 @@
+#define DEBUG_SET_VALUE
 // #define DEBUG_SIGNALS
 
 #include "fieldref.h"
@@ -80,6 +81,10 @@ void FieldRef::setValue(const QVariant& value, const QObject* originator)
     // Try for user feedback before database save.
     // HOWEVER, we have to set the value first, because the signal may lead
     // to other code reading our value.
+
+#ifdef DEBUG_SET_VALUE
+    qDebug() << "FieldRef::setValue:" << value;
+#endif
 
     // Store value
     switch (m_method) {

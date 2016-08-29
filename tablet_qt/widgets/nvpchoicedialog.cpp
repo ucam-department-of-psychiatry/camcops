@@ -1,5 +1,6 @@
 #include "nvpchoicedialog.h"
 #include <functional>
+#include <QDialogButtonBox>
 #include <QVariant>
 #include <QVBoxLayout>
 #include "verticalscrollarea.h"
@@ -44,7 +45,13 @@ int NvpChoiceDialog::choose(QVariant* new_value)
     mainlayout->addWidget(scroll);
     setLayout(mainlayout);
 
-    // NvpChoiceDialog: offer a cancel button? ***
+    // Offer a cancel button
+    QDialogButtonBox* standard_buttons = new QDialogButtonBox(
+                QDialogButtonBox::Cancel);
+    connect(standard_buttons, &QDialogButtonBox::rejected,
+            this, &NvpChoiceDialog::reject);
+    mainlayout->addWidget(standard_buttons);
+
     return exec();
 }
 

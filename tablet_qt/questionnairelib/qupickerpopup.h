@@ -18,7 +18,7 @@ protected:
     virtual FieldRefPtrList fieldrefs() const override;
 protected slots:
     void clicked();
-    void valueChanged(const FieldRef* fieldref);
+    void fieldValueChanged(const FieldRef* fieldref);
 protected:
     FieldRefPtr m_fieldref;
     NameValueOptions m_options;

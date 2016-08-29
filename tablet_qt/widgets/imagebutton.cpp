@@ -147,7 +147,7 @@ void ImageButton::resizeImages(double factor)
 QSize ImageButton::sizeHint() const
 {
     if (m_as_text) {
-        // INELEGANT! Hard to get a button to word-wrap. ***
+        // INELEGANT! Hard to get a button to word-wrap.
         // Alternative would be to derive from a QLabel that does word wrap.
         QSize size = QPushButton::sizeHint();
         if (size.width() > MAX_TEXT_WIDTH_PIXELS) {

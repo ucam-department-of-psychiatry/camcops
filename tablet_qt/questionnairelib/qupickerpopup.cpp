@@ -18,7 +18,9 @@ QuPickerPopup::QuPickerPopup(FieldRefPtr fieldref,
     m_options.validateOrDie();
     Q_ASSERT(m_fieldref);
     connect(m_fieldref.data(), &FieldRef::valueChanged,
-            this, &QuPickerPopup::valueChanged);
+            this, &QuPickerPopup::fieldValueChanged);
+    connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
+            this, &QuPickerPopup::fieldValueChanged);
 }
 
 
@@ -39,6 +41,7 @@ QPointer<QWidget> QuPickerPopup::makeWidget(Questionnaire* questionnaire)
         connect(m_label.data(), &ClickableLabel::clicked,
                 this, &QuPickerPopup::clicked);
     }
+    m_label->setEnabled(!read_only);
     setFromField();
     return QPointer<QWidget>(m_label);
 }
@@ -62,11 +65,11 @@ void QuPickerPopup::clicked()
 
 void QuPickerPopup::setFromField()
 {
-    valueChanged(m_fieldref.data());
+    fieldValueChanged(m_fieldref.data());
 }
 
 
-void QuPickerPopup::valueChanged(const FieldRef* fieldref)
+void QuPickerPopup::fieldValueChanged(const FieldRef* fieldref)
 {
     if (!m_label) {
         return;

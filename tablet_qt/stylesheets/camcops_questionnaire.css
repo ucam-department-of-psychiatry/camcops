@@ -124,6 +124,19 @@ QPushButton:disabled {
 }
 
 /* =========================================================================
+   Editors
+   ========================================================================= */
+
+GrowingTextEdit,
+QDateTimeEdit,
+QDoubleSpinBox,
+QLineEdit,
+QSpinBox,
+QTextEdit {
+    background-color: lightgray;
+}
+
+/* =========================================================================
    Outer containers
    ========================================================================= */
 
@@ -191,11 +204,6 @@ QuestionnaireHeader QLabel {
 }
 
 #countdown_label {
-    font-weight: bold;
-}
-
-#heading {
-    font-size: %3pt;
     font-weight: bold;
 }
 

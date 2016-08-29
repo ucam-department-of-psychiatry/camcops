@@ -61,6 +61,12 @@ void QuElement::hide()
 }
 
 
+bool QuElement::visible() const
+{
+    return m_visible;
+}
+
+
 void QuElement::setVisible(bool visible)
 {
     if (!m_widget || visible == m_visible) {

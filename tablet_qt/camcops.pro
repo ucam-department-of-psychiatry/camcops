@@ -117,7 +117,19 @@ SOURCES += main.cpp\
     questionnairelib/quthermometeritem.cpp \
     questionnairelib/quslider.cpp \
     widgets/tickslider.cpp \
-    common/version.cpp
+    common/version.cpp \
+    questionnairelib/qudatetime.cpp \
+    questionnairelib/quspinboxinteger.cpp \
+    questionnairelib/quspinboxdouble.cpp \
+    questionnairelib/qutextedit.cpp \
+    widgets/growingtextedit.cpp \
+    questionnairelib/qulineedit.cpp \
+    questionnairelib/qulineeditinteger.cpp \
+    questionnairelib/qulineeditdouble.cpp \
+    widgets/strictdoublevalidator.cpp \
+    widgets/strictintvalidator.cpp \
+    lib/numericfunc.cpp \
+    widgets/focuswatcher.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -206,7 +218,19 @@ HEADERS  += \
     questionnairelib/quthermometeritem.h \
     questionnairelib/quslider.h \
     widgets/tickslider.h \
-    common/version.h
+    common/version.h \
+    questionnairelib/qudatetime.h \
+    questionnairelib/quspinboxinteger.h \
+    questionnairelib/quspinboxdouble.h \
+    questionnairelib/qutextedit.h \
+    widgets/growingtextedit.h \
+    questionnairelib/qulineedit.h \
+    questionnairelib/qulineeditinteger.h \
+    questionnairelib/qulineeditdouble.h \
+    widgets/strictdoublevalidator.h \
+    widgets/strictintvalidator.h \
+    lib/numericfunc.h \
+    widgets/focuswatcher.h
 
 CONFIG += debug
 CONFIG += mobility

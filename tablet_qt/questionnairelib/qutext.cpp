@@ -20,13 +20,13 @@ QuText::QuText(FieldRefPtr fieldref) :
     Q_ASSERT(m_fieldref);
     commonConstructor();
     connect(m_fieldref.data(), &FieldRef::valueChanged,
-            this, &QuText::valueChanged);
+            this, &QuText::fieldValueChanged);
 }
 
 
 void QuText::commonConstructor()
 {
-    m_big = false;
+    m_fontsize = UiConst::FontSize::Normal;
     m_bold = false;
     m_italic = false;
     m_warning = false;
@@ -39,7 +39,7 @@ void QuText::commonConstructor()
 
 QuText* QuText::big(bool big)
 {
-    m_big = big;
+    m_fontsize = big ? UiConst::FontSize::Big : UiConst::FontSize::Normal;
     return this;
 }
 
@@ -95,8 +95,7 @@ QPointer<QWidget> QuText::makeWidget(Questionnaire* questionnaire)
         text = m_text;
     }
     m_label = new LabelWordWrapWide(text);
-    int fontsize = questionnaire->fontSizePt(m_big ? UiConst::FontSize::Big
-                                                   : UiConst::FontSize::Normal);
+    int fontsize = questionnaire->fontSizePt(m_fontsize);
     QString colour = m_warning ? UiConst::WARNING_COLOUR : "";
     QString css = UiFunc::textCSS(fontsize, m_bold, m_italic, colour);
     m_label->setStyleSheet(css);
@@ -107,7 +106,7 @@ QPointer<QWidget> QuText::makeWidget(Questionnaire* questionnaire)
 }
 
 
-void QuText::valueChanged(const FieldRef* fieldref)
+void QuText::fieldValueChanged(const FieldRef* fieldref)
 {
     qDebug().nospace() << "QuText: receiving valueChanged: this=" << this
                        << ", value=" << fieldref->value();
@@ -116,5 +115,4 @@ void QuText::valueChanged(const FieldRef* fieldref)
         return;
     }
     m_label->setText(fieldref->valueString());
-    m_label->update();  // *** necessary?
 }

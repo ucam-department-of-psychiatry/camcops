@@ -13,45 +13,40 @@ QuPickerInline::QuPickerInline(FieldRefPtr fieldref,
                                const NameValueOptions& options) :
     m_fieldref(fieldref),
     m_options(options),
-    m_cbox(nullptr),
-    m_label(nullptr)
+    m_cbox(nullptr)
 {
     m_options.validateOrDie();
     Q_ASSERT(m_fieldref);
     connect(m_fieldref.data(), &FieldRef::valueChanged,
-            this, &QuPickerInline::valueChanged);
+            this, &QuPickerInline::fieldValueChanged);
+    connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
+            this, &QuPickerInline::fieldValueChanged);
 }
 
 
 QPointer<QWidget> QuPickerInline::makeWidget(Questionnaire* questionnaire)
 {
-    m_cbox = nullptr;
-    m_label = nullptr;
     bool read_only = questionnaire->readOnly();
-    QPointer<QWidget> widget;
-    if (read_only) {
-        m_label = new QLabel();
-        widget = m_label;
-    } else {
-        m_cbox = new QComboBox();
-        for (int i = 0; i < m_options.size(); ++i) {
-            const NameValuePair& nvp = m_options.at(i);
-            m_cbox->insertItem(i, nvp.name().left(MAX_LENGTH));
-            // No real point in passing the third QVariant parameter.
-        }
-        // QComboBox has two signals named currentIndexChanged, differing only
-        // in the parameter they pass (int versus QString&). You get
-        // "no matching function for call to ... unresolved overloaded function
-        // type..."
-        // Disambiguate like this:
-        void (QComboBox::*ic_signal)(int) = &QComboBox::currentIndexChanged;
+    m_cbox = new QComboBox();
+    for (int i = 0; i < m_options.size(); ++i) {
+        const NameValuePair& nvp = m_options.at(i);
+        m_cbox->insertItem(i, nvp.name().left(MAX_LENGTH));
+        // No real point in passing the third QVariant parameter.
+    }
+    // QComboBox has two signals named currentIndexChanged, differing only
+    // in the parameter they pass (int versus QString&). You get
+    // "no matching function for call to ... unresolved overloaded function
+    // type..."
+    // Disambiguate like this:
+    void (QComboBox::*ic_signal)(int) = &QComboBox::currentIndexChanged;
+    if (!read_only) {
         connect(m_cbox.data(), ic_signal,
                 this, &QuPickerInline::currentIndexChanged);
-        widget = m_cbox;
     }
-    widget->setObjectName("picker_inline");
+    m_cbox->setEnabled(!read_only);
+    m_cbox->setObjectName("picker_inline");
     setFromField();
-    return widget;
+    return QPointer<QWidget>(m_cbox);
 }
 
 
@@ -69,27 +64,21 @@ void QuPickerInline::currentIndexChanged(int index)
 
 void QuPickerInline::setFromField()
 {
-    valueChanged(m_fieldref.data());
+    fieldValueChanged(m_fieldref.data());
 }
 
 
-void QuPickerInline::valueChanged(const FieldRef* fieldref)
+void QuPickerInline::fieldValueChanged(const FieldRef* fieldref)
 {
     int index = m_options.indexFromValue(fieldref->value());
     bool missing = fieldref->missingInput();
     if (m_cbox) {
-        // qDebug() << "QuPickerInline::valueChanged(): index =" << index;
-        m_cbox->setCurrentIndex(index);  // it's happy with -1
-        UiFunc::setPropertyMissing(m_cbox, missing);
-    } else if (m_label) {
-        QString text = m_options.name(index).left(MAX_LENGTH);
-        if (text.isEmpty()) {
-            // An invisible label is not very helpful!
-            text = UiConst::NOT_SPECIFIED;
-            UiFunc::setPropertyItalic(m_label, true, false);
+        {
+            const QSignalBlocker blocker(m_cbox);
+            // qDebug() << "QuPickerInline::valueChanged(): index =" << index;
+            m_cbox->setCurrentIndex(index);  // it's happy with -1
         }
-        m_label->setText(text);
-        UiFunc::setPropertyMissing(m_label, missing);
+        UiFunc::setPropertyMissing(m_cbox, missing);
     }
 }
 

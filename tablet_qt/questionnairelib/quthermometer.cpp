@@ -1,6 +1,7 @@
 #include "quthermometer.h"
 #include <QGridLayout>
 #include <QLabel>
+#include "lib/uifunc.h"
 #include "widgets/imagebutton.h"
 #include "questionnaire.h"
 
@@ -27,9 +28,12 @@ void QuThermometer::commonConstructor()
 {
     m_rescale = false;
     m_rescale_factor = 0;
+    m_main_widget = nullptr;
     Q_ASSERT(m_fieldref);
     connect(m_fieldref.data(), &FieldRef::valueChanged,
-            this, &QuThermometer::valueChanged);
+            this, &QuThermometer::fieldValueChanged);
+    connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
+            this, &QuThermometer::fieldValueChanged);
 }
 
 
@@ -46,10 +50,10 @@ QPointer<QWidget> QuThermometer::makeWidget(Questionnaire* questionnaire)
     m_active_widgets.clear();
     m_inactive_widgets.clear();
     bool read_only = questionnaire->readOnly();
-    QPointer<QWidget> widget = new QWidget();
+    m_main_widget = new QWidget();
     QGridLayout* grid = new QGridLayout();
     grid->setSpacing(0);
-    widget->setLayout(grid);
+    m_main_widget->setLayout(grid);
     // In reverse order:
     int n = m_items.size();
     for (int i = n - 1; i >= 0; --i) {
@@ -81,13 +85,13 @@ QPointer<QWidget> QuThermometer::makeWidget(Questionnaire* questionnaire)
         m_inactive_widgets.append(inactive);
     }
     setFromField();
-    return widget;
+    return m_main_widget;
 }
 
 
 void QuThermometer::setFromField()
 {
-    valueChanged(m_fieldref.data());
+    fieldValueChanged(m_fieldref.data());
 }
 
 
@@ -105,6 +109,9 @@ void QuThermometer::clicked(int index)
 
 int QuThermometer::indexFromValue(const QVariant &value) const
 {
+    if (value.isNull()) {
+        return -1;
+    }
     for (int i = 0; i < m_items.size(); ++i) {
         if (m_items.at(i).value() == value) {
             return i;
@@ -123,13 +130,12 @@ QVariant QuThermometer::valueFromIndex(int index) const
 }
 
 
-void QuThermometer::valueChanged(const FieldRef* fieldref)
+void QuThermometer::fieldValueChanged(const FieldRef* fieldref)
 {
-    if (fieldref->missingInput()) {
-        // *** set background to yellow
-    } else {
-        // *** set background to normal
+    if (!m_main_widget) {
+        return;
     }
+    UiFunc::setPropertyMissing(m_main_widget, fieldref->missingInput());
     int index = indexFromValue(fieldref->value());
     int n = m_active_widgets.size();
     int index_row = (n - 1) - index;  // operating in reverse
@@ -144,6 +150,7 @@ void QuThermometer::valueChanged(const FieldRef* fieldref)
             inactive->show();
         }
     }
+    m_main_widget->update();
 }
 
 

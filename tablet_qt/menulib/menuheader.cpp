@@ -28,10 +28,13 @@ MenuHeader::MenuHeader(QWidget* parent,
     QHBoxLayout* toprowlayout = new QHBoxLayout();
     mainlayout->addLayout(toprowlayout);
 
+    Qt::Alignment button_align = Qt::AlignHCenter | Qt::AlignTop;
+
     // Back button (unless top)
     if (!top) {
         QAbstractButton* back = new ImageButton(UiConst::CBS_BACK);
         toprowlayout->addWidget(back);
+        toprowlayout->setAlignment(back, button_align);
         connect(back, &QAbstractButton::clicked,
                 this, &MenuHeader::backClicked);
     }
@@ -40,10 +43,12 @@ MenuHeader::MenuHeader(QWidget* parent,
     if (!icon_filename.isEmpty()) {
         QLabel* icon = UiFunc::iconWidget(icon_filename, this);
         toprowlayout->addWidget(icon);
+        toprowlayout->setAlignment(icon, button_align);
     }
 
     // Title
     LabelWordWrapWide* title_label = new LabelWordWrapWide(title);
+    title_label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     title_label->setObjectName("menu_window_title");
     toprowlayout->addWidget(title_label);
 
@@ -61,6 +66,10 @@ MenuHeader::MenuHeader(QWidget* parent,
     toprowlayout->addWidget(m_button_edit);
     toprowlayout->addWidget(m_button_delete);
     toprowlayout->addWidget(m_button_add);
+    toprowlayout->setAlignment(m_button_view, button_align);
+    toprowlayout->setAlignment(m_button_edit, button_align);
+    toprowlayout->setAlignment(m_button_delete, button_align);
+    toprowlayout->setAlignment(m_button_add, button_align);
     offerViewEditDelete();
     offerAdd();
     connect(m_button_view, &QAbstractButton::clicked,
@@ -76,6 +85,7 @@ MenuHeader::MenuHeader(QWidget* parent,
     m_icon_whisker_connected = UiFunc::iconWidget(
         UiFunc::iconFilename(UiConst::ICON_WHISKER), this);
     toprowlayout->addWidget(m_icon_whisker_connected);
+    toprowlayout->setAlignment(m_icon_whisker_connected, button_align);
     whiskerConnectionStateChanged(m_app.whiskerConnected());
 
     // (c) Locked/unlocked/privileged
@@ -85,6 +95,9 @@ MenuHeader::MenuHeader(QWidget* parent,
     toprowlayout->addWidget(m_button_locked);
     toprowlayout->addWidget(m_button_unlocked);
     toprowlayout->addWidget(m_button_privileged);
+    toprowlayout->setAlignment(m_button_locked, button_align);
+    toprowlayout->setAlignment(m_button_unlocked, button_align);
+    toprowlayout->setAlignment(m_button_privileged, button_align);
     lockStateChanged(m_app.lockstate());
     connect(m_button_locked, &QAbstractButton::clicked,
             &m_app, &CamcopsApp::unlock);

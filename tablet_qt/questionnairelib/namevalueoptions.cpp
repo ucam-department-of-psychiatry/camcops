@@ -46,6 +46,9 @@ int NameValueOptions::indexFromName(const QString& name) const
 
 int NameValueOptions::indexFromValue(const QVariant& value) const
 {
+    if (value.isNull()) {
+        return -1;
+    }
     for (int i = 0; i < m_options.size(); ++i) {
         if (m_options.at(i).value() == value) {
             return i;

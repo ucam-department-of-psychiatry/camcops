@@ -33,9 +33,12 @@ protected:
     virtual QPointer<QWidget> widget(Questionnaire* questionnaire);
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) = 0;
     bool hasTag(const QString& tag);
+
     void show();
     void hide();
+    bool visible() const;
     void setVisible(bool visible);
+
     virtual QList<QuElementPtr> subelements() const;
     virtual FieldRefPtrList fieldrefs() const;
     virtual void closing();  // called prior to focus leaving this page (e.g. silence audio)
@@ -135,7 +138,5 @@ Widgets
   http://stackoverflow.com/questions/34433435/why-dont-the-official-qt-examples-and-tutorials-use-smart-pointers
 - The proper way to hold a pointer to a QObject (particularly when you are not
   an appropriately lifetime-limited QObject yourself) is with a QPointer.
-
-
 
 */
