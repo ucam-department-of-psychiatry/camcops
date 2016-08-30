@@ -93,7 +93,6 @@ SOURCES += main.cpp\
     questionnairelib/quspacer.cpp \
     widgets/spacer.cpp \
     questionnairelib/qucontainervertical.cpp \
-    questionnairelib/qucontainertable.cpp \
     questionnairelib/quheading.cpp \
     questionnairelib/quimage.cpp \
     tasklib/tasksorter.cpp \
@@ -129,7 +128,9 @@ SOURCES += main.cpp\
     widgets/strictdoublevalidator.cpp \
     widgets/strictintvalidator.cpp \
     lib/numericfunc.cpp \
-    widgets/focuswatcher.cpp
+    widgets/focuswatcher.cpp \
+    questionnairelib/qugridcell.cpp \
+    questionnairelib/qucontainergrid.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -193,7 +194,6 @@ HEADERS  += \
     questionnairelib/quspacer.h \
     widgets/spacer.h \
     questionnairelib/qucontainervertical.h \
-    questionnairelib/qucontainertable.h \
     questionnairelib/quheading.h \
     questionnairelib/quimage.h \
     tasklib/tasksorter.h \
@@ -230,7 +230,9 @@ HEADERS  += \
     widgets/strictdoublevalidator.h \
     widgets/strictintvalidator.h \
     lib/numericfunc.h \
-    widgets/focuswatcher.h
+    widgets/focuswatcher.h \
+    questionnairelib/qugridcell.h \
+    questionnairelib/qucontainergrid.h
 
 CONFIG += debug
 CONFIG += mobility

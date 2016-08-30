@@ -8,13 +8,15 @@
 
 #include "questionnairelib/qucontainerhorizontal.h"
 #include "questionnairelib/qucontainervertical.h"
-#include "questionnairelib/qucontainertable.h"
+#include "questionnairelib/qucontainergrid.h"
 
 #include "questionnairelib/quaudioplayer.h"
 #include "questionnairelib/quboolean.h"
 #include "questionnairelib/qubutton.h"
 #include "questionnairelib/qucountdown.h"
 #include "questionnairelib/qudatetime.h"
+#include "questionnairelib/questionnairefunc.h"
+#include "questionnairelib/qugridcell.h"
 #include "questionnairelib/quheading.h"
 #include "questionnairelib/quhorizontalline.h"
 #include "questionnairelib/quimage.h"
@@ -191,14 +193,34 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
             QuElementPtr((new QuText("Text 3 (left/bottom)"))->setAlignment(Qt::AlignLeft | Qt::AlignBottom)),
             QuElementPtr(new QuText("Text 4: " + lipsum2)),
         }),
-        QuElementPtr(new QuHeading("Table container:")),
-        QuElementPtr(new QuContainerTable{
-            QuTableCell(QuElementPtr(new QuText("<b>row 0, col 0:</b> " + lipsum2)), 0, 0),
-            QuTableCell(QuElementPtr(new QuText("<b>row 0, col 1 [+1]:</b> " + lipsum2)), 0, 1, 1, 2),
-            QuTableCell(QuElementPtr(new QuText("<b>row 1, col 0 [+1]:</b> " + lipsum2)), 1, 0, 1, 2),
-            QuTableCell(QuElementPtr(new QuText("<b>row 1 [+1], col 2:</b> " + lipsum2)), 1, 2, 2, 1),
-            QuTableCell(QuElementPtr(new QuText("<b>row 2, col 0:</b> " + lipsum2)), 2, 0),
-            QuTableCell(QuElementPtr(new QuText("<b>row 2, col 1:</b> " + lipsum2)), 2, 1),
+        QuElementPtr(new QuHeading("Grid container:")),
+        QuElementPtr(new QuContainerGrid{
+            QuGridCell(QuElementPtr(new QuText("<b>row 0, col 0:</b> " + lipsum2)), 0, 0),
+            QuGridCell(QuElementPtr(new QuText("<b>row 0, col 1 [+1]:</b> " + lipsum2)), 0, 1, 1, 2),
+            QuGridCell(QuElementPtr(new QuText("<b>row 1, col 0 [+1]:</b> " + lipsum2)), 1, 0, 1, 2),
+            QuGridCell(QuElementPtr(new QuText("<b>row 1 [+1], col 2:</b> " + lipsum2)), 1, 2, 2, 1),
+            QuGridCell(QuElementPtr(new QuText("<b>row 2, col 0:</b> " + lipsum2)), 2, 0),
+            QuGridCell(QuElementPtr(new QuText("<b>row 2, col 1:</b> " + lipsum2)), 2, 1),
+        }),
+        QuElementPtr(new QuHeading("Another grid:")),
+        QuElementPtr(new QuContainerGrid{
+            QuGridCell(QuElementPtr(new QuText("<b>r0 c0</b> " + lipsum2)), 0, 0, 1, 1),
+            QuGridCell(QuElementPtr(new QuText("<b>r0 c1 [+1]</b> " + lipsum2)), 0, 1, 1, 2),
+            QuGridCell(QuElementPtr(new QuText("<b>r1 c0</b> " + lipsum2)), 1, 0, 1, 1),
+            QuGridCell(QuElementPtr(new QuText("<b>r1 c1 [+1]</b> " + lipsum2)), 1, 1, 1, 2),
+        }),
+        QuElementPtr(new QuHeading("Another grid:")),
+        QuElementPtr((new QuContainerGrid{
+            QuGridCell(QuElementPtr(new QuText("<b>r0 c0</b> " + lipsum2)), 0, 0),
+            QuGridCell(QuElementPtr(new QuText("<b>r0 c1</b> " + lipsum2)), 0, 1),
+            QuGridCell(QuElementPtr(new QuText("<b>r1 c0</b> " + lipsum2)), 1, 0),
+            QuGridCell(QuElementPtr(new QuText("<b>r1 c1</b> " + lipsum2)), 1, 1),
+        })),
+        QuElementPtr(new QuHeading("More automated grid (of label/element pairs):")),
+        QuestionnaireFunc::defaultGrid({
+            {lipsum2, QuElementPtr(new QuText(lipsum2))},
+            {lipsum2, QuElementPtr(new QuText(lipsum2))},
+            {lipsum2, QuElementPtr(new QuText(lipsum2))},
         }),
         QuElementPtr(new QuHeading("Image:")),
         QuElementPtr(new QuImage(UiFunc::iconFilename(UiConst::ICON_CAMCOPS))),
@@ -420,9 +442,17 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
         QuElementPtr(new QuHeading("Line editor (integer, range 13–19):")),
         QuElementPtr((new QuLineEditInteger(fieldRef("q18"), 13, 19))
                              ->setHint("hint: integer, range 13–19")),
-        QuElementPtr(new QuHeading("Line editor (double, range -0.05–-0.09, 2dp):")),
+        QuElementPtr(new QuHeading("Line editor (double, "
+                             "range -0.05 to -0.09, 2dp):")),
         QuElementPtr((new QuLineEditDouble(fieldRef("q19"), -0.05, -0.09, 2))
                              ->setHint("hint: double")),
+        QuElementPtr(new QuHeading("Variables in a grid:")),
+        QuestionnaireFunc::defaultGrid({
+            {"label 1", QuElementPtr(new QuLineEdit(fieldRef("q17")))},
+            {"label 2", QuElementPtr(new QuLineEditInteger(fieldRef("q18"), 13, 19))},
+            {"label 3", QuElementPtr(new QuHeading("Just a heading: " + lipsum2))},
+            {"label 4", QuElementPtr(new QuDateTime(fieldRef("q10")))},
+        }, 1, 2),
     })->setTitle("Editable variable including dates/times"));
 
     // ========================================================================

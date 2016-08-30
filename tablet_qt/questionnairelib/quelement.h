@@ -22,7 +22,7 @@ class QuElement : public QObject
     friend class QuPage;
     friend class QuContainerHorizontal;
     friend class QuContainerVertical;
-    friend class QuContainerTable;
+    friend class QuContainerGrid;
 public:
     QuElement();
     virtual ~QuElement();

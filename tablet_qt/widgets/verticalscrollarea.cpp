@@ -26,14 +26,14 @@ bool VerticalScrollArea::eventFilter(QObject* o, QEvent* e)
                         verticalScrollBar()->width());
 
         // RNC:
-        qDebug().nospace()
-                << "VerticalScrollArea::eventFilter [QEvent::Resize]"
-                << "; minimumHeight(): " << minimumHeight()
-                << "; minimumSizeHint(): " << minimumSizeHint()
-                << "; size(): " << size()
-                << "; sizeHint(): " << sizeHint()
-                << "; widget()->size(): " << widget()->size()
-                << "; widget()->sizeHint(): " << widget()->sizeHint();
+        // qDebug().nospace()
+        //         << "VerticalScrollArea::eventFilter [QEvent::Resize]"
+        //         << "; minimumHeight(): " << minimumHeight()
+        //         << "; minimumSizeHint(): " << minimumSizeHint()
+        //         << "; size(): " << size()
+        //         << "; sizeHint(): " << sizeHint()
+        //         << "; widget()->size(): " << widget()->size()
+        //         << "; widget()->sizeHint(): " << widget()->sizeHint();
 
         // If the scrollbox starts out small (because its contents are small),
         // and the contents grow, we will learn about it here -- and we need

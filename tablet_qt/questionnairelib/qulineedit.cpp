@@ -37,6 +37,8 @@ QPointer<QWidget> QuLineEdit::makeWidget(Questionnaire* questionnaire)
 {
     bool read_only = questionnaire->readOnly();
     m_editor = new QLineEdit();
+    QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    m_editor->setSizePolicy(sp);
     m_editor->setEnabled(!read_only);
     m_editor->setPlaceholderText(m_hint);
     extraLineEditCreation(m_editor.data());  // allow subclasses to modify
@@ -101,6 +103,8 @@ void QuLineEdit::fieldValueChanged(const FieldRef* fieldref,
 
 void QuLineEdit::widgetFocusChanged(bool in)
 {
+    // If focus is leaving the widget, and its state is duff, restore from the
+    // field value.
     if (in || !m_editor) {
         return;
     }
