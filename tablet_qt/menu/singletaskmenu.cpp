@@ -45,7 +45,7 @@ void SingleTaskMenu::build()
 
     // Task items
     TaskPtrList tasklist = factory->fetch(m_tablename);
-    qDebug() << "SingleTaskMenu::build:" << tasklist.size() << "tasks";
+    qDebug() << Q_FUNC_INFO << "-" << tasklist.size() << "tasks";
     for (auto task : tasklist) {
         m_items.append(MenuItem(task, false));
     }
@@ -80,7 +80,7 @@ void SingleTaskMenu::addTask()
     if (!task->isAnonymous()) {
         int patient_id = m_app.currentPatientId();
         if (patient_id == DbConst::NONEXISTENT_PK) {
-            qCritical() << "SingleTaskMenu::addTask(): no patient selected";
+            qCritical() << Q_FUNC_INFO << "- no patient selected";
             return;
         }
         task->setPatient(m_app.currentPatientId());

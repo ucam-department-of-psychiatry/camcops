@@ -251,7 +251,8 @@ bool DatabaseObject::load(const QString& fieldname,
                           const QVariant& where_value)
 {
     if (!m_record.contains(fieldname)) {
-        qCritical() << "Attempt to load with nonexistent fieldname:"
+        qCritical() << Q_FUNC_INFO
+                    << "Attempt to load with nonexistent fieldname:"
                     << fieldname;
         nullify();
         return false;
@@ -370,7 +371,8 @@ bool DatabaseObject::saveInsert()
     QSqlQuery query(m_db);
     bool success = DbFunc::execQuery(query, sql, args);
     if (!success) {
-        qCritical() << "Failed to insert record into table" << m_tablename;
+        qCritical() << Q_FUNC_INFO << "Failed to insert record into table"
+                    << m_tablename;
         return success;
     }
     QVariant new_pk = query.lastInsertId();

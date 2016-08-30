@@ -130,7 +130,11 @@ SOURCES += main.cpp\
     lib/numericfunc.cpp \
     widgets/focuswatcher.cpp \
     questionnairelib/qugridcell.cpp \
-    questionnairelib/qucontainergrid.cpp
+    questionnairelib/qucontainergrid.cpp \
+    questionnairelib/qumultipleresponse.cpp \
+    questionnairelib/qumultipleresponseitem.cpp \
+    questionnairelib/qucanvas.cpp \
+    widgets/canvaswidget.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -232,7 +236,11 @@ HEADERS  += \
     lib/numericfunc.h \
     widgets/focuswatcher.h \
     questionnairelib/qugridcell.h \
-    questionnairelib/qucontainergrid.h
+    questionnairelib/qucontainergrid.h \
+    questionnairelib/qumultipleresponse.h \
+    questionnairelib/qumultipleresponseitem.h \
+    questionnairelib/qucanvas.h \
+    widgets/canvaswidget.h
 
 CONFIG += debug
 CONFIG += mobility

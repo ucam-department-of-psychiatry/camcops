@@ -153,9 +153,8 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
 
 void QuMCQ::clicked(int index)
 {
-    // qDebug() << "QuMCQ::clicked:" << index;
     if (!m_options.validIndex(index)) {
-        qWarning() << "QuMCQ::clicked - out of range";
+        qWarning() << Q_FUNC_INFO << "- out of range";
         return;
     }
     QVariant newvalue = m_options.value(index);
@@ -172,20 +171,17 @@ void QuMCQ::setFromField()
 
 void QuMCQ::fieldValueChanged(const FieldRef* fieldref)
 {
-    // qDebug().nospace() << "QuBooleanText: receiving valueChanged: this="
-    //                    << this  << ", value=" << value;
-    // We can have a "not chosen" null and an "actively chosen" null.
     QVariant value = fieldref->value();
     bool null = value.isNull();
     int index = m_options.indexFromValue(value);
     if (!null && index == -1) {
-        qWarning() << "QuMCQ::valueChanged - unknown value";
+        qWarning() << Q_FUNC_INFO << "- unknown value";
         return;
     }
     for (int i = 0; i < m_widgets.size(); ++i) {
         QPointer<BooleanWidget> w = m_widgets.at(i);
         if (!w) {
-            qCritical() << "QuMCQ::valueChanged(): defunct pointer!";
+            qCritical() << Q_FUNC_INFO << "- defunct pointer!";
             continue;
         }
         if (i == index) {

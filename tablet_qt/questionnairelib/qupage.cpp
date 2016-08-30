@@ -92,15 +92,12 @@ bool QuPage::missingInput() const
 {
     QList<QuElementPtr> elements = allElements();
     for (QuElementPtr e : elements) {
-        FieldRefPtrList fieldrefs = e->fieldrefs();
-        for (FieldRefPtr f : fieldrefs) {
-            if (f->missingInput()) {
-                if (!e->visible()) {
-                    qWarning() << "TASK BUG: invisible widget blocking "
-                                  "progress";
-                }
-                return true;
+        if (e->missingInput()) {
+            if (!e->visible()) {
+                qWarning() << Q_FUNC_INFO << "TASK BUG: invisible widget "
+                                             "blocking progress";
             }
+            return true;
         }
     }
     return false;

@@ -83,13 +83,13 @@ void FieldRef::setValue(const QVariant& value, const QObject* originator)
     // to other code reading our value.
 
 #ifdef DEBUG_SET_VALUE
-    qDebug() << "FieldRef::setValue:" << value;
+    qDebug() << Q_FUNC_INFO << "- value:" << value;
 #endif
 
     // Store value
     switch (m_method) {
     case FieldRefMethod::Invalid:
-        qWarning() << "Attempt to set invalid field reference";
+        qWarning() << Q_FUNC_INFO << "Attempt to set invalid field reference";
         return;
     case FieldRefMethod::Field:
         m_p_field->setValue(value);
@@ -104,8 +104,8 @@ void FieldRef::setValue(const QVariant& value, const QObject* originator)
 
     // Signal
 #ifdef DEBUG_SIGNALS
-    qDebug().nospace() << "FieldRef: emitting valueChanged: this=" << this
-                       << ", value=" << value;
+    qDebug().nospace() << Q_FUNC_INFO << "- emitting valueChanged: this="
+                       << this << ", value=" << value;
 #endif
     emit valueChanged(this, originator);
 
@@ -121,7 +121,7 @@ QVariant FieldRef::value() const
 {
     switch (m_method) {
     case FieldRefMethod::Invalid:
-        qWarning() << "Attempt to get invalid field reference";
+        qWarning() << Q_FUNC_INFO << "Attempt to get invalid field reference";
         return QVariant();
     case FieldRefMethod::Field:
         return m_p_field->value();
@@ -222,8 +222,8 @@ void FieldRef::setMandatory(bool mandatory, const QObject* originator)
     }
     m_mandatory = mandatory;
 #ifdef DEBUG_SIGNALS
-    qDebug().nospace() << "FieldRef: emitting setMandatory: this=" << this
-                       << ", mandatory=" << mandatory;
+    qDebug().nospace() << Q_FUNC_INFO << "- emitting setMandatory: this="
+                       << this << ", mandatory=" << mandatory;
 #endif
     emit mandatoryChanged(this, originator);
 }

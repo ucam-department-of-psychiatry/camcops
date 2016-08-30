@@ -40,6 +40,7 @@ protected:
     void setVisible(bool visible);
 
     virtual QList<QuElementPtr> subelements() const;
+    virtual bool missingInput() const;
     virtual FieldRefPtrList fieldrefs() const;
     virtual void closing();  // called prior to focus leaving this page (e.g. silence audio)
 protected:

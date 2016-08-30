@@ -60,8 +60,8 @@ void Questionnaire::commonConstructor()
 void Questionnaire::setType(QuPage::PageType type)
 {
     if (type == QuPage::PageType::Inherit) {
-        qWarning() << "Can only set PageType::Inherit on Page, not "
-                      "Questionnaire";
+        qWarning() << Q_FUNC_INFO << "Can only set PageType::Inherit on Page, "
+                                     "not Questionnaire";
     } else {
         m_type = type;
     }
@@ -124,7 +124,8 @@ void Questionnaire::build()
     if (m_current_pagenum_zero_based < 0 ||
             m_current_pagenum_zero_based > m_pages.size()) {
         // Duff page!
-        qWarning() << "Bad page number:" << m_current_pagenum_zero_based;
+        qWarning() << Q_FUNC_INFO << "Bad page number:"
+                   << m_current_pagenum_zero_based;
         m_mainlayout->addWidget(new LabelWordWrapWide("BUG! Bad page number"));
         m_built = true;
         return;

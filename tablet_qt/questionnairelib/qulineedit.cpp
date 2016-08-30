@@ -80,7 +80,7 @@ void QuLineEdit::widgetTextChanged()
     if (!m_editor) {
         return;
     }
-    qDebug() << "Validator:" << m_editor->validator();
+    // qDebug() << "Validator:" << m_editor->validator();
     QString text = m_editor->text();
     m_fieldref->setValue(text, this);  // Will trigger valueChanged
     emit elementValueChanged();

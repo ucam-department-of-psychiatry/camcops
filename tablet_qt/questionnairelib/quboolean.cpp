@@ -190,7 +190,6 @@ void QuBoolean::setFromField()
 
 void QuBoolean::clicked()
 {
-    // qDebug() << "QuBooleanText::clicked()";
     QVariant value = m_fieldref->value();
     QVariant newvalue;
     if (value.isNull()) {  // NULL -> true
@@ -207,8 +206,6 @@ void QuBoolean::clicked()
 
 void QuBoolean::fieldValueChanged(const FieldRef* fieldref)
 {
-    // qDebug().nospace() << "QuBooleanText: receiving valueChanged: this="
-    //                    << this  << ", value=" << value;
     if (!m_indicator) {
         qDebug() << "... NO INDICATOR";
         return;

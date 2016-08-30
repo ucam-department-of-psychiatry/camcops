@@ -9,93 +9,37 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d507af95-9eb5-49a8-90aa-7921b1aee6f4" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumultipleresponse.cpp" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumultipleresponse.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumultipleresponseitem.cpp" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumultipleresponseitem.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/database.py" afterPath="$PROJECT_DIR$/server/camcops_server/database.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/common/ALLTASKS.js" afterPath="$PROJECT_DIR$/tablet/Resources/common/ALLTASKS.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/lib/taskcommon.js" afterPath="$PROJECT_DIR$/tablet/Resources/lib/taskcommon.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Ace3.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Ace3.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Aims.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Aims.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Audit.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Audit.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/AuditC.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/AuditC.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Badls.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Badls.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Bdi.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Bdi.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Bmi.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Bmi.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Bprs.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Bprs.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/BprsE.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/BprsE.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/CPFT_LPS_Discharge.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/CPFT_LPS_Discharge.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/CPFT_LPS_Referral.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/CPFT_LPS_Referral.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/CPFT_LPS_ResetResponseClock.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/CPFT_LPS_ResetResponseClock.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Cage.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Cage.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Cape42.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Cape42.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Caps.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Caps.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Cardinal_ExpDetThreshold.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Cardinal_ExpDetThreshold.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/CbiR.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/CbiR.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/CecaQ3.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/CecaQ3.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Cgi.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Cgi.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/CgiI.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/CgiI.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/CgiSch.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/CgiSch.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Ciwa.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Ciwa.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/ContactLog.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/ContactLog.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/CopeBrief.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/CopeBrief.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Dad.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Dad.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Dast.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Dast.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Deakin_1_HealthReview.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Deakin_1_HealthReview.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/DemoQuestionnaire.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/DemoQuestionnaire.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Demqol.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Demqol.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/DemqolProxy.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/DemqolProxy.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/DistressThermometer.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/DistressThermometer.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Fast.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Fast.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Fft.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Fft.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Gad7.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Gad7.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Gaf.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Gaf.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Gds15.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Gds15.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/GmcPq.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/GmcPq.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Hads.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Hads.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/HamA.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/HamA.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/HamD.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/HamD.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/HamD7.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/HamD7.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Honos.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Honos.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Honos65.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Honos65.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Honosca.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Honosca.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/IDED3D.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/IDED3D.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Icd10Depressive.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Icd10Depressive.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Icd10Manic.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Icd10Manic.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Icd10Mixed.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Icd10Mixed.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Icd10Schizophrenia.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Icd10Schizophrenia.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Icd10Schizotypal.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Icd10Schizotypal.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Icd10SpecPD.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Icd10SpecPD.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Iesr.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Iesr.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Ifs.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Ifs.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Irac.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Irac.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Mast.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Mast.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/MdsUpdrs.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/MdsUpdrs.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Moca.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Moca.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Nart.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Nart.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/NpiQ.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/NpiQ.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Panss.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Panss.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/PatientSatisfaction.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/PatientSatisfaction.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/PclCommon.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/PclCommon.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Pdss.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Pdss.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Photo.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Photo.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Phq15.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Phq15.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Phq9.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Phq9.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/ProgressNote.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/ProgressNote.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/PsychiatricClerking.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/PsychiatricClerking.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/QoLBasic.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/QoLBasic.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/QoLSG.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/QoLSG.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Rand36.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Rand36.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/ReferrerSatisfactionGen.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/ReferrerSatisfactionGen.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/ReferrerSatisfactionSpec.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/ReferrerSatisfactionSpec.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Slums.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Slums.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Smast.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Smast.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Swemwbs.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Swemwbs.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Wemwbs.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Wemwbs.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Wsas.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Wsas.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Ybocs.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Ybocs.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/YbocsSc.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/YbocsSc.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/Zbi12.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/Zbi12.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/Resources/task/diagnosiscommon.js" afterPath="$PROJECT_DIR$/tablet/Resources/task/diagnosiscommon.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/i18n/en/strings.xml" afterPath="$PROJECT_DIR$/tablet/i18n/en/strings.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/camcops.pro" afterPath="$PROJECT_DIR$/tablet_qt/camcops.pro" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/common/camcopsapp.cpp" afterPath="$PROJECT_DIR$/tablet_qt/common/camcopsapp.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dbobjects/storedvar.cpp" afterPath="$PROJECT_DIR$/tablet_qt/dbobjects/storedvar.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/databaseobject.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/databaseobject.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/fieldref.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/fieldref.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/filefunc.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/filefunc.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/numericfunc.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/numericfunc.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/uifunc.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/uifunc.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/patientsummarymenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/patientsummarymenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/singletaskmenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/singletaskmenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/testmenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/testmenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/menuwindow.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menulib/menuwindow.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/notes/qt_notes.txt" afterPath="$PROJECT_DIR$/tablet_qt/notes/qt_notes.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/namevalueoptions.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/namevalueoptions.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quboolean.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quboolean.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qucontainergrid.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qucontainergrid.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qucountdown.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qucountdown.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnaire.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnaire.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qulineedit.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qulineedit.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcq.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcq.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qupage.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qupage.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quslider.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quslider.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qutext.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qutext.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quthermometer.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quthermometer.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasks/demoquestionnaire.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasks/demoquestionnaire.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/growingtextedit.cpp" afterPath="$PROJECT_DIR$/tablet_qt/widgets/growingtextedit.cpp" />
     </list>
     <ignored path="camcops.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -119,7 +63,7 @@
       <file leaf-file-name="cc_task.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_task.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="329">
+            <state relative-caret-position="1430">
               <caret line="110" column="0" selection-start-line="110" selection-start-column="0" selection-end-line="110" selection-end-column="65" />
               <folding>
                 <marker date="1470143208236" expanded="true" signature="45944:46154" ph="UPDATE missi... " />
@@ -150,7 +94,7 @@
       <file leaf-file-name="bmi.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/bmi.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="329">
+            <state relative-caret-position="546">
               <caret line="42" column="0" selection-start-line="42" selection-start-column="0" selection-end-line="42" selection-end-column="0" />
               <folding />
             </state>
@@ -160,7 +104,7 @@
       <file leaf-file-name="bprs.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/bprs.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="846">
+            <state relative-caret-position="1703">
               <caret line="131" column="39" selection-start-line="131" selection-start-column="39" selection-end-line="131" selection-end-column="39" />
               <folding />
             </state>
@@ -180,7 +124,7 @@
       <file leaf-file-name="cape42.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/cape42.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="433">
+            <state relative-caret-position="5603">
               <caret line="431" column="50" selection-start-line="431" selection-start-column="50" selection-end-line="431" selection-end-column="50" />
               <folding />
             </state>
@@ -190,7 +134,7 @@
       <file leaf-file-name="caps.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/caps.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="417">
+            <state relative-caret-position="2223">
               <caret line="171" column="28" selection-start-line="171" selection-start-column="28" selection-end-line="171" selection-end-column="28" />
               <folding />
             </state>
@@ -200,8 +144,8 @@
       <file leaf-file-name="cbir.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/cbir.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2185">
-              <caret line="358" column="25" selection-start-line="358" selection-start-column="25" selection-end-line="358" selection-end-column="25" />
+            <state relative-caret-position="842">
+              <caret line="311" column="24" selection-start-line="311" selection-start-column="24" selection-end-line="311" selection-end-column="24" />
               <folding />
             </state>
           </provider>
@@ -210,7 +154,7 @@
       <file leaf-file-name="bprse.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/bprse.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="222">
+            <state relative-caret-position="1248">
               <caret line="96" column="24" selection-start-line="96" selection-start-column="17" selection-end-line="96" selection-end-column="24" />
               <folding />
             </state>
@@ -220,7 +164,7 @@
       <file leaf-file-name="cc_string.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_string.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="339">
+            <state relative-caret-position="1664">
               <caret line="128" column="4" selection-start-line="128" selection-start-column="4" selection-end-line="128" selection-end-column="4" />
               <folding />
             </state>
@@ -306,10 +250,9 @@
     <scope name="server" pattern="file[camcops]:server//*" />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="-3" />
-    <option name="y" value="48" />
-    <option name="width" value="1206" />
-    <option name="height" value="1555" />
+    <option name="x" value="2400" />
+    <option name="width" value="1200" />
+    <option name="height" value="1600" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -352,6 +295,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -448,8 +393,6 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scratches" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -712,21 +655,19 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-3" y="48" width="1206" height="1555" extended-state="6" />
+    <frame x="2400" y="0" width="1200" height="1600" extended-state="6" />
     <editor active="false" />
     <layout>
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26833335" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="LuaJ" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26833335" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="LuaJ" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Inspection Results" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3282967" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3392857" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" x="-2" y="594" width="1204" height="475" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -734,6 +675,8 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3997262" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Inspection Results" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3282967" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3392857" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" x="-2" y="594" width="1204" height="475" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -789,7 +732,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="907">
           <caret line="395" column="0" selection-start-line="395" selection-start-column="0" selection-end-line="395" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -797,11 +739,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="400">
           <caret line="156" column="21" selection-start-line="156" selection-start-column="21" selection-end-line="156" selection-end-column="21" />
-          <folding>
-            <marker date="1470140452593" expanded="true" signature="5097:5112" ph="SELECT devic... missing_value" />
-            <marker date="1470140452593" expanded="true" signature="5944:6185" ph="SELECT devic... missing_value" />
-            <marker date="1470140452593" expanded="true" signature="6971:6990" ph="SELECT devic... missing_value" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -809,7 +746,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="319">
           <caret line="275" column="35" selection-start-line="275" selection-start-column="31" selection-end-line="275" selection-end-column="35" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -817,9 +753,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="793">
           <caret line="61" column="65" selection-start-line="61" selection-start-column="65" selection-end-line="61" selection-end-column="65" />
-          <folding>
-            <marker date="1470143314217" expanded="true" signature="5312:5411" ph="UPDATE missi... " />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -827,13 +760,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="319">
           <caret line="2892" column="0" selection-start-line="2892" selection-start-column="0" selection-end-line="2892" selection-end-column="0" />
-          <folding>
-            <marker date="1470143570820" expanded="true" signature="57524:57714" ph="SELECT when_... missing_value" />
-            <marker date="1470143570820" expanded="true" signature="62459:62486" ph="SELECT msg_i... missing_value" />
-            <marker date="1470143570820" expanded="true" signature="66342:66369" ph="SELECT run_i... missing_value" />
-            <marker date="1470143570820" expanded="true" signature="80758:80791" ph="DELETE FROM " />
-            <marker date="1470143570820" expanded="true" signature="109477:109835" ph="SELECT t.tab... columns" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -841,9 +767,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="328">
           <caret line="259" column="43" selection-start-line="259" selection-start-column="43" selection-end-line="259" selection-end-column="43" />
-          <folding>
-            <marker date="1470139930779" expanded="true" signature="45968:45983" ph="SELECT id FR... missing_value" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -851,15 +774,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="328">
           <caret line="563" column="4" selection-start-line="563" selection-start-column="4" selection-end-line="563" selection-end-column="4" />
-          <folding>
-            <marker date="1470141761995" expanded="true" signature="13312:13333" ph="SELECT COUNT... missing_value" />
-            <marker date="1470141761995" expanded="true" signature="13312:13340" ph="SELECT COUNT... " />
-            <marker date="1470141761995" expanded="true" signature="13312:13371" ph="SELECT COUNT... missing_value" />
-            <marker date="1470141761995" expanded="true" signature="13312:13372" ph="SELECT COUNT... missing_value" />
-            <marker date="1470141761995" expanded="true" signature="13312:13373" ph="SELECT COUNT... missing_value" />
-            <marker date="1470141761995" expanded="true" signature="13312:13409" ph="SELECT COUNT... missing_value" />
-            <marker date="1470141761995" expanded="true" signature="20210:20225" ph="SELECT id FR... missing_value" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -875,9 +789,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="520">
           <caret line="40" column="22" selection-start-line="40" selection-start-column="15" selection-end-line="40" selection-end-column="22" />
-          <folding>
-            <marker date="1470068420246" expanded="true" signature="3128:3361" ph="INSERT INTO missing_value... " />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -944,22 +855,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server/to_do.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/server/to_do.txt" />
     <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_patient.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-741">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <marker date="1470082732959" expanded="true" signature="25427:25484" ph="SELECT _pk F... " />
-            <marker date="1470082732959" expanded="true" signature="30402:30435" ph="SELECT _pk F... " />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -967,7 +867,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="247">
           <caret line="19" column="0" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -975,7 +874,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="712">
           <caret line="85" column="0" selection-start-line="85" selection-start-column="0" selection-end-line="85" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -983,7 +881,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="559">
           <caret line="73" column="0" selection-start-line="73" selection-start-column="0" selection-end-line="73" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -991,7 +888,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="221">
           <caret line="17" column="0" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -999,7 +895,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="832">
           <caret line="64" column="0" selection-start-line="64" selection-start-column="0" selection-end-line="64" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1007,7 +902,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="413">
           <caret line="63" column="32" selection-start-line="63" selection-start-column="32" selection-end-line="63" selection-end-column="32" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1015,26 +909,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="302">
           <caret line="620" column="6" selection-start-line="620" selection-start-column="6" selection-end-line="620" selection-end-column="6" />
-          <folding>
-            <marker date="1470145723304" expanded="true" signature="8387:8406" ph="ALTER TABLE " />
-            <marker date="1470145723304" expanded="true" signature="8387:8469" ph="ALTER TABLE " />
-            <marker date="1470145723304" expanded="true" signature="8545:8581" ph="ALTER TABLE " />
-            <marker date="1470145723304" expanded="true" signature="8681:8721" ph="ALTER TABLE " />
-            <marker date="1470145723304" expanded="true" signature="8756:8824" ph="ALTER TABLE " />
-            <marker date="1470145723304" expanded="true" signature="8859:8900" ph="ALTER TABLE " />
-            <marker date="1470145723304" expanded="true" signature="9178:9260" ph="ALTER TABLE missing_value... " />
-            <marker date="1470145723304" expanded="true" signature="9336:9372" ph="ALTER TABLE missing_value... " />
-            <marker date="1470145723304" expanded="true" signature="9472:9512" ph="ALTER TABLE missing_value... " />
-            <marker date="1470145723304" expanded="true" signature="9547:9617" ph="ALTER TABLE missing_value... " />
-            <marker date="1470145723304" expanded="true" signature="9652:9697" ph="ALTER TABLE missing_value... " />
-            <marker date="1470145723304" expanded="true" signature="10164:10216" ph="ALTER TABLE " />
-            <marker date="1470145723304" expanded="true" signature="10275:10432" ph="UPDATE missi... " />
-            <marker date="1470145723304" expanded="true" signature="10543:10575" ph="ALTER TABLE missing_value... " />
-            <marker date="1470145723304" expanded="true" signature="10543:10585" ph="ALTER TABLE " />
-            <marker date="1470145723304" expanded="true" signature="11194:11246" ph="ALTER TABLE missing_value... " />
-            <marker date="1470145723304" expanded="true" signature="11305:11466" ph="UPDATE missi... " />
-            <marker date="1470145723304" expanded="true" signature="11575:11607" ph="ALTER TABLE missing_value... " />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1042,7 +916,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="328">
           <caret line="127" column="8" selection-start-line="127" selection-start-column="8" selection-end-line="127" selection-end-column="8" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1050,7 +923,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="247">
           <caret line="34" column="12" selection-start-line="34" selection-start-column="12" selection-end-line="34" selection-end-column="12" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1058,7 +930,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="663">
           <caret line="448" column="28" selection-start-line="448" selection-start-column="28" selection-end-line="448" selection-end-column="28" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1066,42 +937,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="523">
           <caret line="1277" column="26" selection-start-line="1277" selection-start-column="26" selection-end-line="1277" selection-end-column="26" />
-          <folding>
-            <marker date="1470149836198" expanded="true" signature="18129:18209" ph="SELECT _pk F... " />
-            <marker date="1470149836198" expanded="true" signature="18764:18856" ph="SELECT _pk F... " />
-            <marker date="1470149836198" expanded="true" signature="19656:19736" ph="SELECT _pk F... " />
-            <marker date="1470149836198" expanded="true" signature="21441:21526" ph="SELECT COUNT... missing_value" />
-            <marker date="1470149836198" expanded="true" signature="22229:22317" ph="SELECT missi... missing_value" />
-            <marker date="1470149836198" expanded="true" signature="22881:22968" ph="SELECT MAX(m... missing_value" />
-            <marker date="1470149836198" expanded="true" signature="23436:23713" ph="UPDATE missi... " />
-            <marker date="1470149836198" expanded="true" signature="24511:24559" ph="SELECT COUNT... missing_value" />
-            <marker date="1470149836198" expanded="true" signature="25351:25411" ph="SELECT COUNT... missing_value" />
-            <marker date="1470149836198" expanded="true" signature="28464:28497" ph="SELECT * fro... missing_value" />
-            <marker date="1470149836198" expanded="true" signature="29423:29568" ph="UPDATE missi... " />
-            <marker date="1470149836198" expanded="true" signature="30668:30808" ph="SELECT ongoi... missing_value" />
-            <marker date="1470149836198" expanded="true" signature="31606:31764" ph="UPDATE missi... " />
-            <marker date="1470149836198" expanded="true" signature="32276:32435" ph="UPDATE missi... " />
-            <marker date="1470149836198" expanded="true" signature="32720:32792" ph="UPDATE missi... " />
-            <marker date="1470149836198" expanded="true" signature="33386:33433" ph="SELECT table... missing_value" />
-            <marker date="1470149836198" expanded="true" signature="33720:33805" ph="UPDATE missi... " />
-            <marker date="1470149836198" expanded="true" signature="34115:34237" ph="UPDATE missi... " />
-            <marker date="1470149836198" expanded="true" signature="34760:34882" ph="UPDATE missi... " />
-            <marker date="1470149836198" expanded="true" signature="35502:35584" ph="UPDATE missi... " />
-            <marker date="1470149836198" expanded="true" signature="35858:35930" ph="UPDATE missi... " />
-            <marker date="1470149836198" expanded="true" signature="37253:37485" ph="UPDATE missi... " />
-            <marker date="1470149836198" expanded="true" signature="37753:37989" ph="UPDATE missi... " />
-            <marker date="1470149836198" expanded="true" signature="38395:38578" ph="UPDATE missi... " />
-            <marker date="1470149836198" expanded="true" signature="38942:39079" ph="UPDATE missi... " />
-            <marker date="1470149836198" expanded="true" signature="39285:39456" ph="UPDATE missi... " />
-            <marker date="1470149836198" expanded="true" signature="39818:40192" ph="UPDATE missi... " />
-            <marker date="1470149836198" expanded="true" signature="40462:40535" ph="DELETE FROM " />
-            <marker date="1470149836198" expanded="true" signature="41143:41203" ph="DELETE FROM " />
-            <marker date="1470149836198" expanded="true" signature="41323:41576" ph="UPDATE missi... " />
-            <marker date="1470149836198" expanded="true" signature="41744:41835" ph="UPDATE missi... " />
-            <marker date="1470149836198" expanded="true" signature="42098:42141" ph="DELETE FROM " />
-            <marker date="1470149836198" expanded="true" signature="43987:44028" ph="SELECT COUNT... missing_value" />
-            <marker date="1470149836198" expanded="true" signature="44189:44391" ph="UPDATE missi... " />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1119,7 +954,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="572">
           <caret line="291" column="32" selection-start-line="291" selection-start-column="17" selection-end-line="291" selection-end-column="32" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1127,7 +961,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1135,7 +968,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1143,24 +975,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="355">
           <caret line="299" column="44" selection-start-line="299" selection-start-column="17" selection-end-line="299" selection-end-column="44" />
-          <folding>
-            <marker date="1470140493833" expanded="true" signature="28071:29551" ph="SELECT r.lps... patient" />
-            <marker date="1470140493833" expanded="true" signature="28416:28439" ph="/* standard " />
-            <marker date="1470140493833" expanded="true" signature="28642:28666" ph="/* not yet d... " />
-            <marker date="1470140493833" expanded="true" signature="28885:28901" ph="/* link on I... " />
-            <marker date="1470140493833" expanded="true" signature="28976:29011" ph="/* discharge... " />
-            <marker date="1470140493833" expanded="true" signature="29153:29176" ph="/* standard " />
-            <marker date="1470140493833" expanded="true" signature="30260:32534" ph="SELECT r.lps... patient" />
-            <marker date="1470140493833" expanded="true" signature="30605:30628" ph="/* standard " />
-            <marker date="1470140493833" expanded="true" signature="30831:30855" ph="/* not yet d... " />
-            <marker date="1470140493833" expanded="true" signature="31074:31090" ph="/* link on I... " />
-            <marker date="1470140493833" expanded="true" signature="31165:31200" ph="/* discharge... " />
-            <marker date="1470140493833" expanded="true" signature="31342:31365" ph="/* standard " />
-            <marker date="1470140493833" expanded="true" signature="31630:31651" ph="/* not yet c... " />
-            <marker date="1470140493833" expanded="true" signature="31871:31887" ph="/* link on I... " />
-            <marker date="1470140493833" expanded="true" signature="31962:31996" ph="/* clerking " />
-            <marker date="1470140493833" expanded="true" signature="32136:32159" ph="/* standard " />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1168,7 +982,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="143">
           <caret line="23" column="0" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1176,7 +989,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1184,7 +996,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="663">
           <caret line="51" column="38" selection-start-line="51" selection-start-column="38" selection-end-line="51" selection-end-column="38" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1192,7 +1003,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="312">
           <caret line="97" column="0" selection-start-line="97" selection-start-column="0" selection-end-line="97" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1200,7 +1010,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="303">
           <caret line="131" column="9" selection-start-line="131" selection-start-column="4" selection-end-line="131" selection-end-column="9" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1208,7 +1017,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="354">
           <caret line="44" column="0" selection-start-line="44" selection-start-column="0" selection-end-line="44" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1216,9 +1024,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="598">
           <caret line="190" column="0" selection-start-line="190" selection-start-column="0" selection-end-line="190" selection-end-column="0" />
-          <folding>
-            <marker date="1470140337379" expanded="true" signature="7312:8167" ph="SELECT p.sur... patient" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1226,7 +1031,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="355">
           <caret line="240" column="16" selection-start-line="240" selection-start-column="16" selection-end-line="240" selection-end-column="44" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1234,7 +1038,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1242,7 +1045,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1250,7 +1052,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1258,7 +1059,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="495">
           <caret line="118" column="23" selection-start-line="118" selection-start-column="16" selection-end-line="118" selection-end-column="23" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1272,23 +1072,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/bmi.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="329">
+        <state relative-caret-position="546">
           <caret line="42" column="0" selection-start-line="42" selection-start-column="0" selection-end-line="42" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_string.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="339">
-          <caret line="128" column="4" selection-start-line="128" selection-start-column="4" selection-end-line="128" selection-end-column="4" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_task.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="329">
+        <state relative-caret-position="1430">
           <caret line="110" column="0" selection-start-line="110" selection-start-column="0" selection-end-line="110" selection-end-column="65" />
           <folding>
             <marker date="1470143208236" expanded="true" signature="45944:46154" ph="UPDATE missi... " />
@@ -1305,17 +1097,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/bprse.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="222">
-          <caret line="96" column="24" selection-start-line="96" selection-start-column="17" selection-end-line="96" selection-end-column="24" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/bprs.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="846">
+        <state relative-caret-position="1703">
           <caret line="131" column="39" selection-start-line="131" selection-start-column="39" selection-end-line="131" selection-end-column="39" />
           <folding />
         </state>
@@ -1331,7 +1115,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/cape42.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="433">
+        <state relative-caret-position="5603">
           <caret line="431" column="50" selection-start-line="431" selection-start-column="50" selection-end-line="431" selection-end-column="50" />
           <folding />
         </state>
@@ -1339,7 +1123,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/caps.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="417">
+        <state relative-caret-position="2223">
           <caret line="171" column="28" selection-start-line="171" selection-start-column="28" selection-end-line="171" selection-end-column="28" />
           <folding />
         </state>
@@ -1347,8 +1131,24 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/cbir.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2185">
-          <caret line="358" column="25" selection-start-line="358" selection-start-column="25" selection-end-line="358" selection-end-column="25" />
+        <state relative-caret-position="842">
+          <caret line="311" column="24" selection-start-line="311" selection-start-column="24" selection-end-line="311" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/bprse.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1248">
+          <caret line="96" column="24" selection-start-line="96" selection-start-column="17" selection-end-line="96" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_string.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1664">
+          <caret line="128" column="4" selection-start-line="128" selection-start-column="4" selection-end-line="128" selection-end-column="4" />
           <folding />
         </state>
       </provider>

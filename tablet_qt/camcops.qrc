@@ -182,5 +182,45 @@
         <file>images/dt/dt_unsel_8.png</file>
         <file>images/dt/dt_unsel_9.png</file>
         <file>images/dt/dt_unsel_10.png</file>
+        <file>images/ace3/a.png</file>
+        <file>images/ace3/accordion.png</file>
+        <file>images/ace3/anchor.png</file>
+        <file>images/ace3/barrel.png</file>
+        <file>images/ace3/book.png</file>
+        <file>images/ace3/camel.png</file>
+        <file>images/ace3/crocodile.png</file>
+        <file>images/ace3/crown.png</file>
+        <file>images/ace3/cube.png</file>
+        <file>images/ace3/dots10.png</file>
+        <file>images/ace3/dots7.png</file>
+        <file>images/ace3/dots8.png</file>
+        <file>images/ace3/dots9.png</file>
+        <file>images/ace3/harp.png</file>
+        <file>images/ace3/infinity.png</file>
+        <file>images/ace3/k.png</file>
+        <file>images/ace3/kangaroo.png</file>
+        <file>images/ace3/m.png</file>
+        <file>images/ace3/penguin.png</file>
+        <file>images/ace3/rhinoceros.png</file>
+        <file>images/ace3/spoon.png</file>
+        <file>images/ace3/t.png</file>
+        <file>images/expdet/V_background.png</file>
+        <file>images/expdet/V_cue_00.png</file>
+        <file>images/expdet/V_cue_01.png</file>
+        <file>images/expdet/V_cue_02.png</file>
+        <file>images/expdet/V_cue_03.png</file>
+        <file>images/expdet/V_cue_04.png</file>
+        <file>images/expdet/V_cue_05.png</file>
+        <file>images/expdet/V_cue_06.png</file>
+        <file>images/expdet/V_cue_07.png</file>
+        <file>images/expdet/V_target_0_circle.png</file>
+        <file>images/expdet/V_target_1_word.png</file>
+        <file>images/ifs/swm.png</file>
+        <file>images/moca/animals.png</file>
+        <file>images/moca/clock.png</file>
+        <file>images/moca/cube.png</file>
+        <file>images/moca/path.png</file>
+        <file>images/slums/circle.png</file>
+        <file>images/slums/shapes.png</file>
     </qresource>
 </RCC>

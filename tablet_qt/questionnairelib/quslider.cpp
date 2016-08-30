@@ -244,7 +244,6 @@ void QuSlider::sliderValueChanged(int slider_value)
 
 void QuSlider::completePendingFieldWrite()
 {
-    // qDebug() << "QuSlider::completePendingFieldWrite()";
     if (!m_field_write_pending) {
         return;
     }

@@ -108,10 +108,8 @@ QPointer<QWidget> QuText::makeWidget(Questionnaire* questionnaire)
 
 void QuText::fieldValueChanged(const FieldRef* fieldref)
 {
-    qDebug().nospace() << "QuText: receiving valueChanged: this=" << this
-                       << ", value=" << fieldref->value();
     if (!m_label) {
-        qDebug() << "... NO LABEL";
+        qDebug() << Q_FUNC_INFO << "... NO LABEL";
         return;
     }
     m_label->setText(fieldref->valueString());

@@ -24,6 +24,7 @@
 #include "questionnairelib/qulineeditdouble.h"
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qumcq.h"
+#include "questionnairelib/qumultipleresponse.h"
 #include "questionnairelib/qupickerinline.h"
 #include "questionnairelib/qupickerpopup.h"
 #include "questionnairelib/quslider.h"
@@ -58,6 +59,11 @@ DemoQuestionnaire::DemoQuestionnaire(const QSqlDatabase& db, int load_pk) :
     addField("q17", QVariant::String);
     addField("q18", QVariant::Int);
     addField("q19", QVariant::Double);
+    addField("q20a", QVariant::Bool);
+    addField("q20b", QVariant::Bool);
+    addField("q20c", QVariant::Bool);
+    addField("q20d", QVariant::Bool);
+    addField("q20e", QVariant::Bool);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -95,7 +101,7 @@ QString DemoQuestionnaire::summary() const
 
 OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
 {
-    qDebug() << "DemoQuestionnaire::edit()";
+    qDebug() << Q_FUNC_INFO;
     QString longtext = (  // http://www.lipsum.com/
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent "
         "sed cursus mauris. Ut vulputate felis quis dolor molestie convallis. "
@@ -299,7 +305,7 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
         // {"option_NULL", QVariant()},  // will assert
         {"option_99", 99},
     };
-    QuPagePtr p6((new QuPage{
+    QuPagePtr page_mcq((new QuPage{
         QuElementPtr(new QuHeading("Plain MCQ:")),
         QuElementPtr(new QuMCQ(fieldRef("q2"), options_A)),
         QuElementPtr(new QuHeading("Same MCQ/field, reconfigured (randomized, "
@@ -323,7 +329,21 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
         QuElementPtr((new QuMCQ(fieldRef("q3"), options_B))
                           ->setHorizontal(true)
                           ->setAsTextButton(true)),
-    })->setTitle("Page 6: multiple-choice questions (MCQs)"));
+    })->setTitle("Multiple-choice questions (MCQs)"));
+
+    // ========================================================================
+    // Multiple responses
+    // ========================================================================
+
+    QuPagePtr page_multiple_response((new QuPage{
+        QuElementPtr((new QuMultipleResponse({
+            QuMultipleResponseItem(fieldRef("q20a"), "(a) First stem"),
+            QuMultipleResponseItem(fieldRef("q20b"), "(b) First stem"),
+            QuMultipleResponseItem(fieldRef("q20c"), "(c) First stem"),
+            QuMultipleResponseItem(fieldRef("q20d"), "(d) First stem"),
+            QuMultipleResponseItem(fieldRef("q20e"), "(e) First stem"),
+        }))->setMinimumAnswers(2)->setMaximumAnswers(3)),
+    })->setTitle("Multiple-response questions"));
 
     // ========================================================================
     // Pickers
@@ -472,7 +492,8 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
     // ========================================================================
 
     Questionnaire* questionnaire = new Questionnaire(app, {
-        p1, p2, p3, p4, p5, p6, page_pickers,
+        p1, p2, p3, p4, p5,
+        page_mcq, page_multiple_response, page_pickers,
         page_sliders, page_vars,
     });
     questionnaire->setReadOnly(read_only);

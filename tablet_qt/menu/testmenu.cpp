@@ -101,7 +101,8 @@ void TestMenu::testPhq9Creation()
     QString tablename = "phq9";
     TaskPtr p_task = m_app.factory()->create(tablename);
     if (!p_task) {
-        qCritical() << "Failed to create task: " << qUtf8Printable(tablename);
+        qCritical() << Q_FUNC_INFO << "Failed to create task: "
+                    << qUtf8Printable(tablename);
         return;
     }
     qDebug() << *p_task;

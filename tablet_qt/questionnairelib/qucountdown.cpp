@@ -120,11 +120,11 @@ void QuCountdown::tick()
     --m_whole_seconds_left;
     if (m_whole_seconds_left < 0) {
         // Finished!
-        qDebug() << "QuCountdown::tick() - finished";
+        qDebug() << Q_FUNC_INFO << "- finished";
         bong();
         stop();  // will call updateDisplay()
     } else {
-        qDebug() << "QuCountdown::tick()" << m_whole_seconds_left
+        qDebug() << Q_FUNC_INFO << "-" << m_whole_seconds_left
                  << "whole seconds left";
         updateDisplay();
     }

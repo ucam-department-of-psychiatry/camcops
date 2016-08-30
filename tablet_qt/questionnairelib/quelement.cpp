@@ -1,4 +1,5 @@
 #include "quelement.h"
+#include "lib/fieldref.h"
 #include <QWidget>
 
 
@@ -40,6 +41,18 @@ QPointer<QWidget> QuElement::widget(Questionnaire* questionnaire)
 QList<QuElementPtr> QuElement::subelements() const
 {
     return QList<QuElementPtr>();
+}
+
+
+bool QuElement::missingInput() const
+{
+    FieldRefPtrList frefs = fieldrefs();
+    for (FieldRefPtr f : frefs) {
+        if (f->missingInput()) {
+            return true;
+        }
+    }
+    return false;
 }
 
 

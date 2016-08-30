@@ -55,7 +55,7 @@ double Numeric::firstDigitsDouble(double number, int n_digits, int max_dp)
     bool sign_present = number < 0;
     QString left = formatted.left(sign_present ? n_digits + 1 : n_digits);
     double result = left.toDouble();
-    qDebug() << "firstDigitsDouble: formatted" << formatted
+    qDebug() << Q_FUNC_INFO << "- formatted" << formatted
              << "n_digits" << n_digits
              << "left" << left
              << "result" << result;

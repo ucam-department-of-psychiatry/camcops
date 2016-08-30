@@ -98,7 +98,7 @@ void QuThermometer::setFromField()
 void QuThermometer::clicked(int index)
 {
     if (index < 0 || index >= m_items.size()) {
-        qWarning() << "QuThermometer::clicked - out of range";
+        qWarning() << Q_FUNC_INFO << "- out of range";
         return;
     }
     QVariant newvalue = m_items.at(index).value();

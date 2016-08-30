@@ -52,7 +52,7 @@ QPointer<QWidget> QuContainerGrid::makeWidget(Questionnaire* questionnaire)
         QPointer<QWidget> w = e->widget(questionnaire);
 #ifdef DEBUG_GRID_CREATION
         w->setObjectName("debug_red");
-        qDebug() << "QuContainerGrid::makeWidget:" << c;
+        qDebug() << Q_FUNC_INFO << "-" << c;
 #endif
         grid->addWidget(w, c.row, c.column,
                         c.row_span, c.column_span, c.alignment);

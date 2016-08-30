@@ -124,7 +124,7 @@ void CamcopsApp::open(OpenableWidget* widget, TaskPtr task,
                       bool may_alter_task)
 {
     if (!widget) {
-        qCritical() << "CamcopsApp::open: attempt to open nullptr";
+        qCritical() << Q_FUNC_INFO << "- attempt to open nullptr";
         return;
     }
 

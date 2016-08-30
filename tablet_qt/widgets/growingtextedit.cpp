@@ -47,14 +47,14 @@ QSize GrowingTextEdit::sizeHint() const
     } else {
         size_hint = QTextEdit::sizeHint();
     }
-    // qDebug() << "GrowingTextEdit::sizeHint:" << size_hint;
+    // qDebug() << Q_FUNC_INFO << "-" << size_hint;
     return size_hint;
 }
 
 
 void GrowingTextEdit::contentsChanged()
 {
-    // qDebug() << "GrowingTextEdit::contentsChanged";
+    // qDebug() << Q_FUNC_INFO;
     document()->setTextWidth(viewport()->width());
     updateGeometry();
 }

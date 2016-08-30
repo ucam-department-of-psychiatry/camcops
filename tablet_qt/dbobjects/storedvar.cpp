@@ -50,7 +50,7 @@ StoredVar::StoredVar(const QSqlDatabase& db, const QString& name,
                                 "type %1").arg(type));
     }
     if (!TYPEMAP.contains(type)) {
-        qCritical() << "QVariant type unknown to StoredVar:" << type;
+        qCritical() << Q_FUNC_INFO << "QVariant type unknown:" << type;
         UiFunc::stopApp("type unknown to StoredVar; see debug console for "
                         "enum");
     }

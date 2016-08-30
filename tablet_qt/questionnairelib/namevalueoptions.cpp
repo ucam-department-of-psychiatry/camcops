@@ -65,7 +65,8 @@ void NameValueOptions::validateOrDie()
         const NameValuePair& nvp = m_options.at(i);
         const QVariant& v = nvp.value();
         if (values.contains(v)) {
-            qCritical() << "Name/value pair contains duplicate value:" << v;
+            qCritical() << Q_FUNC_INFO
+                        << "Name/value pair contains duplicate value:" << v;
             UiFunc::stopApp("Duplicate name/value pair for name: " +
                             nvp.name());
         }

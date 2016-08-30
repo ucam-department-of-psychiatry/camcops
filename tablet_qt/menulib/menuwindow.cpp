@@ -73,7 +73,7 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
 
 void MenuWindow::build()
 {
-    // qDebug() << "MenuWindow::build()";
+    // qDebug() << Q_FUNC_INFO;
 
     // You can't call setLayout() twice. So clear the existing layout if
     // rebuilding.
@@ -159,7 +159,7 @@ void MenuWindow::menuItemClicked(QListWidgetItem* item)
     QVariant v = item->data(Qt::UserRole);
     int i = v.toInt();
     if (i < 0 || i >= m_items.size()) {
-        qWarning() << "Selection out of range:" << i
+        qWarning() << Q_FUNC_INFO << "Selection out of range:" << i
                    << "(vector size:" << m_items.size() << ")";
         return;
     }

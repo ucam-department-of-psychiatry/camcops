@@ -43,7 +43,7 @@ QPixmap UiFunc::getPixmap(const QString& filename, const QSize& size,
             pm = pm.scaled(size, Qt::IgnoreAspectRatio);
         }
     } else {
-        qCritical() << "Unable to load icon:" << filename;
+        qCritical() << Q_FUNC_INFO << "Unable to load icon:" << filename;
     }
     return pm;
 }
@@ -273,7 +273,7 @@ void UiFunc::setProperty(QWidget* widget, const QString& property,
                          const QVariant& value, bool repolish)
 {
     if (!widget) {
-        qWarning() << "Attempt blocked to call setProperty with null widget";
+        qWarning() << Q_FUNC_INFO << "- ignored for null widget";
         return;
     }
     const char* propname = property.toLatin1().data();

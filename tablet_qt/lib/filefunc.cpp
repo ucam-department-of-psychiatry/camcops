@@ -22,7 +22,7 @@ QString FileFunc::textfileContents(const QString& filename)
 {
     QFile file(filename);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        qCritical() << "FAILED TO OPEN FILE:" << filename;
+        qCritical() << Q_FUNC_INFO << "FAILED TO OPEN FILE:" << filename;
         return "";
     } else {
 #ifdef DEBUG_READ_FILE

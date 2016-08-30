@@ -26,7 +26,7 @@ void PatientSummaryMenu::build()
 
     // Task items
     TaskPtrList tasklist = factory->fetch();
-    qDebug() << "PatientSummaryMenu::build:" << tasklist.size() << "tasks";
+    qDebug() << Q_FUNC_INFO << "-" << tasklist.size() << "tasks";
     for (auto task : tasklist) {
         m_items.append(MenuItem(task));
     }
