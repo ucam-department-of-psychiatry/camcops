@@ -41,8 +41,8 @@ public:
 };
 
 
-typedef QList<QVariant> ArgList;
-typedef QMap<QString, QVariant> WhereConditions;
+using ArgList = QList<QVariant>;
+using WhereConditions = QMap<QString, QVariant>;
 
 
 struct SqlArgs {

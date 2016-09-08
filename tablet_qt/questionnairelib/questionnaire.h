@@ -12,7 +12,7 @@ class QWidget;
 
 class CamcopsApp;
 class Questionnaire;
-typedef QSharedPointer<Questionnaire> QuestionnairePtr;
+using QuestionnairePtr = QSharedPointer<Questionnaire>;
 class QuestionnaireHeader;
 
 

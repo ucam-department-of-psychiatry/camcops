@@ -134,7 +134,8 @@ SOURCES += main.cpp\
     questionnairelib/qumultipleresponse.cpp \
     questionnairelib/qumultipleresponseitem.cpp \
     questionnairelib/qucanvas.cpp \
-    widgets/canvaswidget.cpp
+    widgets/canvaswidget.cpp \
+    questionnairelib/quphoto.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -240,7 +241,8 @@ HEADERS  += \
     questionnairelib/qumultipleresponse.h \
     questionnairelib/qumultipleresponseitem.h \
     questionnairelib/qucanvas.h \
-    widgets/canvaswidget.h
+    widgets/canvaswidget.h \
+    questionnairelib/quphoto.h
 
 CONFIG += debug
 CONFIG += mobility

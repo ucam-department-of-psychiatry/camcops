@@ -1,4 +1,5 @@
 #define DEBUG_SET_VALUE
+// #define DEBUG_SET_VALUE_EVEN_GIANT
 // #define DEBUG_SIGNALS
 
 #include "fieldref.h"
@@ -83,7 +84,20 @@ void FieldRef::setValue(const QVariant& value, const QObject* originator)
     // to other code reading our value.
 
 #ifdef DEBUG_SET_VALUE
+#ifdef DEBUG_SET_VALUE_EVEN_GIANT
     qDebug() << Q_FUNC_INFO << "- value:" << value;
+#else
+    switch (value.type()) {
+    // Big things
+    case QVariant::ByteArray:
+        qDebug() << Q_FUNC_INFO << "- setting to a QVariant::ByteArray";
+        break;
+    // Normal things
+    default:
+        qDebug() << Q_FUNC_INFO << "- value:" << value;
+        break;
+    }
+#endif
 #endif
 
     // Store value

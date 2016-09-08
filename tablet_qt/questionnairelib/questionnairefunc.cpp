@@ -6,7 +6,7 @@
 #include "qutext.h"
 
 
-QuElementPtr QuestionnaireFunc::defaultGrid(
+QuElement* QuestionnaireFunc::defaultGridRawPointer(
         const QList<GridRowDefinition>& deflist,
         int left_column_span,
         int right_column_span,
@@ -38,7 +38,22 @@ QuElementPtr QuestionnaireFunc::defaultGrid(
     QuContainerGrid* grid = new QuContainerGrid(cells);
     grid->setColumnStretch(left_col, left_column_span);
     grid->setColumnStretch(right_col, right_column_span);
-    return QuElementPtr(grid);
+    return grid;
+}
+
+
+QuElementPtr QuestionnaireFunc::defaultGrid(
+        const QList<GridRowDefinition>& deflist,
+        int left_column_span,
+        int right_column_span,
+        Qt::Alignment label_alignment,
+        Qt::Alignment left_column_alignment,
+        Qt::Alignment right_column_alignment)
+{
+    return QuElementPtr(defaultGridRawPointer(
+                            deflist, left_column_span, right_column_span,
+                            label_alignment,
+                            left_column_alignment, right_column_alignment));
 }
 
 
@@ -54,4 +69,27 @@ QuElementPtr QuestionnaireFunc::defaultGrid(
     return defaultGrid(deflist, left_column_span, right_column_span,
                        label_alignment,
                        left_column_alignment, right_column_alignment);
+}
+
+
+QuElement* QuestionnaireFunc::defaultGridRawPointer(
+        std::initializer_list<GridRowDefinitionRawPtr> defs,
+        int left_column_span,
+        int right_column_span,
+        Qt::Alignment label_alignment,
+        Qt::Alignment left_column_alignment,
+        Qt::Alignment right_column_alignment)
+{
+    QList<GridRowDefinition> deflist;
+    for (auto rawptrdef : defs) {
+        // rawptrdef will be of type GridRowDefinitionRawPtr
+        //
+        GridRowDefinition sharedptrdef(rawptrdef.first,
+                                       QuElementPtr(rawptrdef.second));
+        deflist.append(sharedptrdef);
+    }
+    return defaultGridRawPointer(
+                deflist, left_column_span, right_column_span,
+                label_alignment,
+                left_column_alignment, right_column_alignment);
 }

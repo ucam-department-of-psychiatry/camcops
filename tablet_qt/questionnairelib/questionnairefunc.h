@@ -4,12 +4,20 @@
 #include <QSharedPointer>
 
 class QuElement;
-typedef QSharedPointer<QuElement> QuElementPtr;
-typedef QPair<QString, QuElementPtr> GridRowDefinition;
+using QuElementPtr = QSharedPointer<QuElement>;
+using GridRowDefinition = QPair<QString, QuElementPtr>;
+using GridRowDefinitionRawPtr = QPair<QString, QuElement*>;
 class QuGridCell;
 
 
 namespace QuestionnaireFunc {
+    QuElement* defaultGridRawPointer(
+        const QList<GridRowDefinition>& deflist,
+        int left_column_span = 1,
+        int right_column_span = 1,
+        Qt::Alignment label_alignment = Qt::AlignRight | Qt::AlignTop,
+        Qt::Alignment left_column_alignment = 0,
+        Qt::Alignment right_column_alignment = 0);
     QuElementPtr defaultGrid(
         const QList<GridRowDefinition>& deflist,
         int left_column_span = 1,
@@ -19,6 +27,13 @@ namespace QuestionnaireFunc {
         Qt::Alignment right_column_alignment = 0);
     QuElementPtr defaultGrid(
         std::initializer_list<GridRowDefinition> defs,
+        int left_column_span = 1,
+        int right_column_span = 1,
+        Qt::Alignment label_alignment = Qt::AlignRight | Qt::AlignTop,
+        Qt::Alignment left_column_alignment = 0,
+        Qt::Alignment right_column_alignment = 0);
+    QuElement* defaultGridRawPointer(
+        std::initializer_list<GridRowDefinitionRawPtr> defs,
         int left_column_span = 1,
         int right_column_span = 1,
         Qt::Alignment label_alignment = Qt::AlignRight | Qt::AlignTop,

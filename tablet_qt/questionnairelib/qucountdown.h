@@ -31,7 +31,7 @@ protected:
     QPointer<QPushButton> m_stop_button;
     QPointer<QPushButton> m_reset_button;
     QPointer<QLabel> m_label;
-    QPointer<QTimer> m_timer;
+    QSharedPointer<QTimer> m_timer;
     QSharedPointer<QMediaPlayer> m_player;  // not owned by other widgets
     int m_whole_seconds_left;
 };

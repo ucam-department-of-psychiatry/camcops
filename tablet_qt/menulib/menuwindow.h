@@ -11,7 +11,7 @@ class QListWidgetItem;
 class QVBoxLayout;
 class MenuHeader;
 class Task;
-typedef QSharedPointer<Task> TaskPtr;
+using TaskPtr = QSharedPointer<Task>;
 
 
 class MenuWindow : public OpenableWidget

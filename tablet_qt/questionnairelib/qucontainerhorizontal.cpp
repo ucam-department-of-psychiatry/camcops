@@ -23,10 +23,27 @@ QuContainerHorizontal::QuContainerHorizontal(
 }
 
 
+QuContainerHorizontal::QuContainerHorizontal(
+        std::initializer_list<QuElement*> elements)
+{
+    for (auto e : elements) {
+        addElement(e);
+    }
+}
+
+
 QuContainerHorizontal* QuContainerHorizontal::addElement(
         const QuElementPtr& element)
 {
     m_elements.append(element);
+    return this;
+}
+
+
+QuContainerHorizontal* QuContainerHorizontal::addElement(
+        QuElement* element)  // takes ownership
+{
+    m_elements.append(QuElementPtr(element));
     return this;
 }
 

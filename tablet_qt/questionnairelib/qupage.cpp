@@ -24,6 +24,14 @@ QuPage::QuPage(std::initializer_list<QuElementPtr> elements) :
 {
 }
 
+QuPage::QuPage(std::initializer_list<QuElement*> elements) :  // takes ownership
+    m_type(PageType::Inherit)
+{
+    for (auto e : elements) {
+        addElement(e);
+    }
+}
+
 
 QuPage* QuPage::setType(PageType type)
 {
@@ -42,6 +50,13 @@ QuPage* QuPage::setTitle(const QString& title)
 QuPage* QuPage::addElement(const QuElementPtr& element)
 {
     m_elements.append(element);
+    return this;
+}
+
+
+QuPage* QuPage::addElement(QuElement* element)  // takes ownership
+{
+    addElement(QuElementPtr(element));
     return this;
 }
 

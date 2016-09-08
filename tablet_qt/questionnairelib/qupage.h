@@ -10,7 +10,7 @@ class QWidget;
 class Questionnaire;
 class QuPage;
 
-typedef QSharedPointer<QuPage> QuPagePtr;
+using QuPagePtr = QSharedPointer<QuPage>;
 
 
 class QuPage : public QObject
@@ -29,10 +29,12 @@ public:
     QuPage();
     QuPage(const QList<QuElementPtr>& elements);
     QuPage(std::initializer_list<QuElementPtr> elements);
+    QuPage(std::initializer_list<QuElement*> elements);  // takes ownership
 
     QuPage* setType(PageType type);
     QuPage* setTitle(const QString& title);
     QuPage* addElement(const QuElementPtr& element);
+    QuPage* addElement(QuElement* element);  // takes ownership
 
     PageType type() const;
     QString title() const;

@@ -14,9 +14,9 @@ class QStackedWidget;
 
 class OpenableWidget;
 class StoredVar;
-typedef QSharedPointer<StoredVar> StoredVarPtr;
+using StoredVarPtr = QSharedPointer<StoredVar>;
 class TaskFactory;
-typedef QSharedPointer<TaskFactory> TaskFactoryPtr;
+using TaskFactoryPtr = QSharedPointer<TaskFactory>;
 
 
 struct OpenableInfo {

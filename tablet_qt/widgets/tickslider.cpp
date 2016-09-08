@@ -200,127 +200,127 @@ void TickSlider::paintEvent(QPaintEvent *ev)
 
     bool using_ticks = tickPosition() != NoTicks;
     bool using_labels = tickLabelPosition() != NoTicks;
-    if (using_ticks || using_labels) {
-        QPen pen;
-        pen.setColor(m_tick_colour);
-        pen.setWidth(m_tick_thickness);
-        p.setPen(pen);
-        bool horizontal = orientation() == Qt::Horizontal;
-        QSize biggest_label = biggestLabel();
-        int max_label_height = using_labels ? biggest_label.height() : 0;
-        int max_label_width = using_labels ? biggest_label.width() : 0;
-        if (horizontal) {
-            int move_tick_by = (max_label_height > 0)
-                    ? (max_label_height + m_tick_label_gap)
-                    : 0;
-            // Top
-            int bounding_box_top = this->rect().top();
-            int top_label_top = bounding_box_top;
-            int top_tick_top = bounding_box_top + move_tick_by;
-            int top_tick_bottom = top_tick_top + m_tick_length;
-            // Bottom, working up
-            int bounding_box_bottom = this->rect().bottom();
-            int bottom_label_bottom = bounding_box_bottom;
-            int bottom_tick_bottom = bounding_box_bottom - move_tick_by;
-            int bottom_tick_top = bottom_tick_bottom - m_tick_length;
-            // OK:
-            for (int i = minimum(); i <= maximum(); i += interval) {
-                bool leftmost = i == minimum();
-                bool rightmost = i == maximum();
-                Qt::Alignment halign = leftmost
-                        ? Qt::AlignLeft
-                        : (rightmost ? Qt::AlignRight : Qt::AlignHCenter);
-                int q = m_reverse_horizontal_labels ? (maximum() - i) : i;
-                int x = round(
+    if (!using_ticks && !using_labels) {
+        return;
+    }
+    QPen pen;
+    pen.setColor(m_tick_colour);
+    pen.setWidth(m_tick_thickness);
+    p.setPen(pen);
+    bool horizontal = orientation() == Qt::Horizontal;
+    QSize biggest_label = biggestLabel();
+    int max_label_height = using_labels ? biggest_label.height() : 0;
+    int max_label_width = using_labels ? biggest_label.width() : 0;
+    if (horizontal) {
+        // --------------------------------------------------------------------
+        // HORIZONTAL
+        // --------------------------------------------------------------------
+        int move_tick_by = (max_label_height > 0)
+                ? (max_label_height + m_tick_label_gap)
+                : 0;
+        // Top
+        int bounding_box_top = this->rect().top();
+        int top_label_top = bounding_box_top;
+        int top_tick_top = bounding_box_top + move_tick_by;
+        int top_tick_bottom = top_tick_top + m_tick_length;
+        // Bottom, working up
+        int bounding_box_bottom = this->rect().bottom();
+        int bottom_label_bottom = bounding_box_bottom;
+        int bottom_tick_bottom = bounding_box_bottom - move_tick_by;
+        int bottom_tick_top = bottom_tick_bottom - m_tick_length;
+        // OK:
+        for (int i = minimum(); i <= maximum(); i += interval) {
+            bool leftmost = i == minimum();
+            bool rightmost = i == maximum();
+            Qt::Alignment halign = leftmost
+                    ? Qt::AlignLeft
+                    : (rightmost ? Qt::AlignRight : Qt::AlignHCenter);
+            int q = m_reverse_horizontal_labels ? (maximum() - i) : i;
+            int x = round(
+                (double)(
                     (double)(
-                        (double)(
-                            (double)(q - this->minimum()) /
-                            (double)(this->maximum() - this->minimum())
-                        ) * (double)(this->width() - handle.width()) +
-                        (double)(handle.width() / 2.0)
-                    )
-                ) - 1;
-                bool has_label = m_tick_labels.contains(i);
-                QString label_text;
-                if (has_label) {
-                    label_text = m_tick_labels[i];
-                }
-                if (tickPosition() == TicksBothSides ||
-                        tickPosition() == TicksAbove) {
-                    p.drawLine(x, top_tick_top, x, top_tick_bottom);
-                }
-                if (has_label && (tickLabelPosition() == TicksBothSides ||
-                                  tickLabelPosition() == TicksAbove)) {
-                    UiFunc::drawText(p, x, top_label_top,
-                                     halign | Qt::AlignTop, label_text);
-                }
-                if (tickPosition() == TicksBothSides ||
-                        tickPosition() == TicksBelow) {
-                    p.drawLine(x, bottom_tick_top, x, bottom_tick_bottom);
-                }
-                if (has_label && (tickLabelPosition() == TicksBothSides ||
-                                  tickLabelPosition() == TicksBelow)) {
-                    UiFunc::drawText(p, x, bottom_label_bottom,
-                                     halign | Qt::AlignBottom, label_text);
-                }
+                        (double)(q - this->minimum()) /
+                        (double)(this->maximum() - this->minimum())
+                    ) * (double)(this->width() - handle.width()) +
+                    (double)(handle.width() / 2.0)
+                )
+            ) - 1;
+            bool has_label = m_tick_labels.contains(i);
+            QString label_text;
+            if (has_label) {
+                label_text = m_tick_labels[i];
             }
-        } else {
-            int move_tick_by = (max_label_width > 0)
-                    ? (max_label_width + m_tick_label_gap)
-                    : 0;
-            // Left
-            int bounding_box_left = this->rect().left();
-            int left_label_right = bounding_box_left + max_label_width;
-            int left_tick_left = bounding_box_left + move_tick_by;
-            int left_tick_right = left_tick_left + m_tick_length;
-            // Right, working leftwards
-            int bounding_box_right = this->rect().right();
-            int right_label_left = bounding_box_right - max_label_width;
-            int right_tick_right = bounding_box_right - move_tick_by;
-            int right_tick_left = right_tick_right - m_tick_length;
-            // OK:
-            for (int i = minimum(); i <= maximum(); i += interval) {
-                /*
-                bool topmost = i == maximum();
-                bool bottommost = i == minimum();
-                Qt::Alignment valign = topmost
-                        ? Qt::AlignTop
-                        : (bottommost ? Qt::AlignBottom : Qt::AlignVCenter);
-                */
-                Qt::Alignment valign = Qt::AlignVCenter;
-                int q = m_reverse_vertical_labels ? (maximum() - i) : i;
-                int y = round(
+            if (tickPosition() == TicksBothSides ||
+                    tickPosition() == TicksAbove) {
+                p.drawLine(x, top_tick_top, x, top_tick_bottom);
+            }
+            if (has_label && (tickLabelPosition() == TicksBothSides ||
+                              tickLabelPosition() == TicksAbove)) {
+                UiFunc::drawText(p, x, top_label_top,
+                                 halign | Qt::AlignTop, label_text);
+            }
+            if (tickPosition() == TicksBothSides ||
+                    tickPosition() == TicksBelow) {
+                p.drawLine(x, bottom_tick_top, x, bottom_tick_bottom);
+            }
+            if (has_label && (tickLabelPosition() == TicksBothSides ||
+                              tickLabelPosition() == TicksBelow)) {
+                UiFunc::drawText(p, x, bottom_label_bottom,
+                                 halign | Qt::AlignBottom, label_text);
+            }
+        }
+    } else {
+        // --------------------------------------------------------------------
+        // VERTICAL
+        // --------------------------------------------------------------------
+        int move_tick_by = (max_label_width > 0)
+                ? (max_label_width + m_tick_label_gap)
+                : 0;
+        // Left
+        int bounding_box_left = this->rect().left();
+        int left_label_right = bounding_box_left + max_label_width;
+        int left_tick_left = bounding_box_left + move_tick_by;
+        int left_tick_right = left_tick_left + m_tick_length;
+        // Right, working leftwards
+        int bounding_box_right = this->rect().right();
+        int right_label_left = bounding_box_right - max_label_width;
+        int right_tick_right = bounding_box_right - move_tick_by;
+        int right_tick_left = right_tick_right - m_tick_length;
+        // OK:
+        for (int i = minimum(); i <= maximum(); i += interval) {
+            Qt::Alignment valign = Qt::AlignVCenter;
+            int q = m_reverse_vertical_labels ? (maximum() - i) : i;
+            int y = round(
+                (double)(
                     (double)(
-                        (double)(
-                            (double)(q - this->minimum()) /
-                            (double)(this->maximum() - this->minimum())
-                        ) * (double)(this->height() - handle.height()) +
-                        (double)(handle.height() / 2.0)
-                    )
-                ) - 1;
-                bool has_label = m_tick_labels.contains(i);
-                QString label_text;
-                if (has_label) {
-                    label_text = m_tick_labels[i];
-                }
-                if (tickPosition() == TicksBothSides ||
-                        tickPosition() == TicksLeft) {
-                    p.drawLine(left_tick_left, y, left_tick_right, y);
-                }
-                if (has_label && (tickLabelPosition() == TicksBothSides ||
-                                  tickLabelPosition() == TicksLeft)) {
-                    UiFunc::drawText(p, left_label_right, y,
-                                     Qt::AlignRight | valign, label_text);
-                }
-                if (tickPosition() == TicksBothSides ||
-                        tickPosition() == TicksRight) {
-                    p.drawLine(right_tick_left, y, right_tick_right, y);
-                }
-                if (has_label && (tickLabelPosition() == TicksBothSides ||
-                                  tickLabelPosition() == TicksRight)) {
-                    UiFunc::drawText(p, right_label_left, y,
-                                     Qt::AlignLeft | valign, label_text);
-                }
+                        (double)(q - this->minimum()) /
+                        (double)(this->maximum() - this->minimum())
+                    ) * (double)(this->height() - handle.height()) +
+                    (double)(handle.height() / 2.0)
+                )
+            ) - 1;
+            bool has_label = m_tick_labels.contains(i);
+            QString label_text;
+            if (has_label) {
+                label_text = m_tick_labels[i];
+            }
+            if (tickPosition() == TicksBothSides ||
+                    tickPosition() == TicksLeft) {
+                p.drawLine(left_tick_left, y, left_tick_right, y);
+            }
+            if (has_label && (tickLabelPosition() == TicksBothSides ||
+                              tickLabelPosition() == TicksLeft)) {
+                UiFunc::drawText(p, left_label_right, y,
+                                 Qt::AlignRight | valign, label_text);
+            }
+            if (tickPosition() == TicksBothSides ||
+                    tickPosition() == TicksRight) {
+                p.drawLine(right_tick_left, y, right_tick_right, y);
+            }
+            if (has_label && (tickLabelPosition() == TicksBothSides ||
+                              tickLabelPosition() == TicksRight)) {
+                UiFunc::drawText(p, right_label_left, y,
+                                 Qt::AlignLeft | valign, label_text);
             }
         }
     }

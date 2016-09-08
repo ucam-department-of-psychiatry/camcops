@@ -117,7 +117,7 @@ protected:
 class TaskFactory  // Stores registered copies of TaskProxy*
 {
 public:
-    typedef const TaskProxy* ProxyType;
+    using ProxyType = const TaskProxy*;
     class TaskCache
     {
     public:
@@ -126,8 +126,8 @@ public:
         QString longname;
         ProxyType proxy;
     };
-    typedef QMap<QString, TaskCache> MapType;
-    typedef QMapIterator<QString, TaskCache> MapIteratorType;
+    using MapType = QMap<QString, TaskCache>;
+    using MapIteratorType = QMapIterator<QString, TaskCache>;
 public:
     TaskFactory(CamcopsApp& app);
     // Making the registry
@@ -151,4 +151,4 @@ protected:
 };
 
 
-typedef QSharedPointer<TaskFactory> TaskFactoryPtr;
+using TaskFactoryPtr = QSharedPointer<TaskFactory>;

@@ -2,7 +2,7 @@
 #include "quelement.h"
 
 
-struct QuGridCell
+class QuGridCell
 {
 public:
     QuGridCell(const QuElementPtr element,
@@ -10,14 +10,13 @@ public:
                int column,  // x position, starting from 0, going right
                int row_span = 1,   // height
                int column_span = 1,  // width
-               Qt::Alignment alignment = 0) :
-        element(element),
-        row(row),
-        column(column),
-        row_span(row_span),
-        column_span(column_span),
-        alignment(alignment)
-    {}
+               Qt::Alignment alignment = 0);
+    QuGridCell(QuElement* element,  // takes ownership
+               int row,
+               int column,
+               int row_span = 1,
+               int column_span = 1,
+               Qt::Alignment alignment = 0);
 public:
     QuElementPtr element;
     int row;

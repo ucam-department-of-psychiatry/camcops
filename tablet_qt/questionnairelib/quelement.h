@@ -9,11 +9,11 @@
 
 class QWidget;
 class FieldRef;
-typedef QSharedPointer<FieldRef> FieldRefPtr;
-typedef QList<FieldRefPtr> FieldRefPtrList;
+using FieldRefPtr = QSharedPointer<FieldRef>;
+using FieldRefPtrList = QList<FieldRefPtr>;
 class Questionnaire;
 class QuElement;
-typedef QSharedPointer<QuElement> QuElementPtr;
+using QuElementPtr = QSharedPointer<QuElement>;
 
 
 class QuElement : public QObject

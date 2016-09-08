@@ -107,6 +107,11 @@ Language and speed
 - Index-based iteration is fastest:
   http://blog.qt.io/blog/2009/01/23/iterating-efficiently/
 
+- Most large Qt objects use a data-sharing, copy-on-write mechanism, including
+  QImage and QString;
+    http://doc.qt.io/qt-5/implicit-sharing.html
+  ... so it's fine to pass "copies" around.
+
 ===============================================================================
 Platforms
 ===============================================================================
@@ -242,6 +247,8 @@ Other debugging
     make install
 
   ... runs, but "there is no default attach injector on this platform"
+
+- valgrind
 
 ===============================================================================
 Database objects

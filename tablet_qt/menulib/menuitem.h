@@ -9,7 +9,7 @@ class QWidget;
 class CamcopsApp;
 class MenuWindow;
 class Task;
-typedef QSharedPointer<Task> TaskPtr;
+using TaskPtr = QSharedPointer<Task>;
 
 
 struct TaskMenuItem
@@ -48,8 +48,8 @@ class MenuItem
     Q_DECLARE_TR_FUNCTIONS(MenuItem)
 
 public:
-    typedef std::function<MenuWindow*(CamcopsApp&)> MenuWindowBuilder;
-    typedef std::function<void()> ActionFunction;
+    using MenuWindowBuilder = std::function<MenuWindow*(CamcopsApp&)>;
+    using ActionFunction = std::function<void()>;
     // http://stackoverflow.com/questions/14189440
 
 public:

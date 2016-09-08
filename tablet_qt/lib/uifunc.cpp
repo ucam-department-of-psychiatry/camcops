@@ -276,7 +276,8 @@ void UiFunc::setProperty(QWidget* widget, const QString& property,
         qWarning() << Q_FUNC_INFO << "- ignored for null widget";
         return;
     }
-    const char* propname = property.toLatin1().data();
+    QByteArray propdata = property.toLatin1();
+    const char* propname = propdata.constData();
     widget->setProperty(propname, value);
     if (repolish) {
         UiFunc::repolish(widget);

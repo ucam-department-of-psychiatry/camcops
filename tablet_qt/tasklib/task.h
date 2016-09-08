@@ -70,6 +70,6 @@ public:
 // Typedefs
 // ===========================================================================
 
-typedef QSharedPointer<Task> TaskPtr;
-typedef QWeakPointer<Task> TaskWeakPtr;
-typedef QList<TaskPtr> TaskPtrList;
+using TaskPtr = QSharedPointer<Task>;
+using TaskWeakPtr = QWeakPointer<Task>;
+using TaskPtrList = QList<TaskPtr>;

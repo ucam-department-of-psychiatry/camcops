@@ -22,10 +22,27 @@ QuContainerVertical::QuContainerVertical(
 }
 
 
+QuContainerVertical::QuContainerVertical(
+        std::initializer_list<QuElement*> elements)  // takes ownership
+{
+    for (auto e : elements) {
+        addElement(e);
+    }
+}
+
+
 QuContainerVertical* QuContainerVertical::addElement(
         const QuElementPtr& element)
 {
     m_elements.append(element);
+    return this;
+}
+
+
+QuContainerVertical* QuContainerVertical::addElement(
+        QuElement* element)  // takes ownership
+{
+    m_elements.append(QuElementPtr(element));
     return this;
 }
 

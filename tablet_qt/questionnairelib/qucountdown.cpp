@@ -12,8 +12,12 @@
 QuCountdown::QuCountdown(int time_s) :
     m_time_s(time_s),
     m_volume(UiConst::MAX_VOLUME),
-    m_running(false)
+    m_running(false),
+    m_timer(new QTimer())
 {
+    m_timer->setTimerType(Qt::PreciseTimer);  // ms accuracy
+    connect(m_timer.data(), &QTimer::timeout,
+            this, &QuCountdown::tick);
 }
 
 
@@ -66,11 +70,6 @@ QPointer<QWidget> QuCountdown::makeWidget(Questionnaire* questionnaire)
         connect(m_reset_button, &QPushButton::clicked,
                 this, &QuCountdown::reset);
 
-        m_timer = new QTimer(widget);
-        m_timer->setTimerType(Qt::PreciseTimer);  // ms accuracy
-        connect(m_timer, &QTimer::timeout,
-                this, &QuCountdown::tick);
-
         m_player = QSharedPointer<QMediaPlayer>(new QMediaPlayer(),
                                                 &QObject::deleteLater);
         m_player->setMedia(QUrl(UiConst::SOUND_COUNTDOWN_FINISHED));
@@ -84,10 +83,7 @@ QPointer<QWidget> QuCountdown::makeWidget(Questionnaire* questionnaire)
 
 void QuCountdown::start()
 {
-    if (!m_timer) {
-        return;
-    }
-    m_timer->start(1000);  // ms
+    m_timer->start(1000);  // period in ms
     --m_whole_seconds_left;
     m_running = true;
     updateDisplay();
@@ -96,9 +92,6 @@ void QuCountdown::start()
 
 void QuCountdown::stop()
 {
-    if (!m_timer) {
-        return;
-    }
     m_timer->stop();
     m_running = false;
     updateDisplay();

@@ -9,7 +9,7 @@
 #include "lib/field.h"
 
 class FieldRef;
-typedef QSharedPointer<FieldRef> FieldRefPtr;
+using FieldRefPtr = QSharedPointer<FieldRef>;
 
 
 class DatabaseObject
@@ -80,9 +80,9 @@ protected:
     QString m_tablename;  // also used as key for extra strings
     QString m_pk_fieldname;
     bool m_has_modification_timestamp;
-    typedef QMap<QString, Field> MapType;
-    typedef QMapIterator<QString, Field> MapIteratorType;
-    typedef QMutableMapIterator<QString, Field> MutableMapIteratorType;
+    using MapType = QMap<QString, Field>;
+    using MapIteratorType = QMapIterator<QString, Field>;
+    using MutableMapIteratorType = QMutableMapIterator<QString, Field>;
     MapType m_record;
     QMap<QString, FieldRefPtr> m_fieldrefs;
 

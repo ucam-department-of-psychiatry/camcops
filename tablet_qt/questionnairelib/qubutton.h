@@ -10,8 +10,8 @@ class QuButton : public QuElement
 {
     Q_OBJECT
 public:
-    typedef QMap<QString, QVariant> Args;
-    typedef std::function<void()> CallbackFunction;
+    using Args = QMap<QString, QVariant>;
+    using CallbackFunction = std::function<void()>;
     // To pass other arguments, use std::bind to bind them before passing here
 
     QuButton(const QString& label, const CallbackFunction& callback);

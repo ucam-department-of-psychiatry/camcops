@@ -9,7 +9,9 @@ public:
     QuContainerVertical();
     QuContainerVertical(const QList<QuElementPtr>& elements);
     QuContainerVertical(std::initializer_list<QuElementPtr> elements);
+    QuContainerVertical(std::initializer_list<QuElement*> elements);  // takes ownership
     QuContainerVertical* addElement(const QuElementPtr& element);
+    QuContainerVertical* addElement(QuElement* element);  // takes ownership
 protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual QList<QuElementPtr> subelements() const override;

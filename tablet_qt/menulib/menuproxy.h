@@ -35,4 +35,4 @@ public:
 };
 
 
-typedef QSharedPointer<MenuProxyBase> MenuProxyPtr;
+using MenuProxyPtr = QSharedPointer<MenuProxyBase>;

@@ -32,8 +32,8 @@ public:
         DatabaseObject,
         Functions,
     };
-    typedef std::function<const QVariant&()> GetterFunction;
-    typedef std::function<void(const QVariant&)> SetterFunction;
+    using GetterFunction = std::function<const QVariant&()>;
+    using SetterFunction = std::function<void(const QVariant&)>;
 public:
     FieldRef();
     FieldRef(Field* p_field, bool mandatory);
@@ -90,5 +90,5 @@ protected:
 };
 
 
-typedef QSharedPointer<FieldRef> FieldRefPtr;
-typedef QList<FieldRefPtr> FieldRefPtrList;
+using FieldRefPtr = QSharedPointer<FieldRef>;
+using FieldRefPtrList = QList<FieldRefPtr>;

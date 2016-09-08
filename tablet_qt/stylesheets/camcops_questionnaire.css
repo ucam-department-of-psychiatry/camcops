@@ -332,6 +332,10 @@ QLabel#slider {
     font-weight: bold;
 }
 
+CanvasWidget {
+    border: 2px solid gray;
+}
+
 
 /* =========================================================================
    Debugging

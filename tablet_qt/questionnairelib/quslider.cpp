@@ -32,17 +32,17 @@ QuSlider::QuSlider(FieldRefPtr fieldref, int minimum, int maximum, int step) :
     m_value_label(nullptr),
     m_slider(nullptr),
     m_field_write_pending(false),
-    m_timer(new QTimer(this))
+    m_timer(new QTimer())
 {
     Q_ASSERT(m_fieldref);
     m_big_step = 2 * step;
+    m_timer->setSingleShot(true);
+    connect(m_timer.data(), &QTimer::timeout,
+            this, &QuSlider::completePendingFieldWrite);
     connect(m_fieldref.data(), &FieldRef::valueChanged,
             this, &QuSlider::fieldValueChanged);
     connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
             this, &QuSlider::fieldValueChanged);
-    m_timer->setSingleShot(true);
-    connect(m_timer.data(), &QTimer::timeout,
-            this, &QuSlider::completePendingFieldWrite);
 }
 
 
