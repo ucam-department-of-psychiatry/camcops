@@ -19,6 +19,8 @@ protected:
     void testSound();
     void testHttp();
     void testHttps();
+    void testIcd10CodeSetCreation();
+    void testIcd9cmCodeSetCreation();
 protected:
     QSharedPointer<NetworkManager> m_netmgr;
     QSharedPointer<QMediaPlayer> m_player;

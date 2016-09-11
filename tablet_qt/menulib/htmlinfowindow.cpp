@@ -15,13 +15,14 @@ HtmlInfoWindow::HtmlInfoWindow(CamcopsApp& app, const QString& title,
                                bool fullscreen) :
     m_app(app)
 {
-    setStyleSheet(m_app.getMenuCss());
+    setStyleSheet(m_app.getSubstitutedCss(UiConst::CSS_CAMCOPS_MENU));
     setObjectName("menu_window_outer_object");
 
     // Layouts
     QVBoxLayout* mainlayout = new QVBoxLayout();
 
     QVBoxLayout* dummy_layout = new QVBoxLayout();
+    dummy_layout->setContentsMargins(UiConst::NO_MARGINS);
     setLayout(dummy_layout);
     QWidget* dummy_widget = new QWidget();
     dummy_widget->setObjectName("menu_window_background");

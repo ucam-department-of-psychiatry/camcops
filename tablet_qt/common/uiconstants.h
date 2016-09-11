@@ -24,9 +24,10 @@ namespace UiConst {
     // Stylesheets
     // ========================================================================
 
-    extern const QString CSS_CAMCOPS;
+    extern const QString CSS_CAMCOPS_MAIN;
     extern const QString CSS_CAMCOPS_MENU;
     extern const QString CSS_CAMCOPS_QUESTIONNAIRE;
+    extern const QString CSS_CAMCOPS_CAMERA;
 
     // ========================================================================
     // Fonts, colours

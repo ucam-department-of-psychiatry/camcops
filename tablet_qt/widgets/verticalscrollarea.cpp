@@ -11,8 +11,9 @@ VerticalScrollArea::VerticalScrollArea(QWidget* parent) :
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     // RNC addition:
-    QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Maximum);
-    setSizePolicy(sp);
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+
+    setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
 }
 
 
@@ -54,10 +55,11 @@ bool VerticalScrollArea::eventFilter(QObject* o, QEvent* e)
 //   endpoint;
 // - be too small vertically (e.g. if a spacer is put below it to prevent it
 //   expanding too much) when there is vertical space available to use.
-// So the answer it a Maximum vertical size policy, and a size hint that is
+// So the answer is a Maximum vertical size policy, and a size hint that is
 // exactly that of its contents.
 
 QSize VerticalScrollArea::sizeHint() const
 {
+    // qDebug() << Q_FUNC_INFO << widget()->sizeHint();
     return widget()->sizeHint();
 }

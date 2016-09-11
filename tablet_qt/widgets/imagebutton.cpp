@@ -173,11 +173,8 @@ void ImageButton::setImageSize(const QSize &size, bool scale)
 void ImageButton::setAsText(bool as_text)
 {
     m_as_text = as_text;
-    QSizePolicy sp(
-        as_text ? QSizePolicy::Expanding : QSizePolicy::Fixed,
-        as_text ? QSizePolicy::Expanding : QSizePolicy::Fixed
-    );
-    setSizePolicy(sp);
+    setSizePolicy(as_text ? QSizePolicy::Expanding : QSizePolicy::Fixed,
+                  as_text ? QSizePolicy::Expanding : QSizePolicy::Fixed);
 }
 
 

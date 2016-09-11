@@ -613,19 +613,26 @@ Questionnaire
   align *sub*components in a grid; similarly QuMultipleResponse (which has
   multiple Booleans).
 
+- If there are Android camera problems, see:
+    http://doc.qt.io/qt-5/cameraoverview.html
+    http://doc.qt.io/qt-5/platform-notes-android.html
+    http://www.qtcentre.org/threads/62787-Accessing-android-camera
+
 - TO DO: ***
 
 QuestionMCQGridDouble.js
 QuestionMCQGrid.js
 QuestionMCQGridWithSingleBoolean.js
 
-QuestionCanvas.js
-    http://stackoverflow.com/questions/28947235/qt-draw-on-canvas
 QuestionDiagnosticCode.js
-QuestionPhoto.js
-    http://doc.qt.io/qt-5/cameraoverview.html
-    http://doc.qt.io/qt-5/platform-notes-android.html
-    http://www.qtcentre.org/threads/62787-Accessing-android-camera
+
+===============================================================================
+Translation
+===============================================================================
+
+- Passing a QString to QObject::tr - use qPrintable()
+  http://stackoverflow.com/questions/19078879/easier-way-of-passing-qstring-for-objecttr
+
 
 
 ===============================================================================

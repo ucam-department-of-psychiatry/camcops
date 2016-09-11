@@ -379,8 +379,10 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
             text += " - chilled out";
         }
         QuThermometerItem item(
-            UiFunc::imageFilename(QString("dt/dt_sel_%1.png").arg(i)),
-            UiFunc::imageFilename(QString("dt/dt_unsel_%1.png").arg(i)),
+            UiFunc::resourceFilename(
+                        QString("distressthermometer/dt_sel_%1.png").arg(i)),
+            UiFunc::resourceFilename(
+                        QString("distressthermometer/dt_unsel_%1.png").arg(i)),
             text,
             i
         );
@@ -493,18 +495,18 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
         new QuHeading("Canvas, using files:"),
         new QuCanvas(
             fieldRef("q22"),
-            UiFunc::imageFilename("ace3/rhinoceros.png")),
+            UiFunc::resourceFilename("ace3/rhinoceros.png")),
         new QuHeading("Canvas, clone of the first one:"),
         new QuCanvas(fieldRef("q21")),
     })->setTitle("Canvas"));
 
     // ========================================================================
-    // *** photo
+    // Photo
     // ========================================================================
 
     QuPagePtr page_photo((new QuPage{
         new QuHeading("Photo:"),
-        new QuPhoto(fieldRef("q31")),
+        new QuPhoto(fieldRef("q23")),
     })->setTitle("Canvas"));
 
     // ========================================================================

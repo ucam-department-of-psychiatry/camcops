@@ -10,13 +10,15 @@
 const QPoint INVALID_POINT(-1, -1);
 
 
-CanvasWidget::CanvasWidget()
+CanvasWidget::CanvasWidget(QWidget* parent) :
+    QFrame(parent)
 {
     commonConstructor(QSize(0, 0));
 }
 
 
-CanvasWidget::CanvasWidget(const QSize& size)
+CanvasWidget::CanvasWidget(const QSize& size, QWidget* parent) :
+    QFrame(parent)
 {
     commonConstructor(size);
 }
@@ -26,8 +28,7 @@ void CanvasWidget::commonConstructor(const QSize& size)
 {
     m_point = INVALID_POINT;
 
-    QSizePolicy sp(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    setSizePolicy(sp);
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     setSize(size);
 
     // Default pen:
@@ -43,7 +44,7 @@ CanvasWidget::~CanvasWidget()
 
 void CanvasWidget::setSize(const QSize& size)
 {
-    qDebug() << Q_FUNC_INFO;
+    // qDebug() << Q_FUNC_INFO;
     m_size = size;
     update();
 }
@@ -76,7 +77,7 @@ void CanvasWidget::setPen(const QPen& pen)
 
 void CanvasWidget::clear(const QColor& background)
 {
-    qDebug() << Q_FUNC_INFO;
+    // qDebug() << Q_FUNC_INFO;
     m_image.fill(background);
     update();
 }
@@ -84,7 +85,7 @@ void CanvasWidget::clear(const QColor& background)
 
 void CanvasWidget::setImage(const QImage &image, bool resize_widget)
 {
-    qDebug() << Q_FUNC_INFO;
+    // qDebug() << Q_FUNC_INFO;
     if (resize_widget || !m_size.isValid()) {
         m_image = image;
         setSize(image.size());  // calls update()

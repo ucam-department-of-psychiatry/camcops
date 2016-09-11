@@ -199,8 +199,8 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
             layout->setAlignment(m_value_label,
                                  Qt::AlignHCenter | Qt::AlignVCenter);
         }
-        QSizePolicy sp(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-        m_slider->setSizePolicy(sp);
+        m_slider->setSizePolicy(QSizePolicy::MinimumExpanding,
+                                QSizePolicy::Fixed);
         layout->addWidget(m_slider);
         m_container_widget->setLayout(layout);
     } else {
@@ -217,8 +217,8 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
             innerlayout->setAlignment(m_value_label,
                                       Qt::AlignHCenter | Qt::AlignVCenter);
         }
-        QSizePolicy sp(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
-        m_slider->setSizePolicy(sp);
+        m_slider->setSizePolicy(QSizePolicy::Fixed,
+                                QSizePolicy::MinimumExpanding);
         innerlayout->addWidget(m_slider);
         outerlayout->addLayout(innerlayout);
         outerlayout->addStretch();

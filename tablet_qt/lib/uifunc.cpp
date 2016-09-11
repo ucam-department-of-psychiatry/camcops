@@ -128,15 +128,15 @@ QLabel* UiFunc::blankIcon(QWidget* parent)
 }
 
 
-QString UiFunc::imageFilename(const QString& imagepath)
+QString UiFunc::resourceFilename(const QString& resourcepath)
 {
-    return QString(":/images/%1").arg(imagepath);
+    return QString(":/resources/%1").arg(resourcepath);
 }
 
 
 QString UiFunc::iconFilename(const QString& basefile)
 {
-    return imageFilename(QString("camcops/%1").arg(basefile));
+    return resourceFilename(QString("camcops/images/%1").arg(basefile));
 }
 
 

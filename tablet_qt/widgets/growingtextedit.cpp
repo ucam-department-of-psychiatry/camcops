@@ -23,8 +23,7 @@ void GrowingTextEdit::commonConstructor()
     connect(document(), &QTextDocument::contentsChanged,
             this, &GrowingTextEdit::contentsChanged);
 
-    QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    setSizePolicy(sp);
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 }
 
 

@@ -336,6 +336,11 @@ CanvasWidget {
     border: 2px solid gray;
 }
 
+/* QuPhoto */
+AspectRatioPixmapLabel {
+    background-color: lightgray;
+}
+
 
 /* =========================================================================
    Debugging

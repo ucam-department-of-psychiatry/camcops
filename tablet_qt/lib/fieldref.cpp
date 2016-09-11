@@ -3,6 +3,10 @@
 // #define DEBUG_SIGNALS
 
 #include "fieldref.h"
+#include <QBuffer>
+#include <QImage>
+
+const char* IMAGE_FORMAT = "png";
 
 
 FieldRef::FieldRef()
@@ -128,6 +132,21 @@ void FieldRef::setValue(const QVariant& value, const QObject* originator)
     if (m_method == FieldRefMethod::DatabaseObject && m_autosave) {
         m_p_dbobject->save();
     }
+}
+
+
+void FieldRef::setValue(const QImage& image, const QObject* originator)
+{
+    // I thought passing a QImage to a QVariant-accepting function would lead
+    // to autoconversion via
+    //     http://doc.qt.io/qt-5/qimage.html#operator-QVariant
+    // ... but it doesn't.
+    // So: http://stackoverflow.com/questions/27343576
+    QByteArray arr;
+    QBuffer buffer(&arr);
+    buffer.open(QIODevice::WriteOnly);
+    image.save(&buffer, IMAGE_FORMAT);
+    setValue(arr, originator);
 }
 
 

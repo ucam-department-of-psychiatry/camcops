@@ -1,0 +1,486 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="icd9cm">
+
+<!--
+
+===============================================================================
+Diagnostic codes from:
+International Classification of Diseases, Ninth Revision, Clinical Modification
+(ICD-9-CM)
+(note: compatible with DSM-IV-TR)
+===============================================================================
+
+“ICD-9 is in the public domain so there are no copyright restrictions over its
+use. WHO no longer publishes or distributes ICD-9.”
+(http://www.who.int/about/licensing/Internettext_FAQ.pdf, accessed 2014-05-09)
+
+The CDC say (http://www.cdc.gov/nchs/icd/icd9.htm,
+        http://www.cdc.gov/nchs/icd/icd9cm.htm):
+    - ICD-9 covered the years 1979-1998
+    - The ICD-9 is no longer available in print
+    - The ICD-9-CM is based on the ICD-9
+
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+Sources:
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    http://www.cdc.gov/nchs/icd/icd9cm.htm
+    http://www.dr-bob.org/tips/dsm4n.html (information only - text not reproduced)
+    https://www.cms.gov/Medicare/Coding/ICD9ProviderDiagnosticCodes/codes.html
+Notes:
+    http://www.psychiatry.org/practice/dsm/dsm-icd-coding-crosswalk
+        “all of the diagnostic codes in the Diagnostic and Statistical
+        Manual of Mental Disorders, Fourth Edition and Fourth Edition, Text
+        Revision (DSM-IV and DSM-IV-TR) were selected so as to be valid
+        International Classification of Diseases, Ninth Edition, Clinical
+        Modification (ICD-9-CM) codes”
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+Codes covered
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+Code ranges included:
+    290–319 mental disorders
+    V71.09 Observation for other suspected mental condition
+Headings from http://en.wikipedia.org/wiki/List_of_ICD-9_codes_290%E2%80%93319:_mental_disorders
+Some extras likewise (branch headings).
+And http://www.icd9data.com/2012/Volume1/290-319/290-294/292/default.htm
+
+-->
+
+    <!-- stems -->
+
+<string name="schizophrenia_x0">unspecified</string>
+<string name="schizophrenia_x1">subchronic</string>
+<string name="schizophrenia_x2">chronic</string>
+<string name="schizophrenia_x3">subchronic with acute exacerbation</string>
+<string name="schizophrenia_x4">chronic with acute exacerbation</string>
+<string name="schizophrenia_x5">in remission</string>
+
+<string name="affective_x0">unspecified</string>
+<string name="affective_x1">mild</string>
+<string name="affective_x2">moderate</string>
+<string name="affective_x3">severe, without mention of psychotic behavior</string>
+<string name="affective_x4">severe, specified as with psychotic behavior</string>
+<string name="affective_x5">in partial or unspecified remission</string>
+<string name="affective_x6">in full remission</string>
+
+<string name="substance_x0">unspecified</string>
+<string name="substance_x1">continuous</string>
+<string name="substance_x2">episodic</string>
+<string name="substance_x3">in remission</string>
+
+    <!-- main -->
+
+<string name="range_290_294">[290–294] Organic psychotic conditions</string>
+<string name="290">Dementias</string>
+<string name="290.0">Senile dementia, uncomplicated</string>
+<string name="290.1">Presenile dementia</string>
+<string name="290.10">Presenile dementia, uncomplicated</string>
+<string name="290.11">Presenile dementia with delirium</string>
+<string name="290.12">Presenile dementia with delusional features</string>
+<string name="290.13">Presenile dementia with depressive features</string>
+<string name="290.2">Senile dementia with delusional or depressive features</string>
+<string name="290.20">Senile dementia with delusional features</string>
+<string name="290.21">Senile dementia with depressive features</string>
+<string name="290.3">Senile dementia with delirium</string>
+<string name="290.4">Vascular dementia</string>
+<string name="290.40">Vascular dementia, uncomplicated</string>
+<string name="290.41">Vascular dementia, with delirium</string>
+<string name="290.42">Vascular dementia, with delusions</string>
+<string name="290.43">Vascular dementia, with depressed mood</string>
+<string name="290.8">Other specified senile psychotic conditions</string>
+<string name="290.9">Unspecified senile psychotic condition</string>
+<string name="291">Alcoholic psychoses</string>
+<string name="291.0">Alcohol withdrawal delirium</string>
+<string name="291.1">Alcohol-induced persisting amnestic disorder</string>
+<string name="291.2">Alcohol-induced persisting dementia</string>
+<string name="291.3">Alcohol-induced psychotic disorder with hallucinations</string>
+<string name="291.4">Idiosyncratic alcohol intoxication</string>
+<string name="291.5">Alcohol-induced psychotic disorder with delusions</string>
+<string name="291.8">Other specified alcohol-induced mental disorders</string>
+<string name="291.81">Alcohol withdrawal</string>
+<string name="291.82">Alcohol induced sleep disorders</string>
+<string name="291.89">Other alcohol-induced mental disorders</string>
+<string name="291.9">Unspecified alcohol-induced mental disorders</string>
+<string name="292">Drug psychoses</string>
+<string name="292.0">Drug withdrawal</string>
+<string name="292.1">Drug-induced psychotic disorder</string>
+<string name="292.11">Drug-induced psychotic disorder with delusions</string>
+<string name="292.12">Drug-induced psychotic disorder with hallucinations</string>
+<string name="292.2">Pathological drug intoxication</string>
+<string name="292.8">Other specified drug-induced mental disorders</string>
+<string name="292.81">Drug-induced delirium</string>
+<string name="292.82">Drug-induced persisting dementia</string>
+<string name="292.83">Drug-induced persisting amnestic disorder</string>
+<string name="292.84">Drug-induced mood disorder</string>
+<string name="292.85">Drug induced sleep disorders</string>
+<string name="292.89">Other specified drug-induced mental disorders</string>
+<string name="292.9">Unspecified drug-induced mental disorder</string>
+<string name="293">Transient organic psychotic conditions</string>
+<string name="293.0">Delirium due to conditions classified elsewhere</string>
+<string name="293.1">Subacute delirium</string>
+<string name="293.8">Other specified transient mental disorders due to conditions classified elsewhere</string>
+<string name="293.81">Psychotic disorder with delusions in conditions classified elsewhere</string>
+<string name="293.82">Psychotic disorder with hallucinations in conditions classified elsewhere</string>
+<string name="293.83">Mood disorder in conditions classified elsewhere</string>
+<string name="293.84">Anxiety disorder in conditions classified elsewhere</string>
+<string name="293.89">Other specified transient mental disorders due to conditions classified elsewhere, other</string>
+<string name="293.9">Unspecified transient mental disorder in conditions classified elsewhere</string>
+<string name="294">Other organic psychotic conditions (chronic)</string>
+<string name="294.0">Amnestic disorder in conditions classified elsewhere</string>
+<string name="294.1">Dementia in conditions classified elsewhere</string>
+<string name="294.10">Dementia in conditions classified elsewhere without behavioral disturbance</string>
+<string name="294.11">Dementia in conditions classified elsewhere with behavioral disturbance</string>
+<string name="294.2">Dementia, unspecified</string>
+<string name="294.20">Dementia, unspecified, without behavioral disturbance</string>
+<string name="294.21">Dementia, unspecified, with behavioral disturbance</string>
+<string name="294.8">Other persistent mental disorders due to conditions classified elsewhere</string>
+<string name="294.9">Unspecified persistent mental disorders due to conditions classified elsewhere</string>
+
+<string name="range_295_299">[295–299] Other psychoses</string>
+<string name="295">Schizophrenic disorders</string>
+<string name="295.0">Simple type schizophrenia</string>
+<string name="295.1">Disorganized type schizophrenia</string>
+<string name="295.2">Catatonic type schizophrenia</string>
+<string name="295.3">Paranoid type schizophrenia</string>
+<string name="295.4">Schizophreniform disorder</string>
+<string name="295.5">Latent schizophrenia</string>
+<string name="295.6">Schizophrenic disorders, residual type</string>
+<string name="295.7">Schizoaffective disorder</string>
+<string name="295.8">Other specified types of schizophrenia</string>
+<string name="295.9">Unspecified schizophrenia</string>
+<string name="296">Episodic mood disorders</string>
+<string name="296.0">Bipolar I disorder, single manic episode</string>
+<string name="296.1">Manic affective disorder, recurrent episode</string>
+<string name="296.2">Major depressive affective disorder, single episode</string>
+<string name="296.3">Major depressive affective disorder, recurrent episode</string>
+<string name="296.4">Bipolar I disorder, most recent episode (or current) manic</string>
+<string name="296.5">Bipolar I disorder, most recent episode (or current) depressed</string>
+<string name="296.6">Bipolar I disorder, most recent episode (or current) mixed</string>
+<string name="296.7">Bipolar I disorder, most recent episode (or current) unspecified</string>
+<string name="296.8">Other and unspecified bipolar disorders</string>
+<string name="296.80">Bipolar disorder, unspecified</string>
+<string name="296.81">Atypical manic disorder</string>
+<string name="296.82">Atypical depressive disorder</string>
+<string name="296.89">Other bipolar disorders</string>
+<string name="296.9">Other and unspecified episodic mood disorder</string>
+<string name="296.90">Unspecified episodic mood disorder</string>
+<string name="296.99">Other specified episodic mood disorder</string>
+<string name="297">Paranoid states</string>
+<string name="297.0">Paranoid state, simple</string>
+<string name="297.1">Delusional disorder</string>
+<string name="297.2">Paraphrenia</string>
+<string name="297.3">Shared psychotic disorder</string>
+<string name="297.8">Other specified paranoid states</string>
+<string name="297.9">Unspecified paranoid state</string>
+<string name="298">Other nonorganic psychoses</string>
+<string name="298.0">Depressive type psychosis</string>
+<string name="298.1">Excitative type psychosis</string>
+<string name="298.2">Reactive confusion</string>
+<string name="298.3">Acute paranoid reaction</string>
+<string name="298.4">Psychogenic paranoid psychosis</string>
+<string name="298.8">Other and unspecified reactive psychosis</string>
+<string name="298.9">Unspecified psychosis</string>
+<string name="299">Psychoses with origin specific to childhood</string>
+<string name="299.0">Autistic disorder</string>
+<string name="299.00">Autistic disorder, current or active state</string>
+<string name="299.01">Autistic disorder, residual state</string>
+<string name="299.1">Childhood disintegrative disorder</string>
+<string name="299.10">Childhood disintegrative disorder, current or active state</string>
+<string name="299.11">Childhood disintegrative disorder, residual state</string>
+<string name="299.8">Other specified pervasive developmental disorders</string>
+<string name="299.80">Other specified pervasive developmental disorders, current or active state</string>
+<string name="299.81">Other specified pervasive developmental disorders, residual state</string>
+<string name="299.9">Unspecified pervasive developmental disorder</string>
+<string name="299.90">Unspecified pervasive developmental disorder, current or active state</string>
+<string name="299.91">Unspecified pervasive developmental disorder, residual state</string>
+
+<string name="range_300_316">[300–316] Neurotic disorders, personality disorders, and other nonpsychotic mental disorders</string>
+<string name="300">Anxiety, dissociative and somatoform disorders</string>
+<string name="300.0">Anxiety states</string>
+<string name="300.00">Anxiety state, unspecified</string>
+<string name="300.01">Panic disorder without agoraphobia</string>
+<string name="300.02">Generalized anxiety disorder</string>
+<string name="300.09">Other anxiety states</string>
+<string name="300.1">Dissociative, conversion and factitious disorders</string>
+<string name="300.10">Hysteria, unspecified</string>
+<string name="300.11">Conversion disorder</string>
+<string name="300.12">Dissociative amnesia</string>
+<string name="300.13">Dissociative fugue</string>
+<string name="300.14">Dissociative identity disorder</string>
+<string name="300.15">Dissociative disorder or reaction, unspecified</string>
+<string name="300.16">Factitious disorder with predominantly psychological signs and symptoms</string>
+<string name="300.19">Other and unspecified factitious illness</string>
+<string name="300.2">Phobic disorders</string>
+<string name="300.20">Phobia, unspecified</string>
+<string name="300.21">Agoraphobia with panic disorder</string>
+<string name="300.22">Agoraphobia without mention of panic attacks</string>
+<string name="300.23">Social phobia</string>
+<string name="300.29">Other isolated or specific phobias</string>
+<string name="300.3">Obsessive-compulsive disorders</string>
+<string name="300.4">Dysthymic disorder</string>
+<string name="300.5">Neurasthenia</string>
+<string name="300.6">Depersonalization disorder</string>
+<string name="300.7">Hypochondriasis</string>
+<string name="300.8">Somatoform disorders</string>
+<string name="300.81">Somatization disorder</string>
+<string name="300.82">Undifferentiated somatoform disorder</string>
+<string name="300.89">Other somatoform disorders</string>
+<string name="300.9">Unspecified nonpsychotic mental disorder</string>
+<string name="301">Personality disorders</string>
+<string name="301.0">Paranoid personality disorder</string>
+<string name="301.1">Affective personality disorder</string>
+<string name="301.10">Affective personality disorder, unspecified</string>
+<string name="301.11">Chronic hypomanic personality disorder</string>
+<string name="301.12">Chronic depressive personality disorder</string>
+<string name="301.13">Cyclothymic disorder</string>
+<string name="301.2">Schizoid personality disorder</string>
+<string name="301.20">Schizoid personality disorder, unspecified</string>
+<string name="301.21">Introverted personality</string>
+<string name="301.22">Schizotypal personality disorder</string>
+<string name="301.3">Explosive personality disorder</string>
+<string name="301.4">Obsessive-compulsive personality disorder</string>
+<string name="301.5">Histrionic personality disorder</string>
+<string name="301.50">Histrionic personality disorder, unspecified</string>
+<string name="301.51">Chronic factitious illness with physical symptoms</string>
+<string name="301.59">Other histrionic personality disorder</string>
+<string name="301.6">Dependent personality disorder</string>
+<string name="301.7">Antisocial personality disorder</string>
+<string name="301.8">Other personality disorders</string>
+<string name="301.81">Narcissistic personality disorder</string>
+<string name="301.82">Avoidant personality disorder</string>
+<string name="301.83">Borderline personality disorder</string>
+<string name="301.84">Passive-aggressive personality</string>
+<string name="301.89">Other personality disorders</string>
+<string name="301.9">Unspecified personality disorder</string>
+<string name="302">Psychosexual disorders</string>
+<string name="302.0">Ego-dystonic sexual orientation</string>
+<string name="302.1">Zoophilia</string>
+<string name="302.2">Pedophilia</string>
+<string name="302.3">Transvestic fetishism</string>
+<string name="302.4">Exhibitionism</string>
+<string name="302.5">Trans-sexualism</string>
+<string name="302.50">Trans-sexualism with unspecified sexual history</string>
+<string name="302.51">Trans-sexualism with asexual history</string>
+<string name="302.52">Trans-sexualism with homosexual history</string>
+<string name="302.53">Trans-sexualism with heterosexual history</string>
+<string name="302.6">Gender identity disorder in children</string>
+<string name="302.7">Psychosexual dysfunction</string>
+<string name="302.70">Psychosexual dysfunction, unspecified</string>
+<string name="302.71">Hypoactive sexual desire disorder</string>
+<string name="302.72">Psychosexual dysfunction with inhibited sexual excitement</string>
+<string name="302.73">Female orgasmic disorder</string>
+<string name="302.74">Male orgasmic disorder</string>
+<string name="302.75">Premature ejaculation</string>
+<string name="302.76">Dyspareunia, psychogenic</string>
+<string name="302.79">Psychosexual dysfunction with other specified psychosexual dysfunctions</string>
+<string name="302.8">Other specified psychosexual disorders</string>
+<string name="302.81">Fetishism</string>
+<string name="302.82">Voyeurism</string>
+<string name="302.83">Sexual masochism</string>
+<string name="302.84">Sexual sadism</string>
+<string name="302.85">Gender identity disorder in adolescents or adults</string>
+<string name="302.89">Other specified psychosexual disorders</string>
+<string name="302.9">Unspecified psychosexual disorder</string>
+<string name="303">Alcohol dependence syndrome</string>
+<string name="303.0">Acute alcoholic intoxication</string>
+<string name="303.0x">Acute alcoholic intoxication in alcoholism</string>
+<string name="303.9">Other and unspecified alcohol dependence</string>
+<string name="304">Drug dependence</string>
+<string name="304.0">Opioid type dependence</string>
+<string name="304.1">Sedative, hypnotic or anxiolytic dependence</string>
+<string name="304.2">Cocaine dependence</string>
+<string name="304.3">Cannabis dependence</string>
+<string name="304.4">Amphetamine and other psychostimulant dependence</string>
+<string name="304.5">Hallucinogen dependence</string>
+<string name="304.6">Other specified drug dependence</string>
+<string name="304.7">Combinations of opioid type drug with any other drug dependence</string>
+<string name="304.8">Combinations of drug dependence excluding opioid type drug</string>
+<string name="304.9">Unspecified drug dependence</string>
+<string name="305">Nondependent use of drugs</string>
+<string name="305.0">Nondependent alcohol abuse</string>
+<string name="305.0x">Alcohol abuse</string>
+<string name="305.1">Tobacco use disorder</string>
+<string name="305.2">Nondependent cannabis abuse</string>
+<string name="305.2x">Cannabis abuse</string>
+<string name="305.3">Nondependent hallucinogen abuse</string>
+<string name="305.3x">Hallucinogen abuse</string>
+<string name="305.4">Nondependent sedative, hypnotic or anxiolytic abuse</string>
+<string name="305.4x">Sedative, hypnotic or anxiolytic abuse</string>
+<string name="305.5">Nondependent opioid abuse</string>
+<string name="305.5x">Opioid abuse</string>
+<string name="305.6">Nondependent cocaine abuse</string>
+<string name="305.6x">Cocaine abuse</string>
+<string name="305.7">Nondependent amphetamine or related acting sympathomimetic abuse</string>
+<string name="305.7x">Amphetamine or related acting sympathomimetic abuse</string>
+<string name="305.8">Nondependent antidepressant type abuse</string>
+<string name="305.8x">Antidepressant type abuse</string>
+<string name="305.9">Nondependent other, mixed, or unspecified drug abuse</string>
+<string name="305.9x">Other, mixed, or unspecified drug abuse</string>
+<string name="306">Physiological malfunction arising from mental factors</string>
+<string name="306.0">Musculoskeletal malfunction arising from mental factors</string>
+<string name="306.1">Respiratory malfunction arising from mental factors</string>
+<string name="306.2">Cardiovascular malfunction arising from mental factors</string>
+<string name="306.3">Skin disorder arising from mental factors</string>
+<string name="306.4">Gastrointestinal malfunction arising from mental factors</string>
+<string name="306.50">Psychogenic genitourinary malfunction, unspecified</string>
+<string name="306.51">Psychogenic vaginismus</string>
+<string name="306.52">Psychogenic dysmenorrhea</string>
+<string name="306.53">Psychogenic dysuria</string>
+<string name="306.59">Other genitourinary malfunction arising from mental factors</string>
+<string name="306.6">Endocrine disorder arising from mental factors</string>
+<string name="306.7">Disorder of organs of special sense arising from mental factors</string>
+<string name="306.8">Other specified psychophysiological malfunction</string>
+<string name="306.9">Unspecified psychophysiological malfunction</string>
+<string name="307">Special symptoms or syndromes not elsewhere classified</string>
+<string name="307.0">Adult onset fluency disorder</string>
+<string name="307.1">Anorexia nervosa</string>
+<string name="307.2">Tics</string>
+<string name="307.20">Tic disorder, unspecified</string>
+<string name="307.21">Transient tic disorder</string>
+<string name="307.22">Chronic motor or vocal tic disorder</string>
+<string name="307.23">Tourette's disorder</string>
+<string name="307.3">Stereotypic movement disorder</string>
+<string name="307.4">Specific disorders of sleep of nonorganic origin</string>
+<string name="307.40">Nonorganic sleep disorder, unspecified</string>
+<string name="307.41">Transient disorder of initiating or maintaining sleep</string>
+<string name="307.42">Persistent disorder of initiating or maintaining sleep</string>
+<string name="307.43">Transient disorder of initiating or maintaining wakefulness</string>
+<string name="307.44">Persistent disorder of initiating or maintaining wakefulness</string>
+<string name="307.45">Circadian rhythm sleep disorder of nonorganic origin</string>
+<string name="307.46">Sleep arousal disorder</string>
+<string name="307.47">Other dysfunctions of sleep stages or arousal from sleep</string>
+<string name="307.48">Repetitive intrusions of sleep</string>
+<string name="307.49">Other specific disorders of sleep of nonorganic origin</string>
+<string name="307.5">Other and unspecified disorders of eating</string>
+<string name="307.50">Eating disorder, unspecified</string>
+<string name="307.51">Bulimia nervosa</string>
+<string name="307.52">Pica</string>
+<string name="307.53">Rumination disorder</string>
+<string name="307.54">Psychogenic vomiting</string>
+<string name="307.59">Other disorders of eating</string>
+<string name="307.6">Enuresis</string>
+<string name="307.7">Encopresis</string>
+<string name="307.8">Pain disorders related to psychological factors</string>
+<string name="307.80">Psychogenic pain, site unspecified</string>
+<string name="307.81">Tension headache</string>
+<string name="307.89">Other pain disorders related to psychological factors</string>
+<string name="307.9">Other and unspecified special symptoms or syndromes, not elsewhere classified</string>
+<string name="308">Acute reaction to stress</string>
+<string name="308.0">Predominant disturbance of emotions</string>
+<string name="308.1">Predominant disturbance of consciousness</string>
+<string name="308.2">Predominant psychomotor disturbance</string>
+<string name="308.3">Other acute reactions to stress</string>
+<string name="308.4">Mixed disorders as reaction to stress</string>
+<string name="308.9">Unspecified acute reaction to stress</string>
+<string name="309">Adjustment reaction</string>
+<string name="309.0">Adjustment disorder with depressed mood</string>
+<string name="309.1">Prolonged depressive reaction</string>
+<string name="309.2">Adjustment reaction with predominant disturbance of other emotions</string>
+<string name="309.21">Separation anxiety disorder</string>
+<string name="309.22">Emancipation disorder of adolescence and early adult life</string>
+<string name="309.23">Specific academic or work inhibition</string>
+<string name="309.24">Adjustment disorder with anxiety</string>
+<string name="309.28">Adjustment disorder with mixed anxiety and depressed mood</string>
+<string name="309.29">Other adjustment reactions with predominant disturbance of other emotions</string>
+<string name="309.3">Adjustment disorder with disturbance of conduct</string>
+<string name="309.4">Adjustment disorder with mixed disturbance of emotions and conduct</string>
+<string name="309.8">Other specified adjustment reactions</string>
+<string name="309.81">Posttraumatic stress disorder</string>
+<string name="309.82">Adjustment reaction with physical symptoms</string>
+<string name="309.83">Adjustment reaction with withdrawal</string>
+<string name="309.89">Other specified adjustment reactions</string>
+<string name="309.9">Unspecified adjustment reaction</string>
+<string name="310">Specific nonpsychotic mental disorders due to brain damage</string>
+<string name="310.0">Frontal lobe syndrome</string>
+<string name="310.1">Personality change due to conditions classified elsewhere</string>
+<string name="310.2">Postconcussion syndrome</string>
+<string name="310.8">Other specified nonpsychotic mental disorders following organic brain damage</string>
+<string name="310.81">Pseudobulbar affect</string>
+<string name="310.89">Other specified nonpsychotic mental disorders following organic brain damage</string>
+<string name="310.9">Unspecified nonpsychotic mental disorder following organic brain damage</string>
+<string name="311">Depressive disorder, not elsewhere classified</string>
+<string name="312">Disturbance of conduct not elsewhere classified</string>
+<string name="312.0">Undersocialized conduct disorder, aggressive type</string>
+<string name="312.00">Undersocialized conduct disorder, aggressive type, unspecified</string>
+<string name="312.01">Undersocialized conduct disorder, aggressive type, mild</string>
+<string name="312.02">Undersocialized conduct disorder, aggressive type, moderate</string>
+<string name="312.03">Undersocialized conduct disorder, aggressive type, severe</string>
+<string name="312.1">Undersocialized conduct disorder, unaggressive type</string>
+<string name="312.10">Undersocialized conduct disorder, unaggressive type, unspecified</string>
+<string name="312.11">Undersocialized conduct disorder, unaggressive type, mild</string>
+<string name="312.12">Undersocialized conduct disorder, unaggressive type, moderate</string>
+<string name="312.13">Undersocialized conduct disorder, unaggressive type, severe</string>
+<string name="312.2">Socialized conduct disorder</string>
+<string name="312.20">Socialized conduct disorder, unspecified</string>
+<string name="312.21">Socialized conduct disorder, mild</string>
+<string name="312.22">Socialized conduct disorder, moderate</string>
+<string name="312.23">Socialized conduct disorder, severe</string>
+<string name="312.3">Disorders of impulse control not elsewhere classified</string>
+<string name="312.30">Impulse control disorder, unspecified</string>
+<string name="312.31">Pathological gambling</string>
+<string name="312.32">Kleptomania</string>
+<string name="312.33">Pyromania</string>
+<string name="312.34">Intermittent explosive disorder</string>
+<string name="312.35">Isolated explosive disorder</string>
+<string name="312.39">Other disorders of impulse control</string>
+<string name="312.4">Mixed disturbance of conduct and emotions</string>
+<string name="312.8">Other specified disturbances of conduct not elsewhere classified</string>
+<string name="312.81">Conduct disorder, childhood onset type</string>
+<string name="312.82">Conduct disorder, adolescent onset type</string>
+<string name="312.89">Other conduct disorder</string>
+<string name="312.9">Unspecified disturbance of conduct</string>
+<string name="313">Disturbance of emotions specific to childhood and adolescence</string>
+<string name="313.0">Overanxious disorder specific to childhood and adolescence</string>
+<string name="313.1">Misery and unhappiness disorder specific to childhood and adolescence</string>
+<string name="313.2">Sensitivity shyness and social withdrawal disorder specific to childhood and adolescence</string>
+<string name="313.21">Shyness disorder of childhood</string>
+<string name="313.22">Introverted disorder of childhood</string>
+<string name="313.23">Selective mutism</string>
+<string name="313.3">Relationship problems specific to childhood and adolescence</string>
+<string name="313.8">Other or mixed emotional disturbances of childhood or adolescence</string>
+<string name="313.81">Oppositional defiant disorder</string>
+<string name="313.82">Identity disorder of childhood or adolescence</string>
+<string name="313.83">Academic underachievement disorder of childhood or adolescence</string>
+<string name="313.89">Other emotional disturbances of childhood or adolescence</string>
+<string name="313.9">Unspecified emotional disturbance of childhood or adolescence</string>
+<string name="314">Hyperkinetic syndrome of childhood</string>
+<string name="314.0">Attention deficit disorder of childhood</string>
+<string name="314.00">Attention deficit disorder without mention of hyperactivity</string>
+<string name="314.01">Attention deficit disorder with hyperactivity</string>
+<string name="314.1">Hyperkinesis with developmental delay</string>
+<string name="314.2">Hyperkinetic conduct disorder</string>
+<string name="314.8">Other specified manifestations of hyperkinetic syndrome</string>
+<string name="314.9">Unspecified hyperkinetic syndrome</string>
+<string name="315">Specific delays in development</string>
+<string name="315.0">Developmental reading disorder</string>
+<string name="315.00">Developmental reading disorder, unspecified</string>
+<string name="315.01">Alexia</string>
+<string name="315.02">Developmental dyslexia</string>
+<string name="315.09">Other specific developmental reading disorder</string>
+<string name="315.1">Mathematics disorder</string>
+<string name="315.2">Other specific developmental learning difficulties</string>
+<string name="315.3">Developmental speech or language disorder</string>
+<string name="315.31">Expressive language disorder</string>
+<string name="315.32">Mixed receptive-expressive language disorder</string>
+<string name="315.34">Speech and language developmental delay due to hearing loss</string>
+<string name="315.35">Childhood onset fluency disorder</string>
+<string name="315.39">Other developmental speech or language disorder</string>
+<string name="315.4">Developmental coordination disorder</string>
+<string name="315.5">Mixed development disorder</string>
+<string name="315.8">Other specified delays in development</string>
+<string name="315.9">Unspecified delay in development</string>
+<string name="316">Psychic factors associated with diseases classified elsewhere</string>
+
+<string name="range_317_319">[317–319] Intellectual disabilities</string>
+<string name="317">Mild intellectual disabilities</string>
+<string name="318">Other specified intellectual disabilities</string>
+<string name="318.0">Moderate intellectual disabilities</string>
+<string name="318.1">Severe intellectual disabilities</string>
+<string name="318.2">Profound intellectual disabilities</string>
+<string name="319">Unspecified intellectual disabilities</string>
+
+<string name="range_V71_V82">[V71–V82, selected] Persons without reported diagnosis encountered during examination and investigation of individuals and populations</string>
+<string name="V71.09">Observation for other suspected mental condition</string>
+
+  </task>
+</resources>

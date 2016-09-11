@@ -18,13 +18,12 @@ LabelWordWrapWide::LabelWordWrapWide(const QString& text, QWidget* parent) :
 {
     setClickable(false);  // by default; change if you want
     setWordWrap(true);
-    QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     // If the horizontal policy if Preferred (with vertical Minimum), then
     // the text tries to wrap (increasing height) when other things tell it
     // that it can. So Expanding/Minimum is better.
     // However, that does sometimes mean that the widget expands horizontally
     // when you don't want it to.
-    setSizePolicy(sp);
     // setObjectName("debug_green");
 }
 

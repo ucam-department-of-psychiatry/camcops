@@ -21,11 +21,13 @@ namespace UiConst {
     // Stylesheets
     // ========================================================================
 
-    #define stylesheetFilename(filename) (":/stylesheets/" filename)
+    #define camcopsStylesheetFilename(filename) (":/resources/camcops/stylesheets/" filename)
 
-    const QString CSS_CAMCOPS = stylesheetFilename("camcops.css");
-    const QString CSS_CAMCOPS_MENU = stylesheetFilename("camcops_menu.css");
-    const QString CSS_CAMCOPS_QUESTIONNAIRE = stylesheetFilename("camcops_questionnaire.css");
+    const QString CSS_CAMCOPS_MAIN = camcopsStylesheetFilename("main.css");
+    const QString CSS_CAMCOPS_MENU = camcopsStylesheetFilename("menu.css");
+    const QString CSS_CAMCOPS_QUESTIONNAIRE = camcopsStylesheetFilename(
+                "questionnaire.css");
+    const QString CSS_CAMCOPS_CAMERA = camcopsStylesheetFilename("camera.css");
 
     // ========================================================================
     // Fonts, colours
@@ -105,9 +107,9 @@ namespace UiConst {
     const int MIN_VOLUME = 0;
     const int MAX_VOLUME = 100;
 
-    const QString DEMO_SOUND_URL = "qrc:///sounds/camcops/portal_still_alive.mp3";  // *** change; copyright
-    const QString DEMO_SOUND_URL_2 = "qrc:///sounds/camcops/soundtest.wav";  // *** change; copyright
-    const QString SOUND_COUNTDOWN_FINISHED = "qrc:///sounds/camcops/countdown_finished.wav";
+    const QString DEMO_SOUND_URL = "qrc:///resources/camcops/sounds/portal_still_alive.mp3";  // *** change; copyright
+    const QString DEMO_SOUND_URL_2 = "qrc:///resources/camcops/sounds/soundtest.wav";  // *** change; copyright
+    const QString SOUND_COUNTDOWN_FINISHED = "qrc:///resources/camcops/sounds/countdown_finished.wav";
 
     // ========================================================================
     // CSS

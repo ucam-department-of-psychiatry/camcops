@@ -39,8 +39,7 @@ QPointer<QWidget> QuButton::makeWidget(Questionnaire* questionnaire)
     QAbstractButton* button;
     if (!m_label.isEmpty()) {
         button = new QPushButton(m_label);
-        QSizePolicy sp(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        button->setSizePolicy(sp);
+        button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         if (read_only) {
             button->setDisabled(true);
         }

@@ -48,7 +48,7 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
                             widgets of interest
     */
 
-    setStyleSheet(m_app.getMenuCss());
+    setStyleSheet(m_app.getSubstitutedCss(UiConst::CSS_CAMCOPS_MENU));
     setObjectName("menu_window_outer_object");
 
     QVBoxLayout* dummy_layout = new QVBoxLayout();

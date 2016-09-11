@@ -40,8 +40,6 @@ QuContainerGrid* QuContainerGrid::setColumnStretch(int column, int stretch)
 QPointer<QWidget> QuContainerGrid::makeWidget(Questionnaire* questionnaire)
 {
     QPointer<QWidget> widget = new QWidget();
-    // QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    // widget->setSizePolicy(sp);
 #ifdef DEBUG_GRID_CREATION
     widget->setObjectName("debug_green");
 #endif

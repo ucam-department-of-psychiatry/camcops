@@ -7,6 +7,8 @@
 #include "field.h"
 #include "databaseobject.h"
 
+class QImage;
+
 
 class FieldRef : public QObject
 {
@@ -45,6 +47,8 @@ public:
     bool valid() const;
     void setValue(const QVariant& value, const QObject* originator = nullptr);
     // ... originator is optional and used as a performance hint (see QSlider)
+    void setValue(const QImage& image, const QObject* originator = nullptr);
+    // ... convenience method for QImage
 
     QVariant value() const;
     bool valueBool() const;

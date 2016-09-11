@@ -32,8 +32,7 @@ QPointer<QWidget> QuSpinBoxInteger::makeWidget(Questionnaire* questionnaire)
     m_spinbox = new QSpinBox();
     m_spinbox->setEnabled(!read_only);
     m_spinbox->setRange(m_minimum, m_maximum);
-    QSizePolicy sp(QSizePolicy::Fixed, QSizePolicy::Expanding);
-    m_spinbox->setSizePolicy(sp);
+    m_spinbox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     // QSpinBox has two signals named valueChanged, differing only
     // in the parameter they pass (int versus QString&). You get
     // "no matching function for call to ... unresolved overloaded function

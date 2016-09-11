@@ -135,7 +135,15 @@ SOURCES += main.cpp\
     questionnairelib/qumultipleresponseitem.cpp \
     questionnairelib/qucanvas.cpp \
     widgets/canvaswidget.cpp \
-    questionnairelib/quphoto.cpp
+    questionnairelib/quphoto.cpp \
+    questionnairelib/qudiagnosticcode.cpp \
+    widgets/camera.cpp \
+    widgets/diagnosticcodeselector.cpp \
+    widgets/aspectratiopixmaplabel.cpp \
+    diagnosis/diagnosticcode.cpp \
+    diagnosis/diagnosticcodeset.cpp \
+    diagnosis/icd10.cpp \
+    diagnosis/icd9cm.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -242,7 +250,15 @@ HEADERS  += \
     questionnairelib/qumultipleresponseitem.h \
     questionnairelib/qucanvas.h \
     widgets/canvaswidget.h \
-    questionnairelib/quphoto.h
+    questionnairelib/quphoto.h \
+    questionnairelib/qudiagnosticcode.h \
+    widgets/camera.h \
+    widgets/diagnosticcodeselector.h \
+    widgets/aspectratiopixmaplabel.h \
+    diagnosis/diagnosticcode.h \
+    diagnosis/diagnosticcodeset.h \
+    diagnosis/icd10.h \
+    diagnosis/icd9cm.h
 
 CONFIG += debug
 CONFIG += mobility
@@ -287,7 +303,8 @@ DISTFILES += \
     images/dt/dt_unsel_7.png \
     images/dt/dt_unsel_8.png \
     images/dt/dt_unsel_9.png \
-    images/dt/dt_unsel_10.png
+    images/dt/dt_unsel_10.png \
+    stylesheets/camera.css
 
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android

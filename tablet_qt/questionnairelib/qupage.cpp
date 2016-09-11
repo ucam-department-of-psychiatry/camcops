@@ -76,7 +76,7 @@ QString QuPage::title() const
 QPointer<QWidget> QuPage::widget(Questionnaire* questionnaire) const
 {
     QPointer<QWidget> pagewidget = new QWidget();
-    QVBoxLayout* pagelayout = new QVBoxLayout;
+    QVBoxLayout* pagelayout = new QVBoxLayout();
     pagewidget->setLayout(pagelayout);
     for (QuElementPtr e : m_elements) {
         QPointer<QWidget> w = e->widget(questionnaire);
@@ -85,8 +85,7 @@ QPointer<QWidget> QuPage::widget(Questionnaire* questionnaire) const
                 this, &QuPage::elementValueChanged,
                 Qt::UniqueConnection);
     }
-    QSizePolicy sp(QSizePolicy::Ignored, QSizePolicy::Minimum);
-    pagewidget->setSizePolicy(sp);
+    pagewidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
     // pagewidget->setObjectName("debug_yellow");
     return pagewidget;
 }

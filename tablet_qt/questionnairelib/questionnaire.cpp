@@ -47,7 +47,7 @@ void Questionnaire::commonConstructor()
     m_built = false;
     m_current_pagenum_zero_based = 0;
 
-    setStyleSheet(m_app.getQuestionnaireCss());
+    setStyleSheet(m_app.getSubstitutedCss(UiConst::CSS_CAMCOPS_QUESTIONNAIRE));
 
     m_outer_layout = new QVBoxLayout();
     setLayout(m_outer_layout);
@@ -355,4 +355,21 @@ void Questionnaire::doFinish()
         // *** mark task as finished, or whatever
     }
     emit finished();
+}
+
+
+void Questionnaire::openSubWidget(OpenableWidget* widget)
+{
+    qDebug() << Q_FUNC_INFO;
+
+    // This is used to open major/complex editing widgets, such as the
+    // camera control aspects used by QuPhoto, and the diagnostic code
+    // selection widget of QuDiagnosticCode.
+    m_app.open(widget);
+}
+
+
+CamcopsApp& Questionnaire::app() const
+{
+    return m_app;
 }

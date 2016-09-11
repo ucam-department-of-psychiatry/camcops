@@ -1,9 +1,9 @@
 /*
 - See the questionnaire CSS for notes.
 
-- Font size mappings (see questionnaire CSS):
+- Font size mappings (see CamcopsApp::getSubstitutedCss):
 
-    %1  base menu font size
+    %5  base menu font size
 
 */
 
@@ -12,7 +12,7 @@
    ========================================================================= */
 
 QWidget {
-    font-size: %1pt;
+    font-size: %5pt;
 }
 
 /* =========================================================================

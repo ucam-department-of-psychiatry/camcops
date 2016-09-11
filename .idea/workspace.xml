@@ -9,7 +9,218 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d507af95-9eb5-49a8-90aa-7921b1aee6f4" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/diagnosis/diagnosticcode.cpp" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/diagnosis/diagnosticcode.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/diagnosis/diagnosticcodeset.cpp" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/diagnosis/diagnosticcodeset.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/diagnosis/icd10.cpp" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/diagnosis/icd10.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qudiagnosticcode.cpp" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qudiagnosticcode.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/stylesheets/camera.css" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/widgets/aspectratiopixmaplabel.cpp" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/widgets/aspectratiopixmaplabel.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/widgets/camera.cpp" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/widgets/camera.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/widgets/diagnosticcodeselector.cpp" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/widgets/diagnosticcodeselector.h" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/ace3/a.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/ace3/a.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/ace3/accordion.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/ace3/accordion.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/ace3/anchor.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/ace3/anchor.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/ace3/barrel.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/ace3/barrel.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/ace3/book.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/ace3/book.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/ace3/camel.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/ace3/camel.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/ace3/crocodile.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/ace3/crocodile.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/ace3/crown.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/ace3/crown.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/ace3/cube.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/ace3/cube.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/ace3/dots10.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/ace3/dots10.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/ace3/dots7.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/ace3/dots7.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/ace3/dots8.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/ace3/dots8.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/ace3/dots9.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/ace3/dots9.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/ace3/harp.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/ace3/harp.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/ace3/infinity.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/ace3/infinity.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/ace3/k.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/ace3/k.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/ace3/kangaroo.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/ace3/kangaroo.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/ace3/m.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/ace3/m.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/ace3/penguin.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/ace3/penguin.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/ace3/rhinoceros.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/ace3/rhinoceros.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/ace3/spoon.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/ace3/spoon.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/ace3/t.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/ace3/t.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/add.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/add.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/add_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/add_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/addiction.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/addiction.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/affective.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/affective.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/alltasks.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/alltasks.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/anonymous.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/anonymous.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/back.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/back.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/back_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/back_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/camcops.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/camcops.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/camera.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/camera.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/camera_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/camera_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/cancel.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/cancel.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/cancel_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/cancel_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/catatonia.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/catatonia.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/chain.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/chain.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/check_disabled.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/check_disabled.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/check_false_black.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/check_false_black.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/check_false_black_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/check_false_black_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/check_false_red.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/check_false_red.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/check_false_red_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/check_false_red_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/check_true_black.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/check_true_black.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/check_true_black_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/check_true_black_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/check_true_red.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/check_true_red.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/check_true_red_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/check_true_red_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/check_unselected.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/check_unselected.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/check_unselected_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/check_unselected_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/check_unselected_required.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/check_unselected_required.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/choose_page.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/choose_page.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/choose_page_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/choose_page_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/choose_patient.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/choose_patient.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/clinical.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/clinical.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/cognitive.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/cognitive.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/delete.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/delete.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/delete_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/delete_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/edit.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/edit.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/edit_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/edit_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/executive.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/executive.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/fast_forward.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/fast_forward.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/fast_forward_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/fast_forward_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/field_incomplete_mandatory.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/field_incomplete_mandatory.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/field_incomplete_optional.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/field_incomplete_optional.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/field_problem.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/field_problem.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/finish.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/finish.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/finish_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/finish_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/finishflag.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/finishflag.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/finishflag_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/finishflag_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/global.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/global.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/hasChild.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/hasChild.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/hasParent.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/hasParent.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/info.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/info.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/locked.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/locked.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/locked_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/locked_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/next.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/next.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/next_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/next_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/ok.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/ok.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/ok_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/ok_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/patient_summary.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/patient_summary.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/personality.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/personality.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/privileged.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/privileged.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/privileged_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/privileged_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/psychosis.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/psychosis.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/radio_disabled.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/radio_disabled.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/radio_selected.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/radio_selected.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/radio_selected_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/radio_selected_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/radio_unselected.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/radio_unselected.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/radio_unselected_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/radio_unselected_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/radio_unselected_required.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/radio_unselected_required.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/read_only.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/read_only.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/reload.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/reload.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/reload_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/reload_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/research.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/research.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/rotate_anticlockwise.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/rotate_anticlockwise.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/rotate_anticlockwise_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/rotate_anticlockwise_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/rotate_clockwise.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/rotate_clockwise.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/rotate_clockwise_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/rotate_clockwise_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/sets_clinical.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/sets_clinical.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/sets_research.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/sets_research.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/settings.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/settings.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/speaker.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/speaker.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/speaker_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/speaker_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/speaker_playing.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/speaker_playing.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/speaker_playing_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/speaker_playing_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/stop.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/stop.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/time_now.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/time_now.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/time_now_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/time_now_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/unlocked.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/unlocked.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/unlocked_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/unlocked_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/upload.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/upload.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/warning.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/warning.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/whisker.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/whisker.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/zoom.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/zoom.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/camcops/zoom_T.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/images/zoom_T.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/dt/dt_sel_0.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/distressthermometer/dt_sel_0.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/dt/dt_sel_1.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/distressthermometer/dt_sel_1.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/dt/dt_sel_10.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/distressthermometer/dt_sel_10.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/dt/dt_sel_2.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/distressthermometer/dt_sel_2.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/dt/dt_sel_3.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/distressthermometer/dt_sel_3.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/dt/dt_sel_4.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/distressthermometer/dt_sel_4.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/dt/dt_sel_5.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/distressthermometer/dt_sel_5.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/dt/dt_sel_6.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/distressthermometer/dt_sel_6.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/dt/dt_sel_7.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/distressthermometer/dt_sel_7.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/dt/dt_sel_8.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/distressthermometer/dt_sel_8.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/dt/dt_sel_9.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/distressthermometer/dt_sel_9.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/dt/dt_unsel_0.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/distressthermometer/dt_unsel_0.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/dt/dt_unsel_1.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/distressthermometer/dt_unsel_1.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/dt/dt_unsel_10.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/distressthermometer/dt_unsel_10.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/dt/dt_unsel_2.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/distressthermometer/dt_unsel_2.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/dt/dt_unsel_3.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/distressthermometer/dt_unsel_3.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/dt/dt_unsel_4.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/distressthermometer/dt_unsel_4.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/dt/dt_unsel_5.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/distressthermometer/dt_unsel_5.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/dt/dt_unsel_6.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/distressthermometer/dt_unsel_6.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/dt/dt_unsel_7.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/distressthermometer/dt_unsel_7.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/dt/dt_unsel_8.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/distressthermometer/dt_unsel_8.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/dt/dt_unsel_9.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/distressthermometer/dt_unsel_9.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/expdet/V_background.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/expdet/V_background.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/expdet/V_cue_00.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/expdet/V_cue_00.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/expdet/V_cue_01.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/expdet/V_cue_01.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/expdet/V_cue_02.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/expdet/V_cue_02.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/expdet/V_cue_03.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/expdet/V_cue_03.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/expdet/V_cue_04.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/expdet/V_cue_04.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/expdet/V_cue_05.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/expdet/V_cue_05.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/expdet/V_cue_06.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/expdet/V_cue_06.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/expdet/V_cue_07.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/expdet/V_cue_07.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/expdet/V_target_0_circle.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/expdet/V_target_0_circle.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/expdet/V_target_1_word.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/expdet/V_target_1_word.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/ifs/swm.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/ifs/swm.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/moca/animals.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/moca/animals.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/moca/clock.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/moca/clock.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/moca/cube.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/moca/cube.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/moca/path.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/moca/path.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/slums/circle.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/slums/circle.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/images/slums/shapes.png" afterPath="$PROJECT_DIR$/tablet_qt/resources/slums/shapes.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/sounds/camcops/.gitignore" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/sounds/.gitignore" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/sounds/camcops/countdown_finished.wav" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/sounds/countdown_finished.wav" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/sounds/camcops/soundtest.wav" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/sounds/soundtest.wav" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/stylesheets/camcops.css" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/stylesheets/main.css" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/stylesheets/camcops_menu.css" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/stylesheets/menu.css" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/stylesheets/camcops_questionnaire.css" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/stylesheets/questionnaire.css" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/camcops.pro" afterPath="$PROJECT_DIR$/tablet_qt/camcops.pro" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/camcops.qrc" afterPath="$PROJECT_DIR$/tablet_qt/camcops.qrc" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/common/camcopsapp.cpp" afterPath="$PROJECT_DIR$/tablet_qt/common/camcopsapp.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/common/camcopsapp.h" afterPath="$PROJECT_DIR$/tablet_qt/common/camcopsapp.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/common/uiconstants.cpp" afterPath="$PROJECT_DIR$/tablet_qt/common/uiconstants.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/common/uiconstants.h" afterPath="$PROJECT_DIR$/tablet_qt/common/uiconstants.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/fieldref.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/fieldref.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/fieldref.h" afterPath="$PROJECT_DIR$/tablet_qt/lib/fieldref.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/uifunc.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/uifunc.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/uifunc.h" afterPath="$PROJECT_DIR$/tablet_qt/lib/uifunc.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/testmenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/testmenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/testmenu.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/testmenu.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/htmlinfowindow.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menulib/htmlinfowindow.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/menuwindow.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menulib/menuwindow.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/notes/qt_notes.txt" afterPath="$PROJECT_DIR$/tablet_qt/notes/qt_notes.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qubutton.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qubutton.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qucanvas.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qucanvas.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qucontainergrid.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qucontainergrid.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qudatetime.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qudatetime.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnaire.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnaire.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnaire.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnaire.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qulineedit.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qulineedit.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qupage.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qupage.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quphoto.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quphoto.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quphoto.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quphoto.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quslider.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quslider.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quspinboxdouble.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quspinboxdouble.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quspinboxinteger.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quspinboxinteger.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasks/demoquestionnaire.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasks/demoquestionnaire.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/canvaswidget.cpp" afterPath="$PROJECT_DIR$/tablet_qt/widgets/canvaswidget.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/canvaswidget.h" afterPath="$PROJECT_DIR$/tablet_qt/widgets/canvaswidget.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/growingtextedit.cpp" afterPath="$PROJECT_DIR$/tablet_qt/widgets/growingtextedit.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/imagebutton.cpp" afterPath="$PROJECT_DIR$/tablet_qt/widgets/imagebutton.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/labelwordwrapwide.cpp" afterPath="$PROJECT_DIR$/tablet_qt/widgets/labelwordwrapwide.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/spacer.cpp" afterPath="$PROJECT_DIR$/tablet_qt/widgets/spacer.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/verticalscrollarea.cpp" afterPath="$PROJECT_DIR$/tablet_qt/widgets/verticalscrollarea.cpp" />
     </list>
     <ignored path="camcops.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -111,7 +322,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="cbir.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="cbir.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/cbir.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="842">
@@ -131,11 +342,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="cc_string.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="cc_string.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_string.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1664">
-              <caret line="128" column="4" selection-start-line="128" selection-start-column="4" selection-end-line="128" selection-end-column="4" />
+            <state relative-caret-position="684">
+              <caret line="85" column="42" selection-start-line="85" selection-start-column="42" selection-end-line="85" selection-end-column="42" />
               <folding />
             </state>
           </provider>
@@ -220,9 +431,10 @@
     <scope name="server" pattern="file[camcops]:server//*" />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="2397" />
-    <option name="width" value="1206" />
-    <option name="height" value="1603" />
+    <option name="x" value="1" />
+    <option name="y" value="48" />
+    <option name="width" value="1196" />
+    <option name="height" value="1602" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -266,7 +478,6 @@
     </navigator>
     <panes>
       <pane id="Scratches" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -275,8 +486,73 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
           </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="camcops" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="camcops" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="camcops" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="camcops" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="server" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="camcops" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="camcops" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="server" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="camcops_server" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="camcops" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="camcops" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="server" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="camcops_server" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="cc_modules" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -539,10 +815,10 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="2397" y="0" width="1206" height="1603" extended-state="6" />
+    <frame x="1" y="48" width="1196" height="1602" extended-state="0" />
     <editor active="false" />
     <layout>
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26833335" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26923078" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="LuaJ" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
@@ -981,8 +1257,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_string.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1664">
-          <caret line="128" column="4" selection-start-line="128" selection-start-column="4" selection-end-line="128" selection-end-column="4" />
+        <state relative-caret-position="684">
+          <caret line="85" column="42" selection-start-line="85" selection-start-column="42" selection-end-line="85" selection-end-column="42" />
           <folding />
         </state>
       </provider>

@@ -91,8 +91,13 @@ public:
     // ------------------------------------------------------------------------
     // CSS convenience
     // ------------------------------------------------------------------------
-    QString getMenuCss() const;
-    QString getQuestionnaireCss() const;
+    QString getSubstitutedCss(const QString& filename) const;
+
+    // ------------------------------------------------------------------------
+    // Extra strings (downloaded from server)
+    // ------------------------------------------------------------------------
+    QString xstring(const QString& taskname, const QString& stringname,
+                    const QString& default_str = "") const;
 
     // ------------------------------------------------------------------------
     // Stored variables: specific

@@ -73,7 +73,7 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     // ------------------------------------------------------------------------
     // Qt stuff
     // ------------------------------------------------------------------------
-    setStyleSheet(FileFunc::textfileContents(UiConst::CSS_CAMCOPS));
+    setStyleSheet(FileFunc::textfileContents(UiConst::CSS_CAMCOPS_MAIN));
 }
 
 
@@ -133,14 +133,14 @@ void CamcopsApp::open(OpenableWidget* widget, TaskPtr task,
 
     widget->build();
     qDebug() << "Pushing screen";
-    int index = m_p_window_stack->addWidget(widget);
+    int index = m_p_window_stack->addWidget(widget);  // will show the widget
     // The stack takes over ownership.
     m_p_window_stack->setCurrentIndex(index);
     if (widget->wantsFullscreen()) {
         m_p_main_window->showFullScreen();
     }
 
-    // 3. Signal
+    // 3. Signals
     connect(widget, &OpenableWidget::finished,
             this, &CamcopsApp::close);
 
@@ -264,24 +264,34 @@ int CamcopsApp::currentPatientId() const
 }
 
 
-QString CamcopsApp::getMenuCss() const
+QString CamcopsApp::getSubstitutedCss(const QString& filename) const
 {
     return (
-        FileFunc::textfileContents(UiConst::CSS_CAMCOPS_MENU)
-            .arg(fontSizePt(UiConst::FontSize::Menus))  // %1
-    );
-}
-
-
-QString CamcopsApp::getQuestionnaireCss() const
-{
-    return (
-        FileFunc::textfileContents(UiConst::CSS_CAMCOPS_QUESTIONNAIRE)
+        FileFunc::textfileContents(filename)
             .arg(fontSizePt(UiConst::FontSize::Normal))  // %1
             .arg(fontSizePt(UiConst::FontSize::Big))  // %2
             .arg(fontSizePt(UiConst::FontSize::Heading))  // %3
             .arg(fontSizePt(UiConst::FontSize::Title))  // %4
+            .arg(fontSizePt(UiConst::FontSize::Menus))  // %5
     );
+}
+
+QString CamcopsApp::xstring(const QString& taskname, const QString& stringname,
+                            const QString& default_str) const
+{
+    // ***
+    bool found = false;
+    if (found) {
+        return "*** TO BE IMPLEMENTED ***";
+    } else {
+        if (default_str.isEmpty()) {
+            return QString("[string not downloaded: %1/%2]")
+                    .arg(taskname)
+                    .arg(stringname);
+        } else {
+            return default_str;
+        }
+    }
 }
 
 

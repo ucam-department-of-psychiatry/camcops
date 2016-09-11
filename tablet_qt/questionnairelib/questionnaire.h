@@ -34,6 +34,9 @@ public:
 
     bool readOnly() const;
     int fontSizePt(UiConst::FontSize fontsize) const;
+
+    void openSubWidget(OpenableWidget* widget);
+    CamcopsApp& app() const;
 protected:
     void commonConstructor();
     int currentPageNumOneBased() const;

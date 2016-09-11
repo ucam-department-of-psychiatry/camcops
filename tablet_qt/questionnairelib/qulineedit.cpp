@@ -37,8 +37,7 @@ QPointer<QWidget> QuLineEdit::makeWidget(Questionnaire* questionnaire)
 {
     bool read_only = questionnaire->readOnly();
     m_editor = new QLineEdit();
-    QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    m_editor->setSizePolicy(sp);
+    m_editor->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     m_editor->setEnabled(!read_only);
     m_editor->setPlaceholderText(m_hint);
     extraLineEditCreation(m_editor.data());  // allow subclasses to modify

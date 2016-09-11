@@ -16,8 +16,8 @@ class CanvasWidget : public QFrame
 {
     Q_OBJECT
 public:
-    CanvasWidget();
-    CanvasWidget(const QSize& size);
+    CanvasWidget(QWidget* parent = nullptr);
+    CanvasWidget(const QSize& size, QWidget* parent = nullptr);
     ~CanvasWidget();
     void setSize(const QSize& size);
     void setPen(const QPen& pen);

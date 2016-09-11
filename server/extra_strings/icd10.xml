@@ -1,0 +1,744 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="icd10">
+
+<!--
+===============================================================================
+Diagnostic codes from:
+The ICD-10 Classification of Mental and Behavioural Disorders
+===============================================================================
+Copyright © 1992 World Health Organization
+- The ICD-10 Classification of Mental and Behavioural Disorders:
+  Clinical descriptions and diagnostic guidelines (CDDG).
+  http://www.who.int/entity/classifications/icd/en/bluebook.pdf
+  Accessed 2013-05-08.
+- The ICD-10 Classification of Mental and Behavioural Disorders:
+  Diagnostic Criteria for Research (DCR-10).
+  http://www.who.int/classifications/icd/en/GRNBOOK.pdf
+  Accessed 2013-05-08.
+
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+Used here with permission (2014-04-16):
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+“On behalf of the World Health Organization, we are pleased to authorize your
+request to reproduce the ICD-10 codes and descriptions in University of
+Cambridge’s tablet application for pilot research and clinical use as detailed
+in your message below. This permission is subject to the following conditions:
+
+- This is a non-exclusive, non-assignable permission to incorporate the ICD-10
+  codes in the English language
+
+- WHO shall be acknowledged with a full bibliographical reference to ICD-10.
+
+- The ICD-10 codes should not be licensed under the open source licence. The
+  copyright in ICD-10 should be clearly attributed WHO and any further
+  redistribution of ICD-10 requires permission from WHO.
+
+- Any organization wishing to use and adapt the application with the ICD-10
+  codes will require authorization from WHO.
+
+- All validated updates to the ICD-10 classification are published on the WHO
+  web site on an annual basis, on the following URL:
+  http://www.who.int/classifications/icd/icd10updates/en/index.html .
+  The updates will include the precise date of validation. WHO does not
+  undertake to supply the above-mentioned, however you may use the published
+  updates in the Product.
+
+- The ICD-10 codes will be reproduced as published by WHO and no changes should
+  be made to the content or meaning.
+
+- The ICD-10 codes should not be reproduced for use in association with product
+  marketing or promotional activities.
+
+- There should be no suggestion that WHO endorses any specific company or
+  products in the product or in the manner of distribution of the product.
+
+- The WHO logo and emblem shall not be reproduced.
+
+- WHO reserves the right to withdraw the permission in the event a condition is
+  not respected.”
+
+(Carla Abou Mrad, for WHO, to Rudolf Cardinal, 2014-04-16.)
+
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+Further detail:
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+“... we have agreed to authorize you the permission and we will not charge any
+fee for this permission, however the permission clearly states that the
+copyright in ICD-10 should be clearly attributed WHO and any further
+redistribution of ICD-10 requires permission from WHO. It is no problem to
+distribute the application to end users, however any organization wishing to
+use and adapt the software with the ICD-10 codes for distribution as another
+product, will require authorization from WHO.”
+
+(Carla Abou Mrad, for WHO, to Rudolf Cardinal, 2014-04-15.)
+
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+Sources:
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    http://www.doh.gov.za/docs/notices/2013/ICD10_MIT_download_from_NDOH_website_March2013.docx
+    http://www.doh.gov.za/docs/notices/2012/ICD-10_MIT_2013_Plus_ICD-O-3_20120824_Final.xls
+    http://www.doh.gov.za/docs/notices/2012/ICD-10_MIT_2013_Plus_ICD-O-3_20120824_Final.csv
+    http://www.doh.gov.za/docs/notices/2012/ICD-10_Master_Industry_Table.pdf
+    http://www.who.int/classifications/icd/en/GRNBOOK.pdf // labelled “extra”
+    http://www.who.int/classifications/icd/en/bluebook.pdf // labelled “extra”
+“No mental disorder” codes:
+    http://www.smhp.nhs.uk/SMHP/LinkClick.aspx?fileticket=Mjwq9Hi6W5U%3D&..
+
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+Codes covered
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+F00–F99 Mental and behavioural disorders
+R40–R46 Cognition, perception, emotional state and behaviour
+X60–X84 Intentional self-harm
+Z:
+    Z00.4 General psychiatric examination, not elsewhere classified
+    Z03.2 Observation for suspected mental and behavioural disorders
+    Z71.1 Person with feared complaint in whom no diagnosis is made
+
+-->
+
+
+    <!-- stems -->
+<string name="dementia_x0">Without additional symptoms</string>
+<string name="dementia_x1">With other symptoms, predominantly delusional</string>
+<string name="dementia_x2">With other symptoms, predominantly hallucinatory</string>
+<string name="dementia_x3">With other symptoms, predominantly depressive</string>
+<string name="dementia_x4">With other mixed symptoms</string>
+
+<string name="dementia_xx0">Mild</string>
+<string name="dementia_xx1">Moderate</string>
+<string name="dementia_xx2">Severe</string>
+
+    <!-- not maximally efficient, here, but simpler to code and (more importantly) read -->
+<string name="substance_0">acute intoxication</string>
+<string name="substance_00">acute intoxication: Uncomplicated</string>
+<string name="substance_01">acute intoxication: With trauma or other bodily injury</string>
+<string name="substance_02">acute intoxication: With other medical complications</string>
+<string name="substance_03">acute intoxication: With delirium</string>
+<string name="substance_04">acute intoxication: With perceptual distortions</string>
+<string name="substance_05">acute intoxication: With coma</string>
+<string name="substance_06">acute intoxication: With convulsions</string>
+<string name="substance_07">acute intoxication: Pathological intoxication</string>  <!-- alcohol only -->
+<string name="substance_1">harmful use</string>
+<string name="substance_2">dependence syndrome</string>
+<string name="substance_20">dependence syndrome: Currently abstinent</string>
+<string name="substance_200">dependence syndrome: Currently abstinent: Early remission</string>
+<string name="substance_201">dependence syndrome: Currently abstinent: Partial remission</string>
+<string name="substance_202">dependence syndrome: Currently abstinent: Full remission</string>
+<string name="substance_21">dependence syndrome: Currently abstinent, but in a protected environment</string>
+<string name="substance_22">dependence syndrome: Currently on a clinically supervised maintenance or replacement regime (controlled dependence)</string>
+<string name="substance_23">dependence syndrome: Currently abstinent, but receiving treatment with aversive or blocking drugs</string>
+<string name="substance_24">dependence syndrome: Currently using the substance (active dependence)</string>
+<string name="substance_241">dependence syndrome: Currently using the substance (active dependence): Without physical features</string>
+<string name="substance_242">dependence syndrome: Currently using the substance (active dependence): With physical features</string>
+<string name="substance_25">dependence syndrome: Continuous use</string>
+<string name="substance_26">Episodic use</string>  <!-- for alcohol: append "[dipsomania]" -->
+<string name="substance_26_alcohol_suffix">[dipsomania]</string>
+<string name="substance_3">withdrawal state</string>
+<string name="substance_30">withdrawal state: Uncomplicated</string>
+<string name="substance_31">withdrawal state: With convulsions</string>
+<string name="substance_4">withdrawal state with delirium</string>
+<string name="substance_40">withdrawal state with delirium: Without convulsions</string>
+<string name="substance_41">withdrawal state with delirium: With convulsions</string>
+<string name="substance_5">psychotic disorder</string>
+<string name="substance_50">psychotic disorder: Schizophrenia-like</string>
+<string name="substance_51">psychotic disorder: Predominantly delusional</string>
+<string name="substance_52">psychotic disorder: Predominantly hallucinatory</string>
+<string name="substance_53">psychotic disorder: Predominantly polymorphic</string>
+<string name="substance_54">psychotic disorder: Predominantly depressive symptoms</string>
+<string name="substance_55">psychotic disorder: Predominantly manic symptoms</string>
+<string name="substance_56">psychotic disorder: Mixed</string>
+<string name="substance_6">amnesic syndrome</string>
+<string name="substance_7">residual and late-onset psychotic disorder</string>
+<string name="substance_70">residual and late-onset psychotic disorder: Flashbacks</string>
+<string name="substance_71">residual and late-onset psychotic disorder: Personality or behavioural disorder</string>
+<string name="substance_72">residual and late-onset psychotic disorder: Residual affective disorder</string>
+<string name="substance_73">residual and late-onset psychotic disorder: Dementia</string>
+<string name="substance_74">residual and late-onset psychotic disorder: Other persisting cognitive disorder</string>
+<string name="substance_75">residual and late-onset psychotic disorder: Late-onset psychotic disorder</string>
+<string name="substance_8">other mental and behavioural disorders</string>
+<string name="substance_9">unspecified mental and behavioural disorder</string>
+
+<string name="schizophrenia_x0">Continuous</string>
+<string name="schizophrenia_x1">Episodic with progressive deficit</string>
+<string name="schizophrenia_x2">Episodic with stable deficit</string>
+<string name="schizophrenia_x3">Episodic remittent</string>
+<string name="schizophrenia_x4">Incomplete remission</string>
+<string name="schizophrenia_x5">Complete remission</string>
+<string name="schizophrenia_x8">Other</string>
+<string name="schizophrenia_x9">Course uncertain, period of observation too short</string>
+
+<string name="selfharm_0">home</string>
+<string name="selfharm_1">residential institution</string>
+<string name="selfharm_2">school, other institution and public administrative area</string>
+<string name="selfharm_3">sports and athletics area</string>
+<string name="selfharm_4">street and highway</string>
+<string name="selfharm_5">trade and service area</string>
+<string name="selfharm_6">industrial and construction area</string>
+<string name="selfharm_7">farm</string>
+<string name="selfharm_8">other specified places</string>
+<string name="selfharm_9">unspecified place</string>
+<string name="selfharm_x0">while engaged in sports activity</string>
+<string name="selfharm_x1">while engaged in leisure activity</string>
+<string name="selfharm_x2">while working for income</string>
+<string name="selfharm_x3">while engaged in other types of work</string>
+<string name="selfharm_x4">while resting, sleeping, eating or engaging in other vital activities</string>
+<string name="selfharm_x8">while engaged in other specified activities</string>
+<string name="selfharm_x9">during unspecified activity</string>
+
+    <!-- F -->
+
+<string name="F">[F00–F99] Mental and behavioural disorders</string>
+
+<string name="F0">[F00–F09] Organic, including symptomatic, mental disorders</string>
+<string name="F00">Dementia in Alzheimer's disease (G30.-+)</string>
+<string name="F00.0">Dementia in Alzheimer's disease with early onset (G30.0+)</string>
+<string name="F00.1">Dementia in Alzheimer's disease with late onset (G30.1+)</string>
+<string name="F00.2">Dementia in Alzheimer's disease, atypical or mixed type (G30.8+)</string>
+<string name="F00.9">Dementia in Alzheimer's disease, unspecified (G30.9+)</string>
+<string name="F01">Vascular dementia</string>
+<string name="F01.0">Vascular dementia of acute onset</string>
+<string name="F01.1">Multi-infarct dementia</string>
+<string name="F01.2">Subcortical vascular dementia</string>
+<string name="F01.3">Mixed cortical and subcortical vascular dementia</string>
+<string name="F01.8">Other vascular dementia</string>
+<string name="F01.9">Vascular dementia, unspecified</string>
+<string name="F02">Dementia in other diseases classified elsewhere</string>
+<string name="F02.0">Dementia in Pick's disease (G31.0+)</string>
+<string name="F02.1">Dementia in Creutzfeldt-Jakob disease (A81.0+)</string>
+<string name="F02.2">Dementia in Huntington's disease (G10+)</string>
+<string name="F02.3">Dementia in Parkinson's disease (G20+)</string>
+<string name="F02.4">Dementia in human immunodeficiency virus [HIV] disease (B22.0+)</string>
+<string name="F02.8">Dementia in other specified diseases classified elsewhere</string>
+<string name="F03">Unspecified dementia</string>
+<string name="F03.0">Unspecified dementia</string>
+<string name="F04">Organic amnesic syndrome, not induced by alcohol and other psychoactive substances</string>
+<string name="F05">Delirium, not induced by alcohol and other psychoactive substances</string>
+<string name="F05.0">Delirium not superimposed on dementia, so described</string>
+<string name="F05.1">Delirium superimposed on dementia</string>
+<string name="F05.8">Other delirium</string>
+<string name="F05.9">Delirium, unspecified</string>
+<string name="F06">Other mental disorders due to brain damage and dysfunction and to physical disease</string>
+<string name="F06.0">Organic hallucinosis</string>
+<string name="F06.1">Organic catatonic disorder</string>
+<string name="F06.2">Organic delusional [schizophrenia-like] disorder</string>
+<string name="F06.3">Organic mood [affective] disorders</string>
+<string name="F06.4">Organic anxiety disorder</string>
+<string name="F06.5">Organic dissociative disorder</string>
+<string name="F06.6">Organic emotionally labile [asthenic] disorder</string>
+<string name="F06.7">Mild cognitive disorder</string>
+<string name="F06.8">Other specified mental disorders due to brain damage and dysfunction and to physical disease</string>
+<string name="F06.9">Unspecified mental disorder due to brain damage and dysfunction and to physical disease</string>
+<string name="F07">Personality and behavioural disorders due to brain disease, damage and dysfunction</string>
+<string name="F07.0">Organic personality disorder</string>
+<string name="F07.1">Postencephalitic syndrome</string>
+<string name="F07.2">Postconcussional syndrome</string>
+<string name="F07.8">Other organic personality and behavioural disorders due to brain disease, damage and dysfunction</string>
+<string name="F07.9">Unspecified organic personality and behavioural disorder due to brain disease, damage and dysfunction</string>
+<string name="F09">Unspecified organic or symptomatic mental disorder</string>
+
+<string name="F1">[F10–F19] Mental and behavioural disorders due to psychoactive substance use</string>
+<string name="F10">Mental and behavioural disorders due to use of alcohol</string>
+<string name="F11">Mental and behavioural disorders due to use of opioids</string>
+<string name="F12">Mental and behavioural disorders due to use of cannabinoids</string>
+<string name="F13">Mental and behavioural disorders due to use of sedatives or hypnotics</string>
+<string name="F14">Mental and behavioural disorders due to use of cocaine</string>
+<string name="F15">Mental and behavioural disorders due to use of other stimulants, including caffeine</string>
+<string name="F16">Mental and behavioural disorders due to use of hallucinogens</string>
+<string name="F17">Mental and behavioural disorders due to use of tobacco</string>
+<string name="F18">Mental and behavioural disorders due to use of volatile solvents</string>
+<string name="F19">Mental and behavioural disorders due to multiple drug use and use of other psychoactive substances</string>
+
+<string name="F2">[F20–F29] Schizophrenia, schizotypal and delusional disorders</string>
+<string name="F20">Schizophrenia</string>
+<string name="F20.0">Paranoid schizophrenia</string>
+<string name="F20.1">Hebephrenic schizophrenia</string>
+<string name="F20.2">Catatonic schizophrenia</string>
+<string name="F20.3">Undifferentiated schizophrenia</string>
+<string name="F20.4">Post-schizophrenic depression</string>
+<string name="F20.5">Residual schizophrenia</string>
+<string name="F20.6">Simple schizophrenia</string>
+<string name="F20.8">Other schizophrenia</string>
+<string name="F20.9">Schizophrenia, unspecified</string>
+<string name="F21">Schizotypal disorder</string>
+<string name="F22">Persistent delusional disorders</string>
+<string name="F22.0">Delusional disorder</string>
+<string name="F22.8">Other persistent delusional disorders</string>
+<string name="F22.9">Persistent delusional disorder, unspecified</string>
+<string name="F23">Acute and transient psychotic disorders</string>
+<string name="F23.0">Acute polymorphic psychotic disorder without symptoms of schizophrenia</string>
+<string name="F23.1">Acute polymorphic psychotic disorder with symptoms of schizophrenia</string>
+<string name="F23.2">Acute schizophrenia-like psychotic disorder</string>
+<string name="F23.3">Other acute predominantly delusional psychotic disorders</string>
+<string name="F23.8">Other acute and transient psychotic disorders</string>
+<string name="F23.9">Acute and transient psychotic disorder, unspecified</string>
+<string name="F23.90">Acute and transient psychotic disorder, unspecified: without associated acute stress</string> <!-- Green/Blue Book extra -->
+<string name="F23.91">Acute and transient psychotic disorder, unspecified: with associated acute stress</string> <!-- Green/Blue Book extra -->
+<string name="F24">Induced delusional disorder</string>
+<string name="F25">Schizoaffective disorders</string>
+<string name="F25.0">Schizoaffective disorder, manic type</string>
+<string name="F25.00">Schizoaffective disorder, manic type: concurrent affective and schizophrenic symptoms only</string> <!-- Green/Blue Book extra -->
+<string name="F25.01">Schizoaffective disorder, manic type: concurrent affective and schizophrenic symptoms, plus persistence of the schizophrenic symptoms beyond the duration of the affective symptoms</string> <!-- Green/Blue Book extra -->
+<string name="F25.1">Schizoaffective disorder, depressive type</string>
+<string name="F25.10">Schizoaffective disorder, depressive type: concurrent affective and schizophrenic symptoms only</string> <!-- Green/Blue Book extra -->
+<string name="F25.11">Schizoaffective disorder, depressive type: concurrent affective and schizophrenic symptoms, plus persistence of the schizophrenic symptoms beyond the duration of the affective symptoms</string> <!-- Green/Blue Book extra -->
+<string name="F25.2">Schizoaffective disorder, mixed type</string>
+<string name="F25.20">Schizoaffective disorder, mixed type: concurrent affective and schizophrenic symptoms only</string> <!-- Green/Blue Book extra -->
+<string name="F25.21">Schizoaffective disorder, mixed type: concurrent affective and schizophrenic symptoms, plus persistence of the schizophrenic symptoms beyond the duration of the affective symptoms</string> <!-- Green/Blue Book extra -->
+<string name="F25.8">Other schizoaffective disorders</string>
+<string name="F25.80">Other schizoaffective disorders: concurrent affective and schizophrenic symptoms only</string> <!-- Green/Blue Book extra -->
+<string name="F25.81">Other schizoaffective disorders: concurrent affective and schizophrenic symptoms, plus persistence of the schizophrenic symptoms beyond the duration of the affective symptoms</string> <!-- Green/Blue Book extra -->
+<string name="F25.9">Schizoaffective disorder, unspecified</string>
+<string name="F25.90">Schizoaffective disorder, unspecified: concurrent affective and schizophrenic symptoms only</string> <!-- Green/Blue Book extra -->
+<string name="F25.91">Schizoaffective disorder, unspecified: concurrent affective and schizophrenic symptoms, plus persistence of the schizophrenic symptoms beyond the duration of the affective symptoms</string> <!-- Green/Blue Book extra -->
+<string name="F28">Other nonorganic psychotic disorders</string>
+<string name="F29">Unspecified nonorganic psychosis</string>
+
+<string name="F3">[F30–F39] Mood (affective) disorders</string>
+<string name="F30">Manic episode</string>
+<string name="F30.0">Hypomania</string>
+<string name="F30.1">Mania without psychotic symptoms</string>
+<string name="F30.2">Mania with psychotic symptoms</string>
+<string name="F30.20">Mania with psychotic symptoms: with mood-congruent psychotic symptoms</string> <!-- Green/Blue Book extra -->
+<string name="F30.21">Mania with psychotic symptoms: with mood-incongruent psychotic symptoms</string> <!-- Green/Blue Book extra -->
+<string name="F30.8">Other manic episodes</string>
+<string name="F30.9">Manic episode, unspecified</string>
+<string name="F31">Bipolar affective disorder</string>
+<string name="F31.0">Bipolar affective disorder, current episode hypomanic</string>
+<string name="F31.1">Bipolar affective disorder, current episode manic without psychotic symptoms</string>
+<string name="F31.2">Bipolar affective disorder, current episode manic with psychotic symptoms</string>
+<string name="F31.20">Bipolar affective disorder, current episode manic with psychotic symptoms: with mood-congruent psychotic symptoms</string> <!-- Green/Blue Book extra -->
+<string name="F31.21">Bipolar affective disorder, current episode manic with psychotic symptoms: with mood-incongruent psychotic symptoms</string> <!-- Green/Blue Book extra -->
+<string name="F31.3">Bipolar affective disorder, current episode mild or moderate depression</string>
+<string name="F31.30">Bipolar affective disorder, current episode mild or moderate depression: without somatic syndrome</string> <!-- Green/Blue Book extra -->
+<string name="F31.31">Bipolar affective disorder, current episode mild or moderate depression: with somatic syndrome</string> <!-- Green/Blue Book extra -->
+<string name="F31.4">Bipolar affective disorder, current episode severe depression without psychotic symptoms</string>
+<string name="F31.5">Bipolar affective disorder, current episode severe depression with psychotic symptoms</string>
+<string name="F31.50">Bipolar affective disorder, current episode severe depression with psychotic symptoms: with mood-congruent psychotic symptoms</string> <!-- Green/Blue Book extra -->
+<string name="F31.51">Bipolar affective disorder, current episode severe depression with psychotic symptoms: with mood-incongruent psychotic symptoms</string> <!-- Green/Blue Book extra -->
+<string name="F31.6">Bipolar affective disorder, current episode mixed</string>
+<string name="F31.7">Bipolar affective disorder, currently in remission</string>
+<string name="F31.8">Other bipolar affective disorders</string>
+<string name="F31.9">Bipolar affective disorder, unspecified</string>
+<string name="F32">Depressive episode</string>
+<string name="F32.0">Mild depressive episode</string>
+<string name="F32.00">Mild depressive episode: without somatic syndrome</string> <!-- Green/Blue Book extra -->
+<string name="F32.01">Mild depressive episode: with somatic syndrome</string> <!-- Green/Blue Book extra -->
+<string name="F32.1">Moderate depressive episode</string>
+<string name="F32.10">Moderate depressive episode: without somatic syndrome</string> <!-- Green/Blue Book extra -->
+<string name="F32.11">Moderate depressive episode: with somatic syndrome</string> <!-- Green/Blue Book extra -->
+<string name="F32.2">Severe depressive episode without psychotic symptoms</string>
+<string name="F32.3">Severe depressive episode with psychotic symptoms</string>
+<string name="F32.30">Severe depressive episode with psychotic symptoms: with mood-congruent psychotic symptoms</string> <!-- Green/Blue Book extra -->
+<string name="F32.31">Severe depressive episode with psychotic symptoms: with mood-incongruent psychotic symptoms</string> <!-- Green/Blue Book extra -->
+<string name="F32.8">Other depressive episodes</string>
+<string name="F32.9">Depressive episode, unspecified</string>
+<string name="F33">Recurrent depressive disorder</string>
+<string name="F33.0">Recurrent depressive disorder, current episode mild</string>
+<string name="F33.00">Recurrent depressive disorder, current episode mild: without somatic syndrome</string> <!-- Green/Blue Book extra -->
+<string name="F33.01">Recurrent depressive disorder, current episode mild: with somatic syndrome</string> <!-- Green/Blue Book extra -->
+<string name="F33.1">Recurrent depressive disorder, current episode moderate</string>
+<string name="F33.10">Recurrent depressive disorder, current episode moderate: without somatic syndrome</string> <!-- Green/Blue Book extra -->
+<string name="F33.11">Recurrent depressive disorder, current episode moderate: with somatic syndrome</string> <!-- Green/Blue Book extra -->
+<string name="F33.2">Recurrent depressive disorder, current episode severe without psychotic symptoms</string>
+<string name="F33.3">Recurrent depressive disorder, current episode severe with psychotic symptoms</string>
+<string name="F33.30">Recurrent depressive disorder, current episode severe with psychotic symptoms: with mood-congruent psychotic symptoms</string> <!-- Green/Blue Book extra -->
+<string name="F33.31">Recurrent depressive disorder, current episode severe with psychotic symptoms: with mood-incongruent psychotic symptoms</string> <!-- Green/Blue Book extra -->
+<string name="F33.4">Recurrent depressive disorder, currently in remission</string>
+<string name="F33.8">Other recurrent depressive disorders</string>
+<string name="F33.9">Recurrent depressive disorder, unspecified</string>
+<string name="F34">Persistent mood [affective] disorders</string>
+<string name="F34.0">Cyclothymia</string>
+<string name="F34.1">Dysthymia</string>
+<string name="F34.8">Other persistent mood [affective] disorders</string>
+<string name="F34.9">Persistent mood [affective] disorder, unspecified</string>
+<string name="F38">Other mood [affective] disorders</string>
+<string name="F38.0">Other single mood [affective] disorders</string>
+<string name="F38.00">Other single mood [affective] disorders: mixed affective episode</string> <!-- Green/Blue Book extra -->
+<string name="F38.1">Other recurrent mood [affective] disorders</string>
+<string name="F38.10">Other recurrent mood [affective] disorders: recurrent brief depressive disorder</string> <!-- Green/Blue Book extra -->
+<string name="F38.8">Other specified mood [affective] disorders</string>
+<string name="F39">Unspecified mood [affective] disorder</string>
+
+<string name="F4">[F40–F49] Neurotic, stress-related and somatoform disorders</string>
+<string name="F40">Phobic anxiety disorders</string>
+<string name="F40.0">Agoraphobia</string>
+<string name="F40.00">Agoraphobia: without panic disorder</string> <!-- Green/Blue Book extra -->
+<string name="F40.01">Agoraphobia: with panic disorder</string> <!-- Green/Blue Book extra -->
+<string name="F40.1">Social phobias</string>
+<string name="F40.2">Specific (isolated) phobias</string>
+<string name="F40.8">Other phobic anxiety disorders</string>
+<string name="F40.9">Phobic anxiety disorder, unspecified</string>
+<string name="F41">Other anxiety disorders</string>
+<string name="F41.0">Panic disorder [episodic paroxysmal anxiety]</string>
+<string name="F41.00">Panic disorder [episodic paroxysmal anxiety]: moderate</string> <!-- Green/Blue Book extra -->
+<string name="F41.01">Panic disorder [episodic paroxysmal anxiety]: severe</string> <!-- Green/Blue Book extra -->
+<string name="F41.1">Generalized anxiety disorder</string>
+<string name="F41.2">Mixed anxiety and depressive disorder</string>
+<string name="F41.3">Other mixed anxiety disorders</string>
+<string name="F41.8">Other specified anxiety disorders</string>
+<string name="F41.9">Anxiety disorder, unspecified</string>
+<string name="F42">Obsessive-compulsive disorder</string>
+<string name="F42.0">Predominantly obsessional thoughts or ruminations</string>
+<string name="F42.1">Predominantly compulsive acts [obsessional rituals]</string>
+<string name="F42.2">Mixed obsessional thoughts and acts</string>
+<string name="F42.8">Other obsessive-compulsive disorders</string>
+<string name="F42.9">Obsessive-compulsive disorder, unspecified</string>
+<string name="F43">Reaction to severe stress, and adjustment disorders</string>
+<string name="F43.0">Acute stress reaction</string>
+<string name="F43.00">Acute stress reaction: mild</string> <!-- Green/Blue Book extra -->
+<string name="F43.01">Acute stress reaction: moderate</string> <!-- Green/Blue Book extra -->
+<string name="F43.02">Acute stress reaction: severe</string> <!-- Green/Blue Book extra -->
+<string name="F43.1">Post-traumatic stress disorder</string>
+<string name="F43.2">Adjustment disorders</string>
+<string name="F43.20">Adjustment disorders: brief depressive reaction</string> <!-- Green/Blue Book extra -->
+<string name="F43.21">Adjustment disorders: prolonged depressive reaction</string> <!-- Green/Blue Book extra -->
+<string name="F43.22">Adjustment disorders: mixed anxiety and depressive reaction</string> <!-- Green/Blue Book extra -->
+<string name="F43.23">Adjustment disorders: with predominant disturbance of other emotions</string> <!-- Green/Blue Book extra -->
+<string name="F43.24">Adjustment disorders: with predominant disturbance of conduct</string> <!-- Green/Blue Book extra -->
+<string name="F43.25">Adjustment disorders: with mixed disturbance of emotions and conduct</string> <!-- Green/Blue Book extra -->
+<string name="F43.28">Adjustment disorders: with other specified predominant symptoms</string> <!-- Green/Blue Book extra -->
+<string name="F43.8">Other reactions to severe stress</string>
+<string name="F43.9">Reaction to severe stress, unspecified</string>
+<string name="F44">Dissociative [conversion] disorders</string>
+<string name="F44.0">Dissociative amnesia</string>
+<string name="F44.1">Dissociative fugue</string>
+<string name="F44.2">Dissociative stupor</string>
+<string name="F44.3">Trance and possession disorders</string>
+<string name="F44.4">Dissociative motor disorders</string>
+<string name="F44.5">Dissociative convulsions</string>
+<string name="F44.6">Dissociative anaesthesia and sensory loss</string>
+<string name="F44.7">Mixed dissociative [conversion] disorders</string>
+<string name="F44.8">Other dissociative [conversion] disorders</string>
+<string name="F44.80">Other dissociative [conversion] disorders: Ganser’s syndrome</string> <!-- Green/Blue Book extra -->
+<string name="F44.81">Other dissociative [conversion] disorders: multiple personality disorder</string> <!-- Green/Blue Book extra -->
+<string name="F44.82">Other dissociative [conversion] disorders: transient dissociative (conversion) disorders occurring in childhood and adolescence</string> <!-- Green/Blue Book extra -->
+<string name="F44.88">Other dissociative [conversion] disorders: other specified dissociative (conversion) disorders</string> <!-- Green/Blue Book extra -->
+<string name="F44.9">Dissociative [conversion] disorder, unspecified</string>
+<string name="F45">Somatoform disorders</string>
+<string name="F45.0">Somatization disorder</string>
+<string name="F45.1">Undifferentiated somatoform disorder</string>
+<string name="F45.2">Hypochondriacal disorder</string>
+<string name="F45.3">Somatoform autonomic dysfunction</string>
+<string name="F45.30">Somatoform autonomic dysfunction: heart and cardiovascular system</string> <!-- Green/Blue Book extra -->
+<string name="F45.31">Somatoform autonomic dysfunction: upper gastrointestinal tract</string> <!-- Green/Blue Book extra -->
+<string name="F45.32">Somatoform autonomic dysfunction: lower gastrointestinal tract</string> <!-- Green/Blue Book extra -->
+<string name="F45.33">Somatoform autonomic dysfunction: respiratory system</string> <!-- Green/Blue Book extra -->
+<string name="F45.34">Somatoform autonomic dysfunction: genitourinary system</string> <!-- Green/Blue Book extra -->
+<string name="F45.38">Somatoform autonomic dysfunction: other organ or system</string> <!-- Green/Blue Book extra -->
+<string name="F45.4">Persistent somatoform pain disorder</string>
+<string name="F45.8">Other somatoform disorders</string>
+<string name="F45.9">Somatoform disorder, unspecified</string>
+<string name="F48">Other neurotic disorders</string>
+<string name="F48.0">Neurasthenia</string>
+<string name="F48.1">Depersonalization-derealization syndrome</string>
+<string name="F48.8">Other specified neurotic disorders</string>
+<string name="F48.9">Neurotic disorder, unspecified</string>
+
+<string name="F5">[F50–F59] Behavioural syndromes associated with physiological disturbances and physical factors</string>
+<string name="F50">Eating disorders</string>
+<string name="F50.0">Anorexia nervosa</string>
+<string name="F50.1">Atypical anorexia nervosa</string>
+<string name="F50.2">Bulimia nervosa</string>
+<string name="F50.3">Atypical bulimia nervosa</string>
+<string name="F50.4">Overeating associated with other psychological disturbances</string>
+<string name="F50.5">Vomiting associated with other psychological disturbances</string>
+<string name="F50.8">Other eating disorders</string>
+<string name="F50.9">Eating disorder, unspecified</string>
+<string name="F51">Nonorganic sleep disorders</string>
+<string name="F51.0">Nonorganic insomnia</string>
+<string name="F51.1">Nonorganic hypersomnia</string>
+<string name="F51.2">Nonorganic disorder of the sleep-wake schedule</string>
+<string name="F51.3">Sleepwalking [somnambulism]</string>
+<string name="F51.4">Sleep terrors [night terrors]</string>
+<string name="F51.5">Nightmares</string>
+<string name="F51.8">Other nonorganic sleep disorders</string>
+<string name="F51.9">Nonorganic sleep disorder, unspecified</string>
+<string name="F52">Sexual dysfunction, not caused by organic disorder or disease</string>
+<string name="F52.0">Lack or loss of sexual desire</string>
+<string name="F52.1">Sexual aversion and lack of sexual enjoyment</string>
+<string name="F52.10">Sexual aversion and lack of sexual enjoyment: sexual aversion</string> <!-- Green/Blue Book extra -->
+<string name="F52.11">Sexual aversion and lack of sexual enjoyment: lack of sexual enjoyment</string> <!-- Green/Blue Book extra -->
+<string name="F52.2">Failure of genital response</string>
+<string name="F52.3">Orgasmic dysfunction</string>
+<string name="F52.4">Premature ejaculation</string>
+<string name="F52.5">Nonorganic vaginismus</string>
+<string name="F52.6">Nonorganic dyspareunia</string>
+<string name="F52.7">Excessive sexual drive</string>
+<string name="F52.8">Other sexual dysfunction, not caused by organic disorder or disease</string>
+<string name="F52.9">Unspecified sexual dysfunction, not caused by organic disorder or disease</string>
+<string name="F53">Mental and behavioural disorders associated with the puerperium, not elsewhere classified</string>
+<string name="F53.0">Mild mental and behavioural disorders associated with the puerperium, not elsewhere classified</string>
+<string name="F53.1">Severe mental and behavioural disorders associated with the puerperium, not elsewhere classified</string>
+<string name="F53.8">Other mental and behavioural disorders associated with the puerperium, not elsewhere classified</string>
+<string name="F53.9">Puerperal mental disorder, unspecified</string>
+<string name="F54">Psychological and behavioural factors associated with disorders or diseases classified elsewhere</string>
+<string name="F55">Abuse of non-dependence-producing substances</string>
+<string name="F59">Unspecified behavioural syndromes associated with physiological disturbances and physical factors</string>
+
+<string name="F6">[F60–F69] Disorders of adult personality and behaviour</string>
+<string name="F60">Specific personality disorders</string>
+<string name="F60.0">Paranoid personality disorder</string>
+<string name="F60.1">Schizoid personality disorder</string>
+<string name="F60.2">Dissocial personality disorder</string>
+<string name="F60.3">Emotionally unstable personality disorder</string>
+<string name="F60.30">Emotionally unstable personality disorder: impulsive type</string> <!-- Green/Blue Book extra -->
+<string name="F60.31">Emotionally unstable personality disorder: borderline type</string> <!-- Green/Blue Book extra -->
+<string name="F60.4">Histrionic personality disorder</string>
+<string name="F60.5">Anankastic personality disorder</string>
+<string name="F60.6">Anxious [avoidant] personality disorder</string>
+<string name="F60.7">Dependent personality disorder</string>
+<string name="F60.8">Other specific personality disorders</string>
+<string name="F60.9">Personality disorder, unspecified</string>
+<string name="F61">Mixed and other personality disorders</string>
+<string name="F62">Enduring personality changes, not attributable to brain damage and disease</string>
+<string name="F62.0">Enduring personality change after catastrophic experience</string>
+<string name="F62.1">Enduring personality change after psychiatric illness</string>
+<string name="F62.8">Other enduring personality changes</string>
+<string name="F62.9">Enduring personality change, unspecified</string>
+<string name="F63">Habit and impulse disorders</string>
+<string name="F63.0">Pathological gambling</string>
+<string name="F63.1">Pathological fire-setting [pyromania]</string>
+<string name="F63.2">Pathological stealing [kleptomania]</string>
+<string name="F63.3">Trichotillomania</string>
+<string name="F63.8">Other habit and impulse disorders</string>
+<string name="F63.9">Habit and impulse disorder, unspecified</string>
+<string name="F64">Gender identity disorders</string>
+<string name="F64.0">Transsexualism</string>
+<string name="F64.1">Dual-role transvestism</string>
+<string name="F64.2">Gender identity disorder of childhood</string>
+<string name="F64.8">Other gender identity disorders</string>
+<string name="F64.9">Gender identity disorder, unspecified</string>
+<string name="F65">Disorders of sexual preference</string>
+<string name="F65.0">Fetishism</string>
+<string name="F65.1">Fetishistic transvestism</string>
+<string name="F65.2">Exhibitionism</string>
+<string name="F65.3">Voyeurism</string>
+<string name="F65.4">Paedophilia</string>
+<string name="F65.5">Sadomasochism</string>
+<string name="F65.6">Multiple disorders of sexual preference</string>
+<string name="F65.8">Other disorders of sexual preference</string>
+<string name="F65.9">Disorder of sexual preference, unspecified</string>
+<string name="F66">Psychological and behavioural disorders associated with sexual development and orientation</string>
+<string name="F66.0">Sexual maturation disorder</string>
+<string name="F66.1">Egodystonic sexual orientation</string>
+<string name="F66.2">Sexual relationship disorder</string>
+<string name="F66.8">Other psychosexual development disorders</string>
+<string name="F66.9">Psychosexual development disorder, unspecified</string>
+<string name="F66.90">Psychosexual development disorder, unspecified: with heterosexuality</string> <!-- Green/Blue Book extra -->
+<string name="F66.91">Psychosexual development disorder, unspecified: with homosexuality</string> <!-- Green/Blue Book extra -->
+<string name="F66.92">Psychosexual development disorder, unspecified: with bisexuality</string> <!-- Green/Blue Book extra -->
+<string name="F66.98">Psychosexual development disorder, unspecified: other, including prepubertal</string> <!-- Green/Blue Book extra -->
+<string name="F68">Other disorders of adult personality and behaviour</string>
+<string name="F68.0">Elaboration of physical symptoms for psychological reasons</string>
+<string name="F68.1">Intentional production or feigning of symptoms or disabilities, either physical or psychological [factitious disorder]</string>
+<string name="F68.8">Other specified disorders of adult personality and behaviour</string>
+<string name="F69">Unspecified disorder of adult personality and behaviour</string>
+
+<string name="F7">[F70–F79] Mental retardation</string>
+<string name="F70">Mild mental retardation</string>
+<string name="F70.0">Mild mental retardation with the statement of no, or minimal, impairment of behaviour</string>
+<string name="F70.1">Mild mental retardation, significant impairment of behaviour requiring attention or treatment</string>
+<string name="F70.8">Mild mental retardation, other impairments of behaviour</string>
+<string name="F70.9">Mild mental retardation without mention of impairment of behaviour</string>
+<string name="F71">Moderate mental retardation</string>
+<string name="F71.0">Moderate mental retardation with the statement of no, or minimal, impairment of behaviour</string>
+<string name="F71.1">Moderate mental retardation, significant impairment of behaviour requiring attention or treatment</string>
+<string name="F71.8">Moderate mental retardation, other impairments of behaviour</string>
+<string name="F71.9">Moderate mental retardation without mention of impairment of behaviour</string>
+<string name="F72">Severe mental retardation</string>
+<string name="F72.0">Severe mental retardation with the statement of no, or minimal, impairment of behaviour</string>
+<string name="F72.1">Severe mental retardation, significant impairment of behaviour requiring attention or treatment</string>
+<string name="F72.8">Severe mental retardation, other impairments of behaviour</string>
+<string name="F72.9">Severe mental retardation without mention of impairment of behaviour</string>
+<string name="F73">Profound mental retardation</string>
+<string name="F73.0">Profound mental retardation with the statement of no, or minimal, impairment of behaviour</string>
+<string name="F73.1">Profound mental retardation, significant impairment of behaviour requiring attention or treatment</string>
+<string name="F73.8">Profound mental retardation, other impairments of behaviour</string>
+<string name="F73.9">Profound mental retardation without mention of impairment of behaviour</string>
+<string name="F78">Other mental retardation</string>
+<string name="F78.0">Other mental retardation with the statement of no, or minimal, impairment of behaviour</string>
+<string name="F78.1">Other mental retardation, significant impairment of behaviour requiring attention or treatment</string>
+<string name="F78.8">Other mental retardation, other impairments of behaviour</string>
+<string name="F78.9">Other mental retardation without mention of impairment of behaviour</string>
+<string name="F79">Unspecified mental retardation</string>
+<string name="F79.0">Unspecified mental retardation with the statement of no, or minimal, impairment of behaviour</string>
+<string name="F79.1">Unspecified mental retardation, significant impairment of behaviour requiring attention or treatment</string>
+<string name="F79.8">Unspecified mental retardation, other impairments of behaviour</string>
+<string name="F79.9">Unspecified mental retardation without mention of impairment of behaviour</string>
+
+<string name="F8">[F80–F89] Disorders of psychological development</string>
+<string name="F80">Specific developmental disorders of speech and language</string>
+<string name="F80.0">Specific speech articulation disorder</string>
+<string name="F80.1">Expressive language disorder</string>
+<string name="F80.2">Receptive language disorder</string>
+<string name="F80.3">Acquired aphasia with epilepsy [Landau-Kleffner]</string>
+<string name="F80.8">Other developmental disorders of speech and language</string>
+<string name="F80.9">Developmental disorder of speech and language, unspecified</string>
+<string name="F81">Specific developmental disorders of scholastic skills</string>
+<string name="F81.0">Specific reading disorder</string>
+<string name="F81.1">Specific spelling disorder</string>
+<string name="F81.2">Specific disorder of arithmetical skills</string>
+<string name="F81.3">Mixed disorder of scholastic skills</string>
+<string name="F81.8">Other developmental disorders of scholastic skills</string>
+<string name="F81.9">Developmental disorder of scholastic skills, unspecified</string>
+<string name="F82">Specific developmental disorder of motor function</string>
+<string name="F83">Mixed specific developmental disorders</string>
+<string name="F84">Pervasive developmental disorders</string>
+<string name="F84.0">Childhood autism</string>
+<string name="F84.1">Atypical autism</string>
+<string name="F84.10">Atypical autism: atypicality in age of onset</string> <!-- Green/Blue Book extra -->
+<string name="F84.11">Atypical autism: atypicality in symptomatology</string> <!-- Green/Blue Book extra -->
+<string name="F84.12">Atypical autism: atypicality in both age of onset and symptomatology</string> <!-- Green/Blue Book extra -->
+<string name="F84.2">Rett's syndrome</string>
+<string name="F84.3">Other childhood disintegrative disorder</string>
+<string name="F84.4">Overactive disorder associated with mental retardation and stereotyped movements</string>
+<string name="F84.5">Asperger's syndrome</string>
+<string name="F84.8">Other pervasive developmental disorders</string>
+<string name="F84.9">Pervasive developmental disorder, unspecified</string>
+<string name="F88">Other disorders of psychological development</string>
+<string name="F89">Unspecified disorder of psychological development</string>
+
+<string name="F9">[F90–F98] Behavioural and emotional disorders with onset usually occurring in childhood and adolescence</string>
+<string name="F90">Hyperkinetic disorders</string>
+<string name="F90.0">[Hyperkinetic disorders:] Disturbance of activity and attention</string> <!-- Prefix added, or it looks exceedingly odd on its own, and at first glance makes me wonder whether it means delirium -->
+<string name="F90.1">Hyperkinetic conduct disorder</string>
+<string name="F90.8">Other hyperkinetic disorders</string>
+<string name="F90.9">Hyperkinetic disorder, unspecified</string>
+<string name="F91">Conduct disorders</string>
+<string name="F91.0">Conduct disorder confined to the family context</string>
+<string name="F91.1">Unsocialized conduct disorder</string>
+<string name="F91.2">Socialized conduct disorder</string>
+<string name="F91.3">Oppositional defiant disorder</string>
+<string name="F91.8">Other conduct disorders</string>
+<string name="F91.9">Conduct disorder, unspecified</string>
+<string name="F92">Mixed disorders of conduct and emotions</string>
+<string name="F92.0">Depressive conduct disorder</string>
+<string name="F92.8">Other mixed disorders of conduct and emotions</string>
+<string name="F92.9">Mixed disorder of conduct and emotions, unspecified</string>
+<string name="F93">Emotional disorders with onset specific to childhood</string>
+<string name="F93.0">Separation anxiety disorder of childhood</string>
+<string name="F93.1">Phobic anxiety disorder of childhood</string>
+<string name="F93.2">Social anxiety disorder of childhood</string>
+<string name="F93.3">Sibling rivalry disorder</string>
+<string name="F93.8">Other childhood emotional disorders</string>
+<string name="F93.80">Other childhood emotional disorders: generalized anxiety disorder of childhood</string> <!-- Green/Blue Book extra -->
+<string name="F93.9">Childhood emotional disorder, unspecified</string>
+<string name="F94">Disorders of social functioning with onset specific to childhood and adolescence</string>
+<string name="F94.0">Elective mutism</string>
+<string name="F94.1">Reactive attachment disorder of childhood</string>
+<string name="F94.2">Disinhibited attachment disorder of childhood</string>
+<string name="F94.8">Other childhood disorders of social functioning</string>
+<string name="F94.9">Childhood disorder of social functioning, unspecified</string>
+<string name="F95">Tic disorders</string>
+<string name="F95.0">Transient tic disorder</string>
+<string name="F95.1">Chronic motor or vocal tic disorder</string>
+<string name="F95.2">Combined vocal and multiple motor tic disorder [de La Tourette]</string>
+<string name="F95.8">Other tic disorders</string>
+<string name="F95.9">Tic disorder, unspecified</string>
+<string name="F98">Other behavioural and emotional disorders with onset usually occurring in childhood and adolescence</string>
+<string name="F98.0">Nonorganic enuresis</string>
+<string name="F98.00">Nonorganic enuresis: nocturnal enuresis only</string> <!-- Green/Blue Book extra -->
+<string name="F98.01">Nonorganic enuresis; diurnal enuresis only</string> <!-- Green/Blue Book extra -->
+<string name="F98.02">Nonorganic enuresis; nocturnal and diurnal enuresis</string> <!-- Green/Blue Book extra -->
+<string name="F98.1">Nonorganic encopresis</string>
+<string name="F98.10">Nonorganic encopresis: failure to acquire physiological bowel control</string> <!-- Green/Blue Book extra -->
+<string name="F98.11">Nonorganic encopresis: adequate bowel control with normal faeces deposited in inappropriate places</string> <!-- Green/Blue Book extra -->
+<string name="F98.12">Nonorganic encopresis: soiling that is associated with excessively fluid faeces, such as with retention with overflow</string> <!-- Green/Blue Book extra -->
+<string name="F98.2">Feeding disorder of infancy and childhood</string>
+<string name="F98.3">Pica of infancy and childhood</string>
+<string name="F98.4">Stereotyped movement disorders</string>
+<string name="F98.40">Stereotyped movement disorders: non-self-injurious</string> <!-- Green/Blue Book extra -->
+<string name="F98.41">Stereotyped movement disorders: self-injurious</string> <!-- Green/Blue Book extra -->
+<string name="F98.42">Stereotyped movement disorders: mixed</string> <!-- Green/Blue Book extra -->
+<string name="F98.5">Stuttering [stammering]</string>
+<string name="F98.6">Cluttering</string>
+<string name="F98.8">Other specified behavioural and emotional disorders with onset usually occurring in childhood and adolescence</string>
+<string name="F98.9">Unspecified behavioural and emotional disorders with onset usually occurring in childhood and adolescence</string>
+
+<string name="F99">Mental disorder, not otherwise specified</string>
+
+    <!-- R -->
+<string name="R">[R] Symptoms and signs: [R40–R46] Cognition, perception, emotional state and behaviour</string>
+<string name="R40">Somnolence, stupor and coma</string>
+<string name="R40.0">Somnolence</string>
+<string name="R40.1">Stupor</string>
+<string name="R40.2">Coma, unspecified</string>
+<string name="R41">Other symptoms and signs involving cognitive functions and awareness</string>
+<string name="R41.0">Disorientation, unspecified</string>
+<string name="R41.1">Anterograde amnesia</string>
+<string name="R41.2">Retrograde amnesia</string>
+<string name="R41.3">Other amnesia</string>
+<string name="R41.8">Other and unspecified symptoms and signs involving cognitive functions and awareness</string>
+<string name="R42">Dizziness and giddiness</string>
+<string name="R43">Disturbances of smell and taste</string>
+<string name="R43.0">Anosmia</string>
+<string name="R43.1">Parosmia</string>
+<string name="R43.2">Parageusia</string>
+<string name="R43.8">Other and unspecified disturbances of smell and taste</string>
+<string name="R44">Other symptoms and signs involving general sensations and perceptions</string>
+<string name="R44.0">Auditory hallucinations</string>
+<string name="R44.1">Visual hallucinations</string>
+<string name="R44.2">Other hallucinations</string>
+<string name="R44.3">Hallucinations, unspecified</string>
+<string name="R44.8">Other and unspecified symptoms and signs involving general sensations and perceptions</string>
+<string name="R45">Symptoms and signs involving emotional state</string>
+<string name="R45.0">Nervousness</string>
+<string name="R45.1">Restlessness and agitation</string>
+<string name="R45.2">Unhappiness</string>
+<string name="R45.3">Demoralization and apathy</string>
+<string name="R45.4">Irritability and anger</string>
+<string name="R45.5">Hostility</string>
+<string name="R45.6">Physical violence</string>
+<string name="R45.7">State of emotional shock and stress, unspecified</string>
+<string name="R45.8">Other symptoms and signs involving emotional state</string>
+<string name="R46">Symptoms and signs involving appearance and behaviour</string>
+<string name="R46.0">Very low level of personal hygiene</string>
+<string name="R46.1">Bizarre personal appearance</string>
+<string name="R46.2">Strange and inexplicable behaviour</string>
+<string name="R46.3">Overactivity</string>
+<string name="R46.4">Slowness and poor responsiveness</string>
+<string name="R46.5">Suspiciousness and marked evasiveness</string>
+<string name="R46.6">Undue concern and preoccupation with stressful events</string>
+<string name="R46.7">Verbosity and circumstantial detail obscuring reason for contact</string>
+<string name="R46.8">Other symptoms and signs involving appearance and behaviour</string>
+
+    <!-- X -->
+<string name="X">[X] External causes of morbidity and mortality: [X60–X84] Intentional self-harm</string>
+<string name="X60">Intentional self-poisoning by and exposure to nonopioid analgesics, antipyretics and antirheumatics</string>
+<string name="X61">Intentional self-poisoning by and exposure to antiepileptic, sedative-hypnotic, antiparkinsonism and psychotropic drugs, not elsewhere classified</string>
+<string name="X62">Intentional self-poisoning by and exposure to narcotics and psychodysleptics [hallucinogens], not elsewhere classified</string>
+<string name="X63">Intentional self-poisoning by and exposure to other drugs acting on the autonomic nervous system</string>
+<string name="X64">Intentional self-poisoning by and exposure to other and unspecified drugs, medicaments and biological substances</string>
+<string name="X65">Intentional self-poisoning by and exposure to alcohol</string>
+<string name="X66">Intentional self-poisoning by and exposure to organic solvents and halogenated hydrocarbons and their vapours</string>
+<string name="X67">Intentional self-poisoning by and exposure to other gases and vapours</string>
+<string name="X68">Intentional self-poisoning by and exposure to pesticides</string>
+<string name="X69">Intentional self-poisoning by and exposure to other and unspecified chemicals and noxious substances</string>
+<string name="X70">Intentional self-harm by hanging, strangulation and suffocation</string>
+<string name="X71">Intentional self-harm by drowning and submersion</string>
+<string name="X72">Intentional self-harm by handgun discharge</string>
+<string name="X73">Intentional self-harm by rifle, shotgun and larger firearm discharge</string>
+<string name="X74">Intentional self-harm by other and unspecified firearm discharge</string>
+<string name="X75">Intentional self-harm by explosive material</string>
+<string name="X76">Intentional self-harm by smoke, fire and flames</string>
+<string name="X77">Intentional self-harm by steam, hot vapours and hot objects</string>
+<string name="X78">Intentional self-harm by sharp object</string>
+<string name="X79">Intentional self-harm by blunt object</string>
+<string name="X80">Intentional self-harm by jumping from a high place</string>
+<string name="X81">Intentional self-harm by jumping or lying before moving object</string>
+<string name="X82">Intentional self-harm by crashing of motor vehicle</string>
+<string name="X83">Intentional self-harm by other specified means</string>
+<string name="X84">Intentional self-harm by unspecified means</string>
+
+    <!-- Z -->
+<string name="Z">Z [selected]: Factors influencing health status and contact with health services</string>
+<string name="Z00.4">General psychiatric examination, not elsewhere classified</string> <!-- SMHP interpretation: neither patient nor doctor can find any evidence of mental disorder -->
+<string name="Z03.2">Observation for suspected mental and behavioural disorders</string> <!-- SMHP interpretation: if mental disorder suspected by one or both but not proven -->
+<string name="Z71.1">Person with feared complaint in whom no diagnosis is made</string> <!-- SMHP interpretation: if patient thinks there is a mental disorder but the doctor doesn't -->
+
+  </task>
+</resources>

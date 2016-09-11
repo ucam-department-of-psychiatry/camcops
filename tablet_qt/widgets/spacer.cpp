@@ -4,8 +4,7 @@
 Spacer::Spacer(QWidget* parent) :
     QWidget(parent)
 {
-    QSizePolicy sp(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    setSizePolicy(sp);
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 }
 
 

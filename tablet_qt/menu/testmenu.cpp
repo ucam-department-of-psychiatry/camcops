@@ -1,5 +1,7 @@
 #include "testmenu.h"
 #include <QMediaPlayer>
+#include "diagnosis/icd10.h"
+#include "diagnosis/icd9cm.h"
 #include "lib/filefunc.h"
 #include "menulib/menuitem.h"
 #include "tasklib/taskfactory.h"  // for TaskPtr
@@ -20,7 +22,7 @@ TestMenu::TestMenu(CamcopsApp& app)
         MenuItem(
             "Test debug console",
             std::bind(&TestMenu::testDebugConsole, this)
-        ).setNotIfLocked(),
+        ),
         MenuItem(
             "Test network (HTTP)",
             std::bind(&TestMenu::testHttp, this)
@@ -33,6 +35,14 @@ TestMenu::TestMenu(CamcopsApp& app)
             "Test PHQ9 creation",
             std::bind(&TestMenu::testPhq9Creation, this)
         ).setNotIfLocked(),
+        MenuItem(
+            "Test ICD-10 code set creation",
+            std::bind(&TestMenu::testIcd10CodeSetCreation, this)
+        ),
+        MenuItem(
+            "Test ICD-9-CM code set creation",
+            std::bind(&TestMenu::testIcd9cmCodeSetCreation, this)
+        ),
         MenuItem(
             "Test HTML display, and fullscreen display",
             HtmlMenuItem("Example HTML: this window should be full-screen",
@@ -109,4 +119,20 @@ void TestMenu::testPhq9Creation()
     m_app.setWhiskerConnected(true);
     UiFunc::alert("Done; see console");
     m_app.setWhiskerConnected(false);
+}
+
+
+void TestMenu::testIcd10CodeSetCreation()
+{
+    Icd10 icd(&m_app);
+    qDebug() << icd;
+    UiFunc::alert("Done; see console");
+}
+
+
+void TestMenu::testIcd9cmCodeSetCreation()
+{
+    Icd9cm icd(&m_app);
+    qDebug() << icd;
+    UiFunc::alert("Done; see console");
 }

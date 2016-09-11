@@ -82,11 +82,10 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
     m_editor->setDisplayFormat(format);
     m_editor->setCalendarPopup(calendar);
     m_editor->setEnabled(!read_only);
-    QSizePolicy sp(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    m_editor->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     // Fixed horizontal keeps the drop-down button close to the text.
     // Expanding vertical makes the drop-down button and spin buttons a
     // reasonable size (not too small).
-    m_editor->setSizePolicy(sp);
     if (!read_only) {
         connect(m_editor.data(), &QDateTimeEdit::dateTimeChanged,
                 this, &QuDateTime::widgetValueChanged);
