@@ -4,6 +4,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QWidget>
+#include "lib/uifunc.h"
 #include "widgets/diagnosticcodeselector.h"
 #include "questionnaire.h"
 
@@ -14,6 +15,7 @@ QuDiagnosticCode::QuDiagnosticCode(QSharedPointer<DiagnosticCodeSet> codeset,
     m_codeset(codeset),
     m_fieldref_code(fieldref_code),
     m_fieldref_description(fieldref_description),
+    m_missing_indicator(nullptr),
     m_label_code(nullptr),
     m_label_description(nullptr)
 {
@@ -43,10 +45,13 @@ QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
     m_questionnaire = questionnaire;
     bool read_only = questionnaire->readOnly();
 
+    m_missing_indicator = UiFunc::iconWidget(
+                UiFunc::iconFilename(UiConst::ICON_WARNING));
     m_label_code = new QLabel();
     m_label_description = new QLabel();
 
     QHBoxLayout* textlayout = new QHBoxLayout();
+    textlayout->addWidget(m_missing_indicator);
     textlayout->addWidget(m_label_code);
     textlayout->addWidget(m_label_description);
     textlayout->addStretch();
@@ -71,10 +76,16 @@ QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
 
 void QuDiagnosticCode::setButtonClicked()
 {
+    if (!m_questionnaire) {
+        qWarning() << Q_FUNC_INFO << "m_questionnaire missing";
+        return;
+    }
     QString code = m_fieldref_code->valueString();
     int selected_index = m_codeset->firstIndexFromCode(code);
+    QString stylesheet = m_questionnaire->getSubstitutedCss(
+                UiConst::CSS_CAMCOPS_DIAGNOSTIC_CODE);
     DiagnosticCodeSelector* selector = new DiagnosticCodeSelector(
-                m_codeset, selected_index);
+                stylesheet, m_codeset, selected_index);
     connect(selector, &DiagnosticCodeSelector::codeChanged,
             this, &QuDiagnosticCode::widgetChangedCode);
     m_questionnaire->openSubWidget(selector);
@@ -99,12 +110,13 @@ void QuDiagnosticCode::widgetChangedCode(const QString& code,
 
 void QuDiagnosticCode::fieldValueChanged(const FieldRef* fieldref_code)
 {
+    if (m_missing_indicator) {
+        m_missing_indicator->setVisible(fieldref_code->missingInput());
+    }
     if (m_label_code) {
         m_label_code->setText(fieldref_code->valueString());
-        return;
     }
     if (m_label_description) {
         m_label_description->setText(m_fieldref_description->valueString());
     }
-    // *** mandatory
 }

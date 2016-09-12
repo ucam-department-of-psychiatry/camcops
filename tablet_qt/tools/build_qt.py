@@ -245,9 +245,8 @@ def build_openssl_android(args, cpu):
             )
             env["AR"] = join(android_toolchain, "arm-linux-androideabi-gcc-ar")
         configure_args = [
-            "shared",
             target_os,
-        ] + OPENSSL_COMMON_OPTIONS
+        ] + common_ssl_config_options  # was OPENSSL_COMMON_OPTIONS, check ***
         # print(env)
         # sys.exit(1)
         run(["perl", join(workdir, "Configure")] + configure_args, env)
@@ -294,6 +293,12 @@ def build_openssl_android(args, cpu):
 
 
 def build_openssl_common_unix(args, cosmetic_osname, target_os):
+    """
+    The target_os parameter is paseed to OpenSSL's Configure script.
+    Use "./Configure LIST" for all possibilities.
+
+        https://wiki.openssl.org/index.php/Compilation_and_Installation
+    """
     rootdir, workdir = get_openssl_rootdir_workdir(args, cosmetic_osname)
     targets = [join(workdir, "libssl.so"),
                join(workdir, "libcrypto.so")]
@@ -314,12 +319,9 @@ def build_openssl_common_unix(args, cosmetic_osname, target_os):
 
     os.chdir(workdir)
 
-    common_ssl_config_options = OPENSSL_COMMON_OPTIONS
-
     configure_args = [
-        "shared",
         target_os,
-    ] + common_ssl_config_options
+    ] + OPENSSL_COMMON_OPTIONS
     run(["perl", join(workdir, "Configure")] + configure_args, env)
 
     # Have to remove version numbers from final library filenames:
@@ -345,6 +347,7 @@ def build_openssl_osx(args):
     build_openssl_common_unix(args,
                               cosmetic_osname="osx",
                               target_os="darwin64-x86_64-cc")
+    # https://gist.github.com/tmiz/1441111
 
 
 # =============================================================================

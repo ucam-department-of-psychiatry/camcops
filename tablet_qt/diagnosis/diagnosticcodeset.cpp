@@ -16,6 +16,12 @@ DiagnosticCodeSet::DiagnosticCodeSet(CamcopsApp& app, const QString& setname,
 }
 
 
+QString DiagnosticCodeSet::title() const
+{
+    return m_codes.at(0).description();
+}
+
+
 QString DiagnosticCodeSet::description(int index) const
 {
     if (!isValidIndex(index)) {
@@ -117,7 +123,7 @@ QList<const DiagnosticCode*> DiagnosticCodeSet::children(int index) const
 }
 
 
-const DiagnosticCode* DiagnosticCodeSet::item(int index) const
+const DiagnosticCode* DiagnosticCodeSet::at(int index) const
 {
     if (!isValidIndex(index)) {
         return nullptr;
@@ -132,4 +138,10 @@ int DiagnosticCodeSet::parentIndexOf(int index) const
         return INVALID;
     }
     return m_codes[index].parentIndex();
+}
+
+
+int DiagnosticCodeSet::size() const
+{
+    return m_codes.size();
 }

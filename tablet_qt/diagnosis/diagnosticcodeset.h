@@ -23,9 +23,11 @@ public:
                 const QString& description,
                 bool selectable = true,
                 bool show_code_in_full_name = true);  // returns index
-    const DiagnosticCode* item(int index) const;
+    int size() const;
+    const DiagnosticCode* at(int index) const;
     QList<const DiagnosticCode*> children(int index) const;
     int parentIndexOf(int index) const;
+    QString title() const;
 protected:
     QString xstring(const QString& stringname) const;
 protected:

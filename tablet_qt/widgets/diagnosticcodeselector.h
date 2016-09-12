@@ -4,28 +4,35 @@
 #include "diagnosis/diagnosticcodeset.h"
 #include "openablewidget.h"
 
-class QListWidget;
+class LabelWordWrapWide;
+class QAbstractButton;
+class QModelIndex;
+class QStandardItemModel;
+class QTreeView;
+class QTreeWidgetItem;
 
 
 class DiagnosticCodeSelector : public OpenableWidget
 {
     Q_OBJECT
 public:
-    DiagnosticCodeSelector(QSharedPointer<DiagnosticCodeSet> codeset,
+    DiagnosticCodeSelector(const QString& stylesheet,
+                           QSharedPointer<DiagnosticCodeSet> codeset,
                            int selected_index = DiagnosticCodeSet::INVALID,
                            QWidget* parent = nullptr);
 signals:
     void codeChanged(const QString& code, const QString& description);
+protected slots:
+    void itemClicked(const QModelIndex &index);
+    void search();
 protected:
-    void changePage(int root_index);
-    void clicked(int index);
-    void doubleClicked(int index);
-    void select(const DiagnosticCode* item);
-    void browseTo(const DiagnosticCode* item);
-    void up();
+    void processClick(QTreeWidgetItem* listitem, bool secondary_gesture);
+    // void changePage(int root_index);
+    void select(const DiagnosticCode* dc);
+    // void browseTo(const DiagnosticCode* dc);
+    // void up();
 protected:
     QSharedPointer<DiagnosticCodeSet> m_codeset;
-    int m_selected_index;
-    QPointer<QListWidget> m_listwidget;
-    int m_root_index;
+    QSharedPointer<QStandardItemModel> m_model;
+    QPointer<QTreeView> m_treeview;
 };

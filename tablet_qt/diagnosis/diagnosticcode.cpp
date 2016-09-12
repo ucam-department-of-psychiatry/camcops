@@ -1,6 +1,7 @@
 #include "diagnosticcode.h"
 #include <QDebug>
 #include "common/camcopsapp.h"
+#include "diagnosticcodeset.h"
 
 
 DiagnosticCode::DiagnosticCode(int index,
@@ -27,6 +28,18 @@ int DiagnosticCode::index() const
 QString DiagnosticCode::code() const
 {
     return m_code;
+}
+
+
+bool DiagnosticCode::hasParent() const
+{
+    return parentIndex() != DiagnosticCodeSet::INVALID;
+}
+
+
+bool DiagnosticCode::parentIsRoot() const
+{
+    return parentIndex() == 0;
 }
 
 

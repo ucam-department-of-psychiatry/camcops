@@ -6,6 +6,7 @@
 
 class DiagnosticCodeSet;
 class QLabel;
+class QPushButton;
 
 
 class QuDiagnosticCode : public QuElement
@@ -29,6 +30,7 @@ protected:
     FieldRefPtr m_fieldref_code;
     FieldRefPtr m_fieldref_description;
     QPointer<Questionnaire> m_questionnaire;
+    QPointer<QLabel> m_missing_indicator;
     QPointer<QLabel> m_label_code;
     QPointer<QLabel> m_label_description;
 };

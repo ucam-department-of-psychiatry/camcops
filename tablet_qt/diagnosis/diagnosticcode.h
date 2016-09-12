@@ -16,6 +16,8 @@ public:
     QString code() const;
     QString description() const;
     QString fullname() const;  // for pick-lists
+    bool hasParent() const;
+    bool parentIsRoot() const;
     int parentIndex() const;
     int depth() const;
     bool selectable() const;

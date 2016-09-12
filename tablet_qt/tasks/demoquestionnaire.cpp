@@ -501,7 +501,7 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
         new QuDiagnosticCode(icd10, fieldRef("q24"), fieldRef("q25")),
         new QuHeading("Diagnostic code, ICD-9-CM:"),
         new QuDiagnosticCode(icd9cm, fieldRef("q26"), fieldRef("q27")),
-    })->setTitle("Canvas"));
+    })->setTitle("Diagnostic codes"));
 
     // ========================================================================
     // Canvas

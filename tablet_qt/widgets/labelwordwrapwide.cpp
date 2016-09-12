@@ -36,7 +36,8 @@ void LabelWordWrapWide::resizeEvent(QResizeEvent* event)
         setMinimumHeight(0);
         // ... before defining minimum height:
         int w = width();
-        setMinimumHeight(heightForWidth(w));
+        setMinimumHeight(qMax(0, heightForWidth(w)));
+        // suspect heightForWidth(w) can give -1 with no text present
 
         // The heightForWidth() function, in qlabel.cpp,
         // works out (for a text label) a size, using sizeForWidth(),

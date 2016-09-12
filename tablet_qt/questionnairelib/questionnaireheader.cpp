@@ -50,8 +50,7 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     // Title
     LabelWordWrapWide* title_label = new LabelWordWrapWide(title);
     title_label->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-    title_label->setObjectName("questionnaire_title");
-    toprowlayout->addWidget(title_label);
+    toprowlayout->addWidget(title_label);  // default alignment fills whole cell
 
     // Right-hand icons
     if (jump_allowed) {

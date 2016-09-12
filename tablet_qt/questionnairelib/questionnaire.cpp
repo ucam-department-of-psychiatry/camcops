@@ -373,3 +373,9 @@ CamcopsApp& Questionnaire::app() const
 {
     return m_app;
 }
+
+
+QString Questionnaire::getSubstitutedCss(const QString& filename) const
+{
+    return m_app.getSubstitutedCss(filename);
+}

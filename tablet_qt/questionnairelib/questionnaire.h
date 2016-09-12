@@ -37,6 +37,7 @@ public:
 
     void openSubWidget(OpenableWidget* widget);
     CamcopsApp& app() const;
+    QString getSubstitutedCss(const QString& filename) const;
 protected:
     void commonConstructor();
     int currentPageNumOneBased() const;

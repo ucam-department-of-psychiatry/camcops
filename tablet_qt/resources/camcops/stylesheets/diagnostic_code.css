@@ -1,0 +1,81 @@
+/*
+- Font size mappings (see CamcopsApp::getSubstitutedCss):
+
+    %1      normal
+    %2      big
+    %3      heading
+    %4      title
+    %5      base menu font size
+*/
+
+QWidget {
+    color: black;
+    font-size: %2pt;
+    background-color: #B4D8E7;  /* a pale blue */
+}
+
+/* Title */
+QLabel {
+    font-size: %4pt;
+}
+
+/* Selection list */
+/* http://doc.qt.io/qt-5/stylesheet-examples.html#customizing-qtreeview */
+QTreeWidget {
+}
+QTreeWidget::item {
+    padding: 15px;
+}
+QTreeWidget::item:has-children {
+    /* "we would prefer you to be more specific" */
+    color: green;
+}
+QTreeWidget::item:selected {
+    background-color: blue;
+    color: white;
+    font-weight: bold;
+    padding: 15px;
+}
+
+/*
+QTreeWidget::branch:has-siblings:!adjoins-item {
+    border-image: url(:/resources/camcops/images/vline.png) 0;
+}
+
+QTreeWidget::branch:has-siblings:adjoins-item {
+    border-image: url(:/resources/camcops/images/branch-more.png) 0;
+}
+
+QTreeWidget::branch:!has-children:!has-siblings:adjoins-item {
+    border-image: url(:/resources/camcops/images/branch-end.png) 0;
+}
+
+QTreeWidget::branch:has-children:!has-siblings:closed,
+QTreeWidget::branch:closed:has-children:has-siblings {
+        border-image: none;
+        image: url(:/resources/camcops/images/branch-closed.png);
+}
+
+QTreeWidget::branch:open:has-children:!has-siblings,
+QTreeWidget::branch:open:has-children:has-siblings  {
+        border-image: none;
+        image: url(:/resources/camcops/images/branch-open.png);
+}
+*/
+
+/* =========================================================================
+   Debugging
+   ========================================================================= */
+
+#debug_green {
+    background-color: green;
+}
+#debug_red {
+    background-color: red;
+}
+#debug_blue {
+    background-color: blue;
+}
+#debug_yellow {
+    background-color: yellow;
+}

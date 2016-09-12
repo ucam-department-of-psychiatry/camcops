@@ -166,7 +166,7 @@ void QuPhoto::takePhoto()
         return;
     }
 
-    QString stylesheet = m_questionnaire->app().getSubstitutedCss(
+    QString stylesheet = m_questionnaire->getSubstitutedCss(
                 UiConst::CSS_CAMCOPS_CAMERA);
     m_camera = new Camera(stylesheet);
 
