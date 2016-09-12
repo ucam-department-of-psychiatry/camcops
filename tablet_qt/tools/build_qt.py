@@ -11,6 +11,9 @@ When is it NECESSARY to compile Qt from source?
     - SQLite support (critical)
       http://doc.qt.io/qt-5/sql-driver.html
       ... so: necessary.
+
+COMPILING OPENSSL:
+
 """
 
 # configure: http://doc.qt.io/qt-5/configure-options.html
@@ -149,7 +152,7 @@ def build_openssl_android(args, cpu):
     android_arch_full = "arch-{}".format(android_arch_short)  # e.g. arch-x86
     if cpu == "x86":
         android_eabi = "{}-{}".format(android_arch_short,
-                                      args.toolchain_version)  # e.g. x86-4.9
+                                      args.android_toolchain_version)  # e.g. x86-4.9
         # For toolchain version: ls $ANDROID_NDK_ROOT/toolchains
         # ... "-android-arch" and "-android-toolchain-version" get
         # concatenated, I think; for example, this gives the toolchain
@@ -157,11 +160,11 @@ def build_openssl_android(args, cpu):
     else:
         # but ARM ones look like "arm-linux-androideabi-4.9"
         android_eabi = "{}-linux-androideabi-{}".format(android_arch_short,
-                                                        args.toolchain_version)
+                                                        args.android_toolchain_version)
     android_sysroot = join(args.android_ndk_root, "platforms",
                            args.android_api, android_arch_full)
     android_toolchain = join(args.android_ndk_root, "toolchains", android_eabi,
-                             "prebuilt", args.ndk_host, "bin")
+                             "prebuilt", args.android_ndk_host, "bin")
 
     # http://doc.qt.io/qt-5/opensslsupport.html
     if cpu == "armv5":
@@ -230,13 +233,15 @@ def build_openssl_android(args, cpu):
         if cpu == "x86":
             env["CC"] = join(
                 android_toolchain,
-                "i686-linux-android-gcc-{}".format(args.toolchain_version)
+                "i686-linux-android-gcc-{}".format(
+                    args.android_toolchain_version)
             )
             env["AR"] = join(android_toolchain, "i686-linux-android-gcc-ar")
         else:
             env["CC"] = join(
                 android_toolchain,
-                "arm-linux-androideabi-gcc-{}".format(args.toolchain_version)
+                "arm-linux-androideabi-gcc-{}".format(
+                    args.android_toolchain_version)
             )
             env["AR"] = join(android_toolchain, "arm-linux-androideabi-gcc-ar")
         configure_args = [
@@ -288,9 +293,8 @@ def build_openssl_android(args, cpu):
     # ... looks OK
 
 
-
-def build_openssl_linux(args):
-    rootdir, workdir = get_openssl_rootdir_workdir(args, "linux")
+def build_openssl_common_unix(args, cosmetic_osname, target_os):
+    rootdir, workdir = get_openssl_rootdir_workdir(args, cosmetic_osname)
     targets = [join(workdir, "libssl.so"),
                join(workdir, "libcrypto.so")]
     if not args.force and all(isfile(x) for x in targets):
@@ -312,7 +316,6 @@ def build_openssl_linux(args):
 
     common_ssl_config_options = OPENSSL_COMMON_OPTIONS
 
-    target_os = "linux-x86_64"
     configure_args = [
         "shared",
         target_os,
@@ -329,6 +332,19 @@ def build_openssl_linux(args):
     ])
     run(["make", "depend", "-j", str(args.nparallel)], env)
     run(["make", "build_libs", "-j", str(args.nparallel)], env)
+
+
+def build_openssl_linux(args):
+    build_openssl_common_unix(args,
+                              cosmetic_osname="linux",
+                              target_os="linux-x86_64")
+
+
+
+def build_openssl_osx(args):
+    build_openssl_common_unix(args,
+                              cosmetic_osname="osx",
+                              target_os="darwin64-x86_64-cc")
 
 
 # =============================================================================
@@ -390,9 +406,9 @@ def build_qt_android(args, cpu, static_openssl=False, verbose=True):
         # Android options:
         "-android-sdk", args.android_sdk_root,
         "-android-ndk", args.android_ndk_root,
-        "-android-ndk-host", args.ndk_host,
+        "-android-ndk-host", args.android_ndk_host,
         "-android-arch", android_arch_short,
-        "-android-toolchain-version", args.toolchain_version,
+        "-android-toolchain-version", args.android_toolchain_version,
         "-xplatform", "android-g++",
     ] + QT_CONFIG_COMMON_ARGS
     if static_openssl:
@@ -522,13 +538,19 @@ def main():
     # Architectures
     parser.add_argument(
         "--android_x86", action="store_true",
-        help="An architecture target")
+        help="An architecture target (Android under an Intel x86 emulator)")
     parser.add_argument(
         "--android_arm", action="store_true",
-        help="An architecture target")
+        help="An architecture target (Android under a ARM processor tablet)")
     parser.add_argument(
         "--linux_x86_64", action="store_true",
-        help="An architecture target")
+        help="An architecture target (native Linux with a 64-bit Intel CPU; "
+             "check with 'lscpu' and 'uname -a'")
+    parser.add_argument(
+        "--osx_x86_64", action="store_true",
+        help="An architecture target (Mac OS/X under an Intel 64-bit CPU; "
+             "check with 'sysctl -a|grep cpu', and see "
+             "https://support.apple.com/en-gb/HT201948 )")
 
     # General
     parser.add_argument(
@@ -561,10 +583,10 @@ def main():
         "--android_ndk_root", default=default_android_ndk,
         help="Android NDK root directory")
     parser.add_argument(
-        "--ndk_host", default=default_ndk_host,
+        "--android_ndk_host", default=default_ndk_host,
         help="Android NDK host architecture")
     parser.add_argument(
-        "--toolchain_version", default=default_toolchain_version,
+        "--android_toolchain_version", default=default_toolchain_version,
         help="Android toolchain version")
 
     # OpenSSL
@@ -622,8 +644,12 @@ def main():
         installdir = build_qt_linux(args)
         installdirs.append(installdir)
 
-    # *** args.osx*  # for Mac OS X
-    #     http://doc.qt.io/qt-5/osx.html
+    if args.osx_x86_64:  # for 64-bit Intel Mac OS/X
+        # http://doc.qt.io/qt-5/osx.html
+        log.info("Qt build: Mac OS/X x86 64-bit +SQLite +OpenSSL")
+        build_openssl_osx(args)
+        installdir = build_qt_linux(args)
+        installdirs.append(installdir)
 
     # *** args.ios*  # for iOS (iPad, etc.)
     #     http://doc.qt.io/qt-5/building-from-source-ios.html

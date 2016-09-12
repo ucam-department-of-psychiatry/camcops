@@ -3,9 +3,11 @@
 #include "common/camcopsapp.h"
 
 
-DiagnosticCode::DiagnosticCode(const QString& code, const QString& description,
+DiagnosticCode::DiagnosticCode(int index,
+                               const QString& code, const QString& description,
                                int parent_index, int depth, bool selectable,
                                bool show_code_in_full_name) :
+    m_index(index),
     m_code(code),
     m_description(description),
     m_parent_index(parent_index),
@@ -13,6 +15,12 @@ DiagnosticCode::DiagnosticCode(const QString& code, const QString& description,
     m_selectable(selectable),
     m_show_code_in_full_name(show_code_in_full_name)
 {
+}
+
+
+int DiagnosticCode::index() const
+{
+    return m_index;
 }
 
 
@@ -40,7 +48,13 @@ bool DiagnosticCode::selectable() const
 }
 
 
-QList<int> DiagnosticCode::children() const
+bool DiagnosticCode::hasChildren() const
+{
+    return m_child_indexes.size() > 0;
+}
+
+
+QList<int> DiagnosticCode::childIndexes() const
 {
     return m_child_indexes;
 }

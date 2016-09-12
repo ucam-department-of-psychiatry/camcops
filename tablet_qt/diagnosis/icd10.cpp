@@ -12,8 +12,8 @@
 // Main functions
 // ============================================================================
 
-Icd10::Icd10(CamcopsApp* app) :
-    DiagnosticCodeSet(app, "icd10")
+Icd10::Icd10(CamcopsApp& app) :
+    DiagnosticCodeSet(app, "icd10", tr("ICD-10"))
 {
     m_creation_stack.push(DepthIndexPair(0, 0));  // root: depth 0, index 0
     addIcd10Codes(BASE_CODES);

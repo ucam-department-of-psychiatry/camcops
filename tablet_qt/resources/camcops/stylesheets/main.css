@@ -1,3 +1,13 @@
+/*
+- Font size mappings (see CamcopsApp::getSubstitutedCss):
+
+    %1      normal
+    %2      big
+    %3      heading
+    %4      title
+    %5      base menu font size
+*/
+
 QMainWindow {
     /* not relevant because QStackedWidget superimposes */
     /* background-color: yellow; */

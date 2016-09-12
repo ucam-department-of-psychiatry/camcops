@@ -30,6 +30,7 @@ public:
     QImage image() const;
 protected:
     void commonConstructor(const QString& stylesheet);
+    void updateButtons();
 protected slots:
     void setCamera(const QCameraInfo& camera_info);
 
@@ -52,7 +53,6 @@ protected slots:
 
     void imageSaved(int id, const QString& filename);
     void imageAvailable(int id, const QVideoFrame& buffer);
-    QImage imageFromVideoFrame(const QVideoFrame& buffer) const;
     void closeEvent(QCloseEvent* event);
 
     // void configureImageSettings();
@@ -61,7 +61,7 @@ protected slots:
     void keyReleaseEvent(QKeyEvent *event);
 
 signals:
-    void imageCaptured();
+    void imageCaptured(const QImage& image);
     void cancelled();
 
 protected:
@@ -70,12 +70,12 @@ protected:
 
     QPointer<QCameraViewfinder> m_viewfinder;
     QPointer<QPushButton> m_lock_button;
-    QPointer<QPushButton> m_button_finished;
     QPointer<QPushButton> m_button_cancel;
     QPointer<QStatusBar> m_status_bar;
     QPointer<QAbstractButton> m_button_take;
 
     QImageEncoderSettings imageSettings;
+    bool m_ready;
     bool m_capturing_image;
     bool m_exiting;
     QSet<QString> m_filenames_for_deletion;

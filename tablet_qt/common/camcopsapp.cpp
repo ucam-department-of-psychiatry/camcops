@@ -132,7 +132,7 @@ void CamcopsApp::open(OpenableWidget* widget, TaskPtr task,
     QPointer<OpenableWidget> guarded_widget = widget;
 
     widget->build();
-    qDebug() << "Pushing screen";
+    qDebug() << Q_FUNC_INFO << "Pushing screen";
     int index = m_p_window_stack->addWidget(widget);  // will show the widget
     // The stack takes over ownership.
     m_p_window_stack->setCurrentIndex(index);
@@ -160,7 +160,7 @@ void CamcopsApp::close()
     // on function exit, will delete the task if it's the last pointer to it
 
     QWidget* top = m_p_window_stack->currentWidget();
-    qDebug() << "Popping screen";
+    qDebug() << Q_FUNC_INFO << "Popping screen";
     m_p_window_stack->removeWidget(top);
     // Ownership is returned to the application, so...
     top->deleteLater();  // later, in case it was this object that called us

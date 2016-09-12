@@ -10,8 +10,8 @@ const QString RANGE_PREFIX = "range";  // in string names
 // Main functions
 // ============================================================================
 
-Icd9cm::Icd9cm(CamcopsApp* app) :
-    DiagnosticCodeSet(app, "icd9cm")
+Icd9cm::Icd9cm(CamcopsApp& app) :
+    DiagnosticCodeSet(app, "icd9cm", tr("ICD-9-CM"))
 {
     m_creation_stack.push(DepthIndexPair(0, 0));  // root: depth 0, index 0
     addIcd9cmCodes(BASE_CODES);

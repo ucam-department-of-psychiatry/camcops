@@ -12,7 +12,7 @@ class Icd10 : public DiagnosticCodeSet
     Q_DECLARE_TR_FUNCTIONS(Icd10)
 
 public:
-    Icd10(CamcopsApp* app);
+    Icd10(CamcopsApp& app);
 
     using CodeDescriptionPair = QPair<QString, QString>;
     using DepthIndexPair = QPair<int, int>;

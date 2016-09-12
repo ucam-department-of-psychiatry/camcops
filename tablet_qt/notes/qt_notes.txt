@@ -676,3 +676,5 @@ TO DO
 - Server-side generation of device ID
   (as it's not feasible to generate a proper user- and machine-specific ID
   across all OSs).
+
+- *** blob management via fieldref indirection to the BLOB table?

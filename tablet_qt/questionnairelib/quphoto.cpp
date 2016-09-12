@@ -159,6 +159,7 @@ void QuPhoto::takePhoto()
 {
     if (!m_questionnaire) {
         qWarning() << Q_FUNC_INFO << "no questionnaire";
+        return;
     }
     if (!m_have_camera) {
         qWarning() << Q_FUNC_INFO << "no camera";
@@ -196,15 +197,14 @@ void QuPhoto::cameraCancelled()
 }
 
 
-void QuPhoto::imageCaptured()
+void QuPhoto::imageCaptured(const QImage& image)
 {
     qDebug() << Q_FUNC_INFO;
     if (!m_camera) {
         qDebug() << "... no camera!";
         return;
     }
-    QImage img = m_camera->image();
-    m_fieldref->setValue(img);
+    m_fieldref->setValue(image);
     m_camera->finish();  // close the camera
     emit elementValueChanged();
 }

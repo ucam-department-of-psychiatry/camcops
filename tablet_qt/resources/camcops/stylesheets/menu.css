@@ -3,7 +3,11 @@
 
 - Font size mappings (see CamcopsApp::getSubstitutedCss):
 
-    %5  base menu font size
+    %1      normal
+    %2      big
+    %3      heading
+    %4      title
+    %5      base menu font size
 
 */
 

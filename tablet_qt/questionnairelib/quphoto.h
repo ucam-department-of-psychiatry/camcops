@@ -23,7 +23,7 @@ protected slots:
     void resetFieldToNull();
 
     void cameraCancelled();
-    void imageCaptured();
+    void imageCaptured(const QImage& image);
 
 protected:
     FieldRefPtr m_fieldref;

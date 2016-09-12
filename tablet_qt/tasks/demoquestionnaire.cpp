@@ -1,4 +1,6 @@
 #include "demoquestionnaire.h"
+#include "diagnosis/icd10.h"
+#include "diagnosis/icd9cm.h"
 #include "tasklib/taskfactory.h"
 
 #include "questionnairelib/questionnaire.h"
@@ -16,6 +18,7 @@
 #include "questionnairelib/qucanvas.h"
 #include "questionnairelib/qucountdown.h"
 #include "questionnairelib/qudatetime.h"
+#include "questionnairelib/qudiagnosticcode.h"
 #include "questionnairelib/questionnairefunc.h"
 #include "questionnairelib/qugridcell.h"
 #include "questionnairelib/quheading.h"
@@ -69,6 +72,10 @@ DemoQuestionnaire::DemoQuestionnaire(const QSqlDatabase& db, int load_pk) :
     addField("q21", QVariant::ByteArray);
     addField("q22", QVariant::ByteArray);
     addField("q23", QVariant::ByteArray);
+    addField("q24", QVariant::String);
+    addField("q25", QVariant::String);
+    addField("q26", QVariant::String);
+    addField("q27", QVariant::String);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -482,8 +489,19 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
     })->setTitle("Editable variable including dates/times"));
 
     // ========================================================================
-    // *** diagnostic code
+    // Diagnostic codes
     // ========================================================================
+
+    QSharedPointer<Icd10> icd10 = QSharedPointer<Icd10>(new Icd10(app));
+    QSharedPointer<Icd9cm> icd9cm = QSharedPointer<Icd9cm>(new Icd9cm(app));
+    QuPagePtr page_diag((new QuPage{
+        new QuHeading("Diagnostic code, ICD-10:"),
+        new QuDiagnosticCode(icd10, fieldRef("q24"), fieldRef("q25")),
+        new QuHeading("Diagnostic code, clone of the preceding:"),
+        new QuDiagnosticCode(icd10, fieldRef("q24"), fieldRef("q25")),
+        new QuHeading("Diagnostic code, ICD-9-CM:"),
+        new QuDiagnosticCode(icd9cm, fieldRef("q26"), fieldRef("q27")),
+    })->setTitle("Canvas"));
 
     // ========================================================================
     // Canvas
@@ -516,7 +534,7 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
     Questionnaire* questionnaire = new Questionnaire(app, {
         p1, p2, p3, p4, p5,
         page_mcq, page_multiple_response, page_pickers,
-        page_sliders, page_vars, page_canvas, page_photo,
+        page_sliders, page_vars, page_diag, page_canvas, page_photo,
     });
     questionnaire->setReadOnly(read_only);
     return questionnaire;

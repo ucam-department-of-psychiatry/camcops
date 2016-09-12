@@ -58,6 +58,7 @@
 #include <QVBoxLayout>
 #include <QVideoFrame>
 #include "common/uiconstants.h"
+#include "lib/imagefunc.h"
 #include "imagebutton.h"
 
 
@@ -93,6 +94,7 @@ void Camera::commonConstructor(const QString& stylesheet)
 {
     m_camera = QSharedPointer<QCamera>(nullptr);
     m_capture = QSharedPointer<QCameraImageCapture>(nullptr);
+    m_ready = false;
     m_capturing_image = false;
     m_exiting = false;
     m_captured_state = CapturedState::Nothing;
@@ -286,13 +288,16 @@ void Camera::updateLockStatus(QCamera::LockStatus status,
     QPalette palette = m_lock_button->palette();
     palette.setColor(QPalette::ButtonText, indicationColor);
     m_lock_button->setPalette(palette);
+    updateButtons();
 }
 
 
 void Camera::takeImage()
 {
     m_capturing_image = true;
-    m_capture->capture();
+    // *** Camera::takeImage implement some sort of wait message
+    updateButtons();
+    m_capture->capture();  // a bit slow, so update buttons first
 }
 
 
@@ -302,6 +307,7 @@ void Camera::displayCaptureError(int id, QCameraImageCapture::Error error,
     qWarning() << "Capture error:" << id << error << error_string;
     QMessageBox::warning(this, tr("Image capture error"), error_string);
     m_capturing_image = false;
+    updateButtons();
 }
 
 
@@ -336,6 +342,21 @@ void Camera::updateCameraState(QCamera::State state)
         */
         break;
     }
+    updateButtons();
+}
+
+
+void Camera::updateButtons()
+{
+    if (m_button_take) {
+        m_button_take->setEnabled(m_ready && !m_capturing_image);
+    }
+    if (m_lock_button) {
+        m_lock_button->setEnabled(!m_capturing_image);
+    }
+    if (m_button_cancel) {
+        m_button_cancel->setEnabled(!m_capturing_image);
+    }
 }
 
 
@@ -347,7 +368,8 @@ void Camera::setExposureCompensation(int index)
 
 void Camera::readyForCapture(bool ready)
 {
-    m_button_take->setEnabled(ready);
+    m_ready = ready;
+    updateButtons();
     // If you try to capture when it's not ready, it causes an error;
     // http://doc.qt.io/qt-5/qcameraimagecapture.html
 
@@ -365,9 +387,11 @@ void Camera::imageSaved(int id, const QString& filename)
     m_most_recent_filename = filename;
     m_captured_state = CapturedState::File;
     m_capturing_image = false;
-    emit imageCaptured();
+    emit imageCaptured(image());
     if (m_exiting) {
         close();
+    } else {
+        updateButtons();
     }
 }
 
@@ -380,39 +404,15 @@ void Camera::imageAvailable(int id, const QVideoFrame& buffer)
     // http://stackoverflow.com/questions/27829830/convert-qvideoframe-to-qimage
 
     (void)id;
-    m_most_recent_image = imageFromVideoFrame(buffer);
+    m_most_recent_image = ImageFunc::imageFromVideoFrame(buffer);
     m_captured_state = CapturedState::Buffer;
     m_capturing_image = false;
-    emit imageCaptured();
+    emit imageCaptured(image());
     if (m_exiting) {
         close();
-    }
-}
-
-
-QImage Camera::imageFromVideoFrame(const QVideoFrame& buffer) const
-{
-    QImage img;
-    QVideoFrame frame(buffer);  // make a copy we can call map (non-const) on
-    frame.map(QAbstractVideoBuffer::ReadOnly);
-    QImage::Format imageFormat = QVideoFrame::imageFormatFromPixelFormat(
-                frame.pixelFormat());
-    // BUT the frame.pixelFormat() is QVideoFrame::Format_Jpeg, and this is
-    // mapped to QImage::Format_Invalid by
-    // QVideoFrame::imageFormatFromPixelFormat
-    if (imageFormat != QImage::Format_Invalid) {
-        img = QImage(frame.bits(),
-                     frame.width(),
-                     frame.height(),
-                     // frame.bytesPerLine(),
-                     imageFormat);
     } else {
-        // e.g. JPEG
-        int nbytes = frame.mappedBytes();
-        img = QImage::fromData(frame.bits(), nbytes);
+        updateButtons();
     }
-    frame.unmap();
-    return img;
 }
 
 

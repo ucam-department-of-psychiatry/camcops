@@ -31,6 +31,11 @@
         %2      big
         %3      heading
         %4      title
+        %5      base menu font size
+
+    ALL CSS USING CamcopsApp::getSubstitutedCss MUST PROVIDE AT LEAST ONE
+    PLACEHOLDER FOR EACH OF THESE, e.g. in a comment if not otherwise used
+    (or you get "QString::arg: Argument missing").
 
     ... plus custom code-applied CSS for text whose size is determined
     dynamically.

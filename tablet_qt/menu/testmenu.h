@@ -21,6 +21,7 @@ protected:
     void testHttps();
     void testIcd10CodeSetCreation();
     void testIcd9cmCodeSetCreation();
+    void doneSeeConsole();
 protected:
     QSharedPointer<NetworkManager> m_netmgr;
     QSharedPointer<QMediaPlayer> m_player;

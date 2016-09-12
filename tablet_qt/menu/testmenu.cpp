@@ -1,5 +1,6 @@
 #include "testmenu.h"
 #include <QMediaPlayer>
+#include "common/platform.h"
 #include "diagnosis/icd10.h"
 #include "diagnosis/icd9cm.h"
 #include "lib/filefunc.h"
@@ -116,23 +117,33 @@ void TestMenu::testPhq9Creation()
         return;
     }
     qDebug() << *p_task;
-    m_app.setWhiskerConnected(true);
-    UiFunc::alert("Done; see console");
-    m_app.setWhiskerConnected(false);
+    m_app.setWhiskerConnected(true); // *** remove
+    doneSeeConsole();
+    m_app.setWhiskerConnected(false); // *** remove
 }
 
 
 void TestMenu::testIcd10CodeSetCreation()
 {
-    Icd10 icd(&m_app);
+    Icd10 icd(m_app);
     qDebug() << icd;
-    UiFunc::alert("Done; see console");
+    doneSeeConsole();
 }
 
 
 void TestMenu::testIcd9cmCodeSetCreation()
 {
-    Icd9cm icd(&m_app);
+    Icd9cm icd(m_app);
     qDebug() << icd;
-    UiFunc::alert("Done; see console");
+    doneSeeConsole();
+}
+
+
+void TestMenu::doneSeeConsole()
+{
+    if (Platform::PLATFORM_TABLET) {
+        UiFunc::alert("Done; see USB debugging output");
+    } else {
+        UiFunc::alert("Done; see console");
+    }
 }
