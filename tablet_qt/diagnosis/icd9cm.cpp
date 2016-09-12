@@ -13,7 +13,7 @@ const QString RANGE_PREFIX = "range";  // in string names
 Icd9cm::Icd9cm(CamcopsApp& app) :
     DiagnosticCodeSet(app, "icd9cm", tr("ICD-9-CM"))
 {
-    m_creation_stack.push(DepthIndexPair(0, 0));  // root: depth 0, index 0
+    m_creation_stack.push(DepthItemPair(0, 0));  // root: depth 0, index 0
     addIcd9cmCodes(BASE_CODES);
 }
 
@@ -88,11 +88,11 @@ void Icd9cm::addIndividualIcd9cmCode(const QString& code, const QString& desc,
     while (depth <= m_creation_stack.top().first) {
         m_creation_stack.pop();
     }
-    int parent_index = m_creation_stack.top().second;
+    DiagnosticCode* parent = m_creation_stack.top().second;
     bool selectable = code.length() > 4 && !code.startsWith(RANGE_PREFIX);
-    int index = addCode(parent_index, code, desc, selectable,
-                        show_code_in_full_name);
-    m_creation_stack.push(DepthIndexPair(depth, index));
+    DiagnosticCode* newchild = addCode(parent, code, desc, selectable,
+                                       show_code_in_full_name);
+    m_creation_stack.push(DepthItemPair(depth, newchild));
 }
 
 

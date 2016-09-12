@@ -3,6 +3,10 @@
 #include <QApplication>
 #include <QDebug>
 #include <QEvent>
+#include <QHeaderView>
+#include <QItemSelectionModel>
+#include <QLineEdit>
+#include <QListView>
 #include <QModelIndex>
 #include <QStackedWidget>
 #include <QStandardItemModel>
@@ -43,15 +47,46 @@
 
 */
 
+
+bool DiagnosticCodeFilter::filterAcceptsRow(int row,
+                                            const QModelIndex& parent) const
+{
+    // Filter modification that accepts parents whose children meet the filter
+    // criteria. (Note that calling setFilterFixedString correctly affects
+    // filterRegExp(); see qsortfilterproxymodel.cpp).
+
+    // http://doc.qt.io/qt-5/qsortfilterproxymodel.html#filterAcceptsRow
+    // http://www.qtcentre.org/threads/46471-QTreeView-Filter
+    QModelIndex index = sourceModel()->index(row, 0, parent);
+
+    if (!index.isValid()) {
+        return false;
+    }
+    if (index.data().toString().contains(filterRegExp())) {
+        return true;
+    }
+
+    // Permit if children are shown as well
+    int rows = sourceModel()->rowCount(index);
+    for (int r = 0; r < rows; r++) {
+        if (filterAcceptsRow(r, index)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
 DiagnosticCodeSelector::DiagnosticCodeSelector(
         const QString& stylesheet,
         QSharedPointer<DiagnosticCodeSet> codeset,
-        int selected_index,
+        QModelIndex selected,
         QWidget* parent) :
     OpenableWidget(parent),
     m_codeset(codeset),
-    m_model(nullptr),
-    m_treeview(nullptr)
+    m_treeview(nullptr),
+    m_selection_model(nullptr),
+    m_proxy_model(nullptr)
 {
     Q_ASSERT(m_codeset);
 
@@ -102,13 +137,67 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     header_mainlayout->addWidget(horizline);
 
     // ========================================================================
-    // List widget
+    // Selection model
+    // ========================================================================
+
+    m_selection_model = QSharedPointer<QItemSelectionModel>(
+                new QItemSelectionModel(m_codeset.data()));
+    connect(m_selection_model.data(), &QItemSelectionModel::selectionChanged,
+            this, &DiagnosticCodeSelector::selectionChanged);
+    m_selection_model->select(selected, QItemSelectionModel::ClearAndSelect);
+
+    // ========================================================================
+    // Tree view
     // ========================================================================
 
     m_treeview = new QTreeView();
-    connect(m_treeview, &QTreeView::clicked,
-            this, &DiagnosticCodeSelector::itemClicked,
-            Qt::UniqueConnection);
+    m_treeview->setModel(m_codeset.data());
+    m_treeview->setSelectionModel(m_selection_model.data());
+    m_treeview->setWordWrap(true);
+    m_treeview->setColumnHidden(DiagnosticCode::COLUMN_CODE, true);
+    m_treeview->setColumnHidden(DiagnosticCode::COLUMN_DESCRIPTION, true);
+    m_treeview->setColumnHidden(DiagnosticCode::COLUMN_FULLNAME, false);
+    m_treeview->setSortingEnabled(false);
+    m_treeview->scrollTo(selected);
+
+    // ========================================================================
+    // Search box
+    // ========================================================================
+
+    QLineEdit* lineedit = new QLineEdit();
+    connect(lineedit, &QLineEdit::textEdited,
+            this, &DiagnosticCodeSelector::searchTextEdited);
+
+    // ========================================================================
+    // Proxy model
+    // ========================================================================
+    // http://doc.qt.io/qt-5/qsortfilterproxymodel.html#details
+
+    m_proxy_model = QSharedPointer<DiagnosticCodeFilter>(
+                new DiagnosticCodeFilter());
+    m_proxy_model->setSourceModel(m_codeset.data());
+    m_proxy_model->setSortCaseSensitivity(Qt::CaseInsensitive);
+    m_proxy_model->sort(DiagnosticCode::COLUMN_CODE, Qt::AscendingOrder);
+    m_proxy_model->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    m_proxy_model->setFilterKeyColumn(DiagnosticCode::COLUMN_DESCRIPTION);
+
+    // ========================================================================
+    // List view... a disguised tree view.
+    // ========================================================================
+    // We want to show all depths, not just the root nodes, and QListView
+    // doesn't by default.
+    // - You can make a QTreeView look like this:
+    //   http://stackoverflow.com/questions/21564976
+    //   ... but users can collapse/expand (and it collapses by itself) and
+    //   is not ideal.
+    // - The alternative is a proxy model that flattens properly for us (see
+    //   same link).
+
+    QListView* flatview = new QListView();
+    flatview->setModel(m_proxy_model.data());
+    flatview->setSelectionModel(m_selection_model.data());
+    flatview->setWordWrap(true);
+    flatview->scrollTo(selected);
 
     // ========================================================================
     // Final assembly (with "this" as main widget)
@@ -117,6 +206,8 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     QVBoxLayout* mainlayout = new QVBoxLayout();
     mainlayout->addLayout(header_mainlayout);
     mainlayout->addWidget(m_treeview);
+    mainlayout->addWidget(lineedit);
+    mainlayout->addWidget(flatview);
 
     QWidget* topwidget = new QWidget();
     topwidget->setObjectName("menu_window_background");
@@ -127,94 +218,39 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     toplayout->addWidget(topwidget);
 
     setLayout(toplayout);
-
-    // ========================================================================
-    // Tree setup
-    // ========================================================================
-
-    m_model = QSharedPointer<QStandardItemModel>(new QStandardItemModel(this));
-    m_model->setColumnCount(1);  // resizing >1 is tricky with tablet displays
-
-    QTreeWidgetItem* selected_item = nullptr;
-    int n = m_codeset->size();
-    for (int i = 1; i < n; ++i) {  // SKIP ROOT
-        qDebug() << "m_model->rowCount()" << m_model->rowCount();
-        const DiagnosticCode* dc = m_codeset->at(i);
-        if (dc->hasParent() && dc->parentIndex() > m_model->rowCount()) {
-            // Note: we use ">" not ">=" because we're introducing an off-by-
-            // one change
-            qWarning() << Q_FUNC_INFO
-                       << "Error: code is forward-referencing its parent";
-            continue;
-        }
-
-        QStandardItem* ti = new QStandardItem();
-
-        // *** bool selected = i == selected_index;
-        /*
-        ti->setSelected(selected);
-        if (selected) {
-            selected_item = ti;
-        }
-        */
-
-        Qt::ItemFlags flags = Qt::ItemIsEnabled;
-        if (dc->selectable()) {
-            flags |= Qt::ItemIsSelectable;
-        }
-        ti->setFlags(flags);
-        ti->setData(QVariant(i), Qt::UserRole);
-        ti->setText(dc->fullname());
-
-        QStandardItem* parent;
-        if (dc->parentIsRoot()) {
-            qDebug() << "appending row" << i << "to root";
-            parent = m_model->invisibleRootItem();
-        } else {
-            int parent_index = dc->parentIndex() - 1;
-            qDebug() << "appending row" << i << "to model item" << parent_index;
-            // ... subtract one because we don't include the root.
-            parent = m_model->item(parent_index);
-        }
-        parent->appendRow(ti);
-    }
-
-    m_treeview->setModel(m_model.data());
-    m_treeview->setSortingEnabled(false);
-    if (selected_item) {
-        // *** // m_treeview->scrollTo(selected_item);
-    }
-    (void)selected_index;//***
 }
 
 
-void DiagnosticCodeSelector::itemClicked(const QModelIndex& index)
+void DiagnosticCodeSelector::selectionChanged(const QItemSelection& selected,
+                                              const QItemSelection& deselected)
 {
-    // WHAT'S BEEN CHOSEN?
-    QVariant v = index.data(Qt::UserRole);
-    int dc_index = v.toInt();
-    if (!m_codeset->isValidIndex(dc_index)) {
-        qWarning() << Q_FUNC_INFO << "invalid dc_index selected:" << dc_index;
+    (void)deselected;
+    qDebug() << "selected:" << selected;
+    QModelIndexList indexes = selected.indexes();
+    qDebug() << "indexes:" << indexes;
+    if (indexes.isEmpty()) {
         return;
     }
-
-    const DiagnosticCode* dc = m_codeset->at(dc_index);
-    if (!dc) {
-        qWarning() << Q_FUNC_INFO << "bad item";
+    QModelIndex index = indexes.at(0);
+    qDebug() << "index:" << index;
+    qDebug() << "index.row():" << index.row();
+    if (!index.isValid()) {
         return;
     }
+    // Now, we want to get an index to potentially different columns of
+    // the same object. Note that index.row() is NOT unique, it's just the row
+    // number for a given parent.
+    // To get a different column, we go via the parent back to the child:
+    // http://doc.qt.io/qt-5/qmodelindex.html#details
+    QModelIndex parent = index.parent();
+    QModelIndex code_index = parent.child(
+                index.row(), DiagnosticCode::COLUMN_CODE);
+    QModelIndex description_index = parent.child(
+                index.row(), DiagnosticCode::COLUMN_DESCRIPTION);
+    QString code = code_index.data().toString();
+    QString description = description_index.data().toString();
 
-    select(dc);
-}
-
-
-void DiagnosticCodeSelector::select(const DiagnosticCode* dc)
-{
-    if (!dc || !dc->selectable()) {
-        qWarning() << Q_FUNC_INFO << "can't select this item";
-        return;
-    }
-    emit codeChanged(dc->code(), dc->description());
+    emit codeChanged(code, description);
     emit finished();
 }
 
@@ -222,4 +258,10 @@ void DiagnosticCodeSelector::select(const DiagnosticCode* dc)
 void DiagnosticCodeSelector::search()
 {
     qDebug() << Q_FUNC_INFO;
+}
+
+
+void DiagnosticCodeSelector::searchTextEdited(const QString& text)
+{
+    m_proxy_model->setFilterFixedString(text);
 }

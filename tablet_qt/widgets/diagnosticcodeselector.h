@@ -1,15 +1,25 @@
 #pragma once
 #include <QPointer>
 #include <QSharedPointer>
+#include <QSortFilterProxyModel>
 #include "diagnosis/diagnosticcodeset.h"
 #include "openablewidget.h"
 
 class LabelWordWrapWide;
 class QAbstractButton;
+class QItemSelection;
+class QItemSelectionModel;
 class QModelIndex;
 class QStandardItemModel;
 class QTreeView;
-class QTreeWidgetItem;
+
+class DiagnosticCodeFilter : public QSortFilterProxyModel
+{
+    Q_OBJECT
+public:
+    using QSortFilterProxyModel::QSortFilterProxyModel;
+    bool filterAcceptsRow(int row, const QModelIndex& parent) const;
+};
 
 
 class DiagnosticCodeSelector : public OpenableWidget
@@ -18,21 +28,18 @@ class DiagnosticCodeSelector : public OpenableWidget
 public:
     DiagnosticCodeSelector(const QString& stylesheet,
                            QSharedPointer<DiagnosticCodeSet> codeset,
-                           int selected_index = DiagnosticCodeSet::INVALID,
+                           QModelIndex selected = QModelIndex(),
                            QWidget* parent = nullptr);
 signals:
     void codeChanged(const QString& code, const QString& description);
 protected slots:
-    void itemClicked(const QModelIndex &index);
+    void selectionChanged(const QItemSelection& selected,
+                          const QItemSelection& deselected);
+    void searchTextEdited(const QString& text);
     void search();
 protected:
-    void processClick(QTreeWidgetItem* listitem, bool secondary_gesture);
-    // void changePage(int root_index);
-    void select(const DiagnosticCode* dc);
-    // void browseTo(const DiagnosticCode* dc);
-    // void up();
-protected:
     QSharedPointer<DiagnosticCodeSet> m_codeset;
-    QSharedPointer<QStandardItemModel> m_model;
     QPointer<QTreeView> m_treeview;
+    QSharedPointer<QItemSelectionModel> m_selection_model;
+    QSharedPointer<DiagnosticCodeFilter> m_proxy_model;
 };

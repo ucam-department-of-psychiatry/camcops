@@ -9,13 +9,13 @@ class CamcopsApp;
 
 class Icd9cm : public DiagnosticCodeSet
 {
-    Q_DECLARE_TR_FUNCTIONS(Icd10)
+    Q_OBJECT
 
 public:
     Icd9cm(CamcopsApp& app);
 
     using CodeDescriptionPair = QPair<QString, QString>;
-    using DepthIndexPair = QPair<int, int>;
+    using DepthItemPair = QPair<int, DiagnosticCode*>;
 private:
     void addIcd9cmCodes(const QList<QString>& codes);
     void addIndividualIcd9cmCode(const QString& code, const QString& desc,
@@ -24,7 +24,7 @@ private:
                      const QString& basedesc,
                      const QList<CodeDescriptionPair>& level1);
 
-    QStack<DepthIndexPair> m_creation_stack;  // depth, index (of parents)
+    QStack<DepthItemPair> m_creation_stack;  // depth, index (of parents)
 
     void addEpisodicAffective(const QString& basecode,
                               const QString& basedesc);

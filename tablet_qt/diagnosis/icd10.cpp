@@ -12,10 +12,10 @@
 // Main functions
 // ============================================================================
 
-Icd10::Icd10(CamcopsApp& app) :
-    DiagnosticCodeSet(app, "icd10", tr("ICD-10"))
+Icd10::Icd10(CamcopsApp& app, QObject* parent) :
+    DiagnosticCodeSet(app, "icd10", tr("ICD-10"), parent)
 {
-    m_creation_stack.push(DepthIndexPair(0, 0));  // root: depth 0, index 0
+    m_creation_stack.push(DepthItemPair(0, 0));  // root: depth 0, index 0
     addIcd10Codes(BASE_CODES);
 }
 
@@ -86,11 +86,11 @@ void Icd10::addIndividualIcd10Code(const QString& code, const QString& desc,
     while (depth <= m_creation_stack.top().first) {
         m_creation_stack.pop();
     }
-    int parent_index = m_creation_stack.top().second;
+    DiagnosticCode* parent = m_creation_stack.top().second;
     bool selectable = code.length() > 2;
-    int index = addCode(parent_index, code, desc, selectable,
-                        show_code_in_full_name);
-    m_creation_stack.push(DepthIndexPair(depth, index));
+    DiagnosticCode* newchild = addCode(parent, code, desc, selectable,
+                                       show_code_in_full_name);
+    m_creation_stack.push(DepthItemPair(depth, newchild));
 }
 
 

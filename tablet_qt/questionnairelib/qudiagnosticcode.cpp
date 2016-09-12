@@ -56,6 +56,7 @@ QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
     textlayout->addWidget(m_label_description);
     textlayout->addStretch();
 
+
     QPushButton* button = new QPushButton(tr("Set diagnosis"));
     button->setEnabled(!read_only);
     if (!read_only) {
@@ -63,12 +64,18 @@ QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
                 this, &QuDiagnosticCode::setButtonClicked);
     }
 
+    QHBoxLayout* buttonlayout = new QHBoxLayout();
+    buttonlayout->addWidget(button);
+    buttonlayout->addStretch();
+
     QVBoxLayout* toplayout = new QVBoxLayout();
     toplayout->addLayout(textlayout);
-    toplayout->addWidget(button);
+    toplayout->addLayout(buttonlayout);
 
     QWidget* widget = new QWidget();
     widget->setLayout(toplayout);
+
+    setFromField();
 
     return widget;
 }
@@ -81,11 +88,11 @@ void QuDiagnosticCode::setButtonClicked()
         return;
     }
     QString code = m_fieldref_code->valueString();
-    int selected_index = m_codeset->firstIndexFromCode(code);
+    QModelIndex selected = m_codeset->firstMatchCode(code);
     QString stylesheet = m_questionnaire->getSubstitutedCss(
                 UiConst::CSS_CAMCOPS_DIAGNOSTIC_CODE);
     DiagnosticCodeSelector* selector = new DiagnosticCodeSelector(
-                stylesheet, m_codeset, selected_index);
+                stylesheet, m_codeset, selected);
     connect(selector, &DiagnosticCodeSelector::codeChanged,
             this, &QuDiagnosticCode::widgetChangedCode);
     m_questionnaire->openSubWidget(selector);

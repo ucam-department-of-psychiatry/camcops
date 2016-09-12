@@ -1,4 +1,5 @@
 #pragma once
+#include <QAbstractItemModel>
 #include <QList>
 #include <QString>
 #include "diagnosticcode.h"
@@ -6,34 +7,40 @@
 class CamcopsApp;
 
 
-class DiagnosticCodeSet
+class DiagnosticCodeSet : public QAbstractItemModel
 {
-public:
-    static const int INVALID;
+    Q_OBJECT
 public:
     DiagnosticCodeSet(CamcopsApp& app, const QString& setname,
-                      const QString& root_title);
-    QString description(int index) const;
-    QString description(const QString& code) const;
-    bool isValidIndex(int index) const;
-    int firstIndexFromCode(const QString& code) const;
-    bool hasCode(const QString& code);
-    int addCode(int parent_index,
-                const QString& code,
-                const QString& description,
-                bool selectable = true,
-                bool show_code_in_full_name = true);  // returns index
+                      const QString& title, QObject* parent = nullptr);
+    ~DiagnosticCodeSet();
+
+    QVariant data(const QModelIndex& index, int role) const override;
+    Qt::ItemFlags flags(const QModelIndex& index) const override;
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
+    QModelIndex index(
+            int row, int column,
+            const QModelIndex& parent_index = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex& child) const override;
+    int rowCount(const QModelIndex& parent_index) const override;
+    int columnCount(const QModelIndex& parent_index) const override;
+
     int size() const;
-    const DiagnosticCode* at(int index) const;
-    QList<const DiagnosticCode*> children(int index) const;
-    int parentIndexOf(int index) const;
     QString title() const;
+    QModelIndex firstMatchCode(const QString& code) const;
 protected:
     QString xstring(const QString& stringname) const;
+    DiagnosticCode* addCode(DiagnosticCode* parent,
+                            const QString& code,
+                            const QString& description,
+                            bool selectable = true,
+                            bool show_code_in_full_name = true);
 protected:
     CamcopsApp& m_app;
-    QString m_setname;
-    QList<DiagnosticCode> m_codes;
+    QString m_setname;  // for xstring
+    QString m_title;  // cosmetic
+    DiagnosticCode* m_root_item;
 
 public:
     friend QDebug operator<<(QDebug debug, const DiagnosticCodeSet& d);

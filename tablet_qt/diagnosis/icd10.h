@@ -9,13 +9,13 @@ class CamcopsApp;
 
 class Icd10 : public DiagnosticCodeSet
 {
-    Q_DECLARE_TR_FUNCTIONS(Icd10)
+    Q_OBJECT
 
 public:
-    Icd10(CamcopsApp& app);
+    Icd10(CamcopsApp& app, QObject* parent = nullptr);
 
     using CodeDescriptionPair = QPair<QString, QString>;
-    using DepthIndexPair = QPair<int, int>;
+    using DepthItemPair = QPair<int, DiagnosticCode*>;
 private:
     void addIcd10Codes(const QList<QString>& codes);
     void addIndividualIcd10Code(const QString& code, const QString& desc,
@@ -28,7 +28,7 @@ private:
                      const QList<CodeDescriptionPair>& level1,
                      const QList<CodeDescriptionPair>& level2);
 
-    QStack<DepthIndexPair> m_creation_stack;  // depth, index (of parents)
+    QStack<DepthItemPair> m_creation_stack;  // depth, pointer (of parents)
 
     void addDementia(const QString& basecode, const QString& basedesc);
     void addSubstance(const QString& basecode, const QString& basedesc);

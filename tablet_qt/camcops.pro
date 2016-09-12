@@ -144,7 +144,8 @@ SOURCES += main.cpp\
     diagnosis/diagnosticcodeset.cpp \
     diagnosis/icd10.cpp \
     diagnosis/icd9cm.cpp \
-    lib/imagefunc.cpp
+    lib/imagefunc.cpp \
+    diagnosis/diagnosisproxymodel.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -260,7 +261,8 @@ HEADERS  += \
     diagnosis/diagnosticcodeset.h \
     diagnosis/icd10.h \
     diagnosis/icd9cm.h \
-    lib/imagefunc.h
+    lib/imagefunc.h \
+    diagnosis/diagnosisproxymodel.h
 
 CONFIG += debug
 CONFIG += mobility
