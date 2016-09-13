@@ -1,10 +1,10 @@
 #pragma once
 #include <QPointer>
 #include <QSharedPointer>
-#include <QSortFilterProxyModel>
 #include "diagnosis/diagnosticcodeset.h"
 #include "openablewidget.h"
 
+class DiagnosisProxyModel;
 class LabelWordWrapWide;
 class QAbstractButton;
 class QItemSelection;
@@ -12,14 +12,6 @@ class QItemSelectionModel;
 class QModelIndex;
 class QStandardItemModel;
 class QTreeView;
-
-class DiagnosticCodeFilter : public QSortFilterProxyModel
-{
-    Q_OBJECT
-public:
-    using QSortFilterProxyModel::QSortFilterProxyModel;
-    bool filterAcceptsRow(int row, const QModelIndex& parent) const;
-};
 
 
 class DiagnosticCodeSelector : public OpenableWidget
