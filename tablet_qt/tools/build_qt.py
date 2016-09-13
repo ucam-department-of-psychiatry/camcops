@@ -293,10 +293,10 @@ def build_openssl_android(args, cpu):
     # ... looks OK
 
 
-def build_openssl_common_unix(args, cosmetic_osname, target_os):
+def build_openssl_common_unix(args, cosmetic_osname, target_os, shared_lib_suffix):
     rootdir, workdir = get_openssl_rootdir_workdir(args, cosmetic_osname)
-    targets = [join(workdir, "libssl.so"),
-               join(workdir, "libcrypto.so")]
+    targets = [join(workdir, "libssl{}".format(shared_lib_suffix)),
+               join(workdir, "libcrypto{}".format(shared_lib_suffix))]
     if not args.force and all(isfile(x) for x in targets):
         log.info("OpenSSL: All targets exist already: {}".format(targets))
         return
@@ -337,14 +337,16 @@ def build_openssl_common_unix(args, cosmetic_osname, target_os):
 def build_openssl_linux(args):
     build_openssl_common_unix(args,
                               cosmetic_osname="linux",
-                              target_os="linux-x86_64")
+                              target_os="linux-x86_64",
+                              shared_lib_suffix=".so")
 
 
 
 def build_openssl_osx(args):
     build_openssl_common_unix(args,
                               cosmetic_osname="osx",
-                              target_os="darwin64-x86_64-cc")
+                              target_os="darwin64-x86_64-cc",
+                              shared_lib_suffix=".dylib")
 
 
 # =============================================================================
@@ -445,15 +447,17 @@ def build_qt_android(args, cpu, static_openssl=False, verbose=True):
     return installdir
 
 
-
-def build_qt_linux(args, static_openssl=False, verbose=True):
+def build_qt_generic_unix(args, cosmetic_osname, extra_qt_config_args=None,
+                          static_openssl=False, verbose=True):
     # For testing a new OpenSSL build, have static_openssl=False, or you have
     # to rebuild Qt every time... extremely slow.
-    opensslrootdir, opensslworkdir = get_openssl_rootdir_workdir(args, "linux")
+    extra_qt_config_args = extra_qt_config_args or []
+    opensslrootdir, opensslworkdir = get_openssl_rootdir_workdir(
+        args, cosmetic_osname)
     openssl_include_root = join(opensslworkdir, "include")
     openssl_lib_root = opensslworkdir
-    builddir = join(args.root_dir, "qt_linux_build")
-    installdir = join(args.root_dir, "qt_linux_install")
+    builddir = join(args.root_dir, "qt_{}_build".format(cosmetic_osname))
+    installdir = join(args.root_dir, "qt_{}_install".format(cosmetic_osname))
 
     targets = [join(installdir, "bin", "qmake")]
     if all(isfile(x) for x in targets):
@@ -466,7 +470,7 @@ def build_qt_linux(args, static_openssl=False, verbose=True):
     env["OPENSSL_LIBS"] = "-L{} -lssl -lcrypto".format(openssl_lib_root)
     # ... unnecessary? But suggested by Qt.
 
-    log.info("Configuring Linux build in {}".format(builddir))
+    log.info("Configuring {} build in {}".format(cosmetic_osname, builddir))
     mkdir_p(builddir)
     mkdir_p(installdir)
     os.chdir(builddir)
@@ -477,11 +481,7 @@ def build_qt_linux(args, static_openssl=False, verbose=True):
         "-I", openssl_include_root,  # OpenSSL
         "-L", openssl_lib_root,  # OpenSSL
         "-prefix", installdir,
-
-        # Linux options:
-        "-qt-xcb",  # use XCB source bundled with Qt?
-        "-gstreamer", "1.0",  # gstreamer version (for Unix); requires sudo apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev  # noqa
-    ] + QT_CONFIG_COMMON_ARGS
+    ] + extra_qt_config_args + QT_CONFIG_COMMON_ARGS
     if static_openssl:
         qt_config_args.append("-openssl-linked")  # OpenSSL
     else:
@@ -490,7 +490,7 @@ def build_qt_linux(args, static_openssl=False, verbose=True):
         qt_config_args.append("-v")  # verbose
     run(qt_config_args)  # The configure step takes a few seconds.
 
-    log.info("Making Qt Linux build into {}".format(installdir))
+    log.info("Making Qt {} build into {}".format(cosmetic_osname, installdir))
     os.chdir(builddir)
     run(["make", "-j", str(args.nparallel)], env)  # The make step takes a few hours.  # noqa
 
@@ -502,6 +502,32 @@ def build_qt_linux(args, static_openssl=False, verbose=True):
     run(["make", "install"], env)
     # ... installs to installdir because of -prefix earlier
     return installdir
+
+
+def build_qt_linux(args, static_openssl=False, verbose=True):
+    return build_qt_generic_unix(
+        args,
+        cosmetic_osname="linux",
+        extra_qt_config_args=[
+            # Linux options:
+            "-qt-xcb",  # use XCB source bundled with Qt?
+            "-gstreamer", "1.0",  # gstreamer version (for Unix); requires sudo apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev  # noqa
+        ],
+        static_openssl=static_openssl,
+        verbose=verbose
+    )
+
+
+def build_qt_osx(args, static_openssl=False, verbose=True):
+    # http://stackoverflow.com/questions/20604093/qt5-install-on-osx-qt-xcb
+    # os.environ["PATH"] = "/usr/bin:/bin:/usr/sbin:/sbin"
+    return build_qt_generic_unix(
+        args,
+        cosmetic_osname="osx",
+        extra_qt_config_args=None,
+        static_openssl=static_openssl,
+        verbose=verbose
+    )
 
 
 # =============================================================================
@@ -648,12 +674,13 @@ def main():
         # http://doc.qt.io/qt-5/osx.html
         log.info("Qt build: Mac OS/X x86 64-bit +SQLite +OpenSSL")
         build_openssl_osx(args)
-        installdir = build_qt_linux(args)
+        installdir = build_qt_osx(args)
         installdirs.append(installdir)
 
     # *** args.ios*  # for iOS (iPad, etc.)
     #     http://doc.qt.io/qt-5/building-from-source-ios.html
     #     http://doc.qt.io/qt-5/ios-support.html
+    #     https://gist.github.com/foozmeat/5154962
 
     # *** args.windows*  # for Windows
 
