@@ -13,6 +13,9 @@
 #include <QTreeView>
 #include <QVBoxLayout>
 #include "common/uiconstants.h"
+#include "diagnosis/diagnosticcodeset.h"
+#include "diagnosis/diagnosissortfiltermodel.h"
+#include "diagnosis/flatproxymodel.h"
 #include "widgets/imagebutton.h"
 #include "widgets/labelwordwrapwide.h"
 
@@ -48,35 +51,6 @@
 */
 
 
-bool DiagnosticCodeFilter::filterAcceptsRow(int row,
-                                            const QModelIndex& parent) const
-{
-    // Filter modification that accepts parents whose children meet the filter
-    // criteria. (Note that calling setFilterFixedString correctly affects
-    // filterRegExp(); see qsortfilterproxymodel.cpp).
-
-    // http://doc.qt.io/qt-5/qsortfilterproxymodel.html#filterAcceptsRow
-    // http://www.qtcentre.org/threads/46471-QTreeView-Filter
-    QModelIndex index = sourceModel()->index(row, 0, parent);
-
-    if (!index.isValid()) {
-        return false;
-    }
-    if (index.data().toString().contains(filterRegExp())) {
-        return true;
-    }
-
-    // Permit if children are shown as well
-    int rows = sourceModel()->rowCount(index);
-    for (int r = 0; r < rows; r++) {
-        if (filterAcceptsRow(r, index)) {
-            return true;
-        }
-    }
-    return false;
-}
-
-
 DiagnosticCodeSelector::DiagnosticCodeSelector(
         const QString& stylesheet,
         QSharedPointer<DiagnosticCodeSet> codeset,
@@ -86,7 +60,9 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     m_codeset(codeset),
     m_treeview(nullptr),
     m_selection_model(nullptr),
-    m_proxy_model(nullptr)
+    m_flat_proxy_model(nullptr),
+    m_diag_filter_model(nullptr),
+    m_proxy_selection_model(nullptr)
 {
     Q_ASSERT(m_codeset);
 
@@ -169,20 +145,36 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
             this, &DiagnosticCodeSelector::searchTextEdited);
 
     // ========================================================================
-    // Proxy model
+    // Proxy models: (1) flatten (2) filter
     // ========================================================================
     // http://doc.qt.io/qt-5/qsortfilterproxymodel.html#details
 
-    m_proxy_model = QSharedPointer<DiagnosticCodeFilter>(
-                new DiagnosticCodeFilter());
-    m_proxy_model->setSourceModel(m_codeset.data());
-    m_proxy_model->setSortCaseSensitivity(Qt::CaseInsensitive);
-    m_proxy_model->sort(DiagnosticCode::COLUMN_CODE, Qt::AscendingOrder);
-    m_proxy_model->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    m_proxy_model->setFilterKeyColumn(DiagnosticCode::COLUMN_DESCRIPTION);
+    m_flat_proxy_model = QSharedPointer<FlatProxyModel>(
+                new FlatProxyModel());
+    m_flat_proxy_model->setSourceModel(m_codeset.data());
+
+    m_diag_filter_model = QSharedPointer<DiagnosisSortFilterModel>(
+                new DiagnosisSortFilterModel());
+    m_diag_filter_model->setSourceModel(m_flat_proxy_model.data());
+    m_diag_filter_model->setSortCaseSensitivity(Qt::CaseInsensitive);
+    m_diag_filter_model->sort(DiagnosticCode::COLUMN_CODE, Qt::AscendingOrder);
+    m_diag_filter_model->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    m_diag_filter_model->setFilterKeyColumn(DiagnosticCode::COLUMN_DESCRIPTION);
 
     // ========================================================================
-    // List view... a disguised tree view.
+    // Selection model for proxy model
+    // ========================================================================
+
+    m_proxy_selection_model = QSharedPointer<QItemSelectionModel>(
+                new QItemSelectionModel(m_diag_filter_model.data()));
+   connect(m_proxy_selection_model.data(), &QItemSelectionModel::selectionChanged,
+           this, &DiagnosticCodeSelector::proxySelectionChanged);
+   QModelIndex proxy_selected = proxyFromSource(selected);
+   m_proxy_selection_model->select(proxy_selected,
+                                   QItemSelectionModel::ClearAndSelect);
+
+    // ========================================================================
+    // List view, for search
     // ========================================================================
     // We want to show all depths, not just the root nodes, and QListView
     // doesn't by default.
@@ -191,13 +183,13 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     //   ... but users can collapse/expand (and it collapses by itself) and
     //   is not ideal.
     // - The alternative is a proxy model that flattens properly for us (see
-    //   same link).
+    //   same link). We'll do that, and use a real QListView.
 
     QListView* flatview = new QListView();
-    flatview->setModel(m_proxy_model.data());
-    flatview->setSelectionModel(m_selection_model.data());
+    flatview->setModel(m_diag_filter_model.data());
+    flatview->setSelectionModel(m_proxy_selection_model.data());
     flatview->setWordWrap(true);
-    flatview->scrollTo(selected);
+    flatview->scrollTo(proxy_selected);
 
     // ========================================================================
     // Final assembly (with "this" as main widget)
@@ -225,15 +217,17 @@ void DiagnosticCodeSelector::selectionChanged(const QItemSelection& selected,
                                               const QItemSelection& deselected)
 {
     (void)deselected;
-    qDebug() << "selected:" << selected;
     QModelIndexList indexes = selected.indexes();
-    qDebug() << "indexes:" << indexes;
     if (indexes.isEmpty()) {
         return;
     }
     QModelIndex index = indexes.at(0);
-    qDebug() << "index:" << index;
-    qDebug() << "index.row():" << index.row();
+    newSelection(index);
+}
+
+
+void DiagnosticCodeSelector::newSelection(const QModelIndex& index)
+{
     if (!index.isValid()) {
         return;
     }
@@ -255,6 +249,21 @@ void DiagnosticCodeSelector::selectionChanged(const QItemSelection& selected,
 }
 
 
+void DiagnosticCodeSelector::proxySelectionChanged(
+        const QItemSelection& proxy_selected,
+        const QItemSelection& proxy_deselected)
+{
+    (void)proxy_deselected;
+    QModelIndexList proxy_indexes = proxy_selected.indexes();
+    if (proxy_indexes.isEmpty()) {
+        return;
+    }
+    QModelIndex proxy_index = proxy_indexes.at(0);
+    QModelIndex src_index = sourceFromProxy(proxy_index);
+    newSelection(src_index);
+}
+
+
 void DiagnosticCodeSelector::search()
 {
     qDebug() << Q_FUNC_INFO;
@@ -263,5 +272,19 @@ void DiagnosticCodeSelector::search()
 
 void DiagnosticCodeSelector::searchTextEdited(const QString& text)
 {
-    m_proxy_model->setFilterFixedString(text);
+    m_diag_filter_model->setFilterFixedString(text);
+}
+
+
+QModelIndex DiagnosticCodeSelector::sourceFromProxy(const QModelIndex& index)
+{
+    QModelIndex intermediate = m_diag_filter_model->mapToSource(index);
+    return m_flat_proxy_model->mapToSource(intermediate);
+}
+
+
+QModelIndex DiagnosticCodeSelector::proxyFromSource(const QModelIndex& index)
+{
+    QModelIndex intermediate = m_flat_proxy_model->mapFromSource(index);
+    return m_diag_filter_model->mapFromSource(intermediate);
 }

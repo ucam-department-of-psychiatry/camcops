@@ -137,7 +137,7 @@ Confirmed:
   The "add component" tool doesn't seem to come with Windows, so install ALL
   versions you might need (e.g. including 32-bit versions).
 - *** NOT YET DONE: standalone .EXE
-    http://wiki.qt.io/Build_Standalone_Qt_Application_for_Windows
+    http://wiki.qt.io/Build_Standal one_Qt_Application_for_Windows
     http://stackoverflow.com/questions/12654613/static-linking-qt-with-open-source-version
     https://wiki.qt.io/Licensing-talk-about-mobile-platforms#Legal_advice_on_statically_linking_Qt_and_the_LGPL_license
 - *** NOT YET TESTED: Windows XP 32-bit

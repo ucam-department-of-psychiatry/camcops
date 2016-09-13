@@ -21,8 +21,10 @@ QLabel {
 
 /* Selection list */
 /* http://doc.qt.io/qt-5/stylesheet-examples.html#customizing-qtreeview */
+QListView,
 QTreeView {
 }
+QListView::item,
 QTreeView::item {
     padding: 15px;
 }
@@ -30,6 +32,7 @@ QTreeView::item:has-children {
     /* "we would prefer you to be more specific" */
     color: green;
 }
+QListView::item:selected,
 QTreeView::item:selected {
     background-color: blue;
     color: white;

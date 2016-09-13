@@ -4,6 +4,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QWidget>
+#include "diagnosis/diagnosticcodeset.h"
 #include "lib/uifunc.h"
 #include "widgets/diagnosticcodeselector.h"
 #include "questionnaire.h"

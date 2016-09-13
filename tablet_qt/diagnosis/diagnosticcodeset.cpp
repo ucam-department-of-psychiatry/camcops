@@ -56,7 +56,7 @@ QModelIndex DiagnosticCodeSet::parent(const QModelIndex& index) const
                 index.internalPointer());
     DiagnosticCode* parent_item = child_item->parent();
 
-    if (parent_item == m_root_item) {
+    if (!parent_item || parent_item == m_root_item) {
         return QModelIndex();
     }
 
