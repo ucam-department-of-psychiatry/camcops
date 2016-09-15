@@ -12,6 +12,9 @@ class LabelWordWrapWide;
 class QAbstractButton;
 class QItemSelection;
 class QItemSelectionModel;
+class QLabel;
+class QLineEdit;
+class QListView;
 class QModelIndex;
 class QStandardItemModel;
 class QTreeView;
@@ -33,16 +36,22 @@ protected slots:
     void proxySelectionChanged(const QItemSelection& proxy_selected,
                                const QItemSelection& proxy_deselected);
     void searchTextEdited(const QString& text);
-    void search();
+    void toggleSearch();
 protected:
     void newSelection(const QModelIndex& index);
     QModelIndex sourceFromProxy(const QModelIndex& index);
     QModelIndex proxyFromSource(const QModelIndex& index);
+    void setSearchAppearance();
 protected:
     QSharedPointer<DiagnosticCodeSet> m_codeset;
     QPointer<QTreeView> m_treeview;
+    QPointer<QListView> m_flatview;
+    QPointer<QLineEdit> m_lineedit;
+    QPointer<QLabel> m_heading_tree;
+    QPointer<QLabel> m_heading_search;
     QSharedPointer<QItemSelectionModel> m_selection_model;
     QSharedPointer<FlatProxyModel> m_flat_proxy_model;
     QSharedPointer<DiagnosisSortFilterModel> m_diag_filter_model;
     QSharedPointer<QItemSelectionModel> m_proxy_selection_model;
+    bool m_searching;
 };

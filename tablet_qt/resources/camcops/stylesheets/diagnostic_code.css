@@ -14,8 +14,11 @@ QWidget {
     background-color: #B4D8E7;  /* a pale blue */
 }
 
-/* Title */
-QLabel {
+QLabel#heading {
+    font-size: %3pt;
+    font-weight: bold;
+}
+QLabel#title {
     font-size: %4pt;
 }
 
@@ -65,6 +68,12 @@ QTreeView::branch:open:has-children:has-siblings  {
         image: url(:/resources/camcops/images/branch-open.png);
 }
 */
+
+/* Search box */
+QLineEdit {
+    background-color: lightgray;
+    font-weight: bold;
+}
 
 /* =========================================================================
    Debugging

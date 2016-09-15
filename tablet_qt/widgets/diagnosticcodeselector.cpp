@@ -59,10 +59,15 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     OpenableWidget(parent),
     m_codeset(codeset),
     m_treeview(nullptr),
+    m_flatview(nullptr),
+    m_lineedit(nullptr),
+    m_heading_tree(nullptr),
+    m_heading_search(nullptr),
     m_selection_model(nullptr),
     m_flat_proxy_model(nullptr),
     m_diag_filter_model(nullptr),
-    m_proxy_selection_model(nullptr)
+    m_proxy_selection_model(nullptr),
+    m_searching(false)
 {
     Q_ASSERT(m_codeset);
 
@@ -86,10 +91,11 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     // Title
     LabelWordWrapWide* title_label = new LabelWordWrapWide(m_codeset->title());
     title_label->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+    title_label->setObjectName("title");
 
-    QAbstractButton* search = new ImageButton(UiConst::CBS_ZOOM);  // *** check icon is OK
-    connect(cancel, &QAbstractButton::clicked,
-            this, &DiagnosticCodeSelector::search);
+    QAbstractButton* search = new ImageButton(UiConst::CBS_ZOOM);  // *** alter icon; remove "+" from centre of magnifying glass
+    connect(search, &QAbstractButton::clicked,
+            this, &DiagnosticCodeSelector::toggleSearch);
 
     QHBoxLayout* header_toprowlayout = new QHBoxLayout();
     header_toprowlayout->addWidget(cancel, 0, button_align);
@@ -126,9 +132,15 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     // Tree view
     // ========================================================================
 
+    m_heading_tree = new QLabel(tr("Explore as tree:"));
+    m_heading_tree->setObjectName("heading");
+
     m_treeview = new QTreeView();
     m_treeview->setModel(m_codeset.data());
     m_treeview->setSelectionModel(m_selection_model.data());
+    if (m_treeview->header()) {
+        m_treeview->header()->close();
+    }
     m_treeview->setWordWrap(true);
     m_treeview->setColumnHidden(DiagnosticCode::COLUMN_CODE, true);
     m_treeview->setColumnHidden(DiagnosticCode::COLUMN_DESCRIPTION, true);
@@ -140,8 +152,8 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     // Search box
     // ========================================================================
 
-    QLineEdit* lineedit = new QLineEdit();
-    connect(lineedit, &QLineEdit::textEdited,
+    m_lineedit = new QLineEdit();
+    connect(m_lineedit, &QLineEdit::textEdited,
             this, &DiagnosticCodeSelector::searchTextEdited);
 
     // ========================================================================
@@ -185,21 +197,28 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     // - The alternative is a proxy model that flattens properly for us (see
     //   same link). We'll do that, and use a real QListView.
 
-    QListView* flatview = new QListView();
-    flatview->setModel(m_diag_filter_model.data());
-    flatview->setSelectionModel(m_proxy_selection_model.data());
-    flatview->setWordWrap(true);
-    flatview->scrollTo(proxy_selected);
+    m_heading_search = new QLabel(tr("Search diagnoses:"));
+    m_heading_search->setObjectName("heading");
+
+    m_flatview = new QListView();
+    m_flatview->setModel(m_diag_filter_model.data());
+    m_flatview->setSelectionModel(m_proxy_selection_model.data());
+    m_flatview->setWordWrap(true);
+    m_flatview->scrollTo(proxy_selected);
 
     // ========================================================================
     // Final assembly (with "this" as main widget)
     // ========================================================================
 
+    setSearchAppearance();
+
     QVBoxLayout* mainlayout = new QVBoxLayout();
     mainlayout->addLayout(header_mainlayout);
+    mainlayout->addWidget(m_heading_tree);
     mainlayout->addWidget(m_treeview);
-    mainlayout->addWidget(lineedit);
-    mainlayout->addWidget(flatview);
+    mainlayout->addWidget(m_heading_search);
+    mainlayout->addWidget(m_lineedit);
+    mainlayout->addWidget(m_flatview);
 
     QWidget* topwidget = new QWidget();
     topwidget->setObjectName("menu_window_background");
@@ -264,9 +283,24 @@ void DiagnosticCodeSelector::proxySelectionChanged(
 }
 
 
-void DiagnosticCodeSelector::search()
+void DiagnosticCodeSelector::toggleSearch()
 {
     qDebug() << Q_FUNC_INFO;
+    m_searching = !m_searching;
+    setSearchAppearance();
+}
+
+
+void DiagnosticCodeSelector::setSearchAppearance()
+{
+    m_heading_tree->setVisible(!m_searching);
+    m_treeview->setVisible(!m_searching);
+
+    m_flatview->setVisible(m_searching);
+    m_flatview->setVisible(m_searching);
+    m_heading_search->setVisible(m_searching);
+
+    update();
 }
 
 

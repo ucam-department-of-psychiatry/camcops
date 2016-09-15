@@ -297,7 +297,6 @@ void MenuItem::act(CamcopsApp& app) const
     // ========================================================================
     if (m_p_menuproxy) {
         MenuWindow* pWindow = m_p_menuproxy->create(app);
-        pWindow->build();
         app.open(pWindow);
         return;
     }
@@ -307,7 +306,6 @@ void MenuItem::act(CamcopsApp& app) const
     }
     if (!m_task_tablename.isEmpty()) {
         SingleTaskMenu* pWindow = new SingleTaskMenu(m_task_tablename, app);
-        pWindow->build();
         app.open(pWindow);
         return;
     }
