@@ -9,8 +9,8 @@ class NetworkManager
 {
 public:
     NetworkManager(const QString& url);
-    void testHttp();
-    void testHttps(bool ignore_ssl_errors = false);
+    void testHttpGet();
+    void testHttpsGet(bool ignore_ssl_errors = false);
 protected:
     void testReplyFinished(QNetworkReply* reply);
     void sslIgnoringErrorHandler(QNetworkReply* reply,

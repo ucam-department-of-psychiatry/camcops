@@ -69,9 +69,9 @@ DemoQuestionnaire::DemoQuestionnaire(const QSqlDatabase& db, int load_pk) :
     addField("q20c", QVariant::Bool);
     addField("q20d", QVariant::Bool);
     addField("q20e", QVariant::Bool);
-    addField("q21", QVariant::ByteArray);
-    addField("q22", QVariant::ByteArray);
-    addField("q23", QVariant::ByteArray);
+    addField("q21", QVariant::Int);  // FK to BLOB table
+    addField("q22", QVariant::Int);  // FK to BLOB table
+    addField("q23", QVariant::Int);  // FK to BLOB table
     addField("q24", QVariant::String);
     addField("q25", QVariant::String);
     addField("q26", QVariant::String);
@@ -509,13 +509,13 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
 
     QuPagePtr page_canvas((new QuPage{
         new QuHeading("Canvas, blank start:"),
-        new QuCanvas(fieldRef("q21")),
+        new QuCanvas(fieldRef("q21", true, true, true)),
         new QuHeading("Canvas, using files:"),
         new QuCanvas(
-            fieldRef("q22"),
+            fieldRef("q22", true, true, true),
             UiFunc::resourceFilename("ace3/rhinoceros.png")),
         new QuHeading("Canvas, clone of the first one:"),
-        new QuCanvas(fieldRef("q21")),
+        new QuCanvas(fieldRef("q21", true, true, true)),
     })->setTitle("Canvas"));
 
     // ========================================================================
@@ -524,7 +524,7 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
 
     QuPagePtr page_photo((new QuPage{
         new QuHeading("Photo:"),
-        new QuPhoto(fieldRef("q23")),
+        new QuPhoto(fieldRef("q23", true, true, true)),
     })->setTitle("Canvas"));
 
     // ========================================================================

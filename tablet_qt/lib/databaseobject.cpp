@@ -27,7 +27,8 @@ DatabaseObject::DatabaseObject(const QSqlDatabase& db,
 {
     if (pk_fieldname.isEmpty()) {
         UiFunc::stopApp(
-            QString("Missing pk_fieldname; table=%1").arg(m_tablename));
+            QString("DatabaseObject::DatabaseObject: Missing pk_fieldname; "
+                    "table=%1").arg(m_tablename));
     }
     addField(pk_fieldname, QVariant::Int, true, true, true);
     if (has_modification_timestamp) {
@@ -86,16 +87,24 @@ void DatabaseObject::addField(const QString& fieldname, QVariant::Type type,
 {
     Field field(fieldname, type, mandatory, unique, pk);
     m_record.insert(fieldname, field);
+    m_ordered_fieldnames.append(fieldname);
 }
 
 
 void DatabaseObject::addField(const Field& field)
 {
     m_record.insert(field.name(), field);
+    m_ordered_fieldnames.append(field.name());
 }
 
 
 QStringList DatabaseObject::fieldnames() const
+{
+    return m_ordered_fieldnames;
+}
+
+
+QStringList DatabaseObject::fieldnamesMapOrder() const
 {
     QStringList fieldnames;
     MapIteratorType i(m_record);
@@ -110,7 +119,8 @@ QStringList DatabaseObject::fieldnames() const
 void DatabaseObject::requireField(const QString &fieldname) const
 {
     if (!m_record.contains(fieldname)) {
-        UiFunc::stopApp("Database object does not contain field: " + fieldname);
+        UiFunc::stopApp("DatabaseObject::requireField: Database object does "
+                        "not contain field: " + fieldname);
     }
 }
 
@@ -182,6 +192,13 @@ QDate DatabaseObject::valueDate(const QString& fieldname) const
 }
 
 
+QByteArray DatabaseObject::valueByteArray(const QString& fieldname) const
+{
+    QVariant v = value(fieldname);
+    return v.toByteArray();
+}
+
+
 void DatabaseObject::touch(bool only_if_unset)
 {
     if (!m_has_modification_timestamp) {
@@ -224,7 +241,7 @@ bool DatabaseObject::isPkNull() const
 
 QString DatabaseObject::sqlCreateTable() const
 {
-    return DbFunc::sqlCreateTable(m_tablename, m_record.values());
+    return DbFunc::sqlCreateTable(m_tablename, fieldsOrdered());
 }
 
 
@@ -283,7 +300,7 @@ bool DatabaseObject::load(const WhereConditions& where)
 
 SqlArgs DatabaseObject::fetchQuerySql(const WhereConditions& where)
 {
-    QStringList fields = fieldnames();
+    QStringList fields = fieldnamesMapOrder();
     QStringList delimited_fieldnames;
     for (int i = 0; i < fields.size(); ++i) {
         delimited_fieldnames.append(DbFunc::delimit(fields.at(i)));
@@ -299,11 +316,12 @@ SqlArgs DatabaseObject::fetchQuerySql(const WhereConditions& where)
 }
 
 
-void DatabaseObject::setFromQuery(const QSqlQuery& query, bool correct_order)
+void DatabaseObject::setFromQuery(const QSqlQuery& query,
+                                  bool order_matches_fetchquery)
 {
     MutableMapIteratorType it(m_record);
     // Note: QMap iteration is ordered; http://doc.qt.io/qt-5/qmap.html
-    if (correct_order) {  // faster
+    if (order_matches_fetchquery) {  // faster
         int field_index = -1;
         while (it.hasNext()) {
             it.next();
@@ -422,14 +440,24 @@ bool DatabaseObject::saveUpdate()
 }
 
 
+QList<Field> DatabaseObject::fieldsOrdered() const
+{
+    QList<Field> ordered_fields;
+    for (auto fieldname : m_ordered_fieldnames) {
+        ordered_fields.append(m_record[fieldname]);
+    }
+    return ordered_fields;
+}
+
+
 void DatabaseObject::makeTable()
 {
-    DbFunc::createTable(m_db, m_tablename, m_record.values());
+    DbFunc::createTable(m_db, m_tablename, fieldsOrdered());
 }
 
 
 FieldRefPtr DatabaseObject::fieldRef(const QString& fieldname, bool mandatory,
-                                     bool autosave)
+                                     bool autosave, bool blob)
 {
     // If we ask for two fieldrefs to the same field, they need to be linked
     // (in terms of signals), and therefore the same underlying FieldRef
@@ -438,14 +466,8 @@ FieldRefPtr DatabaseObject::fieldRef(const QString& fieldname, bool mandatory,
     // reference is re-used, regardless of the (subsequent) autosave setting.
     requireField(fieldname);
     if (!m_fieldrefs.contains(fieldname)) {
-        if (autosave) {
-            m_fieldrefs[fieldname] = FieldRefPtr(
-                new FieldRef(this, fieldname, mandatory, autosave));
-        } else {
-            Field* p_field = &m_record[fieldname];
-            m_fieldrefs[fieldname] = FieldRefPtr(
-                new FieldRef(p_field, mandatory));
-        }
+        m_fieldrefs[fieldname] = FieldRefPtr(
+            new FieldRef(this, fieldname, mandatory, autosave, blob));
     }
     return m_fieldrefs[fieldname];
 }
@@ -498,4 +520,10 @@ void DatabaseObject::deleteFromDatabase()
         qWarning() << "Failed to delete object with PK" << pk
                    << "from table" << m_tablename;
     }
+}
+
+
+const QSqlDatabase& DatabaseObject::database() const
+{
+    return m_db;
 }

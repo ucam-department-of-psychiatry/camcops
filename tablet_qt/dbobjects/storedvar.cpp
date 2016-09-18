@@ -4,8 +4,8 @@
 const QString STOREDVAR_TABLENAME = "storedvar";
 const QString NAME_FIELDNAME = "name";
 const QString TYPE_FIELDNAME = "type";
-// - No need to keep to legacy (valueInteger, valueReal, valueText) as we'll
-//   no longer be uploading these.
+// - No need to keep to legacy fieldnames (valueInteger, valueReal, valueText)
+//   as we'll no longer be uploading these.
 const QString VALUE_INTEGER_FIELDNAME = "value_integer";
 const QString VALUE_REAL_FIELDNAME = "value_real";
 const QString VALUE_TEXT_FIELDNAME = "value_text";
@@ -46,13 +46,13 @@ StoredVar::StoredVar(const QSqlDatabase& db, const QString& name,
         }
     }
     if (m_value_fieldname.isEmpty()) {
-        UiFunc::stopApp(QString("m_value_fieldname unknown to StoredVar with "
-                                "type %1").arg(type));
+        UiFunc::stopApp(QString("StoredVar::StoredVar: m_value_fieldname "
+                                "unknown to StoredVar with type %1").arg(type));
     }
     if (!TYPEMAP.contains(type)) {
         qCritical() << Q_FUNC_INFO << "QVariant type unknown:" << type;
-        UiFunc::stopApp("type unknown to StoredVar; see debug console for "
-                        "enum");
+        UiFunc::stopApp("StoredVar::StoredVar: type unknown to StoredVar; see "
+                        "debug console for details");
     }
 
     // ------------------------------------------------------------------------
@@ -77,9 +77,12 @@ StoredVar::~StoredVar()
 }
 
 
-void StoredVar::setValue(const QVariant &value)
+void StoredVar::setValue(const QVariant &value, bool save_to_db)
 {
     setValue(m_value_fieldname, value);
+    if (save_to_db) {
+        save();
+    }
 }
 
 
@@ -88,4 +91,10 @@ QVariant StoredVar::value() const
     QVariant v = value(m_value_fieldname);
     v.convert(m_type);
     return v;
+}
+
+
+QString StoredVar::name() const
+{
+    return m_name;
 }

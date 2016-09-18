@@ -90,6 +90,15 @@ bool Field::isMandatory() const
 }
 
 
+bool Field::allowsNull() const
+{
+    // SQLite allows NULL values in primary keys, but this is a legacy of
+    // bugs in early SQLite versions.
+    // http://www.sqlite.org/lang_createtable.html
+    return m_mandatory || m_pk;
+}
+
+
 void Field::setFromDatabaseValue(const QVariant& db_value)
 {
     switch (m_type) {
@@ -129,7 +138,7 @@ QString Field::sqlColumnDef() const
     if (m_unique && !m_pk) {
         type += " UNIQUE";
     }
-    if (m_mandatory && !m_pk) {
+    if (allowsNull()) {
         type += " NOT NULL";
     }
     return type;
@@ -167,7 +176,8 @@ QString Field::sqlColumnType() const
         case QVariant::ByteArray:
             return "BLOB";
         default:
-            UiFunc::stopApp("Unknown field type: " + m_type);
+            UiFunc::stopApp("Field::sqlColumnType: Unknown field type: " +
+                            m_type);
     }
     return "";
 }

@@ -147,7 +147,10 @@ SOURCES += main.cpp\
     lib/imagefunc.cpp \
     diagnosis/flatproxymodel.cpp \
     diagnosis/diagnosissortfiltermodel.cpp \
-    widgets/progressbox.cpp
+    widgets/progressbox.cpp \
+    lib/convert.cpp \
+    dbobjects/blob.cpp \
+    lib/debugfunc.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -266,7 +269,10 @@ HEADERS  += \
     lib/imagefunc.h \
     diagnosis/flatproxymodel.h \
     diagnosis/diagnosissortfiltermodel.h \
-    widgets/progressbox.h
+    widgets/progressbox.h \
+    lib/convert.h \
+    dbobjects/blob.h \
+    lib/debugfunc.h
 
 CONFIG += debug
 CONFIG += mobility

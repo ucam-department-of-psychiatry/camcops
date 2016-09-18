@@ -36,7 +36,9 @@ protected slots:
     void proxySelectionChanged(const QItemSelection& proxy_selected,
                                const QItemSelection& proxy_deselected);
     void searchTextEdited(const QString& text);
-    void toggleSearch();
+    // void toggleSearch();
+    void goToSearch();
+    void goToTree();
 protected:
     void newSelection(const QModelIndex& index);
     QModelIndex sourceFromProxy(const QModelIndex& index);
@@ -49,6 +51,8 @@ protected:
     QPointer<QLineEdit> m_lineedit;
     QPointer<QLabel> m_heading_tree;
     QPointer<QLabel> m_heading_search;
+    QPointer<QAbstractButton> m_search_button;
+    QPointer<QAbstractButton> m_tree_button;
     QSharedPointer<QItemSelectionModel> m_selection_model;
     QSharedPointer<FlatProxyModel> m_flat_proxy_model;
     QSharedPointer<DiagnosisSortFilterModel> m_diag_filter_model;

@@ -7,6 +7,7 @@
 #include <QSqlDatabase>
 #include <QStackedWidget>
 #include "common/uiconstants.h"
+#include "dbobjects/blob.h"
 #include "dbobjects/storedvar.h"
 #include "lib/datetimefunc.h"
 #include "lib/dbfunc.h"
@@ -58,12 +59,18 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     // ------------------------------------------------------------------------
     // Make tables
     // ------------------------------------------------------------------------
-    // Make task tables
-    m_p_task_factory->makeAllTables();
-    // Make special tables
+
+    // Make special tables: system database
     StoredVar storedvar_specimen(m_sysdb);
     storedvar_specimen.makeTable();
-    // *** also need to make the special tables at this point
+
+    // Make special tables: main database
+    Blob blob_specimen(m_db);
+    blob_specimen.makeTable();
+    // *** make patients table
+
+    // Make task tables
+    m_p_task_factory->makeAllTables();
 
     // ------------------------------------------------------------------------
     // Create stored variables
@@ -154,7 +161,7 @@ void CamcopsApp::open(OpenableWidget* widget, TaskPtr task,
 void CamcopsApp::close()
 {
     if (m_info_stack.isEmpty()) {
-        UiFunc::stopApp("No more windows; closing");
+        UiFunc::stopApp("CamcopsApp::close: No more windows; closing");
     }
     OpenableInfo info = m_info_stack.pop();
     // on function exit, will delete the task if it's the last pointer to it
@@ -328,8 +335,8 @@ void CamcopsApp::createVar(const QString &name, QVariant::Type type,
 void CamcopsApp::setVar(const QString& name, const QVariant& value)
 {
     if (!m_storedvars.contains(name)) {
-        UiFunc::stopApp(QString("Attempt to set nonexistent storedvar: "
-                                "%1").arg(name));
+        UiFunc::stopApp(QString("CamcopsApp::setVar: Attempt to set "
+                                "nonexistent storedvar: %1").arg(name));
     }
     m_storedvars[name]->setValue(value);
 }
@@ -338,8 +345,8 @@ void CamcopsApp::setVar(const QString& name, const QVariant& value)
 QVariant CamcopsApp::var(const QString& name) const
 {
     if (!m_storedvars.contains(name)) {
-        UiFunc::stopApp(QString("Attempt to get nonexistent storedvar: "
-                                "%1").arg(name));
+        UiFunc::stopApp(QString("CamcopsApp::var: Attempt to get nonexistent "
+                                "storedvar: %1").arg(name));
     }
     return m_storedvars[name]->value();
 }

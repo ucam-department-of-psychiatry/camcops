@@ -1,6 +1,6 @@
-// #define DEBUG_SQL_QUERY
+#define DEBUG_SQL_QUERY
 // #define DEBUG_QUERY_END
-// #define DEBUG_SQL_RESULT
+#define DEBUG_SQL_RESULT
 
 #include "dbfunc.h"
 #include <QDir>
@@ -8,6 +8,7 @@
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QStandardPaths>
+#include "lib/debugfunc.h"
 #include "lib/uifunc.h"
 
 
@@ -28,15 +29,23 @@ QDebug operator<<(QDebug debug, const FieldCreationPlan& plan)
 {
     debug.nospace()
         << "FieldCreationPlan(name=" << plan.name
-        << ", intended=";
+        << ", intended base type=";
+    if (plan.intended_field) {
+        debug.nospace() << plan.intended_field->sqlColumnType();
+    } else {
+        debug.nospace() << "<none>";
+    }
+    debug.nospace()
+        << ", intended full def=";
     if (plan.intended_field) {
         debug.nospace() << plan.intended_field->sqlColumnDef();
     } else {
         debug.nospace() << "<none>";
     }
     debug.nospace()
-        << ", existsInDb=" << plan.exists_in_db
-        << ", existingType=" << plan.existing_type
+        << ", exists_in_db=" << plan.exists_in_db
+        << ", existing_type=" << plan.existing_type
+        << ", existing_not_null=" << plan.existing_not_null
         << ", add=" << plan.add
         << ", drop=" << plan.drop
         << ", change=" << plan.change << ")";
@@ -54,7 +63,8 @@ void DbFunc::openDatabaseOrDie(QSqlDatabase& db, const QString& filename)
         if (QDir().mkdir(dir)) {
             qDebug() << "Made directory:" << dir;
         } else {
-            UiFunc::stopApp("Failed to make directory: " + dir);
+            UiFunc::stopApp("DbFunc::openDatabaseOrDie: Failed to make "
+                            "directory: " + dir);
         }
     }
     // http://stackoverflow.com/questions/3541529/is-there-qpathcombine-in-qt4
@@ -67,8 +77,8 @@ void DbFunc::openDatabaseOrDie(QSqlDatabase& db, const QString& filename)
         qCritical() << "Last database error:" << error;
         qCritical() << "Database:" << db;
         QString errmsg = QString(
-            "Error: connection to database failed. Database = %1; "
-            "error number = %2; error text = %3"
+            "DbFunc::openDatabaseOrDie: Error: connection to database failed. "
+            "Database = %1; error number = %2; error text = %3"
         ).arg(fullpath, QString::number(error.number()), error.text());
         UiFunc::stopApp(errmsg);
     }
@@ -124,8 +134,12 @@ bool DbFunc::execQuery(QSqlQuery& query, const QString& sql,
     addArgs(query, args);
 
 #ifdef DEBUG_SQL_QUERY
-    qDebug() << "Executing:" << qUtf8Printable(sql);
-    qDebug() << "... args:" << args;
+    {
+        qDebug() << "Executing:" << qUtf8Printable(sql);
+        QDebug debug = qDebug().nospace();
+        debug << "... args: ";
+        DebugFunc::debugConcisely(debug, args);
+    }  // endl on destruction
 #endif
 
     bool success = query.exec();
@@ -148,10 +162,11 @@ bool DbFunc::execQuery(QSqlQuery& query, const QString& sql,
                 if (col > 0) {
                     debug << "; ";
                 }
-                debug << rec.fieldName(col) << "=" << query.value(col);
+                debug << rec.fieldName(col) << "=";
+                DebugFunc::debugConcisely(debug, query.value(col));
             }
             ++row;
-        }
+        }  // endl on destruction
         query.seek(QSql::BeforeFirstRow);  // the original starting position
     }
 #endif
@@ -255,7 +270,8 @@ QList<SqlitePragmaInfo> DbFunc::getPragmaInfo(const QSqlDatabase& db,
     QString sql = QString("PRAGMA table_info(%1)").arg(delimit(tablename));
     QSqlQuery query(db);
     if (!execQuery(query, sql)) {
-        UiFunc::stopApp("PRAGMA table_info failed for table " + tablename);
+        UiFunc::stopApp("DbFunc::getPragmaInfo: PRAGMA table_info failed for "
+                        "table " + tablename);
     }
     QList<SqlitePragmaInfo> infolist;
     while (query.next()) {
@@ -365,7 +381,8 @@ void DbFunc::renameColumns(const QSqlDatabase& db, QString tablename,
     QStringList new_fieldnames = old_fieldnames;
     QString dummytable = tablename + tempsuffix;
     if (tableExists(db, dummytable)) {
-        UiFunc::stopApp("renameColumns: temporary table exists: " + dummytable);
+        UiFunc::stopApp("DbFunc::renameColumns: temporary table exists: " +
+                        dummytable);
     }
     int n_changes = 0;
     for (int i; i < from_to.size(); ++i) {  // For each rename...
@@ -376,13 +393,13 @@ void DbFunc::renameColumns(const QSqlDatabase& db, QString tablename,
         }
         // Check the source is valid
         if (!old_fieldnames.contains(from)) {
-            UiFunc::stopApp("renameColumns: 'from' field doesn't exist: " +
-                            tablename + "." + from);
+            UiFunc::stopApp("DbFunc::renameColumns: 'from' field doesn't "
+                            "exist: " + tablename + "." + from);
         }
         // Check the destination doesn't exist already
         if (new_fieldnames.contains(to)) {
             UiFunc::stopApp(
-                "renameColumns: destination field already exists (or "
+                "DbFunc::renameColumns: destination field already exists (or "
                 "attempt to rename two columns to the same name): " +
                 tablename + "." + to);
         }
@@ -395,7 +412,7 @@ void DbFunc::renameColumns(const QSqlDatabase& db, QString tablename,
         qDebug() << "renameColumns: nothing to do:" << tablename;
         return;
     }
-    qDebug() << "renameColumns";
+    qDebug() << Q_FUNC_INFO;
     qDebug() << "- table:" << tablename;
     qDebug() << "- from_to:" << from_to;
     qDebug() << "- old_fieldnames:" << old_fieldnames;
@@ -428,12 +445,14 @@ void DbFunc::renameTable(const QSqlDatabase& db, const QString& from,
                          const QString& to)
 {
     if (!tableExists(db, from)) {
-        qWarning() << "WARNING: ignoring renameTable for non-existent table:"
+        qWarning() << Q_FUNC_INFO
+                   << "WARNING: ignoring renameTable for non-existent table:"
                    << from;
         return;
     }
     if (tableExists(db, to)) {
-        UiFunc::stopApp("renameTable: destination table already exists: " + to);
+        UiFunc::stopApp("DbFunc::renameTable: destination table already "
+                        "exists: " + to);
     }
     // http://stackoverflow.com/questions/426495
     exec(db, QString("ALTER TABLE %1 RENAME TO %2").arg(from, to));
@@ -454,7 +473,8 @@ void DbFunc::changeColumnTypes(const QSqlDatabase& db,
     }
     QString dummytable = tablename + tempsuffix;
     if (tableExists(db, dummytable)) {
-        UiFunc::stopApp("renameColumns: temporary table exists: " + dummytable);
+        UiFunc::stopApp("DbFunc::changeColumnTypes: temporary table exists: " +
+                        dummytable);
     }
     QList<SqlitePragmaInfo> infolist = getPragmaInfo(db, tablename);
     qDebug() << "changeColumnTypes";
@@ -519,6 +539,11 @@ void DbFunc::createTable(const QSqlDatabase& db, const QString& tablename,
         exec(db, creation_sql);
         return;
     }
+
+    // Otherwise, it's a bit more complex...
+
+    // 1. Create a list of plans. Start with the fields we want, which we
+    //    will add (unless later it turns out they exist already).
     QList<FieldCreationPlan> planlist;
     QStringList goodfieldlist;
     for (int i = 0; i < fieldlist.size(); ++i) {
@@ -530,18 +555,34 @@ void DbFunc::createTable(const QSqlDatabase& db, const QString& tablename,
         planlist.append(p);
         goodfieldlist.append(delimit(p.name));
     }
+
+    // 2. Fetch a list of existing fields.
+    // - If any are in our "desired" list, and we didn't know they were in
+    //   the database, don't add them (but maybe change them if we want them
+    //   to have a different type).
+    // - If they're not in our "desired" list, then they're superfluous, so
+    //   aim to drop them.
     QList<SqlitePragmaInfo> infolist = getPragmaInfo(db, tablename);
-    // Otherwise, it's a bit more complex.
     for (int i = 0; i < infolist.size(); ++i) {
         const SqlitePragmaInfo& info = infolist.at(i);
         bool existing_is_superfluous = true;
         for (int j = 0; j < planlist.size(); ++j) {
             FieldCreationPlan& plan = planlist[j];
-            if (!plan.exists_in_db && plan.intended_field->name() == info.name) {
+            const Field* intended_field = plan.intended_field;
+            if (!intended_field) {
+                // This shouldn't happen!
+                continue;
+            }
+            if (!plan.exists_in_db && intended_field->name() == info.name) {
                 plan.exists_in_db = true;
                 plan.add = false;
-                plan.change = info.type != plan.intended_field->sqlColumnType();
+                plan.change = (
+                    info.type != intended_field->sqlColumnType() ||
+                    info.notnull != intended_field->allowsNull() ||
+                    info.pk != intended_field->isPk()
+                );
                 plan.existing_type = info.type;
+                plan.existing_not_null = info.notnull;
                 existing_is_superfluous = false;
             }
         }
@@ -551,15 +592,21 @@ void DbFunc::createTable(const QSqlDatabase& db, const QString& tablename,
             plan.exists_in_db = true;
             plan.existing_type = info.type;
             plan.drop = true;
+            planlist.append(plan);
         }
     }
-    bool modifications_required = false;
+
+    // 3. For any fields that require adding: add them.
+    //    For any that require dropping or altering, make a note for the
+    //    complex step.
+    bool drop_or_change_mods_required = false;
     for (int i = 0; i < planlist.size(); ++i) {
         const FieldCreationPlan& plan = planlist.at(i);
         if (plan.add && plan.intended_field) {
             if (plan.intended_field->isPk()) {
-                UiFunc::stopApp(QString("Cannot add a PRIMARY KEY column "
-                                        "(%s.%s)").arg(tablename, plan.name));
+                UiFunc::stopApp(QString(
+                    "DbFunc::createTable: Cannot add a PRIMARY KEY column "
+                    "(%s.%s)").arg(tablename, plan.name));
             }
             exec(db, QString("ALTER TABLE %1 ADD COLUMN %2 %3").arg(
                 tablename,
@@ -567,14 +614,28 @@ void DbFunc::createTable(const QSqlDatabase& db, const QString& tablename,
                 plan.intended_field->sqlColumnDef()));
         }
         if (plan.drop || plan.change) {
-            modifications_required = true;
+            drop_or_change_mods_required = true;
         }
     }
-    if (!modifications_required) {
+
+    /*
+    qDebug() << Q_FUNC_INFO
+             << "tablename:" << tablename
+             << "goodfieldlist:" << goodfieldlist
+             << "infolist:" << infolist
+             << "modifications_required:" << drop_or_change_mods_required
+             << "plan:" << planlist;
+    */
+
+    if (!drop_or_change_mods_required) {
+        qDebug() << "Table" << tablename
+                 << "OK; no drop/change alteration required";
         return;
     }
-    qDebug().nospace() << "createTable amendment plan for" << tablename
-                             << ": " << planlist;
+
+    // 4. Implement drop/change modifications (via a temporary table).
+    qDebug().nospace() << "Amendment plan for " << tablename
+                       << ": " << planlist;
     // Deleting columns: http://www.sqlite.org/faq.html#q11
     // ... also http://stackoverflow.com/questions/8442147/
     // Basically, requires (a) copy data to temporary table; (b) drop original;
@@ -587,7 +648,8 @@ void DbFunc::createTable(const QSqlDatabase& db, const QString& tablename,
     // http://sqlite.org/datatype3.html
     QString dummytable = tablename + tempsuffix;
     if (tableExists(db, dummytable)) {
-        UiFunc::stopApp("renameColumns: temporary table exists: " + dummytable);
+        UiFunc::stopApp("DbFunc::createTable: temporary table exists: " +
+                        dummytable);
     }
     QString delimited_tablename = delimit(tablename);
     QString delimited_dummytable = delimit(dummytable);
@@ -604,5 +666,3 @@ void DbFunc::createTable(const QSqlDatabase& db, const QString& tablename,
     exec(db, QString("DROP TABLE %1").arg(delimited_dummytable));
     exec(db, "COMMIT");
 }
-
-

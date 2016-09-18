@@ -624,7 +624,6 @@ QuestionMCQGridDouble.js
 QuestionMCQGrid.js
 QuestionMCQGridWithSingleBoolean.js
 
-QuestionDiagnosticCode.js
 
 ===============================================================================
 Translation
@@ -640,8 +639,6 @@ TO DO
 ===============================================================================
 - *** wait dialog when task lists being constructed, using RAII
     ? http://stackoverflow.com/questions/22670564/reliably-showing-a-please-wait-dialog-while-doing-a-lengthy-blocking-operation
-- QString toSqlLiteral(const QVariant& value);
-  QVariant fromSqlLiteral(const QString& literal);
 - *** all network access via a dialogue that's the child of its caller,
       with a log view (cf. my Python code), and "Cancel" and "OK"/"Acknowledge" buttons, of
       which the former is visible during operations and the latter at the end.
@@ -662,7 +659,11 @@ TO DO
     *** https://forum.qt.io/topic/30546/kinetic-scrolling-on-qscrollarea-on-android-device/5
     *** http://falsinsoft.blogspot.co.uk/2015/09/qt-snippet-use-qscroller-with.html
     *** http://nootka-app.blogspot.co.uk/2015/11/story-of-porting-complex-qt-application_18.html
-- screwdriver icon for test menu
+- ICONS
+    - screwdriver icon for test menu
+    - magnifying glass without "+" to toggle search in diagnostic code view
+    - new icon for "tree" in diagnostic code view
+
 - "webview"-like tasks, e.g. ID/ED
   aspect ratio:
   http://stackoverflow.com/questions/452333/how-to-maintain-widgets-aspect-ratio-in-qt
@@ -677,4 +678,20 @@ TO DO
   (as it's not feasible to generate a proper user- and machine-specific ID
   across all OSs).
 
-- *** blob management via fieldref indirection to the BLOB table?
+- as per Julia's problem: >1 patient on tablet, need to have same RID (because
+  extra one created by mistake) - option to merge
+
+- Network sending: possible to do it with a stream (to which we write data
+  from our database)? Would involve QNetworkManager::post with its QIODevice
+  version:
+    http://doc.qt.io/qt-5/qnetworkaccessmanager.html#post
+    http://doc.qt.io/qt-5/qbuffer.html#details
+    http://doc.qt.io/qt-5/qtextstream.html
+    http://stackoverflow.com/questions/2806274/uploading-a-file-using-post-method-of-qnetworkaccessmanager
+  ... realistically, we might want this, but we're going to want to have a
+  buffer that takes all the data before we make the network call.
+  So it'd be:
+    create QByteArray
+    create QBuffer (or QTextStream( addressing the QByteArray
+    use << to write to the buffer (and thus the QByteArray)
+    send the QByteArray using that version of QNetworkManager::post

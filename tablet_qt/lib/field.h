@@ -17,6 +17,7 @@ public:
     bool isPk() const;
     bool isUnique() const;
     bool isMandatory() const;
+    bool allowsNull() const;
     QString sqlColumnDef() const;
     QString sqlColumnType() const;
     QVariant value() const;

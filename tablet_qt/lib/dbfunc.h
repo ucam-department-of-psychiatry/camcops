@@ -33,6 +33,7 @@ public:
     const Field* intended_field = nullptr;
     bool exists_in_db = false;
     QString existing_type;
+    bool existing_not_null = false;
     bool add = false;
     bool drop = false;
     bool change = false;
@@ -113,5 +114,4 @@ namespace DbFunc {
     void createTable(const QSqlDatabase& db, const QString& tablename,
                      const QList<Field>& fieldlist,
                      const QString& tempsuffix = TABLE_TEMP_SUFFIX);
-
 }

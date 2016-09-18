@@ -95,7 +95,7 @@ void TestMenu::testHttps()
     // QString url = "https://www.veltigroup.com/";  // bad cert (then Forbidden)
 
     m_netmgr = QSharedPointer<NetworkManager>(new NetworkManager(url));
-    m_netmgr->testHttps();
+    m_netmgr->testHttpsGet();
 }
 
 
@@ -103,7 +103,7 @@ void TestMenu::testHttp()
 {
     QString url = "http://egret.psychol.cam.ac.uk/index.html";
     m_netmgr = QSharedPointer<NetworkManager>(new NetworkManager(url));
-    m_netmgr->testHttp();
+    m_netmgr->testHttpGet();
 }
 
 

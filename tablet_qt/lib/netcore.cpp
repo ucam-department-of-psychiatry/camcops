@@ -16,9 +16,9 @@ NetworkManager::NetworkManager(const QString& url) :
 {
 }
 
-void NetworkManager::testHttp()
+void NetworkManager::testHttpGet()
 {
-    qInfo() << "Testing HTTP connection to:" << m_url;
+    qInfo() << "Testing HTTP GET connection to:" << m_url;
     QNetworkAccessManager* manager = new QNetworkAccessManager();
     QNetworkRequest request;
     // URL
@@ -33,9 +33,9 @@ void NetworkManager::testHttp()
 }
 
 
-void NetworkManager::testHttps(bool ignore_ssl_errors)
+void NetworkManager::testHttpsGet(bool ignore_ssl_errors)
 {
-    qInfo() << "Testing HTTPS connection to:" << m_url;
+    qInfo() << "Testing HTTPS GET connection to:" << m_url;
     QNetworkAccessManager* manager = new QNetworkAccessManager();
     QNetworkRequest request;
     // SSL

@@ -10,5 +10,4 @@ namespace DateTime {
     QDateTime isoToDateTime(const QString& iso);
     QDateTime now();
     QString shortDateTime(const QDateTime& dt);
-
 }

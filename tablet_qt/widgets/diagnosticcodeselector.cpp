@@ -63,6 +63,8 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     m_lineedit(nullptr),
     m_heading_tree(nullptr),
     m_heading_search(nullptr),
+    m_search_button(nullptr),
+    m_tree_button(nullptr),
     m_selection_model(nullptr),
     m_flat_proxy_model(nullptr),
     m_diag_filter_model(nullptr),
@@ -93,14 +95,19 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     title_label->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
     title_label->setObjectName("title");
 
-    QAbstractButton* search = new ImageButton(UiConst::CBS_ZOOM);  // *** alter icon; remove "+" from centre of magnifying glass
-    connect(search, &QAbstractButton::clicked,
-            this, &DiagnosticCodeSelector::toggleSearch);
+    m_search_button = new ImageButton(UiConst::CBS_ZOOM);  // *** ICON: remove "+" from centre of magnifying glass
+    connect(m_search_button.data(), &QAbstractButton::clicked,
+            this, &DiagnosticCodeSelector::goToSearch);
+
+    m_tree_button = new ImageButton(UiConst::CBS_CHOOSE_PAGE);  // *** ICON: tree view
+    connect(m_tree_button.data(), &QAbstractButton::clicked,
+            this, &DiagnosticCodeSelector::goToTree);
 
     QHBoxLayout* header_toprowlayout = new QHBoxLayout();
     header_toprowlayout->addWidget(cancel, 0, button_align);
     header_toprowlayout->addWidget(title_label);  // default alignment fills whole cell
-    header_toprowlayout->addWidget(search, 0, button_align);
+    header_toprowlayout->addWidget(m_search_button, 0, button_align);
+    header_toprowlayout->addWidget(m_tree_button, 0, button_align);
 
     // ------------------------------------------------------------------------
     // Horizontal line
@@ -283,16 +290,32 @@ void DiagnosticCodeSelector::proxySelectionChanged(
 }
 
 
-void DiagnosticCodeSelector::toggleSearch()
+//void DiagnosticCodeSelector::toggleSearch()
+//{
+//    m_searching = !m_searching;
+//    setSearchAppearance();
+//}
+
+
+void DiagnosticCodeSelector::goToSearch()
 {
-    qDebug() << Q_FUNC_INFO;
-    m_searching = !m_searching;
+    m_searching = true;
+    setSearchAppearance();
+}
+
+
+void DiagnosticCodeSelector::goToTree()
+{
+    m_searching = false;
     setSearchAppearance();
 }
 
 
 void DiagnosticCodeSelector::setSearchAppearance()
 {
+    m_tree_button->setVisible(m_searching);
+    m_search_button->setVisible(!m_searching);
+
     m_heading_tree->setVisible(!m_searching);
     m_treeview->setVisible(!m_searching);
 
