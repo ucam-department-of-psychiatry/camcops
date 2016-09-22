@@ -1,19 +1,25 @@
 #include "qudatetime.h"
 #include <QDateTimeEdit>
+#include <QHBoxLayout>
 #include "lib/uifunc.h"
+#include "widgets/imagebutton.h"
 #include "questionnaire.h"
 
 // http://doc.qt.io/qt-5/qdatetime.html#toString
 const QString DEFAULT_DATETIME_FORMAT = "dd MMM yyyy HH:mm";
 const QString DEFAULT_DATE_FORMAT = "dd MMM yyyy";
 const QString DEFAULT_TIME_FORMAT = "HH:mm";
-const QDate PSEUDONULL_DATE(1752, 9, 14);  // 14 Sep 1752 is usual minimum (Gregorian calendar)
+// const QDate PSEUDONULL_DATE(1752, 9, 14);  // 14 Sep 1752 is usual minimum (Gregorian calendar)
+const QDate PSEUDONULL_DATE(2000, 1, 1);  // ... but 1752 is a long way away from now...
 const QTime PSEUDONULL_TIME(0, 0, 0, 0);
 const QDateTime PSEUDONULL_DATETIME(PSEUDONULL_DATE, PSEUDONULL_TIME);
 
 
 QuDateTime::QuDateTime(FieldRefPtr fieldref) :
     m_fieldref(fieldref),
+    m_mode(Mode::DefaultDateTime),
+    m_offer_now_button(false),
+    m_offer_null_button(false),
     m_editor(nullptr)
 {
     Q_ASSERT(m_fieldref);
@@ -21,7 +27,6 @@ QuDateTime::QuDateTime(FieldRefPtr fieldref) :
             this, &QuDateTime::fieldValueChanged);
     connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
             this, &QuDateTime::fieldValueChanged);
-    setMode(Mode::DefaultDateTime);
 }
 
 
@@ -35,6 +40,20 @@ QuDateTime* QuDateTime::setMode(QuDateTime::Mode mode)
 QuDateTime* QuDateTime::setCustomFormat(const QString& format)
 {
     m_custom_format = format;
+    return this;
+}
+
+
+QuDateTime* QuDateTime::setOfferNowButton(bool offer_now_button)
+{
+    m_offer_now_button = offer_now_button;
+    return this;
+}
+
+
+QuDateTime* QuDateTime::setOfferNullButton(bool offer_null_button)
+{
+    m_offer_null_button = offer_null_button;
     return this;
 }
 
@@ -54,6 +73,10 @@ FieldRefPtrList QuDateTime::fieldrefs() const
 QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
 {
     bool read_only = questionnaire->readOnly();
+
+    QPointer<QWidget> widget = new QWidget();
+    QHBoxLayout* layout = new QHBoxLayout();
+    widget->setLayout(layout);
 
     QString format;
     bool calendar = true;
@@ -90,8 +113,32 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
         connect(m_editor.data(), &QDateTimeEdit::dateTimeChanged,
                 this, &QuDateTime::widgetValueChanged);
     }
+    layout->addWidget(m_editor);
+
+    if (m_offer_now_button) {
+        QAbstractButton* now_button = new ImageButton(UiConst::CBS_TIME_NOW);
+        now_button->setEnabled(!read_only);
+        if (!read_only) {
+            connect(now_button, &QAbstractButton::clicked,
+                    this, &QuDateTime::setToNow);
+        }
+        layout->addWidget(now_button);
+    }
+
+    if (m_offer_null_button) {
+        QAbstractButton* null_button = new ImageButton(UiConst::CBS_DELETE);
+        null_button->setEnabled(!read_only);
+        if (!read_only) {
+            connect(null_button, &QAbstractButton::clicked,
+                    this, &QuDateTime::setToNull);
+        }
+        layout->addWidget(null_button);
+    }
+
+    layout->addStretch();
+
     setFromField();
-    return QPointer<QWidget>(m_editor);
+    return widget;
 }
 
 
@@ -101,6 +148,12 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
 // enter midnight deliberately, and starting with 1752 just looks odd.)
 
 void QuDateTime::widgetValueChanged(const QDateTime& datetime)
+{
+    setField(datetime, false);
+}
+
+
+void QuDateTime::setField(const QDateTime& datetime, bool reset_this_widget)
 {
     QVariant newvalue = datetime;
     switch (m_mode) {
@@ -117,8 +170,20 @@ void QuDateTime::widgetValueChanged(const QDateTime& datetime)
         newvalue.convert(QVariant::Time);
         break;
     }
-    m_fieldref->setValue(newvalue, this);
+    m_fieldref->setValue(newvalue, reset_this_widget ? nullptr : this);
     emit elementValueChanged();
+}
+
+
+void QuDateTime::setToNow()
+{
+    setField(QDateTime::currentDateTime(), true);
+}
+
+
+void QuDateTime::setToNull()
+{
+    setField(QDateTime(), true);
 }
 
 
@@ -132,9 +197,14 @@ void QuDateTime::fieldValueChanged(const FieldRef* fieldref,
     UiFunc::setPropertyMissing(m_editor, fieldref->missingInput());
     if (originator != this) {
         // Value
+        QDateTime display_value = fieldref->valueDateTime();
+        if (!display_value.isValid()) {
+            display_value = PSEUDONULL_DATETIME;
+            // because QDateTimeEdit::setDateTime() will ignore invalid values
+        }
         const QSignalBlocker blocker(m_editor);
-        m_editor->setDateTime(fieldref->valueDateTime());
-        // NULL will be shown as 1 Jan 2000 00:00.
+        m_editor->setDateTime(display_value);
+        // NULL will be shown as the pseudonull value.
         // The yellow marker will disappear when that value is edited.
     }
 }

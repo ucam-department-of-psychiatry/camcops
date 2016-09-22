@@ -4,6 +4,8 @@
 
 class QuHorizontalLine : public QuElement
 {
+    // Provides a plain horizontal divider line.
+
     Q_OBJECT
 public:
     QuHorizontalLine();

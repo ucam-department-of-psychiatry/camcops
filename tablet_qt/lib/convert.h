@@ -31,4 +31,6 @@ namespace Convert
     QByteArray imageToByteArray(const QImage& image,
                                 const char* format = "png");
     QVariant imageToVariant(const QImage& image, const char* format = "png");
+    QImage byteArrayToImage(const QByteArray& array,
+                            const char* format = nullptr);
 }

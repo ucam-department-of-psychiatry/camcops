@@ -293,3 +293,11 @@ QVariant Convert::imageToVariant(const QImage& image,
 {
     return QVariant(imageToByteArray(image, format));
 }
+
+
+QImage Convert::byteArrayToImage(const QByteArray& array, const char* format)
+{
+    QImage image;
+    image.loadFromData(array, format);
+    return image;
+}

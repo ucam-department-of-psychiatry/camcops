@@ -10,6 +10,9 @@ class QLabel;
 
 class QuestionnaireHeader : public QWidget
 {
+    // Provides a questionnaire's title and its control buttons (e.g. page
+    // movement, cancellation).
+
     Q_OBJECT
 public:
     QuestionnaireHeader(QWidget* parent, const QString& title,

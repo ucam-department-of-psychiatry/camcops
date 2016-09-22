@@ -9,6 +9,10 @@ class QTimer;
 
 class QuCountdown : public QuElement
 {
+    // Offers a countdown timer (which plays a sound on timeout), e.g. for
+    // allowing the respondent a certain amount of time for a task.
+    // Offers start/stop/reset controls.
+
     Q_OBJECT
 public:
     QuCountdown(int time_s);
@@ -33,5 +37,5 @@ protected:
     QPointer<QLabel> m_label;
     QSharedPointer<QTimer> m_timer;
     QSharedPointer<QMediaPlayer> m_player;  // not owned by other widgets
-    int m_whole_seconds_left;
+    double m_seconds_left;
 };

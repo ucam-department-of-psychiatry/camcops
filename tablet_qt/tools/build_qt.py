@@ -33,9 +33,20 @@ import urllib.request
 
 log = logging.getLogger(__name__)
 
-QT_CONFIG_COMMON_ARGS = [  # use "configure -help" to list all of them
+QT_CONFIG_COMMON_ARGS = [
+    # use "configure -help" to list all of them
+    # http://doc.qt.io/qt-4.8/configure-options.html  # NB better docs than 5.7
+    # http://doc.qt.io/qt-5.7/configure-options.html  # less helpful
+
     "-opensource", "-confirm-license",
+
+    "-debug-and-release",  # make a release library as well
+        # ... debug was the default in 4.8, but ?not in 5.7?
+        # ... check with "readelf --debug-dump=decodedline <LIBRARY.so>"
+        # ... http://stackoverflow.com/questions/1999654
+
     "-qt-sql-sqlite",  # SQLite
+
     "-no-warnings-are-errors",
     "-nomake", "tests",
     "-nomake", "examples",
@@ -686,6 +697,7 @@ def main():
     #     https://gist.github.com/foozmeat/5154962
 
     # *** args.windows*  # for Windows
+    #     http://www.holoborodko.com/pavel/2011/02/01/how-to-compile-qt-4-7-with-visual-studio-2010/
 
     if not installdirs:
         log.warning("Nothing to do. Run with --help argument for help.")

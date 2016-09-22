@@ -14,6 +14,8 @@ class QTimer;
 
 class QuSlider : public QuElement
 {
+    // Offers a slider to choose a numerical value.
+
     Q_OBJECT
 public:
     QuSlider(FieldRefPtr fieldref, int minimum, int maximum, int step);
@@ -30,8 +32,8 @@ public:
     QuSlider* setTickLabels(const QMap<int, QString>& labels);
     QuSlider* setTickLabelPosition(QSlider::TickPosition position);
     QuSlider* setUseDefaultTickLabels(bool use_default);
-    void setFromField();
 protected:
+    void setFromField();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
     int sliderValueFromField(const QVariant& field_value) const;

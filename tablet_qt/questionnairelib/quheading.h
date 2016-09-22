@@ -5,6 +5,8 @@
 
 class QuHeading : public QuText
 {
+    // Provides text with a heading style.
+
     Q_OBJECT
 public:
     QuHeading(const QString& text);

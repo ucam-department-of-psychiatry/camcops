@@ -7,12 +7,15 @@ class QDoubleSpinBox;
 
 class QuSpinBoxDouble : public QuElement
 {
+    // Offers a text editing box with spinbox controls, for floating-point
+    // entry.
+
     Q_OBJECT
 public:
     QuSpinBoxDouble(FieldRefPtr fieldref, double minimum, double maximum,
                     int decimals = 2);
-    void setFromField();
 protected:
+    void setFromField();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
 protected slots:

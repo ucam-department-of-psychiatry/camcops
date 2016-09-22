@@ -4,6 +4,8 @@
 
 class ClickableLabel : public QLabel
 {
+    // Label that responds to clicks.
+
     Q_OBJECT
 public:
     ClickableLabel(const QString& text = "", QWidget* parent = nullptr);

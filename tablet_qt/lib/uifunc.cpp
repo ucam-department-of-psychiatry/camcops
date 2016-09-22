@@ -17,6 +17,16 @@
 #include "uifunc.h"
 #include "common/uiconstants.h"
 
+// ========================================================================
+// Translation convenience function
+// ========================================================================
+
+QString UiFunc::tr(const char* text)
+{
+    return QObject::tr(text);
+}
+
+
 // ============================================================================
 // QPixmap loader
 // ============================================================================
@@ -379,6 +389,32 @@ void UiFunc::alert(const QString& text, const QString& title)
 
 
 // ============================================================================
+// Confirmation
+// ============================================================================
+
+bool UiFunc::confirm(const QString& text, const QString& title,
+                     QString yes, QString no, QWidget* parent)
+{
+    if (yes.isEmpty()) {
+        yes = tr("Yes");
+    }
+    if (no.isEmpty()) {
+        no = tr("No");
+    }
+    QMessageBox msgbox(
+        QMessageBox::Question,  // icon
+        title,  // title
+        text,  // text
+        QMessageBox::Yes | QMessageBox::No,  // buttons
+        parent);  // parent
+    msgbox.setButtonText(QMessageBox::Yes, yes);
+    msgbox.setButtonText(QMessageBox::No, no);
+    int reply = msgbox.exec();
+    return reply == QMessageBox::Yes;
+}
+
+
+// ============================================================================
 // CSS
 // ============================================================================
 
@@ -409,6 +445,6 @@ void UiFunc::visitUrl(const QString& url)
 {
     bool success = QDesktopServices::openUrl(QUrl(url));
     if (!success) {
-        alert(QObject::tr("Failed to open browser"));
+        alert(tr("Failed to open browser"));
     }
 }

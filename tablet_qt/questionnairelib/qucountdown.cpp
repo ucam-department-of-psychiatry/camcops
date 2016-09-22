@@ -8,6 +8,8 @@
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 
+const int PERIOD_MS = 100;  // should divide into whole seconds!
+
 
 QuCountdown::QuCountdown(int time_s) :
     m_time_s(time_s),
@@ -83,8 +85,7 @@ QPointer<QWidget> QuCountdown::makeWidget(Questionnaire* questionnaire)
 
 void QuCountdown::start()
 {
-    m_timer->start(1000);  // period in ms
-    --m_whole_seconds_left;
+    m_timer->start(PERIOD_MS);  // period in ms
     m_running = true;
     updateDisplay();
 }
@@ -103,22 +104,22 @@ void QuCountdown::reset()
     if (m_running) {
         stop();
     }
-    m_whole_seconds_left = m_time_s;
+    m_seconds_left = m_time_s;
     updateDisplay();
 }
 
 
 void QuCountdown::tick()
 {
-    --m_whole_seconds_left;
-    if (m_whole_seconds_left < 0) {
+    m_seconds_left -= PERIOD_MS / 1000.0;
+    if (m_seconds_left <= 0) {
         // Finished!
         qDebug() << Q_FUNC_INFO << "- finished";
         bong();
         stop();  // will call updateDisplay()
     } else {
-        qDebug() << Q_FUNC_INFO << "-" << m_whole_seconds_left
-                 << "whole seconds left";
+        qDebug() << Q_FUNC_INFO << "-" << m_seconds_left
+                 << "seconds left";
         updateDisplay();
     }
 }
@@ -139,10 +140,10 @@ void QuCountdown::updateDisplay()
         return;
     }
     QString text;
-    if (m_whole_seconds_left < 0) {
+    if (m_seconds_left < 0) {
         text = tr("FINISHED");
     } else {
-        text = QString("%1 s").arg(m_whole_seconds_left);
+        text = QString("%1 s").arg(m_seconds_left);
         if (!m_running) {
             text += tr(" (not running)");
         }

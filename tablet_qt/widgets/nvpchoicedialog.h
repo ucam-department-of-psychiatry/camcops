@@ -8,6 +8,9 @@ class QVariant;
 
 class NvpChoiceDialog : public QDialog
 {
+    // Dialog to choose between a set of name/value pairs (offering the names,
+    // returning the chosen value via a pointer).
+
     Q_OBJECT
 public:
     NvpChoiceDialog(QWidget* parent, const NameValueOptions& options,

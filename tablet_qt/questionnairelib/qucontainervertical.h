@@ -4,6 +4,8 @@
 
 class QuContainerVertical : public QuElement
 {
+    // Allows the arrangements of other elements into a vertical layout.
+
     Q_OBJECT
 public:
     QuContainerVertical();

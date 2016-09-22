@@ -13,7 +13,7 @@ QuMultipleResponse::QuMultipleResponse()
 
 
 QuMultipleResponse::QuMultipleResponse(
-        const QList<QuMultipleResponseItem> items) :
+        const QList<QuestionWithOneField> items) :
     m_items(items)
 {
     commonConstructor();
@@ -21,7 +21,7 @@ QuMultipleResponse::QuMultipleResponse(
 
 
 QuMultipleResponse::QuMultipleResponse(
-        std::initializer_list<QuMultipleResponseItem> items) :
+        std::initializer_list<QuestionWithOneField> items) :
     m_items(items)
 {
     commonConstructor();
@@ -40,7 +40,7 @@ void QuMultipleResponse::commonConstructor()
 
 
 QuMultipleResponse* QuMultipleResponse::addItem(
-        const QuMultipleResponseItem& item)
+        const QuestionWithOneField& item)
 {
     m_items.append(item);
     return this;
@@ -113,7 +113,7 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
 
     Qt::Alignment align = Qt::AlignLeft | Qt::AlignVCenter;
     for (int i = 0; i < m_items.size(); ++i) {
-        const QuMultipleResponseItem& item = m_items.at(i);
+        const QuestionWithOneField& item = m_items.at(i);
 
         // Widget
         QPointer<BooleanWidget> w = new BooleanWidget();
@@ -208,7 +208,7 @@ void QuMultipleResponse::clicked(int index)
     }
     bool at_max = nTrueAnswers() >= maximumAnswers();
     bool changed = false;
-    const QuMultipleResponseItem item = m_items.at(index);
+    const QuestionWithOneField item = m_items.at(index);
     FieldRefPtr fieldref = item.fieldref();
     QVariant value = fieldref->value();
     QVariant newvalue;

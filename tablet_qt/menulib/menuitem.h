@@ -4,43 +4,14 @@
 #include <QSharedPointer>
 #include <QString>
 #include "menulib/menuproxy.h"
+#include "htmlmenuitem.h"
+#include "taskmenuitem.h"
 
 class QWidget;
 class CamcopsApp;
 class MenuWindow;
 class Task;
 using TaskPtr = QSharedPointer<Task>;
-
-
-struct TaskMenuItem
-{
-    // Exists only to improve polymorphic constructor of MenuItem
-public:
-    TaskMenuItem(const QString& tablename) :
-        tablename(tablename)
-    {}
-public:
-    QString tablename;
-};
-
-
-struct HtmlMenuItem
-{
-public:
-    HtmlMenuItem(const QString& title = "", const QString& filename = "",
-                 const QString& icon = "", bool fullscreen = false) :
-        title(title),
-        filename(filename),
-        icon(icon),
-        fullscreen(fullscreen)
-    {}
-public:
-    // These are the title/icon shown on the HTML page, not the menu
-    QString title;
-    QString filename;
-    QString icon;
-    bool fullscreen;
-};
 
 
 class MenuItem

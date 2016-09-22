@@ -2,13 +2,17 @@
 #include <QList>
 #include <QPointer>
 #include "lib/fieldref.h"
-#include "widgets/booleanwidget.h"
 #include "namevalueoptions.h"
 #include "quelement.h"
+
+class BooleanWidget;
 
 
 class QuMCQ : public QuElement
 {
+    // Offers a single multiple-choice question.
+    // There are a variety of display formats.
+
     Q_OBJECT
 public:
     QuMCQ(FieldRefPtr fieldref, const NameValueOptions& options);
@@ -16,8 +20,8 @@ public:
     QuMCQ* setShowInstruction(bool show_instruction);
     QuMCQ* setHorizontal(bool horizontal);
     QuMCQ* setAsTextButton(bool as_text_button);
-    void setFromField();
 protected:
+    void setFromField();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
 protected slots:

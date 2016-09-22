@@ -5,6 +5,7 @@
 #include <QVBoxLayout>
 #include "common/uiconstants.h"
 #include "lib/uifunc.h"
+#include "widgets/horizontalline.h"
 #include "widgets/imagebutton.h"
 #include "widgets/labelwordwrapwide.h"
 
@@ -88,11 +89,8 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     // ------------------------------------------------------------------------
     // Horizontal line
     // ------------------------------------------------------------------------
-    QFrame* horizline = new QFrame();
-    horizline->setObjectName("header_horizontal_line");
-    horizline->setFrameShape(QFrame::HLine);
-    horizline->setFrameShadow(QFrame::Plain);
-    horizline->setLineWidth(UiConst::HEADER_HLINE_WIDTH);
+    HorizontalLine* horizline = new HorizontalLine(UiConst::HEADER_HLINE_WIDTH);
+    horizline->setObjectName("questionnaire_horizontal_line");
     mainlayout->addWidget(horizline);
 }
 

@@ -4,7 +4,7 @@
 #include <QVariant>
 #include "lib/fieldref.h"
 #include "quelement.h"
-#include "qumultipleresponseitem.h"
+#include "questionwithonefield.h"
 
 class BooleanWidget;
 class QSignalMapper;
@@ -12,21 +12,30 @@ class QSignalMapper;
 
 class QuMultipleResponse : public QuElement
 {
+    // Offers an n-from-many question. For example:
+    //
+    // Which are your TWO favourites, from the list:
+    //   [X] Banana
+    //   [ ] Diamond
+    //   [ ] Apple
+    //   [X] Bapple
+    //   [ ] Gru
+
     Q_OBJECT
 public:
     QuMultipleResponse();
-    QuMultipleResponse(const QList<QuMultipleResponseItem> items);
-    QuMultipleResponse(std::initializer_list<QuMultipleResponseItem> items);
-    QuMultipleResponse* addItem(const QuMultipleResponseItem& item);
+    QuMultipleResponse(const QList<QuestionWithOneField> items);
+    QuMultipleResponse(std::initializer_list<QuestionWithOneField> items);
+    QuMultipleResponse* addItem(const QuestionWithOneField& item);
     QuMultipleResponse* setMinimumAnswers(int minimum_answers);
     QuMultipleResponse* setMaximumAnswers(int maximum_answers);
     QuMultipleResponse* setRandomize(bool randomize);
     QuMultipleResponse* setShowInstruction(bool show_instruction);
     QuMultipleResponse* setInstruction(const QString& instruction);
     QuMultipleResponse* setAsTextButton(bool as_text_button);
-    void setFromFields();
 protected:
     void commonConstructor();
+    void setFromFields();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
     int minimumAnswers() const;
@@ -39,7 +48,7 @@ protected slots:
     void clicked(int index);
     void fieldValueChanged();
 protected:
-    QList<QuMultipleResponseItem> m_items;
+    QList<QuestionWithOneField> m_items;
     int m_minimum_answers;  // negative for "not specified"
     int m_maximum_answers;  // negative for "not specified"
     bool m_randomize;

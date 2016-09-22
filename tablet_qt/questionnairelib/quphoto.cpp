@@ -19,7 +19,8 @@ QuPhoto::QuPhoto(FieldRefPtr fieldref) :
     m_incomplete_mandatory(nullptr),
     m_field_problem(nullptr),
     m_image(nullptr),
-    m_camera(nullptr)
+    m_camera(nullptr),
+    m_main_widget(nullptr)
 {
     m_have_camera = QCameraInfo::availableCameras().count() > 0;
     qDebug() << "m_have_camera:" << m_have_camera;
@@ -54,11 +55,27 @@ QPointer<QWidget> QuPhoto::makeWidget(Questionnaire* questionnaire)
         no_camera = new QLabel(tr("No camera"));
     }
 
-    QAbstractButton* button_reset = new ImageButton(UiConst::CBS_RELOAD);
+    QAbstractButton* button_reset = new ImageButton(UiConst::CBS_DELETE);
     button_reset->setEnabled(!read_only);
     if (!read_only) {
         connect(button_reset, &QAbstractButton::clicked,
                 this, &QuPhoto::resetFieldToNull);
+    }
+
+    QAbstractButton* button_rot_left = new ImageButton(
+                UiConst::CBS_ROTATE_ANTICLOCKWISE);
+    button_rot_left->setEnabled(!read_only);
+    if (!read_only) {
+        connect(button_rot_left, &QAbstractButton::clicked,
+                this, &QuPhoto::rotateLeft);
+    }
+
+    QAbstractButton* button_rot_right = new ImageButton(
+                UiConst::CBS_ROTATE_CLOCKWISE);
+    button_rot_right->setEnabled(!read_only);
+    if (!read_only) {
+        connect(button_rot_right, &QAbstractButton::clicked,
+                this, &QuPhoto::rotateRight);
     }
 
     QVBoxLayout* button_layout = new QVBoxLayout();
@@ -67,6 +84,8 @@ QPointer<QWidget> QuPhoto::makeWidget(Questionnaire* questionnaire)
     } else {
         button_layout->addWidget(no_camera, 0, align);
     }
+    button_layout->addWidget(button_rot_left, 0, align);
+    button_layout->addWidget(button_rot_right, 0, align);
     button_layout->addWidget(button_reset, 0, align);
     button_layout->addStretch();
 
@@ -98,14 +117,13 @@ QPointer<QWidget> QuPhoto::makeWidget(Questionnaire* questionnaire)
     top_layout->addWidget(image_and_marker_widget, 0, align);
     top_layout->addStretch();
 
-    QWidget* main_widget = new QWidget();
-    main_widget->setLayout(top_layout);
-    main_widget->setObjectName("debug_green");
-    main_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+    m_main_widget = new QWidget();
+    m_main_widget->setLayout(top_layout);
+    m_main_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 
     setFromField();
 
-    return main_widget;
+    return m_main_widget;
 }
 
 
@@ -181,6 +199,14 @@ void QuPhoto::takePhoto()
 
 void QuPhoto::resetFieldToNull()
 {
+    if (!UiFunc::confirm(tr("Delete this photo?"),
+                         tr("Confirm deletion"),
+                         tr("Yes, delete"),
+                         tr("No, cancel"),
+                         m_main_widget)) {
+        return;
+    }
+
     m_fieldref->setValue(QVariant());
     // ... skip originator; will call fieldValueChanged
     emit elementValueChanged();
@@ -207,6 +233,31 @@ void QuPhoto::imageCaptured(const QImage& image)
     m_fieldref->setValue(image);
     m_camera->finish();  // close the camera
     emit elementValueChanged();
+}
+
+
+void QuPhoto::rotate(qreal angle_degrees)
+{
+    QImage image = m_fieldref->valueImage();
+    if (image.isNull()) {
+        return;
+    }
+    QTransform matrix;
+    matrix.rotate(angle_degrees);
+    m_fieldref->setValue(image.transformed(matrix));
+}
+
+
+void QuPhoto::rotateLeft()
+{
+    // http://doc.qt.io/qt-4.8/qtransform.html#rotate
+    rotate(-90);
+}
+
+
+void QuPhoto::rotateRight()
+{
+    rotate(90);
 }
 
 

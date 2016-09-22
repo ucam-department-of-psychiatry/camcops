@@ -8,6 +8,8 @@ class LabelWordWrapWide;
 
 class QuText : public QuElement
 {
+    // Provides static text, or text from a field.
+
     Q_OBJECT
 public:
     QuText(const QString& text = "");

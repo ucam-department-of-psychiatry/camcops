@@ -4,6 +4,8 @@
 
 class NameValueOptions
 {
+    // Encapsulates a list of name/value pairs.
+
 public:
     NameValueOptions();
     NameValueOptions(std::initializer_list<NameValuePair> options);

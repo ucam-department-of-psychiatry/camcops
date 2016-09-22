@@ -8,6 +8,9 @@ class BooleanWidget;
 
 class QuBoolean : public QuElement
 {
+    // Element to control a single Boolean field.
+    // Displays text or an image, in addition to the response widget.
+
     Q_OBJECT
 public:
     QuBoolean(const QString& text, FieldRefPtr fieldref);
@@ -22,14 +25,14 @@ public:
     QuBoolean* setAllowUnset(bool allow_unset = true);
     QuBoolean* setAsTextButton(bool as_text_button = true);
     QuBoolean* setVAlign(Qt::Alignment alignment);  // horizontal part will be ignored
+protected:
+    void commonConstructor();
     void setFromField();
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual FieldRefPtrList fieldrefs() const override;
 protected slots:
     void clicked();
     void fieldValueChanged(const FieldRef* fieldref);
-protected:
-    void commonConstructor();
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
-    virtual FieldRefPtrList fieldrefs() const override;
 protected:
     QString m_text;
     QString m_image_filename;

@@ -9,4 +9,6 @@ namespace DebugFunc
 {
     void debugConcisely(QDebug debug, const QVariant& value);
     void debugConcisely(QDebug debug, const QList<QVariant>& values);
+
+    void dumpQObject(QObject* obj);
 }

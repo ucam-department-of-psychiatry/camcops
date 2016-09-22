@@ -14,6 +14,8 @@ class QMouseEvent;
 
 class TickSlider : public QSlider
 {
+    // Slider with tick marks/labels.
+
     Q_OBJECT
 public:
     TickSlider(QWidget *parent = nullptr);

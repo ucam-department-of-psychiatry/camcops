@@ -5,6 +5,7 @@
 #include "widgets/booleanwidget.h"
 #include "widgets/labelwordwrapwide.h"
 #include "widgets/flowlayout.h"
+#include "mcqfunc.h"
 #include "questionnaire.h"
 #include "questionnairefunc.h"
 
@@ -171,29 +172,7 @@ void QuMCQ::setFromField()
 
 void QuMCQ::fieldValueChanged(const FieldRef* fieldref)
 {
-    QVariant value = fieldref->value();
-    bool null = value.isNull();
-    int index = m_options.indexFromValue(value);
-    if (!null && index == -1) {
-        qWarning() << Q_FUNC_INFO << "- unknown value";
-        return;
-    }
-    for (int i = 0; i < m_widgets.size(); ++i) {
-        QPointer<BooleanWidget> w = m_widgets.at(i);
-        if (!w) {
-            qCritical() << Q_FUNC_INFO << "- defunct pointer!";
-            continue;
-        }
-        if (i == index) {
-            w->setState(BooleanWidget::State::True);
-        } else if (index == -1) {  // null but not selected
-            w->setState(fieldref->mandatory()
-                        ? BooleanWidget::State::NullRequired
-                        : BooleanWidget::State::Null);
-        } else {
-            w->setState(BooleanWidget::State::False);
-        }
-    }
+    McqFunc::setResponseWidgets(m_options, m_widgets, fieldref);
 }
 
 

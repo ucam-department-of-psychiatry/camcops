@@ -1,6 +1,6 @@
 #include "quhorizontalline.h"
-#include <QFrame>
 #include "common/uiconstants.h"
+#include "widgets/horizontalline.h"
 
 
 QuHorizontalLine::QuHorizontalLine()
@@ -11,10 +11,8 @@ QuHorizontalLine::QuHorizontalLine()
 QPointer<QWidget> QuHorizontalLine::makeWidget(Questionnaire* questionnaire)
 {
     (void)questionnaire;
-    QFrame* horizline = new QFrame();
+    HorizontalLine* horizline = new HorizontalLine(
+                UiConst::QUESTIONNAIRE_HLINE_WIDTH);
     horizline->setObjectName("questionnaire_horizontal_line");
-    horizline->setFrameShape(QFrame::HLine);
-    horizline->setFrameShadow(QFrame::Plain);
-    horizline->setLineWidth(UiConst::QUESTIONNAIRE_HLINE_WIDTH);
     return QPointer<QWidget>(horizline);
 }

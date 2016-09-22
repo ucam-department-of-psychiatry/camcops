@@ -8,12 +8,15 @@ class QLineEdit;
 
 class QuLineEdit : public QuElement
 {
+    // Offers a one-line text editor, for a string.
+    // (For a bigger version, see QuTextEdit.)
+
     Q_OBJECT
 public:
     QuLineEdit(FieldRefPtr fieldref);
     QuLineEdit* setHint(const QString& hint);
-    virtual void setFromField();
 protected:
+    virtual void setFromField();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
     virtual void extraLineEditCreation(QLineEdit* editor);  // override to specialize

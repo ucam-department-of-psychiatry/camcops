@@ -1,3 +1,5 @@
+#define DEBUG_WIDGETS_SLOW
+
 #include "camcopsapp.h"
 #include <QApplication>
 #include <QDateTime>
@@ -12,6 +14,7 @@
 #include "lib/datetimefunc.h"
 #include "lib/dbfunc.h"
 #include "lib/filefunc.h"
+#include "lib/uifunc.h"
 #include "menu/mainmenu.h"
 #include "tasklib/inittasks.h"
 #include "questionnairelib/questionnaire.h"

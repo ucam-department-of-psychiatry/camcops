@@ -17,6 +17,9 @@ namespace UiConst {
     extern const int MEDIUMSPACE;
     extern const int HEADER_HLINE_WIDTH;
     extern const int QUESTIONNAIRE_HLINE_WIDTH;
+    extern const int MCQGRID_VLINE_WIDTH;
+    extern const int MCQGRID_VSPACING;
+    extern const int MCQGRID_HSPACING;
 
     extern const QMargins NO_MARGINS;
 

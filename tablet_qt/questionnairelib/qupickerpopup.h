@@ -8,12 +8,15 @@ class ClickableLabel;
 
 class QuPickerPopup : public QuElement
 {
+    // Offers a pop-up dialogue of choices, or device equivalent.
+
     Q_OBJECT
 public:
     QuPickerPopup(FieldRefPtr fieldref, const NameValueOptions& options);
     QuPickerPopup* setPopupTitle(const QString& popup_title);
-    void setFromField();
+    QuPickerPopup* setRandomize(bool randomize);
 protected:
+    void setFromField();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
 protected slots:
@@ -23,5 +26,6 @@ protected:
     FieldRefPtr m_fieldref;
     NameValueOptions m_options;
     QString m_popup_title;
+    bool m_randomize;
     QPointer<ClickableLabel> m_label;
 };

@@ -4,6 +4,8 @@
 
 class QuSpacer : public QuElement
 {
+    // Provides a fixed-size spacer object.
+
     Q_OBJECT
 public:
     QuSpacer();

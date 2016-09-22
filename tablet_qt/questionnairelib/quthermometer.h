@@ -9,6 +9,10 @@ class ImageButton;
 
 class QuThermometer : public QuElement
 {
+    // Offers a stack of images, allowing the user to select one (and
+    // displaying an alternative image at the chosen location), such as for
+    // something in the style of a distress thermometer.
+
     Q_OBJECT
 public:
     QuThermometer(FieldRefPtr fieldref,
@@ -16,9 +20,9 @@ public:
     QuThermometer(FieldRefPtr fieldref,
                   std::initializer_list<QuThermometerItem> items);
     QuThermometer* setRescale(bool rescale, double rescale_factor);
-    void setFromField();
 protected:
     void commonConstructor();
+    void setFromField();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
     int indexFromValue(const QVariant& value) const;

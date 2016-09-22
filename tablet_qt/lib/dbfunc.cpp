@@ -1,6 +1,6 @@
 #define DEBUG_SQL_QUERY
 // #define DEBUG_QUERY_END
-#define DEBUG_SQL_RESULT
+// #define DEBUG_SQL_RESULT
 
 #include "dbfunc.h"
 #include <QDir>
@@ -8,6 +8,7 @@
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QStandardPaths>
+#include "lib/convert.h"
 #include "lib/debugfunc.h"
 #include "lib/uifunc.h"
 
@@ -252,6 +253,40 @@ int DbFunc::dbFetchInt(const QSqlDatabase& db, const QString& sql,
 {
     ArgList args;
     return dbFetchInt(db, sql, args, failureDefault);
+}
+
+
+QString DbFunc::csvHeader(const QSqlQuery& query, const char sep)
+{
+    QSqlRecord record = query.record();
+    int nfields = record.count();
+    QStringList fieldnames;
+    for (int i = 0; i < nfields; ++i) {
+        fieldnames.append(record.fieldName(i));
+    }
+    return fieldnames.join(sep);
+}
+
+
+QString DbFunc::csvRow(const QSqlQuery& query, const char sep)
+{
+    int nfields = query.record().count();
+    QStringList values;
+    for (int i = 0; i < nfields; ++i) {
+        values.append(Convert::toSqlLiteral(query.value(i)));
+    }
+    return values.join(sep);
+}
+
+
+QString DbFunc::csv(QSqlQuery& query, const char sep, const char linesep)
+{
+    QStringList rows;
+    rows.append(csvHeader(query, sep));
+    while (query.next()) {
+        rows.append(csvRow(query, sep));
+    }
+    return rows.join(linesep);
 }
 
 

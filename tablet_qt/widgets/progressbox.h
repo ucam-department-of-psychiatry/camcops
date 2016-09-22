@@ -7,6 +7,8 @@
 
 class ProgressBox : public QProgressDialog
 {
+    // Progress dialogue.
+
     Q_OBJECT
 public:
     ProgressBox(const QString& label, int n_steps, QWidget* parent);

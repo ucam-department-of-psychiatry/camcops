@@ -16,6 +16,7 @@
 #include "diagnosis/diagnosticcodeset.h"
 #include "diagnosis/diagnosissortfiltermodel.h"
 #include "diagnosis/flatproxymodel.h"
+#include "widgets/horizontalline.h"
 #include "widgets/imagebutton.h"
 #include "widgets/labelwordwrapwide.h"
 
@@ -112,11 +113,8 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     // ------------------------------------------------------------------------
     // Horizontal line
     // ------------------------------------------------------------------------
-    QFrame* horizline = new QFrame();
+    HorizontalLine* horizline = new HorizontalLine(UiConst::HEADER_HLINE_WIDTH);
     horizline->setObjectName("header_horizontal_line");
-    horizline->setFrameShape(QFrame::HLine);
-    horizline->setFrameShadow(QFrame::Plain);
-    horizline->setLineWidth(UiConst::HEADER_HLINE_WIDTH);
 
     // ------------------------------------------------------------------------
     // Header assembly

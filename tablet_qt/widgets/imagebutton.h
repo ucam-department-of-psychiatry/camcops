@@ -6,7 +6,7 @@
 
 class ImageButton : public QPushButton
 {
-    // Button that shows a CamCOPS icon image, and another when being pressed.
+    // Button that shows an icon image, and another when being pressed.
     // This should be more efficient than an equivalent method using
     // stylesheets, and also allows the use of the global QPixmapCache.
 

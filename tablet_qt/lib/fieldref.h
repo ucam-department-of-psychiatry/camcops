@@ -2,13 +2,13 @@
 #include <functional>
 #include <QDate>
 #include <QDateTime>
+#include <QImage>
 #include <QObject>
 #include <QSharedPointer>
 #include "field.h"
 #include "databaseobject.h"
 
 class Blob;
-class QImage;
 
 
 class FieldRef : public QObject
@@ -76,6 +76,7 @@ public:
     QDate valueDate() const;
     QString valueString() const;
     QByteArray valueByteArray() const;
+    QImage valueImage() const;  // convenience function
     bool isNull() const;
 
     bool mandatory() const;

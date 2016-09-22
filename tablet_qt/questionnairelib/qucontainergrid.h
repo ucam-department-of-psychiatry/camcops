@@ -6,6 +6,8 @@
 
 class QuContainerGrid : public QuElement
 {
+    // Allows the arrangements of other elements into a grid.
+
     Q_OBJECT
 public:
     QuContainerGrid();

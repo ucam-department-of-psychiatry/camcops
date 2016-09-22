@@ -19,25 +19,6 @@ class TaskFactory;
 using TaskFactoryPtr = QSharedPointer<TaskFactory>;
 
 
-struct OpenableInfo {
-public:
-    OpenableInfo()
-    {}
-    OpenableInfo(QPointer<OpenableWidget> widget, TaskPtr task,
-                 Qt::WindowStates prev_window_state, bool may_alter_task) :
-        widget(widget),
-        task(task),
-        prev_window_state(prev_window_state),
-        may_alter_task(may_alter_task)
-    {}
-public:
-    QPointer<OpenableWidget> widget;
-    TaskPtr task;
-    Qt::WindowStates prev_window_state;
-    bool may_alter_task;
-};
-
-
 class CamcopsApp : public QApplication
 {
     Q_OBJECT
@@ -47,6 +28,24 @@ public:
         Unlocked,
         Locked,
         Privileged
+    };
+
+    struct OpenableInfo {
+    public:
+        OpenableInfo()
+        {}
+        OpenableInfo(QPointer<OpenableWidget> widget, TaskPtr task,
+                     Qt::WindowStates prev_window_state, bool may_alter_task) :
+            widget(widget),
+            task(task),
+            prev_window_state(prev_window_state),
+            may_alter_task(may_alter_task)
+        {}
+    public:
+        QPointer<OpenableWidget> widget;
+        TaskPtr task;
+        Qt::WindowStates prev_window_state;
+        bool may_alter_task;
     };
 
 public:

@@ -18,6 +18,12 @@ using QuElementPtr = QSharedPointer<QuElement>;
 
 class QuElement : public QObject
 {
+    // Base class for all questionnaire elements.
+    //
+    // Owns Qt widgets, but only creates them when asked (since a questionnaire
+    // may contain many elements, but only a small subset are on the current
+    // page and being displayed at any one time).
+
     Q_OBJECT
     friend class QuPage;
     friend class QuContainerHorizontal;

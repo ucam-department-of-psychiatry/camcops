@@ -119,7 +119,7 @@ QVariant Field::databaseValue() const
     switch (m_type) {
         case QVariant::DateTime:
             if (m_value.isNull()) {
-                return QVariant(QString());  // NULL string
+                return QVariant();  // NULL
             }
             return QVariant(DateTime::datetimeToIsoMs(m_value.toDateTime()));
         default:

@@ -8,6 +8,8 @@
 
 class QuButton : public QuElement
 {
+    // Element to offer a button (calling a callback function).
+
     Q_OBJECT
 public:
     using Args = QMap<QString, QVariant>;

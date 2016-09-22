@@ -257,6 +257,12 @@ QByteArray FieldRef::valueByteArray() const
 }
 
 
+QImage FieldRef::valueImage() const
+{
+    return Convert::byteArrayToImage(valueByteArray());
+}
+
+
 bool FieldRef::isNull() const
 {
     QVariant v = value();

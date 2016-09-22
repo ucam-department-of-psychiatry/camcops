@@ -48,8 +48,7 @@ QWidget {
     padding: 0;
 }
 #header_horizontal_line {
-    color: white;  /* setLineWidth */
-    background-color: white;  /* frame around the line, if visible */
+    background-color: white;
 }
 #menu_header_patient_info {
     color: yellow;

@@ -14,6 +14,9 @@ class QMouseEvent;
 
 class CanvasWidget : public QFrame
 {
+    // Widget for users to draw on a canvas (either blank, or with a starting
+    // image).
+
     Q_OBJECT
 public:
     CanvasWidget(QWidget* parent = nullptr);

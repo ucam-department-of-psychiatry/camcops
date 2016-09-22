@@ -4,6 +4,8 @@
 
 class QuLineEditDouble : public QuLineEdit
 {
+    // Offers a one-line text editor, for a floating-point number.
+
     Q_OBJECT
 public:
     QuLineEditDouble(FieldRefPtr fieldref);

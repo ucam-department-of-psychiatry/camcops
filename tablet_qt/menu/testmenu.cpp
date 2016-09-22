@@ -4,6 +4,7 @@
 #include "diagnosis/icd10.h"
 #include "diagnosis/icd9cm.h"
 #include "lib/filefunc.h"
+#include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 #include "tasklib/taskfactory.h"  // for TaskPtr
 

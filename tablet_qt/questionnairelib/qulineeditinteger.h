@@ -4,6 +4,8 @@
 
 class QuLineEditInteger : public QuLineEdit
 {
+    // Offers a one-line text editor, for an integer.
+
     Q_OBJECT
 public:
     QuLineEditInteger(FieldRefPtr fieldref);

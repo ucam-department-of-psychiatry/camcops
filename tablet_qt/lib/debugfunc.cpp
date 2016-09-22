@@ -1,4 +1,5 @@
 #include "debugfunc.h"
+#include <QDebug>
 #include <QVariant>
 
 // #define DEBUG_EVEN_GIANT_VARIANTS
@@ -27,13 +28,27 @@ void DebugFunc::debugConcisely(QDebug debug, const QVariant& value)
 
 void DebugFunc::debugConcisely(QDebug debug, const QList<QVariant>& values)
 {
-    debug << "(";
+    QDebug d = debug.nospace();
+    d << "(";
     int n = values.length();
     for (int i = 0; i < n; ++i) {
         if (i > 0) {
-            debug << ", ";
+            d << ", ";
         }
-        debugConcisely(debug, values.at(i));
+        debugConcisely(d, values.at(i));
     }
-    debug << ")";
+    d << ")";
+}
+
+
+void DebugFunc::dumpQObject(QObject* obj)
+{
+    qDebug("----------------------------------------------------");
+    qDebug("Widget name : %s", qPrintable(obj->objectName()));
+    qDebug("Widget class: %s", obj->metaObject()->className());
+    qDebug("\nObject info:");
+    obj->dumpObjectInfo();
+    qDebug("\nObject tree:");
+    obj->dumpObjectTree();
+    qDebug("----------------------------------------------------");
 }

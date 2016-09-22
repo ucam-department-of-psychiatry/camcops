@@ -16,6 +16,7 @@ QuDiagnosticCode::QuDiagnosticCode(QSharedPointer<DiagnosticCodeSet> codeset,
     m_codeset(codeset),
     m_fieldref_code(fieldref_code),
     m_fieldref_description(fieldref_description),
+    m_offer_null_button(true),
     m_missing_indicator(nullptr),
     m_label_code(nullptr),
     m_label_description(nullptr)
@@ -32,6 +33,13 @@ QuDiagnosticCode::QuDiagnosticCode(QSharedPointer<DiagnosticCodeSet> codeset,
     // NOTE that this method violates the "DRY" principle but is for clinical
     // margin-of-safety reasons so that a record of what the user saw when they
     // picked the diagnosis is preserved with the code.
+}
+
+
+QuDiagnosticCode* QuDiagnosticCode::setOfferNullButton(bool offer_null_button)
+{
+    m_offer_null_button = offer_null_button;
+    return this;
 }
 
 
@@ -67,6 +75,17 @@ QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
 
     QHBoxLayout* buttonlayout = new QHBoxLayout();
     buttonlayout->addWidget(button);
+
+    if (m_offer_null_button) {
+        QPushButton* null_button = new QPushButton(tr("Clear"));
+        null_button->setEnabled(!read_only);
+        if (!read_only) {
+            connect(null_button, &QPushButton::clicked,
+                    this, &QuDiagnosticCode::nullButtonClicked);
+        }
+        buttonlayout->addWidget(null_button);
+    }
+
     buttonlayout->addStretch();
 
     QVBoxLayout* toplayout = new QVBoxLayout();
@@ -97,6 +116,15 @@ void QuDiagnosticCode::setButtonClicked()
     connect(selector, &DiagnosticCodeSelector::codeChanged,
             this, &QuDiagnosticCode::widgetChangedCode);
     m_questionnaire->openSubWidget(selector);
+}
+
+
+void QuDiagnosticCode::nullButtonClicked()
+{
+    QVariant nullvalue;
+    m_fieldref_description->setValue(nullvalue);  // BEFORE setting code, as:
+    m_fieldref_code->setValue(nullvalue);  // ... will trigger valueChanged
+    emit elementValueChanged();
 }
 
 

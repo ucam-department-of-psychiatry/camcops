@@ -7,6 +7,9 @@ class QLabel;
 
 class QuImage : public QuElement
 {
+    // Displays an image (from a static filename or a field).
+    // No user response offered.
+
     Q_OBJECT
 public:
     QuImage(const QString& filename);

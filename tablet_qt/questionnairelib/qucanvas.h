@@ -10,6 +10,9 @@ class QTimer;
 
 class QuCanvas : public QuElement
 {
+    // Element controlling an image field, onto which the user can draw,
+    // either from a blank canvas or from a starting image. Allows image reset.
+
     Q_OBJECT
 public:
     QuCanvas(FieldRefPtr fieldref,
@@ -21,9 +24,9 @@ public:
              const QSize& size = QSize());  // = take template's size
     QuCanvas* setPenColour(const QColor& pen_colour);
     QuCanvas* setPenWidth(int pen_width);
-    void setFromField();
 protected:
     void commonConstructor();
+    void setFromField();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
     virtual void closing() override;

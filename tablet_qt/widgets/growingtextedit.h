@@ -4,6 +4,8 @@
 
 class GrowingTextEdit : public QTextEdit
 {
+    // Text editor that expands to its contents.
+
     // see http://stackoverflow.com/questions/11677499
     // http://stackoverflow.com/questions/3050537
     // http://stackoverflow.com/questions/1153714

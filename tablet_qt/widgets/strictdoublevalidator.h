@@ -4,6 +4,9 @@
 
 class StrictDoubleValidator : public QDoubleValidator
 {
+    // Validates a double (floating-point) being typed in.
+    // Checks the characters against the specified bottom/top (min/max) values.
+
     // http://stackoverflow.com/questions/19571033/allow-entry-in-qlineedit-only-within-range-of-qdoublevalidator
     // ... but that doesn't work properly (it prohibits valid things on the
     // way to success).

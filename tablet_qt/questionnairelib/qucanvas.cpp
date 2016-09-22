@@ -84,7 +84,7 @@ QPointer<QWidget> QuCanvas::makeWidget(Questionnaire* questionnaire)
                 this, &QuCanvas::imageChanged);
     }
 
-    QAbstractButton* button_reset = new ImageButton(UiConst::CBS_RELOAD);
+    QAbstractButton* button_reset = new ImageButton(UiConst::CBS_DELETE);
     button_reset->setEnabled(!read_only);
     if (!read_only) {
         connect(button_reset, &QAbstractButton::clicked,

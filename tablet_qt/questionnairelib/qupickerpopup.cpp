@@ -24,6 +24,13 @@ QuPickerPopup::QuPickerPopup(FieldRefPtr fieldref,
 }
 
 
+QuPickerPopup* QuPickerPopup::setRandomize(bool randomize)
+{
+    m_randomize = randomize;
+    return this;
+}
+
+
 QuPickerPopup* QuPickerPopup::setPopupTitle(const QString &popup_title)
 {
     m_popup_title = popup_title;
@@ -33,6 +40,11 @@ QuPickerPopup* QuPickerPopup::setPopupTitle(const QString &popup_title)
 
 QPointer<QWidget> QuPickerPopup::makeWidget(Questionnaire* questionnaire)
 {
+    // Randomize?
+    if (m_randomize) {
+        m_options.shuffle();
+    }
+
     bool read_only = questionnaire->readOnly();
     m_label = new ClickableLabel();
     m_label->setClickable(!read_only);

@@ -15,6 +15,9 @@ using QuPagePtr = QSharedPointer<QuPage>;
 
 class QuPage : public QObject
 {
+    // Encapsulates a display page of QuElement objects.
+    // A Questionnaire includes one or more QuPage objects.
+
     Q_OBJECT
     friend class Questionnaire;
 public:
@@ -35,6 +38,8 @@ public:
     QuPage* setTitle(const QString& title);
     QuPage* addElement(const QuElementPtr& element);
     QuPage* addElement(QuElement* element);  // takes ownership
+
+    virtual ~QuPage();
 
     PageType type() const;
     QString title() const;

@@ -9,11 +9,14 @@ class QLabel;
 
 class QuPickerInline : public QuElement
 {
+    // Offers a drop-down list of choices, or device equivalent.
+
     Q_OBJECT
 public:
     QuPickerInline(FieldRefPtr fieldref, const NameValueOptions& options);
-    void setFromField();
+    QuPickerInline* setRandomize(bool randomize);
 protected:
+    void setFromField();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
 protected slots:
@@ -22,5 +25,6 @@ protected slots:
 protected:
     FieldRefPtr m_fieldref;
     NameValueOptions m_options;
+    bool m_randomize;
     QPointer<QComboBox> m_cbox;
 };

@@ -4,6 +4,9 @@
 
 class QuGridCell
 {
+    // Encapsulates a grid cell containing a QuElement.
+    // Used by QuContainerGrid.
+
 public:
     QuGridCell(const QuElementPtr element,
                int row,  // y position, starting from 0, going down

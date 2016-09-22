@@ -8,6 +8,9 @@ class QWidget;
 
 class QuAudioPlayer : public QuElement
 {
+    // Element to play audio.
+    // Offers a play/stop button, +/- a volume control.
+
     Q_OBJECT
 public:
     QuAudioPlayer(const QString& url);

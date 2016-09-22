@@ -18,12 +18,17 @@ LabelWordWrapWide::LabelWordWrapWide(const QString& text, QWidget* parent) :
 {
     setClickable(false);  // by default; change if you want
     setWordWrap(true);
-    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-    // If the horizontal policy if Preferred (with vertical Minimum), then
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    // If the horizontal policy is Preferred (with vertical Minimum), then
     // the text tries to wrap (increasing height) when other things tell it
     // that it can. So Expanding/Minimum is better.
     // However, that does sometimes mean that the widget expands horizontally
     // when you don't want it to.
+
+    // We were using vertical QSizePolicy::Minimum, and in resizeEvent setting
+    // setMinimumHeight(); presumably if we use QSizePolicy::Fixed we should
+    // use setFixedHeight().
+
     // setObjectName("debug_green");
 }
 
@@ -31,18 +36,25 @@ LabelWordWrapWide::LabelWordWrapWide(const QString& text, QWidget* parent) :
 void LabelWordWrapWide::resizeEvent(QResizeEvent* event)
 {
     QLabel::resizeEvent(event);
-    if (wordWrap() && sizePolicy().verticalPolicy() == QSizePolicy::Minimum) {
-        // heightForWidth relies on minimumSize to evaulate, so reset it...
-        setMinimumHeight(0);
-        // ... before defining minimum height:
-        int w = width();
-        setMinimumHeight(qMax(0, heightForWidth(w)));
-        // suspect heightForWidth(w) can give -1 with no text present
 
-        // The heightForWidth() function, in qlabel.cpp,
-        // works out (for a text label) a size, using sizeForWidth(),
-        // then returns the height of that size.
-        //
-        // The complex bit is then in QLabelPrivate::sizeForWidth
-    }
+    // We were making what follows conditional on:
+    //     QSizePolicy::Policy vsp = sizePolicy().verticalPolicy();
+    //     if (wordWrap() && (vsp == QSizePolicy::Minimum ||
+    //                       vsp == QSizePolicy::Fixed)) { ...
+    // ... but I'm not sure that's necessary.
+
+    // heightForWidth relies on minimumSize to evaulate, so reset it...
+    setMinimumHeight(0);
+    // ... before defining minimum height:
+    int w = width();
+    setFixedHeight(qMax(0, heightForWidth(w)));
+    // suspect heightForWidth(w) can give -1 with no text present
+
+    updateGeometry();
+
+    // The heightForWidth() function, in qlabel.cpp,
+    // works out (for a text label) a size, using sizeForWidth(),
+    // then returns the height of that size.
+    //
+    // The complex bit is then in QLabelPrivate::sizeForWidth
 }

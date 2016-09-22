@@ -188,7 +188,8 @@ Other debugging
   http://doc.qt.io/qtcreator/creator-analyzer.html
   ... but can't see any useful output
 - http://stackoverflow.com/questions/1593717/is-anyone-using-valgrind-and-qt
-- valgrind --leak-check=full ./camcops_tablet 2>leaks.txt
+- valgrind --leak-check=full ./camcops 2>leaks.txt
+- valgrind --leak-check=full --track-origins=yes ./camcops 2>leaks.txt
 
 - Qt Inspector
         http://kdemonkey.blogspot.co.uk/2011/07/qt-inspector.html
@@ -248,7 +249,7 @@ Other debugging
 
   ... runs, but "there is no default attach injector on this platform"
 
-- valgrind
+- valgrind, as above
 
 ===============================================================================
 Database objects
@@ -618,21 +619,12 @@ Questionnaire
     http://doc.qt.io/qt-5/platform-notes-android.html
     http://www.qtcentre.org/threads/62787-Accessing-android-camera
 
-- TO DO: ***
-
-QuestionMCQGridDouble.js
-QuestionMCQGrid.js
-QuestionMCQGridWithSingleBoolean.js
-
-
 ===============================================================================
 Translation
 ===============================================================================
 
 - Passing a QString to QObject::tr - use qPrintable()
   http://stackoverflow.com/questions/19078879/easier-way-of-passing-qstring-for-objecttr
-
-
 
 ===============================================================================
 TO DO

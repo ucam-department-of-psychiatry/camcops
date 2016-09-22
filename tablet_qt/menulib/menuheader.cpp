@@ -1,11 +1,11 @@
 #include "menuheader.h"
 #include <QAbstractButton>
-#include <QFrame>
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include "common/uiconstants.h"
 #include "lib/uifunc.h"
+#include "widgets/horizontalline.h"
 #include "widgets/imagebutton.h"
 #include "widgets/labelwordwrapwide.h"
 
@@ -109,11 +109,8 @@ MenuHeader::MenuHeader(QWidget* parent,
     // ------------------------------------------------------------------------
     // Horizontal line
     // ------------------------------------------------------------------------
-    QFrame* horizline = new QFrame();
+    HorizontalLine* horizline = new HorizontalLine(UiConst::HEADER_HLINE_WIDTH);
     horizline->setObjectName("header_horizontal_line");
-    horizline->setFrameShape(QFrame::HLine);
-    horizline->setFrameShadow(QFrame::Plain);
-    horizline->setLineWidth(UiConst::HEADER_HLINE_WIDTH);
     mainlayout->addWidget(horizline);
 
     // ------------------------------------------------------------------------

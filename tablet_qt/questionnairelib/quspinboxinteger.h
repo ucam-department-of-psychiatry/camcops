@@ -7,11 +7,13 @@ class QSpinBox;
 
 class QuSpinBoxInteger : public QuElement
 {
+    // Offers a text editing box with spinbox controls, for integer entry.
+
     Q_OBJECT
 public:
     QuSpinBoxInteger(FieldRefPtr fieldref, int minimum, int maximum);
-    void setFromField();
 protected:
+    void setFromField();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
 protected slots:

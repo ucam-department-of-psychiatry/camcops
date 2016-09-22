@@ -61,6 +61,11 @@ QuPage* QuPage::addElement(QuElement* element)  // takes ownership
 }
 
 
+QuPage::~QuPage()
+{
+}
+
+
 QuPage::PageType QuPage::type() const
 {
     return m_type;

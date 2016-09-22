@@ -88,6 +88,11 @@ namespace DbFunc {
                    const QString& sql,
                    int failureDefault = -1);
 
+    QString csvHeader(const QSqlQuery& query, const char sep = ',');
+    QString csvRow(const QSqlQuery& query, const char sep = ',');
+    QString csv(QSqlQuery& query, const char sep = ',',
+                const char linesep = '\n');
+
     // Database structure
 
     bool tableExists(const QSqlDatabase& db, const QString& tablename);

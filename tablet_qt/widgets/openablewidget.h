@@ -5,6 +5,8 @@
 
 class OpenableWidget : public QWidget
 {
+    // Widget that the CamCOPS main app knows how to open as a screen.
+
     Q_OBJECT
 public:
     OpenableWidget(QWidget* parent = nullptr);

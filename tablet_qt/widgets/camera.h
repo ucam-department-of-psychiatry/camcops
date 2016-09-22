@@ -20,6 +20,8 @@ class QVideoFrame;
 
 class Camera : public OpenableWidget
 {
+    // Widget to take a photo.
+
     Q_OBJECT
 public:
     Camera(const QString& stylesheet, QWidget* parent = nullptr);

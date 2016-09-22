@@ -18,6 +18,8 @@
 
 class AspectRatioPixmapLabel : public QLabel
 {
+    // Image that retains its aspect ratio, for displaying photos.
+
     Q_OBJECT
 public:
     explicit AspectRatioPixmapLabel(QWidget* parent = nullptr);

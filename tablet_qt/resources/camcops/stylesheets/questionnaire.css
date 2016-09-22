@@ -166,8 +166,7 @@ QuestionnaireHeader QLabel {
     font-size: %4pt;
 }
 #header_horizontal_line {
-    color: black;  /* setLineWidth */
-    background-color: black;  /* frame around the line, if visible */
+    background-color: black;
 }
 
 /* =========================================================================
@@ -175,8 +174,7 @@ QuestionnaireHeader QLabel {
    ========================================================================= */
 
 #questionnaire_horizontal_line {
-    color: black;  /* setLineWidth */
-    background-color: black;  /* frame around the line, if visible */
+    background-color: black;
 }
 
 /* =========================================================================
@@ -344,6 +342,75 @@ CanvasWidget {
 /* QuPhoto */
 AspectRatioPixmapLabel {
     background-color: lightgray;
+}
+
+/* QuMCQGrid */
+#mcq_grid #option_background {
+    background-color: lightgray;
+}
+#mcq_grid #question {
+    font-weight: bold;
+    padding: 5px;
+}
+#mcq_grid #option {
+padding: 5px;
+}
+#mcq_grid #title {
+    font-weight: bold;
+    padding: 5px;
+}
+#mcq_grid #subtitle {
+    font-weight: bold;
+    padding: 5px;
+}
+#mcq_grid #vline {
+    background-color: darkgray;
+}
+
+/* QuMCQGridDouble */
+#mcq_grid_double #option_background {
+    background-color: lightgray;
+}
+#mcq_grid_double #question {
+    font-weight: bold;
+    padding: 5px;
+}
+#mcq_grid_double #option {
+    padding: 5px;
+}
+#mcq_grid_double #title {
+    font-weight: bold;
+    padding: 5px;
+}
+#mcq_grid_double #subtitle {
+    font-weight: bold;
+    padding: 5px;
+}
+#mcq_grid_double #vline {
+    background-color: darkgray;
+}
+
+/* QuMCQGridSingleBoolean */
+#mcq_grid_single_boolean #option_background {
+    background-color: lightgray;
+}
+#mcq_grid_single_boolean #question {
+    font-weight: bold;
+    padding: 5px;
+}
+#mcq_grid_single_boolean #option {
+    padding: 5px;
+}
+#mcq_grid_single_boolean #title {
+    font-weight: bold;
+    padding: 5px;
+}
+#mcq_grid_single_boolean #subtitle {
+    font-weight: bold;
+    padding: 5px;
+}
+#mcq_grid_single_boolean #vline {
+    background-color: darkgray;
 }
 
 

@@ -7,6 +7,8 @@
 
 class VerticalScrollArea : public QScrollArea
 {
+    // Contains objects in a vertical scroll area.
+
     Q_OBJECT
 public:
     explicit VerticalScrollArea(QWidget* parent = nullptr);

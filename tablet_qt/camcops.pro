@@ -132,7 +132,6 @@ SOURCES += main.cpp\
     questionnairelib/qugridcell.cpp \
     questionnairelib/qucontainergrid.cpp \
     questionnairelib/qumultipleresponse.cpp \
-    questionnairelib/qumultipleresponseitem.cpp \
     questionnairelib/qucanvas.cpp \
     widgets/canvaswidget.cpp \
     questionnairelib/quphoto.cpp \
@@ -150,7 +149,21 @@ SOURCES += main.cpp\
     widgets/progressbox.cpp \
     lib/convert.cpp \
     dbobjects/blob.cpp \
-    lib/debugfunc.cpp
+    lib/debugfunc.cpp \
+    menulib/taskmenuitem.cpp \
+    menulib/htmlmenuitem.cpp \
+    tasklib/taskproxy.cpp \
+    tasklib/taskregistrar.cpp \
+    questionnairelib/qumcqgrid.cpp \
+    questionnairelib/mcqgridsubtitle.cpp \
+    widgets/shootabug.cpp \
+    questionnairelib/qumcqgriddouble.cpp \
+    questionnairelib/questionwithtwofields.cpp \
+    questionnairelib/questionwithonefield.cpp \
+    questionnairelib/mcqfunc.cpp \
+    widgets/horizontalline.cpp \
+    widgets/verticalline.cpp \
+    questionnairelib/qumcqgridsingleboolean.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -254,7 +267,6 @@ HEADERS  += \
     questionnairelib/qugridcell.h \
     questionnairelib/qucontainergrid.h \
     questionnairelib/qumultipleresponse.h \
-    questionnairelib/qumultipleresponseitem.h \
     questionnairelib/qucanvas.h \
     widgets/canvaswidget.h \
     questionnairelib/quphoto.h \
@@ -272,7 +284,21 @@ HEADERS  += \
     widgets/progressbox.h \
     lib/convert.h \
     dbobjects/blob.h \
-    lib/debugfunc.h
+    lib/debugfunc.h \
+    menulib/taskmenuitem.h \
+    menulib/htmlmenuitem.h \
+    tasklib/taskproxy.h \
+    tasklib/taskregistrar.h \
+    questionnairelib/qumcqgrid.h \
+    questionnairelib/mcqgridsubtitle.h \
+    widgets/shootabug.h \
+    questionnairelib/qumcqgriddouble.h \
+    questionnairelib/questionwithtwofields.h \
+    questionnairelib/questionwithonefield.h \
+    questionnairelib/mcqfunc.h \
+    widgets/horizontalline.h \
+    widgets/verticalline.h \
+    questionnairelib/qumcqgridsingleboolean.h
 
 CONFIG += debug
 CONFIG += mobility

@@ -13,6 +13,7 @@ QuPickerInline::QuPickerInline(FieldRefPtr fieldref,
                                const NameValueOptions& options) :
     m_fieldref(fieldref),
     m_options(options),
+    m_randomize(false),
     m_cbox(nullptr)
 {
     m_options.validateOrDie();
@@ -24,8 +25,20 @@ QuPickerInline::QuPickerInline(FieldRefPtr fieldref,
 }
 
 
+QuPickerInline* QuPickerInline::setRandomize(bool randomize)
+{
+    m_randomize = randomize;
+    return this;
+}
+
+
 QPointer<QWidget> QuPickerInline::makeWidget(Questionnaire* questionnaire)
 {
+    // Randomize?
+    if (m_randomize) {
+        m_options.shuffle();
+    }
+
     bool read_only = questionnaire->readOnly();
     m_cbox = new QComboBox();
     for (int i = 0; i < m_options.size(); ++i) {

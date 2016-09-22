@@ -18,6 +18,8 @@ class QuestionnaireHeader;
 
 class Questionnaire : public OpenableWidget
 {
+    // Master class controlling a questionnaire.
+
     Q_OBJECT
 public:
     Questionnaire(CamcopsApp& app);

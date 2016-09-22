@@ -7,12 +7,15 @@ class GrowingTextEdit;
 
 class QuTextEdit : public QuElement
 {
+    // Offers an expanding editor for entry of large quantities of text.
+    // (For a smaller version, see QuLineEdit.)
+
     Q_OBJECT
 public:
     QuTextEdit(FieldRefPtr fieldref, bool accept_rich_text = false);
     QuTextEdit* setHint(const QString& hint);
-    void setFromField();
 protected:
+    void setFromField();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
 protected slots:

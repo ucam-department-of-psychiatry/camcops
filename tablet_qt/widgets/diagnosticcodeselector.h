@@ -22,6 +22,8 @@ class QTreeView;
 
 class DiagnosticCodeSelector : public OpenableWidget
 {
+    // Offers both a tree browser and a search box for diagnostic codes.
+
     Q_OBJECT
 public:
     DiagnosticCodeSelector(const QString& stylesheet,

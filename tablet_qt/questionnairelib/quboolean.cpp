@@ -3,9 +3,10 @@
 #include <QLabel>
 #include <QWidget>
 #include "lib/uifunc.h"
-#include "questionnairelib/questionnaire.h"
 #include "widgets/booleanwidget.h"
 #include "widgets/labelwordwrapwide.h"
+#include "mcqfunc.h"
+#include "questionnaire.h"
 
 
 QuBoolean::QuBoolean(const QString& text, FieldRefPtr fieldref) :
@@ -123,6 +124,7 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire *questionnaire)
     if (!m_text.isEmpty()) {
         // Text label
         label = new LabelWordWrapWide(m_text);
+        label->setClickable(m_content_clickable);
         int fontsize = questionnaire->fontSizePt(
             m_big_text ? UiConst::FontSize::Big : UiConst::FontSize::Normal);
         QString css = UiFunc::textCSS(fontsize, m_bold, m_italic);
@@ -190,16 +192,7 @@ void QuBoolean::setFromField()
 
 void QuBoolean::clicked()
 {
-    QVariant value = m_fieldref->value();
-    QVariant newvalue;
-    if (value.isNull()) {  // NULL -> true
-        newvalue = true;
-    } else if (value.toBool()) {  // true -> false
-        newvalue = false;
-    } else {  // false -> either NULL or true
-        newvalue = m_allow_unset ? QVariant() : true;
-    }
-    m_fieldref->setValue(newvalue);  // Will trigger valueChanged
+    McqFunc::toggleBooleanField(m_fieldref.data(), m_allow_unset);
     emit elementValueChanged();
 }
 
