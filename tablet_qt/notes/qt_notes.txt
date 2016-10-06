@@ -251,6 +251,34 @@ Other debugging
 
 - valgrind, as above
 
+- Nasty link error:
+    "undefined reference to 'QDialog::acceptOrWait(int)'"
+    ... having created such a function, then deleted it
+    ... was a linker error from multiple moc_*.o files
+    ... was due to changes in the original (custom Qt installation) .h filed
+    ... I could believe that I mistakenly edited one, but these had all
+        changed:
+            qcolordialog.h
+            qdialog.h
+            qerrormessage.h
+            qfiledialog.h
+            qfontdialog.h
+            qinputdialog.h
+            qwizard.h
+    ... so Qt somehow altered them - not good!
+
+===============================================================================
+Debug versus release builds; optimizing
+===============================================================================
+
+... check with "readelf --debug-dump=decodedline <LIBRARY.so>"
+
+http://stackoverflow.com/questions/12785364/configuration-for-optimizing-qt-creator-compiler
+https://forum.qt.io/topic/10612/solved-optimized-compiling-with-qt/3
+... QMAKE_CXXFLAGS_RELEASE
+
+http://www.qtforum.org/article/27474/qt-creator-customize-optimization-flags-for-release-build.html
+
 ===============================================================================
 Database objects
 ===============================================================================
@@ -439,11 +467,23 @@ Factory methods; CRTP; making derived classes from base class; etc.
 Pointer management
 ===============================================================================
 - QScopedPointer: for very short lifetimes
-- QSharedPointer - MAIN ONE, I THINK
+- QSharedPointer - MAIN ONE, I THINK, for "own" object management
 - QWeakPointer - weak reference to a shared pointer
 - QPointer - guarded pointers to QObject
 - QSharedDataPointer - pointer to an implicitly shared object
     http://doc.qt.io/qt-5/implicit-sharing.html
+
+General algorithm:
+1.  If it's owned by Qt (and in that case it will also be a QObject), use a
+    QPointer. If Qt deletes the object, your QPointer will become null.
+2.  If you own it, and it's not a QObject, use a QSharedPointer.
+    ... when the last QSharedPointer to an object goes out of scope, the object
+    is deleted.
+3.  If you own it, and it *is* a QObject... you should still use a
+    QSharedPointer, because a QPointer will not autodelete the object when the
+    last one goes out of scope.
+
+And in general, don't "delete this"; your owner should delete you.
 
 ===============================================================================
 Audio
@@ -492,6 +532,29 @@ Audio
       ... configure Qt with -gstreamer 1.0
       ... needs: sudo apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
 
+===============================================================================
+Collected Ubuntu requirements
+===============================================================================
+
+sudo apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+    libgl1-mesa-dev \
+    libasound-dev \
+    libharfbuzz-dev \
+    libpulse-dev \
+    libwayland-dev libwayland-egl1 libegl1-mesa-dev \
+    libtiff-dev \
+    libgbm-dev \
+    libxkbcommon-x11-dev \
+    libdbus-1-dev \
+    libjasper-dev \
+    libxcomposite-dev \
+    libxi-dev
+
+# Android:
+sudo apt install openjdk-8-jdk
+
+# Debugging:
+sudo apt install valgrind
 
 ===============================================================================
 Logging
@@ -627,25 +690,50 @@ Translation
   http://stackoverflow.com/questions/19078879/easier-way-of-passing-qstring-for-objecttr
 
 ===============================================================================
-TO DO
+Network
 ===============================================================================
-- *** wait dialog when task lists being constructed, using RAII
-    ? http://stackoverflow.com/questions/22670564/reliably-showing-a-please-wait-dialog-while-doing-a-lengthy-blocking-operation
-- *** all network access via a dialogue that's the child of its caller,
+
+- all network access via a dialogue that's the child of its caller,
       with a log view (cf. my Python code), and "Cancel" and "OK"/"Acknowledge" buttons, of
       which the former is visible during operations and the latter at the end.
   - general form:
         NetworkManager(CamcopsApp& app, const QString& url);
         void post(QMap<QString, QString>& dict, callback_if_succeeds, callback_if_fails, bool add_standard_info);
                 // NB pass by reference; password may be added
-		// callback if fails should include "user cancelled" reason
+                // callback if fails should include "user cancelled" reason
                 // both callbacks should include reply (blank if cancelled etc.)
         void get(...);  // as above - unlikely to be used
         void status(const QString& message, enum level);  // + facility for colour-coding by level
         void finished();  // show OK button and await dismissal
         void failed();  // show Ack button and await dismissal
 
+- HTTPS POST
+    http://stackoverflow.com/questions/2599423/how-can-i-post-data-to-a-url-using-qnetworkaccessmanager
+
+- Network sending: possible to do it with a stream (to which we write data
+  from our database)? Would involve QNetworkManager::post with its QIODevice
+  version:
+    http://doc.qt.io/qt-5/qnetworkaccessmanager.html#post
+    http://doc.qt.io/qt-5/qbuffer.html#details
+    http://doc.qt.io/qt-5/qtextstream.html
+    http://stackoverflow.com/questions/2806274/uploading-a-file-using-post-method-of-qnetworkaccessmanager
+  ... realistically, we might want this, but we're going to want to have a
+  buffer that takes all the data before we make the network call.
+  So it'd be:
+    create QByteArray
+    create QBuffer (or QTextStream( addressing the QByteArray
+    use << to write to the buffer (and thus the QByteArray)
+    send the QByteArray using that version of QNetworkManager::post
+  Not yet done.
+
+- One QNetworkAccessManager per application (as advised by Qt docs);
+  don't start/stop it.
+
+===============================================================================
+TO DO
+===============================================================================
 - *** patients
+- *** server config
 - *** scrolling by touch on Android menus and questionnaires
     http://doc.qt.io/qt-5.7/gestures-overview.html
     *** https://forum.qt.io/topic/30546/kinetic-scrolling-on-qscrollarea-on-android-device/5
@@ -664,8 +752,6 @@ TO DO
 - Factory for registering things that must create tables
     ... of which tasks are just one (but task registration should do this automatically)
     ... once database is opened, call each one
-- HTTPS POST
-    http://stackoverflow.com/questions/2599423/how-can-i-post-data-to-a-url-using-qnetworkaccessmanager
 - Server-side generation of device ID
   (as it's not feasible to generate a proper user- and machine-specific ID
   across all OSs).
@@ -673,17 +759,6 @@ TO DO
 - as per Julia's problem: >1 patient on tablet, need to have same RID (because
   extra one created by mistake) - option to merge
 
-- Network sending: possible to do it with a stream (to which we write data
-  from our database)? Would involve QNetworkManager::post with its QIODevice
-  version:
-    http://doc.qt.io/qt-5/qnetworkaccessmanager.html#post
-    http://doc.qt.io/qt-5/qbuffer.html#details
-    http://doc.qt.io/qt-5/qtextstream.html
-    http://stackoverflow.com/questions/2806274/uploading-a-file-using-post-method-of-qnetworkaccessmanager
-  ... realistically, we might want this, but we're going to want to have a
-  buffer that takes all the data before we make the network call.
-  So it'd be:
-    create QByteArray
-    create QBuffer (or QTextStream( addressing the QByteArray
-    use << to write to the buffer (and thus the QByteArray)
-    send the QByteArray using that version of QNetworkManager::post
+- Note for SERVER side: is ZIP generation inefficient with >1 SQL query per
+  task fetched (e.g. generate PKs, filter PKs, fetch...)
+  ... ensure that in general this is done by generate PKs -> yield Task -> filter

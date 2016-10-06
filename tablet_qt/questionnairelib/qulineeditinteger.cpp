@@ -10,6 +10,7 @@ QuLineEditInteger::QuLineEditInteger(FieldRefPtr fieldref) :
     m_maximum(std::numeric_limits<int>::max()),
     m_strict_validator(true)
 {
+    setHint("integer");
 }
 
 
@@ -20,6 +21,7 @@ QuLineEditInteger::QuLineEditInteger(FieldRefPtr fieldref, int minimum,
     m_maximum(maximum),
     m_strict_validator(true)
 {
+    setHint(QString("integer, range %1 to %2").arg(m_minimum).arg(m_maximum));
 }
 
 

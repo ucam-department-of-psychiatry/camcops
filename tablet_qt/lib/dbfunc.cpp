@@ -11,47 +11,8 @@
 #include "lib/convert.h"
 #include "lib/debugfunc.h"
 #include "lib/uifunc.h"
-
-
-QDebug operator<<(QDebug debug, const SqlitePragmaInfo& info)
-{
-    debug.nospace()
-        << "SqlitePragmaInfo(cid=" << info.cid
-        << ", name=" << info.name
-        << ", type=" << info.type
-        << ", notnull=" << info.notnull
-        << ", dflt_value=" << info.dflt_value
-        << ", pk=" << info.pk << ")";
-    return debug;
-}
-
-
-QDebug operator<<(QDebug debug, const FieldCreationPlan& plan)
-{
-    debug.nospace()
-        << "FieldCreationPlan(name=" << plan.name
-        << ", intended base type=";
-    if (plan.intended_field) {
-        debug.nospace() << plan.intended_field->sqlColumnType();
-    } else {
-        debug.nospace() << "<none>";
-    }
-    debug.nospace()
-        << ", intended full def=";
-    if (plan.intended_field) {
-        debug.nospace() << plan.intended_field->sqlColumnDef();
-    } else {
-        debug.nospace() << "<none>";
-    }
-    debug.nospace()
-        << ", exists_in_db=" << plan.exists_in_db
-        << ", existing_type=" << plan.existing_type
-        << ", existing_not_null=" << plan.existing_not_null
-        << ", add=" << plan.add
-        << ", drop=" << plan.drop
-        << ", change=" << plan.change << ")";
-    return debug;
-}
+#include "fieldcreationplan.h"
+#include "sqlitepragmainfofield.h"
 
 
 void DbFunc::openDatabaseOrDie(QSqlDatabase& db, const QString& filename)
@@ -98,7 +59,8 @@ QString DbFunc::delimit(const QString& fieldname)
 }
 
 
-void DbFunc::addWhereClause(const WhereConditions& where, SqlArgs& sqlargs_altered)
+void DbFunc::addWhereClause(const WhereConditions& where,
+                            SqlArgs& sqlargs_altered)
 {
     if (where.isEmpty()) {
         return;
@@ -118,7 +80,7 @@ void DbFunc::addWhereClause(const WhereConditions& where, SqlArgs& sqlargs_alter
 
 void DbFunc::addArgs(QSqlQuery& query, const ArgList& args)
 {
-    // Adds arguments to a query from a QList.
+    // Adds arguments to a QSqlQuery from a QList.
     const int size = args.size();
     for (int i = 0; i < size; ++i) {
         query.addBindValue(args.at(i), QSql::In);
@@ -215,8 +177,8 @@ bool DbFunc::exec(const QSqlDatabase& db, const SqlArgs& sqlargs)
 
 
 QVariant DbFunc::dbFetchFirstValue(const QSqlDatabase& db,
-                           const QString& sql,
-                           const ArgList& args)
+                                   const QString& sql,
+                                   const ArgList& args)
 {
     QSqlQuery query(db);
     execQuery(query, sql, args);
@@ -234,13 +196,13 @@ QVariant DbFunc::dbFetchFirstValue(const QSqlDatabase& db, const QString& sql)
 }
 
 
-int DbFunc::dbFetchInt(const QSqlDatabase& db, const QString& sql,
-                       const ArgList& args, int failureDefault)
+int DbFunc::dbFetchInt(const QSqlDatabase& db, const SqlArgs& sqlargs,
+                       int failureDefault)
 {
     // Executes the specified SQL/args and returns the integer value of the
     // first field of the first result (or failureDefault).
     QSqlQuery query(db);
-    execQuery(query, sql, args);
+    execQuery(query, sqlargs);
     if (!query.next()) {
         return failureDefault;
     }
@@ -251,8 +213,7 @@ int DbFunc::dbFetchInt(const QSqlDatabase& db, const QString& sql,
 int DbFunc::dbFetchInt(const QSqlDatabase& db, const QString& sql,
                        int failureDefault)
 {
-    ArgList args;
-    return dbFetchInt(db, sql, args, failureDefault);
+    return dbFetchInt(db, SqlArgs(sql), failureDefault);
 }
 
 
@@ -290,16 +251,26 @@ QString DbFunc::csv(QSqlQuery& query, const char sep, const char linesep)
 }
 
 
-bool DbFunc::tableExists(const QSqlDatabase& db, const QString& tablename)
+int DbFunc::count(const QSqlDatabase& db,
+                  const QString& tablename, const WhereConditions& where)
 {
-    QString sql = "SELECT COUNT(*) FROM sqlite_master "
-                  "WHERE type='table' AND name=?";
-    ArgList args({tablename});
-    return dbFetchInt(db, sql, args) > 0;
+    SqlArgs sqlargs("SELECT COUNT(*) FROM " + delimit(tablename));
+    addWhereClause(where, sqlargs);
+    return dbFetchInt(db, sqlargs, 0);
 }
 
 
-QList<SqlitePragmaInfo> DbFunc::getPragmaInfo(const QSqlDatabase& db,
+bool DbFunc::tableExists(const QSqlDatabase& db, const QString& tablename)
+{
+    SqlArgs sqlargs(
+        "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?",
+        {tablename}
+    );
+    return dbFetchInt(db, sqlargs) > 0;
+}
+
+
+QList<SqlitePragmaInfoField> DbFunc::getPragmaInfo(const QSqlDatabase& db,
                                               const QString& tablename)
 {
     QString sql = QString("PRAGMA table_info(%1)").arg(delimit(tablename));
@@ -308,10 +279,10 @@ QList<SqlitePragmaInfo> DbFunc::getPragmaInfo(const QSqlDatabase& db,
         UiFunc::stopApp("DbFunc::getPragmaInfo: PRAGMA table_info failed for "
                         "table " + tablename);
     }
-    QList<SqlitePragmaInfo> infolist;
+    QList<SqlitePragmaInfoField> infolist;
     while (query.next()) {
-        SqlitePragmaInfo fieldinfo;
-        fieldinfo.cid = query.value(0).toInt();
+        SqlitePragmaInfoField fieldinfo;
+         fieldinfo.cid = query.value(0).toInt();
         fieldinfo.name = query.value(1).toString();
         fieldinfo.type = query.value(2).toString();
         fieldinfo.notnull = query.value(3).toBool();
@@ -324,7 +295,7 @@ QList<SqlitePragmaInfo> DbFunc::getPragmaInfo(const QSqlDatabase& db,
 
 
 QStringList DbFunc::fieldNamesFromPragmaInfo(
-        const QList<SqlitePragmaInfo>& infolist,
+        const QList<SqlitePragmaInfoField>& infolist,
         bool delimited)
 {
     QStringList fieldnames;
@@ -343,19 +314,19 @@ QStringList DbFunc::fieldNamesFromPragmaInfo(
 QStringList DbFunc::dbFieldNames(const QSqlDatabase& db,
                                  const QString& tablename)
 {
-    QList<SqlitePragmaInfo> infolist = getPragmaInfo(db, tablename);
+    QList<SqlitePragmaInfoField> infolist = getPragmaInfo(db, tablename);
     return fieldNamesFromPragmaInfo(infolist);
 }
 
 
 QString DbFunc::makeCreationSqlFromPragmaInfo(
         const QString& tablename,
-        const QList<SqlitePragmaInfo>& infolist)
+        const QList<SqlitePragmaInfoField>& infolist)
 {
     QStringList fieldspecs;
     const int size = infolist.size();
     for (int i = 0; i < size; ++i) {
-        const SqlitePragmaInfo& info = infolist.at(i);
+        const SqlitePragmaInfoField& info = infolist.at(i);
         QStringList elements;
         elements.append(delimit(info.name));
         elements.append(info.type);
@@ -420,7 +391,7 @@ void DbFunc::renameColumns(const QSqlDatabase& db, QString tablename,
                         dummytable);
     }
     int n_changes = 0;
-    for (int i; i < from_to.size(); ++i) {  // For each rename...
+    for (int i = 0; i < from_to.size(); ++i) {  // For each rename...
         QString from = from_to.at(i).first;
         QString to = from_to.at(i).second;
         if (from == to) {
@@ -511,7 +482,7 @@ void DbFunc::changeColumnTypes(const QSqlDatabase& db,
         UiFunc::stopApp("DbFunc::changeColumnTypes: temporary table exists: " +
                         dummytable);
     }
-    QList<SqlitePragmaInfo> infolist = getPragmaInfo(db, tablename);
+    QList<SqlitePragmaInfoField> infolist = getPragmaInfo(db, tablename);
     qDebug() << "changeColumnTypes";
     qDebug() << "- pragma info:" << infolist;
     qDebug() << "- changes:" << changes;
@@ -519,7 +490,7 @@ void DbFunc::changeColumnTypes(const QSqlDatabase& db,
     for (int i = 0; i < changes.size(); ++i) {
         QString changefield = changes.at(i).first;
         for (int j = 0; i < infolist.size(); ++j) {
-            SqlitePragmaInfo& info = infolist[j];
+            SqlitePragmaInfoField& info = infolist[j];
             if (changefield.compare(info.name, Qt::CaseInsensitive) == 0) {
                 QString newtype = changes.at(i).second;
                 info.type = newtype;
@@ -597,9 +568,9 @@ void DbFunc::createTable(const QSqlDatabase& db, const QString& tablename,
     //   to have a different type).
     // - If they're not in our "desired" list, then they're superfluous, so
     //   aim to drop them.
-    QList<SqlitePragmaInfo> infolist = getPragmaInfo(db, tablename);
+    QList<SqlitePragmaInfoField> infolist = getPragmaInfo(db, tablename);
     for (int i = 0; i < infolist.size(); ++i) {
-        const SqlitePragmaInfo& info = infolist.at(i);
+        const SqlitePragmaInfoField& info = infolist.at(i);
         bool existing_is_superfluous = true;
         for (int j = 0; j < planlist.size(); ++j) {
             FieldCreationPlan& plan = planlist[j];

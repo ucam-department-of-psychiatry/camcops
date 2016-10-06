@@ -7,12 +7,14 @@
 const QString PATIENT_FK_FIELDNAME = "patient_id";
 
 
-Task::Task(const QSqlDatabase& db,
+Task::Task(CamcopsApp& app,
+           const QSqlDatabase& db,
            const QString& tablename,
            bool is_anonymous,
            bool has_clinician,
            bool has_respondent) :
-    DatabaseObject(db, tablename, DbConst::PK_FIELDNAME, true, true)
+    DatabaseObject(db, tablename, DbConst::PK_FIELDNAME, true, true),
+    m_app(app)
 {
     // WATCH OUT: you can't call a derived class's overloaded function
     // here; its vtable is incomplete.
@@ -62,11 +64,17 @@ QString Task::menutitle() const
 
 bool Task::hasExtraStrings() const
 {
-    return false;  // ***
+    return m_app.hasExtraStrings(xstringTaskname());
 }
 
 
 QString Task::infoFilenameStem() const
+{
+    return m_tablename;
+}
+
+
+QString Task::xstringTaskname() const
 {
     return m_tablename;
 }
@@ -132,10 +140,15 @@ QString Task::detail() const
 }
 
 
-OpenableWidget* Task::editor(CamcopsApp &app, bool read_only)
+OpenableWidget* Task::editor(bool read_only)
 {
-    (void)app;
     (void)read_only;
     qWarning() << "Base class Task::edit called - not a good thing!";
     return nullptr;
+}
+
+
+QString Task::xstring(const QString &stringname) const
+{
+    return m_app.xstring(xstringTaskname(), stringname);
 }

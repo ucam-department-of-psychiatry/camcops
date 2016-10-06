@@ -1,17 +1,20 @@
 #include "testmenu.h"
 #include <QMediaPlayer>
+#include <QProgressDialog>
+#include <QThread>
 #include "common/platform.h"
 #include "diagnosis/icd10.h"
 #include "diagnosis/icd9cm.h"
 #include "lib/filefunc.h"
+#include "lib/networkmanager.h"
 #include "lib/uifunc.h"
+#include "lib/slownonguifunctioncaller.h"
 #include "menulib/menuitem.h"
 #include "tasklib/taskfactory.h"  // for TaskPtr
 
 
 TestMenu::TestMenu(CamcopsApp& app)
     : MenuWindow(app, tr("CamCOPS self-tests"), ""),
-      m_netmgr(nullptr),
       m_player(nullptr)
 {
     m_items = {
@@ -51,8 +54,14 @@ TestMenu::TestMenu(CamcopsApp& app)
                          FileFunc::taskHtmlFilename("ace3"),
                          "", true)
         ),
-        MenuItem(tr("Test card 1 (black, white)")),  // ***
-        MenuItem(tr("Test card 2 (scaling, scrolling)")),  // ***
+        MenuItem(
+            "Test progress dialog",
+            std::bind(&TestMenu::testProgress, this)
+        ),
+        MenuItem(
+            "Test wait dialog",
+            std::bind(&TestMenu::testWait, this)
+        ),
     };
 }
 
@@ -95,16 +104,18 @@ void TestMenu::testHttps()
     QString url = "https://egret.psychol.cam.ac.uk/index.html";  // good cert
     // QString url = "https://www.veltigroup.com/";  // bad cert (then Forbidden)
 
-    m_netmgr = QSharedPointer<NetworkManager>(new NetworkManager(url));
-    m_netmgr->testHttpsGet();
+    NetworkManager* netmgr = m_app.networkManager();
+    netmgr->setTitle("Test HTTPS");
+    netmgr->testHttpsGet(url);
 }
 
 
 void TestMenu::testHttp()
 {
     QString url = "http://egret.psychol.cam.ac.uk/index.html";
-    m_netmgr = QSharedPointer<NetworkManager>(new NetworkManager(url));
-    m_netmgr->testHttpGet();
+    NetworkManager* netmgr = m_app.networkManager();
+    netmgr->setTitle("Test HTTP");
+    netmgr->testHttpGet(url);
 }
 
 
@@ -147,4 +158,48 @@ void TestMenu::doneSeeConsole()
     } else {
         UiFunc::alert("Done; see console");
     }
+}
+
+
+void TestMenu::testProgress()
+{
+    qDebug() << Q_FUNC_INFO << "start";
+    // http://doc.qt.io/qt-4.8/qprogressdialog.html#details
+    // http://stackoverflow.com/questions/3752742/how-do-i-create-a-pause-wait-function-using-qt
+    int num_things = 100;
+    QProgressDialog progress(
+        "Testing progress (but not doing anything; safe to abort)...",
+        "Abort test", 0, num_things, this);
+    progress.setWindowTitle("Progress dialog");
+    progress.setWindowModality(Qt::WindowModal);
+    progress.setMinimumDuration(0);
+    for (int i = 0; i < num_things; i++) {
+        progress.setValue(i);
+        if (progress.wasCanceled()) {
+            break;
+        }
+        // Do a small thing:
+        QThread::msleep(50);
+    }
+    progress.setValue(num_things);
+    qDebug() << Q_FUNC_INFO << "finish";
+}
+
+
+void TestMenu::testWait()
+{
+    SlowNonGuiFunctionCaller(
+                std::bind(&TestMenu::expensiveFunction, this),
+                this,
+                "Running expensive function in worker thread (for 2 s)",
+                "Please wait");
+}
+
+
+void TestMenu::expensiveFunction()
+{
+    int sleep_time_ms = 2000;
+    qDebug() << Q_FUNC_INFO << "start: sleep_time_ms" << sleep_time_ms;
+    QThread::msleep(sleep_time_ms);
+    qDebug() << Q_FUNC_INFO << "finish";
 }

@@ -18,19 +18,21 @@ public:
         TaskProxy(factory)  // registers proxy with factory (see TaskProxy::TaskProxy)
     {}
 
-    TaskPtr create(const QSqlDatabase& db,
+    TaskPtr create(CamcopsApp& app,
+                   const QSqlDatabase& db,
                    int load_pk = DbConst::NONEXISTENT_PK) const override
     {
         // Create a single instance of a task (optionally, loading it)
-        return TaskPtr(new Derived(db, load_pk));
+        return TaskPtr(new Derived(app, db, load_pk));
     }
 
-    TaskPtrList fetch(const QSqlDatabase& db,
+    TaskPtrList fetch(CamcopsApp& app,
+                      const QSqlDatabase& db,
                       int patient_id = DbConst::NONEXISTENT_PK) const override
     {
         // Fetch multiple tasks, either matching a patient_id, or all for
         // the task type.
-        Derived specimen(db, DbConst::NONEXISTENT_PK);
+        Derived specimen(app, db, DbConst::NONEXISTENT_PK);
         bool anonymous = specimen.isAnonymous();
         if (patient_id != DbConst::NONEXISTENT_PK && anonymous) {
             // No anonymous tasks will match a specific patient.
@@ -40,22 +42,24 @@ public:
         if (patient_id != DbConst::NONEXISTENT_PK) {
             where[PATIENT_FK_FIELDNAME] = QVariant(patient_id);
         }
-        return fetchWhere(db, where);
+        return fetchWhere(app, db, where);
     }
 
 protected:
-    TaskPtrList fetchWhere(const QSqlDatabase& db,
+    TaskPtrList fetchWhere(CamcopsApp& app,
+                           const QSqlDatabase& db,
                            const WhereConditions& where) const override
     {
         // Fetch multiple tasks according to the field/value "where" criteria
         TaskPtrList tasklist;
-        Derived specimen(db, DbConst::NONEXISTENT_PK);
+        Derived specimen(app, db, DbConst::NONEXISTENT_PK);
         SqlArgs sqlargs = specimen.fetchQuerySql(where);
         QSqlQuery query(db);
         bool success = DbFunc::execQuery(query, sqlargs);
         if (success) {  // success check may be redundant (cf. while clause)
             while (query.next()) {
-                TaskPtr p_new_task(new Derived(db, DbConst::NONEXISTENT_PK));
+                TaskPtr p_new_task(new Derived(app, db,
+                                               DbConst::NONEXISTENT_PK));
                 p_new_task->setFromQuery(query, true);
                 tasklist.append(p_new_task);
             }

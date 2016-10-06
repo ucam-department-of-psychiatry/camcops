@@ -4,7 +4,8 @@
 const QString BAD_STRING = "[bad_string]";
 
 
-DiagnosticCodeSet::DiagnosticCodeSet(CamcopsApp& app, const QString& setname,
+DiagnosticCodeSet::DiagnosticCodeSet(const CamcopsApp& app,
+                                     const QString& setname,
                                      const QString& title,  QObject* parent) :
     QAbstractItemModel(parent),
     m_app(app),

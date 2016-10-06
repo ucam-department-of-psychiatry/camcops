@@ -6,6 +6,7 @@
 #include "common/camcopsapp.h"
 #include "common/uiconstants.h"
 #include "lib/uifunc.h"
+#include "lib/slownonguifunctioncaller.h"
 #include "widgets/aspectratiopixmaplabel.h"
 #include "widgets/camera.h"
 #include "widgets/imagebutton.h"
@@ -184,6 +185,8 @@ void QuPhoto::takePhoto()
         return;
     }
 
+    SlowGuiGuard guard = m_questionnaire->app().getSlowGuiGuard();
+
     QString stylesheet = m_questionnaire->getSubstitutedCss(
                 UiConst::CSS_CAMCOPS_CAMERA);
     m_camera = new Camera(stylesheet);
@@ -199,6 +202,9 @@ void QuPhoto::takePhoto()
 
 void QuPhoto::resetFieldToNull()
 {
+    if (m_fieldref->isNull()) {
+        return;
+    }
     if (!UiFunc::confirm(tr("Delete this photo?"),
                          tr("Confirm deletion"),
                          tr("Yes, delete"),
@@ -238,6 +244,18 @@ void QuPhoto::imageCaptured(const QImage& image)
 
 void QuPhoto::rotate(qreal angle_degrees)
 {
+    if (m_fieldref->isNull()) {
+        return;
+    }
+    SlowNonGuiFunctionCaller(
+                std::bind(&QuPhoto::rotateWorker, this, angle_degrees),
+                m_main_widget,
+                "Rotating...");
+}
+
+
+void QuPhoto::rotateWorker(qreal angle_degrees)
+{
     QImage image = m_fieldref->valueImage();
     if (image.isNull()) {
         return;
@@ -259,6 +277,3 @@ void QuPhoto::rotateRight()
 {
     rotate(90);
 }
-
-
-// *** m_wait_box while opening camera

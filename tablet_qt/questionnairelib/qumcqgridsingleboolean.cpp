@@ -209,8 +209,6 @@ QPointer<QWidget> QuMCQGridSingleBoolean::makeWidget(Questionnaire* questionnair
     }
 
     // Vertical lines
-    qDebug() << "spacercol(true)" << spacercol(true);
-    qDebug() << "spacercol(false)" << spacercol(false);
     McqFunc::addVerticalLine(grid, spacercol(true), n_rows);
     McqFunc::addVerticalLine(grid, spacercol(false), n_rows);
 

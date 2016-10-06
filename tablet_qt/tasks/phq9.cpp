@@ -2,8 +2,8 @@
 #include "tasklib/taskfactory.h"
 
 
-Phq9::Phq9(const QSqlDatabase& db, int load_pk) :
-    Task(db, "phq9", false, false, false)
+Phq9::Phq9(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+    Task(app, db, "phq9", false, false, false)
 {
     addField("q1", QVariant::Int);
 
@@ -41,9 +41,8 @@ QString Phq9::summary() const
 }
 
 
-OpenableWidget* Phq9::editor(CamcopsApp& app, bool read_only)
+OpenableWidget* Phq9::editor(bool read_only)
 {
-    (void)app;
     (void)read_only;
     return nullptr; // ***
 }

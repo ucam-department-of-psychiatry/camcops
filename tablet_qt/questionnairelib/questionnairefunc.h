@@ -13,6 +13,10 @@ class QuGridCell;
 namespace QuestionnaireFunc {
 
     // Make default grids: convenience functions for grid creation.
+    // These functions take {string, element} pairs and make a grid like:
+    //
+    //              label1      element1
+    //              label2      element2
 
     QuElement* defaultGridRawPointer(
         const QList<GridRowDefinition>& deflist,

@@ -32,6 +32,8 @@ public:
                   bool unique = false,
                   bool pk = false);
     void addField(const Field& field);
+    void addFields(const QStringList& fieldnames, QVariant::Type type,
+                   bool mandatory = false);
     QStringList fieldnames() const;
 
     // Field access:

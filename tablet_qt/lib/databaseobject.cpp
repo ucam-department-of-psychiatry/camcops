@@ -91,6 +91,15 @@ void DatabaseObject::addField(const QString& fieldname, QVariant::Type type,
 }
 
 
+void DatabaseObject::addFields(const QStringList& fieldnames,
+                               QVariant::Type type, bool mandatory)
+{
+    for (auto fieldname : fieldnames) {
+        addField(fieldname, type, mandatory);
+    }
+}
+
+
 void DatabaseObject::addField(const Field& field)
 {
     m_record.insert(field.name(), field);
@@ -119,8 +128,9 @@ QStringList DatabaseObject::fieldnamesMapOrder() const
 void DatabaseObject::requireField(const QString &fieldname) const
 {
     if (!m_record.contains(fieldname)) {
-        UiFunc::stopApp("DatabaseObject::requireField: Database object does "
-                        "not contain field: " + fieldname);
+        UiFunc::stopApp("DatabaseObject::requireField: Database object with "
+                        "tablename '" + m_tablename + "' does not contain "
+                        "field: " + fieldname);
     }
 }
 
@@ -258,6 +268,11 @@ void DatabaseObject::nullify()
 
 bool DatabaseObject::load(int pk)
 {
+    if (pk == DbConst::NONEXISTENT_PK) {
+        qDebug() << "Ignoring DatabaseObject::load() call for explicitly "
+                    "invalid PK";
+        return false;
+    }
     WhereConditions where;
     where[pkname()] = QVariant(pk);
     return load(where);

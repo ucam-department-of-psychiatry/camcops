@@ -27,7 +27,7 @@ void TaskFactory::finishRegistration()
 {
     for (int i = 0; i < m_initial_proxy_list.size(); ++i) {
         ProxyType proxy = m_initial_proxy_list[i];
-        TaskPtr p_task = proxy->create(m_app.db());
+        TaskPtr p_task = proxy->create(m_app, m_app.db());
         TaskCache cache;
         cache.tablename = p_task->tablename();
         cache.shortname = p_task->shortname();
@@ -57,13 +57,13 @@ TaskPtr TaskFactory::create(const QString& key, int load_pk) const
 {
     if (!m_map.contains(key)) {
         qWarning().nospace() << "TaskFactory::create(" << key << ", "
-                             << load_pk << ")" << "... no such task";
+                             << load_pk << ")" << "... no such task class";
         return TaskPtr(nullptr);
     }
     qDebug().nospace() << "TaskFactory::create(" << key << ", "
                        << load_pk << ")";
     ProxyType proxy = m_map[key].proxy;
-    return proxy->create(m_app.db(), load_pk);
+    return proxy->create(m_app, m_app.db(), load_pk);
 }
 
 
@@ -73,7 +73,7 @@ void TaskFactory::makeAllTables() const
     while (it.hasNext()) {
         it.next();
         ProxyType proxy = it.value().proxy;
-        TaskPtr p_task = proxy->create(m_app.db());
+        TaskPtr p_task = proxy->create(m_app, m_app.db());
         p_task->makeTables();
     }
 }
@@ -120,7 +120,7 @@ TaskPtrList TaskFactory::fetch(const QString& tablename, bool sort) const
         while (it.hasNext()) {
             it.next();
             ProxyType proxy = it.value().proxy;
-            tasklist += proxy->fetch(m_app.db(), patient_id);
+            tasklist += proxy->fetch(m_app, m_app.db(), patient_id);
         }
     } else if (!m_map.contains(tablename)) {
         // Duff task
@@ -128,7 +128,7 @@ TaskPtrList TaskFactory::fetch(const QString& tablename, bool sort) const
     } else {
         // Specific task
         ProxyType proxy = m_map[tablename].proxy;
-        tasklist = proxy->fetch(m_app.db(), patient_id);
+        tasklist = proxy->fetch(m_app, m_app.db(), patient_id);
     }
 
     if (sort) {

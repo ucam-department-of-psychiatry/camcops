@@ -1,6 +1,5 @@
 #pragma once
 #include <QSharedPointer>
-#include "lib/netcore.h"
 #include "menulib/menuwindow.h"
 
 class QMediaPlayer;
@@ -22,7 +21,9 @@ protected:
     void testIcd10CodeSetCreation();
     void testIcd9cmCodeSetCreation();
     void doneSeeConsole();
+    void testProgress();
+    void testWait();
+    void expensiveFunction();
 protected:
-    QSharedPointer<NetworkManager> m_netmgr;
     QSharedPointer<QMediaPlayer> m_player;
 };

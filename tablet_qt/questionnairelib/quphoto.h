@@ -20,6 +20,7 @@ protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
     void rotate(qreal angle_degrees);
+    void rotateWorker(qreal angle_degrees);
 protected slots:
     void fieldValueChanged(const FieldRef* fieldref);
     void takePhoto();

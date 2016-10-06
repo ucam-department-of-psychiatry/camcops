@@ -218,7 +218,7 @@ void MenuWindow::viewItem()
     case QMessageBox::Open:  // facsimile
         if (facsimile_available) {
             qInfo() << "View as facsimile:" << instance_title;
-            OpenableWidget* widget = task->editor(m_app, true);
+            OpenableWidget* widget = task->editor(true);
             m_app.open(widget, task);
         }
         break;
@@ -258,7 +258,7 @@ void MenuWindow::editItem()
         return;
     }
     qInfo() << "Edit:" << instance_title;
-    OpenableWidget* widget = task->editor(m_app);
+    OpenableWidget* widget = task->editor();
     m_app.open(widget, task, true);
 }
 

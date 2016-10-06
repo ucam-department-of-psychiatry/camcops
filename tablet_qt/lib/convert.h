@@ -28,6 +28,7 @@ namespace Convert
     QList<QVariant> csvSqlLiteralsToValues(const QString& csv);
 
     // Images
+
     QByteArray imageToByteArray(const QImage& image,
                                 const char* format = "png");
     QVariant imageToVariant(const QImage& image, const char* format = "png");

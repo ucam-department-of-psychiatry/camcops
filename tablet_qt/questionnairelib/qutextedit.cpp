@@ -7,6 +7,8 @@
 QuTextEdit::QuTextEdit(FieldRefPtr fieldref, bool accept_rich_text) :
     m_fieldref(fieldref),
     m_accept_rich_text(accept_rich_text),
+    m_hint("text"),
+    m_editor(nullptr),
     m_ignore_widget_signal(false)
 {
     Q_ASSERT(m_fieldref);

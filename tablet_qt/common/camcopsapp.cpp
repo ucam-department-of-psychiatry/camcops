@@ -10,10 +10,13 @@
 #include <QStackedWidget>
 #include "common/uiconstants.h"
 #include "dbobjects/blob.h"
+#include "dbobjects/patient.h"
 #include "dbobjects/storedvar.h"
 #include "lib/datetimefunc.h"
 #include "lib/dbfunc.h"
 #include "lib/filefunc.h"
+#include "lib/networkmanager.h"
+#include "lib/slowguiguard.h"
 #include "lib/uifunc.h"
 #include "menu/mainmenu.h"
 #include "tasklib/inittasks.h"
@@ -29,7 +32,8 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     m_whisker_connected(false),
     m_p_main_window(nullptr),
     m_p_window_stack(nullptr),
-    m_patient_id(DbConst::NONEXISTENT_PK)
+    m_patient_id(DbConst::NONEXISTENT_PK),
+    m_netmgr(nullptr)
 {
     // ------------------------------------------------------------------------
     // Announce startup
@@ -66,24 +70,26 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     // Make special tables: system database
     StoredVar storedvar_specimen(m_sysdb);
     storedvar_specimen.makeTable();
+    // *** make extrastrings table
 
     // Make special tables: main database
     Blob blob_specimen(m_db);
     blob_specimen.makeTable();
-    // *** make patients table
+    Patient patient_specimen(m_db);
+    patient_specimen.makeTable();
 
     // Make task tables
     m_p_task_factory->makeAllTables();
 
     // ------------------------------------------------------------------------
-    // Create stored variables
+    // Create stored variables: name, type, default
     // ------------------------------------------------------------------------
     createVar(VAR_QUESTIONNAIRE_SIZE_PERCENT, QVariant::Int, 100);
 
     // ------------------------------------------------------------------------
     // Qt stuff
     // ------------------------------------------------------------------------
-    setStyleSheet(FileFunc::textfileContents(UiConst::CSS_CAMCOPS_MAIN));
+    setStyleSheet(getSubstitutedCss(UiConst::CSS_CAMCOPS_MAIN));
 }
 
 
@@ -103,6 +109,9 @@ int CamcopsApp::run()
     m_p_main_window->showMaximized();
     m_p_window_stack = new QStackedWidget(m_p_main_window);
     m_p_main_window->setCentralWidget(m_p_window_stack);
+
+    m_netmgr = QSharedPointer<NetworkManager>(
+                new NetworkManager(*this, m_p_main_window.data()));
 
     MainMenu* menu = new MainMenu(*this);
     open(menu);
@@ -130,6 +139,15 @@ TaskFactoryPtr CamcopsApp::factory()
 }
 
 
+SlowGuiGuard CamcopsApp::getSlowGuiGuard(const QString& text,
+                                         const QString& title,
+                                         int minimum_duration_ms)
+{
+    return SlowGuiGuard(*this, m_p_main_window, title, text,
+                        minimum_duration_ms);
+}
+
+
 void CamcopsApp::open(OpenableWidget* widget, TaskPtr task,
                       bool may_alter_task)
 {
@@ -137,6 +155,8 @@ void CamcopsApp::open(OpenableWidget* widget, TaskPtr task,
         qCritical() << Q_FUNC_INFO << "- attempt to open nullptr";
         return;
     }
+
+    SlowGuiGuard guard = getSlowGuiGuard();
 
     Qt::WindowStates prev_window_state = m_p_main_window->windowState();
     QPointer<OpenableWidget> guarded_widget = widget;
@@ -231,6 +251,12 @@ void CamcopsApp::grantPrivilege()
 }
 
 
+NetworkManager* CamcopsApp::networkManager() const
+{
+    return m_netmgr.data();
+}
+
+
 bool CamcopsApp::whiskerConnected() const
 {
     return m_whisker_connected;
@@ -302,6 +328,13 @@ QString CamcopsApp::xstring(const QString& taskname, const QString& stringname,
             return default_str;
         }
     }
+}
+
+
+bool CamcopsApp::hasExtraStrings(const QString& taskname) const
+{
+    (void)taskname;
+    return false; // ***
 }
 
 

@@ -17,3 +17,11 @@ QStackedWidget {
     /* the stack of menus; thus, the background of all menus */
     background-color: red;
 }
+
+LogBox QPlainTextEdit {
+    border: 1px solid black;
+    font-family: 'Dejavu Sans Mono', 'Courier';
+    font-size: 10pt;
+    background-color: black;
+    color: white;
+}

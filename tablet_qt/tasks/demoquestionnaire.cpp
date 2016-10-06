@@ -1,7 +1,9 @@
 #include "demoquestionnaire.h"
+#include "common/camcopsapp.h"
 #include "diagnosis/icd10.h"
 #include "diagnosis/icd9cm.h"
 #include "lib/uifunc.h"
+#include "lib/stringfunc.h"
 #include "tasklib/taskfactory.h"
 
 #include "questionnairelib/questionnaire.h"
@@ -45,47 +47,39 @@
 #include "questionnairelib/quthermometer.h"
 
 
-DemoQuestionnaire::DemoQuestionnaire(const QSqlDatabase& db, int load_pk) :
-    Task(db, "demoquestionnaire", false, false, false)
+DemoQuestionnaire::DemoQuestionnaire(CamcopsApp& app,
+                                     const QSqlDatabase& db, int load_pk) :
+    Task(app, db, "demoquestionnaire", false, false, false)
 {
-    // *** change to match previous version in terms of field names
-    addField("q1", QVariant::Bool);
-    addField("q2", QVariant::Int);
-    addField("q3", QVariant::Int);
-    addField("q4", QVariant::Int);
-    addField("q5", QVariant::Int);
-    addField("q6", QVariant::Int);
-    addField("q7", QVariant::Int);
-    addField("q8", QVariant::Double);
-    addField("q9", QVariant::Int);
-    addField("q10", QVariant::DateTime);
-    addField("q11", QVariant::Date);
-    addField("q12", QVariant::Time);
-    addField("q13", QVariant::Int);
-    addField("q14", QVariant::Double);
-    addField("q15", QVariant::String);
-    addField("q16", QVariant::String);
-    addField("q17", QVariant::String);
-    addField("q18", QVariant::Int);
-    addField("q19", QVariant::Double);
-    addField("q20a", QVariant::Bool);
-    addField("q20b", QVariant::Bool);
-    addField("q20c", QVariant::Bool);
-    addField("q20d", QVariant::Bool);
-    addField("q20e", QVariant::Bool);
-    addField("q21", QVariant::Int);  // FK to BLOB table
-    addField("q22", QVariant::Int);  // FK to BLOB table
-    addField("q23", QVariant::Int);  // FK to BLOB table
-    addField("q24", QVariant::String);
-    addField("q25", QVariant::String);
-    addField("q26", QVariant::String);
-    addField("q27", QVariant::String);
-    addField("q28", QVariant::Int);
-    addField("q29", QVariant::Int);
-    addField("q30", QVariant::Int);
-    addField("q31", QVariant::Int);
-    addField("q32", QVariant::Int);
-    addField("q33", QVariant::Int);
+    using StringFunc::strseq;
+
+    addFields(strseq("mcq", 1, 10), QVariant::Int);  // 9-10: v2
+    addFields(strseq("mcqbool", 1, 3), QVariant::Bool);
+    addFields(strseq("multipleresponse", 1, 6), QVariant::Bool);
+    addFields(strseq("booltext", 1, 22), QVariant::Bool);
+    addFields(strseq("boolimage", 1, 2), QVariant::Bool);
+    addFields(strseq("slider", 1, 2), QVariant::Double);
+    addFields(strseq("picker", 1, 2), QVariant::Int);
+    addFields(strseq("mcqtext_", 1, 3, {"a", "b"}), QVariant::String);
+    addField("typedvar_text", QVariant::String);
+    addField("typedvar_text_multiline", QVariant::String);
+    addField("typedvar_text_rich", QVariant::String);  // v2
+    addField("typedvar_int", QVariant::Int);
+    addField("typedvar_real", QVariant::Double);
+    addField("spinbox_int", QVariant::Int);  // v2
+    addField("spinbox_real", QVariant::Double);  // v2
+    addField("date_time", QVariant::DateTime);
+    addField("date_only", QVariant::Date);
+    addField("time_only", QVariant::Time);  // v2
+    addField("thermometer", QVariant::Int);
+    addField("diagnosticcode_code", QVariant::String);
+    addField("diagnosticcode_description", QVariant::String);
+    addField("diagnosticcode2_code", QVariant::String);  // v2
+    addField("diagnosticcode2_description", QVariant::String);  // v2
+    addField("photo_blobid", QVariant::String);  // FK to BLOB table
+    addField("photo_rotation", QVariant::String);  // DEFUNCT in v2
+    addField("canvas_blobid", QVariant::String);  // FK to BLOB table
+    addField("canvas2_blobid", QVariant::String);  // FK to BLOB table; v2
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -121,7 +115,7 @@ QString DemoQuestionnaire::summary() const
 }
 
 
-OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
+OpenableWidget* DemoQuestionnaire::editor(bool read_only)
 {
     qDebug() << Q_FUNC_INFO;
     QString longtext = (  // http://www.lipsum.com/
@@ -152,6 +146,9 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
     // ========================================================================
 
     QuPagePtr page_text((new QuPage{
+        new QuText(tr("We’ll demonstrate the elements from which questionnaire"
+                      " tasks can be made. Press the ‘Next’ button at the top "
+                      "right of the screen.\n")),
         (new QuText("normal text"))->addTag("tag1"),
         (new QuText("bold text"))->bold(),
         (new QuText("italic text"))->italic(),
@@ -160,7 +157,7 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
         (new QuText("warning text"))->warning(),
         new QuText("Below here: space fillers, just to test scrolling"),
         (new QuText(longtext))->big(),
-    })->setTitle("Page 1: text "
+    })->setTitle("Text "
                  "[With a long title: Lorem ipsum dolor sit amet, "
                  "consectetur adipiscing elit. Praesent sed cursus mauris. "
                  "Ut vulputate felis quis dolor molestie convallis.]"));
@@ -172,36 +169,23 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
     );
 
     // ========================================================================
-    // Buttons
-    // ========================================================================
-
-    QuPagePtr page_buttons((new QuPage{
-        new QuButton(
-            "Say hello",
-            std::bind(&DemoQuestionnaire::callback_hello, this)),
-        new QuButton(
-            "Button with args ('foo')",
-            std::bind(&DemoQuestionnaire::callback_arg, this, "foo")),
-        new QuButton(
-            "Button with args ('bar')",
-            std::bind(&DemoQuestionnaire::callback_arg, this, "bar")),
-        new QuButton(
-            UiConst::CBS_ADD, true, true,
-            std::bind(&DemoQuestionnaire::callback_hello, this)),
-    })->setTitle("Page 2: buttons"));
-
-    // ========================================================================
     // Headings, containers, text alignment, lines, images
     // ========================================================================
 
     QuPagePtr page_headings_layout_images((new QuPage{
         new QuHeading("This is a heading"),
-        new QuHeading("Horizontal container:"),
-        new QuContainerHorizontal{
+        new QuHeading("Horizontal container (with stretch on right):"),
+        (new QuContainerHorizontal{
             new QuText("Text 1 (left/vcentre) " + lipsum2),
             new QuText("Text 2 (left/vcentre) " + lipsum2),
             new QuText("Text 3 (left/vcentre) " + lipsum2),
-        },
+        })->setAddStretchRight(true),
+        new QuHeading("Horizontal container (without stretch on right):"),
+        (new QuContainerHorizontal{
+            new QuText("Text 1 (left/vcentre) " + lipsum2),
+            new QuText("Text 2 (left/vcentre) " + lipsum2),
+            new QuText("Text 3 (left/vcentre) " + lipsum2),
+        })->setAddStretchRight(false),
         new QuHeading("Horizontal line, line, spacer, line:"),
         new QuHorizontalLine(),
         new QuHorizontalLine(),
@@ -230,20 +214,20 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
             QuGridCell(new QuText("<b>row 2, col 0:</b> " + lipsum2), 2, 0),
             QuGridCell(new QuText("<b>row 2, col 1:</b> " + lipsum2), 2, 1),
         },
-        new QuHeading("Another grid:"),
-        new QuContainerGrid{
+        new QuHeading("Another grid (2:1 columns):"),
+        (new QuContainerGrid{
             QuGridCell(new QuText("<b>r0 c0</b> " + lipsum2), 0, 0, 1, 1),
             QuGridCell(new QuText("<b>r0 c1 [+1]</b> " + lipsum2), 0, 1, 1, 2),
             QuGridCell(new QuText("<b>r1 c0</b> " + lipsum2), 1, 0, 1, 1),
             QuGridCell(new QuText("<b>r1 c1 [+1]</b> " + lipsum2), 1, 1, 1, 2),
-        },
-        new QuHeading("Another grid:"),
-        new QuContainerGrid{
+        })->setColumnStretch(0, 2)->setColumnStretch(1, 1),
+        new QuHeading("Another grid (1:1 columns):"),
+        (new QuContainerGrid{
             QuGridCell(new QuText("<b>r0 c0</b> " + lipsum2), 0, 0),
             QuGridCell(new QuText("<b>r0 c1</b> " + lipsum2), 0, 1),
             QuGridCell(new QuText("<b>r1 c0</b> " + lipsum2), 1, 0),
             QuGridCell(new QuText("<b>r1 c1</b> " + lipsum2), 1, 1),
-        },
+        })->setColumnStretch(0, 1)->setColumnStretch(1, 1),
         new QuHeading("More automated grid (of label/element pairs):"),
         QuestionnaireFunc::defaultGridRawPointer({
             {lipsum2, new QuText(lipsum2)},
@@ -272,28 +256,79 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
     // Boolean
     // ========================================================================
 
-    QuPagePtr page_boolnea((new QuPage{
-        new QuHeading("Boolean text, not allowing ‘unset’:, with clickable "
-                                "content"),
+    QuPagePtr page_boolean((new QuPage{
+        new QuText(tr(
+            "On this page, some questions must be completed before the ‘Next’ "
+            "button appears. <b>Make the yellow disappear to continue!</b>")),
+        new QuHeading("Boolean text, not allowing ‘unset’, with clickable "
+                                "content:"),
         new QuBoolean("Click me to toggle (null → true → false → true → …)",
-                      fieldRef("q1")),
+                      fieldRef("booltext1")),
         new QuHeading("Boolean text, allowing ‘unset’, on the "
                                    "<i>same</i> field, with a smaller icon, "
                                    "and non-clickable content:"),
         (new QuBoolean("Click me (null → true → false → null → …)",
-                      fieldRef("q1")))
+                      fieldRef("booltext1")))
                       ->setBigIndicator(false)
                       ->setAllowUnset()
                       ->setContentClickable(false),
         new QuHeading("Text field from the Boolean field used above:"),
-        new QuText(fieldRef("q1")),
+        new QuText(fieldRef("booltext1")),
         new QuHeading("Another boolean field, using an image:"),
         new QuBoolean(UiFunc::iconFilename(UiConst::ICON_CAMCOPS),
-                      QSize(), fieldRef("q1")),
+                      QSize(), fieldRef("boolimage1")),
+        // Now the ACE-III address example:
+        new QuContainerGrid{
+            QuGridCell(new QuContainerVertical{
+                (new QuContainerHorizontal{
+                    aceBoolean("address_1", "booltext2"),
+                    aceBoolean("address_2", "booltext3"),
+                })->setAddStretchRight(true),
+                (new QuContainerHorizontal{
+                    aceBoolean("address_3", "booltext4"),
+                    aceBoolean("address_4", "booltext5"),
+                    aceBoolean("address_5", "booltext6"),
+                })->setAddStretchRight(true),
+                aceBoolean("address_6", "booltext7"),
+                aceBoolean("address_7", "booltext8"),
+            }, 0, 0),
+            QuGridCell(new QuContainerVertical{
+                (new QuContainerHorizontal{
+                    aceBoolean("address_1", "booltext9"),
+                    aceBoolean("address_2", "booltext10"),
+                })->setAddStretchRight(true),
+                (new QuContainerHorizontal{
+                    aceBoolean("address_3", "booltext11"),
+                    aceBoolean("address_4", "booltext12"),
+                    aceBoolean("address_5", "booltext13"),
+                })->setAddStretchRight(true),
+                aceBoolean("address_6", "booltext14"),
+                aceBoolean("address_7", "booltext15"),
+            }, 0, 1),
+            QuGridCell(new QuContainerVertical{
+                (new QuContainerHorizontal{
+                    aceBoolean("address_1", "booltext16"),
+                    aceBoolean("address_2", "booltext17"),
+                })->setAddStretchRight(true),
+                (new QuContainerHorizontal{
+                    aceBoolean("address_3", "booltext18"),
+                    aceBoolean("address_4", "booltext19"),
+                    aceBoolean("address_5", "booltext20"),
+                })->setAddStretchRight(true),
+                aceBoolean("address_6", "booltext21"),
+                aceBoolean("address_7", "booltext22"),
+            }, 1, 0),
+        },
+        (new QuBoolean(
+            UiFunc::resourceFilename("ace3/penguin.png"),
+            QSize(),
+            fieldRef("boolimage2"))
+        )->setBigIndicator(false),
+
     })->setTitle("Page 5: booleans; multiple views on a single field"));
 
     // ========================================================================
-    // Page 5: MCQ
+    // MCQ
     // ========================================================================
 
     NameValueOptions options_A{
@@ -332,28 +367,39 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
         {"More than half the days", 2},
         {"Nearly every day", 3},
     };
+    NameValueOptions options_E{
+        {"A", "A"},
+        {"B", "B"},
+        {"C", "C"},
+        {"D", "D"},
+    };
+    NameValueOptions options_F{
+        {"X", "X"},
+        {"Y", "Y"},
+        {"Z", "Z"},
+    };
     QuPagePtr page_mcq((new QuPage{
         new QuHeading("Plain MCQ:"),
-        new QuMCQ(fieldRef("q2"), options_A),
+        new QuMCQ(fieldRef("mcq1"), options_A),
         new QuHeading("Same MCQ/field, reconfigured (randomized, "
                       "instructions, horizontal, as text button):"),
-        (new QuMCQ(fieldRef("q2"), options_A))
+        (new QuMCQ(fieldRef("mcq1"), options_A))
                             ->setRandomize(true)
                             ->setShowInstruction(true)
                             ->setHorizontal(true)
                             ->setAsTextButton(true),
         new QuHeading("Same MCQ/field, reconfigured:"),
-        (new QuMCQ(fieldRef("q2"), options_A))
+        (new QuMCQ(fieldRef("mcq1"), options_A))
                             ->setAsTextButton(true),
         new QuHeading("A second MCQ:"),
-        new QuMCQ(fieldRef("q4"), options_C),
+        new QuMCQ(fieldRef("mcq2"), options_C),
         new QuHeading("Another:"),
-        new QuMCQ(fieldRef("q3"), options_B),
+        new QuMCQ(fieldRef("mcq3"), options_B),
         new QuHeading("The previous MCQ, reconfigured:"),
-        (new QuMCQ(fieldRef("q3"), options_B))
+        (new QuMCQ(fieldRef("mcq3"), options_B))
                             ->setHorizontal(true),
         new QuHeading("The previous MCQ, as text:"),
-        (new QuMCQ(fieldRef("q3"), options_B))
+        (new QuMCQ(fieldRef("mcq4"), options_B))
                             ->setHorizontal(true)
                             ->setAsTextButton(true),
     })->setTitle("Multiple-choice questions (MCQs)"));
@@ -366,20 +412,20 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
          new QuHeading("MCQ grid:"),
          (new QuMCQGrid(
             {
-                QuestionWithOneField("Question A", fieldRef("q28")),
-                QuestionWithOneField("Question B", fieldRef("q29")),
-                QuestionWithOneField("Question C", fieldRef("q30")),
-                QuestionWithOneField("Question D (= A)", fieldRef("q28")),
-                QuestionWithOneField("Question E (= B)", fieldRef("q29")),
+                QuestionWithOneField("Question A", fieldRef("mcq5")),
+                QuestionWithOneField("Question B", fieldRef("mcq6")),
+                QuestionWithOneField("Question C", fieldRef("mcq7")),
+                QuestionWithOneField("Question D (= A)", fieldRef("mcq5")),
+                QuestionWithOneField("Question E (= B)", fieldRef("mcq6")),
             },
             options_D
         ))->setSubtitles({{3, "subtitle before D"}}),
         new QuHeading("Another MCQ grid:"),
         (new QuMCQGrid(
             {
-                QuestionWithOneField("Question A", fieldRef("q31")),
-                QuestionWithOneField("Question B; " + lipsum2, fieldRef("q32")),
-                QuestionWithOneField("Question C", fieldRef("q33")),
+                QuestionWithOneField("Question A", fieldRef("mcq8")),
+                QuestionWithOneField("Question B; " + lipsum2, fieldRef("mcq9")),
+                QuestionWithOneField("Question C", fieldRef("mcq10")),
             },
         options_A
         ))->setTitle("MCQ 2 title; " + lipsum2),
@@ -387,24 +433,27 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
         (new QuMCQGridDouble(
             {
                 QuestionWithTwoFields("Question A",
-                                         fieldRef("q28"), fieldRef("q31")),
+                                         fieldRef("mcqtext_1a"),
+                                         fieldRef("mcqtext_1b")),
                 QuestionWithTwoFields("Question B; " + lipsum2,
-                                         fieldRef("q29"), fieldRef("q32")),
+                                         fieldRef("mcqtext_2a"),
+                                         fieldRef("mcqtext_2b")),
                 QuestionWithTwoFields("Question C",
-                                         fieldRef("q30"), fieldRef("q33")),
+                                         fieldRef("mcqtext_3a"),
+                                         fieldRef("mcqtext_3b")),
             },
-        options_D, options_A
+        options_E, options_F
         ))  ->setTitle("Double-MCQ title")
             ->setSubtitles({{2, "subtitle before C"}}),
         new QuHeading("MCQ grid with single Boolean (right):"),
         (new QuMCQGridSingleBoolean(
             {
                 QuestionWithTwoFields("Question A",
-                                         fieldRef("q28"), fieldRef("q31")),
+                                         fieldRef("mcq5"), fieldRef("mcqbool1")),
                 QuestionWithTwoFields("Question B; " + lipsum2,
-                                         fieldRef("q29"), fieldRef("q32")),
+                                         fieldRef("mcq6"), fieldRef("mcqbool2")),
                 QuestionWithTwoFields("Question C",
-                                         fieldRef("q30"), fieldRef("q33")),
+                                         fieldRef("mcq7"), fieldRef("mcqbool3")),
             },
             options_D,
             "Happy?"
@@ -414,11 +463,11 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
         (new QuMCQGridSingleBoolean(
             {
                 QuestionWithTwoFields("Question A",
-                                         fieldRef("q28"), fieldRef("q31")),
+                                         fieldRef("mcq5"), fieldRef("mcqbool1")),
                 QuestionWithTwoFields("Question B; " + lipsum2,
-                                         fieldRef("q29"), fieldRef("q32")),
+                                         fieldRef("mcq6"), fieldRef("mcqbool2")),
                 QuestionWithTwoFields("Question C",
-                                         fieldRef("q30"), fieldRef("q33")),
+                                         fieldRef("mcq7"), fieldRef("mcqbool3")),
             },
             options_D,
             "Happy?"
@@ -432,11 +481,12 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
 
     QuPagePtr page_multiple_response((new QuPage{
         (new QuMultipleResponse({
-            QuestionWithOneField(fieldRef("q20a"), "(a) First stem"),
-            QuestionWithOneField(fieldRef("q20b"), "(b) First stem"),
-            QuestionWithOneField(fieldRef("q20c"), "(c) First stem"),
-            QuestionWithOneField(fieldRef("q20d"), "(d) First stem"),
-            QuestionWithOneField(fieldRef("q20e"), "(e) First stem"),
+            QuestionWithOneField(fieldRef("multipleresponse1"), "(a) First stem"),
+            QuestionWithOneField(fieldRef("multipleresponse2"), "(b) Second stem"),
+            QuestionWithOneField(fieldRef("multipleresponse3"), "(c) Third stem"),
+            QuestionWithOneField(fieldRef("multipleresponse4"), "(d) Fourth stem"),
+            QuestionWithOneField(fieldRef("multipleresponse5"), "(e) Fifth stem"),
+            QuestionWithOneField(fieldRef("multipleresponse6"), "(f) Sixth stem"),
         }))->setMinimumAnswers(2)->setMaximumAnswers(3),
     })->setTitle("Multiple-response questions"));
 
@@ -446,11 +496,11 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
 
     QuPagePtr page_pickers((new QuPage{
         new QuHeading("Inline picker:"),
-        new QuPickerInline(fieldRef("q5"), options_A),
+        new QuPickerInline(fieldRef("picker1"), options_A),
         new QuHeading("Its clone:"),
-        new QuPickerInline(fieldRef("q5"), options_A),
+        new QuPickerInline(fieldRef("picker1"), options_A),
         new QuHeading("Popup picker:"),
-        (new QuPickerPopup(fieldRef("q5"), options_A))
+        (new QuPickerPopup(fieldRef("picker2"), options_A))
                                 ->setPopupTitle("Pickers; question 5"),
     })->setTitle("Pickers"));
 
@@ -478,12 +528,12 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
     }
     QuPagePtr page_sliders((new QuPage{
         new QuHeading("Integer slider:"),
-        (new QuSlider(fieldRef("q7"), 0, 10, 1))
+        (new QuSlider(fieldRef("thermometer"), 0, 10, 1))
                                 ->setTickInterval(1)
                                 ->setTickPosition(QSlider::TicksBothSides)
                                 ->setShowValue(true),
         new QuHeading("Integer slider (same field as above):"),
-        (new QuSlider(fieldRef("q7"), 0, 10, 1))
+        (new QuSlider(fieldRef("thermometer"), 0, 10, 1))
                                 ->setShowValue(true)
                                 ->setTickInterval(2)
                                 ->setTickPosition(QSlider::TicksBothSides)
@@ -491,25 +541,26 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
                                 ->setTickLabelPosition(QSlider::TicksBothSides)
                                 ->setHorizontal(false),
         new QuHeading("Real/float slider:"),
-        (new QuSlider(fieldRef("q8"), 0, 10, 1))
+        (new QuSlider(fieldRef("slider1"), 0, 10, 1))
                                 ->setShowValue(true)
                                 ->setTickInterval(1)
                                 ->setTickPosition(QSlider::TicksBelow)
                                 ->setConvertForRealField(true, 5, 6),
-        new QuHeading("Integer slider with custom labels:"),
-        (new QuSlider(fieldRef("q9"), 1, 5, 1))
+        new QuHeading("Real slider with custom labels:"),
+        (new QuSlider(fieldRef("slider2"), 100, 500, 1))
+                                ->setConvertForRealField(true, 1, 5)
                                 ->setShowValue(false)
                                 ->setTickInterval(1)
                                 ->setTickPosition(QSlider::TicksAbove)
                                 ->setTickLabelPosition(QSlider::TicksBelow)
                                 ->setTickLabels({
-                                    {1, "one: low"},
-                                    {3, "three: medium"},
-                                    {5, "five: maximum!"},
+                                    {100, "one: low"},
+                                    {300, "three: medium"},
+                                    {500, "five: maximum!"},
                                 })
                                 ->setShowValue(true),
         new QuHeading("Thermometer:"),
-        (new QuThermometer(fieldRef("q7"), thermometer_items))
+        (new QuThermometer(fieldRef("thermometer"), thermometer_items))
                                 ->setRescale(true, 0.4),
     })->setTitle("Sliders and thermometers"));
 
@@ -518,74 +569,80 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
     // ========================================================================
 
     QuPagePtr page_vars((new QuPage{
+        new QuText("Pages for clinicians have a different background colour."),
         new QuHeading("Date/time:"),
-        new QuDateTime(fieldRef("q10")),
+        new QuDateTime(fieldRef("date_time")),
         new QuHeading("Date/time (with ‘now’ and ‘nullify’ buttons):"),
-        (new QuDateTime(fieldRef("q10")))
+        (new QuDateTime(fieldRef("date_time")))
                              ->setOfferNowButton(true)
                              ->setOfferNullButton(true),
         new QuHeading("Date/time (custom format):"),
-        (new QuDateTime(fieldRef("q10")))
+        (new QuDateTime(fieldRef("date_time")))
                              ->setMode(QuDateTime::CustomDateTime)
                              ->setCustomFormat("yyyy MM dd HH:mm:ss:zzz"),
         new QuHeading("Date:"),
-        (new QuDateTime(fieldRef("q11")))
+        (new QuDateTime(fieldRef("date_only")))
                              ->setMode(QuDateTime::DefaultDate),
         new QuHeading("Date (custom format):"),
-        (new QuDateTime(fieldRef("q11")))
+        (new QuDateTime(fieldRef("date_only")))
                              ->setMode(QuDateTime::CustomDate)
                              ->setCustomFormat("yyyy MM dd"),
         new QuHeading("Time:"),
-        (new QuDateTime(fieldRef("q12")))
+        (new QuDateTime(fieldRef("time_only")))
                              ->setMode(QuDateTime::DefaultTime),
         new QuHeading("Time (custom format):"),
-        (new QuDateTime(fieldRef("q12")))
+        (new QuDateTime(fieldRef("time_only")))
                              ->setMode(QuDateTime::CustomTime)
                              ->setCustomFormat("HH:mm:ss"),
         new QuHeading("Integer spinbox (range 5–10):"),
-        new QuSpinBoxInteger(fieldRef("q13"), 5, 10),
+        new QuSpinBoxInteger(fieldRef("spinbox_int"), 5, 10),
         new QuHeading("Double spinbox (range 7.1–7.9):"),
-        new QuSpinBoxDouble(fieldRef("q14"), 7.1, 7.9),
+        new QuSpinBoxDouble(fieldRef("spinbox_real"), 7.1, 7.9),
         new QuHeading("Text editor (plain text):"),
-        new QuTextEdit(fieldRef("q15"), false),
+        new QuTextEdit(fieldRef("typedvar_text_multiline"), false),
         new QuHeading("Text editor (clone of previous):"),
-        new QuTextEdit(fieldRef("q15"), false),
+        new QuTextEdit(fieldRef("typedvar_text_multiline"), false),
         new QuHeading("Text editor (rich text):"),
-        (new QuTextEdit(fieldRef("q16"), true))
+        (new QuTextEdit(fieldRef("typedvar_text_rich"), true))
                              ->setHint("This one has a hint "
                                        "(placeholder text)"),
         new QuHeading("Line editor (plain):"),
-        (new QuLineEdit(fieldRef("q17")))
+        (new QuLineEdit(fieldRef("typedvar_text")))
                              ->setHint("hint: plain text"),
         new QuHeading("Line editor (integer, range 13–19):"),
-        (new QuLineEditInteger(fieldRef("q18"), 13, 19))
-                             ->setHint("hint: integer, range 13–19"),
+        new QuLineEditInteger(fieldRef("typedvar_int"), 13, 19),
         new QuHeading("Line editor (double, "
                              "range -0.05 to -0.09, 2dp):"),
-        (new QuLineEditDouble(fieldRef("q19"), -0.05, -0.09, 2))
-                             ->setHint("hint: double"),
+        new QuLineEditDouble(fieldRef("typedvar_real"), -0.05, -0.09, 2),
         new QuHeading("Variables in a grid:"),
         QuestionnaireFunc::defaultGridRawPointer({
-            {"label 1", new QuLineEdit(fieldRef("q17"))},
-            {"label 2", new QuLineEditInteger(fieldRef("q18"), 13, 19)},
+            {"label 1", new QuLineEdit(fieldRef("typedvar_text"))},
+            {"label 2", new QuLineEditInteger(fieldRef("typedvar_int"), 13, 19)},
             {"label 3", new QuHeading("Just a heading: " + lipsum2)},
-            {"label 4", new QuDateTime(fieldRef("q10"))},
+            {"label 4", new QuDateTime(fieldRef("date_time"))},
         }, 1, 2),
-    })->setTitle("Editable variable including dates/times"));
+    })->setTitle("Editable variable including dates/times")
+                        ->setType(QuPage::PageType::Clinician));
 
     // ========================================================================
     // Diagnostic codes
     // ========================================================================
 
-    QSharedPointer<Icd10> icd10 = QSharedPointer<Icd10>(new Icd10(app));
-    QSharedPointer<Icd9cm> icd9cm = QSharedPointer<Icd9cm>(new Icd9cm(app));
+    QSharedPointer<Icd10> icd10 = QSharedPointer<Icd10>(new Icd10(m_app));
+    QSharedPointer<Icd9cm> icd9cm = QSharedPointer<Icd9cm>(new Icd9cm(m_app));
     QuPagePtr page_diag((new QuPage{
         new QuHeading("Diagnostic code, ICD-10:"),
-        new QuDiagnosticCode(icd10, fieldRef("q24"), fieldRef("q25")),
+        new QuDiagnosticCode(icd10,
+                             fieldRef("diagnosticcode_code"),
+                             fieldRef("diagnosticcode_description")),
         new QuHeading("Diagnostic code, clone of the preceding:"),
-        new QuDiagnosticCode(icd10, fieldRef("q24"), fieldRef("q25")),
+        new QuDiagnosticCode(icd10,
+                             fieldRef("diagnosticcode_code"),
+                             fieldRef("diagnosticcode_description")),
         new QuHeading("Diagnostic code, ICD-9-CM:"),
-        new QuDiagnosticCode(icd9cm, fieldRef("q26"), fieldRef("q27")),
+        new QuDiagnosticCode(icd9cm,
+                             fieldRef("diagnosticcode2_code"),
+                             fieldRef("diagnosticcode2_description")),
     })->setTitle("Diagnostic codes"));
 
     // ========================================================================
@@ -594,33 +651,53 @@ OpenableWidget* DemoQuestionnaire::editor(CamcopsApp& app, bool read_only)
 
     QuPagePtr page_canvas((new QuPage{
         new QuHeading("Canvas, blank start:"),
-        new QuCanvas(fieldRef("q21", true, true, true)),
+        new QuCanvas(fieldRef("canvas2_blobid", true, true, true)),
         new QuHeading("Canvas, using files:"),
         new QuCanvas(
-            fieldRef("q22", true, true, true),
+            fieldRef("canvas_blobid", true, true, true),
             UiFunc::resourceFilename("ace3/rhinoceros.png")),
         new QuHeading("Canvas, clone of the first one:"),
-        new QuCanvas(fieldRef("q21", true, true, true)),
+        new QuCanvas(fieldRef("canvas2_blobid", true, true, true)),
     })->setTitle("Canvas"));
 
     // ========================================================================
-    // Photo
+    // Buttons
+    // ========================================================================
+
+    QuPagePtr page_buttons((new QuPage{
+        new QuButton(
+            "Say hello",
+            std::bind(&DemoQuestionnaire::callback_hello, this)),
+        new QuButton(
+            "Button with args ('foo')",
+            std::bind(&DemoQuestionnaire::callback_arg, this, "foo")),
+        new QuButton(
+            "Button with args ('bar')",
+            std::bind(&DemoQuestionnaire::callback_arg, this, "bar")),
+        new QuButton(
+            UiConst::CBS_ADD, true, true,
+            std::bind(&DemoQuestionnaire::callback_hello, this)),
+    })->setTitle("Buttons"));
+
+    // ========================================================================
+    // Photo (for a mandatory photo: last page in case we have no camera)
     // ========================================================================
 
     QuPagePtr page_photo((new QuPage{
-        new QuHeading("Photo:"),
-        new QuPhoto(fieldRef("q23", true, true, true)),
-    })->setTitle("Canvas"));
+        new QuHeading("Photo [last page]:"),
+        new QuPhoto(fieldRef("photo_blobid", true, true, true)),
+    })->setTitle("Photo"));
 
     // ========================================================================
     // Questionnaire
     // ========================================================================
 
-    Questionnaire* questionnaire = new Questionnaire(app, {
-        page_text, page_buttons, page_headings_layout_images,
-        page_audio_countdown, page_boolnea,
+    Questionnaire* questionnaire = new Questionnaire(m_app, {
+        page_text, page_headings_layout_images,
+        page_audio_countdown, page_boolean,
         page_mcq, page_mcq_variants, page_multiple_response, page_pickers,
-        page_sliders, page_vars, page_diag, page_canvas, page_photo,
+        page_sliders, page_vars, page_diag, page_canvas, page_buttons,
+        page_photo,
     });
     questionnaire->setReadOnly(read_only);
     return questionnaire;
@@ -642,4 +719,14 @@ void DemoQuestionnaire::callback_hello()
 void DemoQuestionnaire::callback_arg(const QString& arg)
 {
     UiFunc::alert("Function argument was: " + arg);
+}
+
+
+QuBoolean* DemoQuestionnaire::aceBoolean(const QString& stringname,
+                                         const QString& fieldname)
+{
+    return (new QuBoolean(
+        m_app.xstring("ace3", stringname),
+        fieldRef(fieldname, false)
+    ))->setBigIndicator(false);
 }

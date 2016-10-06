@@ -6,12 +6,14 @@
 #include <QStack>
 #include "common/dbconstants.h"  // for NONEXISTENT_PK
 #include "common/uiconstants.h"  // for FontSize
+#include "lib/slowguiguard.h"
 #include "tasklib/task.h"  // for TaskPtr
 
 class QSqlDatabase;
 class QMainWindow;
 class QStackedWidget;
 
+class NetworkManager;
 class OpenableWidget;
 class StoredVar;
 using StoredVarPtr = QSharedPointer<StoredVar>;
@@ -62,6 +64,9 @@ public:
     // ------------------------------------------------------------------------
     void open(OpenableWidget* widget, TaskPtr task = TaskPtr(nullptr),
               bool may_alter_task = false);
+    SlowGuiGuard getSlowGuiGuard(const QString& text = "Opening...",
+                                 const QString& title = "Please wait...",
+                                 int minimum_duration_ms = 100);
 
     // ------------------------------------------------------------------------
     // Security
@@ -72,6 +77,11 @@ public:
     void unlock();
     void lock();
     void grantPrivilege();
+
+    // ------------------------------------------------------------------------
+    // Networking
+    // ------------------------------------------------------------------------
+    NetworkManager* networkManager() const;
 
     // ------------------------------------------------------------------------
     // Whisker
@@ -97,6 +107,7 @@ public:
     // ------------------------------------------------------------------------
     QString xstring(const QString& taskname, const QString& stringname,
                     const QString& default_str = "") const;
+    bool hasExtraStrings(const QString& taskname) const;
 
     // ------------------------------------------------------------------------
     // Stored variables: specific
@@ -133,6 +144,7 @@ protected:
     int m_patient_id;
     QStack<OpenableInfo> m_info_stack;
     QMap<QString, StoredVarPtr> m_storedvars;
+    QSharedPointer<NetworkManager> m_netmgr;
 };
 
 /*

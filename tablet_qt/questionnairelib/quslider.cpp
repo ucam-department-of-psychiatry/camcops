@@ -199,7 +199,7 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
             layout->setAlignment(m_value_label,
                                  Qt::AlignHCenter | Qt::AlignVCenter);
         }
-        m_slider->setSizePolicy(QSizePolicy::MinimumExpanding,
+        m_slider->setSizePolicy(QSizePolicy::Preferred,
                                 QSizePolicy::Fixed);
         layout->addWidget(m_slider);
         m_container_widget->setLayout(layout);
@@ -218,7 +218,7 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
                                       Qt::AlignHCenter | Qt::AlignVCenter);
         }
         m_slider->setSizePolicy(QSizePolicy::Fixed,
-                                QSizePolicy::MinimumExpanding);
+                                QSizePolicy::Preferred);
         innerlayout->addWidget(m_slider);
         outerlayout->addLayout(innerlayout);
         outerlayout->addStretch();

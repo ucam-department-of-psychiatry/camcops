@@ -28,9 +28,23 @@ QT += multimediawidgets
 
 QMAKE_CXXFLAGS += -Werror  # warnings become errors
 
+# In release mode, optimize heavily:
+QMAKE_CXXFLAGS_RELEASE -= -O
+QMAKE_CXXFLAGS_RELEASE -= -O1
+QMAKE_CXXFLAGS_RELEASE -= -O2
+QMAKE_CXXFLAGS_RELEASE += -O3  # optimize heavily
+
 TARGET = camcops
 TEMPLATE = app
 
+CONFIG += static  # use a statically linked version of Qt
+# CONFIG += debug  # no, use the QtCreator debug/release settings
+CONFIG += mobility
+CONFIG += c++11
+MOBILITY =
+
+RESOURCES += \
+    camcops.qrc
 
 SOURCES += main.cpp\
     lib/uifunc.cpp \
@@ -39,7 +53,6 @@ SOURCES += main.cpp\
     tasklib/task.cpp \
     tasks/phq9.cpp \
     lib/databaseobject.cpp \
-    lib/netcore.cpp \
     lib/dbfunc.cpp \
     lib/field.cpp \
     lib/datetimefunc.cpp \
@@ -163,7 +176,18 @@ SOURCES += main.cpp\
     questionnairelib/mcqfunc.cpp \
     widgets/horizontalline.cpp \
     widgets/verticalline.cpp \
-    questionnairelib/qumcqgridsingleboolean.cpp
+    questionnairelib/qumcqgridsingleboolean.cpp \
+    lib/stringfunc.cpp \
+    widgets/waitbox.cpp \
+    lib/threadworker.cpp \
+    lib/slownonguifunctioncaller.cpp \
+    lib/slowguiguard.cpp \
+    dbobjects/patient.cpp \
+    lib/sqlitepragmainfofield.cpp \
+    lib/fieldcreationplan.cpp \
+    lib/sqlargs.cpp \
+    lib/networkmanager.cpp \
+    widgets/logbox.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -172,7 +196,6 @@ HEADERS  += \
     tasklib/task.h \
     tasks/phq9.h \
     lib/databaseobject.h \
-    lib/netcore.h \
     lib/dbfunc.h \
     lib/field.h \
     lib/datetimefunc.h \
@@ -298,15 +321,18 @@ HEADERS  += \
     questionnairelib/mcqfunc.h \
     widgets/horizontalline.h \
     widgets/verticalline.h \
-    questionnairelib/qumcqgridsingleboolean.h
-
-CONFIG += debug
-CONFIG += mobility
-CONFIG += c++11
-MOBILITY =
-
-RESOURCES += \
-    camcops.qrc
+    questionnairelib/qumcqgridsingleboolean.h \
+    lib/stringfunc.h \
+    widgets/waitbox.h \
+    lib/threadworker.h \
+    lib/slownonguifunctioncaller.h \
+    lib/slowguiguard.h \
+    dbobjects/patient.h \
+    lib/sqlitepragmainfofield.h \
+    lib/fieldcreationplan.h \
+    lib/sqlargs.h \
+    lib/networkmanager.h \
+    widgets/logbox.h
 
 DISTFILES += \
     notes/qt_notes.txt \

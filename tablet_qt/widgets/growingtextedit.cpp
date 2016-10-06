@@ -64,3 +64,5 @@ void GrowingTextEdit::contentsChanged()
 //      http://doc.qt.io/qt-5.7/qscrollarea.html#widgetResizable-prop
 // ... and (in VerticalScrollArea) a call to updateGeometry() when its widget
 // size changes, it seems.
+// ... no, calling updateGeometry() from VerticalScrollArea::resizeEvent is
+// a recipe for a crash, I think.

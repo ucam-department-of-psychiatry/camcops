@@ -13,13 +13,40 @@ When is it NECESSARY to compile Qt from source?
       ... so: necessary.
 
 COMPILING OPENSSL:
+    ...
 
-"""
-
+OTHER NOTES:
 # configure: http://doc.qt.io/qt-5/configure-options.html
 # sqlite: http://doc.qt.io/qt-5/sql-driver.html
 # build for Android: http://wiki.qt.io/Qt5ForAndroidBuilding
 # multi-core builds: http://stackoverflow.com/questions/9420825/how-to-compile-on-multiple-cores-using-mingw-inside-qtcreator  # noqa
+
+UPON QT CONFIGURE FAILURE:
+
+-   gstreamer (used for Unix audio etc.)
+    gstreamer version 1.0 version (for Unix) requires:
+        sudo apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+    ... NB some things try to remove it, it seems! (Maybe autoremove?)
+
+-   Qt configure can't find make or gmake in PATH...
+
+    If they are in the PATH, then check permissions on
+          qtbase/config.tests/unix/which.test
+    ... if not executable, permissions have been altered wrongly.
+
+-   NB actual configure scripts are:
+        /home/rudolf/dev/qt_local_build/src/qt5/configure
+        /home/rudolf/dev/qt_local_build/src/qt5/configure/qtbase/configure
+
+-   "recipe for target 'sub-plugins-make_first' failed", or similar:
+
+    If configure fails, try more or less verbose (--verbose 0, --verbose 2) and
+    also try "--nparallel 1" so you can see which point is failing more
+    clearly. This is IMPORTANT or other error messages incorrectly distract
+    you.
+
+"""
+
 
 import argparse
 import logging
@@ -38,16 +65,54 @@ QT_CONFIG_COMMON_ARGS = [
     # http://doc.qt.io/qt-4.8/configure-options.html  # NB better docs than 5.7
     # http://doc.qt.io/qt-5.7/configure-options.html  # less helpful
 
+    # -------------------------------------------------------------------------
+    # Qt license, debug v. release, static v. shared
+    # -------------------------------------------------------------------------
+
     "-opensource", "-confirm-license",
 
-    "-debug-and-release",  # make a release library as well
-        # ... debug was the default in 4.8, but ?not in 5.7?
+    "-release",  # default is release
+
+    # "-debug-and-release",  # make a release library as well: MAC ONLY
+        # ... debug was the default in 4.8, but not in 5.7
+        # ... release is default in 5.7 (as per "configure -h")
         # ... check with "readelf --debug-dump=decodedline <LIBRARY.so>"
         # ... http://stackoverflow.com/questions/1999654
 
-    "-qt-sql-sqlite",  # SQLite
+    "-static",  # makes a static Qt library (cf. default of "-shared")
+    # ... NB ALSO NEEDS "CONFIG += static" in the .pro file
 
+    # -------------------------------------------------------------------------
+    # Database support
+    # -------------------------------------------------------------------------
+    "-qt-sql-sqlite",  # SQLite (v3) support built in to Qt
+
+    "-no-sql-db2",  # disable other SQL drivers
+    "-no-sql-ibase",
+    "-no-sql-mysql",  # ... for future: maybe re-enable as a plugin
+    "-no-sql-oci",
+    "-no-sql-odbc",  # ... for future: maybe re-enable as a plugin
+    "-no-sql-psql",  # ... for future: maybe re-enable as a plugin
+    "-no-sql-sqlite2",  # this is an old SQLite version
+    "-no-sql-tds",  # this one specifically was causing library problems
+
+    # -------------------------------------------------------------------------
+    # Third-party libraries
+    # -------------------------------------------------------------------------
+    "-qt-zlib",  # Qt, not host OS, version of zlib
+    "-qt-libpng",  # Qt, not host OS, version of PNG library
+    "-qt-libjpeg",  # Qt, not host OS, version of JPEG library
+    "-qt-doubleconversion",
+
+
+    # -------------------------------------------------------------------------
+    # Compilation
+    # -------------------------------------------------------------------------
     "-no-warnings-are-errors",
+
+    # -------------------------------------------------------------------------
+    # Stuff to skip
+    # -------------------------------------------------------------------------
     "-nomake", "tests",
     "-nomake", "examples",
     "-skip", "qttranslations",
@@ -71,7 +136,7 @@ def run(args, env=None):
     log.info("Running external command: {}".format(args))
     if env is not None:
         log.info("Using environment: {}".format(env))
-    subprocess.check_call(args, env=env)  # PROBLEM: sometimes (e.g. for make) failure is OK!? Just retry the first time.  # noqa
+    subprocess.check_call(args, env=env)
 
 
 def replace(filename, text_from, text_to):
@@ -367,9 +432,9 @@ def build_openssl_osx(args):
 # Building Qt
 # =============================================================================
 
-def build_qt_android(args, cpu, static_openssl=False, verbose=True):
-    # For testing a new OpenSSL build, have static_openssl=False, or you have
-    # to rebuild Qt every time... extremely slow.
+def build_qt_android(args, cpu):
+    # For testing a new OpenSSL build, have args.static_openssl=False, or you
+    # have to rebuild Qt every time... extremely slow.
 
     # Android example at http://wiki.qt.io/Qt5ForAndroidBuilding
     # http://doc.qt.io/qt-5/opensslsupport.html
@@ -427,12 +492,14 @@ def build_qt_android(args, cpu, static_openssl=False, verbose=True):
         "-android-toolchain-version", args.android_toolchain_version,
         "-xplatform", "android-g++",
     ] + QT_CONFIG_COMMON_ARGS
-    if static_openssl:
+    if args.static_openssl:
         qt_config_args.append("-openssl-linked")  # OpenSSL
     else:
         qt_config_args.append("-openssl")  # OpenSSL
-    if verbose:
+    if args.verbose >= 1:
         qt_config_args.append("-v")  # verbose
+    if args.verbose >= 2:
+        qt_config_args.append("-v")  # more verbose
     run(qt_config_args)  # The configure step takes a few seconds.
 
     log.info("Making Qt Android {} build into {}".format(cpu, installdir))
@@ -461,10 +528,9 @@ def build_qt_android(args, cpu, static_openssl=False, verbose=True):
     return installdir
 
 
-def build_qt_generic_unix(args, cosmetic_osname, extra_qt_config_args=None,
-                          static_openssl=False, verbose=True):
-    # For testing a new OpenSSL build, have static_openssl=False, or you have
-    # to rebuild Qt every time... extremely slow.
+def build_qt_generic_unix(args, cosmetic_osname, extra_qt_config_args=None):
+    # For testing a new OpenSSL build, have args.static_openssl=False, or you
+    # have to rebuild Qt every time... extremely slow.
     extra_qt_config_args = extra_qt_config_args or []
     opensslrootdir, opensslworkdir = get_openssl_rootdir_workdir(
         args, cosmetic_osname)
@@ -496,12 +562,14 @@ def build_qt_generic_unix(args, cosmetic_osname, extra_qt_config_args=None,
         "-L", openssl_lib_root,  # OpenSSL
         "-prefix", installdir,
     ] + extra_qt_config_args + QT_CONFIG_COMMON_ARGS
-    if static_openssl:
+    if args.static_openssl:
         qt_config_args.append("-openssl-linked")  # OpenSSL
     else:
         qt_config_args.append("-openssl")  # OpenSSL
-    if verbose:
+    if args.verbose >= 1:
         qt_config_args.append("-v")  # verbose
+    if args.verbose >= 2:
+        qt_config_args.append("-v")  # more verbose
     run(qt_config_args)  # The configure step takes a few seconds.
 
     log.info("Making Qt {} build into {}".format(cosmetic_osname, installdir))
@@ -518,29 +586,25 @@ def build_qt_generic_unix(args, cosmetic_osname, extra_qt_config_args=None,
     return installdir
 
 
-def build_qt_linux(args, static_openssl=False, verbose=True):
+def build_qt_linux(args):
     return build_qt_generic_unix(
         args,
         cosmetic_osname="linux",
         extra_qt_config_args=[
             # Linux options:
             "-qt-xcb",  # use XCB source bundled with Qt?
-            "-gstreamer", "1.0",  # gstreamer version (for Unix); requires sudo apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev  # noqa
-        ],
-        static_openssl=static_openssl,
-        verbose=verbose
+            "-gstreamer", "1.0",  # gstreamer version; see notes at top of file
+        ]
     )
 
 
-def build_qt_osx(args, static_openssl=False, verbose=True):
+def build_qt_osx(args):
     # http://stackoverflow.com/questions/20604093/qt5-install-on-osx-qt-xcb
     # os.environ["PATH"] = "/usr/bin:/bin:/usr/sbin:/sbin"
     return build_qt_generic_unix(
         args,
         cosmetic_osname="osx",
-        extra_qt_config_args=None,
-        static_openssl=static_openssl,
-        verbose=verbose
+        extra_qt_config_args=None
     )
 
 
@@ -597,6 +661,9 @@ def main():
         "--nparallel", type=int, default=multiprocessing.cpu_count(),
         help="Number of parallel processes to run")
     parser.add_argument("--force", action="store_true", help="Force build")
+    parser.add_argument(
+        "--verbose", type=int, default=1,
+        help="Verbosity level")
 
     # Qt
     parser.add_argument(
@@ -611,6 +678,14 @@ def main():
     parser.add_argument(
         "--qt_git_branch", default=default_qt_git_branch,
         help="Qt Git branch")
+
+    parser.add_argument(
+        "--qt_openssl_static", dest="static_openssl", action="store_true",
+        help="Link OpenSSL statically")
+    parser.add_argument(
+        "--qt_openssl_linked", dest="static_openssl", action="store_false",
+        help="Link OpenSSL dynamically")
+    parser.set_defaults(static_openssl=True)
 
     # Android
     parser.add_argument(

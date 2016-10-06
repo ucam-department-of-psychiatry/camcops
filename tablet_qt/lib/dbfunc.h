@@ -7,53 +7,16 @@
 #include <QSqlDatabase>
 #include <QVariant>
 #include "lib/field.h"
+#include "sqlargs.h"
 
 const QString DATA_DATABASE_FILENAME = "camcops_data.sqlite";
 const QString SYSTEM_DATABASE_FILENAME = "camcops_sys.sqlite";
 const QString TABLE_TEMP_SUFFIX = "_temp";
 
-
-class SqlitePragmaInfo {
-public:
-    // http://www.stroustrup.com/C++11FAQ.html#member-init
-    int cid = -1;
-    QString name;
-    QString type;
-    bool notnull = false;
-    QVariant dflt_value;
-    bool pk = false;
-public:
-    friend QDebug operator<<(QDebug debug, const SqlitePragmaInfo& info);
-};
+class SqlitePragmaInfoField;
 
 
-class FieldCreationPlan {
-public:
-    QString name;
-    const Field* intended_field = nullptr;
-    bool exists_in_db = false;
-    QString existing_type;
-    bool existing_not_null = false;
-    bool add = false;
-    bool drop = false;
-    bool change = false;
-public:
-    friend QDebug operator<<(QDebug debug, const FieldCreationPlan& plan);
-};
-
-
-using ArgList = QList<QVariant>;
 using WhereConditions = QMap<QString, QVariant>;
-
-
-struct SqlArgs {
-public:
-    SqlArgs(const QString& sql, const ArgList& args) :
-        sql(sql), args(args) {}
-public:
-    QString sql;
-    ArgList args;
-};
 
 
 namespace DbFunc {
@@ -81,8 +44,7 @@ namespace DbFunc {
                                const ArgList& args);
     QVariant dbFetchFirstValue(const QSqlDatabase& db, const QString& sql);
     int dbFetchInt(const QSqlDatabase& db,
-                   const QString& sql,
-                   const ArgList& args = ArgList(),
+                   const SqlArgs& sqlargs,
                    int failureDefault = -1);
     int dbFetchInt(const QSqlDatabase& db,
                    const QString& sql,
@@ -93,16 +55,20 @@ namespace DbFunc {
     QString csv(QSqlQuery& query, const char sep = ',',
                 const char linesep = '\n');
 
+    int count(const QSqlDatabase& db,
+              const QString& tablename,
+              const WhereConditions& where = WhereConditions());
+
     // Database structure
 
     bool tableExists(const QSqlDatabase& db, const QString& tablename);
-    QList<SqlitePragmaInfo> getPragmaInfo(const QSqlDatabase& db,
+    QList<SqlitePragmaInfoField> getPragmaInfo(const QSqlDatabase& db,
                                           const QString& tablename);
-    QStringList fieldNamesFromPragmaInfo(const QList<SqlitePragmaInfo>& infolist,
+    QStringList fieldNamesFromPragmaInfo(const QList<SqlitePragmaInfoField>& infolist,
                                          bool delimited = false);
     QStringList dbFieldNames(const QSqlDatabase& db, const QString& tablename);
     QString makeCreationSqlFromPragmaInfo(const QString& tablename,
-                                          const QList<SqlitePragmaInfo>& infolist);
+                                          const QList<SqlitePragmaInfoField>& infolist);
     QString dbTableDefinitionSql(const QSqlDatabase& db, const QString& tablename);
     bool createIndex(const QSqlDatabase& db, const QString& indexname,
                      const QString& tablename, QStringList fieldnames);

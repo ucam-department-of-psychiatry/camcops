@@ -44,6 +44,7 @@ QPointer<QWidget> QuContainerGrid::makeWidget(Questionnaire* questionnaire)
     widget->setObjectName("debug_green");
 #endif
     QGridLayout* grid = new QGridLayout();
+    grid->setContentsMargins(0, 0, 0, 0);
     widget->setLayout(grid);
     for (auto c : m_cells) {
         QuElementPtr e = c.element;

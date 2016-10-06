@@ -5,12 +5,13 @@
 class CamcopsApp;
 class TaskFactory;
 class OpenableWidget;
+class QuBoolean;
 
 
 class DemoQuestionnaire : public Task
 {
 public:
-    DemoQuestionnaire(const QSqlDatabase& db,
+    DemoQuestionnaire(CamcopsApp& app, const QSqlDatabase& db,
                       int load_pk = DbConst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // General info
@@ -24,11 +25,11 @@ public:
     // ------------------------------------------------------------------------
     virtual bool isComplete() const override;
     virtual QString summary() const override;
-    virtual OpenableWidget* editor(CamcopsApp& app,
-                                   bool read_only = false) override;
+    virtual OpenableWidget* editor(bool read_only = false) override;
 protected:
     void callback_hello();
     void callback_arg(const QString& arg);
+    QuBoolean* aceBoolean(const QString& stringname, const QString& fieldname);
 };
 
 void initializeDemoQuestionnaire(TaskFactory& factory);

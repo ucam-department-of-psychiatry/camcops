@@ -50,7 +50,9 @@ QuContainerVertical* QuContainerVertical::addElement(
 QPointer<QWidget> QuContainerVertical::makeWidget(Questionnaire* questionnaire)
 {
     QPointer<QWidget> widget = new QWidget();
+    // widget->setObjectName("debug_yellow");
     QVBoxLayout* layout = new QVBoxLayout();
+    layout->setContentsMargins(0, 0, 0, 0);
     widget->setLayout(layout);
     for (auto e : m_elements) {
         QPointer<QWidget> w = e->widget(questionnaire);

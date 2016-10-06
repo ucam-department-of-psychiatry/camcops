@@ -12,6 +12,7 @@ QuLineEditDouble::QuLineEditDouble(FieldRefPtr fieldref) :
     m_decimals(2),
     m_strict_validator(true)
 {
+    setHint(QString("real number, %1 dp").arg(m_decimals));
 }
 
 
@@ -23,6 +24,10 @@ QuLineEditDouble::QuLineEditDouble(FieldRefPtr fieldref, double minimum,
     m_decimals(decimals),
     m_strict_validator(true)
 {
+    setHint(QString("real number, %1 to %2, %3 dp")
+            .arg(m_minimum)
+            .arg(m_maximum)
+            .arg(m_decimals));
 }
 
 

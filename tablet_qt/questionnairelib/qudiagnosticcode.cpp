@@ -4,7 +4,9 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QWidget>
+#include "common/camcopsapp.h"
 #include "diagnosis/diagnosticcodeset.h"
+#include "lib/slowguiguard.h"
 #include "lib/uifunc.h"
 #include "widgets/diagnosticcodeselector.h"
 #include "questionnaire.h"
@@ -107,6 +109,7 @@ void QuDiagnosticCode::setButtonClicked()
         qWarning() << Q_FUNC_INFO << "m_questionnaire missing";
         return;
     }
+    SlowGuiGuard guard = m_questionnaire->app().getSlowGuiGuard();
     QString code = m_fieldref_code->valueString();
     QModelIndex selected = m_codeset->firstMatchCode(code);
     QString stylesheet = m_questionnaire->getSubstitutedCss(

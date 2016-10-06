@@ -14,7 +14,8 @@ class Task : public DatabaseObject
 {
     Q_DECLARE_TR_FUNCTIONS(Task)
 public:
-    Task(const QSqlDatabase& db,
+    Task(CamcopsApp& app,
+         const QSqlDatabase& db,
          const QString& tablename,
          bool is_anonymous,
          bool has_clinician,
@@ -31,6 +32,7 @@ public:
     virtual QString menutitle() const;  // default: "longname (shortname)"
     virtual QString menusubtitle() const = 0;  // descriptive
     virtual QString infoFilenameStem() const;  // default: tablename
+    virtual QString xstringTaskname() const;  // default: tablename
     virtual QString instanceTitle() const;
     virtual bool isAnonymous() const { return false; }
     virtual bool hasClinician() const { return false; }
@@ -57,12 +59,15 @@ public:
     virtual bool isComplete() const = 0;
     virtual QString summary() const;
     virtual QString detail() const;
-    virtual OpenableWidget* editor(CamcopsApp& app, bool read_only = false);
+    virtual OpenableWidget* editor(bool read_only = false);
     // ------------------------------------------------------------------------
     // Assistance functions
     // ------------------------------------------------------------------------
     QDateTime whenCreated() const;
     QString summaryWithCompleteSuffix() const;
+    QString xstring(const QString& stringname) const;
+protected:
+    CamcopsApp& m_app;
 };
 
 

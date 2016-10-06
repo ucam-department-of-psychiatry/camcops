@@ -40,9 +40,20 @@ bool VerticalScrollArea::eventFilter(QObject* o, QEvent* e)
         // and the contents grow, we will learn about it here -- and we need
         // to grow ourselves. When your sizeHint() changes, you should call
         // updateGeometry().
-        updateGeometry();
+
+        // Except...
+        // http://doc.qt.io/qt-5/qwidget.html
+        // Warning: Calling setGeometry() inside resizeEvent() or moveEvent()
+        // can lead to infinite recursion.
+        // ... and we certainly had infinite recursion.
+        // One way in which this can happen:
+        // http://stackoverflow.com/questions/9503231/strange-behaviour-overriding-qwidgetresizeeventqresizeevent-event
+
+        // NO? // updateGeometry();  // even contained text scroll areas work without it
+        return false;  // DEFINITELY NEED THIS, NOT FALL-THROUGH TO PARENT
+    } else {
+        return QScrollArea::eventFilter(o, e);
     }
-    return QScrollArea::eventFilter(o, e);
 }
 
 

@@ -10,7 +10,8 @@ class OpenableWidget;
 class Phq9 : public Task
 {
 public:
-    Phq9(const QSqlDatabase& db, int load_pk = DbConst::NONEXISTENT_PK);
+    Phq9(CamcopsApp& app, const QSqlDatabase& db,
+         int load_pk = DbConst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // General info
     // ------------------------------------------------------------------------
@@ -22,8 +23,7 @@ public:
     // ------------------------------------------------------------------------
     virtual bool isComplete() const override;
     virtual QString summary() const override;
-    virtual OpenableWidget* editor(CamcopsApp& app,
-                                   bool read_only = false) override;
+    virtual OpenableWidget* editor(bool read_only = false) override;
 };
 
 void initializePhq9(TaskFactory& factory);

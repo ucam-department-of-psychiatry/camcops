@@ -12,6 +12,9 @@ class QuThermometer : public QuElement
     // Offers a stack of images, allowing the user to select one (and
     // displaying an alternative image at the chosen location), such as for
     // something in the style of a distress thermometer.
+    //
+    // The thermometer operates on name/value pairs; the thing that gets stored
+    // in the field is the value() part of the QuThermometerItem.
 
     Q_OBJECT
 public:

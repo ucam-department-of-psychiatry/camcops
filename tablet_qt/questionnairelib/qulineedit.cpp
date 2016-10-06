@@ -8,6 +8,8 @@
 
 QuLineEdit::QuLineEdit(FieldRefPtr fieldref) :
     m_fieldref(fieldref),
+    m_hint("text"),
+    m_editor(nullptr),
     m_focus_watcher(nullptr)
 {
     Q_ASSERT(m_fieldref);
