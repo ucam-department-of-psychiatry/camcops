@@ -187,7 +187,9 @@ SOURCES += main.cpp\
     lib/fieldcreationplan.cpp \
     lib/sqlargs.cpp \
     lib/networkmanager.cpp \
-    widgets/logbox.cpp
+    widgets/logbox.cpp \
+    common/varconst.cpp \
+    lib/dbtransaction.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -332,7 +334,9 @@ HEADERS  += \
     lib/fieldcreationplan.h \
     lib/sqlargs.h \
     lib/networkmanager.h \
-    widgets/logbox.h
+    widgets/logbox.h \
+    common/varconst.h \
+    lib/dbtransaction.h
 
 DISTFILES += \
     notes/qt_notes.txt \

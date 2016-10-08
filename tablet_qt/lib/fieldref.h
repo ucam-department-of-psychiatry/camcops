@@ -9,6 +9,7 @@
 #include "databaseobject.h"
 
 class Blob;
+class CamcopsApp;
 
 
 class FieldRef : public QObject
@@ -50,6 +51,8 @@ public:
         DatabaseObject,
         DatabaseObjectBlobField,
         Functions,
+        StoredVar,
+        CachedStoredVar,
     };
     using GetterFunction = std::function<const QVariant&()>;
     using SetterFunction = std::function<bool(const QVariant&)>;  // returns: changed?
@@ -61,10 +64,12 @@ public:
     FieldRef(const GetterFunction& getterfunc,
              const SetterFunction& setterfunc,
              bool mandatory);
+    FieldRef(CamcopsApp* app, const QString& storedvar_name,
+             bool mandatory, bool cached);  // StoredVar
     bool valid() const;
-    void setValue(const QVariant& value, const QObject* originator = nullptr);
+    bool setValue(const QVariant& value, const QObject* originator = nullptr);
     // ... originator is optional and used as a performance hint (see QSlider)
-    void setValue(const QImage& image, const QObject* originator = nullptr);
+    bool setValue(const QImage& image, const QObject* originator = nullptr);
     // ... convenience method for QImage
 
     QVariant value() const;
@@ -112,6 +117,9 @@ protected:
 
     GetterFunction m_getterfunc;
     SetterFunction m_setterfunc;
+
+    CamcopsApp* m_app;
+    QString m_storedvar_name;
 };
 
 

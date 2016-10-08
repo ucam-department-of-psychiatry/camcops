@@ -59,7 +59,7 @@ QuAudioPlayer* QuAudioPlayer::setOfferVolumeControl(bool offer_volume_control)
 
 QPointer<QWidget> QuAudioPlayer::makeWidget(Questionnaire* questionnaire)
 {
-    (void)questionnaire;
+    Q_UNUSED(questionnaire)
 
     // Parentheses with new?
     // http://stackoverflow.com/questions/620137/do-the-parentheses-after-the-type-name-make-a-difference-with-new

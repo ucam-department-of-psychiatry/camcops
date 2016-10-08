@@ -11,6 +11,6 @@ QuSpacer::QuSpacer()
 
 QPointer<QWidget> QuSpacer::makeWidget(Questionnaire* questionnaire)
 {
-    (void)questionnaire;
+    Q_UNUSED(questionnaire)
     return QPointer<QWidget>(new Spacer());
 }

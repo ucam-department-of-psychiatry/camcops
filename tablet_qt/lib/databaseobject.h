@@ -34,6 +34,7 @@ public:
     void addField(const Field& field);
     void addFields(const QStringList& fieldnames, QVariant::Type type,
                    bool mandatory = false);
+    bool hasField(const QString& fieldname) const;
     QStringList fieldnames() const;
 
     // Field access:

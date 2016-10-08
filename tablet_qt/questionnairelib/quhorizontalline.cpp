@@ -10,7 +10,7 @@ QuHorizontalLine::QuHorizontalLine()
 
 QPointer<QWidget> QuHorizontalLine::makeWidget(Questionnaire* questionnaire)
 {
-    (void)questionnaire;
+    Q_UNUSED(questionnaire)
     HorizontalLine* horizline = new HorizontalLine(
                 UiConst::QUESTIONNAIRE_HLINE_WIDTH);
     horizline->setObjectName("questionnaire_horizontal_line");

@@ -9,11 +9,13 @@
 #include <QSqlDatabase>
 #include <QStackedWidget>
 #include "common/uiconstants.h"
+#include "common/varconst.h"
 #include "dbobjects/blob.h"
 #include "dbobjects/patient.h"
 #include "dbobjects/storedvar.h"
 #include "lib/datetimefunc.h"
 #include "lib/dbfunc.h"
+#include "lib/dbtransaction.h"
 #include "lib/filefunc.h"
 #include "lib/networkmanager.h"
 #include "lib/slowguiguard.h"
@@ -21,8 +23,6 @@
 #include "menu/mainmenu.h"
 #include "tasklib/inittasks.h"
 #include "questionnairelib/questionnaire.h"
-
-const QString VAR_QUESTIONNAIRE_SIZE_PERCENT = "questionnaireTextSizePercent";
 
 
 CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
@@ -50,9 +50,9 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     // created the app. So don't open the database in the initializer list!
     // Database lifetime:
     // http://stackoverflow.com/questions/7669987/what-is-the-correct-way-of-qsqldatabase-qsqlquery
-    m_db = QSqlDatabase::addDatabase("QSQLITE", "data");
+    m_datadb = QSqlDatabase::addDatabase("QSQLITE", "data");
     m_sysdb = QSqlDatabase::addDatabase("QSQLITE", "sys");
-    DbFunc::openDatabaseOrDie(m_db, DATA_DATABASE_FILENAME);
+    DbFunc::openDatabaseOrDie(m_datadb, DATA_DATABASE_FILENAME);
     DbFunc::openDatabaseOrDie(m_sysdb, SYSTEM_DATABASE_FILENAME);
 
     // ------------------------------------------------------------------------
@@ -73,9 +73,9 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     // *** make extrastrings table
 
     // Make special tables: main database
-    Blob blob_specimen(m_db);
+    Blob blob_specimen(m_datadb);
     blob_specimen.makeTable();
-    Patient patient_specimen(m_db);
+    Patient patient_specimen(m_datadb);
     patient_specimen.makeTable();
 
     // Make task tables
@@ -84,7 +84,18 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     // ------------------------------------------------------------------------
     // Create stored variables: name, type, default
     // ------------------------------------------------------------------------
-    createVar(VAR_QUESTIONNAIRE_SIZE_PERCENT, QVariant::Int, 100);
+    {
+        DbTransaction trans(m_sysdb);
+        // https://www.sqlite.org/faq.html#q19
+        createVar(VarConst::QUESTIONNAIRE_SIZE_PERCENT, QVariant::Int, 100);
+        createVar(VarConst::SERVER_ADDRESS, QVariant::String);
+        createVar(VarConst::SERVER_PORT, QVariant::Int, 443);  // 443 = HTTPS
+        createVar(VarConst::SERVER_PATH, QVariant::String, "camcops/database");
+        createVar(VarConst::SERVER_TIMEOUT_MS, QVariant::Int, 50000);
+        createVar(VarConst::VALIDATE_SSL_CERTIFICATES, QVariant::Bool, true);
+        createVar(VarConst::STORE_SERVER_PASSWORD, QVariant::Bool, true);
+        createVar(VarConst::SEND_ANALYTICS, QVariant::Bool, true);
+    }
 
     // ------------------------------------------------------------------------
     // Qt stuff
@@ -123,7 +134,7 @@ int CamcopsApp::run()
 
 QSqlDatabase& CamcopsApp::db()
 {
-    return m_db;
+    return m_datadb;
 }
 
 
@@ -333,14 +344,14 @@ QString CamcopsApp::xstring(const QString& taskname, const QString& stringname,
 
 bool CamcopsApp::hasExtraStrings(const QString& taskname) const
 {
-    (void)taskname;
+    Q_UNUSED(taskname)
     return false; // ***
 }
 
 
 int CamcopsApp::fontSizePt(UiConst::FontSize fontsize) const
 {
-    double factor = var(VAR_QUESTIONNAIRE_SIZE_PERCENT).toDouble() / 100;
+    double factor = var(VarConst::QUESTIONNAIRE_SIZE_PERCENT).toDouble() / 100;
     switch (fontsize) {
     case UiConst::FontSize::Normal:
         return factor * 12;
@@ -368,13 +379,14 @@ void CamcopsApp::createVar(const QString &name, QVariant::Type type,
 }
 
 
-void CamcopsApp::setVar(const QString& name, const QVariant& value)
+bool CamcopsApp::setVar(const QString& name, const QVariant& value,
+                        bool save_to_db)
 {
     if (!m_storedvars.contains(name)) {
         UiFunc::stopApp(QString("CamcopsApp::setVar: Attempt to set "
                                 "nonexistent storedvar: %1").arg(name));
     }
-    m_storedvars[name]->setValue(value);
+    return m_storedvars[name]->setValue(value, save_to_db);
 }
 
 
@@ -385,4 +397,61 @@ QVariant CamcopsApp::var(const QString& name) const
                                 "storedvar: %1").arg(name));
     }
     return m_storedvars[name]->value();
+}
+
+
+bool CamcopsApp::hasVar(const QString &name) const
+{
+    return m_storedvars.contains(name);
+}
+
+
+FieldRefPtr CamcopsApp::storedVarFieldRef(const QString& name, bool mandatory,
+                                          bool cached)
+{
+    return FieldRefPtr(new FieldRef(this, name, mandatory, cached));
+}
+
+
+void CamcopsApp::clearCachedVars()
+{
+    m_cachedvars.clear();
+}
+
+
+void CamcopsApp::saveCachedVars()
+{
+    DbTransaction trans(m_sysdb);
+    QMapIterator<QString, QVariant> i(m_cachedvars);
+    while (i.hasNext()) {
+        i.next();
+        QString varname = i.key();
+        QVariant value = i.value();
+        bool success = setVar(varname, value);
+        if (!success) {
+            qCritical() << "Problem writing to stored variable" << varname <<
+                           "(value:" << value << ")";
+        }
+    }
+    clearCachedVars();
+}
+
+
+QVariant CamcopsApp::getCachedVar(const QString& name) const
+{
+    if (!m_cachedvars.contains(name)) {
+        m_cachedvars[name] = var(name);
+    }
+    return m_cachedvars[name];
+}
+
+
+bool CamcopsApp::setCachedVar(const QString& name, const QVariant& value)
+{
+    if (!m_cachedvars.contains(name)) {
+        m_cachedvars[name] = var(name);
+    }
+    bool changed = value != m_cachedvars[name];
+    m_cachedvars[name] = value;
+    return changed;
 }

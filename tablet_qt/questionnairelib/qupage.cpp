@@ -83,9 +83,14 @@ QPointer<QWidget> QuPage::widget(Questionnaire* questionnaire) const
     QPointer<QWidget> pagewidget = new QWidget();
     QVBoxLayout* pagelayout = new QVBoxLayout();
     pagewidget->setLayout(pagelayout);
+    // Add widgets that we own directly
     for (QuElementPtr e : m_elements) {
         QPointer<QWidget> w = e->widget(questionnaire);
         pagelayout->addWidget(w);  // takes ownership
+    }
+    // Propagate up events from *all* widgets, including those in grids etc.
+    QList<QuElementPtr> elements = allElements();
+    for (QuElementPtr e : elements) {
         connect(e.data(), &QuElement::elementValueChanged,
                 this, &QuPage::elementValueChanged,
                 Qt::UniqueConnection);

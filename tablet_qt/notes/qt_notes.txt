@@ -743,6 +743,8 @@ TO DO
     - screwdriver icon for test menu
     - magnifying glass without "+" to toggle search in diagnostic code view
     - new icon for "tree" in diagnostic code view
+    - tick icon for "OK", used as alternative to green stop icon for
+      questionnaires in config context.
 
 - "webview"-like tasks, e.g. ID/ED
   aspect ratio:

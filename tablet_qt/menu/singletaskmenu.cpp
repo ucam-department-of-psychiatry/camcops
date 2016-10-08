@@ -94,7 +94,7 @@ void SingleTaskMenu::addTask()
 void SingleTaskMenu::selectedPatientChanged(bool selected,
                                             const QString& details)
 {
-    (void)details;
+    Q_UNUSED(details)
     // ... mark as unused; http://stackoverflow.com/questions/1486904/how-do-i-best-silence-a-warning-about-unused-variables
     emit offerAdd(m_anonymous || selected);
 }

@@ -55,8 +55,10 @@ FieldRefPtrList QuSpinBoxInteger::fieldrefs() const
 
 void QuSpinBoxInteger::widgetValueChanged(int value)
 {
-    m_fieldref->setValue(value, this);  // Will trigger valueChanged
-    emit elementValueChanged();
+    bool changed = m_fieldref->setValue(value, this);  // Will trigger valueChanged
+    if (changed) {
+        emit elementValueChanged();
+    }
 }
 
 

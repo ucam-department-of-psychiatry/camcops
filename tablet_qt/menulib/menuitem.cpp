@@ -14,6 +14,7 @@
 #include "menu/singletaskmenu.h"
 #include "tasklib/taskfactory.h"
 #include "widgets/labelwordwrapwide.h"
+#include "widgets/openablewidget.h"
 #include "htmlinfowindow.h"
 #include "menuwindow.h"
 
@@ -47,6 +48,18 @@ MenuItem::MenuItem(const QString& title, const MenuItem::ActionFunction& func,
 {
     setDefaults();
     m_func = func;
+    m_icon = icon;
+    m_subtitle = subtitle;
+}
+
+
+MenuItem::MenuItem(const QString& title,
+                   const MenuItem::OpenableWidgetMaker& func,
+                   const QString& icon, const QString& subtitle) :
+    m_title(title)
+{
+    setDefaults();
+    m_openable_widget_maker = func;
     m_icon = icon;
     m_subtitle = subtitle;
 }
@@ -88,10 +101,10 @@ MenuItem::MenuItem(const TaskMenuItem& taskmenuitem, CamcopsApp& app)
 
 MenuItem::MenuItem(const QString& title, const HtmlMenuItem& htmlmenuitem,
                    const QString& icon, const QString& subtitle) :
-    m_title(title),
-    m_html(htmlmenuitem)  // extra
+    m_title(title)
 {
     setDefaults();
+    m_html = htmlmenuitem;  // extra
     m_icon = icon;
     m_subtitle = subtitle;
 }
@@ -126,6 +139,7 @@ void MenuItem::setDefaults()
     m_unsupported = false;
 
     m_func = nullptr;
+    m_openable_widget_maker = nullptr;
     m_p_menuproxy = MenuProxyPtr(nullptr);
     m_task_tablename = "";
     m_p_task = TaskPtr(nullptr);
@@ -302,6 +316,11 @@ void MenuItem::act(CamcopsApp& app) const
     }
     if (m_func) {
         m_func();
+        return;
+    }
+    if (m_openable_widget_maker) {
+        OpenableWidget* widget = m_openable_widget_maker(app);
+        app.open(widget);
         return;
     }
     if (!m_task_tablename.isEmpty()) {

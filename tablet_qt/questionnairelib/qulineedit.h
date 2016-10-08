@@ -21,7 +21,9 @@ protected:
     virtual FieldRefPtrList fieldrefs() const override;
     virtual void extraLineEditCreation(QLineEdit* editor);  // override to specialize
 protected slots:
-    virtual void widgetTextChanged();
+    virtual void keystroke();
+    virtual void widgetTextChangedMaybeValid();
+    virtual void widgetTextChangedAndValid();
     virtual void fieldValueChanged(const FieldRef* fieldref,
                                    const QObject* originator = nullptr);
     virtual void widgetFocusChanged(bool in);
@@ -30,4 +32,5 @@ protected:
     QString m_hint;
     QPointer<QLineEdit> m_editor;
     QPointer<FocusWatcher> m_focus_watcher;
+    QSharedPointer<QTimer> m_timer;
 };

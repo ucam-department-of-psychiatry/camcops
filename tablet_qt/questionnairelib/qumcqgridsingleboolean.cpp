@@ -250,8 +250,10 @@ void QuMCQGridSingleBoolean::mcqClicked(int question_index, int value_index)
     QVariant newvalue = m_mcq_options.value(value_index);
     FieldRefPtr fieldref = m_questions_with_fields.at(question_index)
             .firstFieldRef();
-    fieldref->setValue(newvalue);  // Will trigger valueChanged
-    emit elementValueChanged();
+    bool changed = fieldref->setValue(newvalue);  // Will trigger valueChanged
+    if (changed) {
+        emit elementValueChanged();
+    }
 }
 
 

@@ -1,3 +1,5 @@
+#define DEBUG_OPTIONS
+
 #include "testmenu.h"
 #include <QMediaPlayer>
 #include <QProgressDialog>
@@ -20,46 +22,48 @@ TestMenu::TestMenu(CamcopsApp& app)
     m_items = {
         MenuItem(tr("User testing")).setLabelOnly(),
         MenuItem(
-            "Test sound",
+            tr("Test sound"),
             std::bind(&TestMenu::testSound, this)
         ).setNotIfLocked(),
         MenuItem(tr("Developer testing")).setLabelOnly(),
         MenuItem(
-            "Test debug console",
+            tr("Test debug console"),
             std::bind(&TestMenu::testDebugConsole, this)
         ),
         MenuItem(
-            "Test network (HTTP)",
+            tr("Test network (HTTP)"),
             std::bind(&TestMenu::testHttp, this)
         ).setNotIfLocked(),
         MenuItem(
-            "Test network (HTTPS/SSL)",
+            tr("Test network (HTTPS/SSL)"),
             std::bind(&TestMenu::testHttps, this)
         ).setNotIfLocked(),
+#ifdef DEBUG_OPTIONS
         MenuItem(
-            "Test PHQ9 creation",
+            tr("Test PHQ9 creation"),
             std::bind(&TestMenu::testPhq9Creation, this)
         ).setNotIfLocked(),
         MenuItem(
-            "Test ICD-10 code set creation",
+            tr("Test ICD-10 code set creation"),
             std::bind(&TestMenu::testIcd10CodeSetCreation, this)
         ),
         MenuItem(
-            "Test ICD-9-CM code set creation",
+            tr("Test ICD-9-CM code set creation"),
             std::bind(&TestMenu::testIcd9cmCodeSetCreation, this)
         ),
+#endif
         MenuItem(
-            "Test HTML display, and fullscreen display",
+            tr("Test HTML display, and fullscreen display"),
             HtmlMenuItem("Example HTML: this window should be full-screen",
                          FileFunc::taskHtmlFilename("ace3"),
                          "", true)
         ),
         MenuItem(
-            "Test progress dialog",
+            tr("Test progress dialog"),
             std::bind(&TestMenu::testProgress, this)
         ),
         MenuItem(
-            "Test wait dialog",
+            tr("Test wait dialog"),
             std::bind(&TestMenu::testWait, this)
         ),
     };
@@ -121,6 +125,7 @@ void TestMenu::testHttp()
 
 void TestMenu::testPhq9Creation()
 {
+#ifdef DEBUG_OPTIONS
     QString tablename = "phq9";
     TaskPtr p_task = m_app.factory()->create(tablename);
     if (!p_task) {
@@ -132,22 +137,27 @@ void TestMenu::testPhq9Creation()
     m_app.setWhiskerConnected(true); // *** remove
     doneSeeConsole();
     m_app.setWhiskerConnected(false); // *** remove
+#endif
 }
 
 
 void TestMenu::testIcd10CodeSetCreation()
 {
+#ifdef DEBUG_OPTIONS
     Icd10 icd(m_app);
     qDebug() << icd;
     doneSeeConsole();
+#endif
 }
 
 
 void TestMenu::testIcd9cmCodeSetCreation()
 {
+#ifdef DEBUG_OPTIONS
     Icd9cm icd(m_app);
     qDebug() << icd;
     doneSeeConsole();
+#endif
 }
 
 

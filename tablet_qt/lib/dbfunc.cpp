@@ -130,6 +130,9 @@ bool DbFunc::execQuery(QSqlQuery& query, const QString& sql,
             }
             ++row;
         }  // endl on destruction
+        if (row == 0) {
+            qDebug() << "<no rows>";
+        }
         query.seek(QSql::BeforeFirstRow);  // the original starting position
     }
 #endif
@@ -173,6 +176,15 @@ bool DbFunc::exec(const QSqlDatabase& db, const QString& sql)
 bool DbFunc::exec(const QSqlDatabase& db, const SqlArgs& sqlargs)
 {
     return exec(db, sqlargs.sql, sqlargs.args);
+}
+
+
+bool DbFunc::commit(const QSqlDatabase &db)
+{
+    // If we ever need to do proper transations, use an RAII object that
+    // executes BEGIN TRANSATION on creation and either COMMIT or ROLLBACK
+    // on deletion, and/or handles nesting via SAVEPOINT/RELEASE.
+    return exec(db, "COMMIT");
 }
 
 
@@ -443,7 +455,7 @@ void DbFunc::renameColumns(const QSqlDatabase& db, QString tablename,
              delimited_dummytable));
     // Drop the temporary table:
     exec(db, QString("DROP TABLE %1").arg(delimited_dummytable));
-    exec(db, "COMMIT");
+    commit(db);
 }
 
 
@@ -516,7 +528,7 @@ void DbFunc::changeColumnTypes(const QSqlDatabase& db,
          fieldnames,
          delimited_dummytable));
     exec(db, QString("DROP TABLE %1").arg(delimited_dummytable));
-    exec(db, "COMMIT");
+    commit(db);
 }
 
 
@@ -670,5 +682,5 @@ void DbFunc::createTable(const QSqlDatabase& db, const QString& tablename,
          goodfieldstring,
          delimited_dummytable));
     exec(db, QString("DROP TABLE %1").arg(delimited_dummytable));
-    exec(db, "COMMIT");
+    commit(db);
 }

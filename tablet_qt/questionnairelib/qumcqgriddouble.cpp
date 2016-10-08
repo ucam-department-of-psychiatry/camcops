@@ -249,8 +249,10 @@ void QuMCQGridDouble::clicked(int question_index, bool first_field,
     QVariant newvalue = opts.value(value_index);
     FieldRefPtr fieldref = m_questions_with_fields.at(question_index)
             .fieldref(first_field);
-    fieldref->setValue(newvalue);  // Will trigger valueChanged
-    emit elementValueChanged();
+    bool changed = fieldref->setValue(newvalue);  // Will trigger valueChanged
+    if (changed) {
+        emit elementValueChanged();
+    }
 }
 
 

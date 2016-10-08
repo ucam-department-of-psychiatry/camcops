@@ -248,9 +248,11 @@ void QuSlider::completePendingFieldWrite()
         return;
     }
     QVariant newvalue = fieldValueFromSlider(m_field_write_slider_value);
-    m_fieldref->setValue(newvalue, this);  // Will trigger valueChanged
+    bool changed = m_fieldref->setValue(newvalue, this);  // Will trigger valueChanged
     m_field_write_pending = false;
-    emit elementValueChanged();
+    if (changed) {
+        emit elementValueChanged();
+    }
 }
 
 

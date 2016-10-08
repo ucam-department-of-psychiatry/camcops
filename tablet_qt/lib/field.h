@@ -14,6 +14,7 @@ public:
     Field& setMandatory(bool pk);
     Field& setDefaultValue(QVariant value);
     QString name() const;
+    QVariant::Type type() const;
     bool isPk() const;
     bool isUnique() const;
     bool isMandatory() const;

@@ -182,7 +182,8 @@ void MenuWindow::menuItemClicked(QListWidgetItem* item)
 
 void MenuWindow::lockStateChanged(CamcopsApp::LockState lockstate)
 {
-    (void)lockstate;  // mark as unused; http://stackoverflow.com/questions/1486904/how-do-i-best-silence-a-warning-about-unused-variables
+    Q_UNUSED(lockstate)
+    // mark as unused; http://stackoverflow.com/questions/1486904/how-do-i-best-silence-a-warning-about-unused-variables
     build();  // calls down to derived class
 }
 

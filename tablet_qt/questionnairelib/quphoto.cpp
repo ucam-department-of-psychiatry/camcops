@@ -213,9 +213,11 @@ void QuPhoto::resetFieldToNull()
         return;
     }
 
-    m_fieldref->setValue(QVariant());
+    bool changed = m_fieldref->setValue(QVariant());
     // ... skip originator; will call fieldValueChanged
-    emit elementValueChanged();
+    if (changed) {
+        emit elementValueChanged();
+    }
 }
 
 
@@ -236,9 +238,11 @@ void QuPhoto::imageCaptured(const QImage& image)
         qDebug() << "... no camera!";
         return;
     }
-    m_fieldref->setValue(image);
+    bool changed = m_fieldref->setValue(image);
     m_camera->finish();  // close the camera
-    emit elementValueChanged();
+    if (changed) {
+        emit elementValueChanged();
+    }
 }
 
 

@@ -2,10 +2,11 @@
 // #define DEBUG_SIGNALS
 #define DEBUG_CHECK_VALID
 
-#include "fieldref.h"
+#include "common/camcopsapp.h"
 #include "dbobjects/blob.h"
 #include "lib/convert.h"
 #include "lib/debugfunc.h"
+#include "fieldref.h"
 
 
 FieldRef::FieldRef()
@@ -62,6 +63,18 @@ FieldRef::FieldRef(const GetterFunction& getterfunc,
 }
 
 
+FieldRef::FieldRef(CamcopsApp* app, const QString& storedvar_name,
+                   bool mandatory, bool cached)
+{
+    commonConstructor();
+    m_method = cached ? FieldRefMethod::CachedStoredVar
+                      : FieldRefMethod::StoredVar;
+    m_app = app;
+    m_storedvar_name = storedvar_name;
+    m_mandatory = mandatory;
+}
+
+
 void FieldRef::commonConstructor()
 {
     m_method = FieldRefMethod::Invalid;
@@ -78,6 +91,9 @@ void FieldRef::commonConstructor()
 
     m_getterfunc = nullptr;
     m_setterfunc = nullptr;
+
+    m_app = nullptr;
+    m_storedvar_name = "";
 }
 
 
@@ -94,13 +110,18 @@ bool FieldRef::valid() const
         return m_p_dbobject != nullptr && m_blob != nullptr;
     case FieldRefMethod::Functions:
         return m_getterfunc != nullptr && m_setterfunc != nullptr;
+    case FieldRefMethod::StoredVar:
+    case FieldRefMethod::CachedStoredVar:
+        return m_app != nullptr && m_app->hasVar(m_storedvar_name);
+    default:
+        // Shouldn't get here
+        qCritical() << Q_FUNC_INFO << "Bad method";
+        return false;
     }
-    // Shouldn't get here
-    return false;
 }
 
 
-void FieldRef::setValue(const QVariant& value, const QObject* originator)
+bool FieldRef::setValue(const QVariant& value, const QObject* originator)
 {
     // Try for user feedback before database save.
     // HOWEVER, we have to set the value first, because the signal may lead
@@ -108,8 +129,8 @@ void FieldRef::setValue(const QVariant& value, const QObject* originator)
 
 #ifdef DEBUG_CHECK_VALID
     if (!valid()) {
-        qDebug() << Q_FUNC_INFO << "Setting an invalid field";
-        return;
+        qWarning() << Q_FUNC_INFO << "Setting an invalid field";
+        return false;
     }
 #endif
 
@@ -127,7 +148,7 @@ void FieldRef::setValue(const QVariant& value, const QObject* originator)
     switch (m_method) {
     case FieldRefMethod::Invalid:
         qWarning() << Q_FUNC_INFO << "Attempt to set invalid field reference";
-        return;
+        return false;
     case FieldRefMethod::Field:
         changed = m_p_field->setValue(value);
         break;
@@ -146,6 +167,15 @@ void FieldRef::setValue(const QVariant& value, const QObject* originator)
         break;
     case FieldRefMethod::Functions:
         changed = m_setterfunc(value);
+        break;
+    case FieldRefMethod::StoredVar:
+        changed = m_app->setVar(m_storedvar_name, value);
+        break;
+    case FieldRefMethod::CachedStoredVar:
+        changed = m_app->setCachedVar(m_storedvar_name, value);
+        break;
+    default:
+        qCritical() << Q_FUNC_INFO << "Bad method";
         break;
     }
 
@@ -168,12 +198,14 @@ void FieldRef::setValue(const QVariant& value, const QObject* originator)
                        m_method == FieldRefMethod::DatabaseObjectBlobField)) {
         m_p_dbobject->save();
     }
+
+    return changed;
 }
 
 
-void FieldRef::setValue(const QImage& image, const QObject* originator)
+bool FieldRef::setValue(const QImage& image, const QObject* originator)
 {
-    setValue(Convert::imageToVariant(image), originator);
+    return setValue(Convert::imageToVariant(image), originator);
 }
 
 
@@ -195,8 +227,14 @@ QVariant FieldRef::value() const
     case FieldRefMethod::DatabaseObjectBlobField:
         return m_blob->blobVariant();
     case FieldRefMethod::Functions:
-    default:  // to remove warning
         return m_getterfunc();
+    case FieldRefMethod::StoredVar:
+        return m_app->var(m_storedvar_name);
+    case FieldRefMethod::CachedStoredVar:
+        return m_app->getCachedVar(m_storedvar_name);
+    default:  // to remove warning
+        qCritical() << Q_FUNC_INFO << "Bad method";
+        return QVariant();
     }
 }
 
@@ -278,7 +316,14 @@ bool FieldRef::mandatory() const
 
 bool FieldRef::complete() const
 {
-    return !value().isNull();
+    QVariant v = value();
+    if (v.isNull()) {
+        return false;
+    }
+    if (v.toString().isEmpty()) {
+        return false;
+    }
+    return true;
 }
 
 

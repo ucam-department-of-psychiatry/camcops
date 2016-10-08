@@ -70,8 +70,10 @@ void QuPickerInline::currentIndexChanged(int index)
         return;
     }
     QVariant newvalue = m_options.at(index).value();
-    m_fieldref->setValue(newvalue);  // Will trigger valueChanged
-    emit elementValueChanged();
+    bool changed = m_fieldref->setValue(newvalue);  // Will trigger valueChanged
+    if (changed) {
+        emit elementValueChanged();
+    }
 }
 
 

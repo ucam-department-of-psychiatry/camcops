@@ -25,7 +25,7 @@ QuImage::QuImage(FieldRefPtr fieldref) :
 
 QPointer<QWidget> QuImage::makeWidget(Questionnaire* questionnaire)
 {
-    (void)questionnaire;
+    Q_UNUSED(questionnaire)
     m_label = new QLabel();
     QPixmap image;
     if (m_fieldref && m_fieldref->valid()) {

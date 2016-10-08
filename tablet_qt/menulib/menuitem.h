@@ -10,6 +10,7 @@
 class QWidget;
 class CamcopsApp;
 class MenuWindow;
+class OpenableWidget;
 class Task;
 using TaskPtr = QSharedPointer<Task>;
 
@@ -19,8 +20,8 @@ class MenuItem
     Q_DECLARE_TR_FUNCTIONS(MenuItem)
 
 public:
-    using MenuWindowBuilder = std::function<MenuWindow*(CamcopsApp&)>;
     using ActionFunction = std::function<void()>;
+    using OpenableWidgetMaker = std::function<OpenableWidget*(CamcopsApp&)>;
     // http://stackoverflow.com/questions/14189440
 
 public:
@@ -28,11 +29,17 @@ public:
     MenuItem(const QString &title);  // for dummy use
     MenuItem(const QString& title, const ActionFunction& func,
              const QString& icon = "", const QString& subtitle = "");
+    MenuItem(const QString& title, const OpenableWidgetMaker& func,
+             const QString& icon = "", const QString& subtitle = "");
     MenuItem(MenuProxyPtr p_menuproxy, CamcopsApp& app);
     MenuItem(const TaskMenuItem& taskmenuitem, CamcopsApp& app);
     MenuItem(const QString& title, const HtmlMenuItem& htmlmenuitem,
              const QString& icon = "", const QString& subtitle = "");
     MenuItem(TaskPtr p_task, bool task_shows_taskname = true);
+    // We don't have one for a Questionnaire or other generic OpenableWidget;
+    // we don't want to have to create them all just to creat the menu.
+    // Use a function instead, which can create the OpenableWidget (and open
+    // it) as required.
 
     QString title() const;
     TaskPtr task() const;
@@ -64,6 +71,7 @@ protected:
     bool m_task_shows_taskname;
     bool m_unsupported;
     ActionFunction m_func;
+    OpenableWidgetMaker m_openable_widget_maker;
     MenuProxyPtr m_p_menuproxy;
     QString m_task_tablename;
     TaskPtr m_p_task;

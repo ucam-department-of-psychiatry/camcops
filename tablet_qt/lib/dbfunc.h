@@ -40,6 +40,7 @@ namespace DbFunc {
     bool exec(const QSqlDatabase& db, const QString& sql);
     bool exec(const QSqlDatabase& db, const QString& sql, const ArgList& args);
     bool exec(const QSqlDatabase& db, const SqlArgs& sqlargs);
+    bool commit(const QSqlDatabase& db);
     QVariant dbFetchFirstValue(const QSqlDatabase& db, const QString& sql,
                                const ArgList& args);
     QVariant dbFetchFirstValue(const QSqlDatabase& db, const QString& sql);

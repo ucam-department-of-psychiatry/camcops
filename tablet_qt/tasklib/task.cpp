@@ -142,7 +142,7 @@ QString Task::detail() const
 
 OpenableWidget* Task::editor(bool read_only)
 {
-    (void)read_only;
+    Q_UNUSED(read_only)
     qWarning() << "Base class Task::edit called - not a good thing!";
     return nullptr;
 }

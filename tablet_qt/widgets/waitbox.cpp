@@ -57,7 +57,7 @@ WaitBox::WaitBox(QWidget* parent, const QString& text, const QString& title,
 {
     // if min = max = 0, you get an infinite wait bar.
 
-    qDebug() << Q_FUNC_INFO;
+    // qDebug() << Q_FUNC_INFO;
     QApplication::setOverrideCursor(Qt::WaitCursor);
     setWindowTitle(title);
     setWindowModality(Qt::WindowModal);
@@ -70,7 +70,7 @@ WaitBox::WaitBox(QWidget* parent, const QString& text, const QString& title,
 
 WaitBox::~WaitBox()
 {
-    qDebug() << Q_FUNC_INFO;
+    // qDebug() << Q_FUNC_INFO;
     QApplication::restoreOverrideCursor();
-    qDebug() << Q_FUNC_INFO << "done";
+    // qDebug() << Q_FUNC_INFO << "done";
 }

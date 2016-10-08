@@ -1,18 +1,26 @@
 #include "qulineedit.h"
 #include <QLineEdit>
+#include <QTimer>
 #include <QValidator>
 #include "lib/uifunc.h"
 #include "widgets/focuswatcher.h"
 #include "questionnaire.h"
 
 
+const int WRITE_DELAY_MS = 400;
+
+
 QuLineEdit::QuLineEdit(FieldRefPtr fieldref) :
     m_fieldref(fieldref),
     m_hint("text"),
     m_editor(nullptr),
-    m_focus_watcher(nullptr)
+    m_focus_watcher(nullptr),
+    m_timer(new QTimer())
 {
     Q_ASSERT(m_fieldref);
+    m_timer->setSingleShot(true);
+    connect(m_timer.data(), &QTimer::timeout,
+            this, &QuLineEdit::widgetTextChangedMaybeValid);
     connect(m_fieldref.data(), &FieldRef::valueChanged,
             this, &QuLineEdit::fieldValueChanged);
     connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
@@ -44,8 +52,10 @@ QPointer<QWidget> QuLineEdit::makeWidget(Questionnaire* questionnaire)
     m_editor->setPlaceholderText(m_hint);
     extraLineEditCreation(m_editor.data());  // allow subclasses to modify
     if (!read_only) {
+        connect(m_editor.data(), &QLineEdit::textChanged,
+                this, &QuLineEdit::keystroke);
         connect(m_editor.data(), &QLineEdit::editingFinished,
-                this, &QuLineEdit::widgetTextChanged);
+                this, &QuLineEdit::widgetTextChangedAndValid);
         // QLineEdit::textChanged: emitted whenever text changed.
         // QLineEdit::textEdited: NOT emitted when the widget's value is set
         //      programmatically.
@@ -66,7 +76,7 @@ QPointer<QWidget> QuLineEdit::makeWidget(Questionnaire* questionnaire)
 
 void QuLineEdit::extraLineEditCreation(QLineEdit* editor)
 {
-    (void)editor;
+    Q_UNUSED(editor)
 }
 
 
@@ -76,15 +86,42 @@ FieldRefPtrList QuLineEdit::fieldrefs() const
 }
 
 
-void QuLineEdit::widgetTextChanged()
+void QuLineEdit::keystroke()
+{
+    m_timer->start(WRITE_DELAY_MS);  // will restart if already timing
+    // ... goes to widgetTextChangedMaybeValid()
+}
+
+
+void QuLineEdit::widgetTextChangedMaybeValid()
 {
     if (!m_editor) {
         return;
     }
-    // qDebug() << "Validator:" << m_editor->validator();
+    const QValidator* validator = m_editor->validator();
+    if (validator) {
+        int pos = 0;
+        QString text = m_editor->text();
+        if (validator->validate(text, pos) != QValidator::Acceptable) {
+            // duff
+            return;
+        }
+    }
+    widgetTextChangedAndValid();
+}
+
+
+void QuLineEdit::widgetTextChangedAndValid()
+{
+    if (!m_editor) {
+        return;
+    }
+    m_timer->stop();  // just in case it's running
     QString text = m_editor->text();
-    m_fieldref->setValue(text, this);  // Will trigger valueChanged
-    emit elementValueChanged();
+    bool changed = m_fieldref->setValue(text, this);  // Will trigger valueChanged
+    if (changed) {
+        emit elementValueChanged();
+    }
 }
 
 
@@ -96,7 +133,8 @@ void QuLineEdit::fieldValueChanged(const FieldRef* fieldref,
     }
     UiFunc::setPropertyMissing(m_editor, fieldref->missingInput());
     if (originator != this) {
-        // No need to block signals; see above.
+        // Now we're detecting textChanged, we have to block signals for this:
+        const QSignalBlocker blocker(m_editor);
         m_editor->setText(fieldref->valueString());
     }
 }
@@ -109,6 +147,7 @@ void QuLineEdit::widgetFocusChanged(bool in)
     if (in || !m_editor) {
         return;
     }
+    m_timer->stop();  // just in case it's running
     const QValidator* validator = m_editor->validator();
     if (!validator) {
         return;

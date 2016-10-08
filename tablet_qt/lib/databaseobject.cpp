@@ -107,6 +107,12 @@ void DatabaseObject::addField(const Field& field)
 }
 
 
+bool DatabaseObject::hasField(const QString& fieldname) const
+{
+    return m_ordered_fieldnames.contains(fieldname);
+}
+
+
 QStringList DatabaseObject::fieldnames() const
 {
     return m_ordered_fieldnames;
@@ -404,7 +410,7 @@ bool DatabaseObject::saveInsert()
     QSqlQuery query(m_db);
     bool success = DbFunc::execQuery(query, sql, args);
     if (!success) {
-        qCritical() << Q_FUNC_INFO << "Failed to insert record into table"
+        qCritical() << Q_FUNC_INFO << "Failed to INSERT record into table"
                     << m_tablename;
         return success;
     }
@@ -414,6 +420,12 @@ bool DatabaseObject::saveInsert()
     qDebug().nospace() << "Save/insert: " << qUtf8Printable(m_tablename)
                        << ", " << pkname() << "=" << new_pk;
 #endif
+    /*
+    success = DbFunc::commit(m_db);
+    if (!success) {
+        qCritical() << Q_FUNC_INFO << "Failed to commit" << m_tablename;
+    }
+    */
     return success;
 }
 
@@ -451,7 +463,19 @@ bool DatabaseObject::saveUpdate()
         " WHERE " + DbFunc::delimit(pkname()) + "=?"
     );
     args.append(pkvalue());
-    return DbFunc::exec(m_db, sql, args);
+    bool success = DbFunc::exec(m_db, sql, args);
+    if (!success) {
+        qCritical() << Q_FUNC_INFO << "Failed to UPDATE record into table"
+                    << m_tablename;
+        return success;
+    }
+    /*
+    success = DbFunc::commit(m_db);
+    if (!success) {
+        qCritical() << Q_FUNC_INFO << "Failed to commit" << m_tablename;
+    }
+    */
+    return success;
 }
 
 

@@ -57,8 +57,10 @@ FieldRefPtrList QuSpinBoxDouble::fieldrefs() const
 
 void QuSpinBoxDouble::widgetValueChanged(double value)
 {
-    m_fieldref->setValue(value, this);  // Will trigger valueChanged
-    emit elementValueChanged();
+    bool changed = m_fieldref->setValue(value, this);  // Will trigger valueChanged
+    if (changed) {
+        emit elementValueChanged();
+    }
 }
 
 

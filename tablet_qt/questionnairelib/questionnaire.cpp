@@ -345,6 +345,7 @@ void Questionnaire::doCancel()
     if (!readOnly()) {
         // *** mark task as cancelled, or whatever
     }
+    emit cancelled();
     emit finished();
 }
 
@@ -354,6 +355,7 @@ void Questionnaire::doFinish()
     if (!readOnly()) {
         // *** mark task as finished, or whatever
     }
+    emit completed();
     emit finished();
 }
 

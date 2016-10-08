@@ -4,95 +4,66 @@
         <file>resources/camcops/images/hasChild.png</file>
         <file>resources/camcops/stylesheets/questionnaire.css</file>
         <file>resources/camcops/sounds/portal_still_alive.mp3</file>
-        <file>resources/camcops/images/add_T.png</file>
         <file>resources/camcops/images/add.png</file>
         <file>resources/camcops/images/addiction.png</file>
         <file>resources/camcops/images/affective.png</file>
         <file>resources/camcops/images/alltasks.png</file>
         <file>resources/camcops/images/anonymous.png</file>
-        <file>resources/camcops/images/back_T.png</file>
         <file>resources/camcops/images/back.png</file>
-        <file>resources/camcops/images/camera_T.png</file>
         <file>resources/camcops/images/camera.png</file>
-        <file>resources/camcops/images/cancel_T.png</file>
         <file>resources/camcops/images/cancel.png</file>
         <file>resources/camcops/images/catatonia.png</file>
         <file>resources/camcops/images/chain.png</file>
         <file>resources/camcops/images/check_disabled.png</file>
-        <file>resources/camcops/images/check_false_black_T.png</file>
         <file>resources/camcops/images/check_false_black.png</file>
-        <file>resources/camcops/images/check_false_red_T.png</file>
         <file>resources/camcops/images/check_false_red.png</file>
-        <file>resources/camcops/images/check_true_black_T.png</file>
         <file>resources/camcops/images/check_true_black.png</file>
-        <file>resources/camcops/images/check_true_red_T.png</file>
         <file>resources/camcops/images/check_true_red.png</file>
         <file>resources/camcops/images/check_unselected_required.png</file>
-        <file>resources/camcops/images/check_unselected_T.png</file>
         <file>resources/camcops/images/check_unselected.png</file>
-        <file>resources/camcops/images/choose_page_T.png</file>
         <file>resources/camcops/images/choose_page.png</file>
         <file>resources/camcops/images/choose_patient.png</file>
         <file>resources/camcops/images/clinical.png</file>
         <file>resources/camcops/images/cognitive.png</file>
-        <file>resources/camcops/images/delete_T.png</file>
         <file>resources/camcops/images/delete.png</file>
-        <file>resources/camcops/images/edit_T.png</file>
         <file>resources/camcops/images/edit.png</file>
         <file>resources/camcops/images/executive.png</file>
-        <file>resources/camcops/images/fast_forward_T.png</file>
         <file>resources/camcops/images/fast_forward.png</file>
         <file>resources/camcops/images/field_incomplete_mandatory.png</file>
         <file>resources/camcops/images/field_incomplete_optional.png</file>
         <file>resources/camcops/images/field_problem.png</file>
-        <file>resources/camcops/images/finish_T.png</file>
         <file>resources/camcops/images/finish.png</file>
-        <file>resources/camcops/images/finishflag_T.png</file>
         <file>resources/camcops/images/finishflag.png</file>
         <file>resources/camcops/images/global.png</file>
         <file>resources/camcops/images/hasParent.png</file>
         <file>resources/camcops/images/info.png</file>
-        <file>resources/camcops/images/locked_T.png</file>
         <file>resources/camcops/images/locked.png</file>
-        <file>resources/camcops/images/next_T.png</file>
         <file>resources/camcops/images/next.png</file>
-        <file>resources/camcops/images/ok_T.png</file>
         <file>resources/camcops/images/ok.png</file>
         <file>resources/camcops/images/patient_summary.png</file>
         <file>resources/camcops/images/personality.png</file>
-        <file>resources/camcops/images/privileged_T.png</file>
         <file>resources/camcops/images/privileged.png</file>
         <file>resources/camcops/images/psychosis.png</file>
         <file>resources/camcops/images/radio_disabled.png</file>
-        <file>resources/camcops/images/radio_selected_T.png</file>
         <file>resources/camcops/images/radio_selected.png</file>
         <file>resources/camcops/images/radio_unselected_required.png</file>
-        <file>resources/camcops/images/radio_unselected_T.png</file>
         <file>resources/camcops/images/radio_unselected.png</file>
         <file>resources/camcops/images/read_only.png</file>
-        <file>resources/camcops/images/reload_T.png</file>
         <file>resources/camcops/images/reload.png</file>
         <file>resources/camcops/images/research.png</file>
-        <file>resources/camcops/images/rotate_anticlockwise_T.png</file>
         <file>resources/camcops/images/rotate_anticlockwise.png</file>
-        <file>resources/camcops/images/rotate_clockwise_T.png</file>
         <file>resources/camcops/images/rotate_clockwise.png</file>
         <file>resources/camcops/images/sets_clinical.png</file>
         <file>resources/camcops/images/sets_research.png</file>
         <file>resources/camcops/images/settings.png</file>
-        <file>resources/camcops/images/speaker_playing_T.png</file>
         <file>resources/camcops/images/speaker_playing.png</file>
-        <file>resources/camcops/images/speaker_T.png</file>
         <file>resources/camcops/images/speaker.png</file>
         <file>resources/camcops/images/stop.png</file>
-        <file>resources/camcops/images/time_now_T.png</file>
         <file>resources/camcops/images/time_now.png</file>
-        <file>resources/camcops/images/unlocked_T.png</file>
         <file>resources/camcops/images/unlocked.png</file>
         <file>resources/camcops/images/upload.png</file>
         <file>resources/camcops/images/warning.png</file>
         <file>resources/camcops/images/whisker.png</file>
-        <file>resources/camcops/images/zoom_T.png</file>
         <file>resources/camcops/images/zoom.png</file>
         <file>taskinfo/ace3.html</file>
         <file>taskinfo/aims.html</file>

@@ -99,7 +99,7 @@ void CanvasWidget::setImage(const QImage &image, bool resize_widget)
 
 void CanvasWidget::paintEvent(QPaintEvent* event)
 {
-    (void)event;
+    Q_UNUSED(event)
     // If you derive from a QWidget, you can't find out how big the stylesheet
     // borders are, so you can't help overwriting them. So, derive from a
     // QFrame, and draw inside its contentsRect().

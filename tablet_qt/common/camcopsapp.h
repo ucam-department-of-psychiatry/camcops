@@ -6,6 +6,7 @@
 #include <QStack>
 #include "common/dbconstants.h"  // for NONEXISTENT_PK
 #include "common/uiconstants.h"  // for FontSize
+#include "lib/fieldref.h"  // for FieldRefPtr
 #include "lib/slowguiguard.h"
 #include "tasklib/task.h"  // for TaskPtr
 
@@ -25,6 +26,9 @@ class CamcopsApp : public QApplication
 {
     Q_OBJECT
 
+    // ------------------------------------------------------------------------
+    // Helper classes
+    // ------------------------------------------------------------------------
 public:
     enum class LockState {
         Unlocked,
@@ -50,37 +54,46 @@ public:
         bool may_alter_task;
     };
 
+    // ------------------------------------------------------------------------
+    // Core
+    // ------------------------------------------------------------------------
 public:
     CamcopsApp(int& argc, char *argv[]);
     ~CamcopsApp();
     int run();
-
     QSqlDatabase& db();
     QSqlDatabase& sysdb();
     TaskFactoryPtr factory();
 
     // ------------------------------------------------------------------------
-    // Opening windows
+    // Opening/closing windows
     // ------------------------------------------------------------------------
+public:
     void open(OpenableWidget* widget, TaskPtr task = TaskPtr(nullptr),
               bool may_alter_task = false);
     SlowGuiGuard getSlowGuiGuard(const QString& text = "Opening...",
                                  const QString& title = "Please wait...",
                                  int minimum_duration_ms = 100);
+signals:
+    void taskAlterationFinished(TaskPtr task);
 
     // ------------------------------------------------------------------------
     // Security
     // ------------------------------------------------------------------------
+public:
     bool privileged() const;
     bool locked() const;
     LockState lockstate() const;
     void unlock();
     void lock();
     void grantPrivilege();
+signals:
+    void lockStateChanged(LockState lockstate);
 
     // ------------------------------------------------------------------------
     // Networking
     // ------------------------------------------------------------------------
+public:
     NetworkManager* networkManager() const;
 
     // ------------------------------------------------------------------------
@@ -88,52 +101,67 @@ public:
     // ------------------------------------------------------------------------
     bool whiskerConnected() const;
     void setWhiskerConnected(bool connected);
+signals:
+    void whiskerConnectionStateChanged(bool connected);
 
     // ------------------------------------------------------------------------
     // Patient
     // ------------------------------------------------------------------------
+public:
     bool patientSelected() const;
     QString patientDetails() const;
     void setSelectedPatient(int patient_id = DbConst::NONEXISTENT_PK);
     int currentPatientId() const;
+signals:
+    void selectedPatientChanged(bool selected, const QString& details);
 
     // ------------------------------------------------------------------------
-    // CSS convenience
+    // CSS convenience; fonts etc.
     // ------------------------------------------------------------------------
+public:
     QString getSubstitutedCss(const QString& filename) const;
+    int fontSizePt(UiConst::FontSize fontsize) const;
 
     // ------------------------------------------------------------------------
     // Extra strings (downloaded from server)
     // ------------------------------------------------------------------------
+public:
     QString xstring(const QString& taskname, const QString& stringname,
                     const QString& default_str = "") const;
     bool hasExtraStrings(const QString& taskname) const;
 
     // ------------------------------------------------------------------------
-    // Stored variables: specific
+    // Signals
     // ------------------------------------------------------------------------
-    int fontSizePt(UiConst::FontSize fontsize) const;
-
-signals:
-    void lockStateChanged(LockState lockstate);
-    void whiskerConnectionStateChanged(bool connected);
-    void selectedPatientChanged(bool selected, const QString& details);
-    void taskAlterationFinished(TaskPtr task);
 
 public slots:
     void close();
 
-protected:
     // ------------------------------------------------------------------------
     // Stored variables: generic
     // ------------------------------------------------------------------------
-    void createVar(const QString& name, QVariant::Type type,
-                         const QVariant& default_value);
-    void setVar(const QString& name, const QVariant& value);
+public:
+    bool setVar(const QString& name, const QVariant& value,
+                bool save_to_db = true);
     QVariant var(const QString& name) const;
-
+    bool hasVar(const QString& name) const;
+    FieldRefPtr storedVarFieldRef(const QString& name, bool mandatory = true,
+                                  bool cached = true);
+    // And so we can operate on a cached version:
+    void clearCachedVars();  // resets them
+    QVariant getCachedVar(const QString& name) const;
+    bool setCachedVar(const QString& name, const QVariant& value);
+public slots:
+    void saveCachedVars();
 protected:
-    QSqlDatabase m_db;
+    void createVar(const QString& name, QVariant::Type type,
+                   const QVariant& default_value = QVariant());
+
+    // ------------------------------------------------------------------------
+    // Internal data
+    // ------------------------------------------------------------------------
+protected:
+    QSqlDatabase m_datadb;
     QSqlDatabase m_sysdb;
     TaskFactoryPtr m_p_task_factory;
     void setLockState(LockState lockstate);
@@ -145,6 +173,7 @@ protected:
     QStack<OpenableInfo> m_info_stack;
     QMap<QString, StoredVarPtr> m_storedvars;
     QSharedPointer<NetworkManager> m_netmgr;
+    mutable QMap<QString, QVariant> m_cachedvars;
 };
 
 /*

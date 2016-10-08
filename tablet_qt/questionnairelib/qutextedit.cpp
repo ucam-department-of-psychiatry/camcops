@@ -1,7 +1,12 @@
 #include "qutextedit.h"
+#include <QTimer>
 #include "lib/uifunc.h"
+#include "widgets/focuswatcher.h"
 #include "widgets/growingtextedit.h"
 #include "questionnaire.h"
+
+
+const int WRITE_DELAY_MS = 400;
 
 
 QuTextEdit::QuTextEdit(FieldRefPtr fieldref, bool accept_rich_text) :
@@ -9,9 +14,14 @@ QuTextEdit::QuTextEdit(FieldRefPtr fieldref, bool accept_rich_text) :
     m_accept_rich_text(accept_rich_text),
     m_hint("text"),
     m_editor(nullptr),
-    m_ignore_widget_signal(false)
+    m_ignore_widget_signal(false),
+    m_focus_watcher(nullptr),
+    m_timer(new QTimer())
 {
     Q_ASSERT(m_fieldref);
+    m_timer->setSingleShot(true);
+    connect(m_timer.data(), &QTimer::timeout,
+            this, &QuTextEdit::textChanged);
     connect(m_fieldref.data(), &FieldRef::valueChanged,
             this, &QuTextEdit::fieldValueChanged);
     connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
@@ -43,8 +53,14 @@ QPointer<QWidget> QuTextEdit::makeWidget(Questionnaire* questionnaire)
     m_editor->setPlaceholderText(m_hint);
     if (!read_only) {
         connect(m_editor.data(), &GrowingTextEdit::textChanged,
-                this, &QuTextEdit::textChanged);
+                this, &QuTextEdit::keystroke);
+        // QTextEdit::textChanged - Called *whenever* contents changed.
+        // http://doc.qt.io/qt-5.7/qtextedit.html#textChanged
         // Note: no data sent along with the signal
+
+        m_focus_watcher = new FocusWatcher(m_editor.data());
+        connect(m_focus_watcher.data(), &FocusWatcher::focusChanged,
+                this, &QuTextEdit::widgetFocusChanged);
     }
     setFromField();
     return QPointer<QWidget>(m_editor);
@@ -57,15 +73,28 @@ FieldRefPtrList QuTextEdit::fieldrefs() const
 }
 
 
+void QuTextEdit::keystroke()
+{
+    m_timer->start(WRITE_DELAY_MS);  // will restart if already timing
+    // ... goes to textChanged()
+}
+
+
 void QuTextEdit::textChanged()
 {
     if (!m_editor || m_ignore_widget_signal) {
         return;
     }
-    QString text = m_accept_rich_text ? m_editor->toHtml()
-                                      : m_editor->toPlainText();
-    m_fieldref->setValue(text, this);  // Will trigger valueChanged
-    emit elementValueChanged();
+    QString text = m_editor->toPlainText();
+    if (m_accept_rich_text && !text.isEmpty()) {
+        text = m_editor->toHtml();
+    }
+    // ... That forces the text to empty (rather than a bunch of HTML
+    // representing nothing) if there is no real text.
+    bool changed = m_fieldref->setValue(text, this);  // Will trigger valueChanged
+    if (changed) {
+        emit elementValueChanged();
+    }
 }
 
 
@@ -89,4 +118,15 @@ void QuTextEdit::fieldValueChanged(const FieldRef* fieldref,
         }
         m_ignore_widget_signal = false;
     }
+}
+
+
+void QuTextEdit::widgetFocusChanged(bool in)
+{
+    // If focus is leaving the widget, save the field value.
+    if (in || !m_editor) {
+        return;
+    }
+    m_timer->stop();  // just in case it's running
+    textChanged();  // maybe
 }

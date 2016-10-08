@@ -175,7 +175,7 @@ neither is perfect.
 
 void TickSlider::paintEvent(QPaintEvent *ev)
 {
-    (void)ev;
+    Q_UNUSED(ev)
     QStylePainter p(this);
     QStyleOptionSlider opt;
     initStyleOption(&opt);

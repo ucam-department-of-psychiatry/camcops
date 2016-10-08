@@ -72,6 +72,12 @@ QString Field::name() const
 }
 
 
+QVariant::Type Field::type() const
+{
+    return m_type;
+}
+
+
 bool Field::isPk() const
 {
     return m_pk;

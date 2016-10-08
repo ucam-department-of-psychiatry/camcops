@@ -1,4 +1,5 @@
 #pragma once
+
 #include <QSharedPointer>
 #include "menulib/menuwindow.h"
 
@@ -24,6 +25,7 @@ protected:
     void testProgress();
     void testWait();
     void expensiveFunction();
+
 protected:
     QSharedPointer<QMediaPlayer> m_player;
 };

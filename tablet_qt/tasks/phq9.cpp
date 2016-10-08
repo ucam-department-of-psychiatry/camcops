@@ -43,7 +43,7 @@ QString Phq9::summary() const
 
 OpenableWidget* Phq9::editor(bool read_only)
 {
-    (void)read_only;
+    Q_UNUSED(read_only)
     return nullptr; // ***
 }
 

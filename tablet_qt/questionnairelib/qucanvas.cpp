@@ -125,9 +125,11 @@ void QuCanvas::completePendingFieldWrite()
         return;
     }
     QImage img = m_canvas->image();
-    m_fieldref->setValue(img, this);
+    bool changed = m_fieldref->setValue(img, this);
     m_field_write_pending = false;
-    emit elementValueChanged();
+    if (changed) {
+        emit elementValueChanged();
+    }
 }
 
 

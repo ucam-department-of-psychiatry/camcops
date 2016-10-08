@@ -55,6 +55,11 @@ protected slots:
     void nextClicked();
     void finishClicked();
     void resetButtons();
+signals:
+    void cancelled();  // failure/cancel
+    void completed();  // success/OK
+    // and finished() is emitted with either; see OpenableWidget
+
 protected:
     CamcopsApp& m_app;
     QList<QuPagePtr> m_pages;

@@ -170,8 +170,10 @@ void QuDateTime::setField(const QDateTime& datetime, bool reset_this_widget)
         newvalue.convert(QVariant::Time);
         break;
     }
-    m_fieldref->setValue(newvalue, reset_this_widget ? nullptr : this);
-    emit elementValueChanged();
+    bool changed = m_fieldref->setValue(newvalue, reset_this_widget ? nullptr : this);
+    if (changed) {
+        emit elementValueChanged();
+    }
 }
 
 

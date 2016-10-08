@@ -10,7 +10,7 @@ public:
               QVariant::Type type = QVariant::Int,
               QVariant default_value = QVariant());
     virtual ~StoredVar();
-    void setValue(const QVariant& value, bool save_to_db = true);
+    bool setValue(const QVariant& value, bool save_to_db = true);
     QVariant value() const;
     QString name() const;
 protected:
