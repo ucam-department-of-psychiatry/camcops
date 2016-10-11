@@ -1,4 +1,5 @@
-#define DEBUG_WIDGETS_SLOW
+// #define DANGER_DEBUG_PASSWORD_DECRYPTION
+#define DANGER_DEBUG_WIPE_PASSWORDS
 
 #include "camcopsapp.h"
 #include <QApplication>
@@ -10,18 +11,22 @@
 #include <QStackedWidget>
 #include "common/uiconstants.h"
 #include "common/varconst.h"
+#include "crypto/cryptofunc.h"
+#include "db/dbfunc.h"
+#include "db/dbnestabletransaction.h"
+#include "db/dbtransaction.h"
 #include "dbobjects/blob.h"
+#include "dbobjects/extrastring.h"
 #include "dbobjects/patient.h"
 #include "dbobjects/storedvar.h"
 #include "lib/datetimefunc.h"
-#include "lib/dbfunc.h"
-#include "lib/dbtransaction.h"
 #include "lib/filefunc.h"
 #include "lib/networkmanager.h"
 #include "lib/slowguiguard.h"
 #include "lib/uifunc.h"
 #include "menu/mainmenu.h"
 #include "tasklib/inittasks.h"
+#include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnaire.h"
 
 
@@ -70,7 +75,8 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     // Make special tables: system database
     StoredVar storedvar_specimen(m_sysdb);
     storedvar_specimen.makeTable();
-    // *** make extrastrings table
+    ExtraString extrastring_specimen(m_sysdb);
+    extrastring_specimen.makeTable();
 
     // Make special tables: main database
     Blob blob_specimen(m_datadb);
@@ -85,9 +91,12 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     // Create stored variables: name, type, default
     // ------------------------------------------------------------------------
     {
-        DbTransaction trans(m_sysdb);
-        // https://www.sqlite.org/faq.html#q19
+        DbTransaction trans(m_sysdb);  // https://www.sqlite.org/faq.html#q19
+
+        // Questionnaire
         createVar(VarConst::QUESTIONNAIRE_SIZE_PERCENT, QVariant::Int, 100);
+
+        // Server
         createVar(VarConst::SERVER_ADDRESS, QVariant::String);
         createVar(VarConst::SERVER_PORT, QVariant::Int, 443);  // 443 = HTTPS
         createVar(VarConst::SERVER_PATH, QVariant::String, "camcops/database");
@@ -95,6 +104,44 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
         createVar(VarConst::VALIDATE_SSL_CERTIFICATES, QVariant::Bool, true);
         createVar(VarConst::STORE_SERVER_PASSWORD, QVariant::Bool, true);
         createVar(VarConst::SEND_ANALYTICS, QVariant::Bool, true);
+
+        // Whisker
+        createVar(VarConst::WHISKER_HOST, QVariant::String, "localhost");
+        createVar(VarConst::WHISKER_PORT, QVariant::Int, 3233);  // 3233 = Whisker
+        createVar(VarConst::WHISKER_TIMEOUT_MS, QVariant::Int, 5000);
+
+        // Intellectual property
+        createVar(VarConst::IP_USE_CLINICAL, QVariant::Int, CommonOptions::UNKNOWN_INT);
+        createVar(VarConst::IP_USE_COMMERCIAL, QVariant::Int, CommonOptions::UNKNOWN_INT);
+        createVar(VarConst::IP_USE_EDUCATIONAL, QVariant::Int, CommonOptions::UNKNOWN_INT);
+        createVar(VarConst::IP_USE_RESEARCH, QVariant::Int, CommonOptions::UNKNOWN_INT);
+
+        // User
+        // ... server interaction
+        createVar(VarConst::DEVICE_FRIENDLY_NAME, QVariant::String, "");
+        createVar(VarConst::SERVER_USERNAME, QVariant::String, "");
+        createVar(VarConst::SERVER_USERPASSWORD_OBSCURED, QVariant::String, "");
+        createVar(VarConst::OFFER_UPLOAD_AFTER_EDIT, QVariant::Bool, false);
+        // ... default clinician details
+        createVar(VarConst::DEFAULT_CLINICIAN_SPECIALTY, QVariant::String, "");
+        createVar(VarConst::DEFAULT_CLINICIAN_NAME, QVariant::String, "");
+        createVar(VarConst::DEFAULT_CLINICIAN_PROFESSIONAL_REGISTRATION, QVariant::String, "");
+        createVar(VarConst::DEFAULT_CLINICIAN_POST, QVariant::String, "");
+        createVar(VarConst::DEFAULT_CLINICIAN_SERVICE, QVariant::String, "");
+        createVar(VarConst::DEFAULT_CLINICIAN_CONTACT_DETAILS, QVariant::String, "");
+
+        // Cryptography
+        createVar(VarConst::OBSCURING_KEY, QVariant::String, "");
+        createVar(VarConst::OBSCURING_IV, QVariant::String, "");
+        // setEncryptedServerPassword("hello I am a password");
+        // qDebug() << getPlaintextServerPassword();
+        createVar(VarConst::USER_PASSWORD_HASH, QVariant::String, "");
+        createVar(VarConst::PRIV_PASSWORD_HASH, QVariant::String, "");
+
+#ifdef DANGER_DEBUG_WIPE_PASSWORDS
+        setHashedPassword(VarConst::USER_PASSWORD_HASH, "");
+        setHashedPassword(VarConst::PRIV_PASSWORD_HASH, "");
+#endif
     }
 
     // ------------------------------------------------------------------------
@@ -111,6 +158,10 @@ CamcopsApp::~CamcopsApp()
     delete m_p_main_window;
 }
 
+
+// ============================================================================
+// Core
+// ============================================================================
 
 int CamcopsApp::run()
 {
@@ -149,6 +200,10 @@ TaskFactoryPtr CamcopsApp::factory()
     return m_p_task_factory;
 }
 
+
+// ============================================================================
+// Opening/closing windows
+// ============================================================================
 
 SlowGuiGuard CamcopsApp::getSlowGuiGuard(const QString& text,
                                          const QString& title,
@@ -214,6 +269,10 @@ void CamcopsApp::close()
 }
 
 
+// ============================================================================
+// Security
+// ============================================================================
+
 bool CamcopsApp::privileged() const
 {
     return m_lockstate == LockState::Privileged;
@@ -244,8 +303,12 @@ void CamcopsApp::setLockState(LockState lockstate)
 
 void CamcopsApp::unlock()
 {
-    // *** security check
-    setLockState(LockState::Unlocked);
+    if (lockstate() == LockState::Privileged ||
+            checkPassword(VarConst::USER_PASSWORD_HASH,
+                          tr("Enter app password"),
+                          tr("Unlock"))) {
+        setLockState(LockState::Unlocked);
+    }
 }
 
 
@@ -257,16 +320,153 @@ void CamcopsApp::lock()
 
 void CamcopsApp::grantPrivilege()
 {
-    // *** security check
-    setLockState(LockState::Privileged);
+    if (checkPassword(VarConst::PRIV_PASSWORD_HASH,
+                      tr("Enter privileged-mode password"),
+                      tr("Set privileged mode"))) {
+        setLockState(LockState::Privileged);
+    }
 }
 
+
+bool CamcopsApp::checkPassword(const QString& hashed_password_varname,
+                               const QString& text, const QString& title)
+{
+    QString hashed_password = var(hashed_password_varname).toString();
+    if (hashed_password.isEmpty()) {
+        // If there's no password, we just allow the operation.
+        return true;
+    }
+    QString password;
+    bool ok = UiFunc::getPassword(text, title, password, m_p_main_window);
+    if (!ok) {
+        return false;
+    }
+    bool correct = CryptoFunc::matchesHash(password, hashed_password);
+    if (!correct) {
+        UiFunc::alert(tr("Wrong password"), title);
+    }
+    return correct;
+}
+
+
+void CamcopsApp::changeAppPassword()
+{
+    changePassword(VarConst::USER_PASSWORD_HASH,
+                   tr("Change privileged-mode password"));
+}
+
+
+void CamcopsApp::changePrivPassword()
+{
+    changePassword(VarConst::PRIV_PASSWORD_HASH,
+                   tr("Change privileged-mode password"));
+}
+
+
+void CamcopsApp::changePassword(const QString& hashed_password_varname,
+                                const QString& text)
+{
+    QString old_password_hash = var(hashed_password_varname).toString();
+    bool old_password_exists = !old_password_hash.isEmpty();
+    QString old_password_from_user;
+    QString new_password;
+    bool ok = UiFunc::getOldNewPasswords(text, text, old_password_exists,
+                                         old_password_from_user, new_password,
+                                         m_p_main_window);
+    if (!ok) {
+        return;  // user cancelled
+    }
+    if (old_password_exists && !CryptoFunc::matchesHash(old_password_from_user,
+                                                        old_password_hash)) {
+        UiFunc::alert("Incorrect old password");
+        return;
+    }
+    setHashedPassword(hashed_password_varname, new_password);
+}
+
+
+void CamcopsApp::setHashedPassword(const QString& hashed_password_varname,
+                                   const QString& password)
+{
+    if (password.isEmpty()) {
+        qWarning() << "Erasing password:" << hashed_password_varname;
+        setVar(hashed_password_varname, "");
+    } else {
+        setVar(hashed_password_varname, CryptoFunc::hash(password));
+    }
+}
+
+
+bool CamcopsApp::storingServerPassword() const
+{
+    return var(VarConst::STORE_SERVER_PASSWORD).toBool();
+}
+
+
+void CamcopsApp::setEncryptedServerPassword(const QString& password)
+{
+    qDebug() << Q_FUNC_INFO;
+    DbNestableTransaction trans(m_sysdb);
+    resetEncryptionKeyIfRequired();
+    QString iv_b64(CryptoFunc::generateIVBase64());  // new one each time
+    setVar(VarConst::OBSCURING_IV, iv_b64);
+    SecureQString key_b64(var(VarConst::OBSCURING_KEY).toString());
+    setVar(VarConst::SERVER_USERPASSWORD_OBSCURED,
+           CryptoFunc::encryptToBase64(password, key_b64, iv_b64));
+}
+
+
+void CamcopsApp::resetEncryptionKeyIfRequired()
+{
+    qDebug() << Q_FUNC_INFO;
+    SecureQString key(var(VarConst::OBSCURING_KEY).toString());
+    if (!CryptoFunc::isValidAesKey(key)) {
+        return;
+    }
+    qInfo() << "Resetting internal encryption key (and wiping stored password)";
+    setVar(VarConst::OBSCURING_KEY, CryptoFunc::generateObscuringKeyBase64());
+    setVar(VarConst::OBSCURING_IV, "");
+    setVar(VarConst::SERVER_USERPASSWORD_OBSCURED, "");
+}
+
+
+SecureQString CamcopsApp::getPlaintextServerPassword() const
+{
+    QString encrypted_b64(var(VarConst::SERVER_USERPASSWORD_OBSCURED).toString());
+    if (encrypted_b64.isEmpty()) {
+        return "";
+    }
+    SecureQString key_b64(var(VarConst::OBSCURING_KEY).toString());
+    QString iv_b64(var(VarConst::OBSCURING_IV).toString());
+    if (!CryptoFunc::isValidAesKey(key_b64)) {
+        qWarning() << "Unable to decrypt password; key is bad";
+        return "";
+    }
+    if (!CryptoFunc::isValidAesIV(iv_b64)) {
+        qWarning() << "Unable to decrypt password; IV is bad";
+        return "";
+    }
+    QString plaintext(CryptoFunc::decryptFromBase64(encrypted_b64, key_b64, iv_b64));
+#ifdef DANGER_DEBUG_PASSWORD_DECRYPTION
+    qDebug() << Q_FUNC_INFO << "plaintext:" << plaintext;
+#endif
+    return plaintext;
+}
+
+
+// ============================================================================
+// Network
+// ============================================================================
 
 NetworkManager* CamcopsApp::networkManager() const
 {
     return m_netmgr.data();
 }
 
+
+// ============================================================================
+// Whisker
+// ============================================================================
 
 bool CamcopsApp::whiskerConnected() const
 {
@@ -282,6 +482,11 @@ void CamcopsApp::setWhiskerConnected(bool connected)
         emit whiskerConnectionStateChanged(connected);
     }
 }
+
+
+// ============================================================================
+// Patient
+// ============================================================================
 
 bool CamcopsApp::patientSelected() const
 {
@@ -311,6 +516,10 @@ int CamcopsApp::currentPatientId() const
 }
 
 
+// ============================================================================
+// CSS convenience; fonts etc.
+// ============================================================================
+
 QString CamcopsApp::getSubstitutedCss(const QString& filename) const
 {
     return (
@@ -323,35 +532,18 @@ QString CamcopsApp::getSubstitutedCss(const QString& filename) const
     );
 }
 
-QString CamcopsApp::xstring(const QString& taskname, const QString& stringname,
-                            const QString& default_str) const
+
+int CamcopsApp::fontSizePt(UiConst::FontSize fontsize,
+                           double factor_pct) const
 {
-    // ***
-    bool found = false;
-    if (found) {
-        return "*** TO BE IMPLEMENTED ***";
+    double factor;
+    if (factor_pct <= 0) {
+        factor = var(VarConst::QUESTIONNAIRE_SIZE_PERCENT).toDouble() / 100;
     } else {
-        if (default_str.isEmpty()) {
-            return QString("[string not downloaded: %1/%2]")
-                    .arg(taskname)
-                    .arg(stringname);
-        } else {
-            return default_str;
-        }
+        // Custom percentage passed in; use that
+        factor = double(factor_pct) / 100;
     }
-}
 
-
-bool CamcopsApp::hasExtraStrings(const QString& taskname) const
-{
-    Q_UNUSED(taskname)
-    return false; // ***
-}
-
-
-int CamcopsApp::fontSizePt(UiConst::FontSize fontsize) const
-{
-    double factor = var(VarConst::QUESTIONNAIRE_SIZE_PERCENT).toDouble() / 100;
     switch (fontsize) {
     case UiConst::FontSize::Normal:
         return factor * 12;
@@ -368,9 +560,53 @@ int CamcopsApp::fontSizePt(UiConst::FontSize fontsize) const
 }
 
 
+// ============================================================================
+// Extra strings (downloaded from server)
+// ============================================================================
+
+QString CamcopsApp::xstring(const QString& taskname, const QString& stringname,
+                            const QString& default_str) const
+{
+    ExtraString extrastring(m_sysdb, taskname, stringname);
+    bool found = extrastring.exists();
+    if (found) {
+        return extrastring.value();
+    } else {
+        if (default_str.isEmpty()) {
+            return QString("[string not downloaded: %1/%2]")
+                    .arg(taskname)
+                    .arg(stringname);
+        } else {
+            return default_str;
+        }
+    }
+}
+
+
+bool CamcopsApp::hasExtraStrings(const QString& taskname) const
+{
+    ExtraString extrastring_specimen(m_sysdb);
+    return extrastring_specimen.anyExist(taskname);
+}
+
+
+void CamcopsApp::deleteAllExtraStrings()
+{
+    ExtraString extrastring_specimen(m_sysdb);
+    extrastring_specimen.deleteAllExtraStrings();
+}
+
+
+// ============================================================================
+// Stored variables: generic
+// ============================================================================
+
 void CamcopsApp::createVar(const QString &name, QVariant::Type type,
                                  const QVariant &default_value)
 {
+    if (name.isEmpty()) {
+        UiFunc::stopApp("Empty name to createVar");
+    }
     if (m_storedvars.contains(name)) {  // Already exists
         return;
     }
@@ -421,17 +657,13 @@ void CamcopsApp::clearCachedVars()
 
 void CamcopsApp::saveCachedVars()
 {
-    DbTransaction trans(m_sysdb);
+    DbNestableTransaction trans(m_sysdb);
     QMapIterator<QString, QVariant> i(m_cachedvars);
     while (i.hasNext()) {
         i.next();
         QString varname = i.key();
         QVariant value = i.value();
-        bool success = setVar(varname, value);
-        if (!success) {
-            qCritical() << "Problem writing to stored variable" << varname <<
-                           "(value:" << value << ")";
-        }
+        setVar(varname, value);  // ignores return value (changed)
     }
     clearCachedVars();
 }
@@ -454,4 +686,13 @@ bool CamcopsApp::setCachedVar(const QString& name, const QVariant& value)
     bool changed = value != m_cachedvars[name];
     m_cachedvars[name] = value;
     return changed;
+}
+
+
+bool CamcopsApp::cachedVarChanged(const QString& name) const
+{
+    if (!m_cachedvars.contains(name)) {
+        return false;
+    }
+    return m_cachedvars[name] != var(name);
 }

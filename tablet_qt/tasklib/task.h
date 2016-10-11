@@ -2,7 +2,7 @@
 #include <QCoreApplication>  // for Q_DECLARE_TR_FUNCTIONS
 #include <QDateTime>
 #include <QString>
-#include "lib/databaseobject.h"
+#include "db/databaseobject.h"
 
 class CamcopsApp;
 class OpenableWidget;

@@ -1,6 +1,6 @@
 #pragma once
 #include <QString>
-#include "lib/fieldref.h"
+#include "db/fieldref.h"
 
 
 class QuestionWithOneField

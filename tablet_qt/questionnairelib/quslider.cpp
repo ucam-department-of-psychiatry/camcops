@@ -24,10 +24,11 @@ QuSlider::QuSlider(FieldRefPtr fieldref, int minimum, int maximum, int step) :
     // Visuals
     m_horizontal(true),
     m_show_value(false),
-    m_tick_interval(false),
+    m_tick_interval(1),
     m_tick_position(QSlider::NoTicks),
     m_use_default_labels(false),
     m_tick_label_position(QSlider::NoTicks),
+    m_edge_in_extreme_labels(false),
     // Internals
     m_value_label(nullptr),
     m_slider(nullptr),
@@ -53,7 +54,7 @@ QuSlider* QuSlider::setBigStep(int big_step)
 }
 
 
-QuSlider* QuSlider::setTickInterval(bool tick_interval)
+QuSlider* QuSlider::setTickInterval(int tick_interval)
 {
     m_tick_interval = tick_interval;
     return this;
@@ -112,6 +113,13 @@ QuSlider* QuSlider::setTickLabelPosition(QSlider::TickPosition position)
 QuSlider* QuSlider::setUseDefaultTickLabels(bool use_default)
 {
     m_use_default_labels = use_default;
+    return this;
+}
+
+
+QuSlider* QuSlider::setEdgeInExtremeLabels(bool edge_in_extreme_labels)
+{
+    m_edge_in_extreme_labels = edge_in_extreme_labels;
     return this;
 }
 
@@ -182,6 +190,7 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
     }
     m_slider->setTickLabelPosition(m_tick_label_position);
     m_slider->setReverseVerticalLabels(true);
+    m_slider->setEdgeInExtremeLabels(m_edge_in_extreme_labels);
     if (!read_only) {
         connect(m_slider.data(), &QSlider::valueChanged,
                 this, &QuSlider::sliderValueChanged);

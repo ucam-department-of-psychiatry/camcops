@@ -40,11 +40,11 @@ public:
     void openSubWidget(OpenableWidget* widget);
     CamcopsApp& app() const;
     QString getSubstitutedCss(const QString& filename) const;
+    QuPagePtr currentPagePtr() const;
 protected:
     void commonConstructor();
     int currentPageNumOneBased() const;
     int nPages() const;
-    QuPagePtr currentPagePtr() const;
     void doFinish();
     void doCancel();
     void pageClosing();

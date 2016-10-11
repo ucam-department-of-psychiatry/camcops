@@ -6,7 +6,7 @@
 #include <QtSql/QtSqlVersion>
 #include "common/uiconstants.h"
 #include "common/version.h"
-#include "lib/dbfunc.h"
+#include "db/dbfunc.h"
 #include "lib/filefunc.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"

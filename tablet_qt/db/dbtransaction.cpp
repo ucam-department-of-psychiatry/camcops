@@ -1,11 +1,13 @@
 #include "dbtransaction.h"
-#include "lib/dbfunc.h"
+#include <QSqlDatabase>
+#include "db/dbfunc.h"
+
 
 DbTransaction::DbTransaction(const QSqlDatabase& db) :
     m_db(db),
     m_fail(false)
 {
-    DbFunc::exec(db, "BEGIN TRANSACTION");
+    DbFunc::exec(m_db, "BEGIN TRANSACTION");
 }
 
 

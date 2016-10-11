@@ -301,3 +301,15 @@ QImage Convert::byteArrayToImage(const QByteArray& array, const char* format)
     image.loadFromData(array, format);
     return image;
 }
+
+
+QByteArray Convert::base64ToBytes(const QString& data_b64)
+{
+    return QByteArray::fromBase64(data_b64.toLocal8Bit());
+}
+
+
+SecureQByteArray Convert::base64ToSecureBytes(const QString& data_b64)
+{
+    return SecureQByteArray::fromBase64(data_b64.toLocal8Bit());
+}

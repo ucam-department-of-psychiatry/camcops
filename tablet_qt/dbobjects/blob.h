@@ -1,6 +1,6 @@
 #pragma once
 #include <QByteArray>
-#include "lib/databaseobject.h"
+#include "db/databaseobject.h"
 
 
 class Blob : public DatabaseObject

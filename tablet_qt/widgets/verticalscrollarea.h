@@ -14,4 +14,6 @@ public:
     explicit VerticalScrollArea(QWidget* parent = nullptr);
     virtual bool eventFilter(QObject* o, QEvent* e);
     virtual QSize sizeHint() const;
+protected:
+    bool m_updating_geometry;
 };

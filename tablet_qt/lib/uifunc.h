@@ -87,12 +87,23 @@ namespace UiFunc {
 
     void alert(const QString& text, const QString& title = QObject::tr("Alert"));
 
-    // ============================================================================
+    // ========================================================================
     // Confirmation
-    // ============================================================================
+    // ========================================================================
 
     bool confirm(const QString& text, const QString& title,
                  QString yes, QString no, QWidget* parent);
+
+    // ========================================================================
+    // Password checks/changes
+    // ========================================================================
+
+    bool getPassword(const QString& text, const QString& title,
+                     QString& password, QWidget* parent);
+    bool getOldNewPasswords(const QString& text, const QString& title,
+                            bool require_old_password,
+                            QString& old_password, QString& new_password,
+                            QWidget* parent);
 
     // ========================================================================
     // Fonts; CSS

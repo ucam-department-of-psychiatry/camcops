@@ -2,7 +2,7 @@
 #include <QList>
 #include <QSharedPointer>
 #include <QVariant>
-#include "lib/fieldref.h"
+#include "db/fieldref.h"
 #include "quelement.h"
 #include "questionwithonefield.h"
 
@@ -32,6 +32,7 @@ public:
     QuMultipleResponse* setRandomize(bool randomize);
     QuMultipleResponse* setShowInstruction(bool show_instruction);
     QuMultipleResponse* setInstruction(const QString& instruction);
+    QuMultipleResponse* setHorizontal(bool horizontal);
     QuMultipleResponse* setAsTextButton(bool as_text_button);
 protected:
     void commonConstructor();
@@ -54,6 +55,7 @@ protected:
     bool m_randomize;
     bool m_show_instruction;
     QString m_instruction;
+    bool m_horizontal;
     bool m_as_text_button;
 
     QList<QPointer<BooleanWidget>> m_widgets;

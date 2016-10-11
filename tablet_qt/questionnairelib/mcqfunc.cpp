@@ -3,7 +3,7 @@
 #include <QGridLayout>
 #include <QString>
 #include "common/uiconstants.h"
-#include "lib/fieldref.h"
+#include "db/fieldref.h"
 #include "widgets/booleanwidget.h"
 #include "widgets/labelwordwrapwide.h"
 #include "widgets/verticalline.h"

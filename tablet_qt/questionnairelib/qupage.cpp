@@ -1,7 +1,7 @@
 #include "qupage.h"
 #include <QVBoxLayout>
 #include <QWidget>
-#include "lib/fieldref.h"
+#include "db/fieldref.h"
 
 
 QuPage::QuPage() :
@@ -56,7 +56,10 @@ QuPage* QuPage::addElement(const QuElementPtr& element)
 
 QuPage* QuPage::addElement(QuElement* element)  // takes ownership
 {
-    addElement(QuElementPtr(element));
+    // If you add a nullptr, it will be ignored.
+    if (element) {
+        addElement(QuElementPtr(element));
+    }
     return this;
 }
 
@@ -109,6 +112,18 @@ QList<QuElementPtr> QuPage::allElements() const
         elements.append(e->subelements());
     }
     return elements;
+}
+
+
+QList<QuElementPtr> QuPage::elementsWithTag(const QString& tag)
+{
+    QList<QuElementPtr> matching_elements;
+    for (auto e : allElements()) {
+        if (e->hasTag(tag)) {
+            matching_elements.append(e);
+        }
+    }
+    return matching_elements;
 }
 
 

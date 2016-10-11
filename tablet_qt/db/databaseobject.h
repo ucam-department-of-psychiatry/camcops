@@ -5,8 +5,8 @@
 #include <QSqlDatabase>
 #include <QString>
 #include "common/dbconstants.h"
-#include "lib/dbfunc.h"
-#include "lib/field.h"
+#include "db/dbfunc.h"
+#include "db/field.h"
 
 class FieldRef;
 using FieldRefPtr = QSharedPointer<FieldRef>;
@@ -50,6 +50,7 @@ public:
     QDateTime valueDateTime(const QString& fieldname) const;
     QDate valueDate(const QString& fieldname) const;
     QByteArray valueByteArray(const QString& fieldname) const;
+    QString valueString(const QString& fieldname) const;
 
     FieldRefPtr fieldRef(const QString& fieldname,
                          bool mandatory = true,

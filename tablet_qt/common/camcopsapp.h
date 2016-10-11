@@ -6,7 +6,8 @@
 #include <QStack>
 #include "common/dbconstants.h"  // for NONEXISTENT_PK
 #include "common/uiconstants.h"  // for FontSize
-#include "lib/fieldref.h"  // for FieldRefPtr
+#include "crypto/secureqstring.h"
+#include "db/fieldref.h"  // for FieldRefPtr
 #include "lib/slowguiguard.h"
 #include "tasklib/task.h"  // for TaskPtr
 
@@ -76,6 +77,8 @@ public:
                                  int minimum_duration_ms = 100);
 signals:
     void taskAlterationFinished(TaskPtr task);
+public slots:
+    void close();
 
     // ------------------------------------------------------------------------
     // Security
@@ -87,11 +90,24 @@ public:
     void unlock();
     void lock();
     void grantPrivilege();
+    bool storingServerPassword() const;
+    void setEncryptedServerPassword(const QString& password);
+    SecureQString getPlaintextServerPassword() const;
+    void changeAppPassword();
+    void changePrivPassword();
+protected:
+    void resetEncryptionKeyIfRequired();
+    bool checkPassword(const QString& hashed_password_varname,
+                       const QString& text, const QString& title);
+    void setHashedPassword(const QString& hashed_password_varname,
+                           const QString& password);
+    void changePassword(const QString& hashed_password_varname,
+                        const QString& text);
 signals:
     void lockStateChanged(LockState lockstate);
 
     // ------------------------------------------------------------------------
-    // Networking
+    // Network
     // ------------------------------------------------------------------------
 public:
     NetworkManager* networkManager() const;
@@ -120,7 +136,7 @@ signals:
     // ------------------------------------------------------------------------
 public:
     QString getSubstitutedCss(const QString& filename) const;
-    int fontSizePt(UiConst::FontSize fontsize) const;
+    int fontSizePt(UiConst::FontSize fontsize, double factor_pct = -1) const;
 
     // ------------------------------------------------------------------------
     // Extra strings (downloaded from server)
@@ -129,13 +145,7 @@ public:
     QString xstring(const QString& taskname, const QString& stringname,
                     const QString& default_str = "") const;
     bool hasExtraStrings(const QString& taskname) const;
-
-    // ------------------------------------------------------------------------
-    // Signals
-    // ------------------------------------------------------------------------
-
-public slots:
-    void close();
+    void deleteAllExtraStrings();
 
     // ------------------------------------------------------------------------
     // Stored variables: generic
@@ -151,6 +161,7 @@ public:
     void clearCachedVars();  // resets them
     QVariant getCachedVar(const QString& name) const;
     bool setCachedVar(const QString& name, const QVariant& value);
+    bool cachedVarChanged(const QString& name) const;
 public slots:
     void saveCachedVars();
 protected:

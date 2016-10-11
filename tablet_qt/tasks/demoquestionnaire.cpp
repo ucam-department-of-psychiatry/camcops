@@ -480,6 +480,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
     // ========================================================================
 
     QuPagePtr page_multiple_response((new QuPage{
+        new QuHeading("Standard n-from-many format:"),
         (new QuMultipleResponse({
             QuestionWithOneField(fieldRef("multipleresponse1"), "(a) First stem"),
             QuestionWithOneField(fieldRef("multipleresponse2"), "(b) Second stem"),
@@ -488,6 +489,19 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
             QuestionWithOneField(fieldRef("multipleresponse5"), "(e) Fifth stem"),
             QuestionWithOneField(fieldRef("multipleresponse6"), "(f) Sixth stem"),
         }))->setMinimumAnswers(2)->setMaximumAnswers(3),
+        new QuHeading("With instructions off, horizontally, and text-button style:"),
+        (new QuMultipleResponse({
+            QuestionWithOneField(fieldRef("multipleresponse1"), "(a) First stem"),
+            QuestionWithOneField(fieldRef("multipleresponse2"), "(b) Second stem"),
+            QuestionWithOneField(fieldRef("multipleresponse3"), "(c) Third stem"),
+            QuestionWithOneField(fieldRef("multipleresponse4"), "(d) Fourth stem"),
+            QuestionWithOneField(fieldRef("multipleresponse5"), "(e) Fifth stem"),
+            QuestionWithOneField(fieldRef("multipleresponse6"), "(f) Sixth stem"),
+        }))->setMinimumAnswers(2)
+            ->setMaximumAnswers(3)
+            ->setShowInstruction(false)
+            ->setHorizontal(true)
+            ->setAsTextButton(true),
     })->setTitle("Multiple-response questions"));
 
     // ========================================================================
@@ -532,7 +546,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
                                 ->setTickInterval(1)
                                 ->setTickPosition(QSlider::TicksBothSides)
                                 ->setShowValue(true),
-        new QuHeading("Integer slider (same field as above):"),
+        new QuHeading("Integer slider (same field as above)"),
         (new QuSlider(fieldRef("thermometer"), 0, 10, 1))
                                 ->setShowValue(true)
                                 ->setTickInterval(2)
@@ -546,7 +560,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
                                 ->setTickInterval(1)
                                 ->setTickPosition(QSlider::TicksBelow)
                                 ->setConvertForRealField(true, 5, 6),
-        new QuHeading("Real slider with custom labels:"),
+        new QuHeading("Real slider with custom labels (edging in extreme labels):"),
         (new QuSlider(fieldRef("slider2"), 100, 500, 1))
                                 ->setConvertForRealField(true, 1, 5)
                                 ->setShowValue(false)
@@ -558,7 +572,8 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
                                     {300, "three: medium"},
                                     {500, "five: maximum!"},
                                 })
-                                ->setShowValue(true),
+                                ->setShowValue(true)
+                                ->setEdgeInExtremeLabels(true),
         new QuHeading("Thermometer:"),
         (new QuThermometer(fieldRef("thermometer"), thermometer_items))
                                 ->setRescale(true, 0.4),

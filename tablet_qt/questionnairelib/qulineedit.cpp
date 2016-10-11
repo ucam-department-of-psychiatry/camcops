@@ -1,5 +1,4 @@
 #include "qulineedit.h"
-#include <QLineEdit>
 #include <QTimer>
 #include <QValidator>
 #include "lib/uifunc.h"
@@ -15,7 +14,8 @@ QuLineEdit::QuLineEdit(FieldRefPtr fieldref) :
     m_hint("text"),
     m_editor(nullptr),
     m_focus_watcher(nullptr),
-    m_timer(new QTimer())
+    m_timer(new QTimer()),
+    m_echo_mode(QLineEdit::Normal)
 {
     Q_ASSERT(m_fieldref);
     m_timer->setSingleShot(true);
@@ -35,6 +35,13 @@ QuLineEdit* QuLineEdit::setHint(const QString& hint)
 }
 
 
+QuLineEdit* QuLineEdit::setEchoMode(QLineEdit::EchoMode echo_mode)
+{
+    m_echo_mode = echo_mode;
+    return this;
+}
+
+
 void QuLineEdit::setFromField()
 {
     fieldValueChanged(m_fieldref.data(), nullptr);
@@ -50,6 +57,7 @@ QPointer<QWidget> QuLineEdit::makeWidget(Questionnaire* questionnaire)
     m_editor->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     m_editor->setEnabled(!read_only);
     m_editor->setPlaceholderText(m_hint);
+    m_editor->setEchoMode(m_echo_mode);
     extraLineEditCreation(m_editor.data());  // allow subclasses to modify
     if (!read_only) {
         connect(m_editor.data(), &QLineEdit::textChanged,

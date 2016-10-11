@@ -1,5 +1,5 @@
 #pragma once
-#include "lib/databaseobject.h"
+#include "db/databaseobject.h"
 
 
 class StoredVar : public DatabaseObject

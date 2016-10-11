@@ -1,4 +1,5 @@
 #include "tickslider.h"
+#include <QDebug>
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QStyleOptionSlider>
@@ -39,6 +40,7 @@ void TickSlider::commonConstructor()
     m_gap_to_slider = DEFAULT_GAP_TO_SLIDER;
     m_reverse_horizontal_labels = false;
     m_reverse_vertical_labels = false;
+    m_edge_in_extreme_labels = false;
 }
 
 
@@ -76,6 +78,7 @@ void TickSlider::setGapToSlider(int gap)
 {
     m_gap_to_slider = gap;
 }
+
 
 void TickSlider::setTickLabelPosition(QSlider::TickPosition position)
 {
@@ -122,6 +125,12 @@ void TickSlider::setReverseHorizontalLabels(bool reverse)
 void TickSlider::setReverseVerticalLabels(bool reverse)
 {
     m_reverse_vertical_labels = reverse;
+}
+
+
+void TickSlider::setEdgeInExtremeLabels(bool edge_in_extreme_labels)
+{
+    m_edge_in_extreme_labels = edge_in_extreme_labels;
 }
 
 
@@ -215,26 +224,31 @@ void TickSlider::paintEvent(QPaintEvent *ev)
         // --------------------------------------------------------------------
         // HORIZONTAL
         // --------------------------------------------------------------------
-        int move_tick_by = (max_label_height > 0)
+        int move_tick_vertically_by = (max_label_height > 0)
                 ? (max_label_height + m_tick_label_gap)
                 : 0;
         // Top
         int bounding_box_top = this->rect().top();
         int top_label_top = bounding_box_top;
-        int top_tick_top = bounding_box_top + move_tick_by;
+        int top_tick_top = bounding_box_top + move_tick_vertically_by;
         int top_tick_bottom = top_tick_top + m_tick_length;
         // Bottom, working up
         int bounding_box_bottom = this->rect().bottom();
         int bottom_label_bottom = bounding_box_bottom;
-        int bottom_tick_bottom = bounding_box_bottom - move_tick_by;
+        int bottom_tick_bottom = bounding_box_bottom - move_tick_vertically_by;
         int bottom_tick_top = bottom_tick_bottom - m_tick_length;
         // OK:
         for (int i = minimum(); i <= maximum(); i += interval) {
-            bool leftmost = i == minimum();
-            bool rightmost = i == maximum();
-            Qt::Alignment halign = leftmost
-                    ? Qt::AlignLeft
-                    : (rightmost ? Qt::AlignRight : Qt::AlignHCenter);
+            Qt::Alignment halign = Qt::AlignHCenter;
+            if (m_edge_in_extreme_labels) {
+                bool leftmost = i == minimum();
+                bool rightmost = i == maximum();
+                if (leftmost) {
+                    halign = Qt::AlignLeft;
+                } else if (rightmost) {
+                    halign = Qt::AlignRight;
+                }
+            }
             int q = m_reverse_horizontal_labels ? (maximum() - i) : i;
             int x = round(
                 (double)(
@@ -273,18 +287,18 @@ void TickSlider::paintEvent(QPaintEvent *ev)
         // --------------------------------------------------------------------
         // VERTICAL
         // --------------------------------------------------------------------
-        int move_tick_by = (max_label_width > 0)
+        int move_tick_horizontally_by = (max_label_width > 0)
                 ? (max_label_width + m_tick_label_gap)
                 : 0;
         // Left
         int bounding_box_left = this->rect().left();
         int left_label_right = bounding_box_left + max_label_width;
-        int left_tick_left = bounding_box_left + move_tick_by;
+        int left_tick_left = bounding_box_left + move_tick_horizontally_by;
         int left_tick_right = left_tick_left + m_tick_length;
         // Right, working leftwards
         int bounding_box_right = this->rect().right();
         int right_label_left = bounding_box_right - max_label_width;
-        int right_tick_right = bounding_box_right - move_tick_by;
+        int right_tick_right = bounding_box_right - move_tick_horizontally_by;
         int right_tick_left = right_tick_right - m_tick_length;
         // OK:
         for (int i = minimum(); i <= maximum(); i += interval) {

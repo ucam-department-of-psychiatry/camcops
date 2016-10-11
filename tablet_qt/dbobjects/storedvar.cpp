@@ -1,3 +1,4 @@
+#define DEBUG_SET_VALUE
 #include "storedvar.h"
 #include "lib/uifunc.h"
 
@@ -100,7 +101,9 @@ StoredVar::~StoredVar()
 
 bool StoredVar::setValue(const QVariant &value, bool save_to_db)
 {
-    qDebug() << Q_FUNC_INFO << value;
+#ifdef DEBUG_SET_VALUE
+    qDebug() << Q_FUNC_INFO << "Setting" << m_name << "to" << value;
+#endif
     bool changed = setValue(m_value_fieldname, value);
     if (save_to_db) {
         save();

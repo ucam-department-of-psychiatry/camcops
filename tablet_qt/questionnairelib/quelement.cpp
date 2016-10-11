@@ -1,5 +1,5 @@
 #include "quelement.h"
-#include "lib/fieldref.h"
+#include "db/fieldref.h"
 #include <QWidget>
 
 
@@ -34,6 +34,12 @@ QPointer<QWidget> QuElement::widget(Questionnaire* questionnaire)
         // not yet made, or deleted by Qt
         m_widget = makeWidget(questionnaire);
     }
+    return m_widget;
+}
+
+
+QPointer<QWidget> QuElement::cachedWidget() const
+{
     return m_widget;
 }
 

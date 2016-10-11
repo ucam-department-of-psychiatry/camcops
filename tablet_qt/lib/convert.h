@@ -1,6 +1,8 @@
 #pragma once
 #include <QList>
 #include <QString>
+#include "crypto/secureqbytearray.h"
+#include "crypto/secureqstring.h"
 
 class QByteArray;
 class QImage;
@@ -34,4 +36,8 @@ namespace Convert
     QVariant imageToVariant(const QImage& image, const char* format = "png");
     QImage byteArrayToImage(const QByteArray& array,
                             const char* format = nullptr);
+
+    // Cryptography
+    QByteArray base64ToBytes(const QString& data_b64);
+    SecureQByteArray base64ToSecureBytes(const QString& data_b64);
 }

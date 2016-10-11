@@ -1,5 +1,5 @@
 #pragma once
-#include <QSqlDatabase>
+class QSqlDatabase;
 
 
 class DbTransaction

@@ -1,7 +1,7 @@
 #pragma once
 #include <QList>
 #include <QPointer>
-#include "lib/fieldref.h"
+#include "db/fieldref.h"
 #include "namevalueoptions.h"
 #include "quelement.h"
 

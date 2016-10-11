@@ -29,6 +29,7 @@ class QuElement : public QObject
     friend class QuContainerHorizontal;
     friend class QuContainerVertical;
     friend class QuContainerGrid;
+    friend class SettingsMenu;
 public:
     QuElement();
     virtual ~QuElement();
@@ -38,6 +39,7 @@ signals:
 protected:
     virtual QPointer<QWidget> widget(Questionnaire* questionnaire);
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) = 0;
+    virtual QPointer<QWidget> cachedWidget() const;  // Not for general use!
     bool hasTag(const QString& tag);
 
     void show();

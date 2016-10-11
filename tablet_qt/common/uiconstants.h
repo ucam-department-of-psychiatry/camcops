@@ -138,4 +138,13 @@ namespace UiConst {
     // ========================================================================
 
     extern const QString NOT_SPECIFIED;
+
+    // ========================================================================
+    // Network
+    // ========================================================================
+
+    extern const int IP_PORT_MIN;
+    extern const int IP_PORT_MAX;
+    extern const int NETWORK_TIMEOUT_MS_MIN;
+    extern const int NETWORK_TIMEOUT_MS_MAX;
 }

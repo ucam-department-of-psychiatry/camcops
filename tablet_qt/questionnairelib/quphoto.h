@@ -1,5 +1,5 @@
 #pragma once
-#include "lib/fieldref.h"
+#include "db/fieldref.h"
 #include "quelement.h"
 
 class AspectRatioPixmapLabel;

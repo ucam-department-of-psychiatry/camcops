@@ -128,4 +128,13 @@ namespace UiConst {
     // ========================================================================
 
     const QString NOT_SPECIFIED = QObject::tr("<not specified>");
+
+    // ========================================================================
+    // Network
+    // ========================================================================
+
+    const int IP_PORT_MIN = 0;
+    const int IP_PORT_MAX = 65536;
+    const int NETWORK_TIMEOUT_MS_MIN = 100;
+    const int NETWORK_TIMEOUT_MS_MAX = 5 * 60 * 1000;
 }

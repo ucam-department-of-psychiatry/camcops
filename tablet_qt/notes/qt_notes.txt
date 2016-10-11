@@ -180,6 +180,10 @@ Core dump
     run
     bt
 
+    select-frame <n>
+    info locals
+    info args
+
 ===============================================================================
 Other debugging
 ===============================================================================
@@ -278,6 +282,34 @@ https://forum.qt.io/topic/10612/solved-optimized-compiling-with-qt/3
 ... QMAKE_CXXFLAGS_RELEASE
 
 http://www.qtforum.org/article/27474/qt-creator-customize-optimization-flags-for-release-build.html
+
+
+===============================================================================
+std::bind and std::function
+===============================================================================
+
+- BEWARE: these are not very type-safe. For example, if you have
+
+    QVariant MyClass::getterfunc() { ... }
+
+  then this is fine:
+
+    using GetterFunction = std::function<QVariant()>;
+    // ...
+    GetterFunc f = std::bind(&MyClass::getterfunc, this, ...);
+    QVariant result = f();
+
+  but if you'd accidentally done:
+
+    using GetterFunction = std::function<const QVariant &()>;
+
+  then it won't complain when you do the bind, but will segfault promptly when
+  attempting to assign the function's result to a QVariant.
+
+  See also
+    http://stackoverflow.com/questions/9063699/can-stdbind-be-type-checked-at-compile-time
+    http://stackoverflow.com/questions/1930903/bind-vs-lambda
+
 
 ===============================================================================
 Database objects

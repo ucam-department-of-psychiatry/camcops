@@ -38,6 +38,7 @@ public:
     QuPage* setTitle(const QString& title);
     QuPage* addElement(const QuElementPtr& element);
     QuPage* addElement(QuElement* element);  // takes ownership
+    QList<QuElementPtr> elementsWithTag(const QString& tag);
 
     virtual ~QuPage();
 

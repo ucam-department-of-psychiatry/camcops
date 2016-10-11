@@ -1,7 +1,7 @@
 #pragma once
 #include <QPointer>
 #include <QSharedPointer>
-#include "lib/fieldref.h"
+#include "db/fieldref.h"
 #include "quelement.h"
 
 class DiagnosticCodeSet;

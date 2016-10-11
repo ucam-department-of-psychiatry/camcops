@@ -7,7 +7,7 @@
 #include <QSqlField>
 #include <QSqlQuery>
 #include <QStringList>
-#include "lib/dbfunc.h"
+#include "db/dbfunc.h"
 #include "lib/uifunc.h"
 #include "fieldref.h"
 
@@ -212,6 +212,13 @@ QByteArray DatabaseObject::valueByteArray(const QString& fieldname) const
 {
     QVariant v = value(fieldname);
     return v.toByteArray();
+}
+
+
+QString DatabaseObject::valueString(const QString& fieldname) const
+{
+    QVariant v = value(fieldname);
+    return v.toString();
 }
 
 

@@ -1,6 +1,6 @@
 #pragma once
 #include <QSize>
-#include "lib/fieldref.h"
+#include "db/fieldref.h"
 #include "quelement.h"
 
 class BooleanWidget;

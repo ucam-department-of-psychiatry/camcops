@@ -3,7 +3,7 @@
 #include <QPointer>
 #include <QSharedPointer>
 #include <QVariant>
-#include "lib/fieldref.h"
+#include "db/fieldref.h"
 #include "widgets/tickslider.h"  // or style sheets + tick marks don't mix
 #include "namevalueoptions.h"
 #include "quelement.h"
@@ -20,7 +20,7 @@ class QuSlider : public QuElement
 public:
     QuSlider(FieldRefPtr fieldref, int minimum, int maximum, int step);
     QuSlider* setBigStep(int big_step);
-    QuSlider* setTickInterval(bool tick_interval);  // 0 for none
+    QuSlider* setTickInterval(int tick_interval);  // 0 for none
     QuSlider* setTickPosition(QSlider::TickPosition position);
     QuSlider* setNullApparentValue(int null_apparent_value);
     QuSlider* setConvertForRealField(bool convert_for_real_field,
@@ -32,6 +32,7 @@ public:
     QuSlider* setTickLabels(const QMap<int, QString>& labels);
     QuSlider* setTickLabelPosition(QSlider::TickPosition position);
     QuSlider* setUseDefaultTickLabels(bool use_default);
+    QuSlider* setEdgeInExtremeLabels(bool edge_in_extreme_labels);
 protected:
     void setFromField();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
@@ -64,6 +65,7 @@ protected:
     bool m_use_default_labels;
     QMap<int, QString> m_tick_labels;
     QSlider::TickPosition m_tick_label_position;
+    bool m_edge_in_extreme_labels;
     // Internals
     QPointer<QWidget> m_container_widget;
     QPointer<QLabel> m_value_label;

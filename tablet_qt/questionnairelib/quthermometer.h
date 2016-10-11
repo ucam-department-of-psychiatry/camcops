@@ -1,6 +1,6 @@
 #pragma once
 #include <QList>
-#include "lib/fieldref.h"
+#include "db/fieldref.h"
 #include "quelement.h"
 #include "quthermometeritem.h"
 

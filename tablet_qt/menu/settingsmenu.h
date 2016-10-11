@@ -1,5 +1,8 @@
 #pragma once
+#include <QPointer>
 #include "menulib/menuwindow.h"
+#include "crypto/secureqstring.h"
+class Questionnaire;
 
 
 class SettingsMenu : public MenuWindow
@@ -8,10 +11,30 @@ class SettingsMenu : public MenuWindow
 public:
     SettingsMenu(CamcopsApp& app);
 protected:
-    OpenableWidget* configureServerSettings(CamcopsApp& app);
+    OpenableWidget* configureServer(CamcopsApp& app);
+    OpenableWidget* configureIntellectualProperty(CamcopsApp& app);
+    OpenableWidget* configureUser(CamcopsApp& app);
+    OpenableWidget* setQuestionnaireFontSize(CamcopsApp& app);
     void setPrivilege();
-    QString makeTitle(const QString& part1, const QString& part2) const;
+    void changeAppPassword();
+    void changePrivPassword();
+    void deleteAllExtraStrings();
+
+    QString makeTitle(const QString& part1, const QString& part2 = "",
+                      bool colon = false) const;
     QString makeHint(const QString& part1, const QString& part2) const;
+    void serverSettingsSaved();
+    QVariant serverPasswordGetter();
+    bool serverPasswordSetter(const QVariant& value);
+    void userSettingsSaved();
+    void userSettingsCancelled();
+    void fontSizeChanged();
+    void fontSettingsSaved();
+    void fontSettingsCancelled();
+    void resetFontSize();
 protected:
     CamcopsApp& m_app;
+    mutable SecureQString m_temp_plaintext_password;
+    bool m_plaintext_pw_live;
+    QPointer<Questionnaire> m_fontsize_questionnaire;
 };

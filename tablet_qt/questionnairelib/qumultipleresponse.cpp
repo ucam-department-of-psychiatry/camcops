@@ -2,6 +2,7 @@
 #include <QVBoxLayout>
 #include "common/random.h"
 #include "widgets/booleanwidget.h"
+#include "widgets/flowlayout.h"
 #include "widgets/labelwordwrapwide.h"
 #include "questionnaire.h"
 
@@ -34,6 +35,7 @@ void QuMultipleResponse::commonConstructor()
     m_maximum_answers = -1;
     m_randomize = false;
     m_show_instruction = true;
+    m_horizontal = false;
     m_as_text_button = false;
     // Connect fieldrefs at widget build time, for simplicity.
 }
@@ -87,6 +89,13 @@ QuMultipleResponse* QuMultipleResponse::setInstruction(
 }
 
 
+QuMultipleResponse* QuMultipleResponse::setHorizontal(bool horizontal)
+{
+    m_horizontal = horizontal;
+    return this;
+}
+
+
 QuMultipleResponse* QuMultipleResponse::setAsTextButton(bool as_text_button)
 {
     m_as_text_button = as_text_button;
@@ -107,7 +116,12 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
     bool read_only = questionnaire->readOnly();
 
     QPointer<QWidget> mainwidget = new QWidget();
-    QLayout* mainlayout = new QVBoxLayout();
+    QLayout* mainlayout;
+    if (m_horizontal) {
+        mainlayout = new FlowLayout();
+    } else {
+        mainlayout = new QVBoxLayout();
+    }
     mainlayout->setContentsMargins(UiConst::NO_MARGINS);
     mainwidget->setLayout(mainlayout);
 

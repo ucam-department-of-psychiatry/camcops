@@ -26,6 +26,7 @@ public:
     virtual void setTickLabelGap(int gap);
     virtual void setInterlabelGap(int gap);
     virtual void setGapToSlider(int gap);
+    virtual void setEdgeInExtremeLabels(bool edge_in_extreme_labels);
 
     virtual void paintEvent(QPaintEvent *ev) override;
     virtual QSize sizeHint() const override;
@@ -56,4 +57,5 @@ protected:
     bool m_reverse_vertical_labels;
     TickPosition m_label_position;
     QMap<int, QString> m_tick_labels;
+    bool m_edge_in_extreme_labels;
 };

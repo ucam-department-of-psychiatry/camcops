@@ -54,7 +54,7 @@ public:
         StoredVar,
         CachedStoredVar,
     };
-    using GetterFunction = std::function<const QVariant&()>;
+    using GetterFunction = std::function<QVariant()>;
     using SetterFunction = std::function<bool(const QVariant&)>;  // returns: changed?
 public:
     FieldRef();

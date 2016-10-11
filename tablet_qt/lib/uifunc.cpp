@@ -16,6 +16,9 @@
 #include <QUrl>
 #include "uifunc.h"
 #include "common/uiconstants.h"
+#include "widgets/passwordchangedialog.h"
+#include "widgets/passwordentrydialog.h"
+
 
 // ========================================================================
 // Translation convenience function
@@ -411,6 +414,41 @@ bool UiFunc::confirm(const QString& text, const QString& title,
     msgbox.setButtonText(QMessageBox::No, no);
     int reply = msgbox.exec();
     return reply == QMessageBox::Yes;
+}
+
+
+// ============================================================================
+// Password checks/changes
+// ============================================================================
+
+bool UiFunc::getPassword(const QString& text, const QString& title,
+                         QString& password, QWidget* parent)
+{
+    PasswordEntryDialog dlg(text, title, parent);
+    int reply = dlg.exec();
+    if (reply != QMessageBox::Accepted) {
+        return false;
+    }
+    // fetch/write back password
+    password = dlg.password();
+    return true;
+}
+
+
+bool UiFunc::getOldNewPasswords(const QString& text, const QString& title,
+                                bool require_old_password,
+                                QString& old_password, QString& new_password,
+                                QWidget* parent)
+{
+    PasswordChangeDialog dlg(text, title, require_old_password, parent);
+    int reply = dlg.exec();
+    if (reply != QMessageBox::Accepted) {
+        return false;
+    }
+    // Fetch/write back passwords
+    old_password = dlg.oldPassword();
+    new_password = dlg.newPassword();
+    return true;
 }
 
 

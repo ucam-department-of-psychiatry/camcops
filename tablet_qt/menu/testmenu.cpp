@@ -1,6 +1,7 @@
 #define DEBUG_OPTIONS
 
 #include "testmenu.h"
+#include <QCoreApplication>
 #include <QMediaPlayer>
 #include <QProgressDialog>
 #include <QThread>
@@ -13,6 +14,8 @@
 #include "lib/slownonguifunctioncaller.h"
 #include "menulib/menuitem.h"
 #include "tasklib/taskfactory.h"  // for TaskPtr
+
+const int EXPENSIVE_FUNCTION_DURATION_MS = 20000;
 
 
 TestMenu::TestMenu(CamcopsApp& app)
@@ -66,6 +69,9 @@ TestMenu::TestMenu(CamcopsApp& app)
             tr("Test wait dialog"),
             std::bind(&TestMenu::testWait, this)
         ),
+        MenuItem(
+            tr("(†) Run software unit tests (reporting to debugging stream)")
+        ).setNeedsPrivilege(),  // ***
     };
 }
 
@@ -190,6 +196,8 @@ void TestMenu::testProgress()
         }
         // Do a small thing:
         QThread::msleep(50);
+        // Prevent other things (like audio) from freezing:
+        QCoreApplication::processEvents();
     }
     progress.setValue(num_things);
     qDebug() << Q_FUNC_INFO << "finish";
@@ -199,17 +207,17 @@ void TestMenu::testProgress()
 void TestMenu::testWait()
 {
     SlowNonGuiFunctionCaller(
-                std::bind(&TestMenu::expensiveFunction, this),
-                this,
-                "Running expensive function in worker thread (for 2 s)",
-                "Please wait");
+        std::bind(&TestMenu::expensiveFunction, this),
+        this,
+        QString("Running expensive function in worker thread (for %1 "
+                "ms)").arg(EXPENSIVE_FUNCTION_DURATION_MS),
+        "Please wait");
 }
 
 
 void TestMenu::expensiveFunction()
 {
-    int sleep_time_ms = 2000;
-    qDebug() << Q_FUNC_INFO << "start: sleep_time_ms" << sleep_time_ms;
-    QThread::msleep(sleep_time_ms);
+    qDebug() << Q_FUNC_INFO << "start: sleep time (ms)" << EXPENSIVE_FUNCTION_DURATION_MS;
+    QThread::msleep(EXPENSIVE_FUNCTION_DURATION_MS);
     qDebug() << Q_FUNC_INFO << "finish";
 }

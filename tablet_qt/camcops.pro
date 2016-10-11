@@ -52,16 +52,16 @@ SOURCES += main.cpp\
     tasklib/taskfactory.cpp \
     tasklib/task.cpp \
     tasks/phq9.cpp \
-    lib/databaseobject.cpp \
-    lib/dbfunc.cpp \
-    lib/field.cpp \
+    db/databaseobject.cpp \
+    db/dbfunc.cpp \
+    db/field.cpp \
     lib/datetimefunc.cpp \
     tasklib/inittasks.cpp \
     menulib/menuheader.cpp \
     menulib/menuitem.cpp \
     menulib/menuwindow.cpp \
     questionnairelib/namevaluepair.cpp \
-    lib/fieldref.cpp \
+    db/fieldref.cpp \
     menu/mainmenu.cpp \
     menu/testmenu.cpp \
     common/camcopsapp.cpp \
@@ -183,13 +183,21 @@ SOURCES += main.cpp\
     lib/slownonguifunctioncaller.cpp \
     lib/slowguiguard.cpp \
     dbobjects/patient.cpp \
-    lib/sqlitepragmainfofield.cpp \
-    lib/fieldcreationplan.cpp \
-    lib/sqlargs.cpp \
+    db/sqlitepragmainfofield.cpp \
+    db/fieldcreationplan.cpp \
+    db/sqlargs.cpp \
     lib/networkmanager.cpp \
     widgets/logbox.cpp \
     common/varconst.cpp \
-    lib/dbtransaction.cpp
+    db/dbtransaction.cpp \
+    db/dbnestabletransaction.cpp \
+    questionnairelib/commonoptions.cpp \
+    crypto/cryptofunc.cpp \
+    crypto/secureqstring.cpp \
+    crypto/secureqbytearray.cpp \
+    dbobjects/extrastring.cpp \
+    widgets/passwordentrydialog.cpp \
+    widgets/passwordchangedialog.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -197,16 +205,16 @@ HEADERS  += \
     tasklib/taskfactory.h \
     tasklib/task.h \
     tasks/phq9.h \
-    lib/databaseobject.h \
-    lib/dbfunc.h \
-    lib/field.h \
+    db/databaseobject.h \
+    db/dbfunc.h \
+    db/field.h \
     lib/datetimefunc.h \
     tasklib/inittasks.h \
     menulib/menuheader.h \
     menulib/menuitem.h \
     menulib/menuwindow.h \
     questionnairelib/namevaluepair.h \
-    lib/fieldref.h \
+    db/fieldref.h \
     menu/testmenu.h \
     menu/mainmenu.h \
     common/camcopsapp.h \
@@ -330,13 +338,22 @@ HEADERS  += \
     lib/slownonguifunctioncaller.h \
     lib/slowguiguard.h \
     dbobjects/patient.h \
-    lib/sqlitepragmainfofield.h \
-    lib/fieldcreationplan.h \
-    lib/sqlargs.h \
+    db/sqlitepragmainfofield.h \
+    db/fieldcreationplan.h \
+    db/sqlargs.h \
     lib/networkmanager.h \
     widgets/logbox.h \
     common/varconst.h \
-    lib/dbtransaction.h
+    db/dbtransaction.h \
+    db/dbnestabletransaction.h \
+    questionnairelib/commonoptions.h \
+    crypto/cryptofunc.h \
+    crypto/secureqstring.h \
+    crypto/secureqbytearray.h \
+    crypto/zallocator.h \
+    dbobjects/extrastring.h \
+    widgets/passwordentrydialog.h \
+    widgets/passwordchangedialog.h
 
 DISTFILES += \
     notes/qt_notes.txt \

@@ -42,7 +42,10 @@ QuContainerVertical* QuContainerVertical::addElement(
 QuContainerVertical* QuContainerVertical::addElement(
         QuElement* element)  // takes ownership
 {
-    m_elements.append(QuElementPtr(element));
+    // If you add a nullptr, it will be ignored.
+    if (element) {
+        m_elements.append(QuElementPtr(element));
+    }
     return this;
 }
 

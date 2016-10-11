@@ -6,7 +6,7 @@
 #include <QStringList>
 #include <QSqlDatabase>
 #include <QVariant>
-#include "lib/field.h"
+#include "db/field.h"
 #include "sqlargs.h"
 
 const QString DATA_DATABASE_FILENAME = "camcops_data.sqlite";

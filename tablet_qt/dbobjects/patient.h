@@ -1,5 +1,5 @@
 #pragma once
-#include "lib/databaseobject.h"
+#include "db/databaseobject.h"
 
 
 class Patient : public DatabaseObject

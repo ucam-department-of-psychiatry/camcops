@@ -1,5 +1,6 @@
 #pragma once
-#include "lib/fieldref.h"
+#include <QLineEdit>  // for EchoMode
+#include "db/fieldref.h"
 #include "quelement.h"
 
 class FocusWatcher;
@@ -15,6 +16,7 @@ class QuLineEdit : public QuElement
 public:
     QuLineEdit(FieldRefPtr fieldref);
     QuLineEdit* setHint(const QString& hint);
+    QuLineEdit* setEchoMode(QLineEdit::EchoMode echo_mode);
 protected:
     virtual void setFromField();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
@@ -33,4 +35,5 @@ protected:
     QPointer<QLineEdit> m_editor;
     QPointer<FocusWatcher> m_focus_watcher;
     QSharedPointer<QTimer> m_timer;
+    QLineEdit::EchoMode m_echo_mode;
 };
