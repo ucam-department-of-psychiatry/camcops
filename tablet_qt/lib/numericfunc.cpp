@@ -1,4 +1,4 @@
-// #define DEBUG_VALIDATOR
+#define DEBUG_VALIDATOR
 
 #include "numericfunc.h"
 #ifdef DEBUG_VALIDATOR
@@ -40,10 +40,10 @@ int Numeric::firstDigitsInteger(int number, int n_digits)
 }
 
 
-bool Numeric::extendedIntegerMustExceed(int number, int top)
+bool Numeric::extendedIntegerMustExceedTop(int number, int bottom, int top)
 {
-    // If you add extra digits to the number to make it as long as top,
-    // must it exceed it?
+    // If you add extra digits to the number to make it as long as it could be,
+    // must it exceed it the top value?
     if (number < 0 && top > 0) {
         return false;
     }
@@ -51,10 +51,10 @@ bool Numeric::extendedIntegerMustExceed(int number, int top)
         return true;
     }
     int nd_number = numDigitsInteger(number);
-    int nd_top = numDigitsInteger(top);
     QString str_number = QString("%1").arg(number);
     if (number > 0) {
-        // Both positive. Extend with zeros.
+        // Both positive. Extend with zeros, to length of nd_top
+        int nd_top = numDigitsInteger(top);
         for (int i = 0; i < nd_top - nd_number; ++i) {
             str_number += "0";
             if (str_number.toInt() <= top) {
@@ -63,8 +63,9 @@ bool Numeric::extendedIntegerMustExceed(int number, int top)
         }
         return true;
     } else {
-        // Both negative. Extend with nines.
-        for (int i = 0; i < nd_top - nd_number; ++i) {
+        // Both negative. Extend with nines, to length of nd_bottom
+        int nd_bottom = numDigitsInteger(bottom);
+        for (int i = 0; i < nd_bottom - nd_number; ++i) {
             str_number += "9";
             if (str_number.toInt() <= top) {
                 return false;
@@ -75,10 +76,11 @@ bool Numeric::extendedIntegerMustExceed(int number, int top)
 }
 
 
-bool Numeric::extendedIntegerMustBeLessThan(int number, int bottom)
+bool Numeric::extendedIntegerMustBeLessThanBottom(int number, int bottom,
+                                                  int top)
 {
-    // If you add extra digits to the number to make it as long as bottom,
-    // must it be less than it?
+    // If you add extra digits to the number to make it as long as it could be,
+    // must it be less than bottom?
     if (number < 0 && bottom > 0) {
         return true;
     }
@@ -86,11 +88,11 @@ bool Numeric::extendedIntegerMustBeLessThan(int number, int bottom)
         return false;
     }
     int nd_number = numDigitsInteger(number);
-    int nd_bottom = numDigitsInteger(bottom);
     QString str_number = QString("%1").arg(number);
     if (number > 0) {
-        // Both positive. Extend with nines.
-        for (int i = 0; i < nd_bottom - nd_number; ++i) {
+        // Both positive. Extend with nines, to length of top
+        int nd_top = numDigitsDouble(top);
+        for (int i = 0; i < nd_top - nd_number; ++i) {
             str_number += "9";
             if (str_number.toInt() >= bottom) {
                 return false;
@@ -98,7 +100,8 @@ bool Numeric::extendedIntegerMustBeLessThan(int number, int bottom)
         }
         return true;
     } else {
-        // Both negative. Extend with zeros.
+        // Both negative. Extend with zeros, to length of bottom
+        int nd_bottom = numDigitsInteger(bottom);
         for (int i = 0; i < nd_bottom - nd_number; ++i) {
             str_number += "0";
             if (str_number.toInt() >= bottom) {
@@ -139,9 +142,11 @@ bool Numeric::isValidStartToInteger(int number, int bottom, int top)
     But then:
 
     100     30000   10              30          5_: 0-9 OK (e.g. 500-599)
+
+    70      300     7               3           0-3, 7-9 OK
     */
 
-    if (extendedIntegerMustBeLessThan(number, bottom)) {
+    if (extendedIntegerMustBeLessThanBottom(number, bottom, top)) {
 #ifdef DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << number
                  << "when extended must be less than bottom value of"
@@ -149,7 +154,7 @@ bool Numeric::isValidStartToInteger(int number, int bottom, int top)
 #endif
         return false;
     }
-    if (extendedIntegerMustExceed(number, top)) {
+    if (extendedIntegerMustExceedTop(number, bottom, top)) {
 #ifdef DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << number
                  << "when extended must be more than top value of"
@@ -206,7 +211,7 @@ double Numeric::firstDigitsDouble(double number, int n_digits, int max_dp)
 
 bool Numeric::isValidStartToDouble(double number, double bottom, double top)
 {
-    if (extendedDoubleMustBeLessThan(number, bottom)) {
+    if (extendedDoubleMustBeLessThan(number, bottom, top)) {
 #ifdef DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << number
                  << "when extended must be less than bottom value of"
@@ -214,7 +219,7 @@ bool Numeric::isValidStartToDouble(double number, double bottom, double top)
 #endif
         return false;
     }
-    if (extendedDoubleMustExceed(number, top)) {
+    if (extendedDoubleMustExceed(number, bottom, top)) {
 #ifdef DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << number
                  << "when extended must be more than top value of"
@@ -230,7 +235,8 @@ bool Numeric::isValidStartToDouble(double number, double bottom, double top)
 }
 
 
-bool Numeric::extendedDoubleMustExceed(double number, double top)
+bool Numeric::extendedDoubleMustExceed(double number,
+                                       double bottom, double top)
 {
     if (number < 0 && top > 0) {
         return false;
@@ -239,10 +245,10 @@ bool Numeric::extendedDoubleMustExceed(double number, double top)
         return true;
     }
     int nd_number = numDigitsDouble(number);
-    int nd_top = numDigitsDouble(top);
     QString str_number = QString("%1").arg(number);
     if (number > 0) {
-        // Both positive. Extend with zeros.
+        // Both positive. Extend with zeros, to length of top
+        int nd_top = numDigitsDouble(top);
         for (int i = 0; i < nd_top - nd_number; ++i) {
             str_number += "0";
             if (str_number.toDouble() <= top) {
@@ -252,7 +258,8 @@ bool Numeric::extendedDoubleMustExceed(double number, double top)
         return true;
     } else {
         // Both negative. Extend with nines.
-        for (int i = 0; i < nd_top - nd_number; ++i) {
+        int nd_bottom = numDigitsDouble(bottom);
+        for (int i = 0; i < nd_bottom - nd_number; ++i) {
             str_number += "9";
             if (str_number.toDouble() <= top) {
                 return false;
@@ -263,7 +270,8 @@ bool Numeric::extendedDoubleMustExceed(double number, double top)
 }
 
 
-bool Numeric::extendedDoubleMustBeLessThan(double number, double bottom)
+bool Numeric::extendedDoubleMustBeLessThan(double number,
+                                           double bottom, double top)
 {
     if (number < 0 && bottom > 0) {
         return true;
@@ -272,11 +280,11 @@ bool Numeric::extendedDoubleMustBeLessThan(double number, double bottom)
         return false;
     }
     int nd_number = numDigitsDouble(number);
-    int nd_bottom = numDigitsDouble(bottom);
     QString str_number = QString("%1").arg(number);
     if (number > 0) {
-        // Both positive. Extend with nines.
-        for (int i = 0; i < nd_bottom - nd_number; ++i) {
+        // Both positive. Extend with nines, to length of top
+        int nd_top = numDigitsDouble(top);
+        for (int i = 0; i < nd_top - nd_number; ++i) {
             str_number += "9";
             if (str_number.toDouble() >= bottom) {
                 return false;
@@ -284,7 +292,8 @@ bool Numeric::extendedDoubleMustBeLessThan(double number, double bottom)
         }
         return true;
     } else {
-        // Both negative. Extend with zeros.
+        // Both negative. Extend with zeros, to length of bottom
+        int nd_bottom = numDigitsDouble(bottom);
         for (int i = 0; i < nd_bottom - nd_number; ++i) {
             str_number += "0";
             if (str_number.toDouble() >= bottom) {

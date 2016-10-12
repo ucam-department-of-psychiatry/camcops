@@ -37,6 +37,10 @@ public:
     int currentIndex() const;
     TaskPtr currentTask() const;
 
+protected:
+    void reloadStyleSheet();
+    void loadStyleSheet();
+
 signals:
     void offerViewEditDelete(bool offer_view, bool offer_edit,
                              bool offer_delete);

@@ -1,4 +1,4 @@
-// #define DEBUG_VALIDATOR
+#define DEBUG_VALIDATOR
 
 #include "strictintvalidator.h"
 #ifdef DEBUG_VALIDATOR

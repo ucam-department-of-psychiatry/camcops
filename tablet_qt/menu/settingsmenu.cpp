@@ -21,15 +21,23 @@
 #include "questionnairelib/qupage.h"
 #include "questionnairelib/quslider.h"
 #include "questionnairelib/qutext.h"
+#include "widgets/labelwordwrapwide.h"
 
 const QString TAG_NORMAL = "Normal";
 const QString TAG_BIG = "Big";
 const QString TAG_HEADING = "Heading";
 const QString TAG_TITLE = "Title";
 const QString TAG_MENUS = "Menus";
-const QString alphabet = " ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                         " abcdefghijklmnopqrstuvwxyz"
-                         " 0123456789";
+const QString alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ "
+                         "abcdefghijklmnopqrstuvwxyz "
+                         "0123456789";
+const QMap<QString, UiConst::FontSize> FONT_SIZE_MAP{
+    {TAG_NORMAL, UiConst::FontSize::Normal},
+    {TAG_BIG, UiConst::FontSize::Big},
+    {TAG_HEADING, UiConst::FontSize::Heading},
+    {TAG_TITLE, UiConst::FontSize::Title},
+    {TAG_MENUS, UiConst::FontSize::Menus},
+};
 
 
 SettingsMenu::SettingsMenu(CamcopsApp& app) :
@@ -39,6 +47,8 @@ SettingsMenu::SettingsMenu(CamcopsApp& app) :
     m_plaintext_pw_live(false),
     m_fontsize_questionnaire(nullptr)
 {
+    m_fontsize_fr = m_app.storedVarFieldRef(
+                VarConst::QUESTIONNAIRE_SIZE_PERCENT, true);
     m_items = {
         MenuItem(
             tr("Questionnaire font size"),
@@ -90,6 +100,8 @@ SettingsMenu::SettingsMenu(CamcopsApp& app) :
         MenuItem(tr("(†) Dump local database to SQL file (Android only)")
         ).setNeedsPrivilege().setUnsupported(!Platform::PLATFORM_ANDROID),  // ***
     };
+    connect(&m_app, &CamcopsApp::fontSizeChanged,
+            this, &SettingsMenu::reloadStyleSheet);
 }
 
 
@@ -379,6 +391,21 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
 }
 
 
+QString SettingsMenu::demoText(const QString& text,
+                               UiConst::FontSize fontsize_type) const
+{
+    if (!m_fontsize_fr) {
+        return "?";
+    }
+    double current_pct = m_fontsize_fr->valueDouble();
+    int font_size_pt = m_app.fontSizePt(fontsize_type, current_pct);
+    return QString("%1 [%2 pt] %3")
+            .arg(tr(qPrintable(text)))
+            .arg(font_size_pt)
+            .arg(alphabet);
+}
+
+
 OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp &app)
 {
     int fs_min = 70;
@@ -394,10 +421,9 @@ OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp &app)
     QString explan(tr("Changes take effect when a screen is reloaded."));
     QString prompt2(tr("You can type it in:"));
     QString prompt3(tr("... or set it with a slider:"));
-    FieldRefPtr fontsize_fr = app.storedVarFieldRef(
-                VarConst::QUESTIONNAIRE_SIZE_PERCENT, true);
-    connect(fontsize_fr.data(), &FieldRef::valueChanged,
-            this, &SettingsMenu::fontSizeChanged);
+    connect(m_fontsize_fr.data(), &FieldRef::valueChanged,
+            this, &SettingsMenu::fontSizeChanged,
+            Qt::UniqueConnection);
 
     QuPagePtr page(new QuPage{
         new QuText(makeTitle(prompt1)),
@@ -405,27 +431,27 @@ OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp &app)
         QuestionnaireFunc::defaultGridRawPointer({
             {
                 prompt2,
-                new QuLineEditInteger(fontsize_fr, fs_min, fs_max)
+                new QuLineEditInteger(m_fontsize_fr, fs_min, fs_max)
             },
         }, 1, 1),
         new QuText(prompt3),
-        (new QuSlider(fontsize_fr, fs_min, fs_max, fs_slider_step))
+        (new QuSlider(m_fontsize_fr, fs_min, fs_max, fs_slider_step))
             ->setTickInterval(fs_slider_tick_interval)
             ->setTickPosition(QSlider::TicksBothSides)
             ->setTickLabels(ticklabels)
             ->setTickLabelPosition(QSlider::TicksAbove),
         new QuButton(tr("Reset to 100%"),
                        [this](){ resetFontSize(); }),
-        (new QuText(tr(TAG_NORMAL) + alphabet))->addTag(TAG_NORMAL),
-        (new QuText(tr(TAG_BIG) + alphabet))->addTag(TAG_BIG),
-        (new QuText(tr(TAG_HEADING) + alphabet))->addTag(TAG_HEADING),
-        (new QuText(tr(TAG_TITLE) + alphabet))->addTag(TAG_TITLE),
-        (new QuText(tr(TAG_MENUS) + alphabet))->addTag(TAG_MENUS),
+        (new QuText(demoText(TAG_NORMAL, UiConst::FontSize::Normal)))->addTag(TAG_NORMAL),
+        (new QuText(demoText(TAG_BIG, UiConst::FontSize::Big)))->addTag(TAG_BIG),
+        (new QuText(demoText(TAG_HEADING, UiConst::FontSize::Heading)))->addTag(TAG_HEADING),
+        (new QuText(demoText(TAG_TITLE, UiConst::FontSize::Title)))->addTag(TAG_TITLE),
+        (new QuText(demoText(TAG_MENUS, UiConst::FontSize::Menus)))->addTag(TAG_MENUS),
     });
     page->setTitle(tr("Set questionnaire font size"));
     page->setType(QuPage::PageType::Config);
 
-    m_fontsize_questionnaire = new Questionnaire(m_app, {page});
+    m_fontsize_questionnaire = new Questionnaire(app, {page});
     connect(m_fontsize_questionnaire, &Questionnaire::completed,
             this, &SettingsMenu::fontSettingsSaved);
     connect(m_fontsize_questionnaire, &Questionnaire::cancelled,
@@ -436,33 +462,25 @@ OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp &app)
 
 void SettingsMenu::resetFontSize()
 {
-    qDebug() << Q_FUNC_INFO;
-    // *** change - do it via fieldref
-    m_app.setCachedVar(VarConst::QUESTIONNAIRE_SIZE_PERCENT, 100);
+    if (!m_fontsize_fr) {
+        return;
+    }
+    m_fontsize_fr->setValue(100);
 }
 
 
 void SettingsMenu::fontSizeChanged()
 {
     // NASTY code.
-    qDebug() << Q_FUNC_INFO;
-    if (!m_fontsize_questionnaire) {
+    if (!m_fontsize_questionnaire || !m_fontsize_fr) {
         return;
     }
     QuPagePtr page = m_fontsize_questionnaire->currentPagePtr();
     if (!page) {
         return;
     }
-    double current_pct = m_app.getCachedVar(
-                VarConst::QUESTIONNAIRE_SIZE_PERCENT).toDouble();
-    QMap<QString, UiConst::FontSize> map{
-        {TAG_NORMAL, UiConst::FontSize::Normal},
-        {TAG_BIG, UiConst::FontSize::Big},
-        {TAG_HEADING, UiConst::FontSize::Heading},
-        {TAG_TITLE, UiConst::FontSize::Title},
-        {TAG_MENUS, UiConst::FontSize::Menus},
-    };
-    QMapIterator<QString, UiConst::FontSize> i(map);
+    double current_pct = m_fontsize_fr->valueDouble();
+    QMapIterator<QString, UiConst::FontSize> i(FONT_SIZE_MAP);
     while (i.hasNext()) {
         i.next();
         QString tag = i.key();
@@ -473,9 +491,14 @@ void SettingsMenu::fontSizeChanged()
                 continue;
             }
             int fontsize_pt = m_app.fontSizePt(fontsize_type, current_pct);
-            QString css = QString("QWidget { font-size: %1pt; }").arg(fontsize_pt);
-            // *** alter text to include font size
+            QString css = QString(
+                        "QWidget { font-size: %1pt; }").arg(fontsize_pt);
             widget->setStyleSheet(css);
+            QString text = demoText(tag, fontsize_type);
+            // And EXCEPTIONALLY nasty:
+            LabelWordWrapWide* label = reinterpret_cast<LabelWordWrapWide*>(
+                        widget.data());
+            label->setText(text);
             UiFunc::repolish(widget);
             widget->updateGeometry();
         }
@@ -487,6 +510,8 @@ void SettingsMenu::fontSettingsSaved()
 {
     m_app.saveCachedVars();
     m_fontsize_questionnaire = nullptr;
+    // Trigger reloading of reload CSS to SettingsMenu and MainMenu:
+    m_app.fontSizeChanged();
 }
 
 

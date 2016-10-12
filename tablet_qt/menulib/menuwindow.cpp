@@ -48,7 +48,7 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
                             widgets of interest
     */
 
-    setStyleSheet(m_app.getSubstitutedCss(UiConst::CSS_CAMCOPS_MENU));
+    loadStyleSheet();
     setObjectName("menu_window_outer_object");
 
     QVBoxLayout* dummy_layout = new QVBoxLayout();
@@ -68,6 +68,19 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
     // keep the menu header visible, and have scroll bars showing the position
     // within the list view (both for menus and questionnaires, I'd think).
     // So we'll stick with a simple layout.
+}
+
+
+void MenuWindow::loadStyleSheet()
+{
+    setStyleSheet(m_app.getSubstitutedCss(UiConst::CSS_CAMCOPS_MENU));
+}
+
+
+void MenuWindow::reloadStyleSheet()
+{
+    loadStyleSheet();
+    UiFunc::repolish(this);
 }
 
 

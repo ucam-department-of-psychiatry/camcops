@@ -53,4 +53,6 @@ MainMenu::MainMenu(CamcopsApp& app)
         MAKE_MENU_MENU_ITEM(ResearchSetsMenu, app),
         MAKE_MENU_MENU_ITEM(AllTasksMenu, app),
     };
+    connect(&m_app, &CamcopsApp::fontSizeChanged,
+            this, &MainMenu::reloadStyleSheet);
 }
