@@ -9,8 +9,10 @@
 #include <QPushButton>
 #include <QSqlDatabase>
 #include <QStackedWidget>
+#include "common/camcopsversion.h"
 #include "common/uiconstants.h"
 #include "common/varconst.h"
+#include "common/version.h"
 #include "crypto/cryptofunc.h"
 #include "db/dbfunc.h"
 #include "db/dbnestabletransaction.h"
@@ -47,6 +49,7 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     qInfo() << "CamCOPS starting at:"
             << qUtf8Printable(DateTime::datetimeToIsoMs(dt))
             << "=" << qUtf8Printable(DateTime::datetimeToIsoMsUtc(dt));
+    qInfo() << "CamCOPS version:" << CamcopsVersion::CAMCOPS_VERSION;
 
     // ------------------------------------------------------------------------
     // Create databases
@@ -69,23 +72,11 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     qInfo() << "Registered tasks:" << m_p_task_factory->tablenames();
 
     // ------------------------------------------------------------------------
-    // Make tables
+    // Make storedvar table
     // ------------------------------------------------------------------------
 
-    // Make special tables: system database
     StoredVar storedvar_specimen(m_sysdb);
     storedvar_specimen.makeTable();
-    ExtraString extrastring_specimen(m_sysdb);
-    extrastring_specimen.makeTable();
-
-    // Make special tables: main database
-    Blob blob_specimen(m_datadb);
-    blob_specimen.makeTable();
-    Patient patient_specimen(m_datadb);
-    patient_specimen.makeTable();
-
-    // Make task tables
-    m_p_task_factory->makeAllTables();
 
     // ------------------------------------------------------------------------
     // Create stored variables: name, type, default
@@ -93,11 +84,15 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     {
         DbTransaction trans(m_sysdb);  // https://www.sqlite.org/faq.html#q19
 
+        // Version
+        createVar(VarConst::CAMCOPS_VERSION_AS_STRING, QVariant::String,
+                  CamcopsVersion::CAMCOPS_VERSION.toString());
+
         // Questionnaire
         createVar(VarConst::QUESTIONNAIRE_SIZE_PERCENT, QVariant::Int, 100);
 
         // Server
-        createVar(VarConst::SERVER_ADDRESS, QVariant::String);
+        createVar(VarConst::SERVER_ADDRESS, QVariant::String, "");
         createVar(VarConst::SERVER_PORT, QVariant::Int, 443);  // 443 = HTTPS
         createVar(VarConst::SERVER_PATH, QVariant::String, "camcops/database");
         createVar(VarConst::SERVER_TIMEOUT_MS, QVariant::Int, 50000);
@@ -139,10 +134,40 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
         createVar(VarConst::PRIV_PASSWORD_HASH, QVariant::String, "");
 
 #ifdef DANGER_DEBUG_WIPE_PASSWORDS
+        qDebug() << "DANGER: wiping passwords";
         setHashedPassword(VarConst::USER_PASSWORD_HASH, "");
         setHashedPassword(VarConst::PRIV_PASSWORD_HASH, "");
 #endif
     }
+
+    // ------------------------------------------------------------------------
+    // Any database upgrade required?
+    // ------------------------------------------------------------------------
+
+    Version old_version = Version::fromString(
+                var(VarConst::CAMCOPS_VERSION_AS_STRING).toString());
+    Version new_version = CamcopsVersion::CAMCOPS_VERSION;
+    upgradeDatabase(old_version, new_version);
+    if (new_version != old_version) {
+        setVar(VarConst::CAMCOPS_VERSION_AS_STRING, new_version.toString());
+    }
+
+    // ------------------------------------------------------------------------
+    // Make other tables
+    // ------------------------------------------------------------------------
+
+    // Make special tables: system database
+    ExtraString extrastring_specimen(m_sysdb);
+    extrastring_specimen.makeTable();
+
+    // Make special tables: main database
+    Blob blob_specimen(m_datadb);
+    blob_specimen.makeTable();
+    Patient patient_specimen(m_datadb);
+    patient_specimen.makeTable();
+
+    // Make task tables
+    m_p_task_factory->makeAllTables();
 
     // ------------------------------------------------------------------------
     // Qt stuff
@@ -198,6 +223,23 @@ QSqlDatabase& CamcopsApp::sysdb()
 TaskFactoryPtr CamcopsApp::factory()
 {
     return m_p_task_factory;
+}
+
+
+void CamcopsApp::upgradeDatabase(const Version& old_version,
+                                 const Version& new_version)
+{
+    if (old_version == new_version) {
+        qInfo() << "Database is current; no special upgrade steps required";
+        return;
+    }
+    qInfo() << "Considering special database upgrade steps from version"
+            << old_version << "to version" << new_version;
+
+    // Do things
+
+    qInfo() << "Special database upgrade steps complete";
+    return;
 }
 
 

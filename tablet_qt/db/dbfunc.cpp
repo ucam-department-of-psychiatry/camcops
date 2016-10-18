@@ -294,7 +294,7 @@ QList<SqlitePragmaInfoField> DbFunc::getPragmaInfo(const QSqlDatabase& db,
     QList<SqlitePragmaInfoField> infolist;
     while (query.next()) {
         SqlitePragmaInfoField fieldinfo;
-         fieldinfo.cid = query.value(0).toInt();
+        fieldinfo.cid = query.value(0).toInt();  // column ID
         fieldinfo.name = query.value(1).toString();
         fieldinfo.type = query.value(2).toString();
         fieldinfo.notnull = query.value(3).toBool();

@@ -3,6 +3,9 @@
 
 namespace VarConst
 {
+    // Version storage
+    extern const QString CAMCOPS_VERSION_AS_STRING;
+
     // Questionnaire
     extern const QString QUESTIONNAIRE_SIZE_PERCENT;
 

@@ -21,6 +21,7 @@ class StoredVar;
 using StoredVarPtr = QSharedPointer<StoredVar>;
 class TaskFactory;
 using TaskFactoryPtr = QSharedPointer<TaskFactory>;
+class Version;
 
 
 class CamcopsApp : public QApplication
@@ -65,6 +66,7 @@ public:
     QSqlDatabase& db();
     QSqlDatabase& sysdb();
     TaskFactoryPtr factory();
+    void upgradeDatabase(const Version& old_version, const Version& new_version);
 
     // ------------------------------------------------------------------------
     // Opening/closing windows

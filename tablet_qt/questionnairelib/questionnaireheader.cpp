@@ -56,8 +56,6 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     // Right-hand icons
     if (jump_allowed) {
         m_button_jump = new ImageButton(UiConst::CBS_CHOOSE_PAGE);
-        toprowlayout->addWidget(m_button_jump);
-        toprowlayout->setAlignment(m_button_jump, button_align);
         connect(m_button_jump, &QAbstractButton::clicked,
                 this, &QuestionnaireHeader::jumpClicked);
     }
@@ -70,14 +68,23 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     } else {
         m_button_finish = new ImageButton(UiConst::CBS_FINISH);
     }
+
     toprowlayout->addWidget(m_button_previous);
+    if (jump_allowed) {
+        toprowlayout->addWidget(m_button_jump);
+    }
     toprowlayout->addWidget(m_button_next);
     toprowlayout->addWidget(m_button_finish);
     toprowlayout->addWidget(m_icon_no_next);
+
     toprowlayout->setAlignment(m_button_previous, button_align);
+    if (jump_allowed) {
+        toprowlayout->setAlignment(m_button_jump, button_align);
+    }
     toprowlayout->setAlignment(m_button_next, button_align);
     toprowlayout->setAlignment(m_button_finish, button_align);
     toprowlayout->setAlignment(m_icon_no_next, button_align);
+
     setButtons(false, false, false);
     connect(m_button_previous, &QAbstractButton::clicked,
             this, &QuestionnaireHeader::previousClicked);

@@ -64,10 +64,9 @@ void QuPickerPopup::clicked()
     if (!m_label) {
         return;
     }
-    NvpChoiceDialog* dlg = new NvpChoiceDialog(m_label, m_options,
-                                               m_popup_title);
+    NvpChoiceDialog dlg(m_label, m_options, m_popup_title);
     QVariant newvalue;
-    if (dlg->choose(&newvalue) != QDialog::Accepted) {
+    if (dlg.choose(&newvalue) != QDialog::Accepted) {
         return;  // user pressed cancel, or some such
     }
     bool changed = m_fieldref->setValue(newvalue);  // Will trigger valueChanged

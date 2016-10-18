@@ -2,6 +2,9 @@
 
 namespace VarConst
 {
+    // Version storage
+    const QString CAMCOPS_VERSION_AS_STRING = "camcopsVersion";
+
     // Questionnaire
     const QString QUESTIONNAIRE_SIZE_PERCENT = "questionnaireTextSizePercent";
 

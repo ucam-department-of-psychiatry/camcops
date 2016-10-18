@@ -6,7 +6,7 @@
 class SqlitePragmaInfoField {
 public:
     // http://www.stroustrup.com/C++11FAQ.html#member-init
-    int cid = -1;
+    int cid = -1;  // column ID
     QString name;
     QString type;
     bool notnull = false;

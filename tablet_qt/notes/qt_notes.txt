@@ -764,8 +764,8 @@ Network
 ===============================================================================
 TO DO
 ===============================================================================
+- *** move jump button to left?
 - *** patients
-- *** server config
 - *** scrolling by touch on Android menus and questionnaires
     http://doc.qt.io/qt-5.7/gestures-overview.html
     *** https://forum.qt.io/topic/30546/kinetic-scrolling-on-qscrollarea-on-android-device/5

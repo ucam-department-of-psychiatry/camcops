@@ -34,6 +34,7 @@ void QuText::commonConstructor()
     m_open_links = false;
     m_alignment = Qt::AlignLeft | Qt::AlignVCenter;
     m_label = nullptr;
+    m_forced_fontsize_pt = -1;
 }
 
 
@@ -96,9 +97,8 @@ QPointer<QWidget> QuText::makeWidget(Questionnaire* questionnaire)
     }
     m_label = new LabelWordWrapWide(text);
     int fontsize = questionnaire->fontSizePt(m_fontsize);
-    QString colour = m_warning ? UiConst::WARNING_COLOUR : "";
-    QString css = UiFunc::textCSS(fontsize, m_bold, m_italic, colour);
-    m_label->setStyleSheet(css);
+    setWidgetFontSize(m_forced_fontsize_pt > 0 ? m_forced_fontsize_pt
+                                               : fontsize);
     m_label->setTextFormat(m_text_format);
     m_label->setOpenExternalLinks(m_open_links);
     m_label->setAlignment(m_alignment);
@@ -113,4 +113,46 @@ void QuText::fieldValueChanged(const FieldRef* fieldref)
         return;
     }
     m_label->setText(fieldref->valueString());
+}
+
+
+void QuText::forceFontSize(int fontsize_pt, bool repolish)
+{
+    m_forced_fontsize_pt = fontsize_pt;
+    setWidgetFontSize(m_forced_fontsize_pt, repolish);
+}
+
+
+void QuText::forceText(const QString &text, bool repolish)
+{
+    if (!m_label) {
+        return;
+    }
+    m_label->setText(text);
+    if (repolish) {
+        repolishWidget();
+    }
+}
+
+
+void QuText::setWidgetFontSize(int fontsize_pt, bool repolish)
+{
+    if (!m_label) {
+        return;
+    }
+    QString colour = m_warning ? UiConst::WARNING_COLOUR : "";
+    QString css = UiFunc::textCSS(fontsize_pt, m_bold, m_italic, colour);
+    m_label->setStyleSheet(css);
+    if (repolish) {
+        repolishWidget();
+    }
+}
+
+
+void QuText::repolishWidget()
+{
+    if (m_label) {
+        UiFunc::repolish(m_label);
+        m_label->updateGeometry();
+    }
 }

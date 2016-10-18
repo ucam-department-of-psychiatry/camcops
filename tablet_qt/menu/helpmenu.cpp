@@ -5,7 +5,7 @@
 #include <QSqlDriver>
 #include <QtSql/QtSqlVersion>
 #include "common/uiconstants.h"
-#include "common/version.h"
+#include "common/camcopsversion.h"
 #include "db/dbfunc.h"
 #include "lib/filefunc.h"
 #include "lib/uifunc.h"
@@ -61,14 +61,14 @@ void HelpMenu::softwareVersions()
     // ------------------------------------------------------------------------
     // CamCOPS
     // ------------------------------------------------------------------------
-    versions.append(QString("CamCOPS tablet version: %1").arg(
-                        Version::CAMCOPS_VERSION_STRING));
+    versions.append(QString("<b>CamCOPS tablet version:</b> %1").arg(
+                        CamcopsVersion::CAMCOPS_VERSION.toString()));
     versions.append(newline);
 
     // ------------------------------------------------------------------------
     // Qt
     // ------------------------------------------------------------------------
-    versions.append(QString("Qt version: %1").arg(QT_VERSION_STR));
+    versions.append(QString("<b>Qt version:</b> %1").arg(QT_VERSION_STR));
     versions.append(newline);
 
     // ------------------------------------------------------------------------
@@ -81,7 +81,7 @@ void HelpMenu::softwareVersions()
     QString sql = "SELECT sqlite_version()";
     QSqlDatabase& db = m_app.sysdb();
     QString sqlite_version = DbFunc::dbFetchFirstValue(db, sql).toString();
-    versions.append(QString("Embedded SQLite version: %1").arg(sqlite_version));
+    versions.append(QString("<b>Embedded SQLite version:</b> %1").arg(sqlite_version));
     QString sqlite_info;
     QTextStream s(&sqlite_info);
     QSqlDriver* driver = db.driver();
@@ -116,10 +116,10 @@ void HelpMenu::softwareVersions()
     //      OpenSSL_version_num
     // ... all available within QtNetwork/provate/qssql*.h, but not exposed.
     // However, we have this:
-    versions.append(QString("Embedded OpenSSL version: %1").arg(
+    versions.append(QString("<b>Embedded OpenSSL version:</b> %1").arg(
         QSslSocket::sslLibraryVersionString()));
 
-    UiFunc::alert(versions.join("\n"));
+    UiFunc::alert(versions.join("<br>"), "Software versions");
 }
 
 

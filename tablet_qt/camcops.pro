@@ -197,7 +197,10 @@ SOURCES += main.cpp\
     crypto/secureqbytearray.cpp \
     dbobjects/extrastring.cpp \
     widgets/passwordentrydialog.cpp \
-    widgets/passwordchangedialog.cpp
+    widgets/passwordchangedialog.cpp \
+    common/camcopsversion.cpp \
+    widgets/pagepickerdialog.cpp \
+    questionnairelib/pagepickeritem.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -353,7 +356,10 @@ HEADERS  += \
     crypto/zallocator.h \
     dbobjects/extrastring.h \
     widgets/passwordentrydialog.h \
-    widgets/passwordchangedialog.h
+    widgets/passwordchangedialog.h \
+    common/camcopsversion.h \
+    widgets/pagepickerdialog.h \
+    questionnairelib/pagepickeritem.h
 
 DISTFILES += \
     notes/qt_notes.txt \

@@ -55,7 +55,9 @@ protected slots:
     void nextClicked();
     void finishClicked();
     void resetButtons();
+    void goToPage(int index_zero_based);
 signals:
+    void pageAboutToOpen();  // about to display page
     void cancelled();  // failure/cancel
     void completed();  // success/OK
     // and finished() is emitted with either; see OpenableWidget

@@ -456,6 +456,8 @@ OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp &app)
             this, &SettingsMenu::fontSettingsSaved);
     connect(m_fontsize_questionnaire, &Questionnaire::cancelled,
             this, &SettingsMenu::fontSettingsCancelled);
+    connect(m_fontsize_questionnaire, &Questionnaire::pageAboutToOpen,
+            this, &SettingsMenu::fontSizeChanged);
     return m_fontsize_questionnaire;
 }
 
@@ -471,7 +473,7 @@ void SettingsMenu::resetFontSize()
 
 void SettingsMenu::fontSizeChanged()
 {
-    // NASTY code.
+    // Slightly nasty code.
     if (!m_fontsize_questionnaire || !m_fontsize_fr) {
         return;
     }
@@ -486,21 +488,12 @@ void SettingsMenu::fontSizeChanged()
         QString tag = i.key();
         UiConst::FontSize fontsize_type = i.value();
         for (auto e : page->elementsWithTag(tag)) {
-            QPointer<QWidget> widget = e->cachedWidget();
-            if (!widget) {
-                continue;
-            }
             int fontsize_pt = m_app.fontSizePt(fontsize_type, current_pct);
-            QString css = QString(
-                        "QWidget { font-size: %1pt; }").arg(fontsize_pt);
-            widget->setStyleSheet(css);
             QString text = demoText(tag, fontsize_type);
-            // And EXCEPTIONALLY nasty:
-            LabelWordWrapWide* label = reinterpret_cast<LabelWordWrapWide*>(
-                        widget.data());
-            label->setText(text);
-            UiFunc::repolish(widget);
-            widget->updateGeometry();
+            // Here's the slightly nasty bit:
+            QuText* textelement = static_cast<QuText*>(e.data());
+            textelement->forceFontSize(fontsize_pt, false);
+            textelement->forceText(text);
         }
     }
 }
