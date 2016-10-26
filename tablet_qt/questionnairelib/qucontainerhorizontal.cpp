@@ -1,7 +1,7 @@
 #include "qucontainerhorizontal.h"
 #include <QHBoxLayout>
 #include <QWidget>
-#include "questionnaire.h"
+#include "questionnairelib/questionnaire.h"
 
 
 QuContainerHorizontal::QuContainerHorizontal()
@@ -74,7 +74,7 @@ QPointer<QWidget> QuContainerHorizontal::makeWidget(
     QPointer<QWidget> widget = new QWidget();
     // widget->setObjectName("debug_yellow");
     QHBoxLayout* layout = new QHBoxLayout();
-    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setContentsMargins(UiConst::NO_MARGINS);
     widget->setLayout(layout);
     for (auto e : m_elements) {
         QPointer<QWidget> w = e->widget(questionnaire);

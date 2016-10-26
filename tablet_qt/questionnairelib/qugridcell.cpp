@@ -2,7 +2,6 @@
 #include <QDebug>
 
 
-
 QuGridCell::QuGridCell(const QuElementPtr element,
                        int row,
                        int column,

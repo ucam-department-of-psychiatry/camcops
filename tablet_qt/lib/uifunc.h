@@ -5,8 +5,11 @@
 
 class QAbstractButton;
 class QLabel;
+class QLayout;
 class QPainter;
 class QPointF;
+class QPushButton;
+class QStyleOptionButton;
 
 
 namespace UiFunc {
@@ -74,6 +77,17 @@ namespace UiFunc {
                   const QString& text, QRectF* boundingRect = 0);
     void drawText(QPainter& painter, const QPointF& point, Qt::Alignment flags,
                   const QString& text, QRectF* boundingRect = 0);
+
+    QSize contentsMarginsAsSize(const QWidget* widget);
+    QSize contentsMarginsAsSize(const QLayout* layout);
+    QSize spacingAsSize(const QLayout* layout);
+    QSize pushButtonSizeHintFromContents(const QPushButton* button,
+                                         QStyleOptionButton* opt,
+                                         const QSize& child_size);
+
+    // Size policies that take a few statements to create:
+    QSizePolicy horizExpandingHFWPolicy();
+    QSizePolicy horizMaximumHFWPolicy();
 
     // ========================================================================
     // Killing the app

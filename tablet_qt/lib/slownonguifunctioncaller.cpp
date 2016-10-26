@@ -1,5 +1,5 @@
 #include "slownonguifunctioncaller.h"
-#include "widgets/waitbox.h"
+#include "dialogs/waitbox.h"
 
 
 SlowNonGuiFunctionCaller::SlowNonGuiFunctionCaller(ThreadWorker::PlainWorkerFunction func,

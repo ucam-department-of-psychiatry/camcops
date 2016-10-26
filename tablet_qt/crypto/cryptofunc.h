@@ -1,5 +1,5 @@
 #pragma once
-#include <openssl/crypto.h>  // for OpenSSL_cleanse
+// #include <openssl/crypto.h>  // for OpenSSL_cleanse
 #include <QString>
 #include "secureqbytearray.h"
 #include "secureqstring.h"

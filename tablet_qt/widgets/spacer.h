@@ -9,5 +9,8 @@ class Spacer : public QWidget
     Q_OBJECT
 public:
     Spacer(QWidget* parent = nullptr);
-    virtual QSize sizeHint() const;
+    Spacer(const QSize& size, QWidget* parent = nullptr);
+    virtual QSize sizeHint() const override;
+protected:
+    QSize m_size;
 };

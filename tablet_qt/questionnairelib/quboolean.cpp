@@ -3,10 +3,12 @@
 #include <QLabel>
 #include <QWidget>
 #include "lib/uifunc.h"
+#include "questionnairelib/mcqfunc.h"
+#include "questionnairelib/questionnaire.h"
 #include "widgets/booleanwidget.h"
+#include "widgets/clickablelabel.h"
+#include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/labelwordwrapwide.h"
-#include "mcqfunc.h"
-#include "questionnaire.h"
 
 
 QuBoolean::QuBoolean(const QString& text, FieldRefPtr fieldref) :
@@ -37,7 +39,6 @@ void QuBoolean::commonConstructor()
     m_italic = false;
     m_allow_unset = false;
     m_as_text_button = false;
-    m_alignment = Qt::AlignTop;
     m_indicator = nullptr;
     Q_ASSERT(m_fieldref);
     connect(m_fieldref.data(), &FieldRef::valueChanged,
@@ -103,42 +104,54 @@ QuBoolean* QuBoolean::setAsTextButton(bool as_text_button)
 }
 
 
-QuBoolean* QuBoolean::setVAlign(Qt::Alignment alignment)
-{
-    m_alignment = alignment;
-    return this;
-}
-
-
 QPointer<QWidget> QuBoolean::makeWidget(Questionnaire *questionnaire)
 {
     bool read_only = questionnaire->readOnly();
+
     QPointer<QWidget> widget = new QWidget();
+    widget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+
     QHBoxLayout* layout = new QHBoxLayout();
-    Qt::Alignment layout_alignment = Qt::AlignLeft | Qt::AlignTop;
-    layout->setAlignment(layout_alignment);
     widget->setLayout(layout);
+    // To align things in a QHBoxLayout, align the widgets within the layout:
+    //      layout->setAlignment(widget, alignment)
+    // not the layout:
+    //      layout->setAlignment(alignment)
 
     // Label
-    ClickableLabel* label = nullptr;
-    if (!m_text.isEmpty()) {
+    QWidget* labelwidget = nullptr;
+    if (!m_text.isEmpty() && !m_as_text_button) {
         // Text label
-        label = new LabelWordWrapWide(m_text);
-        label->setClickable(m_content_clickable);
+        if (!read_only && m_content_clickable) {
+            ClickableLabelWordWrapWide* label = new ClickableLabelWordWrapWide(m_text);
+            // label->setObjectName("debug_green");
+            connect(label, &ClickableLabelWordWrapWide::clicked,
+                    this, &QuBoolean::clicked);
+            labelwidget = label;
+        } else {
+            LabelWordWrapWide* label = new LabelWordWrapWide(m_text);
+            labelwidget = label;
+        }
         int fontsize = questionnaire->fontSizePt(
             m_big_text ? UiConst::FontSize::Big : UiConst::FontSize::Normal);
         QString css = UiFunc::textCSS(fontsize, m_bold, m_italic);
-        label->setStyleSheet(css);
-        Qt::Alignment alignment = UiFunc::combineAlignment(Qt::AlignLeft,
-                                                           m_alignment);
-        label->setAlignment(alignment);
+        labelwidget->setStyleSheet(css);
+        // needs_stretch stays false (or we'll prevent the text expanding)
     } else if (!m_image_filename.isEmpty()) {
         // Image label
         QPixmap image = UiFunc::getPixmap(m_image_filename, m_image_size);
-        label = new ClickableLabel();
-        label->setClickable(m_content_clickable && !read_only);
-        label->setFixedSize(image.size());
-        label->setPixmap(image);
+        if (!read_only && m_content_clickable) {
+            ClickableLabel* label = new ClickableLabel();
+            label->setPixmap(image);
+            connect(label, &ClickableLabel::clicked,
+                    this, &QuBoolean::clicked);
+            labelwidget = label;
+        } else {
+            QLabel* label = new QLabel();
+            label->setFixedSize(image.size());
+            label->setPixmap(image);
+            labelwidget = label;
+        }
     }
     // otherwise... no label, just the indicator
 
@@ -146,37 +159,33 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire *questionnaire)
     m_indicator = new BooleanWidget();
     m_indicator->setSize(m_big_indicator);
     m_indicator->setReadOnly(read_only);
-    m_indicator->setAppearance(BooleanWidget::Appearance::CheckRed);
+    if (m_as_text_button) {
+        m_indicator->setAppearance(BooleanWidget::Appearance::Text);
+        m_indicator->setText(m_text);
+    } else {
+        m_indicator->setAppearance(BooleanWidget::Appearance::CheckRed);
+    }
+    if (!read_only) {
+        connect(m_indicator, &BooleanWidget::clicked,
+                this, &QuBoolean::clicked);
+    }
 
     // Whole thing
-    if (label) {
+    if (labelwidget) {
         if (m_indicator_on_left) {
             layout->addWidget(m_indicator);
-            layout->addWidget(label);
+            layout->addWidget(labelwidget);
         } else {
-            layout->addWidget(label);
+            layout->addWidget(labelwidget);
             layout->addWidget(m_indicator);
         }
-        layout->setAlignment(label, layout_alignment);
+        layout->setAlignment(labelwidget, Qt::AlignVCenter);
     } else {
         // Just the indicator
         layout->addWidget(m_indicator);
     }
-    // To align things in a QHBoxLayout, align the widgets within the layout:
-    //      layout->setAlignment(widget, alignment)
-    // not the layout:
-    //      layout->setAlignment(alignment)
-    layout->setAlignment(m_indicator, layout_alignment);
     layout->addStretch();
-
-    if (!read_only) {
-        connect(m_indicator, &BooleanWidget::clicked,
-                this, &QuBoolean::clicked);
-        if (m_content_clickable && label) {
-            connect(label, &ClickableLabel::clicked,
-                    this, &QuBoolean::clicked);
-        }
-    }
+    layout->setAlignment(m_indicator, Qt::AlignTop);
 
     setFromField();
 

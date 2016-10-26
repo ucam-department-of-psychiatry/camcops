@@ -110,13 +110,16 @@ void HelpMenu::softwareVersions()
     // ------------------------------------------------------------------------
     // http://stackoverflow.com/questions/23320480
     //      SSLEAY_VERSION
+    // http://stackoverflow.com/questions/39480724/use-openssl-in-qt-c
     // https://www.openssl.org/docs/manmaster/crypto/OPENSSL_VERSION_NUMBER.html
     //      OPENSSL_VERSION_NUMBER
     //      OpenSSL_version
     //      OpenSSL_version_num
     // ... all available within QtNetwork/provate/qssql*.h, but not exposed.
     // However, we have this:
-    versions.append(QString("<b>Embedded OpenSSL version:</b> %1").arg(
+    versions.append(QString("<b>Compile-time OpenSSL version:</b> %1").arg(
+        QSslSocket::sslLibraryBuildVersionString()));
+    versions.append(QString("<b>Run-time OpenSSL version:</b> %1").arg(
         QSslSocket::sslLibraryVersionString()));
 
     UiFunc::alert(versions.join("<br>"), "Software versions");

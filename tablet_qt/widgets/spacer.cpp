@@ -2,7 +2,16 @@
 #include "common/uiconstants.h"
 
 Spacer::Spacer(QWidget* parent) :
-    QWidget(parent)
+    QWidget(parent),
+    m_size(UiConst::SPACE, UiConst::SPACE)
+{
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+}
+
+
+Spacer::Spacer(const QSize& size, QWidget* parent) :
+    QWidget(parent),
+    m_size(size)
 {
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 }
@@ -10,5 +19,5 @@ Spacer::Spacer(QWidget* parent) :
 
 QSize Spacer::sizeHint() const
 {
-    return QSize(UiConst::SPACE, UiConst::SPACE);
+    return m_size;
 }

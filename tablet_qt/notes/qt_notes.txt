@@ -184,6 +184,8 @@ Core dump
     info locals
     info args
 
+    # http://darkdust.net/files/GDB%20Cheat%20Sheet.pdf
+
 ===============================================================================
 Other debugging
 ===============================================================================
@@ -270,6 +272,19 @@ Other debugging
             qinputdialog.h
             qwizard.h
     ... so Qt somehow altered them - not good!
+
+- watch/monitor files
+    # sudo apt-get install inotify-tools
+    inotifywait -m FILE
+
+- which libraries is my executable using?
+    ldd EXECUTABLE
+
+- add to library search path
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:newbit
+  e.g.
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/rudolf/dev/qt_local_build/openssl_linux_build/openssl-1.0.2h
+  ... to run in Qt Creator, can also add these to the Run environment.
 
 ===============================================================================
 Debug versus release builds; optimizing
@@ -518,6 +533,37 @@ General algorithm:
 And in general, don't "delete this"; your owner should delete you.
 
 ===============================================================================
+Layout flow
+===============================================================================
+- http://kdemonkey.blogspot.co.uk/2013/11/understanding-qwidget-layout-flow.html
+- If you have a parent widget PW that contains a layout L and that contains
+  other child widgets CW1, CW2..., and if you want PW to be resized when L
+  re-lays out its CWs, then...
+  ? use QWidget::adjustSize
+  ? QLayout::setSizeConstraint(QLayout::SetFixedSize)
+    ... its effect is in QLayout::activate()
+    ... if you setSizeConstraint to QLayout::SetFixedSize, then the PW doesn't
+        resize at all
+  ANSWER: re-implement the PW's QWidget::resizeEvent(); take the PW's width();
+  ask the layout for its heightForWidth(w); setFixedHeight(h); updateGeometry()
+  - see FlowLayoutContainer.
+- If a widget is not expanding appropriately, SEE ITS ALIGNMENT SETTING.
+  For example, Left/Top will get you a widget that does NOT expand to fill its
+  container, whereas an alignment of 0 (with an Expanding size policy) will
+  give you expansion. See improved version of LayoutDumper.
+
+===============================================================================
+General layout tips
+===============================================================================
+- With text paired with a fixed-size indicator widget:
+    - do not apply horizontal alignment (prevents text expansion)
+    - align the widget TOP
+    - align the text VCENTRE
+    ... and that deals with
+        - small text: sits vertically at the centre of the widget
+        - big text: widget sits at the top of the text
+
+===============================================================================
 Audio
 ===============================================================================
 - Out-of-the-box Qt 5.7:
@@ -587,6 +633,9 @@ sudo apt install openjdk-8-jdk
 
 # Debugging:
 sudo apt install valgrind
+
+# For dynamic (.so) linking of OpenSSL:
+?
 
 ===============================================================================
 Logging
@@ -764,8 +813,19 @@ Network
 ===============================================================================
 TO DO
 ===============================================================================
-- *** move jump button to left?
+- BooleanWidget now owns other widgets, so change CSS - check it works
+
+- change
+    padding: 26px;
+  back to 6px;
+  BUT FIRST: ClickableLabelWordWrapWide needs to be drawing based on style like QPushButton
+
+- *** inline picker styling wrong
+- *** clickable label styling needs changing
+
 - *** patients
+- *** notification for "data dirty" -- attach to database ops? DatabaseObject?
+
 - *** scrolling by touch on Android menus and questionnaires
     http://doc.qt.io/qt-5.7/gestures-overview.html
     *** https://forum.qt.io/topic/30546/kinetic-scrolling-on-qscrollarea-on-android-device/5
@@ -796,3 +856,6 @@ TO DO
 - Note for SERVER side: is ZIP generation inefficient with >1 SQL query per
   task fetched (e.g. generate PKs, filter PKs, fetch...)
   ... ensure that in general this is done by generate PKs -> yield Task -> filter
+
+- extra strings: ISO-639-1 two-letter language code (e.g. "en" English)
+

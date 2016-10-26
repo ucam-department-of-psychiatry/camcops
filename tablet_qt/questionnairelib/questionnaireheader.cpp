@@ -48,10 +48,16 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
         toprowlayout->setAlignment(read_only_icon, button_align);
     }
 
+    // Spacing
+    toprowlayout->addStretch();
+
     // Title
     LabelWordWrapWide* title_label = new LabelWordWrapWide(title);
     title_label->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
     toprowlayout->addWidget(title_label);  // default alignment fills whole cell
+
+    // Spacing
+    toprowlayout->addStretch();
 
     // Right-hand icons
     if (jump_allowed) {

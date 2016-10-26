@@ -9,6 +9,9 @@ class ImageButton : public QPushButton
     // Button that shows an icon image, and another when being pressed.
     // This should be more efficient than an equivalent method using
     // stylesheets, and also allows the use of the global QPixmapCache.
+    //
+    // Don't use for text; use ClickableLabel or ClickableLabelWordWrapWide
+    // for that.
 
     Q_OBJECT
 public:
@@ -34,9 +37,8 @@ public:
     void setPressedImage(const QString& filename, const QSize& size = QSize(),
                          bool cache = true);
     void setPressedImage(const QPixmap& pixmap, bool scale = true);
-    QSize sizeHint() const;
+    virtual QSize sizeHint() const override;
     void setImageSize(const QSize& size, bool scale = false);
-    void setAsText(bool as_text);
     void resizeImages(double factor);
 protected:
     void commonConstructor(const QSize& size);
@@ -44,7 +46,6 @@ protected:
     void rescale(QPixmap& pm);
     void resizeIfNoSize();
 protected:
-    bool m_as_text;
     QPixmap m_normal_pixmap;
     QPixmap m_pressed_pixmap;
     QSize m_image_size;

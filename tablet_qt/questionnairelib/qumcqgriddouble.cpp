@@ -1,9 +1,9 @@
 #include "qumcqgriddouble.h"
 #include <QGridLayout>
+#include "questionnairelib/mcqfunc.h"
+#include "questionnairelib/questionnaire.h"
 #include "widgets/booleanwidget.h"
 #include "widgets/labelwordwrapwide.h"
-#include "mcqfunc.h"
-#include "questionnaire.h"
 
 
 QuMCQGridDouble::QuMCQGridDouble(
@@ -127,7 +127,7 @@ QPointer<QWidget> QuMCQGridDouble::makeWidget(Questionnaire* questionnaire)
     int n_subtitles = m_subtitles.size();
     int n_rows = 1 + n_subtitles + m_questions_with_fields.size();
     int n_cols = m_options1.size() + m_options2.size() + 3;
-    Qt::Alignment response_align = Qt::AlignCenter | Qt::AlignVCenter;
+    Qt::Alignment response_align = McqFunc::response_widget_align;
     int row = 0;
 
     // First column: titles, subtitles, questions
@@ -212,7 +212,9 @@ QPointer<QWidget> QuMCQGridDouble::makeWidget(Questionnaire* questionnaire)
     QPointer<QWidget> widget = new QWidget();
     widget->setLayout(grid);
     widget->setObjectName("mcq_grid_double");
-    if (!m_expand) {
+    if (m_expand) {
+        widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+    } else {
         widget->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
     }
 

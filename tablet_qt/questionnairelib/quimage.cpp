@@ -1,7 +1,7 @@
 #include "quimage.h"
 #include <QLabel>
 #include "lib/uifunc.h"
-#include "questionnaire.h"
+#include "questionnairelib/questionnaire.h"
 
 
 QuImage::QuImage(const QString& filename) :

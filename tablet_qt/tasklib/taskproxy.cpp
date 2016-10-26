@@ -1,5 +1,5 @@
 #include "taskproxy.h"
-#include "taskfactory.h"
+#include "tasklib/taskfactory.h"
 
 
 TaskProxy::TaskProxy(TaskFactory& factory)

@@ -606,8 +606,9 @@ int CamcopsApp::fontSizePt(UiConst::FontSize fontsize,
 // Extra strings (downloaded from server)
 // ============================================================================
 
-QString CamcopsApp::xstring(const QString& taskname, const QString& stringname,
-                            const QString& default_str) const
+QString CamcopsApp::xstringDirect(const QString& taskname,
+                                  const QString& stringname,
+                                  const QString& default_str) const
 {
     ExtraString extrastring(m_sysdb, taskname, stringname);
     bool found = extrastring.exists();
@@ -625,10 +626,29 @@ QString CamcopsApp::xstring(const QString& taskname, const QString& stringname,
 }
 
 
+QString CamcopsApp::xstring(const QString& taskname,
+                            const QString& stringname,
+                            const QString& default_str) const
+{
+    QPair<QString, QString> key(taskname, stringname);
+    if (!m_extrastring_cache.contains(key)) {
+        m_extrastring_cache[key] = xstringDirect(taskname, stringname,
+                                                 default_str);
+    }
+    return m_extrastring_cache[key];
+}
+
+
 bool CamcopsApp::hasExtraStrings(const QString& taskname) const
 {
     ExtraString extrastring_specimen(m_sysdb);
     return extrastring_specimen.anyExist(taskname);
+}
+
+
+void CamcopsApp::clearExtraStringCache()
+{
+    m_extrastring_cache.clear();
 }
 
 

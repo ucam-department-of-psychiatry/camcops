@@ -1,5 +1,5 @@
-#include "fieldcreationplan.h"
-#include "field.h"
+#include "db/fieldcreationplan.h"
+#include "db/field.h"
 
 
 QDebug operator<<(QDebug debug, const FieldCreationPlan& plan)

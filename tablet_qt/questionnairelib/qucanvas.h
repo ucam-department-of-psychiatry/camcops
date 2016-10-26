@@ -6,6 +6,7 @@
 class CanvasWidget;
 class QLabel;
 class QTimer;
+class Spacer;
 
 
 class QuCanvas : public QuElement
@@ -49,6 +50,7 @@ protected:
 
     QPointer<CanvasWidget> m_canvas;
     QPointer<QLabel> m_missing_indicator;
+    QPointer<Spacer> m_no_missing_indicator;
     QSharedPointer<QTimer> m_timer;
     bool m_field_write_pending;
 };

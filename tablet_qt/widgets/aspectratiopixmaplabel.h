@@ -19,12 +19,14 @@
 class AspectRatioPixmapLabel : public QLabel
 {
     // Image that retains its aspect ratio, for displaying photos.
+    // Displays image UP TO its original size.
 
     Q_OBJECT
 public:
     explicit AspectRatioPixmapLabel(QWidget* parent = nullptr);
     virtual int heightForWidth(int width) const override;
     virtual QSize sizeHint() const override;
+    virtual QSize minimumSizeHint() const override;
     QPixmap scaledPixmap() const;
     void clear();
 public slots:

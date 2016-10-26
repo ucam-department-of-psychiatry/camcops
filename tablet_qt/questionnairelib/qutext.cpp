@@ -1,7 +1,7 @@
 #include "qutext.h"
 #include <QDebug>
 #include "lib/uifunc.h"
-#include "questionnaire.h"
+#include "questionnairelib/questionnaire.h"
 #include "widgets/labelwordwrapwide.h"
 
 

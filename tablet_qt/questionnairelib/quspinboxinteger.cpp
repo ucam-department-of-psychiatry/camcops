@@ -1,7 +1,7 @@
 #include "quspinboxinteger.h"
 #include <QSpinBox>
 #include "lib/uifunc.h"
-#include "questionnaire.h"
+#include "questionnairelib/questionnaire.h"
 
 
 QuSpinBoxInteger::QuSpinBoxInteger(FieldRefPtr fieldref, int minimum,
@@ -32,7 +32,7 @@ QPointer<QWidget> QuSpinBoxInteger::makeWidget(Questionnaire* questionnaire)
     m_spinbox = new QSpinBox();
     m_spinbox->setEnabled(!read_only);
     m_spinbox->setRange(m_minimum, m_maximum);
-    m_spinbox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    m_spinbox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     // QSpinBox has two signals named valueChanged, differing only
     // in the parameter they pass (int versus QString&). You get
     // "no matching function for call to ... unresolved overloaded function

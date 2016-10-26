@@ -149,7 +149,12 @@ public:
     QString xstring(const QString& taskname, const QString& stringname,
                     const QString& default_str = "") const;
     bool hasExtraStrings(const QString& taskname) const;
+    void clearExtraStringCache();
     void deleteAllExtraStrings();
+protected:
+    QString xstringDirect(const QString& taskname, const QString& stringname,
+                          const QString& default_str = "") const;
+    mutable QMap<QPair<QString, QString>, QString> m_extrastring_cache;
 
     // ------------------------------------------------------------------------
     // Stored variables: generic

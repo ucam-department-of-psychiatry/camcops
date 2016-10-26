@@ -13,6 +13,7 @@
 #include "lib/uifunc.h"
 #include "lib/slownonguifunctioncaller.h"
 #include "menulib/menuitem.h"
+#include "menu/widgettestmenu.h"
 #include "tasklib/taskfactory.h"  // for TaskPtr
 
 const int EXPENSIVE_FUNCTION_DURATION_MS = 20000;
@@ -69,6 +70,7 @@ TestMenu::TestMenu(CamcopsApp& app)
             tr("Test wait dialog"),
             std::bind(&TestMenu::testWait, this)
         ),
+        MAKE_MENU_MENU_ITEM(WidgetTestMenu, app),
         MenuItem(
             tr("(†) Run software unit tests (reporting to debugging stream)")
         ).setNeedsPrivilege(),  // ***

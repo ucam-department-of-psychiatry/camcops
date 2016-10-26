@@ -1,7 +1,7 @@
 #include "qubutton.h"
-#include <QPushButton>
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
+#include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/imagebutton.h"
 
 
@@ -38,12 +38,13 @@ QPointer<QWidget> QuButton::makeWidget(Questionnaire* questionnaire)
     bool read_only = !m_active || questionnaire->readOnly();
     QAbstractButton* button;
     if (!m_label.isEmpty()) {
-        button = new QPushButton(m_label);
-        button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        // Text
+        button = new ClickableLabelWordWrapWide(m_label);
         if (read_only) {
             button->setDisabled(true);
         }
     } else {
+        // Image
         button = new ImageButton(m_icon_filename, m_filename_is_camcops_stem,
                                  m_alter_unpressed_image, read_only);
     }

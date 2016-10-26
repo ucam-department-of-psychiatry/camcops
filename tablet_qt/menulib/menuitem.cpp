@@ -12,11 +12,11 @@
 #include "lib/datetimefunc.h"  // for SHORT_DATETIME_FORMAT
 #include "lib/uifunc.h"
 #include "menu/singletaskmenu.h"
+#include "menulib/htmlinfowindow.h"
+#include "menulib/menuwindow.h"
 #include "tasklib/taskfactory.h"
 #include "widgets/labelwordwrapwide.h"
 #include "widgets/openablewidget.h"
-#include "htmlinfowindow.h"
-#include "menuwindow.h"
 
 const int STRETCH_3COL_TASKNAME = 1;
 const int STRETCH_3COL_TIMESTAMP = 2;
@@ -240,10 +240,10 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
             textlayout->addWidget(subtitle);
         }
         rowlayout->addLayout(textlayout);
+        rowlayout->addStretch();
 
         // Arrow on right
         if (m_arrow_on_right) {
-            rowlayout->addStretch();
             QLabel* iconLabel = UiFunc::iconWidget(
                 UiFunc::iconFilename(UiConst::ICON_HASCHILD),
                 nullptr, false);

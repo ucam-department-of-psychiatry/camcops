@@ -1,5 +1,6 @@
 #include "demoquestionnaire.h"
 #include "common/camcopsapp.h"
+#include "common/uiconstants.h"
 #include "diagnosis/icd10.h"
 #include "diagnosis/icd9cm.h"
 #include "lib/uifunc.h"
@@ -40,8 +41,8 @@
 #include "questionnairelib/qupickerpopup.h"
 #include "questionnairelib/quslider.h"
 #include "questionnairelib/quspacer.h"
-#include "questionnairelib/quspinboxinteger.h"
 #include "questionnairelib/quspinboxdouble.h"
+#include "questionnairelib/quspinboxinteger.h"
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "questionnairelib/quthermometer.h"
@@ -118,24 +119,10 @@ QString DemoQuestionnaire::summary() const
 OpenableWidget* DemoQuestionnaire::editor(bool read_only)
 {
     qDebug() << Q_FUNC_INFO;
-    QString longtext = (  // http://www.lipsum.com/
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent "
-        "sed cursus mauris. Ut vulputate felis quis dolor molestie convallis. "
-        "Donec lectus diam, accumsan quis tortor at, congue laoreet augue. Ut "
-        "mollis consectetur elit sit amet tincidunt. Vivamus facilisis, mi et "
-        "eleifend ullamcorper, lorem metus faucibus ante, ut commodo urna "
-        "neque bibendum magna. Lorem ipsum dolor sit amet, consectetur "
-        "adipiscing elit. Praesent nec nisi ante. Sed vitae sem et eros "
-        "elementum condimentum. Proin porttitor purus justo, sit amet "
-        "vulputate velit imperdiet nec. Nam posuere ipsum id nunc accumsan "
-        "tristique. Etiam pellentesque ornare tortor, a scelerisque dui "
-        "accumsan ac. Ut tincidunt dolor ultrices, placerat urna nec, "
-        "scelerisque mi."
-    );
-    QString lipsum2 = "Nunc vitae neque eu odio feugiat consequat ac id neque."
-                      " Suspendisse id libero massa.";
-    QString url = "http://doc.qt.io/qt-5.7/richtext-html-subset.html";
-    QString html = QString(
+    const QString& longtext = UiConst::LOREM_IPSUM_1;
+    const QString& lipsum2 = UiConst::LOREM_IPSUM_2;
+    const QString url = "http://doc.qt.io/qt-5.7/richtext-html-subset.html";
+    const QString html = QString(
         "Text with embedded HTML markup, providing <b>bold</b>, "
         "<i>italic</i>, and others as per Qt rich text syntax at "
         "<a href=\"%1\">%1</a>."
@@ -220,24 +207,50 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
             QuGridCell(new QuText("<b>r0 c1 [+1]</b> " + lipsum2), 0, 1, 1, 2),
             QuGridCell(new QuText("<b>r1 c0</b> " + lipsum2), 1, 0, 1, 1),
             QuGridCell(new QuText("<b>r1 c1 [+1]</b> " + lipsum2), 1, 1, 1, 2),
-        })->setColumnStretch(0, 2)->setColumnStretch(1, 1),
+        })
+            ->setColumnStretch(0, 2)
+            ->setColumnStretch(1, 1),
         new QuHeading("Another grid (1:1 columns):"),
         (new QuContainerGrid{
             QuGridCell(new QuText("<b>r0 c0</b> " + lipsum2), 0, 0),
             QuGridCell(new QuText("<b>r0 c1</b> " + lipsum2), 0, 1),
             QuGridCell(new QuText("<b>r1 c0</b> " + lipsum2), 1, 0),
             QuGridCell(new QuText("<b>r1 c1</b> " + lipsum2), 1, 1),
-        })->setColumnStretch(0, 1)->setColumnStretch(1, 1),
+        })
+            ->setColumnStretch(0, 1)
+            ->setColumnStretch(1, 1),
+        new QuHeading("Another grid (1:1:1 columns, fixed column style = default):"),
+        (new QuContainerGrid{
+            QuGridCell(new QuText("1. Short"), 0, 0),
+            QuGridCell(new QuText("2. Medium sort of length"), 0, 1),
+            QuGridCell(new QuText("3. Longer " + lipsum2), 0, 2),
+        })
+            ->setColumnStretch(0, 1)
+            ->setColumnStretch(1, 1)
+            ->setColumnStretch(2, 1)
+            ->setFixedGrid(true),
+        new QuHeading("Another grid (1:1:1 columns, non-fixed style):"),
+        (new QuContainerGrid{
+            QuGridCell(new QuText("1. Short"), 0, 0),
+            QuGridCell(new QuText("2. Medium sort of length"), 0, 1),
+            QuGridCell(new QuText("3. Longer " + lipsum2), 0, 2),
+        })
+            ->setColumnStretch(0, 1)
+            ->setColumnStretch(1, 1)
+            ->setColumnStretch(2, 1)
+            ->setFixedGrid(false),
         new QuHeading("More automated grid (of label/element pairs):"),
         QuestionnaireFunc::defaultGridRawPointer({
-            {lipsum2, new QuText(lipsum2)},
-            {lipsum2, new QuText(lipsum2)},
-            {lipsum2, new QuText(lipsum2)},
+            {"<b>LHS:</b> " + lipsum2,
+             new QuText("<b>RHS:</b> " + lipsum2)},
+            {"<b>LHS:</b> " + lipsum2,
+             new QuText("<b>RHS:</b> " + lipsum2)},
+            {"<b>LHS:</b> " + lipsum2,
+             new QuText("<b>RHS:</b> " + lipsum2)},
         }),
         new QuHeading("Image:"),
         new QuImage(UiFunc::iconFilename(UiConst::ICON_CAMCOPS)),
-    })->setTitle("Page 3: headings, containers, text alignment, lines, "
-                 "images"));
+    })->setTitle("Headings, containers, text alignment, lines, images"));
 
     // ========================================================================
     // Audio players, countdown
@@ -250,7 +263,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
         (new QuAudioPlayer(UiConst::DEMO_SOUND_URL))->setOfferVolumeControl(),
         new QuHeading("Countdown:"),
         new QuCountdown(20),
-    })->setTitle("Page 4: audio players, countdowns"));
+    })->setTitle("Audio players, countdowns"));
 
     // ========================================================================
     // Boolean
@@ -272,11 +285,18 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
                       ->setBigIndicator(false)
                       ->setAllowUnset()
                       ->setContentClickable(false),
+        new QuHeading("Same field, with text-style widget:"),
+        (new QuBoolean("Boolean-as-text",
+                      fieldRef("booltext1")))
+                      ->setAsTextButton(),
         new QuHeading("Text field from the Boolean field used above:"),
         new QuText(fieldRef("booltext1")),
         new QuHeading("Another boolean field, using an image:"),
         new QuBoolean(UiFunc::iconFilename(UiConst::ICON_CAMCOPS),
                       QSize(), fieldRef("boolimage1")),
+        new QuHeading("... clone with non-clickable image:"),
+        (new QuBoolean(UiFunc::iconFilename(UiConst::ICON_CAMCOPS),
+                      QSize(), fieldRef("boolimage1")))->setContentClickable(false),
         // Now the ACE-III address example:
         new QuContainerGrid{
             QuGridCell(new QuContainerVertical{
@@ -325,7 +345,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
             fieldRef("boolimage2"))
         )->setBigIndicator(false),
 
-    })->setTitle("Page 5: booleans; multiple views on a single field"));
+    })->setTitle("Booleans; multiple views on a single field"));
 
     // ========================================================================
     // MCQ
@@ -398,7 +418,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
         new QuHeading("The previous MCQ, reconfigured:"),
         (new QuMCQ(fieldRef("mcq3"), options_B))
                             ->setHorizontal(true),
-        new QuHeading("The previous MCQ, as text:"),
+        new QuHeading("A fourth MCQ, as text:"),
         (new QuMCQ(fieldRef("mcq4"), options_B))
                             ->setHorizontal(true)
                             ->setAsTextButton(true),

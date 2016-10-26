@@ -1,6 +1,6 @@
 #include "diagnosticcode.h"
 #include "common/camcopsapp.h"
-#include "diagnosticcodeset.h"
+#include "diagnosis/diagnosticcodeset.h"
 
 
 DiagnosticCode::DiagnosticCode(const QString& code, const QString& description,

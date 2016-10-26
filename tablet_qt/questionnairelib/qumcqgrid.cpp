@@ -1,9 +1,9 @@
 #include "qumcqgrid.h"
 #include <QGridLayout>
+#include "questionnairelib/mcqfunc.h"
+#include "questionnairelib/questionnaire.h"
 #include "widgets/booleanwidget.h"
 #include "widgets/labelwordwrapwide.h"
-#include "mcqfunc.h"
-#include "questionnaire.h"
 
 
 QuMCQGrid::QuMCQGrid(QList<QuestionWithOneField> question_field_pairs,
@@ -95,7 +95,7 @@ QPointer<QWidget> QuMCQGrid::makeWidget(Questionnaire* questionnaire)
       http://doc.qt.io/qt-5/qlabel.html#alignment-prop
     - That's fine for everything except headers, which we'd like bottom
       alignment for.
-    - And left/top alignment for the main title.
+    - And top alignment for the main title.
     */
 
     QGridLayout* grid = new QGridLayout();
@@ -106,7 +106,7 @@ QPointer<QWidget> QuMCQGrid::makeWidget(Questionnaire* questionnaire)
     int n_options = m_options.size();
     int n_rows = 1 + n_subtitles + m_question_field_pairs.size();
     int n_cols = m_options.size() + 2;
-    Qt::Alignment response_align = Qt::AlignCenter | Qt::AlignVCenter;
+    Qt::Alignment response_align = McqFunc::response_widget_align;
     int row = 0;
 
     // First column: titles, subtitles, questions
@@ -174,7 +174,9 @@ QPointer<QWidget> QuMCQGrid::makeWidget(Questionnaire* questionnaire)
     QPointer<QWidget> widget = new QWidget();
     widget->setLayout(grid);
     widget->setObjectName("mcq_grid");
-    if (!m_expand) {
+    if (m_expand) {
+        widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+    } else {
         widget->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
     }
 

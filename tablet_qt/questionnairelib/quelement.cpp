@@ -1,6 +1,6 @@
 #include "quelement.h"
-#include "db/fieldref.h"
 #include <QWidget>
+#include "db/fieldref.h"
 
 
 QuElement::QuElement() :

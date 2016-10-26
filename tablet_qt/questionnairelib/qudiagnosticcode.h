@@ -13,7 +13,6 @@ class QuDiagnosticCode : public QuElement
 {
     // Allows tree browsing and search of diagnostic codes from a structured
     // classification system.
-    // *** Not yet implemented from Titanium version: "clear" button.
 
     Q_OBJECT
 public:

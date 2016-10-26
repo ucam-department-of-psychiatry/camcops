@@ -53,36 +53,43 @@
 ===========================================================================*/
 
 #include <QLayout>
+#include <QMap>  // RNC
 #include <QRect>
 #include <QStyle>
 
 class FlowLayout : public QLayout
 {
     // Flow layout, as per Qt demo.
-
+    Q_OBJECT  // RNC
 public:
-    explicit FlowLayout(QWidget* parent, int margin = -1, int hSpacing = -1, int vSpacing = -1);
-    explicit FlowLayout(int margin = -1, int hSpacing = -1, int vSpacing = -1);
+    explicit FlowLayout(QWidget* parent, int margin = -1,
+                        int h_spacing = -1, int v_spacing = -1);
+    explicit FlowLayout(int margin = -1,
+                        int h_spacing = -1, int v_spacing = -1);
     ~FlowLayout();
 
-    void addItem(QLayoutItem* item) Q_DECL_OVERRIDE;
-    int horizontalSpacing() const;
-    int verticalSpacing() const;
-    Qt::Orientations expandingDirections() const Q_DECL_OVERRIDE;
-    bool hasHeightForWidth() const Q_DECL_OVERRIDE;
-    int heightForWidth(int) const Q_DECL_OVERRIDE;
-    int count() const Q_DECL_OVERRIDE;
-    QLayoutItem* itemAt(int index) const Q_DECL_OVERRIDE;
-    QSize minimumSize() const Q_DECL_OVERRIDE;
-    void setGeometry(const QRect &rect) Q_DECL_OVERRIDE;
-    QSize sizeHint() const Q_DECL_OVERRIDE;
-    QLayoutItem* takeAt(int index) Q_DECL_OVERRIDE;
+    virtual void addItem(QLayoutItem* item) override;
+    virtual int horizontalSpacing() const;
+    virtual int verticalSpacing() const;
+    virtual Qt::Orientations expandingDirections() const override;
+    virtual bool hasHeightForWidth() const override;
+    virtual int heightForWidth(int) const override;
+    virtual int count() const override;
+    virtual QLayoutItem* itemAt(int index) const override;
+    virtual QSize minimumSize() const override;
+    virtual void setGeometry(const QRect& rect) override;
+    virtual QSize sizeHint() const override;
+    virtual QLayoutItem* takeAt(int index) override;
+    virtual void invalidate() override;  // RNC
 
-private:
-    int doLayout(const QRect& rect, bool testOnly) const;
+protected:  // RNC (was private)
+    void commonConstructor(int margin);  // RNC
+    virtual QSize doLayout(const QRect& rect, bool test_only) const;
     int smartSpacing(QStyle::PixelMetric pm) const;
 
-    QList<QLayoutItem*> itemList;
-    int m_hSpace;
-    int m_vSpace;
+    QList<QLayoutItem*> m_item_list;
+    int m_h_space;
+    int m_v_space;
+    mutable QSize m_size_hint;
+    mutable QMap<int, int> m_width_to_height;
 };

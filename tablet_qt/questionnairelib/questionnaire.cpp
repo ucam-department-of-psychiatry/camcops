@@ -1,3 +1,5 @@
+// #define DEBUG_PAGE_LAYOUT
+
 #include "questionnaire.h"
 #include <functional>
 #include <QDebug>
@@ -5,14 +7,17 @@
 #include <QLabel>
 #include <QVBoxLayout>
 #include "common/camcopsapp.h"
+#include "dialogs/pagepickerdialog.h"
 #include "lib/filefunc.h"
 #include "lib/uifunc.h"
+#ifdef DEBUG_PAGE_LAYOUT
+#include "qobjects/showwatcher.h"
+#endif
+#include "questionnairelib/pagepickeritem.h"
+#include "questionnairelib/questionnaireheader.h"
 #include "widgets/labelwordwrapwide.h"
 #include "widgets/openablewidget.h"
-#include "widgets/pagepickerdialog.h"
 #include "widgets/verticalscrollarea.h"
-#include "pagepickeritem.h"
-#include "questionnaireheader.h"
 
 
 Questionnaire::Questionnaire(CamcopsApp& app) :
@@ -160,6 +165,8 @@ void Questionnaire::build()
     if (page_type == QuPage::PageType::ClinicianWithPatient) {
         // Header has "clinician" style; main page has "patient" style
         header_css_name = "questionnaire_background_clinician";
+    } else {
+        header_css_name = background_css_name;
     }
     m_p_header = new QuestionnaireHeader(
         this, page->title(),
@@ -183,7 +190,12 @@ void Questionnaire::build()
     // But it doesn't get the horizontal widths right. So we use a substitute.
     VerticalScrollArea* scroll = new VerticalScrollArea();
     scroll->setObjectName(background_css_name);
-    scroll->setWidget(page->widget(this));  // adds the content
+    QWidget* pagewidget = page->widget(this);  // adds the content
+#ifdef DEBUG_PAGE_LAYOUT
+    ShowWatcher* showwatcher = new ShowWatcher(pagewidget, true);
+    Q_UNUSED(showwatcher);
+#endif
+    scroll->setWidget(pagewidget);
     connect(page.data(), &QuPage::elementValueChanged,
             this, &Questionnaire::resetButtons,
             Qt::UniqueConnection);
@@ -198,8 +210,6 @@ void Questionnaire::build()
     resetButtons();
 
     emit pageAboutToOpen();
-
-    // *** deal with multiple pages
 }
 
 

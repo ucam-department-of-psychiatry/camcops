@@ -8,8 +8,8 @@
 #include <QSqlQuery>
 #include <QStringList>
 #include "db/dbfunc.h"
+#include "db/fieldref.h"
 #include "lib/uifunc.h"
-#include "fieldref.h"
 
 const QString NOT_NULL_ERROR = "Error: attempting to save NULL to a NOT NULL "
                                "field:";

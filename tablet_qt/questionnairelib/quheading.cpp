@@ -1,7 +1,7 @@
 #include "quheading.h"
 #include "common/uiconstants.h"
 #include "lib/uifunc.h"
-#include "questionnaire.h"
+#include "questionnairelib/questionnaire.h"
 #include "widgets/labelwordwrapwide.h"
 
 

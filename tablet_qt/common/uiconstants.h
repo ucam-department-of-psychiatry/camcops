@@ -2,12 +2,13 @@
 #include <QColor>
 #include <QMargins>
 #include <QSize>
+#include <QSizePolicy>
 #include <QString>
 
 namespace UiConst {
 
     // ========================================================================
-    // Sizes
+    // Sizes, size policies
     // ========================================================================
 
     extern const QSize ICONSIZE;
@@ -138,6 +139,13 @@ namespace UiConst {
     // ========================================================================
 
     extern const QString NOT_SPECIFIED;
+
+    // ========================================================================
+    // Test text
+    // ========================================================================
+
+    extern const QString LOREM_IPSUM_1;
+    extern const QString LOREM_IPSUM_2;
 
     // ========================================================================
     // Network

@@ -5,7 +5,7 @@
 #include <QDebug>
 #endif
 #include <QWidget>
-#include "widgets/waitbox.h"
+#include "dialogs/waitbox.h"
 
 
 bool SlowGuiGuard::s_waiting = false;

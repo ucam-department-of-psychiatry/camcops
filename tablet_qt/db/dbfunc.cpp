@@ -8,11 +8,11 @@
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QStandardPaths>
+#include "db/fieldcreationplan.h"
+#include "db/sqlitepragmainfofield.h"
 #include "lib/convert.h"
 #include "lib/debugfunc.h"
 #include "lib/uifunc.h"
-#include "fieldcreationplan.h"
-#include "sqlitepragmainfofield.h"
 
 
 void DbFunc::openDatabaseOrDie(QSqlDatabase& db, const QString& filename)

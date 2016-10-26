@@ -1,7 +1,7 @@
 #include "qulineeditinteger.h"
 #include <QIntValidator>
 #include <QLineEdit>
-#include "widgets/strictintvalidator.h"
+#include "qobjects/strictintvalidator.h"
 
 
 QuLineEditInteger::QuLineEditInteger(FieldRefPtr fieldref) :

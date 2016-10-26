@@ -28,7 +28,7 @@ public:
     void setImage(const QImage& image, bool resize_widget = true);
     // ... if resize_widget is false, the image will be resized
     void drawTo(QPoint pt);
-    virtual QSize sizeHint() const;
+    virtual QSize sizeHint() const override;
     QImage image() const;
 signals:
     void imageChanged();

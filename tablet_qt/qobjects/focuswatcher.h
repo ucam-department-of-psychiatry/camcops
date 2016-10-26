@@ -15,7 +15,7 @@ class FocusWatcher : public QObject
     Q_OBJECT
 public:
     explicit FocusWatcher(QObject* parent = nullptr);
-    virtual bool eventFilter(QObject *obj, QEvent *event) override;
+    virtual bool eventFilter(QObject* obj, QEvent* event) override;
 signals:
     void focusChanged(bool in);
 };

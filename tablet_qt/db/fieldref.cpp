@@ -3,10 +3,10 @@
 #define DEBUG_CHECK_VALID
 
 #include "common/camcopsapp.h"
+#include "db/fieldref.h"
 #include "dbobjects/blob.h"
 #include "lib/convert.h"
 #include "lib/debugfunc.h"
-#include "fieldref.h"
 
 
 FieldRef::FieldRef()

@@ -33,5 +33,5 @@ bool FocusWatcher::eventFilter(QObject* obj, QEvent* event)
         emit focusChanged(false);
 
     }
-    return false;
+    return false;  // continue processing the event
 }

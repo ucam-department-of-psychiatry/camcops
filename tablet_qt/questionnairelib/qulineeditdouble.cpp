@@ -1,8 +1,8 @@
 #include "qulineeditdouble.h"
 #include <QDoubleValidator>
 #include <QLineEdit>
-#include "widgets/strictdoublevalidator.h"
-#include "qulineeditinteger.h"
+#include "qobjects/strictdoublevalidator.h"
+#include "questionnairelib/qulineeditinteger.h"
 
 
 QuLineEditDouble::QuLineEditDouble(FieldRefPtr fieldref) :

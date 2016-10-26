@@ -1,92 +1,95 @@
 #include "clickablelabel.h"
 #include <QApplication>
 #include <QDebug>
+#include <QLabel>
 #include <QMouseEvent>
+#include <QStyleOptionButton>
+#include <QVBoxLayout>
+#include "common/uiconstants.h"
+#include "lib/uifunc.h"
 
 
 ClickableLabel::ClickableLabel(const QString& text, QWidget* parent) :
-    QLabel(text, parent),
-    m_clickable(true),  // if that's not the default, the name's confusing!
-    m_down(false)
+    QPushButton(parent),
+    m_label(new QLabel(text, this))
 {
+    commonConstructor();
 }
 
 
-void ClickableLabel::setClickable(bool clickable)
+ClickableLabel::ClickableLabel(QWidget* parent) :
+    QPushButton(parent),
+    m_label(new QLabel(this))
 {
-    m_clickable = clickable;
+    commonConstructor();
 }
 
 
-void ClickableLabel::mousePressEvent(QMouseEvent* event)
+void ClickableLabel::commonConstructor()
 {
-    if (!m_clickable) {
-        // Pass on event to others
-        QLabel::mousePressEvent(event);
-        return;
-    }
+    m_label->setMouseTracking(false);
+    m_label->setTextInteractionFlags(Qt::NoTextInteraction);
+    m_label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    // m_label->setObjectName("debug_green");
 
-    // Handle event
-    // See QAbstractButton::mousePressEvent; here simplified.
-    if (event->button() != Qt::LeftButton) {
-        event->ignore();
-        return;
-    }
+    m_layout = new QVBoxLayout();
+    m_layout->setContentsMargins(UiConst::NO_MARGINS);
 
-    m_down = true;
-    qDebug() << Q_FUNC_INFO << "calling update()";
-    update();
-    QApplication::flush();
-    emit pressed();
-    event->accept();
+    m_layout->addWidget(m_label);
+
+    setLayout(m_layout);
+    // Default size policy is (QSizePolicy::Preferred, QSizePolicy::Preferred);
+    // see qwidget.cpp
+    setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
 }
 
 
-void ClickableLabel::mouseReleaseEvent(QMouseEvent* event)
+void ClickableLabel::setTextFormat(Qt::TextFormat format)
 {
-    // See QAbstractButton::mouseReleaseEvent, here simplified.
-    if (!m_down || event->button() != Qt::LeftButton) {
-        event->ignore();
-        return;
-    }
-    m_down = false;
-    if (hitButton(event->pos())) {
-        qDebug() << Q_FUNC_INFO << "calling update()";
-        update();
-        QApplication::flush();
-        emit clicked();
-        event->accept();
-    } else {
-        event->ignore();
-    }
+    Q_ASSERT(m_label);
+    m_label->setTextFormat(format);
 }
 
 
-void ClickableLabel::mouseMoveEvent(QMouseEvent* event)
+void ClickableLabel::setWordWrap(bool on)
 {
-    // See QAbstractButton::mouseMoveEvent, here simplified.
-    if (!(event->buttons() & Qt::LeftButton) || !m_down) {
-        event->ignore();
-        return;
-    }
-    if (hitButton(event->pos()) != m_down) {
-        m_down = !m_down;
-        qDebug() << Q_FUNC_INFO << "calling update()";
-        update();
-        QApplication::flush();
-        if (m_down) {
-            emit pressed();
-        } else {
-            emit released();
-        }
-        event->accept();
-    } else if (!hitButton(event->pos())) {
-        event->ignore();
-    }
+    Q_ASSERT(m_label);
+    m_label->setWordWrap(on);
+    updateGeometry();
 }
 
 
-bool ClickableLabel::hitButton(const QPoint& pos) const
+void ClickableLabel::setAlignment(Qt::Alignment alignment)
 {
-    return rect().contains(pos);
+    Q_ASSERT(m_label);
+    Q_ASSERT(m_layout);
+    m_label->setAlignment(alignment);
+    m_layout->setAlignment(m_label, alignment);
+}
+
+
+void ClickableLabel::setOpenExternalLinks(bool open)
+{
+    Q_ASSERT(m_label);
+    m_label->setOpenExternalLinks(open);
+}
+
+
+void ClickableLabel::setPixmap(const QPixmap& pixmap)
+{
+    Q_ASSERT(m_label);
+    m_label->setPixmap(pixmap);
+    setFixedSize(pixmap.size());
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    updateGeometry();
+}
+
+
+QSize ClickableLabel::sizeHint() const
+{
+    Q_ASSERT(m_label);
+    QStyleOptionButton opt;
+    initStyleOption(&opt);  // protected
+    return UiFunc::pushButtonSizeHintFromContents(this, &opt,
+                                                  m_label->sizeHint());
 }

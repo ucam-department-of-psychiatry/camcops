@@ -2,12 +2,14 @@
 #include <QVBoxLayout>
 #include <QWidget>
 #include "lib/uifunc.h"
+#include "questionnairelib/mcqfunc.h"
+#include "questionnairelib/questionnaire.h"
+#include "questionnairelib/questionnairefunc.h"
 #include "widgets/booleanwidget.h"
-#include "widgets/labelwordwrapwide.h"
+#include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/flowlayout.h"
-#include "mcqfunc.h"
-#include "questionnaire.h"
-#include "questionnairefunc.h"
+#include "widgets/flowlayoutcontainer.h"
+#include "widgets/labelwordwrapwide.h"
 
 
 QuMCQ::QuMCQ(FieldRefPtr fieldref, const NameValueOptions& options) :
@@ -68,11 +70,14 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
     bool read_only = questionnaire->readOnly();
 
     // Actual MCQ: widget containing {widget +/- label} for each option
-    QPointer<QWidget> mainwidget = new QWidget();
+    QPointer<QWidget> mainwidget;
     QLayout* mainlayout;
     if (m_horizontal) {
+        mainwidget = new FlowLayoutContainer();
         mainlayout = new FlowLayout();
     } else {
+        mainwidget = new QWidget();
+        mainwidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         mainlayout = new QVBoxLayout();
     }
     mainlayout->setContentsMargins(UiConst::NO_MARGINS);
@@ -81,7 +86,6 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
     // the latter use addWidget.
     // FlowLayout is better than QHBoxLayout.
 
-    Qt::Alignment align = Qt::AlignLeft | Qt::AlignVCenter;
     for (int i = 0; i < m_options.size(); ++i) {
         const NameValuePair& nvp = m_options.at(i);
 
@@ -101,16 +105,15 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
 
         if (m_as_text_button) {
             mainlayout->addWidget(w);
-            mainlayout->setAlignment(w, align);
+            mainlayout->setAlignment(w, Qt::AlignTop);
         } else {
             // MCQ option label
             // Even in a horizontal layout, encapsulating widget/label pairs
             // prevents them being split apart.
             QWidget* itemwidget = new QWidget();
-            LabelWordWrapWide* namelabel = new LabelWordWrapWide(nvp.name());
+            ClickableLabelWordWrapWide* namelabel = new ClickableLabelWordWrapWide(nvp.name());
             if (!read_only) {
-                namelabel->setClickable(true);
-                connect(namelabel, &LabelWordWrapWide::clicked,
+                connect(namelabel, &ClickableLabelWordWrapWide::clicked,
                         std::bind(&QuMCQ::clicked, this, i));
             }
             QHBoxLayout* itemlayout = new QHBoxLayout();
@@ -118,11 +121,12 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
             itemwidget->setLayout(itemlayout);
             itemlayout->addWidget(w);
             itemlayout->addWidget(namelabel);
-            itemlayout->setAlignment(w, align);
-            itemlayout->setAlignment(namelabel, align);
+            itemlayout->setAlignment(w, Qt::AlignTop);
+            itemlayout->setAlignment(namelabel, Qt::AlignVCenter);  // different
             itemlayout->addStretch();
+
             mainlayout->addWidget(itemwidget);
-            mainlayout->setAlignment(itemwidget, align);
+            mainlayout->setAlignment(itemwidget, Qt::AlignTop);
         }
         // The FlowLayout seems to ignore vertical centring. This makes it look
         // slightly dumb when one label has much longer text than the others,
@@ -141,6 +145,7 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
         layout_w_instr->addWidget(mainwidget);
         QPointer<QWidget> widget_w_instr = new QWidget();
         widget_w_instr->setLayout(layout_w_instr);
+        widget_w_instr->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
         final_widget = widget_w_instr;
     } else {
         final_widget = mainwidget;

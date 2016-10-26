@@ -1,10 +1,12 @@
 #include "qumultipleresponse.h"
 #include <QVBoxLayout>
 #include "common/random.h"
+#include "questionnairelib/questionnaire.h"
 #include "widgets/booleanwidget.h"
+#include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/flowlayout.h"
+#include "widgets/flowlayoutcontainer.h"
 #include "widgets/labelwordwrapwide.h"
-#include "questionnaire.h"
 
 
 QuMultipleResponse::QuMultipleResponse()
@@ -115,17 +117,19 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
 
     bool read_only = questionnaire->readOnly();
 
-    QPointer<QWidget> mainwidget = new QWidget();
+    QPointer<QWidget> mainwidget;
     QLayout* mainlayout;
     if (m_horizontal) {
+        mainwidget = new FlowLayoutContainer();
         mainlayout = new FlowLayout();
     } else {
+        mainwidget = new QWidget();
+        mainwidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         mainlayout = new QVBoxLayout();
     }
     mainlayout->setContentsMargins(UiConst::NO_MARGINS);
     mainwidget->setLayout(mainlayout);
 
-    Qt::Alignment align = Qt::AlignLeft | Qt::AlignVCenter;
     for (int i = 0; i < m_items.size(); ++i) {
         const QuestionWithOneField& item = m_items.at(i);
 
@@ -147,14 +151,13 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
         // Layout, +/- label
         if (m_as_text_button) {
             mainlayout->addWidget(w);
-            mainlayout->setAlignment(w, align);
+            mainlayout->setAlignment(w, Qt::AlignTop);
         } else {
             // cf. QuMCQ
             QWidget* itemwidget = new QWidget();
-            LabelWordWrapWide* namelabel = new LabelWordWrapWide(item.text());
+            ClickableLabelWordWrapWide* namelabel = new ClickableLabelWordWrapWide(item.text());
             if (!read_only) {
-                namelabel->setClickable(true);
-                connect(namelabel, &LabelWordWrapWide::clicked,
+                connect(namelabel, &ClickableLabelWordWrapWide::clicked,
                         std::bind(&QuMultipleResponse::clicked, this, i));
             }
             QHBoxLayout* itemlayout = new QHBoxLayout();
@@ -162,11 +165,12 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
             itemwidget->setLayout(itemlayout);
             itemlayout->addWidget(w);
             itemlayout->addWidget(namelabel);
-            itemlayout->setAlignment(w, align);
-            itemlayout->setAlignment(namelabel, align);
+            itemlayout->setAlignment(w, Qt::AlignTop);
+            itemlayout->setAlignment(namelabel, Qt::AlignVCenter);  // different
             itemlayout->addStretch();
+
             mainlayout->addWidget(itemwidget);
-            mainlayout->setAlignment(itemwidget, align);
+            mainlayout->setAlignment(itemwidget, Qt::AlignTop);
         }
 
         // Field-to-this connections
@@ -207,6 +211,7 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
     } else {
         final_widget = mainwidget;
     }
+    final_widget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     setFromFields();
 

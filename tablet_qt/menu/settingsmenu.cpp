@@ -274,7 +274,7 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
     FieldRefPtr clin_specialty_fr = app.storedVarFieldRef(
                 VarConst::DEFAULT_CLINICIAN_SPECIALTY, false);
     QString clin_specialty_t = tr("Default clinician’s specialty");
-    QString clin_specialty_h = tr("e.g. “e.g. “Liaison Psychiatry”");
+    QString clin_specialty_h = tr("e.g. “Liaison Psychiatry”");
     FieldRefPtr clin_name_fr = app.storedVarFieldRef(
                 VarConst::DEFAULT_CLINICIAN_NAME, false);
     QString clin_name_t = tr("Default clinician’s name");
@@ -294,7 +294,7 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
     FieldRefPtr clin_contact_fr = app.storedVarFieldRef(
                 VarConst::DEFAULT_CLINICIAN_CONTACT_DETAILS, false);
     QString clin_contact_t = tr("Default clinician’s contact details");
-    QString clin_contact_h = tr("e.g. “e.g. “x2167”");
+    QString clin_contact_h = tr("e.g. “x2167”");
 
     QuContainerGrid* g = new QuContainerGrid();
     g->setColumnStretch(0, 1);
@@ -491,7 +491,10 @@ void SettingsMenu::fontSizeChanged()
             int fontsize_pt = m_app.fontSizePt(fontsize_type, current_pct);
             QString text = demoText(tag, fontsize_type);
             // Here's the slightly nasty bit:
-            QuText* textelement = static_cast<QuText*>(e.data());
+            QuText* textelement = dynamic_cast<QuText*>(e.data());
+            if (!textelement) {
+                continue;
+            }
             textelement->forceFontSize(fontsize_pt, false);
             textelement->forceText(text);
         }

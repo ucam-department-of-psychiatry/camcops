@@ -4,9 +4,6 @@
 #include "lib/uifunc.h"
 
 
-const int MAX_TEXT_WIDTH_PIXELS = 300;
-
-
 ImageButton::ImageButton(QWidget* parent) :
     QPushButton(parent)
 {
@@ -81,7 +78,7 @@ void ImageButton::setImages(const QString& base_filename,
 void ImageButton::commonConstructor(const QSize& size)
 {
     m_image_size = size;
-    setAsText(false);
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 }
 
 
@@ -129,6 +126,7 @@ void ImageButton::resizeIfNoSize()
 {
     if (m_image_size.isEmpty()) {
         m_image_size = m_normal_pixmap.size();
+        updateGeometry();
     }
 }
 
@@ -141,22 +139,13 @@ void ImageButton::resizeImages(double factor)
     );
     rescale(m_normal_pixmap);
     rescale(m_pressed_pixmap);
+    updateGeometry();
 }
 
 
 QSize ImageButton::sizeHint() const
 {
-    if (m_as_text) {
-        // INELEGANT! Hard to get a button to word-wrap.
-        // Alternative would be to derive from a QLabel that does word wrap.
-        QSize size = QPushButton::sizeHint();
-        if (size.width() > MAX_TEXT_WIDTH_PIXELS) {
-            size.setWidth(MAX_TEXT_WIDTH_PIXELS);
-        }
-        return size;
-    } else {
-        return m_image_size;
-    }
+    return m_image_size;
 }
 
 
@@ -167,23 +156,13 @@ void ImageButton::setImageSize(const QSize &size, bool scale)
         rescale(m_normal_pixmap);
         rescale(m_pressed_pixmap);
     }
-}
-
-
-void ImageButton::setAsText(bool as_text)
-{
-    m_as_text = as_text;
-    setSizePolicy(as_text ? QSizePolicy::Expanding : QSizePolicy::Fixed,
-                  as_text ? QSizePolicy::Expanding : QSizePolicy::Fixed);
+    updateGeometry();
 }
 
 
 void ImageButton::paintEvent(QPaintEvent *e)
 {
-    if (m_as_text) {
-        QPushButton::paintEvent(e);
-        return;
-    }
+    Q_UNUSED(e);
     QPainter p(this);
     QPixmap& pm = isDown() ? m_pressed_pixmap : m_normal_pixmap;
     p.drawPixmap(0, 0, pm);

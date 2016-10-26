@@ -1,9 +1,9 @@
 #include "qumcqgridsingleboolean.h"
 #include <QGridLayout>
+#include "questionnairelib/mcqfunc.h"
+#include "questionnairelib/questionnaire.h"
 #include "widgets/booleanwidget.h"
 #include "widgets/labelwordwrapwide.h"
-#include "mcqfunc.h"
-#include "questionnaire.h"
 
 
 QuMCQGridSingleBoolean::QuMCQGridSingleBoolean(
@@ -137,7 +137,7 @@ QPointer<QWidget> QuMCQGridSingleBoolean::makeWidget(Questionnaire* questionnair
     int n_subtitles = m_subtitles.size();
     int n_rows = 1 + n_subtitles + m_questions_with_fields.size();
     int n_cols = m_mcq_options.size() + 4;
-    Qt::Alignment response_align = Qt::AlignCenter | Qt::AlignVCenter;
+    Qt::Alignment response_align = McqFunc::response_widget_align;
     int row = 0;
     int n_options = m_mcq_options.size();
 
@@ -215,7 +215,9 @@ QPointer<QWidget> QuMCQGridSingleBoolean::makeWidget(Questionnaire* questionnair
     QPointer<QWidget> widget = new QWidget();
     widget->setLayout(grid);
     widget->setObjectName("mcq_grid_single_boolean");
-    if (!m_expand) {
+    if (m_expand) {
+        widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+    } else {
         widget->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
     }
 

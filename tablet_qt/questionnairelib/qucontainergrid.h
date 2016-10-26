@@ -15,10 +15,14 @@ public:
     QuContainerGrid(std::initializer_list<QuGridCell> cells);
     QuContainerGrid* addCell(const QuGridCell& cell);
     QuContainerGrid* setColumnStretch(int column, int stretch);
+    QuContainerGrid* setFixedGrid(bool fixed_grid);
 protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual QList<QuElementPtr> subelements() const override;
+private:
+    void commonConstructor();
 protected:
     QList<QuGridCell> m_cells;
     QMap<int, int> m_column_stretch;
+    bool m_fixed_grid;
 };

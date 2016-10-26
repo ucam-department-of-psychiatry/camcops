@@ -24,7 +24,6 @@ public:
     QuBoolean* setItalic(bool italic = true);
     QuBoolean* setAllowUnset(bool allow_unset = true);
     QuBoolean* setAsTextButton(bool as_text_button = true);
-    QuBoolean* setVAlign(Qt::Alignment alignment);  // horizontal part will be ignored
 protected:
     void commonConstructor();
     void setFromField();
@@ -46,6 +45,5 @@ protected:
     bool m_italic;
     bool m_allow_unset;
     bool m_as_text_button;
-    Qt::Alignment m_alignment;
     QPointer<BooleanWidget> m_indicator;
 };

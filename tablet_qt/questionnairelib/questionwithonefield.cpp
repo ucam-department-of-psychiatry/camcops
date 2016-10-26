@@ -1,5 +1,6 @@
 #include "questionwithonefield.h"
 
+
 QuestionWithOneField::QuestionWithOneField(const QString& question,
                                            FieldRefPtr fieldref) :
     m_question(question),

@@ -34,7 +34,7 @@ QPointer<QWidget> QuSpinBoxDouble::makeWidget(Questionnaire* questionnaire)
     m_spinbox->setEnabled(!read_only);
     m_spinbox->setDecimals(m_decimals);
     m_spinbox->setRange(m_minimum, m_maximum);
-    m_spinbox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    m_spinbox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     // QDoubleSpinBox has two signals named valueChanged, differing only
     // in the parameter they pass (double versus QString&). You get
     // "no matching function for call to ... unresolved overloaded function

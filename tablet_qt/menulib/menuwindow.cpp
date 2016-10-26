@@ -4,10 +4,10 @@
 #include <QListWidgetItem>
 #include <QMessageBox>
 #include <QVBoxLayout>
-#include "menuheader.h"
 #include "common/uiconstants.h"
 #include "lib/filefunc.h"
 #include "lib/uifunc.h"
+#include "menulib/menuheader.h"
 #include "tasklib/task.h"
 
 const int BAD_INDEX = -1;

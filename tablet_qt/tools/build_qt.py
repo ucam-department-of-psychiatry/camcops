@@ -432,10 +432,25 @@ def build_openssl_osx(args):
 # Building Qt
 # =============================================================================
 
-def build_qt_android(args, cpu):
+def add_generic_qt_config_args(qt_config_args, args):
+    qt_config_args.extend(QT_CONFIG_COMMON_ARGS)
+
     # For testing a new OpenSSL build, have args.static_openssl=False, or you
     # have to rebuild Qt every time... extremely slow.
+    if args.static_openssl:
+        qt_config_args.append("-openssl-linked")  # OpenSSL
+        # http://doc.qt.io/qt-4.8/ssl.html
+        # http://stackoverflow.com/questions/20843180
+    else:
+        qt_config_args.append("-openssl")  # OpenSSL
 
+    if args.verbose >= 1:
+        qt_config_args.append("-v")  # verbose
+    if args.verbose >= 2:
+        qt_config_args.append("-v")  # more verbose
+
+
+def build_qt_android(args, cpu):
     # Android example at http://wiki.qt.io/Qt5ForAndroidBuilding
     # http://doc.qt.io/qt-5/opensslsupport.html
     # Windows: ?also http://simpleit.us/2010/05/30/enabling-openssl-for-qt-c-on-windows/  # noqa
@@ -491,15 +506,9 @@ def build_qt_android(args, cpu):
         "-android-arch", android_arch_short,
         "-android-toolchain-version", args.android_toolchain_version,
         "-xplatform", "android-g++",
-    ] + QT_CONFIG_COMMON_ARGS
-    if args.static_openssl:
-        qt_config_args.append("-openssl-linked")  # OpenSSL
-    else:
-        qt_config_args.append("-openssl")  # OpenSSL
-    if args.verbose >= 1:
-        qt_config_args.append("-v")  # verbose
-    if args.verbose >= 2:
-        qt_config_args.append("-v")  # more verbose
+    ]
+
+    add_generic_qt_config_args(qt_config_args, args)
     run(qt_config_args)  # The configure step takes a few seconds.
 
     log.info("Making Qt Android {} build into {}".format(cpu, installdir))
@@ -529,8 +538,6 @@ def build_qt_android(args, cpu):
 
 
 def build_qt_generic_unix(args, cosmetic_osname, extra_qt_config_args=None):
-    # For testing a new OpenSSL build, have args.static_openssl=False, or you
-    # have to rebuild Qt every time... extremely slow.
     extra_qt_config_args = extra_qt_config_args or []
     opensslrootdir, opensslworkdir = get_openssl_rootdir_workdir(
         args, cosmetic_osname)
@@ -561,15 +568,9 @@ def build_qt_generic_unix(args, cosmetic_osname, extra_qt_config_args=None):
         "-I", openssl_include_root,  # OpenSSL
         "-L", openssl_lib_root,  # OpenSSL
         "-prefix", installdir,
-    ] + extra_qt_config_args + QT_CONFIG_COMMON_ARGS
-    if args.static_openssl:
-        qt_config_args.append("-openssl-linked")  # OpenSSL
-    else:
-        qt_config_args.append("-openssl")  # OpenSSL
-    if args.verbose >= 1:
-        qt_config_args.append("-v")  # verbose
-    if args.verbose >= 2:
-        qt_config_args.append("-v")  # more verbose
+    ] + extra_qt_config_args
+
+    add_generic_qt_config_args(qt_config_args, args)
     run(qt_config_args)  # The configure step takes a few seconds.
 
     log.info("Making Qt {} build into {}".format(cosmetic_osname, installdir))

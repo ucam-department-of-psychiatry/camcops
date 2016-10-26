@@ -1,6 +1,6 @@
 #pragma once
 #include <QThread>
-#include "widgets/waitbox.h"
+#include "dialogs/waitbox.h"
 #include "threadworker.h"
 
 

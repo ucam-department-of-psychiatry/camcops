@@ -1,14 +1,14 @@
 #include "aspectratiopixmaplabel.h"
 #include <QDebug>
+#include "common/uiconstants.h"
 
 
 AspectRatioPixmapLabel::AspectRatioPixmapLabel(QWidget* parent) :
     QLabel(parent)
 {
     setScaledContents(false);
-    setMinimumSize(1, 1);
 
-    QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Maximum);
+    QSizePolicy sp(QSizePolicy::Maximum, QSizePolicy::Fixed);
     sp.setHeightForWidth(true);
     setSizePolicy(sp);
     updateGeometry();
@@ -26,7 +26,7 @@ void AspectRatioPixmapLabel::setPixmap(const QPixmap& pixmap)
 int AspectRatioPixmapLabel::heightForWidth(int width) const
 {
     int h = m_pixmap.isNull()
-            ? height()
+            ? 0  // a bit arbitrary! width()? 0? 1?
             : ((qreal)m_pixmap.height() * width) / m_pixmap.width();
     // qDebug() << Q_FUNC_INFO << "width" << width << "-> height" << h;
     return h;
@@ -35,13 +35,8 @@ int AspectRatioPixmapLabel::heightForWidth(int width) const
 
 QSize AspectRatioPixmapLabel::sizeHint() const
 {
-    // int w = this->width();
-    // QSize hint = QSize(w, heightForWidth(w));
     QSize hint = m_pixmap.size();
-    hint.rheight() = -1;
-    // hint.rheight() = 1;
-    // hint = QSize(50, 50);
-    // hint = QSize(1, 1);
+    // hint.rheight() = -1;
     // qDebug() << Q_FUNC_INFO << "pixmap size" << m_pixmap.size()
     //          << "size hint" << hint;
     return hint;
@@ -69,6 +64,12 @@ QSize AspectRatioPixmapLabel::sizeHint() const
 }
 
 
+QSize AspectRatioPixmapLabel::minimumSizeHint() const
+{
+    return QSize(0, 0);
+}
+
+
 QPixmap AspectRatioPixmapLabel::scaledPixmap() const
 {
     // qDebug() << Q_FUNC_INFO << "this->size()" << this->size();
@@ -93,7 +94,6 @@ void AspectRatioPixmapLabel::clear()
     // If you set (1) a giant pixmap and then (2) a null pixmap, you can have
     // your size remain at the giant size.
     QPixmap blank(1, 1);
-    QColor transparent(0, 0, 0, 0);
-    blank.fill(transparent);
+    blank.fill(UiConst::BLACK_TRANSPARENT);
     setPixmap(blank);
 }

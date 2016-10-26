@@ -1,8 +1,8 @@
 #include "taskfactory.h"
 #include <algorithm>
 #include "common/camcopsapp.h"
-#include "task.h"
-#include "tasksorter.h"
+#include "tasklib/task.h"
+#include "tasklib/tasksorter.h"
 
 
 // ===========================================================================

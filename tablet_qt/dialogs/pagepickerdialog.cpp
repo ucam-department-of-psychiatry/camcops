@@ -4,9 +4,9 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include "lib/uifunc.h"
+#include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/imagebutton.h"
 #include "widgets/verticalscrollarea.h"
-#include "labelwordwrapwide.h"
 
 
 PagePickerDialog::PagePickerDialog(QWidget* parent,
@@ -35,8 +35,9 @@ int PagePickerDialog::choose(int* new_page_number)
         const PagePickerItem& page = m_pages.at(i);
         QHBoxLayout* itemlayout = new QHBoxLayout();
 
-        LabelWordWrapWide* label = new LabelWordWrapWide(page.text());
-        label->setClickable(true);
+        ClickableLabelWordWrapWide* label = new ClickableLabelWordWrapWide(
+                    page.text());
+        label->setSizePolicy(UiFunc::horizExpandingHFWPolicy());
         itemlayout->addWidget(label);
 
         ImageButton* icon = new ImageButton(page.iconFilename());
@@ -44,7 +45,7 @@ int PagePickerDialog::choose(int* new_page_number)
 
         contentlayout->addLayout(itemlayout);
 
-        connect(label, &LabelWordWrapWide::clicked,
+        connect(label, &ClickableLabelWordWrapWide::clicked,
                 std::bind(&PagePickerDialog::itemClicked, this, i));
         connect(icon, &ImageButton::clicked,
                 std::bind(&PagePickerDialog::itemClicked, this, i));
@@ -56,6 +57,8 @@ int PagePickerDialog::choose(int* new_page_number)
     QVBoxLayout* mainlayout = new QVBoxLayout();
     mainlayout->addWidget(scroll);
     setLayout(mainlayout);
+
+    mainlayout->addStretch();
 
     // Offer a cancel button
     QDialogButtonBox* standard_buttons = new QDialogButtonBox(

@@ -2,8 +2,8 @@
 #include <QTimer>
 #include <QValidator>
 #include "lib/uifunc.h"
-#include "widgets/focuswatcher.h"
-#include "questionnaire.h"
+#include "qobjects/focuswatcher.h"
+#include "questionnairelib/questionnaire.h"
 
 
 const int WRITE_DELAY_MS = 400;

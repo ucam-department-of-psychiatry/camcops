@@ -141,6 +141,11 @@ void CanvasWidget::mouseMoveEvent(QMouseEvent* event)
 
 void CanvasWidget::drawTo(QPoint pt)
 {
+    if (m_image.isNull()) {
+        qWarning() << Q_FUNC_INFO << "null image";
+        return;
+    }
+
     // Convert from widget coordinates (NB there's a frame) to image
     // coordinates:
     int left, top, right, bottom;

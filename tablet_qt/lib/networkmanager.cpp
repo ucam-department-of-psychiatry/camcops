@@ -10,7 +10,7 @@
 #include <QtNetwork/QSslConfiguration>
 #include <QUrl>
 #include "common/camcopsapp.h"
-#include "widgets/logbox.h"
+#include "dialogs/logbox.h"
 
 
 NetworkManager::NetworkManager(const CamcopsApp& app, QWidget* parent) :

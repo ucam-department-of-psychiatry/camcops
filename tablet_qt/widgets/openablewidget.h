@@ -3,6 +3,7 @@
 #include <QWidget>
 
 
+
 class OpenableWidget : public QWidget
 {
     // Widget that the CamCOPS main app knows how to open as a screen.

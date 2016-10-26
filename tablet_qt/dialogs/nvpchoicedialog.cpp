@@ -3,8 +3,9 @@
 #include <QDialogButtonBox>
 #include <QVariant>
 #include <QVBoxLayout>
-#include "verticalscrollarea.h"
-#include "labelwordwrapwide.h"
+#include "lib/uifunc.h"
+#include "widgets/clickablelabelwordwrapwide.h"
+#include "widgets/verticalscrollarea.h"
 
 
 NvpChoiceDialog::NvpChoiceDialog(QWidget* parent,
@@ -31,10 +32,11 @@ int NvpChoiceDialog::choose(QVariant* new_value)
     contentwidget->setLayout(contentlayout);
     for (int i = 0; i < m_options.size(); ++i) {
         const NameValuePair& nvp = m_options.at(i);
-        LabelWordWrapWide* label = new LabelWordWrapWide(nvp.name());
-        label->setClickable(true);
+        ClickableLabelWordWrapWide* label = new ClickableLabelWordWrapWide(
+                    nvp.name());
+        label->setSizePolicy(UiFunc::horizExpandingHFWPolicy());
         contentlayout->addWidget(label);
-        connect(label, &LabelWordWrapWide::clicked,
+        connect(label, &ClickableLabelWordWrapWide::clicked,
                 std::bind(&NvpChoiceDialog::itemClicked, this, i));
     }
 
@@ -44,6 +46,8 @@ int NvpChoiceDialog::choose(QVariant* new_value)
     QVBoxLayout* mainlayout = new QVBoxLayout();
     mainlayout->addWidget(scroll);
     setLayout(mainlayout);
+
+    mainlayout->addStretch();
 
     // Offer a cancel button
     QDialogButtonBox* standard_buttons = new QDialogButtonBox(

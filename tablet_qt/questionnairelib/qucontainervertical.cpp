@@ -1,7 +1,7 @@
 #include "qucontainervertical.h"
 #include <QVBoxLayout>
 #include <QWidget>
-#include "questionnaire.h"
+#include "questionnairelib/questionnaire.h"
 
 
 QuContainerVertical::QuContainerVertical()
@@ -55,7 +55,7 @@ QPointer<QWidget> QuContainerVertical::makeWidget(Questionnaire* questionnaire)
     QPointer<QWidget> widget = new QWidget();
     // widget->setObjectName("debug_yellow");
     QVBoxLayout* layout = new QVBoxLayout();
-    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setContentsMargins(UiConst::NO_MARGINS);
     widget->setLayout(layout);
     for (auto e : m_elements) {
         QPointer<QWidget> w = e->widget(questionnaire);

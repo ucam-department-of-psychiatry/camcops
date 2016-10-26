@@ -1,9 +1,9 @@
 #include "questionnairefunc.h"
 #include "lib/uifunc.h"
-#include "qucontainergrid.h"
-#include "quelement.h"
-#include "qugridcell.h"
-#include "qutext.h"
+#include "questionnairelib/qucontainergrid.h"
+#include "questionnairelib/quelement.h"
+#include "questionnairelib/qugridcell.h"
+#include "questionnairelib/qutext.h"
 
 
 QuElement* QuestionnaireFunc::defaultGridRawPointer(

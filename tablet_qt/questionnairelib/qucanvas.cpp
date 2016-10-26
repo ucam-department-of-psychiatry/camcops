@@ -4,9 +4,10 @@
 #include <QLabel>
 #include <QTimer>
 #include "lib/uifunc.h"
+#include "questionnairelib/questionnaire.h"
 #include "widgets/canvaswidget.h"
 #include "widgets/imagebutton.h"
-#include "questionnaire.h"
+#include "widgets/spacer.h"
 
 const int WRITE_DELAY_MS = 200;
 
@@ -42,6 +43,7 @@ void QuCanvas::commonConstructor()
     m_pen_width = 5;
     m_canvas = nullptr;
     m_missing_indicator = nullptr;
+    m_no_missing_indicator = nullptr;
     m_field_write_pending = false;
     m_timer = QSharedPointer<QTimer>(new QTimer());
     m_timer->setSingleShot(true);
@@ -92,19 +94,20 @@ QPointer<QWidget> QuCanvas::makeWidget(Questionnaire* questionnaire)
     }
     m_missing_indicator = UiFunc::iconWidget(
                 UiFunc::iconFilename(UiConst::ICON_WARNING));
+    m_no_missing_indicator = QPointer<Spacer>(new Spacer(UiConst::ICONSIZE));
     QVBoxLayout* button_layout = new QVBoxLayout();
     button_layout->addWidget(button_reset, 0, align);
     button_layout->addWidget(m_missing_indicator, 0, align);
-    button_layout->addStretch();
+    button_layout->addWidget(m_no_missing_indicator, 0, align);
     QWidget* button_widget = new QWidget();
     button_widget->setLayout(button_layout);
 
     QHBoxLayout* top_layout = new QHBoxLayout();
     top_layout->addWidget(button_widget, 0, align);
     top_layout->addWidget(m_canvas, 0, align);
-    top_layout->addStretch();
 
     QWidget* widget = new QWidget();
+    widget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     widget->setLayout(top_layout);
 
     setFromField();
@@ -158,9 +161,16 @@ void QuCanvas::fieldValueChanged(const FieldRef* fieldref,
     // redraw the widget when the user changes it).
     // So we'll do it with an indicator widget.
 
+    bool missing_input = fieldref->missingInput();
     if (m_missing_indicator) {
-        m_missing_indicator->setVisible(fieldref->missingInput());
+        m_missing_indicator->setVisible(missing_input);
     }
+    if (m_no_missing_indicator) {
+        m_no_missing_indicator->setVisible(!missing_input);
+    }
+    // This prevents the overall widget's vertical size from changing (which
+    // looks odd) on first draw, if the canvas is smaller vertically than the
+    // two buttons/indicators.
 
     if (originator != this) {
         if (fieldref->isNull()) {

@@ -1,8 +1,12 @@
 #include "booleanwidget.h"
 #include <QDebug>
+#include <QPainter>
 #include <QVariant>
+#include <QVBoxLayout>
 #include "common/uiconstants.h"
 #include "lib/uifunc.h"
+#include "widgets/clickablelabelwordwrapwide.h"
+#include "widgets/imagebutton.h"
 
 const QString CHECK_DISABLED = "check_disabled.png";
 const QString CHECK_UNSELECTED = "check_unselected.png";
@@ -19,31 +23,56 @@ const QString RADIO_SELECTED = "radio_selected.png";
 
 
 BooleanWidget::BooleanWidget(QWidget* parent) :
-    ImageButton(parent),
+    QAbstractButton(parent),
     m_read_only(false),
     m_big(true),
     m_appearance(Appearance::CheckRed),
+    m_as_image(true),
     m_state(State::Null)
 {
-    setObjectName("boolean_widget");
+    m_imagebutton = new ImageButton();
+    m_textbutton = new ClickableLabelWordWrapWide();
+    m_layout = new QVBoxLayout();
+    m_layout->setContentsMargins(UiConst::NO_MARGINS);
+    m_layout->addWidget(m_imagebutton);
+    m_layout->addWidget(m_textbutton);
+    setLayout(m_layout);
+
+    connect(m_imagebutton, &ImageButton::clicked,
+            this, &BooleanWidget::clicked);
+    connect(m_textbutton, &ClickableLabelWordWrapWide::clicked,
+            this, &BooleanWidget::clicked);
+
+    // setObjectName("boolean_widget");
+    updateWidget();
 }
 
 
 void BooleanWidget::setReadOnly(bool read_only)
 {
-    m_read_only = read_only;
+    if (read_only != m_read_only) {
+        m_read_only = read_only;
+        updateWidget();
+    }
 }
 
 
 void BooleanWidget::setSize(bool big)
 {
-    m_big = big;
+    if (big != m_big) {
+        m_big = big;
+        updateWidget();
+    }
 }
 
 
 void BooleanWidget::setAppearance(BooleanWidget::Appearance appearance)
 {
-    m_appearance = appearance;
+    if (appearance != m_appearance) {
+        m_appearance = appearance;
+        m_as_image = (appearance != Appearance::Text);
+        updateWidget();
+    }
 }
 
 
@@ -64,9 +93,16 @@ void BooleanWidget::setValue(const QVariant& value, bool mandatory,
 
 void BooleanWidget::setState(BooleanWidget::State state)
 {
-    m_state = state;
+    if (state != m_state) {
+        m_state = state;
+        updateWidget();
+    }
+}
+
+
+void BooleanWidget::updateWidget()
+{
     QString img;
-    bool as_image = true;
     switch (m_appearance) {
     case Appearance::CheckBlack:
         switch (m_state) {
@@ -130,7 +166,6 @@ void BooleanWidget::setState(BooleanWidget::State state)
     case Appearance::Text:
         // http://wiki.qt.io/DynamicPropertiesAndStylesheets
         {
-            as_image = false;
             QString property = "state";
             switch (m_state) {
             case State::Disabled:
@@ -153,15 +188,65 @@ void BooleanWidget::setState(BooleanWidget::State state)
         }
         break;
     }
-    if (as_image) {
-        setAsText(false);
-        setImageSize(m_big ? UiConst::ICONSIZE : UiConst::SMALL_ICONSIZE);
-        setImages(img, true, false, false, false, m_read_only);
+    if (m_as_image) {
+        m_imagebutton->setVisible(true);
+        m_textbutton->setVisible(false);
+        m_imagebutton->setImageSize(m_big ? UiConst::ICONSIZE : UiConst::SMALL_ICONSIZE);
+        m_imagebutton->setImages(img, true, false, false, false, m_read_only);
         // ... don't alter unpressed images
         // ... FOR NOW, put pressed marker on top (as PNGs are not transparent
         //     inside the check boxes etc.)
-    } else {
-        setAsText(true);
+        setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    } else {  // Text
+        m_imagebutton->setVisible(false);
+        m_textbutton->setVisible(true);
+        setSizePolicy(UiFunc::horizMaximumHFWPolicy());
+        // One of these is probably unnecessary:
         UiFunc::repolish(this);
+        // UiFunc::repolish(m_textbutton);
     }
+    updateGeometry();
+}
+
+
+void BooleanWidget::setText(const QString& text)
+{
+    qDebug() << Q_FUNC_INFO << text;
+    m_textbutton->setText(text);
+    updateGeometry();
+}
+
+
+void BooleanWidget::paintEvent(QPaintEvent* e)
+{
+    Q_UNUSED(e);
+    /*
+    // To draw child widgets explicitly, use render (since paintEvent is
+    // protected).
+    // http://stackoverflow.com/questions/18042969
+    QPainter painter(this);
+    if (m_as_image) {
+        m_imagebutton->render(&painter);
+    } else {
+        m_textbutton->render(&painter);
+    }
+    // However, our child widgets draw themselves anyway.
+    // We just have to implement this function somehow as QAbstractButton is
+    // an abstract base class.
+    */
+}
+
+
+QSize BooleanWidget::sizeHint() const
+{
+    // Can ignore layout margins because we've forced them to zero.
+    return m_as_image ? m_imagebutton->sizeHint() : m_textbutton->sizeHint();
+}
+
+
+QSize BooleanWidget::minimumSizeHint() const
+{
+    // Can ignore layout margins because we've forced them to zero.
+    return m_as_image ? m_imagebutton->minimumSizeHint()
+                      : m_textbutton->minimumSizeHint();
 }

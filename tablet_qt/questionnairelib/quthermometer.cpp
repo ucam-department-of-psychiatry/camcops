@@ -2,8 +2,8 @@
 #include <QGridLayout>
 #include <QLabel>
 #include "lib/uifunc.h"
+#include "questionnairelib/questionnaire.h"
 #include "widgets/imagebutton.h"
-#include "questionnaire.h"
 
 
 QuThermometer::QuThermometer(FieldRefPtr fieldref,
@@ -51,6 +51,7 @@ QPointer<QWidget> QuThermometer::makeWidget(Questionnaire* questionnaire)
     m_inactive_widgets.clear();
     bool read_only = questionnaire->readOnly();
     m_main_widget = new QWidget();
+    m_main_widget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     QGridLayout* grid = new QGridLayout();
     grid->setSpacing(0);
     m_main_widget->setLayout(grid);

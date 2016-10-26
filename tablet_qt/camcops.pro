@@ -4,6 +4,10 @@
 #
 #-------------------------------------------------
 
+# =============================================================================
+# Parts of Qt
+# =============================================================================
+
 # SQLite/Android and OpenSSL/anything requires a custom Qt build.
 # ALSO TRY:
 #   qmake -query  # for the qmake of the Qt build you're using
@@ -26,6 +30,20 @@ QT += multimediawidgets
 # http://stackoverflow.com/questions/20351155/how-can-i-enable-ssl-in-qt-windows-application
 # http://stackoverflow.com/questions/18663331/how-to-check-the-selected-version-of-qt-in-a-pro-file
 
+# =============================================================================
+# Overall configuration
+# =============================================================================
+
+CONFIG += static  # use a statically linked version of Qt
+# CONFIG += debug  # no, use the QtCreator debug/release settings
+CONFIG += mobility
+CONFIG += c++11
+MOBILITY =
+
+# =============================================================================
+# Compiler flags
+# =============================================================================
+
 QMAKE_CXXFLAGS += -Werror  # warnings become errors
 
 # In release mode, optimize heavily:
@@ -34,14 +52,22 @@ QMAKE_CXXFLAGS_RELEASE -= -O1
 QMAKE_CXXFLAGS_RELEASE -= -O2
 QMAKE_CXXFLAGS_RELEASE += -O3  # optimize heavily
 
+# =============================================================================
+# Build targets
+# =============================================================================
+
 TARGET = camcops
 TEMPLATE = app
 
-CONFIG += static  # use a statically linked version of Qt
-# CONFIG += debug  # no, use the QtCreator debug/release settings
-CONFIG += mobility
-CONFIG += c++11
-MOBILITY =
+# =============================================================================
+# Paths
+# =============================================================================
+
+INCLUDEPATH += "/home/rudolf/dev/qt_local_build/openssl_linux_build/openssl-1.0.2h/include"
+
+# =============================================================================
+# Resources and source files
+# =============================================================================
 
 RESOURCES += \
     camcops.qrc
@@ -124,7 +150,7 @@ SOURCES += main.cpp\
     questionnairelib/qupickerinline.cpp \
     questionnairelib/namevalueoptions.cpp \
     questionnairelib/qupickerpopup.cpp \
-    widgets/nvpchoicedialog.cpp \
+    dialogs/nvpchoicedialog.cpp \
     questionnairelib/quthermometer.cpp \
     questionnairelib/quthermometeritem.cpp \
     questionnairelib/quslider.cpp \
@@ -138,10 +164,10 @@ SOURCES += main.cpp\
     questionnairelib/qulineedit.cpp \
     questionnairelib/qulineeditinteger.cpp \
     questionnairelib/qulineeditdouble.cpp \
-    widgets/strictdoublevalidator.cpp \
-    widgets/strictintvalidator.cpp \
+    qobjects/strictdoublevalidator.cpp \
+    qobjects/strictintvalidator.cpp \
     lib/numericfunc.cpp \
-    widgets/focuswatcher.cpp \
+    qobjects/focuswatcher.cpp \
     questionnairelib/qugridcell.cpp \
     questionnairelib/qucontainergrid.cpp \
     questionnairelib/qumultipleresponse.cpp \
@@ -159,7 +185,7 @@ SOURCES += main.cpp\
     lib/imagefunc.cpp \
     diagnosis/flatproxymodel.cpp \
     diagnosis/diagnosissortfiltermodel.cpp \
-    widgets/progressbox.cpp \
+    dialogs/progressbox.cpp \
     lib/convert.cpp \
     dbobjects/blob.cpp \
     lib/debugfunc.cpp \
@@ -169,7 +195,7 @@ SOURCES += main.cpp\
     tasklib/taskregistrar.cpp \
     questionnairelib/qumcqgrid.cpp \
     questionnairelib/mcqgridsubtitle.cpp \
-    widgets/shootabug.cpp \
+    qobjects/shootabug.cpp \
     questionnairelib/qumcqgriddouble.cpp \
     questionnairelib/questionwithtwofields.cpp \
     questionnairelib/questionwithonefield.cpp \
@@ -178,7 +204,7 @@ SOURCES += main.cpp\
     widgets/verticalline.cpp \
     questionnairelib/qumcqgridsingleboolean.cpp \
     lib/stringfunc.cpp \
-    widgets/waitbox.cpp \
+    dialogs/waitbox.cpp \
     lib/threadworker.cpp \
     lib/slownonguifunctioncaller.cpp \
     lib/slowguiguard.cpp \
@@ -187,7 +213,7 @@ SOURCES += main.cpp\
     db/fieldcreationplan.cpp \
     db/sqlargs.cpp \
     lib/networkmanager.cpp \
-    widgets/logbox.cpp \
+    dialogs/logbox.cpp \
     common/varconst.cpp \
     db/dbtransaction.cpp \
     db/dbnestabletransaction.cpp \
@@ -196,11 +222,17 @@ SOURCES += main.cpp\
     crypto/secureqstring.cpp \
     crypto/secureqbytearray.cpp \
     dbobjects/extrastring.cpp \
-    widgets/passwordentrydialog.cpp \
-    widgets/passwordchangedialog.cpp \
+    dialogs/passwordentrydialog.cpp \
+    dialogs/passwordchangedialog.cpp \
     common/camcopsversion.cpp \
-    widgets/pagepickerdialog.cpp \
-    questionnairelib/pagepickeritem.cpp
+    dialogs/pagepickerdialog.cpp \
+    questionnairelib/pagepickeritem.cpp \
+    widgets/clickablelabelwordwrapwide.cpp \
+    lib/layoutdumper.cpp \
+    qobjects/showwatcher.cpp \
+    menu/widgettestmenu.cpp \
+    qobjects/keypresswatcher.cpp \
+    widgets/flowlayoutcontainer.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -282,7 +314,7 @@ HEADERS  += \
     questionnairelib/qupickerinline.h \
     questionnairelib/namevalueoptions.h \
     questionnairelib/qupickerpopup.h \
-    widgets/nvpchoicedialog.h \
+    dialogs/nvpchoicedialog.h \
     questionnairelib/quthermometer.h \
     questionnairelib/quthermometeritem.h \
     questionnairelib/quslider.h \
@@ -296,10 +328,10 @@ HEADERS  += \
     questionnairelib/qulineedit.h \
     questionnairelib/qulineeditinteger.h \
     questionnairelib/qulineeditdouble.h \
-    widgets/strictdoublevalidator.h \
-    widgets/strictintvalidator.h \
+    qobjects/strictdoublevalidator.h \
+    qobjects/strictintvalidator.h \
     lib/numericfunc.h \
-    widgets/focuswatcher.h \
+    qobjects/focuswatcher.h \
     questionnairelib/qugridcell.h \
     questionnairelib/qucontainergrid.h \
     questionnairelib/qumultipleresponse.h \
@@ -317,7 +349,7 @@ HEADERS  += \
     lib/imagefunc.h \
     diagnosis/flatproxymodel.h \
     diagnosis/diagnosissortfiltermodel.h \
-    widgets/progressbox.h \
+    dialogs/progressbox.h \
     lib/convert.h \
     dbobjects/blob.h \
     lib/debugfunc.h \
@@ -327,7 +359,7 @@ HEADERS  += \
     tasklib/taskregistrar.h \
     questionnairelib/qumcqgrid.h \
     questionnairelib/mcqgridsubtitle.h \
-    widgets/shootabug.h \
+    qobjects/shootabug.h \
     questionnairelib/qumcqgriddouble.h \
     questionnairelib/questionwithtwofields.h \
     questionnairelib/questionwithonefield.h \
@@ -336,7 +368,7 @@ HEADERS  += \
     widgets/verticalline.h \
     questionnairelib/qumcqgridsingleboolean.h \
     lib/stringfunc.h \
-    widgets/waitbox.h \
+    dialogs/waitbox.h \
     lib/threadworker.h \
     lib/slownonguifunctioncaller.h \
     lib/slowguiguard.h \
@@ -345,7 +377,7 @@ HEADERS  += \
     db/fieldcreationplan.h \
     db/sqlargs.h \
     lib/networkmanager.h \
-    widgets/logbox.h \
+    dialogs/logbox.h \
     common/varconst.h \
     db/dbtransaction.h \
     db/dbnestabletransaction.h \
@@ -355,11 +387,17 @@ HEADERS  += \
     crypto/secureqbytearray.h \
     crypto/zallocator.h \
     dbobjects/extrastring.h \
-    widgets/passwordentrydialog.h \
-    widgets/passwordchangedialog.h \
+    dialogs/passwordentrydialog.h \
+    dialogs/passwordchangedialog.h \
     common/camcopsversion.h \
-    widgets/pagepickerdialog.h \
-    questionnairelib/pagepickeritem.h
+    dialogs/pagepickerdialog.h \
+    questionnairelib/pagepickeritem.h \
+    widgets/clickablelabelwordwrapwide.h \
+    lib/layoutdumper.h \
+    qobjects/showwatcher.h \
+    menu/widgettestmenu.h \
+    qobjects/keypresswatcher.h \
+    widgets/flowlayoutcontainer.h
 
 DISTFILES += \
     notes/qt_notes.txt \
@@ -399,6 +437,9 @@ DISTFILES += \
     images/dt/dt_unsel_10.png \
     stylesheets/camera.css
 
+# =============================================================================
+# Android-specific options
+# =============================================================================
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 

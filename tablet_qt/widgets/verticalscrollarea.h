@@ -13,7 +13,7 @@ class VerticalScrollArea : public QScrollArea
 public:
     explicit VerticalScrollArea(QWidget* parent = nullptr);
     virtual bool eventFilter(QObject* o, QEvent* e);
-    virtual QSize sizeHint() const;
+    virtual QSize sizeHint() const override;
 protected:
     bool m_updating_geometry;
 };

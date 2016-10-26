@@ -7,10 +7,10 @@
 #include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "lib/slownonguifunctioncaller.h"
+#include "questionnairelib/questionnaire.h"
 #include "widgets/aspectratiopixmaplabel.h"
 #include "widgets/camera.h"
 #include "widgets/imagebutton.h"
-#include "questionnaire.h"
 
 
 QuPhoto::QuPhoto(FieldRefPtr fieldref) :

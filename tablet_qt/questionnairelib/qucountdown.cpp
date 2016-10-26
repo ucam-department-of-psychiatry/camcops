@@ -44,21 +44,27 @@ QuCountdown* QuCountdown::setVolume(int volume)
 QPointer<QWidget> QuCountdown::makeWidget(Questionnaire* questionnaire)
 {
     QPointer<QWidget> widget = new QWidget();
+    widget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     QHBoxLayout* layout = new QHBoxLayout();
     widget->setLayout(layout);
 
     bool read_only = questionnaire->readOnly();
 
     m_start_button = new QPushButton(tr("Start"));
+    m_start_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     layout->addWidget(m_start_button);
+
     m_stop_button = new QPushButton(tr("Stop"));
+    m_stop_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     layout->addWidget(m_stop_button);
+
     m_reset_button = new QPushButton(tr("Reset"));
+    m_reset_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     layout->addWidget(m_reset_button);
+
     m_label = new QLabel();
     m_label->setObjectName("countdown_label");
     layout->addWidget(m_label);
-    layout->addStretch();
 
     if (read_only) {
         m_start_button->setDisabled(true);

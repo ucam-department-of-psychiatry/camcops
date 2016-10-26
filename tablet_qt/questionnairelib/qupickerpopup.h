@@ -3,7 +3,7 @@
 #include "namevalueoptions.h"
 #include "quelement.h"
 
-class ClickableLabel;
+class ClickableLabelWordWrapWide;
 
 
 class QuPickerPopup : public QuElement
@@ -27,5 +27,5 @@ protected:
     NameValueOptions m_options;
     QString m_popup_title;
     bool m_randomize;
-    QPointer<ClickableLabel> m_label;
+    QPointer<ClickableLabelWordWrapWide> m_label;
 };

@@ -1,23 +1,26 @@
 // #define DEBUG_ICON_LOAD
-
+// #define DEBUG_PUSHBUTTON_MARGINS
+#include "uifunc.h"
 #include <QApplication>
 #include <QAbstractButton>
 #include <QBrush>
 #include <QDebug>
 #include <QDesktopServices>
 #include <QLabel>
+#include <QLayout>
 #include <QMessageBox>
 #include <QObject>
 #include <QPainter>
 #include <QPen>
 #include <QPixmapCache>
+#include <QPushButton>
 #include <QStyle>
+#include <QStyleOptionButton>
 #include <QToolButton>
 #include <QUrl>
-#include "uifunc.h"
 #include "common/uiconstants.h"
-#include "widgets/passwordchangedialog.h"
-#include "widgets/passwordentrydialog.h"
+#include "dialogs/passwordchangedialog.h"
+#include "dialogs/passwordentrydialog.h"
 
 
 // ========================================================================
@@ -353,6 +356,87 @@ void UiFunc::drawText(QPainter& painter, const QPointF& point,
    drawText(painter, point.x(), point.y(), flags, text, boundingRect);
 }
 
+
+QSize UiFunc::contentsMarginsAsSize(const QWidget* widget)
+{
+    Q_ASSERT(widget);
+    QMargins margins = widget->contentsMargins();
+    return QSize(margins.left() + margins.right(),
+                 margins.top() + margins.bottom());
+}
+
+
+QSize UiFunc::contentsMarginsAsSize(const QLayout* layout)
+{
+    Q_ASSERT(layout);
+    QMargins margins = layout->contentsMargins();
+    return QSize(margins.left() + margins.right(),
+                 margins.top() + margins.bottom());
+}
+
+
+QSize UiFunc::spacingAsSize(const QLayout* layout)
+{
+    Q_ASSERT(layout);
+    int spacing = layout->spacing();
+    return QSize(2 * spacing, 2 * spacing);
+}
+
+
+QSize UiFunc::pushButtonSizeHintFromContents(const QPushButton* button,
+                                             QStyleOptionButton* opt,
+                                             const QSize& child_size)
+{
+    // See QPushButton::sizeHint()
+    Q_ASSERT(button);
+    Q_ASSERT(opt);
+    QSize hint_size = child_size;
+#ifdef DEBUG_PUSHBUTTON_MARGINS
+    QSize stylesheet_extra_size(0, 0);
+#endif
+    QSize extra_for_layout_margins(0, 0);
+
+    QStyle* style = button->style();
+    if (style) {
+        hint_size = style->sizeFromContents(QStyle::CT_PushButton, opt,
+                                            child_size, button);
+#ifdef DEBUG_PUSHBUTTON_MARGINS
+        stylesheet_extra_size = hint_size - child_size;
+#endif
+    }
+
+    // Necessary!
+    QLayout* layout = button->layout();
+    if (layout) {
+        extra_for_layout_margins = contentsMarginsAsSize(layout);
+        hint_size += extra_for_layout_margins;
+    }
+
+#ifdef DEBUG_PUSHBUTTON_MARGINS
+    qDebug() << Q_FUNC_INFO
+             << "; child_size" << child_size
+             << "; stylesheet_extra_size" << stylesheet_extra_size
+             << "; extra_for_layout_margins" << extra_for_layout_margins
+             << "=> size_hint" << size_hint;
+#endif
+    return hint_size;
+}
+
+
+QSizePolicy UiFunc::horizExpandingHFWPolicy()
+{
+    QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    sp.setHeightForWidth(true);
+    return sp;
+}
+
+
+QSizePolicy UiFunc::horizMaximumHFWPolicy()
+{
+    QSizePolicy sp(QSizePolicy::Maximum, QSizePolicy::Fixed);
+    sp.setHeightForWidth(true);
+    return sp;
+}
 
 // ============================================================================
 // Killing the app

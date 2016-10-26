@@ -4,7 +4,7 @@
 #include <QVBoxLayout>
 #include "common/camcopsapp.h"
 #include "lib/filefunc.h"
-#include "menuheader.h"
+#include "menulib/menuheader.h"
 #include "widgets/labelwordwrapwide.h"
 
 // http://doc.qt.io/qt-5/qtextbrowser.html

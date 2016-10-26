@@ -130,6 +130,29 @@ namespace UiConst {
     const QString NOT_SPECIFIED = QObject::tr("<not specified>");
 
     // ========================================================================
+    // Test text
+    // ========================================================================
+
+    const QString LOREM_IPSUM_1 = (  // http://www.lipsum.com/
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent "
+        "sed cursus mauris. Ut vulputate felis quis dolor molestie convallis. "
+        "Donec lectus diam, accumsan quis tortor at, congue laoreet augue. Ut "
+        "mollis consectetur elit sit amet tincidunt. Vivamus facilisis, mi et "
+        "eleifend ullamcorper, lorem metus faucibus ante, ut commodo urna "
+        "neque bibendum magna. Lorem ipsum dolor sit amet, consectetur "
+        "adipiscing elit. Praesent nec nisi ante. Sed vitae sem et eros "
+        "elementum condimentum. Proin porttitor purus justo, sit amet "
+        "vulputate velit imperdiet nec. Nam posuere ipsum id nunc accumsan "
+        "tristique. Etiam pellentesque ornare tortor, a scelerisque dui "
+        "accumsan ac. Ut tincidunt dolor ultrices, placerat urna nec, "
+        "scelerisque mi."
+    );
+    const QString LOREM_IPSUM_2 = (
+        "Nunc vitae neque eu odio feugiat consequat ac id neque. "
+        "Suspendisse id libero massa."
+    );
+
+    // ========================================================================
     // Network
     // ========================================================================
 
@@ -138,3 +161,5 @@ namespace UiConst {
     const int NETWORK_TIMEOUT_MS_MIN = 100;
     const int NETWORK_TIMEOUT_MS_MAX = 5 * 60 * 1000;
 }
+
+

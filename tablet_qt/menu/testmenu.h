@@ -1,5 +1,4 @@
 #pragma once
-
 #include <QSharedPointer>
 #include "menulib/menuwindow.h"
 

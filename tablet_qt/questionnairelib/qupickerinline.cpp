@@ -2,8 +2,8 @@
 #include <QComboBox>
 #include <QLabel>
 #include "lib/uifunc.h"
-#include "questionnaire.h"
-#include "questionnairefunc.h"
+#include "questionnairelib/questionnaire.h"
+#include "questionnairelib/questionnairefunc.h"
 
 
 const int MAX_LENGTH = 100;
@@ -41,6 +41,7 @@ QPointer<QWidget> QuPickerInline::makeWidget(Questionnaire* questionnaire)
 
     bool read_only = questionnaire->readOnly();
     m_cbox = new QComboBox();
+    m_cbox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     for (int i = 0; i < m_options.size(); ++i) {
         const NameValuePair& nvp = m_options.at(i);
         m_cbox->insertItem(i, nvp.name().left(MAX_LENGTH));

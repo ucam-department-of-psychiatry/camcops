@@ -105,21 +105,33 @@ LabelWordWrapWide {
 QPushButton,
 QComboBox#picker_inline,
 QLabel#picker_popup,
-NvpChoiceDialog LabelWordWrapWide,
-PagePickerDialog LabelWordWrapWide {
+NvpChoiceDialog ClickableLabelWordWrapWide,
+PagePickerDialog ClickableLabelWordWrapWide {
     font-weight: bold;
     background-color: lightgray;
     border-style: solid;
     border-width: 2px;
     border-radius: 10px;
     border-color: darkgray;
-    padding: 6px;
+    padding: 26px;
+}
+ClickableLabel,
+ClickableLabelWordWrapWide {
+    font-weight: normal;
+    background-color: rgb(0, 0, 0, 0);  /* transparent */
+    /* background-color: yellow; */
+    border: 1px black;
+    border-radius: 0;
+    /* PADDING DOESN'T WORK PROPERLY, IT SEEMS. */
+    /* padding: 3px; */
+    padding: 0;
+    margin: 0;
 }
 QPushButton:pressed,
 QComboBox#picker_inline:pressed,
 QLabel#picker_popup:pressed,
-NvpChoiceDialog LabelWordWrapWide:pressed,
-PagePickerDialog LabelWordWrapWide:pressed {
+ClickableLabel:pressed,
+ClickableLabelWordWrapWide:pressed {
     background-color: rgba(100, 100, 255, 200);  /* to match BUTTON_PRESSED_COLOUR */
 }
 /* They will override the generic dynamic modifiers, so we re-specify... */
@@ -134,6 +146,89 @@ QPushButton {
 QPushButton:disabled {
     color: lightgray;
     background-color: gray;
+}
+
+/* =========================================================================
+   QComboBox
+   =========================================================================
+   - For QuPickerInline
+   - http://stackoverflow.com/questions/29939990
+   - http://doc.qt.io/qt-4.8/stylesheet-examples.html#customizing-qcombobox
+   - QComboBox gets the "on" state when the popup is open
+*/
+
+/*
+QComboBox {
+    border: 1px solid gray;
+    border-radius: 3px;
+    padding: 1px 18px 1px 3px;
+    min-width: 6em;
+}
+
+QComboBox:editable {
+    background: white;
+}
+
+QComboBox:!editable, QComboBox::drop-down:editable {
+     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                 stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,
+                                 stop: 0.5 #D8D8D8, stop: 1.0 #D3D3D3);
+}
+
+QComboBox:!editable:on, QComboBox::drop-down:editable:on {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                stop: 0 #D3D3D3, stop: 0.4 #D8D8D8,
+                                stop: 0.5 #DDDDDD, stop: 1.0 #E1E1E1);
+}
+
+QComboBox:on {
+    padding-top: 3px;
+    padding-left: 4px;
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 15px;
+
+    border-left-width: 1px;
+    border-left-color: darkgray;
+    border-left-style: solid;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+}
+
+QComboBox::down-arrow {
+    image: url(/usr/share/icons/crystalsvg/16x16/actions/1downarrow.png);
+}
+
+QComboBox::down-arrow:on {
+    top: 1px;
+    left: 1px;
+}
+
+QComboBox QAbstractItemView {
+    border: 2px solid darkgray;
+    selection-background-color: lightgray;
+}
+*/
+
+QComboBox#picker_inline {
+    color: blue;
+    selection-color: red;
+}
+QComboBox#picker_inline:item:selected {
+    border: 2px solid black;
+}
+QComboBox#picker_inline:item:checked {
+    font-weight: bold;
+    padding: 0;
+}
+
+/* Read-only version of QuPickerInline */
+QLabel#picker_inline {
+    color: blue;
+    font-weight: bold;
 }
 
 /* =========================================================================
@@ -190,28 +285,34 @@ QuestionnaireHeader QLabel {
    ========================================================================= */
 
 /* BooleanWidget in its Text appearance */
-#boolean_widget {
+/* Previously, everything done with #boolean_widget. Now, sub-widgets within
+   a BooleanWidget. That is, replaced
+        #boolean_widget[state...] {}
+   with
+        BooleanWidget[state...] ClickableLabelWordWrapWide {}
+*/
+BooleanWidget ClickableLabelWordWrapWide {
 }
-#boolean_widget[state="disabled"] {
+BooleanWidget[state="disabled"] ClickableLabelWordWrapWide {
     background-color: darkgrey;
 }
-#boolean_widget[state="null"] {
+BooleanWidget[state="null"] ClickableLabelWordWrapWide {
     background-color: white;
 }
-#boolean_widget[state="nullrequired"] {
+BooleanWidget[state="nullrequired"] ClickableLabelWordWrapWide {
     background-color: yellow;
 }
-#boolean_widget[state="false"] {
+BooleanWidget[state="false"] ClickableLabelWordWrapWide {
     background-color: white;
 }
-#boolean_widget[state="true"] {
+BooleanWidget[state="true"] ClickableLabelWordWrapWide {
     background-color: red;
 }
-#boolean_widget[readonly="true"]:pressed {
+BooleanWidget[readonly="true"]:pressed ClickableLabelWordWrapWide {
     background-color: grey;
 }
-#boolean_widget[readonly="false"]:pressed {
-    background-color: lightblue;
+BooleanWidget[readonly="false"]:pressed ClickableLabelWordWrapWide {
+    background-color: rgba(100, 100, 255, 200);  /* to match BUTTON_PRESSED_COLOUR */
 }
 
 #countdown_label {
@@ -220,23 +321,6 @@ QuestionnaireHeader QLabel {
 
 #mcq_instruction {
     color: darkgray;
-    font-weight: bold;
-}
-
-/* For QuPickerInline */
-QComboBox#picker_inline {
-    /* http://stackoverflow.com/questions/29939990 */
-    color: blue;
-    selection-color: red;
-}
-QComboBox#picker_inline:item:selected {
-    border: 2px solid black;
-}
-QComboBox#picker_inline:item:checked {
-    font-weight: bold;
-}
-QLabel#picker_inline {  /* read-only version */
-    color: blue;
     font-weight: bold;
 }
 
@@ -361,7 +445,7 @@ AspectRatioPixmapLabel {
     padding: 5px;
 }
 #mcq_grid #option {
-padding: 5px;
+    padding: 5px;
 }
 #mcq_grid #title {
     font-weight: bold;
@@ -436,5 +520,11 @@ padding: 5px;
     background-color: blue;
 }
 #debug_yellow {
+    background-color: yellow;
+}
+#debug_pink {
+    background-color: pink;
+}
+FlowLayoutContainer {
     background-color: yellow;
 }

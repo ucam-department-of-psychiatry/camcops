@@ -13,19 +13,23 @@
 // Alignment
 // ============================================================================
 
-Qt::Alignment question_text_align = Qt::AlignLeft | Qt::AlignVCenter;
-Qt::Alignment question_widget_align = Qt::AlignLeft | Qt::AlignVCenter;
-// don't do right align; disrupts natural reading flow
+namespace McqFunc {
+    Qt::Alignment question_text_align = Qt::AlignVCenter;
+    Qt::Alignment question_widget_align = Qt::AlignVCenter;
+    // don't do right align; disrupts natural reading flow
 
-Qt::Alignment title_text_align = Qt::AlignLeft | Qt::AlignTop;
-Qt::Alignment title_widget_align = Qt::AlignLeft | Qt::AlignTop;
+    Qt::Alignment title_text_align = Qt::AlignTop;
+    Qt::Alignment title_widget_align = Qt::AlignTop;
 
-Qt::Alignment option_text_align = Qt::AlignCenter | Qt::AlignBottom;
-Qt::Alignment option_widget_align = Qt::AlignCenter | Qt::AlignBottom;
+    Qt::Alignment option_text_align = Qt::AlignCenter | Qt::AlignBottom;
+    Qt::Alignment option_widget_align = Qt::AlignCenter | Qt::AlignBottom;
 
-// If you don't apply a widget alignment, the label widget takes the entire
-// cell -- which is fine for the most part (the text alignment does the rest)
-// -- but not when you want a *bottom* alignment.
+    // If you don't apply a widget alignment, the label widget takes the entire
+    // cell -- which is fine for the most part (the text alignment does the rest)
+    // -- but not when you want a *bottom* alignment.
+
+    Qt::Alignment response_widget_align = Qt::AlignCenter | Qt::AlignTop;
+}
 
 
 // ============================================================================

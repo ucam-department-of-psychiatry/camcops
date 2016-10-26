@@ -5,7 +5,7 @@
 #include <QVBoxLayout>
 #include "common/uiconstants.h"
 #include "lib/uifunc.h"
-#include "questionnaire.h"
+#include "questionnairelib/questionnaire.h"
 
 
 const int WRITE_DELAY_MS = 10;
@@ -212,6 +212,8 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
                                 QSizePolicy::Fixed);
         layout->addWidget(m_slider);
         m_container_widget->setLayout(layout);
+        m_container_widget->setSizePolicy(QSizePolicy::Preferred,
+                                          QSizePolicy::Fixed);
     } else {
         // --------------------------------------------------------------------
         // Vertical
@@ -232,6 +234,8 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
         outerlayout->addLayout(innerlayout);
         outerlayout->addStretch();
         m_container_widget->setLayout(outerlayout);
+        m_container_widget->setSizePolicy(QSizePolicy::Fixed,
+                                          QSizePolicy::Preferred);
     }
 
     setFromField();

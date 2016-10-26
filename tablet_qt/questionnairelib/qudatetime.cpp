@@ -2,8 +2,8 @@
 #include <QDateTimeEdit>
 #include <QHBoxLayout>
 #include "lib/uifunc.h"
+#include "questionnairelib/questionnaire.h"
 #include "widgets/imagebutton.h"
-#include "questionnaire.h"
 
 // http://doc.qt.io/qt-5/qdatetime.html#toString
 const QString DEFAULT_DATETIME_FORMAT = "dd MMM yyyy HH:mm";
@@ -75,7 +75,9 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
     bool read_only = questionnaire->readOnly();
 
     QPointer<QWidget> widget = new QWidget();
+    widget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     QHBoxLayout* layout = new QHBoxLayout();
+    layout->setContentsMargins(UiConst::NO_MARGINS);
     widget->setLayout(layout);
 
     QString format;

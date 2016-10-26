@@ -1,5 +1,6 @@
 #include "questionwithtwofields.h"
 
+
 QuestionWithTwoFields::QuestionWithTwoFields(const QString& question,
                                              FieldRefPtr first_field,
                                              FieldRefPtr second_field) :

@@ -30,6 +30,7 @@ class QuElement : public QObject
     friend class QuContainerVertical;
     friend class QuContainerGrid;
     friend class SettingsMenu;
+    friend class WidgetTestMenu;
 public:
     QuElement();
     virtual ~QuElement();

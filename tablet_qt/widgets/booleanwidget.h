@@ -1,12 +1,17 @@
 #pragma once
-#include "imagebutton.h"
+#include <QAbstractButton>
+class ClickableLabelWordWrapWide;
+class ImageButton;
+class QVBoxLayout;
 
 
-class BooleanWidget : public ImageButton
+class BooleanWidget : public QAbstractButton
 {
     // - Encapsulates a widget that can take a variety of appearances, but
     //   embodies some or all of the states true, false, null (not required),
     //   null (required).
+    // - Can display as an image or a text button. Because those things don't
+    //   play nicely together, owns widgets rather than inheriting.
     // - Main signal is: clicked
     // - RESIST the temptation to have this widget do value logic.
     //   That's the job of its owner.
@@ -40,9 +45,20 @@ public:
     void setState(BooleanWidget::State state);
     void setValue(const QVariant& value, bool mandatory,
                   bool disabled = false);
+    void setText(const QString& text);
+
+    virtual QSize sizeHint() const override;
+    virtual QSize minimumSizeHint() const override;
+protected:
+    virtual void paintEvent(QPaintEvent* e) override;
+    void updateWidget();
 protected:
     bool m_read_only;
     bool m_big;
     Appearance m_appearance;
+    bool m_as_image;
     State m_state;
+    ImageButton* m_imagebutton;
+    ClickableLabelWordWrapWide* m_textbutton;
+    QVBoxLayout* m_layout;
 };
