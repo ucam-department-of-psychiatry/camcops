@@ -36,6 +36,7 @@ int NvpChoiceDialog::choose(QVariant* new_value)
                     nvp.name());
         label->setSizePolicy(UiFunc::horizExpandingHFWPolicy());
         contentlayout->addWidget(label);
+        // Safe object lifespan signal: can use std::bind
         connect(label, &ClickableLabelWordWrapWide::clicked,
                 std::bind(&NvpChoiceDialog::itemClicked, this, i));
     }

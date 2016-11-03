@@ -104,7 +104,8 @@ LabelWordWrapWide {
 
 QPushButton,
 QComboBox#picker_inline,
-QLabel#picker_popup,
+ClickableLabelWordWrapWide#picker_popup,
+BooleanWidget ClickableLabelWordWrapWide,
 NvpChoiceDialog ClickableLabelWordWrapWide,
 PagePickerDialog ClickableLabelWordWrapWide {
     font-weight: bold;
@@ -113,7 +114,7 @@ PagePickerDialog ClickableLabelWordWrapWide {
     border-width: 2px;
     border-radius: 10px;
     border-color: darkgray;
-    padding: 26px;
+    padding: 5px;
 }
 ClickableLabel,
 ClickableLabelWordWrapWide {
@@ -287,33 +288,32 @@ QuestionnaireHeader QLabel {
 /* BooleanWidget in its Text appearance */
 /* Previously, everything done with #boolean_widget. Now, sub-widgets within
    a BooleanWidget. That is, replaced
-        #boolean_widget[state...] {}
+        #boolean_widget[state...]:pseudo {}
    with
-        BooleanWidget[state...] ClickableLabelWordWrapWide {}
+        BooleanWidget ClickableLabelWordWrapWide[state...]:pseudo {}
 */
-BooleanWidget ClickableLabelWordWrapWide {
-}
-BooleanWidget[state="disabled"] ClickableLabelWordWrapWide {
+BooleanWidget ClickableLabelWordWrapWide[state="disabled"] {
     background-color: darkgrey;
 }
-BooleanWidget[state="null"] ClickableLabelWordWrapWide {
+BooleanWidget ClickableLabelWordWrapWide[state="null"] {
     background-color: white;
 }
-BooleanWidget[state="nullrequired"] ClickableLabelWordWrapWide {
+BooleanWidget ClickableLabelWordWrapWide[state="nullrequired"] {
     background-color: yellow;
 }
-BooleanWidget[state="false"] ClickableLabelWordWrapWide {
+BooleanWidget ClickableLabelWordWrapWide[state="false"] {
     background-color: white;
 }
-BooleanWidget[state="true"] ClickableLabelWordWrapWide {
+BooleanWidget ClickableLabelWordWrapWide[state="true"] {
     background-color: red;
 }
-BooleanWidget[readonly="true"]:pressed ClickableLabelWordWrapWide {
+BooleanWidget ClickableLabelWordWrapWide[readonly="true"]:pressed {
     background-color: grey;
 }
-BooleanWidget[readonly="false"]:pressed ClickableLabelWordWrapWide {
-    background-color: rgba(100, 100, 255, 200);  /* to match BUTTON_PRESSED_COLOUR */
+BooleanWidget ClickableLabelWordWrapWide[readonly="false"]:pressed {
+    background-color: rgba(100, 100, 255, 200);
 }
+/* ... to match BUTTON_PRESSED_COLOUR */
 
 #countdown_label {
     font-weight: bold;

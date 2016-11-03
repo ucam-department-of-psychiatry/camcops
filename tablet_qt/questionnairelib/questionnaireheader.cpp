@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include "common/cssconst.h"
 #include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "widgets/horizontalline.h"
@@ -20,8 +21,20 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     m_title(title)
 {
     if (!css_name.isEmpty()) {
-        setObjectName(css_name);  // *** not working! But works for e.g. cancel widget below
+        setObjectName(css_name);  // was not working! But works for e.g. cancel button below
+        // Problem appears to be that WA_StyledBackground is not set.
+        setAttribute(Qt::WidgetAttribute::WA_StyledBackground, true);
+
+        // Following which discovery...
+        // http://stackoverflow.com/questions/24653405/why-is-qwidget-with-border-and-background-image-styling-behaving-different-to-ql
+        // ... suggests using QFrame
+        // http://stackoverflow.com/questions/12655538/how-to-set-qwidget-background-color
+        // ... suggests using setAutoFillBackground(true)
+        // http://doc.qt.io/qt-5.7/qwidget.html#autoFillBackground-prop
+        // ... advises caution with setAutoFillBackground() and stylesheets
     }
+    setSizePolicy(UiFunc::horizExpandingHFWPolicy());
+
     QVBoxLayout* mainlayout = new QVBoxLayout();
     setLayout(mainlayout);
 
@@ -53,7 +66,7 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
 
     // Title
     LabelWordWrapWide* title_label = new LabelWordWrapWide(title);
-    title_label->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+    title_label->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
     toprowlayout->addWidget(title_label);  // default alignment fills whole cell
 
     // Spacing
@@ -103,8 +116,9 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     // Horizontal line
     // ------------------------------------------------------------------------
     HorizontalLine* horizline = new HorizontalLine(UiConst::HEADER_HLINE_WIDTH);
-    horizline->setObjectName("questionnaire_horizontal_line");
+    horizline->setObjectName(CssConst::QUESTIONNAIRE_HORIZONTAL_LINE);
     mainlayout->addWidget(horizline);
+
 }
 
 

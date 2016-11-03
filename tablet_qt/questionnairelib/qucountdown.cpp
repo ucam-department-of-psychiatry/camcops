@@ -5,6 +5,7 @@
 #include <QMediaPlayer>
 #include <QPushButton>
 #include <QTimer>
+#include "common/cssconst.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 
@@ -46,6 +47,7 @@ QPointer<QWidget> QuCountdown::makeWidget(Questionnaire* questionnaire)
     QPointer<QWidget> widget = new QWidget();
     widget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     QHBoxLayout* layout = new QHBoxLayout();
+    layout->setContentsMargins(UiConst::NO_MARGINS);
     widget->setLayout(layout);
 
     bool read_only = questionnaire->readOnly();
@@ -63,7 +65,7 @@ QPointer<QWidget> QuCountdown::makeWidget(Questionnaire* questionnaire)
     layout->addWidget(m_reset_button);
 
     m_label = new QLabel();
-    m_label->setObjectName("countdown_label");
+    m_label->setObjectName(CssConst::COUNTDOWN_LABEL);
     layout->addWidget(m_label);
 
     if (read_only) {

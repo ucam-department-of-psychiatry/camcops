@@ -8,37 +8,43 @@
 
 
 ClickableLabelWordWrapWide::ClickableLabelWordWrapWide(const QString& text,
+                                                       bool stretch,
                                                        QWidget* parent) :
     QPushButton(parent),
     m_label(new LabelWordWrapWide(text, this))
 {
-    commonConstructor();
+    commonConstructor(stretch);
 }
 
 
-ClickableLabelWordWrapWide::ClickableLabelWordWrapWide(QWidget* parent) :
+ClickableLabelWordWrapWide::ClickableLabelWordWrapWide(bool stretch,
+                                                       QWidget* parent) :
     QPushButton(parent),
     m_label(new LabelWordWrapWide(this))
 {
-    commonConstructor();
+    commonConstructor(stretch);
 }
 
 
-void ClickableLabelWordWrapWide::commonConstructor()
+void ClickableLabelWordWrapWide::commonConstructor(bool stretch)
 {
     m_label->setMouseTracking(false);
     m_label->setTextInteractionFlags(Qt::NoTextInteraction);
     // ... makes sure that all clicks come to us (not e.g. trigger URL)
-    // m_label->setObjectName("debug_yellow");
+    // m_label->setObjectName(CssConst::DEBUG_YELLOW);
 
     m_layout = new QVBoxLayout();
     // m_layout->setContentsMargins(UiConst::NO_MARGINS);
     // no, use CSS instead // layout->setMargin(0);
 
     m_layout->addWidget(m_label);
+    if (stretch) {
+        m_layout->addStretch();
+    }
 
     setLayout(m_layout);
-    setSizePolicy(UiFunc::horizMaximumHFWPolicy());
+    setSizePolicy(stretch ? UiFunc::horizExpandingHFWPolicy()
+                          : UiFunc::horizMaximumHFWPolicy());
     // http://doc.qt.io/qt-5/layout.html
 }
 

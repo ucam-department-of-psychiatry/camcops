@@ -195,26 +195,3 @@ protected:
     QSharedPointer<NetworkManager> m_netmgr;
     mutable QMap<QString, QVariant> m_cachedvars;
 };
-
-/*
-===============================================================================
-Generic problem: derive from QObject or own one?
-===============================================================================
-- Derive from QObject:
-    - can implement signals directly
-    - all-in-one design
-    - can't copy, so can't use X().chainmethod().clone() idiom
-    - requires Q_OBJECT macro in all classes
-    - SAFER: CAN USE deleteLater()
-- Own QObject:
-    - owned QObject has to do the signals emitting
-    - two chains of inheritance (derive QObject/QWidget for new signals;
-      derive Openable for everything else)
-    - copying is not completely safe (as a member that is a QPointer<QWidget>
-      will be shallow-copied only)
-- Doesn't matter:
-    - slots - QObject::connect() works with QObject signals but also with
-      std::bind(...) signals, for arbitrary C++ objects.
-- Decision:
-    - Inherit from QObject via OpenableWidget
-*/

@@ -597,7 +597,9 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
         new QuHeading("Thermometer:"),
         (new QuThermometer(fieldRef("thermometer"), thermometer_items))
                                 ->setRescale(true, 0.4),
-    })->setTitle("Sliders and thermometers"));
+    })
+        ->setTitle("Sliders and thermometers")
+        ->setType(QuPage::PageType::ClinicianWithPatient));
 
     // ========================================================================
     // Editable variables inc. datetime
@@ -656,8 +658,9 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
             {"label 3", new QuHeading("Just a heading: " + lipsum2)},
             {"label 4", new QuDateTime(fieldRef("date_time"))},
         }, 1, 2),
-    })->setTitle("Editable variable including dates/times")
-                        ->setType(QuPage::PageType::Clinician));
+    })
+        ->setTitle("Editable variable including dates/times")
+        ->setType(QuPage::PageType::Clinician));
 
     // ========================================================================
     // Diagnostic codes
@@ -685,6 +688,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
     // ========================================================================
 
     QuPagePtr page_canvas((new QuPage{
+        (new QuText("Page style: ClinicianWithPatient"))->italic(true),
         new QuHeading("Canvas, blank start:"),
         new QuCanvas(fieldRef("canvas2_blobid", true, true, true)),
         new QuHeading("Canvas, using files:"),
@@ -693,12 +697,15 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
             UiFunc::resourceFilename("ace3/rhinoceros.png")),
         new QuHeading("Canvas, clone of the first one:"),
         new QuCanvas(fieldRef("canvas2_blobid", true, true, true)),
-    })->setTitle("Canvas"));
+    })
+        ->setTitle("Canvas")
+        ->setType(QuPage::PageType::ClinicianWithPatient));
 
     // ========================================================================
     // Buttons
     // ========================================================================
 
+    // Safe object lifespan signal: can use std::bind
     QuPagePtr page_buttons((new QuPage{
         new QuButton(
             "Say hello",

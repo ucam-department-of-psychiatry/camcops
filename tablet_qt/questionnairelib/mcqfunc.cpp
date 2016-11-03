@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QGridLayout>
 #include <QString>
+#include "common/cssconst.h"
 #include "common/uiconstants.h"
 #include "db/fieldref.h"
 #include "widgets/booleanwidget.h"
@@ -54,7 +55,7 @@ namespace McqFunc {
 void McqFunc::addVerticalLine(QGridLayout* grid, int col, int n_rows)
 {
     VerticalLine* vline = new VerticalLine(UiConst::MCQGRID_VLINE_WIDTH);
-    vline->setObjectName("vline");
+    vline->setObjectName(CssConst::VLINE);
     grid->addWidget(vline, 0, col, n_rows, 1);
 }
 
@@ -64,7 +65,7 @@ void McqFunc::addQuestion(QGridLayout* grid, int row,
 {
     LabelWordWrapWide* q = new LabelWordWrapWide(question);
     q->setAlignment(question_text_align);
-    q->setObjectName("question");
+    q->setObjectName(CssConst::QUESTION);
     grid->addWidget(q, row, 0, question_widget_align);
 }
 
@@ -74,7 +75,7 @@ void McqFunc::addTitle(QGridLayout* grid, int row, const QString& title)
     if (!title.isEmpty()) {
         LabelWordWrapWide* w = new LabelWordWrapWide(title);
         w->setAlignment(title_text_align);
-        w->setObjectName("title");
+        w->setObjectName(CssConst::TITLE);
         grid->addWidget(w, row, 0, title_widget_align);
     }
 }
@@ -86,7 +87,7 @@ void McqFunc::addSubtitle(QGridLayout* grid, int row,
     if (!subtitle.isEmpty()) {
         LabelWordWrapWide* w = new LabelWordWrapWide(subtitle);
         w->setAlignment(title_text_align);
-        w->setObjectName("subtitle");
+        w->setObjectName(CssConst::SUBTITLE);
         grid->addWidget(w, row, 0, title_widget_align);
     }
 }
@@ -97,7 +98,7 @@ void McqFunc::addOption(QGridLayout* grid, int row, int col,
 {
     LabelWordWrapWide* w = new LabelWordWrapWide(option);
     w->setAlignment(option_text_align);
-    w->setObjectName("option");
+    w->setObjectName(CssConst::OPTION);
     grid->addWidget(w, row, col, option_widget_align);
 }
 
@@ -106,7 +107,7 @@ void McqFunc::addOptionBackground(QGridLayout* grid, int row,
                                   int firstcol, int ncols)
 {
     QWidget* bg = new QWidget();
-    bg->setObjectName("option_background");
+    bg->setObjectName(CssConst::OPTION_BACKGROUND);
     grid->addWidget(bg, row, firstcol, 1, ncols);
 }
 

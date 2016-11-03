@@ -55,6 +55,7 @@ void NetworkManager::testHttpGet(const QString& url, bool offer_cancel)
     // URL
     request.setUrl(QUrl(url));
     // Callback
+    // *** CHECK CALLBACK LIFESPAN SAFETY
     QObject::connect(manager, &QNetworkAccessManager::finished,
                      std::bind(&NetworkManager::testReplyFinished,
                                this, std::placeholders::_1));
@@ -82,11 +83,13 @@ void NetworkManager::testHttpsGet(const QString& url, bool offer_cancel,
     request.setUrl(QUrl(url));
     // Callback
     // http://wiki.qt.io/New_Signal_Slot_Syntax
+    // *** CHECK CALLBACK LIFESPAN SAFETY
     QObject::connect(manager, &QNetworkAccessManager::finished,
                      std::bind(&NetworkManager::testReplyFinished, this,
                                std::placeholders::_1));
     // Note: the reply callback arrives on the main (GUI) thread.
     if (ignore_ssl_errors) {
+        // *** CHECK CALLBACK LIFESPAN SAFETY
         QObject::connect(manager, &QNetworkAccessManager::sslErrors,
                          std::bind(&NetworkManager::sslIgnoringErrorHandler,
                                    this, std::placeholders::_1,

@@ -49,6 +49,7 @@ SettingsMenu::SettingsMenu(CamcopsApp& app) :
 {
     m_fontsize_fr = m_app.storedVarFieldRef(
                 VarConst::QUESTIONNAIRE_SIZE_PERCENT, true);
+    // Safe object lifespan signal: can use std::bind
     m_items = {
         MenuItem(
             tr("Questionnaire font size"),
@@ -263,6 +264,7 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
     FieldRefPtr username_fr = app.storedVarFieldRef(
                 VarConst::SERVER_USERNAME, false);
     QString username_t = tr("Username on server");
+    // Safe object lifespan signal: can use std::bind
     FieldRef::GetterFunction getter = std::bind(&SettingsMenu::serverPasswordGetter, this);
     FieldRef::SetterFunction setter = std::bind(&SettingsMenu::serverPasswordSetter, this, std::placeholders::_1);
     FieldRefPtr password_fr = FieldRefPtr(new FieldRef(getter, setter, false));

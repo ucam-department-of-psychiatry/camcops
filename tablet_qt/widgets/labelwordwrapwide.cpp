@@ -7,6 +7,9 @@
 #include <QFontMetrics>
 #include <QStyle>
 #include <QStyleOptionFrame>
+#ifdef DEBUG_LAYOUT
+#include "common/cssconst.h"
+#endif
 #include "lib/uifunc.h"
 
 // A QLabel, with setWordWrap(true), has a tendency to expand vertically and
@@ -59,7 +62,9 @@ void LabelWordWrapWide::commonConstructor()
 
     // Maximum = ShrinkFlag
 
-    // setObjectName("debug_red");
+#ifdef DEBUG_LAYOUT
+    setObjectName(CssConst::DEBUG_RED);
+#endif
 }
 
 
@@ -133,34 +138,14 @@ QSize LabelWordWrapWide::sizeHint() const
                                 0,  // definitely not Qt::TextWordWrap
                                 text()).width();
     QSize text_size(width, height);
-    QSize final_size;
-#ifdef DEBUG_LAYOUT
-    QSize stylesheet_extra_size(0, 0);
-#endif
+
+    QStyleOptionFrame opt;
+    initStyleOption(&opt);  // protected
+    return UiFunc::frameSizeHintFromContents(this, &opt, text_size);
 
     // Needs adjustment for stylesheet?
     // - In the case of a label inside a pushbutton, the owner (the pushbutton)
     //   should do this.
     // - Can a QLabel have its own stylesheet info? Yes:
     //   http://doc.qt.io/qt-5.7/stylesheet-reference.html
-    QStyleOptionFrame opt;
-    initStyleOption(&opt);  // protected
-    QStyle* mystyle = style();
-    if (mystyle) {
-        final_size = mystyle->sizeFromContents(QStyle::CT_PushButton, &opt,
-                                               text_size, this);
-        // Is QStyle::CT_PushButton right?
-#ifdef DEBUG_LAYOUT
-        stylesheet_extra_size = final_size - text_size;
-#endif
-    }
-
-    // QSize size = QLabel::sizeHint();
-#ifdef DEBUG_LAYOUT
-    qDebug() << Q_FUNC_INFO << "text_size" << text_size
-             << "plus stylesheet" << stylesheet_extra_size
-             << "gives" << final_size
-             << "for text" << text();
-#endif
-    return final_size;
 }

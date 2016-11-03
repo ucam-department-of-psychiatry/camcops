@@ -1,15 +1,20 @@
+// #define SHOW_WIDGET_ATTRIBUTES
+// #define SHOW_WIDGET_PROPERTIES
+
 #include "layoutdumper.h"
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <stdio.h>
 #include <QDebug>
 #include <QString>
 #include <QStringBuilder>
-
-#include <sstream>
-#include <string>
-#include <iostream>
-#include <stdio.h>
 #include <QtWidgets/QLayout>
 #include <QtWidgets/QWidget>
+#include "lib/uifunc.h"
 
+const QString NULL_WIDGET_STRING("<null_widget>");
+const int SPACES_PER_LEVEL = 4;
 
 using namespace LayoutDumper;
 
@@ -25,7 +30,7 @@ QString LayoutDumper::toString(const QSizePolicy::Policy& policy)
     case QSizePolicy::Expanding: return "Expanding";
     case QSizePolicy::Ignored: return "Ignored";
     }
-    return "unknown";
+    return "unknown_QSizePolicy";
 }
 
 
@@ -54,7 +59,7 @@ QString LayoutDumper::toString(QLayout::SizeConstraint constraint)
     case QLayout::SetMaximumSize: return "SetMaximumSize";
     case QLayout::SetMinAndMaxSize: return "SetMinAndMaxSize";
     }
-    return "unknown";
+    return "unknown_SizeConstraint";
 }
 
 
@@ -101,25 +106,41 @@ QString LayoutDumper::toString(const Qt::Alignment& alignment)
 }
 
 
-QString LayoutDumper::toString(void* pointer)
+QString LayoutDumper::toString(const void* pointer)
 {
     // http://stackoverflow.com/questions/8881923/how-to-convert-a-pointer-value-to-qstring
     return QString("0x%1").arg((quintptr)pointer,
                                QT_POINTER_SIZE * 2, 16, QChar('0'));
 }
 
-QString LayoutDumper::getWidgetInfo(const QWidget& w)
+
+QString LayoutDumper::getWidgetDescriptor(const QWidget* w)
 {
-    const QRect& geom = w.geometry();
-    QSize sizehint = w.sizeHint();
-    QSize minsizehint = w.minimumSizeHint();
+    if (!w) {
+        return NULL_WIDGET_STRING;
+    }
+    return QString("%1<%2 '%3'>")
+            .arg(w->metaObject()->className())
+            .arg(toString((void*)w))
+            .arg(w->objectName());
+}
+
+
+QString LayoutDumper::getWidgetInfo(const QWidget* w)
+{
+    if (!w) {
+        return NULL_WIDGET_STRING;
+    }
+
+    const QRect& geom = w->geometry();
+    QSize sizehint = w->sizeHint();
+    QSize minsizehint = w->minimumSizeHint();
+
     // Can't have >9 arguments to QString arg() system.
     // Using QStringBuilder with % leads to more type faff.
     QStringList elements;
-    elements.append(QString("%1 %2 ('%3')")
-                    .arg(w.metaObject()->className())
-                    .arg(toString((void*)&w))
-                    .arg(w.objectName()));
+    elements.append(getWidgetDescriptor(w));
+    elements.append(w->isVisible() ? "visible" : "HIDDEN");
     elements.append(QString("pos (%1, %2)")
                     .arg(geom.x())
                     .arg(geom.y()));
@@ -132,46 +153,72 @@ QString LayoutDumper::getWidgetInfo(const QWidget& w)
 //    elements.append(QString("maximumSize (%1 x %2)")
 //                    .arg(w.maximumSize().width())
 //                    .arg(w.maximumSize().height()));
-    elements.append(QString("sizeHint (%1 x %2), minimumSizeHint (%3 x %4), policy %5")
+    elements.append(
+        QString("sizeHint (%1 x %2), minimumSizeHint (%3 x %4), sizePolicy %5")
                     .arg(sizehint.width())
                     .arg(sizehint.height())
                     .arg(minsizehint.width())
                     .arg(minsizehint.height())
-                    .arg(toString(w.sizePolicy())));
-    elements.append(QString("stylesheet=%1")
-                    .arg(w.styleSheet().isEmpty() ? "false" : "true"));
-    elements.append(w.isVisible() ? "visible" : "HIDDEN");
+                    .arg(toString(w->sizePolicy())));
+    elements.append(QString("stylesheet: %1")
+                    .arg(w->styleSheet().isEmpty() ? "false" : "true"));
+
+#ifdef SHOW_WIDGET_ATTRIBUTES
+    elements.append(QString("attributes: [%1]").arg(getWidgetAttributeInfo(w)));
+#endif
+
+#ifdef SHOW_WIDGET_PROPERTIES
+    QString properties = getDynamicProperties(w);
+    if (!properties.isEmpty()) {
+        elements.append(QString("properties: [%1]").arg(properties));
+    }
+#endif
+
     return elements.join(", ");
 }
 
 
-QString LayoutDumper::getLayoutItemInfo(QLayoutItem* item)
+QString LayoutDumper::getWidgetAttributeInfo(const QWidget* w)
 {
-    QWidgetItem* wi = dynamic_cast<QWidgetItem*>(item);
-    QSpacerItem* si = dynamic_cast<QSpacerItem*>(item);
-    if (wi) {
-        if (wi->widget()) {
-            return QString("%1 [alignment: %2]")
-                    .arg(getWidgetInfo(*wi->widget()))
-                    .arg(toString(wi->alignment()));
-        }
-    } else if (si) {
-        QSize hint = si->sizeHint();
-        QLayout* layout = si->layout();
-        return QString("QSpacerItem: sizeHint (%1 x %2), policy %3, "
-                       "constraint %4, alignment %5")
-                .arg(hint.width())
-                .arg(hint.height())
-                .arg(toString(si->sizePolicy()))
-                .arg(layout ? toString(layout->sizeConstraint())
-                            : "[no layout]")
-                .arg(si->alignment());
+    // http://doc.qt.io/qt-5/qt.html#WidgetAttribute-enum
+    if (!w) {
+        return NULL_WIDGET_STRING;
     }
-    return "";
+    QStringList elements;
+    elements.append(QString("WA_NoSystemBackground %1").arg(
+        w->testAttribute(Qt::WidgetAttribute::WA_NoSystemBackground)));
+    elements.append(QString("WA_OpaquePaintEvent %1").arg(
+        w->testAttribute(Qt::WidgetAttribute::WA_OpaquePaintEvent)));
+    elements.append(QString("WA_SetStyle %1").arg(
+        w->testAttribute(Qt::WidgetAttribute::WA_SetStyle)));
+    elements.append(QString("WA_StyleSheet %1").arg(
+        w->testAttribute(Qt::WidgetAttribute::WA_StyleSheet)));
+    elements.append(QString("WA_TranslucentBackground %1").arg(
+        w->testAttribute(Qt::WidgetAttribute::WA_TranslucentBackground)));
+    elements.append(QString("WA_StyledBackground %1").arg(
+        w->testAttribute(Qt::WidgetAttribute::WA_StyledBackground)));
+    return elements.join(", ");
 }
 
 
-QString LayoutDumper::getLayoutInfo(QLayout* layout)
+QString LayoutDumper::getDynamicProperties(const QWidget* w)
+{
+    if (!w) {
+        return NULL_WIDGET_STRING;
+    }
+    QStringList elements;
+    QList<QByteArray> property_names = w->dynamicPropertyNames();
+    for (const QByteArray& arr : property_names) {
+        QString name(arr);
+        QVariant value = w->property(arr);
+        QString value_string = UiFunc::escapeString(value.toString());
+        elements.append(QString("%1=%2").arg(name).arg(value_string));
+    }
+    return elements.join(", ");
+}
+
+
+QString LayoutDumper::getLayoutInfo(const QLayout* layout)
 {
     if (!layout) {
         return "null_layout";
@@ -205,57 +252,97 @@ QString LayoutDumper::getLayoutInfo(QLayout* layout)
 }
 
 
-void LayoutDumper::dumpWidgetAndChildren(QDebug& os, const QWidget* w,
-                                         int level)
+QList<const QWidget*> LayoutDumper::dumpLayoutAndChildren(QDebug& os,
+                                                    const QLayout* layout,
+                                                    int level)
 {
-    QString padding;
-    for (int i = 0; i <= level; i++) {
-        padding += "    ";  // 4 spaces per level
+    QString padding(level * SPACES_PER_LEVEL, ' ');
+    QString next_padding((level + 1) * SPACES_PER_LEVEL, ' ');
+    QList<const QWidget*> dumped_children;
+
+    os << padding << "Layout: " << getLayoutInfo(layout);
+
+    const QBoxLayout* box_layout = dynamic_cast<const QBoxLayout*>(layout);
+    if (box_layout) {
+        os << ", spacing " <<  box_layout->spacing();
     }
+    os << "\n";
 
-    QLayout* layout = w->layout();
-    QList<QWidget*> dumped_children;
-    if (layout && !layout->isEmpty()) {
-        os << padding << "Layout: " << getLayoutInfo(layout);
-
-        QBoxLayout* box_layout = dynamic_cast<QBoxLayout*>(layout);
-        if (box_layout) {
-            os << ", spacing " <<  box_layout->spacing();
-        }
-        os << ":\n";
-
+    if (layout->isEmpty()) {
+        os << padding << "... empty layout\n";
+    } else {
         int num_items = layout->count();
         for (int i = 0; i < num_items; i++) {
             QLayoutItem* layout_item = layout->itemAt(i);
-            QString item_info = getLayoutItemInfo(layout_item);
-            if (!item_info.isEmpty()) {
-                os << padding << "- " << item_info << "\n";
-            }
-
+            QLayout* child_layout = layout_item->layout();
             QWidgetItem* wi = dynamic_cast<QWidgetItem*>(layout_item);
+            QSpacerItem* si = dynamic_cast<QSpacerItem*>(layout_item);
             if (wi && wi->widget()) {
-                dumpWidgetAndChildren(os, wi->widget(), level + 1);
-                dumped_children.push_back(wi->widget());
+                QString alignment = QString(" [alignment: %1]")
+                        .arg(toString(wi->alignment()));
+                dumped_children.append(
+                    dumpWidgetAndChildren(os, wi->widget(), level + 1,
+                                          alignment));
+            } else if (child_layout) {
+                dumped_children.append(
+                    dumpLayoutAndChildren(os, child_layout, level + 1));
+            } else if (si) {
+                QSize si_hint = si->sizeHint();
+                QLayout* si_layout = si->layout();
+                os << next_padding << QString(
+                          "QSpacerItem: sizeHint (%1 x %2), sizePolicy %3, "
+                          "constraint %4 [alignment %5]\n")
+                        .arg(si_hint.width())
+                        .arg(si_hint.height())
+                        .arg(toString(si->sizePolicy()))
+                        .arg(si_layout ? toString(si_layout->sizeConstraint())
+                                       : "<no_layout>")
+                        .arg(toString(si->alignment()));
+            } else {
+                os << next_padding << "<unknown_QLayoutItem>";
             }
         }
+    }
+    return dumped_children;
+}
+
+
+QList<const QWidget*> LayoutDumper::dumpWidgetAndChildren(QDebug& os,
+                                                    const QWidget* w,
+                                                    int level,
+                                                    const QString& alignment)
+{
+    QString padding(level * SPACES_PER_LEVEL, ' ');
+    QString next_padding((level + 1) * SPACES_PER_LEVEL, ' ');
+
+    os << padding << getWidgetInfo(w) << alignment << "\n";
+
+    QLayout* layout = w->layout();
+    QList<const QWidget*> dumped_children;
+    dumped_children.append(w);
+    if (layout) {
+        dumped_children.append(
+            dumpLayoutAndChildren(os, layout, level + 1));
     }
 
     // now output any child widgets that weren't dumped as part of the layout
     QList<QWidget*> widgets = w->findChildren<QWidget*>(
                 QString(), Qt::FindDirectChildrenOnly);
+    // Search options: FindDirectChildrenOnly or FindChildrenRecursively.
     QList<QWidget*> undumped_children;
     foreach (QWidget* child, widgets) {
-        if (dumped_children.indexOf(child) == -1) {
+        if (!dumped_children.contains(child)) {
             undumped_children.push_back(child);
         }
     }
-
     if (!undumped_children.empty()) {
         os << padding << "Non-layout children:\n";
         foreach (QWidget* child, undumped_children) {
-            dumpWidgetAndChildren(os, child, level + 1);
+            dumped_children.append(
+                dumpWidgetAndChildren(os, child, level + 1));
         }
     }
+    return dumped_children;
 }
 
 
@@ -263,6 +350,5 @@ void LayoutDumper::dumpWidgetHierarchy(const QWidget* w)
 {
     QDebug os = qDebug().noquote().nospace();
     os << "WIDGET HIERARCHY:\n";
-    os << getWidgetInfo(*w) << "\n";
     dumpWidgetAndChildren(os, w, 0);
 }

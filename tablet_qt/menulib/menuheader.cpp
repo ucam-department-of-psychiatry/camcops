@@ -3,6 +3,7 @@
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include "common/cssconst.h"
 #include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "widgets/horizontalline.h"
@@ -49,7 +50,7 @@ MenuHeader::MenuHeader(QWidget* parent,
     // Title
     LabelWordWrapWide* title_label = new LabelWordWrapWide(title);
     title_label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    title_label->setObjectName("menu_window_title");
+    title_label->setObjectName(CssConst::MENU_WINDOW_TITLE);
     toprowlayout->addWidget(title_label);
 
     // Spacing
@@ -110,17 +111,17 @@ MenuHeader::MenuHeader(QWidget* parent,
     // Horizontal line
     // ------------------------------------------------------------------------
     HorizontalLine* horizline = new HorizontalLine(UiConst::HEADER_HLINE_WIDTH);
-    horizline->setObjectName("header_horizontal_line");
+    horizline->setObjectName(CssConst::HEADER_HORIZONTAL_LINE);
     mainlayout->addWidget(horizline);
 
     // ------------------------------------------------------------------------
     // Selected patient
     // ------------------------------------------------------------------------
     m_patient_info = new LabelWordWrapWide(); // *** patient info
-    m_patient_info->setObjectName("menu_header_patient_info");
+    m_patient_info->setObjectName(CssConst::MENU_HEADER_PATIENT_INFO);
     mainlayout->addWidget(m_patient_info);
     m_no_patient = new LabelWordWrapWide(tr("No patient selected"));
-    m_no_patient->setObjectName("menu_header_no_patient");
+    m_no_patient->setObjectName(CssConst::MENU_HEADER_NO_PATIENT);
     mainlayout->addWidget(m_no_patient);
     selectedPatientChanged(m_app.patientSelected(),
                            m_app.patientDetails());

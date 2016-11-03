@@ -4,6 +4,9 @@
 #
 #-------------------------------------------------
 
+# http://doc.qt.io/qt-5.7/qmake-project-files.html
+# http://doc.qt.io/qt-5.7/qmake-variable-reference.html
+
 # =============================================================================
 # Parts of Qt
 # =============================================================================
@@ -39,6 +42,12 @@ CONFIG += static  # use a statically linked version of Qt
 CONFIG += mobility
 CONFIG += c++11
 MOBILITY =
+
+# PKGCONFIG += openssl
+# ... http://stackoverflow.com/questions/14681012/how-to-include-openssl-in-a-qt-project
+# ... but no effect? Not mentioned in variable reference (above).
+LIBS += -lssl
+# ... not working either? Doesn't complain, but ldd still shows that system libssl.so is in use
 
 # =============================================================================
 # Compiler flags
@@ -232,7 +241,11 @@ SOURCES += main.cpp\
     qobjects/showwatcher.cpp \
     menu/widgettestmenu.cpp \
     qobjects/keypresswatcher.cpp \
-    widgets/flowlayoutcontainer.cpp
+    widgets/flowlayoutcontainer.cpp \
+    common/cssconst.cpp \
+    questionnairelib/qumcqgridsignaller.cpp \
+    questionnairelib/qumcqgriddoublesignaller.cpp \
+    questionnairelib/qumcqgridsinglebooleansignaller.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -397,7 +410,11 @@ HEADERS  += \
     qobjects/showwatcher.h \
     menu/widgettestmenu.h \
     qobjects/keypresswatcher.h \
-    widgets/flowlayoutcontainer.h
+    widgets/flowlayoutcontainer.h \
+    common/cssconst.h \
+    questionnairelib/qumcqgridsignaller.h \
+    questionnairelib/qumcqgriddoublesignaller.h \
+    questionnairelib/qumcqgridsinglebooleansignaller.h
 
 DISTFILES += \
     notes/qt_notes.txt \

@@ -1,5 +1,8 @@
 #include "qupickerpopup.h"
 #include <QDialog>
+#include <QHBoxLayout>
+#include "common/cssconst.h"
+#include "common/uiconstants.h"
 #include "dialogs/nvpchoicedialog.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
@@ -45,16 +48,17 @@ QPointer<QWidget> QuPickerPopup::makeWidget(Questionnaire* questionnaire)
     if (m_randomize) {
         m_options.shuffle();
     }
-
     bool read_only = questionnaire->readOnly();
-    m_label = new ClickableLabelWordWrapWide();
-    m_label->setObjectName("picker_popup");
+
+    m_label = new ClickableLabelWordWrapWide(true);
+    m_label->setObjectName(CssConst::PICKER_POPUP);
     m_label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     if (!read_only) {
         connect(m_label.data(), &ClickableLabelWordWrapWide::clicked,
                 this, &QuPickerPopup::clicked);
     }
     m_label->setEnabled(!read_only);
+
     setFromField();
     return QPointer<QWidget>(m_label);
 }
@@ -90,10 +94,9 @@ void QuPickerPopup::fieldValueChanged(const FieldRef* fieldref)
     }
     int index = m_options.indexFromValue(fieldref->value());
     bool missing = fieldref->missingInput();
-    // QString text = m_options.name(index).left(MAX_LENGTH);
+    UiFunc::setPropertyMissing(m_label, missing);
     QString text = m_options.name(index);
     m_label->setText(text);
-    UiFunc::setPropertyMissing(m_label, missing);
 }
 
 

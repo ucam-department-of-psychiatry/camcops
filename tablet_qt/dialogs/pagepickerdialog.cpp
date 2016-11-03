@@ -45,6 +45,7 @@ int PagePickerDialog::choose(int* new_page_number)
 
         contentlayout->addLayout(itemlayout);
 
+        // Safe object lifespan signal: can use std::bind
         connect(label, &ClickableLabelWordWrapWide::clicked,
                 std::bind(&PagePickerDialog::itemClicked, this, i));
         connect(icon, &ImageButton::clicked,

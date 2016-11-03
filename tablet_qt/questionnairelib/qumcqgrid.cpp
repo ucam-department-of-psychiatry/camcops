@@ -1,7 +1,9 @@
 #include "qumcqgrid.h"
 #include <QGridLayout>
+#include "common/cssconst.h"
 #include "questionnairelib/mcqfunc.h"
 #include "questionnairelib/questionnaire.h"
+#include "questionnairelib/qumcqgridsignaller.h"
 #include "widgets/booleanwidget.h"
 #include "widgets/labelwordwrapwide.h"
 
@@ -18,12 +20,21 @@ QuMCQGrid::QuMCQGrid(QList<QuestionWithOneField> question_field_pairs,
 
     for (int qi = 0; qi < m_question_field_pairs.size(); ++qi) {
         FieldRefPtr fieldref = m_question_field_pairs.at(qi).fieldref();
+        // DANGEROUS OBJECT LIFESPAN SIGNAL: do not use std::bind
+        QuMCQGridSignaller* sig = new QuMCQGridSignaller(this, qi);
+        m_signallers.append(sig);
         connect(fieldref.data(), &FieldRef::valueChanged,
-                std::bind(&QuMCQGrid::fieldValueChanged, this, qi,
-                          std::placeholders::_1));
+                sig, &QuMCQGridSignaller::valueChanged);
         connect(fieldref.data(), &FieldRef::mandatoryChanged,
-                std::bind(&QuMCQGrid::fieldValueChanged, this, qi,
-                          std::placeholders::_1));
+                sig, &QuMCQGridSignaller::valueChanged);
+    }
+}
+
+
+QuMCQGrid::~QuMCQGrid()
+{
+    while (!m_signallers.isEmpty()) {
+        delete m_signallers.takeAt(0);
     }
 }
 
@@ -99,6 +110,7 @@ QPointer<QWidget> QuMCQGrid::makeWidget(Questionnaire* questionnaire)
     */
 
     QGridLayout* grid = new QGridLayout();
+    grid->setContentsMargins(UiConst::NO_MARGINS);
     grid->setHorizontalSpacing(UiConst::MCQGRID_HSPACING);
     grid->setVerticalSpacing(UiConst::MCQGRID_VSPACING);
 
@@ -149,6 +161,7 @@ QPointer<QWidget> QuMCQGrid::makeWidget(Questionnaire* questionnaire)
             w->setAppearance(BooleanWidget::Appearance::Radio);
             w->setReadOnly(read_only);
             if (!read_only) {
+                // Safe object lifespan signal: can use std::bind
                 connect(w, &BooleanWidget::clicked,
                         std::bind(&QuMCQGrid::clicked, this, qi, vi));
             }
@@ -173,7 +186,7 @@ QPointer<QWidget> QuMCQGrid::makeWidget(Questionnaire* questionnaire)
 
     QPointer<QWidget> widget = new QWidget();
     widget->setLayout(grid);
-    widget->setObjectName("mcq_grid");
+    widget->setObjectName(CssConst::MCQ_GRID);
     if (m_expand) {
         widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
     } else {

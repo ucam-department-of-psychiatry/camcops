@@ -5,6 +5,7 @@
 #include <QMouseEvent>
 #include <QStyleOptionButton>
 #include <QVBoxLayout>
+// #include "common/cssconst.h"
 #include "common/uiconstants.h"
 #include "lib/uifunc.h"
 
@@ -30,7 +31,7 @@ void ClickableLabel::commonConstructor()
     m_label->setMouseTracking(false);
     m_label->setTextInteractionFlags(Qt::NoTextInteraction);
     m_label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    // m_label->setObjectName("debug_green");
+    // m_label->setObjectName(CssConst::DEBUG_GREEN);
 
     m_layout = new QVBoxLayout();
     m_layout->setContentsMargins(UiConst::NO_MARGINS);

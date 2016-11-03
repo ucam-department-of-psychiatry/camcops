@@ -62,6 +62,7 @@ QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
     m_label_description = new QLabel();
 
     QHBoxLayout* textlayout = new QHBoxLayout();
+    textlayout->setContentsMargins(UiConst::NO_MARGINS);
     textlayout->addWidget(m_missing_indicator);
     textlayout->addWidget(m_label_code);
     textlayout->addWidget(m_label_description);
@@ -76,6 +77,7 @@ QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
     }
 
     QHBoxLayout* buttonlayout = new QHBoxLayout();
+    buttonlayout->setContentsMargins(UiConst::NO_MARGINS);
     buttonlayout->addWidget(button);
 
     if (m_offer_null_button) {
@@ -91,6 +93,7 @@ QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
     buttonlayout->addStretch();
 
     QVBoxLayout* toplayout = new QVBoxLayout();
+    toplayout->setContentsMargins(UiConst::NO_MARGINS);
     toplayout->addLayout(textlayout);
     toplayout->addLayout(buttonlayout);
 

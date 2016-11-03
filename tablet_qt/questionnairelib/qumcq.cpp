@@ -1,6 +1,7 @@
 #include "qumcq.h"
 #include <QVBoxLayout>
 #include <QWidget>
+#include "common/cssconst.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/mcqfunc.h"
 #include "questionnairelib/questionnaire.h"
@@ -98,6 +99,7 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
             w->setText(nvp.name());
         }
         if (!read_only) {
+            // Safe object lifespan signal: can use std::bind
             connect(w, &BooleanWidget::clicked,
                     std::bind(&QuMCQ::clicked, this, i));
         }
@@ -113,6 +115,7 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
             QWidget* itemwidget = new QWidget();
             ClickableLabelWordWrapWide* namelabel = new ClickableLabelWordWrapWide(nvp.name());
             if (!read_only) {
+                // Safe object lifespan signal: can use std::bind
                 connect(namelabel, &ClickableLabelWordWrapWide::clicked,
                         std::bind(&QuMCQ::clicked, this, i));
             }
@@ -138,9 +141,8 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
         // Higher-level widget containing {instructions, actual MCQ}
         QVBoxLayout* layout_w_instr = new QVBoxLayout();
         layout_w_instr->setContentsMargins(UiConst::NO_MARGINS);
-        LabelWordWrapWide* instructions = new LabelWordWrapWide(
-            tr("Pick one:"));
-        instructions->setObjectName("mcq_instruction");
+        LabelWordWrapWide* instructions = new LabelWordWrapWide(tr("Pick one:"));
+        instructions->setObjectName(CssConst::MCQ_INSTRUCTION);
         layout_w_instr->addWidget(instructions);
         layout_w_instr->addWidget(mainwidget);
         QPointer<QWidget> widget_w_instr = new QWidget();

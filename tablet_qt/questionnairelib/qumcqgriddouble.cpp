@@ -1,7 +1,9 @@
 #include "qumcqgriddouble.h"
 #include <QGridLayout>
+#include "common/cssconst.h"
 #include "questionnairelib/mcqfunc.h"
 #include "questionnairelib/questionnaire.h"
+#include "questionnairelib/qumcqgriddoublesignaller.h"
 #include "widgets/booleanwidget.h"
 #include "widgets/labelwordwrapwide.h"
 
@@ -23,13 +25,23 @@ QuMCQGridDouble::QuMCQGridDouble(
     for (bool first : {true, false}) {
         for (int qi = 0; qi < m_questions_with_fields.size(); ++qi) {
             FieldRefPtr fieldref = m_questions_with_fields.at(qi).fieldref(first);
+            // DANGEROUS OBJECT LIFESPAN SIGNAL: do not use std::bind
+            QuMCQGridDoubleSignaller* sig = new QuMCQGridDoubleSignaller(
+                        this, qi, first);
+            m_signallers.append(sig);
             connect(fieldref.data(), &FieldRef::valueChanged,
-                    std::bind(&QuMCQGridDouble::fieldValueChanged,
-                              this, qi, first, std::placeholders::_1));
+                    sig, &QuMCQGridDoubleSignaller::valueChanged);
             connect(fieldref.data(), &FieldRef::mandatoryChanged,
-                    std::bind(&QuMCQGridDouble::fieldValueChanged,
-                              this, qi, first, std::placeholders::_1));
+                    sig, &QuMCQGridDoubleSignaller::valueChanged);
         }
+    }
+}
+
+
+QuMCQGridDouble::~QuMCQGridDouble()
+{
+    while (!m_signallers.isEmpty()) {
+        delete m_signallers.takeAt(0);
     }
 }
 
@@ -121,6 +133,7 @@ QPointer<QWidget> QuMCQGridDouble::makeWidget(Questionnaire* questionnaire)
     // As per QuMCQGrid
 
     QGridLayout* grid = new QGridLayout();
+    grid->setContentsMargins(UiConst::NO_MARGINS);
     grid->setHorizontalSpacing(UiConst::MCQGRID_HSPACING);
     grid->setVerticalSpacing(UiConst::MCQGRID_VSPACING);
 
@@ -178,6 +191,7 @@ QPointer<QWidget> QuMCQGridDouble::makeWidget(Questionnaire* questionnaire)
                 w->setAppearance(BooleanWidget::Appearance::Radio);
                 w->setReadOnly(read_only);
                 if (!read_only) {
+                    // Safe object lifespan signal: can use std::bind
                     connect(w, &BooleanWidget::clicked,
                             std::bind(&QuMCQGridDouble::clicked,
                                       this, qi, first, vi));
@@ -211,7 +225,7 @@ QPointer<QWidget> QuMCQGridDouble::makeWidget(Questionnaire* questionnaire)
 
     QPointer<QWidget> widget = new QWidget();
     widget->setLayout(grid);
-    widget->setObjectName("mcq_grid_double");
+    widget->setObjectName(CssConst::MCQ_GRID_DOUBLE);
     if (m_expand) {
         widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
     } else {

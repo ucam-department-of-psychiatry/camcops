@@ -15,5 +15,6 @@ namespace DebugFunc
 
     void dumpQObject(QObject* obj);
 
-    void debugWidget(QWidget* widget, bool set_background = true);
+    void debugWidget(QWidget* widget, bool set_background_by_name = false,
+                     bool set_background_by_stylesheet = true);
 }

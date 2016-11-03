@@ -22,7 +22,7 @@ class QuPage : public QObject
     friend class Questionnaire;
 public:
     enum class PageType {
-        Inherit,
+        Inherit,  // from the Questionnaire
         Patient,
         Clinician,
         ClinicianWithPatient,

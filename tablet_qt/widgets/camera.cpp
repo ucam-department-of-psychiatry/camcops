@@ -1,7 +1,7 @@
 // MODIFIED FROM:
 // http://doc.qt.io/qt-5/qtmultimedia-multimediawidgets-camera-camera-cpp.html
 
-/****************************************************************************
+/*
 **
 ** Copyright (C) 2015 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
@@ -39,7 +39,7 @@
 **
 ** $QT_END_LICENSE$
 **
-****************************************************************************/
+*/
 
 
 #include "camera.h"
@@ -57,6 +57,7 @@
 #include <QTimer>
 #include <QVBoxLayout>
 #include <QVideoFrame>
+#include "common/cssconst.h"
 #include "common/uiconstants.h"
 #include "lib/imagefunc.h"
 #include "imagebutton.h"
@@ -143,7 +144,7 @@ void Camera::commonConstructor(const QString& stylesheet)
     // Now, since the CSS of the outermost object is ignored within a
     // QStackedWidget...
     QWidget* inner_widget = new QWidget();
-    inner_widget->setObjectName("camera_inner_object");
+    inner_widget->setObjectName(CssConst::CAMERA_INNER_OBJECT);
     inner_widget->setLayout(top_layout);
 
     // ... we need an outer layout too.
@@ -321,7 +322,7 @@ void Camera::displayCameraError(QCamera::Error value)
 
 void Camera::updateCameraState(QCamera::State state)
 {
-    // ***
+    // *** Camera::updateCameraState
     // Update the UI to reflect the camera's state
     switch (state) {
     case QCamera::ActiveState:

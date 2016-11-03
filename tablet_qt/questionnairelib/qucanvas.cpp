@@ -96,6 +96,7 @@ QPointer<QWidget> QuCanvas::makeWidget(Questionnaire* questionnaire)
                 UiFunc::iconFilename(UiConst::ICON_WARNING));
     m_no_missing_indicator = QPointer<Spacer>(new Spacer(UiConst::ICONSIZE));
     QVBoxLayout* button_layout = new QVBoxLayout();
+    button_layout->setContentsMargins(UiConst::NO_MARGINS);
     button_layout->addWidget(button_reset, 0, align);
     button_layout->addWidget(m_missing_indicator, 0, align);
     button_layout->addWidget(m_no_missing_indicator, 0, align);
@@ -103,6 +104,7 @@ QPointer<QWidget> QuCanvas::makeWidget(Questionnaire* questionnaire)
     button_widget->setLayout(button_layout);
 
     QHBoxLayout* top_layout = new QHBoxLayout();
+    top_layout->setContentsMargins(UiConst::NO_MARGINS);
     top_layout->addWidget(button_widget, 0, align);
     top_layout->addWidget(m_canvas, 0, align);
 

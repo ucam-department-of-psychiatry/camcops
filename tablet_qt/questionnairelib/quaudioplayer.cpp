@@ -66,6 +66,7 @@ QPointer<QWidget> QuAudioPlayer::makeWidget(Questionnaire* questionnaire)
     QPointer<QWidget> widget = new QWidget();
     widget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     QHBoxLayout* layout = new QHBoxLayout();
+    layout->setContentsMargins(UiConst::NO_MARGINS);
     widget->setLayout(layout);
 
     m_button_speaker = new ImageButton(UiConst::CBS_SPEAKER);

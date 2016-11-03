@@ -4,6 +4,9 @@
 #include <QDebug>
 #include <QGridLayout>
 #include <QWidget>
+#ifdef DEBUG_GRID_CREATION
+#include "common/cssconst.h"
+#endif
 #include "questionnairelib/questionnaire.h"
 #include "lib/layoutdumper.h"
 
@@ -125,7 +128,7 @@ QPointer<QWidget> QuContainerGrid::makeWidget(Questionnaire* questionnaire)
 #ifdef DEBUG_GRID_CREATION
     qDebug() << Q_FUNC_INFO;
     qDebug() << "... m_fixed_grid =" << m_fixed_grid;
-    widget->setObjectName("debug_green");
+    widget->setObjectName(CssConst::DEBUG_GREEN);
 #endif
     QGridLayout* grid = new QGridLayout();
     grid->setContentsMargins(UiConst::NO_MARGINS);
@@ -135,7 +138,7 @@ QPointer<QWidget> QuContainerGrid::makeWidget(Questionnaire* questionnaire)
         QPointer<QWidget> w = e->widget(questionnaire);
 
 #ifdef DEBUG_GRID_CREATION
-        w->setObjectName("debug_red");
+        w->setObjectName(CssConst::DEBUG_RED);
         qDebug() << "... cell:" << c;
 #endif
         if (m_fixed_grid) {

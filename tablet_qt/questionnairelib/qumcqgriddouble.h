@@ -6,6 +6,7 @@
 
 class BooleanWidget;
 class QGridLayout;
+class QuMCQGridDoubleSignaller;
 
 
 class QuMCQGridDouble : public QuElement
@@ -20,10 +21,12 @@ class QuMCQGridDouble : public QuElement
     // 3. ...
 
     Q_OBJECT
+    friend class QuMCQGridDoubleSignaller;
 public:
     QuMCQGridDouble(QList<QuestionWithTwoFields> questions_with_fields,
                     const NameValueOptions& options1,
                     const NameValueOptions& options2);
+    virtual ~QuMCQGridDouble();
     QuMCQGridDouble* setWidth(int question_width,
                               QList<int> option1_widths,
                               QList<int> option2_widths);
@@ -54,4 +57,5 @@ protected:
 
     QList<QList<QPointer<BooleanWidget>>> m_widgets1;
     QList<QList<QPointer<BooleanWidget>>> m_widgets2;
+    QList<QuMCQGridDoubleSignaller*> m_signallers;
 };

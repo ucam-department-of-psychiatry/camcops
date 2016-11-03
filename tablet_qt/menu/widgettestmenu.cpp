@@ -1,5 +1,6 @@
 #include "widgettestmenu.h"
 #include <QPushButton>
+#include "common/cssconst.h"
 #include "common/uiconstants.h"
 #include "diagnosis/icd10.h"
 #include "lib/debugfunc.h"
@@ -12,6 +13,7 @@
 #include "questionnairelib/qucountdown.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/qudiagnosticcode.h"
+#include "questionnairelib/questionnaireheader.h"
 #include "questionnairelib/quheading.h"
 #include "questionnairelib/quhorizontalline.h"
 #include "questionnairelib/quimage.h"
@@ -122,6 +124,10 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
                  std::bind(&WidgetTestMenu::testLabelWordWrapWide, this, true)),
         MenuItem(tr("VerticalLine"),
                  std::bind(&WidgetTestMenu::testVerticalLine, this)),
+
+        MenuItem(tr("Large-scale widgets")).setLabelOnly(),
+        MenuItem(tr("QuestionnaireHeader"),
+                 std::bind(&WidgetTestMenu::testQuestionnaireHeader, this)),
 
         MenuItem(tr("Questionnaire element widgets")).setLabelOnly(),
         MenuItem(tr("QuAudioPlayer"),
@@ -252,8 +258,9 @@ void WidgetTestMenu::testQuestionnaireElement(QuElement* element)
 {
     Questionnaire questionnaire(m_app);
     QWidget* widget = element->widget(&questionnaire);
-    widget->setStyleSheet(m_app.getSubstitutedCss(UiConst::CSS_CAMCOPS_QUESTIONNAIRE)); \
-    DebugFunc::debugWidget(widget);
+    widget->setStyleSheet(
+                m_app.getSubstitutedCss(UiConst::CSS_CAMCOPS_QUESTIONNAIRE));
+    DebugFunc::debugWidget(widget, false, false);
 }
 
 
@@ -384,6 +391,20 @@ void WidgetTestMenu::testVerticalLine()
     const int width = 4;
     VerticalLine* widget = new VerticalLine(width);
     widget->setStyleSheet("background-color: black;");
+    DebugFunc::debugWidget(widget);
+}
+
+
+// ============================================================================
+// Large-scale widgets
+// ============================================================================
+
+void WidgetTestMenu::testQuestionnaireHeader()
+{
+    QuestionnaireHeader* widget = new QuestionnaireHeader(
+                nullptr, "Title text, quite long",
+                false, true, false, CssConst::QUESTIONNAIRE_BACKGROUND_CONFIG);
+    widget->setStyleSheet(m_app.getSubstitutedCss(UiConst::CSS_CAMCOPS_QUESTIONNAIRE));
     DebugFunc::debugWidget(widget);
 }
 

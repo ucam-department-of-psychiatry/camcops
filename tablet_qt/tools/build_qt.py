@@ -172,7 +172,7 @@ def mkdir_p(path):
 
 def download_if_not_exists(url, filename):
     if isfile(filename):
-        log.info("Already have: {}".format(filename))
+        log.info("No need to download, already have: {}".format(filename))
         return
     dir, basename = split(abspath(filename))
     mkdir_p(dir)
@@ -800,9 +800,31 @@ Then for your project,
       - For Android:
         - Build Settings > Android APK > Details > Additional Libraries > Add
 
-LINUX
-- Also need:
-    sudo apt-get install mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev  # for gl.h (OpenGL)
+RUNTIME REQUIREMENTS
+
+- To run CamCOPS under Ubuntu, also need:
+
+    sudo apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \\
+        mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev \\
+        libasound-dev \\
+        libharfbuzz-dev \\
+        libpulse-dev \\
+        libwayland-dev libwayland-egl1 libegl1-mesa-dev \\
+        libtiff-dev \\
+        libgbm-dev \\
+        libxkbcommon-x11-dev \\
+        libdbus-1-dev \\
+        libjasper-dev \\
+        libxcomposite-dev \\
+        libxi-dev
+
+- To build Android programs under Linux, also need:
+
+    sudo apt install openjdk-8-jdk
+
+- For debugging, consider:
+
+    sudo apt install valgrind
 
     """.format(  # noqa
         bindirs=", ".join(join(x, "bin") for x in installdirs)

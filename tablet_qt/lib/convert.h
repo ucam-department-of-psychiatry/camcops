@@ -38,6 +38,7 @@ namespace Convert
                             const char* format = nullptr);
 
     // Cryptography
+
     QByteArray base64ToBytes(const QString& data_b64);
     SecureQByteArray base64ToSecureBytes(const QString& data_b64);
 }

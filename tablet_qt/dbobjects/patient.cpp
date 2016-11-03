@@ -42,4 +42,4 @@ Patient::Patient(const QSqlDatabase& db, int load_pk) :
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
 
-// ***
+// *** Patient...

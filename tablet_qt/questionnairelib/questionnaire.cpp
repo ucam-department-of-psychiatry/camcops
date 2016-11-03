@@ -7,6 +7,7 @@
 #include <QLabel>
 #include <QVBoxLayout>
 #include "common/camcopsapp.h"
+#include "common/cssconst.h"
 #include "dialogs/pagepickerdialog.h"
 #include "lib/filefunc.h"
 #include "lib/uifunc.h"
@@ -46,7 +47,7 @@ Questionnaire::Questionnaire(CamcopsApp& app,
 
 void Questionnaire::commonConstructor()
 {
-    m_type = QuPage::PageType::ClinicianWithPatient;
+    m_type = QuPage::PageType::Patient;
     m_read_only = false;
     m_jump_allowed = true;
     m_within_chain = false;
@@ -149,13 +150,13 @@ void Questionnaire::build()
     case QuPage::PageType::Patient:
     case QuPage::PageType::ClinicianWithPatient:
     default:
-        background_css_name = "questionnaire_background_patient";
+        background_css_name = CssConst::QUESTIONNAIRE_BACKGROUND_PATIENT;
         break;
     case QuPage::PageType::Clinician:
-        background_css_name = "questionnaire_background_clinician";
+        background_css_name = CssConst::QUESTIONNAIRE_BACKGROUND_CLINICIAN;
         break;
     case QuPage::PageType::Config:
-        background_css_name = "questionnaire_background_config";
+        background_css_name = CssConst::QUESTIONNAIRE_BACKGROUND_CONFIG;
         break;
     }
     m_background_widget->setObjectName(background_css_name);
@@ -164,7 +165,7 @@ void Questionnaire::build()
     QString header_css_name;
     if (page_type == QuPage::PageType::ClinicianWithPatient) {
         // Header has "clinician" style; main page has "patient" style
-        header_css_name = "questionnaire_background_clinician";
+        header_css_name = CssConst::QUESTIONNAIRE_BACKGROUND_CLINICIAN;
     } else {
         header_css_name = background_css_name;
     }

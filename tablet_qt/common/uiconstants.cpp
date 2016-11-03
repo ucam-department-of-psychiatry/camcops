@@ -116,14 +116,6 @@ namespace UiConst {
     const QString SOUND_COUNTDOWN_FINISHED = "qrc:///resources/camcops/sounds/countdown_finished.wav";
 
     // ========================================================================
-    // CSS
-    // ========================================================================
-    // Must match CSS...
-
-    const QString CSS_PROP_ITALIC = "italic";
-    const QString CSS_PROP_MISSING = "missing";
-
-    // ========================================================================
     // Common text
     // ========================================================================
 

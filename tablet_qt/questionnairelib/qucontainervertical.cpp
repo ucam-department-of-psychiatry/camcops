@@ -53,7 +53,7 @@ QuContainerVertical* QuContainerVertical::addElement(
 QPointer<QWidget> QuContainerVertical::makeWidget(Questionnaire* questionnaire)
 {
     QPointer<QWidget> widget = new QWidget();
-    // widget->setObjectName("debug_yellow");
+    // widget->setObjectName(CssConst::DEBUG_YELLOW);
     QVBoxLayout* layout = new QVBoxLayout();
     layout->setContentsMargins(UiConst::NO_MARGINS);
     widget->setLayout(layout);

@@ -2,14 +2,17 @@
 #include <QObject>
 #include <QSize>
 #include <QString>
+#include <QStyle>
 
 class QAbstractButton;
+class QFrame;
 class QLabel;
 class QLayout;
 class QPainter;
 class QPointF;
 class QPushButton;
 class QStyleOptionButton;
+class QStyleOptionFrame;
 
 
 namespace UiFunc {
@@ -81,9 +84,17 @@ namespace UiFunc {
     QSize contentsMarginsAsSize(const QWidget* widget);
     QSize contentsMarginsAsSize(const QLayout* layout);
     QSize spacingAsSize(const QLayout* layout);
+    QSize widgetSizeHintFromContents(const QWidget* widget,
+                                     QStyleOption* opt,
+                                     const QSize& child_size,
+                                     bool add_style_element,
+                                     QStyle::ContentsType contents_type);
     QSize pushButtonSizeHintFromContents(const QPushButton* button,
                                          QStyleOptionButton* opt,
                                          const QSize& child_size);
+    QSize frameSizeHintFromContents(const QFrame* frame,
+                                    QStyleOptionFrame* opt,
+                                    const QSize& child_size);
 
     // Size policies that take a few statements to create:
     QSizePolicy horizExpandingHFWPolicy();
@@ -131,5 +142,11 @@ namespace UiFunc {
     // ========================================================================
 
     void visitUrl(const QString& url);
+
+    // ========================================================================
+    // Strings
+    // ========================================================================
+
+    QString escapeString(const QString& string);
 
 }

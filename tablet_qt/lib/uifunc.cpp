@@ -1,11 +1,13 @@
 // #define DEBUG_ICON_LOAD
-// #define DEBUG_PUSHBUTTON_MARGINS
+// #define DEBUG_WIDGET_MARGINS
+
 #include "uifunc.h"
 #include <QApplication>
 #include <QAbstractButton>
 #include <QBrush>
 #include <QDebug>
 #include <QDesktopServices>
+#include <QFrame>
 #include <QLabel>
 #include <QLayout>
 #include <QMessageBox>
@@ -16,9 +18,12 @@
 #include <QPushButton>
 #include <QStyle>
 #include <QStyleOptionButton>
+#include <QStyleOptionFrame>
 #include <QToolButton>
 #include <QUrl>
+#include "common/cssconst.h"
 #include "common/uiconstants.h"
+#include "lib/layoutdumper.h"
 #include "dialogs/passwordchangedialog.h"
 #include "dialogs/passwordentrydialog.h"
 
@@ -303,20 +308,20 @@ void UiFunc::setProperty(QWidget* widget, const QString& property,
 
 QString UiFunc::cssBoolean(bool value)
 {
-    return value ? "true" : "false";
+    return value ? CssConst::VALUE_TRUE : CssConst::VALUE_FALSE;
 }
 
 
 void UiFunc::setPropertyItalic(QWidget* widget, bool italic, bool repolish)
 {
-    setProperty(widget, UiConst::CSS_PROP_ITALIC, cssBoolean(italic),
+    setProperty(widget, CssConst::PROPERTY_ITALIC, cssBoolean(italic),
                 repolish);
 }
 
 
 void UiFunc::setPropertyMissing(QWidget* widget, bool missing, bool repolish)
 {
-    setProperty(widget, UiConst::CSS_PROP_MISSING, cssBoolean(missing),
+    setProperty(widget, CssConst::PROPERTY_MISSING, cssBoolean(missing),
                 repolish);
     // *** INTERMITTENTLY not setting widget to yellow, e.g. slider, thermometer
 }
@@ -383,43 +388,76 @@ QSize UiFunc::spacingAsSize(const QLayout* layout)
 }
 
 
+QSize UiFunc::widgetSizeHintFromContents(const QWidget* widget,
+                                         QStyleOption* opt,
+                                         const QSize& child_size,
+                                         bool add_style_element,
+                                         QStyle::ContentsType contents_type)
+{
+    // See QPushButton::sizeHint()
+    Q_ASSERT(widget);
+    Q_ASSERT(opt);
+
+    QSize stylesheet_extra_size(0, 0);
+    if (add_style_element) {
+        QStyle* style = widget->style();
+        if (style) {
+            QSize temp = style->sizeFromContents(contents_type, opt,
+                                                 child_size, widget);
+            stylesheet_extra_size = temp - child_size;
+        }
+    }
+
+    QSize extra_for_layout_margins(0, 0);
+    QLayout* layout = widget->layout();
+    if (layout) {
+        extra_for_layout_margins = contentsMarginsAsSize(layout);
+    }
+    // I think that if you have a style, that sets the layout margins
+    // and so adding the layout margins *as well* makes the widget too big
+    // (by double-counting). However, if there's no style, then this is
+    // important.
+    // Hmpf. No. Doing one or the other improves some things and breaks others!
+    // Specifically, QuBoolean in text mode got better (no longer too big)
+    // and QuBoolean in image mode with associated text got worse (too small).
+    // Both forms of text are ClickableLabelWordWrapWide.
+
+    // size_hint += stylesheet_extra_size + extra_for_layout_margins;
+
+    // Take the maximum?
+    QSize total_extra = stylesheet_extra_size.expandedTo(extra_for_layout_margins);
+
+    QSize size_hint = child_size + total_extra;
+
+#ifdef DEBUG_WIDGET_MARGINS
+    qDebug().nospace() << Q_FUNC_INFO
+             << "widget " << LayoutDumper::getWidgetDescriptor(widget)
+             << "; child_size " << child_size
+             << "; stylesheet_extra_size " << stylesheet_extra_size
+             << "; extra_for_layout_margins " << extra_for_layout_margins
+             << "; total_extra " << total_extra
+             << " => size_hint " << size_hint;
+#endif
+    return size_hint;
+}
+
+
 QSize UiFunc::pushButtonSizeHintFromContents(const QPushButton* button,
                                              QStyleOptionButton* opt,
                                              const QSize& child_size)
 {
-    // See QPushButton::sizeHint()
-    Q_ASSERT(button);
-    Q_ASSERT(opt);
-    QSize hint_size = child_size;
-#ifdef DEBUG_PUSHBUTTON_MARGINS
-    QSize stylesheet_extra_size(0, 0);
-#endif
-    QSize extra_for_layout_margins(0, 0);
+    return widgetSizeHintFromContents(button, opt, child_size,
+                                      true, QStyle::CT_PushButton);
+}
 
-    QStyle* style = button->style();
-    if (style) {
-        hint_size = style->sizeFromContents(QStyle::CT_PushButton, opt,
-                                            child_size, button);
-#ifdef DEBUG_PUSHBUTTON_MARGINS
-        stylesheet_extra_size = hint_size - child_size;
-#endif
-    }
 
-    // Necessary!
-    QLayout* layout = button->layout();
-    if (layout) {
-        extra_for_layout_margins = contentsMarginsAsSize(layout);
-        hint_size += extra_for_layout_margins;
-    }
-
-#ifdef DEBUG_PUSHBUTTON_MARGINS
-    qDebug() << Q_FUNC_INFO
-             << "; child_size" << child_size
-             << "; stylesheet_extra_size" << stylesheet_extra_size
-             << "; extra_for_layout_margins" << extra_for_layout_margins
-             << "=> size_hint" << size_hint;
-#endif
-    return hint_size;
+QSize UiFunc::frameSizeHintFromContents(const QFrame* frame,
+                                        QStyleOptionFrame* opt,
+                                        const QSize& child_size)
+{
+    return widgetSizeHintFromContents(frame, opt, child_size,
+                                      false, QStyle::CT_PushButton);
+    // Is QStyle::CT_PushButton right?
 }
 
 
@@ -569,4 +607,35 @@ void UiFunc::visitUrl(const QString& url)
     if (!success) {
         alert(tr("Failed to open browser"));
     }
+}
+
+
+// ============================================================================
+// Strings
+// ============================================================================
+
+QString UiFunc::escapeString(const QString& string)
+{
+    // See also http://doc.qt.io/qt-5/qregexp.html#escape
+    // Obsolete: Qt::escape()
+
+    // Convert to a C++ literal.
+    // There's probably a much more efficient way...
+    QByteArray arr = string.toLatin1();
+    int len = arr.length();
+    QString result;
+    result.reserve(len * 1.1);  // as per QString::toHtmlEscaped
+    result.append('"');  // opening quote
+    for (int i = 0; i < len; ++i) {
+        char c = arr.at(i);
+        if (c < ' ') {
+            result.append('\\');
+            result.append(c - 1 + 'a');
+        } else {
+            result.append(c);
+        }
+    }
+    result.append('"');  // closing quote
+    result.squeeze();  // as per QString::toHtmlEscaped
+    return result;
 }

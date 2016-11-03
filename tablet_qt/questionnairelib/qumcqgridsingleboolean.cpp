@@ -1,7 +1,9 @@
 #include "qumcqgridsingleboolean.h"
 #include <QGridLayout>
+#include "common/cssconst.h"
 #include "questionnairelib/mcqfunc.h"
 #include "questionnairelib/questionnaire.h"
+#include "questionnairelib/qumcqgridsinglebooleansignaller.h"
 #include "widgets/booleanwidget.h"
 #include "widgets/labelwordwrapwide.h"
 
@@ -23,20 +25,29 @@ QuMCQGridSingleBoolean::QuMCQGridSingleBoolean(
 
     for (int qi = 0; qi < m_questions_with_fields.size(); ++qi) {
         FieldRefPtr mcq_fieldref = m_questions_with_fields.at(qi).firstFieldRef();
+        // DANGEROUS OBJECT LIFESPAN SIGNAL: do not use std::bind
+        QuMCQGridSingleBooleanSignaller* sig =
+                new QuMCQGridSingleBooleanSignaller(this, qi);
+        m_signallers.append(sig);
+
         connect(mcq_fieldref.data(), &FieldRef::valueChanged,
-                std::bind(&QuMCQGridSingleBoolean::mcqFieldValueChanged,
-                          this, qi, std::placeholders::_1));
+                sig, &QuMCQGridSingleBooleanSignaller::mcqFieldValueChanged);
         connect(mcq_fieldref.data(), &FieldRef::mandatoryChanged,
-                std::bind(&QuMCQGridSingleBoolean::mcqFieldValueChanged,
-                          this, qi, std::placeholders::_1));
+                sig, &QuMCQGridSingleBooleanSignaller::mcqFieldValueChanged);
 
         FieldRefPtr bool_fieldref = m_questions_with_fields.at(qi).secondFieldRef();
         connect(bool_fieldref.data(), &FieldRef::valueChanged,
-                std::bind(&QuMCQGridSingleBoolean::booleanFieldValueChanged,
-                          this, qi, std::placeholders::_1));
+                sig, &QuMCQGridSingleBooleanSignaller::booleanFieldValueChanged);
         connect(bool_fieldref.data(), &FieldRef::mandatoryChanged,
-                std::bind(&QuMCQGridSingleBoolean::booleanFieldValueChanged,
-                          this, qi, std::placeholders::_1));
+                sig, &QuMCQGridSingleBooleanSignaller::booleanFieldValueChanged);
+    }
+}
+
+
+QuMCQGridSingleBoolean::~QuMCQGridSingleBoolean()
+{
+    while (!m_signallers.isEmpty()) {
+        delete m_signallers.takeAt(0);
     }
 }
 
@@ -131,6 +142,7 @@ QPointer<QWidget> QuMCQGridSingleBoolean::makeWidget(Questionnaire* questionnair
     m_boolean_widgets.clear();
 
     QGridLayout* grid = new QGridLayout();
+    grid->setContentsMargins(UiConst::NO_MARGINS);
     grid->setHorizontalSpacing(UiConst::MCQGRID_HSPACING);
     grid->setVerticalSpacing(UiConst::MCQGRID_VSPACING);
 
@@ -175,6 +187,7 @@ QPointer<QWidget> QuMCQGridSingleBoolean::makeWidget(Questionnaire* questionnair
             w->setAppearance(BooleanWidget::Appearance::Radio);
             w->setReadOnly(read_only);
             if (!read_only) {
+                // Safe object lifespan signal: can use std::bind
                 connect(w, &BooleanWidget::clicked,
                         std::bind(&QuMCQGridSingleBoolean::mcqClicked,
                                   this, qi, vi));
@@ -188,6 +201,7 @@ QPointer<QWidget> QuMCQGridSingleBoolean::makeWidget(Questionnaire* questionnair
         bw->setAppearance(BooleanWidget::Appearance::CheckRed);
         bw->setReadOnly(read_only);
         if (!read_only) {
+            // Safe object lifespan signal: can use std::bind
             connect(bw, &BooleanWidget::clicked,
                     std::bind(&QuMCQGridSingleBoolean::booleanClicked,
                               this, qi));
@@ -214,7 +228,7 @@ QPointer<QWidget> QuMCQGridSingleBoolean::makeWidget(Questionnaire* questionnair
 
     QPointer<QWidget> widget = new QWidget();
     widget->setLayout(grid);
-    widget->setObjectName("mcq_grid_single_boolean");
+    widget->setObjectName(CssConst::MCQ_GRID_SINGLE_BOOLEAN);
     if (m_expand) {
         widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
     } else {

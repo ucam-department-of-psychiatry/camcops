@@ -4,6 +4,8 @@
 #include <QDialog>
 #include <QVariant>
 #include <QVBoxLayout>
+#include "common/cssconst.h"
+#include "common/uiconstants.h"
 #include "lib/layoutdumper.h"
 #include "qobjects/keypresswatcher.h"
 #include "qobjects/showwatcher.h"
@@ -58,14 +60,19 @@ void DebugFunc::dumpQObject(QObject* obj)
 }
 
 
-void DebugFunc::debugWidget(QWidget* widget, bool set_background)
+void DebugFunc::debugWidget(QWidget* widget, bool set_background_by_name,
+                            bool set_background_by_stylesheet)
 {
     QDialog dlg;
     dlg.setWindowTitle("Press D/dump layout, A/adjustSize");
     QVBoxLayout* layout = new QVBoxLayout();
+    layout->setContentsMargins(UiConst::NO_MARGINS);
     if (widget) {
-        if (set_background) {
-            widget->setObjectName("debug_green");
+        if (set_background_by_name) {
+            widget->setObjectName(CssConst::DEBUG_GREEN);
+        }
+        if (set_background_by_stylesheet) {
+            widget->setStyleSheet("background: green;");
         }
         // Qt::Alignment align = Qt::AlignTop;
         Qt::Alignment align = 0;
@@ -73,6 +80,9 @@ void DebugFunc::debugWidget(QWidget* widget, bool set_background)
         ShowWatcher* showwatcher = new ShowWatcher(&dlg, true);
         Q_UNUSED(showwatcher);
         KeyPressWatcher* keywatcher = new KeyPressWatcher(&dlg);
+        // keywatcher becomes child of dlg,
+        // and LayoutDumper is a namespace, so:
+        // Safe object lifespan signal: can use std::bind
         keywatcher->addKeyEvent(
             Qt::Key_D,
             std::bind(&LayoutDumper::dumpWidgetHierarchy, &dlg));

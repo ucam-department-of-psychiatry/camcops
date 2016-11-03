@@ -46,9 +46,6 @@ public:
     void setValue(const QVariant& value, bool mandatory,
                   bool disabled = false);
     void setText(const QString& text);
-
-    virtual QSize sizeHint() const override;
-    virtual QSize minimumSizeHint() const override;
 protected:
     virtual void paintEvent(QPaintEvent* e) override;
     void updateWidget();

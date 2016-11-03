@@ -3,6 +3,7 @@
 #include <QLabel>
 #include <QTimer>
 #include <QVBoxLayout>
+#include "common/cssconst.h"
 #include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
@@ -172,7 +173,7 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
     // 1. Value label
     if (m_show_value) {
         m_value_label = new QLabel();
-        m_value_label->setObjectName("slider");
+        m_value_label->setObjectName(CssConst::SLIDER);
     }
 
     // 2. Slider (with labels)
@@ -203,6 +204,7 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
         // Horizontal
         // --------------------------------------------------------------------
         QVBoxLayout* layout = new QVBoxLayout();
+        layout->setContentsMargins(UiConst::NO_MARGINS);
         if (m_value_label) {
             layout->addWidget(m_value_label);
             layout->setAlignment(m_value_label,
@@ -219,10 +221,12 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
         // Vertical
         // --------------------------------------------------------------------
         QHBoxLayout* outerlayout = new QHBoxLayout();
+        outerlayout->setContentsMargins(UiConst::NO_MARGINS);
         // Even for a vertical slider, have the numerical label above it,
         // or as it changes from "9" to "10" and its width changes, the
         // slider jiggles.
         QVBoxLayout* innerlayout = new QVBoxLayout();
+        innerlayout->setContentsMargins(UiConst::NO_MARGINS);
         if (m_value_label) {
             innerlayout->addWidget(m_value_label);
             innerlayout->setAlignment(m_value_label,

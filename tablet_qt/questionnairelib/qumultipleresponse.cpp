@@ -1,5 +1,6 @@
 #include "qumultipleresponse.h"
 #include <QVBoxLayout>
+#include "common/cssconst.h"
 #include "common/random.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/booleanwidget.h"
@@ -143,6 +144,7 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
             w->setText(item.text());
         }
         if (!read_only) {
+            // Safe object lifespan signal: can use std::bind
             connect(w, &BooleanWidget::clicked,
                     std::bind(&QuMultipleResponse::clicked, this, i));
         }
@@ -157,6 +159,7 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
             QWidget* itemwidget = new QWidget();
             ClickableLabelWordWrapWide* namelabel = new ClickableLabelWordWrapWide(item.text());
             if (!read_only) {
+                // Safe object lifespan signal: can use std::bind
                 connect(namelabel, &ClickableLabelWordWrapWide::clicked,
                         std::bind(&QuMultipleResponse::clicked, this, i));
             }
@@ -202,7 +205,7 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
         QString instruction = m_instruction.isEmpty() ? defaultInstruction()
                                                       : m_instruction;
         LabelWordWrapWide* instructions = new LabelWordWrapWide(instruction);
-        instructions->setObjectName("mcq_instruction");
+        instructions->setObjectName(CssConst::MCQ_INSTRUCTION);
         layout_w_instr->addWidget(instructions);
         layout_w_instr->addWidget(mainwidget);
         QPointer<QWidget> widget_w_instr = new QWidget();

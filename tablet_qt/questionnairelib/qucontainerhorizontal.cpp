@@ -72,7 +72,7 @@ QPointer<QWidget> QuContainerHorizontal::makeWidget(
         Questionnaire* questionnaire)
 {
     QPointer<QWidget> widget = new QWidget();
-    // widget->setObjectName("debug_yellow");
+    // widget->setObjectName(CssConst::DEBUG_YELLOW);
     QHBoxLayout* layout = new QHBoxLayout();
     layout->setContentsMargins(UiConst::NO_MARGINS);
     widget->setLayout(layout);

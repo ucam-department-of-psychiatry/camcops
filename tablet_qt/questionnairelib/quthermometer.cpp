@@ -53,6 +53,7 @@ QPointer<QWidget> QuThermometer::makeWidget(Questionnaire* questionnaire)
     m_main_widget = new QWidget();
     m_main_widget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     QGridLayout* grid = new QGridLayout();
+    grid->setContentsMargins(UiConst::NO_MARGINS);
     grid->setSpacing(0);
     m_main_widget->setLayout(grid);
     // In reverse order:
@@ -77,6 +78,7 @@ QPointer<QWidget> QuThermometer::makeWidget(Questionnaire* questionnaire)
         grid->addWidget(inactive.data(), row, 0);
         grid->addWidget(label, row, 1);
         if (!read_only) {
+            // Safe object lifespan signal: can use std::bind
             connect(active.data(), &ImageButton::clicked,
                     std::bind(&QuThermometer::clicked, this, i));
             connect(inactive.data(), &ImageButton::clicked,

@@ -8,8 +8,10 @@ class ClickableLabelWordWrapWide : public QPushButton
 {
     Q_OBJECT
 public:
-    ClickableLabelWordWrapWide(const QString& text, QWidget* parent = nullptr);
-    ClickableLabelWordWrapWide(QWidget* parent = nullptr);
+    ClickableLabelWordWrapWide(const QString& text, bool stretch = false,
+                               QWidget* parent = nullptr);
+    ClickableLabelWordWrapWide(bool stretch = false,
+                               QWidget* parent = nullptr);
 
     virtual void setTextFormat(Qt::TextFormat format);
     virtual void setWordWrap(bool on);
@@ -21,7 +23,7 @@ public:
     virtual QSize minimumSizeHint() const override;
     virtual void resizeEvent(QResizeEvent* event) override;
 protected:
-    void commonConstructor();
+    void commonConstructor(bool stretch);
     QSize translateSize(const QSize& size) const;
 
 protected:

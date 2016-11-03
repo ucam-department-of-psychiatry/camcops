@@ -99,7 +99,7 @@ QPointer<QWidget> QuPage::widget(Questionnaire* questionnaire) const
                 Qt::UniqueConnection);
     }
     pagewidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
-    // pagewidget->setObjectName("debug_yellow");
+    // pagewidget->setObjectName(CssConst::DEBUG_YELLOW);
     return pagewidget;
 }
 

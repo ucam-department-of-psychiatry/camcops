@@ -8,6 +8,7 @@
 #include <QUrl>
 #include <QVBoxLayout>
 #include "common/camcopsapp.h"
+#include "common/cssconst.h"
 #include "common/uiconstants.h"
 #include "lib/datetimefunc.h"  // for SHORT_DATETIME_FORMAT
 #include "lib/uifunc.h"
@@ -180,8 +181,8 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         if (m_task_shows_taskname) {
             QLabel* taskname = new LabelWordWrapWide(m_p_task->shortname());
             taskname->setObjectName(complete
-                                    ? "task_item_taskname_complete"
-                                    : "task_item_taskname_incomplete");
+                                    ? CssConst::TASK_ITEM_TASKNAME_COMPLETE
+                                    : CssConst::TASK_ITEM_TASKNAME_INCOMPLETE);
             QSizePolicy spTaskname(QSizePolicy::Preferred,
                                    QSizePolicy::Preferred);
             spTaskname.setHorizontalStretch(STRETCH_3COL_TASKNAME);
@@ -191,8 +192,9 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         // Timestamp
         QLabel* timestamp = new LabelWordWrapWide(
             m_p_task->whenCreated().toString(DateTime::SHORT_DATETIME_FORMAT));
-        timestamp->setObjectName(complete ? "task_item_timestamp_complete"
-                                          : "task_item_timestamp_incomplete");
+        timestamp->setObjectName(complete
+                                 ? CssConst::TASK_ITEM_TIMESTAMP_COMPLETE
+                                 : CssConst::TASK_ITEM_TIMESTAMP_INCOMPLETE);
         QSizePolicy spTimestamp(QSizePolicy::Preferred,
                                 QSizePolicy::Preferred);
         spTimestamp.setHorizontalStretch(threecols ? STRETCH_3COL_TIMESTAMP
@@ -202,8 +204,9 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         // Summary
         QLabel* summary = new LabelWordWrapWide(
                     m_p_task->summaryWithCompleteSuffix());
-        summary->setObjectName(complete ? "task_item_summary_complete"
-                                        : "task_item_summary_incomplete");
+        summary->setObjectName(complete
+                               ? CssConst::TASK_ITEM_SUMMARY_COMPLETE
+                               : CssConst::TASK_ITEM_SUMMARY_INCOMPLETE);
         QSizePolicy spSummary(QSizePolicy::Preferred, QSizePolicy::Preferred);
         spSummary.setHorizontalStretch(threecols ? STRETCH_3COL_SUMMARY
                                                  : STRETCH_2COL_SUMMARY);
@@ -232,11 +235,11 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         QVBoxLayout* textlayout = new QVBoxLayout();
 
         QLabel* title = new LabelWordWrapWide(m_title);
-        title->setObjectName("menu_item_title");
+        title->setObjectName(CssConst::MENU_ITEM_TITLE);
         textlayout->addWidget(title);
         if (!m_subtitle.isEmpty()) {
             QLabel* subtitle = new LabelWordWrapWide(m_subtitle);
-            subtitle->setObjectName("menu_item_subtitle");
+            subtitle->setObjectName(CssConst::MENU_ITEM_SUBTITLE);
             textlayout->addWidget(subtitle);
         }
         rowlayout->addLayout(textlayout);
@@ -252,15 +255,15 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
 
         // Background colour, via stylesheets
         if (m_label_only) {
-            row->setObjectName("label_only");
+            row->setObjectName(CssConst::LABEL_ONLY);
         } else if (!m_implemented) {
-            row->setObjectName("not_implemented");
+            row->setObjectName(CssConst::NOT_IMPLEMENTED);
         } else if (m_unsupported) {
-            row->setObjectName("unsupported");
+            row->setObjectName(CssConst::UNSUPPORTED);
         } else if (m_not_if_locked && app.locked()) {
-            row->setObjectName("locked");
+            row->setObjectName(CssConst::LOCKED);
         } else if (m_needs_privilege && !app.privileged()) {
-            row->setObjectName("needs_privilege");
+            row->setObjectName(CssConst::NEEDS_PRIVILEGE);
         }
         // ... but not for locked/needs privilege, as otherwise we'd need
         // to refresh the whole menu? Well, we could try it.

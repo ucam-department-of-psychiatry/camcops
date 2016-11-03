@@ -57,6 +57,7 @@
 #include <QtWidgets>
 
 #include "flowlayout.h"
+#include "lib/layoutdumper.h"
 
 
 FlowLayout::FlowLayout(QWidget* parent, int margin,
@@ -229,6 +230,7 @@ void FlowLayout::invalidate()
 {
     m_size_hint = QSize();
     m_width_to_height.clear();
+    QLayout::invalidate();
 }
 
 
@@ -301,8 +303,8 @@ QSize FlowLayout::doLayout(const QRect& rect, bool test_only) const
         int item_width = item_size_hint.width();  // item's preferred width
 
 #ifdef DEBUG_LAYOUT
-        qDebug().nospace() << "... y " << y
-                           << ", x " << x
+        qDebug().nospace() << "... y=" << y
+                           << ", x=" << x
                            << ", available_width " << available_width
                            << ", item_width " << item_width;
 #endif
@@ -313,9 +315,6 @@ QSize FlowLayout::doLayout(const QRect& rect, bool test_only) const
             if (relative_x > 0) {
                 start_new_line = true;
                 item_width = qMin(item_width, layout_width);
-#ifdef DEBUG_LAYOUT
-                qDebug() << "... start new line; item_width now" << item_width;
-#endif
             } else {
                 // Already at the start of a row; we have to make do.
                 // Shrink the item.
@@ -335,16 +334,26 @@ QSize FlowLayout::doLayout(const QRect& rect, bool test_only) const
             x = effective_rect.x();
             y = y + line_height + space_y;
             line_height = 0;
+#ifdef DEBUG_LAYOUT
+            qDebug().nospace() << "... start new line; item_width now "
+                               << item_width << "; y now " << y;
+#endif
         }
 
         int item_height = item->hasHeightForWidth()
                 ? item->heightForWidth(item_width)
                 : item_size_hint.height();
         max_x = qMax(max_x, x + item_width);
+        QSize item_size(item_width, item_height);
+        QPoint item_at(x, y);
+#ifdef DEBUG_LAYOUT
+        qDebug() << "... inserting layout item with widget"
+                 << LayoutDumper::getWidgetDescriptor(item->widget())
+                 << "at" << item_at << "with size" << item_size;
+#endif
 
         if (!test_only) {
-            item->setGeometry(QRect(QPoint(x, y),
-                                    QSize(item_width, item_height)));
+            item->setGeometry(QRect(item_at, item_size));
         }
 
         int next_x = x + item_width + space_x;

@@ -280,6 +280,11 @@ Other debugging
 - which libraries is my executable using?
     ldd EXECUTABLE
 
+- which files is my executable using?
+    strace -e trace=open,close,read,write,connect,accept EXECUTABLE
+    strace -e trace=open EXECUTABLE
+    strace -e trace=open EXECUTABLE 2>&1 | grep -v font  # ! smaller
+
 - add to library search path
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:newbit
   e.g.
@@ -614,28 +619,7 @@ Audio
 Collected Ubuntu requirements
 ===============================================================================
 
-sudo apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
-    libgl1-mesa-dev \
-    libasound-dev \
-    libharfbuzz-dev \
-    libpulse-dev \
-    libwayland-dev libwayland-egl1 libegl1-mesa-dev \
-    libtiff-dev \
-    libgbm-dev \
-    libxkbcommon-x11-dev \
-    libdbus-1-dev \
-    libjasper-dev \
-    libxcomposite-dev \
-    libxi-dev
-
-# Android:
-sudo apt install openjdk-8-jdk
-
-# Debugging:
-sudo apt install valgrind
-
-# For dynamic (.so) linking of OpenSSL:
-?
+See build_qt.py (in the instructions at the end).
 
 ===============================================================================
 Logging
@@ -764,6 +748,71 @@ Questionnaire
     http://www.qtcentre.org/threads/62787-Accessing-android-camera
 
 ===============================================================================
+Generic problem: derive from QObject or own one?
+===============================================================================
+- Derive from QObject:
+    - can implement signals directly
+    - all-in-one design
+    - can't copy, so can't use X().chainmethod().clone() idiom
+    - requires Q_OBJECT macro in all classes
+    - SAFER: CAN USE deleteLater()
+- Own QObject:
+    - owned QObject has to do the signals emitting
+    - two chains of inheritance (derive QObject/QWidget for new signals;
+      derive Openable for everything else)
+    - copying is not completely safe (as a member that is a QPointer<QWidget>
+      will be shallow-copied only)
+- Doesn't matter:
+    - slots - QObject::connect() works with QObject signals but also with
+      std::bind(...) signals, for arbitrary C++ objects.
+
+===============================================================================
+Signals and slots and bugs
+===============================================================================
+
+When you use a questionnaire widget on a FieldRef, the widget connects the
+FieldRef's FieldRef::valueChanged to itself. Then, if you rapidly switch
+widgets (e.g. in the test menu) and click around, the signal can arrive at a
+non-existent widget. Not solved by adding
+    widget->deleteLater();
+
+The problem is with the use of std::bind, rather than plain Qt connect.
+And specifically with the kind of std::bind from FieldRef to widget seen e.g.
+in QuMCQGridDouble. Qt is happy for a QObject to be deleted when it's the
+recipient of a signal, but that's not true of lambda functions and std::bind
+stuff. Replace this sort of thing:
+
+    connect(fieldref.data(), &FieldRef::valueChanged,
+            std::bind(&QuMCQGrid::fieldValueChanged, this, qi,
+                      std::placeholders::_1));
+
+with
+
+    class Intermediary {
+        Q_OBJECT
+        Intermediary::Intermediary(Something* recipient, int param) :
+            m_recipient(recipient), m_param(param)
+            {}
+    public slots:
+        void valueChanged(const QVariant& value) {
+            m_recipient->valueChanged(value, m_param);
+        }
+    protected:
+        Something* m_recipient;
+        int m_qi;
+    }
+
+    Intermediary* intermediary = new Intermediary(this, qi);
+    connect(fieldref.data(), &FieldRef::valueChanged,
+            intermediary, &Intermediary::valueChanged);
+    // and store intermediary safely
+
+Shorthand in comments:
+
+    // DANGEROUS OBJECT LIFESPAN SIGNAL: do not use std::bind
+    // Safe object lifespan signal: can use std::bind
+
+===============================================================================
 Translation
 ===============================================================================
 
@@ -813,18 +862,13 @@ Network
 ===============================================================================
 TO DO
 ===============================================================================
-- BooleanWidget now owns other widgets, so change CSS - check it works
-
-- change
-    padding: 26px;
-  back to 6px;
-  BUT FIRST: ClickableLabelWordWrapWide needs to be drawing based on style like QPushButton
-
+- *** Popup picker: appearance when null?
+- *** double spinbox: is it OK if you enter the default-display value with a null field?
 - *** inline picker styling wrong
-- *** clickable label styling needs changing
 
 - *** patients
 - *** notification for "data dirty" -- attach to database ops? DatabaseObject?
+- *** network stuff
 
 - *** scrolling by touch on Android menus and questionnaires
     http://doc.qt.io/qt-5.7/gestures-overview.html

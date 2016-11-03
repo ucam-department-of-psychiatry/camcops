@@ -12,6 +12,7 @@
 #include <QStandardItemModel>
 #include <QTreeView>
 #include <QVBoxLayout>
+#include "common/cssconst.h"
 #include "common/uiconstants.h"
 #include "diagnosis/diagnosticcodeset.h"
 #include "diagnosis/diagnosissortfiltermodel.h"
@@ -94,7 +95,7 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     // Title
     LabelWordWrapWide* title_label = new LabelWordWrapWide(m_codeset->title());
     title_label->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-    title_label->setObjectName("title");
+    title_label->setObjectName(CssConst::TITLE);
 
     m_search_button = new ImageButton(UiConst::CBS_ZOOM);  // *** ICON: remove "+" from centre of magnifying glass
     connect(m_search_button.data(), &QAbstractButton::clicked,
@@ -114,7 +115,7 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     // Horizontal line
     // ------------------------------------------------------------------------
     HorizontalLine* horizline = new HorizontalLine(UiConst::HEADER_HLINE_WIDTH);
-    horizline->setObjectName("header_horizontal_line");
+    horizline->setObjectName(CssConst::HEADER_HORIZONTAL_LINE);
 
     // ------------------------------------------------------------------------
     // Header assembly
@@ -138,7 +139,7 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     // ========================================================================
 
     m_heading_tree = new QLabel(tr("Explore as tree:"));
-    m_heading_tree->setObjectName("heading");
+    m_heading_tree->setObjectName(CssConst::HEADING);
 
     m_treeview = new QTreeView();
     m_treeview->setModel(m_codeset.data());
@@ -203,7 +204,7 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     //   same link). We'll do that, and use a real QListView.
 
     m_heading_search = new QLabel(tr("Search diagnoses:"));
-    m_heading_search->setObjectName("heading");
+    m_heading_search->setObjectName(CssConst::HEADING);
 
     m_flatview = new QListView();
     m_flatview->setModel(m_diag_filter_model.data());
@@ -226,7 +227,7 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     mainlayout->addWidget(m_flatview);
 
     QWidget* topwidget = new QWidget();
-    topwidget->setObjectName("menu_window_background");
+    topwidget->setObjectName(CssConst::MENU_WINDOW_BACKGROUND);
     topwidget->setLayout(mainlayout);
 
     QVBoxLayout* toplayout = new QVBoxLayout();

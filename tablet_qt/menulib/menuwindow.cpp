@@ -4,6 +4,7 @@
 #include <QListWidgetItem>
 #include <QMessageBox>
 #include <QVBoxLayout>
+#include "common/cssconst.h"
 #include "common/uiconstants.h"
 #include "lib/filefunc.h"
 #include "lib/uifunc.h"
@@ -49,13 +50,13 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
     */
 
     loadStyleSheet();
-    setObjectName("menu_window_outer_object");
+    setObjectName(CssConst::MENU_WINDOW_OUTER_OBJECT);
 
     QVBoxLayout* dummy_layout = new QVBoxLayout();
     dummy_layout->setContentsMargins(UiConst::NO_MARGINS);
     setLayout(dummy_layout);
     QWidget* dummy_widget = new QWidget();
-    dummy_widget->setObjectName("menu_window_background");
+    dummy_widget->setObjectName(CssConst::MENU_WINDOW_BACKGROUND);
     dummy_layout->addWidget(dummy_widget);
 
     m_mainlayout->setContentsMargins(UiConst::NO_MARGINS);

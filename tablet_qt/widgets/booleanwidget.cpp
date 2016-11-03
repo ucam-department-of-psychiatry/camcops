@@ -1,8 +1,10 @@
 #include "booleanwidget.h"
 #include <QDebug>
 #include <QPainter>
+#include <QStyle>
 #include <QVariant>
 #include <QVBoxLayout>
+#include "common/cssconst.h"
 #include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "widgets/clickablelabelwordwrapwide.h"
@@ -43,7 +45,6 @@ BooleanWidget::BooleanWidget(QWidget* parent) :
     connect(m_textbutton, &ClickableLabelWordWrapWide::clicked,
             this, &BooleanWidget::clicked);
 
-    // setObjectName("boolean_widget");
     updateWidget();
 }
 
@@ -166,25 +167,30 @@ void BooleanWidget::updateWidget()
     case Appearance::Text:
         // http://wiki.qt.io/DynamicPropertiesAndStylesheets
         {
-            QString property = "state";
             switch (m_state) {
             case State::Disabled:
-                UiFunc::setProperty(this, property, "disabled");
+                m_textbutton->setProperty(CssConst::PROPERTY_STATE,
+                                          CssConst::VALUE_DISABLED);
                 break;
             case State::Null:
-                UiFunc::setProperty(this, property, "null");
+                m_textbutton->setProperty(CssConst::PROPERTY_STATE,
+                                          CssConst::VALUE_NULL);
                 break;
             case State::NullRequired:
-                UiFunc::setProperty(this, property, "nullrequired");
+                m_textbutton->setProperty(CssConst::PROPERTY_STATE,
+                                          CssConst::VALUE_NULL_REQUIRED);
                 break;
             case State::False:
-                UiFunc::setProperty(this, property, "false");
+                m_textbutton->setProperty(CssConst::PROPERTY_STATE,
+                                          CssConst::VALUE_FALSE);
                 break;
             case State::True:
-                UiFunc::setProperty(this, property, "true");
+                m_textbutton->setProperty(CssConst::PROPERTY_STATE,
+                                          CssConst::VALUE_TRUE);
                 break;
             }
-            setProperty("readonly", UiFunc::cssBoolean(m_read_only));
+            m_textbutton->setProperty(CssConst::PROPERTY_READ_ONLY,
+                                      UiFunc::cssBoolean(m_read_only));
         }
         break;
     }
@@ -201,9 +207,7 @@ void BooleanWidget::updateWidget()
         m_imagebutton->setVisible(false);
         m_textbutton->setVisible(true);
         setSizePolicy(UiFunc::horizMaximumHFWPolicy());
-        // One of these is probably unnecessary:
-        UiFunc::repolish(this);
-        // UiFunc::repolish(m_textbutton);
+        UiFunc::repolish(m_textbutton);
     }
     updateGeometry();
 }
@@ -234,19 +238,4 @@ void BooleanWidget::paintEvent(QPaintEvent* e)
     // We just have to implement this function somehow as QAbstractButton is
     // an abstract base class.
     */
-}
-
-
-QSize BooleanWidget::sizeHint() const
-{
-    // Can ignore layout margins because we've forced them to zero.
-    return m_as_image ? m_imagebutton->sizeHint() : m_textbutton->sizeHint();
-}
-
-
-QSize BooleanWidget::minimumSizeHint() const
-{
-    // Can ignore layout margins because we've forced them to zero.
-    return m_as_image ? m_imagebutton->minimumSizeHint()
-                      : m_textbutton->minimumSizeHint();
 }

@@ -80,6 +80,7 @@ QPointer<QWidget> QuPhoto::makeWidget(Questionnaire* questionnaire)
     }
 
     QVBoxLayout* button_layout = new QVBoxLayout();
+    button_layout->setContentsMargins(UiConst::NO_MARGINS);
     if (m_have_camera) {
         button_layout->addWidget(button_open_camera, 0, align);
     } else {
@@ -102,6 +103,7 @@ QPointer<QWidget> QuPhoto::makeWidget(Questionnaire* questionnaire)
     m_image = new AspectRatioPixmapLabel();
 
     QVBoxLayout* image_layout = new QVBoxLayout();
+    image_layout->setContentsMargins(UiConst::NO_MARGINS);
     image_layout->addWidget(m_incomplete_optional, 0, align);
     image_layout->addWidget(m_incomplete_mandatory, 0, align);
     image_layout->addWidget(m_field_problem, 0, align);
@@ -114,6 +116,7 @@ QPointer<QWidget> QuPhoto::makeWidget(Questionnaire* questionnaire)
                                            QSizePolicy::Maximum);
 
     QHBoxLayout* top_layout = new QHBoxLayout();
+    top_layout->setContentsMargins(UiConst::NO_MARGINS);
     top_layout->addWidget(button_widget, 0, align);
     top_layout->addWidget(image_and_marker_widget, 0, align);
     top_layout->addStretch();

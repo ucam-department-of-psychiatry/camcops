@@ -1,6 +1,7 @@
 #include "qupickerinline.h"
 #include <QComboBox>
 #include <QLabel>
+#include "common/cssconst.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionnairefunc.h"
@@ -58,7 +59,7 @@ QPointer<QWidget> QuPickerInline::makeWidget(Questionnaire* questionnaire)
                 this, &QuPickerInline::currentIndexChanged);
     }
     m_cbox->setEnabled(!read_only);
-    m_cbox->setObjectName("picker_inline");
+    m_cbox->setObjectName(CssConst::PICKER_INLINE);
     setFromField();
     return QPointer<QWidget>(m_cbox);
 }

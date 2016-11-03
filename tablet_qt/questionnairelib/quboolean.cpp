@@ -2,6 +2,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QWidget>
+// #include "common/cssconst.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/mcqfunc.h"
 #include "questionnairelib/questionnaire.h"
@@ -112,6 +113,7 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire *questionnaire)
     widget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     QHBoxLayout* layout = new QHBoxLayout();
+    layout->setContentsMargins(UiConst::NO_MARGINS);
     widget->setLayout(layout);
     // To align things in a QHBoxLayout, align the widgets within the layout:
     //      layout->setAlignment(widget, alignment)
@@ -124,7 +126,7 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire *questionnaire)
         // Text label
         if (!read_only && m_content_clickable) {
             ClickableLabelWordWrapWide* label = new ClickableLabelWordWrapWide(m_text);
-            // label->setObjectName("debug_green");
+            // label->setObjectName(CssConst::DEBUG_GREEN);
             connect(label, &ClickableLabelWordWrapWide::clicked,
                     this, &QuBoolean::clicked);
             labelwidget = label;

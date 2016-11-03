@@ -3,6 +3,7 @@
 #include <QTextBrowser>
 #include <QVBoxLayout>
 #include "common/camcopsapp.h"
+#include "common/cssconst.h"
 #include "lib/filefunc.h"
 #include "menulib/menuheader.h"
 #include "widgets/labelwordwrapwide.h"
@@ -16,7 +17,7 @@ HtmlInfoWindow::HtmlInfoWindow(CamcopsApp& app, const QString& title,
     m_app(app)
 {
     setStyleSheet(m_app.getSubstitutedCss(UiConst::CSS_CAMCOPS_MENU));
-    setObjectName("menu_window_outer_object");
+    setObjectName(CssConst::MENU_WINDOW_OUTER_OBJECT);
 
     // Layouts
     QVBoxLayout* mainlayout = new QVBoxLayout();
@@ -25,7 +26,7 @@ HtmlInfoWindow::HtmlInfoWindow(CamcopsApp& app, const QString& title,
     dummy_layout->setContentsMargins(UiConst::NO_MARGINS);
     setLayout(dummy_layout);
     QWidget* dummy_widget = new QWidget();
-    dummy_widget->setObjectName("menu_window_background");
+    dummy_widget->setObjectName(CssConst::MENU_WINDOW_BACKGROUND);
     dummy_layout->addWidget(dummy_widget);
     dummy_widget->setLayout(mainlayout);
 
@@ -46,7 +47,7 @@ HtmlInfoWindow::HtmlInfoWindow(CamcopsApp& app, const QString& title,
     } else {
         QLabel* label = new LabelWordWrapWide(tr("No such file") + ": " +
                                               filename);
-        label->setObjectName("warning");
+        label->setObjectName(CssConst::WARNING);
         mainlayout->addWidget(label);
         mainlayout->addStretch();
     }
