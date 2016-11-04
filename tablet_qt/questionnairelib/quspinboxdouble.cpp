@@ -40,10 +40,13 @@ QPointer<QWidget> QuSpinBoxDouble::makeWidget(Questionnaire* questionnaire)
     // "no matching function for call to ... unresolved overloaded function
     // type..."
     // Disambiguate like this:
-    void (QDoubleSpinBox::*vc_signal)(double) = &QDoubleSpinBox::valueChanged;
+    void (QDoubleSpinBox::*vc_sig_dbl)(double) = &QDoubleSpinBox::valueChanged;
+    // void (QDoubleSpinBox::*vc_sig_str)(const QString&) = &QDoubleSpinBox::valueChanged;
     if (!read_only) {
-        connect(m_spinbox.data(), vc_signal,
+        connect(m_spinbox.data(), vc_sig_dbl,
                 this, &QuSpinBoxDouble::widgetValueChanged);
+        //connect(m_spinbox.data(), vc_sig_str,
+        //        this, &QuSpinBoxDouble::widgetValueChangedString);
     }
     setFromField();
     return QPointer<QWidget>(m_spinbox);
@@ -55,6 +58,7 @@ FieldRefPtrList QuSpinBoxDouble::fieldrefs() const
     return FieldRefPtrList{m_fieldref};
 }
 
+
 void QuSpinBoxDouble::widgetValueChanged(double value)
 {
     bool changed = m_fieldref->setValue(value, this);  // Will trigger valueChanged
@@ -62,6 +66,12 @@ void QuSpinBoxDouble::widgetValueChanged(double value)
         emit elementValueChanged();
     }
 }
+
+
+//void QuSpinBoxDouble::widgetValueChangedString(const QString& text)
+//{
+//    qDebug() << Q_FUNC_INFO << text;
+//}
 
 
 void QuSpinBoxDouble::fieldValueChanged(const FieldRef* fieldref,

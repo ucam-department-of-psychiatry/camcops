@@ -136,6 +136,7 @@ ClickableLabelWordWrapWide:pressed {
     background-color: rgba(100, 100, 255, 200);  /* to match BUTTON_PRESSED_COLOUR */
 }
 /* They will override the generic dynamic modifiers, so we re-specify... */
+ClickableLabelWordWrapWide#picker_popup[missing="true"],
 QComboBox#picker_inline[missing="true"],
 QLabel#picker_popup[missing="true"] {
     background-color: yellow;

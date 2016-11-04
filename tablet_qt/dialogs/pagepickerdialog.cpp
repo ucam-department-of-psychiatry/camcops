@@ -1,6 +1,7 @@
 #include "pagepickerdialog.h"
 #include <functional>
 #include <QDialogButtonBox>
+#include <QEvent>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include "lib/uifunc.h"
@@ -37,7 +38,7 @@ int PagePickerDialog::choose(int* new_page_number)
 
         ClickableLabelWordWrapWide* label = new ClickableLabelWordWrapWide(
                     page.text());
-        label->setSizePolicy(UiFunc::horizExpandingHFWPolicy());
+        label->setSizePolicy(UiFunc::expandingFixedHFWPolicy());
         itemlayout->addWidget(label);
 
         ImageButton* icon = new ImageButton(page.iconFilename());
@@ -86,4 +87,15 @@ void PagePickerDialog::itemClicked(int item_index)
     }
     *m_new_page_number = page.pageNumber();
     accept();
+}
+
+
+bool PagePickerDialog::event(QEvent* e)
+{
+    bool result = QDialog::event(e);
+    QEvent::Type type = e->type();
+    if (type == QEvent::Type::Show) {
+        adjustSize();
+    }
+    return result;
 }

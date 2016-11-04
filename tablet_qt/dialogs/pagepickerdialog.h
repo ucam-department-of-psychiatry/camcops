@@ -15,6 +15,7 @@ public:
     PagePickerDialog(QWidget* parent, const PagePickerItemList& pages,
                      const QString& title = "");
     virtual int choose(int* new_page_number);
+    virtual bool event(QEvent* e) override;
 protected slots:
     void itemClicked(int item_index);
 protected:

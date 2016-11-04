@@ -5,6 +5,7 @@
 
 class CamcopsApp;
 class LogBox;
+class QNetworkAccessManager;
 class QNetworkReply;
 class QString;
 
@@ -37,6 +38,7 @@ protected:
     void sslIgnoringErrorHandler(QNetworkReply* reply,
                                  const QList<QSslError>& errlist);
     void commonFinish();
+    void disconnectManager();
 protected:
     const CamcopsApp& m_app;
     QWidget* m_parent;
@@ -44,4 +46,5 @@ protected:
     bool m_offer_cancel;
     bool m_silent;
     QPointer<LogBox> m_logbox;
+    QNetworkAccessManager* m_mgr;
 };

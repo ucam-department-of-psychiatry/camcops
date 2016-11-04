@@ -16,6 +16,7 @@ public:
     NvpChoiceDialog(QWidget* parent, const NameValueOptions& options,
                     const QString& title = "");
     virtual int choose(QVariant* new_value);
+    virtual bool event(QEvent* e) override;
 protected slots:
     void itemClicked(int index);
 protected:

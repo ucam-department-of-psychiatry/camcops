@@ -549,9 +549,11 @@ Layout flow
     ... its effect is in QLayout::activate()
     ... if you setSizeConstraint to QLayout::SetFixedSize, then the PW doesn't
         resize at all
-  ANSWER: re-implement the PW's QWidget::resizeEvent(); take the PW's width();
-  ask the layout for its heightForWidth(w); setFixedHeight(h); updateGeometry()
+  PART OF THE ANSWER: re-implement the PW's QWidget::resizeEvent(); take the
+  PW's width(); ask the layout for its heightForWidth(w); setFixedHeight(h);
+  updateGeometry()
   - see FlowLayoutContainer.
+- AND/OR: adjustSize();
 - If a widget is not expanding appropriately, SEE ITS ALIGNMENT SETTING.
   For example, Left/Top will get you a widget that does NOT expand to fill its
   container, whereas an alignment of 0 (with an Expanding size policy) will
@@ -765,6 +767,7 @@ Generic problem: derive from QObject or own one?
 - Doesn't matter:
     - slots - QObject::connect() works with QObject signals but also with
       std::bind(...) signals, for arbitrary C++ objects.
+    - http://wiki.qt.io/New_Signal_Slot_Syntax
 
 ===============================================================================
 Signals and slots and bugs
@@ -862,8 +865,6 @@ Network
 ===============================================================================
 TO DO
 ===============================================================================
-- *** Popup picker: appearance when null?
-- *** double spinbox: is it OK if you enter the default-display value with a null field?
 - *** inline picker styling wrong
 
 - *** patients

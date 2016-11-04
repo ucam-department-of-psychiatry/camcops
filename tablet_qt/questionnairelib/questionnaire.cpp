@@ -1,4 +1,5 @@
-// #define DEBUG_PAGE_LAYOUT
+// #define DEBUG_PAGE_LAYOUT_ON_OPEN
+#define OFFER_LAYOUT_DEBUG_BUTTON
 
 #include "questionnaire.h"
 #include <functional>
@@ -10,8 +11,11 @@
 #include "common/cssconst.h"
 #include "dialogs/pagepickerdialog.h"
 #include "lib/filefunc.h"
+#ifdef OFFER_LAYOUT_DEBUG_BUTTON
+#include "lib/layoutdumper.h"
+#endif
 #include "lib/uifunc.h"
-#ifdef DEBUG_PAGE_LAYOUT
+#ifdef DEBUG_PAGE_LAYOUT_ON_OPEN
 #include "qobjects/showwatcher.h"
 #endif
 #include "questionnairelib/pagepickeritem.h"
@@ -169,10 +173,15 @@ void Questionnaire::build()
     } else {
         header_css_name = background_css_name;
     }
+#ifdef OFFER_LAYOUT_DEBUG_BUTTON
+    bool offer_debug_layout = true;
+#else
+    bool offer_debug_layout = false;
+#endif
     m_p_header = new QuestionnaireHeader(
         this, page->title(),
         m_read_only, m_jump_allowed, m_within_chain,
-        header_css_name);
+        header_css_name, offer_debug_layout);
     m_mainlayout->addWidget(m_p_header);
     connect(m_p_header, &QuestionnaireHeader::cancelClicked,
             this, &Questionnaire::cancelClicked);
@@ -184,6 +193,8 @@ void Questionnaire::build()
             this, &Questionnaire::nextClicked);
     connect(m_p_header, &QuestionnaireHeader::finishClicked,
             this, &Questionnaire::finishClicked);
+    connect(m_p_header, &QuestionnaireHeader::debugLayout,
+            this, &Questionnaire::debugLayout);
 
     // Content
     // The QScrollArea (a) makes text word wrap, by setting a horizontal size
@@ -192,7 +203,7 @@ void Questionnaire::build()
     VerticalScrollArea* scroll = new VerticalScrollArea();
     scroll->setObjectName(background_css_name);
     QWidget* pagewidget = page->widget(this);  // adds the content
-#ifdef DEBUG_PAGE_LAYOUT
+#ifdef DEBUG_PAGE_LAYOUT_ON_OPEN
     ShowWatcher* showwatcher = new ShowWatcher(pagewidget, true);
     Q_UNUSED(showwatcher);
 #endif
@@ -433,4 +444,10 @@ CamcopsApp& Questionnaire::app() const
 QString Questionnaire::getSubstitutedCss(const QString& filename) const
 {
     return m_app.getSubstitutedCss(filename);
+}
+
+
+void Questionnaire::debugLayout()
+{
+    LayoutDumper::dumpWidgetHierarchy(this);
 }

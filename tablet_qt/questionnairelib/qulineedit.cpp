@@ -143,7 +143,9 @@ void QuLineEdit::fieldValueChanged(const FieldRef* fieldref,
     if (originator != this) {
         // Now we're detecting textChanged, we have to block signals for this:
         const QSignalBlocker blocker(m_editor);
-        m_editor->setText(fieldref->valueString());
+        QString text = fieldref->isNull() ? "" : fieldref->valueString();
+        // qDebug() << Q_FUNC_INFO << "setting to" << text;
+        m_editor->setText(text);
     }
 }
 

@@ -1,12 +1,10 @@
-// #define SHOW_WIDGET_ATTRIBUTES
-// #define SHOW_WIDGET_PROPERTIES
-
 #include "layoutdumper.h"
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <stdio.h>
 #include <QDebug>
+#include <QScrollArea>
 #include <QString>
 #include <QStringBuilder>
 #include <QtWidgets/QLayout>
@@ -14,7 +12,6 @@
 #include "lib/uifunc.h"
 
 const QString NULL_WIDGET_STRING("<null_widget>");
-const int SPACES_PER_LEVEL = 4;
 
 using namespace LayoutDumper;
 
@@ -126,7 +123,9 @@ QString LayoutDumper::getWidgetDescriptor(const QWidget* w)
 }
 
 
-QString LayoutDumper::getWidgetInfo(const QWidget* w)
+QString LayoutDumper::getWidgetInfo(const QWidget* w,
+                                    bool show_properties,
+                                    bool show_attributes)
 {
     if (!w) {
         return NULL_WIDGET_STRING;
@@ -147,12 +146,12 @@ QString LayoutDumper::getWidgetInfo(const QWidget* w)
     elements.append(QString("size (%1 x %2)")
                     .arg(geom.width())
                     .arg(geom.height()));
-//    elements.append(QString("minimumSize (%1 x %2)")
-//                    .arg(w.minimumSize().width())
-//                    .arg(w.minimumSize().height()));
-//    elements.append(QString("maximumSize (%1 x %2)")
-//                    .arg(w.maximumSize().width())
-//                    .arg(w.maximumSize().height()));
+    elements.append(QString("minimumSize (%1 x %2)")
+                    .arg(w->minimumSize().width())
+                    .arg(w->minimumSize().height()));
+    elements.append(QString("maximumSize (%1 x %2)")
+                    .arg(w->maximumSize().width())
+                    .arg(w->maximumSize().height()));
     elements.append(
         QString("sizeHint (%1 x %2), minimumSizeHint (%3 x %4), sizePolicy %5")
                     .arg(sizehint.width())
@@ -163,16 +162,17 @@ QString LayoutDumper::getWidgetInfo(const QWidget* w)
     elements.append(QString("stylesheet: %1")
                     .arg(w->styleSheet().isEmpty() ? "false" : "true"));
 
-#ifdef SHOW_WIDGET_ATTRIBUTES
-    elements.append(QString("attributes: [%1]").arg(getWidgetAttributeInfo(w)));
-#endif
-
-#ifdef SHOW_WIDGET_PROPERTIES
-    QString properties = getDynamicProperties(w);
-    if (!properties.isEmpty()) {
-        elements.append(QString("properties: [%1]").arg(properties));
+    if (show_attributes) {
+        elements.append(QString("attributes: [%1]")
+                        .arg(getWidgetAttributeInfo(w)));
     }
-#endif
+
+    if (show_properties) {
+        QString properties = getDynamicProperties(w);
+        if (!properties.isEmpty()) {
+            elements.append(QString("properties: [%1]").arg(properties));
+        }
+    }
 
     return elements.join(", ");
 }
@@ -252,12 +252,22 @@ QString LayoutDumper::getLayoutInfo(const QLayout* layout)
 }
 
 
-QList<const QWidget*> LayoutDumper::dumpLayoutAndChildren(QDebug& os,
-                                                    const QLayout* layout,
-                                                    int level)
+QString LayoutDumper::paddingSpaces(int level, int spaces_per_level)
 {
-    QString padding(level * SPACES_PER_LEVEL, ' ');
-    QString next_padding((level + 1) * SPACES_PER_LEVEL, ' ');
+    return QString(level * spaces_per_level, ' ');
+}
+
+
+QList<const QWidget*> LayoutDumper::dumpLayoutAndChildren(
+        QDebug& os,
+        const QLayout* layout,
+        int level,
+        bool show_widget_properties,
+        bool show_widget_attributes,
+        const int spaces_per_level)
+{
+    QString padding = paddingSpaces(level, spaces_per_level);
+    QString next_padding = paddingSpaces(level + 1, spaces_per_level);
     QList<const QWidget*> dumped_children;
 
     os << padding << "Layout: " << getLayoutInfo(layout);
@@ -278,14 +288,19 @@ QList<const QWidget*> LayoutDumper::dumpLayoutAndChildren(QDebug& os,
             QWidgetItem* wi = dynamic_cast<QWidgetItem*>(layout_item);
             QSpacerItem* si = dynamic_cast<QSpacerItem*>(layout_item);
             if (wi && wi->widget()) {
-                QString alignment = QString(" [alignment: %1]")
+                QString alignment = QString(" [alignment from layout: %1]")
                         .arg(toString(wi->alignment()));
                 dumped_children.append(
                     dumpWidgetAndChildren(os, wi->widget(), level + 1,
-                                          alignment));
+                                          alignment, show_widget_properties,
+                                          show_widget_attributes,
+                                          spaces_per_level));
             } else if (child_layout) {
                 dumped_children.append(
-                    dumpLayoutAndChildren(os, child_layout, level + 1));
+                    dumpLayoutAndChildren(os, child_layout, level + 1,
+                                          show_widget_properties,
+                                          show_widget_attributes,
+                                          spaces_per_level));
             } else if (si) {
                 QSize si_hint = si->sizeHint();
                 QLayout* si_layout = si->layout();
@@ -307,22 +322,42 @@ QList<const QWidget*> LayoutDumper::dumpLayoutAndChildren(QDebug& os,
 }
 
 
-QList<const QWidget*> LayoutDumper::dumpWidgetAndChildren(QDebug& os,
-                                                    const QWidget* w,
-                                                    int level,
-                                                    const QString& alignment)
+QList<const QWidget*> LayoutDumper::dumpWidgetAndChildren(
+        QDebug& os,
+        const QWidget* w,
+        int level,
+        const QString& alignment,
+        bool show_widget_properties,
+        bool show_widget_attributes,
+        const int spaces_per_level)
 {
-    QString padding(level * SPACES_PER_LEVEL, ' ');
-    QString next_padding((level + 1) * SPACES_PER_LEVEL, ' ');
+    QString padding = paddingSpaces(level, spaces_per_level);
 
-    os << padding << getWidgetInfo(w) << alignment << "\n";
+    os << padding
+       << getWidgetInfo(w, show_widget_properties, show_widget_attributes)
+       << alignment << "\n";
 
-    QLayout* layout = w->layout();
     QList<const QWidget*> dumped_children;
     dumped_children.append(w);
+
+    QLayout* layout = w->layout();
     if (layout) {
         dumped_children.append(
-            dumpLayoutAndChildren(os, layout, level + 1));
+            dumpLayoutAndChildren(os, layout, level + 1,
+                                  show_widget_properties,
+                                  show_widget_attributes,
+                                  spaces_per_level));
+    }
+
+    // Scroll areas contain but aren't necessarily the parents of their widgets
+    // However, they contain a 'qt_scrollarea_viewport' widget that is.
+    const QScrollArea* scroll = dynamic_cast<const QScrollArea*>(w);
+    if (scroll) {
+        dumped_children.append(
+            dumpWidgetAndChildren(os, scroll->viewport(), level + 1, "",
+                                  show_widget_properties,
+                                  show_widget_attributes,
+                                  spaces_per_level));
     }
 
     // now output any child widgets that weren't dumped as part of the layout
@@ -336,19 +371,29 @@ QList<const QWidget*> LayoutDumper::dumpWidgetAndChildren(QDebug& os,
         }
     }
     if (!undumped_children.empty()) {
-        os << padding << "Non-layout children:\n";
+        os << padding << "... Non-layout children of "
+           << getWidgetDescriptor(w) << ":\n";
         foreach (QWidget* child, undumped_children) {
             dumped_children.append(
-                dumpWidgetAndChildren(os, child, level + 1));
+                dumpWidgetAndChildren(os, child, level + 1, "",
+                                      show_widget_properties,
+                                      show_widget_attributes,
+                                      spaces_per_level));
         }
     }
     return dumped_children;
 }
 
 
-void LayoutDumper::dumpWidgetHierarchy(const QWidget* w)
+void LayoutDumper::dumpWidgetHierarchy(const QWidget* w,
+                                       bool show_widget_properties,
+                                       bool show_widget_attributes,
+                                       const int spaces_per_level)
 {
     QDebug os = qDebug().noquote().nospace();
     os << "WIDGET HIERARCHY:\n";
-    dumpWidgetAndChildren(os, w, 0);
+    dumpWidgetAndChildren(os, w, 0, "",
+                          show_widget_properties,
+                          show_widget_attributes,
+                          spaces_per_level);
 }

@@ -16,9 +16,16 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
                                          bool read_only,
                                          bool jump_allowed,
                                          bool within_chain,
-                                         const QString& css_name) :
+                                         const QString& css_name,
+                                         bool debug_allowed) :
     QWidget(parent),
-    m_title(title)
+    m_title(title),
+    m_button_debug(nullptr),
+    m_button_jump(nullptr),
+    m_button_previous(nullptr),
+    m_button_next(nullptr),
+    m_button_finish(nullptr),
+    m_icon_no_next(nullptr)
 {
     if (!css_name.isEmpty()) {
         setObjectName(css_name);  // was not working! But works for e.g. cancel button below
@@ -33,7 +40,7 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
         // http://doc.qt.io/qt-5.7/qwidget.html#autoFillBackground-prop
         // ... advises caution with setAutoFillBackground() and stylesheets
     }
-    setSizePolicy(UiFunc::horizExpandingHFWPolicy());
+    setSizePolicy(UiFunc::expandingFixedHFWPolicy());
 
     QVBoxLayout* mainlayout = new QVBoxLayout();
     setLayout(mainlayout);
@@ -72,36 +79,41 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     // Spacing
     toprowlayout->addStretch();
 
-    // Right-hand icons
+    // Right-hand icons/buttons
+    if (debug_allowed) {
+        m_button_debug = new ImageButton(UiConst::CBS_CAMERA);  // *** need debug icon
+        connect(m_button_debug, &QAbstractButton::clicked,
+                this, &QuestionnaireHeader::debugLayout);
+        toprowlayout->addWidget(m_button_debug);
+    }
+
+    m_button_previous = new ImageButton(UiConst::CBS_BACK);
+    toprowlayout->addWidget(m_button_previous);
+    toprowlayout->setAlignment(m_button_previous, button_align);
+
     if (jump_allowed) {
         m_button_jump = new ImageButton(UiConst::CBS_CHOOSE_PAGE);
         connect(m_button_jump, &QAbstractButton::clicked,
                 this, &QuestionnaireHeader::jumpClicked);
+        toprowlayout->addWidget(m_button_jump);
+        toprowlayout->setAlignment(m_button_jump, button_align);
     }
-    m_button_previous = new ImageButton(UiConst::CBS_BACK);
+
     m_button_next = new ImageButton(UiConst::CBS_NEXT);
-    m_icon_no_next = UiFunc::iconWidget(
-        UiFunc::iconFilename(UiConst::ICON_WARNING));
+    toprowlayout->addWidget(m_button_next);
+    toprowlayout->setAlignment(m_button_next, button_align);
+
     if (within_chain) {
         m_button_finish = new ImageButton(UiConst::CBS_FAST_FORWARD);
     } else {
         m_button_finish = new ImageButton(UiConst::CBS_FINISH);
     }
-
-    toprowlayout->addWidget(m_button_previous);
-    if (jump_allowed) {
-        toprowlayout->addWidget(m_button_jump);
-    }
-    toprowlayout->addWidget(m_button_next);
     toprowlayout->addWidget(m_button_finish);
-    toprowlayout->addWidget(m_icon_no_next);
-
-    toprowlayout->setAlignment(m_button_previous, button_align);
-    if (jump_allowed) {
-        toprowlayout->setAlignment(m_button_jump, button_align);
-    }
-    toprowlayout->setAlignment(m_button_next, button_align);
     toprowlayout->setAlignment(m_button_finish, button_align);
+
+    m_icon_no_next = UiFunc::iconWidget(
+        UiFunc::iconFilename(UiConst::ICON_WARNING));
+    toprowlayout->addWidget(m_icon_no_next);
     toprowlayout->setAlignment(m_icon_no_next, button_align);
 
     setButtons(false, false, false);

@@ -206,7 +206,7 @@ void BooleanWidget::updateWidget()
     } else {  // Text
         m_imagebutton->setVisible(false);
         m_textbutton->setVisible(true);
-        setSizePolicy(UiFunc::horizMaximumHFWPolicy());
+        setSizePolicy(UiFunc::maximumFixedHFWPolicy());
         UiFunc::repolish(m_textbutton);
     }
     updateGeometry();

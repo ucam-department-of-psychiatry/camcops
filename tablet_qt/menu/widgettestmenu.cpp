@@ -73,16 +73,44 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
     m_options_3.addItem(NameValuePair("Option C2 " + UiConst::LOREM_IPSUM_1, 2));
     m_options_3.addItem(NameValuePair("Option C3", 3));
 
+    QSizePolicy fixed_fixed(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    QSizePolicy expand_expand(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    QSizePolicy expand_fixed_hfw = UiFunc::expandingFixedHFWPolicy();
+    // UiFunc::horizExpandingPreferredHFWPolicy();
+
     m_items = {
         MenuItem(tr("Qt widgets")).setLabelOnly(),
-        MenuItem(tr("QLabel (size policy = Fixed, Fixed)"),
-                 std::bind(&WidgetTestMenu::testQLabel, this, false)),
-        MenuItem(tr("QLabel (size policy = Expanding, Expanding)"),
-                 std::bind(&WidgetTestMenu::testQLabel, this, true)),
+        MenuItem(tr("QLabel (size policy = Fixed, Fixed / short / no word wrap)"),
+                 std::bind(&WidgetTestMenu::testQLabel, this,
+                           fixed_fixed, false, false)),
+        MenuItem(tr("QLabel (size policy = Fixed, Fixed / long / no word wrap)"),
+                 std::bind(&WidgetTestMenu::testQLabel, this,
+                           fixed_fixed, true, false)),
+        MenuItem(tr("QLabel (size policy = Fixed, Fixed / long / word wrap)"),
+                 std::bind(&WidgetTestMenu::testQLabel, this,
+                           fixed_fixed, true, true)),
+        MenuItem(tr("QLabel (size policy = Expanding, Expanding / short / no word wrap)"),
+                 std::bind(&WidgetTestMenu::testQLabel, this,
+                           expand_expand, false, false)),
+        MenuItem(tr("QLabel (size policy = Expanding, Expanding / long / no word wrap)"),
+                 std::bind(&WidgetTestMenu::testQLabel, this,
+                           expand_expand, true, false)),
+        MenuItem(tr("QLabel (size policy = Expanding, Expanding / long / word wrap)"),
+                 std::bind(&WidgetTestMenu::testQLabel, this,
+                           expand_expand, true, true)),
+        MenuItem(tr("QLabel (size policy = Expanding, Fixed, heightForWidth / short / no word wrap)"),
+                 std::bind(&WidgetTestMenu::testQLabel, this,
+                           expand_fixed_hfw, false, false)),
+        MenuItem(tr("QLabel (size policy = Expanding, Fixed, heightForWidth / long / no word wrap)"),
+                 std::bind(&WidgetTestMenu::testQLabel, this,
+                           expand_fixed_hfw, true, false)),
+        MenuItem(tr("QLabel (size policy = Expanding, Fixed, heightForWidth / long / word wrap)"),
+                 std::bind(&WidgetTestMenu::testQLabel, this,
+                           expand_fixed_hfw, true, true)),
         MenuItem(tr("QPushButton (size policy = Fixed, Fixed)"),
-                 std::bind(&WidgetTestMenu::testQPushButton, this, false)),
+                 std::bind(&WidgetTestMenu::testQPushButton, this, fixed_fixed)),
         MenuItem(tr("QPushButton (size policy = Expanding, Expanding)"),
-                 std::bind(&WidgetTestMenu::testQPushButton, this, true)),
+                 std::bind(&WidgetTestMenu::testQPushButton, this, expand_expand)),
 
         MenuItem(tr("Low-level widgets")).setLabelOnly(),
         MenuItem(tr("AspectRatioPixmapLabel"),
@@ -112,8 +140,10 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
                  std::bind(&WidgetTestMenu::testClickableLabelWordWrapWide, this, false)),
         MenuItem(tr("ClickableLabelWordWrapWide (long text)"),
                  std::bind(&WidgetTestMenu::testClickableLabelWordWrapWide, this, true)),
-        MenuItem(tr("FlowLayoutContainer"),
-                 std::bind(&WidgetTestMenu::testFlowLayoutContainer, this)),
+        MenuItem(tr("FlowLayoutContainer (short text)"),
+                 std::bind(&WidgetTestMenu::testFlowLayoutContainer, this, false)),
+        MenuItem(tr("FlowLayoutContainer (long text)"),
+                 std::bind(&WidgetTestMenu::testFlowLayoutContainer, this, true)),
         MenuItem(tr("HorizontalLine"),
                  std::bind(&WidgetTestMenu::testHorizontalLine, this)),
         MenuItem(tr("ImageButton"),
@@ -268,20 +298,20 @@ void WidgetTestMenu::testQuestionnaireElement(QuElement* element)
 // Qt widgets
 // ============================================================================
 
-void WidgetTestMenu::testQLabel(bool expand)
+void WidgetTestMenu::testQLabel(const QSizePolicy& policy,
+                                bool long_text, bool word_wrap)
 {
-    QLabel* widget = new QLabel("Hello");
-    widget->setSizePolicy(expand ? QSizePolicy::Expanding : QSizePolicy::Fixed,
-                          expand ? QSizePolicy::Expanding : QSizePolicy::Fixed);
+    QLabel* widget = new QLabel(long_text ? UiConst::LOREM_IPSUM_1 : "Hello");
+    widget->setWordWrap(word_wrap);
+    widget->setSizePolicy(policy);
     DebugFunc::debugWidget(widget);
 }
 
 
-void WidgetTestMenu::testQPushButton(bool expand)
+void WidgetTestMenu::testQPushButton(const QSizePolicy& policy)
 {
     QPushButton* widget = new QPushButton("Hello");
-    widget->setSizePolicy(expand ? QSizePolicy::Expanding : QSizePolicy::Fixed,
-                          expand ? QSizePolicy::Expanding : QSizePolicy::Fixed);
+    widget->setSizePolicy(policy);
     // http://stackoverflow.com/questions/21367260/qt-making-a-qpushbutton-fill-layout-cell
     connect(widget, &QPushButton::clicked,
             this, &WidgetTestMenu::dummyAction);
@@ -349,11 +379,13 @@ void WidgetTestMenu::testClickableLabelWordWrapWide(bool long_text)
 }
 
 
-void WidgetTestMenu::testFlowLayoutContainer()
+void WidgetTestMenu::testFlowLayoutContainer(bool long_text)
 {
     FlowLayout* layout = new FlowLayout();
     layout->addWidget(new LabelWordWrapWide("Option Z1"));
-    layout->addWidget(new LabelWordWrapWide("Option Z2 " + UiConst::LOREM_IPSUM_1));
+    QString option2 = long_text ? "Option Z2 " + UiConst::LOREM_IPSUM_2
+                                : "Option Z2";
+    layout->addWidget(new LabelWordWrapWide(option2));
     layout->addWidget(new LabelWordWrapWide("Option Z3"));
     FlowLayoutContainer* widget = new FlowLayoutContainer();
     widget->setLayout(layout);
@@ -577,14 +609,14 @@ void WidgetTestMenu::testQuPhoto()
 
 void WidgetTestMenu::testQuPickerInline()
 {
-    QuPickerInline element(m_fieldref_1, m_options_1);
+    QuPickerInline element(m_fieldref_1, m_options_3);
     testQuestionnaireElement(&element);
 }
 
 
 void WidgetTestMenu::testQuPickerPopup()
 {
-    QuPickerPopup element(m_fieldref_1, m_options_1);
+    QuPickerPopup element(m_fieldref_1, m_options_3);
     testQuestionnaireElement(&element);
 }
 

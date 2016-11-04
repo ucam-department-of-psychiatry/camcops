@@ -1,3 +1,5 @@
+#define DEBUG_CALCULATIONS
+
 #include "clickablelabelwordwrapwide.h"
 #include <QDebug>
 #include <QMargins>
@@ -43,9 +45,11 @@ void ClickableLabelWordWrapWide::commonConstructor(bool stretch)
     }
 
     setLayout(m_layout);
-    setSizePolicy(stretch ? UiFunc::horizExpandingHFWPolicy()
-                          : UiFunc::horizMaximumHFWPolicy());
+    setSizePolicy(stretch ? UiFunc::expandingFixedHFWPolicy()
+                          : UiFunc::maximumFixedHFWPolicy());
     // http://doc.qt.io/qt-5/layout.html
+
+    adjustSize();
 }
 
 
@@ -53,6 +57,7 @@ void ClickableLabelWordWrapWide::setTextFormat(Qt::TextFormat format)
 {
     Q_ASSERT(m_label);
     m_label->setTextFormat(format);
+    adjustSize();
 }
 
 
@@ -60,7 +65,7 @@ void ClickableLabelWordWrapWide::setWordWrap(bool on)
 {
     Q_ASSERT(m_label);
     m_label->setWordWrap(on);
-    updateGeometry();
+    adjustSize();
 }
 
 
@@ -92,34 +97,41 @@ QSize ClickableLabelWordWrapWide::translateSize(const QSize& size) const
 QSize ClickableLabelWordWrapWide::sizeHint() const
 {
     Q_ASSERT(m_label);
-    return translateSize(m_label->sizeHint());
+    QSize result = translateSize(m_label->sizeHint());
+#ifdef DEBUG_CALCULATIONS
+    qDebug() << Q_FUNC_INFO << "->" << result;
+#endif
+    return result;
 }
 
 
 QSize ClickableLabelWordWrapWide::minimumSizeHint() const
 {
     Q_ASSERT(m_label);
-    return translateSize(m_label->minimumSizeHint());
+    QSize result = translateSize(m_label->minimumSizeHint());
+#ifdef DEBUG_CALCULATIONS
+    qDebug() << Q_FUNC_INFO << "->" << result;
+#endif
+    return result;
 }
 
 
 void ClickableLabelWordWrapWide::resizeEvent(QResizeEvent* event)
 {
+#ifdef DEBUG_CALCULATIONS
+    qDebug() << Q_FUNC_INFO;
+#endif
     QPushButton::resizeEvent(event);
-    QLayout* lay = layout();
-    if (!lay || !lay->hasHeightForWidth()) {
-        return;
-    }
-    int w = width();
-    int h = lay->heightForWidth(w);
-    setFixedHeight(h);
-    updateGeometry();
+    UiFunc::resizeEventForHFWParentWidget(this);
 }
 
 
 void ClickableLabelWordWrapWide::setText(const QString& text)
 {
     Q_ASSERT(m_label);
+#ifdef DEBUG_CALCULATIONS
+    qDebug() << Q_FUNC_INFO << text;
+#endif
     m_label->setText(text);
-    updateGeometry();
+    adjustSize();
 }

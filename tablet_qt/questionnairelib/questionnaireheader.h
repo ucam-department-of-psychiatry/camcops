@@ -17,7 +17,7 @@ class QuestionnaireHeader : public QWidget
 public:
     QuestionnaireHeader(QWidget* parent, const QString& title,
                         bool read_only, bool jump_allowed, bool within_chain,
-                        const QString& css_name);
+                        const QString& css_name, bool debug_allowed = false);
     void setButtons(bool previous, bool next, bool finish);
 signals:
     void cancelClicked();
@@ -25,8 +25,10 @@ signals:
     void previousClicked();
     void nextClicked();
     void finishClicked();
+    void debugLayout();
 protected:
     QString m_title;
+    QPointer<QAbstractButton> m_button_debug;
     QPointer<QAbstractButton> m_button_jump;
     QPointer<QAbstractButton> m_button_previous;
     QPointer<QAbstractButton> m_button_next;

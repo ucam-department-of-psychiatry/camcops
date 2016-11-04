@@ -1,5 +1,5 @@
 // #define DEBUG_ICON_LOAD
-// #define DEBUG_WIDGET_MARGINS
+#define DEBUG_WIDGET_MARGINS
 
 #include "uifunc.h"
 #include <QApplication>
@@ -461,7 +461,7 @@ QSize UiFunc::frameSizeHintFromContents(const QFrame* frame,
 }
 
 
-QSizePolicy UiFunc::horizExpandingHFWPolicy()
+QSizePolicy UiFunc::expandingFixedHFWPolicy()
 {
     QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Fixed);
     sp.setHeightForWidth(true);
@@ -469,12 +469,47 @@ QSizePolicy UiFunc::horizExpandingHFWPolicy()
 }
 
 
-QSizePolicy UiFunc::horizMaximumHFWPolicy()
+QSizePolicy UiFunc::expandingPreferredHFWPolicy()
+{
+    QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    sp.setHeightForWidth(true);
+    return sp;
+}
+
+
+QSizePolicy UiFunc::maximumFixedHFWPolicy()
 {
     QSizePolicy sp(QSizePolicy::Maximum, QSizePolicy::Fixed);
     sp.setHeightForWidth(true);
     return sp;
 }
+
+
+QSizePolicy UiFunc::expandingMaximumHFWPolicy()
+{
+    QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Maximum);
+    sp.setHeightForWidth(true);
+    return sp;
+}
+
+
+void UiFunc::resizeEventForHFWParentWidget(QWidget* widget)
+{
+    // Call from your resizeEvent() processor passing "this" as the parameter
+    // if you are a widget that contains (via a layout) height-for-width
+    // widgets.
+    Q_ASSERT(widget);
+    QLayout* lay = widget->layout();
+    if (!lay || !lay->hasHeightForWidth()) {
+        return;
+    }
+    int w = widget->width();
+    int h = lay->heightForWidth(w);
+    qDebug() << Q_FUNC_INFO << "w" << w << "h" << h;
+    widget->setFixedHeight(h);
+    widget->updateGeometry();
+}
+
 
 // ============================================================================
 // Killing the app

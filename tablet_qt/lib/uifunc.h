@@ -97,8 +97,12 @@ namespace UiFunc {
                                     const QSize& child_size);
 
     // Size policies that take a few statements to create:
-    QSizePolicy horizExpandingHFWPolicy();
-    QSizePolicy horizMaximumHFWPolicy();
+    QSizePolicy expandingFixedHFWPolicy();
+    QSizePolicy expandingPreferredHFWPolicy();
+    QSizePolicy maximumFixedHFWPolicy();
+    QSizePolicy expandingMaximumHFWPolicy();
+
+    void resizeEventForHFWParentWidget(QWidget* widget);
 
     // ========================================================================
     // Killing the app

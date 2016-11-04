@@ -83,7 +83,7 @@ void AspectRatioPixmapLabel::resizeEvent(QResizeEvent* event)
     Q_UNUSED(event)
     if (!m_pixmap.isNull()) {
         QLabel::setPixmap(scaledPixmap());
-        updateGeometry(); // WATCH OUT: any potential for infinite recursion?
+        // unnecessary // updateGeometry(); // WATCH OUT: any potential for infinite recursion?
     }
 }
 

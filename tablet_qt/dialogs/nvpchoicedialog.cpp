@@ -1,6 +1,7 @@
 #include "nvpchoicedialog.h"
 #include <functional>
 #include <QDialogButtonBox>
+#include <QEvent>
 #include <QVariant>
 #include <QVBoxLayout>
 #include "lib/uifunc.h"
@@ -34,7 +35,7 @@ int NvpChoiceDialog::choose(QVariant* new_value)
         const NameValuePair& nvp = m_options.at(i);
         ClickableLabelWordWrapWide* label = new ClickableLabelWordWrapWide(
                     nvp.name());
-        label->setSizePolicy(UiFunc::horizExpandingHFWPolicy());
+        label->setSizePolicy(UiFunc::expandingFixedHFWPolicy());
         contentlayout->addWidget(label);
         // Safe object lifespan signal: can use std::bind
         connect(label, &ClickableLabelWordWrapWide::clicked,
@@ -68,4 +69,15 @@ void NvpChoiceDialog::itemClicked(int index)
     }
     *m_new_value = m_options.value(index);
     accept();
+}
+
+
+bool NvpChoiceDialog::event(QEvent* e)
+{
+    bool result = QDialog::event(e);
+    QEvent::Type type = e->type();
+    if (type == QEvent::Type::Show) {
+        adjustSize();
+    }
+    return result;
 }

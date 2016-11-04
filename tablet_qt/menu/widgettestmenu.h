@@ -3,6 +3,7 @@
 #include "questionnairelib/namevalueoptions.h"
 #include "widgets/booleanwidget.h"
 
+class QSizePolicy;
 class QuElement;
 
 
@@ -22,8 +23,9 @@ protected:
     // ========================================================================
     // Endogenous Qt widgets
     // ========================================================================
-    void testQLabel(bool expand);
-    void testQPushButton(bool expand);
+    void testQLabel(const QSizePolicy& policy,
+                    bool long_text, bool word_wrap);
+    void testQPushButton(const QSizePolicy& policy);
 
     // ========================================================================
     // Low-level widgets
@@ -37,7 +39,7 @@ protected:
     void testClickableLabelWordWrapWide(bool long_text);
     // DiagnosticCodeSelector: use QuDiagnosticCode instead
     // FlowLayout: see testFlowLayoutContainer
-    void testFlowLayoutContainer();
+    void testFlowLayoutContainer(bool long_text);
     // GrowingTextEdit: see QuTextEdit
     void testHorizontalLine();
     void testImageButton();

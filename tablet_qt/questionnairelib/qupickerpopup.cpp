@@ -17,6 +17,7 @@ QuPickerPopup::QuPickerPopup(FieldRefPtr fieldref,
                              const NameValueOptions& options) :
     m_fieldref(fieldref),
     m_options(options),
+    m_randomize(false),
     m_label(nullptr)
 {
     m_options.validateOrDie();

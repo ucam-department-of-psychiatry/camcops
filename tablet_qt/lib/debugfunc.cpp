@@ -61,7 +61,10 @@ void DebugFunc::dumpQObject(QObject* obj)
 
 
 void DebugFunc::debugWidget(QWidget* widget, bool set_background_by_name,
-                            bool set_background_by_stylesheet)
+                            bool set_background_by_stylesheet,
+                            bool show_widget_properties,
+                            bool show_widget_attributes,
+                            const int spaces_per_level)
 {
     QDialog dlg;
     dlg.setWindowTitle("Press D/dump layout, A/adjustSize");
@@ -85,7 +88,9 @@ void DebugFunc::debugWidget(QWidget* widget, bool set_background_by_name,
         // Safe object lifespan signal: can use std::bind
         keywatcher->addKeyEvent(
             Qt::Key_D,
-            std::bind(&LayoutDumper::dumpWidgetHierarchy, &dlg));
+            std::bind(&LayoutDumper::dumpWidgetHierarchy, &dlg,
+                      show_widget_properties, show_widget_attributes,
+                      spaces_per_level));
         keywatcher->addKeyEvent(
             Qt::Key_A,
             std::bind(&QWidget::adjustSize, widget));

@@ -56,6 +56,7 @@ protected slots:
     void finishClicked();
     void resetButtons();
     void goToPage(int index_zero_based);
+    void debugLayout();
 signals:
     void pageAboutToOpen();  // about to display page
     void cancelled();  // failure/cancel

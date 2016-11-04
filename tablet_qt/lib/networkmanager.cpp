@@ -13,12 +13,24 @@
 #include "dialogs/logbox.h"
 
 
+// CALLBACK LIFETIME SAFETY in this class:
+// - There is only one NetworkManager in the whole app, owned by the
+//   CamcopsApp.
+// - The QNetworkAccessManager lives as long as the NetworkManager.
+// - Therefore, any callbacks to this class are lifetime-safe and can use
+//   std::bind.
+// - HOWEVER, callbacks to something transient may not be (e.g. another object
+//   sets up a callback to itself but with std::bind rather than to a QObject;
+//   network function is called; object is deleted; network replies; boom).
+//   So BEWARE there.
+
 NetworkManager::NetworkManager(const CamcopsApp& app, QWidget* parent) :
     m_app(app),
     m_parent(parent),
     m_offer_cancel(true),
     m_silent(parent == nullptr),
-    m_logbox(nullptr)
+    m_logbox(nullptr),
+    m_mgr(new QNetworkAccessManager(this))
 {
 }
 
@@ -46,21 +58,27 @@ void NetworkManager::setTitle(const QString& title)
 }
 
 
+void NetworkManager::disconnectManager()
+{
+    m_mgr->disconnect();
+}
+
+
 void NetworkManager::testHttpGet(const QString& url, bool offer_cancel)
 {
     m_offer_cancel = offer_cancel;
     statusMessage("Testing HTTP GET connection to: " + url);
-    QNetworkAccessManager* manager = new QNetworkAccessManager();
     QNetworkRequest request;
     // URL
     request.setUrl(QUrl(url));
     // Callback
-    // *** CHECK CALLBACK LIFESPAN SAFETY
-    QObject::connect(manager, &QNetworkAccessManager::finished,
+    disconnectManager();
+    // Safe object lifespan signal: can use std::bind
+    QObject::connect(m_mgr, &QNetworkAccessManager::finished,
                      std::bind(&NetworkManager::testReplyFinished,
                                this, std::placeholders::_1));
     // GET
-    manager->get(request);
+    m_mgr->get(request);
     statusMessage("... sent request to: " + url);
 }
 
@@ -70,7 +88,6 @@ void NetworkManager::testHttpsGet(const QString& url, bool offer_cancel,
 {
     m_offer_cancel = offer_cancel;
     statusMessage("Testing HTTPS GET connection to: " + url);
-    QNetworkAccessManager* manager = new QNetworkAccessManager();
     QNetworkRequest request;
     // SSL
     QSslConfiguration config = QSslConfiguration::defaultConfiguration();
@@ -82,21 +99,20 @@ void NetworkManager::testHttpsGet(const QString& url, bool offer_cancel,
     // URL
     request.setUrl(QUrl(url));
     // Callback
-    // http://wiki.qt.io/New_Signal_Slot_Syntax
-    // *** CHECK CALLBACK LIFESPAN SAFETY
-    QObject::connect(manager, &QNetworkAccessManager::finished,
+    disconnectManager();
+    // Safe object lifespan signal: can use std::bind
+    QObject::connect(m_mgr, &QNetworkAccessManager::finished,
                      std::bind(&NetworkManager::testReplyFinished, this,
                                std::placeholders::_1));
     // Note: the reply callback arrives on the main (GUI) thread.
     if (ignore_ssl_errors) {
-        // *** CHECK CALLBACK LIFESPAN SAFETY
-        QObject::connect(manager, &QNetworkAccessManager::sslErrors,
+        QObject::connect(m_mgr, &QNetworkAccessManager::sslErrors,
                          std::bind(&NetworkManager::sslIgnoringErrorHandler,
                                    this, std::placeholders::_1,
                                    std::placeholders::_2));
     }
     // GET
-    manager->get(request);
+    m_mgr->get(request);
     statusMessage("... sent request to: " + url);
 }
 
