@@ -147,9 +147,11 @@ MenuHeader::MenuHeader(QWidget* parent,
     // Selected patient
     // ------------------------------------------------------------------------
     m_patient_info = new LabelWordWrapWide();
+    m_patient_info->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     m_patient_info->setObjectName(CssConst::MENU_HEADER_PATIENT_INFO);
     mainlayout->addWidget(m_patient_info);
     m_no_patient = new LabelWordWrapWide(tr("No patient selected"));
+    m_no_patient->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     m_no_patient->setObjectName(CssConst::MENU_HEADER_NO_PATIENT);
     mainlayout->addWidget(m_no_patient);
     selectedPatientChanged(m_app.selectedPatient());
@@ -194,10 +196,10 @@ void MenuHeader::selectedPatientChanged(const Patient* patient)
     QString info;
 
     if (selected) {
-        info = QString("<b>%1, %2</b> (%3, %4); %5")
+        info = QString("<b>%1, %2</b> (%3, DOB %4); %5")
                 .arg(patient->surname().toUpper())
                 .arg(patient->forename())
-                .arg(QString("%1y").arg(patient->ageYears()))
+                .arg(QString("%1 y").arg(patient->ageYears()))
                 .arg(patient->dobText())
                 .arg(patient->shortIdnumSummary());
     }

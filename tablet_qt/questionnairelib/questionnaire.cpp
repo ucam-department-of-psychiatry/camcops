@@ -1,5 +1,5 @@
+// #define OFFER_LAYOUT_DEBUG_BUTTON
 // #define DEBUG_PAGE_LAYOUT_ON_OPEN
-#define OFFER_LAYOUT_DEBUG_BUTTON
 
 #include "questionnaire.h"
 #include <functional>
@@ -11,9 +11,7 @@
 #include "common/cssconst.h"
 #include "dialogs/pagepickerdialog.h"
 #include "lib/filefunc.h"
-#ifdef OFFER_LAYOUT_DEBUG_BUTTON
 #include "lib/layoutdumper.h"
-#endif
 #include "lib/uifunc.h"
 #ifdef DEBUG_PAGE_LAYOUT_ON_OPEN
 #include "qobjects/showwatcher.h"

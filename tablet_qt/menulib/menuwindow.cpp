@@ -1,4 +1,4 @@
-#define OFFER_LAYOUT_DEBUG_BUTTON
+// #define OFFER_LAYOUT_DEBUG_BUTTON
 
 #include "menuwindow.h"
 #include <QDebug>
@@ -10,9 +10,7 @@
 #include "common/uiconstants.h"
 #include "dbobjects/patient.h"
 #include "lib/filefunc.h"
-#ifdef OFFER_LAYOUT_DEBUG_BUTTON
 #include "lib/layoutdumper.h"
-#endif
 #include "lib/uifunc.h"
 #include "menulib/menuheader.h"
 #include "tasklib/task.h"
@@ -78,6 +76,12 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
 }
 
 
+void MenuWindow::setIcon(const QString& icon)
+{
+    m_icon = icon;
+}
+
+
 void MenuWindow::loadStyleSheet()
 {
     setStyleSheet(m_app.getSubstitutedCss(UiConst::CSS_CAMCOPS_MENU));
@@ -131,6 +135,7 @@ void MenuWindow::build()
     // Note that the widgets call setSizePolicy.
     m_p_listwidget = new QListWidget();
     m_mainlayout->addWidget(m_p_listwidget);
+    bool preselected = false;
     for (int i = 0; i < m_items.size(); ++i) {
         MenuItem item = m_items.at(i);
         QWidget* row = item.rowWidget(m_app);
@@ -139,6 +144,15 @@ void MenuWindow::build()
         QSize rowsize = row->sizeHint();
         listitem->setSizeHint(rowsize);
         m_p_listwidget->setItemWidget(listitem, row);
+        if (item.patient()
+                && item.patient()->id() == m_app.selectedPatientId()) {
+            m_p_listwidget->item(i)->setSelected(true);
+            preselected = true;
+        }
+    }
+    if (preselected) {
+        m_p_listwidget->setFocus();
+        // http://stackoverflow.com/questions/23065151/how-to-set-an-item-in-a-qlistwidget-as-initially-highlighted
     }
     connect(m_p_listwidget, &QListWidget::itemClicked,
             this, &MenuWindow::menuItemClicked,

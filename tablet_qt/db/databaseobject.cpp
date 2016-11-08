@@ -233,6 +233,16 @@ QString DatabaseObject::valueString(const QString& fieldname) const
 }
 
 
+QList<QVariant> DatabaseObject::values(const QStringList& fieldnames)
+{
+    QList<QVariant> values;
+    for (auto fieldname : fieldnames) {
+        values.append(value(fieldname));
+    }
+    return values;
+}
+
+
 void DatabaseObject::touch(bool only_if_unset)
 {
     if (!m_has_modification_timestamp) {

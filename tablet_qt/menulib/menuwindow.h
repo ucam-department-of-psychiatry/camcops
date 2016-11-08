@@ -31,6 +31,7 @@ public:
     // (a) populate m_items;
     // (b) call MenuWindow::build();
     // (c) +/- any additional work (e.g. signals/slots).
+    void setIcon(const QString& icon);
     virtual void build() override;  // called by framework prior to opening
 
     QString title() const;

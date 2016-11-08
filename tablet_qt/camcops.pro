@@ -252,7 +252,8 @@ SOURCES += main.cpp\
     questionnairelib/qulineeditlonglong.cpp \
     qobjects/strictint64validator.cpp \
     lib/idpolicy.cpp \
-    widgets/heightforwidthlayoutcontainer.cpp
+    widgets/heightforwidthlayoutcontainer.cpp \
+    lib/mathfunc.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -428,7 +429,8 @@ HEADERS  += \
     questionnairelib/qulineeditlonglong.h \
     qobjects/strictint64validator.h \
     lib/idpolicy.h \
-    widgets/heightforwidthlayoutcontainer.h
+    widgets/heightforwidthlayoutcontainer.h \
+    lib/mathfunc.h
 
 DISTFILES += \
     notes/qt_notes.txt \

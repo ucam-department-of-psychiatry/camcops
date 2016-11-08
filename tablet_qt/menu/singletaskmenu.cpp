@@ -18,6 +18,9 @@ SingleTaskMenu::SingleTaskMenu(const QString& tablename, CamcopsApp& app) :
     TaskPtr specimen = factory->create(m_tablename);
     m_title = specimen->menutitle();
     m_anonymous = specimen->isAnonymous();
+    if (m_anonymous) {
+        setIcon(UiFunc::iconFilename(UiConst::ICON_ANONYMOUS));
+    }
 
     // m_items is EXPENSIVE (and depends on security), so leave it to build()
 }
@@ -32,7 +35,11 @@ void SingleTaskMenu::build()
     QString info_icon_filename = UiFunc::iconFilename(UiConst::ICON_INFO);
     m_items = {
         MenuItem(tr("Options")).setLabelOnly(),
-        MAKE_CHANGE_PATIENT(m_app),
+    };
+    if (!m_anonymous) {
+        m_items.append(MAKE_CHANGE_PATIENT(m_app));
+    }
+    m_items.append(
         MenuItem(
             tr("Task information"),
             HtmlMenuItem(
@@ -40,9 +47,11 @@ void SingleTaskMenu::build()
                 FileFunc::taskHtmlFilename(specimen->infoFilenameStem()),
                 info_icon_filename),
             info_icon_filename
-        ),
-        MenuItem(tr("Task instances") + ": " + m_title).setLabelOnly(),
-    };
+        )
+    );
+    m_items.append(
+        MenuItem(tr("Task instances") + ": " + m_title).setLabelOnly()
+    );
 
     // Task items
     TaskPtrList tasklist = factory->fetch(m_tablename);

@@ -111,24 +111,50 @@ void TaskFactory::makeTables(const QString& key) const
 
 TaskPtrList TaskFactory::fetch(const QString& tablename, bool sort) const
 {
+    // KEY SECURITY DECISIONS IMPLEMENTED HERE: which tasks users can see.
     int patient_id = m_app.selectedPatientId();
-    // *** implement any necessary locked/no-patient filtering here; think; may be OK, but maybe not
+    bool patient_selected = patient_id != DbConst::NONEXISTENT_PK;
     TaskPtrList tasklist;
     if (tablename.isEmpty()) {
-        // All tasks
-        MapIteratorType it(m_map);
-        while (it.hasNext()) {
-            it.next();
-            ProxyType proxy = it.value().proxy;
-            tasklist += proxy->fetch(m_app, m_app.db(), patient_id);
+        // Patient summary view; "all tasks" request.
+        // - Patient selected -> all tasks for current patient (whether locked
+        //   or not).
+        // - No patient selected -> return nothing.
+        if (patient_selected) {
+            MapIteratorType it(m_map);
+            while (it.hasNext()) {
+                it.next();
+                ProxyType proxy = it.value().proxy;
+                tasklist += proxy->fetch(m_app, m_app.db(), patient_id);
+            }
         }
     } else if (!m_map.contains(tablename)) {
         // Duff task
         qWarning() << "Bad task: " << tablename;
     } else {
         // Specific task
+        // - Patient-based task / patient selected -> tasks for that patient
+        //   (whether locked or not).
+        // - Patient-based task / no patient selected / unlocked -> all such
+        //   tasks, for all patients.
+        // - Patient-based task / no patient selected / locked -> nothing.
+        // - Anonymous task / patient selected -> all such tasks
+        //   ... see also TaskRegistrar::fetch().
+        //   ... if you choose "none", users will probably wonder where
+        //       tasks are vanishing to
+        // - Anonymous task / no patient selected -> all such tasks
         ProxyType proxy = m_map[tablename].proxy;
-        tasklist = proxy->fetch(m_app, m_app.db(), patient_id);
+        TaskPtr specimen = proxy->create(m_app, m_app.db(),
+                                         DbConst::NONEXISTENT_PK);
+        bool anonymous = specimen->isAnonymous();
+        bool locked = m_app.locked();
+        if (anonymous) {
+            tasklist = proxy->fetch(m_app, m_app.db(), DbConst::NONEXISTENT_PK);
+        } else {
+            if (patient_selected || !locked) {
+                tasklist = proxy->fetch(m_app, m_app.db(), patient_id);
+            }
+        }
     }
 
     if (sort) {

@@ -54,6 +54,8 @@ public:
     QByteArray valueByteArray(const QString& fieldname) const;
     QString valueString(const QString& fieldname) const;
 
+    QList<QVariant> values(const QStringList& fieldnames);
+
     FieldRefPtr fieldRef(const QString& fieldname,
                          bool mandatory = true,
                          bool autosave = true,
