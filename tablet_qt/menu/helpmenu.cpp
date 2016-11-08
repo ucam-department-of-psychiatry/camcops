@@ -11,8 +11,8 @@
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
-const QString CAMCOPS_URL = "http://camcops.org/";
-const QString CAMCOPS_DOCS_URL = "http://camcops.org/documentation/index.html";
+const QString CAMCOPS_URL("http://camcops.org/");
+const QString CAMCOPS_DOCS_URL("http://camcops.org/documentation/index.html");
 
 
 HelpMenu::HelpMenu(CamcopsApp& app) :

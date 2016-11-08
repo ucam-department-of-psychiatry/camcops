@@ -111,7 +111,7 @@ void TaskFactory::makeTables(const QString& key) const
 
 TaskPtrList TaskFactory::fetch(const QString& tablename, bool sort) const
 {
-    int patient_id = m_app.currentPatientId();
+    int patient_id = m_app.selectedPatientId();
     // *** implement any necessary locked/no-patient filtering here; think; may be OK, but maybe not
     TaskPtrList tasklist;
     if (tablename.isEmpty()) {

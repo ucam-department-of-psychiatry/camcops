@@ -23,14 +23,14 @@
 #include "questionnairelib/qutext.h"
 #include "widgets/labelwordwrapwide.h"
 
-const QString TAG_NORMAL = "Normal";
-const QString TAG_BIG = "Big";
-const QString TAG_HEADING = "Heading";
-const QString TAG_TITLE = "Title";
-const QString TAG_MENUS = "Menus";
-const QString alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ "
-                         "abcdefghijklmnopqrstuvwxyz "
-                         "0123456789";
+const QString TAG_NORMAL("Normal");
+const QString TAG_BIG("Big");
+const QString TAG_HEADING("Heading");
+const QString TAG_TITLE("Title");
+const QString TAG_MENUS("Menus");
+const QString alphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ "
+                       "abcdefghijklmnopqrstuvwxyz "
+                       "0123456789");
 const QMap<QString, UiConst::FontSize> FONT_SIZE_MAP{
     {TAG_NORMAL, UiConst::FontSize::Normal},
     {TAG_BIG, UiConst::FontSize::Big},
@@ -43,7 +43,6 @@ const QMap<QString, UiConst::FontSize> FONT_SIZE_MAP{
 SettingsMenu::SettingsMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Settings"),
                UiFunc::iconFilename(UiConst::ICON_SETTINGS)),
-    m_app(app),
     m_plaintext_pw_live(false),
     m_fontsize_questionnaire(nullptr)
 {

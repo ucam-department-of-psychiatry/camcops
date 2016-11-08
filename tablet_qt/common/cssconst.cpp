@@ -54,4 +54,5 @@ namespace CssConst
     const char* VALUE_NULL_REQUIRED = "nullrequired";
     const char* VALUE_FALSE = "false";
     const char* VALUE_TRUE = "true";
+    const char* BUTTON = "button";
 }

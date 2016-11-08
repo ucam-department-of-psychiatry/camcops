@@ -484,15 +484,15 @@ Factory methods; CRTP; making derived classes from base class; etc.
 
         int main()
         {
-            Vehicle *car = new Car();
-            Vehicle *plane = new Plane();
-            Vehicle*fighterplane = new FighterPlane();
+            Vehicle* car = new Car();
+            Vehicle* plane = new Plane();
+            Vehicle* fighterplane = new FighterPlane();
 
             car->describe();
             plane->describe();
             fighterplane->describe();
 
-            Vehicle *vehicleUnknown = plane->clone();
+            Vehicle* vehicleUnknown = plane->clone();
 
             vehicleUnknown->describe();
         }
@@ -502,14 +502,14 @@ Factory methods; CRTP; making derived classes from base class; etc.
 
 - Anyway, the current method works well, based on:
 
-// Two of the best articles on this sort of factory method in C++:
-// - http://accu.org/index.php/journals/597
-// - http://www.drdobbs.com/cpp/self-registering-objects-in-c/184410633?pgno=1
-// Note that:
-// - To do more than one thing, and to deal with classes in the abstract
-//   without having to instantiate one, we use a proxy class.
-// See also:
-// - https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern
+Two of the best articles on this sort of factory method in C++:
+- http://accu.org/index.php/journals/597
+- http://www.drdobbs.com/cpp/self-registering-objects-in-c/184410633?pgno=1
+Note that:
+- To do more than one thing, and to deal with classes in the abstract
+  without having to instantiate one, we use a proxy class.
+See also:
+- https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern
 
 - Others also think it reasonable to use a dummy instance for "static"
   purposes:
@@ -865,10 +865,8 @@ Network
 ===============================================================================
 TO DO
 ===============================================================================
-- *** inline picker styling wrong
-
 - *** patients
-- *** notification for "data dirty" -- attach to database ops? DatabaseObject?
+- *** when to call setNeedsUpload() -- attach to database ops? DatabaseObject?
 - *** network stuff
 
 - *** scrolling by touch on Android menus and questionnaires

@@ -20,6 +20,8 @@
 #include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qulineeditdouble.h"
 #include "questionnairelib/qulineeditinteger.h"
+#include "questionnairelib/qulineeditlonglong.h"
+#include "questionnairelib/qulineeditulonglong.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qumcqgriddouble.h"
@@ -40,7 +42,7 @@
 #include "widgets/clickablelabel.h"
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/flowlayout.h"
-#include "widgets/flowlayoutcontainer.h"
+#include "widgets/heightforwidthlayoutcontainer.h"
 #include "widgets/horizontalline.h"
 #include "widgets/imagebutton.h"
 #include "widgets/labelwordwrapwide.h"
@@ -192,14 +194,20 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
                  std::bind(&WidgetTestMenu::testQuLineEditDouble, this)),
         MenuItem(tr("QuLineEditInteger"),
                  std::bind(&WidgetTestMenu::testQuLineEditInteger, this)),
+        MenuItem(tr("QuLineEditLongLong"),
+                 std::bind(&WidgetTestMenu::testQuLineEditLongLong, this)),
+        MenuItem(tr("QuLineEditULongLong"),
+                 std::bind(&WidgetTestMenu::testQuLineEditULongLong, this)),
         MenuItem(tr("QuMCQ (horizontal=false, short text)"),
-                 std::bind(&WidgetTestMenu::testQuMCQ, this, false, false)),
+                 std::bind(&WidgetTestMenu::testQuMCQ, this, false, false, false)),
         MenuItem(tr("QuMCQ (horizontal=false, long text)"),
-                 std::bind(&WidgetTestMenu::testQuMCQ, this, false, true)),
+                 std::bind(&WidgetTestMenu::testQuMCQ, this, false, true, false)),
         MenuItem(tr("QuMCQ (horizontal=true, short text)"),
-                 std::bind(&WidgetTestMenu::testQuMCQ, this, true, false)),
+                 std::bind(&WidgetTestMenu::testQuMCQ, this, true, false, false)),
         MenuItem(tr("QuMCQ (horizontal=true, long text)"),
-                 std::bind(&WidgetTestMenu::testQuMCQ, this, true, true)),
+                 std::bind(&WidgetTestMenu::testQuMCQ, this, true, true, false)),
+        MenuItem(tr("QuMCQ (horizontal=true, short text, as text button)"),
+                 std::bind(&WidgetTestMenu::testQuMCQ, this, true, false, true)),
         MenuItem(tr("QuMCQGrid (expand=false)"),
                  std::bind(&WidgetTestMenu::testQuMCQGrid, this, false)),
         MenuItem(tr("QuMCQGrid (expand=true)"),
@@ -387,7 +395,7 @@ void WidgetTestMenu::testFlowLayoutContainer(bool long_text)
                                 : "Option Z2";
     layout->addWidget(new LabelWordWrapWide(option2));
     layout->addWidget(new LabelWordWrapWide("Option Z3"));
-    FlowLayoutContainer* widget = new FlowLayoutContainer();
+    HeightForWidthLayoutContainer* widget = new HeightForWidthLayoutContainer();
     widget->setLayout(layout);
     DebugFunc::debugWidget(widget);
 }
@@ -540,10 +548,26 @@ void WidgetTestMenu::testQuLineEditInteger()
 }
 
 
-void WidgetTestMenu::testQuMCQ(bool horizontal, bool long_text)
+void WidgetTestMenu::testQuLineEditLongLong()
+{
+    QuLineEditLongLong element(m_fieldref_1);
+    testQuestionnaireElement(&element);
+}
+
+
+void WidgetTestMenu::testQuLineEditULongLong()
+{
+    QuLineEditULongLong element(m_fieldref_1);
+    testQuestionnaireElement(&element);
+}
+
+
+void WidgetTestMenu::testQuMCQ(bool horizontal, bool long_text,
+                               bool as_text_button)
 {
     QuMCQ element(m_fieldref_1, long_text ? m_options_3 : m_options_1);
     element.setHorizontal(horizontal);
+    element.setAsTextButton(as_text_button);
     testQuestionnaireElement(&element);
 }
 

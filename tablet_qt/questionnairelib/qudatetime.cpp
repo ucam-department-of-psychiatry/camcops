@@ -6,9 +6,9 @@
 #include "widgets/imagebutton.h"
 
 // http://doc.qt.io/qt-5/qdatetime.html#toString
-const QString DEFAULT_DATETIME_FORMAT = "dd MMM yyyy HH:mm";
-const QString DEFAULT_DATE_FORMAT = "dd MMM yyyy";
-const QString DEFAULT_TIME_FORMAT = "HH:mm";
+const QString DEFAULT_DATETIME_FORMAT("dd MMM yyyy HH:mm");
+const QString DEFAULT_DATE_FORMAT("dd MMM yyyy");
+const QString DEFAULT_TIME_FORMAT("HH:mm");
 // const QDate PSEUDONULL_DATE(1752, 9, 14);  // 14 Sep 1752 is usual minimum (Gregorian calendar)
 const QDate PSEUDONULL_DATE(2000, 1, 1);  // ... but 1752 is a long way away from now...
 const QTime PSEUDONULL_TIME(0, 0, 0, 0);

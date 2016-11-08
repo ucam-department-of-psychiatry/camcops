@@ -8,8 +8,10 @@
 
 
 StrictDoubleValidator::StrictDoubleValidator(double bottom, double top,
-                                             int decimals,  QObject* parent) :
-    QDoubleValidator(bottom, top, decimals, parent)
+                                             int decimals, bool allow_empty,
+                                             QObject* parent) :
+    QDoubleValidator(bottom, top, decimals, parent),
+    m_allow_empty(allow_empty)
 {
     if (top < bottom) {  // user has supplied them backwards
         setRange(top, bottom, decimals);  // reverse the range
@@ -20,6 +22,12 @@ StrictDoubleValidator::StrictDoubleValidator(double bottom, double top,
 QValidator::State StrictDoubleValidator::validate(QString& s, int&) const
 {
     if (s.isEmpty()) {
+        if (m_allow_empty) {
+#ifdef DEBUG_VALIDATOR
+            qDebug() << Q_FUNC_INFO << "empty -> Acceptable (as allow_empty)";
+#endif
+            return QValidator::Acceptable;
+        }
 #ifdef DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << "empty -> Intermediate";
 #endif

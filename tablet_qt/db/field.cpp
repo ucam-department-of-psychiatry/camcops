@@ -162,7 +162,12 @@ QString Field::sqlColumnType() const
     //             though 32-bit on all Qt platforms, I think
     // Qt types: http://doc.qt.io/qt-5/qtglobal.html
     //      - qint8, qint16, qint32, qint64...
+    //      - standard int is int32
+    //        32-bit signed: up to
     //      - qlonglong is the same as qint64
+    //        64-bit signed: up to +9,223,372,036,854,775,807 = 9223372036854775807
+    //      - qulonglong
+    //        64-bit unsigned: 0 to +18,446,744,073,709,551,615 = 18446744073709551615
     // C++ type name: QVariant::typeToName(m_type);
     switch (m_type) {
         case QVariant::Int:  // normally 32-bit

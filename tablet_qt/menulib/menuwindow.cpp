@@ -1,3 +1,5 @@
+#define OFFER_LAYOUT_DEBUG_BUTTON
+
 #include "menuwindow.h"
 #include <QDebug>
 #include <QListWidget>
@@ -6,7 +8,11 @@
 #include <QVBoxLayout>
 #include "common/cssconst.h"
 #include "common/uiconstants.h"
+#include "dbobjects/patient.h"
 #include "lib/filefunc.h"
+#ifdef OFFER_LAYOUT_DEBUG_BUTTON
+#include "lib/layoutdumper.h"
+#endif
 #include "lib/uifunc.h"
 #include "menulib/menuheader.h"
 #include "tasklib/task.h"
@@ -100,14 +106,25 @@ void MenuWindow::build()
         m_p_listwidget->deleteLater();
     }
 
-    m_p_header = new MenuHeader(this, m_app, m_top, m_title, m_icon);
+#ifdef OFFER_LAYOUT_DEBUG_BUTTON
+    bool offer_debug_layout = true;
+#else
+    bool offer_debug_layout = false;
+#endif
+    m_p_header = new MenuHeader(this, m_app, m_top, m_title, m_icon,
+                                offer_debug_layout);
     m_mainlayout->addWidget(m_p_header);
     connect(m_p_header, &MenuHeader::backClicked,
             this, &MenuWindow::finished,
             Qt::UniqueConnection);  // unique as we may rebuild... safer.
-    connect(this, &MenuWindow::offerViewEditDelete,
-            m_p_header, &MenuHeader::offerViewEditDelete,
+    connect(this, &MenuWindow::offerView,
+            m_p_header, &MenuHeader::offerView,
             Qt::UniqueConnection);
+    connect(this, &MenuWindow::offerEditDelete,
+            m_p_header, &MenuHeader::offerEditDelete,
+            Qt::UniqueConnection);
+    connect(m_p_header, &MenuHeader::debugLayout,
+            this, &MenuWindow::debugLayout);
 
     // Method 1: QListWidget, QListWidgetItem
     // Size hints: https://forum.qt.io/topic/17481/easiest-way-to-have-a-simple-list-with-custom-items/4
@@ -179,14 +196,29 @@ void MenuWindow::menuItemClicked(QListWidgetItem* item)
     }
     MenuItem& m = m_items[i];
     qInfo() << "Selected:" << m.title();
+    TaskPtr task = m.task();
+    PatientPtr patient = m.patient();
 
-    if (m.task()) {
+    if (task) {
         // Notify the header (with its verb buttons). Leave it selected.
-        emit offerViewEditDelete(true, m.task()->isEditable(), true);
-    }
-    else {
+        emit offerView(true);
+        emit offerEditDelete(task->isEditable(), true);
+    } else if (patient) {
+        bool selected = false;
+        if (m_app.selectedPatientId() == patient->id()) {
+            // Clicked on currently selected patient; deselect it.
+            m_app.setSelectedPatient(DbConst::NONEXISTENT_PK);
+            m_p_listwidget->clearSelection();
+        } else {
+            selected = true;
+            m_app.setSelectedPatient(patient->id());
+        }
+        emit offerView(selected);
+        emit offerEditDelete(selected, selected);
+    } else {
         // ACT ON IT. And clear the selection.
-        emit offerViewEditDelete(false, false, false);
+        emit offerView(false);
+        emit offerEditDelete(false, false);
         // ... in case a task was selected before
         m.act(m_app);
         m_p_listwidget->clearSelection();
@@ -203,6 +235,12 @@ void MenuWindow::lockStateChanged(CamcopsApp::LockState lockstate)
 
 
 void MenuWindow::viewItem()
+{
+    viewTask();
+}
+
+
+void MenuWindow::viewTask()
 {
     // View a task, if one is selected.
     TaskPtr task = currentTask();
@@ -254,6 +292,12 @@ void MenuWindow::viewItem()
 
 void MenuWindow::editItem()
 {
+    editTask();
+}
+
+
+void MenuWindow::editTask()
+{
     // Edit a task, if one is selected and editable
     TaskPtr task = currentTask();
     if (!task || !task->isEditable()) {
@@ -279,6 +323,12 @@ void MenuWindow::editItem()
 
 
 void MenuWindow::deleteItem()
+{
+    deleteTask();
+}
+
+
+void MenuWindow::deleteTask()
 {
     // Edit a task, if one is selected and editable
     TaskPtr task = currentTask();
@@ -328,4 +378,21 @@ TaskPtr MenuWindow::currentTask() const
     }
     const MenuItem& item = m_items[index];
     return item.task();
+}
+
+
+PatientPtr MenuWindow::currentPatient() const
+{
+    int index = currentIndex();
+    if (index == BAD_INDEX) {
+        return PatientPtr(nullptr);
+    }
+    const MenuItem& item = m_items[index];
+    return item.patient();
+}
+
+
+void MenuWindow::debugLayout()
+{
+    LayoutDumper::dumpWidgetHierarchy(this);
 }

@@ -1,9 +1,9 @@
 #include "extrastring.h"
 
-const QString EXTRASTRINGS_TABLENAME = "extrastrings";
-const QString EXTRASTRINGS_TASK_FIELD = "task";
-const QString EXTRASTRINGS_NAME_FIELD = "name";
-const QString EXTRASTRINGS_VALUE_FIELD = "value";
+const QString EXTRASTRINGS_TABLENAME("extrastrings");
+const QString EXTRASTRINGS_TASK_FIELD("task");
+const QString EXTRASTRINGS_NAME_FIELD("name");
+const QString EXTRASTRINGS_VALUE_FIELD("value");
 
 
 // Specimen constructor:

@@ -12,17 +12,18 @@ class FieldRef;
 using FieldRefPtr = QSharedPointer<FieldRef>;
 
 
-class DatabaseObject
+class DatabaseObject : public QObject
 {
     // A database object supporting a single integer PK field, and a default
     // modification timestamp field, extensible to add other fields.
+    Q_OBJECT  // so our derived classes can be too
 public:
     DatabaseObject(const QSqlDatabase& db,
                    const QString& tablename,
                    const QString& pk_fieldname = DbConst::PK_FIELDNAME,
                    bool has_modification_timestamp = true,
                    bool has_creation_timestamp = false);
-    ~DatabaseObject();
+    virtual ~DatabaseObject();
 
     // Adding fields
 
@@ -46,6 +47,7 @@ public:
     bool valueBool(const QString& fieldname) const;
     int valueInt(const QString& fieldname) const;
     qlonglong valueLongLong(const QString& fieldname) const;
+    qulonglong valueULongLong(const QString& fieldname) const;
     double valueDouble(const QString& fieldname) const;
     QDateTime valueDateTime(const QString& fieldname) const;
     QDate valueDate(const QString& fieldname) const;

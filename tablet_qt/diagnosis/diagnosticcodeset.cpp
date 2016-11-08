@@ -1,7 +1,7 @@
 #include "diagnosticcodeset.h"
 #include "common/camcopsapp.h"
 
-const QString BAD_STRING = "[bad_string]";
+const QString BAD_STRING("[bad_string]");
 
 
 DiagnosticCodeSet::DiagnosticCodeSet(const CamcopsApp& app,

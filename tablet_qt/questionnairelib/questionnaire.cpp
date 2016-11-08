@@ -451,3 +451,16 @@ void Questionnaire::debugLayout()
 {
     LayoutDumper::dumpWidgetHierarchy(this);
 }
+
+
+void Questionnaire::setVisibleByTag(const QString& tag, bool visible)
+{
+    QuPagePtr page = currentPagePtr();
+    if (!page) {
+        return;
+    }
+    QList<QuElementPtr> elements = page->elementsWithTag(tag);
+    for (auto element : elements) {
+        element->setVisible(visible);
+    }
+}

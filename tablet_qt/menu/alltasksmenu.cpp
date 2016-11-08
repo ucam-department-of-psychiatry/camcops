@@ -9,7 +9,7 @@ AllTasksMenu::AllTasksMenu(CamcopsApp& app) :
     MenuWindow(app, tr("All tasks, listed alphabetically"),
                UiFunc::iconFilename(UiConst::ICON_ALLTASKS))
 {
-    TaskFactoryPtr factory = app.factory();
+    TaskFactoryPtr factory = app.taskFactory();
     QStringList tablenames = factory->tablenames();
     for (auto tablename : tablenames) {
         m_items.append(MAKE_TASK_MENU_ITEM(tablename, app));

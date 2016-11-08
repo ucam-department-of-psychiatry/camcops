@@ -9,17 +9,17 @@
 #include "db/field.h"
 #include "sqlargs.h"
 
-const QString DATA_DATABASE_FILENAME = "camcops_data.sqlite";
-const QString SYSTEM_DATABASE_FILENAME = "camcops_sys.sqlite";
-const QString TABLE_TEMP_SUFFIX = "_temp";
-
 class SqlitePragmaInfoField;
-
 
 using WhereConditions = QMap<QString, QVariant>;
 
-
 namespace DbFunc {
+
+    // Constants
+
+    extern const QString DATA_DATABASE_FILENAME;
+    extern const QString SYSTEM_DATABASE_FILENAME;
+    extern const QString TABLE_TEMP_SUFFIX;
 
     // Database operations
 

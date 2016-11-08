@@ -1,5 +1,6 @@
 #include "patientsummarymenu.h"
 #include "common/uiconstants.h"
+#include "dbobjects/patient.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 #include "tasklib/taskfactory.h"
@@ -15,12 +16,12 @@ PatientSummaryMenu::PatientSummaryMenu(CamcopsApp& app) :
 
 void PatientSummaryMenu::build()
 {
-    TaskFactoryPtr factory = m_app.factory();
+    TaskFactoryPtr factory = m_app.taskFactory();
 
     // Common items
     m_items = {
         MenuItem(tr("Options")).setLabelOnly(),
-        MAKE_CHANGE_PATIENT(app),
+        MAKE_CHANGE_PATIENT(m_app),
         MenuItem(tr("Task instances")).setLabelOnly(),
     };
 
@@ -33,4 +34,25 @@ void PatientSummaryMenu::build()
 
     // Call parent build()
     MenuWindow::build();
+
+    // Signals
+    connect(&m_app, &CamcopsApp::selectedPatientChanged,
+            this, &PatientSummaryMenu::selectedPatientChanged,
+            Qt::UniqueConnection);
+    connect(&m_app, &CamcopsApp::taskAlterationFinished,
+            this, &PatientSummaryMenu::taskFinished,
+            Qt::UniqueConnection);
+}
+
+
+void PatientSummaryMenu::selectedPatientChanged(const Patient* patient)
+{
+    Q_UNUSED(patient);
+    build();  // refresh task list
+}
+
+
+void PatientSummaryMenu::taskFinished()
+{
+    build();  // refresh task list
 }

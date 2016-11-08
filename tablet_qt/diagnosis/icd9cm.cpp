@@ -3,7 +3,7 @@
 #include <QMap>
 #include <QObject>
 
-const QString RANGE_PREFIX = "range";  // in string names
+const QString RANGE_PREFIX("range");  // in string names
 
 
 // ============================================================================

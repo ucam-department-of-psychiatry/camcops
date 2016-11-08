@@ -25,6 +25,7 @@ class QuElement : public QObject
     // page and being displayed at any one time).
 
     Q_OBJECT
+    friend class Questionnaire;
     friend class QuPage;
     friend class QuContainerHorizontal;
     friend class QuContainerVertical;

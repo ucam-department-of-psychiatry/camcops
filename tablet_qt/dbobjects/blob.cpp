@@ -1,11 +1,11 @@
 #include "blob.h"
 
-const QString BLOB_TABLENAME = "blobs";  // as per DBCONSTANTS.js
-const QString SRC_TABLE_FIELDNAME = "tablename";  // as per Blob.js
-const QString SRC_PK_FIELDNAME = "tablepk";  // as per Blob.js
-const QString SRC_FIELD_FIELDNAME = "fieldname";  // as per Blob.js
-const QString FILENAME_FIELDNAME = "filename";  // as per Blob.js
-const QString BLOB_FIELDNAME = "theblob"; // as per dbupload.js
+const QString BLOB_TABLENAME("blobs");  // as per DBCONSTANTS.js
+const QString SRC_TABLE_FIELDNAME("tablename");  // as per Blob.js
+const QString SRC_PK_FIELDNAME("tablepk");  // as per Blob.js
+const QString SRC_FIELD_FIELDNAME("fieldname");  // as per Blob.js
+const QString FILENAME_FIELDNAME("filename");  // as per Blob.js
+const QString BLOB_FIELDNAME("theblob"); // as per dbupload.js
 // ... was a "virtual" field under Titanium and file-based BLOBs.
 
 

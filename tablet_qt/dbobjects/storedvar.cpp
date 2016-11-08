@@ -2,16 +2,16 @@
 #include "storedvar.h"
 #include "lib/uifunc.h"
 
-const QString STOREDVAR_TABLENAME = "storedvar";
+const QString STOREDVAR_TABLENAME("storedvar");
 
-const QString NAME_FIELDNAME = "name";
-const QString TYPE_FIELDNAME = "type";
+const QString NAME_FIELDNAME("name");
+const QString TYPE_FIELDNAME("type");
 // - No need to keep to legacy fieldnames (valueInteger, valueReal, valueText)
 //   as we'll no longer be uploading these.
-const QString VALUE_BOOL_FIELDNAME = "value_bool";
-const QString VALUE_INTEGER_FIELDNAME = "value_integer";
-const QString VALUE_REAL_FIELDNAME = "value_real";
-const QString VALUE_TEXT_FIELDNAME = "value_text";
+const QString VALUE_BOOL_FIELDNAME("value_bool");
+const QString VALUE_INTEGER_FIELDNAME("value_integer");
+const QString VALUE_REAL_FIELDNAME("value_real");
+const QString VALUE_TEXT_FIELDNAME("value_text");
 
 // - Also, SQLite is typeless... could make use of that, and store all values
 //   in the same column. But for generality:

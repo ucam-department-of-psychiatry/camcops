@@ -2,7 +2,7 @@
 #include <QWidget>
 
 
-class FlowLayoutContainer : public QWidget
+class HeightForWidthLayoutContainer : public QWidget
 {
     // A widget that knows that its layout implements a height-for-width
     // function and deals with it properly, adjusting the widget's height
@@ -17,7 +17,7 @@ class FlowLayoutContainer : public QWidget
     //   inherit, for Qt inheritance reasons).
     Q_OBJECT
 public:
-    FlowLayoutContainer(QWidget* parent = nullptr);
-    virtual ~FlowLayoutContainer();
+    HeightForWidthLayoutContainer(QWidget* parent = nullptr);
+    virtual ~HeightForWidthLayoutContainer();
     virtual void resizeEvent(QResizeEvent* event) override;
 };

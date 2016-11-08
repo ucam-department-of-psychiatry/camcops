@@ -11,8 +11,8 @@
 #include "db/fieldref.h"
 #include "lib/uifunc.h"
 
-const QString NOT_NULL_ERROR = "Error: attempting to save NULL to a NOT NULL "
-                               "field:";
+const QString NOT_NULL_ERROR("Error: attempting to save NULL to a NOT NULL "
+                             "field:");
 
 
 DatabaseObject::DatabaseObject(const QSqlDatabase& db,
@@ -85,6 +85,10 @@ bool DatabaseObject::anyDirty() const
 void DatabaseObject::addField(const QString& fieldname, QVariant::Type type,
                               bool mandatory, bool unique, bool pk)
 {
+    if (type == QVariant::ULongLong) {
+        qWarning() << "SQLite3 does not properly support unsigned 64-bit "
+                      "integers; please use signed if possible";
+    }
     Field field(fieldname, type, mandatory, unique, pk);
     m_record.insert(fieldname, field);
     m_ordered_fieldnames.append(fieldname);
@@ -184,6 +188,13 @@ qlonglong DatabaseObject::valueLongLong(const QString& fieldname) const
 {
     QVariant v = value(fieldname);
     return v.toLongLong();
+}
+
+
+qulonglong DatabaseObject::valueULongLong(const QString& fieldname) const
+{
+    QVariant v = value(fieldname);
+    return v.toULongLong();
 }
 
 

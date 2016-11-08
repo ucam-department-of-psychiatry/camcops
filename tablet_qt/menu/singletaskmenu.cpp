@@ -1,19 +1,20 @@
 #include "singletaskmenu.h"
 #include "common/uiconstants.h"
+#include "dbobjects/patient.h"
 #include "lib/filefunc.h"
 #include "lib/uifunc.h"
 #include "menulib/menuheader.h"
 #include "menulib/menuitem.h"
+#include "tasklib/task.h"
 #include "tasklib/taskfactory.h"
 
 
 SingleTaskMenu::SingleTaskMenu(const QString& tablename, CamcopsApp& app) :
     MenuWindow(app, ""),  // start with a blank title
-    m_tablename(tablename),
-    m_current_task(nullptr)
+    m_tablename(tablename)
 {
     // Title
-    TaskFactoryPtr factory = app.factory();
+    TaskFactoryPtr factory = app.taskFactory();
     TaskPtr specimen = factory->create(m_tablename);
     m_title = specimen->menutitle();
     m_anonymous = specimen->isAnonymous();
@@ -24,14 +25,14 @@ SingleTaskMenu::SingleTaskMenu(const QString& tablename, CamcopsApp& app) :
 
 void SingleTaskMenu::build()
 {
-    TaskFactoryPtr factory = m_app.factory();
+    TaskFactoryPtr factory = m_app.taskFactory();
     TaskPtr specimen = factory->create(m_tablename);
 
     // Common items
     QString info_icon_filename = UiFunc::iconFilename(UiConst::ICON_INFO);
     m_items = {
         MenuItem(tr("Options")).setLabelOnly(),
-        MAKE_CHANGE_PATIENT(app),
+        MAKE_CHANGE_PATIENT(m_app),
         MenuItem(
             tr("Task information"),
             HtmlMenuItem(
@@ -67,7 +68,7 @@ void SingleTaskMenu::build()
             this, &SingleTaskMenu::addTask,
             Qt::UniqueConnection);
 
-    emit offerAdd(m_anonymous || m_app.patientSelected());
+    emit offerAdd(m_anonymous || m_app.isPatientSelected());
 }
 
 
@@ -75,15 +76,15 @@ void SingleTaskMenu::addTask()
 {
     // The task we create here needs to stay in scope for the duration of the
     // editing! The simplest way is to use a member object to hold the pointer.
-    TaskFactoryPtr factory = m_app.factory();
+    TaskFactoryPtr factory = m_app.taskFactory();
     TaskPtr task = factory->create(m_tablename);
     if (!task->isAnonymous()) {
-        int patient_id = m_app.currentPatientId();
+        int patient_id = m_app.selectedPatientId();
         if (patient_id == DbConst::NONEXISTENT_PK) {
             qCritical() << Q_FUNC_INFO << "- no patient selected";
             return;
         }
-        task->setPatient(m_app.currentPatientId());
+        task->setPatient(m_app.selectedPatientId());
     }
     task->save();
     OpenableWidget* widget = task->editor();
@@ -91,16 +92,14 @@ void SingleTaskMenu::addTask()
 }
 
 
-void SingleTaskMenu::selectedPatientChanged(bool selected,
-                                            const QString& details)
+void SingleTaskMenu::selectedPatientChanged(const Patient* patient)
 {
-    Q_UNUSED(details)
-    // ... mark as unused; http://stackoverflow.com/questions/1486904/how-do-i-best-silence-a-warning-about-unused-variables
-    emit offerAdd(m_anonymous || selected);
+    build();  // refresh task list
+    emit offerAdd(m_anonymous || patient);
 }
 
 
 void SingleTaskMenu::taskFinished()
 {
-    build();
+    build();  // refresh task list
 }

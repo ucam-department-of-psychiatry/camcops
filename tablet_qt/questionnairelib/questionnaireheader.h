@@ -6,6 +6,7 @@
 
 class QAbstractButton;
 class QLabel;
+class QPushButton;
 
 
 class QuestionnaireHeader : public QWidget
@@ -28,7 +29,7 @@ signals:
     void debugLayout();
 protected:
     QString m_title;
-    QPointer<QAbstractButton> m_button_debug;
+    QPointer<QPushButton> m_button_debug;
     QPointer<QAbstractButton> m_button_jump;
     QPointer<QAbstractButton> m_button_previous;
     QPointer<QAbstractButton> m_button_next;

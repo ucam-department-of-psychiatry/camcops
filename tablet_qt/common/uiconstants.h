@@ -44,6 +44,7 @@ namespace UiConst {
         Title,
         Heading,
         Menus,
+        Normal_x2,
     };
 
     extern const QString WARNING_COLOUR;

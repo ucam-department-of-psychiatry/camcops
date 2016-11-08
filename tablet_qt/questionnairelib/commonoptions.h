@@ -8,6 +8,7 @@
 // are initialized before QApplication is instantiated.
 // We want translation here, so we use a class.
 // Anything that needs translation must go via a function.
+// Because this is a class, we use static (not extern).
 
 class CommonOptions
 {
@@ -24,6 +25,9 @@ public:
     static const int YES_INT;
     static const int INCORRECT_INT;
     static const int CORRECT_INT;
+    static const QString SEX_FEMALE;
+    static const QString SEX_MALE;
+    static const QString SEX_UNSPECIFIED;
 
     // ========================================================================
     // Translated text
@@ -38,6 +42,9 @@ public:
     static QString absent();
     static QString present();
     static QString unknown();
+    static QString sexFemale();
+    static QString sexMale();
+    static QString sexUnspecified();
 
     // ========================================================================
     // Option sets
@@ -55,4 +62,6 @@ public:
     static NameValueOptions falseTrueBoolean();
     static NameValueOptions absentPresentBoolean();
     static NameValueOptions unknownNoYesInteger();
+
+    static NameValueOptions sexes();
 };

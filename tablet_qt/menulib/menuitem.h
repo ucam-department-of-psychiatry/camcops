@@ -3,14 +3,17 @@
 #include <QCoreApplication>  // for Q_DECLARE_TR_FUNCTIONS
 #include <QSharedPointer>
 #include <QString>
+#include "menulib/choosepatientmenuitem.h"
 #include "menulib/menuproxy.h"
-#include "htmlmenuitem.h"
-#include "taskmenuitem.h"
+#include "menulib/htmlmenuitem.h"
+#include "menulib/taskmenuitem.h"
 
-class QWidget;
 class CamcopsApp;
 class MenuWindow;
 class OpenableWidget;
+class Patient;
+using PatientPtr = QSharedPointer<Patient>;
+class QWidget;
 class Task;
 using TaskPtr = QSharedPointer<Task>;
 
@@ -32,6 +35,7 @@ public:
     MenuItem(const QString& title, const OpenableWidgetMaker& func,
              const QString& icon = "", const QString& subtitle = "");
     MenuItem(MenuProxyPtr p_menuproxy, CamcopsApp& app);
+    MenuItem(const ChoosePatientMenuItem& choose_patient, CamcopsApp& app);
     MenuItem(const TaskMenuItem& taskmenuitem, CamcopsApp& app);
     MenuItem(const QString& title, const HtmlMenuItem& htmlmenuitem,
              const QString& icon = "", const QString& subtitle = "");
@@ -40,9 +44,11 @@ public:
     // we don't want to have to create them all just to creat the menu.
     // Use a function instead, which can create the OpenableWidget (and open
     // it) as required.
+    MenuItem(PatientPtr p_patient);
 
     QString title() const;
     TaskPtr task() const;
+    PatientPtr patient() const;
 
     // https://en.wikipedia.org/wiki/Method_chaining
     MenuItem& setImplemented(bool implemented);
@@ -75,6 +81,7 @@ protected:
     MenuProxyPtr m_p_menuproxy;
     QString m_task_tablename;
     TaskPtr m_p_task;
+    PatientPtr m_p_patient;
     HtmlMenuItem m_html;
 //    SOMETHING m_event; // ***
 //    SOMETHING m_chainList; // ***
@@ -93,8 +100,7 @@ private:
 #define MAKE_TASK_MENU_ITEM(tablename, app) \
     MenuItem(TaskMenuItem(tablename), app)
 #define MAKE_CHANGE_PATIENT(app) \
-    MenuItem(tr("Change patient")).setNotIfLocked()
-    // *** MAKE_CHANGE_PATIENT: function, using app? Or menu? Use ICON_CHOOSE_PATIENT
+    MenuItem(ChoosePatientMenuItem(), app).setNotIfLocked()
 
 
 // ============================================================================

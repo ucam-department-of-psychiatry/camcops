@@ -10,18 +10,18 @@
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/imagebutton.h"
 
-const QString CHECK_DISABLED = "check_disabled.png";
-const QString CHECK_UNSELECTED = "check_unselected.png";
-const QString CHECK_UNSELECTED_REQUIRED = "check_unselected_required.png";
-const QString CHECK_FALSE_BLACK = "check_false_black.png";
-const QString CHECK_FALSE_RED = "check_false_red.png";
-const QString CHECK_TRUE_BLACK = "check_true_black.png";
-const QString CHECK_TRUE_RED = "check_true_red.png";
+const QString CHECK_DISABLED("check_disabled.png");
+const QString CHECK_UNSELECTED("check_unselected.png");
+const QString CHECK_UNSELECTED_REQUIRED("check_unselected_required.png");
+const QString CHECK_FALSE_BLACK("check_false_black.png");
+const QString CHECK_FALSE_RED("check_false_red.png");
+const QString CHECK_TRUE_BLACK("check_true_black.png");
+const QString CHECK_TRUE_RED("check_true_red.png");
 
-const QString RADIO_DISABLED = "radio_disabled.png";
-const QString RADIO_UNSELECTED = "radio_unselected.png";
-const QString RADIO_UNSELECTED_REQUIRED = "radio_unselected_required.png";
-const QString RADIO_SELECTED = "radio_selected.png";
+const QString RADIO_DISABLED("radio_disabled.png");
+const QString RADIO_UNSELECTED("radio_unselected.png");
+const QString RADIO_UNSELECTED_REQUIRED("radio_unselected_required.png");
+const QString RADIO_SELECTED("radio_selected.png");
 
 
 BooleanWidget::BooleanWidget(QWidget* parent) :
@@ -215,7 +215,7 @@ void BooleanWidget::updateWidget()
 
 void BooleanWidget::setText(const QString& text)
 {
-    qDebug() << Q_FUNC_INFO << text;
+    // qDebug() << Q_FUNC_INFO << text;
     m_textbutton->setText(text);
     updateGeometry();
 }

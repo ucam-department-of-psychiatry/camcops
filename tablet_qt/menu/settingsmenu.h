@@ -34,7 +34,6 @@ protected:
     void resetFontSize();
     QString demoText(const QString& text, UiConst::FontSize fontsize_type) const;
 protected:
-    CamcopsApp& m_app;
     mutable SecureQString m_temp_plaintext_password;
     bool m_plaintext_pw_live;
     QPointer<Questionnaire> m_fontsize_questionnaire;

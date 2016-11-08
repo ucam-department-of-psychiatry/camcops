@@ -89,6 +89,7 @@ QPointer<QWidget> QuPage::widget(Questionnaire* questionnaire) const
     // Add widgets that we own directly
     for (QuElementPtr e : m_elements) {
         QPointer<QWidget> w = e->widget(questionnaire);
+        w->setVisible(e->visible());
         pagelayout->addWidget(w);  // takes ownership
     }
     // Propagate up events from *all* widgets, including those in grids etc.

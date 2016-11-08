@@ -18,6 +18,9 @@ namespace VarConst
     extern const QString STORE_SERVER_PASSWORD;
     extern const QString SEND_ANALYTICS;
 
+    // Uploading flag
+    extern const QString NEEDS_UPLOAD;
+
     // Whisker
     extern const QString WHISKER_HOST;
     extern const QString WHISKER_PORT;
@@ -28,6 +31,10 @@ namespace VarConst
     extern const QString IP_USE_COMMERCIAL;
     extern const QString IP_USE_EDUCATIONAL;
     extern const QString IP_USE_RESEARCH;
+
+    // Patients and policies
+    extern const QString ID_POLICY_UPLOAD;
+    extern const QString ID_POLICY_FINALIZE;
 
     // User
     // ... server interaction

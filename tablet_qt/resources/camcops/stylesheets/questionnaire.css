@@ -74,18 +74,6 @@ QWidget {
     font-size: %1pt;
 }
 
-/*
-QLabel {
-    background-color: green;
-}
-*/
-
-/*
-LabelWordWrapWide {
-    background-color: green;
-}
-*/
-
 /* =========================================================================
    Modifiers, using dynamic properties
    ========================================================================= */
@@ -100,11 +88,18 @@ LabelWordWrapWide {
 
 /* =========================================================================
    Things that look or behave like buttons
-   ========================================================================= */
+   =========================================================================
+   - Note that ClickableLabel inherits from QPushButton
+   - Note that if you set ClickableLabel and *then* QPushButton CSS, then
+     the latter overrides the former (even though you would think child classes
+     are more specific than parent classes). As per
+     http://doc.qt.io/qt-5/stylesheet-syntax.html
+*/
 
 QPushButton,
 QComboBox#picker_inline,
 ClickableLabelWordWrapWide#picker_popup,
+ClickableLabelWordWrapWide#button,
 BooleanWidget ClickableLabelWordWrapWide,
 NvpChoiceDialog ClickableLabelWordWrapWide,
 PagePickerDialog ClickableLabelWordWrapWide {
@@ -116,29 +111,27 @@ PagePickerDialog ClickableLabelWordWrapWide {
     border-color: darkgray;
     padding: 5px;
 }
+
 ClickableLabel,
 ClickableLabelWordWrapWide {
     font-weight: normal;
     background-color: rgb(0, 0, 0, 0);  /* transparent */
-    /* background-color: yellow; */
     border: 1px black;
     border-radius: 0;
-    /* PADDING DOESN'T WORK PROPERLY, IT SEEMS. */
-    /* padding: 3px; */
     padding: 0;
     margin: 0;
 }
+
 QPushButton:pressed,
 QComboBox#picker_inline:pressed,
-QLabel#picker_popup:pressed,
 ClickableLabel:pressed,
 ClickableLabelWordWrapWide:pressed {
     background-color: rgba(100, 100, 255, 200);  /* to match BUTTON_PRESSED_COLOUR */
 }
-/* They will override the generic dynamic modifiers, so we re-specify... */
+
+/* The above will override the generic dynamic modifiers, so we re-specify... */
 ClickableLabelWordWrapWide#picker_popup[missing="true"],
-QComboBox#picker_inline[missing="true"],
-QLabel#picker_popup[missing="true"] {
+QComboBox#picker_inline[missing="true"] {
     background-color: yellow;
 }
 
@@ -150,44 +143,29 @@ QPushButton:disabled {
     background-color: gray;
 }
 
+/* Slightly different styling for QuPickerPopup */
+ClickableLabelWordWrapWide#picker_popup {
+    color: blue;
+}
+
 /* =========================================================================
    QComboBox
    =========================================================================
    - For QuPickerInline
    - http://stackoverflow.com/questions/29939990
    - http://doc.qt.io/qt-4.8/stylesheet-examples.html#customizing-qcombobox
+   - http://doc.qt.io/qt-5/stylesheet-syntax.html#sub-controls
+   - http://doc.qt.io/qt-5/stylesheet-reference.html#list-of-stylable-widgets
+   - http://stackoverflow.com/questions/13308341/qcombobox-abstractitemviewitem
+
    - QComboBox gets the "on" state when the popup is open
+   - "::drop-down" is the arrow at the right (typically) with which to open
+     the popup
+   - ":item:selected" means (e.g.) selected with the arrow keys, not "chosen"
+   - ":item:checked" means "chosen"
 */
 
 /*
-QComboBox {
-    border: 1px solid gray;
-    border-radius: 3px;
-    padding: 1px 18px 1px 3px;
-    min-width: 6em;
-}
-
-QComboBox:editable {
-    background: white;
-}
-
-QComboBox:!editable, QComboBox::drop-down:editable {
-     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                 stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,
-                                 stop: 0.5 #D8D8D8, stop: 1.0 #D3D3D3);
-}
-
-QComboBox:!editable:on, QComboBox::drop-down:editable:on {
-    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                stop: 0 #D3D3D3, stop: 0.4 #D8D8D8,
-                                stop: 0.5 #DDDDDD, stop: 1.0 #E1E1E1);
-}
-
-QComboBox:on {
-    padding-top: 3px;
-    padding-left: 4px;
-}
-
 QComboBox::drop-down {
     subcontrol-origin: padding;
     subcontrol-position: top right;
@@ -199,32 +177,31 @@ QComboBox::drop-down {
     border-top-right-radius: 3px;
     border-bottom-right-radius: 3px;
 }
-
-QComboBox::down-arrow {
-    image: url(/usr/share/icons/crystalsvg/16x16/actions/1downarrow.png);
-}
-
-QComboBox::down-arrow:on {
-    top: 1px;
-    left: 1px;
-}
-
-QComboBox QAbstractItemView {
-    border: 2px solid darkgray;
-    selection-background-color: lightgray;
-}
 */
 
 QComboBox#picker_inline {
     color: blue;
     selection-color: red;
 }
+QComboBox#picker_inline:item {
+    /*
+    - using pt as a unit doesn't work here
+    - not specifying height doesn't work; heights get *much* too big
+    - Qt knows about px, ex (?), em, pt; see qcssparser.cpp
+      ... [ex: http://stackoverflow.com/questions/918612/what-is-the-value-of-the-css-ex-unit]
+      ... though px/ex/em in one function (for general use)
+          and pt/px in another (for fonts)
+    - em works well (e.g. 3em)
+    - ex also works well (e.g. 6ex)
+    */
+    height: 6ex;
+    padding-left: 20px;  /* move text right to make room for tick mark */
+}
 QComboBox#picker_inline:item:selected {
     border: 2px solid black;
 }
 QComboBox#picker_inline:item:checked {
     font-weight: bold;
-    padding: 0;
 }
 
 /* Read-only version of QuPickerInline */
@@ -323,12 +300,6 @@ BooleanWidget ClickableLabelWordWrapWide[readonly="false"]:pressed {
 #mcq_instruction {
     color: darkgray;
     font-weight: bold;
-}
-
-/* For QuPickerPopup */
-QLabel#picker_popup {
-    color: blue;
-    background-color: lightgray;
 }
 
 /*

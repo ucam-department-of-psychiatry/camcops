@@ -9,5 +9,10 @@ namespace DbConst {
     extern const int NONEXISTENT_PK;
 
     extern const int NUMBER_OF_IDNUMS;
+    extern const QString BAD_IDNUM_DESC;
+    extern const QString UNKNOWN_IDNUM_DESC;
+    extern const QString IDDESC_FIELD_FORMAT;
+    extern const QString IDSHORTDESC_FIELD_FORMAT;
 
+    bool isValidWhichIdnum(int which_idnum);
 }

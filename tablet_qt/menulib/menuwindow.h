@@ -6,12 +6,14 @@
 #include "menulib/menuitem.h"
 #include "widgets/openablewidget.h"
 
+class MenuHeader;
+class Patient;
+using PatientPtr = QSharedPointer<Patient>;
+class Task;
+using TaskPtr = QSharedPointer<Task>;
 class QListWidget;
 class QListWidgetItem;
 class QVBoxLayout;
-class MenuHeader;
-class Task;
-using TaskPtr = QSharedPointer<Task>;
 
 
 class MenuWindow : public OpenableWidget
@@ -36,21 +38,28 @@ public:
     QString icon() const;
     int currentIndex() const;
     TaskPtr currentTask() const;
+    PatientPtr currentPatient() const;
 
 protected:
     void reloadStyleSheet();
     void loadStyleSheet();
 
 signals:
-    void offerViewEditDelete(bool offer_view, bool offer_edit,
-                             bool offer_delete);
+    void offerView(bool offer_view);
+    void offerEditDelete(bool offer_edit, bool offer_delete);
 
 public slots:
     void menuItemClicked(QListWidgetItem* item);
     void lockStateChanged(CamcopsApp::LockState lockstate);
-    void viewItem();
-    void editItem();
-    void deleteItem();
+    virtual void viewItem();
+    virtual void editItem();
+    virtual void deleteItem();
+    void debugLayout();
+
+protected:
+    void viewTask();
+    void editTask();
+    void deleteTask();
 
 protected:
     CamcopsApp& m_app;

@@ -1,10 +1,10 @@
-#include "flowlayoutcontainer.h"
+#include "heightforwidthlayoutcontainer.h"
 // #include <QDebug>
 #include <QLayout>
 #include "lib/uifunc.h"
 
 
-FlowLayoutContainer::FlowLayoutContainer(QWidget* parent) :
+HeightForWidthLayoutContainer::HeightForWidthLayoutContainer(QWidget* parent) :
     QWidget(parent)
 {
     // As for LabelWordWrapWide:
@@ -12,13 +12,13 @@ FlowLayoutContainer::FlowLayoutContainer(QWidget* parent) :
 }
 
 
-FlowLayoutContainer::~FlowLayoutContainer()
+HeightForWidthLayoutContainer::~HeightForWidthLayoutContainer()
 {
     // qDebug() << Q_FUNC_INFO;
 }
 
 
-void FlowLayoutContainer::resizeEvent(QResizeEvent* event)
+void HeightForWidthLayoutContainer::resizeEvent(QResizeEvent* event)
 {
     QWidget::resizeEvent(event);
     UiFunc::resizeEventForHFWParentWidget(this);

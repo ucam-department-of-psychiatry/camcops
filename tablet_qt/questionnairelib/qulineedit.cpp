@@ -125,8 +125,12 @@ void QuLineEdit::widgetTextChangedAndValid()
         return;
     }
     m_timer->stop();  // just in case it's running
+    // To cope with setting things to null, we need to use a QVariant.
+    // We use null rather than a blank string, because QuLineEdit may be used
+    // to set numeric fields (where "" will be converted to 0).
     QString text = m_editor->text();
-    bool changed = m_fieldref->setValue(text, this);  // Will trigger valueChanged
+    QVariant value = text.isEmpty() ? QVariant() : QVariant(text);
+    bool changed = m_fieldref->setValue(value, this);  // Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();
     }

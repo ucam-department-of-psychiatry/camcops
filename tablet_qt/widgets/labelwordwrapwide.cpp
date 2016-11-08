@@ -79,10 +79,14 @@ bool LabelWordWrapWide::hasHeightForWidth() const
 
 int LabelWordWrapWide::heightForWidth(int width) const
 {
+    if (m_cached_height_for_width.contains(width)) {
+        return m_cached_height_for_width[width];
+    }
     int height = QLabel::heightForWidth(width);
 #ifdef DEBUG_CALCULATIONS
     qDebug() << Q_FUNC_INFO << "width" << width << "-> height" << height;
 #endif
+    m_cached_height_for_width[width] = height;
     return height;
 }
 
@@ -274,4 +278,5 @@ void LabelWordWrapWide::clearCache()
     m_cached_unwrapped_text_size = QSize();
     m_cached_size_hint = QSize();
     m_cached_minimum_size_hint = QSize();
+    m_cached_height_for_width.clear();
 }

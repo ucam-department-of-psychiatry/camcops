@@ -126,7 +126,6 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire *questionnaire)
         // Text label
         if (!read_only && m_content_clickable) {
             ClickableLabelWordWrapWide* label = new ClickableLabelWordWrapWide(m_text);
-            // label->setObjectName(CssConst::DEBUG_GREEN);
             connect(label, &ClickableLabelWordWrapWide::clicked,
                     this, &QuBoolean::clicked);
             labelwidget = label;

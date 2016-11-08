@@ -1,4 +1,5 @@
 #include "qubutton.h"
+#include "common/cssconst.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/clickablelabelwordwrapwide.h"
@@ -40,6 +41,7 @@ QPointer<QWidget> QuButton::makeWidget(Questionnaire* questionnaire)
     if (!m_label.isEmpty()) {
         // Text
         button = new ClickableLabelWordWrapWide(m_label);
+        button->setObjectName(CssConst::BUTTON);
         if (read_only) {
             button->setDisabled(true);
         }

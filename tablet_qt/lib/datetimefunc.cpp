@@ -1,7 +1,11 @@
 #include "datetimefunc.h"
 #include <QTimeZone>
+#include <QVariant>
 
-const QString DateTime::SHORT_DATETIME_FORMAT = "yyyy-MM-dd HH:mm";
+const QString DateTime::SHORT_DATETIME_FORMAT("yyyy-MM-dd HH:mm");  // 2000-12-31 23:59
+const QString DateTime::SHORT_DATE_FORMAT("yyyy-MM-dd");  // 2000-12-31
+const QString DateTime::TEXT_DATE_FORMAT("dd MMM yyyy");  // 31 Dec 2000
+const QString DateTime::UNKNOWN("?");
 
 
 // http://stackoverflow.com/questions/21976264/qt-isodate-formatted-date-time-including-timezone
@@ -58,7 +62,66 @@ QDateTime DateTime::now()
 }
 
 
+QDate DateTime::nowDate()
+{
+    return QDate::currentDate();
+}
+
+
 QString DateTime::shortDateTime(const QDateTime& dt)
 {
     return dt.toString(SHORT_DATETIME_FORMAT);
+}
+
+
+QString DateTime::shortDate(const QDate& d)
+{
+    return d.toString(SHORT_DATE_FORMAT);
+}
+
+
+QString DateTime::textDate(const QDate& d)
+{
+    return d.toString(TEXT_DATE_FORMAT);
+}
+
+
+QString DateTime::textDate(const QVariant& date)
+{
+    if (date.isNull()) {
+        return UNKNOWN;
+    }
+    return textDate(date.toDate());
+}
+
+
+int DateTime::ageYearsFrom(const QDate& from, const QDate& to)
+{
+    // Unhelpful:
+    // https://forum.qt.io/topic/27906/difference-in-days-months-and-years-between-two-dates/9
+    if (from > to) {
+        return -ageYearsFrom(to, from);
+    }
+    // Now, "birthday age" calculation.
+    // Examples:                                yeardiff    delta
+    // * 1 Jan 2000 ->  1 Jan 2000 = age 0      0           0
+    // * 1 Jan 2000 -> 31 Dec 2000 = age 0      0           0
+    // * 1 Jun 2000 -> 31 Apr 2001 = age 0      1           -1
+    // * 2 Jun 2000 ->  1 Jun 2001 = age 0      1           -1
+    // * 2 Jun 2000 ->  2 Jun 2001 = age 1      1           0
+    int years = to.year() - from.year();
+    if (to.month() < from.month() ||
+            (to.month() == from.month() && to.day() < from.day())) {
+        years -= 1;
+    }
+    return years;
+}
+
+
+int DateTime::ageYears(const QVariant& dob, int default_years)
+{
+    if (dob.isNull()) {
+        return default_years;
+    }
+    return ageYearsFrom(dob.toDate(), nowDate());
 }

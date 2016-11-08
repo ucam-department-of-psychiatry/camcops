@@ -4,7 +4,7 @@
 #include "common/camcopsapp.h"
 #include "lib/datetimefunc.h"
 
-const QString PATIENT_FK_FIELDNAME = "patient_id";
+const QString PATIENT_FK_FIELDNAME("patient_id");
 
 
 Task::Task(CamcopsApp& app,

@@ -10,16 +10,16 @@
 
 #ifdef FULL_LOG_FORMAT
 #ifdef QT_DEBUG
-const QString message_pattern =
+const QString message_pattern(
     "camcops[%{threadid}]: %{time yyyy-MM-ddTHH:mm:ss.zzz}"
-    ": %{type}: %{file}(%{line}): %{message}";
+    ": %{type}: %{file}(%{line}): %{message}");
 #else
-const QString message_pattern =
+const QString message_pattern(
     "camcops[%{threadid}]: %{time yyyy-MM-ddTHH:mm:ss.zzz}"
-    ": %{type}: %{message}";
+    ": %{type}: %{message}");
 #endif
 #else
-const QString message_pattern = "camcops: %{type}: %{message}";
+const QString message_pattern("camcops: %{type}: %{message}");
 #endif
 
 

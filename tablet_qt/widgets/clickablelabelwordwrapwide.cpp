@@ -1,4 +1,4 @@
-#define DEBUG_CALCULATIONS
+// #define DEBUG_CALCULATIONS
 
 #include "clickablelabelwordwrapwide.h"
 #include <QDebug>

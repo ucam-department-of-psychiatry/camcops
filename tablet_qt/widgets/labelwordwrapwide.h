@@ -1,5 +1,6 @@
 #pragma once
 #include <QLabel>
+#include <QMap>
 
 
 class LabelWordWrapWide : public QLabel
@@ -48,7 +49,10 @@ protected:
     // for them. See http://kdemonkey.blogspot.co.uk/2013/11/understanding-qwidget-layout-flow.html
     // However, for performance...
     void clearCache();
+
+protected:
     mutable QSize m_cached_unwrapped_text_size;
     mutable QSize m_cached_size_hint;
     mutable QSize m_cached_minimum_size_hint;
+    mutable QMap<int, int> m_cached_height_for_width;
 };

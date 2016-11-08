@@ -8,9 +8,9 @@ class QuLineEditDouble : public QuLineEdit
 
     Q_OBJECT
 public:
-    QuLineEditDouble(FieldRefPtr fieldref);
+    QuLineEditDouble(FieldRefPtr fieldref, bool allow_empty = true);
     QuLineEditDouble(FieldRefPtr fieldref, double minimum, double maximum,
-                     int decimals);
+                     int decimals, bool allow_empty = true);
     QuLineEditDouble* setStrictValidator(bool strict);
 protected:
     virtual void extraLineEditCreation(QLineEdit* editor) override;
@@ -18,5 +18,6 @@ protected:
     double m_minimum;
     double m_maximum;
     int m_decimals;
+    bool m_allow_empty;
     bool m_strict_validator;
 };

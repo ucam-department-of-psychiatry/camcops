@@ -54,4 +54,5 @@ namespace CssConst
     extern const char* VALUE_NULL_REQUIRED;
     extern const char* VALUE_FALSE;
     extern const char* VALUE_TRUE;
+    extern const char* BUTTON;
 }

@@ -41,6 +41,7 @@ public:
     CamcopsApp& app() const;
     QString getSubstitutedCss(const QString& filename) const;
     QuPagePtr currentPagePtr() const;
+    void setVisibleByTag(const QString& tag, bool visible);
 protected:
     void commonConstructor();
     int currentPageNumOneBased() const;

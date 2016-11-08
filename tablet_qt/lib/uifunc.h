@@ -43,7 +43,7 @@ namespace UiFunc {
     QPixmap addPressedBackground(const QPixmap& image, bool behind = true);
     QPixmap addUnpressedBackground(const QPixmap& image, bool behind = true);
     QPixmap makeDisabledIcon(const QPixmap& image);
-    QLabel* blankIcon(QWidget* parent);
+    QLabel* blankIcon(QWidget* parent = nullptr);
     QString resourceFilename(const QString& resourcepath);
     QString iconFilename(const QString& basefile);
 

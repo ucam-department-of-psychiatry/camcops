@@ -13,6 +13,8 @@ class StrictDoubleValidator : public QDoubleValidator
     Q_OBJECT
 public:
     StrictDoubleValidator(double bottom, double top, int decimals,
-                          QObject* parent = nullptr);
+                          bool allow_empty = false, QObject* parent = nullptr);
     virtual QValidator::State validate(QString& s, int& pos) const override;
+protected:
+    bool m_allow_empty;
 };

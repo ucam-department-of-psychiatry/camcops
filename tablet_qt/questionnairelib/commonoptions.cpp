@@ -4,13 +4,16 @@
 // Database-level constants
 // ============================================================================
 
-const QString CommonOptions::NO_CHAR = "N";
-const QString CommonOptions::YES_CHAR = "Y";
+const QString CommonOptions::NO_CHAR('N');
+const QString CommonOptions::YES_CHAR('Y');
 const int CommonOptions::UNKNOWN_INT = -1;
 const int CommonOptions::NO_INT = 0;
 const int CommonOptions::YES_INT = 1;
 const int CommonOptions::INCORRECT_INT = 0;
 const int CommonOptions::CORRECT_INT = 1;
+const QString CommonOptions::SEX_FEMALE('F');
+const QString CommonOptions::SEX_MALE('M');
+const QString CommonOptions::SEX_UNSPECIFIED('X');
 
 
 // ============================================================================
@@ -68,6 +71,24 @@ QString CommonOptions::present()
 QString CommonOptions::unknown()
 {
     return tr("Unknown");
+}
+
+
+QString CommonOptions::sexFemale()
+{
+    return tr("Female (F)");
+}
+
+
+QString CommonOptions::sexMale()
+{
+    return tr("Male (M)");
+}
+
+
+QString CommonOptions::sexUnspecified()
+{
+    return tr("Unspecified (X)");
 }
 
 
@@ -171,5 +192,15 @@ NameValueOptions CommonOptions::unknownNoYesInteger()
         {unknown(), UNKNOWN_INT},
         {no(), NO_INT},
         {yes(), YES_INT},
+    };
+}
+
+
+NameValueOptions CommonOptions::sexes()
+{
+    return NameValueOptions{
+        {sexFemale(), SEX_FEMALE},
+        {sexMale(), SEX_MALE},
+        {sexUnspecified(), SEX_UNSPECIFIED},
     };
 }

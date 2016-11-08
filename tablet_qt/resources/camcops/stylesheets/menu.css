@@ -15,7 +15,8 @@
    Generic styles
    ========================================================================= */
 
-QWidget {
+QWidget,
+HeightForWidthLayoutContainer {
     font-size: %5pt;
 }
 
@@ -52,7 +53,6 @@ QWidget {
 }
 #menu_header_patient_info {
     color: yellow;
-    font-weight: bold;
     border: 0;
     margin: 0;
     padding: 0;

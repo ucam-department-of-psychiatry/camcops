@@ -8,4 +8,7 @@ class PatientSummaryMenu : public MenuWindow
 public:
     PatientSummaryMenu(CamcopsApp& app);
     virtual void build() override;
+public slots:
+    void selectedPatientChanged(const Patient* patient);
+    void taskFinished();
 };

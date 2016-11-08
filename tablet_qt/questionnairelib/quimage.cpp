@@ -4,22 +4,31 @@
 #include "questionnairelib/questionnaire.h"
 
 
-QuImage::QuImage(const QString& filename) :
+QuImage::QuImage(const QString& filename, const QSize& size) :
     m_filename(filename),
     m_fieldref(nullptr),
-    m_label(nullptr)
+    m_label(nullptr),
+    m_size(size)
 {
 }
 
 
-QuImage::QuImage(FieldRefPtr fieldref) :
+QuImage::QuImage(FieldRefPtr fieldref, const QSize& size) :
     m_filename(""),
     m_fieldref(fieldref),
-    m_label(nullptr)
+    m_label(nullptr),
+    m_size(size)
 {
     Q_ASSERT(m_fieldref);
     connect(m_fieldref.data(), &FieldRef::valueChanged,
             this, &QuImage::valueChanged);
+}
+
+
+QuImage* QuImage::setSize(const QSize& size)
+{
+    m_size = size;
+    return this;
 }
 
 
@@ -33,6 +42,9 @@ QPointer<QWidget> QuImage::makeWidget(Questionnaire* questionnaire)
         image.loadFromData(data);
     } else {
         image = UiFunc::getPixmap(m_filename);
+    }
+    if (m_size.isValid()) {
+        image = image.scaled(m_size);
     }
     m_label->setFixedSize(image.size());
     m_label->setPixmap(image);

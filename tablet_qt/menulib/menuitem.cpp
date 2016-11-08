@@ -10,12 +10,16 @@
 #include "common/camcopsapp.h"
 #include "common/cssconst.h"
 #include "common/uiconstants.h"
+#include "dbobjects/patient.h"
 #include "lib/datetimefunc.h"  // for SHORT_DATETIME_FORMAT
+#include "lib/idpolicy.h"
 #include "lib/uifunc.h"
+#include "menu/choosepatientmenu.h"
 #include "menu/singletaskmenu.h"
 #include "menulib/htmlinfowindow.h"
 #include "menulib/menuwindow.h"
 #include "tasklib/taskfactory.h"
+// #include "widgets/heightforwidthlayoutcontainer.h"
 #include "widgets/labelwordwrapwide.h"
 #include "widgets/openablewidget.h"
 
@@ -79,13 +83,31 @@ MenuItem::MenuItem(MenuProxyPtr p_menuproxy, CamcopsApp& app)
 }
 
 
+MenuItem::MenuItem(const ChoosePatientMenuItem& choose_patient,
+                   CamcopsApp& app)
+{
+    // We do some more of the work for the client, since "choose patient"
+    // appears on lots of menus.
+    Q_UNUSED(choose_patient);  // it's just a marker object
+    // You can't call another constructor directly, so...
+
+    setDefaults();
+    m_p_menuproxy = MenuProxyPtr(new MenuProxy<ChoosePatientMenu>);
+
+    QScopedPointer<MenuWindow> mw(m_p_menuproxy->create(app));
+    m_title = mw->title();
+    m_subtitle = mw->subtitle();
+    m_icon = mw->icon();
+}
+
+
 MenuItem::MenuItem(const TaskMenuItem& taskmenuitem, CamcopsApp& app)
     // m_title: below
 {
     setDefaults();
     m_task_tablename = taskmenuitem.tablename;
 
-    TaskPtr task = app.factory()->create(m_task_tablename);
+    TaskPtr task = app.taskFactory()->create(m_task_tablename);
     if (task == nullptr) {
         m_title = tr("UNKNOWN TASK") + ": " + taskmenuitem.tablename;
         m_implemented = false;
@@ -111,13 +133,19 @@ MenuItem::MenuItem(const QString& title, const HtmlMenuItem& htmlmenuitem,
 }
 
 
-
 MenuItem::MenuItem(TaskPtr p_task, bool task_shows_taskname) :
     m_title("?")
 {
     setDefaults();
     m_p_task = p_task;
     m_task_shows_taskname = task_shows_taskname;
+}
+
+
+MenuItem::MenuItem(PatientPtr p_patient)
+{
+    setDefaults();
+    m_p_patient = p_patient;
 }
 
 
@@ -144,6 +172,7 @@ void MenuItem::setDefaults()
     m_p_menuproxy = MenuProxyPtr(nullptr);
     m_task_tablename = "";
     m_p_task = TaskPtr(nullptr);
+    m_p_patient = PatientPtr(nullptr);
 }
 
 
@@ -159,6 +188,12 @@ QString MenuItem::title() const
 TaskPtr MenuItem::task() const
 {
     return m_p_task;
+}
+
+
+PatientPtr MenuItem::patient() const
+{
+    return m_p_patient;
 }
 
 
@@ -212,6 +247,52 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
                                                  : STRETCH_2COL_SUMMARY);
         summary->setSizePolicy(spSummary);
         rowlayout->addWidget(summary);
+
+    } else if (m_p_patient) {
+        // --------------------------------------------------------------------
+        // Patient (for patient-choosing menu)
+        // --------------------------------------------------------------------
+
+        // Title/subtitle style
+        QVBoxLayout* textlayout = new QVBoxLayout();
+
+        QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
+
+        LabelWordWrapWide* title = new LabelWordWrapWide(
+                    QString("%1, %2")
+                    .arg(m_p_patient->surname().toUpper())
+                    .arg(m_p_patient->forename()));
+        LabelWordWrapWide* subtitle1 = new LabelWordWrapWide(
+                    QString("%1, %2y, DOB %3")
+                    .arg(m_p_patient->sex())
+                    .arg(m_p_patient->ageYears())
+                    .arg(m_p_patient->dobText()));
+        LabelWordWrapWide* subtitle2 = new LabelWordWrapWide(
+                    m_p_patient->shortIdnumSummary());
+
+        title->setObjectName(CssConst::MENU_ITEM_TITLE);
+        subtitle1->setObjectName(CssConst::MENU_ITEM_SUBTITLE);
+        subtitle2->setObjectName(CssConst::MENU_ITEM_SUBTITLE);
+        title->setSizePolicy(sp);
+        subtitle1->setSizePolicy(sp);
+        subtitle2->setSizePolicy(sp);
+        textlayout->addWidget(title);
+        textlayout->addWidget(subtitle1);
+        textlayout->addWidget(subtitle2);
+
+        if (!m_p_patient->compliesWith(app.uploadPolicy())) {
+            rowlayout->addWidget(UiFunc::iconWidget(
+                    UiFunc::iconFilename(UiConst::ICON_STOP)));
+        } else if (!m_p_patient->compliesWith(app.finalizePolicy())) {
+            rowlayout->addWidget(UiFunc::iconWidget(
+                    UiFunc::iconFilename(UiConst::ICON_WARNING)));
+        } else {
+            rowlayout->addWidget(UiFunc::blankIcon());
+        }
+
+        rowlayout->addLayout(textlayout);
+        rowlayout->addStretch();
+
     } else {
         // --------------------------------------------------------------------
         // Conventional menu item

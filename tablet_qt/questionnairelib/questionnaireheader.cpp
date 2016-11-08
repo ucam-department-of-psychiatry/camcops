@@ -2,6 +2,7 @@
 #include <QAbstractButton>
 #include <QDebug>
 #include <QHBoxLayout>
+#include <QPushButton>
 #include <QVBoxLayout>
 #include "common/cssconst.h"
 #include "common/uiconstants.h"
@@ -81,7 +82,7 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
 
     // Right-hand icons/buttons
     if (debug_allowed) {
-        m_button_debug = new ImageButton(UiConst::CBS_CAMERA);  // *** need debug icon
+        m_button_debug = new QPushButton("Dump layout");
         connect(m_button_debug, &QAbstractButton::clicked,
                 this, &QuestionnaireHeader::debugLayout);
         toprowlayout->addWidget(m_button_debug);

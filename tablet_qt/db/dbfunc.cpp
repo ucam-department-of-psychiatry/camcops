@@ -15,6 +15,15 @@
 #include "lib/uifunc.h"
 
 
+namespace DbFunc {
+
+    const QString DATA_DATABASE_FILENAME("camcops_data.sqlite");
+    const QString SYSTEM_DATABASE_FILENAME("camcops_sys.sqlite");
+    const QString TABLE_TEMP_SUFFIX("_temp");
+
+}
+
+
 void DbFunc::openDatabaseOrDie(QSqlDatabase& db, const QString& filename)
 {
     // Opens a database.

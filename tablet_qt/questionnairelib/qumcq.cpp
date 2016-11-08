@@ -9,7 +9,7 @@
 #include "widgets/booleanwidget.h"
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/flowlayout.h"
-#include "widgets/flowlayoutcontainer.h"
+#include "widgets/heightforwidthlayoutcontainer.h"
 #include "widgets/labelwordwrapwide.h"
 
 
@@ -74,7 +74,7 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
     QPointer<QWidget> mainwidget;
     QLayout* mainlayout;
     if (m_horizontal) {
-        mainwidget = new FlowLayoutContainer();
+        mainwidget = new HeightForWidthLayoutContainer();
         mainlayout = new FlowLayout();
     } else {
         mainwidget = new QWidget();
@@ -114,6 +114,7 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
             // prevents them being split apart.
             QWidget* itemwidget = new QWidget();
             ClickableLabelWordWrapWide* namelabel = new ClickableLabelWordWrapWide(nvp.name());
+            namelabel->setEnabled(!read_only);
             if (!read_only) {
                 // Safe object lifespan signal: can use std::bind
                 connect(namelabel, &ClickableLabelWordWrapWide::clicked,

@@ -6,7 +6,7 @@
 #include "widgets/booleanwidget.h"
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/flowlayout.h"
-#include "widgets/flowlayoutcontainer.h"
+#include "widgets/heightforwidthlayoutcontainer.h"
 #include "widgets/labelwordwrapwide.h"
 
 
@@ -121,7 +121,7 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
     QPointer<QWidget> mainwidget;
     QLayout* mainlayout;
     if (m_horizontal) {
-        mainwidget = new FlowLayoutContainer();
+        mainwidget = new HeightForWidthLayoutContainer();
         mainlayout = new FlowLayout();
     } else {
         mainwidget = new QWidget();
@@ -158,6 +158,7 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
             // cf. QuMCQ
             QWidget* itemwidget = new QWidget();
             ClickableLabelWordWrapWide* namelabel = new ClickableLabelWordWrapWide(item.text());
+            namelabel->setEnabled(!read_only);
             if (!read_only) {
                 // Safe object lifespan signal: can use std::bind
                 connect(namelabel, &ClickableLabelWordWrapWide::clicked,

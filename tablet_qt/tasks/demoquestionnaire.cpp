@@ -118,15 +118,14 @@ QString DemoQuestionnaire::summary() const
 
 OpenableWidget* DemoQuestionnaire::editor(bool read_only)
 {
-    qDebug() << Q_FUNC_INFO;
     const QString& longtext = UiConst::LOREM_IPSUM_1;
     const QString& lipsum2 = UiConst::LOREM_IPSUM_2;
-    const QString url = "http://doc.qt.io/qt-5.7/richtext-html-subset.html";
-    const QString html = QString(
+    const QString url("http://doc.qt.io/qt-5.7/richtext-html-subset.html");
+    const QString html(QString(
         "Text with embedded HTML markup, providing <b>bold</b>, "
         "<i>italic</i>, and others as per Qt rich text syntax at "
         "<a href=\"%1\">%1</a>."
-    ).arg(url);
+    ).arg(url));
 
     // ========================================================================
     // Text

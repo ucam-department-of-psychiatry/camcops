@@ -1,5 +1,6 @@
 #pragma once
 #include <QApplication>
+#include <QList>
 #include <QPointer>
 #include <QSharedPointer>
 #include <QSqlDatabase>
@@ -8,15 +9,17 @@
 #include "common/uiconstants.h"  // for FontSize
 #include "crypto/secureqstring.h"
 #include "db/fieldref.h"  // for FieldRefPtr
+#include "dbobjects/patient.h"
 #include "lib/slowguiguard.h"
 #include "tasklib/task.h"  // for TaskPtr
 
+class NetworkManager;
+class OpenableWidget;
+using PatientPtr = QSharedPointer<Patient>;
+using PatientPtrList = QList<PatientPtr>;
 class QSqlDatabase;
 class QMainWindow;
 class QStackedWidget;
-
-class NetworkManager;
-class OpenableWidget;
 class StoredVar;
 using StoredVarPtr = QSharedPointer<StoredVar>;
 class TaskFactory;
@@ -43,17 +46,20 @@ public:
         OpenableInfo()
         {}
         OpenableInfo(QPointer<OpenableWidget> widget, TaskPtr task,
-                     Qt::WindowStates prev_window_state, bool may_alter_task) :
+                     Qt::WindowStates prev_window_state, bool may_alter_task,
+                     PatientPtr patient) :
             widget(widget),
             task(task),
             prev_window_state(prev_window_state),
-            may_alter_task(may_alter_task)
+            may_alter_task(may_alter_task),
+            patient(patient)
         {}
     public:
         QPointer<OpenableWidget> widget;
         TaskPtr task;
         Qt::WindowStates prev_window_state;
         bool may_alter_task;
+        PatientPtr patient;
     };
 
     // ------------------------------------------------------------------------
@@ -65,7 +71,7 @@ public:
     int run();
     QSqlDatabase& db();
     QSqlDatabase& sysdb();
-    TaskFactoryPtr factory();
+    TaskFactoryPtr taskFactory();
     void upgradeDatabase(const Version& old_version, const Version& new_version);
 
     // ------------------------------------------------------------------------
@@ -73,7 +79,8 @@ public:
     // ------------------------------------------------------------------------
 public:
     void open(OpenableWidget* widget, TaskPtr task = TaskPtr(nullptr),
-              bool may_alter_task = false);
+              bool may_alter_task = false,
+              PatientPtr patient = PatientPtr(nullptr));
     SlowGuiGuard getSlowGuiGuard(const QString& text = "Opening...",
                                  const QString& title = "Please wait...",
                                  int minimum_duration_ms = 100);
@@ -113,10 +120,15 @@ signals:
     // ------------------------------------------------------------------------
 public:
     NetworkManager* networkManager() const;
+    bool needsUpload() const;
+    void setNeedsUpload(bool needs_upload);
+signals:
+    void needsUploadChanged(bool needs_upload);
 
     // ------------------------------------------------------------------------
     // Whisker
     // ------------------------------------------------------------------------
+public:
     bool whiskerConnected() const;
     void setWhiskerConnected(bool connected);
 signals:
@@ -126,12 +138,21 @@ signals:
     // Patient
     // ------------------------------------------------------------------------
 public:
-    bool patientSelected() const;
-    QString patientDetails() const;
-    void setSelectedPatient(int patient_id = DbConst::NONEXISTENT_PK);
-    int currentPatientId() const;
+    bool isPatientSelected() const;
+    void setSelectedPatient(int patient_id);
+    void patientHasBeenEdited(int patient_id);
+    const Patient* selectedPatient() const;
+    int selectedPatientId() const;
+    PatientPtrList getAllPatients();
+    QString idDescription(int which_idnum);
+    QString idShortDescription(int which_idnum);
+    IdPolicy uploadPolicy() const;
+    IdPolicy finalizePolicy() const;
+protected:
+    void reloadPatient(int patient_id);
 signals:
-    void selectedPatientChanged(bool selected, const QString& details);
+    void selectedPatientChanged(const Patient* patient);
+    void selectedPatientDetailsChanged(const Patient* patient);
 
     // ------------------------------------------------------------------------
     // CSS convenience; fonts etc.
@@ -189,7 +210,7 @@ protected:
     bool m_whisker_connected;
     QPointer<QMainWindow> m_p_main_window;
     QPointer<QStackedWidget> m_p_window_stack;
-    int m_patient_id;
+    PatientPtr m_patient;
     QStack<OpenableInfo> m_info_stack;
     QMap<QString, StoredVarPtr> m_storedvars;
     QSharedPointer<NetworkManager> m_netmgr;

@@ -101,9 +101,9 @@ void QuContainerGrid::commonConstructor()
 }
 
 
-QuContainerGrid* QuContainerGrid::addCell(const QuGridCell& cells)
+QuContainerGrid* QuContainerGrid::addCell(const QuGridCell& cell)
 {
-    m_cells.append(cells);
+    m_cells.append(cell);
     return this;
 }
 

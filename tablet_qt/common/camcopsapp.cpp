@@ -23,6 +23,7 @@
 #include "dbobjects/storedvar.h"
 #include "lib/datetimefunc.h"
 #include "lib/filefunc.h"
+#include "lib/idpolicy.h"
 #include "lib/networkmanager.h"
 #include "lib/slowguiguard.h"
 #include "lib/uifunc.h"
@@ -39,7 +40,7 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     m_whisker_connected(false),
     m_p_main_window(nullptr),
     m_p_window_stack(nullptr),
-    m_patient_id(DbConst::NONEXISTENT_PK),
+    m_patient(nullptr),
     m_netmgr(nullptr)
 {
     // ------------------------------------------------------------------------
@@ -60,8 +61,8 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     // http://stackoverflow.com/questions/7669987/what-is-the-correct-way-of-qsqldatabase-qsqlquery
     m_datadb = QSqlDatabase::addDatabase("QSQLITE", "data");
     m_sysdb = QSqlDatabase::addDatabase("QSQLITE", "sys");
-    DbFunc::openDatabaseOrDie(m_datadb, DATA_DATABASE_FILENAME);
-    DbFunc::openDatabaseOrDie(m_sysdb, SYSTEM_DATABASE_FILENAME);
+    DbFunc::openDatabaseOrDie(m_datadb, DbFunc::DATA_DATABASE_FILENAME);
+    DbFunc::openDatabaseOrDie(m_sysdb, DbFunc::SYSTEM_DATABASE_FILENAME);
 
     // ------------------------------------------------------------------------
     // Register tasks
@@ -100,6 +101,17 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
         createVar(VarConst::STORE_SERVER_PASSWORD, QVariant::Bool, true);
         createVar(VarConst::SEND_ANALYTICS, QVariant::Bool, true);
 
+        // Uploading "dirty" flag
+        createVar(VarConst::NEEDS_UPLOAD, QVariant::Bool, false);
+
+        // Patient-related device-wide settings
+        for (int n = 1; n <= DbConst::NUMBER_OF_IDNUMS; ++n) {
+            QString desc = DbConst::IDDESC_FIELD_FORMAT.arg(n);
+            QString shortdesc = DbConst::IDSHORTDESC_FIELD_FORMAT.arg(n);
+            createVar(desc, QVariant::String);
+            createVar(shortdesc, QVariant::String);
+        }
+
         // Whisker
         createVar(VarConst::WHISKER_HOST, QVariant::String, "localhost");
         createVar(VarConst::WHISKER_PORT, QVariant::Int, 3233);  // 3233 = Whisker
@@ -110,6 +122,10 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
         createVar(VarConst::IP_USE_COMMERCIAL, QVariant::Int, CommonOptions::UNKNOWN_INT);
         createVar(VarConst::IP_USE_EDUCATIONAL, QVariant::Int, CommonOptions::UNKNOWN_INT);
         createVar(VarConst::IP_USE_RESEARCH, QVariant::Int, CommonOptions::UNKNOWN_INT);
+
+        // Patients and policies
+        createVar(VarConst::ID_POLICY_UPLOAD, QVariant::String, "");
+        createVar(VarConst::ID_POLICY_FINALIZE, QVariant::String, "");
 
         // User
         // ... server interaction
@@ -163,7 +179,7 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     // Make special tables: main database
     Blob blob_specimen(m_datadb);
     blob_specimen.makeTable();
-    Patient patient_specimen(m_datadb);
+    Patient patient_specimen(*this, m_datadb);
     patient_specimen.makeTable();
 
     // Make task tables
@@ -220,7 +236,7 @@ QSqlDatabase& CamcopsApp::sysdb()
 }
 
 
-TaskFactoryPtr CamcopsApp::factory()
+TaskFactoryPtr CamcopsApp::taskFactory()
 {
     return m_p_task_factory;
 }
@@ -257,7 +273,7 @@ SlowGuiGuard CamcopsApp::getSlowGuiGuard(const QString& text,
 
 
 void CamcopsApp::open(OpenableWidget* widget, TaskPtr task,
-                      bool may_alter_task)
+                      bool may_alter_task, PatientPtr patient)
 {
     if (!widget) {
         qCritical() << Q_FUNC_INFO << "- attempt to open nullptr";
@@ -283,9 +299,10 @@ void CamcopsApp::open(OpenableWidget* widget, TaskPtr task,
             this, &CamcopsApp::close);
 
     m_info_stack.push(OpenableInfo(guarded_widget, task, prev_window_state,
-                                   may_alter_task));
+                                   may_alter_task, patient));
     // This stores a QSharedPointer to the task (if supplied), so keeping that
     // keeps the task "alive" whilst its widget is doing things.
+    // Similarly with any patient required for patient editing.
 }
 
 
@@ -296,6 +313,7 @@ void CamcopsApp::close()
     }
     OpenableInfo info = m_info_stack.pop();
     // on function exit, will delete the task if it's the last pointer to it
+    // (... and similarly any patient)
 
     QWidget* top = m_p_window_stack->currentWidget();
     qDebug() << Q_FUNC_INFO << "Popping screen";
@@ -307,6 +325,11 @@ void CamcopsApp::close()
 
     if (info.may_alter_task) {
         emit taskAlterationFinished(info.task);
+    }
+    if (info.patient) {
+        // This happens if we've been editing a patient, so the patient details
+        // may have changed.
+        emit selectedPatientDetailsChanged(info.patient.data());
     }
 }
 
@@ -506,6 +529,19 @@ NetworkManager* CamcopsApp::networkManager() const
 }
 
 
+bool CamcopsApp::needsUpload() const
+{
+    return var(VarConst::NEEDS_UPLOAD).toBool();
+}
+
+
+void CamcopsApp::setNeedsUpload(bool needs_upload)
+{
+    setVar(VarConst::NEEDS_UPLOAD, needs_upload);
+    emit needsUploadChanged(needs_upload);
+}
+
+
 // ============================================================================
 // Whisker
 // ============================================================================
@@ -530,31 +566,112 @@ void CamcopsApp::setWhiskerConnected(bool connected)
 // Patient
 // ============================================================================
 
-bool CamcopsApp::patientSelected() const
+bool CamcopsApp::isPatientSelected() const
 {
-    return m_patient_id != DbConst::NONEXISTENT_PK;
-}
-
-
-QString CamcopsApp::patientDetails() const
-{
-    return "*** patient details ***";
+    return m_patient != nullptr;
 }
 
 
 void CamcopsApp::setSelectedPatient(int patient_id)
 {
-    bool changed = patient_id != m_patient_id;
-    m_patient_id = patient_id;
+    // We do this by ID so there's no confusion about who owns it; we own
+    // our own private copy here.
+    bool changed = patient_id != selectedPatientId();
     if (changed) {
-        // *** emit something? check what calls this
+        reloadPatient(patient_id);
+        emit selectedPatientChanged(m_patient.data());
     }
 }
 
 
-int CamcopsApp::currentPatientId() const
+void CamcopsApp::reloadPatient(int patient_id)
 {
-    return m_patient_id;
+    if (patient_id == DbConst::NONEXISTENT_PK) {
+        m_patient = PatientPtr(nullptr);
+    } else {
+        m_patient = PatientPtr(new Patient(*this, m_datadb, patient_id));
+    }
+}
+
+
+void CamcopsApp::patientHasBeenEdited(int patient_id)
+{
+    int current_patient_id = selectedPatientId();
+    if (patient_id == current_patient_id) {
+        reloadPatient(patient_id);
+        emit selectedPatientDetailsChanged(m_patient.data());
+    }
+}
+
+
+const Patient* CamcopsApp::selectedPatient() const
+{
+    return m_patient.data();
+}
+
+
+int CamcopsApp::selectedPatientId() const
+{
+    return m_patient ? m_patient->id() : DbConst::NONEXISTENT_PK;
+}
+
+
+PatientPtrList CamcopsApp::getAllPatients()
+{
+    PatientPtrList patients;
+    Patient specimen(*this, m_datadb, DbConst::NONEXISTENT_PK);
+    WhereConditions where;  // but we don't specify any
+    SqlArgs sqlargs = specimen.fetchQuerySql(where);
+    QSqlQuery query(m_datadb);
+    bool success = DbFunc::execQuery(query, sqlargs);
+    if (success) {  // success check may be redundant (cf. while clause)
+        while (query.next()) {
+            PatientPtr p(new Patient(*this, m_datadb, DbConst::NONEXISTENT_PK));
+            p->setFromQuery(query, true);
+            patients.append(p);
+        }
+    }
+    return patients;
+}
+
+
+QString CamcopsApp::idDescription(int which_idnum)
+{
+    if (!DbConst::isValidWhichIdnum(which_idnum)) {
+        return DbConst::BAD_IDNUM_DESC;
+    }
+    QString field = DbConst::IDDESC_FIELD_FORMAT.arg(which_idnum);
+    QString desc_str = var(field).toString();
+    if (desc_str.isEmpty()) {
+        return DbConst::UNKNOWN_IDNUM_DESC.arg(which_idnum);
+    }
+    return desc_str;
+}
+
+
+QString CamcopsApp::idShortDescription(int which_idnum)
+{
+    if (!DbConst::isValidWhichIdnum(which_idnum)) {
+        return DbConst::BAD_IDNUM_DESC;
+    }
+    QString field = DbConst::IDSHORTDESC_FIELD_FORMAT.arg(which_idnum);
+    QString desc_str = var(field).toString();
+    if (desc_str.isEmpty()) {
+        return DbConst::UNKNOWN_IDNUM_DESC.arg(which_idnum);
+    }
+    return desc_str;
+}
+
+
+IdPolicy CamcopsApp::uploadPolicy() const
+{
+    return IdPolicy(var(VarConst::ID_POLICY_UPLOAD).toString());
+}
+
+
+IdPolicy CamcopsApp::finalizePolicy() const
+{
+    return IdPolicy(var(VarConst::ID_POLICY_FINALIZE).toString());
 }
 
 
@@ -566,11 +683,11 @@ QString CamcopsApp::getSubstitutedCss(const QString& filename) const
 {
     return (
         FileFunc::textfileContents(filename)
-            .arg(fontSizePt(UiConst::FontSize::Normal))  // %1
-            .arg(fontSizePt(UiConst::FontSize::Big))  // %2
-            .arg(fontSizePt(UiConst::FontSize::Heading))  // %3
-            .arg(fontSizePt(UiConst::FontSize::Title))  // %4
-            .arg(fontSizePt(UiConst::FontSize::Menus))  // %5
+            .arg(fontSizePt(UiConst::FontSize::Normal))     // %1
+            .arg(fontSizePt(UiConst::FontSize::Big))        // %2
+            .arg(fontSizePt(UiConst::FontSize::Heading))    // %3
+            .arg(fontSizePt(UiConst::FontSize::Title))      // %4
+            .arg(fontSizePt(UiConst::FontSize::Menus))      // %5
     );
 }
 

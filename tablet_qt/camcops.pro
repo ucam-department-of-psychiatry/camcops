@@ -241,11 +241,18 @@ SOURCES += main.cpp\
     qobjects/showwatcher.cpp \
     menu/widgettestmenu.cpp \
     qobjects/keypresswatcher.cpp \
-    widgets/flowlayoutcontainer.cpp \
     common/cssconst.cpp \
     questionnairelib/qumcqgridsignaller.cpp \
     questionnairelib/qumcqgriddoublesignaller.cpp \
-    questionnairelib/qumcqgridsinglebooleansignaller.cpp
+    questionnairelib/qumcqgridsinglebooleansignaller.cpp \
+    menu/choosepatientmenu.cpp \
+    menulib/choosepatientmenuitem.cpp \
+    qobjects/strictuint64validator.cpp \
+    questionnairelib/qulineeditulonglong.cpp \
+    questionnairelib/qulineeditlonglong.cpp \
+    qobjects/strictint64validator.cpp \
+    lib/idpolicy.cpp \
+    widgets/heightforwidthlayoutcontainer.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -410,11 +417,18 @@ HEADERS  += \
     qobjects/showwatcher.h \
     menu/widgettestmenu.h \
     qobjects/keypresswatcher.h \
-    widgets/flowlayoutcontainer.h \
     common/cssconst.h \
     questionnairelib/qumcqgridsignaller.h \
     questionnairelib/qumcqgriddoublesignaller.h \
-    questionnairelib/qumcqgridsinglebooleansignaller.h
+    questionnairelib/qumcqgridsinglebooleansignaller.h \
+    menu/choosepatientmenu.h \
+    menulib/choosepatientmenuitem.h \
+    qobjects/strictuint64validator.h \
+    questionnairelib/qulineeditulonglong.h \
+    questionnairelib/qulineeditlonglong.h \
+    qobjects/strictint64validator.h \
+    lib/idpolicy.h \
+    widgets/heightforwidthlayoutcontainer.h
 
 DISTFILES += \
     notes/qt_notes.txt \

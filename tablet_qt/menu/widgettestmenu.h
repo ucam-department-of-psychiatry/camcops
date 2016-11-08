@@ -71,7 +71,9 @@ protected:
     void testQuLineEdit();
     void testQuLineEditDouble();
     void testQuLineEditInteger();
-    void testQuMCQ(bool horizontal, bool long_text);
+    void testQuLineEditLongLong();
+    void testQuLineEditULongLong();  // deprecated as SQLite3 can't cope
+    void testQuMCQ(bool horizontal, bool long_text, bool as_text_button);
     void testQuMCQGrid(bool expand);
     void testQuMCQGridDouble(bool expand);
     void testQuMCQGridSingleBoolean(bool expand);
