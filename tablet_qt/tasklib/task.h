@@ -5,6 +5,7 @@
 #include "db/databaseobject.h"
 
 class CamcopsApp;
+class Patient;
 class OpenableWidget;
 
 extern const QString PATIENT_FK_FIELDNAME;
@@ -12,7 +13,8 @@ extern const QString PATIENT_FK_FIELDNAME;
 
 class Task : public DatabaseObject
 {
-    Q_DECLARE_TR_FUNCTIONS(Task)
+    Q_OBJECT
+    friend class SingleTaskMenu;  // so it can call setPatient
 public:
     Task(CamcopsApp& app,
          const QSqlDatabase& db,
@@ -21,7 +23,6 @@ public:
          bool has_clinician,
          bool has_respondent);
     virtual ~Task() {}
-    void setPatient(int patient_id);
     // ------------------------------------------------------------------------
     // General info
     // ------------------------------------------------------------------------
@@ -52,7 +53,7 @@ public:
     // ------------------------------------------------------------------------
     // No need to override, but do need to CALL load() FROM CONSTRUCTOR:
     virtual bool load(int pk = DbConst::NONEXISTENT_PK);
-    // virtual bool save();
+    virtual bool save();
     // ------------------------------------------------------------------------
     // Specific info
     // ------------------------------------------------------------------------
@@ -66,8 +67,24 @@ public:
     QDateTime whenCreated() const;
     QString summaryWithCompleteSuffix() const;
     QString xstring(const QString& stringname) const;
+    // ------------------------------------------------------------------------
+    // Editing
+    // ------------------------------------------------------------------------
+public slots:
+    void editStarted();
+    void editFinished(bool aborted = false);
+    // ------------------------------------------------------------------------
+    // Patient functions (for non-anonymous tasks)
+    // ------------------------------------------------------------------------
+public:
+    Patient* patient() const;
+protected:
+    void setPatient(int patient_id);  // used by derived classes
 protected:
     CamcopsApp& m_app;
+    mutable QSharedPointer<Patient> m_patient;
+    bool m_editing;
+    QDateTime m_editing_started;
 };
 
 

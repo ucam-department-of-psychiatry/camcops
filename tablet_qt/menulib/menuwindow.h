@@ -11,6 +11,7 @@ class Patient;
 using PatientPtr = QSharedPointer<Patient>;
 class Task;
 using TaskPtr = QSharedPointer<Task>;
+class Questionnaire;
 class QListWidget;
 class QListWidgetItem;
 class QVBoxLayout;
@@ -60,7 +61,9 @@ public slots:
 protected:
     void viewTask();
     void editTask();
+    void editTaskConfirmed(const TaskPtr& task);
     void deleteTask();
+    void connectQuestionnaireToTask(OpenableWidget* widget, Task* task);
 
 protected:
     CamcopsApp& m_app;

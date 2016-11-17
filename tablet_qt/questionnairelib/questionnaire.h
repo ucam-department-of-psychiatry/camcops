@@ -27,6 +27,7 @@ public:
     Questionnaire(CamcopsApp& app, std::initializer_list<QuPagePtr> pages);
 
     virtual void build() override;
+    bool event(QEvent* e) override;
 
     void setType(QuPage::PageType type);
     void addPage(const QuPagePtr& page);
@@ -59,6 +60,8 @@ protected slots:
     void goToPage(int index_zero_based);
     void debugLayout();
 signals:
+    void editStarted();
+    void editFinished(bool aborted);
     void pageAboutToOpen();  // about to display page
     void cancelled();  // failure/cancel
     void completed();  // success/OK

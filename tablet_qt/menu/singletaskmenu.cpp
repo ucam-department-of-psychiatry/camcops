@@ -96,8 +96,7 @@ void SingleTaskMenu::addTask()
         task->setPatient(m_app.selectedPatientId());
     }
     task->save();
-    OpenableWidget* widget = task->editor();
-    m_app.open(widget, task, true);
+    editTaskConfirmed(task);
 }
 
 

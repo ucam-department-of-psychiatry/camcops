@@ -285,10 +285,15 @@ void CamcopsApp::open(OpenableWidget* widget, TaskPtr task,
     Qt::WindowStates prev_window_state = m_p_main_window->windowState();
     QPointer<OpenableWidget> guarded_widget = widget;
 
-    widget->build();
     qDebug() << Q_FUNC_INFO << "Pushing screen";
     int index = m_p_window_stack->addWidget(widget);  // will show the widget
     // The stack takes over ownership.
+    // Best to have a parent set before we call build()? (To reduce change of
+    // widgets being shown as small windows on their own, because they have no
+    // parent and something made them try to show() themselves?)
+    // qDebug() << Q_FUNC_INFO << "About to build";
+    widget->build();  // THIS BIT CAN BE SLOW AND SHOW ODD WINDOWS TRANSIENTLY ***
+    // qDebug() << Q_FUNC_INFO << "Build complete, about to show";
     m_p_window_stack->setCurrentIndex(index);
     if (widget->wantsFullscreen()) {
         m_p_main_window->showFullScreen();

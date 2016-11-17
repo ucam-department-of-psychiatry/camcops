@@ -13,6 +13,7 @@
 #include "lib/layoutdumper.h"
 #include "lib/uifunc.h"
 #include "menulib/menuheader.h"
+#include "questionnairelib/questionnaire.h"
 #include "tasklib/task.h"
 
 const int BAD_INDEX = -1;
@@ -330,9 +331,34 @@ void MenuWindow::editTask()
     if (reply != QMessageBox::Yes) {
         return;
     }
+    editTaskConfirmed(task);
+}
+
+
+void MenuWindow::editTaskConfirmed(const TaskPtr& task)
+{
+    QString instance_title = task->instanceTitle();
     qInfo() << "Edit:" << instance_title;
     OpenableWidget* widget = task->editor();
+    connectQuestionnaireToTask(widget, task.data());
     m_app.open(widget, task, true);
+}
+
+
+void MenuWindow::connectQuestionnaireToTask(OpenableWidget* widget, Task* task)
+{
+    if (!widget || !task) {
+        qWarning() << Q_FUNC_INFO << "null widget or null task";
+        return;
+    }
+    Questionnaire* questionnaire = dynamic_cast<Questionnaire*>(widget);
+    if (!questionnaire) {
+        return;
+    }
+    connect(questionnaire, &Questionnaire::editStarted,
+            task, &Task::editStarted);
+    connect(questionnaire, &Questionnaire::editFinished,
+            task, &Task::editFinished);
 }
 
 

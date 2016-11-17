@@ -18,6 +18,7 @@
 #endif
 #include "questionnairelib/pagepickeritem.h"
 #include "questionnairelib/questionnaireheader.h"
+#include "tasklib/task.h"
 #include "widgets/labelwordwrapwide.h"
 #include "widgets/openablewidget.h"
 #include "widgets/verticalscrollarea.h"
@@ -61,7 +62,12 @@ void Questionnaire::commonConstructor()
 
     m_outer_layout = new QVBoxLayout();
     setLayout(m_outer_layout);
+    // You can't reset the outer layout for a widget, I think. You get:
+    //      QWidget::setLayout: Attempting to set QLayout "" on Questionnaire
+    //      "", which already has a layout
 
+    m_background_widget = nullptr;
+    m_mainlayout = nullptr;
     m_p_header = nullptr;
     m_p_content = nullptr;
 }
@@ -123,12 +129,15 @@ void Questionnaire::build()
     // ========================================================================
     // Create new
     // ========================================================================
-    m_background_widget = new QWidget();
-    m_outer_layout->addWidget(m_background_widget);
-    m_outer_layout->setContentsMargins(UiConst::NO_MARGINS);
-    m_mainlayout = new QVBoxLayout();
-    m_mainlayout->setContentsMargins(UiConst::NO_MARGINS);
-    m_background_widget->setLayout(m_mainlayout);
+    // OVERVIEW OF WIDGET/LAYOUT STRUCTURE:
+    //
+    // W this = OpenableWidget (inherits from QWidget)
+    //      L m_outer_layout = QVBoxLayout()
+    //          W m_background_widget
+    //              L m_mainlayout = QVBoxLayout
+    //                  W m_p_header = QuestionnaireHeader
+    //                  W scroll = VerticalScrollArea
+    //                      W pagewidget = QWidget
 
     // Get page
     if (m_current_pagenum_zero_based < 0 ||
@@ -136,13 +145,11 @@ void Questionnaire::build()
         // Duff page!
         qWarning() << Q_FUNC_INFO << "Bad page number:"
                    << m_current_pagenum_zero_based;
-        m_mainlayout->addWidget(new LabelWordWrapWide("BUG! Bad page number"));
-        m_built = true;
-        return;
+        UiFunc::stopApp("BUG! Bad page number");
     }
     QuPagePtr page = currentPagePtr();
 
-    // Background
+    // Page type and CSS name for background
     QuPage::PageType page_type = page->type();
     if (page_type == QuPage::PageType::Inherit) {
         page_type = m_type;
@@ -161,7 +168,6 @@ void Questionnaire::build()
         background_css_name = CssConst::QUESTIONNAIRE_BACKGROUND_CONFIG;
         break;
     }
-    m_background_widget->setObjectName(background_css_name);
 
     // Header
     QString header_css_name;
@@ -180,7 +186,6 @@ void Questionnaire::build()
         this, page->title(),
         m_read_only, m_jump_allowed, m_within_chain,
         header_css_name, offer_debug_layout);
-    m_mainlayout->addWidget(m_p_header);
     connect(m_p_header, &QuestionnaireHeader::cancelClicked,
             this, &Questionnaire::cancelClicked);
     connect(m_p_header, &QuestionnaireHeader::jumpClicked,
@@ -210,16 +215,39 @@ void Questionnaire::build()
             this, &Questionnaire::resetButtons,
             Qt::UniqueConnection);
 
+    // Main layout: header and scrollable content
+    m_mainlayout = new QVBoxLayout();
+    m_mainlayout->setContentsMargins(UiConst::NO_MARGINS);
+    m_mainlayout->addWidget(m_p_header);
     m_mainlayout->addWidget(scroll);
-
     // In case the questionnaire is vertically short:
     m_mainlayout->addStretch();
 
+    // Background
+    m_background_widget = new QWidget();
+    m_background_widget->setObjectName(background_css_name);
+    m_background_widget->setLayout(m_mainlayout);
+
+    // Surrounding stuff:
+    m_outer_layout->addWidget(m_background_widget);
+    m_outer_layout->setContentsMargins(UiConst::NO_MARGINS);
+
+    // Finishing up
     m_built = true;
 
     resetButtons();
 
     emit pageAboutToOpen();
+}
+
+
+bool Questionnaire::event(QEvent* e)
+{
+    bool result = OpenableWidget::event(e);
+    if (!m_read_only && e->type() == QEvent::Show) {
+        emit editStarted();
+    }
+    return result;
 }
 
 
@@ -405,7 +433,8 @@ void Questionnaire::pageClosing()
 void Questionnaire::doCancel()
 {
     if (!readOnly()) {
-        // *** mark task as cancelled, or whatever
+        // tell task about finish-with-abort
+        emit editFinished(true);
     }
     emit cancelled();
     emit finished();
@@ -415,7 +444,8 @@ void Questionnaire::doCancel()
 void Questionnaire::doFinish()
 {
     if (!readOnly()) {
-        // *** mark task as finished, or whatever
+        // tell task about finish-with-abort
+        emit editFinished(false);
     }
     emit completed();
     emit finished();

@@ -25,6 +25,7 @@
 // - http://doc.qt.io/qt-5/layout.html#layout-issues
 // - http://stackoverflow.com/questions/31535143/how-to-prevent-qlabel-from-unnecessary-word-wrapping
 // - http://www.qtcentre.org/threads/62059-QLabel-Word-Wrapping-adds-unnecessary-line-breaks
+// - http://stackoverflow.com/questions/14104871/qlabel-cutting-off-text-on-resize
 
 // When you really get stuck:
 // - uncomment "#define QLAYOUT_EXTRA_DEBUG" in qlayoutengine.cpp, rebuild Qt

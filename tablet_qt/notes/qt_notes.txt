@@ -291,6 +291,11 @@ Other debugging
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/rudolf/dev/qt_local_build/openssl_linux_build/openssl-1.0.2h
   ... to run in Qt Creator, can also add these to the Run environment.
 
+- run a program with a throttled CPU:
+    sudo apt install cpulimit
+    cpulimit --limit 10 -- ./camcops
+    # 10 refers to 10% of CPU time
+
 ===============================================================================
 Debug versus release builds; optimizing
 ===============================================================================
@@ -558,6 +563,28 @@ Layout flow
   For example, Left/Top will get you a widget that does NOT expand to fill its
   container, whereas an alignment of 0 (with an Expanding size policy) will
   give you expansion. See improved version of LayoutDumper.
+
+- In general, what's best?
+
+    // Create then add
+    QVBoxLayout* layout = new QVBoxLayout();
+    setLayout(layout);
+    QWidget* widget = new SomeWidget();
+    layout->addWidget(widget);
+
+    // Create with parent
+    QVBoxLayout* layout = new QVBoxLayout(this);
+    QWidget* widget = new SomeWidget(this);  // can never be shown as a window by accident now
+    layout->addWidget(widget);
+
+  See http://doc.qt.io/qt-4.8/layout.html
+  The demo code there uses the former.
+
+  However, we had a problem with QuPage, which created widgets with no parent
+  and then used setVisible(). This was fixed by adding the widgets to a layout
+  first. (And the problem, of multiple tiny windows opening in a cluster, was
+  made much more visible by using cpulimit.)
+
 
 ===============================================================================
 General layout tips
@@ -871,6 +898,7 @@ TO DO
 
 - *** scrolling by touch on Android menus and questionnaires
     http://doc.qt.io/qt-5.7/gestures-overview.html
+    http://doc.qt.io/qt-5/qscroller.html#details
     *** https://forum.qt.io/topic/30546/kinetic-scrolling-on-qscrollarea-on-android-device/5
     *** http://falsinsoft.blogspot.co.uk/2015/09/qt-snippet-use-qscroller-with.html
     *** http://nootka-app.blogspot.co.uk/2015/11/story-of-porting-complex-qt-application_18.html

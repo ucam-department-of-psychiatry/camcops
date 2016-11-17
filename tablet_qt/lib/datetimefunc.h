@@ -20,4 +20,5 @@ namespace DateTime {
     QString textDate(const QVariant& date);
     int ageYearsFrom(const QDate& from, const QDate& to);
     int ageYears(const QVariant& dob, int default_years = -1);
+    double doubleSecondsFrom(const QDateTime& from, const QDateTime& to);
 }

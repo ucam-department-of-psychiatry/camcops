@@ -125,3 +125,10 @@ int DateTime::ageYears(const QVariant& dob, int default_years)
     }
     return ageYearsFrom(dob.toDate(), nowDate());
 }
+
+
+double DateTime::doubleSecondsFrom(const QDateTime& from, const QDateTime& to)
+{
+    qint64 ms = from.msecsTo(to);
+    return static_cast<double>(ms) / 1000;
+}

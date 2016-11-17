@@ -530,6 +530,9 @@ void UiFunc::stopApp(const QString& error)
     // "format not a string literal and no format arguments"
     // https://bugreports.qt.io/browse/QTBUG-8967
 
+    // qFatal() will kill the app
+    // http://doc.qt.io/qt-4.8/qtglobal.html#qFatal
+
     // exit(EXIT_FAILURE);
 }
 
