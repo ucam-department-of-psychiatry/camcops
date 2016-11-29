@@ -515,12 +515,12 @@ void UiFunc::resizeEventForHFWParentWidget(QWidget* widget)
 // Killing the app
 // ============================================================================
 
-void UiFunc::stopApp(const QString& error)
+void UiFunc::stopApp(const QString& error, const QString& title)
 {
     // MODAL DIALOGUE, FOLLOWED BY HARD KILL,
     // so callers don't need to worry about what happens afterwards.
     QMessageBox msgbox;
-    msgbox.setWindowTitle("CamCOPS internal bug: stopping");
+    msgbox.setWindowTitle(title);
     msgbox.setText(error);
     msgbox.setStandardButtons(QMessageBox::Abort);
     msgbox.exec();
@@ -676,4 +676,10 @@ QString UiFunc::escapeString(const QString& string)
     result.append('"');  // closing quote
     result.squeeze();  // as per QString::toHtmlEscaped
     return result;
+}
+
+
+QString UiFunc::yesNo(bool yes)
+{
+    return yes ? tr("Yes") : tr("No");
 }

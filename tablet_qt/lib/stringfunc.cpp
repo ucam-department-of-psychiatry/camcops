@@ -1,6 +1,10 @@
 #include "stringfunc.h"
 
 
+// ============================================================================
+// Make sequences of strings
+// ============================================================================
+
 QStringList StringFunc::strseq(const QString& prefix, int first, int last)
 {
     Q_ASSERT(first >= 0 && last >= 0 && first <= last);
@@ -70,4 +74,30 @@ QStringList StringFunc::strseq(const QStringList& prefixes, int first,
         }
     }
     return list;
+}
+
+
+// ============================================================================
+// Other string formatting
+// ============================================================================
+
+QString StringFunc::strnum(const QString& prefix, int num)
+{
+    return QString("%1%2").arg(prefix).arg(num);
+}
+
+
+// ============================================================================
+// HTML processing
+// ============================================================================
+
+QString StringFunc::bold(const QString& str)
+{
+    return QString("<b>%1</b>").arg(str);
+}
+
+
+QString StringFunc::joinHtmlLines(const QStringList& lines)
+{
+    return lines.join("<br>");
 }

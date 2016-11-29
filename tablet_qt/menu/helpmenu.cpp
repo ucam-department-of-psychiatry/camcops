@@ -7,6 +7,7 @@
 #include "common/uiconstants.h"
 #include "common/camcopsversion.h"
 #include "db/dbfunc.h"
+#include "lib/datetimefunc.h"
 #include "lib/filefunc.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
@@ -35,25 +36,27 @@ HelpMenu::HelpMenu(CamcopsApp& app) :
                  std::bind(&HelpMenu::softwareVersions, this)),
         MenuItem(tr("About Qt"),
                  std::bind(&HelpMenu::aboutQt, this)),
-        MenuItem(tr("View device (installation) ID")),  // ***
-        MenuItem(tr("View terms and conditions of use")),  // ***
+        MenuItem(tr("View device (installation) ID"),
+                 std::bind(&HelpMenu::showDeviceId, this)),
+        MenuItem(tr("View terms and conditions of use"),
+                 std::bind(&HelpMenu::viewTermsConditions, this)),
     };
 }
 
 
-void HelpMenu::visitCamcopsWebsite()
+void HelpMenu::visitCamcopsWebsite() const
 {
     UiFunc::visitUrl(CAMCOPS_URL);
 }
 
 
-void HelpMenu::visitCamcopsDocumentation()
+void HelpMenu::visitCamcopsDocumentation() const
 {
     UiFunc::visitUrl(CAMCOPS_DOCS_URL);
 }
 
 
-void HelpMenu::softwareVersions()
+void HelpMenu::softwareVersions() const
 {
     QStringList versions;
     QString newline = "";
@@ -104,7 +107,6 @@ void HelpMenu::softwareVersions()
     versions.append(sqlite_info);
     versions.append(newline);
 
-
     // ------------------------------------------------------------------------
     // OpenSSL
     // ------------------------------------------------------------------------
@@ -122,11 +124,26 @@ void HelpMenu::softwareVersions()
     versions.append(QString("<b>Run-time OpenSSL version:</b> %1").arg(
         QSslSocket::sslLibraryVersionString()));
 
-    UiFunc::alert(versions.join("<br>"), "Software versions");
+    UiFunc::alert(versions.join("<br>"), tr("Software versions"));
 }
 
 
 void HelpMenu::aboutQt()
 {
     QMessageBox::aboutQt(this, tr("About Qt"));
+}
+
+
+void HelpMenu::showDeviceId() const
+{
+    QString version = QString("<b>Device ID:</b> %1").arg(m_app.deviceId());
+    UiFunc::alert(version, tr("Device/installation ID"));
+}
+
+
+void HelpMenu::viewTermsConditions() const
+{
+    QString title = QString("You agreed to these terms and conditions at: %1")
+            .arg(DateTime::shortDateTime(m_app.agreedTermsAt()));
+    UiFunc::alert(UiConst::TERMS_CONDITIONS, title);
 }

@@ -1,4 +1,5 @@
 // #define OFFER_LAYOUT_DEBUG_BUTTON
+#define SHOW_TASK_TIMING
 
 #include "menuwindow.h"
 #include <QDebug>
@@ -11,6 +12,7 @@
 #include "dbobjects/patient.h"
 #include "lib/filefunc.h"
 #include "lib/layoutdumper.h"
+#include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "menulib/menuheader.h"
 #include "questionnairelib/questionnaire.h"
@@ -155,7 +157,13 @@ void MenuWindow::build()
         m_p_listwidget->setFocus();
         // http://stackoverflow.com/questions/23065151/how-to-set-an-item-in-a-qlistwidget-as-initially-highlighted
     }
+    connect(m_p_listwidget, &QListWidget::itemSelectionChanged,
+            this, &MenuWindow::menuItemSelectionChanged,
+            Qt::UniqueConnection);
     connect(m_p_listwidget, &QListWidget::itemClicked,
+            this, &MenuWindow::menuItemClicked,
+            Qt::UniqueConnection);
+    connect(m_p_listwidget, &QListWidget::itemActivated,
             this, &MenuWindow::menuItemClicked,
             Qt::UniqueConnection);
     connect(m_p_header, &MenuHeader::viewClicked,
@@ -199,9 +207,17 @@ QString MenuWindow::icon() const
 }
 
 
-void MenuWindow::menuItemClicked(QListWidgetItem* item)
+void MenuWindow::menuItemSelectionChanged()
 {
+    // Set the verb buttons
+
     // WHAT'S BEEN CHOSEN?
+    QList<QListWidgetItem*> selected_items = m_p_listwidget->selectedItems();
+    if (selected_items.isEmpty()) {
+        qDebug() << Q_FUNC_INFO << "Nothing selected";
+        return;
+    }
+    QListWidgetItem* item = selected_items.at(0);
     QVariant v = item->data(Qt::UserRole);
     int i = v.toInt();
     if (i < 0 || i >= m_items.size()) {
@@ -219,6 +235,36 @@ void MenuWindow::menuItemClicked(QListWidgetItem* item)
         emit offerView(true);
         emit offerEditDelete(task->isEditable(), true);
     } else if (patient) {
+        bool selected = true;
+        emit offerView(selected);
+        emit offerEditDelete(selected, selected);
+    } else {
+        emit offerView(false);
+        emit offerEditDelete(false, false);
+        // ... in case a task was selected before
+    }
+}
+
+
+void MenuWindow::menuItemClicked(QListWidgetItem *item)
+{
+    // Act on a click
+
+    QVariant v = item->data(Qt::UserRole);
+    int i = v.toInt();
+    if (i < 0 || i >= m_items.size()) {
+        qWarning() << Q_FUNC_INFO << "Selection out of range:" << i
+                   << "(vector size:" << m_items.size() << ")";
+        return;
+    }
+    MenuItem& m = m_items[i];
+    qInfo() << "Clicked:" << m.title();
+    TaskPtr task = m.task();
+    PatientPtr patient = m.patient();
+
+    if (task) {
+        // Nothing to do; see menuItemSelectionChanged()
+    } else if (patient) {
         bool selected = false;
         if (m_app.selectedPatientId() == patient->id()) {
             // Clicked on currently selected patient; deselect it.
@@ -232,9 +278,6 @@ void MenuWindow::menuItemClicked(QListWidgetItem* item)
         emit offerEditDelete(selected, selected);
     } else {
         // ACT ON IT. And clear the selection.
-        emit offerView(false);
-        emit offerEditDelete(false, false);
-        // ... in case a task was selected before
         m.act(m_app);
         m_p_listwidget->clearSelection();
     }
@@ -291,8 +334,15 @@ void MenuWindow::viewTask()
         }
         break;
     case QMessageBox::Ok:  // detail
-        qInfo() << "View detail:" << instance_title;
-        UiFunc::alert(task->detail(), instance_title);
+        {
+            qInfo() << "View detail:" << instance_title;
+            QString detail = task->detail();
+#ifdef SHOW_TASK_TIMING
+            detail += QString("<br><br>Editing time: <b>%1</b> s")
+                    .arg(task->editingTimeSeconds());
+#endif
+            UiFunc::alert(detail, instance_title);
+        }
         break;
     case QMessageBox::Yes:  // summary
         qInfo() << "View summary:" << instance_title;

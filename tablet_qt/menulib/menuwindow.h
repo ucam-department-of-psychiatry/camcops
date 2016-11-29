@@ -51,7 +51,8 @@ signals:
     void offerEditDelete(bool offer_edit, bool offer_delete);
 
 public slots:
-    void menuItemClicked(QListWidgetItem* item);
+    void menuItemSelectionChanged();
+    void menuItemClicked(QListWidgetItem *item);
     void lockStateChanged(CamcopsApp::LockState lockstate);
     virtual void viewItem();
     virtual void editItem();

@@ -134,6 +134,14 @@ namespace UiConst {
 
     extern const QString NOT_SPECIFIED;
 
+    extern const QString SEVERE;
+    extern const QString MODERATELY_SEVERE;
+    extern const QString MODERATE;
+    extern const QString MILD;
+    extern const QString NONE;
+
+    extern const QString TERMS_CONDITIONS;
+
     // ========================================================================
     // Test text
     // ========================================================================

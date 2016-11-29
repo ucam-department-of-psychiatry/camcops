@@ -113,7 +113,8 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
             // Even in a horizontal layout, encapsulating widget/label pairs
             // prevents them being split apart.
             QWidget* itemwidget = new QWidget();
-            ClickableLabelWordWrapWide* namelabel = new ClickableLabelWordWrapWide(nvp.name());
+            ClickableLabelWordWrapWide* namelabel =
+                    new ClickableLabelWordWrapWide(nvp.name());
             namelabel->setEnabled(!read_only);
             if (!read_only) {
                 // Safe object lifespan signal: can use std::bind

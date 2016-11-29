@@ -56,8 +56,9 @@ void SingleTaskMenu::build()
     // Task items
     TaskPtrList tasklist = factory->fetch(m_tablename);
     qDebug() << Q_FUNC_INFO << "-" << tasklist.size() << "tasks";
+    bool show_patient_name = !m_app.isPatientSelected();
     for (auto task : tasklist) {
-        m_items.append(MenuItem(task, false));
+        m_items.append(MenuItem(task, false, show_patient_name));
     }
 
     // Call parent buildMenu()

@@ -40,7 +40,7 @@ import operator
 import re
 import statistics
 import typing
-from typing import (Any, Dict, Iterable, Iterator, List, Optional, Sequence,
+from typing import (Any, Dict, Iterable, Generator, List, Optional, Sequence,
                     Tuple, Type, Union)
 
 import cardinal_pythonlib.rnc_db as rnc_db
@@ -1843,20 +1843,21 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             start_datetime: datetime.datetime = None,
             end_datetime: datetime.datetime = None,
             sort: bool = False,
-            reverse: bool = False) -> Iterator[TASK_FWD_REF]:
+            reverse: bool = False) -> Generator[TASK_FWD_REF, None, None]:
         """Gets all tasks that are current within the specified date range.
         Either date may be None."""
         pks = cls.get_all_current_pks(start_datetime, end_datetime,
                                       sort=sort, reverse=reverse)
         for pk in pks:
             yield cls(pk)
+        # *** CHANGE THIS: inefficient; runs multiple queries where one would do
 
     @classmethod
     def gen_all_tasks_matching_session_filter(
             cls,
             session: Session,
             sort: bool = False,
-            reverse: bool = False) -> Iterator[TASK_FWD_REF]:
+            reverse: bool = False) -> Generator[TASK_FWD_REF, None, None]:
         if not cls.filter_allows_task_type(session):
             return
             # http://stackoverflow.com/questions/13243766
@@ -1867,6 +1868,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             task = cls(pk)
             if task is not None and task.is_compatible_with_filter(session):
                 yield task
+        # *** CHANGE THIS: inefficient; runs multiple queries where one would do
 
     # -------------------------------------------------------------------------
     # TSV export for basic research dump
@@ -3136,7 +3138,8 @@ def get_blob_by_id(obj: Union[Task, Ancillary],
 # Cross-class generators and the like
 # =============================================================================
 
-def gen_tasks_matching_session_filter(session: Session) -> Iterator(Task):
+def gen_tasks_matching_session_filter(
+        session: Session) -> Generator[Task, None, None]:
     """Generate tasks that match the session's filter settings."""
 
     # Find candidate tasks meeting the filters
@@ -3152,9 +3155,10 @@ def gen_tasks_matching_session_filter(session: Session) -> Iterator(Task):
         task = cls(pk)
         if task is not None and task.is_compatible_with_filter(session):
             yield task
+    # *** CHANGE THIS: inefficient; runs multiple queries where one would do
 
 
-def gen_tasks_live_on_tablet(device_id: str) -> Iterator(Task):
+def gen_tasks_live_on_tablet(device_id: str) -> Generator[Task, None, None]:
     """Generate tasks that are live on the device.
     Includes non-current ones."""
 
@@ -3181,11 +3185,12 @@ def gen_tasks_live_on_tablet(device_id: str) -> Iterator(Task):
         task = cls(pk)
         if task is not None:
             yield task
+    # *** CHANGE THIS: inefficient; runs multiple queries where one would do
 
 
 def gen_tasks_using_patient(patient_id: int,
                             device_id: int,
-                            era: str) -> Iterator(Task):
+                            era: str) -> Generator[Task, None, None]:
     """Generate tasks sharing a particular patient record.
     Includes non-current ones."""
 
@@ -3219,10 +3224,11 @@ def gen_tasks_using_patient(patient_id: int,
         task = cls(pk)
         if task is not None:
             yield task
+    # *** CHANGE THIS: inefficient; runs multiple queries where one would do
 
 
-def gen_tasks_for_patient_deletion(which_idnum: int,
-                                   idnum_value: int) -> Iterator(Task):
+def gen_tasks_for_patient_deletion(
+        which_idnum: int, idnum_value: int) -> Generator[Task, None, None]:
     """Generate tasks to be affected by a delete-patient command."""
 
     cls_pk_wc = []
@@ -3239,6 +3245,7 @@ def gen_tasks_for_patient_deletion(which_idnum: int,
         task = cls(pk)
         if task is not None:
             yield task
+    # *** CHANGE THIS: inefficient; runs multiple queries where one would do
 
 
 # =============================================================================

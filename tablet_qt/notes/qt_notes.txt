@@ -407,6 +407,9 @@ Database objects
 //   initializer expressions should not refer to class static methods or
 //   external variables."
 
+- For more sophisticated requirements, note that ODB is available under the GPL:
+  http://www.codesynthesis.com/products/odb/features.xhtml
+  http://wiki.codesynthesis.com/Using_ODB_with_Qt_Creator_on_Linux
 
 ===============================================================================
 Factory methods; CRTP; making derived classes from base class; etc.
@@ -892,9 +895,9 @@ Network
 ===============================================================================
 TO DO
 ===============================================================================
-- *** patients
-- *** when to call setNeedsUpload() -- attach to database ops? DatabaseObject?
 - *** network stuff
+
+- *** when to call setNeedsUpload() -- attach to database ops? DatabaseObject?
 
 - *** scrolling by touch on Android menus and questionnaires
     http://doc.qt.io/qt-5.7/gestures-overview.html

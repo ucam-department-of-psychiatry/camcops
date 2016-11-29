@@ -323,7 +323,7 @@ class User:
     def get_id(self) -> Optional[int]:
         return self.id
 
-    def save(self) -> None:
+    def save(self) -> bool:
         """Save to database."""
         if self.username is None or self.hashedpw is None:
             log.warning("Refusing to save a user with no name/password")
@@ -507,7 +507,7 @@ def get_username_from_id(user_id: int) -> Optional[str]:
 
 def is_username_permissible(username: str) -> bool:
     """Is this a permissible username?"""
-    return re.match(VALID_USERNAME_REGEX, username)
+    return bool(re.match(VALID_USERNAME_REGEX, username))
 
 
 # =============================================================================

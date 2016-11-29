@@ -26,6 +26,9 @@ namespace VarConst
     extern const QString WHISKER_PORT;
     extern const QString WHISKER_TIMEOUT_MS;
 
+    // Terms and conditions
+    extern const QString AGREED_TERMS_AT;
+
     // Intellectual property
     extern const QString IP_USE_CLINICAL;
     extern const QString IP_USE_COMMERCIAL;
@@ -55,4 +58,7 @@ namespace VarConst
     extern const QString OBSCURING_IV;
     extern const QString USER_PASSWORD_HASH;
     extern const QString PRIV_PASSWORD_HASH;
+
+    // Device ID
+    extern const QString DEVICE_ID;
 }

@@ -8,8 +8,10 @@ class HelpMenu : public MenuWindow
 public:
     HelpMenu(CamcopsApp& app);
 protected:
-    void visitCamcopsDocumentation();
-    void visitCamcopsWebsite();
-    void softwareVersions();
+    void visitCamcopsDocumentation() const;
+    void visitCamcopsWebsite() const;
+    void softwareVersions() const;
     void aboutQt();
+    void showDeviceId() const;
+    void viewTermsConditions() const;
 };

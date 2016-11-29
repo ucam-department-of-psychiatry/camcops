@@ -4,6 +4,7 @@
 #include "common/camcopsapp.h"
 #include "dbobjects/patient.h"
 #include "lib/datetimefunc.h"
+#include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 
 const QString PATIENT_FK_FIELDNAME("patient_id");
@@ -11,6 +12,16 @@ const QString FIRSTEXIT_IS_FINISH_FIELDNAME("firstexit_is_finish");
 const QString FIRSTEXIT_IS_ABORT_FIELDNAME("firstexit_is_abort");
 const QString WHEN_FIRSTEXIT_FIELDNAME("when_firstexit");
 const QString EDITING_TIME_S_FIELDNAME("editing_time_s");
+
+const QString CLINICIAN_SPECIALTY("clinician_specialty");
+const QString CLINICIAN_NAME("clinician_name");
+const QString CLINICIAN_PROFESSIONAL_REGISTRATION("clinician_professional_registration");
+const QString CLINICIAN_POST("clinician_post");
+const QString CLINICIAN_SERVICE("clinician_service");
+const QString CLINICIAN_CONTACT_DETAILS("clinician_contact_details");
+
+const QString RESPONDENT_NAME("respondent_name");
+const QString RESPONDENT_RELATIONSHIP("respondent_relationship");
 
 
 Task::Task(CamcopsApp& app,
@@ -37,19 +48,23 @@ Task::Task(CamcopsApp& app,
         addField(PATIENT_FK_FIELDNAME, QVariant::Int);
     }
     if (has_clinician) {
-        addField("clinician_specialty", QVariant::String);
-        addField("clinician_name", QVariant::String);
-        addField("clinician_professional_registration", QVariant::String);
-        addField("clinician_post", QVariant::String);
-        addField("clinician_service", QVariant::String);
-        addField("clinician_contact_details", QVariant::String);
+        addField(CLINICIAN_SPECIALTY, QVariant::String);
+        addField(CLINICIAN_NAME, QVariant::String);
+        addField(CLINICIAN_PROFESSIONAL_REGISTRATION, QVariant::String);
+        addField(CLINICIAN_POST, QVariant::String);
+        addField(CLINICIAN_SERVICE, QVariant::String);
+        addField(CLINICIAN_CONTACT_DETAILS, QVariant::String);
     }
     if (has_respondent) {
-        addField("respondent_name", QVariant::String);
-        addField("respondent_relationship", QVariant::String);
+        addField(RESPONDENT_NAME, QVariant::String);
+        addField(RESPONDENT_RELATIONSHIP, QVariant::String);
     }
 }
 
+
+// ============================================================================
+// General info
+// ============================================================================
 
 QString Task::menutitle() const
 {
@@ -78,17 +93,22 @@ QString Task::xstringTaskname() const
 QString Task::instanceTitle() const
 {
     if (isAnonymous()) {
-        return QString("%1, %2").arg(
+        return QString("%1; %2").arg(
             shortname(),
             whenCreated().toString(DateTime::SHORT_DATETIME_FORMAT));
     } else {
-        return QString("%1, ***PATIENT***, %2").arg(
+        Patient* pt = patient();
+        return QString("%1; %2; %3").arg(
             shortname(),
-            // *** patient info
+            pt ? pt->surnameUpperForename() : tr("MISSING PATIENT"),
             whenCreated().toString(DateTime::SHORT_DATETIME_FORMAT));
     }
 }
 
+
+// ============================================================================
+// Tables
+// ============================================================================
 
 void Task::makeTables()
 {
@@ -96,6 +116,10 @@ void Task::makeTables()
     makeAncillaryTables();
 }
 
+
+// ============================================================================
+// Database object functions
+// ============================================================================
 
 bool Task::load(int pk)
 {
@@ -117,26 +141,13 @@ bool Task::save()
 }
 
 
-QDateTime Task::whenCreated() const
-{
-    return value(DbConst::CREATION_TIMESTAMP_FIELDNAME)
-        .toDateTime();
-}
-
-
-QString Task::summaryWithCompleteSuffix() const
-{
-    QString result = summary();
-    if (!isComplete()) {
-        result += tr(" (INCOMPLETE)");
-    }
-    return result;
-}
-
+// ============================================================================
+// Specific info
+// ============================================================================
 
 QString Task::summary() const
 {
-    return "MISSING SUMMARY";
+    return tr("MISSING SUMMARY");
 }
 
 
@@ -154,9 +165,71 @@ OpenableWidget* Task::editor(bool read_only)
 }
 
 
+// ============================================================================
+// Assistance functions
+// ============================================================================
+
+QDateTime Task::whenCreated() const
+{
+    return value(DbConst::CREATION_TIMESTAMP_FIELDNAME)
+        .toDateTime();
+}
+
+
+QString Task::summaryWithCompleteSuffix() const
+{
+    QString result = summary();
+    if (!isComplete()) {
+        result += tr(" (INCOMPLETE)");
+    }
+    return result;
+}
+
+
 QString Task::xstring(const QString &stringname) const
 {
     return m_app.xstring(xstringTaskname(), stringname);
+}
+
+
+QString Task::totalScorePhrase(int score, int max_score) const
+{
+    return QString("%1: <b>%2</b> / %3")
+            .arg(tr("Total score")).arg(score).arg(max_score);
+}
+
+
+QStringList Task::fieldSummaries(const QString& xstringprefix,
+                                 const QString& xstringsuffix,
+                                 const QString& spacer,
+                                 const QString& fieldprefix,
+                                 int first,
+                                 int last) const
+{
+    using StringFunc::strseq;
+    QStringList xstringnames = strseq(xstringprefix, first, last,
+                                      xstringsuffix);
+    QStringList fieldnames = strseq(fieldprefix, first, last);
+    QStringList list;
+    for (int i = 0; i < fieldnames.length(); ++i) {
+        QString fieldname = fieldnames.at(i);
+        QString xstringname = xstringnames.at(i);
+        list.append(QString("%1%2<b>%3</b>")
+                    .arg(xstring(xstringname))
+                    .arg(spacer)
+                    .arg(prettyValue(fieldname)));
+    }
+    return list;
+}
+
+
+// ============================================================================
+// Editing
+// ============================================================================
+
+double Task::editingTimeSeconds() const
+{
+    return valueDouble(EDITING_TIME_S_FIELDNAME);
 }
 
 
@@ -192,6 +265,10 @@ void Task::editFinished(bool aborted)
     save();
 }
 
+
+// ============================================================================
+// Patient functions (for non-anonymous tasks)
+// ============================================================================
 
 void Task::setPatient(int patient_id)
 {

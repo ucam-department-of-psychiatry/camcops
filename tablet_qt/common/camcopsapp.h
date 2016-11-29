@@ -90,7 +90,7 @@ public slots:
     void close();
 
     // ------------------------------------------------------------------------
-    // Security
+    // Security and related
     // ------------------------------------------------------------------------
 public:
     bool privileged() const;
@@ -104,6 +104,7 @@ public:
     SecureQString getPlaintextServerPassword() const;
     void changeAppPassword();
     void changePrivPassword();
+    QString deviceId() const;
 protected:
     void resetEncryptionKeyIfRequired();
     bool checkPassword(const QString& hashed_password_varname,
@@ -112,6 +113,7 @@ protected:
                            const QString& password);
     void changePassword(const QString& hashed_password_varname,
                         const QString& text);
+    void regenerateDeviceId();
 signals:
     void lockStateChanged(LockState lockstate);
 
@@ -197,6 +199,15 @@ public slots:
 protected:
     void createVar(const QString& name, QVariant::Type type,
                    const QVariant& default_value = QVariant());
+
+    // ------------------------------------------------------------------------
+    // Terms and conditions
+    // ------------------------------------------------------------------------
+public:
+    QDateTime agreedTermsAt() const;
+protected:
+    bool hasAgreedTerms() const;
+    void offerTerms();
 
     // ------------------------------------------------------------------------
     // Internal data

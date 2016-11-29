@@ -67,9 +67,17 @@ public:
     QDateTime whenCreated() const;
     QString summaryWithCompleteSuffix() const;
     QString xstring(const QString& stringname) const;
+    QString totalScorePhrase(int score, int max_score) const;
+    QStringList fieldSummaries(const QString& xstringprefix,
+                               const QString& xstringsuffix,
+                               const QString& spacer,
+                               const QString& fieldprefix,
+                               int first,
+                               int last) const;
     // ------------------------------------------------------------------------
     // Editing
     // ------------------------------------------------------------------------
+    double editingTimeSeconds() const;
 public slots:
     void editStarted();
     void editFinished(bool aborted = false);

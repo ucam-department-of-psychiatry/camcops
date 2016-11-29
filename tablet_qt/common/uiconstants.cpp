@@ -122,6 +122,64 @@ namespace UiConst {
 
     const QString NOT_SPECIFIED(QObject::tr("<not specified>"));
 
+    const QString SEVERE(QObject::tr("Severe"));
+    const QString MODERATELY_SEVERE(QObject::tr("Moderately severe"));
+    const QString MODERATE(QObject::tr("Moderate"));
+    const QString MILD(QObject::tr("Mild"));
+    const QString NONE(QObject::tr("None"));
+
+    const QString TERMS_CONDITIONS(
+        "1. By using the Cambridge Cognitive and Psychiatric Assessment Kit "
+        "application or web interface (“CamCOPS”), you are agreeing in full "
+        "to these Terms and Conditions of Use. If you do not agree to these "
+        "terms, do not use the software.\n\n"
+        "2. Content that is original to CamCOPS is licensed under the Apache "
+        "License, Version 2.0 (the “License”); you may not use this software "
+        "except in compliance with the License. You may obtain a copy of the "
+        "License at\n\n"
+        "    http://www.apache.org/licenses/LICENSE-2.0\n\n"
+        "Unless required by applicable law or agreed to in writing, software "
+        "distributed under the License is distributed on an “AS IS” BASIS, "
+        "WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or "
+        "implied. See the License for the specific language governing "
+        "permissions and limitations under the License.\n\n"
+        "3. Content created by others and distributed with CamCOPS may be in "
+        "the public domain, or distributed under other licenses or "
+        "permissions. THERE MAY BE CRITERIA THAT APPLY TO YOU THAT MEAN YOU "
+        "ARE NOT PERMITTED TO USE SPECIFIC TASKS. IT IS YOUR RESPONSIBILITY "
+        "TO CHECK THAT YOU ARE LEGALLY ENTITLED TO USE EACH TASK. You agree "
+        "that the authors of CamCOPS are not responsible for any consequences "
+        "that arise from your use of an unauthorized task.\n\n"
+        "4. While efforts have been made to ensure that CamCOPS is reliable "
+        "and accurate, you agree that the authors and distributors of CamCOPS "
+        "are not responsible for errors, omissions, or defects in the "
+        "content, nor liable for any direct, indirect, incidental, special "
+        "and/or consequential damages, in whole or in part, resulting from "
+        "your use or any user’s use of or reliance upon its content.\n\n"
+        "5. Content contained in or accessed through CamCOPS should not be "
+        "relied upon for medical purposes in any way. This software is not "
+        "designed for use by the general public. If medical advice is "
+        "required you should seek expert medical assistance. You agree that "
+        "you will not rely on this software for any medical purpose.\n\n"
+        "6. Regarding the European Union Council Directive 93/42/EEC of 14 "
+        "June 1993 concerning medical devices (amended by further directives "
+        "up to and including Directive 2007/47/EC of 5 September 2007) "
+        "(“Medical Devices Directive”): CamCOPS is not intended primarily for "
+        "the diagnosis and/or monitoring of human disease. If it is used for "
+        "such purposes, it must be used EXCLUSIVELY FOR CLINICAL "
+        "INVESTIGATIONS in an appropriate setting by persons professionally "
+        "qualified to do so. It has NOT undergone a conformity assessment "
+        "under the Medical Devices Directive, and thus cannot be marketed or "
+        "put into service as a medical device. You agree that you will not "
+        "use it as a medical device.\n\n"
+        "7. THIS SOFTWARE IS NOT DESIGNED FOR USE BY THE GENERAL PUBLIC. "
+        "BY CONTINUING TO USE THIS SOFTWARE YOU ARE CONFIRMING THAT YOU ARE "
+        "A CLINICIAN, AND THAT YOU RETAIN RESPONSIBILITY FOR DIAGNOSIS AND "
+        "MANAGEMENT.\n\n"
+        "These terms and conditions were last revised on 2016-11-29."
+    );
+    // ... *** change licence details to GPL
+
     // ========================================================================
     // Test text
     // ========================================================================

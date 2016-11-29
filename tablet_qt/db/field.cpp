@@ -105,35 +105,6 @@ bool Field::allowsNull() const
 }
 
 
-void Field::setFromDatabaseValue(const QVariant& db_value)
-{
-    switch (m_type) {
-        case QVariant::DateTime:
-            m_value = QVariant(DateTime::isoToDateTime(db_value.toString()));
-            break;
-        default:
-            m_value = db_value;
-            break;
-    }
-    m_value.convert(m_type);
-    m_dirty = false;
-}
-
-
-QVariant Field::databaseValue() const
-{
-    switch (m_type) {
-        case QVariant::DateTime:
-            if (m_value.isNull()) {
-                return QVariant();  // NULL
-            }
-            return QVariant(DateTime::datetimeToIsoMs(m_value.toDateTime()));
-        default:
-            return m_value;
-    }
-}
-
-
 QString Field::sqlColumnDef() const
 {
     QString type = sqlColumnType();
@@ -148,49 +119,6 @@ QString Field::sqlColumnDef() const
         type += " NOT NULL";
     }
     return type;
-}
-
-
-QString Field::sqlColumnType() const
-{
-    // SQLite types: https://www.sqlite.org/datatype3.html
-    //      SQLite uses up to 8 bytes (depending on actual value) and
-    //      integers are signed, so the maximum INTEGER
-    //      is 2^63 - 1 = 9,223,372,036,854,775,807
-    // C++ types:
-    //      int -- typically 32-bit; not guaranteed on all C++ platforms,
-    //             though 32-bit on all Qt platforms, I think
-    // Qt types: http://doc.qt.io/qt-5/qtglobal.html
-    //      - qint8, qint16, qint32, qint64...
-    //      - standard int is int32
-    //        32-bit signed: up to
-    //      - qlonglong is the same as qint64
-    //        64-bit signed: up to +9,223,372,036,854,775,807 = 9223372036854775807
-    //      - qulonglong
-    //        64-bit unsigned: 0 to +18,446,744,073,709,551,615 = 18446744073709551615
-    // C++ type name: QVariant::typeToName(m_type);
-    switch (m_type) {
-        case QVariant::Int:  // normally 32-bit
-        case QVariant::UInt:  // normally 32-bit
-        case QVariant::Bool:
-        case QVariant::LongLong:  // 64-bit
-        case QVariant::ULongLong:  // 64-bit
-            return "INTEGER";
-        case QVariant::Double:
-            return "REAL";
-        case QVariant::String:
-        case QVariant::Char:
-        case QVariant::Date:
-        case QVariant::Time:
-        case QVariant::DateTime:
-            return "TEXT";
-        case QVariant::ByteArray:
-            return "BLOB";
-        default:
-            UiFunc::stopApp("Field::sqlColumnType: Unknown field type: " +
-                            m_type);
-    }
-    return "";
 }
 
 
@@ -274,4 +202,83 @@ QDebug operator<<(QDebug debug, const Field& f)
         debug.nospace() << " (*)";
     }
     return debug;
+}
+
+
+QString Field::sqlColumnType() const
+{
+    // SQLite types: https://www.sqlite.org/datatype3.html
+    //      SQLite uses up to 8 bytes (depending on actual value) and
+    //      integers are signed, so the maximum INTEGER
+    //      is 2^63 - 1 = 9,223,372,036,854,775,807
+    // C++ types:
+    //      int -- typically 32-bit; not guaranteed on all C++ platforms,
+    //             though 32-bit on all Qt platforms, I think
+    // Qt types: http://doc.qt.io/qt-5/qtglobal.html
+    //      - qint8, qint16, qint32, qint64...
+    //      - standard int is int32
+    //        32-bit signed: up to
+    //      - qlonglong is the same as qint64
+    //        64-bit signed: up to +9,223,372,036,854,775,807 = 9223372036854775807
+    //      - qulonglong
+    //        64-bit unsigned: 0 to +18,446,744,073,709,551,615 = 18446744073709551615
+    // C++ type name: QVariant::typeToName(m_type);
+    switch (m_type) {
+        case QVariant::Int:  // normally 32-bit
+        case QVariant::UInt:  // normally 32-bit
+        case QVariant::Bool:
+        case QVariant::LongLong:  // 64-bit
+        case QVariant::ULongLong:  // 64-bit
+            return "INTEGER";
+        case QVariant::Double:
+            return "REAL";
+        case QVariant::String:
+        case QVariant::Char:
+        case QVariant::Date:
+        case QVariant::Time:
+        case QVariant::DateTime:
+        case QVariant::Uuid:
+            return "TEXT";
+        case QVariant::ByteArray:
+            return "BLOB";
+        default:
+            UiFunc::stopApp("Field::sqlColumnType: Unknown field type: " +
+                            m_type);
+    }
+    return "";
+}
+
+
+void Field::setFromDatabaseValue(const QVariant& db_value)
+{
+    // SQLite -> C++
+    switch (m_type) {
+        case QVariant::DateTime:
+            m_value = QVariant(DateTime::isoToDateTime(db_value.toString()));
+            break;
+        default:
+            m_value = db_value;
+            break;
+    }
+    m_value.convert(m_type);
+    m_dirty = false;
+}
+
+
+QVariant Field::databaseValue() const
+{
+    // C++ -> SQLite
+    if (m_value.isNull()) {
+        return m_value;  // NULL
+    }
+    switch (m_type) {
+        case QVariant::DateTime:
+            return QVariant(DateTime::datetimeToIsoMs(m_value.toDateTime()));
+        case QVariant::Uuid:
+            return m_value.toString();
+            // see http://doc.qt.io/qt-5/quuid.html#toString; e.g.
+            // "{xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx}" where 'x' is a hex digit
+        default:
+            return m_value;
+    }
 }

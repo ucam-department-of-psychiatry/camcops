@@ -20,18 +20,20 @@ public:
     bool isMandatory() const;
     bool allowsNull() const;
     QString sqlColumnDef() const;
-    QString sqlColumnType() const;
     QVariant value() const;
     QString prettyValue() const;  // returns a QString representation
     bool setValue(const QVariant& value);  // returns: dirty?
     bool nullify();  // returns: dirty?
     bool isNull() const;
-    void setFromDatabaseValue(const QVariant& db_value); // SQLite -> C++
-    QVariant databaseValue() const; // C++ -> SQLite
     bool isDirty() const;
     void setDirty();
     void clearDirty();
     friend QDebug operator<<(QDebug debug, const Field& f);
+
+    // To support new field types, modify these three:
+    QString sqlColumnType() const;
+    void setFromDatabaseValue(const QVariant& db_value); // SQLite -> C++
+    QVariant databaseValue() const; // C++ -> SQLite
 
 protected:
     QString m_name;

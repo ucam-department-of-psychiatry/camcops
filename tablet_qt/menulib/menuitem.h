@@ -39,7 +39,8 @@ public:
     MenuItem(const TaskMenuItem& taskmenuitem, CamcopsApp& app);
     MenuItem(const QString& title, const HtmlMenuItem& htmlmenuitem,
              const QString& icon = "", const QString& subtitle = "");
-    MenuItem(TaskPtr p_task, bool task_shows_taskname = true);
+    MenuItem(TaskPtr p_task, bool task_shows_taskname = true,
+             bool task_shows_patient = false);
     // We don't have one for a Questionnaire or other generic OpenableWidget;
     // we don't want to have to create them all just to creat the menu.
     // Use a function instead, which can create the OpenableWidget (and open
@@ -75,6 +76,7 @@ protected:
     bool m_needs_privilege;
     bool m_not_if_locked;
     bool m_task_shows_taskname;
+    bool m_task_shows_patient;
     bool m_unsupported;
     ActionFunction m_func;
     OpenableWidgetMaker m_openable_widget_maker;

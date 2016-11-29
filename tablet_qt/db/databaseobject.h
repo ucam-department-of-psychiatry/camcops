@@ -25,7 +25,9 @@ public:
                    bool has_creation_timestamp = false);
     virtual ~DatabaseObject();
 
+    // ========================================================================
     // Adding fields
+    // ========================================================================
 
     void addField(const QString& fieldname,
                   QVariant::Type type,
@@ -38,7 +40,9 @@ public:
     bool hasField(const QString& fieldname) const;
     QStringList fieldnames() const;
 
-    // Field access:
+    // ========================================================================
+    // Field access
+    // ========================================================================
 
     bool setValue(const QString& fieldname, const QVariant& value);  // returns: changed?
 
@@ -54,20 +58,50 @@ public:
     QByteArray valueByteArray(const QString& fieldname) const;
     QString valueString(const QString& fieldname) const;
 
-    QList<QVariant> values(const QStringList& fieldnames);
+    QList<QVariant> values(const QStringList& fieldnames) const;
 
     FieldRefPtr fieldRef(const QString& fieldname,
                          bool mandatory = true,
                          bool autosave = true,
                          bool blob = false);
 
-    // Whole-object summary:
+    // ========================================================================
+    // Manipulating multiple fields
+    // ========================================================================
 
+    int sumInt(const QStringList& fieldnames) const;
+    double sumDouble(const QStringList& fieldnames) const;
+    QVariant mean(const QStringList& fieldnames) const;
+
+    int countTrue(const QStringList& fieldnames) const;
+    bool allTrue(const QStringList& fieldnames) const;
+    bool allFalseOrNull(const QStringList& fieldnames) const;
+
+    bool anyNull(const QStringList& fieldnames) const;
+    int numNull(const QStringList& fieldnames) const;
+    int numNotNull(const QStringList& fieldnames) const;
+
+    int countWhere(const QStringList& fieldnames,
+                   const QList<QVariant>& values) const;
+    int countWhereNot(const QStringList& fieldnames,
+                      const QList<QVariant>& values) const;
+
+    // ========================================================================
+    // Whole-object summary
+    // ========================================================================
+
+    QString fieldSummary(const QString& fieldname,
+                         const QString& altname = "") const;
+    QStringList recordSummaryLines() const;
     QString recordSummary() const;
 
-    // Loading, saving:
+    // ========================================================================
+    // Loading, saving
+    // ========================================================================
 
     virtual bool load(int pk);
+    virtual bool load(const QString& fieldname, const QVariant& where_value);
+    virtual bool load(const WhereConditions& where);
     virtual SqlArgs fetchQuerySql(const WhereConditions& where);
     virtual void setFromQuery(const QSqlQuery& query,
                               bool order_matches_fetchquery = false);
@@ -77,15 +111,21 @@ public:
     void touch(bool only_if_unset = false);
     void setAllDirty();
 
+    // ========================================================================
     // Deleting
+    // ========================================================================
 
     void deleteFromDatabase();
 
+    // ========================================================================
     // Debugging:
+    // ========================================================================
 
     void requireField(const QString& fieldname) const;
 
+    // ========================================================================
     // DDL
+    // ========================================================================
 
     QString sqlCreateTable() const;
     QString tablename() const;
@@ -97,8 +137,6 @@ public:
     const QSqlDatabase& database() const;
 
 protected:
-    virtual bool load(const QString& fieldname, const QVariant& where_value);
-    virtual bool load(const WhereConditions& where);
     bool saveInsert();
     bool saveUpdate();
     void clearAllDirty();

@@ -1,4 +1,4 @@
-// #define OFFER_LAYOUT_DEBUG_BUTTON
+#define OFFER_LAYOUT_DEBUG_BUTTON
 // #define DEBUG_PAGE_LAYOUT_ON_OPEN
 
 #include "questionnaire.h"

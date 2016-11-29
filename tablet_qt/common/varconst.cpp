@@ -25,6 +25,9 @@ namespace VarConst
     const QString WHISKER_PORT("whiskerPort");
     const QString WHISKER_TIMEOUT_MS("whiskerTimeoutMs");
 
+    // Terms and conditions
+    const QString AGREED_TERMS_AT("agreedTermsOfUseAt");
+
     // Intellectual property
     const QString IP_USE_CLINICAL("useClinical");
     const QString IP_USE_COMMERCIAL("useCommercial");
@@ -52,4 +55,7 @@ namespace VarConst
     const QString OBSCURING_IV("obscuringIV");
     const QString USER_PASSWORD_HASH("userPassword");
     const QString PRIV_PASSWORD_HASH("privPassword");
+
+    // Device ID
+    const QString DEVICE_ID("deviceId");
 }

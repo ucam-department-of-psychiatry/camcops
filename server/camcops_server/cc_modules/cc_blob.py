@@ -104,7 +104,8 @@ class Blob(object):
         """Debugging option to dump the object."""
         rnc_db.dump_database_object(self, Blob.FIELDS_WITHOUT_BLOB)
 
-    def get_rotated_image(self, rotation_clockwise_deg: float = 0) -> bytes:
+    def get_rotated_image(self,
+                          rotation_clockwise_deg: float = 0) -> Optional[bytes]:
         """Returns a binary PNG image, having rotated if necessary, or None."""
         if not self.theblob:
             return None

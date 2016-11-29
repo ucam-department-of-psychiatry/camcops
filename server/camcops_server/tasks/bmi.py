@@ -21,7 +21,7 @@
     limitations under the License.
 """
 
-from typing import List
+from typing import List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
 from ..cc_modules.cc_html import tr_qa
@@ -133,7 +133,7 @@ class Bmi(Task):
                  value=self.bmi(), comment="BMI (kg/m^2)"),
         ]
 
-    def bmi(self) -> float:
+    def bmi(self) -> Optional[float]:
         if not self.is_complete():
             return None
         return self.mass_kg / (self.height_m * self.height_m)

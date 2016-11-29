@@ -18,18 +18,22 @@ const QString VALUE_TEXT_FIELDNAME("value_text");
 const QMap<QVariant::Type, QString> COLMAP{
     // Which database field shall we use to store each QVariant type?
     {QVariant::Bool, VALUE_BOOL_FIELDNAME},
-    {QVariant::Int, VALUE_INTEGER_FIELDNAME},
+    {QVariant::DateTime, VALUE_TEXT_FIELDNAME},
     {QVariant::Double, VALUE_REAL_FIELDNAME},
+    {QVariant::Int, VALUE_INTEGER_FIELDNAME},
     {QVariant::String, VALUE_TEXT_FIELDNAME},
+    {QVariant::Uuid, VALUE_TEXT_FIELDNAME},
 };
 const QMap<QVariant::Type, QString> TYPEMAP{
     // What value should we put in the 'type' database column to indicate
     // the QVariant type in use?
     // http://doc.qt.io/qt-5/qvariant-obsolete.html#Type-enum
     {QVariant::Bool, "Bool"},
-    {QVariant::Int, "Int"},
+    {QVariant::DateTime, "DateTime"},
     {QVariant::Double, "Double"},
+    {QVariant::Int, "Int"},
     {QVariant::String, "String"},
+    {QVariant::Uuid, "Uuid"},
 };
 
 
@@ -67,14 +71,15 @@ StoredVar::StoredVar(const QSqlDatabase& db, const QString& name,
     if (m_value_fieldname.isEmpty()) {
         UiFunc::stopApp(QString(
             "StoredVar::StoredVar: m_value_fieldname unknown to StoredVar "
-            "with name=%1, type=%2; is the type missing from COLMAP?")
+            "with name=%1, type=%2; is the type missing from COLMAP "
+            "(in storedvar.cpp)?")
                         .arg(name, type));
     }
     if (!TYPEMAP.contains(type)) {
         qCritical() << Q_FUNC_INFO << "QVariant type unknown:" << type;
         UiFunc::stopApp(
             "StoredVar::StoredVar: type unknown to StoredVar; see debug "
-            "console for details and check TYPEMAP");
+            "console for details and check TYPEMAP (in storedvar.cpp)");
     }
 
     // ------------------------------------------------------------------------

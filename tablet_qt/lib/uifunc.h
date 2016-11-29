@@ -108,7 +108,8 @@ namespace UiFunc {
     // Killing the app
     // ========================================================================
 
-    void stopApp(const QString& error);
+    void stopApp(const QString& error,
+                 const QString& title = "CamCOPS internal bug: stopping");
 
     // ========================================================================
     // Alerts
@@ -152,5 +153,5 @@ namespace UiFunc {
     // ========================================================================
 
     QString escapeString(const QString& string);
-
+    QString yesNo(bool yes);
 }

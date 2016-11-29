@@ -29,7 +29,7 @@ void PatientSummaryMenu::build()
     TaskPtrList tasklist = factory->fetch();
     qDebug() << Q_FUNC_INFO << "-" << tasklist.size() << "tasks";
     for (auto task : tasklist) {
-        m_items.append(MenuItem(task));
+        m_items.append(MenuItem(task, true, false));
     }
 
     // Call parent build()

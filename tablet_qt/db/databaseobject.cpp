@@ -9,6 +9,7 @@
 #include <QStringList>
 #include "db/dbfunc.h"
 #include "db/fieldref.h"
+#include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 
 const QString NOT_NULL_ERROR("Error: attempting to save NULL to a NOT NULL "
@@ -49,38 +50,9 @@ DatabaseObject::~DatabaseObject()
 }
 
 
-void DatabaseObject::setAllDirty()
-{
-    MutableMapIteratorType i(m_record);
-    while (i.hasNext()) {
-        i.next();
-        i.value().setDirty();
-    }
-}
-
-
-void DatabaseObject::clearAllDirty()
-{
-    MutableMapIteratorType i(m_record);
-    while (i.hasNext()) {
-        i.next();
-        i.value().clearDirty();
-    }
-}
-
-
-bool DatabaseObject::anyDirty() const
-{
-    MapIteratorType i(m_record);
-    while (i.hasNext()) {
-        i.next();
-        if (i.value().isDirty()) {
-            return true;
-        }
-    }
-    return false;
-}
-
+// ============================================================================
+// Adding fields
+// ============================================================================
 
 void DatabaseObject::addField(const QString& fieldname, QVariant::Type type,
                               bool mandatory, bool unique, bool pk)
@@ -123,27 +95,9 @@ QStringList DatabaseObject::fieldnames() const
 }
 
 
-QStringList DatabaseObject::fieldnamesMapOrder() const
-{
-    QStringList fieldnames;
-    MapIteratorType i(m_record);
-    while (i.hasNext()) {
-        i.next();
-        fieldnames.append(i.key());
-    }
-    return fieldnames;
-}
-
-
-void DatabaseObject::requireField(const QString &fieldname) const
-{
-    if (!m_record.contains(fieldname)) {
-        UiFunc::stopApp("DatabaseObject::requireField: Database object with "
-                        "tablename '" + m_tablename + "' does not contain "
-                        "field: " + fieldname);
-    }
-}
-
+// ============================================================================
+// Field access
+// ============================================================================
 
 bool DatabaseObject::setValue(const QString& fieldname, const QVariant& value)
 {
@@ -233,7 +187,7 @@ QString DatabaseObject::valueString(const QString& fieldname) const
 }
 
 
-QList<QVariant> DatabaseObject::values(const QStringList& fieldnames)
+QList<QVariant> DatabaseObject::values(const QStringList& fieldnames) const
 {
     QList<QVariant> values;
     for (auto fieldname : fieldnames) {
@@ -243,62 +197,195 @@ QList<QVariant> DatabaseObject::values(const QStringList& fieldnames)
 }
 
 
-void DatabaseObject::touch(bool only_if_unset)
+FieldRefPtr DatabaseObject::fieldRef(const QString& fieldname, bool mandatory,
+                                     bool autosave, bool blob)
 {
-    if (!m_has_modification_timestamp) {
-        return;
+    // If we ask for two fieldrefs to the same field, they need to be linked
+    // (in terms of signals), and therefore the same underlying FieldRef
+    // object. So we maintain a map.
+    // If an existing FieldRef has been created for this field, that field
+    // reference is re-used, regardless of the (subsequent) autosave setting.
+    requireField(fieldname);
+    if (!m_fieldrefs.contains(fieldname)) {
+        m_fieldrefs[fieldname] = FieldRefPtr(
+            new FieldRef(this, fieldname, mandatory, autosave, blob));
     }
-    if (only_if_unset &&
-            !m_record[DbConst::MODIFICATION_TIMESTAMP_FIELDNAME].isNull()) {
-        return;
+    return m_fieldrefs[fieldname];
+}
+
+
+// ============================================================================
+// Manipulating multiple fields
+// ============================================================================
+
+int DatabaseObject::sumInt(const QStringList& fieldnames) const
+{
+    int total = 0;
+    for (auto fieldname : fieldnames) {
+        total += valueInt(fieldname);  // gives 0 if it is NULL
     }
-    // Don't set the timestamp value with setValue()! Infinite loop.
-    QDateTime now = QDateTime::currentDateTime();
-    m_record[DbConst::MODIFICATION_TIMESTAMP_FIELDNAME].setValue(now);  // also: dirty
+    return total;
 }
 
 
-QString DatabaseObject::tablename() const
+double DatabaseObject::sumDouble(const QStringList& fieldnames) const
 {
-    return m_tablename;
+    double total = 0;
+    for (auto fieldname : fieldnames) {
+        total += valueDouble(fieldname);  // gives 0 if it is NULL
+    }
+    return total;
 }
 
 
-QString DatabaseObject::pkname() const
+QVariant DatabaseObject::mean(const QStringList& fieldnames) const
 {
-    return m_pk_fieldname;
+    double sum = 0;
+    int n = 0;
+    for (auto fieldname : fieldnames) {
+        QVariant v = value(fieldname);
+        if (!v.isNull()) {
+            sum += v.toDouble();
+            n += 1;
+        }
+    }
+    if (n == 0) {
+        return QVariant();  // undefined
+    }
+    return sum / n;
 }
 
 
-QVariant DatabaseObject::pkvalue() const
+int DatabaseObject::countTrue(const QStringList& fieldnames) const
 {
-    return value(pkname());
+    int n = 0;
+    for (auto fieldname : fieldnames) {
+        if (valueBool(fieldname)) {
+            n += 1;
+        }
+    }
+    return n;
 }
 
 
-bool DatabaseObject::isPkNull() const
+bool DatabaseObject::allTrue(const QStringList& fieldnames) const
 {
-    QVariant v = pkvalue();
-    return v.isNull();
+    for (auto fieldname : fieldnames) {
+        if (!valueBool(fieldname)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 
-QString DatabaseObject::sqlCreateTable() const
+bool DatabaseObject::allFalseOrNull(const QStringList& fieldnames) const
 {
-    return DbFunc::sqlCreateTable(m_tablename, fieldsOrdered());
+    for (auto fieldname : fieldnames) {
+        if (valueBool(fieldname)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 
-void DatabaseObject::nullify()
+bool DatabaseObject::anyNull(const QStringList& fieldnames) const
 {
+    for (auto fieldname: fieldnames) {
+        if (value(fieldname).isNull()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+int DatabaseObject::numNull(const QStringList& fieldnames) const
+{
+    int n = 0;
+    for (auto fieldname: fieldnames) {
+        if (value(fieldname).isNull()) {
+            n += 1;
+        }
+    }
+    return n;
+}
+
+
+int DatabaseObject::numNotNull(const QStringList& fieldnames) const
+{
+    int n = 0;
+    for (auto fieldname: fieldnames) {
+        if (!value(fieldname).isNull()) {
+            n += 1;
+        }
+    }
+    return n;
+}
+
+
+int DatabaseObject::countWhere(const QStringList& fieldnames,
+                               const QList<QVariant>& values) const
+{
+    int n = 0;
+    for (auto fieldname : fieldnames) {
+        if (values.contains(value(fieldname))) {
+            n += 1;
+        }
+    }
+    return n;
+}
+
+
+int DatabaseObject::countWhereNot(const QStringList& fieldnames,
+                                  const QList<QVariant>& values) const
+{
+    int n = 0;
+    for (auto fieldname : fieldnames) {
+        if (!values.contains(value(fieldname))) {
+            n += 1;
+        }
+    }
+    return n;
+}
+
+
+// ============================================================================
+// Whole-object summary
+// ============================================================================
+
+QString DatabaseObject::fieldSummary(const QString& fieldname,
+                                     const QString& altname) const
+{
+    QString name = altname.isEmpty() ? fieldname : altname;
+    return QString("<b>%1 =</b> %2").arg(name).arg(prettyValue(fieldname));
+}
+
+
+QStringList DatabaseObject::recordSummaryLines() const
+{
+    QStringList list;
     MapIteratorType i(m_record);
     while (i.hasNext()) {
         i.next();
-        Field field = i.value();
-        field.nullify();
+        const Field& field = i.value();
+        list.append(QString("%1 = <b>%2</b>").arg(field.name(),
+                                                  field.prettyValue()));
     }
+    return list;
 }
 
+
+QString DatabaseObject::recordSummary() const
+{
+    return recordSummaryLines().join("<br>");
+}
+
+
+// ============================================================================
+// Loading, saving
+// ============================================================================
 
 bool DatabaseObject::load(int pk)
 {
@@ -407,6 +494,132 @@ bool DatabaseObject::save()
 }
 
 
+void DatabaseObject::nullify()
+{
+    MapIteratorType i(m_record);
+    while (i.hasNext()) {
+        i.next();
+        Field field = i.value();
+        field.nullify();
+    }
+}
+
+
+bool DatabaseObject::isPkNull() const
+{
+    QVariant v = pkvalue();
+    return v.isNull();
+}
+
+
+void DatabaseObject::touch(bool only_if_unset)
+{
+    if (!m_has_modification_timestamp) {
+        return;
+    }
+    if (only_if_unset &&
+            !m_record[DbConst::MODIFICATION_TIMESTAMP_FIELDNAME].isNull()) {
+        return;
+    }
+    // Don't set the timestamp value with setValue()! Infinite loop.
+    QDateTime now = QDateTime::currentDateTime();
+    m_record[DbConst::MODIFICATION_TIMESTAMP_FIELDNAME].setValue(now);  // also: dirty
+}
+
+
+void DatabaseObject::setAllDirty()
+{
+    MutableMapIteratorType i(m_record);
+    while (i.hasNext()) {
+        i.next();
+        i.value().setDirty();
+    }
+}
+
+
+// ============================================================================
+// Deleting
+// ============================================================================
+
+void DatabaseObject::deleteFromDatabase()
+{
+    QVariant pk = pkvalue();
+    if (pk.isNull()) {
+        qWarning() << "Attempting to delete a DatabaseObject with a "
+                      "NULL PK; ignored";
+        return;
+    }
+    ArgList args;
+    QString sql = (
+        "DELETE FROM " + DbFunc::delimit(m_tablename) +
+        " WHERE " + DbFunc::delimit(pkname()) + "=?"
+    );
+    args.append(pk);
+    bool success = DbFunc::exec(m_db, sql, args);
+    if (success) {
+        nullify();
+    } else {
+        qWarning() << "Failed to delete object with PK" << pk
+                   << "from table" << m_tablename;
+    }
+}
+
+
+// ============================================================================
+// Debugging
+// ============================================================================
+
+void DatabaseObject::requireField(const QString &fieldname) const
+{
+    if (!m_record.contains(fieldname)) {
+        UiFunc::stopApp("DatabaseObject::requireField: Database object with "
+                        "tablename '" + m_tablename + "' does not contain "
+                        "field: " + fieldname);
+    }
+}
+
+
+// ============================================================================
+// DDL
+// ============================================================================
+
+QString DatabaseObject::sqlCreateTable() const
+{
+    return DbFunc::sqlCreateTable(m_tablename, fieldsOrdered());
+}
+
+QString DatabaseObject::tablename() const
+{
+    return m_tablename;
+}
+
+
+QString DatabaseObject::pkname() const
+{
+    return m_pk_fieldname;
+}
+
+
+QVariant DatabaseObject::pkvalue() const
+{
+    return value(pkname());
+}
+
+void DatabaseObject::makeTable()
+{
+    DbFunc::createTable(m_db, m_tablename, fieldsOrdered());
+}
+
+const QSqlDatabase& DatabaseObject::database() const
+{
+    return m_db;
+}
+
+
+// ========================================================================
+// Additional protected
+// ========================================================================
+
 bool DatabaseObject::saveInsert()
 {
     ArgList args;
@@ -507,6 +720,39 @@ bool DatabaseObject::saveUpdate()
 }
 
 
+void DatabaseObject::clearAllDirty()
+{
+    MutableMapIteratorType i(m_record);
+    while (i.hasNext()) {
+        i.next();
+        i.value().clearDirty();
+    }
+}
+
+
+bool DatabaseObject::anyDirty() const
+{
+    MapIteratorType i(m_record);
+    while (i.hasNext()) {
+        i.next();
+        if (i.value().isDirty()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+QStringList DatabaseObject::fieldnamesMapOrder() const
+{
+    QStringList fieldnames;
+    MapIteratorType i(m_record);
+    while (i.hasNext()) {
+        i.next();
+        fieldnames.append(i.key());
+    }
+    return fieldnames;
+}
+
 QList<Field> DatabaseObject::fieldsOrdered() const
 {
     QList<Field> ordered_fields;
@@ -517,42 +763,9 @@ QList<Field> DatabaseObject::fieldsOrdered() const
 }
 
 
-void DatabaseObject::makeTable()
-{
-    DbFunc::createTable(m_db, m_tablename, fieldsOrdered());
-}
-
-
-FieldRefPtr DatabaseObject::fieldRef(const QString& fieldname, bool mandatory,
-                                     bool autosave, bool blob)
-{
-    // If we ask for two fieldrefs to the same field, they need to be linked
-    // (in terms of signals), and therefore the same underlying FieldRef
-    // object. So we maintain a map.
-    // If an existing FieldRef has been created for this field, that field
-    // reference is re-used, regardless of the (subsequent) autosave setting.
-    requireField(fieldname);
-    if (!m_fieldrefs.contains(fieldname)) {
-        m_fieldrefs[fieldname] = FieldRefPtr(
-            new FieldRef(this, fieldname, mandatory, autosave, blob));
-    }
-    return m_fieldrefs[fieldname];
-}
-
-
-QString DatabaseObject::recordSummary() const
-{
-    QStringList list;
-    MapIteratorType i(m_record);
-    while (i.hasNext()) {
-        i.next();
-        const Field& field = i.value();
-        list.append(QString("<b>%1 =</b> %2").arg(field.name(),
-                                                  field.prettyValue()));
-    }
-    return list.join("<br>");
-}
-
+// ========================================================================
+// For friends
+// ========================================================================
 
 QDebug operator<<(QDebug debug, const DatabaseObject& d)
 {
@@ -563,34 +776,4 @@ QDebug operator<<(QDebug debug, const DatabaseObject& d)
     // use m_record.value(fieldname) similarly
     // debug << "... Creation: " << qUtf8Printable(d.sqlCreateTable());
     return debug;
-}
-
-
-void DatabaseObject::deleteFromDatabase()
-{
-    QVariant pk = pkvalue();
-    if (pk.isNull()) {
-        qWarning() << "Attempting to delete a DatabaseObject with a "
-                      "NULL PK; ignored";
-        return;
-    }
-    ArgList args;
-    QString sql = (
-        "DELETE FROM " + DbFunc::delimit(m_tablename) +
-        " WHERE " + DbFunc::delimit(pkname()) + "=?"
-    );
-    args.append(pk);
-    bool success = DbFunc::exec(m_db, sql, args);
-    if (success) {
-        nullify();
-    } else {
-        qWarning() << "Failed to delete object with PK" << pk
-                   << "from table" << m_tablename;
-    }
-}
-
-
-const QSqlDatabase& DatabaseObject::database() const
-{
-    return m_db;
 }

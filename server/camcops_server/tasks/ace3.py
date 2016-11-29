@@ -287,7 +287,7 @@ class Ace3(Task):
 
     @staticmethod
     def get_recog_text(recalled: Optional[int],
-                       recognized: Optional[int]) -> int:
+                       recognized: Optional[int]) -> str:
         if recalled:
             return "<i>1 (already recalled)</i>"
         return answer(recognized)

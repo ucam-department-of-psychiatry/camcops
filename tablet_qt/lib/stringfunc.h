@@ -19,4 +19,17 @@ namespace StringFunc
     QStringList strseq(const QStringList& prefixes, int first, int last);
     QStringList strseq(const QStringList& prefixes, int first, int last,
                        const QStringList& suffixes);
+
+    // ========================================================================
+    // Other string formatting
+    // ========================================================================
+
+    QString strnum(const QString& prefix, int num);
+
+    // ========================================================================
+    // HTML processing
+    // ========================================================================
+
+    QString bold(const QString& str);
+    QString joinHtmlLines(const QStringList& lines);
 }

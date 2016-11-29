@@ -23,9 +23,13 @@
 #include "widgets/labelwordwrapwide.h"
 #include "widgets/openablewidget.h"
 
-const int STRETCH_3COL_TASKNAME = 1;
-const int STRETCH_3COL_TIMESTAMP = 2;
-const int STRETCH_3COL_SUMMARY = 7;
+const int STRETCH_3COL_WTASKNAME_TASKNAME = 1;
+const int STRETCH_3COL_WTASKNAME_TIMESTAMP = 2;
+const int STRETCH_3COL_WTASKNAME_SUMMARY = 7;
+
+const int STRETCH_3COL_WPATIENT_PATIENT = 3;
+const int STRETCH_3COL_WPATIENT_TIMESTAMP = 2;
+const int STRETCH_3COL_WPATIENT_SUMMARY = 7;
 
 const int STRETCH_2COL_TIMESTAMP = 2;
 const int STRETCH_2COL_SUMMARY = 8;
@@ -133,12 +137,14 @@ MenuItem::MenuItem(const QString& title, const HtmlMenuItem& htmlmenuitem,
 }
 
 
-MenuItem::MenuItem(TaskPtr p_task, bool task_shows_taskname) :
+MenuItem::MenuItem(TaskPtr p_task, bool task_shows_taskname,
+                   bool task_shows_patient) :
     m_title("?")
 {
     setDefaults();
     m_p_task = p_task;
     m_task_shows_taskname = task_shows_taskname;
+    m_task_shows_patient = task_shows_patient;
 }
 
 
@@ -165,6 +171,8 @@ void MenuItem::setDefaults()
     m_label_only = false;
     m_needs_privilege = false;
     m_not_if_locked = false;
+    m_task_shows_taskname = false;
+    m_task_shows_patient = false;
     m_unsupported = false;
 
     m_func = nullptr;
@@ -210,20 +218,37 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         // Stretch: http://stackoverflow.com/questions/14561516/qt-qhboxlayout-percentage-size
 
         bool complete = m_p_task->isComplete();
-        const bool& threecols = m_task_shows_taskname;
+        int timestamp_stretch = STRETCH_2COL_TIMESTAMP;
+        int summary_stretch = STRETCH_2COL_SUMMARY;
 
-        // Taskname
-        if (m_task_shows_taskname) {
-            QLabel* taskname = new LabelWordWrapWide(m_p_task->shortname());
+        // Taskname OR patient
+        if (m_task_shows_taskname || m_task_shows_patient) {
+            int firstcol_stretch = STRETCH_3COL_WTASKNAME_TASKNAME;
+            QString contents;
+            if (m_task_shows_taskname) {
+                contents = m_p_task->shortname();
+                timestamp_stretch = STRETCH_3COL_WTASKNAME_TIMESTAMP;
+                summary_stretch = STRETCH_3COL_WTASKNAME_SUMMARY;
+            } else {
+                Patient* pt = m_p_task->patient();
+                if (pt) {
+                    contents = pt->surnameUpperForename();
+                }
+                firstcol_stretch = STRETCH_3COL_WPATIENT_PATIENT;
+                timestamp_stretch = STRETCH_3COL_WPATIENT_TIMESTAMP;
+                summary_stretch = STRETCH_3COL_WPATIENT_SUMMARY;
+            }
+            QLabel* taskname = new LabelWordWrapWide(contents);
             taskname->setObjectName(complete
                                     ? CssConst::TASK_ITEM_TASKNAME_COMPLETE
                                     : CssConst::TASK_ITEM_TASKNAME_INCOMPLETE);
             QSizePolicy spTaskname(QSizePolicy::Preferred,
                                    QSizePolicy::Preferred);
-            spTaskname.setHorizontalStretch(STRETCH_3COL_TASKNAME);
+            spTaskname.setHorizontalStretch(firstcol_stretch);
             taskname->setSizePolicy(spTaskname);
             rowlayout->addWidget(taskname);
         }
+
         // Timestamp
         QLabel* timestamp = new LabelWordWrapWide(
             m_p_task->whenCreated().toString(DateTime::SHORT_DATETIME_FORMAT));
@@ -232,10 +257,10 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
                                  : CssConst::TASK_ITEM_TIMESTAMP_INCOMPLETE);
         QSizePolicy spTimestamp(QSizePolicy::Preferred,
                                 QSizePolicy::Preferred);
-        spTimestamp.setHorizontalStretch(threecols ? STRETCH_3COL_TIMESTAMP
-                                                   : STRETCH_2COL_TIMESTAMP);
+        spTimestamp.setHorizontalStretch(timestamp_stretch);
         timestamp->setSizePolicy(spTimestamp);
         rowlayout->addWidget(timestamp);
+
         // Summary
         QLabel* summary = new LabelWordWrapWide(
                     m_p_task->summaryWithCompleteSuffix());
@@ -243,8 +268,7 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
                                ? CssConst::TASK_ITEM_SUMMARY_COMPLETE
                                : CssConst::TASK_ITEM_SUMMARY_INCOMPLETE);
         QSizePolicy spSummary(QSizePolicy::Preferred, QSizePolicy::Preferred);
-        spSummary.setHorizontalStretch(threecols ? STRETCH_3COL_SUMMARY
-                                                 : STRETCH_2COL_SUMMARY);
+        spSummary.setHorizontalStretch(summary_stretch);
         summary->setSizePolicy(spSummary);
         rowlayout->addWidget(summary);
 

@@ -143,6 +143,11 @@ QPushButton:disabled {
     background-color: gray;
 }
 
+ClickableLabelWordWrapWide:disabled {
+    /* Override QPushButton:disabled */
+    background-color: rgb(0, 0, 0, 0);
+}
+
 /* Slightly different styling for QuPickerPopup */
 ClickableLabelWordWrapWide#picker_popup {
     color: blue;

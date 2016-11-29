@@ -4,11 +4,11 @@
 #include "camcopsapp.h"
 #include <QApplication>
 #include <QDateTime>
-#include <QDialog>
 #include <QMainWindow>
-#include <QPushButton>
+#include <QMessageBox>
 #include <QSqlDatabase>
 #include <QStackedWidget>
+#include <QUuid>
 #include "common/camcopsversion.h"
 #include "common/uiconstants.h"
 #include "common/varconst.h"
@@ -80,6 +80,15 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     storedvar_specimen.makeTable();
 
     // ------------------------------------------------------------------------
+    // Seed Qt's build-in RNG, which we may use for QUuid generation
+    // ------------------------------------------------------------------------
+    // QUuid may, if /dev/urandom does not exist, use qrand(). It won't use
+    // OpenSSL or anything else. So we'd better make sure it's seeded first:
+    qsrand(QDateTime::currentMSecsSinceEpoch() & 0xffffffff);
+    // QDateTime::currentMSecsSinceEpoch() -> qint64
+    // qsrand wants uint (= uint32)
+
+    // ------------------------------------------------------------------------
     // Create stored variables: name, type, default
     // ------------------------------------------------------------------------
     {
@@ -117,6 +126,9 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
         createVar(VarConst::WHISKER_PORT, QVariant::Int, 3233);  // 3233 = Whisker
         createVar(VarConst::WHISKER_TIMEOUT_MS, QVariant::Int, 5000);
 
+        // Terms and conditions
+        createVar(VarConst::AGREED_TERMS_AT, QVariant::DateTime);
+
         // Intellectual property
         createVar(VarConst::IP_USE_CLINICAL, QVariant::Int, CommonOptions::UNKNOWN_INT);
         createVar(VarConst::IP_USE_COMMERCIAL, QVariant::Int, CommonOptions::UNKNOWN_INT);
@@ -148,6 +160,12 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
         // qDebug() << getPlaintextServerPassword();
         createVar(VarConst::USER_PASSWORD_HASH, QVariant::String, "");
         createVar(VarConst::PRIV_PASSWORD_HASH, QVariant::String, "");
+
+        // Device ID
+        createVar(VarConst::DEVICE_ID, QVariant::Uuid);
+        if (var(VarConst::DEVICE_ID).isNull()) {
+            regenerateDeviceId();
+        }
 
 #ifdef DANGER_DEBUG_WIPE_PASSWORDS
         qDebug() << "DANGER: wiping passwords";
@@ -219,6 +237,10 @@ int CamcopsApp::run()
     MainMenu* menu = new MainMenu(*this);
     open(menu);
 
+    if (!hasAgreedTerms()) {
+        offerTerms();
+    }
+
     qInfo() << "Starting Qt event processor...";
     return exec();  // Main Qt event loop
 }
@@ -288,11 +310,8 @@ void CamcopsApp::open(OpenableWidget* widget, TaskPtr task,
     qDebug() << Q_FUNC_INFO << "Pushing screen";
     int index = m_p_window_stack->addWidget(widget);  // will show the widget
     // The stack takes over ownership.
-    // Best to have a parent set before we call build()? (To reduce change of
-    // widgets being shown as small windows on their own, because they have no
-    // parent and something made them try to show() themselves?)
     // qDebug() << Q_FUNC_INFO << "About to build";
-    widget->build();  // THIS BIT CAN BE SLOW AND SHOW ODD WINDOWS TRANSIENTLY ***
+    widget->build();
     // qDebug() << Q_FUNC_INFO << "Build complete, about to show";
     m_p_window_stack->setCurrentIndex(index);
     if (widget->wantsFullscreen()) {
@@ -521,6 +540,22 @@ SecureQString CamcopsApp::getPlaintextServerPassword() const
     qDebug() << Q_FUNC_INFO << "plaintext:" << plaintext;
 #endif
     return plaintext;
+}
+
+
+QString CamcopsApp::deviceId() const
+{
+    return var(VarConst::DEVICE_ID).toString();
+}
+
+
+void CamcopsApp::regenerateDeviceId()
+{
+    setVar(VarConst::DEVICE_ID, QUuid::createUuid());
+    // This is the RANDOM variant of a UUID, not a "hashed something" variant.
+    // - http://doc.qt.io/qt-5/quuid.html#createUuid
+    // - https://en.wikipedia.org/wiki/Universally_unique_identifier#Variants_and_versions
+    // Note that we seeded Qt's own RNG in CamcopsApp::CamcopsApp.
 }
 
 
@@ -879,4 +914,46 @@ bool CamcopsApp::cachedVarChanged(const QString& name) const
         return false;
     }
     return m_cachedvars[name] != var(name);
+}
+
+
+// ------------------------------------------------------------------------
+// Terms and conditions
+// ------------------------------------------------------------------------
+
+bool CamcopsApp::hasAgreedTerms() const
+{
+    return !var(VarConst::AGREED_TERMS_AT).isNull();
+}
+
+
+QDateTime CamcopsApp::agreedTermsAt() const
+{
+    return var(VarConst::AGREED_TERMS_AT).toDateTime();
+}
+
+
+void CamcopsApp::offerTerms()
+{
+    QMessageBox msgbox(QMessageBox::Question,  // icon
+                       tr("View terms and conditions of use"),  // title
+                       UiConst::TERMS_CONDITIONS,  // text
+                       QMessageBox::Yes | QMessageBox::No,  // buttons
+                       m_p_main_window);  // parent
+    msgbox.setButtonText(QMessageBox::Yes,
+                         tr("I AGREE to these terms and conditions"));
+    msgbox.setButtonText(QMessageBox::No,
+                         tr("I DO NOT AGREE to these terms and conditions"));
+    // It's hard work to remove the Close button from the dialog, but that is
+    // interpreted as rejection, so that's OK.
+    // - http://www.qtcentre.org/threads/41269-disable-close-button-in-QMessageBox
+
+    int reply = msgbox.exec();
+    if (reply == QMessageBox::Yes) {
+        // Agreed terms
+        setVar(VarConst::AGREED_TERMS_AT, QDateTime::currentDateTime());
+    } else {
+        // Refused terms
+        UiFunc::stopApp(tr("OK. Goodbye."), tr("You refused the conditions."));
+    }
 }

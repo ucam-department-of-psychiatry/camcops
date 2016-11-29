@@ -48,6 +48,12 @@
 #include "questionnairelib/quthermometer.h"
 
 
+void initializeDemoQuestionnaire(TaskFactory& factory)
+{
+    static TaskRegistrar<DemoQuestionnaire> registered(factory);
+}
+
+
 DemoQuestionnaire::DemoQuestionnaire(CamcopsApp& app,
                                      const QSqlDatabase& db, int load_pk) :
     Task(app, db, "demoquestionnaire", false, false, false)
@@ -86,6 +92,10 @@ DemoQuestionnaire::DemoQuestionnaire(CamcopsApp& app,
 }
 
 
+// ============================================================================
+// Class overrides
+// ============================================================================
+
 QString DemoQuestionnaire::shortname() const
 {
     return "Demo";
@@ -103,6 +113,10 @@ QString DemoQuestionnaire::menusubtitle() const
     return "Tutorial and illustration of questionnaire task elements";
 }
 
+
+// ============================================================================
+// Instance overrides
+// ============================================================================
 
 bool DemoQuestionnaire::isComplete() const
 {
@@ -127,9 +141,9 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
         "<a href=\"%1\">%1</a>."
     ).arg(url));
 
-    // ========================================================================
+    // ------------------------------------------------------------------------
     // Text
-    // ========================================================================
+    // ------------------------------------------------------------------------
 
     QuPagePtr page_text((new QuPage{
         new QuText(tr("We’ll demonstrate the elements from which questionnaire"
@@ -154,9 +168,9 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
         (new QuText("... was that enough to scroll vertically?"))->bold()
     );
 
-    // ========================================================================
+    // ------------------------------------------------------------------------
     // Headings, containers, text alignment, lines, images
-    // ========================================================================
+    // ------------------------------------------------------------------------
 
     QuPagePtr page_headings_layout_images((new QuPage{
         new QuHeading("This is a heading"),
@@ -251,9 +265,9 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
         new QuImage(UiFunc::iconFilename(UiConst::ICON_CAMCOPS)),
     })->setTitle("Headings, containers, text alignment, lines, images"));
 
-    // ========================================================================
+    // ------------------------------------------------------------------------
     // Audio players, countdown
-    // ========================================================================
+    // ------------------------------------------------------------------------
 
     QuPagePtr page_audio_countdown((new QuPage{
         new QuHeading("Simple audio player:"),
@@ -264,9 +278,9 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
         new QuCountdown(20),
     })->setTitle("Audio players, countdowns"));
 
-    // ========================================================================
+    // ------------------------------------------------------------------------
     // Boolean
-    // ========================================================================
+    // ------------------------------------------------------------------------
 
     QuPagePtr page_boolean((new QuPage{
         new QuText(tr(
@@ -346,9 +360,9 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
 
     })->setTitle("Booleans; multiple views on a single field"));
 
-    // ========================================================================
+    // ------------------------------------------------------------------------
     // MCQ
-    // ========================================================================
+    // ------------------------------------------------------------------------
 
     NameValueOptions options_A{
         {"option_1", 1},
@@ -423,9 +437,9 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
                             ->setAsTextButton(true),
     })->setTitle("Multiple-choice questions (MCQs)"));
 
-    // ========================================================================
+    // ------------------------------------------------------------------------
     // MCQ variants
-    // ========================================================================
+    // ------------------------------------------------------------------------
 
     QuPagePtr page_mcq_variants((new QuPage{
          new QuHeading("MCQ grid:"),
@@ -494,9 +508,9 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
             ->setBooleanLeft(true),
     })->setTitle("MCQ variants"));
 
-    // ========================================================================
+    // ------------------------------------------------------------------------
     // Multiple responses
-    // ========================================================================
+    // ------------------------------------------------------------------------
 
     QuPagePtr page_multiple_response((new QuPage{
         new QuHeading("Standard n-from-many format:"),
@@ -523,9 +537,9 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
             ->setAsTextButton(true),
     })->setTitle("Multiple-response questions"));
 
-    // ========================================================================
+    // ------------------------------------------------------------------------
     // Pickers
-    // ========================================================================
+    // ------------------------------------------------------------------------
 
     QuPagePtr page_pickers((new QuPage{
         new QuHeading("Inline picker:"),
@@ -537,9 +551,9 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
                                 ->setPopupTitle("Pickers; question 5"),
     })->setTitle("Pickers"));
 
-    // ========================================================================
+    // ------------------------------------------------------------------------
     // Sliders, thermometer
-    // ========================================================================
+    // ------------------------------------------------------------------------
 
     QList<QuThermometerItem> thermometer_items;
     for (int i = 0; i <= 10; ++i) {
@@ -600,9 +614,9 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
         ->setTitle("Sliders and thermometers")
         ->setType(QuPage::PageType::ClinicianWithPatient));
 
-    // ========================================================================
+    // ------------------------------------------------------------------------
     // Editable variables inc. datetime
-    // ========================================================================
+    // ------------------------------------------------------------------------
 
     QuPagePtr page_vars((new QuPage{
         new QuText("Pages for clinicians have a different background colour."),
@@ -661,9 +675,9 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
         ->setTitle("Editable variable including dates/times")
         ->setType(QuPage::PageType::Clinician));
 
-    // ========================================================================
+    // ------------------------------------------------------------------------
     // Diagnostic codes
-    // ========================================================================
+    // ------------------------------------------------------------------------
 
     QSharedPointer<Icd10> icd10 = QSharedPointer<Icd10>(new Icd10(m_app));
     QSharedPointer<Icd9cm> icd9cm = QSharedPointer<Icd9cm>(new Icd9cm(m_app));
@@ -682,9 +696,9 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
                              fieldRef("diagnosticcode2_description")),
     })->setTitle("Diagnostic codes"));
 
-    // ========================================================================
+    // ------------------------------------------------------------------------
     // Canvas
-    // ========================================================================
+    // ------------------------------------------------------------------------
 
     QuPagePtr page_canvas((new QuPage{
         (new QuText("Page style: ClinicianWithPatient"))->italic(true),
@@ -700,38 +714,38 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
         ->setTitle("Canvas")
         ->setType(QuPage::PageType::ClinicianWithPatient));
 
-    // ========================================================================
+    // ------------------------------------------------------------------------
     // Buttons
-    // ========================================================================
+    // ------------------------------------------------------------------------
 
     // Safe object lifespan signal: can use std::bind
     QuPagePtr page_buttons((new QuPage{
         new QuButton(
             "Say hello",
-            std::bind(&DemoQuestionnaire::callback_hello, this)),
+            std::bind(&DemoQuestionnaire::callbackHello, this)),
         new QuButton(
             "Button with args ('foo')",
-            std::bind(&DemoQuestionnaire::callback_arg, this, "foo")),
+            std::bind(&DemoQuestionnaire::callbackArg, this, "foo")),
         new QuButton(
             "Button with args ('bar')",
-            std::bind(&DemoQuestionnaire::callback_arg, this, "bar")),
+            std::bind(&DemoQuestionnaire::callbackArg, this, "bar")),
         new QuButton(
             UiConst::CBS_ADD, true, true,
-            std::bind(&DemoQuestionnaire::callback_hello, this)),
+            std::bind(&DemoQuestionnaire::callbackHello, this)),
     })->setTitle("Buttons"));
 
-    // ========================================================================
+    // ------------------------------------------------------------------------
     // Photo (for a mandatory photo: last page in case we have no camera)
-    // ========================================================================
+    // ------------------------------------------------------------------------
 
     QuPagePtr page_photo((new QuPage{
         new QuHeading("Photo [last page]:"),
         new QuPhoto(fieldRef("photo_blobid", true, true, true)),
     })->setTitle("Photo"));
 
-    // ========================================================================
+    // ------------------------------------------------------------------------
     // Questionnaire
-    // ========================================================================
+    // ------------------------------------------------------------------------
 
     Questionnaire* questionnaire = new Questionnaire(m_app, {
         page_text, page_headings_layout_images,
@@ -745,19 +759,17 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
 }
 
 
-void initializeDemoQuestionnaire(TaskFactory& factory)
-{
-    static TaskRegistrar<DemoQuestionnaire> registered(factory);
-}
+// ============================================================================
+// Extra
+// ============================================================================
 
-
-void DemoQuestionnaire::callback_hello()
+void DemoQuestionnaire::callbackHello()
 {
     UiFunc::alert("Hello!");
 }
 
 
-void DemoQuestionnaire::callback_arg(const QString& arg)
+void DemoQuestionnaire::callbackArg(const QString& arg)
 {
     UiFunc::alert("Function argument was: " + arg);
 }

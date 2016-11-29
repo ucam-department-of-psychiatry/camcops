@@ -24,7 +24,7 @@
 import base64
 import binascii
 import re
-from typing import Any, Iterator, List
+from typing import Any, Generator, List
 
 import cardinal_pythonlib.rnc_db as rnc_db
 from ..cc_modules.cc_pls import pls
@@ -144,7 +144,7 @@ def encode_single_value(v: Any, is_blob=False) -> str:
     return str(v)
 
 
-def gen_items_from_sql_csv(s: str) -> Iterator[str]:
+def gen_items_from_sql_csv(s: str) -> Generator[str, None, None]:
     """Splits a comma-separated list of quoted SQL values, with ' as the quote
     character. Allows escaping of the quote character by doubling it. Returns
     the quotes (and escaped quotes) as part of the result. Allows newlines etc.
