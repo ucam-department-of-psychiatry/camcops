@@ -1,6 +1,4 @@
-#pragma once
 // As per http://doc.qt.io/qt-5/qtwidgets-layouts-flowlayout-example.html
-
 
 /*===========================================================================
 ==
@@ -52,6 +50,7 @@
 ==
 ===========================================================================*/
 
+#pragma once
 #include <QLayout>
 #include <QMap>  // RNC
 #include <QRect>

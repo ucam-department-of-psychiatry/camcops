@@ -5,43 +5,491 @@
     <option name="CUSTOM_SCOPE_NAME" value="server" />
   </component>
   <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/server/camcops_server/tasks/cardinal_expdetthreshold.py" line="190" />
+    <bookmark url="file://$PROJECT_DIR$/server/camcops_server/tasks/cardinal_expdetthreshold.py" line="187" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d507af95-9eb5-49a8-90aa-7921b1aee6f4" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/COPYRIGHT.txt" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/LICENSE_GPLv3.txt" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/LICENSE" afterPath="$PROJECT_DIR$/LICENSE_Apache_2.txt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/camcops.py" afterPath="$PROJECT_DIR$/server/camcops_server/camcops.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/camcops_meta.py" afterPath="$PROJECT_DIR$/server/camcops_server/camcops_meta.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/__init__.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/__init__.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_analytics.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_analytics.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_audit.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_audit.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_blob.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_blob.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_configfile.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_configfile.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_constants.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_constants.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_convert.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_convert.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_db.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_db.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_device.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_device.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_dt.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_dt.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_dump.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_dump.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_filename.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_filename.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_hl7.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_hl7.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_hl7core.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_hl7core.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_html.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_html.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_lang.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_lang.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_logger.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_logger.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_math.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_math.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_namedtuples.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_namedtuples.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_nhs.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_nhs.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_nlp.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_nlp.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_patient.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_patient.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_plot.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_plot.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_pls.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_pls.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_policy.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_policy.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_recipdef.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_recipdef.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_report.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_report.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_session.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_session.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_specialnote.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_specialnote.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_storedvar.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_storedvar.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_string.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_string.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_task.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_task.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_tracker.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_tracker.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_unittest.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_unittest.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_user.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_user.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_version.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_version.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_xml.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_xml.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/database.py" afterPath="$PROJECT_DIR$/server/camcops_server/database.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/__init__.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/__init__.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/ace3.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/ace3.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/aims.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/aims.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/audit.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/audit.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/badls.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/badls.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/bdi.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/bdi.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/bmi.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/bmi.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/bprs.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/bprs.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/bprse.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/bprse.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/cage.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/cage.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/cape42.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/cape42.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/caps.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/caps.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/cardinal_expdetthreshold.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/cardinal_expdetthreshold.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/cardinal_expectationdetection.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/cardinal_expectationdetection.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/cbir.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/cbir.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/ceca.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/ceca.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/cgi_task.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/cgi_task.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/cgisch.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/cgisch.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/ciwa.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/ciwa.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/contactlog.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/contactlog.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/cope.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/cope.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/cpft_lps.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/cpft_lps.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/dad.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/dad.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/dast.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/dast.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/deakin_1_healthreview.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/deakin_1_healthreview.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/demoquestionnaire.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/demoquestionnaire.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/demqol.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/demqol.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/diagnosis.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/diagnosis.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/distressthermometer.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/distressthermometer.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/fast.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/fast.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/fft.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/fft.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/frs.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/frs.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/gad7.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/gad7.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/gaf.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/gaf.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/gds.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/gds.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/gmcpq.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/gmcpq.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/hads.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/hads.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/hama.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/hama.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/hamd.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/hamd.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/hamd7.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/hamd7.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/honos.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/honos.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/icd10depressive.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/icd10depressive.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/icd10manic.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/icd10manic.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/icd10mixed.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/icd10mixed.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/icd10schizophrenia.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/icd10schizophrenia.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/icd10schizotypal.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/icd10schizotypal.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/icd10specpd.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/icd10specpd.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/ided3d.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/ided3d.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/iesr.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/iesr.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/ifs.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/ifs.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/irac.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/irac.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/mast.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/mast.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/mds_updrs.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/mds_updrs.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/moca.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/moca.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/nart.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/nart.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/npiq.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/npiq.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/panss.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/panss.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/pcl.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/pcl.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/pdss.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/pdss.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/photo.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/photo.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/phq15.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/phq15.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/phq9.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/phq9.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/progressnote.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/progressnote.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/pswq.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/pswq.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/psychiatricclerking.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/psychiatricclerking.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/qolbasic.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/qolbasic.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/qolsg.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/qolsg.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/rand36.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/rand36.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/service_satisfaction.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/service_satisfaction.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/slums.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/slums.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/smast.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/smast.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/wemwbs.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/wemwbs.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/wsas.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/wsas.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/ybocs.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/ybocs.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/zbi.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/zbi.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks_discarded/asrm.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks_discarded/asrm.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks_discarded/bars.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks_discarded/bars.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks_discarded/bfcrs.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks_discarded/bfcrs.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks_discarded/csi.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks_discarded/csi.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks_discarded/epds.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks_discarded/epds.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks_discarded/fab.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks_discarded/fab.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks_discarded/gass.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks_discarded/gass.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks_discarded/lshs.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks_discarded/lshs.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks_discarded/lunsers.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks_discarded/lunsers.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks_discarded/madrs.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks_discarded/madrs.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks_discarded/sas.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks_discarded/sas.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tools/launch_cherrypy_server.py" afterPath="$PROJECT_DIR$/server/camcops_server/tools/launch_cherrypy_server.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tools/launch_gunicorn_server.py" afterPath="$PROJECT_DIR$/server/camcops_server/tools/launch_gunicorn_server.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/webview.py" afterPath="$PROJECT_DIR$/server/camcops_server/webview.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/playing/inheritance_demo.py" afterPath="$PROJECT_DIR$/server/playing/inheritance_demo.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/playing/snippet_sqla_comparison_symmetry.py" afterPath="$PROJECT_DIR$/server/playing/snippet_sqla_comparison_symmetry.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/playing/sqlalchemy_test.py" afterPath="$PROJECT_DIR$/server/playing/sqlalchemy_test.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tools/MAKE_PACKAGE.py" afterPath="$PROJECT_DIR$/server/tools/MAKE_PACKAGE.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tools/install_virtualenv.py" afterPath="$PROJECT_DIR$/server/tools/install_virtualenv.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/tools/install_wkhtmltopdf.py" afterPath="$PROJECT_DIR$/server/tools/install_wkhtmltopdf.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/camcops.pro" afterPath="$PROJECT_DIR$/tablet_qt/camcops.pro" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/common/camcopsapp.cpp" afterPath="$PROJECT_DIR$/tablet_qt/common/camcopsapp.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/common/camcopsapp.h" afterPath="$PROJECT_DIR$/tablet_qt/common/camcopsapp.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/common/camcopsversion.cpp" afterPath="$PROJECT_DIR$/tablet_qt/common/camcopsversion.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/common/camcopsversion.h" afterPath="$PROJECT_DIR$/tablet_qt/common/camcopsversion.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/common/cssconst.h" afterPath="$PROJECT_DIR$/tablet_qt/common/cssconst.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/common/dbconstants.cpp" afterPath="$PROJECT_DIR$/tablet_qt/common/dbconstants.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/common/dbconstants.h" afterPath="$PROJECT_DIR$/tablet_qt/common/dbconstants.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/common/platform.cpp" afterPath="$PROJECT_DIR$/tablet_qt/common/platform.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/common/platform.h" afterPath="$PROJECT_DIR$/tablet_qt/common/platform.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/common/random.cpp" afterPath="$PROJECT_DIR$/tablet_qt/common/random.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/common/random.h" afterPath="$PROJECT_DIR$/tablet_qt/common/random.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/common/uiconstants.cpp" afterPath="$PROJECT_DIR$/tablet_qt/common/uiconstants.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/common/uiconstants.h" afterPath="$PROJECT_DIR$/tablet_qt/common/uiconstants.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/common/varconst.cpp" afterPath="$PROJECT_DIR$/tablet_qt/common/varconst.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/common/varconst.h" afterPath="$PROJECT_DIR$/tablet_qt/common/varconst.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/common/version.cpp" afterPath="$PROJECT_DIR$/tablet_qt/common/version.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/common/version.h" afterPath="$PROJECT_DIR$/tablet_qt/common/version.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/crypto/cryptofunc.cpp" afterPath="$PROJECT_DIR$/tablet_qt/crypto/cryptofunc.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/crypto/cryptofunc.h" afterPath="$PROJECT_DIR$/tablet_qt/crypto/cryptofunc.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/crypto/secureqbytearray.cpp" afterPath="$PROJECT_DIR$/tablet_qt/crypto/secureqbytearray.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/crypto/secureqbytearray.h" afterPath="$PROJECT_DIR$/tablet_qt/crypto/secureqbytearray.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/crypto/secureqstring.cpp" afterPath="$PROJECT_DIR$/tablet_qt/crypto/secureqstring.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/crypto/secureqstring.h" afterPath="$PROJECT_DIR$/tablet_qt/crypto/secureqstring.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/crypto/zallocator.h" afterPath="$PROJECT_DIR$/tablet_qt/crypto/zallocator.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/databaseobject.cpp" afterPath="$PROJECT_DIR$/tablet_qt/db/databaseobject.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/databaseobject.h" afterPath="$PROJECT_DIR$/tablet_qt/db/databaseobject.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/dbfunc.cpp" afterPath="$PROJECT_DIR$/tablet_qt/db/dbfunc.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/dbfunc.h" afterPath="$PROJECT_DIR$/tablet_qt/db/dbfunc.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/dbnestabletransaction.h" afterPath="$PROJECT_DIR$/tablet_qt/db/dbnestabletransaction.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/dbtransaction.cpp" afterPath="$PROJECT_DIR$/tablet_qt/db/dbtransaction.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/dbtransaction.h" afterPath="$PROJECT_DIR$/tablet_qt/db/dbtransaction.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/field.cpp" afterPath="$PROJECT_DIR$/tablet_qt/db/field.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/field.h" afterPath="$PROJECT_DIR$/tablet_qt/db/field.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/fieldcreationplan.cpp" afterPath="$PROJECT_DIR$/tablet_qt/db/fieldcreationplan.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/fieldcreationplan.h" afterPath="$PROJECT_DIR$/tablet_qt/db/fieldcreationplan.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/fieldref.cpp" afterPath="$PROJECT_DIR$/tablet_qt/db/fieldref.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/fieldref.h" afterPath="$PROJECT_DIR$/tablet_qt/db/fieldref.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/sqlargs.cpp" afterPath="$PROJECT_DIR$/tablet_qt/db/sqlargs.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/sqlargs.h" afterPath="$PROJECT_DIR$/tablet_qt/db/sqlargs.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/sqlitepragmainfofield.cpp" afterPath="$PROJECT_DIR$/tablet_qt/db/sqlitepragmainfofield.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/sqlitepragmainfofield.h" afterPath="$PROJECT_DIR$/tablet_qt/db/sqlitepragmainfofield.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dbobjects/blob.cpp" afterPath="$PROJECT_DIR$/tablet_qt/dbobjects/blob.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dbobjects/blob.h" afterPath="$PROJECT_DIR$/tablet_qt/dbobjects/blob.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dbobjects/extrastring.cpp" afterPath="$PROJECT_DIR$/tablet_qt/dbobjects/extrastring.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dbobjects/extrastring.h" afterPath="$PROJECT_DIR$/tablet_qt/dbobjects/extrastring.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dbobjects/patient.cpp" afterPath="$PROJECT_DIR$/tablet_qt/dbobjects/patient.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dbobjects/patient.h" afterPath="$PROJECT_DIR$/tablet_qt/dbobjects/patient.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dbobjects/storedvar.cpp" afterPath="$PROJECT_DIR$/tablet_qt/dbobjects/storedvar.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dbobjects/storedvar.h" afterPath="$PROJECT_DIR$/tablet_qt/dbobjects/storedvar.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/diagnosis/diagnosissortfiltermodel.cpp" afterPath="$PROJECT_DIR$/tablet_qt/diagnosis/diagnosissortfiltermodel.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/diagnosis/diagnosissortfiltermodel.h" afterPath="$PROJECT_DIR$/tablet_qt/diagnosis/diagnosissortfiltermodel.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/diagnosis/diagnosticcode.cpp" afterPath="$PROJECT_DIR$/tablet_qt/diagnosis/diagnosticcode.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/diagnosis/diagnosticcode.h" afterPath="$PROJECT_DIR$/tablet_qt/diagnosis/diagnosticcode.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/diagnosis/diagnosticcodeset.cpp" afterPath="$PROJECT_DIR$/tablet_qt/diagnosis/diagnosticcodeset.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/diagnosis/diagnosticcodeset.h" afterPath="$PROJECT_DIR$/tablet_qt/diagnosis/diagnosticcodeset.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/diagnosis/flatproxymodel.cpp" afterPath="$PROJECT_DIR$/tablet_qt/diagnosis/flatproxymodel.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/diagnosis/flatproxymodel.h" afterPath="$PROJECT_DIR$/tablet_qt/diagnosis/flatproxymodel.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/diagnosis/icd10.cpp" afterPath="$PROJECT_DIR$/tablet_qt/diagnosis/icd10.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/diagnosis/icd10.h" afterPath="$PROJECT_DIR$/tablet_qt/diagnosis/icd10.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/diagnosis/icd9cm.cpp" afterPath="$PROJECT_DIR$/tablet_qt/diagnosis/icd9cm.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/diagnosis/icd9cm.h" afterPath="$PROJECT_DIR$/tablet_qt/diagnosis/icd9cm.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dialogs/logbox.cpp" afterPath="$PROJECT_DIR$/tablet_qt/dialogs/logbox.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dialogs/logbox.h" afterPath="$PROJECT_DIR$/tablet_qt/dialogs/logbox.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dialogs/nvpchoicedialog.cpp" afterPath="$PROJECT_DIR$/tablet_qt/dialogs/nvpchoicedialog.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dialogs/nvpchoicedialog.h" afterPath="$PROJECT_DIR$/tablet_qt/dialogs/nvpchoicedialog.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dialogs/pagepickerdialog.cpp" afterPath="$PROJECT_DIR$/tablet_qt/dialogs/pagepickerdialog.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dialogs/pagepickerdialog.h" afterPath="$PROJECT_DIR$/tablet_qt/dialogs/pagepickerdialog.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dialogs/passwordchangedialog.cpp" afterPath="$PROJECT_DIR$/tablet_qt/dialogs/passwordchangedialog.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dialogs/passwordchangedialog.h" afterPath="$PROJECT_DIR$/tablet_qt/dialogs/passwordchangedialog.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dialogs/passwordentrydialog.cpp" afterPath="$PROJECT_DIR$/tablet_qt/dialogs/passwordentrydialog.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dialogs/passwordentrydialog.h" afterPath="$PROJECT_DIR$/tablet_qt/dialogs/passwordentrydialog.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dialogs/progressbox.cpp" afterPath="$PROJECT_DIR$/tablet_qt/dialogs/progressbox.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dialogs/progressbox.h" afterPath="$PROJECT_DIR$/tablet_qt/dialogs/progressbox.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dialogs/waitbox.cpp" afterPath="$PROJECT_DIR$/tablet_qt/dialogs/waitbox.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dialogs/waitbox.h" afterPath="$PROJECT_DIR$/tablet_qt/dialogs/waitbox.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/cloneable.h" afterPath="$PROJECT_DIR$/tablet_qt/lib/cloneable.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/convert.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/convert.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/convert.h" afterPath="$PROJECT_DIR$/tablet_qt/lib/convert.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/datetimefunc.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/datetimefunc.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/datetimefunc.h" afterPath="$PROJECT_DIR$/tablet_qt/lib/datetimefunc.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/debugfunc.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/debugfunc.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/debugfunc.h" afterPath="$PROJECT_DIR$/tablet_qt/lib/debugfunc.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/filefunc.h" afterPath="$PROJECT_DIR$/tablet_qt/lib/filefunc.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/idpolicy.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/idpolicy.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/idpolicy.h" afterPath="$PROJECT_DIR$/tablet_qt/lib/idpolicy.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/imagefunc.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/imagefunc.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/imagefunc.h" afterPath="$PROJECT_DIR$/tablet_qt/lib/imagefunc.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/layoutdumper.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/layoutdumper.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/layoutdumper.h" afterPath="$PROJECT_DIR$/tablet_qt/lib/layoutdumper.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/mathfunc.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/mathfunc.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/mathfunc.h" afterPath="$PROJECT_DIR$/tablet_qt/lib/mathfunc.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/networkmanager.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/networkmanager.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/networkmanager.h" afterPath="$PROJECT_DIR$/tablet_qt/lib/networkmanager.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/numericfunc.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/numericfunc.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/numericfunc.h" afterPath="$PROJECT_DIR$/tablet_qt/lib/numericfunc.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/slowguiguard.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/slowguiguard.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/slowguiguard.h" afterPath="$PROJECT_DIR$/tablet_qt/lib/slowguiguard.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/slownonguifunctioncaller.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/slownonguifunctioncaller.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/slownonguifunctioncaller.h" afterPath="$PROJECT_DIR$/tablet_qt/lib/slownonguifunctioncaller.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/stringfunc.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/stringfunc.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/stringfunc.h" afterPath="$PROJECT_DIR$/tablet_qt/lib/stringfunc.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/threadworker.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/threadworker.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/threadworker.h" afterPath="$PROJECT_DIR$/tablet_qt/lib/threadworker.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/uifunc.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/uifunc.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/uifunc.h" afterPath="$PROJECT_DIR$/tablet_qt/lib/uifunc.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/main.cpp" afterPath="$PROJECT_DIR$/tablet_qt/main.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/addictionmenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/addictionmenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/addictionmenu.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/addictionmenu.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/affectivemenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/affectivemenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/affectivemenu.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/affectivemenu.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/alltasksmenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/alltasksmenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/alltasksmenu.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/alltasksmenu.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/anonymousmenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/anonymousmenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/anonymousmenu.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/anonymousmenu.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/catatoniaepsemenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/catatoniaepsemenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/catatoniaepsemenu.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/catatoniaepsemenu.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/choosepatientmenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/choosepatientmenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/choosepatientmenu.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/choosepatientmenu.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/clinicalmenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/clinicalmenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/clinicalmenu.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/clinicalmenu.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/clinicalsetsmenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/clinicalsetsmenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/clinicalsetsmenu.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/clinicalsetsmenu.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/cognitivemenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/cognitivemenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/cognitivemenu.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/cognitivemenu.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/executivemenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/executivemenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/executivemenu.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/executivemenu.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/globalmenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/globalmenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/globalmenu.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/globalmenu.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/helpmenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/helpmenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/helpmenu.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/helpmenu.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/mainmenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/mainmenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/mainmenu.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/mainmenu.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/patientsummarymenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/patientsummarymenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/patientsummarymenu.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/patientsummarymenu.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/personalitymenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/personalitymenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/personalitymenu.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/personalitymenu.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/psychosismenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/psychosismenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/psychosismenu.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/psychosismenu.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/researchmenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/researchmenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/researchmenu.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/researchmenu.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/researchsetsmenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/researchsetsmenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/researchsetsmenu.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/researchsetsmenu.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/setmenucpftaffective1.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/setmenucpftaffective1.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/setmenucpftaffective1.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/setmenucpftaffective1.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/setmenudeakin1.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/setmenudeakin1.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/setmenudeakin1.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/setmenudeakin1.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/setmenufromlp.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/setmenufromlp.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/setmenufromlp.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/setmenufromlp.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/setmenuobrien1.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/setmenuobrien1.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/setmenuobrien1.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/setmenuobrien1.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/settingsmenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/settingsmenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/settingsmenu.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/settingsmenu.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/singletaskmenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/singletaskmenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/singletaskmenu.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/singletaskmenu.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/testmenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/testmenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/testmenu.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/testmenu.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/whiskermenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/whiskermenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/whiskermenu.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/whiskermenu.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/widgettestmenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/widgettestmenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/widgettestmenu.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/widgettestmenu.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/choosepatientmenuitem.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menulib/choosepatientmenuitem.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/choosepatientmenuitem.h" afterPath="$PROJECT_DIR$/tablet_qt/menulib/choosepatientmenuitem.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/htmlinfowindow.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menulib/htmlinfowindow.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/htmlinfowindow.h" afterPath="$PROJECT_DIR$/tablet_qt/menulib/htmlinfowindow.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/htmlmenuitem.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menulib/htmlmenuitem.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/htmlmenuitem.h" afterPath="$PROJECT_DIR$/tablet_qt/menulib/htmlmenuitem.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/menuheader.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menulib/menuheader.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/menuheader.h" afterPath="$PROJECT_DIR$/tablet_qt/menulib/menuheader.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/menuitem.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menulib/menuitem.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/menuitem.h" afterPath="$PROJECT_DIR$/tablet_qt/menulib/menuitem.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/menuproxy.h" afterPath="$PROJECT_DIR$/tablet_qt/menulib/menuproxy.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/menuwindow.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menulib/menuwindow.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/menuwindow.h" afterPath="$PROJECT_DIR$/tablet_qt/menulib/menuwindow.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/taskmenuitem.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menulib/taskmenuitem.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/taskmenuitem.h" afterPath="$PROJECT_DIR$/tablet_qt/menulib/taskmenuitem.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/notes/qt_notes.txt" afterPath="$PROJECT_DIR$/tablet_qt/notes/qt_notes.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/qobjects/focuswatcher.cpp" afterPath="$PROJECT_DIR$/tablet_qt/qobjects/focuswatcher.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/qobjects/focuswatcher.h" afterPath="$PROJECT_DIR$/tablet_qt/qobjects/focuswatcher.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/qobjects/keypresswatcher.cpp" afterPath="$PROJECT_DIR$/tablet_qt/qobjects/keypresswatcher.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/qobjects/keypresswatcher.h" afterPath="$PROJECT_DIR$/tablet_qt/qobjects/keypresswatcher.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/qobjects/shootabug.cpp" afterPath="$PROJECT_DIR$/tablet_qt/qobjects/shootabug.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/qobjects/shootabug.h" afterPath="$PROJECT_DIR$/tablet_qt/qobjects/shootabug.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/qobjects/showwatcher.cpp" afterPath="$PROJECT_DIR$/tablet_qt/qobjects/showwatcher.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/qobjects/showwatcher.h" afterPath="$PROJECT_DIR$/tablet_qt/qobjects/showwatcher.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/qobjects/strictdoublevalidator.cpp" afterPath="$PROJECT_DIR$/tablet_qt/qobjects/strictdoublevalidator.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/qobjects/strictdoublevalidator.h" afterPath="$PROJECT_DIR$/tablet_qt/qobjects/strictdoublevalidator.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/qobjects/strictint64validator.cpp" afterPath="$PROJECT_DIR$/tablet_qt/qobjects/strictint64validator.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/qobjects/strictint64validator.h" afterPath="$PROJECT_DIR$/tablet_qt/qobjects/strictint64validator.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/qobjects/strictintvalidator.cpp" afterPath="$PROJECT_DIR$/tablet_qt/qobjects/strictintvalidator.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/qobjects/strictintvalidator.h" afterPath="$PROJECT_DIR$/tablet_qt/qobjects/strictintvalidator.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/qobjects/strictuint64validator.cpp" afterPath="$PROJECT_DIR$/tablet_qt/qobjects/strictuint64validator.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/qobjects/strictuint64validator.h" afterPath="$PROJECT_DIR$/tablet_qt/qobjects/strictuint64validator.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/commonoptions.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/commonoptions.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/commonoptions.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/commonoptions.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/mcqfunc.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/mcqfunc.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/mcqfunc.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/mcqfunc.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/mcqgridsubtitle.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/mcqgridsubtitle.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/namevalueoptions.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/namevalueoptions.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/namevalueoptions.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/namevalueoptions.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/namevaluepair.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/namevaluepair.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/namevaluepair.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/namevaluepair.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/pagepickeritem.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/pagepickeritem.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/pagepickeritem.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/pagepickeritem.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quaudioplayer.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quaudioplayer.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quaudioplayer.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quaudioplayer.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quboolean.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quboolean.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quboolean.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quboolean.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qubutton.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qubutton.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qubutton.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qubutton.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qucanvas.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qucanvas.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qucanvas.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qucanvas.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qucontainergrid.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qucontainergrid.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qucontainergrid.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qucontainergrid.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qucontainerhorizontal.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qucontainerhorizontal.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qucontainerhorizontal.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qucontainerhorizontal.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qucontainervertical.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qucontainervertical.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qucontainervertical.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qucontainervertical.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qucountdown.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qucountdown.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qucountdown.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qucountdown.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qudatetime.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qudatetime.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qudatetime.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qudatetime.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qudiagnosticcode.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qudiagnosticcode.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qudiagnosticcode.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qudiagnosticcode.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quelement.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quelement.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quelement.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quelement.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnaire.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnaire.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnaire.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnaire.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnairefunc.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnairefunc.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnairefunc.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnairefunc.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnaireheader.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnaireheader.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnaireheader.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnaireheader.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionwithonefield.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionwithonefield.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionwithonefield.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionwithonefield.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionwithtwofields.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionwithtwofields.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionwithtwofields.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionwithtwofields.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qugridcell.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qugridcell.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qugridcell.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qugridcell.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quheading.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quheading.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quheading.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quheading.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quhorizontalline.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quhorizontalline.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quhorizontalline.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quhorizontalline.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quimage.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quimage.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quimage.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quimage.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qulineedit.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qulineedit.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qulineedit.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qulineedit.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qulineeditdouble.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qulineeditdouble.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qulineeditdouble.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qulineeditdouble.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qulineeditinteger.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qulineeditinteger.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qulineeditinteger.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qulineeditinteger.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qulineeditlonglong.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qulineeditlonglong.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qulineeditlonglong.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qulineeditlonglong.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qulineeditulonglong.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qulineeditulonglong.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qulineeditulonglong.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qulineeditulonglong.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcq.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcq.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/resources/camcops/stylesheets/questionnaire.css" afterPath="$PROJECT_DIR$/tablet_qt/resources/camcops/stylesheets/questionnaire.css" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasklib/task.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasklib/task.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcq.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcq.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcqgrid.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcqgrid.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcqgrid.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcqgrid.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcqgriddouble.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcqgriddouble.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcqgriddouble.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcqgriddouble.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcqgriddoublesignaller.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcqgriddoublesignaller.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcqgriddoublesignaller.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcqgriddoublesignaller.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcqgridsignaller.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcqgridsignaller.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcqgridsignaller.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcqgridsignaller.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcqgridsingleboolean.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcqgridsingleboolean.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcqgridsingleboolean.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcqgridsingleboolean.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcqgridsinglebooleansignaller.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcqgridsinglebooleansignaller.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcqgridsinglebooleansignaller.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumcqgridsinglebooleansignaller.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumultipleresponse.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumultipleresponse.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumultipleresponse.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qumultipleresponse.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qupage.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qupage.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qupage.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qupage.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quphoto.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quphoto.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quphoto.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quphoto.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qupickerinline.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qupickerinline.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qupickerinline.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qupickerinline.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qupickerpopup.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qupickerpopup.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qupickerpopup.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qupickerpopup.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quslider.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quslider.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quslider.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quslider.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quspacer.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quspacer.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quspacer.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quspacer.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quspinboxdouble.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quspinboxdouble.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quspinboxdouble.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quspinboxdouble.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quspinboxinteger.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quspinboxinteger.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quspinboxinteger.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quspinboxinteger.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qutext.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qutext.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qutext.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qutext.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qutextedit.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qutextedit.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qutextedit.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qutextedit.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quthermometer.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quthermometer.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quthermometer.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quthermometer.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quthermometeritem.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quthermometeritem.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quthermometeritem.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quthermometeritem.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasklib/inittasks.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasklib/inittasks.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasklib/inittasks.h" afterPath="$PROJECT_DIR$/tablet_qt/tasklib/inittasks.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasklib/task.h" afterPath="$PROJECT_DIR$/tablet_qt/tasklib/task.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasklib/taskfactory.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasklib/taskfactory.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasklib/taskfactory.h" afterPath="$PROJECT_DIR$/tablet_qt/tasklib/taskfactory.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasklib/taskproxy.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasklib/taskproxy.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasklib/taskproxy.h" afterPath="$PROJECT_DIR$/tablet_qt/tasklib/taskproxy.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasklib/taskregistrar.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasklib/taskregistrar.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasklib/taskregistrar.h" afterPath="$PROJECT_DIR$/tablet_qt/tasklib/taskregistrar.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasklib/tasksorter.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasklib/tasksorter.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasklib/tasksorter.h" afterPath="$PROJECT_DIR$/tablet_qt/tasklib/tasksorter.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasks/demoquestionnaire.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasks/demoquestionnaire.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasks/demoquestionnaire.h" afterPath="$PROJECT_DIR$/tablet_qt/tasks/demoquestionnaire.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasks/phq9.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasks/phq9.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasks/phq9.h" afterPath="$PROJECT_DIR$/tablet_qt/tasks/phq9.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/aspectratiopixmaplabel.cpp" afterPath="$PROJECT_DIR$/tablet_qt/widgets/aspectratiopixmaplabel.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/aspectratiopixmaplabel.h" afterPath="$PROJECT_DIR$/tablet_qt/widgets/aspectratiopixmaplabel.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/booleanwidget.cpp" afterPath="$PROJECT_DIR$/tablet_qt/widgets/booleanwidget.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/booleanwidget.h" afterPath="$PROJECT_DIR$/tablet_qt/widgets/booleanwidget.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/camera.h" afterPath="$PROJECT_DIR$/tablet_qt/widgets/camera.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/canvaswidget.cpp" afterPath="$PROJECT_DIR$/tablet_qt/widgets/canvaswidget.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/canvaswidget.h" afterPath="$PROJECT_DIR$/tablet_qt/widgets/canvaswidget.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/clickablelabel.cpp" afterPath="$PROJECT_DIR$/tablet_qt/widgets/clickablelabel.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/clickablelabel.h" afterPath="$PROJECT_DIR$/tablet_qt/widgets/clickablelabel.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/clickablelabelwordwrapwide.cpp" afterPath="$PROJECT_DIR$/tablet_qt/widgets/clickablelabelwordwrapwide.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/clickablelabelwordwrapwide.h" afterPath="$PROJECT_DIR$/tablet_qt/widgets/clickablelabelwordwrapwide.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/diagnosticcodeselector.cpp" afterPath="$PROJECT_DIR$/tablet_qt/widgets/diagnosticcodeselector.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/diagnosticcodeselector.h" afterPath="$PROJECT_DIR$/tablet_qt/widgets/diagnosticcodeselector.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/flowlayout.h" afterPath="$PROJECT_DIR$/tablet_qt/widgets/flowlayout.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/growingtextedit.cpp" afterPath="$PROJECT_DIR$/tablet_qt/widgets/growingtextedit.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/growingtextedit.h" afterPath="$PROJECT_DIR$/tablet_qt/widgets/growingtextedit.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/heightforwidthlayoutcontainer.cpp" afterPath="$PROJECT_DIR$/tablet_qt/widgets/heightforwidthlayoutcontainer.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/heightforwidthlayoutcontainer.h" afterPath="$PROJECT_DIR$/tablet_qt/widgets/heightforwidthlayoutcontainer.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/horizontalline.h" afterPath="$PROJECT_DIR$/tablet_qt/widgets/horizontalline.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/imagebutton.cpp" afterPath="$PROJECT_DIR$/tablet_qt/widgets/imagebutton.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/imagebutton.h" afterPath="$PROJECT_DIR$/tablet_qt/widgets/imagebutton.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/labelwordwrapwide.cpp" afterPath="$PROJECT_DIR$/tablet_qt/widgets/labelwordwrapwide.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/labelwordwrapwide.h" afterPath="$PROJECT_DIR$/tablet_qt/widgets/labelwordwrapwide.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/openablewidget.cpp" afterPath="$PROJECT_DIR$/tablet_qt/widgets/openablewidget.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/openablewidget.h" afterPath="$PROJECT_DIR$/tablet_qt/widgets/openablewidget.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/spacer.cpp" afterPath="$PROJECT_DIR$/tablet_qt/widgets/spacer.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/spacer.h" afterPath="$PROJECT_DIR$/tablet_qt/widgets/spacer.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/tickslider.cpp" afterPath="$PROJECT_DIR$/tablet_qt/widgets/tickslider.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/tickslider.h" afterPath="$PROJECT_DIR$/tablet_qt/widgets/tickslider.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/verticalline.cpp" afterPath="$PROJECT_DIR$/tablet_qt/widgets/verticalline.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/verticalline.h" afterPath="$PROJECT_DIR$/tablet_qt/widgets/verticalline.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/verticalscrollarea.cpp" afterPath="$PROJECT_DIR$/tablet_qt/widgets/verticalscrollarea.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/verticalscrollarea.h" afterPath="$PROJECT_DIR$/tablet_qt/widgets/verticalscrollarea.h" />
     </list>
     <ignored path="camcops.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -62,71 +510,32 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="cc_task.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_task.py">
+      <file leaf-file-name="__init__.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/__init__.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="13">
-              <caret line="3203" column="35" lean-forward="false" selection-start-line="3203" selection-start-column="35" selection-end-line="3203" selection-end-column="35" />
-              <folding>
-                <marker date="1480262586782" expanded="true" signature="45945:46155" ph="UPDATE missi... " />
-                <marker date="1480262586782" expanded="true" signature="50721:51034" ph="SELECT missi... " />
-                <marker date="1480262586782" expanded="true" signature="57948:57995" ph="SELECT _pk, " />
-                <marker date="1480262586782" expanded="true" signature="58620:58868" ph="SELECT missi... " />
-                <marker date="1480262586782" expanded="true" signature="67218:67515" ph="SELECT missi... " />
-                <marker date="1480262586782" expanded="true" signature="68866:68923" ph="SELECT _pk F... " />
-                <marker date="1480262586782" expanded="true" signature="122379:122493" ph="SELECT _pk, " />
-                <marker date="1480262586782" expanded="true" signature="123554:123703" ph="SELECT _pk, " />
-                <marker date="1480262586782" expanded="true" signature="127650:128178" ph="SELECT 'miss... " />
-                <marker date="1480262586782" expanded="true" signature="148658:148691" ph="SELECT _pk F... " />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="CAMCOPS_SERVER_TO_DO.txt" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/CAMCOPS_SERVER_TO_DO.txt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1209">
-              <caret line="93" column="53" lean-forward="false" selection-start-line="93" selection-start-column="53" selection-end-line="93" selection-end-column="53" />
+            <state relative-caret-position="286">
+              <caret line="22" column="0" lean-forward="false" selection-start-line="22" selection-start-column="0" selection-end-line="22" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="webview.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/camcops_server/webview.py">
+      <file leaf-file-name="cc_analytics.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_analytics.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="32136">
-              <caret line="2472" column="32" lean-forward="false" selection-start-line="2472" selection-start-column="32" selection-end-line="2472" selection-end-column="32" />
-              <folding>
-                <marker date="1470143570820" expanded="true" signature="57524:57714" ph="SELECT when_... missing_value" />
-                <marker date="1470143570820" expanded="true" signature="62459:62486" ph="SELECT msg_i... missing_value" />
-                <marker date="1470143570820" expanded="true" signature="66342:66369" ph="SELECT run_i... missing_value" />
-                <marker date="1470143570820" expanded="true" signature="80758:80791" ph="DELETE FROM " />
-                <marker date="1470143570820" expanded="true" signature="109477:109835" ph="SELECT t.tab... columns" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="bmi.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/bmi.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="299">
-              <caret line="23" column="33" lean-forward="false" selection-start-line="23" selection-start-column="33" selection-end-line="23" selection-end-column="33" />
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="cardinal_expdetthreshold.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/cardinal_expdetthreshold.py">
+      <file leaf-file-name="cc_audit.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_audit.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3835">
-              <caret line="312" column="38" lean-forward="false" selection-start-line="312" selection-start-column="38" selection-end-line="312" selection-end-column="38" />
-              <folding>
-                <element signature="e#811#822#0" expanded="false" />
-              </folding>
+            <state relative-caret-position="520">
+              <caret line="40" column="22" lean-forward="false" selection-start-line="40" selection-start-column="15" selection-end-line="40" selection-end-column="22" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -135,52 +544,39 @@
         <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_blob.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="1391">
-              <caret line="107" column="72" lean-forward="false" selection-start-line="107" selection-start-column="72" selection-end-line="107" selection-end-column="72" />
+              <caret line="107" column="23" lean-forward="true" selection-start-line="107" selection-start-column="23" selection-end-line="107" selection-end-column="23" />
               <folding>
-                <marker date="1480262586806" expanded="true" signature="7974:8007" ph="SELECT _pk F... " />
+                <marker date="1480439132894" expanded="true" signature="7895:7928" ph="SELECT _pk F... " />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="cc_convert.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_convert.py">
+      <file leaf-file-name="cc_constants.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_constants.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1898">
-              <caret line="146" column="35" lean-forward="false" selection-start-line="146" selection-start-column="35" selection-end-line="146" selection-end-column="35" />
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="cc_patient.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_patient.py">
+      <file leaf-file-name="asrm.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks_discarded/asrm.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1963">
-              <caret line="151" column="8" lean-forward="false" selection-start-line="151" selection-start-column="8" selection-end-line="151" selection-end-column="8" />
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="cc_user.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_user.py">
+      <file leaf-file-name="bars.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks_discarded/bars.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="6617">
-              <caret line="509" column="57" lean-forward="false" selection-start-line="509" selection-start-column="57" selection-end-line="509" selection-end-column="57" />
-              <folding>
-                <marker date="1480262187854" expanded="true" signature="13312:13409" ph="SELECT COUNT... missing_value" />
-                <marker date="1480262187854" expanded="true" signature="20216:20231" ph="SELECT id FR... missing_value" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ace3.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/ace3.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3796">
-              <caret line="292" column="15" lean-forward="false" selection-start-line="292" selection-start-column="15" selection-end-line="292" selection-end-column="15" />
+            <state relative-caret-position="702">
+              <caret line="54" column="44" lean-forward="true" selection-start-line="54" selection-start-column="44" selection-end-line="54" selection-end-column="44" />
               <folding />
             </state>
           </provider>
@@ -214,7 +610,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/server/camcops_server/tasks/__init__.py" />
         <option value="$PROJECT_DIR$/server/camcops_server/tasks/icd10depressive.py" />
         <option value="$PROJECT_DIR$/server/camcops_server/tasks/icd10manic.py" />
         <option value="$PROJECT_DIR$/server/camcops_server/tasks/icd10mixed.py" />
@@ -265,6 +660,7 @@
         <option value="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_blob.py" />
         <option value="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_convert.py" />
         <option value="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_task.py" />
+        <option value="$PROJECT_DIR$/server/camcops_server/cc_modules/__init__.py" />
       </list>
     </option>
   </component>
@@ -278,9 +674,10 @@
     <scope name="server" pattern="file[camcops]:server//*" />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="1197" />
+    <option name="x" value="-3" />
+    <option name="y" value="48" />
     <option name="width" value="1206" />
-    <option name="height" value="1603" />
+    <option name="height" value="1555" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -313,6 +710,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -375,13 +773,34 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="tasks_discarded" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="camcops" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="camcops" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="server" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="camcops_server" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="cc_modules" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
       <pane id="Scratches" />
     </panes>
   </component>
@@ -391,6 +810,8 @@
     <property name="last_opened_file_path" value="$USER_HOME$/dev/venvs/camcops/bin/python" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="js-jscs-nodeInterpreter" value="/usr/local/bin/node" />
+    <property name="nodejs_interpreter_path" value="/usr/local/bin/node" />
+    <property name="js.eslint.eslintPackage" value="" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -429,6 +850,12 @@
       <option name="CUSTOM_SETTINGS" value="false" />
       <option name="USE_OPTIONS" value="false" />
       <option name="OPTIONS" value="" />
+      <method />
+    </configuration>
+    <configuration default="true" type="JavaScriptTestRunnerProtractor" factoryName="Protractor">
+      <config-file value="" />
+      <node-interpreter value="project" />
+      <envs />
       <method />
     </configuration>
     <configuration default="true" type="JavascriptDebugType" factoryName="JavaScript Debug">
@@ -645,14 +1072,15 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1197" y="0" width="1206" height="1603" extended-state="6" />
-    <editor active="true" />
+    <frame x="-3" y="48" width="1206" height="1555" extended-state="6" />
+    <editor active="false" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26833335" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="LuaJ" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33829498" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" x="-2" y="594" width="1204" height="475" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -665,7 +1093,6 @@
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection Results" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.327654" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33879423" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" x="-2" y="594" width="1204" height="475" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
     </layout>
@@ -693,11 +1120,11 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_convert.py</url>
-          <line>23</line>
+          <line>20</line>
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_tracker.py</url>
-          <line>23</line>
+          <line>20</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
@@ -707,12 +1134,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/server/camcops_server/tasks_discarded/gass.py</url>
-          <line>25</line>
+          <line>22</line>
           <option name="timeStamp" value="4" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/server/camcops_server/tasks_discarded/bars.py</url>
-          <line>25</line>
+          <line>22</line>
           <option name="timeStamp" value="6" />
         </line-breakpoint>
       </breakpoints>
@@ -721,48 +1148,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_specialnote.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="793">
-          <caret line="61" column="65" lean-forward="false" selection-start-line="61" selection-start-column="65" selection-end-line="61" selection-end-column="65" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_session.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="328">
-          <caret line="259" column="43" lean-forward="false" selection-start-line="259" selection-start-column="43" selection-end-line="259" selection-end-column="43" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_html.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="868">
-          <caret line="596" column="31" lean-forward="false" selection-start-line="596" selection-start-column="31" selection-end-line="596" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_audit.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="520">
-          <caret line="40" column="22" lean-forward="false" selection-start-line="40" selection-start-column="15" selection-end-line="40" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../cardinal_pythonlib/cardinal_pythonlib/rnc_db.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="319">
-          <caret line="2305" column="13" lean-forward="false" selection-start-line="2305" selection-start-column="4" selection-end-line="2305" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_db.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="507">
-          <caret line="39" column="18" lean-forward="false" selection-start-line="39" selection-start-column="18" selection-end-line="39" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/server/to_do.txt" />
     <entry file="file://$PROJECT_DIR$/server/changelog.Debian">
       <provider selected="true" editor-type-id="text-editor">
@@ -873,13 +1258,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="663">
           <caret line="51" column="38" lean-forward="false" selection-start-line="51" selection-start-column="38" selection-end-line="51" selection-end-column="38" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_constants.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="312">
-          <caret line="97" column="0" lean-forward="false" selection-start-line="97" selection-start-column="0" selection-end-line="97" selection-end-column="0" />
         </state>
       </provider>
     </entry>
@@ -1016,53 +1394,36 @@
         <state relative-caret-position="6617">
           <caret line="509" column="57" lean-forward="false" selection-start-line="509" selection-start-column="57" selection-end-line="509" selection-end-column="57" />
           <folding>
-            <marker date="1480262187854" expanded="true" signature="13312:13409" ph="SELECT COUNT... missing_value" />
-            <marker date="1480262187854" expanded="true" signature="20216:20231" ph="SELECT id FR... missing_value" />
+            <marker date="1480439132898" expanded="true" signature="13233:13330" ph="SELECT COUNT... missing_value" />
+            <marker date="1480439132898" expanded="true" signature="20137:20152" ph="SELECT id FR... missing_value" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/ace3.py">
+    <entry file="file://$PROJECT_DIR$/LICENSE">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3796">
-          <caret line="292" column="15" lean-forward="false" selection-start-line="292" selection-start-column="15" selection-end-line="292" selection-end-column="15" />
+        <state relative-caret-position="611">
+          <caret line="47" column="51" lean-forward="true" selection-start-line="47" selection-start-column="51" selection-end-line="47" selection-end-column="51" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/bmi.py">
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_task.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="299">
-          <caret line="23" column="33" lean-forward="false" selection-start-line="23" selection-start-column="33" selection-end-line="23" selection-end-column="33" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/cardinal_expdetthreshold.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3835">
-          <caret line="312" column="38" lean-forward="false" selection-start-line="312" selection-start-column="38" selection-end-line="312" selection-end-column="38" />
+        <state relative-caret-position="13">
+          <caret line="3203" column="35" lean-forward="false" selection-start-line="3203" selection-start-column="35" selection-end-line="3203" selection-end-column="35" />
           <folding>
-            <element signature="e#811#822#0" expanded="false" />
+            <marker date="1480439132894" expanded="true" signature="45866:46076" ph="UPDATE missi... " />
+            <marker date="1480439132894" expanded="true" signature="50642:50955" ph="SELECT missi... " />
+            <marker date="1480439132894" expanded="true" signature="57869:57916" ph="SELECT _pk, " />
+            <marker date="1480439132894" expanded="true" signature="58541:58789" ph="SELECT missi... " />
+            <marker date="1480439132894" expanded="true" signature="67139:67436" ph="SELECT missi... " />
+            <marker date="1480439132894" expanded="true" signature="68787:68844" ph="SELECT _pk F... " />
+            <marker date="1480439132894" expanded="true" signature="122300:122414" ph="SELECT _pk, " />
+            <marker date="1480439132894" expanded="true" signature="123475:123624" ph="SELECT _pk, " />
+            <marker date="1480439132894" expanded="true" signature="127571:128099" ph="SELECT 'miss... " />
+            <marker date="1480439132894" expanded="true" signature="148579:148612" ph="SELECT _pk F... " />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_blob.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1391">
-          <caret line="107" column="72" lean-forward="false" selection-start-line="107" selection-start-column="72" selection-end-line="107" selection-end-column="72" />
-          <folding>
-            <marker date="1480262586806" expanded="true" signature="7974:8007" ph="SELECT _pk F... " />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_convert.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1898">
-          <caret line="146" column="35" lean-forward="false" selection-start-line="146" selection-start-column="35" selection-end-line="146" selection-end-column="35" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1076,34 +1437,107 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/server/camcops_server/webview.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="32136">
+        <state relative-caret-position="1427">
           <caret line="2472" column="32" lean-forward="false" selection-start-line="2472" selection-start-column="32" selection-end-line="2472" selection-end-column="32" />
           <folding>
-            <marker date="1470143570820" expanded="true" signature="57524:57714" ph="SELECT when_... missing_value" />
-            <marker date="1470143570820" expanded="true" signature="62459:62486" ph="SELECT msg_i... missing_value" />
-            <marker date="1470143570820" expanded="true" signature="66342:66369" ph="SELECT run_i... missing_value" />
-            <marker date="1470143570820" expanded="true" signature="80758:80791" ph="DELETE FROM " />
-            <marker date="1470143570820" expanded="true" signature="109477:109835" ph="SELECT t.tab... columns" />
+            <marker date="1480439132862" expanded="true" signature="57445:57635" ph="SELECT when_... missing_value" />
+            <marker date="1480439132862" expanded="true" signature="62380:62407" ph="SELECT msg_i... missing_value" />
+            <marker date="1480439132862" expanded="true" signature="66263:66290" ph="SELECT run_i... missing_value" />
+            <marker date="1480439132862" expanded="true" signature="80679:80712" ph="DELETE FROM " />
+            <marker date="1480439132862" expanded="true" signature="109398:109756" ph="SELECT t.tab... columns" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_task.py">
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/bmi.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="13">
-          <caret line="3203" column="35" lean-forward="false" selection-start-line="3203" selection-start-column="35" selection-end-line="3203" selection-end-column="35" />
+        <state relative-caret-position="299">
+          <caret line="23" column="33" lean-forward="false" selection-start-line="23" selection-start-column="33" selection-end-line="23" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/cardinal_expdetthreshold.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1427">
+          <caret line="312" column="38" lean-forward="false" selection-start-line="312" selection-start-column="38" selection-end-line="312" selection-end-column="38" />
           <folding>
-            <marker date="1480262586782" expanded="true" signature="45945:46155" ph="UPDATE missi... " />
-            <marker date="1480262586782" expanded="true" signature="50721:51034" ph="SELECT missi... " />
-            <marker date="1480262586782" expanded="true" signature="57948:57995" ph="SELECT _pk, " />
-            <marker date="1480262586782" expanded="true" signature="58620:58868" ph="SELECT missi... " />
-            <marker date="1480262586782" expanded="true" signature="67218:67515" ph="SELECT missi... " />
-            <marker date="1480262586782" expanded="true" signature="68866:68923" ph="SELECT _pk F... " />
-            <marker date="1480262586782" expanded="true" signature="122379:122493" ph="SELECT _pk, " />
-            <marker date="1480262586782" expanded="true" signature="123554:123703" ph="SELECT _pk, " />
-            <marker date="1480262586782" expanded="true" signature="127650:128178" ph="SELECT 'miss... " />
-            <marker date="1480262586782" expanded="true" signature="148658:148691" ph="SELECT _pk F... " />
+            <element signature="e#732#743#0" expanded="false" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_convert.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1427">
+          <caret line="146" column="35" lean-forward="false" selection-start-line="146" selection-start-column="35" selection-end-line="146" selection-end-column="35" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/ace3.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1427">
+          <caret line="292" column="15" lean-forward="false" selection-start-line="292" selection-start-column="15" selection-end-line="292" selection-end-column="15" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="286">
+          <caret line="22" column="0" lean-forward="false" selection-start-line="22" selection-start-column="0" selection-end-line="22" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_analytics.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_audit.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="520">
+          <caret line="40" column="22" lean-forward="false" selection-start-line="40" selection-start-column="15" selection-end-line="40" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_blob.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1391">
+          <caret line="107" column="23" lean-forward="true" selection-start-line="107" selection-start-column="23" selection-end-line="107" selection-end-column="23" />
+          <folding>
+            <marker date="1480439132894" expanded="true" signature="7895:7928" ph="SELECT _pk F... " />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_constants.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks_discarded/asrm.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks_discarded/bars.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="702">
+          <caret line="54" column="44" lean-forward="true" selection-start-line="54" selection-start-column="44" selection-end-line="54" selection-end-column="44" />
+          <folding />
         </state>
       </provider>
     </entry>

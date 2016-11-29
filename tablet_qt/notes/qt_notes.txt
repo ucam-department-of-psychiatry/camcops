@@ -40,7 +40,7 @@ Overall design changes 2016
 ===============================================================================
 Licensing
 ===============================================================================
-- Qt Community requires the LGPL.
+- Qt Community requires the LGPLv3.
 - The LGPL appears to be compatible with app stores (Apple, Google) AS LONG AS
   the work is:
     - fully open-sourced (if static linking required, which it is for older
@@ -53,7 +53,29 @@ Licensing
     https://www.qt.io/faq/
     http://blog.qt.io/blog/2014/10/01/benefits-of-the-indie-mobile-licensing/
     https://wiki.qt.io/Licensing-talk-about-mobile-platforms
-- License should therefore be LGPL v3 (+/- others if dual licensing required).
+- License of CamCOPS should therefore be LGPL v3 (+/- others if dual licensing
+  required), or GPLv3.
+- The main difference between GPL and LGPL is that anything with GPL licensing
+  must be relased under the GPL.
+  See also
+    - http://www.gnu.org/licenses/why-not-lgpl.html
+    - http://www.gnu.org/licenses/license-recommendations.html
+  Let's use the GPLv3.
+    - http://www.gnu.org/licenses/gpl.html
+  On including other libraries:
+    - http://www.gnu.org/licenses/gpl-faq.html#WhatDoesCompatMean
+    - https://www.gnu.org/licenses/license-list.en.html#GPLCompatibleLicenses
+
+- Does the Apple App Store or Google Play Store prohibit any GPL stuff?
+    - http://apple.stackexchange.com/questions/6109/is-it-possible-to-have-gpl-software-in-the-mac-app-store
+    - http://www.fsf.org/news/2010-05-app-store-compliance
+    - http://www.fsf.org/blogs/licensing/more-about-the-app-store-gpl-enforcement
+    - http://www.zdnet.com/article/android-vs-iphone-the-gpl-question/
+- We can, of course, dual-licence it (at any point). However, we will also
+  distribute source code outside of anything like app stores and users can
+  compile and run the application on any device they choose.
+  So, GPL for now; maybe additional licenses later if required.
+  For the server, it's simple (no app stores), and GPL is fine.
 
 ===============================================================================
 UI elements

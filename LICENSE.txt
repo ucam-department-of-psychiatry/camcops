@@ -1,0 +1,2 @@
+CamCOPS is licensed under the GNU General Public License v3; see LICENSE_GPLv3.txt
+

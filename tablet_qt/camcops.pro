@@ -468,7 +468,8 @@ DISTFILES += \
     images/dt/dt_unsel_8.png \
     images/dt/dt_unsel_9.png \
     images/dt/dt_unsel_10.png \
-    stylesheets/camera.css
+    stylesheets/camera.css \
+    LICENSE.txt
 
 # =============================================================================
 # Android-specific options

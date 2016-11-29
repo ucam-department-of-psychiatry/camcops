@@ -1,12 +1,31 @@
+/*
+    This file is part of CamCOPS.
+
+    CamCOPS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    CamCOPS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+// The permissions from the WHO regarding ICD-10 codes do not fully guarantee
+// further adaptation of the software (beyond distribution to users) and so is
+// likely incompatible with GPL-based licenses. Therefore, the code here (fine)
+// should be split from the ICD-10 code text (potentially not fine). We achieve
+// that split by using the "downloadable extra strings" system (which is under
+// the control of users, not this software).
+
 #include "icd10.h"
 #include <QDebug>
 #include <QMap>
 #include <QObject>
-
-// The permissions from the WHO regarding ICD-10 codes do not fully guarantee
-// further adaptation of the software (beyond distribution to users) and so is
-// likely incompatible with GPL-based licenses. Therefore, the code here should
-// be split from the ICD-10 code text.
 
 // ============================================================================
 // Main functions

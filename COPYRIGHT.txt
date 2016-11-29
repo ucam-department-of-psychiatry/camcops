@@ -1,0 +1,3 @@
+CamCOPS is copyright © 2012-2016 Rudolf Cardinal (rudolf@pobox.com).
+Department of Psychiatry, University of Cambridge.
+Funded by the Wellcome Trust.
