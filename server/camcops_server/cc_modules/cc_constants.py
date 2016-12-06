@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # cc_constants.py
 
 """
@@ -23,6 +23,10 @@
 import os
 import string
 from cardinal_pythonlib.rnc_lang import AttrDict, merge_dicts
+from camcops_server.cc_modules.cc_baseconstants import (
+    CAMCOPS_SERVER_DIRECTORY,
+    TABLET_SOURCE_COPY_DIR,
+)
 
 # =============================================================================
 # Number of ID numbers. Don't alter this lightly; influences database fields.
@@ -47,15 +51,9 @@ DEFAULT_MYSQLDUMP = "/usr/bin/mysqldump"
 DEFAULT_MYSQL = "/usr/bin/mysql"
 DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS = 0  # zero for never
 
-THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
-PROJECT_BASE_DIRECTORY = os.path.abspath(
-    os.path.join(THIS_DIRECTORY,  # cc_modules
-                 os.pardir,  # camcops_server
-                 os.pardir,  # server
-                 os.pardir))  # camcops
 SERVER_BASE_DIRECTORY = os.path.join(PROJECT_BASE_DIRECTORY, "server")
 DEFAULT_STRING_FILE = os.path.join(
-    PROJECT_BASE_DIRECTORY, "tablet", "i18n", "en", "strings.xml")
+    TABLET_SOURCE_COPY_DIR, "tablet_titanium", "i18n", "en", "strings.xml")
 DEFAULT_EXTRA_STRING_SPEC = os.path.join(
     PROJECT_BASE_DIRECTORY, "server", "extra_strings", "*")
 DEFAULT_TIMEOUT_MINUTES = 30
@@ -91,27 +89,8 @@ DEFAULT_LOCAL_LOGO_FILE = os.path.join(SERVER_BASE_DIRECTORY,
 # Introspection
 # =============================================================================
 
-INTROSPECTION_BASE_DIRECTORY = PROJECT_BASE_DIRECTORY
-INTROSPECTABLE_EXTENSIONS = [".js", ".jsx", ".html", ".py", ".pl", ".xml"]
-INTROSPECTABLE_DIRECTORIES = [
-    "server/camcops_server",
-    "server/camcops_server/cc_modules",
-    "server/camcops_server/tasks",
-    "server/tools",
-    "tablet/i18n/en",
-    "tablet/Resources/common",
-    "tablet/Resources/html",
-    "tablet/Resources/lib",
-    "tablet/Resources/menu",
-    "tablet/Resources/menulib",
-    "tablet/Resources/questionnaire",
-    "tablet/Resources/questionnairelib",
-    "tablet/Resources/screen",
-    "tablet/Resources/table",
-    "tablet/Resources/task",
-    "tablet/Resources/task_html",
-]
-STATIC_ROOT_DIR = os.path.join(PROJECT_BASE_DIRECTORY, 'server', 'static')
+INTROSPECTION_BASE_DIRECTORY = CAMCOPS_SERVER_DIRECTORY
+STATIC_ROOT_DIR = os.path.join(CAMCOPS_SERVER_DIRECTORY, 'static')
 
 
 # =============================================================================

@@ -19,23 +19,194 @@ To install in development mode:
 # http://python-packaging-user-guide.readthedocs.org/en/latest/distributing/
 # http://jtushman.github.io/blog/2013/06/17/sharing-code-across-applications-with-python/  # noqa
 
-from setuptools import setup
-from codecs import open
-from os import path
+import argparse
+from setuptools import setup, find_packages
+# from codecs import open
+import os
+import shutil
+import sys
+from typing import List
 
+from camcops_server.cc_modules.cc_baseconstants import (
+    INTROSPECTABLE_EXTENSIONS,
+    TABLET_SOURCE_COPY_DIR,
+)
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
-here = path.abspath(path.dirname(__file__))
+COPYABLE_EXTENSIONS = INTROSPECTABLE_EXTENSIONS + ['.png']
 
-# -----------------------------------------------------------------------------
+
+# =============================================================================
+# Helper functions
+# =============================================================================
+
+def mkdir_p(path: str, verbose: bool = False) -> None:
+    if verbose:
+        print("Making directory: {}".format(path))
+    os.makedirs(path, exist_ok=True)
+
+
+def deltree(path: str, verbose: bool = False) -> None:
+    if verbose:
+        print("Deleting directory: {}".format(path))
+    shutil.rmtree(path, ignore_errors=True)
+
+
+def copier(src: str, dst: str, follow_symlinks: bool = True,
+           verbose: bool = False) -> None:
+    # Cleaner than a long "ignore" argument to shutil.copytree
+    base, ext = os.path.splitext(os.path.basename(src))
+    if ext.lower() not in COPYABLE_EXTENSIONS or base.startswith('.'):
+        if verbose:
+            print("Ignoring: {}".format(src))
+        return
+    if verbose:
+        print("Copying {} -> {}".format(src, dst))
+    shutil.copy2(src, dst, follow_symlinks=follow_symlinks)
+
+
+def delete_empty_directories(root_dir: str, verbose: bool = False) -> None:
+    # Based on
+    # - http://stackoverflow.com/questions/26774892/how-to-find-recursively-empty-directories-in-python  # noqa
+    # - https://docs.python.org/3/library/os.html
+    empty_dirs = []
+    for dir_, subdirs, files in os.walk(root_dir, topdown=False):
+        all_subs_empty = True  # until proven otherwise
+        for sub in subdirs:
+            sub_fullpath = os.path.join(dir_, sub)
+            if sub_fullpath not in empty_dirs:
+                all_subs_empty = False
+                break
+        if all_subs_empty and len(files) == 0:
+            empty_dirs.append(dir_)
+            deltree(dir_, verbose=verbose)
+
+
+def add_all_files(root_dir: str, filelist: List[str],
+                  absolute: bool = False, include_n_parents: int = 0,
+                  verbose: bool = False) -> None:
+    if absolute:
+        base_dir = root_dir
+    else:
+        base_dir = os.path.abspath(
+            os.path.join(root_dir, *(['..'] * include_n_parents)))
+    for dir_, subdirs, files in os.walk(root_dir, topdown=True):
+        if absolute:
+            final_dir = dir_
+        else:
+            final_dir = os.path.relpath(dir_, base_dir)
+        for filename in files:
+            final_filename = os.path.join(final_dir, filename)
+            if verbose:
+                print("Adding: {}".format(final_filename))
+            filelist.append(final_filename)
+
+
+# =============================================================================
+# There's a nasty caching effect. So remove the old ".egg_info" directory
+# =============================================================================
+# http://blog.codekills.net/2011/07/15/lies,-more-lies-and-python-packaging-documentation-on--package_data-/  # noqa
+
+here = os.path.abspath(os.path.dirname(__file__))
+EGG_DIR = os.path.join(here, 'camcops_server.egg-info')
+deltree(EGG_DIR, verbose=True)
+
+# Also...
+# 1. Empircally, MANIFEST.in can get things copied.
+# 2. Empirically, no MANIFEST.in but package_data can get things copied into
+#    the .gz file, but not into the final distribution after installation.
+# 3. So, we'll auto-write a MANIFEST.in
+
+MANIFEST_FILE = os.path.join(here, 'MANIFEST.in')
+
+# 4. Argh! Still not installing
+# - http://stackoverflow.com/questions/13307408/python-packaging-data-files-are-put-properly-in-tar-gz-file-but-are-not-install  # noqa
+# - http://stackoverflow.com/questions/13307408/python-packaging-data-files-are-put-properly-in-tar-gz-file-but-are-not-install/32635882#32635882  # noqa
+# - I think the problem is that MANIFEST.in paths need to be relative to the
+#   location of setup.py, whereas package_data paths are relative to each
+#   package (e.g. camcops_server).
+# 5. AND... include_package_data
+# - http://stackoverflow.com/questions/13307408/python-packaging-data-files-are-put-properly-in-tar-gz-file-but-are-not-install  # noqa
+# - http://danielsokolowski.blogspot.co.uk/2012/08/setuptools-includepackagedata-option.html  # noqa
+
+# =============================================================================
+# Copy tablet source files to within our tree, temporarily.
+# =============================================================================
+
+# Our script may be run by the developer (python setup.py sdist), or by pip
+# (as a consequence of "pip install ..."). We only want to do the copying of
+# source tablet files into our tree in the former situation. So we accept a
+# special argument, act on it if present, and pass all other arguments (by
+# writing them back to sys.argv) to the Python setuptools internals.
+
+EXTRAS_ARG = 'extras'
+parser = argparse.ArgumentParser()
+parser.add_argument('--' + EXTRAS_ARG, action='store_true',
+                    help="USE THIS TO CREATE PACKAGES. Copies extra source in.")
+our_args, leftover_args = parser.parse_known_args()
+sys.argv[1:] = leftover_args
+
+EXTRA_FILES = []
+
+if getattr(our_args, EXTRAS_ARG):
+    src_tablet_ti = os.path.join(here, '..', 'tablet')
+    src_tablet_qt = os.path.join(here, '..', 'tablet_qt')
+
+    if not os.path.isdir(src_tablet_ti) or not os.path.isdir(src_tablet_qt):
+        print(
+            "You have used the --{} argument, but one of {} or {} is missing."
+            " That argument is only for use in development, to create a "
+            "Python package.".format(
+                repr(EXTRAS_ARG),
+                repr(src_tablet_ti),
+                repr(src_tablet_qt)))
+        sys.exit(1)
+
+    dst_tablet = TABLET_SOURCE_COPY_DIR
+    print("Creating copy of tablet source files in {}".format(dst_tablet))
+
+    dst_tablet_ti = os.path.join(dst_tablet, 'tablet_titanium')
+    dst_tablet_qt = os.path.join(dst_tablet, 'tablet_qt')
+    mkdir_p(dst_tablet)
+    deltree(dst_tablet_ti)
+    deltree(dst_tablet_qt)
+    shutil.copytree(src=src_tablet_ti, dst=dst_tablet_ti, copy_function=copier)
+    shutil.copytree(src=src_tablet_qt, dst=dst_tablet_qt, copy_function=copier)
+    delete_empty_directories(dst_tablet)
+
+    add_all_files(dst_tablet, EXTRA_FILES, absolute=False, include_n_parents=1)
+    # include_n_parents=1 means they start with "tablet_source_copy/"
+
+    camcops_server_dir = os.path.join(here, 'camcops_server')
+
+    add_all_files(os.path.join(camcops_server_dir, 'static'),
+                  EXTRA_FILES, absolute=False, include_n_parents=1)
+    # add_all_files(os.path.join(camcops_server_dir, 'extra_strings'),
+    #               EXTRA_FILES, absolute=False, include_n_parents=1)
+
+    EXTRA_FILES.sort()
+
+    # print("EXTRA_FILES: {}".format(EXTRA_FILES))
+    # print("find_packages(): {}".format(find_packages()))
+
+    MANIFEST_LINES = ['include camcops_server/' + x for x in EXTRA_FILES]
+    with open(MANIFEST_FILE, 'wt') as manifest:
+        manifest.writelines([
+            "# This is an AUTOCREATED file, MANIFEST.in; see setup.py and DO "
+            "NOT EDIT BY HAND"])
+        manifest.write("\n\n" + "\n".join(MANIFEST_LINES) + "\n")
+
+
+# =============================================================================
 # setup args
-# -----------------------------------------------------------------------------
+# =============================================================================
+
 setup(
     name='camcops_server',
 
     version=str(CAMCOPS_SERVER_VERSION),
 
-    description='Miscellaneous Python libraries',
+    description='CamCOPS server',
     long_description="""
 camcops_server
 
@@ -44,14 +215,14 @@ camcops_server
 """,
 
     # The project's main homepage.
-    url='https://github.com/RudolfCardinal/pythonlib',
+    url='https://www.camcops.org/',
 
     # Author details
     author='Rudolf Cardinal',
     author_email='rudolf@pobox.com',
 
     # Choose your license
-    license='Apache License 2.0',
+    license='GNU General Public License v3 or later (GPLv3+)',
 
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
@@ -65,24 +236,66 @@ camcops_server
         'Intended Audience :: Developers',
 
         # Pick your license as you wish (should match "license" above)
-        'License :: OSI Approved :: Apache Software License',
+        'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',  # noqa
 
         'Natural Language :: English',
 
         'Operating System :: OS Independent',
-        # 'Programming Language :: Python :: 2',
-        # 'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
 
         'Topic :: Software Development :: Libraries',
     ],
 
     keywords='cardinal',
 
-    packages=['camcops_server'],
+    packages=find_packages(),  # finds all the .py files in subdirectories
+
+    # package_data ?
+    # - http://blog.codekills.net/2011/07/15/lies,-more-lies-and-python-packaging-documentation-on--package_data-/  # noqa
+    # - http://stackoverflow.com/questions/29036937/how-can-i-include-package-data-without-a-manifest-in-file  # noqa
+    #
+    # or MANIFEST.in ?
+    # - http://stackoverflow.com/questions/24727709/i-dont-understand-python-manifest-in  # noqa
+    # - http://stackoverflow.com/questions/1612733/including-non-python-files-with-setup-py  # noqa
+    #
+    # or both?
+    # - http://stackoverflow.com/questions/3596979/manifest-in-ignored-on-python-setup-py-install-no-data-files-installed  # noqa
+    # ... MANIFEST gets the files into the distribution
+    # ... package_data gets them installed in the distribution
+    #
+    # data_files is from distutils, and we're using setuptools
+    # - https://docs.python.org/3.5/distutils/setupscript.html#installing-additional-files  # noqa
+
+    package_data={
+        'camcops_server': EXTRA_FILES,
+    },
+    include_package_data=True,  # use MANIFEST.in during install?
+
+    install_requires=[
+        'colorlog==2.6.1',  # colour in logs
+        'gunicorn==19.3.0',  # 'Internal' web server
+        'hl7==0.3.3',  # For HL7 export
+        'lockfile==0.12.2',  # File locking for background tasks
+        'matplotlib==1.5.0',  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
+        'numpy==1.10.2',  # Used by some tasks. SLOW INSTALLATION.
+        'pdfkit==0.5.0',  # wkhtmltopdf interface, for PDF generation from HTML
+        'py-bcrypt==0.4',  # Used by rnc_crypto; for bcrypt
+        'Pygments==2.0.2',  # Syntax highlighting for introspection
+        'PyMySQL==0.7.1',  # One of the options for MySQL interfacing via rnc_db.py.  # noqa
+        'PyPDF2==1.25.1',  # Used by rnc_pdf.py
+        'python-dateutil==2.4.2',  # Date/time extensions.
+        'pytz==2015.7',  # Timezone definitions, specifically UTC.
+        'scipy==0.16.1',  # Used by some tasks. SLOW INSTALLATION.
+        'typing==3.5.2.2',  # part of stdlib in Python 3.5, but not 3.4
+        'Wand==0.4.2',  # ImageMagick for Python; used e.g. for BLOB PNG display  # noqa
+        'Werkzeug==0.11.3',  # Profiling middleware
+
+        'cardinal_pythonlib==0.2.3',  # RNC libraries
+    ],
 
     entry_points={
         'console_scripts': [
@@ -94,3 +307,10 @@ camcops_server
         ],
     },
 )
+
+
+# =============================================================================
+# Clean up
+# =============================================================================
+
+# No, don't clean up, keeping the copy helps us with "pip install -e ."

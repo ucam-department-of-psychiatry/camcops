@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # cc_pls.py
 
 """
@@ -37,6 +37,10 @@ from typing import Dict, Optional
 import cardinal_pythonlib.rnc_db as rnc_db
 import cardinal_pythonlib.rnc_pdf as rnc_pdf
 
+from .cc_baseconstants import (
+    CAMCOPS_SERVER_DIRECTORY,
+    INTROSPECTABLE_EXTENSIONS,
+)
 from .cc_configfile import (
     get_config_parameter,
     get_config_parameter_boolean,
@@ -64,8 +68,6 @@ from .cc_constants import (
     DEFAULT_STRING_FILE,
     DEFAULT_TIMEOUT_MINUTES,
     INTROSPECTION_BASE_DIRECTORY,
-    INTROSPECTABLE_DIRECTORIES,
-    INTROSPECTABLE_EXTENSIONS,
     LOCAL_LOGO_FILE_WEBREF,
     NUMBER_OF_IDNUMS,
     PDF_ENGINE,
@@ -469,20 +471,24 @@ class LocalStorage(object):
 
         self.INTROSPECTION_FILES = []
         if self.INTROSPECTION:
+            # All introspection starts at INTROSPECTION_BASE_DIRECTORY
             rootdir = INTROSPECTION_BASE_DIRECTORY
-            for d in INTROSPECTABLE_DIRECTORIES:
-                searchdir = os.sep.join([rootdir, d]) if d else rootdir
-                for fname in os.listdir(searchdir):
-                    junk, ext = os.path.splitext(fname)
+            for dir_, subdirs, files in os.walk(rootdir):
+                if dir_ == rootdir:
+                    pretty_dir = ''
+                else:
+                    pretty_dir = os.path.relpath(dir_, rootdir)
+                for filename in files:
+                    basename, ext = os.path.split(filename)
                     if ext not in INTROSPECTABLE_EXTENSIONS:
                         continue
-                    fullpath = os.sep.join([searchdir, fname])
-                    prettypath = os.sep.join([d, fname]) if d else fname
+                    fullpath = os.path.join(dir_, filename)
+                    prettypath = os.path.join(pretty_dir, filename)
                     self.INTROSPECTION_FILES.append(
                         cc_namedtuples.IntrospectionFileDetails(
                             fullpath=fullpath,
                             prettypath=prettypath,
-                            searchterm=fname,
+                            searchterm=filename,
                             ext=ext
                         )
                     )

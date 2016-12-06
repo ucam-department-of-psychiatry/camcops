@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import argparse
 import os
@@ -31,7 +31,7 @@ PIP = shutil.which('pip3')
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_BASE_DIR = os.path.abspath(os.path.join(CURRENT_DIR, os.pardir))
-PIP_REQ_FILE = os.path.join(PROJECT_BASE_DIR, 'requirements-pip.txt')
+# PIP_REQ_FILE = os.path.join(PROJECT_BASE_DIR, 'requirements-pip.txt')
 DEB_REQ_FILE = os.path.join(PROJECT_BASE_DIR, 'requirements-deb.txt')
 RPM_REQ_FILE = os.path.join(PROJECT_BASE_DIR, 'requirements-rpm.txt')
 
@@ -137,16 +137,19 @@ if __name__ == '__main__':
     check_call([PYTHON, '-m', VENV_TOOL, args.virtualenv])
     print('OK')
 
+    title("Upgrading pip within virtualenv")
+    check_call([VENV_PIP, 'install', '--upgrade', 'pip'])
+
     title("Checking version of tools within new virtualenv")
     print(VENV_PYTHON)
     check_call([VENV_PYTHON, '--version'])
     print(VENV_PIP)
     check_call([VENV_PIP, '--version'])
 
-    title("Use pip within the new virtualenv to install dependencies")
-    check_call([VENV_PIP, 'install', '-r', PIP_REQ_FILE])
-    print('OK')
-    print('--- Virtual environment installed successfully')
+    # title("Use pip within the new virtualenv to install dependencies")
+    # check_call([VENV_PIP, 'install', '-r', PIP_REQ_FILE])
+    # print('OK')
+    # print('--- Virtual environment installed successfully')
 
     print("To activate the virtual environment, use\n"
           "    {ACTIVATE}\n\n".format(ACTIVATE=ACTIVATE))

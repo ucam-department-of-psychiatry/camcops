@@ -432,6 +432,10 @@ Database objects
 - For more sophisticated requirements, note that ODB is available under the GPL:
   http://www.codesynthesis.com/products/odb/features.xhtml
   http://wiki.codesynthesis.com/Using_ODB_with_Qt_Creator_on_Linux
+  It copes with migration: http://www.codesynthesis.com/products/odb/doc/manual.xhtml#13.2
+
+- [IGNORE] Also, SQLAPI++, but not free: http://www.sqlapi.com/ -- looks like
+  it'd be incompatible with the GPL.
 
 ===============================================================================
 Factory methods; CRTP; making derived classes from base class; etc.

@@ -1,6 +1,6 @@
 
 ===============================================================================
-Your system's CamCOPS configuration
+Your system&#x27;s CamCOPS configuration
 ===============================================================================
 - Default CamCOPS config is:
     /etc/camcops/camcops.conf
@@ -27,11 +27,11 @@ Your system's CamCOPS configuration
 Running CamCOPS tools within its virtual environment
 ===============================================================================
 
-The principle is to use the venv's python executable to run the script.
+The principle is to use the venv&#x27;s python executable to run the script.
 
 For example, to run the camcops_meta.py tool to make all tables for all
 databases, assuming all relevant config files are described by
-"/etc/camcops/camcops_*.conf", with sudo prepended to allow access:
+&quot;/etc/camcops/camcops_*.conf&quot;, with sudo prepended to allow access:
 
     sudo /usr/share/camcops/venv/bin/python /usr/share/camcops/server/tools/camcops_meta.py --verbose --filespecs /etc/camcops/camcops_*.conf --ccargs maketables
 
@@ -39,7 +39,7 @@ To test all configs, with the same filespec:
 
     sudo /usr/share/camcops/venv/bin/python /usr/share/camcops/server/tools/camcops_meta.py --verbose --filespecs /etc/camcops/camcops_*.conf --ccargs test
 
-(An alternative method is to use "source /usr/share/camcops/venv/bin/activate",
+(An alternative method is to use &quot;source /usr/share/camcops/venv/bin/activate&quot;,
 and then run things interactively, but this will not work so easily via sudo.)
 
 But a shortcut for all these things is:
@@ -66,7 +66,7 @@ Full stack
 Monitoring with supervisord
 ===============================================================================
 
-    sudo supervisorctl  # assuming it's running as root
+    sudo supervisorctl  # assuming it&#x27;s running as root
 
 ===============================================================================
 Advanced configuration
@@ -74,7 +74,7 @@ Advanced configuration
 
 CamCOPS uses operating system environment variables (os.environ, from a Python
 perspective) for things that influence early startup, such as module loading.
-This is because it's often convenient to load all relevant modules before
+This is because it&#x27;s often convenient to load all relevant modules before
 reading the configuration file. These govern low-level settings and are not
 typically needed, or are typically set up for you as part of the default
 CamCOPS installation.
@@ -90,10 +90,10 @@ Common environment variables
 
 MPLCONFIGDIR
     A temporary cache directory for matplotlib to store information (e.g. font
-    lists). Specifying this dramatically reduces matplotlib's startup time
+    lists). Specifying this dramatically reduces matplotlib&#x27;s startup time
     (from e.g. 3 seconds the first time, to a fraction of that subsequently).
-    If you don't specify it, CamCOPS uses a fresh temporary directory, so you
-    don't get the speedup. The default is
+    If you don&#x27;t specify it, CamCOPS uses a fresh temporary directory, so you
+    don&#x27;t get the speedup. The default is
         {DSTMPLCONFIGDIR}
     The directory must be writable by the user running CamCOPS.
 
@@ -101,7 +101,7 @@ Debugging environment variables
 -------------------------------
 
 CAMCOPS_DEBUG_TO_HTTP_CLIENT
-    Boolean string (e.g. 'True', 'Y', '1' / 'False', 'N', '0').
+    Boolean string (e.g. &#x27;True&#x27;, &#x27;Y&#x27;, &#x27;1&#x27; / &#x27;False&#x27;, &#x27;N&#x27;, &#x27;0&#x27;).
     Enables exception reporting to the HTTP client. Should be DISABLED for
     production systems. Default is False.
 
@@ -133,9 +133,8 @@ Testing with just gunicorn
   for a test port on 8000:
 
     sudo -u www-data \
-        PYTHONPATH="/usr/share/camcops/server" \
-        CAMCOPS_CONFIG_FILE="/etc/camcops/camcops.conf" \
-        /usr/share/camcops/venv/bin/gunicorn camcops:application \
+        CAMCOPS_CONFIG_FILE=&quot;/etc/camcops/camcops.conf&quot; \
+        /usr/share/camcops/venv/bin/gunicorn camcops_server:camcops:application \
         --workers 4 \
         --bind=127.0.0.1:8000
 
@@ -175,27 +174,27 @@ OPTIMAL: proxy Apache through to Gunicorn
         #       https://YOURSITE/camcops/webview
         #   and point your tablets to
         #       https://YOURSITE/camcops/database
-        # - Don't specify trailing slashes.
+        # - Don&#x27;t specify trailing slashes.
         #   If you do, http://host/camcops will fail though;
         #              http://host/camcops/ will succeed.
         # - Using a socket
-        #   - this requires Apache 2.4.9, and passes after the '|' character a
+        #   - this requires Apache 2.4.9, and passes after the &#x27;|&#x27; character a
         #     URL that determines the Host: value of the request; see
         #       https://httpd.apache.org/docs/trunk/mod/mod_proxy.html#proxypass
         #   - The Django debug toolbar will then require the bizarre entry in
-        #     the Django settings: INTERNAL_IPS = ("b''", ) -- i.e. the string
-        #     value of "b''", not an empty bytestring.
+        #     the Django settings: INTERNAL_IPS = (&quot;b&#x27;&#x27;&quot;, ) -- i.e. the string
+        #     value of &quot;b&#x27;&#x27;&quot;, not an empty bytestring.
         # - Ensure that you put the CORRECT PROTOCOL (e.g. https) in the rules
         #   below.
         # - For ProxyPass options, see https://httpd.apache.org/docs/2.2/mod/mod_proxy.html#proxypass
-        #   ... including "retry=0" to stop Apache disabling the connection for
+        #   ... including &quot;retry=0&quot; to stop Apache disabling the connection for
         #       a while on failure.
 
-        # Don't ProxyPass the static files; we'll serve them via Apache.
+        # Don&#x27;t ProxyPass the static files; we&#x27;ll serve them via Apache.
     ProxyPassMatch ^/camcops/static/ !
 
         # Port
-        # Note the use of "http" (reflecting the backend), not https (like the
+        # Note the use of &quot;http&quot; (reflecting the backend), not https (like the
         # front end).
 
     # ProxyPass /camcops http://127.0.0.1:8006 retry=0
@@ -210,21 +209,21 @@ OPTIMAL: proxy Apache through to Gunicorn
         #     HTTPS part and passes HTTP on)
         #   - the EXTRA_URL_FOR_BACKEND needs to be (a) unique for each
         #     instance or Apache will use a single worker for multiple
-        #     instances, and (b) blank for the backend's benefit. Since those
-        #     two conflict when there's &gt;1 instance, there's a problem.
+        #     instances, and (b) blank for the backend&#x27;s benefit. Since those
+        #     two conflict when there&#x27;s &gt;1 instance, there&#x27;s a problem.
         #   - Normally, HOST is given as localhost. It may be that this problem
         #     is solved by using a dummy unique value for HOST:
         #     https://bz.apache.org/bugzilla/show_bug.cgi?id=54101#c1
         #
         # If your Apache version is too old, you will get the error
-        #   "AH00526: Syntax error on line 56 of /etc/apache2/sites-enabled/SOMETHING:
-        #    ProxyPass URL must be absolute!"
+        #   &quot;AH00526: Syntax error on line 56 of /etc/apache2/sites-enabled/SOMETHING:
+        #    ProxyPass URL must be absolute!&quot;
         # On Ubuntu, if your Apache is too old, you could use
         #   sudo add-apt-repository ppa:ondrej/apache2
         # ... details at https://launchpad.net/~ondrej/+archive/ubuntu/apache2
         #
         # If you get this error:
-        #   AH01146: Ignoring parameter 'retry=0' for worker 'unix:/tmp/.camcops_gunicorn.sock|https://localhost' because of worker sharing
+        #   AH01146: Ignoring parameter &#x27;retry=0&#x27; for worker &#x27;unix:/tmp/.camcops_gunicorn.sock|https://localhost&#x27; because of worker sharing
         #   https://wiki.apache.org/httpd/ListOfErrors
         # ... then your URLs are overlapping and should be redone or sorted:
         #   http://httpd.apache.org/docs/2.4/mod/mod_proxy.html#workers
@@ -310,7 +309,7 @@ OPTIMAL: proxy Apache through to Gunicorn
     # signing. They send back a signed certificate, and a chain of certificates
     # leading from yours to a trusted root CA.
 
-    # You can create your own (a 'snake-oil' certificate), but your tablets
+    # You can create your own (a &#x27;snake-oil&#x27; certificate), but your tablets
     # and browsers will not trust it, so this is a bad idea.
 
     # Once you have your certificate: edit and uncomment these lines:
@@ -338,7 +337,7 @@ OPTIMAL: proxy Apache through to Gunicorn
 
     #==========================================================================
     # GZIP COMPRESSION FOR APPROPRIATE CONTENT TYPES (OPTIONAL)
-    # Run "sudo a2enmod deflate" from the command line if not already enabled.
+    # Run &quot;sudo a2enmod deflate&quot; from the command line if not already enabled.
     #==========================================================================
     # http://stackoverflow.com/questions/12367858/how-can-i-get-apache-gzip-compression-to-work
     # testing it: curl -I --compress http://mysite.mydomain/index.html
@@ -352,4 +351,4 @@ OPTIMAL: proxy Apache through to Gunicorn
     SetEnvIfNoCase Request_URI \.(?:gif|jpe?g|png)$ no-gzip
     Header append Vary User-Agent env=!dont-vary
 
-    
+

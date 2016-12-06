@@ -35,27 +35,52 @@ class NetworkManager : public QObject
 public:
     NetworkManager(const CamcopsApp& app, QWidget* parent);
     ~NetworkManager();
+
+    // ------------------------------------------------------------------------
+    // User interface
+    // ------------------------------------------------------------------------
+public:
     void setSilent(bool silent);
     void setTitle(const QString& title);
-    void testHttpGet(const QString& url, bool offer_cancel = true);
-    void testHttpsGet(const QString& url, bool offer_cancel = true,
-                      bool ignore_ssl_errors = false);
     void statusMessage(const QString& msg);
-signals:
-    void cancelled();
-    void finished();
-public slots:
-    void cancel();
-    void finish();
 protected slots:
     void logboxCancelled();
     void logboxFinished();
-protected:
-    void testReplyFinished(QNetworkReply* reply);
+
+    // ------------------------------------------------------------------------
+    // Basic connection management
+    // ------------------------------------------------------------------------
+    void disconnectManager();
     void sslIgnoringErrorHandler(QNetworkReply* reply,
                                  const QList<QSslError>& errlist);
-    void commonFinish();
-    void disconnectManager();
+public slots:
+    void cancel();
+    void finish();
+
+    // ------------------------------------------------------------------------
+    // Testing
+    // ------------------------------------------------------------------------
+public:
+    void testHttpGet(const QString& url, bool offer_cancel = true);
+    void testHttpsGet(const QString& url, bool offer_cancel = true,
+                      bool ignore_ssl_errors = false);
+protected:
+    void testReplyFinished(QNetworkReply* reply);
+
+    // ------------------------------------------------------------------------
+    // Registration
+    // ------------------------------------------------------------------------
+
+    // ------------------------------------------------------------------------
+    // Signals
+    // ------------------------------------------------------------------------
+signals:
+    void cancelled();
+    void finished();
+
+    // ------------------------------------------------------------------------
+    // Data
+    // ------------------------------------------------------------------------
 protected:
     const CamcopsApp& m_app;
     QWidget* m_parent;

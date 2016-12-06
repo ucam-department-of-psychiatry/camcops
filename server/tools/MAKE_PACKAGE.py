@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # camcops/server/tools/MAKE_PACKAGE.py
 
 """
@@ -20,10 +20,13 @@ Note that you can get CentOS version/architecture with:
 # ... actually, let's do that, using mkdtemp(), so it'll linger if the build
 # fails.
 
+import argparse
 import getpass
 import glob
 import gzip
 from html import escape
+import io
+import logging
 import os
 from os.path import join
 import re
@@ -32,9 +35,30 @@ import string
 import subprocess
 import sys
 import tempfile
+from typing import List
+
+from camcops_server.cc_modules.cc_logger import main_only_quicksetup_rootlogger
+from camcops_server.cc_modules.cc_version import (
+    CAMCOPS_SERVER_VERSION,
+    CAMCOPS_CHANGEDATE,
+)
+
+# =============================================================================
+# Python version requirements; set up logging
+# =============================================================================
 
 if sys.version_info[0] < 3:
-    raise AssertionError("Need Python 3")
+    raise AssertionError("Need Python 3 or higher")
+if sys.version_info[1] < 4:
+    raise AssertionError("Need Python 3.4 or higher")
+
+log = logging.getLogger(__name__)
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--verbose', '-v', action='store_true')
+args = parser.parse_args()
+main_only_quicksetup_rootlogger(level=logging.DEBUG if args.verbose
+                                else logging.INFO)
 
 # =============================================================================
 # URL defaults and other constants
@@ -63,20 +87,12 @@ DEFAULT_GUNICORN_PORT = 8006
 DEFAULT_GUNICORN_SOCKET = '/tmp/.camcops_gunicorn.sock'
 # ... must be writable by the relevant user
 
+
 # =============================================================================
 # Helper functions
 # =============================================================================
 
-FG_RED = '\033[0;31m'
-BG_GREY = '\033[2;47m'
-NO_COLOUR = '\033[0m'
-
-
-def error(msg):
-    print(FG_RED, BG_GREY, msg, NO_COLOUR, sep="")
-
-
-def workpath(workdir, destpath):
+def workpath(workdir: str, destpath: str) -> str:
     """Suppose
         workdir == '/home/myuser/debianbuilding'
         destpath == '/usr/lib/mylib'
@@ -89,21 +105,22 @@ def workpath(workdir, destpath):
         return join(workdir, destpath)
 
 
-def mkdirp(path):
+def mkdirp(path: str) -> None:
     os.makedirs(path, exist_ok=True)
 
 
-def copyglob(src, dest, allow_nothing=False):
+def copyglob(src: str, dest: str, allow_nothing: bool = False) -> None:
     something = False
     for file in glob.glob(src):
-        shutil.copy(file, dest)
-        something = True
+        if os.path.isfile(file):
+            shutil.copy(file, dest)
+            something = True
     if something or allow_nothing:
         return
-    raise ValueError("No files found matching: {}".format(src))
+    log.warning("No files found matching: {}".format(src))
 
 
-def chown_r(path, user, group):
+def chown_r(path, user, group) -> None:
     # http://stackoverflow.com/questions/2853723
     for root, dirs, files in os.walk(path):
         for x in dirs:
@@ -112,7 +129,7 @@ def chown_r(path, user, group):
             shutil.chown(os.path.join(root, x), user, group)
 
 
-def get_lines_without_comments(filename):
+def get_lines_without_comments(filename: str) -> List[str]:
     lines = []
     with open(filename) as f:
         for line_ in f:
@@ -124,10 +141,55 @@ def get_lines_without_comments(filename):
     return lines
 
 
-def webify_file(srcfilename, destfilename):
+def webify_file(srcfilename: str, destfilename: str) -> None:
     with open(srcfilename) as infile, open(destfilename, 'w') as ofile:
         for line_ in infile:
             ofile.write(escape(line_))
+
+
+def write_text(filename: str, text: str) -> None:
+    with open(filename, 'w') as f:
+        print(text, file=f)
+
+
+def write_zipped_text(basefilename: str, text: str) -> None:
+    # Lintian wants non-timestamped gzip files, or it complains:
+    # https://lintian.debian.org/tags/package-contains-timestamped-gzip.html
+    # See http://stackoverflow.com/questions/25728472/python-gzip-omit-the-original-filename-and-timestamp  # noqa
+    zipfilename = basefilename + '.gz'
+    compresslevel = 9
+    mtime = 0
+    with open(zipfilename, 'wb') as f:
+        with gzip.GzipFile(basefilename, 'wb', compresslevel, f, mtime) as gz:
+            with io.TextIOWrapper(gz) as tw:
+                tw.write(text)
+
+
+def preserve_cwd(function):
+    # http://stackoverflow.com/questions/169070/python-how-do-i-write-a-decorator-that-restores-the-cwd  # noqa
+    def decorator(*args, **kwargs):
+        cwd = os.getcwd()
+        result = function(*args, **kwargs)
+        os.chdir(cwd)
+        return result
+    return decorator
+
+
+@preserve_cwd
+def remove_gzip_timestamp(filename: str) -> None:
+    with tempfile.TemporaryDirectory() as dir:
+        os.chdir(dir)
+        basezipfilename = os.path.basename(filename)
+        datafile, _ = os.path.splitext(basezipfilename)  # remove '.gz'; nasty!
+        fulldatafile = os.path.join(dir, datafile)
+        with open(fulldatafile, 'wb') as df:
+            log.info("Un-gzipping {} -> {}".format(filename, fulldatafile))
+            subprocess.call(["gunzip", "-c", filename], stdout=df)
+        newzip = os.path.join(dir, basezipfilename)
+        with open(fulldatafile, 'rb') as df, open(newzip, 'wb') as z:
+            log.info("gzipping {} -> {}".format(filename, newzip))
+            subprocess.call(["gzip", "-n"], stdin=df, stdout=z)
+        shutil.copyfile(newzip, filename)  # copy back
 
 
 BASHFUNC = r"""
@@ -158,8 +220,11 @@ running_centos()
 
 service_exists()
 {
+    # Ubuntu used to give "unrecognized service" and now gives "not-found" (16.10)
+    # grep for multiple patterns: http://unix.stackexchange.com/questions/37313/how-do-i-grep-for-multiple-patterns
+
     # arguments: $1 is the service being tested
-    if service $1 status 2>&1 | grep "unrecognized service" >/dev/null ; then
+    if service $1 status 2>&1 | grep -E 'unrecognized service|not-found' >/dev/null ; then
         return 1  # false
     fi
     return 0  # true
@@ -204,14 +269,15 @@ restart_supervisord()
 # =============================================================================
 # http://stackoverflow.com/questions/2806897
 if os.geteuid() == 0:
-    exit("This script should not be run using sudo or as the root user")
+    log.critical("This script should not be run using sudo or as the root user")
+    sys.exit(1)
 
-print("Checking prerequisites")
+log.info("Checking prerequisites")
 PREREQUISITES = (
     "alien dpkg-deb fakeroot find git gzip lintian rpmrebuild".split())
 for cmd in PREREQUISITES:
     if shutil.which(cmd) is None:
-        print("""
+        log.warning("""
 To install Alien:
     sudo apt-get install alien
 To install rpmrebuild:
@@ -223,7 +289,7 @@ To install rpmrebuild:
     3. Install:
         sudo dpkg --install rpmrebuild_2.11-2_all.deb
         """)  # noqa
-        error("{} command not found; stopping".format(cmd))
+        log.critical("{} command not found; stopping".format(cmd))
         sys.exit(1)
 
 
@@ -245,12 +311,11 @@ DSTBASEDIR = join('/usr/share', PACKAGE)
 # It dislikes images in /usr/lib
 
 TMPDIR = tempfile.mkdtemp()
-print("Temporary working directory: " + TMPDIR)
+log.info("Temporary working directory: " + TMPDIR)
 WRKDIR = join(TMPDIR, 'debian')
 RPMTOPDIR = join(TMPDIR, 'rpmbuild')
 
 SRCSERVERDIR = join(PROJECT_BASE_DIR, 'server')
-SRCTABLETDIR = join(PROJECT_BASE_DIR, 'tablet')
 WEBDOCSDIR = join(PROJECT_BASE_DIR, 'website', 'documentation')
 PACKAGEDIR = join(SRCSERVERDIR, 'packagebuild')
 
@@ -268,8 +333,6 @@ DEBOVERRIDEDIR = workpath(WRKDIR, '/usr/share/lintian/overrides')
 DSTCONSOLEFILEDIR = '/usr/bin'
 SETUPSCRIPTNAME = PACKAGE
 WRKCONSOLEFILEDIR = workpath(WRKDIR, DSTCONSOLEFILEDIR)
-DSTCONSOLEFILE = join(DSTCONSOLEFILEDIR, SETUPSCRIPTNAME)
-WRKCONSOLEFILE = join(WRKCONSOLEFILEDIR, SETUPSCRIPTNAME)
 
 WRKSERVERDIR = join(WRKBASEDIR, 'server')
 DSTSERVERDIR = join(DSTBASEDIR, 'server')
@@ -280,20 +343,7 @@ DSTEXTRASTRINGS = join(DSTSERVERDIR, 'extra_strings')
 SRCEXTRASTRINGTEMPLATES = join(SRCSERVERDIR, 'extra_string_templates')
 WRKEXTRASTRINGTEMPLATES = join(WRKSERVERDIR, 'extra_string_templates')
 
-# SRCPYTHONLIBDIR = join(SRCSERVERDIR, 'pythonlib')
-# WRKPYTHONLIBDIR = join(WRKSERVERDIR, 'pythonlib')
-
-SRCMODULEDIR = join(SRCSERVERDIR, 'cc_modules')
-WRKMODULEDIR = join(WRKSERVERDIR, 'cc_modules')
-
-SRCTASKDIR = join(SRCSERVERDIR, 'tasks')
-WRKTASKDIR = join(WRKSERVERDIR, 'tasks')
-
 DSTTEMPDIR = join(DSTBASEDIR, 'tmp')
-
-SRCTASKDISCARDEDDIR = join(SRCSERVERDIR, 'tasks_discarded')
-WRKTASKDISCARDEDDIR = join(WRKSERVERDIR, 'tasks_discarded')
-DSTTASKDISCARDEDDIR = join(DSTSERVERDIR, 'tasks_discarded')
 
 SRCTOOLDIR = join(SRCSERVERDIR, 'tools')
 WRKTOOLDIR = join(WRKSERVERDIR, 'tools')
@@ -304,65 +354,24 @@ METASCRIPT = 'camcops_meta.py'
 DSTVENVSCRIPT = join(DSTTOOLDIR, VENVSCRIPT)
 DSTWKHTMLTOPDFSCRIPT = join(DSTTOOLDIR, WKHTMLTOPDFSCRIPT)
 
-WRKTABLETDIR = join(WRKBASEDIR, 'tablet')
-DSTTABLETDIR = join(DSTBASEDIR, 'tablet')
-
 MAINSCRIPTNAME = 'camcops.py'
 
-DSTPYTHONPATH = DSTSERVERDIR
-# ... others are referenced via the package system from this base directory
-WRKMAINSCRIPT = join(WRKSERVERDIR, MAINSCRIPTNAME)
-DSTMAINSCRIPT = join(DSTSERVERDIR, MAINSCRIPTNAME)
-
 METASCRIPTNAME = '{}_meta'.format(PACKAGE)
-DSTMETASCRIPT = join(DSTTOOLDIR, METASCRIPT)
-WRKMETACONSOLEFILE = join(WRKCONSOLEFILEDIR, METASCRIPTNAME)
-DSTMETACONSOLEFILE = join(DSTCONSOLEFILEDIR, METASCRIPTNAME)
 
 DSTMANDIR = '/usr/share/man/man1'  # section 1 for user commands
 WRKMANDIR = workpath(WRKDIR, DSTMANDIR)
-WRKMANFILE = join(WRKMANDIR, SETUPSCRIPTNAME + '.1.gz')
-DSTMANFILE = join(DSTMANDIR, SETUPSCRIPTNAME + '.1.gz')
-WRKMETAMANFILE = join(WRKMANDIR, METASCRIPTNAME + '.1.gz')
-DSTMETAMANFILE = join(DSTMANDIR, METASCRIPTNAME + '.1.gz')
-
-WRKDBDUMPFILE = join(WRKBASEDIR, 'demo_mysql_dump_script')
-WEBDOCDBDUMPFILE = join(WEBDOCSDIR, 'demo_mysql_dump_script')
-WRKMYSQLCREATION = join(WRKBASEDIR, 'demo_mysql_database_creation')
-WEBDOCSMYSQLCREATION = join(WEBDOCSDIR, 'demo_mysql_database_creation')
-WRKINSTRUCTIONS = os.path.join(WRKBASEDIR, 'instructions.txt')
-DSTINSTRUCTIONS = os.path.join(DSTBASEDIR, 'instructions.txt')
-WEBDOCINSTRUCTIONS = os.path.join(WEBDOCSDIR, 'instructions.txt')
 
 DSTSUPERVISORCONFDIR = '/etc/supervisor/conf.d'
 WRKSUPERVISORCONFDIR = workpath(WRKDIR, DSTSUPERVISORCONFDIR)
-DST_SUPERVISOR_CONF_FILE = os.path.join(DSTSUPERVISORCONFDIR,
-                                        PACKAGE + '.conf')
-WRK_SUPERVISOR_CONF_FILE = workpath(WRKDIR, DST_SUPERVISOR_CONF_FILE)
-WEBDOC_SUPERVISOR_CONF_FILE = os.path.join(WEBDOCSDIR,
-                                           'supervisord_camcops.conf')
 
 DSTCONFIGDIR = join('/etc', PACKAGE)
 WRKCONFIGDIR = workpath(WRKDIR, DSTCONFIGDIR)
-DSTCONFIGFILE = join(DSTCONFIGDIR, PACKAGE + '.conf')
-WRKCONFIGFILE = join(WRKCONFIGDIR, PACKAGE + '.conf')
-WEBDOCSCONFIGFILE = join(WEBDOCSDIR, PACKAGE + '.conf')
 
 DSTDPKGDIR = '/var/lib/dpkg/info'
 
 DSTLOCKDIR = join('/var/lock', PACKAGE)
-DSTHL7LOCKFILESTEM = join(DSTLOCKDIR, PACKAGE + '.hl7')
-DSTSUMMARYTABLELOCKFILESTEM = join(DSTLOCKDIR, PACKAGE + '.summarytables')
-# http://www.debian.org/doc/debian-policy/ch-opersys.html#s-writing-init
-
-DSTREADME = join(DSTDOCDIR, 'README.txt')
-WRKREADME = join(WRKDOCDIR, 'README.txt')
-
-DEB_REQ_FILE = os.path.join(SRCSERVERDIR, 'requirements-deb.txt')
-RPM_REQ_FILE = os.path.join(SRCSERVERDIR, 'requirements-rpm.txt')
-
 DSTPYTHONVENV = join(DSTBASEDIR, 'venv')
-DSTVENVPYTHON = join(DSTPYTHONVENV, 'bin', 'python')
+DSTVENVBIN = join(DSTPYTHONVENV, 'bin')
 DSTPYTHONCACHE = join(DSTBASEDIR, '.cache')
 
 SRCSTATICDIR = join(SRCSERVERDIR, 'static')
@@ -374,22 +383,60 @@ DSTMPLCONFIGDIR = '/var/cache/{}/matplotlib'.format(PACKAGE)
 WRKMPLCONFIGDIR = workpath(WRKDIR, DSTMPLCONFIGDIR)
 
 # =============================================================================
+# File constants
+# =============================================================================
+
+DSTCONSOLEFILE = join(DSTCONSOLEFILEDIR, SETUPSCRIPTNAME)
+WRKCONSOLEFILE = join(WRKCONSOLEFILEDIR, SETUPSCRIPTNAME)
+
+WRKMETACONSOLEFILE = join(WRKCONSOLEFILEDIR, METASCRIPTNAME)
+DSTMETACONSOLEFILE = join(DSTCONSOLEFILEDIR, METASCRIPTNAME)
+
+WRKMANFILE_BASE = join(WRKMANDIR, SETUPSCRIPTNAME + '.1')  # '.gz' appended
+DSTMANFILE = join(DSTMANDIR, SETUPSCRIPTNAME + '.1.gz')
+WRKMETAMANFILE_BASE = join(WRKMANDIR, METASCRIPTNAME + '.1')  # '.gz' appended
+DSTMETAMANFILE = join(DSTMANDIR, METASCRIPTNAME + '.1.gz')
+
+WRKDBDUMPFILE = join(WRKBASEDIR, 'demo_mysql_dump_script')
+WEBDOCDBDUMPFILE = join(WEBDOCSDIR, 'demo_mysql_dump_script')
+WRKMYSQLCREATION = join(WRKBASEDIR, 'demo_mysql_database_creation')
+WEBDOCSMYSQLCREATION = join(WEBDOCSDIR, 'demo_mysql_database_creation')
+WRKINSTRUCTIONS = join(WRKBASEDIR, 'instructions.txt')
+DSTINSTRUCTIONS = join(DSTBASEDIR, 'instructions.txt')
+WEBDOCINSTRUCTIONS = join(WEBDOCSDIR, 'instructions.txt')
+
+DST_SUPERVISOR_CONF_FILE = join(DSTSUPERVISORCONFDIR, PACKAGE + '.conf')
+WRK_SUPERVISOR_CONF_FILE = workpath(WRKDIR, DST_SUPERVISOR_CONF_FILE)
+WEBDOC_SUPERVISOR_CONF_FILE = join(WEBDOCSDIR, 'supervisord_camcops.conf')
+
+DSTCONFIGFILE = join(DSTCONFIGDIR, PACKAGE + '.conf')
+WRKCONFIGFILE = join(WRKCONFIGDIR, PACKAGE + '.conf')
+WEBDOCSCONFIGFILE = join(WEBDOCSDIR, PACKAGE + '.conf')
+
+DSTHL7LOCKFILESTEM = join(DSTLOCKDIR, PACKAGE + '.hl7')
+DSTSUMMARYTABLELOCKFILESTEM = join(DSTLOCKDIR, PACKAGE + '.summarytables')
+# http://www.debian.org/doc/debian-policy/ch-opersys.html#s-writing-init
+
+DSTREADME = join(DSTDOCDIR, 'README.txt')
+WRKREADME = join(WRKDOCDIR, 'README.txt')
+
+DEB_REQ_FILE = join(SRCSERVERDIR, 'requirements-deb.txt')
+RPM_REQ_FILE = join(SRCSERVERDIR, 'requirements-rpm.txt')
+
+DSTVENVPYTHON = join(DSTVENVBIN, 'python')
+DSTVENVPIP = join(DSTVENVBIN, 'pip')
+
+# For these names, see setup.py:
+DST_CAMCOPS_LAUNCHER = join(DSTVENVBIN, 'camcops')
+DST_CAMCOPS_META_LAUNCHER = join(DSTVENVBIN, 'camcops_meta')
+
+# =============================================================================
 # Version number and conditionals
 # =============================================================================
-VERSIONFILE = join(SRCSERVERDIR, 'cc_modules', 'cc_version.py')
-version_regex = re.compile(r'^CAMCOPS_SERVER_VERSION\s*=\s*([\d\.]*)')
-changedate_regex = re.compile(r'CAMCOPS_CHANGEDATE\s*=\s*\"(\S*)\"')
-MAINVERSION = None
-CHANGEDATE = None
-for i, line in enumerate(open(VERSIONFILE)):
-    m = version_regex.match(line)
-    if m:
-        MAINVERSION = m.group(1)
-    m = changedate_regex.match(line)
-    if m:
-        CHANGEDATE = m.group(1)
-if MAINVERSION is None or CHANGEDATE is None:
-    raise ValueError("Failed to get version or date")
+
+MAINVERSION = CAMCOPS_SERVER_VERSION
+CHANGEDATE = CAMCOPS_CHANGEDATE
+
 DEBVERSION = MAINVERSION + '-1'
 PACKAGENAME = join(
     PACKAGEDIR,
@@ -398,8 +445,8 @@ PACKAGENAME = join(
 # upstream_version-debian_revision --
 # see http://www.debian.org/doc/debian-policy/ch-controlfields.html#s-f-Version
 
-print("mainversion:", MAINVERSION)
-print("changedate:", CHANGEDATE)
+log.info("mainversion: {}".format(MAINVERSION))
+log.info("changedate: {}".format(CHANGEDATE))
 
 
 # =============================================================================
@@ -408,7 +455,24 @@ print("changedate:", CHANGEDATE)
 # print("Deleting old workspace")
 # shutil.rmtree(WRKDIR, ignore_errors=True)  # CAUTION!
 
-print("Making directories")
+# =============================================================================
+log.info("Building Python package")
+# =============================================================================
+
+SETUP_PY = join(SRCSERVERDIR, 'setup.py')
+SDIST_BASEFILENAME = ('camcops_server-{}.tar.gz'.format(MAINVERSION))
+SRC_SDIST_FILE = join(SRCSERVERDIR, 'dist', SDIST_BASEFILENAME)
+WRK_SDIST_FILE = join(WRKSERVERDIR, SDIST_BASEFILENAME)
+DST_SDIST_FILE = join(DSTSERVERDIR, SDIST_BASEFILENAME)
+
+cmdargs = ['python', SETUP_PY, 'sdist', '--extras']  # special!
+log.info("Command: {}".format(cmdargs))
+subprocess.check_call(cmdargs)
+remove_gzip_timestamp(SRC_SDIST_FILE)
+
+# =============================================================================
+log.info("Making directories")
+# =============================================================================
 mkdirp(DEBDIR)
 mkdirp(DEBOVERRIDEDIR)
 mkdirp(PACKAGEDIR)
@@ -420,67 +484,37 @@ mkdirp(WRKDOCDIR)
 mkdirp(WRKEXTRASTRINGS)
 mkdirp(WRKEXTRASTRINGTEMPLATES)
 mkdirp(WRKMANDIR)
-mkdirp(WRKMODULEDIR)
 mkdirp(WRKMPLCONFIGDIR)
-# mkdirp(WRKPYTHONLIBDIR)
 mkdirp(WRKSERVERDIR)
 mkdirp(WRKSTATICDIR)
 mkdirp(WRKSUPERVISORCONFDIR)
-mkdirp(WRKTABLETDIR)
-mkdirp(WRKTASKDIR)
-mkdirp(WRKTASKDISCARDEDDIR)
 mkdirp(WRKTOOLDIR)
 for d in "BUILD,BUILDROOT,RPMS,RPMS/noarch,SOURCES,SPECS,SRPMS".split(","):
     mkdirp(join(RPMTOPDIR, d))
 
-print("Copying files")
-copyglob(join(SRCSERVERDIR, '*.py'), WRKSERVERDIR)
-copyglob(join(SRCSERVERDIR, '*.txt'), WRKSERVERDIR)
-# copyglob(join(SRCPYTHONLIBDIR, '*.py'), WRKPYTHONLIBDIR)
-copyglob(join(SRCSTATICDIR, '*'), WRKSTATICDIR)
+# =============================================================================
+log.info("Copying files")
+# =============================================================================
+copyglob(join(SRCSERVERDIR, 'requirements*.txt'), WRKSERVERDIR)
 copyglob(join(SRCSERVERDIR, 'changelog.Debian'), WRKDOCDIR)
-subprocess.check_call(['gzip', '-9', join(WRKDOCDIR, 'changelog.Debian')])
+subprocess.check_call(['gzip', '-n', '-9',
+                       join(WRKDOCDIR, 'changelog.Debian')])
 copyglob(join(SRCSERVERDIR, 'changelog.Debian'), WEB_VERSION_FILES_DIR)
 # ... for the web site
-copyglob(join(SRCMODULEDIR, '*.py'), WRKMODULEDIR)
-copyglob(join(SRCTASKDIR, '*.py'), WRKTASKDIR)
-copyglob(join(SRCTASKDISCARDEDDIR, '*.py'), WRKTASKDISCARDEDDIR)
 copyglob(join(SRCEXTRASTRINGS, '*'), WRKEXTRASTRINGS, allow_nothing=True)
 copyglob(join(SRCEXTRASTRINGTEMPLATES, '*'), WRKEXTRASTRINGTEMPLATES,
          allow_nothing=True)
 copyglob(join(SRCTOOLDIR, VENVSCRIPT), WRKTOOLDIR)
 copyglob(join(SRCTOOLDIR, WKHTMLTOPDFSCRIPT), WRKTOOLDIR)
-copyglob(join(SRCTOOLDIR, METASCRIPT), WRKTOOLDIR)
 
-print("Copying tablet code")
-TABLETSUBDIRS = [
-    "i18n/en",
-    "Resources/common",
-    "Resources/html",
-    "Resources/lib",
-    "Resources/menu",
-    "Resources/menulib",
-    "Resources/questionnaire",
-    "Resources/questionnairelib",
-    "Resources/screen",
-    "Resources/table",
-    "Resources/task",
-    "Resources/task_html",
-]
-for d in TABLETSUBDIRS:
-    destdir = join(WRKTABLETDIR, d)
-    mkdirp(destdir)
-    copyglob(join(SRCTABLETDIR, d, '*'), destdir)
-
-DSTSTRINGFILE = join(DSTTABLETDIR, 'i18n/en/strings.xml')
+shutil.copyfile(SRC_SDIST_FILE, WRK_SDIST_FILE)
 
 # =============================================================================
-print("Creating man page. Will be installed as " + DSTMANFILE)
+log.info("Creating man page. Will be installed as " + DSTMANFILE)
 # =============================================================================
 # http://www.fnal.gov/docs/products/ups/ReferenceManual/html/manpages.html
 
-with gzip.open(WRKMANFILE, 'wt') as outfile:
-    print(r""".\" Manpage for {SETUPSCRIPTNAME}.
+write_zipped_text(WRKMANFILE_BASE, r""".\" Manpage for {SETUPSCRIPTNAME}.
 .\" Contact rudolf@pobox.com to correct errors or typos.
 .TH man 1 "{CHANGEDATE}" "{MAINVERSION}" "{SETUPSCRIPTNAME} man page"
 
@@ -529,20 +563,19 @@ http://www.camcops.org/
 
 .SH AUTHOR
 Rudolf Cardinal (rudolf@pobox.com)
-    """.format(
-        SETUPSCRIPTNAME=SETUPSCRIPTNAME,
-        CHANGEDATE=CHANGEDATE,
-        MAINVERSION=MAINVERSION,
-        DSTCONFIGFILE=DSTCONFIGFILE,
-    ), file=outfile)
+""".format(
+    SETUPSCRIPTNAME=SETUPSCRIPTNAME,
+    CHANGEDATE=CHANGEDATE,
+    MAINVERSION=MAINVERSION,
+    DSTCONFIGFILE=DSTCONFIGFILE,
+))
 
 # =============================================================================
-print("Creating man page. Will be installed as " + DSTMETAMANFILE)
+log.info("Creating man page. Will be installed as " + DSTMETAMANFILE)
 # =============================================================================
 # http://www.fnal.gov/docs/products/ups/ReferenceManual/html/manpages.html
 
-with gzip.open(WRKMETAMANFILE, 'wt') as outfile:
-    print(r""".\" Manpage for {METASCRIPTNAME}.
+write_zipped_text(WRKMETAMANFILE_BASE, r""".\" Manpage for {METASCRIPTNAME}.
 .\" Contact rudolf@pobox.com to correct errors or typos.
 .TH man 1 "{CHANGEDATE}" "{MAINVERSION}" "{METASCRIPTNAME} man page"
 
@@ -557,31 +590,29 @@ http://www.camcops.org/
 
 .SH AUTHOR
 Rudolf Cardinal (rudolf@pobox.com)
-    """.format(
-        METASCRIPTNAME=METASCRIPTNAME,
-        CHANGEDATE=CHANGEDATE,
-        MAINVERSION=MAINVERSION,
-        DSTCONFIGFILE=DSTCONFIGFILE,
-    ), file=outfile)
+""".format(
+    METASCRIPTNAME=METASCRIPTNAME,
+    CHANGEDATE=CHANGEDATE,
+    MAINVERSION=MAINVERSION,
+    DSTCONFIGFILE=DSTCONFIGFILE,
+))
 
 # =============================================================================
-print("Creating links to documentation. Will be installed as " + DSTREADME)
+log.info("Creating links to documentation. Will be installed as " + DSTREADME)
 # =============================================================================
-with open(WRKREADME, 'w') as outfile:
-    print("""
+write_text(WRKREADME, """
 CamCOPS: the Cambridge Cognitive and Psychiatric Test Kit
 
 See http://www.camcops.org for documentation.
 See also {DSTINSTRUCTIONS}
-    """.format(
-        DSTINSTRUCTIONS=DSTINSTRUCTIONS,
-    ), file=outfile)
+""".format(
+    DSTINSTRUCTIONS=DSTINSTRUCTIONS,
+))
 
 # =============================================================================
-print("Creating config file. Will be installed as " + DSTCONFIGFILE)
+log.info("Creating config file. Will be installed as " + DSTCONFIGFILE)
 # =============================================================================
-with open(WRKCONFIGFILE, 'w') as outfile:
-    print(string.Template("""
+write_text(WRKCONFIGFILE, string.Template("""
 # =============================================================================
 # Format of the CamCOPS configuration file
 # =============================================================================
@@ -754,9 +785,9 @@ LOCAL_LOGO_FILE_ABSOLUTE = $DSTSTATICDIR/logo_local.png
 
 # MAIN_STRING_FILE: Main strings.xml file to be used by the server.
 # file and other resources (set by the installation script;
-# default $DSTSTRINGFILE).
+# default is the internal string file).
 
-MAIN_STRING_FILE = $DSTSTRINGFILE
+MAIN_STRING_FILE =
 
 # EXTRA_STRING_FILES: multiline list of filenames (with absolute paths), read
 # by the server, and used as EXTRA STRING FILES (in addition to the main
@@ -1262,62 +1293,54 @@ RIO_DOCUMENT_TYPE = CC
 
 SCRIPT_AFTER_FILE_EXPORT =
 
-    """).substitute(  # noqa
-        DEFAULT_ANONSTAG_DB_NAME=DEFAULT_ANONSTAG_DB_NAME,
-        DEFAULT_ANONSTAG_DB_PASSWORD=DEFAULT_ANONSTAG_DB_PASSWORD,
-        DEFAULT_ANONSTAG_DB_USER=DEFAULT_ANONSTAG_DB_USER,
-        DEFAULT_DB_NAME=DEFAULT_DB_NAME,
-        DEFAULT_DB_PASSWORD=DEFAULT_DB_PASSWORD,
-        DEFAULT_DB_USER=DEFAULT_DB_USER,
-        DSTBASEDIR=DSTBASEDIR,
-        DSTEXTRASTRINGS=DSTEXTRASTRINGS,
-        DSTHL7LOCKFILESTEM=DSTHL7LOCKFILESTEM,
-        DSTLOCKDIR=DSTLOCKDIR,
-        DSTSERVERDIR=DSTSERVERDIR,
-        DSTSTATICDIR=DSTSTATICDIR,
-        DSTSTRINGFILE=DSTSTRINGFILE,
-        DSTSUMMARYTABLELOCKFILESTEM=DSTSUMMARYTABLELOCKFILESTEM,
-        INSTITUTIONURL=INSTITUTIONURL,
-    ), file=outfile)
+""").substitute(  # noqa
+    DEFAULT_ANONSTAG_DB_NAME=DEFAULT_ANONSTAG_DB_NAME,
+    DEFAULT_ANONSTAG_DB_PASSWORD=DEFAULT_ANONSTAG_DB_PASSWORD,
+    DEFAULT_ANONSTAG_DB_USER=DEFAULT_ANONSTAG_DB_USER,
+    DEFAULT_DB_NAME=DEFAULT_DB_NAME,
+    DEFAULT_DB_PASSWORD=DEFAULT_DB_PASSWORD,
+    DEFAULT_DB_USER=DEFAULT_DB_USER,
+    DSTBASEDIR=DSTBASEDIR,
+    DSTEXTRASTRINGS=DSTEXTRASTRINGS,
+    DSTHL7LOCKFILESTEM=DSTHL7LOCKFILESTEM,
+    DSTLOCKDIR=DSTLOCKDIR,
+    DSTSTATICDIR=DSTSTATICDIR,
+    # DSTSTRINGFILE=DSTSTRINGFILE,
+    DSTSUMMARYTABLELOCKFILESTEM=DSTSUMMARYTABLELOCKFILESTEM,
+    INSTITUTIONURL=INSTITUTIONURL,
+))
 webify_file(WRKCONFIGFILE, WEBDOCSCONFIGFILE)
 
+
 # =============================================================================
-print("Creating launch script. Will be installed as " + DSTCONSOLEFILE)
+log.info("Creating launch script. Will be installed as " + DSTCONSOLEFILE)
 # =============================================================================
-with open(WRKCONSOLEFILE, 'w') as outfile:
-    print("""#!/bin/bash
+write_text(WRKCONSOLEFILE, """#!/bin/bash
 # Launch script for CamCOPS command-line tool.
 
 echo 'Launching CamCOPS command-line tool...' >&2
 
-export PYTHONPATH={DSTPYTHONPATH}
+{DST_CAMCOPS_LAUNCHER} "$@"
 
-{DSTVENVPYTHON} {DSTMAINSCRIPT} "$@"
-    """.format(
-        DSTPYTHONPATH=DSTPYTHONPATH,
-        DSTVENVPYTHON=DSTVENVPYTHON,
-        DSTMAINSCRIPT=DSTMAINSCRIPT,
-    ), file=outfile)
+""".format(
+    DST_CAMCOPS_LAUNCHER=DST_CAMCOPS_LAUNCHER,
+))
 
 
 # =============================================================================
-print("Creating {} launch script. Will be installed as {}".format(
+log.info("Creating {} launch script. Will be installed as {}".format(
     METASCRIPTNAME, DSTMETACONSOLEFILE))
 # =============================================================================
-with open(WRKMETACONSOLEFILE, 'w') as outfile:
-    print("""#!/bin/bash
+write_text(WRKMETACONSOLEFILE, """#!/bin/bash
 # Launch script for CamCOPS meta-command tool tool.
 
 echo 'Launching CamCOPS meta-command tool...' >&2
 
-export PYTHONPATH={DSTPYTHONPATH}
+{DST_CAMCOPS_META_LAUNCHER} "$@"
 
-{DSTVENVPYTHON} {DSTMETASCRIPT} "$@"
-    """.format(
-        DSTPYTHONPATH=DSTPYTHONPATH,
-        DSTVENVPYTHON=DSTVENVPYTHON,
-        DSTMETASCRIPT=DSTMETASCRIPT,
-    ), file=outfile)
+""".format(
+    DST_CAMCOPS_META_LAUNCHER=DST_CAMCOPS_META_LAUNCHER,
+))
 
 
 # =============================================================================
@@ -1330,15 +1353,15 @@ export PYTHONPATH={DSTPYTHONPATH}
 #   /usr/bin/wkhtmltopdf "\$@"
 # EOF
 
+
 # =============================================================================
-print("Creating control file")
+log.info("Creating control file")
 # =============================================================================
 
 DEPENDS_DEB = get_lines_without_comments(DEB_REQ_FILE)
 DEPENDS_RPM = get_lines_without_comments(RPM_REQ_FILE)
 
-with open(join(DEBDIR, 'control'), 'w') as outfile:
-    print("""Package: {PACKAGE}
+write_text(join(DEBDIR, 'control'), """Package: {PACKAGE}
 Version: {DEBVERSION}
 Section: science
 Priority: optional
@@ -1353,29 +1376,29 @@ Description: Cambridge Cognitive and Psychiatric Test Kit (CamCOPS), server
  .
  For more details, see http://www.camcops.org/
 """.format(
-        PACKAGE=PACKAGE,
-        DEBVERSION=DEBVERSION,
-        DEPENDENCIES=", ".join(DEPENDS_DEB),
-    ), file=outfile)
+    PACKAGE=PACKAGE,
+    DEBVERSION=DEBVERSION,
+    DEPENDENCIES=", ".join(DEPENDS_DEB),
+))
+
 
 # =============================================================================
-print("Creating conffiles file. Will be installed as " +
-      join(DSTDPKGDIR, PACKAGE + '.conffiles'))
+log.info("Creating conffiles file. Will be installed as " +
+         join(DSTDPKGDIR, PACKAGE + '.conffiles'))
 # =============================================================================
 configfiles = [DSTCONFIGFILE,
                DST_SUPERVISOR_CONF_FILE]
-with open(join(DEBDIR, 'conffiles'), 'w') as outfile:
-    print("\n".join(configfiles), file=outfile)
+write_text(join(DEBDIR, 'conffiles'), "\n".join(configfiles))
 # If a configuration file is removed by the user, it won't be reinstalled:
 #   http://www.debian.org/doc/debian-policy/ap-pkg-conffiles.html
 # In this situation, do "sudo aptitude purge camcops" then reinstall.
 
+
 # =============================================================================
-print("Creating preinst file. Will be installed as " +
-      join(DSTDPKGDIR, PACKAGE + '.preinst'))
+log.info("Creating preinst file. Will be installed as " +
+         join(DSTDPKGDIR, PACKAGE + '.preinst'))
 # =============================================================================
-with open(join(DEBDIR, 'preinst'), 'w') as outfile:
-    print("""#!/bin/bash
+write_text(join(DEBDIR, 'preinst'), """#!/bin/bash
 # Exit on any errors? (Lintian strongly advises this.)
 set -e
 
@@ -1392,18 +1415,17 @@ stop_supervisord
 
 echo '{PACKAGE}: preinst file finished'
 
-    """.format(
-        BASHFUNC=BASHFUNC,
-        PACKAGE=PACKAGE,
-    ), file=outfile)
+""".format(
+    BASHFUNC=BASHFUNC,
+    PACKAGE=PACKAGE,
+))
 
 # =============================================================================
-print("Creating postinst file. Will be installed as " +
-      join(DSTDPKGDIR, PACKAGE + '.postinst'))
+log.info("Creating postinst file. Will be installed as " +
+         join(DSTDPKGDIR, PACKAGE + '.postinst'))
 # =============================================================================
 
-with open(join(DEBDIR, 'postinst'), 'w') as outfile:
-    print("""#!/bin/bash
+write_text(join(DEBDIR, 'postinst'), """#!/bin/bash
 # Exit on any errors? (Lintian strongly advises this.)
 set -e
 
@@ -1418,6 +1440,9 @@ echo '{PACKAGE}: postinst file executing'
 echo 'About to install virtual environment'
 export XDG_CACHE_HOME={DSTPYTHONCACHE}
 {DSTSYSTEMPYTHON} {DSTVENVSCRIPT} {DSTPYTHONVENV} --skippackagechecks
+
+echo 'About to install CamCOPS into virtual environment'
+{DSTVENVPIP} install {DST_SDIST_FILE}
 
 #------------------------------------------------------------------------------
 echo 'Creating lockfile directory'
@@ -1484,27 +1509,28 @@ echo "========================================================================"
 
 echo '{PACKAGE}: postinst file finished'
 
-    """.format(  # noqa
-        BASHFUNC=BASHFUNC,
-        PACKAGE=PACKAGE,
-        DSTPYTHONCACHE=DSTPYTHONCACHE,
-        DSTSYSTEMPYTHON=DSTSYSTEMPYTHON,
-        DSTWKHTMLTOPDFSCRIPT=DSTWKHTMLTOPDFSCRIPT,
-        DSTMPLCONFIGDIR=DSTMPLCONFIGDIR,
-        DSTVENVSCRIPT=DSTVENVSCRIPT,
-        DSTPYTHONVENV=DSTPYTHONVENV,
-        DSTLOCKDIR=DSTLOCKDIR,
-        DSTCONFIGFILE=DSTCONFIGFILE,
-        DST_SUPERVISOR_CONF_FILE=DST_SUPERVISOR_CONF_FILE,
-    ), file=outfile)
+""".format(  # noqa
+    BASHFUNC=BASHFUNC,
+    DST_SUPERVISOR_CONF_FILE=DST_SUPERVISOR_CONF_FILE,
+    DSTCONFIGFILE=DSTCONFIGFILE,
+    DSTLOCKDIR=DSTLOCKDIR,
+    DSTMPLCONFIGDIR=DSTMPLCONFIGDIR,
+    DSTPYTHONCACHE=DSTPYTHONCACHE,
+    DSTPYTHONVENV=DSTPYTHONVENV,
+    DST_SDIST_FILE=DST_SDIST_FILE,
+    DSTSYSTEMPYTHON=DSTSYSTEMPYTHON,
+    DSTVENVPIP=DSTVENVPIP,
+    DSTVENVSCRIPT=DSTVENVSCRIPT,
+    DSTWKHTMLTOPDFSCRIPT=DSTWKHTMLTOPDFSCRIPT,
+    PACKAGE=PACKAGE,
+))
 
 
 # =============================================================================
-print("Creating prerm file. Will be installed as " +
-      join(DSTDPKGDIR, PACKAGE + '.prerm'))
+log.info("Creating prerm file. Will be installed as " +
+         join(DSTDPKGDIR, PACKAGE + '.prerm'))
 # =============================================================================
-with open(join(DEBDIR, 'prerm'), 'w') as outfile:
-    print("""#!/bin/bash
+write_text(join(DEBDIR, 'prerm'), """#!/bin/bash
 set -e
 
 {BASHFUNC}
@@ -1520,18 +1546,17 @@ find {DSTBASEDIR} -name '*.pyo' -delete
 
 echo '{PACKAGE}: prerm file finished'
 
-    """.format(
-        BASHFUNC=BASHFUNC,
-        PACKAGE=PACKAGE,
-        DSTBASEDIR=DSTBASEDIR,
-    ), file=outfile)
+""".format(
+    BASHFUNC=BASHFUNC,
+    PACKAGE=PACKAGE,
+    DSTBASEDIR=DSTBASEDIR,
+))
 
 # =============================================================================
-print("Creating postrm file. Will be installed as " +
-      join(DSTDPKGDIR, PACKAGE + '.postrm'))
+log.info("Creating postrm file. Will be installed as " +
+         join(DSTDPKGDIR, PACKAGE + '.postrm'))
 # =============================================================================
-with open(join(DEBDIR, 'postrm'), 'w') as outfile:
-    print("""#!/bin/bash
+write_text(join(DEBDIR, 'postrm'), """#!/bin/bash
 set -e
 
 {BASHFUNC}
@@ -1542,31 +1567,29 @@ restart_supervisord
 
 echo '{PACKAGE}: postrm file finished'
 
-    """.format(
-        BASHFUNC=BASHFUNC,
-        PACKAGE=PACKAGE,
-        DSTBASEDIR=DSTBASEDIR,
-    ), file=outfile)
+""".format(
+    BASHFUNC=BASHFUNC,
+    PACKAGE=PACKAGE,
+    DSTBASEDIR=DSTBASEDIR,
+))
 
 # =============================================================================
-print("Creating Lintian override file")
+log.info("Creating Lintian override file")
 # =============================================================================
-with open(join(DEBOVERRIDEDIR, PACKAGE), 'w') as outfile:
-    print("""
+write_text(join(DEBOVERRIDEDIR, PACKAGE), """
 # Not an official new Debian package, so ignore this one.
 # If we did want to close a new-package ITP bug:
 # http://www.debian.org/doc/manuals/developers-reference/pkgs.html#upload-bugfix  # noqa
 {PACKAGE} binary: new-package-should-close-itp-bug
-    """.format(
-        PACKAGE=PACKAGE,
-    ), file=outfile)
+""".format(
+    PACKAGE=PACKAGE,
+))
 
 # =============================================================================
-print("Creating copyright file. Will be installed as " +
-      join(DSTDOCDIR, 'copyright'))
+log.info("Creating copyright file. Will be installed as " +
+         join(DSTDOCDIR, 'copyright'))
 # =============================================================================
-with open(join(WRKDOCDIR, 'copyright'), 'w') as outfile:
-    print("""{PACKAGE}
+write_text(join(WRKDOCDIR, 'copyright'), """{PACKAGE}
 
 CAMCOPS
 
@@ -1574,17 +1597,20 @@ CAMCOPS
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
-    Licensed under the Apache License, Version 2.0 (the 'License');
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
+    CamCOPS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-        http://www.apache.org/licenses/LICENSE-2.0
+    CamCOPS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an 'AS IS' BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    You should have received a copy of the GNU General Public License
+    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+
+    On Debian systems, see /usr/share/common-licenses/GPL-3
 
 ADDITIONAL LIBRARY COMPONENTS
 
@@ -1595,18 +1621,17 @@ ADDITIONAL LIBRARY COMPONENTS
 TEXT FOR SPECIFIC ASSESSMENT SCALES
 
     Public domain or copyright (C) their respective authors; see details in
-    {DSTSTRINGFILE}.
-    """.format(
-        PACKAGE=PACKAGE,
-        DSTSTRINGFILE=DSTSTRINGFILE,
-    ), file=outfile)
+    source code/string files distributed with this software.
+""".format(
+    PACKAGE=PACKAGE,
+    # DSTSTRINGFILE=DSTSTRINGFILE,
+))
 
 
 # =============================================================================
-print("Creating supervisor conf file. Will be " + DST_SUPERVISOR_CONF_FILE)
+log.info("Creating supervisor conf file. Will be " + DST_SUPERVISOR_CONF_FILE)
 # =============================================================================
-with open(WRK_SUPERVISOR_CONF_FILE, 'w') as outfile:
-    print(string.Template("""
+write_text(WRK_SUPERVISOR_CONF_FILE, string.Template("""
 
 # IF YOU EDIT THIS FILE, run:
 #       sudo service supervisor restart
@@ -1633,7 +1658,7 @@ with open(WRK_SUPERVISOR_CONF_FILE, 'w') as outfile:
 
 # [program:camcops-gunicorn]
 #
-# command = $DSTPYTHONVENV/bin/gunicorn camcops:application
+# command = $DSTPYTHONVENV/bin/gunicorn camcops_server:camcops:application
 #     --workers 4
 #     --bind=unix:$DEFAULT_GUNICORN_SOCKET
 #     --env CAMCOPS_CONFIG_FILE=$DSTCONFIGFILE
@@ -1642,7 +1667,7 @@ with open(WRK_SUPERVISOR_CONF_FILE, 'w') as outfile:
 # #   --bind=127.0.0.1:$DEFAULT_GUNICORN_PORT
 # #   --bind=unix:$DEFAULT_GUNICORN_SOCKET
 # directory = $DSTSERVERDIR
-# environment = PYTHONPATH="$DSTPYTHONPATH",MPLCONFIGDIR="$DSTMPLCONFIGDIR"
+# environment = MPLCONFIGDIR="$DSTMPLCONFIGDIR"
 # user = www-data
 # # ... Ubuntu: typically www-data
 # # ... CentOS: typically apache
@@ -1653,20 +1678,20 @@ with open(WRK_SUPERVISOR_CONF_FILE, 'w') as outfile:
 # startsecs = 10
 # stopwaitsecs = 60
 
-    """).substitute(  # noqa
-        DSTPYTHONVENV=DSTPYTHONVENV,
-        DEFAULT_GUNICORN_PORT=DEFAULT_GUNICORN_PORT,
-        DEFAULT_GUNICORN_SOCKET=DEFAULT_GUNICORN_SOCKET,
-        DSTMPLCONFIGDIR=DSTMPLCONFIGDIR,
-        DSTSERVERDIR=DSTSERVERDIR,
-        DSTPYTHONPATH=DSTPYTHONPATH,
-        DSTCONFIGFILE=DSTCONFIGFILE,
-        PACKAGE=PACKAGE,
-    ), file=outfile)
+""").substitute(  # noqa
+    DSTPYTHONVENV=DSTPYTHONVENV,
+    DEFAULT_GUNICORN_PORT=DEFAULT_GUNICORN_PORT,
+    DEFAULT_GUNICORN_SOCKET=DEFAULT_GUNICORN_SOCKET,
+    DSTMPLCONFIGDIR=DSTMPLCONFIGDIR,
+    DSTSERVERDIR=DSTSERVERDIR,
+    # DSTPYTHONPATH=DSTPYTHONPATH,
+    DSTCONFIGFILE=DSTCONFIGFILE,
+    PACKAGE=PACKAGE,
+))
 webify_file(WRK_SUPERVISOR_CONF_FILE, WEBDOC_SUPERVISOR_CONF_FILE)
 
 # =============================================================================
-print("Creating instructions. Will be installed within " + DSTBASEDIR)
+log.info("Creating instructions. Will be installed within " + DSTBASEDIR)
 # =============================================================================
 
 # CONSIDER: MULTIPLE INSTANCES
@@ -1674,8 +1699,7 @@ print("Creating instructions. Will be installed within " + DSTBASEDIR)
 # - http://mediacore.com/blog/hosting-multiple-wsgi-applications-with-apache
 # - http://stackoverflow.com/questions/9581197/two-django-projects-running-simultaneously-and-mod-wsgi-acting-werid  # noqa
 
-with open(WRKINSTRUCTIONS, 'w') as outfile:
-    print(string.Template(r"""
+write_text(WRKINSTRUCTIONS, string.Template(r"""
 ===============================================================================
 Your system's CamCOPS configuration
 ===============================================================================
@@ -1810,9 +1834,8 @@ Testing with just gunicorn
   for a test port on 8000:
 
     sudo -u www-data \
-        PYTHONPATH="$DSTPYTHONPATH" \
         CAMCOPS_CONFIG_FILE="$DSTCONFIGFILE" \
-        $DSTPYTHONVENV/bin/gunicorn camcops:application \
+        $DSTPYTHONVENV/bin/gunicorn camcops_server:camcops:application \
         --workers 4 \
         --bind=127.0.0.1:8000
 
@@ -2029,24 +2052,24 @@ OPTIMAL: proxy Apache through to Gunicorn
     SetEnvIfNoCase Request_URI \.(?:gif|jpe?g|png)$$ no-gzip
     Header append Vary User-Agent env=!dont-vary
 
-    """).substitute(  # noqa
-        DEFAULT_GUNICORN_PORT=DEFAULT_GUNICORN_PORT,
-        DEFAULT_GUNICORN_SOCKET=DEFAULT_GUNICORN_SOCKET,
-        DSTBASEDIR=DSTBASEDIR,
-        DSTCONFIGDIR=DSTCONFIGDIR,
-        DSTCONFIGFILE=DSTCONFIGFILE,
-        DSTMETACONSOLEFILE=DSTMETACONSOLEFILE,
-        DSTMPLCONFIGDIR=DSTMPLCONFIGDIR,
-        DSTPYTHONPATH=DSTPYTHONPATH,
-        DSTPYTHONVENV=DSTPYTHONVENV,
-        DSTSERVERDIR=DSTSERVERDIR,
-        DSTSTATICDIR=DSTSTATICDIR,
-        DST_SUPERVISOR_CONF_FILE=DST_SUPERVISOR_CONF_FILE,
-        MAINSCRIPTNAME=MAINSCRIPTNAME,
-        TABLETSCRIPT=TABLETSCRIPT,
-        URLBASE=URLBASE,
-        WEBVIEWSCRIPT=WEBVIEWSCRIPT,
-    ), file=outfile)
+""").substitute(  # noqa
+    DEFAULT_GUNICORN_PORT=DEFAULT_GUNICORN_PORT,
+    DEFAULT_GUNICORN_SOCKET=DEFAULT_GUNICORN_SOCKET,
+    DSTBASEDIR=DSTBASEDIR,
+    DSTCONFIGDIR=DSTCONFIGDIR,
+    DSTCONFIGFILE=DSTCONFIGFILE,
+    DSTMETACONSOLEFILE=DSTMETACONSOLEFILE,
+    DSTMPLCONFIGDIR=DSTMPLCONFIGDIR,
+    # DSTPYTHONPATH=DSTPYTHONPATH,
+    DSTPYTHONVENV=DSTPYTHONVENV,
+    DSTSERVERDIR=DSTSERVERDIR,
+    DSTSTATICDIR=DSTSTATICDIR,
+    DST_SUPERVISOR_CONF_FILE=DST_SUPERVISOR_CONF_FILE,
+    MAINSCRIPTNAME=MAINSCRIPTNAME,
+    TABLETSCRIPT=TABLETSCRIPT,
+    URLBASE=URLBASE,
+    WEBVIEWSCRIPT=WEBVIEWSCRIPT,
+))
 webify_file(WRKINSTRUCTIONS, WEBDOCINSTRUCTIONS)
 
 # In <Files "$DBSCRIPTNAME"> section, we did have:
@@ -2058,11 +2081,10 @@ webify_file(WRKINSTRUCTIONS, WEBDOCINSTRUCTIONS)
 #   # Header set Access-Control-Allow-Origin "*"
 
 # =============================================================================
-print("Creating demonstration MySQL database creation commands. Will be "
-      "installed within " + DSTBASEDIR)
+log.info("Creating demonstration MySQL database creation commands. Will be "
+         "installed within " + DSTBASEDIR)
 # =============================================================================
-with open(WRKMYSQLCREATION, 'w') as outfile:
-    print("""
+write_text(WRKMYSQLCREATION, """
 # First, from the Linux command line, log in to MySQL as root:
 
 mysql --host=127.0.0.1 --port=3306 --user=root --password
@@ -2087,21 +2109,20 @@ GRANT SELECT {DEFAULT_DB_NAME}.* TO '{DEFAULT_DB_READONLY_USER}'@'localhost' IDE
 # All done. Quit MySQL:
 
 exit
-    """.format(  # noqa
-        DEFAULT_DB_NAME=DEFAULT_DB_NAME,
-        DEFAULT_DB_USER=DEFAULT_DB_USER,
-        DEFAULT_DB_PASSWORD=DEFAULT_DB_PASSWORD,
-        DEFAULT_DB_READONLY_USER=DEFAULT_DB_READONLY_USER,
-        DEFAULT_DB_READONLY_PASSWORD=DEFAULT_DB_READONLY_PASSWORD,
-    ), file=outfile)
+""".format(  # noqa
+    DEFAULT_DB_NAME=DEFAULT_DB_NAME,
+    DEFAULT_DB_USER=DEFAULT_DB_USER,
+    DEFAULT_DB_PASSWORD=DEFAULT_DB_PASSWORD,
+    DEFAULT_DB_READONLY_USER=DEFAULT_DB_READONLY_USER,
+    DEFAULT_DB_READONLY_PASSWORD=DEFAULT_DB_READONLY_PASSWORD,
+))
 webify_file(WRKMYSQLCREATION, WEBDOCSMYSQLCREATION)
 
 # =============================================================================
-print("Creating demonstration backup script. Will be installed within " +
-      DSTBASEDIR)
+log.info("Creating demonstration backup script. Will be installed within " +
+         DSTBASEDIR)
 # =============================================================================
-with open(WRKDBDUMPFILE, 'w') as outfile:
-    print("""#!/bin/bash
+write_text(WRKDBDUMPFILE, """#!/bin/bash
 
 # Minimal simple script to dump all current MySQL databases.
 # This file must be READABLE ONLY BY ROOT (or equivalent, backup)!
@@ -2128,12 +2149,11 @@ cd $BACKUPDIR
 chown -R backup:backup *
 chmod -R o-rwx *
 chmod -R ug+rw *
-    """,  # noqa
-    file=outfile)
+""")  # noqa
 webify_file(WRKDBDUMPFILE, WEBDOCDBDUMPFILE)
 
 # =============================================================================
-print("Setting ownership and permissions")
+log.info("Setting ownership and permissions")
 # =============================================================================
 # sudo chown -R $USER:$USER $WRKDIR
 subprocess.check_call(
@@ -2146,7 +2166,6 @@ subprocess.check_call([
     "chmod",
     "a+x",
     WRKCONSOLEFILE,
-    WRKMAINSCRIPT,
     WRKMETACONSOLEFILE,
     WRKDBDUMPFILE,
     join(DEBDIR, 'prerm'),
@@ -2160,7 +2179,7 @@ subprocess.check_call(
     ['find', WRKDIR, '-iname', '*.pl', '-exec', 'chmod', 'a+x', '{}', ';'])
 
 # =============================================================================
-print("Removing junk")
+log.info("Removing junk")
 # =============================================================================
 subprocess.check_call(
     ['find', WRKDIR, '-name', '*.svn', '-exec', 'rm', '-rf', '{}', ';'])
@@ -2170,18 +2189,18 @@ subprocess.check_call(
     ['find', WRKDOCDIR, '-name', 'LICENSE', '-exec', 'rm', '-rf', '{}', ';'])
 
 # =============================================================================
-print("Building package")
+log.info("Building package")
 # =============================================================================
 subprocess.check_call(['fakeroot', 'dpkg-deb', '--build', WRKDIR, PACKAGENAME])
 # ... "fakeroot" prefix makes all files installed as root:root
 
 # =============================================================================
-print("Checking with Lintian")
+log.info("Checking with Lintian")
 # =============================================================================
 subprocess.check_call(['lintian', PACKAGENAME])
 
 # =============================================================================
-print("Converting to RPM")
+log.info("Converting to RPM")
 # =============================================================================
 subprocess.check_call(
     ['fakeroot', 'alien', '--to-rpm', '--scripts', PACKAGENAME],
@@ -2196,7 +2215,7 @@ myuser = getpass.getuser()
 shutil.chown(FULL_RPM_PATH, myuser, myuser)
 
 # =============================================================================
-print("Changing dependencies within RPM")
+log.info("Changing dependencies within RPM")
 # =============================================================================
 # Alien does not successfully translate the dependencies, and anyway the names
 # for packages are different on CentOS. A dummy prerequisite package works
@@ -2222,12 +2241,12 @@ shutil.move(join(RPMTOPDIR, 'RPMS', 'noarch', EXPECTED_MAIN_RPM_NAME),
 # ... will overwrite its predecessor
 
 # =============================================================================
-print("Deleting temporary workspace")
+log.info("Deleting temporary workspace")
 # =============================================================================
 shutil.rmtree(TMPDIR, ignore_errors=True)  # CAUTION!
 
 # =============================================================================
-print("=" * 79)
-print("Debian package should be: " + PACKAGENAME)
-print("RPM should be: " + FULL_RPM_PATH)
+log.info("=" * 79)
+log.info("Debian package should be: " + PACKAGENAME)
+log.info("RPM should be: " + FULL_RPM_PATH)
 # =============================================================================

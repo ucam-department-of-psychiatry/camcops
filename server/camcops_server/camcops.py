@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # camcops.py
 
 import argparse
@@ -41,7 +41,7 @@ from .cc_modules import cc_db
 from .cc_modules import cc_device
 from .cc_modules.cc_device import Device
 from .cc_modules import cc_dump
-from .cc_modules.cc_logger import log, dblog
+from .cc_modules.cc_logger import log, dblog, main_only_quicksetup_rootlogger
 from .cc_modules import cc_hl7
 from .cc_modules import cc_hl7core
 from .cc_modules import cc_patient
@@ -1046,4 +1046,5 @@ Using database: {dbname} ({dbtitle}).
 # =============================================================================
 
 if __name__ == '__main__':
+    main_only_quicksetup_rootlogger(logging.INFO)
     cli_main()

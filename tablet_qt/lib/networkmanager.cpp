@@ -40,6 +40,10 @@
 //   sets up a callback to itself but with std::bind rather than to a QObject;
 //   network function is called; object is deleted; network replies; boom).
 //   So BEWARE there.
+// - Since we have a single set of principal network access functions relating
+//   to upload/server interaction, the simplest thing is to build them all into
+//   this class, and then we don't have to worry about lifetime problems.
+
 
 NetworkManager::NetworkManager(const CamcopsApp& app, QWidget* parent) :
     m_app(app),
@@ -60,6 +64,10 @@ NetworkManager::~NetworkManager()
 }
 
 
+// ============================================================================
+// User interface
+// ============================================================================
+
 void NetworkManager::setSilent(bool silent)
 {
     m_silent = silent;
@@ -75,11 +83,101 @@ void NetworkManager::setTitle(const QString& title)
 }
 
 
+void NetworkManager::statusMessage(const QString& msg)
+{
+    qInfo() << "Network:" << msg;
+    if (m_silent) {
+        qDebug() << "silent";
+        return;
+    }
+    if (!m_logbox) {
+        qDebug() << "creating logbox";
+        m_logbox = new LogBox(m_parent, m_title, m_offer_cancel);
+        m_logbox->setStyleSheet(
+                    m_app.getSubstitutedCss(UiConst::CSS_CAMCOPS_MAIN));
+        connect(m_logbox.data(), &LogBox::accepted,
+                this, &NetworkManager::logboxFinished,
+                Qt::UniqueConnection);
+        connect(m_logbox.data(), &LogBox::rejected,
+                this, &NetworkManager::cancelled,
+                Qt::UniqueConnection);
+        m_logbox->open();
+    }
+    m_logbox->statusMessage(msg);
+}
+
+
+void NetworkManager::logboxCancelled()
+{
+    // User has hit cancel
+    qDebug() << Q_FUNC_INFO;
+    if (!m_logbox) {
+        return;
+    }
+    m_logbox->deleteLater();
+    emit cancelled();
+}
+
+
+void NetworkManager::logboxFinished()
+{
+    // User has acknowledged finish
+    qDebug() << Q_FUNC_INFO;
+    if (!m_logbox) {
+        return;
+    }
+    m_logbox->deleteLater();
+    emit finished();
+}
+
+
+// ============================================================================
+// Basic connection management
+// ============================================================================
+
 void NetworkManager::disconnectManager()
 {
     m_mgr->disconnect();
 }
 
+
+void NetworkManager::sslIgnoringErrorHandler(QNetworkReply* reply,
+                                             const QList<QSslError> & errlist)
+{
+    // Error handle that ignores SSL certificate errors and continues
+    statusMessage("Ignoring SSL errors:");
+    for (auto err : errlist) {
+        statusMessage(err.errorString());
+    }
+    reply->ignoreSslErrors();
+}
+
+
+void NetworkManager::cancel()
+{
+    qDebug() << Q_FUNC_INFO;
+    if (m_logbox) {
+        m_logbox->reject();  // its rejected() signal calls our cancelled()
+    } else {
+        emit cancelled();
+    }
+}
+
+
+void NetworkManager::finish()
+{
+    qDebug() << Q_FUNC_INFO;
+    if (m_logbox) {
+        m_logbox->finish();
+    } else {
+        emit finished();
+    }
+}
+
+
+// ============================================================================
+// Testing
+// ============================================================================
 
 void NetworkManager::testHttpGet(const QString& url, bool offer_cancel)
 {
@@ -134,16 +232,6 @@ void NetworkManager::testHttpsGet(const QString& url, bool offer_cancel,
 }
 
 
-void NetworkManager::sslIgnoringErrorHandler(QNetworkReply* reply,
-                                             const QList<QSslError> & errlist)
-{
-    statusMessage("Ignoring SSL errors:");
-    for (auto err : errlist) {
-        statusMessage(err.errorString());
-    }
-    reply->ignoreSslErrors();
-}
-
 
 void NetworkManager::testReplyFinished(QNetworkReply* reply)
 {
@@ -158,69 +246,3 @@ void NetworkManager::testReplyFinished(QNetworkReply* reply)
 }
 
 
-void NetworkManager::statusMessage(const QString& msg)
-{
-    qInfo() << "Network:" << msg;
-    if (m_silent) {
-        qDebug() << "silent";
-        return;
-    }
-    if (!m_logbox) {
-        qDebug() << "creating logbox";
-        m_logbox = new LogBox(m_parent, m_title, m_offer_cancel);
-        m_logbox->setStyleSheet(
-                    m_app.getSubstitutedCss(UiConst::CSS_CAMCOPS_MAIN));
-        connect(m_logbox.data(), &LogBox::accepted,
-                this, &NetworkManager::logboxFinished,
-                Qt::UniqueConnection);
-        connect(m_logbox.data(), &LogBox::rejected,
-                this, &NetworkManager::cancelled,
-                Qt::UniqueConnection);
-        m_logbox->open();
-    }
-    m_logbox->statusMessage(msg);
-}
-
-
-void NetworkManager::cancel()
-{
-    qDebug() << Q_FUNC_INFO;
-    if (m_logbox) {
-        m_logbox->reject();  // its rejected() signal calls our cancelled()
-    } else {
-        emit cancelled();
-    }
-}
-
-
-void NetworkManager::finish()
-{
-    qDebug() << Q_FUNC_INFO;
-    if (m_logbox) {
-        m_logbox->finish();
-    } else {
-        emit finished();
-    }
-}
-
-
-void NetworkManager::logboxCancelled()
-{
-    qDebug() << Q_FUNC_INFO;
-    if (!m_logbox) {
-        return;
-    }
-    m_logbox->deleteLater();
-    emit cancelled();
-}
-
-
-void NetworkManager::logboxFinished()
-{
-    qDebug() << Q_FUNC_INFO;
-    if (!m_logbox) {
-        return;
-    }
-    m_logbox->deleteLater();
-    emit finished();
-}

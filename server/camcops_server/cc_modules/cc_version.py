@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # cc_version.py
 
 """
@@ -22,8 +22,9 @@
 # Version constants and configuration variables read by shell scripts
 # =============================================================================
 
-# Versions need to be FLOAT.
-CAMCOPS_SERVER_VERSION = 1.5
-CAMCOPS_CHANGEDATE = "2016-07-29"
-# ... must use double quotes; read by a regex in MAKE_PACKAGE.py
+# FOR NOW, needs to be a string interpretable as a float.
+CAMCOPS_SERVER_VERSION = "1.50"
+
+CAMCOPS_CHANGEDATE = "2016-12-06"
+
 MINIMUM_TABLET_VERSION = 1.14

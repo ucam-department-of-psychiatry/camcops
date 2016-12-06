@@ -1,10 +1,10 @@
-#!/usr/bin/env python3
-# tools/update_multiple_databases.py
+#!/usr/bin/env python
+# camcops_meta.py
 
 import argparse
 import glob
 import os
-import subprocess
+# import subprocess
 import sys
 
 from camcops_server.camcops import cli_main

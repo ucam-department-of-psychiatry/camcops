@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 """
 http://stackoverflow.com/questions/35117920/cant-override-custom-comparison-in-sqlalchemy-symmetrically  # noqa

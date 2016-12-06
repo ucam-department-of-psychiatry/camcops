@@ -1,7 +1,33 @@
+camcops (1.50) all; urgency=low
+
+  * Change _device VARCHAR(255) fields to _device_id INT.
+  * Change *_user VARCHAR(255) fields to *_user_id INT.
+  * Note that this leaves only a few "odd" things from the point of standard
+    RDBMSs:
+    - multiple keys on server side (adding _device_id and _era) to reflect
+      multiple devices with write-only access;
+    - history on server side (adding _current, and forward/backward PK chain)
+    - the "_era" field is textual (ISO-8601), because
+      (a) no database seems to store DATETIME values with milli-/microsecond
+          accuracy and proper timezone information (in the sense that you can
+          recreate the timezone of origin);
+      (b) we can use a non-NULL special value, in our case "NOW", as it makes
+          things simpler for end users to use "a = b" consistently and not have
+          to do "a = b OR a IS NULL AND b IS NULL".
+    - patient IDs are unchecked and are allowed to be incomplete (to reflect
+      our need to operate with incomplete information, and in anonymous as well
+      as fully-identified environments), and duplicate patient records are
+      allowed (across, but not within, device/era combinations).
+  * Static type checking for server Python code.
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Fri, 29 Jul 2016 22:13:00 +0000
+
 camcops (1.41-1) all; urgency=high
 
   * Bugfix to large research data dumps (were timing out due to inefficient
-    SQL). *** Changed cc_task.get_ancillary_items().
+    SQL). Changed cc_task.get_ancillary_items(), with some back-end functions
+    in rnc_db too (changed fetch_all_objects_from_db_where(); added
+    create_object_from_list() ).
 
  -- Rudolf Cardinal <rudolf@pobox.com>  Fri, 29 Jan 2016 22:13:00 +0000
 

@@ -1,4 +1,4 @@
-camcops (1.5) all; urgency=low
+camcops (1.50) all; urgency=low
 
   * Change _device VARCHAR(255) fields to _device_id INT.
   * Change *_user VARCHAR(255) fields to *_user_id INT.

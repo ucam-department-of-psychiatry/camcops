@@ -2,6 +2,10 @@
 CAMCOPS SERVER THINGS TO DO NOW
 ===============================================================================
 
+- fix MAKE_PACKAGE.py and server scripts to be able to serve tablet source
+  code that's not in the Python server package (now we've moved to venvs
+  properly)
+
 - sort out SQLAlchemy, field type, and get_summaries()
     - use mixins to inherit fields; see
     http://docs.sqlalchemy.org/en/latest/orm/extensions/declarative/mixins.html

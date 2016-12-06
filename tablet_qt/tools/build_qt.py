@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 """
 When is it NECESSARY to compile OpenSSL from source?

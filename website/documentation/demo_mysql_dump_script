@@ -8,10 +8,10 @@
 #     sudo chmod 700 &lt;filename&gt;
 # Then you can add it to your /etc/crontab for regular execution.
 
-BACKUPDIR='/var/backups/mysql'
-BACKUPFILE='all_my_mysql_databases.sql'
-USERNAME='root'  # MySQL username
-PASSWORD='PPPPPP_REPLACE_ME'  # MySQL password
+BACKUPDIR=&#x27;/var/backups/mysql&#x27;
+BACKUPFILE=&#x27;all_my_mysql_databases.sql&#x27;
+USERNAME=&#x27;root&#x27;  # MySQL username
+PASSWORD=&#x27;PPPPPP_REPLACE_ME&#x27;  # MySQL password
 
 # Make directory unless it exists already:
 mkdir -p $BACKUPDIR
@@ -20,9 +20,9 @@ mkdir -p $BACKUPDIR
 mysqldump -u $USERNAME -p$PASSWORD --all-databases --force &gt; $BACKUPDIR/$BACKUPFILE
 
 # Make sure the backups (which may contain sensitive information) are only
-# readable by the 'backup' user group:
+# readable by the &#x27;backup&#x27; user group:
 cd $BACKUPDIR
 chown -R backup:backup *
 chmod -R o-rwx *
 chmod -R ug+rw *
-    
+

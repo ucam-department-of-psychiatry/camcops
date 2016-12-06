@@ -200,13 +200,19 @@ protected:
     // Stored variables: generic
     // ------------------------------------------------------------------------
 public:
+    // These have a hidden cache system to reduce database access, in that
+    // m_storedvars stores values and doesn't ask the database again:
+    QVariant var(const QString& name) const;
     bool setVar(const QString& name, const QVariant& value,
                 bool save_to_db = true);
-    QVariant var(const QString& name) const;
+
     bool hasVar(const QString& name) const;
     FieldRefPtr storedVarFieldRef(const QString& name, bool mandatory = true,
                                   bool cached = true);
-    // And so we can operate on a cached version:
+
+    // And so we can operate on an "externally visible" cached version, for
+    // editing settings (with an option to save or discard), we have a second
+    // cache:
     void clearCachedVars();  // resets them
     QVariant getCachedVar(const QString& name) const;
     bool setCachedVar(const QString& name, const QVariant& value);

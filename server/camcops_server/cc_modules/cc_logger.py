@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # cc_logger.py
 
 """
@@ -83,8 +83,6 @@ def main_only_quicksetup_rootlogger(level: int = logging.DEBUG) -> None:
 # =============================================================================
 # Logger
 # =============================================================================
-
-main_only_quicksetup_rootlogger(logging.INFO)
 
 # Webview logger
 log = logging.getLogger("camcops_wv")

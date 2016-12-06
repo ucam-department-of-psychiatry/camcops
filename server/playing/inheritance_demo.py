@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 
 class Base(object):  # make it a new-style class by inheriting from object
