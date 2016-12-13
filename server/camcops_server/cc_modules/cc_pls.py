@@ -56,7 +56,7 @@ from .cc_constants import (
     DEFAULT_DATABASE_TITLE,
     DEFAULT_DB_PORT,
     DEFAULT_DB_SERVER,
-    DEFAULT_EXTRA_STRING_SPEC,
+    # DEFAULT_EXTRA_STRING_SPEC,
     DEFAULT_LOCAL_INSTITUTION_URL,
     DEFAULT_LOCAL_LOGO_FILE,
     DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES,
@@ -320,7 +320,7 @@ class LocalStorage(object):
         self.EXPORT_CRIS_DATA_DICTIONARY_TSV_FILE = get_config_parameter(
             config, section, "EXPORT_CRIS_DATA_DICTIONARY_TSV_FILE", str, None)
         self.EXTRA_STRING_FILES = get_config_parameter_multiline(
-            config, section, "EXTRA_STRING_FILES", [DEFAULT_EXTRA_STRING_SPEC])
+            config, section, "EXTRA_STRING_FILES", [])
 
         self.HL7_LOCKFILE = get_config_parameter(
             config, section, "HL7_LOCKFILE", str, None)

@@ -119,7 +119,7 @@ public:
     virtual bool load(int pk);
     virtual bool load(const QString& fieldname, const QVariant& where_value);
     virtual bool load(const WhereConditions& where);
-    virtual SqlArgs fetchQuerySql(const WhereConditions& where);
+    virtual SqlArgs fetchQuerySql(const WhereConditions& where = WhereConditions());
     virtual void setFromQuery(const QSqlQuery& query,
                               bool order_matches_fetchquery = false);
     virtual bool save();
@@ -127,6 +127,12 @@ public:
     bool isPkNull() const;
     void touch(bool only_if_unset = false);
     void setAllDirty();
+
+    // ========================================================================
+    // Batch operations
+    // ========================================================================
+
+    QList<int> getAllPKs() const;
 
     // ========================================================================
     // Deleting
@@ -139,6 +145,13 @@ public:
     // ========================================================================
 
     void requireField(const QString& fieldname) const;
+
+    // ========================================================================
+    // Special field access
+    // ========================================================================
+
+    bool shouldMoveOffTablet() const;
+    void setMoveOffTablet(bool move_off);
 
     // ========================================================================
     // DDL

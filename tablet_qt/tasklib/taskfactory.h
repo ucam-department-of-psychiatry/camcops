@@ -52,6 +52,7 @@ public:
         QString tablename;
         QString shortname;
         QString longname;
+        QStringList alltables;
         ProxyType proxy;
     };
     using MapType = QMap<QString, TaskCache>;
@@ -63,6 +64,7 @@ public:
     void finishRegistration();
     // Operations relating to the whole registry
     QStringList tablenames() const;
+    QStringList allTablenames() const;
     void makeAllTables() const;
     // Operations relating to specific tasks
     TaskPtr create(const QString& key,
@@ -74,6 +76,7 @@ public:
 protected:
     CamcopsApp& m_app;
     QStringList m_tablenames;
+    QStringList m_all_tablenames;
     QList<ProxyType> m_initial_proxy_list;
     MapType m_map;
 };

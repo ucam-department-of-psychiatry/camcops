@@ -17,13 +17,15 @@
 
 #pragma once
 #include <QList>
+#include <QMap>
 #include <QString>
+#include <QUrlQuery>
+#include <QVariant>
 #include "crypto/secureqbytearray.h"
 #include "crypto/secureqstring.h"
 
 class QByteArray;
 class QImage;
-class QVariant;
 
 
 namespace Convert
@@ -45,6 +47,7 @@ namespace Convert
     QString toSqlLiteral(const QVariant& value);
     QVariant fromSqlLiteral(const QString& literal);
     QList<QVariant> csvSqlLiteralsToValues(const QString& csv);
+    QString valuesToCsvSqlLiterals(const QList<QVariant>& values);
 
     // Images
 
@@ -58,4 +61,14 @@ namespace Convert
 
     QByteArray base64ToBytes(const QString& data_b64);
     SecureQByteArray base64ToSecureBytes(const QString& data_b64);
+
+    // Display formatting
+
+    QString prettyValue(const QVariant& variant, QVariant::Type type);
+    QString prettyValue(const QVariant& variant);
+
+    // Network comms
+
+    QUrlQuery getPostDataAsUrlQuery(const QMap<QString, QString>& dict);
+    QMap<QString, QString> getReplyDict(const QByteArray& data);
 }

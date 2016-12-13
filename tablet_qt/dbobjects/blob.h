@@ -32,6 +32,8 @@ public:
                  const QString& extension_without_dot = "png");
     QVariant blobVariant() const;
     QByteArray blobByteArray() const;
+public:
+    static const QString TABLENAME;
 protected:
     QString m_filename_stem;
 };

@@ -73,7 +73,7 @@ void DbFunc::openDatabaseOrDie(QSqlDatabase& db, const QString& filename)
 }
 
 
-QString DbFunc::delimit(const QString& fieldname)
+QString DbFunc::delimit(const QString& identifier)
 {
     // Delimits a table or fieldname, by ANSI SQL standards.
 
@@ -81,7 +81,19 @@ QString DbFunc::delimit(const QString& fieldname)
     // http://stackoverflow.com/questions/2901453/sql-standard-to-escape-column-names
     // You must delimit anything with funny characters or any keyword,
     // and the list of potential keywords is long, so just delimit everything.
-    return "\"" + fieldname + "\"";
+    return "\"" + identifier + "\"";
+}
+
+
+QString DbFunc::selectColumns(const QStringList& columns, const QString& table)
+{
+    QStringList delimited_columns;
+    for (auto column : columns) {
+        delimited_columns.append(delimit(column));
+    }
+    return QString("SELECT %1 FROM %2")
+            .arg(delimited_columns.join(","))
+            .arg(delimit(table));
 }
 
 
@@ -255,6 +267,30 @@ int DbFunc::dbFetchInt(const QSqlDatabase& db, const QString& sql,
 }
 
 
+QString DbFunc::sqlParamHolders(int n)
+{
+    // String like "?,?,?" for n parameter holders
+    QString paramholders;
+    for (int i = 0; i < n; ++i) {
+        if (i != 0) {
+            paramholders += ",";
+        }
+        paramholders += "?";
+    }
+    return paramholders;
+}
+
+
+ArgList DbFunc::argListFromIntList(const QList<int>& intlist)
+{
+    ArgList args;
+    for (auto value : intlist) {
+        args.append(value);
+    }
+    return args;
+}
+
+
 QString DbFunc::csvHeader(const QSqlQuery& query, const char sep)
 {
     QSqlRecord record = query.record();
@@ -295,6 +331,62 @@ int DbFunc::count(const QSqlDatabase& db,
     SqlArgs sqlargs("SELECT COUNT(*) FROM " + delimit(tablename));
     addWhereClause(where, sqlargs);
     return dbFetchInt(db, sqlargs, 0);
+}
+
+
+QList<int> DbFunc::getPKs(const QSqlDatabase& db,
+                          const QString& tablename,
+                          const QString& pkname,
+                          const WhereConditions& where)
+{
+    SqlArgs sqlargs(QString("SELECT %1 FROM %2")
+                    .arg(delimit(pkname))
+                    .arg(delimit(tablename)));
+    addWhereClause(where, sqlargs);
+    QSqlQuery query(db);
+    QList<int> pks;
+    if (!execQuery(query, sqlargs)) {
+        return pks;  // empty list on failure
+    }
+    while (query.next()) {
+        pks.append(query.value(0).toInt());
+    }
+    return pks;
+}
+
+
+QStringList DbFunc::getAllTables(const QSqlDatabase& db)
+{
+    // System tables begin with sqlite_
+    // - https://www.sqlite.org/fileformat.html
+    // An underscore is a wildcard for LIKE
+    // - https://www.sqlite.org/lang_expr.html
+    QString sql = "SELECT name "
+                  "FROM sqlite_master "
+                  "WHERE sql NOT NULL "
+                  "AND type='table' "
+                  "AND name NOT LIKE 'sqlite\\_%' ESCAPE '\\' "
+                  "ORDER BY name";
+    QSqlQuery query(db);
+    QStringList tablenames;
+    if (!execQuery(query, sql)) {
+        return tablenames;  // empty list on failure
+    }
+    while (query.next()) {
+        tablenames.append(query.value(0).toString());
+    }
+    return tablenames;
+}
+
+
+bool DbFunc::deleteFrom(const QSqlDatabase& db,
+                        const QString& tablename,
+                        const WhereConditions& where)
+{
+    SqlArgs sqlargs(QString("DELETE FROM %1").arg(delimit(tablename)));
+    addWhereClause(where, sqlargs);
+    QSqlQuery query(db);
+    return execQuery(query, sqlargs);
 }
 
 
@@ -349,7 +441,7 @@ QStringList DbFunc::fieldNamesFromPragmaInfo(
 }
 
 
-QStringList DbFunc::dbFieldNames(const QSqlDatabase& db,
+QStringList DbFunc::getFieldNames(const QSqlDatabase& db,
                                  const QString& tablename)
 {
     QList<SqlitePragmaInfoField> infolist = getPragmaInfo(db, tablename);
@@ -421,7 +513,7 @@ void DbFunc::renameColumns(const QSqlDatabase& db, QString tablename,
         return;
     }
     QString creation_sql = dbTableDefinitionSql(db, tablename);
-    QStringList old_fieldnames = dbFieldNames(db, tablename);
+    QStringList old_fieldnames = getFieldNames(db, tablename);
     QStringList new_fieldnames = old_fieldnames;
     QString dummytable = tablename + tempsuffix;
     if (tableExists(db, dummytable)) {

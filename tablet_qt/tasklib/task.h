@@ -63,6 +63,8 @@ public:
     // ------------------------------------------------------------------------
     // Tables
     // ------------------------------------------------------------------------
+    virtual QStringList ancillaryTables() const { return QStringList(); }
+    QStringList allTables() const;
     virtual void makeTables();
     virtual void makeAncillaryTables() {}
     // ------------------------------------------------------------------------
@@ -110,6 +112,12 @@ protected:
     mutable QSharedPointer<Patient> m_patient;
     bool m_editing;
     QDateTime m_editing_started;
+
+    // ------------------------------------------------------------------------
+    // Static data
+    // ------------------------------------------------------------------------
+public:
+    static const QString PATIENT_FK_FIELDNAME;
 };
 
 

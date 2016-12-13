@@ -49,6 +49,8 @@ DatabaseObject::DatabaseObject(const QSqlDatabase& db,
                     "table=%1").arg(m_tablename));
     }
     addField(pk_fieldname, QVariant::Int, true, true, true);
+    addField(DbConst::MOVE_OFF_TABLET_FIELDNAME, QVariant::Bool,
+             false, false, false);
     if (has_modification_timestamp) {
         addField(DbConst::MODIFICATION_TIMESTAMP_FIELDNAME,
                  QVariant::DateTime);
@@ -553,6 +555,15 @@ void DatabaseObject::setAllDirty()
     }
 }
 
+// ============================================================================
+// Batch operations
+// ============================================================================
+
+QList<int> DatabaseObject::getAllPKs() const
+{
+    return DbFunc::getPKs(m_db, m_tablename, m_pk_fieldname);
+}
+
 
 // ============================================================================
 // Deleting
@@ -595,6 +606,22 @@ void DatabaseObject::requireField(const QString &fieldname) const
     }
 }
 
+
+// ============================================================================
+// Special field access
+// ============================================================================
+
+bool DatabaseObject::shouldMoveOffTablet() const
+{
+    return valueBool(DbConst::MOVE_OFF_TABLET_FIELDNAME);
+}
+
+
+void DatabaseObject::setMoveOffTablet(bool move_off)
+{
+    setValue(DbConst::MOVE_OFF_TABLET_FIELDNAME, move_off);
+    save();
+}
 
 // ============================================================================
 // DDL

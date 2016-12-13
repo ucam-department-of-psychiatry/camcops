@@ -44,7 +44,8 @@ namespace DbFunc {
 
     // SQL fragments
 
-    QString delimit(const QString& fieldname);
+    QString delimit(const QString& identifier);
+    QString selectColumns(const QStringList& columns, const QString& table);
     void addWhereClause(const WhereConditions& where, SqlArgs& sqlargs_altered);
 
     // Queries
@@ -68,6 +69,9 @@ namespace DbFunc {
                    const QString& sql,
                    int failureDefault = -1);
 
+    QString sqlParamHolders(int n);
+    ArgList argListFromIntList(const QList<int>& intlist);
+
     QString csvHeader(const QSqlQuery& query, const char sep = ',');
     QString csvRow(const QSqlQuery& query, const char sep = ',');
     QString csv(QSqlQuery& query, const char sep = ',',
@@ -77,6 +81,19 @@ namespace DbFunc {
               const QString& tablename,
               const WhereConditions& where = WhereConditions());
 
+    QList<int> getPKs(const QSqlDatabase& db,
+                      const QString& tablename,
+                      const QString& pkname,
+                      const WhereConditions& where = WhereConditions());
+
+    QStringList getAllTables(const QSqlDatabase& db);
+
+    // Modification queries
+
+    bool deleteFrom(const QSqlDatabase& db,
+                    const QString& tablename,
+                    const WhereConditions& where = WhereConditions());
+
     // Database structure
 
     bool tableExists(const QSqlDatabase& db, const QString& tablename);
@@ -84,10 +101,13 @@ namespace DbFunc {
                                           const QString& tablename);
     QStringList fieldNamesFromPragmaInfo(const QList<SqlitePragmaInfoField>& infolist,
                                          bool delimited = false);
-    QStringList dbFieldNames(const QSqlDatabase& db, const QString& tablename);
+    QStringList getFieldNames(const QSqlDatabase& db, const QString& tablename);
     QString makeCreationSqlFromPragmaInfo(const QString& tablename,
                                           const QList<SqlitePragmaInfoField>& infolist);
     QString dbTableDefinitionSql(const QSqlDatabase& db, const QString& tablename);
+
+    // Altering structure
+
     bool createIndex(const QSqlDatabase& db, const QString& indexname,
                      const QString& tablename, QStringList fieldnames);
     void renameColumns(const QSqlDatabase& db, QString tablename,

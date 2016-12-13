@@ -57,7 +57,7 @@ public:
         }
         WhereConditions where;
         if (patient_id != DbConst::NONEXISTENT_PK) {
-            where[PATIENT_FK_FIELDNAME] = QVariant(patient_id);
+            where[Task::PATIENT_FK_FIELDNAME] = QVariant(patient_id);
         }
         return fetchWhere(app, db, where);
     }

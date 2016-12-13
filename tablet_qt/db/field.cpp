@@ -16,6 +16,7 @@
 */
 
 #include "field.h"
+#include "lib/convert.h"
 #include "lib/uifunc.h"
 #include "lib/datetimefunc.h"
 
@@ -147,17 +148,7 @@ QVariant Field::value() const
 
 QString Field::prettyValue() const
 {
-    if (m_value.isNull()) {
-        return "NULL";
-    }
-    switch (m_type) {
-    case QVariant::ByteArray:
-        return "<binary>";
-    case QVariant::String:
-        return m_value.toString().toHtmlEscaped();
-    default:
-        return m_value.toString();
-    }
+    return Convert::prettyValue(m_value, m_type);
 }
 
 

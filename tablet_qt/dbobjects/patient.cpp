@@ -37,7 +37,7 @@
 #include "questionnairelib/qutextedit.h"
 #include "widgets/openablewidget.h"
 
-const QString PATIENT_TABLE("patient");
+const QString Patient::TABLENAME("patient");
 
 // Important that these match ID policy names:
 const QString FORENAME_FIELD("forename");
@@ -63,7 +63,7 @@ const QString TAG_POLICY_FINALIZE_FAIL("finalize_fail");
 
 
 Patient::Patient(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
-    DatabaseObject(db, PATIENT_TABLE, DbConst::PK_FIELDNAME, true, true),
+    DatabaseObject(db, TABLENAME, DbConst::PK_FIELDNAME, true, true),
     m_app(app),
     m_questionnaire(nullptr)
 {
@@ -264,19 +264,18 @@ OpenableWidget* Patient::editor(bool read_only)
     m_questionnaire->setReadOnly(read_only);
     updateQuestionnaireIndicators();
     return m_questionnaire;
-    // *** indicators for mandatory-against-server-policy
 }
 
 
 bool Patient::hasForename() const
 {
-    return !value(FORENAME_FIELD).toString().isEmpty();
+    return !valueString(FORENAME_FIELD).isEmpty();
 }
 
 
 bool Patient::hasSurname() const
 {
-    return !value(SURNAME_FIELD).toString().isEmpty();
+    return !valueString(SURNAME_FIELD).isEmpty();
 }
 
 
@@ -288,7 +287,7 @@ bool Patient::hasDob() const
 
 bool Patient::hasSex() const
 {
-    return !value(SEX_FIELD).toString().isEmpty();
+    return !valueString(SEX_FIELD).isEmpty();
 }
 
 
@@ -309,6 +308,18 @@ Patient::AttributesType Patient::policyAttributes() const
 bool Patient::compliesWith(const IdPolicy& policy) const
 {
     return policy.complies(policyAttributes());
+}
+
+
+bool Patient::compliesWithUpload() const
+{
+    return compliesWith(m_app.uploadPolicy());
+}
+
+
+bool Patient::compliesWithFinalize() const
+{
+    return compliesWith(m_app.finalizePolicy());
 }
 
 

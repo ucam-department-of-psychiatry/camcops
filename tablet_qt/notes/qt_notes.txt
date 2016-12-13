@@ -921,7 +921,9 @@ Network
 ===============================================================================
 TO DO
 ===============================================================================
-- *** network stuff
+- *** when patient edited, details not changing on patient list
+- *** ensure patient ID numbers cannot conflict
+- *** upload
 
 - *** when to call setNeedsUpload() -- attach to database ops? DatabaseObject?
 

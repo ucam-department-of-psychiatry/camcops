@@ -29,8 +29,9 @@ public:
     unsigned int major() const;
     unsigned int minor() const;
     unsigned int patch() const;
-    double toFloat() const;
     QString toString() const;
+    double toFloat() const;
+    QString toFloatString() const;
     bool isValid() const;
     friend bool operator<(const Version& v1, const Version& v2);
     friend bool operator<=(const Version& v1, const Version& v2);

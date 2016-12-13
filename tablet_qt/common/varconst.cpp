@@ -55,6 +55,12 @@ namespace VarConst
     const QString ID_POLICY_UPLOAD("idPolicyUpload");
     const QString ID_POLICY_FINALIZE("idPolicyFinalize");
 
+    // Other information from server
+    const QString SERVER_DATABASE_TITLE("databaseTitle");
+    const QString SERVER_CAMCOPS_VERSION("serverCamcopsVersion");
+    const QString LAST_SERVER_REGISTRATION("lastServerRegistration");
+    const QString LAST_SUCCESSFUL_UPLOAD("lastSuccessfulUpload");
+
     // User
     const QString DEVICE_FRIENDLY_NAME("deviceFriendlyName");
     const QString SERVER_USERNAME("serverUser");

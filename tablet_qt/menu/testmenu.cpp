@@ -159,9 +159,7 @@ void TestMenu::testPhq9Creation()
         return;
     }
     qDebug() << *p_task;
-    m_app.setWhiskerConnected(true); // *** remove
     doneSeeConsole();
-    m_app.setWhiskerConnected(false); // *** remove
 #endif
 }
 

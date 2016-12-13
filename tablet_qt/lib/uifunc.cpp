@@ -603,7 +603,7 @@ bool UiFunc::getPassword(const QString& text, const QString& title,
 {
     PasswordEntryDialog dlg(text, title, parent);
     int reply = dlg.exec();
-    if (reply != QMessageBox::Accepted) {
+    if (reply != QDialog::Accepted) {
         return false;
     }
     // fetch/write back password

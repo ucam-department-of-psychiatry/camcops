@@ -46,6 +46,8 @@ class Version;
 
 class CamcopsApp : public QApplication
 {
+    using RecordList = QList<QMap<QString, QVariant>>;
+
     Q_OBJECT
 
     // ------------------------------------------------------------------------
@@ -159,6 +161,7 @@ signals:
 public:
     bool isPatientSelected() const;
     void setSelectedPatient(int patient_id);
+    void deselectPatient();
     void patientHasBeenEdited(int patient_id);
     const Patient* selectedPatient() const;
     int selectedPatientId() const;
@@ -191,6 +194,7 @@ public:
     bool hasExtraStrings(const QString& taskname) const;
     void clearExtraStringCache();
     void deleteAllExtraStrings();
+    void setAllExtraStrings(const RecordList& recordlist);
 protected:
     QString xstringDirect(const QString& taskname, const QString& stringname,
                           const QString& default_str = "") const;
@@ -203,6 +207,9 @@ public:
     // These have a hidden cache system to reduce database access, in that
     // m_storedvars stores values and doesn't ask the database again:
     QVariant var(const QString& name) const;
+    QString varString(const QString& name) const;
+    bool varBool(const QString& name) const;
+    int varInt(const QString& name) const;
     bool setVar(const QString& name, const QVariant& value,
                 bool save_to_db = true);
 

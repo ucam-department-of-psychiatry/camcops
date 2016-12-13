@@ -51,11 +51,11 @@ DEFAULT_MYSQLDUMP = "/usr/bin/mysqldump"
 DEFAULT_MYSQL = "/usr/bin/mysql"
 DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS = 0  # zero for never
 
-SERVER_BASE_DIRECTORY = os.path.join(PROJECT_BASE_DIRECTORY, "server")
+# SERVER_BASE_DIRECTORY = os.path.join(PROJECT_BASE_DIRECTORY, "server")
 DEFAULT_STRING_FILE = os.path.join(
     TABLET_SOURCE_COPY_DIR, "tablet_titanium", "i18n", "en", "strings.xml")
-DEFAULT_EXTRA_STRING_SPEC = os.path.join(
-    PROJECT_BASE_DIRECTORY, "server", "extra_strings", "*")
+# DEFAULT_EXTRA_STRING_SPEC = os.path.join(
+#     PROJECT_BASE_DIRECTORY, "server", "extra_strings", "*")
 DEFAULT_TIMEOUT_MINUTES = 30
 DEFAULT_PLOT_FONTSIZE = 8
 
@@ -80,9 +80,9 @@ URL_ROOT_STATIC = "/static"  # only for development environments
 # More filenames
 # =============================================================================
 
-DEFAULT_CAMCOPS_LOGO_FILE = os.path.join(SERVER_BASE_DIRECTORY,
+DEFAULT_CAMCOPS_LOGO_FILE = os.path.join(CAMCOPS_SERVER_DIRECTORY,
                                          CAMCOPS_LOGO_FILE_WEBREF)
-DEFAULT_LOCAL_LOGO_FILE = os.path.join(SERVER_BASE_DIRECTORY,
+DEFAULT_LOCAL_LOGO_FILE = os.path.join(CAMCOPS_SERVER_DIRECTORY,
                                        LOCAL_LOGO_FILE_WEBREF)
 
 # =============================================================================

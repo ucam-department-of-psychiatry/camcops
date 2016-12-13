@@ -25,4 +25,6 @@ class MainMenu : public MenuWindow
 
 public:
     MainMenu(CamcopsApp& app);
+protected:
+    void upload();
 };

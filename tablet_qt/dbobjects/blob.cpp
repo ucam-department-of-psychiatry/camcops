@@ -17,7 +17,8 @@
 
 #include "blob.h"
 
-const QString BLOB_TABLENAME("blobs");  // as per DBCONSTANTS.js
+const QString Blob::TABLENAME("blobs");  // as per DBCONSTANTS.js
+
 const QString SRC_TABLE_FIELDNAME("tablename");  // as per Blob.js
 const QString SRC_PK_FIELDNAME("tablepk");  // as per Blob.js
 const QString SRC_FIELD_FIELDNAME("fieldname");  // as per Blob.js
@@ -30,7 +31,11 @@ Blob::Blob(const QSqlDatabase& db,
            const QString& src_table,
            int src_pk,
            const QString& src_field) :
-    DatabaseObject(db, BLOB_TABLENAME) //*** check: creation timestamp?
+    DatabaseObject(db,
+                   TABLENAME,
+                   DbConst::PK_FIELDNAME,
+                   true,  // modification timestamp
+                   false)  // creation timestamp
 {
     // ------------------------------------------------------------------------
     // Define fields

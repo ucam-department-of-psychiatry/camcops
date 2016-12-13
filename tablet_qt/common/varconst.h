@@ -56,6 +56,17 @@ namespace VarConst
     extern const QString ID_POLICY_UPLOAD;
     extern const QString ID_POLICY_FINALIZE;
 
+    // Note that ID descriptions/short descriptions have multiple server
+    // variables as set by
+    //      DbConst::IDDESC_FIELD_FORMAT
+    //      DbConst::IDSHORTDESC_FIELD_FORMAT
+
+    // Other information from server
+    extern const QString SERVER_DATABASE_TITLE;
+    extern const QString SERVER_CAMCOPS_VERSION;
+    extern const QString LAST_SERVER_REGISTRATION;
+    extern const QString LAST_SUCCESSFUL_UPLOAD;
+
     // User
     // ... server interaction
     extern const QString DEVICE_FRIENDLY_NAME;

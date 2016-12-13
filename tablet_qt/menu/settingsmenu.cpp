@@ -21,6 +21,8 @@
 #include "common/varconst.h"
 #include "db/dbnestabletransaction.h"
 #include "db/fieldref.h"
+#include "lib/convert.h"
+#include "lib/networkmanager.h"
 #include "lib/uifunc.h"
 #include "menu/testmenu.h"
 #include "menu/whiskermenu.h"
@@ -86,9 +88,19 @@ SettingsMenu::SettingsMenu(CamcopsApp& app) :
             tr("Change app password"),
             std::bind(&SettingsMenu::changeAppPassword, this)
         ).setNotIfLocked(),
-        MenuItem(tr("Show server information")).setNotIfLocked(),  // ***
-        MenuItem(tr("Re-accept ID descriptions from the server")).setNotIfLocked(),  // ***
-        MenuItem(tr("Re-fetch extra task strings from the server")).setNotIfLocked(),  // ***
+        MenuItem(
+            tr("Show server information"),
+            std::bind(&SettingsMenu::viewServerInformation, this,
+                      std::placeholders::_1)
+        ).setNotIfLocked(),
+        MenuItem(
+            tr("Re-accept ID descriptions from the server"),
+            std::bind(&SettingsMenu::fetchIdDescriptions, this)
+        ).setNotIfLocked(),
+        MenuItem(
+            tr("Re-fetch extra task strings from the server"),
+            std::bind(&SettingsMenu::fetchExtraStrings, this)
+        ).setNotIfLocked(),
         MAKE_MENU_MENU_ITEM(WhiskerMenu, app).setNotIfLocked(),
         MAKE_MENU_MENU_ITEM(TestMenu, app),
         MenuItem(
@@ -101,7 +113,10 @@ SettingsMenu::SettingsMenu(CamcopsApp& app) :
             std::bind(&SettingsMenu::configureServer, this,
                       std::placeholders::_1)
         ).setNeedsPrivilege(),
-        MenuItem(tr("(†) Register this device with the server")).setNeedsPrivilege(),  // ***
+        MenuItem(
+            tr("(†) Register this device with the server"),
+            std::bind(&SettingsMenu::registerWithServer, this)
+        ).setNeedsPrivilege(),
         MenuItem(
             tr("(†) Change privileged-mode password"),
             std::bind(&SettingsMenu::changePrivPassword, this)
@@ -277,13 +292,12 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
     FieldRefPtr devicename_fr = app.storedVarFieldRef(VarConst::DEVICE_FRIENDLY_NAME);
     QString devicename_t = tr("Device friendly name");
     QString devicename_h = tr("e.g. “Research tablet 17 (Bob’s)”");
-    FieldRefPtr username_fr = app.storedVarFieldRef(
-                VarConst::SERVER_USERNAME, false);
+    FieldRefPtr username_fr = app.storedVarFieldRef(VarConst::SERVER_USERNAME);
     QString username_t = tr("Username on server");
     // Safe object lifespan signal: can use std::bind
     FieldRef::GetterFunction getter = std::bind(&SettingsMenu::serverPasswordGetter, this);
     FieldRef::SetterFunction setter = std::bind(&SettingsMenu::serverPasswordSetter, this, std::placeholders::_1);
-    FieldRefPtr password_fr = FieldRefPtr(new FieldRef(getter, setter, false));
+    FieldRefPtr password_fr = FieldRefPtr(new FieldRef(getter, setter, true));
     QString password_t = tr("Password on server");
     FieldRefPtr upload_after_edit_fr = app.storedVarFieldRef(VarConst::OFFER_UPLOAD_AFTER_EDIT);
     QString upload_after_edit_t = tr("Offer to upload every time a task is edited?");
@@ -587,7 +601,6 @@ void SettingsMenu::serverSettingsSaved()
         || m_app.cachedVarChanged(VarConst::SERVER_PATH)
     );
     if (server_details_changed) {
-        // *** clear temporary server password from netcore, if we decide to store it there
         UiFunc::alert(
             tr("Server details have changed. You should consider "
                "re-registering with the server."),
@@ -606,6 +619,7 @@ QVariant SettingsMenu::serverPasswordGetter()
 {
     if (!m_plaintext_pw_live) {
         m_temp_plaintext_password = m_app.getPlaintextServerPassword();
+        m_plaintext_pw_live = true;
     }
     return QVariant(m_temp_plaintext_password);
 }
@@ -616,6 +630,7 @@ bool SettingsMenu::serverPasswordSetter(const QVariant& value)
     SecureQString value_str = value.toString();
     bool changed = value_str != m_temp_plaintext_password;
     m_temp_plaintext_password = value_str;
+    m_plaintext_pw_live = true;
     return changed;
 }
 
@@ -654,4 +669,131 @@ void SettingsMenu::deleteAllExtraStrings()
                         this)) {
         m_app.deleteAllExtraStrings();
     }
+}
+
+
+void SettingsMenu::registerWithServer()
+{
+    NetworkManager* netmgr = m_app.networkManager();
+    netmgr->registerWithServer();
+}
+
+
+void SettingsMenu::fetchIdDescriptions()
+{
+    NetworkManager* netmgr = m_app.networkManager();
+    netmgr->fetchIdDescriptions();
+}
+
+
+void SettingsMenu::fetchExtraStrings()
+{
+    NetworkManager* netmgr = m_app.networkManager();
+    netmgr->fetchExtraStrings();
+}
+
+
+OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
+{
+    QString label_server_address = tr("Server hostname/IP address:");
+    QString label_server_port = tr("Port for HTTPS:");
+    QString label_server_path = tr("Path on server:");
+    QString label_server_timeout = tr("Network timeout (ms):");
+    QString label_last_server_registration = tr("Last server registration/ID info acceptance:");
+    QString label_last_successful_upload = tr("Last successful upload:");
+    QString label_dbtitle = tr("Database title (from the server):");
+    QString label_policy_upload = tr("Server’s upload ID policy:");
+    QString label_policy_finalize = tr("Server’s finalizing ID policy:");
+    QString label_server_camcops_version = tr("Server CamCOPS version:");
+
+    QString data_server_address = Convert::prettyValue(app.var(VarConst::SERVER_ADDRESS));
+    QString data_server_port = Convert::prettyValue(app.var(VarConst::SERVER_PORT));
+    QString data_server_path = Convert::prettyValue(app.var(VarConst::SERVER_PATH));
+    QString data_server_timeout = Convert::prettyValue(app.var(VarConst::SERVER_TIMEOUT_MS));
+    QString data_last_server_registration = Convert::prettyValue(app.var(VarConst::LAST_SERVER_REGISTRATION));
+    QString data_last_successful_upload = Convert::prettyValue(app.var(VarConst::LAST_SUCCESSFUL_UPLOAD));
+    QString data_dbtitle = Convert::prettyValue(app.var(VarConst::SERVER_DATABASE_TITLE));
+    QString data_policy_upload = Convert::prettyValue(app.var(VarConst::ID_POLICY_UPLOAD));
+    QString data_policy_finalize = Convert::prettyValue(app.var(VarConst::ID_POLICY_FINALIZE));
+    QString data_server_camcops_version = Convert::prettyValue(app.var(VarConst::SERVER_CAMCOPS_VERSION));
+
+    Qt::Alignment labelalign = Qt::AlignRight | Qt::AlignTop;
+    Qt::Alignment dataalign = Qt::AlignLeft | Qt::AlignTop;
+
+    QuContainerGrid* g1 = new QuContainerGrid();
+    g1->setColumnStretch(0, 1);
+    g1->setColumnStretch(1, 1);
+    int row = 0;
+    g1->addCell(QuGridCell((new QuText(label_server_address))->setAlignment(labelalign), row, 0));
+    g1->addCell(QuGridCell((new QuText(data_server_address))->setAlignment(dataalign)->bold(), row, 1));
+    ++row;
+    g1->addCell(QuGridCell((new QuText(label_server_port))->setAlignment(labelalign), row, 0));
+    g1->addCell(QuGridCell((new QuText(data_server_port))->setAlignment(dataalign)->bold(), row, 1));
+    ++row;
+    g1->addCell(QuGridCell((new QuText(label_server_path))->setAlignment(labelalign), row, 0));
+    g1->addCell(QuGridCell((new QuText(data_server_path))->setAlignment(dataalign)->bold(), row, 1));
+    ++row;
+    g1->addCell(QuGridCell((new QuText(label_server_timeout))->setAlignment(labelalign), row, 0));
+    g1->addCell(QuGridCell((new QuText(data_server_timeout))->setAlignment(dataalign)->bold(), row, 1));
+    ++row;
+
+    QuContainerGrid* g2 = new QuContainerGrid();
+    g2->setColumnStretch(0, 1);
+    g2->setColumnStretch(1, 1);
+    row = 0;
+    g2->addCell(QuGridCell((new QuText(label_last_server_registration))->setAlignment(labelalign), row, 0));
+    g2->addCell(QuGridCell((new QuText(data_last_server_registration))->setAlignment(dataalign)->bold(), row, 1));
+    ++row;
+    g2->addCell(QuGridCell((new QuText(label_last_successful_upload))->setAlignment(labelalign), row, 0));
+    g2->addCell(QuGridCell((new QuText(data_last_successful_upload))->setAlignment(dataalign)->bold(), row, 1));
+    ++row;
+    g2->addCell(QuGridCell((new QuText(label_dbtitle))->setAlignment(labelalign), row, 0));
+    g2->addCell(QuGridCell((new QuText(data_dbtitle))->setAlignment(dataalign)->bold(), row, 1));
+    ++row;
+    g2->addCell(QuGridCell((new QuText(label_policy_upload))->setAlignment(labelalign), row, 0));
+    g2->addCell(QuGridCell((new QuText(data_policy_upload))->setAlignment(dataalign)->bold(), row, 1));
+    ++row;
+    g2->addCell(QuGridCell((new QuText(label_policy_finalize))->setAlignment(labelalign), row, 0));
+    g2->addCell(QuGridCell((new QuText(data_policy_finalize))->setAlignment(dataalign)->bold(), row, 1));
+    ++row;
+    g2->addCell(QuGridCell((new QuText(label_server_camcops_version))->setAlignment(labelalign), row, 0));
+    g2->addCell(QuGridCell((new QuText(data_server_camcops_version))->setAlignment(dataalign)->bold(), row, 1));
+    ++row;
+
+    QuContainerGrid* g3 = new QuContainerGrid();
+    g3->setColumnStretch(0, 1);
+    g3->setColumnStretch(1, 1);
+    row = 0;
+    for (int n = 1; n <= DbConst::NUMBER_OF_IDNUMS; ++n) {
+        g3->addCell(QuGridCell(
+            (new QuText(tr("Description for patient identifier ") +
+                        QString::number(n) + ":")
+            )->setAlignment(labelalign), row, 0));
+        QString desc = Convert::prettyValue(app.var(DbConst::IDDESC_FIELD_FORMAT.arg(n)));
+        g3->addCell(QuGridCell((new QuText(desc))->setAlignment(dataalign)->bold(), row, 1));
+        ++row;
+
+        g3->addCell(QuGridCell(
+            (new QuText(tr("Short description for patient identifier ") +
+                        QString::number(n) + ":")
+            )->setAlignment(labelalign), row, 0));
+        QString shortdesc = Convert::prettyValue(app.var(DbConst::IDSHORTDESC_FIELD_FORMAT.arg(n)));
+        g3->addCell(QuGridCell((new QuText(shortdesc))->setAlignment(dataalign)->bold(), row, 1));
+        ++row;
+    }
+
+    QuPagePtr page(new QuPage{
+        g1,
+        new QuHorizontalLine(),
+        g2,
+        new QuHorizontalLine(),
+        g3,
+    });
+
+    page->setTitle(tr("Show server information"));
+    page->setType(QuPage::PageType::Config);
+
+    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    questionnaire->setReadOnly(true);
+    return questionnaire;
 }

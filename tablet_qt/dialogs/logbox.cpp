@@ -30,7 +30,8 @@ LogBox::LogBox(QWidget* parent, const QString& title, bool offer_cancel,
     QDialog(parent),
     m_editor(nullptr),
     m_ok(nullptr),
-    m_cancel(nullptr)
+    m_cancel(nullptr),
+    m_ack_fail(nullptr)
 {
     // qDebug() << Q_FUNC_INFO;
     setWindowTitle(title);
@@ -52,16 +53,15 @@ LogBox::LogBox(QWidget* parent, const QString& title, bool offer_cancel,
     QHBoxLayout* buttonlayout = new QHBoxLayout();
     QPushButton* copybutton = new QPushButton(tr("Copy"));
     buttonlayout->addWidget(copybutton);
-    buttonlayout->addStretch();
     connect(copybutton, &QPushButton::clicked, this, &LogBox::copyClicked);
+
+    buttonlayout->addStretch();
 
     if (offer_cancel) {
         m_cancel = new QPushButton(tr("Cancel"));
         buttonlayout->addWidget(m_cancel);
         connect(m_cancel, &QPushButton::clicked, this, &LogBox::reject);
     }
-
-    buttonlayout->addStretch();
 
     if (offer_ok_at_end) {
         m_ok = new QPushButton(tr("OK"));
@@ -70,7 +70,20 @@ LogBox::LogBox(QWidget* parent, const QString& title, bool offer_cancel,
         m_ok->hide();
     }
 
+    m_ack_fail = new QPushButton(tr("Acknowledge failure"));
+    buttonlayout->addWidget(m_ack_fail);
+    connect(m_ack_fail, &QPushButton::clicked, this, &LogBox::okClicked);
+    m_ack_fail->hide();
+
     mainlayout->addLayout(buttonlayout);
+}
+
+
+LogBox::~LogBox()
+{
+    if (m_wait_cursor_on) {
+        QApplication::restoreOverrideCursor();
+    }
 }
 
 
@@ -78,6 +91,7 @@ void LogBox::open()
 {
     // qDebug() << Q_FUNC_INFO;
     QApplication::setOverrideCursor(Qt::WaitCursor);
+    m_wait_cursor_on = true;
     QDialog::open();
 }
 
@@ -95,19 +109,23 @@ void LogBox::statusMessage(const QString& msg, bool as_html)
 }
 
 
-void LogBox::finish()
+void LogBox::finish(bool success)
 {
     // qDebug() << Q_FUNC_INFO;
     // If we're waiting for the user to press OK (so they can look at the log,
     // enable the OK button and await the accepted() signal via that button).
     // Otherwise, accept() now. Either way, restore the cursor.
     QApplication::restoreOverrideCursor();
+    m_wait_cursor_on = false;
     if (m_cancel) {
         m_cancel->hide();
     }
-    if (m_ok) {
+    if (success && m_ok) {
         m_ok->show();  // and await the accepted() signal via the button
+    } else if (!success) {
+        m_ack_fail->show();  // and await the accepted() signal via the button
     } else {
+        // success, but caller didn't want an OK button
         accept();  // will emit accepted()
     }
 }

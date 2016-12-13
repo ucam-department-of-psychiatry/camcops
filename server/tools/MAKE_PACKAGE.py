@@ -175,20 +175,22 @@ def preserve_cwd(function):
     return decorator
 
 
-@preserve_cwd
+# @preserve_cwd
 def remove_gzip_timestamp(filename: str) -> None:
-    with tempfile.TemporaryDirectory() as dir:
-        os.chdir(dir)
+    # gzip/gunzip operate on SINGLE files
+    with tempfile.TemporaryDirectory() as dir_:
+        # os.chdir(dir_)
         basezipfilename = os.path.basename(filename)
-        datafile, _ = os.path.splitext(basezipfilename)  # remove '.gz'; nasty!
-        fulldatafile = os.path.join(dir, datafile)
-        with open(fulldatafile, 'wb') as df:
-            log.info("Un-gzipping {} -> {}".format(filename, fulldatafile))
-            subprocess.call(["gunzip", "-c", filename], stdout=df)
-        newzip = os.path.join(dir, basezipfilename)
-        with open(fulldatafile, 'rb') as df, open(newzip, 'wb') as z:
-            log.info("gzipping {} -> {}".format(filename, newzip))
-            subprocess.call(["gzip", "-n"], stdin=df, stdout=z)
+        newzip = os.path.join(dir_, basezipfilename)
+        with open(newzip, 'wb') as z:
+            log.info(
+                "Removing gzip timestamp: "
+                "{} -> gunzip -c -> gzip -n -> {}".format(
+                    basezipfilename, newzip))
+            p1 = subprocess.Popen(["gunzip", "-c", filename],
+                                  stdout=subprocess.PIPE)
+            p2 = subprocess.Popen(["gzip", "-n"], stdin=p1.stdout, stdout=z)
+            p2.communicate()
         shutil.copyfile(newzip, filename)  # copy back
 
 
@@ -303,8 +305,10 @@ To install rpmrebuild:
 # Directory constants
 # =============================================================================
 
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))  # tools
+SETUP_PY_DIR = os.path.abspath(join(THIS_DIR, os.pardir))
 PROJECT_BASE_DIR = os.path.abspath(join(THIS_DIR, os.pardir, os.pardir))
+os.chdir(SETUP_PY_DIR)  # or setup.py looks in wrong places?
 
 DSTBASEDIR = join('/usr/share', PACKAGE)
 # Lintian dislikes files/subdirectories in: /usr/bin/X, /usr/local/X, /opt/X
@@ -374,7 +378,8 @@ DSTPYTHONVENV = join(DSTBASEDIR, 'venv')
 DSTVENVBIN = join(DSTPYTHONVENV, 'bin')
 DSTPYTHONCACHE = join(DSTBASEDIR, '.cache')
 
-SRCSTATICDIR = join(SRCSERVERDIR, 'static')
+# SRCSTATICDIR = join(SRCSERVERDIR, 'static')
+SRCSTATICDIR = join(SRCSERVERDIR, 'camcops_server', 'static')
 WRKSTATICDIR = join(WRKSERVERDIR, 'static')
 DSTSTATICDIR = join(DSTSERVERDIR, 'static')
 
@@ -465,6 +470,11 @@ SRC_SDIST_FILE = join(SRCSERVERDIR, 'dist', SDIST_BASEFILENAME)
 WRK_SDIST_FILE = join(WRKSERVERDIR, SDIST_BASEFILENAME)
 DST_SDIST_FILE = join(DSTSERVERDIR, SDIST_BASEFILENAME)
 
+try:
+    log.info("Deleting old {} if it exists".format(SRC_SDIST_FILE))
+    os.remove(SRC_SDIST_FILE)
+except OSError:
+    pass
 cmdargs = ['python', SETUP_PY, 'sdist', '--extras']  # special!
 log.info("Command: {}".format(cmdargs))
 subprocess.check_call(cmdargs)
@@ -501,6 +511,8 @@ subprocess.check_call(['gzip', '-n', '-9',
                        join(WRKDOCDIR, 'changelog.Debian')])
 copyglob(join(SRCSERVERDIR, 'changelog.Debian'), WEB_VERSION_FILES_DIR)
 # ... for the web site
+
+copyglob(join(SRCSTATICDIR, '*'), WRKSTATICDIR, allow_nothing=True)
 copyglob(join(SRCEXTRASTRINGS, '*'), WRKEXTRASTRINGS, allow_nothing=True)
 copyglob(join(SRCEXTRASTRINGTEMPLATES, '*'), WRKEXTRASTRINGTEMPLATES,
          allow_nothing=True)
@@ -1544,12 +1556,18 @@ stop_supervisord
 find {DSTBASEDIR} -name '*.pyc' -delete
 find {DSTBASEDIR} -name '*.pyo' -delete
 
+# uninstall our package from venv (mainly for development, so we can re-use
+# version numbers
+
+{DSTVENVPIP} uninstall --yes camcops_server
+
 echo '{PACKAGE}: prerm file finished'
 
 """.format(
     BASHFUNC=BASHFUNC,
     PACKAGE=PACKAGE,
     DSTBASEDIR=DSTBASEDIR,
+    DSTVENVPIP=DSTVENVPIP,
 ))
 
 # =============================================================================

@@ -22,12 +22,19 @@
 #include <QDate>
 #include <QDateTime>
 #include <QImage>
-#include <QVariant>
+#include <QRegularExpression>
 #include "lib/datetimefunc.h"
 #include "lib/uifunc.h"
 
 const QChar COMMA = ',';
 const QChar SQUOTE = '\'';  // single quote
+
+const QString RECORD_RE_STR("^([\\S]+?):\\s*([\\s\\S]*)");
+// double-backslashes for C++ escaping
+// \s whitespace, \S non-whitespace
+// ? makes the + lazy, not greedy
+// ... thus: (lazy-non-whitespace) : whitespace (anything)
+const QRegularExpression RECORD_RE(RECORD_RE_STR);
 
 
 QString Convert::escapeNewlines(QString raw)
@@ -289,6 +296,16 @@ QList<QVariant> Convert::csvSqlLiteralsToValues(const QString& csv)
 }
 
 
+QString Convert::valuesToCsvSqlLiterals(const QList<QVariant>& values)
+{
+    QStringList literals;
+    for (auto value : values) {
+        literals.append(toSqlLiteral(value));
+    }
+    return literals.join(',');
+}
+
+
 QByteArray Convert::imageToByteArray(const QImage& image,
                                      const char* format)
 {
@@ -329,4 +346,56 @@ QByteArray Convert::base64ToBytes(const QString& data_b64)
 SecureQByteArray Convert::base64ToSecureBytes(const QString& data_b64)
 {
     return SecureQByteArray::fromBase64(data_b64.toLocal8Bit());
+}
+
+
+QString Convert::prettyValue(const QVariant& variant, QVariant::Type type)
+{
+    if (variant.isNull()) {
+        return "NULL";
+    }
+    switch (type) {
+    case QVariant::ByteArray:
+        return "<binary>";
+    case QVariant::String:
+        return variant.toString().toHtmlEscaped();
+    default:
+        return variant.toString();
+    }
+}
+
+
+QString Convert::prettyValue(const QVariant& variant)
+{
+    return prettyValue(variant, variant.type());
+}
+
+
+QMap<QString, QString> Convert::getReplyDict(const QByteArray& data)
+{
+    // For server replies looking like key1:value1\nkey2:value2 ...
+    QList<QByteArray> lines = data.split('\n');
+    QMap<QString, QString> dict;
+    for (auto line : lines) {
+        QRegularExpressionMatch match = RECORD_RE.match(line);
+        if (match.hasMatch()) {
+            QString key = match.captured(1);
+            QString value = match.captured(2);
+            dict[key] = value;
+        }
+    }
+    return dict;
+}
+
+
+QUrlQuery Convert::getPostDataAsUrlQuery(const QMap<QString, QString>& dict)
+{
+    // http://stackoverflow.com/questions/2599423/how-can-i-post-data-to-a-url-using-qnetworkaccessmanager
+    QUrlQuery postdata;
+    QMapIterator<QString, QString> it(dict);
+    while (it.hasNext()) {
+        it.next();
+        postdata.addQueryItem(it.key(), it.value());
+    }
+    return postdata;
 }

@@ -45,13 +45,6 @@ bool Version::isValid() const
 }
 
 
-double Version::toFloat() const
-{
-    // Will be zero (the lowest possible value) for an invalid version.
-    return m_major + (double)m_minor / 100 + (double)m_patch / 10000;
-}
-
-
 QString Version::toString() const
 {
     return QString("%1.%2.%3")
@@ -60,6 +53,20 @@ QString Version::toString() const
             .arg(m_patch);
     // NOT: arg(m_minor, 2, QChar('0'))
     // ... no leading zeros for semantic versioning; http://semver.org/
+}
+
+
+
+double Version::toFloat() const
+{
+    // Will be zero (the lowest possible value) for an invalid version.
+    return m_major + (double)m_minor / 100 + (double)m_patch / 10000;
+}
+
+
+QString Version::toFloatString() const
+{
+    return QString::number(toFloat(), 'f', 4);
 }
 
 

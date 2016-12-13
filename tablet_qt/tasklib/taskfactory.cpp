@@ -49,6 +49,7 @@ void TaskFactory::finishRegistration()
         cache.tablename = p_task->tablename();
         cache.shortname = p_task->shortname();
         cache.longname = p_task->longname();
+        cache.alltables = p_task->allTables();
         cache.proxy = proxy;
         if (m_map.contains(cache.tablename)) {
             QString msg = QString(
@@ -59,14 +60,22 @@ void TaskFactory::finishRegistration()
         }
         m_map.insert(cache.tablename, cache);  // tablenames are the keys
         m_tablenames.append(cache.tablename);
+        m_all_tablenames += cache.alltables;
     }
     m_tablenames.sort();
+    m_all_tablenames.sort();
 }
 
 
 QStringList TaskFactory::tablenames() const
 {
     return m_tablenames;
+}
+
+
+QStringList TaskFactory::allTablenames() const
+{
+    return m_all_tablenames;
 }
 
 

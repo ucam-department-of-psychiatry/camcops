@@ -36,6 +36,10 @@ protected:
     void changeAppPassword();
     void changePrivPassword();
     void deleteAllExtraStrings();
+    void registerWithServer();
+    void fetchIdDescriptions();
+    void fetchExtraStrings();
+    OpenableWidget* viewServerInformation(CamcopsApp& app);
 
     QString makeTitle(const QString& part1, const QString& part2 = "",
                       bool colon = false) const;

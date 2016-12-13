@@ -38,6 +38,11 @@ public:
     bool exists() const;
     bool anyExist(const QString& task) const;  // sort-of static function
     void deleteAllExtraStrings();  // sort-of static function
+
+public:
+    static const QString EXTRASTRINGS_TASK_FIELD;
+    static const QString EXTRASTRINGS_NAME_FIELD;
+    static const QString EXTRASTRINGS_VALUE_FIELD;
 protected:
     void commonConstructor();
     bool m_exists;

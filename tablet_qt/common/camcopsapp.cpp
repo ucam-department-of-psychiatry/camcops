@@ -130,14 +130,6 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
         // Uploading "dirty" flag
         createVar(VarConst::NEEDS_UPLOAD, QVariant::Bool, false);
 
-        // Patient-related device-wide settings
-        for (int n = 1; n <= DbConst::NUMBER_OF_IDNUMS; ++n) {
-            QString desc = DbConst::IDDESC_FIELD_FORMAT.arg(n);
-            QString shortdesc = DbConst::IDSHORTDESC_FIELD_FORMAT.arg(n);
-            createVar(desc, QVariant::String);
-            createVar(shortdesc, QVariant::String);
-        }
-
         // Whisker
         createVar(VarConst::WHISKER_HOST, QVariant::String, "localhost");
         createVar(VarConst::WHISKER_PORT, QVariant::Int, 3233);  // 3233 = Whisker
@@ -155,6 +147,20 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
         // Patients and policies
         createVar(VarConst::ID_POLICY_UPLOAD, QVariant::String, "");
         createVar(VarConst::ID_POLICY_FINALIZE, QVariant::String, "");
+
+        // Patient-related device-wide settings
+        for (int n = 1; n <= DbConst::NUMBER_OF_IDNUMS; ++n) {
+            QString desc = DbConst::IDDESC_FIELD_FORMAT.arg(n);
+            QString shortdesc = DbConst::IDSHORTDESC_FIELD_FORMAT.arg(n);
+            createVar(desc, QVariant::String);
+            createVar(shortdesc, QVariant::String);
+        }
+
+        // Other information from server
+        createVar(VarConst::SERVER_DATABASE_TITLE, QVariant::String, "");
+        createVar(VarConst::SERVER_CAMCOPS_VERSION, QVariant::String, "");
+        createVar(VarConst::LAST_SERVER_REGISTRATION, QVariant::DateTime);
+        createVar(VarConst::LAST_SUCCESSFUL_UPLOAD, QVariant::DateTime);
 
         // User
         // ... server interaction
@@ -196,7 +202,7 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     // ------------------------------------------------------------------------
 
     Version old_version = Version::fromString(
-                var(VarConst::CAMCOPS_VERSION_AS_STRING).toString());
+                varString(VarConst::CAMCOPS_VERSION_AS_STRING));
     Version new_version = CamcopsVersion::CAMCOPS_VERSION;
     upgradeDatabase(old_version, new_version);
     if (new_version != old_version) {
@@ -249,7 +255,8 @@ int CamcopsApp::run()
     m_p_main_window->setCentralWidget(m_p_window_stack);
 
     m_netmgr = QSharedPointer<NetworkManager>(
-                new NetworkManager(*this, m_p_main_window.data()));
+                new NetworkManager(*this, m_datadb, m_p_task_factory,
+                                   m_p_main_window.data()));
 
     MainMenu* menu = new MainMenu(*this);
     open(menu);
@@ -437,7 +444,7 @@ void CamcopsApp::grantPrivilege()
 bool CamcopsApp::checkPassword(const QString& hashed_password_varname,
                                const QString& text, const QString& title)
 {
-    QString hashed_password = var(hashed_password_varname).toString();
+    QString hashed_password = varString(hashed_password_varname);
     if (hashed_password.isEmpty()) {
         // If there's no password, we just allow the operation.
         return true;
@@ -472,7 +479,7 @@ void CamcopsApp::changePrivPassword()
 void CamcopsApp::changePassword(const QString& hashed_password_varname,
                                 const QString& text)
 {
-    QString old_password_hash = var(hashed_password_varname).toString();
+    QString old_password_hash = varString(hashed_password_varname);
     bool old_password_exists = !old_password_hash.isEmpty();
     QString old_password_from_user;
     QString new_password;
@@ -505,7 +512,7 @@ void CamcopsApp::setHashedPassword(const QString& hashed_password_varname,
 
 bool CamcopsApp::storingServerPassword() const
 {
-    return var(VarConst::STORE_SERVER_PASSWORD).toBool();
+    return varBool(VarConst::STORE_SERVER_PASSWORD);
 }
 
 
@@ -516,7 +523,7 @@ void CamcopsApp::setEncryptedServerPassword(const QString& password)
     resetEncryptionKeyIfRequired();
     QString iv_b64(CryptoFunc::generateIVBase64());  // new one each time
     setVar(VarConst::OBSCURING_IV, iv_b64);
-    SecureQString key_b64(var(VarConst::OBSCURING_KEY).toString());
+    SecureQString key_b64(varString(VarConst::OBSCURING_KEY));
     setVar(VarConst::SERVER_USERPASSWORD_OBSCURED,
            CryptoFunc::encryptToBase64(password, key_b64, iv_b64));
 }
@@ -525,25 +532,25 @@ void CamcopsApp::setEncryptedServerPassword(const QString& password)
 void CamcopsApp::resetEncryptionKeyIfRequired()
 {
     qDebug() << Q_FUNC_INFO;
-    SecureQString key(var(VarConst::OBSCURING_KEY).toString());
-    if (!CryptoFunc::isValidAesKey(key)) {
+    SecureQString key(varString(VarConst::OBSCURING_KEY));
+    if (CryptoFunc::isValidAesKey(key)) {
         return;
     }
     qInfo() << "Resetting internal encryption key (and wiping stored password)";
     setVar(VarConst::OBSCURING_KEY, CryptoFunc::generateObscuringKeyBase64());
-    setVar(VarConst::OBSCURING_IV, "");
+    setVar(VarConst::OBSCURING_IV, "");  // will be set by setEncryptedServerPassword
     setVar(VarConst::SERVER_USERPASSWORD_OBSCURED, "");
 }
 
 
 SecureQString CamcopsApp::getPlaintextServerPassword() const
 {
-    QString encrypted_b64(var(VarConst::SERVER_USERPASSWORD_OBSCURED).toString());
+    QString encrypted_b64(varString(VarConst::SERVER_USERPASSWORD_OBSCURED));
     if (encrypted_b64.isEmpty()) {
         return "";
     }
-    SecureQString key_b64(var(VarConst::OBSCURING_KEY).toString());
-    QString iv_b64(var(VarConst::OBSCURING_IV).toString());
+    SecureQString key_b64(varString(VarConst::OBSCURING_KEY));
+    QString iv_b64(varString(VarConst::OBSCURING_IV));
     if (!CryptoFunc::isValidAesKey(key_b64)) {
         qWarning() << "Unable to decrypt password; key is bad";
         return "";
@@ -562,7 +569,7 @@ SecureQString CamcopsApp::getPlaintextServerPassword() const
 
 QString CamcopsApp::deviceId() const
 {
-    return var(VarConst::DEVICE_ID).toString();
+    return varString(VarConst::DEVICE_ID);
 }
 
 
@@ -588,7 +595,7 @@ NetworkManager* CamcopsApp::networkManager() const
 
 bool CamcopsApp::needsUpload() const
 {
-    return var(VarConst::NEEDS_UPLOAD).toBool();
+    return varBool(VarConst::NEEDS_UPLOAD);
 }
 
 
@@ -638,6 +645,12 @@ void CamcopsApp::setSelectedPatient(int patient_id)
         reloadPatient(patient_id);
         emit selectedPatientChanged(m_patient.data());
     }
+}
+
+
+void CamcopsApp::deselectPatient()
+{
+    setSelectedPatient(DbConst::NONEXISTENT_PK);
 }
 
 
@@ -698,7 +711,7 @@ QString CamcopsApp::idDescription(int which_idnum)
         return DbConst::BAD_IDNUM_DESC;
     }
     QString field = DbConst::IDDESC_FIELD_FORMAT.arg(which_idnum);
-    QString desc_str = var(field).toString();
+    QString desc_str = varString(field);
     if (desc_str.isEmpty()) {
         return DbConst::UNKNOWN_IDNUM_DESC.arg(which_idnum);
     }
@@ -712,7 +725,7 @@ QString CamcopsApp::idShortDescription(int which_idnum)
         return DbConst::BAD_IDNUM_DESC;
     }
     QString field = DbConst::IDSHORTDESC_FIELD_FORMAT.arg(which_idnum);
-    QString desc_str = var(field).toString();
+    QString desc_str = varString(field);
     if (desc_str.isEmpty()) {
         return DbConst::UNKNOWN_IDNUM_DESC.arg(which_idnum);
     }
@@ -722,13 +735,13 @@ QString CamcopsApp::idShortDescription(int which_idnum)
 
 IdPolicy CamcopsApp::uploadPolicy() const
 {
-    return IdPolicy(var(VarConst::ID_POLICY_UPLOAD).toString());
+    return IdPolicy(varString(VarConst::ID_POLICY_UPLOAD));
 }
 
 
 IdPolicy CamcopsApp::finalizePolicy() const
 {
-    return IdPolicy(var(VarConst::ID_POLICY_FINALIZE).toString());
+    return IdPolicy(varString(VarConst::ID_POLICY_FINALIZE));
 }
 
 
@@ -833,6 +846,33 @@ void CamcopsApp::deleteAllExtraStrings()
 }
 
 
+void CamcopsApp::setAllExtraStrings(const RecordList& recordlist)
+{
+    DbTransaction trans(m_sysdb);
+    deleteAllExtraStrings();
+    for (auto record : recordlist) {
+        if (!record.contains(ExtraString::EXTRASTRINGS_TASK_FIELD) ||
+                !record.contains(ExtraString::EXTRASTRINGS_NAME_FIELD) ||
+                !record.contains(ExtraString::EXTRASTRINGS_VALUE_FIELD)) {
+            qWarning() << Q_FUNC_INFO << "Failing: recordlist has bad format";
+            trans.fail();
+            return;
+        }
+        QString task = record[ExtraString::EXTRASTRINGS_TASK_FIELD].toString();
+        QString name = record[ExtraString::EXTRASTRINGS_NAME_FIELD].toString();
+        QString value = record[ExtraString::EXTRASTRINGS_VALUE_FIELD].toString();
+        if (task.isEmpty() || name.isEmpty()) {
+            qWarning() << Q_FUNC_INFO
+                       << "Failing: extra string has blank task or name";
+            trans.fail();
+            return;
+        }
+        ExtraString es(m_sysdb, task, name, value);
+        es.save();
+    }
+}
+
+
 // ============================================================================
 // Stored variables: generic
 // ============================================================================
@@ -869,6 +909,24 @@ QVariant CamcopsApp::var(const QString& name) const
                                 "storedvar: %1").arg(name));
     }
     return m_storedvars[name]->value();
+}
+
+
+QString CamcopsApp::varString(const QString &name) const
+{
+    return var(name).toString();
+}
+
+
+bool CamcopsApp::varBool(const QString &name) const
+{
+    return var(name).toBool();
+}
+
+
+int CamcopsApp::varInt(const QString &name) const
+{
+    return var(name).toInt();
 }
 
 

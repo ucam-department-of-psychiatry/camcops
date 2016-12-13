@@ -19,6 +19,7 @@
 #include <QDebug>
 #include <QSharedPointer>
 #include "common/uiconstants.h"
+#include "lib/networkmanager.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 #include "menulib/menuproxy.h"
@@ -52,7 +53,11 @@ MainMenu::MainMenu(CamcopsApp& app)
     m_items = {
         MAKE_CHANGE_PATIENT(app),
         MAKE_MENU_MENU_ITEM(PatientSummaryMenu, app),
-        MenuItem(tr("Upload data to server")),  // *** + ICON_UPLOAD
+        MenuItem(
+            tr("Upload data to server"),
+            std::bind(&MainMenu::upload, this),
+            UiFunc::iconFilename(UiConst::ICON_UPLOAD)
+        ),
         MAKE_MENU_MENU_ITEM(HelpMenu, app),
         MAKE_MENU_MENU_ITEM(SettingsMenu, app),
         MAKE_MENU_MENU_ITEM(ClinicalMenu, app),
@@ -72,4 +77,11 @@ MainMenu::MainMenu(CamcopsApp& app)
     };
     connect(&m_app, &CamcopsApp::fontSizeChanged,
             this, &MainMenu::reloadStyleSheet);
+}
+
+
+void MainMenu::upload()
+{
+    NetworkManager* netmgr = m_app.networkManager();
+    netmgr->upload(NetworkManager::UploadMethod::Copy); // ***
 }

@@ -7,7 +7,7 @@
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 
-const QString PATIENT_FK_FIELDNAME("patient_id");
+const QString Task::PATIENT_FK_FIELDNAME("patient_id");
 const QString FIRSTEXIT_IS_FINISH_FIELDNAME("firstexit_is_finish");
 const QString FIRSTEXIT_IS_ABORT_FIELDNAME("firstexit_is_abort");
 const QString WHEN_FIRSTEXIT_FIELDNAME("when_firstexit");
@@ -109,6 +109,14 @@ QString Task::instanceTitle() const
 // ============================================================================
 // Tables
 // ============================================================================
+
+QStringList Task::allTables() const
+{
+    QStringList all_tables(tablename());
+    all_tables += ancillaryTables();
+    return all_tables;
+}
+
 
 void Task::makeTables()
 {

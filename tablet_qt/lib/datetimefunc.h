@@ -21,6 +21,7 @@ class QVariant;
 
 namespace DateTime {
 
+    extern const QString TIMESTAMP_FORMAT;
     extern const QString SHORT_DATETIME_FORMAT;
     extern const QString SHORT_DATE_FORMAT;
     extern const QString TEXT_DATE_FORMAT;
@@ -31,6 +32,8 @@ namespace DateTime {
     QDateTime isoToDateTime(const QString& iso);
     QDateTime now();
     QDate nowDate();
+    QString nowTimestamp();
+    QString timestampDateTime(const QDateTime& dt);
     QString shortDateTime(const QDateTime& dt);
     QString shortDate(const QDate& d);
     QString textDate(const QDate& d);

@@ -19,6 +19,7 @@
 #include <QTimeZone>
 #include <QVariant>
 
+const QString DateTime::TIMESTAMP_FORMAT("yyyy-MM-dd HH:mm:ss.zzz");  // 2000-12-31 23:59:59.999
 const QString DateTime::SHORT_DATETIME_FORMAT("yyyy-MM-dd HH:mm");  // 2000-12-31 23:59
 const QString DateTime::SHORT_DATE_FORMAT("yyyy-MM-dd");  // 2000-12-31
 const QString DateTime::TEXT_DATE_FORMAT("dd MMM yyyy");  // 31 Dec 2000
@@ -82,6 +83,18 @@ QDateTime DateTime::now()
 QDate DateTime::nowDate()
 {
     return QDate::currentDate();
+}
+
+
+QString DateTime::nowTimestamp()
+{
+    return timestampDateTime(now());
+}
+
+
+QString DateTime::timestampDateTime(const QDateTime& dt)
+{
+    return dt.toString(TIMESTAMP_FORMAT);
 }
 
 

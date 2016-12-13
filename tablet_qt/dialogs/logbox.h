@@ -31,8 +31,9 @@ class LogBox : public QDialog
 public:
     LogBox(QWidget* parent, const QString& title, bool offer_cancel = true,
            bool offer_ok_at_end = true, int maximum_block_count = 1000);
+    ~LogBox();
     void statusMessage(const QString& msg, bool as_html = false);
-    void finish();
+    void finish(bool success = true);
 protected:
     void scrollToEndOfLog();
 public slots:
@@ -46,4 +47,6 @@ protected:
     QPointer<QPlainTextEdit> m_editor;
     QPointer<QPushButton> m_ok;
     QPointer<QPushButton> m_cancel;
+    QPointer<QPushButton> m_ack_fail;
+    bool m_wait_cursor_on;
 };

@@ -63,7 +63,11 @@ public:
     OpenableWidget* editor(bool read_only);
     AttributesType policyAttributes() const;
     bool compliesWith(const IdPolicy& policy) const;
+    bool compliesWithUpload() const;
+    bool compliesWithFinalize() const;
     QString shortIdnumSummary() const;
+public:
+    static const QString TABLENAME;
 protected:
     void updateQuestionnaireIndicators(const FieldRef* fieldref = nullptr,
                                        const QObject* originator = nullptr);
