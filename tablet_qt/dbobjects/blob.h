@@ -34,6 +34,8 @@ public:
     QByteArray blobByteArray() const;
 public:
     static const QString TABLENAME;
+    static const QString SRC_TABLE_FIELDNAME;
+    static const QString SRC_PK_FIELDNAME;
 protected:
     QString m_filename_stem;
 };

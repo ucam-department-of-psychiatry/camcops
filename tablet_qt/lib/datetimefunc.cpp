@@ -28,12 +28,14 @@ const QString DateTime::UNKNOWN("?");
 
 // http://stackoverflow.com/questions/21976264/qt-isodate-formatted-date-time-including-timezone
 
-QString DateTime::datetimeToIsoMs(const QDateTime& dt)
+QString DateTime::datetimeToIsoMs(const QDateTime& dt, bool use_z_timezone)
 {
     // An ISO-8601 format preserving millisecond accuracy and timezone.
     // Equivalent in moment.js: thing.format("YYYY-MM-DDTHH:mm:ss.SSSZ")
     // Example: '2016-06-02T10:04:03.588+01:00'
     // Here we also allow 'Z' for UTC.
+    // -- no, we don't; for example, MySQL's CONVERT_TZ does not accept 'Z'.
+    //    => default use_z_timezone to false
 
     // In Qt, BEWARE:
     //      dt;  // QDateTime(2016-06-02 10:28:06.708 BST Qt::TimeSpec(LocalTime))
@@ -45,7 +47,7 @@ QString DateTime::datetimeToIsoMs(const QDateTime& dt)
     int offset_from_utc_s = dt.offsetFromUtc();
     // FOR TESTING: offsetFromUtcSec = -(3600 * 2.5);
     QString tzinfo;
-    if (offset_from_utc_s == 0) {
+    if (use_z_timezone && offset_from_utc_s == 0) {
         tzinfo = "Z";
     } else {
         QString sign = offset_from_utc_s < 0 ? "-" : "+";
@@ -61,10 +63,10 @@ QString DateTime::datetimeToIsoMs(const QDateTime& dt)
 }
 
 
-QString DateTime::datetimeToIsoMsUtc(const QDateTime& dt)
+QString DateTime::datetimeToIsoMsUtc(const QDateTime& dt, bool use_z_timezone)
 {
     QDateTime utc_dt = dt.toTimeSpec(Qt::UTC);
-    return datetimeToIsoMs(utc_dt);
+    return datetimeToIsoMs(utc_dt, use_z_timezone);
 }
 
 

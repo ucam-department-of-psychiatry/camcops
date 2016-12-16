@@ -290,6 +290,7 @@ camcops_server
         'python-dateutil==2.4.2',  # Date/time extensions.
         'pytz==2015.7',  # Timezone definitions, specifically UTC.
         'scipy==0.16.1',  # Used by some tasks. SLOW INSTALLATION.
+        'semver>=2.7.2',  # semantic versioning
         'typing==3.5.2.2',  # part of stdlib in Python 3.5, but not 3.4
         'Wand==0.4.2',  # ImageMagick for Python; used e.g. for BLOB PNG display  # noqa
         'Werkzeug==0.11.3',  # Profiling middleware

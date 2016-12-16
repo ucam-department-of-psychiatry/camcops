@@ -922,6 +922,7 @@ Network
 TO DO
 ===============================================================================
 - *** when patient edited, details not changing on patient list
+- *** UI for "set move-off patient flag"
 - *** ensure patient ID numbers cannot conflict
 - *** upload
 

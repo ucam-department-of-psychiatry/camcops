@@ -29,7 +29,7 @@ from ..cc_modules.cc_task import Task
 # TASKS: DEMO QUESTIONNAIRE
 # =============================================================================
 
-N_MCQ = 8
+N_MCQ = 10  # 8 in v1; 10 in v2
 N_MCQBOOL = 3
 N_MULTIPLERESPONSE = 6
 N_BOOLTEXT = 22
@@ -63,6 +63,7 @@ class DemoQuestionnaire(Task):
             dict(name="mcqtext_3b", cctype="TEXT"),
             dict(name="typedvar_text", cctype="TEXT"),
             dict(name="typedvar_text_multiline", cctype="TEXT"),
+            dict(name="typedvar_text_rich", cctype="TEXT"),  # v2
             dict(name="typedvar_int", cctype="INT"),
             dict(name="typedvar_real", cctype="FLOAT"),
             dict(name="date_only", cctype="ISO8601"),
@@ -70,9 +71,15 @@ class DemoQuestionnaire(Task):
             dict(name="thermometer", cctype="INT"),
             dict(name="diagnosticcode_code", cctype="TEXT"),
             dict(name="diagnosticcode_description", cctype="TEXT"),
+            dict(name="diagnosticcode2_code", cctype="TEXT"),  # v2
+            dict(name="diagnosticcode2_description", cctype="TEXT"),  # v2
             dict(name="photo_blobid", cctype="INT"),
-            dict(name="photo_rotation", cctype="INT"),
+            dict(name="photo_rotation", cctype="INT"),  # DEFUNCT as of v2 ***
             dict(name="canvas_blobid", cctype="INT"),
+            dict(name="canvas2_blobid", cctype="INT"),  # v2
+            dict(name="spinbox_int", cctype="INT"),  # v2
+            dict(name="spinbox_real", cctype="FLOAT"),  # v2
+            dict(name="time_only", cctype="TIME"),  # v2
         ]
     )
     for d in fieldspecs:
@@ -130,6 +137,7 @@ class DemoQuestionnaire(Task):
         h += self.get_twocol_string_row("mcqtext_3b")
         h += self.get_twocol_string_row("typedvar_text")
         h += self.get_twocol_string_row("typedvar_text_multiline")
+        h += self.get_twocol_string_row("typedvar_text_rich")
         h += self.get_twocol_val_row("typedvar_int")
         h += self.get_twocol_val_row("typedvar_real")
         h += self.get_twocol_val_row("date_only")
@@ -137,9 +145,13 @@ class DemoQuestionnaire(Task):
         h += self.get_twocol_val_row("thermometer")
         h += self.get_twocol_string_row("diagnosticcode_code")
         h += self.get_twocol_string_row("diagnosticcode_description")
+        h += self.get_twocol_string_row("diagnosticcode2_code")
+        h += self.get_twocol_string_row("diagnosticcode2_description")
         h += self.get_twocol_picture_row("photo_blobid",
                                          rotationfieldname="photo_rotation")
         h += self.get_twocol_picture_row("canvas_blobid",
+                                         rotationfieldname=None)
+        h += self.get_twocol_picture_row("canvas_blobid2",
                                          rotationfieldname=None)
         h += """
             </table>

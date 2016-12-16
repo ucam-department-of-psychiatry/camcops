@@ -20,19 +20,16 @@
 #include <QCoreApplication>  // for Q_DECLARE_TR_FUNCTIONS
 #include <QSharedPointer>
 #include <QString>
-#include "menulib/choosepatientmenuitem.h"
+#include "common/aliases_camcops.h"
+#include "menulib/choosepatientmenuitem.h"  // many menus will want this
 #include "menulib/menuproxy.h"
-#include "menulib/htmlmenuitem.h"
-#include "menulib/taskmenuitem.h"
+#include "menulib/htmlmenuitem.h"  // many menus will want this
+#include "menulib/taskmenuitem.h"  // many menus will want this
 
 class CamcopsApp;
 class MenuWindow;
 class OpenableWidget;
-class Patient;
-using PatientPtr = QSharedPointer<Patient>;
 class QWidget;
-class Task;
-using TaskPtr = QSharedPointer<Task>;
 
 
 class MenuItem

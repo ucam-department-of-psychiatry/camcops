@@ -16,7 +16,7 @@
 */
 
 #pragma once
-#include "task.h"
+#include "common/aliases_camcops.h"
 
 
 class TaskSorter

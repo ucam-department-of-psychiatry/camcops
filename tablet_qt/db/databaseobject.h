@@ -21,12 +21,12 @@
 #include <QMap>
 #include <QSqlDatabase>
 #include <QString>
+#include "common/aliases_camcops.h"
+#include "common/aliases_qt.h"
 #include "common/dbconstants.h"
-#include "db/dbfunc.h"
 #include "db/field.h"
+#include "db/sqlargs.h"
 
-class FieldRef;
-using FieldRefPtr = QSharedPointer<FieldRef>;
 
 
 class DatabaseObject : public QObject

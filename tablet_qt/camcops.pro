@@ -253,7 +253,10 @@ SOURCES += main.cpp\
     qobjects/strictint64validator.cpp \
     lib/idpolicy.cpp \
     widgets/heightforwidthlayoutcontainer.cpp \
-    lib/mathfunc.cpp
+    lib/mathfunc.cpp \
+    db/dumpsql.cpp \
+    dialogs/scrollmessagebox.cpp \
+    dialogs/logmessagebox.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -430,7 +433,12 @@ HEADERS  += \
     qobjects/strictint64validator.h \
     lib/idpolicy.h \
     widgets/heightforwidthlayoutcontainer.h \
-    lib/mathfunc.h
+    lib/mathfunc.h \
+    common/aliases_qt.h \
+    common/aliases_camcops.h \
+    db/dumpsql.h \
+    dialogs/scrollmessagebox.h \
+    dialogs/logmessagebox.h
 
 DISTFILES += \
     notes/qt_notes.txt \

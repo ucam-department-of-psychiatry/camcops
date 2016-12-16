@@ -15,6 +15,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "tasklib/task.h"
 #include "tasksorter.h"
 
 

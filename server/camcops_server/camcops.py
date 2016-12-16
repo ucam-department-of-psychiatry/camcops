@@ -486,7 +486,8 @@ def upgrade_database(old_version: float) -> None:
         pls.db.drop_table(DIRTY_TABLES_TABLENAME)
         pls.db.drop_table(Session.TABLENAME)
 
-    # (etc.)
+
+            # (etc.)
 
 
 # =============================================================================

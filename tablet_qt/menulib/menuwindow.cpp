@@ -358,7 +358,7 @@ void MenuWindow::viewTask()
             detail += QString("<br><br>Editing time: <b>%1</b> s")
                     .arg(task->editingTimeSeconds());
 #endif
-            UiFunc::alert(detail, instance_title);
+            UiFunc::alert(detail, instance_title, true);  // with scrolling
         }
         break;
     case QMessageBox::Yes:  // summary

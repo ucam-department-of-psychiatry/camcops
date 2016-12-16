@@ -32,7 +32,9 @@
 #include <QPainter>
 #include <QPen>
 #include <QPixmapCache>
+#include <QPlainTextEdit>
 #include <QPushButton>
+#include <QScrollBar>
 #include <QStyle>
 #include <QStyleOptionButton>
 #include <QStyleOptionFrame>
@@ -43,6 +45,7 @@
 #include "lib/layoutdumper.h"
 #include "dialogs/passwordchangedialog.h"
 #include "dialogs/passwordentrydialog.h"
+#include "dialogs/scrollmessagebox.h"
 
 
 // ========================================================================
@@ -405,11 +408,11 @@ QSize UiFunc::spacingAsSize(const QLayout* layout)
 }
 
 
-QSize UiFunc::widgetSizeHintFromContents(const QWidget* widget,
-                                         QStyleOption* opt,
-                                         const QSize& child_size,
-                                         bool add_style_element,
-                                         QStyle::ContentsType contents_type)
+QSize UiFunc::widgetExtraSizeForCssOrLayout(const QWidget* widget,
+                                            const QStyleOption* opt,
+                                            const QSize& child_size,
+                                            bool add_style_element,
+                                            QStyle::ContentsType contents_type)
 {
     // See QPushButton::sizeHint()
     Q_ASSERT(widget);
@@ -442,9 +445,9 @@ QSize UiFunc::widgetSizeHintFromContents(const QWidget* widget,
     // size_hint += stylesheet_extra_size + extra_for_layout_margins;
 
     // Take the maximum?
-    QSize total_extra = stylesheet_extra_size.expandedTo(extra_for_layout_margins);
-
-    QSize size_hint = child_size + total_extra;
+    QSize total_extra = stylesheet_extra_size
+            .expandedTo(extra_for_layout_margins)
+            .expandedTo(QSize(0, 0));  // just to ensure it's never negative
 
 #ifdef DEBUG_WIDGET_MARGINS
     qDebug().nospace() << Q_FUNC_INFO
@@ -452,28 +455,37 @@ QSize UiFunc::widgetSizeHintFromContents(const QWidget* widget,
              << "; child_size " << child_size
              << "; stylesheet_extra_size " << stylesheet_extra_size
              << "; extra_for_layout_margins " << extra_for_layout_margins
-             << "; total_extra " << total_extra
-             << " => size_hint " << size_hint;
+             << " => total_extra " << total_extra;
 #endif
-    return size_hint;
+    return total_extra;
 }
 
 
-QSize UiFunc::pushButtonSizeHintFromContents(const QPushButton* button,
-                                             QStyleOptionButton* opt,
-                                             const QSize& child_size)
+QSize UiFunc::pushButtonExtraSizeRequired(const QPushButton* button,
+                                          const QStyleOptionButton* opt,
+                                          const QSize& child_size)
 {
-    return widgetSizeHintFromContents(button, opt, child_size,
-                                      true, QStyle::CT_PushButton);
+    return widgetExtraSizeForCssOrLayout(button, opt, child_size,
+                                         true, QStyle::CT_PushButton);
 }
 
 
-QSize UiFunc::frameSizeHintFromContents(const QFrame* frame,
-                                        QStyleOptionFrame* opt,
-                                        const QSize& child_size)
+QSize UiFunc::frameExtraSizeRequired(const QFrame* frame,
+                                     const QStyleOptionFrame* opt,
+                                     const QSize& child_size)
 {
-    return widgetSizeHintFromContents(frame, opt, child_size,
-                                      false, QStyle::CT_PushButton);
+    return widgetExtraSizeForCssOrLayout(frame, opt, child_size,
+                                         false, QStyle::CT_PushButton);
+    // Is QStyle::CT_PushButton right?
+}
+
+
+QSize UiFunc::labelExtraSizeRequired(const QLabel* label,
+                                     const QStyleOptionFrame* opt,
+                                     const QSize& child_size)
+{
+    return widgetExtraSizeForCssOrLayout(label, opt, child_size,
+                                         true, QStyle::CT_PushButton);
     // Is QStyle::CT_PushButton right?
 }
 
@@ -528,6 +540,19 @@ void UiFunc::resizeEventForHFWParentWidget(QWidget* widget)
 }
 
 
+void UiFunc::scrollToEnd(QPlainTextEdit* editor)
+{
+    QScrollBar* vsb = editor->verticalScrollBar();
+    if (vsb) {
+        vsb->setValue(vsb->maximum());
+    }
+    QScrollBar* hsb = editor->horizontalScrollBar();
+    if (hsb) {
+        hsb->setValue(0);
+    }
+}
+
+
 // ============================================================================
 // Killing the app
 // ============================================================================
@@ -558,13 +583,18 @@ void UiFunc::stopApp(const QString& error, const QString& title)
 // Alerts
 // ============================================================================
 
-void UiFunc::alert(const QString& text, const QString& title)
+void UiFunc::alert(const QString& text, const QString& title, bool scroll)
 {
-    QMessageBox msgbox;
-    msgbox.setWindowTitle(title);
-    msgbox.setText(text);
-    msgbox.setStandardButtons(QMessageBox::Ok);
-    msgbox.exec();
+    if (scroll) {
+        // Tasks may elect to show long text here
+        ScrollMessageBox::information(nullptr, title, text);
+    } else {
+        QMessageBox msgbox;
+        msgbox.setWindowTitle(title);
+        msgbox.setText(text);
+        msgbox.setStandardButtons(QMessageBox::Ok);
+        msgbox.exec();
+    }
 }
 
 

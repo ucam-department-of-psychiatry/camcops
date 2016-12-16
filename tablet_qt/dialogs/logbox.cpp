@@ -21,8 +21,11 @@
 #include <QHBoxLayout>
 #include <QPlainTextEdit>
 #include <QPushButton>
-#include <QScrollBar>
 #include <QVBoxLayout>
+#include "lib/uifunc.h"
+
+const int MIN_WIDTH = 600;
+const int MIN_HEIGHT = 600;
 
 
 LogBox::LogBox(QWidget* parent, const QString& title, bool offer_cancel,
@@ -35,8 +38,8 @@ LogBox::LogBox(QWidget* parent, const QString& title, bool offer_cancel,
 {
     // qDebug() << Q_FUNC_INFO;
     setWindowTitle(title);
-    setMinimumWidth(600);
-    setMinimumHeight(600);
+    setMinimumWidth(MIN_WIDTH);
+    setMinimumHeight(MIN_HEIGHT);
 
     QVBoxLayout* mainlayout = new QVBoxLayout();
     setLayout(mainlayout);
@@ -55,13 +58,15 @@ LogBox::LogBox(QWidget* parent, const QString& title, bool offer_cancel,
     buttonlayout->addWidget(copybutton);
     connect(copybutton, &QPushButton::clicked, this, &LogBox::copyClicked);
 
-    buttonlayout->addStretch();
-
     if (offer_cancel) {
         m_cancel = new QPushButton(tr("Cancel"));
         buttonlayout->addWidget(m_cancel);
         connect(m_cancel, &QPushButton::clicked, this, &LogBox::reject);
     }
+
+    buttonlayout->addStretch();
+    // Don't have cancel button on the right (user might hit it thinking
+    // it's the OK button, based on shared location).
 
     if (offer_ok_at_end) {
         m_ok = new QPushButton(tr("OK"));
@@ -144,18 +149,5 @@ void LogBox::copyClicked()
     m_editor->selectAll();
     m_editor->copy();
     m_editor->moveCursor(QTextCursor::End);
-    scrollToEndOfLog();
-}
-
-
-void LogBox::scrollToEndOfLog()
-{
-    QScrollBar* vsb = m_editor->verticalScrollBar();
-    if (vsb) {
-        vsb->setValue(vsb->maximum());
-    }
-    QScrollBar* hsb = m_editor->horizontalScrollBar();
-    if (hsb) {
-        hsb->setValue(0);
-    }
+    UiFunc::scrollToEnd(m_editor.data());
 }

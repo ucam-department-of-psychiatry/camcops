@@ -107,7 +107,7 @@ QSize ClickableLabelWordWrapWide::translateSize(const QSize& size) const
 {
     QStyleOptionButton opt;
     initStyleOption(&opt);  // protected
-    return UiFunc::pushButtonSizeHintFromContents(this, &opt, size);
+    return size + UiFunc::pushButtonExtraSizeRequired(this, &opt, size);
 }
 
 

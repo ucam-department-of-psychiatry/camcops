@@ -19,15 +19,12 @@
 #include <QPointer>
 #include <QSharedPointer>
 #include <QVector>
+#include "common/aliases_camcops.h"
 #include "common/camcopsapp.h"  // for LockState
 #include "menulib/menuitem.h"
 #include "widgets/openablewidget.h"
 
 class MenuHeader;
-class Patient;
-using PatientPtr = QSharedPointer<Patient>;
-class Task;
-using TaskPtr = QSharedPointer<Task>;
 class Questionnaire;
 class QListWidget;
 class QListWidgetItem;

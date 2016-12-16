@@ -23,12 +23,11 @@
 #include <QStringList>
 #include <QSqlDatabase>
 #include <QVariant>
+#include "common/aliases_qt.h"
 #include "db/field.h"
 #include "sqlargs.h"
 
 class SqlitePragmaInfoField;
-
-using WhereConditions = QMap<QString, QVariant>;
 
 namespace DbFunc {
 
@@ -46,6 +45,7 @@ namespace DbFunc {
 
     QString delimit(const QString& identifier);
     QString selectColumns(const QStringList& columns, const QString& table);
+    SqlArgs updateColumns(const UpdateValues& updatevalues, const QString& table);
     void addWhereClause(const WhereConditions& where, SqlArgs& sqlargs_altered);
 
     // Queries
@@ -64,10 +64,10 @@ namespace DbFunc {
     QVariant dbFetchFirstValue(const QSqlDatabase& db, const QString& sql);
     int dbFetchInt(const QSqlDatabase& db,
                    const SqlArgs& sqlargs,
-                   int failureDefault = -1);
+                   int failure_default = -1);
     int dbFetchInt(const QSqlDatabase& db,
                    const QString& sql,
-                   int failureDefault = -1);
+                   int failure_default = -1);
 
     QString sqlParamHolders(int n);
     ArgList argListFromIntList(const QList<int>& intlist);

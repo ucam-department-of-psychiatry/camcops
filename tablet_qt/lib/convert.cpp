@@ -21,8 +21,11 @@
 #include <QChar>
 #include <QDate>
 #include <QDateTime>
+#include <QDebug>
 #include <QImage>
 #include <QRegularExpression>
+#include <QtMath>
+#include <QUrl>
 #include "lib/datetimefunc.h"
 #include "lib/uifunc.h"
 
@@ -371,6 +374,34 @@ QString Convert::prettyValue(const QVariant& variant)
 }
 
 
+const QStringList PREFIXES_SHORT_BINARY{"", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi", "Yi"};
+const QStringList PREFIXES_LONG_BINARY{"", "kibi", "mebi", "gibi", "tebi", "peti", "exbi", "zebi", "yobi"};
+const QStringList PREFIXES_SHORT_DECIMAL{"", "k", "M", "G", "T", "P", "E", "Z", "Y"};
+const QStringList PREFIXES_LONG_DECIMAL{"", "kilo", "mega", "giga", "tera", "peta", "exa", "zetta", "yotta"};
+
+
+QString Convert::prettySize(double num, bool space, bool binary, bool longform,
+                            const QString& suffix)
+{
+    // http://stackoverflow.com/questions/3758606/how-to-convert-byte-size-into-human-readable-format-in-java
+    const QStringList& prefixes = binary
+            ? (longform ? PREFIXES_LONG_BINARY : PREFIXES_SHORT_BINARY)
+            : (longform ? PREFIXES_LONG_DECIMAL : PREFIXES_SHORT_DECIMAL);
+    QString optional_space = space ? " " : "";
+    double base = binary ? 1024 : 1000;
+    int exponent = (int)(qLn(num) / qLn(base));
+    exponent = qBound(0, exponent, prefixes.length() - 1);
+    QString prefix = prefixes.at(exponent);
+    double converted_num = num / pow(base, exponent);
+    int precision = (exponent == 0) ? 0 : 1;  // decimals, for 'f'
+    return QString("%1%2%3%4")
+            .arg(converted_num, 0, 'f', precision)
+            .arg(optional_space)
+            .arg(prefix)
+            .arg(suffix);
+}
+
+
 QMap<QString, QString> Convert::getReplyDict(const QByteArray& data)
 {
     // For server replies looking like key1:value1\nkey2:value2 ...
@@ -391,11 +422,19 @@ QMap<QString, QString> Convert::getReplyDict(const QByteArray& data)
 QUrlQuery Convert::getPostDataAsUrlQuery(const QMap<QString, QString>& dict)
 {
     // http://stackoverflow.com/questions/2599423/how-can-i-post-data-to-a-url-using-qnetworkaccessmanager
+
+    // We had a difficulty here in that semicolons were not being encoded.
+    // This thread describes the problem (not a Qt bug; matches relevant RFC):
+    // - https://bugreports.qt.io/browse/QTBUG-50843
+    // Note in particular Thiago Maciera's comment that "QUrlQuery manages a
+    // list of key-value pairs of *encoded* strings."
+
     QUrlQuery postdata;
     QMapIterator<QString, QString> it(dict);
     while (it.hasNext()) {
         it.next();
-        postdata.addQueryItem(it.key(), it.value());
+        postdata.addQueryItem(QUrl::toPercentEncoding(it.key()),
+                              QUrl::toPercentEncoding(it.value()));
     }
     return postdata;
 }

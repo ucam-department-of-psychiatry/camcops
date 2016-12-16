@@ -19,8 +19,8 @@
 #include <QList>
 #include <QString>
 #include <QVariant>
+#include "common/aliases_qt.h"
 
-using ArgList = QList<QVariant>;
 
 struct SqlArgs {
 public:

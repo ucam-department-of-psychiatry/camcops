@@ -73,7 +73,7 @@ void initializeDemoQuestionnaire(TaskFactory& factory)
 
 DemoQuestionnaire::DemoQuestionnaire(CamcopsApp& app,
                                      const QSqlDatabase& db, int load_pk) :
-    Task(app, db, "demoquestionnaire", false, false, false)
+    Task(app, db, "demoquestionnaire", true, false, false)
 {
     using StringFunc::strseq;
 
@@ -753,11 +753,12 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
 
     // ------------------------------------------------------------------------
     // Photo (for a mandatory photo: last page in case we have no camera)
+    // ... make it non-mandatory...
     // ------------------------------------------------------------------------
 
     QuPagePtr page_photo((new QuPage{
         new QuHeading("Photo [last page]:"),
-        new QuPhoto(fieldRef("photo_blobid", true, true, true)),
+        new QuPhoto(fieldRef("photo_blobid", false, true, true)),
     })->setTitle("Photo"));
 
     // ------------------------------------------------------------------------

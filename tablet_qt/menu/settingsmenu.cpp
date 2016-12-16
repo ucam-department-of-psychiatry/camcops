@@ -15,12 +15,18 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define OFFER_VIEW_SQL  // debugging only
+
 #include "settingsmenu.h"
+#include <QDebug>
+#include <QFileDialog>
+#include <QTextStream>
 #include "common/platform.h"
 #include "common/uiconstants.h"
 #include "common/varconst.h"
 #include "db/dbnestabletransaction.h"
 #include "db/fieldref.h"
+#include "dialogs/logmessagebox.h"
 #include "lib/convert.h"
 #include "lib/networkmanager.h"
 #include "lib/uifunc.h"
@@ -41,6 +47,7 @@
 #include "questionnairelib/quslider.h"
 #include "questionnairelib/qutext.h"
 #include "widgets/labelwordwrapwide.h"
+#include "lib/slowguiguard.h"
 
 const QString TAG_NORMAL("Normal");
 const QString TAG_BIG("Big");
@@ -125,12 +132,32 @@ SettingsMenu::SettingsMenu(CamcopsApp& app) :
             tr("(†) Wipe extra strings downloaded from server"),
             [this](){ deleteAllExtraStrings(); }  // alternative lambda syntax
         ).setNeedsPrivilege(),
-        MenuItem(tr("(†) View local database as SQL")).setNeedsPrivilege(),  // ***
-        MenuItem(tr("(†) Send local database to USB debugging stream (tablet "
-                    "devices only)")
-        ).setNeedsPrivilege().setUnsupported(!Platform::PLATFORM_TABLET),  // ***
-        MenuItem(tr("(†) Dump local database to SQL file (Android only)")
-        ).setNeedsPrivilege().setUnsupported(!Platform::PLATFORM_ANDROID),  // ***
+#ifdef OFFER_VIEW_SQL
+        MenuItem(
+            tr("(†) View data database as SQL"),
+            std::bind(&SettingsMenu::viewDataDbAsSql, this)
+        ).setNeedsPrivilege(),
+        MenuItem(
+            tr("(†) View system database as SQL"),
+            std::bind(&SettingsMenu::viewSystemDbAsSql, this)
+        ).setNeedsPrivilege(),
+#endif
+        MenuItem(
+            tr("(†) Send data database to debugging stream"),
+            std::bind(&SettingsMenu::debugDataDbAsSql, this)
+        ).setNeedsPrivilege(),
+        MenuItem(
+            tr("(†) Send system database to debugging stream"),
+            std::bind(&SettingsMenu::debugSystemDbAsSql, this)
+        ).setNeedsPrivilege(),
+        MenuItem(
+            tr("(†) Dump data database to SQL file (not on iOS)"),
+            std::bind(&SettingsMenu::saveDataDbAsSql, this)
+        ).setNeedsPrivilege().setUnsupported(Platform::PLATFORM_IOS),
+        MenuItem(
+            tr("(†) Dump system database to SQL file (not on iOS)"),
+            std::bind(&SettingsMenu::saveSystemDbAsSql, this)
+        ).setNeedsPrivilege().setUnsupported(Platform::PLATFORM_IOS),
     };
     connect(&m_app, &CamcopsApp::fontSizeChanged,
             this, &SettingsMenu::reloadStyleSheet);
@@ -796,4 +823,101 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
     Questionnaire* questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setReadOnly(true);
     return questionnaire;
+}
+
+void SettingsMenu::viewDataDbAsSql()
+{
+#ifdef OFFER_VIEW_SQL
+    QString sql;
+    { // block ensures stream is flushed by the time we read the string
+        SlowGuiGuard guard = m_app.getSlowGuiGuard();
+        QTextStream os(&sql);
+        m_app.dumpDataDatabase(os);
+    }
+    LogMessageBox box(this, tr("Main data database"), sql);
+    box.exec();
+#endif
+}
+
+
+void SettingsMenu::viewSystemDbAsSql()
+{
+#ifdef OFFER_VIEW_SQL
+    QString sql;
+    {  // as above
+        SlowGuiGuard guard = m_app.getSlowGuiGuard();
+        QTextStream os(&sql);
+        m_app.dumpSystemDatabase(os);
+    }
+    LogMessageBox box(this, tr("CamCOPS system database"), sql);
+    box.exec();
+#endif
+}
+
+
+void SettingsMenu::debugDataDbAsSql()
+{
+    {
+        SlowGuiGuard guard = m_app.getSlowGuiGuard(tr("Sending data..."), tr("Please wait"));
+        QString sql;
+        {  // as above
+            QTextStream os(&sql);
+            m_app.dumpDataDatabase(os);
+        }
+        qInfo().noquote().nospace() << sql;
+    }
+    UiFunc::alert(tr("Data database sent to debugging stream"), tr("Finished"));
+}
+
+
+void SettingsMenu::debugSystemDbAsSql()
+{
+    {
+        SlowGuiGuard guard = m_app.getSlowGuiGuard(tr("Sending data..."), tr("Please wait"));
+        QString sql;
+        {  // as above
+            QTextStream os(&sql);
+            m_app.dumpSystemDatabase(os);
+        }
+        qInfo().noquote().nospace() << sql;
+    }
+    UiFunc::alert(tr("Data database sent to debugging stream"), tr("Finished"));
+}
+
+
+void SettingsMenu::saveDataDbAsSql()
+{
+    QString filename = QFileDialog::getSaveFileName(
+                this, tr("Save data database as..."));
+    if (filename.isEmpty()) {
+        return;  // user cancelled
+    }
+    QFile file(filename);
+    file.open(QIODevice::WriteOnly | QIODevice::Text);
+    if (!file.isOpen()) {
+        UiFunc::alert(tr("Unable to open file: ") + filename, tr("Failure"));
+        return;
+    }
+    QTextStream os(&file);
+    m_app.dumpSystemDatabase(os);
+    UiFunc::alert(tr("Data database written to: ") + filename, tr("Success"));
+}
+
+
+void SettingsMenu::saveSystemDbAsSql()
+{
+    QString filename = QFileDialog::getSaveFileName(
+                this, tr("Save system database as..."));
+    if (filename.isEmpty()) {
+        return;  // user cancelled
+    }
+    QFile file(filename);
+    file.open(QIODevice::WriteOnly | QIODevice::Text);
+    if (!file.isOpen()) {
+        UiFunc::alert(tr("Unable to open file: ") + filename, tr("Failure"));
+        return;
+    }
+    QTextStream os(&file);
+    m_app.dumpSystemDatabase(os);
+    UiFunc::alert(tr("System database written to: ") + filename, tr("Success"));
 }

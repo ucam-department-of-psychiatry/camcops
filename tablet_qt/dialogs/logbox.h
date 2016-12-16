@@ -24,8 +24,8 @@ class QPushButton;
 
 class LogBox : public QDialog
 {
-    // Modal dialogue with a textual log window, used for displaying progress,
-    // e.g. during network operations (see NetworkManager).
+    // Modal (but non-blocking) dialogue with a textual log window, used for
+    // displaying progress, e.g. during network operations (see NetworkManager).
 
     Q_OBJECT
 public:
@@ -34,8 +34,6 @@ public:
     ~LogBox();
     void statusMessage(const QString& msg, bool as_html = false);
     void finish(bool success = true);
-protected:
-    void scrollToEndOfLog();
 public slots:
     virtual void open() override;
     void okClicked();

@@ -19,8 +19,8 @@
 
 const QString Blob::TABLENAME("blobs");  // as per DBCONSTANTS.js
 
-const QString SRC_TABLE_FIELDNAME("tablename");  // as per Blob.js
-const QString SRC_PK_FIELDNAME("tablepk");  // as per Blob.js
+const QString Blob::SRC_TABLE_FIELDNAME("tablename");  // as per Blob.js
+const QString Blob::SRC_PK_FIELDNAME("tablepk");  // as per Blob.js
 const QString SRC_FIELD_FIELDNAME("fieldname");  // as per Blob.js
 const QString FILENAME_FIELDNAME("filename");  // as per Blob.js
 const QString BLOB_FIELDNAME("theblob"); // as per dbupload.js

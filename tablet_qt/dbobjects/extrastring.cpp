@@ -15,6 +15,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "db/dbfunc.h"
 #include "extrastring.h"
 
 const QString EXTRASTRINGS_TABLENAME("extrastrings");

@@ -2864,7 +2864,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         if rotationfieldname is None:
             rotation = 0
         else:
-            rotation = getattr(self, rotationfieldname)
+            rotation = getattr(self, rotationfieldname) or 0
         return cc_html.tr(
             label,
             self.get_blob_png_html(getattr(self, fieldname), rotation))
@@ -3145,7 +3145,13 @@ def gen_tasks_matching_session_filter(
     for cls in Task.__subclasses__():
         if cls.filter_allows_task_type(session):
             pk_wc = cls.get_session_candidate_task_pks_whencreated(session)
-            cls_pk_wc.extend([(cls, row[0], row[1]) for row in pk_wc])
+            for row in pk_wc:
+                if row[1] is None:
+                    log.warning(
+                        "Blank when_created: cls={}, _pk={}, "
+                        "when_created={}".format(cls, row[0], row[1]))
+                    # ... will crash at the sort stage
+                cls_pk_wc.append((cls, row[0], row[1]))
     # Sort by when_created (conjointly across task classes)
     cls_pk_wc = sorted(cls_pk_wc, key=operator.itemgetter(2), reverse=True)
     # Yield those that really do match the filter

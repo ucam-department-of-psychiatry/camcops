@@ -22,6 +22,7 @@
 
 class QAbstractButton;
 class QLabel;
+class QPushButton;
 
 
 class MenuHeader : public QWidget

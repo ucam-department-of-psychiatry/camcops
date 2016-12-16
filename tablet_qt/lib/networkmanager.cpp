@@ -60,6 +60,7 @@ const QString KEY_NRECORDS("nrecords");  // B
 const QString KEY_OPERATION("operation");  // C->S
 const QString KEY_PASSWORD("password");  // C->S
 const QString KEY_PKNAME("pkname");  // C->S
+const QString KEY_PKVALUES("pkvalues");  // C->S
 const QString KEY_RESULT("result");  // S->C
 const QString KEY_SERVER_CAMCOPS_VERSION("serverCamcopsVersion");  // S->C
 const QString KEY_SESSION_ID("session_id");  // B
@@ -339,9 +340,11 @@ void NetworkManager::serverPost(Dict dict, ReplyFuncPtr reply_func,
     request.setHeader(QNetworkRequest::ContentTypeHeader,
                       "application/x-www-form-urlencoded");
     QByteArray final_data = postdata.toString(QUrl::FullyEncoded).toUtf8();
+    // See discussion of encoding in Convert::getPostDataAsUrlQuery
 #ifdef DEBUG_NETWORK_REQUESTS
     qDebug() << "Request to server: " << final_data;
 #endif
+    statusMessage("... sending " + sizeBytes(final_data.length()));
     m_mgr->post(request, final_data);
 }
 
@@ -355,6 +358,7 @@ bool NetworkManager::processServerReply(QNetworkReply* reply)
     reply->deleteLater();
     if (reply->error() == QNetworkReply::NoError) {
         m_reply_data = reply->readAll();  // can probably do this only once
+        statusMessage("... received " + sizeBytes(m_reply_data.length()));
 #ifdef DEBUG_NETWORK_REPLIES
         qDebug() << "Network reply (raw): " << m_reply_data;
 #endif
@@ -379,6 +383,12 @@ bool NetworkManager::processServerReply(QNetworkReply* reply)
         fail();
         return false;
     }
+}
+
+
+QString NetworkManager::sizeBytes(qint64 size)
+{
+    return Convert::prettySize(size, true, false, true, "bytes");
 }
 
 
@@ -523,9 +533,6 @@ void NetworkManager::cancel()
 
 void NetworkManager::fail()
 {
-    // If we were uploading, we need to undo our move-off flags (in case the
-    // user changes their mind about a patient)
-    clearTaskMoveOffTabletFlags();
     finish(false);
 }
 
@@ -723,6 +730,12 @@ void NetworkManager::upload(UploadMethod method)
     statusMessage(tr("Preparing to upload to: ") + serverUrlDisplayString());
     // ... in part so uploadNext() status message looks OK
 
+    // The GUI doesn't get a chance to respond until after this function
+    // has completed.
+    // SlowGuiGuard guard();  // not helpful
+
+    m_app.processEvents();  // these, scattered around, are very helpful.
+
     cleanup();
     m_upload_method = method;
 
@@ -732,8 +745,11 @@ void NetworkManager::upload(UploadMethod method)
         return;
     }
     applyPatientMoveOffTabletFlagsToTasks();
+    m_app.processEvents();
     writeIdDescriptionsToPatientTable();
+    m_app.processEvents();
     catalogueTablesForUpload();
+    m_app.processEvents();
 
     // Begin comms with the server by checking device is registered.
     checkDeviceRegistered();
@@ -749,7 +765,8 @@ bool NetworkManager::isPatientInfoComplete()
     SqlArgs sqlargs = specimen_patient.fetchQuerySql();
     QSqlQuery query(m_db);
     if (!DbFunc::execQuery(query, sqlargs)) {
-        UiFunc::stopApp("writeIdDescriptionsToPatientTable: query failed");
+        queryFail(sqlargs.sql);
+        return false;
     }
     int nfailures_upload = 0;
     int nfailures_finalize = 0;
@@ -771,7 +788,7 @@ bool NetworkManager::isPatientInfoComplete()
         // Copying; we're allowed not to meet the finalizing requirements,
         // but we must meet the uploading requirements
         statusMessage(QString("Failure: %1 patient(s) do not meet the "
-                              "server’s upload ID policy of: %2")
+                              "server's upload ID policy of: %2")
                       .arg(nfailures_upload)
                       .arg(m_app.uploadPolicy().pretty()));
         return false;
@@ -780,7 +797,7 @@ bool NetworkManager::isPatientInfoComplete()
             (nfailures_upload + nfailures_finalize) > 0) {
         // Finalizing; must meet all requirements
         statusMessage(QString(
-            "Failure: %1 patient(s) do not meet the server’s upload ID policy "
+            "Failure: %1 patient(s) do not meet the server's upload ID policy "
             "[%2]; %3 patient(s) do not meet the its finalize ID policy [%4]")
                       .arg(nfailures_upload)
                       .arg(m_app.uploadPolicy().pretty())
@@ -794,51 +811,117 @@ bool NetworkManager::isPatientInfoComplete()
 
 void NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
 {
+    // If we were uploading, we need to undo our move-off flags (in case the
+    // user changes their mind about a patient)
+    // We could use a system of "set before upload, clear afterwards".
+    // However, failing to clear (for some reason) is a risk.
+    // Therefore, we set and clear flags here, for all tables.
+    // That is, we make sure these flags are all correct immediately before
+    // an upload (which is when we care).
+
     if (m_upload_patient_ids_to_move_off.isEmpty() ||
             m_upload_method != UploadMethod::Copy) {
+        // if we're not using UploadMethod::Copy, everything is going to be
+        // moved anyway, by virtue of startPreservation()
         return;
-        // if we're not using UploadMethod::Copy, all tasks are going to be
-        // moved anyway
     }
-    statusMessage("Setting move-off flags for tasks");
+
+    statusMessage("Setting move-off flags for tasks, where applicable");
+
     DbTransaction trans(m_db);
     int n_patients = m_upload_patient_ids_to_move_off.length();
-    QString paramholders = DbFunc::sqlParamHolders(n_patients);
-    ArgList args = DbFunc::argListFromIntList(m_upload_patient_ids_to_move_off);
+    QString pt_paramholders = DbFunc::sqlParamHolders(n_patients);
+    ArgList pt_args = DbFunc::argListFromIntList(m_upload_patient_ids_to_move_off);
     // Maximum length of an SQL statement: lots
     // https://www.sqlite.org/limits.html
+    QString sql;
 
-    for (auto tablename : m_p_task_factory->allTablenames()) {
-        QString sql = QString("UPDATE %1 SET %2 = 1 WHERE %3 IN (%4)")
-                .arg(delimit(tablename))
-                .arg(delimit(DbConst::MOVE_OFF_TABLET_FIELDNAME))
-                .arg(delimit(Task::PATIENT_FK_FIELDNAME))
-                .arg(paramholders);
-        if (!DbFunc::exec(m_db, sql, args)) {
-            statusMessage("Query failed: " + sql);
-            fail();
-            return;
+    // Tasks that are not anonymous
+    for (auto main_tablename : m_p_task_factory->tablenames()) {
+        TaskPtr specimen = m_p_task_factory->create(main_tablename);
+        if (specimen->isAnonymous()) {
+            continue;
+        }
+
+        for (auto tablename : specimen->allTables()) {
+            // 1. Clear all
+            sql = QString("UPDATE %1 SET %2 = 0")
+                    .arg(delimit(tablename))
+                    .arg(delimit(DbConst::MOVE_OFF_TABLET_FIELDNAME));
+            if (!DbFunc::exec(m_db, sql)) {
+                queryFail(sql);
+                return;
+            }
+            // 2. Set, if required, for relevant patients.
+            sql = QString("UPDATE %1 SET %2 = 1 WHERE %3 IN (%4)")
+                    .arg(delimit(tablename))
+                    .arg(delimit(DbConst::MOVE_OFF_TABLET_FIELDNAME))
+                    .arg(delimit(Task::PATIENT_FK_FIELDNAME))
+                    .arg(pt_paramholders);
+            if (!DbFunc::exec(m_db, sql, pt_args)) {
+                queryFail(sql);
+                return;
+            }
         }
     }
-}
 
+    // 3. BLOB table.
+    // Options here are:
+    // - iterate through every task, loading them from SQL to C++, and asking
+    //   each what BLOB IDs they possess;
+    // - store patient_id (or NULL) with each BLOB;
+    // - iterate through each BLOB, looking for the move-off flag on the
+    //   associated task/ancillary record.
+    // The most efficient and simple is likely to be (3).
 
-void NetworkManager::clearTaskMoveOffTabletFlags()
-{
-    if (m_upload_patient_ids_to_move_off.isEmpty() ||
-            m_upload_method != UploadMethod::Copy) {
-        // same logic as applyPatientMoveOffTabletFlagsToTasks()
+    // (a) clear all flags for BLOBs
+    sql = QString("UPDATE %1 SET %2 = 0")
+            .arg(delimit(Blob::TABLENAME))
+            .arg(delimit(DbConst::MOVE_OFF_TABLET_FIELDNAME));
+    if (!DbFunc::exec(m_db, sql)) {
+        queryFail(sql);
         return;
     }
-    statusMessage("Clearing move-off flags for tasks");
-    DbTransaction trans(m_db);
-    for (auto tablename : m_p_task_factory->allTablenames()) {
-        QString sql = QString("UPDATE %1 SET %2 = 0")
-                .arg(delimit(tablename))
-                .arg(delimit(DbConst::MOVE_OFF_TABLET_FIELDNAME));
-        if (!DbFunc::exec(m_db, sql)) {
-            statusMessage("Query failed: " + sql);
-            fail();
+
+    // (b) set flag for any relevant BLOB
+    sql = DbFunc::selectColumns(QStringList{DbConst::PK_FIELDNAME,
+                                            Blob::SRC_TABLE_FIELDNAME,
+                                            Blob::SRC_PK_FIELDNAME},
+                                Blob::TABLENAME);
+    QSqlQuery query(m_db);
+    if (!DbFunc::execQuery(query, sql)) {
+        queryFail(sql);
+        return;
+    }
+    while (query.next()) {
+        // (b) find the table/PK of the linked task (or other table)
+        int blob_pk = query.value(0).toInt();
+        QString src_table = query.value(1).toString();
+        int src_pk = query.value(2).toInt();
+
+        // (c) find the move-off flag for that linked task
+        SqlArgs sub1_sqlargs(
+                    DbFunc::selectColumns(
+                        QStringList{DbConst::MOVE_OFF_TABLET_FIELDNAME},
+                        src_table));
+        WhereConditions sub1_where{{DbConst::PK_FIELDNAME, src_pk}};
+        DbFunc::addWhereClause(sub1_where, sub1_sqlargs);
+        int move_off_int = DbFunc::dbFetchInt(m_db, sub1_sqlargs, -1);
+        if (move_off_int == -1) {
+            queryFail(sub1_sqlargs.sql);
+            return;
+        }
+        if (move_off_int == 0) {
+            continue;
+        }
+
+        // (d) set the BLOB's move-off flag
+        UpdateValues update_values{{DbConst::MOVE_OFF_TABLET_FIELDNAME, true}};
+        SqlArgs sub2_sqlargs = DbFunc::updateColumns(update_values, Blob::TABLENAME);
+        WhereConditions sub2_where{{DbConst::PK_FIELDNAME, blob_pk}};
+        DbFunc::addWhereClause(sub2_where, sub2_sqlargs);
+        if (!DbFunc::exec(m_db, sub2_sqlargs)) {
+            queryFail(sub2_sqlargs.sql);
             return;
         }
     }
@@ -862,8 +945,7 @@ void NetworkManager::writeIdDescriptionsToPatientTable()
             .arg(delimit(Patient::TABLENAME))
             .arg(assignments.join(", "));
     if (!DbFunc::exec(m_db, sql, args)) {
-        statusMessage("Query failed: " + sql);
-        fail();
+        queryFail(sql);
         return;
     }
 }
@@ -919,6 +1001,8 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
 
     if (!processServerReply(reply) ||
             m_upload_next_stage == NextUploadStage::Invalid) {
+        // stage might be Invalid if user hit cancel while messages still
+        // inbound
         return;
     }
     statusMessage("... OK");
@@ -941,7 +1025,13 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
             return;
         }
         startUpload();
-        m_upload_next_stage = NextUploadStage::StartPreservation;
+        if (m_upload_method == UploadMethod::Copy) {
+            // If we copy, we proceed to uploading
+            m_upload_next_stage = NextUploadStage::Uploading;
+        } else {
+            // If we're moving, we preserve records.
+            m_upload_next_stage = NextUploadStage::StartPreservation;
+        }
         break;
 
     case NextUploadStage::StartPreservation:
@@ -1069,8 +1159,7 @@ void NetworkManager::sendTableWhole(const QString& tablename)
     QString sql = DbFunc::selectColumns(fieldnames, tablename);
     QSqlQuery query(m_db);
     if (!DbFunc::execQuery(query, sql)) {
-        statusMessage("SELECT query failed");
-        fail();
+        queryFail(sql);
         return;
     }
     int record = 0;
@@ -1106,7 +1195,8 @@ void NetworkManager::sendTableRecordwise(const QString& tablename)
     dict[KEY_OPERATION] = OP_DELETE_WHERE_KEY_NOT;
     dict[KEY_TABLE] = tablename;
     dict[KEY_PKNAME] = DbConst::PK_FIELDNAME;
-    dict[KEY_VALUES] = pkvalues;
+    dict[KEY_PKVALUES] = pkvalues;
+    statusMessage("Sending delete-where-key-not message");
     serverPost(dict, &NetworkManager::uploadNext);
 }
 
@@ -1129,8 +1219,7 @@ void NetworkManager::sendNextRecord()
     DbFunc::addWhereClause(where, sqlargs);
     QSqlQuery query(m_db);
     if (!DbFunc::execQuery(query, sqlargs) || !query.next()) {
-        statusMessage(tr("SELECT statement failed"));
-        fail();
+        queryFail(sqlargs.sql);
         return;
     }
     QString values = DbFunc::csvRow(query);
@@ -1184,4 +1273,11 @@ void NetworkManager::wipeTables()
         // Selective wipes: patients
         DbFunc::deleteFrom(m_db, Patient::TABLENAME, where);
     }
+}
+
+
+void NetworkManager::queryFail(const QString &sql)
+{
+    statusMessage("Query failed: " + sql);
+    fail();
 }

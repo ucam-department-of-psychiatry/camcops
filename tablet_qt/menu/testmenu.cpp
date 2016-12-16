@@ -25,6 +25,7 @@
 #include "common/platform.h"
 #include "diagnosis/icd10.h"
 #include "diagnosis/icd9cm.h"
+#include "lib/convert.h"
 #include "lib/filefunc.h"
 #include "lib/networkmanager.h"
 #include "lib/uifunc.h"
@@ -86,6 +87,10 @@ TestMenu::TestMenu(CamcopsApp& app)
         MenuItem(
             tr("Test wait dialog"),
             std::bind(&TestMenu::testWait, this)
+        ),
+        MenuItem(
+            tr("Test size formatter"),
+            std::bind(&TestMenu::testSizeFormatter, this)
         ),
         MAKE_MENU_MENU_ITEM(WidgetTestMenu, app),
         MenuItem(
@@ -237,4 +242,27 @@ void TestMenu::expensiveFunction()
     qDebug() << Q_FUNC_INFO << "start: sleep time (ms)" << EXPENSIVE_FUNCTION_DURATION_MS;
     QThread::msleep(EXPENSIVE_FUNCTION_DURATION_MS);
     qDebug() << Q_FUNC_INFO << "finish";
+}
+
+
+void TestMenu::testSizeFormatter()
+{
+    bool space = true;
+    bool longform = false;
+    QString suffix = longform ? "bytes" : "B";
+    QList<double> nums{
+        3e0, 3e1, 3e2, 3e3, 3e4, 3e5, 3e6, 3e7, 3e8, 3e9,
+        3e10, 3e11, 3e12, 3e13, 3e14, 3e15, 3e16, 3e17, 3e18, 3e19,
+        3e20, 3e21, 3e22, 3e23, 3e24, 3e25, 3e26, 3e27, 3e28, 3e29,
+        0, 27, 999, 1000, 1023, 1024, 1728, 110592, 7077888, 452984832,
+        28991029248, 1855425871872, 9223372036854775807.0};
+    QString text;
+    for (bool binary : {false, true}) {
+        for (auto num : nums) {
+            text += QString("%1 -> %2\n")
+              .arg(num)
+              .arg(Convert::prettySize(num, space, binary, longform, suffix));
+        }
+    }
+    UiFunc::alert(text);
 }

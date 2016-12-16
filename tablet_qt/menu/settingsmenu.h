@@ -54,6 +54,12 @@ protected:
     void fontSettingsCancelled();
     void resetFontSize();
     QString demoText(const QString& text, UiConst::FontSize fontsize_type) const;
+    void viewDataDbAsSql();
+    void viewSystemDbAsSql();
+    void debugDataDbAsSql();
+    void debugSystemDbAsSql();
+    void saveDataDbAsSql();
+    void saveSystemDbAsSql();
 protected:
     mutable SecureQString m_temp_plaintext_password;
     bool m_plaintext_pw_live;

@@ -26,6 +26,7 @@ class QFrame;
 class QLabel;
 class QLayout;
 class QPainter;
+class QPlainTextEdit;
 class QPointF;
 class QPushButton;
 class QStyleOptionButton;
@@ -101,17 +102,20 @@ namespace UiFunc {
     QSize contentsMarginsAsSize(const QWidget* widget);
     QSize contentsMarginsAsSize(const QLayout* layout);
     QSize spacingAsSize(const QLayout* layout);
-    QSize widgetSizeHintFromContents(const QWidget* widget,
-                                     QStyleOption* opt,
-                                     const QSize& child_size,
-                                     bool add_style_element,
-                                     QStyle::ContentsType contents_type);
-    QSize pushButtonSizeHintFromContents(const QPushButton* button,
-                                         QStyleOptionButton* opt,
-                                         const QSize& child_size);
-    QSize frameSizeHintFromContents(const QFrame* frame,
-                                    QStyleOptionFrame* opt,
-                                    const QSize& child_size);
+    QSize widgetExtraSizeForCssOrLayout(const QWidget* widget,
+                                        const QStyleOption* opt,
+                                        const QSize& child_size,
+                                        bool add_style_element,
+                                        QStyle::ContentsType contents_type);
+    QSize pushButtonExtraSizeRequired(const QPushButton* button,
+                                      const QStyleOptionButton* opt,
+                                      const QSize& child_size);
+    QSize frameExtraSizeRequired(const QFrame* frame,
+                                 const QStyleOptionFrame* opt,
+                                 const QSize& child_size);
+    QSize labelExtraSizeRequired(const QLabel* label,
+                                 const QStyleOptionFrame* opt,
+                                 const QSize& child_size);
 
     // Size policies that take a few statements to create:
     QSizePolicy expandingFixedHFWPolicy();
@@ -120,6 +124,10 @@ namespace UiFunc {
     QSizePolicy expandingMaximumHFWPolicy();
 
     void resizeEventForHFWParentWidget(QWidget* widget);
+
+    // Handy functions:
+
+    void scrollToEnd(QPlainTextEdit* editor);
 
     // ========================================================================
     // Killing the app
@@ -132,7 +140,9 @@ namespace UiFunc {
     // Alerts
     // ========================================================================
 
-    void alert(const QString& text, const QString& title = QObject::tr("Alert"));
+    void alert(const QString& text,
+               const QString& title = QObject::tr("Alert"),
+               bool scroll = false);
 
     // ========================================================================
     // Confirmation

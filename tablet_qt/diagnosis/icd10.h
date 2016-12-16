@@ -16,10 +16,10 @@
 */
 
 #pragma once
-#include "diagnosticcodeset.h"
 #include <QCoreApplication>  // for Q_DECLARE_TR_FUNCTIONS
 #include <QPair>
 #include <QStack>
+#include "diagnosticcodeset.h"
 
 class CamcopsApp;
 

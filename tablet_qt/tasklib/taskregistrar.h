@@ -17,6 +17,7 @@
 
 #pragma once
 #include <QSqlQuery>
+#include "db/dbfunc.h"
 #include "task.h"
 #include "taskproxy.h"
 

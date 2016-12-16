@@ -20,6 +20,7 @@
 
 import base64
 import binascii
+import logging
 import re
 from typing import Any, Generator, List
 
@@ -44,6 +45,8 @@ REGEX_BLOB_BASE64 = re.compile("""
     """, re.X)  # re.X allows whitespace/comments in regex
 SQLSEP = ","
 SQLQUOTE = "'"
+
+log = logging.getLogger(__name__)
 
 
 # =============================================================================
@@ -148,6 +151,7 @@ def gen_items_from_sql_csv(s: str) -> Generator[str, None, None]:
     within the string passed."""
     # csv.reader will not both process the quotes and return the quotes;
     # we need them to distinguish e.g. NULL from 'NULL'.
+    # log.warning('gen_items_from_sql_csv: s = {}'.format(repr(s)))
     if not s:
         return
     n = len(s)
@@ -159,7 +163,9 @@ def gen_items_from_sql_csv(s: str) -> Generator[str, None, None]:
             if s[pos] == SQLSEP:
                 # end of chunk
                 chunk = s[startpos:pos]  # does not include s[pos]
-                yield chunk.strip()
+                result = chunk.strip()
+                # log.warning('yielding: {}'.format(repr(result)))
+                yield result
                 startpos = pos + 1
             elif s[pos] == SQLQUOTE:
                 # start of quote
@@ -173,7 +179,9 @@ def gen_items_from_sql_csv(s: str) -> Generator[str, None, None]:
                 in_quotes = False
         pos += 1
     # Last chunk
-    yield s[startpos:].strip()
+    result = s[startpos:].strip()
+    # log.warning('yielding last: {}'.format(repr(result)))
+    yield result
 
 
 def decode_single_value(v: str) -> Any:

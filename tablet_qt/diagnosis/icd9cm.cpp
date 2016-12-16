@@ -106,7 +106,14 @@ void Icd9cm::addIndividualIcd9cmCode(const QString& code, const QString& desc,
         m_creation_stack.pop();
     }
     DiagnosticCode* parent = m_creation_stack.top().second;
-    bool selectable = code.length() > 4 && !code.startsWith(RANGE_PREFIX);
+    bool selectable = (
+        (code.length() > 4 && !code.startsWith(RANGE_PREFIX)) ||
+                // plus some specific ones with no children:
+                code == "311" ||
+                code == "316" ||
+                code == "317" ||
+                code == "319"
+    );
     DiagnosticCode* newchild = addCode(parent, code, desc, selectable,
                                        show_code_in_full_name);
     m_creation_stack.push(DepthItemPair(depth, newchild));

@@ -16,7 +16,6 @@
 */
 
 #pragma once
-// #include <QLabel>
 #include <QPointer>
 #include <QPushButton>
 class QLabel;

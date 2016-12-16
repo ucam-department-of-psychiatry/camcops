@@ -841,7 +841,7 @@ def get_batch_details_start_if_needed(sm: SessionManager) \
             uploading_user_id,
             currently_preserving
         FROM {table}
-        WHERE device=?
+        WHERE id=?
     """.format(table=Device.TABLENAME)
     args = [sm.device_id]
     row = pls.db.fetchone(query, *args)
@@ -897,7 +897,7 @@ def start_preserving(sm: SessionManager) -> None:
     pls.db.db_exec("""
         UPDATE {table}
         SET currently_preserving=1
-        WHERE device=?
+        WHERE id=?
     """.format(table=Device.TABLENAME), sm.device_id)
 
 
@@ -1333,10 +1333,15 @@ def upload_table(sm: SessionManager) -> str:
         values = get_values_from_post_var(sm.form, recname)
         nvalues = len(values)
         if nvalues != nfields:
-            fail_user_error(
+            errmsg = (
                 "Number of fields in field list ({nfields}) doesn't match "
                 "number of values in record {r} ({nvalues})".format(
-                    nfields=nfields, r=r, nvalues=nvalues))
+                    nfields=nfields, r=r, nvalues=nvalues)
+            )
+            log.warning(errmsg)
+            log.warning("fields: {}".format(repr(fields)))
+            log.warning("values: {}".format(repr(values)))
+            fail_user_error(errmsg)
         valuedict = dict(list(zip(fields, values)))
         # CORE: CALLS upload_record_core
         oldserverpk, newserverpk = upload_record_core(sm,

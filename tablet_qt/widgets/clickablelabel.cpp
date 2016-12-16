@@ -108,6 +108,7 @@ QSize ClickableLabel::sizeHint() const
     Q_ASSERT(m_label);
     QStyleOptionButton opt;
     initStyleOption(&opt);  // protected
-    return UiFunc::pushButtonSizeHintFromContents(this, &opt,
-                                                  m_label->sizeHint());
+    QSize base_size = m_label->sizeHint();
+    return base_size + UiFunc::pushButtonExtraSizeRequired(this, &opt,
+                                                           base_size);
 }

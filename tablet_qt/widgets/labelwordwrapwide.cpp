@@ -15,8 +15,18 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// Difficulties with the cache:
+// - Particularly in MCQGrid and similar classes, the calculations go off.
+// - These problems go away when the cache is disabled.
+// - They are not solved by invalidating the cache on *any* event. So we
+//   cannot rely on accurate cache invalidation.
+// - However, just caching QLabel::heightForWidth() seems to work.
+//   That's the LWWW_USE_QLABEL_CACHE setting.
+//   I think that is still a fairly expensive thing so caching will help.
+
 // #define DEBUG_LAYOUT
 // #define DEBUG_CALCULATIONS
+// #define DEBUG_CACHE_USE  // it's used quite a lot!
 
 #include "labelwordwrapwide.h"
 #include <QDebug>
@@ -97,14 +107,31 @@ bool LabelWordWrapWide::hasHeightForWidth() const
 
 int LabelWordWrapWide::heightForWidth(int width) const
 {
-    if (m_cached_height_for_width.contains(width)) {
-        return m_cached_height_for_width[width];
-    }
-    int height = QLabel::heightForWidth(width);
+    QSize extra = extraSizeForCssOrLayout();
+    int text_width = width - extra.width();
+    int text_height = qlabelHeightForWidth(text_width);
+    int height = text_height + extra.height();
 #ifdef DEBUG_CALCULATIONS
     qDebug() << Q_FUNC_INFO << "width" << width << "-> height" << height;
 #endif
-    m_cached_height_for_width[width] = height;
+    return height;
+}
+
+
+int LabelWordWrapWide::qlabelHeightForWidth(int width) const
+{
+#ifdef LWWW_USE_QLABEL_CACHE
+    if (m_cached_qlabel_height_for_width.contains(width)) {
+#ifdef DEBUG_CACHE_USE
+        qDebug() << Q_FUNC_INFO << "using cache";
+#endif
+        return m_cached_qlabel_height_for_width[width];
+    }
+#endif
+    int height = QLabel::heightForWidth(width);
+#ifdef LWWW_USE_QLABEL_CACHE
+    m_cached_qlabel_height_for_width[width] = height;
+#endif
     return height;
 }
 
@@ -141,12 +168,18 @@ void LabelWordWrapWide::forceHeight()
     //
     // The complex bit is then in QLabelPrivate::sizeForWidth
 
+    QSize size_with_css = QSize(w, h) + extraSizeForCssOrLayout();
+    // int final_height = h;
+    int final_height = size_with_css.height();
+
 #ifdef DEBUG_CALCULATIONS
     qDebug() << Q_FUNC_INFO << "w" << w << "h" << h
+             << "size_with_css" << size_with_css
+             << "final_height" << final_height
              << "... text:" << text();
 #endif
 
-    setFixedHeight(h);
+    setFixedHeight(final_height);
     updateGeometry();
 }
 
@@ -167,116 +200,162 @@ void LabelWordWrapWide::forceHeight()
 
 QSize LabelWordWrapWide::sizeOfTextWithoutWrap() const
 {
-    if (!m_cached_unwrapped_text_size.isValid()) {
-        // Following the logic of QLabel::minimumSizeHint(), and
-        // QLabelPrivate::sizeForWidth():
+#ifdef LWWW_USE_UNWRAPPED_CACHE
+    if (m_cached_unwrapped_text_size.isValid()) {
+#ifdef DEBUG_CACHE_USE
+        qDebug() << Q_FUNC_INFO << "using cache";
+#endif
+        return m_cached_unwrapped_text_size;
+    }
+#endif
 
-        // HEIGHT: easy
+    // Following the logic of QLabel::minimumSizeHint(), and
+    // QLabelPrivate::sizeForWidth():
 
-        // int height = heightForWidth(QWIDGETSIZE_MAX);
+    // HEIGHT: easy
 
-        // WIDTH: harder?
-        // - For the internal Qt macros like Q_D, see qglobal.h:
-        //   #define Q_D(Class) Class##Private * const d = d_func()
-        //      ... Q_D gives the class a pointer to its private-class member
-        //   #define Q_Q(Class) Class * const q = q_func()
-        //      ... Q_Q gives the private class a pointer to its public-class member
-        // Ah, not that much harder.
-        // - http://stackoverflow.com/questions/1337523/measuring-text-width-in-qt
-        // Compare:
-        // - http://doc.qt.io/qt-5.7/qfontmetrics.html#width
-        // - http://doc.qt.io/qt-5.7/qfontmetrics.html#boundingRect
-        // - http://stackoverflow.com/questions/37671839/how-to-use-qfontmetrics-boundingrect-to-measure-size-of-multilne-message
-        QFontMetrics fm = fontMetrics();
-        // don't use fm.width(text()), that's something else (see Qt docs)
-        QString t = text();
+    // int height = heightForWidth(QWIDGETSIZE_MAX);
 
-        QRect br = fm.boundingRect(QRect(0, 0, QWIDGETSIZE_MAX, QWIDGETSIZE_MAX),
-                                   0,  // definitely not Qt::TextWordWrap
-                                   t);
-        // Right. Potentially some bugs relating to the output of boundingRect
-        // being inconsistent. For example, in the same font, with text =
-        // "Option C1", the size can come back as (60, 84) on one call and (60, 14)
-        // [correct] the next call. I seem not to be alone:
-        // - https://bugreports.qt.io/browse/QTBUG-15974
-        // - ? https://bugreports.qt.io/browse/QTBUG-51024
-        // - http://stackoverflow.com/questions/27336001/qfontmetrics-returns-inaccurate-results
-        // QRect br = fm.boundingRect(QRect(0, 0, 0, 0),
-        //                            Qt::AlignLeft | Qt::AlignTop,
-        //                            t);
-        // Ah, no! The boundingRect is correct; it's the height that's not.
+    // WIDTH: harder?
+    // - For the internal Qt macros like Q_D, see qglobal.h:
+    //   #define Q_D(Class) Class##Private * const d = d_func()
+    //      ... Q_D gives the class a pointer to its private-class member
+    //   #define Q_Q(Class) Class * const q = q_func()
+    //      ... Q_Q gives the private class a pointer to its public-class member
+    // Ah, not that much harder.
+    // - http://stackoverflow.com/questions/1337523/measuring-text-width-in-qt
+    // Compare:
+    // - http://doc.qt.io/qt-5.7/qfontmetrics.html#width
+    // - http://doc.qt.io/qt-5.7/qfontmetrics.html#boundingRect
+    // - http://stackoverflow.com/questions/37671839/how-to-use-qfontmetrics-boundingrect-to-measure-size-of-multilne-message
+    QFontMetrics fm = fontMetrics();
+    // don't use fm.width(text()), that's something else (see Qt docs)
+    QString t = text();
 
-        // int width = br.width();
-        // QSize text_size(width, height);
-        m_cached_unwrapped_text_size = br.size();
+    QRect br = fm.boundingRect(QRect(0, 0, QWIDGETSIZE_MAX, QWIDGETSIZE_MAX),
+                               0,  // definitely not Qt::TextWordWrap
+                               t);
+    // Right. Potentially some bugs relating to the output of boundingRect
+    // being inconsistent. For example, in the same font, with text =
+    // "Option C1", the size can come back as (60, 84) on one call and (60, 14)
+    // [correct] the next call. I seem not to be alone:
+    // - https://bugreports.qt.io/browse/QTBUG-15974
+    // - ? https://bugreports.qt.io/browse/QTBUG-51024
+    // - http://stackoverflow.com/questions/27336001/qfontmetrics-returns-inaccurate-results
+    // QRect br = fm.boundingRect(QRect(0, 0, 0, 0),
+    //                            Qt::AlignLeft | Qt::AlignTop,
+    //                            t);
+    // Ah, no! The boundingRect is correct; it's the height that's not.
+
+    // int width = br.width();
+    // QSize text_size(width, height);
+    QSize unwrapped_text_size = br.size();
 
     #ifdef DEBUG_CALCULATIONS
-        qDebug() << Q_FUNC_INFO << "->" << m_cached_unwrapped_text_size
+        qDebug() << Q_FUNC_INFO << "->" << unwrapped_text_size
                  << "... text:" << t;
     #endif
-    }
-    return m_cached_unwrapped_text_size;
+
+#ifdef LWWW_USE_UNWRAPPED_CACHE
+    m_cached_unwrapped_text_size = unwrapped_text_size;
+#endif
+    return unwrapped_text_size;
 }
 
 
+QSize LabelWordWrapWide::extraSizeForCssOrLayout() const
+{
+#ifdef LWWW_USE_STYLE_CACHE
+    if (m_cached_extra_for_css_or_layout.isValid()) {
+#ifdef DEBUG_CACHE_USE
+        qDebug() << Q_FUNC_INFO << "using cache";
+#endif
+        return m_cached_extra_for_css_or_layout;
+    }
+#endif
+    QSize dummy(0, 0);
+    QStyleOptionFrame opt;
+    initStyleOption(&opt);  // protected
+    QSize extra_for_css_or_layout = UiFunc::labelExtraSizeRequired(
+                this, &opt, dummy);
+#ifdef LWWW_USE_STYLE_CACHE
+    m_cached_extra_for_css_or_layout = extra_for_css_or_layout;
+#endif
+    return extra_for_css_or_layout;
+}
+
+
+#ifdef LWWW_USE_ANY_CACHE
 bool LabelWordWrapWide::event(QEvent* e)
 {
     bool result = QLabel::event(e);
     QEvent::Type type = e->type();
-    if (type == QEvent::Type::Polish ||
-            type == QEvent::Type::FontChange) {
+    switch (type) {
+
+    // Need cache clearing:
+    case QEvent::Type::ContentsRectChange:
+    case QEvent::Type::DynamicPropertyChange:
+    case QEvent::Type::FontChange:
+    case QEvent::Type::Polish:
+    case QEvent::Type::PolishRequest:
+    case QEvent::Type::Resize:
+    case QEvent::Type::StyleChange:
+    case QEvent::Type::ScreenChangeInternal:  // undocumented? But see https://git.merproject.org/mer-core/qtbase/commit/49194275e02a9d6373767d6485bd8ebeeb0abba5
 #ifdef DEBUG_CALCULATIONS
         qDebug() << Q_FUNC_INFO
                  << "event requiring cache clear... text:" << text();
 #endif
         clearCache();
+        break;
+
+    default:
+#ifdef DEBUG_CALCULATIONS
+        qDebug() << Q_FUNC_INFO << "other event:" << type;
+#endif
+        // clearCache();
+        break;
     }
     return result;
 }
+#endif
 
 
 QSize LabelWordWrapWide::sizeHint() const
 {
-    if (!m_cached_size_hint.isValid()) {
-        QSize text_size = sizeOfTextWithoutWrap();
-        // QSize w_smallest_word_h_unclear = QLabel::minimumSizeHint();
-        // text_size.rheight() = heightForWidth(w_smallest_word_h_unclear.width());
+    QSize text_size = sizeOfTextWithoutWrap();
+    // QSize w_smallest_word_h_unclear = QLabel::minimumSizeHint();
+    // text_size.rheight() = heightForWidth(w_smallest_word_h_unclear.width());
 
-        // Needs adjustment for stylesheet?
-        // - In the case of a label inside a pushbutton, the owner (the pushbutton)
-        //   should do this.
-        // - Can a QLabel have its own stylesheet info? Yes:
-        //   http://doc.qt.io/qt-5.7/stylesheet-reference.html
+    // Needs adjustment for stylesheet?
+    // - In the case of a label inside a pushbutton, the owner (the pushbutton)
+    //   should do this.
+    // - Can a QLabel have its own stylesheet info? Yes:
+    //   http://doc.qt.io/qt-5.7/stylesheet-reference.html
 
-        QStyleOptionFrame opt;
-        initStyleOption(&opt);  // protected
-        m_cached_size_hint = UiFunc::frameSizeHintFromContents(
-                    this, &opt, text_size);
+    QSize size_hint = text_size + extraSizeForCssOrLayout();
 #ifdef DEBUG_CALCULATIONS
-        qDebug() << Q_FUNC_INFO << "->" << m_cached_size_hint << "... text:" << text();
+    qDebug() << Q_FUNC_INFO
+             << "text_size" << text_size
+             << "->" << size_hint << "... text:" << text();
 #endif
-    }
-    return m_cached_size_hint;
+    return size_hint;
 }
 
 
 QSize LabelWordWrapWide::minimumSizeHint() const
 {
-    if (!m_cached_minimum_size_hint.isValid()) {
-        QSize w_smallest_word_h_unclear = QLabel::minimumSizeHint();
-        QSize unwrapped_size = sizeOfTextWithoutWrap();
-        QSize smallest_word = QSize(w_smallest_word_h_unclear.width(),
-                                    unwrapped_size.height());
-        QStyleOptionFrame opt;
-        initStyleOption(&opt);  // protected
-        m_cached_minimum_size_hint = UiFunc::frameSizeHintFromContents(
-                    this, &opt, smallest_word);
+    QSize w_smallest_word_h_unclear = QLabel::minimumSizeHint();
+    QSize unwrapped_size = sizeOfTextWithoutWrap();
+    QSize smallest_word = QSize(w_smallest_word_h_unclear.width(),
+                                unwrapped_size.height());
+    QSize minimum_size_hint = smallest_word + extraSizeForCssOrLayout();
 #ifdef DEBUG_CALCULATIONS
-        qDebug() << Q_FUNC_INFO << "->" << m_cached_minimum_size_hint
-                 << "... text:" << text();
+    qDebug() << Q_FUNC_INFO
+             << "smallest_word" << smallest_word
+             << "->" << m_cached_minimum_size_hint
+             << "... text:" << text();
 #endif
-    }
-    return m_cached_minimum_size_hint;
+    return minimum_size_hint;
 }
 
 
@@ -286,15 +365,24 @@ void LabelWordWrapWide::setText(const QString& text)
     qDebug() << Q_FUNC_INFO << text;
 #endif
     QLabel::setText(text);
+#ifdef LWWW_USE_ANY_CACHE
     clearCache();
+#endif
     // forceHeight();
 }
 
 
+#ifdef LWWW_USE_ANY_CACHE
 void LabelWordWrapWide::clearCache()
 {
+#ifdef LWWW_USE_UNWRAPPED_CACHE
     m_cached_unwrapped_text_size = QSize();
-    m_cached_size_hint = QSize();
-    m_cached_minimum_size_hint = QSize();
-    m_cached_height_for_width.clear();
+#endif
+#ifdef LWWW_USE_STYLE_CACHE
+    m_cached_extra_for_css_or_layout = QSize();
+#endif
+#ifdef LWWW_USE_QLABEL_CACHE
+    m_cached_qlabel_height_for_width.clear();
+#endif
 }
+#endif

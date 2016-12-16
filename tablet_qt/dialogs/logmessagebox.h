@@ -17,28 +17,21 @@
 
 #pragma once
 #include <QDialog>
-#include <QList>
-#include "questionnairelib/pagepickeritem.h"
+#include <QPointer>
+class QPlainTextEdit;
 
 
-class PagePickerDialog : public QDialog
+class LogMessageBox : public QDialog
 {
-    // Choose pages for a Questionnaire.
-    // Displays pages that you may be unable to choose, as well.
+    // Modal and blocking dialogue, used for displaying console-style text
+    // and allowing copy/paste. Use exec().
 
     Q_OBJECT
-
-    using PagePickerItemList = QList<PagePickerItem>;
-
 public:
-    PagePickerDialog(QWidget* parent, const PagePickerItemList& pages,
-                     const QString& title = "");
-    virtual int choose(int* new_page_number);
-    virtual bool event(QEvent* e) override;
+    LogMessageBox(QWidget* parent, const QString& title, const QString& text,
+                  bool as_html = false);
 protected slots:
-    void itemClicked(int item_index);
+    void copyClicked();
 protected:
-    PagePickerItemList m_pages;
-    QString m_title;
-    int* m_new_page_number;
+    QPointer<QPlainTextEdit> m_editor;
 };

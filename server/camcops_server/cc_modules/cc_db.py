@@ -83,6 +83,7 @@ SQLTYPE = AttrDict({
     "SEX": "VARCHAR(1)",
     "TABLENAME": "VARCHAR(255)",
     "TEXT": "TEXT",
+    "TIME": "TIME",  # v2
     "TOKEN": "VARCHAR(50)",
     "USERNAME": "VARCHAR(255)",
     "STOREDVARNAME": "VARCHAR(255)",  # probably overkill!

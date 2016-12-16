@@ -23,6 +23,7 @@
 #include "common/camcopsapp.h"
 #include "common/uiconstants.h"
 #include "lib/uifunc.h"
+#include "lib/slowguiguard.h"
 #include "lib/slownonguifunctioncaller.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/aspectratiopixmaplabel.h"

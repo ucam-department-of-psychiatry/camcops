@@ -27,8 +27,8 @@ namespace DateTime {
     extern const QString TEXT_DATE_FORMAT;
     extern const QString UNKNOWN;
 
-    QString datetimeToIsoMs(const QDateTime& dt);
-    QString datetimeToIsoMsUtc(const QDateTime& dt);
+    QString datetimeToIsoMs(const QDateTime& dt, bool use_z_timezone = false);
+    QString datetimeToIsoMsUtc(const QDateTime& dt, bool use_z_timezone = false);
     QDateTime isoToDateTime(const QString& iso);
     QDateTime now();
     QDate nowDate();

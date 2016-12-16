@@ -17,7 +17,6 @@
 
 #pragma once
 #include <QString>
-#include "dialogs/waitbox.h"
 
 class QApplication;
 class QWidget;

@@ -63,7 +63,7 @@ const QString TAG_POLICY_FINALIZE_FAIL("finalize_fail");
 
 
 Patient::Patient(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
-    DatabaseObject(db, TABLENAME, DbConst::PK_FIELDNAME, true, true),
+    DatabaseObject(db, TABLENAME, DbConst::PK_FIELDNAME, true, false),
     m_app(app),
     m_questionnaire(nullptr)
 {

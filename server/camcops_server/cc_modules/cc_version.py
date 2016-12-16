@@ -23,7 +23,8 @@
 # =============================================================================
 
 # FOR NOW, needs to be a string interpretable as a float.
-CAMCOPS_SERVER_VERSION = "1.50"
+CAMCOPS_SERVER_VERSION = "2.0"
+# *** change to use semver
 
 CAMCOPS_CHANGEDATE = "2016-12-06"
 

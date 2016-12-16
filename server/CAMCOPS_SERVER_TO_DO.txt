@@ -92,6 +92,8 @@ THOUGHTS/POTENTIAL THINGS TO DO
     - Views: easy to add by hand.
     - For other applications: easily talks to two engines at once: http://docs.sqlalchemy.org/en/rel_0_5/session.html#session-partitioning
     - get-or-create idiom: http://stackoverflow.com/questions/2546207/does-sqlalchemy-have-an-equivalent-of-djangos-get-or-create
+    - creating n fields programmatically, e.g. id numbers:
+
 - potentially Pyramid or a similar framework; over and above SQLAlchemy, would bring (a) templating, e.g. Mako; (b) URL routing.
     - PREREQUISITES WOULD BE: correct URL routing when hosted at a sub-path; server-side sessions without too much faff.
   However, could also make better use of named string.format() arguments, and URL routing has some of its own complexities.

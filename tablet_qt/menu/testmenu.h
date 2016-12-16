@@ -41,6 +41,7 @@ protected:
     void testProgress();
     void testWait();
     void expensiveFunction();
+    void testSizeFormatter();
 
 protected:
     QSharedPointer<QMediaPlayer> m_player;

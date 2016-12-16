@@ -21,12 +21,14 @@
 #include "camcopsapp.h"
 #include <QApplication>
 #include <QDateTime>
+#include <QIcon>
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QSqlDatabase>
 #include <QStackedWidget>
 #include <QUuid>
 #include "common/camcopsversion.h"
+#include "common/dbconstants.h"  // for NONEXISTENT_PK
 #include "common/uiconstants.h"
 #include "common/varconst.h"
 #include "common/version.h"
@@ -34,6 +36,7 @@
 #include "db/dbfunc.h"
 #include "db/dbnestabletransaction.h"
 #include "db/dbtransaction.h"
+#include "db/dumpsql.h"
 #include "dbobjects/blob.h"
 #include "dbobjects/extrastring.h"
 #include "dbobjects/patient.h"
@@ -230,6 +233,9 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     // Qt stuff
     // ------------------------------------------------------------------------
     setStyleSheet(getSubstitutedCss(UiConst::CSS_CAMCOPS_MAIN));
+
+    // Special for top-level window:
+    setWindowIcon(QIcon(UiFunc::iconFilename(UiConst::ICON_CAMCOPS)));
 }
 
 
@@ -992,9 +998,9 @@ bool CamcopsApp::cachedVarChanged(const QString& name) const
 }
 
 
-// ------------------------------------------------------------------------
+// ============================================================================
 // Terms and conditions
-// ------------------------------------------------------------------------
+// ============================================================================
 
 bool CamcopsApp::hasAgreedTerms() const
 {
@@ -1031,4 +1037,19 @@ void CamcopsApp::offerTerms()
         // Refused terms
         UiFunc::stopApp(tr("OK. Goodbye."), tr("You refused the conditions."));
     }
+}
+
+// ============================================================================
+// SQL dumping
+// ============================================================================
+
+void CamcopsApp::dumpDataDatabase(QTextStream& os)
+{
+    DumpSql::dumpDatabase(os, m_datadb);
+}
+
+
+void CamcopsApp::dumpSystemDatabase(QTextStream& os)
+{
+    DumpSql::dumpDatabase(os, m_sysdb);
 }

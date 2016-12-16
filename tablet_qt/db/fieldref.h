@@ -138,7 +138,3 @@ protected:
     CamcopsApp* m_app;
     QString m_storedvar_name;
 };
-
-
-using FieldRefPtr = QSharedPointer<FieldRef>;
-using FieldRefPtrList = QList<FieldRefPtr>;

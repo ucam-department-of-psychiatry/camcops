@@ -16,11 +16,11 @@
 */
 
 #pragma once
-#include "quelement.h"
 #include <functional>
 #include <QMap>
 #include <QString>
 #include <QVariant>
+#include "quelement.h"
 
 
 class QuButton : public QuElement

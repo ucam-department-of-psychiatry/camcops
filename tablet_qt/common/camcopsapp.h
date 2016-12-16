@@ -22,25 +22,21 @@
 #include <QSharedPointer>
 #include <QSqlDatabase>
 #include <QStack>
-#include "common/dbconstants.h"  // for NONEXISTENT_PK
+#include "common/aliases_camcops.h"
 #include "common/uiconstants.h"  // for FontSize
 #include "crypto/secureqstring.h"
 #include "db/fieldref.h"  // for FieldRefPtr
 #include "dbobjects/patient.h"
-#include "lib/slowguiguard.h"
 #include "tasklib/task.h"  // for TaskPtr
 
+class IdPolicy;
 class NetworkManager;
 class OpenableWidget;
-using PatientPtr = QSharedPointer<Patient>;
-using PatientPtrList = QList<PatientPtr>;
 class QSqlDatabase;
 class QMainWindow;
 class QStackedWidget;
-class StoredVar;
-using StoredVarPtr = QSharedPointer<StoredVar>;
-class TaskFactory;
-using TaskFactoryPtr = QSharedPointer<TaskFactory>;
+class QTextStream;
+class SlowGuiGuard;
 class Version;
 
 
@@ -238,6 +234,13 @@ public:
 protected:
     bool hasAgreedTerms() const;
     void offerTerms();
+
+    // ------------------------------------------------------------------------
+    // SQL dumping
+    // ------------------------------------------------------------------------
+public:
+    void dumpDataDatabase(QTextStream& os);
+    void dumpSystemDatabase(QTextStream& os);
 
     // ------------------------------------------------------------------------
     // Internal data

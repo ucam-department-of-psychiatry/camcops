@@ -18,7 +18,6 @@
 #pragma once
 #include <QSqlDatabase>
 #include "common/dbconstants.h"
-#include "db/dbfunc.h"
 #include "task.h"
 
 class TaskFactory;

@@ -24,13 +24,12 @@
 #include <QSslError>
 #include <QString>
 #include <QUrl>
+#include "common/aliases_camcops.h"
 
 class CamcopsApp;
 class LogBox;
 class QNetworkAccessManager;
 class QNetworkReply;
-class TaskFactory;
-using TaskFactoryPtr = QSharedPointer<TaskFactory>;
 
 
 class NetworkManager : public QObject
@@ -84,6 +83,7 @@ protected:
     void serverPost(Dict dict, ReplyFuncPtr reply_func,
                     bool include_user = true);
     bool processServerReply(QNetworkReply* reply);
+    QString sizeBytes(qint64 size);
     RecordList getRecordList();
     bool replyReportsSuccess();
     void cleanup();
@@ -129,7 +129,6 @@ public:
 protected:
     bool isPatientInfoComplete();
     void applyPatientMoveOffTabletFlagsToTasks();
-    void clearTaskMoveOffTabletFlags();
     void writeIdDescriptionsToPatientTable();
     void catalogueTablesForUpload();
     void checkDeviceRegistered();
@@ -145,6 +144,7 @@ protected:
     void sendNextRecord();
     void endUpload();
     void wipeTables();
+    void queryFail(const QString& sql);
 
     // ------------------------------------------------------------------------
     // Signals

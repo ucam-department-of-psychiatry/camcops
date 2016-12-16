@@ -97,6 +97,26 @@ QString DbFunc::selectColumns(const QStringList& columns, const QString& table)
 }
 
 
+SqlArgs DbFunc::updateColumns(const UpdateValues& updatevalues,
+                              const QString& table)
+{
+    QStringList columns;
+    ArgList args;
+    QMapIterator<QString, QVariant> it(updatevalues);
+    while (it.hasNext()) {
+        it.next();
+        QString column = it.key();
+        QVariant value = it.value();
+        columns.append(QString("%1=?").arg(delimit(column)));
+        args.append(value);
+    }
+    QString sql = QString("UPDATE %1 SET %2")
+            .arg(delimit(table))
+            .arg(columns.join(", "));
+    return SqlArgs(sql, args);
+}
+
+
 void DbFunc::addWhereClause(const WhereConditions& where,
                             SqlArgs& sqlargs_altered)
 {
@@ -247,23 +267,23 @@ QVariant DbFunc::dbFetchFirstValue(const QSqlDatabase& db, const QString& sql)
 
 
 int DbFunc::dbFetchInt(const QSqlDatabase& db, const SqlArgs& sqlargs,
-                       int failureDefault)
+                       int failure_default)
 {
     // Executes the specified SQL/args and returns the integer value of the
     // first field of the first result (or failureDefault).
     QSqlQuery query(db);
     execQuery(query, sqlargs);
     if (!query.next()) {
-        return failureDefault;
+        return failure_default;
     }
     return query.value(0).toInt();
 }
 
 
 int DbFunc::dbFetchInt(const QSqlDatabase& db, const QString& sql,
-                       int failureDefault)
+                       int failure_default)
 {
-    return dbFetchInt(db, SqlArgs(sql), failureDefault);
+    return dbFetchInt(db, SqlArgs(sql), failure_default);
 }
 
 
