@@ -67,6 +67,16 @@ QList<QuElementPtr> QuElement::subelements() const
 }
 
 
+QList<QuElement*> QuElement::subelementsRaw() const
+{
+    QList<QuElement*> raw;
+    for (auto e : subelements()) {
+        raw.append(e.data());
+    }
+    return raw;
+}
+
+
 bool QuElement::missingInput() const
 {
     FieldRefPtrList frefs = fieldrefs();

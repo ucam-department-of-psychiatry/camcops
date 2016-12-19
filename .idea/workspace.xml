@@ -9,38 +9,65 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d507af95-9eb5-49a8-90aa-7921b1aee6f4" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/CAMCOPS_SERVER_TO_DO.txt" afterPath="$PROJECT_DIR$/server/CAMCOPS_SERVER_TO_DO.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/camcops.py" afterPath="$PROJECT_DIR$/server/camcops_server/camcops.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_convert.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_convert.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_db.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_db.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_task.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_task.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_version.py" afterPath="$PROJECT_DIR$/server/camcops_server/cc_modules/cc_version.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/database.py" afterPath="$PROJECT_DIR$/server/camcops_server/database.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/demoquestionnaire.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/demoquestionnaire.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/setup.py" afterPath="$PROJECT_DIR$/server/setup.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/common/aliases_camcops.h" afterPath="$PROJECT_DIR$/tablet_qt/common/aliases_camcops.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/common/camcopsapp.cpp" afterPath="$PROJECT_DIR$/tablet_qt/common/camcopsapp.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/common/camcopsapp.h" afterPath="$PROJECT_DIR$/tablet_qt/common/camcopsapp.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/dbfunc.cpp" afterPath="$PROJECT_DIR$/tablet_qt/db/dbfunc.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/dbfunc.h" afterPath="$PROJECT_DIR$/tablet_qt/db/dbfunc.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/databaseobject.cpp" afterPath="$PROJECT_DIR$/tablet_qt/db/databaseobject.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/databaseobject.h" afterPath="$PROJECT_DIR$/tablet_qt/db/databaseobject.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/dumpsql.cpp" afterPath="$PROJECT_DIR$/tablet_qt/db/dumpsql.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/dumpsql.h" afterPath="$PROJECT_DIR$/tablet_qt/db/dumpsql.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/fieldref.cpp" afterPath="$PROJECT_DIR$/tablet_qt/db/fieldref.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/fieldref.h" afterPath="$PROJECT_DIR$/tablet_qt/db/fieldref.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dbobjects/blob.cpp" afterPath="$PROJECT_DIR$/tablet_qt/dbobjects/blob.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dbobjects/blob.h" afterPath="$PROJECT_DIR$/tablet_qt/dbobjects/blob.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dbobjects/extrastring.cpp" afterPath="$PROJECT_DIR$/tablet_qt/dbobjects/extrastring.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dbobjects/extrastring.h" afterPath="$PROJECT_DIR$/tablet_qt/dbobjects/extrastring.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dbobjects/patient.cpp" afterPath="$PROJECT_DIR$/tablet_qt/dbobjects/patient.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dbobjects/patient.h" afterPath="$PROJECT_DIR$/tablet_qt/dbobjects/patient.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dbobjects/storedvar.cpp" afterPath="$PROJECT_DIR$/tablet_qt/dbobjects/storedvar.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dbobjects/storedvar.h" afterPath="$PROJECT_DIR$/tablet_qt/dbobjects/storedvar.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/diagnosis/diagnosticcodeset.cpp" afterPath="$PROJECT_DIR$/tablet_qt/diagnosis/diagnosticcodeset.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/diagnosis/diagnosticcodeset.h" afterPath="$PROJECT_DIR$/tablet_qt/diagnosis/diagnosticcodeset.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/diagnosis/icd10.cpp" afterPath="$PROJECT_DIR$/tablet_qt/diagnosis/icd10.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/diagnosis/icd10.h" afterPath="$PROJECT_DIR$/tablet_qt/diagnosis/icd10.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/diagnosis/icd9cm.cpp" afterPath="$PROJECT_DIR$/tablet_qt/diagnosis/icd9cm.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dialogs/logbox.cpp" afterPath="$PROJECT_DIR$/tablet_qt/dialogs/logbox.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/diagnosis/icd9cm.h" afterPath="$PROJECT_DIR$/tablet_qt/diagnosis/icd9cm.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/convert.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/convert.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/datetimefunc.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/datetimefunc.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/datetimefunc.h" afterPath="$PROJECT_DIR$/tablet_qt/lib/datetimefunc.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/convert.h" afterPath="$PROJECT_DIR$/tablet_qt/lib/convert.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/layoutdumper.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/layoutdumper.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/networkmanager.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/networkmanager.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/networkmanager.h" afterPath="$PROJECT_DIR$/tablet_qt/lib/networkmanager.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/uifunc.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/uifunc.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/uifunc.h" afterPath="$PROJECT_DIR$/tablet_qt/lib/uifunc.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/alltasksmenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/alltasksmenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/choosepatientmenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/choosepatientmenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/choosepatientmenu.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/choosepatientmenu.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/mainmenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/mainmenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/patientsummarymenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/patientsummarymenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/settingsmenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/settingsmenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/singletaskmenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/singletaskmenu.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/singletaskmenu.h" afterPath="$PROJECT_DIR$/tablet_qt/menu/singletaskmenu.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/menuheader.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menulib/menuheader.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/menuheader.h" afterPath="$PROJECT_DIR$/tablet_qt/menulib/menuheader.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/menuitem.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menulib/menuitem.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/menuitem.h" afterPath="$PROJECT_DIR$/tablet_qt/menulib/menuitem.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/menuwindow.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menulib/menuwindow.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/menuwindow.h" afterPath="$PROJECT_DIR$/tablet_qt/menulib/menuwindow.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/notes/qt_notes.txt" afterPath="$PROJECT_DIR$/tablet_qt/notes/qt_notes.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quelement.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quelement.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quelement.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quelement.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnaire.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnaire.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnaire.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnaire.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnairefunc.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnairefunc.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qupage.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qupage.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qupage.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qupage.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qutext.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qutext.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qutext.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qutext.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasklib/task.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasklib/task.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasklib/task.h" afterPath="$PROJECT_DIR$/tablet_qt/tasklib/task.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasklib/taskfactory.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasklib/taskfactory.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasklib/taskfactory.h" afterPath="$PROJECT_DIR$/tablet_qt/tasklib/taskfactory.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasks/demoquestionnaire.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasks/demoquestionnaire.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/clickablelabel.cpp" afterPath="$PROJECT_DIR$/tablet_qt/widgets/clickablelabel.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/clickablelabelwordwrapwide.cpp" afterPath="$PROJECT_DIR$/tablet_qt/widgets/clickablelabelwordwrapwide.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/labelwordwrapwide.cpp" afterPath="$PROJECT_DIR$/tablet_qt/widgets/labelwordwrapwide.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/labelwordwrapwide.h" afterPath="$PROJECT_DIR$/tablet_qt/widgets/labelwordwrapwide.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/widgets/camera.cpp" afterPath="$PROJECT_DIR$/tablet_qt/widgets/camera.cpp" />
     </list>
     <ignored path="camcops.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -66,78 +93,9 @@
           <file leaf-file-name="camcops.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/server/camcops_server/camcops.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="7917">
+                <state relative-caret-position="7943">
                   <caret line="611" column="0" lean-forward="false" selection-start-line="611" selection-start-column="0" selection-end-line="611" selection-end-column="0" />
-                  <folding>
-                    <marker date="1481802611136" expanded="true" signature="12705:20174" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="17231:20174" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="20177:20873" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="20939:24661" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="21409:21554" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="21428:21519" ph="&quot;...&quot;" />
-                    <marker date="1481802611136" expanded="true" signature="21687:21956" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="21719:21837" ph="&quot;...&quot;" />
-                    <marker date="1481802611136" expanded="true" signature="22004:22162" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="22036:22127" ph="&quot;...&quot;" />
-                    <marker date="1481802611136" expanded="true" signature="22212:22382" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="22244:22347" ph="&quot;...&quot;" />
-                    <marker date="1481802611136" expanded="true" signature="22765:22852" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="23097:23186" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="24476:24598" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="24707:25142" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="25176:26255" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="25181:25464" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                    <marker date="1481802611136" expanded="true" signature="25674:25930" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="26306:27187" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="26530:27103" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="26589:27103" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="26898:27010" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="27219:27757" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="27376:27433" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="27592:27661" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="27789:28310" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="27945:28001" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="28140:28209" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="28343:28638" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="28526:28582" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="28641:28811" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="28832:30338" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="30206:30259" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="30341:30525" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="30550:39007" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="30760:30859" ph="&quot;...&quot;" />
-                    <marker date="1481802611136" expanded="true" signature="31230:31346" ph="&quot;...&quot;" />
-                    <marker date="1481802611136" expanded="true" signature="33542:33741" ph="&quot;...&quot;" />
-                    <marker date="1481802611136" expanded="true" signature="34065:34188" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="34282:34407" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="34412:34509" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="34746:34957" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="34769:34904" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="34788:34903" ph="&quot;...&quot;" />
-                    <marker date="1481802611136" expanded="true" signature="34997:35147" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="35012:35132" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                    <marker date="1481802611136" expanded="true" signature="35182:35353" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="35197:35338" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                    <marker date="1481802611136" expanded="true" signature="35413:35690" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="35720:35770" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="35794:35882" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="35910:35963" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="35987:36035" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="36058:36106" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="36133:36195" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="36220:36269" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="36287:36357" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="36386:36476" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="36502:36569" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="36588:36626" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="36651:36704" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="36727:36859" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="36887:39007" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="36902:37566" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                    <marker date="1481802611136" expanded="true" signature="37721:37805" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="37964:38051" ph="..." />
-                    <marker date="1481802611136" expanded="true" signature="39010:39196" ph="..." />
-                  </folding>
+                  <folding />
                 </state>
               </provider>
             </entry>
@@ -145,7 +103,7 @@
           <file leaf-file-name="demoquestionnaire.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/demoquestionnaire.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="1937">
+                <state relative-caret-position="2093">
                   <caret line="161" column="18" lean-forward="false" selection-start-line="161" selection-start-column="18" selection-end-line="161" selection-end-column="18" />
                   <folding />
                 </state>
@@ -157,84 +115,7 @@
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="650">
                   <caret line="50" column="18" lean-forward="false" selection-start-line="50" selection-start-column="10" selection-end-line="50" selection-end-column="18" />
-                  <folding>
-                    <marker date="1481805008345" expanded="true" signature="1532:2864" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="2764:2863" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="2869:3092" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="3508:4943" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="3513:4330" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                    <marker date="1481805008345" expanded="true" signature="4430:4921" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="4564:4730" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="5015:5223" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="5226:5437" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="5484:5578" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="5623:5719" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="5762:5807" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="5883:6157" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="5888:6023" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                    <marker date="1481805008345" expanded="true" signature="6255:6469" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="6260:6390" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                    <marker date="1481805008345" expanded="true" signature="6472:6652" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="6704:6830" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="6728:6829" ph="&quot;...&quot;" />
-                    <marker date="1481805008345" expanded="true" signature="7050:7399" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="7650:8275" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="7803:7894" ph="&quot;...&quot;" />
-                    <marker date="1481805008345" expanded="true" signature="7908:7990" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="8032:8120" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="8334:8494" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="8835:10267" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="8840:9002" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                    <marker date="1481805008345" expanded="true" signature="9137:9337" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                    <marker date="1481805008345" expanded="true" signature="9462:9669" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="9682:9764" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="9806:10080" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="9861:10038" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="10522:11393" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="10570:10753" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                    <marker date="1481805008345" expanded="true" signature="10934:11016" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="11074:11162" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="11704:12137" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="11809:11954" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                    <marker date="1481805008345" expanded="true" signature="12296:12420" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="12689:13438" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="12694:12860" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                    <marker date="1481805008345" expanded="true" signature="13018:13098" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="13741:13966" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="14426:14839" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="14712:14839" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="14997:15452" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="15111:15315" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                    <marker date="1481805008345" expanded="true" signature="15361:15418" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="15455:15625" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="15701:16168" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="15783:15886" ph="&quot;...&quot;" />
-                    <marker date="1481805008345" expanded="true" signature="15910:16168" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="16170:16547" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="16626:16915" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="16795:16915" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="17107:17585" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="17765:17996" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="18247:18559" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="18772:19039" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="19093:19309" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="19149:19263" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                    <marker date="1481805008345" expanded="true" signature="19365:20953" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="19370:19575" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                    <marker date="1481805008345" expanded="true" signature="19605:19969" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                    <marker date="1481805008345" expanded="true" signature="20065:20384" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                    <marker date="1481805008345" expanded="true" signature="20447:20547" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="20463:20537" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                    <marker date="1481805008345" expanded="true" signature="20559:20855" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                    <marker date="1481805008345" expanded="true" signature="21121:21608" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="21199:21529" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                    <marker date="1481805008345" expanded="true" signature="21760:21932" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                    <marker date="1481805008345" expanded="true" signature="21978:22398" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                    <marker date="1481805008345" expanded="true" signature="22537:22856" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                    <marker date="1481805008345" expanded="true" signature="22922:23022" ph="..." />
-                    <marker date="1481805008345" expanded="true" signature="22938:23012" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                    <marker date="1481805008345" expanded="true" signature="23034:23330" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                  </folding>
+                  <folding />
                 </state>
               </provider>
             </entry>
@@ -253,7 +134,7 @@
             <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_task.py">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="141">
-                  <caret line="2828" column="54" lean-forward="true" selection-start-line="2828" selection-start-column="54" selection-end-line="2828" selection-end-column="54" />
+                  <caret line="2828" column="54" lean-forward="false" selection-start-line="2828" selection-start-column="54" selection-end-line="2828" selection-end-column="54" />
                   <folding>
                     <marker date="1481809808249" expanded="true" signature="45888:46098" ph="UPDATE missi... " />
                     <marker date="1481809808249" expanded="true" signature="50664:50977" ph="SELECT missi... " />
@@ -273,7 +154,7 @@
           <file leaf-file-name="CAMCOPS_SERVER_TO_DO.txt" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/server/CAMCOPS_SERVER_TO_DO.txt">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="1222">
+                <state relative-caret-position="1248">
                   <caret line="96" column="58" lean-forward="false" selection-start-line="96" selection-start-column="58" selection-end-line="96" selection-end-column="58" />
                   <folding />
                 </state>
@@ -303,7 +184,7 @@
           <file leaf-file-name="cc_convert.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_convert.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="3328">
+                <state relative-caret-position="3432">
                   <caret line="264" column="0" lean-forward="false" selection-start-line="264" selection-start-column="0" selection-end-line="264" selection-end-column="0" />
                   <folding />
                 </state>
@@ -313,7 +194,7 @@
           <file leaf-file-name="cc_version.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_version.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="390">
+                <state relative-caret-position="403">
                   <caret line="31" column="0" lean-forward="false" selection-start-line="31" selection-start-column="0" selection-end-line="31" selection-end-column="0" />
                   <folding />
                 </state>
@@ -1034,7 +915,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="435">
           <caret line="38" column="4" lean-forward="false" selection-start-line="38" selection-start-column="4" selection-end-line="38" selection-end-column="4" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1042,7 +922,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="4665">
           <caret line="324" column="28" lean-forward="false" selection-start-line="324" selection-start-column="28" selection-end-line="324" selection-end-column="28" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1090,7 +969,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_version.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="390">
+        <state relative-caret-position="403">
           <caret line="31" column="0" lean-forward="false" selection-start-line="31" selection-start-column="0" selection-end-line="31" selection-end-column="0" />
           <folding />
         </state>
@@ -1098,7 +977,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_convert.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3328">
+        <state relative-caret-position="3432">
           <caret line="264" column="0" lean-forward="false" selection-start-line="264" selection-start-column="0" selection-end-line="264" selection-end-column="0" />
           <folding />
         </state>
@@ -1106,78 +985,9 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/server/camcops_server/camcops.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="7917">
+        <state relative-caret-position="7943">
           <caret line="611" column="0" lean-forward="false" selection-start-line="611" selection-start-column="0" selection-end-line="611" selection-end-column="0" />
-          <folding>
-            <marker date="1481802611136" expanded="true" signature="12705:20174" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="17231:20174" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="20177:20873" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="20939:24661" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="21409:21554" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="21428:21519" ph="&quot;...&quot;" />
-            <marker date="1481802611136" expanded="true" signature="21687:21956" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="21719:21837" ph="&quot;...&quot;" />
-            <marker date="1481802611136" expanded="true" signature="22004:22162" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="22036:22127" ph="&quot;...&quot;" />
-            <marker date="1481802611136" expanded="true" signature="22212:22382" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="22244:22347" ph="&quot;...&quot;" />
-            <marker date="1481802611136" expanded="true" signature="22765:22852" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="23097:23186" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="24476:24598" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="24707:25142" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="25176:26255" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="25181:25464" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1481802611136" expanded="true" signature="25674:25930" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="26306:27187" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="26530:27103" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="26589:27103" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="26898:27010" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="27219:27757" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="27376:27433" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="27592:27661" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="27789:28310" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="27945:28001" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="28140:28209" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="28343:28638" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="28526:28582" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="28641:28811" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="28832:30338" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="30206:30259" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="30341:30525" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="30550:39007" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="30760:30859" ph="&quot;...&quot;" />
-            <marker date="1481802611136" expanded="true" signature="31230:31346" ph="&quot;...&quot;" />
-            <marker date="1481802611136" expanded="true" signature="33542:33741" ph="&quot;...&quot;" />
-            <marker date="1481802611136" expanded="true" signature="34065:34188" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="34282:34407" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="34412:34509" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="34746:34957" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="34769:34904" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="34788:34903" ph="&quot;...&quot;" />
-            <marker date="1481802611136" expanded="true" signature="34997:35147" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="35012:35132" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1481802611136" expanded="true" signature="35182:35353" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="35197:35338" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1481802611136" expanded="true" signature="35413:35690" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="35720:35770" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="35794:35882" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="35910:35963" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="35987:36035" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="36058:36106" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="36133:36195" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="36220:36269" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="36287:36357" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="36386:36476" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="36502:36569" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="36588:36626" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="36651:36704" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="36727:36859" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="36887:39007" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="36902:37566" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1481802611136" expanded="true" signature="37721:37805" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="37964:38051" ph="..." />
-            <marker date="1481802611136" expanded="true" signature="39010:39196" ph="..." />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1191,7 +1001,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/server/CAMCOPS_SERVER_TO_DO.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1222">
+        <state relative-caret-position="1248">
           <caret line="96" column="58" lean-forward="false" selection-start-line="96" selection-start-column="58" selection-end-line="96" selection-end-column="58" />
           <folding />
         </state>
@@ -1209,84 +1019,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="650">
           <caret line="50" column="18" lean-forward="false" selection-start-line="50" selection-start-column="10" selection-end-line="50" selection-end-column="18" />
-          <folding>
-            <marker date="1481805008345" expanded="true" signature="1532:2864" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="2764:2863" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="2869:3092" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="3508:4943" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="3513:4330" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1481805008345" expanded="true" signature="4430:4921" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="4564:4730" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="5015:5223" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="5226:5437" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="5484:5578" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="5623:5719" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="5762:5807" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="5883:6157" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="5888:6023" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1481805008345" expanded="true" signature="6255:6469" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="6260:6390" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1481805008345" expanded="true" signature="6472:6652" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="6704:6830" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="6728:6829" ph="&quot;...&quot;" />
-            <marker date="1481805008345" expanded="true" signature="7050:7399" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="7650:8275" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="7803:7894" ph="&quot;...&quot;" />
-            <marker date="1481805008345" expanded="true" signature="7908:7990" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="8032:8120" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="8334:8494" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="8835:10267" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="8840:9002" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1481805008345" expanded="true" signature="9137:9337" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1481805008345" expanded="true" signature="9462:9669" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="9682:9764" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="9806:10080" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="9861:10038" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="10522:11393" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="10570:10753" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1481805008345" expanded="true" signature="10934:11016" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="11074:11162" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="11704:12137" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="11809:11954" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1481805008345" expanded="true" signature="12296:12420" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="12689:13438" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="12694:12860" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1481805008345" expanded="true" signature="13018:13098" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="13741:13966" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="14426:14839" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="14712:14839" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="14997:15452" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="15111:15315" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1481805008345" expanded="true" signature="15361:15418" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="15455:15625" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="15701:16168" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="15783:15886" ph="&quot;...&quot;" />
-            <marker date="1481805008345" expanded="true" signature="15910:16168" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="16170:16547" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="16626:16915" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="16795:16915" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="17107:17585" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="17765:17996" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="18247:18559" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="18772:19039" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="19093:19309" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="19149:19263" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1481805008345" expanded="true" signature="19365:20953" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="19370:19575" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1481805008345" expanded="true" signature="19605:19969" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1481805008345" expanded="true" signature="20065:20384" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1481805008345" expanded="true" signature="20447:20547" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="20463:20537" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1481805008345" expanded="true" signature="20559:20855" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1481805008345" expanded="true" signature="21121:21608" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="21199:21529" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1481805008345" expanded="true" signature="21760:21932" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1481805008345" expanded="true" signature="21978:22398" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1481805008345" expanded="true" signature="22537:22856" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1481805008345" expanded="true" signature="22922:23022" ph="..." />
-            <marker date="1481805008345" expanded="true" signature="22938:23012" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1481805008345" expanded="true" signature="23034:23330" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1300,8 +1033,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/demoquestionnaire.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1937">
-          <caret line="161" column="18" lean-forward="false" selection-start-line="161" selection-start-column="18" selection-end-line="161" selection-end-column="18" />
+        <state relative-caret-position="836">
+          <caret line="88" column="0" lean-forward="false" selection-start-line="88" selection-start-column="0" selection-end-line="88" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -1309,7 +1042,7 @@
     <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_task.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="141">
-          <caret line="2828" column="54" lean-forward="true" selection-start-line="2828" selection-start-column="54" selection-end-line="2828" selection-end-column="54" />
+          <caret line="2828" column="54" lean-forward="false" selection-start-line="2828" selection-start-column="54" selection-end-line="2828" selection-end-column="54" />
           <folding>
             <marker date="1481809808249" expanded="true" signature="45888:46098" ph="UPDATE missi... " />
             <marker date="1481809808249" expanded="true" signature="50664:50977" ph="SELECT missi... " />

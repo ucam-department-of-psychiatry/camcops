@@ -93,8 +93,8 @@ Camera::~Camera()
 
 void Camera::commonConstructor(const QString& stylesheet)
 {
-    m_camera = QSharedPointer<QCamera>(nullptr);
-    m_capture = QSharedPointer<QCameraImageCapture>(nullptr);
+    m_camera.clear();
+    m_capture.clear();
     m_ready = false;
     m_capturing_image = false;
     m_exiting = false;

@@ -128,8 +128,8 @@ public:
     void upload(UploadMethod method);
 protected:
     bool isPatientInfoComplete();
-    void applyPatientMoveOffTabletFlagsToTasks();
-    void writeIdDescriptionsToPatientTable();
+    bool applyPatientMoveOffTabletFlagsToTasks();
+    bool writeIdDescriptionsToPatientTable();
     void catalogueTablesForUpload();
     void checkDeviceRegistered();
     void uploadNext(QNetworkReply* reply);
@@ -145,6 +145,9 @@ protected:
     void endUpload();
     void wipeTables();
     void queryFail(const QString& sql);
+    void queryFailClearingMoveOffFlag(const QString& tablename);
+    bool clearMoveOffTabletFlag(const QString& tablename);
+    bool pruneDeadBlobs();
 
     // ------------------------------------------------------------------------
     // Signals

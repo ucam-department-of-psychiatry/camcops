@@ -15,7 +15,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-// #define OFFER_LAYOUT_DEBUG_BUTTON
+#define OFFER_LAYOUT_DEBUG_BUTTON
 #define SHOW_TASK_TIMING
 
 #include "menuwindow.h"
@@ -93,6 +93,106 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
     // keep the menu header visible, and have scroll bars showing the position
     // within the list view (both for menus and questionnaires, I'd think).
     // So we'll stick with a simple layout.
+
+    // ------------------------------------------------------------------------
+    // Code removed from build()
+    // ------------------------------------------------------------------------
+
+    /*
+
+    // You can't call setLayout() twice. So clear the existing layout if
+    // rebuilding.
+    // And removeAllChildWidgets() doesn't work for layouts. Therefore, thanks
+    // to excellent deletion handling by Qt:
+    if (m_p_header) {
+        // qDebug() << Q_FUNC_INFO << "Deleting old MenuHeader with this ="
+        //          << m_p_header.data();
+        m_p_header->disconnect();  // prevent double signalling
+        m_p_header->deleteLater();  // later, in case it's currently calling us
+        m_p_header.clear();
+    }
+    if (m_p_listwidget) {
+        m_p_listwidget->disconnect();  // prevent double signalling
+        m_p_listwidget->deleteLater();
+        m_p_listwidget.clear();
+    }
+    // UiFunc::clearLayout(m_mainlayout);
+
+    */
+
+    // ------------------------------------------------------------------------
+    // Header
+    // ------------------------------------------------------------------------
+
+#ifdef OFFER_LAYOUT_DEBUG_BUTTON
+    bool offer_debug_layout = true;
+#else
+    bool offer_debug_layout = false;
+#endif
+    m_p_header = new MenuHeader(this, m_app, m_top, m_title, m_icon,
+                                offer_debug_layout);
+    m_mainlayout->addWidget(m_p_header);
+
+    // header to us
+    connect(m_p_header, &MenuHeader::backClicked,
+            this, &MenuWindow::finished,
+            Qt::UniqueConnection);  // unique as we may rebuild... safer.
+    connect(m_p_header, &MenuHeader::debugLayout,
+            this, &MenuWindow::debugLayout,
+            Qt::UniqueConnection);
+    connect(m_p_header, &MenuHeader::viewClicked,
+            this, &MenuWindow::viewItem,
+            Qt::UniqueConnection);
+    connect(m_p_header, &MenuHeader::editClicked,
+            this, &MenuWindow::editItem,
+            Qt::UniqueConnection);
+    connect(m_p_header, &MenuHeader::deleteClicked,
+            this, &MenuWindow::deleteItem,
+            Qt::UniqueConnection);
+    connect(m_p_header, &MenuHeader::finishFlagClicked,
+            this, &MenuWindow::toggleFinishFlag,
+            Qt::UniqueConnection);
+
+    // us to header
+    connect(this, &MenuWindow::offerAdd,
+            m_p_header, &MenuHeader::offerAdd,
+            Qt::UniqueConnection);
+    connect(this, &MenuWindow::offerView,
+            m_p_header, &MenuHeader::offerView,
+            Qt::UniqueConnection);
+    connect(this, &MenuWindow::offerEditDelete,
+            m_p_header, &MenuHeader::offerEditDelete,
+            Qt::UniqueConnection);
+    connect(this, &MenuWindow::offerFinishFlag,
+            m_p_header, &MenuHeader::offerFinishFlag,
+            Qt::UniqueConnection);
+
+    // ------------------------------------------------------------------------
+    // List
+    // ------------------------------------------------------------------------
+
+    m_p_listwidget = new QListWidget();
+    m_mainlayout->addWidget(m_p_listwidget);
+
+    connect(m_p_listwidget, &QListWidget::itemSelectionChanged,
+            this, &MenuWindow::menuItemSelectionChanged,
+            Qt::UniqueConnection);
+    connect(m_p_listwidget, &QListWidget::itemClicked,
+            this, &MenuWindow::menuItemClicked,
+            Qt::UniqueConnection);
+    connect(m_p_listwidget, &QListWidget::itemActivated,
+            this, &MenuWindow::menuItemClicked,
+            Qt::UniqueConnection);
+
+    // ------------------------------------------------------------------------
+    // Other signals
+    // ------------------------------------------------------------------------
+
+    // Do this in main constructor, not build(), since build() can be called
+    // from this signal!
+    connect(&m_app, &CamcopsApp::lockStateChanged,
+            this, &MenuWindow::lockStateChanged,
+            Qt::UniqueConnection);
 }
 
 
@@ -119,43 +219,13 @@ void MenuWindow::build()
 {
     // qDebug() << Q_FUNC_INFO;
 
-    // You can't call setLayout() twice. So clear the existing layout if
-    // rebuilding.
-    // And removeAllChildWidgets() doesn't work for layouts. Therefore, thanks
-    // to excellent deletion handling by Qt:
-    if (m_p_header) {
-        m_p_header->deleteLater();  // later, in case it's currently calling us
-    }
-    if (m_p_listwidget) {
-        m_p_listwidget->deleteLater();
-    }
-
-#ifdef OFFER_LAYOUT_DEBUG_BUTTON
-    bool offer_debug_layout = true;
-#else
-    bool offer_debug_layout = false;
-#endif
-    m_p_header = new MenuHeader(this, m_app, m_top, m_title, m_icon,
-                                offer_debug_layout);
-    m_mainlayout->addWidget(m_p_header);
-    connect(m_p_header, &MenuHeader::backClicked,
-            this, &MenuWindow::finished,
-            Qt::UniqueConnection);  // unique as we may rebuild... safer.
-    connect(this, &MenuWindow::offerView,
-            m_p_header, &MenuHeader::offerView,
-            Qt::UniqueConnection);
-    connect(this, &MenuWindow::offerEditDelete,
-            m_p_header, &MenuHeader::offerEditDelete,
-            Qt::UniqueConnection);
-    connect(m_p_header, &MenuHeader::debugLayout,
-            this, &MenuWindow::debugLayout);
+    m_p_listwidget->clear();
 
     // Method 1: QListWidget, QListWidgetItem
     // Size hints: https://forum.qt.io/topic/17481/easiest-way-to-have-a-simple-list-with-custom-items/4
     // Note that the widgets call setSizePolicy.
-    m_p_listwidget = new QListWidget();
-    m_mainlayout->addWidget(m_p_listwidget);
     bool preselected = false;
+    int app_selected_patient_id = m_app.selectedPatientId();
     for (int i = 0; i < m_items.size(); ++i) {
         MenuItem item = m_items.at(i);
         QWidget* row = item.rowWidget(m_app);
@@ -165,33 +235,25 @@ void MenuWindow::build()
         listitem->setSizeHint(rowsize);
         m_p_listwidget->setItemWidget(listitem, row);
         if (item.patient()
-                && item.patient()->id() == m_app.selectedPatientId()) {
-            m_p_listwidget->item(i)->setSelected(true);
+                && item.patient()->id() == app_selected_patient_id) {
+            // qDebug() << Q_FUNC_INFO << "preselecting patient at index" << i;
+            // m_p_listwidget->item(i)->setSelected(true);
+            m_p_listwidget->setCurrentItem(listitem);
+
+            // DO NOT just setSelected(); that leaves currentItem() and the
+            // (obviously) visible selection out of sync, which leads to
+            // major user errors.
+            // setCurrentItem() will also select the item;
+            // http://doc.qt.io/qt-5/qlistwidget.html#setCurrentItem
+
             preselected = true;
         }
     }
+    menuItemSelectionChanged();
     if (preselected) {
         m_p_listwidget->setFocus();
         // http://stackoverflow.com/questions/23065151/how-to-set-an-item-in-a-qlistwidget-as-initially-highlighted
     }
-    connect(m_p_listwidget, &QListWidget::itemSelectionChanged,
-            this, &MenuWindow::menuItemSelectionChanged,
-            Qt::UniqueConnection);
-    connect(m_p_listwidget, &QListWidget::itemClicked,
-            this, &MenuWindow::menuItemClicked,
-            Qt::UniqueConnection);
-    connect(m_p_listwidget, &QListWidget::itemActivated,
-            this, &MenuWindow::menuItemClicked,
-            Qt::UniqueConnection);
-    connect(m_p_header, &MenuHeader::viewClicked,
-            this, &MenuWindow::viewItem,
-            Qt::UniqueConnection);
-    connect(m_p_header, &MenuHeader::editClicked,
-            this, &MenuWindow::editItem,
-            Qt::UniqueConnection);
-    connect(m_p_header, &MenuHeader::deleteClicked,
-            this, &MenuWindow::deleteItem,
-            Qt::UniqueConnection);
 
     // Method 2: QListView, QStandardItemModel, custom delegate
     // http://doc.qt.io/qt-5/qlistview.html
@@ -199,10 +261,6 @@ void MenuWindow::build()
 
     // Stretch not necessary, even if the menu is short (the QListWidget
     // seems to handle this fine).
-
-    connect(&m_app, &CamcopsApp::lockStateChanged,
-            this, &MenuWindow::lockStateChanged,
-            Qt::UniqueConnection);
 }
 
 
@@ -231,7 +289,10 @@ void MenuWindow::menuItemSelectionChanged()
     // WHAT'S BEEN CHOSEN?
     QList<QListWidgetItem*> selected_items = m_p_listwidget->selectedItems();
     if (selected_items.isEmpty()) {
-        qDebug() << Q_FUNC_INFO << "Nothing selected";
+        // qDebug() << Q_FUNC_INFO << "Nothing selected";
+        emit offerView(false);
+        emit offerEditDelete(false, false);
+        emit offerFinishFlag(false);
         return;
     }
     QListWidgetItem* item = selected_items.at(0);
@@ -243,7 +304,7 @@ void MenuWindow::menuItemSelectionChanged()
         return;
     }
     MenuItem& m = m_items[i];
-    qInfo() << "Selected:" << m.title();
+    // qInfo() << "Selected:" << m;
     TaskPtr task = m.task();
     PatientPtr patient = m.patient();
 
@@ -251,15 +312,22 @@ void MenuWindow::menuItemSelectionChanged()
         // Notify the header (with its verb buttons). Leave it selected.
         emit offerView(true);
         emit offerEditDelete(task->isEditable(), true);
+        emit offerFinishFlag(task->isAnonymous());
     } else if (patient) {
         bool selected = true;
         emit offerView(selected);
         emit offerEditDelete(selected, selected);
+        emit offerFinishFlag(true);
     } else {
         emit offerView(false);
         emit offerEditDelete(false, false);
         // ... in case a task was selected before
+        emit offerFinishFlag(false);
     }
+
+    // The finish-flag button allows the user to mark either PATIENTS or
+    // ANONYMOUS TASKS for removal from the tablet even if the user picks
+    // the "copy" style of upload.
 }
 
 
@@ -275,13 +343,15 @@ void MenuWindow::menuItemClicked(QListWidgetItem *item)
         return;
     }
     MenuItem& m = m_items[i];
-    qInfo() << "Clicked:" << m.title();
+    qInfo() << "Clicked:" << m;
     TaskPtr task = m.task();
     PatientPtr patient = m.patient();
 
     if (task) {
         // Nothing to do; see menuItemSelectionChanged()
     } else if (patient) {
+        qDebug() << Q_FUNC_INFO << "non-null patient pointer =" << patient
+                 << ", this =" << this;
         bool selected = false;
         if (m_app.selectedPatientId() == patient->id()) {
             // Clicked on currently selected patient; deselect it.
@@ -305,6 +375,7 @@ void MenuWindow::lockStateChanged(CamcopsApp::LockState lockstate)
 {
     Q_UNUSED(lockstate)
     // mark as unused; http://stackoverflow.com/questions/1486904/how-do-i-best-silence-a-warning-about-unused-variables
+    qDebug() << Q_FUNC_INFO;
     build();  // calls down to derived class
 }
 
@@ -461,6 +532,20 @@ void MenuWindow::deleteTask()
 }
 
 
+void MenuWindow::toggleFinishFlag()
+{
+    TaskPtr task = currentTask();
+    PatientPtr patient = currentPatient();
+    if (task && task->isAnonymous()) {
+        task->toggleMoveOffTablet();
+        build();
+    } else if (patient) {
+        patient->toggleMoveOffTablet();
+        build();
+    }
+}
+
+
 int MenuWindow::currentIndex() const
 {
     QListWidgetItem* item = m_p_listwidget->currentItem();
@@ -491,7 +576,9 @@ TaskPtr MenuWindow::currentTask() const
 PatientPtr MenuWindow::currentPatient() const
 {
     int index = currentIndex();
+    qDebug() << Q_FUNC_INFO << "index =" << index;
     if (index == BAD_INDEX) {
+        qDebug() << "... bad index";
         return PatientPtr(nullptr);
     }
     const MenuItem& item = m_items[index];

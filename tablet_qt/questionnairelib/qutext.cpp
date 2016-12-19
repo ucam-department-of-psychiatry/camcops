@@ -140,8 +140,9 @@ void QuText::forceFontSize(int fontsize_pt, bool repolish)
 }
 
 
-void QuText::forceText(const QString &text, bool repolish)
+void QuText::setText(const QString &text, bool repolish)
 {
+    m_text = text;
     if (!m_label) {
         return;
     }

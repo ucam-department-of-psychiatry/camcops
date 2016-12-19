@@ -162,9 +162,12 @@ void Questionnaire::build()
         // Duff page!
         qWarning() << Q_FUNC_INFO << "Bad page number:"
                    << m_current_pagenum_zero_based;
-        UiFunc::stopApp("BUG! Bad page number");
+        UiFunc::stopApp("BUG! Bad page number in Questionnaire::build");
     }
-    QuPagePtr page = currentPagePtr();
+    QuPage* page = currentPagePtr();
+    if (!page) {
+        UiFunc::stopApp("BUG! Null page pointer in Questionnaire::build");
+    }
 
     // Page type and CSS name for background
     QuPage::PageType page_type = page->type();
@@ -228,7 +231,7 @@ void Questionnaire::build()
     Q_UNUSED(showwatcher);
 #endif
     scroll->setWidget(pagewidget);
-    connect(page.data(), &QuPage::elementValueChanged,
+    connect(page, &QuPage::elementValueChanged,
             this, &Questionnaire::resetButtons,
             Qt::UniqueConnection);
 
@@ -270,7 +273,7 @@ bool Questionnaire::event(QEvent* e)
 
 void Questionnaire::resetButtons()
 {
-    QuPagePtr page = currentPagePtr();
+    QuPage* page = currentPagePtr();
     if (!page || !m_p_header) {
         return;
     }
@@ -296,13 +299,13 @@ int Questionnaire::nPages() const
 }
 
 
-QuPagePtr Questionnaire::currentPagePtr() const
+QuPage* Questionnaire::currentPagePtr() const
 {
     if (m_current_pagenum_zero_based < 0 ||
             m_current_pagenum_zero_based >= m_pages.size()) {
-        return QuPagePtr(nullptr);
+        return nullptr;
     }
-    return m_pages.at(m_current_pagenum_zero_based);
+    return m_pages.at(m_current_pagenum_zero_based).data();
 }
 
 
@@ -395,8 +398,8 @@ void Questionnaire::nextClicked()
         // On the last page; use finish rather than next
         return;
     }
-    QuPagePtr page = currentPagePtr();
-    if (!readOnly() && page->missingInput()) {
+    QuPage* page = currentPagePtr();
+    if (!page || (!readOnly() && page->missingInput())) {
         // Can't progress
         return;
     }
@@ -428,8 +431,8 @@ void Questionnaire::finishClicked()
         // Not on the last page; can't finish here
         return;
     }
-    QuPagePtr page = currentPagePtr();
-    if (!readOnly() && page->missingInput()) {
+    QuPage* page = currentPagePtr();
+    if (!page || (!readOnly() && page->missingInput())) {
         // Can't progress
         return;
     }
@@ -439,7 +442,7 @@ void Questionnaire::finishClicked()
 
 void Questionnaire::pageClosing()
 {
-    QuPagePtr page = currentPagePtr();
+    QuPage* page = currentPagePtr();
     if (!page) {
         return;
     }
@@ -498,14 +501,52 @@ void Questionnaire::debugLayout()
 }
 
 
-void Questionnaire::setVisibleByTag(const QString& tag, bool visible)
+void Questionnaire::setVisibleByTag(const QString& tag, bool visible,
+                                    bool current_page)
 {
-    QuPagePtr page = currentPagePtr();
-    if (!page) {
-        return;
-    }
-    QList<QuElementPtr> elements = page->elementsWithTag(tag);
+    QList<QuElement*> elements = getElementsByTag(tag, current_page);
     for (auto element : elements) {
         element->setVisible(visible);
     }
+}
+
+
+QList<QuPage*> Questionnaire::getPages(bool current_page)
+{
+    QList<QuPage*> pages;
+    if (current_page) {
+        QuPage* page = currentPagePtr();
+        if (!page) {
+            return pages;  // empty
+        }
+        pages.append(page);
+    } else {
+        for (auto p : m_pages) {
+            pages.append(p.data());
+        }
+    }
+    return pages;
+}
+
+
+QList<QuElement*> Questionnaire::getElementsByTag(const QString& tag,
+                                                  bool current_page)
+{
+    QList<QuPage*> pages = getPages(current_page);
+    QList<QuElement*> elements;
+    for (auto page : pages) {
+        elements += page->elementsWithTag(tag);
+    }
+    return elements;
+}
+
+
+QuElement* Questionnaire::getFirstElementByTag(const QString& tag,
+                                               bool current_page)
+{
+    QList<QuElement*> elements = getElementsByTag(tag, current_page);
+    if (elements.isEmpty()) {
+        return nullptr;
+    }
+    return elements.at(0);
 }

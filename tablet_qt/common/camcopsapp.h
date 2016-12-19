@@ -86,7 +86,7 @@ public:
     int run();
     QSqlDatabase& db();
     QSqlDatabase& sysdb();
-    TaskFactoryPtr taskFactory();
+    TaskFactory* taskFactory();
     void upgradeDatabase(const Version& old_version, const Version& new_version);
 
     // ------------------------------------------------------------------------
@@ -161,9 +161,9 @@ public:
     void patientHasBeenEdited(int patient_id);
     const Patient* selectedPatient() const;
     int selectedPatientId() const;
-    PatientPtrList getAllPatients();
-    QString idDescription(int which_idnum);
-    QString idShortDescription(int which_idnum);
+    PatientPtrList getAllPatients(bool sorted = true);
+    QString idDescription(int which_idnum) const;
+    QString idShortDescription(int which_idnum) const;
     IdPolicy uploadPolicy() const;
     IdPolicy finalizePolicy() const;
 protected:
@@ -186,15 +186,15 @@ signals:
     // ------------------------------------------------------------------------
 public:
     QString xstring(const QString& taskname, const QString& stringname,
-                    const QString& default_str = "") const;
-    bool hasExtraStrings(const QString& taskname) const;
+                    const QString& default_str = "");
+    bool hasExtraStrings(const QString& taskname);
     void clearExtraStringCache();
     void deleteAllExtraStrings();
     void setAllExtraStrings(const RecordList& recordlist);
 protected:
     QString xstringDirect(const QString& taskname, const QString& stringname,
-                          const QString& default_str = "") const;
-    mutable QMap<QPair<QString, QString>, QString> m_extrastring_cache;
+                          const QString& default_str = "");
+    QMap<QPair<QString, QString>, QString> m_extrastring_cache;
 
     // ------------------------------------------------------------------------
     // Stored variables: generic
@@ -241,6 +241,11 @@ protected:
 public:
     void dumpDataDatabase(QTextStream& os);
     void dumpSystemDatabase(QTextStream& os);
+
+    // ------------------------------------------------------------------------
+    // Uploading
+    // ------------------------------------------------------------------------
+    void upload();
 
     // ------------------------------------------------------------------------
     // Internal data

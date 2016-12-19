@@ -490,6 +490,34 @@ QSize UiFunc::labelExtraSizeRequired(const QLabel* label,
 }
 
 
+/*
+
+DANGER if this is used from signals from within this layout; you can get a
+segfault from e.g. QAbstractItemView::mouseReleaseEvent.
+
+void UiFunc::clearLayout(QLayout* layout)
+{
+    if (!layout) {
+        qWarning() << "Null pointer passed to clearLayout";
+        return;
+    }
+    // http://stackoverflow.com/questions/4857188/clearing-a-layout-in-qt
+    QLayoutItem* item;
+    while ((item = layout->takeAt(0))) {
+        if (item->layout()) {
+            clearLayout(item->layout());
+            delete item->layout();
+        }
+        if (item->widget()) {
+            delete item->widget();
+        }
+        delete item;
+    }
+    layout->invalidate();
+}
+*/
+
+
 QSizePolicy UiFunc::expandingFixedHFWPolicy()
 {
     QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Fixed);

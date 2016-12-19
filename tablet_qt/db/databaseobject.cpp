@@ -15,6 +15,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// #define DEBUG_SPECIMEN_CREATION
 // #define DEBUG_SAVES
 
 #include "databaseobject.h"
@@ -24,8 +25,10 @@
 #include <QSqlField>
 #include <QSqlQuery>
 #include <QStringList>
+#include "common/camcopsapp.h"
 #include "db/dbfunc.h"
 #include "db/fieldref.h"
+#include "dbobjects/blob.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 
@@ -33,15 +36,21 @@ const QString NOT_NULL_ERROR("Error: attempting to save NULL to a NOT NULL "
                              "field:");
 
 
-DatabaseObject::DatabaseObject(const QSqlDatabase& db,
+DatabaseObject::DatabaseObject(CamcopsApp& app,
+                               const QSqlDatabase& db,
                                const QString& tablename,
                                const QString& pk_fieldname,
                                bool has_modification_timestamp,
-                               bool has_creation_timestamp) :
+                               bool has_creation_timestamp,
+                               bool has_move_off_tablet_field,
+                               bool triggers_need_upload) :
+    m_app(app),
     m_db(db),
     m_tablename(tablename),
     m_pk_fieldname(pk_fieldname),
-    m_has_modification_timestamp(has_modification_timestamp)
+    m_has_modification_timestamp(has_modification_timestamp),
+    m_has_move_off_tablet_field(has_move_off_tablet_field),
+    m_triggers_need_upload(triggers_need_upload)
 {
     if (pk_fieldname.isEmpty()) {
         UiFunc::stopApp(
@@ -49,8 +58,11 @@ DatabaseObject::DatabaseObject(const QSqlDatabase& db,
                     "table=%1").arg(m_tablename));
     }
     addField(pk_fieldname, QVariant::Int, true, true, true);
-    addField(DbConst::MOVE_OFF_TABLET_FIELDNAME, QVariant::Bool,
-             false, false, false);
+    if (has_move_off_tablet_field) {
+        // Will be true for everything in data DB, but not system DB
+        addField(DbConst::MOVE_OFF_TABLET_FIELDNAME, QVariant::Bool,
+                 false, false, false);
+    }
     if (has_modification_timestamp) {
         addField(DbConst::MODIFICATION_TIMESTAMP_FIELDNAME,
                  QVariant::DateTime);
@@ -118,12 +130,16 @@ QStringList DatabaseObject::fieldnames() const
 // Field access
 // ============================================================================
 
-bool DatabaseObject::setValue(const QString& fieldname, const QVariant& value)
+bool DatabaseObject::setValue(const QString& fieldname, const QVariant& value,
+                              bool touch_record)
 {
     requireField(fieldname);
     bool dirty = m_record[fieldname].setValue(value);
-    if (dirty) {
+    if (dirty && touch_record) {
         touch();
+        if (m_triggers_need_upload) {
+            m_app.setNeedsUpload(true);
+        }
     }
     return dirty;
 }
@@ -226,8 +242,9 @@ FieldRefPtr DatabaseObject::fieldRef(const QString& fieldname, bool mandatory,
     // reference is re-used, regardless of the (subsequent) autosave setting.
     requireField(fieldname);
     if (!m_fieldrefs.contains(fieldname)) {
+        CamcopsApp* p_app = &m_app;
         m_fieldrefs[fieldname] = FieldRefPtr(
-            new FieldRef(this, fieldname, mandatory, autosave, blob));
+            new FieldRef(this, fieldname, mandatory, autosave, blob, p_app));
     }
     return m_fieldrefs[fieldname];
 }
@@ -409,8 +426,10 @@ QString DatabaseObject::recordSummary() const
 bool DatabaseObject::load(int pk)
 {
     if (pk == DbConst::NONEXISTENT_PK) {
+#ifdef DEBUG_SPECIMEN_CREATION
         qDebug() << "Ignoring DatabaseObject::load() call for explicitly "
                     "invalid PK";
+#endif
         return false;
     }
     WhereConditions where;
@@ -571,19 +590,30 @@ QList<int> DatabaseObject::getAllPKs() const
 
 void DatabaseObject::deleteFromDatabase()
 {
+    using DbFunc::delimit;
     QVariant pk = pkvalue();
     if (pk.isNull()) {
         qWarning() << "Attempting to delete a DatabaseObject with a "
                       "NULL PK; ignored";
         return;
     }
-    ArgList args;
-    QString sql = (
-        "DELETE FROM " + DbFunc::delimit(m_tablename) +
-        " WHERE " + DbFunc::delimit(pkname()) + "=?"
-    );
-    args.append(pk);
-    bool success = DbFunc::exec(m_db, sql, args);
+
+    // Delete any associated BLOBs
+    // There is no automatic way of knowing if we possess a BLOB, since a
+    // BLOB field is simply an integer FK to the BLOB table.
+    // However, we can reliably do it the other way round, and, moreover,
+    // delete all associated BLOBs in one DELETE command:
+    WhereConditions where_blob;
+    where_blob[Blob::SRC_TABLE_FIELDNAME] = tablename();
+    where_blob[Blob::SRC_PK_FIELDNAME] = pk;
+    if (!DbFunc::deleteFrom(m_db, Blob::TABLENAME, where_blob)) {
+        qWarning() << "Failed to delete BLOB(s) where:" << where_blob;
+    }
+
+    // Delete ourself
+    WhereConditions where_self;
+    where_self[pkname()] = pk;
+    bool success = DbFunc::deleteFrom(m_db, m_tablename, where_self);
     if (success) {
         nullify();
     } else {
@@ -619,9 +649,20 @@ bool DatabaseObject::shouldMoveOffTablet() const
 
 void DatabaseObject::setMoveOffTablet(bool move_off)
 {
-    setValue(DbConst::MOVE_OFF_TABLET_FIELDNAME, move_off);
+    if (!m_has_move_off_tablet_field) {
+        qWarning() << Q_FUNC_INFO << "m_has_move_off_tablet_field is false";
+        return;
+    }
+    setValue(DbConst::MOVE_OFF_TABLET_FIELDNAME, move_off, false);
     save();
 }
+
+
+void DatabaseObject::toggleMoveOffTablet()
+{
+    setMoveOffTablet(!shouldMoveOffTablet());
+}
+
 
 // ============================================================================
 // DDL
@@ -648,6 +689,14 @@ QVariant DatabaseObject::pkvalue() const
 {
     return value(pkname());
 }
+
+
+int DatabaseObject::pkvalueInt() const
+{
+    QVariant pk = pkvalue();
+    return pk.isNull() ? DbConst::NONEXISTENT_PK : pk.toInt();
+}
+
 
 void DatabaseObject::makeTable()
 {

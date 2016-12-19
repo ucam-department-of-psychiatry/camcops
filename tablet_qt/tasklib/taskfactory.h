@@ -53,6 +53,7 @@ public:
         QString shortname;
         QString longname;
         QStringList alltables;
+        bool anonymous;
         ProxyType proxy;
     };
     using MapType = QMap<QString, TaskCache>;
@@ -73,6 +74,9 @@ public:
     QString longname(const QString& key) const;
     void makeTables(const QString& key) const;
     TaskPtrList fetch(const QString& tablename = "", bool sort = true) const;
+    TaskPtrList fetchAllForPatient(int patient_id) const;
+    TaskPtrList allSpecimens() const;
+    TaskPtrList allSpecimensExceptAnonymous() const;
 protected:
     CamcopsApp& m_app;
     QStringList m_tablenames;
@@ -80,6 +84,3 @@ protected:
     QList<ProxyType> m_initial_proxy_list;
     MapType m_map;
 };
-
-
-using TaskFactoryPtr = QSharedPointer<TaskFactory>;

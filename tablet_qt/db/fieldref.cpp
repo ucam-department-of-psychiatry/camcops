@@ -24,6 +24,7 @@
 #include "dbobjects/blob.h"
 #include "lib/convert.h"
 #include "lib/debugfunc.h"
+#include "lib/uifunc.h"
 
 
 FieldRef::FieldRef()
@@ -42,7 +43,8 @@ FieldRef::FieldRef(Field* p_field, bool mandatory)
 
 
 FieldRef::FieldRef(DatabaseObject* p_dbobject, const QString& fieldname,
-                   bool mandatory, bool autosave, bool blob)
+                   bool mandatory, bool autosave, bool blob,
+                   CamcopsApp* p_app)
 {
     commonConstructor();
     m_method = FieldRefMethod::DatabaseObject;
@@ -53,9 +55,13 @@ FieldRef::FieldRef(DatabaseObject* p_dbobject, const QString& fieldname,
 
     m_blob_redirect = blob;
     if (blob) {
+        if (p_app == nullptr) {
+            UiFunc::stopApp("Must pass p_app to FieldRef for BLOBs");
+        }
         m_p_dbobject->save();  // ensure it has a PK
         m_method = FieldRefMethod::DatabaseObjectBlobField;
-        m_blob = QSharedPointer<Blob>(new Blob(p_dbobject->database(),
+        m_blob = QSharedPointer<Blob>(new Blob(*p_app,
+                                               p_dbobject->database(),
                                                p_dbobject->tablename(),
                                                p_dbobject->pkvalue().toInt(),
                                                fieldname));
@@ -105,7 +111,7 @@ void FieldRef::commonConstructor()
     m_autosave = false;
 
     m_blob_redirect = false;
-    m_blob = QSharedPointer<Blob>(nullptr);
+    m_blob.clear();
 
     m_getterfunc = nullptr;
     m_setterfunc = nullptr;

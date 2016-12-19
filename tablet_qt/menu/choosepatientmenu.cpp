@@ -15,8 +15,11 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// #define DEBUG_VERBOSE
+
 #include "choosepatientmenu.h"
 #include <QDebug>
+#include <QMessageBox>
 #include "dbobjects/patient.h"
 #include "lib/uifunc.h"
 #include "menulib/menuheader.h"
@@ -26,6 +29,16 @@ ChoosePatientMenu::ChoosePatientMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Choose patient"),
                UiFunc::iconFilename(UiConst::ICON_CHOOSE_PATIENT))
 {
+    connect(&m_app, &CamcopsApp::selectedPatientDetailsChanged,
+            this, &ChoosePatientMenu::selectedPatientDetailsChanged,
+            Qt::UniqueConnection);
+
+    // Set other header buttons
+    m_p_header->offerAdd(true);
+
+    connect(m_p_header, &MenuHeader::addClicked,
+            this, &ChoosePatientMenu::addPatient,
+            Qt::UniqueConnection);
 }
 
 
@@ -41,15 +54,8 @@ void ChoosePatientMenu::build()
 
     // Call parent buildMenu()
     MenuWindow::build();
-
-    // Set header buttons
-    m_p_header->offerAdd(true);
-    m_p_header->offerView(false);  // until one is clicked
-    m_p_header->offerEditDelete(false);  // until one is clicked
-
-    connect(m_p_header, &MenuHeader::addClicked,
-            this, &ChoosePatientMenu::addPatient,
-            Qt::UniqueConnection);
+    // ... which has special facilities for detecting a currently selected
+    // patient and setting offerView, offerEditDelete
 }
 
 
@@ -73,7 +79,9 @@ void ChoosePatientMenu::deleteItem()
 
 void ChoosePatientMenu::addPatient()
 {
+#ifdef DEBUG_VERBOSE
     qDebug() << Q_FUNC_INFO;
+#endif
     // The patient we create here needs to stay in scope for the duration of
     // editing! The simplest way is to use a member object to hold the pointer.
 
@@ -86,8 +94,14 @@ void ChoosePatientMenu::addPatient()
 
 void ChoosePatientMenu::editPatient(bool read_only)
 {
+#ifdef DEBUG_VERBOSE
     qDebug() << Q_FUNC_INFO;
+#endif
     PatientPtr patient = currentPatient();
+    if (!patient) {
+        UiFunc::alert("Bug: null patient pointer in ChoosePatientMenu::editPatient");
+        return;
+    }
     OpenableWidget* widget = patient->editor(read_only);
     m_app.open(widget, TaskPtr(nullptr), false, patient);
 }
@@ -96,4 +110,62 @@ void ChoosePatientMenu::editPatient(bool read_only)
 void ChoosePatientMenu::deletePatient()
 {
     qDebug() << Q_FUNC_INFO;
+    PatientPtr patient = currentPatient();
+    if (!patient) {
+        UiFunc::alert("Bug: null patient pointer in ChoosePatientMenu::editPatient");
+        return;
+    }
+    QString patient_details = QString("%1, %2 (%3, DOB %4)\n%5")
+            .arg(patient->surname().toUpper())
+            .arg(patient->forename())
+            .arg(QString("%1 y").arg(patient->ageYears()))
+            .arg(patient->dobText())
+            .arg(patient->shortIdnumSummary());
+
+    // First check
+    {
+        QMessageBox msgbox(
+            QMessageBox::Warning,  // icon
+            tr("Delete patient"),  // title
+            tr("Delete this patient?") + "\n\n" +  patient_details,  // text
+            QMessageBox::Yes | QMessageBox::No,  // buttons
+            this);  // parent
+        msgbox.setButtonText(QMessageBox::Yes, tr("Yes, delete"));
+        msgbox.setButtonText(QMessageBox::No, tr("No, cancel"));
+        int reply = msgbox.exec();
+        if (reply != QMessageBox::Yes) {
+            return;
+        }
+    }
+
+    // Second check
+    int n_tasks = patient->numTasks();
+    if (n_tasks > 0) {
+        QMessageBox msgbox(
+            QMessageBox::Warning,  // icon
+            tr("Delete patient WITH TASKS"),  // title
+            tr("Delete this patient?") + "\n\n" +  patient_details +
+                QString("\n\n<b>THERE ARE %1 ASSOCIATED TASKS!</b>").arg(n_tasks),  // text
+            QMessageBox::Yes | QMessageBox::No,  // buttons
+            this);  // parent
+        msgbox.setButtonText(QMessageBox::Yes, tr("Yes, delete despite tasks"));
+        msgbox.setButtonText(QMessageBox::No, tr("No, cancel"));
+        int reply = msgbox.exec();
+        if (reply != QMessageBox::Yes) {
+            return;
+        }
+    }
+
+    // Delete
+    qInfo() << "Deleting patient:" << patient_details;
+    patient->deleteFromDatabase();
+    qInfo() << "... patient deleted";
+    build();
+}
+
+
+void ChoosePatientMenu::selectedPatientDetailsChanged(const Patient* patient)
+{
+    Q_UNUSED(patient);
+    build();  // refresh patient list
 }

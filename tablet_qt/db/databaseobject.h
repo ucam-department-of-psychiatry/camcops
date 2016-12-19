@@ -27,6 +27,7 @@
 #include "db/field.h"
 #include "db/sqlargs.h"
 
+class CamcopsApp;
 
 
 class DatabaseObject : public QObject
@@ -35,11 +36,14 @@ class DatabaseObject : public QObject
     // modification timestamp field, extensible to add other fields.
     Q_OBJECT  // so our derived classes can be too
 public:
-    DatabaseObject(const QSqlDatabase& db,
+    DatabaseObject(CamcopsApp& m_app,
+                   const QSqlDatabase& db,
                    const QString& tablename,
                    const QString& pk_fieldname = DbConst::PK_FIELDNAME,
                    bool has_modification_timestamp = true,
-                   bool has_creation_timestamp = false);
+                   bool has_creation_timestamp = false,
+                   bool has_move_off_tablet_field = true,
+                   bool triggers_need_upload = true);
     virtual ~DatabaseObject();
 
     // ========================================================================
@@ -61,7 +65,8 @@ public:
     // Field access
     // ========================================================================
 
-    bool setValue(const QString& fieldname, const QVariant& value);  // returns: changed?
+    bool setValue(const QString& fieldname, const QVariant& value,
+                  bool touch_record = true);  // returns: changed?
 
     QVariant value(const QString& fieldname) const;
     QString prettyValue(const QString& fieldname) const;
@@ -138,7 +143,7 @@ public:
     // Deleting
     // ========================================================================
 
-    void deleteFromDatabase();
+    virtual void deleteFromDatabase();
 
     // ========================================================================
     // Debugging:
@@ -152,6 +157,7 @@ public:
 
     bool shouldMoveOffTablet() const;
     void setMoveOffTablet(bool move_off);
+    void toggleMoveOffTablet();
 
     // ========================================================================
     // DDL
@@ -161,6 +167,7 @@ public:
     QString tablename() const;
     QString pkname() const;
     QVariant pkvalue() const;
+    int pkvalueInt() const;
     void makeTable();
 
     // For making BLOBs share the same database:
@@ -175,10 +182,13 @@ protected:
     QList<Field> fieldsOrdered() const;
 
 protected:
+    CamcopsApp& m_app;
     QSqlDatabase m_db;
     QString m_tablename;  // also used as key for extra strings
     QString m_pk_fieldname;
     bool m_has_modification_timestamp;
+    bool m_has_move_off_tablet_field;
+    bool m_triggers_need_upload;
     using MapType = QMap<QString, Field>;
     using MapIteratorType = QMapIterator<QString, Field>;
     using MutableMapIteratorType = QMutableMapIterator<QString, Field>;

@@ -41,6 +41,14 @@ public:
     // Derived constructors should be LIGHTWEIGHT, as
     // MenuItem::MenuItem(MenuProxyPtr, CamcopsApp&) will create an INSTANCE
     // to get the title/subtitle.
+    // ... note that we can't have a virtual static function (as we would in
+    // Python: a classmethod that can be overridden), so title etc.
+    // can't be static.
+    // ... Note also that destroying and recreating the menu header etc.
+    // seem to lead to dangers and loose signals (well, doubled signals --
+    // possibly because we were connecting signals during a signal call), so we
+    // do need to create those.
+
     // If it's cheap, populate m_items in the constructor.
     // If it's expensive (e.g. task lists), override build() to do:
     // (a) populate m_items;
@@ -61,8 +69,10 @@ protected:
     void loadStyleSheet();
 
 signals:
+    void offerAdd(bool offer_add);
     void offerView(bool offer_view);
     void offerEditDelete(bool offer_edit, bool offer_delete);
+    void offerFinishFlag(bool offer_finish_flag);
 
 public slots:
     void menuItemSelectionChanged();
@@ -78,6 +88,7 @@ protected:
     void editTask();
     void editTaskConfirmed(const TaskPtr& task);
     void deleteTask();
+    void toggleFinishFlag();
     void connectQuestionnaireToTask(OpenableWidget* widget, Task* task);
 
 protected:

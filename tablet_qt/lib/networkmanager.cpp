@@ -744,9 +744,21 @@ void NetworkManager::upload(UploadMethod method)
         fail();
         return;
     }
-    applyPatientMoveOffTabletFlagsToTasks();
     m_app.processEvents();
-    writeIdDescriptionsToPatientTable();
+    if (!pruneDeadBlobs()) {
+        fail();
+        return;
+    }
+    m_app.processEvents();
+    if (!applyPatientMoveOffTabletFlagsToTasks()) {
+        fail();
+        return;
+    }
+    m_app.processEvents();
+    if (!writeIdDescriptionsToPatientTable()) {
+        fail();
+        return;
+    }
     m_app.processEvents();
     catalogueTablesForUpload();
     m_app.processEvents();
@@ -770,6 +782,7 @@ bool NetworkManager::isPatientInfoComplete()
     }
     int nfailures_upload = 0;
     int nfailures_finalize = 0;
+    int nfailures_clash = 0;
     while (query.next()) {
         Patient patient(m_app, m_db);
         patient.setFromQuery(query, true);
@@ -779,10 +792,21 @@ bool NetworkManager::isPatientInfoComplete()
         if (!patient.compliesWithFinalize()) {
             ++nfailures_finalize;
         }
+        if (patient.anyIdClash()) {
+            // not the most efficient; COUNT DISTINCT...
+            // However, this gives us the number of patients clashing.
+            ++nfailures_clash;
+        }
         if (m_upload_method != UploadMethod::Move &&
                 patient.shouldMoveOffTablet()) {
             m_upload_patient_ids_to_move_off.append(patient.pkvalue().toInt());
         }
+    }
+    if (nfailures_clash > 0) {
+        statusMessage(QString("Failure: %1 patient(s) having clashing ID "
+                              "numbers")
+                      .arg(nfailures_clash));
+        return false;
     }
     if (m_upload_method == UploadMethod::Copy && nfailures_upload > 0) {
         // Copying; we're allowed not to meet the finalizing requirements,
@@ -809,7 +833,7 @@ bool NetworkManager::isPatientInfoComplete()
 }
 
 
-void NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
+bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
 {
     // If we were uploading, we need to undo our move-off flags (in case the
     // user changes their mind about a patient)
@@ -819,79 +843,174 @@ void NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
     // That is, we make sure these flags are all correct immediately before
     // an upload (which is when we care).
 
-    if (m_upload_patient_ids_to_move_off.isEmpty() ||
-            m_upload_method != UploadMethod::Copy) {
+    if (m_upload_method != UploadMethod::Copy) {
         // if we're not using UploadMethod::Copy, everything is going to be
         // moved anyway, by virtue of startPreservation()
-        return;
+        return false;
     }
 
     statusMessage("Setting move-off flags for tasks, where applicable");
 
     DbTransaction trans(m_db);
-    int n_patients = m_upload_patient_ids_to_move_off.length();
-    QString pt_paramholders = DbFunc::sqlParamHolders(n_patients);
-    ArgList pt_args = DbFunc::argListFromIntList(m_upload_patient_ids_to_move_off);
-    // Maximum length of an SQL statement: lots
-    // https://www.sqlite.org/limits.html
-    QString sql;
 
-    // Tasks that are not anonymous
-    for (auto main_tablename : m_p_task_factory->tablenames()) {
-        TaskPtr specimen = m_p_task_factory->create(main_tablename);
+    // ========================================================================
+    // Step 1: clear all move-off flags, except in the source tables (being:
+    // patient tables and anonymous task primary tables).
+    // ========================================================================
+    for (auto specimen : m_p_task_factory->allSpecimens()) {
         if (specimen->isAnonymous()) {
-            continue;
-        }
-
-        for (auto tablename : specimen->allTables()) {
-            // 1. Clear all
-            sql = QString("UPDATE %1 SET %2 = 0")
-                    .arg(delimit(tablename))
-                    .arg(delimit(DbConst::MOVE_OFF_TABLET_FIELDNAME));
-            if (!DbFunc::exec(m_db, sql)) {
-                queryFail(sql);
-                return;
+            // anonymous task: clear the ancillary tables
+            for (auto tablename : specimen->ancillaryTables()) {
+                if (!clearMoveOffTabletFlag(tablename)) {
+                    queryFailClearingMoveOffFlag(tablename);
+                    return false;
+                }
             }
-            // 2. Set, if required, for relevant patients.
+        } else {
+            // task with patient: clear all tables
+            for (auto tablename : specimen->allTables()) {
+                if (!clearMoveOffTabletFlag(tablename)) {
+                    queryFailClearingMoveOffFlag(tablename);
+                    return false;
+                }
+            }
+        }
+    }
+    // Clear all flags for BLOBs
+    if (!clearMoveOffTabletFlag(Blob::TABLENAME)) {
+        queryFailClearingMoveOffFlag(Blob::TABLENAME);
+        return false;
+    }
+
+    // ========================================================================
+    // Step 2: Apply flags from patients to their tasks/ancillary tables.
+    // ========================================================================
+    // m_upload_patient_ids_to_move_off has been precalculated for efficiency
+
+    int n_patients = m_upload_patient_ids_to_move_off.length();
+    if (n_patients > 0) {
+        QString pt_paramholders = DbFunc::sqlParamHolders(n_patients);
+        ArgList pt_args = DbFunc::argListFromIntList(m_upload_patient_ids_to_move_off);
+        // Maximum length of an SQL statement: lots
+        // https://www.sqlite.org/limits.html
+        QString sql;
+
+        for (auto specimen : m_p_task_factory->allSpecimens()) {
+            if (specimen->isAnonymous()) {
+                continue;
+            }
+            QString main_tablename = specimen->tablename();
+            // (a) main table, with FK to patient
             sql = QString("UPDATE %1 SET %2 = 1 WHERE %3 IN (%4)")
-                    .arg(delimit(tablename))
+                    .arg(delimit(main_tablename))
                     .arg(delimit(DbConst::MOVE_OFF_TABLET_FIELDNAME))
                     .arg(delimit(Task::PATIENT_FK_FIELDNAME))
                     .arg(pt_paramholders);
             if (!DbFunc::exec(m_db, sql, pt_args)) {
                 queryFail(sql);
-                return;
+                return false;
+            }
+            // (b) ancillary tables
+            QStringList ancillary_tables = specimen->ancillaryTables();
+            if (ancillary_tables.isEmpty()) {
+                // no ancillary tables
+                continue;
+            }
+            WhereConditions where;
+            where[DbConst::MOVE_OFF_TABLET_FIELDNAME] = 1;
+            QList<int> task_pks = DbFunc::getSingleFieldAsIntList(
+                        m_db, main_tablename, DbConst::PK_FIELDNAME, where);
+            if (task_pks.isEmpty()) {
+                // no tasks to be moved off
+                continue;
+            }
+            QString fk_task_fieldname = specimen->ancillaryTableFKToTaskFieldname();
+            if (fk_task_fieldname.isEmpty()) {
+                UiFunc::stopApp(QString(
+                    "Task %1 has ancillary tables but "
+                    "ancillaryTableFKToTaskFieldname() returns empty")
+                                .arg(main_tablename));
+            }
+            QString task_paramholders = DbFunc::sqlParamHolders(task_pks.length());
+            ArgList task_args = DbFunc::argListFromIntList(task_pks);
+            for (auto ancillary_table : ancillary_tables) {
+                sql = QString("UPDATE %1 SET %2 = 1 WHERE %3 IN (%4)")
+                        .arg(delimit(ancillary_table))
+                        .arg(delimit(DbConst::MOVE_OFF_TABLET_FIELDNAME))
+                        .arg(delimit(fk_task_fieldname))
+                        .arg(task_paramholders);
+                if (!DbFunc::exec(m_db, sql, task_args)) {
+                    queryFail(sql);
+                    return false;
+                }
             }
         }
     }
 
-    // 3. BLOB table.
+    // ========================================================================
+    // Step 3: Apply flags from anonymous tasks to their ancillary tables.
+    // ========================================================================
+
+    for (auto specimen : m_p_task_factory->allSpecimens()) {
+        if (!specimen->isAnonymous()) {
+            continue;
+        }
+        QString main_tablename = specimen->tablename();
+        QStringList ancillary_tables = specimen->ancillaryTables();
+        if (ancillary_tables.isEmpty()) {
+            continue;
+        }
+        // Get PKs of all anonymous tasks being moved off
+        WhereConditions where;
+        where[DbConst::MOVE_OFF_TABLET_FIELDNAME] = 1;
+        QList<int> task_pks = DbFunc::getSingleFieldAsIntList(
+                    m_db, main_tablename, DbConst::PK_FIELDNAME, where);
+        if (task_pks.isEmpty()) {
+            // no tasks to be moved off
+            continue;
+        }
+        QString fk_task_fieldname = specimen->ancillaryTableFKToTaskFieldname();
+        if (fk_task_fieldname.isEmpty()) {
+            UiFunc::stopApp(QString(
+                "Task %1 has ancillary tables but "
+                "ancillaryTableFKToTaskFieldname() returns empty")
+                            .arg(main_tablename));
+        }
+        QString task_paramholders = DbFunc::sqlParamHolders(task_pks.length());
+        ArgList task_args = DbFunc::argListFromIntList(task_pks);
+        for (auto ancillary_table : ancillary_tables) {
+            QString sql = QString("UPDATE %1 SET %2 = 1 WHERE %3 IN (%4)")
+                    .arg(delimit(ancillary_table))
+                    .arg(delimit(DbConst::MOVE_OFF_TABLET_FIELDNAME))
+                    .arg(delimit(fk_task_fieldname))
+                    .arg(task_paramholders);
+            if (!DbFunc::exec(m_db, sql, task_args)) {
+                queryFail(sql);
+                return false;
+            }
+        }
+    }
+
+    // ========================================================================
+    // Step 4. BLOB table.
+    // ========================================================================
     // Options here are:
-    // - iterate through every task, loading them from SQL to C++, and asking
-    //   each what BLOB IDs they possess;
+    // - iterate through every task (and ancillary table), loading them from
+    //   SQL to C++, and asking each what BLOB IDs they possess;
     // - store patient_id (or NULL) with each BLOB;
     // - iterate through each BLOB, looking for the move-off flag on the
     //   associated task/ancillary record.
     // The most efficient and simple is likely to be (3).
 
-    // (a) clear all flags for BLOBs
-    sql = QString("UPDATE %1 SET %2 = 0")
-            .arg(delimit(Blob::TABLENAME))
-            .arg(delimit(DbConst::MOVE_OFF_TABLET_FIELDNAME));
-    if (!DbFunc::exec(m_db, sql)) {
-        queryFail(sql);
-        return;
-    }
-
-    // (b) set flag for any relevant BLOB
-    sql = DbFunc::selectColumns(QStringList{DbConst::PK_FIELDNAME,
-                                            Blob::SRC_TABLE_FIELDNAME,
-                                            Blob::SRC_PK_FIELDNAME},
-                                Blob::TABLENAME);
+    // (a) For every BLOB...
+    QString sql = DbFunc::selectColumns(QStringList{DbConst::PK_FIELDNAME,
+                                                    Blob::SRC_TABLE_FIELDNAME,
+                                                    Blob::SRC_PK_FIELDNAME},
+                                        Blob::TABLENAME);
     QSqlQuery query(m_db);
     if (!DbFunc::execQuery(query, sql)) {
         queryFail(sql);
-        return;
+        return false;
     }
     while (query.next()) {
         // (b) find the table/PK of the linked task (or other table)
@@ -908,10 +1027,19 @@ void NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
         DbFunc::addWhereClause(sub1_where, sub1_sqlargs);
         int move_off_int = DbFunc::dbFetchInt(m_db, sub1_sqlargs, -1);
         if (move_off_int == -1) {
-            queryFail(sub1_sqlargs.sql);
-            return;
+            // No records matching
+            qWarning().nospace()
+                    << "BLOB refers to "
+                    << src_table
+                    << "."
+                    << DbConst::PK_FIELDNAME
+                    << " = "
+                    << src_pk
+                    << " but record doesn't exist!";
+            continue;
         }
         if (move_off_int == 0) {
+            // Record exists; task not marked for move-off
             continue;
         }
 
@@ -922,13 +1050,14 @@ void NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
         DbFunc::addWhereClause(sub2_where, sub2_sqlargs);
         if (!DbFunc::exec(m_db, sub2_sqlargs)) {
             queryFail(sub2_sqlargs.sql);
-            return;
+            return false;
         }
     }
+    return true;
 }
 
 
-void NetworkManager::writeIdDescriptionsToPatientTable()
+bool NetworkManager::writeIdDescriptionsToPatientTable()
 {
     statusMessage("Writing ID descriptions to patient table for upload");
     QStringList assignments;
@@ -946,8 +1075,9 @@ void NetworkManager::writeIdDescriptionsToPatientTable()
             .arg(assignments.join(", "));
     if (!DbFunc::exec(m_db, sql, args)) {
         queryFail(sql);
-        return;
+        return false;
     }
+    return true;
 }
 
 
@@ -1072,6 +1202,8 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
     case NextUploadStage::Finished:
         // All done successfully
         wipeTables();
+        statusMessage("Finished");
+        m_app.setNeedsUpload(false);
         succeed();
         break;
 
@@ -1115,6 +1247,9 @@ bool NetworkManager::arePoliciesOK()
     if (local_finalize != server_finalize) {
         statusMessage(QString("Local finalize policy [%1] doesn't match server's [%2]").arg(local_finalize).arg(server_finalize));
         ok = false;
+    }
+    if (ok) {
+        statusMessage("... OK");
     }
     return ok;
 }
@@ -1280,4 +1415,74 @@ void NetworkManager::queryFail(const QString &sql)
 {
     statusMessage("Query failed: " + sql);
     fail();
+}
+
+
+void NetworkManager::queryFailClearingMoveOffFlag(const QString& tablename)
+{
+    queryFail("... trying to clear move-off-tablet flag for table: " +
+              tablename);
+}
+
+
+bool NetworkManager::clearMoveOffTabletFlag(const QString& tablename)
+{
+    // 1. Clear all
+    QString sql = QString("UPDATE %1 SET %2 = 0")
+            .arg(delimit(tablename))
+            .arg(delimit(DbConst::MOVE_OFF_TABLET_FIELDNAME));
+    return DbFunc::exec(m_db, sql);
+}
+
+
+bool NetworkManager::pruneDeadBlobs()
+{
+    using DbFunc::delimit;
+    statusMessage("Removing any defunct binary large objects");
+
+    QStringList all_tables = DbFunc::getAllTables(m_db);
+    QList<int> bad_blob_pks;
+
+    // For all BLOBs...
+    QString sql = DbFunc::selectColumns(QStringList{DbConst::PK_FIELDNAME,
+                                                    Blob::SRC_TABLE_FIELDNAME,
+                                                    Blob::SRC_PK_FIELDNAME},
+                                        Blob::TABLENAME);
+    QSqlQuery query(m_db);
+    if (!DbFunc::execQuery(query, sql)) {
+        queryFail(sql);
+        return false;
+    }
+    while (query.next()) {
+        int blob_pk = query.value(0).toInt();
+        QString src_table = query.value(1).toString();
+        int src_pk = query.value(2).toInt();
+        if (src_pk == DbConst::NONEXISTENT_PK) {
+            continue;
+        }
+        // Does our BLOB refer to something non-existent?
+        if (!all_tables.contains(src_table) ||
+                !DbFunc::existsByPk(m_db, src_table,
+                                    DbConst::PK_FIELDNAME, src_pk)) {
+            bad_blob_pks.append(blob_pk);
+        }
+    }
+
+    int n_bad_blobs = bad_blob_pks.length();
+    if (n_bad_blobs == 0) {
+        return true;
+    }
+
+    qWarning() << "Deleting defunct BLOBs with PKs:" << bad_blob_pks;
+    QString paramholders = DbFunc::sqlParamHolders(n_bad_blobs);
+    sql = QString("DELETE FROM %1 WHERE %2 IN (%3)")
+            .arg(delimit(Blob::TABLENAME))
+            .arg(delimit(DbConst::PK_FIELDNAME))
+            .arg(paramholders);
+    ArgList args = DbFunc::argListFromIntList(bad_blob_pks);
+    if (!DbFunc::exec(m_db, sql, args)) {
+        queryFail(sql);
+        return false;
+    }
+    return true;
 }

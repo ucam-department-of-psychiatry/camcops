@@ -19,6 +19,7 @@
 
 #include <QList>
 #include <QSharedPointer>
+#include <QWeakPointer>
 
 class FieldRef;
 using FieldRefPtr = QSharedPointer<FieldRef>;
@@ -28,11 +29,21 @@ class Patient;
 using PatientPtr = QSharedPointer<Patient>;
 using PatientPtrList = QList<PatientPtr>;
 
+class QuElement;
+using QuElementPtr = QSharedPointer<QuElement>;
+using GridRowDefinition = QPair<QString, QuElementPtr>;
+using GridRowDefinitionRawPtr = QPair<QString, QuElement*>;
+
+class Questionnaire;
+using QuestionnairePtr = QSharedPointer<Questionnaire>;
+
 class StoredVar;
 using StoredVarPtr = QSharedPointer<StoredVar>;
 
 class Task;
 using TaskPtr = QSharedPointer<Task>;
+using TaskWeakPtr = QWeakPointer<Task>;
+using TaskPtrList = QList<TaskPtr>;
 
 class TaskFactory;
 using TaskFactoryPtr = QSharedPointer<TaskFactory>;

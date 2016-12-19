@@ -27,11 +27,13 @@ const QString BLOB_FIELDNAME("theblob"); // as per dbupload.js
 // ... was a "virtual" field under Titanium and file-based BLOBs.
 
 
-Blob::Blob(const QSqlDatabase& db,
+Blob::Blob(CamcopsApp& app,
+           const QSqlDatabase& db,
            const QString& src_table,
            int src_pk,
            const QString& src_field) :
-    DatabaseObject(db,
+    DatabaseObject(app,
+                   db,
                    TABLENAME,
                    DbConst::PK_FIELDNAME,
                    true,  // modification timestamp
@@ -55,7 +57,7 @@ Blob::Blob(const QSqlDatabase& db,
         where[SRC_TABLE_FIELDNAME] = src_table;
         where[SRC_PK_FIELDNAME] = src_pk;
         where[SRC_FIELD_FIELDNAME] = src_field;
-        bool success = load(where);
+        bool success = load(where);  // will load the BLOB, if present
         if (!success) {
             setValue(SRC_TABLE_FIELDNAME, src_table);
             setValue(SRC_PK_FIELDNAME, src_pk);

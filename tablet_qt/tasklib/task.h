@@ -61,12 +61,16 @@ public:
     virtual bool isCrippled() const { return !hasExtraStrings(); }
     virtual bool hasExtraStrings() const;
     // ------------------------------------------------------------------------
-    // Tables
+    // Tables and other classmethods
     // ------------------------------------------------------------------------
     virtual QStringList ancillaryTables() const { return QStringList(); }
+    virtual QString ancillaryTableFKToTaskFieldname() const { return ""; }
     QStringList allTables() const;
     virtual void makeTables();
     virtual void makeAncillaryTables() {}
+    int count(const WhereConditions& where = WhereConditions()) const;
+    int countForPatient(int patient_id) const;
+    virtual void deleteFromDatabase();
     // ------------------------------------------------------------------------
     // Database object functions
     // ------------------------------------------------------------------------
@@ -108,7 +112,6 @@ public:
 protected:
     void setPatient(int patient_id);  // used by derived classes
 protected:
-    CamcopsApp& m_app;
     mutable QSharedPointer<Patient> m_patient;
     bool m_editing;
     QDateTime m_editing_started;
@@ -119,12 +122,3 @@ protected:
 public:
     static const QString PATIENT_FK_FIELDNAME;
 };
-
-
-// ===========================================================================
-// Typedefs
-// ===========================================================================
-
-using TaskPtr = QSharedPointer<Task>;
-using TaskWeakPtr = QWeakPointer<Task>;
-using TaskPtrList = QList<TaskPtr>;

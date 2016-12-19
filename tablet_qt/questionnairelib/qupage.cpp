@@ -111,9 +111,9 @@ QPointer<QWidget> QuPage::widget(Questionnaire* questionnaire) const
         // or this can create standalone windows!
     }
     // Propagate up events from *all* widgets, including those in grids etc.
-    QList<QuElementPtr> elements = allElements();
-    for (QuElementPtr e : elements) {
-        connect(e.data(), &QuElement::elementValueChanged,
+    QList<QuElement*> elements = allElements();
+    for (QuElement* e : elements) {
+        connect(e, &QuElement::elementValueChanged,
                 this, &QuPage::elementValueChanged,
                 Qt::UniqueConnection);
     }
@@ -123,20 +123,20 @@ QPointer<QWidget> QuPage::widget(Questionnaire* questionnaire) const
 }
 
 
-QList<QuElementPtr> QuPage::allElements() const
+QList<QuElement*> QuPage::allElements() const
 {
-    QList<QuElementPtr> elements;
+    QList<QuElement*> elements;
     for (QuElementPtr e : m_elements) {
-        elements.append(e);
-        elements.append(e->subelements());
+        elements.append(e.data());
+        elements.append(e->subelementsRaw());
     }
     return elements;
 }
 
 
-QList<QuElementPtr> QuPage::elementsWithTag(const QString& tag)
+QList<QuElement*> QuPage::elementsWithTag(const QString& tag)
 {
-    QList<QuElementPtr> matching_elements;
+    QList<QuElement*> matching_elements;
     for (auto e : allElements()) {
         if (e->hasTag(tag)) {
             matching_elements.append(e);
@@ -148,8 +148,8 @@ QList<QuElementPtr> QuPage::elementsWithTag(const QString& tag)
 
 bool QuPage::missingInput() const
 {
-    QList<QuElementPtr> elements = allElements();
-    for (QuElementPtr e : elements) {
+    QList<QuElement*> elements = allElements();
+    for (QuElement* e : elements) {
         if (e->missingInput()) {
             if (!e->visible()) {
                 qWarning() << Q_FUNC_INFO << "TASK BUG: invisible widget "
@@ -164,8 +164,8 @@ bool QuPage::missingInput() const
 
 void QuPage::closing()
 {
-    QList<QuElementPtr> elements = allElements();
-    for (QuElementPtr e : elements) {
+    QList<QuElement*> elements = allElements();
+    for (auto e : elements) {
         e->closing();
     }
 }

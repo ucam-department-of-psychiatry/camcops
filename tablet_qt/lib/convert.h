@@ -68,6 +68,7 @@ namespace Convert
     QString prettyValue(const QVariant& variant);
     QString prettySize(double num, bool space = true, bool binary = false,
                        bool longform = false, const QString& suffix = "B");
+    QString prettyPointer(const void* pointer);
 
     // Network comms
 

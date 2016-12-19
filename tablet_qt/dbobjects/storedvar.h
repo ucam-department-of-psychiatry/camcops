@@ -17,12 +17,14 @@
 
 #pragma once
 #include "db/databaseobject.h"
+class CamcopsApp;
 
 
 class StoredVar : public DatabaseObject
 {
 public:
-    StoredVar(const QSqlDatabase& db,
+    StoredVar(CamcopsApp& app,
+              const QSqlDatabase& db,
               const QString& name = "",  // empty for a specimen
               QVariant::Type type = QVariant::Int,
               QVariant default_value = QVariant());

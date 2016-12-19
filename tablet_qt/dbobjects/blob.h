@@ -23,7 +23,8 @@
 class Blob : public DatabaseObject
 {
 public:
-    Blob(const QSqlDatabase& db,
+    Blob(CamcopsApp& app,
+         const QSqlDatabase& db,
          const QString& src_table = "",  // defaults for specimen construction
          int src_pk = -1,
          const QString& src_field = "");
@@ -32,6 +33,9 @@ public:
                  const QString& extension_without_dot = "png");
     QVariant blobVariant() const;
     QByteArray blobByteArray() const;
+
+    // Classmethod:
+
 public:
     static const QString TABLENAME;
     static const QString SRC_TABLE_FIELDNAME;

@@ -919,14 +919,19 @@ Network
   don't start/stop it.
 
 ===============================================================================
+NOT IMPLEMENTED
+===============================================================================
+
+- NOT: patient search bar
+  ... because (a) unlikely many patients are present, and
+              (b) it confused some people (by hiding options when search active)
+
+===============================================================================
 TO DO
 ===============================================================================
-- *** when patient edited, details not changing on patient list
-- *** UI for "set move-off patient flag"
-- *** ensure patient ID numbers cannot conflict
-- *** upload
+- *** tasks
 
-- *** when to call setNeedsUpload() -- attach to database ops? DatabaseObject?
+- *** chains (see e.g. ResearchMenu.js; MenuTableRow.js; QuestionnaireHeader.js...)
 
 - *** scrolling by touch on Android menus and questionnaires
     http://doc.qt.io/qt-5.7/gestures-overview.html
@@ -944,14 +949,6 @@ TO DO
 - "webview"-like tasks, e.g. ID/ED
   aspect ratio:
   http://stackoverflow.com/questions/452333/how-to-maintain-widgets-aspect-ratio-in-qt
-- For SQL bulk reads (uploading), see
-    http://stackoverflow.com/questions/18829018/qt-sql-get-column-type-and-name-from-table-without-record
-- Factory for registering things that must create tables
-    ... of which tasks are just one (but task registration should do this automatically)
-    ... once database is opened, call each one
-- Server-side generation of device ID
-  (as it's not feasible to generate a proper user- and machine-specific ID
-  across all OSs).
 
 - as per Julia's problem: >1 patient on tablet, need to have same RID (because
   extra one created by mistake) - option to merge
@@ -961,4 +958,3 @@ TO DO
   ... ensure that in general this is done by generate PKs -> yield Task -> filter
 
 - extra strings: ISO-639-1 two-letter language code (e.g. "en" English)
-

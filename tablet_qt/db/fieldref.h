@@ -77,7 +77,8 @@ public:
     FieldRef();
     FieldRef(Field* p_field, bool mandatory);
     FieldRef(DatabaseObject* p_dbobject, const QString& fieldname,
-             bool mandatory, bool autosave = true, bool blob = false);
+             bool mandatory, bool autosave = true, bool blob = false,
+             CamcopsApp* p_app = nullptr);
     FieldRef(const GetterFunction& getterfunc,
              const SetterFunction& setterfunc,
              bool mandatory);

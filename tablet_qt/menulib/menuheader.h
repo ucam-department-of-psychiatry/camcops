@@ -20,6 +20,7 @@
 #include <QWidget>
 #include "common/camcopsapp.h"  // for LockState
 
+class LabelWordWrapWide;
 class QAbstractButton;
 class QLabel;
 class QPushButton;
@@ -35,6 +36,8 @@ public:
                const QString& title,
                const QString& icon_filename = "",
                bool debug_allowed = false);
+    void setTitle(const QString& title);
+
 signals:
     void backClicked();
     void viewClicked();
@@ -42,21 +45,29 @@ signals:
     void deleteClicked();
     void addClicked();
     void debugLayout();
+    void finishFlagClicked();
 
 public slots:
     void offerView(bool offer_view = false);
     void offerEditDelete(bool offer_edit = false, bool offer_delete = false);
     void offerAdd(bool offer_add = false);
+    void offerFinishFlag(bool offer_finish_flag = false);
     void lockStateChanged(CamcopsApp::LockState lockstate);
     void whiskerConnectionStateChanged(bool connected);
     void needsUploadChanged(bool needs_upload);
     void selectedPatientChanged(const Patient* patient);
+    void selectedPatientDetailsChanged(const Patient* patient);
+
+protected:
+    void setPatientDetails(const Patient* patient);
 
 protected:
     CamcopsApp& m_app;
+    QPointer<LabelWordWrapWide> m_title_label;
     QPointer<QLabel> m_icon_whisker_connected;
-    QPointer<QLabel> m_icon_needs_upload;
+    QPointer<QAbstractButton> m_button_needs_upload;
     QPointer<QPushButton> m_button_debug;
+    QPointer<QAbstractButton> m_button_finish_flag;
     QPointer<QAbstractButton> m_button_view;
     QPointer<QAbstractButton> m_button_edit;
     QPointer<QAbstractButton> m_button_delete;

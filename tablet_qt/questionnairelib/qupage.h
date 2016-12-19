@@ -55,7 +55,7 @@ public:
     QuPage* setTitle(const QString& title);
     QuPage* addElement(const QuElementPtr& element);
     QuPage* addElement(QuElement* element);  // takes ownership
-    QList<QuElementPtr> elementsWithTag(const QString& tag);
+    QList<QuElement*> elementsWithTag(const QString& tag);
 
     virtual ~QuPage();
 
@@ -65,7 +65,7 @@ signals:
     void elementValueChanged();
 protected:
     QPointer<QWidget> widget(Questionnaire* questionnaire) const;
-    QList<QuElementPtr> allElements() const;
+    QList<QuElement*> allElements() const;
     bool missingInput() const;
     void closing();
 protected:

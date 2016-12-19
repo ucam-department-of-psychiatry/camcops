@@ -15,6 +15,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// #define DEBUG_SLOTS
+
 #include "menuheader.h"
 #include <QAbstractButton>
 #include <QLabel>
@@ -38,7 +40,7 @@ MenuHeader::MenuHeader(QWidget* parent,
     : QWidget(parent),
       m_app(app),
       m_icon_whisker_connected(nullptr),
-      m_icon_needs_upload(nullptr),
+      m_button_needs_upload(nullptr),
       m_button_debug(nullptr),
       m_button_view(nullptr),
       m_button_edit(nullptr),
@@ -67,7 +69,8 @@ MenuHeader::MenuHeader(QWidget* parent,
         toprowlayout->addWidget(back);
         toprowlayout->setAlignment(back, button_align);
         connect(back, &QAbstractButton::clicked,
-                this, &MenuHeader::backClicked);
+                this, &MenuHeader::backClicked,
+                Qt::UniqueConnection);
     }
 
     // Icon
@@ -78,10 +81,10 @@ MenuHeader::MenuHeader(QWidget* parent,
     }
 
     // Title
-    LabelWordWrapWide* title_label = new LabelWordWrapWide(title);
-    title_label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    title_label->setObjectName(CssConst::MENU_WINDOW_TITLE);
-    toprowlayout->addWidget(title_label);
+    m_title_label = new LabelWordWrapWide(title);
+    m_title_label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    m_title_label->setObjectName(CssConst::MENU_WINDOW_TITLE);
+    toprowlayout->addWidget(m_title_label);
 
     // Spacing
     toprowlayout->addStretch();
@@ -97,21 +100,27 @@ MenuHeader::MenuHeader(QWidget* parent,
     }
 
     // - Task verb buttons
+    m_button_finish_flag = new ImageButton(UiConst::CBS_FINISHFLAG);
     m_button_view = new ImageButton(UiConst::CBS_ZOOM);
     m_button_edit = new ImageButton(UiConst::CBS_EDIT);
     m_button_delete = new ImageButton(UiConst::CBS_DELETE);
     m_button_add = new ImageButton(UiConst::CBS_ADD);
+    toprowlayout->addWidget(m_button_finish_flag);
     toprowlayout->addWidget(m_button_view);
     toprowlayout->addWidget(m_button_edit);
     toprowlayout->addWidget(m_button_delete);
     toprowlayout->addWidget(m_button_add);
+    toprowlayout->setAlignment(m_button_finish_flag, button_align);
     toprowlayout->setAlignment(m_button_view, button_align);
     toprowlayout->setAlignment(m_button_edit, button_align);
     toprowlayout->setAlignment(m_button_delete, button_align);
     toprowlayout->setAlignment(m_button_add, button_align);
+    offerFinishFlag();
     offerView();
     offerEditDelete();
     offerAdd();
+    connect(m_button_finish_flag, &QAbstractButton::clicked,
+            this, &MenuHeader::finishFlagClicked);
     connect(m_button_view, &QAbstractButton::clicked,
             this, &MenuHeader::viewClicked);
     connect(m_button_edit, &QAbstractButton::clicked,
@@ -129,11 +138,12 @@ MenuHeader::MenuHeader(QWidget* parent,
     whiskerConnectionStateChanged(m_app.whiskerConnected());
 
     // - Needs upload
-    m_icon_needs_upload = UiFunc::iconWidget(
-                UiFunc::iconFilename(UiConst::ICON_UPLOAD), this);
-    toprowlayout->addWidget(m_icon_needs_upload);
-    toprowlayout->setAlignment(m_icon_needs_upload, button_align);
+    m_button_needs_upload = new ImageButton(UiConst::ICON_UPLOAD);
+    toprowlayout->addWidget(m_button_needs_upload);
+    toprowlayout->setAlignment(m_button_needs_upload, button_align);
     needsUploadChanged(m_app.needsUpload());
+    connect(m_button_needs_upload, &QAbstractButton::clicked,
+            &m_app, &CamcopsApp::upload);
 
     // - Locked/unlocked/privileged
     m_button_locked = new ImageButton(UiConst::CBS_LOCKED);
@@ -171,19 +181,35 @@ MenuHeader::MenuHeader(QWidget* parent,
     m_no_patient->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     m_no_patient->setObjectName(CssConst::MENU_HEADER_NO_PATIENT);
     mainlayout->addWidget(m_no_patient);
-    selectedPatientChanged(m_app.selectedPatient());
+    setPatientDetails(m_app.selectedPatient());
 
     // ========================================================================
     // Incoming signals
     // ========================================================================
     connect(&m_app, &CamcopsApp::whiskerConnectionStateChanged,
-            this, &MenuHeader::whiskerConnectionStateChanged);
+            this, &MenuHeader::whiskerConnectionStateChanged,
+            Qt::UniqueConnection);
     connect(&m_app, &CamcopsApp::lockStateChanged,
-            this, &MenuHeader::lockStateChanged);
+            this, &MenuHeader::lockStateChanged,
+            Qt::UniqueConnection);
     connect(&m_app, &CamcopsApp::selectedPatientChanged,
-            this, &MenuHeader::selectedPatientChanged);
+            this, &MenuHeader::selectedPatientChanged,
+            Qt::UniqueConnection);
     connect(&m_app, &CamcopsApp::selectedPatientDetailsChanged,
-            this, &MenuHeader::selectedPatientChanged);
+            this, &MenuHeader::selectedPatientDetailsChanged,
+            Qt::UniqueConnection);
+    connect(&m_app, &CamcopsApp::needsUploadChanged,
+            this, &MenuHeader::needsUploadChanged,
+            Qt::UniqueConnection);
+}
+
+
+void MenuHeader::setTitle(const QString& title)
+{
+    if (!m_title_label) {
+        return;
+    }
+    m_title_label->setText(title);
 }
 
 
@@ -203,11 +229,29 @@ void MenuHeader::whiskerConnectionStateChanged(bool connected)
 
 void MenuHeader::needsUploadChanged(bool needs_upload)
 {
-    m_icon_needs_upload->setVisible(needs_upload);
+    m_button_needs_upload->setVisible(needs_upload);
 }
 
 
 void MenuHeader::selectedPatientChanged(const Patient* patient)
+{
+#ifdef DEBUG_SLOTS
+    qDebug() << Q_FUNC_INFO << "[this:" << this << "]";
+#endif
+    setPatientDetails(patient);
+}
+
+
+void MenuHeader::selectedPatientDetailsChanged(const Patient* patient)
+{
+#ifdef DEBUG_SLOTS
+    qDebug() << Q_FUNC_INFO << "[this:" << this << "]";
+#endif
+    setPatientDetails(patient);
+}
+
+
+void MenuHeader::setPatientDetails(const Patient* patient)
 {
     bool selected = patient != nullptr;
     QString info;
@@ -220,7 +264,9 @@ void MenuHeader::selectedPatientChanged(const Patient* patient)
                 .arg(patient->dobText())
                 .arg(patient->shortIdnumSummary());
     }
-    qDebug() << Q_FUNC_INFO << info;
+#ifdef DEBUG_SLOTS
+    qDebug() << Q_FUNC_INFO << info << "[patient:" << patient << "]";
+#endif
     m_patient_info->setText(info);
     m_no_patient->setVisible(!selected);
     m_patient_info->setVisible(selected);
@@ -243,4 +289,10 @@ void MenuHeader::offerEditDelete(bool offer_edit, bool offer_delete)
 void MenuHeader::offerAdd(bool offer_add)
 {
     m_button_add->setVisible(offer_add);
+}
+
+
+void MenuHeader::offerFinishFlag(bool offer_finish_flag)
+{
+    m_button_finish_flag->setVisible(offer_finish_flag);
 }

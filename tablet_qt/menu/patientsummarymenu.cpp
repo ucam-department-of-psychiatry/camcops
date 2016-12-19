@@ -28,12 +28,20 @@ PatientSummaryMenu::PatientSummaryMenu(CamcopsApp& app) :
                UiFunc::iconFilename(UiConst::ICON_PATIENT_SUMMARY))
 {
     // m_items is EXPENSIVE (and depends on security), so leave it to build()
+
+    // Signals
+    connect(&m_app, &CamcopsApp::selectedPatientChanged,
+            this, &PatientSummaryMenu::selectedPatientChanged,
+            Qt::UniqueConnection);
+    connect(&m_app, &CamcopsApp::taskAlterationFinished,
+            this, &PatientSummaryMenu::taskFinished,
+            Qt::UniqueConnection);
 }
 
 
 void PatientSummaryMenu::build()
 {
-    TaskFactoryPtr factory = m_app.taskFactory();
+    TaskFactory* factory = m_app.taskFactory();
 
     // Common items
     m_items = {
@@ -51,14 +59,6 @@ void PatientSummaryMenu::build()
 
     // Call parent build()
     MenuWindow::build();
-
-    // Signals
-    connect(&m_app, &CamcopsApp::selectedPatientChanged,
-            this, &PatientSummaryMenu::selectedPatientChanged,
-            Qt::UniqueConnection);
-    connect(&m_app, &CamcopsApp::taskAlterationFinished,
-            this, &PatientSummaryMenu::taskFinished,
-            Qt::UniqueConnection);
 }
 
 

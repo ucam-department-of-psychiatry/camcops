@@ -19,11 +19,8 @@
 #include <QList>
 #include <QPair>
 #include <QSharedPointer>
+#include <common/aliases_camcops.h>
 
-class QuElement;
-using QuElementPtr = QSharedPointer<QuElement>;
-using GridRowDefinition = QPair<QString, QuElementPtr>;
-using GridRowDefinitionRawPtr = QPair<QString, QuElement*>;
 class QuGridCell;
 
 

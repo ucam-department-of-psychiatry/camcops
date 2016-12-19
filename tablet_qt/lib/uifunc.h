@@ -117,6 +117,8 @@ namespace UiFunc {
                                  const QStyleOptionFrame* opt,
                                  const QSize& child_size);
 
+    // void clearLayout(QLayout* layout);
+
     // Size policies that take a few statements to create:
     QSizePolicy expandingFixedHFWPolicy();
     QSizePolicy expandingPreferredHFWPolicy();

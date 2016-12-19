@@ -32,6 +32,10 @@
 #include "lib/uifunc.h"
 
 
+// ============================================================================
+// Constants
+// ============================================================================
+
 namespace DbFunc {
 
     const QString DATA_DATABASE_FILENAME("camcops_data.sqlite");
@@ -40,6 +44,10 @@ namespace DbFunc {
 
 }
 
+
+// ============================================================================
+// Database operations
+// ============================================================================
 
 void DbFunc::openDatabaseOrDie(QSqlDatabase& db, const QString& filename)
 {
@@ -72,6 +80,10 @@ void DbFunc::openDatabaseOrDie(QSqlDatabase& db, const QString& filename)
     }
 }
 
+
+// ============================================================================
+// SQL fragments
+// ============================================================================
 
 QString DbFunc::delimit(const QString& identifier)
 {
@@ -116,6 +128,10 @@ SqlArgs DbFunc::updateColumns(const UpdateValues& updatevalues,
     return SqlArgs(sql, args);
 }
 
+
+// ============================================================================
+// Queries
+// ============================================================================
 
 void DbFunc::addWhereClause(const WhereConditions& where,
                             SqlArgs& sqlargs_altered)
@@ -354,26 +370,69 @@ int DbFunc::count(const QSqlDatabase& db,
 }
 
 
+QList<int> DbFunc::getSingleFieldAsIntList(const QSqlDatabase& db,
+                                           const QString& tablename,
+                                           const QString& fieldname,
+                                           const WhereConditions& where)
+{
+    SqlArgs sqlargs(QString("SELECT %1 FROM %2")
+                    .arg(delimit(fieldname))
+                    .arg(delimit(tablename)));
+    addWhereClause(where, sqlargs);
+    QSqlQuery query(db);
+    QList<int> results;
+    if (!execQuery(query, sqlargs)) {
+        return results;  // empty list on failure
+    }
+    while (query.next()) {
+        results.append(query.value(0).toInt());
+    }
+    return results;
+}
+
+
 QList<int> DbFunc::getPKs(const QSqlDatabase& db,
                           const QString& tablename,
                           const QString& pkname,
                           const WhereConditions& where)
 {
-    SqlArgs sqlargs(QString("SELECT %1 FROM %2")
-                    .arg(delimit(pkname))
-                    .arg(delimit(tablename)));
-    addWhereClause(where, sqlargs);
-    QSqlQuery query(db);
-    QList<int> pks;
-    if (!execQuery(query, sqlargs)) {
-        return pks;  // empty list on failure
-    }
-    while (query.next()) {
-        pks.append(query.value(0).toInt());
-    }
-    return pks;
+    return getSingleFieldAsIntList(db, tablename, pkname, where);
 }
 
+
+bool DbFunc::existsByPk(const QSqlDatabase& db, const QString& tablename,
+                        const QString& pkname, int pkvalue)
+{
+    SqlArgs sqlargs(
+        QString("SELECT EXISTS(SELECT * FROM %1 WHERE %2 = ?)")
+                .arg(delimit(tablename))
+                .arg(delimit(pkname)),
+        ArgList{pkvalue}
+    );
+    // EXISTS always returns 0 or 1
+    // https://www.sqlite.org/lang_expr.html
+    return dbFetchInt(db, sqlargs) == 1;
+}
+
+
+// ============================================================================
+// Modification queries
+// ============================================================================
+
+bool DbFunc::deleteFrom(const QSqlDatabase& db,
+                        const QString& tablename,
+                        const WhereConditions& where)
+{
+    SqlArgs sqlargs(QString("DELETE FROM %1").arg(delimit(tablename)));
+    addWhereClause(where, sqlargs);
+    QSqlQuery query(db);
+    return execQuery(query, sqlargs);
+}
+
+
+// ============================================================================
+// Database structure
+// ============================================================================
 
 QStringList DbFunc::getAllTables(const QSqlDatabase& db)
 {
@@ -396,17 +455,6 @@ QStringList DbFunc::getAllTables(const QSqlDatabase& db)
         tablenames.append(query.value(0).toString());
     }
     return tablenames;
-}
-
-
-bool DbFunc::deleteFrom(const QSqlDatabase& db,
-                        const QString& tablename,
-                        const WhereConditions& where)
-{
-    SqlArgs sqlargs(QString("DELETE FROM %1").arg(delimit(tablename)));
-    addWhereClause(where, sqlargs);
-    QSqlQuery query(db);
-    return execQuery(query, sqlargs);
 }
 
 
@@ -505,6 +553,10 @@ QString DbFunc::dbTableDefinitionSql(const QSqlDatabase& db,
     return dbFetchFirstValue(db, sql, args).toString();
 }
 
+
+// ============================================================================
+// Altering structure
+// ============================================================================
 
 bool DbFunc::createIndex(const QSqlDatabase& db, const QString& indexname,
                          const QString& tablename, QStringList fieldnames)

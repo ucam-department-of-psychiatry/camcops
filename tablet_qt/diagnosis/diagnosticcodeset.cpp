@@ -21,7 +21,7 @@
 const QString BAD_STRING("[bad_string]");
 
 
-DiagnosticCodeSet::DiagnosticCodeSet(const CamcopsApp& app,
+DiagnosticCodeSet::DiagnosticCodeSet(CamcopsApp& app,
                                      const QString& setname,
                                      const QString& title,  QObject* parent) :
     QAbstractItemModel(parent),
@@ -199,7 +199,7 @@ QDebug operator<<(QDebug debug, const DiagnosticCodeSet& d)
 }
 
 
-QString DiagnosticCodeSet::xstring(const QString& stringname) const
+QString DiagnosticCodeSet::xstring(const QString& stringname)
 {
     return m_app.xstring(m_setname, stringname);
 }

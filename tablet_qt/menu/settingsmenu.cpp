@@ -536,7 +536,7 @@ void SettingsMenu::fontSizeChanged()
     if (!m_fontsize_questionnaire || !m_fontsize_fr) {
         return;
     }
-    QuPagePtr page = m_fontsize_questionnaire->currentPagePtr();
+    QuPage* page = m_fontsize_questionnaire->currentPagePtr();
     if (!page) {
         return;
     }
@@ -550,12 +550,12 @@ void SettingsMenu::fontSizeChanged()
             int fontsize_pt = m_app.fontSizePt(fontsize_type, current_pct);
             QString text = demoText(tag, fontsize_type);
             // Here's the slightly nasty bit:
-            QuText* textelement = dynamic_cast<QuText*>(e.data());
+            QuText* textelement = dynamic_cast<QuText*>(e);
             if (!textelement) {
                 continue;
             }
             textelement->forceFontSize(fontsize_pt, false);
-            textelement->forceText(text);
+            textelement->setText(text);
         }
     }
 }
@@ -899,7 +899,7 @@ void SettingsMenu::saveDataDbAsSql()
         return;
     }
     QTextStream os(&file);
-    m_app.dumpSystemDatabase(os);
+    m_app.dumpDataDatabase(os);
     UiFunc::alert(tr("Data database written to: ") + filename, tr("Success"));
 }
 

@@ -20,6 +20,7 @@
 #include <QList>
 #include <QPointer>
 #include <QSharedPointer>
+#include "common/aliases_camcops.h"
 #include "common/uiconstants.h"  // for FontSize
 #include "widgets/openablewidget.h"
 #include "qupage.h"
@@ -28,8 +29,6 @@ class QVBoxLayout;
 class QWidget;
 
 class CamcopsApp;
-class Questionnaire;
-using QuestionnairePtr = QSharedPointer<Questionnaire>;
 class QuestionnaireHeader;
 
 
@@ -58,8 +57,14 @@ public:
     void openSubWidget(OpenableWidget* widget);
     CamcopsApp& app() const;
     QString getSubstitutedCss(const QString& filename) const;
-    QuPagePtr currentPagePtr() const;
-    void setVisibleByTag(const QString& tag, bool visible);
+    QuPage* currentPagePtr() const;
+    void setVisibleByTag(const QString& tag, bool visible,
+                         bool current_page = true);
+    QList<QuElement*> getElementsByTag(const QString& tag,
+                                       bool current_page = true);
+    QuElement* getFirstElementByTag(const QString& tag,
+                                    bool current_page = true);
+    QList<QuPage*> getPages(bool current_page);
 protected:
     void commonConstructor();
     int currentPageNumOneBased() const;

@@ -22,15 +22,11 @@
 #include <QPointer>
 #include <QSharedPointer>
 #include <QStringList>
+#include "common/aliases_camcops.h"
 // #include "lib/cloneable.h"
 
 class QWidget;
-class FieldRef;
-using FieldRefPtr = QSharedPointer<FieldRef>;
-using FieldRefPtrList = QList<FieldRefPtr>;
 class Questionnaire;
-class QuElement;
-using QuElementPtr = QSharedPointer<QuElement>;
 
 
 class QuElement : public QObject
@@ -67,6 +63,7 @@ protected:
     void setVisible(bool visible);
 
     virtual QList<QuElementPtr> subelements() const;
+    QList<QuElement*> subelementsRaw() const;
     virtual bool missingInput() const;
     virtual FieldRefPtrList fieldrefs() const;
     virtual void closing();  // called prior to focus leaving this page (e.g. silence audio)

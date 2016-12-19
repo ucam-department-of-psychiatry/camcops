@@ -402,6 +402,14 @@ QString Convert::prettySize(double num, bool space, bool binary, bool longform,
 }
 
 
+QString Convert::prettyPointer(const void* pointer)
+{
+    // http://stackoverflow.com/questions/8881923/how-to-convert-a-pointer-value-to-qstring
+    return QString("0x%1").arg((quintptr)pointer,
+                               QT_POINTER_SIZE * 2, 16, QChar('0'));
+}
+
+
 QMap<QString, QString> Convert::getReplyDict(const QByteArray& data)
 {
     // For server replies looking like key1:value1\nkey2:value2 ...

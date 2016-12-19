@@ -66,12 +66,15 @@ public:
     bool compliesWithUpload() const;
     bool compliesWithFinalize() const;
     QString shortIdnumSummary() const;
+    bool othersClashOnIdnum(int which_idnum) const;
+    bool anyIdClash() const;
+    int numTasks() const;
+    virtual void deleteFromDatabase() override;
 public:
     static const QString TABLENAME;
 protected:
     void updateQuestionnaireIndicators(const FieldRef* fieldref = nullptr,
                                        const QObject* originator = nullptr);
 protected:
-    CamcopsApp& m_app;
     QPointer<Questionnaire> m_questionnaire;
 };

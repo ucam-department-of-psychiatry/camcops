@@ -256,7 +256,8 @@ SOURCES += main.cpp\
     lib/mathfunc.cpp \
     db/dumpsql.cpp \
     dialogs/scrollmessagebox.cpp \
-    dialogs/logmessagebox.cpp
+    dialogs/logmessagebox.cpp \
+    dbobjects/patientsorter.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -438,7 +439,8 @@ HEADERS  += \
     common/aliases_camcops.h \
     db/dumpsql.h \
     dialogs/scrollmessagebox.h \
-    dialogs/logmessagebox.h
+    dialogs/logmessagebox.h \
+    dbobjects/patientsorter.h
 
 DISTFILES += \
     notes/qt_notes.txt \

@@ -17,19 +17,20 @@
 
 #pragma once
 #include "db/databaseobject.h"
+class CamcopsApp;
 
 
 class ExtraString : public DatabaseObject
 {
 public:
     // Specimen constructor:
-    ExtraString(const QSqlDatabase& db);
+    ExtraString(CamcopsApp& app, const QSqlDatabase& db);
     // String loading constructor:
-    ExtraString(const QSqlDatabase& db,
+    ExtraString(CamcopsApp& app, const QSqlDatabase& db,
                 const QString& task,
                 const QString& name);
     // String saving constructor:
-    ExtraString(const QSqlDatabase& db,
+    ExtraString(CamcopsApp& app, const QSqlDatabase& db,
                 const QString& task,
                 const QString& name,
                 const QString& value);

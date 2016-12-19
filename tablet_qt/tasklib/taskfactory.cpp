@@ -49,6 +49,7 @@ void TaskFactory::finishRegistration()
         cache.tablename = p_task->tablename();
         cache.shortname = p_task->shortname();
         cache.longname = p_task->longname();
+        cache.anonymous = p_task->isAnonymous();
         cache.alltables = p_task->allTables();
         cache.proxy = proxy;
         if (m_map.contains(cache.tablename)) {
@@ -169,10 +170,9 @@ TaskPtrList TaskFactory::fetch(const QString& tablename, bool sort) const
         //   ... if you choose "none", users will probably wonder where
         //       tasks are vanishing to
         // - Anonymous task / no patient selected -> all such tasks
-        ProxyType proxy = m_map[tablename].proxy;
-        TaskPtr specimen = proxy->create(m_app, m_app.db(),
-                                         DbConst::NONEXISTENT_PK);
-        bool anonymous = specimen->isAnonymous();
+        const TaskCache& cache = m_map[tablename];
+        ProxyType proxy = cache.proxy;
+        bool anonymous = cache.anonymous;
         bool locked = m_app.locked();
         if (anonymous) {
             tasklist = proxy->fetch(m_app, m_app.db(), DbConst::NONEXISTENT_PK);
@@ -184,10 +184,64 @@ TaskPtrList TaskFactory::fetch(const QString& tablename, bool sort) const
     }
 
     if (sort) {
-        qDebug() << "Starting sort...";
+        // qDebug() << "Starting sort...";
         qSort(tasklist.begin(), tasklist.end(), TaskSorter());
-        qDebug() << "... finished sort";
+        // qDebug() << "... finished sort";
     }
 
     return tasklist;
+}
+
+
+TaskPtrList TaskFactory::fetchAllForPatient(int patient_id) const
+{
+    TaskPtrList tasklist;
+    MapIteratorType it(m_map);
+    while (it.hasNext()) {
+        it.next();
+        const TaskCache& cache = it.value();
+        bool anonymous = cache.anonymous;
+        if (anonymous) {
+            continue;
+        }
+        ProxyType proxy = cache.proxy;
+        tasklist += proxy->fetch(m_app, m_app.db(), patient_id);
+    }
+    return tasklist;
+}
+
+
+TaskPtrList TaskFactory::allSpecimens() const
+{
+    TaskPtrList specimens;
+    MapIteratorType it(m_map);
+    while (it.hasNext()) {
+        it.next();
+        const TaskCache& cache = it.value();
+        ProxyType proxy = cache.proxy;
+        TaskPtr specimen = proxy->create(m_app, m_app.db(),
+                                         DbConst::NONEXISTENT_PK);
+        specimens.append(specimen);
+    }
+    return specimens;
+}
+
+
+TaskPtrList TaskFactory::allSpecimensExceptAnonymous() const
+{
+    TaskPtrList specimens;
+    MapIteratorType it(m_map);
+    while (it.hasNext()) {
+        it.next();
+        const TaskCache& cache = it.value();
+        bool anonymous = cache.anonymous;
+        if (anonymous) {
+            continue;
+        }
+        ProxyType proxy = cache.proxy;
+        TaskPtr specimen = proxy->create(m_app, m_app.db(),
+                                         DbConst::NONEXISTENT_PK);
+        specimens.append(specimen);
+    }
+    return specimens;
 }

@@ -46,10 +46,10 @@ namespace DbFunc {
     QString delimit(const QString& identifier);
     QString selectColumns(const QStringList& columns, const QString& table);
     SqlArgs updateColumns(const UpdateValues& updatevalues, const QString& table);
-    void addWhereClause(const WhereConditions& where, SqlArgs& sqlargs_altered);
 
     // Queries
 
+    void addWhereClause(const WhereConditions& where, SqlArgs& sqlargs_altered);
     void addArgs(QSqlQuery& query, const ArgList& args);
     bool execQuery(QSqlQuery& query, const QString& sql,
                     const ArgList& args);
@@ -81,12 +81,16 @@ namespace DbFunc {
               const QString& tablename,
               const WhereConditions& where = WhereConditions());
 
+    QList<int> getSingleFieldAsIntList(const QSqlDatabase& db,
+                                       const QString& tablename,
+                                       const QString& fieldname,
+                                       const WhereConditions& where);
     QList<int> getPKs(const QSqlDatabase& db,
                       const QString& tablename,
                       const QString& pkname,
                       const WhereConditions& where = WhereConditions());
-
-    QStringList getAllTables(const QSqlDatabase& db);
+    bool existsByPk(const QSqlDatabase& db, const QString& tablename,
+                    const QString& pkname, int pkvalue);
 
     // Modification queries
 
@@ -96,6 +100,7 @@ namespace DbFunc {
 
     // Database structure
 
+    QStringList getAllTables(const QSqlDatabase& db);
     bool tableExists(const QSqlDatabase& db, const QString& tablename);
     QList<SqlitePragmaInfoField> getPragmaInfo(const QSqlDatabase& db,
                                           const QString& tablename);

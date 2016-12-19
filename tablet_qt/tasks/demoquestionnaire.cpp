@@ -100,10 +100,10 @@ DemoQuestionnaire::DemoQuestionnaire(CamcopsApp& app,
     addField("diagnosticcode_description", QVariant::String);
     addField("diagnosticcode2_code", QVariant::String);  // v2
     addField("diagnosticcode2_description", QVariant::String);  // v2
-    addField("photo_blobid", QVariant::String);  // FK to BLOB table
+    addField("photo_blobid", QVariant::Int);  // FK to BLOB table
     // addField("photo_rotation", QVariant::String);  // DEFUNCT in v2
-    addField("canvas_blobid", QVariant::String);  // FK to BLOB table
-    addField("canvas2_blobid", QVariant::String);  // FK to BLOB table; v2
+    addField("canvas_blobid", QVariant::Int);  // FK to BLOB table
+    addField("canvas2_blobid", QVariant::Int);  // FK to BLOB table; v2
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

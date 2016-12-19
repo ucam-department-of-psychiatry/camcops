@@ -2,6 +2,7 @@
 #include <QObject>
 #include <QVariant>
 #include "common/camcopsapp.h"
+#include "db/dbfunc.h"
 #include "dbobjects/patient.h"
 #include "lib/datetimefunc.h"
 #include "lib/stringfunc.h"
@@ -30,8 +31,7 @@ Task::Task(CamcopsApp& app,
            bool is_anonymous,
            bool has_clinician,
            bool has_respondent) :
-    DatabaseObject(db, tablename, DbConst::PK_FIELDNAME, true, true),
-    m_app(app),
+    DatabaseObject(app, db, tablename, DbConst::PK_FIELDNAME, true, true),
     m_patient(nullptr),
     m_editing(false)
 {
@@ -122,6 +122,32 @@ void Task::makeTables()
 {
     makeTable();
     makeAncillaryTables();
+}
+
+
+int Task::count(const WhereConditions& where) const
+{
+    return DbFunc::count(m_db, m_tablename, where);
+}
+
+
+int Task::countForPatient(int patient_id) const
+{
+    if (isAnonymous()) {
+        return 0;
+    }
+    WhereConditions where;
+    where[PATIENT_FK_FIELDNAME] = patient_id;
+    return count(where);
+}
+
+
+void Task::deleteFromDatabase()
+{
+    // Delete any ancillary objects (which should in turn look after themselves)
+    // ***
+    // Delete ourself
+    DatabaseObject::deleteFromDatabase();
 }
 
 
@@ -289,7 +315,7 @@ void Task::setPatient(int patient_id)
         UiFunc::stopApp("Setting patient ID, but it was already set");
     }
     setValue(PATIENT_FK_FIELDNAME, patient_id);
-    m_patient = QSharedPointer<Patient>(nullptr);
+    m_patient.clear();
 }
 
 

@@ -104,6 +104,10 @@ protected:
 
 private:
     void setDefaults();
+
+public:
+    friend QDebug operator<<(QDebug debug, const MenuItem& m);
+    friend QDebug operator<<(QDebug debug, const MenuItem* m);
 };
 
 

@@ -74,41 +74,39 @@ QString& DumpSql::replaceFirst(QString& str, const QString& from,
 }
 
 
-DumpSql::DumpResult DumpSql::runTableDumpQuery(const QSqlDatabase& db,
-                                                  const QString& sql,
-                                                  const QString& firstrow) {
-    DumpResult r;
+void DumpSql::runTableDumpQuery(QTextStream& os,
+                                const QSqlDatabase& db,
+                                const QString& sql,
+                                const QString& firstrow) {
     QSqlQuery query(db);
     if (!DbFunc::execQuery(query, sql)) {
-        return r;
+        return;
     }
-    r.result += firstrow;
+    os << firstrow;
     QSqlRecord rec = query.record();
     int ncols = rec.count();
     while (query.next()) {
         for (int i = 0; i < ncols; ++i) {
             if (i > 0) {
-                r.result += VALUE_SEP_COMMA;
+                os << VALUE_SEP_COMMA;
             }
-            r.result += query.value(i).toString();
+            os << query.value(i).toString();
         }
         if (ncols == 1 && query.value(0).toString().contains("--")) {
-            r.result += NL; // so comments don't subsume the final ";"
+            os << NL; // so comments don't subsume the final ";"
         }
-        r.result += DUMP_T_SQL_TERMINATOR;
+        os << DUMP_T_SQL_TERMINATOR;
     }
-    return r;
 }
 
 
-DumpSql::DumpResult DumpSql::runSchemaDumpQuery(const QSqlDatabase& db,
-                                                   const QString& schema_query_sql,
-                                                   bool writableSchema) {
-    DumpResult r;
-    r.writable_schema = writableSchema;
+bool DumpSql::runSchemaDumpQuery(QTextStream& os,
+                                 const QSqlDatabase& db,
+                                 const QString& schema_query_sql,
+                                 bool writable_schema) {
     QSqlQuery query(db);
     if (!DbFunc::execQuery(query, schema_query_sql)) {
-        return r;
+        return writable_schema;
     }
     bool firstline = true;
     while (query.next()) {
@@ -116,7 +114,7 @@ DumpSql::DumpResult DumpSql::runSchemaDumpQuery(const QSqlDatabase& db,
         QString type = query.value(1).toString();
         QString maketable_sql = query.value(2).toString();
         if (!firstline) {
-            r.result += NL;
+            os << NL;
         } else {
             firstline = false;
         }
@@ -124,24 +122,24 @@ DumpSql::DumpResult DumpSql::runSchemaDumpQuery(const QSqlDatabase& db,
         if (table == TYPE_SEQUENCE) {
             prepstatement = DELETE_SEQUENCES;
         } else if (table == STAT1) {
-            r.result += ANALYSE_MASTER;
+            os << ANALYSE_MASTER;
         } else if (table.startsWith(PREFIX)) {
             continue;
         }
         if (maketable_sql.startsWith(CREATE_VT)) {
-            if (!writableSchema) {
-                r.result += DUMP_T_WSON;
-                r.writable_schema = true;
+            if (!writable_schema) {
+                os << DUMP_T_WSON;
+                writable_schema = true;
             }
             QString ins = INSERT_INTO_MASTER;
             replaceFirst(ins, PLACEHOLDER, table);
             replaceFirst(ins, PLACEHOLDER, table);  // correct; table again
             replaceFirst(ins, PLACEHOLDER, maketable_sql);
             // ... seems to handle e.g. escaped quotes correctly
-            r.result += ins + DUMP_T_SQL_TERMINATOR;
+            os << ins << DUMP_T_SQL_TERMINATOR;
             continue;
         }
-        r.result += maketable_sql + DUMP_T_SQL_TERMINATOR;
+        os << maketable_sql << DUMP_T_SQL_TERMINATOR;
         if (type == TYPE_TABLE) {
             QString tableinfo_query = PRAGMA_TABLEINFO;
             replaceFirst(tableinfo_query, PLACEHOLDER, table);
@@ -166,8 +164,7 @@ DumpSql::DumpResult DumpSql::runSchemaDumpQuery(const QSqlDatabase& db,
             QString endbit = DATASELECT_3_FROM;
             replaceFirst(endbit, PLACEHOLDER, table);
             select += endbit;
-            DumpResult r2 = runTableDumpQuery(db, select, prepstatement);
-            r.result += r2.result;
+            runTableDumpQuery(os, db, select, prepstatement);
             // Doesn't deal with:
             // if( rc==SQLITE_CORRUPT ){
             //  zSelect = appendText(zSelect,
@@ -176,7 +173,7 @@ DumpSql::DumpResult DumpSql::runSchemaDumpQuery(const QSqlDatabase& db,
             // }
         }
     }
-    return r;
+    return writable_schema;
 }
 
 
@@ -185,7 +182,6 @@ void DumpSql::dumpDatabase(QTextStream& os, const QSqlDatabase& db)
 {
     bool success = true;  // not really used?
     bool writable_schema = false;
-    DumpResult r;
 
     os << COMMENT_STARTING;
     os << DUMP_T_START;
@@ -195,21 +191,17 @@ void DumpSql::dumpDatabase(QTextStream& os, const QSqlDatabase& db)
 
     // Tables
     os << COMMENT_TABLES;
-    r = runSchemaDumpQuery(db, DUMP_Q_1, writable_schema);
-    writable_schema = writable_schema || r.writable_schema;
-    os << r.result;
+    writable_schema = runSchemaDumpQuery(os, db, DUMP_Q_1, writable_schema) ||
+            writable_schema;
 
     // Sequences
     os << COMMENT_SEQUENCES;
-    r = runSchemaDumpQuery(db, DUMP_Q_2, writable_schema);
-    writable_schema = writable_schema || r.writable_schema;
-    os << r.result;
+    writable_schema = runSchemaDumpQuery(os, db, DUMP_Q_2, writable_schema) ||
+            writable_schema;
 
     // Indexes, triggers, views
     os << COMMENT_OTHER;
-    r = runTableDumpQuery(db, DUMP_Q_3, "");
-    writable_schema = writable_schema || r.writable_schema;
-    os << r.result;
+    runTableDumpQuery(os, db, DUMP_Q_3, "");
 
     // Finishing
     os << COMMENT_ENDING;

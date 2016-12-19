@@ -17,6 +17,7 @@
 
 // #define DANGER_DEBUG_PASSWORD_DECRYPTION
 #define DANGER_DEBUG_WIPE_PASSWORDS
+#define DEBUG_EMIT
 
 #include "camcopsapp.h"
 #include <QApplication>
@@ -40,6 +41,7 @@
 #include "dbobjects/blob.h"
 #include "dbobjects/extrastring.h"
 #include "dbobjects/patient.h"
+#include "dbobjects/patientsorter.h"
 #include "dbobjects/storedvar.h"
 #include "lib/datetimefunc.h"
 #include "lib/filefunc.h"
@@ -96,7 +98,7 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     // Make storedvar table
     // ------------------------------------------------------------------------
 
-    StoredVar storedvar_specimen(m_sysdb);
+    StoredVar storedvar_specimen(*this, m_sysdb);
     storedvar_specimen.makeTable();
 
     // ------------------------------------------------------------------------
@@ -217,11 +219,11 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     // ------------------------------------------------------------------------
 
     // Make special tables: system database
-    ExtraString extrastring_specimen(m_sysdb);
+    ExtraString extrastring_specimen(*this, m_sysdb);
     extrastring_specimen.makeTable();
 
     // Make special tables: main database
-    Blob blob_specimen(m_datadb);
+    Blob blob_specimen(*this, m_datadb);
     blob_specimen.makeTable();
     Patient patient_specimen(*this, m_datadb);
     patient_specimen.makeTable();
@@ -288,9 +290,9 @@ QSqlDatabase& CamcopsApp::sysdb()
 }
 
 
-TaskFactoryPtr CamcopsApp::taskFactory()
+TaskFactory* CamcopsApp::taskFactory()
 {
-    return m_p_task_factory;
+    return m_p_task_factory.data();
 }
 
 
@@ -378,12 +380,42 @@ void CamcopsApp::close()
     m_p_main_window->setWindowState(info.prev_window_state);
 
     if (info.may_alter_task) {
+#ifdef DEBUG_EMIT
+        qDebug() << Q_FUNC_INFO << "Emitting taskAlterationFinished";
+#endif
+
         emit taskAlterationFinished(info.task);
+
+        if (varBool(VarConst::OFFER_UPLOAD_AFTER_EDIT) &&
+                varBool(VarConst::NEEDS_UPLOAD)) {
+            QMessageBox msgbox(
+                QMessageBox::Question,  // icon
+                tr("Upload?"),  // title
+                tr("Task finished. Upload data to server now?"),  // text
+                QMessageBox::Yes | QMessageBox::No,  // buttons
+                m_p_main_window);  // parent
+            msgbox.setButtonText(QMessageBox::Yes, tr("Yes, upload"));
+            msgbox.setButtonText(QMessageBox::No, tr("No, cancel"));
+            int reply = msgbox.exec();
+            if (reply == QMessageBox::Yes) {
+                upload();
+            }
+        }
     }
     if (info.patient) {
         // This happens if we've been editing a patient, so the patient details
         // may have changed.
-        emit selectedPatientDetailsChanged(info.patient.data());
+        // Moreover, we do not have a guarantee that the copy of the patient
+        // used by the task is the same as that we're holding. So we must
+        // reload.
+        int patient_id = info.patient->id();
+        reloadPatient(patient_id);
+#ifdef DEBUG_EMIT
+        qDebug() << Q_FUNC_INFO
+                 << "Emitting selectedPatientDetailsChanged for patient ID"
+                 << patient_id;
+#endif
+        emit selectedPatientDetailsChanged(m_patient.data());
     }
 }
 
@@ -415,6 +447,9 @@ void CamcopsApp::setLockState(LockState lockstate)
     bool changed = lockstate != m_lockstate;
     m_lockstate = lockstate;
     if (changed) {
+#ifdef DEBUG_EMIT
+        qDebug() << "Emitting lockStateChanged";
+#endif
         emit lockStateChanged(lockstate);
     }
 }
@@ -607,8 +642,13 @@ bool CamcopsApp::needsUpload() const
 
 void CamcopsApp::setNeedsUpload(bool needs_upload)
 {
-    setVar(VarConst::NEEDS_UPLOAD, needs_upload);
-    emit needsUploadChanged(needs_upload);
+    bool changed = setVar(VarConst::NEEDS_UPLOAD, needs_upload);
+    if (changed) {
+#ifdef DEBUG_EMIT
+        qDebug() << "Emitting needsUploadChanged";
+#endif
+        emit needsUploadChanged(needs_upload);
+    }
 }
 
 
@@ -627,6 +667,9 @@ void CamcopsApp::setWhiskerConnected(bool connected)
     bool changed = connected != m_whisker_connected;
     m_whisker_connected = connected;
     if (changed) {
+#ifdef DEBUG_EMIT
+        qDebug() << "Emitting whiskerConnectionStateChanged";
+#endif
         emit whiskerConnectionStateChanged(connected);
     }
 }
@@ -649,6 +692,10 @@ void CamcopsApp::setSelectedPatient(int patient_id)
     bool changed = patient_id != selectedPatientId();
     if (changed) {
         reloadPatient(patient_id);
+#ifdef DEBUG_EMIT
+        qDebug() << Q_FUNC_INFO << "emitting selectedPatientChanged "
+                                   "for patient_id" << patient_id;
+#endif
         emit selectedPatientChanged(m_patient.data());
     }
 }
@@ -663,9 +710,9 @@ void CamcopsApp::deselectPatient()
 void CamcopsApp::reloadPatient(int patient_id)
 {
     if (patient_id == DbConst::NONEXISTENT_PK) {
-        m_patient = PatientPtr(nullptr);
+        m_patient.clear();
     } else {
-        m_patient = PatientPtr(new Patient(*this, m_datadb, patient_id));
+        m_patient.reset(new Patient(*this, m_datadb, patient_id));
     }
 }
 
@@ -675,6 +722,10 @@ void CamcopsApp::patientHasBeenEdited(int patient_id)
     int current_patient_id = selectedPatientId();
     if (patient_id == current_patient_id) {
         reloadPatient(patient_id);
+#ifdef DEBUG_EMIT
+        qDebug() << Q_FUNC_INFO << "Emitting selectedPatientDetailsChanged "
+                                   "for patient ID" << patient_id;
+#endif
         emit selectedPatientDetailsChanged(m_patient.data());
     }
 }
@@ -692,10 +743,10 @@ int CamcopsApp::selectedPatientId() const
 }
 
 
-PatientPtrList CamcopsApp::getAllPatients()
+PatientPtrList CamcopsApp::getAllPatients(bool sorted)
 {
     PatientPtrList patients;
-    Patient specimen(*this, m_datadb, DbConst::NONEXISTENT_PK);
+    Patient specimen(*this, m_datadb, DbConst::NONEXISTENT_PK);  // this is why function can't be const
     WhereConditions where;  // but we don't specify any
     SqlArgs sqlargs = specimen.fetchQuerySql(where);
     QSqlQuery query(m_datadb);
@@ -707,11 +758,14 @@ PatientPtrList CamcopsApp::getAllPatients()
             patients.append(p);
         }
     }
+    if (sorted) {
+        qSort(patients.begin(), patients.end(), PatientSorter());
+    }
     return patients;
 }
 
 
-QString CamcopsApp::idDescription(int which_idnum)
+QString CamcopsApp::idDescription(int which_idnum) const
 {
     if (!DbConst::isValidWhichIdnum(which_idnum)) {
         return DbConst::BAD_IDNUM_DESC;
@@ -725,7 +779,7 @@ QString CamcopsApp::idDescription(int which_idnum)
 }
 
 
-QString CamcopsApp::idShortDescription(int which_idnum)
+QString CamcopsApp::idShortDescription(int which_idnum) const
 {
     if (!DbConst::isValidWhichIdnum(which_idnum)) {
         return DbConst::BAD_IDNUM_DESC;
@@ -801,9 +855,9 @@ int CamcopsApp::fontSizePt(UiConst::FontSize fontsize,
 
 QString CamcopsApp::xstringDirect(const QString& taskname,
                                   const QString& stringname,
-                                  const QString& default_str) const
+                                  const QString& default_str)
 {
-    ExtraString extrastring(m_sysdb, taskname, stringname);
+    ExtraString extrastring(*this, m_sysdb, taskname, stringname);
     bool found = extrastring.exists();
     if (found) {
         return extrastring.value();
@@ -821,7 +875,7 @@ QString CamcopsApp::xstringDirect(const QString& taskname,
 
 QString CamcopsApp::xstring(const QString& taskname,
                             const QString& stringname,
-                            const QString& default_str) const
+                            const QString& default_str)
 {
     QPair<QString, QString> key(taskname, stringname);
     if (!m_extrastring_cache.contains(key)) {
@@ -832,9 +886,9 @@ QString CamcopsApp::xstring(const QString& taskname,
 }
 
 
-bool CamcopsApp::hasExtraStrings(const QString& taskname) const
+bool CamcopsApp::hasExtraStrings(const QString& taskname)
 {
-    ExtraString extrastring_specimen(m_sysdb);
+    ExtraString extrastring_specimen(*this, m_sysdb);
     return extrastring_specimen.anyExist(taskname);
 }
 
@@ -847,7 +901,7 @@ void CamcopsApp::clearExtraStringCache()
 
 void CamcopsApp::deleteAllExtraStrings()
 {
-    ExtraString extrastring_specimen(m_sysdb);
+    ExtraString extrastring_specimen(*this, m_sysdb);
     extrastring_specimen.deleteAllExtraStrings();
 }
 
@@ -873,7 +927,7 @@ void CamcopsApp::setAllExtraStrings(const RecordList& recordlist)
             trans.fail();
             return;
         }
-        ExtraString es(m_sysdb, task, name, value);
+        ExtraString es(*this, m_sysdb, task, name, value);
         es.save();
     }
 }
@@ -893,13 +947,14 @@ void CamcopsApp::createVar(const QString &name, QVariant::Type type,
         return;
     }
     m_storedvars[name] = StoredVarPtr(
-        new StoredVar(m_sysdb, name, type, default_value));
+        new StoredVar(*this, m_sysdb, name, type, default_value));
 }
 
 
 bool CamcopsApp::setVar(const QString& name, const QVariant& value,
                         bool save_to_db)
 {
+    // returns: changed?
     if (!m_storedvars.contains(name)) {
         UiFunc::stopApp(QString("CamcopsApp::setVar: Attempt to set "
                                 "nonexistent storedvar: %1").arg(name));
@@ -1052,4 +1107,53 @@ void CamcopsApp::dumpDataDatabase(QTextStream& os)
 void CamcopsApp::dumpSystemDatabase(QTextStream& os)
 {
     DumpSql::dumpDatabase(os, m_sysdb);
+}
+
+// ============================================================================
+// Uploading
+// ============================================================================
+
+void CamcopsApp::upload()
+{
+    QMessageBox::StandardButtons buttons = (QMessageBox::Yes |
+                                            QMessageBox::No |
+                                            QMessageBox::Ok |
+                                            QMessageBox::Cancel);
+    QString text =
+            "Copy data to server, or move it to server?\n"
+            "\n"
+            "COPY: copies unfinished patients, moves finished patients.\n"
+            "MOVE: moves all patients and their data.\n"
+            "MOVE, KEEPING PATIENTS: moves all task data, keeps only basic "
+            "patient details for unfinished patients.\n"
+            "\n"
+            "Please MOVE whenever possible; this reduces the amount of "
+            "patient-identifiable information stored on this device.";
+    QMessageBox msgbox(QMessageBox::Question,  // icon
+                       tr("Upload to server"),  // title
+                       text,  // text
+                       buttons,  // buttons
+                       m_p_main_window);  // parent
+    msgbox.setButtonText(QMessageBox::Yes, tr("Copy"));
+    msgbox.setButtonText(QMessageBox::No, tr("Move, keeping patients"));
+    msgbox.setButtonText(QMessageBox::Ok, tr("Move"));
+    msgbox.setButtonText(QMessageBox::Cancel, tr("Cancel"));
+    int reply = msgbox.exec();
+    NetworkManager::UploadMethod method;
+    switch (reply) {
+    case QMessageBox::Yes:  // copy
+        method = NetworkManager::UploadMethod::Copy;
+        break;
+    case QMessageBox::No:  // move, keeping patients
+        method = NetworkManager::UploadMethod::MoveKeepingPatients;
+        break;
+    case QMessageBox::Ok:  // move
+        method = NetworkManager::UploadMethod::Move;
+        break;
+    case QMessageBox::Cancel:  // cancel
+    default:
+        return;
+    }
+    NetworkManager* netmgr = networkManager();
+    netmgr->upload(method);
 }

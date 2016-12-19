@@ -16,26 +16,12 @@
 */
 
 #pragma once
-#include <QList>
-#include <QString>
 #include "common/aliases_camcops.h"
-#include "menulib/menuwindow.h"
 
 
-class ChoosePatientMenu : public MenuWindow
+class PatientSorter
 {
-    Q_OBJECT
 public:
-    ChoosePatientMenu(CamcopsApp& app);
-    virtual void build() override;
-    virtual void viewItem() override;
-    virtual void editItem() override;
-    virtual void deleteItem() override;
-    void editPatient(bool read_only);
-    void deletePatient();
-public slots:
-    void addPatient();
-    void selectedPatientDetailsChanged(const Patient* patient);
-protected:
-    PatientPtrList getAllPatients();
+    PatientSorter();
+    bool operator()(const PatientPtr& left, const PatientPtr& right) const;
 };

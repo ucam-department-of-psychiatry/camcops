@@ -31,21 +31,34 @@ SingleTaskMenu::SingleTaskMenu(const QString& tablename, CamcopsApp& app) :
     m_tablename(tablename)
 {
     // Title
-    TaskFactoryPtr factory = app.taskFactory();
+    TaskFactory* factory = app.taskFactory();
     TaskPtr specimen = factory->create(m_tablename);
     m_title = specimen->menutitle();
+    m_p_header->setTitle(m_title);
     m_anonymous = specimen->isAnonymous();
     if (m_anonymous) {
         setIcon(UiFunc::iconFilename(UiConst::ICON_ANONYMOUS));
     }
 
     // m_items is EXPENSIVE (and depends on security), so leave it to build()
+
+    // Signals
+    connect(&m_app, &CamcopsApp::selectedPatientChanged,
+            this, &SingleTaskMenu::selectedPatientChanged,
+            Qt::UniqueConnection);
+    connect(&m_app, &CamcopsApp::taskAlterationFinished,
+            this, &SingleTaskMenu::taskFinished,
+            Qt::UniqueConnection);
+
+    connect(m_p_header, &MenuHeader::addClicked,
+            this, &SingleTaskMenu::addTask,
+            Qt::UniqueConnection);
 }
 
 
 void SingleTaskMenu::build()
 {
-    TaskFactoryPtr factory = m_app.taskFactory();
+    TaskFactory* factory = m_app.taskFactory();
     TaskPtr specimen = factory->create(m_tablename);
 
     // Common items
@@ -73,27 +86,13 @@ void SingleTaskMenu::build()
     // Task items
     TaskPtrList tasklist = factory->fetch(m_tablename);
     qDebug() << Q_FUNC_INFO << "-" << tasklist.size() << "tasks";
-    bool show_patient_name = !m_app.isPatientSelected();
+    bool show_patient_name = specimen->isAnonymous() || !m_app.isPatientSelected();
     for (auto task : tasklist) {
         m_items.append(MenuItem(task, false, show_patient_name));
     }
 
     // Call parent buildMenu()
     MenuWindow::build();
-
-    // Signals
-    connect(&m_app, &CamcopsApp::selectedPatientChanged,
-            this, &SingleTaskMenu::selectedPatientChanged,
-            Qt::UniqueConnection);
-    connect(&m_app, &CamcopsApp::taskAlterationFinished,
-            this, &SingleTaskMenu::taskFinished,
-            Qt::UniqueConnection);
-    connect(this, &SingleTaskMenu::offerAdd,
-            m_p_header, &MenuHeader::offerAdd,
-            Qt::UniqueConnection);
-    connect(m_p_header, &MenuHeader::addClicked,
-            this, &SingleTaskMenu::addTask,
-            Qt::UniqueConnection);
 
     emit offerAdd(m_anonymous || m_app.isPatientSelected());
 }
@@ -103,7 +102,7 @@ void SingleTaskMenu::addTask()
 {
     // The task we create here needs to stay in scope for the duration of the
     // editing! The simplest way is to use a member object to hold the pointer.
-    TaskFactoryPtr factory = m_app.taskFactory();
+    TaskFactory* factory = m_app.taskFactory();
     TaskPtr task = factory->create(m_tablename);
     if (!task->isAnonymous()) {
         int patient_id = m_app.selectedPatientId();

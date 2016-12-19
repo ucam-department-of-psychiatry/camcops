@@ -31,7 +31,7 @@
 // Main functions
 // ============================================================================
 
-Icd10::Icd10(const CamcopsApp& app, QObject* parent) :
+Icd10::Icd10(CamcopsApp& app, QObject* parent) :
     DiagnosticCodeSet(app, "icd10", tr("ICD-10"), parent)
 {
     m_creation_stack.push(DepthItemPair(0, 0));  // root: depth 0, index 0

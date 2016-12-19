@@ -28,7 +28,7 @@ class DiagnosticCodeSet : public QAbstractItemModel
 {
     Q_OBJECT
 public:
-    DiagnosticCodeSet(const CamcopsApp& app, const QString& setname,
+    DiagnosticCodeSet(CamcopsApp& app, const QString& setname,
                       const QString& title, QObject* parent = nullptr);
     ~DiagnosticCodeSet();
 
@@ -47,14 +47,14 @@ public:
     QString title() const;
     QModelIndex firstMatchCode(const QString& code) const;
 protected:
-    QString xstring(const QString& stringname) const;
+    QString xstring(const QString& stringname);
     DiagnosticCode* addCode(DiagnosticCode* parent,
                             const QString& code,
                             const QString& description,
                             bool selectable = true,
                             bool show_code_in_full_name = true);
 protected:
-    const CamcopsApp& m_app;
+    CamcopsApp& m_app;
     QString m_setname;  // for xstring
     QString m_title;  // cosmetic
     DiagnosticCode* m_root_item;

@@ -82,6 +82,5 @@ MainMenu::MainMenu(CamcopsApp& app)
 
 void MainMenu::upload()
 {
-    NetworkManager* netmgr = m_app.networkManager();
-    netmgr->upload(NetworkManager::UploadMethod::Copy); // ***
+    m_app.upload();
 }

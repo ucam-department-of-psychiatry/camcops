@@ -17,6 +17,7 @@
 
 #define DEBUG_SET_VALUE
 #include "storedvar.h"
+#include "common/camcopsapp.h"
 #include "lib/uifunc.h"
 
 const QString STOREDVAR_TABLENAME("storedvar");
@@ -54,9 +55,11 @@ const QMap<QVariant::Type, QString> TYPEMAP{
 };
 
 
-StoredVar::StoredVar(const QSqlDatabase& db, const QString& name,
-                     QVariant::Type type, QVariant default_value) :
-    DatabaseObject(db, STOREDVAR_TABLENAME),
+StoredVar::StoredVar(CamcopsApp& app, const QSqlDatabase& db,
+                     const QString& name, QVariant::Type type,
+                     QVariant default_value) :
+    DatabaseObject(app, db, STOREDVAR_TABLENAME, DbConst::PK_FIELDNAME,
+                   true, false, false, false),
     m_name(name),
     m_type(type),
     m_value_fieldname("")

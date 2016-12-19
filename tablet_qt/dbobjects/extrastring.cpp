@@ -15,8 +15,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "db/dbfunc.h"
 #include "extrastring.h"
+#include "common/camcopsapp.h"
+#include "db/dbfunc.h"
 
 const QString EXTRASTRINGS_TABLENAME("extrastrings");
 const QString ExtraString::EXTRASTRINGS_TASK_FIELD("task");
@@ -25,18 +26,21 @@ const QString ExtraString::EXTRASTRINGS_VALUE_FIELD("value");
 
 
 // Specimen constructor:
-ExtraString::ExtraString(const QSqlDatabase& db) :
-    DatabaseObject(db, EXTRASTRINGS_TABLENAME)
+ExtraString::ExtraString(CamcopsApp& app, const QSqlDatabase& db) :
+    DatabaseObject(app, db, EXTRASTRINGS_TABLENAME, DbConst::PK_FIELDNAME,
+                   true, false, false)
 {
     commonConstructor();
 }
 
 
 // String loading constructor:
-ExtraString::ExtraString(const QSqlDatabase& db,
+ExtraString::ExtraString(CamcopsApp& app,
+                         const QSqlDatabase& db,
                          const QString& task,
                          const QString& name) :
-    DatabaseObject(db, EXTRASTRINGS_TABLENAME)
+    DatabaseObject(app, db, EXTRASTRINGS_TABLENAME, DbConst::PK_FIELDNAME,
+                   true, false, false, false)
 {
     commonConstructor();
     if (!task.isEmpty() && !name.isEmpty()) {
@@ -50,11 +54,13 @@ ExtraString::ExtraString(const QSqlDatabase& db,
 
 
 // String saving constructor:
-ExtraString::ExtraString(const QSqlDatabase& db,
+ExtraString::ExtraString(CamcopsApp& app,
+                         const QSqlDatabase& db,
                          const QString& task,
                          const QString& name,
                          const QString& value) :
-    DatabaseObject(db, EXTRASTRINGS_TABLENAME)
+    DatabaseObject(app, db, EXTRASTRINGS_TABLENAME, DbConst::PK_FIELDNAME,
+                   true, false, false)
 {
     commonConstructor();
     if (!task.isEmpty() && !name.isEmpty()) {

@@ -29,7 +29,7 @@ class Icd9cm : public DiagnosticCodeSet
     Q_OBJECT
 
 public:
-    Icd9cm(const CamcopsApp& app);
+    Icd9cm(CamcopsApp& app);
 
     using CodeDescriptionPair = QPair<QString, QString>;
     using DepthItemPair = QPair<int, DiagnosticCode*>;

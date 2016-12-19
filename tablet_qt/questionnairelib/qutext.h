@@ -38,12 +38,12 @@ public:
     QuText* setFormat(Qt::TextFormat format);
     QuText* setOpenLinks(bool open_links = true);
     QuText* setAlignment(Qt::Alignment alignment);
+    void setText(const QString& text, bool repolish = true);
     friend class SettingsMenu;
 protected:
     void commonConstructor();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     void forceFontSize(int fontsize_pt, bool repolish = true);  // for SettingsMenu only
-    void forceText(const QString& text, bool repolish = true);  // for SettingsMenu only
     void setWidgetFontSize(int fontsize_pt, bool repolish = false);
     void repolishWidget();
 protected slots:

@@ -26,6 +26,7 @@
 #include <QStringBuilder>
 #include <QtWidgets/QLayout>
 #include <QtWidgets/QWidget>
+#include "lib/convert.h"
 #include "lib/uifunc.h"
 
 const QString NULL_WIDGET_STRING("<null_widget>");
@@ -122,9 +123,7 @@ QString LayoutDumper::toString(const Qt::Alignment& alignment)
 
 QString LayoutDumper::toString(const void* pointer)
 {
-    // http://stackoverflow.com/questions/8881923/how-to-convert-a-pointer-value-to-qstring
-    return QString("0x%1").arg((quintptr)pointer,
-                               QT_POINTER_SIZE * 2, 16, QChar('0'));
+    return Convert::prettyPointer(pointer);
 }
 
 
