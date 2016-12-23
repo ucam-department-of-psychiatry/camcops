@@ -586,7 +586,7 @@ Layout flow
   PART OF THE ANSWER: re-implement the PW's QWidget::resizeEvent(); take the
   PW's width(); ask the layout for its heightForWidth(w); setFixedHeight(h);
   updateGeometry()
-  - see FlowLayoutContainer.
+  - see FlowLayoutContainer -> renamed HeightForWidthLayoutContainer.
 - AND/OR: adjustSize();
 - If a widget is not expanding appropriately, SEE ITS ALIGNMENT SETTING.
   For example, Left/Top will get you a widget that does NOT expand to fill its
@@ -805,6 +805,28 @@ Questionnaire
     http://doc.qt.io/qt-5/platform-notes-android.html
     http://www.qtcentre.org/threads/62787-Accessing-android-camera
 
+- Tasks hooking in to questionnaire events:
+
+  (1) Task connects itself to FieldRef::valueChanged, which allows it to deal
+      with simple mandatory Y/N stuff.
+      It can deal with visible Y/N stuff, via
+
+        m_questionnaire->setVisibleByTag(TAG, ...);
+
+      and if necessary for more complex operations it can use code like
+
+        QuPage* page = m_questionnaire->currentPagePtr();
+        for (auto element : page->elementsWithTag(TAG)) { ... }
+
+     Since fields changing is more or less the only interesting thing that
+     questionnaires can do, that should be enough...
+
+  (2) For more sophisticated on-the-fly page creation, subclass QuPage and e.g.
+      override build().
+
+  (*) Note also signals versus events:
+      http://stackoverflow.com/questions/3794649/qt-events-and-signal-slots
+
 ===============================================================================
 Generic problem: derive from QObject or own one?
 ===============================================================================
@@ -930,6 +952,8 @@ NOT IMPLEMENTED
 TO DO
 ===============================================================================
 - *** tasks
+
+- *** FlowLayout not getting minimum height correct.
 
 - *** chains (see e.g. ResearchMenu.js; MenuTableRow.js; QuestionnaireHeader.js...)
 

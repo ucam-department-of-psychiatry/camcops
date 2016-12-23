@@ -88,27 +88,6 @@ public:
                          bool blob = false);
 
     // ========================================================================
-    // Manipulating multiple fields
-    // ========================================================================
-
-    int sumInt(const QStringList& fieldnames) const;
-    double sumDouble(const QStringList& fieldnames) const;
-    QVariant mean(const QStringList& fieldnames) const;
-
-    int countTrue(const QStringList& fieldnames) const;
-    bool allTrue(const QStringList& fieldnames) const;
-    bool allFalseOrNull(const QStringList& fieldnames) const;
-
-    bool anyNull(const QStringList& fieldnames) const;
-    int numNull(const QStringList& fieldnames) const;
-    int numNotNull(const QStringList& fieldnames) const;
-
-    int countWhere(const QStringList& fieldnames,
-                   const QList<QVariant>& values) const;
-    int countWhereNot(const QStringList& fieldnames,
-                      const QList<QVariant>& values) const;
-
-    // ========================================================================
     // Whole-object summary
     // ========================================================================
 

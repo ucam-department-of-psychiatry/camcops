@@ -21,13 +21,11 @@
 #include <QObject>
 #include <QPointer>
 #include <QSharedPointer>
+#include "common/aliases_camcops.h"
 #include "quelement.h"
 
 class QWidget;
 class Questionnaire;
-class QuPage;
-
-using QuPagePtr = QSharedPointer<QuPage>;
 
 
 class QuPage : public QObject
@@ -50,6 +48,8 @@ public:
     QuPage(const QList<QuElementPtr>& elements);
     QuPage(std::initializer_list<QuElementPtr> elements);
     QuPage(std::initializer_list<QuElement*> elements);  // takes ownership
+
+    virtual void build() {}  // for on-the-fly building
 
     QuPage* setType(PageType type);
     QuPage* setTitle(const QString& title);

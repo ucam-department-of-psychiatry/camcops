@@ -32,6 +32,7 @@ public:
     bool setValue(const QVariant& value, bool save_to_db = true);
     QVariant value() const;
     QString name() const;
+    void makeIndexes();
 protected:
     // http://stackoverflow.com/questions/411103/function-with-same-name-but-different-signature-in-derived-class
     // http://stackoverflow.com/questions/1628768/why-does-an-overridden-function-in-the-derived-class-hide-other-overloads-of-the

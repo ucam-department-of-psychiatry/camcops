@@ -114,6 +114,12 @@ QString StringFunc::bold(const QString& str)
 }
 
 
+QString StringFunc::bold(int x)
+{
+    return QString("<b>%1</b>").arg(x);
+}
+
+
 QString StringFunc::joinHtmlLines(const QStringList& lines)
 {
     return lines.join("<br>");

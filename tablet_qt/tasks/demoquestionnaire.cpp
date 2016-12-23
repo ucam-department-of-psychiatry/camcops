@@ -687,7 +687,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
             {"label 2", new QuLineEditInteger(fieldRef("typedvar_int"), 13, 19)},
             {"label 3", new QuHeading("Just a heading: " + lipsum2)},
             {"label 4", new QuDateTime(fieldRef("date_time"))},
-        }, 1, 2),
+        }, UiConst::DEFAULT_COLSPAN_Q, UiConst::DEFAULT_COLSPAN_A),
     })
         ->setTitle("Editable variable including dates/times")
         ->setType(QuPage::PageType::Clinician));

@@ -16,6 +16,7 @@
 */
 
 // http://www.qtforum.org/article/18183/messagebox-with-qscrollbar.html
+// ... modified a bit
 
 #include "scrollmessagebox.h"
 #include <QApplication>
@@ -49,17 +50,19 @@ ScrollMessageBox::ScrollMessageBox(const QMessageBox::Icon& icon,
                     QStyle::SH_MessageBox_TextInteractionFlags, 0, this)));
     m_label->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     m_label->setOpenExternalLinks(true);
-    m_label->setContentsMargins(2, 0, 0, 0);
-    m_label->setIndent(9);
+    // m_label->setContentsMargins(2, 0, 0, 0);
+    // m_label->setIndent(9);
 
     scroll = new QScrollArea(this);
-    scroll->setGeometry(QRect(10, 20, 560, 430));
+    // scroll->setGeometry(QRect(10, 20, 560, 430));
     scroll->setWidget(m_label);
     scroll->setWidgetResizable(true);
 
-    icon_label = new QLabel();
-    icon_label->setPixmap(standardIcon((QMessageBox::Icon)icon));
-    icon_label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    if (icon != QMessageBox::NoIcon) {
+        icon_label = new QLabel();
+        icon_label->setPixmap(standardIcon((QMessageBox::Icon)icon));
+        icon_label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    }
 
     m_button_box = new QDialogButtonBox(buttons);
     m_button_box->setCenterButtons(style()->styleHint(
@@ -69,7 +72,9 @@ ScrollMessageBox::ScrollMessageBox(const QMessageBox::Icon& icon,
 
     QGridLayout *grid = new QGridLayout;
 
-    grid->addWidget(icon_label, 0, 0, 2, 1, Qt::AlignTop);
+    if (icon != QMessageBox::NoIcon) {
+        grid->addWidget(icon_label, 0, 0, 2, 1, Qt::AlignTop);
+    }
     grid->addWidget(scroll, 0, 1, 1, 1);
     grid->addWidget(m_button_box, 1, 0, 1, 2);
     grid->setSizeConstraint(QLayout::SetNoConstraint);
@@ -214,6 +219,19 @@ QDialogButtonBox::StandardButton ScrollMessageBox::warning(
         StandardButton defaultButton)
 {
     ScrollMessageBox box(QMessageBox::Warning, title, text, buttons, parent);
+    box.setDefaultButton(defaultButton);
+    return static_cast<QDialogButtonBox::StandardButton>(box.exec());
+}
+
+
+QDialogButtonBox::StandardButton ScrollMessageBox::plain(
+        QWidget* parent,
+        const QString& title,
+        const QString& text,
+        QDialogButtonBox::StandardButtons buttons,
+        StandardButton defaultButton)
+{
+    ScrollMessageBox box(QMessageBox::NoIcon, title, text, buttons, parent);
     box.setDefaultButton(defaultButton);
     return static_cast<QDialogButtonBox::StandardButton>(box.exec());
 }

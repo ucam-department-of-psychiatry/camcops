@@ -251,6 +251,7 @@ QTextEdit {
 
 QuestionnaireHeader QLabel {
     font-size: %4pt;
+    color: darkgrey;
 }
 #header_horizontal_line {
     background-color: black;
@@ -300,6 +301,10 @@ BooleanWidget ClickableLabelWordWrapWide[readonly="false"]:pressed {
 
 #countdown_label {
     font-weight: bold;
+}
+
+#quheading {
+    background-color: lightgrey;
 }
 
 #mcq_instruction {
@@ -502,6 +507,6 @@ AspectRatioPixmapLabel {
 #debug_pink {
     background-color: pink;
 }
-FlowLayoutContainer {
+HeightForWidthLayoutContainer {
     background-color: yellow;
 }

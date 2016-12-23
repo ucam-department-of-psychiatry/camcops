@@ -43,7 +43,7 @@ public:
 
 public:
     MenuItem();
-    MenuItem(const QString &title);  // for dummy use
+    MenuItem(const QString& title);  // for dummy use
     MenuItem(const QString& title, const ActionFunction& func,
              const QString& icon = "", const QString& subtitle = "");
     MenuItem(const QString& title, const OpenableWidgetMaker& func,

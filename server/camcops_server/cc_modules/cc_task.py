@@ -34,7 +34,7 @@ import collections
 import copy
 import datetime
 from enum import Enum
-import operator
+# import operator
 import re
 import statistics
 import typing
@@ -97,6 +97,7 @@ from . import cc_filename
 from . import cc_hl7core
 from . import cc_html
 from . import cc_lang
+from .cc_lang import Min, MinType
 from .cc_logger import log
 from .cc_namedtuples import XmlElementTuple
 from . import cc_patient
@@ -3136,6 +3137,13 @@ def get_blob_by_id(obj: Union[Task, Ancillary],
 # Cross-class generators and the like
 # =============================================================================
 
+def second_item_or_min(x: Tuple[Any, int, Optional[datetime.datetime]]) -> \
+        Union[datetime.datetime, MinType]:
+    # For sorting of tasks
+    when_created = x[2]
+    return Min if when_created is None else when_created
+
+
 def gen_tasks_matching_session_filter(
         session: Session) -> Generator[Task, None, None]:
     """Generate tasks that match the session's filter settings."""
@@ -3153,7 +3161,7 @@ def gen_tasks_matching_session_filter(
                     # ... will crash at the sort stage
                 cls_pk_wc.append((cls, row[0], row[1]))
     # Sort by when_created (conjointly across task classes)
-    cls_pk_wc = sorted(cls_pk_wc, key=operator.itemgetter(2), reverse=True)
+    cls_pk_wc = sorted(cls_pk_wc, key=second_item_or_min, reverse=True)
     # Yield those that really do match the filter
     for cls, pk, wc in cls_pk_wc:
         task = cls(pk)
@@ -3183,7 +3191,7 @@ def gen_tasks_live_on_tablet(device_id: str) -> Generator[Task, None, None]:
         pk_wc = pls.db.fetchall(query, *args)
         cls_pk_wc.extend([(cls, row[0], row[1]) for row in pk_wc])
     # Sort by when_created (conjointly across task classes)
-    cls_pk_wc = sorted(cls_pk_wc, key=operator.itemgetter(2), reverse=True)
+    cls_pk_wc = sorted(cls_pk_wc, key=second_item_or_min, reverse=True)
     # Yield them up
     for cls, pk, wc in cls_pk_wc:
         task = cls(pk)
@@ -3222,7 +3230,7 @@ def gen_tasks_using_patient(patient_id: int,
         pk_wc = pls.db.fetchall(query, *args)
         cls_pk_wc.extend([(cls, row[0], row[1]) for row in pk_wc])
     # Sort by when_created (conjointly across task classes)
-    cls_pk_wc = sorted(cls_pk_wc, key=operator.itemgetter(2), reverse=True)
+    cls_pk_wc = sorted(cls_pk_wc, key=second_item_or_min, reverse=True)
     # Yield them up
     for cls, pk, wc in cls_pk_wc:
         task = cls(pk)
@@ -3243,7 +3251,7 @@ def gen_tasks_for_patient_deletion(
                                                          idnum_value)
         cls_pk_wc.extend([(cls, row[0], row[1]) for row in pk_wc])
     # Sort by when_created (conjointly across task classes)
-    cls_pk_wc = sorted(cls_pk_wc, key=operator.itemgetter(2), reverse=True)
+    cls_pk_wc = sorted(cls_pk_wc, key=second_item_or_min, reverse=True)
     # Yield them up
     for cls, pk, wc in cls_pk_wc:
         task = cls(pk)

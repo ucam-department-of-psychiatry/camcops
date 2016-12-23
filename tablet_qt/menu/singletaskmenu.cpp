@@ -20,6 +20,7 @@
 #include "dbobjects/patient.h"
 #include "lib/filefunc.h"
 #include "lib/uifunc.h"
+#include "lib/stringfunc.h"
 #include "menulib/menuheader.h"
 #include "menulib/menuitem.h"
 #include "tasklib/task.h"
@@ -79,6 +80,9 @@ void SingleTaskMenu::build()
             info_icon_filename
         )
     );
+    m_items.append(MenuItem(tr("Task status within CamCOPS"),
+                            std::bind(&SingleTaskMenu::showTaskStatus, this),
+                            info_icon_filename));
     m_items.append(
         MenuItem(tr("Task instances") + ": " + m_title).setLabelOnly()
     );
@@ -104,6 +108,14 @@ void SingleTaskMenu::addTask()
     // editing! The simplest way is to use a member object to hold the pointer.
     TaskFactory* factory = m_app.taskFactory();
     TaskPtr task = factory->create(m_tablename);
+    if (!task->isTaskPermissible()) {
+        QString reason = QString("%1<br><br>%2: %3")
+                .arg(tr("You cannot add this task with your current settings."))
+                .arg(tr("Current reason"))
+                .arg(StringFunc::bold(task->whyNotPermissible()));
+        UiFunc::alert(reason, tr("Not permitted to add task"));
+        return;
+    }
     if (!task->isAnonymous()) {
         int patient_id = m_app.selectedPatientId();
         if (patient_id == DbConst::NONEXISTENT_PK) {
@@ -112,6 +124,7 @@ void SingleTaskMenu::addTask()
         }
         task->setPatient(m_app.selectedPatientId());
     }
+    task->setDefaultClinicianVariablesAtFirstUse();
     task->save();
     editTaskConfirmed(task);
 }
@@ -127,4 +140,33 @@ void SingleTaskMenu::selectedPatientChanged(const Patient* patient)
 void SingleTaskMenu::taskFinished()
 {
     build();  // refresh task list
+}
+
+
+void SingleTaskMenu::showTaskStatus() const
+{
+    TaskFactory* factory = m_app.taskFactory();
+    TaskPtr specimen = factory->create(m_tablename);
+    QStringList info;
+    auto add = [this, &info](const char* desc, const QString& value) -> void {
+        info.append(QString("%1: %2")
+                    .arg(tr(desc))
+                    .arg(StringFunc::bold(value)));
+    };
+    add("Long name", specimen->longname());
+    add("Short name", specimen->shortname());
+    add("Main database table name", specimen->tablename());
+    add("Anonymous", UiFunc::yesNo(specimen->isAnonymous()));
+    add("Has a clinician", UiFunc::yesNo(specimen->hasClinician()));
+    add("Has a respondent", UiFunc::yesNo(specimen->hasRespondent()));
+    add("Prohibits clinical use", UiFunc::yesNo(specimen->prohibitsClinical()));
+    add("Prohibits commercial use", UiFunc::yesNo(specimen->prohibitsCommercial()));
+    add("Prohibits educational use", UiFunc::yesNo(specimen->prohibitsEducational()));
+    add("Prohibits research use", UiFunc::yesNo(specimen->prohibitsResearch()));
+    add("Permissible (creatable) with current settings", UiFunc::yesNo(specimen->isTaskPermissible()));
+    add("If not, why not permissible", specimen->whyNotPermissible());
+    add("Fully functional", UiFunc::yesNo(!specimen->isCrippled()));
+    add("Extra strings present from server", UiFunc::yesNo(specimen->hasExtraStrings()));
+    add("Editable once created", UiFunc::yesNo(specimen->isEditable()));
+    UiFunc::alert(info.join("<br>"), tr("Task status"));
 }

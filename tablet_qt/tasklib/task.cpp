@@ -2,11 +2,19 @@
 #include <QObject>
 #include <QVariant>
 #include "common/camcopsapp.h"
+#include "common/uiconstants.h"
+#include "common/varconst.h"
 #include "db/dbfunc.h"
 #include "dbobjects/patient.h"
 #include "lib/datetimefunc.h"
+#include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "questionnairelib/commonoptions.h"
+#include "questionnairelib/questionnairefunc.h"
+#include "questionnairelib/quheading.h"
+#include "questionnairelib/qulineedit.h"
+#include "questionnairelib/qupage.h"
 
 const QString Task::PATIENT_FK_FIELDNAME("patient_id");
 const QString FIRSTEXIT_IS_FINISH_FIELDNAME("firstexit_is_finish");
@@ -33,7 +41,10 @@ Task::Task(CamcopsApp& app,
            bool has_respondent) :
     DatabaseObject(app, db, tablename, DbConst::PK_FIELDNAME, true, true),
     m_patient(nullptr),
-    m_editing(false)
+    m_editing(false),
+    m_is_anonymous(is_anonymous),
+    m_has_clinician(has_clinician),
+    m_has_respondent(has_respondent)
 {
     // WATCH OUT: you can't call a derived class's overloaded function
     // here; its vtable is incomplete.
@@ -103,6 +114,91 @@ QString Task::instanceTitle() const
             pt ? pt->surnameUpperForename() : tr("MISSING PATIENT"),
             whenCreated().toString(DateTime::SHORT_DATETIME_FORMAT));
     }
+}
+
+
+bool Task::isAnonymous() const
+{
+    return m_is_anonymous;
+}
+
+
+bool Task::hasClinician() const
+{
+    return m_has_clinician;
+}
+
+
+bool Task::hasRespondent() const
+{
+    return m_has_respondent;
+}
+
+
+bool Task::isTaskPermissible() const
+{
+    QVariant commercial = m_app.var(VarConst::IP_USE_COMMERCIAL);
+    QVariant clinical = m_app.var(VarConst::IP_USE_CLINICAL);
+    QVariant educational = m_app.var(VarConst::IP_USE_EDUCATIONAL);
+    QVariant research = m_app.var(VarConst::IP_USE_RESEARCH);
+    if (prohibitsCommercial() && !MathFunc::eq(commercial, false)) {
+        return false;
+    }
+    if (prohibitsClinical() && !MathFunc::eq(clinical, false)) {
+        return false;
+    }
+    if (prohibitsEducational() && !MathFunc::eq(educational, false)) {
+        return false;
+    }
+    if (prohibitsResearch() && !MathFunc::eq(research, false)) {
+        return false;
+    }
+    return true;
+}
+
+
+QString Task::whyNotPermissible() const
+{
+    const QString prohibits_commercial = tr("Task not allowed for commercial"
+                                            " use (see Task Information).");
+    const QString prohibits_clinical = tr("Task not allowed for research"
+                                          " use (see Task Information).");
+    const QString prohibits_educational = tr("Task not allowed for educational"
+                                             " use (see Task Information).");
+    const QString prohibits_research = tr("Task not allowed for research"
+                                          " use (see Task Information).");
+    const QString yes = tr(
+                " You have said you ARE using this software in that context "
+                "(see Settings). To use this task, you must seek permission "
+                "from the copyright holder (see Task Information).");
+    const QString unknown = tr(" You have NOT SAID whether you are using this "
+                               "software in that context (see Settings).");
+    QVariant commercial = m_app.var(VarConst::IP_USE_COMMERCIAL);
+    QVariant clinical = m_app.var(VarConst::IP_USE_CLINICAL);
+    QVariant educational = m_app.var(VarConst::IP_USE_EDUCATIONAL);
+    QVariant research = m_app.var(VarConst::IP_USE_RESEARCH);
+
+    auto not_definitely_false = [](const QVariant& v) -> bool {
+        return !MathFunc::eq(v, false);
+    };
+    auto is_unknown = [](const QVariant& v) -> bool {
+        return v.isNull() || v.toInt() == CommonOptions::UNKNOWN_INT;
+    };
+
+
+    if (prohibitsCommercial() && not_definitely_false(commercial)) {
+        return prohibits_commercial + (is_unknown(commercial) ? unknown : yes);
+    }
+    if (prohibitsClinical() && not_definitely_false(clinical)) {
+        return prohibits_clinical + (is_unknown(clinical) ? unknown : yes);
+    }
+    if (prohibitsEducational() && not_definitely_false(educational)) {
+        return prohibits_educational + (is_unknown(educational) ? unknown : yes);
+    }
+    if (prohibitsResearch() && not_definitely_false(research)) {
+        return prohibits_research + (is_unknown(research) ? unknown : yes);
+    }
+    return tr("Task permissible");
 }
 
 
@@ -267,6 +363,109 @@ double Task::editingTimeSeconds() const
 }
 
 
+void Task::setDefaultClinicianVariablesAtFirstUse()
+{
+    if (!m_has_clinician) {
+        return;
+    }
+    setValue(CLINICIAN_SPECIALTY, m_app.varString(VarConst::DEFAULT_CLINICIAN_SPECIALTY));
+    setValue(CLINICIAN_NAME, m_app.varString(VarConst::DEFAULT_CLINICIAN_NAME));
+    setValue(CLINICIAN_PROFESSIONAL_REGISTRATION, m_app.varString(VarConst::DEFAULT_CLINICIAN_PROFESSIONAL_REGISTRATION));
+    setValue(CLINICIAN_POST, m_app.varString(VarConst::DEFAULT_CLINICIAN_POST));
+    setValue(CLINICIAN_SERVICE, m_app.varString(VarConst::DEFAULT_CLINICIAN_SERVICE));
+    setValue(CLINICIAN_CONTACT_DETAILS, m_app.varString(VarConst::DEFAULT_CLINICIAN_CONTACT_DETAILS));
+}
+
+
+QuElement* Task::getClinicianQuestionnaireBlockRawPointer()
+{
+    return QuestionnaireFunc::defaultGridRawPointer({
+        {tr("Clinician’s specialty"),
+         new QuLineEdit(fieldRef(CLINICIAN_SPECIALTY))},
+        {tr("Clinician’s name"),
+         new QuLineEdit(fieldRef(CLINICIAN_NAME))},
+        {tr("Clinician’s professional registration"),
+         new QuLineEdit(fieldRef(CLINICIAN_PROFESSIONAL_REGISTRATION))},
+        {tr("Clinician’s post"),
+         new QuLineEdit(fieldRef(CLINICIAN_POST))},
+        {tr("Clinician’s service"),
+         new QuLineEdit(fieldRef(CLINICIAN_SERVICE))},
+        {tr("Clinician’s contact details"),
+         new QuLineEdit(fieldRef(CLINICIAN_CONTACT_DETAILS))},
+    }, UiConst::DEFAULT_COLSPAN_Q, UiConst::DEFAULT_COLSPAN_A);
+}
+
+
+QuElementPtr Task::getClinicianQuestionnaireBlockElementPtr()
+{
+    return QuElementPtr(getClinicianQuestionnaireBlockRawPointer());
+}
+
+
+QuPagePtr Task::getClinicianDetailsPage()
+{
+    return QuPagePtr(
+        (new QuPage{getClinicianQuestionnaireBlockRawPointer()})
+            ->setTitle(tr("Clinician’s details"))
+            ->setType(QuPage::PageType::Clinician)
+    );
+}
+
+
+bool Task::isRespondentComplete() const
+{
+    if (!m_has_respondent) {
+        return false;
+    }
+    return !valueString(RESPONDENT_NAME).isEmpty() &&
+            !valueString(RESPONDENT_RELATIONSHIP).isEmpty();
+}
+
+
+QuElement* Task::getRespondentQuestionnaireBlockRawPointer(bool second_person)
+{
+    const QString name = second_person
+            ? tr("Your name")
+            : tr("Respondent’s name");
+    const QString relationship = second_person
+            ? tr("Your relationship to the patient")
+            : tr("Respondent’s relationship to patient");
+    return QuestionnaireFunc::defaultGridRawPointer({
+        {name, new QuLineEdit(fieldRef(RESPONDENT_NAME))},
+        {relationship, new QuLineEdit(fieldRef(RESPONDENT_RELATIONSHIP))},
+    }, UiConst::DEFAULT_COLSPAN_Q, UiConst::DEFAULT_COLSPAN_A);
+}
+
+
+QuElementPtr Task::getRespondentQuestionnaireBlockElementPtr(bool second_person)
+{
+    return QuElementPtr(getRespondentQuestionnaireBlockRawPointer(second_person));
+}
+
+
+QuPagePtr Task::getRespondentDetailsPage(bool second_person)
+{
+    return QuPagePtr(
+        (new QuPage{getRespondentQuestionnaireBlockRawPointer(second_person)})
+            ->setTitle(tr("Respondent’s details"))
+            ->setType(second_person ? QuPage::PageType::Patient
+                                    : QuPage::PageType::Clinician)
+    );
+}
+
+
+QuPagePtr Task::getClinicianAndRespondentDetailsPage(bool second_person)
+{
+    return QuPagePtr(
+        (new QuPage{getClinicianQuestionnaireBlockRawPointer(),
+                    getRespondentQuestionnaireBlockRawPointer(second_person)})
+            ->setTitle(tr("Clinician’s and respondent’s details"))
+            ->setType(second_person ? QuPage::PageType::ClinicianWithPatient
+                                    : QuPage::PageType::Clinician)
+    );
+}
+
+
 void Task::editStarted()
 {
     m_editing = true;
@@ -330,4 +529,28 @@ Patient* Task::patient() const
         }
     }
     return m_patient.data();
+}
+
+
+QString Task::getPatientName() const
+{
+    Patient* pt = patient();
+    if (!pt) {
+        return "";
+    }
+    return QString("%1 %2").arg(pt->forename()).arg(pt->surname());
+}
+
+
+bool Task::isFemale() const
+{
+    Patient* pt = patient();
+    return pt ? pt->isFemale() : false;
+}
+
+
+bool Task::isMale() const
+{
+    Patient* pt = patient();
+    return pt ? pt->isMale() : false;
 }

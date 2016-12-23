@@ -38,6 +38,8 @@ namespace UiConst {
     extern const int MCQGRID_VLINE_WIDTH;
     extern const int MCQGRID_VSPACING;
     extern const int MCQGRID_HSPACING;
+    extern const int DEFAULT_COLSPAN_Q;
+    extern const int DEFAULT_COLSPAN_A;
 
     extern const QMargins NO_MARGINS;
 

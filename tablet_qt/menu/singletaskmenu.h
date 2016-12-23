@@ -32,6 +32,8 @@ public slots:  // http://stackoverflow.com/questions/19129133/qt-signals-and-slo
     void selectedPatientChanged(const Patient* patient);
     void taskFinished();
 protected:
+    void showTaskStatus() const;
+protected:
     QString m_tablename;
     bool m_anonymous;
 };

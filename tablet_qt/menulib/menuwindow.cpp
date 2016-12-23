@@ -477,7 +477,7 @@ void MenuWindow::editTaskConfirmed(const TaskPtr& task)
 {
     QString instance_title = task->instanceTitle();
     qInfo() << "Edit:" << instance_title;
-    OpenableWidget* widget = task->editor();
+    OpenableWidget* widget = task->editor(false);
     connectQuestionnaireToTask(widget, task.data());
     m_app.open(widget, task, true);
 }

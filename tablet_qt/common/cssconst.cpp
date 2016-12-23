@@ -27,6 +27,7 @@ namespace CssConst
     const char* NEEDS_PRIVILEGE = "needs_privilege";
     const char* VLINE = "vline";
     const char* QUESTION = "question";
+    const char* QUHEADING = "quheading";
     const char* TITLE = "title";
     const char* SUBTITLE = "subtitle";
     const char* OPTION = "option";

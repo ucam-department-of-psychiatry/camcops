@@ -48,5 +48,6 @@ namespace StringFunc
     // ========================================================================
 
     QString bold(const QString& str);
+    QString bold(int x);
     QString joinHtmlLines(const QStringList& lines);
 }

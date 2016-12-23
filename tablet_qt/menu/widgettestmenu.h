@@ -55,8 +55,8 @@ protected:
     void testClickableLabel(bool long_text);
     void testClickableLabelWordWrapWide(bool long_text);
     // DiagnosticCodeSelector: use QuDiagnosticCode instead
-    // FlowLayout: see testFlowLayoutContainer
-    void testFlowLayoutContainer(bool long_text);
+    void testFlowLayout(int n_icons);
+    void testHeightForWidthLayoutContainer(bool long_text);
     // GrowingTextEdit: see QuTextEdit
     void testHorizontalLine();
     void testImageButton();

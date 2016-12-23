@@ -257,7 +257,8 @@ SOURCES += main.cpp\
     db/dumpsql.cpp \
     dialogs/scrollmessagebox.cpp \
     dialogs/logmessagebox.cpp \
-    dbobjects/patientsorter.cpp
+    dbobjects/patientsorter.cpp \
+    tasks/ace3.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -440,7 +441,8 @@ HEADERS  += \
     db/dumpsql.h \
     dialogs/scrollmessagebox.h \
     dialogs/logmessagebox.h \
-    dbobjects/patientsorter.h
+    dbobjects/patientsorter.h \
+    tasks/ace3.h
 
 DISTFILES += \
     notes/qt_notes.txt \

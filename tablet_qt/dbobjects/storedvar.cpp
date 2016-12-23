@@ -18,6 +18,7 @@
 #define DEBUG_SET_VALUE
 #include "storedvar.h"
 #include "common/camcopsapp.h"
+#include "db/dbfunc.h"
 #include "lib/uifunc.h"
 
 const QString STOREDVAR_TABLENAME("storedvar");
@@ -148,4 +149,11 @@ QVariant StoredVar::value() const
 QString StoredVar::name() const
 {
     return m_name;
+}
+
+
+void StoredVar::makeIndexes()
+{
+    DbFunc::createIndex(m_db, "_idx_name",
+                        STOREDVAR_TABLENAME, {NAME_FIELDNAME});
 }

@@ -17,6 +17,7 @@
 
 #include "phq9.h"
 #include "common/uiconstants.h"
+#include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/namevaluepair.h"
@@ -25,6 +26,9 @@
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+using MathFunc::anyNull;
+using MathFunc::sumInt;
+using StringFunc::strnum;
 using StringFunc::strseq;
 
 const int FIRST_Q = 1;
@@ -32,6 +36,8 @@ const int LAST_SCORED_Q = 9;
 const int N_QUESTIONS = 10;
 const int MAX_SCORE = 27;
 const QString QPREFIX("q");
+
+const QString TABLENAME("phq9");
 
 
 void initializePhq9(TaskFactory& factory)
@@ -41,7 +47,7 @@ void initializePhq9(TaskFactory& factory)
 
 
 Phq9::Phq9(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
-    Task(app, db, "phq9", false, false, false)
+    Task(app, db, TABLENAME, false, false, false)
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
 
@@ -77,7 +83,7 @@ QString Phq9::menusubtitle() const
 
 bool Phq9::isComplete() const
 {
-    if (anyNull(strseq(QPREFIX, FIRST_Q, LAST_SCORED_Q))) {
+    if (anyNull(values(strseq(QPREFIX, FIRST_Q, LAST_SCORED_Q)))) {
         return false;
     }
     if (value("q10").isNull()) {
@@ -172,7 +178,7 @@ OpenableWidget* Phq9::editor(bool read_only)
 
 int Phq9::totalScore() const
 {
-    return sumInt(strseq(QPREFIX, FIRST_Q, LAST_SCORED_Q));
+    return sumInt(values(strseq(QPREFIX, FIRST_Q, LAST_SCORED_Q)));
 }
 
 
@@ -196,7 +202,7 @@ int Phq9::nOtherSymptoms() const
             n += 1;
         }
     }
-    if (valueInt(StringFunc::strnum(QPREFIX, 9)) >= 1) {
+    if (valueInt(strnum(QPREFIX, 9)) >= 1) {
         // Suicidality: counted WHENEVER present
         n += 1;
     }

@@ -22,35 +22,41 @@
 class CamcopsApp;
 class TaskFactory;
 class OpenableWidget;
-class QuBoolean;
+
+void initializeAce3(TaskFactory& factory);
 
 
-class DemoQuestionnaire : public Task
+class Ace3 : public Task
 {
 public:
-    DemoQuestionnaire(CamcopsApp& app, const QSqlDatabase& db,
-                      int load_pk = DbConst::NONEXISTENT_PK);
+    Ace3(CamcopsApp& app, const QSqlDatabase& db,
+         int load_pk = DbConst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString menusubtitle() const override;
-    virtual bool isAnonymous() const override { return true; }
-    virtual bool isCrippled() const override { return false; }
+    virtual bool hasClinician() const override { return true; }
+    virtual bool prohibitsCommercial() const override { return true; }
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
     virtual bool isComplete() const override;
     virtual QString summary() const override;
+    virtual QString detail() const override;
     virtual OpenableWidget* editor(bool read_only = false) override;
     // ------------------------------------------------------------------------
-    // Extra
+    // Task-specific calculations
     // ------------------------------------------------------------------------
-protected:
-    void callbackHello();
-    void callbackArg(const QString& arg);
-    QuBoolean* aceBoolean(const QString& stringname, const QString& fieldname);
+    int getAttnScore() const;
+    int getMemRecognitionScore() const;
+    int getMemScore() const;
+    int getFluencyScore() const;
+    int getFollowCommandScore() const;
+    int getRepeatWordScore() const;
+    int getLangScore() const;
+    int getVisuospatialScore() const;
+    int totalScore() const;
+    bool isRecognitionComplete() const;
 };
-
-void initializeDemoQuestionnaire(TaskFactory& factory);

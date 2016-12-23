@@ -37,6 +37,9 @@ using GridRowDefinitionRawPtr = QPair<QString, QuElement*>;
 class Questionnaire;
 using QuestionnairePtr = QSharedPointer<Questionnaire>;
 
+class QuPage;
+using QuPagePtr = QSharedPointer<QuPage>;
+
 class StoredVar;
 using StoredVarPtr = QSharedPointer<StoredVar>;
 

@@ -17,15 +17,22 @@
 
 #pragma once
 #include <QString>
+#include <QWidget>
 #include "qutext.h"
 
 
 class QuHeading : public QuText
 {
-    // Provides text with a heading style.
+    // Provides text with a heading style, plus a shaded background that
+    // stretches right.
 
     Q_OBJECT
 public:
     QuHeading(const QString& text);
     QuHeading(FieldRefPtr fieldref);
+protected:
+    void commonConstructor();
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+protected:
+    QPointer<QWidget> m_container;
 };

@@ -16,6 +16,8 @@
 */
 
 #include "quheading.h"
+#include <QHBoxLayout>
+#include "common/cssconst.h"
 #include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
@@ -25,14 +27,34 @@
 QuHeading::QuHeading(const QString& text) :
     QuText(text)
 {
-    m_fontsize = UiConst::FontSize::Heading;
-    m_bold = true;
+    commonConstructor();
 }
 
 
 QuHeading::QuHeading(FieldRefPtr fieldref) :
     QuText(fieldref)
 {
+    commonConstructor();
+}
+
+
+void QuHeading::commonConstructor()
+{
     m_fontsize = UiConst::FontSize::Heading;
-    m_bold = true;
+    m_bold = false;
+}
+
+
+QPointer<QWidget> QuHeading::makeWidget(Questionnaire* questionnaire)
+{
+    // Call parent, ignore result:
+    QuText::makeWidget(questionnaire);
+    // Add background:
+    m_container = new QWidget();
+    m_container->setObjectName(CssConst::QUHEADING);
+    QHBoxLayout* layout = new QHBoxLayout();
+    m_container->setLayout(layout);
+    layout->addWidget(m_label, 0, Qt::AlignLeft | Qt::AlignTop);
+    layout->addStretch();
+    return m_container;
 }

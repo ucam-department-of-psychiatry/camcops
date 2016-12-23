@@ -169,6 +169,9 @@ void Questionnaire::build()
         UiFunc::stopApp("BUG! Null page pointer in Questionnaire::build");
     }
 
+    // In case we're building on the fly...
+    page->build();
+
     // Page type and CSS name for background
     QuPage::PageType page_type = page->type();
     if (page_type == QuPage::PageType::Inherit) {

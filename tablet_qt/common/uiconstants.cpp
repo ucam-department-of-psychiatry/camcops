@@ -29,11 +29,13 @@ namespace UiConst {
     const int SPACE = 4;
     const int BIGSPACE = 16;
     const int MEDIUMSPACE = 8;
-    const int HEADER_HLINE_WIDTH = 3;
+    const int HEADER_HLINE_WIDTH = 1;
     const int QUESTIONNAIRE_HLINE_WIDTH = 2;
     const int MCQGRID_VLINE_WIDTH = 1;
     const int MCQGRID_VSPACING = 5;
     const int MCQGRID_HSPACING = 5;
+    const int DEFAULT_COLSPAN_Q = 1;
+    const int DEFAULT_COLSPAN_A = 2;
 
     const QMargins NO_MARGINS(0, 0, 0, 0);
 

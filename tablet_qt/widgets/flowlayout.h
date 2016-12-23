@@ -85,10 +85,20 @@ protected:  // RNC (was private)
     void commonConstructor(int margin);  // RNC
     virtual QSize doLayout(const QRect& rect, bool test_only) const;
     int smartSpacing(QStyle::PixelMetric pm) const;
+    int itemTop(int row_top, int item_height, int row_height,
+                Qt::Alignment alignment) const;  // RNC
 
     QList<QLayoutItem*> m_item_list;
     int m_h_space;
     int m_v_space;
     mutable QSize m_size_hint;
     mutable QMap<int, int> m_width_to_height;
+
+    struct ItemCalc {
+        QLayoutItem* item;
+        QWidget* widget;
+        int layout_row;
+        QSize item_size;
+        QPoint layout_cell_top_left;
+    };
 };

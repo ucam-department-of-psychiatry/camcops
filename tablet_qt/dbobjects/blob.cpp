@@ -16,6 +16,7 @@
 */
 
 #include "blob.h"
+#include "db/dbfunc.h"
 
 const QString Blob::TABLENAME("blobs");  // as per DBCONSTANTS.js
 
@@ -110,4 +111,13 @@ QVariant Blob::blobVariant() const
 QByteArray Blob::blobByteArray() const
 {
     return valueByteArray(BLOB_FIELDNAME);
+}
+
+
+void Blob::makeIndexes()
+{
+    DbFunc::createIndex(m_db, "_idx_src_table_pk_field", TABLENAME, {
+                            SRC_TABLE_FIELDNAME,
+                            SRC_PK_FIELDNAME,
+                            SRC_FIELD_FIELDNAME});
 }

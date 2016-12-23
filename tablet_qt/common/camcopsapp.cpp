@@ -100,6 +100,7 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
 
     StoredVar storedvar_specimen(*this, m_sysdb);
     storedvar_specimen.makeTable();
+    storedvar_specimen.makeIndexes();
 
     // ------------------------------------------------------------------------
     // Seed Qt's build-in RNG, which we may use for QUuid generation
@@ -221,10 +222,13 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     // Make special tables: system database
     ExtraString extrastring_specimen(*this, m_sysdb);
     extrastring_specimen.makeTable();
+    extrastring_specimen.makeIndexes();
 
     // Make special tables: main database
     Blob blob_specimen(*this, m_datadb);
     blob_specimen.makeTable();
+    blob_specimen.makeIndexes();
+
     Patient patient_specimen(*this, m_datadb);
     patient_specimen.makeTable();
 
@@ -841,7 +845,7 @@ int CamcopsApp::fontSizePt(UiConst::FontSize fontsize,
     case UiConst::FontSize::Heading:
         return factor * 16;
     case UiConst::FontSize::Title:
-        return factor * 20;
+        return factor * 16;
     case UiConst::FontSize::Menus:
     default:
         return factor * 12;

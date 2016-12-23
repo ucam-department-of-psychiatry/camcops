@@ -121,3 +121,11 @@ void ExtraString::deleteAllExtraStrings()
     QString sql = QString("DELETE FROM %1").arg(EXTRASTRINGS_TABLENAME);
     DbFunc::exec(m_db, sql);
 }
+
+
+void ExtraString::makeIndexes()
+{
+    DbFunc::createIndex(m_db, "_idx_table_name", EXTRASTRINGS_TABLENAME, {
+                            ExtraString::EXTRASTRINGS_TASK_FIELD,
+                            ExtraString::EXTRASTRINGS_NAME_FIELD});
+}

@@ -18,13 +18,15 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 """
 
-import unicodedata
-import six
+# Misc language-oriented functions
+
+from functools import total_ordering
 from typing import Any, Dict, List, Optional, Sequence, Type, TypeVar, Union
+import unicodedata
 
 
 # =============================================================================
-# Misc language-oriented functions
+# Mean
 # =============================================================================
 
 def mean(values: Sequence[Union[int, float, None]]) -> Optional[float]:
@@ -37,6 +39,10 @@ def mean(values: Sequence[Union[int, float, None]]) -> Optional[float]:
             n += 1
     return total / n if n > 0 else None
 
+
+# =============================================================================
+# Does a derived class implement a method?
+# =============================================================================
 
 """
 http://stackoverflow.com/questions/1776994
@@ -82,16 +88,25 @@ def derived_class_implements_method(derived: Type[T1],
     if derived_method is None:
         return False
     base_method = getattr(base, method_name, None)
-    if six.PY2:
-        return derived_method.__func__ != base_method.__func__
-    else:
-        return derived_method is not base_method
+    # if six.PY2:
+    #     return derived_method.__func__ != base_method.__func__
+    # else:
+    #     return derived_method is not base_method
+    return derived_method is not base_method
 
+
+# =============================================================================
+# Lists
+# =============================================================================
 
 def flatten_list(l) -> List[Any]:
     return [item for sublist in l for item in sublist]
     # http://stackoverflow.com/questions/952914/
 
+
+# =============================================================================
+# bool
+# =============================================================================
 
 def is_false(x: Any) -> bool:
     """Positively false? Evaluates: not x and x is not None."""
@@ -104,6 +119,10 @@ def is_false(x: Any) -> bool:
     # http://google-styleguide.googlecode.com/svn/trunk/pyguide.html?showone=True/False_evaluations#True/False_evaluations  # noqa
     return not x and x is not None
 
+
+# =============================================================================
+# Strings
+# =============================================================================
 
 def mangle_unicode_to_ascii(s: Any) -> str:
     """Mangle unicode to ASCII, losing accents etc. in the process."""
@@ -118,6 +137,10 @@ def mangle_unicode_to_ascii(s: Any) -> str:
                    .decode('ascii')  # back to a string
     )
 
+
+# =============================================================================
+# Range dictionary for comparisons
+# =============================================================================
 
 class BetweenDict(dict):
     # Various alternatives:
@@ -158,3 +181,21 @@ class BetweenDict(dict):
             return True
         except KeyError:
             return False
+
+
+# =============================================================================
+# Comparisons
+# =============================================================================
+
+@total_ordering
+class MinType(object):
+    # Something that compares as less than anything
+    # http://stackoverflow.com/questions/12971631/sorting-list-by-an-attribute-that-can-be-none
+    def __le__(self, other):
+        return True
+
+    def __eq__(self, other):
+        return self is other
+
+
+Min = MinType()

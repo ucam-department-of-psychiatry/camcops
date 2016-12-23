@@ -19,10 +19,10 @@
 #include <QCoreApplication>  // for Q_DECLARE_TR_FUNCTIONS
 #include <QDateTime>
 #include <QString>
+#include "common/aliases_camcops.h"
 #include "db/databaseobject.h"
 
 class CamcopsApp;
-class Patient;
 class OpenableWidget;
 
 extern const QString PATIENT_FK_FIELDNAME;
@@ -52,14 +52,18 @@ public:
     virtual QString infoFilenameStem() const;  // default: tablename
     virtual QString xstringTaskname() const;  // default: tablename
     virtual QString instanceTitle() const;
-    virtual bool isAnonymous() const { return false; }
-    virtual bool hasClinician() const { return false; }
-    virtual bool hasRespondent() const { return false; }
+    virtual bool isAnonymous() const;
+    virtual bool hasClinician() const;
+    virtual bool hasRespondent() const;
+    virtual bool prohibitsClinical() const { return false; }
     virtual bool prohibitsCommercial() const { return false; }
+    virtual bool prohibitsEducational() const { return false; }
     virtual bool prohibitsResearch() const { return false; }
     virtual bool isEditable() const { return true; }
     virtual bool isCrippled() const { return !hasExtraStrings(); }
     virtual bool hasExtraStrings() const;
+    virtual bool isTaskPermissible() const;
+    virtual QString whyNotPermissible() const;
     // ------------------------------------------------------------------------
     // Tables and other classmethods
     // ------------------------------------------------------------------------
@@ -101,6 +105,16 @@ public:
     // Editing
     // ------------------------------------------------------------------------
     double editingTimeSeconds() const;
+    void setDefaultClinicianVariablesAtFirstUse();
+protected:
+    QuElement* getClinicianQuestionnaireBlockRawPointer();
+    QuElementPtr getClinicianQuestionnaireBlockElementPtr();
+    QuPagePtr getClinicianDetailsPage();
+    bool isRespondentComplete() const;
+    QuElement* getRespondentQuestionnaireBlockRawPointer(bool second_person);
+    QuElementPtr getRespondentQuestionnaireBlockElementPtr(bool second_person);
+    QuPagePtr getRespondentDetailsPage(bool second_person);
+    QuPagePtr getClinicianAndRespondentDetailsPage(bool second_person);
 public slots:
     void editStarted();
     void editFinished(bool aborted = false);
@@ -109,12 +123,23 @@ public slots:
     // ------------------------------------------------------------------------
 public:
     Patient* patient() const;
+    QString getPatientName() const;
+    bool isFemale() const;
+    bool isMale() const;
 protected:
     void setPatient(int patient_id);  // used by derived classes
 protected:
     mutable QSharedPointer<Patient> m_patient;
     bool m_editing;
     QDateTime m_editing_started;
+
+    // ------------------------------------------------------------------------
+    // Class data
+    // ------------------------------------------------------------------------
+protected:
+    bool m_is_anonymous;
+    bool m_has_clinician;
+    bool m_has_respondent;
 
     // ------------------------------------------------------------------------
     // Static data

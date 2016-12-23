@@ -35,6 +35,7 @@ public:
     QByteArray blobByteArray() const;
 
     // Classmethod:
+    void makeIndexes();
 
 public:
     static const QString TABLENAME;

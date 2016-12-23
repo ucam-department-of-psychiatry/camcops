@@ -19,6 +19,8 @@
 #include <QHBoxLayout>
 #include <QWidget>
 #include "questionnairelib/questionnaire.h"
+#include "widgets/flowlayout.h"
+#include "widgets/heightforwidthlayoutcontainer.h"
 
 
 QuContainerHorizontal::QuContainerHorizontal()
@@ -54,7 +56,14 @@ QuContainerHorizontal::QuContainerHorizontal(
 
 void QuContainerHorizontal::commonConstructor()
 {
-    m_add_stretch_right = false;
+    m_flow = true;
+
+    // An alignment of Qt::Alignment(), the default, makes the layout
+    // EQUISPACE the widgets, which looks daft.
+    // - http://www.qtcentre.org/threads/53609-QHBoxLayout-widget-spacing
+    m_widget_alignment = Qt::AlignLeft | Qt::AlignVCenter;
+
+    m_add_stretch_right = true;
 }
 
 
@@ -77,6 +86,21 @@ QuContainerHorizontal* QuContainerHorizontal::addElement(
 }
 
 
+QuContainerHorizontal* QuContainerHorizontal::setFlow(bool flow)
+{
+    m_flow = flow;
+    return this;
+}
+
+
+QuContainerHorizontal* QuContainerHorizontal::setWidgetAlignment(
+        Qt::Alignment widget_alignment)
+{
+    m_widget_alignment = widget_alignment;
+    return this;
+}
+
+
 QuContainerHorizontal* QuContainerHorizontal::setAddStretchRight(
         bool add_stretch_right)
 {
@@ -88,17 +112,33 @@ QuContainerHorizontal* QuContainerHorizontal::setAddStretchRight(
 QPointer<QWidget> QuContainerHorizontal::makeWidget(
         Questionnaire* questionnaire)
 {
-    QPointer<QWidget> widget = new QWidget();
+    QPointer<QWidget> widget;
+    FlowLayout* flowlayout = nullptr;
+    QHBoxLayout* hboxlayout = nullptr;
+    QLayout* layout = nullptr;
+    if (m_flow) {
+        widget = QPointer<QWidget>(new HeightForWidthLayoutContainer());
+        flowlayout = new FlowLayout();
+        layout = static_cast<QLayout*>(flowlayout);
+    } else {
+        widget = QPointer<QWidget>(new QWidget());
+        hboxlayout = new QHBoxLayout();
+        layout = static_cast<QLayout*>(hboxlayout);
+    }
     // widget->setObjectName(CssConst::DEBUG_YELLOW);
-    QHBoxLayout* layout = new QHBoxLayout();
     layout->setContentsMargins(UiConst::NO_MARGINS);
     widget->setLayout(layout);
     for (auto e : m_elements) {
         QPointer<QWidget> w = e->widget(questionnaire);
-        layout->addWidget(w);
+        if (m_flow) {
+            flowlayout->addWidget(w);
+            flowlayout->setAlignment(w, m_widget_alignment);
+        } else {
+            hboxlayout->addWidget(w, 0, m_widget_alignment);
+        }
     }
-    if (m_add_stretch_right) {
-        layout->addStretch();
+    if (m_add_stretch_right && !m_flow) {
+        hboxlayout->addStretch();
     }
     return widget;
 }

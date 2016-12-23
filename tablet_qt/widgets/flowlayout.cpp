@@ -265,6 +265,8 @@ QSize FlowLayout::minimumSize() const
 
 QSize FlowLayout::doLayout(const QRect& rect, bool test_only) const
 {
+    // RNC: substantial modifications including vertical alignment
+
     int left, top, right, bottom;
     getContentsMargins(&left, &top, &right, &bottom);
     QRect effective_rect = rect.adjusted(+left, +top, -right, -bottom);
@@ -277,19 +279,24 @@ QSize FlowLayout::doLayout(const QRect& rect, bool test_only) const
     int x = effective_rect.x();
     int max_x = x;
     int y = effective_rect.y();
-    int line_height = 0;
 
-    QLayoutItem* item;
-    foreach (item, m_item_list) {
-        QWidget* wid = item->widget();
+    int row = 0;
+    QList<int> line_heights{0};
+    QList<ItemCalc> itemcalcs;
+
+    for (auto item : m_item_list) {
+        ItemCalc calc;
+        calc.item = item;
+        QWidget* widget = calc.widget = item->widget();
+
         int space_x = horizontalSpacing();
         if (space_x == -1) {
-            space_x = wid->style()->layoutSpacing(
+            space_x = widget->style()->layoutSpacing(
                 QSizePolicy::PushButton, QSizePolicy::PushButton, Qt::Horizontal);
         }
         int space_y = verticalSpacing();
         if (space_y == -1) {
-            space_y = wid->style()->layoutSpacing(
+            space_y = widget->style()->layoutSpacing(
                 QSizePolicy::PushButton, QSizePolicy::PushButton, Qt::Vertical);
         }
 
@@ -332,8 +339,9 @@ QSize FlowLayout::doLayout(const QRect& rect, bool test_only) const
             // Original Qt version also had "&& line_height > 0"; not sure
             // that helps.
             x = effective_rect.x();
-            y = y + line_height + space_y;
-            line_height = 0;
+            y = y + line_heights.back() + space_y;
+            line_heights.push_back(0);
+            ++row;
 #ifdef DEBUG_LAYOUT
             qDebug().nospace() << "... start new line; item_width now "
                                << item_width << "; y now " << y;
@@ -344,25 +352,43 @@ QSize FlowLayout::doLayout(const QRect& rect, bool test_only) const
                 ? item->heightForWidth(item_width)
                 : item_size_hint.height();
         max_x = qMax(max_x, x + item_width);
-        QSize item_size(item_width, item_height);
-        QPoint item_at(x, y);
+        calc.item_size = QSize(item_width, item_height);
+        calc.layout_row = row;
+        calc.layout_cell_top_left = QPoint(x, y);
 #ifdef DEBUG_LAYOUT
         qDebug() << "... inserting layout item with widget"
-                 << LayoutDumper::getWidgetDescriptor(item->widget())
-                 << "at" << item_at << "with size" << item_size;
+                 << LayoutDumper::getWidgetDescriptor(widget)
+                 << "in row" << row
+                 << "in cell at" << calc.layout_cell_top_left
+                 << "with size" << calc.item_size;
 #endif
-
-        if (!test_only) {
-            item->setGeometry(QRect(item_at, item_size));
-        }
 
         int next_x = x + item_width + space_x;
         x = next_x;
-        line_height = qMax(line_height, item_height);
+        line_heights.back() = qMax(line_heights.back(), item_height);
+
+        itemcalcs.append(calc);
+    }
+
+    // Now apply any alignments, and set the actual widget position
+    if (!test_only) {
+        for (auto calc : itemcalcs) {
+            int row_height = line_heights.at(calc.layout_row);
+            QPoint item_at = calc.layout_cell_top_left;
+            item_at.ry() = itemTop(item_at.y(), calc.item_size.height(),
+                                   row_height, calc.item->alignment());
+            QRect geometry(item_at, calc.item_size);
+#ifdef DEBUG_LAYOUT
+            qDebug() << "... Final widget position for"
+                     << LayoutDumper::getWidgetDescriptor(calc.widget)
+                     << "=" << geometry;
+#endif
+            calc.item->setGeometry(geometry);
+        }
     }
 
     int final_width = max_x - rect.x();
-    int final_height = y + line_height - rect.y() + bottom;
+    int final_height = y + line_heights.back() - rect.y() + bottom;
     QSize final_size(final_width, final_height);
 #ifdef DEBUG_LAYOUT
     qDebug() << "... LAYOUT COMPLETE; final size" << final_size;
@@ -382,5 +408,18 @@ int FlowLayout::smartSpacing(QStyle::PixelMetric pm) const
         return pw->style()->pixelMetric(pm, 0, pw);
     } else {
         return static_cast<QLayout*>(parent)->spacing();
+    }
+}
+
+
+int FlowLayout::itemTop(int row_top, int item_height, int row_height,
+                        Qt::Alignment alignment) const
+{
+    if (alignment & Qt::AlignVCenter) {
+        return row_top + (row_height - item_height) / 2;
+    } else if (alignment & Qt::AlignBottom) {
+        return row_top + (row_height - item_height);
+    } else {
+        return row_top;
     }
 }

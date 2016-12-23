@@ -159,10 +159,12 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
                  std::bind(&WidgetTestMenu::testClickableLabelWordWrapWide, this, false)),
         MenuItem(tr("ClickableLabelWordWrapWide (long text)"),
                  std::bind(&WidgetTestMenu::testClickableLabelWordWrapWide, this, true)),
-        MenuItem(tr("FlowLayoutContainer (short text)"),
-                 std::bind(&WidgetTestMenu::testFlowLayoutContainer, this, false)),
-        MenuItem(tr("FlowLayoutContainer (long text)"),
-                 std::bind(&WidgetTestMenu::testFlowLayoutContainer, this, true)),
+        MenuItem(tr("FlowLayout (containing fixed-size icons)"),
+                 std::bind(&WidgetTestMenu::testFlowLayout, this, 5)),
+        MenuItem(tr("HeightForWidthLayoutContainer (short text)"),
+                 std::bind(&WidgetTestMenu::testHeightForWidthLayoutContainer, this, false)),
+        MenuItem(tr("HeightForWidthLayoutContainer (long text)"),
+                 std::bind(&WidgetTestMenu::testHeightForWidthLayoutContainer, this, true)),
         MenuItem(tr("HorizontalLine"),
                  std::bind(&WidgetTestMenu::testHorizontalLine, this)),
         MenuItem(tr("ImageButton"),
@@ -404,7 +406,20 @@ void WidgetTestMenu::testClickableLabelWordWrapWide(bool long_text)
 }
 
 
-void WidgetTestMenu::testFlowLayoutContainer(bool long_text)
+void WidgetTestMenu::testFlowLayout(int n_icons)
+{
+    QWidget* widget = new QWidget();
+    FlowLayout* layout = new FlowLayout();
+    widget->setLayout(layout);
+    for (int i = 0; i < n_icons; ++i) {
+        QLabel* icon = UiFunc::iconWidget(UiFunc::iconFilename(UiConst::CBS_ADD));
+        layout->addWidget(icon);
+    }
+    DebugFunc::debugWidget(widget);
+}
+
+
+void WidgetTestMenu::testHeightForWidthLayoutContainer(bool long_text)
 {
     FlowLayout* layout = new FlowLayout();
     layout->addWidget(new LabelWordWrapWide("Option Z1"));

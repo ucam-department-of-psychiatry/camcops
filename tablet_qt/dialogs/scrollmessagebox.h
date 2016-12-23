@@ -16,6 +16,7 @@
 */
 
 // http://www.qtforum.org/article/18183/messagebox-with-qscrollbar.html
+// ... modified a bit
 
 #pragma once
 #include <QMessageBox>
@@ -55,6 +56,12 @@ public:
             QDialogButtonBox::StandardButtons buttons = QDialogButtonBox::Ok,
             StandardButton defaultButton = QDialogButtonBox::NoButton);
     static StandardButton warning(
+            QWidget* parent,
+            const QString& title,
+            const QString& text,
+            QDialogButtonBox::StandardButtons buttons = QDialogButtonBox::Ok,
+            StandardButton defaultButton = QDialogButtonBox::NoButton);
+    static StandardButton plain(
             QWidget* parent,
             const QString& title,
             const QString& text,

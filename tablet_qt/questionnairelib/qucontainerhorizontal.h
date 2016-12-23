@@ -31,6 +31,8 @@ public:
     QuContainerHorizontal(std::initializer_list<QuElement*> elements);  // takes ownership
     QuContainerHorizontal* addElement(const QuElementPtr& element);
     QuContainerHorizontal* addElement(QuElement* element);  // takes ownership
+    QuContainerHorizontal* setFlow(bool flow);
+    QuContainerHorizontal* setWidgetAlignment(Qt::Alignment widget_alignment);
     QuContainerHorizontal* setAddStretchRight(bool add_stretch_right);
 protected:
     void commonConstructor();
@@ -38,5 +40,7 @@ protected:
     virtual QList<QuElementPtr> subelements() const override;
 protected:
     QList<QuElementPtr> m_elements;
-    bool m_add_stretch_right;
+    bool m_flow;
+    Qt::Alignment m_widget_alignment;  // if !m_flow
+    bool m_add_stretch_right;  // if !m_flow
 };

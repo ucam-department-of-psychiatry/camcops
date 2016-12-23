@@ -44,6 +44,7 @@ namespace CssConst
     extern const char* NEEDS_PRIVILEGE;
     extern const char* VLINE;
     extern const char* QUESTION;
+    extern const char* QUHEADING;
     extern const char* TITLE;
     extern const char* SUBTITLE;
     extern const char* OPTION;

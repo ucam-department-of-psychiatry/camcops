@@ -615,7 +615,7 @@ void UiFunc::alert(const QString& text, const QString& title, bool scroll)
 {
     if (scroll) {
         // Tasks may elect to show long text here
-        ScrollMessageBox::information(nullptr, title, text);
+        ScrollMessageBox::plain(nullptr, title, text);
     } else {
         QMessageBox msgbox;
         msgbox.setWindowTitle(title);

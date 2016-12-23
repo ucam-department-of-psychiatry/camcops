@@ -92,6 +92,9 @@ void DatabaseObject::addField(const QString& fieldname, QVariant::Type type,
         qWarning() << "SQLite3 does not properly support unsigned 64-bit "
                       "integers; please use signed if possible";
     }
+    if (m_record.contains(fieldname)) {
+        UiFunc::stopApp("Attempt to insert duplicate fieldname: " + fieldname);
+    }
     Field field(fieldname, type, mandatory, unique, pk);
     m_record.insert(fieldname, field);
     m_ordered_fieldnames.append(fieldname);
@@ -251,143 +254,6 @@ FieldRefPtr DatabaseObject::fieldRef(const QString& fieldname, bool mandatory,
 
 
 // ============================================================================
-// Manipulating multiple fields
-// ============================================================================
-
-int DatabaseObject::sumInt(const QStringList& fieldnames) const
-{
-    int total = 0;
-    for (auto fieldname : fieldnames) {
-        total += valueInt(fieldname);  // gives 0 if it is NULL
-    }
-    return total;
-}
-
-
-double DatabaseObject::sumDouble(const QStringList& fieldnames) const
-{
-    double total = 0;
-    for (auto fieldname : fieldnames) {
-        total += valueDouble(fieldname);  // gives 0 if it is NULL
-    }
-    return total;
-}
-
-
-QVariant DatabaseObject::mean(const QStringList& fieldnames) const
-{
-    double sum = 0;
-    int n = 0;
-    for (auto fieldname : fieldnames) {
-        QVariant v = value(fieldname);
-        if (!v.isNull()) {
-            sum += v.toDouble();
-            n += 1;
-        }
-    }
-    if (n == 0) {
-        return QVariant();  // undefined
-    }
-    return sum / n;
-}
-
-
-int DatabaseObject::countTrue(const QStringList& fieldnames) const
-{
-    int n = 0;
-    for (auto fieldname : fieldnames) {
-        if (valueBool(fieldname)) {
-            n += 1;
-        }
-    }
-    return n;
-}
-
-
-bool DatabaseObject::allTrue(const QStringList& fieldnames) const
-{
-    for (auto fieldname : fieldnames) {
-        if (!valueBool(fieldname)) {
-            return false;
-        }
-    }
-    return true;
-}
-
-
-bool DatabaseObject::allFalseOrNull(const QStringList& fieldnames) const
-{
-    for (auto fieldname : fieldnames) {
-        if (valueBool(fieldname)) {
-            return false;
-        }
-    }
-    return true;
-}
-
-
-bool DatabaseObject::anyNull(const QStringList& fieldnames) const
-{
-    for (auto fieldname: fieldnames) {
-        if (value(fieldname).isNull()) {
-            return true;
-        }
-    }
-    return false;
-}
-
-
-int DatabaseObject::numNull(const QStringList& fieldnames) const
-{
-    int n = 0;
-    for (auto fieldname: fieldnames) {
-        if (value(fieldname).isNull()) {
-            n += 1;
-        }
-    }
-    return n;
-}
-
-
-int DatabaseObject::numNotNull(const QStringList& fieldnames) const
-{
-    int n = 0;
-    for (auto fieldname: fieldnames) {
-        if (!value(fieldname).isNull()) {
-            n += 1;
-        }
-    }
-    return n;
-}
-
-
-int DatabaseObject::countWhere(const QStringList& fieldnames,
-                               const QList<QVariant>& values) const
-{
-    int n = 0;
-    for (auto fieldname : fieldnames) {
-        if (values.contains(value(fieldname))) {
-            n += 1;
-        }
-    }
-    return n;
-}
-
-
-int DatabaseObject::countWhereNot(const QStringList& fieldnames,
-                                  const QList<QVariant>& values) const
-{
-    int n = 0;
-    for (auto fieldname : fieldnames) {
-        if (!values.contains(value(fieldname))) {
-            n += 1;
-        }
-    }
-    return n;
-}
-
-
-// ============================================================================
 // Whole-object summary
 // ============================================================================
 
@@ -402,10 +268,8 @@ QString DatabaseObject::fieldSummary(const QString& fieldname,
 QStringList DatabaseObject::recordSummaryLines() const
 {
     QStringList list;
-    MapIteratorType i(m_record);
-    while (i.hasNext()) {
-        i.next();
-        const Field& field = i.value();
+    for (auto fieldname : m_ordered_fieldnames) {
+        const Field& field = m_record[fieldname];
         list.append(QString("%1 = <b>%2</b>").arg(field.name(),
                                                   field.prettyValue()));
     }
