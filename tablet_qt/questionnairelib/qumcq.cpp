@@ -36,7 +36,8 @@ QuMCQ::QuMCQ(FieldRefPtr fieldref, const NameValueOptions& options) :
     m_randomize(false),
     m_show_instruction(false),
     m_horizontal(false),
-    m_as_text_button(false)
+    m_as_text_button(false),
+    m_bold(false)
 {
     m_options.validateOrDie();
     Q_ASSERT(m_fieldref);
@@ -71,6 +72,13 @@ QuMCQ* QuMCQ::setHorizontal(bool horizontal)
 QuMCQ* QuMCQ::setAsTextButton(bool as_text_button)
 {
     m_as_text_button = as_text_button;
+    return this;
+}
+
+
+QuMCQ* QuMCQ::setBold(bool bold)
+{
+    m_bold = bold;
     return this;
 }
 
@@ -114,6 +122,7 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
                                           : BooleanWidget::Appearance::Radio);
         if (m_as_text_button) {
             w->setText(nvp.name());
+            w->setBold(m_bold);
         }
         if (!read_only) {
             // Safe object lifespan signal: can use std::bind
@@ -133,6 +142,11 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
             ClickableLabelWordWrapWide* namelabel =
                     new ClickableLabelWordWrapWide(nvp.name());
             namelabel->setEnabled(!read_only);
+            int fontsize = questionnaire->fontSizePt(UiConst::FontSize::Normal);
+            bool italic = false;
+            QString css = UiFunc::textCSS(fontsize, m_bold, italic);
+            namelabel->setStyleSheet(css);
+
             if (!read_only) {
                 // Safe object lifespan signal: can use std::bind
                 connect(namelabel, &ClickableLabelWordWrapWide::clicked,

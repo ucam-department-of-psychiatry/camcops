@@ -124,3 +124,26 @@ QString StringFunc::joinHtmlLines(const QStringList& lines)
 {
     return lines.join("<br>");
 }
+
+
+QString& StringFunc::toHtmlLinebreaks(QString& str,
+                                      bool convert_embedded_literals)
+{
+    str.replace("\n", "<br>");
+    if (convert_embedded_literals) {
+        str.replace("\\n", "<br>");
+    }
+    return str;
+}
+
+
+// ============================================================================
+// Other string processing
+// ============================================================================
+
+QString& StringFunc::replaceFirst(QString& str, const QString& from,
+                                  const QString& to)
+{
+    // Replaces in situ
+    return str.replace(str.indexOf(from), from.length(), to);
+}

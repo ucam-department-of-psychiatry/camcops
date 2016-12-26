@@ -258,7 +258,8 @@ SOURCES += main.cpp\
     dialogs/scrollmessagebox.cpp \
     dialogs/logmessagebox.cpp \
     dbobjects/patientsorter.cpp \
-    tasks/ace3.cpp
+    tasks/ace3.cpp \
+    widgets/heightforwidthlistwidget.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -442,7 +443,8 @@ HEADERS  += \
     dialogs/scrollmessagebox.h \
     dialogs/logmessagebox.h \
     dbobjects/patientsorter.h \
-    tasks/ace3.h
+    tasks/ace3.h \
+    widgets/heightforwidthlistwidget.h
 
 DISTFILES += \
     notes/qt_notes.txt \

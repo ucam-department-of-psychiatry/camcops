@@ -171,7 +171,11 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
     // List
     // ------------------------------------------------------------------------
 
+#ifdef USE_HFW_LISTWIDGET
+    m_p_listwidget = new HeightForWidthListWidget();
+#else
     m_p_listwidget = new QListWidget();
+#endif
     m_mainlayout->addWidget(m_p_listwidget);
 
     connect(m_p_listwidget, &QListWidget::itemSelectionChanged,
@@ -231,8 +235,11 @@ void MenuWindow::build()
         QWidget* row = item.rowWidget(m_app);
         QListWidgetItem* listitem = new QListWidgetItem("", m_p_listwidget);
         listitem->setData(Qt::UserRole, QVariant(i));
-        QSize rowsize = row->sizeHint();
-        listitem->setSizeHint(rowsize);
+#ifdef USE_HFW_LISTWIDGET
+        listitem->setSizeHint(m_p_listwidget->widgetSizeHint(row));
+#else
+        listitem->setSizeHint(row->sizeHint());
+#endif
         m_p_listwidget->setItemWidget(listitem, row);
         if (item.patient()
                 && item.patient()->id() == app_selected_patient_id) {

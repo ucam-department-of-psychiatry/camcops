@@ -28,6 +28,7 @@ void initializePhq9(TaskFactory& factory);
 
 class Phq9 : public Task
 {
+    Q_OBJECT
 public:
     Phq9(CamcopsApp& app, const QSqlDatabase& db,
          int load_pk = DbConst::NONEXISTENT_PK);

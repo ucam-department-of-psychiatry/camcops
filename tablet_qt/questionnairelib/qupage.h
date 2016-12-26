@@ -55,12 +55,14 @@ public:
     QuPage* setTitle(const QString& title);
     QuPage* addElement(const QuElementPtr& element);
     QuPage* addElement(QuElement* element);  // takes ownership
+    QuPage* addTag(const QString& tag);
     QList<QuElement*> elementsWithTag(const QString& tag);
 
     virtual ~QuPage();
 
     PageType type() const;
     QString title() const;
+    bool hasTag(const QString& tag) const;
 signals:
     void elementValueChanged();
 protected:
@@ -71,5 +73,6 @@ protected:
 protected:
     PageType m_type;
     QString m_title;
+    QStringList m_tags;
     QList<QuElementPtr> m_elements;
 };

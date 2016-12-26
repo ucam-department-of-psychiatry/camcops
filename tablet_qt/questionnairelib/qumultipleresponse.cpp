@@ -19,6 +19,7 @@
 #include <QVBoxLayout>
 #include "common/cssconst.h"
 #include "common/random.h"
+#include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/booleanwidget.h"
 #include "widgets/clickablelabelwordwrapwide.h"
@@ -57,6 +58,7 @@ void QuMultipleResponse::commonConstructor()
     m_show_instruction = true;
     m_horizontal = false;
     m_as_text_button = false;
+    m_bold = false;
     // Connect fieldrefs at widget build time, for simplicity.
 }
 
@@ -123,6 +125,13 @@ QuMultipleResponse* QuMultipleResponse::setAsTextButton(bool as_text_button)
 }
 
 
+QuMultipleResponse* QuMultipleResponse::setBold(bool bold)
+{
+    m_bold = bold;
+    return this;
+}
+
+
 QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
 {
     // Clear old stuff
@@ -159,6 +168,7 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
                          : BooleanWidget::Appearance::CheckRed);
         if (m_as_text_button) {
             w->setText(item.text());
+            w->setBold(m_bold);
         }
         if (!read_only) {
             // Safe object lifespan signal: can use std::bind
@@ -176,6 +186,10 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
             QWidget* itemwidget = new QWidget();
             ClickableLabelWordWrapWide* namelabel = new ClickableLabelWordWrapWide(item.text());
             namelabel->setEnabled(!read_only);
+            int fontsize = questionnaire->fontSizePt(UiConst::FontSize::Normal);
+            bool italic = false;
+            QString css = UiFunc::textCSS(fontsize, m_bold, italic);
+            namelabel->setStyleSheet(css);
             if (!read_only) {
                 // Safe object lifespan signal: can use std::bind
                 connect(namelabel, &ClickableLabelWordWrapWide::clicked,

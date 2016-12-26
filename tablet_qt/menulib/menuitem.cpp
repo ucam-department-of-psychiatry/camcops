@@ -16,7 +16,7 @@
 */
 
 // #define DEBUG_VERBOSE
-
+#define USE_HFW_WIDGET
 #include "menuitem.h"
 #include <QDebug>
 #include <QLabel>
@@ -39,9 +39,15 @@
 #include "menulib/htmlinfowindow.h"
 #include "menulib/menuwindow.h"
 #include "tasklib/taskfactory.h"
-// #include "widgets/heightforwidthlayoutcontainer.h"
 #include "widgets/labelwordwrapwide.h"
 #include "widgets/openablewidget.h"
+
+#ifdef USE_HFW_WIDGET
+#include "widgets/heightforwidthlayoutcontainer.h"
+using BaseWidget = HeightForWidthLayoutContainer;
+#else
+using BaseWidget = QWidget;
+#endif
 
 const int STRETCH_3COL_WTASKNAME_TASKNAME = 1;
 const int STRETCH_3COL_WTASKNAME_TIMESTAMP = 2;
@@ -236,7 +242,7 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
     Qt::Alignment text_align = Qt::AlignLeft | Qt::AlignVCenter;
     QSizePolicy sp_icon(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-    QWidget* row = new QWidget();
+    BaseWidget* row = new BaseWidget();
     QHBoxLayout* rowlayout = new QHBoxLayout();
     row->setLayout(rowlayout);
 
@@ -283,7 +289,7 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
 
         // Taskname OR patient
         if (m_task_shows_taskname || m_task_shows_patient) {
-            QWidget* col1_widget = new QWidget();
+            BaseWidget* col1_widget = new BaseWidget();
             QHBoxLayout* col1_hbox = new QHBoxLayout();
             col1_widget->setLayout(col1_hbox);
 
@@ -322,7 +328,7 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         }
 
         // Timestamp
-        QWidget* col2_widget = new QWidget();
+        BaseWidget* col2_widget = new BaseWidget();
         QHBoxLayout* col2_hbox = new QHBoxLayout();
         col2_widget->setLayout(col2_hbox);
 
@@ -342,7 +348,7 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         rowlayout->addWidget(col2_widget);
 
         // Summary
-        QWidget* col3_widget = new QWidget();
+        BaseWidget* col3_widget = new BaseWidget();
         QHBoxLayout* col3_hbox = new QHBoxLayout();
         col3_widget->setLayout(col3_hbox);
 
@@ -482,9 +488,10 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
     }
 
     // Size policy
-    QSizePolicy size_policy(QSizePolicy::MinimumExpanding,  // horizontal
-                            QSizePolicy::Fixed);  // vertical
-    row->setSizePolicy(size_policy);
+    // ... NO; now done automatically by HeightForWidthLayoutContainer
+    // QSizePolicy size_policy(QSizePolicy::MinimumExpanding,  // horizontal
+    //                         QSizePolicy::Fixed);  // vertical
+    // row->setSizePolicy(size_policy);
 
     return row;
 }

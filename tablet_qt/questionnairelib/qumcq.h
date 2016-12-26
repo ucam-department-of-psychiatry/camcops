@@ -37,6 +37,7 @@ public:
     QuMCQ* setShowInstruction(bool show_instruction);
     QuMCQ* setHorizontal(bool horizontal);
     QuMCQ* setAsTextButton(bool as_text_button);
+    QuMCQ* setBold(bool bold);
 protected:
     void setFromField();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
@@ -51,5 +52,6 @@ protected:
     bool m_show_instruction;
     bool m_horizontal;
     bool m_as_text_button;
+    bool m_bold;
     QList<QPointer<BooleanWidget>> m_widgets;
 };

@@ -627,6 +627,19 @@ General layout tips
         - big text: widget sits at the top of the text
 
 ===============================================================================
+More layout notes
+===============================================================================
+
+- Menus weren't word-wrapping properly. This may be a limitation of using
+  QListWidget, with QListWidgetItem::setSizeHint. Making the widgets use
+  HeightForWidthLayoutContainer didn't help.
+  Nor did QListWidget::setResizeMode(QListView::Adjust).
+  An alternative might be a QListView with setItemDelegate().
+    http://doc.qt.io/qt-5/qabstractitemview.html#setItemDelegate
+
+  ... fixed with HeightForWidthListWidget
+
+===============================================================================
 Audio
 ===============================================================================
 - Out-of-the-box Qt 5.7:
@@ -952,8 +965,6 @@ NOT IMPLEMENTED
 TO DO
 ===============================================================================
 - *** tasks
-
-- *** FlowLayout not getting minimum height correct.
 
 - *** chains (see e.g. ResearchMenu.js; MenuTableRow.js; QuestionnaireHeader.js...)
 

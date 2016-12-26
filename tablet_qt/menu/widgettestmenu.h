@@ -71,6 +71,7 @@ protected:
     // Large-scale widgets
     // ========================================================================
     void testQuestionnaireHeader();
+    void testMenuItem();
 
     // ========================================================================
     // Questionnaire element widgets

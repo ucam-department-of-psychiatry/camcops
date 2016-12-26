@@ -51,6 +51,7 @@ public:
     QuMultipleResponse* setInstruction(const QString& instruction);
     QuMultipleResponse* setHorizontal(bool horizontal);
     QuMultipleResponse* setAsTextButton(bool as_text_button);
+    QuMultipleResponse* setBold(bool bold);
 protected:
     void commonConstructor();
     void setFromFields();
@@ -74,6 +75,7 @@ protected:
     QString m_instruction;
     bool m_horizontal;
     bool m_as_text_button;
+    bool m_bold;
 
     QList<QPointer<BooleanWidget>> m_widgets;
 };

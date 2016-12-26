@@ -18,6 +18,8 @@
 #include "heightforwidthlayoutcontainer.h"
 // #include <QDebug>
 #include <QLayout>
+#include <QPainter>
+#include <QStyleOption>
 #include "lib/uifunc.h"
 
 
@@ -39,4 +41,15 @@ void HeightForWidthLayoutContainer::resizeEvent(QResizeEvent* event)
 {
     QWidget::resizeEvent(event);
     UiFunc::resizeEventForHFWParentWidget(this);
+}
+
+
+void HeightForWidthLayoutContainer::paintEvent(QPaintEvent*)
+{
+    // REQUIRED for class to support stylesheets
+    // http://www.qtcentre.org/threads/37976-Q_OBJECT-and-CSS-background-image
+    QStyleOption o;
+    o.initFrom(this);
+    QPainter p(this);
+    style()->drawPrimitive(QStyle::PE_Widget, &o, &p, this);
 }

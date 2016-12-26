@@ -49,19 +49,18 @@ public:
     QuElement();
     virtual ~QuElement();
     QuElement* addTag(const QString& tag);
+
+    bool hasTag(const QString& tag) const;
+    bool visible() const;
+    void setVisible(bool visible);
 signals:
     void elementValueChanged();
 protected:
     virtual QPointer<QWidget> widget(Questionnaire* questionnaire);
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) = 0;
     virtual QPointer<QWidget> cachedWidget() const;  // Not for general use!
-    bool hasTag(const QString& tag);
-
     void show();
     void hide();
-    bool visible() const;
-    void setVisible(bool visible);
-
     virtual QList<QuElementPtr> subelements() const;
     QList<QuElement*> subelementsRaw() const;
     virtual bool missingInput() const;

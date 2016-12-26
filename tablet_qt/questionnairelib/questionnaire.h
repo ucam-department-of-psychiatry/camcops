@@ -59,12 +59,16 @@ public:
     QString getSubstitutedCss(const QString& filename) const;
     QuPage* currentPagePtr() const;
     void setVisibleByTag(const QString& tag, bool visible,
-                         bool current_page = true);
+                         bool current_page_only = true,
+                         const QString& page_tag = "");
     QList<QuElement*> getElementsByTag(const QString& tag,
-                                       bool current_page = true);
+                                       bool current_page_only = true,
+                                       const QString& page_tag = "");
     QuElement* getFirstElementByTag(const QString& tag,
-                                    bool current_page = true);
-    QList<QuPage*> getPages(bool current_page);
+                                    bool current_page_only = true,
+                                    const QString& page_tag = "");
+    QList<QuPage*> getPages(bool current_page_only,
+                            const QString& page_tag = "");
 protected:
     void commonConstructor();
     int currentPageNumOneBased() const;

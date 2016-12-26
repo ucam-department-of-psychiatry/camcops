@@ -505,27 +505,32 @@ void Questionnaire::debugLayout()
 
 
 void Questionnaire::setVisibleByTag(const QString& tag, bool visible,
-                                    bool current_page)
+                                    bool current_page_only,
+                                    const QString& page_tag)
 {
-    QList<QuElement*> elements = getElementsByTag(tag, current_page);
+    QList<QuElement*> elements = getElementsByTag(tag, current_page_only,
+                                                  page_tag);
     for (auto element : elements) {
         element->setVisible(visible);
     }
 }
 
 
-QList<QuPage*> Questionnaire::getPages(bool current_page)
+QList<QuPage*> Questionnaire::getPages(bool current_page_only,
+                                       const QString& page_tag)
 {
     QList<QuPage*> pages;
-    if (current_page) {
+    if (current_page_only) {
         QuPage* page = currentPagePtr();
-        if (!page) {
-            return pages;  // empty
+        if (page && (page_tag.isEmpty() || page->hasTag(page_tag))) {
+            pages.append(page);
         }
         pages.append(page);
     } else {
         for (auto p : m_pages) {
-            pages.append(p.data());
+            if (page_tag.isEmpty() || p->hasTag(page_tag)) {
+                pages.append(p.data());
+            }
         }
     }
     return pages;
@@ -533,9 +538,10 @@ QList<QuPage*> Questionnaire::getPages(bool current_page)
 
 
 QList<QuElement*> Questionnaire::getElementsByTag(const QString& tag,
-                                                  bool current_page)
+                                                  bool current_page_only,
+                                                  const QString& page_tag)
 {
-    QList<QuPage*> pages = getPages(current_page);
+    QList<QuPage*> pages = getPages(current_page_only, page_tag);
     QList<QuElement*> elements;
     for (auto page : pages) {
         elements += page->elementsWithTag(tag);
@@ -545,9 +551,11 @@ QList<QuElement*> Questionnaire::getElementsByTag(const QString& tag,
 
 
 QuElement* Questionnaire::getFirstElementByTag(const QString& tag,
-                                               bool current_page)
+                                               bool current_page_only,
+                                               const QString& page_tag)
 {
-    QList<QuElement*> elements = getElementsByTag(tag, current_page);
+    QList<QuElement*> elements = getElementsByTag(tag, current_page_only,
+                                                  page_tag);
     if (elements.isEmpty()) {
         return nullptr;
     }

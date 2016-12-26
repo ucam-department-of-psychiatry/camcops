@@ -176,6 +176,7 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire *questionnaire)
     // Indicator
     m_indicator = new BooleanWidget();
     m_indicator->setSize(m_big_indicator);
+    m_indicator->setBold(m_bold);
     m_indicator->setReadOnly(read_only);
     if (m_as_text_button) {
         m_indicator->setAppearance(BooleanWidget::Appearance::Text);

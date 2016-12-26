@@ -57,6 +57,7 @@ public:
     // Used at construction time:
     virtual void setReadOnly(bool read_only = false);
     void setSize(bool big = false);
+    void setBold(bool bold);
     void setAppearance(BooleanWidget::Appearance appearance);
     // Used live:
     void setState(BooleanWidget::State state);
@@ -69,6 +70,7 @@ protected:
 protected:
     bool m_read_only;
     bool m_big;
+    bool m_bold;
     Appearance m_appearance;
     bool m_as_image;
     State m_state;

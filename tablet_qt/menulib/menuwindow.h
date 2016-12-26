@@ -16,12 +16,16 @@
 */
 
 #pragma once
+#define USE_HFW_LISTWIDGET
 #include <QPointer>
 #include <QSharedPointer>
 #include <QVector>
 #include "common/aliases_camcops.h"
 #include "common/camcopsapp.h"  // for LockState
 #include "menulib/menuitem.h"
+#ifdef USE_HFW_LISTWIDGET
+#include "widgets/heightforwidthlistwidget.h"
+#endif
 #include "widgets/openablewidget.h"
 
 class MenuHeader;
@@ -100,5 +104,9 @@ protected:
     QVector<MenuItem> m_items;
     QPointer<QVBoxLayout> m_mainlayout;
     QPointer<MenuHeader> m_p_header;
+#ifdef USE_HFW_LISTWIDGET
+    QPointer<HeightForWidthListWidget> m_p_listwidget;
+#else
     QPointer<QListWidget> m_p_listwidget;
+#endif
 };

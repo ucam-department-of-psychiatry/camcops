@@ -45,6 +45,7 @@ BooleanWidget::BooleanWidget(QWidget* parent) :
     QAbstractButton(parent),
     m_read_only(false),
     m_big(true),
+    m_bold(false),
     m_appearance(Appearance::CheckRed),
     m_as_image(true),
     m_state(State::Null)
@@ -79,6 +80,15 @@ void BooleanWidget::setSize(bool big)
 {
     if (big != m_big) {
         m_big = big;
+        updateWidget();
+    }
+}
+
+
+void BooleanWidget::setBold(bool bold)
+{
+    if (bold != m_bold) {
+        m_bold = bold;
         updateWidget();
     }
 }
@@ -184,6 +194,9 @@ void BooleanWidget::updateWidget()
     case Appearance::Text:
         // http://wiki.qt.io/DynamicPropertiesAndStylesheets
         {
+            QString css = UiFunc::textCSS(-1, m_bold, false);
+            m_textbutton->setStyleSheet(css);
+
             switch (m_state) {
             case State::Disabled:
                 m_textbutton->setProperty(CssConst::PROPERTY_STATE,

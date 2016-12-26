@@ -81,6 +81,13 @@ QuPage* QuPage::addElement(QuElement* element)  // takes ownership
 }
 
 
+QuPage* QuPage::addTag(const QString& tag)
+{
+    m_tags.append(tag);
+    return this;
+}
+
+
 QuPage::~QuPage()
 {
 }
@@ -95,6 +102,12 @@ QuPage::PageType QuPage::type() const
 QString QuPage::title() const
 {
     return m_title;
+}
+
+
+bool QuPage::hasTag(const QString &tag) const
+{
+    return m_tags.contains(tag);
 }
 
 

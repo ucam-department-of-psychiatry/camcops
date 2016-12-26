@@ -22,6 +22,7 @@
 #include "diagnosis/icd10.h"
 #include "lib/debugfunc.h"
 #include "lib/uifunc.h"
+#include "menulib/menuitem.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quaudioplayer.h"
 #include "questionnairelib/quboolean.h"
@@ -179,6 +180,8 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
         MenuItem(tr("Large-scale widgets")).setLabelOnly(),
         MenuItem(tr("QuestionnaireHeader"),
                  std::bind(&WidgetTestMenu::testQuestionnaireHeader, this)),
+        MenuItem(tr("MenuItem"),
+                 std::bind(&WidgetTestMenu::testMenuItem, this)),
 
         MenuItem(tr("Questionnaire element widgets")).setLabelOnly(),
         MenuItem(tr("QuAudioPlayer"),
@@ -477,6 +480,14 @@ void WidgetTestMenu::testQuestionnaireHeader()
                 nullptr, "Title text, quite long",
                 false, true, false, CssConst::QUESTIONNAIRE_BACKGROUND_CONFIG);
     widget->setStyleSheet(m_app.getSubstitutedCss(UiConst::CSS_CAMCOPS_QUESTIONNAIRE));
+    DebugFunc::debugWidget(widget);
+}
+
+
+void WidgetTestMenu::testMenuItem()
+{
+    MenuItem item = MAKE_TASK_MENU_ITEM("ace3", m_app);
+    QWidget* widget = item.rowWidget(m_app);
     DebugFunc::debugWidget(widget);
 }
 

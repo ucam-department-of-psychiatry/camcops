@@ -50,4 +50,12 @@ namespace StringFunc
     QString bold(const QString& str);
     QString bold(int x);
     QString joinHtmlLines(const QStringList& lines);
+    QString& toHtmlLinebreaks(QString& str,
+                              bool convert_embedded_literals = true);
+
+    // ========================================================================
+    // Other string processing
+    // ========================================================================
+
+    QString& replaceFirst(QString& str, const QString& from, const QString& to);
 }

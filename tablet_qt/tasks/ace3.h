@@ -16,18 +16,21 @@
 */
 
 #pragma once
+#include <QPointer>
 #include <QString>
 #include "tasklib/task.h"
 
 class CamcopsApp;
-class TaskFactory;
 class OpenableWidget;
+class Questionnaire;
+class TaskFactory;
 
 void initializeAce3(TaskFactory& factory);
 
 
 class Ace3 : public Task
 {
+    Q_OBJECT
 public:
     Ace3(CamcopsApp& app, const QSqlDatabase& db,
          int load_pk = DbConst::NONEXISTENT_PK);
@@ -59,4 +62,11 @@ public:
     int getVisuospatialScore() const;
     int totalScore() const;
     bool isRecognitionComplete() const;
+    // ------------------------------------------------------------------------
+    // Signal handlers
+    // ------------------------------------------------------------------------
+public slots:
+    void langPracticeChanged(const FieldRef* fieldref);
+protected:
+    QPointer<Questionnaire> m_questionnaire;
 };

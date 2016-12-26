@@ -21,6 +21,8 @@
 #include <QSqlRecord>
 #include <QSqlQuery>
 #include "db/dbfunc.h"
+#include "lib/stringfunc.h"
+using StringFunc::replaceFirst;
 
 const QString NL("\n"); // newline
 const QString DUMP_T_START("PRAGMA foreign_keys=OFF;" + NL +
@@ -66,12 +68,6 @@ const QString COMMENT_ENDING(NL + "-- Ending" + NL + NL);
 // For comments "-- ", the space isn't standard SQL but some engines need it.
 const QString GET_VERSION("SELECT sqlite_version() FROM sqlite_master");
 const QString VALUE_SEP_COMMA = ", ";  // space less efficient but easier to read
-
-
-QString& DumpSql::replaceFirst(QString& str, const QString& from,
-                               const QString& to) {
-    return str.replace(str.indexOf(from), from.length(), to);
-}
 
 
 void DumpSql::runTableDumpQuery(QTextStream& os,
@@ -175,7 +171,6 @@ bool DumpSql::runSchemaDumpQuery(QTextStream& os,
     }
     return writable_schema;
 }
-
 
 
 void DumpSql::dumpDatabase(QTextStream& os, const QSqlDatabase& db)

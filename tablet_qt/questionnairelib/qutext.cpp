@@ -17,6 +17,7 @@
 
 #include "qutext.h"
 #include <QDebug>
+#include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/labelwordwrapwide.h"
@@ -26,6 +27,7 @@ QuText::QuText(const QString& text) :
     m_text(text),
     m_fieldref(nullptr)
 {
+    StringFunc::toHtmlLinebreaks(m_text);
     commonConstructor();
 }
 

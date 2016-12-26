@@ -304,7 +304,7 @@ BooleanWidget ClickableLabelWordWrapWide[readonly="false"]:pressed {
 }
 
 #quheading {
-    background-color: lightgrey;
+    background-color: rgb(135, 206, 250);
 }
 
 #mcq_instruction {
@@ -507,6 +507,8 @@ AspectRatioPixmapLabel {
 #debug_pink {
     background-color: pink;
 }
+/*
 HeightForWidthLayoutContainer {
     background-color: yellow;
 }
+*/

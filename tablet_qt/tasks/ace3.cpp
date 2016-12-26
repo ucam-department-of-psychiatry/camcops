@@ -16,6 +16,7 @@
 */
 
 #include "ace3.h"
+#include <QDebug>
 #include "common/uiconstants.h"
 #include "lib/datetimefunc.h"
 #include "lib/mathfunc.h"
@@ -24,12 +25,15 @@
 #include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/quboolean.h"
 #include "questionnairelib/qucontainerhorizontal.h"
+#include "questionnairelib/qucontainervertical.h"
+#include "questionnairelib/qucountdown.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionnairefunc.h"
 #include "questionnairelib/quheading.h"
 #include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qumcq.h"
+#include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 using MathFunc::eq;
@@ -64,8 +68,8 @@ const QString IMAGE_A("ace3/a.png");
 const QString IMAGE_T("ace3/t.png");
 
 const QString TAG_MEM_RECOGNIZE( "mem_recognize");
-const QString TAG_LANG_COMMANDS_SENTENCES("lang_commands_sentences");
-const QString TAG_LANG_OPTIONAL_COMMAND("lang_optional_command");
+const QString TAG_PG_LANG_COMMANDS_SENTENCES("lang_commands_sentences");
+const QString TAG_EL_LANG_OPTIONAL_COMMAND("lang_optional_command");
 
 // Field names, field prefixes, and field counts
 const QString FN_AGE_FT_EDUCATION("age_at_leaving_full_time_education");
@@ -131,6 +135,7 @@ const int TOTAL_VSP = 16;
 
 const int MIN_AGE = 0;
 const int MAX_AGE = 120;
+const int FLUENCY_TIME_SEC = 60;
 
 
 void initializeAce3(TaskFactory& factory)
@@ -140,7 +145,8 @@ void initializeAce3(TaskFactory& factory)
 
 
 Ace3::Ace3(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
-    Task(app, db, "ace3", false, true, false)
+    Task(app, db, "ace3", false, true, false),
+    m_questionnaire(nullptr)
 {
     addField(FN_AGE_FT_EDUCATION, QVariant::Int);
     addField(FN_OCCUPATION, QVariant::String);
@@ -275,8 +281,30 @@ QString Ace3::detail() const
 OpenableWidget* Ace3::editor(bool read_only)
 {
     int pagenum = 1;
-    auto makeTitle = [this, &pagenum]() -> QString {
-        return xstring("title_prefix") + QString(" %1").arg(pagenum++);
+    auto makeTitle = [this, &pagenum](const char* title) -> QString {
+        return xstring("title_prefix") + QString(" %1").arg(pagenum++) + ": "
+                + tr(title);
+    };
+    auto text = [this](const QString& stringname) -> QuElement* {
+        return new QuText(xstring(stringname));
+    };
+    auto explanation = [this](const QString& stringname) -> QuElement* {
+        return (new QuText(xstring(stringname)))->italic();
+    };
+    auto heading = [this](const QString& stringname) -> QuElement* {
+        return new QuHeading(xstring(stringname));
+    };
+    auto subheading = [this](const QString& stringname) -> QuElement* {
+        return (new QuText(xstring(stringname)))->bold()->big();
+    };
+    auto instruction = [this](const QString& stringname) -> QuElement* {
+        return (new QuText(xstring(stringname)))->bold();
+    };
+    auto boolean = [this](const QString& stringname, const QString& fieldname,
+                          bool mandatory = true,
+                          bool bold = false) -> QuElement* {
+        return (new QuBoolean(xstring(stringname),
+                              fieldRef(fieldname, mandatory)))->setBold(bold);
     };
 
     // ------------------------------------------------------------------------
@@ -287,21 +315,22 @@ OpenableWidget* Ace3::editor(bool read_only)
         {xstring("left_handed"), "L"},
         {xstring("right_handed"), "R"},
     };
-
     QuPagePtr page_preamble((new QuPage{
-        (new QuText(xstring("instruction_need_paper")))->bold(),
+        instruction("instruction_need_paper"),
         getClinicianQuestionnaireBlockRawPointer(),
-        new QuText(xstring("preamble_instruction")),
+        instruction("preamble_instruction"),
         QuestionnaireFunc::defaultGridRawPointer({
             {xstring("q_age_leaving_fte"),
              new QuLineEditInteger(fieldRef(FN_AGE_FT_EDUCATION), MIN_AGE, MAX_AGE)},
-            {xstring("q_occupation"), new QuLineEdit(fieldRef(FN_OCCUPATION))},
+            {xstring("q_occupation"),
+             new QuLineEdit(fieldRef(FN_OCCUPATION))},
+            {xstring("q_handedness"),
+             (new QuMCQ(fieldRef(FN_HANDEDNESS), options_handedness))->setHorizontal(true)},
         }, UiConst::DEFAULT_COLSPAN_Q, UiConst::DEFAULT_COLSPAN_A),
-        (new QuMCQ(fieldRef(FN_HANDEDNESS), options_handedness))->setHorizontal(true),
-    })->setTitle(makeTitle())->setType(QuPage::PageType::Clinician));
+    })->setTitle(makeTitle("Preamble"))->setType(QuPage::PageType::Clinician));
 
     // ------------------------------------------------------------------------
-    // Attention/orientation
+    // Attention/orientation/three word recall
     // ------------------------------------------------------------------------
 
     QDateTime now = DateTime::now();
@@ -334,7 +363,7 @@ OpenableWidget* Ace3::editor(bool read_only)
     }
     QString correct_date = "     " + now.toString("dddd d MMMM yyyy") + "; " +
             season;
-    // ... e.g. "Monday 2 January 2016; winter"
+    // ... e.g. "Monday 2 January 2016; winter";
     // http://doc.qt.io/qt-5/qdate.html#toString
 
     NameValueOptions options_registration{
@@ -344,80 +373,359 @@ OpenableWidget* Ace3::editor(bool read_only)
         {"4", 4},
         {">4", 0},
     };
-
     QuPagePtr page_attn((new QuPage{
-        new QuHeading(xstring("cat_attn")),
+        heading("cat_attn"),
         // Orientation
-        new QuText(xstring("attn_q_time")),
+        instruction("attn_q_time"),
         new QuContainerHorizontal{
-            new QuBoolean(xstring("attn_time1"), fieldRef(strnum(FP_ATTN_TIME, 1))),
-            new QuBoolean(xstring("attn_time2"), fieldRef(strnum(FP_ATTN_TIME, 2))),
-            new QuBoolean(xstring("attn_time3"), fieldRef(strnum(FP_ATTN_TIME, 3))),
-            new QuBoolean(xstring("attn_time4"), fieldRef(strnum(FP_ATTN_TIME, 4))),
-            new QuBoolean(xstring("attn_time5"), fieldRef(strnum(FP_ATTN_TIME, 5))),
+            boolean("attn_time1", strnum(FP_ATTN_TIME, 1)),
+            boolean("attn_time2", strnum(FP_ATTN_TIME, 2)),
+            boolean("attn_time3", strnum(FP_ATTN_TIME, 3)),
+            boolean("attn_time4", strnum(FP_ATTN_TIME, 4)),
+            boolean("attn_time5", strnum(FP_ATTN_TIME, 5)),
         },
-        (new QuText(xstring("instruction_time")))->italic(),
+        explanation("instruction_time"),
         (new QuText(correct_date))->italic(),
-        new QuText(xstring("attn_q_place")),
+        instruction("attn_q_place"),
         new QuContainerHorizontal{
-            new QuBoolean(xstring("attn_place1"), fieldRef(strnum(FP_ATTN_PLACE, 1))),
-            new QuBoolean(xstring("attn_place2"), fieldRef(strnum(FP_ATTN_PLACE, 2))),
-            new QuBoolean(xstring("attn_place3"), fieldRef(strnum(FP_ATTN_PLACE, 3))),
-            new QuBoolean(xstring("attn_place4"), fieldRef(strnum(FP_ATTN_PLACE, 4))),
-            new QuBoolean(xstring("attn_place5"), fieldRef(strnum(FP_ATTN_PLACE, 5))),
+            boolean("attn_place1", strnum(FP_ATTN_PLACE, 1)),
+            boolean("attn_place2", strnum(FP_ATTN_PLACE, 2)),
+            boolean("attn_place3", strnum(FP_ATTN_PLACE, 3)),
+            boolean("attn_place4", strnum(FP_ATTN_PLACE, 4)),
+            boolean("attn_place5", strnum(FP_ATTN_PLACE, 5)),
         },
-        (new QuText(xstring("instruction_place")))->italic(),
+        explanation("instruction_place"),
         // Lemon, key, ball (registration)
-        new QuHeading(xstring("cat_attn")),
-        new QuText(xstring("attn_q_words")),
-        (new QuText(xstring("attn_instruction_words")))->italic(),
+        heading("cat_attn"),
+        instruction("attn_q_words"),
+        explanation("attn_instruction_words"),
         new QuContainerHorizontal{
-            new QuBoolean(xstring("mem_word1"), fieldRef(strnum(FP_ATTN_REPEAT_WORD, 1))),
-            new QuBoolean(xstring("mem_word2"), fieldRef(strnum(FP_ATTN_REPEAT_WORD, 2))),
-            new QuBoolean(xstring("mem_word3"), fieldRef(strnum(FP_ATTN_REPEAT_WORD, 3))),
+            boolean("mem_word1", strnum(FP_ATTN_REPEAT_WORD, 1)),
+            boolean("mem_word2", strnum(FP_ATTN_REPEAT_WORD, 2)),
+            boolean("mem_word3", strnum(FP_ATTN_REPEAT_WORD, 3)),
         },
         new QuContainerHorizontal{
-            new QuText(xstring("attn_q_register_n_trials")),
-            (new QuMCQ(fieldRef(FN_ATTN_NUM_REGISTRATION_TRIALS),
+            text("attn_q_register_n_trials"),
+            (new QuMCQ(fieldRef(FN_ATTN_NUM_REGISTRATION_TRIALS, false),  // not mandatory
                                  options_registration))->setHorizontal(true),
         },
         // Serial 7s
-        new QuHeading(xstring("cat_attn")),
-        new QuText(xstring("attn_q_serial_sevens")),
-        (new QuText(xstring("attn_instruction_sevens")))->italic(),
+        heading("cat_attn"),
+        instruction("attn_q_serial_sevens"),
+        explanation("attn_instruction_sevens"),
         new QuContainerHorizontal{
-            new QuBoolean(xstring("attn_subtraction1"), fieldRef(strnum(FP_ATTN_SERIAL7, 1))),
-            new QuBoolean(xstring("attn_subtraction2"), fieldRef(strnum(FP_ATTN_SERIAL7, 2))),
-            new QuBoolean(xstring("attn_subtraction3"), fieldRef(strnum(FP_ATTN_SERIAL7, 3))),
-            new QuBoolean(xstring("attn_subtraction4"), fieldRef(strnum(FP_ATTN_SERIAL7, 4))),
-            new QuBoolean(xstring("attn_subtraction5"), fieldRef(strnum(FP_ATTN_SERIAL7, 5))),
+            boolean("attn_subtraction1", strnum(FP_ATTN_SERIAL7, 1)),
+            boolean("attn_subtraction2", strnum(FP_ATTN_SERIAL7, 2)),
+            boolean("attn_subtraction3", strnum(FP_ATTN_SERIAL7, 3)),
+            boolean("attn_subtraction4", strnum(FP_ATTN_SERIAL7, 4)),
+            boolean("attn_subtraction5", strnum(FP_ATTN_SERIAL7, 5)),
         },
         // Lemon, key, ball (recall)
-        new QuHeading(xstring("cat_mem")),
-        new QuText(xstring("mem_q_recall_words")),
-        (new QuText(xstring("mem_instruction_recall")))->italic(),
+        heading("cat_mem"),
+        instruction("mem_q_recall_words"),
+        explanation("mem_instruction_recall"),
         new QuContainerHorizontal{
-            new QuBoolean(xstring("mem_word1"), fieldRef(strnum(FP_MEM_RECALL_WORD, 1))),
-            new QuBoolean(xstring("mem_word2"), fieldRef(strnum(FP_MEM_RECALL_WORD, 2))),
-            new QuBoolean(xstring("mem_word3"), fieldRef(strnum(FP_MEM_RECALL_WORD, 3))),
+            boolean("mem_word1", strnum(FP_MEM_RECALL_WORD, 1)),
+            boolean("mem_word2", strnum(FP_MEM_RECALL_WORD, 2)),
+            boolean("mem_word3", strnum(FP_MEM_RECALL_WORD, 3)),
         },
-    })->setTitle(makeTitle())->setType(QuPage::PageType::Clinician));
+    })->setTitle(makeTitle("Attention"))->setType(QuPage::PageType::Clinician));
+
+    // ------------------------------------------------------------------------
+    // Fluency
+    // ------------------------------------------------------------------------
+
+    NameValueOptions options_fluency_letters{
+        {"0–1", 0},
+        {"2–3", 1},
+        {"4–5", 2},
+        {"6–7", 3},
+        {"8–10", 4},
+        {"11–13", 5},
+        {"14–17", 6},
+        {"≥18", 7}
+
+    };
+    NameValueOptions options_fluency_animals{
+        {"0–4", 0},
+        {"5–6", 1},
+        {"7–8", 2},
+        {"9–10", 3},
+        {"11–13", 4},
+        {"14–16", 5},
+        {"17–21", 6},
+        {"≥22", 7}
+    };
+    QuPagePtr page_fluency((new QuPage{
+        heading("cat_fluency"),
+        // Letters
+        subheading("fluency_subhead_letters"),
+        instruction("fluency_q_letters"),
+        new QuCountdown(FLUENCY_TIME_SEC),
+        explanation("fluency_instruction_letters"),
+        text("fluency_prompt_letters_cor"),
+        (new QuMCQ(fieldRef(FN_FLUENCY_LETTERS_SCORE),
+                             options_fluency_letters))->setHorizontal(true),
+        new QuSpacer(),
+        // Animals
+        subheading("fluency_subheading_animals"),
+        instruction("fluency_q_animals"),
+        new QuCountdown(FLUENCY_TIME_SEC),
+        explanation("fluency_instruction_animals"),
+        text("fluency_prompt_animals_cor"),
+        (new QuMCQ(fieldRef(FN_FLUENCY_ANIMALS_SCORE),
+                             options_fluency_animals))->setHorizontal(true),
+    })->setTitle(makeTitle("Fluency"))->setType(QuPage::PageType::Clinician));
+
+    // ------------------------------------------------------------------------
+    // Learning the address; famous people
+    // ------------------------------------------------------------------------
+
+    QuPagePtr page_repeat_addr_famous((new QuPage{
+        heading("cat_mem"),
+        instruction("memory_q_address"),
+        explanation("memory_instruction_address_1"),
+        explanation("memory_instruction_address_2"),
+        (new QuContainerHorizontal{
+            // Address 1
+            new QuContainerVertical{
+                (new QuText(xstring("trial") + " 1"))->bold(),
+                new QuContainerHorizontal{
+                    boolean("address_1", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 1), false),
+                    boolean("address_2", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 2), false),
+                },
+                new QuContainerHorizontal{
+                    boolean("address_3", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 3), false),
+                    boolean("address_4", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 4), false),
+                    boolean("address_5", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 5), false),
+                },
+                boolean("address_6", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 6), false),
+                boolean("address_7", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 7), false),
+            },
+            // Address 2
+            new QuContainerVertical{
+                (new QuText(xstring("trial") + " 2"))->bold(),
+                new QuContainerHorizontal{
+                    boolean("address_1", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 1), false),
+                    boolean("address_2", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 2), false),
+                },
+                new QuContainerHorizontal{
+                    boolean("address_3", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 3), false),
+                    boolean("address_4", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 4), false),
+                    boolean("address_5", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 5), false),
+                },
+                boolean("address_6", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 6), false),
+                boolean("address_7", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 7), false),
+            },
+            // Address 3
+            new QuContainerVertical{
+                (new QuText(xstring("trial") + " 3"))->bold(),
+                new QuContainerHorizontal{
+                    boolean("address_1", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 1), true),
+                    boolean("address_2", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 2), true),
+                },
+                new QuContainerHorizontal{
+                    boolean("address_3", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 3), true),
+                    boolean("address_4", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 4), true),
+                    boolean("address_5", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 5), true),
+                },
+                boolean("address_6", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 6), true),
+                boolean("address_7", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 7), true),
+            },
+        })
+            ->setFlow(false)
+            ->setWidgetAlignment(Qt::Alignment())
+            ->setAddStretchRight(false),
+        heading("cat_mem"),
+        boolean("famous_1", strnum(FP_MEM_FAMOUS, 1), true, true),
+        boolean("famous_2", strnum(FP_MEM_FAMOUS, 2), true, true),
+        boolean("famous_3", strnum(FP_MEM_FAMOUS, 3), true, true),
+        boolean("famous_4", strnum(FP_MEM_FAMOUS, 4), true, true),
+        explanation("instruction_famous"),
+    })
+        ->setTitle(makeTitle("Address learning; famous people"))
+        ->setType(QuPage::PageType::Clinician));
+
+    // ------------------------------------------------------------------------
+    // Commands; writing sentences
+    // ------------------------------------------------------------------------
+
+    QuPagePtr page_commands_sentences(( new QuPage{
+        heading("cat_lang"),
+        explanation("lang_q_command_1"),
+        boolean("lang_command_practice", FN_LANG_FOLLOW_CMD_PRACTICE, true, true),
+        explanation("lang_q_command_2"),
+        boolean("lang_command1", strnum(FP_LANG_FOLLOW_CMD, 1), true, true)->addTag(TAG_EL_LANG_OPTIONAL_COMMAND),
+        boolean("lang_command2", strnum(FP_LANG_FOLLOW_CMD, 2), true, true)->addTag(TAG_EL_LANG_OPTIONAL_COMMAND),
+        boolean("lang_command3", strnum(FP_LANG_FOLLOW_CMD, 3), true, true)->addTag(TAG_EL_LANG_OPTIONAL_COMMAND),
+        heading("cat_lang"),
+        instruction("lang_q_sentences"),
+        boolean("lang_sentences_point1", strnum(FP_LANG_WRITE_SENTENCES_POINT, 1)),
+        boolean("lang_sentences_point2", strnum(FP_LANG_WRITE_SENTENCES_POINT, 2)),
+    })
+        ->setTitle(makeTitle("Commands; writing sentences"))
+        ->addTag(TAG_PG_LANG_COMMANDS_SENTENCES)
+        ->setType(QuPage::PageType::Clinician));
+
+    // ------------------------------------------------------------------------
+    // Repetition; preparing clinician for pictures
+    // ------------------------------------------------------------------------
+
+    QuPagePtr page_repetition(( new QuPage{
+
+    })
+        ->setTitle(makeTitle("Repetition"))
+        ->setType(QuPage::PageType::Clinician));
+
+    // ------------------------------------------------------------------------
+    // Naming pictures
+    // ------------------------------------------------------------------------
+
+    QuPagePtr page_name_pictures(( new QuPage{
+
+    })
+        ->setTitle(makeTitle("Naming pictures"))
+        ->setType(QuPage::PageType::Clinician));
+
+    // ------------------------------------------------------------------------
+    // Reading irregular words
+    // ------------------------------------------------------------------------
+
+    QuPagePtr page_read_words_aloud(( new QuPage{
+
+    })
+        ->setTitle(makeTitle("Reading irregular words"))
+        ->setType(QuPage::PageType::Clinician));
+
+    // ------------------------------------------------------------------------
+    // Infinity
+    // ------------------------------------------------------------------------
+
+    QuPagePtr page_infinity(( new QuPage{
+
+    })
+        ->setTitle(makeTitle("Infinity"))
+        ->setType(QuPage::PageType::Clinician));
+
+    // ------------------------------------------------------------------------
+    // Cube
+    // ------------------------------------------------------------------------
+
+    QuPagePtr page_cube(( new QuPage{
+
+    })
+        ->setTitle(makeTitle("Cube"))
+        ->setType(QuPage::PageType::Clinician));
+
+    // ------------------------------------------------------------------------
+    // Clock
+    // ------------------------------------------------------------------------
+
+    QuPagePtr page_clock(( new QuPage{
+
+    })
+        ->setTitle(makeTitle("Clock"))
+        ->setType(QuPage::PageType::Clinician));
+
+    // ------------------------------------------------------------------------
+    // Dots
+    // ------------------------------------------------------------------------
+
+    QuPagePtr page_dots(( new QuPage{
+
+    })
+        ->setTitle(makeTitle("Dot counting"))
+        ->setType(QuPage::PageType::Clinician));
+
+    // ------------------------------------------------------------------------
+    // Letters
+    // ------------------------------------------------------------------------
+
+    QuPagePtr page_letters(( new QuPage{
+
+    })
+        ->setTitle(makeTitle("Noisy letters"))
+        ->setType(QuPage::PageType::Clinician));
+
+    // ------------------------------------------------------------------------
+    // Address recall: free
+    // ------------------------------------------------------------------------
+
+    QuPagePtr page_recall_address_free(( new QuPage{
+
+    })
+        ->setTitle(makeTitle("Free recall"))
+        ->setType(QuPage::PageType::Clinician));
+
+    // ------------------------------------------------------------------------
+    // Address recall: cued
+    // ------------------------------------------------------------------------
+
+    QuPagePtr page_recall_address_prompted(( new QuPage{
+
+    })
+        ->setTitle(makeTitle("Cued recall"))
+        ->setType(QuPage::PageType::Clinician));
+
+    // ------------------------------------------------------------------------
+    // Comments
+    // ------------------------------------------------------------------------
+
+    QuPagePtr page_comments(( new QuPage{
+
+    })
+        ->setTitle(makeTitle("Comments"))
+        ->setType(QuPage::PageType::Clinician));
+
+    // ------------------------------------------------------------------------
+    // Photo 1
+    // ------------------------------------------------------------------------
+
+    QuPagePtr page_photo_1(( new QuPage{
+
+    })
+        ->setTitle(makeTitle("Photo 1"))
+        ->setType(QuPage::PageType::Clinician));
+
+    // ------------------------------------------------------------------------
+    // Photo 2
+    // ------------------------------------------------------------------------
+
+    QuPagePtr page_photo_2(( new QuPage{
+
+    })
+        ->setTitle(makeTitle("Photo 2"))
+        ->setType(QuPage::PageType::Clinician));
 
     // ------------------------------------------------------------------------
     // Questionnaire
     // ------------------------------------------------------------------------
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, {
-        page_preamble, page_attn, /* page_fluency, page_repeat_addr_famous,
+    m_questionnaire = new Questionnaire(m_app, {
+        page_preamble, page_attn, page_fluency, page_repeat_addr_famous,
         page_commands_sentences, page_repetition,
         page_name_pictures, page_read_words_aloud,
         page_infinity, page_cube, page_clock,
         page_dots, page_letters,
         page_recall_address_free, page_recall_address_prompted,
-        page_comments, page_photo_1, page_photo_2, */
+        page_comments, page_photo_1, page_photo_2,
     });
-    questionnaire->setReadOnly(read_only);
-    return questionnaire;
+    m_questionnaire->setReadOnly(read_only);
+
+    // ------------------------------------------------------------------------
+    // Signals and initial dynamic state
+    // ------------------------------------------------------------------------
+
+    FieldRefPtr fr_lang_practice = fieldRef(FN_LANG_FOLLOW_CMD_PRACTICE);
+    connect(fr_lang_practice.data(), &FieldRef::valueChanged,
+            this, &Ace3::langPracticeChanged);
+    langPracticeChanged(fr_lang_practice.data());
+
+    // ------------------------------------------------------------------------
+    // Done
+    // ------------------------------------------------------------------------
+
+    return m_questionnaire;
 }
 
 
@@ -544,4 +852,25 @@ bool Ace3::isRecognitionComplete() const
         (recall6 || recog4present) &&  // city
         (recall7 || recog5present)  // county
     );
+}
+
+
+// ============================================================================
+// Signal handlers
+// ============================================================================
+
+void Ace3::langPracticeChanged(const FieldRef* fieldref)
+{
+    qDebug() << Q_FUNC_INFO;
+    if (!m_questionnaire) {
+        return;
+    }
+    QVariant value = fieldref->value();
+    bool visible = !eq(value, false);
+    bool mandatory = value.toBool();
+    for (int i = 1; i <= N_LANG_FOLLOW_CMD; ++i) {
+        fieldRef(strnum(FP_LANG_FOLLOW_CMD, i))->setMandatory(mandatory);
+    }
+    m_questionnaire->setVisibleByTag(TAG_EL_LANG_OPTIONAL_COMMAND, visible,
+                                     false, TAG_PG_LANG_COMMANDS_SENTENCES);
 }

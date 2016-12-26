@@ -27,6 +27,7 @@ class HeightForWidthLayoutContainer : public QWidget
     // - SPECIFICALLY: IT WILL REDUCE ITS HEIGHT (TO FIT THE CONTENTS) AS THE
     //   LAYOUT SPREADS OUT CHILD WIDGETS TO THE RIGHT (in a way that a plain
     //   QWidget won't).
+    // - ... and will also set a correct MINIMUM HEIGHT as the width shrinks.
     // - Use this when you want to put a FlowLayout in (e.g. see QuMCQ).
     // - You might also use this when you want a widget containing a layout
     //   containing a LabelWordWrapWide object, or similar (e.g. see
@@ -37,4 +38,7 @@ public:
     HeightForWidthLayoutContainer(QWidget* parent = nullptr);
     virtual ~HeightForWidthLayoutContainer();
     virtual void resizeEvent(QResizeEvent* event) override;
+
+    // IF YOU WANT CLASSES DERIVED FROM QWidget TO SUPPORT STYLE SHEETS:
+    virtual void paintEvent(QPaintEvent *event) override;
 };

@@ -39,7 +39,7 @@ QuElement* QuElement::addTag(const QString& tag)
 }
 
 
-bool QuElement::hasTag(const QString &tag)
+bool QuElement::hasTag(const QString &tag) const
 {
     return m_tags.contains(tag);
 }

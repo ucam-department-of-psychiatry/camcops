@@ -80,7 +80,7 @@ void SingleTaskMenu::build()
             info_icon_filename
         )
     );
-    m_items.append(MenuItem(tr("Task status within CamCOPS"),
+    m_items.append(MenuItem(tr("Task status"),
                             std::bind(&SingleTaskMenu::showTaskStatus, this),
                             info_icon_filename));
     m_items.append(

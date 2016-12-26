@@ -694,7 +694,10 @@ bool UiFunc::getOldNewPasswords(const QString& text, const QString& title,
 QString UiFunc::textCSS(int fontsize_pt, bool bold, bool italic,
                         const QString& colour)
 {
-    QString css = QString("font-size: %1pt;").arg(fontsize_pt);
+    QString css;
+    if (fontsize_pt > 0) {
+        css += QString("font-size: %1pt;").arg(fontsize_pt);
+    }
     // Only pt and px supported
     // http://doc.qt.io/qt-5.7/stylesheet-reference.html
     if (bold) {

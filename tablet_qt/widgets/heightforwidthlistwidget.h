@@ -16,18 +16,16 @@
 */
 
 #pragma once
-#include <QString>
-#include <QTextStream>
-class QSqlDatabase;
+#include <QListWidget>
 
-namespace DumpSql {
-    void runTableDumpQuery(QTextStream& os,
-                           const QSqlDatabase& db,
-                           const QString& sql,
-                           const QString& firstrow);
-    bool runSchemaDumpQuery(QTextStream& os,
-                            const QSqlDatabase& db,
-                            const QString& schema_query_sql,
-                            bool writable_schema);
-    void dumpDatabase(QTextStream& os, const QSqlDatabase& db);
+
+class HeightForWidthListWidget : public QListWidget
+{
+    // Version of QListWidget that can cope with its items using the
+    // height-for-width system. Compare HeightForWidthLayoutContainer
+    Q_OBJECT
+public:
+    HeightForWidthListWidget(QWidget* parent = nullptr);
+    virtual bool event(QEvent* event) override;
+    virtual QSize widgetSizeHint(QWidget* widget) const;
 };
