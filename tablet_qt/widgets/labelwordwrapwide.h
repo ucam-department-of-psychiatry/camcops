@@ -16,16 +16,20 @@
 */
 
 #pragma once
-#include <QLabel>
-#include <QMap>
+
+// #define LWWW_USE_RESIZE_FOR_HEIGHT  // bad, if you can avoid it using custom layouts
 
 #define LWWW_USE_UNWRAPPED_CACHE  // seems OK on wombat
 // #define LWWW_USE_QLABEL_CACHE  // not OK (wombat), even if cache cleared on every event
 #define LWWW_USE_STYLE_CACHE  // seems OK on wombat
 
+#include <QLabel>
+#include <QMap>
+
 #if defined(LWWW_USE_UNWRAPPED_CACHE) || defined(LWWW_USE_QLABEL_CACHE) || defined(LWWW_USE_STYLE_CACHE)
 #define LWWW_USE_ANY_CACHE
 #endif
+
 
 class LabelWordWrapWide : public QLabel
 {
@@ -56,11 +60,12 @@ public:
     // - However, even with a size policy of Maximum/Fixed/hasHeightForWidth,
     //   the label's height does not increase as its width is decreased, unless
     //   you override resizeEvent().
+#ifdef LWWW_USE_RESIZE_FOR_HEIGHT
     virtual void resizeEvent(QResizeEvent* event) override;
+#endif
 
     // - resizeEvent() does the trick, but it isn't normally called when, for
-    //   example, we set our text.
-
+    //   example, we set our text. So catch other events:
 #ifdef LWWW_USE_ANY_CACHE
     bool event(QEvent* e) override;
 #endif
@@ -71,7 +76,9 @@ public slots:
 protected:
     int qlabelHeightForWidth(int width) const;
     QSize sizeOfTextWithoutWrap() const;
+#ifdef LWWW_USE_RESIZE_FOR_HEIGHT
     void forceHeight();
+#endif
     QSize extraSizeForCssOrLayout() const;
 
     // - Widgets shouldn't need to cache their size hints; that's done by layouts

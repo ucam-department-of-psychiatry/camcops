@@ -16,10 +16,13 @@
 */
 
 #pragma once
+
+// #define BASEWIDGET_USE_RESIZE_FOR_HEIGHT  // bad, if you can avoid it using custom layouts
+
 #include <QWidget>
 
 
-class HeightForWidthLayoutContainer : public QWidget
+class BaseWidget : public QWidget
 {
     // A widget that knows that its layout implements a height-for-width
     // function and deals with it properly, adjusting the widget's height
@@ -35,9 +38,11 @@ class HeightForWidthLayoutContainer : public QWidget
     //   inherit, for Qt inheritance reasons).
     Q_OBJECT
 public:
-    HeightForWidthLayoutContainer(QWidget* parent = nullptr);
-    virtual ~HeightForWidthLayoutContainer();
+    BaseWidget(QWidget* parent = nullptr);
+    virtual ~BaseWidget();
+#ifdef BASEWIDGET_USE_RESIZE_FOR_HEIGHT
     virtual void resizeEvent(QResizeEvent* event) override;
+#endif
 
     // IF YOU WANT CLASSES DERIVED FROM QWidget TO SUPPORT STYLE SHEETS:
     virtual void paintEvent(QPaintEvent *event) override;

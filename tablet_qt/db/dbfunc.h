@@ -39,6 +39,7 @@ namespace DbFunc {
 
     // Database operations
 
+    QString dbFullPath(const QString& filename);
     void openDatabaseOrDie(QSqlDatabase& db, const QString& filename);
 
     // SQL fragments

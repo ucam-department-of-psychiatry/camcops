@@ -16,6 +16,7 @@
 */
 
 #pragma once
+
 #include <functional>  // for std::function
 #include <QCoreApplication>  // for Q_DECLARE_TR_FUNCTIONS
 #include <QSharedPointer>

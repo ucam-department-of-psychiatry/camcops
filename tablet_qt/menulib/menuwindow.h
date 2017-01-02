@@ -16,14 +16,17 @@
 */
 
 #pragma once
-#define USE_HFW_LISTWIDGET
+
+#define MENUWINDOW_USE_HFW_LISTWIDGET
+#define MENUWINDOW_USE_HFW_LAYOUT
+
 #include <QPointer>
 #include <QSharedPointer>
 #include <QVector>
 #include "common/aliases_camcops.h"
 #include "common/camcopsapp.h"  // for LockState
 #include "menulib/menuitem.h"
-#ifdef USE_HFW_LISTWIDGET
+#ifdef MENUWINDOW_USE_HFW_LISTWIDGET
 #include "widgets/heightforwidthlistwidget.h"
 #endif
 #include "widgets/openablewidget.h"
@@ -33,6 +36,7 @@ class Questionnaire;
 class QListWidget;
 class QListWidgetItem;
 class QVBoxLayout;
+class VBoxLayoutHfw;
 
 
 class MenuWindow : public OpenableWidget
@@ -102,9 +106,13 @@ protected:
     QString m_icon;
     bool m_top;
     QVector<MenuItem> m_items;
+#ifdef MENUWINDOW_USE_HFW_LAYOUT
+    QPointer<VBoxLayoutHfw> m_mainlayout;
+#else
     QPointer<QVBoxLayout> m_mainlayout;
+#endif
     QPointer<MenuHeader> m_p_header;
-#ifdef USE_HFW_LISTWIDGET
+#ifdef MENUWINDOW_USE_HFW_LISTWIDGET
     QPointer<HeightForWidthListWidget> m_p_listwidget;
 #else
     QPointer<QListWidget> m_p_listwidget;

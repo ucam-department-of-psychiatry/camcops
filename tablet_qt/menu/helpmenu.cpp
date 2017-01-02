@@ -26,6 +26,7 @@
 #include "db/dbfunc.h"
 #include "lib/datetimefunc.h"
 #include "lib/filefunc.h"
+#include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
@@ -53,8 +54,8 @@ HelpMenu::HelpMenu(CamcopsApp& app) :
                  std::bind(&HelpMenu::softwareVersions, this)),
         MenuItem(tr("About Qt"),
                  std::bind(&HelpMenu::aboutQt, this)),
-        MenuItem(tr("View device (installation) ID"),
-                 std::bind(&HelpMenu::showDeviceId, this)),
+        MenuItem(tr("View device (installation) ID and database details"),
+                 std::bind(&HelpMenu::showDeviceIdAndDbDetails, this)),
         MenuItem(tr("View terms and conditions of use"),
                  std::bind(&HelpMenu::viewTermsConditions, this)),
     };
@@ -151,10 +152,16 @@ void HelpMenu::aboutQt()
 }
 
 
-void HelpMenu::showDeviceId() const
+void HelpMenu::showDeviceIdAndDbDetails() const
 {
-    QString version = QString("<b>Device ID:</b> %1").arg(m_app.deviceId());
-    UiFunc::alert(version, tr("Device/installation ID"));
+    QStringList lines;
+    lines.append(QString("<b>Device ID:</b> %1").arg(m_app.deviceId()));
+    lines.append(QString("<b>Main database:</b> %1").arg(
+        DbFunc::dbFullPath(DbFunc::DATA_DATABASE_FILENAME)));
+    lines.append(QString("<b>System database:</b> %1").arg(
+        DbFunc::dbFullPath(DbFunc::SYSTEM_DATABASE_FILENAME)));
+    UiFunc::alert(StringFunc::joinHtmlLines(lines),
+                  tr("Device/installation ID; databases"));
 }
 
 

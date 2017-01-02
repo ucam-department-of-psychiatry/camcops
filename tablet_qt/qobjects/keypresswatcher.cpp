@@ -32,7 +32,7 @@ KeyPressWatcher::KeyPressWatcher(QDialog* parent) :
 
 bool KeyPressWatcher::eventFilter(QObject* obj, QEvent* event)
 {
-    Q_UNUSED(obj)
+    Q_UNUSED(obj);
     if (event->type() == QEvent::KeyPress) {
         QKeyEvent *key_event = static_cast<QKeyEvent*>(event);
         int key = key_event->key();

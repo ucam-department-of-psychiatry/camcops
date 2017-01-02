@@ -15,16 +15,21 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define USE_HFW_LAYOUT  // good
+
 #include "qupage.h"
 #include <QVBoxLayout>
 #include <QWidget>
 #include "db/fieldref.h"
+#include "widgets/basewidget.h"
+#ifdef USE_HFW_LAYOUT
+#include "widgets/vboxlayouthfw.h"
+#endif
 
 
 QuPage::QuPage() :
     m_type(PageType::Inherit)
 {
-
 }
 
 
@@ -113,8 +118,14 @@ bool QuPage::hasTag(const QString &tag) const
 
 QPointer<QWidget> QuPage::widget(Questionnaire* questionnaire) const
 {
-    QPointer<QWidget> pagewidget = new QWidget();
+    QPointer<QWidget> pagewidget(new BaseWidget());
+
+#ifdef USE_HFW_LAYOUT
+    VBoxLayoutHfw* pagelayout = new VBoxLayoutHfw();
+#else
     QVBoxLayout* pagelayout = new QVBoxLayout();
+#endif
+
     pagewidget->setLayout(pagelayout);
     // Add widgets that we own directly
     for (QuElementPtr e : m_elements) {
@@ -130,7 +141,7 @@ QPointer<QWidget> QuPage::widget(Questionnaire* questionnaire) const
                 this, &QuPage::elementValueChanged,
                 Qt::UniqueConnection);
     }
-    pagewidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+    // pagewidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);  // if we use QWidget
     // pagewidget->setObjectName(CssConst::DEBUG_YELLOW);
     return pagewidget;
 }

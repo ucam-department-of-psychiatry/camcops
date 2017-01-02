@@ -16,17 +16,18 @@
 */
 
 #pragma once
+
 #include <QPointer>
-#include <QWidget>
 #include "common/camcopsapp.h"
 #include "qupage.h"
+#include "widgets/basewidget.h"
 
 class QAbstractButton;
 class QLabel;
 class QPushButton;
 
 
-class QuestionnaireHeader : public QWidget
+class QuestionnaireHeader : public BaseWidget
 {
     // Provides a questionnaire's title and its control buttons (e.g. page
     // movement, cancellation).

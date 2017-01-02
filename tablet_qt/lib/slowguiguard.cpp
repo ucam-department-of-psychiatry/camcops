@@ -16,6 +16,7 @@
 */
 
 // #define DEBUG_GUI_GUARD
+
 #include "slowguiguard.h"
 #include <QApplication>
 #ifdef DEBUG_GUI_GUARD

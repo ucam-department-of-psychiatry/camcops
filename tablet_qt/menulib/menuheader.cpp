@@ -15,13 +15,13 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define USE_HFW_LAYOUT  // good
+
 // #define DEBUG_SLOTS
 
 #include "menuheader.h"
 #include <QAbstractButton>
 #include <QLabel>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
 #include "common/cssconst.h"
 #include "common/uiconstants.h"
 #include "dbobjects/patient.h"
@@ -29,6 +29,14 @@
 #include "widgets/horizontalline.h"
 #include "widgets/imagebutton.h"
 #include "widgets/labelwordwrapwide.h"
+
+#ifdef USE_HFW_LAYOUT
+#include "widgets/hboxlayouthfw.h"
+#include "widgets/vboxlayouthfw.h"
+#else
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#endif
 
 
 MenuHeader::MenuHeader(QWidget* parent,
@@ -58,16 +66,20 @@ MenuHeader::MenuHeader(QWidget* parent,
     // ------------------------------------------------------------------------
     // Main row
     // ------------------------------------------------------------------------
+#ifdef USE_HFW_LAYOUT
+    HBoxLayoutHfw* toprowlayout = new HBoxLayoutHfw();
+#else
     QHBoxLayout* toprowlayout = new QHBoxLayout();
+#endif
     mainlayout->addLayout(toprowlayout);
 
     Qt::Alignment button_align = Qt::AlignHCenter | Qt::AlignTop;
+    Qt::Alignment text_align = Qt::AlignLeft | Qt::AlignVCenter;
 
     // Back button (unless top)
     if (!top) {
         QAbstractButton* back = new ImageButton(UiConst::CBS_BACK);
-        toprowlayout->addWidget(back);
-        toprowlayout->setAlignment(back, button_align);
+        toprowlayout->addWidget(back, 0, button_align);
         connect(back, &QAbstractButton::clicked,
                 this, &MenuHeader::backClicked,
                 Qt::UniqueConnection);
@@ -76,15 +88,14 @@ MenuHeader::MenuHeader(QWidget* parent,
     // Icon
     if (!icon_filename.isEmpty()) {
         QLabel* icon = UiFunc::iconWidget(icon_filename, this);
-        toprowlayout->addWidget(icon);
-        toprowlayout->setAlignment(icon, button_align);
+        toprowlayout->addWidget(icon, 0, button_align);
     }
 
     // Title
     m_title_label = new LabelWordWrapWide(title);
-    m_title_label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    m_title_label->setAlignment(text_align);
     m_title_label->setObjectName(CssConst::MENU_WINDOW_TITLE);
-    toprowlayout->addWidget(m_title_label);
+    toprowlayout->addWidget(m_title_label, 0, text_align);
 
     // Spacing
     toprowlayout->addStretch();
@@ -105,16 +116,11 @@ MenuHeader::MenuHeader(QWidget* parent,
     m_button_edit = new ImageButton(UiConst::CBS_EDIT);
     m_button_delete = new ImageButton(UiConst::CBS_DELETE);
     m_button_add = new ImageButton(UiConst::CBS_ADD);
-    toprowlayout->addWidget(m_button_finish_flag);
-    toprowlayout->addWidget(m_button_view);
-    toprowlayout->addWidget(m_button_edit);
-    toprowlayout->addWidget(m_button_delete);
-    toprowlayout->addWidget(m_button_add);
-    toprowlayout->setAlignment(m_button_finish_flag, button_align);
-    toprowlayout->setAlignment(m_button_view, button_align);
-    toprowlayout->setAlignment(m_button_edit, button_align);
-    toprowlayout->setAlignment(m_button_delete, button_align);
-    toprowlayout->setAlignment(m_button_add, button_align);
+    toprowlayout->addWidget(m_button_finish_flag, 0, button_align);
+    toprowlayout->addWidget(m_button_view, 0, button_align);
+    toprowlayout->addWidget(m_button_edit, 0, button_align);
+    toprowlayout->addWidget(m_button_delete, 0, button_align);
+    toprowlayout->addWidget(m_button_add, 0, button_align);
     offerFinishFlag();
     offerView();
     offerEditDelete();
@@ -139,8 +145,7 @@ MenuHeader::MenuHeader(QWidget* parent,
 
     // - Needs upload
     m_button_needs_upload = new ImageButton(UiConst::ICON_UPLOAD);
-    toprowlayout->addWidget(m_button_needs_upload);
-    toprowlayout->setAlignment(m_button_needs_upload, button_align);
+    toprowlayout->addWidget(m_button_needs_upload, 0, button_align);
     needsUploadChanged(m_app.needsUpload());
     connect(m_button_needs_upload, &QAbstractButton::clicked,
             &m_app, &CamcopsApp::upload);
@@ -149,12 +154,9 @@ MenuHeader::MenuHeader(QWidget* parent,
     m_button_locked = new ImageButton(UiConst::CBS_LOCKED);
     m_button_unlocked = new ImageButton(UiConst::CBS_UNLOCKED);
     m_button_privileged = new ImageButton(UiConst::CBS_PRIVILEGED);
-    toprowlayout->addWidget(m_button_locked);
-    toprowlayout->addWidget(m_button_unlocked);
-    toprowlayout->addWidget(m_button_privileged);
-    toprowlayout->setAlignment(m_button_locked, button_align);
-    toprowlayout->setAlignment(m_button_unlocked, button_align);
-    toprowlayout->setAlignment(m_button_privileged, button_align);
+    toprowlayout->addWidget(m_button_locked, 0, button_align);
+    toprowlayout->addWidget(m_button_unlocked, 0, button_align);
+    toprowlayout->addWidget(m_button_privileged, 0, button_align);
     lockStateChanged(m_app.lockstate());
     connect(m_button_locked, &QAbstractButton::clicked,
             &m_app, &CamcopsApp::unlock);

@@ -199,5 +199,6 @@
         <file>resources/camcops/images/branch-more.png</file>
         <file>resources/camcops/images/branch-open.png</file>
         <file>resources/camcops/images/vline.png</file>
+        <file>resources/ace3/a.png</file>
     </qresource>
 </RCC>

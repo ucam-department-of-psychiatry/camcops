@@ -15,13 +15,19 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define USE_HFW_LAYOUT  // good
+
 #include "quheading.h"
 #include <QHBoxLayout>
 #include "common/cssconst.h"
 #include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
+#include "widgets/basewidget.h"
 #include "widgets/labelwordwrapwide.h"
+#ifdef USE_HFW_LAYOUT
+#include "widgets/hboxlayouthfw.h"
+#endif
 
 
 QuHeading::QuHeading(const QString& text) :
@@ -50,9 +56,16 @@ QPointer<QWidget> QuHeading::makeWidget(Questionnaire* questionnaire)
     // Call parent, ignore result:
     QuText::makeWidget(questionnaire);
     // Add background:
-    m_container = new QWidget();
-    m_container->setObjectName(CssConst::QUHEADING);
+
+    m_container = new BaseWidget();
+
+#ifdef USE_HFW_LAYOUT
+    HBoxLayoutHfw* layout = new HBoxLayoutHfw();
+#else
     QHBoxLayout* layout = new QHBoxLayout();
+#endif
+
+    m_container->setObjectName(CssConst::QUHEADING);
     m_container->setLayout(layout);
     layout->addWidget(m_label, 0, Qt::AlignLeft | Qt::AlignTop);
     layout->addStretch();

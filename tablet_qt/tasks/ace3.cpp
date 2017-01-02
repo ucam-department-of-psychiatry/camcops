@@ -24,12 +24,14 @@
 #include "lib/uifunc.h"
 #include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/quboolean.h"
+#include "questionnairelib/qucontainergrid.h"
 #include "questionnairelib/qucontainerhorizontal.h"
 #include "questionnairelib/qucontainervertical.h"
 #include "questionnairelib/qucountdown.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionnairefunc.h"
 #include "questionnairelib/quheading.h"
+#include "questionnairelib/quimage.h"
 #include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qumcq.h"
@@ -245,7 +247,7 @@ bool Ace3::isComplete() const
 }
 
 
-QString Ace3::summary() const
+QStringList Ace3::summary() const
 {
     int a = getAttnScore();
     int m = getMemScore();
@@ -263,18 +265,14 @@ QString Ace3::summary() const
         }
         return result;
     };
-    return tr("Total score") + QString(" %1/%2. ").arg(t).arg(TOTAL_OVERALL) +
-            xstring("cat_attn") + scorelambda(a, TOTAL_ATTN) +
-            xstring("cat_mem") + scorelambda(m, TOTAL_MEM) +
-            xstring("cat_fluency") + scorelambda(f, TOTAL_FLUENCY) +
-            xstring("cat_lang") + scorelambda(l, TOTAL_LANG) +
-            xstring("cat_vsp") + scorelambda(v, TOTAL_VSP, false);
-}
-
-
-QString Ace3::detail() const
-{
-    return summary() + "<br><br>" + recordSummary();
+    QStringList lines;
+    lines.append(tr("Total score") + QString(" %1/%2. ").arg(t).arg(TOTAL_OVERALL));
+    lines.append(xstring("cat_attn") + scorelambda(a, TOTAL_ATTN));
+    lines.append(xstring("cat_mem") + scorelambda(m, TOTAL_MEM));
+    lines.append(xstring("cat_fluency") + scorelambda(f, TOTAL_FLUENCY));
+    lines.append(xstring("cat_lang") + scorelambda(l, TOTAL_LANG));
+    lines.append(xstring("cat_vsp") + scorelambda(v, TOTAL_VSP, false));
+    return lines;
 }
 
 
@@ -305,6 +303,11 @@ OpenableWidget* Ace3::editor(bool read_only)
                           bool bold = false) -> QuElement* {
         return (new QuBoolean(xstring(stringname),
                               fieldRef(fieldname, mandatory)))->setBold(bold);
+    };
+    auto boolimg = [this](const QString& filenamestem, const QString& fieldname,
+                          bool mandatory = true) -> QuElement* {
+        return new QuBoolean(UiFunc::resourceFilename(filenamestem), QSize(),
+                             fieldRef(fieldname, mandatory));
     };
 
     // ------------------------------------------------------------------------
@@ -572,7 +575,31 @@ OpenableWidget* Ace3::editor(bool read_only)
     // ------------------------------------------------------------------------
 
     QuPagePtr page_repetition(( new QuPage{
-
+        // Repeating words
+        heading("cat_lang"),
+        instruction("lang_q_repeat"),
+        boolean("lang_repeat_word1", strnum(FP_LANG_REPEAT_WORD, 1)),
+        boolean("lang_repeat_word2", strnum(FP_LANG_REPEAT_WORD, 2)),
+        boolean("lang_repeat_word3", strnum(FP_LANG_REPEAT_WORD, 3)),
+        boolean("lang_repeat_word4", strnum(FP_LANG_REPEAT_WORD, 4)),
+        explanation("lang_instruction_repeat"),
+        // Repeating sentences
+        heading("cat_lang"),
+        instruction("lang_q_repeat"),
+        boolean("lang_sentence1", strnum(FP_LANG_REPEAT_SENTENCE, 1)),
+        boolean("lang_sentence2", strnum(FP_LANG_REPEAT_SENTENCE, 2)),
+        explanation("lang_instruction_sentences_1"),
+        explanation("lang_instruction_sentences_2"),
+        new QuSpacer(),
+        // Preparation for clinician for pictures
+        instruction("advance_warning_1"),
+        explanation("advance_warning_2"),
+        explanation("advance_warning_3"),
+        explanation("advance_warning_4"),
+        explanation("advance_warning_5"),
+        explanation("advance_warning_6"),
+        explanation("advance_warning_7"),
+        explanation("advance_warning_8"),
     })
         ->setTitle(makeTitle("Repetition"))
         ->setType(QuPage::PageType::Clinician));
@@ -581,48 +608,90 @@ OpenableWidget* Ace3::editor(bool read_only)
     // Naming pictures
     // ------------------------------------------------------------------------
 
-    QuPagePtr page_name_pictures(( new QuPage{
-
+    QuPagePtr page_name_pictures((new QuPage{
+        // Naming pictures
+        heading("cat_lang"),
+        instruction("lang_q_identify_pic"),
+        new QuContainerGrid(3, {
+            boolimg(IMAGE_SPOON, strnum(FP_LANG_NAME_PICTURE, 1)),
+            boolimg(IMAGE_BOOK, strnum(FP_LANG_NAME_PICTURE, 2)),
+            boolimg(IMAGE_KANGAROO, strnum(FP_LANG_NAME_PICTURE, 3)),
+            boolimg(IMAGE_PENGUIN, strnum(FP_LANG_NAME_PICTURE, 4)),
+            boolimg(IMAGE_ANCHOR, strnum(FP_LANG_NAME_PICTURE, 5)),
+            boolimg(IMAGE_CAMEL, strnum(FP_LANG_NAME_PICTURE, 6)),
+            boolimg(IMAGE_HARP, strnum(FP_LANG_NAME_PICTURE, 7)),
+            boolimg(IMAGE_RHINOCEROS, strnum(FP_LANG_NAME_PICTURE, 8)),
+            boolimg(IMAGE_BARREL, strnum(FP_LANG_NAME_PICTURE, 9)),
+            boolimg(IMAGE_CROWN, strnum(FP_LANG_NAME_PICTURE, 10)),
+            boolimg(IMAGE_CROCODILE, strnum(FP_LANG_NAME_PICTURE, 11)),
+            boolimg(IMAGE_ACCORDION, strnum(FP_LANG_NAME_PICTURE, 12)),
+        }),
+        // Choosing pictures by concept
+        heading("cat_lang"),
+        instruction("lang_q_identify_concept"),
+        boolean("lang_concept1", strnum(FP_LANG_IDENTIFY_CONCEPT, 1)),
+        boolean("lang_concept2", strnum(FP_LANG_IDENTIFY_CONCEPT, 2)),
+        boolean("lang_concept3", strnum(FP_LANG_IDENTIFY_CONCEPT, 3)),
+        boolean("lang_concept4", strnum(FP_LANG_IDENTIFY_CONCEPT, 4)),
+        explanation("lang_instruction_identify_concept"),
     })
         ->setTitle(makeTitle("Naming pictures"))
-        ->setType(QuPage::PageType::Clinician));
+        ->setType(QuPage::PageType::ClinicianWithPatient));
 
     // ------------------------------------------------------------------------
     // Reading irregular words
     // ------------------------------------------------------------------------
 
-    QuPagePtr page_read_words_aloud(( new QuPage{
-
+    QuPagePtr page_read_words_aloud((new QuPage{
+        // Reading irregular words aloud
+        heading("cat_lang"),
+        instruction("lang_q_read_aloud"),
+        new QuSpacer(),
+        subheading("lang_read_aloud_words"),  // the words
+        new QuSpacer(),
+        boolean("lang_read_aloud_all_correct", FN_LANG_READ_WORDS_ALOUD),
+        explanation("lang_instruction_read_aloud"),
     })
         ->setTitle(makeTitle("Reading irregular words"))
-        ->setType(QuPage::PageType::Clinician));
+        ->setType(QuPage::PageType::ClinicianWithPatient));
 
     // ------------------------------------------------------------------------
     // Infinity
     // ------------------------------------------------------------------------
 
-    QuPagePtr page_infinity(( new QuPage{
-
+    QuPagePtr page_infinity((new QuPage{
+        heading("cat_vsp"),
+        instruction("vsp_q_infinity"),
+        new QuImage(UiFunc::resourceFilename(IMAGE_INFINITY)),
+        boolean("vsp_infinity_correct", FN_VSP_COPY_INFINITY),
     })
         ->setTitle(makeTitle("Infinity"))
-        ->setType(QuPage::PageType::Clinician));
+        ->setType(QuPage::PageType::ClinicianWithPatient));
 
     // ------------------------------------------------------------------------
     // Cube
     // ------------------------------------------------------------------------
 
-    QuPagePtr page_cube(( new QuPage{
-
+    NameValueOptions options_cube = NameValueOptions::makeNumbers(0, 2);
+    QuPagePtr page_cube((new QuPage{
+        instruction("vsp_q_cube"),
+        new QuImage(UiFunc::resourceFilename(IMAGE_CUBE)),
+        text("vsp_score_cube"),
+        (new QuMCQ(fieldRef(FN_VSP_COPY_CUBE), options_cube))->setHorizontal(true),
     })
         ->setTitle(makeTitle("Cube"))
-        ->setType(QuPage::PageType::Clinician));
+        ->setType(QuPage::PageType::ClinicianWithPatient));
 
     // ------------------------------------------------------------------------
     // Clock
     // ------------------------------------------------------------------------
 
-    QuPagePtr page_clock(( new QuPage{
-
+    NameValueOptions options_clock = NameValueOptions::makeNumbers(0, 5);
+    QuPagePtr page_clock((new QuPage{
+                              instruction("vsp_q_clock"),
+                              explanation("vsp_instruction_clock"),
+                              text("vsp_score_clock"),
+                              (new QuMCQ(fieldRef(FN_VSP_DRAW_CLOCK), options_clock))->setHorizontal(true),
     })
         ->setTitle(makeTitle("Clock"))
         ->setType(QuPage::PageType::Clinician));
@@ -631,27 +700,52 @@ OpenableWidget* Ace3::editor(bool read_only)
     // Dots
     // ------------------------------------------------------------------------
 
-    QuPagePtr page_dots(( new QuPage{
-
+    QuPagePtr page_dots((new QuPage{
+        heading("cat_vsp"),
+        instruction("vsp_q_dots"),
+        new QuContainerGrid(2, {
+            boolimg(IMAGE_DOTS8, strnum(FP_VSP_COUNT_DOTS, 1)),
+            boolimg(IMAGE_DOTS10, strnum(FP_VSP_COUNT_DOTS, 2)),
+            boolimg(IMAGE_DOTS7, strnum(FP_VSP_COUNT_DOTS, 3)),
+            boolimg(IMAGE_DOTS9, strnum(FP_VSP_COUNT_DOTS, 4)),
+        }),
     })
         ->setTitle(makeTitle("Dot counting"))
-        ->setType(QuPage::PageType::Clinician));
+        ->setType(QuPage::PageType::ClinicianWithPatient));
 
     // ------------------------------------------------------------------------
     // Letters
     // ------------------------------------------------------------------------
 
-    QuPagePtr page_letters(( new QuPage{
-
+    QuPagePtr page_letters((new QuPage{
+        heading("cat_vsp"),
+        instruction("vsp_q_letters"),
+        new QuContainerGrid(2, {
+            boolimg(IMAGE_K, strnum(FP_VSP_IDENTIFY_LETTER, 1)),
+            boolimg(IMAGE_M, strnum(FP_VSP_IDENTIFY_LETTER, 2)),
+            boolimg(IMAGE_A, strnum(FP_VSP_IDENTIFY_LETTER, 3)),
+            boolimg(IMAGE_T, strnum(FP_VSP_IDENTIFY_LETTER, 4)),
+        }),
     })
         ->setTitle(makeTitle("Noisy letters"))
+        ->setType(QuPage::PageType::ClinicianWithPatient));
+
+    // ------------------------------------------------------------------------
+    // Back to clinician
+    // ------------------------------------------------------------------------
+
+    QuPagePtr page_back_to_clinician((new QuPage{
+        new QuText(tr("Please make sure the subject can’t see the screen "
+                      "before you proceed.")),
+    })
+        ->setTitle(makeTitle("[blank]"))
         ->setType(QuPage::PageType::Clinician));
 
     // ------------------------------------------------------------------------
     // Address recall: free
     // ------------------------------------------------------------------------
 
-    QuPagePtr page_recall_address_free(( new QuPage{
+    QuPagePtr page_recall_address_free((new QuPage{
 
     })
         ->setTitle(makeTitle("Free recall"))
@@ -661,7 +755,7 @@ OpenableWidget* Ace3::editor(bool read_only)
     // Address recall: cued
     // ------------------------------------------------------------------------
 
-    QuPagePtr page_recall_address_prompted(( new QuPage{
+    QuPagePtr page_recall_address_prompted((new QuPage{
 
     })
         ->setTitle(makeTitle("Cued recall"))
@@ -671,7 +765,7 @@ OpenableWidget* Ace3::editor(bool read_only)
     // Comments
     // ------------------------------------------------------------------------
 
-    QuPagePtr page_comments(( new QuPage{
+    QuPagePtr page_comments((new QuPage{
 
     })
         ->setTitle(makeTitle("Comments"))
@@ -681,7 +775,7 @@ OpenableWidget* Ace3::editor(bool read_only)
     // Photo 1
     // ------------------------------------------------------------------------
 
-    QuPagePtr page_photo_1(( new QuPage{
+    QuPagePtr page_photo_1((new QuPage{
 
     })
         ->setTitle(makeTitle("Photo 1"))
@@ -691,7 +785,7 @@ OpenableWidget* Ace3::editor(bool read_only)
     // Photo 2
     // ------------------------------------------------------------------------
 
-    QuPagePtr page_photo_2(( new QuPage{
+    QuPagePtr page_photo_2((new QuPage{
 
     })
         ->setTitle(makeTitle("Photo 2"))
@@ -706,7 +800,7 @@ OpenableWidget* Ace3::editor(bool read_only)
         page_commands_sentences, page_repetition,
         page_name_pictures, page_read_words_aloud,
         page_infinity, page_cube, page_clock,
-        page_dots, page_letters,
+        page_dots, page_letters, page_back_to_clinician,
         page_recall_address_free, page_recall_address_prompted,
         page_comments, page_photo_1, page_photo_2,
     });
@@ -802,11 +896,11 @@ int Ace3::getRepeatWordScore() const
 int Ace3::getLangScore() const
 {
     return getFollowCommandScore() +  // 3 points
-            sumInt(values(strseq(FP_LANG_WRITE_SENTENCES_POINT, 1, N_LANG_WRITE_SENTENCES_POINT))) +
+            sumInt(values(strseq(FP_LANG_WRITE_SENTENCES_POINT, 1, N_LANG_WRITE_SENTENCES_POINT))) +  // 2 points
             getRepeatWordScore() +  // 2 points
-            sumInt(values(strseq(FP_LANG_REPEAT_SENTENCE, 1, N_LANG_REPEAT_SENTENCE))) +
-            sumInt(values(strseq(FP_LANG_NAME_PICTURE, 1, N_LANG_NAME_PICTURE))) +
-            sumInt(values(strseq(FP_LANG_IDENTIFY_CONCEPT, 1, N_LANG_IDENTIFY_CONCEPT))) +
+            sumInt(values(strseq(FP_LANG_REPEAT_SENTENCE, 1, N_LANG_REPEAT_SENTENCE))) +  // 2 points
+            sumInt(values(strseq(FP_LANG_NAME_PICTURE, 1, N_LANG_NAME_PICTURE))) +  // 12 points
+            sumInt(values(strseq(FP_LANG_IDENTIFY_CONCEPT, 1, N_LANG_IDENTIFY_CONCEPT))) +  // 4 points
             valueInt(FN_LANG_READ_WORDS_ALOUD);  // 1 point
 }
 

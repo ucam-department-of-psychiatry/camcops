@@ -19,7 +19,7 @@
 #include "db/fieldref.h"
 #include "quelement.h"
 
-class QLabel;
+class AspectRatioPixmapLabel;
 
 
 class QuImage : public QuElement
@@ -34,6 +34,7 @@ public:
     // ... field provides raw image data
     // The default value of size takes the image's own size.
     QuImage* setSize(const QSize& size);
+    QuImage* setAllowShrink(bool allow_shrink);
 protected slots:
     void valueChanged(const FieldRef* fieldref);
 protected:
@@ -41,6 +42,7 @@ protected:
 protected:
     QString m_filename;
     FieldRefPtr m_fieldref;
-    QPointer<QLabel> m_label;
+    QPointer<AspectRatioPixmapLabel> m_label;
     QSize m_size;
+    bool m_allow_shrink;
 };

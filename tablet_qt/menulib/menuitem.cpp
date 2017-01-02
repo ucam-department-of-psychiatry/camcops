@@ -16,16 +16,15 @@
 */
 
 // #define DEBUG_VERBOSE
-#define USE_HFW_WIDGET
+#define USE_HFW_LAYOUT  // good
+
 #include "menuitem.h"
 #include <QDebug>
 #include <QLabel>
-#include <QHBoxLayout>
 #include <QPushButton>
 #include <QScopedPointer>
 #include <QSize>
 #include <QUrl>
-#include <QVBoxLayout>
 #include "common/camcopsapp.h"
 #include "common/cssconst.h"
 #include "common/uiconstants.h"
@@ -39,14 +38,16 @@
 #include "menulib/htmlinfowindow.h"
 #include "menulib/menuwindow.h"
 #include "tasklib/taskfactory.h"
+#include "widgets/basewidget.h"
 #include "widgets/labelwordwrapwide.h"
 #include "widgets/openablewidget.h"
 
-#ifdef USE_HFW_WIDGET
-#include "widgets/heightforwidthlayoutcontainer.h"
-using BaseWidget = HeightForWidthLayoutContainer;
+#ifdef USE_HFW_LAYOUT
+#include "widgets/hboxlayouthfw.h"
+#include "widgets/vboxlayouthfw.h"
 #else
-using BaseWidget = QWidget;
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 #endif
 
 const int STRETCH_3COL_WTASKNAME_TASKNAME = 1;
@@ -243,7 +244,11 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
     QSizePolicy sp_icon(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     BaseWidget* row = new BaseWidget();
+#ifdef USE_HFW_LAYOUT
     QHBoxLayout* rowlayout = new QHBoxLayout();
+#else
+    HBoxLayoutHfw* rowlayout = new HBoxLayoutHfw();
+#endif
     row->setLayout(rowlayout);
 
     if (m_p_task) {
@@ -353,7 +358,7 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         col3_widget->setLayout(col3_hbox);
 
         QLabel* summary = new LabelWordWrapWide(
-                    m_p_task->summaryWithCompleteSuffix());
+                    m_p_task->summaryWithCompletenessInfo().join(" "));
         summary->setAlignment(text_align);
         summary->setObjectName(complete
                                ? CssConst::TASK_ITEM_SUMMARY_COMPLETE
@@ -376,7 +381,11 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         // ICON | - ID numbers
 
         // Title/subtitle style
+#ifdef USE_HFW_LAYOUT
+        VBoxLayoutHfw* textlayout = new VBoxLayoutHfw();
+#else
         QVBoxLayout* textlayout = new QVBoxLayout();
+#endif
 
         QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
@@ -447,7 +456,11 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         }
 
         // Title/subtitle
+#ifdef USE_HFW_LAYOUT
+        VBoxLayoutHfw* textlayout = new VBoxLayoutHfw();
+#else
         QVBoxLayout* textlayout = new QVBoxLayout();
+#endif
 
         QLabel* title = new LabelWordWrapWide(m_title);
         title->setAlignment(text_align);

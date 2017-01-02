@@ -16,6 +16,7 @@
 */
 
 #define DEBUG_SET_VALUE
+
 #include "storedvar.h"
 #include "common/camcopsapp.h"
 #include "db/dbfunc.h"

@@ -16,9 +16,16 @@
 */
 
 #pragma once
+#define CLICKABLELABELWWW_USE_HFW_LAYOUT
 #include <QPushButton>
 class LabelWordWrapWide;
 class QVBoxLayout;
+class VBoxLayoutHfw;
+#ifdef CLICKABLELABELWWW_USE_HFW_LAYOUT
+using ClickableLabelWWWLayout = VBoxLayoutHfw;
+#else
+using ClickableLabelWWWLayout = QVBoxLayout;
+#endif
 
 
 class ClickableLabelWordWrapWide : public QPushButton
@@ -45,5 +52,5 @@ protected:
 
 protected:
     LabelWordWrapWide* m_label;
-    QVBoxLayout* m_layout;
+    ClickableLabelWWWLayout* m_layout;
 };

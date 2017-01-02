@@ -15,6 +15,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define USE_HFW_LAYOUT  // good
+
 #include "questionnaireheader.h"
 #include <QAbstractButton>
 #include <QDebug>
@@ -27,6 +29,9 @@
 #include "widgets/horizontalline.h"
 #include "widgets/imagebutton.h"
 #include "widgets/labelwordwrapwide.h"
+#ifdef USE_HFW_LAYOUT
+#include "widgets/vboxlayouthfw.h"
+#endif
 
 
 QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
@@ -36,7 +41,7 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
                                          bool within_chain,
                                          const QString& css_name,
                                          bool debug_allowed) :
-    QWidget(parent),
+    BaseWidget(parent),
     m_title(title),
     m_button_debug(nullptr),
     m_button_jump(nullptr),
@@ -58,9 +63,15 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
         // http://doc.qt.io/qt-5.7/qwidget.html#autoFillBackground-prop
         // ... advises caution with setAutoFillBackground() and stylesheets
     }
-    setSizePolicy(UiFunc::expandingFixedHFWPolicy());
+#ifndef QUESTIONNAIRE_HEADER_USE_HFW_BASE
+    setSizePolicy(UiFunc::expandingFixedHFWPolicy());  // if deriving from QWidget
+#endif
 
+#ifdef USE_HFW_LAYOUT
+    VBoxLayoutHfw* mainlayout = new VBoxLayoutHfw();
+#else
     QVBoxLayout* mainlayout = new QVBoxLayout();
+#endif
     setLayout(mainlayout);
 
     // ------------------------------------------------------------------------
@@ -70,11 +81,11 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     mainlayout->addLayout(toprowlayout);
 
     Qt::Alignment button_align = Qt::AlignHCenter | Qt::AlignTop;
+    Qt::Alignment text_align = Qt::AlignHCenter | Qt::AlignVCenter;
 
     // Cancel button
     QAbstractButton* cancel = new ImageButton(UiConst::CBS_CANCEL);
-    toprowlayout->addWidget(cancel);
-    toprowlayout->setAlignment(cancel, button_align);
+    toprowlayout->addWidget(cancel, 0, button_align);
     connect(cancel, &QAbstractButton::clicked,
             this, &QuestionnaireHeader::cancelClicked);
 
@@ -82,8 +93,7 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     if (read_only) {
         QLabel* read_only_icon = UiFunc::iconWidget(
             UiFunc::iconFilename(UiConst::ICON_READ_ONLY));
-        toprowlayout->addWidget(read_only_icon);
-        toprowlayout->setAlignment(read_only_icon, button_align);
+        toprowlayout->addWidget(read_only_icon, 0, button_align);
     }
 
     // Spacing
@@ -91,8 +101,9 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
 
     // Title
     LabelWordWrapWide* title_label = new LabelWordWrapWide(title);
-    title_label->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
-    toprowlayout->addWidget(title_label);  // default alignment fills whole cell
+    title_label->setAlignment(text_align);
+    toprowlayout->addWidget(title_label, 0, text_align);
+    // default alignment fills whole cell, but that looks better
 
     // Spacing
     toprowlayout->addStretch();
@@ -106,33 +117,28 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     }
 
     m_button_previous = new ImageButton(UiConst::CBS_BACK);
-    toprowlayout->addWidget(m_button_previous);
-    toprowlayout->setAlignment(m_button_previous, button_align);
+    toprowlayout->addWidget(m_button_previous, 0, button_align);
 
     if (jump_allowed) {
         m_button_jump = new ImageButton(UiConst::CBS_CHOOSE_PAGE);
         connect(m_button_jump, &QAbstractButton::clicked,
                 this, &QuestionnaireHeader::jumpClicked);
-        toprowlayout->addWidget(m_button_jump);
-        toprowlayout->setAlignment(m_button_jump, button_align);
+        toprowlayout->addWidget(m_button_jump, 0, button_align);
     }
 
     m_button_next = new ImageButton(UiConst::CBS_NEXT);
-    toprowlayout->addWidget(m_button_next);
-    toprowlayout->setAlignment(m_button_next, button_align);
+    toprowlayout->addWidget(m_button_next, 0, button_align);
 
     if (within_chain) {
         m_button_finish = new ImageButton(UiConst::CBS_FAST_FORWARD);
     } else {
         m_button_finish = new ImageButton(UiConst::CBS_FINISH);
     }
-    toprowlayout->addWidget(m_button_finish);
-    toprowlayout->setAlignment(m_button_finish, button_align);
+    toprowlayout->addWidget(m_button_finish, 0, button_align);
 
     m_icon_no_next = UiFunc::iconWidget(
         UiFunc::iconFilename(UiConst::ICON_WARNING));
-    toprowlayout->addWidget(m_icon_no_next);
-    toprowlayout->setAlignment(m_icon_no_next, button_align);
+    toprowlayout->addWidget(m_icon_no_next, 0, button_align);
 
     setButtons(false, false, false);
     connect(m_button_previous, &QAbstractButton::clicked,

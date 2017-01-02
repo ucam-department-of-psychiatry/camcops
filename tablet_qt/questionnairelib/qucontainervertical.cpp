@@ -15,10 +15,16 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define USE_HFW_LAYOUT  // good
+
 #include "qucontainervertical.h"
 #include <QVBoxLayout>
 #include <QWidget>
 #include "questionnairelib/questionnaire.h"
+#include "widgets/basewidget.h"
+#ifdef USE_HFW_LAYOUT
+#include "widgets/vboxlayouthfw.h"
+#endif
 
 
 QuContainerVertical::QuContainerVertical()
@@ -69,9 +75,15 @@ QuContainerVertical* QuContainerVertical::addElement(
 
 QPointer<QWidget> QuContainerVertical::makeWidget(Questionnaire* questionnaire)
 {
-    QPointer<QWidget> widget = new QWidget();
-    // widget->setObjectName(CssConst::DEBUG_YELLOW);
+    QPointer<QWidget> widget(new BaseWidget());
+
+#ifdef USE_HFW_LAYOUT
+    VBoxLayoutHfw* layout = new VBoxLayoutHfw();
+#else
     QVBoxLayout* layout = new QVBoxLayout();
+#endif
+
+    // widget->setObjectName(CssConst::DEBUG_YELLOW);
     layout->setContentsMargins(UiConst::NO_MARGINS);
     widget->setLayout(layout);
     for (auto e : m_elements) {

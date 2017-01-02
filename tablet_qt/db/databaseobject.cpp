@@ -277,7 +277,7 @@ QStringList DatabaseObject::recordSummaryLines() const
 }
 
 
-QString DatabaseObject::recordSummary() const
+QString DatabaseObject::recordSummaryString() const
 {
     return recordSummaryLines().join("<br>");
 }

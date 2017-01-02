@@ -15,32 +15,17 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "showwatcher.h"
-#include <QEvent>
-#include "lib/layoutdumper.h"
+#pragma once
+#include "boxlayouthfw.h"
 
 
-ShowWatcher::ShowWatcher(QObject* parent, bool debug_layout) :
-    QObject(parent),
-    m_debug_layout(debug_layout)
+class HBoxLayoutHfw : public BoxLayoutHfw
 {
-    if (parent) {
-        parent->installEventFilter(this);
-    }
-}
-
-
-bool ShowWatcher::eventFilter(QObject* obj, QEvent* event)
-{
-    Q_UNUSED(obj);
-    if (event->type() == QEvent::Show) {
-        emit showing();
-        if (m_debug_layout) {
-            QWidget* w = dynamic_cast<QWidget*>(obj);
-            if (w) {
-                LayoutDumper::dumpWidgetHierarchy(w);
-            }
-        }
-    }
-    return false;  // continue processing the event
-}
+    Q_OBJECT
+public:
+    HBoxLayoutHfw();
+    explicit HBoxLayoutHfw(QWidget* parent);
+    ~HBoxLayoutHfw();
+private:
+    Q_DISABLE_COPY(HBoxLayoutHfw)
+};

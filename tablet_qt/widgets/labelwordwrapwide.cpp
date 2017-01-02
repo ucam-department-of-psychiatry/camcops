@@ -24,20 +24,24 @@
 //   That's the LWWW_USE_QLABEL_CACHE setting.
 //   I think that is still a fairly expensive thing so caching will help.
 
-// #define DEBUG_LAYOUT
-// #define DEBUG_CALCULATIONS
 // #define DEBUG_CACHE_USE  // it's used quite a lot!
+// #define DEBUG_CALCULATIONS
+// #define DEBUG_EVENTS  // becomes very verbose
+// #define DEBUG_RESIZE
+// #define DEBUG_LAYOUT_WITH_CSS
 
 #include "labelwordwrapwide.h"
 #include <QDebug>
 #include <QEvent>
 #include <QFontMetrics>
+#include <QResizeEvent>
 #include <QStyle>
 #include <QStyleOptionFrame>
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_WITH_CSS
 #include "common/cssconst.h"
 #endif
 #include "lib/uifunc.h"
+
 
 // A QLabel, with setWordWrap(true), has a tendency to expand vertically and
 // not use all the available horizontal space.
@@ -75,7 +79,13 @@ LabelWordWrapWide::LabelWordWrapWide(QWidget* parent) :
 void LabelWordWrapWide::commonConstructor()
 {
     setWordWrap(true);  // will also do setHeightForWidth(true);
+#ifdef LWWW_USE_RESIZE_FOR_HEIGHT
     setSizePolicy(UiFunc::maximumFixedHFWPolicy());
+#else
+    // can leave it at the default of Preferred, Preferred (plus HFW as above)
+    // but to be explicit:
+    setSizePolicy(UiFunc::preferredPreferredHFWPolicy());
+#endif
 
     // If the horizontal policy is Preferred (with vertical Minimum), then
     // the text tries to wrap (increasing height) when other things tell it
@@ -93,7 +103,7 @@ void LabelWordWrapWide::commonConstructor()
 
     // Maximum = ShrinkFlag
 
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_WITH_CSS
     setObjectName(CssConst::DEBUG_RED);
 #endif
 }
@@ -136,9 +146,14 @@ int LabelWordWrapWide::qlabelHeightForWidth(int width) const
 }
 
 
+#ifdef LWWW_USE_RESIZE_FOR_HEIGHT
 void LabelWordWrapWide::resizeEvent(QResizeEvent* event)
 {
     QLabel::resizeEvent(event);
+#ifdef DEBUG_RESIZE
+    qDebug() << Q_FUNC_INFO << "resizing from" << event->oldSize()
+             << "to" << event->size();
+#endif
     forceHeight();
 }
 
@@ -182,6 +197,7 @@ void LabelWordWrapWide::forceHeight()
     setFixedHeight(final_height);
     updateGeometry();
 }
+#endif  // LWWW_USE_RESIZE_FOR_HEIGHT
 
 
 // QLabel::sizeHint() produces a golden ratio, which is fine. If you want a
@@ -301,7 +317,7 @@ bool LabelWordWrapWide::event(QEvent* e)
     case QEvent::Type::Resize:
     case QEvent::Type::StyleChange:
     case QEvent::Type::ScreenChangeInternal:  // undocumented? But see https://git.merproject.org/mer-core/qtbase/commit/49194275e02a9d6373767d6485bd8ebeeb0abba5
-#ifdef DEBUG_CALCULATIONS
+#ifdef DEBUG_EVENTS
         qDebug() << Q_FUNC_INFO
                  << "event requiring cache clear... text:" << text();
 #endif
@@ -309,7 +325,7 @@ bool LabelWordWrapWide::event(QEvent* e)
         break;
 
     default:
-#ifdef DEBUG_CALCULATIONS
+#ifdef DEBUG_EVENTS
         qDebug() << Q_FUNC_INFO << "other event:" << type;
 #endif
         // clearCache();
@@ -352,7 +368,7 @@ QSize LabelWordWrapWide::minimumSizeHint() const
 #ifdef DEBUG_CALCULATIONS
     qDebug() << Q_FUNC_INFO
              << "smallest_word" << smallest_word
-             << "->" << m_cached_minimum_size_hint
+             << "-> minimum_size_hint" << minimum_size_hint
              << "... text:" << text();
 #endif
     return minimum_size_hint;

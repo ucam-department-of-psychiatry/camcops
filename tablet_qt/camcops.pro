@@ -150,11 +150,9 @@ SOURCES += main.cpp\
     questionnairelib/qucountdown.cpp \
     widgets/imagebutton.cpp \
     questionnairelib/quboolean.cpp \
-    widgets/clickablelabel.cpp \
     questionnairelib/qumcq.cpp \
     common/random.cpp \
     questionnairelib/questionnairefunc.cpp \
-    widgets/flowlayout.cpp \
     widgets/booleanwidget.cpp \
     questionnairelib/qupickerinline.cpp \
     questionnairelib/namevalueoptions.cpp \
@@ -252,14 +250,20 @@ SOURCES += main.cpp\
     questionnairelib/qulineeditlonglong.cpp \
     qobjects/strictint64validator.cpp \
     lib/idpolicy.cpp \
-    widgets/heightforwidthlayoutcontainer.cpp \
     lib/mathfunc.cpp \
     db/dumpsql.cpp \
     dialogs/scrollmessagebox.cpp \
     dialogs/logmessagebox.cpp \
     dbobjects/patientsorter.cpp \
     tasks/ace3.cpp \
-    widgets/heightforwidthlistwidget.cpp
+    widgets/heightforwidthlistwidget.cpp \
+    widgets/flowlayouthfw.cpp \
+    widgets/boxlayouthfw.cpp \
+    widgets/qtlayouthelpers.cpp \
+    widgets/vboxlayouthfw.cpp \
+    widgets/hboxlayouthfw.cpp \
+    widgets/basewidget.cpp \
+    widgets/clickablelabelnowrap.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -332,11 +336,9 @@ HEADERS  += \
     questionnairelib/qucountdown.h \
     widgets/imagebutton.h \
     questionnairelib/quboolean.h \
-    widgets/clickablelabel.h \
     questionnairelib/qumcq.h \
     common/random.h \
     questionnairelib/questionnairefunc.h \
-    widgets/flowlayout.h \
     widgets/booleanwidget.h \
     questionnairelib/qupickerinline.h \
     questionnairelib/namevalueoptions.h \
@@ -435,7 +437,6 @@ HEADERS  += \
     questionnairelib/qulineeditlonglong.h \
     qobjects/strictint64validator.h \
     lib/idpolicy.h \
-    widgets/heightforwidthlayoutcontainer.h \
     lib/mathfunc.h \
     common/aliases_qt.h \
     common/aliases_camcops.h \
@@ -444,7 +445,14 @@ HEADERS  += \
     dialogs/logmessagebox.h \
     dbobjects/patientsorter.h \
     tasks/ace3.h \
-    widgets/heightforwidthlistwidget.h
+    widgets/heightforwidthlistwidget.h \
+    widgets/flowlayouthfw.h \
+    widgets/boxlayouthfw.h \
+    widgets/qtlayouthelpers.h \
+    widgets/vboxlayouthfw.h \
+    widgets/hboxlayouthfw.h \
+    widgets/basewidget.h \
+    widgets/clickablelabelnowrap.h
 
 DISTFILES += \
     notes/qt_notes.txt \

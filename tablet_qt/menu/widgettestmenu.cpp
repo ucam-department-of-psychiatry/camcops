@@ -31,6 +31,7 @@
 #include "questionnairelib/qucountdown.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/qudiagnosticcode.h"
+#include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionnaireheader.h"
 #include "questionnairelib/quheading.h"
 #include "questionnairelib/quhorizontalline.h"
@@ -40,6 +41,7 @@
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qulineeditlonglong.h"
 #include "questionnairelib/qulineeditulonglong.h"
+#include "questionnairelib/qupage.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qumcqgriddouble.h"
@@ -55,16 +57,18 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "questionnairelib/quthermometer.h"
+#include "tasks/ace3.h"
 #include "widgets/aspectratiopixmaplabel.h"
+#include "widgets/basewidget.h"
 #include "widgets/canvaswidget.h"
-#include "widgets/clickablelabel.h"
+#include "widgets/clickablelabelnowrap.h"
 #include "widgets/clickablelabelwordwrapwide.h"
-#include "widgets/flowlayout.h"
-#include "widgets/heightforwidthlayoutcontainer.h"
+#include "widgets/flowlayouthfw.h"
 #include "widgets/horizontalline.h"
 #include "widgets/imagebutton.h"
 #include "widgets/labelwordwrapwide.h"
 #include "widgets/verticalline.h"
+#include "widgets/verticalscrollarea.h"
 
 
 WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
@@ -99,178 +103,202 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
     // UiFunc::horizExpandingPreferredHFWPolicy();
 
     m_items = {
-        MenuItem(tr("Qt widgets")).setLabelOnly(),
-        MenuItem(tr("QLabel (size policy = Fixed, Fixed / short / no word wrap)"),
+        // --------------------------------------------------------------------
+        MenuItem("Qt widgets").setLabelOnly(),
+        // --------------------------------------------------------------------
+        MenuItem("QLabel (size policy = Fixed, Fixed / short / no word wrap)",
                  std::bind(&WidgetTestMenu::testQLabel, this,
                            fixed_fixed, false, false)),
-        MenuItem(tr("QLabel (size policy = Fixed, Fixed / long / no word wrap)"),
+        MenuItem("QLabel (size policy = Fixed, Fixed / long / no word wrap)",
                  std::bind(&WidgetTestMenu::testQLabel, this,
                            fixed_fixed, true, false)),
-        MenuItem(tr("QLabel (size policy = Fixed, Fixed / long / word wrap)"),
+        MenuItem("QLabel (size policy = Fixed, Fixed / long / word wrap)",
                  std::bind(&WidgetTestMenu::testQLabel, this,
                            fixed_fixed, true, true)),
-        MenuItem(tr("QLabel (size policy = Expanding, Expanding / short / no word wrap)"),
+        MenuItem("QLabel (size policy = Expanding, Expanding / short / no word wrap)",
                  std::bind(&WidgetTestMenu::testQLabel, this,
                            expand_expand, false, false)),
-        MenuItem(tr("QLabel (size policy = Expanding, Expanding / long / no word wrap)"),
+        MenuItem("QLabel (size policy = Expanding, Expanding / long / no word wrap)",
                  std::bind(&WidgetTestMenu::testQLabel, this,
                            expand_expand, true, false)),
-        MenuItem(tr("QLabel (size policy = Expanding, Expanding / long / word wrap)"),
+        MenuItem("QLabel (size policy = Expanding, Expanding / long / word wrap)",
                  std::bind(&WidgetTestMenu::testQLabel, this,
                            expand_expand, true, true)),
-        MenuItem(tr("QLabel (size policy = Expanding, Fixed, heightForWidth / short / no word wrap)"),
+        MenuItem("QLabel (size policy = Expanding, Fixed, heightForWidth / short / no word wrap)",
                  std::bind(&WidgetTestMenu::testQLabel, this,
                            expand_fixed_hfw, false, false)),
-        MenuItem(tr("QLabel (size policy = Expanding, Fixed, heightForWidth / long / no word wrap)"),
+        MenuItem("QLabel (size policy = Expanding, Fixed, heightForWidth / long / no word wrap)",
                  std::bind(&WidgetTestMenu::testQLabel, this,
                            expand_fixed_hfw, true, false)),
-        MenuItem(tr("QLabel (size policy = Expanding, Fixed, heightForWidth / long / word wrap)"),
+        MenuItem("QLabel (size policy = Expanding, Fixed, heightForWidth / long / word wrap)",
                  std::bind(&WidgetTestMenu::testQLabel, this,
                            expand_fixed_hfw, true, true)),
-        MenuItem(tr("QPushButton (size policy = Fixed, Fixed)"),
+        MenuItem("QPushButton (size policy = Fixed, Fixed)",
                  std::bind(&WidgetTestMenu::testQPushButton, this, fixed_fixed)),
-        MenuItem(tr("QPushButton (size policy = Expanding, Expanding)"),
+        MenuItem("QPushButton (size policy = Expanding, Expanding)",
                  std::bind(&WidgetTestMenu::testQPushButton, this, expand_expand)),
 
-        MenuItem(tr("Low-level widgets")).setLabelOnly(),
-        MenuItem(tr("AspectRatioPixmapLabel"),
+        // --------------------------------------------------------------------
+        MenuItem("Low-level widgets").setLabelOnly(),
+        // --------------------------------------------------------------------
+        MenuItem("AspectRatioPixmapLabel (should maintain aspect ratio and resize from 0 to its intrinsic size)",
                  std::bind(&WidgetTestMenu::testAspectRatioPixmapLabel, this)),
-        MenuItem(tr("BooleanWidget (appearance=CheckBlack)"),
+        MenuItem("BooleanWidget (appearance=CheckBlack)",
                  std::bind(&WidgetTestMenu::testBooleanWidget, this,
                            BooleanWidget::Appearance::CheckBlack, false)),
-        MenuItem(tr("BooleanWidget (appearance=CheckRed)"),
+        MenuItem("BooleanWidget (appearance=CheckRed)",
                  std::bind(&WidgetTestMenu::testBooleanWidget, this,
                            BooleanWidget::Appearance::CheckRed, false)),
-        MenuItem(tr("BooleanWidget (appearance=Radio)"),
+        MenuItem("BooleanWidget (appearance=Radio)",
                  std::bind(&WidgetTestMenu::testBooleanWidget, this,
                            BooleanWidget::Appearance::Radio, false)),
-        MenuItem(tr("BooleanWidget (appearance=Text, short text)"),
+        MenuItem("BooleanWidget (appearance=Text, short text)",
                  std::bind(&WidgetTestMenu::testBooleanWidget, this,
                            BooleanWidget::Appearance::Text, false)),
-        MenuItem(tr("BooleanWidget (appearance=Text, long text)"),
+        MenuItem("BooleanWidget (appearance=Text, long text)",
                  std::bind(&WidgetTestMenu::testBooleanWidget, this,
                            BooleanWidget::Appearance::Text, true)),
-        MenuItem(tr("CanvasWidget"),
+        MenuItem("CanvasWidget",
                  std::bind(&WidgetTestMenu::testCanvasWidget, this)),
-        MenuItem(tr("ClickableLabel (short text)"),
-                 std::bind(&WidgetTestMenu::testClickableLabel, this, false)),
-        MenuItem(tr("ClickableLabel (long text)"),
-                 std::bind(&WidgetTestMenu::testClickableLabel, this, true)),
-        MenuItem(tr("ClickableLabelWordWrapWide (short text)"),
+        MenuItem("ClickableLabelNoWrap (short text) (not generally used: no word wrap)",
+                 std::bind(&WidgetTestMenu::testClickableLabelNoWrap, this, false)),
+        MenuItem("ClickableLabelNoWrap (long text) (not generally used: no word wrap)",
+                 std::bind(&WidgetTestMenu::testClickableLabelNoWrap, this, true)),
+        MenuItem("ClickableLabelWordWrapWide (short text)",
                  std::bind(&WidgetTestMenu::testClickableLabelWordWrapWide, this, false)),
-        MenuItem(tr("ClickableLabelWordWrapWide (long text)"),
+        MenuItem("ClickableLabelWordWrapWide (long text)",
                  std::bind(&WidgetTestMenu::testClickableLabelWordWrapWide, this, true)),
-        MenuItem(tr("FlowLayout (containing fixed-size icons)"),
-                 std::bind(&WidgetTestMenu::testFlowLayout, this, 5)),
-        MenuItem(tr("HeightForWidthLayoutContainer (short text)"),
-                 std::bind(&WidgetTestMenu::testHeightForWidthLayoutContainer, this, false)),
-        MenuItem(tr("HeightForWidthLayoutContainer (long text)"),
-                 std::bind(&WidgetTestMenu::testHeightForWidthLayoutContainer, this, true)),
-        MenuItem(tr("HorizontalLine"),
+        MenuItem("HorizontalLine",
                  std::bind(&WidgetTestMenu::testHorizontalLine, this)),
-        MenuItem(tr("ImageButton"),
+        MenuItem("ImageButton",
                  std::bind(&WidgetTestMenu::testImageButton, this)),
-        MenuItem(tr("LabelWordWrapWide (short text)"),
-                 std::bind(&WidgetTestMenu::testLabelWordWrapWide, this, false)),
-        MenuItem(tr("LabelWordWrapWide (long text)"),
-                 std::bind(&WidgetTestMenu::testLabelWordWrapWide, this, true)),
-        MenuItem(tr("VerticalLine"),
+        MenuItem("LabelWordWrapWide (short text)",
+                 std::bind(&WidgetTestMenu::testLabelWordWrapWide, this, false, true)),
+        MenuItem("LabelWordWrapWide (long text) (within QVBoxLayout)",
+                 std::bind(&WidgetTestMenu::testLabelWordWrapWide, this, true, false)),
+        MenuItem("LabelWordWrapWide (long text) (within VBoxLayoutHfw)",
+                 std::bind(&WidgetTestMenu::testLabelWordWrapWide, this, true, true)),
+        MenuItem("VerticalLine",
                  std::bind(&WidgetTestMenu::testVerticalLine, this)),
+        MenuItem("VerticalScrollArea",
+                 std::bind(&WidgetTestMenu::testVerticalScrollArea, this)),
 
-        MenuItem(tr("Large-scale widgets")).setLabelOnly(),
-        MenuItem(tr("QuestionnaireHeader"),
-                 std::bind(&WidgetTestMenu::testQuestionnaireHeader, this)),
-        MenuItem(tr("MenuItem"),
+        // --------------------------------------------------------------------
+        MenuItem("Layouts and the like").setLabelOnly(),
+        // --------------------------------------------------------------------
+        MenuItem("FlowLayout (containing fixed-size icons)",
+                 std::bind(&WidgetTestMenu::testFlowLayout, this, 5)),
+        MenuItem("BaseWidget (with short text)",
+                 std::bind(&WidgetTestMenu::testBaseWidget, this, false)),
+        MenuItem("BaseWidget (with long text)",
+                 std::bind(&WidgetTestMenu::testBaseWidget, this, true)),
+
+        MenuItem("Large-scale widgets").setLabelOnly(),
+        MenuItem("MenuItem",
                  std::bind(&WidgetTestMenu::testMenuItem, this)),
+        MenuItem("QuestionnaireHeader",
+                 std::bind(&WidgetTestMenu::testQuestionnaireHeader, this)),
+        MenuItem("Empty questionnaire",
+                 std::bind(&WidgetTestMenu::testQuestionnaire, this)),
+        /*
+        MenuItem("Dummy ACE-III [will CRASH as no patient; layout testing only]"),
+                 std::bind(&WidgetTestMenu::testAce3, this)),
+        */
 
-        MenuItem(tr("Questionnaire element widgets")).setLabelOnly(),
-        MenuItem(tr("QuAudioPlayer"),
+        // --------------------------------------------------------------------
+        MenuItem("Questionnaire element widgets").setLabelOnly(),
+        // --------------------------------------------------------------------
+        MenuItem("QuAudioPlayer",
                  std::bind(&WidgetTestMenu::testQuAudioPlayer, this)),
-        MenuItem(tr("QuBoolean (as_text_button=false, short text)"),
+        MenuItem("QuBoolean (as_text_button=false, short text)",
                  std::bind(&WidgetTestMenu::testQuBoolean, this, false, false)),
-        MenuItem(tr("QuBoolean (as_text_button=false, long text)"),
+        MenuItem("QuBoolean (as_text_button=false, long text)",
                  std::bind(&WidgetTestMenu::testQuBoolean, this, false, true)),
-        MenuItem(tr("QuBoolean (as_text_button=true, short text)"),
+        MenuItem("QuBoolean (as_text_button=true, short text)",
                  std::bind(&WidgetTestMenu::testQuBoolean, this, true, false)),
-        MenuItem(tr("QuBoolean (as_text_button=true, long text)"),
+        MenuItem("QuBoolean (as_text_button=true, long text)",
                  std::bind(&WidgetTestMenu::testQuBoolean, this, true, true)),
-        MenuItem(tr("QuButton"),
+        MenuItem("QuButton",
                  std::bind(&WidgetTestMenu::testQuButton, this)),
-        MenuItem(tr("QuCanvas"),
+        MenuItem("QuCanvas",
                  std::bind(&WidgetTestMenu::testQuCanvas, this)),
-        MenuItem(tr("QuCountdown"),
+        MenuItem("QuCountdown",
                  std::bind(&WidgetTestMenu::testQuCountdown, this)),
-        MenuItem(tr("QuDateTime"),
+        MenuItem("QuDateTime",
                  std::bind(&WidgetTestMenu::testQuDateTime, this)),
-        MenuItem(tr("QuDiagnosticCode (NB iffy display if you select one!)"),
+        MenuItem("QuDiagnosticCode (NB iffy display if you select one!)",
                  std::bind(&WidgetTestMenu::testQuDiagnosticCode, this)),
-        MenuItem(tr("QuHeading"),
-                 std::bind(&WidgetTestMenu::testQuHeading, this)),
-        MenuItem(tr("QuHorizontalLine"),
+        MenuItem("QuHeading (short text)",
+                 std::bind(&WidgetTestMenu::testQuHeading, this, false)),
+        MenuItem("QuHeading (long text)",
+                 std::bind(&WidgetTestMenu::testQuHeading, this, true)),
+        MenuItem("QuHorizontalLine",
                  std::bind(&WidgetTestMenu::testQuHorizontalLine, this)),
-        MenuItem(tr("QuImage"),
+        MenuItem("QuImage",
                  std::bind(&WidgetTestMenu::testQuImage, this)),
-        MenuItem(tr("QuLineEdit"),
+        MenuItem("QuLineEdit",
                  std::bind(&WidgetTestMenu::testQuLineEdit, this)),
-        MenuItem(tr("QuLineEditDouble"),
+        MenuItem("QuLineEditDouble",
                  std::bind(&WidgetTestMenu::testQuLineEditDouble, this)),
-        MenuItem(tr("QuLineEditInteger"),
+        MenuItem("QuLineEditInteger",
                  std::bind(&WidgetTestMenu::testQuLineEditInteger, this)),
-        MenuItem(tr("QuLineEditLongLong"),
+        MenuItem("QuLineEditLongLong",
                  std::bind(&WidgetTestMenu::testQuLineEditLongLong, this)),
-        MenuItem(tr("QuLineEditULongLong"),
+        MenuItem("QuLineEditULongLong",
                  std::bind(&WidgetTestMenu::testQuLineEditULongLong, this)),
-        MenuItem(tr("QuMCQ (horizontal=false, short text)"),
+        MenuItem("QuMCQ (horizontal=false, short text)",
                  std::bind(&WidgetTestMenu::testQuMCQ, this, false, false, false)),
-        MenuItem(tr("QuMCQ (horizontal=false, long text)"),
+        MenuItem("QuMCQ (horizontal=false, long text)",
                  std::bind(&WidgetTestMenu::testQuMCQ, this, false, true, false)),
-        MenuItem(tr("QuMCQ (horizontal=true, short text)"),
+        MenuItem("QuMCQ (horizontal=true, short text)",
                  std::bind(&WidgetTestMenu::testQuMCQ, this, true, false, false)),
-        MenuItem(tr("QuMCQ (horizontal=true, long text)"),
+        MenuItem("QuMCQ (horizontal=true, long text)",
                  std::bind(&WidgetTestMenu::testQuMCQ, this, true, true, false)),
-        MenuItem(tr("QuMCQ (horizontal=true, short text, as text button)"),
+        MenuItem("QuMCQ (horizontal=true, short text, as text button)",
                  std::bind(&WidgetTestMenu::testQuMCQ, this, true, false, true)),
-        MenuItem(tr("QuMCQGrid (expand=false)"),
+        MenuItem("QuMCQGrid (expand=false)",
                  std::bind(&WidgetTestMenu::testQuMCQGrid, this, false)),
-        MenuItem(tr("QuMCQGrid (expand=true)"),
+        MenuItem("QuMCQGrid (expand=true)",
                  std::bind(&WidgetTestMenu::testQuMCQGrid, this, true)),
-        MenuItem(tr("QuMCQGridDouble (expand=false)"),
+        MenuItem("QuMCQGridDouble (expand=false)",
                  std::bind(&WidgetTestMenu::testQuMCQGridDouble, this, false)),
-        MenuItem(tr("QuMCQGridDouble (expand=true)"),
+        MenuItem("QuMCQGridDouble (expand=true)",
                  std::bind(&WidgetTestMenu::testQuMCQGridDouble, this, true)),
-        MenuItem(tr("QuMCQGridSingleBoolean (expand=false)"),
+        MenuItem("QuMCQGridSingleBoolean (expand=false)",
                  std::bind(&WidgetTestMenu::testQuMCQGridSingleBoolean, this, false)),
-        MenuItem(tr("QuMCQGridSingleBoolean (expand=true)"),
+        MenuItem("QuMCQGridSingleBoolean (expand=true)",
                  std::bind(&WidgetTestMenu::testQuMCQGridSingleBoolean, this, true)),
-        MenuItem(tr("QuMultipleResponse (horizontal=false, short text)"),
+        MenuItem("QuMultipleResponse (horizontal=false, short text)",
                  std::bind(&WidgetTestMenu::testQuMultipleResponse, this, false, false)),
-        MenuItem(tr("QuMultipleResponse (horizontal=false, long text)"),
+        MenuItem("QuMultipleResponse (horizontal=false, long text)",
                  std::bind(&WidgetTestMenu::testQuMultipleResponse, this, false, true)),
-        MenuItem(tr("QuMultipleResponse (horizontal=true, short text)"),
+        MenuItem("QuMultipleResponse (horizontal=true, short text)",
                  std::bind(&WidgetTestMenu::testQuMultipleResponse, this, true, false)),
-        MenuItem(tr("QuMultipleResponse (horizontal=true, long text)"),
+        MenuItem("QuMultipleResponse (horizontal=true, long text)",
                  std::bind(&WidgetTestMenu::testQuMultipleResponse, this, true, true)),
-        MenuItem(tr("QuPhoto"),
+        MenuItem("QuPhoto",
                  std::bind(&WidgetTestMenu::testQuPhoto, this)),
-        MenuItem(tr("QuPickerInline"),
+        MenuItem("QuPickerInline",
                  std::bind(&WidgetTestMenu::testQuPickerInline, this)),
-        MenuItem(tr("QuPickerPopup"),
+        MenuItem("QuPickerPopup",
                  std::bind(&WidgetTestMenu::testQuPickerPopup, this)),
-        MenuItem(tr("QuSlider (horizontal=false)"),
+        MenuItem("QuSlider (horizontal=false)",
                  std::bind(&WidgetTestMenu::testQuSlider, this, false)),
-        MenuItem(tr("QuSlider (horizontal=true)"),
+        MenuItem("QuSlider (horizontal=true)",
                  std::bind(&WidgetTestMenu::testQuSlider, this, true)),
-        MenuItem(tr("QuSpacer"),
+        MenuItem("QuSpacer",
                  std::bind(&WidgetTestMenu::testQuSpacer, this)),
-        MenuItem(tr("QuSpinBoxDouble"),
+        MenuItem("QuSpinBoxDouble",
                  std::bind(&WidgetTestMenu::testQuSpinBoxDouble, this)),
-        MenuItem(tr("QuSpinBoxInteger"),
+        MenuItem("QuSpinBoxInteger",
                  std::bind(&WidgetTestMenu::testQuSpinBoxInteger, this)),
-        MenuItem(tr("QuText"),
-                 std::bind(&WidgetTestMenu::testQuText, this)),
-        MenuItem(tr("QuTextEdit"),
+        MenuItem("QuText (short text)",
+                 std::bind(&WidgetTestMenu::testQuText, this, false)),
+        MenuItem("QuText (long text)",
+                 std::bind(&WidgetTestMenu::testQuText, this, true)),
+        MenuItem("QuTextEdit",
                  std::bind(&WidgetTestMenu::testQuTextEdit, this)),
-        MenuItem(tr("QuThermometer"),
+        MenuItem("QuThermometer",
                  std::bind(&WidgetTestMenu::testQuThermometer, this)),
     };
 }
@@ -389,10 +417,10 @@ void WidgetTestMenu::testCanvasWidget()
 }
 
 
-void WidgetTestMenu::testClickableLabel(bool long_text)
+void WidgetTestMenu::testClickableLabelNoWrap(bool long_text)
 {
     QString text = long_text ? UiConst::LOREM_IPSUM_1 : "Text";
-    ClickableLabel* widget = new ClickableLabel(text);
+    ClickableLabelNoWrap* widget = new ClickableLabelNoWrap(text);
     connect(widget, &QAbstractButton::clicked,
             this, &WidgetTestMenu::dummyAction);
     DebugFunc::debugWidget(widget);
@@ -405,33 +433,6 @@ void WidgetTestMenu::testClickableLabelWordWrapWide(bool long_text)
     ClickableLabelWordWrapWide* widget = new ClickableLabelWordWrapWide(text);
     connect(widget, &QAbstractButton::clicked,
             this, &WidgetTestMenu::dummyAction);
-    DebugFunc::debugWidget(widget);
-}
-
-
-void WidgetTestMenu::testFlowLayout(int n_icons)
-{
-    QWidget* widget = new QWidget();
-    FlowLayout* layout = new FlowLayout();
-    widget->setLayout(layout);
-    for (int i = 0; i < n_icons; ++i) {
-        QLabel* icon = UiFunc::iconWidget(UiFunc::iconFilename(UiConst::CBS_ADD));
-        layout->addWidget(icon);
-    }
-    DebugFunc::debugWidget(widget);
-}
-
-
-void WidgetTestMenu::testHeightForWidthLayoutContainer(bool long_text)
-{
-    FlowLayout* layout = new FlowLayout();
-    layout->addWidget(new LabelWordWrapWide("Option Z1"));
-    QString option2 = long_text ? "Option Z2 " + UiConst::LOREM_IPSUM_2
-                                : "Option Z2";
-    layout->addWidget(new LabelWordWrapWide(option2));
-    layout->addWidget(new LabelWordWrapWide("Option Z3"));
-    HeightForWidthLayoutContainer* widget = new HeightForWidthLayoutContainer();
-    widget->setLayout(layout);
     DebugFunc::debugWidget(widget);
 }
 
@@ -453,11 +454,21 @@ void WidgetTestMenu::testImageButton()
 }
 
 
-void WidgetTestMenu::testLabelWordWrapWide(bool long_text)
+void WidgetTestMenu::testLabelWordWrapWide(bool long_text, bool use_hfw_layout)
 {
     QString text = long_text ? UiConst::LOREM_IPSUM_1 : "Text";
     LabelWordWrapWide* widget = new LabelWordWrapWide(text);
-    DebugFunc::debugWidget(widget);
+    bool set_background_by_name = false;
+    bool set_background_by_stylesheet = true;
+    bool show_widget_properties = true;
+    bool show_widget_attributes = false;
+    int spaces_per_level = 4;
+    DebugFunc::debugWidget(widget, set_background_by_name,
+                           set_background_by_stylesheet,
+                           show_widget_properties,
+                           show_widget_attributes,
+                           spaces_per_level,
+                           use_hfw_layout);
 }
 
 
@@ -470,19 +481,56 @@ void WidgetTestMenu::testVerticalLine()
 }
 
 
+void WidgetTestMenu::testVerticalScrollArea()
+{
+    QWidget* contentwidget = new QWidget();
+    QVBoxLayout* layout = new QVBoxLayout();
+    contentwidget->setLayout(layout);
+
+    layout->addWidget(new QLabel("hello"));
+    layout->addWidget(new QLabel("there"));
+
+    VerticalScrollArea* scrollwidget = new VerticalScrollArea();
+    scrollwidget->setWidget(contentwidget);
+
+    DebugFunc::debugWidget(scrollwidget);
+}
+
+
 // ============================================================================
-// Large-scale widgets
+// Layouts and the like
 // ============================================================================
 
-void WidgetTestMenu::testQuestionnaireHeader()
+void WidgetTestMenu::testFlowLayout(int n_icons)
 {
-    QuestionnaireHeader* widget = new QuestionnaireHeader(
-                nullptr, "Title text, quite long",
-                false, true, false, CssConst::QUESTIONNAIRE_BACKGROUND_CONFIG);
-    widget->setStyleSheet(m_app.getSubstitutedCss(UiConst::CSS_CAMCOPS_QUESTIONNAIRE));
+    QWidget* widget = new QWidget();
+    FlowLayoutHfw* layout = new FlowLayoutHfw();
+    widget->setLayout(layout);
+    for (int i = 0; i < n_icons; ++i) {
+        QLabel* icon = UiFunc::iconWidget(UiFunc::iconFilename(UiConst::CBS_ADD));
+        layout->addWidget(icon);
+    }
     DebugFunc::debugWidget(widget);
 }
 
+
+void WidgetTestMenu::testBaseWidget(bool long_text)
+{
+    FlowLayoutHfw* layout = new FlowLayoutHfw();
+    layout->addWidget(new LabelWordWrapWide("Option Z1"));
+    QString option2 = long_text ? "Option Z2 " + UiConst::LOREM_IPSUM_2
+                                : "Option Z2";
+    layout->addWidget(new LabelWordWrapWide(option2));
+    layout->addWidget(new LabelWordWrapWide("Option Z3"));
+    BaseWidget* widget = new BaseWidget();
+    widget->setLayout(layout);
+    DebugFunc::debugWidget(widget);
+}
+
+
+// ============================================================================
+// Large-scale widgets
+// ============================================================================
 
 void WidgetTestMenu::testMenuItem()
 {
@@ -490,6 +538,38 @@ void WidgetTestMenu::testMenuItem()
     QWidget* widget = item.rowWidget(m_app);
     DebugFunc::debugWidget(widget);
 }
+
+
+void WidgetTestMenu::testQuestionnaireHeader()
+{
+    QuestionnaireHeader* widget = new QuestionnaireHeader(
+                nullptr, "Title text, quite long: " + UiConst::LOREM_IPSUM_3,
+                false, true, false, CssConst::QUESTIONNAIRE_BACKGROUND_CONFIG);
+    widget->setStyleSheet(m_app.getSubstitutedCss(UiConst::CSS_CAMCOPS_QUESTIONNAIRE));
+    DebugFunc::debugWidget(widget);
+}
+
+
+void WidgetTestMenu::testQuestionnaire()
+{
+    QuPagePtr page(new QuPage());
+    page->addElement(new QuText(UiConst::LOREM_IPSUM_1));
+    page->setTitle("Reasonably long title with several words");
+    Questionnaire* widget = new Questionnaire(m_app, {page});
+    widget->build();
+    DebugFunc::debugWidget(widget, false, false);
+}
+
+
+/*
+void WidgetTestMenu::testAce3()
+{
+    TaskPtr task(new Ace3(m_app, m_app.db()));
+    OpenableWidget* widget = task->editor();
+    widget->build();
+    DebugFunc::debugWidget(widget);
+}
+*/
 
 
 // ============================================================================
@@ -549,9 +629,9 @@ void WidgetTestMenu::testQuDiagnosticCode()
 }
 
 
-void WidgetTestMenu::testQuHeading()
+void WidgetTestMenu::testQuHeading(bool long_text)
 {
-    QuHeading element("Heading");
+    QuHeading element(long_text ? UiConst::LOREM_IPSUM_1 : "Heading");
     testQuestionnaireElement(&element);
 }
 
@@ -717,9 +797,9 @@ void WidgetTestMenu::testQuSpinBoxInteger()
 }
 
 
-void WidgetTestMenu::testQuText()
+void WidgetTestMenu::testQuText(bool long_text)
 {
-    QuText element("text");
+    QuText element(long_text ? UiConst::LOREM_IPSUM_1 : "text");
     testQuestionnaireElement(&element);
 }
 

@@ -15,15 +15,22 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define USE_HFW_LAYOUT  // good
+
 #include "nvpchoicedialog.h"
 #include <functional>
 #include <QDialogButtonBox>
 #include <QEvent>
 #include <QVariant>
-#include <QVBoxLayout>
 #include "lib/uifunc.h"
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/verticalscrollarea.h"
+
+#ifdef USE_HFW_LAYOUT
+#include "widgets/vboxlayouthfw.h"
+#else
+#include <QVBoxLayout>
+#endif
 
 
 NvpChoiceDialog::NvpChoiceDialog(QWidget* parent,
@@ -46,7 +53,11 @@ int NvpChoiceDialog::choose(QVariant* new_value)
     setWindowTitle(m_title);
 
     QWidget* contentwidget = new QWidget();
+#ifdef USE_HFW_LAYOUT
+    VBoxLayoutHfw* contentlayout = new VBoxLayoutHfw();
+#else
     QVBoxLayout* contentlayout = new QVBoxLayout();
+#endif
     contentwidget->setLayout(contentlayout);
     for (int i = 0; i < m_options.size(); ++i) {
         const NameValuePair& nvp = m_options.at(i);
@@ -62,7 +73,11 @@ int NvpChoiceDialog::choose(QVariant* new_value)
     VerticalScrollArea* scroll = new VerticalScrollArea();
     scroll->setWidget(contentwidget);
 
+#ifdef USE_HFW_LAYOUT
+    VBoxLayoutHfw* mainlayout = new VBoxLayoutHfw();
+#else
     QVBoxLayout* mainlayout = new QVBoxLayout();
+#endif
     mainlayout->addWidget(scroll);
     setLayout(mainlayout);
 

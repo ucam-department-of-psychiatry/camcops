@@ -15,8 +15,12 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// #define DEBUG_LAYOUT_CALCS
+
 #include "aspectratiopixmaplabel.h"
 #include <QDebug>
+#include <QMouseEvent>
+#include <QResizeEvent>
 #include "common/uiconstants.h"
 
 
@@ -45,7 +49,9 @@ int AspectRatioPixmapLabel::heightForWidth(int width) const
     int h = m_pixmap.isNull()
             ? 0  // a bit arbitrary! width()? 0? 1?
             : ((qreal)m_pixmap.height() * width) / m_pixmap.width();
-    // qDebug() << Q_FUNC_INFO << "width" << width << "-> height" << h;
+#ifdef DEBUG_LAYOUT_CALCS
+    qDebug() << Q_FUNC_INFO << "width" << width << "-> height" << h;
+#endif
     return h;
 }
 
@@ -54,8 +60,10 @@ QSize AspectRatioPixmapLabel::sizeHint() const
 {
     QSize hint = m_pixmap.size();
     // hint.rheight() = -1;
-    // qDebug() << Q_FUNC_INFO << "pixmap size" << m_pixmap.size()
-    //          << "size hint" << hint;
+#ifdef DEBUG_LAYOUT_CALCS
+    qDebug() << Q_FUNC_INFO << "pixmap size" << m_pixmap.size()
+             << "size hint" << hint;
+#endif
     return hint;
 
     // PROBLEM with AspectRatioPixmapLabel
@@ -89,7 +97,9 @@ QSize AspectRatioPixmapLabel::minimumSizeHint() const
 
 QPixmap AspectRatioPixmapLabel::scaledPixmap() const
 {
-    // qDebug() << Q_FUNC_INFO << "this->size()" << this->size();
+#ifdef DEBUG_LAYOUT_CALCS
+    qDebug() << Q_FUNC_INFO << "this->size()" << this->size();
+#endif
     return m_pixmap.scaled(this->size(),
                       Qt::KeepAspectRatio, Qt::SmoothTransformation);
 }
@@ -97,11 +107,18 @@ QPixmap AspectRatioPixmapLabel::scaledPixmap() const
 
 void AspectRatioPixmapLabel::resizeEvent(QResizeEvent* event)
 {
-    Q_UNUSED(event)
+    Q_UNUSED(event);
     if (!m_pixmap.isNull()) {
         QLabel::setPixmap(scaledPixmap());
         // unnecessary // updateGeometry(); // WATCH OUT: any potential for infinite recursion?
     }
+}
+
+
+void AspectRatioPixmapLabel::mousePressEvent(QMouseEvent* event)
+{
+    Q_UNUSED(event);
+    emit clicked();
 }
 
 

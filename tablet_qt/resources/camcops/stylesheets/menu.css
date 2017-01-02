@@ -16,7 +16,7 @@
    ========================================================================= */
 
 QWidget,
-HeightForWidthLayoutContainer {
+BaseWidget {
     font-size: %5pt;
 }
 

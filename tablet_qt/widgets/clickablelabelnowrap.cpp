@@ -15,19 +15,23 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "clickablelabel.h"
+#include "clickablelabelnowrap.h"
 #include <QApplication>
 #include <QDebug>
 #include <QLabel>
 #include <QMouseEvent>
 #include <QStyleOptionButton>
-#include <QVBoxLayout>
-// #include "common/cssconst.h"
 #include "common/uiconstants.h"
 #include "lib/uifunc.h"
 
+#ifdef USE_HFW_LAYOUT
+#include "widgets/vboxlayouthfw.h"
+#else
+#include <QVBoxLayout>
+#endif
 
-ClickableLabel::ClickableLabel(const QString& text, QWidget* parent) :
+
+ClickableLabelNoWrap::ClickableLabelNoWrap(const QString& text, QWidget* parent) :
     QPushButton(parent),
     m_label(new QLabel(text, this))
 {
@@ -35,7 +39,7 @@ ClickableLabel::ClickableLabel(const QString& text, QWidget* parent) :
 }
 
 
-ClickableLabel::ClickableLabel(QWidget* parent) :
+ClickableLabelNoWrap::ClickableLabelNoWrap(QWidget* parent) :
     QPushButton(parent),
     m_label(new QLabel(this))
 {
@@ -43,14 +47,18 @@ ClickableLabel::ClickableLabel(QWidget* parent) :
 }
 
 
-void ClickableLabel::commonConstructor()
+void ClickableLabelNoWrap::commonConstructor()
 {
     m_label->setMouseTracking(false);
     m_label->setTextInteractionFlags(Qt::NoTextInteraction);
     m_label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     // m_label->setObjectName(CssConst::DEBUG_GREEN);
 
+#ifdef USE_HFW_LAYOUT
+    m_layout = new VBoxLayoutHfw();
+#else
     m_layout = new QVBoxLayout();
+#endif
     m_layout->setContentsMargins(UiConst::NO_MARGINS);
 
     m_layout->addWidget(m_label);
@@ -62,14 +70,14 @@ void ClickableLabel::commonConstructor()
 }
 
 
-void ClickableLabel::setTextFormat(Qt::TextFormat format)
+void ClickableLabelNoWrap::setTextFormat(Qt::TextFormat format)
 {
     Q_ASSERT(m_label);
     m_label->setTextFormat(format);
 }
 
 
-void ClickableLabel::setWordWrap(bool on)
+void ClickableLabelNoWrap::setWordWrap(bool on)
 {
     Q_ASSERT(m_label);
     m_label->setWordWrap(on);
@@ -77,7 +85,7 @@ void ClickableLabel::setWordWrap(bool on)
 }
 
 
-void ClickableLabel::setAlignment(Qt::Alignment alignment)
+void ClickableLabelNoWrap::setAlignment(Qt::Alignment alignment)
 {
     Q_ASSERT(m_label);
     Q_ASSERT(m_layout);
@@ -86,14 +94,14 @@ void ClickableLabel::setAlignment(Qt::Alignment alignment)
 }
 
 
-void ClickableLabel::setOpenExternalLinks(bool open)
+void ClickableLabelNoWrap::setOpenExternalLinks(bool open)
 {
     Q_ASSERT(m_label);
     m_label->setOpenExternalLinks(open);
 }
 
 
-void ClickableLabel::setPixmap(const QPixmap& pixmap)
+void ClickableLabelNoWrap::setPixmap(const QPixmap& pixmap)
 {
     Q_ASSERT(m_label);
     m_label->setPixmap(pixmap);
@@ -103,7 +111,7 @@ void ClickableLabel::setPixmap(const QPixmap& pixmap)
 }
 
 
-QSize ClickableLabel::sizeHint() const
+QSize ClickableLabelNoWrap::sizeHint() const
 {
     Q_ASSERT(m_label);
     QStyleOptionButton opt;

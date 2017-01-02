@@ -353,6 +353,7 @@ bool NetworkManager::processServerReply(QNetworkReply* reply)
 {
     if (!reply) {
         statusMessage("Bug: null pointer to processServerReply");
+        fail();
         return false;
     }
     reply->deleteLater();

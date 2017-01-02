@@ -16,6 +16,7 @@
 */
 
 #pragma once
+
 #include <QPointer>
 #include <QPushButton>
 class QLabel;
@@ -23,7 +24,7 @@ class QPixmap;
 class QVBoxLayout;
 
 
-class ClickableLabel : public QPushButton
+class ClickableLabelNoWrap : public QPushButton
 {
     // Label that responds to clicks.
     // - Multiple inheritance doesn't play nicely with QObject.
@@ -42,7 +43,7 @@ class ClickableLabel : public QPushButton
     //      QLabel
     //          LabelWordWrapWide
     //      QPushButton
-    //          ClickableLabel (owning QLabel)
+    //          ClickableLabelNoWrap (owning QLabel)
     //          ClickableLabelWordWrapWide (owning LabelWordWrapWide)
     //          [... can't have one of those sensibly derive from the other,
     //               as you get into a base-class/derived-class initialization
@@ -50,8 +51,8 @@ class ClickableLabel : public QPushButton
 
     Q_OBJECT
 public:
-    ClickableLabel(const QString& text, QWidget* parent = nullptr);
-    ClickableLabel(QWidget* parent = nullptr);
+    ClickableLabelNoWrap(const QString& text, QWidget* parent = nullptr);
+    ClickableLabelNoWrap(QWidget* parent = nullptr);
 
     virtual void setTextFormat(Qt::TextFormat format);
     virtual void setWordWrap(bool on);

@@ -23,7 +23,6 @@
 #include <QDebug>
 #include <QMessageBox>
 #include <QLabel>
-#include <QVBoxLayout>
 #include "common/camcopsapp.h"
 #include "common/cssconst.h"
 #include "dialogs/pagepickerdialog.h"
@@ -39,6 +38,12 @@
 #include "widgets/labelwordwrapwide.h"
 #include "widgets/openablewidget.h"
 #include "widgets/verticalscrollarea.h"
+
+#ifdef QUESTIONNAIRE_USE_HFW_LAYOUT
+#include "widgets/vboxlayouthfw.h"
+#else
+#include <QVBoxLayout>
+#endif
 
 
 Questionnaire::Questionnaire(CamcopsApp& app) :
@@ -77,7 +82,7 @@ void Questionnaire::commonConstructor()
 
     setStyleSheet(m_app.getSubstitutedCss(UiConst::CSS_CAMCOPS_QUESTIONNAIRE));
 
-    m_outer_layout = new QVBoxLayout();
+    m_outer_layout = new QuestionnaireVerticalLayout();
     setLayout(m_outer_layout);
     // You can't reset the outer layout for a widget, I think. You get:
     //      QWidget::setLayout: Attempting to set QLayout "" on Questionnaire
@@ -86,7 +91,6 @@ void Questionnaire::commonConstructor()
     m_background_widget = nullptr;
     m_mainlayout = nullptr;
     m_p_header = nullptr;
-    m_p_content = nullptr;
 }
 
 
@@ -133,9 +137,6 @@ void Questionnaire::build()
     if (m_p_header) {
         m_p_header->deleteLater();  // later, in case it's currently calling us
     }
-    if (m_p_content) {
-        m_p_content->deleteLater();
-    }
     if (m_mainlayout) {
         m_mainlayout->deleteLater();
     }
@@ -150,7 +151,7 @@ void Questionnaire::build()
     //
     // W this = OpenableWidget (inherits from QWidget)
     //      L m_outer_layout = QVBoxLayout()
-    //          W m_background_widget
+    //          W m_background_widget = QWidget
     //              L m_mainlayout = QVBoxLayout
     //                  W m_p_header = QuestionnaireHeader
     //                  W scroll = VerticalScrollArea
@@ -239,7 +240,7 @@ void Questionnaire::build()
             Qt::UniqueConnection);
 
     // Main layout: header and scrollable content
-    m_mainlayout = new QVBoxLayout();
+    m_mainlayout = new QuestionnaireVerticalLayout();
     m_mainlayout->setContentsMargins(UiConst::NO_MARGINS);
     m_mainlayout->addWidget(m_p_header);
     m_mainlayout->addWidget(scroll);

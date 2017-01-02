@@ -15,17 +15,23 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define USE_HFW_LAYOUT  // good
+
 #include "qumultipleresponse.h"
 #include <QVBoxLayout>
 #include "common/cssconst.h"
 #include "common/random.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
+#include "widgets/basewidget.h"
 #include "widgets/booleanwidget.h"
 #include "widgets/clickablelabelwordwrapwide.h"
-#include "widgets/flowlayout.h"
-#include "widgets/heightforwidthlayoutcontainer.h"
+#include "widgets/flowlayouthfw.h"
 #include "widgets/labelwordwrapwide.h"
+#ifdef USE_HFW_LAYOUT
+#include "widgets/hboxlayouthfw.h"
+#include "widgets/vboxlayouthfw.h"
+#endif
 
 
 QuMultipleResponse::QuMultipleResponse()
@@ -144,15 +150,17 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
 
     bool read_only = questionnaire->readOnly();
 
-    QPointer<QWidget> mainwidget;
+    QPointer<QWidget> mainwidget = new BaseWidget();
     QLayout* mainlayout;
     if (m_horizontal) {
-        mainwidget = new HeightForWidthLayoutContainer();
-        mainlayout = new FlowLayout();
+        mainlayout = new FlowLayoutHfw();
     } else {
-        mainwidget = new QWidget();
         mainwidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+#ifdef USE_HFW_LAYOUT
+        mainlayout = new VBoxLayoutHfw();
+#else
         mainlayout = new QVBoxLayout();
+#endif
     }
     mainlayout->setContentsMargins(UiConst::NO_MARGINS);
     mainwidget->setLayout(mainlayout);
@@ -195,13 +203,15 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
                 connect(namelabel, &ClickableLabelWordWrapWide::clicked,
                         std::bind(&QuMultipleResponse::clicked, this, i));
             }
+#ifdef USE_HFW_LAYOUT
+            HBoxLayoutHfw* itemlayout = new HBoxLayoutHfw();
+#else
             QHBoxLayout* itemlayout = new QHBoxLayout();
+#endif
             itemlayout->setContentsMargins(UiConst::NO_MARGINS);
             itemwidget->setLayout(itemlayout);
-            itemlayout->addWidget(w);
-            itemlayout->addWidget(namelabel);
-            itemlayout->setAlignment(w, Qt::AlignTop);
-            itemlayout->setAlignment(namelabel, Qt::AlignVCenter);  // different
+            itemlayout->addWidget(w, 0, Qt::AlignTop);
+            itemlayout->addWidget(namelabel, 0, Qt::AlignVCenter);  // different
             itemlayout->addStretch();
 
             mainlayout->addWidget(itemwidget);
@@ -232,7 +242,11 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
     QPointer<QWidget> final_widget;
     if (m_show_instruction) {
         // Higher-level widget containing {instructions, actual MCQ}
+#ifdef USE_HFW_LAYOUT
+        VBoxLayoutHfw* layout_w_instr = new VBoxLayoutHfw();
+#else
         QVBoxLayout* layout_w_instr = new QVBoxLayout();
+#endif
         layout_w_instr->setContentsMargins(UiConst::NO_MARGINS);
         QString instruction = m_instruction.isEmpty() ? defaultInstruction()
                                                       : m_instruction;

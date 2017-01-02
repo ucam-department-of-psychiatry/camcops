@@ -26,6 +26,7 @@
 #endif
 #include "questionnairelib/questionnaire.h"
 #include "lib/layoutdumper.h"
+#include "widgets/basewidget.h"
 
 
 /*
@@ -112,6 +113,43 @@ QuContainerGrid::QuContainerGrid(std::initializer_list<QuGridCell> cells) :
 }
 
 
+#define CONSTRUCT_FROM_ELEMENTLIST(elements) \
+    int column = 0; \
+    int row = 0; \
+    for (auto e : elements) { \
+        QuGridCell cell(e, row, column, 1, 1, Qt::AlignLeft | Qt::AlignTop); \
+        column = (column + 1) % n_columns; \
+        if (column == 0) { \
+            ++row; \
+        } \
+        m_cells.append(cell); \
+    }
+
+
+QuContainerGrid::QuContainerGrid(int n_columns,
+                                 const QList<QuElementPtr>& elements)
+{
+    CONSTRUCT_FROM_ELEMENTLIST(elements);
+    commonConstructor();
+}
+
+
+QuContainerGrid::QuContainerGrid(int n_columns,
+                                 std::initializer_list<QuElementPtr> elements)
+{
+    CONSTRUCT_FROM_ELEMENTLIST(elements);
+    commonConstructor();
+}
+
+
+QuContainerGrid::QuContainerGrid(int n_columns,
+                                 std::initializer_list<QuElement*> elements)
+{
+    CONSTRUCT_FROM_ELEMENTLIST(elements);
+    commonConstructor();
+}
+
+
 void QuContainerGrid::commonConstructor()
 {
     m_fixed_grid = true;
@@ -141,7 +179,7 @@ QuContainerGrid* QuContainerGrid::setFixedGrid(bool fixed_grid)
 
 QPointer<QWidget> QuContainerGrid::makeWidget(Questionnaire* questionnaire)
 {
-    QPointer<QWidget> widget = new QWidget();
+    QPointer<QWidget> widget = new BaseWidget();
 #ifdef DEBUG_GRID_CREATION
     qDebug() << Q_FUNC_INFO;
     qDebug() << "... m_fixed_grid =" << m_fixed_grid;

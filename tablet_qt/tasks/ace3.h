@@ -46,8 +46,7 @@ public:
     // Instance overrides
     // ------------------------------------------------------------------------
     virtual bool isComplete() const override;
-    virtual QString summary() const override;
-    virtual QString detail() const override;
+    virtual QStringList summary() const override;
     virtual OpenableWidget* editor(bool read_only = false) override;
     // ------------------------------------------------------------------------
     // Task-specific calculations

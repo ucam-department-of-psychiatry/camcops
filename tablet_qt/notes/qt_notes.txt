@@ -964,6 +964,10 @@ NOT IMPLEMENTED
 ===============================================================================
 TO DO
 ===============================================================================
+
+- *** make questionnaire header resize properly (small horizontally) and
+  generally behave like the menu header (+/- adjust QuPage accordingly)
+
 - *** tasks
 
 - *** chains (see e.g. ResearchMenu.js; MenuTableRow.js; QuestionnaireHeader.js...)

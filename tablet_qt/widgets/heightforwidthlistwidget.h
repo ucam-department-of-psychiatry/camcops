@@ -22,7 +22,7 @@
 class HeightForWidthListWidget : public QListWidget
 {
     // Version of QListWidget that can cope with its items using the
-    // height-for-width system. Compare HeightForWidthLayoutContainer
+    // height-for-width system. Compare BaseWidget.
     Q_OBJECT
 public:
     HeightForWidthListWidget(QWidget* parent = nullptr);

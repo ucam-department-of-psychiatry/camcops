@@ -85,14 +85,14 @@ public:
     // Specific info
     // ------------------------------------------------------------------------
     virtual bool isComplete() const = 0;
-    virtual QString summary() const;
-    virtual QString detail() const;
+    virtual QStringList summary() const;
+    virtual QStringList detail() const;
     virtual OpenableWidget* editor(bool read_only = false);
     // ------------------------------------------------------------------------
     // Assistance functions
     // ------------------------------------------------------------------------
     QDateTime whenCreated() const;
-    QString summaryWithCompleteSuffix() const;
+    QStringList summaryWithCompletenessInfo() const;
     QString xstring(const QString& stringname) const;
     QString totalScorePhrase(int score, int max_score) const;
     QStringList fieldSummaries(const QString& xstringprefix,

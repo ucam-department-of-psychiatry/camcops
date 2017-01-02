@@ -23,7 +23,10 @@
 #include <QStyleOptionButton>
 #include <QVBoxLayout>
 #include "lib/uifunc.h"
-#include "labelwordwrapwide.h"
+#include "widgets/labelwordwrapwide.h"
+#ifdef CLICKABLELABELWWW_USE_HFW_LAYOUT
+#include "widgets/vboxlayouthfw.h"
+#endif
 
 
 ClickableLabelWordWrapWide::ClickableLabelWordWrapWide(const QString& text,
@@ -50,9 +53,10 @@ void ClickableLabelWordWrapWide::commonConstructor(bool stretch)
     m_label->setMouseTracking(false);
     m_label->setTextInteractionFlags(Qt::NoTextInteraction);
     // ... makes sure that all clicks come to us (not e.g. trigger URL)
+
     // m_label->setObjectName(CssConst::DEBUG_YELLOW);
 
-    m_layout = new QVBoxLayout();
+    m_layout = new ClickableLabelWWWLayout();
     // m_layout->setContentsMargins(UiConst::NO_MARGINS);
     // no, use CSS instead // layout->setMargin(0);
 
@@ -139,7 +143,9 @@ void ClickableLabelWordWrapWide::resizeEvent(QResizeEvent* event)
     qDebug() << Q_FUNC_INFO;
 #endif
     QPushButton::resizeEvent(event);
+#ifdef LWWW_USE_RESIZE_FOR_HEIGHT  // from labelwordwrapwide.h
     UiFunc::resizeEventForHFWParentWidget(this);
+#endif
 }
 
 
@@ -150,5 +156,5 @@ void ClickableLabelWordWrapWide::setText(const QString& text)
     qDebug() << Q_FUNC_INFO << text;
 #endif
     m_label->setText(text);
-    adjustSize();
+    adjustSize();  // QWidget::adjustSize(): adjust this widget to fit contents
 }

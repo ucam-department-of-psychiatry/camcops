@@ -56,11 +56,11 @@
 #endif
 #include <QtWidgets>
 
-#include "flowlayout.h"
+#include "flowlayouthfw.h"
 #include "lib/layoutdumper.h"
 
 
-FlowLayout::FlowLayout(QWidget* parent, int margin,
+FlowLayoutHfw::FlowLayoutHfw(QWidget* parent, int margin,
                        int h_spacing, int v_spacing) :
     QLayout(parent),
     m_h_space(h_spacing),
@@ -70,7 +70,7 @@ FlowLayout::FlowLayout(QWidget* parent, int margin,
 }
 
 
-FlowLayout::FlowLayout(int margin, int h_spacing, int v_spacing) :
+FlowLayoutHfw::FlowLayoutHfw(int margin, int h_spacing, int v_spacing) :
     m_h_space(h_spacing),
     m_v_space(v_spacing)
 {
@@ -78,13 +78,13 @@ FlowLayout::FlowLayout(int margin, int h_spacing, int v_spacing) :
 }
 
 
-void FlowLayout::commonConstructor(int margin)
+void FlowLayoutHfw::commonConstructor(int margin)
 {
     setContentsMargins(margin, margin, margin, margin);
 }
 
 
-FlowLayout::~FlowLayout()
+FlowLayoutHfw::~FlowLayoutHfw()
 {
     // RNC: crash here relating to double deletion.
     // - From http://doc.qt.io/qt-4.8/layout.html :
@@ -113,14 +113,14 @@ FlowLayout::~FlowLayout()
 }
 
 
-void FlowLayout::addItem(QLayoutItem* item)
+void FlowLayoutHfw::addItem(QLayoutItem* item)
 {
     m_item_list.append(item);
     invalidate();
 }
 
 
-int FlowLayout::horizontalSpacing() const
+int FlowLayoutHfw::horizontalSpacing() const
 {
     if (m_h_space >= 0) {
         return m_h_space;
@@ -130,7 +130,7 @@ int FlowLayout::horizontalSpacing() const
 }
 
 
-int FlowLayout::verticalSpacing() const
+int FlowLayoutHfw::verticalSpacing() const
 {
     if (m_v_space >= 0) {
         return m_v_space;
@@ -140,19 +140,19 @@ int FlowLayout::verticalSpacing() const
 }
 
 
-int FlowLayout::count() const
+int FlowLayoutHfw::count() const
 {
     return m_item_list.size();
 }
 
 
-QLayoutItem* FlowLayout::itemAt(int index) const
+QLayoutItem* FlowLayoutHfw::itemAt(int index) const
 {
     return m_item_list.value(index);
 }
 
 
-QLayoutItem* FlowLayout::takeAt(int index)
+QLayoutItem* FlowLayoutHfw::takeAt(int index)
 {
     if (index >= 0 && index < m_item_list.size()) {
         return m_item_list.takeAt(index);
@@ -163,20 +163,20 @@ QLayoutItem* FlowLayout::takeAt(int index)
 }
 
 
-Qt::Orientations FlowLayout::expandingDirections() const
+Qt::Orientations FlowLayoutHfw::expandingDirections() const
 {
     // http://doc.qt.io/qt-5/qlayout.html#expandingDirections
     return 0;
 }
 
 
-bool FlowLayout::hasHeightForWidth() const
+bool FlowLayoutHfw::hasHeightForWidth() const
 {
     return true;
 }
 
 
-int FlowLayout::heightForWidth(int width) const
+int FlowLayoutHfw::heightForWidth(int width) const
 {
     if (!m_width_to_height.contains(width)) {
 #ifdef DEBUG_LAYOUT
@@ -197,7 +197,7 @@ int FlowLayout::heightForWidth(int width) const
 }
 
 
-void FlowLayout::setGeometry(const QRect& rect)
+void FlowLayoutHfw::setGeometry(const QRect& rect)
 {
     // This is the master entry point for actually laying out the layout's
     // member widgets.
@@ -206,7 +206,7 @@ void FlowLayout::setGeometry(const QRect& rect)
 }
 
 
-QSize FlowLayout::sizeHint() const
+QSize FlowLayoutHfw::sizeHint() const
 {
     // Hint is based on an area as wide as we could possibly want.
     if (!m_size_hint.isValid()) {
@@ -226,7 +226,7 @@ QSize FlowLayout::sizeHint() const
 }
 
 
-void FlowLayout::invalidate()
+void FlowLayoutHfw::invalidate()
 {
     m_size_hint = QSize();
     m_width_to_height.clear();
@@ -234,7 +234,7 @@ void FlowLayout::invalidate()
 }
 
 
-QSize FlowLayout::minimumSize() const
+QSize FlowLayoutHfw::minimumSize() const
 {
     // Not sure this is right.
     // Though also: not sure it's vital, with heightForWidth().
@@ -263,7 +263,7 @@ QSize FlowLayout::minimumSize() const
 }
 
 
-QSize FlowLayout::doLayout(const QRect& rect, bool test_only) const
+QSize FlowLayoutHfw::doLayout(const QRect& rect, bool test_only) const
 {
     // RNC: substantial modifications including vertical alignment
 
@@ -398,7 +398,7 @@ QSize FlowLayout::doLayout(const QRect& rect, bool test_only) const
 }
 
 
-int FlowLayout::smartSpacing(QStyle::PixelMetric pm) const
+int FlowLayoutHfw::smartSpacing(QStyle::PixelMetric pm) const
 {
     QObject* parent = this->parent();
     if (!parent) {
@@ -412,7 +412,7 @@ int FlowLayout::smartSpacing(QStyle::PixelMetric pm) const
 }
 
 
-int FlowLayout::itemTop(int row_top, int item_height, int row_height,
+int FlowLayoutHfw::itemTop(int row_top, int item_height, int row_height,
                         Qt::Alignment alignment) const
 {
     if (alignment & Qt::AlignVCenter) {

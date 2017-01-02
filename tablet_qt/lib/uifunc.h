@@ -119,11 +119,12 @@ namespace UiFunc {
 
     // void clearLayout(QLayout* layout);
 
-    // Size policies that take a few statements to create:
+    // Size policies that take a few statements to create (i.e. have height-for-width set)
     QSizePolicy expandingFixedHFWPolicy();
     QSizePolicy expandingPreferredHFWPolicy();
     QSizePolicy maximumFixedHFWPolicy();
     QSizePolicy expandingMaximumHFWPolicy();
+    QSizePolicy preferredPreferredHFWPolicy();
 
     void resizeEventForHFWParentWidget(QWidget* widget);
 
@@ -143,6 +144,9 @@ namespace UiFunc {
     // ========================================================================
 
     void alert(const QString& text,
+               const QString& title = QObject::tr("Alert"),
+               bool scroll = false);
+    void alert(const QStringList& lines,
                const QString& title = QObject::tr("Alert"),
                bool scroll = false);
 

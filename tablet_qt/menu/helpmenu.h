@@ -29,6 +29,6 @@ protected:
     void visitCamcopsWebsite() const;
     void softwareVersions() const;
     void aboutQt();
-    void showDeviceId() const;
+    void showDeviceIdAndDbDetails() const;
     void viewTermsConditions() const;
 };

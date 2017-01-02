@@ -94,7 +94,7 @@ public:
     QString fieldSummary(const QString& fieldname,
                          const QString& altname = "") const;
     QStringList recordSummaryLines() const;
-    QString recordSummary() const;
+    QString recordSummaryString() const;
 
     // ========================================================================
     // Loading, saving

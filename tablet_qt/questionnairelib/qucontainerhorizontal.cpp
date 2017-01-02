@@ -15,12 +15,17 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define USE_HFW_LAYOUT  // good
+
 #include "qucontainerhorizontal.h"
 #include <QHBoxLayout>
 #include <QWidget>
 #include "questionnairelib/questionnaire.h"
-#include "widgets/flowlayout.h"
-#include "widgets/heightforwidthlayoutcontainer.h"
+#include "widgets/basewidget.h"
+#include "widgets/flowlayouthfw.h"
+#ifdef USE_HFW_LAYOUT
+#include "widgets/hboxlayouthfw.h"
+#endif
 
 
 QuContainerHorizontal::QuContainerHorizontal()
@@ -112,17 +117,25 @@ QuContainerHorizontal* QuContainerHorizontal::setAddStretchRight(
 QPointer<QWidget> QuContainerHorizontal::makeWidget(
         Questionnaire* questionnaire)
 {
-    QPointer<QWidget> widget;
-    FlowLayout* flowlayout = nullptr;
+    QPointer<QWidget> widget(new BaseWidget());
+
+#ifdef USE_HFW_LAYOUT
+    HBoxLayoutHfw* hboxlayout = nullptr;
+#else
     QHBoxLayout* hboxlayout = nullptr;
+#endif
+
+    FlowLayoutHfw* flowlayout = nullptr;
     QLayout* layout = nullptr;
     if (m_flow) {
-        widget = QPointer<QWidget>(new HeightForWidthLayoutContainer());
-        flowlayout = new FlowLayout();
+        flowlayout = new FlowLayoutHfw();
         layout = static_cast<QLayout*>(flowlayout);
     } else {
-        widget = QPointer<QWidget>(new QWidget());
+#ifdef USE_HFW_LAYOUT
+        hboxlayout = new HBoxLayoutHfw();
+#else
         hboxlayout = new QHBoxLayout();
+#endif
         layout = static_cast<QLayout*>(hboxlayout);
     }
     // widget->setObjectName(CssConst::DEBUG_YELLOW);
@@ -131,8 +144,8 @@ QPointer<QWidget> QuContainerHorizontal::makeWidget(
     for (auto e : m_elements) {
         QPointer<QWidget> w = e->widget(questionnaire);
         if (m_flow) {
-            flowlayout->addWidget(w);
-            flowlayout->setAlignment(w, m_widget_alignment);
+            flowlayout->addWidget(w);  // uses QLayout::addWidget; no alignment option
+            flowlayout->setAlignment(w, m_widget_alignment);  // this is QLayout::setAlignment
         } else {
             hboxlayout->addWidget(w, 0, m_widget_alignment);
         }

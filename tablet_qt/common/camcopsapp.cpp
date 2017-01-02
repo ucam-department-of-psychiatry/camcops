@@ -907,6 +907,7 @@ void CamcopsApp::deleteAllExtraStrings()
 {
     ExtraString extrastring_specimen(*this, m_sysdb);
     extrastring_specimen.deleteAllExtraStrings();
+    clearExtraStringCache();
 }
 
 
@@ -1022,7 +1023,7 @@ void CamcopsApp::saveCachedVars()
         i.next();
         QString varname = i.key();
         QVariant value = i.value();
-        setVar(varname, value);  // ignores return value (changed)
+        (void) setVar(varname, value);  // ignores return value (changed)
     }
     clearCachedVars();
 }

@@ -15,7 +15,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "heightforwidthlayoutcontainer.h"
+#include "basewidget.h"
 // #include <QDebug>
 #include <QLayout>
 #include <QPainter>
@@ -23,28 +23,32 @@
 #include "lib/uifunc.h"
 
 
-HeightForWidthLayoutContainer::HeightForWidthLayoutContainer(QWidget* parent) :
+BaseWidget::BaseWidget(QWidget* parent) :
     QWidget(parent)
 {
     // As for LabelWordWrapWide:
+#ifdef BASEWIDGET_USE_RESIZE_FOR_HEIGHT
     setSizePolicy(UiFunc::expandingFixedHFWPolicy());
+#endif
 }
 
 
-HeightForWidthLayoutContainer::~HeightForWidthLayoutContainer()
+BaseWidget::~BaseWidget()
 {
     // qDebug() << Q_FUNC_INFO;
 }
 
 
-void HeightForWidthLayoutContainer::resizeEvent(QResizeEvent* event)
+#ifdef BASEWIDGET_USE_RESIZE_FOR_HEIGHT
+void BaseWidget::resizeEvent(QResizeEvent* event)
 {
     QWidget::resizeEvent(event);
     UiFunc::resizeEventForHFWParentWidget(this);
 }
+#endif
 
 
-void HeightForWidthLayoutContainer::paintEvent(QPaintEvent*)
+void BaseWidget::paintEvent(QPaintEvent*)
 {
     // REQUIRED for class to support stylesheets
     // http://www.qtcentre.org/threads/37976-Q_OBJECT-and-CSS-background-image

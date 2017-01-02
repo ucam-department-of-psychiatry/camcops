@@ -28,8 +28,14 @@ class QuContainerGrid : public QuElement
     Q_OBJECT
 public:
     QuContainerGrid();
+    // Initialize with the high-precision QuGridCell:
     QuContainerGrid(const QList<QuGridCell>& cells);
     QuContainerGrid(std::initializer_list<QuGridCell> cells);
+    // Initialize with a simple "n columns" format:
+    QuContainerGrid(int n_columns, const QList<QuElementPtr>& elements);
+    QuContainerGrid(int n_columns, std::initializer_list<QuElementPtr> elements);
+    QuContainerGrid(int n_columns, std::initializer_list<QuElement*> elements);  // takes ownership
+    // Modify:
     QuContainerGrid* addCell(const QuGridCell& cell);
     QuContainerGrid* setColumnStretch(int column, int stretch);
     QuContainerGrid* setFixedGrid(bool fixed_grid);

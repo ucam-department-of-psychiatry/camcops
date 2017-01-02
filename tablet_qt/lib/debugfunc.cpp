@@ -16,6 +16,7 @@
 */
 
 // #define DEBUG_EVEN_GIANT_VARIANTS
+
 #include "debugfunc.h"
 #include <QDebug>
 #include <QDialog>
@@ -26,6 +27,7 @@
 #include "lib/layoutdumper.h"
 #include "qobjects/keypresswatcher.h"
 #include "qobjects/showwatcher.h"
+#include "widgets/vboxlayouthfw.h"
 
 
 void DebugFunc::debugConcisely(QDebug debug, const QVariant& value)
@@ -81,11 +83,15 @@ void DebugFunc::debugWidget(QWidget* widget, bool set_background_by_name,
                             bool set_background_by_stylesheet,
                             bool show_widget_properties,
                             bool show_widget_attributes,
-                            const int spaces_per_level)
+                            const int spaces_per_level,
+                            bool use_hfw_layout)
 {
     QDialog dlg;
     dlg.setWindowTitle("Press D/dump layout, A/adjustSize");
-    QVBoxLayout* layout = new QVBoxLayout();
+    VBoxLayoutHfw* hfwlayout = use_hfw_layout ? new VBoxLayoutHfw() : nullptr;
+    QVBoxLayout* vboxlayout = use_hfw_layout ? nullptr : new QVBoxLayout();
+    QLayout* layout = use_hfw_layout ? static_cast<QLayout*>(hfwlayout)
+                                     : static_cast<QLayout*>(vboxlayout);
     layout->setContentsMargins(UiConst::NO_MARGINS);
     if (widget) {
         if (set_background_by_name) {
@@ -96,7 +102,11 @@ void DebugFunc::debugWidget(QWidget* widget, bool set_background_by_name,
         }
         // Qt::Alignment align = Qt::AlignTop;
         Qt::Alignment align = 0;
-        layout->addWidget(widget, 0, align);
+        if (use_hfw_layout) {
+            hfwlayout->addWidget(widget, 0, align);
+        } else {
+            vboxlayout->addWidget(widget, 0, align);
+        }
         ShowWatcher* showwatcher = new ShowWatcher(&dlg, true);
         Q_UNUSED(showwatcher);
         KeyPressWatcher* keywatcher = new KeyPressWatcher(&dlg);

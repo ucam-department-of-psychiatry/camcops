@@ -15,6 +15,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define USE_HFW_LAYOUT  // good
+
 #include "diagnosticcodeselector.h"
 #include <functional>
 #include <QApplication>
@@ -28,7 +30,6 @@
 #include <QStackedWidget>
 #include <QStandardItemModel>
 #include <QTreeView>
-#include <QVBoxLayout>
 #include "common/cssconst.h"
 #include "common/uiconstants.h"
 #include "diagnosis/diagnosticcodeset.h"
@@ -37,6 +38,12 @@
 #include "widgets/horizontalline.h"
 #include "widgets/imagebutton.h"
 #include "widgets/labelwordwrapwide.h"
+
+#ifdef USE_HFW_LAYOUT
+#include "widgets/vboxlayouthfw.h"
+#else
+#include <QVBoxLayout>
+#endif
 
 /*
 
@@ -137,7 +144,11 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     // ------------------------------------------------------------------------
     // Header assembly
     // ------------------------------------------------------------------------
+#ifdef USE_HFW_LAYOUT
+    VBoxLayoutHfw* header_mainlayout = new VBoxLayoutHfw();
+#else
     QVBoxLayout* header_mainlayout = new QVBoxLayout();
+#endif
     header_mainlayout->addLayout(header_toprowlayout);
     header_mainlayout->addWidget(horizline);
 
@@ -258,7 +269,7 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
 void DiagnosticCodeSelector::selectionChanged(const QItemSelection& selected,
                                               const QItemSelection& deselected)
 {
-    Q_UNUSED(deselected)
+    Q_UNUSED(deselected);
     QModelIndexList indexes = selected.indexes();
     if (indexes.isEmpty()) {
         return;
@@ -295,7 +306,7 @@ void DiagnosticCodeSelector::proxySelectionChanged(
         const QItemSelection& proxy_selected,
         const QItemSelection& proxy_deselected)
 {
-    Q_UNUSED(proxy_deselected)
+    Q_UNUSED(proxy_deselected);
     QModelIndexList proxy_indexes = proxy_selected.indexes();
     if (proxy_indexes.isEmpty()) {
         return;

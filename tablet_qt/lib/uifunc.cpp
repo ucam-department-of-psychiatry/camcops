@@ -43,6 +43,7 @@
 #include "common/cssconst.h"
 #include "common/uiconstants.h"
 #include "lib/layoutdumper.h"
+#include "lib/stringfunc.h"
 #include "dialogs/passwordchangedialog.h"
 #include "dialogs/passwordentrydialog.h"
 #include "dialogs/scrollmessagebox.h"
@@ -550,6 +551,14 @@ QSizePolicy UiFunc::expandingMaximumHFWPolicy()
 }
 
 
+QSizePolicy UiFunc::preferredPreferredHFWPolicy()
+{
+    QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    sp.setHeightForWidth(true);
+    return sp;
+}
+
+
 void UiFunc::resizeEventForHFWParentWidget(QWidget* widget)
 {
     // Call from your resizeEvent() processor passing "this" as the parameter
@@ -623,6 +632,12 @@ void UiFunc::alert(const QString& text, const QString& title, bool scroll)
         msgbox.setStandardButtons(QMessageBox::Ok);
         msgbox.exec();
     }
+}
+
+
+void UiFunc::alert(const QStringList& lines, const QString& title, bool scroll)
+{
+    alert(StringFunc::joinHtmlLines(lines), title, scroll);
 }
 
 

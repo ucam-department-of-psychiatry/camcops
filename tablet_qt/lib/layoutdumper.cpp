@@ -156,24 +156,28 @@ QString LayoutDumper::getWidgetInfo(const QWidget* w,
     QStringList elements;
     elements.append(getWidgetDescriptor(w));
     elements.append(w->isVisible() ? "visible" : "HIDDEN");
-    elements.append(QString("pos (%1, %2)")
+    elements.append(QString("pos[DOWN] (%1, %2)")
                     .arg(geom.x())
                     .arg(geom.y()));
-    elements.append(QString("size (%1 x %2)")
+    elements.append(QString("size[DOWN] (%1 x %2)")
                     .arg(geom.width())
                     .arg(geom.height()));
+    elements.append(QString("heightForWidth(%1)[UP] %2")
+                    .arg(geom.width())
+                    .arg(w->heightForWidth(geom.width())));
     elements.append(QString("minimumSize (%1 x %2)")
                     .arg(w->minimumSize().width())
                     .arg(w->minimumSize().height()));
     elements.append(QString("maximumSize (%1 x %2)")
                     .arg(w->maximumSize().width())
                     .arg(w->maximumSize().height()));
-    elements.append(
-        QString("sizeHint (%1 x %2), minimumSizeHint (%3 x %4), sizePolicy %5")
+    elements.append(QString("sizeHint[UP] (%1 x %2)")
                     .arg(sizehint.width())
-                    .arg(sizehint.height())
+                    .arg(sizehint.height()));
+    elements.append(QString("minimumSizeHint[UP] (%1 x %2)")
                     .arg(minsizehint.width())
-                    .arg(minsizehint.height())
+                    .arg(minsizehint.height()));
+    elements.append(QString("sizePolicy[UP] %1")
                     .arg(toString(w->sizePolicy())));
     elements.append(QString("stylesheet: %1")
                     .arg(w->styleSheet().isEmpty() ? "false" : "true"));
@@ -242,29 +246,41 @@ QString LayoutDumper::getLayoutInfo(const QLayout* layout)
     QMargins margins = layout->contentsMargins();
     QSize sizehint = layout->sizeHint();
     QSize minsize = layout->minimumSize();
+    QSize maxsize = layout->maximumSize();
     QString name = layout->metaObject()->className();
+    QWidget* parent = layout->parentWidget();
     // usually unhelpful (blank): layout->objectName()
-    QString margin = QString("margin (l=%1,t=%2,r=%3,b=%4)")
-            .arg(margins.left())
-            .arg(margins.top())
-            .arg(margins.right())
-            .arg(margins.bottom());
-    QString constraint = QString("constraint %1")
-            .arg(toString(layout->sizeConstraint()));
-    QString sh = QString("sizeHint (%1 x %2)")
-            .arg(sizehint.width())
-            .arg(sizehint.height());
-    QString ms = QString("minimumSize (%7 x %8)")
-            .arg(minsize.width())
-            .arg(minsize.height());
+    QStringList elements;
+    elements.append(name);
+    elements.append(QString("margin (l=%1,t=%2,r=%3,b=%4)")
+                    .arg(margins.left())
+                    .arg(margins.top())
+                    .arg(margins.right())
+                    .arg(margins.bottom()));
+    elements.append(QString("constraint %1")
+                    .arg(toString(layout->sizeConstraint())));
+    elements.append(QString("minimumSize[UP] (%1 x %2)")
+                    .arg(minsize.width())
+                    .arg(minsize.height()));
+    elements.append(QString("sizeHint[UP] (%1 x %2)")
+                    .arg(sizehint.width())
+                    .arg(sizehint.height()));
+    elements.append(QString("maximumSize[UP] (%1 x %2)")
+                    .arg(maxsize.width())
+                    .arg(maxsize.height()));
+    if (parent) {
+        int parent_width = parent->size().width();
+        elements.append(QString("heightForWidth(%1)[UP] %2")
+                        .arg(parent_width)
+                        .arg(layout->heightForWidth(parent_width)));
+        elements.append(QString("minimumHeightForWidth(%1)[UP] %2")
+                        .arg(parent_width)
+                        .arg(layout->minimumHeightForWidth(parent_width)));
+    }
+    elements.append(QString("spacing[UP] %1")
+                    .arg(layout->spacing()));
     QString hfw = layout->hasHeightForWidth() ? " [hasHeightForWidth]" : "";
-    return QString("%1, %2, %3, %4, %5%6")
-            .arg(name)
-            .arg(margin)
-            .arg(constraint)
-            .arg(sh)
-            .arg(ms)
-            .arg(hfw);
+    return elements.join(", ") + hfw;
 }
 
 

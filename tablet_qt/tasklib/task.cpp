@@ -275,21 +275,24 @@ bool Task::save()
 // Specific info
 // ============================================================================
 
-QString Task::summary() const
+QStringList Task::summary() const
 {
-    return tr("MISSING SUMMARY");
+    return QStringList{tr("MISSING SUMMARY")};
 }
 
 
-QString Task::detail() const
+QStringList Task::detail() const
 {
-    return recordSummary();
+    QStringList result = summaryWithCompletenessInfo();
+    result.append("");  // blank line
+    result += recordSummaryLines();
+    return result;
 }
 
 
 OpenableWidget* Task::editor(bool read_only)
 {
-    Q_UNUSED(read_only)
+    Q_UNUSED(read_only);
     qWarning() << "Base class Task::edit called - not a good thing!";
     return nullptr;
 }
@@ -306,13 +309,15 @@ QDateTime Task::whenCreated() const
 }
 
 
-QString Task::summaryWithCompleteSuffix() const
+QStringList Task::summaryWithCompletenessInfo() const
 {
-    QString result = summary();
-    if (!isComplete()) {
-        result += tr(" (INCOMPLETE)");
+    if (isComplete()) {
+        return summary();
+    } else {
+        QStringList result{tr("<b>(INCOMPLETE)</b>")};
+        result += summary();
+        return result;
     }
-    return result;
 }
 
 

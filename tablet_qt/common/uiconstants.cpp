@@ -231,6 +231,12 @@ namespace UiConst {
         "Nunc vitae neque eu odio feugiat consequat ac id neque. "
         "Suspendisse id libero massa."
     );
+    const QString LOREM_IPSUM_3(
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent "
+        "sed cursus mauris. Ut vulputate felis quis dolor molestie convallis. "
+        "Donec lectus diam, accumsan quis tortor at, congue laoreet augue. Ut "
+        "mollis consectetur elit sit amet tincidunt."
+    );
 
     // ========================================================================
     // Network

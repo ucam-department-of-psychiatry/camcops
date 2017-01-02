@@ -98,13 +98,13 @@ bool Phq9::isComplete() const
 }
 
 
-QString Phq9::summary() const
+QStringList Phq9::summary() const
 {
-    return totalScorePhrase(totalScore(), MAX_SCORE);
+    return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
 }
 
 
-QString Phq9::detail() const
+QStringList Phq9::detail() const
 {
     using StringFunc::bold;
     using UiFunc::yesNo;
@@ -122,12 +122,12 @@ QString Phq9::detail() const
     QStringList lines = fieldSummaries("phq9_q", "_s", spacer,
                                        QPREFIX, FIRST_Q, N_QUESTIONS);
     lines.append("");
-    lines.append(summary());
+    lines += summary();
     lines.append("");
     lines.append(xstring("phq9_mds") + spacer + bold(yesNo(mds)));
     lines.append(xstring("phq9_ods") + spacer + bold(yesNo(ods)));
     lines.append(xstring("phq9_depression_severity") + spacer + bold(sev));
-    return StringFunc::joinHtmlLines(lines);
+    return lines;
 }
 
 

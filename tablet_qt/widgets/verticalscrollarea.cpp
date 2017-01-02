@@ -16,10 +16,12 @@
 */
 
 #define UPDATE_GEOMETRY_FROM_EVENT_FILTER_POSSIBLY_DANGEROUS
+
 #include "verticalscrollarea.h"
 #include <QDebug>
 #include <QEvent>
 #include <QScrollBar>
+#include "lib/uifunc.h"
 
 
 VerticalScrollArea::VerticalScrollArea(QWidget* parent) :
@@ -27,10 +29,14 @@ VerticalScrollArea::VerticalScrollArea(QWidget* parent) :
     m_updating_geometry(false)
 {
     setWidgetResizable(true);
+
+    // Vertical scroll bar if required:
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+
     // RNC addition:
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+    // setSizePolicy(UiFunc::expandingMaximumHFWPolicy());  // doesn't work
 
     setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
 }

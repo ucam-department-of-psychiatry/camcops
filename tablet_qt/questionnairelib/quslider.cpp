@@ -223,9 +223,8 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
         QVBoxLayout* layout = new QVBoxLayout();
         layout->setContentsMargins(UiConst::NO_MARGINS);
         if (m_value_label) {
-            layout->addWidget(m_value_label);
-            layout->setAlignment(m_value_label,
-                                 Qt::AlignHCenter | Qt::AlignVCenter);
+            layout->addWidget(m_value_label, 0,
+                              Qt::AlignHCenter | Qt::AlignVCenter);
         }
         m_slider->setSizePolicy(QSizePolicy::Preferred,
                                 QSizePolicy::Fixed);
@@ -245,9 +244,8 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
         QVBoxLayout* innerlayout = new QVBoxLayout();
         innerlayout->setContentsMargins(UiConst::NO_MARGINS);
         if (m_value_label) {
-            innerlayout->addWidget(m_value_label);
-            innerlayout->setAlignment(m_value_label,
-                                      Qt::AlignHCenter | Qt::AlignVCenter);
+            innerlayout->addWidget(m_value_label, 0,
+                                   Qt::AlignHCenter | Qt::AlignVCenter);
         }
         m_slider->setSizePolicy(QSizePolicy::Fixed,
                                 QSizePolicy::Preferred);

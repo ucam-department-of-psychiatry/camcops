@@ -16,16 +16,17 @@
 */
 
 #include "quimage.h"
-#include <QLabel>
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
+#include "widgets/aspectratiopixmaplabel.h"
 
 
 QuImage::QuImage(const QString& filename, const QSize& size) :
     m_filename(filename),
     m_fieldref(nullptr),
     m_label(nullptr),
-    m_size(size)
+    m_size(size),
+    m_allow_shrink(true)
 {
 }
 
@@ -34,7 +35,8 @@ QuImage::QuImage(FieldRefPtr fieldref, const QSize& size) :
     m_filename(""),
     m_fieldref(fieldref),
     m_label(nullptr),
-    m_size(size)
+    m_size(size),
+    m_allow_shrink(true)
 {
     Q_ASSERT(m_fieldref);
     connect(m_fieldref.data(), &FieldRef::valueChanged,
@@ -49,10 +51,18 @@ QuImage* QuImage::setSize(const QSize& size)
 }
 
 
+QuImage* QuImage::setAllowShrink(bool allow_shrink)
+{
+    m_allow_shrink = allow_shrink;
+    return this;
+}
+
+
 QPointer<QWidget> QuImage::makeWidget(Questionnaire* questionnaire)
 {
-    Q_UNUSED(questionnaire)
-    m_label = new QLabel();
+    Q_UNUSED(questionnaire);
+
+    // Fetch image
     QPixmap image;
     if (m_fieldref && m_fieldref->valid()) {
         QByteArray data = m_fieldref->valueByteArray();
@@ -63,7 +73,12 @@ QPointer<QWidget> QuImage::makeWidget(Questionnaire* questionnaire)
     if (m_size.isValid()) {
         image = image.scaled(m_size);
     }
-    m_label->setFixedSize(image.size());
+
+    // Create widget
+    m_label = new AspectRatioPixmapLabel();
+    if (!m_allow_shrink) {
+        m_label->setFixedSize(image.size());
+    }
     m_label->setPixmap(image);
     return QPointer<QWidget>(m_label);
 }

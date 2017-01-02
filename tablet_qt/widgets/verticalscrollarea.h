@@ -25,6 +25,7 @@
 class VerticalScrollArea : public QScrollArea
 {
     // Contains objects in a vertical scroll area.
+    // Inheritance: QScrollArea : QAbstractScrollArea : QFrame : QWidget
 
     Q_OBJECT
 public:

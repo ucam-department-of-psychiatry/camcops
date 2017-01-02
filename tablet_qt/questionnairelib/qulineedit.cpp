@@ -101,7 +101,7 @@ QPointer<QWidget> QuLineEdit::makeWidget(Questionnaire* questionnaire)
 
 void QuLineEdit::extraLineEditCreation(QLineEdit* editor)
 {
-    Q_UNUSED(editor)
+    Q_UNUSED(editor);
 }
 
 

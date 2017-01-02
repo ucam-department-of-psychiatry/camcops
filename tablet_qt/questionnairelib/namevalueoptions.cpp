@@ -120,3 +120,21 @@ QVariant NameValueOptions::value(int index) const
     }
     return m_options.at(index).value();
 }
+
+
+NameValueOptions NameValueOptions::makeNumbers(int first, int last, int step)
+{
+    NameValueOptions nvo;
+    if (first < last && step > 0) {
+        for (int i = first; i <= last; i += step) {
+            nvo.addItem(NameValuePair{QString::number(i), i});
+        }
+    } else if (last < first && step < 0) {
+        for (int i = first; i >= last; i += step) {
+            nvo.addItem(NameValuePair{QString::number(i), i});
+        }
+    } else {
+        UiFunc::stopApp("Bad arguments to NameValueOptions");
+    }
+    return nvo;
+}

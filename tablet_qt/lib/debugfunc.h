@@ -36,5 +36,6 @@ namespace DebugFunc
                      bool set_background_by_stylesheet = true,
                      bool show_widget_properties = true,
                      bool show_widget_attributes = false,
-                     const int spaces_per_level = 4);
+                     const int spaces_per_level = 4,
+                     bool use_hfw_layout = true);
 }

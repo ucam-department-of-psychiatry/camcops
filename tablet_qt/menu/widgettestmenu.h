@@ -52,26 +52,32 @@ protected:
                            bool long_text);
     // Camera: use QuPhoto instead
     void testCanvasWidget();
-    void testClickableLabel(bool long_text);
+    void testClickableLabelNoWrap(bool long_text);
     void testClickableLabelWordWrapWide(bool long_text);
     // DiagnosticCodeSelector: use QuDiagnosticCode instead
-    void testFlowLayout(int n_icons);
-    void testHeightForWidthLayoutContainer(bool long_text);
     // GrowingTextEdit: see QuTextEdit
     void testHorizontalLine();
     void testImageButton();
-    void testLabelWordWrapWide(bool long_text);
+    void testLabelWordWrapWide(bool long_text, bool use_hfw_layout);
     // OpenableWidget: part of main app framework instead
     // Spacer: see QuSpacer instead
     // TickSlider: see QuSlider instead
     void testVerticalLine();
-    // VerticalScrollArea: not a widget, a scroll area
+    void testVerticalScrollArea();
+
+    // ========================================================================
+    // Layouts and the like
+    // ========================================================================
+    void testFlowLayout(int n_icons);
+    void testBaseWidget(bool long_text);
 
     // ========================================================================
     // Large-scale widgets
     // ========================================================================
-    void testQuestionnaireHeader();
     void testMenuItem();
+    void testQuestionnaireHeader();
+    void testQuestionnaire();
+    // void testAce3();
 
     // ========================================================================
     // Questionnaire element widgets
@@ -83,7 +89,7 @@ protected:
     void testQuCountdown();
     void testQuDateTime();
     void testQuDiagnosticCode();
-    void testQuHeading();
+    void testQuHeading(bool long_text);
     void testQuHorizontalLine();
     void testQuImage();
     void testQuLineEdit();
@@ -103,7 +109,7 @@ protected:
     void testQuSpacer();
     void testQuSpinBoxDouble();
     void testQuSpinBoxInteger();
-    void testQuText();
+    void testQuText(bool long_text);
     void testQuTextEdit();
     void testQuThermometer();
 

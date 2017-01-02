@@ -201,7 +201,7 @@ neither is perfect.
 
 void TickSlider::paintEvent(QPaintEvent *ev)
 {
-    Q_UNUSED(ev)
+    Q_UNUSED(ev);
     QStylePainter p(this);
     QStyleOptionSlider opt;
     initStyleOption(&opt);

@@ -56,16 +56,19 @@
 #include <QRect>
 #include <QStyle>
 
-class FlowLayout : public QLayout
+class FlowLayoutHfw : public QLayout
 {
-    // Flow layout, as per Qt demo.
+    // Flow layout, as per FlowLayout Qt demo, but modified to support
+    // height-for-width better (better as in: word-wrapping labels etc. get the
+    // maximum width allowed, aiming for the minimum height).
+
     Q_OBJECT  // RNC
 public:
-    explicit FlowLayout(QWidget* parent, int margin = -1,
-                        int h_spacing = -1, int v_spacing = -1);
-    explicit FlowLayout(int margin = -1,
-                        int h_spacing = -1, int v_spacing = -1);
-    ~FlowLayout();
+    explicit FlowLayoutHfw(QWidget* parent, int margin = -1,
+                           int h_spacing = -1, int v_spacing = -1);
+    explicit FlowLayoutHfw(int margin = -1,
+                           int h_spacing = -1, int v_spacing = -1);
+    ~FlowLayoutHfw();
 
     virtual void addItem(QLayoutItem* item) override;
     virtual int horizontalSpacing() const;
@@ -92,7 +95,7 @@ protected:  // RNC (was private)
     int m_h_space;
     int m_v_space;
     mutable QSize m_size_hint;
-    mutable QMap<int, int> m_width_to_height;
+    mutable QMap<int, int> m_width_to_height;  // RNC
 
     struct ItemCalc {
         QLayoutItem* item;

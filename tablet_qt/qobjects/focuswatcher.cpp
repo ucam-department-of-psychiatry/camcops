@@ -16,6 +16,7 @@
 */
 
 // #define DEBUG_FOCUS
+
 #include "focuswatcher.h"
 #ifdef DEBUG_FOCUS
 #include <QDebug>
@@ -34,7 +35,7 @@ FocusWatcher::FocusWatcher(QObject* parent) :
 
 bool FocusWatcher::eventFilter(QObject* obj, QEvent* event)
 {
-    Q_UNUSED(obj)
+    Q_UNUSED(obj);
     if (event->type() == QEvent::FocusIn) {
 
 #ifdef DEBUG_FOCUS

@@ -49,7 +49,7 @@ namespace DbFunc {
 // Database operations
 // ============================================================================
 
-void DbFunc::openDatabaseOrDie(QSqlDatabase& db, const QString& filename)
+QString DbFunc::dbFullPath(const QString &filename)
 {
     // Opens a database.
     QString dir = QStandardPaths::standardLocations(
@@ -64,7 +64,13 @@ void DbFunc::openDatabaseOrDie(QSqlDatabase& db, const QString& filename)
         }
     }
     // http://stackoverflow.com/questions/3541529/is-there-qpathcombine-in-qt4
-    QString fullpath = QDir::cleanPath(dir + "/" + filename);
+    return QDir::cleanPath(dir + "/" + filename);
+}
+
+
+void DbFunc::openDatabaseOrDie(QSqlDatabase& db, const QString& filename)
+{
+    QString fullpath = dbFullPath(filename);
     db.setDatabaseName(fullpath);
     if (db.open()) {
         qInfo() << "Opened databasec:" << fullpath;

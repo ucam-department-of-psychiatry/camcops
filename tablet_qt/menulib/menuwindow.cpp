@@ -23,7 +23,6 @@
 #include <QListWidget>
 #include <QListWidgetItem>
 #include <QMessageBox>
-#include <QVBoxLayout>
 #include "common/cssconst.h"
 #include "common/uiconstants.h"
 #include "dbobjects/patient.h"
@@ -34,6 +33,12 @@
 #include "menulib/menuheader.h"
 #include "questionnairelib/questionnaire.h"
 #include "tasklib/task.h"
+
+#ifdef MENUWINDOW_USE_HFW_LAYOUT
+#include "widgets/vboxlayouthfw.h"
+#else
+#include <QVBoxLayout>
+#endif
 
 const int BAD_INDEX = -1;
 
@@ -46,7 +51,11 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
     m_subtitle(""),
     m_icon(icon),
     m_top(top),
+#ifdef MENUWINDOW_USE_HFW_LAYOUT
+    m_mainlayout(new VBoxLayoutHfw()),
+#else
     m_mainlayout(new QVBoxLayout()),
+#endif
     m_p_header(nullptr),
     m_p_listwidget(nullptr)
 {
@@ -66,7 +75,7 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
     it seems we have to do this:
 
         QStackedLayout (main app)
-            QWidget (MainWindow or Questionnaire)
+            QWidget (MenuWindow or Questionnaire)
                 dummy_layout
                     dummy_widget  <-- set background colour of this one
                         m_mainlayout
@@ -76,7 +85,11 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
     loadStyleSheet();
     setObjectName(CssConst::MENU_WINDOW_OUTER_OBJECT);
 
+#ifdef MENUWINDOW_USE_HFW_LAYOUT
+    VBoxLayoutHfw* dummy_layout = new VBoxLayoutHfw();
+#else
     QVBoxLayout* dummy_layout = new QVBoxLayout();
+#endif
     dummy_layout->setContentsMargins(UiConst::NO_MARGINS);
     setLayout(dummy_layout);
     QWidget* dummy_widget = new QWidget();
@@ -93,32 +106,6 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
     // keep the menu header visible, and have scroll bars showing the position
     // within the list view (both for menus and questionnaires, I'd think).
     // So we'll stick with a simple layout.
-
-    // ------------------------------------------------------------------------
-    // Code removed from build()
-    // ------------------------------------------------------------------------
-
-    /*
-
-    // You can't call setLayout() twice. So clear the existing layout if
-    // rebuilding.
-    // And removeAllChildWidgets() doesn't work for layouts. Therefore, thanks
-    // to excellent deletion handling by Qt:
-    if (m_p_header) {
-        // qDebug() << Q_FUNC_INFO << "Deleting old MenuHeader with this ="
-        //          << m_p_header.data();
-        m_p_header->disconnect();  // prevent double signalling
-        m_p_header->deleteLater();  // later, in case it's currently calling us
-        m_p_header.clear();
-    }
-    if (m_p_listwidget) {
-        m_p_listwidget->disconnect();  // prevent double signalling
-        m_p_listwidget->deleteLater();
-        m_p_listwidget.clear();
-    }
-    // UiFunc::clearLayout(m_mainlayout);
-
-    */
 
     // ------------------------------------------------------------------------
     // Header
@@ -171,7 +158,7 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
     // List
     // ------------------------------------------------------------------------
 
-#ifdef USE_HFW_LISTWIDGET
+#ifdef MENUWINDOW_USE_HFW_LISTWIDGET
     m_p_listwidget = new HeightForWidthListWidget();
 #else
     m_p_listwidget = new QListWidget();
@@ -235,7 +222,7 @@ void MenuWindow::build()
         QWidget* row = item.rowWidget(m_app);
         QListWidgetItem* listitem = new QListWidgetItem("", m_p_listwidget);
         listitem->setData(Qt::UserRole, QVariant(i));
-#ifdef USE_HFW_LISTWIDGET
+#ifdef MENUWINDOW_USE_HFW_LISTWIDGET
         listitem->setSizeHint(m_p_listwidget->widgetSizeHint(row));
 #else
         listitem->setSizeHint(row->sizeHint());
@@ -380,7 +367,7 @@ void MenuWindow::menuItemClicked(QListWidgetItem *item)
 
 void MenuWindow::lockStateChanged(CamcopsApp::LockState lockstate)
 {
-    Q_UNUSED(lockstate)
+    Q_UNUSED(lockstate);
     // mark as unused; http://stackoverflow.com/questions/1486904/how-do-i-best-silence-a-warning-about-unused-variables
     qDebug() << Q_FUNC_INFO;
     build();  // calls down to derived class
@@ -431,7 +418,7 @@ void MenuWindow::viewTask()
     case QMessageBox::Ok:  // detail
         {
             qInfo() << "View detail:" << instance_title;
-            QString detail = task->detail();
+            QString detail = StringFunc::joinHtmlLines(task->detail());
 #ifdef SHOW_TASK_TIMING
             detail += QString("<br><br>Editing time: <b>%1</b> s")
                     .arg(task->editingTimeSeconds());

@@ -383,7 +383,7 @@ void Camera::readyForCapture(bool ready)
 void Camera::imageSaved(int id, const QString& filename)
 {
     // Image has arrived via a disk file.
-    Q_UNUSED(id)
+    Q_UNUSED(id);
     m_filenames_for_deletion.insert(filename);
     m_most_recent_filename = filename;
     m_captured_state = CapturedState::File;
@@ -404,7 +404,7 @@ void Camera::imageAvailable(int id, const QVideoFrame& buffer)
     // http://stackoverflow.com/questions/27297657/how-to-qvideoframe-to-qimage
     // http://stackoverflow.com/questions/27829830/convert-qvideoframe-to-qimage
 
-    Q_UNUSED(id)
+    Q_UNUSED(id);
     m_most_recent_image = ImageFunc::imageFromVideoFrame(buffer);
     m_captured_state = CapturedState::Buffer;
     m_capturing_image = false;

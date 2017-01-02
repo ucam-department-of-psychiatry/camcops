@@ -23,8 +23,9 @@
 #include "lib/uifunc.h"
 #include "questionnairelib/mcqfunc.h"
 #include "questionnairelib/questionnaire.h"
+#include "widgets/aspectratiopixmaplabel.h"
 #include "widgets/booleanwidget.h"
-#include "widgets/clickablelabel.h"
+// #include "widgets/clickablelabelnowrap.h"
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/labelwordwrapwide.h"
 
@@ -158,18 +159,13 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire *questionnaire)
     } else if (!m_image_filename.isEmpty()) {
         // Image label
         QPixmap image = UiFunc::getPixmap(m_image_filename, m_image_size);
+        AspectRatioPixmapLabel* label = new AspectRatioPixmapLabel();
+        label->setPixmap(image);
         if (!read_only && m_content_clickable) {
-            ClickableLabel* label = new ClickableLabel();
-            label->setPixmap(image);
-            connect(label, &ClickableLabel::clicked,
+            connect(label, &AspectRatioPixmapLabel::clicked,
                     this, &QuBoolean::clicked);
-            labelwidget = label;
-        } else {
-            QLabel* label = new QLabel();
-            label->setFixedSize(image.size());
-            label->setPixmap(image);
-            labelwidget = label;
         }
+        labelwidget = label;
     }
     // otherwise... no label, just the indicator
 
@@ -190,21 +186,21 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire *questionnaire)
     }
 
     // Whole thing
+    Qt::Alignment label_align = Qt::AlignVCenter;
+    Qt::Alignment indicator_align = Qt::AlignTop;
     if (labelwidget) {
         if (m_indicator_on_left) {
-            layout->addWidget(m_indicator);
-            layout->addWidget(labelwidget);
+            layout->addWidget(m_indicator, 0, indicator_align);
+            layout->addWidget(labelwidget, 0, label_align);
         } else {
-            layout->addWidget(labelwidget);
-            layout->addWidget(m_indicator);
+            layout->addWidget(labelwidget, 0, label_align);
+            layout->addWidget(m_indicator, 0, indicator_align);
         }
-        layout->setAlignment(labelwidget, Qt::AlignVCenter);
     } else {
         // Just the indicator
-        layout->addWidget(m_indicator);
+        layout->addWidget(m_indicator, 0, indicator_align);
     }
     layout->addStretch();
-    layout->setAlignment(m_indicator, Qt::AlignTop);
 
     setFromField();
 

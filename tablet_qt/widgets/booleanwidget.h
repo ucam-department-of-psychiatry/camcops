@@ -16,10 +16,20 @@
 */
 
 #pragma once
+
+#define BOOLEANWIDGET_USE_HFW_LAYOUT
+
 #include <QAbstractButton>
 class ClickableLabelWordWrapWide;
 class ImageButton;
 class QVBoxLayout;
+class VBoxLayoutHfw;
+
+#ifdef BOOLEANWIDGET_USE_HFW_LAYOUT
+using BooleanWidgetVerticalLayout = VBoxLayoutHfw;
+#else
+using BooleanWidgetVerticalLayout = QVBoxLayout;
+#endif
 
 
 class BooleanWidget : public QAbstractButton
@@ -76,5 +86,5 @@ protected:
     State m_state;
     ImageButton* m_imagebutton;
     ClickableLabelWordWrapWide* m_textbutton;
-    QVBoxLayout* m_layout;
+    BooleanWidgetVerticalLayout* m_layout;
 };

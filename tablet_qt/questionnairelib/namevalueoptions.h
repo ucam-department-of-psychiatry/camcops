@@ -36,6 +36,8 @@ public:
     void shuffle();
     QString name(int index) const;
     QVariant value(int index) const;
+public:
+    static NameValueOptions makeNumbers(int first, int last, int step = 1);
 protected:
     QList<NameValuePair> m_options;
 };

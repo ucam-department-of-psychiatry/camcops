@@ -30,13 +30,19 @@
 
 #include <QLabel>
 #include <QPixmap>
-#include <QResizeEvent>
+class QMouseEvent;
+class QResizeEvent;
 
 
 class AspectRatioPixmapLabel : public QLabel
 {
     // Image that retains its aspect ratio, for displaying photos.
-    // Displays image UP TO its original size.
+    // - Displays image UP TO its original size.
+    // - Clickable, in a simple way (as per https://wiki.qt.io/Clickable_QLabel)
+    //   - this form of clicking responds immediately, not as you release the
+    //   mouse click (cf. QAbstractButton); however, there is no visual display
+    //   that responds to the start of the click, so maybe that is reasonable.
+    //   For another way of responding to clicks, see ClickableLabel.
 
     Q_OBJECT
 public:
@@ -46,9 +52,15 @@ public:
     virtual QSize minimumSizeHint() const override;
     QPixmap scaledPixmap() const;
     void clear();
+protected:
+    virtual void mousePressEvent(QMouseEvent* event) override;
+signals:
+    void clicked();
 public slots:
-    void setPixmap(const QPixmap& pixmap);
-    void resizeEvent(QResizeEvent* event) override;
+    virtual void setPixmap(const QPixmap& pixmap);  // WON'T OVERRIDE.
+    // - SO QLabel PROPERTY ACCESSORS ARE NOT VIRTUAL.
+    // - AND YOU MUST BEWARE WHAT POINTER TYPE YOU ACCESS THIS THROUGH!
+    virtual void resizeEvent(QResizeEvent* event) override;
 private:
     QPixmap m_pixmap;
 };

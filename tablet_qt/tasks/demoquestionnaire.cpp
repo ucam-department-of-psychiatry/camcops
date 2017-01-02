@@ -141,9 +141,9 @@ bool DemoQuestionnaire::isComplete() const
 }
 
 
-QString DemoQuestionnaire::summary() const
+QStringList DemoQuestionnaire::summary() const
 {
-    return "Demonstration questionnaire; no summary";
+    return QStringList{"Demonstration questionnaire; no summary"};
 }
 
 
@@ -174,10 +174,8 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
         (new QuText("warning text"))->warning(),
         new QuText("Below here: space fillers, just to test scrolling"),
         (new QuText(longtext))->big(),
-    })->setTitle("Text "
-                 "[With a long title: Lorem ipsum dolor sit amet, "
-                 "consectetur adipiscing elit. Praesent sed cursus mauris. "
-                 "Ut vulputate felis quis dolor molestie convallis.]"));
+    })->setTitle(QString("Text [With a long title: %1]")
+                 .arg(UiConst::LOREM_IPSUM_3)));
     for (int i = 0; i < 20; ++i) {
         page_text->addElement((new QuText("big text"))->big());
     }
@@ -191,6 +189,25 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
 
     QuPagePtr page_headings_layout_images((new QuPage{
         new QuHeading("This is a heading"),
+        new QuHeading("Horizontal line, line, spacer, line:"),
+        new QuHorizontalLine(),
+        new QuHorizontalLine(),
+        new QuSpacer(),
+        new QuHorizontalLine(),
+        new QuHeading("Horizontal container (flow, add stretch on right):"),
+        (new QuContainerHorizontal{
+            (new QuText("Text 1 (right/top)"))->setAlignment(Qt::AlignRight | Qt::AlignTop),
+            (new QuText("Text 2 (centre/vcentre)"))->setAlignment(Qt::AlignCenter | Qt::AlignVCenter),
+            (new QuText("Text 3 (left/bottom)"))->setAlignment(Qt::AlignLeft | Qt::AlignBottom),
+            new QuText("Text 4: " + lipsum2),
+        })->setFlow(true)->setAddStretchRight(true),
+        new QuHeading("Horizontal container (no flow, no stretch on right):"),
+        (new QuContainerHorizontal{
+            (new QuText("Text 1 (right/top)"))->setAlignment(Qt::AlignRight | Qt::AlignTop),
+            (new QuText("Text 2 (centre/vcentre)"))->setAlignment(Qt::AlignCenter | Qt::AlignVCenter),
+            (new QuText("Text 3 (left/bottom)"))->setAlignment(Qt::AlignLeft | Qt::AlignBottom),
+            new QuText("Text 4: " + lipsum2),
+        })->setFlow(false)->setAddStretchRight(false),
         new QuHeading("Horizontal container (with stretch on right):"),
         (new QuContainerHorizontal{
             new QuText("Text 1 (left/vcentre) " + lipsum2),
@@ -203,18 +220,6 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
             new QuText("Text 2 (left/vcentre) " + lipsum2),
             new QuText("Text 3 (left/vcentre) " + lipsum2),
         })->setAddStretchRight(false),
-        new QuHeading("Horizontal line, line, spacer, line:"),
-        new QuHorizontalLine(),
-        new QuHorizontalLine(),
-        new QuSpacer(),
-        new QuHorizontalLine(),
-        new QuHeading("Horizontal container:"),
-        new QuContainerHorizontal{
-            (new QuText("Text 1 (right/top)"))->setAlignment(Qt::AlignRight | Qt::AlignTop),
-            (new QuText("Text 2 (centre/vcentre)"))->setAlignment(Qt::AlignCenter | Qt::AlignVCenter),
-            (new QuText("Text 3 (left/bottom)"))->setAlignment(Qt::AlignLeft | Qt::AlignBottom),
-            new QuText("Text 4: " + lipsum2),
-        },
         new QuHeading("Vertical container:"),
         new QuContainerVertical{
             (new QuText("Text 1 (right/top)"))->setAlignment(Qt::AlignRight | Qt::AlignTop),
@@ -757,9 +762,17 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
     // ------------------------------------------------------------------------
 
     QuPagePtr page_photo((new QuPage{
-        new QuHeading("Photo [last page]:"),
+        new QuHeading("Photo:"),
         new QuPhoto(fieldRef("photo_blobid", false, true, true)),
     })->setTitle("Photo"));
+
+    // ------------------------------------------------------------------------
+    // Layout test: cf. WidgetTestMenu::testQuestionnaire()
+    // ------------------------------------------------------------------------
+
+    QuPagePtr page_minimal_layout((new QuPage{
+        new QuText(UiConst::LOREM_IPSUM_1),
+    })->setTitle("Reasonably long title with several words"));
 
     // ------------------------------------------------------------------------
     // Questionnaire
@@ -770,7 +783,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
         page_audio_countdown, page_boolean,
         page_mcq, page_mcq_variants, page_multiple_response, page_pickers,
         page_sliders, page_vars, page_diag, page_canvas, page_buttons,
-        page_photo,
+        page_photo, page_minimal_layout,
     });
     questionnaire->setReadOnly(read_only);
     return questionnaire;

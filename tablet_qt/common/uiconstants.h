@@ -167,6 +167,7 @@ namespace UiConst {
 
     extern const QString LOREM_IPSUM_1;
     extern const QString LOREM_IPSUM_2;
+    extern const QString LOREM_IPSUM_3;
 
     // ========================================================================
     // Network
