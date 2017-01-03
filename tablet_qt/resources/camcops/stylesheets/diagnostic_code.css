@@ -8,7 +8,8 @@
     %5      base menu font size
 */
 
-QWidget {
+QWidget,
+BaseWidget {
     color: black;
     font-size: %2pt;
     background-color: #B4D8E7;  /* a pale blue */

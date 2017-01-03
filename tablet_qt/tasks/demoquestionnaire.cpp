@@ -29,9 +29,10 @@
 #include "questionnairelib/qupage.h"
 #include "questionnairelib/quelement.h"
 
-#include "questionnairelib/qucontainerhorizontal.h"
-#include "questionnairelib/qucontainervertical.h"
-#include "questionnairelib/qucontainergrid.h"
+#include "questionnairelib/quflowcontainer.h"
+#include "questionnairelib/quhorizontalcontainer.h"
+#include "questionnairelib/quverticalcontainer.h"
+#include "questionnairelib/qugridcontainer.h"
 
 #include "questionnairelib/quaudioplayer.h"
 #include "questionnairelib/quboolean.h"
@@ -184,51 +185,68 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
     );
 
     // ------------------------------------------------------------------------
-    // Headings, containers, text alignment, lines, images
+    // Image
     // ------------------------------------------------------------------------
 
-    QuPagePtr page_headings_layout_images((new QuPage{
+    QuPagePtr page_image((new QuPage{
+        new QuHeading("Image:"),
+        new QuImage(UiFunc::iconFilename(UiConst::ICON_CAMCOPS)),
+        new QuHeading("... heading under image, to check vertical size"),
+    })->setTitle("Headings, images"));
+
+    // ------------------------------------------------------------------------
+    // Headings, containers, text alignment, lines
+    // ------------------------------------------------------------------------
+
+    Qt::Alignment bottomleft = Qt::AlignLeft | Qt::AlignBottom;
+    Qt::Alignment centre = Qt::AlignCenter | Qt::AlignVCenter;
+    Qt::Alignment topright = Qt::AlignRight | Qt::AlignTop;
+
+    QuHorizontalContainer* horiz1 = new QuHorizontalContainer();
+    horiz1->addElement((new QuText("Text 1 (right/top)"))->setAlignment(topright), topright);
+    horiz1->addElement((new QuText("Text 2 (centre/vcentre)"))->setAlignment(centre), centre);
+    horiz1->addElement((new QuText("Text 3 (left/bottom)"))->setAlignment(bottomleft), bottomleft);
+    horiz1->addElement(new QuText("Text 4: " + longtext));
+    horiz1->setAddStretchRight(false);
+
+    QuVerticalContainer* vert1 = new QuVerticalContainer;
+    vert1->addElement((new QuText("Text 1 (right/top)"))->setAlignment(topright), topright);
+    vert1->addElement((new QuText("Text 2 (centre/vcentre)"))->setAlignment(centre), centre);
+    vert1->addElement((new QuText("Text 3 (left/bottom)"))->setAlignment(bottomleft), bottomleft);
+    vert1->addElement(new QuText("Text 4: " + lipsum2));
+
+    QuPagePtr page_headings_layout((new QuPage{
         new QuHeading("This is a heading"),
         new QuHeading("Horizontal line, line, spacer, line:"),
         new QuHorizontalLine(),
         new QuHorizontalLine(),
         new QuSpacer(),
         new QuHorizontalLine(),
-        new QuHeading("Horizontal container (flow, add stretch on right):"),
-        (new QuContainerHorizontal{
-            (new QuText("Text 1 (right/top)"))->setAlignment(Qt::AlignRight | Qt::AlignTop),
-            (new QuText("Text 2 (centre/vcentre)"))->setAlignment(Qt::AlignCenter | Qt::AlignVCenter),
-            (new QuText("Text 3 (left/bottom)"))->setAlignment(Qt::AlignLeft | Qt::AlignBottom),
-            new QuText("Text 4: " + lipsum2),
-        })->setFlow(true)->setAddStretchRight(true),
-        new QuHeading("Horizontal container (no flow, no stretch on right):"),
-        (new QuContainerHorizontal{
-            (new QuText("Text 1 (right/top)"))->setAlignment(Qt::AlignRight | Qt::AlignTop),
-            (new QuText("Text 2 (centre/vcentre)"))->setAlignment(Qt::AlignCenter | Qt::AlignVCenter),
-            (new QuText("Text 3 (left/bottom)"))->setAlignment(Qt::AlignLeft | Qt::AlignBottom),
-            new QuText("Text 4: " + lipsum2),
-        })->setFlow(false)->setAddStretchRight(false),
-        new QuHeading("Horizontal container (with stretch on right):"),
-        (new QuContainerHorizontal{
-            new QuText("Text 1 (left/vcentre) " + lipsum2),
-            new QuText("Text 2 (left/vcentre) " + lipsum2),
-            new QuText("Text 3 (left/vcentre) " + lipsum2),
-        })->setAddStretchRight(true),
-        new QuHeading("Horizontal container (without stretch on right):"),
-        (new QuContainerHorizontal{
-            new QuText("Text 1 (left/vcentre) " + lipsum2),
-            new QuText("Text 2 (left/vcentre) " + lipsum2),
-            new QuText("Text 3 (left/vcentre) " + lipsum2),
-        })->setAddStretchRight(false),
-        new QuHeading("Vertical container:"),
-        new QuContainerVertical{
-            (new QuText("Text 1 (right/top)"))->setAlignment(Qt::AlignRight | Qt::AlignTop),
-            (new QuText("Text 2 (centre/vcentre)"))->setAlignment(Qt::AlignCenter | Qt::AlignVCenter),
-            (new QuText("Text 3 (left/bottom)"))->setAlignment(Qt::AlignLeft | Qt::AlignBottom),
+        new QuHeading("Flow container:"),
+        new QuFlowContainer{
+            (new QuText("Text 1 (right/top)"))->setAlignment(topright),
+            (new QuText("Text 2 (centre/vcentre)"))->setAlignment(centre),
+            (new QuText("Text 3 (left/bottom)"))->setAlignment(bottomleft),
             new QuText("Text 4: " + lipsum2),
         },
+        new QuHeading("Horizontal container (with stretch on right):"),
+        (new QuHorizontalContainer{
+            new QuText("Text 1"),
+            new QuText("Text 2"),
+            new QuText("Text 3"),
+        })->setAddStretchRight(true),
+        new QuHeading("Horizontal container (without stretch on right; blank widget alignment):"),
+        (new QuHorizontalContainer{
+            (new QuText("Text 1 (right/top)"))->setAlignment(topright),
+            (new QuText("Text 2 (centre/vcentre)"))->setAlignment(centre),
+            (new QuText("Text 3 (left/bottom)"))->setAlignment(bottomleft),
+        })->setAddStretchRight(false)->setWidgetAlignment(Qt::Alignment()),
+        new QuHeading("Horizontal container (no stretch on right, showing alignments):"),
+        horiz1,
+        new QuHeading("Vertical container:"),
+        vert1,
         new QuHeading("Grid container:"),
-        new QuContainerGrid{
+        new QuGridContainer{
             QuGridCell(new QuText("<b>row 0, col 0:</b> " + lipsum2), 0, 0),
             QuGridCell(new QuText("<b>row 0, col 1 [+1]:</b> " + lipsum2), 0, 1, 1, 2),
             QuGridCell(new QuText("<b>row 1, col 0 [+1]:</b> " + lipsum2), 1, 0, 1, 2),
@@ -237,7 +255,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
             QuGridCell(new QuText("<b>row 2, col 1:</b> " + lipsum2), 2, 1),
         },
         new QuHeading("Another grid (2:1 columns):"),
-        (new QuContainerGrid{
+        (new QuGridContainer{
             QuGridCell(new QuText("<b>r0 c0</b> " + lipsum2), 0, 0, 1, 1),
             QuGridCell(new QuText("<b>r0 c1 [+1]</b> " + lipsum2), 0, 1, 1, 2),
             QuGridCell(new QuText("<b>r1 c0</b> " + lipsum2), 1, 0, 1, 1),
@@ -246,7 +264,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
             ->setColumnStretch(0, 2)
             ->setColumnStretch(1, 1),
         new QuHeading("Another grid (1:1 columns):"),
-        (new QuContainerGrid{
+        (new QuGridContainer{
             QuGridCell(new QuText("<b>r0 c0</b> " + lipsum2), 0, 0),
             QuGridCell(new QuText("<b>r0 c1</b> " + lipsum2), 0, 1),
             QuGridCell(new QuText("<b>r1 c0</b> " + lipsum2), 1, 0),
@@ -255,7 +273,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
             ->setColumnStretch(0, 1)
             ->setColumnStretch(1, 1),
         new QuHeading("Another grid (1:1:1 columns, fixed column style = default):"),
-        (new QuContainerGrid{
+        (new QuGridContainer{
             QuGridCell(new QuText("1. Short"), 0, 0),
             QuGridCell(new QuText("2. Medium sort of length"), 0, 1),
             QuGridCell(new QuText("3. Longer " + lipsum2), 0, 2),
@@ -265,7 +283,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
             ->setColumnStretch(2, 1)
             ->setFixedGrid(true),
         new QuHeading("Another grid (1:1:1 columns, non-fixed style):"),
-        (new QuContainerGrid{
+        (new QuGridContainer{
             QuGridCell(new QuText("1. Short"), 0, 0),
             QuGridCell(new QuText("2. Medium sort of length"), 0, 1),
             QuGridCell(new QuText("3. Longer " + lipsum2), 0, 2),
@@ -283,9 +301,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
             {"<b>LHS:</b> " + lipsum2,
              new QuText("<b>RHS:</b> " + lipsum2)},
         }),
-        new QuHeading("Image:"),
-        new QuImage(UiFunc::iconFilename(UiConst::ICON_CAMCOPS)),
-    })->setTitle("Headings, containers, text alignment, lines, images"));
+    })->setTitle("Headings, containers, text alignment, lines"));
 
     // ------------------------------------------------------------------------
     // Audio players, countdown
@@ -333,13 +349,13 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
         (new QuBoolean(UiFunc::iconFilename(UiConst::ICON_CAMCOPS),
                       QSize(), fieldRef("boolimage1")))->setContentClickable(false),
         // Now the ACE-III address example:
-        new QuContainerGrid{
-            QuGridCell(new QuContainerVertical{
-                (new QuContainerHorizontal{
+        new QuGridContainer{
+            QuGridCell(new QuVerticalContainer{
+                (new QuHorizontalContainer{
                     aceBoolean("address_1", "booltext2"),
                     aceBoolean("address_2", "booltext3"),
                 })->setAddStretchRight(true),
-                (new QuContainerHorizontal{
+                (new QuHorizontalContainer{
                     aceBoolean("address_3", "booltext4"),
                     aceBoolean("address_4", "booltext5"),
                     aceBoolean("address_5", "booltext6"),
@@ -347,12 +363,12 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
                 aceBoolean("address_6", "booltext7"),
                 aceBoolean("address_7", "booltext8"),
             }, 0, 0),
-            QuGridCell(new QuContainerVertical{
-                (new QuContainerHorizontal{
+            QuGridCell(new QuVerticalContainer{
+                (new QuHorizontalContainer{
                     aceBoolean("address_1", "booltext9"),
                     aceBoolean("address_2", "booltext10"),
                 })->setAddStretchRight(true),
-                (new QuContainerHorizontal{
+                (new QuHorizontalContainer{
                     aceBoolean("address_3", "booltext11"),
                     aceBoolean("address_4", "booltext12"),
                     aceBoolean("address_5", "booltext13"),
@@ -360,12 +376,12 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
                 aceBoolean("address_6", "booltext14"),
                 aceBoolean("address_7", "booltext15"),
             }, 0, 1),
-            QuGridCell(new QuContainerVertical{
-                (new QuContainerHorizontal{
+            QuGridCell(new QuVerticalContainer{
+                (new QuHorizontalContainer{
                     aceBoolean("address_1", "booltext16"),
                     aceBoolean("address_2", "booltext17"),
                 })->setAddStretchRight(true),
-                (new QuContainerHorizontal{
+                (new QuHorizontalContainer{
                     aceBoolean("address_3", "booltext18"),
                     aceBoolean("address_4", "booltext19"),
                     aceBoolean("address_5", "booltext20"),
@@ -779,7 +795,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
     // ------------------------------------------------------------------------
 
     Questionnaire* questionnaire = new Questionnaire(m_app, {
-        page_text, page_headings_layout_images,
+        page_text, page_image, page_headings_layout,
         page_audio_countdown, page_boolean,
         page_mcq, page_mcq_variants, page_multiple_response, page_pickers,
         page_sliders, page_vars, page_diag, page_canvas, page_buttons,

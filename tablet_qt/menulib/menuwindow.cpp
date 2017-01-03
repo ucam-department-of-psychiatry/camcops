@@ -23,6 +23,7 @@
 #include <QListWidget>
 #include <QListWidgetItem>
 #include <QMessageBox>
+#include <QVBoxLayout>
 #include "common/cssconst.h"
 #include "common/uiconstants.h"
 #include "dbobjects/patient.h"
@@ -33,12 +34,6 @@
 #include "menulib/menuheader.h"
 #include "questionnairelib/questionnaire.h"
 #include "tasklib/task.h"
-
-#ifdef MENUWINDOW_USE_HFW_LAYOUT
-#include "widgets/vboxlayouthfw.h"
-#else
-#include <QVBoxLayout>
-#endif
 
 const int BAD_INDEX = -1;
 
@@ -51,11 +46,7 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
     m_subtitle(""),
     m_icon(icon),
     m_top(top),
-#ifdef MENUWINDOW_USE_HFW_LAYOUT
-    m_mainlayout(new VBoxLayoutHfw()),
-#else
-    m_mainlayout(new QVBoxLayout()),
-#endif
+    m_mainlayout(new QVBoxLayout()),  // not HFW: will contain scroll area
     m_p_header(nullptr),
     m_p_listwidget(nullptr)
 {
@@ -85,14 +76,10 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
     loadStyleSheet();
     setObjectName(CssConst::MENU_WINDOW_OUTER_OBJECT);
 
-#ifdef MENUWINDOW_USE_HFW_LAYOUT
-    VBoxLayoutHfw* dummy_layout = new VBoxLayoutHfw();
-#else
     QVBoxLayout* dummy_layout = new QVBoxLayout();
-#endif
     dummy_layout->setContentsMargins(UiConst::NO_MARGINS);
     setLayout(dummy_layout);
-    QWidget* dummy_widget = new QWidget();
+    QWidget* dummy_widget = new QWidget();  // doesn't need to be BaseWidget; contains scrolling list
     dummy_widget->setObjectName(CssConst::MENU_WINDOW_BACKGROUND);
     dummy_layout->addWidget(dummy_widget);
 

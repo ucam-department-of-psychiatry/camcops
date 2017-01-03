@@ -26,6 +26,7 @@
 #include "lib/slowguiguard.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
+// #include "widgets/basewidget.h"
 #include "widgets/diagnosticcodeselector.h"
 
 
@@ -86,7 +87,7 @@ QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
     textlayout->addStretch();
 
     QPushButton* button = new QPushButton(tr("Set diagnosis"));
-    button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    // button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     button->setEnabled(!read_only);
     if (!read_only) {
         connect(button, &QPushButton::clicked,
@@ -99,7 +100,7 @@ QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
 
     if (m_offer_null_button) {
         QPushButton* null_button = new QPushButton(tr("Clear"));
-        null_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        // null_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         null_button->setEnabled(!read_only);
         if (!read_only) {
             connect(null_button, &QPushButton::clicked,
@@ -114,7 +115,7 @@ QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
     toplayout->addLayout(textlayout);
     toplayout->addLayout(buttonlayout);
 
-    QWidget* widget = new QWidget();
+    QPointer<QWidget> widget(new QWidget());  // BaseWidget()
     widget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     widget->setLayout(toplayout);
 

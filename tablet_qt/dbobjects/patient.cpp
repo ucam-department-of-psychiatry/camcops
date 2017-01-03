@@ -26,7 +26,7 @@
 #include "lib/idpolicy.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/commonoptions.h"
-#include "questionnairelib/qucontainergrid.h"
+#include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quheading.h"
@@ -189,7 +189,7 @@ OpenableWidget* Patient::editor(bool read_only)
     QuPagePtr page(new QuPage());
     page->setTitle(tr("Edit patient"));
 
-    QuContainerGrid* grid = new QuContainerGrid();
+    QuGridContainer* grid = new QuGridContainer();
     grid->setColumnStretch(0, 1);
     grid->setColumnStretch(1, 2);
     int row = 0;

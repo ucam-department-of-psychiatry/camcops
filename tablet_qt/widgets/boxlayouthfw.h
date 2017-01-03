@@ -30,20 +30,44 @@ class BoxLayoutHfw : public QLayout
     // Modification of QBoxLayout (and its simple children QVBoxLayout and
     // QHBoxLayout) to support height-for-width properly.
     //
-    // Other notable modifications:
-    // - the "private" (PIMPL) method is removed
+    // Specifically, these layouts will attempt to RESIZE THE WIDGET THAT OWNS
+    // THEM to match the height-for-width of their contents.
     //
-    // HOWEVER: UPSHOT: I HAVE FAILED TO GET THIS TO WORK.
-    // The main problem is that layout attributes like minimumSize() are used
+    // The difficulty is that layout attributes like minimumSize() are used
     // by owning widgets to set layout size, and they do not adequately convey
     // simultaneously "I'm happy to be only 20 pixels high if I can be 100
     // wide" and "if I'm 20 pixels wide, I must be at least 100 pixels high",
     // i.e. a dynamic minimum height.
-    // It is possible, though? Some things suggest yes:
-    // - http://stackoverflow.com/questions/24264320/qt-layouts-keep-widget-aspect-ratio-while-resizing
-    // - ? Google for "public qlayout" heightforwidth
-    // - http://qt.shoutwiki.com/wiki/How_to_create_flexible_Portrait_-_Landscape_rotation_layout_in_Qt
-
+    //
+    // That is, the normal sequence is:
+    // (1) a widget (or its owning layout in turn) asks its layout for its
+    //     minimumSize(), sizeHint(), and maximumSize();
+    // (2) the widget uses this information to set its size;
+    // (3) the widget then asks its layout to lay out its children using
+    //     setGeometry();
+    // ... and the problem is that the exact rectangle width is known to the
+    // layout only at step (3), but if the widget's height should be exactly
+    // the height-for-width of the layout, it needed to know at step 1/2.
+    //
+    // This class attempts to solve this by triggering a re-layout if the
+    // geometry at step (3) is not the one used by the widget previously at
+    // steps 1/2. Triggering a re-layout before painting is better than the
+    // alternative of using QWidget::resizeEvent() to call
+    // QWidget::updateGeometry(), because (a) widgets owning that widget have
+    // to repeat the process (so you have to modify a whole chain of widgets
+    // rather than a single layout class), and (b) that method is visually
+    // worse because (at least some) widgets are painted then repainted; with
+    // the layout method, all the thinking happens before any painting.
+    //
+    // UPSHOT:
+    // - I have not been able to get this reliable and avoiding infinite loops.
+    // - The trouble is in part that so many things trigger invalidate(), and
+    //   you don't know if they're important (e.g. a subwidget has changed size)
+    //   or unimportant (e.g. self-triggered).
+    //
+    // Other notable modifications:
+    // - the "private" (PIMPL) method is removed
+    // - caching algorithms rewritten, with data storage structs
 
     Q_OBJECT
 public:
@@ -147,14 +171,11 @@ protected:
     Margins effectiveMargins(const Margins& contents_margins) const;
     QLayoutItem* replaceAt(int index, QLayoutItem* item);
     // bool updateParentGeometry() const;  // RNC
-    void partialInvalidate();  // RNC
-    void fullInvalidate();  // RNC
     QRect getContentsRect(const QRect& layout_rect) const;  // RNC
     QVector<QRect> getChildRects(const QRect& contents_rect,
                                  const QVector<QQLayoutStruct>& a) const;  // RNC
     Direction getVisualDir() const;  // RNC
-    QRect getCurrentMostLikelyRect() const;  // RNC
-    void clearCaches();  // RNC
+    void clearCaches() const;  // RNC
     const Margins& getContentsMarginsAndCache() const;
     const Margins& getEffectiveMargins() const;
 
@@ -167,9 +188,10 @@ protected:
     mutable QHash<QRect, GeomInfo> m_geom_cache;  // RNC
     mutable Margins m_contents_margins;  // RNC
     mutable Margins m_effective_margins;  // RNC
-    bool m_invalidate_due_to_self;  // RNC
+    mutable bool m_dirty;  // set by invalidate(), cleared by setupGeom(), used by lots to prevent unnecessary calls to setupGeom()
+    mutable int m_width_last_size_constraints_based_on;
+    mutable QRect m_rect_for_next_size_constraints;
 
-    // mutable bool m_dirty;  // set by invalidate(), cleared by setupGeom(), used by lots to prevent unnecessary calls to setupGeom()
     // mutable int m_cached_layout_width;  // set by setupGeom()
     // mutable int m_cached_layout_height;  // set by setupGeom()
 

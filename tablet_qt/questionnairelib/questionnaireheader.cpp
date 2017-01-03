@@ -15,22 +15,24 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define USE_HFW_LAYOUT  // good
-
 #include "questionnaireheader.h"
 #include <QAbstractButton>
 #include <QDebug>
-#include <QHBoxLayout>
 #include <QPushButton>
-#include <QVBoxLayout>
 #include "common/cssconst.h"
+#include "common/gui_defines.h"
 #include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "widgets/horizontalline.h"
 #include "widgets/imagebutton.h"
 #include "widgets/labelwordwrapwide.h"
-#ifdef USE_HFW_LAYOUT
+
+#ifdef GUI_USE_HFW_LAYOUT
+#include "widgets/hboxlayouthfw.h"
 #include "widgets/vboxlayouthfw.h"
+#else
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 #endif
 
 
@@ -67,7 +69,7 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     setSizePolicy(UiFunc::expandingFixedHFWPolicy());  // if deriving from QWidget
 #endif
 
-#ifdef USE_HFW_LAYOUT
+#ifdef GUI_USE_HFW_LAYOUT
     VBoxLayoutHfw* mainlayout = new VBoxLayoutHfw();
 #else
     QVBoxLayout* mainlayout = new QVBoxLayout();
@@ -77,7 +79,11 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     // ------------------------------------------------------------------------
     // Main row
     // ------------------------------------------------------------------------
+#ifdef GUI_USE_HFW_LAYOUT
+    HBoxLayoutHfw* toprowlayout = new HBoxLayoutHfw();
+#else
     QHBoxLayout* toprowlayout = new QHBoxLayout();
+#endif
     mainlayout->addLayout(toprowlayout);
 
     Qt::Alignment button_align = Qt::AlignHCenter | Qt::AlignTop;
@@ -113,7 +119,7 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
         m_button_debug = new QPushButton("Dump layout");
         connect(m_button_debug, &QAbstractButton::clicked,
                 this, &QuestionnaireHeader::debugLayout);
-        toprowlayout->addWidget(m_button_debug);
+        toprowlayout->addWidget(m_button_debug, 0, text_align);
     }
 
     m_button_previous = new ImageButton(UiConst::CBS_BACK);

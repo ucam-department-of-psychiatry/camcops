@@ -15,12 +15,10 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define USE_HFW_LAYOUT  // good
-
 #include "qumcq.h"
-#include <QVBoxLayout>
 #include <QWidget>
 #include "common/cssconst.h"
+#include "common/gui_defines.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/mcqfunc.h"
 #include "questionnairelib/questionnaire.h"
@@ -30,9 +28,13 @@
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/flowlayouthfw.h"
 #include "widgets/labelwordwrapwide.h"
-#ifdef USE_HFW_LAYOUT
+
+#ifdef GUI_USE_HFW_LAYOUT
 #include "widgets/hboxlayouthfw.h"
 #include "widgets/vboxlayouthfw.h"
+#else
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 #endif
 
 
@@ -107,8 +109,7 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
     if (m_horizontal) {
         mainlayout = new FlowLayoutHfw();
     } else {
-        mainwidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-#ifdef USE_HFW_LAYOUT
+#ifdef GUI_USE_HFW_LAYOUT
         mainlayout = new VBoxLayoutHfw();
 #else
         mainlayout = new QVBoxLayout();
@@ -160,7 +161,7 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
                 connect(namelabel, &ClickableLabelWordWrapWide::clicked,
                         std::bind(&QuMCQ::clicked, this, i));
             }
-#ifdef USE_HFW_LAYOUT
+#ifdef GUI_USE_HFW_LAYOUT
             HBoxLayoutHfw* itemlayout = new HBoxLayoutHfw();
 #else
             QHBoxLayout* itemlayout = new QHBoxLayout();
@@ -182,7 +183,7 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
     QPointer<QWidget> final_widget;
     if (m_show_instruction) {
         // Higher-level widget containing {instructions, actual MCQ}
-#ifdef USE_HFW_LAYOUT
+#ifdef GUI_USE_HFW_LAYOUT
         VBoxLayoutHfw* layout_w_instr = new VBoxLayoutHfw();
 #else
         QVBoxLayout* layout_w_instr = new QVBoxLayout();
@@ -192,7 +193,7 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
         instructions->setObjectName(CssConst::MCQ_INSTRUCTION);
         layout_w_instr->addWidget(instructions);
         layout_w_instr->addWidget(mainwidget);
-        QPointer<QWidget> widget_w_instr = new QWidget();
+        QPointer<QWidget> widget_w_instr = new BaseWidget();
         widget_w_instr->setLayout(layout_w_instr);
         widget_w_instr->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
         final_widget = widget_w_instr;

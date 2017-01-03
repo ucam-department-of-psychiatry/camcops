@@ -15,18 +15,19 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define USE_HFW_LAYOUT  // good
-
 #include "quheading.h"
-#include <QHBoxLayout>
 #include "common/cssconst.h"
+#include "common/gui_defines.h"
 #include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/basewidget.h"
 #include "widgets/labelwordwrapwide.h"
-#ifdef USE_HFW_LAYOUT
+
+#ifdef GUI_USE_HFW_LAYOUT
 #include "widgets/hboxlayouthfw.h"
+#else
+#include <QHBoxLayout>
 #endif
 
 
@@ -59,7 +60,7 @@ QPointer<QWidget> QuHeading::makeWidget(Questionnaire* questionnaire)
 
     m_container = new BaseWidget();
 
-#ifdef USE_HFW_LAYOUT
+#ifdef GUI_USE_HFW_LAYOUT
     HBoxLayoutHfw* layout = new HBoxLayoutHfw();
 #else
     QHBoxLayout* layout = new QHBoxLayout();

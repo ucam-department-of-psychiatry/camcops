@@ -23,6 +23,7 @@
 #include <QDebug>
 #include <QMessageBox>
 #include <QLabel>
+#include <QVBoxLayout>
 #include "common/camcopsapp.h"
 #include "common/cssconst.h"
 #include "dialogs/pagepickerdialog.h"
@@ -38,12 +39,6 @@
 #include "widgets/labelwordwrapwide.h"
 #include "widgets/openablewidget.h"
 #include "widgets/verticalscrollarea.h"
-
-#ifdef QUESTIONNAIRE_USE_HFW_LAYOUT
-#include "widgets/vboxlayouthfw.h"
-#else
-#include <QVBoxLayout>
-#endif
 
 
 Questionnaire::Questionnaire(CamcopsApp& app) :
@@ -82,7 +77,7 @@ void Questionnaire::commonConstructor()
 
     setStyleSheet(m_app.getSubstitutedCss(UiConst::CSS_CAMCOPS_QUESTIONNAIRE));
 
-    m_outer_layout = new QuestionnaireVerticalLayout();
+    m_outer_layout = new QVBoxLayout();  // not HFW; will contain a scroll area filling all space
     setLayout(m_outer_layout);
     // You can't reset the outer layout for a widget, I think. You get:
     //      QWidget::setLayout: Attempting to set QLayout "" on Questionnaire
@@ -240,7 +235,7 @@ void Questionnaire::build()
             Qt::UniqueConnection);
 
     // Main layout: header and scrollable content
-    m_mainlayout = new QuestionnaireVerticalLayout();
+    m_mainlayout = new QVBoxLayout();
     m_mainlayout->setContentsMargins(UiConst::NO_MARGINS);
     m_mainlayout->addWidget(m_p_header);
     m_mainlayout->addWidget(scroll);

@@ -17,8 +17,6 @@
 
 #pragma once
 
-#define QUESTIONNAIRE_USE_HFW_LAYOUT
-
 #include <initializer_list>
 #include <QList>
 #include <QPointer>
@@ -28,18 +26,10 @@
 #include "widgets/openablewidget.h"
 #include "qupage.h"
 
-class QVBoxLayout;
-class QWidget;
-
 class CamcopsApp;
 class QuestionnaireHeader;
-class VBoxLayoutHfw;
-
-#ifdef QUESTIONNAIRE_USE_HFW_LAYOUT
-using QuestionnaireVerticalLayout = VBoxLayoutHfw;
-#else
-using QuestionnaireVerticalLayout = QVBoxLayout;
-#endif
+class QVBoxLayout;
+class QWidget;
 
 
 class Questionnaire : public OpenableWidget
@@ -112,9 +102,9 @@ protected:
     bool m_within_chain;
 
     bool m_built;
-    QPointer<QuestionnaireVerticalLayout> m_outer_layout;
+    QPointer<QVBoxLayout> m_outer_layout;
     QPointer<QWidget> m_background_widget;
-    QPointer<QuestionnaireVerticalLayout> m_mainlayout;
+    QPointer<QVBoxLayout> m_mainlayout;
     QPointer<QuestionnaireHeader> m_p_header;
     int m_current_pagenum_zero_based;
 };

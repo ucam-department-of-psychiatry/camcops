@@ -24,9 +24,9 @@
 #include "lib/uifunc.h"
 #include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/quboolean.h"
-#include "questionnairelib/qucontainergrid.h"
-#include "questionnairelib/qucontainerhorizontal.h"
-#include "questionnairelib/qucontainervertical.h"
+#include "questionnairelib/qugridcontainer.h"
+#include "questionnairelib/quhorizontalcontainer.h"
+#include "questionnairelib/quverticalcontainer.h"
 #include "questionnairelib/qucountdown.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionnairefunc.h"
@@ -380,7 +380,7 @@ OpenableWidget* Ace3::editor(bool read_only)
         heading("cat_attn"),
         // Orientation
         instruction("attn_q_time"),
-        new QuContainerHorizontal{
+        new QuHorizontalContainer{
             boolean("attn_time1", strnum(FP_ATTN_TIME, 1)),
             boolean("attn_time2", strnum(FP_ATTN_TIME, 2)),
             boolean("attn_time3", strnum(FP_ATTN_TIME, 3)),
@@ -390,7 +390,7 @@ OpenableWidget* Ace3::editor(bool read_only)
         explanation("instruction_time"),
         (new QuText(correct_date))->italic(),
         instruction("attn_q_place"),
-        new QuContainerHorizontal{
+        new QuHorizontalContainer{
             boolean("attn_place1", strnum(FP_ATTN_PLACE, 1)),
             boolean("attn_place2", strnum(FP_ATTN_PLACE, 2)),
             boolean("attn_place3", strnum(FP_ATTN_PLACE, 3)),
@@ -402,12 +402,12 @@ OpenableWidget* Ace3::editor(bool read_only)
         heading("cat_attn"),
         instruction("attn_q_words"),
         explanation("attn_instruction_words"),
-        new QuContainerHorizontal{
+        new QuHorizontalContainer{
             boolean("mem_word1", strnum(FP_ATTN_REPEAT_WORD, 1)),
             boolean("mem_word2", strnum(FP_ATTN_REPEAT_WORD, 2)),
             boolean("mem_word3", strnum(FP_ATTN_REPEAT_WORD, 3)),
         },
-        new QuContainerHorizontal{
+        new QuHorizontalContainer{
             text("attn_q_register_n_trials"),
             (new QuMCQ(fieldRef(FN_ATTN_NUM_REGISTRATION_TRIALS, false),  // not mandatory
                                  options_registration))->setHorizontal(true),
@@ -416,7 +416,7 @@ OpenableWidget* Ace3::editor(bool read_only)
         heading("cat_attn"),
         instruction("attn_q_serial_sevens"),
         explanation("attn_instruction_sevens"),
-        new QuContainerHorizontal{
+        new QuHorizontalContainer{
             boolean("attn_subtraction1", strnum(FP_ATTN_SERIAL7, 1)),
             boolean("attn_subtraction2", strnum(FP_ATTN_SERIAL7, 2)),
             boolean("attn_subtraction3", strnum(FP_ATTN_SERIAL7, 3)),
@@ -427,7 +427,7 @@ OpenableWidget* Ace3::editor(bool read_only)
         heading("cat_mem"),
         instruction("mem_q_recall_words"),
         explanation("mem_instruction_recall"),
-        new QuContainerHorizontal{
+        new QuHorizontalContainer{
             boolean("mem_word1", strnum(FP_MEM_RECALL_WORD, 1)),
             boolean("mem_word2", strnum(FP_MEM_RECALL_WORD, 2)),
             boolean("mem_word3", strnum(FP_MEM_RECALL_WORD, 3)),
@@ -489,15 +489,15 @@ OpenableWidget* Ace3::editor(bool read_only)
         instruction("memory_q_address"),
         explanation("memory_instruction_address_1"),
         explanation("memory_instruction_address_2"),
-        (new QuContainerHorizontal{
+        (new QuHorizontalContainer{
             // Address 1
-            new QuContainerVertical{
+            new QuVerticalContainer{
                 (new QuText(xstring("trial") + " 1"))->bold(),
-                new QuContainerHorizontal{
+                new QuHorizontalContainer{
                     boolean("address_1", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 1), false),
                     boolean("address_2", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 2), false),
                 },
-                new QuContainerHorizontal{
+                new QuHorizontalContainer{
                     boolean("address_3", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 3), false),
                     boolean("address_4", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 4), false),
                     boolean("address_5", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 5), false),
@@ -506,13 +506,13 @@ OpenableWidget* Ace3::editor(bool read_only)
                 boolean("address_7", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 7), false),
             },
             // Address 2
-            new QuContainerVertical{
+            new QuVerticalContainer{
                 (new QuText(xstring("trial") + " 2"))->bold(),
-                new QuContainerHorizontal{
+                new QuHorizontalContainer{
                     boolean("address_1", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 1), false),
                     boolean("address_2", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 2), false),
                 },
-                new QuContainerHorizontal{
+                new QuHorizontalContainer{
                     boolean("address_3", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 3), false),
                     boolean("address_4", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 4), false),
                     boolean("address_5", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 5), false),
@@ -521,13 +521,13 @@ OpenableWidget* Ace3::editor(bool read_only)
                 boolean("address_7", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 7), false),
             },
             // Address 3
-            new QuContainerVertical{
+            new QuVerticalContainer{
                 (new QuText(xstring("trial") + " 3"))->bold(),
-                new QuContainerHorizontal{
+                new QuHorizontalContainer{
                     boolean("address_1", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 1), true),
                     boolean("address_2", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 2), true),
                 },
-                new QuContainerHorizontal{
+                new QuHorizontalContainer{
                     boolean("address_3", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 3), true),
                     boolean("address_4", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 4), true),
                     boolean("address_5", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 5), true),
@@ -536,7 +536,6 @@ OpenableWidget* Ace3::editor(bool read_only)
                 boolean("address_7", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 7), true),
             },
         })
-            ->setFlow(false)
             ->setWidgetAlignment(Qt::Alignment())
             ->setAddStretchRight(false),
         heading("cat_mem"),
@@ -612,7 +611,7 @@ OpenableWidget* Ace3::editor(bool read_only)
         // Naming pictures
         heading("cat_lang"),
         instruction("lang_q_identify_pic"),
-        new QuContainerGrid(3, {
+        new QuGridContainer(3, {
             boolimg(IMAGE_SPOON, strnum(FP_LANG_NAME_PICTURE, 1)),
             boolimg(IMAGE_BOOK, strnum(FP_LANG_NAME_PICTURE, 2)),
             boolimg(IMAGE_KANGAROO, strnum(FP_LANG_NAME_PICTURE, 3)),
@@ -703,7 +702,7 @@ OpenableWidget* Ace3::editor(bool read_only)
     QuPagePtr page_dots((new QuPage{
         heading("cat_vsp"),
         instruction("vsp_q_dots"),
-        new QuContainerGrid(2, {
+        new QuGridContainer(2, {
             boolimg(IMAGE_DOTS8, strnum(FP_VSP_COUNT_DOTS, 1)),
             boolimg(IMAGE_DOTS10, strnum(FP_VSP_COUNT_DOTS, 2)),
             boolimg(IMAGE_DOTS7, strnum(FP_VSP_COUNT_DOTS, 3)),
@@ -720,7 +719,7 @@ OpenableWidget* Ace3::editor(bool read_only)
     QuPagePtr page_letters((new QuPage{
         heading("cat_vsp"),
         instruction("vsp_q_letters"),
-        new QuContainerGrid(2, {
+        new QuGridContainer(2, {
             boolimg(IMAGE_K, strnum(FP_VSP_IDENTIFY_LETTER, 1)),
             boolimg(IMAGE_M, strnum(FP_VSP_IDENTIFY_LETTER, 2)),
             boolimg(IMAGE_A, strnum(FP_VSP_IDENTIFY_LETTER, 3)),

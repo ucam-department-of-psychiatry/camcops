@@ -15,14 +15,13 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define USE_HFW_LAYOUT  // good
-
 // #define DEBUG_SLOTS
 
 #include "menuheader.h"
 #include <QAbstractButton>
 #include <QLabel>
 #include "common/cssconst.h"
+#include "common/gui_defines.h"
 #include "common/uiconstants.h"
 #include "dbobjects/patient.h"
 #include "lib/uifunc.h"
@@ -30,7 +29,7 @@
 #include "widgets/imagebutton.h"
 #include "widgets/labelwordwrapwide.h"
 
-#ifdef USE_HFW_LAYOUT
+#ifdef GUI_USE_HFW_LAYOUT
 #include "widgets/hboxlayouthfw.h"
 #include "widgets/vboxlayouthfw.h"
 #else
@@ -60,13 +59,17 @@ MenuHeader::MenuHeader(QWidget* parent,
       m_patient_info(nullptr),
       m_no_patient(nullptr)
 {
+#ifdef GUI_USE_HFW_LAYOUT
+    VBoxLayoutHfw* mainlayout = new VBoxLayoutHfw();
+#else
     QVBoxLayout* mainlayout = new QVBoxLayout();
+#endif
     setLayout(mainlayout);
 
     // ------------------------------------------------------------------------
     // Main row
     // ------------------------------------------------------------------------
-#ifdef USE_HFW_LAYOUT
+#ifdef GUI_USE_HFW_LAYOUT
     HBoxLayoutHfw* toprowlayout = new HBoxLayoutHfw();
 #else
     QHBoxLayout* toprowlayout = new QHBoxLayout();
@@ -107,7 +110,7 @@ MenuHeader::MenuHeader(QWidget* parent,
         m_button_debug = new QPushButton("Dump layout");
         connect(m_button_debug, &QAbstractButton::clicked,
                 this, &MenuHeader::debugLayout);
-        toprowlayout->addWidget(m_button_debug);
+        toprowlayout->addWidget(m_button_debug, 0, text_align);
     }
 
     // - Task verb buttons

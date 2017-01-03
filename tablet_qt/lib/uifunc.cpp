@@ -551,6 +551,14 @@ QSizePolicy UiFunc::expandingMaximumHFWPolicy()
 }
 
 
+QSizePolicy UiFunc::maximumMaximumHFWPolicy()
+{
+    QSizePolicy sp(QSizePolicy::Maximum, QSizePolicy::Maximum);
+    sp.setHeightForWidth(true);
+    return sp;
+}
+
+
 QSizePolicy UiFunc::preferredPreferredHFWPolicy()
 {
     QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -571,7 +579,7 @@ void UiFunc::resizeEventForHFWParentWidget(QWidget* widget)
     }
     int w = widget->width();
     int h = lay->heightForWidth(w);
-    // qDebug() << Q_FUNC_INFO << "w" << w << "h" << h;
+    // qDebug() << Q_FUNC_INFO << "w" << w << "-> h" << h;
     widget->setFixedHeight(h);
     widget->updateGeometry();
 }

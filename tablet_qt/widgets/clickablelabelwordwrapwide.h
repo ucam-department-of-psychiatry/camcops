@@ -16,12 +16,14 @@
 */
 
 #pragma once
-#define CLICKABLELABELWWW_USE_HFW_LAYOUT
+
 #include <QPushButton>
+#include "common/gui_defines.h"
 class LabelWordWrapWide;
 class QVBoxLayout;
 class VBoxLayoutHfw;
-#ifdef CLICKABLELABELWWW_USE_HFW_LAYOUT
+
+#ifdef GUI_USE_HFW_LAYOUT
 using ClickableLabelWWWLayout = VBoxLayoutHfw;
 #else
 using ClickableLabelWWWLayout = QVBoxLayout;
@@ -45,7 +47,9 @@ public:
 
     virtual QSize sizeHint() const override;
     virtual QSize minimumSizeHint() const override;
+#ifdef GUI_USE_RESIZE_FOR_HEIGHT
     virtual void resizeEvent(QResizeEvent* event) override;
+#endif
 protected:
     void commonConstructor(bool stretch);
     QSize translateSize(const QSize& size) const;

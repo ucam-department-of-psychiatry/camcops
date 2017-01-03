@@ -21,24 +21,24 @@
 #include "qugridcell.h"
 
 
-class QuContainerGrid : public QuElement
+class QuGridContainer : public QuElement
 {
     // Allows the arrangements of other elements into a grid.
 
     Q_OBJECT
 public:
-    QuContainerGrid();
+    QuGridContainer();
     // Initialize with the high-precision QuGridCell:
-    QuContainerGrid(const QList<QuGridCell>& cells);
-    QuContainerGrid(std::initializer_list<QuGridCell> cells);
+    QuGridContainer(const QList<QuGridCell>& cells);
+    QuGridContainer(std::initializer_list<QuGridCell> cells);
     // Initialize with a simple "n columns" format:
-    QuContainerGrid(int n_columns, const QList<QuElementPtr>& elements);
-    QuContainerGrid(int n_columns, std::initializer_list<QuElementPtr> elements);
-    QuContainerGrid(int n_columns, std::initializer_list<QuElement*> elements);  // takes ownership
+    QuGridContainer(int n_columns, const QList<QuElementPtr>& elements);
+    QuGridContainer(int n_columns, std::initializer_list<QuElementPtr> elements);
+    QuGridContainer(int n_columns, std::initializer_list<QuElement*> elements);  // takes ownership
     // Modify:
-    QuContainerGrid* addCell(const QuGridCell& cell);
-    QuContainerGrid* setColumnStretch(int column, int stretch);
-    QuContainerGrid* setFixedGrid(bool fixed_grid);
+    QuGridContainer* addCell(const QuGridCell& cell);
+    QuGridContainer* setColumnStretch(int column, int stretch);
+    QuGridContainer* setFixedGrid(bool fixed_grid);
 protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual QList<QuElementPtr> subelements() const override;

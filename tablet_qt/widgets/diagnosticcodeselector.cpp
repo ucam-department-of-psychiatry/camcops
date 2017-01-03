@@ -15,8 +15,6 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define USE_HFW_LAYOUT  // good
-
 #include "diagnosticcodeselector.h"
 #include <functional>
 #include <QApplication>
@@ -31,6 +29,7 @@
 #include <QStandardItemModel>
 #include <QTreeView>
 #include "common/cssconst.h"
+#include "common/gui_defines.h"
 #include "common/uiconstants.h"
 #include "diagnosis/diagnosticcodeset.h"
 #include "diagnosis/diagnosissortfiltermodel.h"
@@ -39,9 +38,11 @@
 #include "widgets/imagebutton.h"
 #include "widgets/labelwordwrapwide.h"
 
-#ifdef USE_HFW_LAYOUT
+#ifdef GUI_USE_HFW_LAYOUT
+#include "widgets/hboxlayouthfw.h"
 #include "widgets/vboxlayouthfw.h"
 #else
+#include <QHBoxLayout>
 #include <QVBoxLayout>
 #endif
 
@@ -110,6 +111,7 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     // ------------------------------------------------------------------------
 
     Qt::Alignment button_align = Qt::AlignHCenter | Qt::AlignTop;
+    Qt::Alignment text_align = Qt::AlignHCenter | Qt::AlignVCenter;
 
     // Cancel button
     QAbstractButton* cancel = new ImageButton(UiConst::CBS_CANCEL);
@@ -118,7 +120,7 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
 
     // Title
     LabelWordWrapWide* title_label = new LabelWordWrapWide(m_codeset->title());
-    title_label->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+    title_label->setAlignment(text_align);
     title_label->setObjectName(CssConst::TITLE);
 
     m_search_button = new ImageButton(UiConst::CBS_ZOOM);  // *** ICON: remove "+" from centre of magnifying glass
@@ -129,9 +131,15 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     connect(m_tree_button.data(), &QAbstractButton::clicked,
             this, &DiagnosticCodeSelector::goToTree);
 
+#ifdef GUI_USE_HFW_LAYOUT
+    HBoxLayoutHfw* header_toprowlayout = new HBoxLayoutHfw();
+#else
     QHBoxLayout* header_toprowlayout = new QHBoxLayout();
+#endif
     header_toprowlayout->addWidget(cancel, 0, button_align);
-    header_toprowlayout->addWidget(title_label);  // default alignment fills whole cell
+    header_toprowlayout->addStretch();
+    header_toprowlayout->addWidget(title_label, 0, text_align);  // default alignment fills whole cell; this is better
+    header_toprowlayout->addStretch();
     header_toprowlayout->addWidget(m_search_button, 0, button_align);
     header_toprowlayout->addWidget(m_tree_button, 0, button_align);
 
@@ -144,7 +152,7 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     // ------------------------------------------------------------------------
     // Header assembly
     // ------------------------------------------------------------------------
-#ifdef USE_HFW_LAYOUT
+#ifdef GUI_USE_HFW_LAYOUT
     VBoxLayoutHfw* header_mainlayout = new VBoxLayoutHfw();
 #else
     QVBoxLayout* header_mainlayout = new QVBoxLayout();
@@ -246,7 +254,11 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
 
     setSearchAppearance();
 
+#ifdef GUI_USE_HFW_LAYOUT
+    VBoxLayoutHfw* mainlayout = new VBoxLayoutHfw();
+#else
     QVBoxLayout* mainlayout = new QVBoxLayout();
+#endif
     mainlayout->addLayout(header_mainlayout);
     mainlayout->addWidget(m_heading_tree);
     mainlayout->addWidget(m_treeview);
@@ -258,7 +270,11 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     topwidget->setObjectName(CssConst::MENU_WINDOW_BACKGROUND);
     topwidget->setLayout(mainlayout);
 
+#ifdef GUI_USE_HFW_LAYOUT
+    VBoxLayoutHfw* toplayout = new VBoxLayoutHfw();
+#else
     QVBoxLayout* toplayout = new QVBoxLayout();
+#endif
     toplayout->setContentsMargins(UiConst::NO_MARGINS);
     toplayout->addWidget(topwidget);
 

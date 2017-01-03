@@ -15,11 +15,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define USE_HFW_LAYOUT  // good
-
 #include "qumultipleresponse.h"
-#include <QVBoxLayout>
 #include "common/cssconst.h"
+#include "common/gui_defines.h"
 #include "common/random.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
@@ -28,9 +26,13 @@
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/flowlayouthfw.h"
 #include "widgets/labelwordwrapwide.h"
-#ifdef USE_HFW_LAYOUT
+
+#ifdef GUI_USE_HFW_LAYOUT
 #include "widgets/hboxlayouthfw.h"
 #include "widgets/vboxlayouthfw.h"
+#else
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 #endif
 
 
@@ -150,13 +152,13 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
 
     bool read_only = questionnaire->readOnly();
 
-    QPointer<QWidget> mainwidget = new BaseWidget();
+    QPointer<QWidget> mainwidget = new QWidget();  // BaseWidget()
     QLayout* mainlayout;
     if (m_horizontal) {
         mainlayout = new FlowLayoutHfw();
     } else {
         mainwidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-#ifdef USE_HFW_LAYOUT
+#ifdef GUI_USE_HFW_LAYOUT
         mainlayout = new VBoxLayoutHfw();
 #else
         mainlayout = new QVBoxLayout();
@@ -203,7 +205,7 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
                 connect(namelabel, &ClickableLabelWordWrapWide::clicked,
                         std::bind(&QuMultipleResponse::clicked, this, i));
             }
-#ifdef USE_HFW_LAYOUT
+#ifdef GUI_USE_HFW_LAYOUT
             HBoxLayoutHfw* itemlayout = new HBoxLayoutHfw();
 #else
             QHBoxLayout* itemlayout = new QHBoxLayout();
@@ -242,7 +244,7 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
     QPointer<QWidget> final_widget;
     if (m_show_instruction) {
         // Higher-level widget containing {instructions, actual MCQ}
-#ifdef USE_HFW_LAYOUT
+#ifdef GUI_USE_HFW_LAYOUT
         VBoxLayoutHfw* layout_w_instr = new VBoxLayoutHfw();
 #else
         QVBoxLayout* layout_w_instr = new QVBoxLayout();

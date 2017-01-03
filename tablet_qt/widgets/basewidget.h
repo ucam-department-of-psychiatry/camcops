@@ -17,9 +17,8 @@
 
 #pragma once
 
-// #define BASEWIDGET_USE_RESIZE_FOR_HEIGHT  // bad, if you can avoid it using custom layouts
-
 #include <QWidget>
+#include "common/gui_defines.h"
 
 
 class BaseWidget : public QWidget
@@ -40,7 +39,7 @@ class BaseWidget : public QWidget
 public:
     BaseWidget(QWidget* parent = nullptr);
     virtual ~BaseWidget();
-#ifdef BASEWIDGET_USE_RESIZE_FOR_HEIGHT
+#ifdef GUI_USE_RESIZE_FOR_HEIGHT
     virtual void resizeEvent(QResizeEvent* event) override;
 #endif
 

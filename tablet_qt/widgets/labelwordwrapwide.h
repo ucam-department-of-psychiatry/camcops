@@ -17,14 +17,13 @@
 
 #pragma once
 
-// #define LWWW_USE_RESIZE_FOR_HEIGHT  // bad, if you can avoid it using custom layouts
-
 #define LWWW_USE_UNWRAPPED_CACHE  // seems OK on wombat
 // #define LWWW_USE_QLABEL_CACHE  // not OK (wombat), even if cache cleared on every event
 #define LWWW_USE_STYLE_CACHE  // seems OK on wombat
 
 #include <QLabel>
 #include <QMap>
+#include "common/gui_defines.h"
 
 #if defined(LWWW_USE_UNWRAPPED_CACHE) || defined(LWWW_USE_QLABEL_CACHE) || defined(LWWW_USE_STYLE_CACHE)
 #define LWWW_USE_ANY_CACHE
@@ -60,7 +59,7 @@ public:
     // - However, even with a size policy of Maximum/Fixed/hasHeightForWidth,
     //   the label's height does not increase as its width is decreased, unless
     //   you override resizeEvent().
-#ifdef LWWW_USE_RESIZE_FOR_HEIGHT
+#ifdef GUI_USE_RESIZE_FOR_HEIGHT
     virtual void resizeEvent(QResizeEvent* event) override;
 #endif
 
@@ -76,7 +75,7 @@ public slots:
 protected:
     int qlabelHeightForWidth(int width) const;
     QSize sizeOfTextWithoutWrap() const;
-#ifdef LWWW_USE_RESIZE_FOR_HEIGHT
+#ifdef GUI_USE_RESIZE_FOR_HEIGHT
     void forceHeight();
 #endif
     QSize extraSizeForCssOrLayout() const;

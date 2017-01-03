@@ -79,7 +79,7 @@ LabelWordWrapWide::LabelWordWrapWide(QWidget* parent) :
 void LabelWordWrapWide::commonConstructor()
 {
     setWordWrap(true);  // will also do setHeightForWidth(true);
-#ifdef LWWW_USE_RESIZE_FOR_HEIGHT
+#ifdef GUI_USE_RESIZE_FOR_HEIGHT
     setSizePolicy(UiFunc::maximumFixedHFWPolicy());
 #else
     // can leave it at the default of Preferred, Preferred (plus HFW as above)
@@ -146,7 +146,7 @@ int LabelWordWrapWide::qlabelHeightForWidth(int width) const
 }
 
 
-#ifdef LWWW_USE_RESIZE_FOR_HEIGHT
+#ifdef GUI_USE_RESIZE_FOR_HEIGHT
 void LabelWordWrapWide::resizeEvent(QResizeEvent* event)
 {
     QLabel::resizeEvent(event);

@@ -21,11 +21,13 @@
 #include <QDebug>
 #include <QMargins>
 #include <QStyleOptionButton>
-#include <QVBoxLayout>
 #include "lib/uifunc.h"
 #include "widgets/labelwordwrapwide.h"
-#ifdef CLICKABLELABELWWW_USE_HFW_LAYOUT
+
+#ifdef GUI_USE_HFW_LAYOUT
 #include "widgets/vboxlayouthfw.h"
+#else
+#include <QVBoxLayout>
 #endif
 
 
@@ -137,16 +139,16 @@ QSize ClickableLabelWordWrapWide::minimumSizeHint() const
 }
 
 
+#ifdef GUI_USE_RESIZE_FOR_HEIGHT  // from labelwordwrapwide.h
 void ClickableLabelWordWrapWide::resizeEvent(QResizeEvent* event)
 {
 #ifdef DEBUG_CALCULATIONS
     qDebug() << Q_FUNC_INFO;
 #endif
     QPushButton::resizeEvent(event);
-#ifdef LWWW_USE_RESIZE_FOR_HEIGHT  // from labelwordwrapwide.h
     UiFunc::resizeEventForHFWParentWidget(this);
-#endif
 }
+#endif
 
 
 void ClickableLabelWordWrapWide::setText(const QString& text)

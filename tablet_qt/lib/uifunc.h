@@ -124,6 +124,7 @@ namespace UiFunc {
     QSizePolicy expandingPreferredHFWPolicy();
     QSizePolicy maximumFixedHFWPolicy();
     QSizePolicy expandingMaximumHFWPolicy();
+    QSizePolicy maximumMaximumHFWPolicy();
     QSizePolicy preferredPreferredHFWPolicy();
 
     void resizeEventForHFWParentWidget(QWidget* widget);

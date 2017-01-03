@@ -17,7 +17,7 @@
 
 #include "questionnairefunc.h"
 #include "lib/uifunc.h"
-#include "questionnairelib/qucontainergrid.h"
+#include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/quelement.h"
 #include "questionnairelib/qugridcell.h"
 #include "questionnairelib/qutext.h"
@@ -52,7 +52,7 @@ QuElement* QuestionnaireFunc::defaultGridRawPointer(
         cells.append(main_cell);
         ++row;
     }
-    QuContainerGrid* grid = new QuContainerGrid(cells);
+    QuGridContainer* grid = new QuGridContainer(cells);
     grid->setColumnStretch(left_col, left_column_span);
     grid->setColumnStretch(right_col, right_column_span);
     return grid;

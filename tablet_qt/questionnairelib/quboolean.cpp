@@ -24,6 +24,7 @@
 #include "questionnairelib/mcqfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/aspectratiopixmaplabel.h"
+// #include "widgets/basewidget.h"
 #include "widgets/booleanwidget.h"
 // #include "widgets/clickablelabelnowrap.h"
 #include "widgets/clickablelabelwordwrapwide.h"
@@ -127,7 +128,7 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire *questionnaire)
 {
     bool read_only = questionnaire->readOnly();
 
-    QPointer<QWidget> widget = new QWidget();
+    QPointer<QWidget> widget(new QWidget());  // BaseWidget()
     widget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     QHBoxLayout* layout = new QHBoxLayout();

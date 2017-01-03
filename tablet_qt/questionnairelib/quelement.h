@@ -40,9 +40,10 @@ class QuElement : public QObject
     Q_OBJECT
     friend class Questionnaire;
     friend class QuPage;
-    friend class QuContainerHorizontal;
-    friend class QuContainerVertical;
-    friend class QuContainerGrid;
+    friend class QuFlowContainer;
+    friend class QuHorizontalContainer;
+    friend class QuVerticalContainer;
+    friend class QuGridContainer;
     friend class SettingsMenu;
     friend class WidgetTestMenu;
 public:

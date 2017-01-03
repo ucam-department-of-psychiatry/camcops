@@ -17,15 +17,14 @@
 
 #pragma once
 
-#define BOOLEANWIDGET_USE_HFW_LAYOUT
-
 #include <QAbstractButton>
+#include "common/gui_defines.h"
 class ClickableLabelWordWrapWide;
 class ImageButton;
 class QVBoxLayout;
 class VBoxLayoutHfw;
 
-#ifdef BOOLEANWIDGET_USE_HFW_LAYOUT
+#ifdef GUI_USE_HFW_LAYOUT
 using BooleanWidgetVerticalLayout = VBoxLayoutHfw;
 #else
 using BooleanWidgetVerticalLayout = QVBoxLayout;

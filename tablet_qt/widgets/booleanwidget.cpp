@@ -26,7 +26,7 @@
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/imagebutton.h"
 
-#ifdef BOOLEANWIDGET_USE_HFW_LAYOUT
+#ifdef GUI_USE_HFW_LAYOUT
 #include "widgets/vboxlayouthfw.h"
 #else
 #include <QVBoxLayout>
@@ -57,11 +57,7 @@ BooleanWidget::BooleanWidget(QWidget* parent) :
 {
     m_imagebutton = new ImageButton();
     m_textbutton = new ClickableLabelWordWrapWide();
-#ifdef BOOLEANWIDGET_USE_HFW_LAYOUT
-    m_layout = new VBoxLayoutHfw();
-#else
-    m_layout = new QVBoxLayout();
-#endif
+    m_layout = new BooleanWidgetVerticalLayout();
     m_layout->setContentsMargins(UiConst::NO_MARGINS);
     m_layout->addWidget(m_imagebutton);
     m_layout->addWidget(m_textbutton);

@@ -17,7 +17,7 @@
 
 // #define DEBUG_GRID_CREATION
 
-#include "qucontainergrid.h"
+#include "qugridcontainer.h"
 #include <QDebug>
 #include <QGridLayout>
 #include <QWidget>
@@ -26,6 +26,7 @@
 #endif
 #include "questionnairelib/questionnaire.h"
 #include "lib/layoutdumper.h"
+#include "lib/uifunc.h"
 #include "widgets/basewidget.h"
 
 
@@ -93,20 +94,20 @@ What does not work properly:
 */
 
 
-QuContainerGrid::QuContainerGrid()
+QuGridContainer::QuGridContainer()
 {
     commonConstructor();
 }
 
 
-QuContainerGrid::QuContainerGrid(const QList<QuGridCell>& cells) :
+QuGridContainer::QuGridContainer(const QList<QuGridCell>& cells) :
     m_cells(cells)
 {
     commonConstructor();
 }
 
 
-QuContainerGrid::QuContainerGrid(std::initializer_list<QuGridCell> cells) :
+QuGridContainer::QuGridContainer(std::initializer_list<QuGridCell> cells) :
     m_cells(cells)
 {
     commonConstructor();
@@ -126,7 +127,7 @@ QuContainerGrid::QuContainerGrid(std::initializer_list<QuGridCell> cells) :
     }
 
 
-QuContainerGrid::QuContainerGrid(int n_columns,
+QuGridContainer::QuGridContainer(int n_columns,
                                  const QList<QuElementPtr>& elements)
 {
     CONSTRUCT_FROM_ELEMENTLIST(elements);
@@ -134,7 +135,7 @@ QuContainerGrid::QuContainerGrid(int n_columns,
 }
 
 
-QuContainerGrid::QuContainerGrid(int n_columns,
+QuGridContainer::QuGridContainer(int n_columns,
                                  std::initializer_list<QuElementPtr> elements)
 {
     CONSTRUCT_FROM_ELEMENTLIST(elements);
@@ -142,7 +143,7 @@ QuContainerGrid::QuContainerGrid(int n_columns,
 }
 
 
-QuContainerGrid::QuContainerGrid(int n_columns,
+QuGridContainer::QuGridContainer(int n_columns,
                                  std::initializer_list<QuElement*> elements)
 {
     CONSTRUCT_FROM_ELEMENTLIST(elements);
@@ -150,36 +151,38 @@ QuContainerGrid::QuContainerGrid(int n_columns,
 }
 
 
-void QuContainerGrid::commonConstructor()
+void QuGridContainer::commonConstructor()
 {
     m_fixed_grid = true;
 }
 
 
-QuContainerGrid* QuContainerGrid::addCell(const QuGridCell& cell)
+QuGridContainer* QuGridContainer::addCell(const QuGridCell& cell)
 {
     m_cells.append(cell);
     return this;
 }
 
 
-QuContainerGrid* QuContainerGrid::setColumnStretch(int column, int stretch)
+QuGridContainer* QuGridContainer::setColumnStretch(int column, int stretch)
 {
     m_column_stretch[column] = stretch;
     return this;
 }
 
 
-QuContainerGrid* QuContainerGrid::setFixedGrid(bool fixed_grid)
+QuGridContainer* QuGridContainer::setFixedGrid(bool fixed_grid)
 {
     m_fixed_grid = fixed_grid;
     return this;
 }
 
 
-QPointer<QWidget> QuContainerGrid::makeWidget(Questionnaire* questionnaire)
+QPointer<QWidget> QuGridContainer::makeWidget(Questionnaire* questionnaire)
 {
     QPointer<QWidget> widget = new BaseWidget();
+    widget->setSizePolicy(UiFunc::expandingFixedHFWPolicy());
+
 #ifdef DEBUG_GRID_CREATION
     qDebug() << Q_FUNC_INFO;
     qDebug() << "... m_fixed_grid =" << m_fixed_grid;
@@ -233,7 +236,7 @@ QPointer<QWidget> QuContainerGrid::makeWidget(Questionnaire* questionnaire)
 }
 
 
-QList<QuElementPtr> QuContainerGrid::subelements() const
+QList<QuElementPtr> QuGridContainer::subelements() const
 {
     QList<QuElementPtr> elements;
     for (auto cell : m_cells) {

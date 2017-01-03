@@ -16,7 +16,6 @@
 */
 
 // #define DEBUG_VERBOSE
-#define USE_HFW_LAYOUT  // good
 
 #include "menuitem.h"
 #include <QDebug>
@@ -27,6 +26,7 @@
 #include <QUrl>
 #include "common/camcopsapp.h"
 #include "common/cssconst.h"
+#include "common/gui_defines.h"
 #include "common/uiconstants.h"
 #include "dbobjects/patient.h"
 #include "lib/convert.h"
@@ -42,7 +42,7 @@
 #include "widgets/labelwordwrapwide.h"
 #include "widgets/openablewidget.h"
 
-#ifdef USE_HFW_LAYOUT
+#ifdef GUI_USE_HFW_LAYOUT
 #include "widgets/hboxlayouthfw.h"
 #include "widgets/vboxlayouthfw.h"
 #else
@@ -244,10 +244,10 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
     QSizePolicy sp_icon(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     BaseWidget* row = new BaseWidget();
-#ifdef USE_HFW_LAYOUT
-    QHBoxLayout* rowlayout = new QHBoxLayout();
-#else
+#ifdef GUI_USE_HFW_LAYOUT
     HBoxLayoutHfw* rowlayout = new HBoxLayoutHfw();
+#else
+    QHBoxLayout* rowlayout = new QHBoxLayout();
 #endif
     row->setLayout(rowlayout);
 
@@ -381,7 +381,7 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         // ICON | - ID numbers
 
         // Title/subtitle style
-#ifdef USE_HFW_LAYOUT
+#ifdef GUI_USE_HFW_LAYOUT
         VBoxLayoutHfw* textlayout = new VBoxLayoutHfw();
 #else
         QVBoxLayout* textlayout = new QVBoxLayout();
@@ -456,7 +456,7 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         }
 
         // Title/subtitle
-#ifdef USE_HFW_LAYOUT
+#ifdef GUI_USE_HFW_LAYOUT
         VBoxLayoutHfw* textlayout = new VBoxLayoutHfw();
 #else
         QVBoxLayout* textlayout = new QVBoxLayout();

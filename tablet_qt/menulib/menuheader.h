@@ -26,7 +26,7 @@ class QLabel;
 class QPushButton;
 
 
-class MenuHeader : public QWidget
+class MenuHeader : public QWidget  // breaks as BaseWidget
 {
     Q_OBJECT
 public:

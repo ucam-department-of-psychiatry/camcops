@@ -21,14 +21,9 @@
 #include <QLabel>
 #include <QMouseEvent>
 #include <QStyleOptionButton>
+#include <QVBoxLayout>
 #include "common/uiconstants.h"
 #include "lib/uifunc.h"
-
-#ifdef USE_HFW_LAYOUT
-#include "widgets/vboxlayouthfw.h"
-#else
-#include <QVBoxLayout>
-#endif
 
 
 ClickableLabelNoWrap::ClickableLabelNoWrap(const QString& text, QWidget* parent) :
@@ -54,11 +49,7 @@ void ClickableLabelNoWrap::commonConstructor()
     m_label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     // m_label->setObjectName(CssConst::DEBUG_GREEN);
 
-#ifdef USE_HFW_LAYOUT
-    m_layout = new VBoxLayoutHfw();
-#else
     m_layout = new QVBoxLayout();
-#endif
     m_layout->setContentsMargins(UiConst::NO_MARGINS);
 
     m_layout->addWidget(m_label);

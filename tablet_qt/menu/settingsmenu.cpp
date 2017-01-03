@@ -35,7 +35,7 @@
 #include "menulib/menuitem.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/qubutton.h"
-#include "questionnairelib/qucontainergrid.h"
+#include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionnairefunc.h"
 #include "questionnairelib/qugridcell.h"
@@ -355,7 +355,7 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
     QString clin_contact_t = tr("Default clinician’s contact details");
     QString clin_contact_h = tr("e.g. “x2167”");
 
-    QuContainerGrid* g = new QuContainerGrid();
+    QuGridContainer* g = new QuGridContainer();
     g->setColumnStretch(0, 1);
     g->setColumnStretch(1, 1);
     int row = 0;
@@ -747,7 +747,7 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
     Qt::Alignment labelalign = Qt::AlignRight | Qt::AlignTop;
     Qt::Alignment dataalign = Qt::AlignLeft | Qt::AlignTop;
 
-    QuContainerGrid* g1 = new QuContainerGrid();
+    QuGridContainer* g1 = new QuGridContainer();
     g1->setColumnStretch(0, 1);
     g1->setColumnStretch(1, 1);
     int row = 0;
@@ -764,7 +764,7 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
     g1->addCell(QuGridCell((new QuText(data_server_timeout))->setAlignment(dataalign)->bold(), row, 1));
     ++row;
 
-    QuContainerGrid* g2 = new QuContainerGrid();
+    QuGridContainer* g2 = new QuGridContainer();
     g2->setColumnStretch(0, 1);
     g2->setColumnStretch(1, 1);
     row = 0;
@@ -787,7 +787,7 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
     g2->addCell(QuGridCell((new QuText(data_server_camcops_version))->setAlignment(dataalign)->bold(), row, 1));
     ++row;
 
-    QuContainerGrid* g3 = new QuContainerGrid();
+    QuGridContainer* g3 = new QuGridContainer();
     g3->setColumnStretch(0, 1);
     g3->setColumnStretch(1, 1);
     row = 0;

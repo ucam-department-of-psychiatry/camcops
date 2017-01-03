@@ -136,11 +136,9 @@ SOURCES += main.cpp\
     widgets/labelwordwrapwide.cpp \
     questionnairelib/qubutton.cpp \
     menulib/htmlinfowindow.cpp \
-    questionnairelib/qucontainerhorizontal.cpp \
     questionnairelib/quhorizontalline.cpp \
     questionnairelib/quspacer.cpp \
     widgets/spacer.cpp \
-    questionnairelib/qucontainervertical.cpp \
     questionnairelib/quheading.cpp \
     questionnairelib/quimage.cpp \
     tasklib/tasksorter.cpp \
@@ -176,7 +174,6 @@ SOURCES += main.cpp\
     lib/numericfunc.cpp \
     qobjects/focuswatcher.cpp \
     questionnairelib/qugridcell.cpp \
-    questionnairelib/qucontainergrid.cpp \
     questionnairelib/qumultipleresponse.cpp \
     questionnairelib/qucanvas.cpp \
     widgets/canvaswidget.cpp \
@@ -263,7 +260,11 @@ SOURCES += main.cpp\
     widgets/vboxlayouthfw.cpp \
     widgets/hboxlayouthfw.cpp \
     widgets/basewidget.cpp \
-    widgets/clickablelabelnowrap.cpp
+    widgets/clickablelabelnowrap.cpp \
+    questionnairelib/quflowcontainer.cpp \
+    questionnairelib/qugridcontainer.cpp \
+    questionnairelib/quverticalcontainer.cpp \
+    questionnairelib/quhorizontalcontainer.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -321,11 +322,9 @@ HEADERS  += \
     widgets/labelwordwrapwide.h \
     questionnairelib/qubutton.h \
     menulib/htmlinfowindow.h \
-    questionnairelib/qucontainerhorizontal.h \
     questionnairelib/quhorizontalline.h \
     questionnairelib/quspacer.h \
     widgets/spacer.h \
-    questionnairelib/qucontainervertical.h \
     questionnairelib/quheading.h \
     questionnairelib/quimage.h \
     tasklib/tasksorter.h \
@@ -362,7 +361,6 @@ HEADERS  += \
     lib/numericfunc.h \
     qobjects/focuswatcher.h \
     questionnairelib/qugridcell.h \
-    questionnairelib/qucontainergrid.h \
     questionnairelib/qumultipleresponse.h \
     questionnairelib/qucanvas.h \
     widgets/canvaswidget.h \
@@ -452,7 +450,12 @@ HEADERS  += \
     widgets/vboxlayouthfw.h \
     widgets/hboxlayouthfw.h \
     widgets/basewidget.h \
-    widgets/clickablelabelnowrap.h
+    widgets/clickablelabelnowrap.h \
+    common/gui_defines.h \
+    questionnairelib/quflowcontainer.h \
+    questionnairelib/quhorizontalcontainer.h \
+    questionnairelib/quverticalcontainer.h \
+    questionnairelib/qugridcontainer.h
 
 DISTFILES += \
     notes/qt_notes.txt \

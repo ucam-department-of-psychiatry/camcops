@@ -15,15 +15,16 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define USE_HFW_LAYOUT  // good
-
 #include "qupage.h"
-#include <QVBoxLayout>
 #include <QWidget>
+#include "common/gui_defines.h"
 #include "db/fieldref.h"
 #include "widgets/basewidget.h"
-#ifdef USE_HFW_LAYOUT
+
+#ifdef GUI_USE_HFW_LAYOUT
 #include "widgets/vboxlayouthfw.h"
+#else
+#include <QVBoxLayout>
 #endif
 
 
@@ -120,7 +121,7 @@ QPointer<QWidget> QuPage::widget(Questionnaire* questionnaire) const
 {
     QPointer<QWidget> pagewidget(new BaseWidget());
 
-#ifdef USE_HFW_LAYOUT
+#ifdef GUI_USE_HFW_LAYOUT
     VBoxLayoutHfw* pagelayout = new VBoxLayoutHfw();
 #else
     QVBoxLayout* pagelayout = new QVBoxLayout();
