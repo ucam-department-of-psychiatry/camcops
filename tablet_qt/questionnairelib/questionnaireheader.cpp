@@ -20,20 +20,12 @@
 #include <QDebug>
 #include <QPushButton>
 #include "common/cssconst.h"
-#include "common/gui_defines.h"
+#include "common/layouts.h"
 #include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "widgets/horizontalline.h"
 #include "widgets/imagebutton.h"
 #include "widgets/labelwordwrapwide.h"
-
-#ifdef GUI_USE_HFW_LAYOUT
-#include "widgets/hboxlayouthfw.h"
-#include "widgets/vboxlayouthfw.h"
-#else
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#endif
 
 
 QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
@@ -69,21 +61,13 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     setSizePolicy(UiFunc::expandingFixedHFWPolicy());  // if deriving from QWidget
 #endif
 
-#ifdef GUI_USE_HFW_LAYOUT
-    VBoxLayoutHfw* mainlayout = new VBoxLayoutHfw();
-#else
-    QVBoxLayout* mainlayout = new QVBoxLayout();
-#endif
+    VBoxLayout* mainlayout = new VBoxLayout();
     setLayout(mainlayout);
 
     // ------------------------------------------------------------------------
     // Main row
     // ------------------------------------------------------------------------
-#ifdef GUI_USE_HFW_LAYOUT
-    HBoxLayoutHfw* toprowlayout = new HBoxLayoutHfw();
-#else
-    QHBoxLayout* toprowlayout = new QHBoxLayout();
-#endif
+    HBoxLayout* toprowlayout = new HBoxLayout();
     mainlayout->addLayout(toprowlayout);
 
     Qt::Alignment button_align = Qt::AlignHCenter | Qt::AlignTop;

@@ -19,15 +19,8 @@
 
 #include <QPushButton>
 #include "common/gui_defines.h"
+#include "common/layouts.h"
 class LabelWordWrapWide;
-class QVBoxLayout;
-class VBoxLayoutHfw;
-
-#ifdef GUI_USE_HFW_LAYOUT
-using ClickableLabelWWWLayout = VBoxLayoutHfw;
-#else
-using ClickableLabelWWWLayout = QVBoxLayout;
-#endif
 
 
 class ClickableLabelWordWrapWide : public QPushButton
@@ -56,5 +49,5 @@ protected:
 
 protected:
     LabelWordWrapWide* m_label;
-    ClickableLabelWWWLayout* m_layout;
+    VBoxLayout* m_layout;
 };

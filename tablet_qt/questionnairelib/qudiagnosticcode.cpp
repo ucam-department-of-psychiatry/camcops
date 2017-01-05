@@ -22,12 +22,15 @@
 #include <QVBoxLayout>
 #include <QWidget>
 #include "common/camcopsapp.h"
+#include "common/cssconst.h"
 #include "diagnosis/diagnosticcodeset.h"
 #include "lib/slowguiguard.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
-// #include "widgets/basewidget.h"
+#include "widgets/basewidget.h"
+#include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/diagnosticcodeselector.h"
+#include "widgets/labelwordwrapwide.h"
 
 
 QuDiagnosticCode::QuDiagnosticCode(QSharedPointer<DiagnosticCodeSet> codeset,
@@ -39,7 +42,8 @@ QuDiagnosticCode::QuDiagnosticCode(QSharedPointer<DiagnosticCodeSet> codeset,
     m_offer_null_button(true),
     m_missing_indicator(nullptr),
     m_label_code(nullptr),
-    m_label_description(nullptr)
+    m_label_description(nullptr),
+    m_widget(nullptr)
 {
     Q_ASSERT(m_codeset);
     Q_ASSERT(m_fieldref_code);
@@ -76,8 +80,8 @@ QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
 
     m_missing_indicator = UiFunc::iconWidget(
                 UiFunc::iconFilename(UiConst::ICON_WARNING));
-    m_label_code = new QLabel();
-    m_label_description = new QLabel();
+    m_label_code = new LabelWordWrapWide();
+    m_label_description = new LabelWordWrapWide();
 
     QHBoxLayout* textlayout = new QHBoxLayout();
     textlayout->setContentsMargins(UiConst::NO_MARGINS);
@@ -86,11 +90,12 @@ QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
     textlayout->addWidget(m_label_description);
     textlayout->addStretch();
 
-    QPushButton* button = new QPushButton(tr("Set diagnosis"));
+    ClickableLabelWordWrapWide* button = new ClickableLabelWordWrapWide(tr("Set diagnosis"));
+    button->setObjectName(CssConst::DIAGNOSTIC_CODE);
     // button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     button->setEnabled(!read_only);
     if (!read_only) {
-        connect(button, &QPushButton::clicked,
+        connect(button, &ClickableLabelWordWrapWide::clicked,
                 this, &QuDiagnosticCode::setButtonClicked);
     }
 
@@ -99,11 +104,12 @@ QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
     buttonlayout->addWidget(button);
 
     if (m_offer_null_button) {
-        QPushButton* null_button = new QPushButton(tr("Clear"));
+        ClickableLabelWordWrapWide* null_button = new ClickableLabelWordWrapWide(tr("Clear"));
+        null_button->setObjectName(CssConst::DIAGNOSTIC_CODE);
         // null_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         null_button->setEnabled(!read_only);
         if (!read_only) {
-            connect(null_button, &QPushButton::clicked,
+            connect(null_button, &ClickableLabelWordWrapWide::clicked,
                     this, &QuDiagnosticCode::nullButtonClicked);
         }
         buttonlayout->addWidget(null_button);
@@ -115,13 +121,14 @@ QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
     toplayout->addLayout(textlayout);
     toplayout->addLayout(buttonlayout);
 
-    QPointer<QWidget> widget(new QWidget());  // BaseWidget()
-    widget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    widget->setLayout(toplayout);
+    m_widget = new BaseWidget();
+    // m_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    // ... no, keep as the default of expandingFixedHFWPolicy()?
+    m_widget->setLayout(toplayout);
 
     setFromField();
 
-    return widget;
+    return m_widget;
 }
 
 
@@ -180,4 +187,5 @@ void QuDiagnosticCode::fieldValueChanged(const FieldRef* fieldref_code)
     if (m_label_description) {
         m_label_description->setText(m_fieldref_description->valueString());
     }
+    m_widget->updateGeometry();
 }

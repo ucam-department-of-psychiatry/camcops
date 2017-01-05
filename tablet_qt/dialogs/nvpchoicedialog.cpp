@@ -20,16 +20,10 @@
 #include <QDialogButtonBox>
 #include <QEvent>
 #include <QVariant>
-#include "common/gui_defines.h"
+#include "common/layouts.h"
 #include "lib/uifunc.h"
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/verticalscrollarea.h"
-
-#ifdef GUI_USE_HFW_LAYOUT
-#include "widgets/vboxlayouthfw.h"
-#else
-#include <QVBoxLayout>
-#endif
 
 
 NvpChoiceDialog::NvpChoiceDialog(QWidget* parent,
@@ -52,11 +46,7 @@ int NvpChoiceDialog::choose(QVariant* new_value)
     setWindowTitle(m_title);
 
     QWidget* contentwidget = new QWidget();  // doesn't need to be BaseWidget; contains scroll area
-#ifdef GUI_USE_HFW_LAYOUT
-    VBoxLayoutHfw* contentlayout = new VBoxLayoutHfw();
-#else
-    QVBoxLayout* contentlayout = new QVBoxLayout();
-#endif
+    VBoxLayout* contentlayout = new VBoxLayout();
     contentwidget->setLayout(contentlayout);
     for (int i = 0; i < m_options.size(); ++i) {
         const NameValuePair& nvp = m_options.at(i);
@@ -72,11 +62,7 @@ int NvpChoiceDialog::choose(QVariant* new_value)
     VerticalScrollArea* scroll = new VerticalScrollArea();
     scroll->setWidget(contentwidget);
 
-#ifdef GUI_USE_HFW_LAYOUT
-    VBoxLayoutHfw* mainlayout = new VBoxLayoutHfw();
-#else
-    QVBoxLayout* mainlayout = new QVBoxLayout();
-#endif
+    VBoxLayout* mainlayout = new VBoxLayout();
     mainlayout->addWidget(scroll);
     setLayout(mainlayout);
 

@@ -17,15 +17,9 @@
 
 #include "qupage.h"
 #include <QWidget>
-#include "common/gui_defines.h"
+#include "common/layouts.h"
 #include "db/fieldref.h"
 #include "widgets/basewidget.h"
-
-#ifdef GUI_USE_HFW_LAYOUT
-#include "widgets/vboxlayouthfw.h"
-#else
-#include <QVBoxLayout>
-#endif
 
 
 QuPage::QuPage() :
@@ -121,11 +115,7 @@ QPointer<QWidget> QuPage::widget(Questionnaire* questionnaire) const
 {
     QPointer<QWidget> pagewidget(new BaseWidget());
 
-#ifdef GUI_USE_HFW_LAYOUT
-    VBoxLayoutHfw* pagelayout = new VBoxLayoutHfw();
-#else
-    QVBoxLayout* pagelayout = new QVBoxLayout();
-#endif
+    VBoxLayout* pagelayout = new VBoxLayout();
 
     pagewidget->setLayout(pagelayout);
     // Add widgets that we own directly

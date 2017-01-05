@@ -21,14 +21,10 @@
 #include <QDebug>
 #include <QMargins>
 #include <QStyleOptionButton>
+#include "common/gui_defines.h"
+#include "common/layouts.h"
 #include "lib/uifunc.h"
 #include "widgets/labelwordwrapwide.h"
-
-#ifdef GUI_USE_HFW_LAYOUT
-#include "widgets/vboxlayouthfw.h"
-#else
-#include <QVBoxLayout>
-#endif
 
 
 ClickableLabelWordWrapWide::ClickableLabelWordWrapWide(const QString& text,
@@ -58,7 +54,7 @@ void ClickableLabelWordWrapWide::commonConstructor(bool stretch)
 
     // m_label->setObjectName(CssConst::DEBUG_YELLOW);
 
-    m_layout = new ClickableLabelWWWLayout();
+    m_layout = new VBoxLayout();
     // m_layout->setContentsMargins(UiConst::NO_MARGINS);
     // no, use CSS instead // layout->setMargin(0);
 
@@ -139,7 +135,7 @@ QSize ClickableLabelWordWrapWide::minimumSizeHint() const
 }
 
 
-#ifdef GUI_USE_RESIZE_FOR_HEIGHT  // from labelwordwrapwide.h
+#ifdef GUI_USE_RESIZE_FOR_HEIGHT
 void ClickableLabelWordWrapWide::resizeEvent(QResizeEvent* event)
 {
 #ifdef DEBUG_CALCULATIONS

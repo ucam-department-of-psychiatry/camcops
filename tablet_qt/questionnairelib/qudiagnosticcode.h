@@ -22,8 +22,10 @@
 #include "quelement.h"
 
 class DiagnosticCodeSet;
+class LabelWordWrapWide;
 class QLabel;
 class QPushButton;
+class QWidget;
 
 
 class QuDiagnosticCode : public QuElement
@@ -55,6 +57,7 @@ protected:
 
     QPointer<Questionnaire> m_questionnaire;
     QPointer<QLabel> m_missing_indicator;
-    QPointer<QLabel> m_label_code;
-    QPointer<QLabel> m_label_description;
+    QPointer<LabelWordWrapWide> m_label_code;
+    QPointer<LabelWordWrapWide> m_label_description;
+    QPointer<QWidget> m_widget;
 };

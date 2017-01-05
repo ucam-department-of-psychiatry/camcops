@@ -31,6 +31,7 @@ namespace LayoutDumper
     QString toString(QLayout::SizeConstraint constraint);
     QString toString(const void* pointer);
     QString toString(const Qt::Alignment& alignment);
+    QString toString(bool boolean);
     QString getWidgetDescriptor(const QWidget* w);
     QString getWidgetInfo(const QWidget* w,
                           bool show_properties,

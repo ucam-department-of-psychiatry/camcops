@@ -90,6 +90,8 @@ static inline int fRound(Fixed64 i)
 // ============================================================================
 
 // from qlayoutengine_p.h
+// original is static: http://stackoverflow.com/questions/558122/what-is-a-static-function
+// ... and inline
 /*
   Modify total maximum (max), total expansion (exp), and total empty
   when adding boxmax/boxexp.

@@ -37,11 +37,12 @@
 #include <QResizeEvent>
 #include <QStyle>
 #include <QStyleOptionFrame>
+#include "common/gui_defines.h"
+#include "lib/uifunc.h"
+
 #ifdef DEBUG_LAYOUT_WITH_CSS
 #include "common/cssconst.h"
 #endif
-#include "lib/uifunc.h"
-
 
 // A QLabel, with setWordWrap(true), has a tendency to expand vertically and
 // not use all the available horizontal space.

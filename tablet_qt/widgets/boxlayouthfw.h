@@ -16,6 +16,9 @@
 */
 
 #pragma once
+
+#define BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT  // comment out to revert to QBoxLayout behaviour
+
 #include <QLayout>
 #include <QHash>
 #include <QVector>
@@ -85,6 +88,7 @@ public:
             m_bottom = bottom;
             m_set = true;
         }
+        void clear() { m_set = false; }
         bool isSet() const { return m_set; }
         QSize extra() const { return QSize(m_left + m_right, m_top + m_bottom); }
         int removeLeftRightMargins(int w) { return w - (m_left + m_right); }
@@ -95,6 +99,7 @@ public:
         int m_bottom;
     };
     struct HfwInfo {  // RNC
+        HfwInfo() : m_hfw_height(-1), m_hfw_min_height(-1) {}
         int m_hfw_height;
         int m_hfw_min_height;
         int hfw(const Margins& margins) { return m_hfw_height + margins.m_top + margins.m_bottom; }
@@ -166,7 +171,11 @@ private:
 protected:
     void setDirty();
     void deleteAll();
+#ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
     GeomInfo getGeomInfo(const QRect& layout_rect = QRect()) const;
+#else
+    GeomInfo getGeomInfo() const;
+#endif
     HfwInfo getHfwInfo(int layout_width) const;
     Margins effectiveMargins(const Margins& contents_margins) const;
     QLayoutItem* replaceAt(int index, QLayoutItem* item);
@@ -175,29 +184,30 @@ protected:
     QVector<QRect> getChildRects(const QRect& contents_rect,
                                  const QVector<QQLayoutStruct>& a) const;  // RNC
     Direction getVisualDir() const;  // RNC
+#ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
     void clearCaches() const;  // RNC
-    const Margins& getContentsMarginsAndCache() const;
-    const Margins& getEffectiveMargins() const;
+#endif
+    Margins getContentsMarginsAsMargins() const;
+    Margins getEffectiveMargins() const;
 
 protected:
     QList<BoxLayoutHfwItem*> m_list;
     Direction m_dir;
     int m_spacing;
 
+#ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
+    mutable int m_width_last_size_constraints_based_on;
+    mutable QRect m_rect_for_next_size_constraints;
     mutable QHash<int, HfwInfo> m_hfw_cache;  // RNC; the int is width
     mutable QHash<QRect, GeomInfo> m_geom_cache;  // RNC
+#else
+    mutable GeomInfo m_cached_geominfo;
+    mutable int m_cached_hfw_width;
+    mutable HfwInfo m_cached_hfwinfo;
+#endif
     mutable Margins m_contents_margins;  // RNC
     mutable Margins m_effective_margins;  // RNC
     mutable bool m_dirty;  // set by invalidate(), cleared by setupGeom(), used by lots to prevent unnecessary calls to setupGeom()
-    mutable int m_width_last_size_constraints_based_on;
-    mutable QRect m_rect_for_next_size_constraints;
-
-    // mutable int m_cached_layout_width;  // set by setupGeom()
-    // mutable int m_cached_layout_height;  // set by setupGeom()
-
-    // mutable int m_hfw_width;  // cached value used by heightForWidth() to prevent unnecessary recalculation
-    // mutable int m_hfw_height;  // returned by heightForWidth(), calculated by calcHfw()
-    // mutable int m_hfw_min_height;  // returned by minimumHeightForWidth(), calculated by calcHfw()
 
     // ------------------------------------------------------------------------
     // Selected bits from QLayoutPrivate:
@@ -205,8 +215,10 @@ protected:
 protected:
     bool checkWidget(QWidget* widget) const;
     bool checkLayout(QLayout* other_layout) const;
-    static QWidgetItem* createWidgetItem(const QLayout* layout, QWidget* widget);
-    static QSpacerItem* createSpacerItem(const QLayout* layout, int w, int h,
-                                         QSizePolicy::Policy h_policy = QSizePolicy::Minimum,
-                                         QSizePolicy::Policy v_policy = QSizePolicy::Minimum);
+    static QWidgetItem* createWidgetItem(const QLayout* layout,
+                                         QWidget* widget);
+    static QSpacerItem* createSpacerItem(
+            const QLayout* layout, int w, int h,
+            QSizePolicy::Policy h_policy = QSizePolicy::Minimum,
+            QSizePolicy::Policy v_policy = QSizePolicy::Minimum);
 };

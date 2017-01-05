@@ -16,6 +16,7 @@
 */
 
 // #define DEBUG_ICON_LOAD
+#define DEBUG_HFW_RESIZE_EVENT
 // #define DEBUG_WIDGET_MARGINS
 
 #include "uifunc.h"
@@ -579,7 +580,9 @@ void UiFunc::resizeEventForHFWParentWidget(QWidget* widget)
     }
     int w = widget->width();
     int h = lay->heightForWidth(w);
-    // qDebug() << Q_FUNC_INFO << "w" << w << "-> h" << h;
+#ifdef DEBUG_HFW_RESIZE_EVENT
+    qDebug() << Q_FUNC_INFO << "w" << w << "-> h" << h;
+#endif
     widget->setFixedHeight(h);
     widget->updateGeometry();
 }

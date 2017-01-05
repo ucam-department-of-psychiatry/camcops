@@ -17,16 +17,10 @@
 
 #include "quverticalcontainer.h"
 #include <QWidget>
-#include "common/gui_defines.h"
+#include "common/layouts.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/basewidget.h"
-
-#ifdef GUI_USE_HFW_LAYOUT
-#include "widgets/vboxlayouthfw.h"
-#else
-#include <QVBoxLayout>
-#endif
 
 const Qt::Alignment QuVerticalContainer::DefaultWidgetAlignment = Qt::AlignLeft | Qt::AlignVCenter;
 
@@ -103,11 +97,7 @@ QPointer<QWidget> QuVerticalContainer::makeWidget(Questionnaire* questionnaire)
     QPointer<QWidget> widget(new BaseWidget());
     widget->setSizePolicy(UiFunc::expandingFixedHFWPolicy());
 
-#ifdef GUI_USE_HFW_LAYOUT
-    VBoxLayoutHfw* layout = new VBoxLayoutHfw();
-#else
-    QVBoxLayout* layout = new QVBoxLayout();
-#endif
+    VBoxLayout* layout = new VBoxLayout();
 
     // widget->setObjectName(CssConst::DEBUG_YELLOW);
     layout->setContentsMargins(UiConst::NO_MARGINS);

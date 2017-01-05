@@ -16,22 +16,31 @@
 */
 
 #pragma once
+
 #include <QScrollArea>
 #include <QSize>
 
-
 // http://forum.qt.io/topic/13374/solved-qscrollarea-vertical-scroll-only/4
+
 
 class VerticalScrollArea : public QScrollArea
 {
     // Contains objects in a vertical scroll area.
-    // Inheritance: QScrollArea : QAbstractScrollArea : QFrame : QWidget
+    // - Inheritance: QScrollArea : QAbstractScrollArea : QFrame : QWidget
+    // - Note that it *contains* a QWidget, named 'qt_scrollarea_viewport',
+    //   which has the user-inserted widget as its child. This has the same
+    //   implications with respect to height-for-width (and height generally?)
+    //   as for BaseWidget (q.v.).
+    // - Internally, this is "QWidget* viewport". However, it is in the private
+    //   class, accessed via the standard Qt private pointer, so inaccessible.
 
     Q_OBJECT
 public:
     explicit VerticalScrollArea(QWidget* parent = nullptr);
     virtual bool eventFilter(QObject* o, QEvent* e);
     virtual QSize sizeHint() const override;
+    // virtual QSize minimumSizeHint() const override;  // nope: scroll areas can be shrunk; that's their point
+    // virtual void showEvent(QShowEvent* e) override;  // no help
 protected:
     bool m_updating_geometry;
 };

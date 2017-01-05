@@ -26,7 +26,7 @@
 #include <QUrl>
 #include "common/camcopsapp.h"
 #include "common/cssconst.h"
-#include "common/gui_defines.h"
+#include "common/layouts.h"
 #include "common/uiconstants.h"
 #include "dbobjects/patient.h"
 #include "lib/convert.h"
@@ -41,14 +41,6 @@
 #include "widgets/basewidget.h"
 #include "widgets/labelwordwrapwide.h"
 #include "widgets/openablewidget.h"
-
-#ifdef GUI_USE_HFW_LAYOUT
-#include "widgets/hboxlayouthfw.h"
-#include "widgets/vboxlayouthfw.h"
-#else
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#endif
 
 const int STRETCH_3COL_WTASKNAME_TASKNAME = 1;
 const int STRETCH_3COL_WTASKNAME_TIMESTAMP = 2;
@@ -244,11 +236,7 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
     QSizePolicy sp_icon(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     BaseWidget* row = new BaseWidget();
-#ifdef GUI_USE_HFW_LAYOUT
-    HBoxLayoutHfw* rowlayout = new HBoxLayoutHfw();
-#else
-    QHBoxLayout* rowlayout = new QHBoxLayout();
-#endif
+    HBoxLayout* rowlayout = new HBoxLayout();
     row->setLayout(rowlayout);
 
     if (m_p_task) {
@@ -381,11 +369,7 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         // ICON | - ID numbers
 
         // Title/subtitle style
-#ifdef GUI_USE_HFW_LAYOUT
-        VBoxLayoutHfw* textlayout = new VBoxLayoutHfw();
-#else
-        QVBoxLayout* textlayout = new QVBoxLayout();
-#endif
+        VBoxLayout* textlayout = new VBoxLayout();
 
         QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
@@ -456,11 +440,7 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         }
 
         // Title/subtitle
-#ifdef GUI_USE_HFW_LAYOUT
-        VBoxLayoutHfw* textlayout = new VBoxLayoutHfw();
-#else
-        QVBoxLayout* textlayout = new QVBoxLayout();
-#endif
+        VBoxLayout* textlayout = new VBoxLayout();
 
         QLabel* title = new LabelWordWrapWide(m_title);
         title->setAlignment(text_align);

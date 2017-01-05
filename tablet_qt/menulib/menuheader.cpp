@@ -21,21 +21,13 @@
 #include <QAbstractButton>
 #include <QLabel>
 #include "common/cssconst.h"
-#include "common/gui_defines.h"
+#include "common/layouts.h"
 #include "common/uiconstants.h"
 #include "dbobjects/patient.h"
 #include "lib/uifunc.h"
 #include "widgets/horizontalline.h"
 #include "widgets/imagebutton.h"
 #include "widgets/labelwordwrapwide.h"
-
-#ifdef GUI_USE_HFW_LAYOUT
-#include "widgets/hboxlayouthfw.h"
-#include "widgets/vboxlayouthfw.h"
-#else
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#endif
 
 
 MenuHeader::MenuHeader(QWidget* parent,
@@ -59,21 +51,13 @@ MenuHeader::MenuHeader(QWidget* parent,
       m_patient_info(nullptr),
       m_no_patient(nullptr)
 {
-#ifdef GUI_USE_HFW_LAYOUT
-    VBoxLayoutHfw* mainlayout = new VBoxLayoutHfw();
-#else
-    QVBoxLayout* mainlayout = new QVBoxLayout();
-#endif
+    VBoxLayout* mainlayout = new VBoxLayout();
     setLayout(mainlayout);
 
     // ------------------------------------------------------------------------
     // Main row
     // ------------------------------------------------------------------------
-#ifdef GUI_USE_HFW_LAYOUT
-    HBoxLayoutHfw* toprowlayout = new HBoxLayoutHfw();
-#else
-    QHBoxLayout* toprowlayout = new QHBoxLayout();
-#endif
+    HBoxLayout* toprowlayout = new HBoxLayout();
     mainlayout->addLayout(toprowlayout);
 
     Qt::Alignment button_align = Qt::AlignHCenter | Qt::AlignTop;

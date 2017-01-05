@@ -101,6 +101,7 @@ QPushButton,
 QComboBox#picker_inline,
 ClickableLabelWordWrapWide#picker_popup,
 ClickableLabelWordWrapWide#button,
+ClickableLabelWordWrapWide#diagnostic_code,
 BooleanWidget ClickableLabelWordWrapWide,
 NvpChoiceDialog ClickableLabelWordWrapWide,
 PagePickerDialog ClickableLabelWordWrapWide {

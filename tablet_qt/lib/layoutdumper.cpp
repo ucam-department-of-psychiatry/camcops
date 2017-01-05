@@ -51,15 +51,10 @@ QString LayoutDumper::toString(const QSizePolicy::Policy& policy)
 
 QString LayoutDumper::toString(const QSizePolicy& policy)
 {
-    QString result = QString("(%1, %2)")
+    QString result = QString("(%1, %2) [hasHeightForWidth=%3]")
             .arg(toString(policy.horizontalPolicy()))
-            .arg(toString(policy.verticalPolicy()));
-    if (policy.hasHeightForWidth()) {
-        result += " [hasHeightForWidth]";
-    }
-    if (policy.hasWidthForHeight()) {
-        result += " [hasWidthForHeight]";
-    }
+            .arg(toString(policy.verticalPolicy()))
+            .arg(toString(policy.hasHeightForWidth()));
     return result;
 }
 
@@ -127,6 +122,12 @@ QString LayoutDumper::toString(const void* pointer)
 }
 
 
+QString LayoutDumper::toString(bool boolean)
+{
+    return boolean ? "true" : "false";
+}
+
+
 QString LayoutDumper::getWidgetDescriptor(const QWidget* w)
 {
     if (!w) {
@@ -148,8 +149,6 @@ QString LayoutDumper::getWidgetInfo(const QWidget* w,
     }
 
     const QRect& geom = w->geometry();
-    QSize sizehint = w->sizeHint();
-    QSize minsizehint = w->minimumSizeHint();
 
     // Can't have >9 arguments to QString arg() system.
     // Using QStringBuilder with % leads to more type faff.
@@ -172,11 +171,11 @@ QString LayoutDumper::getWidgetInfo(const QWidget* w,
                     .arg(w->maximumSize().width())
                     .arg(w->maximumSize().height()));
     elements.append(QString("sizeHint[UP] (%1 x %2)")
-                    .arg(sizehint.width())
-                    .arg(sizehint.height()));
+                    .arg(w->sizeHint().width())
+                    .arg(w->sizeHint().height()));
     elements.append(QString("minimumSizeHint[UP] (%1 x %2)")
-                    .arg(minsizehint.width())
-                    .arg(minsizehint.height()));
+                    .arg(w->minimumSizeHint().width())
+                    .arg(w->minimumSizeHint().height()));
     elements.append(QString("sizePolicy[UP] %1")
                     .arg(toString(w->sizePolicy())));
     elements.append(QString("stylesheet: %1")
@@ -192,6 +191,15 @@ QString LayoutDumper::getWidgetInfo(const QWidget* w,
         if (!properties.isEmpty()) {
             elements.append(QString("properties: [%1]").arg(properties));
         }
+    }
+
+    if (geom.width() < w->minimumSize().width() ||
+            geom.height() < w->minimumSize().height()) {
+        elements.append("[BUG? geometry() < minimumSize()]");
+    }
+    if (geom.width() < w->minimumSizeHint().width() ||
+            geom.height() < w->minimumSizeHint().height()) {
+        elements.append("[WARNING: geometry() < minimumSizeHint()]");
     }
 
     return elements.join(", ");
@@ -252,11 +260,6 @@ QString LayoutDumper::getLayoutInfo(const QLayout* layout)
     // usually unhelpful (blank): layout->objectName()
     QStringList elements;
     elements.append(name);
-    elements.append(QString("margin (l=%1,t=%2,r=%3,b=%4)")
-                    .arg(margins.left())
-                    .arg(margins.top())
-                    .arg(margins.right())
-                    .arg(margins.bottom()));
     elements.append(QString("constraint %1")
                     .arg(toString(layout->sizeConstraint())));
     elements.append(QString("minimumSize[UP] (%1 x %2)")
@@ -268,19 +271,31 @@ QString LayoutDumper::getLayoutInfo(const QLayout* layout)
     elements.append(QString("maximumSize[UP] (%1 x %2)")
                     .arg(maxsize.width())
                     .arg(maxsize.height()));
+    elements.append(QString("hasHeightForWidth[UP] %3")
+                    .arg(toString(layout->hasHeightForWidth())));
+    elements.append(QString("margin (l=%1,t=%2,r=%3,b=%4)")
+                    .arg(margins.left())
+                    .arg(margins.top())
+                    .arg(margins.right())
+                    .arg(margins.bottom()));
+    elements.append(QString("spacing[UP] %1")
+                    .arg(layout->spacing()));
+
     if (parent) {
-        int parent_width = parent->size().width();
+        QSize parent_size = parent->size();
+        int parent_width = parent_size.width();
         elements.append(QString("heightForWidth(%1)[UP] %2")
                         .arg(parent_width)
                         .arg(layout->heightForWidth(parent_width)));
         elements.append(QString("minimumHeightForWidth(%1)[UP] %2")
                         .arg(parent_width)
                         .arg(layout->minimumHeightForWidth(parent_width)));
+        if (parent_width < minsize.width() ||
+                parent_size.height() < minsize.height()) {
+            elements.append("[WARNING: parent->size() < this->minimumSize()]");
+        }
     }
-    elements.append(QString("spacing[UP] %1")
-                    .arg(layout->spacing()));
-    QString hfw = layout->hasHeightForWidth() ? " [hasHeightForWidth]" : "";
-    return elements.join(", ") + hfw;
+    return elements.join(", ");
 }
 
 

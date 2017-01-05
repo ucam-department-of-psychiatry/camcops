@@ -17,7 +17,6 @@
 
 #include "quflowcontainer.h"
 #include <QWidget>
-#include "common/gui_defines.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/basewidget.h"

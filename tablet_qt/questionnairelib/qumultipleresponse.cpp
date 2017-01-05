@@ -17,7 +17,7 @@
 
 #include "qumultipleresponse.h"
 #include "common/cssconst.h"
-#include "common/gui_defines.h"
+#include "common/layouts.h"
 #include "common/random.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
@@ -26,14 +26,6 @@
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/flowlayouthfw.h"
 #include "widgets/labelwordwrapwide.h"
-
-#ifdef GUI_USE_HFW_LAYOUT
-#include "widgets/hboxlayouthfw.h"
-#include "widgets/vboxlayouthfw.h"
-#else
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#endif
 
 
 QuMultipleResponse::QuMultipleResponse()
@@ -158,11 +150,7 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
         mainlayout = new FlowLayoutHfw();
     } else {
         mainwidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-#ifdef GUI_USE_HFW_LAYOUT
-        mainlayout = new VBoxLayoutHfw();
-#else
-        mainlayout = new QVBoxLayout();
-#endif
+        mainlayout = new VBoxLayout();
     }
     mainlayout->setContentsMargins(UiConst::NO_MARGINS);
     mainwidget->setLayout(mainlayout);
@@ -205,11 +193,7 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
                 connect(namelabel, &ClickableLabelWordWrapWide::clicked,
                         std::bind(&QuMultipleResponse::clicked, this, i));
             }
-#ifdef GUI_USE_HFW_LAYOUT
-            HBoxLayoutHfw* itemlayout = new HBoxLayoutHfw();
-#else
-            QHBoxLayout* itemlayout = new QHBoxLayout();
-#endif
+            HBoxLayout* itemlayout = new HBoxLayout();
             itemlayout->setContentsMargins(UiConst::NO_MARGINS);
             itemwidget->setLayout(itemlayout);
             itemlayout->addWidget(w, 0, Qt::AlignTop);
@@ -244,11 +228,7 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
     QPointer<QWidget> final_widget;
     if (m_show_instruction) {
         // Higher-level widget containing {instructions, actual MCQ}
-#ifdef GUI_USE_HFW_LAYOUT
-        VBoxLayoutHfw* layout_w_instr = new VBoxLayoutHfw();
-#else
-        QVBoxLayout* layout_w_instr = new QVBoxLayout();
-#endif
+        VBoxLayout* layout_w_instr = new VBoxLayout();
         layout_w_instr->setContentsMargins(UiConst::NO_MARGINS);
         QString instruction = m_instruction.isEmpty() ? defaultInstruction()
                                                       : m_instruction;

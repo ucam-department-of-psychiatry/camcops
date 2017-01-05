@@ -15,11 +15,15 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define DEBUG_LAYOUT
+
 #include "basewidget.h"
-// #include <QDebug>
+#include <QDebug>
 #include <QLayout>
 #include <QPainter>
+#include <QResizeEvent>
 #include <QStyleOption>
+#include "common/gui_defines.h"  // duplicated from header
 #include "lib/uifunc.h"
 
 
@@ -42,7 +46,10 @@ BaseWidget::~BaseWidget()
 #ifdef GUI_USE_RESIZE_FOR_HEIGHT
 void BaseWidget::resizeEvent(QResizeEvent* event)
 {
-    QWidget::resizeEvent(event);
+#ifdef DEBUG_LAYOUT
+    qDebug() << Q_FUNC_INFO << event->size();
+#endif
+    QWidget::resizeEvent(event);  // doesn't actually do anything
     UiFunc::resizeEventForHFWParentWidget(this);
 }
 #endif

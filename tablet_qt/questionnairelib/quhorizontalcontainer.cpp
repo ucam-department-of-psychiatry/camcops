@@ -17,17 +17,11 @@
 
 #include "quhorizontalcontainer.h"
 #include <QWidget>
-#include "common/gui_defines.h"
+#include "common/layouts.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/basewidget.h"
 #include "widgets/flowlayouthfw.h"
-
-#ifdef GUI_USE_HFW_LAYOUT
-#include "widgets/hboxlayouthfw.h"
-#else
-#include <QHBoxLayout>
-#endif
 
 
 const Qt::Alignment QuHorizontalContainer::DefaultWidgetAlignment = Qt::AlignLeft | Qt::AlignVCenter;
@@ -129,11 +123,7 @@ QPointer<QWidget> QuHorizontalContainer::makeWidget(
     QPointer<QWidget> widget(new BaseWidget());
     widget->setSizePolicy(UiFunc::expandingFixedHFWPolicy());
 
-#ifdef GUI_USE_HFW_LAYOUT
-    HBoxLayoutHfw* layout = new HBoxLayoutHfw();
-#else
-    QHBoxLayout* layout = new QHBoxLayout();
-#endif
+    HBoxLayout* layout = new HBoxLayout();
 
     // widget->setObjectName(CssConst::DEBUG_YELLOW);
     layout->setContentsMargins(UiConst::NO_MARGINS);

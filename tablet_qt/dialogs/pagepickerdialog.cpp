@@ -20,18 +20,11 @@
 #include <QDialogButtonBox>
 #include <QEvent>
 #include <QVBoxLayout>
-#include "common/gui_defines.h"
+#include "common/layouts.h"
 #include "lib/uifunc.h"
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/imagebutton.h"
 #include "widgets/verticalscrollarea.h"
-
-#ifdef GUI_USE_HFW_LAYOUT
-#include "widgets/hboxlayouthfw.h"
-#include "widgets/vboxlayouthfw.h"
-#else
-#include <QHBoxLayout>
-#endif
 
 
 PagePickerDialog::PagePickerDialog(QWidget* parent,
@@ -54,19 +47,11 @@ int PagePickerDialog::choose(int* new_page_number)
     setWindowTitle(m_title);
 
     QWidget* contentwidget = new QWidget();  // doesn't need to be BaseWidget; contains scroll area
-#ifdef GUI_USE_HFW_LAYOUT
-    VBoxLayoutHfw* contentlayout = new VBoxLayoutHfw();
-#else
-    QVBoxLayout* contentlayout = new QVBoxLayout();
-#endif
+    VBoxLayout* contentlayout = new VBoxLayout();
     contentwidget->setLayout(contentlayout);
     for (int i = 0; i < m_pages.size(); ++i) {
         const PagePickerItem& page = m_pages.at(i);
-#ifdef GUI_USE_HFW_LAYOUT
-        HBoxLayoutHfw* itemlayout = new HBoxLayoutHfw();
-#else
-        QHBoxLayout* itemlayout = new QHBoxLayout();
-#endif
+        HBoxLayout* itemlayout = new HBoxLayout();
 
         ClickableLabelWordWrapWide* label = new ClickableLabelWordWrapWide(
                     page.text());

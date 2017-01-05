@@ -17,28 +17,16 @@
 
 #pragma once
 
-/*
-// #define GUI_USE_HFW_LAYOUT  // not working properly
-// ... for many things
+#include "common/gui_defines.h"
 
-#ifndef GUI_USE_HFW_LAYOUT
-#define GUI_USE_RESIZE_FOR_HEIGHT
-// ... for BaseWidget, LabelWordWrapWide, AspectRatioPixmapLabel...
+#ifdef GUI_USE_HFW_LAYOUT
+#include "widgets/hboxlayouthfw.h"
+#include "widgets/vboxlayouthfw.h"
+using HBoxLayout = HBoxLayoutHfw;
+using VBoxLayout = VBoxLayoutHfw;
+#else
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+using HBoxLayout = QHBoxLayout;
+using VBoxLayout = QVBoxLayout;
 #endif
-
-#if defined(GUI_USE_HFW_LAYOUT) == defined(GUI_USE_RESIZE_FOR_HEIGHT)
-#error Define GUI_USE_HFW_LAYOUT xor GUI_USE_RESIZE_FOR_HEIGHT
-#endif
-*/
-
-#define GUI_USE_HFW_LAYOUT
-// #define GUI_USE_RESIZE_FOR_HEIGHT
-
-
-/*
-
-Notes for classes using these:
-- The ONLY difference you should implement based on GUI_USE_HFW_LAYOUT
-  is which layout class to use. Don't alter anything else
-
-*/

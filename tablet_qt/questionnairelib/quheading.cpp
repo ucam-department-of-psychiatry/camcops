@@ -17,18 +17,12 @@
 
 #include "quheading.h"
 #include "common/cssconst.h"
-#include "common/gui_defines.h"
+#include "common/layouts.h"
 #include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/basewidget.h"
 #include "widgets/labelwordwrapwide.h"
-
-#ifdef GUI_USE_HFW_LAYOUT
-#include "widgets/hboxlayouthfw.h"
-#else
-#include <QHBoxLayout>
-#endif
 
 
 QuHeading::QuHeading(const QString& text) :
@@ -59,13 +53,7 @@ QPointer<QWidget> QuHeading::makeWidget(Questionnaire* questionnaire)
     // Add background:
 
     m_container = new BaseWidget();
-
-#ifdef GUI_USE_HFW_LAYOUT
-    HBoxLayoutHfw* layout = new HBoxLayoutHfw();
-#else
-    QHBoxLayout* layout = new QHBoxLayout();
-#endif
-
+    HBoxLayout* layout = new HBoxLayout();
     m_container->setObjectName(CssConst::QUHEADING);
     m_container->setLayout(layout);
     layout->addWidget(m_label, 0, Qt::AlignLeft | Qt::AlignTop);

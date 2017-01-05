@@ -15,7 +15,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define DEBUG_LAYOUT_CALCS
+// #define DEBUG_LAYOUT_CALCS
 
 #include "aspectratiopixmaplabel.h"
 #include <QDebug>

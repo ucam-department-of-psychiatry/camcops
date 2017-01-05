@@ -455,7 +455,8 @@ HEADERS  += \
     questionnairelib/quflowcontainer.h \
     questionnairelib/quhorizontalcontainer.h \
     questionnairelib/quverticalcontainer.h \
-    questionnairelib/qugridcontainer.h
+    questionnairelib/qugridcontainer.h \
+    common/layouts.h
 
 DISTFILES += \
     notes/qt_notes.txt \

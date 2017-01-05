@@ -18,17 +18,9 @@
 #pragma once
 
 #include <QAbstractButton>
-#include "common/gui_defines.h"
+#include "common/layouts.h"
 class ClickableLabelWordWrapWide;
 class ImageButton;
-class QVBoxLayout;
-class VBoxLayoutHfw;
-
-#ifdef GUI_USE_HFW_LAYOUT
-using BooleanWidgetVerticalLayout = VBoxLayoutHfw;
-#else
-using BooleanWidgetVerticalLayout = QVBoxLayout;
-#endif
 
 
 class BooleanWidget : public QAbstractButton
@@ -85,5 +77,5 @@ protected:
     State m_state;
     ImageButton* m_imagebutton;
     ClickableLabelWordWrapWide* m_textbutton;
-    BooleanWidgetVerticalLayout* m_layout;
+    VBoxLayout* m_layout;
 };

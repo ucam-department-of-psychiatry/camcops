@@ -29,7 +29,7 @@
 #include <QStandardItemModel>
 #include <QTreeView>
 #include "common/cssconst.h"
-#include "common/gui_defines.h"
+#include "common/layouts.h"
 #include "common/uiconstants.h"
 #include "diagnosis/diagnosticcodeset.h"
 #include "diagnosis/diagnosissortfiltermodel.h"
@@ -37,14 +37,6 @@
 #include "widgets/horizontalline.h"
 #include "widgets/imagebutton.h"
 #include "widgets/labelwordwrapwide.h"
-
-#ifdef GUI_USE_HFW_LAYOUT
-#include "widgets/hboxlayouthfw.h"
-#include "widgets/vboxlayouthfw.h"
-#else
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#endif
 
 /*
 
@@ -131,11 +123,7 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     connect(m_tree_button.data(), &QAbstractButton::clicked,
             this, &DiagnosticCodeSelector::goToTree);
 
-#ifdef GUI_USE_HFW_LAYOUT
-    HBoxLayoutHfw* header_toprowlayout = new HBoxLayoutHfw();
-#else
-    QHBoxLayout* header_toprowlayout = new QHBoxLayout();
-#endif
+    HBoxLayout* header_toprowlayout = new HBoxLayout();
     header_toprowlayout->addWidget(cancel, 0, button_align);
     header_toprowlayout->addStretch();
     header_toprowlayout->addWidget(title_label, 0, text_align);  // default alignment fills whole cell; this is better
@@ -152,11 +140,7 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     // ------------------------------------------------------------------------
     // Header assembly
     // ------------------------------------------------------------------------
-#ifdef GUI_USE_HFW_LAYOUT
-    VBoxLayoutHfw* header_mainlayout = new VBoxLayoutHfw();
-#else
-    QVBoxLayout* header_mainlayout = new QVBoxLayout();
-#endif
+    VBoxLayout* header_mainlayout = new VBoxLayout();
     header_mainlayout->addLayout(header_toprowlayout);
     header_mainlayout->addWidget(horizline);
 
@@ -252,13 +236,7 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     // Final assembly (with "this" as main widget)
     // ========================================================================
 
-    setSearchAppearance();
-
-#ifdef GUI_USE_HFW_LAYOUT
-    VBoxLayoutHfw* mainlayout = new VBoxLayoutHfw();
-#else
-    QVBoxLayout* mainlayout = new QVBoxLayout();
-#endif
+    VBoxLayout* mainlayout = new VBoxLayout();
     mainlayout->addLayout(header_mainlayout);
     mainlayout->addWidget(m_heading_tree);
     mainlayout->addWidget(m_treeview);
@@ -270,15 +248,13 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     topwidget->setObjectName(CssConst::MENU_WINDOW_BACKGROUND);
     topwidget->setLayout(mainlayout);
 
-#ifdef GUI_USE_HFW_LAYOUT
-    VBoxLayoutHfw* toplayout = new VBoxLayoutHfw();
-#else
-    QVBoxLayout* toplayout = new QVBoxLayout();
-#endif
+    VBoxLayout* toplayout = new VBoxLayout();
     toplayout->setContentsMargins(UiConst::NO_MARGINS);
     toplayout->addWidget(topwidget);
 
     setLayout(toplayout);
+
+    setSearchAppearance();  // only AFTER widgets added to layout (or standalone windows created)
 }
 
 

@@ -21,16 +21,11 @@
 #include <QStyle>
 #include <QVariant>
 #include "common/cssconst.h"
+#include "common/layouts.h"
 #include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/imagebutton.h"
-
-#ifdef GUI_USE_HFW_LAYOUT
-#include "widgets/vboxlayouthfw.h"
-#else
-#include <QVBoxLayout>
-#endif
 
 const QString CHECK_DISABLED("check_disabled.png");
 const QString CHECK_UNSELECTED("check_unselected.png");
@@ -57,7 +52,7 @@ BooleanWidget::BooleanWidget(QWidget* parent) :
 {
     m_imagebutton = new ImageButton();
     m_textbutton = new ClickableLabelWordWrapWide();
-    m_layout = new BooleanWidgetVerticalLayout();
+    m_layout = new VBoxLayout();
     m_layout->setContentsMargins(UiConst::NO_MARGINS);
     m_layout->addWidget(m_imagebutton);
     m_layout->addWidget(m_textbutton);
