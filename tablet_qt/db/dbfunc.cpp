@@ -36,20 +36,20 @@
 // Constants
 // ============================================================================
 
-namespace DbFunc {
+namespace dbfunc {
 
-    const QString DATA_DATABASE_FILENAME("camcops_data.sqlite");
-    const QString SYSTEM_DATABASE_FILENAME("camcops_sys.sqlite");
-    const QString TABLE_TEMP_SUFFIX("_temp");
+const QString DATA_DATABASE_FILENAME("camcops_data.sqlite");
+const QString SYSTEM_DATABASE_FILENAME("camcops_sys.sqlite");
+const QString TABLE_TEMP_SUFFIX("_temp");
 
-}
+}  // namespace dbfunc
 
 
 // ============================================================================
 // Database operations
 // ============================================================================
 
-QString DbFunc::dbFullPath(const QString &filename)
+QString dbfunc::dbFullPath(const QString &filename)
 {
     // Opens a database.
     QString dir = QStandardPaths::standardLocations(
@@ -59,7 +59,7 @@ QString DbFunc::dbFullPath(const QString &filename)
         if (QDir().mkdir(dir)) {
             qDebug() << "Made directory:" << dir;
         } else {
-            UiFunc::stopApp("DbFunc::openDatabaseOrDie: Failed to make "
+            uifunc::stopApp("DbFunc::openDatabaseOrDie: Failed to make "
                             "directory: " + dir);
         }
     }
@@ -68,7 +68,7 @@ QString DbFunc::dbFullPath(const QString &filename)
 }
 
 
-void DbFunc::openDatabaseOrDie(QSqlDatabase& db, const QString& filename)
+void dbfunc::openDatabaseOrDie(QSqlDatabase& db, const QString& filename)
 {
     QString fullpath = dbFullPath(filename);
     db.setDatabaseName(fullpath);
@@ -82,7 +82,7 @@ void DbFunc::openDatabaseOrDie(QSqlDatabase& db, const QString& filename)
             "DbFunc::openDatabaseOrDie: Error: connection to database failed. "
             "Database = %1; error number = %2; error text = %3"
         ).arg(fullpath, QString::number(error.number()), error.text());
-        UiFunc::stopApp(errmsg);
+        uifunc::stopApp(errmsg);
     }
 }
 
@@ -91,7 +91,7 @@ void DbFunc::openDatabaseOrDie(QSqlDatabase& db, const QString& filename)
 // SQL fragments
 // ============================================================================
 
-QString DbFunc::delimit(const QString& identifier)
+QString dbfunc::delimit(const QString& identifier)
 {
     // Delimits a table or fieldname, by ANSI SQL standards.
 
@@ -103,7 +103,7 @@ QString DbFunc::delimit(const QString& identifier)
 }
 
 
-QString DbFunc::selectColumns(const QStringList& columns, const QString& table)
+QString dbfunc::selectColumns(const QStringList& columns, const QString& table)
 {
     QStringList delimited_columns;
     for (auto column : columns) {
@@ -115,7 +115,7 @@ QString DbFunc::selectColumns(const QStringList& columns, const QString& table)
 }
 
 
-SqlArgs DbFunc::updateColumns(const UpdateValues& updatevalues,
+SqlArgs dbfunc::updateColumns(const UpdateValues& updatevalues,
                               const QString& table)
 {
     QStringList columns;
@@ -139,7 +139,7 @@ SqlArgs DbFunc::updateColumns(const UpdateValues& updatevalues,
 // Queries
 // ============================================================================
 
-void DbFunc::addWhereClause(const WhereConditions& where,
+void dbfunc::addWhereClause(const WhereConditions& where,
                             SqlArgs& sqlargs_altered)
 {
     if (where.isEmpty()) {
@@ -158,7 +158,7 @@ void DbFunc::addWhereClause(const WhereConditions& where,
 }
 
 
-void DbFunc::addArgs(QSqlQuery& query, const ArgList& args)
+void dbfunc::addArgs(QSqlQuery& query, const ArgList& args)
 {
     // Adds arguments to a QSqlQuery from a QList.
     const int size = args.size();
@@ -168,7 +168,7 @@ void DbFunc::addArgs(QSqlQuery& query, const ArgList& args)
 }
 
 
-bool DbFunc::execQuery(QSqlQuery& query, const QString& sql,
+bool dbfunc::execQuery(QSqlQuery& query, const QString& sql,
                        const ArgList& args)
 {
     // Executes an existing query (in place) with the supplied SQL/args.
@@ -181,7 +181,7 @@ bool DbFunc::execQuery(QSqlQuery& query, const QString& sql,
         qDebug() << "Executing:" << qUtf8Printable(sql);
         QDebug debug = qDebug().nospace();
         debug << "... args: ";
-        DebugFunc::debugConcisely(debug, args);
+        debugfunc::debugConcisely(debug, args);
     }  // endl on destruction
 #endif
 
@@ -223,20 +223,20 @@ bool DbFunc::execQuery(QSqlQuery& query, const QString& sql,
 }
 
 
-bool DbFunc::execQuery(QSqlQuery& query, const QString& sql)
+bool dbfunc::execQuery(QSqlQuery& query, const QString& sql)
 {
     ArgList args;
     return execQuery(query, sql, args);
 }
 
 
-bool DbFunc::execQuery(QSqlQuery& query, const SqlArgs& sqlargs)
+bool dbfunc::execQuery(QSqlQuery& query, const SqlArgs& sqlargs)
 {
     return execQuery(query, sqlargs.sql, sqlargs.args);
 }
 
 
-bool DbFunc::exec(const QSqlDatabase& db, const QString& sql,
+bool dbfunc::exec(const QSqlDatabase& db, const QString& sql,
                   const ArgList& args)
 {
     // Executes a new query and returns success.
@@ -246,20 +246,20 @@ bool DbFunc::exec(const QSqlDatabase& db, const QString& sql,
 
 
 // http://stackoverflow.com/questions/2816293/passing-optional-parameter-by-reference-in-c
-bool DbFunc::exec(const QSqlDatabase& db, const QString& sql)
+bool dbfunc::exec(const QSqlDatabase& db, const QString& sql)
 {
     ArgList args;
     return exec(db, sql, args);
 }
 
 
-bool DbFunc::exec(const QSqlDatabase& db, const SqlArgs& sqlargs)
+bool dbfunc::exec(const QSqlDatabase& db, const SqlArgs& sqlargs)
 {
     return exec(db, sqlargs.sql, sqlargs.args);
 }
 
 
-bool DbFunc::commit(const QSqlDatabase &db)
+bool dbfunc::commit(const QSqlDatabase &db)
 {
     // If we ever need to do proper transations, use an RAII object that
     // executes BEGIN TRANSATION on creation and either COMMIT or ROLLBACK
@@ -268,7 +268,7 @@ bool DbFunc::commit(const QSqlDatabase &db)
 }
 
 
-QVariant DbFunc::dbFetchFirstValue(const QSqlDatabase& db,
+QVariant dbfunc::dbFetchFirstValue(const QSqlDatabase& db,
                                    const QString& sql,
                                    const ArgList& args)
 {
@@ -281,14 +281,14 @@ QVariant DbFunc::dbFetchFirstValue(const QSqlDatabase& db,
 }
 
 
-QVariant DbFunc::dbFetchFirstValue(const QSqlDatabase& db, const QString& sql)
+QVariant dbfunc::dbFetchFirstValue(const QSqlDatabase& db, const QString& sql)
 {
     ArgList args;
     return dbFetchFirstValue(db, sql, args);
 }
 
 
-int DbFunc::dbFetchInt(const QSqlDatabase& db, const SqlArgs& sqlargs,
+int dbfunc::dbFetchInt(const QSqlDatabase& db, const SqlArgs& sqlargs,
                        int failure_default)
 {
     // Executes the specified SQL/args and returns the integer value of the
@@ -302,14 +302,14 @@ int DbFunc::dbFetchInt(const QSqlDatabase& db, const SqlArgs& sqlargs,
 }
 
 
-int DbFunc::dbFetchInt(const QSqlDatabase& db, const QString& sql,
+int dbfunc::dbFetchInt(const QSqlDatabase& db, const QString& sql,
                        int failure_default)
 {
     return dbFetchInt(db, SqlArgs(sql), failure_default);
 }
 
 
-QString DbFunc::sqlParamHolders(int n)
+QString dbfunc::sqlParamHolders(int n)
 {
     // String like "?,?,?" for n parameter holders
     QString paramholders;
@@ -323,7 +323,7 @@ QString DbFunc::sqlParamHolders(int n)
 }
 
 
-ArgList DbFunc::argListFromIntList(const QList<int>& intlist)
+ArgList dbfunc::argListFromIntList(const QList<int>& intlist)
 {
     ArgList args;
     for (auto value : intlist) {
@@ -333,7 +333,7 @@ ArgList DbFunc::argListFromIntList(const QList<int>& intlist)
 }
 
 
-QString DbFunc::csvHeader(const QSqlQuery& query, const char sep)
+QString dbfunc::csvHeader(const QSqlQuery& query, const char sep)
 {
     QSqlRecord record = query.record();
     int nfields = record.count();
@@ -345,18 +345,18 @@ QString DbFunc::csvHeader(const QSqlQuery& query, const char sep)
 }
 
 
-QString DbFunc::csvRow(const QSqlQuery& query, const char sep)
+QString dbfunc::csvRow(const QSqlQuery& query, const char sep)
 {
     int nfields = query.record().count();
     QStringList values;
     for (int i = 0; i < nfields; ++i) {
-        values.append(Convert::toSqlLiteral(query.value(i)));
+        values.append(convert::toSqlLiteral(query.value(i)));
     }
     return values.join(sep);
 }
 
 
-QString DbFunc::csv(QSqlQuery& query, const char sep, const char linesep)
+QString dbfunc::csv(QSqlQuery& query, const char sep, const char linesep)
 {
     QStringList rows;
     rows.append(csvHeader(query, sep));
@@ -367,7 +367,7 @@ QString DbFunc::csv(QSqlQuery& query, const char sep, const char linesep)
 }
 
 
-int DbFunc::count(const QSqlDatabase& db,
+int dbfunc::count(const QSqlDatabase& db,
                   const QString& tablename, const WhereConditions& where)
 {
     SqlArgs sqlargs("SELECT COUNT(*) FROM " + delimit(tablename));
@@ -376,7 +376,7 @@ int DbFunc::count(const QSqlDatabase& db,
 }
 
 
-QList<int> DbFunc::getSingleFieldAsIntList(const QSqlDatabase& db,
+QList<int> dbfunc::getSingleFieldAsIntList(const QSqlDatabase& db,
                                            const QString& tablename,
                                            const QString& fieldname,
                                            const WhereConditions& where)
@@ -397,7 +397,7 @@ QList<int> DbFunc::getSingleFieldAsIntList(const QSqlDatabase& db,
 }
 
 
-QList<int> DbFunc::getPKs(const QSqlDatabase& db,
+QList<int> dbfunc::getPKs(const QSqlDatabase& db,
                           const QString& tablename,
                           const QString& pkname,
                           const WhereConditions& where)
@@ -406,7 +406,7 @@ QList<int> DbFunc::getPKs(const QSqlDatabase& db,
 }
 
 
-bool DbFunc::existsByPk(const QSqlDatabase& db, const QString& tablename,
+bool dbfunc::existsByPk(const QSqlDatabase& db, const QString& tablename,
                         const QString& pkname, int pkvalue)
 {
     SqlArgs sqlargs(
@@ -425,7 +425,7 @@ bool DbFunc::existsByPk(const QSqlDatabase& db, const QString& tablename,
 // Modification queries
 // ============================================================================
 
-bool DbFunc::deleteFrom(const QSqlDatabase& db,
+bool dbfunc::deleteFrom(const QSqlDatabase& db,
                         const QString& tablename,
                         const WhereConditions& where)
 {
@@ -440,7 +440,7 @@ bool DbFunc::deleteFrom(const QSqlDatabase& db,
 // Database structure
 // ============================================================================
 
-QStringList DbFunc::getAllTables(const QSqlDatabase& db)
+QStringList dbfunc::getAllTables(const QSqlDatabase& db)
 {
     // System tables begin with sqlite_
     // - https://www.sqlite.org/fileformat.html
@@ -464,7 +464,7 @@ QStringList DbFunc::getAllTables(const QSqlDatabase& db)
 }
 
 
-bool DbFunc::tableExists(const QSqlDatabase& db, const QString& tablename)
+bool dbfunc::tableExists(const QSqlDatabase& db, const QString& tablename)
 {
     SqlArgs sqlargs(
         "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?",
@@ -474,13 +474,13 @@ bool DbFunc::tableExists(const QSqlDatabase& db, const QString& tablename)
 }
 
 
-QList<SqlitePragmaInfoField> DbFunc::getPragmaInfo(const QSqlDatabase& db,
+QList<SqlitePragmaInfoField> dbfunc::getPragmaInfo(const QSqlDatabase& db,
                                               const QString& tablename)
 {
     QString sql = QString("PRAGMA table_info(%1)").arg(delimit(tablename));
     QSqlQuery query(db);
     if (!execQuery(query, sql)) {
-        UiFunc::stopApp("DbFunc::getPragmaInfo: PRAGMA table_info failed for "
+        uifunc::stopApp("DbFunc::getPragmaInfo: PRAGMA table_info failed for "
                         "table " + tablename);
     }
     QList<SqlitePragmaInfoField> infolist;
@@ -498,7 +498,7 @@ QList<SqlitePragmaInfoField> DbFunc::getPragmaInfo(const QSqlDatabase& db,
 }
 
 
-QStringList DbFunc::fieldNamesFromPragmaInfo(
+QStringList dbfunc::fieldNamesFromPragmaInfo(
         const QList<SqlitePragmaInfoField>& infolist,
         bool delimited)
 {
@@ -515,7 +515,7 @@ QStringList DbFunc::fieldNamesFromPragmaInfo(
 }
 
 
-QStringList DbFunc::getFieldNames(const QSqlDatabase& db,
+QStringList dbfunc::getFieldNames(const QSqlDatabase& db,
                                  const QString& tablename)
 {
     QList<SqlitePragmaInfoField> infolist = getPragmaInfo(db, tablename);
@@ -523,7 +523,7 @@ QStringList DbFunc::getFieldNames(const QSqlDatabase& db,
 }
 
 
-QString DbFunc::makeCreationSqlFromPragmaInfo(
+QString dbfunc::makeCreationSqlFromPragmaInfo(
         const QString& tablename,
         const QList<SqlitePragmaInfoField>& infolist)
 {
@@ -551,7 +551,7 @@ QString DbFunc::makeCreationSqlFromPragmaInfo(
 }
 
 
-QString DbFunc::dbTableDefinitionSql(const QSqlDatabase& db,
+QString dbfunc::dbTableDefinitionSql(const QSqlDatabase& db,
                                      const QString& tablename)
 {
     QString sql = "SELECT sql FROM sqlite_master WHERE tbl_name=?";
@@ -564,7 +564,7 @@ QString DbFunc::dbTableDefinitionSql(const QSqlDatabase& db,
 // Altering structure
 // ============================================================================
 
-bool DbFunc::createIndex(const QSqlDatabase& db, const QString& indexname,
+bool dbfunc::createIndex(const QSqlDatabase& db, const QString& indexname,
                          const QString& tablename, QStringList fieldnames)
 {
     if (!tableExists(db, tablename)) {
@@ -581,7 +581,7 @@ bool DbFunc::createIndex(const QSqlDatabase& db, const QString& indexname,
 }
 
 
-void DbFunc::renameColumns(const QSqlDatabase& db, QString tablename,
+void dbfunc::renameColumns(const QSqlDatabase& db, QString tablename,
                            const QList<QPair<QString, QString>>& from_to,
                            const QString& tempsuffix)
 {
@@ -595,7 +595,7 @@ void DbFunc::renameColumns(const QSqlDatabase& db, QString tablename,
     QStringList new_fieldnames = old_fieldnames;
     QString dummytable = tablename + tempsuffix;
     if (tableExists(db, dummytable)) {
-        UiFunc::stopApp("DbFunc::renameColumns: temporary table exists: " +
+        uifunc::stopApp("DbFunc::renameColumns: temporary table exists: " +
                         dummytable);
     }
     int n_changes = 0;
@@ -607,12 +607,12 @@ void DbFunc::renameColumns(const QSqlDatabase& db, QString tablename,
         }
         // Check the source is valid
         if (!old_fieldnames.contains(from)) {
-            UiFunc::stopApp("DbFunc::renameColumns: 'from' field doesn't "
+            uifunc::stopApp("DbFunc::renameColumns: 'from' field doesn't "
                             "exist: " + tablename + "." + from);
         }
         // Check the destination doesn't exist already
         if (new_fieldnames.contains(to)) {
-            UiFunc::stopApp(
+            uifunc::stopApp(
                 "DbFunc::renameColumns: destination field already exists (or "
                 "attempt to rename two columns to the same name): " +
                 tablename + "." + to);
@@ -655,7 +655,7 @@ void DbFunc::renameColumns(const QSqlDatabase& db, QString tablename,
 }
 
 
-void DbFunc::renameTable(const QSqlDatabase& db, const QString& from,
+void dbfunc::renameTable(const QSqlDatabase& db, const QString& from,
                          const QString& to)
 {
     if (!tableExists(db, from)) {
@@ -665,7 +665,7 @@ void DbFunc::renameTable(const QSqlDatabase& db, const QString& from,
         return;
     }
     if (tableExists(db, to)) {
-        UiFunc::stopApp("DbFunc::renameTable: destination table already "
+        uifunc::stopApp("DbFunc::renameTable: destination table already "
                         "exists: " + to);
     }
     // http://stackoverflow.com/questions/426495
@@ -674,7 +674,7 @@ void DbFunc::renameTable(const QSqlDatabase& db, const QString& from,
 }
 
 
-void DbFunc::changeColumnTypes(const QSqlDatabase& db,
+void dbfunc::changeColumnTypes(const QSqlDatabase& db,
                                const QString& tablename,
                                const QList<QPair<QString, QString>>& changes,
                                const QString& tempsuffix)
@@ -687,7 +687,7 @@ void DbFunc::changeColumnTypes(const QSqlDatabase& db,
     }
     QString dummytable = tablename + tempsuffix;
     if (tableExists(db, dummytable)) {
-        UiFunc::stopApp("DbFunc::changeColumnTypes: temporary table exists: " +
+        uifunc::stopApp("DbFunc::changeColumnTypes: temporary table exists: " +
                         dummytable);
     }
     QList<SqlitePragmaInfoField> infolist = getPragmaInfo(db, tablename);
@@ -728,7 +728,7 @@ void DbFunc::changeColumnTypes(const QSqlDatabase& db,
 }
 
 
-QString DbFunc::sqlCreateTable(const QString& tablename,
+QString dbfunc::sqlCreateTable(const QString& tablename,
                                const QList<Field>& fieldlist)
 {
     QStringList coldefs;
@@ -743,7 +743,7 @@ QString DbFunc::sqlCreateTable(const QString& tablename,
 }
 
 
-void DbFunc::createTable(const QSqlDatabase& db, const QString& tablename,
+void dbfunc::createTable(const QSqlDatabase& db, const QString& tablename,
                          const QList<Field>& fieldlist,
                          const QString& tempsuffix)
 {
@@ -818,7 +818,7 @@ void DbFunc::createTable(const QSqlDatabase& db, const QString& tablename,
         const FieldCreationPlan& plan = planlist.at(i);
         if (plan.add && plan.intended_field) {
             if (plan.intended_field->isPk()) {
-                UiFunc::stopApp(QString(
+                uifunc::stopApp(QString(
                     "DbFunc::createTable: Cannot add a PRIMARY KEY column "
                     "(%s.%s)").arg(tablename, plan.name));
             }
@@ -862,7 +862,7 @@ void DbFunc::createTable(const QSqlDatabase& db, const QString& tablename,
     // http://sqlite.org/datatype3.html
     QString dummytable = tablename + tempsuffix;
     if (tableExists(db, dummytable)) {
-        UiFunc::stopApp("DbFunc::createTable: temporary table exists: " +
+        uifunc::stopApp("DbFunc::createTable: temporary table exists: " +
                         dummytable);
     }
     QString delimited_tablename = delimit(tablename);

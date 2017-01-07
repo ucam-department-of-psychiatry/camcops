@@ -74,16 +74,16 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
     */
 
     loadStyleSheet();
-    setObjectName(CssConst::MENU_WINDOW_OUTER_OBJECT);
+    setObjectName(cssconst::MENU_WINDOW_OUTER_OBJECT);
 
     QVBoxLayout* dummy_layout = new QVBoxLayout();
-    dummy_layout->setContentsMargins(UiConst::NO_MARGINS);
+    dummy_layout->setContentsMargins(uiconst::NO_MARGINS);
     setLayout(dummy_layout);
     QWidget* dummy_widget = new QWidget();  // doesn't need to be BaseWidget; contains scrolling list
-    dummy_widget->setObjectName(CssConst::MENU_WINDOW_BACKGROUND);
+    dummy_widget->setObjectName(cssconst::MENU_WINDOW_BACKGROUND);
     dummy_layout->addWidget(dummy_widget);
 
-    m_mainlayout->setContentsMargins(UiConst::NO_MARGINS);
+    m_mainlayout->setContentsMargins(uiconst::NO_MARGINS);
     dummy_widget->setLayout(m_mainlayout);
 
     // QListWidget objects scroll themselves.
@@ -182,14 +182,14 @@ void MenuWindow::setIcon(const QString& icon)
 
 void MenuWindow::loadStyleSheet()
 {
-    setStyleSheet(m_app.getSubstitutedCss(UiConst::CSS_CAMCOPS_MENU));
+    setStyleSheet(m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_MENU));
 }
 
 
 void MenuWindow::reloadStyleSheet()
 {
     loadStyleSheet();
-    UiFunc::repolish(this);
+    uifunc::repolish(this);
 }
 
 
@@ -336,7 +336,7 @@ void MenuWindow::menuItemClicked(QListWidgetItem *item)
         bool selected = false;
         if (m_app.selectedPatientId() == patient->id()) {
             // Clicked on currently selected patient; deselect it.
-            m_app.setSelectedPatient(DbConst::NONEXISTENT_PK);
+            m_app.setSelectedPatient(dbconst::NONEXISTENT_PK);
             m_p_listwidget->clearSelection();
         } else {
             selected = true;
@@ -405,17 +405,17 @@ void MenuWindow::viewTask()
     case QMessageBox::Ok:  // detail
         {
             qInfo() << "View detail:" << instance_title;
-            QString detail = StringFunc::joinHtmlLines(task->detail());
+            QString detail = stringfunc::joinHtmlLines(task->detail());
 #ifdef SHOW_TASK_TIMING
             detail += QString("<br><br>Editing time: <b>%1</b> s")
                     .arg(task->editingTimeSeconds());
 #endif
-            UiFunc::alert(detail, instance_title, true);  // with scrolling
+            uifunc::alert(detail, instance_title, true);  // with scrolling
         }
         break;
     case QMessageBox::Yes:  // summary
         qInfo() << "View summary:" << instance_title;
-        UiFunc::alert(task->summary(), instance_title);
+        uifunc::alert(task->summary(), instance_title);
         break;
     case QMessageBox::No:  // cancel
     default:
@@ -569,5 +569,5 @@ PatientPtr MenuWindow::currentPatient() const
 
 void MenuWindow::debugLayout()
 {
-    LayoutDumper::dumpWidgetHierarchy(this);
+    layoutdumper::dumpWidgetHierarchy(this);
 }

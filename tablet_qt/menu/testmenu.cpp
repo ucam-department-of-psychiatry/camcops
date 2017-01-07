@@ -77,7 +77,7 @@ TestMenu::TestMenu(CamcopsApp& app)
         MenuItem(
             tr("Test HTML display, and fullscreen display"),
             HtmlMenuItem("Example HTML: this window should be full-screen",
-                         FileFunc::taskHtmlFilename("ace3"),
+                         filefunc::taskHtmlFilename("ace3"),
                          "", true)
         ),
         MenuItem(
@@ -112,7 +112,7 @@ TestMenu::~TestMenu()
 void TestMenu::testDebugConsole()
 {
     qInfo() << "Testing debug console. This is the entire test. Success.";
-    UiFunc::alert("Success! See the debug console for output.");
+    uifunc::alert("Success! See the debug console for output.");
 }
 
 
@@ -123,7 +123,7 @@ void TestMenu::testSound()
     // http://doc.qt.io/qt-5/qsharedpointer.html
     // Failing to use deleteLater() can cause crashes, as there may be
     // outstanding events relating to this object.
-    QUrl url(UiConst::DEMO_SOUND_URL);
+    QUrl url(uiconst::DEMO_SOUND_URL);
     qDebug() << "Trying to play:" << url;
     m_player->setMedia(url);
     m_player->setVolume(50);
@@ -191,10 +191,10 @@ void TestMenu::testIcd9cmCodeSetCreation()
 
 void TestMenu::doneSeeConsole()
 {
-    if (Platform::PLATFORM_TABLET) {
-        UiFunc::alert("Done; see USB debugging output");
+    if (platform::PLATFORM_TABLET) {
+        uifunc::alert("Done; see USB debugging output");
     } else {
-        UiFunc::alert("Done; see console");
+        uifunc::alert("Done; see console");
     }
 }
 
@@ -261,8 +261,8 @@ void TestMenu::testSizeFormatter()
         for (auto num : nums) {
             text += QString("%1 -> %2\n")
               .arg(num)
-              .arg(Convert::prettySize(num, space, binary, longform, suffix));
+              .arg(convert::prettySize(num, space, binary, longform, suffix));
         }
     }
-    UiFunc::alert(text);
+    uifunc::alert(text);
 }

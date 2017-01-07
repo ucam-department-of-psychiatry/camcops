@@ -15,6 +15,46 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// From qboxlayout.h:
+/****************************************************************************
+**
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the QtWidgets module of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:LGPL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or (at your option) the GNU General
+** Public license version 3 or any later version approved by the KDE Free
+** Qt Foundation. The licenses are as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-2.0.html and
+** https://www.gnu.org/licenses/gpl-3.0.html.
+**
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
 #pragma once
 
 #define BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT  // comment out to revert to QBoxLayout behaviour
@@ -23,10 +63,11 @@
 #include <QHash>
 #include <QVector>
 // #include <limits.h>
-
+#include "margins.h"
+#include "qtlayouthelpers.h"
 
 class BoxLayoutHfwItem;
-class QQLayoutStruct;
+
 
 class BoxLayoutHfw : public QLayout
 {
@@ -73,40 +114,13 @@ class BoxLayoutHfw : public QLayout
     // - caching algorithms rewritten, with data storage structs
 
     Q_OBJECT
+    using HfwInfo = qtlayouthelpers::HfwInfo;  // RNC
+    using QLayoutStruct = qtlayouthelpers::QQLayoutStruct;  // RNC
 public:
     enum Direction { LeftToRight, RightToLeft, TopToBottom, BottomToTop,
                      Down = TopToBottom, Up = BottomToTop };
-    struct Margins {  // RNC
-        Margins() : m_set(false), m_left(0), m_top(0), m_right(0), m_bottom(0) {}
-        Margins(int left, int top, int right, int bottom) {
-            set(left, top, right, bottom);
-        }
-        void set(int left, int top, int right, int bottom) {
-            m_left = left;
-            m_top = top;
-            m_right = right;
-            m_bottom = bottom;
-            m_set = true;
-        }
-        void clear() { m_set = false; }
-        bool isSet() const { return m_set; }
-        QSize extra() const { return QSize(m_left + m_right, m_top + m_bottom); }
-        int removeLeftRightMargins(int w) { return w - (m_left + m_right); }
-        bool m_set;
-        int m_left;
-        int m_top;
-        int m_right;
-        int m_bottom;
-    };
-    struct HfwInfo {  // RNC
-        HfwInfo() : m_hfw_height(-1), m_hfw_min_height(-1) {}
-        int m_hfw_height;
-        int m_hfw_min_height;
-        int hfw(const Margins& margins) { return m_hfw_height + margins.m_top + margins.m_bottom; }
-        int minhfw(const Margins& margins) { return m_hfw_min_height + margins.m_top + margins.m_bottom; }
-    };
     struct GeomInfo {  // RNC
-        QVector<QQLayoutStruct> m_geom_array;  // set by setupGeom(), read by getHfwInfo() and setGeometry()
+        QVector<QLayoutStruct> m_geom_array;  // set by setupGeom(), read by getHfwInfo() and setGeometry()
         QSize m_size_hint;  // returned by sizeHint(), calculated by setupGeom()
         QSize m_min_size;  // returned by minimumSize(), calculated by setupGeom()
         QSize m_max_size;  // returned by maximumSize(), calculated by setupGeom()
@@ -172,17 +186,16 @@ protected:
     void setDirty();
     void deleteAll();
 #ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
-    GeomInfo getGeomInfo(const QRect& layout_rect = QRect()) const;
+    GeomInfo getGeomInfo(const QRect& layout_rect = QRect()) const;  // RNC
 #else
-    GeomInfo getGeomInfo() const;
+    GeomInfo getGeomInfo() const;  // RNC
 #endif
-    HfwInfo getHfwInfo(int layout_width) const;
-    Margins effectiveMargins(const Margins& contents_margins) const;
+    HfwInfo getHfwInfo(int w) const;  // RNC
+    Margins effectiveMargins(const Margins& contents_margins) const;  // RNC
     QLayoutItem* replaceAt(int index, QLayoutItem* item);
-    // bool updateParentGeometry() const;  // RNC
     QRect getContentsRect(const QRect& layout_rect) const;  // RNC
     QVector<QRect> getChildRects(const QRect& contents_rect,
-                                 const QVector<QQLayoutStruct>& a) const;  // RNC
+                                 const QVector<QLayoutStruct>& a) const;  // RNC
     Direction getVisualDir() const;  // RNC
 #ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
     void clearCaches() const;  // RNC
@@ -208,17 +221,4 @@ protected:
     mutable Margins m_contents_margins;  // RNC
     mutable Margins m_effective_margins;  // RNC
     mutable bool m_dirty;  // set by invalidate(), cleared by setupGeom(), used by lots to prevent unnecessary calls to setupGeom()
-
-    // ------------------------------------------------------------------------
-    // Selected bits from QLayoutPrivate:
-    // ------------------------------------------------------------------------
-protected:
-    bool checkWidget(QWidget* widget) const;
-    bool checkLayout(QLayout* other_layout) const;
-    static QWidgetItem* createWidgetItem(const QLayout* layout,
-                                         QWidget* widget);
-    static QSpacerItem* createSpacerItem(
-            const QLayout* layout, int w, int h,
-            QSizePolicy::Policy h_policy = QSizePolicy::Minimum,
-            QSizePolicy::Policy v_policy = QSizePolicy::Minimum);
 };

@@ -16,7 +16,6 @@
 */
 
 #include "qumcqgridsingleboolean.h"
-#include <QGridLayout>
 #include "common/cssconst.h"
 #include "questionnairelib/mcqfunc.h"
 #include "questionnairelib/questionnaire.h"
@@ -143,12 +142,12 @@ int QuMCQGridSingleBoolean::spacercol(bool first) const
 }
 
 
-void QuMCQGridSingleBoolean::addOptions(QGridLayout* grid, int row)
+void QuMCQGridSingleBoolean::addOptions(GridLayout* grid, int row)
 {
     for (int i = 0; i < m_mcq_options.size(); ++i) {
-        McqFunc::addOption(grid, row, mcqColnum(i), m_mcq_options.at(i).name());
+        mcqfunc::addOption(grid, row, mcqColnum(i), m_mcq_options.at(i).name());
     }
-    McqFunc::addOption(grid, row, booleanColnum(), m_boolean_text);
+    mcqfunc::addOption(grid, row, booleanColnum(), m_boolean_text);
 }
 
 
@@ -158,21 +157,21 @@ QPointer<QWidget> QuMCQGridSingleBoolean::makeWidget(Questionnaire* questionnair
     m_mcq_widgets.clear();
     m_boolean_widgets.clear();
 
-    QGridLayout* grid = new QGridLayout();
-    grid->setContentsMargins(UiConst::NO_MARGINS);
-    grid->setHorizontalSpacing(UiConst::MCQGRID_HSPACING);
-    grid->setVerticalSpacing(UiConst::MCQGRID_VSPACING);
+    GridLayout* grid = new GridLayout();
+    grid->setContentsMargins(uiconst::NO_MARGINS);
+    grid->setHorizontalSpacing(uiconst::MCQGRID_HSPACING);
+    grid->setVerticalSpacing(uiconst::MCQGRID_VSPACING);
 
     int n_subtitles = m_subtitles.size();
     int n_rows = 1 + n_subtitles + m_questions_with_fields.size();
     int n_cols = m_mcq_options.size() + 4;
-    Qt::Alignment response_align = McqFunc::response_widget_align;
+    Qt::Alignment response_align = mcqfunc::response_widget_align;
     int row = 0;
     int n_options = m_mcq_options.size();
 
     // Title row
-    McqFunc::addOptionBackground(grid, row, 0, n_cols);
-    McqFunc::addTitle(grid, row, m_title);
+    mcqfunc::addOptionBackground(grid, row, 0, n_cols);
+    mcqfunc::addTitle(grid, row, m_title);
     addOptions(grid, row);
     ++row;  // new row after title/option text
 
@@ -184,8 +183,8 @@ QPointer<QWidget> QuMCQGridSingleBoolean::makeWidget(Questionnaire* questionnair
             const McqGridSubtitle& sub = m_subtitles.at(s);
             if (sub.pos() == qi) {
                 // Yes. Add a subtitle row.
-                McqFunc::addOptionBackground(grid, row, 0, n_cols);
-                McqFunc::addSubtitle(grid, row, sub.string());
+                mcqfunc::addOptionBackground(grid, row, 0, n_cols);
+                mcqfunc::addSubtitle(grid, row, sub.string());
                 if (sub.repeatOptions()) {
                     addOptions(grid, row);
                 }
@@ -194,7 +193,7 @@ QPointer<QWidget> QuMCQGridSingleBoolean::makeWidget(Questionnaire* questionnair
         }
 
         // The question
-        McqFunc::addQuestion(grid, row,
+        mcqfunc::addQuestion(grid, row,
                                  m_questions_with_fields.at(qi).question());
 
         // The response widgets
@@ -240,12 +239,12 @@ QPointer<QWidget> QuMCQGridSingleBoolean::makeWidget(Questionnaire* questionnair
     }
 
     // Vertical lines
-    McqFunc::addVerticalLine(grid, spacercol(true), n_rows);
-    McqFunc::addVerticalLine(grid, spacercol(false), n_rows);
+    mcqfunc::addVerticalLine(grid, spacercol(true), n_rows);
+    mcqfunc::addVerticalLine(grid, spacercol(false), n_rows);
 
     QPointer<QWidget> widget = new QWidget();
     widget->setLayout(grid);
-    widget->setObjectName(CssConst::MCQ_GRID_SINGLE_BOOLEAN);
+    widget->setObjectName(cssconst::MCQ_GRID_SINGLE_BOOLEAN);
     if (m_expand) {
         widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
     } else {
@@ -299,7 +298,7 @@ void QuMCQGridSingleBoolean::booleanClicked(int question_index)
     }
     FieldRefPtr fieldref = m_questions_with_fields.at(question_index)
             .secondFieldRef();
-    McqFunc::toggleBooleanField(fieldref.data());
+    mcqfunc::toggleBooleanField(fieldref.data());
     emit elementValueChanged();
 }
 
@@ -316,7 +315,7 @@ void QuMCQGridSingleBoolean::mcqFieldValueChanged(int question_index,
     const QList<QPointer<BooleanWidget>>& question_widgets = m_mcq_widgets.at(
                 question_index);
 
-    McqFunc::setResponseWidgets(m_mcq_options, question_widgets, fieldref);
+    mcqfunc::setResponseWidgets(m_mcq_options, question_widgets, fieldref);
 }
 
 

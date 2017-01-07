@@ -35,6 +35,9 @@ class BaseWidget : public QWidget
     //   containing a LabelWordWrapWide object, or similar (e.g. see
     //   ClickableLabelWordWrapWide -- though that has to re-implement, not
     //   inherit, for Qt inheritance reasons).
+    //
+    // However, this system is INFERIOR to using a proper layout; see
+    // BoxLayoutHfw and its children, for example.
     Q_OBJECT
 public:
     BaseWidget(QWidget* parent = nullptr);

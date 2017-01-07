@@ -19,7 +19,7 @@
 #include <QVideoFrame>
 
 
-QImage ImageFunc::imageFromVideoFrame(const QVideoFrame& buffer)
+QImage imagefunc::imageFromVideoFrame(const QVideoFrame& buffer)
 {
     QImage img;
     QVideoFrame frame(buffer);  // make a copy we can call map (non-const) on

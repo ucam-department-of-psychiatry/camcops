@@ -79,7 +79,7 @@ public:
     // Database object functions
     // ------------------------------------------------------------------------
     // No need to override, but do need to CALL load() FROM CONSTRUCTOR:
-    virtual bool load(int pk = DbConst::NONEXISTENT_PK);
+    virtual bool load(int pk = dbconst::NONEXISTENT_PK);
     virtual bool save();
     // ------------------------------------------------------------------------
     // Specific info

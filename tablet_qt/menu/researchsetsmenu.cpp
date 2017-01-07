@@ -27,7 +27,7 @@
 ResearchSetsMenu::ResearchSetsMenu(CamcopsApp& app) :
     MenuWindow(app,
                tr("Sets of tasks collected together for research purposes"),
-               UiFunc::iconFilename(UiConst::ICON_SETS_RESEARCH))
+               uifunc::iconFilename(uiconst::ICON_SETS_RESEARCH))
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),

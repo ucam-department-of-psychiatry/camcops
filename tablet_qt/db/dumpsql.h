@@ -20,14 +20,16 @@
 #include <QTextStream>
 class QSqlDatabase;
 
-namespace DumpSql {
-    void runTableDumpQuery(QTextStream& os,
-                           const QSqlDatabase& db,
-                           const QString& sql,
-                           const QString& firstrow);
-    bool runSchemaDumpQuery(QTextStream& os,
-                            const QSqlDatabase& db,
-                            const QString& schema_query_sql,
-                            bool writable_schema);
-    void dumpDatabase(QTextStream& os, const QSqlDatabase& db);
-};
+namespace dumpsql {
+
+void runTableDumpQuery(QTextStream& os,
+                       const QSqlDatabase& db,
+                       const QString& sql,
+                       const QString& firstrow);
+bool runSchemaDumpQuery(QTextStream& os,
+                        const QSqlDatabase& db,
+                        const QString& schema_query_sql,
+                        bool writable_schema);
+void dumpDatabase(QTextStream& os, const QSqlDatabase& db);
+
+}  // namespace dumpsql

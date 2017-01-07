@@ -60,9 +60,9 @@
 #include <QLayout>
 #include <QStyle>
 #include <QVector>
+#include "margins.h"
 
 class QLayoutItem;
-class QRect;
 class QSpacerItem;
 class QWidgetItem;
 
@@ -80,6 +80,8 @@ class QWidgetItem;
 // ============================================================================
 
 
+namespace qtlayouthelpers {
+
 // ============================================================================
 // Ancillary structs/classes
 // ============================================================================
@@ -87,26 +89,32 @@ class QWidgetItem;
 struct QQLayoutStruct
 {
     // RNC: this is QLayoutStruct, from qlayoutengine_p.h, except with minor
-    // member name changes.
+    // variable name changes.
     // The parameters are written by QBoxLayout::setGeometry().
     // The results (pos, size) are written by qqGeomCalc().
     // However, in the Qt original, I can't see that anything called init(),
     // which was "inline void init(int stretch_factor = 0, int min_size = 0)",
     // so I've converted it to a constructor (I think variables may have been
     // used uninitialized).
+    // ... ah, no, init() is used by QGridLayout(), so extra bits added
 
     QQLayoutStruct(int stretch_factor = 0, int min_size = 0) :
-        stretch(stretch_factor),
-        size_hint(min_size),
-        maximum_size(QLAYOUTSIZE_MAX),
-        minimum_size(min_size),
-        spacing(0),
-        expansive(false),
-        empty(true),
+        // RNC: These are not set by init(), but we don't want them
+        // uninitialized:
         done(false),
         pos(-1),
         size(-1)
     {
+        init(stretch_factor, min_size);
+    }
+
+    inline void init(int stretch_factor = 0, int min_size = 0) {
+        stretch = stretch_factor;
+        minimum_size = size_hint = min_size;
+        maximum_size = QLAYOUTSIZE_MAX;
+        expansive = false;
+        empty = true;
+        spacing = 0;
     }
 
     int smartSizeHint() {
@@ -135,25 +143,49 @@ struct QQLayoutStruct
     int size;  // width for horizontal, height for vertical
 };
 
+struct HfwInfo {  // RNC
+    // Stores minimum and hint height-for-width.
+    // Does so for the inner, "client" rectangle of a layout.
+    // Its functions return the "outer" heights-for-widths, when given
+    // the additional information of the current layout margins.
+
+    HfwInfo() : hfw_height(-1), hfw_min_height(-1) {}
+    int hfw_height;
+    int hfw_min_height;
+};
 
 // ============================================================================
 // Helper functions
 // ============================================================================
 
 // qMaxExpCalc, from qlayoutengine_p.h
-void qqMaxExpCalc(int& max, bool& exp, bool &empty,
+void qMaxExpCalc(int& max, bool& exp, bool &empty,
                   int boxmax, bool boxexp, bool boxempty);
 
 // qGeomCalc, implemented in qlayoutengine.cpp
-void qqGeomCalc(QVector<QQLayoutStruct>& chain, int start, int count,
+void qGeomCalc(QVector<QQLayoutStruct>& chain, int start, int count,
                 int pos, int space, int spacer = -1);
 
 // qSmartSpacing, implemented in qlayoutengine.cpp
-int qqSmartSpacing(const QLayout* layout, QStyle::PixelMetric pm);
-
+int qSmartSpacing(const QLayout* layout, QStyle::PixelMetric pm);
 
 // ============================================================================
-// Global functions to allow things to be used in a QHash
+// Static-looking things from QLayoutPrivate
 // ============================================================================
 
-uint qHash(const QRect& key);
+// was QLayoutPrivate::createWidgetItem, from qlayout.cpp
+QWidgetItem* createWidgetItem(const QLayout* layout, QWidget* widget);
+
+// was QLayoutPrivate::createSpacerItem, from qlayout.cpp
+QSpacerItem* createSpacerItem(
+        const QLayout* layout, int w, int h,
+        QSizePolicy::Policy h_policy = QSizePolicy::Minimum,
+        QSizePolicy::Policy v_policy = QSizePolicy::Minimum);
+
+// was QLayoutPrivate::checkWidget(QWidget* widget), from qlayout.cpp
+bool checkWidget(QWidget* widget, QLayout* from);
+
+// was QLayoutPrivate::checkLayout(QLayout *otherLayout), from qlayout.cpp
+bool checkLayout(QLayout* other_layout, QLayout* from);
+
+}  // namespace qtlayouthelpers

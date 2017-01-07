@@ -17,7 +17,7 @@
 
 #include "quflowcontainer.h"
 #include <QWidget>
-#include "lib/uifunc.h"
+#include "lib/sizehelpers.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/basewidget.h"
 #include "widgets/flowlayouthfw.h"
@@ -101,11 +101,11 @@ QPointer<QWidget> QuFlowContainer::makeWidget(
         Questionnaire* questionnaire)
 {
     QPointer<QWidget> widget(new BaseWidget());
-    widget->setSizePolicy(UiFunc::expandingFixedHFWPolicy());
+    widget->setSizePolicy(sizehelpers::expandingFixedHFWPolicy());
 
     FlowLayoutHfw* layout = new FlowLayoutHfw();
     // widget->setObjectName(CssConst::DEBUG_YELLOW);
-    layout->setContentsMargins(UiConst::NO_MARGINS);
+    layout->setContentsMargins(uiconst::NO_MARGINS);
     widget->setLayout(layout);
     for (int i = 0; i < m_elements.size(); ++i) {
         auto e = m_elements.at(i);

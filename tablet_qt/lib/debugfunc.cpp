@@ -30,7 +30,7 @@
 #include "widgets/vboxlayouthfw.h"
 
 
-void DebugFunc::debugConcisely(QDebug debug, const QVariant& value)
+void debugfunc::debugConcisely(QDebug debug, const QVariant& value)
 {
 #ifdef DEBUG_EVEN_GIANT_VARIANTS
     debug << value;
@@ -51,7 +51,7 @@ void DebugFunc::debugConcisely(QDebug debug, const QVariant& value)
 }
 
 
-void DebugFunc::debugConcisely(QDebug debug, const QList<QVariant>& values)
+void debugfunc::debugConcisely(QDebug debug, const QList<QVariant>& values)
 {
     QDebug d = debug.nospace();
     d << "(";
@@ -66,7 +66,7 @@ void DebugFunc::debugConcisely(QDebug debug, const QList<QVariant>& values)
 }
 
 
-void DebugFunc::dumpQObject(QObject* obj)
+void debugfunc::dumpQObject(QObject* obj)
 {
     qDebug("----------------------------------------------------");
     qDebug("Widget name : %s", qPrintable(obj->objectName()));
@@ -79,7 +79,7 @@ void DebugFunc::dumpQObject(QObject* obj)
 }
 
 
-void DebugFunc::debugWidget(QWidget* widget, bool set_background_by_name,
+void debugfunc::debugWidget(QWidget* widget, bool set_background_by_name,
                             bool set_background_by_stylesheet,
                             bool show_widget_properties,
                             bool show_widget_attributes,
@@ -87,15 +87,20 @@ void DebugFunc::debugWidget(QWidget* widget, bool set_background_by_name,
                             bool use_hfw_layout)
 {
     QDialog dlg;
+    QSizePolicy dlg_sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    if (use_hfw_layout) {
+        dlg_sp.setHeightForWidth(true);
+    }
+    dlg.setSizePolicy(dlg_sp);
     dlg.setWindowTitle("Press D/dump layout, A/adjustSize");
     VBoxLayoutHfw* hfwlayout = use_hfw_layout ? new VBoxLayoutHfw() : nullptr;
     QVBoxLayout* vboxlayout = use_hfw_layout ? nullptr : new QVBoxLayout();
     QLayout* layout = use_hfw_layout ? static_cast<QLayout*>(hfwlayout)
                                      : static_cast<QLayout*>(vboxlayout);
-    layout->setContentsMargins(UiConst::NO_MARGINS);
+    layout->setContentsMargins(uiconst::NO_MARGINS);
     if (widget) {
         if (set_background_by_name) {
-            widget->setObjectName(CssConst::DEBUG_GREEN);
+            widget->setObjectName(cssconst::DEBUG_GREEN);
         }
         if (set_background_by_stylesheet) {
             widget->setStyleSheet("background: green;");
@@ -115,7 +120,7 @@ void DebugFunc::debugWidget(QWidget* widget, bool set_background_by_name,
         // Safe object lifespan signal: can use std::bind
         keywatcher->addKeyEvent(
             Qt::Key_D,
-            std::bind(&LayoutDumper::dumpWidgetHierarchy, &dlg,
+            std::bind(&layoutdumper::dumpWidgetHierarchy, &dlg,
                       show_widget_properties, show_widget_attributes,
                       spaces_per_level));
         keywatcher->addKeyEvent(

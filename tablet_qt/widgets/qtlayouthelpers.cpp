@@ -56,12 +56,10 @@
 **
 ****************************************************************************/
 
-// #define LAYOUT_EXTRA_DEBUG
+#define LAYOUT_EXTRA_DEBUG
 
 #include "qtlayouthelpers.h"
 #include <QDebug>
-#include <QRect>
-#include <QString>
 #include <QWidget>
 
 
@@ -99,8 +97,8 @@ static inline int fRound(Fixed64 i)
   Expansive boxes win over non-expansive boxes.
   Non-empty boxes win over empty boxes.
 */
-void qqMaxExpCalc(int& max, bool& exp, bool &empty,
-                  int boxmax, bool boxexp, bool boxempty)
+void qtlayouthelpers::qMaxExpCalc(int& max, bool& exp, bool &empty,
+                                   int boxmax, bool boxexp, bool boxempty)
 {
     if (exp) {
         if (boxexp) {
@@ -140,8 +138,8 @@ void qqMaxExpCalc(int& max, bool& exp, bool &empty,
   - pos: starting position
   - space: available space
 */
-void qqGeomCalc(QVector<QQLayoutStruct>& chain, int start, int count,
-                int pos, int space, int spacer)
+void qtlayouthelpers::qGeomCalc(QVector<QQLayoutStruct>& chain, int start,
+                                 int count, int pos, int space, int spacer)
 {
     int c_hint = 0;
     int c_min = 0;
@@ -420,7 +418,8 @@ void qqGeomCalc(QVector<QQLayoutStruct>& chain, int start, int count,
 }
 
 
-int qqSmartSpacing(const QLayout* layout, QStyle::PixelMetric pm)
+int qtlayouthelpers::qSmartSpacing(const QLayout* layout,
+                                    QStyle::PixelMetric pm)
 {
     QObject* parent = layout->parent();
     if (!parent) {
@@ -433,17 +432,95 @@ int qqSmartSpacing(const QLayout* layout, QStyle::PixelMetric pm)
     }
 }
 
-
 // ============================================================================
-// Global functions to allow things to be used in a QHash
+// Static-looking things from QLayoutPrivate
 // ============================================================================
 
-uint qHash(const QRect& key)
+/*
+RNC: REMOVED:
+
+// Static item factory functions that allow for hooking things in Designer
+QLayoutPrivate::QWidgetItemFactoryMethod QLayoutPrivate::widgetItemFactoryMethod = 0;
+QLayoutPrivate::QSpacerItemFactoryMethod QLayoutPrivate::spacerItemFactoryMethod = 0;
+*/
+
+// was QLayoutPrivate::createWidgetItem
+QWidgetItem* qtlayouthelpers::createWidgetItem(const QLayout* layout,
+                                               QWidget* widget)
 {
-    QString s = QString("%1,%2,%3,%4")
-            .arg(key.left())
-            .arg(key.top())
-            .arg(key.right())
-            .arg(key.bottom());
-    return qHash(s);
+    Q_UNUSED(layout);  // RNC
+    /*  // RNC: removed
+    if (widgetItemFactoryMethod)
+        if (QWidgetItem *wi = (*widgetItemFactoryMethod)(layout, widget))
+            return wi;
+    */
+    return new QWidgetItemV2(widget);
+}
+
+
+// was QLayoutPrivate::createSpacerItem
+QSpacerItem* qtlayouthelpers::createSpacerItem(const QLayout* layout,
+                                               int w, int h,
+                                               QSizePolicy::Policy h_policy,
+                                               QSizePolicy::Policy v_policy)
+{
+    Q_UNUSED(layout);  // RNC
+    /*  // RNC: removed
+    if (spacerItemFactoryMethod)
+        if (QSpacerItem *si = (*spacerItemFactoryMethod)(layout, w, h, hPolicy, vPolicy))
+            return si;
+    */
+    return new QSpacerItem(w, h,  h_policy, v_policy);
+}
+
+
+/*
+    Returns \c true if the \a widget can be added to the \a layout;
+    otherwise returns \c false.
+
+    RNC: Was originally QLayoutPrivate::checkWidget
+    ... "from" parameter added to make it a standalone function
+*/
+bool qtlayouthelpers::checkWidget(QWidget* widget, QLayout* from)
+{
+    if (Q_UNLIKELY(!widget)) {
+        qWarning("QLayout: Cannot add a null widget to %s/%ls",
+                 from->metaObject()->className(),
+                 qUtf16Printable(from->objectName()));
+        return false;
+    }
+    if (Q_UNLIKELY(widget == from->parentWidget())) {
+        qWarning("QLayout: Cannot add parent widget %s/%ls to its child layout %s/%ls",
+                 widget->metaObject()->className(),
+                 qUtf16Printable(widget->objectName()),
+                 from->metaObject()->className(),
+                 qUtf16Printable(from->objectName()));
+        return false;
+    }
+    return true;
+}
+
+
+/*
+    Returns \c true if the \a otherLayout can be added to the \a layout;
+    otherwise returns \c false.
+
+    RNC: Was originally QLayoutPrivate::checkLayout
+    ... "from" parameter added to make it a standalone function
+*/
+bool qtlayouthelpers::checkLayout(QLayout* other_layout, QLayout* from)
+{
+    if (Q_UNLIKELY(!other_layout)) {
+        qWarning("QLayout: Cannot add a null layout to %s/%ls",
+                 from->metaObject()->className(),
+                 qUtf16Printable(from->objectName()));
+        return false;
+    }
+    if (Q_UNLIKELY(other_layout == from)) {
+        qWarning("QLayout: Cannot add layout %s/%ls to itself",
+                 from->metaObject()->className(),
+                 qUtf16Printable(from->objectName()));
+        return false;
+    }
+    return true;
 }

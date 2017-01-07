@@ -23,7 +23,7 @@
 
 ResearchMenu::ResearchMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Research tasks (experimental)"),
-               UiFunc::iconFilename(UiConst::ICON_RESEARCH))
+               uifunc::iconFilename(uiconst::ICON_RESEARCH))
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),

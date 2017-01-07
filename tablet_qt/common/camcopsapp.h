@@ -177,7 +177,7 @@ signals:
     // ------------------------------------------------------------------------
 public:
     QString getSubstitutedCss(const QString& filename) const;
-    int fontSizePt(UiConst::FontSize fontsize, double factor_pct = -1) const;
+    int fontSizePt(uiconst::FontSize fontsize, double factor_pct = -1) const;
 signals:
     void fontSizeChanged();
 

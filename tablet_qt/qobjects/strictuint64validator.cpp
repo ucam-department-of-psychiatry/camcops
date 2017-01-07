@@ -52,7 +52,7 @@ StrictUInt64Validator::~StrictUInt64Validator()
 QValidator::State StrictUInt64Validator::validate(QString& s, int& pos) const
 {
     Q_UNUSED(pos);
-    return Numeric::validateInteger(s, locale(), bottom(), top(),
+    return numeric::validateInteger(s, locale(), bottom(), top(),
                                     m_allow_empty);
 }
 

@@ -68,7 +68,7 @@ QPointer<QWidget> QuImage::makeWidget(Questionnaire* questionnaire)
         QByteArray data = m_fieldref->valueByteArray();
         image.loadFromData(data);
     } else {
-        image = UiFunc::getPixmap(m_filename);
+        image = uifunc::getPixmap(m_filename);
     }
     if (m_size.isValid()) {
         image = image.scaled(m_size);

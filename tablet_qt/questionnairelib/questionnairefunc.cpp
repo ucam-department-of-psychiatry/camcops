@@ -23,7 +23,7 @@
 #include "questionnairelib/qutext.h"
 
 
-QuElement* QuestionnaireFunc::defaultGridRawPointer(
+QuElement* questionnairefunc::defaultGridRawPointer(
         const QList<GridRowDefinition>& deflist,
         int left_column_span,
         int right_column_span,
@@ -59,7 +59,7 @@ QuElement* QuestionnaireFunc::defaultGridRawPointer(
 }
 
 
-QuElementPtr QuestionnaireFunc::defaultGrid(
+QuElementPtr questionnairefunc::defaultGrid(
         const QList<GridRowDefinition>& deflist,
         int left_column_span,
         int right_column_span,
@@ -74,7 +74,7 @@ QuElementPtr QuestionnaireFunc::defaultGrid(
 }
 
 
-QuElementPtr QuestionnaireFunc::defaultGrid(
+QuElementPtr questionnairefunc::defaultGrid(
         std::initializer_list<GridRowDefinition> defs,
         int left_column_span,
         int right_column_span,
@@ -89,7 +89,7 @@ QuElementPtr QuestionnaireFunc::defaultGrid(
 }
 
 
-QuElement* QuestionnaireFunc::defaultGridRawPointer(
+QuElement* questionnairefunc::defaultGridRawPointer(
         std::initializer_list<GridRowDefinitionRawPtr> defs,
         int left_column_span,
         int right_column_span,

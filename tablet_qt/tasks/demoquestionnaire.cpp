@@ -76,7 +76,7 @@ DemoQuestionnaire::DemoQuestionnaire(CamcopsApp& app,
                                      const QSqlDatabase& db, int load_pk) :
     Task(app, db, "demoquestionnaire", true, false, false)
 {
-    using StringFunc::strseq;
+    using stringfunc::strseq;
 
     addFields(strseq("mcq", 1, 10), QVariant::Int);  // 9-10: v2
     addFields(strseq("mcqbool", 1, 3), QVariant::Bool);
@@ -150,8 +150,8 @@ QStringList DemoQuestionnaire::summary() const
 
 OpenableWidget* DemoQuestionnaire::editor(bool read_only)
 {
-    const QString& longtext = UiConst::LOREM_IPSUM_1;
-    const QString& lipsum2 = UiConst::LOREM_IPSUM_2;
+    const QString& longtext = uiconst::LOREM_IPSUM_1;
+    const QString& lipsum2 = uiconst::LOREM_IPSUM_2;
     const QString url("http://doc.qt.io/qt-5.7/richtext-html-subset.html");
     const QString html(QString(
         "Text with embedded HTML markup, providing <b>bold</b>, "
@@ -176,7 +176,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
         new QuText("Below here: space fillers, just to test scrolling"),
         (new QuText(longtext))->big(),
     })->setTitle(QString("Text [With a long title: %1]")
-                 .arg(UiConst::LOREM_IPSUM_3)));
+                 .arg(uiconst::LOREM_IPSUM_3)));
     for (int i = 0; i < 20; ++i) {
         page_text->addElement((new QuText("big text"))->big());
     }
@@ -190,7 +190,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
 
     QuPagePtr page_image((new QuPage{
         new QuHeading("Image:"),
-        new QuImage(UiFunc::iconFilename(UiConst::ICON_CAMCOPS)),
+        new QuImage(uifunc::iconFilename(uiconst::ICON_CAMCOPS)),
         new QuHeading("... heading under image, to check vertical size"),
     })->setTitle("Headings, images"));
 
@@ -293,7 +293,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
             ->setColumnStretch(2, 1)
             ->setFixedGrid(false),
         new QuHeading("More automated grid (of label/element pairs):"),
-        QuestionnaireFunc::defaultGridRawPointer({
+        questionnairefunc::defaultGridRawPointer({
             {"<b>LHS:</b> " + lipsum2,
              new QuText("<b>RHS:</b> " + lipsum2)},
             {"<b>LHS:</b> " + lipsum2,
@@ -309,9 +309,9 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
 
     QuPagePtr page_audio_countdown((new QuPage{
         new QuHeading("Simple audio player:"),
-        (new QuAudioPlayer(UiConst::DEMO_SOUND_URL_2))->setVolume(25),
+        (new QuAudioPlayer(uiconst::DEMO_SOUND_URL_2))->setVolume(25),
         new QuHeading("Audio player with volume control:"),
-        (new QuAudioPlayer(UiConst::DEMO_SOUND_URL))->setOfferVolumeControl(),
+        (new QuAudioPlayer(uiconst::DEMO_SOUND_URL))->setOfferVolumeControl(),
         new QuHeading("Countdown:"),
         new QuCountdown(20),
     })->setTitle("Audio players, countdowns"));
@@ -343,10 +343,10 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
         new QuHeading("Text field from the Boolean field used above:"),
         new QuText(fieldRef("booltext1")),
         new QuHeading("Another boolean field, using an image:"),
-        new QuBoolean(UiFunc::iconFilename(UiConst::ICON_CAMCOPS),
+        new QuBoolean(uifunc::iconFilename(uiconst::ICON_CAMCOPS),
                       QSize(), fieldRef("boolimage1")),
         new QuHeading("... clone with non-clickable image:"),
-        (new QuBoolean(UiFunc::iconFilename(UiConst::ICON_CAMCOPS),
+        (new QuBoolean(uifunc::iconFilename(uiconst::ICON_CAMCOPS),
                       QSize(), fieldRef("boolimage1")))->setContentClickable(false),
         // Now the ACE-III address example:
         new QuGridContainer{
@@ -391,7 +391,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
             }, 1, 0),
         },
         (new QuBoolean(
-            UiFunc::resourceFilename("ace3/penguin.png"),
+            uifunc::resourceFilename("ace3/penguin.png"),
             QSize(),
             fieldRef("boolimage2"))
         )->setBigIndicator(false),
@@ -602,9 +602,9 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
             text += " - chilled out";
         }
         QuThermometerItem item(
-            UiFunc::resourceFilename(
+            uifunc::resourceFilename(
                         QString("distressthermometer/dt_sel_%1.png").arg(i)),
-            UiFunc::resourceFilename(
+            uifunc::resourceFilename(
                         QString("distressthermometer/dt_unsel_%1.png").arg(i)),
             text,
             i
@@ -703,12 +703,12 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
                              "range -0.05 to -0.09, 2dp):"),
         new QuLineEditDouble(fieldRef("typedvar_real"), -0.05, -0.09, 2),
         new QuHeading("Variables in a grid:"),
-        QuestionnaireFunc::defaultGridRawPointer({
+        questionnairefunc::defaultGridRawPointer({
             {"label 1", new QuLineEdit(fieldRef("typedvar_text"))},
             {"label 2", new QuLineEditInteger(fieldRef("typedvar_int"), 13, 19)},
             {"label 3", new QuHeading("Just a heading: " + lipsum2)},
             {"label 4", new QuDateTime(fieldRef("date_time"))},
-        }, UiConst::DEFAULT_COLSPAN_Q, UiConst::DEFAULT_COLSPAN_A),
+        }, uiconst::DEFAULT_COLSPAN_Q, uiconst::DEFAULT_COLSPAN_A),
     })
         ->setTitle("Editable variable including dates/times")
         ->setType(QuPage::PageType::Clinician));
@@ -745,7 +745,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
         new QuHeading("Canvas, using files:"),
         new QuCanvas(
             fieldRef("canvas_blobid", true, true, true),
-            UiFunc::resourceFilename("ace3/rhinoceros.png")),
+            uifunc::resourceFilename("ace3/rhinoceros.png")),
         new QuHeading("Canvas, clone of the first one:"),
         new QuCanvas(fieldRef("canvas2_blobid", true, true, true)),
     })
@@ -768,7 +768,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
             "Button with args ('bar')",
             std::bind(&DemoQuestionnaire::callbackArg, this, "bar")),
         new QuButton(
-            UiConst::CBS_ADD, true, true,
+            uiconst::CBS_ADD, true, true,
             std::bind(&DemoQuestionnaire::callbackHello, this)),
     })->setTitle("Buttons"));
 
@@ -787,7 +787,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
     // ------------------------------------------------------------------------
 
     QuPagePtr page_minimal_layout((new QuPage{
-        new QuText(UiConst::LOREM_IPSUM_1),
+        new QuText(uiconst::LOREM_IPSUM_1),
     })->setTitle("Reasonably long title with several words"));
 
     // ------------------------------------------------------------------------
@@ -812,13 +812,13 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
 
 void DemoQuestionnaire::callbackHello()
 {
-    UiFunc::alert("Hello!");
+    uifunc::alert("Hello!");
 }
 
 
 void DemoQuestionnaire::callbackArg(const QString& arg)
 {
-    UiFunc::alert("Function argument was: " + arg);
+    uifunc::alert("Function argument was: " + arg);
 }
 
 

@@ -16,13 +16,13 @@
 */
 
 #pragma once
+#include "common/layouts.h"
 #include "namevalueoptions.h"
 #include "mcqgridsubtitle.h"
 #include "quelement.h"
 #include "questionwithtwofields.h"
 
 class BooleanWidget;
-class QGridLayout;
 class QuMCQGridSingleBooleanSignaller;
 
 
@@ -60,7 +60,7 @@ protected:
     int mcqColnum(int value_index) const;
     int booleanColnum() const;
     int spacercol(bool first) const;
-    void addOptions(QGridLayout* grid, int row);
+    void addOptions(GridLayout* grid, int row);
 protected slots:
     void mcqClicked(int question_index, int value_index);
     void booleanClicked(int question_index);

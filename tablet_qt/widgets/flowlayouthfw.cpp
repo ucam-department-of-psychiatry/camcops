@@ -50,14 +50,14 @@
 
 // #define DEBUG_LAYOUT
 
+#include "flowlayouthfw.h"
+#include <QtWidgets>
+#include "widgets/margins.h"
+
 #ifdef DEBUG_LAYOUT
 #include <QDebug>  // RNC
 #include "lib/layoutdumper.h"
 #endif
-#include <QtWidgets>
-
-#include "flowlayouthfw.h"
-#include "lib/layoutdumper.h"
 
 
 FlowLayoutHfw::FlowLayoutHfw(QWidget* parent, int margin,
@@ -267,9 +267,8 @@ QSize FlowLayoutHfw::doLayout(const QRect& rect, bool test_only) const
 {
     // RNC: substantial modifications including vertical alignment
 
-    int left, top, right, bottom;
-    getContentsMargins(&left, &top, &right, &bottom);
-    QRect effective_rect = rect.adjusted(+left, +top, -right, -bottom);
+    Margins contents_margins = Margins::getContentsMargins(this);
+    QRect effective_rect = contents_margins.removeMarginsFrom(rect);
     const int layout_width = effective_rect.width();
 #ifdef DEBUG_LAYOUT
     qDebug() << Q_FUNC_INFO;
@@ -388,7 +387,7 @@ QSize FlowLayoutHfw::doLayout(const QRect& rect, bool test_only) const
     }
 
     int final_width = max_x - rect.x();
-    int final_height = y + line_heights.back() - rect.y() + bottom;
+    int final_height = y + line_heights.back() - rect.y() + contents_margins.bottom();
     QSize final_size(final_width, final_height);
 #ifdef DEBUG_LAYOUT
     qDebug() << "... LAYOUT COMPLETE; final size" << final_size;

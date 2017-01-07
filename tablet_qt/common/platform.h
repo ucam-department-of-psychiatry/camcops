@@ -17,12 +17,12 @@
 
 #pragma once
 
-namespace Platform {
+namespace platform {
 
-    extern const bool PLATFORM_ANDROID;
-    extern const bool PLATFORM_IOS;
-    extern const bool PLATFORM_LINUX;
-    extern const bool PLATFORM_WINDOWS;
-    extern const bool PLATFORM_TABLET;
+extern const bool PLATFORM_ANDROID;
+extern const bool PLATFORM_IOS;
+extern const bool PLATFORM_LINUX;
+extern const bool PLATFORM_WINDOWS;
+extern const bool PLATFORM_TABLET;
 
-}
+}  // namespace platform

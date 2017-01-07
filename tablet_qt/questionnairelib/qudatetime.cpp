@@ -94,7 +94,7 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
     QPointer<QWidget> widget = new QWidget();
     widget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     QHBoxLayout* layout = new QHBoxLayout();
-    layout->setContentsMargins(UiConst::NO_MARGINS);
+    layout->setContentsMargins(uiconst::NO_MARGINS);
     widget->setLayout(layout);
 
     QString format;
@@ -135,7 +135,7 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
     layout->addWidget(m_editor);
 
     if (m_offer_now_button) {
-        QAbstractButton* now_button = new ImageButton(UiConst::CBS_TIME_NOW);
+        QAbstractButton* now_button = new ImageButton(uiconst::CBS_TIME_NOW);
         now_button->setEnabled(!read_only);
         if (!read_only) {
             connect(now_button, &QAbstractButton::clicked,
@@ -145,7 +145,7 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
     }
 
     if (m_offer_null_button) {
-        QAbstractButton* null_button = new ImageButton(UiConst::CBS_DELETE);
+        QAbstractButton* null_button = new ImageButton(uiconst::CBS_DELETE);
         null_button->setEnabled(!read_only);
         if (!read_only) {
             connect(null_button, &QAbstractButton::clicked,
@@ -215,7 +215,7 @@ void QuDateTime::fieldValueChanged(const FieldRef* fieldref,
         return;
     }
     // Missing?
-    UiFunc::setPropertyMissing(m_editor, fieldref->missingInput());
+    uifunc::setPropertyMissing(m_editor, fieldref->missingInput());
     if (originator != this) {
         // Value
         QDateTime display_value = fieldref->valueDateTime();

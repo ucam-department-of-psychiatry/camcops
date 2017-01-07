@@ -264,7 +264,11 @@ SOURCES += main.cpp\
     questionnairelib/quflowcontainer.cpp \
     questionnairelib/qugridcontainer.cpp \
     questionnairelib/quverticalcontainer.cpp \
-    questionnairelib/quhorizontalcontainer.cpp
+    questionnairelib/quhorizontalcontainer.cpp \
+    lib/sizehelpers.cpp \
+    widgets/gridlayouthfw.cpp \
+    widgets/margins.cpp \
+    common/globals.cpp
 
 HEADERS  += \
     lib/uifunc.h \
@@ -456,7 +460,11 @@ HEADERS  += \
     questionnairelib/quhorizontalcontainer.h \
     questionnairelib/quverticalcontainer.h \
     questionnairelib/qugridcontainer.h \
-    common/layouts.h
+    common/layouts.h \
+    lib/sizehelpers.h \
+    widgets/gridlayouthfw.h \
+    widgets/margins.h \
+    common/globals.h
 
 DISTFILES += \
     notes/qt_notes.txt \
@@ -495,7 +503,8 @@ DISTFILES += \
     images/dt/dt_unsel_9.png \
     images/dt/dt_unsel_10.png \
     stylesheets/camera.css \
-    LICENSE.txt
+    LICENSE.txt \
+    notes/coding_conventions.txt
 
 # =============================================================================
 # Android-specific options

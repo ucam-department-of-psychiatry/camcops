@@ -63,14 +63,14 @@ const unsigned int AES_256BIT_KEY_SIZE = 256 / 8;
 const unsigned int AES_BLOCK_SIZE_BYTES = 16;  // AES is 128 bits = 16 bytes
 const unsigned int SALT_LENGTH_BYTES = 64;
 // ... https://www.owasp.org/index.php/Password_Storage_Cheat_Sheet
-const int SALT_LENGTH_TEXT = CryptoFunc::base64Length(SALT_LENGTH_BYTES);
+const int SALT_LENGTH_TEXT = cryptofunc::base64Length(SALT_LENGTH_BYTES);
 
 
 // ============================================================================
 // Simple calculations
 // ============================================================================
 
-int CryptoFunc::base64Length(int nbytes)
+int cryptofunc::base64Length(int nbytes)
 {
     // http://stackoverflow.com/questions/13378815/base64-length-calculation
     double d = nbytes;
@@ -86,7 +86,7 @@ int CryptoFunc::base64Length(int nbytes)
 // OpenSSL low-level calls
 // ============================================================================
 
-void CryptoFunc::aesEncrypt(const QByteArray& key_bytes,
+void cryptofunc::aesEncrypt(const QByteArray& key_bytes,
                             const QByteArray& iv_bytes,
                             const QByteArray& plaintext_bytes,
                             QByteArray& ciphertext_bytes)
@@ -138,7 +138,7 @@ void CryptoFunc::aesEncrypt(const QByteArray& key_bytes,
 }
 
 
-void CryptoFunc::aesDecrypt(const QByteArray& key_bytes,
+void cryptofunc::aesDecrypt(const QByteArray& key_bytes,
                             const QByteArray& iv_bytes,
                             const QByteArray& ciphertext_bytes,
                             QByteArray& recoveredtext_bytes)
@@ -193,7 +193,7 @@ void CryptoFunc::aesDecrypt(const QByteArray& key_bytes,
 }
 
 
-SecureQByteArray CryptoFunc::hashBytes(const QByteArray& plaintext_bytes)
+SecureQByteArray cryptofunc::hashBytes(const QByteArray& plaintext_bytes)
 {
     EVP_MD_CTX_ptr context(EVP_MD_CTX_create(), ::EVP_MD_CTX_destroy);
     // This is for OpenSSL 1.0.2h. In OpenSSL 1.1,
@@ -223,7 +223,7 @@ SecureQByteArray CryptoFunc::hashBytes(const QByteArray& plaintext_bytes)
 }
 
 
-SecureQByteArray CryptoFunc::makeAesIV()
+SecureQByteArray cryptofunc::makeAesIV()
 {
     SecureQByteArray iv(AES_BLOCK_SIZE_BYTES, 0);
     auto ivdata = reinterpret_cast<unsigned char*>(iv.data());
@@ -232,14 +232,14 @@ SecureQByteArray CryptoFunc::makeAesIV()
 }
 
 
-QString CryptoFunc::generateIVBase64()
+QString cryptofunc::generateIVBase64()
 {
     SecureQByteArray iv = makeAesIV();
     return QString(iv.toBase64());
 }
 
 
-bool CryptoFunc::isValidAesKey(const QByteArray& key_bytes)
+bool cryptofunc::isValidAesKey(const QByteArray& key_bytes)
 {
     // https://en.wikipedia.org/wiki/Advanced_Encryption_Standard
     int n_bytes = key_bytes.size();
@@ -257,9 +257,9 @@ bool CryptoFunc::isValidAesKey(const QByteArray& key_bytes)
 }
 
 
-bool CryptoFunc::isValidAesKey(const QString& key_b64)
+bool cryptofunc::isValidAesKey(const QString& key_b64)
 {
-    SecureQByteArray key_bytes = Convert::base64ToSecureBytes(key_b64);
+    SecureQByteArray key_bytes = convert::base64ToSecureBytes(key_b64);
 #ifdef DANGER_DEBUG_CRYPTO
     qDebug() << Q_FUNC_INFO
              << "key_b64" << key_b64
@@ -269,7 +269,7 @@ bool CryptoFunc::isValidAesKey(const QString& key_b64)
 }
 
 
-bool CryptoFunc::isValidAesIV(const QByteArray& iv_bytes)
+bool cryptofunc::isValidAesIV(const QByteArray& iv_bytes)
 {
     int n_bytes = iv_bytes.size();
     int n_bits = n_bytes * 8;
@@ -286,9 +286,9 @@ bool CryptoFunc::isValidAesIV(const QByteArray& iv_bytes)
 }
 
 
-bool CryptoFunc::isValidAesIV(const QString& iv_b64)
+bool cryptofunc::isValidAesIV(const QString& iv_b64)
 {
-    QByteArray iv_bytes = Convert::base64ToBytes(iv_b64);
+    QByteArray iv_bytes = convert::base64ToBytes(iv_b64);
 #ifdef DANGER_DEBUG_CRYPTO
     qDebug() << Q_FUNC_INFO
              << "iv_b64" << iv_b64
@@ -302,19 +302,19 @@ bool CryptoFunc::isValidAesIV(const QString& iv_b64)
 // Front end
 // ============================================================================
 
-SecureQByteArray CryptoFunc::randomBytes(int n)
+SecureQByteArray cryptofunc::randomBytes(int n)
 {
     SecureQByteArray array(n, 0);
     auto ptr = reinterpret_cast<unsigned char*>(array.data());
     int retcode = RAND_bytes(ptr, n);
     if (retcode == -1) {  // failure; see rand_lib.c
-        UiFunc::stopApp("Call to OpenSSL RAND_bytes failed");
+        uifunc::stopApp("Call to OpenSSL RAND_bytes failed");
     }
     return array;
 }
 
 
-SecureQString CryptoFunc::generateObscuringKeyBase64()
+SecureQString cryptofunc::generateObscuringKeyBase64()
 {
     // This doesn't need a cryptographically secure RNG, really.
     // Still, we have openSSL...
@@ -322,7 +322,7 @@ SecureQString CryptoFunc::generateObscuringKeyBase64()
 }
 
 
-QString CryptoFunc::encryptToBase64(const QString& plaintext,
+QString cryptofunc::encryptToBase64(const QString& plaintext,
                                     const QString& key_b64,
                                     const QString& iv_b64)
 {
@@ -332,12 +332,12 @@ QString CryptoFunc::encryptToBase64(const QString& plaintext,
              << "key_b64" << key_b64
              << "iv_b64" << iv_b64;
 #endif
-    SecureQByteArray key_bytes = Convert::base64ToSecureBytes(key_b64);
+    SecureQByteArray key_bytes = convert::base64ToSecureBytes(key_b64);
     if (!isValidAesKey(key_bytes)) {
         qCritical() << Q_FUNC_INFO << "Bad AES key";
         return "";
     }
-    SecureQByteArray iv_bytes = Convert::base64ToSecureBytes(iv_b64);
+    SecureQByteArray iv_bytes = convert::base64ToSecureBytes(iv_b64);
     SecureQByteArray plaintext_bytes = plaintext.toLocal8Bit();  // no other conversion
     SecureQByteArray ciphertext_bytes;
     aesEncrypt(key_bytes, iv_bytes, plaintext_bytes, ciphertext_bytes);
@@ -349,7 +349,7 @@ QString CryptoFunc::encryptToBase64(const QString& plaintext,
 }
 
 
-SecureQString CryptoFunc::decryptFromBase64(const QString& ciphertext_b64,
+SecureQString cryptofunc::decryptFromBase64(const QString& ciphertext_b64,
                                             const QString& key_b64,
                                             const QString& iv_b64)
 {
@@ -358,13 +358,13 @@ SecureQString CryptoFunc::decryptFromBase64(const QString& ciphertext_b64,
              << "ciphertext_b64" << ciphertext_b64
              << "key_b64" << key_b64;
 #endif
-    SecureQByteArray key_bytes = Convert::base64ToSecureBytes(key_b64);
+    SecureQByteArray key_bytes = convert::base64ToSecureBytes(key_b64);
     if (!isValidAesKey(key_bytes)) {
         qCritical() << Q_FUNC_INFO << "Bad AES key";
         return "";
     }
-    SecureQByteArray ciphertext_bytes = Convert::base64ToSecureBytes(ciphertext_b64);
-    SecureQByteArray iv_bytes = Convert::base64ToSecureBytes(iv_b64);
+    SecureQByteArray ciphertext_bytes = convert::base64ToSecureBytes(ciphertext_b64);
+    SecureQByteArray iv_bytes = convert::base64ToSecureBytes(iv_b64);
     SecureQByteArray plaintext_bytes;
     aesDecrypt(key_bytes, iv_bytes, ciphertext_bytes, plaintext_bytes);
     SecureQString plaintext(plaintext_bytes);  // ASSUMES IT IS TEXT.
@@ -376,7 +376,7 @@ SecureQString CryptoFunc::decryptFromBase64(const QString& ciphertext_b64,
 }
 
 
-QString CryptoFunc::hash(const QString& plaintext, const QString& salt)
+QString cryptofunc::hash(const QString& plaintext, const QString& salt)
 {
     if (salt.length() != SALT_LENGTH_TEXT) {
         qWarning() << "Salt length is" << salt.length()
@@ -397,14 +397,14 @@ QString CryptoFunc::hash(const QString& plaintext, const QString& salt)
 }
 
 
-QString CryptoFunc::hash(const QString& plaintext)
+QString cryptofunc::hash(const QString& plaintext)
 {
     QString salt = makeSalt();
     return hash(plaintext, salt);
 }
 
 
-bool CryptoFunc::matchesHash(const QString& plaintext, const QString& hashed)
+bool cryptofunc::matchesHash(const QString& plaintext, const QString& hashed)
 {
     if (hashed.length() < SALT_LENGTH_TEXT) {
         return false;
@@ -414,7 +414,7 @@ bool CryptoFunc::matchesHash(const QString& plaintext, const QString& hashed)
 }
 
 
-QString CryptoFunc::makeSalt()
+QString cryptofunc::makeSalt()
 {
     return randomBytes(SALT_LENGTH_BYTES).toBase64();
 }

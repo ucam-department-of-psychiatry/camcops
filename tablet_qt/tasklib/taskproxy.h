@@ -36,10 +36,10 @@ public:
     // We do want to create instances...
     virtual TaskPtr create(CamcopsApp& app,
                            const QSqlDatabase& db,
-                           int load_pk = DbConst::NONEXISTENT_PK) const = 0;
+                           int load_pk = dbconst::NONEXISTENT_PK) const = 0;
     virtual TaskPtrList fetch(CamcopsApp& app,
                               const QSqlDatabase& db,
-                              int patient_id = DbConst::NONEXISTENT_PK) const = 0;
+                              int patient_id = dbconst::NONEXISTENT_PK) const = 0;
 protected:
     virtual TaskPtrList fetchWhere(CamcopsApp& app,
                                    const QSqlDatabase& db,

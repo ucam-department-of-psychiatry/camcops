@@ -35,21 +35,21 @@ const QString CAMCOPS_DOCS_URL("http://camcops.org/documentation/index.html");
 
 
 HelpMenu::HelpMenu(CamcopsApp& app) :
-    MenuWindow(app, tr("Help"), UiFunc::iconFilename(UiConst::ICON_INFO))
+    MenuWindow(app, tr("Help"), uifunc::iconFilename(uiconst::ICON_INFO))
 {
     QString title_missing = tr("Why isn’t task X here?");
     m_items = {
         MenuItem(tr("Online CamCOPS documentation"),
                  std::bind(&HelpMenu::visitCamcopsDocumentation, this),
-                 UiFunc::iconFilename(UiConst::ICON_CAMCOPS)),
+                 uifunc::iconFilename(uiconst::ICON_CAMCOPS)),
         MenuItem(tr("Visit") + " " + CAMCOPS_URL,
                  std::bind(&HelpMenu::visitCamcopsWebsite, this),
-                 UiFunc::iconFilename(UiConst::ICON_CAMCOPS)),
+                 uifunc::iconFilename(uiconst::ICON_CAMCOPS)),
         MAKE_TASK_MENU_ITEM("demoquestionnaire", app),
         MenuItem(title_missing,
                  HtmlMenuItem(title_missing,
-                              FileFunc::taskHtmlFilename("MISSING_TASKS"),
-                              UiFunc::iconFilename(UiConst::ICON_INFO))),
+                              filefunc::taskHtmlFilename("MISSING_TASKS"),
+                              uifunc::iconFilename(uiconst::ICON_INFO))),
         MenuItem(tr("Show software versions"),
                  std::bind(&HelpMenu::softwareVersions, this)),
         MenuItem(tr("About Qt"),
@@ -64,13 +64,13 @@ HelpMenu::HelpMenu(CamcopsApp& app) :
 
 void HelpMenu::visitCamcopsWebsite() const
 {
-    UiFunc::visitUrl(CAMCOPS_URL);
+    uifunc::visitUrl(CAMCOPS_URL);
 }
 
 
 void HelpMenu::visitCamcopsDocumentation() const
 {
-    UiFunc::visitUrl(CAMCOPS_DOCS_URL);
+    uifunc::visitUrl(CAMCOPS_DOCS_URL);
 }
 
 
@@ -83,7 +83,7 @@ void HelpMenu::softwareVersions() const
     // CamCOPS
     // ------------------------------------------------------------------------
     versions.append(QString("<b>CamCOPS tablet version:</b> %1").arg(
-                        CamcopsVersion::CAMCOPS_VERSION.toString()));
+                        camcopsversion::CAMCOPS_VERSION.toString()));
     versions.append(newline);
 
     // ------------------------------------------------------------------------
@@ -101,7 +101,7 @@ void HelpMenu::softwareVersions() const
     // doesn't expose it. So we have to ask the database itself.
     QString sql = "SELECT sqlite_version()";
     QSqlDatabase& db = m_app.sysdb();
-    QString sqlite_version = DbFunc::dbFetchFirstValue(db, sql).toString();
+    QString sqlite_version = dbfunc::dbFetchFirstValue(db, sql).toString();
     versions.append(QString("<b>Embedded SQLite version:</b> %1").arg(sqlite_version));
     QString sqlite_info;
     QTextStream s(&sqlite_info);
@@ -142,7 +142,7 @@ void HelpMenu::softwareVersions() const
     versions.append(QString("<b>Run-time OpenSSL version:</b> %1").arg(
         QSslSocket::sslLibraryVersionString()));
 
-    UiFunc::alert(versions.join("<br>"), tr("Software versions"));
+    uifunc::alert(versions.join("<br>"), tr("Software versions"));
 }
 
 
@@ -157,10 +157,10 @@ void HelpMenu::showDeviceIdAndDbDetails() const
     QStringList lines;
     lines.append(QString("<b>Device ID:</b> %1").arg(m_app.deviceId()));
     lines.append(QString("<b>Main database:</b> %1").arg(
-        DbFunc::dbFullPath(DbFunc::DATA_DATABASE_FILENAME)));
+        dbfunc::dbFullPath(dbfunc::DATA_DATABASE_FILENAME)));
     lines.append(QString("<b>System database:</b> %1").arg(
-        DbFunc::dbFullPath(DbFunc::SYSTEM_DATABASE_FILENAME)));
-    UiFunc::alert(StringFunc::joinHtmlLines(lines),
+        dbfunc::dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME)));
+    uifunc::alert(stringfunc::joinHtmlLines(lines),
                   tr("Device/installation ID; databases"));
 }
 
@@ -168,6 +168,6 @@ void HelpMenu::showDeviceIdAndDbDetails() const
 void HelpMenu::viewTermsConditions() const
 {
     QString title = QString("You agreed to these terms and conditions at: %1")
-            .arg(DateTime::shortDateTime(m_app.agreedTermsAt()));
-    UiFunc::alert(UiConst::TERMS_CONDITIONS, title);
+            .arg(datetime::shortDateTime(m_app.agreedTermsAt()));
+    uifunc::alert(uiconst::TERMS_CONDITIONS, title);
 }

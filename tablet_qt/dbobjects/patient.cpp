@@ -69,7 +69,7 @@ const QString TAG_IDCLASH_DETAIL("idclash_detail");
 
 
 Patient::Patient(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
-    DatabaseObject(app, db, TABLENAME, DbConst::PK_FIELDNAME, true, false),
+    DatabaseObject(app, db, TABLENAME, dbconst::PK_FIELDNAME, true, false),
     m_questionnaire(nullptr)
 {
     // ------------------------------------------------------------------------
@@ -82,12 +82,12 @@ Patient::Patient(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
     addField(ADDRESS_FIELD, QVariant::String);
     addField(GP_FIELD, QVariant::String);
     addField(OTHER_FIELD, QVariant::String);
-    for (int n = 1; n <= DbConst::NUMBER_OF_IDNUMS; ++n) {
+    for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
         addField(IDNUM_FIELD_FORMAT.arg(n), QVariant::LongLong);
         // Information for these two comes from the server, and is ONLY stored
         // here at the moment of upload (copied from the CamcopsApp's info).
-        addField(DbConst::IDSHORTDESC_FIELD_FORMAT.arg(n), QVariant::String);
-        addField(DbConst::IDDESC_FIELD_FORMAT.arg(n), QVariant::String);
+        addField(dbconst::IDSHORTDESC_FIELD_FORMAT.arg(n), QVariant::String);
+        addField(dbconst::IDDESC_FIELD_FORMAT.arg(n), QVariant::String);
     }
 
     // ------------------------------------------------------------------------
@@ -150,13 +150,13 @@ QDate Patient::dob() const
 
 QString Patient::dobText() const
 {
-    return DateTime::textDate(value(DOB_FIELD));
+    return datetime::textDate(value(DOB_FIELD));
 }
 
 
 int Patient::ageYears() const
 {
-    return DateTime::ageYears(value(DOB_FIELD));
+    return datetime::ageYears(value(DOB_FIELD));
 }
 
 
@@ -168,7 +168,7 @@ bool Patient::hasIdnum(int which_idnum) const
 
 QVariant Patient::idnumVariant(int which_idnum) const
 {
-    if (!DbConst::isValidWhichIdnum(which_idnum)) {
+    if (!dbconst::isValidWhichIdnum(which_idnum)) {
         return QVariant();
     }
     return value(IDNUM_FIELD_FORMAT.arg(which_idnum));
@@ -177,7 +177,7 @@ QVariant Patient::idnumVariant(int which_idnum) const
 
 qlonglong Patient::idnumInteger(int which_idnum) const
 {
-    if (!DbConst::isValidWhichIdnum(which_idnum)) {
+    if (!dbconst::isValidWhichIdnum(which_idnum)) {
         return 0;
     }
     return valueULongLong(IDNUM_FIELD_FORMAT.arg(which_idnum));
@@ -221,7 +221,7 @@ OpenableWidget* Patient::editor(bool read_only)
     grid->addCell(QuGridCell(new QuText(tr("Other details")), row, 0, 1, 1, align));
     grid->addCell(QuGridCell(new QuTextEdit(fieldRef(OTHER_FIELD, false)),
                              row++, 1));
-    for (int n = 1; n <= DbConst::NUMBER_OF_IDNUMS; ++n) {
+    for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
         QString iddesc = m_app.idDescription(n);
         QString idfield = IDNUM_FIELD_FORMAT.arg(n);
         grid->addCell(QuGridCell(new QuText(iddesc), row, 0, 1, 1, align));
@@ -235,38 +235,38 @@ OpenableWidget* Patient::editor(bool read_only)
 
     page->addElement(new QuHeading(tr("Minimum ID required for app:")));
     page->addElement(new QuText(TABLET_ID_POLICY.pretty()));
-    page->addElement((new QuImage(UiFunc::iconFilename(UiConst::CBS_OK),
-                                  UiConst::ICONSIZE))
+    page->addElement((new QuImage(uifunc::iconFilename(uiconst::CBS_OK),
+                                  uiconst::ICONSIZE))
                      ->addTag(TAG_POLICY_APP_OK));
-    page->addElement((new QuImage(UiFunc::iconFilename(UiConst::ICON_STOP),
-                                  UiConst::ICONSIZE))
+    page->addElement((new QuImage(uifunc::iconFilename(uiconst::ICON_STOP),
+                                  uiconst::ICONSIZE))
                      ->addTag(TAG_POLICY_APP_FAIL));
 
     page->addElement(new QuHeading(tr("Minimum ID required for upload to server:")));
     page->addElement(new QuText(m_app.uploadPolicy().pretty()));
-    page->addElement((new QuImage(UiFunc::iconFilename(UiConst::CBS_OK),
-                                  UiConst::ICONSIZE))
+    page->addElement((new QuImage(uifunc::iconFilename(uiconst::CBS_OK),
+                                  uiconst::ICONSIZE))
                      ->addTag(TAG_POLICY_UPLOAD_OK));
-    page->addElement((new QuImage(UiFunc::iconFilename(UiConst::ICON_STOP),
-                                  UiConst::ICONSIZE))
+    page->addElement((new QuImage(uifunc::iconFilename(uiconst::ICON_STOP),
+                                  uiconst::ICONSIZE))
                      ->addTag(TAG_POLICY_UPLOAD_FAIL));
 
     page->addElement(new QuHeading(tr("Minimum ID required to finalize on server:")));
     page->addElement(new QuText(m_app.finalizePolicy().pretty()));
-    page->addElement((new QuImage(UiFunc::iconFilename(UiConst::CBS_OK),
-                                  UiConst::ICONSIZE))
+    page->addElement((new QuImage(uifunc::iconFilename(uiconst::CBS_OK),
+                                  uiconst::ICONSIZE))
                      ->addTag(TAG_POLICY_FINALIZE_OK));
-    page->addElement((new QuImage(UiFunc::iconFilename(UiConst::ICON_STOP),
-                                  UiConst::ICONSIZE))
+    page->addElement((new QuImage(uifunc::iconFilename(uiconst::ICON_STOP),
+                                  uiconst::ICONSIZE))
                      ->addTag(TAG_POLICY_FINALIZE_FAIL));
 
     page->addElement(new QuHeading(tr("ID numbers must not clash with another patient:")));
     page->addElement((new QuText("?"))->addTag(TAG_IDCLASH_DETAIL));
-    page->addElement((new QuImage(UiFunc::iconFilename(UiConst::CBS_OK),
-                                  UiConst::ICONSIZE))
+    page->addElement((new QuImage(uifunc::iconFilename(uiconst::CBS_OK),
+                                  uiconst::ICONSIZE))
                      ->addTag(TAG_IDCLASH_OK));
-    page->addElement((new QuImage(UiFunc::iconFilename(UiConst::ICON_STOP),
-                                  UiConst::ICONSIZE))
+    page->addElement((new QuImage(uifunc::iconFilename(uiconst::ICON_STOP),
+                                  uiconst::ICONSIZE))
                      ->addTag(TAG_IDCLASH_FAIL));
 
     for (auto fieldname : policyAttributes().keys()) {
@@ -313,7 +313,7 @@ Patient::AttributesType Patient::policyAttributes() const
     map[SURNAME_FIELD] = hasSurname();
     map[DOB_FIELD] = hasDob();
     map[SEX_FIELD] = hasSex();
-    for (int n = 1; n <= DbConst::NUMBER_OF_IDNUMS; ++n) {
+    for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
         map[IDNUM_FIELD_FORMAT.arg(n)] = hasIdnum(n);
     }
     return map;
@@ -341,7 +341,7 @@ bool Patient::compliesWithFinalize() const
 QString Patient::shortIdnumSummary() const
 {
     QStringList details;
-    for (int n = 1; n <= DbConst::NUMBER_OF_IDNUMS; ++n) {
+    for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
         if (hasIdnum(n)) {
             details.append(QString("%1 %2")
                            .arg(m_app.idShortDescription(n))
@@ -373,7 +373,7 @@ void Patient::updateQuestionnaireIndicators(const FieldRef* fieldref,
     fieldRef(FORENAME_FIELD)->setMandatory(!app);
     fieldRef(SEX_FIELD)->setMandatory(!app);
     fieldRef(DOB_FIELD)->setMandatory(!app);
-    for (int n = 1; n <= DbConst::NUMBER_OF_IDNUMS; ++n) {
+    for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
         fieldRef(IDNUM_FIELD_FORMAT.arg(n))->setMandatory(!app);
     }
 
@@ -387,7 +387,7 @@ void Patient::updateQuestionnaireIndicators(const FieldRef* fieldref,
 
     bool id_ok = true;
     QStringList clashing_ids;
-    for (int n = 1; n <= DbConst::NUMBER_OF_IDNUMS; ++n) {
+    for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
         if (othersClashOnIdnum(n)) {
             clashing_ids.append(m_app.idShortDescription(n));
             id_ok = false;
@@ -409,9 +409,9 @@ void Patient::updateQuestionnaireIndicators(const FieldRef* fieldref,
 
 bool Patient::othersClashOnIdnum(int which_idnum) const
 {
-    using DbFunc::delimit;
-    if (which_idnum < 1 || which_idnum > DbConst::NUMBER_OF_IDNUMS) {
-        UiFunc::stopApp("Bug: Bad which_idnum to Patient::othersClashOnIdnum");
+    using dbfunc::delimit;
+    if (which_idnum < 1 || which_idnum > dbconst::NUMBER_OF_IDNUMS) {
+        uifunc::stopApp("Bug: Bad which_idnum to Patient::othersClashOnIdnum");
     }
     QString id_fieldname = IDNUM_FIELD_FORMAT.arg(which_idnum);
     QVariant idvar = idnumVariant(which_idnum);
@@ -424,10 +424,10 @@ bool Patient::othersClashOnIdnum(int which_idnum) const
         QString("SELECT COUNT(*) FROM %1 WHERE %2 = ? AND %3 <> ?")
             .arg(delimit(TABLENAME))
             .arg(delimit(id_fieldname))
-            .arg(delimit(DbConst::PK_FIELDNAME)),
+            .arg(delimit(dbconst::PK_FIELDNAME)),
         ArgList{idnum, patient_pk}
     );
-    int c = DbFunc::dbFetchInt(m_db, sqlargs);
+    int c = dbfunc::dbFetchInt(m_db, sqlargs);
     return c > 0;
 }
 
@@ -435,10 +435,10 @@ bool Patient::othersClashOnIdnum(int which_idnum) const
 bool Patient::anyIdClash() const
 {
     // Single SQL statement
-    using DbFunc::delimit;
+    using dbfunc::delimit;
     ArgList args;
     QStringList idnum_criteria;
-    for (int n = 1; n <= DbConst::NUMBER_OF_IDNUMS; ++n) {
+    for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
         QVariant idvar = idnumVariant(n);
         if (idvar.isNull()) {
             continue;
@@ -454,9 +454,9 @@ bool Patient::anyIdClash() const
     QString sql = QString("SELECT COUNT(*) FROM %1 WHERE (%2) AND %3 <> ?")
             .arg(delimit(TABLENAME))
             .arg(idnum_criteria.join(" OR "))
-            .arg(delimit(DbConst::PK_FIELDNAME));
+            .arg(delimit(dbconst::PK_FIELDNAME));
     SqlArgs sqlargs(sql, args);
-    int c = DbFunc::dbFetchInt(m_db, sqlargs);
+    int c = dbfunc::dbFetchInt(m_db, sqlargs);
     return c > 0;
 }
 
@@ -465,7 +465,7 @@ int Patient::numTasks() const
 {
     int n = 0;
     int patient_id = id();
-    if (patient_id == DbConst::NONEXISTENT_PK) {
+    if (patient_id == dbconst::NONEXISTENT_PK) {
         return 0;
     }
     TaskFactory* factory = m_app.taskFactory();
@@ -480,7 +480,7 @@ void Patient::deleteFromDatabase()
 {
     // Delete any associated tasks
     int patient_id = id();
-    if (patient_id == DbConst::NONEXISTENT_PK) {
+    if (patient_id == dbconst::NONEXISTENT_PK) {
         return;
     }
     DbTransaction trans(m_db);

@@ -20,7 +20,7 @@
 
 Spacer::Spacer(QWidget* parent) :
     QWidget(parent),
-    m_size(UiConst::SPACE, UiConst::SPACE)
+    m_size(uiconst::SPACE, uiconst::SPACE)
 {
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 }

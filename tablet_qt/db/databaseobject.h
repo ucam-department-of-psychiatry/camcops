@@ -39,7 +39,7 @@ public:
     DatabaseObject(CamcopsApp& m_app,
                    const QSqlDatabase& db,
                    const QString& tablename,
-                   const QString& pk_fieldname = DbConst::PK_FIELDNAME,
+                   const QString& pk_fieldname = dbconst::PK_FIELDNAME,
                    bool has_modification_timestamp = true,
                    bool has_creation_timestamp = false,
                    bool has_move_off_tablet_field = true,

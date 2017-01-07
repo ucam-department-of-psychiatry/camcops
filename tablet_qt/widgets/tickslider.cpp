@@ -287,7 +287,7 @@ void TickSlider::paintEvent(QPaintEvent *ev)
             }
             if (has_label && (tickLabelPosition() == TicksBothSides ||
                               tickLabelPosition() == TicksAbove)) {
-                UiFunc::drawText(p, x, top_label_top,
+                uifunc::drawText(p, x, top_label_top,
                                  halign | Qt::AlignTop, label_text);
             }
             if (tickPosition() == TicksBothSides ||
@@ -296,7 +296,7 @@ void TickSlider::paintEvent(QPaintEvent *ev)
             }
             if (has_label && (tickLabelPosition() == TicksBothSides ||
                               tickLabelPosition() == TicksBelow)) {
-                UiFunc::drawText(p, x, bottom_label_bottom,
+                uifunc::drawText(p, x, bottom_label_bottom,
                                  halign | Qt::AlignBottom, label_text);
             }
         }
@@ -341,7 +341,7 @@ void TickSlider::paintEvent(QPaintEvent *ev)
             }
             if (has_label && (tickLabelPosition() == TicksBothSides ||
                               tickLabelPosition() == TicksLeft)) {
-                UiFunc::drawText(p, left_label_right, y,
+                uifunc::drawText(p, left_label_right, y,
                                  Qt::AlignRight | valign, label_text);
             }
             if (tickPosition() == TicksBothSides ||
@@ -350,7 +350,7 @@ void TickSlider::paintEvent(QPaintEvent *ev)
             }
             if (has_label && (tickLabelPosition() == TicksBothSides ||
                               tickLabelPosition() == TicksRight)) {
-                UiFunc::drawText(p, right_label_left, y,
+                uifunc::drawText(p, right_label_left, y,
                                  Qt::AlignLeft | valign, label_text);
             }
         }

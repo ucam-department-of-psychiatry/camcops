@@ -24,7 +24,7 @@
 
 CatatoniaEpseMenu::CatatoniaEpseMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Catatonia and extrapyramidal side effects"),
-               UiFunc::iconFilename(UiConst::ICON_CATATONIA))
+               uifunc::iconFilename(uiconst::ICON_CATATONIA))
 {
     QString examtitle = tr("Catatonia examination technique");
     QString examsubtitle = tr("Standardized technique (for BFCRS, BFCSI)");
@@ -36,7 +36,7 @@ CatatoniaEpseMenu::CatatoniaEpseMenu(CamcopsApp& app) :
 
         MenuItem(examtitle,
                  HtmlMenuItem(examtitle,
-                              FileFunc::taskHtmlFilename("catatoniaexam")),
+                              filefunc::taskHtmlFilename("catatoniaexam")),
                  "",
                  examsubtitle),
         // *** COPYRIGHT PROBLEM? CATATONIA EXAMINATION. GONE FROM UKPPG SITE. REMOVE ***

@@ -84,7 +84,7 @@ void NameValueOptions::validateOrDie()
         if (values.contains(v)) {
             qCritical() << Q_FUNC_INFO
                         << "Name/value pair contains duplicate value:" << v;
-            UiFunc::stopApp("NameValueOptions::validateOrDie: Duplicate "
+            uifunc::stopApp("NameValueOptions::validateOrDie: Duplicate "
                             "name/value pair for name: " + nvp.name());
         }
         values.append(v);
@@ -100,7 +100,7 @@ bool NameValueOptions::validIndex(int index) const
 
 void NameValueOptions::shuffle()
 {
-    std::shuffle(m_options.begin(), m_options.end(), Random::rng);
+    std::shuffle(m_options.begin(), m_options.end(), ccrandom::rng);
 }
 
 
@@ -134,7 +134,7 @@ NameValueOptions NameValueOptions::makeNumbers(int first, int last, int step)
             nvo.addItem(NameValuePair{QString::number(i), i});
         }
     } else {
-        UiFunc::stopApp("Bad arguments to NameValueOptions");
+        uifunc::stopApp("Bad arguments to NameValueOptions");
     }
     return nvo;
 }

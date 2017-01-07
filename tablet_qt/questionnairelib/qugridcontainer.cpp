@@ -19,15 +19,16 @@
 
 #include "qugridcontainer.h"
 #include <QDebug>
-#include <QGridLayout>
 #include <QWidget>
+#include "common/layouts.h"
+#include "questionnairelib/questionnaire.h"
+#include "lib/layoutdumper.h"
+#include "lib/sizehelpers.h"
+#include "widgets/basewidget.h"
+
 #ifdef DEBUG_GRID_CREATION
 #include "common/cssconst.h"
 #endif
-#include "questionnairelib/questionnaire.h"
-#include "lib/layoutdumper.h"
-#include "lib/uifunc.h"
-#include "widgets/basewidget.h"
 
 
 /*
@@ -82,7 +83,7 @@ What does not work properly:
 -   Notes:
 
     -   QGridLayoutPrivate::addData uses the widget's
-        horizontalStretch() [via QGridBox::hStretch()] only if no grid column
+        horizontalStretch() [via QQGridBox::hStretch()] only if no grid column
         stretch is applied.
 
 -   What does work:
@@ -181,15 +182,15 @@ QuGridContainer* QuGridContainer::setFixedGrid(bool fixed_grid)
 QPointer<QWidget> QuGridContainer::makeWidget(Questionnaire* questionnaire)
 {
     QPointer<QWidget> widget = new BaseWidget();
-    widget->setSizePolicy(UiFunc::expandingFixedHFWPolicy());
+    widget->setSizePolicy(sizehelpers::expandingFixedHFWPolicy());
 
 #ifdef DEBUG_GRID_CREATION
     qDebug() << Q_FUNC_INFO;
     qDebug() << "... m_fixed_grid =" << m_fixed_grid;
     widget->setObjectName(CssConst::DEBUG_GREEN);
 #endif
-    QGridLayout* grid = new QGridLayout();
-    grid->setContentsMargins(UiConst::NO_MARGINS);
+    GridLayout* grid = new GridLayout();
+    grid->setContentsMargins(uiconst::NO_MARGINS);
     widget->setLayout(grid);
     for (auto c : m_cells) {
         QuElementPtr e = c.element;

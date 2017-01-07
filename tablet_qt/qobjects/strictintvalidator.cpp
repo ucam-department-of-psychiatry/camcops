@@ -34,6 +34,6 @@ StrictIntValidator::StrictIntValidator(int bottom, int top, bool allow_empty,
 QValidator::State StrictIntValidator::validate(QString& s, int& pos) const
 {
     Q_UNUSED(pos);
-    return Numeric::validateInteger(s, locale(), bottom(), top(),
+    return numeric::validateInteger(s, locale(), bottom(), top(),
                                     m_allow_empty);
 }

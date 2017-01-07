@@ -106,20 +106,20 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     Qt::Alignment text_align = Qt::AlignHCenter | Qt::AlignVCenter;
 
     // Cancel button
-    QAbstractButton* cancel = new ImageButton(UiConst::CBS_CANCEL);
+    QAbstractButton* cancel = new ImageButton(uiconst::CBS_CANCEL);
     connect(cancel, &QAbstractButton::clicked,
             this, &DiagnosticCodeSelector::finished);
 
     // Title
     LabelWordWrapWide* title_label = new LabelWordWrapWide(m_codeset->title());
     title_label->setAlignment(text_align);
-    title_label->setObjectName(CssConst::TITLE);
+    title_label->setObjectName(cssconst::TITLE);
 
-    m_search_button = new ImageButton(UiConst::CBS_ZOOM);  // *** ICON: remove "+" from centre of magnifying glass
+    m_search_button = new ImageButton(uiconst::CBS_ZOOM);  // *** ICON: remove "+" from centre of magnifying glass
     connect(m_search_button.data(), &QAbstractButton::clicked,
             this, &DiagnosticCodeSelector::goToSearch);
 
-    m_tree_button = new ImageButton(UiConst::CBS_CHOOSE_PAGE);  // *** ICON: tree view
+    m_tree_button = new ImageButton(uiconst::CBS_CHOOSE_PAGE);  // *** ICON: tree view
     connect(m_tree_button.data(), &QAbstractButton::clicked,
             this, &DiagnosticCodeSelector::goToTree);
 
@@ -134,8 +134,8 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     // ------------------------------------------------------------------------
     // Horizontal line
     // ------------------------------------------------------------------------
-    HorizontalLine* horizline = new HorizontalLine(UiConst::HEADER_HLINE_WIDTH);
-    horizline->setObjectName(CssConst::HEADER_HORIZONTAL_LINE);
+    HorizontalLine* horizline = new HorizontalLine(uiconst::HEADER_HLINE_WIDTH);
+    horizline->setObjectName(cssconst::HEADER_HORIZONTAL_LINE);
 
     // ------------------------------------------------------------------------
     // Header assembly
@@ -159,7 +159,7 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     // ========================================================================
 
     m_heading_tree = new QLabel(tr("Explore as tree:"));
-    m_heading_tree->setObjectName(CssConst::HEADING);
+    m_heading_tree->setObjectName(cssconst::HEADING);
 
     m_treeview = new QTreeView();
     m_treeview->setModel(m_codeset.data());
@@ -224,7 +224,7 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     //   same link). We'll do that, and use a real QListView.
 
     m_heading_search = new QLabel(tr("Search diagnoses:"));
-    m_heading_search->setObjectName(CssConst::HEADING);
+    m_heading_search->setObjectName(cssconst::HEADING);
 
     m_flatview = new QListView();
     m_flatview->setModel(m_diag_filter_model.data());
@@ -245,11 +245,11 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     mainlayout->addWidget(m_flatview);
 
     QWidget* topwidget = new QWidget();
-    topwidget->setObjectName(CssConst::MENU_WINDOW_BACKGROUND);
+    topwidget->setObjectName(cssconst::MENU_WINDOW_BACKGROUND);
     topwidget->setLayout(mainlayout);
 
     VBoxLayout* toplayout = new VBoxLayout();
-    toplayout->setContentsMargins(UiConst::NO_MARGINS);
+    toplayout->setContentsMargins(uiconst::NO_MARGINS);
     toplayout->addWidget(topwidget);
 
     setLayout(toplayout);

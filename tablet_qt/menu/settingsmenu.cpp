@@ -57,23 +57,23 @@ const QString TAG_MENUS("Menus");
 const QString alphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ "
                        "abcdefghijklmnopqrstuvwxyz "
                        "0123456789");
-const QMap<QString, UiConst::FontSize> FONT_SIZE_MAP{
-    {TAG_NORMAL, UiConst::FontSize::Normal},
-    {TAG_BIG, UiConst::FontSize::Big},
-    {TAG_HEADING, UiConst::FontSize::Heading},
-    {TAG_TITLE, UiConst::FontSize::Title},
-    {TAG_MENUS, UiConst::FontSize::Menus},
+const QMap<QString, uiconst::FontSize> FONT_SIZE_MAP{
+    {TAG_NORMAL, uiconst::FontSize::Normal},
+    {TAG_BIG, uiconst::FontSize::Big},
+    {TAG_HEADING, uiconst::FontSize::Heading},
+    {TAG_TITLE, uiconst::FontSize::Title},
+    {TAG_MENUS, uiconst::FontSize::Menus},
 };
 
 
 SettingsMenu::SettingsMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Settings"),
-               UiFunc::iconFilename(UiConst::ICON_SETTINGS)),
+               uifunc::iconFilename(uiconst::ICON_SETTINGS)),
     m_plaintext_pw_live(false),
     m_fontsize_questionnaire(nullptr)
 {
     m_fontsize_fr = m_app.storedVarFieldRef(
-                VarConst::QUESTIONNAIRE_SIZE_PERCENT, true);
+                varconst::QUESTIONNAIRE_SIZE_PERCENT, true);
     // Safe object lifespan signal: can use std::bind
     m_items = {
         MenuItem(
@@ -153,11 +153,11 @@ SettingsMenu::SettingsMenu(CamcopsApp& app) :
         MenuItem(
             tr("(†) Dump data database to SQL file (not on iOS)"),
             std::bind(&SettingsMenu::saveDataDbAsSql, this)
-        ).setNeedsPrivilege().setUnsupported(Platform::PLATFORM_IOS),
+        ).setNeedsPrivilege().setUnsupported(platform::PLATFORM_IOS),
         MenuItem(
             tr("(†) Dump system database to SQL file (not on iOS)"),
             std::bind(&SettingsMenu::saveSystemDbAsSql, this)
-        ).setNeedsPrivilege().setUnsupported(Platform::PLATFORM_IOS),
+        ).setNeedsPrivilege().setUnsupported(platform::PLATFORM_IOS),
     };
     connect(&m_app, &CamcopsApp::fontSizeChanged,
             this, &SettingsMenu::reloadStyleSheet);
@@ -179,31 +179,31 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
 
     app.clearCachedVars();  // ... in case any are left over
 
-    FieldRefPtr address_fr = app.storedVarFieldRef(VarConst::SERVER_ADDRESS);
+    FieldRefPtr address_fr = app.storedVarFieldRef(varconst::SERVER_ADDRESS);
     QString address_t = tr("Server address");
     QString address_h = tr("host name or IP address");
 
-    FieldRefPtr port_fr = app.storedVarFieldRef(VarConst::SERVER_PORT);
+    FieldRefPtr port_fr = app.storedVarFieldRef(varconst::SERVER_PORT);
     QString port_t = tr("Server port for HTTPS");
     QString port_h = tr("default 443");
 
-    FieldRefPtr path_fr = app.storedVarFieldRef(VarConst::SERVER_PATH);
+    FieldRefPtr path_fr = app.storedVarFieldRef(varconst::SERVER_PATH);
     QString path_t = tr("Path on server");
     QString path_h = tr("no leading /; e.g. camcops/database");
 
-    FieldRefPtr timeout_fr = app.storedVarFieldRef(VarConst::SERVER_TIMEOUT_MS);
+    FieldRefPtr timeout_fr = app.storedVarFieldRef(varconst::SERVER_TIMEOUT_MS);
     QString timeout_t = tr("Network timeout (ms)");
     QString timeout_h = tr("e.g. 50000");
 
-    FieldRefPtr ssl_fr = app.storedVarFieldRef(VarConst::VALIDATE_SSL_CERTIFICATES);
+    FieldRefPtr ssl_fr = app.storedVarFieldRef(varconst::VALIDATE_SSL_CERTIFICATES);
     QString ssl_t = tr("Validate SSL certificates?");
     QString ssl_h = tr("Should always be YES for security-conscious systems.");
 
-    FieldRefPtr storepw_fr = app.storedVarFieldRef(VarConst::STORE_SERVER_PASSWORD);
+    FieldRefPtr storepw_fr = app.storedVarFieldRef(varconst::STORE_SERVER_PASSWORD);
     QString storepw_t = tr("Store user’s server password?");
     QString storepw_h = tr("NO = more secure, YES = more convenient/less secure.");
 
-    FieldRefPtr analytics_fr = app.storedVarFieldRef(VarConst::SEND_ANALYTICS);
+    FieldRefPtr analytics_fr = app.storedVarFieldRef(varconst::SEND_ANALYTICS);
     QString analytics_t = tr("Send analytics to CamCOPS base?");
     QString analytics_h = tr(
         "We’d very much appreciate you saying yes; it allows us to support "
@@ -212,7 +212,7 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
         "details.");
 
     QuPagePtr page(new QuPage{
-        QuestionnaireFunc::defaultGridRawPointer({
+        questionnairefunc::defaultGridRawPointer({
             {
                 makeTitle(address_t, address_h, true),
                 (new QuLineEdit(address_fr))->setHint(
@@ -221,7 +221,7 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
             {
                 makeTitle(port_t, port_h, true),
                 new QuLineEditInteger(port_fr,
-                    UiConst::IP_PORT_MIN, UiConst::IP_PORT_MAX)
+                    uiconst::IP_PORT_MIN, uiconst::IP_PORT_MAX)
             },
             {
                 makeTitle(path_t, path_h, true),
@@ -230,8 +230,8 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
             {
                 makeTitle(timeout_t, timeout_h, true),
                 new QuLineEditInteger(timeout_fr,
-                    UiConst::NETWORK_TIMEOUT_MS_MIN,
-                    UiConst::NETWORK_TIMEOUT_MS_MAX)
+                    uiconst::NETWORK_TIMEOUT_MS_MIN,
+                    uiconst::NETWORK_TIMEOUT_MS_MAX)
             },
         }, 1, 1),
 
@@ -272,10 +272,10 @@ OpenableWidget* SettingsMenu::configureIntellectualProperty(CamcopsApp& app)
     );
     QString label_ip_preamble = tr("Are you using this application for:");
 
-    FieldRefPtr clinical_fr = app.storedVarFieldRef(VarConst::IP_USE_CLINICAL);
-    FieldRefPtr commercial_fr = app.storedVarFieldRef(VarConst::IP_USE_COMMERCIAL);
-    FieldRefPtr educational_fr = app.storedVarFieldRef(VarConst::IP_USE_EDUCATIONAL);
-    FieldRefPtr research_fr = app.storedVarFieldRef(VarConst::IP_USE_RESEARCH);
+    FieldRefPtr clinical_fr = app.storedVarFieldRef(varconst::IP_USE_CLINICAL);
+    FieldRefPtr commercial_fr = app.storedVarFieldRef(varconst::IP_USE_COMMERCIAL);
+    FieldRefPtr educational_fr = app.storedVarFieldRef(varconst::IP_USE_EDUCATIONAL);
+    FieldRefPtr research_fr = app.storedVarFieldRef(varconst::IP_USE_RESEARCH);
 
     // I tried putting these in a grid, but when you have just QuMCQ/horizontal
     // on the right, it expands too much vertically. *** Layout problem,
@@ -316,42 +316,42 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
     bool storing_password = app.storingServerPassword();
 
     QString label_server = tr("Interactions with the server");
-    FieldRefPtr devicename_fr = app.storedVarFieldRef(VarConst::DEVICE_FRIENDLY_NAME);
+    FieldRefPtr devicename_fr = app.storedVarFieldRef(varconst::DEVICE_FRIENDLY_NAME);
     QString devicename_t = tr("Device friendly name");
     QString devicename_h = tr("e.g. “Research tablet 17 (Bob’s)”");
-    FieldRefPtr username_fr = app.storedVarFieldRef(VarConst::SERVER_USERNAME);
+    FieldRefPtr username_fr = app.storedVarFieldRef(varconst::SERVER_USERNAME);
     QString username_t = tr("Username on server");
     // Safe object lifespan signal: can use std::bind
     FieldRef::GetterFunction getter = std::bind(&SettingsMenu::serverPasswordGetter, this);
     FieldRef::SetterFunction setter = std::bind(&SettingsMenu::serverPasswordSetter, this, std::placeholders::_1);
     FieldRefPtr password_fr = FieldRefPtr(new FieldRef(getter, setter, true));
     QString password_t = tr("Password on server");
-    FieldRefPtr upload_after_edit_fr = app.storedVarFieldRef(VarConst::OFFER_UPLOAD_AFTER_EDIT);
+    FieldRefPtr upload_after_edit_fr = app.storedVarFieldRef(varconst::OFFER_UPLOAD_AFTER_EDIT);
     QString upload_after_edit_t = tr("Offer to upload every time a task is edited?");
 
     QString label_clinician = tr("Default clinician’s details (to save you typing)");
     FieldRefPtr clin_specialty_fr = app.storedVarFieldRef(
-                VarConst::DEFAULT_CLINICIAN_SPECIALTY, false);
+                varconst::DEFAULT_CLINICIAN_SPECIALTY, false);
     QString clin_specialty_t = tr("Default clinician’s specialty");
     QString clin_specialty_h = tr("e.g. “Liaison Psychiatry”");
     FieldRefPtr clin_name_fr = app.storedVarFieldRef(
-                VarConst::DEFAULT_CLINICIAN_NAME, false);
+                varconst::DEFAULT_CLINICIAN_NAME, false);
     QString clin_name_t = tr("Default clinician’s name");
     QString clin_name_h = tr("e.g. “Dr Bob Smith”");
     FieldRefPtr clin_profreg_fr = app.storedVarFieldRef(
-                VarConst::DEFAULT_CLINICIAN_PROFESSIONAL_REGISTRATION, false);
+                varconst::DEFAULT_CLINICIAN_PROFESSIONAL_REGISTRATION, false);
     QString clin_profreg_t = tr("Default clinician’s professional registration");
     QString clin_profreg_h = tr("e.g. “GMC# 12345”");
     FieldRefPtr clin_post_fr = app.storedVarFieldRef(
-                VarConst::DEFAULT_CLINICIAN_POST, false);
+                varconst::DEFAULT_CLINICIAN_POST, false);
     QString clin_post_t = tr("Default clinician’s post");
     QString clin_post_h = tr("e.g. “Specialist registrar");
     FieldRefPtr clin_service_fr = app.storedVarFieldRef(
-                VarConst::DEFAULT_CLINICIAN_SERVICE, false);
+                varconst::DEFAULT_CLINICIAN_SERVICE, false);
     QString clin_service_t = tr("Default clinician’s service");
     QString clin_service_h = tr("e.g. “Liaison Psychiatry Service”");
     FieldRefPtr clin_contact_fr = app.storedVarFieldRef(
-                VarConst::DEFAULT_CLINICIAN_CONTACT_DETAILS, false);
+                varconst::DEFAULT_CLINICIAN_CONTACT_DETAILS, false);
     QString clin_contact_t = tr("Default clinician’s contact details");
     QString clin_contact_h = tr("e.g. “x2167”");
 
@@ -405,7 +405,7 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
         g,
         new QuHorizontalLine(),
         (new QuText(label_clinician))->italic(true),
-        QuestionnaireFunc::defaultGridRawPointer({
+        questionnairefunc::defaultGridRawPointer({
             {
                 makeTitle(clin_specialty_t, clin_specialty_h, true),
                 (new QuLineEdit(clin_specialty_fr))->setHint(
@@ -451,7 +451,7 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
 
 
 QString SettingsMenu::demoText(const QString& text,
-                               UiConst::FontSize fontsize_type) const
+                               uiconst::FontSize fontsize_type) const
 {
     if (!m_fontsize_fr) {
         return "?";
@@ -487,7 +487,7 @@ OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp &app)
     QuPagePtr page(new QuPage{
         new QuText(makeTitle(prompt1)),
         new QuText(explan),
-        QuestionnaireFunc::defaultGridRawPointer({
+        questionnairefunc::defaultGridRawPointer({
             {
                 prompt2,
                 new QuLineEditInteger(m_fontsize_fr, fs_min, fs_max)
@@ -501,11 +501,11 @@ OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp &app)
             ->setTickLabelPosition(QSlider::TicksAbove),
         new QuButton(tr("Reset to 100%"),
                        [this](){ resetFontSize(); }),
-        (new QuText(demoText(TAG_NORMAL, UiConst::FontSize::Normal)))->addTag(TAG_NORMAL),
-        (new QuText(demoText(TAG_BIG, UiConst::FontSize::Big)))->addTag(TAG_BIG),
-        (new QuText(demoText(TAG_HEADING, UiConst::FontSize::Heading)))->addTag(TAG_HEADING),
-        (new QuText(demoText(TAG_TITLE, UiConst::FontSize::Title)))->addTag(TAG_TITLE),
-        (new QuText(demoText(TAG_MENUS, UiConst::FontSize::Menus)))->addTag(TAG_MENUS),
+        (new QuText(demoText(TAG_NORMAL, uiconst::FontSize::Normal)))->addTag(TAG_NORMAL),
+        (new QuText(demoText(TAG_BIG, uiconst::FontSize::Big)))->addTag(TAG_BIG),
+        (new QuText(demoText(TAG_HEADING, uiconst::FontSize::Heading)))->addTag(TAG_HEADING),
+        (new QuText(demoText(TAG_TITLE, uiconst::FontSize::Title)))->addTag(TAG_TITLE),
+        (new QuText(demoText(TAG_MENUS, uiconst::FontSize::Menus)))->addTag(TAG_MENUS),
     });
     page->setTitle(tr("Set questionnaire font size"));
     page->setType(QuPage::PageType::Config);
@@ -541,11 +541,11 @@ void SettingsMenu::fontSizeChanged()
         return;
     }
     double current_pct = m_fontsize_fr->valueDouble();
-    QMapIterator<QString, UiConst::FontSize> i(FONT_SIZE_MAP);
+    QMapIterator<QString, uiconst::FontSize> i(FONT_SIZE_MAP);
     while (i.hasNext()) {
         i.next();
         QString tag = i.key();
-        UiConst::FontSize fontsize_type = i.value();
+        uiconst::FontSize fontsize_type = i.value();
         for (auto e : page->elementsWithTag(tag)) {
             int fontsize_pt = m_app.fontSizePt(fontsize_type, current_pct);
             QString text = demoText(tag, fontsize_type);
@@ -623,12 +623,12 @@ void SettingsMenu::serverSettingsSaved()
 {
     // User has edited server settings and then clicked OK.
     bool server_details_changed = (
-        m_app.cachedVarChanged(VarConst::SERVER_ADDRESS)
-        || m_app.cachedVarChanged(VarConst::SERVER_PORT)
-        || m_app.cachedVarChanged(VarConst::SERVER_PATH)
+        m_app.cachedVarChanged(varconst::SERVER_ADDRESS)
+        || m_app.cachedVarChanged(varconst::SERVER_PORT)
+        || m_app.cachedVarChanged(varconst::SERVER_PATH)
     );
     if (server_details_changed) {
-        UiFunc::alert(
+        uifunc::alert(
             tr("Server details have changed. You should consider "
                "re-registering with the server."),
             tr("Registration advised")
@@ -636,7 +636,7 @@ void SettingsMenu::serverSettingsSaved()
     }
     if (!m_app.storingServerPassword()) {
         // Wipe the stored password
-        m_app.setCachedVar(VarConst::SERVER_USERPASSWORD_OBSCURED, "");
+        m_app.setCachedVar(varconst::SERVER_USERPASSWORD_OBSCURED, "");
     }
     m_app.saveCachedVars();
 }
@@ -669,7 +669,7 @@ void SettingsMenu::userSettingsSaved()
     if (m_app.storingServerPassword()) {
         m_app.setEncryptedServerPassword(m_temp_plaintext_password);
     } else {
-        m_app.setVar(VarConst::SERVER_USERPASSWORD_OBSCURED, "");
+        m_app.setVar(varconst::SERVER_USERPASSWORD_OBSCURED, "");
     }
     m_temp_plaintext_password = "";
     m_plaintext_pw_live = false;
@@ -686,7 +686,7 @@ void SettingsMenu::userSettingsCancelled()
 
 void SettingsMenu::deleteAllExtraStrings()
 {
-    if (UiFunc::confirm(tr("<b>Are you sure you want to delete all extra "
+    if (uifunc::confirm(tr("<b>Are you sure you want to delete all extra "
                            "strings?</b><br>"
                            "(To get them back, re-download them "
                            "from your server.)"),
@@ -733,16 +733,16 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
     QString label_policy_finalize = tr("Server’s finalizing ID policy:");
     QString label_server_camcops_version = tr("Server CamCOPS version:");
 
-    QString data_server_address = Convert::prettyValue(app.var(VarConst::SERVER_ADDRESS));
-    QString data_server_port = Convert::prettyValue(app.var(VarConst::SERVER_PORT));
-    QString data_server_path = Convert::prettyValue(app.var(VarConst::SERVER_PATH));
-    QString data_server_timeout = Convert::prettyValue(app.var(VarConst::SERVER_TIMEOUT_MS));
-    QString data_last_server_registration = Convert::prettyValue(app.var(VarConst::LAST_SERVER_REGISTRATION));
-    QString data_last_successful_upload = Convert::prettyValue(app.var(VarConst::LAST_SUCCESSFUL_UPLOAD));
-    QString data_dbtitle = Convert::prettyValue(app.var(VarConst::SERVER_DATABASE_TITLE));
-    QString data_policy_upload = Convert::prettyValue(app.var(VarConst::ID_POLICY_UPLOAD));
-    QString data_policy_finalize = Convert::prettyValue(app.var(VarConst::ID_POLICY_FINALIZE));
-    QString data_server_camcops_version = Convert::prettyValue(app.var(VarConst::SERVER_CAMCOPS_VERSION));
+    QString data_server_address = convert::prettyValue(app.var(varconst::SERVER_ADDRESS));
+    QString data_server_port = convert::prettyValue(app.var(varconst::SERVER_PORT));
+    QString data_server_path = convert::prettyValue(app.var(varconst::SERVER_PATH));
+    QString data_server_timeout = convert::prettyValue(app.var(varconst::SERVER_TIMEOUT_MS));
+    QString data_last_server_registration = convert::prettyValue(app.var(varconst::LAST_SERVER_REGISTRATION));
+    QString data_last_successful_upload = convert::prettyValue(app.var(varconst::LAST_SUCCESSFUL_UPLOAD));
+    QString data_dbtitle = convert::prettyValue(app.var(varconst::SERVER_DATABASE_TITLE));
+    QString data_policy_upload = convert::prettyValue(app.var(varconst::ID_POLICY_UPLOAD));
+    QString data_policy_finalize = convert::prettyValue(app.var(varconst::ID_POLICY_FINALIZE));
+    QString data_server_camcops_version = convert::prettyValue(app.var(varconst::SERVER_CAMCOPS_VERSION));
 
     Qt::Alignment labelalign = Qt::AlignRight | Qt::AlignTop;
     Qt::Alignment dataalign = Qt::AlignLeft | Qt::AlignTop;
@@ -791,12 +791,12 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
     g3->setColumnStretch(0, 1);
     g3->setColumnStretch(1, 1);
     row = 0;
-    for (int n = 1; n <= DbConst::NUMBER_OF_IDNUMS; ++n) {
+    for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
         g3->addCell(QuGridCell(
             (new QuText(tr("Description for patient identifier ") +
                         QString::number(n) + ":")
             )->setAlignment(labelalign), row, 0));
-        QString desc = Convert::prettyValue(app.var(DbConst::IDDESC_FIELD_FORMAT.arg(n)));
+        QString desc = convert::prettyValue(app.var(dbconst::IDDESC_FIELD_FORMAT.arg(n)));
         g3->addCell(QuGridCell((new QuText(desc))->setAlignment(dataalign)->bold(), row, 1));
         ++row;
 
@@ -804,7 +804,7 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
             (new QuText(tr("Short description for patient identifier ") +
                         QString::number(n) + ":")
             )->setAlignment(labelalign), row, 0));
-        QString shortdesc = Convert::prettyValue(app.var(DbConst::IDSHORTDESC_FIELD_FORMAT.arg(n)));
+        QString shortdesc = convert::prettyValue(app.var(dbconst::IDSHORTDESC_FIELD_FORMAT.arg(n)));
         g3->addCell(QuGridCell((new QuText(shortdesc))->setAlignment(dataalign)->bold(), row, 1));
         ++row;
     }
@@ -866,7 +866,7 @@ void SettingsMenu::debugDataDbAsSql()
         }
         qInfo().noquote().nospace() << sql;
     }
-    UiFunc::alert(tr("Data database sent to debugging stream"), tr("Finished"));
+    uifunc::alert(tr("Data database sent to debugging stream"), tr("Finished"));
 }
 
 
@@ -881,7 +881,7 @@ void SettingsMenu::debugSystemDbAsSql()
         }
         qInfo().noquote().nospace() << sql;
     }
-    UiFunc::alert(tr("Data database sent to debugging stream"), tr("Finished"));
+    uifunc::alert(tr("Data database sent to debugging stream"), tr("Finished"));
 }
 
 
@@ -895,12 +895,12 @@ void SettingsMenu::saveDataDbAsSql()
     QFile file(filename);
     file.open(QIODevice::WriteOnly | QIODevice::Text);
     if (!file.isOpen()) {
-        UiFunc::alert(tr("Unable to open file: ") + filename, tr("Failure"));
+        uifunc::alert(tr("Unable to open file: ") + filename, tr("Failure"));
         return;
     }
     QTextStream os(&file);
     m_app.dumpDataDatabase(os);
-    UiFunc::alert(tr("Data database written to: ") + filename, tr("Success"));
+    uifunc::alert(tr("Data database written to: ") + filename, tr("Success"));
 }
 
 
@@ -914,10 +914,10 @@ void SettingsMenu::saveSystemDbAsSql()
     QFile file(filename);
     file.open(QIODevice::WriteOnly | QIODevice::Text);
     if (!file.isOpen()) {
-        UiFunc::alert(tr("Unable to open file: ") + filename, tr("Failure"));
+        uifunc::alert(tr("Unable to open file: ") + filename, tr("Failure"));
         return;
     }
     QTextStream os(&file);
     m_app.dumpSystemDatabase(os);
-    UiFunc::alert(tr("System database written to: ") + filename, tr("Success"));
+    uifunc::alert(tr("System database written to: ") + filename, tr("Success"));
 }

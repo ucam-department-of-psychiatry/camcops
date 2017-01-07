@@ -18,7 +18,7 @@
 #include "quhorizontalcontainer.h"
 #include <QWidget>
 #include "common/layouts.h"
-#include "lib/uifunc.h"
+#include "lib/sizehelpers.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/basewidget.h"
 #include "widgets/flowlayouthfw.h"
@@ -121,12 +121,12 @@ QPointer<QWidget> QuHorizontalContainer::makeWidget(
         Questionnaire* questionnaire)
 {
     QPointer<QWidget> widget(new BaseWidget());
-    widget->setSizePolicy(UiFunc::expandingFixedHFWPolicy());
+    widget->setSizePolicy(sizehelpers::expandingFixedHFWPolicy());
 
     HBoxLayout* layout = new HBoxLayout();
 
     // widget->setObjectName(CssConst::DEBUG_YELLOW);
-    layout->setContentsMargins(UiConst::NO_MARGINS);
+    layout->setContentsMargins(uiconst::NO_MARGINS);
     widget->setLayout(layout);
     for (int i = 0; i < m_elements.size(); ++i) {
         auto e = m_elements.at(i);

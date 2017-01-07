@@ -23,7 +23,7 @@
 
 CognitiveMenu::CognitiveMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Cognitive assessment"),
-               UiFunc::iconFilename(UiConst::ICON_COGNITIVE))
+               uifunc::iconFilename(uiconst::ICON_COGNITIVE))
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),

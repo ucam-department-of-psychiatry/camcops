@@ -27,7 +27,7 @@ const QString ExtraString::EXTRASTRINGS_VALUE_FIELD("value");
 
 // Specimen constructor:
 ExtraString::ExtraString(CamcopsApp& app, const QSqlDatabase& db) :
-    DatabaseObject(app, db, EXTRASTRINGS_TABLENAME, DbConst::PK_FIELDNAME,
+    DatabaseObject(app, db, EXTRASTRINGS_TABLENAME, dbconst::PK_FIELDNAME,
                    true, false, false)
 {
     commonConstructor();
@@ -39,7 +39,7 @@ ExtraString::ExtraString(CamcopsApp& app,
                          const QSqlDatabase& db,
                          const QString& task,
                          const QString& name) :
-    DatabaseObject(app, db, EXTRASTRINGS_TABLENAME, DbConst::PK_FIELDNAME,
+    DatabaseObject(app, db, EXTRASTRINGS_TABLENAME, dbconst::PK_FIELDNAME,
                    true, false, false, false)
 {
     commonConstructor();
@@ -59,7 +59,7 @@ ExtraString::ExtraString(CamcopsApp& app,
                          const QString& task,
                          const QString& name,
                          const QString& value) :
-    DatabaseObject(app, db, EXTRASTRINGS_TABLENAME, DbConst::PK_FIELDNAME,
+    DatabaseObject(app, db, EXTRASTRINGS_TABLENAME, dbconst::PK_FIELDNAME,
                    true, false, false)
 {
     commonConstructor();
@@ -112,20 +112,20 @@ bool ExtraString::anyExist(const QString& task) const
 {
     WhereConditions where;
     where[EXTRASTRINGS_TASK_FIELD] = task;
-    return DbFunc::count(m_db, EXTRASTRINGS_TABLENAME, where) > 0;
+    return dbfunc::count(m_db, EXTRASTRINGS_TABLENAME, where) > 0;
 }
 
 
 void ExtraString::deleteAllExtraStrings()
 {
     QString sql = QString("DELETE FROM %1").arg(EXTRASTRINGS_TABLENAME);
-    DbFunc::exec(m_db, sql);
+    dbfunc::exec(m_db, sql);
 }
 
 
 void ExtraString::makeIndexes()
 {
-    DbFunc::createIndex(m_db, "_idx_table_name", EXTRASTRINGS_TABLENAME, {
+    dbfunc::createIndex(m_db, "_idx_table_name", EXTRASTRINGS_TABLENAME, {
                             ExtraString::EXTRASTRINGS_TASK_FIELD,
                             ExtraString::EXTRASTRINGS_NAME_FIELD});
 }

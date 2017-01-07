@@ -20,29 +20,30 @@
 #include <QVariant>
 
 
-namespace MathFunc
-{
-    QVariant mean(const QList<QVariant>& values, bool ignore_null = false);
-    int sumInt(const QList<QVariant>& values);
-    double sumDouble(const QList<QVariant>& values);
+namespace mathfunc {
 
-    int countTrue(const QList<QVariant>& values);
-    bool allTrue(const QList<QVariant>& values);
-    bool allFalseOrNull(const QList<QVariant>& values);
-    bool anyNull(const QList<QVariant>& values);
-    bool noneNull(const QList<QVariant>& values);
-    int numNull(const QList<QVariant>& values);
-    int numNotNull(const QList<QVariant>& values);
+QVariant mean(const QList<QVariant>& values, bool ignore_null = false);
+int sumInt(const QList<QVariant>& values);
+double sumDouble(const QList<QVariant>& values);
 
-    bool eq(const QVariant& x, int test);
-    bool eq(const QVariant& x, bool test);
-    bool eqOrNull(const QVariant& x, int test);
-    bool eqOrNull(const QVariant& x, bool test);
+int countTrue(const QList<QVariant>& values);
+bool allTrue(const QList<QVariant>& values);
+bool allFalseOrNull(const QList<QVariant>& values);
+bool anyNull(const QList<QVariant>& values);
+bool noneNull(const QList<QVariant>& values);
+int numNull(const QList<QVariant>& values);
+int numNotNull(const QList<QVariant>& values);
 
-    int countWhere(const QList<QVariant>& test_values,
-                   const QList<QVariant>& where_values);
-    int countWhereNot(const QList<QVariant>& test_values,
-                      const QList<QVariant>& where_not_values);
+bool eq(const QVariant& x, int test);
+bool eq(const QVariant& x, bool test);
+bool eqOrNull(const QVariant& x, int test);
+bool eqOrNull(const QVariant& x, bool test);
 
-    QString percent(double numerator, double denominator, int dp = 1);
-}
+int countWhere(const QList<QVariant>& test_values,
+               const QList<QVariant>& where_values);
+int countWhereNot(const QList<QVariant>& test_values,
+                  const QList<QVariant>& where_not_values);
+
+QString percent(double numerator, double denominator, int dp = 1);
+
+}  // namespace mathfunc

@@ -965,8 +965,8 @@ NOT IMPLEMENTED
 TO DO
 ===============================================================================
 
-- *** make questionnaire header resize properly (small horizontally) and
-  generally behave like the menu header (+/- adjust QuPage accordingly)
+- *** BoxLayoutHfw isn't getting maximum width correct (try resizing screen for demo questionnaire)
+- *** GridLayoutHfw
 
 - *** tasks
 

@@ -33,17 +33,17 @@ HtmlInfoWindow::HtmlInfoWindow(CamcopsApp& app, const QString& title,
                                bool fullscreen) :
     m_app(app)
 {
-    setStyleSheet(m_app.getSubstitutedCss(UiConst::CSS_CAMCOPS_MENU));
-    setObjectName(CssConst::MENU_WINDOW_OUTER_OBJECT);
+    setStyleSheet(m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_MENU));
+    setObjectName(cssconst::MENU_WINDOW_OUTER_OBJECT);
 
     // Layouts
     QVBoxLayout* mainlayout = new QVBoxLayout();
 
     QVBoxLayout* dummy_layout = new QVBoxLayout();
-    dummy_layout->setContentsMargins(UiConst::NO_MARGINS);
+    dummy_layout->setContentsMargins(uiconst::NO_MARGINS);
     setLayout(dummy_layout);
     QWidget* dummy_widget = new QWidget();
-    dummy_widget->setObjectName(CssConst::MENU_WINDOW_BACKGROUND);
+    dummy_widget->setObjectName(cssconst::MENU_WINDOW_BACKGROUND);
     dummy_layout->addWidget(dummy_widget);
     dummy_widget->setLayout(mainlayout);
 
@@ -54,8 +54,8 @@ HtmlInfoWindow::HtmlInfoWindow(CamcopsApp& app, const QString& title,
             this, &HtmlInfoWindow::finished);
 
     // HTML
-    if (FileFunc::fileExists(filename)) {
-        QString html = FileFunc::textfileContents(filename);
+    if (filefunc::fileExists(filename)) {
+        QString html = filefunc::textfileContents(filename);
         QTextBrowser* browser = new QTextBrowser();
         browser->setHtml(html);
         browser->setOpenExternalLinks(true);
@@ -64,7 +64,7 @@ HtmlInfoWindow::HtmlInfoWindow(CamcopsApp& app, const QString& title,
     } else {
         QLabel* label = new LabelWordWrapWide(tr("No such file") + ": " +
                                               filename);
-        label->setObjectName(CssConst::WARNING);
+        label->setObjectName(cssconst::WARNING);
         mainlayout->addWidget(label);
         mainlayout->addStretch();
     }

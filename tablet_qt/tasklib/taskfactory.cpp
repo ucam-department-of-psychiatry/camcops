@@ -140,7 +140,7 @@ TaskPtrList TaskFactory::fetch(const QString& tablename, bool sort) const
 {
     // KEY SECURITY DECISIONS IMPLEMENTED HERE: which tasks users can see.
     int patient_id = m_app.selectedPatientId();
-    bool patient_selected = patient_id != DbConst::NONEXISTENT_PK;
+    bool patient_selected = patient_id != dbconst::NONEXISTENT_PK;
     TaskPtrList tasklist;
     if (tablename.isEmpty()) {
         // Patient summary view; "all tasks" request.
@@ -175,7 +175,7 @@ TaskPtrList TaskFactory::fetch(const QString& tablename, bool sort) const
         bool anonymous = cache.anonymous;
         bool locked = m_app.locked();
         if (anonymous) {
-            tasklist = proxy->fetch(m_app, m_app.db(), DbConst::NONEXISTENT_PK);
+            tasklist = proxy->fetch(m_app, m_app.db(), dbconst::NONEXISTENT_PK);
         } else {
             if (patient_selected || !locked) {
                 tasklist = proxy->fetch(m_app, m_app.db(), patient_id);
@@ -220,7 +220,7 @@ TaskPtrList TaskFactory::allSpecimens() const
         const TaskCache& cache = it.value();
         ProxyType proxy = cache.proxy;
         TaskPtr specimen = proxy->create(m_app, m_app.db(),
-                                         DbConst::NONEXISTENT_PK);
+                                         dbconst::NONEXISTENT_PK);
         specimens.append(specimen);
     }
     return specimens;
@@ -240,7 +240,7 @@ TaskPtrList TaskFactory::allSpecimensExceptAnonymous() const
         }
         ProxyType proxy = cache.proxy;
         TaskPtr specimen = proxy->create(m_app, m_app.db(),
-                                         DbConst::NONEXISTENT_PK);
+                                         dbconst::NONEXISTENT_PK);
         specimens.append(specimen);
     }
     return specimens;

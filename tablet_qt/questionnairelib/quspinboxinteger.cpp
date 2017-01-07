@@ -86,7 +86,7 @@ void QuSpinBoxInteger::fieldValueChanged(const FieldRef* fieldref,
     if (!m_spinbox) {
         return;
     }
-    UiFunc::setPropertyMissing(m_spinbox, fieldref->missingInput());
+    uifunc::setPropertyMissing(m_spinbox, fieldref->missingInput());
     if (originator != this) {
         const QSignalBlocker blocker(m_spinbox);
         m_spinbox->setValue(fieldref->valueInt());

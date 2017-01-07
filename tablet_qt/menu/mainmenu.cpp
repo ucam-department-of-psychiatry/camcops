@@ -47,7 +47,7 @@ MainMenu::MainMenu(CamcopsApp& app)
     : MenuWindow(
           app,
           tr("CamCOPS: Cambridge Cognitive and Psychiatric Assessment Kit"),
-          UiFunc::iconFilename(UiConst::ICON_CAMCOPS),
+          uifunc::iconFilename(uiconst::ICON_CAMCOPS),
           true)
 {
     m_items = {
@@ -56,7 +56,7 @@ MainMenu::MainMenu(CamcopsApp& app)
         MenuItem(
             tr("Upload data to server"),
             std::bind(&MainMenu::upload, this),
-            UiFunc::iconFilename(UiConst::ICON_UPLOAD)
+            uifunc::iconFilename(uiconst::ICON_UPLOAD)
         ),
         MAKE_MENU_MENU_ITEM(HelpMenu, app),
         MAKE_MENU_MENU_ITEM(SettingsMenu, app),

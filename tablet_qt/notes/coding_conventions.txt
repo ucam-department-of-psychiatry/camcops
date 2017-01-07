@@ -1,0 +1,146 @@
+/*
+    Copyright/license boilerplate
+*/
+
+
+// In header (.h) files:
+#pragma once
+
+#define ANY_MASTER_SWITCHES_FOR_FILE
+
+// In source (.cpp) files:
+#include "myheader.h"
+
+// Then:
+#include <standard_library_file/in>
+#include <alphabetical/order>
+#include <qt_libraries/in>
+#include <alphabetical/order>
+#include "myproject/libraries/in"
+#include "alphabetical/order"
+
+#ifdef SOME_MASTER_SWITCH
+#include "conditional/include.h"
+#endif
+
+
+const QString SOME_CONSTANT;
+
+
+namespace mynamespace {
+
+// ... lower case so it's easy to distinguish Class::member from
+//     namespace::member
+
+// namespace contents NOT indented
+
+}  // namespace mynamespace
+
+
+class SomeClass {
+public:
+    SomeClass();
+
+    void someFunction();
+    int& rFunctionReturningReference();
+
+public:
+    int public_member;  // e.g. for structs; no "m_"
+
+private:
+    int m_member_variable;  // perfectly clear
+
+    static int s_static_variable;
+
+    // NOT: int mMemberVariable;  // just because Stroustrup and Python habits
+    // NOT: int memberVariable;  // helpful to have some indicator of membership
+    // NOT: int member_;  // I hate this.
+
+    char* pointer;  // space AFTER the *; see Stroustrup
+
+};
+
+// ============================================================================
+// Big divider
+// ============================================================================
+
+void SomeClass::someFunction(int param)
+{
+    int stack_variable;
+    if (param > 1) {
+        braceEvenForSingleStatement();
+    }
+}
+
+// ----------------------------------------------------------------------------
+// Small divider
+// ----------------------------------------------------------------------------
+
+
+/*
+
+Other popular coding standards:
+
+// ----------------------------------------------------------------------------
+// C++
+// ----------------------------------------------------------------------------
+
+- C++ Super-FAQ: https://isocpp.org/wiki/faq/coding-standards
+
+- Stroustrup, http://www.stroustrup.com/bs_faq2.html#Hungarian
+
+    some_variable
+    const int* pointer;  // http://www.stroustrup.com/bs_faq2.html#whitespace
+
+    some_function  // from the C++ book, anyway
+
+- Qt coding style, https://wiki.qt.io/Qt_Coding_Style
+
+    SomeClass, someFunction, someVariable, someMemberVariable
+    char *pointerToChar;
+
+- Google C++ Style Guide, https://google.github.io/styleguide/cppguide.html#Naming
+
+    SomeClass, SomeFunction,
+    some_stack_variable, some_member_variable_, kSomeConstantVariable
+
+- https://chaste.cs.ox.ac.uk/trac/raw-attachment/wiki/CodingStandardsStrategy/codingStandards.pdf
+
+    SomeClass, SomeFunction,
+    some_stack_variable, mMemberVariable, mpMemberPointer, rReferenceArg,
+
+- Boost, http://www.boost.org/development/requirements.html
+
+    all_names_like_this
+
+- GCC, https://gcc.gnu.org/codingconventions.html#Cxx_Names
+
+    m_member
+    s_static_member
+
+- http://www.ivanism.com/Articles/CodingStandards.html
+
+    SomeClass
+    SomeNamespace
+    SOME_CONSTANT
+    SOME_MACRO(x)
+    someMemberFunction
+    SomeGlobalFunction
+    m_someMemberVariable
+
+// ----------------------------------------------------------------------------
+// Other languages
+// ----------------------------------------------------------------------------
+
+- C: Linux kernel style, https://kernel.org/doc/html/latest/process/coding-style.html
+
+    char *linux_banner;
+    char *some_function();
+
+- Python, PEP8, https://www.python.org/dev/peps/pep-0008/
+
+    SomeClass, some_function,
+    some_variable, "_" prefix for "private" members
+
+
+*/

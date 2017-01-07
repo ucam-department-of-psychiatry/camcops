@@ -36,7 +36,7 @@ Blob::Blob(CamcopsApp& app,
     DatabaseObject(app,
                    db,
                    TABLENAME,
-                   DbConst::PK_FIELDNAME,
+                   dbconst::PK_FIELDNAME,
                    true,  // modification timestamp
                    false)  // creation timestamp
 {
@@ -116,7 +116,7 @@ QByteArray Blob::blobByteArray() const
 
 void Blob::makeIndexes()
 {
-    DbFunc::createIndex(m_db, "_idx_src_table_pk_field", TABLENAME, {
+    dbfunc::createIndex(m_db, "_idx_src_table_pk_field", TABLENAME, {
                             SRC_TABLE_FIELDNAME,
                             SRC_PK_FIELDNAME,
                             SRC_FIELD_FIELDNAME});

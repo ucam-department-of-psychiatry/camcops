@@ -18,10 +18,10 @@
 #pragma once
 class QString;
 
-namespace FileFunc {
+namespace filefunc {
 
-    bool fileExists(const QString& filename);
-    QString textfileContents(const QString& filename);
-    QString taskHtmlFilename(const QString& stem);
+bool fileExists(const QString& filename);
+QString textfileContents(const QString& filename);
+QString taskHtmlFilename(const QString& stem);
 
-}
+}  // namespace filefunc

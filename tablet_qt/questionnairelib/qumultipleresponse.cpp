@@ -139,7 +139,7 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
 
     // Randomize?
     if (m_randomize) {
-        std::shuffle(m_items.begin(), m_items.end(), Random::rng);
+        std::shuffle(m_items.begin(), m_items.end(), ccrandom::rng);
     }
 
     bool read_only = questionnaire->readOnly();
@@ -152,7 +152,7 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
         mainwidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         mainlayout = new VBoxLayout();
     }
-    mainlayout->setContentsMargins(UiConst::NO_MARGINS);
+    mainlayout->setContentsMargins(uiconst::NO_MARGINS);
     mainwidget->setLayout(mainlayout);
 
     for (int i = 0; i < m_items.size(); ++i) {
@@ -184,9 +184,9 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
             QWidget* itemwidget = new QWidget();
             ClickableLabelWordWrapWide* namelabel = new ClickableLabelWordWrapWide(item.text());
             namelabel->setEnabled(!read_only);
-            int fontsize = questionnaire->fontSizePt(UiConst::FontSize::Normal);
+            int fontsize = questionnaire->fontSizePt(uiconst::FontSize::Normal);
             bool italic = false;
-            QString css = UiFunc::textCSS(fontsize, m_bold, italic);
+            QString css = uifunc::textCSS(fontsize, m_bold, italic);
             namelabel->setStyleSheet(css);
             if (!read_only) {
                 // Safe object lifespan signal: can use std::bind
@@ -194,7 +194,7 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
                         std::bind(&QuMultipleResponse::clicked, this, i));
             }
             HBoxLayout* itemlayout = new HBoxLayout();
-            itemlayout->setContentsMargins(UiConst::NO_MARGINS);
+            itemlayout->setContentsMargins(uiconst::NO_MARGINS);
             itemwidget->setLayout(itemlayout);
             itemlayout->addWidget(w, 0, Qt::AlignTop);
             itemlayout->addWidget(namelabel, 0, Qt::AlignVCenter);  // different
@@ -229,11 +229,11 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
     if (m_show_instruction) {
         // Higher-level widget containing {instructions, actual MCQ}
         VBoxLayout* layout_w_instr = new VBoxLayout();
-        layout_w_instr->setContentsMargins(UiConst::NO_MARGINS);
+        layout_w_instr->setContentsMargins(uiconst::NO_MARGINS);
         QString instruction = m_instruction.isEmpty() ? defaultInstruction()
                                                       : m_instruction;
         LabelWordWrapWide* instructions = new LabelWordWrapWide(instruction);
-        instructions->setObjectName(CssConst::MCQ_INSTRUCTION);
+        instructions->setObjectName(cssconst::MCQ_INSTRUCTION);
         layout_w_instr->addWidget(instructions);
         layout_w_instr->addWidget(mainwidget);
         QPointer<QWidget> widget_w_instr = new QWidget();

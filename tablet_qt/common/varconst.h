@@ -18,75 +18,76 @@
 #pragma once
 #include <QString>
 
-namespace VarConst
-{
-    // Version storage
-    extern const QString CAMCOPS_VERSION_AS_STRING;
+namespace varconst {
 
-    // Questionnaire
-    extern const QString QUESTIONNAIRE_SIZE_PERCENT;
+// Version storage
+extern const QString CAMCOPS_VERSION_AS_STRING;
 
-    // Server
-    extern const QString SERVER_ADDRESS;
-    extern const QString SERVER_PORT;
-    extern const QString SERVER_PATH;
-    extern const QString SERVER_TIMEOUT_MS;
-    extern const QString VALIDATE_SSL_CERTIFICATES;
-    extern const QString STORE_SERVER_PASSWORD;
-    extern const QString SEND_ANALYTICS;
+// Questionnaire
+extern const QString QUESTIONNAIRE_SIZE_PERCENT;
 
-    // Uploading flag
-    extern const QString NEEDS_UPLOAD;
+// Server
+extern const QString SERVER_ADDRESS;
+extern const QString SERVER_PORT;
+extern const QString SERVER_PATH;
+extern const QString SERVER_TIMEOUT_MS;
+extern const QString VALIDATE_SSL_CERTIFICATES;
+extern const QString STORE_SERVER_PASSWORD;
+extern const QString SEND_ANALYTICS;
 
-    // Whisker
-    extern const QString WHISKER_HOST;
-    extern const QString WHISKER_PORT;
-    extern const QString WHISKER_TIMEOUT_MS;
+// Uploading flag
+extern const QString NEEDS_UPLOAD;
 
-    // Terms and conditions
-    extern const QString AGREED_TERMS_AT;
+// Whisker
+extern const QString WHISKER_HOST;
+extern const QString WHISKER_PORT;
+extern const QString WHISKER_TIMEOUT_MS;
 
-    // Intellectual property
-    extern const QString IP_USE_CLINICAL;
-    extern const QString IP_USE_COMMERCIAL;
-    extern const QString IP_USE_EDUCATIONAL;
-    extern const QString IP_USE_RESEARCH;
+// Terms and conditions
+extern const QString AGREED_TERMS_AT;
 
-    // Patients and policies
-    extern const QString ID_POLICY_UPLOAD;
-    extern const QString ID_POLICY_FINALIZE;
+// Intellectual property
+extern const QString IP_USE_CLINICAL;
+extern const QString IP_USE_COMMERCIAL;
+extern const QString IP_USE_EDUCATIONAL;
+extern const QString IP_USE_RESEARCH;
 
-    // Note that ID descriptions/short descriptions have multiple server
-    // variables as set by
-    //      DbConst::IDDESC_FIELD_FORMAT
-    //      DbConst::IDSHORTDESC_FIELD_FORMAT
+// Patients and policies
+extern const QString ID_POLICY_UPLOAD;
+extern const QString ID_POLICY_FINALIZE;
 
-    // Other information from server
-    extern const QString SERVER_DATABASE_TITLE;
-    extern const QString SERVER_CAMCOPS_VERSION;
-    extern const QString LAST_SERVER_REGISTRATION;
-    extern const QString LAST_SUCCESSFUL_UPLOAD;
+// Note that ID descriptions/short descriptions have multiple server
+// variables as set by
+//      DbConst::IDDESC_FIELD_FORMAT
+//      DbConst::IDSHORTDESC_FIELD_FORMAT
 
-    // User
-    // ... server interaction
-    extern const QString DEVICE_FRIENDLY_NAME;
-    extern const QString SERVER_USERNAME;
-    extern const QString SERVER_USERPASSWORD_OBSCURED;
-    extern const QString OFFER_UPLOAD_AFTER_EDIT;
-    // ... default clinician details
-    extern const QString DEFAULT_CLINICIAN_SPECIALTY;
-    extern const QString DEFAULT_CLINICIAN_NAME;
-    extern const QString DEFAULT_CLINICIAN_PROFESSIONAL_REGISTRATION;
-    extern const QString DEFAULT_CLINICIAN_POST;
-    extern const QString DEFAULT_CLINICIAN_SERVICE;
-    extern const QString DEFAULT_CLINICIAN_CONTACT_DETAILS;
+// Other information from server
+extern const QString SERVER_DATABASE_TITLE;
+extern const QString SERVER_CAMCOPS_VERSION;
+extern const QString LAST_SERVER_REGISTRATION;
+extern const QString LAST_SUCCESSFUL_UPLOAD;
 
-    // Cryptography
-    extern const QString OBSCURING_KEY;  // for server p/w, which we must retrieve
-    extern const QString OBSCURING_IV;
-    extern const QString USER_PASSWORD_HASH;
-    extern const QString PRIV_PASSWORD_HASH;
+// User
+// ... server interaction
+extern const QString DEVICE_FRIENDLY_NAME;
+extern const QString SERVER_USERNAME;
+extern const QString SERVER_USERPASSWORD_OBSCURED;
+extern const QString OFFER_UPLOAD_AFTER_EDIT;
+// ... default clinician details
+extern const QString DEFAULT_CLINICIAN_SPECIALTY;
+extern const QString DEFAULT_CLINICIAN_NAME;
+extern const QString DEFAULT_CLINICIAN_PROFESSIONAL_REGISTRATION;
+extern const QString DEFAULT_CLINICIAN_POST;
+extern const QString DEFAULT_CLINICIAN_SERVICE;
+extern const QString DEFAULT_CLINICIAN_CONTACT_DETAILS;
 
-    // Device ID
-    extern const QString DEVICE_ID;
-}
+// Cryptography
+extern const QString OBSCURING_KEY;  // for server p/w, which we must retrieve
+extern const QString OBSCURING_IV;
+extern const QString USER_PASSWORD_HASH;
+extern const QString PRIV_PASSWORD_HASH;
+
+// Device ID
+extern const QString DEVICE_ID;
+
+}  // namespace varconst

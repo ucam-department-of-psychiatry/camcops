@@ -121,7 +121,7 @@ void QuTextEdit::fieldValueChanged(const FieldRef* fieldref,
     if (!m_editor) {
         return;
     }
-    UiFunc::setPropertyMissing(m_editor, fieldref->missingInput());
+    uifunc::setPropertyMissing(m_editor, fieldref->missingInput());
     if (originator != this) {
         // In this case we don't want to block all signals, because the
         // GrowingTextEdit widget needs internal signals. However, we want

@@ -53,7 +53,7 @@ protected:
     void fontSettingsSaved();
     void fontSettingsCancelled();
     void resetFontSize();
-    QString demoText(const QString& text, UiConst::FontSize fontsize_type) const;
+    QString demoText(const QString& text, uiconst::FontSize fontsize_type) const;
     void viewDataDbAsSql();
     void viewSystemDbAsSql();
     void debugDataDbAsSql();

@@ -23,6 +23,7 @@
 #include "common/cssconst.h"
 #include "common/layouts.h"
 #include "common/uiconstants.h"
+#include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/imagebutton.h"
@@ -53,7 +54,7 @@ BooleanWidget::BooleanWidget(QWidget* parent) :
     m_imagebutton = new ImageButton();
     m_textbutton = new ClickableLabelWordWrapWide();
     m_layout = new VBoxLayout();
-    m_layout->setContentsMargins(UiConst::NO_MARGINS);
+    m_layout->setContentsMargins(uiconst::NO_MARGINS);
     m_layout->addWidget(m_imagebutton);
     m_layout->addWidget(m_textbutton);
     setLayout(m_layout);
@@ -194,40 +195,40 @@ void BooleanWidget::updateWidget()
     case Appearance::Text:
         // http://wiki.qt.io/DynamicPropertiesAndStylesheets
         {
-            QString css = UiFunc::textCSS(-1, m_bold, false);
+            QString css = uifunc::textCSS(-1, m_bold, false);
             m_textbutton->setStyleSheet(css);
 
             switch (m_state) {
             case State::Disabled:
-                m_textbutton->setProperty(CssConst::PROPERTY_STATE,
-                                          CssConst::VALUE_DISABLED);
+                m_textbutton->setProperty(cssconst::PROPERTY_STATE,
+                                          cssconst::VALUE_DISABLED);
                 break;
             case State::Null:
-                m_textbutton->setProperty(CssConst::PROPERTY_STATE,
-                                          CssConst::VALUE_NULL);
+                m_textbutton->setProperty(cssconst::PROPERTY_STATE,
+                                          cssconst::VALUE_NULL);
                 break;
             case State::NullRequired:
-                m_textbutton->setProperty(CssConst::PROPERTY_STATE,
-                                          CssConst::VALUE_NULL_REQUIRED);
+                m_textbutton->setProperty(cssconst::PROPERTY_STATE,
+                                          cssconst::VALUE_NULL_REQUIRED);
                 break;
             case State::False:
-                m_textbutton->setProperty(CssConst::PROPERTY_STATE,
-                                          CssConst::VALUE_FALSE);
+                m_textbutton->setProperty(cssconst::PROPERTY_STATE,
+                                          cssconst::VALUE_FALSE);
                 break;
             case State::True:
-                m_textbutton->setProperty(CssConst::PROPERTY_STATE,
-                                          CssConst::VALUE_TRUE);
+                m_textbutton->setProperty(cssconst::PROPERTY_STATE,
+                                          cssconst::VALUE_TRUE);
                 break;
             }
-            m_textbutton->setProperty(CssConst::PROPERTY_READ_ONLY,
-                                      UiFunc::cssBoolean(m_read_only));
+            m_textbutton->setProperty(cssconst::PROPERTY_READ_ONLY,
+                                      uifunc::cssBoolean(m_read_only));
         }
         break;
     }
     if (m_as_image) {
         m_imagebutton->setVisible(true);
         m_textbutton->setVisible(false);
-        m_imagebutton->setImageSize(m_big ? UiConst::ICONSIZE : UiConst::SMALL_ICONSIZE);
+        m_imagebutton->setImageSize(m_big ? uiconst::ICONSIZE : uiconst::SMALL_ICONSIZE);
         m_imagebutton->setImages(img, true, false, false, false, m_read_only);
         // ... don't alter unpressed images
         // ... FOR NOW, put pressed marker on top (as PNGs are not transparent
@@ -236,8 +237,8 @@ void BooleanWidget::updateWidget()
     } else {  // Text
         m_imagebutton->setVisible(false);
         m_textbutton->setVisible(true);
-        setSizePolicy(UiFunc::maximumFixedHFWPolicy());
-        UiFunc::repolish(m_textbutton);
+        setSizePolicy(sizehelpers::maximumFixedHFWPolicy());
+        uifunc::repolish(m_textbutton);
     }
     updateGeometry();
 }

@@ -23,7 +23,7 @@
 
 PersonalityMenu::PersonalityMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Personality"),
-               UiFunc::iconFilename(UiConst::ICON_PERSONALITY))
+               uifunc::iconFilename(uiconst::ICON_PERSONALITY))
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),

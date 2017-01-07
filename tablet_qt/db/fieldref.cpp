@@ -56,7 +56,7 @@ FieldRef::FieldRef(DatabaseObject* p_dbobject, const QString& fieldname,
     m_blob_redirect = blob;
     if (blob) {
         if (p_app == nullptr) {
-            UiFunc::stopApp("Must pass p_app to FieldRef for BLOBs");
+            uifunc::stopApp("Must pass p_app to FieldRef for BLOBs");
         }
         m_p_dbobject->save();  // ensure it has a PK
         m_method = FieldRefMethod::DatabaseObjectBlobField;
@@ -229,7 +229,7 @@ bool FieldRef::setValue(const QVariant& value, const QObject* originator)
 
 bool FieldRef::setValue(const QImage& image, const QObject* originator)
 {
-    return setValue(Convert::imageToVariant(image), originator);
+    return setValue(convert::imageToVariant(image), originator);
 }
 
 
@@ -321,7 +321,7 @@ QByteArray FieldRef::valueByteArray() const
 
 QImage FieldRef::valueImage() const
 {
-    return Convert::byteArrayToImage(valueByteArray());
+    return convert::byteArrayToImage(valueByteArray());
 }
 
 

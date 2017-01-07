@@ -22,7 +22,7 @@
 // Make sequences of strings
 // ============================================================================
 
-QStringList StringFunc::strseq(const QString& prefix, int first, int last)
+QStringList stringfunc::strseq(const QString& prefix, int first, int last)
 {
     Q_ASSERT(first >= 0 && last >= 0 && first <= last);
     QStringList list;
@@ -34,7 +34,7 @@ QStringList StringFunc::strseq(const QString& prefix, int first, int last)
 }
 
 
-QStringList StringFunc::strseq(const QString& prefix, int first, int last,
+QStringList stringfunc::strseq(const QString& prefix, int first, int last,
                                const QStringList& suffixes)
 {
     Q_ASSERT(first >= 0 && last >= 0 && first <= last);
@@ -49,7 +49,7 @@ QStringList StringFunc::strseq(const QString& prefix, int first, int last,
 }
 
 
-QStringList StringFunc::strseq(const QString& prefix, int first, int last,
+QStringList stringfunc::strseq(const QString& prefix, int first, int last,
                                const QString& suffix)
 {
     Q_ASSERT(first >= 0 && last >= 0 && first <= last);
@@ -62,7 +62,7 @@ QStringList StringFunc::strseq(const QString& prefix, int first, int last,
 }
 
 
-QStringList StringFunc::strseq(const QStringList& prefixes, int first,
+QStringList stringfunc::strseq(const QStringList& prefixes, int first,
                                int last)
 {
     Q_ASSERT(first >= 0 && last >= 0 && first <= last);
@@ -77,7 +77,7 @@ QStringList StringFunc::strseq(const QStringList& prefixes, int first,
 }
 
 
-QStringList StringFunc::strseq(const QStringList& prefixes, int first,
+QStringList stringfunc::strseq(const QStringList& prefixes, int first,
                                int last, const QStringList& suffixes)
 {
     Q_ASSERT(first >= 0 && last >= 0 && first <= last);
@@ -98,7 +98,7 @@ QStringList StringFunc::strseq(const QStringList& prefixes, int first,
 // Other string formatting
 // ============================================================================
 
-QString StringFunc::strnum(const QString& prefix, int num)
+QString stringfunc::strnum(const QString& prefix, int num)
 {
     return QString("%1%2").arg(prefix).arg(num);
 }
@@ -108,25 +108,25 @@ QString StringFunc::strnum(const QString& prefix, int num)
 // HTML processing
 // ============================================================================
 
-QString StringFunc::bold(const QString& str)
+QString stringfunc::bold(const QString& str)
 {
     return QString("<b>%1</b>").arg(str);
 }
 
 
-QString StringFunc::bold(int x)
+QString stringfunc::bold(int x)
 {
     return QString("<b>%1</b>").arg(x);
 }
 
 
-QString StringFunc::joinHtmlLines(const QStringList& lines)
+QString stringfunc::joinHtmlLines(const QStringList& lines)
 {
     return lines.join("<br>");
 }
 
 
-QString& StringFunc::toHtmlLinebreaks(QString& str,
+QString& stringfunc::toHtmlLinebreaks(QString& str,
                                       bool convert_embedded_literals)
 {
     str.replace("\n", "<br>");
@@ -141,7 +141,7 @@ QString& StringFunc::toHtmlLinebreaks(QString& str,
 // Other string processing
 // ============================================================================
 
-QString& StringFunc::replaceFirst(QString& str, const QString& from,
+QString& stringfunc::replaceFirst(QString& str, const QString& from,
                                   const QString& to)
 {
     // Replaces in situ

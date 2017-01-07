@@ -23,7 +23,7 @@
 #include <QStyleOptionButton>
 #include <QVBoxLayout>
 #include "common/uiconstants.h"
-#include "lib/uifunc.h"
+#include "lib/sizehelpers.h"
 
 
 ClickableLabelNoWrap::ClickableLabelNoWrap(const QString& text, QWidget* parent) :
@@ -50,7 +50,7 @@ void ClickableLabelNoWrap::commonConstructor()
     // m_label->setObjectName(CssConst::DEBUG_GREEN);
 
     m_layout = new QVBoxLayout();
-    m_layout->setContentsMargins(UiConst::NO_MARGINS);
+    m_layout->setContentsMargins(uiconst::NO_MARGINS);
 
     m_layout->addWidget(m_label);
 
@@ -108,6 +108,6 @@ QSize ClickableLabelNoWrap::sizeHint() const
     QStyleOptionButton opt;
     initStyleOption(&opt);  // protected
     QSize base_size = m_label->sizeHint();
-    return base_size + UiFunc::pushButtonExtraSizeRequired(this, &opt,
-                                                           base_size);
+    return base_size + sizehelpers::pushButtonExtraSizeRequired(this, &opt,
+                                                                base_size);
 }

@@ -75,7 +75,7 @@ void Questionnaire::commonConstructor()
     m_built = false;
     m_current_pagenum_zero_based = 0;  // starting page
 
-    setStyleSheet(m_app.getSubstitutedCss(UiConst::CSS_CAMCOPS_QUESTIONNAIRE));
+    setStyleSheet(m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_QUESTIONNAIRE));
 
     m_outer_layout = new QVBoxLayout();  // not HFW; will contain a scroll area filling all space
     setLayout(m_outer_layout);
@@ -158,11 +158,11 @@ void Questionnaire::build()
         // Duff page!
         qWarning() << Q_FUNC_INFO << "Bad page number:"
                    << m_current_pagenum_zero_based;
-        UiFunc::stopApp("BUG! Bad page number in Questionnaire::build");
+        uifunc::stopApp("BUG! Bad page number in Questionnaire::build");
     }
     QuPage* page = currentPagePtr();
     if (!page) {
-        UiFunc::stopApp("BUG! Null page pointer in Questionnaire::build");
+        uifunc::stopApp("BUG! Null page pointer in Questionnaire::build");
     }
 
     // In case we're building on the fly...
@@ -178,13 +178,13 @@ void Questionnaire::build()
     case QuPage::PageType::Patient:
     case QuPage::PageType::ClinicianWithPatient:
     default:
-        background_css_name = CssConst::QUESTIONNAIRE_BACKGROUND_PATIENT;
+        background_css_name = cssconst::QUESTIONNAIRE_BACKGROUND_PATIENT;
         break;
     case QuPage::PageType::Clinician:
-        background_css_name = CssConst::QUESTIONNAIRE_BACKGROUND_CLINICIAN;
+        background_css_name = cssconst::QUESTIONNAIRE_BACKGROUND_CLINICIAN;
         break;
     case QuPage::PageType::Config:
-        background_css_name = CssConst::QUESTIONNAIRE_BACKGROUND_CONFIG;
+        background_css_name = cssconst::QUESTIONNAIRE_BACKGROUND_CONFIG;
         break;
     }
 
@@ -192,7 +192,7 @@ void Questionnaire::build()
     QString header_css_name;
     if (page_type == QuPage::PageType::ClinicianWithPatient) {
         // Header has "clinician" style; main page has "patient" style
-        header_css_name = CssConst::QUESTIONNAIRE_BACKGROUND_CLINICIAN;
+        header_css_name = cssconst::QUESTIONNAIRE_BACKGROUND_CLINICIAN;
     } else {
         header_css_name = background_css_name;
     }
@@ -236,7 +236,7 @@ void Questionnaire::build()
 
     // Main layout: header and scrollable content
     m_mainlayout = new QVBoxLayout();
-    m_mainlayout->setContentsMargins(UiConst::NO_MARGINS);
+    m_mainlayout->setContentsMargins(uiconst::NO_MARGINS);
     m_mainlayout->addWidget(m_p_header);
     m_mainlayout->addWidget(scroll);
     // In case the questionnaire is vertically short:
@@ -249,7 +249,7 @@ void Questionnaire::build()
 
     // Surrounding stuff:
     m_outer_layout->addWidget(m_background_widget);
-    m_outer_layout->setContentsMargins(UiConst::NO_MARGINS);
+    m_outer_layout->setContentsMargins(uiconst::NO_MARGINS);
 
     // Finishing up
     m_built = true;
@@ -314,7 +314,7 @@ bool Questionnaire::readOnly() const
 }
 
 
-int Questionnaire::fontSizePt(UiConst::FontSize fontsize) const
+int Questionnaire::fontSizePt(uiconst::FontSize fontsize) const
 {
     return m_app.fontSizePt(fontsize);
 }
@@ -496,7 +496,7 @@ QString Questionnaire::getSubstitutedCss(const QString& filename) const
 
 void Questionnaire::debugLayout()
 {
-    LayoutDumper::dumpWidgetHierarchy(this);
+    layoutdumper::dumpWidgetHierarchy(this);
 }
 
 

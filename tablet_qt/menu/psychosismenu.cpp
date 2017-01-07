@@ -23,7 +23,7 @@
 
 PsychosisMenu::PsychosisMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Psychosis"),
-               UiFunc::iconFilename(UiConst::ICON_PSYCHOSIS))
+               uifunc::iconFilename(uiconst::ICON_PSYCHOSIS))
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),

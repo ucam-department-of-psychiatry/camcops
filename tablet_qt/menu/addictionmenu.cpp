@@ -23,7 +23,7 @@
 
 AddictionMenu::AddictionMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Drug/alcohol abuse and addiction"),
-               UiFunc::iconFilename(UiConst::ICON_ADDICTION))
+               uifunc::iconFilename(uiconst::ICON_ADDICTION))
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),

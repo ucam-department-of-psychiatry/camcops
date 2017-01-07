@@ -144,12 +144,12 @@ void Camera::commonConstructor(const QString& stylesheet)
     // Now, since the CSS of the outermost object is ignored within a
     // QStackedWidget...
     QWidget* inner_widget = new QWidget();
-    inner_widget->setObjectName(CssConst::CAMERA_INNER_OBJECT);
+    inner_widget->setObjectName(cssconst::CAMERA_INNER_OBJECT);
     inner_widget->setLayout(top_layout);
 
     // ... we need an outer layout too.
     QVBoxLayout* outer_layout = new QVBoxLayout();
-    outer_layout->setContentsMargins(UiConst::NO_MARGINS);
+    outer_layout->setContentsMargins(uiconst::NO_MARGINS);
     outer_layout->addWidget(inner_widget);
     setLayout(outer_layout);
 }
@@ -405,7 +405,7 @@ void Camera::imageAvailable(int id, const QVideoFrame& buffer)
     // http://stackoverflow.com/questions/27829830/convert-qvideoframe-to-qimage
 
     Q_UNUSED(id);
-    m_most_recent_image = ImageFunc::imageFromVideoFrame(buffer);
+    m_most_recent_image = imagefunc::imageFromVideoFrame(buffer);
     m_captured_state = CapturedState::Buffer;
     m_capturing_image = false;
     emit imageCaptured(image());

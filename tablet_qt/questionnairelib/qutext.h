@@ -51,7 +51,7 @@ protected slots:
 protected:
     QString m_text;
     FieldRefPtr m_fieldref;
-    UiConst::FontSize m_fontsize;
+    uiconst::FontSize m_fontsize;
     bool m_bold;
     bool m_italic;
     bool m_warning;

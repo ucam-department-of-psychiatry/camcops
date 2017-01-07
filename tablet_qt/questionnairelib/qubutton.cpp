@@ -58,7 +58,7 @@ QPointer<QWidget> QuButton::makeWidget(Questionnaire* questionnaire)
     if (!m_label.isEmpty()) {
         // Text
         button = new ClickableLabelWordWrapWide(m_label);
-        button->setObjectName(CssConst::BUTTON);
+        button->setObjectName(cssconst::BUTTON);
         if (read_only) {
             button->setDisabled(true);
         }

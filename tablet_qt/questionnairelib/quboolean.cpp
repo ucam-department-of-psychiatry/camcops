@@ -132,7 +132,7 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire *questionnaire)
     widget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     QHBoxLayout* layout = new QHBoxLayout();
-    layout->setContentsMargins(UiConst::NO_MARGINS);
+    layout->setContentsMargins(uiconst::NO_MARGINS);
     widget->setLayout(layout);
     // To align things in a QHBoxLayout, align the widgets within the layout:
     //      layout->setAlignment(widget, alignment)
@@ -153,13 +153,13 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire *questionnaire)
             labelwidget = label;
         }
         int fontsize = questionnaire->fontSizePt(
-            m_big_text ? UiConst::FontSize::Big : UiConst::FontSize::Normal);
-        QString css = UiFunc::textCSS(fontsize, m_bold, m_italic);
+            m_big_text ? uiconst::FontSize::Big : uiconst::FontSize::Normal);
+        QString css = uifunc::textCSS(fontsize, m_bold, m_italic);
         labelwidget->setStyleSheet(css);
         // needs_stretch stays false (or we'll prevent the text expanding)
     } else if (!m_image_filename.isEmpty()) {
         // Image label
-        QPixmap image = UiFunc::getPixmap(m_image_filename, m_image_size);
+        QPixmap image = uifunc::getPixmap(m_image_filename, m_image_size);
         AspectRatioPixmapLabel* label = new AspectRatioPixmapLabel();
         label->setPixmap(image);
         if (!read_only && m_content_clickable) {
@@ -217,7 +217,7 @@ void QuBoolean::setFromField()
 
 void QuBoolean::clicked()
 {
-    McqFunc::toggleBooleanField(m_fieldref.data(), m_allow_unset);
+    mcqfunc::toggleBooleanField(m_fieldref.data(), m_allow_unset);
     emit elementValueChanged();
 }
 

@@ -65,7 +65,7 @@ MenuHeader::MenuHeader(QWidget* parent,
 
     // Back button (unless top)
     if (!top) {
-        QAbstractButton* back = new ImageButton(UiConst::CBS_BACK);
+        QAbstractButton* back = new ImageButton(uiconst::CBS_BACK);
         toprowlayout->addWidget(back, 0, button_align);
         connect(back, &QAbstractButton::clicked,
                 this, &MenuHeader::backClicked,
@@ -74,14 +74,14 @@ MenuHeader::MenuHeader(QWidget* parent,
 
     // Icon
     if (!icon_filename.isEmpty()) {
-        QLabel* icon = UiFunc::iconWidget(icon_filename, this);
+        QLabel* icon = uifunc::iconWidget(icon_filename, this);
         toprowlayout->addWidget(icon, 0, button_align);
     }
 
     // Title
     m_title_label = new LabelWordWrapWide(title);
     m_title_label->setAlignment(text_align);
-    m_title_label->setObjectName(CssConst::MENU_WINDOW_TITLE);
+    m_title_label->setObjectName(cssconst::MENU_WINDOW_TITLE);
     toprowlayout->addWidget(m_title_label, 0, text_align);
 
     // Spacing
@@ -98,11 +98,11 @@ MenuHeader::MenuHeader(QWidget* parent,
     }
 
     // - Task verb buttons
-    m_button_finish_flag = new ImageButton(UiConst::CBS_FINISHFLAG);
-    m_button_view = new ImageButton(UiConst::CBS_ZOOM);
-    m_button_edit = new ImageButton(UiConst::CBS_EDIT);
-    m_button_delete = new ImageButton(UiConst::CBS_DELETE);
-    m_button_add = new ImageButton(UiConst::CBS_ADD);
+    m_button_finish_flag = new ImageButton(uiconst::CBS_FINISHFLAG);
+    m_button_view = new ImageButton(uiconst::CBS_ZOOM);
+    m_button_edit = new ImageButton(uiconst::CBS_EDIT);
+    m_button_delete = new ImageButton(uiconst::CBS_DELETE);
+    m_button_add = new ImageButton(uiconst::CBS_ADD);
     toprowlayout->addWidget(m_button_finish_flag, 0, button_align);
     toprowlayout->addWidget(m_button_view, 0, button_align);
     toprowlayout->addWidget(m_button_edit, 0, button_align);
@@ -124,23 +124,23 @@ MenuHeader::MenuHeader(QWidget* parent,
             this, &MenuHeader::addClicked);
 
     // - Whisker
-    m_icon_whisker_connected = UiFunc::iconWidget(
-        UiFunc::iconFilename(UiConst::ICON_WHISKER), this);
+    m_icon_whisker_connected = uifunc::iconWidget(
+        uifunc::iconFilename(uiconst::ICON_WHISKER), this);
     toprowlayout->addWidget(m_icon_whisker_connected);
     toprowlayout->setAlignment(m_icon_whisker_connected, button_align);
     whiskerConnectionStateChanged(m_app.whiskerConnected());
 
     // - Needs upload
-    m_button_needs_upload = new ImageButton(UiConst::ICON_UPLOAD);
+    m_button_needs_upload = new ImageButton(uiconst::ICON_UPLOAD);
     toprowlayout->addWidget(m_button_needs_upload, 0, button_align);
     needsUploadChanged(m_app.needsUpload());
     connect(m_button_needs_upload, &QAbstractButton::clicked,
             &m_app, &CamcopsApp::upload);
 
     // - Locked/unlocked/privileged
-    m_button_locked = new ImageButton(UiConst::CBS_LOCKED);
-    m_button_unlocked = new ImageButton(UiConst::CBS_UNLOCKED);
-    m_button_privileged = new ImageButton(UiConst::CBS_PRIVILEGED);
+    m_button_locked = new ImageButton(uiconst::CBS_LOCKED);
+    m_button_unlocked = new ImageButton(uiconst::CBS_UNLOCKED);
+    m_button_privileged = new ImageButton(uiconst::CBS_PRIVILEGED);
     toprowlayout->addWidget(m_button_locked, 0, button_align);
     toprowlayout->addWidget(m_button_unlocked, 0, button_align);
     toprowlayout->addWidget(m_button_privileged, 0, button_align);
@@ -155,8 +155,8 @@ MenuHeader::MenuHeader(QWidget* parent,
     // ------------------------------------------------------------------------
     // Horizontal line
     // ------------------------------------------------------------------------
-    HorizontalLine* horizline = new HorizontalLine(UiConst::HEADER_HLINE_WIDTH);
-    horizline->setObjectName(CssConst::HEADER_HORIZONTAL_LINE);
+    HorizontalLine* horizline = new HorizontalLine(uiconst::HEADER_HLINE_WIDTH);
+    horizline->setObjectName(cssconst::HEADER_HORIZONTAL_LINE);
     mainlayout->addWidget(horizline);
 
     // ------------------------------------------------------------------------
@@ -164,11 +164,11 @@ MenuHeader::MenuHeader(QWidget* parent,
     // ------------------------------------------------------------------------
     m_patient_info = new LabelWordWrapWide();
     m_patient_info->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    m_patient_info->setObjectName(CssConst::MENU_HEADER_PATIENT_INFO);
+    m_patient_info->setObjectName(cssconst::MENU_HEADER_PATIENT_INFO);
     mainlayout->addWidget(m_patient_info);
     m_no_patient = new LabelWordWrapWide(tr("No patient selected"));
     m_no_patient->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    m_no_patient->setObjectName(CssConst::MENU_HEADER_NO_PATIENT);
+    m_no_patient->setObjectName(cssconst::MENU_HEADER_NO_PATIENT);
     mainlayout->addWidget(m_no_patient);
     setPatientDetails(m_app.selectedPatient());
 

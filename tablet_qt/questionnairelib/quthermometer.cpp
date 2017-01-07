@@ -16,8 +16,8 @@
 */
 
 #include "quthermometer.h"
-#include <QGridLayout>
 #include <QLabel>
+#include "common/layouts.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/imagebutton.h"
@@ -69,8 +69,8 @@ QPointer<QWidget> QuThermometer::makeWidget(Questionnaire* questionnaire)
     bool read_only = questionnaire->readOnly();
     m_main_widget = new QWidget();
     m_main_widget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    QGridLayout* grid = new QGridLayout();
-    grid->setContentsMargins(UiConst::NO_MARGINS);
+    GridLayout* grid = new GridLayout();
+    grid->setContentsMargins(uiconst::NO_MARGINS);
     grid->setSpacing(0);
     m_main_widget->setLayout(grid);
     // In reverse order:
@@ -157,7 +157,7 @@ void QuThermometer::fieldValueChanged(const FieldRef* fieldref)
     if (!m_main_widget) {
         return;
     }
-    UiFunc::setPropertyMissing(m_main_widget, fieldref->missingInput());
+    uifunc::setPropertyMissing(m_main_widget, fieldref->missingInput());
     int index = indexFromValue(fieldref->value());
     int n = m_active_widgets.size();
     int index_row = (n - 1) - index;  // operating in reverse

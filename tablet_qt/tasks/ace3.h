@@ -33,7 +33,7 @@ class Ace3 : public Task
     Q_OBJECT
 public:
     Ace3(CamcopsApp& app, const QSqlDatabase& db,
-         int load_pk = DbConst::NONEXISTENT_PK);
+         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------

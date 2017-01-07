@@ -22,7 +22,7 @@
 #include <QSqlQuery>
 #include "db/dbfunc.h"
 #include "lib/stringfunc.h"
-using StringFunc::replaceFirst;
+using stringfunc::replaceFirst;
 
 const QString NL("\n"); // newline
 const QString DUMP_T_START("PRAGMA foreign_keys=OFF;" + NL +
@@ -70,12 +70,12 @@ const QString GET_VERSION("SELECT sqlite_version() FROM sqlite_master");
 const QString VALUE_SEP_COMMA = ", ";  // space less efficient but easier to read
 
 
-void DumpSql::runTableDumpQuery(QTextStream& os,
+void dumpsql::runTableDumpQuery(QTextStream& os,
                                 const QSqlDatabase& db,
                                 const QString& sql,
                                 const QString& firstrow) {
     QSqlQuery query(db);
-    if (!DbFunc::execQuery(query, sql)) {
+    if (!dbfunc::execQuery(query, sql)) {
         return;
     }
     os << firstrow;
@@ -96,12 +96,12 @@ void DumpSql::runTableDumpQuery(QTextStream& os,
 }
 
 
-bool DumpSql::runSchemaDumpQuery(QTextStream& os,
+bool dumpsql::runSchemaDumpQuery(QTextStream& os,
                                  const QSqlDatabase& db,
                                  const QString& schema_query_sql,
                                  bool writable_schema) {
     QSqlQuery query(db);
-    if (!DbFunc::execQuery(query, schema_query_sql)) {
+    if (!dbfunc::execQuery(query, schema_query_sql)) {
         return writable_schema;
     }
     bool firstline = true;
@@ -140,7 +140,7 @@ bool DumpSql::runSchemaDumpQuery(QTextStream& os,
             QString tableinfo_query = PRAGMA_TABLEINFO;
             replaceFirst(tableinfo_query, PLACEHOLDER, table);
             QSqlQuery q2(db);
-            if (!DbFunc::execQuery(q2, tableinfo_query)) {
+            if (!dbfunc::execQuery(q2, tableinfo_query)) {
                 continue;
             }
             QString select = DATASELECT_1_SELECT_INSERT_INTO_VALUES;
@@ -173,7 +173,7 @@ bool DumpSql::runSchemaDumpQuery(QTextStream& os,
 }
 
 
-void DumpSql::dumpDatabase(QTextStream& os, const QSqlDatabase& db)
+void dumpsql::dumpDatabase(QTextStream& os, const QSqlDatabase& db)
 {
     bool success = true;  // not really used?
     bool writable_schema = false;
@@ -181,8 +181,8 @@ void DumpSql::dumpDatabase(QTextStream& os, const QSqlDatabase& db)
     os << COMMENT_STARTING;
     os << DUMP_T_START;
 
-    DbFunc::exec(db, DUMP_E_START_1);
-    DbFunc::exec(db, DUMP_E_START_2);
+    dbfunc::exec(db, DUMP_E_START_1);
+    dbfunc::exec(db, DUMP_E_START_2);
 
     // Tables
     os << COMMENT_TABLES;
@@ -203,7 +203,7 @@ void DumpSql::dumpDatabase(QTextStream& os, const QSqlDatabase& db)
     if (writable_schema) {
         os << DUMP_T_WSOFF;
     }
-    DbFunc::exec(db, DUMP_E_WSOFF);
-    DbFunc::exec(db, DUMP_E_RELEASE);
+    dbfunc::exec(db, DUMP_E_WSOFF);
+    dbfunc::exec(db, DUMP_E_RELEASE);
     os << (success ? DUMP_T_END_SUCCESS : DUMP_T_END_FAILURE);
 }

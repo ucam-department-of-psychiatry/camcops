@@ -39,7 +39,7 @@ Task::Task(CamcopsApp& app,
            bool is_anonymous,
            bool has_clinician,
            bool has_respondent) :
-    DatabaseObject(app, db, tablename, DbConst::PK_FIELDNAME, true, true),
+    DatabaseObject(app, db, tablename, dbconst::PK_FIELDNAME, true, true),
     m_patient(nullptr),
     m_editing(false),
     m_is_anonymous(is_anonymous),
@@ -106,13 +106,13 @@ QString Task::instanceTitle() const
     if (isAnonymous()) {
         return QString("%1; %2").arg(
             shortname(),
-            whenCreated().toString(DateTime::SHORT_DATETIME_FORMAT));
+            whenCreated().toString(datetime::SHORT_DATETIME_FORMAT));
     } else {
         Patient* pt = patient();
         return QString("%1; %2; %3").arg(
             shortname(),
             pt ? pt->surnameUpperForename() : tr("MISSING PATIENT"),
-            whenCreated().toString(DateTime::SHORT_DATETIME_FORMAT));
+            whenCreated().toString(datetime::SHORT_DATETIME_FORMAT));
     }
 }
 
@@ -137,20 +137,20 @@ bool Task::hasRespondent() const
 
 bool Task::isTaskPermissible() const
 {
-    QVariant commercial = m_app.var(VarConst::IP_USE_COMMERCIAL);
-    QVariant clinical = m_app.var(VarConst::IP_USE_CLINICAL);
-    QVariant educational = m_app.var(VarConst::IP_USE_EDUCATIONAL);
-    QVariant research = m_app.var(VarConst::IP_USE_RESEARCH);
-    if (prohibitsCommercial() && !MathFunc::eq(commercial, false)) {
+    QVariant commercial = m_app.var(varconst::IP_USE_COMMERCIAL);
+    QVariant clinical = m_app.var(varconst::IP_USE_CLINICAL);
+    QVariant educational = m_app.var(varconst::IP_USE_EDUCATIONAL);
+    QVariant research = m_app.var(varconst::IP_USE_RESEARCH);
+    if (prohibitsCommercial() && !mathfunc::eq(commercial, false)) {
         return false;
     }
-    if (prohibitsClinical() && !MathFunc::eq(clinical, false)) {
+    if (prohibitsClinical() && !mathfunc::eq(clinical, false)) {
         return false;
     }
-    if (prohibitsEducational() && !MathFunc::eq(educational, false)) {
+    if (prohibitsEducational() && !mathfunc::eq(educational, false)) {
         return false;
     }
-    if (prohibitsResearch() && !MathFunc::eq(research, false)) {
+    if (prohibitsResearch() && !mathfunc::eq(research, false)) {
         return false;
     }
     return true;
@@ -173,13 +173,13 @@ QString Task::whyNotPermissible() const
                 "from the copyright holder (see Task Information).");
     const QString unknown = tr(" You have NOT SAID whether you are using this "
                                "software in that context (see Settings).");
-    QVariant commercial = m_app.var(VarConst::IP_USE_COMMERCIAL);
-    QVariant clinical = m_app.var(VarConst::IP_USE_CLINICAL);
-    QVariant educational = m_app.var(VarConst::IP_USE_EDUCATIONAL);
-    QVariant research = m_app.var(VarConst::IP_USE_RESEARCH);
+    QVariant commercial = m_app.var(varconst::IP_USE_COMMERCIAL);
+    QVariant clinical = m_app.var(varconst::IP_USE_CLINICAL);
+    QVariant educational = m_app.var(varconst::IP_USE_EDUCATIONAL);
+    QVariant research = m_app.var(varconst::IP_USE_RESEARCH);
 
     auto not_definitely_false = [](const QVariant& v) -> bool {
-        return !MathFunc::eq(v, false);
+        return !mathfunc::eq(v, false);
     };
     auto is_unknown = [](const QVariant& v) -> bool {
         return v.isNull() || v.toInt() == CommonOptions::UNKNOWN_INT;
@@ -223,7 +223,7 @@ void Task::makeTables()
 
 int Task::count(const WhereConditions& where) const
 {
-    return DbFunc::count(m_db, m_tablename, where);
+    return dbfunc::count(m_db, m_tablename, where);
 }
 
 
@@ -253,7 +253,7 @@ void Task::deleteFromDatabase()
 
 bool Task::load(int pk)
 {
-    if (pk == DbConst::NONEXISTENT_PK) {
+    if (pk == dbconst::NONEXISTENT_PK) {
         return false;
     }
     return DatabaseObject::load(pk);
@@ -264,7 +264,7 @@ bool Task::save()
 {
     // Sanity checks before we permit saving
     if (!isAnonymous() && value(PATIENT_FK_FIELDNAME).isNull()) {
-        UiFunc::stopApp("Task has no patient ID (and is not anonymous); "
+        uifunc::stopApp("Task has no patient ID (and is not anonymous); "
                         "cannot save");
     }
     return DatabaseObject::save();
@@ -304,7 +304,7 @@ OpenableWidget* Task::editor(bool read_only)
 
 QDateTime Task::whenCreated() const
 {
-    return value(DbConst::CREATION_TIMESTAMP_FIELDNAME)
+    return value(dbconst::CREATION_TIMESTAMP_FIELDNAME)
         .toDateTime();
 }
 
@@ -341,7 +341,7 @@ QStringList Task::fieldSummaries(const QString& xstringprefix,
                                  int first,
                                  int last) const
 {
-    using StringFunc::strseq;
+    using stringfunc::strseq;
     QStringList xstringnames = strseq(xstringprefix, first, last,
                                       xstringsuffix);
     QStringList fieldnames = strseq(fieldprefix, first, last);
@@ -373,18 +373,18 @@ void Task::setDefaultClinicianVariablesAtFirstUse()
     if (!m_has_clinician) {
         return;
     }
-    setValue(CLINICIAN_SPECIALTY, m_app.varString(VarConst::DEFAULT_CLINICIAN_SPECIALTY));
-    setValue(CLINICIAN_NAME, m_app.varString(VarConst::DEFAULT_CLINICIAN_NAME));
-    setValue(CLINICIAN_PROFESSIONAL_REGISTRATION, m_app.varString(VarConst::DEFAULT_CLINICIAN_PROFESSIONAL_REGISTRATION));
-    setValue(CLINICIAN_POST, m_app.varString(VarConst::DEFAULT_CLINICIAN_POST));
-    setValue(CLINICIAN_SERVICE, m_app.varString(VarConst::DEFAULT_CLINICIAN_SERVICE));
-    setValue(CLINICIAN_CONTACT_DETAILS, m_app.varString(VarConst::DEFAULT_CLINICIAN_CONTACT_DETAILS));
+    setValue(CLINICIAN_SPECIALTY, m_app.varString(varconst::DEFAULT_CLINICIAN_SPECIALTY));
+    setValue(CLINICIAN_NAME, m_app.varString(varconst::DEFAULT_CLINICIAN_NAME));
+    setValue(CLINICIAN_PROFESSIONAL_REGISTRATION, m_app.varString(varconst::DEFAULT_CLINICIAN_PROFESSIONAL_REGISTRATION));
+    setValue(CLINICIAN_POST, m_app.varString(varconst::DEFAULT_CLINICIAN_POST));
+    setValue(CLINICIAN_SERVICE, m_app.varString(varconst::DEFAULT_CLINICIAN_SERVICE));
+    setValue(CLINICIAN_CONTACT_DETAILS, m_app.varString(varconst::DEFAULT_CLINICIAN_CONTACT_DETAILS));
 }
 
 
 QuElement* Task::getClinicianQuestionnaireBlockRawPointer()
 {
-    return QuestionnaireFunc::defaultGridRawPointer({
+    return questionnairefunc::defaultGridRawPointer({
         {tr("Clinician’s specialty"),
          new QuLineEdit(fieldRef(CLINICIAN_SPECIALTY))},
         {tr("Clinician’s name"),
@@ -397,7 +397,7 @@ QuElement* Task::getClinicianQuestionnaireBlockRawPointer()
          new QuLineEdit(fieldRef(CLINICIAN_SERVICE))},
         {tr("Clinician’s contact details"),
          new QuLineEdit(fieldRef(CLINICIAN_CONTACT_DETAILS))},
-    }, UiConst::DEFAULT_COLSPAN_Q, UiConst::DEFAULT_COLSPAN_A);
+    }, uiconst::DEFAULT_COLSPAN_Q, uiconst::DEFAULT_COLSPAN_A);
 }
 
 
@@ -435,10 +435,10 @@ QuElement* Task::getRespondentQuestionnaireBlockRawPointer(bool second_person)
     const QString relationship = second_person
             ? tr("Your relationship to the patient")
             : tr("Respondent’s relationship to patient");
-    return QuestionnaireFunc::defaultGridRawPointer({
+    return questionnairefunc::defaultGridRawPointer({
         {name, new QuLineEdit(fieldRef(RESPONDENT_NAME))},
         {relationship, new QuLineEdit(fieldRef(RESPONDENT_RELATIONSHIP))},
-    }, UiConst::DEFAULT_COLSPAN_Q, UiConst::DEFAULT_COLSPAN_A);
+    }, uiconst::DEFAULT_COLSPAN_Q, uiconst::DEFAULT_COLSPAN_A);
 }
 
 
@@ -474,7 +474,7 @@ QuPagePtr Task::getClinicianAndRespondentDetailsPage(bool second_person)
 void Task::editStarted()
 {
     m_editing = true;
-    m_editing_started = DateTime::now();
+    m_editing_started = datetime::now();
 }
 
 
@@ -486,9 +486,9 @@ void Task::editFinished(bool aborted)
     }
     m_editing = false;
     // Time
-    QDateTime now = DateTime::now();
+    QDateTime now = datetime::now();
     double editing_time_s = valueDouble(EDITING_TIME_S_FIELDNAME);
-    editing_time_s += DateTime::doubleSecondsFrom(m_editing_started, now);
+    editing_time_s += datetime::doubleSecondsFrom(m_editing_started, now);
     setValue(EDITING_TIME_S_FIELDNAME, editing_time_s);
     // Exit flags
     if (!valueBool(FIRSTEXIT_IS_FINISH_FIELDNAME)
@@ -513,10 +513,10 @@ void Task::setPatient(int patient_id)
     // It's a really dangerous thing to set a patient ID invalidly, so this
     // function will just stop the app if something stupid is attempted.
     if (isAnonymous()) {
-        UiFunc::stopApp("Attempt to set patient ID for an anonymous task");
+        uifunc::stopApp("Attempt to set patient ID for an anonymous task");
     }
     if (!value(PATIENT_FK_FIELDNAME).isNull()) {
-        UiFunc::stopApp("Setting patient ID, but it was already set");
+        uifunc::stopApp("Setting patient ID, but it was already set");
     }
     setValue(PATIENT_FK_FIELDNAME, patient_id);
     m_patient.clear();

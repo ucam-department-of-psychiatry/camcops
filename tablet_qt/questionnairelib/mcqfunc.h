@@ -18,42 +18,43 @@
 #pragma once
 #include <QList>
 #include <QPointer>
+#include "common/layouts.h"
 
 class BooleanWidget;
 class FieldRef;
 class NameValueOptions;
-class QGridLayout;
 class QString;
 
 
-namespace McqFunc
-{
-    // Assistance functions for questionnaire items.
+namespace mcqfunc {
 
-    void addVerticalLine(QGridLayout* grid, int col, int n_rows);
-    void addQuestion(QGridLayout* grid, int row, const QString& question);
-    void addTitle(QGridLayout* grid, int row, const QString& title);
-    void addSubtitle(QGridLayout* grid, int row, const QString& subtitle);
-    void addOption(QGridLayout* grid, int row, int col, const QString& option);
-    void addOptionBackground(QGridLayout* grid, int row,
-                             int firstcol, int ncols);
+// Assistance functions for questionnaire items.
 
-    void setResponseWidgets(
-            const NameValueOptions& options,
-            const QList<QPointer<BooleanWidget>>& question_widgets,
-            const FieldRef* fieldref);
+void addVerticalLine(GridLayout* grid, int col, int n_rows);
+void addQuestion(GridLayout* grid, int row, const QString& question);
+void addTitle(GridLayout* grid, int row, const QString& title);
+void addSubtitle(GridLayout* grid, int row, const QString& subtitle);
+void addOption(GridLayout* grid, int row, int col, const QString& option);
+void addOptionBackground(GridLayout* grid, int row,
+                         int firstcol, int ncols);
 
-    void toggleBooleanField(FieldRef* fieldref, bool allow_unset = false);
+void setResponseWidgets(
+        const NameValueOptions& options,
+        const QList<QPointer<BooleanWidget>>& question_widgets,
+        const FieldRef* fieldref);
 
-    // Alignment constants
-    extern Qt::Alignment question_text_align;
-    extern Qt::Alignment question_widget_align;
+void toggleBooleanField(FieldRef* fieldref, bool allow_unset = false);
 
-    extern Qt::Alignment title_text_align;
-    extern Qt::Alignment title_widget_align;
+// Alignment constants
+extern Qt::Alignment question_text_align;
+extern Qt::Alignment question_widget_align;
 
-    extern Qt::Alignment option_text_align;
-    extern Qt::Alignment option_widget_align;
+extern Qt::Alignment title_text_align;
+extern Qt::Alignment title_widget_align;
 
-    extern Qt::Alignment response_widget_align;
-}
+extern Qt::Alignment option_text_align;
+extern Qt::Alignment option_widget_align;
+
+extern Qt::Alignment response_widget_align;
+
+}  // namespace mcqfunc

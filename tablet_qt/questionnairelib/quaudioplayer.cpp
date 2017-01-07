@@ -59,7 +59,7 @@ QuAudioPlayer::~QuAudioPlayer()
 QuAudioPlayer* QuAudioPlayer::setVolume(int volume)
 {
     // qDebug().nospace() << "QuAudioPlayer::setVolume(" << volume << ")";
-    m_volume = qBound(UiConst::MIN_VOLUME, volume, UiConst::MAX_VOLUME);
+    m_volume = qBound(uiconst::MIN_VOLUME, volume, uiconst::MAX_VOLUME);
     if (m_player) {
         m_player->setVolume(m_volume);
     }
@@ -83,11 +83,11 @@ QPointer<QWidget> QuAudioPlayer::makeWidget(Questionnaire* questionnaire)
     QPointer<QWidget> widget = new QWidget();
     widget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     QHBoxLayout* layout = new QHBoxLayout();
-    layout->setContentsMargins(UiConst::NO_MARGINS);
+    layout->setContentsMargins(uiconst::NO_MARGINS);
     widget->setLayout(layout);
 
-    m_button_speaker = new ImageButton(UiConst::CBS_SPEAKER);
-    m_button_speaker_playing = new ImageButton(UiConst::CBS_SPEAKER_PLAYING);
+    m_button_speaker = new ImageButton(uiconst::CBS_SPEAKER);
+    m_button_speaker_playing = new ImageButton(uiconst::CBS_SPEAKER_PLAYING);
     layout->addWidget(m_button_speaker);
     layout->addWidget(m_button_speaker_playing);
     connect(m_button_speaker, &QAbstractButton::clicked,
@@ -100,7 +100,7 @@ QPointer<QWidget> QuAudioPlayer::makeWidget(Questionnaire* questionnaire)
     if (m_offer_volume_control) {
         QDial* dial = new QDial();
         dial->setNotchesVisible(true);
-        dial->setRange(UiConst::MIN_VOLUME, UiConst::MAX_VOLUME);
+        dial->setRange(uiconst::MIN_VOLUME, uiconst::MAX_VOLUME);
         dial->setValue(m_volume);
         connect(dial, &QDial::valueChanged,
                 this, &QuAudioPlayer::setVolumeNoReturn);

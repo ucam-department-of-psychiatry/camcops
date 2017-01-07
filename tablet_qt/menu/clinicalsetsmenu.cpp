@@ -27,7 +27,7 @@
 ClinicalSetsMenu::ClinicalSetsMenu(CamcopsApp& app) :
     MenuWindow(app,
                tr("Sets of tasks collected together for clinical purposes"),
-               UiFunc::iconFilename(UiConst::ICON_SETS_CLINICAL))
+               uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),

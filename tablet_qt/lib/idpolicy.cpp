@@ -76,7 +76,7 @@ void IdPolicy::initializeTokenDicts()
     m_token_to_name[TOKEN_SURNAME] = SURNAME_FIELD;
     m_token_to_name[TOKEN_DOB] = DOB_FIELD;
     m_token_to_name[TOKEN_SEX] = SEX_FIELD;
-    for (int n = 1; n <= DbConst::NUMBER_OF_IDNUMS; ++n) {
+    for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
         m_token_to_name[n] = IDNUM_FIELD_FORMAT.arg(n);
     }
 

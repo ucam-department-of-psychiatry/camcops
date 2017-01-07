@@ -64,7 +64,7 @@ QPointer<QWidget> QuPhoto::makeWidget(Questionnaire* questionnaire)
     QAbstractButton* button_open_camera = nullptr;
     QLabel* no_camera = nullptr;
     if (m_have_camera) {
-        button_open_camera = new ImageButton(UiConst::CBS_CAMERA);
+        button_open_camera = new ImageButton(uiconst::CBS_CAMERA);
         button_open_camera->setEnabled(!read_only && m_have_camera);
         if (!read_only) {
             connect(button_open_camera, &QAbstractButton::clicked,
@@ -74,7 +74,7 @@ QPointer<QWidget> QuPhoto::makeWidget(Questionnaire* questionnaire)
         no_camera = new QLabel(tr("No camera"));
     }
 
-    QAbstractButton* button_reset = new ImageButton(UiConst::CBS_DELETE);
+    QAbstractButton* button_reset = new ImageButton(uiconst::CBS_DELETE);
     button_reset->setEnabled(!read_only);
     if (!read_only) {
         connect(button_reset, &QAbstractButton::clicked,
@@ -82,7 +82,7 @@ QPointer<QWidget> QuPhoto::makeWidget(Questionnaire* questionnaire)
     }
 
     QAbstractButton* button_rot_left = new ImageButton(
-                UiConst::CBS_ROTATE_ANTICLOCKWISE);
+                uiconst::CBS_ROTATE_ANTICLOCKWISE);
     button_rot_left->setEnabled(!read_only);
     if (!read_only) {
         connect(button_rot_left, &QAbstractButton::clicked,
@@ -90,7 +90,7 @@ QPointer<QWidget> QuPhoto::makeWidget(Questionnaire* questionnaire)
     }
 
     QAbstractButton* button_rot_right = new ImageButton(
-                UiConst::CBS_ROTATE_CLOCKWISE);
+                uiconst::CBS_ROTATE_CLOCKWISE);
     button_rot_right->setEnabled(!read_only);
     if (!read_only) {
         connect(button_rot_right, &QAbstractButton::clicked,
@@ -98,7 +98,7 @@ QPointer<QWidget> QuPhoto::makeWidget(Questionnaire* questionnaire)
     }
 
     QVBoxLayout* button_layout = new QVBoxLayout();
-    button_layout->setContentsMargins(UiConst::NO_MARGINS);
+    button_layout->setContentsMargins(uiconst::NO_MARGINS);
     if (m_have_camera) {
         button_layout->addWidget(button_open_camera, 0, align);
     } else {
@@ -112,16 +112,16 @@ QPointer<QWidget> QuPhoto::makeWidget(Questionnaire* questionnaire)
     QWidget* button_widget = new QWidget();
     button_widget->setLayout(button_layout);
 
-    m_incomplete_optional = UiFunc::iconWidget(
-                UiFunc::iconFilename(UiConst::ICON_FIELD_INCOMPLETE_OPTIONAL));
-    m_incomplete_mandatory = UiFunc::iconWidget(
-                UiFunc::iconFilename(UiConst::ICON_FIELD_INCOMPLETE_MANDATORY));
-    m_field_problem = UiFunc::iconWidget(
-                UiFunc::iconFilename(UiConst::ICON_FIELD_PROBLEM));
+    m_incomplete_optional = uifunc::iconWidget(
+                uifunc::iconFilename(uiconst::ICON_FIELD_INCOMPLETE_OPTIONAL));
+    m_incomplete_mandatory = uifunc::iconWidget(
+                uifunc::iconFilename(uiconst::ICON_FIELD_INCOMPLETE_MANDATORY));
+    m_field_problem = uifunc::iconWidget(
+                uifunc::iconFilename(uiconst::ICON_FIELD_PROBLEM));
     m_image = new AspectRatioPixmapLabel();
 
     QVBoxLayout* image_layout = new QVBoxLayout();
-    image_layout->setContentsMargins(UiConst::NO_MARGINS);
+    image_layout->setContentsMargins(uiconst::NO_MARGINS);
     image_layout->addWidget(m_incomplete_optional, 0, align);
     image_layout->addWidget(m_incomplete_mandatory, 0, align);
     image_layout->addWidget(m_field_problem, 0, align);
@@ -134,7 +134,7 @@ QPointer<QWidget> QuPhoto::makeWidget(Questionnaire* questionnaire)
                                            QSizePolicy::Maximum);
 
     QHBoxLayout* top_layout = new QHBoxLayout();
-    top_layout->setContentsMargins(UiConst::NO_MARGINS);
+    top_layout->setContentsMargins(uiconst::NO_MARGINS);
     top_layout->addWidget(button_widget, 0, align);
     top_layout->addWidget(image_and_marker_widget, 0, align);
     top_layout->addStretch();
@@ -209,7 +209,7 @@ void QuPhoto::takePhoto()
     SlowGuiGuard guard = m_questionnaire->app().getSlowGuiGuard();
 
     QString stylesheet = m_questionnaire->getSubstitutedCss(
-                UiConst::CSS_CAMCOPS_CAMERA);
+                uiconst::CSS_CAMCOPS_CAMERA);
     m_camera = new Camera(stylesheet);
 
     connect(m_camera, &Camera::imageCaptured,
@@ -226,7 +226,7 @@ void QuPhoto::resetFieldToNull()
     if (m_fieldref->isNull()) {
         return;
     }
-    if (!UiFunc::confirm(tr("Delete this photo?"),
+    if (!uifunc::confirm(tr("Delete this photo?"),
                          tr("Confirm deletion"),
                          tr("Yes, delete"),
                          tr("No, cancel"),

@@ -23,6 +23,7 @@
 #include <QStyleOptionButton>
 #include "common/gui_defines.h"
 #include "common/layouts.h"
+#include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
 #include "widgets/labelwordwrapwide.h"
 
@@ -64,8 +65,8 @@ void ClickableLabelWordWrapWide::commonConstructor(bool stretch)
     }
 
     setLayout(m_layout);
-    setSizePolicy(stretch ? UiFunc::expandingFixedHFWPolicy()
-                          : UiFunc::maximumFixedHFWPolicy());
+    setSizePolicy(stretch ? sizehelpers::expandingFixedHFWPolicy()
+                          : sizehelpers::maximumFixedHFWPolicy());
     // http://doc.qt.io/qt-5/layout.html
 
     adjustSize();
@@ -109,7 +110,7 @@ QSize ClickableLabelWordWrapWide::translateSize(const QSize& size) const
 {
     QStyleOptionButton opt;
     initStyleOption(&opt);  // protected
-    return size + UiFunc::pushButtonExtraSizeRequired(this, &opt, size);
+    return size + sizehelpers::pushButtonExtraSizeRequired(this, &opt, size);
 }
 
 
@@ -142,7 +143,7 @@ void ClickableLabelWordWrapWide::resizeEvent(QResizeEvent* event)
     qDebug() << Q_FUNC_INFO;
 #endif
     QPushButton::resizeEvent(event);
-    UiFunc::resizeEventForHFWParentWidget(this);
+    SizeHelpers::resizeEventForHFWParentWidget(this);
 }
 #endif
 

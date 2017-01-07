@@ -160,7 +160,7 @@ void QuLineEdit::fieldValueChanged(const FieldRef* fieldref,
     if (!m_editor) {
         return;
     }
-    UiFunc::setPropertyMissing(m_editor, fieldref->missingInput());
+    uifunc::setPropertyMissing(m_editor, fieldref->missingInput());
     if (originator != this) {
         // Now we're detecting textChanged, we have to block signals for this:
         const QSignalBlocker blocker(m_editor);

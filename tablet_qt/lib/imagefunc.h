@@ -21,6 +21,8 @@
 class QVideoFrame;
 
 
-namespace ImageFunc {
-    QImage imageFromVideoFrame(const QVideoFrame& buffer);
-}
+namespace imagefunc {
+
+QImage imageFromVideoFrame(const QVideoFrame& buffer);
+
+}  // namespace imagefunc

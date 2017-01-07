@@ -41,7 +41,7 @@ QuHeading::QuHeading(FieldRefPtr fieldref) :
 
 void QuHeading::commonConstructor()
 {
-    m_fontsize = UiConst::FontSize::Heading;
+    m_fontsize = uiconst::FontSize::Heading;
     m_bold = false;
 }
 
@@ -54,7 +54,7 @@ QPointer<QWidget> QuHeading::makeWidget(Questionnaire* questionnaire)
 
     m_container = new BaseWidget();
     HBoxLayout* layout = new HBoxLayout();
-    m_container->setObjectName(CssConst::QUHEADING);
+    m_container->setObjectName(cssconst::QUHEADING);
     m_container->setLayout(layout);
     layout->addWidget(m_label, 0, Qt::AlignLeft | Qt::AlignTop);
     layout->addStretch();

@@ -24,7 +24,7 @@
 GlobalMenu::GlobalMenu(CamcopsApp& app) :
     MenuWindow(app,
                tr("Global function and multiple aspects of psychopathology"),
-               UiFunc::iconFilename(UiConst::ICON_GLOBAL))
+               uifunc::iconFilename(uiconst::ICON_GLOBAL))
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),

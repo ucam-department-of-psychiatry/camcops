@@ -92,11 +92,11 @@ void PasswordChangeDialog::okClicked()
     QString newpw1 = m_editor_new1->text();
     QString newpw2 = m_editor_new2->text();
     if (newpw1.isEmpty()) {
-        UiFunc::alert(tr("Can't set an empty password"));
+        uifunc::alert(tr("Can't set an empty password"));
         return;
     }
     if (newpw1 != newpw2) {
-        UiFunc::alert(tr("New passwords don't match"));
+        uifunc::alert(tr("New passwords don't match"));
         return;
     }
     accept();

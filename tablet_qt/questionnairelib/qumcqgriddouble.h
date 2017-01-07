@@ -16,13 +16,13 @@
 */
 
 #pragma once
+#include "common/layouts.h"
 #include "namevalueoptions.h"
 #include "mcqgridsubtitle.h"
 #include "quelement.h"
 #include "questionwithtwofields.h"
 
 class BooleanWidget;
-class QGridLayout;
 class QuMCQGridDoubleSignaller;
 
 
@@ -56,7 +56,7 @@ protected:
     virtual FieldRefPtrList fieldrefs() const override;
     int spacercol(bool first_field) const;
     int colnum(bool first_field, int value_index) const;
-    void addOptions(QGridLayout* grid, int row);
+    void addOptions(GridLayout* grid, int row);
 protected slots:
     void clicked(int question_index, bool first_field, int value_index);
     void fieldValueChanged(int question_index, bool first_field,

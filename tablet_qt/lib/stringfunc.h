@@ -19,43 +19,44 @@
 #include <QStringList>
 
 
-namespace StringFunc
-{
-    // ========================================================================
-    // Make sequences of strings
-    // ========================================================================
+namespace stringfunc {
 
-    QStringList strseq(const QString& prefix, int first, int last);
-    // Example: stringSequence("q", 1, 3) -> {"q1", "q2", "q3"}
+// ============================================================================
+// Make sequences of strings
+// ============================================================================
 
-    QStringList strseq(const QString& prefix, int first, int last,
-                       const QString& suffix);
-    QStringList strseq(const QString& prefix, int first, int last,
-                       const QStringList& suffixes);
+QStringList strseq(const QString& prefix, int first, int last);
+// Example: stringSequence("q", 1, 3) -> {"q1", "q2", "q3"}
 
-    QStringList strseq(const QStringList& prefixes, int first, int last);
-    QStringList strseq(const QStringList& prefixes, int first, int last,
-                       const QStringList& suffixes);
+QStringList strseq(const QString& prefix, int first, int last,
+                   const QString& suffix);
+QStringList strseq(const QString& prefix, int first, int last,
+                   const QStringList& suffixes);
 
-    // ========================================================================
-    // Other string formatting
-    // ========================================================================
+QStringList strseq(const QStringList& prefixes, int first, int last);
+QStringList strseq(const QStringList& prefixes, int first, int last,
+                   const QStringList& suffixes);
 
-    QString strnum(const QString& prefix, int num);
+// ============================================================================
+// Other string formatting
+// ============================================================================
 
-    // ========================================================================
-    // HTML processing
-    // ========================================================================
+QString strnum(const QString& prefix, int num);
 
-    QString bold(const QString& str);
-    QString bold(int x);
-    QString joinHtmlLines(const QStringList& lines);
-    QString& toHtmlLinebreaks(QString& str,
-                              bool convert_embedded_literals = true);
+// ============================================================================
+// HTML processing
+// ============================================================================
 
-    // ========================================================================
-    // Other string processing
-    // ========================================================================
+QString bold(const QString& str);
+QString bold(int x);
+QString joinHtmlLines(const QStringList& lines);
+QString& toHtmlLinebreaks(QString& str,
+                          bool convert_embedded_literals = true);
 
-    QString& replaceFirst(QString& str, const QString& from, const QString& to);
-}
+// ============================================================================
+// Other string processing
+// ============================================================================
+
+QString& replaceFirst(QString& str, const QString& from, const QString& to);
+
+}  // namespace stringfunc

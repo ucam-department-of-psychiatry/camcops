@@ -197,13 +197,16 @@ VerticalScrollArea::VerticalScrollArea(QWidget* parent) :
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
     // RNC addition:
-    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+    // setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
     // ... see notes at end
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    // ... even better, when also we set our maximum height upon widget resize?
 
     // NOT THIS: enlarges the scroll area rather than scrolling...
     // setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
-    // setSizePolicy(UiFunc::expandingMaximumHFWPolicy());  // doesn't work
+    // NOT THIS: doesn't work
+    // setSizePolicy(UiFunc::expandingMaximumHFWPolicy());
 
     setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
     // http://doc.qt.io/qt-5/qabstractscrollarea.html#SizeAdjustPolicy-enum
@@ -219,20 +222,33 @@ bool VerticalScrollArea::eventFilter(QObject* o, QEvent* e)
     // widget
     if (o && o == widget() && e && e->type() == QEvent::Resize) {
 
-//#ifdef UPDATE_GEOMETRY_FROM_EVENT_FILTER_POSSIBLY_DANGEROUS
-//        if (m_updating_geometry) {
-//#ifdef DEBUG_LAYOUT
-//            qDebug() << Q_FUNC_INFO << "- preventing infinite loop";
-//#endif
-//            return false;
-//        }
-//#endif
+#ifdef UPDATE_GEOMETRY_FROM_EVENT_FILTER_POSSIBLY_DANGEROUS
+        if (m_updating_geometry) {
+#ifdef DEBUG_LAYOUT
+            qDebug() << Q_FUNC_INFO << "- preventing infinite loop";
+#endif
+            return false;
+        }
+#endif
 
         QWidget* w = widget();  // The contained widget being scrolled.
 
         // RNC: HORIZONTAL: this plus the Expanding policy.
-        setMinimumWidth(w->minimumSizeHint().width() +
-                        verticalScrollBar()->width());
+        int widget_min_width = w->minimumSizeHint().width();
+        int scrollbar_width = verticalScrollBar()->width();
+        int new_min_width = widget_min_width + scrollbar_width;
+        int new_max_height = w->maximumHeight();
+#ifdef DEBUG_LAYOUT
+        qDebug().nospace()
+                << Q_FUNC_INFO
+                << "- Setting minimum width to " << new_min_width
+                << " (" << widget_min_width << " for widget, "
+                << scrollbar_width << " for scrollbar); "
+                << "setting maximum height to widget's maximum of "
+                << new_max_height;
+#endif
+        setMinimumWidth(new_min_width);
+        setMaximumHeight(new_max_height);
 
         // RNC:
         // qDebug().nospace()

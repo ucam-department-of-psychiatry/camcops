@@ -26,69 +26,73 @@
 #include <QLocale>
 #include <QValidator>
 
-namespace Numeric {
+namespace numeric {
 
-    // Since there are many integer types, we templatize these:
+// Since there are many integer types, we templatize these:
 
-    // ========================================================================
-    // Overloaded functions to convert to an integer type
-    // ========================================================================
+// ============================================================================
+// Overloaded functions to convert to an integer type
+// ============================================================================
 
-    int strToNumber(const QString& str, int type_dummy);
-    int localeStrToNumber(const QString& str, bool& ok,
-                          const QLocale& locale, int type_dummy);
-    qlonglong strToNumber(const QString& str, qlonglong type_dummy);
-    qlonglong localeStrToNumber(const QString&, bool& ok,
-                                const QLocale& locale, qlonglong type_dummy);
-    qulonglong strToNumber(const QString& str, qulonglong type_dummy);
-    qulonglong localeStrToNumber(const QString&, bool& ok,
-                                 const QLocale& locale, qulonglong type_dummy);
+int strToNumber(const QString& str, int type_dummy);
+int localeStrToNumber(const QString& str, bool& ok,
+                      const QLocale& locale, int type_dummy);
+qlonglong strToNumber(const QString& str, qlonglong type_dummy);
+qlonglong localeStrToNumber(const QString&, bool& ok,
+                            const QLocale& locale, qlonglong type_dummy);
+qulonglong strToNumber(const QString& str, qulonglong type_dummy);
+qulonglong localeStrToNumber(const QString&, bool& ok,
+                             const QLocale& locale, qulonglong type_dummy);
 
-    // ========================================================================
-    // Digit counting; first n digits
-    // ========================================================================
-
-    template<typename T>
-    int numDigitsInteger(const T& number, bool count_sign = false);
-
-    template<typename T>
-    int firstDigitsInteger(const T& number, int n_digits);
-
-    template<typename T>
-    bool extendedIntegerMustExceedTop(const T& number, const T& bottom,
-                                      const T& top);
-
-    template<typename T>
-    bool extendedIntegerMustBeLessThanBottom(const T& number, const T& bottom,
-                                             const T& top);
-
-    // ========================================================================
-    // For integer validation
-    // ========================================================================
-
-    template<typename T>
-    bool isValidStartToInteger(const T& number, const T& bottom, const T& top);
-
-    template<typename T>
-    QValidator::State validateInteger(QString& s, const QLocale& locale,
-                                      const T& bottom, const T& top,
-                                      bool allow_empty);
-
-    // ========================================================================
-    // For double validation:
-    // ========================================================================
-
-    int numDigitsDouble(double number, int max_dp = 50);
-    double firstDigitsDouble(double number, int n_digits, int max_dp = 50);
-    bool isValidStartToDouble(double number, double bottom, double top);
-    bool extendedDoubleMustExceed(double number, double bottom, double top);
-    bool extendedDoubleMustBeLessThan(double number, double bottom, double top);
-
-}
-
+// ============================================================================
+// Digit counting; first n digits
+// ============================================================================
 
 template<typename T>
-int Numeric::numDigitsInteger(const T& number, bool count_sign)
+int numDigitsInteger(const T& number, bool count_sign = false);
+
+template<typename T>
+int firstDigitsInteger(const T& number, int n_digits);
+
+template<typename T>
+bool extendedIntegerMustExceedTop(const T& number, const T& bottom,
+                                  const T& top);
+
+template<typename T>
+bool extendedIntegerMustBeLessThanBottom(const T& number, const T& bottom,
+                                         const T& top);
+
+// ============================================================================
+// For integer validation
+// ============================================================================
+
+template<typename T>
+bool isValidStartToInteger(const T& number, const T& bottom, const T& top);
+
+template<typename T>
+QValidator::State validateInteger(QString& s, const QLocale& locale,
+                                  const T& bottom, const T& top,
+                                  bool allow_empty);
+
+// ============================================================================
+// For double validation:
+// ============================================================================
+
+int numDigitsDouble(double number, int max_dp = 50);
+double firstDigitsDouble(double number, int n_digits, int max_dp = 50);
+bool isValidStartToDouble(double number, double bottom, double top);
+bool extendedDoubleMustExceed(double number, double bottom, double top);
+bool extendedDoubleMustBeLessThan(double number, double bottom, double top);
+
+}  // namespace numeric
+
+
+// ============================================================================
+// Templated functions
+// ============================================================================
+
+template<typename T>
+int numeric::numDigitsInteger(const T& number, bool count_sign)
 {
     // Counts the number of digits in an integer type.
     int digits = 0;
@@ -106,7 +110,7 @@ int Numeric::numDigitsInteger(const T& number, bool count_sign)
 
 
 template<typename T>
-int Numeric::firstDigitsInteger(const T& number, int n_digits)
+int numeric::firstDigitsInteger(const T& number, int n_digits)
 {
     // Returns the first n_digits of an integer, as an integer.
     int current_digits = numDigitsInteger(number);
@@ -120,7 +124,7 @@ int Numeric::firstDigitsInteger(const T& number, int n_digits)
 
 
 template<typename T>
-bool Numeric::extendedIntegerMustExceedTop(const T& number,
+bool numeric::extendedIntegerMustExceedTop(const T& number,
                                            const T& bottom,
                                            const T& top)
 {
@@ -160,7 +164,7 @@ bool Numeric::extendedIntegerMustExceedTop(const T& number,
 
 
 template<typename T>
-bool Numeric::extendedIntegerMustBeLessThanBottom(const T& number,
+bool numeric::extendedIntegerMustBeLessThanBottom(const T& number,
                                                   const T& bottom,
                                                   const T& top)
 {
@@ -200,7 +204,7 @@ bool Numeric::extendedIntegerMustBeLessThanBottom(const T& number,
 
 
 template<typename T>
-bool Numeric::isValidStartToInteger(const T& number, const T& bottom,
+bool numeric::isValidStartToInteger(const T& number, const T& bottom,
                                     const T& top)
 {
     // Is number an integer that is a valid start to typing a number between
@@ -258,7 +262,7 @@ bool Numeric::isValidStartToInteger(const T& number, const T& bottom,
 }
 
 template<typename T>
-QValidator::State Numeric::validateInteger(QString& s, const QLocale& locale,
+QValidator::State numeric::validateInteger(QString& s, const QLocale& locale,
                                            const T& bottom, const T& top,
                                            bool allow_empty)
 {
@@ -328,7 +332,7 @@ QValidator::State Numeric::validateInteger(QString& s, const QLocale& locale,
 
     // Is the number on its way to being something valid, or is it already
     // outside the permissible range?
-    if (Numeric::isValidStartToInteger(i, bottom, top)) {
+    if (numeric::isValidStartToInteger(i, bottom, top)) {
 #ifdef DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO
                  << "within range for number of digits -> Intermediate;"

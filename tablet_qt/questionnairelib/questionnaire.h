@@ -52,7 +52,7 @@ public:
     void setWithinChain(bool within_chain = true);
 
     bool readOnly() const;
-    int fontSizePt(UiConst::FontSize fontsize) const;
+    int fontSizePt(uiconst::FontSize fontsize) const;
 
     void openSubWidget(OpenableWidget* widget);
     CamcopsApp& app() const;

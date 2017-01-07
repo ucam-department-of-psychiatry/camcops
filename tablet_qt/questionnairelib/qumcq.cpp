@@ -103,7 +103,7 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
     } else {
         mainlayout = new VBoxLayout();
     }
-    mainlayout->setContentsMargins(UiConst::NO_MARGINS);
+    mainlayout->setContentsMargins(uiconst::NO_MARGINS);
     mainwidget->setLayout(mainlayout);
     // QGridLayout, but not QVBoxLayout or QHBoxLayout, can use addChildLayout;
     // the latter use addWidget.
@@ -139,9 +139,9 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
             ClickableLabelWordWrapWide* namelabel =
                     new ClickableLabelWordWrapWide(nvp.name());
             namelabel->setEnabled(!read_only);
-            int fontsize = questionnaire->fontSizePt(UiConst::FontSize::Normal);
+            int fontsize = questionnaire->fontSizePt(uiconst::FontSize::Normal);
             bool italic = false;
-            QString css = UiFunc::textCSS(fontsize, m_bold, italic);
+            QString css = uifunc::textCSS(fontsize, m_bold, italic);
             namelabel->setStyleSheet(css);
 
             if (!read_only) {
@@ -150,7 +150,7 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
                         std::bind(&QuMCQ::clicked, this, i));
             }
             HBoxLayout* itemlayout = new HBoxLayout();
-            itemlayout->setContentsMargins(UiConst::NO_MARGINS);
+            itemlayout->setContentsMargins(uiconst::NO_MARGINS);
             itemwidget->setLayout(itemlayout);
             itemlayout->addWidget(w, 0, Qt::AlignTop);
             itemlayout->addWidget(namelabel, 0, Qt::AlignVCenter);  // different
@@ -168,9 +168,9 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
     if (m_show_instruction) {
         // Higher-level widget containing {instructions, actual MCQ}
         VBoxLayout* layout_w_instr = new VBoxLayout();
-        layout_w_instr->setContentsMargins(UiConst::NO_MARGINS);
+        layout_w_instr->setContentsMargins(uiconst::NO_MARGINS);
         LabelWordWrapWide* instructions = new LabelWordWrapWide(tr("Pick one:"));
-        instructions->setObjectName(CssConst::MCQ_INSTRUCTION);
+        instructions->setObjectName(cssconst::MCQ_INSTRUCTION);
         layout_w_instr->addWidget(instructions);
         layout_w_instr->addWidget(mainwidget);
         QPointer<QWidget> widget_w_instr = new BaseWidget();
@@ -209,7 +209,7 @@ void QuMCQ::setFromField()
 
 void QuMCQ::fieldValueChanged(const FieldRef* fieldref)
 {
-    McqFunc::setResponseWidgets(m_options, m_widgets, fieldref);
+    mcqfunc::setResponseWidgets(m_options, m_widgets, fieldref);
 }
 
 

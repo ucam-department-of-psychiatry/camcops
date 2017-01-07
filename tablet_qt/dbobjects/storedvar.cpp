@@ -60,7 +60,7 @@ const QMap<QVariant::Type, QString> TYPEMAP{
 StoredVar::StoredVar(CamcopsApp& app, const QSqlDatabase& db,
                      const QString& name, QVariant::Type type,
                      QVariant default_value) :
-    DatabaseObject(app, db, STOREDVAR_TABLENAME, DbConst::PK_FIELDNAME,
+    DatabaseObject(app, db, STOREDVAR_TABLENAME, dbconst::PK_FIELDNAME,
                    true, false, false, false),
     m_name(name),
     m_type(type),
@@ -91,7 +91,7 @@ StoredVar::StoredVar(CamcopsApp& app, const QSqlDatabase& db,
         }
     }
     if (m_value_fieldname.isEmpty()) {
-        UiFunc::stopApp(QString(
+        uifunc::stopApp(QString(
             "StoredVar::StoredVar: m_value_fieldname unknown to StoredVar "
             "with name=%1, type=%2; is the type missing from COLMAP "
             "(in storedvar.cpp)?")
@@ -99,7 +99,7 @@ StoredVar::StoredVar(CamcopsApp& app, const QSqlDatabase& db,
     }
     if (!TYPEMAP.contains(type)) {
         qCritical() << Q_FUNC_INFO << "QVariant type unknown:" << type;
-        UiFunc::stopApp(
+        uifunc::stopApp(
             "StoredVar::StoredVar: type unknown to StoredVar; see debug "
             "console for details and check TYPEMAP (in storedvar.cpp)");
     }
@@ -155,6 +155,6 @@ QString StoredVar::name() const
 
 void StoredVar::makeIndexes()
 {
-    DbFunc::createIndex(m_db, "_idx_name",
+    dbfunc::createIndex(m_db, "_idx_name",
                         STOREDVAR_TABLENAME, {NAME_FIELDNAME});
 }

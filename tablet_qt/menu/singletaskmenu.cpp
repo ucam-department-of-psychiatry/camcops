@@ -38,7 +38,7 @@ SingleTaskMenu::SingleTaskMenu(const QString& tablename, CamcopsApp& app) :
     m_p_header->setTitle(m_title);
     m_anonymous = specimen->isAnonymous();
     if (m_anonymous) {
-        setIcon(UiFunc::iconFilename(UiConst::ICON_ANONYMOUS));
+        setIcon(uifunc::iconFilename(uiconst::ICON_ANONYMOUS));
     }
 
     // m_items is EXPENSIVE (and depends on security), so leave it to build()
@@ -63,7 +63,7 @@ void SingleTaskMenu::build()
     TaskPtr specimen = factory->create(m_tablename);
 
     // Common items
-    QString info_icon_filename = UiFunc::iconFilename(UiConst::ICON_INFO);
+    QString info_icon_filename = uifunc::iconFilename(uiconst::ICON_INFO);
     m_items = {
         MenuItem(tr("Options")).setLabelOnly(),
     };
@@ -75,7 +75,7 @@ void SingleTaskMenu::build()
             tr("Task information"),
             HtmlMenuItem(
                 m_title,
-                FileFunc::taskHtmlFilename(specimen->infoFilenameStem()),
+                filefunc::taskHtmlFilename(specimen->infoFilenameStem()),
                 info_icon_filename),
             info_icon_filename
         )
@@ -112,13 +112,13 @@ void SingleTaskMenu::addTask()
         QString reason = QString("%1<br><br>%2: %3")
                 .arg(tr("You cannot add this task with your current settings."))
                 .arg(tr("Current reason"))
-                .arg(StringFunc::bold(task->whyNotPermissible()));
-        UiFunc::alert(reason, tr("Not permitted to add task"));
+                .arg(stringfunc::bold(task->whyNotPermissible()));
+        uifunc::alert(reason, tr("Not permitted to add task"));
         return;
     }
     if (!task->isAnonymous()) {
         int patient_id = m_app.selectedPatientId();
-        if (patient_id == DbConst::NONEXISTENT_PK) {
+        if (patient_id == dbconst::NONEXISTENT_PK) {
             qCritical() << Q_FUNC_INFO << "- no patient selected";
             return;
         }
@@ -151,22 +151,22 @@ void SingleTaskMenu::showTaskStatus() const
     auto add = [this, &info](const char* desc, const QString& value) -> void {
         info.append(QString("%1: %2")
                     .arg(tr(desc))
-                    .arg(StringFunc::bold(value)));
+                    .arg(stringfunc::bold(value)));
     };
     add("Long name", specimen->longname());
     add("Short name", specimen->shortname());
     add("Main database table name", specimen->tablename());
-    add("Anonymous", UiFunc::yesNo(specimen->isAnonymous()));
-    add("Has a clinician", UiFunc::yesNo(specimen->hasClinician()));
-    add("Has a respondent", UiFunc::yesNo(specimen->hasRespondent()));
-    add("Prohibits clinical use", UiFunc::yesNo(specimen->prohibitsClinical()));
-    add("Prohibits commercial use", UiFunc::yesNo(specimen->prohibitsCommercial()));
-    add("Prohibits educational use", UiFunc::yesNo(specimen->prohibitsEducational()));
-    add("Prohibits research use", UiFunc::yesNo(specimen->prohibitsResearch()));
-    add("Permissible (creatable) with current settings", UiFunc::yesNo(specimen->isTaskPermissible()));
+    add("Anonymous", uifunc::yesNo(specimen->isAnonymous()));
+    add("Has a clinician", uifunc::yesNo(specimen->hasClinician()));
+    add("Has a respondent", uifunc::yesNo(specimen->hasRespondent()));
+    add("Prohibits clinical use", uifunc::yesNo(specimen->prohibitsClinical()));
+    add("Prohibits commercial use", uifunc::yesNo(specimen->prohibitsCommercial()));
+    add("Prohibits educational use", uifunc::yesNo(specimen->prohibitsEducational()));
+    add("Prohibits research use", uifunc::yesNo(specimen->prohibitsResearch()));
+    add("Permissible (creatable) with current settings", uifunc::yesNo(specimen->isTaskPermissible()));
     add("If not, why not permissible", specimen->whyNotPermissible());
-    add("Fully functional", UiFunc::yesNo(!specimen->isCrippled()));
-    add("Extra strings present from server", UiFunc::yesNo(specimen->hasExtraStrings()));
-    add("Editable once created", UiFunc::yesNo(specimen->isEditable()));
-    UiFunc::alert(info.join("<br>"), tr("Task status"));
+    add("Fully functional", uifunc::yesNo(!specimen->isCrippled()));
+    add("Extra strings present from server", uifunc::yesNo(specimen->hasExtraStrings()));
+    add("Editable once created", uifunc::yesNo(specimen->isEditable()));
+    uifunc::alert(info.join("<br>"), tr("Task status"));
 }

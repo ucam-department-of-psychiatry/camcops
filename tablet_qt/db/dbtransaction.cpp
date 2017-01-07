@@ -24,16 +24,16 @@ DbTransaction::DbTransaction(const QSqlDatabase& db) :
     m_db(db),
     m_fail(false)
 {
-    DbFunc::exec(m_db, "BEGIN TRANSACTION");
+    dbfunc::exec(m_db, "BEGIN TRANSACTION");
 }
 
 
 DbTransaction::~DbTransaction()
 {
     if (m_fail) {
-        DbFunc::exec(m_db, "ROLLBACK");
+        dbfunc::exec(m_db, "ROLLBACK");
     } else {
-        DbFunc::exec(m_db, "COMMIT");
+        dbfunc::exec(m_db, "COMMIT");
     }
 }
 

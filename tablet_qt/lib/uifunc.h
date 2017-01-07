@@ -19,173 +19,141 @@
 #include <QObject>
 #include <QSize>
 #include <QString>
-#include <QStyle>
 
 class QAbstractButton;
-class QFrame;
 class QLabel;
 class QLayout;
 class QPainter;
 class QPlainTextEdit;
 class QPointF;
-class QPushButton;
-class QStyleOptionButton;
-class QStyleOptionFrame;
 
 
-namespace UiFunc {
+namespace uifunc {
 
-    // ========================================================================
-    // Translation convenience function
-    // ========================================================================
+// ============================================================================
+// Translation convenience function
+// ============================================================================
 
-    QString tr(const char* text);
+QString tr(const char* text);
 
-    // ========================================================================
-    // QPixmap loader
-    // ========================================================================
+// ============================================================================
+// QPixmap loader
+// ============================================================================
 
-    QPixmap getPixmap(const QString& filename, const QSize& size = QSize(),
-                      bool cache = true);
+QPixmap getPixmap(const QString& filename, const QSize& size = QSize(),
+                  bool cache = true);
 
-    // ========================================================================
-    // Icons
-    // ========================================================================
+// ============================================================================
+// Icons
+// ============================================================================
 
-    QLabel* iconWidget(const QString& filename,
-                       QWidget* parent = nullptr,
-                       bool scale = true);
-    QPixmap addCircleBackground(const QPixmap& image, const QColor& colour,
-                                bool behind = true,
-                                qreal pixmap_opacity = 1.0);
-    QPixmap addPressedBackground(const QPixmap& image, bool behind = true);
-    QPixmap addUnpressedBackground(const QPixmap& image, bool behind = true);
-    QPixmap makeDisabledIcon(const QPixmap& image);
-    QLabel* blankIcon(QWidget* parent = nullptr);
-    QString resourceFilename(const QString& resourcepath);
-    QString iconFilename(const QString& basefile);
+QLabel* iconWidget(const QString& filename,
+                   QWidget* parent = nullptr,
+                   bool scale = true);
+QPixmap addCircleBackground(const QPixmap& image, const QColor& colour,
+                            bool behind = true,
+                            qreal pixmap_opacity = 1.0);
+QPixmap addPressedBackground(const QPixmap& image, bool behind = true);
+QPixmap addUnpressedBackground(const QPixmap& image, bool behind = true);
+QPixmap makeDisabledIcon(const QPixmap& image);
+QLabel* blankIcon(QWidget* parent = nullptr);
+QString resourceFilename(const QString& resourcepath);
+QString iconFilename(const QString& basefile);
 
-    // ========================================================================
-    // Buttons
-    // ========================================================================
+// ============================================================================
+// Buttons
+// ============================================================================
 
-    QString iconButtonStylesheet(const QString& normal_filename,
-                                 const QString& pressed_filename);
-    QAbstractButton* iconButton(const QString& normal_filename,
-                                const QString& pressed_filename = "",
-                                QWidget* parent = nullptr);
-    // QString iconPngFilename(const QString& stem);
-    // QString iconTouchedPngFilename(const QString& stem);
+QString iconButtonStylesheet(const QString& normal_filename,
+                             const QString& pressed_filename);
+QAbstractButton* iconButton(const QString& normal_filename,
+                            const QString& pressed_filename = "",
+                            QWidget* parent = nullptr);
+// QString iconPngFilename(const QString& stem);
+// QString iconTouchedPngFilename(const QString& stem);
 
-    // ========================================================================
-    // Widget manipulations, and other Qt internals
-    // ========================================================================
+// ============================================================================
+// Widget manipulations, and other Qt internals
+// ============================================================================
 
-    // QString cssColour(const QColor& colour);
-    // void setBackgroundColour(QWidget* widget, const QColor& colour);
-    void removeAllChildWidgets(QObject* object);
-    Qt::Alignment combineAlignment(Qt::Alignment halign, Qt::Alignment valign);
-    void repolish(QWidget* widget);
-    void setProperty(QWidget* widget, const QString& property,
-                     const QVariant& value, bool repolish = true);
-    QString cssBoolean(bool value);
-    // And some specific ones:
-    void setPropertyItalic(QWidget* widget, bool italic, bool repolish = true);
-    void setPropertyMissing(QWidget* widget, bool missing,
-                            bool repolish = true);
-    // Drawing text with alignment at a point (not a rectangle):
-    void drawText(QPainter& painter, qreal x, qreal y, Qt::Alignment flags,
-                  const QString& text, QRectF* boundingRect = 0);
-    void drawText(QPainter& painter, const QPointF& point, Qt::Alignment flags,
-                  const QString& text, QRectF* boundingRect = 0);
+// QString cssColour(const QColor& colour);
+// void setBackgroundColour(QWidget* widget, const QColor& colour);
+void removeAllChildWidgets(QObject* object);
+Qt::Alignment combineAlignment(Qt::Alignment halign, Qt::Alignment valign);
+void repolish(QWidget* widget);
+void setProperty(QWidget* widget, const QString& property,
+                 const QVariant& value, bool repolish = true);
+QString cssBoolean(bool value);
+// And some specific ones:
+void setPropertyItalic(QWidget* widget, bool italic, bool repolish = true);
+void setPropertyMissing(QWidget* widget, bool missing,
+                        bool repolish = true);
+// Drawing text with alignment at a point (not a rectangle):
+void drawText(QPainter& painter, qreal x, qreal y, Qt::Alignment flags,
+              const QString& text, QRectF* boundingRect = 0);
+void drawText(QPainter& painter, const QPointF& point, Qt::Alignment flags,
+              const QString& text, QRectF* boundingRect = 0);
 
-    QSize contentsMarginsAsSize(const QWidget* widget);
-    QSize contentsMarginsAsSize(const QLayout* layout);
-    QSize spacingAsSize(const QLayout* layout);
-    QSize widgetExtraSizeForCssOrLayout(const QWidget* widget,
-                                        const QStyleOption* opt,
-                                        const QSize& child_size,
-                                        bool add_style_element,
-                                        QStyle::ContentsType contents_type);
-    QSize pushButtonExtraSizeRequired(const QPushButton* button,
-                                      const QStyleOptionButton* opt,
-                                      const QSize& child_size);
-    QSize frameExtraSizeRequired(const QFrame* frame,
-                                 const QStyleOptionFrame* opt,
-                                 const QSize& child_size);
-    QSize labelExtraSizeRequired(const QLabel* label,
-                                 const QStyleOptionFrame* opt,
-                                 const QSize& child_size);
+// void clearLayout(QLayout* layout);
 
-    // void clearLayout(QLayout* layout);
+// Handy functions:
 
-    // Size policies that take a few statements to create (i.e. have height-for-width set)
-    QSizePolicy expandingFixedHFWPolicy();
-    QSizePolicy expandingPreferredHFWPolicy();
-    QSizePolicy maximumFixedHFWPolicy();
-    QSizePolicy expandingMaximumHFWPolicy();
-    QSizePolicy maximumMaximumHFWPolicy();
-    QSizePolicy preferredPreferredHFWPolicy();
+void scrollToEnd(QPlainTextEdit* editor);
 
-    void resizeEventForHFWParentWidget(QWidget* widget);
+// ============================================================================
+// Killing the app
+// ============================================================================
 
-    // Handy functions:
+void stopApp(const QString& error,
+             const QString& title = "CamCOPS internal bug: stopping");
 
-    void scrollToEnd(QPlainTextEdit* editor);
+// ============================================================================
+// Alerts
+// ============================================================================
 
-    // ========================================================================
-    // Killing the app
-    // ========================================================================
+void alert(const QString& text,
+           const QString& title = QObject::tr("Alert"),
+           bool scroll = false);
+void alert(const QStringList& lines,
+           const QString& title = QObject::tr("Alert"),
+           bool scroll = false);
 
-    void stopApp(const QString& error,
-                 const QString& title = "CamCOPS internal bug: stopping");
+// ============================================================================
+// Confirmation
+// ============================================================================
 
-    // ========================================================================
-    // Alerts
-    // ========================================================================
+bool confirm(const QString& text, const QString& title,
+             QString yes, QString no, QWidget* parent);
 
-    void alert(const QString& text,
-               const QString& title = QObject::tr("Alert"),
-               bool scroll = false);
-    void alert(const QStringList& lines,
-               const QString& title = QObject::tr("Alert"),
-               bool scroll = false);
+// ============================================================================
+// Password checks/changes
+// ============================================================================
 
-    // ========================================================================
-    // Confirmation
-    // ========================================================================
+bool getPassword(const QString& text, const QString& title,
+                 QString& password, QWidget* parent);
+bool getOldNewPasswords(const QString& text, const QString& title,
+                        bool require_old_password,
+                        QString& old_password, QString& new_password,
+                        QWidget* parent);
 
-    bool confirm(const QString& text, const QString& title,
-                 QString yes, QString no, QWidget* parent);
+// ============================================================================
+// Fonts; CSS
+// ============================================================================
 
-    // ========================================================================
-    // Password checks/changes
-    // ========================================================================
+QString textCSS(int fontsize_pt, bool bold = false, bool italic = false,
+                const QString& colour = "");
 
-    bool getPassword(const QString& text, const QString& title,
-                     QString& password, QWidget* parent);
-    bool getOldNewPasswords(const QString& text, const QString& title,
-                            bool require_old_password,
-                            QString& old_password, QString& new_password,
-                            QWidget* parent);
+// ============================================================================
+// Opening URLS
+// ============================================================================
 
-    // ========================================================================
-    // Fonts; CSS
-    // ========================================================================
+void visitUrl(const QString& url);
 
-    QString textCSS(int fontsize_pt, bool bold = false, bool italic = false,
-                    const QString& colour = "");
+// ============================================================================
+// Strings
+// ============================================================================
 
-    // ========================================================================
-    // Opening URLS
-    // ========================================================================
+QString escapeString(const QString& string);
+QString yesNo(bool yes);
 
-    void visitUrl(const QString& url);
-
-    // ========================================================================
-    // Strings
-    // ========================================================================
-
-    QString escapeString(const QString& string);
-    QString yesNo(bool yes);
-}
+}  // namespace uifunc

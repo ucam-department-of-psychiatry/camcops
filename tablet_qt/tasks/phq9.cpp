@@ -26,10 +26,10 @@
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
-using MathFunc::anyNull;
-using MathFunc::sumInt;
-using StringFunc::strnum;
-using StringFunc::strseq;
+using mathfunc::anyNull;
+using mathfunc::sumInt;
+using stringfunc::strnum;
+using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int LAST_SCORED_Q = 9;
@@ -106,8 +106,8 @@ QStringList Phq9::summary() const
 
 QStringList Phq9::detail() const
 {
-    using StringFunc::bold;
-    using UiFunc::yesNo;
+    using stringfunc::bold;
+    using uifunc::yesNo;
 
     int totalscore = totalScore();
     QString sev = severity(totalscore);
@@ -212,9 +212,9 @@ int Phq9::nOtherSymptoms() const
 
 QString Phq9::severity(int score)
 {
-    if (score >= 20) return UiConst::SEVERE;
-    if (score >= 15) return UiConst::MODERATELY_SEVERE;
-    if (score >= 10) return UiConst::MODERATE;
-    if (score >=  5) return UiConst::MILD;
-    return UiConst::NONE;
+    if (score >= 20) return uiconst::SEVERE;
+    if (score >= 15) return uiconst::MODERATELY_SEVERE;
+    if (score >= 10) return uiconst::MODERATE;
+    if (score >=  5) return uiconst::MILD;
+    return uiconst::NONE;
 }

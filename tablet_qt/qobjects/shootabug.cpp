@@ -30,7 +30,7 @@ bool ShootABug::eventFilter(QObject* recv, QEvent* event)
     QMouseEvent* mevent = static_cast<QMouseEvent*>(event);
     if ((mevent->modifiers() & Qt::ControlModifier) &&
             (mevent->button() & Qt::LeftButton)) {  // Ctrl + left mouse click.
-        DebugFunc::dumpQObject(recv);
+        debugfunc::dumpQObject(recv);
         // Return false, if you want the application to receive the event;
         // return true to block.
         return true;  // Block

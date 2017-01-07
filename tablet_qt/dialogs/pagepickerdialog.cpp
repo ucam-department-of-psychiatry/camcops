@@ -21,6 +21,7 @@
 #include <QEvent>
 #include <QVBoxLayout>
 #include "common/layouts.h"
+#include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/imagebutton.h"
@@ -55,7 +56,7 @@ int PagePickerDialog::choose(int* new_page_number)
 
         ClickableLabelWordWrapWide* label = new ClickableLabelWordWrapWide(
                     page.text());
-        label->setSizePolicy(UiFunc::expandingFixedHFWPolicy());
+        label->setSizePolicy(sizehelpers::expandingFixedHFWPolicy());
         itemlayout->addWidget(label);
 
         ImageButton* icon = new ImageButton(page.iconFilename());
@@ -97,7 +98,7 @@ void PagePickerDialog::itemClicked(int item_index)
     }
     const PagePickerItem& page = m_pages.at(item_index);
     if (!page.selectable()) {
-        UiFunc::alert("You can’t select this page yet because preceding pages "
+        uifunc::alert("You can’t select this page yet because preceding pages "
                       "(marked in yellow) are incomplete.",
                       "Complete preceding pages first");
         return;

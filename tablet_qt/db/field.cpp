@@ -148,7 +148,7 @@ QVariant Field::value() const
 
 QString Field::prettyValue() const
 {
-    return Convert::prettyValue(m_value, m_type);
+    return convert::prettyValue(m_value, m_type);
 }
 
 
@@ -250,7 +250,7 @@ QString Field::sqlColumnType() const
         case QVariant::ByteArray:
             return "BLOB";
         default:
-            UiFunc::stopApp("Field::sqlColumnType: Unknown field type: " +
+            uifunc::stopApp("Field::sqlColumnType: Unknown field type: " +
                             m_type);
     }
     return "";
@@ -262,7 +262,7 @@ void Field::setFromDatabaseValue(const QVariant& db_value)
     // SQLite -> C++
     switch (m_type) {
         case QVariant::DateTime:
-            m_value = QVariant(DateTime::isoToDateTime(db_value.toString()));
+            m_value = QVariant(datetime::isoToDateTime(db_value.toString()));
             break;
         default:
             m_value = db_value;
@@ -281,7 +281,7 @@ QVariant Field::databaseValue() const
     }
     switch (m_type) {
         case QVariant::DateTime:
-            return QVariant(DateTime::datetimeToIsoMs(m_value.toDateTime()));
+            return QVariant(datetime::datetimeToIsoMs(m_value.toDateTime()));
         case QVariant::Uuid:
             return m_value.toString();
             // see http://doc.qt.io/qt-5/quuid.html#toString; e.g.

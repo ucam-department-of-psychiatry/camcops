@@ -31,7 +31,7 @@ const int PERIOD_MS = 100;  // should divide into whole seconds!
 
 QuCountdown::QuCountdown(int time_s) :
     m_time_s(time_s),
-    m_volume(UiConst::MAX_VOLUME),
+    m_volume(uiconst::MAX_VOLUME),
     m_running(false),
     m_timer(new QTimer())
 {
@@ -51,7 +51,7 @@ QuCountdown::~QuCountdown()
 
 QuCountdown* QuCountdown::setVolume(int volume)
 {
-    m_volume = qBound(UiConst::MIN_VOLUME, volume, UiConst::MAX_VOLUME);
+    m_volume = qBound(uiconst::MIN_VOLUME, volume, uiconst::MAX_VOLUME);
     if (m_player) {
         m_player->setVolume(m_volume);
     }
@@ -64,7 +64,7 @@ QPointer<QWidget> QuCountdown::makeWidget(Questionnaire* questionnaire)
     QPointer<QWidget> widget = new QWidget();
     widget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     QHBoxLayout* layout = new QHBoxLayout();
-    layout->setContentsMargins(UiConst::NO_MARGINS);
+    layout->setContentsMargins(uiconst::NO_MARGINS);
     widget->setLayout(layout);
 
     bool read_only = questionnaire->readOnly();
@@ -82,7 +82,7 @@ QPointer<QWidget> QuCountdown::makeWidget(Questionnaire* questionnaire)
     layout->addWidget(m_reset_button);
 
     m_label = new QLabel();
-    m_label->setObjectName(CssConst::COUNTDOWN_LABEL);
+    m_label->setObjectName(cssconst::COUNTDOWN_LABEL);
     layout->addWidget(m_label);
 
     if (read_only) {
@@ -99,7 +99,7 @@ QPointer<QWidget> QuCountdown::makeWidget(Questionnaire* questionnaire)
 
         m_player = QSharedPointer<QMediaPlayer>(new QMediaPlayer(),
                                                 &QObject::deleteLater);
-        m_player->setMedia(QUrl(UiConst::SOUND_COUNTDOWN_FINISHED));
+        m_player->setMedia(QUrl(uiconst::SOUND_COUNTDOWN_FINISHED));
     }
 
     reset();

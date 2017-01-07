@@ -70,5 +70,5 @@ void LogMessageBox::copyClicked()
     m_editor->selectAll();
     m_editor->copy();
     m_editor->moveCursor(QTextCursor::End);
-    UiFunc::scrollToEnd(m_editor.data());
+    uifunc::scrollToEnd(m_editor.data());
 }

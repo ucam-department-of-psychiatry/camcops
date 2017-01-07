@@ -27,7 +27,7 @@
 
 ChoosePatientMenu::ChoosePatientMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Choose patient"),
-               UiFunc::iconFilename(UiConst::ICON_CHOOSE_PATIENT))
+               uifunc::iconFilename(uiconst::ICON_CHOOSE_PATIENT))
 {
     connect(&m_app, &CamcopsApp::selectedPatientDetailsChanged,
             this, &ChoosePatientMenu::selectedPatientDetailsChanged,
@@ -99,7 +99,7 @@ void ChoosePatientMenu::editPatient(bool read_only)
 #endif
     PatientPtr patient = currentPatient();
     if (!patient) {
-        UiFunc::alert("Bug: null patient pointer in ChoosePatientMenu::editPatient");
+        uifunc::alert("Bug: null patient pointer in ChoosePatientMenu::editPatient");
         return;
     }
     OpenableWidget* widget = patient->editor(read_only);
@@ -112,7 +112,7 @@ void ChoosePatientMenu::deletePatient()
     qDebug() << Q_FUNC_INFO;
     PatientPtr patient = currentPatient();
     if (!patient) {
-        UiFunc::alert("Bug: null patient pointer in ChoosePatientMenu::editPatient");
+        uifunc::alert("Bug: null patient pointer in ChoosePatientMenu::editPatient");
         return;
     }
     QString patient_details = QString("%1, %2 (%3, DOB %4)\n%5")

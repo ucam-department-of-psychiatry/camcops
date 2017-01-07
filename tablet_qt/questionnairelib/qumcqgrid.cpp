@@ -16,7 +16,6 @@
 */
 
 #include "qumcqgrid.h"
-#include <QGridLayout>
 #include "common/cssconst.h"
 #include "questionnairelib/mcqfunc.h"
 #include "questionnairelib/questionnaire.h"
@@ -103,10 +102,10 @@ int QuMCQGrid::colnum(int value_index) const
 }
 
 
-void QuMCQGrid::addOptions(QGridLayout* grid, int row)
+void QuMCQGrid::addOptions(GridLayout* grid, int row)
 {
     for (int i = 0; i < m_options.size(); ++i) {
-        McqFunc::addOption(grid, row, colnum(i),
+        mcqfunc::addOption(grid, row, colnum(i),
                                m_options.at(i).name());
     }
 }
@@ -126,24 +125,24 @@ QPointer<QWidget> QuMCQGrid::makeWidget(Questionnaire* questionnaire)
     - And top alignment for the main title.
     */
 
-    QGridLayout* grid = new QGridLayout();
-    grid->setContentsMargins(UiConst::NO_MARGINS);
-    grid->setHorizontalSpacing(UiConst::MCQGRID_HSPACING);
-    grid->setVerticalSpacing(UiConst::MCQGRID_VSPACING);
+    GridLayout* grid = new GridLayout();
+    grid->setContentsMargins(uiconst::NO_MARGINS);
+    grid->setHorizontalSpacing(uiconst::MCQGRID_HSPACING);
+    grid->setVerticalSpacing(uiconst::MCQGRID_VSPACING);
 
     int n_subtitles = m_subtitles.size();
     int n_options = m_options.size();
     int n_rows = 1 + n_subtitles + m_question_field_pairs.size();
     int n_cols = m_options.size() + 2;
-    Qt::Alignment response_align = McqFunc::response_widget_align;
+    Qt::Alignment response_align = mcqfunc::response_widget_align;
     int row = 0;
 
     // First column: titles, subtitles, questions
     // Second and subsequent columns: options
 
     // Title row
-    McqFunc::addOptionBackground(grid, row, 0, n_cols);
-    McqFunc::addTitle(grid, row, m_title);
+    mcqfunc::addOptionBackground(grid, row, 0, n_cols);
+    mcqfunc::addTitle(grid, row, m_title);
     addOptions(grid, row);
     ++row;  // new row after title/option text
 
@@ -158,8 +157,8 @@ QPointer<QWidget> QuMCQGrid::makeWidget(Questionnaire* questionnaire)
             const McqGridSubtitle& sub = m_subtitles.at(s);
             if (sub.pos() == qi) {
                 // Yes. Add a subtitle row.
-                McqFunc::addOptionBackground(grid, row, 0, n_cols);
-                McqFunc::addSubtitle(grid, row, sub.string());
+                mcqfunc::addOptionBackground(grid, row, 0, n_cols);
+                mcqfunc::addSubtitle(grid, row, sub.string());
                 if (sub.repeatOptions()) {
                     addOptions(grid, row);
                 }
@@ -168,7 +167,7 @@ QPointer<QWidget> QuMCQGrid::makeWidget(Questionnaire* questionnaire)
         }
 
         // The question
-        McqFunc::addQuestion(grid, row,
+        mcqfunc::addQuestion(grid, row,
                                  m_question_field_pairs.at(qi).question());
 
         // The response widgets
@@ -199,11 +198,11 @@ QPointer<QWidget> QuMCQGrid::makeWidget(Questionnaire* questionnaire)
     }
 
     // Vertical lines
-    McqFunc::addVerticalLine(grid, 1, n_rows);
+    mcqfunc::addVerticalLine(grid, 1, n_rows);
 
     QPointer<QWidget> widget = new QWidget();
     widget->setLayout(grid);
-    widget->setObjectName(CssConst::MCQ_GRID);
+    widget->setObjectName(cssconst::MCQ_GRID);
     if (m_expand) {
         widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
     } else {
@@ -254,5 +253,5 @@ void QuMCQGrid::fieldValueChanged(int question_index, const FieldRef* fieldref)
     const QList<QPointer<BooleanWidget>>& question_widgets = m_widgets.at(
                 question_index);
 
-    McqFunc::setResponseWidgets(m_options, question_widgets, fieldref);
+    mcqfunc::setResponseWidgets(m_options, question_widgets, fieldref);
 }

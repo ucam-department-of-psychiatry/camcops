@@ -118,7 +118,7 @@ QValidator::State StrictDoubleValidator::validate(QString& s, int&) const
 #endif
         return QValidator::Invalid;
     }
-    if (Numeric::isValidStartToDouble(d, b, t)) {
+    if (numeric::isValidStartToDouble(d, b, t)) {
 #ifdef DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO
                  << "within range for number of digits -> Intermediate; s ="

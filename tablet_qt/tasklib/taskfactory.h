@@ -69,7 +69,7 @@ public:
     void makeAllTables() const;
     // Operations relating to specific tasks
     TaskPtr create(const QString& key,
-                   int load_pk = DbConst::NONEXISTENT_PK) const;
+                   int load_pk = dbconst::NONEXISTENT_PK) const;
     QString shortname(const QString& key) const;
     QString longname(const QString& key) const;
     void makeTables(const QString& key) const;

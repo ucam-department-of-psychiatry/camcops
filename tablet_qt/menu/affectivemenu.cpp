@@ -23,7 +23,7 @@
 
 AffectiveMenu::AffectiveMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Affective (mood and anxiety) disorders"),
-               UiFunc::iconFilename(UiConst::ICON_AFFECTIVE))
+               uifunc::iconFilename(uiconst::ICON_AFFECTIVE))
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),

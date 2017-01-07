@@ -24,7 +24,7 @@
 #include <QResizeEvent>
 #include <QStyleOption>
 #include "common/gui_defines.h"  // duplicated from header
-#include "lib/uifunc.h"
+#include "lib/sizehelpers.h"
 
 
 BaseWidget::BaseWidget(QWidget* parent) :
@@ -32,7 +32,7 @@ BaseWidget::BaseWidget(QWidget* parent) :
 {
     // As for LabelWordWrapWide:
 #ifdef GUI_USE_RESIZE_FOR_HEIGHT
-    setSizePolicy(UiFunc::expandingFixedHFWPolicy());
+    setSizePolicy(SizeHelpers::expandingFixedHFWPolicy());
 #endif
 }
 
@@ -50,7 +50,7 @@ void BaseWidget::resizeEvent(QResizeEvent* event)
     qDebug() << Q_FUNC_INFO << event->size();
 #endif
     QWidget::resizeEvent(event);  // doesn't actually do anything
-    UiFunc::resizeEventForHFWParentWidget(this);
+    SizeHelpers::resizeEventForHFWParentWidget(this);
 }
 #endif
 

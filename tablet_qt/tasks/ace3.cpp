@@ -38,13 +38,13 @@
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
-using MathFunc::eq;
-using MathFunc::noneNull;
-using MathFunc::percent;
-using MathFunc::sumInt;
-using StringFunc::bold;
-using StringFunc::strnum;
-using StringFunc::strseq;
+using mathfunc::eq;
+using mathfunc::noneNull;
+using mathfunc::percent;
+using mathfunc::sumInt;
+using stringfunc::bold;
+using stringfunc::strnum;
+using stringfunc::strseq;
 
 const QString IMAGE_SPOON("ace3/spoon.png");
 const QString IMAGE_BOOK("ace3/book.png");
@@ -306,7 +306,7 @@ OpenableWidget* Ace3::editor(bool read_only)
     };
     auto boolimg = [this](const QString& filenamestem, const QString& fieldname,
                           bool mandatory = true) -> QuElement* {
-        return new QuBoolean(UiFunc::resourceFilename(filenamestem), QSize(),
+        return new QuBoolean(uifunc::resourceFilename(filenamestem), QSize(),
                              fieldRef(fieldname, mandatory));
     };
 
@@ -322,23 +322,23 @@ OpenableWidget* Ace3::editor(bool read_only)
         instruction("instruction_need_paper"),
         getClinicianQuestionnaireBlockRawPointer(),
         instruction("preamble_instruction"),
-        QuestionnaireFunc::defaultGridRawPointer({
+        questionnairefunc::defaultGridRawPointer({
             {xstring("q_age_leaving_fte"),
              new QuLineEditInteger(fieldRef(FN_AGE_FT_EDUCATION), MIN_AGE, MAX_AGE)},
             {xstring("q_occupation"),
              new QuLineEdit(fieldRef(FN_OCCUPATION))},
             {xstring("q_handedness"),
              (new QuMCQ(fieldRef(FN_HANDEDNESS), options_handedness))->setHorizontal(true)},
-        }, UiConst::DEFAULT_COLSPAN_Q, UiConst::DEFAULT_COLSPAN_A),
+        }, uiconst::DEFAULT_COLSPAN_Q, uiconst::DEFAULT_COLSPAN_A),
     })->setTitle(makeTitle("Preamble"))->setType(QuPage::PageType::Clinician));
 
     // ------------------------------------------------------------------------
     // Attention/orientation/three word recall
     // ------------------------------------------------------------------------
 
-    QDateTime now = DateTime::now();
+    QDateTime now = datetime::now();
     QString season;
-    switch (DateTime::now().date().month()) {
+    switch (datetime::now().date().month()) {
         // 1 = Jan, 12 = Dec
     case 12:
     case 1:
@@ -661,7 +661,7 @@ OpenableWidget* Ace3::editor(bool read_only)
     QuPagePtr page_infinity((new QuPage{
         heading("cat_vsp"),
         instruction("vsp_q_infinity"),
-        new QuImage(UiFunc::resourceFilename(IMAGE_INFINITY)),
+        new QuImage(uifunc::resourceFilename(IMAGE_INFINITY)),
         boolean("vsp_infinity_correct", FN_VSP_COPY_INFINITY),
     })
         ->setTitle(makeTitle("Infinity"))
@@ -674,7 +674,7 @@ OpenableWidget* Ace3::editor(bool read_only)
     NameValueOptions options_cube = NameValueOptions::makeNumbers(0, 2);
     QuPagePtr page_cube((new QuPage{
         instruction("vsp_q_cube"),
-        new QuImage(UiFunc::resourceFilename(IMAGE_CUBE)),
+        new QuImage(uifunc::resourceFilename(IMAGE_CUBE)),
         text("vsp_score_cube"),
         (new QuMCQ(fieldRef(FN_VSP_COPY_CUBE), options_cube))->setHorizontal(true),
     })

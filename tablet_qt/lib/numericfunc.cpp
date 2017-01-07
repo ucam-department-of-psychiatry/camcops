@@ -23,14 +23,14 @@
 // Overloaded functions to convert to an integer type
 // ============================================================================
 
-int Numeric::strToNumber(const QString& str, int type_dummy)
+int numeric::strToNumber(const QString& str, int type_dummy)
 {
     Q_UNUSED(type_dummy);
     return str.toInt();
 }
 
 
-int Numeric::localeStrToNumber(const QString& str, bool& ok,
+int numeric::localeStrToNumber(const QString& str, bool& ok,
                                const QLocale& locale, int type_dummy)
 {
     Q_UNUSED(type_dummy);
@@ -38,14 +38,14 @@ int Numeric::localeStrToNumber(const QString& str, bool& ok,
 }
 
 
-qlonglong Numeric::strToNumber(const QString& str, qlonglong type_dummy)
+qlonglong numeric::strToNumber(const QString& str, qlonglong type_dummy)
 {
     Q_UNUSED(type_dummy);
     return str.toLongLong();
 }
 
 
-qlonglong Numeric::localeStrToNumber(const QString& str, bool& ok,
+qlonglong numeric::localeStrToNumber(const QString& str, bool& ok,
                                      const QLocale& locale,
                                      qlonglong type_dummy)
 {
@@ -54,14 +54,14 @@ qlonglong Numeric::localeStrToNumber(const QString& str, bool& ok,
 }
 
 
-qulonglong Numeric::strToNumber(const QString& str, qulonglong type_dummy)
+qulonglong numeric::strToNumber(const QString& str, qulonglong type_dummy)
 {
     Q_UNUSED(type_dummy);
     return str.toULongLong();
 }
 
 
-qulonglong Numeric::localeStrToNumber(const QString& str, bool& ok,
+qulonglong numeric::localeStrToNumber(const QString& str, bool& ok,
                                       const QLocale& locale,
                                       qulonglong type_dummy)
 {
@@ -74,7 +74,7 @@ qulonglong Numeric::localeStrToNumber(const QString& str, bool& ok,
 // For double validation
 // ============================================================================
 
-int Numeric::numDigitsDouble(double number, int max_dp)
+int numeric::numDigitsDouble(double number, int max_dp)
 {
     // Counts the number of digits in a floating-point number.
     // - ignores sign
@@ -94,7 +94,7 @@ int Numeric::numDigitsDouble(double number, int max_dp)
 }
 
 
-double Numeric::firstDigitsDouble(double number, int n_digits, int max_dp)
+double numeric::firstDigitsDouble(double number, int n_digits, int max_dp)
 {
     // Returns the first n_digits of a floating point number, as a double.
     // - sign is ignored (can't compare numbers without dropping it)
@@ -113,7 +113,7 @@ double Numeric::firstDigitsDouble(double number, int n_digits, int max_dp)
 }
 
 
-bool Numeric::isValidStartToDouble(double number, double bottom, double top)
+bool numeric::isValidStartToDouble(double number, double bottom, double top)
 {
     if (extendedDoubleMustBeLessThan(number, bottom, top)) {
 #ifdef DEBUG_VALIDATOR
@@ -139,7 +139,7 @@ bool Numeric::isValidStartToDouble(double number, double bottom, double top)
 }
 
 
-bool Numeric::extendedDoubleMustExceed(double number,
+bool numeric::extendedDoubleMustExceed(double number,
                                        double bottom, double top)
 {
     if (number < 0 && top > 0) {
@@ -174,7 +174,7 @@ bool Numeric::extendedDoubleMustExceed(double number,
 }
 
 
-bool Numeric::extendedDoubleMustBeLessThan(double number,
+bool numeric::extendedDoubleMustBeLessThan(double number,
                                            double bottom, double top)
 {
     if (number < 0 && bottom > 0) {

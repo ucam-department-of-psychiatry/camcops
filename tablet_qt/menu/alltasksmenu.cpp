@@ -24,7 +24,7 @@
 
 AllTasksMenu::AllTasksMenu(CamcopsApp& app) :
     MenuWindow(app, tr("All tasks, listed alphabetically"),
-               UiFunc::iconFilename(UiConst::ICON_ALLTASKS))
+               uifunc::iconFilename(uiconst::ICON_ALLTASKS))
 {
     TaskFactory* factory = app.taskFactory();
     QStringList tablenames = factory->tablenames();

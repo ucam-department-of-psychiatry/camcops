@@ -14,16 +14,16 @@ DbNestableTransaction::DbNestableTransaction(const QSqlDatabase& db) :
     ++s_count;
     ++s_level;
     m_name = QString("svp_t%1_l%2").arg(s_count).arg(s_level);
-    DbFunc::exec(m_db, QString("SAVEPOINT %1").arg(m_name));
+    dbfunc::exec(m_db, QString("SAVEPOINT %1").arg(m_name));
 }
 
 
 DbNestableTransaction::~DbNestableTransaction()
 {
     if (m_fail) {
-        DbFunc::exec(m_db, QString("ROLLBACK TO SAVEPOINT %1").arg(m_name));
+        dbfunc::exec(m_db, QString("ROLLBACK TO SAVEPOINT %1").arg(m_name));
     } else {
-        DbFunc::exec(m_db, QString("RELEASE %1").arg(m_name));
+        dbfunc::exec(m_db, QString("RELEASE %1").arg(m_name));
     }
 
     --s_level;

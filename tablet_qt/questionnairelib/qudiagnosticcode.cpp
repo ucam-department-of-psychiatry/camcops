@@ -78,20 +78,20 @@ QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
     m_questionnaire = questionnaire;
     bool read_only = questionnaire->readOnly();
 
-    m_missing_indicator = UiFunc::iconWidget(
-                UiFunc::iconFilename(UiConst::ICON_WARNING));
+    m_missing_indicator = uifunc::iconWidget(
+                uifunc::iconFilename(uiconst::ICON_WARNING));
     m_label_code = new LabelWordWrapWide();
     m_label_description = new LabelWordWrapWide();
 
     QHBoxLayout* textlayout = new QHBoxLayout();
-    textlayout->setContentsMargins(UiConst::NO_MARGINS);
+    textlayout->setContentsMargins(uiconst::NO_MARGINS);
     textlayout->addWidget(m_missing_indicator);
     textlayout->addWidget(m_label_code);
     textlayout->addWidget(m_label_description);
     textlayout->addStretch();
 
     ClickableLabelWordWrapWide* button = new ClickableLabelWordWrapWide(tr("Set diagnosis"));
-    button->setObjectName(CssConst::DIAGNOSTIC_CODE);
+    button->setObjectName(cssconst::DIAGNOSTIC_CODE);
     // button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     button->setEnabled(!read_only);
     if (!read_only) {
@@ -100,12 +100,12 @@ QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
     }
 
     QHBoxLayout* buttonlayout = new QHBoxLayout();
-    buttonlayout->setContentsMargins(UiConst::NO_MARGINS);
+    buttonlayout->setContentsMargins(uiconst::NO_MARGINS);
     buttonlayout->addWidget(button);
 
     if (m_offer_null_button) {
         ClickableLabelWordWrapWide* null_button = new ClickableLabelWordWrapWide(tr("Clear"));
-        null_button->setObjectName(CssConst::DIAGNOSTIC_CODE);
+        null_button->setObjectName(cssconst::DIAGNOSTIC_CODE);
         // null_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         null_button->setEnabled(!read_only);
         if (!read_only) {
@@ -117,7 +117,7 @@ QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
     buttonlayout->addStretch();
 
     QVBoxLayout* toplayout = new QVBoxLayout();
-    toplayout->setContentsMargins(UiConst::NO_MARGINS);
+    toplayout->setContentsMargins(uiconst::NO_MARGINS);
     toplayout->addLayout(textlayout);
     toplayout->addLayout(buttonlayout);
 
@@ -142,7 +142,7 @@ void QuDiagnosticCode::setButtonClicked()
     QString code = m_fieldref_code->valueString();
     QModelIndex selected = m_codeset->firstMatchCode(code);
     QString stylesheet = m_questionnaire->getSubstitutedCss(
-                UiConst::CSS_CAMCOPS_DIAGNOSTIC_CODE);
+                uiconst::CSS_CAMCOPS_DIAGNOSTIC_CODE);
     DiagnosticCodeSelector* selector = new DiagnosticCodeSelector(
                 stylesheet, m_codeset, selected);
     connect(selector, &DiagnosticCodeSelector::codeChanged,

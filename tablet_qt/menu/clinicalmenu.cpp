@@ -23,7 +23,7 @@
 
 ClinicalMenu::ClinicalMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Clinical notes and logs"),
-               UiFunc::iconFilename(UiConst::ICON_CLINICAL))
+               uifunc::iconFilename(uiconst::ICON_CLINICAL))
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),

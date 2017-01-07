@@ -23,6 +23,7 @@
 #include <QPaintEvent>
 #include <QStyle>
 #include <QStyleOption>
+#include "widgets/margins.h"
 
 const QPoint INVALID_POINT(-1, -1);
 
@@ -79,10 +80,8 @@ QSize CanvasWidget::sizeHint() const
     //   you inherit from a QWidget. But if you inherit from a QFrame... yup,
     //   it works!
 
-    int left, top, right, bottom;
-    getContentsMargins(&left, &top, &right, &bottom);
-    return QSize(left + m_size.width() + right,
-                 top + m_size.height() + bottom);
+    Margins m = Margins::getContentsMargins(this);
+    return m.addMarginsTo(m_size);
 }
 
 

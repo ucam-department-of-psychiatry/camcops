@@ -23,7 +23,7 @@
 
 ExecutiveMenu::ExecutiveMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Executive functioning"),
-               UiFunc::iconFilename(UiConst::ICON_EXECUTIVE))
+               uifunc::iconFilename(uiconst::ICON_EXECUTIVE))
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),

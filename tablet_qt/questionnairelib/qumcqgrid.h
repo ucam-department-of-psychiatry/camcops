@@ -16,13 +16,13 @@
 */
 
 #pragma once
+#include "common/layouts.h"
 #include "namevalueoptions.h"
 #include "mcqgridsubtitle.h"
 #include "quelement.h"
 #include "questionwithonefield.h"
 
 class BooleanWidget;
-class QGridLayout;
 class QuMCQGridSignaller;
 
 
@@ -53,7 +53,7 @@ protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
     int colnum(int value_index) const;
-    void addOptions(QGridLayout* grid, int row);
+    void addOptions(GridLayout* grid, int row);
 protected slots:
     void clicked(int question_index, int value_index);
     void fieldValueChanged(int question_index, const FieldRef* fieldref);

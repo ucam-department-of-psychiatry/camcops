@@ -27,7 +27,7 @@ QuText::QuText(const QString& text) :
     m_text(text),
     m_fieldref(nullptr)
 {
-    StringFunc::toHtmlLinebreaks(m_text);
+    stringfunc::toHtmlLinebreaks(m_text);
     commonConstructor();
 }
 
@@ -45,7 +45,7 @@ QuText::QuText(FieldRefPtr fieldref) :
 
 void QuText::commonConstructor()
 {
-    m_fontsize = UiConst::FontSize::Normal;
+    m_fontsize = uiconst::FontSize::Normal;
     m_bold = false;
     m_italic = false;
     m_warning = false;
@@ -59,7 +59,7 @@ void QuText::commonConstructor()
 
 QuText* QuText::big(bool big)
 {
-    m_fontsize = big ? UiConst::FontSize::Big : UiConst::FontSize::Normal;
+    m_fontsize = big ? uiconst::FontSize::Big : uiconst::FontSize::Normal;
     return this;
 }
 
@@ -160,8 +160,8 @@ void QuText::setWidgetFontSize(int fontsize_pt, bool repolish)
     if (!m_label) {
         return;
     }
-    QString colour = m_warning ? UiConst::WARNING_COLOUR : "";
-    QString css = UiFunc::textCSS(fontsize_pt, m_bold, m_italic, colour);
+    QString colour = m_warning ? uiconst::WARNING_COLOUR : "";
+    QString css = uifunc::textCSS(fontsize_pt, m_bold, m_italic, colour);
     m_label->setStyleSheet(css);
     if (repolish) {
         repolishWidget();
@@ -172,7 +172,7 @@ void QuText::setWidgetFontSize(int fontsize_pt, bool repolish)
 void QuText::repolishWidget()
 {
     if (m_label) {
-        UiFunc::repolish(m_label);
+        uifunc::repolish(m_label);
         m_label->updateGeometry();
     }
 }

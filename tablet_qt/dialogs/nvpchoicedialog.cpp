@@ -21,7 +21,7 @@
 #include <QEvent>
 #include <QVariant>
 #include "common/layouts.h"
-#include "lib/uifunc.h"
+#include "lib/sizehelpers.h"
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/verticalscrollarea.h"
 
@@ -52,7 +52,7 @@ int NvpChoiceDialog::choose(QVariant* new_value)
         const NameValuePair& nvp = m_options.at(i);
         ClickableLabelWordWrapWide* label = new ClickableLabelWordWrapWide(
                     nvp.name());
-        label->setSizePolicy(UiFunc::expandingFixedHFWPolicy());
+        label->setSizePolicy(sizehelpers::expandingFixedHFWPolicy());
         contentlayout->addWidget(label);
         // Safe object lifespan signal: can use std::bind
         connect(label, &ClickableLabelWordWrapWide::clicked,

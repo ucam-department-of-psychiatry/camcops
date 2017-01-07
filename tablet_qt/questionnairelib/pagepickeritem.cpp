@@ -57,11 +57,11 @@ QString PagePickerItem::iconFilename() const
 {
     switch (m_type) {
     case PagePickerItemType::CompleteSelectable:
-        return UiConst::CBS_NEXT;
+        return uiconst::CBS_NEXT;
     case PagePickerItemType::IncompleteSelectable:
-        return UiConst::ICON_WARNING;
+        return uiconst::ICON_WARNING;
     case PagePickerItemType::BlockedByPrevious:
     default:  // to prevent compiler warning
-        return UiConst::ICON_STOP;
+        return uiconst::ICON_STOP;
     }
 }

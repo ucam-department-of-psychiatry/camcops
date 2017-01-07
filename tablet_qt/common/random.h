@@ -19,7 +19,9 @@
 #include <random>
 
 
-namespace Random {
-    extern std::random_device rd;
-    extern std::mt19937 rng;
-}
+namespace ccrandom {  // not "random"; conflicts
+
+extern std::random_device rd;
+extern std::mt19937 rng;
+
+}  // namespace ccrandom

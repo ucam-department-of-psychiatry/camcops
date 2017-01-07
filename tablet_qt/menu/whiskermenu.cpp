@@ -29,7 +29,7 @@
 
 WhiskerMenu::WhiskerMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Whisker networked hardware"),
-               UiFunc::iconFilename(UiConst::ICON_WHISKER))
+               uifunc::iconFilename(uiconst::ICON_WHISKER))
 {
     m_items = {
         MenuItem(tr("Connect to Whisker server")),  // ***
@@ -48,20 +48,20 @@ OpenableWidget* WhiskerMenu::configureWhisker(CamcopsApp& app)
 {
     app.clearCachedVars();  // ... in case any are left over
 
-    FieldRefPtr address_fr = app.storedVarFieldRef(VarConst::WHISKER_HOST);
+    FieldRefPtr address_fr = app.storedVarFieldRef(varconst::WHISKER_HOST);
     QString address_t = tr("Whisker host");
     QString address_h = tr("host name or IP address; default: localhost");
 
-    FieldRefPtr port_fr = app.storedVarFieldRef(VarConst::WHISKER_PORT);
+    FieldRefPtr port_fr = app.storedVarFieldRef(varconst::WHISKER_PORT);
     QString port_t = tr("Whisker port");
     QString port_h = tr("default 3233");
 
-    FieldRefPtr timeout_fr = app.storedVarFieldRef(VarConst::WHISKER_TIMEOUT_MS);
+    FieldRefPtr timeout_fr = app.storedVarFieldRef(varconst::WHISKER_TIMEOUT_MS);
     QString timeout_t = tr("Network timeout (ms)");
     QString timeout_h = tr("e.g. 5000");
 
     QuPagePtr page(new QuPage{
-        QuestionnaireFunc::defaultGridRawPointer({
+        questionnairefunc::defaultGridRawPointer({
             {
                 makeTitle(address_t, address_h),
                 (new QuLineEdit(address_fr))->setHint(
@@ -70,13 +70,13 @@ OpenableWidget* WhiskerMenu::configureWhisker(CamcopsApp& app)
             {
                 makeTitle(port_t, port_h),
                 new QuLineEditInteger(port_fr,
-                    UiConst::IP_PORT_MIN, UiConst::IP_PORT_MAX)
+                    uiconst::IP_PORT_MIN, uiconst::IP_PORT_MAX)
             },
             {
                 makeTitle(timeout_t, timeout_h),
                 new QuLineEditInteger(timeout_fr,
-                    UiConst::NETWORK_TIMEOUT_MS_MIN,
-                    UiConst::NETWORK_TIMEOUT_MS_MAX)
+                    uiconst::NETWORK_TIMEOUT_MS_MIN,
+                    uiconst::NETWORK_TIMEOUT_MS_MAX)
             },
         }, 1, 1),
     });

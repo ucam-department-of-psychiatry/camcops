@@ -69,7 +69,7 @@ QPointer<QWidget> QuPickerPopup::makeWidget(Questionnaire* questionnaire)
     bool read_only = questionnaire->readOnly();
 
     m_label = new ClickableLabelWordWrapWide(true);
-    m_label->setObjectName(CssConst::PICKER_POPUP);
+    m_label->setObjectName(cssconst::PICKER_POPUP);
     m_label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     if (!read_only) {
         connect(m_label.data(), &ClickableLabelWordWrapWide::clicked,
@@ -112,7 +112,7 @@ void QuPickerPopup::fieldValueChanged(const FieldRef* fieldref)
     }
     int index = m_options.indexFromValue(fieldref->value());
     bool missing = fieldref->missingInput();
-    UiFunc::setPropertyMissing(m_label, missing);
+    uifunc::setPropertyMissing(m_label, missing);
     QString text = m_options.name(index);
     m_label->setText(text);
 }

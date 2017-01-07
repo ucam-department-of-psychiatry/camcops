@@ -29,6 +29,7 @@
 #include <QScrollArea>
 #include <QSize>
 #include <QStyle>
+#include "common/layouts.h"
 
 const QSize MAX_SIZE(1024, 1500);
 
@@ -70,7 +71,7 @@ ScrollMessageBox::ScrollMessageBox(const QMessageBox::Icon& icon,
     QObject::connect(m_button_box, &QDialogButtonBox::clicked,
                      this, &ScrollMessageBox::handle_buttonClicked);
 
-    QGridLayout *grid = new QGridLayout;
+    GridLayout *grid = new GridLayout();
 
     if (icon != QMessageBox::NoIcon) {
         grid->addWidget(icon_label, 0, 0, 2, 1, Qt::AlignTop);

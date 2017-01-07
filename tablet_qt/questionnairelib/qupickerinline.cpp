@@ -76,7 +76,7 @@ QPointer<QWidget> QuPickerInline::makeWidget(Questionnaire* questionnaire)
                 this, &QuPickerInline::currentIndexChanged);
     }
     m_cbox->setEnabled(!read_only);
-    m_cbox->setObjectName(CssConst::PICKER_INLINE);
+    m_cbox->setObjectName(cssconst::PICKER_INLINE);
     setFromField();
     return QPointer<QWidget>(m_cbox);
 }
@@ -112,7 +112,7 @@ void QuPickerInline::fieldValueChanged(const FieldRef* fieldref)
             // qDebug() << "QuPickerInline::valueChanged(): index =" << index;
             m_cbox->setCurrentIndex(index);  // it's happy with -1
         }
-        UiFunc::setPropertyMissing(m_cbox, missing);
+        uifunc::setPropertyMissing(m_cbox, missing);
     }
 }
 

@@ -25,7 +25,7 @@
 #include <QTextStream>
 
 
-bool FileFunc::fileExists(const QString& filename)
+bool filefunc::fileExists(const QString& filename)
 {
     QFile file(filename);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
@@ -35,7 +35,7 @@ bool FileFunc::fileExists(const QString& filename)
 }
 
 
-QString FileFunc::textfileContents(const QString& filename)
+QString filefunc::textfileContents(const QString& filename)
 {
     QFile file(filename);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
@@ -56,7 +56,7 @@ QString FileFunc::textfileContents(const QString& filename)
 }
 
 
-QString FileFunc::taskHtmlFilename(const QString& stem)
+QString filefunc::taskHtmlFilename(const QString& stem)
 {
     return QString(":/taskinfo/%1.html").arg(stem);
 }

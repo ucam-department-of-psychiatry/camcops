@@ -19,7 +19,8 @@
 #include "version.h"
 
 
-namespace CamcopsVersion
-{
-    extern const Version CAMCOPS_VERSION;
-}
+namespace camcopsversion {
+
+extern const Version CAMCOPS_VERSION;
+
+}  // namespace camcopsversion

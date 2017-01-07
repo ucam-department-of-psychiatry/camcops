@@ -48,7 +48,7 @@ ImageButton::ImageButton(const QString& base_filename,
                          QWidget* parent) :
     QPushButton(parent)
 {
-    QSize size = UiConst::ICONSIZE;
+    QSize size = uiconst::ICONSIZE;
     commonConstructor(size);
     setImages(base_filename, filename_is_camcops_stem, alter_unpressed_image,
               true, disabled);
@@ -69,11 +69,11 @@ void ImageButton::setImages(const QString& base_filename,
 
     // New way: use one image and apply the background(s) programmatically
     QString filename = filename_is_camcops_stem
-            ? UiFunc::iconFilename(base_filename)
+            ? uifunc::iconFilename(base_filename)
             : base_filename;
-    QPixmap base = UiFunc::getPixmap(filename, m_image_size);
+    QPixmap base = uifunc::getPixmap(filename, m_image_size);
     if (disabled) {
-        QPixmap img = UiFunc::makeDisabledIcon(base);
+        QPixmap img = uifunc::makeDisabledIcon(base);
         setNormalImage(img, false);
         setPressedImage(img, false);
     } else if (read_only) {
@@ -81,10 +81,10 @@ void ImageButton::setImages(const QString& base_filename,
         setPressedImage(base, false);
     } else {
         QPixmap fore = alter_unpressed_image
-                ? UiFunc::addUnpressedBackground(base)
+                ? uifunc::addUnpressedBackground(base)
                 : base;
         setNormalImage(fore, false);
-        QPixmap pressed = UiFunc::addPressedBackground(base,
+        QPixmap pressed = uifunc::addPressedBackground(base,
                                                        pressed_marker_behind);
         setPressedImage(pressed, false);
     }
@@ -102,7 +102,7 @@ void ImageButton::commonConstructor(const QSize& size)
 void ImageButton::setNormalImage(const QString& filename, const QSize& size,
                                  bool cache)
 {
-    setNormalImage(UiFunc::getPixmap(filename, size, cache), false);
+    setNormalImage(uifunc::getPixmap(filename, size, cache), false);
 }
 
 
@@ -119,7 +119,7 @@ void ImageButton::setNormalImage(const QPixmap& pixmap, bool scale)
 void ImageButton::setPressedImage(const QString& filename, const QSize& size,
                                   bool cache)
 {
-    setPressedImage(UiFunc::getPixmap(filename, size, cache), false);
+    setPressedImage(uifunc::getPixmap(filename, size, cache), false);
 }
 
 

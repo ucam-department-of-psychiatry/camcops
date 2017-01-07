@@ -31,10 +31,10 @@
 
 const QString NULL_WIDGET_STRING("<null_widget>");
 
-using namespace LayoutDumper;
+using namespace layoutdumper;
 
 
-QString LayoutDumper::toString(const QSizePolicy::Policy& policy)
+QString layoutdumper::toString(const QSizePolicy::Policy& policy)
 {
     switch (policy) {
     case QSizePolicy::Fixed: return "Fixed";
@@ -49,7 +49,7 @@ QString LayoutDumper::toString(const QSizePolicy::Policy& policy)
 }
 
 
-QString LayoutDumper::toString(const QSizePolicy& policy)
+QString layoutdumper::toString(const QSizePolicy& policy)
 {
     QString result = QString("(%1, %2) [hasHeightForWidth=%3]")
             .arg(toString(policy.horizontalPolicy()))
@@ -59,7 +59,7 @@ QString LayoutDumper::toString(const QSizePolicy& policy)
 }
 
 
-QString LayoutDumper::toString(QLayout::SizeConstraint constraint)
+QString layoutdumper::toString(QLayout::SizeConstraint constraint)
 {
     switch (constraint) {
     case QLayout::SetDefaultConstraint: return "SetDefaultConstraint";
@@ -73,7 +73,7 @@ QString LayoutDumper::toString(QLayout::SizeConstraint constraint)
 }
 
 
-QString LayoutDumper::toString(const Qt::Alignment& alignment)
+QString layoutdumper::toString(const Qt::Alignment& alignment)
 {
     QStringList elements;
 
@@ -116,19 +116,19 @@ QString LayoutDumper::toString(const Qt::Alignment& alignment)
 }
 
 
-QString LayoutDumper::toString(const void* pointer)
+QString layoutdumper::toString(const void* pointer)
 {
-    return Convert::prettyPointer(pointer);
+    return convert::prettyPointer(pointer);
 }
 
 
-QString LayoutDumper::toString(bool boolean)
+QString layoutdumper::toString(bool boolean)
 {
     return boolean ? "true" : "false";
 }
 
 
-QString LayoutDumper::getWidgetDescriptor(const QWidget* w)
+QString layoutdumper::getWidgetDescriptor(const QWidget* w)
 {
     if (!w) {
         return NULL_WIDGET_STRING;
@@ -140,7 +140,7 @@ QString LayoutDumper::getWidgetDescriptor(const QWidget* w)
 }
 
 
-QString LayoutDumper::getWidgetInfo(const QWidget* w,
+QString layoutdumper::getWidgetInfo(const QWidget* w,
                                     bool show_properties,
                                     bool show_attributes)
 {
@@ -195,18 +195,22 @@ QString LayoutDumper::getWidgetInfo(const QWidget* w,
 
     if (geom.width() < w->minimumSize().width() ||
             geom.height() < w->minimumSize().height()) {
-        elements.append("[BUG? geometry() < minimumSize()]");
+        elements.append("[BUG? size < minimumSize()]");
     }
     if (geom.width() < w->minimumSizeHint().width() ||
             geom.height() < w->minimumSizeHint().height()) {
-        elements.append("[WARNING: geometry() < minimumSizeHint()]");
+        elements.append("[WARNING: size < minimumSizeHint()]");
+    }
+    if (w->hasHeightForWidth() &&
+            geom.height() < w->heightForWidth(geom.width())) {
+        elements.append("[WARNING: height < heightForWidth(width)]");
     }
 
     return elements.join(", ");
 }
 
 
-QString LayoutDumper::getWidgetAttributeInfo(const QWidget* w)
+QString layoutdumper::getWidgetAttributeInfo(const QWidget* w)
 {
     // http://doc.qt.io/qt-5/qt.html#WidgetAttribute-enum
     if (!w) {
@@ -229,7 +233,7 @@ QString LayoutDumper::getWidgetAttributeInfo(const QWidget* w)
 }
 
 
-QString LayoutDumper::getDynamicProperties(const QWidget* w)
+QString layoutdumper::getDynamicProperties(const QWidget* w)
 {
     if (!w) {
         return NULL_WIDGET_STRING;
@@ -239,14 +243,14 @@ QString LayoutDumper::getDynamicProperties(const QWidget* w)
     for (const QByteArray& arr : property_names) {
         QString name(arr);
         QVariant value = w->property(arr);
-        QString value_string = UiFunc::escapeString(value.toString());
+        QString value_string = uifunc::escapeString(value.toString());
         elements.append(QString("%1=%2").arg(name).arg(value_string));
     }
     return elements.join(", ");
 }
 
 
-QString LayoutDumper::getLayoutInfo(const QLayout* layout)
+QString layoutdumper::getLayoutInfo(const QLayout* layout)
 {
     if (!layout) {
         return "null_layout";
@@ -299,13 +303,13 @@ QString LayoutDumper::getLayoutInfo(const QLayout* layout)
 }
 
 
-QString LayoutDumper::paddingSpaces(int level, int spaces_per_level)
+QString layoutdumper::paddingSpaces(int level, int spaces_per_level)
 {
     return QString(level * spaces_per_level, ' ');
 }
 
 
-QList<const QWidget*> LayoutDumper::dumpLayoutAndChildren(
+QList<const QWidget*> layoutdumper::dumpLayoutAndChildren(
         QDebug& os,
         const QLayout* layout,
         int level,
@@ -369,7 +373,7 @@ QList<const QWidget*> LayoutDumper::dumpLayoutAndChildren(
 }
 
 
-QList<const QWidget*> LayoutDumper::dumpWidgetAndChildren(
+QList<const QWidget*> layoutdumper::dumpWidgetAndChildren(
         QDebug& os,
         const QWidget* w,
         int level,
@@ -432,7 +436,7 @@ QList<const QWidget*> LayoutDumper::dumpWidgetAndChildren(
 }
 
 
-void LayoutDumper::dumpWidgetHierarchy(const QWidget* w,
+void layoutdumper::dumpWidgetHierarchy(const QWidget* w,
                                        bool show_widget_properties,
                                        bool show_widget_attributes,
                                        const int spaces_per_level)

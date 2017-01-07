@@ -53,25 +53,25 @@ DatabaseObject::DatabaseObject(CamcopsApp& app,
     m_triggers_need_upload(triggers_need_upload)
 {
     if (pk_fieldname.isEmpty()) {
-        UiFunc::stopApp(
+        uifunc::stopApp(
             QString("DatabaseObject::DatabaseObject: Missing pk_fieldname; "
                     "table=%1").arg(m_tablename));
     }
     addField(pk_fieldname, QVariant::Int, true, true, true);
     if (has_move_off_tablet_field) {
         // Will be true for everything in data DB, but not system DB
-        addField(DbConst::MOVE_OFF_TABLET_FIELDNAME, QVariant::Bool,
+        addField(dbconst::MOVE_OFF_TABLET_FIELDNAME, QVariant::Bool,
                  false, false, false);
     }
     if (has_modification_timestamp) {
-        addField(DbConst::MODIFICATION_TIMESTAMP_FIELDNAME,
+        addField(dbconst::MODIFICATION_TIMESTAMP_FIELDNAME,
                  QVariant::DateTime);
     }
     if (has_creation_timestamp) {
-        addField(DbConst::CREATION_TIMESTAMP_FIELDNAME,
+        addField(dbconst::CREATION_TIMESTAMP_FIELDNAME,
                  QVariant::DateTime);
         QDateTime now = QDateTime::currentDateTime();
-        m_record[DbConst::CREATION_TIMESTAMP_FIELDNAME].setValue(now);  // also: dirty
+        m_record[dbconst::CREATION_TIMESTAMP_FIELDNAME].setValue(now);  // also: dirty
     }
 }
 
@@ -93,7 +93,7 @@ void DatabaseObject::addField(const QString& fieldname, QVariant::Type type,
                       "integers; please use signed if possible";
     }
     if (m_record.contains(fieldname)) {
-        UiFunc::stopApp("Attempt to insert duplicate fieldname: " + fieldname);
+        uifunc::stopApp("Attempt to insert duplicate fieldname: " + fieldname);
     }
     Field field(fieldname, type, mandatory, unique, pk);
     m_record.insert(fieldname, field);
@@ -289,7 +289,7 @@ QString DatabaseObject::recordSummaryString() const
 
 bool DatabaseObject::load(int pk)
 {
-    if (pk == DbConst::NONEXISTENT_PK) {
+    if (pk == dbconst::NONEXISTENT_PK) {
 #ifdef DEBUG_SPECIMEN_CREATION
         qDebug() << "Ignoring DatabaseObject::load() call for explicitly "
                     "invalid PK";
@@ -322,7 +322,7 @@ bool DatabaseObject::load(const WhereConditions& where)
 {
     SqlArgs sqlargs = fetchQuerySql(where);
     QSqlQuery query(m_db);
-    bool success = DbFunc::execQuery(query, sqlargs);
+    bool success = dbfunc::execQuery(query, sqlargs);
     bool found = false;
     if (success) {  // SQL didn't have errors
         found = query.next();
@@ -341,15 +341,15 @@ SqlArgs DatabaseObject::fetchQuerySql(const WhereConditions& where)
     QStringList fields = fieldnamesMapOrder();
     QStringList delimited_fieldnames;
     for (int i = 0; i < fields.size(); ++i) {
-        delimited_fieldnames.append(DbFunc::delimit(fields.at(i)));
+        delimited_fieldnames.append(dbfunc::delimit(fields.at(i)));
     }
     QString sql = (
         "SELECT " + delimited_fieldnames.join(", ") + " FROM " +
-        DbFunc::delimit(tablename())
+        dbfunc::delimit(tablename())
     );
     ArgList args;
     SqlArgs sqlargs(sql, args);
-    DbFunc::addWhereClause(where, sqlargs);
+    dbfunc::addWhereClause(where, sqlargs);
     return sqlargs;
 }
 
@@ -420,12 +420,12 @@ void DatabaseObject::touch(bool only_if_unset)
         return;
     }
     if (only_if_unset &&
-            !m_record[DbConst::MODIFICATION_TIMESTAMP_FIELDNAME].isNull()) {
+            !m_record[dbconst::MODIFICATION_TIMESTAMP_FIELDNAME].isNull()) {
         return;
     }
     // Don't set the timestamp value with setValue()! Infinite loop.
     QDateTime now = QDateTime::currentDateTime();
-    m_record[DbConst::MODIFICATION_TIMESTAMP_FIELDNAME].setValue(now);  // also: dirty
+    m_record[dbconst::MODIFICATION_TIMESTAMP_FIELDNAME].setValue(now);  // also: dirty
 }
 
 
@@ -444,7 +444,7 @@ void DatabaseObject::setAllDirty()
 
 QList<int> DatabaseObject::getAllPKs() const
 {
-    return DbFunc::getPKs(m_db, m_tablename, m_pk_fieldname);
+    return dbfunc::getPKs(m_db, m_tablename, m_pk_fieldname);
 }
 
 
@@ -454,7 +454,7 @@ QList<int> DatabaseObject::getAllPKs() const
 
 void DatabaseObject::deleteFromDatabase()
 {
-    using DbFunc::delimit;
+    using dbfunc::delimit;
     QVariant pk = pkvalue();
     if (pk.isNull()) {
         qWarning() << "Attempting to delete a DatabaseObject with a "
@@ -470,14 +470,14 @@ void DatabaseObject::deleteFromDatabase()
     WhereConditions where_blob;
     where_blob[Blob::SRC_TABLE_FIELDNAME] = tablename();
     where_blob[Blob::SRC_PK_FIELDNAME] = pk;
-    if (!DbFunc::deleteFrom(m_db, Blob::TABLENAME, where_blob)) {
+    if (!dbfunc::deleteFrom(m_db, Blob::TABLENAME, where_blob)) {
         qWarning() << "Failed to delete BLOB(s) where:" << where_blob;
     }
 
     // Delete ourself
     WhereConditions where_self;
     where_self[pkname()] = pk;
-    bool success = DbFunc::deleteFrom(m_db, m_tablename, where_self);
+    bool success = dbfunc::deleteFrom(m_db, m_tablename, where_self);
     if (success) {
         nullify();
     } else {
@@ -494,7 +494,7 @@ void DatabaseObject::deleteFromDatabase()
 void DatabaseObject::requireField(const QString &fieldname) const
 {
     if (!m_record.contains(fieldname)) {
-        UiFunc::stopApp("DatabaseObject::requireField: Database object with "
+        uifunc::stopApp("DatabaseObject::requireField: Database object with "
                         "tablename '" + m_tablename + "' does not contain "
                         "field: " + fieldname);
     }
@@ -507,7 +507,7 @@ void DatabaseObject::requireField(const QString &fieldname) const
 
 bool DatabaseObject::shouldMoveOffTablet() const
 {
-    return valueBool(DbConst::MOVE_OFF_TABLET_FIELDNAME);
+    return valueBool(dbconst::MOVE_OFF_TABLET_FIELDNAME);
 }
 
 
@@ -517,7 +517,7 @@ void DatabaseObject::setMoveOffTablet(bool move_off)
         qWarning() << Q_FUNC_INFO << "m_has_move_off_tablet_field is false";
         return;
     }
-    setValue(DbConst::MOVE_OFF_TABLET_FIELDNAME, move_off, false);
+    setValue(dbconst::MOVE_OFF_TABLET_FIELDNAME, move_off, false);
     save();
 }
 
@@ -534,7 +534,7 @@ void DatabaseObject::toggleMoveOffTablet()
 
 QString DatabaseObject::sqlCreateTable() const
 {
-    return DbFunc::sqlCreateTable(m_tablename, fieldsOrdered());
+    return dbfunc::sqlCreateTable(m_tablename, fieldsOrdered());
 }
 
 QString DatabaseObject::tablename() const
@@ -558,13 +558,13 @@ QVariant DatabaseObject::pkvalue() const
 int DatabaseObject::pkvalueInt() const
 {
     QVariant pk = pkvalue();
-    return pk.isNull() ? DbConst::NONEXISTENT_PK : pk.toInt();
+    return pk.isNull() ? dbconst::NONEXISTENT_PK : pk.toInt();
 }
 
 
 void DatabaseObject::makeTable()
 {
-    DbFunc::createTable(m_db, m_tablename, fieldsOrdered());
+    dbfunc::createTable(m_db, m_tablename, fieldsOrdered());
 }
 
 const QSqlDatabase& DatabaseObject::database() const
@@ -590,7 +590,7 @@ bool DatabaseObject::saveInsert()
         if (field.isPk()) {
             continue;
         }
-        fieldnames.append(DbFunc::delimit(fieldname));
+        fieldnames.append(dbfunc::delimit(fieldname));
         args.append(field.databaseValue());  // not field.value()
         placeholders.append("?");
         if (field.isMandatory() && field.isNull()) {
@@ -598,7 +598,7 @@ bool DatabaseObject::saveInsert()
         }
     }
     QString sql = (
-        "INSERT OR REPLACE INTO " + DbFunc::delimit(m_tablename) +
+        "INSERT OR REPLACE INTO " + dbfunc::delimit(m_tablename) +
         " (" +
         fieldnames.join(", ") +
         ") VALUES (" +
@@ -606,7 +606,7 @@ bool DatabaseObject::saveInsert()
         ")"
     );
     QSqlQuery query(m_db);
-    bool success = DbFunc::execQuery(query, sql, args);
+    bool success = dbfunc::execQuery(query, sql, args);
     if (!success) {
         qCritical() << Q_FUNC_INFO << "Failed to INSERT record into table"
                     << m_tablename;
@@ -642,7 +642,7 @@ bool DatabaseObject::saveUpdate()
         QString fieldname = i.key();
         Field field = i.value();
         if (field.isDirty()) {
-            fieldnames.append(DbFunc::delimit(fieldname) + "=?");
+            fieldnames.append(dbfunc::delimit(fieldname) + "=?");
             args.append(field.databaseValue());  // not field.value()
             if (field.isMandatory() && field.isNull()) {
                 qWarning() << NOT_NULL_ERROR << fieldname;
@@ -656,12 +656,12 @@ bool DatabaseObject::saveUpdate()
         return true;
     }
     QString sql = (
-        "UPDATE " + DbFunc::delimit(m_tablename) + " SET " +
+        "UPDATE " + dbfunc::delimit(m_tablename) + " SET " +
         fieldnames.join(", ") +
-        " WHERE " + DbFunc::delimit(pkname()) + "=?"
+        " WHERE " + dbfunc::delimit(pkname()) + "=?"
     );
     args.append(pkvalue());
-    bool success = DbFunc::exec(m_db, sql, args);
+    bool success = dbfunc::exec(m_db, sql, args);
     if (!success) {
         qCritical() << Q_FUNC_INFO << "Failed to UPDATE record into table"
                     << m_tablename;

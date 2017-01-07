@@ -140,7 +140,7 @@ MenuItem::MenuItem(const TaskMenuItem& taskmenuitem, CamcopsApp& app)
     m_subtitle = task->menusubtitle();
     m_crippled = task->isCrippled();
     if (task->isAnonymous()) {
-        m_icon = UiFunc::iconFilename(UiConst::ICON_ANONYMOUS);
+        m_icon = uifunc::iconFilename(uiconst::ICON_ANONYMOUS);
     }
 }
 
@@ -265,16 +265,16 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
 
         // Notification of "incomplete" status
         QLabel* incomplete_icon = m_p_task->isComplete()
-                ? UiFunc::blankIcon()
-                : UiFunc::iconWidget(UiFunc::iconFilename(UiConst::ICON_WARNING));
+                ? uifunc::blankIcon()
+                : uifunc::iconWidget(uifunc::iconFilename(uiconst::ICON_WARNING));
         incomplete_icon->setSizePolicy(sp_icon);
         rowlayout->addWidget(incomplete_icon);
 
         // Move-off item, if selected (only applicable to anonymous tasks)
         if (m_p_task->isAnonymous()) {
             QLabel* icon = m_p_task->shouldMoveOffTablet()
-                    ? UiFunc::iconWidget(UiFunc::iconFilename(UiConst::CBS_FINISHFLAG))
-                    : UiFunc::blankIcon();
+                    ? uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_FINISHFLAG))
+                    : uifunc::blankIcon();
             QSizePolicy sp_icon(QSizePolicy::Fixed, QSizePolicy::Fixed);
             icon->setSizePolicy(sp_icon);
             rowlayout->addWidget(icon);
@@ -308,8 +308,8 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
             QLabel* taskname = new LabelWordWrapWide(contents);
             taskname->setAlignment(text_align);
             taskname->setObjectName(complete
-                                    ? CssConst::TASK_ITEM_TASKNAME_COMPLETE
-                                    : CssConst::TASK_ITEM_TASKNAME_INCOMPLETE);
+                                    ? cssconst::TASK_ITEM_TASKNAME_COMPLETE
+                                    : cssconst::TASK_ITEM_TASKNAME_INCOMPLETE);
 
             col1_hbox->addWidget(taskname);
             col1_hbox->addStretch();
@@ -326,11 +326,11 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         col2_widget->setLayout(col2_hbox);
 
         QLabel* timestamp = new LabelWordWrapWide(
-            m_p_task->whenCreated().toString(DateTime::SHORT_DATETIME_FORMAT));
+            m_p_task->whenCreated().toString(datetime::SHORT_DATETIME_FORMAT));
         timestamp->setAlignment(text_align);
         timestamp->setObjectName(complete
-                                 ? CssConst::TASK_ITEM_TIMESTAMP_COMPLETE
-                                 : CssConst::TASK_ITEM_TIMESTAMP_INCOMPLETE);
+                                 ? cssconst::TASK_ITEM_TIMESTAMP_COMPLETE
+                                 : cssconst::TASK_ITEM_TIMESTAMP_INCOMPLETE);
 
         col2_hbox->addWidget(timestamp);
         col2_hbox->addStretch();
@@ -349,8 +349,8 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
                     m_p_task->summaryWithCompletenessInfo().join(" "));
         summary->setAlignment(text_align);
         summary->setObjectName(complete
-                               ? CssConst::TASK_ITEM_SUMMARY_COMPLETE
-                               : CssConst::TASK_ITEM_SUMMARY_INCOMPLETE);
+                               ? cssconst::TASK_ITEM_SUMMARY_COMPLETE
+                               : cssconst::TASK_ITEM_SUMMARY_INCOMPLETE);
 
         col3_hbox->addWidget(summary);
         col3_hbox->addStretch();
@@ -388,9 +388,9 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         title->setAlignment(text_align);
         subtitle1->setAlignment(text_align);
         subtitle2->setAlignment(text_align);
-        title->setObjectName(CssConst::MENU_ITEM_TITLE);
-        subtitle1->setObjectName(CssConst::MENU_ITEM_SUBTITLE);
-        subtitle2->setObjectName(CssConst::MENU_ITEM_SUBTITLE);
+        title->setObjectName(cssconst::MENU_ITEM_TITLE);
+        subtitle1->setObjectName(cssconst::MENU_ITEM_SUBTITLE);
+        subtitle2->setObjectName(cssconst::MENU_ITEM_SUBTITLE);
         title->setSizePolicy(sp);
         subtitle1->setSizePolicy(sp);
         subtitle2->setSizePolicy(sp);
@@ -401,16 +401,16 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         // Patient icon
         if (!m_p_patient->compliesWith(app.uploadPolicy()) ||
                 m_p_patient->anyIdClash()) {
-            rowlayout->addWidget(UiFunc::iconWidget(
-                    UiFunc::iconFilename(UiConst::ICON_STOP)));
+            rowlayout->addWidget(uifunc::iconWidget(
+                    uifunc::iconFilename(uiconst::ICON_STOP)));
         } else if (!m_p_patient->compliesWith(app.finalizePolicy())) {
-            rowlayout->addWidget(UiFunc::iconWidget(
-                    UiFunc::iconFilename(UiConst::ICON_WARNING)));
+            rowlayout->addWidget(uifunc::iconWidget(
+                    uifunc::iconFilename(uiconst::ICON_WARNING)));
         } else if (m_p_patient->shouldMoveOffTablet()) {
-            rowlayout->addWidget(UiFunc::iconWidget(
-                    UiFunc::iconFilename(UiConst::CBS_FINISHFLAG)));
+            rowlayout->addWidget(uifunc::iconWidget(
+                    uifunc::iconFilename(uiconst::CBS_FINISHFLAG)));
         } else {
-            rowlayout->addWidget(UiFunc::blankIcon());
+            rowlayout->addWidget(uifunc::blankIcon());
         }
 
         rowlayout->addLayout(textlayout);
@@ -428,14 +428,14 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         // Icon
         if (!m_label_only) {  // Labels go full-left
             if (!m_icon.isEmpty()) {
-                QLabel* icon = UiFunc::iconWidget(m_icon);
+                QLabel* icon = uifunc::iconWidget(m_icon);
                 rowlayout->addWidget(icon);
             } else if (m_chain) {
-                QLabel* icon = UiFunc::iconWidget(
-                    UiFunc::iconFilename(UiConst::ICON_CHAIN));
+                QLabel* icon = uifunc::iconWidget(
+                    uifunc::iconFilename(uiconst::ICON_CHAIN));
                 rowlayout->addWidget(icon);
             } else {
-                rowlayout->addWidget(UiFunc::blankIcon());
+                rowlayout->addWidget(uifunc::blankIcon());
             }
         }
 
@@ -444,12 +444,12 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
 
         QLabel* title = new LabelWordWrapWide(m_title);
         title->setAlignment(text_align);
-        title->setObjectName(CssConst::MENU_ITEM_TITLE);
+        title->setObjectName(cssconst::MENU_ITEM_TITLE);
         textlayout->addWidget(title);
         if (!m_subtitle.isEmpty()) {
             QLabel* subtitle = new LabelWordWrapWide(m_subtitle);
             subtitle->setAlignment(text_align);
-            subtitle->setObjectName(CssConst::MENU_ITEM_SUBTITLE);
+            subtitle->setObjectName(cssconst::MENU_ITEM_SUBTITLE);
             textlayout->addWidget(subtitle);
         }
         rowlayout->addLayout(textlayout);
@@ -457,23 +457,23 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
 
         // Arrow on right
         if (m_arrow_on_right) {
-            QLabel* iconLabel = UiFunc::iconWidget(
-                UiFunc::iconFilename(UiConst::ICON_HASCHILD),
+            QLabel* iconLabel = uifunc::iconWidget(
+                uifunc::iconFilename(uiconst::ICON_HASCHILD),
                 nullptr, false);
             rowlayout->addWidget(iconLabel);
         }
 
         // Background colour, via stylesheets
         if (m_label_only) {
-            row->setObjectName(CssConst::LABEL_ONLY);
+            row->setObjectName(cssconst::LABEL_ONLY);
         } else if (!m_implemented) {
-            row->setObjectName(CssConst::NOT_IMPLEMENTED);
+            row->setObjectName(cssconst::NOT_IMPLEMENTED);
         } else if (m_unsupported) {
-            row->setObjectName(CssConst::UNSUPPORTED);
+            row->setObjectName(cssconst::UNSUPPORTED);
         } else if (m_not_if_locked && app.locked()) {
-            row->setObjectName(CssConst::LOCKED);
+            row->setObjectName(cssconst::LOCKED);
         } else if (m_needs_privilege && !app.privileged()) {
-            row->setObjectName(CssConst::NEEDS_PRIVILEGE);
+            row->setObjectName(cssconst::NEEDS_PRIVILEGE);
         }
         // ... but not for locked/needs privilege, as otherwise we'd need
         // to refresh the whole menu? Well, we could try it.
@@ -504,19 +504,19 @@ void MenuItem::act(CamcopsApp& app) const
         return;
     }
     if (!m_implemented) {
-        UiFunc::alert(tr("Not implemented yet!"));
+        uifunc::alert(tr("Not implemented yet!"));
         return;
     }
     if (m_unsupported) {
-        UiFunc::alert(tr("Not supported on this platform!"));
+        uifunc::alert(tr("Not supported on this platform!"));
         return;
     }
     if (m_needs_privilege && !app.privileged()) {
-        UiFunc::alert(tr("You must set Privileged Mode first"));
+        uifunc::alert(tr("You must set Privileged Mode first"));
         return;
     }
     if (m_not_if_locked && app.locked()) {
-        UiFunc::alert(tr("Can’t perform this action when CamCOPS is locked"),
+        uifunc::alert(tr("Can’t perform this action when CamCOPS is locked"),
                       tr("Unlock first"));
         return;
     }
@@ -599,7 +599,7 @@ MenuItem& MenuItem::setUnsupported(bool unsupported)
 
 QDebug operator<<(QDebug debug, const MenuItem& m)
 {
-    debug.nospace() << "MenuItem @ " << Convert::prettyPointer(&m)
+    debug.nospace() << "MenuItem @ " << convert::prettyPointer(&m)
                     << " (m_title=" << m.m_title
                     << ", m_p_task=" << m.m_p_task
                     << ", m_p_patient=" << m.m_p_patient

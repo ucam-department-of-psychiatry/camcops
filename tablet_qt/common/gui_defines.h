@@ -18,21 +18,82 @@
 #pragma once
 
 /*
-// #define GUI_USE_HFW_LAYOUT  // not working properly
-// ... for many things
 
+This file allows you to test custom layouts by swapping between
+
+(1) GUI_USE_RESIZE_FOR_HEIGHT
+
+    ... widgets use the trick of
+            MyWidget::resizeEvent(QResizeEvent* event) {
+                int current_width = width();
+                int new_height = heightForWidth(current_width);
+                setFixedHeight(new_height);
+                updateGeometry();
+            }
+    ... standard Qt layouts are used, e.g. QVBoxLayout, QHBoxLayout
+    ... you also have to implement custom functionality on the widgets that are
+        parents of height-for-width widgets in the layout heirarchy (and their
+        parent, etc.), which is the particular annoyance
+
+and (2) GUI_USE_HFW_LAYOUT
+
+    ... widgets don't use the resizeEvent()
+    ... we have custom layouts, e.g. VBoxLayoutHfw and HBoxLayoutHfw, which
+        respect the height-for-width system in a different way
+    ... generally preferable?
+
+Files that make up a complete set of classes:
+
+    common/gui_defines.h    - this master switch, for testing
+    common/layouts.h        - choose Qt or custom layouts via master switch;
+                              refer to them as VBoxLayout, HBoxLayout, etc.
+                              and this file will choose the actual
+                              implementation (*)
+    lib/sizehelpers.h       - shortcuts for size policies/resize functions
+    widgets/margins.h       - simple class to hold margins
+
+    widgets/basewidget.h    } widget class that'll act as a parent widget
+    widgets/basewidget.cpp  }   for a height-for-width widget (*)
+
+    widgets/boxlayouthfw.h      } replacements for QBoxLayout, QHBoxLayout,
+    widgets/boxlayouthfw.cpp    }   QVBoxLayout, so you can leave your widget
+    widgets/hboxlayouthfw.h     }   classes alone except for implementing
+    widgets/hboxlayouthfw.cpp   }   hasHeightForWidth() and heightForWidth(),
+    widgets/vboxlayouthfw.h     }   and have them sized properly for you
+    widgets/vboxlayouthfw.cpp   }
+
+    widgets/gridlayouthfw.h     } similar replacement for QGridLayout
+    widgets/gridlayouthfw.cpp   }
+
+    widgets/flowlayouthfw.h     } replacement for the Qt FlowLayout example
+    widgets/flowlayouthfw.cpp   }   that handles height-for-width better
+
+    widgets/qtlayouthelpers.h   - reimplemented (and re-namespaced) private Qt
+                                    layout functions, used by the new layouts
+
+    widgets/labelwordwrapwide.h     } replacement for QLabel that tries to use
+    widgets/labelwordwrapwide.cpp   }   as much width as possible before
+                                        wrapping
+
+    (*) uses gui_defines.h to implement a master switch for testing
+
+Relevant web discussions include:
+
+    2013-01-09 http://stackoverflow.com/questions/14238138/heightforwidth-label
+*/
+
+// The master switch: leave it, or comment it out
+#define GUI_USE_HFW_LAYOUT
+
+// Switches that follow from it:
 #ifndef GUI_USE_HFW_LAYOUT
 #define GUI_USE_RESIZE_FOR_HEIGHT
-// ... for BaseWidget, LabelWordWrapWide, AspectRatioPixmapLabel...
 #endif
 
+// No silly combinations, please:
 #if defined(GUI_USE_HFW_LAYOUT) == defined(GUI_USE_RESIZE_FOR_HEIGHT)
 #error Define GUI_USE_HFW_LAYOUT xor GUI_USE_RESIZE_FOR_HEIGHT
 #endif
-*/
-
-#define GUI_USE_HFW_LAYOUT
-// #define GUI_USE_RESIZE_FOR_HEIGHT
 
 
 /*

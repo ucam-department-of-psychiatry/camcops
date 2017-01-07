@@ -40,7 +40,7 @@ const QString RECORD_RE_STR("^([\\S]+?):\\s*([\\s\\S]*)");
 const QRegularExpression RECORD_RE(RECORD_RE_STR);
 
 
-QString Convert::escapeNewlines(QString raw)
+QString convert::escapeNewlines(QString raw)
 {
     // Raw string literal, from C++ 11 (note the parentheses):
     // http://en.cppreference.com/w/cpp/language/string_literal
@@ -51,7 +51,7 @@ QString Convert::escapeNewlines(QString raw)
 }
 
 
-QString Convert::unescapeNewlines(QString escaped)
+QString convert::unescapeNewlines(QString escaped)
 {
     if (escaped.isEmpty()) {
         return escaped;
@@ -83,7 +83,7 @@ QString Convert::unescapeNewlines(QString escaped)
 }
 
 
-QString Convert::sqlQuoteString(QString raw)
+QString convert::sqlQuoteString(QString raw)
 {
     // In: my name's Bob
     // Out: 'my name''s Bob'
@@ -92,7 +92,7 @@ QString Convert::sqlQuoteString(QString raw)
 }
 
 
-QString Convert::sqlDequoteString(const QString& quoted)
+QString convert::sqlDequoteString(const QString& quoted)
 {
     // In: 'my name''s Bob'
     // Out: my name's Bob
@@ -110,14 +110,14 @@ QString Convert::sqlDequoteString(const QString& quoted)
 }
 
 
-QString Convert::blobToQuotedBase64(const QByteArray& blob)
+QString convert::blobToQuotedBase64(const QByteArray& blob)
 {
     // Returns in the format: 64'...'
     return QString("64'%1'").arg(QString(blob.toBase64()));
 }
 
 
-QByteArray Convert::quotedBase64ToBlob(const QString& quoted)
+QByteArray convert::quotedBase64ToBlob(const QString& quoted)
 {
     // Reverses blobToQuotedBase64()
     int n = quoted.length();
@@ -130,13 +130,13 @@ QByteArray Convert::quotedBase64ToBlob(const QString& quoted)
 }
 
 
-QString Convert::padHexTwo(const QString& input)
+QString convert::padHexTwo(const QString& input)
 {
     return input.length() == 1 ? QString("0") + input : input;
 }
 
 
-QString Convert::blobToQuotedHex(const QByteArray& blob)
+QString convert::blobToQuotedHex(const QByteArray& blob)
 {
     // Returns in the format: X'01FF76A8'
     // Since Qt is magic:
@@ -144,7 +144,7 @@ QString Convert::blobToQuotedHex(const QByteArray& blob)
 }
 
 
-QByteArray Convert::quotedHexToBlob(const QString& hex)
+QByteArray convert::quotedHexToBlob(const QString& hex)
 {
     // Reverses blobToQuotedHex()
     int n = hex.length();
@@ -157,7 +157,7 @@ QByteArray Convert::quotedHexToBlob(const QString& hex)
 }
 
 
-QString Convert::toSqlLiteral(const QVariant& value)
+QString convert::toSqlLiteral(const QVariant& value)
 {
     if (value.isNull()) {
         return "NULL";
@@ -192,7 +192,7 @@ QString Convert::toSqlLiteral(const QVariant& value)
     case QVariant::Time:
         return value.toTime().toString("'HH:mm:ss'");
     case QVariant::DateTime:
-        return QString("'%1'").arg(DateTime::datetimeToIsoMs(value.toDateTime()));
+        return QString("'%1'").arg(datetime::datetimeToIsoMs(value.toDateTime()));
 
     // BLOB types
     case QVariant::ByteArray:
@@ -200,7 +200,7 @@ QString Convert::toSqlLiteral(const QVariant& value)
         return blobToQuotedBase64(value.toByteArray());
 
     default:
-        UiFunc::stopApp("Convert::toSqlLiteral: Unknown field type: " +
+        uifunc::stopApp("Convert::toSqlLiteral: Unknown field type: " +
                         value.type());
         // We'll never get here, but to stop compilers complaining:
         return "NULL";
@@ -208,7 +208,7 @@ QString Convert::toSqlLiteral(const QVariant& value)
 }
 
 
-QVariant Convert::fromSqlLiteral(const QString& literal)
+QVariant convert::fromSqlLiteral(const QString& literal)
 {
     if (literal.isEmpty() ||
             literal.compare("NULL", Qt::CaseInsensitive) == 0) {
@@ -246,7 +246,7 @@ QVariant Convert::fromSqlLiteral(const QString& literal)
 }
 
 
-QList<QVariant> Convert::csvSqlLiteralsToValues(const QString& csv)
+QList<QVariant> convert::csvSqlLiteralsToValues(const QString& csv)
 {
     // In: 34, NULL, 'a string''s test, with commas', X'0FB2AA', 64'c3VyZS4='
     // Out: split by commas, dealing with quotes appropriately
@@ -299,7 +299,7 @@ QList<QVariant> Convert::csvSqlLiteralsToValues(const QString& csv)
 }
 
 
-QString Convert::valuesToCsvSqlLiterals(const QList<QVariant>& values)
+QString convert::valuesToCsvSqlLiterals(const QList<QVariant>& values)
 {
     QStringList literals;
     for (auto value : values) {
@@ -309,7 +309,7 @@ QString Convert::valuesToCsvSqlLiterals(const QList<QVariant>& values)
 }
 
 
-QByteArray Convert::imageToByteArray(const QImage& image,
+QByteArray convert::imageToByteArray(const QImage& image,
                                      const char* format)
 {
     // I thought passing a QImage to a QVariant-accepting function would lead
@@ -325,14 +325,14 @@ QByteArray Convert::imageToByteArray(const QImage& image,
 }
 
 
-QVariant Convert::imageToVariant(const QImage& image,
+QVariant convert::imageToVariant(const QImage& image,
                                  const char* format)
 {
     return QVariant(imageToByteArray(image, format));
 }
 
 
-QImage Convert::byteArrayToImage(const QByteArray& array, const char* format)
+QImage convert::byteArrayToImage(const QByteArray& array, const char* format)
 {
     QImage image;
     image.loadFromData(array, format);
@@ -340,19 +340,19 @@ QImage Convert::byteArrayToImage(const QByteArray& array, const char* format)
 }
 
 
-QByteArray Convert::base64ToBytes(const QString& data_b64)
+QByteArray convert::base64ToBytes(const QString& data_b64)
 {
     return QByteArray::fromBase64(data_b64.toLocal8Bit());
 }
 
 
-SecureQByteArray Convert::base64ToSecureBytes(const QString& data_b64)
+SecureQByteArray convert::base64ToSecureBytes(const QString& data_b64)
 {
     return SecureQByteArray::fromBase64(data_b64.toLocal8Bit());
 }
 
 
-QString Convert::prettyValue(const QVariant& variant, QVariant::Type type)
+QString convert::prettyValue(const QVariant& variant, QVariant::Type type)
 {
     if (variant.isNull()) {
         return "NULL";
@@ -368,7 +368,7 @@ QString Convert::prettyValue(const QVariant& variant, QVariant::Type type)
 }
 
 
-QString Convert::prettyValue(const QVariant& variant)
+QString convert::prettyValue(const QVariant& variant)
 {
     return prettyValue(variant, variant.type());
 }
@@ -380,7 +380,7 @@ const QStringList PREFIXES_SHORT_DECIMAL{"", "k", "M", "G", "T", "P", "E", "Z", 
 const QStringList PREFIXES_LONG_DECIMAL{"", "kilo", "mega", "giga", "tera", "peta", "exa", "zetta", "yotta"};
 
 
-QString Convert::prettySize(double num, bool space, bool binary, bool longform,
+QString convert::prettySize(double num, bool space, bool binary, bool longform,
                             const QString& suffix)
 {
     // http://stackoverflow.com/questions/3758606/how-to-convert-byte-size-into-human-readable-format-in-java
@@ -402,7 +402,7 @@ QString Convert::prettySize(double num, bool space, bool binary, bool longform,
 }
 
 
-QString Convert::prettyPointer(const void* pointer)
+QString convert::prettyPointer(const void* pointer)
 {
     // http://stackoverflow.com/questions/8881923/how-to-convert-a-pointer-value-to-qstring
     return QString("0x%1").arg((quintptr)pointer,
@@ -410,7 +410,7 @@ QString Convert::prettyPointer(const void* pointer)
 }
 
 
-QMap<QString, QString> Convert::getReplyDict(const QByteArray& data)
+QMap<QString, QString> convert::getReplyDict(const QByteArray& data)
 {
     // For server replies looking like key1:value1\nkey2:value2 ...
     QList<QByteArray> lines = data.split('\n');
@@ -427,7 +427,7 @@ QMap<QString, QString> Convert::getReplyDict(const QByteArray& data)
 }
 
 
-QUrlQuery Convert::getPostDataAsUrlQuery(const QMap<QString, QString>& dict)
+QUrlQuery convert::getPostDataAsUrlQuery(const QMap<QString, QString>& dict)
 {
     // http://stackoverflow.com/questions/2599423/how-can-i-post-data-to-a-url-using-qnetworkaccessmanager
 

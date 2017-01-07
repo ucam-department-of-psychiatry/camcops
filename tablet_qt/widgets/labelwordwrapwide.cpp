@@ -38,7 +38,7 @@
 #include <QStyle>
 #include <QStyleOptionFrame>
 #include "common/gui_defines.h"
-#include "lib/uifunc.h"
+#include "lib/sizehelpers.h"
 
 #ifdef DEBUG_LAYOUT_WITH_CSS
 #include "common/cssconst.h"
@@ -81,11 +81,11 @@ void LabelWordWrapWide::commonConstructor()
 {
     setWordWrap(true);  // will also do setHeightForWidth(true);
 #ifdef GUI_USE_RESIZE_FOR_HEIGHT
-    setSizePolicy(UiFunc::maximumFixedHFWPolicy());
+    setSizePolicy(SizeHelpers::maximumFixedHFWPolicy());
 #else
     // can leave it at the default of Preferred, Preferred (plus HFW as above)
     // but to be explicit:
-    setSizePolicy(UiFunc::preferredPreferredHFWPolicy());
+    setSizePolicy(sizehelpers::preferredPreferredHFWPolicy());
 #endif
 
     // If the horizontal policy is Preferred (with vertical Minimum), then
@@ -293,7 +293,7 @@ QSize LabelWordWrapWide::extraSizeForCssOrLayout() const
     QSize dummy(0, 0);
     QStyleOptionFrame opt;
     initStyleOption(&opt);  // protected
-    QSize extra_for_css_or_layout = UiFunc::labelExtraSizeRequired(
+    QSize extra_for_css_or_layout = sizehelpers::labelExtraSizeRequired(
                 this, &opt, dummy);
 #ifdef LWWW_USE_STYLE_CACHE
     m_cached_extra_for_css_or_layout = extra_for_css_or_layout;

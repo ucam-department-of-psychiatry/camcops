@@ -22,6 +22,7 @@
 #include "common/cssconst.h"
 #include "common/layouts.h"
 #include "common/uiconstants.h"
+#include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
 #include "widgets/horizontalline.h"
 #include "widgets/imagebutton.h"
@@ -58,7 +59,7 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
         // ... advises caution with setAutoFillBackground() and stylesheets
     }
 #ifndef QUESTIONNAIRE_HEADER_USE_HFW_BASE
-    setSizePolicy(UiFunc::expandingFixedHFWPolicy());  // if deriving from QWidget
+    setSizePolicy(sizehelpers::expandingFixedHFWPolicy());  // if deriving from QWidget
 #endif
 
     VBoxLayout* mainlayout = new VBoxLayout();
@@ -74,15 +75,15 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     Qt::Alignment text_align = Qt::AlignHCenter | Qt::AlignVCenter;
 
     // Cancel button
-    QAbstractButton* cancel = new ImageButton(UiConst::CBS_CANCEL);
+    QAbstractButton* cancel = new ImageButton(uiconst::CBS_CANCEL);
     toprowlayout->addWidget(cancel, 0, button_align);
     connect(cancel, &QAbstractButton::clicked,
             this, &QuestionnaireHeader::cancelClicked);
 
     // Read-only icon
     if (read_only) {
-        QLabel* read_only_icon = UiFunc::iconWidget(
-            UiFunc::iconFilename(UiConst::ICON_READ_ONLY));
+        QLabel* read_only_icon = uifunc::iconWidget(
+            uifunc::iconFilename(uiconst::ICON_READ_ONLY));
         toprowlayout->addWidget(read_only_icon, 0, button_align);
     }
 
@@ -106,28 +107,28 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
         toprowlayout->addWidget(m_button_debug, 0, text_align);
     }
 
-    m_button_previous = new ImageButton(UiConst::CBS_BACK);
+    m_button_previous = new ImageButton(uiconst::CBS_BACK);
     toprowlayout->addWidget(m_button_previous, 0, button_align);
 
     if (jump_allowed) {
-        m_button_jump = new ImageButton(UiConst::CBS_CHOOSE_PAGE);
+        m_button_jump = new ImageButton(uiconst::CBS_CHOOSE_PAGE);
         connect(m_button_jump, &QAbstractButton::clicked,
                 this, &QuestionnaireHeader::jumpClicked);
         toprowlayout->addWidget(m_button_jump, 0, button_align);
     }
 
-    m_button_next = new ImageButton(UiConst::CBS_NEXT);
+    m_button_next = new ImageButton(uiconst::CBS_NEXT);
     toprowlayout->addWidget(m_button_next, 0, button_align);
 
     if (within_chain) {
-        m_button_finish = new ImageButton(UiConst::CBS_FAST_FORWARD);
+        m_button_finish = new ImageButton(uiconst::CBS_FAST_FORWARD);
     } else {
-        m_button_finish = new ImageButton(UiConst::CBS_FINISH);
+        m_button_finish = new ImageButton(uiconst::CBS_FINISH);
     }
     toprowlayout->addWidget(m_button_finish, 0, button_align);
 
-    m_icon_no_next = UiFunc::iconWidget(
-        UiFunc::iconFilename(UiConst::ICON_WARNING));
+    m_icon_no_next = uifunc::iconWidget(
+        uifunc::iconFilename(uiconst::ICON_WARNING));
     toprowlayout->addWidget(m_icon_no_next, 0, button_align);
 
     setButtons(false, false, false);
@@ -141,8 +142,8 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     // ------------------------------------------------------------------------
     // Horizontal line
     // ------------------------------------------------------------------------
-    HorizontalLine* horizline = new HorizontalLine(UiConst::HEADER_HLINE_WIDTH);
-    horizline->setObjectName(CssConst::QUESTIONNAIRE_HORIZONTAL_LINE);
+    HorizontalLine* horizline = new HorizontalLine(uiconst::HEADER_HLINE_WIDTH);
+    horizline->setObjectName(cssconst::QUESTIONNAIRE_HORIZONTAL_LINE);
     mainlayout->addWidget(horizline);
 
 }

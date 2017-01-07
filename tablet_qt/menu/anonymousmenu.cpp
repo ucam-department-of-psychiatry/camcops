@@ -23,7 +23,7 @@
 
 AnonymousMenu::AnonymousMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Anonymous questionnaires"),
-               UiFunc::iconFilename(UiConst::ICON_ANONYMOUS))
+               uifunc::iconFilename(uiconst::ICON_ANONYMOUS))
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),
