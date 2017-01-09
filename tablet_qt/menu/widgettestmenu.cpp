@@ -181,8 +181,10 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
                  std::bind(&WidgetTestMenu::testLabelWordWrapWide, this, true, true)),
         MenuItem("VerticalLine",
                  std::bind(&WidgetTestMenu::testVerticalLine, this)),
-        MenuItem("VerticalScrollArea",
-                 std::bind(&WidgetTestMenu::testVerticalScrollArea, this)),
+        MenuItem("VerticalScrollArea (short text)",
+                 std::bind(&WidgetTestMenu::testVerticalScrollArea, this, false)),
+        MenuItem("VerticalScrollArea (long text)",
+                 std::bind(&WidgetTestMenu::testVerticalScrollArea, this, true)),
 
         // --------------------------------------------------------------------
         MenuItem("Layouts and the like").setLabelOnly(),
@@ -193,6 +195,12 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
                  std::bind(&WidgetTestMenu::testBaseWidget, this, false)),
         MenuItem("BaseWidget (with long text)",
                  std::bind(&WidgetTestMenu::testBaseWidget, this, true)),
+        MenuItem("VBoxLayout (either QVBoxLayout or VBoxLayoutHfw), "
+                 "with 2 x LabelWordWrapWide (short text)",
+                 std::bind(&WidgetTestMenu::testVBoxLayout, this, false)),
+        MenuItem("VBoxLayout (either QVBoxLayout or VBoxLayoutHfw), "
+                 "with 2 x LabelWordWrapWide (long text)",
+                 std::bind(&WidgetTestMenu::testVBoxLayout, this, true)),
 
         MenuItem("Large-scale widgets").setLabelOnly(),
         MenuItem("MenuItem",
@@ -482,18 +490,32 @@ void WidgetTestMenu::testVerticalLine()
 }
 
 
-void WidgetTestMenu::testVerticalScrollArea()
+void WidgetTestMenu::testVBoxLayout(bool long_text)
+{
+    QWidget* widget = new QWidget();
+    VBoxLayout* layout = new VBoxLayout();
+    widget->setLayout(layout);
+    layout->addWidget(new LabelWordWrapWide(
+                          long_text ? uiconst::LOREM_IPSUM_1 : "hello"));
+    layout->addWidget(new LabelWordWrapWide(
+                          long_text ? uiconst::LOREM_IPSUM_1 : "there"));
+    debugfunc::debugWidget(widget);
+}
+
+
+void WidgetTestMenu::testVerticalScrollArea(bool long_text)
 {
     QWidget* contentwidget = new QWidget();
-    QVBoxLayout* layout = new QVBoxLayout();
+    VBoxLayout* layout = new VBoxLayout();
     contentwidget->setLayout(layout);
 
-    layout->addWidget(new QLabel("hello"));
-    layout->addWidget(new QLabel("there"));
+    layout->addWidget(new LabelWordWrapWide(
+                          long_text ? uiconst::LOREM_IPSUM_1 : "hello"));
+    layout->addWidget(new LabelWordWrapWide(
+                          long_text ? uiconst::LOREM_IPSUM_1 : "there"));
 
     VerticalScrollArea* scrollwidget = new VerticalScrollArea();
     scrollwidget->setWidget(contentwidget);
-
     debugfunc::debugWidget(scrollwidget);
 }
 

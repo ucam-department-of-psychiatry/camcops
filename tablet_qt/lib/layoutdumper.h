@@ -39,6 +39,7 @@ QString getWidgetInfo(const QWidget* w,
 QString getWidgetAttributeInfo(const QWidget* w);
 QString getDynamicProperties(const QWidget* w);
 QString getLayoutInfo(const QLayout* layout);
+QString getSpacerInfo(QSpacerItem* si);
 QString paddingSpaces(int level, int spaces_per_level);
 QList<const QWidget*> dumpLayoutAndChildren(
         QDebug& os, const QLayout* layout, int level,

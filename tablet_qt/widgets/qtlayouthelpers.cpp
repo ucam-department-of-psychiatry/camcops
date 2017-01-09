@@ -56,11 +56,114 @@
 **
 ****************************************************************************/
 
-#define LAYOUT_EXTRA_DEBUG
+#define DEBUG_LAYOUT
 
 #include "qtlayouthelpers.h"
 #include <QDebug>
 #include <QWidget>
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+const QRect qtlayouthelpers::QT_DEFAULT_RECT(0, 0, 640, 480);  // as per QWidgetPrivate::init()
+
+
+// ============================================================================
+// WidgetItemHfw
+// ============================================================================
+
+/*
+*/
+
+QSize qtlayouthelpers::WidgetItemHfw::minimumSize() const
+{
+    // Originals:
+    //
+    //    class QLayoutItem {
+    //        // ...
+    //        virtual QSize minimumSize() const = 0;
+    //    };
+    //
+    //    class QWidgetItem : public QLayoutItem { ... };
+    //
+    //    QSize QWidgetItem::minimumSize() const
+    //    {
+    //        if (isEmpty())
+    //            return QSize(0, 0);
+    //        return !wid->testAttribute(Qt::WA_LayoutUsesWidgetRect)
+    //               ? toLayoutItemSize(wid->d_func(), qSmartMinSize(this))
+    //               : qSmartMinSize(this);
+    //    }
+    //
+    //    class QWidgetItemV2 : public QWidgetItem { ... }
+    //
+    //    QSize QWidgetItemV2::minimumSize() const
+    //    {
+    //        if (isEmpty())
+    //            return QSize(0, 0);
+    //
+    //        if (useSizeCache()) {  // RNC: I think generally true
+    //            updateCacheIfNecessary();
+    //            return q_cachedMinimumSize;
+    //        } else {
+    //            return QWidgetItem::minimumSize();
+    //        }
+    //    }
+    //
+    //    void QWidgetItemV2::updateCacheIfNecessary() const  // RNC: NOT VIRTUAL
+    //    {
+    //        if (q_cachedMinimumSize.width() != Dirty)
+    //            return;
+    //
+    //        const QSize sizeHint(wid->sizeHint());
+    //        const QSize minimumSizeHint(wid->minimumSizeHint());
+    //        const QSize minimumSize(wid->minimumSize());
+    //        const QSize maximumSize(wid->maximumSize());
+    //        const QSizePolicy sizePolicy(wid->sizePolicy());
+    //        const QSize expandedSizeHint(sizeHint.expandedTo(minimumSizeHint));
+    //
+    //        const QSize smartMinSize(qSmartMinSize(sizeHint, minimumSizeHint, minimumSize, maximumSize, sizePolicy));
+    //        const QSize smartMaxSize(qSmartMaxSize(expandedSizeHint, minimumSize, maximumSize, sizePolicy, align));
+    //
+    //        const bool useLayoutItemRect = !wid->testAttribute(Qt::WA_LayoutUsesWidgetRect);
+    //
+    //        q_cachedMinimumSize = useLayoutItemRect
+    //               ? toLayoutItemSize(wid->d_func(), smartMinSize)
+    //               : smartMinSize;
+    //
+    //        q_cachedSizeHint = expandedSizeHint;
+    //        q_cachedSizeHint = q_cachedSizeHint.boundedTo(maximumSize)
+    //                                           .expandedTo(minimumSize);
+    //        q_cachedSizeHint = useLayoutItemRect
+    //               ? toLayoutItemSize(wid->d_func(), q_cachedSizeHint)
+    //               : q_cachedSizeHint;
+    //
+    //        if (wid->sizePolicy().horizontalPolicy() == QSizePolicy::Ignored)
+    //            q_cachedSizeHint.setWidth(0);
+    //        if (wid->sizePolicy().verticalPolicy() == QSizePolicy::Ignored)
+    //            q_cachedSizeHint.setHeight(0);
+    //
+    //        q_cachedMaximumSize = useLayoutItemRect
+    //                   ? toLayoutItemSize(wid->d_func(), smartMaxSize)
+    //                   : smartMaxSize;
+    //    }
+
+    QSize minsize = QWidgetItemV2::minimumSize();
+#ifdef DEBUG_LAYOUT
+    qDebug().nospace()
+            << Q_FUNC_INFO << " -> " << minsize
+            << " (wid->testAttribute(Qt::WA_LayoutUsesWidgetRect) == "
+            << wid->testAttribute(Qt::WA_LayoutUsesWidgetRect)
+            << ", wid->minimumSize() == " << wid->minimumSize()
+            << ", wid->minimumSizeHint() == " << wid->minimumSizeHint()
+            << ", wid->sizePolicy() == " << wid->sizePolicy()
+            << ", wid->sizePolicy().horizontalPolicy() & QSizePolicy::ShrinkFlag == "
+            << (wid->sizePolicy().horizontalPolicy() & QSizePolicy::ShrinkFlag)
+            << ")";
+#endif
+    return minsize;
+}
 
 
 // ============================================================================
@@ -86,35 +189,6 @@ static inline int fRound(Fixed64 i)
 // ============================================================================
 // Helper functions
 // ============================================================================
-
-// from qlayoutengine_p.h
-// original is static: http://stackoverflow.com/questions/558122/what-is-a-static-function
-// ... and inline
-/*
-  Modify total maximum (max), total expansion (exp), and total empty
-  when adding boxmax/boxexp.
-
-  Expansive boxes win over non-expansive boxes.
-  Non-empty boxes win over empty boxes.
-*/
-void qtlayouthelpers::qMaxExpCalc(int& max, bool& exp, bool &empty,
-                                   int boxmax, bool boxexp, bool boxempty)
-{
-    if (exp) {
-        if (boxexp) {
-            max = qMax(max, boxmax);
-        }
-    } else {
-        if (boxexp || (empty && (!boxempty || max == 0))) {
-            max = boxmax;
-        } else if (empty == boxempty) {
-            max = qMin(max, boxmax);
-        }
-    }
-    exp = exp || boxexp;
-    empty = empty && boxempty;
-}
-
 
 /*
   This is the main workhorse of the QGridLayout. It portions out
@@ -400,8 +474,9 @@ void qtlayouthelpers::qGeomCalc(QVector<QQLayoutStruct>& chain, int start,
         }
     }
 
-#ifdef LAYOUT_EXTRA_DEBUG
-    qDebug() << "qqGeomCalc" << "start" << start <<  "count" << count
+#ifdef DEBUG_LAYOUT
+    qDebug() << Q_FUNC_INFO;
+    qDebug() << "... start" << start <<  "count" << count
              <<  "pos" << pos <<  "space" << space <<  "spacer" << spacer;
     for (i = start; i < start + count; ++i) {
         qDebug() << "- item" << i << ':'
@@ -418,6 +493,109 @@ void qtlayouthelpers::qGeomCalc(QVector<QQLayoutStruct>& chain, int start,
 }
 
 
+QSize qtlayouthelpers::qSmartMinSize(
+        const QSize& sizeHint, const QSize& minSizeHint, const QSize& minSize,
+        const QSize& maxSize, const QSizePolicy& sizePolicy)
+{
+    QSize s(0, 0);
+
+    if (sizePolicy.horizontalPolicy() != QSizePolicy::Ignored) {
+        if (sizePolicy.horizontalPolicy() & QSizePolicy::ShrinkFlag) {
+            s.setWidth(minSizeHint.width());
+        } else {
+            s.setWidth(qMax(sizeHint.width(), minSizeHint.width()));
+        }
+    }
+
+    if (sizePolicy.verticalPolicy() != QSizePolicy::Ignored) {
+        if (sizePolicy.verticalPolicy() & QSizePolicy::ShrinkFlag) {
+            s.setHeight(minSizeHint.height());
+        } else {
+            s.setHeight(qMax(sizeHint.height(), minSizeHint.height()));
+        }
+    }
+
+    s = s.boundedTo(maxSize);
+    if (minSize.width() > 0) {
+        s.setWidth(minSize.width());
+    }
+    if (minSize.height() > 0) {
+        s.setHeight(minSize.height());
+    }
+
+    return s.expandedTo(QSize(0,0));
+}
+
+
+QSize qtlayouthelpers::qSmartMinSize(const QWidgetItem* i)
+{
+    QWidget* w = const_cast<QWidgetItem*>(i)->widget();  // RNC: nasty!
+    return qSmartMinSize(w->sizeHint(), w->minimumSizeHint(),
+                         w->minimumSize(), w->maximumSize(),
+                         w->sizePolicy());
+}
+
+
+QSize qtlayouthelpers::qSmartMinSize(const QWidget* w)
+{
+    return qSmartMinSize(w->sizeHint(), w->minimumSizeHint(),
+                         w->minimumSize(), w->maximumSize(),
+                         w->sizePolicy());
+}
+
+
+QSize qtlayouthelpers::qSmartMaxSize(
+        const QSize& sizeHint, const QSize& minSize, const QSize& maxSize,
+        const QSizePolicy& sizePolicy, Qt::Alignment align)
+{
+    if (align & Qt::AlignHorizontal_Mask && align & Qt::AlignVertical_Mask) {
+        return QSize(QLAYOUTSIZE_MAX, QLAYOUTSIZE_MAX);
+    }
+    QSize s = maxSize;
+    QSize hint = sizeHint.expandedTo(minSize);
+    if (s.width() == QWIDGETSIZE_MAX && !(align & Qt::AlignHorizontal_Mask)) {
+        if (!(sizePolicy.horizontalPolicy() & QSizePolicy::GrowFlag)) {
+            s.setWidth(hint.width());
+        }
+    }
+
+    if (s.height() == QWIDGETSIZE_MAX && !(align & Qt::AlignVertical_Mask)) {
+        if (!(sizePolicy.verticalPolicy() & QSizePolicy::GrowFlag)) {
+            s.setHeight(hint.height());
+        }
+    }
+
+    if (align & Qt::AlignHorizontal_Mask) {
+        s.setWidth(QLAYOUTSIZE_MAX);
+    }
+    if (align & Qt::AlignVertical_Mask) {
+        s.setHeight(QLAYOUTSIZE_MAX);
+    }
+    return s;
+}
+
+
+QSize qtlayouthelpers::qSmartMaxSize(const QWidgetItem* i, Qt::Alignment align)
+{
+    QWidget* w = const_cast<QWidgetItem*>(i)->widget();  // RNC: nasty!
+    return qSmartMaxSize(w->sizeHint().expandedTo(w->minimumSizeHint()),
+                         w->minimumSize(),
+                         w->maximumSize(),
+                         w->sizePolicy(),
+                         align);
+}
+
+
+QSize qtlayouthelpers::qSmartMaxSize(const QWidget* w, Qt::Alignment align)
+{
+    return qSmartMaxSize(w->sizeHint().expandedTo(w->minimumSizeHint()),
+                         w->minimumSize(),
+                         w->maximumSize(),
+                         w->sizePolicy(),
+                         align);
+}
+
+
 int qtlayouthelpers::qSmartSpacing(const QLayout* layout,
                                     QStyle::PixelMetric pm)
 {
@@ -426,11 +604,41 @@ int qtlayouthelpers::qSmartSpacing(const QLayout* layout,
         return -1;
     } else if (parent->isWidgetType()) {
         QWidget* pw = static_cast<QWidget*>(parent);
-        return pw->style()->pixelMetric(pm, 0, pw);
+        return pw->style()->pixelMetric(pm, nullptr, pw);
     } else {
         return static_cast<QLayout*>(parent)->spacing();
     }
 }
+
+
+// from qlayoutengine_p.h
+// original is static: http://stackoverflow.com/questions/558122/what-is-a-static-function
+// ... and inline
+/*
+  Modify total maximum (max), total expansion (exp), and total empty
+  when adding boxmax/boxexp.
+
+  Expansive boxes win over non-expansive boxes.
+  Non-empty boxes win over empty boxes.
+*/
+void qtlayouthelpers::qMaxExpCalc(int& max, bool& exp, bool &empty,
+                                   int boxmax, bool boxexp, bool boxempty)
+{
+    if (exp) {
+        if (boxexp) {
+            max = qMax(max, boxmax);
+        }
+    } else {
+        if (boxexp || (empty && (!boxempty || max == 0))) {
+            max = boxmax;
+        } else if (empty == boxempty) {
+            max = qMin(max, boxmax);
+        }
+    }
+    exp = exp || boxexp;
+    empty = empty && boxempty;
+}
+
 
 // ============================================================================
 // Static-looking things from QLayoutPrivate
@@ -446,7 +654,8 @@ QLayoutPrivate::QSpacerItemFactoryMethod QLayoutPrivate::spacerItemFactoryMethod
 
 // was QLayoutPrivate::createWidgetItem
 QWidgetItem* qtlayouthelpers::createWidgetItem(const QLayout* layout,
-                                               QWidget* widget)
+                                               QWidget* widget,
+                                               bool use_hfw_capable_item)
 {
     Q_UNUSED(layout);  // RNC
     /*  // RNC: removed
@@ -454,7 +663,11 @@ QWidgetItem* qtlayouthelpers::createWidgetItem(const QLayout* layout,
         if (QWidgetItem *wi = (*widgetItemFactoryMethod)(layout, widget))
             return wi;
     */
-    return new QWidgetItemV2(widget);
+    if (use_hfw_capable_item) {
+        return new WidgetItemHfw(widget);
+    } else {
+        return new QWidgetItemV2(widget);
+    }
 }
 
 

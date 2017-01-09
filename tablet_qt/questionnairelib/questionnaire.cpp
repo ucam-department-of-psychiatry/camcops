@@ -77,7 +77,7 @@ void Questionnaire::commonConstructor()
 
     setStyleSheet(m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_QUESTIONNAIRE));
 
-    m_outer_layout = new QVBoxLayout();  // not HFW; will contain a scroll area filling all space
+    m_outer_layout = new QVBoxLayout();  // not HFW; will contain a scroll area (+/- spacer) filling all space
     setLayout(m_outer_layout);
     // You can't reset the outer layout for a widget, I think. You get:
     //      QWidget::setLayout: Attempting to set QLayout "" on Questionnaire
@@ -235,7 +235,7 @@ void Questionnaire::build()
             Qt::UniqueConnection);
 
     // Main layout: header and scrollable content
-    m_mainlayout = new QVBoxLayout();
+    m_mainlayout = new QVBoxLayout();  // not HFW
     m_mainlayout->setContentsMargins(uiconst::NO_MARGINS);
     m_mainlayout->addWidget(m_p_header);
     m_mainlayout->addWidget(scroll);
@@ -244,6 +244,8 @@ void Questionnaire::build()
 
     // Background
     m_background_widget = new QWidget();
+    m_background_widget->setSizePolicy(QSizePolicy::Expanding,
+                                       QSizePolicy::Expanding);
     m_background_widget->setObjectName(background_css_name);
     m_background_widget->setLayout(m_mainlayout);
 

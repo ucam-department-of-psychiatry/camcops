@@ -49,7 +49,8 @@ Files that make up a complete set of classes:
                               refer to them as VBoxLayout, HBoxLayout, etc.
                               and this file will choose the actual
                               implementation (*)
-    lib/sizehelpers.h       - shortcuts for size policies/resize functions
+    lib/sizehelpers.h   }   - shortcuts for size policies/resize functions
+    lib/sizehelpers.cpp }
     widgets/margins.h       - simple class to hold margins
 
     widgets/basewidget.h    } widget class that'll act as a parent widget
@@ -70,6 +71,9 @@ Files that make up a complete set of classes:
 
     widgets/qtlayouthelpers.h   - reimplemented (and re-namespaced) private Qt
                                     layout functions, used by the new layouts
+
+    widgets/verticalscrollarea.h    } vertical scroll area that also implements
+    widgets/verticalscrollarea.cpp  }   height-for-width
 
     widgets/labelwordwrapwide.h     } replacement for QLabel that tries to use
     widgets/labelwordwrapwide.cpp   }   as much width as possible before

@@ -303,6 +303,32 @@ QString layoutdumper::getLayoutInfo(const QLayout* layout)
 }
 
 
+QString layoutdumper::getSpacerInfo(QSpacerItem* si)
+{
+    const QRect& geom = si->geometry();
+    QSize si_hint = si->sizeHint();
+    const QLayout* si_layout = si->layout();
+    QStringList elements;
+    elements.append("QSpacerItem");
+    elements.append(QString("pos[DOWN] (%1, %2)")
+                    .arg(geom.x())
+                    .arg(geom.y()));
+    elements.append(QString("size[DOWN] (%1 x %2)")
+                    .arg(geom.width())
+                    .arg(geom.height()));
+    elements.append(QString("sizeHint (%1 x %2)")
+                    .arg(si_hint.width())
+                    .arg(si_hint.height()));
+    elements.append(QString("sizePolicy %1")
+                    .arg(toString(si->sizePolicy())));
+    elements.append(QString("constraint %1 [alignment %2]")
+                    .arg(si_layout ? toString(si_layout->sizeConstraint())
+                                   : "<no_layout>")
+                    .arg(toString(si->alignment())));
+    return elements.join(", ");
+}
+
+
 QString layoutdumper::paddingSpaces(int level, int spaces_per_level)
 {
     return QString(level * spaces_per_level, ' ');
@@ -353,19 +379,9 @@ QList<const QWidget*> layoutdumper::dumpLayoutAndChildren(
                                           show_widget_attributes,
                                           spaces_per_level));
             } else if (si) {
-                QSize si_hint = si->sizeHint();
-                QLayout* si_layout = si->layout();
-                os << next_padding << QString(
-                          "QSpacerItem: sizeHint (%1 x %2), sizePolicy %3, "
-                          "constraint %4 [alignment %5]\n")
-                        .arg(si_hint.width())
-                        .arg(si_hint.height())
-                        .arg(toString(si->sizePolicy()))
-                        .arg(si_layout ? toString(si_layout->sizeConstraint())
-                                       : "<no_layout>")
-                        .arg(toString(si->alignment()));
+                os << next_padding << getSpacerInfo(si) << "\n";
             } else {
-                os << next_padding << "<unknown_QLayoutItem>";
+                os << next_padding << "<unknown_QLayoutItem>\n";
             }
         }
     }

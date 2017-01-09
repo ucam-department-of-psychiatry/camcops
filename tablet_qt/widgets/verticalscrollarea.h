@@ -39,8 +39,7 @@ public:
     explicit VerticalScrollArea(QWidget* parent = nullptr);
     virtual bool eventFilter(QObject* o, QEvent* e);
     virtual QSize sizeHint() const override;
-    // virtual QSize minimumSizeHint() const override;  // nope: scroll areas can be shrunk; that's their point
-    // virtual void showEvent(QShowEvent* e) override;  // no help
 protected:
+    void resetSizeLimits();
     bool m_updating_geometry;
 };

@@ -64,6 +64,14 @@ QSizePolicy sizehelpers::expandingMaximumHFWPolicy()
 }
 
 
+QSizePolicy sizehelpers::expandingExpandingHFWPolicy()
+{
+    QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    sp.setHeightForWidth(true);
+    return sp;
+}
+
+
 QSizePolicy sizehelpers::maximumMaximumHFWPolicy()
 {
     QSizePolicy sp(QSizePolicy::Maximum, QSizePolicy::Maximum);

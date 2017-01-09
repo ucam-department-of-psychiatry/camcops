@@ -63,13 +63,14 @@ protected:
     // Spacer: see QuSpacer instead
     // TickSlider: see QuSlider instead
     void testVerticalLine();
-    void testVerticalScrollArea();
+    void testVerticalScrollArea(bool long_text);
 
     // ========================================================================
     // Layouts and the like
     // ========================================================================
     void testFlowLayout(int n_icons);
     void testBaseWidget(bool long_text);
+    void testVBoxLayout(bool long_text);
 
     // ========================================================================
     // Large-scale widgets

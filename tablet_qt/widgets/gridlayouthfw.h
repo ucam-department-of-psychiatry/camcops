@@ -17,7 +17,7 @@
 
 #pragma once
 
-#define GRIDLAYOUTHFW_ALTER_FROM_QBOXLAYOUT  // comment out to revert to QGridLayout behaviour
+// #define GRIDLAYOUTHFW_ALTER_FROM_QBOXLAYOUT  // comment out to revert to QGridLayout behaviour
 
 #include <QLayout>
 #include <QHash>
@@ -127,15 +127,15 @@ private:
     Qt::Orientations expandingDirections(int hSpacing, int vSpacing) const;
 
     void distribute(QRect rect, int hSpacing, int vSpacing);
-    inline int numRows() const { return m_rr; }
-    inline int numCols() const { return m_cc; }
+    inline int numRows() const { return m_nrow; }
+    inline int numCols() const { return m_ncol; }
     inline int rowSpacing(int r) const { return m_r_min_heights.at(r); }
     inline int colSpacing(int c) const { return m_c_min_widths.at(c); }
     inline void setReversed(bool r, bool c) { m_h_reversed = c; m_v_reversed = r; }
     inline bool horReversed() const { return m_h_reversed; }
     inline bool verReversed() const { return m_v_reversed; }
-    inline void setDirty() { m_need_recalc = true; m_hfw_width = -1; }
-    inline bool isDirty() const { return m_need_recalc; }
+    void setDirty();  // RNC: was inline and defined here
+    inline bool isDirty() const { return m_dirty; }
     bool hasHeightForWidth(int hSpacing, int vSpacing) const;
     int heightForWidth(int width, int hSpacing, int vSpacing) const;
     int minimumHeightForWidth(int width, int hSpacing, int vSpacing) const;
@@ -146,6 +146,10 @@ private:
     void deleteAll();
 
     void expand(int rows, int cols);
+
+#ifdef GRIDLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
+    void clearCaches() const;  // RNC
+#endif
 
 private:
     void setNextPosAfter(int r, int c);
@@ -162,10 +166,11 @@ private:
     void setupLayoutData(int hSpacing, int vSpacing) const;
     void setupHfwLayoutData() const;
     // void effectiveMargins(int* left, int* top, int* right, int* bottom) const;
-    Margins effectiveMargins() const;
+    Margins effectiveMargins(const Margins& contents_margins) const;  // RNC
+    Margins effectiveMargins() const;  // RNC
 
-    int m_rr;
-    int m_cc;
+    int m_nrow;  // was rr
+    int m_ncol;  // was cc
     mutable QVector<QLayoutStruct> m_row_data;
     mutable QVector<QLayoutStruct> m_col_data;
     mutable QVector<QLayoutStruct>* m_hfw_data;
@@ -184,7 +189,7 @@ private:
     int m_horizontal_spacing;
     int m_vertical_spacing;
 
-    mutable Margins m_contents_margins;
+    mutable Margins m_effective_margins;
     // mutable int m_left_margin;
     // mutable int m_top_margin;
     // mutable int m_right_margin;
@@ -192,7 +197,7 @@ private:
 
     bool m_h_reversed;  // RNC: was uint : 1
     bool m_v_reversed;  // RNC: was uint : 1
-    mutable bool m_need_recalc;  // RNC: was uint : 1
+    mutable bool m_dirty;  // RNC: was uint : 1  -- was needRecalc
     mutable bool m_has_hfw;  // RNC: was uint : 1
     bool m_add_vertical;  // RNC: was uint : 1
 };

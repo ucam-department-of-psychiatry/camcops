@@ -33,8 +33,9 @@ namespace sizehelpers {
 // Size policies that take a few statements to create (i.e. have height-for-width set)
 QSizePolicy expandingFixedHFWPolicy();
 QSizePolicy expandingPreferredHFWPolicy();
-QSizePolicy maximumFixedHFWPolicy();
 QSizePolicy expandingMaximumHFWPolicy();
+QSizePolicy expandingExpandingHFWPolicy();
+QSizePolicy maximumFixedHFWPolicy();
 QSizePolicy maximumMaximumHFWPolicy();
 QSizePolicy preferredPreferredHFWPolicy();
 

@@ -24,20 +24,32 @@ class QWidget;
 
 class Margins {
     // Generic margin structure, because QRect isn't quite right for this,
-    // and passing around lots of separate integers is awkward.
+    // passing around lots of separate integers is awkward and prone to
+    // mis-ordering [was that getContentsMargins(&left, &top, &right, &bottom)
+    // or getContentsMargins(&left, &right, &top, &bottom)?], and QMargins
+    // doesn't do any of the useful things relating to widgets, layouts, or
+    // calculations that you might wish.
 public:
     Margins();
     Margins(int left, int top, int right, int bottom);
     void set(int left, int top, int right, int bottom);
     void clear();
+    void rationalize();
 
-    bool isSet() const { return m_set; }
+    inline bool isSet() const { return m_set; }
     inline int left() const { return m_left; }
     inline int top() const { return m_top; }
     inline int right() const { return m_right; }
     inline int bottom() const { return m_bottom; }
 
-    QSize totalMarginExtra() const;
+    void addLeft(int width);
+    void addRight(int width);
+    void addTop(int height);
+    void addBottom(int height);
+
+    QSize totalSize() const;
+    int totalHeight() const;
+    int totalWidth() const;
     int removeLeftRightMarginsFrom(int width) const;
     int addLeftRightMarginsTo(int width) const;
     int removeTopBottomMarginsFrom(int height) const;
@@ -51,6 +63,9 @@ public:
 
     static Margins getContentsMargins(const QWidget* widget);
     static Margins getContentsMargins(const QLayout* layout);
+    static Margins rectDiff(const QRect& outer, const QRect& inner);
+    static Margins subRectMargins(const QSize& outer, const QRect& inner);
+    static Margins subRectMargins(const QRect& outer, const QRect& inner);
 
 private:
     bool m_set;

@@ -83,6 +83,13 @@ class QWidgetItem;
 namespace qtlayouthelpers {
 
 // ============================================================================
+// Constants
+// ============================================================================
+
+extern const QRect QT_DEFAULT_RECT;  // as per QWidgetPrivate::init()
+
+
+// ============================================================================
 // Ancillary structs/classes
 // ============================================================================
 
@@ -143,6 +150,7 @@ struct QQLayoutStruct
     int size;  // width for horizontal, height for vertical
 };
 
+
 struct HfwInfo {  // RNC
     // Stores minimum and hint height-for-width.
     // Does so for the inner, "client" rectangle of a layout.
@@ -154,27 +162,50 @@ struct HfwInfo {  // RNC
     int hfw_min_height;
 };
 
+
+class WidgetItemHfw : public QWidgetItemV2
+{
+public:
+    WidgetItemHfw(QWidget* widget) : QWidgetItemV2(widget) {}
+    QSize minimumSize() const override;
+};
+
+
 // ============================================================================
 // Helper functions
+// ... declared in qlayoutengine_p.h, implemented in qlayoutengine.cpp
 // ============================================================================
 
-// qMaxExpCalc, from qlayoutengine_p.h
-void qMaxExpCalc(int& max, bool& exp, bool &empty,
-                  int boxmax, bool boxexp, bool boxempty);
-
-// qGeomCalc, implemented in qlayoutengine.cpp
 void qGeomCalc(QVector<QQLayoutStruct>& chain, int start, int count,
                 int pos, int space, int spacer = -1);
 
-// qSmartSpacing, implemented in qlayoutengine.cpp
+QSize qSmartMinSize(const QSize& sizeHint, const QSize& minSizeHint,
+                    const QSize& minSize, const QSize& maxSize,
+                    const QSizePolicy& sizePolicy);
+QSize qSmartMinSize(const QWidgetItem* i);
+QSize qSmartMinSize(const QWidget* w);
+
+QSize qSmartMaxSize(const QSize& sizeHint,
+                    const QSize& minSize, const QSize& maxSize,
+                    const QSizePolicy& sizePolicy, Qt::Alignment align = 0);
+QSize qSmartMaxSize(const QWidgetItem* i, Qt::Alignment align = 0);
+QSize qSmartMaxSize(const QWidget* w, Qt::Alignment align = 0);
+
 int qSmartSpacing(const QLayout* layout, QStyle::PixelMetric pm);
+
+void qMaxExpCalc(int& max, bool& exp, bool &empty,
+                 int boxmax, bool boxexp, bool boxempty);
+
+
 
 // ============================================================================
 // Static-looking things from QLayoutPrivate
 // ============================================================================
 
-// was QLayoutPrivate::createWidgetItem, from qlayout.cpp
-QWidgetItem* createWidgetItem(const QLayout* layout, QWidget* widget);
+// was QLayoutPrivate::createWidgetItem, from qlayout.cpp,
+// with RNC extra of use_hfw_capable_item
+QWidgetItem* createWidgetItem(const QLayout* layout, QWidget* widget,
+                              bool use_hfw_capable_item = false);
 
 // was QLayoutPrivate::createSpacerItem, from qlayout.cpp
 QSpacerItem* createSpacerItem(

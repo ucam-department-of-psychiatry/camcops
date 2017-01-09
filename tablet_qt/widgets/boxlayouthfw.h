@@ -200,8 +200,7 @@ protected:
 #ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
     void clearCaches() const;  // RNC
 #endif
-    Margins getContentsMarginsAsMargins() const;
-    Margins getEffectiveMargins() const;
+    Margins effectiveMargins() const;  // RNC
 
 protected:
     QList<BoxLayoutHfwItem*> m_list;

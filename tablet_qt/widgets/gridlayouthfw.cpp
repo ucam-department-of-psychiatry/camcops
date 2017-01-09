@@ -68,6 +68,10 @@
 // #include "qlayoutengine_p.h"
 // #include "qlayout_p.h"
 
+#ifdef DEBUG_LAYOUT
+#include <QDebug>
+#endif
+
 using qtlayouthelpers::checkLayout;
 using qtlayouthelpers::checkWidget;
 using qtlayouthelpers::createWidgetItem;
@@ -140,15 +144,14 @@ private:
 // from QGridLayoutPrivate
 // ============================================================================
 
-
 // void GridLayoutHfw::effectiveMargins(int* left, int* top,
 //                                      int* right, int* bottom) const
-Margins GridLayoutHfw::effectiveMargins() const
+Margins GridLayoutHfw::effectiveMargins(const Margins& contents_margins) const
 {
-    int l = m_contents_margins.left();
-    int t = m_contents_margins.top();
-    int r = m_contents_margins.right();
-    int b = m_contents_margins.bottom();
+    int l = contents_margins.left();
+    int t = contents_margins.top();
+    int r = contents_margins.right();
+    int b = contents_margins.bottom();
 #ifdef Q_OS_MAC
     int leftMost = INT_MAX;
     int topMost = INT_MAX;
@@ -170,9 +173,9 @@ Margins GridLayoutHfw::effectiveMargins() const
                     // we found an item even closer to the margin, discard.
                     leftMost = box->col;
                     if (visualHReversed) {
-                        r = m_contents_margins.right();  // m_right_margin;
+                        r = contents_margins.right();  // m_right_margin;
                     } else {
-                        l = m_contents_margins.left();  // m_left_margin;
+                        l = contents_margins.left();  // m_left_margin;
                     }
                 }
                 if (visualHReversed) {
@@ -186,9 +189,9 @@ Margins GridLayoutHfw::effectiveMargins() const
                     // we found an item even closer to the margin, discard.
                     topMost = box->row;
                     if (m_v_reversed) {
-                        b = m_contents_margins.bottom();  // m_bottom_margin;
+                        b = contents_margins.bottom();  // m_bottom_margin;
                     } else {
-                        t = m_contents_margins.top();  // m_top_margin;
+                        t = contents_margins.top();  // m_top_margin;
                     }
                 }
                 if (m_v_reversed) {
@@ -197,14 +200,14 @@ Margins GridLayoutHfw::effectiveMargins() const
                     t = qMax(t, lir.top() - wr.top());
                 }
             }
-            if (box->toCol(m_cc) >= rightMost) {
-                if (box->toCol(m_cc) > rightMost) {
+            if (box->toCol(m_ncol) >= rightMost) {
+                if (box->toCol(m_ncol) > rightMost) {
                     // we found an item even closer to the margin, discard.
-                    rightMost = box->toCol(m_cc);
+                    rightMost = box->toCol(m_ncol);
                     if (visualHReversed) {
-                        l = m_contents_margins.left();  // m_left_margin;
+                        l = contents_margins.left();  // m_left_margin;
                     } else {
-                        r = m_contents_margins.right();  // m_right_margin;
+                        r = contents_margins.right();  // m_right_margin;
                     }
                 }
                 if (visualHReversed) {
@@ -214,14 +217,14 @@ Margins GridLayoutHfw::effectiveMargins() const
                 }
 
             }
-            if (box->toRow(m_rr) >= bottomMost) {
-                if (box->toRow(m_rr) > bottomMost) {
+            if (box->toRow(m_nrow) >= bottomMost) {
+                if (box->toRow(m_nrow) > bottomMost) {
                     // we found an item even closer to the margin, discard.
-                    bottomMost = box->toRow(m_rr);
+                    bottomMost = box->toRow(m_nrow);
                     if (m_v_reversed) {
-                        t = m_contents_margins.top();  // m_top_margin;
+                        t = contents_margins.top();  // m_top_margin;
                     } else {
-                        b = m_contents_margins.bottom();  // m_bottom_margin;
+                        b = contents_margins.bottom();  // m_bottom_margin;
                     }
                 }
                 if (m_v_reversed) {
@@ -276,14 +279,14 @@ void GridLayoutHfw::recalcHFW(int w) const
     // and put the results in hfwData.
 
     if (!m_hfw_data) {
-        m_hfw_data = new QVector<QLayoutStruct>(m_rr);
+        m_hfw_data = new QVector<QLayoutStruct>(m_nrow);
     }
     setupHfwLayoutData();
     QVector<QLayoutStruct>& rData = *m_hfw_data;
 
     int h = 0;
     int mh = 0;
-    for (int r = 0; r < m_rr; r++) {
+    for (int r = 0; r < m_nrow; r++) {
         int spacing = rData.at(r).spacing;
         h += rData.at(r).size_hint + spacing;
         mh += rData.at(r).minimum_size + spacing;
@@ -314,7 +317,7 @@ int GridLayoutHfw::heightForWidth(int w, int hSpacing, int vSpacing) const
 
     int inner_width = effmarg.removeLeftRightMarginsFrom(w);
     if (inner_width != m_hfw_width) {
-        qGeomCalc(m_col_data, 0, m_cc, 0, inner_width);
+        qGeomCalc(m_col_data, 0, m_ncol, 0, inner_width);
         recalcHFW(inner_width);
     }
     return effmarg.addTopBottomMarginsTo(m_hfw_height);
@@ -346,10 +349,10 @@ QSize GridLayoutHfw::findSize(int QLayoutStruct::* size,
     int w = 0;
     int h = 0;
 
-    for (int r = 0; r < m_rr; r++) {
+    for (int r = 0; r < m_nrow; r++) {
         h += m_row_data.at(r).*size + m_row_data.at(r).spacing;
     }
-    for (int c = 0; c < m_cc; c++) {
+    for (int c = 0; c < m_ncol; c++) {
         w += m_col_data.at(c).*size + m_col_data.at(c).spacing;
     }
 
@@ -366,13 +369,13 @@ Qt::Orientations GridLayoutHfw::expandingDirections(int hSpacing,
     setupLayoutData(hSpacing, vSpacing);
     Qt::Orientations ret;
 
-    for (int r = 0; r < m_rr; r++) {
+    for (int r = 0; r < m_nrow; r++) {
         if (m_row_data.at(r).expansive) {
             ret |= Qt::Vertical;
             break;
         }
     }
-    for (int c = 0; c < m_cc; c++) {
+    for (int c = 0; c < m_ncol; c++) {
         if (m_col_data.at(c).expansive) {
             ret |= Qt::Horizontal;
             break;
@@ -403,11 +406,11 @@ QSize GridLayoutHfw::minimumSize(int hSpacing, int vSpacing) const
 void GridLayoutHfw::setSize(int r, int c)
 {
     if ((int)m_row_data.size() < r) {
-        int newR = qMax(r, m_rr * 2);
+        int newR = qMax(r, m_nrow * 2);
         m_row_data.resize(newR);
         m_r_stretches.resize(newR);
         m_r_min_heights.resize(newR);
-        for (int i = m_rr; i < newR; i++) {
+        for (int i = m_nrow; i < newR; i++) {
             m_row_data[i].init();
             m_row_data[i].maximum_size = 0;
             m_row_data[i].pos = 0;
@@ -417,11 +420,11 @@ void GridLayoutHfw::setSize(int r, int c)
         }
     }
     if ((int)m_col_data.size() < c) {
-        int newC = qMax(c, m_cc * 2);
+        int newC = qMax(c, m_ncol * 2);
         m_col_data.resize(newC);
         m_c_stretches.resize(newC);
         m_c_min_widths.resize(newC);
-        for (int i = m_cc; i < newC; i++) {
+        for (int i = m_ncol; i < newC; i++) {
             m_col_data[i].init();
             m_col_data[i].maximum_size = 0;
             m_col_data[i].pos = 0;
@@ -436,8 +439,8 @@ void GridLayoutHfw::setSize(int r, int c)
         m_hfw_data = 0;
         m_hfw_width = -1;
     }
-    m_rr = r;
-    m_cc = c;
+    m_nrow = r;
+    m_ncol = c;
 }
 
 
@@ -447,7 +450,7 @@ void GridLayoutHfw::setNextPosAfter(int row, int col)
         if (col > m_next_c || (col == m_next_c && row >= m_next_r)) {
             m_next_r = row + 1;
             m_next_c = col;
-            if (m_next_r >= m_rr) {
+            if (m_next_r >= m_nrow) {
                 m_next_r = 0;
                 m_next_c++;
             }
@@ -456,7 +459,7 @@ void GridLayoutHfw::setNextPosAfter(int row, int col)
         if (row > m_next_r || (row == m_next_r && col >= m_next_c)) {
             m_next_r = row;
             m_next_c = col + 1;
-            if (m_next_c >= m_cc) {
+            if (m_next_c >= m_ncol) {
                 m_next_c = 0;
                 m_next_r++;
             }
@@ -498,7 +501,7 @@ void GridLayoutHfw::add(QQGridBox* box, int row1, int row2, int col1, int col2)
     m_things.append(box);
     setDirty();
     if (col2 < 0) {
-        col2 = m_cc - 1;
+        col2 = m_ncol - 1;
     }
 
     setNextPosAfter(row2, col2);
@@ -642,8 +645,8 @@ void GridLayoutHfw::setupSpacings(QVector<QLayoutStruct> &chain,
                                   QQGridBox* grid[], int fixedSpacing,
                                   Qt::Orientation orientation) const
 {
-    int numRows = m_rr;       // or columns if orientation is horizontal
-    int numColumns = m_cc;    // or rows if orientation is horizontal
+    int numRows = m_nrow;       // or columns if orientation is horizontal
+    int numColumns = m_ncol;    // or rows if orientation is horizontal
 
     if (orientation == Qt::Horizontal) {
         qSwap(numRows, numColumns);
@@ -665,7 +668,7 @@ void GridLayoutHfw::setupSpacings(QVector<QLayoutStruct> &chain,
                 continue;
             }
 
-            QQGridBox* box = gridAt(grid, r, c, m_cc, orientation);
+            QQGridBox* box = gridAt(grid, r, c, m_ncol, orientation);
             if (previousRow != -1 && (!box || previousBox != box)) {
                 int spacing = fixedSpacing;
                 if (spacing < 0) {
@@ -720,18 +723,18 @@ void GridLayoutHfw::setupSpacings(QVector<QLayoutStruct> &chain,
 void GridLayoutHfw::setupLayoutData(int hSpacing, int vSpacing) const
 {
 #ifndef QT_LAYOUT_DISABLE_CACHING
-    if (!m_need_recalc) {
+    if (!m_dirty) {
         return;
     }
 #endif
     m_has_hfw = false;
     int i;
 
-    for (i = 0; i < m_rr; i++) {
+    for (i = 0; i < m_nrow; i++) {
         m_row_data[i].init(m_r_stretches.at(i), m_r_min_heights.at(i));
         m_row_data[i].maximum_size = m_r_stretches.at(i) ? QLAYOUTSIZE_MAX : m_r_min_heights.at(i);
     }
-    for (i = 0; i < m_cc; i++) {
+    for (i = 0; i < m_ncol; i++) {
         m_col_data[i].init(m_c_stretches.at(i), m_c_min_widths.at(i));
         m_col_data[i].maximum_size = m_c_stretches.at(i) ? QLAYOUTSIZE_MAX : m_c_min_widths.at(i);
     }
@@ -744,8 +747,8 @@ void GridLayoutHfw::setupLayoutData(int hSpacing, int vSpacing) const
     // Grid of items. We use it to determine which items are
     // adjacent to which and compute the spacings correctly.
 
-    QVarLengthArray<QQGridBox*> grid(m_rr * m_cc);
-    memset(grid.data(), 0, m_rr * m_cc * sizeof(QQGridBox*));
+    QVarLengthArray<QQGridBox*> grid(m_nrow * m_ncol);
+    memset(grid.data(), 0, m_nrow * m_ncol * sizeof(QQGridBox*));
 
     // Initialize 'sizes' and 'grid' data structures, and insert
     // non-spanning items to our row and column data structures.
@@ -760,23 +763,23 @@ void GridLayoutHfw::setupLayoutData(int hSpacing, int vSpacing) const
             m_has_hfw = true;
         }
 
-        if (box->row == box->toRow(m_rr)) {
+        if (box->row == box->toRow(m_nrow)) {
             addData(box, sizes[i], true, false);
         } else {
-            initEmptyMultiBox(m_row_data, box->row, box->toRow(m_rr));
+            initEmptyMultiBox(m_row_data, box->row, box->toRow(m_nrow));
             has_multi = true;
         }
 
-        if (box->col == box->toCol(m_cc)) {
+        if (box->col == box->toCol(m_ncol)) {
             addData(box, sizes[i], false, true);
         } else {
-            initEmptyMultiBox(m_col_data, box->col, box->toCol(m_cc));
+            initEmptyMultiBox(m_col_data, box->col, box->toCol(m_ncol));
             has_multi = true;
         }
 
-        for (int r = box->row; r <= box->toRow(m_rr); ++r) {
-            for (int c = box->col; c <= box->toCol(m_cc); ++c) {
-                gridAt(grid.data(), r, c, m_cc) = box;
+        for (int r = box->row; r <= box->toRow(m_nrow); ++r) {
+            for (int c = box->col; c <= box->toCol(m_ncol); ++c) {
+                gridAt(grid.data(), r, c, m_ncol) = box;
             }
         }
     }
@@ -792,27 +795,28 @@ void GridLayoutHfw::setupLayoutData(int hSpacing, int vSpacing) const
         for (i = 0; i < n; ++i) {
             QQGridBox* const box = m_things.at(i);
 
-            if (box->row != box->toRow(m_rr)) {
-                distributeMultiBox(m_row_data, box->row, box->toRow(m_rr), sizes[i].minS.height(),
+            if (box->row != box->toRow(m_nrow)) {
+                distributeMultiBox(m_row_data, box->row, box->toRow(m_nrow), sizes[i].minS.height(),
                                    sizes[i].hint.height(), m_r_stretches, box->vStretch());
             }
-            if (box->col != box->toCol(m_cc)) {
-                distributeMultiBox(m_col_data, box->col, box->toCol(m_cc), sizes[i].minS.width(),
+            if (box->col != box->toCol(m_ncol)) {
+                distributeMultiBox(m_col_data, box->col, box->toCol(m_ncol), sizes[i].minS.width(),
                                    sizes[i].hint.width(), m_c_stretches, box->hStretch());
             }
         }
     }
 
-    for (i = 0; i < m_rr; i++) {
+    for (i = 0; i < m_nrow; i++) {
         m_row_data[i].expansive = m_row_data.at(i).expansive || m_row_data.at(i).stretch > 0;
     }
-    for (i = 0; i < m_cc; i++) {
+    for (i = 0; i < m_ncol; i++) {
         m_col_data[i].expansive = m_col_data.at(i).expansive || m_col_data.at(i).stretch > 0;
     }
 
-    m_contents_margins = Margins::getContentsMargins(this);
+    // m_contents_margins = Margins::getContentsMargins(this);
+    m_effective_margins = effectiveMargins();  // RNC: stores in cache
 
-    m_need_recalc = false;
+    m_dirty = false;
 }
 
 
@@ -839,7 +843,7 @@ void GridLayoutHfw::setupHfwLayoutData() const
     // qGeomCalc(colData) has been called.
 
     QVector<QLayoutStruct> &rData = *m_hfw_data;
-    for (int i = 0; i < m_rr; i++) {
+    for (int i = 0; i < m_nrow; i++) {
         rData[i] = m_row_data.at(i);
         rData[i].minimum_size = rData[i].size_hint = m_r_min_heights.at(i);
     }
@@ -849,8 +853,8 @@ void GridLayoutHfw::setupHfwLayoutData() const
             QQGridBox* box = m_things.at(i);
             int r1 = box->row;
             int c1 = box->col;
-            int r2 = box->toRow(m_rr);
-            int c2 = box->toCol(m_cc);
+            int r2 = box->toRow(m_nrow);
+            int c2 = box->toCol(m_ncol);
             int w = m_col_data.at(c2).pos + m_col_data.at(c2).size - m_col_data.at(c1).pos;
 
             if (r1 == r2) {
@@ -875,7 +879,7 @@ void GridLayoutHfw::setupHfwLayoutData() const
             }
         }
     }
-    for (int i = 0; i < m_rr; i++) {
+    for (int i = 0; i < m_nrow; i++) {
         rData[i].expansive = rData.at(i).expansive || rData.at(i).stretch > 0;
     }
 }
@@ -897,14 +901,14 @@ void GridLayoutHfw::distribute(QRect r, int hSpacing, int vSpacing)
     Margins effmarg = effectiveMargins();
     effmarg.addMarginsToInPlace(r);
 
-    qGeomCalc(m_col_data, 0, m_cc, r.x(), r.width());
+    qGeomCalc(m_col_data, 0, m_ncol, r.x(), r.width());
     QVector<QLayoutStruct>* rDataPtr;
     if (m_has_hfw) {
         recalcHFW(r.width());
-        qGeomCalc(*m_hfw_data, 0, m_rr, r.y(), r.height());
+        qGeomCalc(*m_hfw_data, 0, m_nrow, r.y(), r.height());
         rDataPtr = m_hfw_data;
     } else {
-        qGeomCalc(m_row_data, 0, m_rr, r.y(), r.height());
+        qGeomCalc(m_row_data, 0, m_nrow, r.y(), r.height());
         rDataPtr = &m_row_data;
     }
     QVector<QLayoutStruct> &rData = *rDataPtr;
@@ -922,8 +926,8 @@ void GridLayoutHfw::distribute(QRect r, int hSpacing, int vSpacing)
     int n = m_things.size();
     for (i = 0; i < n; ++i) {
         QQGridBox* box = m_things.at(reverse ? n-i-1 : i);
-        int r2 = box->toRow(m_rr);
-        int c2 = box->toCol(m_cc);
+        int r2 = box->toRow(m_nrow);
+        int c2 = box->toCol(m_ncol);
 
         int x = m_col_data.at(box->col).pos;
         int y = rData.at(box->row).pos;
@@ -968,7 +972,7 @@ GridLayoutHfw::GridLayoutHfw(QWidget* parent)
 {
     m_add_vertical = false;
     setDirty();
-    m_rr = m_cc = 0;
+    m_nrow = m_ncol = 0;
     m_next_r = m_next_c = 0;
     m_hfw_data = 0;
     m_h_reversed = false;
@@ -1153,8 +1157,8 @@ QLayoutItem* GridLayoutHfw::itemAtPosition(int row, int column) const
     int n = m_things.count();
     for (int i = 0; i < n; ++i) {
         QQGridBox* box = m_things.at(i);
-        if (row >= box->row && row <= box->toRow(m_rr)
-                && column >= box->col && column <= box->toCol(m_cc)) {
+        if (row >= box->row && row <= box->toRow(m_nrow)
+                && column >= box->col && column <= box->toCol(m_ncol)) {
             return box->item();
         }
     }
@@ -1186,8 +1190,8 @@ void GridLayoutHfw::getItemPosition(int index, int* row, int* column,
 {
     if (index < m_things.count()) {
         const QQGridBox* b =  m_things.at(index);
-        int toRow = b->toRow(m_rr);
-        int toCol = b->toCol(m_cc);
+        int toRow = b->toRow(m_nrow);
+        int toCol = b->toCol(m_ncol);
         *row = b->row;
         *column = b->col;
         *rowSpan = toRow - *row + 1;
@@ -1200,6 +1204,7 @@ void GridLayoutHfw::setGeometry(const QRect &rect)
 {
     if (isDirty() || rect != geometry()) {
         QRect cr = alignment() ? alignmentRect(rect) : rect;
+        // RNC: note that distribute() is the main thinking function here
         distribute(cr, horizontalSpacing(), verticalSpacing());
         QLayout::setGeometry(rect);
     }
@@ -1208,7 +1213,7 @@ void GridLayoutHfw::setGeometry(const QRect &rect)
 
 QRect GridLayoutHfw::cellRect(int row, int column) const
 {
-    if (row < 0 || row >= m_rr || column < 0 || column >= m_cc) {
+    if (row < 0 || row >= m_nrow || column < 0 || column >= m_ncol) {
         return QRect();
     }
 
@@ -1343,7 +1348,7 @@ void GridLayoutHfw::setColumnStretch(int column, int stretch)
 
 void GridLayoutHfw::expand(int rows, int cols)  // was in QGridLayoutPrivate
 {
-    setSize(qMax(rows, m_rr), qMax(cols, m_cc));
+    setSize(qMax(rows, m_nrow), qMax(cols, m_ncol));
 }
 
 
@@ -1403,3 +1408,48 @@ void GridLayoutHfw::invalidate()
     setDirty();
     QLayout::invalidate();
 }
+
+
+// ============================================================================
+// RNC additional
+// ============================================================================
+
+inline void GridLayoutHfw::setDirty()
+{
+    // Was inline in header
+    // http://stackoverflow.com/questions/3992980/c-inline-member-function-in-cpp-file
+    // https://isocpp.org/wiki/faq/inline-functions#where-to-put-inline-keyword
+
+#ifdef DEBUG_LAYOUT
+    qDebug() << Q_FUNC_INFO;
+#endif
+
+    m_dirty = true;
+    m_hfw_width = -1;
+}
+
+
+Margins GridLayoutHfw::effectiveMargins() const
+{
+    // RNC: cache added, because we use this quite a lot, and (at least for
+    // the #ifdef Q_OS_MAC) there's a bit of thinking involved.
+#ifdef GRIDLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
+    if (m_dirty) {
+        clearCaches();
+    }
+#endif
+    if (!m_effective_margins.isSet()) {
+        Margins contents_margins = Margins::getContentsMargins(this);
+        m_effective_margins = effectiveMargins(contents_margins);
+    }
+    return m_effective_margins;
+}
+
+
+#ifdef GRIDLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
+void GridLayoutHfw::clearCaches()
+{
+    m_effective_margins.clear();
+    m_dirty = false;
+}
+#endif

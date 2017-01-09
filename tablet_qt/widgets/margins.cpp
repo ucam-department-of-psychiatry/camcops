@@ -16,9 +16,13 @@
 */
 
 #include "margins.h"
-#include <QWidget>
+#include <QDebug>
 #include <QLayout>
+#include <QWidget>
 
+// ============================================================================
+// Construction; setting
+// ============================================================================
 
 Margins::Margins()
 {
@@ -32,6 +36,17 @@ Margins::Margins(int left, int top, int right, int bottom)
 }
 
 
+void Margins::set(int left, int top, int right, int bottom)
+{
+    m_left = left;
+    m_top = top;
+    m_right = right;
+    m_bottom = bottom;
+    m_set = true;
+    rationalize();
+}
+
+
 void Margins::clear()
 {
     m_left = 0;
@@ -42,43 +57,67 @@ void Margins::clear()
 }
 
 
-void Margins::set(int left, int top, int right, int bottom)
+void Margins::rationalize()
 {
-    m_left = left;
-    m_top = top;
-    m_right = right;
-    m_bottom = bottom;
-    m_set = true;
+    // Ensure nothing is negative
+    m_left = qMax(0, m_left);
+    m_top = qMax(0, m_top);
+    m_right = qMax(0, m_right);
+    m_bottom = qMax(0, m_bottom);
 }
 
 
-Margins Margins::getContentsMargins(const QWidget* widget)
+// ============================================================================
+// Modification
+// ============================================================================
+
+void Margins::addLeft(int width)
 {
-    Margins m;
-    if (widget) {
-        int left, top, right, bottom;
-        widget->getContentsMargins(&left, &top, &right, &bottom);
-        m.set(left, top, right, bottom);
-    }
-    return m;
+    m_left += width;
+    rationalize();
 }
 
 
-Margins Margins::getContentsMargins(const QLayout* layout)
+void Margins::addRight(int width)
 {
-    Margins m;
-    if (layout) {
-        int left, top, right, bottom;
-        layout->getContentsMargins(&left, &top, &right, &bottom);
-        m.set(left, top, right, bottom);
-    }
-    return m;
+    m_right += width;
+    rationalize();
 }
 
 
-QSize Margins::totalMarginExtra() const
+void Margins::addTop(int height)
+{
+    m_top += height;
+    rationalize();
+}
+
+
+void Margins::addBottom(int height)
+{
+    m_bottom += height;
+    rationalize();
+}
+
+
+// ============================================================================
+// Calculated information
+// ============================================================================
+
+QSize Margins::totalSize() const
 {
     return QSize(m_left + m_right, m_top + m_bottom);
+}
+
+
+int Margins::totalHeight() const
+{
+    return m_top + m_bottom;
+}
+
+
+int Margins::totalWidth() const
+{
+    return m_left + m_right;
 }
 
 
@@ -141,4 +180,62 @@ void Margins::addMarginsToInPlace(QRect& rect) const
 void Margins::removeMarginsFromInPlace(QRect& rect) const
 {
     rect.adjust(+m_left, +m_top, -m_right, -m_bottom);
+}
+
+// ============================================================================
+// Static factories
+// ============================================================================
+
+Margins Margins::getContentsMargins(const QWidget* widget)
+{
+    Margins m;
+    if (widget) {
+        int left, top, right, bottom;
+        widget->getContentsMargins(&left, &top, &right, &bottom);
+        m.set(left, top, right, bottom);
+    }
+    return m;
+}
+
+
+Margins Margins::getContentsMargins(const QLayout* layout)
+{
+    Margins m;
+    if (layout) {
+        int left, top, right, bottom;
+        layout->getContentsMargins(&left, &top, &right, &bottom);
+        m.set(left, top, right, bottom);
+    }
+    return m;
+}
+
+
+Margins Margins::rectDiff(const QRect& outer, const QRect& inner)
+{
+    if (!outer.contains(inner)) {
+        qWarning() << Q_FUNC_INFO << "-- outer" << outer
+                   << "does not contain inner" << inner;
+    }
+    return Margins(inner.left() - outer.left(),  // left margin
+                   inner.top() - outer.top(),  // top margin
+                   outer.right() - inner.right(),  // right margin
+                   outer.bottom() - outer.bottom());  // bottom margin
+}
+
+
+Margins Margins::subRectMargins(const QSize& outer, const QRect& inner)
+{
+    // Here we suppose that "inner" is a rectangle defined relative to (0,0)
+    // of a rectangle with size "outer". (Prototypically: a widget with
+    // geometry outer has a sub-widget, RELATIVE TO IT, with geometry inner.)
+    return Margins(inner.left(),  // left
+                   inner.top(),  // top
+                   outer.width() - inner.width() - inner.left(),  // right
+                   outer.height() - inner.height() - inner.top());  // bottom
+}
+
+
+Margins Margins::subRectMargins(const QRect& outer, const QRect& inner)
+{
+    return subRectMargins(outer.size(), inner);
 }
