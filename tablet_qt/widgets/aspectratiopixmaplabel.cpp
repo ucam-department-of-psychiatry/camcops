@@ -15,7 +15,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-// #define DEBUG_LAYOUT_CALCS
+// #define DEBUG_LAYOUT
 
 #include "aspectratiopixmaplabel.h"
 #include <QDebug>
@@ -39,7 +39,7 @@ AspectRatioPixmapLabel::AspectRatioPixmapLabel(QWidget* parent) :
 
 void AspectRatioPixmapLabel::setPixmap(const QPixmap& pixmap)
 {
-#ifdef DEBUG_LAYOUT_CALCS
+#ifdef DEBUG_LAYOUT
     qDebug() << Q_FUNC_INFO;
 #endif
     m_pixmap = pixmap;
@@ -60,7 +60,7 @@ int AspectRatioPixmapLabel::heightForWidth(int width) const
     // us at our correct maximum size, but with giant gaps in the layout).
     h = qMin(h, m_pixmap.height());  // height() is 0 for a null pixmap anyway; see qpixmap.cpp
 
-#ifdef DEBUG_LAYOUT_CALCS
+#ifdef DEBUG_LAYOUT
     qDebug() << Q_FUNC_INFO << "width" << width << "-> height" << h;
 #endif
     return h;
@@ -71,7 +71,7 @@ QSize AspectRatioPixmapLabel::sizeHint() const
 {
     QSize hint = m_pixmap.size();
     // hint.rheight() = -1;
-#ifdef DEBUG_LAYOUT_CALCS
+#ifdef DEBUG_LAYOUT
     qDebug() << Q_FUNC_INFO << "pixmap size" << m_pixmap.size()
              << "size hint" << hint;
 #endif
@@ -108,7 +108,7 @@ QSize AspectRatioPixmapLabel::minimumSizeHint() const
 
 QPixmap AspectRatioPixmapLabel::scaledPixmap() const
 {
-#ifdef DEBUG_LAYOUT_CALCS
+#ifdef DEBUG_LAYOUT
     qDebug() << Q_FUNC_INFO << "this->size()" << this->size();
 #endif
     return m_pixmap.scaled(this->size(),
@@ -123,7 +123,7 @@ void AspectRatioPixmapLabel::resizeEvent(QResizeEvent* event)
         QLabel::setPixmap(scaledPixmap());
 #ifdef GUI_USE_RESIZE_FOR_HEIGHT
         updateGeometry();  // WATCH OUT: any potential for infinite recursion?
-#ifdef DEBUG_LAYOUT_CALCS
+#ifdef DEBUG_LAYOUT
         qDebug() << Q_FUNC_INFO << "calling updateGeometry()";
 #endif
 #endif

@@ -55,7 +55,7 @@
 **
 ****************************************************************************/
 
-#define DEBUG_LAYOUT
+// #define DEBUG_LAYOUT
 // #define Q_OS_MAC  // for testing only, just to be sure it compiles OK...
 
 #include "boxlayouthfw.h"
@@ -1506,7 +1506,7 @@ BoxLayoutHfw::GeomInfo BoxLayoutHfw::getGeomInfo() const
     qDebug().nospace()
             << "..."
 #ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
-             << " for rect" << layout_rect
+             << " for rect " << layout_rect
 #endif
              << " n " << n
              << " m_expanding " << gi.m_expanding

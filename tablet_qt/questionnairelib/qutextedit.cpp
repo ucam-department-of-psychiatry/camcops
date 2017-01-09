@@ -70,7 +70,7 @@ QPointer<QWidget> QuTextEdit::makeWidget(Questionnaire* questionnaire)
     m_editor->setPlaceholderText(m_hint);
     if (!read_only) {
         connect(m_editor.data(), &GrowingTextEdit::textChanged,
-                this, &QuTextEdit::keystroke);
+                this, &QuTextEdit::widgetTextChanged);
         // QTextEdit::textChanged - Called *whenever* contents changed.
         // http://doc.qt.io/qt-5.7/qtextedit.html#textChanged
         // Note: no data sent along with the signal
@@ -90,8 +90,15 @@ FieldRefPtrList QuTextEdit::fieldrefs() const
 }
 
 
-void QuTextEdit::keystroke()
+void QuTextEdit::widgetTextChanged()
 {
+    if (m_ignore_widget_signal) {
+        // Note: ignore it now, not after the timer! Otherwise impossible
+        // (well, harder) to synchronize flag distinguishing "real" and
+        // "internally generated" changes with events at the far end of the
+        // timer.
+        return;
+    }
     m_timer->start(WRITE_DELAY_MS);  // will restart if already timing
     // ... goes to textChanged()
 }
@@ -99,7 +106,7 @@ void QuTextEdit::keystroke()
 
 void QuTextEdit::textChanged()
 {
-    if (!m_editor || m_ignore_widget_signal) {
+    if (!m_editor) {
         return;
     }
     QString text = m_editor->toPlainText();
@@ -144,6 +151,9 @@ void QuTextEdit::widgetFocusChanged(bool in)
     if (in || !m_editor) {
         return;
     }
+    bool change_pending = m_timer->isActive();
     m_timer->stop();  // just in case it's running
-    textChanged();  // maybe
+    if (change_pending) {
+        textChanged();  // maybe
+    }
 }

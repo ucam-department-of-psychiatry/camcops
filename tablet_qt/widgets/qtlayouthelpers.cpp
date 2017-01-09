@@ -56,7 +56,7 @@
 **
 ****************************************************************************/
 
-#define DEBUG_LAYOUT
+// #define DEBUG_LAYOUT
 
 #include "qtlayouthelpers.h"
 #include <QDebug>

@@ -63,7 +63,8 @@ protected:
     // Spacer: see QuSpacer instead
     // TickSlider: see QuSlider instead
     void testVerticalLine();
-    void testVerticalScrollArea(bool long_text);
+    void testVerticalScrollAreaSimple();
+    void testVerticalScrollAreaComplex(bool long_text);
 
     // ========================================================================
     // Layouts and the like

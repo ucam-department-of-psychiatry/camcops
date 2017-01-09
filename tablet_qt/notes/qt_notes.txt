@@ -965,7 +965,6 @@ NOT IMPLEMENTED
 TO DO
 ===============================================================================
 
-- *** BoxLayoutHfw isn't getting maximum width correct (try resizing screen for demo questionnaire)
 - *** GridLayoutHfw
 
 - *** tasks

@@ -15,7 +15,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define DEBUG_LAYOUT
+// #define DEBUG_LAYOUT
 
 #include "basewidget.h"
 #include <QDebug>

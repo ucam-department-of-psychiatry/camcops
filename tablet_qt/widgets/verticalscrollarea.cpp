@@ -15,12 +15,13 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define DEBUG_LAYOUT
+// #define DEBUG_LAYOUT
 #define UPDATE_GEOMETRY_FROM_EVENT_FILTER_POSSIBLY_DANGEROUS
 
 #include "verticalscrollarea.h"
 #include <QDebug>
 #include <QEvent>
+#include <QLayout>
 #include <QScrollBar>
 #include "lib/sizehelpers.h"
 #include "widgets/margins.h"
@@ -86,7 +87,8 @@ so you have to check.
 
 VerticalScrollArea::VerticalScrollArea(QWidget* parent) :
     QScrollArea(parent),
-    m_updating_geometry(false)
+    m_updating_geometry(false),
+    m_last_widget_width(-1)
 {
     setWidgetResizable(true);
     // ... definitely true! If false, you get a narrow strip of widgets
@@ -124,11 +126,24 @@ bool VerticalScrollArea::eventFilter(QObject* o, QEvent* e)
     // This works because QScrollArea::setWidget installs an eventFilter on the
     // widget
     if (o && o == widget() && e && e->type() == QEvent::Resize) {
+
+#ifdef UPDATE_GEOMETRY_FROM_EVENT_FILTER_POSSIBLY_DANGEROUS
+        if (m_updating_geometry) {
+            // We must not call the parent event filter; that can also cause
+            // an infinite loop, e.g. QScrollArea can call updateScrollBars()
+            // which can trigger a widget resize, etc.
+#ifdef DEBUG_LAYOUT
+            qDebug() << Q_FUNC_INFO << "- preventing infinite loop";
+#endif
+            return false;
+        }
+#endif
+
         bool parent_result = QScrollArea::eventFilter(o, e);  // will call d->updateScrollBars();
         resetSizeLimits();
-
         // return false;  // DEFINITELY NEED THIS, NOT FALL-THROUGH TO PARENT
         return parent_result;  // or do we?
+
     } else {
         return QScrollArea::eventFilter(o, e);
     }
@@ -143,8 +158,9 @@ bool VerticalScrollArea::eventFilter(QObject* o, QEvent* e)
 //   endpoint;
 // - be too small vertically (e.g. if a spacer is put below it to prevent it
 //   expanding too much) when there is vertical space available to use.
-// So the answer is a Maximum vertical size policy, and a size hint that is
+// So the answer is a Maximum(*) vertical size policy, and a size hint that is
 // exactly that of its contents.
+// (*) Or Expanding with an explicit maximum set.
 
 QSize VerticalScrollArea::sizeHint() const
 {
@@ -156,11 +172,31 @@ QSize VerticalScrollArea::sizeHint() const
     if (!w) {
         return QSize();
     }
+
+    // Work out best size for widget
+    QSize sh = w->sizeHint();
+    if (w->hasHeightForWidth()) {
+        int likely_best_height;
+        if (m_last_widget_width == -1) {
+            // First time through
+            int widget_preferred_width = sh.width();
+            likely_best_height = w->heightForWidth(widget_preferred_width);
+        } else {
+            // The widget's not getting its preferred width, but we have an
+            // idea of the width that it *is* getting.
+            likely_best_height = w->heightForWidth(m_last_widget_width);
+        }
+        // int likely_width = widget_preferred_width - verticalScrollBar()->width();
+        // int likely_best_height = w->heightForWidth(likely_width);
+        sh.rheight() = likely_best_height;
+    }
+
+    // Correct for our margins
     QRect viewport_rect = viewport()->geometry();
     QRect scrollarea_rect = geometry();
     Margins marg = Margins::subRectMargins(scrollarea_rect, viewport_rect);
-    QSize sh = w->sizeHint();
     sh.rheight() += marg.totalHeight();
+
 #ifdef DEBUG_LAYOUT
     qDebug() << Q_FUNC_INFO << "->" << sh;
 #endif
@@ -170,27 +206,46 @@ QSize VerticalScrollArea::sizeHint() const
 
 void VerticalScrollArea::resetSizeLimits()
 {
-#ifdef UPDATE_GEOMETRY_FROM_EVENT_FILTER_POSSIBLY_DANGEROUS
-    if (m_updating_geometry) {
-#ifdef DEBUG_LAYOUT
-        qDebug() << Q_FUNC_INFO << "- preventing infinite loop";
-#endif
-        return;
-    }
-#endif
-
     // RNC: this code plus the Expanding policy.
     QWidget* w = widget();  // The contained widget being scrolled.
+    if (!w) {
+        return;
+    }
     int widget_min_width = w->minimumSizeHint().width();
     int scrollbar_width = verticalScrollBar()->width();
     int new_min_width = widget_min_width + scrollbar_width;
     int widget_max_height = w->maximumHeight();
-    int new_max_height = widget_max_height;
+    int new_max_height;
+#ifdef DEBUG_LAYOUT
+    QString hfw_explanation;
+#endif
+    if (w->hasHeightForWidth()) {
+        // It is quite likely that the widget is now a sensible width for us
+        // without scroll bars - so when we add scroll bars, it'll get narrower
+        // and thus taller. If we don't account for these, our scroll area will
+        // often be a fraction too short vertically.
+        int widget_width = w->geometry().width();
+        m_last_widget_width = widget_width;
+        int narrower_widget_width = widget_width - scrollbar_width;
+        new_max_height = w->heightForWidth(narrower_widget_width);
+#ifdef DEBUG_LAYOUT
+        hfw_explanation = QString("widget's width %1 -> narrowed %2 -> HFW %3")
+                .arg(widget_width)
+                .arg(narrower_widget_width)
+                .arg(new_max_height);
+#endif
+    } else {
+        new_max_height = widget_max_height;
+#ifdef DEBUG_LAYOUT
+        hfw_explanation = QString("widget's maximum height is %1")
+                .arg(widget_max_height);
+#endif
+    }
 
-    // The only other odd bit is that VerticalScrollArea positions its
-    // qt_scrollarea_viewport widget at pos (1,1), not (0, 0), so our
+    // The only other odd bit is that VerticalScrollArea can position its
+    // qt_scrollarea_viewport widget at e.g. pos (1, 1), not (0, 0), so our
     // maximum height is a little too small.
-    // Basically, there is 1 pixel boundary, as above.
+    // Basically, there is small boundary, as above.
     QRect viewport_rect = viewport()->geometry();
     QRect scrollarea_rect = geometry();
     Margins marg = Margins::subRectMargins(scrollarea_rect, viewport_rect);
@@ -200,21 +255,25 @@ void VerticalScrollArea::resetSizeLimits()
 
 #ifdef DEBUG_LAYOUT
     QMargins viewport_margins = viewportMargins();  // zero!
-    qDebug().nospace()
+    qDebug().nospace().noquote()
             << Q_FUNC_INFO
             << " - Child widget resized to " << w->geometry()
             << "; setting VerticalScrollArea minimum width to "
             << new_min_width
             << " (" << widget_min_width << " for widget, "
-            << scrollbar_width << " for scrollbar); "
+            << scrollbar_width << " for scrollbar)"
             << "; setting minimum height to " << new_min_height
-            << "; widget's maximum height is " << widget_max_height
             << "; setting maximum height to " << new_max_height
-            << " [viewport margins: " << viewport_margins
+            << " (" << hfw_explanation << ") ["
+            << "viewport margins: " << viewport_margins << ", "
             << ", viewport_geometry: " << viewport_rect
             << ", scrollarea_geometry: " << scrollarea_rect
             << "]";
 #endif
+
+#ifdef UPDATE_GEOMETRY_FROM_EVENT_FILTER_POSSIBLY_DANGEROUS
+    m_updating_geometry = true;  // guard round all the dangerous stuff
+
     // We're not doing horizontal scrolling, so we must be at least as wide
     // as our widget's minimum:
     setMinimumWidth(new_min_width);
@@ -243,11 +302,10 @@ void VerticalScrollArea::resetSizeLimits()
     // One way in which this can happen:
     // http://stackoverflow.com/questions/9503231/strange-behaviour-overriding-qwidgetresizeeventqresizeevent-event
 
-#ifdef UPDATE_GEOMETRY_FROM_EVENT_FILTER_POSSIBLY_DANGEROUS
-    m_updating_geometry = true;
     updateGeometry();
+    // Do NOT attempt to invalidate the parent widget's layout here.
+
     m_updating_geometry = false;
-    // even contained text scroll areas work without updateGeometry() on shrike
 #endif
 
     // PREVIOUS RESIDUAL PROBLEM:

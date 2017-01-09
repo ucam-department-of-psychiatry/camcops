@@ -37,7 +37,7 @@ protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
 protected slots:
-    void keystroke();
+    void widgetTextChanged();
     void textChanged();
     void fieldValueChanged(const FieldRef* fieldref,
                            const QObject* originator = nullptr);

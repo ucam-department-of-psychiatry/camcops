@@ -41,5 +41,7 @@ public:
     virtual QSize sizeHint() const override;
 protected:
     void resetSizeLimits();
+protected:
     bool m_updating_geometry;
+    int m_last_widget_width;
 };

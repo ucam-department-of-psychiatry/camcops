@@ -181,10 +181,12 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
                  std::bind(&WidgetTestMenu::testLabelWordWrapWide, this, true, true)),
         MenuItem("VerticalLine",
                  std::bind(&WidgetTestMenu::testVerticalLine, this)),
-        MenuItem("VerticalScrollArea (short text)",
-                 std::bind(&WidgetTestMenu::testVerticalScrollArea, this, false)),
-        MenuItem("VerticalScrollArea (long text)",
-                 std::bind(&WidgetTestMenu::testVerticalScrollArea, this, true)),
+        MenuItem("VerticalScrollArea (QVBoxLayout, fixed-size icons)",
+                 std::bind(&WidgetTestMenu::testVerticalScrollAreaSimple, this)),
+        MenuItem("VerticalScrollArea (VBoxLayout, short text)",
+                 std::bind(&WidgetTestMenu::testVerticalScrollAreaComplex, this, false)),
+        MenuItem("VerticalScrollArea (VBoxLayout, long text)",
+                 std::bind(&WidgetTestMenu::testVerticalScrollAreaComplex, this, true)),
 
         // --------------------------------------------------------------------
         MenuItem("Layouts and the like").setLabelOnly(),
@@ -503,8 +505,26 @@ void WidgetTestMenu::testVBoxLayout(bool long_text)
 }
 
 
-void WidgetTestMenu::testVerticalScrollArea(bool long_text)
+void WidgetTestMenu::testVerticalScrollAreaSimple()
 {
+    // QVBoxLayout and three simple fixed-size icons
+    QWidget* contentwidget = new QWidget();
+    QVBoxLayout* layout = new QVBoxLayout();  // simpler than VBoxLayoutHfw
+    contentwidget->setLayout(layout);
+
+    layout->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)));
+    layout->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)));
+    layout->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)));
+
+    VerticalScrollArea* scrollwidget = new VerticalScrollArea();
+    scrollwidget->setWidget(contentwidget);
+    debugfunc::debugWidget(scrollwidget);
+}
+
+
+void WidgetTestMenu::testVerticalScrollAreaComplex(bool long_text)
+{
+    // VBoxLayout (i.e. likely VBoxLayoutHfw) and two word-wrapping labels
     QWidget* contentwidget = new QWidget();
     VBoxLayout* layout = new VBoxLayout();
     contentwidget->setLayout(layout);
