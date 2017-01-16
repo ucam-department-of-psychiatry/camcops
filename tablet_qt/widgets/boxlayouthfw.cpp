@@ -56,6 +56,7 @@
 ****************************************************************************/
 
 // #define DEBUG_LAYOUT
+// #define DISABLE_CACHING
 // #define Q_OS_MAC  // for testing only, just to be sure it compiles OK...
 
 #include "boxlayouthfw.h"
@@ -67,12 +68,17 @@
 #include <QStyle>
 #include <QVector>
 #include <QWidget>
-#include "common/globals.h"  // for qHash(const QRect&)
 #include "qtlayouthelpers.h"
+
+#ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
+#include "common/globals.h"  // for qHash(const QRect&)
+#endif
+
 using qtlayouthelpers::checkLayout;
 using qtlayouthelpers::checkWidget;
 using qtlayouthelpers::createSpacerItem;
 using qtlayouthelpers::createWidgetItem;
+using qtlayouthelpers::defaultRectOfWidth;
 using qtlayouthelpers::qGeomCalc;
 using qtlayouthelpers::qMaxExpCalc;
 using qtlayouthelpers::qSmartSpacing;
@@ -630,7 +636,7 @@ void BoxLayoutHfw::insertWidget(int index, QWidget* widget, int stretch,
     if (index < 0) {  // append
         index = m_list.count();
     }
-#ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
+#if 0  // #ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
     bool use_hfw_capable_item = true;
 #else
     bool use_hfw_capable_item = false;
@@ -971,10 +977,8 @@ int BoxLayoutHfw::heightForWidth(int w) const
     if (!hasHeightForWidth()) {
         return -1;
     }
-    Margins effmarg = effectiveMargins();
-    int inner_width = effmarg.removeLeftRightMarginsFrom(w);
-    HfwInfo hfw_info = getHfwInfo(inner_width);
-    return effmarg.addTopBottomMarginsTo(hfw_info.hfw_height);
+    HfwInfo hfw_info = getHfwInfo(w);
+    return hfw_info.hfw_height;
 }
 
 
@@ -983,10 +987,8 @@ int BoxLayoutHfw::minimumHeightForWidth(int w) const
     if (!hasHeightForWidth()) {
         return -1;
     }
-    Margins effmarg = effectiveMargins();
-    int inner_width = effmarg.removeLeftRightMarginsFrom(w);
-    HfwInfo hfw_info = getHfwInfo(inner_width);
-    return effmarg.addTopBottomMarginsTo(hfw_info.hfw_min_height);
+    HfwInfo hfw_info = getHfwInfo(w);
+    return hfw_info.hfw_min_height;
 }
 
 
@@ -1044,12 +1046,10 @@ void BoxLayoutHfw::setGeometry(const QRect& initial_rect)
     // RNC: when this is called, it's too late to alter the layout's size;
     // the instruction is "this is your size; now lay out your children".
 
+    // ------------------------------------------------------------------------
+    // Initialize
+    // ------------------------------------------------------------------------
 #ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
-    int parent_new_height = -1;
-    QWidget* parent = parentWidget();
-    if (!parent) {
-        qWarning() << Q_FUNC_INFO << "Layout has no parent widget";
-    }
     QRect r = initial_rect;  // we may modify it, below
 #else
     const QRect& r = initial_rect;  // just an alias
@@ -1057,10 +1057,17 @@ void BoxLayoutHfw::setGeometry(const QRect& initial_rect)
 
     // RNC: r is the overall rectangle for the layout
 
+    // ------------------------------------------------------------------------
+    // Announce
+    // ------------------------------------------------------------------------
 #ifdef DEBUG_LAYOUT
     qDebug() << Q_FUNC_INFO;
 #endif
 
+    // ------------------------------------------------------------------------
+    // Skip because nothing's changed?
+    // ------------------------------------------------------------------------
+#ifndef DISABLE_CACHING
 #ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
     bool geometry_previously_calculated = m_geom_cache.contains(r);
     if (geometry_previously_calculated && r == geometry()) {
@@ -1073,7 +1080,11 @@ void BoxLayoutHfw::setGeometry(const QRect& initial_rect)
 #endif
         return;
     }
+#endif
 
+    // ------------------------------------------------------------------------
+    // Recalculate geometry
+    // ------------------------------------------------------------------------
     // So, if we're here, we've previously calculated the geometry,
     // but the new geometry doesn't match our current geometry(); this means
     // that we need to change geometry but we've already had a pass through
@@ -1118,59 +1129,108 @@ void BoxLayoutHfw::setGeometry(const QRect& initial_rect)
             m_rect_for_next_size_constraints = r;
             // QLayout::activate();  // not invalidate(); not activate()
         }
-        if (parent) {
-            // Remember we may also have a mix of hfw and non-hfw items; the
-            // non-hfw may have min/max heights that differ.
-            int target_min_height = gi.m_min_size.height();
-            int target_max_height = gi.m_max_size.height();
+    }
+    QWidget* parent = parentWidget();
+    Margins parent_margins = Margins::getContentsMargins(parent);
+    if (!parent) {
+        qWarning() << Q_FUNC_INFO << "Layout has no parent widget";
+    }
+    int parent_new_height = getParentTargetHeight(parent, parent_margins, gi);
+    if (parent_new_height != -1) {
+        // We will, under these circumstances, call
+        // parent->updateGeometry().
 
-            if (parent->geometry().height() < target_min_height) {
-#ifdef DEBUG_LAYOUT
-                qDebug().nospace()
-                        << "... will set parent height to " << target_min_height
-                        << " (was " << parent->geometry().height()
-                        << ", below our min of " << target_min_height << ")";
-#endif
-                parent_new_height = target_min_height;
-            }
-            if (parent->geometry().height() > target_max_height) {
-#ifdef DEBUG_LAYOUT
-                qDebug().nospace()
-                        << "... will set parent height to " << target_max_height
-                        << " (was " << parent->geometry().height()
-                        << ", above our max of " << target_max_height << ")";
-#endif
-                parent_new_height = target_max_height;
-            }
-            if (parent_new_height != -1) {
-                // We will, under these circumstances, call
-                // parent->updateGeometry().
+        // Note, however, that calling parent->updateGeometry() doesn't
+        // necessarily trigger a call back to us here. So we must lay
+        // out our children (or they can fail to be drawn), and we
+        // should therefore lay them out where they *will* be once the
+        // parent has changed its size.
 
-                // Note, however, that calling parent->updateGeometry() doesn't
-                // necessarily trigger a call back to us here. So we must lay
-                // out our children (or they can fail to be drawn), and we
-                // should therefore lay them out where they *will* be once the
-                // parent has changed its size.
+        // Moreover, if we call parent->updateGeometry(), it must be
+        // the LAST thing we do, as above.
 
-                // Moreover, if we call parent->updateGeometry(), it must be
-                // the LAST thing we do, as above.
+        // So:
+        r.setHeight(parent_new_height - parent_margins.totalHeight());  // change
 
-                // So:
-                r.setHeight(parent_new_height);  // change
-
-                // Don't think we need to call gi = getGeomInfo(r) again,
-                // as the width hasn't changed.
-            }
-        }
+        // Don't think we need to call gi = getGeomInfo(r) again,
+        // as the width hasn't changed.
     }
 #endif
 
+    // ------------------------------------------------------------------------
+    // Lay out children and call QLayout::setGeometry()
+    // ------------------------------------------------------------------------
+
     QRect old_rect = geometry();
     QLayout::setGeometry(r);
-    QRect s = getContentsRect(r);
+    distribute(gi, r, old_rect);
+
+    // ------------------------------------------------------------------------
+    // Ask our parent to resize, if necessary
+    // ------------------------------------------------------------------------
+
+#ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
+    if (parent_new_height != -1) {
+        parent->setFixedHeight(parent_new_height);
+        parent->updateGeometry();
+    }
+#endif
+}
+
+
+int BoxLayoutHfw::getParentTargetHeight(QWidget* parent,
+                                        const Margins& parent_margins,
+                                        const GeomInfo& gi) const
+{
+    // Returns -1 if no change required.
+
+    if (!parent || !gi.m_has_hfw) {
+        return -1;
+    }
+    int parent_new_height = -1;
+
+    // Remember we may also have a mix of hfw and non-hfw items; the
+    // non-hfw may have min/max heights that differ.
+    int target_min_height = gi.m_min_size.height();
+    int target_max_height = gi.m_max_size.height();
+
+    target_min_height += parent_margins.totalHeight();
+    target_max_height += parent_margins.totalHeight();
+
+    if (parent->geometry().height() < target_min_height) {
+#ifdef DEBUG_LAYOUT
+        qDebug().nospace()
+                << "... will set parent height to " << target_min_height
+                << " (was " << parent->geometry().height()
+                << ", below our min of " << target_min_height
+                << " [including parent margin height of "
+                << parent_margins.totalHeight() << "])";
+#endif
+        parent_new_height = target_min_height;
+    }
+    if (parent->geometry().height() > target_max_height) {
+#ifdef DEBUG_LAYOUT
+        qDebug().nospace()
+                << "... will set parent height to " << target_max_height
+                << " (was " << parent->geometry().height()
+                << ", above our max of " << target_max_height
+                << " [including parent margin height of "
+                << parent_margins.totalHeight() << "])";
+#endif
+        parent_new_height = target_max_height;
+    }
+    return parent_new_height;
+}
+
+
+void BoxLayoutHfw::distribute(const GeomInfo& gi,
+                              const QRect& layout_rect, const QRect& old_rect)
+{
+    const QRect& r = layout_rect;  // alias
+    QRect s = getContentsRect(layout_rect);
 
 #ifdef DEBUG_LAYOUT
-    qDebug().nospace() << "... called with layout rect " << r
+    qDebug().nospace() << "... called with layout rect " << layout_rect
                        << ", giving final rect for children of " << s;
 #endif
 
@@ -1232,12 +1292,6 @@ void BoxLayoutHfw::setGeometry(const QRect& initial_rect)
 #endif
     }
 
-#ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
-    if (parent_new_height != -1) {
-        parent->setFixedHeight(parent_new_height);
-        parent->updateGeometry();
-    }
-#endif
 }
 
 
@@ -1251,9 +1305,11 @@ BoxLayoutHfw::GeomInfo BoxLayoutHfw::getGeomInfo(const QRect& layout_rect) const
     if (m_dirty) {
         clearCaches();
     }
+#ifndef DISABLE_CACHING
     if (m_geom_cache.contains(layout_rect)) {
         return m_geom_cache[layout_rect];
     }
+#endif
 
     QRect s = getContentsRect(layout_rect);
     int layout_available_width = s.width();
@@ -1261,10 +1317,15 @@ BoxLayoutHfw::GeomInfo BoxLayoutHfw::getGeomInfo(const QRect& layout_rect) const
 #else
 BoxLayoutHfw::GeomInfo BoxLayoutHfw::getGeomInfo() const
 {
+#ifndef DISABLE_CACHING
     if (!m_dirty) {
         return m_cached_geominfo;
     }
 #endif
+#endif
+
+    // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+    // Start of main thinking
 
     GeomInfo gi;
 
@@ -1497,9 +1558,8 @@ BoxLayoutHfw::GeomInfo BoxLayoutHfw::getGeomInfo() const
     gi.m_max_size += extra;
     gi.m_size_hint += extra;
 
-#ifndef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
-    m_dirty = false;
-#endif
+    // End of main thinking
+    // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 #ifdef DEBUG_LAYOUT
     qDebug() << Q_FUNC_INFO;
@@ -1514,22 +1574,11 @@ BoxLayoutHfw::GeomInfo BoxLayoutHfw::getGeomInfo() const
              << " m_max_size " << gi.m_max_size
              << " m_size_hint " << gi.m_size_hint
              << " m_has_hfw " << gi.m_has_hfw
-             << "(left margin " << effmarg.left()
-             << " top margin " << effmarg.top()
-             << " m_right_margin " << effmarg.right()
-             << " m_bottom_margin " << effmarg.bottom()
+             << " (margins " << effmarg
              << "; m_dir " << m_dir << ")";
     for (int i = 0; i < n; ++i) {
         const QLayoutStruct& ls = a.at(i);
-        qDebug().nospace()
-                << "... item " << i << ":"
-                 << " stretch " << ls.stretch
-                 << " size_hint " << ls.size_hint
-                 << " maximum_size " << ls.maximum_size
-                 << " minimum_size " << ls.minimum_size
-                 << " spacing " << ls.spacing
-                 << " expansive " << ls.expansive
-                 << " empty " << ls.empty;
+        qDebug().nospace() << "... item " << i << ": " << ls;
     }
 #endif
 
@@ -1537,24 +1586,33 @@ BoxLayoutHfw::GeomInfo BoxLayoutHfw::getGeomInfo() const
     m_geom_cache[layout_rect] = gi;
 #else
     m_cached_geominfo = gi;
+    m_dirty = false;
 #endif
     return gi;
 }
 
 
-BoxLayoutHfw::HfwInfo BoxLayoutHfw::getHfwInfo(int w) const
+BoxLayoutHfw::HfwInfo BoxLayoutHfw::getHfwInfo(int layout_width) const
 {
+    int w = layout_width;  // name used in original
+    // ... but original did the HFW calculations on the INNER width,
+    // and we do it on the OUTER width here, so that we can be consistent
+    // with getGeomInfo(), which uses the OUTER rect
 #ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
     if (m_dirty) {
         clearCaches();
     }
+#ifndef DISABLE_CACHING
     if (m_hfw_cache.contains(w)) {
         return m_hfw_cache[w];
     }
+#endif
 #else
+#ifndef DISABLE_CACHING
     if (w == m_cached_hfw_width) {
         return m_cached_hfwinfo;
     }
+#endif
 #endif
 
 #ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
@@ -1571,12 +1629,17 @@ BoxLayoutHfw::HfwInfo BoxLayoutHfw::getHfwInfo(int w) const
         }
     }
     if (!found) {
-        gi = getGeomInfo(QRect(QPoint(0, 0),
-                               QSize(w, QLAYOUTSIZE_MAX)));
+        gi = getGeomInfo(defaultRectOfWidth(w));
     }
 #else
     GeomInfo gi = getGeomInfo();
 #endif
+
+    // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+    // Start of main thinking
+
+    Margins effmarg = effectiveMargins();
+    w -= effmarg.totalWidth();  // RNC; see above for notes and below for compensation
 
     QVector<QLayoutStruct>& a = gi.m_geom_array;
     int n = a.count();
@@ -1591,7 +1654,7 @@ BoxLayoutHfw::HfwInfo BoxLayoutHfw::getHfwInfo(int w) const
 
     if (horz(m_dir)) {
         // RNC: HORIZONTAL: maximum of {value for each item}, for each of hfw() and mhfw()
-        qtlayouthelpers::qGeomCalc(a, 0, n, 0, w);
+        qtlayouthelpers::qGeomCalc(a, 0, n, 0, w);  // chain, start, count, pos, space
         for (int i = 0; i < n; i++) {
             BoxLayoutHfwItem* box = m_list.at(i);
             h = qMax(h, box->hfw(a.at(i).size));
@@ -1624,6 +1687,14 @@ BoxLayoutHfw::HfwInfo BoxLayoutHfw::getHfwInfo(int w) const
     HfwInfo hfwinfo;
     hfwinfo.hfw_height = h;
     hfwinfo.hfw_min_height = mh;
+
+    // RNC: compensation back:
+    hfwinfo.hfw_height += effmarg.totalHeight();
+    hfwinfo.hfw_min_height += effmarg.totalHeight();
+
+    // End of main thinking
+    // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 #ifdef DEBUG_LAYOUT
     qDebug().nospace() << "... For layout (contents) width " << w << ":"
                        << " m_hfw_height " << hfwinfo.hfw_height
@@ -1632,7 +1703,7 @@ BoxLayoutHfw::HfwInfo BoxLayoutHfw::getHfwInfo(int w) const
 #ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
     m_hfw_cache[w] = hfwinfo;
 #else
-    m_cached_hfw_width = layout_width;
+    m_cached_hfw_width = w;
     m_cached_hfwinfo = hfwinfo;
 #endif
     return hfwinfo;

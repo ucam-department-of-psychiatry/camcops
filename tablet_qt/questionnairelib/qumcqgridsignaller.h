@@ -23,16 +23,16 @@
 // classes").
 
 class FieldRef;
-class QuMCQGrid;
+class QuMcqGrid;
 
 
-class QuMCQGridSignaller : public QObject {
+class QuMcqGridSignaller : public QObject {
     Q_OBJECT
 public:
-    QuMCQGridSignaller(QuMCQGrid* recipient, int question_index);
+    QuMcqGridSignaller(QuMcqGrid* recipient, int question_index);
 public slots:
     void valueChanged(const FieldRef* fieldref);
 protected:
-    QuMCQGrid* m_recipient;
+    QuMcqGrid* m_recipient;
     int m_question_index;
 };

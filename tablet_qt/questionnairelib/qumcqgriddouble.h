@@ -23,10 +23,10 @@
 #include "questionwithtwofields.h"
 
 class BooleanWidget;
-class QuMCQGridDoubleSignaller;
+class QuMcqGridDoubleSignaller;
 
 
-class QuMCQGridDouble : public QuElement
+class QuMcqGridDouble : public QuElement
 {
     // Offers a grid of pairs of multiple-choice questions, where several
     // sets of questions share the same possible responses. For example:
@@ -38,18 +38,18 @@ class QuMCQGridDouble : public QuElement
     // 3. ...
 
     Q_OBJECT
-    friend class QuMCQGridDoubleSignaller;
+    friend class QuMcqGridDoubleSignaller;
 public:
-    QuMCQGridDouble(QList<QuestionWithTwoFields> questions_with_fields,
+    QuMcqGridDouble(QList<QuestionWithTwoFields> questions_with_fields,
                     const NameValueOptions& options1,
                     const NameValueOptions& options2);
-    virtual ~QuMCQGridDouble();
-    QuMCQGridDouble* setWidth(int question_width,
+    virtual ~QuMcqGridDouble();
+    QuMcqGridDouble* setWidth(int question_width,
                               QList<int> option1_widths,
                               QList<int> option2_widths);
-    QuMCQGridDouble* setTitle(const QString& title);
-    QuMCQGridDouble* setSubtitles(QList<McqGridSubtitle> subtitles);
-    QuMCQGridDouble* setExpand(bool expand);
+    QuMcqGridDouble* setTitle(const QString& title);
+    QuMcqGridDouble* setSubtitles(QList<McqGridSubtitle> subtitles);
+    QuMcqGridDouble* setExpand(bool expand);
 protected:
     void setFromFields();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
@@ -74,5 +74,5 @@ protected:
 
     QList<QList<QPointer<BooleanWidget>>> m_widgets1;
     QList<QList<QPointer<BooleanWidget>>> m_widgets2;
-    QList<QuMCQGridDoubleSignaller*> m_signallers;
+    QList<QuMcqGridDoubleSignaller*> m_signallers;
 };

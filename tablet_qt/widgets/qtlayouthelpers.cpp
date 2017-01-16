@@ -70,11 +70,31 @@ const QRect qtlayouthelpers::QT_DEFAULT_RECT(0, 0, 640, 480);  // as per QWidget
 
 
 // ============================================================================
-// WidgetItemHfw
+// Ancillary structs/classes
 // ============================================================================
 
-/*
-*/
+QDebug qtlayouthelpers::operator<<(QDebug debug,
+                                   const qtlayouthelpers::QQLayoutStruct& ls)
+{
+    debug.nospace()
+            << "QQLayoutStruct(stretch " << ls.stretch
+            << ", size_hint " << ls.size_hint
+            << ", maximum_size " << ls.maximum_size
+            << ", minimum_size " << ls.minimum_size
+            << ", spacing " << ls.spacing
+            << ", expansive " << ls.expansive
+            << ", empty " << ls.empty
+            << " [done " << ls.done
+            << ", pos " << ls.pos
+            << ", size " << ls.size
+            << "])";
+    return debug;
+}
+
+
+// ============================================================================
+// WidgetItemHfw
+// ============================================================================
 
 QSize qtlayouthelpers::WidgetItemHfw::minimumSize() const
 {
@@ -476,7 +496,7 @@ void qtlayouthelpers::qGeomCalc(QVector<QQLayoutStruct>& chain, int start,
 
 #ifdef DEBUG_LAYOUT
     qDebug() << Q_FUNC_INFO;
-    qDebug() << "... start" << start <<  "count" << count
+    qDebug() << "- start" << start <<  "count" << count
              <<  "pos" << pos <<  "space" << space <<  "spacer" << spacer;
     for (i = start; i < start + count; ++i) {
         qDebug() << "- item" << i << ':'
@@ -736,4 +756,14 @@ bool qtlayouthelpers::checkLayout(QLayout* other_layout, QLayout* from)
         return false;
     }
     return true;
+}
+
+
+// ============================================================================
+// RNC extras
+// ============================================================================
+
+QRect qtlayouthelpers::defaultRectOfWidth(int width)
+{
+    return QRect(QPoint(0, 0), QSize(width, QLAYOUTSIZE_MAX));
 }

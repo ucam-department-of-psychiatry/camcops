@@ -168,20 +168,20 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
                       " tasks can be made. Press the ‘Next’ button at the top "
                       "right of the screen.\n")),
         (new QuText("normal text"))->addTag("tag1"),
-        (new QuText("bold text"))->bold(),
-        (new QuText("italic text"))->italic(),
+        (new QuText("bold text"))->setBold(),
+        (new QuText("italic text"))->setItalic(),
         (new QuText(html))->setOpenLinks(),
-        (new QuText("big text"))->big(),
-        (new QuText("warning text"))->warning(),
+        (new QuText("big text"))->setBig(),
+        (new QuText("warning text"))->setWarning(),
         new QuText("Below here: space fillers, just to test scrolling"),
-        (new QuText(longtext))->big(),
+        (new QuText(longtext))->setBig(),
     })->setTitle(QString("Text [With a long title: %1]")
                  .arg(uiconst::LOREM_IPSUM_3)));
     for (int i = 0; i < 20; ++i) {
-        page_text->addElement((new QuText("big text"))->big());
+        page_text->addElement((new QuText("big text"))->setBig());
     }
     page_text->addElement(
-        (new QuText("... was that enough to scroll vertically?"))->bold()
+        (new QuText("... was that enough to scroll vertically?"))->setBold()
     );
 
     // ------------------------------------------------------------------------
@@ -451,26 +451,26 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
     };
     QuPagePtr page_mcq((new QuPage{
         new QuHeading("Plain MCQ:"),
-        new QuMCQ(fieldRef("mcq1"), options_A),
+        new QuMcq(fieldRef("mcq1"), options_A),
         new QuHeading("Same MCQ/field, reconfigured (randomized, "
                       "instructions, horizontal, as text button):"),
-        (new QuMCQ(fieldRef("mcq1"), options_A))
+        (new QuMcq(fieldRef("mcq1"), options_A))
                             ->setRandomize(true)
                             ->setShowInstruction(true)
                             ->setHorizontal(true)
                             ->setAsTextButton(true),
         new QuHeading("Same MCQ/field, reconfigured:"),
-        (new QuMCQ(fieldRef("mcq1"), options_A))
+        (new QuMcq(fieldRef("mcq1"), options_A))
                             ->setAsTextButton(true),
         new QuHeading("A second MCQ:"),
-        new QuMCQ(fieldRef("mcq2"), options_C),
+        new QuMcq(fieldRef("mcq2"), options_C),
         new QuHeading("Another:"),
-        new QuMCQ(fieldRef("mcq3"), options_B),
+        new QuMcq(fieldRef("mcq3"), options_B),
         new QuHeading("The previous MCQ, reconfigured:"),
-        (new QuMCQ(fieldRef("mcq3"), options_B))
+        (new QuMcq(fieldRef("mcq3"), options_B))
                             ->setHorizontal(true),
         new QuHeading("A fourth MCQ, as text:"),
-        (new QuMCQ(fieldRef("mcq4"), options_B))
+        (new QuMcq(fieldRef("mcq4"), options_B))
                             ->setHorizontal(true)
                             ->setAsTextButton(true),
     })->setTitle("Multiple-choice questions (MCQs)"));
@@ -481,7 +481,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
 
     QuPagePtr page_mcq_variants((new QuPage{
          new QuHeading("MCQ grid:"),
-         (new QuMCQGrid(
+         (new QuMcqGrid(
             {
                 QuestionWithOneField("Question A", fieldRef("mcq5")),
                 QuestionWithOneField("Question B", fieldRef("mcq6")),
@@ -492,7 +492,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
             options_D
         ))->setSubtitles({{3, "subtitle before D"}}),
         new QuHeading("Another MCQ grid:"),
-        (new QuMCQGrid(
+        (new QuMcqGrid(
             {
                 QuestionWithOneField("Question A", fieldRef("mcq8")),
                 QuestionWithOneField("Question B; " + lipsum2, fieldRef("mcq9")),
@@ -501,7 +501,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
         options_A
         ))->setTitle("MCQ 2 title; " + lipsum2),
         new QuHeading("Double MCQ grid:"),
-        (new QuMCQGridDouble(
+        (new QuMcqGridDouble(
             {
                 QuestionWithTwoFields("Question A",
                                          fieldRef("mcqtext_1a"),
@@ -517,7 +517,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
         ))  ->setTitle("Double-MCQ title")
             ->setSubtitles({{2, "subtitle before C"}}),
         new QuHeading("MCQ grid with single Boolean (right):"),
-        (new QuMCQGridSingleBoolean(
+        (new QuMcqGridSingleBoolean(
             {
                 QuestionWithTwoFields("Question A",
                                          fieldRef("mcq5"), fieldRef("mcqbool1")),
@@ -531,7 +531,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
         ))  ->setTitle("Title for MCQ grid with single boolean")
             ->setSubtitles({{2, "subtitle before C"}}),
         new QuHeading("MCQ grid with single Boolean (left):"),
-        (new QuMCQGridSingleBoolean(
+        (new QuMcqGridSingleBoolean(
             {
                 QuestionWithTwoFields("Question A",
                                          fieldRef("mcq5"), fieldRef("mcqbool1")),
@@ -739,7 +739,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
     // ------------------------------------------------------------------------
 
     QuPagePtr page_canvas((new QuPage{
-        (new QuText("Page style: ClinicianWithPatient"))->italic(true),
+        (new QuText("Page style: ClinicianWithPatient"))->setItalic(true),
         new QuHeading("Canvas, blank start:"),
         new QuCanvas(fieldRef("canvas2_blobid", true, true, true)),
         new QuHeading("Canvas, using files:"),

@@ -287,16 +287,16 @@ OpenableWidget* Ace3::editor(bool read_only)
         return new QuText(xstring(stringname));
     };
     auto explanation = [this](const QString& stringname) -> QuElement* {
-        return (new QuText(xstring(stringname)))->italic();
+        return (new QuText(xstring(stringname)))->setItalic();
     };
     auto heading = [this](const QString& stringname) -> QuElement* {
         return new QuHeading(xstring(stringname));
     };
     auto subheading = [this](const QString& stringname) -> QuElement* {
-        return (new QuText(xstring(stringname)))->bold()->big();
+        return (new QuText(xstring(stringname)))->setBold()->setBig();
     };
     auto instruction = [this](const QString& stringname) -> QuElement* {
-        return (new QuText(xstring(stringname)))->bold();
+        return (new QuText(xstring(stringname)))->setBold();
     };
     auto boolean = [this](const QString& stringname, const QString& fieldname,
                           bool mandatory = true,
@@ -328,7 +328,7 @@ OpenableWidget* Ace3::editor(bool read_only)
             {xstring("q_occupation"),
              new QuLineEdit(fieldRef(FN_OCCUPATION))},
             {xstring("q_handedness"),
-             (new QuMCQ(fieldRef(FN_HANDEDNESS), options_handedness))->setHorizontal(true)},
+             (new QuMcq(fieldRef(FN_HANDEDNESS), options_handedness))->setHorizontal(true)},
         }, uiconst::DEFAULT_COLSPAN_Q, uiconst::DEFAULT_COLSPAN_A),
     })->setTitle(makeTitle("Preamble"))->setType(QuPage::PageType::Clinician));
 
@@ -388,7 +388,7 @@ OpenableWidget* Ace3::editor(bool read_only)
             boolean("attn_time5", strnum(FP_ATTN_TIME, 5)),
         },
         explanation("instruction_time"),
-        (new QuText(correct_date))->italic(),
+        (new QuText(correct_date))->setItalic(),
         instruction("attn_q_place"),
         new QuHorizontalContainer{
             boolean("attn_place1", strnum(FP_ATTN_PLACE, 1)),
@@ -409,7 +409,7 @@ OpenableWidget* Ace3::editor(bool read_only)
         },
         new QuHorizontalContainer{
             text("attn_q_register_n_trials"),
-            (new QuMCQ(fieldRef(FN_ATTN_NUM_REGISTRATION_TRIALS, false),  // not mandatory
+            (new QuMcq(fieldRef(FN_ATTN_NUM_REGISTRATION_TRIALS, false),  // not mandatory
                                  options_registration))->setHorizontal(true),
         },
         // Serial 7s
@@ -467,7 +467,7 @@ OpenableWidget* Ace3::editor(bool read_only)
         new QuCountdown(FLUENCY_TIME_SEC),
         explanation("fluency_instruction_letters"),
         text("fluency_prompt_letters_cor"),
-        (new QuMCQ(fieldRef(FN_FLUENCY_LETTERS_SCORE),
+        (new QuMcq(fieldRef(FN_FLUENCY_LETTERS_SCORE),
                              options_fluency_letters))->setHorizontal(true),
         new QuSpacer(),
         // Animals
@@ -476,7 +476,7 @@ OpenableWidget* Ace3::editor(bool read_only)
         new QuCountdown(FLUENCY_TIME_SEC),
         explanation("fluency_instruction_animals"),
         text("fluency_prompt_animals_cor"),
-        (new QuMCQ(fieldRef(FN_FLUENCY_ANIMALS_SCORE),
+        (new QuMcq(fieldRef(FN_FLUENCY_ANIMALS_SCORE),
                              options_fluency_animals))->setHorizontal(true),
     })->setTitle(makeTitle("Fluency"))->setType(QuPage::PageType::Clinician));
 
@@ -492,7 +492,7 @@ OpenableWidget* Ace3::editor(bool read_only)
         (new QuHorizontalContainer{
             // Address 1
             new QuVerticalContainer{
-                (new QuText(xstring("trial") + " 1"))->bold(),
+                (new QuText(xstring("trial") + " 1"))->setBold(),
                 new QuHorizontalContainer{
                     boolean("address_1", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 1), false),
                     boolean("address_2", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 2), false),
@@ -507,7 +507,7 @@ OpenableWidget* Ace3::editor(bool read_only)
             },
             // Address 2
             new QuVerticalContainer{
-                (new QuText(xstring("trial") + " 2"))->bold(),
+                (new QuText(xstring("trial") + " 2"))->setBold(),
                 new QuHorizontalContainer{
                     boolean("address_1", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 1), false),
                     boolean("address_2", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 2), false),
@@ -522,7 +522,7 @@ OpenableWidget* Ace3::editor(bool read_only)
             },
             // Address 3
             new QuVerticalContainer{
-                (new QuText(xstring("trial") + " 3"))->bold(),
+                (new QuText(xstring("trial") + " 3"))->setBold(),
                 new QuHorizontalContainer{
                     boolean("address_1", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 1), true),
                     boolean("address_2", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 2), true),
@@ -676,7 +676,7 @@ OpenableWidget* Ace3::editor(bool read_only)
         instruction("vsp_q_cube"),
         new QuImage(uifunc::resourceFilename(IMAGE_CUBE)),
         text("vsp_score_cube"),
-        (new QuMCQ(fieldRef(FN_VSP_COPY_CUBE), options_cube))->setHorizontal(true),
+        (new QuMcq(fieldRef(FN_VSP_COPY_CUBE), options_cube))->setHorizontal(true),
     })
         ->setTitle(makeTitle("Cube"))
         ->setType(QuPage::PageType::ClinicianWithPatient));
@@ -690,7 +690,7 @@ OpenableWidget* Ace3::editor(bool read_only)
                               instruction("vsp_q_clock"),
                               explanation("vsp_instruction_clock"),
                               text("vsp_score_clock"),
-                              (new QuMCQ(fieldRef(FN_VSP_DRAW_CLOCK), options_clock))->setHorizontal(true),
+                              (new QuMcq(fieldRef(FN_VSP_DRAW_CLOCK), options_clock))->setHorizontal(true),
     })
         ->setTitle(makeTitle("Clock"))
         ->setType(QuPage::PageType::Clinician));

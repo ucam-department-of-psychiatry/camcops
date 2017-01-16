@@ -21,9 +21,11 @@
 #include "common/uiconstants.h"
 #include "diagnosis/icd10.h"
 #include "lib/debugfunc.h"
+#include "lib/layoutdumper.h"
 #include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
+#include "questionnairelib/mcqfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quaudioplayer.h"
 #include "questionnairelib/quboolean.h"
@@ -72,9 +74,21 @@
 #include "widgets/verticalscrollarea.h"
 
 
+const QString SHORT_TEXT("hello world");
+
+
+const QString& sampleText(bool long_text)
+{
+    return long_text ? uiconst::LOREM_IPSUM_1 : SHORT_TEXT;
+}
+
+
 WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
     : MenuWindow(app, tr("Widget tests"), "")
 {
+    bool qutext_bold = false;
+    bool mandatory = true;
+
     FieldRef::GetterFunction getter1 = std::bind(&WidgetTestMenu::dummyGetter1,
                                                  this);
     FieldRef::SetterFunction setter1 = std::bind(&WidgetTestMenu::dummySetter1,
@@ -83,7 +97,6 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
                                                  this);
     FieldRef::SetterFunction setter2 = std::bind(&WidgetTestMenu::dummySetter2,
                                                  this, std::placeholders::_1);
-    bool mandatory = true;
     m_fieldref_1 = FieldRefPtr(new FieldRef(getter1, setter1, mandatory));
     m_fieldref_2 = FieldRefPtr(new FieldRef(getter2, setter2, mandatory));
 
@@ -203,6 +216,12 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
         MenuItem("VBoxLayout (either QVBoxLayout or VBoxLayoutHfw), "
                  "with 2 x LabelWordWrapWide (long text)",
                  std::bind(&WidgetTestMenu::testVBoxLayout, this, true)),
+        MenuItem("GridLayoutHfw (example 1: fixed-size icons and word-wrapping text)",
+                 std::bind(&WidgetTestMenu::testGridLayoutHfw, this, 1)),
+        MenuItem("GridLayoutHfw (example 2: 4 x short text)",
+                 std::bind(&WidgetTestMenu::testGridLayoutHfw, this, 2)),
+        MenuItem("GridLayoutHfw (example 3: approximating QuMcqGrid)",
+                 std::bind(&WidgetTestMenu::testGridLayoutHfw, this, 3)),
 
         MenuItem("Large-scale widgets").setLabelOnly(),
         MenuItem("MenuItem",
@@ -267,10 +286,14 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
                  std::bind(&WidgetTestMenu::testQuMCQ, this, true, true, false)),
         MenuItem("QuMCQ (horizontal=true, short text, as text button)",
                  std::bind(&WidgetTestMenu::testQuMCQ, this, true, false, true)),
-        MenuItem("QuMCQGrid (expand=false)",
-                 std::bind(&WidgetTestMenu::testQuMCQGrid, this, false)),
-        MenuItem("QuMCQGrid (expand=true)",
-                 std::bind(&WidgetTestMenu::testQuMCQGrid, this, true)),
+        MenuItem("QuMCQGrid (expand=false, example=1)",
+                 std::bind(&WidgetTestMenu::testQuMCQGrid, this, false, 1)),
+        MenuItem("QuMCQGrid (expand=true, example=1)",
+                 std::bind(&WidgetTestMenu::testQuMCQGrid, this, true, 1)),
+        MenuItem("QuMCQGrid (expand=true, example=2)",
+                 std::bind(&WidgetTestMenu::testQuMCQGrid, this, true, 2)),
+        MenuItem("QuMCQGrid (expand=true, example=3)",
+                 std::bind(&WidgetTestMenu::testQuMCQGrid, this, true, 3)),
         MenuItem("QuMCQGridDouble (expand=false)",
                  std::bind(&WidgetTestMenu::testQuMCQGridDouble, this, false)),
         MenuItem("QuMCQGridDouble (expand=true)",
@@ -304,9 +327,9 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
         MenuItem("QuSpinBoxInteger",
                  std::bind(&WidgetTestMenu::testQuSpinBoxInteger, this)),
         MenuItem("QuText (short text)",
-                 std::bind(&WidgetTestMenu::testQuText, this, false)),
+                 std::bind(&WidgetTestMenu::testQuText, this, false, qutext_bold)),
         MenuItem("QuText (long text)",
-                 std::bind(&WidgetTestMenu::testQuText, this, true)),
+                 std::bind(&WidgetTestMenu::testQuText, this, true, qutext_bold)),
         MenuItem("QuTextEdit",
                  std::bind(&WidgetTestMenu::testQuTextEdit, this)),
         MenuItem("QuThermometer",
@@ -357,9 +380,9 @@ void WidgetTestMenu::testQuestionnaireElement(QuElement* element)
 {
     Questionnaire questionnaire(m_app);
     QWidget* widget = element->widget(&questionnaire);
-    widget->setStyleSheet(
-                m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_QUESTIONNAIRE));
-    debugfunc::debugWidget(widget, false, false);
+    layoutdumper::DumperConfig config;
+    QString stylesheet(m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_QUESTIONNAIRE));
+    debugfunc::debugWidget(widget, false, false, config, true, &stylesheet);
 }
 
 
@@ -370,7 +393,7 @@ void WidgetTestMenu::testQuestionnaireElement(QuElement* element)
 void WidgetTestMenu::testQLabel(const QSizePolicy& policy,
                                 bool long_text, bool word_wrap)
 {
-    QLabel* widget = new QLabel(long_text ? uiconst::LOREM_IPSUM_1 : "Hello");
+    QLabel* widget = new QLabel(sampleText(long_text));
     widget->setWordWrap(word_wrap);
     widget->setSizePolicy(policy);
     debugfunc::debugWidget(widget);
@@ -430,8 +453,7 @@ void WidgetTestMenu::testCanvasWidget()
 
 void WidgetTestMenu::testClickableLabelNoWrap(bool long_text)
 {
-    QString text = long_text ? uiconst::LOREM_IPSUM_1 : "Text";
-    ClickableLabelNoWrap* widget = new ClickableLabelNoWrap(text);
+    ClickableLabelNoWrap* widget = new ClickableLabelNoWrap(sampleText(long_text));
     connect(widget, &QAbstractButton::clicked,
             this, &WidgetTestMenu::dummyAction);
     debugfunc::debugWidget(widget);
@@ -440,8 +462,7 @@ void WidgetTestMenu::testClickableLabelNoWrap(bool long_text)
 
 void WidgetTestMenu::testClickableLabelWordWrapWide(bool long_text)
 {
-    QString text = long_text ? uiconst::LOREM_IPSUM_1 : "Text";
-    ClickableLabelWordWrapWide* widget = new ClickableLabelWordWrapWide(text);
+    ClickableLabelWordWrapWide* widget = new ClickableLabelWordWrapWide(sampleText(long_text));
     connect(widget, &QAbstractButton::clicked,
             this, &WidgetTestMenu::dummyAction);
     debugfunc::debugWidget(widget);
@@ -467,18 +488,13 @@ void WidgetTestMenu::testImageButton()
 
 void WidgetTestMenu::testLabelWordWrapWide(bool long_text, bool use_hfw_layout)
 {
-    QString text = long_text ? uiconst::LOREM_IPSUM_1 : "Text";
-    LabelWordWrapWide* widget = new LabelWordWrapWide(text);
+    LabelWordWrapWide* widget = new LabelWordWrapWide(sampleText(long_text));
     bool set_background_by_name = false;
     bool set_background_by_stylesheet = true;
-    bool show_widget_properties = true;
-    bool show_widget_attributes = false;
-    int spaces_per_level = 4;
+    layoutdumper::DumperConfig config;
     debugfunc::debugWidget(widget, set_background_by_name,
                            set_background_by_stylesheet,
-                           show_widget_properties,
-                           show_widget_attributes,
-                           spaces_per_level,
+                           config,
                            use_hfw_layout);
 }
 
@@ -497,10 +513,61 @@ void WidgetTestMenu::testVBoxLayout(bool long_text)
     QWidget* widget = new QWidget();
     VBoxLayout* layout = new VBoxLayout();
     widget->setLayout(layout);
-    layout->addWidget(new LabelWordWrapWide(
-                          long_text ? uiconst::LOREM_IPSUM_1 : "hello"));
-    layout->addWidget(new LabelWordWrapWide(
-                          long_text ? uiconst::LOREM_IPSUM_1 : "there"));
+    layout->addWidget(new LabelWordWrapWide(sampleText(long_text)));
+    layout->addWidget(new LabelWordWrapWide(sampleText(long_text)));
+    debugfunc::debugWidget(widget);
+}
+
+
+void WidgetTestMenu::testGridLayoutHfw(int example)
+{
+    QWidget* widget = new QWidget();
+    GridLayoutHfw* grid = new GridLayoutHfw();
+    widget->setLayout(grid);
+    switch (example) {
+    case 1:
+    default:
+        // row 0
+        grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 0, 0);
+        grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 0, 1);
+        grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 0, 2);
+        // row 1
+        grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 1, 0);
+        grid->addWidget(new LabelWordWrapWide(uiconst::LOREM_IPSUM_1), 1, 1);
+        grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 1, 2);
+        // row 2
+        grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 2, 0);
+        grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 2, 1);
+        grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 2, 2);
+        break;
+    case 2:
+        // row 0
+        grid->addWidget(new LabelWordWrapWide(SHORT_TEXT), 0, 0);
+        grid->addWidget(new LabelWordWrapWide(SHORT_TEXT), 0, 1);
+        // row 1
+        grid->addWidget(new LabelWordWrapWide(SHORT_TEXT), 1, 0);
+        grid->addWidget(new LabelWordWrapWide(SHORT_TEXT), 1, 1);
+        break;
+    case 3:
+        // spanning (first, as background)
+        mcqfunc::addOptionBackground(grid, 0, 0, 4);
+        mcqfunc::addVerticalLine(grid, 1, 3);
+        // row 0
+        grid->addWidget(new LabelWordWrapWide(SHORT_TEXT), 0, 2);
+        grid->addWidget(new LabelWordWrapWide(SHORT_TEXT), 0, 3);
+        grid->addWidget(new LabelWordWrapWide(SHORT_TEXT), 0, 4);
+        // row 1
+        grid->addWidget(new LabelWordWrapWide(SHORT_TEXT), 1, 0);
+        grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 1, 2);
+        grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 1, 3);
+        grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 1, 4);
+        // row 2
+        grid->addWidget(new LabelWordWrapWide(SHORT_TEXT), 2, 0);
+        grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 2, 2);
+        grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 2, 3);
+        grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 2, 4);
+        break;
+    }
     debugfunc::debugWidget(widget);
 }
 
@@ -529,10 +596,8 @@ void WidgetTestMenu::testVerticalScrollAreaComplex(bool long_text)
     VBoxLayout* layout = new VBoxLayout();
     contentwidget->setLayout(layout);
 
-    layout->addWidget(new LabelWordWrapWide(
-                          long_text ? uiconst::LOREM_IPSUM_1 : "hello"));
-    layout->addWidget(new LabelWordWrapWide(
-                          long_text ? uiconst::LOREM_IPSUM_1 : "there"));
+    layout->addWidget(new LabelWordWrapWide(sampleText(long_text)));
+    layout->addWidget(new LabelWordWrapWide(sampleText(long_text)));
 
     VerticalScrollArea* scrollwidget = new VerticalScrollArea();
     scrollwidget->setWidget(contentwidget);
@@ -628,8 +693,7 @@ void WidgetTestMenu::testQuAudioPlayer()
 
 void WidgetTestMenu::testQuBoolean(bool as_text_button, bool long_text)
 {
-    QString text = long_text ? uiconst::LOREM_IPSUM_1 : "QuBoolean";
-    QuBoolean element(text, m_fieldref_1);
+    QuBoolean element(sampleText(long_text), m_fieldref_1);
     element.setAsTextButton(as_text_button);
     testQuestionnaireElement(&element);
 }
@@ -674,7 +738,7 @@ void WidgetTestMenu::testQuDiagnosticCode()
 
 void WidgetTestMenu::testQuHeading(bool long_text)
 {
-    QuHeading element(long_text ? uiconst::LOREM_IPSUM_1 : "Heading");
+    QuHeading element(sampleText(long_text));
     testQuestionnaireElement(&element);
 }
 
@@ -731,21 +795,31 @@ void WidgetTestMenu::testQuLineEditULongLong()
 void WidgetTestMenu::testQuMCQ(bool horizontal, bool long_text,
                                bool as_text_button)
 {
-    QuMCQ element(m_fieldref_1, long_text ? m_options_3 : m_options_1);
+    QuMcq element(m_fieldref_1, long_text ? m_options_3 : m_options_1);
     element.setHorizontal(horizontal);
     element.setAsTextButton(as_text_button);
     testQuestionnaireElement(&element);
 }
 
 
-void WidgetTestMenu::testQuMCQGrid(bool expand)
+void WidgetTestMenu::testQuMCQGrid(bool expand, int example)
 {
+    QString q2 = example == 1 ? "Question 2" : uiconst::LOREM_IPSUM_1;
     QList<QuestionWithOneField> question_field_pairs{
         QuestionWithOneField(m_fieldref_1, "Question 1"),
-        QuestionWithOneField(m_fieldref_2, "Question 2 " + uiconst::LOREM_IPSUM_1),
+        QuestionWithOneField(m_fieldref_2, q2),
     };
-    QuMCQGrid element(question_field_pairs, m_options_1);
+    QuMcqGrid element(question_field_pairs, m_options_1);
     element.setExpand(expand);
+    switch (example) {
+    case 1:
+    case 2:
+    default:
+        break;
+    case 3:
+        element.setTitle("MCQ 2 title; " + uiconst::LOREM_IPSUM_2);
+        break;
+    }
     testQuestionnaireElement(&element);
 }
 
@@ -757,7 +831,7 @@ void WidgetTestMenu::testQuMCQGridDouble(bool expand)
         QuestionWithTwoFields("Question 2 " + uiconst::LOREM_IPSUM_1,
                               m_fieldref_1, m_fieldref_2),
     };
-    QuMCQGridDouble element(question_field_pairs, m_options_1, m_options_2);
+    QuMcqGridDouble element(question_field_pairs, m_options_1, m_options_2);
     element.setExpand(expand);
     testQuestionnaireElement(&element);
 }
@@ -770,7 +844,7 @@ void WidgetTestMenu::testQuMCQGridSingleBoolean(bool expand)
         QuestionWithTwoFields("Question 2 " + uiconst::LOREM_IPSUM_1,
                               m_fieldref_1, m_fieldref_2),
     };
-    QuMCQGridSingleBoolean element(question_field_pairs,
+    QuMcqGridSingleBoolean element(question_field_pairs,
                                    m_options_1, "boolean");
     element.setExpand(expand);
     testQuestionnaireElement(&element);
@@ -840,9 +914,12 @@ void WidgetTestMenu::testQuSpinBoxInteger()
 }
 
 
-void WidgetTestMenu::testQuText(bool long_text)
+void WidgetTestMenu::testQuText(bool long_text, bool bold)
 {
-    QuText element(long_text ? uiconst::LOREM_IPSUM_1 : "text");
+    QuText element(sampleText(long_text));
+    if (bold) {
+        element.setBold(true);
+    }
     testQuestionnaireElement(&element);
 }
 

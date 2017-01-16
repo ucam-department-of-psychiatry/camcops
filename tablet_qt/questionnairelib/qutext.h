@@ -31,10 +31,10 @@ class QuText : public QuElement
 public:
     QuText(const QString& text = "");
     QuText(FieldRefPtr fieldref);
-    QuText* big(bool big = true);
-    QuText* bold(bool bold = true);
-    QuText* italic(bool italic = true);
-    QuText* warning(bool warning = true);
+    QuText* setBig(bool setBig = true);
+    QuText* setBold(bool setBold = true);
+    QuText* setItalic(bool setItalic = true);
+    QuText* setWarning(bool setWarning = true);
     QuText* setFormat(Qt::TextFormat format);
     QuText* setOpenLinks(bool open_links = true);
     QuText* setAlignment(Qt::Alignment alignment);

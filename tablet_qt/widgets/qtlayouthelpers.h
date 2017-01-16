@@ -57,6 +57,7 @@
 ****************************************************************************/
 
 #pragma once
+#include <QDebug>
 #include <QLayout>
 #include <QStyle>
 #include <QVector>
@@ -151,20 +152,14 @@ struct QQLayoutStruct
 };
 
 
-struct HfwInfo {  // RNC
-    // Stores minimum and hint height-for-width.
-    // Does so for the inner, "client" rectangle of a layout.
-    // Its functions return the "outer" heights-for-widths, when given
-    // the additional information of the current layout margins.
-
-    HfwInfo() : hfw_height(-1), hfw_min_height(-1) {}
-    int hfw_height;
-    int hfw_min_height;
-};
+QDebug operator<<(QDebug debug, const QQLayoutStruct& ls);
 
 
 class WidgetItemHfw : public QWidgetItemV2
 {
+    // I thought this might be necessary but in fact it was only helpful
+    // as a debugging tool to hook into minimumSize().
+    // See createWidgetItem().
 public:
     WidgetItemHfw(QWidget* widget) : QWidgetItemV2(widget) {}
     QSize minimumSize() const override;
@@ -218,5 +213,13 @@ bool checkWidget(QWidget* widget, QLayout* from);
 
 // was QLayoutPrivate::checkLayout(QLayout *otherLayout), from qlayout.cpp
 bool checkLayout(QLayout* other_layout, QLayout* from);
+
+
+// ============================================================================
+// Static-looking things from QLayoutPrivate
+// ============================================================================
+
+QRect defaultRectOfWidth(int width);
+
 
 }  // namespace qtlayouthelpers

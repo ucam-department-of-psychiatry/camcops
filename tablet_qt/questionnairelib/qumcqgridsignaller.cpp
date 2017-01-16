@@ -20,7 +20,7 @@
 #include "questionnairelib/qumcqgrid.h"
 
 
-QuMCQGridSignaller::QuMCQGridSignaller(QuMCQGrid* recipient,
+QuMcqGridSignaller::QuMcqGridSignaller(QuMcqGrid* recipient,
                                        int question_index) :
     m_recipient(recipient),
     m_question_index(question_index)
@@ -28,7 +28,7 @@ QuMCQGridSignaller::QuMCQGridSignaller(QuMCQGrid* recipient,
 }
 
 
-void QuMCQGridSignaller::valueChanged(const FieldRef* fieldref)
+void QuMcqGridSignaller::valueChanged(const FieldRef* fieldref)
 {
     m_recipient->fieldValueChanged(m_question_index, fieldref);
 }

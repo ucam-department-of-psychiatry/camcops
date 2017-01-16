@@ -509,8 +509,15 @@ AspectRatioPixmapLabel {
 #debug_pink {
     background-color: pink;
 }
+
 /*
 BaseWidget {
     background-color: yellow;
+}
+*/
+
+/*
+LabelWordWrapWide {
+    padding: 5px;
 }
 */

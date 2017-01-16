@@ -24,7 +24,7 @@
 #include "widgets/labelwordwrapwide.h"
 
 
-QuMCQGridSingleBoolean::QuMCQGridSingleBoolean(
+QuMcqGridSingleBoolean::QuMcqGridSingleBoolean(
         QList<QuestionWithTwoFields> questions_with_fields,
         const NameValueOptions& mcq_options,
         const QString& boolean_text) :
@@ -42,25 +42,25 @@ QuMCQGridSingleBoolean::QuMCQGridSingleBoolean(
     for (int qi = 0; qi < m_questions_with_fields.size(); ++qi) {
         FieldRefPtr mcq_fieldref = m_questions_with_fields.at(qi).firstFieldRef();
         // DANGEROUS OBJECT LIFESPAN SIGNAL: do not use std::bind
-        QuMCQGridSingleBooleanSignaller* sig =
-                new QuMCQGridSingleBooleanSignaller(this, qi);
+        QuMcqGridSingleBooleanSignaller* sig =
+                new QuMcqGridSingleBooleanSignaller(this, qi);
         m_signallers.append(sig);
 
         connect(mcq_fieldref.data(), &FieldRef::valueChanged,
-                sig, &QuMCQGridSingleBooleanSignaller::mcqFieldValueChanged);
+                sig, &QuMcqGridSingleBooleanSignaller::mcqFieldValueChanged);
         connect(mcq_fieldref.data(), &FieldRef::mandatoryChanged,
-                sig, &QuMCQGridSingleBooleanSignaller::mcqFieldValueChanged);
+                sig, &QuMcqGridSingleBooleanSignaller::mcqFieldValueChanged);
 
         FieldRefPtr bool_fieldref = m_questions_with_fields.at(qi).secondFieldRef();
         connect(bool_fieldref.data(), &FieldRef::valueChanged,
-                sig, &QuMCQGridSingleBooleanSignaller::booleanFieldValueChanged);
+                sig, &QuMcqGridSingleBooleanSignaller::booleanFieldValueChanged);
         connect(bool_fieldref.data(), &FieldRef::mandatoryChanged,
-                sig, &QuMCQGridSingleBooleanSignaller::booleanFieldValueChanged);
+                sig, &QuMcqGridSingleBooleanSignaller::booleanFieldValueChanged);
     }
 }
 
 
-QuMCQGridSingleBoolean::~QuMCQGridSingleBoolean()
+QuMcqGridSingleBoolean::~QuMcqGridSingleBoolean()
 {
     while (!m_signallers.isEmpty()) {
         delete m_signallers.takeAt(0);
@@ -68,7 +68,7 @@ QuMCQGridSingleBoolean::~QuMCQGridSingleBoolean()
 }
 
 
-QuMCQGridSingleBoolean* QuMCQGridSingleBoolean::setBooleanLeft(
+QuMcqGridSingleBoolean* QuMcqGridSingleBoolean::setBooleanLeft(
         bool boolean_left)
 {
     m_boolean_left = boolean_left;
@@ -76,7 +76,7 @@ QuMCQGridSingleBoolean* QuMCQGridSingleBoolean::setBooleanLeft(
 }
 
 
-QuMCQGridSingleBoolean* QuMCQGridSingleBoolean::setWidth(int question_width,
+QuMcqGridSingleBoolean* QuMcqGridSingleBoolean::setWidth(int question_width,
                                                   QList<int> mcq_option_widths,
                                                   int boolean_width)
 {
@@ -91,14 +91,14 @@ QuMCQGridSingleBoolean* QuMCQGridSingleBoolean::setWidth(int question_width,
 }
 
 
-QuMCQGridSingleBoolean* QuMCQGridSingleBoolean::setTitle(const QString &title)
+QuMcqGridSingleBoolean* QuMcqGridSingleBoolean::setTitle(const QString &title)
 {
     m_title = title;
     return this;
 }
 
 
-QuMCQGridSingleBoolean* QuMCQGridSingleBoolean::setSubtitles(
+QuMcqGridSingleBoolean* QuMcqGridSingleBoolean::setSubtitles(
         QList<McqGridSubtitle> subtitles)
 {
     m_subtitles = subtitles;
@@ -106,14 +106,14 @@ QuMCQGridSingleBoolean* QuMCQGridSingleBoolean::setSubtitles(
 }
 
 
-QuMCQGridSingleBoolean* QuMCQGridSingleBoolean::setExpand(bool expand)
+QuMcqGridSingleBoolean* QuMcqGridSingleBoolean::setExpand(bool expand)
 {
     m_expand = expand;
     return this;
 }
 
 
-void QuMCQGridSingleBoolean::setFromFields()
+void QuMcqGridSingleBoolean::setFromFields()
 {
     for (int qi = 0; qi < m_questions_with_fields.size(); ++qi) {
         mcqFieldValueChanged(
@@ -124,25 +124,25 @@ void QuMCQGridSingleBoolean::setFromFields()
 }
 
 
-int QuMCQGridSingleBoolean::mcqColnum(int value_index) const
+int QuMcqGridSingleBoolean::mcqColnum(int value_index) const
 {
     return (m_boolean_left ? 4 : 2) + value_index;
 }
 
 
-int QuMCQGridSingleBoolean::booleanColnum() const
+int QuMcqGridSingleBoolean::booleanColnum() const
 {
     return m_boolean_left ? 2 : (3 + m_mcq_options.size());
 }
 
 
-int QuMCQGridSingleBoolean::spacercol(bool first) const
+int QuMcqGridSingleBoolean::spacercol(bool first) const
 {
     return first ? 1 : ((m_boolean_left ? mcqColnum(0) : booleanColnum()) - 1);
 }
 
 
-void QuMCQGridSingleBoolean::addOptions(GridLayout* grid, int row)
+void QuMcqGridSingleBoolean::addOptions(GridLayout* grid, int row)
 {
     for (int i = 0; i < m_mcq_options.size(); ++i) {
         mcqfunc::addOption(grid, row, mcqColnum(i), m_mcq_options.at(i).name());
@@ -151,7 +151,7 @@ void QuMCQGridSingleBoolean::addOptions(GridLayout* grid, int row)
 }
 
 
-QPointer<QWidget> QuMCQGridSingleBoolean::makeWidget(Questionnaire* questionnaire)
+QPointer<QWidget> QuMcqGridSingleBoolean::makeWidget(Questionnaire* questionnaire)
 {
     bool read_only = questionnaire->readOnly();
     m_mcq_widgets.clear();
@@ -205,7 +205,7 @@ QPointer<QWidget> QuMCQGridSingleBoolean::makeWidget(Questionnaire* questionnair
             if (!read_only) {
                 // Safe object lifespan signal: can use std::bind
                 connect(w, &BooleanWidget::clicked,
-                        std::bind(&QuMCQGridSingleBoolean::mcqClicked,
+                        std::bind(&QuMcqGridSingleBoolean::mcqClicked,
                                   this, qi, vi));
             }
             grid->addWidget(w, row, mcqColnum(vi), response_align);
@@ -219,7 +219,7 @@ QPointer<QWidget> QuMCQGridSingleBoolean::makeWidget(Questionnaire* questionnair
         if (!read_only) {
             // Safe object lifespan signal: can use std::bind
             connect(bw, &BooleanWidget::clicked,
-                    std::bind(&QuMCQGridSingleBoolean::booleanClicked,
+                    std::bind(&QuMcqGridSingleBoolean::booleanClicked,
                               this, qi));
         }
         grid->addWidget(bw, row, booleanColnum(), response_align);
@@ -257,7 +257,7 @@ QPointer<QWidget> QuMCQGridSingleBoolean::makeWidget(Questionnaire* questionnair
 }
 
 
-FieldRefPtrList QuMCQGridSingleBoolean::fieldrefs() const
+FieldRefPtrList QuMcqGridSingleBoolean::fieldrefs() const
 {
     FieldRefPtrList refs;
     for (auto q : m_questions_with_fields) {
@@ -268,7 +268,7 @@ FieldRefPtrList QuMCQGridSingleBoolean::fieldrefs() const
 }
 
 
-void QuMCQGridSingleBoolean::mcqClicked(int question_index, int value_index)
+void QuMcqGridSingleBoolean::mcqClicked(int question_index, int value_index)
 {
     if (question_index < 0 ||
             question_index >= m_questions_with_fields.size()) {
@@ -289,7 +289,7 @@ void QuMCQGridSingleBoolean::mcqClicked(int question_index, int value_index)
 }
 
 
-void QuMCQGridSingleBoolean::booleanClicked(int question_index)
+void QuMcqGridSingleBoolean::booleanClicked(int question_index)
 {
     if (question_index < 0 ||
             question_index >= m_questions_with_fields.size()) {
@@ -303,7 +303,7 @@ void QuMCQGridSingleBoolean::booleanClicked(int question_index)
 }
 
 
-void QuMCQGridSingleBoolean::mcqFieldValueChanged(int question_index,
+void QuMcqGridSingleBoolean::mcqFieldValueChanged(int question_index,
                                                   const FieldRef* fieldref)
 {
     if (question_index < 0 ||
@@ -319,7 +319,7 @@ void QuMCQGridSingleBoolean::mcqFieldValueChanged(int question_index,
 }
 
 
-void QuMCQGridSingleBoolean::booleanFieldValueChanged(int question_index,
+void QuMcqGridSingleBoolean::booleanFieldValueChanged(int question_index,
                                                       const FieldRef* fieldref)
 {
     if (question_index < 0 ||

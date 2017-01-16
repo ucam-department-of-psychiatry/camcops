@@ -23,10 +23,10 @@
 #include "questionwithtwofields.h"
 
 class BooleanWidget;
-class QuMCQGridSingleBooleanSignaller;
+class QuMcqGridSingleBooleanSignaller;
 
 
-class QuMCQGridSingleBoolean : public QuElement
+class QuMcqGridSingleBoolean : public QuElement
 {
     // Offers a grid of multiple-choice questions, each with a single boolean.
     // For example:
@@ -38,21 +38,21 @@ class QuMCQGridSingleBoolean : public QuElement
     // 3. ...
 
     Q_OBJECT
-    friend class QuMCQGridSingleBooleanSignaller;
+    friend class QuMcqGridSingleBooleanSignaller;
 public:
-    QuMCQGridSingleBoolean();
+    QuMcqGridSingleBoolean();
 public:
-    QuMCQGridSingleBoolean(QList<QuestionWithTwoFields> questions_with_fields,
+    QuMcqGridSingleBoolean(QList<QuestionWithTwoFields> questions_with_fields,
                            const NameValueOptions& mcq_options,
                            const QString& boolean_text);
-    virtual ~QuMCQGridSingleBoolean();
-    QuMCQGridSingleBoolean* setBooleanLeft(bool boolean_left);
-    QuMCQGridSingleBoolean* setWidth(int question_width,
+    virtual ~QuMcqGridSingleBoolean();
+    QuMcqGridSingleBoolean* setBooleanLeft(bool boolean_left);
+    QuMcqGridSingleBoolean* setWidth(int question_width,
                                      QList<int> mcq_option_widths,
                                      int boolean_width);
-    QuMCQGridSingleBoolean* setTitle(const QString& title);
-    QuMCQGridSingleBoolean* setSubtitles(QList<McqGridSubtitle> subtitles);
-    QuMCQGridSingleBoolean* setExpand(bool expand);
+    QuMcqGridSingleBoolean* setTitle(const QString& title);
+    QuMcqGridSingleBoolean* setSubtitles(QList<McqGridSubtitle> subtitles);
+    QuMcqGridSingleBoolean* setExpand(bool expand);
 protected:
     void setFromFields();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
@@ -80,5 +80,5 @@ protected:
 
     QList<QList<QPointer<BooleanWidget>>> m_mcq_widgets;
     QList<QPointer<BooleanWidget>> m_boolean_widgets;
-    QList<QuMCQGridSingleBooleanSignaller*> m_signallers;
+    QList<QuMcqGridSingleBooleanSignaller*> m_signallers;
 };

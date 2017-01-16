@@ -17,17 +17,9 @@
 
 #pragma once
 
-#define LWWW_USE_UNWRAPPED_CACHE  // seems OK on wombat
-// #define LWWW_USE_QLABEL_CACHE  // not OK (wombat), even if cache cleared on every event
-#define LWWW_USE_STYLE_CACHE  // seems OK on wombat
-
 #include <QLabel>
 #include <QMap>
 #include "common/gui_defines.h"
-
-#if defined(LWWW_USE_UNWRAPPED_CACHE) || defined(LWWW_USE_QLABEL_CACHE) || defined(LWWW_USE_STYLE_CACHE)
-#define LWWW_USE_ANY_CACHE
-#endif
 
 
 class LabelWordWrapWide : public QLabel
@@ -59,15 +51,11 @@ public:
     // - However, even with a size policy of Maximum/Fixed/hasHeightForWidth,
     //   the label's height does not increase as its width is decreased, unless
     //   you override resizeEvent().
-#ifdef GUI_USE_RESIZE_FOR_HEIGHT
     virtual void resizeEvent(QResizeEvent* event) override;
-#endif
 
     // - resizeEvent() does the trick, but it isn't normally called when, for
     //   example, we set our text. So catch other events:
-#ifdef LWWW_USE_ANY_CACHE
     bool event(QEvent* e) override;
-#endif
 
 public slots:
     void setText(const QString& text);
@@ -75,9 +63,7 @@ public slots:
 protected:
     int qlabelHeightForWidth(int width) const;
     QSize sizeOfTextWithoutWrap() const;
-#ifdef GUI_USE_RESIZE_FOR_HEIGHT
     void forceHeight();
-#endif
     QSize extraSizeForCssOrLayout() const;
 
     // - Widgets shouldn't need to cache their size hints; that's done by layouts
@@ -89,18 +75,10 @@ protected:
     //   can be made prior to, and then after, application of
     //   stylesheets). So the caches must be cleared whenever things like that
     //   happen.
-#ifdef LWWW_USE_ANY_CACHE
     void clearCache();
-#endif
 
 protected:
-#ifdef LWWW_USE_UNWRAPPED_CACHE
     mutable QSize m_cached_unwrapped_text_size;
-#endif
-#ifdef LWWW_USE_STYLE_CACHE
     mutable QSize m_cached_extra_for_css_or_layout;
-#endif
-#ifdef LWWW_USE_QLABEL_CACHE
     mutable QMap<int, int> m_cached_qlabel_height_for_width;
-#endif
 };

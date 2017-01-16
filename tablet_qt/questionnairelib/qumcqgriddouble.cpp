@@ -24,7 +24,7 @@
 #include "widgets/labelwordwrapwide.h"
 
 
-QuMCQGridDouble::QuMCQGridDouble(
+QuMcqGridDouble::QuMcqGridDouble(
         QList<QuestionWithTwoFields> questions_with_fields,
         const NameValueOptions& options1,
         const NameValueOptions& options2) :
@@ -42,19 +42,19 @@ QuMCQGridDouble::QuMCQGridDouble(
         for (int qi = 0; qi < m_questions_with_fields.size(); ++qi) {
             FieldRefPtr fieldref = m_questions_with_fields.at(qi).fieldref(first);
             // DANGEROUS OBJECT LIFESPAN SIGNAL: do not use std::bind
-            QuMCQGridDoubleSignaller* sig = new QuMCQGridDoubleSignaller(
+            QuMcqGridDoubleSignaller* sig = new QuMcqGridDoubleSignaller(
                         this, qi, first);
             m_signallers.append(sig);
             connect(fieldref.data(), &FieldRef::valueChanged,
-                    sig, &QuMCQGridDoubleSignaller::valueChanged);
+                    sig, &QuMcqGridDoubleSignaller::valueChanged);
             connect(fieldref.data(), &FieldRef::mandatoryChanged,
-                    sig, &QuMCQGridDoubleSignaller::valueChanged);
+                    sig, &QuMcqGridDoubleSignaller::valueChanged);
         }
     }
 }
 
 
-QuMCQGridDouble::~QuMCQGridDouble()
+QuMcqGridDouble::~QuMcqGridDouble()
 {
     while (!m_signallers.isEmpty()) {
         delete m_signallers.takeAt(0);
@@ -62,7 +62,7 @@ QuMCQGridDouble::~QuMCQGridDouble()
 }
 
 
-QuMCQGridDouble* QuMCQGridDouble::setWidth(int question_width,
+QuMcqGridDouble* QuMcqGridDouble::setWidth(int question_width,
                                            QList<int> option1_widths,
                                            QList<int> option2_widths)
 {
@@ -81,28 +81,28 @@ QuMCQGridDouble* QuMCQGridDouble::setWidth(int question_width,
 }
 
 
-QuMCQGridDouble* QuMCQGridDouble::setTitle(const QString &title)
+QuMcqGridDouble* QuMcqGridDouble::setTitle(const QString &title)
 {
     m_title = title;
     return this;
 }
 
 
-QuMCQGridDouble* QuMCQGridDouble::setSubtitles(QList<McqGridSubtitle> subtitles)
+QuMcqGridDouble* QuMcqGridDouble::setSubtitles(QList<McqGridSubtitle> subtitles)
 {
     m_subtitles = subtitles;
     return this;
 }
 
 
-QuMCQGridDouble* QuMCQGridDouble::setExpand(bool expand)
+QuMcqGridDouble* QuMcqGridDouble::setExpand(bool expand)
 {
     m_expand = expand;
     return this;
 }
 
 
-void QuMCQGridDouble::setFromFields()
+void QuMcqGridDouble::setFromFields()
 {
     for (bool first : {true, false}) {
         for (int qi = 0; qi < m_questions_with_fields.size(); ++qi) {
@@ -114,7 +114,7 @@ void QuMCQGridDouble::setFromFields()
 }
 
 
-int QuMCQGridDouble::colnum(bool first_field, int value_index) const
+int QuMcqGridDouble::colnum(bool first_field, int value_index) const
 {
     // See below
     int base = first_field ? 2 : (3 + m_options1.size());
@@ -122,13 +122,13 @@ int QuMCQGridDouble::colnum(bool first_field, int value_index) const
 }
 
 
-int QuMCQGridDouble::spacercol(bool first_field) const
+int QuMcqGridDouble::spacercol(bool first_field) const
 {
     return first_field ? 1 : (2 + m_options1.size());
 }
 
 
-void QuMCQGridDouble::addOptions(GridLayout* grid, int row)
+void QuMcqGridDouble::addOptions(GridLayout* grid, int row)
 {
     for (bool first_field : {true, false}) {
         const NameValueOptions& opts = first_field ? m_options1 : m_options2;
@@ -140,7 +140,7 @@ void QuMCQGridDouble::addOptions(GridLayout* grid, int row)
 }
 
 
-QPointer<QWidget> QuMCQGridDouble::makeWidget(Questionnaire* questionnaire)
+QPointer<QWidget> QuMcqGridDouble::makeWidget(Questionnaire* questionnaire)
 {
     bool read_only = questionnaire->readOnly();
     m_widgets1.clear();
@@ -209,7 +209,7 @@ QPointer<QWidget> QuMCQGridDouble::makeWidget(Questionnaire* questionnaire)
                 if (!read_only) {
                     // Safe object lifespan signal: can use std::bind
                     connect(w, &BooleanWidget::clicked,
-                            std::bind(&QuMCQGridDouble::clicked,
+                            std::bind(&QuMcqGridDouble::clicked,
                                       this, qi, first, vi));
                 }
                 grid->addWidget(w, row, colnum(first, vi), response_align);
@@ -254,7 +254,7 @@ QPointer<QWidget> QuMCQGridDouble::makeWidget(Questionnaire* questionnaire)
 }
 
 
-FieldRefPtrList QuMCQGridDouble::fieldrefs() const
+FieldRefPtrList QuMcqGridDouble::fieldrefs() const
 {
     FieldRefPtrList refs;
     for (auto q : m_questions_with_fields) {
@@ -265,7 +265,7 @@ FieldRefPtrList QuMCQGridDouble::fieldrefs() const
 }
 
 
-void QuMCQGridDouble::clicked(int question_index, bool first_field,
+void QuMcqGridDouble::clicked(int question_index, bool first_field,
                               int value_index)
 {
     const NameValueOptions& opts = first_field ? m_options1 : m_options2;
@@ -288,7 +288,7 @@ void QuMCQGridDouble::clicked(int question_index, bool first_field,
 }
 
 
-void QuMCQGridDouble::fieldValueChanged(int question_index, bool first_field,
+void QuMcqGridDouble::fieldValueChanged(int question_index, bool first_field,
                                         const FieldRef* fieldref)
 {
     const NameValueOptions& opts = first_field ? m_options1 : m_options2;

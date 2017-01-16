@@ -57,28 +57,28 @@ void QuText::commonConstructor()
 }
 
 
-QuText* QuText::big(bool big)
+QuText* QuText::setBig(bool big)
 {
     m_fontsize = big ? uiconst::FontSize::Big : uiconst::FontSize::Normal;
     return this;
 }
 
 
-QuText* QuText::bold(bool bold)
+QuText* QuText::setBold(bool bold)
 {
     m_bold = bold;
     return this;
 }
 
 
-QuText* QuText::italic(bool italic)
+QuText* QuText::setItalic(bool italic)
 {
     m_italic = italic;
     return this;
 }
 
 
-QuText* QuText::warning(bool warning)
+QuText* QuText::setWarning(bool warning)
 {
     m_warning = warning;
     return this;

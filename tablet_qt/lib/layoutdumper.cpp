@@ -141,8 +141,7 @@ QString layoutdumper::getWidgetDescriptor(const QWidget* w)
 
 
 QString layoutdumper::getWidgetInfo(const QWidget* w,
-                                    bool show_properties,
-                                    bool show_attributes)
+                                    const DumperConfig& config)
 {
     if (!w) {
         return NULL_WIDGET_STRING;
@@ -161,6 +160,8 @@ QString layoutdumper::getWidgetInfo(const QWidget* w,
     elements.append(QString("size[DOWN] (%1 x %2)")
                     .arg(geom.width())
                     .arg(geom.height()));
+    elements.append(QString("hasHeightForWidth()[UP] %1")
+                    .arg(w->hasHeightForWidth() ? "true" : "false"));
     elements.append(QString("heightForWidth(%1)[UP] %2")
                     .arg(geom.width())
                     .arg(w->heightForWidth(geom.width())));
@@ -181,16 +182,20 @@ QString layoutdumper::getWidgetInfo(const QWidget* w,
     elements.append(QString("stylesheet: %1")
                     .arg(w->styleSheet().isEmpty() ? "false" : "true"));
 
-    if (show_attributes) {
+    if (config.show_widget_attributes) {
         elements.append(QString("attributes: [%1]")
                         .arg(getWidgetAttributeInfo(w)));
     }
 
-    if (show_properties) {
+    if (config.show_widget_properties) {
         QString properties = getDynamicProperties(w);
         if (!properties.isEmpty()) {
             elements.append(QString("properties: [%1]").arg(properties));
         }
+    }
+
+    if (config.show_widget_stylesheets) {
+        elements.append(QString("stylesheet: %1").arg(w->styleSheet()));
     }
 
     if (geom.width() < w->minimumSize().width() ||
@@ -339,12 +344,10 @@ QList<const QWidget*> layoutdumper::dumpLayoutAndChildren(
         QDebug& os,
         const QLayout* layout,
         int level,
-        bool show_widget_properties,
-        bool show_widget_attributes,
-        const int spaces_per_level)
+        const DumperConfig& config)
 {
-    QString padding = paddingSpaces(level, spaces_per_level);
-    QString next_padding = paddingSpaces(level + 1, spaces_per_level);
+    QString padding = paddingSpaces(level, config.spaces_per_level);
+    QString next_padding = paddingSpaces(level + 1, config.spaces_per_level);
     QList<const QWidget*> dumped_children;
 
     os << padding << "Layout: " << getLayoutInfo(layout);
@@ -369,15 +372,11 @@ QList<const QWidget*> layoutdumper::dumpLayoutAndChildren(
                         .arg(toString(wi->alignment()));
                 dumped_children.append(
                     dumpWidgetAndChildren(os, wi->widget(), level + 1,
-                                          alignment, show_widget_properties,
-                                          show_widget_attributes,
-                                          spaces_per_level));
+                                          alignment, config));
             } else if (child_layout) {
                 dumped_children.append(
                     dumpLayoutAndChildren(os, child_layout, level + 1,
-                                          show_widget_properties,
-                                          show_widget_attributes,
-                                          spaces_per_level));
+                                          config));
             } else if (si) {
                 os << next_padding << getSpacerInfo(si) << "\n";
             } else {
@@ -394,14 +393,12 @@ QList<const QWidget*> layoutdumper::dumpWidgetAndChildren(
         const QWidget* w,
         int level,
         const QString& alignment,
-        bool show_widget_properties,
-        bool show_widget_attributes,
-        const int spaces_per_level)
+        const DumperConfig& config)
 {
-    QString padding = paddingSpaces(level, spaces_per_level);
+    QString padding = paddingSpaces(level, config.spaces_per_level);
 
     os << padding
-       << getWidgetInfo(w, show_widget_properties, show_widget_attributes)
+       << getWidgetInfo(w, config)
        << alignment << "\n";
 
     QList<const QWidget*> dumped_children;
@@ -410,10 +407,7 @@ QList<const QWidget*> layoutdumper::dumpWidgetAndChildren(
     QLayout* layout = w->layout();
     if (layout) {
         dumped_children.append(
-            dumpLayoutAndChildren(os, layout, level + 1,
-                                  show_widget_properties,
-                                  show_widget_attributes,
-                                  spaces_per_level));
+            dumpLayoutAndChildren(os, layout, level + 1, config));
     }
 
     // Scroll areas contain but aren't necessarily the parents of their widgets
@@ -422,9 +416,7 @@ QList<const QWidget*> layoutdumper::dumpWidgetAndChildren(
     if (scroll) {
         dumped_children.append(
             dumpWidgetAndChildren(os, scroll->viewport(), level + 1, "",
-                                  show_widget_properties,
-                                  show_widget_attributes,
-                                  spaces_per_level));
+                                  config));
     }
 
     // now output any child widgets that weren't dumped as part of the layout
@@ -442,10 +434,7 @@ QList<const QWidget*> layoutdumper::dumpWidgetAndChildren(
            << getWidgetDescriptor(w) << ":\n";
         foreach (QWidget* child, undumped_children) {
             dumped_children.append(
-                dumpWidgetAndChildren(os, child, level + 1, "",
-                                      show_widget_properties,
-                                      show_widget_attributes,
-                                      spaces_per_level));
+                dumpWidgetAndChildren(os, child, level + 1, "", config));
         }
     }
     return dumped_children;
@@ -453,14 +442,9 @@ QList<const QWidget*> layoutdumper::dumpWidgetAndChildren(
 
 
 void layoutdumper::dumpWidgetHierarchy(const QWidget* w,
-                                       bool show_widget_properties,
-                                       bool show_widget_attributes,
-                                       const int spaces_per_level)
+                                       const DumperConfig& config)
 {
     QDebug os = qDebug().noquote().nospace();
     os << "WIDGET HIERARCHY:\n";
-    dumpWidgetAndChildren(os, w, 0, "",
-                          show_widget_properties,
-                          show_widget_attributes,
-                          spaces_per_level);
+    dumpWidgetAndChildren(os, w, 0, "", config);
 }

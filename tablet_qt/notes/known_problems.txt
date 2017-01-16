@@ -1,0 +1,8 @@
+
+===============================================================================
+KNOWN PROBLEMS
+===============================================================================
+
+-   It seems likely that QLabel::heightForWidth() sometimes gets heights wrong
+    for some stylesheets, leading to excessive vertical height. See
+    labelwordwrapwide.cpp (and to see the problem: try the demo QuMcqGrid).

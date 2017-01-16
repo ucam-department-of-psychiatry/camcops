@@ -81,10 +81,9 @@ void debugfunc::dumpQObject(QObject* obj)
 
 void debugfunc::debugWidget(QWidget* widget, bool set_background_by_name,
                             bool set_background_by_stylesheet,
-                            bool show_widget_properties,
-                            bool show_widget_attributes,
-                            const int spaces_per_level,
-                            bool use_hfw_layout)
+                            const layoutdumper::DumperConfig& config,
+                            bool use_hfw_layout,
+                            const QString* dialog_stylesheet)
 {
     QDialog dlg;
     QSizePolicy dlg_sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -93,6 +92,9 @@ void debugfunc::debugWidget(QWidget* widget, bool set_background_by_name,
     }
     dlg.setSizePolicy(dlg_sp);
     dlg.setWindowTitle("Press D/dump layout, A/adjustSize");
+    if (dialog_stylesheet) {
+        dlg.setStyleSheet(*dialog_stylesheet);
+    }
     VBoxLayoutHfw* hfwlayout = use_hfw_layout ? new VBoxLayoutHfw() : nullptr;
     QVBoxLayout* vboxlayout = use_hfw_layout ? nullptr : new QVBoxLayout();
     QLayout* layout = use_hfw_layout ? static_cast<QLayout*>(hfwlayout)
@@ -120,9 +122,7 @@ void debugfunc::debugWidget(QWidget* widget, bool set_background_by_name,
         // Safe object lifespan signal: can use std::bind
         keywatcher->addKeyEvent(
             Qt::Key_D,
-            std::bind(&layoutdumper::dumpWidgetHierarchy, &dlg,
-                      show_widget_properties, show_widget_attributes,
-                      spaces_per_level));
+            std::bind(&layoutdumper::dumpWidgetHierarchy, &dlg, config));
         keywatcher->addKeyEvent(
             Qt::Key_A,
             std::bind(&QWidget::adjustSize, widget));

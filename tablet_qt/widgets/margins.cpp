@@ -239,3 +239,20 @@ Margins Margins::subRectMargins(const QRect& outer, const QRect& inner)
 {
     return subRectMargins(outer.size(), inner);
 }
+
+
+
+// ========================================================================
+// For friends
+// ========================================================================
+
+QDebug operator<<(QDebug debug, const Margins& m)
+{
+    debug.nospace()
+            << "Margins(left=" << m.m_left
+            << ",top=" << m.m_top
+            << ",right=" << m.m_right
+            << ",bottom=" << m.m_bottom
+            << ",set=" << m.m_set << ")";
+    return debug;
+}

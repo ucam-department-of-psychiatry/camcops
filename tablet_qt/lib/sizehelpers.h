@@ -62,5 +62,4 @@ QSize frameExtraSizeRequired(const QFrame* frame,
 QSize labelExtraSizeRequired(const QLabel* label,
                              const QStyleOptionFrame* opt,
                              const QSize& child_size);
-
 }  // namespace sizehelpers

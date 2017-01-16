@@ -203,7 +203,7 @@ OpenableWidget* Patient::editor(bool read_only)
                              row++, 1));
     grid->addCell(QuGridCell(new QuText(tr("Sex")), row, 0, 1, 1, align));
     grid->addCell(QuGridCell(
-        (new QuMCQ(fieldRef(SEX_FIELD),  // properly mandatory
+        (new QuMcq(fieldRef(SEX_FIELD),  // properly mandatory
                    CommonOptions::sexes()))->setHorizontal(true),
         row++, 1));
     grid->addCell(QuGridCell(new QuText(tr("Date of birth")),

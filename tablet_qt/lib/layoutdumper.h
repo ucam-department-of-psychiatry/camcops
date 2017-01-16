@@ -26,6 +26,35 @@
 
 namespace layoutdumper {
 
+class DumperConfig {
+public:
+    DumperConfig() {}
+    DumperConfig(bool show_widget_properties,
+                 bool show_widget_attributes,
+                 bool show_widget_stylesheets,
+                 bool spaces_per_level) :
+        show_widget_properties(show_widget_properties),
+        show_widget_attributes(show_widget_attributes),
+        show_widget_stylesheets(show_widget_stylesheets),
+        spaces_per_level(spaces_per_level)
+    {}
+
+public:
+    bool show_widget_properties = true;
+    // ... e.g.:
+    // [_q_styleSheetWidgetFont="Sans Serif,9,-1,5,50,0,0,0,0,0"]
+
+    bool show_widget_attributes = false;
+    // ... e.g.:
+    // [WA_NoSystemBackground 0, WA_OpaquePaintEvent 0, WA_SetStyle 0,
+    //  WA_StyleSheet 1, WA_TranslucentBackground 0, WA_StyledBackground 0]
+
+    bool show_widget_stylesheets = false;
+    // ... the CSS attached by the user
+
+    int spaces_per_level = 4;
+};
+
 QString toString(const QSizePolicy::Policy& policy);
 QString toString(const QSizePolicy& policy);
 QString toString(QLayout::SizeConstraint constraint);
@@ -33,9 +62,7 @@ QString toString(const void* pointer);
 QString toString(const Qt::Alignment& alignment);
 QString toString(bool boolean);
 QString getWidgetDescriptor(const QWidget* w);
-QString getWidgetInfo(const QWidget* w,
-                      bool show_properties,
-                      bool show_attributes);
+QString getWidgetInfo(const QWidget* w, const DumperConfig& config);
 QString getWidgetAttributeInfo(const QWidget* w);
 QString getDynamicProperties(const QWidget* w);
 QString getLayoutInfo(const QLayout* layout);
@@ -43,19 +70,12 @@ QString getSpacerInfo(QSpacerItem* si);
 QString paddingSpaces(int level, int spaces_per_level);
 QList<const QWidget*> dumpLayoutAndChildren(
         QDebug& os, const QLayout* layout, int level,
-        bool show_widget_properties,
-        bool show_widget_attributes,
-        const int spaces_per_level);
+        const DumperConfig& config);
 QList<const QWidget*> dumpWidgetAndChildren(
         QDebug& os, const QWidget* w, int level,
-        const QString& alignment,
-        bool show_widget_properties,
-        bool show_widget_attributes,
-        const int spaces_per_level);
+        const QString& alignment, const DumperConfig& config);
 void dumpWidgetHierarchy(const QWidget* w,
-                         bool show_widget_properties = true,
-                         bool show_widget_attributes = false,
-                         const int spaces_per_level = 4);
+                         const DumperConfig& config = DumperConfig());
 
 }  // namespace layoutdumper
 

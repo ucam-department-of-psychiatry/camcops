@@ -17,7 +17,7 @@
 
 #pragma once
 
-// #define GRIDLAYOUTHFW_ALTER_FROM_QBOXLAYOUT  // comment out to revert to QGridLayout behaviour
+#define GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT  // comment out to revert to QGridLayout behaviour
 
 #include <QLayout>
 #include <QHash>
@@ -33,7 +33,7 @@ class GridLayoutHfw : public QLayout
     // This is to QGridLayout as BoxLayoutHfw (q.v.) is to QBoxLayout.
     // Main changes are:
     // - the layout handling, conditional on #define
-    //   GRIDLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
+    //   GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
     // - change from PIMPL to conventional class idiom
     // - changes from:
     //      MyClass::constFunction() const
@@ -46,6 +46,18 @@ class GridLayoutHfw : public QLayout
 
     Q_OBJECT
     using QLayoutStruct = qtlayouthelpers::QQLayoutStruct;
+    struct GeomInfo {  // RNC
+        QVector<QLayoutStruct> m_row_data;
+        QVector<QLayoutStruct> m_col_data;
+        QVector<QLayoutStruct> m_hfw_data;  // was a pointer
+        QSize m_size_hint;
+        QSize m_min_size;
+        QSize m_max_size;
+        Qt::Orientations m_expanding;
+        bool m_has_hfw;
+        int m_hfw_height;
+        int m_hfw_min_height;
+    };
 
 public:
     explicit GridLayoutHfw(QWidget* parent = nullptr);
@@ -76,7 +88,7 @@ public:
     int columnCount() const;
     int rowCount() const;
 
-    QRect cellRect(int row, int column) const;
+    QRect cellRect(const GeomInfo& gi, int row, int column) const;
 
     bool hasHeightForWidth() const override;
     int heightForWidth(int) const override;
@@ -120,13 +132,7 @@ private:
 private:
     void add(QQGridBox*, int row, int col);
     void add(QQGridBox*, int row1, int row2, int col1, int col2);
-    QSize sizeHint(int hSpacing, int vSpacing) const;
-    QSize minimumSize(int hSpacing, int vSpacing) const;
-    QSize maximumSize(int hSpacing, int vSpacing) const;
-
-    Qt::Orientations expandingDirections(int hSpacing, int vSpacing) const;
-
-    void distribute(QRect rect, int hSpacing, int vSpacing);
+    void distribute(const QRect& layout_rect);
     inline int numRows() const { return m_nrow; }
     inline int numCols() const { return m_ncol; }
     inline int rowSpacing(int r) const { return m_r_min_heights.at(r); }
@@ -136,10 +142,6 @@ private:
     inline bool verReversed() const { return m_v_reversed; }
     void setDirty();  // RNC: was inline and defined here
     inline bool isDirty() const { return m_dirty; }
-    bool hasHeightForWidth(int hSpacing, int vSpacing) const;
-    int heightForWidth(int width, int hSpacing, int vSpacing) const;
-    int minimumHeightForWidth(int width, int hSpacing, int vSpacing) const;
-
     inline void getNextPos(int& row, int& col) { row = m_next_r; col = m_next_c; }
 
     QLayoutItem* replaceAt(int index, QLayoutItem* newitem);  // RNC: was override (of QLayoutPrivate)
@@ -147,57 +149,67 @@ private:
 
     void expand(int rows, int cols);
 
-#ifdef GRIDLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
-    void clearCaches() const;  // RNC
-#endif
-
 private:
     void setNextPosAfter(int r, int c);
     void recalcHFW(int w) const;
-    void addHfwData(QQGridBox* box, int width) const;
+    void addHfwData(GeomInfo& gi, QQGridBox* box, int width) const;
     void init();
-    QSize findSize(int QLayoutStruct::* size,
-                   int hSpacing, int vSpacing) const;
-    void addData(QQGridBox* box, const QQGridLayoutSizeTriple& sizes,
-                 bool r, bool c) const;
+    void addData(GeomInfo& gi, QQGridBox* box,
+                 const QQGridLayoutSizeTriple& sizes, bool r, bool c) const;
     void setSize(int rows, int cols);
     void setupSpacings(QVector<QLayoutStruct> &chain, QQGridBox* grid[],
                        int fixedSpacing, Qt::Orientation orientation) const;
-    void setupLayoutData(int hSpacing, int vSpacing) const;
     void setupHfwLayoutData() const;
     // void effectiveMargins(int* left, int* top, int* right, int* bottom) const;
     Margins effectiveMargins(const Margins& contents_margins) const;  // RNC
     Margins effectiveMargins() const;  // RNC
+    QRect getContentsRect(const QRect& layout_rect) const; // RNC
+    QSize findSize(const GeomInfo& gi, int QLayoutStruct::* size) const;
 
-    int m_nrow;  // was rr
-    int m_ncol;  // was cc
-    mutable QVector<QLayoutStruct> m_row_data;
-    mutable QVector<QLayoutStruct> m_col_data;
-    mutable QVector<QLayoutStruct>* m_hfw_data;
+#ifdef GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
+    void clearCaches() const;  // RNC
+    int getParentTargetHeight(QWidget* parent, const Margins& parent_margins,
+                              const GeomInfo& gi) const;
+    GeomInfo getGeomInfo(const QRect& layout_rect) const;  // RNC
+#endif
+    GeomInfo getGeomInfo() const;  // RNC
+    GeomInfo getGeomInfoForHfw(int w) const;  // RNC
+
+    // These describe what items we have:
+
+    int m_nrow;  // was rr; number of rows
+    int m_ncol;  // was cc; number of columns
     mutable QVector<int> m_r_stretches;
     mutable QVector<int> m_c_stretches;
     QVector<int> m_r_min_heights;
     QVector<int> m_c_min_widths;
-    QList<QQGridBox*> m_things;
+    QList<QQGridBox*> m_things;  // list of owned objects
 
-    mutable int m_hfw_width;
-    mutable int m_hfw_height;
-    mutable int m_hfw_minheight;
+    // These govern where new inserted items are put:
+
+    bool m_add_vertical;  // RNC: was uint : 1
     int m_next_r;
     int m_next_c;
 
+    // Global settings
+
     int m_horizontal_spacing;
     int m_vertical_spacing;
+    bool m_h_reversed;  // RNC: was uint : 1  -- and not sure it ever changes
+    bool m_v_reversed;  // RNC: was uint : 1  -- and not sure it ever changes
 
-    mutable Margins m_effective_margins;
-    // mutable int m_left_margin;
-    // mutable int m_top_margin;
-    // mutable int m_right_margin;
-    // mutable int m_bottom_margin;
+    // This is layout/geometry/HFW data:
 
-    bool m_h_reversed;  // RNC: was uint : 1
-    bool m_v_reversed;  // RNC: was uint : 1
+#ifdef GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
+    mutable int m_width_last_size_constraints_based_on;
+    mutable QRect m_rect_for_next_size_constraints;
+    mutable QHash<QRect, GeomInfo> m_geom_cache;  // RNC
+#else
+    mutable GeomInfo m_cached_geominfo;
+    mutable int m_cached_hfw_width;
+#endif
+
+    mutable Margins m_effective_margins;  // RNC; replacing leftMargin, topMargin, rightMargin, bottomMargin
+
     mutable bool m_dirty;  // RNC: was uint : 1  -- was needRecalc
-    mutable bool m_has_hfw;  // RNC: was uint : 1
-    bool m_add_vertical;  // RNC: was uint : 1
 };

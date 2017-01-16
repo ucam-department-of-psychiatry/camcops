@@ -16,7 +16,6 @@
 */
 
 // #define DEBUG_ICON_LOAD
-// #define DEBUG_WIDGET_MARGINS
 
 #include "uifunc.h"
 #include <QApplication>

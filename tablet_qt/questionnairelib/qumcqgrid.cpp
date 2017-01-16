@@ -24,7 +24,7 @@
 #include "widgets/labelwordwrapwide.h"
 
 
-QuMCQGrid::QuMCQGrid(QList<QuestionWithOneField> question_field_pairs,
+QuMcqGrid::QuMcqGrid(QList<QuestionWithOneField> question_field_pairs,
                      const NameValueOptions& options) :
     m_question_field_pairs(question_field_pairs),
     m_options(options),
@@ -37,17 +37,17 @@ QuMCQGrid::QuMCQGrid(QList<QuestionWithOneField> question_field_pairs,
     for (int qi = 0; qi < m_question_field_pairs.size(); ++qi) {
         FieldRefPtr fieldref = m_question_field_pairs.at(qi).fieldref();
         // DANGEROUS OBJECT LIFESPAN SIGNAL: do not use std::bind
-        QuMCQGridSignaller* sig = new QuMCQGridSignaller(this, qi);
+        QuMcqGridSignaller* sig = new QuMcqGridSignaller(this, qi);
         m_signallers.append(sig);
         connect(fieldref.data(), &FieldRef::valueChanged,
-                sig, &QuMCQGridSignaller::valueChanged);
+                sig, &QuMcqGridSignaller::valueChanged);
         connect(fieldref.data(), &FieldRef::mandatoryChanged,
-                sig, &QuMCQGridSignaller::valueChanged);
+                sig, &QuMcqGridSignaller::valueChanged);
     }
 }
 
 
-QuMCQGrid::~QuMCQGrid()
+QuMcqGrid::~QuMcqGrid()
 {
     while (!m_signallers.isEmpty()) {
         delete m_signallers.takeAt(0);
@@ -55,7 +55,7 @@ QuMCQGrid::~QuMCQGrid()
 }
 
 
-QuMCQGrid* QuMCQGrid::setWidth(int question_width, QList<int> option_widths)
+QuMcqGrid* QuMcqGrid::setWidth(int question_width, QList<int> option_widths)
 {
     if (option_widths.size() != m_options.size()) {
         qWarning() << Q_FUNC_INFO << "Bad option_widths; command ignored";
@@ -67,28 +67,28 @@ QuMCQGrid* QuMCQGrid::setWidth(int question_width, QList<int> option_widths)
 }
 
 
-QuMCQGrid* QuMCQGrid::setTitle(const QString &title)
+QuMcqGrid* QuMcqGrid::setTitle(const QString &title)
 {
     m_title = title;
     return this;
 }
 
 
-QuMCQGrid* QuMCQGrid::setSubtitles(QList<McqGridSubtitle> subtitles)
+QuMcqGrid* QuMcqGrid::setSubtitles(QList<McqGridSubtitle> subtitles)
 {
     m_subtitles = subtitles;
     return this;
 }
 
 
-QuMCQGrid* QuMCQGrid::setExpand(bool expand)
+QuMcqGrid* QuMcqGrid::setExpand(bool expand)
 {
     m_expand = expand;
     return this;
 }
 
 
-void QuMCQGrid::setFromFields()
+void QuMcqGrid::setFromFields()
 {
     for (int qi = 0; qi < m_question_field_pairs.size(); ++qi) {
         fieldValueChanged(qi, m_question_field_pairs.at(qi).fieldref().data());
@@ -96,13 +96,13 @@ void QuMCQGrid::setFromFields()
 }
 
 
-int QuMCQGrid::colnum(int value_index) const
+int QuMcqGrid::colnum(int value_index) const
 {
     return 2 + value_index;
 }
 
 
-void QuMCQGrid::addOptions(GridLayout* grid, int row)
+void QuMcqGrid::addOptions(GridLayout* grid, int row)
 {
     for (int i = 0; i < m_options.size(); ++i) {
         mcqfunc::addOption(grid, row, colnum(i),
@@ -111,7 +111,7 @@ void QuMCQGrid::addOptions(GridLayout* grid, int row)
 }
 
 
-QPointer<QWidget> QuMCQGrid::makeWidget(Questionnaire* questionnaire)
+QPointer<QWidget> QuMcqGrid::makeWidget(Questionnaire* questionnaire)
 {
     bool read_only = questionnaire->readOnly();
     m_widgets.clear();
@@ -179,7 +179,7 @@ QPointer<QWidget> QuMCQGrid::makeWidget(Questionnaire* questionnaire)
             if (!read_only) {
                 // Safe object lifespan signal: can use std::bind
                 connect(w, &BooleanWidget::clicked,
-                        std::bind(&QuMCQGrid::clicked, this, qi, vi));
+                        std::bind(&QuMcqGrid::clicked, this, qi, vi));
             }
             grid->addWidget(w, row, colnum(vi), response_align);
             question_widgets.append(w);
@@ -215,7 +215,7 @@ QPointer<QWidget> QuMCQGrid::makeWidget(Questionnaire* questionnaire)
 }
 
 
-FieldRefPtrList QuMCQGrid::fieldrefs() const
+FieldRefPtrList QuMcqGrid::fieldrefs() const
 {
     FieldRefPtrList refs;
     for (auto q : m_question_field_pairs) {
@@ -225,7 +225,7 @@ FieldRefPtrList QuMCQGrid::fieldrefs() const
 }
 
 
-void QuMCQGrid::clicked(int question_index, int value_index)
+void QuMcqGrid::clicked(int question_index, int value_index)
 {
     if (question_index < 0 || question_index >= m_question_field_pairs.size()) {
         qWarning() << Q_FUNC_INFO << "Bad question_index:" << question_index;
@@ -242,7 +242,7 @@ void QuMCQGrid::clicked(int question_index, int value_index)
 }
 
 
-void QuMCQGrid::fieldValueChanged(int question_index, const FieldRef* fieldref)
+void QuMcqGrid::fieldValueChanged(int question_index, const FieldRef* fieldref)
 {
     if (question_index < 0 ||
             question_index >= m_question_field_pairs.size() ||

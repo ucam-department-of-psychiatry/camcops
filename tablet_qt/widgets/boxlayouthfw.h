@@ -114,7 +114,6 @@ class BoxLayoutHfw : public QLayout
     // - caching algorithms rewritten, with data storage structs
 
     Q_OBJECT
-    using HfwInfo = qtlayouthelpers::HfwInfo;  // RNC
     using QLayoutStruct = qtlayouthelpers::QQLayoutStruct;  // RNC
 public:
     enum Direction { LeftToRight, RightToLeft, TopToBottom, BottomToTop,
@@ -127,6 +126,11 @@ public:
         int m_left_margin, m_top_margin, m_right_margin, m_bottom_margin;  // set by setupGeom(), read by effectiveMargins()
         Qt::Orientations m_expanding;  // returned by expandingDirections(), calculated by setupGeom()
         bool m_has_hfw;  // returned by hasHeightForWidth(), calculated by setupGeom()
+    };
+    struct HfwInfo {  // RNC
+        HfwInfo() : hfw_height(-1), hfw_min_height(-1) {}
+        int hfw_height;
+        int hfw_min_height;
     };
 
 public:
@@ -186,11 +190,13 @@ protected:
     void setDirty();
     void deleteAll();
 #ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
+    int getParentTargetHeight(QWidget* parent, const Margins& parent_margins,
+                              const GeomInfo& gi) const;  // RNC
     GeomInfo getGeomInfo(const QRect& layout_rect = QRect()) const;  // RNC
 #else
     GeomInfo getGeomInfo() const;  // RNC
 #endif
-    HfwInfo getHfwInfo(int w) const;  // RNC
+    HfwInfo getHfwInfo(int layout_width) const;  // RNC
     Margins effectiveMargins(const Margins& contents_margins) const;  // RNC
     QLayoutItem* replaceAt(int index, QLayoutItem* item);
     QRect getContentsRect(const QRect& layout_rect) const;  // RNC
@@ -201,6 +207,8 @@ protected:
     void clearCaches() const;  // RNC
 #endif
     Margins effectiveMargins() const;  // RNC
+    void distribute(const GeomInfo& gi,
+                    const QRect& layout_rect, const QRect& old_rect);  // RNC
 
 protected:
     QList<BoxLayoutHfwItem*> m_list;
@@ -210,8 +218,8 @@ protected:
 #ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
     mutable int m_width_last_size_constraints_based_on;
     mutable QRect m_rect_for_next_size_constraints;
-    mutable QHash<int, HfwInfo> m_hfw_cache;  // RNC; the int is width
     mutable QHash<QRect, GeomInfo> m_geom_cache;  // RNC
+    mutable QHash<int, HfwInfo> m_hfw_cache;  // RNC; the int is width
 #else
     mutable GeomInfo m_cached_geominfo;
     mutable int m_cached_hfw_width;

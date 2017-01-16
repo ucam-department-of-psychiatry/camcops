@@ -18,6 +18,7 @@
 #pragma once
 #include <QDebug>
 #include <QList>
+#include "lib/layoutdumper.h"
 
 class Questionnaire;
 class QuElement;
@@ -34,9 +35,8 @@ void dumpQObject(QObject* obj);
 
 void debugWidget(QWidget* widget, bool set_background_by_name = false,
                  bool set_background_by_stylesheet = true,
-                 bool show_widget_properties = true,
-                 bool show_widget_attributes = false,
-                 const int spaces_per_level = 4,
-                 bool use_hfw_layout = true);
+                 const layoutdumper::DumperConfig& config = layoutdumper::DumperConfig(),
+                 bool use_hfw_layout = true,
+                 const QString* dialog_stylesheet = nullptr);
 
 }  // namespace debugfunc

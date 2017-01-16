@@ -236,15 +236,15 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
         }, 1, 1),
 
         new QuText(makeTitle(ssl_t, ssl_h)),
-        (new QuMCQ(ssl_fr, CommonOptions::yesNoBoolean()))->setHorizontal(true),
+        (new QuMcq(ssl_fr, CommonOptions::yesNoBoolean()))->setHorizontal(true),
 
         new QuText(makeTitle(storepw_t, storepw_h)),
-        (new QuMCQ(storepw_fr, CommonOptions::yesNoBoolean()))->setHorizontal(true),
+        (new QuMcq(storepw_fr, CommonOptions::yesNoBoolean()))->setHorizontal(true),
 
         new QuHorizontalLine(),
 
         new QuText(makeTitle(analytics_t, analytics_h)),
-        (new QuMCQ(analytics_fr, CommonOptions::yesNoBoolean()))->setHorizontal(true),
+        (new QuMcq(analytics_fr, CommonOptions::yesNoBoolean()))->setHorizontal(true),
     });
     page->setTitle(tr("Configure server settings"));
     page->setType(QuPage::PageType::Config);
@@ -281,21 +281,21 @@ OpenableWidget* SettingsMenu::configureIntellectualProperty(CamcopsApp& app)
     // on the right, it expands too much vertically. *** Layout problem,
     // likely to do with FlowLayout (which is Qt code).
     QuPagePtr page(new QuPage{
-        (new QuText(label_ip_warning))->bold(true),
-        (new QuText(label_ip_disclaimer))->italic(true),
+        (new QuText(label_ip_warning))->setBold(true),
+        (new QuText(label_ip_disclaimer))->setItalic(true),
         new QuText(label_ip_preamble),
 
-        (new QuText(tr("Clinical use?")))->bold(true),
-        (new QuMCQ(clinical_fr, CommonOptions::unknownNoYesInteger()))->setHorizontal(true),
+        (new QuText(tr("Clinical use?")))->setBold(true),
+        (new QuMcq(clinical_fr, CommonOptions::unknownNoYesInteger()))->setHorizontal(true),
 
-        (new QuText(tr("Commercial use?")))->bold(true),
-        (new QuMCQ(commercial_fr, CommonOptions::unknownNoYesInteger()))->setHorizontal(true),
+        (new QuText(tr("Commercial use?")))->setBold(true),
+        (new QuMcq(commercial_fr, CommonOptions::unknownNoYesInteger()))->setHorizontal(true),
 
-        (new QuText(tr("Educational use?")))->bold(true),
-        (new QuMCQ(educational_fr, CommonOptions::unknownNoYesInteger()))->setHorizontal(true),
+        (new QuText(tr("Educational use?")))->setBold(true),
+        (new QuMcq(educational_fr, CommonOptions::unknownNoYesInteger()))->setHorizontal(true),
 
-        (new QuText(tr("Research use?")))->bold(true),
-        (new QuMCQ(research_fr, CommonOptions::unknownNoYesInteger()))->setHorizontal(true),
+        (new QuText(tr("Research use?")))->setBold(true),
+        (new QuMcq(research_fr, CommonOptions::unknownNoYesInteger()))->setHorizontal(true),
     });
     page->setTitle(tr("Intellectual property (IP) permissions"));
     page->setType(QuPage::PageType::Config);
@@ -395,16 +395,16 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
             ->setAlignment(labelalign),
         row, 0));
     g->addCell(QuGridCell(
-        (new QuMCQ(upload_after_edit_fr,CommonOptions::yesNoBoolean()))
+        (new QuMcq(upload_after_edit_fr,CommonOptions::yesNoBoolean()))
             ->setHorizontal(true),
         row, 1));
     ++row;
 
     QuPagePtr page(new QuPage{
-        (new QuText(label_server))->italic(true),
+        (new QuText(label_server))->setItalic(true),
         g,
         new QuHorizontalLine(),
-        (new QuText(label_clinician))->italic(true),
+        (new QuText(label_clinician))->setItalic(true),
         questionnairefunc::defaultGridRawPointer({
             {
                 makeTitle(clin_specialty_t, clin_specialty_h, true),
@@ -752,16 +752,16 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
     g1->setColumnStretch(1, 1);
     int row = 0;
     g1->addCell(QuGridCell((new QuText(label_server_address))->setAlignment(labelalign), row, 0));
-    g1->addCell(QuGridCell((new QuText(data_server_address))->setAlignment(dataalign)->bold(), row, 1));
+    g1->addCell(QuGridCell((new QuText(data_server_address))->setAlignment(dataalign)->setBold(), row, 1));
     ++row;
     g1->addCell(QuGridCell((new QuText(label_server_port))->setAlignment(labelalign), row, 0));
-    g1->addCell(QuGridCell((new QuText(data_server_port))->setAlignment(dataalign)->bold(), row, 1));
+    g1->addCell(QuGridCell((new QuText(data_server_port))->setAlignment(dataalign)->setBold(), row, 1));
     ++row;
     g1->addCell(QuGridCell((new QuText(label_server_path))->setAlignment(labelalign), row, 0));
-    g1->addCell(QuGridCell((new QuText(data_server_path))->setAlignment(dataalign)->bold(), row, 1));
+    g1->addCell(QuGridCell((new QuText(data_server_path))->setAlignment(dataalign)->setBold(), row, 1));
     ++row;
     g1->addCell(QuGridCell((new QuText(label_server_timeout))->setAlignment(labelalign), row, 0));
-    g1->addCell(QuGridCell((new QuText(data_server_timeout))->setAlignment(dataalign)->bold(), row, 1));
+    g1->addCell(QuGridCell((new QuText(data_server_timeout))->setAlignment(dataalign)->setBold(), row, 1));
     ++row;
 
     QuGridContainer* g2 = new QuGridContainer();
@@ -769,22 +769,22 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
     g2->setColumnStretch(1, 1);
     row = 0;
     g2->addCell(QuGridCell((new QuText(label_last_server_registration))->setAlignment(labelalign), row, 0));
-    g2->addCell(QuGridCell((new QuText(data_last_server_registration))->setAlignment(dataalign)->bold(), row, 1));
+    g2->addCell(QuGridCell((new QuText(data_last_server_registration))->setAlignment(dataalign)->setBold(), row, 1));
     ++row;
     g2->addCell(QuGridCell((new QuText(label_last_successful_upload))->setAlignment(labelalign), row, 0));
-    g2->addCell(QuGridCell((new QuText(data_last_successful_upload))->setAlignment(dataalign)->bold(), row, 1));
+    g2->addCell(QuGridCell((new QuText(data_last_successful_upload))->setAlignment(dataalign)->setBold(), row, 1));
     ++row;
     g2->addCell(QuGridCell((new QuText(label_dbtitle))->setAlignment(labelalign), row, 0));
-    g2->addCell(QuGridCell((new QuText(data_dbtitle))->setAlignment(dataalign)->bold(), row, 1));
+    g2->addCell(QuGridCell((new QuText(data_dbtitle))->setAlignment(dataalign)->setBold(), row, 1));
     ++row;
     g2->addCell(QuGridCell((new QuText(label_policy_upload))->setAlignment(labelalign), row, 0));
-    g2->addCell(QuGridCell((new QuText(data_policy_upload))->setAlignment(dataalign)->bold(), row, 1));
+    g2->addCell(QuGridCell((new QuText(data_policy_upload))->setAlignment(dataalign)->setBold(), row, 1));
     ++row;
     g2->addCell(QuGridCell((new QuText(label_policy_finalize))->setAlignment(labelalign), row, 0));
-    g2->addCell(QuGridCell((new QuText(data_policy_finalize))->setAlignment(dataalign)->bold(), row, 1));
+    g2->addCell(QuGridCell((new QuText(data_policy_finalize))->setAlignment(dataalign)->setBold(), row, 1));
     ++row;
     g2->addCell(QuGridCell((new QuText(label_server_camcops_version))->setAlignment(labelalign), row, 0));
-    g2->addCell(QuGridCell((new QuText(data_server_camcops_version))->setAlignment(dataalign)->bold(), row, 1));
+    g2->addCell(QuGridCell((new QuText(data_server_camcops_version))->setAlignment(dataalign)->setBold(), row, 1));
     ++row;
 
     QuGridContainer* g3 = new QuGridContainer();
@@ -797,7 +797,7 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
                         QString::number(n) + ":")
             )->setAlignment(labelalign), row, 0));
         QString desc = convert::prettyValue(app.var(dbconst::IDDESC_FIELD_FORMAT.arg(n)));
-        g3->addCell(QuGridCell((new QuText(desc))->setAlignment(dataalign)->bold(), row, 1));
+        g3->addCell(QuGridCell((new QuText(desc))->setAlignment(dataalign)->setBold(), row, 1));
         ++row;
 
         g3->addCell(QuGridCell(
@@ -805,7 +805,7 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
                         QString::number(n) + ":")
             )->setAlignment(labelalign), row, 0));
         QString shortdesc = convert::prettyValue(app.var(dbconst::IDSHORTDESC_FIELD_FORMAT.arg(n)));
-        g3->addCell(QuGridCell((new QuText(shortdesc))->setAlignment(dataalign)->bold(), row, 1));
+        g3->addCell(QuGridCell((new QuText(shortdesc))->setAlignment(dataalign)->setBold(), row, 1));
         ++row;
     }
 

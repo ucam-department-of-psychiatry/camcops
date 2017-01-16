@@ -30,7 +30,7 @@
 #include "widgets/labelwordwrapwide.h"
 
 
-QuMCQ::QuMCQ(FieldRefPtr fieldref, const NameValueOptions& options) :
+QuMcq::QuMcq(FieldRefPtr fieldref, const NameValueOptions& options) :
     m_fieldref(fieldref),
     m_options(options),
     m_randomize(false),
@@ -42,48 +42,48 @@ QuMCQ::QuMCQ(FieldRefPtr fieldref, const NameValueOptions& options) :
     m_options.validateOrDie();
     Q_ASSERT(m_fieldref);
     connect(m_fieldref.data(), &FieldRef::valueChanged,
-            this, &QuMCQ::fieldValueChanged);
+            this, &QuMcq::fieldValueChanged);
     connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
-            this, &QuMCQ::fieldValueChanged);
+            this, &QuMcq::fieldValueChanged);
 }
 
 
-QuMCQ* QuMCQ::setRandomize(bool randomize)
+QuMcq* QuMcq::setRandomize(bool randomize)
 {
     m_randomize = randomize;
     return this;
 }
 
 
-QuMCQ* QuMCQ::setShowInstruction(bool show_instruction)
+QuMcq* QuMcq::setShowInstruction(bool show_instruction)
 {
     m_show_instruction = show_instruction;
     return this;
 }
 
 
-QuMCQ* QuMCQ::setHorizontal(bool horizontal)
+QuMcq* QuMcq::setHorizontal(bool horizontal)
 {
     m_horizontal = horizontal;
     return this;
 }
 
 
-QuMCQ* QuMCQ::setAsTextButton(bool as_text_button)
+QuMcq* QuMcq::setAsTextButton(bool as_text_button)
 {
     m_as_text_button = as_text_button;
     return this;
 }
 
 
-QuMCQ* QuMCQ::setBold(bool bold)
+QuMcq* QuMcq::setBold(bool bold)
 {
     m_bold = bold;
     return this;
 }
 
 
-QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
+QPointer<QWidget> QuMcq::makeWidget(Questionnaire* questionnaire)
 {
     // Clear old stuff (BEWARE: "empty()" = "isEmpty()" != "clear()")
     m_widgets.clear();
@@ -124,7 +124,7 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
         if (!read_only) {
             // Safe object lifespan signal: can use std::bind
             connect(w, &BooleanWidget::clicked,
-                    std::bind(&QuMCQ::clicked, this, i));
+                    std::bind(&QuMcq::clicked, this, i));
         }
         m_widgets.append(w);
 
@@ -147,7 +147,7 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
             if (!read_only) {
                 // Safe object lifespan signal: can use std::bind
                 connect(namelabel, &ClickableLabelWordWrapWide::clicked,
-                        std::bind(&QuMCQ::clicked, this, i));
+                        std::bind(&QuMcq::clicked, this, i));
             }
             HBoxLayout* itemlayout = new HBoxLayout();
             itemlayout->setContentsMargins(uiconst::NO_MARGINS);
@@ -187,7 +187,7 @@ QPointer<QWidget> QuMCQ::makeWidget(Questionnaire* questionnaire)
 }
 
 
-void QuMCQ::clicked(int index)
+void QuMcq::clicked(int index)
 {
     if (!m_options.validIndex(index)) {
         qWarning() << Q_FUNC_INFO << "- out of range";
@@ -201,19 +201,19 @@ void QuMCQ::clicked(int index)
 }
 
 
-void QuMCQ::setFromField()
+void QuMcq::setFromField()
 {
     fieldValueChanged(m_fieldref.data());
 }
 
 
-void QuMCQ::fieldValueChanged(const FieldRef* fieldref)
+void QuMcq::fieldValueChanged(const FieldRef* fieldref)
 {
     mcqfunc::setResponseWidgets(m_options, m_widgets, fieldref);
 }
 
 
-FieldRefPtrList QuMCQ::fieldrefs() const
+FieldRefPtrList QuMcq::fieldrefs() const
 {
     return FieldRefPtrList{m_fieldref};
 }

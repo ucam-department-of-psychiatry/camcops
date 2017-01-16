@@ -16,8 +16,10 @@
 */
 
 // #define DEBUG_HFW_RESIZE_EVENT
+// #define DEBUG_WIDGET_MARGINS
 
 #include "sizehelpers.h"
+#include <QDebug>
 #include <QLayout>
 #include <QLabel>
 #include <QPushButton>
@@ -27,8 +29,12 @@
 #include <QStyleOptionFrame>
 #include <QWidget>
 
-#ifdef DEBUG_HFW_RESIZE_EVENT
+#if defined(DEBUG_HFW_RESIZE_EVENT) || defined(DEBUG_WIDGET_MARGINS)
 #include <QDebug>
+#endif
+
+#ifdef DEBUG_WIDGET_MARGINS
+#include "lib/layoutdumper.h"
 #endif
 
 
@@ -156,7 +162,9 @@ QSize sizehelpers::widgetExtraSizeForCssOrLayout(
     }
 
     QSize extra_for_layout_margins(0, 0);
-    QLayout* layout = widget->layout();
+    QLayout* layout = widget->layout();  // ... the layout manager installed on
+        // THIS widget (i.e. if this widget has children), not the layout
+        // to which it belongs.
     if (layout) {
         extra_for_layout_margins = contentsMarginsAsSize(layout);
     }
@@ -178,7 +186,7 @@ QSize sizehelpers::widgetExtraSizeForCssOrLayout(
 
 #ifdef DEBUG_WIDGET_MARGINS
     qDebug().nospace() << Q_FUNC_INFO
-             << "widget " << LayoutDumper::getWidgetDescriptor(widget)
+             << "widget " << layoutdumper::getWidgetDescriptor(widget)
              << "; child_size " << child_size
              << "; stylesheet_extra_size " << stylesheet_extra_size
              << "; extra_for_layout_margins " << extra_for_layout_margins
@@ -186,6 +194,43 @@ QSize sizehelpers::widgetExtraSizeForCssOrLayout(
 #endif
     return total_extra;
 }
+
+
+/*
+QSize sizehelpers::widgetExtraSizeForCss(
+        const QWidget* widget,
+        const QStyleOption* opt,
+        const QSize& child_size,
+        bool add_style_element,
+        QStyle::ContentsType contents_type)
+{
+    // As above, but NOT including layout margins.
+    Q_ASSERT(widget);
+    Q_ASSERT(opt);
+
+    QSize stylesheet_extra_size(0, 0);
+    if (add_style_element) {
+        QStyle* style = widget->style();
+        if (style) {
+            QSize temp = style->sizeFromContents(contents_type, opt,
+                                                 child_size, widget);
+            stylesheet_extra_size = temp - child_size;
+        }
+    }
+
+    QSize total_extra = stylesheet_extra_size
+            .expandedTo(QSize(0, 0));  // just to ensure it's never negative
+
+#ifdef DEBUG_WIDGET_MARGINS
+    qDebug().nospace() << Q_FUNC_INFO
+             << "widget " << LayoutDumper::getWidgetDescriptor(widget)
+             << "; child_size " << child_size
+             << "; stylesheet_extra_size " << stylesheet_extra_size
+             << " => total_extra " << total_extra;
+#endif
+    return total_extra;
+}
+*/
 
 
 QSize sizehelpers::pushButtonExtraSizeRequired(const QPushButton* button,
@@ -207,9 +252,10 @@ QSize sizehelpers::frameExtraSizeRequired(const QFrame* frame,
 }
 
 
-QSize sizehelpers::labelExtraSizeRequired(const QLabel* label,
-                                          const QStyleOptionFrame* opt,
-                                          const QSize& child_size)
+QSize sizehelpers::labelExtraSizeRequired(
+        const QLabel* label,
+        const QStyleOptionFrame* opt,
+        const QSize& child_size)
 {
     return widgetExtraSizeForCssOrLayout(label, opt, child_size,
                                          true, QStyle::CT_PushButton);

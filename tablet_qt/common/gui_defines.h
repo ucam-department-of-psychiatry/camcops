@@ -51,7 +51,9 @@ Files that make up a complete set of classes:
                               implementation (*)
     lib/sizehelpers.h   }   - shortcuts for size policies/resize functions
     lib/sizehelpers.cpp }
-    widgets/margins.h       - simple class to hold margins
+
+    widgets/margins.h   }   - simple class to hold margins
+    widgets/margins.cpp }
 
     widgets/basewidget.h    } widget class that'll act as a parent widget
     widgets/basewidget.cpp  }   for a height-for-width widget (*)
@@ -79,11 +81,22 @@ Files that make up a complete set of classes:
     widgets/labelwordwrapwide.cpp   }   as much width as possible before
                                         wrapping
 
+    widgets/aspectratiopixmaplabel.h   } widget to keep an image's aspect ratio
+    widgets/aspectratiopixmaplabel.cpp }   fixed
+
     (*) uses gui_defines.h to implement a master switch for testing
 
 Relevant web discussions include:
 
-    2013-01-09 http://stackoverflow.com/questions/14238138/heightforwidth-label
+    Qt docs: http://doc.qt.io/qt-5/layout.html#layout-issues
+    2009-01-16: http://stackoverflow.com/questions/452333/how-to-maintain-widgets-aspect-ratio-in-qt
+    2011-11-21: http://stackoverflow.com/questions/8211982/qt-resizing-a-qlabel-containing-a-qpixmap-while-keeping-its-aspect-ratio
+    2012-12-31: http://stackoverflow.com/questions/14104871/qlabel-cutting-off-text-on-resize
+    2013-01-09: http://stackoverflow.com/questions/14238138/heightforwidth-label
+    2014-06-17: http://stackoverflow.com/questions/24264320/qt-layouts-keep-widget-aspect-ratio-while-resizing
+    2015-03-30: http://www.qtcentre.org/threads/62059-QLabel-Word-Wrapping-adds-unnecessary-line-breaks
+    2015-07-21: http://stackoverflow.com/questions/31535143/how-to-prevent-qlabel-from-unnecessary-word-wrapping
+
 */
 
 // The master switch: leave it, or comment it out

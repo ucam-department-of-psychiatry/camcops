@@ -25,19 +25,19 @@
 class BooleanWidget;
 
 
-class QuMCQ : public QuElement
+class QuMcq : public QuElement
 {
     // Offers a single multiple-choice question.
     // There are a variety of display formats.
 
     Q_OBJECT
 public:
-    QuMCQ(FieldRefPtr fieldref, const NameValueOptions& options);
-    QuMCQ* setRandomize(bool randomize);
-    QuMCQ* setShowInstruction(bool show_instruction);
-    QuMCQ* setHorizontal(bool horizontal);
-    QuMCQ* setAsTextButton(bool as_text_button);
-    QuMCQ* setBold(bool bold);
+    QuMcq(FieldRefPtr fieldref, const NameValueOptions& options);
+    QuMcq* setRandomize(bool randomize);
+    QuMcq* setShowInstruction(bool show_instruction);
+    QuMcq* setHorizontal(bool horizontal);
+    QuMcq* setAsTextButton(bool as_text_button);
+    QuMcq* setBold(bool bold);
 protected:
     void setFromField();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;

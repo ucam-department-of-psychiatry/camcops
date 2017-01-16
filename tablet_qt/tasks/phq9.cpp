@@ -147,8 +147,8 @@ OpenableWidget* Phq9::editor(bool read_only)
     };
 
     QuPagePtr page((new QuPage{
-        (new QuText(xstring("phq9_stem")))->bold(true),
-        new QuMCQGrid(
+        (new QuText(xstring("phq9_stem")))->setBold(true),
+        new QuMcqGrid(
             {
                 QuestionWithOneField(xstring("phq9_q1"), fieldRef("q1")),
                 QuestionWithOneField(xstring("phq9_q2"), fieldRef("q2")),
@@ -162,8 +162,8 @@ OpenableWidget* Phq9::editor(bool read_only)
             },
             options_q1_9
         ),
-        (new QuText(xstring("phq9_finalq")))->bold(true),
-        new QuMCQ(fieldRef("q10"), options_q10),
+        (new QuText(xstring("phq9_finalq")))->setBold(true),
+        new QuMcq(fieldRef("q10"), options_q10),
     })->setTitle(xstring("phq9_title_main")));
 
     Questionnaire* questionnaire = new Questionnaire(m_app, {page});

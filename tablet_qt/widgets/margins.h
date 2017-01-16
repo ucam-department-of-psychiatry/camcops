@@ -73,4 +73,7 @@ private:
     int m_top;
     int m_right;
     int m_bottom;
+
+public:
+    friend QDebug operator<<(QDebug debug, const Margins& m);
 };

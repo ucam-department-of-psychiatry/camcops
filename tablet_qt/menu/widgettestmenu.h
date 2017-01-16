@@ -72,6 +72,7 @@ protected:
     void testFlowLayout(int n_icons);
     void testBaseWidget(bool long_text);
     void testVBoxLayout(bool long_text);
+    void testGridLayoutHfw(int example);
 
     // ========================================================================
     // Large-scale widgets
@@ -100,7 +101,7 @@ protected:
     void testQuLineEditLongLong();
     void testQuLineEditULongLong();  // deprecated as SQLite3 can't cope
     void testQuMCQ(bool horizontal, bool long_text, bool as_text_button);
-    void testQuMCQGrid(bool expand);
+    void testQuMCQGrid(bool expand, int example);
     void testQuMCQGridDouble(bool expand);
     void testQuMCQGridSingleBoolean(bool expand);
     void testQuMultipleResponse(bool horizontal, bool long_text);
@@ -111,7 +112,7 @@ protected:
     void testQuSpacer();
     void testQuSpinBoxDouble();
     void testQuSpinBoxInteger();
-    void testQuText(bool long_text);
+    void testQuText(bool long_text, bool bold);
     void testQuTextEdit();
     void testQuThermometer();
 

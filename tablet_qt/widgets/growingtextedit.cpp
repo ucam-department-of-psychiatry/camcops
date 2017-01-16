@@ -73,7 +73,12 @@ QSize GrowingTextEdit::minimumSizeHint() const
     // Implementing this reduces to a satisfactory level (though doesn't
     // entirely eliminate...) the tendency of the widget to develop a scroll
     // bar, rather than enlarging.
-    return sizeHint();
+    //
+    // However, don't just return sizeHint(), or you can get an escalating
+    // width.
+    QSize minsize = QTextEdit::minimumSizeHint();
+    minsize.setHeight(sizeHint().height());
+    return minsize;
 }
 
 

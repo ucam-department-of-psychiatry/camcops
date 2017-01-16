@@ -23,18 +23,18 @@
 // classes").
 
 class FieldRef;
-class QuMCQGridSingleBoolean;
+class QuMcqGridSingleBoolean;
 
 
-class QuMCQGridSingleBooleanSignaller : public QObject {
+class QuMcqGridSingleBooleanSignaller : public QObject {
     Q_OBJECT
 public:
-    QuMCQGridSingleBooleanSignaller(QuMCQGridSingleBoolean* recipient,
+    QuMcqGridSingleBooleanSignaller(QuMcqGridSingleBoolean* recipient,
                                     int question_index);
 public slots:
     void mcqFieldValueChanged(const FieldRef* fieldref);
     void booleanFieldValueChanged(const FieldRef* fieldref);
 protected:
-    QuMCQGridSingleBoolean* m_recipient;
+    QuMcqGridSingleBoolean* m_recipient;
     int m_question_index;
 };

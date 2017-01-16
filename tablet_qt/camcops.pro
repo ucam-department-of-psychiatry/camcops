@@ -504,7 +504,9 @@ DISTFILES += \
     images/dt/dt_unsel_10.png \
     stylesheets/camera.css \
     LICENSE.txt \
-    notes/coding_conventions.txt
+    notes/coding_conventions.txt \
+    notes/to_do.txt \
+    notes/known_problems.txt
 
 # =============================================================================
 # Android-specific options

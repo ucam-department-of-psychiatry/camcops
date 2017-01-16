@@ -23,10 +23,10 @@
 #include "questionwithonefield.h"
 
 class BooleanWidget;
-class QuMCQGridSignaller;
+class QuMcqGridSignaller;
 
 
-class QuMCQGrid : public QuElement
+class QuMcqGrid : public QuElement
 {
     // Offers a grid of multiple-choice questions, where several questions
     // share the same possible responses. For example:
@@ -38,16 +38,16 @@ class QuMCQGrid : public QuElement
     // 3. ...
 
     Q_OBJECT
-    friend class QuMCQGridSignaller;
+    friend class QuMcqGridSignaller;
 
 public:
-    QuMCQGrid(QList<QuestionWithOneField> question_field_pairs,
+    QuMcqGrid(QList<QuestionWithOneField> question_field_pairs,
               const NameValueOptions& options);
-    virtual ~QuMCQGrid();
-    QuMCQGrid* setWidth(int question_width, QList<int> option_widths);
-    QuMCQGrid* setTitle(const QString& title);
-    QuMCQGrid* setSubtitles(QList<McqGridSubtitle> subtitles);
-    QuMCQGrid* setExpand(bool expand);
+    virtual ~QuMcqGrid();
+    QuMcqGrid* setWidth(int question_width, QList<int> option_widths);
+    QuMcqGrid* setTitle(const QString& title);
+    QuMcqGrid* setSubtitles(QList<McqGridSubtitle> subtitles);
+    QuMcqGrid* setExpand(bool expand);
 protected:
     void setFromFields();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
@@ -67,5 +67,5 @@ protected:
     QList<McqGridSubtitle> m_subtitles;
     bool m_expand;
     QList<QList<QPointer<BooleanWidget>>> m_widgets;
-    QList<QuMCQGridSignaller*> m_signallers;
+    QList<QuMcqGridSignaller*> m_signallers;
 };

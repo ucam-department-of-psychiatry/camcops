@@ -20,7 +20,7 @@
 #include "questionnairelib/qumcqgriddouble.h"
 
 
-QuMCQGridDoubleSignaller::QuMCQGridDoubleSignaller(QuMCQGridDouble* recipient,
+QuMcqGridDoubleSignaller::QuMcqGridDoubleSignaller(QuMcqGridDouble* recipient,
                                                    int question_index,
                                                    bool first_field) :
     m_recipient(recipient),
@@ -30,7 +30,7 @@ QuMCQGridDoubleSignaller::QuMCQGridDoubleSignaller(QuMCQGridDouble* recipient,
 }
 
 
-void QuMCQGridDoubleSignaller::valueChanged(const FieldRef* fieldref)
+void QuMcqGridDoubleSignaller::valueChanged(const FieldRef* fieldref)
 {
     m_recipient->fieldValueChanged(m_question_index, m_first_field, fieldref);
 }

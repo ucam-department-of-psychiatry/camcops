@@ -38,11 +38,29 @@ namespace mynamespace {
 
 
 class SomeClass {
+    // Descriptive comments
+
+    Q_OBJECT  // if applicable
+
+public:
+    // other classes and structs
+
 public:
     SomeClass();
+    // other constructors
+
+    ~SomeClass();
 
     void someFunction();
     int& rFunctionReturningReference();
+
+    // ...
+
+protected:
+    // functions
+
+private:
+    // functions
 
 public:
     int public_member;  // e.g. for structs; no "m_"
