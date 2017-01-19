@@ -1,4 +1,6 @@
 /*
+    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+
     This file is part of CamCOPS.
 
     CamCOPS is free software: you can redistribute it and/or modify
@@ -25,7 +27,10 @@
 #include <QTextStream>
 
 
-bool filefunc::fileExists(const QString& filename)
+namespace filefunc {
+
+
+bool fileExists(const QString& filename)
 {
     QFile file(filename);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
@@ -35,7 +40,7 @@ bool filefunc::fileExists(const QString& filename)
 }
 
 
-QString filefunc::textfileContents(const QString& filename)
+QString textfileContents(const QString& filename)
 {
     QFile file(filename);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
@@ -56,7 +61,10 @@ QString filefunc::textfileContents(const QString& filename)
 }
 
 
-QString filefunc::taskHtmlFilename(const QString& stem)
+QString taskHtmlFilename(const QString& stem)
 {
     return QString(":/taskinfo/%1.html").arg(stem);
 }
+
+
+}  // namespace filefunc

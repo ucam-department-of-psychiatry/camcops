@@ -1,4 +1,6 @@
 /*
+    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+
     This file is part of CamCOPS.
 
     CamCOPS is free software: you can redistribute it and/or modify
@@ -19,51 +21,52 @@
 #include <QString>
 
 
+namespace numeric {
+
+
 // ============================================================================
 // Overloaded functions to convert to an integer type
 // ============================================================================
 
-int numeric::strToNumber(const QString& str, int type_dummy)
+int strToNumber(const QString& str, int type_dummy)
 {
     Q_UNUSED(type_dummy);
     return str.toInt();
 }
 
 
-int numeric::localeStrToNumber(const QString& str, bool& ok,
-                               const QLocale& locale, int type_dummy)
+int localeStrToNumber(const QString& str, bool& ok,
+                      const QLocale& locale, int type_dummy)
 {
     Q_UNUSED(type_dummy);
     return locale.toInt(str, &ok);
 }
 
 
-qlonglong numeric::strToNumber(const QString& str, qlonglong type_dummy)
+qlonglong strToNumber(const QString& str, qlonglong type_dummy)
 {
     Q_UNUSED(type_dummy);
     return str.toLongLong();
 }
 
 
-qlonglong numeric::localeStrToNumber(const QString& str, bool& ok,
-                                     const QLocale& locale,
-                                     qlonglong type_dummy)
+qlonglong localeStrToNumber(const QString& str, bool& ok,
+                            const QLocale& locale, qlonglong type_dummy)
 {
     Q_UNUSED(type_dummy);
     return locale.toLongLong(str, &ok);
 }
 
 
-qulonglong numeric::strToNumber(const QString& str, qulonglong type_dummy)
+qulonglong strToNumber(const QString& str, qulonglong type_dummy)
 {
     Q_UNUSED(type_dummy);
     return str.toULongLong();
 }
 
 
-qulonglong numeric::localeStrToNumber(const QString& str, bool& ok,
-                                      const QLocale& locale,
-                                      qulonglong type_dummy)
+qulonglong localeStrToNumber(const QString& str, bool& ok,
+                             const QLocale& locale, qulonglong type_dummy)
 {
     Q_UNUSED(type_dummy);
     return locale.toULongLong(str, &ok);
@@ -74,7 +77,7 @@ qulonglong numeric::localeStrToNumber(const QString& str, bool& ok,
 // For double validation
 // ============================================================================
 
-int numeric::numDigitsDouble(double number, int max_dp)
+int numDigitsDouble(double number, int max_dp)
 {
     // Counts the number of digits in a floating-point number.
     // - ignores sign
@@ -94,7 +97,7 @@ int numeric::numDigitsDouble(double number, int max_dp)
 }
 
 
-double numeric::firstDigitsDouble(double number, int n_digits, int max_dp)
+double firstDigitsDouble(double number, int n_digits, int max_dp)
 {
     // Returns the first n_digits of a floating point number, as a double.
     // - sign is ignored (can't compare numbers without dropping it)
@@ -113,7 +116,7 @@ double numeric::firstDigitsDouble(double number, int n_digits, int max_dp)
 }
 
 
-bool numeric::isValidStartToDouble(double number, double bottom, double top)
+bool isValidStartToDouble(double number, double bottom, double top)
 {
     if (extendedDoubleMustBeLessThan(number, bottom, top)) {
 #ifdef DEBUG_VALIDATOR
@@ -139,8 +142,7 @@ bool numeric::isValidStartToDouble(double number, double bottom, double top)
 }
 
 
-bool numeric::extendedDoubleMustExceed(double number,
-                                       double bottom, double top)
+bool extendedDoubleMustExceed(double number, double bottom, double top)
 {
     if (number < 0 && top > 0) {
         return false;
@@ -174,8 +176,7 @@ bool numeric::extendedDoubleMustExceed(double number,
 }
 
 
-bool numeric::extendedDoubleMustBeLessThan(double number,
-                                           double bottom, double top)
+bool extendedDoubleMustBeLessThan(double number, double bottom, double top)
 {
     if (number < 0 && bottom > 0) {
         return true;
@@ -207,3 +208,6 @@ bool numeric::extendedDoubleMustBeLessThan(double number,
         return true;
     }
 }
+
+
+}  // namespace numeric

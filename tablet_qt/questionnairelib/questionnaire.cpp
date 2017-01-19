@@ -1,4 +1,6 @@
 /*
+    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+
     This file is part of CamCOPS.
 
     CamCOPS is free software: you can redistribute it and/or modify
@@ -15,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define OFFER_LAYOUT_DEBUG_BUTTON
+// #define OFFER_LAYOUT_DEBUG_BUTTON
 // #define DEBUG_PAGE_LAYOUT_ON_OPEN
 
 #include "questionnaire.h"
@@ -145,7 +147,7 @@ void Questionnaire::build()
     // OVERVIEW OF WIDGET/LAYOUT STRUCTURE:
     //
     // W this = OpenableWidget (inherits from QWidget)
-    //      L m_outer_layout = QVBoxLayout()
+    //      L m_outer_layout = QVBoxLayout
     //          W m_background_widget = QWidget
     //              L m_mainlayout = QVBoxLayout
     //                  W m_p_header = QuestionnaireHeader

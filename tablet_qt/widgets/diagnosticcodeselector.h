@@ -1,4 +1,6 @@
 /*
+    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+
     This file is part of CamCOPS.
 
     CamCOPS is free software: you can redistribute it and/or modify
@@ -58,6 +60,7 @@ protected slots:
     // void toggleSearch();
     void goToSearch();
     void goToTree();
+    void debugLayout();
 protected:
     void newSelection(const QModelIndex& index);
     QModelIndex sourceFromProxy(const QModelIndex& index);
@@ -65,9 +68,9 @@ protected:
     void setSearchAppearance();
 protected:
     QSharedPointer<DiagnosticCodeSet> m_codeset;
-    QPointer<QTreeView> m_treeview;
-    QPointer<QListView> m_flatview;
-    QPointer<QLineEdit> m_lineedit;
+    QPointer<QTreeView> m_treeview;  // for exploring
+    QPointer<QListView> m_flatview;  // for searching
+    QPointer<QLineEdit> m_search_lineedit;
     QPointer<QLabel> m_heading_tree;
     QPointer<QLabel> m_heading_search;
     QPointer<QAbstractButton> m_search_button;

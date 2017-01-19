@@ -1,4 +1,6 @@
 /*
+    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+
     This file is part of CamCOPS.
 
     CamCOPS is free software: you can redistribute it and/or modify
@@ -43,8 +45,8 @@ ScrollMessageBox::ScrollMessageBox(const QMessageBox::Icon& icon,
             Qt::Dialog | Qt::WindowTitleHint |
             Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
 {
-    QLabel* icon_label;
-    QScrollArea* scroll;
+    QLabel* icon_label = nullptr;
+    QScrollArea* scroll = nullptr;
 
     m_label = new QLabel();
     m_label->setTextInteractionFlags(Qt::TextInteractionFlags(style()->styleHint(

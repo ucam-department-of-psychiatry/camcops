@@ -1,4 +1,6 @@
 /*
+    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+
     This file is part of CamCOPS.
 
     CamCOPS is free software: you can redistribute it and/or modify
@@ -26,29 +28,38 @@
 #include "widgets/verticalline.h"
 #include "namevalueoptions.h"
 
+namespace mcqfunc {
+
 // ============================================================================
 // Alignment
 // ============================================================================
 
-namespace mcqfunc {
-
-Qt::Alignment question_text_align = Qt::AlignVCenter;
-Qt::Alignment question_widget_align = Qt::AlignVCenter;
-// don't do right align; disrupts natural reading flow
-
+// In grids, this is the title in cell (0, 0).
 Qt::Alignment title_text_align = Qt::AlignTop;
 Qt::Alignment title_widget_align = Qt::AlignTop;
 
+// In grids, these are the response option descriptions in row 0.
 Qt::Alignment option_text_align = Qt::AlignCenter | Qt::AlignBottom;
 Qt::Alignment option_widget_align = Qt::AlignCenter | Qt::AlignBottom;
-
 // If you don't apply a widget alignment, the label widget takes the entire
 // cell -- which is fine for the most part (the text alignment does the rest)
 // -- but not when you want a *bottom* alignment.
 
-Qt::Alignment response_widget_align = Qt::AlignCenter | Qt::AlignTop;
+// In grids, these are the questions down the left-hand side
+Qt::Alignment question_text_align = Qt::AlignVCenter;
+Qt::Alignment question_widget_align = Qt::AlignVCenter;
+// Don't do right align; disrupts natural reading flow.
+// For small questions (vertically shorter than response widgets), centre
+// alignment looks best. For long ones, it doesn't matter (as the question
+// likely fills its cell vertically in any case, being the tallest thing in its
+// row).
 
-}  // namespace mcqfunc
+// In grids, these are the things you touch to respond.
+Qt::Alignment response_widget_align = Qt::AlignCenter | Qt::AlignTop;
+// The vertical alignment is relevant when questions are anything but very
+// short. Assuming the label is properly spaced (but see LabelWordWrapWide for
+// probable Qt bug), top alignment looks good. With the bug, there is an
+// argument for AlignVCenter.
 
 
 // ============================================================================
@@ -70,7 +81,7 @@ Qt::Alignment response_widget_align = Qt::AlignCenter | Qt::AlignTop;
 
 */
 
-void mcqfunc::addVerticalLine(GridLayout* grid, int col, int n_rows)
+void addVerticalLine(GridLayout* grid, int col, int n_rows)
 {
     VerticalLine* vline = new VerticalLine(uiconst::MCQGRID_VLINE_WIDTH);
     vline->setObjectName(cssconst::VLINE);
@@ -78,8 +89,7 @@ void mcqfunc::addVerticalLine(GridLayout* grid, int col, int n_rows)
 }
 
 
-void mcqfunc::addQuestion(GridLayout* grid, int row,
-                          const QString& question)
+void addQuestion(GridLayout* grid, int row, const QString& question)
 {
     LabelWordWrapWide* q = new LabelWordWrapWide(question);
     q->setAlignment(question_text_align);
@@ -88,7 +98,7 @@ void mcqfunc::addQuestion(GridLayout* grid, int row,
 }
 
 
-void mcqfunc::addTitle(GridLayout* grid, int row, const QString& title)
+void addTitle(GridLayout* grid, int row, const QString& title)
 {
     if (!title.isEmpty()) {
         LabelWordWrapWide* w = new LabelWordWrapWide(title);
@@ -99,8 +109,7 @@ void mcqfunc::addTitle(GridLayout* grid, int row, const QString& title)
 }
 
 
-void mcqfunc::addSubtitle(GridLayout* grid, int row,
-                          const QString& subtitle)
+void addSubtitle(GridLayout* grid, int row, const QString& subtitle)
 {
     if (!subtitle.isEmpty()) {
         LabelWordWrapWide* w = new LabelWordWrapWide(subtitle);
@@ -111,8 +120,7 @@ void mcqfunc::addSubtitle(GridLayout* grid, int row,
 }
 
 
-void mcqfunc::addOption(GridLayout* grid, int row, int col,
-                        const QString& option)
+void addOption(GridLayout* grid, int row, int col, const QString& option)
 {
     LabelWordWrapWide* w = new LabelWordWrapWide(option);
     w->setAlignment(option_text_align);
@@ -121,8 +129,7 @@ void mcqfunc::addOption(GridLayout* grid, int row, int col,
 }
 
 
-void mcqfunc::addOptionBackground(GridLayout* grid, int row,
-                                  int firstcol, int ncols)
+void addOptionBackground(GridLayout* grid, int row, int firstcol, int ncols)
 {
     QWidget* bg = new QWidget();
     bg->setObjectName(cssconst::OPTION_BACKGROUND);
@@ -130,10 +137,9 @@ void mcqfunc::addOptionBackground(GridLayout* grid, int row,
 }
 
 
-void mcqfunc::setResponseWidgets(
-        const NameValueOptions& options,
-        const QList<QPointer<BooleanWidget>>& question_widgets,
-        const FieldRef* fieldref)
+void setResponseWidgets(const NameValueOptions& options,
+                        const QList<QPointer<BooleanWidget>>& question_widgets,
+                        const FieldRef* fieldref)
 {
     if (!fieldref) {
         qWarning() << Q_FUNC_INFO << "Bad fieldref!";
@@ -165,7 +171,7 @@ void mcqfunc::setResponseWidgets(
 }
 
 
-void mcqfunc::toggleBooleanField(FieldRef* fieldref, bool allow_unset)
+void toggleBooleanField(FieldRef* fieldref, bool allow_unset)
 {
     // Used by "clicked" receivers.
     if (!fieldref) {
@@ -183,3 +189,6 @@ void mcqfunc::toggleBooleanField(FieldRef* fieldref, bool allow_unset)
     }
     fieldref->setValue(newvalue);  // Will trigger valueChanged
 }
+
+
+}  // namespace mcqfunc

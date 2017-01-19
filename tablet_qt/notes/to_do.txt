@@ -7,6 +7,8 @@ TO DO NOW
 
 - *** chains (see e.g. ResearchMenu.js; MenuTableRow.js; QuestionnaireHeader.js...)
 
+- *** concept of "set of tasks" as well as "chain of tasks"
+
 - *** scrolling by touch on Android menus and questionnaires
     http://doc.qt.io/qt-5.7/gestures-overview.html
     http://doc.qt.io/qt-5/qscroller.html#details

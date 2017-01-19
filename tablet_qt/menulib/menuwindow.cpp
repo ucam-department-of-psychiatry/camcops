@@ -1,4 +1,6 @@
 /*
+    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+
     This file is part of CamCOPS.
 
     CamCOPS is free software: you can redistribute it and/or modify
@@ -15,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define OFFER_LAYOUT_DEBUG_BUTTON
+// #define OFFER_LAYOUT_DEBUG_BUTTON
 #define SHOW_TASK_TIMING
 
 #include "menuwindow.h"

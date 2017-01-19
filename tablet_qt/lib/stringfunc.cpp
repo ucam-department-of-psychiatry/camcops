@@ -1,4 +1,6 @@
 /*
+    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+
     This file is part of CamCOPS.
 
     CamCOPS is free software: you can redistribute it and/or modify
@@ -18,11 +20,13 @@
 #include "stringfunc.h"
 
 
+namespace stringfunc {
+
 // ============================================================================
 // Make sequences of strings
 // ============================================================================
 
-QStringList stringfunc::strseq(const QString& prefix, int first, int last)
+QStringList strseq(const QString& prefix, int first, int last)
 {
     Q_ASSERT(first >= 0 && last >= 0 && first <= last);
     QStringList list;
@@ -34,8 +38,8 @@ QStringList stringfunc::strseq(const QString& prefix, int first, int last)
 }
 
 
-QStringList stringfunc::strseq(const QString& prefix, int first, int last,
-                               const QStringList& suffixes)
+QStringList strseq(const QString& prefix, int first, int last,
+                   const QStringList& suffixes)
 {
     Q_ASSERT(first >= 0 && last >= 0 && first <= last);
     QStringList list;
@@ -49,8 +53,8 @@ QStringList stringfunc::strseq(const QString& prefix, int first, int last,
 }
 
 
-QStringList stringfunc::strseq(const QString& prefix, int first, int last,
-                               const QString& suffix)
+QStringList strseq(const QString& prefix, int first, int last,
+                   const QString& suffix)
 {
     Q_ASSERT(first >= 0 && last >= 0 && first <= last);
     QStringList list;
@@ -62,8 +66,7 @@ QStringList stringfunc::strseq(const QString& prefix, int first, int last,
 }
 
 
-QStringList stringfunc::strseq(const QStringList& prefixes, int first,
-                               int last)
+QStringList strseq(const QStringList& prefixes, int first, int last)
 {
     Q_ASSERT(first >= 0 && last >= 0 && first <= last);
     QStringList list;
@@ -77,8 +80,8 @@ QStringList stringfunc::strseq(const QStringList& prefixes, int first,
 }
 
 
-QStringList stringfunc::strseq(const QStringList& prefixes, int first,
-                               int last, const QStringList& suffixes)
+QStringList strseq(const QStringList& prefixes, int first, int last,
+                   const QStringList& suffixes)
 {
     Q_ASSERT(first >= 0 && last >= 0 && first <= last);
     QStringList list;
@@ -98,7 +101,7 @@ QStringList stringfunc::strseq(const QStringList& prefixes, int first,
 // Other string formatting
 // ============================================================================
 
-QString stringfunc::strnum(const QString& prefix, int num)
+QString strnum(const QString& prefix, int num)
 {
     return QString("%1%2").arg(prefix).arg(num);
 }
@@ -108,26 +111,25 @@ QString stringfunc::strnum(const QString& prefix, int num)
 // HTML processing
 // ============================================================================
 
-QString stringfunc::bold(const QString& str)
+QString bold(const QString& str)
 {
     return QString("<b>%1</b>").arg(str);
 }
 
 
-QString stringfunc::bold(int x)
+QString bold(int x)
 {
     return QString("<b>%1</b>").arg(x);
 }
 
 
-QString stringfunc::joinHtmlLines(const QStringList& lines)
+QString joinHtmlLines(const QStringList& lines)
 {
     return lines.join("<br>");
 }
 
 
-QString& stringfunc::toHtmlLinebreaks(QString& str,
-                                      bool convert_embedded_literals)
+QString& toHtmlLinebreaks(QString& str, bool convert_embedded_literals)
 {
     str.replace("\n", "<br>");
     if (convert_embedded_literals) {
@@ -141,9 +143,11 @@ QString& stringfunc::toHtmlLinebreaks(QString& str,
 // Other string processing
 // ============================================================================
 
-QString& stringfunc::replaceFirst(QString& str, const QString& from,
-                                  const QString& to)
+QString& replaceFirst(QString& str, const QString& from, const QString& to)
 {
     // Replaces in situ
     return str.replace(str.indexOf(from), from.length(), to);
 }
+
+
+}  // namespace stringfunc

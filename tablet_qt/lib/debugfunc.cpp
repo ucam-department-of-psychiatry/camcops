@@ -1,4 +1,6 @@
 /*
+    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+
     This file is part of CamCOPS.
 
     CamCOPS is free software: you can redistribute it and/or modify
@@ -29,8 +31,10 @@
 #include "qobjects/showwatcher.h"
 #include "widgets/vboxlayouthfw.h"
 
+namespace debugfunc {
 
-void debugfunc::debugConcisely(QDebug debug, const QVariant& value)
+
+void debugConcisely(QDebug debug, const QVariant& value)
 {
 #ifdef DEBUG_EVEN_GIANT_VARIANTS
     debug << value;
@@ -51,7 +55,7 @@ void debugfunc::debugConcisely(QDebug debug, const QVariant& value)
 }
 
 
-void debugfunc::debugConcisely(QDebug debug, const QList<QVariant>& values)
+void debugConcisely(QDebug debug, const QList<QVariant>& values)
 {
     QDebug d = debug.nospace();
     d << "(";
@@ -66,7 +70,7 @@ void debugfunc::debugConcisely(QDebug debug, const QList<QVariant>& values)
 }
 
 
-void debugfunc::dumpQObject(QObject* obj)
+void dumpQObject(QObject* obj)
 {
     qDebug("----------------------------------------------------");
     qDebug("Widget name : %s", qPrintable(obj->objectName()));
@@ -79,11 +83,11 @@ void debugfunc::dumpQObject(QObject* obj)
 }
 
 
-void debugfunc::debugWidget(QWidget* widget, bool set_background_by_name,
-                            bool set_background_by_stylesheet,
-                            const layoutdumper::DumperConfig& config,
-                            bool use_hfw_layout,
-                            const QString* dialog_stylesheet)
+void debugWidget(QWidget* widget, bool set_background_by_name,
+                 bool set_background_by_stylesheet,
+                 const layoutdumper::DumperConfig& config,
+                 bool use_hfw_layout,
+                 const QString* dialog_stylesheet)
 {
     QDialog dlg;
     QSizePolicy dlg_sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -132,3 +136,6 @@ void debugfunc::debugWidget(QWidget* widget, bool set_background_by_name,
     dlg.setLayout(layout);
     dlg.exec();
 }
+
+
+}  // namespace debugfunc

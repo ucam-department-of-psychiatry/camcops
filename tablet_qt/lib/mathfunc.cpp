@@ -1,4 +1,6 @@
 /*
+    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+
     This file is part of CamCOPS.
 
     CamCOPS is free software: you can redistribute it and/or modify
@@ -17,8 +19,10 @@
 
 #include "mathfunc.h"
 
+namespace mathfunc {
 
-QVariant mathfunc::mean(const QList<QVariant>& values, bool ignore_null)
+
+QVariant mean(const QList<QVariant>& values, bool ignore_null)
 {
     double total = 0;
     int n = 0;
@@ -42,7 +46,7 @@ QVariant mathfunc::mean(const QList<QVariant>& values, bool ignore_null)
 }
 
 
-int mathfunc::sumInt(const QList<QVariant>& values)
+int sumInt(const QList<QVariant>& values)
 {
     int total = 0;
     int length = values.length();
@@ -54,7 +58,7 @@ int mathfunc::sumInt(const QList<QVariant>& values)
 }
 
 
-double mathfunc::sumDouble(const QList<QVariant>& values)
+double sumDouble(const QList<QVariant>& values)
 {
     double total = 0;
     int length = values.length();
@@ -66,7 +70,7 @@ double mathfunc::sumDouble(const QList<QVariant>& values)
 }
 
 
-int mathfunc::countTrue(const QList<QVariant>& values)
+int countTrue(const QList<QVariant>& values)
 {
     int n = 0;
     int length = values.length();
@@ -80,7 +84,7 @@ int mathfunc::countTrue(const QList<QVariant>& values)
 }
 
 
-bool mathfunc::allTrue(const QList<QVariant>& values)
+bool allTrue(const QList<QVariant>& values)
 {
     int length = values.length();
     for (int i = 0; i < length; ++i) {
@@ -93,7 +97,7 @@ bool mathfunc::allTrue(const QList<QVariant>& values)
 }
 
 
-bool mathfunc::allFalseOrNull(const QList<QVariant>& values)
+bool allFalseOrNull(const QList<QVariant>& values)
 {
     int length = values.length();
     for (int i = 0; i < length; ++i) {
@@ -106,7 +110,7 @@ bool mathfunc::allFalseOrNull(const QList<QVariant>& values)
 }
 
 
-bool mathfunc::anyNull(const QList<QVariant>& values)
+bool anyNull(const QList<QVariant>& values)
 {
     int length = values.length();
     for (int i = 0; i < length; ++i) {
@@ -119,13 +123,13 @@ bool mathfunc::anyNull(const QList<QVariant>& values)
 }
 
 
-bool mathfunc::noneNull(const QList<QVariant>& values)
+bool noneNull(const QList<QVariant>& values)
 {
     return !anyNull(values);
 }
 
 
-int mathfunc::numNull(const QList<QVariant>& values)
+int numNull(const QList<QVariant>& values)
 {
     int n = 0;
     int length = values.length();
@@ -139,7 +143,7 @@ int mathfunc::numNull(const QList<QVariant>& values)
 }
 
 
-int mathfunc::numNotNull(const QList<QVariant>& values)
+int numNotNull(const QList<QVariant>& values)
 {
     int n = 0;
     int length = values.length();
@@ -153,34 +157,34 @@ int mathfunc::numNotNull(const QList<QVariant>& values)
 }
 
 
-bool mathfunc::eq(const QVariant& x, int test)
+bool eq(const QVariant& x, int test)
 {
     // SQL principle: NULL is not equal to anything
     return !x.isNull() && x.toInt() == test;
 }
 
 
-bool mathfunc::eq(const QVariant& x, bool test)
+bool eq(const QVariant& x, bool test)
 {
     return !x.isNull() && x.toBool() == test;
 }
 
 
-bool mathfunc::eqOrNull(const QVariant& x, int test)
+bool eqOrNull(const QVariant& x, int test)
 {
     return x.isNull() || x.toInt() != test;
 }
 
 
-bool mathfunc::eqOrNull(const QVariant& x, bool test)
+bool eqOrNull(const QVariant& x, bool test)
 {
     return x.isNull() || x.toBool() != test;
 }
 
 
 
-int mathfunc::countWhere(const QList<QVariant>& test_values,
-                         const QList<QVariant>& where_values)
+int countWhere(const QList<QVariant>& test_values,
+               const QList<QVariant>& where_values)
 {
     int n = 0;
     int length = test_values.length();
@@ -194,8 +198,8 @@ int mathfunc::countWhere(const QList<QVariant>& test_values,
 }
 
 
-int mathfunc::countWhereNot(const QList<QVariant>& test_values,
-                            const QList<QVariant>& where_not_values)
+int countWhereNot(const QList<QVariant>& test_values,
+                  const QList<QVariant>& where_not_values)
 {
     int n = 0;
     int length = test_values.length();
@@ -209,8 +213,11 @@ int mathfunc::countWhereNot(const QList<QVariant>& test_values,
 }
 
 
-QString mathfunc::percent(double numerator, double denominator, int dp)
+QString percent(double numerator, double denominator, int dp)
 {
     double pct = 100 * numerator / denominator;
     return QString("%1%").arg(pct, 0, 'f', dp);
 }
+
+
+}  // namespace mathfunc

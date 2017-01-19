@@ -81,406 +81,403 @@ INCLUDEPATH += "/home/rudolf/dev/qt_local_build/openssl_linux_build/openssl-1.0.
 RESOURCES += \
     camcops.qrc
 
-SOURCES += main.cpp\
-    lib/uifunc.cpp \
-    lib/filefunc.cpp \
-    tasklib/taskfactory.cpp \
-    tasklib/task.cpp \
-    tasks/phq9.cpp \
+SOURCES += main.cpp \
+    common/camcopsapp.cpp \
+    common/camcopsversion.cpp \
+    common/cssconst.cpp \
+    common/dbconstants.cpp \
+    common/globals.cpp \
+    common/platform.cpp \
+    common/random.cpp \
+    common/uiconstants.cpp \
+    common/varconst.cpp \
+    common/version.cpp \
+    crypto/cryptofunc.cpp \
+    crypto/secureqbytearray.cpp \
+    crypto/secureqstring.cpp \
     db/databaseobject.cpp \
     db/dbfunc.cpp \
+    db/dbnestabletransaction.cpp \
+    db/dbtransaction.cpp \
+    db/dumpsql.cpp \
     db/field.cpp \
-    lib/datetimefunc.cpp \
-    tasklib/inittasks.cpp \
-    menulib/menuheader.cpp \
-    menulib/menuitem.cpp \
-    menulib/menuwindow.cpp \
-    questionnairelib/namevaluepair.cpp \
+    db/fieldcreationplan.cpp \
     db/fieldref.cpp \
-    menu/mainmenu.cpp \
-    menu/testmenu.cpp \
-    common/camcopsapp.cpp \
-    menu/affectivemenu.cpp \
-    common/dbconstants.cpp \
+    dbobjects/blob.cpp \
+    dbobjects/extrastring.cpp \
+    dbobjects/patient.cpp \
+    dbobjects/patientsorter.cpp \
+    dbobjects/storedvar.cpp \
+    db/sqlargs.cpp \
+    db/sqlitepragmainfofield.cpp \
+    diagnosis/diagnosissortfiltermodel.cpp \
+    diagnosis/diagnosticcode.cpp \
+    diagnosis/diagnosticcodeset.cpp \
+    diagnosis/flatproxymodel.cpp \
+    diagnosis/icd10.cpp \
+    diagnosis/icd9cm.cpp \
+    dialogs/logbox.cpp \
+    dialogs/logmessagebox.cpp \
+    dialogs/nvpchoicedialog.cpp \
+    dialogs/pagepickerdialog.cpp \
+    dialogs/passwordchangedialog.cpp \
+    dialogs/passwordentrydialog.cpp \
+    dialogs/progressbox.cpp \
+    dialogs/scrollmessagebox.cpp \
+    dialogs/waitbox.cpp \
+    lib/convert.cpp \
+    lib/datetimefunc.cpp \
+    lib/debugfunc.cpp \
+    lib/filefunc.cpp \
+    lib/idpolicy.cpp \
+    lib/imagefunc.cpp \
+    lib/layoutdumper.cpp \
+    lib/mathfunc.cpp \
+    lib/networkmanager.cpp \
+    lib/numericfunc.cpp \
+    lib/sizehelpers.cpp \
+    lib/slowguiguard.cpp \
+    lib/slownonguifunctioncaller.cpp \
+    lib/stringfunc.cpp \
+    lib/threadworker.cpp \
+    lib/uifunc.cpp \
     menu/addictionmenu.cpp \
-    menu/anonymousmenu.cpp \
+    menu/affectivemenu.cpp \
     menu/alltasksmenu.cpp \
+    menu/anonymousmenu.cpp \
     menu/catatoniaepsemenu.cpp \
+    menu/choosepatientmenu.cpp \
     menu/clinicalmenu.cpp \
     menu/clinicalsetsmenu.cpp \
     menu/cognitivemenu.cpp \
     menu/executivemenu.cpp \
     menu/globalmenu.cpp \
     menu/helpmenu.cpp \
+    menulib/choosepatientmenuitem.cpp \
+    menulib/htmlinfowindow.cpp \
+    menulib/htmlmenuitem.cpp \
+    menulib/menuheader.cpp \
+    menulib/menuitem.cpp \
+    menulib/menuwindow.cpp \
+    menulib/taskmenuitem.cpp \
+    menu/mainmenu.cpp \
+    menu/patientsummarymenu.cpp \
     menu/personalitymenu.cpp \
     menu/psychosismenu.cpp \
     menu/researchmenu.cpp \
     menu/researchsetsmenu.cpp \
-    menu/settingsmenu.cpp \
-    menu/whiskermenu.cpp \
     menu/setmenucpftaffective1.cpp \
     menu/setmenudeakin1.cpp \
     menu/setmenufromlp.cpp \
     menu/setmenuobrien1.cpp \
-    common/platform.cpp \
+    menu/settingsmenu.cpp \
     menu/singletaskmenu.cpp \
-    menu/patientsummarymenu.cpp \
-    questionnairelib/questionnaireheader.cpp \
-    tasks/demoquestionnaire.cpp \
-    questionnairelib/questionnaire.cpp \
-    common/uiconstants.cpp \
-    questionnairelib/quelement.cpp \
-    questionnairelib/qupage.cpp \
-    questionnairelib/qutext.cpp \
-    widgets/verticalscrollarea.cpp \
-    widgets/labelwordwrapwide.cpp \
-    questionnairelib/qubutton.cpp \
-    menulib/htmlinfowindow.cpp \
-    questionnairelib/quhorizontalline.cpp \
-    questionnairelib/quspacer.cpp \
-    widgets/spacer.cpp \
-    questionnairelib/quheading.cpp \
-    questionnairelib/quimage.cpp \
-    tasklib/tasksorter.cpp \
-    widgets/openablewidget.cpp \
-    dbobjects/storedvar.cpp \
-    questionnairelib/quaudioplayer.cpp \
-    questionnairelib/qucountdown.cpp \
-    widgets/imagebutton.cpp \
-    questionnairelib/quboolean.cpp \
-    questionnairelib/qumcq.cpp \
-    common/random.cpp \
-    questionnairelib/questionnairefunc.cpp \
-    widgets/booleanwidget.cpp \
-    questionnairelib/qupickerinline.cpp \
+    menu/testmenu.cpp \
+    menu/whiskermenu.cpp \
+    menu/widgettestmenu.cpp \
+    qobjects/focuswatcher.cpp \
+    qobjects/keypresswatcher.cpp \
+    qobjects/shootabug.cpp \
+    qobjects/showwatcher.cpp \
+    qobjects/strictdoublevalidator.cpp \
+    qobjects/strictint64validator.cpp \
+    qobjects/strictintvalidator.cpp \
+    qobjects/strictuint64validator.cpp \
+    questionnairelib/commonoptions.cpp \
+    questionnairelib/mcqfunc.cpp \
+    questionnairelib/mcqgridsubtitle.cpp \
     questionnairelib/namevalueoptions.cpp \
+    questionnairelib/namevaluepair.cpp \
+    questionnairelib/pagepickeritem.cpp \
+    questionnairelib/quaudioplayer.cpp \
+    questionnairelib/quboolean.cpp \
+    questionnairelib/qubutton.cpp \
+    questionnairelib/qucanvas.cpp \
+    questionnairelib/qucountdown.cpp \
+    questionnairelib/qudatetime.cpp \
+    questionnairelib/qudiagnosticcode.cpp \
+    questionnairelib/quelement.cpp \
+    questionnairelib/questionnaire.cpp \
+    questionnairelib/questionnairefunc.cpp \
+    questionnairelib/questionnaireheader.cpp \
+    questionnairelib/questionwithonefield.cpp \
+    questionnairelib/questionwithtwofields.cpp \
+    questionnairelib/quflowcontainer.cpp \
+    questionnairelib/qugridcell.cpp \
+    questionnairelib/qugridcontainer.cpp \
+    questionnairelib/quheading.cpp \
+    questionnairelib/quhorizontalcontainer.cpp \
+    questionnairelib/quhorizontalline.cpp \
+    questionnairelib/quimage.cpp \
+    questionnairelib/qulineedit.cpp \
+    questionnairelib/qulineeditdouble.cpp \
+    questionnairelib/qulineeditinteger.cpp \
+    questionnairelib/qulineeditlonglong.cpp \
+    questionnairelib/qulineeditulonglong.cpp \
+    questionnairelib/qumcq.cpp \
+    questionnairelib/qumcqgrid.cpp \
+    questionnairelib/qumcqgriddouble.cpp \
+    questionnairelib/qumcqgriddoublesignaller.cpp \
+    questionnairelib/qumcqgridsignaller.cpp \
+    questionnairelib/qumcqgridsingleboolean.cpp \
+    questionnairelib/qumcqgridsinglebooleansignaller.cpp \
+    questionnairelib/qumultipleresponse.cpp \
+    questionnairelib/qupage.cpp \
+    questionnairelib/quphoto.cpp \
+    questionnairelib/qupickerinline.cpp \
     questionnairelib/qupickerpopup.cpp \
-    dialogs/nvpchoicedialog.cpp \
+    questionnairelib/quslider.cpp \
+    questionnairelib/quspacer.cpp \
+    questionnairelib/quspinboxdouble.cpp \
+    questionnairelib/quspinboxinteger.cpp \
+    questionnairelib/qutext.cpp \
+    questionnairelib/qutextedit.cpp \
     questionnairelib/quthermometer.cpp \
     questionnairelib/quthermometeritem.cpp \
-    questionnairelib/quslider.cpp \
-    widgets/tickslider.cpp \
-    common/version.cpp \
-    questionnairelib/qudatetime.cpp \
-    questionnairelib/quspinboxinteger.cpp \
-    questionnairelib/quspinboxdouble.cpp \
-    questionnairelib/qutextedit.cpp \
-    widgets/growingtextedit.cpp \
-    questionnairelib/qulineedit.cpp \
-    questionnairelib/qulineeditinteger.cpp \
-    questionnairelib/qulineeditdouble.cpp \
-    qobjects/strictdoublevalidator.cpp \
-    qobjects/strictintvalidator.cpp \
-    lib/numericfunc.cpp \
-    qobjects/focuswatcher.cpp \
-    questionnairelib/qugridcell.cpp \
-    questionnairelib/qumultipleresponse.cpp \
-    questionnairelib/qucanvas.cpp \
-    widgets/canvaswidget.cpp \
-    questionnairelib/quphoto.cpp \
-    questionnairelib/qudiagnosticcode.cpp \
-    widgets/camera.cpp \
-    widgets/diagnosticcodeselector.cpp \
-    widgets/aspectratiopixmaplabel.cpp \
-    diagnosis/diagnosticcode.cpp \
-    diagnosis/diagnosticcodeset.cpp \
-    diagnosis/icd10.cpp \
-    diagnosis/icd9cm.cpp \
-    lib/imagefunc.cpp \
-    diagnosis/flatproxymodel.cpp \
-    diagnosis/diagnosissortfiltermodel.cpp \
-    dialogs/progressbox.cpp \
-    lib/convert.cpp \
-    dbobjects/blob.cpp \
-    lib/debugfunc.cpp \
-    menulib/taskmenuitem.cpp \
-    menulib/htmlmenuitem.cpp \
+    questionnairelib/quverticalcontainer.cpp \
+    tasklib/inittasks.cpp \
+    tasklib/task.cpp \
+    tasklib/taskfactory.cpp \
     tasklib/taskproxy.cpp \
     tasklib/taskregistrar.cpp \
-    questionnairelib/qumcqgrid.cpp \
-    questionnairelib/mcqgridsubtitle.cpp \
-    qobjects/shootabug.cpp \
-    questionnairelib/qumcqgriddouble.cpp \
-    questionnairelib/questionwithtwofields.cpp \
-    questionnairelib/questionwithonefield.cpp \
-    questionnairelib/mcqfunc.cpp \
-    widgets/horizontalline.cpp \
-    widgets/verticalline.cpp \
-    questionnairelib/qumcqgridsingleboolean.cpp \
-    lib/stringfunc.cpp \
-    dialogs/waitbox.cpp \
-    lib/threadworker.cpp \
-    lib/slownonguifunctioncaller.cpp \
-    lib/slowguiguard.cpp \
-    dbobjects/patient.cpp \
-    db/sqlitepragmainfofield.cpp \
-    db/fieldcreationplan.cpp \
-    db/sqlargs.cpp \
-    lib/networkmanager.cpp \
-    dialogs/logbox.cpp \
-    common/varconst.cpp \
-    db/dbtransaction.cpp \
-    db/dbnestabletransaction.cpp \
-    questionnairelib/commonoptions.cpp \
-    crypto/cryptofunc.cpp \
-    crypto/secureqstring.cpp \
-    crypto/secureqbytearray.cpp \
-    dbobjects/extrastring.cpp \
-    dialogs/passwordentrydialog.cpp \
-    dialogs/passwordchangedialog.cpp \
-    common/camcopsversion.cpp \
-    dialogs/pagepickerdialog.cpp \
-    questionnairelib/pagepickeritem.cpp \
-    widgets/clickablelabelwordwrapwide.cpp \
-    lib/layoutdumper.cpp \
-    qobjects/showwatcher.cpp \
-    menu/widgettestmenu.cpp \
-    qobjects/keypresswatcher.cpp \
-    common/cssconst.cpp \
-    questionnairelib/qumcqgridsignaller.cpp \
-    questionnairelib/qumcqgriddoublesignaller.cpp \
-    questionnairelib/qumcqgridsinglebooleansignaller.cpp \
-    menu/choosepatientmenu.cpp \
-    menulib/choosepatientmenuitem.cpp \
-    qobjects/strictuint64validator.cpp \
-    questionnairelib/qulineeditulonglong.cpp \
-    questionnairelib/qulineeditlonglong.cpp \
-    qobjects/strictint64validator.cpp \
-    lib/idpolicy.cpp \
-    lib/mathfunc.cpp \
-    db/dumpsql.cpp \
-    dialogs/scrollmessagebox.cpp \
-    dialogs/logmessagebox.cpp \
-    dbobjects/patientsorter.cpp \
+    tasklib/tasksorter.cpp \
     tasks/ace3.cpp \
-    widgets/heightforwidthlistwidget.cpp \
-    widgets/flowlayouthfw.cpp \
-    widgets/boxlayouthfw.cpp \
-    widgets/qtlayouthelpers.cpp \
-    widgets/vboxlayouthfw.cpp \
-    widgets/hboxlayouthfw.cpp \
+    tasks/demoquestionnaire.cpp \
+    tasks/phq9.cpp \
+    widgets/aspectratiopixmaplabel.cpp \
     widgets/basewidget.cpp \
+    widgets/booleanwidget.cpp \
+    widgets/boxlayouthfw.cpp \
+    widgets/camera.cpp \
+    widgets/canvaswidget.cpp \
     widgets/clickablelabelnowrap.cpp \
-    questionnairelib/quflowcontainer.cpp \
-    questionnairelib/qugridcontainer.cpp \
-    questionnairelib/quverticalcontainer.cpp \
-    questionnairelib/quhorizontalcontainer.cpp \
-    lib/sizehelpers.cpp \
+    widgets/clickablelabelwordwrapwide.cpp \
+    widgets/diagnosticcodeselector.cpp \
+    widgets/flowlayouthfw.cpp \
     widgets/gridlayouthfw.cpp \
+    widgets/growingtextedit.cpp \
+    widgets/hboxlayouthfw.cpp \
+    widgets/heightforwidthlistwidget.cpp \
+    widgets/horizontalline.cpp \
+    widgets/imagebutton.cpp \
+    widgets/labelwordwrapwide.cpp \
     widgets/margins.cpp \
-    common/globals.cpp
+    widgets/openablewidget.cpp \
+    widgets/qtlayouthelpers.cpp \
+    widgets/spacer.cpp \
+    widgets/tickslider.cpp \
+    widgets/vboxlayouthfw.cpp \
+    widgets/verticalline.cpp \
+    widgets/verticalscrollarea.cpp
 
 HEADERS  += \
-    lib/uifunc.h \
-    lib/filefunc.h \
-    tasklib/taskfactory.h \
-    tasklib/task.h \
-    tasks/phq9.h \
+    common/aliases_camcops.h \
+    common/aliases_qt.h \
+    common/camcopsapp.h \
+    common/camcopsversion.h \
+    common/cssconst.h \
+    common/dbconstants.h \
+    common/globals.h \
+    common/gui_defines.h \
+    common/layouts.h \
+    common/platform.h \
+    common/random.h \
+    common/uiconstants.h \
+    common/varconst.h \
+    common/version.h \
+    crypto/cryptofunc.h \
+    crypto/secureqbytearray.h \
+    crypto/secureqstring.h \
+    crypto/zallocator.h \
     db/databaseobject.h \
     db/dbfunc.h \
+    db/dbnestabletransaction.h \
+    db/dbtransaction.h \
+    db/dumpsql.h \
+    db/fieldcreationplan.h \
     db/field.h \
-    lib/datetimefunc.h \
-    tasklib/inittasks.h \
-    menulib/menuheader.h \
-    menulib/menuitem.h \
-    menulib/menuwindow.h \
-    questionnairelib/namevaluepair.h \
     db/fieldref.h \
-    menu/testmenu.h \
-    menu/mainmenu.h \
-    common/camcopsapp.h \
-    common/dbconstants.h \
-    common/uiconstants.h \
-    menulib/menuproxy.h \
-    menu/affectivemenu.h \
+    dbobjects/blob.h \
+    dbobjects/extrastring.h \
+    dbobjects/patient.h \
+    dbobjects/patientsorter.h \
+    dbobjects/storedvar.h \
+    db/sqlargs.h \
+    db/sqlitepragmainfofield.h \
+    diagnosis/diagnosissortfiltermodel.h \
+    diagnosis/diagnosticcode.h \
+    diagnosis/diagnosticcodeset.h \
+    diagnosis/flatproxymodel.h \
+    diagnosis/icd10.h \
+    diagnosis/icd9cm.h \
+    dialogs/logbox.h \
+    dialogs/logmessagebox.h \
+    dialogs/nvpchoicedialog.h \
+    dialogs/pagepickerdialog.h \
+    dialogs/passwordchangedialog.h \
+    dialogs/passwordentrydialog.h \
+    dialogs/progressbox.h \
+    dialogs/scrollmessagebox.h \
+    dialogs/waitbox.h \
+    lib/cloneable.h \
+    lib/convert.h \
+    lib/datetimefunc.h \
+    lib/debugfunc.h \
+    lib/filefunc.h \
+    lib/idpolicy.h \
+    lib/imagefunc.h \
+    lib/layoutdumper.h \
+    lib/mathfunc.h \
+    lib/networkmanager.h \
+    lib/numericfunc.h \
+    lib/sizehelpers.h \
+    lib/slowguiguard.h \
+    lib/slownonguifunctioncaller.h \
+    lib/stringfunc.h \
+    lib/threadworker.h \
+    lib/uifunc.h \
     menu/addictionmenu.h \
-    menu/anonymousmenu.h \
+    menu/affectivemenu.h \
     menu/alltasksmenu.h \
+    menu/anonymousmenu.h \
     menu/catatoniaepsemenu.h \
+    menu/choosepatientmenu.h \
     menu/clinicalmenu.h \
     menu/clinicalsetsmenu.h \
     menu/cognitivemenu.h \
     menu/executivemenu.h \
     menu/globalmenu.h \
     menu/helpmenu.h \
+    menulib/choosepatientmenuitem.h \
+    menulib/htmlinfowindow.h \
+    menulib/htmlmenuitem.h \
+    menulib/menuheader.h \
+    menulib/menuitem.h \
+    menulib/menuproxy.h \
+    menulib/menuwindow.h \
+    menulib/taskmenuitem.h \
+    menu/mainmenu.h \
+    menu/patientsummarymenu.h \
     menu/personalitymenu.h \
     menu/psychosismenu.h \
     menu/researchmenu.h \
     menu/researchsetsmenu.h \
-    menu/settingsmenu.h \
-    menu/whiskermenu.h \
     menu/setmenucpftaffective1.h \
     menu/setmenudeakin1.h \
     menu/setmenufromlp.h \
     menu/setmenuobrien1.h \
-    common/platform.h \
+    menu/settingsmenu.h \
     menu/singletaskmenu.h \
-    menu/patientsummarymenu.h \
-    questionnairelib/questionnaireheader.h \
-    tasks/demoquestionnaire.h \
-    questionnairelib/questionnaire.h \
-    questionnairelib/quelement.h \
-    questionnairelib/qutext.h \
-    questionnairelib/qupage.h \
-    widgets/verticalscrollarea.h \
-    widgets/labelwordwrapwide.h \
-    questionnairelib/qubutton.h \
-    menulib/htmlinfowindow.h \
-    questionnairelib/quhorizontalline.h \
-    questionnairelib/quspacer.h \
-    widgets/spacer.h \
-    questionnairelib/quheading.h \
-    questionnairelib/quimage.h \
-    tasklib/tasksorter.h \
-    lib/cloneable.h \
-    widgets/openablewidget.h \
-    dbobjects/storedvar.h \
-    questionnairelib/quaudioplayer.h \
-    questionnairelib/qucountdown.h \
-    widgets/imagebutton.h \
-    questionnairelib/quboolean.h \
-    questionnairelib/qumcq.h \
-    common/random.h \
-    questionnairelib/questionnairefunc.h \
-    widgets/booleanwidget.h \
-    questionnairelib/qupickerinline.h \
+    menu/testmenu.h \
+    menu/whiskermenu.h \
+    menu/widgettestmenu.h \
+    qobjects/focuswatcher.h \
+    qobjects/keypresswatcher.h \
+    qobjects/shootabug.h \
+    qobjects/showwatcher.h \
+    qobjects/strictdoublevalidator.h \
+    qobjects/strictint64validator.h \
+    qobjects/strictintvalidator.h \
+    qobjects/strictuint64validator.h \
+    questionnairelib/commonoptions.h \
+    questionnairelib/mcqfunc.h \
+    questionnairelib/mcqgridsubtitle.h \
     questionnairelib/namevalueoptions.h \
-    questionnairelib/qupickerpopup.h \
-    dialogs/nvpchoicedialog.h \
-    questionnairelib/quthermometer.h \
-    questionnairelib/quthermometeritem.h \
-    questionnairelib/quslider.h \
-    widgets/tickslider.h \
-    common/version.h \
+    questionnairelib/namevaluepair.h \
+    questionnairelib/pagepickeritem.h \
+    questionnairelib/quaudioplayer.h \
+    questionnairelib/quboolean.h \
+    questionnairelib/qubutton.h \
+    questionnairelib/qucanvas.h \
+    questionnairelib/qucountdown.h \
     questionnairelib/qudatetime.h \
-    questionnairelib/quspinboxinteger.h \
-    questionnairelib/quspinboxdouble.h \
-    questionnairelib/qutextedit.h \
-    widgets/growingtextedit.h \
+    questionnairelib/qudiagnosticcode.h \
+    questionnairelib/quelement.h \
+    questionnairelib/questionnairefunc.h \
+    questionnairelib/questionnaire.h \
+    questionnairelib/questionnaireheader.h \
+    questionnairelib/questionwithonefield.h \
+    questionnairelib/questionwithtwofields.h \
+    questionnairelib/quflowcontainer.h \
+    questionnairelib/qugridcell.h \
+    questionnairelib/qugridcontainer.h \
+    questionnairelib/quheading.h \
+    questionnairelib/quhorizontalcontainer.h \
+    questionnairelib/quhorizontalline.h \
+    questionnairelib/quimage.h \
+    questionnairelib/qulineeditdouble.h \
     questionnairelib/qulineedit.h \
     questionnairelib/qulineeditinteger.h \
-    questionnairelib/qulineeditdouble.h \
-    qobjects/strictdoublevalidator.h \
-    qobjects/strictintvalidator.h \
-    lib/numericfunc.h \
-    qobjects/focuswatcher.h \
-    questionnairelib/qugridcell.h \
+    questionnairelib/qulineeditlonglong.h \
+    questionnairelib/qulineeditulonglong.h \
+    questionnairelib/qumcqgriddouble.h \
+    questionnairelib/qumcqgriddoublesignaller.h \
+    questionnairelib/qumcqgrid.h \
+    questionnairelib/qumcqgridsignaller.h \
+    questionnairelib/qumcqgridsingleboolean.h \
+    questionnairelib/qumcqgridsinglebooleansignaller.h \
+    questionnairelib/qumcq.h \
     questionnairelib/qumultipleresponse.h \
-    questionnairelib/qucanvas.h \
-    widgets/canvaswidget.h \
+    questionnairelib/qupage.h \
     questionnairelib/quphoto.h \
-    questionnairelib/qudiagnosticcode.h \
-    widgets/camera.h \
-    widgets/diagnosticcodeselector.h \
-    widgets/aspectratiopixmaplabel.h \
-    diagnosis/diagnosticcode.h \
-    diagnosis/diagnosticcodeset.h \
-    diagnosis/icd10.h \
-    diagnosis/icd9cm.h \
-    lib/imagefunc.h \
-    diagnosis/flatproxymodel.h \
-    diagnosis/diagnosissortfiltermodel.h \
-    dialogs/progressbox.h \
-    lib/convert.h \
-    dbobjects/blob.h \
-    lib/debugfunc.h \
-    menulib/taskmenuitem.h \
-    menulib/htmlmenuitem.h \
+    questionnairelib/qupickerinline.h \
+    questionnairelib/qupickerpopup.h \
+    questionnairelib/quslider.h \
+    questionnairelib/quspacer.h \
+    questionnairelib/quspinboxdouble.h \
+    questionnairelib/quspinboxinteger.h \
+    questionnairelib/qutextedit.h \
+    questionnairelib/qutext.h \
+    questionnairelib/quthermometer.h \
+    questionnairelib/quthermometeritem.h \
+    questionnairelib/quverticalcontainer.h \
+    tasklib/inittasks.h \
+    tasklib/taskfactory.h \
+    tasklib/task.h \
     tasklib/taskproxy.h \
     tasklib/taskregistrar.h \
-    questionnairelib/qumcqgrid.h \
-    questionnairelib/mcqgridsubtitle.h \
-    qobjects/shootabug.h \
-    questionnairelib/qumcqgriddouble.h \
-    questionnairelib/questionwithtwofields.h \
-    questionnairelib/questionwithonefield.h \
-    questionnairelib/mcqfunc.h \
-    widgets/horizontalline.h \
-    widgets/verticalline.h \
-    questionnairelib/qumcqgridsingleboolean.h \
-    lib/stringfunc.h \
-    dialogs/waitbox.h \
-    lib/threadworker.h \
-    lib/slownonguifunctioncaller.h \
-    lib/slowguiguard.h \
-    dbobjects/patient.h \
-    db/sqlitepragmainfofield.h \
-    db/fieldcreationplan.h \
-    db/sqlargs.h \
-    lib/networkmanager.h \
-    dialogs/logbox.h \
-    common/varconst.h \
-    db/dbtransaction.h \
-    db/dbnestabletransaction.h \
-    questionnairelib/commonoptions.h \
-    crypto/cryptofunc.h \
-    crypto/secureqstring.h \
-    crypto/secureqbytearray.h \
-    crypto/zallocator.h \
-    dbobjects/extrastring.h \
-    dialogs/passwordentrydialog.h \
-    dialogs/passwordchangedialog.h \
-    common/camcopsversion.h \
-    dialogs/pagepickerdialog.h \
-    questionnairelib/pagepickeritem.h \
-    widgets/clickablelabelwordwrapwide.h \
-    lib/layoutdumper.h \
-    qobjects/showwatcher.h \
-    menu/widgettestmenu.h \
-    qobjects/keypresswatcher.h \
-    common/cssconst.h \
-    questionnairelib/qumcqgridsignaller.h \
-    questionnairelib/qumcqgriddoublesignaller.h \
-    questionnairelib/qumcqgridsinglebooleansignaller.h \
-    menu/choosepatientmenu.h \
-    menulib/choosepatientmenuitem.h \
-    qobjects/strictuint64validator.h \
-    questionnairelib/qulineeditulonglong.h \
-    questionnairelib/qulineeditlonglong.h \
-    qobjects/strictint64validator.h \
-    lib/idpolicy.h \
-    lib/mathfunc.h \
-    common/aliases_qt.h \
-    common/aliases_camcops.h \
-    db/dumpsql.h \
-    dialogs/scrollmessagebox.h \
-    dialogs/logmessagebox.h \
-    dbobjects/patientsorter.h \
+    tasklib/tasksorter.h \
     tasks/ace3.h \
-    widgets/heightforwidthlistwidget.h \
-    widgets/flowlayouthfw.h \
-    widgets/boxlayouthfw.h \
-    widgets/qtlayouthelpers.h \
-    widgets/vboxlayouthfw.h \
-    widgets/hboxlayouthfw.h \
+    tasks/demoquestionnaire.h \
+    tasks/phq9.h \
+    widgets/aspectratiopixmaplabel.h \
     widgets/basewidget.h \
+    widgets/booleanwidget.h \
+    widgets/boxlayouthfw.h \
+    widgets/camera.h \
+    widgets/canvaswidget.h \
     widgets/clickablelabelnowrap.h \
-    common/gui_defines.h \
-    questionnairelib/quflowcontainer.h \
-    questionnairelib/quhorizontalcontainer.h \
-    questionnairelib/quverticalcontainer.h \
-    questionnairelib/qugridcontainer.h \
-    common/layouts.h \
-    lib/sizehelpers.h \
+    widgets/clickablelabelwordwrapwide.h \
+    widgets/diagnosticcodeselector.h \
+    widgets/flowlayouthfw.h \
     widgets/gridlayouthfw.h \
+    widgets/growingtextedit.h \
+    widgets/hboxlayouthfw.h \
+    widgets/heightforwidthlistwidget.h \
+    widgets/horizontalline.h \
+    widgets/imagebutton.h \
+    widgets/labelwordwrapwide.h \
     widgets/margins.h \
-    common/globals.h
+    widgets/openablewidget.h \
+    widgets/qtlayouthelpers.h \
+    widgets/spacer.h \
+    widgets/tickslider.h \
+    widgets/vboxlayouthfw.h \
+    widgets/verticalline.h \
+    widgets/verticalscrollarea.h
+
 
 DISTFILES += \
-    notes/qt_notes.txt \
-    stylesheets/camcops.css \
-    tools/build_qt.py \
     android/AndroidManifest.xml \
-    android/gradle/wrapper/gradle-wrapper.jar \
-    android/gradlew \
-    android/res/values/libs.xml \
     android/build.gradle \
-    android/gradle/wrapper/gradle-wrapper.properties \
+    android/gradlew \
     android/gradlew.bat \
-    stylesheets/camcops_menu.css \
-    stylesheets/camcops_questionnaire.css \
+    android/gradle/wrapper/gradle-wrapper.jar \
+    android/gradle/wrapper/gradle-wrapper.properties \
     android/res/drawable-ldpi/icon.png \
+    android/res/values/libs.xml \
     images/dt/dt_sel_0.png \
+    images/dt/dt_sel_10.png \
     images/dt/dt_sel_1.png \
     images/dt/dt_sel_2.png \
     images/dt/dt_sel_3.png \
@@ -490,8 +487,8 @@ DISTFILES += \
     images/dt/dt_sel_7.png \
     images/dt/dt_sel_8.png \
     images/dt/dt_sel_9.png \
-    images/dt/dt_sel_10.png \
     images/dt/dt_unsel_0.png \
+    images/dt/dt_unsel_10.png \
     images/dt/dt_unsel_1.png \
     images/dt/dt_unsel_2.png \
     images/dt/dt_unsel_3.png \
@@ -501,12 +498,17 @@ DISTFILES += \
     images/dt/dt_unsel_7.png \
     images/dt/dt_unsel_8.png \
     images/dt/dt_unsel_9.png \
-    images/dt/dt_unsel_10.png \
-    stylesheets/camera.css \
     LICENSE.txt \
     notes/coding_conventions.txt \
+    notes/known_problems.txt \
+    notes/qt_notes.txt \
     notes/to_do.txt \
-    notes/known_problems.txt
+    stylesheets/camcops.css \
+    stylesheets/camcops_menu.css \
+    stylesheets/camcops_questionnaire.css \
+    stylesheets/camera.css \
+    tools/build_qt.py
+
 
 # =============================================================================
 # Android-specific options

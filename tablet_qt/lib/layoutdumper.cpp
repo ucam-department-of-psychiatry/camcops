@@ -1,4 +1,6 @@
 /*
+    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+
     This file is part of CamCOPS.
 
     CamCOPS is free software: you can redistribute it and/or modify
@@ -29,12 +31,12 @@
 #include "lib/convert.h"
 #include "lib/uifunc.h"
 
+namespace layoutdumper {
+
 const QString NULL_WIDGET_STRING("<null_widget>");
 
-using namespace layoutdumper;
 
-
-QString layoutdumper::toString(const QSizePolicy::Policy& policy)
+QString toString(const QSizePolicy::Policy& policy)
 {
     switch (policy) {
     case QSizePolicy::Fixed: return "Fixed";
@@ -49,7 +51,7 @@ QString layoutdumper::toString(const QSizePolicy::Policy& policy)
 }
 
 
-QString layoutdumper::toString(const QSizePolicy& policy)
+QString toString(const QSizePolicy& policy)
 {
     QString result = QString("(%1, %2) [hasHeightForWidth=%3]")
             .arg(toString(policy.horizontalPolicy()))
@@ -59,7 +61,7 @@ QString layoutdumper::toString(const QSizePolicy& policy)
 }
 
 
-QString layoutdumper::toString(QLayout::SizeConstraint constraint)
+QString toString(QLayout::SizeConstraint constraint)
 {
     switch (constraint) {
     case QLayout::SetDefaultConstraint: return "SetDefaultConstraint";
@@ -73,7 +75,7 @@ QString layoutdumper::toString(QLayout::SizeConstraint constraint)
 }
 
 
-QString layoutdumper::toString(const Qt::Alignment& alignment)
+QString toString(const Qt::Alignment& alignment)
 {
     QStringList elements;
 
@@ -116,19 +118,19 @@ QString layoutdumper::toString(const Qt::Alignment& alignment)
 }
 
 
-QString layoutdumper::toString(const void* pointer)
+QString toString(const void* pointer)
 {
     return convert::prettyPointer(pointer);
 }
 
 
-QString layoutdumper::toString(bool boolean)
+QString toString(bool boolean)
 {
     return boolean ? "true" : "false";
 }
 
 
-QString layoutdumper::getWidgetDescriptor(const QWidget* w)
+QString getWidgetDescriptor(const QWidget* w)
 {
     if (!w) {
         return NULL_WIDGET_STRING;
@@ -140,8 +142,7 @@ QString layoutdumper::getWidgetDescriptor(const QWidget* w)
 }
 
 
-QString layoutdumper::getWidgetInfo(const QWidget* w,
-                                    const DumperConfig& config)
+QString getWidgetInfo(const QWidget* w, const DumperConfig& config)
 {
     if (!w) {
         return NULL_WIDGET_STRING;
@@ -215,7 +216,7 @@ QString layoutdumper::getWidgetInfo(const QWidget* w,
 }
 
 
-QString layoutdumper::getWidgetAttributeInfo(const QWidget* w)
+QString getWidgetAttributeInfo(const QWidget* w)
 {
     // http://doc.qt.io/qt-5/qt.html#WidgetAttribute-enum
     if (!w) {
@@ -238,7 +239,7 @@ QString layoutdumper::getWidgetAttributeInfo(const QWidget* w)
 }
 
 
-QString layoutdumper::getDynamicProperties(const QWidget* w)
+QString getDynamicProperties(const QWidget* w)
 {
     if (!w) {
         return NULL_WIDGET_STRING;
@@ -255,7 +256,7 @@ QString layoutdumper::getDynamicProperties(const QWidget* w)
 }
 
 
-QString layoutdumper::getLayoutInfo(const QLayout* layout)
+QString getLayoutInfo(const QLayout* layout)
 {
     if (!layout) {
         return "null_layout";
@@ -308,7 +309,7 @@ QString layoutdumper::getLayoutInfo(const QLayout* layout)
 }
 
 
-QString layoutdumper::getSpacerInfo(QSpacerItem* si)
+QString getSpacerInfo(QSpacerItem* si)
 {
     const QRect& geom = si->geometry();
     QSize si_hint = si->sizeHint();
@@ -334,17 +335,16 @@ QString layoutdumper::getSpacerInfo(QSpacerItem* si)
 }
 
 
-QString layoutdumper::paddingSpaces(int level, int spaces_per_level)
+QString paddingSpaces(int level, int spaces_per_level)
 {
     return QString(level * spaces_per_level, ' ');
 }
 
 
-QList<const QWidget*> layoutdumper::dumpLayoutAndChildren(
-        QDebug& os,
-        const QLayout* layout,
-        int level,
-        const DumperConfig& config)
+QList<const QWidget*> dumpLayoutAndChildren(QDebug& os,
+                                            const QLayout* layout,
+                                            int level,
+                                            const DumperConfig& config)
 {
     QString padding = paddingSpaces(level, config.spaces_per_level);
     QString next_padding = paddingSpaces(level + 1, config.spaces_per_level);
@@ -388,12 +388,11 @@ QList<const QWidget*> layoutdumper::dumpLayoutAndChildren(
 }
 
 
-QList<const QWidget*> layoutdumper::dumpWidgetAndChildren(
-        QDebug& os,
-        const QWidget* w,
-        int level,
-        const QString& alignment,
-        const DumperConfig& config)
+QList<const QWidget*> dumpWidgetAndChildren(QDebug& os,
+                                            const QWidget* w,
+                                            int level,
+                                            const QString& alignment,
+                                            const DumperConfig& config)
 {
     QString padding = paddingSpaces(level, config.spaces_per_level);
 
@@ -441,10 +440,12 @@ QList<const QWidget*> layoutdumper::dumpWidgetAndChildren(
 }
 
 
-void layoutdumper::dumpWidgetHierarchy(const QWidget* w,
-                                       const DumperConfig& config)
+void dumpWidgetHierarchy(const QWidget* w, const DumperConfig& config)
 {
     QDebug os = qDebug().noquote().nospace();
     os << "WIDGET HIERARCHY:\n";
     dumpWidgetAndChildren(os, w, 0, "", config);
 }
+
+
+}  // namespace layoutdumper

@@ -1,4 +1,6 @@
 /*
+    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+
     This file is part of CamCOPS.
 
     CamCOPS is free software: you can redistribute it and/or modify
@@ -15,6 +17,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// #define OFFER_LAYOUT_DEBUG_BUTTON
+
 #include "diagnosticcodeselector.h"
 #include <functional>
 #include <QApplication>
@@ -28,12 +32,15 @@
 #include <QStackedWidget>
 #include <QStandardItemModel>
 #include <QTreeView>
+#include <QVBoxLayout>
 #include "common/cssconst.h"
 #include "common/layouts.h"
 #include "common/uiconstants.h"
 #include "diagnosis/diagnosticcodeset.h"
 #include "diagnosis/diagnosissortfiltermodel.h"
 #include "diagnosis/flatproxymodel.h"
+#include "lib/layoutdumper.h"
+#include "widgets/basewidget.h"
 #include "widgets/horizontalline.h"
 #include "widgets/imagebutton.h"
 #include "widgets/labelwordwrapwide.h"
@@ -79,7 +86,7 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     m_codeset(codeset),
     m_treeview(nullptr),
     m_flatview(nullptr),
-    m_lineedit(nullptr),
+    m_search_lineedit(nullptr),
     m_heading_tree(nullptr),
     m_heading_search(nullptr),
     m_search_button(nullptr),
@@ -128,6 +135,12 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     header_toprowlayout->addStretch();
     header_toprowlayout->addWidget(title_label, 0, text_align);  // default alignment fills whole cell; this is better
     header_toprowlayout->addStretch();
+#ifdef OFFER_LAYOUT_DEBUG_BUTTON
+    QPushButton* button_debug = new QPushButton("Dump layout");
+    connect(button_debug, &QAbstractButton::clicked,
+            this, &DiagnosticCodeSelector::debugLayout);
+    header_toprowlayout->addWidget(button_debug, 0, text_align);
+#endif
     header_toprowlayout->addWidget(m_search_button, 0, button_align);
     header_toprowlayout->addWidget(m_tree_button, 0, button_align);
 
@@ -143,6 +156,8 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     VBoxLayout* header_mainlayout = new VBoxLayout();
     header_mainlayout->addLayout(header_toprowlayout);
     header_mainlayout->addWidget(horizline);
+    BaseWidget* header = new BaseWidget();
+    header->setLayout(header_mainlayout);
 
     // ========================================================================
     // Selection model
@@ -162,6 +177,7 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     m_heading_tree->setObjectName(cssconst::HEADING);
 
     m_treeview = new QTreeView();
+    m_treeview->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     m_treeview->setModel(m_codeset.data());
     m_treeview->setSelectionModel(m_selection_model.data());
     if (m_treeview->header()) {
@@ -178,8 +194,8 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     // Search box
     // ========================================================================
 
-    m_lineedit = new QLineEdit();
-    connect(m_lineedit, &QLineEdit::textEdited,
+    m_search_lineedit = new QLineEdit();
+    connect(m_search_lineedit, &QLineEdit::textEdited,
             this, &DiagnosticCodeSelector::searchTextEdited);
 
     // ========================================================================
@@ -205,11 +221,11 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
 
     m_proxy_selection_model = QSharedPointer<QItemSelectionModel>(
                 new QItemSelectionModel(m_diag_filter_model.data()));
-   connect(m_proxy_selection_model.data(), &QItemSelectionModel::selectionChanged,
-           this, &DiagnosticCodeSelector::proxySelectionChanged);
-   QModelIndex proxy_selected = proxyFromSource(selected);
-   m_proxy_selection_model->select(proxy_selected,
-                                   QItemSelectionModel::ClearAndSelect);
+    connect(m_proxy_selection_model.data(), &QItemSelectionModel::selectionChanged,
+            this, &DiagnosticCodeSelector::proxySelectionChanged);
+    QModelIndex proxy_selected = proxyFromSource(selected);
+    m_proxy_selection_model->select(proxy_selected,
+                                    QItemSelectionModel::ClearAndSelect);
 
     // ========================================================================
     // List view, for search
@@ -236,25 +252,28 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     // Final assembly (with "this" as main widget)
     // ========================================================================
 
-    VBoxLayout* mainlayout = new VBoxLayout();
-    mainlayout->addLayout(header_mainlayout);
+    QVBoxLayout* mainlayout = new QVBoxLayout();  // not HFW
+    mainlayout->addWidget(header);
     mainlayout->addWidget(m_heading_tree);
     mainlayout->addWidget(m_treeview);
     mainlayout->addWidget(m_heading_search);
-    mainlayout->addWidget(m_lineedit);
+    mainlayout->addWidget(m_search_lineedit);
     mainlayout->addWidget(m_flatview);
+    // mainlayout->addStretch();
 
     QWidget* topwidget = new QWidget();
+    topwidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     topwidget->setObjectName(cssconst::MENU_WINDOW_BACKGROUND);
     topwidget->setLayout(mainlayout);
 
-    VBoxLayout* toplayout = new VBoxLayout();
+    QVBoxLayout* toplayout = new QVBoxLayout();  // not HFW
     toplayout->setContentsMargins(uiconst::NO_MARGINS);
     toplayout->addWidget(topwidget);
 
     setLayout(toplayout);
 
-    setSearchAppearance();  // only AFTER widgets added to layout (or standalone windows created)
+    // Only AFTER widgets added to layout (or standalone windows are created):
+    setSearchAppearance();
 }
 
 
@@ -338,6 +357,7 @@ void DiagnosticCodeSelector::setSearchAppearance()
     m_heading_tree->setVisible(!m_searching);
     m_treeview->setVisible(!m_searching);
 
+    m_search_lineedit->setVisible(m_searching);
     m_flatview->setVisible(m_searching);
     m_flatview->setVisible(m_searching);
     m_heading_search->setVisible(m_searching);
@@ -363,4 +383,10 @@ QModelIndex DiagnosticCodeSelector::proxyFromSource(const QModelIndex& index)
 {
     QModelIndex intermediate = m_flat_proxy_model->mapFromSource(index);
     return m_diag_filter_model->mapFromSource(intermediate);
+}
+
+
+void DiagnosticCodeSelector::debugLayout()
+{
+    layoutdumper::dumpWidgetHierarchy(this);
 }

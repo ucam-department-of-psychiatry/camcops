@@ -1,4 +1,6 @@
 /*
+    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+
     This file is part of CamCOPS.
 
     CamCOPS is free software: you can redistribute it and/or modify
@@ -19,16 +21,19 @@
 #include <QTimeZone>
 #include <QVariant>
 
-const QString datetime::TIMESTAMP_FORMAT("yyyy-MM-dd HH:mm:ss.zzz");  // 2000-12-31 23:59:59.999
-const QString datetime::SHORT_DATETIME_FORMAT("yyyy-MM-dd HH:mm");  // 2000-12-31 23:59
-const QString datetime::SHORT_DATE_FORMAT("yyyy-MM-dd");  // 2000-12-31
-const QString datetime::TEXT_DATE_FORMAT("dd MMM yyyy");  // 31 Dec 2000
-const QString datetime::UNKNOWN("?");
+namespace datetime {
+
+
+const QString TIMESTAMP_FORMAT("yyyy-MM-dd HH:mm:ss.zzz");  // 2000-12-31 23:59:59.999
+const QString SHORT_DATETIME_FORMAT("yyyy-MM-dd HH:mm");  // 2000-12-31 23:59
+const QString SHORT_DATE_FORMAT("yyyy-MM-dd");  // 2000-12-31
+const QString TEXT_DATE_FORMAT("dd MMM yyyy");  // 31 Dec 2000
+const QString UNKNOWN("?");
 
 
 // http://stackoverflow.com/questions/21976264/qt-isodate-formatted-date-time-including-timezone
 
-QString datetime::datetimeToIsoMs(const QDateTime& dt, bool use_z_timezone)
+QString datetimeToIsoMs(const QDateTime& dt, bool use_z_timezone)
 {
     // An ISO-8601 format preserving millisecond accuracy and timezone.
     // Equivalent in moment.js: thing.format("YYYY-MM-DDTHH:mm:ss.SSSZ")
@@ -63,62 +68,62 @@ QString datetime::datetimeToIsoMs(const QDateTime& dt, bool use_z_timezone)
 }
 
 
-QString datetime::datetimeToIsoMsUtc(const QDateTime& dt, bool use_z_timezone)
+QString datetimeToIsoMsUtc(const QDateTime& dt, bool use_z_timezone)
 {
     QDateTime utc_dt = dt.toTimeSpec(Qt::UTC);
     return datetimeToIsoMs(utc_dt, use_z_timezone);
 }
 
 
-QDateTime datetime::isoToDateTime(const QString& iso)
+QDateTime isoToDateTime(const QString& iso)
 {
     return QDateTime::fromString(iso, Qt::ISODate);
 }
 
 
-QDateTime datetime::now()
+QDateTime now()
 {
     return QDateTime::currentDateTime();
 }
 
 
-QDate datetime::nowDate()
+QDate nowDate()
 {
     return QDate::currentDate();
 }
 
 
-QString datetime::nowTimestamp()
+QString nowTimestamp()
 {
     return timestampDateTime(now());
 }
 
 
-QString datetime::timestampDateTime(const QDateTime& dt)
+QString timestampDateTime(const QDateTime& dt)
 {
     return dt.toString(TIMESTAMP_FORMAT);
 }
 
 
-QString datetime::shortDateTime(const QDateTime& dt)
+QString shortDateTime(const QDateTime& dt)
 {
     return dt.toString(SHORT_DATETIME_FORMAT);
 }
 
 
-QString datetime::shortDate(const QDate& d)
+QString shortDate(const QDate& d)
 {
     return d.toString(SHORT_DATE_FORMAT);
 }
 
 
-QString datetime::textDate(const QDate& d)
+QString textDate(const QDate& d)
 {
     return d.toString(TEXT_DATE_FORMAT);
 }
 
 
-QString datetime::textDate(const QVariant& date)
+QString textDate(const QVariant& date)
 {
     if (date.isNull()) {
         return UNKNOWN;
@@ -127,7 +132,7 @@ QString datetime::textDate(const QVariant& date)
 }
 
 
-int datetime::ageYearsFrom(const QDate& from, const QDate& to)
+int ageYearsFrom(const QDate& from, const QDate& to)
 {
     // Unhelpful:
     // https://forum.qt.io/topic/27906/difference-in-days-months-and-years-between-two-dates/9
@@ -150,7 +155,7 @@ int datetime::ageYearsFrom(const QDate& from, const QDate& to)
 }
 
 
-int datetime::ageYears(const QVariant& dob, int default_years)
+int ageYears(const QVariant& dob, int default_years)
 {
     if (dob.isNull()) {
         return default_years;
@@ -159,8 +164,11 @@ int datetime::ageYears(const QVariant& dob, int default_years)
 }
 
 
-double datetime::doubleSecondsFrom(const QDateTime& from, const QDateTime& to)
+double doubleSecondsFrom(const QDateTime& from, const QDateTime& to)
 {
     qint64 ms = from.msecsTo(to);
     return static_cast<double>(ms) / 1000;
 }
+
+
+} // namespace datetime

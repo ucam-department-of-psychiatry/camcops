@@ -1,4 +1,6 @@
 /*
+    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+
     This file is part of CamCOPS.
 
     CamCOPS is free software: you can redistribute it and/or modify
@@ -44,11 +46,13 @@
 #include "dialogs/scrollmessagebox.h"
 
 
+namespace uifunc {
+
 // ============================================================================
 // Translation convenience function
 // ============================================================================
 
-QString uifunc::tr(const char* text)
+QString tr(const char* text)
 {
     return QObject::tr(text);
 }
@@ -58,8 +62,7 @@ QString uifunc::tr(const char* text)
 // QPixmap loader
 // ============================================================================
 
-QPixmap uifunc::getPixmap(const QString& filename, const QSize& size,
-                          bool cache)
+QPixmap getPixmap(const QString& filename, const QSize& size, bool cache)
 {
     QPixmap pm;
     bool success = true;
@@ -90,7 +93,7 @@ QPixmap uifunc::getPixmap(const QString& filename, const QSize& size,
 // Icons
 // ============================================================================
 
-QLabel* uifunc::iconWidget(const QString& filename, QWidget* parent, bool scale)
+QLabel* iconWidget(const QString& filename, QWidget* parent, bool scale)
 {
 #ifdef DEBUG_ICON_LOAD
     qDebug() << "iconWidget:" << filename;
@@ -107,8 +110,8 @@ QLabel* uifunc::iconWidget(const QString& filename, QWidget* parent, bool scale)
 }
 
 
-QPixmap uifunc::addCircleBackground(const QPixmap& image, const QColor& colour,
-                                    bool behind, qreal pixmap_opacity)
+QPixmap addCircleBackground(const QPixmap& image, const QColor& colour,
+                            bool behind, qreal pixmap_opacity)
 {
     // Assumes it is of size ICONSIZE
     QSize size(image.size());
@@ -135,26 +138,26 @@ QPixmap uifunc::addCircleBackground(const QPixmap& image, const QColor& colour,
 }
 
 
-QPixmap uifunc::addPressedBackground(const QPixmap& image, bool behind)
+QPixmap addPressedBackground(const QPixmap& image, bool behind)
 {
     return addCircleBackground(image, uiconst::BUTTON_PRESSED_COLOUR, behind);
 }
 
 
-QPixmap uifunc::addUnpressedBackground(const QPixmap& image, bool behind)
+QPixmap addUnpressedBackground(const QPixmap& image, bool behind)
 {
     return addCircleBackground(image, uiconst::BUTTON_UNPRESSED_COLOUR, behind);
 }
 
 
-QPixmap uifunc::makeDisabledIcon(const QPixmap& image)
+QPixmap makeDisabledIcon(const QPixmap& image)
 {
     return addCircleBackground(image, uiconst::BUTTON_DISABLED_COLOUR,
                                true, uiconst::DISABLED_ICON_OPACITY);
 }
 
 
-QLabel* uifunc::blankIcon(QWidget* parent)
+QLabel* blankIcon(QWidget* parent)
 {
     QPixmap iconimage(uiconst::ICONSIZE);
     iconimage.fill(uiconst::BLACK_TRANSPARENT);
@@ -165,13 +168,13 @@ QLabel* uifunc::blankIcon(QWidget* parent)
 }
 
 
-QString uifunc::resourceFilename(const QString& resourcepath)
+QString resourceFilename(const QString& resourcepath)
 {
     return QString(":/resources/%1").arg(resourcepath);
 }
 
 
-QString uifunc::iconFilename(const QString& basefile)
+QString iconFilename(const QString& basefile)
 {
     return resourceFilename(QString("camcops/images/%1").arg(basefile));
 }
@@ -181,8 +184,8 @@ QString uifunc::iconFilename(const QString& basefile)
 // Buttons
 // ============================================================================
 
-QString uifunc::iconButtonStylesheet(const QString& normal_filename,
-                                     const QString& pressed_filename)
+QString iconButtonStylesheet(const QString& normal_filename,
+                             const QString& pressed_filename)
 {
     QString stylesheet = "QToolButton {"
                          "border-image: url('" + normal_filename + "');"
@@ -201,9 +204,9 @@ QString uifunc::iconButtonStylesheet(const QString& normal_filename,
 }
 
 
-QAbstractButton* uifunc::iconButton(const QString& normal_filename,
-                                    const QString& pressed_filename,
-                                    QWidget* parent)
+QAbstractButton* iconButton(const QString& normal_filename,
+                            const QString& pressed_filename,
+                            QWidget* parent)
 {
     QToolButton* button = new QToolButton(parent);
     button->setIconSize(uiconst::ICONSIZE);
@@ -264,7 +267,7 @@ void setBackgroundColour(QWidget* widget, const QColor& colour)
 */
 
 
-void uifunc::removeAllChildWidgets(QObject* object)
+void removeAllChildWidgets(QObject* object)
 {
     // http://stackoverflow.com/questions/22643853/qt-clear-all-widgets-from-inside-a-qwidgets-layout
     // ... modified a little
@@ -288,14 +291,13 @@ const Qt::Alignment VALIGN_MASK = (Qt::AlignTop | Qt::AlignBottom |
                                    Qt::AlignVCenter | Qt::AlignBaseline);
 
 
-Qt::Alignment uifunc::combineAlignment(Qt::Alignment halign,
-                                       Qt::Alignment valign)
+Qt::Alignment combineAlignment(Qt::Alignment halign, Qt::Alignment valign)
 {
     return (halign & HALIGN_MASK) | (valign & VALIGN_MASK);
 }
 
 
-void uifunc::repolish(QWidget* widget)
+void repolish(QWidget* widget)
 {
     // http://wiki.qt.io/DynamicPropertiesAndStylesheets
     // http://stackoverflow.com/questions/18187376/stylesheet-performance-hits-with-qt
@@ -306,8 +308,8 @@ void uifunc::repolish(QWidget* widget)
 }
 
 
-void uifunc::setProperty(QWidget* widget, const QString& property,
-                         const QVariant& value, bool repolish)
+void setProperty(QWidget* widget, const QString& property,
+                 const QVariant& value, bool repolish_afterwards)
 {
     if (!widget) {
         qWarning() << Q_FUNC_INFO << "- ignored for null widget";
@@ -316,26 +318,26 @@ void uifunc::setProperty(QWidget* widget, const QString& property,
     QByteArray propdata = property.toLatin1();
     const char* propname = propdata.constData();
     widget->setProperty(propname, value);
-    if (repolish) {
-        uifunc::repolish(widget);
+    if (repolish_afterwards) {
+        repolish(widget);
     }
 }
 
 
-QString uifunc::cssBoolean(bool value)
+QString cssBoolean(bool value)
 {
     return value ? cssconst::VALUE_TRUE : cssconst::VALUE_FALSE;
 }
 
 
-void uifunc::setPropertyItalic(QWidget* widget, bool italic, bool repolish)
+void setPropertyItalic(QWidget* widget, bool italic, bool repolish)
 {
     setProperty(widget, cssconst::PROPERTY_ITALIC, cssBoolean(italic),
                 repolish);
 }
 
 
-void uifunc::setPropertyMissing(QWidget* widget, bool missing, bool repolish)
+void setPropertyMissing(QWidget* widget, bool missing, bool repolish)
 {
     setProperty(widget, cssconst::PROPERTY_MISSING, cssBoolean(missing),
                 repolish);
@@ -343,7 +345,7 @@ void uifunc::setPropertyMissing(QWidget* widget, bool missing, bool repolish)
 }
 
 
-void uifunc::drawText(QPainter& painter, qreal x, qreal y, Qt::Alignment flags,
+void drawText(QPainter& painter, qreal x, qreal y, Qt::Alignment flags,
               const QString& text, QRectF* boundingRect)
 {
     // http://stackoverflow.com/questions/24831484
@@ -369,9 +371,8 @@ void uifunc::drawText(QPainter& painter, qreal x, qreal y, Qt::Alignment flags,
 }
 
 
-void uifunc::drawText(QPainter& painter, const QPointF& point,
-                      Qt::Alignment flags, const QString& text,
-                      QRectF* boundingRect)
+void drawText(QPainter& painter, const QPointF& point, Qt::Alignment flags,
+              const QString& text, QRectF* boundingRect)
 {
     // http://stackoverflow.com/questions/24831484
    drawText(painter, point.x(), point.y(), flags, text, boundingRect);
@@ -405,7 +406,7 @@ void UiFunc::clearLayout(QLayout* layout)
 }
 */
 
-void uifunc::scrollToEnd(QPlainTextEdit* editor)
+void scrollToEnd(QPlainTextEdit* editor)
 {
     QScrollBar* vsb = editor->verticalScrollBar();
     if (vsb) {
@@ -422,7 +423,7 @@ void uifunc::scrollToEnd(QPlainTextEdit* editor)
 // Killing the app
 // ============================================================================
 
-void uifunc::stopApp(const QString& error, const QString& title)
+void stopApp(const QString& error, const QString& title)
 {
     // MODAL DIALOGUE, FOLLOWED BY HARD KILL,
     // so callers don't need to worry about what happens afterwards.
@@ -448,7 +449,7 @@ void uifunc::stopApp(const QString& error, const QString& title)
 // Alerts
 // ============================================================================
 
-void uifunc::alert(const QString& text, const QString& title, bool scroll)
+void alert(const QString& text, const QString& title, bool scroll)
 {
     if (scroll) {
         // Tasks may elect to show long text here
@@ -463,7 +464,7 @@ void uifunc::alert(const QString& text, const QString& title, bool scroll)
 }
 
 
-void uifunc::alert(const QStringList& lines, const QString& title, bool scroll)
+void alert(const QStringList& lines, const QString& title, bool scroll)
 {
     alert(stringfunc::joinHtmlLines(lines), title, scroll);
 }
@@ -473,8 +474,8 @@ void uifunc::alert(const QStringList& lines, const QString& title, bool scroll)
 // Confirmation
 // ============================================================================
 
-bool uifunc::confirm(const QString& text, const QString& title,
-                     QString yes, QString no, QWidget* parent)
+bool confirm(const QString& text, const QString& title,
+             QString yes, QString no, QWidget* parent)
 {
     if (yes.isEmpty()) {
         yes = tr("Yes");
@@ -499,8 +500,8 @@ bool uifunc::confirm(const QString& text, const QString& title,
 // Password checks/changes
 // ============================================================================
 
-bool uifunc::getPassword(const QString& text, const QString& title,
-                         QString& password, QWidget* parent)
+bool getPassword(const QString& text, const QString& title,
+                 QString& password, QWidget* parent)
 {
     PasswordEntryDialog dlg(text, title, parent);
     int reply = dlg.exec();
@@ -513,10 +514,10 @@ bool uifunc::getPassword(const QString& text, const QString& title,
 }
 
 
-bool uifunc::getOldNewPasswords(const QString& text, const QString& title,
-                                bool require_old_password,
-                                QString& old_password, QString& new_password,
-                                QWidget* parent)
+bool getOldNewPasswords(const QString& text, const QString& title,
+                        bool require_old_password,
+                        QString& old_password, QString& new_password,
+                        QWidget* parent)
 {
     PasswordChangeDialog dlg(text, title, require_old_password, parent);
     int reply = dlg.exec();
@@ -534,8 +535,7 @@ bool uifunc::getOldNewPasswords(const QString& text, const QString& title,
 // CSS
 // ============================================================================
 
-QString uifunc::textCSS(int fontsize_pt, bool bold, bool italic,
-                        const QString& colour)
+QString textCSS(int fontsize_pt, bool bold, bool italic, const QString& colour)
 {
     QString css;
     if (fontsize_pt > 0) {
@@ -560,7 +560,7 @@ QString uifunc::textCSS(int fontsize_pt, bool bold, bool italic,
 // Opening URLS
 // ============================================================================
 
-void uifunc::visitUrl(const QString& url)
+void visitUrl(const QString& url)
 {
     bool success = QDesktopServices::openUrl(QUrl(url));
     if (!success) {
@@ -573,7 +573,7 @@ void uifunc::visitUrl(const QString& url)
 // Strings
 // ============================================================================
 
-QString uifunc::escapeString(const QString& string)
+QString escapeString(const QString& string)
 {
     // See also http://doc.qt.io/qt-5/qregexp.html#escape
     // Obsolete: Qt::escape()
@@ -600,7 +600,10 @@ QString uifunc::escapeString(const QString& string)
 }
 
 
-QString uifunc::yesNo(bool yes)
+QString yesNo(bool yes)
 {
     return yes ? tr("Yes") : tr("No");
 }
+
+
+} // namespace uifunc

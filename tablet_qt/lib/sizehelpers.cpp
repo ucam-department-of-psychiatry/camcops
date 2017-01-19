@@ -1,4 +1,6 @@
 /*
+    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+
     This file is part of CamCOPS.
 
     CamCOPS is free software: you can redistribute it and/or modify
@@ -38,7 +40,10 @@
 #endif
 
 
-QSizePolicy sizehelpers::expandingFixedHFWPolicy()
+namespace sizehelpers {
+
+
+QSizePolicy expandingFixedHFWPolicy()
 {
     QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Fixed);
     sp.setHeightForWidth(true);
@@ -46,7 +51,7 @@ QSizePolicy sizehelpers::expandingFixedHFWPolicy()
 }
 
 
-QSizePolicy sizehelpers::expandingPreferredHFWPolicy()
+QSizePolicy expandingPreferredHFWPolicy()
 {
     QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Preferred);
     sp.setHeightForWidth(true);
@@ -54,7 +59,7 @@ QSizePolicy sizehelpers::expandingPreferredHFWPolicy()
 }
 
 
-QSizePolicy sizehelpers::maximumFixedHFWPolicy()
+QSizePolicy maximumFixedHFWPolicy()
 {
     QSizePolicy sp(QSizePolicy::Maximum, QSizePolicy::Fixed);
     sp.setHeightForWidth(true);
@@ -62,7 +67,7 @@ QSizePolicy sizehelpers::maximumFixedHFWPolicy()
 }
 
 
-QSizePolicy sizehelpers::expandingMaximumHFWPolicy()
+QSizePolicy expandingMaximumHFWPolicy()
 {
     QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Maximum);
     sp.setHeightForWidth(true);
@@ -70,7 +75,7 @@ QSizePolicy sizehelpers::expandingMaximumHFWPolicy()
 }
 
 
-QSizePolicy sizehelpers::expandingExpandingHFWPolicy()
+QSizePolicy expandingExpandingHFWPolicy()
 {
     QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Expanding);
     sp.setHeightForWidth(true);
@@ -78,7 +83,7 @@ QSizePolicy sizehelpers::expandingExpandingHFWPolicy()
 }
 
 
-QSizePolicy sizehelpers::maximumMaximumHFWPolicy()
+QSizePolicy maximumMaximumHFWPolicy()
 {
     QSizePolicy sp(QSizePolicy::Maximum, QSizePolicy::Maximum);
     sp.setHeightForWidth(true);
@@ -86,7 +91,7 @@ QSizePolicy sizehelpers::maximumMaximumHFWPolicy()
 }
 
 
-QSizePolicy sizehelpers::preferredPreferredHFWPolicy()
+QSizePolicy preferredPreferredHFWPolicy()
 {
     QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
     sp.setHeightForWidth(true);
@@ -94,7 +99,7 @@ QSizePolicy sizehelpers::preferredPreferredHFWPolicy()
 }
 
 
-void sizehelpers::resizeEventForHFWParentWidget(QWidget* widget)
+void resizeEventForHFWParentWidget(QWidget* widget)
 {
     // Call from your resizeEvent() processor passing "this" as the parameter
     // if you are a widget that contains (via a layout) height-for-width
@@ -114,7 +119,7 @@ void sizehelpers::resizeEventForHFWParentWidget(QWidget* widget)
 }
 
 
-QSize sizehelpers::contentsMarginsAsSize(const QWidget* widget)
+QSize contentsMarginsAsSize(const QWidget* widget)
 {
     Q_ASSERT(widget);
     QMargins margins = widget->contentsMargins();
@@ -123,7 +128,7 @@ QSize sizehelpers::contentsMarginsAsSize(const QWidget* widget)
 }
 
 
-QSize sizehelpers::contentsMarginsAsSize(const QLayout* layout)
+QSize contentsMarginsAsSize(const QLayout* layout)
 {
     Q_ASSERT(layout);
     QMargins margins = layout->contentsMargins();
@@ -132,7 +137,7 @@ QSize sizehelpers::contentsMarginsAsSize(const QLayout* layout)
 }
 
 
-QSize sizehelpers::spacingAsSize(const QLayout* layout)
+QSize spacingAsSize(const QLayout* layout)
 {
     Q_ASSERT(layout);
     int spacing = layout->spacing();
@@ -140,12 +145,11 @@ QSize sizehelpers::spacingAsSize(const QLayout* layout)
 }
 
 
-QSize sizehelpers::widgetExtraSizeForCssOrLayout(
-        const QWidget* widget,
-        const QStyleOption* opt,
-        const QSize& child_size,
-        bool add_style_element,
-        QStyle::ContentsType contents_type)
+QSize widgetExtraSizeForCssOrLayout(const QWidget* widget,
+                                    const QStyleOption* opt,
+                                    const QSize& child_size,
+                                    bool add_style_element,
+                                    QStyle::ContentsType contents_type)
 {
     // See QPushButton::sizeHint()
     Q_ASSERT(widget);
@@ -233,18 +237,18 @@ QSize sizehelpers::widgetExtraSizeForCss(
 */
 
 
-QSize sizehelpers::pushButtonExtraSizeRequired(const QPushButton* button,
-                                               const QStyleOptionButton* opt,
-                                               const QSize& child_size)
+QSize pushButtonExtraSizeRequired(const QPushButton* button,
+                                  const QStyleOptionButton* opt,
+                                  const QSize& child_size)
 {
     return widgetExtraSizeForCssOrLayout(button, opt, child_size,
                                          true, QStyle::CT_PushButton);
 }
 
 
-QSize sizehelpers::frameExtraSizeRequired(const QFrame* frame,
-                                          const QStyleOptionFrame* opt,
-                                          const QSize& child_size)
+QSize frameExtraSizeRequired(const QFrame* frame,
+                             const QStyleOptionFrame* opt,
+                             const QSize& child_size)
 {
     return widgetExtraSizeForCssOrLayout(frame, opt, child_size,
                                          false, QStyle::CT_PushButton);
@@ -252,12 +256,14 @@ QSize sizehelpers::frameExtraSizeRequired(const QFrame* frame,
 }
 
 
-QSize sizehelpers::labelExtraSizeRequired(
-        const QLabel* label,
-        const QStyleOptionFrame* opt,
-        const QSize& child_size)
+QSize labelExtraSizeRequired(const QLabel* label,
+                             const QStyleOptionFrame* opt,
+                             const QSize& child_size)
 {
     return widgetExtraSizeForCssOrLayout(label, opt, child_size,
                                          true, QStyle::CT_PushButton);
     // Is QStyle::CT_PushButton right?
 }
+
+
+}  // namespace sizehelpers
