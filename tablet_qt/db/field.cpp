@@ -234,26 +234,26 @@ QString Field::sqlColumnType() const
     //        64-bit unsigned: 0 to +18,446,744,073,709,551,615 = 18446744073709551615
     // C++ type name: QVariant::typeToName(m_type);
     switch (m_type) {
-        case QVariant::Int:  // normally 32-bit
-        case QVariant::UInt:  // normally 32-bit
-        case QVariant::Bool:
-        case QVariant::LongLong:  // 64-bit
-        case QVariant::ULongLong:  // 64-bit
-            return "INTEGER";
-        case QVariant::Double:
-            return "REAL";
-        case QVariant::String:
-        case QVariant::Char:
-        case QVariant::Date:
-        case QVariant::Time:
-        case QVariant::DateTime:
-        case QVariant::Uuid:
-            return "TEXT";
-        case QVariant::ByteArray:
-            return "BLOB";
-        default:
-            uifunc::stopApp("Field::sqlColumnType: Unknown field type: " +
-                            m_type);
+    case QVariant::Int:  // normally 32-bit
+    case QVariant::UInt:  // normally 32-bit
+    case QVariant::Bool:
+    case QVariant::LongLong:  // 64-bit
+    case QVariant::ULongLong:  // 64-bit
+        return "INTEGER";
+    case QVariant::Double:
+        return "REAL";
+    case QVariant::String:
+    case QVariant::Char:
+    case QVariant::Date:
+    case QVariant::Time:
+    case QVariant::DateTime:
+    case QVariant::Uuid:
+        return "TEXT";
+    case QVariant::ByteArray:
+        return "BLOB";
+    default:
+        uifunc::stopApp("Field::sqlColumnType: Unknown field type: " +
+                        m_type);
     }
     return "";
 }
@@ -263,12 +263,24 @@ void Field::setFromDatabaseValue(const QVariant& db_value)
 {
     // SQLite -> C++
     switch (m_type) {
-        case QVariant::DateTime:
-            m_value = QVariant(datetime::isoToDateTime(db_value.toString()));
-            break;
-        default:
-            m_value = db_value;
-            break;
+    case QVariant::DateTime:
+        m_value = QVariant(datetime::isoToDateTime(db_value.toString()));
+        break;
+    case QVariant::Char:
+        // If you just do "m_value = db_value", it will become an invalid
+        // value when the convert() call is made below, so will appear as NULL.
+        {
+            QString str = db_value.toString();
+            if (str.isEmpty()) {
+                m_value.clear();
+            } else {
+                m_value = str.at(0);
+            }
+        }
+        break;
+    default:
+        m_value = db_value;
+        break;
     }
     m_value.convert(m_type);
     m_dirty = false;
@@ -282,13 +294,13 @@ QVariant Field::databaseValue() const
         return m_value;  // NULL
     }
     switch (m_type) {
-        case QVariant::DateTime:
-            return QVariant(datetime::datetimeToIsoMs(m_value.toDateTime()));
-        case QVariant::Uuid:
-            return m_value.toString();
-            // see http://doc.qt.io/qt-5/quuid.html#toString; e.g.
-            // "{xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx}" where 'x' is a hex digit
-        default:
-            return m_value;
+    case QVariant::DateTime:
+        return QVariant(datetime::datetimeToIsoMs(m_value.toDateTime()));
+    case QVariant::Uuid:
+        return m_value.toString();
+        // see http://doc.qt.io/qt-5/quuid.html#toString; e.g.
+        // "{xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx}" where 'x' is a hex digit
+    default:
+        return m_value;
     }
 }

@@ -167,11 +167,20 @@ bool QuPage::missingInput() const
 {
     QList<QuElement*> elements = allElements();
     for (QuElement* e : elements) {
+        // Not this:
+        /*
         if (e->missingInput()) {
             if (!e->visible()) {
                 qWarning() << Q_FUNC_INFO << "TASK BUG: invisible widget "
                                              "blocking progress";
             }
+            return true;
+        }
+        */
+
+        // Instead, to make things considerably easier when writing tasks, use
+        // the rule that invisible widgets cannot block progress.
+        if (e->missingInput() && e->visible()) {
             return true;
         }
     }

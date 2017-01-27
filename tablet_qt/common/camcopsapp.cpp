@@ -32,6 +32,7 @@
 #include <QUuid>
 #include "common/camcopsversion.h"
 #include "common/dbconstants.h"  // for NONEXISTENT_PK
+#include "common/textconst.h"
 #include "common/uiconstants.h"
 #include "common/varconst.h"
 #include "common/version.h"
@@ -312,7 +313,10 @@ void CamcopsApp::upgradeDatabase(const Version& old_version,
     qInfo() << "Considering special database upgrade steps from version"
             << old_version << "to version" << new_version;
 
-    // Do things
+    // Do things: (a) system-wide
+
+    // Do things: (b) individual tasks
+    m_p_task_factory->upgradeDatabase(old_version, new_version);
 
     qInfo() << "Special database upgrade steps complete";
     return;
@@ -1080,7 +1084,7 @@ void CamcopsApp::offerTerms()
 {
     QMessageBox msgbox(QMessageBox::Question,  // icon
                        tr("View terms and conditions of use"),  // title
-                       uiconst::TERMS_CONDITIONS,  // text
+                       textconst::TERMS_CONDITIONS,  // text
                        QMessageBox::Yes | QMessageBox::No,  // buttons
                        m_p_main_window);  // parent
     msgbox.setButtonText(QMessageBox::Yes,

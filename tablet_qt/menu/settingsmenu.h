@@ -31,9 +31,24 @@ public:
     SettingsMenu(CamcopsApp& app);
 protected:
     OpenableWidget* configureServer(CamcopsApp& app);
+    void serverSettingsSaved();
+
     OpenableWidget* configureIntellectualProperty(CamcopsApp& app);
+    void ipClinicalChanged();
+    void ipSaved();
+    void ipCancelled();
+
     OpenableWidget* configureUser(CamcopsApp& app);
+    void userSettingsSaved();
+    void userSettingsCancelled();
+
     OpenableWidget* setQuestionnaireFontSize(CamcopsApp& app);
+    void fontSizeChanged();
+    void fontSettingsSaved();
+    void fontSettingsCancelled();
+    void resetFontSize();
+    QString demoText(const QString& text, uiconst::FontSize fontsize_type) const;
+
     void setPrivilege();
     void changeAppPassword();
     void changePrivPassword();
@@ -42,29 +57,24 @@ protected:
     void fetchIdDescriptions();
     void fetchExtraStrings();
     OpenableWidget* viewServerInformation(CamcopsApp& app);
-
-    QString makeTitle(const QString& part1, const QString& part2 = "",
-                      bool colon = false) const;
-    QString makeHint(const QString& part1, const QString& part2) const;
-    void serverSettingsSaved();
-    QVariant serverPasswordGetter();
-    bool serverPasswordSetter(const QVariant& value);
-    void userSettingsSaved();
-    void userSettingsCancelled();
-    void fontSizeChanged();
-    void fontSettingsSaved();
-    void fontSettingsCancelled();
-    void resetFontSize();
-    QString demoText(const QString& text, uiconst::FontSize fontsize_type) const;
     void viewDataDbAsSql();
     void viewSystemDbAsSql();
     void debugDataDbAsSql();
     void debugSystemDbAsSql();
     void saveDataDbAsSql();
     void saveSystemDbAsSql();
+
+    // Internal helpers:
+    QString makeTitle(const QString& part1, const QString& part2 = "",
+                      bool colon = false) const;
+    QString makeHint(const QString& part1, const QString& part2) const;
+    QVariant serverPasswordGetter();
+    bool serverPasswordSetter(const QVariant& value);
 protected:
     mutable SecureQString m_temp_plaintext_password;
     bool m_plaintext_pw_live;
     QPointer<Questionnaire> m_fontsize_questionnaire;
+    QPointer<Questionnaire> m_ip_questionnaire;
     FieldRefPtr m_fontsize_fr;
+    FieldRefPtr m_ip_clinical_fr;
 };

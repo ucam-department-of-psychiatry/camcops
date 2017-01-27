@@ -27,6 +27,7 @@
 #include "common/uiconstants.h"
 #include "dbobjects/patient.h"
 #include "lib/uifunc.h"
+#include "widgets/basewidget.h"
 #include "widgets/horizontalline.h"
 #include "widgets/imagebutton.h"
 #include "widgets/labelwordwrapwide.h"
@@ -59,8 +60,10 @@ MenuHeader::MenuHeader(QWidget* parent,
     // ------------------------------------------------------------------------
     // Main row
     // ------------------------------------------------------------------------
+    m_top_bar = new BaseWidget();
     HBoxLayout* toprowlayout = new HBoxLayout();
-    mainlayout->addLayout(toprowlayout);
+    m_top_bar->setLayout(toprowlayout);
+    mainlayout->addWidget(m_top_bar);
 
     Qt::Alignment button_align = Qt::AlignHCenter | Qt::AlignTop;
     Qt::Alignment text_align = Qt::AlignLeft | Qt::AlignVCenter;
@@ -174,6 +177,8 @@ MenuHeader::MenuHeader(QWidget* parent,
     mainlayout->addWidget(m_no_patient);
     setPatientDetails(m_app.selectedPatient());
 
+    setCrippled(false);
+
     // ========================================================================
     // Incoming signals
     // ========================================================================
@@ -201,6 +206,15 @@ void MenuHeader::setTitle(const QString& title)
         return;
     }
     m_title_label->setText(title);
+}
+
+
+void MenuHeader::setCrippled(bool crippled)
+{
+    if (m_top_bar) {
+        m_top_bar->setObjectName(
+                    crippled  ? cssconst::MENU_HEADER_CRIPPLED : "");
+    }
 }
 
 

@@ -34,10 +34,12 @@
 #include <QPixmapCache>
 #include <QPlainTextEdit>
 #include <QScrollBar>
+#include <QScroller>
 #include <QStyle>
 #include <QToolButton>
 #include <QUrl>
 #include "common/cssconst.h"
+#include "common/platform.h"
 #include "common/uiconstants.h"
 #include "lib/layoutdumper.h"
 #include "lib/stringfunc.h"
@@ -603,6 +605,46 @@ QString escapeString(const QString& string)
 QString yesNo(bool yes)
 {
     return yes ? tr("Yes") : tr("No");
+}
+
+
+// ============================================================================
+// Scrolling
+// ============================================================================
+
+void applyScrollGestures(QWidget* widget)
+{
+    if (!widget) {
+        stopApp("Null pointer to applyScrollGestures");
+    }
+
+    // Unsure if this is necessary:
+    widget->setAttribute(Qt::WA_AcceptTouchEvents);
+
+    // 1. Grab the relevant gesture. Only one gesture can be grabbed.
+    QScroller::ScrollerGestureType gesture_type = platform::PLATFORM_TABLET
+            ? QScroller::TouchGesture
+            : QScroller::LeftMouseButtonGesture;
+    QScroller::grabGesture(widget, gesture_type);
+
+    // 2. Disable overshoot.
+    QScroller* scroller = QScroller::scroller(widget);
+    if (scroller) {
+        // http://stackoverflow.com/questions/24677152
+        QScrollerProperties prop = scroller->scrollerProperties();
+        QVariant overshoot_policy = QVariant::fromValue<QScrollerProperties::OvershootPolicy>(
+                    QScrollerProperties::OvershootAlwaysOff);
+        prop.setScrollMetric(QScrollerProperties::HorizontalOvershootPolicy,
+                             overshoot_policy);
+        prop.setScrollMetric(QScrollerProperties::VerticalOvershootPolicy,
+                             overshoot_policy);
+        scroller->setScrollerProperties(prop);
+    }
+
+    // Other discussions about this:
+    // - https://forum.qt.io/topic/30546/kinetic-scrolling-on-qscrollarea-on-android-device/5
+    // - http://falsinsoft.blogspot.co.uk/2015/09/qt-snippet-use-qscroller-with.html
+    // - http://nootka-app.blogspot.co.uk/2015/11/story-of-porting-complex-qt-application_18.html
 }
 
 

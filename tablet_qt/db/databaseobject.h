@@ -72,6 +72,7 @@ public:
 
     QVariant value(const QString& fieldname) const;
     QString prettyValue(const QString& fieldname) const;
+    bool valueIsNull(const QString& fieldname) const;
     bool valueBool(const QString& fieldname) const;
     int valueInt(const QString& fieldname) const;
     qlonglong valueLongLong(const QString& fieldname) const;
@@ -81,6 +82,8 @@ public:
     QDate valueDate(const QString& fieldname) const;
     QByteArray valueByteArray(const QString& fieldname) const;
     QString valueString(const QString& fieldname) const;
+    QChar valueQChar(const QString& fieldname) const;
+    char valueLatin1Char(const QString& fieldname) const;
 
     QList<QVariant> values(const QStringList& fieldnames) const;
 

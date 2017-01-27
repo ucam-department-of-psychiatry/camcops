@@ -68,6 +68,7 @@ public:
     // ------------------------------------------------------------------------
 public slots:
     void langPracticeChanged(const FieldRef* fieldref);
+    void updateAddressRecognition();
 protected:
     QPointer<Questionnaire> m_questionnaire;
 };

@@ -19,6 +19,7 @@
 
 #include "demoquestionnaire.h"
 #include "common/camcopsapp.h"
+#include "common/textconst.h"
 #include "common/uiconstants.h"
 #include "diagnosis/icd10.h"
 #include "diagnosis/icd9cm.h"
@@ -152,8 +153,8 @@ QStringList DemoQuestionnaire::summary() const
 
 OpenableWidget* DemoQuestionnaire::editor(bool read_only)
 {
-    const QString& longtext = uiconst::LOREM_IPSUM_1;
-    const QString& lipsum2 = uiconst::LOREM_IPSUM_2;
+    const QString& longtext = textconst::LOREM_IPSUM_1;
+    const QString& lipsum2 = textconst::LOREM_IPSUM_2;
     const QString url("http://doc.qt.io/qt-5.7/richtext-html-subset.html");
     const QString html(QString(
         "Text with embedded HTML markup, providing <b>bold</b>, "
@@ -178,7 +179,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
         new QuText("Below here: space fillers, just to test scrolling"),
         (new QuText(longtext))->setBig(),
     })->setTitle(QString("Text [With a long title: %1]")
-                 .arg(uiconst::LOREM_IPSUM_3)));
+                 .arg(textconst::LOREM_IPSUM_3)));
     for (int i = 0; i < 20; ++i) {
         page_text->addElement((new QuText("big text"))->setBig());
     }
@@ -789,7 +790,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
     // ------------------------------------------------------------------------
 
     QuPagePtr page_minimal_layout((new QuPage{
-        new QuText(uiconst::LOREM_IPSUM_1),
+        new QuText(textconst::LOREM_IPSUM_1),
     })->setTitle("Reasonably long title with several words"));
 
     // ------------------------------------------------------------------------

@@ -19,7 +19,7 @@
 
 // #define DEBUG_SET_VALUE
 // #define DEBUG_SIGNALS
-#define DEBUG_CHECK_VALID
+#define DEBUG_CHECK_VALID  // may be sensible to leave this on
 
 #include "common/camcopsapp.h"
 #include "db/fieldref.h"
@@ -164,7 +164,7 @@ bool FieldRef::setValue(const QVariant& value, const QObject* originator)
     {
         QDebug debug = qDebug().nospace();
         debug << Q_FUNC_INFO << " - value: ";
-        DebugFunc::debugConcisely(debug, value);
+        debugfunc::debugConcisely(debug, value);
     }  // endl on destruction
 #endif
 
@@ -212,7 +212,7 @@ bool FieldRef::setValue(const QVariant& value, const QObject* originator)
             QDebug debugns = qDebug().nospace();
             debugns << Q_FUNC_INFO << " - emitting valueChanged: this="
                     << this << ", value=";
-            DebugFunc::debugConcisely(debugns, value);
+            debugfunc::debugConcisely(debugns, value);
         }  // endl on destruction
 #endif
         emit valueChanged(this, originator);

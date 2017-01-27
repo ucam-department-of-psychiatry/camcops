@@ -25,6 +25,8 @@ class Patient;
 
 class SingleTaskMenu : public MenuWindow
 {
+    // This is the menu class that serves all tasks.
+
     Q_OBJECT
 public:
     SingleTaskMenu(const QString& tablename, CamcopsApp& app);
@@ -38,4 +40,5 @@ protected:
 protected:
     QString m_tablename;
     bool m_anonymous;
+    bool m_crippled;
 };

@@ -1627,6 +1627,7 @@ CAMCOPS
 
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+===============================================================================
 
     On Debian systems, see /usr/share/common-licenses/GPL-3
 

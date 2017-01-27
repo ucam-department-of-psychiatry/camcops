@@ -2,6 +2,7 @@
 # cc_task.py
 
 """
+===============================================================================
     Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
@@ -18,6 +19,7 @@
 
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+===============================================================================
 
 NOTES:
     Core export methods:
@@ -52,6 +54,7 @@ from cardinal_pythonlib.rnc_db import (
 import cardinal_pythonlib.rnc_pdf as rnc_pdf
 import cardinal_pythonlib.rnc_web as ws
 import hl7
+from semantic_version import Version
 
 from .cc_audit import audit
 from . import cc_blob
@@ -119,7 +122,7 @@ from .cc_unittest import (
     unit_test_verify_not
 )
 from .cc_user import User
-from . import cc_version
+from .cc_version import CAMCOPS_SERVER_VERSION, make_version
 from . import cc_xml
 
 
@@ -2617,10 +2620,13 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             patient_server_pk=(
                 self.get_patient_server_pk() if not anonymous else "N/A"),
             server_url=pls.SCRIPT_PUBLIC_URL_ESCAPED,
-            server_version=cc_version.CAMCOPS_SERVER_VERSION,
+            server_version=CAMCOPS_SERVER_VERSION,
             now=format_datetime(pls.NOW_LOCAL_TZ,
                                 DATEFORMAT.SHORT_DATETIME_SECONDS),
         )
+
+    def get_tablet_version(self) -> Version:
+        return make_version(self._camcops_version)
 
     def get_xml_nav_html(self) -> str:
         """HTML DIV with hyperlink to XML version."""

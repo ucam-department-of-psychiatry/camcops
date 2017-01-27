@@ -6,15 +6,14 @@ TO DO NOW
 - *** tasks
 
 - *** chains (see e.g. ResearchMenu.js; MenuTableRow.js; QuestionnaireHeader.js...)
-
 - *** concept of "set of tasks" as well as "chain of tasks"
 
-- *** scrolling by touch on Android menus and questionnaires
-    http://doc.qt.io/qt-5.7/gestures-overview.html
-    http://doc.qt.io/qt-5/qscroller.html#details
-    *** https://forum.qt.io/topic/30546/kinetic-scrolling-on-qscrollarea-on-android-device/5
-    *** http://falsinsoft.blogspot.co.uk/2015/09/qt-snippet-use-qscroller-with.html
-    *** http://nootka-app.blogspot.co.uk/2015/11/story-of-porting-complex-qt-application_18.html
+- *** upgrade function - multistep and single-step - per task?
+
+- test scrolling by touch on Android:
+    - menus/questionnaires (VerticalScrollArea)
+    - diagnostic code selector widget (DiagnosticCodeSelector)
+
 - ICONS
     - screwdriver icon for test menu
     - magnifying glass without "+" to toggle search in diagnostic code view

@@ -19,6 +19,7 @@ const char* MCQ_GRID_SINGLE_BOOLEAN = "mcq_grid_single_boolean";
 const char* MCQ_INSTRUCTION = "mcq_instruction";
 const char* MENU_HEADER_NO_PATIENT = "menu_header_no_patient";
 const char* MENU_HEADER_PATIENT_INFO = "menu_header_patient_info";
+const char* MENU_HEADER_CRIPPLED = "menu_header_crippled";
 const char* MENU_ITEM_SUBTITLE = "menu_item_subtitle";
 const char* MENU_ITEM_TITLE = "menu_item_title";
 const char* MENU_WINDOW_BACKGROUND = "menu_window_background";

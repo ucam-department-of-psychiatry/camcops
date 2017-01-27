@@ -23,6 +23,7 @@
 #include <QtNetwork/QSslSocket>
 #include <QSqlDriver>
 #include <QtSql/QtSqlVersion>
+#include "common/textconst.h"
 #include "common/uiconstants.h"
 #include "common/camcopsversion.h"
 #include "db/dbfunc.h"
@@ -171,5 +172,5 @@ void HelpMenu::viewTermsConditions() const
 {
     QString title = QString("You agreed to these terms and conditions at: %1")
             .arg(datetime::shortDateTime(m_app.agreedTermsAt()));
-    uifunc::alert(uiconst::TERMS_CONDITIONS, title);
+    uifunc::alert(textconst::TERMS_CONDITIONS, title);
 }

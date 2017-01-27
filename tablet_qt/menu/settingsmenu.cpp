@@ -51,6 +51,7 @@
 #include "widgets/labelwordwrapwide.h"
 #include "lib/slowguiguard.h"
 
+// For font size settings:
 const QString TAG_NORMAL("Normal");
 const QString TAG_BIG("Big");
 const QString TAG_HEADING("Heading");
@@ -67,15 +68,22 @@ const QMap<QString, uiconst::FontSize> FONT_SIZE_MAP{
     {TAG_MENUS, uiconst::FontSize::Menus},
 };
 
+// For IP settings:
+const QString TAG_IP_CLINICAL_WARNING("clinical");
+
 
 SettingsMenu::SettingsMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Settings"),
                uifunc::iconFilename(uiconst::ICON_SETTINGS)),
     m_plaintext_pw_live(false),
-    m_fontsize_questionnaire(nullptr)
+    m_fontsize_questionnaire(nullptr),
+    m_ip_questionnaire(nullptr)
 {
     m_fontsize_fr = m_app.storedVarFieldRef(
                 varconst::QUESTIONNAIRE_SIZE_PERCENT, true);
+    m_ip_clinical_fr = m_app.storedVarFieldRef(
+                varconst::IP_USE_CLINICAL, false);
+
     // Safe object lifespan signal: can use std::bind
     m_items = {
         MenuItem(
@@ -274,10 +282,13 @@ OpenableWidget* SettingsMenu::configureIntellectualProperty(CamcopsApp& app)
     );
     QString label_ip_preamble = tr("Are you using this application for:");
 
-    FieldRefPtr clinical_fr = app.storedVarFieldRef(varconst::IP_USE_CLINICAL);
     FieldRefPtr commercial_fr = app.storedVarFieldRef(varconst::IP_USE_COMMERCIAL);
     FieldRefPtr educational_fr = app.storedVarFieldRef(varconst::IP_USE_EDUCATIONAL);
     FieldRefPtr research_fr = app.storedVarFieldRef(varconst::IP_USE_RESEARCH);
+
+    connect(m_ip_clinical_fr.data(), &FieldRef::valueChanged,
+            this, &SettingsMenu::ipClinicalChanged,
+            Qt::UniqueConnection);
 
     // I tried putting these in a grid, but when you have just QuMCQ/horizontal
     // on the right, it expands too much vertically. *** Layout problem,
@@ -288,7 +299,11 @@ OpenableWidget* SettingsMenu::configureIntellectualProperty(CamcopsApp& app)
         new QuText(label_ip_preamble),
 
         (new QuText(tr("Clinical use?")))->setBold(true),
-        (new QuMcq(clinical_fr, CommonOptions::unknownNoYesInteger()))->setHorizontal(true),
+        (new QuMcq(m_ip_clinical_fr, CommonOptions::unknownNoYesInteger()))->setHorizontal(true),
+        (new QuText(tr("WARNING: NOT FOR CLINICAL USE; not a Medical Device; "
+                       "see Terms and Conditions")))
+                       ->setWarning(true)
+                       ->addTag(TAG_IP_CLINICAL_WARNING),
 
         (new QuText(tr("Commercial use?")))->setBold(true),
         (new QuMcq(commercial_fr, CommonOptions::unknownNoYesInteger()))->setHorizontal(true),
@@ -302,12 +317,37 @@ OpenableWidget* SettingsMenu::configureIntellectualProperty(CamcopsApp& app)
     page->setTitle(tr("Intellectual property (IP) permissions"));
     page->setType(QuPage::PageType::Config);
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
-    connect(questionnaire, &Questionnaire::completed,
-            &app, &CamcopsApp::saveCachedVars);
-    connect(questionnaire, &Questionnaire::cancelled,
-            &app, &CamcopsApp::clearCachedVars);
-    return questionnaire;
+    m_ip_questionnaire = new Questionnaire(m_app, {page});
+    connect(m_ip_questionnaire, &Questionnaire::completed,
+            this, &SettingsMenu::ipSaved);
+    connect(m_ip_questionnaire, &Questionnaire::cancelled,
+            this, &SettingsMenu::ipCancelled);
+    ipClinicalChanged();  // sets warning visibility
+    return m_ip_questionnaire;
+}
+
+
+void SettingsMenu::ipClinicalChanged()
+{
+    if (!m_ip_questionnaire || !m_ip_clinical_fr) {
+        return;
+    }
+    bool show = m_ip_clinical_fr->value() != CommonOptions::NO_INT;
+    m_ip_questionnaire->setVisibleByTag(TAG_IP_CLINICAL_WARNING, show);
+}
+
+
+void SettingsMenu::ipSaved()
+{
+    m_app.saveCachedVars();
+    m_ip_questionnaire = nullptr;
+}
+
+
+void SettingsMenu::ipCancelled()
+{
+    m_app.clearCachedVars();
+    m_ip_questionnaire = nullptr;
 }
 
 

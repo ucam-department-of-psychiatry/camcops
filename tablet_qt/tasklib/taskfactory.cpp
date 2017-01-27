@@ -20,6 +20,7 @@
 #include "taskfactory.h"
 #include <algorithm>
 #include "common/camcopsapp.h"
+#include "common/version.h"
 #include "tasklib/task.h"
 #include "tasklib/tasksorter.h"
 
@@ -246,4 +247,14 @@ TaskPtrList TaskFactory::allSpecimensExceptAnonymous() const
         specimens.append(specimen);
     }
     return specimens;
+}
+
+
+void TaskFactory::upgradeDatabase(const Version& old_version,
+                                  const Version& new_version)
+{
+    TaskPtrList specimens = allSpecimens();
+    for (auto t : specimens) {
+        t->upgradeDatabase(old_version, new_version);
+    }
 }

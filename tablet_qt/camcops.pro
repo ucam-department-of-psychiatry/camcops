@@ -268,7 +268,11 @@ SOURCES += main.cpp \
     widgets/tickslider.cpp \
     widgets/vboxlayouthfw.cpp \
     widgets/verticalline.cpp \
-    widgets/verticalscrollarea.cpp
+    widgets/verticalscrollarea.cpp \
+    common/textconst.cpp \
+    lib/flagguard.cpp \
+    lib/reentrydepthguard.cpp \
+    common/widgetconst.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -464,7 +468,11 @@ HEADERS  += \
     widgets/tickslider.h \
     widgets/vboxlayouthfw.h \
     widgets/verticalline.h \
-    widgets/verticalscrollarea.h
+    widgets/verticalscrollarea.h \
+    common/textconst.h \
+    lib/flagguard.h \
+    lib/reentrydepthguard.h \
+    common/widgetconst.h
 
 
 DISTFILES += \
@@ -507,7 +515,8 @@ DISTFILES += \
     stylesheets/camcops_menu.css \
     stylesheets/camcops_questionnaire.css \
     stylesheets/camera.css \
-    tools/build_qt.py
+    tools/build_qt.py \
+    notes/rejected_ideas.txt
 
 
 # =============================================================================

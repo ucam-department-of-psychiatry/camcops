@@ -38,6 +38,7 @@ extern const char* MCQ_GRID_SINGLE_BOOLEAN;
 extern const char* MCQ_INSTRUCTION;
 extern const char* MENU_HEADER_NO_PATIENT;
 extern const char* MENU_HEADER_PATIENT_INFO;
+extern const char* MENU_HEADER_CRIPPLED;
 extern const char* MENU_ITEM_SUBTITLE;
 extern const char* MENU_ITEM_TITLE;
 extern const char* MENU_WINDOW_BACKGROUND;

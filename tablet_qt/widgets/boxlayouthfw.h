@@ -230,4 +230,5 @@ protected:
     mutable Margins m_contents_margins;  // RNC
     mutable Margins m_effective_margins;  // RNC
     mutable bool m_dirty;  // set by invalidate(), cleared by setupGeom(), used by lots to prevent unnecessary calls to setupGeom()
+    int m_reentry_depth;  // RNC
 };

@@ -30,6 +30,7 @@
 #include "taskregistrar.h"
 
 class CamcopsApp;
+class Version;
 
 // Two of the best articles on this sort of factory method in C++:
 // - http://accu.org/index.php/journals/597
@@ -69,6 +70,8 @@ public:
     QStringList tablenames() const;
     QStringList allTablenames() const;
     void makeAllTables() const;
+    void upgradeDatabase(const Version& old_version,
+                         const Version& new_version);
     // Operations relating to specific tasks
     TaskPtr create(const QString& key,
                    int load_pk = dbconst::NONEXISTENT_PK) const;

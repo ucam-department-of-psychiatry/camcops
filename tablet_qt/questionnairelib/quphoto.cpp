@@ -44,7 +44,14 @@ QuPhoto::QuPhoto(FieldRefPtr fieldref) :
     m_main_widget(nullptr)
 {
     m_have_camera = QCameraInfo::availableCameras().count() > 0;
-    qDebug() << "m_have_camera:" << m_have_camera;
+    // qDebug() << "m_have_camera:" << m_have_camera;
+    if (!m_fieldref) {
+        qCritical("Null fieldref pointer to QuPhoto");
+    }
+    if (m_fieldref->mandatory()) {
+        qWarning("You have set a QuPhoto to be mandatory, but not all devices "
+                 "will support cameras!");
+    }
 
     connect(m_fieldref.data(), &FieldRef::valueChanged,
             this, &QuPhoto::fieldValueChanged);

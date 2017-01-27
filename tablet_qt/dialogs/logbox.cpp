@@ -26,8 +26,7 @@
 #include <QVBoxLayout>
 #include "lib/uifunc.h"
 
-const int MIN_WIDTH = 600;
-const int MIN_HEIGHT = 600;
+const QSize MIN_SIZE(600, 600);
 
 
 LogBox::LogBox(QWidget* parent, const QString& title, bool offer_cancel,
@@ -40,8 +39,7 @@ LogBox::LogBox(QWidget* parent, const QString& title, bool offer_cancel,
 {
     // qDebug() << Q_FUNC_INFO;
     setWindowTitle(title);
-    setMinimumWidth(MIN_WIDTH);
-    setMinimumHeight(MIN_HEIGHT);
+    setMinimumSize(MIN_SIZE);
 
     QVBoxLayout* mainlayout = new QVBoxLayout();
     setLayout(mainlayout);

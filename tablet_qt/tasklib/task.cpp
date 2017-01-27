@@ -4,6 +4,7 @@
 #include "common/camcopsapp.h"
 #include "common/uiconstants.h"
 #include "common/varconst.h"
+#include "common/version.h"
 #include "db/dbfunc.h"
 #include "dbobjects/patient.h"
 #include "lib/datetimefunc.h"
@@ -246,6 +247,13 @@ void Task::deleteFromDatabase()
     DatabaseObject::deleteFromDatabase();
 }
 
+
+void Task::upgradeDatabase(const Version& old_version,
+                           const Version& new_version)
+{
+    Q_UNUSED(old_version);
+    Q_UNUSED(new_version);
+}
 
 // ============================================================================
 // Database object functions

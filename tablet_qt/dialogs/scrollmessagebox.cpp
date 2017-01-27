@@ -25,15 +25,16 @@
 #include <QDebug>
 #include <QDesktopWidget>
 #include <QFontMetrics>
+#include <QGridLayout>
 #include <QLabel>
 #include <QLayout>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QSize>
 #include <QStyle>
-#include "common/layouts.h"
 
-const QSize MAX_SIZE(1024, 1500);
+const QSize MIN_SIZE(600, 600);
+// const QSize MAX_SIZE(1024, 1500);
 
 
 ScrollMessageBox::ScrollMessageBox(const QMessageBox::Icon& icon,
@@ -45,10 +46,13 @@ ScrollMessageBox::ScrollMessageBox(const QMessageBox::Icon& icon,
             Qt::Dialog | Qt::WindowTitleHint |
             Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
 {
+    setWindowTitle(title);
+    setMinimumSize(MIN_SIZE);
+
     QLabel* icon_label = nullptr;
     QScrollArea* scroll = nullptr;
 
-    m_label = new QLabel();
+    m_label = new QLabel(text);
     m_label->setTextInteractionFlags(Qt::TextInteractionFlags(style()->styleHint(
                     QStyle::SH_MessageBox_TextInteractionFlags, 0, this)));
     m_label->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
@@ -73,7 +77,7 @@ ScrollMessageBox::ScrollMessageBox(const QMessageBox::Icon& icon,
     QObject::connect(m_button_box, &QDialogButtonBox::clicked,
                      this, &ScrollMessageBox::handle_buttonClicked);
 
-    GridLayout *grid = new GridLayout();
+    QGridLayout *grid = new QGridLayout();  // not GridLayoutHfw/GridLayout
 
     if (icon != QMessageBox::NoIcon) {
         grid->addWidget(icon_label, 0, 0, 2, 1, Qt::AlignTop);
@@ -83,10 +87,6 @@ ScrollMessageBox::ScrollMessageBox(const QMessageBox::Icon& icon,
     grid->setSizeConstraint(QLayout::SetNoConstraint);
     setLayout(grid);
 
-    if (!title.isEmpty() || !text.isEmpty()) {
-        setWindowTitle(title);
-        m_label->setText(text);
-    }
     setModal(true);
 }
 

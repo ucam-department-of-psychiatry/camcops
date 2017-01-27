@@ -2,6 +2,7 @@
 # mds_updrs.py
 
 """
+===============================================================================
     Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
@@ -18,6 +19,7 @@
 
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+===============================================================================
 """
 
 from ..cc_modules.cc_constants import DATA_COLLECTION_ONLY_DIV, PV

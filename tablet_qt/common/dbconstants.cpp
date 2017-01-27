@@ -37,10 +37,8 @@ const QString UNKNOWN_IDNUM_DESC("<ID_number_%1>");
 const QString IDDESC_FIELD_FORMAT("iddesc%1");
 const QString IDSHORTDESC_FIELD_FORMAT("idshortdesc%1");
 
-}  // namespace dbconst
 
-
-bool dbconst::isValidWhichIdnum(int which_idnum)
+bool isValidWhichIdnum(int which_idnum)
 {
     bool valid = which_idnum >= 1 && which_idnum <= NUMBER_OF_IDNUMS;
     if (!valid) {
@@ -48,3 +46,6 @@ bool dbconst::isValidWhichIdnum(int which_idnum)
     }
     return valid;
 }
+
+
+}  // namespace dbconst

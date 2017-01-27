@@ -22,6 +22,7 @@
 #include <QWidget>
 #include "common/camcopsapp.h"  // for LockState
 
+class BaseWidget;
 class LabelWordWrapWide;
 class QAbstractButton;
 class QLabel;
@@ -39,6 +40,7 @@ public:
                const QString& icon_filename = "",
                bool debug_allowed = false);
     void setTitle(const QString& title);
+    void setCrippled(bool crippled);
 
 signals:
     void backClicked();
@@ -65,6 +67,7 @@ protected:
 
 protected:
     CamcopsApp& m_app;
+    QPointer<BaseWidget> m_top_bar;
     QPointer<LabelWordWrapWide> m_title_label;
     QPointer<QLabel> m_icon_whisker_connected;
     QPointer<QAbstractButton> m_button_needs_upload;

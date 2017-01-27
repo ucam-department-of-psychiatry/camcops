@@ -68,6 +68,8 @@
 #include <QSizePolicy>
 #include <QVector>
 #include <QVarLengthArray>
+#include "common/widgetconst.h"
+#include "lib/reentrydepthguard.h"
 
 #ifdef DEBUG_LAYOUT
 #include <QDebug>
@@ -86,6 +88,10 @@ using qtlayouthelpers::qGeomCalc;
 using qtlayouthelpers::qMaxExpCalc;
 using qtlayouthelpers::qSmartSpacing;
 
+
+// ============================================================================
+// QQGridLayoutSizeTriple
+// ============================================================================
 
 struct QQGridLayoutSizeTriple
 {
@@ -778,8 +784,9 @@ QLayoutItem* GridLayoutHfw::replaceAt(int index, QLayoutItem* newitem)
 // from QGridLayout
 // ============================================================================
 
-GridLayoutHfw::GridLayoutHfw(QWidget* parent)
-    : QLayout(parent)
+GridLayoutHfw::GridLayoutHfw(QWidget* parent) :
+    QLayout(parent),
+    m_reentry_depth(0)  // RNC
 {
     m_add_vertical = false;
     setDirty();
@@ -1060,21 +1067,27 @@ void GridLayoutHfw::getItemPosition(int index, int* row, int* column,
 void GridLayoutHfw::setGeometry(const QRect &rect)
 {
     // ------------------------------------------------------------------------
+    // Prevent infinite recursion
+    // ------------------------------------------------------------------------
+    if (m_reentry_depth >= widgetconst::SET_GEOMETRY_MAX_REENTRY_DEPTH) {
+        return;
+    }
+    ReentryDepthGuard guard(m_reentry_depth);
+    Q_UNUSED(guard);
+
+    // ------------------------------------------------------------------------
     // Initialize
     // ------------------------------------------------------------------------
-
 #ifdef GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
     QRect r = rect;  // we may modify it
 #else
     const QRect& r = rect;  // just a reference
 #endif
-
     // RNC: r is the overall rectangle for the layout
 
     // ------------------------------------------------------------------------
     // Announce
     // ------------------------------------------------------------------------
-
 #ifdef DEBUG_LAYOUT
     qDebug() << Q_FUNC_INFO;
 #endif
@@ -1082,7 +1095,6 @@ void GridLayoutHfw::setGeometry(const QRect &rect)
     // ------------------------------------------------------------------------
     // Skip because nothing's changed?
     // ------------------------------------------------------------------------
-
 #ifndef DISABLE_CACHING
 #ifdef GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
     bool geometry_previously_calculated = m_geom_cache.contains(r);
@@ -1134,7 +1146,6 @@ void GridLayoutHfw::setGeometry(const QRect &rect)
     // ------------------------------------------------------------------------
     // Lay out children and call QLayout::setGeometry()
     // ------------------------------------------------------------------------
-
     // RNC: note that distribute() is the main thinking function here
     distribute(r);
     QLayout::setGeometry(r);
@@ -1142,10 +1153,9 @@ void GridLayoutHfw::setGeometry(const QRect &rect)
     // ------------------------------------------------------------------------
     // Ask our parent to resize, if necessary
     // ------------------------------------------------------------------------
-
 #ifdef GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
     if (parent_new_height != -1) {
-        parent->setFixedHeight(parent_new_height);
+        parent->setFixedHeight(parent_new_height);  // RISK OF INFINITE RECURSION
         parent->updateGeometry();
     }
 #endif

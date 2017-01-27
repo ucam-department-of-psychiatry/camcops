@@ -87,7 +87,7 @@ protected:
     bool m_arrow_on_right;
     bool m_chain;
     bool m_copyright_details_pending;
-    bool m_crippled;
+    // bool m_crippled;
     bool m_implemented;
     bool m_label_only;
     bool m_needs_privilege;

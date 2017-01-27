@@ -227,7 +227,7 @@ void QuBoolean::clicked()
 void QuBoolean::fieldValueChanged(const FieldRef* fieldref)
 {
     if (!m_indicator) {
-        qDebug() << "... NO INDICATOR";
+        // qDebug() << "... NO INDICATOR";
         return;
     }
     m_indicator->setValue(fieldref->value(), fieldref->mandatory());

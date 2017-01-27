@@ -20,6 +20,7 @@
 #include "widgettestmenu.h"
 #include <QPushButton>
 #include "common/cssconst.h"
+#include "common/textconst.h"
 #include "common/uiconstants.h"
 #include "diagnosis/icd10.h"
 #include "lib/debugfunc.h"
@@ -81,7 +82,7 @@ const QString SHORT_TEXT("hello world");
 
 const QString& sampleText(bool long_text)
 {
-    return long_text ? uiconst::LOREM_IPSUM_1 : SHORT_TEXT;
+    return long_text ? textconst::LOREM_IPSUM_1 : SHORT_TEXT;
 }
 
 
@@ -110,7 +111,7 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
     m_options_2.addItem(NameValuePair("Option B2", 2));
 
     m_options_3.addItem(NameValuePair("Option C1", 1));
-    m_options_3.addItem(NameValuePair("Option C2 " + uiconst::LOREM_IPSUM_1, 2));
+    m_options_3.addItem(NameValuePair("Option C2 " + textconst::LOREM_IPSUM_1, 2));
     m_options_3.addItem(NameValuePair("Option C3", 3));
 
     QSizePolicy fixed_fixed(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -436,7 +437,7 @@ void WidgetTestMenu::testBooleanWidget(BooleanWidget::Appearance appearance,
     widget->setSize(big);
     widget->setValue(true, true);
     if (as_text_button) {
-        widget->setText(long_text ? uiconst::LOREM_IPSUM_2 : "BooleanWidget");
+        widget->setText(long_text ? textconst::LOREM_IPSUM_2 : "BooleanWidget");
     }
     debugfunc::debugWidget(widget);
 }
@@ -535,7 +536,7 @@ void WidgetTestMenu::testGridLayoutHfw(int example)
         grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 0, 2);
         // row 1
         grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 1, 0);
-        grid->addWidget(new LabelWordWrapWide(uiconst::LOREM_IPSUM_1), 1, 1);
+        grid->addWidget(new LabelWordWrapWide(textconst::LOREM_IPSUM_1), 1, 1);
         grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 1, 2);
         // row 2
         grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 2, 0);
@@ -628,7 +629,7 @@ void WidgetTestMenu::testBaseWidget(bool long_text)
 {
     FlowLayoutHfw* layout = new FlowLayoutHfw();
     layout->addWidget(new LabelWordWrapWide("Option Z1"));
-    QString option2 = long_text ? "Option Z2 " + uiconst::LOREM_IPSUM_2
+    QString option2 = long_text ? "Option Z2 " + textconst::LOREM_IPSUM_2
                                 : "Option Z2";
     layout->addWidget(new LabelWordWrapWide(option2));
     layout->addWidget(new LabelWordWrapWide("Option Z3"));
@@ -653,7 +654,7 @@ void WidgetTestMenu::testMenuItem()
 void WidgetTestMenu::testQuestionnaireHeader()
 {
     QuestionnaireHeader* widget = new QuestionnaireHeader(
-                nullptr, "Title text, quite long: " + uiconst::LOREM_IPSUM_3,
+                nullptr, "Title text, quite long: " + textconst::LOREM_IPSUM_3,
                 false, true, false, cssconst::QUESTIONNAIRE_BACKGROUND_CONFIG);
     widget->setStyleSheet(m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_QUESTIONNAIRE));
     debugfunc::debugWidget(widget);
@@ -663,7 +664,7 @@ void WidgetTestMenu::testQuestionnaireHeader()
 void WidgetTestMenu::testQuestionnaire()
 {
     QuPagePtr page(new QuPage());
-    page->addElement(new QuText(uiconst::LOREM_IPSUM_1));
+    page->addElement(new QuText(textconst::LOREM_IPSUM_1));
     page->setTitle("Reasonably long title with several words");
     Questionnaire* widget = new Questionnaire(m_app, {page});
     widget->build();
@@ -806,7 +807,7 @@ void WidgetTestMenu::testQuMCQ(bool horizontal, bool long_text,
 
 void WidgetTestMenu::testQuMCQGrid(bool expand, int example)
 {
-    QString q2 = example == 1 ? "Question 2" : uiconst::LOREM_IPSUM_1;
+    QString q2 = example == 1 ? "Question 2" : textconst::LOREM_IPSUM_1;
     QList<QuestionWithOneField> question_field_pairs{
         QuestionWithOneField(m_fieldref_1, "Question 1"),
         QuestionWithOneField(m_fieldref_2, q2),
@@ -819,7 +820,7 @@ void WidgetTestMenu::testQuMCQGrid(bool expand, int example)
     default:
         break;
     case 3:
-        element.setTitle("MCQ 2 title; " + uiconst::LOREM_IPSUM_2);
+        element.setTitle("MCQ 2 title; " + textconst::LOREM_IPSUM_2);
         break;
     }
     testQuestionnaireElement(&element);
@@ -830,7 +831,7 @@ void WidgetTestMenu::testQuMCQGridDouble(bool expand)
 {
     QList<QuestionWithTwoFields> question_field_pairs{
         QuestionWithTwoFields("Question 1", m_fieldref_1, m_fieldref_2),
-        QuestionWithTwoFields("Question 2 " + uiconst::LOREM_IPSUM_1,
+        QuestionWithTwoFields("Question 2 " + textconst::LOREM_IPSUM_1,
                               m_fieldref_1, m_fieldref_2),
     };
     QuMcqGridDouble element(question_field_pairs, m_options_1, m_options_2);
@@ -843,7 +844,7 @@ void WidgetTestMenu::testQuMCQGridSingleBoolean(bool expand)
 {
     QList<QuestionWithTwoFields> question_field_pairs{
         QuestionWithTwoFields("Question 1", m_fieldref_1, m_fieldref_2),
-        QuestionWithTwoFields("Question 2 " + uiconst::LOREM_IPSUM_1,
+        QuestionWithTwoFields("Question 2 " + textconst::LOREM_IPSUM_1,
                               m_fieldref_1, m_fieldref_2),
     };
     QuMcqGridSingleBoolean element(question_field_pairs,
@@ -857,7 +858,7 @@ void WidgetTestMenu::testQuMultipleResponse(bool horizontal, bool long_text)
 {
     QList<QuestionWithOneField> question_field_pairs{
         QuestionWithOneField(m_fieldref_1, "Question 1"),
-        QuestionWithOneField(m_fieldref_2, long_text ? uiconst::LOREM_IPSUM_1
+        QuestionWithOneField(m_fieldref_2, long_text ? textconst::LOREM_IPSUM_1
                                                      : "Question 2"),
     };
     QuMultipleResponse element(question_field_pairs);

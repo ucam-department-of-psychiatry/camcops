@@ -23,7 +23,39 @@
 
 class NameValueOptions
 {
-    // Encapsulates a list of name/value pairs.
+/*
+    Encapsulates a list of name/value pairs.
+
+    Generally, we don't allow duplicate values.
+    However, there are some circumstances when it's helpful, e.g. we are
+    offering several wrong answers, and don't care which one is selected;
+    such as
+
+    Q. What is 2 + 2?
+    a) One [-> score 0]
+    b) Two [-> score 0]
+    c) Three [-> score 0]
+    d) Four [-> score 1]
+    e) Five [-> score 0]
+
+    You might think it'd be OK to support that situation. HOWEVER, it's not.
+    It would mean that the user's choice would be irrecoverable from the
+    data, which is not acceptable. In this situation, store a value for the
+    choice, and calculate the score separately, e.g. with
+
+        One -> 'A'
+        Two -> 'B'
+        Three -> 'C'
+        Four -> 'D'
+        Five -> 'E'
+
+        int score(char value)
+        {
+            switch (value) {
+                // ...
+            }
+        }
+*/
 
 public:
     NameValueOptions();

@@ -26,6 +26,7 @@
 
 class CamcopsApp;
 class OpenableWidget;
+class Version;
 
 extern const QString PATIENT_FK_FIELDNAME;
 
@@ -77,6 +78,8 @@ public:
     int count(const WhereConditions& where = WhereConditions()) const;
     int countForPatient(int patient_id) const;
     virtual void deleteFromDatabase();
+    virtual void upgradeDatabase(const Version& old_version,
+                                 const Version& new_version);
     // ------------------------------------------------------------------------
     // Database object functions
     // ------------------------------------------------------------------------

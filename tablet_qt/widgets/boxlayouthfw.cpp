@@ -70,7 +70,9 @@
 #include <QStyle>
 #include <QVector>
 #include <QWidget>
-#include "qtlayouthelpers.h"
+#include "common/widgetconst.h"
+#include "lib/reentrydepthguard.h"
+#include "widgets/qtlayouthelpers.h"
 
 #ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
 #include "common/globals.h"  // for qHash(const QRect&)
@@ -365,6 +367,7 @@ See also
 
 */
 
+
 // ============================================================================
 // Ancillary structs/classes
 // ============================================================================
@@ -451,7 +454,8 @@ BoxLayoutHfw::BoxLayoutHfw(Direction dir, QWidget* parent) :
 #else
     m_cached_hfw_width(-1),
 #endif
-    m_dirty(true)
+    m_dirty(true),
+    m_reentry_depth(0)
 {
 #ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
     // setSizeConstraint(QLayout::SetMinAndMaxSize);
@@ -1049,6 +1053,15 @@ void BoxLayoutHfw::setGeometry(const QRect& initial_rect)
     // the instruction is "this is your size; now lay out your children".
 
     // ------------------------------------------------------------------------
+    // Prevent infinite recursion
+    // ------------------------------------------------------------------------
+    if (m_reentry_depth >= widgetconst::SET_GEOMETRY_MAX_REENTRY_DEPTH) {
+        return;
+    }
+    ReentryDepthGuard guard(m_reentry_depth);
+    Q_UNUSED(guard);
+
+    // ------------------------------------------------------------------------
     // Initialize
     // ------------------------------------------------------------------------
 #ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
@@ -1162,7 +1175,6 @@ void BoxLayoutHfw::setGeometry(const QRect& initial_rect)
     // ------------------------------------------------------------------------
     // Lay out children and call QLayout::setGeometry()
     // ------------------------------------------------------------------------
-
     QRect old_rect = geometry();
     QLayout::setGeometry(r);
     distribute(gi, r, old_rect);
@@ -1170,10 +1182,9 @@ void BoxLayoutHfw::setGeometry(const QRect& initial_rect)
     // ------------------------------------------------------------------------
     // Ask our parent to resize, if necessary
     // ------------------------------------------------------------------------
-
 #ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
     if (parent_new_height != -1) {
-        parent->setFixedHeight(parent_new_height);
+        parent->setFixedHeight(parent_new_height);  // RISK OF INFINITE RECURSION
         parent->updateGeometry();
     }
 #endif

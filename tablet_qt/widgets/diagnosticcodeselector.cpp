@@ -40,6 +40,7 @@
 #include "diagnosis/diagnosissortfiltermodel.h"
 #include "diagnosis/flatproxymodel.h"
 #include "lib/layoutdumper.h"
+#include "lib/uifunc.h"
 #include "widgets/basewidget.h"
 #include "widgets/horizontalline.h"
 #include "widgets/imagebutton.h"
@@ -173,7 +174,8 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     // Tree view
     // ========================================================================
 
-    m_heading_tree = new QLabel(tr("Explore as tree:"));
+    m_heading_tree = new QLabel(
+                tr("Explore as tree [use icon at top right to search]:"));
     m_heading_tree->setObjectName(cssconst::HEADING);
 
     m_treeview = new QTreeView();
@@ -189,6 +191,7 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     m_treeview->setColumnHidden(DiagnosticCode::COLUMN_FULLNAME, false);
     m_treeview->setSortingEnabled(false);
     m_treeview->scrollTo(selected);
+    uifunc::applyScrollGestures(m_treeview);
 
     // ========================================================================
     // Search box
@@ -239,7 +242,8 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     // - The alternative is a proxy model that flattens properly for us (see
     //   same link). We'll do that, and use a real QListView.
 
-    m_heading_search = new QLabel(tr("Search diagnoses:"));
+    m_heading_search = new QLabel(
+                tr("Search diagnoses [use icon at top right for tree view]:"));
     m_heading_search->setObjectName(cssconst::HEADING);
 
     m_flatview = new QListView();
@@ -247,6 +251,7 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     m_flatview->setSelectionModel(m_proxy_selection_model.data());
     m_flatview->setWordWrap(true);
     m_flatview->scrollTo(proxy_selected);
+    uifunc::applyScrollGestures(m_flatview);
 
     // ========================================================================
     // Final assembly (with "this" as main widget)

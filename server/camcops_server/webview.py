@@ -2,6 +2,7 @@
 # webview.py
 
 """
+===============================================================================
     Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
@@ -18,6 +19,7 @@
 
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+===============================================================================
 """
 
 import datetime
@@ -189,6 +191,8 @@ def fail_not_user(action: str, redirect: str = None) -> str:
         "Can't process action {} — not logged in as a valid user, "
         "or session has timed out.".format(action),
         redirect)
+    # OR ANOTHER POSSIBILITY: CamCOPS being offered over HTTP, which will
+    # cause cookies not to be saved (because they're HTTPS only).
 
 
 def fail_not_authorized_for_task() -> str:

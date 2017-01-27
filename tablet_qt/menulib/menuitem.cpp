@@ -140,7 +140,7 @@ MenuItem::MenuItem(const TaskMenuItem& taskmenuitem, CamcopsApp& app)
     }
     m_title = task->menutitle();
     m_subtitle = task->menusubtitle();
-    m_crippled = task->isCrippled();
+    // m_crippled = task->isCrippled();
     if (task->isAnonymous()) {
         m_icon = uifunc::iconFilename(uiconst::ICON_ANONYMOUS);
     }
@@ -190,7 +190,7 @@ void MenuItem::setDefaults()
     m_arrow_on_right = false;
     m_chain = false;
     m_copyright_details_pending = false;
-    m_crippled = false;
+    // m_crippled = false;
     m_implemented = true;
     m_label_only = false;
     m_needs_privilege = false;

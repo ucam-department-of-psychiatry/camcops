@@ -20,6 +20,7 @@
 #include "namevalueoptions.h"
 #include <QDebug>
 #include "common/random.h"
+#include "lib/convert.h"
 #include "lib/uifunc.h"
 
 
@@ -28,7 +29,8 @@ NameValueOptions::NameValueOptions()
 }
 
 
-NameValueOptions::NameValueOptions(std::initializer_list<NameValuePair> options) :
+NameValueOptions::NameValueOptions(
+        std::initializer_list<NameValuePair> options) :
     m_options(options)
 {
 }
@@ -84,10 +86,11 @@ void NameValueOptions::validateOrDie()
         const NameValuePair& nvp = m_options.at(i);
         const QVariant& v = nvp.value();
         if (values.contains(v)) {
-            qCritical() << Q_FUNC_INFO
-                        << "Name/value pair contains duplicate value:" << v;
-            uifunc::stopApp("NameValueOptions::validateOrDie: Duplicate "
-                            "name/value pair for name: " + nvp.name());
+            QString error = QString("NameValueOptions::validateOrDie: "
+                                    "Duplicate value %1 found for name %2")
+                    .arg(convert::prettyValue(v))
+                    .arg(nvp.name());
+            uifunc::stopApp(error);
         }
         values.append(v);
     }

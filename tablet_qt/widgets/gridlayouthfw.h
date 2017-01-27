@@ -214,4 +214,5 @@ private:
     mutable Margins m_effective_margins;  // RNC; replacing leftMargin, topMargin, rightMargin, bottomMargin
 
     mutable bool m_dirty;  // RNC: was uint : 1  -- was needRecalc
+    int m_reentry_depth;  // RNC
 };

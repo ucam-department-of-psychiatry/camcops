@@ -164,6 +164,13 @@ QString DatabaseObject::prettyValue(const QString &fieldname) const
 }
 
 
+bool DatabaseObject::valueIsNull(const QString &fieldname) const
+{
+    QVariant v = value(fieldname);
+    return v.isNull();
+}
+
+
 bool DatabaseObject::valueBool(const QString& fieldname) const
 {
     QVariant v = value(fieldname);
@@ -224,6 +231,21 @@ QString DatabaseObject::valueString(const QString& fieldname) const
 {
     QVariant v = value(fieldname);
     return v.toString();
+}
+
+
+QChar DatabaseObject::valueQChar(const QString& fieldname) const
+{
+    QVariant v = value(fieldname);
+    return v.toChar();
+}
+
+
+char DatabaseObject::valueLatin1Char(const QString& fieldname) const
+{
+    QVariant v = value(fieldname);
+    QChar c = v.toChar();  // 16-bit char
+    return c.toLatin1();  // 8-bit char
 }
 
 

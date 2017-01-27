@@ -2,6 +2,7 @@
 # ace3.py
 
 """
+===============================================================================
     Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
@@ -18,12 +19,14 @@
 
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+===============================================================================
 """
 
 from typing import List, Optional
 
 import matplotlib.pyplot as plt
 import numpy
+from semantic_version import Version
 import cardinal_pythonlib.rnc_web as ws
 
 from ..cc_modules.cc_constants import FULLWIDTH_PLOT_WIDTH, PV
@@ -38,6 +41,7 @@ from ..cc_modules.cc_html import (
     tr_span_col,
 )
 from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
+# from ..cc_modules.cc_version import TABLET_VERSION_2_0_0
 
 
 # =============================================================================
@@ -47,6 +51,7 @@ from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
 ADDRESS_PARTS = ["forename", "surname", "number", "street_1",
                  "street_2", "town", "county"]
 RECALL_WORDS = ["lemon", "key", "ball"]
+TABLET_VERSION_2 = Version
 
 
 # =============================================================================
@@ -207,6 +212,13 @@ class Ace3(Task):
             "mem_recognize_address", 1, 5, pv=PV.BIT,
             comment_fmt="Memory, recognize address {n}/5 (if "
             "applicable) ({s}) (0-1)",
+            comment_strings=["name", "number", "street", "town", "county"],
+        ) +
+        repeat_fieldspec(  # tablet version 2.0.0 onwards
+            "mem_recognize_address_choice", 1, 5,
+            cctype="TEXT",
+            comment_fmt="Memory, recognize address {n}/5, CHOICE (if "
+                        "applicable) ({s}) (A/B/C)",
             comment_strings=["name", "number", "street", "town", "county"],
         ) +
         [

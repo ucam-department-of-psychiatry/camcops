@@ -18,7 +18,7 @@
 */
 
 #include "phq9.h"
-#include "common/uiconstants.h"
+#include "common/textconst.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
@@ -214,9 +214,9 @@ int Phq9::nOtherSymptoms() const
 
 QString Phq9::severity(int score)
 {
-    if (score >= 20) return uiconst::SEVERE;
-    if (score >= 15) return uiconst::MODERATELY_SEVERE;
-    if (score >= 10) return uiconst::MODERATE;
-    if (score >=  5) return uiconst::MILD;
-    return uiconst::NONE;
+    if (score >= 20) return textconst::SEVERE;
+    if (score >= 15) return textconst::MODERATELY_SEVERE;
+    if (score >= 10) return textconst::MODERATE;
+    if (score >=  5) return textconst::MILD;
+    return textconst::NONE;
 }

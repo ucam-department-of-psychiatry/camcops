@@ -42,6 +42,8 @@ SingleTaskMenu::SingleTaskMenu(const QString& tablename, CamcopsApp& app) :
     if (m_anonymous) {
         setIcon(uifunc::iconFilename(uiconst::ICON_ANONYMOUS));
     }
+    bool crippled = specimen->isCrippled();
+    m_p_header->setCrippled(crippled);
 
     // m_items is EXPENSIVE (and depends on security), so leave it to build()
 

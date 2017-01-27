@@ -18,14 +18,18 @@
 */
 
 // #define DEBUG_LAYOUT
-#define UPDATE_GEOMETRY_FROM_EVENT_FILTER_POSSIBLY_DANGEROUS
 
 #include "verticalscrollarea.h"
 #include <QDebug>
 #include <QEvent>
+// #include <QGestureEvent>
 #include <QLayout>
 #include <QScrollBar>
+#include <QScroller>
+#include "common/widgetconst.h"
+#include "lib/reentrydepthguard.h"
 #include "lib/sizehelpers.h"
+#include "lib/uifunc.h"
 #include "widgets/margins.h"
 
 const int MIN_HEIGHT = 100;
@@ -89,9 +93,12 @@ so you have to check.
 
 VerticalScrollArea::VerticalScrollArea(QWidget* parent) :
     QScrollArea(parent),
-    m_updating_geometry(false),
-    m_last_widget_width(-1)
+    m_last_widget_width(-1),
+    m_reentry_depth(0)
 {
+    // ------------------------------------------------------------------------
+    // Sizing
+    // ------------------------------------------------------------------------
     setWidgetResizable(true);
     // ... definitely true! If false, you get a narrow strip of widgets
     // instead of them expanding to the full width.
@@ -117,29 +124,87 @@ VerticalScrollArea::VerticalScrollArea(QWidget* parent) :
 
     setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
     // http://doc.qt.io/qt-5/qabstractscrollarea.html#SizeAdjustPolicy-enum
+
+    // ------------------------------------------------------------------------
+    // For scroll-by-swipe:
+    // ------------------------------------------------------------------------
+
+    // Method 1
+
+    // setAttribute(Qt::WA_AcceptTouchEvents);
+    // grabGesture(Qt::SwipeGesture);  // will arrive via event()
+
+    // Note that mouse "gestures" are not supported. They can be manually
+    // calculated/simulated; see
+    // https://doc.qt.io/archives/qq/qq18-mousegestures.html
+    // https://forum.qt.io/topic/27422/solved-qswipegesture-implementation-on-desktop/4
+
+    // Method 2
+    uifunc::applyScrollGestures(viewport());
 }
+
+
+/*
+bool VerticalScrollArea::event(QEvent* event)
+{
+    // http://doc.qt.io/qt-5.7/gestures-overview.html
+    if (event->type() == QEvent::Gesture) {
+        return gestureEvent(static_cast<QGestureEvent*>(event));
+    }
+    return QWidget::event(event);
+}
+
+
+bool VerticalScrollArea::gestureEvent(QGestureEvent* event)
+{
+    qDebug() << Q_FUNC_INFO;
+    // http://doc.qt.io/qt-5.7/gestures-overview.html
+    if (QGesture* swipe = event->gesture(Qt::SwipeGesture)) {
+        swipeTriggered(static_cast<QSwipeGesture*>(swipe));
+    }
+    return true;
+}
+
+
+void VerticalScrollArea::swipeTriggered(QSwipeGesture* gesture)
+{
+    qDebug() << Q_FUNC_INFO;
+    if (gesture->state() == Qt::GestureUpdated) {
+        bool up = gesture->verticalDirection() == QSwipeGesture::Up;
+        bool down = gesture->verticalDirection() == QSwipeGesture::Down;
+        if (up || down) {
+            int dy = 50;
+            if (down) {
+                dy = -dy;
+            }
+            scroll(0, dy);  // dx, dy
+        }
+    }
+}
+*/
 
 
 bool VerticalScrollArea::eventFilter(QObject* o, QEvent* e)
 {
+    // This deals with the "owned" widget changing size.
+
     // Return true for "I've dealt with it; nobody else should".
     // http://doc.qt.io/qt-5.7/eventsandfilters.html
 
+    // We use eventFilter(), not event(), because we are looking for events on
+    // the widget that we are scrolling, not our own widget.
     // This works because QScrollArea::setWidget installs an eventFilter on the
-    // widget
+    // widget.
     if (o && o == widget() && e && e->type() == QEvent::Resize) {
 
-#ifdef UPDATE_GEOMETRY_FROM_EVENT_FILTER_POSSIBLY_DANGEROUS
-        if (m_updating_geometry) {
-            // We must not call the parent event filter; that can also cause
-            // an infinite loop, e.g. QScrollArea can call updateScrollBars()
-            // which can trigger a widget resize, etc.
-#ifdef DEBUG_LAYOUT
-            qDebug() << Q_FUNC_INFO << "- preventing infinite loop";
-#endif
+        // --------------------------------------------------------------------
+        // Prevent infinite recursion
+        // --------------------------------------------------------------------
+        if (m_reentry_depth >= widgetconst::SET_GEOMETRY_MAX_REENTRY_DEPTH) {
             return false;
         }
-#endif
+        ReentryDepthGuard guard(m_reentry_depth);
+        Q_UNUSED(guard);
 
         bool parent_result = QScrollArea::eventFilter(o, e);  // will call d->updateScrollBars();
         resetSizeLimits();
@@ -273,8 +338,14 @@ void VerticalScrollArea::resetSizeLimits()
             << "]";
 #endif
 
-#ifdef UPDATE_GEOMETRY_FROM_EVENT_FILTER_POSSIBLY_DANGEROUS
-    m_updating_geometry = true;  // guard round all the dangerous stuff
+    // --------------------------------------------------------------------
+    // Prevent infinite recursion
+    // --------------------------------------------------------------------
+    if (m_reentry_depth >= widgetconst::SET_GEOMETRY_MAX_REENTRY_DEPTH) {
+        return;
+    }
+    ReentryDepthGuard guard(m_reentry_depth);
+    Q_UNUSED(guard);
 
     // We're not doing horizontal scrolling, so we must be at least as wide
     // as our widget's minimum:
@@ -306,9 +377,6 @@ void VerticalScrollArea::resetSizeLimits()
 
     updateGeometry();
     // Do NOT attempt to invalidate the parent widget's layout here.
-
-    m_updating_geometry = false;
-#endif
 
     // PREVIOUS RESIDUAL PROBLEM:
     // - On some machines (e.g. wombat, Linux), when a multiline text box

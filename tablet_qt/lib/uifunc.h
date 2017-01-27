@@ -158,4 +158,10 @@ void visitUrl(const QString& url);
 QString escapeString(const QString& string);
 QString yesNo(bool yes);
 
+// ============================================================================
+// Scrolling
+// ============================================================================
+
+void applyScrollGestures(QWidget* widget);
+
 }  // namespace uifunc
