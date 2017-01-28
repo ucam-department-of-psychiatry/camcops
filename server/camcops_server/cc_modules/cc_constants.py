@@ -26,7 +26,7 @@
 
 import os
 import string
-from cardinal_pythonlib.rnc_lang import AttrDict, merge_dicts
+from cardinal_pythonlib.rnc_lang import merge_dicts
 from camcops_server.cc_modules.cc_baseconstants import (
     CAMCOPS_SERVER_DIRECTORY,
     TABLET_SOURCE_COPY_DIR,
@@ -265,44 +265,41 @@ class VALUE(object):
     OUTPUTTYPE_SQL = "sql"
     OUTPUTTYPE_XML = "xml"
 
+
 # =============================================================================
 # Date formats
 # =============================================================================
 
-DATEFORMAT = AttrDict({
-    "SHORT_DATE": "%d %b %Y",  # e.g. 24 Jul 2013
-    "LONG_DATE": "%d %B %Y",  # e.g. 24 July 2013
-    "LONG_DATE_WITH_DAY": "%a %d %B %Y",  # e.g. Wed 24 July 2013
-    "LONG_DATETIME": "%d %B %Y, %H:%M %z",
-    # ... e.g. 24 July 2013, 20:04 +0100
-    "LONG_DATETIME_WITH_DAY": "%a %d %B %Y, %H:%M %z",
-    # ... e.g. Wed 24 July 2013, 20:04 +0100
-    "LONG_DATETIME_WITH_DAY_NO_TZ": "%a %d %B %Y, %H:%M",
-    # ... e.g. Wed 24 July 2013, 20:04
-    "SHORT_DATETIME_WITH_DAY_NO_TZ": "%a %d %b %Y, %H:%M",
-    # ... e.g. Wed 24 Jul 2013, 20:04
-    "LONG_DATETIME_SECONDS": "%d %B %Y, %H:%M:%S %z",
-    "SHORT_DATETIME": "%d %b %Y, %H:%M %z",
-    "SHORT_DATETIME_SECONDS": "%d %b %Y, %H:%M:%S %z",
-    "HOURS_MINUTES": "%H:%M",
-    "ISO8601": "%Y-%m-%dT%H:%M:%S%z",  # e.g. 2013-07-24T20:04:07+0100
-    "ISO8601_DATE_ONLY": "%Y-%m-%d",  # e.g. 2013-07-24
-    "FILENAME": "%Y-%m-%dT%H%M",  # e.g. 20130724T2004
-    "FILENAME_DATE_ONLY": "%Y-%m-%d",  # e.g. 20130724
-    "HL7_DATETIME": "%Y%m%d%H%M%S%z",  # e.g. 20130724200407+0100
-    "HL7_DATE": "%Y%m%d",  # e.g. 20130724
-    "ERA": "%Y-%m-%dT%H:%M:%SZ",  # e.g. 2013-07-24T20:03:07Z
+class DATEFORMAT(object):
+    SHORT_DATE = "%d %b %Y"  # e.g. 24 Jul 2013
+    LONG_DATE = "%d %B %Y"  # e.g. 24 July 2013
+    LONG_DATE_WITH_DAY = "%a %d %B %Y"  # e.g. Wed 24 July 2013
+    LONG_DATETIME = "%d %B %Y, %H:%M %z"  # ... e.g. 24 July 2013, 20:04 +0100
+    LONG_DATETIME_WITH_DAY = "%a %d %B %Y, %H:%M %z"  # ... e.g. Wed 24 July 2013, 20:04 +0100  # noqa
+    LONG_DATETIME_WITH_DAY_NO_TZ = "%a %d %B %Y, %H:%M"  # ... e.g. Wed 24 July 2013, 20:04  # noqa
+    SHORT_DATETIME_WITH_DAY_NO_TZ = "%a %d %b %Y, %H:%M"  # ... e.g. Wed 24 Jul 2013, 20:04  # noqa
+    LONG_DATETIME_SECONDS = "%d %B %Y, %H:%M:%S %z"
+    SHORT_DATETIME = "%d %b %Y, %H:%M %z"
+    SHORT_DATETIME_SECONDS = "%d %b %Y, %H:%M:%S %z"
+    HOURS_MINUTES = "%H:%M"
+    ISO8601 = "%Y-%m-%dT%H:%M:%S%z"  # e.g. 2013-07-24T20:04:07+0100
+    ISO8601_DATE_ONLY = "%Y-%m-%d"  # e.g. 2013-07-24
+    FILENAME = "%Y-%m-%dT%H%M"  # e.g. 20130724T2004
+    FILENAME_DATE_ONLY = "%Y-%m-%d"  # e.g. 20130724
+    HL7_DATETIME = "%Y%m%d%H%M%S%z"  # e.g. 20130724200407+0100
+    HL7_DATE = "%Y%m%d"  # e.g. 20130724
+    ERA = "%Y-%m-%dT%H:%M:%SZ"  # e.g. 2013-07-24T20:03:07Z
     # http://www.hl7standards.com/blog/2008/07/25/hl7-time-zone-qualification/
-    "RIO_EXPORT_UK": "%d/%m/%Y %H:%M",  # e.g. 01/12/2014 09:45
-})
+    RIO_EXPORT_UK = "%d/%m/%Y %H:%M"  # e.g. 01/12/2014 09:45
+
 
 # =============================================================================
 # Permitted values in fields: some common settings
 # =============================================================================
 
-PV = AttrDict({
-    "BIT": [0, 1],
-})
+class PV(object):
+    BIT = [0, 1]
+
 
 NO_CHAR = 'N'
 YES_CHAR = 'Y'

@@ -27,7 +27,6 @@ import datetime
 from typing import List, Optional
 
 import cardinal_pythonlib.rnc_db as rnc_db
-from cardinal_pythonlib.rnc_lang import AttrDict
 
 from . import cc_dt
 from . import cc_filename
@@ -41,12 +40,15 @@ from .cc_logger import log
 # =============================================================================
 
 DEFAULT_HL7_PORT = 2575
-RECIPIENT_TYPE = AttrDict({
-    "HL7": "hl7",
-    "FILE": "file",
-})
 RIO_MAX_USER_LEN = 10
 
+RECIPIENT_TYPE_HL7 = 'hl7'
+RECIPIENT_TYPE_FILE = 'file'
+
+ALL_RECIPIENT_TYPES = [
+    RECIPIENT_TYPE_HL7,
+    RECIPIENT_TYPE_FILE,
+]
 
 # =============================================================================
 # RecipientDefinition class
@@ -139,7 +141,7 @@ class RecipientDefinition(object):
         # Variable constructor...
         if config is None and section is None:
             # dummy one
-            self.type = RECIPIENT_TYPE.FILE
+            self.type = RECIPIENT_TYPE_FILE
             self.primary_idnum = 1
             self.require_idnum_mandatory = False
             self.finalized_only = False
@@ -164,6 +166,7 @@ class RecipientDefinition(object):
         try:
             self.type = get_config_parameter(
                 config, section, "TYPE", str, "hl7")
+            self.type = str(self.type).lower()
             self.primary_idnum = get_config_parameter(
                 config, section, "PRIMARY_IDNUM", int, None)
             self.require_idnum_mandatory = get_config_parameter_boolean(
@@ -256,7 +259,7 @@ class RecipientDefinition(object):
     def check_valid(self) -> None:
         """Performs validity check and sets self.valid"""
         self.valid = False
-        if self.type not in RECIPIENT_TYPE.values():
+        if self.type not in ALL_RECIPIENT_TYPES:
             self.report_error("missing/invalid type: {}".format(self.type))
             return
         if not self.primary_idnum and self.using_hl7():
@@ -295,7 +298,7 @@ class RecipientDefinition(object):
         if not self.task_format == VALUE.OUTPUTTYPE_XML:
             self.xml_field_comments = None
         # HL7
-        if self.type == RECIPIENT_TYPE.HL7:
+        if self.type == RECIPIENT_TYPE_HL7:
             if not self.divert_to_file:
                 if not self.host:
                     self.report_error("missing host")
@@ -310,7 +313,7 @@ class RecipientDefinition(object):
                         self.primary_idnum))
                 return
         # File
-        if self.type == RECIPIENT_TYPE.FILE:
+        if self.type == RECIPIENT_TYPE_FILE:
             if not self.patient_spec_if_anonymous:
                 self.report_error("missing patient_spec_if_anonymous")
                 return
@@ -358,11 +361,11 @@ class RecipientDefinition(object):
 
     def using_hl7(self) -> bool:
         """Is the recipient an HL7 recipient?"""
-        return self.type == RECIPIENT_TYPE.HL7
+        return self.type == RECIPIENT_TYPE_HL7
 
     def using_file(self) -> bool:
         """Is the recipient a filestore?"""
-        return self.type == RECIPIENT_TYPE.FILE
+        return self.type == RECIPIENT_TYPE_FILE
 
     def get_id_type(self, idnum: int) -> str:
         """Get HL7 ID type for a specific ID number.

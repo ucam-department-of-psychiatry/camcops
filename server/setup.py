@@ -50,7 +50,9 @@ from camcops_server.cc_modules.cc_baseconstants import (
     INTROSPECTABLE_EXTENSIONS,
     TABLET_SOURCE_COPY_DIR,
 )
-from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
+from camcops_server.cc_modules.cc_version_string import (
+    CAMCOPS_SERVER_VERSION_STRING,
+)
 
 COPYABLE_EXTENSIONS = INTROSPECTABLE_EXTENSIONS + ['.png']
 
@@ -223,7 +225,7 @@ if getattr(our_args, EXTRAS_ARG):
 setup(
     name='camcops_server',
 
-    version=str(CAMCOPS_SERVER_VERSION),
+    version=CAMCOPS_SERVER_VERSION_STRING,
 
     description='CamCOPS server',
     long_description="""

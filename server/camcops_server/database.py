@@ -36,6 +36,7 @@ from typing import (Any, Callable, Dict, Iterable, List,
 import cardinal_pythonlib.rnc_db as rnc_db
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.rnc_web import HEADERS_TYPE
+from semantic_version import Version
 
 from .cc_modules.cc_dt import format_datetime
 from .cc_modules import cc_audit
@@ -79,6 +80,7 @@ from .cc_modules.cc_user import (
     SECURITY_LOGIN_FAILURE_TABLENAME,
     User,
 )
+from .cc_modules.cc_version import make_version
 
 # =============================================================================
 # Debugging options
@@ -218,15 +220,14 @@ class SessionManager(object):
         self.session_id = ws.get_cgi_parameter_int(form, PARAM.SESSION_ID)
         self.session_token = ws.get_cgi_parameter_str(form,
                                                       PARAM.SESSION_TOKEN)
-        self.tablet_version = ws.get_cgi_parameter_float(form,
-                                                         PARAM.CAMCOPS_VERSION)
+        self.tablet_version = ws.get_cgi_parameter_str(
+            form, PARAM.CAMCOPS_VERSION)
         # Look up device and user
         self._device_obj = get_device_by_name(self.device_name)
         self._user_obj = get_user_by_name(self.username)
 
         # Ensure table version is OK
-        if (self.tablet_version is None or
-                self.tablet_version < cc_version.MINIMUM_TABLET_VERSION):
+        if make_version(self.tablet_version) < cc_version.MINIMUM_TABLET_VERSION:  # noqa
             fail_user_error(
                 "Tablet CamCOPS version too old: is {v}, need {r}".format(
                     v=self.tablet_version,

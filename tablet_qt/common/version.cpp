@@ -21,11 +21,41 @@
 #include <QStringList>
 
 
-Version::Version(unsigned int major, unsigned int minor, unsigned int patch) :
-    m_valid(true),
-    m_major(major),
-    m_minor(minor),
-    m_patch(patch)
+Version::Version(unsigned int major, unsigned int minor, unsigned int patch)
+{
+    setFromNumbers(major, minor, patch);
+}
+
+
+Version::Version(const QString& version_string)
+{
+    QStringList parts = version_string.split(".");
+    if (parts.size() != 3) {
+        setInvalid();
+        return;
+    }
+    int major, minor, patch;
+    bool ok;
+    major = parts.at(0).toInt(&ok);
+    if (ok) {
+        minor = parts.at(1).toInt(&ok);
+    }
+    if (ok) {
+        patch = parts.at(2).toInt(&ok);
+    }
+    if (!ok) {
+        setInvalid();
+        return;
+    }
+    setFromNumbers(major, minor, patch);
+    if (!isValid()) {
+        qWarning() << "... invalid version string was:" << version_string;
+    }
+}
+
+
+void Version::setFromNumbers(unsigned int major, unsigned int minor,
+                             unsigned int patch)
 {
     if (minor >= 100 || patch >= 100 ||
             (major == 0 && minor == 0 && patch == 0)) {
@@ -33,11 +63,22 @@ Version::Version(unsigned int major, unsigned int minor, unsigned int patch) :
                    << "major" << major
                    << "minor" << minor
                    << "patch" << patch;
-        m_valid = false;
-        m_major = 0;
-        m_minor = 0;
-        m_patch = 0;
+        setInvalid();
+        return;
     }
+    m_major = major;
+    m_minor = minor;
+    m_patch = patch;
+    m_valid = true;
+}
+
+
+void Version::setInvalid()
+{
+    m_valid = false;
+    m_major = 0;
+    m_minor = 0;
+    m_patch = 0;
 }
 
 
@@ -115,32 +156,6 @@ bool operator!=(const Version& v1, const Version& v2)
     return v1.m_major != v2.m_major ||
            v1.m_minor != v2.m_minor ||
            v1.m_patch != v2.m_patch;
-}
-
-
-Version Version::fromString(const QString& version_string)
-{
-    QStringList parts = version_string.split(".");
-    if (parts.size() != 3) {
-        return makeInvalidVersion();
-    }
-    int major, minor, patch;
-    bool ok;
-    major = parts.at(0).toInt(&ok);
-    if (ok) {
-        minor = parts.at(1).toInt(&ok);
-    }
-    if (ok) {
-        patch = parts.at(2).toInt(&ok);
-    }
-    if (!ok) {
-        return makeInvalidVersion();
-    }
-    Version v = Version(major, minor, patch);
-    if (!v.isValid()) {
-        qWarning() << "... invalid version string was:" << version_string;
-    }
-    return v;
 }
 
 

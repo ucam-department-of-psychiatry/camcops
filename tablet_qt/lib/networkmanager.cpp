@@ -91,6 +91,8 @@ const QString OP_UPLOAD_RECORD("upload_record");
 const QString OP_UPLOAD_EMPTY_TABLES("upload_empty_tables");
 const QString OP_WHICH_KEYS_TO_SEND("which_keys_to_send");
 
+// Notification text:
+const QString PLEASE_REREGISTER(QObject::tr("Please re-register with the server."));
 
 // CALLBACK LIFETIME SAFETY in this class:
 // - There is only one NetworkManager in the whole app, owned by the
@@ -304,8 +306,8 @@ void NetworkManager::serverPost(Dict dict, ReplyFuncPtr reply_func,
     }
 
     // Complete the dictionary
-    dict[KEY_CAMCOPS_VERSION] = camcopsversion::CAMCOPS_VERSION.toFloatString();  // outdated
-    // dict[CAMCOPS_VERSION] = CamcopsVersion::CAMCOPS_VERSION.toString();  // *** server won't yet handle
+    // dict[KEY_CAMCOPS_VERSION] = camcopsversion::CAMCOPS_VERSION.toFloatString();  // outdated
+    dict[KEY_CAMCOPS_VERSION] = camcopsversion::CAMCOPS_VERSION.toString();  // server copes as of v2.0.0
     dict[KEY_DEVICE] = m_app.deviceId();
     if (include_user) {
         QString user = m_app.varString(varconst::SERVER_USERNAME);
@@ -1148,12 +1150,12 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
         break;
 
     case NextUploadStage::FetchPolicies:
-        fetchPolicies();
+        uploadFetchServerIdInfo();
         m_upload_next_stage = NextUploadStage::CheckPoliciesThenStartUpload;
         break;
 
     case NextUploadStage::CheckPoliciesThenStartUpload:
-        if (!arePoliciesOK()) {
+        if (!isServerVersionOK() || !arePoliciesOK() || !areDescriptionsOK()) {
             fail();
             return;
         }
@@ -1226,12 +1228,30 @@ void NetworkManager::checkUploadUser()
 }
 
 
-void NetworkManager::fetchPolicies()
+void NetworkManager::uploadFetchServerIdInfo()
 {
-    statusMessage("Fetching ID policies from server");
+    statusMessage("Fetching server's version/ID policies/ID descriptions");
     Dict dict;
     dict[KEY_OPERATION] = OP_GET_ID_INFO;
     serverPost(dict, &NetworkManager::uploadNext);
+}
+
+
+bool NetworkManager::isServerVersionOK()
+{
+    statusMessage("Checking server CamCOPS version");
+    QString server_version_str = m_reply_dict[KEY_SERVER_CAMCOPS_VERSION];
+    Version server_version(server_version_str);
+    bool ok = server_version >= camcopsversion::MINIMUM_SERVER_VERSION;
+    if (ok) {
+        statusMessage("... OK");
+    } else {
+        statusMessage(QString("Server CamCOPS version (%1) is too old; must "
+                              "be >= %2")
+                      .arg(server_version_str)
+                      .arg(camcopsversion::MINIMUM_SERVER_VERSION.toString()));
+    }
+    return ok;
 }
 
 
@@ -1244,15 +1264,45 @@ bool NetworkManager::arePoliciesOK()
     QString server_finalize = IdPolicy(m_reply_dict[KEY_ID_POLICY_FINALIZE]).pretty();
     bool ok = true;
     if (local_upload != server_upload) {
-        statusMessage(QString("Local upload policy [%1] doesn't match server's [%2]").arg(local_upload).arg(server_upload));
+        statusMessage(QString("Local upload policy [%1] doesn't match "
+                              "server's [%2]. ")
+                      .arg(local_upload)
+                      .arg(server_upload) + PLEASE_REREGISTER);
         ok = false;
     }
     if (local_finalize != server_finalize) {
-        statusMessage(QString("Local finalize policy [%1] doesn't match server's [%2]").arg(local_finalize).arg(server_finalize));
+        statusMessage(QString("Local finalize policy [%1] doesn't match "
+                              "server's [%2]. ")
+                      .arg(local_finalize)
+                      .arg(server_finalize) + PLEASE_REREGISTER);
         ok = false;
     }
     if (ok) {
         statusMessage("... OK");
+    }
+    return ok;
+}
+
+
+bool NetworkManager::areDescriptionsOK()
+{
+    statusMessage("Checking ID descriptions match server");
+    bool ok = true;
+    for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
+        QString key_desc = KEYSPEC_ID_DESCRIPTION.arg(n);
+        QString key_shortdesc = KEYSPEC_ID_SHORT_DESCRIPTION.arg(n);
+        QString varname_desc = dbconst::IDDESC_FIELD_FORMAT.arg(n);
+        QString varname_shortdesc = dbconst::IDSHORTDESC_FIELD_FORMAT.arg(n);
+        QString local_desc = m_app.varString(varname_desc);
+        QString local_shortdesc = m_app.varString(varname_shortdesc);
+        QString server_desc = m_reply_dict[key_desc];
+        QString server_shortdesc = m_reply_dict[key_shortdesc];
+        ok = ok && local_desc == server_desc && local_shortdesc == server_shortdesc;
+    }
+    if (ok) {
+        statusMessage("... OK");
+    } else {
+        statusMessage("Descriptions do not match! " + PLEASE_REREGISTER);
     }
     return ok;
 }
@@ -1488,4 +1538,14 @@ bool NetworkManager::pruneDeadBlobs()
         return false;
     }
     return true;
+}
+
+
+// ============================================================================
+// Analytics
+// ============================================================================
+
+void NetworkManager::sendAnalytics()
+{
+
 }

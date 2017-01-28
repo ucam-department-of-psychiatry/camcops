@@ -38,8 +38,8 @@ import tempfile
 from typing import List
 
 from camcops_server.cc_modules.cc_logger import main_only_quicksetup_rootlogger
-from camcops_server.cc_modules.cc_version import (
-    CAMCOPS_SERVER_VERSION,
+from camcops_server.cc_modules.cc_version_string import (
+    CAMCOPS_SERVER_VERSION_STRING,
     CAMCOPS_CHANGEDATE,
 )
 
@@ -167,9 +167,9 @@ def write_zipped_text(basefilename: str, text: str) -> None:
 
 def preserve_cwd(function):
     # http://stackoverflow.com/questions/169070/python-how-do-i-write-a-decorator-that-restores-the-cwd  # noqa
-    def decorator(*args, **kwargs):
+    def decorator(*args_, **kwargs):
         cwd = os.getcwd()
-        result = function(*args, **kwargs)
+        result = function(*args_, **kwargs)
         os.chdir(cwd)
         return result
     return decorator
@@ -439,7 +439,7 @@ DST_CAMCOPS_META_LAUNCHER = join(DSTVENVBIN, 'camcops_meta')
 # Version number and conditionals
 # =============================================================================
 
-MAINVERSION = CAMCOPS_SERVER_VERSION
+MAINVERSION = CAMCOPS_SERVER_VERSION_STRING
 CHANGEDATE = CAMCOPS_CHANGEDATE
 
 DEBVERSION = MAINVERSION + '-1'

@@ -24,5 +24,6 @@
 namespace camcopsversion {
 
 extern const Version CAMCOPS_VERSION;
+extern const Version MINIMUM_SERVER_VERSION;
 
 }  // namespace camcopsversion

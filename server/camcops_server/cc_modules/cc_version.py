@@ -22,37 +22,62 @@
 ===============================================================================
 """
 
+from typing import Union
+
 from semantic_version import Version
+from .cc_version_string import (
+    CAMCOPS_SERVER_VERSION_STRING,
+    MINIMUM_TABLET_VERSION_STRING,
+)
 
 # =============================================================================
 # Version constants and configuration variables read by shell scripts
 # =============================================================================
 
-CAMCOPS_SERVER_VERSION = Version("2.0.0")
-CAMCOPS_CHANGEDATE = "2016-12-06"
-MINIMUM_TABLET_VERSION = Version("1.14.0")
+CAMCOPS_SERVER_VERSION = Version(CAMCOPS_SERVER_VERSION_STRING)
+MINIMUM_TABLET_VERSION = Version(MINIMUM_TABLET_VERSION_STRING)
 
 
 # =============================================================================
 # For converting from older formats
 # =============================================================================
 
-def make_version(vstr: str) -> Version:
+def make_version(v: Union[str, float, None]) -> Version:
+    if v is None:
+        return Version("0.0.0")
+    vstr = str(v)
+    # - Note that Version.coerce(vstr) will handle "1.1.1" and "1.1", but not
+    #   e.g. "1.06" (it will complain about leading zeroes).
+    # - Furthermore, "1.5" -> (1, 5, 0) whilst "1.14" -> (1, 14, 0), which
+    #   doesn't fit float ordering.
+    # - So:
     try:
+        # Deal with something that's already in semantic numbering format.
         return Version(vstr)
     except ValueError:
-        # e.g. "1.14"
         parts = vstr.split(".")
-        if len(parts) == 2:
-            return Version(vstr + ".0")
-        elif len(parts) == 1:
-            return Version(vstr + ".0.0")
+        # Easy:
+        major = int(parts[0]) if len(parts) > 0 else 0
+        # Defaults:
+        patch = 0
+        if len(parts) == 2:  # e.g. "1.06"
+            # More tricky: older versions followed float rules, so 1.14 < 1.5.
+            # The only way of dealing with this is to enforce a number
+            # of digits/decimal places, so either:
+            # (a) 1.14 -> "1.14.0" and 1.5 -> "1.50.0", or
+            # (b) 1.14 -> "1.1.4" and 1.5 -> "1.5.0"
+            # The decision is arbitrary as long as we right-pad everything
+            after_dp = parts[1]
+            max_minor_digits = 2  # the most we used
+            minor = int(after_dp.ljust(max_minor_digits, "0"))
+            # "x".ljust(3, "0") -> "x00"
         else:
             raise
+        return Version("{}.{}.{}".format(major, minor, patch))
 
 
 # =============================================================================
 # Notable previous versions
 # =============================================================================
 
-TABLET_VERSION_2_0_0 = Version("2.0.0")  # move to C++ version
+TABLET_VERSION_2_0_0 = Version("2.0.0")  # move to C++ version, 2016-2017

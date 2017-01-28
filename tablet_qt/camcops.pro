@@ -272,7 +272,8 @@ SOURCES += main.cpp \
     common/textconst.cpp \
     lib/flagguard.cpp \
     lib/reentrydepthguard.cpp \
-    common/widgetconst.cpp
+    common/widgetconst.cpp \
+    lib/nhs.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -472,7 +473,8 @@ HEADERS  += \
     common/textconst.h \
     lib/flagguard.h \
     lib/reentrydepthguard.h \
-    common/widgetconst.h
+    common/widgetconst.h \
+    lib/nhs.h
 
 
 DISTFILES += \

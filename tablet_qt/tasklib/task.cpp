@@ -335,13 +335,6 @@ QString Task::xstring(const QString &stringname) const
 }
 
 
-QString Task::totalScorePhrase(int score, int max_score) const
-{
-    return QString("%1: <b>%2</b> / %3")
-            .arg(tr("Total score")).arg(score).arg(max_score);
-}
-
-
 QStringList Task::fieldSummaries(const QString& xstringprefix,
                                  const QString& xstringsuffix,
                                  const QString& spacer,

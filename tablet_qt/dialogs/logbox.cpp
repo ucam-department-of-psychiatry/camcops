@@ -30,12 +30,14 @@ const QSize MIN_SIZE(600, 600);
 
 
 LogBox::LogBox(QWidget* parent, const QString& title, bool offer_cancel,
-               bool offer_ok_at_end, int maximum_block_count) :
+               bool offer_ok_at_end, int maximum_block_count,
+               bool scroll_to_end_on_insert) :
     QDialog(parent),
     m_editor(nullptr),
     m_ok(nullptr),
     m_cancel(nullptr),
-    m_ack_fail(nullptr)
+    m_ack_fail(nullptr),
+    m_scroll_to_end_on_insert(scroll_to_end_on_insert)
 {
     // qDebug() << Q_FUNC_INFO;
     setWindowTitle(title);
@@ -110,6 +112,9 @@ void LogBox::statusMessage(const QString& msg, bool as_html)
         m_editor->appendHtml(msg);
     } else {
         m_editor->appendPlainText(msg);
+    }
+    if (m_scroll_to_end_on_insert) {
+        uifunc::scrollToEnd(m_editor.data());
     }
 }
 

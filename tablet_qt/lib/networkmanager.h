@@ -136,8 +136,10 @@ protected:
     void checkDeviceRegistered();
     void uploadNext(QNetworkReply* reply);
     void checkUploadUser();
-    void fetchPolicies();
+    void uploadFetchServerIdInfo();
+    bool isServerVersionOK();
     bool arePoliciesOK();
+    bool areDescriptionsOK();
     void startUpload();
     void startPreservation();
     void sendEmptyTables(const QStringList& tablenames);
@@ -150,6 +152,11 @@ protected:
     void queryFailClearingMoveOffFlag(const QString& tablename);
     bool clearMoveOffTabletFlag(const QString& tablename);
     bool pruneDeadBlobs();
+
+    // ------------------------------------------------------------------------
+    // Analytics
+    // ------------------------------------------------------------------------
+    void sendAnalytics();
 
     // ------------------------------------------------------------------------
     // Signals

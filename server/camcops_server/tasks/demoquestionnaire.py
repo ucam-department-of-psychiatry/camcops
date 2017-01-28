@@ -155,7 +155,7 @@ class DemoQuestionnaire(Task):
                                          rotationfieldname="photo_rotation")
         h += self.get_twocol_picture_row("canvas_blobid",
                                          rotationfieldname=None)
-        h += self.get_twocol_picture_row("canvas_blobid2",
+        h += self.get_twocol_picture_row("canvas2_blobid",
                                          rotationfieldname=None)
         h += """
             </table>

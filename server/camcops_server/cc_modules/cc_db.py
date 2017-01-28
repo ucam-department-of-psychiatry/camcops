@@ -31,7 +31,6 @@ from cardinal_pythonlib.rnc_db import (
     FIELDSPEC_TYPE,
     FIELDSPECLIST_TYPE,
 )
-from cardinal_pythonlib.rnc_lang import AttrDict
 
 from .cc_constants import (
     DATEFORMAT,
@@ -46,54 +45,57 @@ from .cc_pls import pls
 
 T = TypeVar('T')
 
+
 # =============================================================================
 # Field types
 # =============================================================================
 
 # Keys in SQLTYPE are the valid values for the "cctype" field.
 # Values are the corresponding SQL type.
-SQLTYPE = AttrDict({
+class SQLTYPE(object):
     # Boolean
-    "BOOL": "BOOLEAN",
+    BOOL = "BOOLEAN"
 
     # Date/time
-    "DATETIME": "DATETIME",
-    "ISO8601": "VARCHAR({})".format(ISO8601_STRING_LENGTH),
+    DATETIME = "DATETIME"
+    ISO8601 = "VARCHAR({})".format(ISO8601_STRING_LENGTH)
 
     # Numeric
-    "BIGINT": "BIGINT",  # MySQL: -9223372036854775808 to 9223372036854775807
-    "BIGINT_UNSIGNED": "BIGINT UNSIGNED",  # MySQL: 0 to 18446744073709551615
-    "INT": "INT",  # MySQL: -2147483648 to 2147483647
-    "INT_UNSIGNED": "INT UNSIGNED",  # MySQL: 0 to 4294967295
+    BIGINT = "BIGINT"  # MySQL: -9223372036854775808 to 9223372036854775807
+    BIGINT_UNSIGNED = "BIGINT UNSIGNED"  # MySQL: 0 to 18446744073709551615
+    INT = "INT"  # MySQL: -2147483648 to 2147483647
+    INT_UNSIGNED = "INT UNSIGNED"  # MySQL: 0 to 4294967295
 
     # Real
-    "FLOAT": "REAL",
+    FLOAT = "REAL"
 
     # BLOB
-    "LONGBLOB": "LONGBLOB",
+    LONGBLOB = "LONGBLOB"
 
     # Textual
-    "AUDITSOURCE": "VARCHAR(20)",
-    "CHAR": "VARCHAR(1)",
-    "DEVICE": "VARCHAR(255)",
-    "FILTER_TEXT": "VARCHAR(255)",
-    "HASHEDPASSWORD": "VARCHAR(255)",
-    "HOSTNAME": "VARCHAR(255)",
-    "IDDESCRIPTOR": "VARCHAR(255)",
-    "IPADDRESS": "VARCHAR(45)",  # http://stackoverflow.com/questions/166132
-    "LONGTEXT": "LONGTEXT",  # http://stackoverflow.com/questions/6766781
-    "PATIENTNAME": "VARCHAR(255)",
-    "SENDINGFORMAT": "VARCHAR(50)",
-    "SEX": "VARCHAR(1)",
-    "TABLENAME": "VARCHAR(255)",
-    "TEXT": "TEXT",
-    "TIME": "TIME",  # v2
-    "TOKEN": "VARCHAR(50)",
-    "USERNAME": "VARCHAR(255)",
-    "STOREDVARNAME": "VARCHAR(255)",  # probably overkill!
-    "STOREDVARTYPE": "VARCHAR(255)",  # probably overkill!
+    AUDITSOURCE = "VARCHAR(20)"
+    CHAR = "VARCHAR(1)"
+    DEVICE = "VARCHAR(255)"
+    FILTER_TEXT = "VARCHAR(255)"
+    HASHEDPASSWORD = "VARCHAR(255)"
+    HOSTNAME = "VARCHAR(255)"
+    IDDESCRIPTOR = "VARCHAR(255)"
+    IPADDRESS = "VARCHAR(45)"  # http://stackoverflow.com/questions/166132
+    LONGTEXT = "LONGTEXT"  # http://stackoverflow.com/questions/6766781
+    PATIENTNAME = "VARCHAR(255)"
+    SENDINGFORMAT = "VARCHAR(50)"
+    SEX = "VARCHAR(1)"
+    TABLENAME = "VARCHAR(255)"
+    TEXT = "TEXT"
+    TIME = "TIME"  # v2
+    TOKEN = "VARCHAR(50)"
+    USERNAME = "VARCHAR(255)"
+    STOREDVARNAME = "VARCHAR(255)"  # probably overkill!
+    STOREDVARTYPE = "VARCHAR(255)"  # probably overkill!
     # If you insert something too long into a VARCHAR, it just gets truncated.
-})
+
+    SEMANTICVERSIONTYPE = "VARCHAR(147)"
+    # ... https://github.com/mojombo/semver/issues/79
 
 
 # =============================================================================
@@ -166,11 +168,11 @@ def repeat_fieldname(prefix: str, start: int, end: int) -> List[str]:
 
 def ensure_valid_cctype(cctype: str) -> None:
     """Raises KeyError if cctype is not a valid key to SQLTYPE."""
-    assert SQLTYPE[cctype]
+    assert hasattr(SQLTYPE, cctype)
 
 
 def cctype_is_string(cctype: str) -> bool:
-    s = SQLTYPE[cctype].upper()
+    s = getattr(SQLTYPE, cctype).upper()
     return s[:7] == "VARCHAR" or s == "TEXT" or s == "LONGTEXT"
 
 
@@ -183,7 +185,7 @@ def add_sqltype_to_fieldspec_in_place(fieldspec: FIELDSPEC_TYPE) -> None:
     the keys to SQLTYPE. Returns the new fieldspec.
     """
     cctype = fieldspec["cctype"]  # raise KeyError if missing
-    fieldspec["sqltype"] = SQLTYPE[cctype]  # raise KeyError if invalid
+    fieldspec["sqltype"] = getattr(SQLTYPE, cctype)  # raise AttributeError if invalid  # noqa
 
 
 def add_sqltype_to_fieldspeclist_in_place(fieldspeclist: FIELDSPECLIST_TYPE) \

@@ -101,6 +101,8 @@ void drawText(QPainter& painter, const QPointF& point, Qt::Alignment flags,
 // Handy functions:
 
 void scrollToEnd(QPlainTextEdit* editor);
+void scrollToStart(QPlainTextEdit* editor);
+// bool isScrollAtEnd(QPlainTextEdit* editor);
 
 // ============================================================================
 // Killing the app

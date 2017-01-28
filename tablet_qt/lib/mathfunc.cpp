@@ -18,6 +18,7 @@
 */
 
 #include "mathfunc.h"
+#include <QObject>
 
 namespace mathfunc {
 
@@ -217,6 +218,30 @@ QString percent(double numerator, double denominator, int dp)
 {
     double pct = 100 * numerator / denominator;
     return QString("%1%").arg(pct, 0, 'f', dp);
+}
+
+
+QString scoreString(int numerator, int denominator, bool show_percent, int dp)
+{
+    QString result = QString("<b>%1</b>/%2").arg(numerator).arg(denominator);
+    if (show_percent) {
+        result += " (" + percent(numerator, denominator, dp) + ")";
+    }
+    return result;
+}
+
+
+QString scoreStringWithPercent(int numerator, int denominator, int dp)
+{
+    return scoreString(numerator, denominator, true, dp);
+}
+
+
+QString totalScorePhrase(int numerator, int denominator)
+{
+    return QString("%1: %2")
+            .arg(QObject::tr("Total score"))
+            .arg(scoreString(numerator, denominator, false));
 }
 
 

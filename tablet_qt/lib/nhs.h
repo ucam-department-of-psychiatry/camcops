@@ -17,11 +17,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "camcopsversion.h"
+#pragma once
 
-namespace camcopsversion {
+namespace nhs {
 
-const Version CAMCOPS_VERSION(2, 0, 0);
-const Version MINIMUM_SERVER_VERSION(2, 0, 0);
-
-}  // namespace camcopsversion
+}  // namespace nhs

@@ -29,6 +29,7 @@
 #include "crypto/secureqstring.h"
 #include "db/fieldref.h"  // for FieldRefPtr
 #include "dbobjects/patient.h"
+#include "questionnairelib/namevalueoptions.h"
 #include "tasklib/task.h"  // for TaskPtr
 
 class IdPolicy;
@@ -193,6 +194,8 @@ public:
     void clearExtraStringCache();
     void deleteAllExtraStrings();
     void setAllExtraStrings(const RecordList& recordlist);
+    QString appstring(const QString& stringname,
+                      const QString& default_str = "");
 protected:
     QString xstringDirect(const QString& taskname, const QString& stringname,
                           const QString& default_str = "");
@@ -248,6 +251,12 @@ public:
     // Uploading
     // ------------------------------------------------------------------------
     void upload();
+
+    // ------------------------------------------------------------------------
+    // App strings, or derived
+    // ------------------------------------------------------------------------
+    NameValueOptions nhsPersonMaritalStatusCodeOptions();
+    NameValueOptions nhsEthnicCategoryCodeOptions();
 
     // ------------------------------------------------------------------------
     // Internal data

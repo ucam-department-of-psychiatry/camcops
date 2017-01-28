@@ -22,7 +22,7 @@
 namespace varconst {
 
 // Version storage
-const QString CAMCOPS_VERSION_AS_STRING("camcopsVersion");
+const QString CAMCOPS_TABLET_VERSION_AS_STRING("camcopsVersion");
 
 // Questionnaire
 const QString QUESTIONNAIRE_SIZE_PERCENT("questionnaireTextSizePercent");

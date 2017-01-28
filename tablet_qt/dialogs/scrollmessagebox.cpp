@@ -31,6 +31,7 @@
 #include <QPushButton>
 #include <QScrollArea>
 #include <QSize>
+// #include <QSpacerItem>
 #include <QStyle>
 
 const QSize MIN_SIZE(600, 600);
@@ -84,6 +85,7 @@ ScrollMessageBox::ScrollMessageBox(const QMessageBox::Icon& icon,
     }
     grid->addWidget(scroll, 0, 1, 1, 1);
     grid->addWidget(m_button_box, 1, 0, 1, 2);
+    // grid->addItem(new QSpacerItem(0, 0), 2, 1);  // in case box bigger than text
     grid->setSizeConstraint(QLayout::SetNoConstraint);
     setLayout(grid);
 

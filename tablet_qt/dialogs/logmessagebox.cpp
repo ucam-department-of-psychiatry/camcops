@@ -64,6 +64,8 @@ LogMessageBox::LogMessageBox(QWidget* parent, const QString& title,
     connect(okbutton, &QPushButton::clicked, this, &LogMessageBox::accept);
 
     mainlayout->addLayout(buttonlayout);
+
+    uifunc::scrollToStart(m_editor.data());  // NOT WORKING. And exec() isn't virtual.
 }
 
 

@@ -47,5 +47,9 @@ int countWhereNot(const QList<QVariant>& test_values,
                   const QList<QVariant>& where_not_values);
 
 QString percent(double numerator, double denominator, int dp = 1);
+QString scoreString(int numerator, int denominator,
+                    bool show_percent = false, int dp = 1);
+QString scoreStringWithPercent(int numerator, int denominator, int dp = 1);
+QString totalScorePhrase(int numerator, int denominator);
 
 }  // namespace mathfunc

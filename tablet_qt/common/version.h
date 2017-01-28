@@ -28,6 +28,7 @@ class Version {
     // limited to integers in the range 0-99.
 public:
     Version(unsigned int major, unsigned int minor, unsigned int patch);
+    Version(const QString& version_string);
     unsigned int major() const;
     unsigned int minor() const;
     unsigned int patch() const;
@@ -44,6 +45,10 @@ public:
     friend QDebug operator<<(QDebug debug, const Version& v);
     static Version fromString(const QString& version_string);
     static Version makeInvalidVersion();
+protected:
+    void setInvalid();
+    void setFromNumbers(unsigned int major, unsigned int minor,
+                        unsigned int patch);
 protected:
     bool m_valid;
     unsigned int m_major;

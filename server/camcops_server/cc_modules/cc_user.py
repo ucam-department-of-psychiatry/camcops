@@ -28,7 +28,6 @@ import re
 from typing import Optional
 
 import cardinal_pythonlib.rnc_crypto as rnc_crypto
-from cardinal_pythonlib.rnc_lang import AttrDict
 import cardinal_pythonlib.rnc_web as ws
 
 from .cc_audit import audit
@@ -44,31 +43,32 @@ from .cc_unittest import unit_test_ignore
 
 SESSION_FWD_REF = "Session"
 
+
 # =============================================================================
 # Constants
 # =============================================================================
 
-LABEL = AttrDict({
-    "MAY_USE_WEBVIEWER": (
+class LABEL(object):
+    MAY_USE_WEBVIEWER = (
         "May use web viewer (BEWARE: you probably don’t "
-        "want to untick this for your own user!)"),
-    "MAY_VIEW_OTHER_USERS_RECORDS": (
+        "want to untick this for your own user!)")
+    MAY_VIEW_OTHER_USERS_RECORDS = (
         "May view other users’ records (BEWARE: unticking can be clinically "
-        "dangerous by hiding important information)"),
-    "VIEW_ALL_PATIENTS_WHEN_UNFILTERED": (
+        "dangerous by hiding important information)")
+    VIEW_ALL_PATIENTS_WHEN_UNFILTERED = (
         "Sees all patients’ records when unfiltered (generally: untick in a "
-        "clinical context for confidentiality)"),
-    "MAY_UPLOAD": "May upload data from tablet devices",
-    "SUPERUSER": (
+        "clinical context for confidentiality)")
+    MAY_UPLOAD = "May upload data from tablet devices"
+    SUPERUSER = (
         "SUPERUSER (ALSO BEWARE: you probably don’t  want to untick this for "
-        "your own user!)"),
-    "MAY_REGISTER_DEVICES": "May register tablet devices",
-    "MAY_USE_WEBSTORAGE": "May use mobileweb storage facility",
-    "MAY_DUMP_DATA": "May dump data",
-    "MAY_RUN_REPORTS": "May run reports",
-    "MUST_CHANGE_PASSWORD": "Must change password at next login",
-    "MAY_ADD_NOTES": "May add special notes to tasks",
-})
+        "your own user!)")
+    MAY_REGISTER_DEVICES = "May register tablet devices"
+    MAY_USE_WEBSTORAGE = "May use mobileweb storage facility"
+    MAY_DUMP_DATA = "May dump data"
+    MAY_RUN_REPORTS = "May run reports"
+    MUST_CHANGE_PASSWORD = "Must change password at next login"
+    MAY_ADD_NOTES = "May add special notes to tasks"
+
 
 MINIMUM_PASSWORD_LENGTH = 8
 VALID_USERNAME_REGEX = "^[A-Za-z0-9_-]+$"

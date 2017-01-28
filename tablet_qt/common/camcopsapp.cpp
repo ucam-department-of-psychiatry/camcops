@@ -57,6 +57,8 @@
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnaire.h"
 
+const QString APPSTRING_TASKNAME("camcops");  // task name used for generic but downloaded tablet strings
+
 
 CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     QApplication(argc, argv),
@@ -121,7 +123,7 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
         DbTransaction trans(m_sysdb);  // https://www.sqlite.org/faq.html#q19
 
         // Version
-        createVar(varconst::CAMCOPS_VERSION_AS_STRING, QVariant::String,
+        createVar(varconst::CAMCOPS_TABLET_VERSION_AS_STRING, QVariant::String,
                   camcopsversion::CAMCOPS_VERSION.toString());
 
         // Questionnaire
@@ -210,12 +212,11 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     // Any database upgrade required?
     // ------------------------------------------------------------------------
 
-    Version old_version = Version::fromString(
-                varString(varconst::CAMCOPS_VERSION_AS_STRING));
+    Version old_version(varString(varconst::CAMCOPS_TABLET_VERSION_AS_STRING));
     Version new_version = camcopsversion::CAMCOPS_VERSION;
     upgradeDatabase(old_version, new_version);
     if (new_version != old_version) {
-        setVar(varconst::CAMCOPS_VERSION_AS_STRING, new_version.toString());
+        setVar(varconst::CAMCOPS_TABLET_VERSION_AS_STRING, new_version.toString());
     }
 
     // ------------------------------------------------------------------------
@@ -944,6 +945,12 @@ void CamcopsApp::setAllExtraStrings(const RecordList& recordlist)
 }
 
 
+QString CamcopsApp::appstring(const QString& stringname,
+                              const QString& default_str)
+{
+    return xstring(APPSTRING_TASKNAME, stringname, default_str);
+}
+
 // ============================================================================
 // Stored variables: generic
 // ============================================================================
@@ -1105,6 +1112,7 @@ void CamcopsApp::offerTerms()
     }
 }
 
+
 // ============================================================================
 // SQL dumping
 // ============================================================================
@@ -1119,6 +1127,7 @@ void CamcopsApp::dumpSystemDatabase(QTextStream& os)
 {
     dumpsql::dumpDatabase(os, m_sysdb);
 }
+
 
 // ============================================================================
 // Uploading
@@ -1167,4 +1176,45 @@ void CamcopsApp::upload()
     }
     NetworkManager* netmgr = networkManager();
     netmgr->upload(method);
+}
+
+
+// ============================================================================
+// App strings, or derived
+// ============================================================================
+
+NameValueOptions CamcopsApp::nhsPersonMaritalStatusCodeOptions()
+{
+    return NameValueOptions{
+        {appstring("nhs_person_marital_status_code_S"), "S"},
+        {appstring("nhs_person_marital_status_code_M"), "M"},
+        {appstring("nhs_person_marital_status_code_D"), "D"},
+        {appstring("nhs_person_marital_status_code_W"), "W"},
+        {appstring("nhs_person_marital_status_code_P"), "P"},
+        {appstring("nhs_person_marital_status_code_N"), "N"}
+    };
+}
+
+
+NameValueOptions CamcopsApp::nhsEthnicCategoryCodeOptions()
+{
+    return NameValueOptions{
+        {appstring("nhs_ethnic_category_code_A"), "A"},
+        {appstring("nhs_ethnic_category_code_B"), "B"},
+        {appstring("nhs_ethnic_category_code_C"), "C"},
+        {appstring("nhs_ethnic_category_code_D"), "D"},
+        {appstring("nhs_ethnic_category_code_E"), "E"},
+        {appstring("nhs_ethnic_category_code_F"), "F"},
+        {appstring("nhs_ethnic_category_code_G"), "G"},
+        {appstring("nhs_ethnic_category_code_H"), "H"},
+        {appstring("nhs_ethnic_category_code_J"), "J"},
+        {appstring("nhs_ethnic_category_code_K"), "K"},
+        {appstring("nhs_ethnic_category_code_L"), "L"},
+        {appstring("nhs_ethnic_category_code_M"), "M"},
+        {appstring("nhs_ethnic_category_code_N"), "N"},
+        {appstring("nhs_ethnic_category_code_P"), "P"},
+        {appstring("nhs_ethnic_category_code_R"), "R"},
+        {appstring("nhs_ethnic_category_code_S"), "S"},
+        {appstring("nhs_ethnic_category_code_Z"), "Z"}
+    };
 }

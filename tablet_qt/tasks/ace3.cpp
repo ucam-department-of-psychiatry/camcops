@@ -46,6 +46,9 @@ using mathfunc::eq;
 using mathfunc::noneNull;
 using mathfunc::percent;
 using mathfunc::sumInt;
+using mathfunc::scoreString;
+using mathfunc::scoreStringWithPercent;
+using mathfunc::totalScorePhrase;
 using stringfunc::bold;
 using stringfunc::strnum;
 using stringfunc::strseq;
@@ -73,10 +76,10 @@ const QString IMAGE_M("ace3/m.png");
 const QString IMAGE_A("ace3/a.png");
 const QString IMAGE_T("ace3/t.png");
 
-const QString TAG_MEM_RECOGNIZE( "mem_recognize");
+const QString TAG_MEM_RECOGNIZE("mem_recognize");
 const QString TAG_PG_LANG_COMMANDS_SENTENCES("lang_commands_sentences");
 const QString TAG_EL_LANG_OPTIONAL_COMMAND("lang_optional_command");
-const QString TAG_RECOG_REQUIRED("recog_requierd");
+const QString TAG_RECOG_REQUIRED("recog_required");
 const QString TAG_RECOG_SUPERFLUOUS("recog_superfluous");
 const QString TAG_RECOG_NAME("recog_name");
 const QString TAG_RECOG_NUMBER("recog_number");
@@ -153,11 +156,11 @@ const int MIN_AGE = 0;
 const int MAX_AGE = 120;
 const int FLUENCY_TIME_SEC = 60;
 
-// We can't store a char in a variant, so the alternative would be QChar.
-// However, we can't
-const QChar CHOICE_A = 'A';
-const QChar CHOICE_B = 'B';
-const QChar CHOICE_C = 'C';
+// We can't store a char in a variant, so an alternative would be QChar,
+// but QString is just as simple.
+const QString CHOICE_A("A");
+const QString CHOICE_B("B");
+const QString CHOICE_C("C");
 
 
 void initializeAce3(TaskFactory& factory)
@@ -277,13 +280,10 @@ QStringList Ace3::summary() const
     int v = getVisuospatialScore();
     int t = a + m + f + l + v;
     auto scorelambda = [](int score, int out_of) -> QString {
-        return QString(" <b>%1</b>/%2 (%3).")
-                .arg(score)
-                .arg(out_of)
-                .arg(percent(score, out_of));
+        return ": " + scoreStringWithPercent(score, out_of) + ".";
     };
     QStringList lines;
-    lines.append(tr("Total score") + QString(" <b>%1</b>/%2.").arg(t).arg(TOTAL_OVERALL));
+    lines.append(totalScorePhrase(t, TOTAL_OVERALL) + ".");
     lines.append(xstring("cat_attn") + scorelambda(a, TOTAL_ATTN));
     lines.append(xstring("cat_mem") + scorelambda(m, TOTAL_MEM));
     lines.append(xstring("cat_fluency") + scorelambda(f, TOTAL_FLUENCY));
@@ -1117,15 +1117,15 @@ void Ace3::updateAddressRecognition()
 
     // - bool to int 0/1 is guaranteed, so no need for " ? 1 : 0";
     //   http://stackoverflow.com/questions/5369770/bool-to-int-conversion
-    const int recogscore1 = name_correct || valueQChar(
+    const int recogscore1 = name_correct || valueString(
                 strnum(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, 1)) == CHOICE_B;
-    const int recogscore2 = number_correct || valueQChar(
+    const int recogscore2 = number_correct || valueString(
                 strnum(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, 2)) == CHOICE_B;
-    const int recogscore3 = street_correct || valueQChar(
+    const int recogscore3 = street_correct || valueString(
                 strnum(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, 3)) == CHOICE_C;
-    const int recogscore4 = town_correct || valueQChar(
+    const int recogscore4 = town_correct || valueString(
                 strnum(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, 4)) == CHOICE_B;
-    const int recogscore5 = county_correct || valueQChar(
+    const int recogscore5 = county_correct || valueString(
                 strnum(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, 5)) == CHOICE_A;
     setValue(strnum(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 1), recogscore1);
     setValue(strnum(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 2), recogscore2);

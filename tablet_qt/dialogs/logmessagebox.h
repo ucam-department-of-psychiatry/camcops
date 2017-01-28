@@ -25,8 +25,11 @@ class QPlainTextEdit;
 
 class LogMessageBox : public QDialog
 {
-    // Modal and blocking dialogue, used for displaying console-style text
+    // Modal and BLOCKING dialogue, used for displaying console-style text
     // and allowing copy/paste. Use exec().
+    // Requires that you know the text in advance.
+    //
+    // Compare LogBox for a modal but non-blocking version.
 
     Q_OBJECT
 public:

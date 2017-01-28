@@ -31,6 +31,7 @@ import os
 import sys
 from typing import Callable, Dict, Iterable
 
+from semantic_version import Version
 from werkzeug.contrib.profiler import ProfilerMiddleware
 from werkzeug.wsgi import SharedDataMiddleware
 
@@ -82,7 +83,7 @@ from .cc_modules.cc_user import (
     SECURITY_LOGIN_FAILURE_TABLENAME,
     User,
 )
-from .cc_modules.cc_version import CAMCOPS_SERVER_VERSION
+from .cc_modules.cc_version import CAMCOPS_SERVER_VERSION, make_version
 from .webview import (
     get_database_title,
     make_summary_tables,
@@ -247,6 +248,8 @@ def change_column(tablename: str,
                   oldfieldname: str,
                   newfieldname: str,
                   newdef: str) -> None:
+    # Fine to have old/new column with the same name
+    # BUT see also modify_column
     pls.db.change_column_if_table_exists(tablename, oldfieldname, newfieldname,
                                          newdef)
 
@@ -353,7 +356,13 @@ def v1_5_alter_generic_table(tablename: str) -> None:
                                      '_manually_erasing_user_id')
 
 
-def upgrade_database(old_version: float) -> None:
+def v2_0_0_alter_generic_table(tablename: str) -> None:
+    # Version goes from float (e.g. 1.06) to semantic version (e.g. 2.0.0).
+    modify_column(tablename, "_camcops_version",
+                  cc_db.SQLTYPE.SEMANTICVERSIONTYPE)
+
+
+def upgrade_database(old_version: Version) -> None:
     print("Old database version: {}. New version: {}.".format(
         old_version,
         CAMCOPS_SERVER_VERSION
@@ -368,15 +377,19 @@ def upgrade_database(old_version: float) -> None:
     # make any new columns required, and thereby block column renaming).
     # DO NOT DO THINGS THAT WOULD DESTROY USERS' DATA.
 
-    if old_version < 1.06:
+    # -------------------------------------------------------------------------
+    # Older versions, from before semantic versioning system:
+    # -------------------------------------------------------------------------
+
+    if old_version < make_version(1.06):
         report_database_upgrade_step("1.06")
         pls.db.drop_table(DIRTY_TABLES_TABLENAME)
 
-    if old_version < 1.07:
+    if old_version < make_version(1.07):
         report_database_upgrade_step("1.07")
         pls.db.drop_table(Session.TABLENAME)
 
-    if old_version < 1.08:
+    if old_version < make_version(1.08):
         report_database_upgrade_step("1.08")
         change_column("_security_users",
                       "may_alter_users", "superuser", "BOOLEAN")
@@ -387,14 +400,14 @@ def upgrade_database(old_version: float) -> None:
         change_column("icd10schizophrenia",
                       "tpah_from_body", "hv_from_body", "BOOLEAN")
 
-    if old_version < 1.10:
+    if old_version < make_version(1.10):
         report_database_upgrade_step("1.10")
         modify_column("patient", "forename", "VARCHAR(255) NULL")
         modify_column("patient", "surname", "VARCHAR(255) NULL")
         modify_column("patient", "dob", "VARCHAR(32) NULL")
         modify_column("patient", "sex", "VARCHAR(1) NULL")
 
-    if old_version < 1.11:
+    if old_version < make_version(1.11):
         report_database_upgrade_step("1.11")
         # session
         modify_column("session", "ip_address", "VARCHAR(45) NULL")  # was 40
@@ -434,7 +447,7 @@ def upgrade_database(old_version: float) -> None:
         change_column("cardinal_expdet_trialgroupspec",
                       "expectationdetection_id", "cardinal_expdet_id", "INT")
 
-    if old_version < 1.15:
+    if old_version < make_version(1.15):
         report_database_upgrade_step("1.15")
         # these were INT UNSIGNED:
         modify_column("patient", "idnum1", "BIGINT UNSIGNED")
@@ -446,7 +459,7 @@ def upgrade_database(old_version: float) -> None:
         modify_column("patient", "idnum7", "BIGINT UNSIGNED")
         modify_column("patient", "idnum8", "BIGINT UNSIGNED")
 
-    if old_version < 1.5:
+    if old_version < make_version(1.5):
         report_database_upgrade_step("1.5")
         # ---------------------------------------------------------------------
         # 1.
@@ -508,8 +521,34 @@ def upgrade_database(old_version: float) -> None:
         pls.db.drop_table(DIRTY_TABLES_TABLENAME)
         pls.db.drop_table(Session.TABLENAME)
 
+    # -------------------------------------------------------------------------
+    # Move to semantic versioning from 2.0.0
+    # -------------------------------------------------------------------------
 
-            # (etc.)
+    if old_version < Version("2.0.0"):
+        report_database_upgrade_step("2.0.0")
+
+        # Server
+        pls.db.db_exec_literal("""
+            UPDATE {table}
+            SET type = 'text',
+                valueText = CAST(valueReal AS CHAR),
+                valueReal = NULL
+            WHERE name = 'serverCamcopsVersion'
+        """.format(table=ServerStoredVar.TABLENAME))
+        # Tablet generic
+        v2_0_0_alter_generic_table(Blob.TABLENAME)
+        v2_0_0_alter_generic_table(Patient.TABLENAME)
+        v2_0_0_alter_generic_table(DeviceStoredVar.TABLENAME)
+        # Tasks
+        for cls in cc_task.get_all_task_classes():
+            cls.drop_views()
+            cls.drop_summary_tables()
+            v2_0_0_alter_generic_table(cls.tablename)
+            for tablename in cls.get_extra_table_names():
+                v2_0_0_alter_generic_table(tablename)
+
+        # (etc.)
 
 
 # =============================================================================
@@ -588,11 +627,11 @@ def make_tables(drop_superfluous_columns: bool = False) -> None:
 
     # Read old version number, and perform any special version-specific
     # upgrade tasks
-    sv_version = ServerStoredVar("serverCamcopsVersion", "real")
-    old_version = sv_version.get_value()
+    sv_version = ServerStoredVar("serverCamcopsVersion", "text")
+    old_version = make_version(sv_version.get_value())
     upgrade_database(old_version)
     # Important that we write the new version now:
-    sv_version.set_value(CAMCOPS_SERVER_VERSION)
+    sv_version.set_value(str(CAMCOPS_SERVER_VERSION))
     # This value must only be written in conjunction with the database
     # upgrade process.
 

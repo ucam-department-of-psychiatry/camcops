@@ -30,6 +30,7 @@
 #include "tasklib/taskfactory.h"
 using mathfunc::anyNull;
 using mathfunc::sumInt;
+using mathfunc::totalScorePhrase;
 using stringfunc::strnum;
 using stringfunc::strseq;
 
@@ -120,15 +121,15 @@ QStringList Phq9::detail() const
     bool ods = (ncore >= 1) && (ntotal >= 2) && (ntotal <= 4);
     // Scoring: ref PMID 10568646,
     // http://www.phqscreeners.com/instructions/instructions.pdf
-    QString spacer = ": ";
-    QStringList lines = fieldSummaries("phq9_q", "_s", spacer,
+    QString spacer = " ";
+    QStringList lines = fieldSummaries("q", "_s", spacer,
                                        QPREFIX, FIRST_Q, N_QUESTIONS);
     lines.append("");
     lines += summary();
     lines.append("");
-    lines.append(xstring("phq9_mds") + spacer + bold(yesNo(mds)));
-    lines.append(xstring("phq9_ods") + spacer + bold(yesNo(ods)));
-    lines.append(xstring("phq9_depression_severity") + spacer + bold(sev));
+    lines.append(xstring("mds") + spacer + bold(yesNo(mds)));
+    lines.append(xstring("ods") + spacer + bold(yesNo(ods)));
+    lines.append(xstring("depression_severity") + spacer + bold(sev));
     return lines;
 }
 
@@ -136,37 +137,37 @@ QStringList Phq9::detail() const
 OpenableWidget* Phq9::editor(bool read_only)
 {
     NameValueOptions options_q1_9{
-        {xstring("phq9_a0"), 0},
-        {xstring("phq9_a1"), 1},
-        {xstring("phq9_a2"), 2},
-        {xstring("phq9_a3"), 3},
+        {xstring("a0"), 0},
+        {xstring("a1"), 1},
+        {xstring("a2"), 2},
+        {xstring("a3"), 3},
     };
     NameValueOptions options_q10{
-        {xstring("phq9_fa0"), 0},
-        {xstring("phq9_fa1"), 1},
-        {xstring("phq9_fa2"), 2},
-        {xstring("phq9_fa3"), 3},
+        {xstring("fa0"), 0},
+        {xstring("fa1"), 1},
+        {xstring("fa2"), 2},
+        {xstring("fa3"), 3},
     };
 
     QuPagePtr page((new QuPage{
-        (new QuText(xstring("phq9_stem")))->setBold(true),
+        (new QuText(xstring("stem")))->setBold(true),
         new QuMcqGrid(
             {
-                QuestionWithOneField(xstring("phq9_q1"), fieldRef("q1")),
-                QuestionWithOneField(xstring("phq9_q2"), fieldRef("q2")),
-                QuestionWithOneField(xstring("phq9_q3"), fieldRef("q3")),
-                QuestionWithOneField(xstring("phq9_q4"), fieldRef("q4")),
-                QuestionWithOneField(xstring("phq9_q5"), fieldRef("q5")),
-                QuestionWithOneField(xstring("phq9_q6"), fieldRef("q6")),
-                QuestionWithOneField(xstring("phq9_q7"), fieldRef("q7")),
-                QuestionWithOneField(xstring("phq9_q8"), fieldRef("q8")),
-                QuestionWithOneField(xstring("phq9_q9"), fieldRef("q9")),
+                QuestionWithOneField(xstring("q1"), fieldRef("q1")),
+                QuestionWithOneField(xstring("q2"), fieldRef("q2")),
+                QuestionWithOneField(xstring("q3"), fieldRef("q3")),
+                QuestionWithOneField(xstring("q4"), fieldRef("q4")),
+                QuestionWithOneField(xstring("q5"), fieldRef("q5")),
+                QuestionWithOneField(xstring("q6"), fieldRef("q6")),
+                QuestionWithOneField(xstring("q7"), fieldRef("q7")),
+                QuestionWithOneField(xstring("q8"), fieldRef("q8")),
+                QuestionWithOneField(xstring("q9"), fieldRef("q9")),
             },
             options_q1_9
         ),
-        (new QuText(xstring("phq9_finalq")))->setBold(true),
+        (new QuText(xstring("finalq")))->setBold(true),
         new QuMcq(fieldRef("q10"), options_q10),
-    })->setTitle(xstring("phq9_title_main")));
+    })->setTitle(xstring("title_main")));
 
     Questionnaire* questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setReadOnly(read_only);

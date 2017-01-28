@@ -580,10 +580,6 @@ Tasks
 ===============================================================================
 -->
 
-<string name="t_ace3">Addenbrooke’s Cognitive Examination, revision 3 (ACE-III)</string>
-<string name="s_ace3">100-point clinician-administered assessment of attention/orientation, memory, fluency, language, and visuospatial domains.</string>
-<string name="b_ace3">ACE-III</string>
-
 <string name="t_aims">Abnormal Involuntary Movement Scale (AIMS)</string>
 <string name="s_aims">14-item clinician-rated scale.</string>
 <string name="b_aims">AIMS</string>
@@ -987,10 +983,6 @@ Tasks
 <string name="s_pdss">7-item self-report scale. Data collection tool ONLY unless host institution adds scale text.</string>
 <string name="b_pdss">PDSS</string>
 
-<string name="t_phq9">Patient Health Questionnaire-9 (PHQ-9)</string>
-<string name="s_phq9">Self-scoring of the 9 depressive symptoms in DSM-IV.</string>
-<string name="b_phq9">PHQ-9</string>
-
 <string name="t_phq15">Patient Health Questionnaire-15 (PHQ-15)</string>
 <string name="s_phq15">Self-scoring of 15 common somatic symptoms (relevant to somatoform disorders).</string>
 <string name="b_phq15">PHQ-15</string>
@@ -1208,41 +1200,6 @@ Simple clinical tasks
 <string name="impression">Impression</string>
 <string name="management_plan">Management plan</string> <!-- RCP heading/field -->
 <string name="information_given">Information given</string> <!-- RCP heading/field -->
-
-<!--
-===============================================================================
-NHS Data Dictionary elements
-===============================================================================
-Copyright © 2013, Re-used with the permission of the Health and Social Care Information Centre. All rights reserved.
-Used under the Open Government Licence. See http://www.hscic.gov.uk/terms-and-conditions
--->
-
-<!-- http://www.datadictionary.nhs.uk/data_dictionary/attributes/e/end/ethnic_category_code_de.asp?shownav=1 -->
-<string name="nhs_ethnic_category_code_A">A. White – British</string>
-<string name="nhs_ethnic_category_code_B">B. White – Irish</string>
-<string name="nhs_ethnic_category_code_C">C. White – Any other White background</string>
-<string name="nhs_ethnic_category_code_D">D. Mixed – White and Black Caribbean</string>
-<string name="nhs_ethnic_category_code_E">E. Mixed – White and Black African</string>
-<string name="nhs_ethnic_category_code_F">F. Mixed – White and Asian</string>
-<string name="nhs_ethnic_category_code_G">G. Mixed – Any other mixed background</string>
-<string name="nhs_ethnic_category_code_H">H. Asian or Asian British – Indian</string>
-<string name="nhs_ethnic_category_code_J">J. Asian or Asian British – Pakistani</string>
-<string name="nhs_ethnic_category_code_K">K. Asian or Asian British – Bangladeshi</string>
-<string name="nhs_ethnic_category_code_L">L. Asian or Asian British – Any other Asian background</string>
-<string name="nhs_ethnic_category_code_M">M. Black or Black British – Caribbean</string>
-<string name="nhs_ethnic_category_code_N">N. Black or Black British – African</string>
-<string name="nhs_ethnic_category_code_P">O. Black or Black British – Any other Black background</string>
-<string name="nhs_ethnic_category_code_R">R. Other ethnic groups – Chinese</string>
-<string name="nhs_ethnic_category_code_S">S. Other ethnic groups – Any other ethnic group</string>
-<string name="nhs_ethnic_category_code_Z">Z. Not stated</string>
-
-<!-- http://www.datadictionary.nhs.uk/data_dictionary/attributes/p/person/person_marital_status_code_de.asp?shownav=1 -->
-<string name="nhs_person_marital_status_code_S">Single</string>
-<string name="nhs_person_marital_status_code_M">Married/Civil Partner</string>
-<string name="nhs_person_marital_status_code_D">Divorced/Person whose Civil Partnership has been dissolved</string>
-<string name="nhs_person_marital_status_code_W">Widowed/Surviving Civil Partner</string>
-<string name="nhs_person_marital_status_code_P">Separated</string>
-<string name="nhs_person_marital_status_code_N">Not disclosed</string>
 
 <!--
 ===============================================================================

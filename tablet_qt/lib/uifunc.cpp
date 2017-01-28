@@ -421,6 +421,28 @@ void scrollToEnd(QPlainTextEdit* editor)
 }
 
 
+void scrollToStart(QPlainTextEdit* editor)
+{
+    QScrollBar* vsb = editor->verticalScrollBar();
+    if (vsb) {
+        vsb->setValue(0);
+    }
+    QScrollBar* hsb = editor->horizontalScrollBar();
+    if (hsb) {
+        hsb->setValue(0);
+    }
+}
+
+
+/*
+bool isScrollAtEnd(QPlainTextEdit* editor)
+{
+    QScrollBar* vsb = editor->verticalScrollBar();
+    return vsb && vsb->value() == vsb->maximum();
+}
+*/
+
+
 // ============================================================================
 // Killing the app
 // ============================================================================

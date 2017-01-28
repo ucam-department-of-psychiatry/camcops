@@ -99,7 +99,6 @@ public:
     QDateTime whenCreated() const;
     QStringList summaryWithCompletenessInfo() const;
     QString xstring(const QString& stringname) const;
-    QString totalScorePhrase(int score, int max_score) const;
     QStringList fieldSummaries(const QString& xstringprefix,
                                const QString& xstringsuffix,
                                const QString& spacer,

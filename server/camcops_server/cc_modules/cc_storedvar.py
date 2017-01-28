@@ -158,6 +158,10 @@ class ServerStoredVar(StoredVarBase):
             self.set_value(default_value, False)
             pls.db.insert_object_into_db_pk_known(
                 self, ServerStoredVar.TABLENAME, ServerStoredVar.FIELDS)
+        else:
+            # Just in case we've changed a type, make sure we use the one
+            # that the requestor wants now.
+            self.type = type_on_creation
 
     def save(self) -> None:
         """Store to database."""
