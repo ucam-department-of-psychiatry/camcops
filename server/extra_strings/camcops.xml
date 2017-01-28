@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="camcops">
+    <!-- Strings that are used jointly by the CamCOPS client and server -->
+
+    <string name="intro_title">AIMS: Examination procedure</string>
+    <string name="intro_info">Either before or after completing the examination procedure, observe the patient unobtrusively at rest (e.g., in the waiting room).\nThe chair to be used in this examination should be a hard, firm one without arms.\n\n1. Ask the patient whether there is anything in his or her mouth (such as gum or candy) and, if so, to remove it.\n2. Ask about the *current* condition of the patient’s teeth. Ask if he or she wears dentures. Ask whether teeth or dentures bother the patient *now*.\n3. Ask whether the patient notices any movements in his or her mouth, face, hands, or feet. f yes, ask the patient to describe them and to indicate to what extent they *currently* bother the patient or interfere with activities.\n4. Have the patient sit in chair with hands on knees, legs slightly apart, and feet flat on floor. (Look at the entire body for movements while the patient is in this position.)\n5. Ask the patient to sit with hands hanging unsupported -- if male, between his legs, if female and wearing a dress, hanging over her knees. (Observe hands and other body areas).\n6. Ask the patient to open his or her mouth. (Observe the tongue at rest within the mouth.) Do this twice.\n7. Ask the patient to protrude his or her tongue. (Observe abnormalities of tongue movement.) Do this twice.\n8. Ask the patient to tap his or her thumb with each finger as rapidly as possible for 10 to 15 seconds, first with right hand, then with left hand. (Observe facial and leg movements.)\n9. Flex and extend the patient’s left and right arms, one at a time.\n10. Ask the patient to stand up. (Observe the patient in profile. Observe all body areas again, hips included.)\n11. Ask the patient to extend both arms out in front, palms down. (Observe trunk, legs, and mouth.)\n12. Have the patient walk a few paces, turn, and walk back to the chair. (Observe hands and gait.) Do this twice.</string>
+    <string name="section1_title">AIMS: page 1</string>
+    <string name="section1_stem">Complete the examination procedure before making ratings.\nFor the movement ratings (the first three categories below), rate the highest severity observed.\n0 = none, 1 = minimal (may be extreme normal), 2 = mild, 3 = moderate, 4 = severe.\nAccording to the original AIMS instructions, one point is subtracted if movements are seen only on activation, but not all investigators follow that convention.</string>
+    <string name="q1_subtitle">Facial and oral movements</string>
+    <string name="q1_question">1. Muscles of facial expression,\ne.g., movements of forehead, eyebrows, periorbital area, cheeks. Include frowning, blinking, grimacing of upper face.</string>
+    <string name="q2_question">2. Lips and perioral area,\ne.g., puckering, pouting, smacking.</string>
+    <string name="q3_question">3. Jaw,\ne.g., biting, clenching, chewing, mouth opening, lateral movement.</string>
+    <string name="q4_question">4. Tongue.\nRate only increase in movement both in and out of mouth, not inability to sustain movement.</string>
+    <string name="q5_subtitle">Extremity movements</string>
+    <string name="q5_question">5. Upper (arms, wrists, hands, fingers).\nInclude movements that are choreic (rapid, objectively purposeless, irregular, spontaneous) or athetoid (slow, irregular, complex, serpentine). Do not include tremor (repetitive, regular, rhythmic movements).</string>
+    <string name="q6_question">6. Lower (legs, knees, ankles, toes),\ne.g., lateral knee movement, foot tapping, heel dropping, foot squirming, inversion and eversion of foot.</string>
+    <string name="q7_subtitle">Trunk movements</string>
+    <string name="q7_question">7. Neck, shoulders, hips,\ne.g., rocking, twisting, squirming, pelvic gyrations. Include diaphragmatic movements.</string>
+    <string name="q8_subtitle">Global judgements</string>
+    <string name="q8_question">8. Severity of abnormal movements.\nBased on the highest single score on the above items.</string>
+    <string name="main_option0">None</string>
+    <string name="main_option1">Minimal</string>
+    <string name="main_option2">Mild</string>
+    <string name="main_option3">Moderate</string>
+    <string name="main_option4">Severe</string>
+    <string name="section2_title">AIMS: page 2: more global judgements</string>
+    <string name="q9_question">9. Incapacitation due to abnormal movements.</string>
+    <string name="q9_option0">None, normal</string>
+    <string name="section3_title">AIMS: page 3: more global judgements</string>
+    <string name="q10_question">10. Patient’s awareness of abnormal movements.</string>
+    <string name="q10_option0">no awareness</string>
+    <string name="q10_option1">aware, no distress</string>
+    <string name="q10_option2">aware, mild distress</string>
+    <string name="q10_option3">aware, moderate distress</string>
+    <string name="q10_option4">aware, severe distress</string>
+    <string name="section4_title">AIMS: page 4: dental status</string>
+    <string name="q11_question">11. Current problems with teeth and/or dentures.</string>
+    <string name="q12_question">12. Does patient usually wear dentures?</string>
+    <string name="q1_s">Q1 (muscles of facial expression):</string>
+    <string name="q2_s">Q2 (lips and perioral area):</string>
+    <string name="q3_s">Q3 (jaw):</string>
+    <string name="q4_s">Q4 (tongue):</string>
+    <string name="q5_s">Q5 (upper extremities):</string>
+    <string name="q6_s">Q6 (lower extremities):</string>
+    <string name="q7_s">Q7 (neck, shoulders, hips):</string>
+    <string name="q8_s">Q8 (global severity):</string>
+    <string name="q9_s">Q9 (incapacitation):</string>
+    <string name="q10_s">Q10 (awareness):</string>
+    <string name="q11_s">Q11 (current problems with teeth/dentures):</string>
+    <string name="q12_s">Q12 (usually wears dentures):</string>
+
+
+
+    <!--
+    ===========================================================================
+    NHS Data Dictionary elements
+    ===========================================================================
+    Copyright © 2013, Re-used with the permission of the Health and Social Care Information Centre. All rights reserved.
+    Used under the Open Government Licence. See http://www.hscic.gov.uk/terms-and-conditions
+    -->
+
+    <!-- http://www.datadictionary.nhs.uk/data_dictionary/attributes/e/end/ethnic_category_code_de.asp?shownav=1 -->
+    <string name="nhs_ethnic_category_code_A">A. White – British</string>
+    <string name="nhs_ethnic_category_code_B">B. White – Irish</string>
+    <string name="nhs_ethnic_category_code_C">C. White – Any other White background</string>
+    <string name="nhs_ethnic_category_code_D">D. Mixed – White and Black Caribbean</string>
+    <string name="nhs_ethnic_category_code_E">E. Mixed – White and Black African</string>
+    <string name="nhs_ethnic_category_code_F">F. Mixed – White and Asian</string>
+    <string name="nhs_ethnic_category_code_G">G. Mixed – Any other mixed background</string>
+    <string name="nhs_ethnic_category_code_H">H. Asian or Asian British – Indian</string>
+    <string name="nhs_ethnic_category_code_J">J. Asian or Asian British – Pakistani</string>
+    <string name="nhs_ethnic_category_code_K">K. Asian or Asian British – Bangladeshi</string>
+    <string name="nhs_ethnic_category_code_L">L. Asian or Asian British – Any other Asian background</string>
+    <string name="nhs_ethnic_category_code_M">M. Black or Black British – Caribbean</string>
+    <string name="nhs_ethnic_category_code_N">N. Black or Black British – African</string>
+    <string name="nhs_ethnic_category_code_P">O. Black or Black British – Any other Black background</string>
+    <string name="nhs_ethnic_category_code_R">R. Other ethnic groups – Chinese</string>
+    <string name="nhs_ethnic_category_code_S">S. Other ethnic groups – Any other ethnic group</string>
+    <string name="nhs_ethnic_category_code_Z">Z. Not stated</string>
+
+    <!-- http://www.datadictionary.nhs.uk/data_dictionary/attributes/p/person/person_marital_status_code_de.asp?shownav=1 -->
+    <string name="nhs_person_marital_status_code_S">Single</string>
+    <string name="nhs_person_marital_status_code_M">Married/Civil Partner</string>
+    <string name="nhs_person_marital_status_code_D">Divorced/Person whose Civil Partnership has been dissolved</string>
+    <string name="nhs_person_marital_status_code_W">Widowed/Surviving Civil Partner</string>
+    <string name="nhs_person_marital_status_code_P">Separated</string>
+    <string name="nhs_person_marital_status_code_N">Not disclosed</string>
+
+  </task>
+</resources>
