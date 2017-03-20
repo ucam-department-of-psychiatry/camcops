@@ -33,6 +33,9 @@
 
 namespace convert {
 
+// ============================================================================
+// SQL literals
+// ============================================================================
 
 const QChar COMMA = ',';
 const QChar SQUOTE = '\'';  // single quote
@@ -314,6 +317,11 @@ QString valuesToCsvSqlLiterals(const QList<QVariant>& values)
 }
 
 
+// ============================================================================
+// Images
+// ============================================================================
+
+
 QByteArray imageToByteArray(const QImage& image, const char* format)
 {
     // I thought passing a QImage to a QVariant-accepting function would lead
@@ -343,6 +351,10 @@ QImage byteArrayToImage(const QByteArray& array, const char* format)
 }
 
 
+// ============================================================================
+// Cryptography
+// ============================================================================
+
 QByteArray base64ToBytes(const QString& data_b64)
 {
     return QByteArray::fromBase64(data_b64.toLocal8Bit());
@@ -354,6 +366,10 @@ SecureQByteArray base64ToSecureBytes(const QString& data_b64)
     return SecureQByteArray::fromBase64(data_b64.toLocal8Bit());
 }
 
+
+// ============================================================================
+// Display formatting
+// ============================================================================
 
 QString prettyValue(const QVariant& variant, QVariant::Type type)
 {
@@ -413,6 +429,10 @@ QString prettyPointer(const void* pointer)
 }
 
 
+// ============================================================================
+// Networking
+// ============================================================================
+
 QMap<QString, QString> getReplyDict(const QByteArray& data)
 {
     // For server replies looking like key1:value1\nkey2:value2 ...
@@ -450,5 +470,76 @@ QUrlQuery getPostDataAsUrlQuery(const QMap<QString, QString>& dict)
     return postdata;
 }
 
+// http://doc.qt.io/qt-5/qssl.html#SslProtocol-enum
+const QString SSLPROTODESC_SSLV3 = "SslV3";
+const QString SSLPROTODESC_SSLV2 = "SslV2";
+const QString SSLPROTODESC_TLSV1_0 = "TlsV1_0";
+const QString SSLPROTODESC_TLSV1_1 = "TlsV1_1";
+const QString SSLPROTODESC_TLSV1_2 = "TlsV1_2";
+const QString SSLPROTODESC_ANYPROTOCOL = "AnyProtocol";
+const QString SSLPROTODESC_TLSV1_SSLV3 = "TlsV1SslV3";
+const QString SSLPROTODESC_SECUREPROTOCOLS = "SecureProtocols";
+const QString SSLPROTODESC_TLSV1_0_OR_LATER = "TlsV1_0OrLater";
+const QString SSLPROTODESC_TLSV1_1_OR_LATER = "TlsV1_1OrLater";
+const QString SSLPROTODESC_TLSV1_2_OR_LATER = "TlsV1_2OrLater";
+const QString SSLPROTODESC_UNKNOWN_PROTOCOL = "UnknownProtocol";
+
+
+QString describeSslProtocol(QSsl::SslProtocol protocol) {
+    using namespace QSsl;
+    switch (protocol) {
+    case SslV3: return SSLPROTODESC_SSLV3;
+    case SslV2: return SSLPROTODESC_SSLV2;
+    case TlsV1_0: return SSLPROTODESC_TLSV1_0;
+#if QT_DEPRECATED_SINCE(5,0)
+    case TlsV1: return TLSV1_0;
+#endif
+    case TlsV1_1: return SSLPROTODESC_TLSV1_1;
+    case TlsV1_2: return SSLPROTODESC_TLSV1_2;
+    case AnyProtocol: return SSLPROTODESC_ANYPROTOCOL;
+    case TlsV1SslV3: return SSLPROTODESC_TLSV1_SSLV3;
+    case SecureProtocols: return SSLPROTODESC_SECUREPROTOCOLS;
+    case TlsV1_0OrLater: return SSLPROTODESC_TLSV1_0_OR_LATER;
+    case TlsV1_1OrLater: return SSLPROTODESC_TLSV1_1_OR_LATER;
+    case TlsV1_2OrLater: return SSLPROTODESC_TLSV1_2_OR_LATER;
+    default:
+    case UnknownProtocol: return SSLPROTODESC_UNKNOWN_PROTOCOL;
+    }
+}
+
+QSsl::SslProtocol sslProtocolFromDescription(const QString& desc) {
+    using namespace QSsl;
+    if (desc == SSLPROTODESC_SSLV3) return SslV3;
+    if (desc == SSLPROTODESC_SSLV2) return SslV2;
+    if (desc == SSLPROTODESC_TLSV1_0) return TlsV1_0;
+    if (desc == SSLPROTODESC_TLSV1_1) return TlsV1_1;
+    if (desc == SSLPROTODESC_TLSV1_2) return TlsV1_2;
+    if (desc == SSLPROTODESC_ANYPROTOCOL) return AnyProtocol;
+    if (desc == SSLPROTODESC_TLSV1_SSLV3) return TlsV1SslV3;
+    if (desc == SSLPROTODESC_SECUREPROTOCOLS) return SecureProtocols;
+    if (desc == SSLPROTODESC_TLSV1_0_OR_LATER) return TlsV1_0OrLater;
+    if (desc == SSLPROTODESC_TLSV1_1_OR_LATER) return TlsV1_1OrLater;
+    if (desc == SSLPROTODESC_TLSV1_2_OR_LATER) return TlsV1_2OrLater;
+    return UnknownProtocol;
+}
+
+// ============================================================================
+// QChar oddities
+// ============================================================================
+
+QVariant toQCharVariant(const QVariant& v)
+{
+    // The oddity is that a QVariant of type QString, even if of length 1,
+    // won't convert() to type QChar.
+    // - http://lists.qt-project.org/pipermail/interest/2016-January/020587.html
+    if (v.isNull() || !v.isValid()) {
+        return QVariant();
+    }
+    QString str = v.toString();
+    if (str.isEmpty()) {
+        return QVariant();
+    }
+    return str.at(0);
+}
 
 }  // namespace convert

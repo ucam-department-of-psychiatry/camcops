@@ -160,7 +160,17 @@ bool Field::setValue(const QVariant& value)
         m_dirty = true;
     }
     m_value = value;
-    m_value.convert(m_type);
+    bool converted = m_value.convert(m_type);
+    if (!converted) {
+        if (m_type == QVariant::Char) {
+            // Deal with special oddities, e.g. failure to convert
+            // a QVariant of type QString to one of type QChar.
+            m_value = convert::toQCharVariant(value);
+        } else {
+            qWarning() << Q_FUNC_INFO << "Failed to convert" << value
+                       << "to type" << m_type;
+        }
+    }
     m_set = true;
     return m_dirty;
 }
@@ -269,14 +279,7 @@ void Field::setFromDatabaseValue(const QVariant& db_value)
     case QVariant::Char:
         // If you just do "m_value = db_value", it will become an invalid
         // value when the convert() call is made below, so will appear as NULL.
-        {
-            QString str = db_value.toString();
-            if (str.isEmpty()) {
-                m_value.clear();
-            } else {
-                m_value = str.at(0);
-            }
-        }
+        m_value = convert::toQCharVariant(db_value);
         break;
     default:
         m_value = db_value;
@@ -294,6 +297,9 @@ QVariant Field::databaseValue() const
         return m_value;  // NULL
     }
     switch (m_type) {
+    case QVariant::Char:
+        return m_value.toString();
+        break;
     case QVariant::DateTime:
         return QVariant(datetime::datetimeToIsoMs(m_value.toDateTime()));
     case QVariant::Uuid:

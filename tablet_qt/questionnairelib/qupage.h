@@ -55,6 +55,7 @@ public:
 
     QuPage* setType(PageType type);
     QuPage* setTitle(const QString& title);
+    QuPage* setSkip(bool skip = true);
     QuPage* addElement(const QuElementPtr& element);
     QuPage* addElement(QuElement* element);  // takes ownership
     QuPage* addTag(const QString& tag);
@@ -65,6 +66,7 @@ public:
     PageType type() const;
     QString title() const;
     bool hasTag(const QString& tag) const;
+    bool skip() const;
 signals:
     void elementValueChanged();
 protected:
@@ -77,4 +79,5 @@ protected:
     QString m_title;
     QStringList m_tags;
     QList<QuElementPtr> m_elements;
+    bool m_skip;
 };

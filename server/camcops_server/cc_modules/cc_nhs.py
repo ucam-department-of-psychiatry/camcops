@@ -23,7 +23,7 @@
 """
 
 from typing import Dict, Optional
-from .cc_string import WSTRING
+from .cc_string import wappstring
 
 
 # =============================================================================
@@ -41,33 +41,33 @@ PV_NHS_ETHNIC_CATEGORY = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K',
 def get_nhs_dd_person_marital_status() -> Dict[Optional[str], Optional[str]]:
     return {
         None: None,
-        "S": WSTRING("nhs_person_marital_status_code_S"),
-        "M": WSTRING("nhs_person_marital_status_code_M"),
-        "D": WSTRING("nhs_person_marital_status_code_D"),
-        "W": WSTRING("nhs_person_marital_status_code_W"),
-        "P": WSTRING("nhs_person_marital_status_code_P"),
-        "N": WSTRING("nhs_person_marital_status_code_N"),
+        "S": wappstring("nhs_person_marital_status_code_S"),
+        "M": wappstring("nhs_person_marital_status_code_M"),
+        "D": wappstring("nhs_person_marital_status_code_D"),
+        "W": wappstring("nhs_person_marital_status_code_W"),
+        "P": wappstring("nhs_person_marital_status_code_P"),
+        "N": wappstring("nhs_person_marital_status_code_N"),
     }
 
 
 def get_nhs_dd_ethnic_category_code() -> Dict[Optional[str], Optional[str]]:
     return {
         None: None,
-        "A": WSTRING("nhs_ethnic_category_code_A"),
-        "B": WSTRING("nhs_ethnic_category_code_B"),
-        "C": WSTRING("nhs_ethnic_category_code_C"),
-        "D": WSTRING("nhs_ethnic_category_code_D"),
-        "E": WSTRING("nhs_ethnic_category_code_E"),
-        "F": WSTRING("nhs_ethnic_category_code_F"),
-        "G": WSTRING("nhs_ethnic_category_code_G"),
-        "H": WSTRING("nhs_ethnic_category_code_H"),
-        "J": WSTRING("nhs_ethnic_category_code_J"),
-        "K": WSTRING("nhs_ethnic_category_code_K"),
-        "L": WSTRING("nhs_ethnic_category_code_L"),
-        "M": WSTRING("nhs_ethnic_category_code_M"),
-        "N": WSTRING("nhs_ethnic_category_code_N"),
-        "P": WSTRING("nhs_ethnic_category_code_P"),
-        "R": WSTRING("nhs_ethnic_category_code_R"),
-        "S": WSTRING("nhs_ethnic_category_code_S"),
-        "Z": WSTRING("nhs_ethnic_category_code_Z"),
+        "A": wappstring("nhs_ethnic_category_code_A"),
+        "B": wappstring("nhs_ethnic_category_code_B"),
+        "C": wappstring("nhs_ethnic_category_code_C"),
+        "D": wappstring("nhs_ethnic_category_code_D"),
+        "E": wappstring("nhs_ethnic_category_code_E"),
+        "F": wappstring("nhs_ethnic_category_code_F"),
+        "G": wappstring("nhs_ethnic_category_code_G"),
+        "H": wappstring("nhs_ethnic_category_code_H"),
+        "J": wappstring("nhs_ethnic_category_code_J"),
+        "K": wappstring("nhs_ethnic_category_code_K"),
+        "L": wappstring("nhs_ethnic_category_code_L"),
+        "M": wappstring("nhs_ethnic_category_code_M"),
+        "N": wappstring("nhs_ethnic_category_code_N"),
+        "P": wappstring("nhs_ethnic_category_code_P"),
+        "R": wappstring("nhs_ethnic_category_code_R"),
+        "S": wappstring("nhs_ethnic_category_code_S"),
+        "Z": wappstring("nhs_ethnic_category_code_Z"),
     }

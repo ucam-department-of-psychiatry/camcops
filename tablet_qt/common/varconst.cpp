@@ -33,6 +33,8 @@ const QString SERVER_PORT("serverPort");
 const QString SERVER_PATH("serverPath");
 const QString SERVER_TIMEOUT_MS("serverTimeoutMs");
 const QString VALIDATE_SSL_CERTIFICATES("validateSSLCertificates");
+const QString SSL_PROTOCOL("sslProtocol");
+const QString DEBUG_USE_HTTPS_TO_SERVER("debugUseHttpsToServer");
 const QString STORE_SERVER_PASSWORD("storeServerPassword");
 const QString SEND_ANALYTICS("sendAnalytics");
 

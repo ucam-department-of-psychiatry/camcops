@@ -20,6 +20,7 @@
 #pragma once
 #include <QList>
 #include <QMap>
+#include <QSsl>
 #include <QString>
 #include <QUrlQuery>
 #include <QVariant>
@@ -32,7 +33,9 @@ class QImage;
 
 namespace convert {
 
+// ============================================================================
 // SQL literals
+// ============================================================================
 
 QString escapeNewlines(QString raw);
 QString unescapeNewlines(QString escaped);
@@ -51,7 +54,9 @@ QVariant fromSqlLiteral(const QString& literal);
 QList<QVariant> csvSqlLiteralsToValues(const QString& csv);
 QString valuesToCsvSqlLiterals(const QList<QVariant>& values);
 
+// ============================================================================
 // Images
+// ============================================================================
 
 QByteArray imageToByteArray(const QImage& image,
                             const char* format = "png");
@@ -59,12 +64,16 @@ QVariant imageToVariant(const QImage& image, const char* format = "png");
 QImage byteArrayToImage(const QByteArray& array,
                         const char* format = nullptr);
 
+// ============================================================================
 // Cryptography
+// ============================================================================
 
 QByteArray base64ToBytes(const QString& data_b64);
 SecureQByteArray base64ToSecureBytes(const QString& data_b64);
 
+// ============================================================================
 // Display formatting
+// ============================================================================
 
 QString prettyValue(const QVariant& variant, QVariant::Type type);
 QString prettyValue(const QVariant& variant);
@@ -72,9 +81,33 @@ QString prettySize(double num, bool space = true, bool binary = false,
                    bool longform = false, const QString& suffix = "B");
 QString prettyPointer(const void* pointer);
 
-// Network comms
+// ============================================================================
+// Networking
+// ============================================================================
 
 QUrlQuery getPostDataAsUrlQuery(const QMap<QString, QString>& dict);
 QMap<QString, QString> getReplyDict(const QByteArray& data);
+
+extern const QString SSLPROTODESC_SSLV3;
+extern const QString SSLPROTODESC_SSLV2;
+extern const QString SSLPROTODESC_TLSV1_0;
+extern const QString SSLPROTODESC_TLSV1_1;
+extern const QString SSLPROTODESC_TLSV1_2;
+extern const QString SSLPROTODESC_ANYPROTOCOL;
+extern const QString SSLPROTODESC_TLSV1_SSLV3;
+extern const QString SSLPROTODESC_SECUREPROTOCOLS;
+extern const QString SSLPROTODESC_TLSV1_0_OR_LATER;
+extern const QString SSLPROTODESC_TLSV1_1_OR_LATER;
+extern const QString SSLPROTODESC_TLSV1_2_OR_LATER;
+extern const QString SSLPROTODESC_UNKNOWN_PROTOCOL;
+
+QString describeSslProtocol(QSsl::SslProtocol protocol);
+QSsl::SslProtocol sslProtocolFromDescription(const QString& desc);
+
+// ============================================================================
+// QChar oddities
+// ============================================================================
+
+QVariant toQCharVariant(const QVariant& v);
 
 }  // namespace convert

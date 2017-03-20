@@ -46,11 +46,13 @@
 #include "dbobjects/patient.h"
 #include "dbobjects/patientsorter.h"
 #include "dbobjects/storedvar.h"
+#include "lib/convert.h"
 #include "lib/datetimefunc.h"
 #include "lib/filefunc.h"
 #include "lib/idpolicy.h"
 #include "lib/networkmanager.h"
 #include "lib/slowguiguard.h"
+#include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "menu/mainmenu.h"
 #include "tasklib/inittasks.h"
@@ -135,6 +137,9 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
         createVar(varconst::SERVER_PATH, QVariant::String, "camcops/database");
         createVar(varconst::SERVER_TIMEOUT_MS, QVariant::Int, 50000);
         createVar(varconst::VALIDATE_SSL_CERTIFICATES, QVariant::Bool, true);
+        createVar(varconst::SSL_PROTOCOL, QVariant::String,
+                  convert::SSLPROTODESC_SECUREPROTOCOLS);
+        createVar(varconst::DEBUG_USE_HTTPS_TO_SERVER, QVariant::Bool, true);
         createVar(varconst::STORE_SERVER_PASSWORD, QVariant::Bool, true);
         createVar(varconst::SEND_ANALYTICS, QVariant::Bool, true);
 
@@ -871,7 +876,9 @@ QString CamcopsApp::xstringDirect(const QString& taskname,
     ExtraString extrastring(*this, m_sysdb, taskname, stringname);
     bool found = extrastring.exists();
     if (found) {
-        return extrastring.value();
+        QString result = extrastring.value();
+        stringfunc::toHtmlLinebreaks(result);
+        return result;
     } else {
         if (default_str.isEmpty()) {
             return QString("[string not downloaded: %1/%2]")

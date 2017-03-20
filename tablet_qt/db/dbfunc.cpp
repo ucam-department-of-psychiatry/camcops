@@ -72,7 +72,7 @@ void openDatabaseOrDie(QSqlDatabase& db, const QString& filename)
     QString fullpath = dbFullPath(filename);
     db.setDatabaseName(fullpath);
     if (db.open()) {
-        qInfo() << "Opened databasec:" << fullpath;
+        qInfo() << "Opened database:" << fullpath;
     } else {
         QSqlError error = db.lastError();
         qCritical() << "Last database error:" << error;

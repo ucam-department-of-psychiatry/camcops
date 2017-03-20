@@ -205,9 +205,19 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
     QString timeout_t = tr("Network timeout (ms)");
     QString timeout_h = tr("e.g. 50000");
 
+#ifdef DEBUG_OFFER_HTTP_TO_SERVER
+    FieldRefPtr https_fr = app.storedVarFieldRef(varconst::DEBUG_USE_HTTPS_TO_SERVER);
+    QString https_t = tr("Use HTTPS to server?");
+    QString https_h = tr("You should <b>only</b> disable this for debugging!");
+#endif
+
     FieldRefPtr ssl_fr = app.storedVarFieldRef(varconst::VALIDATE_SSL_CERTIFICATES);
-    QString ssl_t = tr("Validate SSL certificates?");
+    QString ssl_t = tr("Validate HTTPS (TLS/SSL) certificates?");
     QString ssl_h = tr("Should always be YES for security-conscious systems.");
+
+    FieldRefPtr ssl_proto_fr = app.storedVarFieldRef(varconst::SSL_PROTOCOL);
+    QString ssl_proto_t = tr("HTTPS (TLS/SSL) protocol?");
+    QString ssl_proto_h = tr("Stick with the default unless your server can’t cope with it.");
 
     FieldRefPtr storepw_fr = app.storedVarFieldRef(varconst::STORE_SERVER_PASSWORD);
     QString storepw_t = tr("Store user’s server password?");
@@ -220,6 +230,22 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
         "users better. No patient-identifiable information, per-patient "
         "information, or task details are sent. See the documentation for "
         "details.");
+
+    NameValueOptions options_ssl_protocol{
+        // http://doc.qt.io/qt-5/qssl.html#SslProtocol-enum
+        {"Known secure [default]", convert::SSLPROTODESC_SECUREPROTOCOLS},
+        {"(†) SSL v3", convert::SSLPROTODESC_SSLV3},
+        {"(†) SSL v2", convert::SSLPROTODESC_SSLV2},
+        {"(†) TLS v1.0", convert::SSLPROTODESC_TLSV1_0},
+        {"(†) TLS v1.0 or later", convert::SSLPROTODESC_TLSV1_0_OR_LATER},
+        {"TLS v1.1", convert::SSLPROTODESC_TLSV1_1},
+        {"TLS v1.1 or later", convert::SSLPROTODESC_TLSV1_1_OR_LATER},
+        {"TLS v1.2", convert::SSLPROTODESC_TLSV1_2},
+        {"TLS v1.2 or later", convert::SSLPROTODESC_TLSV1_2_OR_LATER},
+        {"(†) SSLv2, SSLv3, or TLSv1.0", convert::SSLPROTODESC_ANYPROTOCOL},
+        {"(†) TLS v1.0 or SSL v3", convert::SSLPROTODESC_TLSV1_SSLV3},
+    };
+    QString ssl_proto_explanation = "(†) Insecure, deprecated.";
 
     QuPagePtr page(new QuPage{
         questionnairefunc::defaultGridRawPointer({
@@ -245,16 +271,37 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
             },
         }, 1, 1),
 
+#ifdef DEBUG_OFFER_HTTP_TO_SERVER
+       new QuText(makeTitle(https_t, https_h)),
+       (new QuMcq(https_fr, CommonOptions::yesNoBoolean()))
+                       ->setHorizontal(true)
+                       ->setAsTextButton(true),
+#endif
+
         new QuText(makeTitle(ssl_t, ssl_h)),
-        (new QuMcq(ssl_fr, CommonOptions::yesNoBoolean()))->setHorizontal(true),
+        (new QuMcq(ssl_fr, CommonOptions::yesNoBoolean()))
+                       ->setHorizontal(true)
+                       ->setAsTextButton(true),
+
+        new QuText(makeTitle(ssl_proto_t, ssl_proto_h)),
+        (new QuMcq(ssl_proto_fr, options_ssl_protocol))
+                       ->setHorizontal(true)
+                       ->setAsTextButton(true),
+        new QuText(ssl_proto_explanation),
+
+        new QuHorizontalLine(),
 
         new QuText(makeTitle(storepw_t, storepw_h)),
-        (new QuMcq(storepw_fr, CommonOptions::yesNoBoolean()))->setHorizontal(true),
+        (new QuMcq(storepw_fr, CommonOptions::yesNoBoolean()))
+                       ->setHorizontal(true)
+                       ->setAsTextButton(true),
 
         new QuHorizontalLine(),
 
         new QuText(makeTitle(analytics_t, analytics_h)),
-        (new QuMcq(analytics_fr, CommonOptions::yesNoBoolean()))->setHorizontal(true),
+        (new QuMcq(analytics_fr, CommonOptions::yesNoBoolean()))
+                       ->setHorizontal(true)
+                       ->setAsTextButton(true),
     });
     page->setTitle(tr("Configure server settings"));
     page->setType(QuPage::PageType::Config);

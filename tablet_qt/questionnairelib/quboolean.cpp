@@ -144,7 +144,9 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire *questionnaire)
     // Label
     QWidget* labelwidget = nullptr;
     if (!m_text.isEmpty() && !m_as_text_button) {
+        // --------------------------------------------------------------------
         // Text label
+        // --------------------------------------------------------------------
         if (!read_only && m_content_clickable) {
             ClickableLabelWordWrapWide* label = new ClickableLabelWordWrapWide(m_text);
             connect(label, &ClickableLabelWordWrapWide::clicked,
@@ -160,7 +162,9 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire *questionnaire)
         labelwidget->setStyleSheet(css);
         // needs_stretch stays false (or we'll prevent the text expanding)
     } else if (!m_image_filename.isEmpty()) {
-        // Image label
+        // --------------------------------------------------------------------
+        // Image label (accompanying image)
+        // --------------------------------------------------------------------
         QPixmap image = uifunc::getPixmap(m_image_filename, m_image_size);
         AspectRatioPixmapLabel* label = new AspectRatioPixmapLabel();
         label->setPixmap(image);
@@ -172,7 +176,10 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire *questionnaire)
     }
     // otherwise... no label, just the indicator
 
+    // ------------------------------------------------------------------------
     // Indicator
+    // (typically a box with tick/cross/empty, but potentially a text button)
+    // ------------------------------------------------------------------------
     m_indicator = new BooleanWidget();
     m_indicator->setSize(m_big_indicator);
     m_indicator->setBold(m_bold);

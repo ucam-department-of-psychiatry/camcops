@@ -37,6 +37,9 @@ from .cc_logger import log
 from . import cc_pls
 
 
+APPSTRING_TASKNAME = "camcops"
+
+
 # =============================================================================
 # Localization strings
 # =============================================================================
@@ -167,3 +170,13 @@ def task_extrastrings_exist(taskname: str) -> bool:
     """Has the server been supplied with extra strings for a specific task?"""
     cache_extra_strings()
     return taskname in cc_pls.pls.extraStringDicts
+
+
+def wappstring(stringname: str,
+               default: str = None,
+               provide_default_if_none: bool = True) -> str:
+    value = XSTRING(APPSTRING_TASKNAME, stringname, default,
+                    provide_default_if_none=provide_default_if_none)
+    if value is None and not provide_default_if_none:
+        return None
+    return ws.webify(value)

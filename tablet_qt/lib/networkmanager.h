@@ -18,6 +18,9 @@
 */
 
 #pragma once
+
+#define DEBUG_OFFER_HTTP_TO_SERVER  // should NOT be defined in production (which is HTTPS only)
+
 #include <QNetworkRequest>
 #include <QMap>
 #include <QPointer>
@@ -75,10 +78,12 @@ protected slots:
 protected:
     bool ensurePasswordKnown();
     void disconnectManager();
-    QNetworkRequest createRequest(const QUrl& url,
-                                  bool offer_cancel,
-                                  bool ssl,
-                                  bool ignore_ssl_errors);
+    QNetworkRequest createRequest(
+            const QUrl& url,
+            bool offer_cancel,
+            bool ssl,
+            bool ignore_ssl_errors,
+            QSsl::SslProtocol ssl_protocol = QSsl::AnyProtocol);
     QUrl serverUrl(bool& success) const;
     QString serverUrlDisplayString() const;
     QNetworkRequest createServerRequest(bool& success);

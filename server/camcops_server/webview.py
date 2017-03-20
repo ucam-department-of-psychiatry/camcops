@@ -1934,13 +1934,13 @@ def introspect(session: Session, form: cgi.FieldStorage) -> str:
                 <title>CamCOPS</title>
                 <meta charset="utf-8">
                 <style type="text/css">
-                {css}
+                    {css}
                 </style>
             </head>
             <body>
-            {body}
+                {body}
             </body>
-            </html>
+        </html>
     """.format(css=css, body=body)
 
 

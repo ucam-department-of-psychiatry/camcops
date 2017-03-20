@@ -27,6 +27,8 @@ import logging
 import os
 import subprocess
 
+from camcops_server.cc_modules.cc_constants import ENVVAR_CONFIG_FILE
+
 log = logging.getLogger(__name__)
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -38,7 +40,7 @@ def start_server(opts) -> None:
     cmdargs = [
         'gunicorn',
         'camcops_server.camcops:application',
-        '--env', 'CAMCOPS_CONFIG_FILE=/etc/camcops/camcops_py3_test.conf',
+        '--env', 'CAMCOPS_CONFIG_FILE={}'.format(opts.config),
         '--env', 'CAMCOPS_DEBUG_TO_HTTP_CLIENT=True',
         '--env', 'MPLCONFIGDIR={}'.format(opts.matplotlib),
         '--workers', '1',
@@ -71,6 +73,10 @@ def main() -> None:
     parser.add_argument(
         '--ssl_private_key', type=str,
         help="SSL key file, for HTTPS")
+    parser.add_argument(
+        '--config', type=str,
+        default=os.environ.get(ENVVAR_CONFIG_FILE, ''),
+        help="CamCOPS config file")
     opts = parser.parse_args()
 
     rootlogger = logging.getLogger()

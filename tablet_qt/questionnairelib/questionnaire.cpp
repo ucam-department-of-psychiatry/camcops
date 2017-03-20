@@ -274,13 +274,26 @@ bool Questionnaire::event(QEvent* e)
 }
 
 
+bool Questionnaire::morePagesToGo() const
+{
+    int lastpage = nPages() - 1;
+    for (int i = m_current_pagenum_zero_based; i < lastpage; ++i) {
+        if (m_pages[i]->skip()) {
+            continue;
+        }
+        return true;
+    }
+    return false;
+}
+
+
 void Questionnaire::resetButtons()
 {
     QuPage* page = currentPagePtr();
     if (!page || !m_p_header) {
         return;
     }
-    bool on_last_page = currentPageNumOneBased() == nPages();
+    bool on_last_page = !morePagesToGo();
     bool allow_progression = readOnly() || !page->missingInput();
     m_p_header->setButtons(
         m_current_pagenum_zero_based > 0,  // previous
@@ -357,24 +370,29 @@ void Questionnaire::cancelClicked()
 
 void Questionnaire::jumpClicked()
 {
-    // In read-only mode, we can jump to any page.
-    // In editing mode, we can jump as far as the last page that isn't
-    // incomplete.
+    // - In read-only mode, we can jump to any page.
+    // - In editing mode, we can jump as far as the last page that isn't
+    //   incomplete.
+    // - We skip skipped pages in either mode.
     QList<PagePickerItem> pageitems;
     bool blocked = false;
     for (int i = 0; i < m_pages.size(); ++i) {
         QuPagePtr page = m_pages.at(i);
+        if (page->skip()) {
+            continue;
+            // Skipped pages don't block subsequent ones, either.
+        }
         QString text = page->title();
         bool missing_input = page->missingInput();
         PagePickerItem::PagePickerItemType type = blocked
             ? PagePickerItem::PagePickerItemType::BlockedByPrevious
             : (missing_input ? PagePickerItem::PagePickerItemType::IncompleteSelectable
                              : PagePickerItem::PagePickerItemType::CompleteSelectable);
-        PagePickerItem item(text, i, type);
-        pageitems.append(item);
         if (!m_read_only && missing_input) {
             blocked = true;
         }
+        PagePickerItem item(text, i, type);
+        pageitems.append(item);
     }
     PagePickerDialog dlg(this, pageitems, tr("Choose page"));
     int new_page_zero_based;
@@ -387,26 +405,31 @@ void Questionnaire::jumpClicked()
 
 void Questionnaire::previousClicked()
 {
-    if (m_current_pagenum_zero_based <= 0) {
-        // On the first page already
+    for (int i = m_current_pagenum_zero_based - 1; i >= 0; --i) {
+        if (m_pages[i]->skip()) {
+            continue;
+        }
+        goToPage(i);
         return;
     }
-    goToPage(m_current_pagenum_zero_based - 1);
 }
 
 
 void Questionnaire::nextClicked()
 {
-    if (currentPageNumOneBased() >= nPages()) {
-        // On the last page; use finish rather than next
-        return;
-    }
     QuPage* page = currentPagePtr();
     if (!page || (!readOnly() && page->missingInput())) {
         // Can't progress
         return;
     }
-    goToPage(m_current_pagenum_zero_based + 1);
+    int npages = nPages();
+    for (int i = m_current_pagenum_zero_based + 1; i < npages; ++i) {
+        if (m_pages[i]->skip()) {
+            continue;
+        }
+        goToPage(i);
+        return;
+    }
 }
 
 
@@ -430,7 +453,7 @@ void Questionnaire::goToPage(int index_zero_based)
 
 void Questionnaire::finishClicked()
 {
-    if (currentPageNumOneBased() != nPages()) {
+    if (morePagesToGo()) {
         // Not on the last page; can't finish here
         return;
     }
@@ -534,6 +557,16 @@ QList<QuPage*> Questionnaire::getPages(bool current_page_only,
         }
     }
     return pages;
+}
+
+
+void Questionnaire::setPageSkip(int page, bool skip)
+{
+    if (page < 0 || page >= m_pages.size()) {
+        return;
+    }
+    m_pages[page]->setSkip(skip);
+    resetButtons();
 }
 
 

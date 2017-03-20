@@ -49,6 +49,7 @@ from .cc_modules.cc_audit import (
 )
 from .cc_modules.cc_constants import (
     CAMCOPS_URL,
+    ENVVAR_CONFIG_FILE,
     NUMBER_OF_IDNUMS,
     SEPARATOR_EQUALS,
     SEPARATOR_HYPHENS,
@@ -539,6 +540,8 @@ def upgrade_database(old_version: Version) -> None:
         # Tablet generic
         v2_0_0_alter_generic_table(Blob.TABLENAME)
         v2_0_0_alter_generic_table(Patient.TABLENAME)
+        modify_column(Device.TABLENAME, "camcops_version",
+                      cc_db.SQLTYPE.SEMANTICVERSIONTYPE)
         v2_0_0_alter_generic_table(DeviceStoredVar.TABLENAME)
         # Tasks
         for cls in cc_task.get_all_task_classes():
@@ -923,9 +926,13 @@ def cli_main() -> None:
                         help="Verbose startup")
     parser.add_argument(
         "configfilename", nargs="?", default=None,
-        help="Configuration file. (When run in WSGI mode, this is read from "
-             "the CAMCOPS_CONFIG_FILE variable in (1) the WSGI environment, "
-             "or (2) the operating system environment.)")
+        help=(
+            "Configuration file. (When run in WSGI mode, this is read from "
+            "the {ev} variable in (1) the WSGI environment, "
+            "or (2) the operating system environment.)".format(
+                ev=ENVVAR_CONFIG_FILE
+            )
+        ))
     args = parser.parse_args()
 
     # Initial log level (overridden later by config file but helpful for start)
@@ -947,7 +954,7 @@ def cli_main() -> None:
                                        DEFAULT_CONFIG_FILENAME)
     # The set_from_environ_and_ping_db() function wants the config filename in
     # the environment:
-    os.environ["CAMCOPS_CONFIG_FILE"] = args.configfilename
+    os.environ[ENVVAR_CONFIG_FILE] = args.configfilename
     if not silent:
         print("Using configuration file: {}".format(args.configfilename))
 

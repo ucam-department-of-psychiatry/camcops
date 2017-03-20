@@ -273,7 +273,10 @@ SOURCES += main.cpp \
     lib/flagguard.cpp \
     lib/reentrydepthguard.cpp \
     common/widgetconst.cpp \
-    lib/nhs.cpp
+    lib/nhs.cpp \
+    tasks/aims.cpp \
+    tasks/audit.cpp \
+    tasks/auditc.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -474,7 +477,10 @@ HEADERS  += \
     lib/flagguard.h \
     lib/reentrydepthguard.h \
     common/widgetconst.h \
-    lib/nhs.h
+    lib/nhs.h \
+    tasks/aims.h \
+    tasks/audit.h \
+    tasks/auditc.h
 
 
 DISTFILES += \
@@ -518,7 +524,8 @@ DISTFILES += \
     stylesheets/camcops_questionnaire.css \
     stylesheets/camera.css \
     tools/build_qt.py \
-    notes/rejected_ideas.txt
+    notes/rejected_ideas.txt \
+    notes/string_formats.txt
 
 
 # =============================================================================

@@ -53,7 +53,7 @@ class Device(object):
              comment="Date/time when the device was registered (UTC)"),
         dict(name="friendly_name", cctype="TEXT",
              comment="Friendly name of the device"),
-        dict(name="camcops_version", cctype="FLOAT",
+        dict(name="camcops_version", cctype="SEMANTICVERSIONTYPE",
              comment="CamCOPS version number on the tablet device"),
         dict(name="last_upload_batch_utc", cctype="DATETIME",
              comment="Date/time when the device's last upload batch "

@@ -71,8 +71,12 @@ public:
                                     const QString& page_tag = "");
     QList<QuPage*> getPages(bool current_page_only,
                             const QString& page_tag = "");
+    void setPageSkip(int page, bool skip);
+public slots:
+    void resetButtons();
 protected:
     void commonConstructor();
+    bool morePagesToGo() const;
     int currentPageNumOneBased() const;
     int nPages() const;
     void doFinish();
@@ -84,7 +88,6 @@ protected slots:
     void previousClicked();
     void nextClicked();
     void finishClicked();
-    void resetButtons();
     void goToPage(int index_zero_based);
     void debugLayout();
 signals:

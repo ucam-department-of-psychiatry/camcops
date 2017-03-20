@@ -18,7 +18,7 @@
 */
 
 #define DEBUG_NETWORK_REQUESTS
-#define DEBUG_NETWORK_REPLIES
+// #define DEBUG_NETWORK_REPLIES
 
 #include "networkmanager.h"
 #include <functional>
@@ -94,6 +94,11 @@ const QString OP_WHICH_KEYS_TO_SEND("which_keys_to_send");
 // Notification text:
 const QString PLEASE_REREGISTER(QObject::tr("Please re-register with the server."));
 
+
+// ============================================================================
+// NetworkManager
+// ============================================================================
+
 // CALLBACK LIFETIME SAFETY in this class:
 // - There is only one NetworkManager in the whole app, owned by the
 //   CamcopsApp.
@@ -134,7 +139,6 @@ NetworkManager::~NetworkManager()
 // ============================================================================
 // User interface
 // ============================================================================
-
 
 void NetworkManager::ensureLogBox()
 {
@@ -225,7 +229,8 @@ void NetworkManager::disconnectManager()
 QNetworkRequest NetworkManager::createRequest(const QUrl& url,
                                               bool offer_cancel,
                                               bool ssl,
-                                              bool ignore_ssl_errors)
+                                              bool ignore_ssl_errors,
+                                              QSsl::SslProtocol ssl_protocol)
 {
     // Clear any previous callbacks
     disconnectManager();
@@ -234,12 +239,21 @@ QNetworkRequest NetworkManager::createRequest(const QUrl& url,
 
     QNetworkRequest request;
 
+#ifdef DEBUG_NETWORK_REQUESTS
+    qDebug().nospace().noquote()
+            << Q_FUNC_INFO
+            << ": offer_cancel=" << offer_cancel
+            << ", ssl=" << ssl
+            << ", ignore_ssl_errors=" << ignore_ssl_errors
+            << ", ssl_protocol=" << convert::describeSslProtocol(ssl_protocol);
+#endif
+
     if (ssl) {
         QSslConfiguration config = QSslConfiguration::defaultConfiguration();
-        config.setProtocol(QSsl::TlsV1_2);
-        // NB the OpenSSL version must also support it; see also
-        // https://bugreports.qt.io/browse/QTBUG-31230
-        // ... but working fine with manually compiled OpenSSL
+        config.setProtocol(ssl_protocol);
+        // NB the OpenSSL version must also support the protocol (e.g. TLSv2);
+        // ... see also https://bugreports.qt.io/browse/QTBUG-31230
+        // ... but TLSv2 working fine with manually compiled OpenSSL
         request.setSslConfiguration(config);
         if (ignore_ssl_errors) {
             QObject::connect(
@@ -261,7 +275,12 @@ QNetworkRequest NetworkManager::createRequest(const QUrl& url,
 QUrl NetworkManager::serverUrl(bool& success) const
 {
     QUrl url;
+#ifdef DEBUG_OFFER_HTTP_TO_SERVER
+    url.setScheme(m_app.varBool(varconst::DEBUG_USE_HTTPS_TO_SERVER) ? "https"
+                                                                     : "http");
+#else
     url.setScheme("https");
+#endif
     url.setHost(m_app.varString(varconst::SERVER_ADDRESS));
     url.setPort(m_app.varInt(varconst::SERVER_PORT));
     QString path = m_app.varString(varconst::SERVER_PATH);
@@ -285,11 +304,14 @@ QString NetworkManager::serverUrlDisplayString() const
 
 QNetworkRequest NetworkManager::createServerRequest(bool& success)
 {
+    QSsl::SslProtocol ssl_protocol = convert::sslProtocolFromDescription(
+                m_app.varString(varconst::SSL_PROTOCOL));
     return createRequest(
                 serverUrl(success),
-                true,
-                true,
-                !m_app.varBool(varconst::VALIDATE_SSL_CERTIFICATES));
+                true,  // always offer cancel
+                true,  // always use SSL
+                !m_app.varBool(varconst::VALIDATE_SSL_CERTIFICATES),  // ignore SSL errors?
+                ssl_protocol);
 }
 
 
@@ -588,7 +610,8 @@ void NetworkManager::testHttpsGet(const QString& url, bool offer_cancel,
                                   bool ignore_ssl_errors)
 {
     QNetworkRequest request = createRequest(QUrl(url), offer_cancel,
-                                            true, ignore_ssl_errors);
+                                            true, ignore_ssl_errors,
+                                            QSsl::AnyProtocol);
     statusMessage("Testing HTTPS GET connection to: " + url);
     // Safe object lifespan signal: can use std::bind
     QObject::connect(m_mgr, &QNetworkAccessManager::finished,

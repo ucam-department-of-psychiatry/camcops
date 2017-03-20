@@ -25,26 +25,30 @@
 
 
 QuPage::QuPage() :
-    m_type(PageType::Inherit)
+    m_type(PageType::Inherit),
+    m_skip(false)
 {
 }
 
 
 QuPage::QuPage(const QList<QuElementPtr>& elements) :
     m_type(PageType::Inherit),
-    m_elements(elements)
+    m_elements(elements),
+    m_skip(false)
 {
 }
 
 
 QuPage::QuPage(std::initializer_list<QuElementPtr> elements) :
     m_type(PageType::Inherit),
-    m_elements(elements)
+    m_elements(elements),
+    m_skip(false)
 {
 }
 
 QuPage::QuPage(std::initializer_list<QuElement*> elements) :  // takes ownership
-    m_type(PageType::Inherit)
+    m_type(PageType::Inherit),
+    m_skip(false)
 {
     for (auto e : elements) {
         addElement(e);
@@ -62,6 +66,13 @@ QuPage* QuPage::setType(PageType type)
 QuPage* QuPage::setTitle(const QString& title)
 {
     m_title = title;
+    return this;
+}
+
+
+QuPage* QuPage::setSkip(bool skip)
+{
+    m_skip = skip;
     return this;
 }
 
@@ -104,6 +115,14 @@ QuPage::PageType QuPage::type() const
 QString QuPage::title() const
 {
     return m_title;
+}
+
+
+bool QuPage::skip() const
+{
+    // You *can* skip a page that has "required input" missing; "skip" takes
+    // higher priority.
+    return m_skip;
 }
 
 

@@ -20,6 +20,9 @@
 #include "tasklib/inittasks.h"
 
 #include "tasks/ace3.h"
+#include "tasks/aims.h"
+#include "tasks/audit.h"
+#include "tasks/auditc.h"
 #include "tasks/demoquestionnaire.h"
 #include "tasks/phq9.h"
 
@@ -29,10 +32,10 @@ void InitTasks(TaskFactory& factory)
     // Change these lines to determine which tasks are available:
 
     initializeAce3(factory);
-    // *** initializeAims(factory);
-    // *** initializeAudit(factory);
-    // *** initializeAuditC(factory);
-    // *** initializeBadls(factory);
+    initializeAims(factory);
+    initializeAudit(factory);
+    initializeAuditC(factory);
+    initializeBadls(factory);
     // *** initializeBdi(factory);
     // *** initializeBmi(factory);
     // *** initializeBprs(factory);
@@ -120,5 +123,5 @@ void InitTasks(TaskFactory& factory)
 
     // *** new: mini-ACE
 
-    // discarded tasks - revitalize?
+    // *** discarded tasks - revitalize
 }

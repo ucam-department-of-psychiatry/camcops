@@ -18,6 +18,7 @@
 */
 
 // #define DEBUG_LAYOUT
+// #define DEBUG_CLICK_TIMING
 
 #include "aspectratiopixmaplabel.h"
 #include <QDebug>
@@ -52,6 +53,9 @@ void AspectRatioPixmapLabel::setPixmap(const QPixmap& pixmap)
 
 int AspectRatioPixmapLabel::heightForWidth(int width) const
 {
+#ifdef DEBUG_CLICK_TIMING
+    qDebug() << Q_FUNC_INFO;
+#endif
     // Step 1: calculate an answer that's right for our image's aspect ratio
     int h = m_pixmap.isNull()
             ? 0  // a bit arbitrary! width()? 0? 1?
@@ -71,6 +75,9 @@ int AspectRatioPixmapLabel::heightForWidth(int width) const
 
 QSize AspectRatioPixmapLabel::sizeHint() const
 {
+#ifdef DEBUG_CLICK_TIMING
+    qDebug() << Q_FUNC_INFO;
+#endif
     QSize hint = m_pixmap.size();
     // hint.rheight() = -1;
 #ifdef DEBUG_LAYOUT
@@ -120,6 +127,9 @@ QPixmap AspectRatioPixmapLabel::scaledPixmap() const
 
 void AspectRatioPixmapLabel::resizeEvent(QResizeEvent* event)
 {
+#ifdef DEBUG_CLICK_TIMING
+    qDebug() << Q_FUNC_INFO;
+#endif
     Q_UNUSED(event);
     if (!m_pixmap.isNull()) {
         QLabel::setPixmap(scaledPixmap());
@@ -135,6 +145,9 @@ void AspectRatioPixmapLabel::resizeEvent(QResizeEvent* event)
 
 void AspectRatioPixmapLabel::mousePressEvent(QMouseEvent* event)
 {
+#ifdef DEBUG_CLICK_TIMING
+    qDebug() << Q_FUNC_INFO;
+#endif
     Q_UNUSED(event);
     emit clicked();
 }

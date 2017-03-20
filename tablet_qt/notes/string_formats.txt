@@ -1,0 +1,37 @@
+===============================================================================
+String formats
+===============================================================================
+
+-------------------------------------------------------------------------------
+- QUESTION: Linebreaks in XML - what's best?
+-------------------------------------------------------------------------------
+
+- In XML, you need to use <br/>, not just <br>.
+
+- Qt supports this subset of HTML for rich text:
+    http://doc.qt.io/qt-4.8/richtext-html-subset.html
+  ... which include <br>.
+
+- ElementTree (e.g. from Python's xml.etree) will do this conversion:
+
+
+<string name="intro_info">blah blah
+    thing thing<br/>
+    waffle waffle
+    ...
+    </string>
+
+- to:
+
+    "blah blah\n    thing thing"
+
+- So, for now, we will use \n
+
+- This works fine EXCEPT that we are seeing (2017-03-20) "\n" literals in
+  QuMcqGrid
+
+- That was because only QuText was calling
+    stringfunc::toHtmlLinebreaks(m_text);
+
+... so put that into xstring() calls
+... specifically, in CamcopsApp::xstringDirect().

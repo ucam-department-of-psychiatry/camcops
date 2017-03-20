@@ -53,6 +53,8 @@ using stringfunc::bold;
 using stringfunc::strnum;
 using stringfunc::strseq;
 
+const QString AUDIT_TABLENAME("ace3");
+
 const QString IMAGE_SPOON("ace3/spoon.png");
 const QString IMAGE_BOOK("ace3/book.png");
 const QString IMAGE_KANGAROO("ace3/kangaroo.png");
@@ -77,8 +79,10 @@ const QString IMAGE_A("ace3/a.png");
 const QString IMAGE_T("ace3/t.png");
 
 const QString TAG_MEM_RECOGNIZE("mem_recognize");
-const QString TAG_PG_LANG_COMMANDS_SENTENCES("lang_commands_sentences");
+const QString TAG_PG_LANG_COMMANDS_SENTENCES("pg_lang_commands_sentences");
+const QString TAG_PG_MEM_PROMPTED_RECALL("pg_mem_prompted_recall");
 const QString TAG_EL_LANG_OPTIONAL_COMMAND("lang_optional_command");
+const QString TAG_EL_LANG_NOT_SHOWN("lang_not_shown");
 const QString TAG_RECOG_REQUIRED("recog_required");
 const QString TAG_RECOG_SUPERFLUOUS("recog_superfluous");
 const QString TAG_RECOG_NAME("recog_name");
@@ -170,7 +174,7 @@ void initializeAce3(TaskFactory& factory)
 
 
 Ace3::Ace3(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
-    Task(app, db, "ace3", false, true, false),
+    Task(app, db, AUDIT_TABLENAME, false, true, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     addField(FN_AGE_FT_EDUCATION, QVariant::Int);
@@ -332,6 +336,9 @@ OpenableWidget* Ace3::editor(bool read_only)
         return new QuBoolean(uifunc::resourceFilename(filenamestem), QSize(),
                              fieldRef(fieldname, mandatory));
     };
+    auto warning = [this](const QString& string) -> QuElement* {
+        return (new QuText(string))->setWarning();
+    };
 
     // ------------------------------------------------------------------------
     // Preamble; age-leaving-full-time-education; handedness
@@ -353,7 +360,9 @@ OpenableWidget* Ace3::editor(bool read_only)
             {xstring("q_handedness"),
              (new QuMcq(fieldRef(FN_HANDEDNESS), options_handedness))->setHorizontal(true)},
         }, uiconst::DEFAULT_COLSPAN_Q, uiconst::DEFAULT_COLSPAN_A),
-    })->setTitle(makeTitle("Preamble"))->setType(QuPage::PageType::Clinician));
+    })
+        ->setTitle(makeTitle("Preamble"))
+        ->setType(QuPage::PageType::Clinician));
 
     // ------------------------------------------------------------------------
     // Attention/orientation/three word recall
@@ -583,6 +592,8 @@ OpenableWidget* Ace3::editor(bool read_only)
         boolean("lang_command1", strnum(FP_LANG_FOLLOW_CMD, 1), true, true)->addTag(TAG_EL_LANG_OPTIONAL_COMMAND),
         boolean("lang_command2", strnum(FP_LANG_FOLLOW_CMD, 2), true, true)->addTag(TAG_EL_LANG_OPTIONAL_COMMAND),
         boolean("lang_command3", strnum(FP_LANG_FOLLOW_CMD, 3), true, true)->addTag(TAG_EL_LANG_OPTIONAL_COMMAND),
+        warning(tr("Other commands not shown; subject failed practice trial"))
+                                            ->addTag(TAG_EL_LANG_NOT_SHOWN),
         heading("cat_lang"),
         instruction("lang_q_sentences"),
         boolean("lang_sentences_point1", strnum(FP_LANG_WRITE_SENTENCES_POINT, 1)),
@@ -858,6 +869,7 @@ OpenableWidget* Ace3::editor(bool read_only)
 
     })
         ->setTitle(makeTitle("Cued recall"))
+        ->addTag(TAG_PG_MEM_PROMPTED_RECALL)
         ->setType(QuPage::PageType::Clinician));
 
     // ------------------------------------------------------------------------
@@ -1082,6 +1094,8 @@ void Ace3::langPracticeChanged(const FieldRef* fieldref)
     }
     m_questionnaire->setVisibleByTag(TAG_EL_LANG_OPTIONAL_COMMAND, visible,
                                      false, TAG_PG_LANG_COMMANDS_SENTENCES);
+    m_questionnaire->setVisibleByTag(TAG_EL_LANG_NOT_SHOWN, !visible,
+                                     false, TAG_PG_LANG_COMMANDS_SENTENCES);
 }
 
 
@@ -1107,13 +1121,20 @@ void Ace3::updateAddressRecognition()
     const bool recog_required = !name_correct || !number_correct ||
             !street_correct || !town_correct || !county_correct;
     const bool recog_superfluous = !recog_required;
-    m_questionnaire->setVisibleByTag(TAG_RECOG_NAME, !name_correct, false);
-    m_questionnaire->setVisibleByTag(TAG_RECOG_NUMBER, !number_correct, false);
-    m_questionnaire->setVisibleByTag(TAG_RECOG_STREET, !street_correct, false);
-    m_questionnaire->setVisibleByTag(TAG_RECOG_TOWN, !town_correct, false);
-    m_questionnaire->setVisibleByTag(TAG_RECOG_COUNTY, !county_correct, false);
-    m_questionnaire->setVisibleByTag(TAG_RECOG_REQUIRED, recog_required, false);
-    m_questionnaire->setVisibleByTag(TAG_RECOG_SUPERFLUOUS, recog_superfluous, false);
+    m_questionnaire->setVisibleByTag(TAG_RECOG_NAME, !name_correct,
+                                     false, TAG_PG_MEM_PROMPTED_RECALL);
+    m_questionnaire->setVisibleByTag(TAG_RECOG_NUMBER, !number_correct,
+                                     false, TAG_PG_MEM_PROMPTED_RECALL);
+    m_questionnaire->setVisibleByTag(TAG_RECOG_STREET, !street_correct,
+                                     false, TAG_PG_MEM_PROMPTED_RECALL);
+    m_questionnaire->setVisibleByTag(TAG_RECOG_TOWN, !town_correct,
+                                     false, TAG_PG_MEM_PROMPTED_RECALL);
+    m_questionnaire->setVisibleByTag(TAG_RECOG_COUNTY, !county_correct,
+                                     false, TAG_PG_MEM_PROMPTED_RECALL);
+    m_questionnaire->setVisibleByTag(TAG_RECOG_REQUIRED, recog_required,
+                                     false, TAG_PG_MEM_PROMPTED_RECALL);
+    m_questionnaire->setVisibleByTag(TAG_RECOG_SUPERFLUOUS, recog_superfluous,
+                                     false, TAG_PG_MEM_PROMPTED_RECALL);
 
     // - bool to int 0/1 is guaranteed, so no need for " ? 1 : 0";
     //   http://stackoverflow.com/questions/5369770/bool-to-int-conversion

@@ -37,6 +37,19 @@ TO DO NOW
 
 
 ===============================================================================
+QT BUG?
+===============================================================================
+
+- Sometimes there is a delay after clicking on a QuBoolean with an image, like
+  the picture-naming in the ACE-III. The delay occurs whether you click the
+  boolean indicator (with its "you are touching me" shading) or the image.
+  It seems to occur only if the main window is NOT maximized.
+  The delay is in calling AspectRatioPixmapLabel::mousePressEvent, for example.
+  Using "#define DEBUG_CLICK_TIMING" shows that the delay is NOT because the
+  widget's overridden sizeHint (etc.) code is being called.
+  Not sure that this is a problem in my code.
+
+===============================================================================
 MAYBE IN THE FUTURE
 ===============================================================================
 

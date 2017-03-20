@@ -359,6 +359,31 @@ QStringList Task::fieldSummaries(const QString& xstringprefix,
 }
 
 
+QStringList Task::fieldSummariesYesNo(const QString& xstringprefix,
+                                      const QString& xstringsuffix,
+                                      const QString& spacer,
+                                      const QString& fieldprefix,
+                                      int first,
+                                      int last) const
+{
+    using stringfunc::strseq;
+    using uifunc::yesNo;
+    QStringList xstringnames = strseq(xstringprefix, first, last,
+                                      xstringsuffix);
+    QStringList fieldnames = strseq(fieldprefix, first, last);
+    QStringList list;
+    for (int i = 0; i < fieldnames.length(); ++i) {
+        QString fieldname = fieldnames.at(i);
+        QString xstringname = xstringnames.at(i);
+        list.append(QString("%1%2<b>%3</b>")
+                    .arg(xstring(xstringname))
+                    .arg(spacer)
+                    .arg(yesNo(valueBool(fieldname))));
+    }
+    return list;
+}
+
+
 // ============================================================================
 // Editing
 // ============================================================================

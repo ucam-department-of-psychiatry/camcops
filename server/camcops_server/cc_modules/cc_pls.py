@@ -71,6 +71,7 @@ from .cc_constants import (
     DEFAULT_PLOT_FONTSIZE,
     DEFAULT_STRING_FILE,
     DEFAULT_TIMEOUT_MINUTES,
+    ENVVAR_CONFIG_FILE,
     INTROSPECTION_BASE_DIRECTORY,
     LOCAL_LOGO_FILE_WEBREF,
     NUMBER_OF_IDNUMS,
@@ -271,12 +272,12 @@ class LocalStorage(object):
         # ---------------------------------------------------------------------
         # Open config file
         # ---------------------------------------------------------------------
-        self.CAMCOPS_CONFIG_FILE = environ.get("CAMCOPS_CONFIG_FILE")
+        self.CAMCOPS_CONFIG_FILE = environ.get(ENVVAR_CONFIG_FILE)  # WSGI env
         if not self.CAMCOPS_CONFIG_FILE:
             # fallback to OS environment
-            self.CAMCOPS_CONFIG_FILE = os.environ.get("CAMCOPS_CONFIG_FILE")
+            self.CAMCOPS_CONFIG_FILE = os.environ.get(ENVVAR_CONFIG_FILE)
         if not self.CAMCOPS_CONFIG_FILE:
-            raise AssertionError("CAMCOPS_CONFIG_FILE not specified")
+            raise AssertionError("{} not specified".format(ENVVAR_CONFIG_FILE))
         log.info("Reading from {}".format(self.CAMCOPS_CONFIG_FILE))
         config = configparser.ConfigParser()
         config.read_file(codecs.open(self.CAMCOPS_CONFIG_FILE, "r", "utf8"))

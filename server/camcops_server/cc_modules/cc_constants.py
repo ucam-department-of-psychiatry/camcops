@@ -42,6 +42,8 @@ NUMBER_OF_IDNUMS = 8  # Determines number of ID number fields
 # Configuration
 # =============================================================================
 
+ENVVAR_CONFIG_FILE = "CAMCOPS_CONFIG_FILE"
+
 CONFIG_FILE_MAIN_SECTION = "server"
 CONFIG_FILE_RECIPIENTLIST_SECTION = "recipients"
 
