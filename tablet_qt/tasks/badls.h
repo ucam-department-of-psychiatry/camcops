@@ -22,18 +22,18 @@
 #include "tasklib/task.h"
 
 class CamcopsApp;
-class OpenableWidget;
 class TaskFactory;
+class OpenableWidget;
 
-void initializePhq9(TaskFactory& factory);
+void initializeBadls(TaskFactory& factory);
 
 
-class Phq9 : public Task
+class Badls : public Task
 {
     Q_OBJECT
 public:
-    Phq9(CamcopsApp& app, const QSqlDatabase& db,
-         int load_pk = dbconst::NONEXISTENT_PK);
+    Badls(CamcopsApp& app, const QSqlDatabase& db,
+          int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -50,8 +50,6 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
+    int score(int qnum) const;
     int totalScore() const;
-    int nCoreSymptoms() const;
-    int nOtherSymptoms() const;
-    static QString severity(int score);
 };

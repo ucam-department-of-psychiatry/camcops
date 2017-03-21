@@ -42,6 +42,7 @@ TR(EXAMINER_COMMENTS_PROMPT, "Optional — Examiner’s comments (e.g. "
                              "difficulties the subject had with the task):");
 TR(EXAMINER_COMMENTS, "Examiner’s comments");
 TR(CLINICIAN_COMMENTS, "Clinician’s comments");
+TR(COMMENTS, "Comments");
 
 // ============================================================================
 // Terms and conditions

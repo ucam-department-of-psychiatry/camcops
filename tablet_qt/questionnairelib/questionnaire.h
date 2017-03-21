@@ -71,7 +71,9 @@ public:
                                     const QString& page_tag = "");
     QList<QuPage*> getPages(bool current_page_only,
                             const QString& page_tag = "");
-    void setPageSkip(int page, bool skip);
+    void setPageSkip(int page, bool skip, bool reset_buttons = true);
+    void setPageSkip(const QString& page_tag, bool skip,
+                     bool reset_buttons = true);
 public slots:
     void resetButtons();
 protected:

@@ -40,7 +40,7 @@ const int N_QUESTIONS = 10;
 const int MAX_SCORE = 27;
 const QString QPREFIX("q");
 
-const QString AUDIT_TABLENAME("phq9");
+const QString PHQ9_TABLENAME("phq9");
 
 
 void initializePhq9(TaskFactory& factory)
@@ -50,7 +50,7 @@ void initializePhq9(TaskFactory& factory)
 
 
 Phq9::Phq9(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
-    Task(app, db, AUDIT_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, PHQ9_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
 

@@ -23,6 +23,12 @@
 #include "tasks/aims.h"
 #include "tasks/audit.h"
 #include "tasks/auditc.h"
+#include "tasks/badls.h"
+#include "tasks/bdi.h"
+#include "tasks/bmi.h"
+#include "tasks/bprs.h"
+#include "tasks/bprse.h"
+#include "tasks/cage.h"
 #include "tasks/demoquestionnaire.h"
 #include "tasks/phq9.h"
 
@@ -36,11 +42,11 @@ void InitTasks(TaskFactory& factory)
     initializeAudit(factory);
     initializeAuditC(factory);
     initializeBadls(factory);
-    // *** initializeBdi(factory);
-    // *** initializeBmi(factory);
-    // *** initializeBprs(factory);
-    // *** initializeBprsE(factory);
-    // *** initializeCage(factory);
+    initializeBdi(factory);
+    initializeBmi(factory);
+    initializeBprs(factory);
+    initializeBprsE(factory);
+    initializeCage(factory);
     // *** initializeCape42(factory);
     // *** initializeCaps(factory);
     // *** initializeCardinalExpDetThreshold(factory);

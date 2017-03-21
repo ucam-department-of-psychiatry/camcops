@@ -17,7 +17,10 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define DEBUG_UNIT_CONVERSION
+
 #include "convert.h"
+#include <cmath>
 #include <QBuffer>
 #include <QByteArray>
 #include <QChar>
@@ -541,5 +544,90 @@ QVariant toQCharVariant(const QVariant& v)
     }
     return str.at(0);
 }
+
+
+// ============================================================================
+// Physical units
+// ============================================================================
+
+#ifdef DEBUG_UNIT_CONVERSION
+#define UNIT_CONVERSION "Unit conversion: "
+#endif
+const double CM_PER_INCH = 2.54;
+const double CM_PER_M = 100;
+const double INCHES_PER_FOOT = 12;
+
+const double POUNDS_PER_STONE = 14;
+const double OUNCES_PER_POUND = 16;
+const double GRAMS_PER_KG = 1000;
+const double GRAMS_PER_POUND = 453.592;
+const double POUNDS_PER_KG = 2.20462;
+
+
+double metresFromFeetInches(double feet, double inches)
+{
+    double metres = (feet * INCHES_PER_FOOT + inches) * CM_PER_INCH / CM_PER_M;
+#ifdef DEBUG_UNIT_CONVERSION
+    qDebug() << UNIT_CONVERSION
+             << feet << "ft" << inches << "in ->" << metres << "m";
+#endif
+    return metres;
+}
+
+
+void feetInchesFromMetres(double metres, int& feet, double& inches)
+{
+    double total_inches = metres * CM_PER_M / CM_PER_INCH;
+    feet = std::trunc(total_inches / INCHES_PER_FOOT);
+    inches = std::fmod(total_inches, INCHES_PER_FOOT);
+#ifdef DEBUG_UNIT_CONVERSION
+    qDebug() << UNIT_CONVERSION
+             << metres << "m ->" << feet << "ft" << inches << "in";
+#endif
+}
+
+
+double kilogramsFromStonesPoundsOunces(double stones, double pounds,
+                                       double ounces)
+{
+    double kg = (stones * POUNDS_PER_STONE +
+                 pounds +
+                 ounces / OUNCES_PER_POUND) * GRAMS_PER_POUND / GRAMS_PER_KG;
+#ifdef DEBUG_UNIT_CONVERSION
+    qDebug() << UNIT_CONVERSION
+             << stones << "st" << pounds << "lb" << ounces << "oz ->"
+             << kg << "kg";
+#endif
+    return kg;
+}
+
+
+void stonesPoundsFromKilograms(double kilograms,
+                               int& stones, double& pounds)
+{
+    double total_pounds = kilograms * POUNDS_PER_KG;
+    stones = std::trunc(total_pounds / POUNDS_PER_STONE);
+    pounds = std::fmod(total_pounds, POUNDS_PER_STONE);
+#ifdef DEBUG_UNIT_CONVERSION
+    qDebug() << UNIT_CONVERSION
+             << kilograms << "kg ->" << stones << "st" << pounds << "lb";
+#endif
+}
+
+
+void stonesPoundsOuncesFromKilograms(double kilograms,
+                                     int& stones, int& pounds, double& ounces)
+{
+    double total_pounds = kilograms * POUNDS_PER_KG;
+    stones = std::trunc(total_pounds / POUNDS_PER_STONE);
+    double float_pounds = std::fmod(total_pounds, POUNDS_PER_STONE);
+    pounds = std::trunc(float_pounds);
+    ounces = std::fmod(float_pounds, 1);
+#ifdef DEBUG_UNIT_CONVERSION
+    qDebug() << UNIT_CONVERSION << kilograms << "kg ->"
+             << stones << "st" << pounds << "lb" << ounces << "oz";
+#endif
+}
+
 
 }  // namespace convert

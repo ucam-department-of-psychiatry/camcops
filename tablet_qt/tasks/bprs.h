@@ -25,14 +25,14 @@ class CamcopsApp;
 class OpenableWidget;
 class TaskFactory;
 
-void initializePhq9(TaskFactory& factory);
+void initializeBprs(TaskFactory& factory);
 
 
-class Phq9 : public Task
+class Bprs : public Task
 {
     Q_OBJECT
 public:
-    Phq9(CamcopsApp& app, const QSqlDatabase& db,
+    Bprs(CamcopsApp& app, const QSqlDatabase& db,
          int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
@@ -51,7 +51,4 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     int totalScore() const;
-    int nCoreSymptoms() const;
-    int nOtherSymptoms() const;
-    static QString severity(int score);
 };

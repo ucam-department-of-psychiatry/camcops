@@ -39,6 +39,7 @@ extern const QString NONE;
 extern const QString EXAMINER_COMMENTS_PROMPT;
 extern const QString EXAMINER_COMMENTS;
 extern const QString CLINICIAN_COMMENTS;
+extern const QString COMMENTS;
 
 // ============================================================================
 // Terms and conditions

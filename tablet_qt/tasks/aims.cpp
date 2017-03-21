@@ -38,7 +38,7 @@ const int N_QUESTIONS = 12;
 const int MAX_SCORE = 40;
 const QString QPREFIX("q");
 
-const QString AUDIT_TABLENAME("aims");
+const QString AIMS_TABLENAME("aims");
 
 
 void initializeAims(TaskFactory& factory)
@@ -48,7 +48,7 @@ void initializeAims(TaskFactory& factory)
 
 
 Aims::Aims(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
-    Task(app, db, AUDIT_TABLENAME, false, true, false)  // ... anon, clin, resp
+    Task(app, db, AIMS_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
 

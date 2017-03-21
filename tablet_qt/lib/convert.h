@@ -110,4 +110,28 @@ QSsl::SslProtocol sslProtocolFromDescription(const QString& desc);
 
 QVariant toQCharVariant(const QVariant& v);
 
+// ============================================================================
+// Physical units
+// ============================================================================
+
+extern const double CM_PER_INCH;
+extern const double CM_PER_M;
+extern const double INCHES_PER_FOOT;
+
+extern const double POUNDS_PER_STONE;
+extern const double OUNCES_PER_POUND;
+extern const double GRAMS_PER_KG;
+extern const double GRAMS_PER_POUND;
+extern const double POUNDS_PER_KG;
+
+double metresFromFeetInches(double feet, double inches);
+void feetInchesFromMetres(double metres, int& feet, double& inches);
+double kilogramsFromStonesPoundsOunces(double stones, double pounds,
+                                       double ounces = 0);
+void stonesPoundsFromKilograms(
+        double kilograms, int& stones, double& pounds);
+void stonesPoundsOuncesFromKilograms(
+        double kilograms, int& stones, int& pounds, double& ounces);
+
+
 }  // namespace convert

@@ -276,7 +276,13 @@ SOURCES += main.cpp \
     lib/nhs.cpp \
     tasks/aims.cpp \
     tasks/audit.cpp \
-    tasks/auditc.cpp
+    tasks/auditc.cpp \
+    tasks/badls.cpp \
+    tasks/bdi.cpp \
+    tasks/bmi.cpp \
+    tasks/bprs.cpp \
+    tasks/bprse.cpp \
+    tasks/cage.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -480,7 +486,13 @@ HEADERS  += \
     lib/nhs.h \
     tasks/aims.h \
     tasks/audit.h \
-    tasks/auditc.h
+    tasks/auditc.h \
+    tasks/badls.h \
+    tasks/bdi.h \
+    tasks/bmi.h \
+    tasks/bprs.h \
+    tasks/bprse.h \
+    tasks/cage.h
 
 
 DISTFILES += \

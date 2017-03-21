@@ -97,8 +97,11 @@ public:
     // Assistance functions
     // ------------------------------------------------------------------------
     QDateTime whenCreated() const;
-    QStringList summaryWithCompletenessInfo() const;
-    QString xstring(const QString& stringname) const;
+    QStringList completenessInfo() const;
+    QString xstring(const QString& stringname,
+                    const QString& default_str = "") const;
+    QString appstring(const QString& stringname,
+                      const QString& default_str = "") const;
     QStringList fieldSummaries(const QString& xstringprefix,
                                const QString& xstringsuffix,
                                const QString& spacer,

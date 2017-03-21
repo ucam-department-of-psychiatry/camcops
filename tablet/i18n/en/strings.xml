@@ -106,7 +106,6 @@ CamCOPS app
 <string name="at">at</string>
 <string name="not_implemented_yet">Not implemented yet!</string>
 <string name="not_supported_on_this_platform">Not supported on this platform!</string>
-<string name="data_collection_only">Reproduction of this task/scale is not permitted. This is a data collection tool only; use it only in conjunction with a licensed copy of the original task.</string>
 <string name="needs_privilege">You must set Privileged Mode first</string>
 <string name="all_files">All files</string>
 <string name="errors">Error(s):</string>
@@ -168,7 +167,6 @@ CamCOPS app
 <string name="s_generic_chain">Chain of tasks. Touch to run all the tasks in sequence.</string>
 <string name="hint_date">Date, e.g. DD Month YYYY or YYYY-MM-DD</string>
 <string name="hint_datetime">Date/time, e.g. DD Month YYYY HH:MM or YYYY-MM-DD HH:MM</string>
-<string name="enter_the_answers">Enter the answers:</string>
 <string name="press_next_to_continue">Press the NEXT button (the green right-facing arrow at the TOP RIGHT of the screen) to continue.</string>
 <string name="score">Score:</string>
 <string name="rating">Rating:</string>
@@ -599,7 +597,6 @@ Tasks
 <string name="t_bdi">Beck Depression Inventory (BDI) (¶)</string>
 <string name="s_bdi">21-item self-report scale. Data collection tool ONLY (for BDI, BDI-1A, BDI-II).</string>
 <string name="b_bdi">BDI</string>
-<string name="bdi_which_scale">Which scale are you collecting data from?</string>
 
 <string name="t_bmi">Body mass index (BMI)</string>
 <string name="s_bmi">Mass, height</string>

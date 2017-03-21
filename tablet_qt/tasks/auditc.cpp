@@ -156,7 +156,6 @@ OpenableWidget* AuditC::editor(bool read_only)
 
     QuPagePtr page4((new QuPage{
         (new QuText(xstring("c_q3_question")))->setBold(),
-        new QuText(xstring("c_instruction")),
         new QuMcq(fieldRef("q3"), options3),
     })->setType(QuPage::PageType::Clinician)->setTitle(qprefix + " 3"));
 

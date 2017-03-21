@@ -53,7 +53,7 @@ using stringfunc::bold;
 using stringfunc::strnum;
 using stringfunc::strseq;
 
-const QString AUDIT_TABLENAME("ace3");
+const QString ACE3_TABLENAME("ace3");
 
 const QString IMAGE_SPOON("ace3/spoon.png");
 const QString IMAGE_BOOK("ace3/book.png");
@@ -174,7 +174,7 @@ void initializeAce3(TaskFactory& factory)
 
 
 Ace3::Ace3(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
-    Task(app, db, AUDIT_TABLENAME, false, true, false),  // ... anon, clin, resp
+    Task(app, db, ACE3_TABLENAME, false, true, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     addField(FN_AGE_FT_EDUCATION, QVariant::Int);

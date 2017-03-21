@@ -20,16 +20,18 @@
     <string name="title_2">BMI (2/4): Height</string>
     <string name="title_3">BMI (3/4): Units for mass</string>
     <string name="title_4">BMI (4/4): Mass</string>
-    <string name="metric_height">Metric (metres)</string>
-    <string name="imperial_height">Imperial (feet, inches)</string>
+    <string name="metric_height">Metric (m)</string>
+    <string name="imperial_height">Imperial (ft, in)</string>
     <string name="m">metres (m)</string>
-    <string name="ft">Feet</string>
-    <string name="in">Inches</string>
+    <string name="ft">feet (ft)</string>
+    <string name="in">inches (in)</string>
     <string name="metric_mass">Metric (kg)</string>
-    <string name="imperial_mass">Imperial (stones, pounds)</string>
+    <string name="imperial_mass">Imperial (st, lb, oz)</string>
     <string name="kg">kilograms (kg)</string>
     <string name="st">stones (st)</string>
     <string name="lb">pounds (lb)</string>
+    <string name="oz">ounces (oz)</string>
+    <string name="units_both">Show both</string>
 
   </task>
 </resources>

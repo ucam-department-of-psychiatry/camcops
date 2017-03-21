@@ -28,7 +28,7 @@ import cardinal_pythonlib.rnc_web as ws
 from ..cc_modules.cc_constants import DATA_COLLECTION_ONLY_DIV
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import answer, tr, tr_qa
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring, WSTRING
 from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
 
 
@@ -115,10 +115,10 @@ class Bdi(Task):
                     <th width="30%">Answer</th>
                 </tr>
         """
-        h += tr_qa(WSTRING("bdi_which_scale"), ws.webify(self.bdi_scale))
+        h += tr_qa(wappstring("bdi_which_scale"), ws.webify(self.bdi_scale))
 
         for q in range(1, self.NQUESTIONS + 1):
-            h += tr_qa("{} {}".format(WSTRING("question"), q),
+            h += tr_qa("{} {}".format(wappstring("question"), q),
                        getattr(self, "q" + str(q)))
         h += """
             </table>

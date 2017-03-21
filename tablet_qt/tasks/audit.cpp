@@ -233,19 +233,12 @@ void Audit::setPageSkip()
     if (!m_questionnaire) {
         return;
     }
-    QList<QuPage*> pages_q2to3 = m_questionnaire->getPages(false, TAG_Q2TO3);
-    QList<QuPage*> pages_q4to8 = m_questionnaire->getPages(false, TAG_Q4TO8);
     QVariant q1value = value("q1");
     QVariant q2value = value("q2");
     QVariant q3value = value("q3");
     bool need2to3 = q1value.isNull() || q1value.toInt() != 0;
     bool need4to8 = need2to3 && (q2value.isNull() || q3value.isNull() ||
                                  q2value.toInt() != 0 || q3value.toInt() != 0);
-    for (auto page : pages_q2to3) {
-        page->setSkip(!need2to3);
-    }
-    for (auto page : pages_q4to8) {
-        page->setSkip(!need4to8);
-    }
-    m_questionnaire->resetButtons();
+    m_questionnaire->setPageSkip(TAG_Q2TO3, !need2to3, false);
+    m_questionnaire->setPageSkip(TAG_Q4TO8, !need4to8, true);
 }

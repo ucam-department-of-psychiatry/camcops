@@ -91,6 +91,7 @@ public:
     // ... originator is optional and used as a performance hint (see QSlider)
     bool setValue(const QImage& image, const QObject* originator = nullptr);
     // ... convenience method for QImage
+    void emitValueChanged(const QObject* originator = nullptr);  // for rare manual use
 
     QVariant value() const;
     bool valueBool() const;

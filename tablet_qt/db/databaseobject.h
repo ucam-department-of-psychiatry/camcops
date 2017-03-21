@@ -73,6 +73,7 @@ public:
     QVariant value(const QString& fieldname) const;
     QString prettyValue(const QString& fieldname) const;
     bool valueIsNull(const QString& fieldname) const;
+    bool valueIsNullOrEmpty(const QString &fieldname) const;
     bool valueBool(const QString& fieldname) const;
     int valueInt(const QString& fieldname) const;
     qlonglong valueLongLong(const QString& fieldname) const;

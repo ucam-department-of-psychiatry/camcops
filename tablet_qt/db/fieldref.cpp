@@ -235,6 +235,12 @@ bool FieldRef::setValue(const QImage& image, const QObject* originator)
 }
 
 
+void FieldRef::emitValueChanged(const QObject* originator)
+{
+    emit valueChanged(this, originator);
+}
+
+
 QVariant FieldRef::value() const
 {
 #ifdef DEBUG_CHECK_VALID

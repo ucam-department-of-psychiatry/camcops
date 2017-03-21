@@ -1,0 +1,158 @@
+/*
+    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+
+    This file is part of CamCOPS.
+
+    CamCOPS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    CamCOPS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#include "bprs.h"
+#include "lib/mathfunc.h"
+#include "lib/stringfunc.h"
+#include "lib/uifunc.h"
+#include "questionnairelib/namevaluepair.h"
+#include "questionnairelib/questionnaire.h"
+#include "questionnairelib/qumcq.h"
+#include "questionnairelib/qutext.h"
+#include "tasklib/taskfactory.h"
+using mathfunc::noneNull;
+using mathfunc::scoreString;
+using mathfunc::sumInt;
+using stringfunc::strnum;
+using stringfunc::strseq;
+
+const int FIRST_Q = 1;
+const int LAST_SCORED_Q = 18;
+const int N_QUESTIONS = 20;
+const int MAX_SCORE = 126;
+const QString QPREFIX("q");
+
+const QString BPRS_TABLENAME("bprs");
+
+// Some scales use 9 for "not assessed"; we'll use 0 (as in the original BPRS).
+
+
+void initializeBprs(TaskFactory& factory)
+{
+    static TaskRegistrar<Bprs> registered(factory);
+}
+
+
+Bprs::Bprs(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+    Task(app, db, BPRS_TABLENAME, false, true, false)  // ... anon, clin, resp
+{
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
+
+    load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
+}
+
+
+// ============================================================================
+// Class info
+// ============================================================================
+
+QString Bprs::shortname() const
+{
+    return "BPRS";
+}
+
+
+QString Bprs::longname() const
+{
+    return tr("Brief Psychiatric Rating Scale");
+}
+
+
+QString Bprs::menusubtitle() const
+{
+    return tr("18-item clinician-administered rating of multiple aspects of "
+              "psychopathology.");
+}
+
+
+// ============================================================================
+// Instance info
+// ============================================================================
+
+bool Bprs::isComplete() const
+{
+    return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
+}
+
+
+QStringList Bprs::summary() const
+{
+    return QStringList{
+        QString("%1 %2")
+            .arg(xstring("bprs18_total_score"))
+            .arg(scoreString(totalScore(), MAX_SCORE, false))};
+}
+
+
+QStringList Bprs::detail() const
+{
+    QStringList lines = fieldSummaries("q", "_s", " ",
+                                       QPREFIX, FIRST_Q, N_QUESTIONS);
+    lines.append("");
+    lines += summary();
+    return lines;
+}
+
+
+OpenableWidget* Bprs::editor(bool read_only)
+{
+    QList<QuPagePtr> pages;
+
+    auto addpage = [this, &pages](int n, bool include_na) -> void {
+        NameValueOptions options;
+        for (int i = 1; i <= 7; ++i) {
+            QString name = xstring(QString("q%1_option%2").arg(n).arg(i));
+            options.addItem(NameValuePair(name, i));
+        }
+        if (include_na) {
+            QString name = xstring(QString("q%1_option0").arg(n));
+            options.addItem(NameValuePair(name, 0));
+        }
+        QString pagetitle = xstring(QString("q%1_title").arg(n));
+        QString question = xstring(QString("q%1_question").arg(n));
+        QString fieldname = strnum(QPREFIX, n);
+        QuPagePtr page((new QuPage{
+            new QuText(question),
+            new QuMcq(fieldRef(fieldname), options),
+        })->setTitle(pagetitle));
+        pages.append(page);
+    };
+
+    pages.append(getClinicianDetailsPage());
+    for (int n = FIRST_Q; n <= N_QUESTIONS; ++n) {
+        bool include_na = (n == 1 || n == 2 || n == 5 || n == 8 || n == 9 ||
+                           n == 10 || n == 11 || n == 12 || n == 15 ||
+                           n == 18 || n == 20);
+        addpage(n, include_na);
+    }
+
+    Questionnaire* questionnaire = new Questionnaire(m_app, pages);
+    questionnaire->setReadOnly(read_only);
+    return questionnaire;
+}
+
+
+// ============================================================================
+// Task-specific calculations
+// ============================================================================
+
+int Bprs::totalScore() const
+{
+    return sumInt(values(strseq(QPREFIX, FIRST_Q, LAST_SCORED_Q)));
+}

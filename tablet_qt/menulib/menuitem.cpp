@@ -348,7 +348,7 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         col3_widget->setLayout(col3_hbox);
 
         QLabel* summary = new LabelWordWrapWide(
-                    m_p_task->summaryWithCompletenessInfo().join(" "));
+                (m_p_task->completenessInfo() + m_p_task->summary()).join(" "));
         summary->setAlignment(text_align);
         summary->setObjectName(complete
                                ? cssconst::TASK_ITEM_SUMMARY_COMPLETE

@@ -22,24 +22,25 @@
 #include "tasklib/task.h"
 
 class CamcopsApp;
-class OpenableWidget;
 class TaskFactory;
+class OpenableWidget;
 
-void initializePhq9(TaskFactory& factory);
+void initializeBdi(TaskFactory& factory);
 
 
-class Phq9 : public Task
+class Bdi : public Task
 {
     Q_OBJECT
 public:
-    Phq9(CamcopsApp& app, const QSqlDatabase& db,
-         int load_pk = dbconst::NONEXISTENT_PK);
+    Bdi(CamcopsApp& app, const QSqlDatabase& db,
+        int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString menusubtitle() const override;
+    virtual bool isCrippled() const { return true; }
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -51,7 +52,4 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     int totalScore() const;
-    int nCoreSymptoms() const;
-    int nOtherSymptoms() const;
-    static QString severity(int score);
 };

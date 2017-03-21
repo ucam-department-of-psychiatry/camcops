@@ -560,13 +560,28 @@ QList<QuPage*> Questionnaire::getPages(bool current_page_only,
 }
 
 
-void Questionnaire::setPageSkip(int page, bool skip)
+void Questionnaire::setPageSkip(int page, bool skip, bool reset_buttons)
 {
     if (page < 0 || page >= m_pages.size()) {
         return;
     }
     m_pages[page]->setSkip(skip);
-    resetButtons();
+    if (reset_buttons) {
+        resetButtons();
+    }
+}
+
+
+void Questionnaire::setPageSkip(const QString& page_tag, bool skip,
+                                bool reset_buttons)
+{
+    QList<QuPage*> pages = getPages(false, page_tag);
+    for (auto page : pages) {
+        page->setSkip(skip);
+    }
+    if (reset_buttons) {
+        resetButtons();
+    }
 }
 
 

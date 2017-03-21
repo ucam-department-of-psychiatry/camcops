@@ -538,7 +538,7 @@ void NetworkManager::sslIgnoringErrorHandler(QNetworkReply* reply,
                                              const QList<QSslError> & errlist)
 {
     // Error handle that ignores SSL certificate errors and continues
-    statusMessage("Ignoring SSL errors:");
+    statusMessage(QString("Ignoring %1 SSL error(s):").arg(errlist.length()));
     for (auto err : errlist) {
         statusMessage(err.errorString());
     }

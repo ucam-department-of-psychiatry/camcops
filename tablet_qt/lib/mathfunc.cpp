@@ -214,10 +214,16 @@ int countWhereNot(const QList<QVariant>& test_values,
 }
 
 
+QString toDp(double x, int dp)
+{
+    return QString("%1").arg(x, 0, 'f', dp);
+}
+
+
 QString percent(double numerator, double denominator, int dp)
 {
     double pct = 100 * numerator / denominator;
-    return QString("%1%").arg(pct, 0, 'f', dp);
+    return toDp(pct, dp) + "%";
 }
 
 

@@ -291,7 +291,7 @@ QStringList Task::summary() const
 
 QStringList Task::detail() const
 {
-    QStringList result = summaryWithCompletenessInfo();
+    QStringList result = completenessInfo() + summary();
     result.append("");  // blank line
     result += recordSummaryLines();
     return result;
@@ -317,21 +317,27 @@ QDateTime Task::whenCreated() const
 }
 
 
-QStringList Task::summaryWithCompletenessInfo() const
+QStringList Task::completenessInfo() const
 {
-    if (isComplete()) {
-        return summary();
-    } else {
-        QStringList result{tr("<b>(INCOMPLETE)</b>")};
-        result += summary();
-        return result;
+    QStringList result;
+    if (!isComplete()) {
+        result.append(tr("<b>(INCOMPLETE)</b>"));
     }
+    return result;
 }
 
 
-QString Task::xstring(const QString &stringname) const
+QString Task::xstring(const QString& stringname,
+                      const QString& default_str) const
 {
-    return m_app.xstring(xstringTaskname(), stringname);
+    return m_app.xstring(xstringTaskname(), stringname, default_str);
+}
+
+
+QString Task::appstring(const QString& stringname,
+                        const QString& default_str) const
+{
+    return m_app.appstring(stringname, default_str);
 }
 
 

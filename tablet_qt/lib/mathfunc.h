@@ -46,6 +46,7 @@ int countWhere(const QList<QVariant>& test_values,
 int countWhereNot(const QList<QVariant>& test_values,
                   const QList<QVariant>& where_not_values);
 
+QString toDp(double x, int dp);
 QString percent(double numerator, double denominator, int dp = 1);
 QString scoreString(int numerator, int denominator,
                     bool show_percent = false, int dp = 1);
