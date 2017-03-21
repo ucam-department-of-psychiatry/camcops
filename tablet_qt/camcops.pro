@@ -282,7 +282,8 @@ SOURCES += main.cpp \
     tasks/bmi.cpp \
     tasks/bprs.cpp \
     tasks/bprse.cpp \
-    tasks/cage.cpp
+    tasks/cage.cpp \
+    tasks/cape42.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -492,7 +493,8 @@ HEADERS  += \
     tasks/bmi.h \
     tasks/bprs.h \
     tasks/bprse.h \
-    tasks/cage.h
+    tasks/cage.h \
+    tasks/cape42.h
 
 
 DISTFILES += \

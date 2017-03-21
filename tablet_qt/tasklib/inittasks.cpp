@@ -29,6 +29,7 @@
 #include "tasks/bprs.h"
 #include "tasks/bprse.h"
 #include "tasks/cage.h"
+#include "tasks/cape42.h"
 #include "tasks/demoquestionnaire.h"
 #include "tasks/phq9.h"
 
@@ -47,10 +48,10 @@ void InitTasks(TaskFactory& factory)
     initializeBprs(factory);
     initializeBprsE(factory);
     initializeCage(factory);
-    // *** initializeCape42(factory);
+    initializeCape42(factory);
     // *** initializeCaps(factory);
-    // *** initializeCardinalExpDetThreshold(factory);
-    // *** initializeCardinalExpectationDetection(factory);
+    // *** initializeCardinalExpDetThreshold(factory); // *** COMPLEX
+    // *** initializeCardinalExpectationDetection(factory); // *** COMPLEX
     // *** initializeCbiR(factory);
     // *** initializeCecaQ3(factory);
     // *** initializeCgi(factory);
@@ -114,7 +115,7 @@ void InitTasks(TaskFactory& factory)
     // *** initializePswq(factory);
     // *** initializePsychiatricClerking(factory);
     // *** initializeQolBasic(factory);
-    // *** initializeQolSG(factory);
+    // *** initializeQolSG(factory); // *** COMPLEX
     // *** initializeRand36(factory);
     // *** initializeReferrerSatisfactionGen(factory);
     // *** initializeReferrerSatisfactionSpec(factory);

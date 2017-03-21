@@ -55,7 +55,7 @@ public:
 
     bool hasTag(const QString& tag) const;
     bool visible() const;
-    void setVisible(bool visible);
+    QuElement* setVisible(bool visible);
 signals:
     void elementValueChanged();
 protected:

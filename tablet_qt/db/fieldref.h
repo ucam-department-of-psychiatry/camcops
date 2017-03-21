@@ -110,6 +110,9 @@ public:
     // ... originator is optional and used as a performance hint (see QSlider)
     bool complete() const;  // not null?
     bool missingInput() const;  // block progress because (mandatory() && !complete())?
+
+    void setHint(const QVariant& hint);
+    QVariant getHint() const;
 protected:
     void commonConstructor();
 
@@ -141,4 +144,5 @@ protected:
 
     CamcopsApp* m_app;
     QString m_storedvar_name;
+    QVariant m_hint;
 };

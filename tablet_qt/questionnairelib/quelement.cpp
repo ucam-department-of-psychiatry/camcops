@@ -115,16 +115,17 @@ bool QuElement::visible() const
 }
 
 
-void QuElement::setVisible(bool visible)
+QuElement* QuElement::setVisible(bool visible)
 {
     // qDebug() << Q_FUNC_INFO << visible;
     if (visible == m_visible) {
-        return;
+        return this;
     }
     m_visible = visible;
     if (m_widget) {
         m_widget->setVisible(visible);
     }
+    return this;
 }
 
 

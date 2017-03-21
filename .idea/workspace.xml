@@ -9,31 +9,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d507af95-9eb5-49a8-90aa-7921b1aee6f4" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/tasks/badls.cpp" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/tasks/badls.h" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/tasks/bdi.cpp" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/tasks/bdi.h" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/tasks/bmi.cpp" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/tasks/bmi.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/bdi.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/bdi.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/extra_strings/camcops.xml" afterPath="$PROJECT_DIR$/server/extra_strings/camcops.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet/i18n/en/strings.xml" afterPath="$PROJECT_DIR$/tablet/i18n/en/strings.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/tasks/cape42.cpp" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tablet_qt/tasks/cape42.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/camcops.pro" afterPath="$PROJECT_DIR$/tablet_qt/camcops.pro" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/databaseobject.cpp" afterPath="$PROJECT_DIR$/tablet_qt/db/databaseobject.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/databaseobject.h" afterPath="$PROJECT_DIR$/tablet_qt/db/databaseobject.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/convert.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/convert.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/convert.h" afterPath="$PROJECT_DIR$/tablet_qt/lib/convert.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/mathfunc.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/mathfunc.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/mathfunc.h" afterPath="$PROJECT_DIR$/tablet_qt/lib/mathfunc.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/menuitem.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menulib/menuitem.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/fieldref.cpp" afterPath="$PROJECT_DIR$/tablet_qt/db/fieldref.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/fieldref.h" afterPath="$PROJECT_DIR$/tablet_qt/db/fieldref.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasklib/inittasks.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasklib/inittasks.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasklib/task.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasklib/task.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasklib/task.h" afterPath="$PROJECT_DIR$/tablet_qt/tasklib/task.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasks/ace3.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasks/ace3.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasks/aims.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasks/aims.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasks/auditc.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasks/auditc.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasks/phq9.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasks/phq9.cpp" />
     </list>
     <ignored path="camcops.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -159,7 +140,7 @@
         <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/bmi.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="690">
-              <caret line="177" column="16" lean-forward="true" selection-start-line="177" selection-start-column="16" selection-end-line="177" selection-end-column="16" />
+              <caret line="177" column="16" lean-forward="false" selection-start-line="177" selection-start-column="16" selection-end-line="177" selection-end-column="16" />
               <folding />
             </state>
           </provider>
@@ -1236,7 +1217,7 @@
     <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/bmi.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="690">
-          <caret line="177" column="16" lean-forward="true" selection-start-line="177" selection-start-column="16" selection-end-line="177" selection-end-column="16" />
+          <caret line="177" column="16" lean-forward="false" selection-start-line="177" selection-start-column="16" selection-end-line="177" selection-end-column="16" />
           <folding />
         </state>
       </provider>

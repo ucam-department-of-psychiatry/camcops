@@ -365,6 +365,18 @@ bool FieldRef::missingInput() const
 }
 
 
+void FieldRef::setHint(const QVariant& hint)
+{
+    m_hint = hint;
+}
+
+
+QVariant FieldRef::getHint() const
+{
+    return m_hint;
+}
+
+
 void FieldRef::setMandatory(bool mandatory, const QObject* originator)
 {
     if (mandatory == m_mandatory) {
@@ -372,7 +384,7 @@ void FieldRef::setMandatory(bool mandatory, const QObject* originator)
     }
     m_mandatory = mandatory;
 #ifdef DEBUG_SIGNALS
-    qDebug().nospace() << Q_FUNC_INFO << "- emitting setMandatory: this="
+    qDebug().nospace() << Q_FUNC_INFO << "- emitting mandatoryChanged: this="
                        << this << ", mandatory=" << mandatory;
 #endif
     emit mandatoryChanged(this, originator);
