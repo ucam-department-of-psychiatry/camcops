@@ -98,16 +98,22 @@ bool allTrue(const QList<QVariant>& values)
 }
 
 
-bool allFalseOrNull(const QList<QVariant>& values)
+bool anyTrue(const QList<QVariant>& values)
 {
     int length = values.length();
     for (int i = 0; i < length; ++i) {
         const QVariant& v = values.at(i);
         if (v.toBool()) {
-            return false;
+            return true;
         }
     }
-    return true;
+    return false;
+}
+
+
+bool allFalseOrNull(const QList<QVariant>& values)
+{
+    return !anyTrue(values);
 }
 
 

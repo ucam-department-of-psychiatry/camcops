@@ -124,6 +124,7 @@ protected:
     QuElementPtr getClinicianQuestionnaireBlockElementPtr();
     QuPagePtr getClinicianDetailsPage();
     bool isRespondentComplete() const;
+    QVariant respondentRelationship() const;
     QuElement* getRespondentQuestionnaireBlockRawPointer(bool second_person);
     QuElementPtr getRespondentQuestionnaireBlockElementPtr(bool second_person);
     QuPagePtr getRespondentDetailsPage(bool second_person);

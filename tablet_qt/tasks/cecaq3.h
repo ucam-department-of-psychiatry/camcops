@@ -24,16 +24,17 @@
 
 class CamcopsApp;
 class OpenableWidget;
+class Questionnaire;
 class TaskFactory;
 
-void initializeCape42(TaskFactory& factory);
+void initializeCecaQ3(TaskFactory& factory);
 
 
-class Cape42 : public Task
+class CecaQ3 : public Task
 {
     Q_OBJECT
 public:
-    Cape42(CamcopsApp& app, const QSqlDatabase& db,
+    CecaQ3(CamcopsApp& app, const QSqlDatabase& db,
            int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
@@ -41,7 +42,6 @@ public:
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString menusubtitle() const override;
-    virtual QString infoFilenameStem() const override;
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -52,19 +52,42 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-    int distressScore(const QList<int>& questions) const;
-    int frequencyScore(const QList<int>& questions) const;
 protected:
-    bool questionComplete(int q) const;
+    bool complete1A() const;
+    bool complete1ASomebodySelected() const;
+    bool complete1B() const;
+    bool complete1C() const;
+    bool complete2A() const;
+    bool complete2B() const;
+    bool complete3A() const;
+    bool complete3B() const;
+    bool complete3C() const;
+    bool complete4A() const;
+    bool complete4B() const;
+    bool complete4C() const;
+    bool complete5() const;
+    bool complete6() const;
     // ------------------------------------------------------------------------
     // Signal handlers
     // ------------------------------------------------------------------------
 public slots:
-    void frequencyChanged(const FieldRef* fieldref);
+    void dataChanged1A();
+    void dataChanged1B();
+    void dataChanged1C();
+    void dataChanged2A();
+    void dataChanged2B();
+    void dataChanged3A();
+    void dataChanged3B();
+    void dataChanged3C();
+    void dataChanged4A();
+    void dataChanged4B();
+    void dataChanged4C();
+    void dataChanged5();
+    void dataChanged6();
+    void dataChangedDummy();
 protected:
-    bool needDistress(int q);
-    void setDistressItems(int q);
+    void setMandatory(bool mandatory, const QStringList& fieldnames);
+    void setMultipleResponseMinAnswers(const QString& tag, int min_answers);
 protected:
     QPointer<Questionnaire> m_questionnaire;
-    QMap<int, FieldRefPtr> m_distress_fieldrefs;
 };

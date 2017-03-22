@@ -30,6 +30,7 @@ double sumDouble(const QList<QVariant>& values);
 
 int countTrue(const QList<QVariant>& values);
 bool allTrue(const QList<QVariant>& values);
+bool anyTrue(const QList<QVariant>& values);
 bool allFalseOrNull(const QList<QVariant>& values);
 bool anyNull(const QList<QVariant>& values);
 bool noneNull(const QList<QVariant>& values);

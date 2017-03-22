@@ -52,6 +52,7 @@ public:
     QuMcqGridDouble* setTitle(const QString& title);
     QuMcqGridDouble* setSubtitles(QList<McqGridSubtitle> subtitles);
     QuMcqGridDouble* setExpand(bool expand);
+    QuMcqGridDouble* setStems(const QString& stem1, const QString& stem2);
 protected:
     void setFromFields();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
@@ -73,6 +74,8 @@ protected:
     QString m_title;
     QList<McqGridSubtitle> m_subtitles;
     bool m_expand;
+    QString m_stem1;
+    QString m_stem2;
 
     QList<QList<QPointer<BooleanWidget>>> m_widgets1;
     QList<QList<QPointer<BooleanWidget>>> m_widgets2;

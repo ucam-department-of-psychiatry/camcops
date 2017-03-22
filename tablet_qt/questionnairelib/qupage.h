@@ -58,6 +58,8 @@ public:
     QuPage* setSkip(bool skip = true);
     QuPage* addElement(const QuElementPtr& element);
     QuPage* addElement(QuElement* element);  // takes ownership
+    QuPage* addElements(const QList<QuElementPtr>& elements);
+    QuPage* addElements(const QList<QuElement*>& elements);  // takes ownership
     QuPage* addTag(const QString& tag);
     QList<QuElement*> elementsWithTag(const QString& tag);
 

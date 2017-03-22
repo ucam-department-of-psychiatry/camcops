@@ -26,6 +26,7 @@
 #include "questionwithonefield.h"
 
 class BooleanWidget;
+class LabelWordWrapWide;
 class QSignalMapper;
 
 
@@ -65,6 +66,7 @@ protected:
     QString defaultInstruction() const;
     bool validIndex(int index);
     virtual bool missingInput() const override;
+    void minOrMaxChanged();
 protected slots:
     void clicked(int index);
     void fieldValueChanged();
@@ -80,4 +82,5 @@ protected:
     bool m_bold;
 
     QList<QPointer<BooleanWidget>> m_widgets;
+    LabelWordWrapWide* m_instruction_label;
 };

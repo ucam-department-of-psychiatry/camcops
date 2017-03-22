@@ -104,6 +104,15 @@ QuMcqGridDouble* QuMcqGridDouble::setExpand(bool expand)
 }
 
 
+QuMcqGridDouble* QuMcqGridDouble::setStems(const QString& stem1,
+                                           const QString& stem2)
+{
+    m_stem1 = stem1;
+    m_stem2 = stem2;
+    return this;
+}
+
+
 void QuMcqGridDouble::setFromFields()
 {
     for (bool first : {true, false}) {
@@ -155,9 +164,13 @@ QPointer<QWidget> QuMcqGridDouble::makeWidget(Questionnaire* questionnaire)
     grid->setHorizontalSpacing(uiconst::MCQGRID_HSPACING);
     grid->setVerticalSpacing(uiconst::MCQGRID_VSPACING);
 
+    int n_first = m_options1.size();
+    int n_second = m_options2.size();
     int n_subtitles = m_subtitles.size();
-    int n_rows = 1 + n_subtitles + m_questions_with_fields.size();
-    int n_cols = m_options1.size() + m_options2.size() + 3;
+    int n_questions = m_questions_with_fields.size();
+    int n_stem_rows = m_stem1.isEmpty() && m_stem2.isEmpty() ? 0 : 1;
+    int n_rows = 1 + n_stem_rows + n_subtitles + n_questions;
+    int n_cols = n_first + n_second + 3;  // 3 = 1 questions + 2 vertical lines
     Qt::Alignment response_align = mcqfunc::response_widget_align;
     int row = 0;
 
@@ -171,13 +184,27 @@ QPointer<QWidget> QuMcqGridDouble::makeWidget(Questionnaire* questionnaire)
     // http://stackoverflow.com/questions/25101085/style-sheet-is-appliped-to-the-cells-in-qgridlayout-instead-of-the-parent-contai
 
     // Title row
-    mcqfunc::addOptionBackground(grid, row, 0, n_cols);
+    // EITHER:
+    //  title_if_exists     options1        options2
+    // OR IF STEMS:
+    //  title_if_exists     stem1           stem2
+    //                      options1        options2
+    // ... with background behind stems and options.
+    // ... but as one background over two rows, if there are stems (or there
+    //     can be an ugly spacing gap).
+    mcqfunc::addOptionBackground(grid, row, 0, n_cols,
+                                 n_stem_rows > 0 ? 2 : 1);
     mcqfunc::addTitle(grid, row, m_title);
+    if (n_stem_rows > 0) {
+        mcqfunc::addStem(grid, row, 2, n_first, m_stem1);
+        mcqfunc::addStem(grid, row, 3 + n_first, n_second, m_stem2);
+        ++row;
+    }
     addOptions(grid, row);
     ++row;  // new row after title/option text
 
     // Main question rows (with any preceding subtitles)
-    for (int qi = 0; qi < m_questions_with_fields.size(); ++qi) {
+    for (int qi = 0; qi < n_questions; ++qi) {
 
         // Any preceding subtitles?
         for (int s = 0; s < n_subtitles; ++s) {
@@ -226,8 +253,8 @@ QPointer<QWidget> QuMcqGridDouble::makeWidget(Questionnaire* questionnaire)
 
     // Set widths, if asked
     if (m_question_width > 0 &&
-            m_option1_widths.size() == m_options1.size() &&
-            m_option2_widths.size() == m_options2.size()) {
+            m_option1_widths.size() == n_first &&
+            m_option2_widths.size() == n_second) {
         grid->setColumnStretch(0, m_question_width);
         for (bool first : {true, false}) {
             QList<int>& widths = first ? m_option1_widths : m_option2_widths;

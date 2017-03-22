@@ -227,7 +227,9 @@ QDoubleSpinBox,
 QLineEdit,
 QSpinBox,
 QTextEdit {
-    background-color: lightgray;
+    /* https://www.w3schools.com/colors/colors_picker.asp */
+    /* background-color: lightgray; */  /* not the same as e.g. MCQ grid headings */
+    background-color: rgb(191, 211, 146);
 }
 
 /* =========================================================================
@@ -455,6 +457,10 @@ AspectRatioPixmapLabel {
     padding: 5px;
 }
 #mcq_grid_double #title {
+    font-weight: bold;
+    padding: 5px;
+}
+#mcq_grid_double #stem {
     font-weight: bold;
     padding: 5px;
 }

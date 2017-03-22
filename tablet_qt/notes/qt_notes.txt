@@ -185,6 +185,7 @@ Compiling, linking
   WRONG: <meta-data android:name="android.app.lib_name" android:value="CamCOPS"/>
   RIGHT: <meta-data android:name="android.app.lib_name" android:value="camcops_tablet"/>
 - Use multiple cores: add "-j 8" to the "make" part of the project Build Steps
+  (in make -> make arguments)
   http://doc.qt.io/qtcreator/creator-faq.html
 - /usr/bin/ld: cannot find -lGL
   must do: sudo apt-get install libgl1-mesa-dev

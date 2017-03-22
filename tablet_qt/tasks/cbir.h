@@ -18,7 +18,6 @@
 */
 
 #pragma once
-#include <QPointer>
 #include <QString>
 #include "tasklib/task.h"
 
@@ -26,22 +25,21 @@ class CamcopsApp;
 class OpenableWidget;
 class TaskFactory;
 
-void initializeCape42(TaskFactory& factory);
+void initializeCbiR(TaskFactory& factory);
 
 
-class Cape42 : public Task
+class CbiR : public Task
 {
     Q_OBJECT
 public:
-    Cape42(CamcopsApp& app, const QSqlDatabase& db,
-           int load_pk = dbconst::NONEXISTENT_PK);
+    CbiR(CamcopsApp& app, const QSqlDatabase& db,
+         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString menusubtitle() const override;
-    virtual QString infoFilenameStem() const override;
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -52,19 +50,16 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-    int distressScore(const QList<int>& questions) const;
-    int frequencyScore(const QList<int>& questions) const;
-protected:
-    bool questionComplete(int q) const;
+    bool isCompleteQuestions() const;
     // ------------------------------------------------------------------------
     // Signal handlers
     // ------------------------------------------------------------------------
 public slots:
-    void frequencyChanged(const FieldRef* fieldref);
+    void dataChanged();
+    void confirmationChanged();
 protected:
-    bool needDistress(int q);
-    void setDistressItems(int q);
+    bool dataComplete() const;
 protected:
-    QPointer<Questionnaire> m_questionnaire;
-    QMap<int, FieldRefPtr> m_distress_fieldrefs;
+    QList<FieldRefPtr> m_data_frs;
+    FieldRefPtr m_confirmation_fr;
 };

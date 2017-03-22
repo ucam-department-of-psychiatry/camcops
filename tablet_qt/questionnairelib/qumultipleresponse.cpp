@@ -54,13 +54,14 @@ QuMultipleResponse::QuMultipleResponse(
 
 void QuMultipleResponse::commonConstructor()
 {
-    m_minimum_answers = -1;
+    m_minimum_answers = 0;
     m_maximum_answers = -1;
     m_randomize = false;
     m_show_instruction = true;
     m_horizontal = false;
     m_as_text_button = false;
     m_bold = false;
+    m_instruction_label = nullptr;
     // Connect fieldrefs at widget build time, for simplicity.
 }
 
@@ -75,18 +76,43 @@ QuMultipleResponse* QuMultipleResponse::addItem(
 
 QuMultipleResponse* QuMultipleResponse::setMinimumAnswers(int minimum_answers)
 {
-    m_minimum_answers = minimum_answers;
+    if (minimum_answers < 0) {
+        minimum_answers = 0;
+    }
+    bool changed = minimum_answers != m_minimum_answers;
+    if (changed) {
+        m_minimum_answers = minimum_answers;
+        minOrMaxChanged();
+    }
     return this;
 }
 
 
 QuMultipleResponse* QuMultipleResponse::setMaximumAnswers(int maximum_answers)
 {
-    m_maximum_answers = maximum_answers;
-    if (m_maximum_answers == 0) {  // dumb value, use -1 for don't care
-        m_maximum_answers = -1;
+    if (maximum_answers == 0) {  // dumb value, use -1 for don't care
+        maximum_answers = -1;
+    }
+    bool changed = maximum_answers != m_maximum_answers;
+    if (changed) {
+        m_maximum_answers = maximum_answers;
+        minOrMaxChanged();
     }
     return this;
+}
+
+
+void QuMultipleResponse::minOrMaxChanged()
+{
+    if (m_widgets.size() > 0) {
+        // we're live
+        if (m_show_instruction && m_instruction_label &&
+                m_instruction.isEmpty()) {
+            m_instruction_label->setText(defaultInstruction());
+        }
+        fieldValueChanged();  // may change mandatory colour
+        emit elementValueChanged();  // may change page "next" status etc.
+    }
 }
 
 
@@ -234,9 +260,9 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
         layout_w_instr->setContentsMargins(uiconst::NO_MARGINS);
         QString instruction = m_instruction.isEmpty() ? defaultInstruction()
                                                       : m_instruction;
-        LabelWordWrapWide* instructions = new LabelWordWrapWide(instruction);
-        instructions->setObjectName(cssconst::MCQ_INSTRUCTION);
-        layout_w_instr->addWidget(instructions);
+        m_instruction_label = new LabelWordWrapWide(instruction);
+        m_instruction_label->setObjectName(cssconst::MCQ_INSTRUCTION);
+        layout_w_instr->addWidget(m_instruction_label);
         layout_w_instr->addWidget(mainwidget);
         QPointer<QWidget> widget_w_instr = new QWidget();
         widget_w_instr->setLayout(layout_w_instr);
@@ -331,16 +357,13 @@ FieldRefPtrList QuMultipleResponse::fieldrefs() const
 
 int QuMultipleResponse::minimumAnswers() const
 {
-    if (m_minimum_answers < 0) {
-        return 1;
-    }
-    return qMax(1, m_minimum_answers);
+    return m_minimum_answers;
 }
 
 
 int QuMultipleResponse::maximumAnswers() const
 {
-    if (m_maximum_answers < 0) {  // will never be exactly zero; see setter
+    if (m_maximum_answers < 0) {  // the "don't care" value is -1
         return m_items.size();
     }
     return qMin(m_items.size(), m_maximum_answers);
@@ -354,7 +377,7 @@ QString QuMultipleResponse::defaultInstruction() const
     if (minimum == maximum) {
         return QString("Choose %1:").arg(minimum);
     }
-    if (m_minimum_answers < 0) {
+    if (m_minimum_answers <= 0) {
         return QString("Choose up to %1:").arg(maximum);
     }
     if (m_maximum_answers < 0) {

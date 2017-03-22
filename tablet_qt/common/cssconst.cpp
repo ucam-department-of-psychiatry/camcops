@@ -42,6 +42,7 @@ const char* QUESTIONNAIRE_HORIZONTAL_LINE = "questionnaire_horizontal_line";
 const char* QUESTION = "question";
 const char* QUHEADING = "quheading";
 const char* SLIDER = "slider";
+const char* STEM = "stem";
 const char* SUBTITLE = "subtitle";
 const char* TASK_ITEM_SUMMARY_COMPLETE = "task_item_summary_complete";
 const char* TASK_ITEM_SUMMARY_INCOMPLETE = "task_item_summary_incomplete";

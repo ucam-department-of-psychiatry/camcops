@@ -36,7 +36,6 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 42;
-const QString QPREFIX("q");
 
 const QString CAPE42_TABLENAME("cape42");
 
@@ -286,19 +285,14 @@ void Cape42::frequencyChanged(const FieldRef* fieldref)
     Q_ASSERT(fieldref);
     QVariant hint = fieldref->getHint();
     int q = hint.toInt();
-    if (q < FIRST_Q || q > N_QUESTIONS) {
-        qWarning() << Q_FUNC_INFO << "Bad hint:" << hint;
-        return;
-    }
+    Q_ASSERT(q >= FIRST_Q && q <= N_QUESTIONS);
     setDistressItems(q);
 }
 
 
 bool Cape42::needDistress(int q)
 {
-    if (q < FIRST_Q || q > N_QUESTIONS) {
-        return false;
-    }
+    Q_ASSERT(q >= FIRST_Q && q <= N_QUESTIONS);
     return valueInt(strnum(FN_FREQ_PREFIX, q)) > MIN_SCORE_PER_Q;
     // ... we need a distress rating if the frequency rating is above minimum
 }
@@ -312,10 +306,7 @@ void Cape42::setDistressItems(int q)
     QString pagetag = QString::number(q);
     bool need_distress = needDistress(q);
     m_questionnaire->setVisibleByTag(TAG_DISTRESS, need_distress, false, pagetag);
-    if (!m_distress_fieldrefs.contains(q)) {
-        qWarning() << Q_FUNC_INFO << "Missing distress fieldref for q" << q;
-        return;
-    }
+    Q_ASSERT(m_distress_fieldrefs.contains(q));
     FieldRefPtr distress_fieldref = m_distress_fieldrefs[q];
     Q_ASSERT(distress_fieldref);
     distress_fieldref->setMandatory(need_distress);

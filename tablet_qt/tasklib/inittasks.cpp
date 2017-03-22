@@ -30,6 +30,9 @@
 #include "tasks/bprse.h"
 #include "tasks/cage.h"
 #include "tasks/cape42.h"
+#include "tasks/caps.h"
+#include "tasks/cbir.h"
+#include "tasks/cecaq3.h"
 #include "tasks/demoquestionnaire.h"
 #include "tasks/phq9.h"
 
@@ -49,11 +52,11 @@ void InitTasks(TaskFactory& factory)
     initializeBprsE(factory);
     initializeCage(factory);
     initializeCape42(factory);
-    // *** initializeCaps(factory);
+    initializeCaps(factory);
     // *** initializeCardinalExpDetThreshold(factory); // *** COMPLEX
     // *** initializeCardinalExpectationDetection(factory); // *** COMPLEX
-    // *** initializeCbiR(factory);
-    // *** initializeCecaQ3(factory);
+    initializeCbiR(factory);
+    initializeCecaQ3(factory);
     // *** initializeCgi(factory);
     // *** initializeCgiI(factory);
     // *** initializeCgiSch(factory);

@@ -94,6 +94,24 @@ QuPage* QuPage::addElement(QuElement* element)  // takes ownership
 }
 
 
+QuPage* QuPage::addElements(const QList<QuElementPtr>& elements)
+{
+    for (auto e : elements) {
+        addElement(e);
+    }
+    return this;
+}
+
+
+QuPage* QuPage::addElements(const QList<QuElement*>& elements)
+{
+    for (auto e : elements) {
+        addElement(e);
+    }
+    return this;
+}
+
+
 QuPage* QuPage::addTag(const QString& tag)
 {
     m_tags.append(tag);
@@ -164,7 +182,7 @@ QList<QuElement*> QuPage::allElements() const
     QList<QuElement*> elements;
     for (QuElementPtr e : m_elements) {
         elements.append(e.data());
-        elements.append(e->subelementsRaw());
+        elements.append(e->subelementsWithChildrenFlattenedRaw());
     }
     return elements;
 }

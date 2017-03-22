@@ -24,24 +24,25 @@
 
 class CamcopsApp;
 class OpenableWidget;
+class Questionnaire;
 class TaskFactory;
 
-void initializeCape42(TaskFactory& factory);
+void initializeCaps(TaskFactory& factory);
 
 
-class Cape42 : public Task
+class Caps : public Task
 {
     Q_OBJECT
 public:
-    Cape42(CamcopsApp& app, const QSqlDatabase& db,
-           int load_pk = dbconst::NONEXISTENT_PK);
+    Caps(CamcopsApp& app, const QSqlDatabase& db,
+         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString menusubtitle() const override;
-    virtual QString infoFilenameStem() const override;
+    virtual bool prohibitsCommercial() const { return true; }
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -52,19 +53,26 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-    int distressScore(const QList<int>& questions) const;
-    int frequencyScore(const QList<int>& questions) const;
+    int totalScore() const;
+    int distressScore() const;
+    int intrusivenessScore() const;
+    int frequencyScore() const;
 protected:
     bool questionComplete(int q) const;
+    QVariant endorse(int q) const;
+    QVariant distress(int q) const;
+    QVariant intrusiveness(int q) const;
+    QVariant frequency(int q) const;
     // ------------------------------------------------------------------------
     // Signal handlers
     // ------------------------------------------------------------------------
 public slots:
-    void frequencyChanged(const FieldRef* fieldref);
+    void endorseChanged(const FieldRef* fieldref);
 protected:
-    bool needDistress(int q);
-    void setDistressItems(int q);
+    bool needsDetail(int q);
 protected:
     QPointer<Questionnaire> m_questionnaire;
-    QMap<int, FieldRefPtr> m_distress_fieldrefs;
+    QMap<int, FieldRefPtr> m_fr_distress;
+    QMap<int, FieldRefPtr> m_fr_intrusiveness;
+    QMap<int, FieldRefPtr> m_fr_frequency;
 };

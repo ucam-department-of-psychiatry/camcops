@@ -159,6 +159,7 @@ void visitUrl(const QString& url);
 
 QString escapeString(const QString& string);
 QString yesNo(bool yes);
+QString yesNoNull(const QVariant& value);
 
 // ============================================================================
 // Scrolling

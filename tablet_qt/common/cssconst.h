@@ -61,6 +61,7 @@ extern const char* QUESTIONNAIRE_BACKGROUND_PATIENT;
 extern const char* QUESTIONNAIRE_HORIZONTAL_LINE;
 extern const char* QUHEADING;
 extern const char* SLIDER;
+extern const char* STEM;
 extern const char* SUBTITLE;
 extern const char* TASK_ITEM_SUMMARY_COMPLETE;
 extern const char* TASK_ITEM_SUMMARY_INCOMPLETE;

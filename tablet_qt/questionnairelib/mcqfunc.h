@@ -36,9 +36,11 @@ void addVerticalLine(GridLayout* grid, int col, int n_rows);
 void addQuestion(GridLayout* grid, int row, const QString& question);
 void addTitle(GridLayout* grid, int row, const QString& title);
 void addSubtitle(GridLayout* grid, int row, const QString& subtitle);
+void addStem(GridLayout* grid, int row, int firstcol, int colspan,
+             const QString& stem);
 void addOption(GridLayout* grid, int row, int col, const QString& option);
 void addOptionBackground(GridLayout* grid, int row,
-                         int firstcol, int ncols);
+                         int firstcol, int ncols, int nrows = 1);
 
 void setResponseWidgets(
         const NameValueOptions& options,
@@ -58,5 +60,8 @@ extern Qt::Alignment option_text_align;
 extern Qt::Alignment option_widget_align;
 
 extern Qt::Alignment response_widget_align;
+
+extern Qt::Alignment stem_text_align;
+extern Qt::Alignment stem_widget_align;
 
 }  // namespace mcqfunc

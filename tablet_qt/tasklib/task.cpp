@@ -459,6 +459,15 @@ bool Task::isRespondentComplete() const
 }
 
 
+QVariant Task::respondentRelationship() const
+{
+    if (!m_has_respondent) {
+        return QVariant();
+    }
+    return value(RESPONDENT_RELATIONSHIP);
+}
+
+
 QuElement* Task::getRespondentQuestionnaireBlockRawPointer(bool second_person)
 {
     const QString name = second_person

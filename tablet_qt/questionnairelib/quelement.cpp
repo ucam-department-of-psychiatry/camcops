@@ -79,6 +79,28 @@ QList<QuElement*> QuElement::subelementsRaw() const
 }
 
 
+QList<QuElementPtr> QuElement::subelementsWithChildrenFlattened() const
+{
+    QList<QuElementPtr> all_children;
+    QList<QuElementPtr> sub = subelements();
+    for (auto e : sub) {
+        all_children.append(e);
+        all_children.append(e->subelementsWithChildrenFlattened());
+    }
+    return all_children;
+}
+
+
+QList<QuElement*> QuElement::subelementsWithChildrenFlattenedRaw() const
+{
+    QList<QuElement*> raw;
+    for (auto e : subelementsWithChildrenFlattened()) {
+        raw.append(e.data());
+    }
+    return raw;
+}
+
+
 bool QuElement::missingInput() const
 {
     FieldRefPtrList frefs = fieldrefs();

@@ -44,6 +44,9 @@ TR(EXAMINER_COMMENTS, "Examiner’s comments");
 TR(CLINICIAN_COMMENTS, "Clinician’s comments");
 TR(COMMENTS, "Comments");
 
+TR(NO_SUMMARY_SEE_FACSIMILE, "No summary available; see the facsimile instead");
+TR(THANK_YOU, "Thank you!");
+
 // ============================================================================
 // Terms and conditions
 // ============================================================================

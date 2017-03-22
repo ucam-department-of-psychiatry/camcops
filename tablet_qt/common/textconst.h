@@ -41,6 +41,9 @@ extern const QString EXAMINER_COMMENTS;
 extern const QString CLINICIAN_COMMENTS;
 extern const QString COMMENTS;
 
+extern const QString NO_SUMMARY_SEE_FACSIMILE;
+extern const QString THANK_YOU;
+
 // ============================================================================
 // Terms and conditions
 // ============================================================================

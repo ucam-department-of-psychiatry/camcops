@@ -61,6 +61,10 @@ Qt::Alignment response_widget_align = Qt::AlignCenter | Qt::AlignTop;
 // probable Qt bug), top alignment looks good. With the bug, there is an
 // argument for AlignVCenter.
 
+// In grids, these are the stem questions over the array of responses, e.g.
+// for QuMcqGridDouble.
+Qt::Alignment stem_text_align = Qt::AlignCenter | Qt::AlignBottom;
+Qt::Alignment stem_widget_align = Qt::AlignCenter | Qt::AlignBottom;
 
 // ============================================================================
 // Background to part of a QGridLayout
@@ -120,6 +124,18 @@ void addSubtitle(GridLayout* grid, int row, const QString& subtitle)
 }
 
 
+void addStem(GridLayout* grid, int row, int firstcol, int colspan,
+             const QString& stem)
+{
+    if (!stem.isEmpty()) {
+        LabelWordWrapWide* w = new LabelWordWrapWide(stem);
+        w->setAlignment(stem_text_align);
+        w->setObjectName(cssconst::STEM);
+        grid->addWidget(w, row, firstcol, 1, colspan, stem_widget_align);
+    }
+}
+
+
 void addOption(GridLayout* grid, int row, int col, const QString& option)
 {
     LabelWordWrapWide* w = new LabelWordWrapWide(option);
@@ -129,11 +145,12 @@ void addOption(GridLayout* grid, int row, int col, const QString& option)
 }
 
 
-void addOptionBackground(GridLayout* grid, int row, int firstcol, int ncols)
+void addOptionBackground(GridLayout* grid, int row, int firstcol, int ncols,
+                         int nrows)
 {
     QWidget* bg = new QWidget();
     bg->setObjectName(cssconst::OPTION_BACKGROUND);
-    grid->addWidget(bg, row, firstcol, 1, ncols);
+    grid->addWidget(bg, row, firstcol, nrows, ncols);
 }
 
 

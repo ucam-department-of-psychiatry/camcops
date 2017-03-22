@@ -630,6 +630,12 @@ QString yesNo(bool yes)
 }
 
 
+QString yesNoNull(const QVariant& value)
+{
+    return value.isNull() ? "NULL" : yesNo(value.toBool());
+}
+
+
 // ============================================================================
 // Scrolling
 // ============================================================================
