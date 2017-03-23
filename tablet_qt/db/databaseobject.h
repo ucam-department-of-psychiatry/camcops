@@ -98,9 +98,13 @@ public:
     // ========================================================================
 
     QString fieldSummary(const QString& fieldname,
-                         const QString& altname = "") const;
-    QStringList recordSummaryLines() const;
-    QString recordSummaryString() const;
+                         const QString& altname = "",
+                         const QString& separator = " = ",
+                         const QString& suffix = "") const;
+    QStringList recordSummaryLines(const QString& separator = " = ",
+                                   const QString& suffix = "") const;
+    QString recordSummaryString(const QString& separator = " = ",
+                                const QString& suffix = "") const;
 
     // ========================================================================
     // Loading, saving

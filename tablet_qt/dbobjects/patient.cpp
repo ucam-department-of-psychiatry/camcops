@@ -424,9 +424,9 @@ bool Patient::othersClashOnIdnum(int which_idnum) const
     int patient_pk = id();
     SqlArgs sqlargs(
         QString("SELECT COUNT(*) FROM %1 WHERE %2 = ? AND %3 <> ?")
-            .arg(delimit(TABLENAME))
-            .arg(delimit(id_fieldname))
-            .arg(delimit(dbconst::PK_FIELDNAME)),
+            .arg(delimit(TABLENAME),
+                 delimit(id_fieldname),
+                 delimit(dbconst::PK_FIELDNAME)),
         ArgList{idnum, patient_pk}
     );
     int c = dbfunc::dbFetchInt(m_db, sqlargs);
@@ -454,9 +454,9 @@ bool Patient::anyIdClash() const
     }
     args.append(id());
     QString sql = QString("SELECT COUNT(*) FROM %1 WHERE (%2) AND %3 <> ?")
-            .arg(delimit(TABLENAME))
-            .arg(idnum_criteria.join(" OR "))
-            .arg(delimit(dbconst::PK_FIELDNAME));
+            .arg(delimit(TABLENAME),
+                 idnum_criteria.join(" OR "),
+                 delimit(dbconst::PK_FIELDNAME));
     SqlArgs sqlargs(sql, args);
     int c = dbfunc::dbFetchInt(m_db, sqlargs);
     return c > 0;

@@ -31,6 +31,7 @@
 #include "tasklib/taskfactory.h"
 using mathfunc::countTrue;
 using mathfunc::noneNull;
+using mathfunc::scorePhrase;
 using mathfunc::scoreString;
 using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;
@@ -110,14 +111,14 @@ bool Caps::isComplete() const
 
 QStringList Caps::summary() const
 {
-    QStringList lines{totalScorePhrase(totalScore(), MAX_TOTAL_SCORE) + "."};
-    lines.append(QString("Distress: %1").arg(
-            scoreString(distressScore(), MAX_SUBSCALE_SCORE, false)));
-    lines.append(QString("Intrusiveness: %1.").arg(
-            scoreString(intrusivenessScore(), MAX_SUBSCALE_SCORE, false)));
-    lines.append(QString("Frequency: %1.").arg(
-            scoreString(frequencyScore(), MAX_SUBSCALE_SCORE, false)));
-    return lines;
+    QString sep(": ");
+    QString suffix(".");
+    return QStringList{
+        totalScorePhrase(totalScore(), MAX_TOTAL_SCORE, sep, suffix),
+        scorePhrase("Distress", distressScore(), MAX_SUBSCALE_SCORE, sep, suffix),
+        scorePhrase("Intrusiveness", intrusivenessScore(), MAX_SUBSCALE_SCORE, sep, suffix),
+        scorePhrase("Frequency", frequencyScore(), MAX_SUBSCALE_SCORE, sep, suffix),
+    };
 }
 
 
@@ -127,13 +128,13 @@ QStringList Caps::detail() const
     for (int q = FIRST_Q; q <= N_QUESTIONS; ++q) {
         QVariant e = endorse(q);
         QString msg = QString("%1 %2")
-                .arg(xstring(strnum("q", q)))
-                .arg(bold(yesNoNull(e)));
+                .arg(xstring(strnum("q", q)),
+                     bold(yesNoNull(e)));
         if (e.toInt() > 0) {
             msg += QString(" (D %1, I %2, F %3)")
-                .arg(bold(convert::prettyValue(distress(q))))
-                .arg(bold(convert::prettyValue(intrusiveness(q))))
-                .arg(bold(convert::prettyValue(frequency(q))));
+                .arg(bold(convert::prettyValue(distress(q))),
+                     bold(convert::prettyValue(intrusiveness(q))),
+                     bold(convert::prettyValue(frequency(q))));
         }
         lines.append(msg);
     }
@@ -229,6 +230,7 @@ OpenableWidget* Caps::editor(bool read_only)
     }
 
     m_questionnaire = new Questionnaire(m_app, pages);
+    m_questionnaire->setType(QuPage::PageType::Patient);
     m_questionnaire->setReadOnly(read_only);
     return m_questionnaire;
 }

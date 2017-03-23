@@ -158,8 +158,8 @@ QStringList Cape42::detail() const
     for (auto q : ALL) {
         QVariant freq = value(strnum(FN_FREQ_PREFIX, q));
         QString msg = QString("%1 F:%2")
-                .arg(xstring(strnum("q", q)))
-                .arg(bold(convert::prettyValue(freq)));
+                .arg(xstring(strnum("q", q)),
+                     bold(convert::prettyValue(freq)));
         if (freq.toInt() > MIN_SCORE_PER_Q) {
             msg += QString(" (D:%1)")
                     .arg(bold(prettyValue(strnum(FN_DISTRESS_PREFIX, q))));
@@ -226,6 +226,7 @@ OpenableWidget* Cape42::editor(bool read_only)
     }
 
     m_questionnaire = new Questionnaire(m_app, pages);
+    m_questionnaire->setType(QuPage::PageType::Patient);
     m_questionnaire->setReadOnly(read_only);
     return m_questionnaire;
 }

@@ -377,8 +377,8 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
 
         LabelWordWrapWide* title = new LabelWordWrapWide(
                     QString("%1, %2")
-                    .arg(m_p_patient->surname().toUpper())
-                    .arg(m_p_patient->forename()));
+                    .arg(m_p_patient->surname().toUpper(),
+                         m_p_patient->forename()));
         LabelWordWrapWide* subtitle1 = new LabelWordWrapWide(
                     QString("%1, %2y, DOB %3")
                     .arg(m_p_patient->sex())

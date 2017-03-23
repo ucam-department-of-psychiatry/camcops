@@ -418,9 +418,9 @@ QString prettySize(double num, bool space, bool binary, bool longform,
     int precision = (exponent == 0) ? 0 : 1;  // decimals, for 'f'
     return QString("%1%2%3%4")
             .arg(converted_num, 0, 'f', precision)
-            .arg(optional_space)
-            .arg(prefix)
-            .arg(suffix);
+            .arg(optional_space,
+                 prefix,
+                 suffix);
 }
 
 

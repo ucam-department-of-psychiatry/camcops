@@ -42,9 +42,9 @@
     <string name="q3s_option3">3 – Significantly interfere with patient’s functioning.</string>
     <string name="q3s_option4">4 – Outweigh therapeutic effect.</string>
     <string name="q3_s">Q3 (efficacy index):</string>
-    <string name="severity">severity</string>
-    <string name="improvement">improvement</string>
-    <string name="efficacy">efficacy</string>
+    <string name="severity">Severity</string>
+    <string name="improvement">Improvement</string>
+    <string name="efficacy">Efficacy</string>
 
     <!-- CGI-I extra -->
 

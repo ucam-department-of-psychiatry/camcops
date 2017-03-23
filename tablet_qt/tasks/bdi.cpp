@@ -145,6 +145,7 @@ OpenableWidget* Bdi::editor(bool read_only)
     }))->setTitle(shortname()));
 
     Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }

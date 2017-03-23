@@ -882,8 +882,7 @@ QString CamcopsApp::xstringDirect(const QString& taskname,
     } else {
         if (default_str.isEmpty()) {
             return QString("[string not downloaded: %1/%2]")
-                    .arg(taskname)
-                    .arg(stringname);
+                    .arg(taskname, stringname);
         } else {
             return default_str;
         }

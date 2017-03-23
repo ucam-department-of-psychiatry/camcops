@@ -287,7 +287,7 @@ QStringList Ace3::summary() const
         return ": " + scoreStringWithPercent(score, out_of) + ".";
     };
     QStringList lines;
-    lines.append(totalScorePhrase(t, TOTAL_OVERALL) + ".");
+    lines.append(totalScorePhrase(t, TOTAL_OVERALL));
     lines.append(xstring("cat_attn") + scorelambda(a, TOTAL_ATTN));
     lines.append(xstring("cat_mem") + scorelambda(m, TOTAL_MEM));
     lines.append(xstring("cat_fluency") + scorelambda(f, TOTAL_FLUENCY));

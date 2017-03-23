@@ -263,11 +263,11 @@ void MenuHeader::setPatientDetails(const Patient* patient)
 
     if (selected) {
         info = QString("<b>%1, %2</b> (%3, DOB %4); %5")
-                .arg(patient->surname().toUpper())
-                .arg(patient->forename())
-                .arg(QString("%1 y").arg(patient->ageYears()))
-                .arg(patient->dobText())
-                .arg(patient->shortIdnumSummary());
+                .arg(patient->surname().toUpper(),
+                     patient->forename(),
+                     QString("%1 y").arg(patient->ageYears()),
+                     patient->dobText(),
+                     patient->shortIdnumSummary());
     }
 #ifdef DEBUG_SLOTS
     qDebug() << Q_FUNC_INFO << info << "[patient:" << patient << "]";

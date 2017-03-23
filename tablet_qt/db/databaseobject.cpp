@@ -289,28 +289,37 @@ FieldRefPtr DatabaseObject::fieldRef(const QString& fieldname, bool mandatory,
 // ============================================================================
 
 QString DatabaseObject::fieldSummary(const QString& fieldname,
-                                     const QString& altname) const
+                                     const QString& altname,
+                                     const QString& separator,
+                                     const QString& suffix) const
 {
     QString name = altname.isEmpty() ? fieldname : altname;
-    return QString("<b>%1 =</b> %2").arg(name).arg(prettyValue(fieldname));
+    return QString("%1%2<b>%3</b>%4").arg(name,
+                                          separator,
+                                          prettyValue(fieldname),
+                                          suffix);
 }
 
 
-QStringList DatabaseObject::recordSummaryLines() const
+QStringList DatabaseObject::recordSummaryLines(const QString& separator,
+                                               const QString& suffix) const
 {
     QStringList list;
     for (auto fieldname : m_ordered_fieldnames) {
         const Field& field = m_record[fieldname];
-        list.append(QString("%1 = <b>%2</b>").arg(field.name(),
-                                                  field.prettyValue()));
+        list.append(QString("%1%2<b>%3</b>%4").arg(field.name(),
+                                                   separator,
+                                                   field.prettyValue(),
+                                                   suffix));
     }
     return list;
 }
 
 
-QString DatabaseObject::recordSummaryString() const
+QString DatabaseObject::recordSummaryString(const QString& separator,
+                                            const QString& suffix) const
 {
-    return recordSummaryLines().join("<br>");
+    return recordSummaryLines(separator, suffix).join("<br>");
 }
 
 

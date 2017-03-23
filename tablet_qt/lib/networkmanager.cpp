@@ -496,8 +496,8 @@ bool NetworkManager::ensurePasswordKnown()
     // entered.
     QString text = QString(tr("Enter password for user <b>%1</b> on "
                               "server %2"))
-            .arg(m_app.varString(varconst::SERVER_USERNAME))
-            .arg(serverUrlDisplayString());
+            .arg(m_app.varString(varconst::SERVER_USERNAME),
+                 serverUrlDisplayString());
     QString title = tr("Enter server password");
     QWidget* parent = m_logbox ? m_logbox : m_parent;
     PasswordEntryDialog dlg(text, title, parent);
@@ -930,10 +930,10 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
             QString main_tablename = specimen->tablename();
             // (a) main table, with FK to patient
             sql = QString("UPDATE %1 SET %2 = 1 WHERE %3 IN (%4)")
-                    .arg(delimit(main_tablename))
-                    .arg(delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME))
-                    .arg(delimit(Task::PATIENT_FK_FIELDNAME))
-                    .arg(pt_paramholders);
+                    .arg(delimit(main_tablename),
+                         delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME),
+                         delimit(Task::PATIENT_FK_FIELDNAME),
+                         pt_paramholders);
             if (!dbfunc::exec(m_db, sql, pt_args)) {
                 queryFail(sql);
                 return false;
@@ -963,10 +963,10 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
             ArgList task_args = dbfunc::argListFromIntList(task_pks);
             for (auto ancillary_table : ancillary_tables) {
                 sql = QString("UPDATE %1 SET %2 = 1 WHERE %3 IN (%4)")
-                        .arg(delimit(ancillary_table))
-                        .arg(delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME))
-                        .arg(delimit(fk_task_fieldname))
-                        .arg(task_paramholders);
+                        .arg(delimit(ancillary_table),
+                             delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME),
+                             delimit(fk_task_fieldname),
+                             task_paramholders);
                 if (!dbfunc::exec(m_db, sql, task_args)) {
                     queryFail(sql);
                     return false;
@@ -1008,10 +1008,10 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
         ArgList task_args = dbfunc::argListFromIntList(task_pks);
         for (auto ancillary_table : ancillary_tables) {
             QString sql = QString("UPDATE %1 SET %2 = 1 WHERE %3 IN (%4)")
-                    .arg(delimit(ancillary_table))
-                    .arg(delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME))
-                    .arg(delimit(fk_task_fieldname))
-                    .arg(task_paramholders);
+                    .arg(delimit(ancillary_table),
+                         delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME),
+                         delimit(fk_task_fieldname),
+                         task_paramholders);
             if (!dbfunc::exec(m_db, sql, task_args)) {
                 queryFail(sql);
                 return false;
@@ -1099,8 +1099,8 @@ bool NetworkManager::writeIdDescriptionsToPatientTable()
         args.append(m_app.idShortDescription(n));
     }
     QString sql = QString("UPDATE %1 SET %2")
-            .arg(delimit(Patient::TABLENAME))
-            .arg(assignments.join(", "));
+            .arg(delimit(Patient::TABLENAME),
+                 assignments.join(", "));
     if (!dbfunc::exec(m_db, sql, args)) {
         queryFail(sql);
         return false;
@@ -1271,8 +1271,8 @@ bool NetworkManager::isServerVersionOK()
     } else {
         statusMessage(QString("Server CamCOPS version (%1) is too old; must "
                               "be >= %2")
-                      .arg(server_version_str)
-                      .arg(camcopsversion::MINIMUM_SERVER_VERSION.toString()));
+                      .arg(server_version_str,
+                           camcopsversion::MINIMUM_SERVER_VERSION.toString()));
     }
     return ok;
 }
@@ -1289,15 +1289,15 @@ bool NetworkManager::arePoliciesOK()
     if (local_upload != server_upload) {
         statusMessage(QString("Local upload policy [%1] doesn't match "
                               "server's [%2]. ")
-                      .arg(local_upload)
-                      .arg(server_upload) + PLEASE_REREGISTER);
+                      .arg(local_upload,
+                           server_upload) + PLEASE_REREGISTER);
         ok = false;
     }
     if (local_finalize != server_finalize) {
         statusMessage(QString("Local finalize policy [%1] doesn't match "
                               "server's [%2]. ")
-                      .arg(local_finalize)
-                      .arg(server_finalize) + PLEASE_REREGISTER);
+                      .arg(local_finalize,
+                           server_finalize) + PLEASE_REREGISTER);
         ok = false;
     }
     if (ok) {
@@ -1505,8 +1505,8 @@ bool NetworkManager::clearMoveOffTabletFlag(const QString& tablename)
 {
     // 1. Clear all
     QString sql = QString("UPDATE %1 SET %2 = 0")
-            .arg(delimit(tablename))
-            .arg(delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME));
+            .arg(delimit(tablename),
+                 delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME));
     return dbfunc::exec(m_db, sql);
 }
 
@@ -1552,9 +1552,9 @@ bool NetworkManager::pruneDeadBlobs()
     qWarning() << "Deleting defunct BLOBs with PKs:" << bad_blob_pks;
     QString paramholders = dbfunc::sqlParamHolders(n_bad_blobs);
     sql = QString("DELETE FROM %1 WHERE %2 IN (%3)")
-            .arg(delimit(Blob::TABLENAME))
-            .arg(delimit(dbconst::PK_FIELDNAME))
-            .arg(paramholders);
+            .arg(delimit(Blob::TABLENAME),
+                 delimit(dbconst::PK_FIELDNAME),
+                 paramholders);
     ArgList args = dbfunc::argListFromIntList(bad_blob_pks);
     if (!dbfunc::exec(m_db, sql, args)) {
         queryFail(sql);

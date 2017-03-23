@@ -113,15 +113,15 @@ QStringList Bmi::summary() const
     QString commenttext;
     if (!valueIsNullOrEmpty(FN_COMMENT)) {
         commenttext = QString(" (%1 %2)")
-                .arg(tr("Comments:"))
-                .arg(valueString(FN_COMMENT));
+                .arg(tr("Comments:"),
+                     valueString(FN_COMMENT));
     }
     QString s = QString("%1 kg, %2 m; BMI = %3 kg/m^2; %4%5")
-            .arg(prettyValue(FN_MASS_KG))
-            .arg(prettyValue(FN_HEIGHT_M))
-            .arg(bmiString())
-            .arg(category())
-            .arg(commenttext);
+            .arg(prettyValue(FN_MASS_KG),
+                 prettyValue(FN_HEIGHT_M),
+                 bmiString(),
+                 category(),
+                 commenttext);
     return QStringList{s};
 }
 
@@ -266,6 +266,7 @@ OpenableWidget* Bmi::editor(bool read_only)
             this, &Bmi::heightUnitsChanged);
 
     m_questionnaire = new Questionnaire(m_app, {page});
+    m_questionnaire->setType(QuPage::PageType::Clinician);
     m_questionnaire->setReadOnly(read_only);
     updateImperialHeight();
     updateImperialMass();

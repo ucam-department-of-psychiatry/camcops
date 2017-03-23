@@ -52,6 +52,11 @@ QString percent(double numerator, double denominator, int dp = 1);
 QString scoreString(int numerator, int denominator,
                     bool show_percent = false, int dp = 1);
 QString scoreStringWithPercent(int numerator, int denominator, int dp = 1);
-QString totalScorePhrase(int numerator, int denominator);
+QString scorePhrase(const QString& description, int numerator, int denominator,
+                    const QString& separator = ": ",
+                    const QString& suffix = ".");
+QString totalScorePhrase(int numerator, int denominator,
+                         const QString& separator = ": ",
+                         const QString& suffix = ".");
 
 }  // namespace mathfunc

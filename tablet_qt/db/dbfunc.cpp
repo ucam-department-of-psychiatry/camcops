@@ -108,9 +108,8 @@ QString selectColumns(const QStringList& columns, const QString& table)
     for (auto column : columns) {
         delimited_columns.append(delimit(column));
     }
-    return QString("SELECT %1 FROM %2")
-            .arg(delimited_columns.join(","))
-            .arg(delimit(table));
+    return QString("SELECT %1 FROM %2").arg(delimited_columns.join(","),
+                                            delimit(table));
 }
 
 
@@ -126,9 +125,8 @@ SqlArgs updateColumns(const UpdateValues& updatevalues, const QString& table)
         columns.append(QString("%1=?").arg(delimit(column)));
         args.append(value);
     }
-    QString sql = QString("UPDATE %1 SET %2")
-            .arg(delimit(table))
-            .arg(columns.join(", "));
+    QString sql = QString("UPDATE %1 SET %2").arg(delimit(table),
+                                                  columns.join(", "));
     return SqlArgs(sql, args);
 }
 
@@ -376,9 +374,8 @@ QList<int> getSingleFieldAsIntList(const QSqlDatabase& db,
                                    const QString& fieldname,
                                    const WhereConditions& where)
 {
-    SqlArgs sqlargs(QString("SELECT %1 FROM %2")
-                    .arg(delimit(fieldname))
-                    .arg(delimit(tablename)));
+    SqlArgs sqlargs(QString("SELECT %1 FROM %2").arg(delimit(fieldname),
+                                                     delimit(tablename)));
     addWhereClause(where, sqlargs);
     QSqlQuery query(db);
     QList<int> results;
@@ -406,8 +403,8 @@ bool existsByPk(const QSqlDatabase& db, const QString& tablename,
 {
     SqlArgs sqlargs(
         QString("SELECT EXISTS(SELECT * FROM %1 WHERE %2 = ?)")
-                .arg(delimit(tablename))
-                .arg(delimit(pkname)),
+                .arg(delimit(tablename),
+                     delimit(pkname)),
         ArgList{pkvalue}
     );
     // EXISTS always returns 0 or 1

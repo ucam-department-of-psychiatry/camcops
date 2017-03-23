@@ -286,7 +286,11 @@ SOURCES += main.cpp \
     tasks/cape42.cpp \
     tasks/caps.cpp \
     tasks/cbir.cpp \
-    tasks/cecaq3.cpp
+    tasks/cecaq3.cpp \
+    tasks/cgi.cpp \
+    tasks/cgii.cpp \
+    tasks/cgisch.cpp \
+    tasks/ciwa.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -500,7 +504,11 @@ HEADERS  += \
     tasks/cape42.h \
     tasks/caps.h \
     tasks/cbir.h \
-    tasks/cecaq3.h
+    tasks/cecaq3.h \
+    tasks/cgi.h \
+    tasks/cgii.h \
+    tasks/cgisch.h \
+    tasks/ciwa.h
 
 
 DISTFILES += \

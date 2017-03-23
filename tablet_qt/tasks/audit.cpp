@@ -206,6 +206,7 @@ OpenableWidget* Audit::editor(bool read_only)
     connect(fr_q3.data(), &FieldRef::valueChanged, this, &Audit::setPageSkip);
 
     m_questionnaire = new Questionnaire(m_app, pages);
+    m_questionnaire->setType(QuPage::PageType::Clinician);
     m_questionnaire->setReadOnly(read_only);
 
     setPageSkip();  // after m_questionnaire is created

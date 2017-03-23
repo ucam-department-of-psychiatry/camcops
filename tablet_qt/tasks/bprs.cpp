@@ -28,6 +28,7 @@
 #include "tasklib/taskfactory.h"
 using mathfunc::noneNull;
 using mathfunc::scoreString;
+using mathfunc::scorePhrase;
 using mathfunc::sumInt;
 using stringfunc::strnum;
 using stringfunc::strseq;
@@ -93,10 +94,8 @@ bool Bprs::isComplete() const
 
 QStringList Bprs::summary() const
 {
-    return QStringList{
-        QString("%1 %2")
-            .arg(xstring("bprs18_total_score"))
-            .arg(scoreString(totalScore(), MAX_SCORE, false))};
+    return QStringList{scorePhrase(xstring("bprs18_total_score"),
+                                   totalScore(), MAX_SCORE, " ", "")};
 }
 
 
@@ -143,6 +142,7 @@ OpenableWidget* Bprs::editor(bool read_only)
     }
 
     Questionnaire* questionnaire = new Questionnaire(m_app, pages);
+    questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }

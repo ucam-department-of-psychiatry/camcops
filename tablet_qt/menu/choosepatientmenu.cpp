@@ -118,11 +118,11 @@ void ChoosePatientMenu::deletePatient()
         return;
     }
     QString patient_details = QString("%1, %2 (%3, DOB %4)\n%5")
-            .arg(patient->surname().toUpper())
-            .arg(patient->forename())
-            .arg(QString("%1 y").arg(patient->ageYears()))
-            .arg(patient->dobText())
-            .arg(patient->shortIdnumSummary());
+            .arg(patient->surname().toUpper(),
+                 patient->forename(),
+                 QString("%1 y").arg(patient->ageYears()),
+                 patient->dobText(),
+                 patient->shortIdnumSummary());
 
     // First check
     {

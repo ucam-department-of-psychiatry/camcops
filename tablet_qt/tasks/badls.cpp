@@ -139,6 +139,7 @@ OpenableWidget* Badls::editor(bool read_only)
     QuPagePtr page((new QuPage(elements))->setTitle(shortname()));
 
     Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }

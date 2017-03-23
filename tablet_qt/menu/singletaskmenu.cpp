@@ -114,9 +114,9 @@ void SingleTaskMenu::addTask()
     TaskPtr task = factory->create(m_tablename);
     if (!task->isTaskPermissible()) {
         QString reason = QString("%1<br><br>%2: %3")
-                .arg(tr("You cannot add this task with your current settings."))
-                .arg(tr("Current reason"))
-                .arg(stringfunc::bold(task->whyNotPermissible()));
+                .arg(tr("You cannot add this task with your current settings."),
+                     tr("Current reason"),
+                     stringfunc::bold(task->whyNotPermissible()));
         uifunc::alert(reason, tr("Not permitted to add task"));
         return;
     }
@@ -154,8 +154,8 @@ void SingleTaskMenu::showTaskStatus() const
     QStringList info;
     auto add = [this, &info](const char* desc, const QString& value) -> void {
         info.append(QString("%1: %2")
-                    .arg(tr(desc))
-                    .arg(stringfunc::bold(value)));
+                    .arg(tr(desc),
+                         stringfunc::bold(value)));
     };
     add("Long name", specimen->longname());
     add("Short name", specimen->shortname());

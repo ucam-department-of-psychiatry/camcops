@@ -65,7 +65,7 @@ class Ciwa(Task):
         dict(name="q10", cctype="INT", min=0, max=4,
              comment="Q10, orientation/clouding of sensorium "
              "(0-4, higher worse)"),
-        dict(name="t", cctype="INT",
+        dict(name="t", cctype="FLOAT",
              comment="Temperature (degrees C)"),
         dict(name="hr", cctype="INT", min=0,
              comment="Heart rate (beats/minute)"),

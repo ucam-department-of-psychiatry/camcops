@@ -346,7 +346,8 @@ QStringList Task::fieldSummaries(const QString& xstringprefix,
                                  const QString& spacer,
                                  const QString& fieldprefix,
                                  int first,
-                                 int last) const
+                                 int last,
+                                 const QString& suffix) const
 {
     using stringfunc::strseq;
     QStringList xstringnames = strseq(xstringprefix, first, last,
@@ -356,10 +357,7 @@ QStringList Task::fieldSummaries(const QString& xstringprefix,
     for (int i = 0; i < fieldnames.length(); ++i) {
         QString fieldname = fieldnames.at(i);
         QString xstringname = xstringnames.at(i);
-        list.append(QString("%1%2<b>%3</b>")
-                    .arg(xstring(xstringname))
-                    .arg(spacer)
-                    .arg(prettyValue(fieldname)));
+        list.append(fieldSummary(fieldname, xstring(xstringname), spacer, suffix));
     }
     return list;
 }
@@ -370,7 +368,8 @@ QStringList Task::fieldSummariesYesNo(const QString& xstringprefix,
                                       const QString& spacer,
                                       const QString& fieldprefix,
                                       int first,
-                                      int last) const
+                                      int last,
+                                      const QString& suffix) const
 {
     using stringfunc::strseq;
     using uifunc::yesNo;
@@ -381,10 +380,11 @@ QStringList Task::fieldSummariesYesNo(const QString& xstringprefix,
     for (int i = 0; i < fieldnames.length(); ++i) {
         QString fieldname = fieldnames.at(i);
         QString xstringname = xstringnames.at(i);
-        list.append(QString("%1%2<b>%3</b>")
-                    .arg(xstring(xstringname))
-                    .arg(spacer)
-                    .arg(yesNo(valueBool(fieldname))));
+        list.append(QString("%1%2<b>%3</b>%4")
+                    .arg(xstring(xstringname),
+                         spacer,
+                         yesNo(valueBool(fieldname)),
+                         suffix));
     }
     return list;
 }

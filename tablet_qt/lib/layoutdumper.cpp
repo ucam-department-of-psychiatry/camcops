@@ -54,9 +54,9 @@ QString toString(const QSizePolicy::Policy& policy)
 QString toString(const QSizePolicy& policy)
 {
     QString result = QString("(%1, %2) [hasHeightForWidth=%3]")
-            .arg(toString(policy.horizontalPolicy()))
-            .arg(toString(policy.verticalPolicy()))
-            .arg(toString(policy.hasHeightForWidth()));
+            .arg(toString(policy.horizontalPolicy()),
+                 toString(policy.verticalPolicy()),
+                 toString(policy.hasHeightForWidth()));
     return result;
 }
 
@@ -136,9 +136,9 @@ QString getWidgetDescriptor(const QWidget* w)
         return NULL_WIDGET_STRING;
     }
     return QString("%1<%2 '%3'>")
-            .arg(w->metaObject()->className())
-            .arg(toString((void*)w))
-            .arg(w->objectName());
+            .arg(w->metaObject()->className(),
+                 toString((void*)w),
+                 w->objectName());
 }
 
 

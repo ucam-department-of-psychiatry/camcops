@@ -1231,6 +1231,7 @@ OpenableWidget* CecaQ3::editor(bool read_only)
     // Questionnaire
     // ------------------------------------------------------------------------
     m_questionnaire = new Questionnaire(m_app, pages);
+    m_questionnaire->setType(QuPage::PageType::Patient);
     m_questionnaire->setReadOnly(read_only);
 
     dataChanged1A();

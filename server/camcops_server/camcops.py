@@ -550,8 +550,8 @@ def upgrade_database(old_version: Version) -> None:
             v2_0_0_alter_generic_table(cls.tablename)
             for tablename in cls.get_extra_table_names():
                 v2_0_0_alter_generic_table(tablename)
-
-        # (etc.)
+        # Specifics
+        modify_column("ciwa", "t", "REAL NULL")  # was INT; temperature (C)
 
 
 # =============================================================================

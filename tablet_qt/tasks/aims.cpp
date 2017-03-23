@@ -182,6 +182,7 @@ OpenableWidget* Aims::editor(bool read_only)
 
     Questionnaire* questionnaire = new Questionnaire(
             m_app, {page1, page2, page3, page4, page5});
+    questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }

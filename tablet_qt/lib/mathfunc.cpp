@@ -249,11 +249,22 @@ QString scoreStringWithPercent(int numerator, int denominator, int dp)
 }
 
 
-QString totalScorePhrase(int numerator, int denominator)
+QString scorePhrase(const QString& description, int numerator, int denominator,
+                    const QString& separator, const QString& suffix)
 {
-    return QString("%1: %2")
-            .arg(QObject::tr("Total score"))
-            .arg(scoreString(numerator, denominator, false));
+    return QString("%1%2%3%4")
+            .arg(description,
+                 separator,
+                 scoreString(numerator, denominator, false),
+                 suffix);
+}
+
+
+QString totalScorePhrase(int numerator, int denominator,
+                         const QString& separator, const QString& suffix)
+{
+    return scorePhrase(QObject::tr("Total score"), numerator, denominator,
+                       separator, suffix);
 }
 
 

@@ -33,6 +33,10 @@
 #include "tasks/caps.h"
 #include "tasks/cbir.h"
 #include "tasks/cecaq3.h"
+#include "tasks/cgi.h"
+#include "tasks/cgii.h"
+#include "tasks/cgisch.h"
+#include "tasks/ciwa.h"
 #include "tasks/demoquestionnaire.h"
 #include "tasks/phq9.h"
 
@@ -57,10 +61,10 @@ void InitTasks(TaskFactory& factory)
     // *** initializeCardinalExpectationDetection(factory); // *** COMPLEX
     initializeCbiR(factory);
     initializeCecaQ3(factory);
-    // *** initializeCgi(factory);
-    // *** initializeCgiI(factory);
-    // *** initializeCgiSch(factory);
-    // *** initializeCiwa(factory);
+    initializeCgi(factory);
+    initializeCgiI(factory);
+    initializeCgiSch(factory);
+    initializeCiwa(factory);
     // *** initializeContactLog(factory);
     // *** initializeCopeBrief(factory);
     // *** initializeCPFTLPSDischarge(factory);
@@ -95,7 +99,7 @@ void InitTasks(TaskFactory& factory)
     // *** initializeIcd10Schizophrenia(factory);
     // *** initializeIcd10Schizotypal(factory);
     // *** initializeIcd10SpecPD(factory);
-    // *** initializeIDED3D(factory);
+    // *** initializeIDED3D(factory); // *** COMPLEX
     // *** initializeIesr(factory);
     // *** initializeIfs(factory);
     // *** initializeIrac(factory);
@@ -132,6 +136,7 @@ void InitTasks(TaskFactory& factory)
     // *** initializeZbi12(factory);
 
     // *** new: mini-ACE
+    // *** new: other things in e-mail queue
 
     // *** discarded tasks - revitalize
 }

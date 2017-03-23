@@ -88,8 +88,8 @@ void NameValueOptions::validateOrDie()
         if (values.contains(v)) {
             QString error = QString("NameValueOptions::validateOrDie: "
                                     "Duplicate value %1 found for name %2")
-                    .arg(convert::prettyValue(v))
-                    .arg(nvp.name());
+                    .arg(convert::prettyValue(v),
+                         nvp.name());
             uifunc::stopApp(error);
         }
         values.append(v);

@@ -107,13 +107,15 @@ public:
                                const QString& spacer,
                                const QString& fieldprefix,
                                int first,
-                               int last) const;
+                               int last,
+                               const QString& suffix = "") const;
     QStringList fieldSummariesYesNo(const QString& xstringprefix,
                                     const QString& xstringsuffix,
                                     const QString& spacer,
                                     const QString& fieldprefix,
                                     int first,
-                                    int last) const;
+                                    int last,
+                                    const QString& suffix = "") const;
     // ------------------------------------------------------------------------
     // Editing
     // ------------------------------------------------------------------------

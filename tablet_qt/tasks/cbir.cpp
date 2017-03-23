@@ -191,6 +191,7 @@ OpenableWidget* CbiR::editor(bool read_only)
 
     Questionnaire* questionnaire = new Questionnaire(
                 m_app, {page1, page2, page3});
+    questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
