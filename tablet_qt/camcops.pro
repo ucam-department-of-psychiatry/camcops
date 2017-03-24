@@ -290,7 +290,13 @@ SOURCES += main.cpp \
     tasks/cgi.cpp \
     tasks/cgii.cpp \
     tasks/cgisch.cpp \
-    tasks/ciwa.cpp
+    tasks/ciwa.cpp \
+    tasks/contactlog.cpp \
+    tasks/copebrief.cpp \
+    tasks/cpftlpsdischarge.cpp \
+    tasks/cpftlpsreferral.cpp \
+    tasks/cpftlpsresetresponseclock.cpp \
+    tasks/dad.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -508,7 +514,13 @@ HEADERS  += \
     tasks/cgi.h \
     tasks/cgii.h \
     tasks/cgisch.h \
-    tasks/ciwa.h
+    tasks/ciwa.h \
+    tasks/contactlog.h \
+    tasks/copebrief.h \
+    tasks/cpftlpsdischarge.h \
+    tasks/cpftlpsreferral.h \
+    tasks/cpftlpsresetresponseclock.h \
+    tasks/dad.h
 
 
 DISTFILES += \

@@ -44,7 +44,7 @@
 #include "widgets/labelwordwrapwide.h"
 #include "widgets/openablewidget.h"
 
-const int STRETCH_3COL_WTASKNAME_TASKNAME = 1;
+const int STRETCH_3COL_WTASKNAME_TASKNAME = 2;
 const int STRETCH_3COL_WTASKNAME_TIMESTAMP = 2;
 const int STRETCH_3COL_WTASKNAME_SUMMARY = 7;
 

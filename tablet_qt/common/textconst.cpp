@@ -45,7 +45,21 @@ TR(CLINICIAN_COMMENTS, "Clinician’s comments");
 TR(COMMENTS, "Comments");
 
 TR(NO_SUMMARY_SEE_FACSIMILE, "No summary available; see the facsimile instead");
+TR(SEE_FACSIMILE_FOR_MORE_DETAIL, "See facsimile for more detail.");
 TR(THANK_YOU, "Thank you!");
+
+TR(CLINICIAN_SPECIALTY, "Clinician’s specialty");
+TR(CLINICIAN_NAME, "Clinician’s name");
+TR(CLINICIAN_PROFESSIONAL_REGISTRATION, "Clinician’s professional registration");
+TR(CLINICIAN_POST, "Clinician’s post");
+TR(CLINICIAN_SERVICE, "Clinician’s service");
+TR(CLINICIAN_CONTACT_DETAILS, "Clinician’s contact details");
+TR(CLINICIAN_DETAILS, "Clinician’s details");
+
+TR(PATIENT, "Patient");
+
+TR(NOT_APPLICABLE, "Not applicable");
+
 
 // ============================================================================
 // Terms and conditions

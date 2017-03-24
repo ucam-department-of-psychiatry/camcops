@@ -1,7 +1,27 @@
+/*
+    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+
+    This file is part of CamCOPS.
+
+    CamCOPS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    CamCOPS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "task.h"
 #include <QObject>
 #include <QVariant>
 #include "common/camcopsapp.h"
+#include "common/textconst.h"
 #include "common/uiconstants.h"
 #include "common/varconst.h"
 #include "common/version.h"
@@ -18,20 +38,20 @@
 #include "questionnairelib/qupage.h"
 
 const QString Task::PATIENT_FK_FIELDNAME("patient_id");
-const QString FIRSTEXIT_IS_FINISH_FIELDNAME("firstexit_is_finish");
-const QString FIRSTEXIT_IS_ABORT_FIELDNAME("firstexit_is_abort");
-const QString WHEN_FIRSTEXIT_FIELDNAME("when_firstexit");
-const QString EDITING_TIME_S_FIELDNAME("editing_time_s");
+const QString Task::FIRSTEXIT_IS_FINISH_FIELDNAME("firstexit_is_finish");
+const QString Task::FIRSTEXIT_IS_ABORT_FIELDNAME("firstexit_is_abort");
+const QString Task::WHEN_FIRSTEXIT_FIELDNAME("when_firstexit");
+const QString Task::EDITING_TIME_S_FIELDNAME("editing_time_s");
 
-const QString CLINICIAN_SPECIALTY("clinician_specialty");
-const QString CLINICIAN_NAME("clinician_name");
-const QString CLINICIAN_PROFESSIONAL_REGISTRATION("clinician_professional_registration");
-const QString CLINICIAN_POST("clinician_post");
-const QString CLINICIAN_SERVICE("clinician_service");
-const QString CLINICIAN_CONTACT_DETAILS("clinician_contact_details");
+const QString Task::CLINICIAN_SPECIALTY("clinician_specialty");
+const QString Task::CLINICIAN_NAME("clinician_name");
+const QString Task::CLINICIAN_PROFESSIONAL_REGISTRATION("clinician_professional_registration");
+const QString Task::CLINICIAN_POST("clinician_post");
+const QString Task::CLINICIAN_SERVICE("clinician_service");
+const QString Task::CLINICIAN_CONTACT_DETAILS("clinician_contact_details");
 
-const QString RESPONDENT_NAME("respondent_name");
-const QString RESPONDENT_RELATIONSHIP("respondent_relationship");
+const QString Task::RESPONDENT_NAME("respondent_name");
+const QString Task::RESPONDENT_RELATIONSHIP("respondent_relationship");
 
 
 Task::Task(CamcopsApp& app,
@@ -417,17 +437,17 @@ void Task::setDefaultClinicianVariablesAtFirstUse()
 QuElement* Task::getClinicianQuestionnaireBlockRawPointer()
 {
     return questionnairefunc::defaultGridRawPointer({
-        {tr("Clinician’s specialty"),
+        {textconst::CLINICIAN_SPECIALTY,
          new QuLineEdit(fieldRef(CLINICIAN_SPECIALTY))},
-        {tr("Clinician’s name"),
+        {textconst::CLINICIAN_NAME,
          new QuLineEdit(fieldRef(CLINICIAN_NAME))},
-        {tr("Clinician’s professional registration"),
+        {textconst::CLINICIAN_PROFESSIONAL_REGISTRATION,
          new QuLineEdit(fieldRef(CLINICIAN_PROFESSIONAL_REGISTRATION))},
-        {tr("Clinician’s post"),
+        {textconst::CLINICIAN_POST,
          new QuLineEdit(fieldRef(CLINICIAN_POST))},
-        {tr("Clinician’s service"),
+        {textconst::CLINICIAN_SERVICE,
          new QuLineEdit(fieldRef(CLINICIAN_SERVICE))},
-        {tr("Clinician’s contact details"),
+        {textconst::CLINICIAN_CONTACT_DETAILS,
          new QuLineEdit(fieldRef(CLINICIAN_CONTACT_DETAILS))},
     }, uiconst::DEFAULT_COLSPAN_Q, uiconst::DEFAULT_COLSPAN_A);
 }
@@ -443,7 +463,7 @@ QuPagePtr Task::getClinicianDetailsPage()
 {
     return QuPagePtr(
         (new QuPage{getClinicianQuestionnaireBlockRawPointer()})
-            ->setTitle(tr("Clinician’s details"))
+            ->setTitle(textconst::CLINICIAN_DETAILS)
             ->setType(QuPage::PageType::Clinician)
     );
 }

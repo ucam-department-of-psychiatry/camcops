@@ -1134,14 +1134,6 @@ Simple clinical tasks
 <string name="t_contactlog">Contact log (Contact)</string>
 <string name="s_contactlog">Record of clinical contact with times.</string>
 <string name="b_contactlog">Contact</string>
-<string name="contactlog_title">Contact log</string>
-<string name="contactlog_start">Start time</string>
-<string name="contactlog_end">End time</string>
-<string name="contactlog_time_taken">Time taken</string>
-<string name="contactlog_patient_contact">Patient contact?</string>
-<string name="contactlog_staff_liaison">Staff liaison?</string>
-<string name="contactlog_other_liaison">Liaison with others?</string>
-<string name="contactlog_comment">Comment</string>
 
 <!-- Clinical clerking -->
 <string name="t_psychiatricclerking">Psychiatric clerking (Clerking)</string>

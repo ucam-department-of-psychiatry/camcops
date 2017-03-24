@@ -83,7 +83,9 @@ QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
     m_missing_indicator = uifunc::iconWidget(
                 uifunc::iconFilename(uiconst::ICON_WARNING));
     m_label_code = new LabelWordWrapWide();
+    m_label_code->setObjectName(cssconst::DIAGNOSTIC_CODE);
     m_label_description = new LabelWordWrapWide();
+    m_label_description->setObjectName(cssconst::DIAGNOSTIC_CODE);
 
     QHBoxLayout* textlayout = new QHBoxLayout();
     textlayout->setContentsMargins(uiconst::NO_MARGINS);

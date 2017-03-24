@@ -23,11 +23,13 @@
 #include "tasks/aims.h"
 #include "tasks/audit.h"
 #include "tasks/auditc.h"
+
 #include "tasks/badls.h"
 #include "tasks/bdi.h"
 #include "tasks/bmi.h"
 #include "tasks/bprs.h"
 #include "tasks/bprse.h"
+
 #include "tasks/cage.h"
 #include "tasks/cape42.h"
 #include "tasks/caps.h"
@@ -37,7 +39,15 @@
 #include "tasks/cgii.h"
 #include "tasks/cgisch.h"
 #include "tasks/ciwa.h"
+#include "tasks/contactlog.h"
+#include "tasks/copebrief.h"
+#include "tasks/cpftlpsdischarge.h"
+#include "tasks/cpftlpsreferral.h"
+#include "tasks/cpftlpsresetresponseclock.h"
+
+#include "tasks/dad.h"
 #include "tasks/demoquestionnaire.h"
+
 #include "tasks/phq9.h"
 
 
@@ -49,11 +59,13 @@ void InitTasks(TaskFactory& factory)
     initializeAims(factory);
     initializeAudit(factory);
     initializeAuditC(factory);
+
     initializeBadls(factory);
     initializeBdi(factory);
     initializeBmi(factory);
     initializeBprs(factory);
     initializeBprsE(factory);
+
     initializeCage(factory);
     initializeCape42(factory);
     initializeCaps(factory);
@@ -65,12 +77,13 @@ void InitTasks(TaskFactory& factory)
     initializeCgiI(factory);
     initializeCgiSch(factory);
     initializeCiwa(factory);
-    // *** initializeContactLog(factory);
-    // *** initializeCopeBrief(factory);
-    // *** initializeCPFTLPSDischarge(factory);
-    // *** initializeCPFTLPSReferral(factory);
-    // *** initializeCPFTLPSResetResponseClock(factory);
-    // *** initializeDad(factory);
+    initializeContactLog(factory);
+    initializeCopeBrief(factory);
+    initializeCPFTLPSDischarge(factory);
+    initializeCPFTLPSReferral(factory);
+    initializeCPFTLPSResetResponseClock(factory);
+
+    initializeDad(factory);
     // *** initializeDast(factory);
     // *** initializeDeakin1HealthReview(factory);
     initializeDemoQuestionnaire(factory);
@@ -79,13 +92,16 @@ void InitTasks(TaskFactory& factory)
     // *** initializeDiagnosisIcd9CM(factory);
     // *** initializeDiagnosisIcd10(factory);
     // *** initializeDistressThermometer(factory);
+
     // *** initializeFast(factory);
     // *** initializeFft(factory);
     // *** initializeFrs(factory);
+
     // *** initializeGad7(factory);
     // *** initializeGaf(factory);
     // *** initializeGds15(factory);
     // *** initializeGmcPq(factory);
+
     // *** initializeHads(factory);
     // *** initializeHamA(factory);
     // *** initializeHamD(factory);
@@ -93,6 +109,7 @@ void InitTasks(TaskFactory& factory)
     // *** initializeHonos(factory);
     // *** initializeHonos65(factory);
     // *** initializeHonosca(factory);
+
     // *** initializeIcd10Depressive(factory);
     // *** initializeIcd10Manic(factory);
     // *** initializeIcd10Mixed(factory);
@@ -103,11 +120,14 @@ void InitTasks(TaskFactory& factory)
     // *** initializeIesr(factory);
     // *** initializeIfs(factory);
     // *** initializeIrac(factory);
+
     // *** initializeMast(factory);
     // *** initializeMdsUpdrs(factory);
     // *** initializeMoca(factory);
+
     // *** initializeNart(factory);
     // *** initializeNpiQ(factory);
+
     // *** initializePanss(factory);
     // *** initializePatientSatisfaction(factory);
     // *** initializePclC(factory);
@@ -121,19 +141,26 @@ void InitTasks(TaskFactory& factory)
     // *** initializeProgressNote(factory);
     // *** initializePswq(factory);
     // *** initializePsychiatricClerking(factory);
+
     // *** initializeQolBasic(factory);
     // *** initializeQolSG(factory); // *** COMPLEX
+
     // *** initializeRand36(factory);
     // *** initializeReferrerSatisfactionGen(factory);
     // *** initializeReferrerSatisfactionSpec(factory);
+
     // *** initializeSlums(factory);
     // *** initializeSmast(factory);
     // *** initializeSwemwbs(factory);
+
     // *** initializeWemwbs(factory);
     // *** initializeWsas(factory);
+
     // *** initializeYbocs(factory);
     // *** initializeYbocsSc(factory);
+
     // *** initializeZbi12(factory);
+
 
     // *** new: mini-ACE
     // *** new: other things in e-mail queue

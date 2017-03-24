@@ -49,6 +49,7 @@ public:
     QuPage();
     QuPage(const QList<QuElementPtr>& elements);
     QuPage(std::initializer_list<QuElementPtr> elements);
+    QuPage(const QList<QuElement*>& elements);  // takes ownership
     QuPage(std::initializer_list<QuElement*> elements);  // takes ownership
 
     virtual void build() {}  // for on-the-fly building

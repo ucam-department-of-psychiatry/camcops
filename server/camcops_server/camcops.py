@@ -551,7 +551,11 @@ def upgrade_database(old_version: Version) -> None:
             for tablename in cls.get_extra_table_names():
                 v2_0_0_alter_generic_table(tablename)
         # Specifics
-        modify_column("ciwa", "t", "REAL NULL")  # was INT; temperature (C)
+        modify_column("ciwa", "t", "REAL NULL")  # was erroneously INT; temperature (C)  # noqa
+        modify_column("cpft_lps_referral", "marital_status_code",
+                      "VARCHAR(1) NULL")  # was erroneously INT; single-char code  # noqa
+        modify_column("cpft_lps_referral", "ethnic_category_code",
+                      "VARCHAR(1) NULL")  # was erroneously INT; single-char code  # noqa
 
 
 # =============================================================================

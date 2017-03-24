@@ -124,7 +124,15 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
 
     m_editor = new QDateTimeEdit();
     m_editor->setDisplayFormat(format);
+
     m_editor->setCalendarPopup(calendar);
+    // *** TO THINK ABOUT: QuDateTime time picker
+    // - Qt only supplies a date (calendar) popup.
+    // - It is possible to write ones to do times as well.
+    // - http://doc.qt.io/qt-5/qdatetimeedit.html#using-a-pop-up-calendar-widget
+    // - http://doc.qt.io/qt-5/qtwidgets-widgets-calendarwidget-example.html
+    // - https://forum.qt.io/topic/71670/qdatetimeedit-with-date-and-time-picker/6
+
     m_editor->setEnabled(!read_only);
     m_editor->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     // Fixed horizontal keeps the drop-down button close to the text.

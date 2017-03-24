@@ -34,6 +34,8 @@ bool anyTrue(const QList<QVariant>& values);
 bool allFalseOrNull(const QList<QVariant>& values);
 bool anyNull(const QList<QVariant>& values);
 bool noneNull(const QList<QVariant>& values);
+bool anyNullOrEmpty(const QList<QVariant>& values);
+bool noneNullOrEmpty(const QList<QVariant>& values);
 int numNull(const QList<QVariant>& values);
 int numNotNull(const QList<QVariant>& values);
 

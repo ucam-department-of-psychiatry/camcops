@@ -223,3 +223,14 @@ NameValueOptions CommonOptions::sexes()
         {sexUnspecified(), SEX_UNSPECIFIED},
     };
 }
+
+
+NameValueOptions CommonOptions::optionsCopyingDescriptions(
+        const QStringList& descriptions)
+{
+    NameValueOptions options;
+    for (auto desc : descriptions) {
+        options.addItem(NameValuePair(desc, desc));
+    }
+    return options;
+}

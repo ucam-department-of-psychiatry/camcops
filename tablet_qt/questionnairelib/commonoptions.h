@@ -83,4 +83,7 @@ public:
     static NameValueOptions unknownNoYesInteger();
 
     static NameValueOptions sexes();
+
+    static NameValueOptions optionsCopyingDescriptions(
+            const QStringList& descriptions);
 };

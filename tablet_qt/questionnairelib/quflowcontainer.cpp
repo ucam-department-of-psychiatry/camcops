@@ -17,8 +17,11 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// #define DEBUG_LAYOUT
+
 #include "quflowcontainer.h"
 #include <QWidget>
+#include "common/cssconst.h"
 #include "lib/sizehelpers.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/basewidget.h"
@@ -103,10 +106,12 @@ QPointer<QWidget> QuFlowContainer::makeWidget(
         Questionnaire* questionnaire)
 {
     QPointer<QWidget> widget(new BaseWidget());
-    widget->setSizePolicy(sizehelpers::expandingFixedHFWPolicy());
+    // NO, THIS BREAKS HFW: // widget->setSizePolicy(sizehelpers::expandingFixedHFWPolicy());
 
     FlowLayoutHfw* layout = new FlowLayoutHfw();
-    // widget->setObjectName(CssConst::DEBUG_YELLOW);
+#ifdef DEBUG_LAYOUT
+    widget->setObjectName(cssconst::DEBUG_YELLOW);
+#endif
     layout->setContentsMargins(uiconst::NO_MARGINS);
     widget->setLayout(layout);
     for (int i = 0; i < m_elements.size(); ++i) {

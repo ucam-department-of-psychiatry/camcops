@@ -27,19 +27,27 @@ extern const QString TIMESTAMP_FORMAT;
 extern const QString SHORT_DATETIME_FORMAT;
 extern const QString SHORT_DATE_FORMAT;
 extern const QString TEXT_DATE_FORMAT;
+extern const QString TEXT_DATETIME_FORMAT;
 extern const QString UNKNOWN;
 
 QString datetimeToIsoMs(const QDateTime& dt, bool use_z_timezone = false);
 QString datetimeToIsoMsUtc(const QDateTime& dt, bool use_z_timezone = false);
 QDateTime isoToDateTime(const QString& iso);
+
 QDateTime now();
 QDate nowDate();
 QString nowTimestamp();
+
 QString timestampDateTime(const QDateTime& dt);
 QString shortDateTime(const QDateTime& dt);
+QString shortDateTime(const QVariant& dt);
+QString textDateTime(const QDateTime& dt);
+QString textDateTime(const QVariant& dt);
+
 QString shortDate(const QDate& d);
 QString textDate(const QDate& d);
-QString textDate(const QVariant& date);
+QString textDate(const QVariant& d);
+
 int ageYearsFrom(const QDate& from, const QDate& to);
 int ageYears(const QVariant& dob, int default_years = -1);
 double doubleSecondsFrom(const QDateTime& from, const QDateTime& to);

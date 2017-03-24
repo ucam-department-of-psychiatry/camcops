@@ -46,6 +46,17 @@ QuPage::QuPage(std::initializer_list<QuElementPtr> elements) :
 {
 }
 
+
+QuPage::QuPage(const QList<QuElement*>& elements) :  // takes ownership
+    m_type(PageType::Inherit),
+    m_skip(false)
+{
+    for (auto e : elements) {
+        addElement(e);
+    }
+}
+
+
 QuPage::QuPage(std::initializer_list<QuElement*> elements) :  // takes ownership
     m_type(PageType::Inherit),
     m_skip(false)

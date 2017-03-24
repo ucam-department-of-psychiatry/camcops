@@ -25,6 +25,27 @@ namespace textconst
 {
 
 // ============================================================================
+// PRINCIPLES:
+// ============================================================================
+//
+// - If a string is used only once, it can live in the source code (*).
+//
+// - If a string is re-used on the tablet, it should live here (*).
+//
+// - If a string is shared between the tablet and server (but in a way that
+//   is not task-specific), it should live in the "camcops" namespace of the
+//   downloaded strings, unless it is "mission-critical" for the tablet.
+//
+// - If a string is task-specific, it should live in the task's namespace of
+//   the downloaded strings.
+//
+// (*) Strings that live in the source code, and involve some language, should
+// use the Qt tr() mechanism to support internationalization. (The downloaded
+// string system already supports this, as users can swap in a different string
+// file.)
+
+
+// ============================================================================
 // Common text
 // ============================================================================
 
@@ -42,7 +63,20 @@ extern const QString CLINICIAN_COMMENTS;
 extern const QString COMMENTS;
 
 extern const QString NO_SUMMARY_SEE_FACSIMILE;
+extern const QString SEE_FACSIMILE_FOR_MORE_DETAIL;
 extern const QString THANK_YOU;
+
+extern const QString CLINICIAN_SPECIALTY;
+extern const QString CLINICIAN_NAME;
+extern const QString CLINICIAN_PROFESSIONAL_REGISTRATION;
+extern const QString CLINICIAN_POST;
+extern const QString CLINICIAN_SERVICE;
+extern const QString CLINICIAN_CONTACT_DETAILS;
+extern const QString CLINICIAN_DETAILS;
+
+extern const QString PATIENT;
+
+extern const QString NOT_APPLICABLE;
 
 // ============================================================================
 // Terms and conditions

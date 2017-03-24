@@ -136,6 +136,25 @@ bool noneNull(const QList<QVariant>& values)
 }
 
 
+bool anyNullOrEmpty(const QList<QVariant>& values)
+{
+    int length = values.length();
+    for (int i = 0; i < length; ++i) {
+        const QVariant& v = values.at(i);
+        if (v.isNull() || v.toString().isEmpty()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+bool noneNullOrEmpty(const QList<QVariant>& values)
+{
+    return !anyNullOrEmpty(values);
+}
+
+
 int numNull(const QList<QVariant>& values)
 {
     int n = 0;

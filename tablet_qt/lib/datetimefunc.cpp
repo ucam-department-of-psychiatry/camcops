@@ -28,6 +28,7 @@ const QString TIMESTAMP_FORMAT("yyyy-MM-dd HH:mm:ss.zzz");  // 2000-12-31 23:59:
 const QString SHORT_DATETIME_FORMAT("yyyy-MM-dd HH:mm");  // 2000-12-31 23:59
 const QString SHORT_DATE_FORMAT("yyyy-MM-dd");  // 2000-12-31
 const QString TEXT_DATE_FORMAT("dd MMM yyyy");  // 31 Dec 2000
+const QString TEXT_DATETIME_FORMAT("ddd dd MMM yyyy, HH:mm");  // Thu 31 Dec 2000, 23:59
 const QString UNKNOWN("?");
 
 
@@ -111,6 +112,24 @@ QString shortDateTime(const QDateTime& dt)
 }
 
 
+QString shortDateTime(const QVariant& dt)
+{
+    return dt.isNull() ? UNKNOWN : shortDateTime(dt.toDateTime());
+}
+
+
+QString textDateTime(const QDateTime& dt)
+{
+    return dt.toString(TEXT_DATETIME_FORMAT);
+}
+
+
+QString textDateTime(const QVariant& dt)
+{
+    return dt.isNull() ? UNKNOWN : textDateTime(dt.toDateTime());
+}
+
+
 QString shortDate(const QDate& d)
 {
     return d.toString(SHORT_DATE_FORMAT);
@@ -123,12 +142,9 @@ QString textDate(const QDate& d)
 }
 
 
-QString textDate(const QVariant& date)
+QString textDate(const QVariant& d)
 {
-    if (date.isNull()) {
-        return UNKNOWN;
-    }
-    return textDate(date.toDate());
+    return d.isNull() ? UNKNOWN : textDate(d.toDate());
 }
 
 

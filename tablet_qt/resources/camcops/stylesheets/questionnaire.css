@@ -67,7 +67,7 @@
    ========================================================================= */
 
 QWidget,
-BaseWidget{
+BaseWidget {
     color: black;
     border: 0;
     margin: 0;
@@ -114,6 +114,11 @@ PagePickerDialog ClickableLabelWordWrapWide {
     padding: 5px;
 }
 
+LabelWordWrapWide#diagnostic_code {
+    /* Text displayed as part of the diagnostic code */
+    color: rgb(0, 0, 255);  /* blue */
+}
+
 ClickableLabel,
 ClickableLabelWordWrapWide {
     font-weight: normal;
@@ -128,7 +133,7 @@ QPushButton:pressed,
 QComboBox#picker_inline:pressed,
 ClickableLabel:pressed,
 ClickableLabelWordWrapWide:pressed {
-    background-color: rgba(100, 100, 255, 200);  /* to match BUTTON_PRESSED_COLOUR */
+    background-color: rgba(100, 100, 255, 200);  /* blue */ /* to match BUTTON_PRESSED_COLOUR */
 }
 
 /* The above will override the generic dynamic modifiers, so we re-specify... */
@@ -229,7 +234,7 @@ QSpinBox,
 QTextEdit {
     /* https://www.w3schools.com/colors/colors_picker.asp */
     /* background-color: lightgray; */  /* not the same as e.g. MCQ grid headings */
-    background-color: rgb(191, 211, 146);
+    background-color: rgb(210, 240, 170);  /* greenish */
 }
 
 /* =========================================================================
@@ -293,7 +298,11 @@ BooleanWidget ClickableLabelWordWrapWide[state="false"] {
     background-color: white;
 }
 BooleanWidget ClickableLabelWordWrapWide[state="true"] {
-    background-color: red;
+    background-color: #FF6666;  /* red */
+}
+BooleanWidget ClickableLabelWordWrapWide[state="true"] LabelWordWrapWide {
+    /* Have to drill down to LabelWordWrapWide for the text color */
+    /* color: white; */  /* Works but would need some more tweaks, and isn't much better visually */
 }
 BooleanWidget ClickableLabelWordWrapWide[readonly="true"]:pressed {
     background-color: grey;

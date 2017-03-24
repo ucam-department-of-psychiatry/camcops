@@ -162,4 +162,18 @@ protected:
     // ------------------------------------------------------------------------
 public:
     static const QString PATIENT_FK_FIELDNAME;
+    static const QString FIRSTEXIT_IS_FINISH_FIELDNAME;
+    static const QString FIRSTEXIT_IS_ABORT_FIELDNAME;
+    static const QString WHEN_FIRSTEXIT_FIELDNAME;
+    static const QString EDITING_TIME_S_FIELDNAME;
+
+    static const QString CLINICIAN_SPECIALTY;
+    static const QString CLINICIAN_NAME;
+    static const QString CLINICIAN_PROFESSIONAL_REGISTRATION;
+    static const QString CLINICIAN_POST;
+    static const QString CLINICIAN_SERVICE;
+    static const QString CLINICIAN_CONTACT_DETAILS;
+
+    static const QString RESPONDENT_NAME;
+    static const QString RESPONDENT_RELATIONSHIP;
 };

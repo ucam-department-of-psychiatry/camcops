@@ -26,7 +26,7 @@
 #include "questionnairelib/mcqfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/aspectratiopixmaplabel.h"
-// #include "widgets/basewidget.h"
+#include "widgets/basewidget.h"
 #include "widgets/booleanwidget.h"
 // #include "widgets/clickablelabelnowrap.h"
 #include "widgets/clickablelabelwordwrapwide.h"
@@ -130,10 +130,11 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire *questionnaire)
 {
     bool read_only = questionnaire->readOnly();
 
-    QPointer<QWidget> widget(new QWidget());  // BaseWidget()
+    QPointer<QWidget> widget(new BaseWidget());
     widget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
-    QHBoxLayout* layout = new QHBoxLayout();
+    HBoxLayout* layout = new HBoxLayout();
+    // ... allow the HFW layouts, so our owner can put us in a flow layout
     layout->setContentsMargins(uiconst::NO_MARGINS);
     widget->setLayout(layout);
     // To align things in a QHBoxLayout, align the widgets within the layout:

@@ -103,7 +103,7 @@ FlowLayoutHfw::~FlowLayoutHfw()
     while ((item = takeAt(0))) {
 #ifdef DEBUG_LAYOUT
         qDebug().noquote() << "delete QLayoutItem"
-                           << LayoutDumper::toString(item);
+                           << layoutdumper::toString(item);
 #endif
         delete item;
 #ifdef DEBUG_LAYOUT
@@ -356,7 +356,7 @@ QSize FlowLayoutHfw::doLayout(const QRect& rect, bool test_only) const
         calc.layout_cell_top_left = QPoint(x, y);
 #ifdef DEBUG_LAYOUT
         qDebug() << "... inserting layout item with widget"
-                 << LayoutDumper::getWidgetDescriptor(widget)
+                 << layoutdumper::getWidgetDescriptor(widget)
                  << "in row" << row
                  << "in cell at" << calc.layout_cell_top_left
                  << "with size" << calc.item_size;
@@ -379,7 +379,7 @@ QSize FlowLayoutHfw::doLayout(const QRect& rect, bool test_only) const
             QRect geometry(item_at, calc.item_size);
 #ifdef DEBUG_LAYOUT
             qDebug() << "... Final widget position for"
-                     << LayoutDumper::getWidgetDescriptor(calc.widget)
+                     << layoutdumper::getWidgetDescriptor(calc.widget)
                      << "=" << geometry;
 #endif
             calc.item->setGeometry(geometry);

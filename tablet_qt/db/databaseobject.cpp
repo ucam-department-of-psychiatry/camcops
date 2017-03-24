@@ -171,6 +171,13 @@ bool DatabaseObject::valueIsNull(const QString &fieldname) const
 }
 
 
+bool DatabaseObject::valueIsFalseNotNull(const QString &fieldname) const
+{
+    QVariant v = value(fieldname);
+    return !v.isNull() && !v.toBool();
+}
+
+
 bool DatabaseObject::valueIsNullOrEmpty(const QString &fieldname) const
 {
     QVariant v = value(fieldname);
