@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="contactlog">
+    <!-- Contact log -->
+
+    <string name="title">Contact log</string>
+    <string name="location">Location</string>
+    <string name="start">Start time</string>
+    <string name="end">End time</string>
+    <string name="time_taken">Time taken</string>
+    <string name="patient_contact">Patient contact?</string>
+    <string name="staff_liaison">Staff liaison?</string>
+    <string name="other_liaison">Liaison with others?</string>
+    <string name="comment">Comment</string>
+    <string name="minutes">minutes</string>
+
+  </task>
+</resources>
