@@ -46,7 +46,12 @@
 #include "tasks/cpftlpsresetresponseclock.h"
 
 #include "tasks/dad.h"
+#include "tasks/dast.h"
 #include "tasks/demoquestionnaire.h"
+#include "tasks/demqol.h"
+#include "tasks/demqolproxy.h"
+#include "tasks/diagnosisicd9cm.h"
+#include "tasks/diagnosisicd10.h"
 
 #include "tasks/phq9.h"
 
@@ -84,13 +89,13 @@ void InitTasks(TaskFactory& factory)
     initializeCPFTLPSResetResponseClock(factory);
 
     initializeDad(factory);
-    // *** initializeDast(factory);
+    initializeDast(factory);
     // *** initializeDeakin1HealthReview(factory);
     initializeDemoQuestionnaire(factory);
-    // *** initializeDemqol(factory);
-    // *** initializeDemqolProxy(factory);
-    // *** initializeDiagnosisIcd9CM(factory);
-    // *** initializeDiagnosisIcd10(factory);
+    initializeDemqol(factory);
+    initializeDemqolProxy(factory);
+    initializeDiagnosisIcd9CM(factory);
+    initializeDiagnosisIcd10(factory);
     // *** initializeDistressThermometer(factory);
 
     // *** initializeFast(factory);
@@ -165,5 +170,16 @@ void InitTasks(TaskFactory& factory)
     // *** new: mini-ACE
     // *** new: other things in e-mail queue
 
-    // *** discarded tasks - revitalize
+    // *** discarded tasks - revitalize: ASRM
+    // *** discarded tasks - revitalize: BARS
+    // *** discarded tasks - revitalize: BFCRS
+    // *** discarded tasks - revitalize: CSI
+    // *** discarded tasks - revitalize: EPDS
+    // *** discarded tasks - revitalize: FAB
+    // *** discarded tasks - revitalize: GASS
+    // *** discarded tasks - revitalize: LSHSA
+    // *** discarded tasks - revitalize: LSHSLAROI2005
+    // *** discarded tasks - revitalize: LUNSERS
+    // *** discarded tasks - revitalize: MADRS
+    // *** discarded tasks - revitalize: SAS
 }

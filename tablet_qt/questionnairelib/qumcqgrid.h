@@ -43,12 +43,12 @@ class QuMcqGrid : public QuElement
     friend class QuMcqGridSignaller;
 
 public:
-    QuMcqGrid(QList<QuestionWithOneField> question_field_pairs,
+    QuMcqGrid(const QList<QuestionWithOneField>& question_field_pairs,
               const NameValueOptions& options);
     virtual ~QuMcqGrid();
-    QuMcqGrid* setWidth(int question_width, QList<int> option_widths);
+    QuMcqGrid* setWidth(int question_width, const QList<int>& option_widths);
     QuMcqGrid* setTitle(const QString& title);
-    QuMcqGrid* setSubtitles(QList<McqGridSubtitle> subtitles);
+    QuMcqGrid* setSubtitles(const QList<McqGridSubtitle>& subtitles);
     QuMcqGrid* setExpand(bool expand);
 protected:
     void setFromFields();

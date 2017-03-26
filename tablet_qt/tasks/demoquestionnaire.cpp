@@ -764,6 +764,10 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
         new QuButton(
             "Say hello",
             std::bind(&DemoQuestionnaire::callbackHello, this)),
+        (new QuButton(
+            "Say hello [disabled]",
+            std::bind(&DemoQuestionnaire::callbackHello, this)))
+                                ->setActive(false),
         new QuButton(
             "Button with args ('foo')",
             std::bind(&DemoQuestionnaire::callbackArg, this, "foo")),

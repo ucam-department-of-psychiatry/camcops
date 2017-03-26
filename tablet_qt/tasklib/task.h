@@ -77,7 +77,6 @@ public:
     virtual void makeAncillaryTables() {}
     int count(const WhereConditions& where = WhereConditions()) const;
     int countForPatient(int patient_id) const;
-    virtual void deleteFromDatabase();
     virtual void upgradeDatabase(const Version& old_version,
                                  const Version& new_version);
     // ------------------------------------------------------------------------

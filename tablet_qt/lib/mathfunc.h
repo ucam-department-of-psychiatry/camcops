@@ -53,6 +53,8 @@ QString toDp(double x, int dp);
 QString percent(double numerator, double denominator, int dp = 1);
 QString scoreString(int numerator, int denominator,
                     bool show_percent = false, int dp = 1);
+QString scoreStringVariant(const QVariant& numerator, int denominator,
+                           bool show_percent = false, int dp = 1);
 QString scoreStringWithPercent(int numerator, int denominator, int dp = 1);
 QString scorePhrase(const QString& description, int numerator, int denominator,
                     const QString& separator = ": ",

@@ -70,6 +70,7 @@ public:
     QString title() const;
     bool hasTag(const QString& tag) const;
     bool skip() const;
+    void clearElements();  // for rebuilding live pages
 signals:
     void elementValueChanged();
 protected:

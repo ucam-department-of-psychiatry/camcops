@@ -23,6 +23,16 @@
 namespace stringfunc {
 
 // ============================================================================
+// Basic string formatting
+// ============================================================================
+
+QString strnum(const QString& prefix, int num, const QString& suffix)
+{
+    return prefix + QString::number(num) + suffix;
+}
+
+
+// ============================================================================
 // Make sequences of strings
 // ============================================================================
 
@@ -30,9 +40,8 @@ QStringList strseq(const QString& prefix, int first, int last)
 {
     Q_ASSERT(first >= 0 && last >= 0 && first <= last);
     QStringList list;
-    QString format = "%1%2";
     for (int i = first; i <= last; ++i) {
-        list.append(format.arg(prefix).arg(i));
+        list.append(strnum(prefix, i));
     }
     return list;
 }
@@ -43,10 +52,9 @@ QStringList strseq(const QString& prefix, int first, int last,
 {
     Q_ASSERT(first >= 0 && last >= 0 && first <= last);
     QStringList list;
-    QString format = "%1%2%3";
     for (int i = first; i <= last; ++i) {
         for (auto suffix : suffixes) {
-            list.append(format.arg(prefix).arg(i).arg(suffix));
+            list.append(strnum(prefix, i, suffix));
         }
     }
     return list;
@@ -58,9 +66,8 @@ QStringList strseq(const QString& prefix, int first, int last,
 {
     Q_ASSERT(first >= 0 && last >= 0 && first <= last);
     QStringList list;
-    QString format = "%1%2%3";
     for (int i = first; i <= last; ++i) {
-        list.append(format.arg(prefix).arg(i).arg(suffix));
+        list.append(strnum(prefix, i, suffix));
     }
     return list;
 }
@@ -70,10 +77,9 @@ QStringList strseq(const QStringList& prefixes, int first, int last)
 {
     Q_ASSERT(first >= 0 && last >= 0 && first <= last);
     QStringList list;
-    QString format = "%1%2";
     for (auto prefix : prefixes) {
         for (int i = first; i <= last; ++i) {
-            list.append(format.arg(prefix).arg(i));
+            list.append(strnum(prefix, i));
         }
     }
     return list;
@@ -85,25 +91,14 @@ QStringList strseq(const QStringList& prefixes, int first, int last,
 {
     Q_ASSERT(first >= 0 && last >= 0 && first <= last);
     QStringList list;
-    QString format = "%1%2%3";
     for (auto prefix : prefixes) {
         for (int i = first; i <= last; ++i) {
             for (auto suffix : suffixes) {
-                list.append(format.arg(prefix).arg(i).arg(suffix));
+                list.append(strnum(prefix, i, suffix));
             }
         }
     }
     return list;
-}
-
-
-// ============================================================================
-// Other string formatting
-// ============================================================================
-
-QString strnum(const QString& prefix, int num)
-{
-    return QString("%1%2").arg(prefix).arg(num);
 }
 
 
@@ -136,6 +131,15 @@ QString& toHtmlLinebreaks(QString& str, bool convert_embedded_literals)
         str.replace("\\n", "<br>");
     }
     return str;
+}
+
+
+QString standardResult(const QString& name,
+                       const QString& value,
+                       const QString& separator,
+                       const QString& suffix)
+{
+    return QString("%1%2<b>%3</b>%4").arg(name, separator, value, suffix);
 }
 
 

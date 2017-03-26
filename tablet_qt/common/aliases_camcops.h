@@ -23,6 +23,19 @@
 #include <QSharedPointer>
 #include <QWeakPointer>
 
+// Phase 1:
+
+class CamcopsApp;
+
+class DatabaseObject;
+using DatabaseObjectPtr = QSharedPointer<DatabaseObject>;
+
+class DiagnosticCodeSet;
+using DiagnosticCodeSetPtr = QSharedPointer<DiagnosticCodeSet>;
+
+class DiagnosisItemBase;
+using DiagnosisItemBasePtr = QSharedPointer<DiagnosisItemBase>;
+
 class FieldRef;
 using FieldRefPtr = QSharedPointer<FieldRef>;
 using FieldRefPtrList = QList<FieldRefPtr>;
@@ -33,8 +46,6 @@ using PatientPtrList = QList<PatientPtr>;
 
 class QuElement;
 using QuElementPtr = QSharedPointer<QuElement>;
-using GridRowDefinition = QPair<QString, QuElementPtr>;
-using GridRowDefinitionRawPtr = QPair<QString, QuElement*>;
 
 class Questionnaire;
 using QuestionnairePtr = QSharedPointer<Questionnaire>;
@@ -52,3 +63,8 @@ using TaskPtrList = QList<TaskPtr>;
 
 class TaskFactory;
 using TaskFactoryPtr = QSharedPointer<TaskFactory>;
+
+// Phase 2, using things from Phase 1:
+
+using GridRowDefinition = QPair<QString, QuElementPtr>;
+using GridRowDefinitionRawPtr = QPair<QString, QuElement*>;

@@ -27,7 +27,7 @@
 
 
 QuMcqGridSingleBoolean::QuMcqGridSingleBoolean(
-        QList<QuestionWithTwoFields> questions_with_fields,
+        const QList<QuestionWithTwoFields>& questions_with_fields,
         const NameValueOptions& mcq_options,
         const QString& boolean_text) :
     m_boolean_left(false),
@@ -78,9 +78,10 @@ QuMcqGridSingleBoolean* QuMcqGridSingleBoolean::setBooleanLeft(
 }
 
 
-QuMcqGridSingleBoolean* QuMcqGridSingleBoolean::setWidth(int question_width,
-                                                  QList<int> mcq_option_widths,
-                                                  int boolean_width)
+QuMcqGridSingleBoolean* QuMcqGridSingleBoolean::setWidth(
+        int question_width,
+        const QList<int>& mcq_option_widths,
+        int boolean_width)
 {
     if (mcq_option_widths.size() != m_mcq_options.size()) {
         qWarning() << Q_FUNC_INFO << "Bad mcq_option_widths; command ignored";
@@ -101,7 +102,7 @@ QuMcqGridSingleBoolean* QuMcqGridSingleBoolean::setTitle(const QString &title)
 
 
 QuMcqGridSingleBoolean* QuMcqGridSingleBoolean::setSubtitles(
-        QList<McqGridSubtitle> subtitles)
+        const QList<McqGridSubtitle>& subtitles)
 {
     m_subtitles = subtitles;
     return this;

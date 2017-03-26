@@ -49,34 +49,43 @@ namespace textconst
 // Common text
 // ============================================================================
 
-extern const QString NOT_SPECIFIED;
+extern const QString ADD;
 
-extern const QString SEVERE;
-extern const QString MODERATELY_SEVERE;
-extern const QString MODERATE;
-extern const QString MILD;
-extern const QString NONE;
-
-extern const QString EXAMINER_COMMENTS_PROMPT;
-extern const QString EXAMINER_COMMENTS;
 extern const QString CLINICIAN_COMMENTS;
-extern const QString COMMENTS;
-
-extern const QString NO_SUMMARY_SEE_FACSIMILE;
-extern const QString SEE_FACSIMILE_FOR_MORE_DETAIL;
-extern const QString THANK_YOU;
-
-extern const QString CLINICIAN_SPECIALTY;
-extern const QString CLINICIAN_NAME;
-extern const QString CLINICIAN_PROFESSIONAL_REGISTRATION;
-extern const QString CLINICIAN_POST;
-extern const QString CLINICIAN_SERVICE;
 extern const QString CLINICIAN_CONTACT_DETAILS;
 extern const QString CLINICIAN_DETAILS;
+extern const QString CLINICIAN_NAME;
+extern const QString CLINICIAN_POST;
+extern const QString CLINICIAN_PROFESSIONAL_REGISTRATION;
+extern const QString CLINICIAN_SERVICE;
+extern const QString CLINICIAN_SPECIALTY;
+extern const QString COMMENTS;
 
+extern const QString DELETE;
+extern const QString DIAGNOSIS;
+
+extern const QString EXAMINER_COMMENTS;
+extern const QString EXAMINER_COMMENTS_PROMPT;
+
+extern const QString MILD;
+extern const QString MODERATE;
+extern const QString MODERATELY_SEVERE;
+extern const QString MOVE_DOWN;
+extern const QString MOVE_UP;
+
+extern const QString NONE;
+extern const QString NO_SUMMARY_SEE_FACSIMILE;
+extern const QString NOT_APPLICABLE;
+extern const QString NOT_SPECIFIED;
+
+extern const QString PAGE;
 extern const QString PATIENT;
 
-extern const QString NOT_APPLICABLE;
+extern const QString SEE_FACSIMILE_FOR_MORE_DETAIL;
+extern const QString SEVERE;
+
+extern const QString THANK_YOU;
+extern const QString TOTAL_SCORE;
 
 // ============================================================================
 // Terms and conditions

@@ -42,15 +42,15 @@ class QuMcqGridDouble : public QuElement
     Q_OBJECT
     friend class QuMcqGridDoubleSignaller;
 public:
-    QuMcqGridDouble(QList<QuestionWithTwoFields> questions_with_fields,
+    QuMcqGridDouble(const QList<QuestionWithTwoFields>& questions_with_fields,
                     const NameValueOptions& options1,
                     const NameValueOptions& options2);
     virtual ~QuMcqGridDouble();
     QuMcqGridDouble* setWidth(int question_width,
-                              QList<int> option1_widths,
-                              QList<int> option2_widths);
+                              const QList<int>& option1_widths,
+                              const QList<int>& option2_widths);
     QuMcqGridDouble* setTitle(const QString& title);
-    QuMcqGridDouble* setSubtitles(QList<McqGridSubtitle> subtitles);
+    QuMcqGridDouble* setSubtitles(const QList<McqGridSubtitle>& subtitles);
     QuMcqGridDouble* setExpand(bool expand);
     QuMcqGridDouble* setStems(const QString& stem1, const QString& stem2);
 protected:

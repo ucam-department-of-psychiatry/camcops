@@ -46,7 +46,7 @@ void TaskFactory::registerTask(ProxyType proxy)
 void TaskFactory::finishRegistration()
 {
     for (int i = 0; i < m_initial_proxy_list.size(); ++i) {
-        ProxyType proxy = m_initial_proxy_list[i];
+        ProxyType proxy = m_initial_proxy_list.at(i);
         TaskPtr p_task = proxy->create(m_app, m_app.db());
         TaskCache cache;
         cache.tablename = p_task->tablename();

@@ -35,7 +35,7 @@
 #include "widgets/labelwordwrapwide.h"
 
 
-QuDiagnosticCode::QuDiagnosticCode(QSharedPointer<DiagnosticCodeSet> codeset,
+QuDiagnosticCode::QuDiagnosticCode(DiagnosticCodeSetPtr codeset,
                                    FieldRefPtr fieldref_code,
                                    FieldRefPtr fieldref_description) :
     m_codeset(codeset),

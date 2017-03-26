@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-// #define DEBUG_SQL_QUERY
+#define DEBUG_SQL_QUERY
 // #define DEBUG_QUERY_END
 // #define DEBUG_SQL_RESULT
 
@@ -150,6 +150,23 @@ void addWhereClause(const WhereConditions& where, SqlArgs& sqlargs_altered)
         sqlargs_altered.args.append(wherevalue);
     }
     sqlargs_altered.sql += " WHERE " + whereclauses.join(" AND ");
+}
+
+
+void addOrderByClause(const OrderBy& order_by, SqlArgs& sqlargs_altered)
+{
+    if (order_by.isEmpty()) {
+        return;
+    }
+    QStringList order_by_clauses;
+    for (QPair<QString, bool> pair : order_by) {
+        QString fieldname = pair.first;
+        bool ascending = pair.second;
+        order_by_clauses.append(QString("%1 %2").arg(
+                                    delimit(fieldname),
+                                    ascending ? "ASC" : "DESC"));
+    }
+    sqlargs_altered.sql += " ORDER BY " + order_by_clauses.join(", ");
 }
 
 
@@ -563,7 +580,7 @@ bool createIndex(const QSqlDatabase& db, const QString& indexname,
         return false;
     }
     for (int i = 0; i < fieldnames.size(); ++i) {
-        fieldnames[i] = delimit(fieldnames[i]);
+        fieldnames[i] = delimit(fieldnames.at(i));
     }
     QString sql = QString("CREATE INDEX IF NOT EXISTS %1 ON %2 (%3)").arg(
         delimit(indexname), delimit(tablename), fieldnames.join(""));
@@ -625,8 +642,8 @@ void renameColumns(const QSqlDatabase& db, QString tablename,
     QString delimited_tablename = delimit(tablename);
     QString delimited_dummytable = delimit(dummytable);
     for (int i = 0; i < old_fieldnames.size(); ++i) {
-        old_fieldnames[i] = delimit(old_fieldnames[i]);
-        new_fieldnames[i] = delimit(new_fieldnames[i]);
+        old_fieldnames[i] = delimit(old_fieldnames.at(i));
+        new_fieldnames[i] = delimit(new_fieldnames.at(i));
     }
     exec(db, "BEGIN TRANSACTION");
     exec(db, QString("ALTER TABLE %1 RENAME TO %2").arg(delimited_tablename,

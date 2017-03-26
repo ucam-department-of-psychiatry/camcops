@@ -132,7 +132,9 @@ ClickableLabelWordWrapWide {
 QPushButton:pressed,
 QComboBox#picker_inline:pressed,
 ClickableLabel:pressed,
-ClickableLabelWordWrapWide:pressed {
+ClickableLabelWordWrapWide:pressed,
+ClickableLabelWordWrapWide#button:pressed,
+ClickableLabelWordWrapWide#diagnostic_code:pressed {
     background-color: rgba(100, 100, 255, 200);  /* blue */ /* to match BUTTON_PRESSED_COLOUR */
 }
 
@@ -150,10 +152,13 @@ QPushButton:disabled {
     background-color: gray;
 }
 
-ClickableLabelWordWrapWide:disabled {
+ClickableLabelWordWrapWide:disabled,
+ClickableLabelWordWrapWide#button:disabled,
+ClickableLabelWordWrapWide#diagnostic_code:disabled {
     /* Override QPushButton:disabled */
-    background-color: rgb(0, 0, 0, 0);
+    background-color: darkgray;
 }
+
 
 /* Slightly different styling for QuPickerPopup */
 ClickableLabelWordWrapWide#picker_popup {

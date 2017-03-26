@@ -74,6 +74,7 @@ public:
     void setPageSkip(int page, bool skip, bool reset_buttons = true);
     void setPageSkip(const QString& page_tag, bool skip,
                      bool reset_buttons = true);
+    void refreshCurrentPage();
 public slots:
     void resetButtons();
 protected:
@@ -90,7 +91,7 @@ protected slots:
     void previousClicked();
     void nextClicked();
     void finishClicked();
-    void goToPage(int index_zero_based);
+    void goToPage(int index_zero_based, bool allow_refresh = false);
     void debugLayout();
 signals:
     void editStarted();

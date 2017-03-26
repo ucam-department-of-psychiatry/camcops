@@ -123,6 +123,12 @@ QuPage* QuPage::addElements(const QList<QuElement*>& elements)
 }
 
 
+void QuPage::clearElements()
+{
+    m_elements.clear();
+}
+
+
 QuPage* QuPage::addTag(const QString& tag)
 {
     m_tags.append(tag);

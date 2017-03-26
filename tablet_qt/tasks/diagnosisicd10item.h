@@ -18,13 +18,14 @@
 */
 
 #pragma once
+#include "diagnosisitembase.h"
 
-#include <QList>
-#include <QMap>
-#include <QString>
-#include <QVariant>
 
-using ArgList = QList<QVariant>;
-using OrderBy = QList<QPair<QString, bool>>;  // string is fieldname, bool is "ascending?"
-using UpdateValues = QMap<QString, QVariant>;
-using WhereConditions = QMap<QString, QVariant>;
+class DiagnosisIcd10Item : public DiagnosisItemBase
+{
+public:
+    DiagnosisIcd10Item(CamcopsApp& app, const QSqlDatabase& db,
+                       int load_pk = dbconst::NONEXISTENT_PK);
+public:
+    static const QString FK_NAME;
+};

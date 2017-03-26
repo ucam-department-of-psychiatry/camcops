@@ -18,13 +18,27 @@
 */
 
 #pragma once
-
-#include <QList>
-#include <QMap>
 #include <QString>
-#include <QVariant>
+#include "db/databaseobject.h"
 
-using ArgList = QList<QVariant>;
-using OrderBy = QList<QPair<QString, bool>>;  // string is fieldname, bool is "ascending?"
-using UpdateValues = QMap<QString, QVariant>;
-using WhereConditions = QMap<QString, QVariant>;
+
+class DiagnosisItemBase : public DatabaseObject
+{
+    Q_OBJECT
+public:
+    DiagnosisItemBase(CamcopsApp& app, const QSqlDatabase& db,
+                      const QString& tablename,
+                      const QString& fkname,
+                      int load_pk = dbconst::NONEXISTENT_PK);
+    void setForeignKeyToOwner(int fk);
+    void setSeqnum(int seqnum);
+    int seqnum() const;
+    QString code() const;
+    QString description() const;
+public:
+    static const QString SEQNUM;
+    static const QString CODE;
+    static const QString DESCRIPTION;
+protected:
+    const QString m_fkname;
+};

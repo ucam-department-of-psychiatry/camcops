@@ -21,6 +21,7 @@
 #include <QModelIndex>
 #include <QPointer>
 #include <QSharedPointer>
+#include "common/aliases_camcops.h"
 #include "openablewidget.h"
 
 class DiagnosticCodeSet;
@@ -46,7 +47,7 @@ class DiagnosticCodeSelector : public OpenableWidget
     Q_OBJECT
 public:
     DiagnosticCodeSelector(const QString& stylesheet,
-                           QSharedPointer<DiagnosticCodeSet> codeset,
+                           DiagnosticCodeSetPtr codeset,
                            QModelIndex selected = QModelIndex(),
                            QWidget* parent = nullptr);
 signals:
@@ -67,7 +68,7 @@ protected:
     QModelIndex proxyFromSource(const QModelIndex& index);
     void setSearchAppearance();
 protected:
-    QSharedPointer<DiagnosticCodeSet> m_codeset;
+    DiagnosticCodeSetPtr m_codeset;
     QPointer<QTreeView> m_treeview;  // for exploring
     QPointer<QListView> m_flatview;  // for searching
     QPointer<QLineEdit> m_search_lineedit;

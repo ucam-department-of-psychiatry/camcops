@@ -301,10 +301,8 @@ QString DatabaseObject::fieldSummary(const QString& fieldname,
                                      const QString& suffix) const
 {
     QString name = altname.isEmpty() ? fieldname : altname;
-    return QString("%1%2<b>%3</b>%4").arg(name,
-                                          separator,
-                                          prettyValue(fieldname),
-                                          suffix);
+    return stringfunc::standardResult(name, prettyValue(fieldname),
+                                      separator, suffix);
 }
 
 
@@ -314,10 +312,8 @@ QStringList DatabaseObject::recordSummaryLines(const QString& separator,
     QStringList list;
     for (auto fieldname : m_ordered_fieldnames) {
         const Field& field = m_record[fieldname];
-        list.append(QString("%1%2<b>%3</b>%4").arg(field.name(),
-                                                   separator,
-                                                   field.prettyValue(),
-                                                   suffix));
+        list.append(stringfunc::standardResult(field.name(), field.prettyValue(),
+                                               separator, suffix));
     }
     return list;
 }
@@ -376,6 +372,7 @@ bool DatabaseObject::load(const WhereConditions& where)
     }
     if (success && found) {
         setFromQuery(query, true);
+        loadAllAncillary(); // *** CHECK: two simultaneous queries? ***
     } else {
         nullify();
     }
@@ -383,7 +380,8 @@ bool DatabaseObject::load(const WhereConditions& where)
 }
 
 
-SqlArgs DatabaseObject::fetchQuerySql(const WhereConditions& where)
+SqlArgs DatabaseObject::fetchQuerySql(const WhereConditions& where,
+                                      const OrderBy& order_by)
 {
     QStringList fields = fieldnamesMapOrder();
     QStringList delimited_fieldnames;
@@ -397,6 +395,7 @@ SqlArgs DatabaseObject::fetchQuerySql(const WhereConditions& where)
     ArgList args;
     SqlArgs sqlargs(sql, args);
     dbfunc::addWhereClause(where, sqlargs);
+    dbfunc::addOrderByClause(order_by, sqlargs);
     return sqlargs;
 }
 
@@ -423,6 +422,9 @@ void DatabaseObject::setFromQuery(const QSqlQuery& query,
             it.value().setFromDatabaseValue(query.value(fieldname));
         }
     }
+
+    // And also:
+    loadAllAncillary(); // *** CHECK: two simultaneous queries? ***
 }
 
 
@@ -509,7 +511,9 @@ void DatabaseObject::deleteFromDatabase()
         return;
     }
 
+    // ------------------------------------------------------------------------
     // Delete any associated BLOBs
+    // ------------------------------------------------------------------------
     // There is no automatic way of knowing if we possess a BLOB, since a
     // BLOB field is simply an integer FK to the BLOB table.
     // However, we can reliably do it the other way round, and, moreover,
@@ -521,7 +525,55 @@ void DatabaseObject::deleteFromDatabase()
         qWarning() << "Failed to delete BLOB(s) where:" << where_blob;
     }
 
+    // ------------------------------------------------------------------------
+    // Delete associated ancillary objects
+    // ------------------------------------------------------------------------
+    // - How best to do this?
+    //
+    // - We could register table/fkname pairs. That allows us to delete
+    //   ancillary objects without instantiating a C++ object. And it allows
+    //   that deletion in SQL, so we can delete multiple ancillaries in one go,
+    //   rather than via C++ per-object deletion. However, it doesn't let us
+    //   create a hierarchy (an ancillary of an ancillary, in an arbitrary way;
+    //   the best would be registration with a "top-level" C++ object that
+    //   deletes all its ancillaries (but then the FK system would be more
+    //   complex).
+    //   To do automatic BLOB deletion... would need to
+    //   (1) SELECT all the ancillary PKs based on FK to primary object PK
+    //   (2) delete from the ancillary table
+    //   ... again, this either supports only a single level of inheritance,
+    //   or one would have to store the top-level PK within all levels (mind
+    //   you, you'd probably have to do that anyway).
+    //
+    // - We could have a chain of C++ objects that register themselves with
+    //   their parents. As long as they are all loaded, they could then
+    //   delete themselves and their children (ad infinitum). This would
+    //   handle BLOBs neatly. Might make menu loading a bit less efficient.
+    //   They'd have to autoload when their owner does. Mind you, that's often
+    //   what we want to do anyway...
+    //
+    // - We could look at SQLite's ON DELETE CASCADE.
+    //   However, that would require us to rework the BLOB system (e.g. one
+    //   BLOB table per task/ancillary), which could get less elegant.
+    //   Plus, there are other ways to mess up FKs in SQLite.
+    //
+    // DECISION:
+    // - The C++ object way.
+    //
+    // OTHER CONSIDERATION:
+    // - If objects load their ancillaries as they are themselves loaded, can
+    //   SQLite cope? The potential is for two simultaneous queries:
+    //      - load tasks T1, T2, T3
+    //      - during load of T1, T1 wishes to load A1a, A1b, A1c
+    //          - will the ancillary query fail?
+    //          - If not, will the top-level query proceed to T2?
+    for (auto ancillary : getAllAncillary()) {
+        ancillary->deleteFromDatabase();
+    }
+
+    // ------------------------------------------------------------------------
     // Delete ourself
+    // ------------------------------------------------------------------------
     WhereConditions where_self;
     where_self[pkname()] = pk;
     bool success = dbfunc::deleteFrom(m_db, m_tablename, where_self);
@@ -566,6 +618,10 @@ void DatabaseObject::setMoveOffTablet(bool move_off)
     }
     setValue(dbconst::MOVE_OFF_TABLET_FIELDNAME, move_off, false);
     save();
+
+    for (auto ancillary : getAllAncillary()) {
+        ancillary->setMoveOffTablet(move_off);
+    }
 }
 
 
@@ -612,11 +668,43 @@ int DatabaseObject::pkvalueInt() const
 void DatabaseObject::makeTable()
 {
     dbfunc::createTable(m_db, m_tablename, fieldsOrdered());
+    for (auto specimen : getAncillarySpecimens()) {
+        specimen->makeTable();
+    }
 }
 
 const QSqlDatabase& DatabaseObject::database() const
 {
     return m_db;
+}
+
+
+// ========================================================================
+// Internals: ancillary management
+// ========================================================================
+
+void DatabaseObject::loadAllAncillary()
+{
+    int pk = pkvalueInt();
+    loadAllAncillary(pk);
+}
+
+
+void DatabaseObject::loadAllAncillary(int pk)
+{
+    Q_UNUSED(pk);
+}
+
+
+QList<DatabaseObjectPtr> DatabaseObject::getAllAncillary() const
+{
+    return QList<DatabaseObjectPtr>();
+}
+
+
+QList<DatabaseObjectPtr> DatabaseObject::getAncillarySpecimens() const
+{
+    return QList<DatabaseObjectPtr>();
 }
 
 

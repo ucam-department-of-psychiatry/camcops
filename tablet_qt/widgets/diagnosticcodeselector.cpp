@@ -80,7 +80,7 @@
 
 DiagnosticCodeSelector::DiagnosticCodeSelector(
         const QString& stylesheet,
-        QSharedPointer<DiagnosticCodeSet> codeset,
+        DiagnosticCodeSetPtr codeset,
         QModelIndex selected,
         QWidget* parent) :
     OpenableWidget(parent),

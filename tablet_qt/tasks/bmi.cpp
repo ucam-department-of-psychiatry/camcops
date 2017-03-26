@@ -30,8 +30,8 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+using convert::toDp;
 using mathfunc::noneNull;
-using mathfunc::toDp;
 
 const QString BMI_TABLENAME("bmi");
 

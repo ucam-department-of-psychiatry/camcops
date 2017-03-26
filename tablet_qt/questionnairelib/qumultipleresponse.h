@@ -44,7 +44,7 @@ class QuMultipleResponse : public QuElement
     Q_OBJECT
 public:
     QuMultipleResponse();
-    QuMultipleResponse(const QList<QuestionWithOneField> items);
+    QuMultipleResponse(const QList<QuestionWithOneField>& items);
     QuMultipleResponse(std::initializer_list<QuestionWithOneField> items);
     QuMultipleResponse* addItem(const QuestionWithOneField& item);
     QuMultipleResponse* setMinimumAnswers(int minimum_answers);

@@ -44,16 +44,16 @@ class QuMcqGridSingleBoolean : public QuElement
 public:
     QuMcqGridSingleBoolean();
 public:
-    QuMcqGridSingleBoolean(QList<QuestionWithTwoFields> questions_with_fields,
+    QuMcqGridSingleBoolean(const QList<QuestionWithTwoFields>& questions_with_fields,
                            const NameValueOptions& mcq_options,
                            const QString& boolean_text);
     virtual ~QuMcqGridSingleBoolean();
     QuMcqGridSingleBoolean* setBooleanLeft(bool boolean_left);
     QuMcqGridSingleBoolean* setWidth(int question_width,
-                                     QList<int> mcq_option_widths,
+                                     const QList<int>& mcq_option_widths,
                                      int boolean_width);
     QuMcqGridSingleBoolean* setTitle(const QString& title);
-    QuMcqGridSingleBoolean* setSubtitles(QList<McqGridSubtitle> subtitles);
+    QuMcqGridSingleBoolean* setSubtitles(const QList<McqGridSubtitle>& subtitles);
     QuMcqGridSingleBoolean* setExpand(bool expand);
 protected:
     void setFromFields();

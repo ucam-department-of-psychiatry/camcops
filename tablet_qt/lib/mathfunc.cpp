@@ -18,6 +18,8 @@
 */
 
 #include "mathfunc.h"
+#include "common/textconst.h"
+#include "lib/convert.h"
 #include <QObject>
 
 namespace mathfunc {
@@ -239,16 +241,10 @@ int countWhereNot(const QList<QVariant>& test_values,
 }
 
 
-QString toDp(double x, int dp)
-{
-    return QString("%1").arg(x, 0, 'f', dp);
-}
-
-
 QString percent(double numerator, double denominator, int dp)
 {
     double pct = 100 * numerator / denominator;
-    return toDp(pct, dp) + "%";
+    return convert::toDp(pct, dp) + "%";
 }
 
 
@@ -257,6 +253,19 @@ QString scoreString(int numerator, int denominator, bool show_percent, int dp)
     QString result = QString("<b>%1</b>/%2").arg(numerator).arg(denominator);
     if (show_percent) {
         result += " (" + percent(numerator, denominator, dp) + ")";
+    }
+    return result;
+}
+
+
+QString scoreStringVariant(const QVariant& numerator, int denominator,
+                           bool show_percent, int dp)
+{
+    QString result = QString("<b>%1</b>/%2")
+            .arg(convert::prettyValue(numerator))
+            .arg(denominator);
+    if (show_percent) {
+        result += " (" + percent(numerator.toDouble(), denominator, dp) + ")";
     }
     return result;
 }
@@ -282,7 +291,7 @@ QString scorePhrase(const QString& description, int numerator, int denominator,
 QString totalScorePhrase(int numerator, int denominator,
                          const QString& separator, const QString& suffix)
 {
-    return scorePhrase(QObject::tr("Total score"), numerator, denominator,
+    return scorePhrase(textconst::TOTAL_SCORE, numerator, denominator,
                        separator, suffix);
 }
 

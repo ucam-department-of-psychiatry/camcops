@@ -374,14 +374,28 @@ SecureQByteArray base64ToSecureBytes(const QString& data_b64)
 // Display formatting
 // ============================================================================
 
-QString prettyValue(const QVariant& variant, QVariant::Type type)
+const QString NULL_STR("NULL");
+
+
+QString toDp(double x, int dp)
+{
+    return QString("%1").arg(x, 0, 'f', dp);
+}
+
+
+QString prettyValue(const QVariant& variant, int dp, QVariant::Type type)
 {
     if (variant.isNull()) {
-        return "NULL";
+        return NULL_STR;
     }
     switch (type) {
     case QVariant::ByteArray:
         return "<binary>";
+    case QVariant::Double:
+        if (dp < 0) {
+            return variant.toString();
+        }
+        return toDp(variant.toDouble(), dp);
     case QVariant::String:
         return variant.toString().toHtmlEscaped();
     default:
@@ -390,9 +404,9 @@ QString prettyValue(const QVariant& variant, QVariant::Type type)
 }
 
 
-QString prettyValue(const QVariant& variant)
+QString prettyValue(const QVariant& variant, int dp)
 {
-    return prettyValue(variant, variant.type());
+    return prettyValue(variant, dp, variant.type());
 }
 
 

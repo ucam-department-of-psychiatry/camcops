@@ -278,7 +278,7 @@ bool Questionnaire::morePagesToGo() const
 {
     int lastpage = nPages() - 1;
     for (int i = m_current_pagenum_zero_based; i < lastpage; ++i) {
-        if (m_pages[i]->skip()) {
+        if (m_pages.at(i)->skip()) {
             continue;
         }
         return true;
@@ -406,7 +406,7 @@ void Questionnaire::jumpClicked()
 void Questionnaire::previousClicked()
 {
     for (int i = m_current_pagenum_zero_based - 1; i >= 0; --i) {
-        if (m_pages[i]->skip()) {
+        if (m_pages.at(i)->skip()) {
             continue;
         }
         goToPage(i);
@@ -424,7 +424,7 @@ void Questionnaire::nextClicked()
     }
     int npages = nPages();
     for (int i = m_current_pagenum_zero_based + 1; i < npages; ++i) {
-        if (m_pages[i]->skip()) {
+        if (m_pages.at(i)->skip()) {
             continue;
         }
         goToPage(i);
@@ -433,14 +433,20 @@ void Questionnaire::nextClicked()
 }
 
 
-void Questionnaire::goToPage(int index_zero_based)
+void Questionnaire::refreshCurrentPage()
+{
+    goToPage(m_current_pagenum_zero_based, true);
+}
+
+
+void Questionnaire::goToPage(int index_zero_based, bool allow_refresh)
 {
     if (index_zero_based < 0 || index_zero_based >= nPages()) {
         qWarning() << Q_FUNC_INFO
                    << "Invalid index_zero_based:" << index_zero_based;
         return;
     }
-    if (index_zero_based == m_current_pagenum_zero_based) {
+    if (index_zero_based == m_current_pagenum_zero_based && !allow_refresh) {
         qDebug() << "Page" << index_zero_based <<
                     "(zero-based index) already selected";
         return;

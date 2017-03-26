@@ -17,14 +17,15 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "diagnosisicd9cmitem.h"
 
-#include <QList>
-#include <QMap>
-#include <QString>
-#include <QVariant>
+const QString DIAGNOSIS_ICD9CM_ITEM_TABLENAME("diagnosis_icd9cm_item");
+const QString DiagnosisIcd9CMItem::FK_NAME("diagnosis_icd9cm_id");  // FK to diagnosis_icd9cm.id
 
-using ArgList = QList<QVariant>;
-using OrderBy = QList<QPair<QString, bool>>;  // string is fieldname, bool is "ascending?"
-using UpdateValues = QMap<QString, QVariant>;
-using WhereConditions = QMap<QString, QVariant>;
+
+DiagnosisIcd9CMItem::DiagnosisIcd9CMItem(CamcopsApp& app,
+                                         const QSqlDatabase& db, int load_pk) :
+    DiagnosisItemBase(app, db,
+                      DIAGNOSIS_ICD9CM_ITEM_TABLENAME, FK_NAME, load_pk)
+{
+}

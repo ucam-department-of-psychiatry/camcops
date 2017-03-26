@@ -53,6 +53,7 @@ SqlArgs updateColumns(const UpdateValues& updatevalues, const QString& table);
 // Queries
 
 void addWhereClause(const WhereConditions& where, SqlArgs& sqlargs_altered);
+void addOrderByClause(const OrderBy& order_by, SqlArgs& sqlargs_altered);
 void addArgs(QSqlQuery& query, const ArgList& args);
 bool execQuery(QSqlQuery& query, const QString& sql,
                 const ArgList& args);

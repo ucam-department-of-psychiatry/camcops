@@ -1,0 +1,102 @@
+/*
+    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+
+    This file is part of CamCOPS.
+
+    CamCOPS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    CamCOPS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#include "diagnosisicd9cm.h"
+#include "db/ancillaryfunc.h"
+#include "diagnosis/icd9cm.h"
+#include "questionnairelib/qudiagnosticcode.h"
+#include "questionnairelib/questionnaire.h"
+#include "questionnairelib/qumcq.h"
+#include "questionnairelib/qutext.h"
+#include "tasks/diagnosisicd9cmitem.h"
+#include "tasklib/taskfactory.h"
+
+const QString DIAGNOSIS_ICD9CM_TABLENAME("diagnosis_icd9cm");
+
+
+void initializeDiagnosisIcd9CM(TaskFactory& factory)
+{
+    static TaskRegistrar<DiagnosisIcd9CM> registered(factory);
+}
+
+
+DiagnosisIcd9CM::DiagnosisIcd9CM(CamcopsApp& app, const QSqlDatabase& db,
+                                 int load_pk) :
+    DiagnosisTaskBase(app, db, DIAGNOSIS_ICD9CM_TABLENAME, load_pk)
+{
+}
+
+
+// ============================================================================
+// Class info
+// ============================================================================
+
+QString DiagnosisIcd9CM::shortname() const
+{
+    return "Diagnosis_ICD9CM";
+}
+
+
+QString DiagnosisIcd9CM::longname() const
+{
+    return tr("Diagnostic coding (ICD-9-CM)");
+}
+
+
+QString DiagnosisIcd9CM::menusubtitle() const
+{
+    return tr("Diagnostic codes, using ICD-9-CM/DSM-IV-TR codes.");
+}
+
+
+// ============================================================================
+// Ancillary management
+// ============================================================================
+
+void DiagnosisIcd9CM::loadAllAncillary(int pk)
+{
+    OrderBy order_by{{DiagnosisIcd9CMItem::SEQNUM, true}};
+    ancillaryfunc::loadAncillary<DiagnosisIcd9CMItem, DiagnosisItemBasePtr>(
+                m_items, m_app, m_db,
+                DiagnosisIcd9CMItem::FK_NAME, order_by, pk);
+}
+
+
+QList<DatabaseObjectPtr> DiagnosisIcd9CM::getAncillarySpecimens() const
+{
+    return QList<DatabaseObjectPtr>{
+        DatabaseObjectPtr(new DiagnosisIcd9CMItem(m_app, m_db)),
+    };
+}
+
+
+// ============================================================================
+// DiagnosisTaskBase extras
+// ============================================================================
+
+DiagnosticCodeSetPtr DiagnosisIcd9CM::makeCodeset() const
+{
+    return DiagnosticCodeSetPtr(new Icd9cm(m_app));
+}
+
+
+DiagnosisItemBasePtr DiagnosisIcd9CM::makeItem() const
+{
+    return DiagnosisItemBasePtr(new DiagnosisIcd9CMItem(m_app, m_db));
+}

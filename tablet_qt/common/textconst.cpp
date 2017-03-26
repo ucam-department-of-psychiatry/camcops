@@ -30,35 +30,44 @@ namespace textconst {
 // Common text
 // ============================================================================
 
-TR(NOT_SPECIFIED, "<not specified>");
+TR(ADD, "Add");
 
-TR(SEVERE, "Severe");
-TR(MODERATELY_SEVERE, "Moderately severe");
-TR(MODERATE, "Moderate");
-TR(MILD, "Mild");
-TR(NONE, "None");
-
-TR(EXAMINER_COMMENTS_PROMPT, "Optional — Examiner’s comments (e.g. "
-                             "difficulties the subject had with the task):");
-TR(EXAMINER_COMMENTS, "Examiner’s comments");
 TR(CLINICIAN_COMMENTS, "Clinician’s comments");
-TR(COMMENTS, "Comments");
-
-TR(NO_SUMMARY_SEE_FACSIMILE, "No summary available; see the facsimile instead");
-TR(SEE_FACSIMILE_FOR_MORE_DETAIL, "See facsimile for more detail.");
-TR(THANK_YOU, "Thank you!");
-
-TR(CLINICIAN_SPECIALTY, "Clinician’s specialty");
-TR(CLINICIAN_NAME, "Clinician’s name");
-TR(CLINICIAN_PROFESSIONAL_REGISTRATION, "Clinician’s professional registration");
-TR(CLINICIAN_POST, "Clinician’s post");
-TR(CLINICIAN_SERVICE, "Clinician’s service");
 TR(CLINICIAN_CONTACT_DETAILS, "Clinician’s contact details");
 TR(CLINICIAN_DETAILS, "Clinician’s details");
+TR(CLINICIAN_NAME, "Clinician’s name");
+TR(CLINICIAN_POST, "Clinician’s post");
+TR(CLINICIAN_PROFESSIONAL_REGISTRATION, "Clinician’s professional registration");
+TR(CLINICIAN_SERVICE, "Clinician’s service");
+TR(CLINICIAN_SPECIALTY, "Clinician’s specialty");
+TR(COMMENTS, "Comments");
 
+TR(DELETE, "Delete");
+TR(DIAGNOSIS, "Diagnosis");
+
+TR(EXAMINER_COMMENTS, "Examiner’s comments");
+TR(EXAMINER_COMMENTS_PROMPT, "Optional — Examiner’s comments (e.g. "
+                             "difficulties the subject had with the task):");
+
+TR(MILD, "Mild");
+TR(MODERATELY_SEVERE, "Moderately severe");
+TR(MODERATE, "Moderate");
+TR(MOVE_DOWN, "Move down");
+TR(MOVE_UP, "Move up");
+
+TR(NONE, "None");
+TR(NO_SUMMARY_SEE_FACSIMILE, "No summary available; see the facsimile instead");
+TR(NOT_APPLICABLE, "Not applicable");
+TR(NOT_SPECIFIED, "<not specified>");
+
+TR(PAGE, "page");
 TR(PATIENT, "Patient");
 
-TR(NOT_APPLICABLE, "Not applicable");
+TR(SEE_FACSIMILE_FOR_MORE_DETAIL, "See facsimile for more detail.");
+TR(SEVERE, "Severe");
+
+TR(THANK_YOU, "Thank you!");
+TR(TOTAL_SCORE, "Total score");
 
 
 // ============================================================================

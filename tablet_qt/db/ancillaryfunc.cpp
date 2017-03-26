@@ -17,14 +17,4 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
-#include <QList>
-#include <QMap>
-#include <QString>
-#include <QVariant>
-
-using ArgList = QList<QVariant>;
-using OrderBy = QList<QPair<QString, bool>>;  // string is fieldname, bool is "ascending?"
-using UpdateValues = QMap<QString, QVariant>;
-using WhereConditions = QMap<QString, QVariant>;
+#include "ancillaryfunc.h"

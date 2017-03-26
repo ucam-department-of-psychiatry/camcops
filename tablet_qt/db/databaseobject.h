@@ -38,7 +38,7 @@ class DatabaseObject : public QObject
     // modification timestamp field, extensible to add other fields.
     Q_OBJECT  // so our derived classes can be too
 public:
-    DatabaseObject(CamcopsApp& m_app,
+    DatabaseObject(CamcopsApp& app,
                    const QSqlDatabase& db,
                    const QString& tablename,
                    const QString& pk_fieldname = dbconst::PK_FIELDNAME,
@@ -114,7 +114,8 @@ public:
     virtual bool load(int pk);
     virtual bool load(const QString& fieldname, const QVariant& where_value);
     virtual bool load(const WhereConditions& where);
-    virtual SqlArgs fetchQuerySql(const WhereConditions& where = WhereConditions());
+    virtual SqlArgs fetchQuerySql(const WhereConditions& where = WhereConditions(),
+                                  const OrderBy& order_by = OrderBy());
     virtual void setFromQuery(const QSqlQuery& query,
                               bool order_matches_fetchquery = false);
     virtual bool save();
@@ -163,6 +164,18 @@ public:
     // For making BLOBs share the same database:
     const QSqlDatabase& database() const;
 
+    // ========================================================================
+    // Internals: ancillary management
+    // ========================================================================
+protected:
+    void loadAllAncillary();
+    virtual void loadAllAncillary(int pk);
+    virtual QList<DatabaseObjectPtr> getAllAncillary() const;
+    virtual QList<DatabaseObjectPtr> getAncillarySpecimens() const;
+
+    // ========================================================================
+    // Internals: saving, etc.
+    // ========================================================================
 protected:
     bool saveInsert();
     bool saveUpdate();

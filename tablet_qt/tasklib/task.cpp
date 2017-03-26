@@ -36,6 +36,7 @@
 #include "questionnairelib/quheading.h"
 #include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qupage.h"
+#include "questionnairelib/quspacer.h"
 
 const QString Task::PATIENT_FK_FIELDNAME("patient_id");
 const QString Task::FIRSTEXIT_IS_FINISH_FIELDNAME("firstexit_is_finish");
@@ -256,15 +257,6 @@ int Task::countForPatient(int patient_id) const
     WhereConditions where;
     where[PATIENT_FK_FIELDNAME] = patient_id;
     return count(where);
-}
-
-
-void Task::deleteFromDatabase()
-{
-    // Delete any ancillary objects (which should in turn look after themselves)
-    // ***
-    // Delete ourself
-    DatabaseObject::deleteFromDatabase();
 }
 
 
@@ -523,8 +515,13 @@ QuPagePtr Task::getRespondentDetailsPage(bool second_person)
 QuPagePtr Task::getClinicianAndRespondentDetailsPage(bool second_person)
 {
     return QuPagePtr(
-        (new QuPage{getClinicianQuestionnaireBlockRawPointer(),
-                    getRespondentQuestionnaireBlockRawPointer(second_person)})
+        (new QuPage{
+            getClinicianQuestionnaireBlockRawPointer(),
+            questionnairefunc::defaultGridRawPointer({
+                {"", new QuSpacer()},
+            }, uiconst::DEFAULT_COLSPAN_Q, uiconst::DEFAULT_COLSPAN_A),
+            getRespondentQuestionnaireBlockRawPointer(second_person)
+        })
             ->setTitle(tr("Clinician’s and respondent’s details"))
             ->setType(second_person ? QuPage::PageType::ClinicianWithPatient
                                     : QuPage::PageType::Clinician)

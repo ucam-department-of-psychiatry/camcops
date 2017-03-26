@@ -88,9 +88,9 @@ QPointer<QWidget> QuCountdown::makeWidget(Questionnaire* questionnaire)
     layout->addWidget(m_label);
 
     if (read_only) {
-        m_start_button->setDisabled(true);
-        m_stop_button->setDisabled(true);
-        m_reset_button->setDisabled(true);
+        m_start_button->setEnabled(false);
+        m_stop_button->setEnabled(false);
+        m_reset_button->setEnabled(false);
     } else {
         connect(m_start_button, &QPushButton::clicked,
                 this, &QuCountdown::start);

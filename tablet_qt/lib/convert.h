@@ -75,8 +75,9 @@ SecureQByteArray base64ToSecureBytes(const QString& data_b64);
 // Display formatting
 // ============================================================================
 
-QString prettyValue(const QVariant& variant, QVariant::Type type);
-QString prettyValue(const QVariant& variant);
+QString toDp(double x, int dp);
+QString prettyValue(const QVariant& variant, int dp, QVariant::Type type);
+QString prettyValue(const QVariant& variant, int dp = -1);
 QString prettySize(double num, bool space = true, bool binary = false,
                    bool longform = false, const QString& suffix = "B");
 QString prettyPointer(const void* pointer);

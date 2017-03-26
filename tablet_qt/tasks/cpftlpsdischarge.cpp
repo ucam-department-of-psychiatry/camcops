@@ -319,7 +319,7 @@ OpenableWidget* CPFTLPSDischarge::editor(bool read_only)
         "Multivisceral",
     });
     NameValueOptions yesno_options = CommonOptions::noYesBoolean();
-    QSharedPointer<DiagnosticCodeSet> icd10(new Icd10(m_app));
+    DiagnosticCodeSetPtr icd10(new Icd10(m_app));
 
     auto boldtext = [this](const QString& xstringname) -> QuElement* {
         return (new QuText(xstring(xstringname)))->setBold();

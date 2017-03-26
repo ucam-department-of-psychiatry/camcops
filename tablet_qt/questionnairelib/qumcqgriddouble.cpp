@@ -27,7 +27,7 @@
 
 
 QuMcqGridDouble::QuMcqGridDouble(
-        QList<QuestionWithTwoFields> questions_with_fields,
+        const QList<QuestionWithTwoFields>& questions_with_fields,
         const NameValueOptions& options1,
         const NameValueOptions& options2) :
     m_questions_with_fields(questions_with_fields),
@@ -65,8 +65,8 @@ QuMcqGridDouble::~QuMcqGridDouble()
 
 
 QuMcqGridDouble* QuMcqGridDouble::setWidth(int question_width,
-                                           QList<int> option1_widths,
-                                           QList<int> option2_widths)
+                                           const QList<int>& option1_widths,
+                                           const QList<int>& option2_widths)
 {
     if (option1_widths.size() != m_options1.size()) {
         qWarning() << Q_FUNC_INFO << "Bad option1_widths; command ignored";
@@ -90,7 +90,8 @@ QuMcqGridDouble* QuMcqGridDouble::setTitle(const QString &title)
 }
 
 
-QuMcqGridDouble* QuMcqGridDouble::setSubtitles(QList<McqGridSubtitle> subtitles)
+QuMcqGridDouble* QuMcqGridDouble::setSubtitles(
+        const QList<McqGridSubtitle>& subtitles)
 {
     m_subtitles = subtitles;
     return this;

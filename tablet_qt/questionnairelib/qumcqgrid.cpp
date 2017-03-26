@@ -26,7 +26,7 @@
 #include "widgets/labelwordwrapwide.h"
 
 
-QuMcqGrid::QuMcqGrid(QList<QuestionWithOneField> question_field_pairs,
+QuMcqGrid::QuMcqGrid(const QList<QuestionWithOneField>& question_field_pairs,
                      const NameValueOptions& options) :
     m_question_field_pairs(question_field_pairs),
     m_options(options),
@@ -57,7 +57,8 @@ QuMcqGrid::~QuMcqGrid()
 }
 
 
-QuMcqGrid* QuMcqGrid::setWidth(int question_width, QList<int> option_widths)
+QuMcqGrid* QuMcqGrid::setWidth(int question_width,
+                               const QList<int>& option_widths)
 {
     if (option_widths.size() != m_options.size()) {
         qWarning() << Q_FUNC_INFO << "Bad option_widths; command ignored";
@@ -76,7 +77,7 @@ QuMcqGrid* QuMcqGrid::setTitle(const QString &title)
 }
 
 
-QuMcqGrid* QuMcqGrid::setSubtitles(QList<McqGridSubtitle> subtitles)
+QuMcqGrid* QuMcqGrid::setSubtitles(const QList<McqGridSubtitle>& subtitles)
 {
     m_subtitles = subtitles;
     return this;

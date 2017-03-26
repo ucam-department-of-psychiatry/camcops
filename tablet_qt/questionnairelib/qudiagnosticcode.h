@@ -37,7 +37,7 @@ class QuDiagnosticCode : public QuElement
 
     Q_OBJECT
 public:
-    QuDiagnosticCode(QSharedPointer<DiagnosticCodeSet> codeset,
+    QuDiagnosticCode(DiagnosticCodeSetPtr codeset,
                      FieldRefPtr fieldref_code,
                      FieldRefPtr fieldref_description);
     QuDiagnosticCode* setOfferNullButton(bool offer_null_button);
@@ -52,7 +52,7 @@ protected slots:
                                    const QString& description);
     virtual void fieldValueChanged(const FieldRef* fieldref_code);
 protected:
-    QSharedPointer<DiagnosticCodeSet> m_codeset;
+    DiagnosticCodeSetPtr m_codeset;
     FieldRefPtr m_fieldref_code;
     FieldRefPtr m_fieldref_description;
     bool m_offer_null_button;

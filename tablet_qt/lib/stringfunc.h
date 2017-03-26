@@ -24,6 +24,12 @@
 namespace stringfunc {
 
 // ============================================================================
+// Basic string formatting
+// ============================================================================
+
+QString strnum(const QString& prefix, int num, const QString& suffix = "");
+
+// ============================================================================
 // Make sequences of strings
 // ============================================================================
 
@@ -40,12 +46,6 @@ QStringList strseq(const QStringList& prefixes, int first, int last,
                    const QStringList& suffixes);
 
 // ============================================================================
-// Other string formatting
-// ============================================================================
-
-QString strnum(const QString& prefix, int num);
-
-// ============================================================================
 // HTML processing
 // ============================================================================
 
@@ -54,6 +54,10 @@ QString bold(int x);
 QString joinHtmlLines(const QStringList& lines);
 QString& toHtmlLinebreaks(QString& str,
                           bool convert_embedded_literals = true);
+QString standardResult(const QString& name,
+                       const QString& value,
+                       const QString& separator = ": ",
+                       const QString& suffix = ".");
 
 // ============================================================================
 // Other string processing

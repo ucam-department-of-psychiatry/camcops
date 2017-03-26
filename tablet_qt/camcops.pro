@@ -296,7 +296,17 @@ SOURCES += main.cpp \
     tasks/cpftlpsdischarge.cpp \
     tasks/cpftlpsreferral.cpp \
     tasks/cpftlpsresetresponseclock.cpp \
-    tasks/dad.cpp
+    tasks/dad.cpp \
+    tasks/dast.cpp \
+    tasks/demqol.cpp \
+    tasks/demqolproxy.cpp \
+    tasks/diagnosisicd9cm.cpp \
+    tasks/diagnosistaskbase.cpp \
+    tasks/diagnosisitembase.cpp \
+    db/ancillaryfunc.cpp \
+    tasks/diagnosisicd9cmitem.cpp \
+    tasks/diagnosisicd10.cpp \
+    tasks/diagnosisicd10item.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -520,7 +530,17 @@ HEADERS  += \
     tasks/cpftlpsdischarge.h \
     tasks/cpftlpsreferral.h \
     tasks/cpftlpsresetresponseclock.h \
-    tasks/dad.h
+    tasks/dad.h \
+    tasks/dast.h \
+    tasks/demqol.h \
+    tasks/demqolproxy.h \
+    tasks/diagnosisicd9cm.h \
+    tasks/diagnosistaskbase.h \
+    tasks/diagnosisitembase.h \
+    db/ancillaryfunc.h \
+    tasks/diagnosisicd9cmitem.h \
+    tasks/diagnosisicd10.h \
+    tasks/diagnosisicd10item.h
 
 
 DISTFILES += \
