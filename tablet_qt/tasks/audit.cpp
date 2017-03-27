@@ -118,8 +118,8 @@ QStringList Audit::detail() const
     using uifunc::yesNo;
     bool exceeds_standard_cutoff = totalScore() >= STANDARD_CUTOFF;
     QString spacer = " ";
-    QStringList lines = fieldSummaries("q", "_s", spacer,
-                                       QPREFIX, FIRST_Q, N_QUESTIONS);
+    QStringList lines = completenessInfo();
+    lines += fieldSummaries("q", "_s", spacer, QPREFIX, FIRST_Q, N_QUESTIONS);
     lines.append("");
     lines += summary();
     lines.append("");

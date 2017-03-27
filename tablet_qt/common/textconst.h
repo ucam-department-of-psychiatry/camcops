@@ -62,6 +62,7 @@ extern const QString CLINICIAN_SPECIALTY;
 extern const QString CLINICIANS_COMMENTS;
 extern const QString COMMENTS;
 
+extern const QString DATA_COLLECTION_ONLY;
 extern const QString DELETE;
 extern const QString DIAGNOSIS;
 
@@ -87,6 +88,7 @@ extern const QString PATIENT;
 
 extern const QString RATING;
 
+extern const QString SCORE;
 extern const QString SEE_FACSIMILE_FOR_MORE_DETAIL;
 extern const QString SERVICE;
 extern const QString SEVERE;

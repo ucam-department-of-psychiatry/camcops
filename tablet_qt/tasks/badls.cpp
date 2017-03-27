@@ -103,11 +103,10 @@ QStringList Badls::summary() const
 
 QStringList Badls::detail() const
 {
-    QStringList lines = fieldSummaries("q", "", ": ",
-                                       QPREFIX, FIRST_Q, N_QUESTIONS);
+    QStringList lines = completenessInfo();
+    lines += fieldSummaries("q", "", ": ", QPREFIX, FIRST_Q, N_QUESTIONS);
     lines.append("");
     lines += summary();
-    lines += completenessInfo();
     return lines;
 }
 

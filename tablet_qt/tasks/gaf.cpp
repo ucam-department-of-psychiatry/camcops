@@ -1,0 +1,113 @@
+/*
+    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+
+    This file is part of CamCOPS.
+
+    CamCOPS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    CamCOPS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#include "gaf.h"
+#include "common/textconst.h"
+#include "lib/stringfunc.h"
+#include "questionnairelib/questionnaire.h"
+#include "questionnairelib/qulineeditinteger.h"
+#include "questionnairelib/qutext.h"
+#include "tasklib/taskfactory.h"
+using stringfunc::standardResult;
+
+const int FIRST_Q = 1;
+const int N_QUESTIONS = 24;
+const int MAX_SCORE = 168;
+const QString QPREFIX("q");
+
+const QString GAF_TABLENAME("gaf");
+
+const QString SCORE("score");
+
+
+void initializeGaf(TaskFactory& factory)
+{
+    static TaskRegistrar<Gaf> registered(factory);
+}
+
+
+Gaf::Gaf(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+    Task(app, db, GAF_TABLENAME, false, true, false)  // ... anon, clin, resp
+{
+    addField(SCORE, QVariant::String);
+
+    load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
+}
+
+
+// ============================================================================
+// Class info
+// ============================================================================
+
+QString Gaf::shortname() const
+{
+    return "GAF";
+}
+
+
+QString Gaf::longname() const
+{
+    return tr("Global Assessment of Functioning (¶)");
+}
+
+
+QString Gaf::menusubtitle() const
+{
+    return tr("Single scale from 1–100. Data collection tool ONLY.");
+}
+
+
+// ============================================================================
+// Instance info
+// ============================================================================
+
+bool Gaf::isComplete() const
+{
+    QVariant score = valueInt(SCORE);
+    return score >= 1 && score <= 100;
+}
+
+
+QStringList Gaf::summary() const
+{
+    return QStringList{standardResult(appstring("gaf_score"),
+                                      prettyValue(SCORE))};
+}
+
+
+QStringList Gaf::detail() const
+{
+    return completenessInfo() + summary();
+}
+
+
+OpenableWidget* Gaf::editor(bool read_only)
+{
+    QuPagePtr page((new QuPage{
+        getClinicianQuestionnaireBlockRawPointer(),
+        (new QuText(textconst::DATA_COLLECTION_ONLY))->setBold(),
+        new QuText(appstring("gaf_score") + ":"),
+        new QuLineEditInteger(fieldRef(SCORE), 0, 100),
+    })->setTitle(longname()));
+
+    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    questionnaire->setType(QuPage::PageType::Clinician);
+    questionnaire->setReadOnly(read_only);
+    return questionnaire;
+}

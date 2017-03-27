@@ -113,8 +113,9 @@ QStringList Ciwa::detail() const
     int total_score = totalScore();
     QString severity = severityDescription(total_score);
     QString sep(": ");
-    QStringList lines = fieldSummaries("q", "_s", " ",
-                                       QPREFIX, FIRST_Q, N_SCORED_QUESTIONS);
+    QStringList lines = completenessInfo();
+    lines += fieldSummaries("q", "_s", " ",
+                            QPREFIX, FIRST_Q, N_SCORED_QUESTIONS);
     lines.append("");
     lines.append(fieldSummary(T, xstring("t"), sep));
     lines.append(fieldSummary(HR, xstring("hr"), sep));

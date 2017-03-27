@@ -101,8 +101,8 @@ QStringList Cage::summary() const
 QStringList Cage::detail() const
 {
     int total = totalScore();
-    QStringList lines = fieldSummaries("q", "_s", " ",
-                                       QPREFIX, FIRST_Q, N_QUESTIONS);
+    QStringList lines = completenessInfo();
+    lines += fieldSummaries("q", "_s", " ", QPREFIX, FIRST_Q, N_QUESTIONS);
     lines.append("");
     lines += summary();
     lines.append("");

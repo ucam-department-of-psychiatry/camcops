@@ -46,9 +46,7 @@
 
     <string name="bdi_which_scale">Which scale are you collecting data from?</string>
 
-    <string name="data_collection_only">Reproduction of this task/scale is not permitted. This is a data collection tool only; use it only in conjunction with a licensed copy of the original task.</string>
-
-    <string name="enter_the_answers">Enter the answers:</string>
+    <string name="gaf_score">GAF score (1–100 or 0 for insufficient information)</string>
 
   </task>
 </resources>

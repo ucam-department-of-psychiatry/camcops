@@ -59,6 +59,9 @@
 #include "tasks/fft.h"
 #include "tasks/frs.h"
 
+#include "tasks/gad7.h"
+#include "tasks/gaf.h"
+#include "tasks/gds15.h"
 #include "tasks/gmcpq.h"
 
 #include "tasks/phq9.h"
@@ -110,9 +113,9 @@ void InitTasks(TaskFactory& factory)
     initializeFft(factory);
     initializeFrs(factory);
 
-    // *** initializeGad7(factory);
-    // *** initializeGaf(factory);
-    // *** initializeGds15(factory);
+    initializeGad7(factory);
+    initializeGaf(factory);
+    initializeGds15(factory);
     initializeGmcPq(factory);
 
     // *** initializeHads(factory);

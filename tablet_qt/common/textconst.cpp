@@ -43,9 +43,14 @@ TR(CLINICIAN_SPECIALTY, "Clinician’s specialty");
 TR(CLINICIANS_COMMENTS, "Clinician’s comments");
 TR(COMMENTS, "Comments");
 
+TR(DATA_COLLECTION_ONLY,
+   "Reproduction of this task/scale is not permitted. This is a data "
+   "collection tool only; use it only in conjunction with a licensed copy of "
+   "the original task.");
 TR(DELETE, "Delete");
 TR(DIAGNOSIS, "Diagnosis");
 
+TR(ENTER_THE_ANSWERS, "Enter the answers:");
 TR(EXAMINER_COMMENTS, "Examiner’s comments");
 TR(EXAMINER_COMMENTS_PROMPT, "Optional — Examiner’s comments (e.g. "
                              "difficulties the subject had with the task):");
@@ -69,6 +74,7 @@ TR(PATIENT, "Patient");
 
 TR(RATING, "Rating");
 
+TR(SCORE, "Score");
 TR(SEE_FACSIMILE_FOR_MORE_DETAIL, "See facsimile for more detail.");
 TR(SERVICE, "Service");
 TR(SEVERE, "Severe");

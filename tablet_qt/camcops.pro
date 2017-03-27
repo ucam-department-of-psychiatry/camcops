@@ -313,7 +313,10 @@ SOURCES += main.cpp \
     tasks/fast.cpp \
     qobjects/comparers.cpp \
     tasks/fft.cpp \
-    tasks/frs.cpp
+    tasks/frs.cpp \
+    tasks/gad7.cpp \
+    tasks/gaf.cpp \
+    tasks/gds15.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -554,7 +557,10 @@ HEADERS  += \
     tasks/fast.h \
     qobjects/comparers.h \
     tasks/fft.h \
-    tasks/frs.h
+    tasks/frs.h \
+    tasks/gad7.h \
+    tasks/gaf.h \
+    tasks/gds15.h
 
 
 DISTFILES += \

@@ -97,8 +97,9 @@ QStringList Aims::summary() const
 QStringList Aims::detail() const
 {
     QString spacer = " ";
-    QStringList lines = fieldSummaries("q", "_s", spacer,
-                                       QPREFIX, FIRST_Q, LAST_SCORED_Q);
+    QStringList lines = completenessInfo();
+    lines += fieldSummaries("q", "_s", spacer,
+                            QPREFIX, FIRST_Q, LAST_SCORED_Q);
     lines += fieldSummariesYesNo("q", "_s", spacer,
                                  QPREFIX, LAST_SCORED_Q + 1, N_QUESTIONS);
     lines += summary();

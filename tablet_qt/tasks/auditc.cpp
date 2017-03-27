@@ -102,8 +102,8 @@ QStringList AuditC::summary() const
 
 QStringList AuditC::detail() const
 {
-    QStringList lines = fieldSummaries("q", "_s", " ",
-                                       QPREFIX, FIRST_Q, N_QUESTIONS);
+    QStringList lines = completenessInfo();
+    lines += fieldSummaries("q", "_s", " ", QPREFIX, FIRST_Q, N_QUESTIONS);
     lines.append("");
     lines += summary();
     return lines;

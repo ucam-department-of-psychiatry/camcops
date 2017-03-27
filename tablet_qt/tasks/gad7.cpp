@@ -17,38 +17,40 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "bprse.h"
+#include "gad7.h"
+#include "common/textconst.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
-#include "questionnairelib/qumcq.h"
+#include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 using mathfunc::noneNull;
 using mathfunc::scoreString;
 using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;
+using stringfunc::standardResult;
 using stringfunc::strnum;
 using stringfunc::strseq;
 
 const int FIRST_Q = 1;
-const int N_QUESTIONS = 24;
-const int MAX_SCORE = 168;
+const int N_QUESTIONS = 7;
+const int MAX_SCORE = 21;
 const QString QPREFIX("q");
 
-const QString BPRSE_TABLENAME("bprse");
+const QString GAD7_TABLENAME("gad7");
 
 
-void initializeBprsE(TaskFactory& factory)
+void initializeGad7(TaskFactory& factory)
 {
-    static TaskRegistrar<BprsE> registered(factory);
+    static TaskRegistrar<Gad7> registered(factory);
 }
 
 
-BprsE::BprsE(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
-    Task(app, db, BPRSE_TABLENAME, false, true, false)  // ... anon, clin, resp
+Gad7::Gad7(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+    Task(app, db, GAD7_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
 
@@ -60,22 +62,21 @@ BprsE::BprsE(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
 // Class info
 // ============================================================================
 
-QString BprsE::shortname() const
+QString Gad7::shortname() const
 {
-    return "BPRS-E";
+    return "GAD-7";
 }
 
 
-QString BprsE::longname() const
+QString Gad7::longname() const
 {
-    return tr("Brief Psychiatric Rating Scale, Expanded");
+    return tr("Generalized Anxiety Disorder Assessment");
 }
 
 
-QString BprsE::menusubtitle() const
+QString Gad7::menusubtitle() const
 {
-    return tr("24-item clinician-administered rating of multiple aspects of "
-              "psychopathology.");
+    return tr("7-item self-report scale.");
 }
 
 
@@ -83,57 +84,58 @@ QString BprsE::menusubtitle() const
 // Instance info
 // ============================================================================
 
-bool BprsE::isComplete() const
+bool Gad7::isComplete() const
 {
     return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
 
 
-QStringList BprsE::summary() const
+QStringList Gad7::summary() const
 {
     return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
 }
 
 
-QStringList BprsE::detail() const
+QStringList Gad7::detail() const
 {
+    int total = totalScore();
+    QString severity =
+            total >= 15 ? textconst::SEVERE
+                        : (total >= 10 ? textconst::MODERATE
+                                       : (total >= 5 ? textconst::MILD
+                                                     : textconst::NONE));
+
     QStringList lines = completenessInfo();
     lines += fieldSummaries("q", "_s", " ", QPREFIX, FIRST_Q, N_QUESTIONS);
     lines.append("");
     lines += summary();
+    lines.append("");
+    lines.append(standardResult(xstring("anxiety_severity"), severity));
     return lines;
 }
 
 
-OpenableWidget* BprsE::editor(bool read_only)
+OpenableWidget* Gad7::editor(bool read_only)
 {
-    NameValuePair option0(xstring("option0"), 0);
-    NameValuePair option1(xstring("option1"), 1);
-    QList<QuPagePtr> pages;
-
-    auto addpage = [this, &pages, &option0, &option1](int n) -> void {
-        NameValueOptions options{option0, option1};
-        for (int i = 2; i <= 7; ++i) {
-            QString name = xstring(QString("q%1_option%2").arg(n).arg(i));
-            options.addItem(NameValuePair(name, i));
-        }
-        QString pagetitle = xstring(QString("q%1_title").arg(n));
-        QString question = xstring(QString("q%1_question").arg(n));
-        QString fieldname = strnum(QPREFIX, n);
-        QuPagePtr page((new QuPage{
-            new QuText(question),
-            new QuMcq(fieldRef(fieldname), options),
-        })->setTitle(pagetitle));
-        pages.append(page);
+    NameValueOptions options{
+        {xstring("a0"), 0},
+        {xstring("a1"), 1},
+        {xstring("a2"), 2},
+        {xstring("a3"), 3},
     };
-
-    pages.append(getClinicianDetailsPage());
-    for (int n = FIRST_Q; n <= N_QUESTIONS; ++n) {
-        addpage(n);
+    QList<QuestionWithOneField> qfields;
+    for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
+        qfields.append(QuestionWithOneField(fieldRef(strnum(QPREFIX, i)),
+                                            xstring(strnum("q", i))));
     }
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, pages);
-    questionnaire->setType(QuPage::PageType::Clinician);
+    QuPagePtr page((new QuPage{
+        new QuText(xstring("stem")),
+        new QuMcqGrid(qfields, options),
+    })->setTitle(xstring("title")));
+
+    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
@@ -143,7 +145,7 @@ OpenableWidget* BprsE::editor(bool read_only)
 // Task-specific calculations
 // ============================================================================
 
-int BprsE::totalScore() const
+int Gad7::totalScore() const
 {
     return sumInt(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }

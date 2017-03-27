@@ -789,7 +789,6 @@ Tasks
 <string name="t_gaf">Global Assessment of Functioning (GAF) (¶)</string>
 <string name="s_gaf">Single scale from 1–100. Data collection tool ONLY.</string>
 <string name="b_gaf">GAF</string>
-<string name="gaf_score">GAF score (1–100 or 0 for insufficient information):</string>
 
 <string name="t_gds15">Geriatric Depression Scale, 15-item version (GDS-15)</string>
 <string name="s_gds15">15-item self-report scale.</string>

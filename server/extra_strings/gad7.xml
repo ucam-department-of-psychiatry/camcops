@@ -23,7 +23,7 @@
     <string name="q5_s">Q5 (restless):</string>
     <string name="q6_s">Q6 (irritable):</string>
     <string name="q7_s">Q7 (afraid):</string>
-    <string name="anxiety_severity">GAD7 anxiety severity:</string>
+    <string name="anxiety_severity">GAD7 anxiety severity</string>
 
   </task>
 </resources>

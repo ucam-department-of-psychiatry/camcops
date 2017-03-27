@@ -122,8 +122,8 @@ QStringList Phq9::detail() const
     // Scoring: ref PMID 10568646,
     // http://www.phqscreeners.com/instructions/instructions.pdf
     QString spacer = " ";
-    QStringList lines = fieldSummaries("q", "_s", spacer,
-                                       QPREFIX, FIRST_Q, N_QUESTIONS);
+    QStringList lines = completenessInfo();
+    lines += fieldSummaries("q", "_s", spacer, QPREFIX, FIRST_Q, N_QUESTIONS);
     lines.append("");
     lines += summary();
     lines.append("");

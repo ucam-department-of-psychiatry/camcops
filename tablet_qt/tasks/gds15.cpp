@@ -17,13 +17,13 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "bprse.h"
+#include "gds15.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
-#include "questionnairelib/namevaluepair.h"
+#include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnaire.h"
-#include "questionnairelib/qumcq.h"
+#include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 using mathfunc::noneNull;
@@ -34,23 +34,26 @@ using stringfunc::strnum;
 using stringfunc::strseq;
 
 const int FIRST_Q = 1;
-const int N_QUESTIONS = 24;
-const int MAX_SCORE = 168;
+const int N_QUESTIONS = 15;
+const int MAX_SCORE = N_QUESTIONS;
 const QString QPREFIX("q");
 
-const QString BPRSE_TABLENAME("bprse");
+const QString GDS15_TABLENAME("gds15");
+
+const QList<int> SCORE_IF_YES{2, 3, 4, 6, 8, 9, 10, 12, 14, 15};
+const QList<int> SCORE_IF_NO{1, 5, 7, 11, 13};
 
 
-void initializeBprsE(TaskFactory& factory)
+void initializeGds15(TaskFactory& factory)
 {
-    static TaskRegistrar<BprsE> registered(factory);
+    static TaskRegistrar<Gds15> registered(factory);
 }
 
 
-BprsE::BprsE(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
-    Task(app, db, BPRSE_TABLENAME, false, true, false)  // ... anon, clin, resp
+Gds15::Gds15(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+    Task(app, db, GDS15_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::String);  // Y,N
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -60,22 +63,27 @@ BprsE::BprsE(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
 // Class info
 // ============================================================================
 
-QString BprsE::shortname() const
+QString Gds15::shortname() const
 {
-    return "BPRS-E";
+    return "GDS-15";
 }
 
 
-QString BprsE::longname() const
+QString Gds15::longname() const
 {
-    return tr("Brief Psychiatric Rating Scale, Expanded");
+    return tr("Geriatric Depression Scale, 15-item version");
 }
 
 
-QString BprsE::menusubtitle() const
+QString Gds15::menusubtitle() const
 {
-    return tr("24-item clinician-administered rating of multiple aspects of "
-              "psychopathology.");
+    return tr("15-item self-report scale.");
+}
+
+
+QString Gds15::infoFilenameStem() const
+{
+    return "gds";
 }
 
 
@@ -83,56 +91,43 @@ QString BprsE::menusubtitle() const
 // Instance info
 // ============================================================================
 
-bool BprsE::isComplete() const
+bool Gds15::isComplete() const
 {
     return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
 
 
-QStringList BprsE::summary() const
+QStringList Gds15::summary() const
 {
     return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
 }
 
 
-QStringList BprsE::detail() const
+QStringList Gds15::detail() const
 {
     QStringList lines = completenessInfo();
-    lines += fieldSummaries("q", "_s", " ", QPREFIX, FIRST_Q, N_QUESTIONS);
+    lines += fieldSummaries("q", "", " ", QPREFIX, FIRST_Q, N_QUESTIONS);
     lines.append("");
     lines += summary();
     return lines;
 }
 
 
-OpenableWidget* BprsE::editor(bool read_only)
+OpenableWidget* Gds15::editor(bool read_only)
 {
-    NameValuePair option0(xstring("option0"), 0);
-    NameValuePair option1(xstring("option1"), 1);
-    QList<QuPagePtr> pages;
-
-    auto addpage = [this, &pages, &option0, &option1](int n) -> void {
-        NameValueOptions options{option0, option1};
-        for (int i = 2; i <= 7; ++i) {
-            QString name = xstring(QString("q%1_option%2").arg(n).arg(i));
-            options.addItem(NameValuePair(name, i));
-        }
-        QString pagetitle = xstring(QString("q%1_title").arg(n));
-        QString question = xstring(QString("q%1_question").arg(n));
-        QString fieldname = strnum(QPREFIX, n);
-        QuPagePtr page((new QuPage{
-            new QuText(question),
-            new QuMcq(fieldRef(fieldname), options),
-        })->setTitle(pagetitle));
-        pages.append(page);
-    };
-
-    pages.append(getClinicianDetailsPage());
-    for (int n = FIRST_Q; n <= N_QUESTIONS; ++n) {
-        addpage(n);
+    NameValueOptions options = CommonOptions::yesNoChar();
+    QList<QuestionWithOneField> qfields;
+    for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
+        qfields.append(QuestionWithOneField(xstring(strnum("q", i)),
+                                            fieldRef(strnum(QPREFIX, i))));
     }
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, pages);
+    QuPagePtr page((new QuPage{
+        new QuText(xstring("instruction")),
+        new QuMcqGrid(qfields, options),
+    })->setTitle(shortname()));
+
+    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
@@ -143,7 +138,18 @@ OpenableWidget* BprsE::editor(bool read_only)
 // Task-specific calculations
 // ============================================================================
 
-int BprsE::totalScore() const
+int Gds15::totalScore() const
 {
-    return sumInt(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
+    int score = 0;
+    for (auto q : SCORE_IF_YES) {
+        if (valueString(strnum(QPREFIX, q)) == CommonOptions::YES_CHAR) {
+            ++score;
+        }
+    }
+    for (auto q : SCORE_IF_NO) {
+        if (valueString(strnum(QPREFIX, q)) == CommonOptions::NO_CHAR) {
+            ++score;
+        }
+    }
+    return score;
 }

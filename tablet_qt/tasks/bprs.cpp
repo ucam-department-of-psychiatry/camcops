@@ -101,8 +101,8 @@ QStringList Bprs::summary() const
 
 QStringList Bprs::detail() const
 {
-    QStringList lines = fieldSummaries("q", "_s", " ",
-                                       QPREFIX, FIRST_Q, N_QUESTIONS);
+    QStringList lines = completenessInfo();
+    lines += fieldSummaries("q", "_s", " ", QPREFIX, FIRST_Q, N_QUESTIONS);
     lines.append("");
     lines += summary();
     return lines;
