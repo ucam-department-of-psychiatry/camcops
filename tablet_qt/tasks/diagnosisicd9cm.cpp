@@ -65,6 +65,18 @@ QString DiagnosisIcd9CM::menusubtitle() const
 }
 
 
+QString DiagnosisIcd9CM::infoFilenameStem() const
+{
+    return "icd";
+}
+
+
+QString DiagnosisIcd9CM::xstringTaskname() const
+{
+    return Icd9cm::XSTRING_TASKNAME;
+}
+
+
 // ============================================================================
 // Ancillary management
 // ============================================================================

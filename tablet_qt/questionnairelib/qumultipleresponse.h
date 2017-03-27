@@ -47,14 +47,15 @@ public:
     QuMultipleResponse(const QList<QuestionWithOneField>& items);
     QuMultipleResponse(std::initializer_list<QuestionWithOneField> items);
     QuMultipleResponse* addItem(const QuestionWithOneField& item);
-    QuMultipleResponse* setMinimumAnswers(int minimum_answers);
-    QuMultipleResponse* setMaximumAnswers(int maximum_answers);
     QuMultipleResponse* setRandomize(bool randomize);
     QuMultipleResponse* setShowInstruction(bool show_instruction);
     QuMultipleResponse* setInstruction(const QString& instruction);
     QuMultipleResponse* setHorizontal(bool horizontal);
     QuMultipleResponse* setAsTextButton(bool as_text_button);
     QuMultipleResponse* setBold(bool bold);
+public slots:
+    QuMultipleResponse* setMinimumAnswers(int minimum_answers);
+    QuMultipleResponse* setMaximumAnswers(int maximum_answers);
 protected:
     void commonConstructor();
     void setFromFields();

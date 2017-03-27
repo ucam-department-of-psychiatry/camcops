@@ -19,40 +19,47 @@
 
 #pragma once
 #include <QString>
-#include "diagnosistaskbase.h"
+#include "tasklib/task.h"
 
 class CamcopsApp;
 class OpenableWidget;
 class TaskFactory;
 
-void initializeDiagnosisIcd10(TaskFactory& factory);
+void initializeDeakin1HealthReview(TaskFactory& factory);
 
 
-class DiagnosisIcd10 : public DiagnosisTaskBase
+class Deakin1HealthReview : public Task
 {
     Q_OBJECT
 public:
-    DiagnosisIcd10(CamcopsApp& app, const QSqlDatabase& db,
-                   int load_pk = dbconst::NONEXISTENT_PK);
+    Deakin1HealthReview(CamcopsApp& app, const QSqlDatabase& db,
+                        int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString menusubtitle() const override;
-    virtual QString infoFilenameStem() const override;
-    virtual QString xstringTaskname() const override;
-    // ------------------------------------------------------------------------
-    // Ancillary management
-    // ------------------------------------------------------------------------
-    virtual void loadAllAncillary(int pk) override;
-    virtual QList<DatabaseObjectPtr> getAncillarySpecimens() const override;
+    virtual bool isCrippled() const override { return false; }
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
+    virtual bool isComplete() const override;
+    virtual QStringList summary() const override;
+    virtual QStringList detail() const override;
+    virtual OpenableWidget* editor(bool read_only = false) override;
     // ------------------------------------------------------------------------
-    // DiagnosisTaskBase extras
+    // Task-specific calculations
     // ------------------------------------------------------------------------
-    virtual DiagnosticCodeSetPtr makeCodeset() const override;
-    virtual DiagnosisItemBasePtr makeItem() const override;
+    // ------------------------------------------------------------------------
+    // Signal handlers
+    // ------------------------------------------------------------------------
+signals:
+    void setAllergyMinimum(int minimum_answers);
+    void setRecentInfectionsMinimum(int minimum_answers);
+    void setChronicInfectionsMinimum(int minimum_answers);
+    void setImmuneMinimum(int minimum_answers);
+    void setFHImmuneMinimum(int minimum_answers);
+public slots:
+    void updateMandatory();
 };

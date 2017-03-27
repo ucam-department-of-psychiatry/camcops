@@ -48,6 +48,7 @@ class GridLayoutHfw : public QLayout
 
     Q_OBJECT
     using QLayoutStruct = qtlayouthelpers::QQLayoutStruct;
+
     struct GeomInfo {  // RNC
         QVector<QLayoutStruct> m_row_data;
         QVector<QLayoutStruct> m_col_data;
@@ -215,4 +216,7 @@ private:
 
     mutable bool m_dirty;  // RNC: was uint : 1  -- was needRecalc
     int m_reentry_depth;  // RNC
+
+public:
+    friend QDebug operator<<(QDebug debug, const GeomInfo& gi);
 };

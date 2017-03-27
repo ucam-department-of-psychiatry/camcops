@@ -30,6 +30,7 @@
 #include "db/sqlargs.h"
 
 class CamcopsApp;
+class NameValueOptions;
 
 
 class DatabaseObject : public QObject
@@ -102,6 +103,19 @@ public:
                          const QString& altname = "",
                          const QString& separator = " = ",
                          const QString& suffix = "") const;
+    QString fieldSummaryYesNo(const QString& fieldname,
+                              const QString& altname,
+                              const QString& separator = " = ",
+                              const QString& suffix = "") const;
+    QString fieldSummaryYesNoNull(const QString& fieldname,
+                                  const QString& altname,
+                                  const QString& separator = " = ",
+                                  const QString& suffix = "") const;
+    QString fieldSummaryNameValueOptions(const QString& fieldname,
+                                         const NameValueOptions& options,
+                                         const QString& altname,
+                                         const QString& separator = " = ",
+                                         const QString& suffix = "") const;
     QStringList recordSummaryLines(const QString& separator = " = ",
                                    const QString& suffix = "") const;
     QString recordSummaryString(const QString& separator = " = ",

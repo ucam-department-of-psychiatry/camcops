@@ -225,6 +225,9 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
                  std::bind(&WidgetTestMenu::testGridLayoutHfw, this, 2)),
         MenuItem("GridLayoutHfw (example 3: approximating QuMcqGrid)",
                  std::bind(&WidgetTestMenu::testGridLayoutHfw, this, 3)),
+        MenuItem("GridLayoutHfw (example 4: 3 x ImageButton, an example with "
+                 "no height-for-width items)",
+                 std::bind(&WidgetTestMenu::testGridLayoutHfw, this, 4)),
 
         MenuItem("Large-scale widgets").setLabelOnly(),
         MenuItem("MenuItem",
@@ -569,6 +572,14 @@ void WidgetTestMenu::testGridLayoutHfw(int example)
         grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 2, 2);
         grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 2, 3);
         grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 2, 4);
+        break;
+    case 4:
+        // row 0
+        grid->addWidget(new ImageButton(uiconst::CBS_ADD), 0, 0);
+        // row 1
+        grid->addWidget(new ImageButton(uiconst::CBS_ADD), 1, 0);
+        // row 2
+        grid->addWidget(new ImageButton(uiconst::CBS_ADD), 2, 0);
         break;
     }
     debugfunc::debugWidget(widget);

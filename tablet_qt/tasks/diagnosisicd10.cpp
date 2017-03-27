@@ -65,6 +65,18 @@ QString DiagnosisIcd10::menusubtitle() const
 }
 
 
+QString DiagnosisIcd10::infoFilenameStem() const
+{
+    return "icd";
+}
+
+
+QString DiagnosisIcd10::xstringTaskname() const
+{
+    return Icd10::XSTRING_TASKNAME;
+}
+
+
 // ============================================================================
 // Ancillary management
 // ============================================================================

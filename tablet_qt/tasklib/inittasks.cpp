@@ -47,11 +47,19 @@
 
 #include "tasks/dad.h"
 #include "tasks/dast.h"
+#include "tasks/deakin1healthreview.h"
 #include "tasks/demoquestionnaire.h"
 #include "tasks/demqol.h"
 #include "tasks/demqolproxy.h"
 #include "tasks/diagnosisicd9cm.h"
 #include "tasks/diagnosisicd10.h"
+#include "tasks/distressthermometer.h"
+
+#include "tasks/fast.h"
+#include "tasks/fft.h"
+#include "tasks/frs.h"
+
+#include "tasks/gmcpq.h"
 
 #include "tasks/phq9.h"
 
@@ -90,22 +98,22 @@ void InitTasks(TaskFactory& factory)
 
     initializeDad(factory);
     initializeDast(factory);
-    // *** initializeDeakin1HealthReview(factory);
+    initializeDeakin1HealthReview(factory);
     initializeDemoQuestionnaire(factory);
     initializeDemqol(factory);
     initializeDemqolProxy(factory);
     initializeDiagnosisIcd9CM(factory);
     initializeDiagnosisIcd10(factory);
-    // *** initializeDistressThermometer(factory);
+    initializeDistressThermometer(factory);
 
-    // *** initializeFast(factory);
-    // *** initializeFft(factory);
-    // *** initializeFrs(factory);
+    initializeFast(factory);
+    initializeFft(factory);
+    initializeFrs(factory);
 
     // *** initializeGad7(factory);
     // *** initializeGaf(factory);
     // *** initializeGds15(factory);
-    // *** initializeGmcPq(factory);
+    initializeGmcPq(factory);
 
     // *** initializeHads(factory);
     // *** initializeHamA(factory);

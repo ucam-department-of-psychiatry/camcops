@@ -70,6 +70,8 @@ public:
     void shuffle();
     QString name(int index) const;
     QVariant value(int index) const;
+    QString nameFromValue(const QVariant& value) const;
+    QVariant valueFromName(const QString& name) const;
 public:
     static NameValueOptions makeNumbers(int first, int last, int step = 1);
 protected:

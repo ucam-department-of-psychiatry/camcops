@@ -94,14 +94,6 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     dbfunc::openDatabaseOrDie(m_sysdb, dbfunc::SYSTEM_DATABASE_FILENAME);
 
     // ------------------------------------------------------------------------
-    // Register tasks
-    // ------------------------------------------------------------------------
-    m_p_task_factory = TaskFactoryPtr(new TaskFactory(*this));
-    InitTasks(*m_p_task_factory);  // ensures all tasks are registered
-    m_p_task_factory->finishRegistration();
-    qInfo() << "Registered tasks:" << m_p_task_factory->tablenames();
-
-    // ------------------------------------------------------------------------
     // Make storedvar table
     // ------------------------------------------------------------------------
 
@@ -223,6 +215,14 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     if (new_version != old_version) {
         setVar(varconst::CAMCOPS_TABLET_VERSION_AS_STRING, new_version.toString());
     }
+
+    // ------------------------------------------------------------------------
+    // Register tasks (AFTER storedvar creation, so tasks can read them)
+    // ------------------------------------------------------------------------
+    m_p_task_factory = TaskFactoryPtr(new TaskFactory(*this));
+    InitTasks(*m_p_task_factory);  // ensures all tasks are registered
+    m_p_task_factory->finishRegistration();
+    qInfo() << "Registered tasks:" << m_p_task_factory->tablenames();
 
     // ------------------------------------------------------------------------
     // Make other tables

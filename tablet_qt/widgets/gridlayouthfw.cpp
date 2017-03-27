@@ -679,7 +679,7 @@ void GridLayoutHfw::addHfwData(GeomInfo& gi, QQGridBox* box, int width) const
 void GridLayoutHfw::distribute(const QRect& layout_rect)
 {
 #ifdef DEBUG_LAYOUT
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO << "layout_rect" << layout_rect;
 #endif
 
     bool visual_h_reversed = m_h_reversed;
@@ -692,6 +692,9 @@ void GridLayoutHfw::distribute(const QRect& layout_rect)
     GeomInfo gi = getGeomInfo(layout_rect);
 #else
     GeomInfo gi = getGeomInfo();
+#endif
+#ifdef DEBUG_LAYOUT
+    qDebug() << gi;
 #endif
 
     // int left, top, right, bottom;
@@ -724,6 +727,8 @@ void GridLayoutHfw::distribute(const QRect& layout_rect)
                 (r.bottom() == rect.bottom() &&
                     ((r.right() > rect.right()) != visual_h_reversed)));
     int n = m_things.size();
+    const QVector<QLayoutStruct>& rowdata = gi.m_has_hfw ? gi.m_hfw_data
+                                                         : gi.m_row_data;
     for (int i = 0; i < n; ++i) {
         QQGridBox* box = m_things.at(reverse ? n-i-1 : i);
         int r1 = box->row;
@@ -732,9 +737,9 @@ void GridLayoutHfw::distribute(const QRect& layout_rect)
         int c2 = box->toCol(m_ncol);
 
         int x = gi.m_col_data.at(c1).pos;
-        int y = gi.m_hfw_data.at(r1).pos;
+        int y = rowdata.at(r1).pos;
         int x2p = gi.m_col_data.at(c2).pos + gi.m_col_data.at(c2).size; // x2+1
-        int y2p = gi.m_hfw_data.at(r2).pos + gi.m_hfw_data.at(r2).size;    // y2+1
+        int y2p = rowdata.at(r2).pos + rowdata.at(r2).size;    // y2+1
         int w = x2p - x;
         int h = y2p - y;
 
@@ -1865,4 +1870,25 @@ QRect GridLayoutHfw::getContentsRect(const QRect& layout_rect) const
     const QRect& r = layout_rect;  // so variable names match QBoxLayout
     QRect cr = alignment() ? alignmentRect(r) : r;
     return effectiveMargins().removeMarginsFrom(cr);
+}
+
+
+// ========================================================================
+// For friends
+// ========================================================================
+
+QDebug operator<<(QDebug debug, const GridLayoutHfw::GeomInfo& gi)
+{
+    debug.nospace()
+            << "GeomInfo: m_row_data=" << gi.m_row_data
+            << ", m_col_data=" << gi.m_col_data
+            << ", m_hfw_data=" << gi.m_hfw_data
+            << ", m_size_hint=" << gi.m_size_hint
+            << ", m_min_size=" << gi.m_min_size
+            << ", m_max_size=" << gi.m_max_size
+            << ", m_expanding=" << gi.m_expanding
+            << ", m_has_hfw=" << gi.m_has_hfw
+            << ", m_hfw_height=" << gi.m_hfw_height
+            << ", m_hfw_min_height=" << gi.m_hfw_min_height;
+    return debug;
 }

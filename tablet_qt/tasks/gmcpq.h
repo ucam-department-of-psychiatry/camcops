@@ -19,40 +19,51 @@
 
 #pragma once
 #include <QString>
-#include "diagnosistaskbase.h"
+#include "questionnairelib/namevalueoptions.h"
+#include "tasklib/task.h"
 
 class CamcopsApp;
 class OpenableWidget;
 class TaskFactory;
 
-void initializeDiagnosisIcd10(TaskFactory& factory);
+void initializeGmcPq(TaskFactory& factory);
 
 
-class DiagnosisIcd10 : public DiagnosisTaskBase
+class GmcPq : public Task
 {
     Q_OBJECT
 public:
-    DiagnosisIcd10(CamcopsApp& app, const QSqlDatabase& db,
-                   int load_pk = dbconst::NONEXISTENT_PK);
+    GmcPq(CamcopsApp& app, const QSqlDatabase& db,
+          int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString menusubtitle() const override;
-    virtual QString infoFilenameStem() const override;
-    virtual QString xstringTaskname() const override;
-    // ------------------------------------------------------------------------
-    // Ancillary management
-    // ------------------------------------------------------------------------
-    virtual void loadAllAncillary(int pk) override;
-    virtual QList<DatabaseObjectPtr> getAncillarySpecimens() const override;
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
+    virtual bool isComplete() const override;
+    virtual QStringList summary() const override;
+    virtual QStringList detail() const override;
+    virtual OpenableWidget* editor(bool read_only = false) override;
     // ------------------------------------------------------------------------
-    // DiagnosisTaskBase extras
+    // Task-specific calculations
     // ------------------------------------------------------------------------
-    virtual DiagnosticCodeSetPtr makeCodeset() const override;
-    virtual DiagnosisItemBasePtr makeItem() const override;
+    NameValueOptions optionsQ1() const;
+    NameValueOptions optionsQ3() const;
+    NameValueOptions optionsQ4() const;
+    NameValueOptions optionsQ5() const;
+    NameValueOptions optionsQ11() const;
+    static NameValueOptions ethnicityOptions(CamcopsApp& app);  // used by others, hence static
+    static bool ethnicityOther(int ethnicity_code);
+    // ------------------------------------------------------------------------
+    // Signal handlers
+    // ------------------------------------------------------------------------
+public slots:
+    void updateMandatory();
+    // Other
+public:
+    static const QString GMCPQ_TABLENAME;
 };

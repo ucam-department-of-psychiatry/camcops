@@ -58,3 +58,5 @@ MAYBE IN THE FUTURE
         this is only relevant for "simultaneously multilingual" environments
     ... defer for now
 
+- command-line option to select different directory for "tablet" databases,
+  e.g. to run multiple instances on a desktop.

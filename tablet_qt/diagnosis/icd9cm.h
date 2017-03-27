@@ -54,4 +54,6 @@ private:
     static const QList<CodeDescriptionPair> EPISODIC_AFFECTIVE_L1;
     static const QList<CodeDescriptionPair> SUBSTANCE_L1;
     static const QList<CodeDescriptionPair> SCHIZOPHRENIA_L1;
+public:
+    static const QString XSTRING_TASKNAME;
 };

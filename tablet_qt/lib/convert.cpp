@@ -33,6 +33,7 @@
 #include <QUrl>
 #include "lib/datetimefunc.h"
 #include "lib/uifunc.h"
+#include "lib/stringfunc.h"
 
 namespace convert {
 
@@ -397,7 +398,11 @@ QString prettyValue(const QVariant& variant, int dp, QVariant::Type type)
         }
         return toDp(variant.toDouble(), dp);
     case QVariant::String:
-        return variant.toString().toHtmlEscaped();
+        {
+            QString escaped = variant.toString().toHtmlEscaped();
+            stringfunc::toHtmlLinebreaks(escaped, false);
+            return escaped;
+        }
     default:
         return variant.toString();
     }

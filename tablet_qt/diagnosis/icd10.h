@@ -61,4 +61,6 @@ private:
     static const QList<CodeDescriptionPair> SCHIZOPHRENIA_L1;
     static const QList<CodeDescriptionPair> SELFHARM_L1;
     static const QList<CodeDescriptionPair> SELFHARM_L2;
+public:
+    static const QString XSTRING_TASKNAME;
 };

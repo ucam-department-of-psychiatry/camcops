@@ -306,7 +306,14 @@ SOURCES += main.cpp \
     db/ancillaryfunc.cpp \
     tasks/diagnosisicd9cmitem.cpp \
     tasks/diagnosisicd10.cpp \
-    tasks/diagnosisicd10item.cpp
+    tasks/diagnosisicd10item.cpp \
+    tasks/deakin1healthreview.cpp \
+    tasks/gmcpq.cpp \
+    tasks/distressthermometer.cpp \
+    tasks/fast.cpp \
+    qobjects/comparers.cpp \
+    tasks/fft.cpp \
+    tasks/frs.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -540,7 +547,14 @@ HEADERS  += \
     db/ancillaryfunc.h \
     tasks/diagnosisicd9cmitem.h \
     tasks/diagnosisicd10.h \
-    tasks/diagnosisicd10item.h
+    tasks/diagnosisicd10item.h \
+    tasks/deakin1healthreview.h \
+    tasks/gmcpq.h \
+    tasks/distressthermometer.h \
+    tasks/fast.h \
+    qobjects/comparers.h \
+    tasks/fft.h \
+    tasks/frs.h
 
 
 DISTFILES += \

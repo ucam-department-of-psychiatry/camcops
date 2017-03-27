@@ -48,6 +48,7 @@ public:
     int size() const;
     QString title() const;
     QModelIndex firstMatchCode(const QString& code) const;
+    QString xstringTaskname() const;
 protected:
     QString xstring(const QString& stringname);
     DiagnosticCode* addCode(DiagnosticCode* parent,

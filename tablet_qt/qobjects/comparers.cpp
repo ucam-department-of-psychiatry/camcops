@@ -17,22 +17,4 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "alltasksmenu.h"
-#include "common/uiconstants.h"
-#include "lib/uifunc.h"
-#include "menulib/menuitem.h"
-#include "tasklib/taskfactory.h"
-
-
-AllTasksMenu::AllTasksMenu(CamcopsApp& app) :
-    MenuWindow(app, tr("All tasks, listed alphabetically"),
-               uifunc::iconFilename(uiconst::ICON_ALLTASKS))
-{
-    TaskFactory* factory = app.taskFactory();
-    // Sort by what you see:
-    QStringList tablenames = factory->tablenames(
-                TaskFactory::TaskClassSortMethod::Longname);
-    for (auto tablename : tablenames) {
-        m_items.append(MAKE_TASK_MENU_ITEM(tablename, app));
-    }
-}
+#include "comparers.h"

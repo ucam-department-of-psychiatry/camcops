@@ -17,22 +17,26 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "alltasksmenu.h"
-#include "common/uiconstants.h"
-#include "lib/uifunc.h"
-#include "menulib/menuitem.h"
-#include "tasklib/taskfactory.h"
+#pragma once
+#include <QPair>
 
+// http://stackoverflow.com/questions/10188920/sorting-algorithm-with-qt-c-sort-a-qlist-of-struct
 
-AllTasksMenu::AllTasksMenu(CamcopsApp& app) :
-    MenuWindow(app, tr("All tasks, listed alphabetically"),
-               uifunc::iconFilename(uiconst::ICON_ALLTASKS))
+struct QPairFirstComparer
 {
-    TaskFactory* factory = app.taskFactory();
-    // Sort by what you see:
-    QStringList tablenames = factory->tablenames(
-                TaskFactory::TaskClassSortMethod::Longname);
-    for (auto tablename : tablenames) {
-        m_items.append(MAKE_TASK_MENU_ITEM(tablename, app));
+    template<typename T1, typename T2>
+    bool operator()(const QPair<T1,T2> & a, const QPair<T1,T2> & b) const
+    {
+        return a.first < b.first;
     }
-}
+};
+
+
+struct QPairSecondComparer
+{
+    template<typename T1, typename T2>
+    bool operator()(const QPair<T1,T2> & a, const QPair<T1,T2> & b) const
+    {
+        return a.second < b.second;
+    }
+};

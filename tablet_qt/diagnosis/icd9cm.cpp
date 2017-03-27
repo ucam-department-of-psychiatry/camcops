@@ -22,6 +22,8 @@
 #include <QMap>
 #include <QObject>
 
+const QString Icd9cm::XSTRING_TASKNAME("icd9cm");
+
 const QString RANGE_PREFIX("range");  // in string names
 
 
@@ -30,7 +32,7 @@ const QString RANGE_PREFIX("range");  // in string names
 // ============================================================================
 
 Icd9cm::Icd9cm(CamcopsApp& app) :
-    DiagnosticCodeSet(app, "icd9cm", tr("ICD-9-CM"))
+    DiagnosticCodeSet(app, XSTRING_TASKNAME, tr("ICD-9-CM"))
 {
     m_creation_stack.push(DepthItemPair(0, 0));  // root: depth 0, index 0
     addIcd9cmCodes(BASE_CODES);

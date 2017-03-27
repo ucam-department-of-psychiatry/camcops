@@ -40,6 +40,8 @@ public:
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString menusubtitle() const override;
+    virtual QString infoFilenameStem() const override;
+    virtual QString xstringTaskname() const override;
     // ------------------------------------------------------------------------
     // Ancillary management
     // ------------------------------------------------------------------------

@@ -201,6 +201,12 @@ QDebug operator<<(QDebug debug, const DiagnosticCodeSet& d)
 }
 
 
+QString DiagnosticCodeSet::xstringTaskname() const
+{
+    return m_setname;
+}
+
+
 QString DiagnosticCodeSet::xstring(const QString& stringname)
 {
     return m_app.xstring(m_setname, stringname);

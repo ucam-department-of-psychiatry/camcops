@@ -61,13 +61,19 @@ public:
     };
     using MapType = QMap<QString, TaskCache>;
     using MapIteratorType = QMapIterator<QString, TaskCache>;
+    enum class TaskClassSortMethod {
+        Tablename,
+        Shortname,
+        Longname,
+    };
 public:
     TaskFactory(CamcopsApp& app);
     // Making the registry
     void registerTask(ProxyType proxy);
     void finishRegistration();
     // Operations relating to the whole registry
-    QStringList tablenames() const;
+    QStringList tablenames(TaskClassSortMethod sort_method =
+            TaskClassSortMethod::Tablename) const;
     QStringList allTablenames() const;
     void makeAllTables() const;
     void upgradeDatabase(const Version& old_version,
@@ -87,5 +93,5 @@ protected:
     QStringList m_tablenames;
     QStringList m_all_tablenames;
     QList<ProxyType> m_initial_proxy_list;
-    MapType m_map;
+    MapType m_map;  // maps tablename to TaskCache
 };

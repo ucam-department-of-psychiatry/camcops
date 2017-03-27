@@ -29,12 +29,15 @@
 #include <QMap>
 #include <QObject>
 
+const QString Icd10::XSTRING_TASKNAME("icd9cm");
+
+
 // ============================================================================
 // Main functions
 // ============================================================================
 
 Icd10::Icd10(CamcopsApp& app, QObject* parent) :
-    DiagnosticCodeSet(app, "icd10", tr("ICD-10"), parent)
+    DiagnosticCodeSet(app, XSTRING_TASKNAME, tr("ICD-10"), parent)
 {
     m_creation_stack.push(DepthItemPair(0, 0));  // root: depth 0, index 0
     addIcd10Codes(BASE_CODES);

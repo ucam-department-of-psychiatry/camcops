@@ -306,6 +306,45 @@ QString DatabaseObject::fieldSummary(const QString& fieldname,
 }
 
 
+QString DatabaseObject::fieldSummaryYesNo(const QString& fieldname,
+                                       const QString& altname,
+                                       const QString& separator,
+                                       const QString& suffix) const
+{
+    QString name = altname.isEmpty() ? fieldname : altname;
+    return stringfunc::standardResult(name,
+                                      uifunc::yesNo(valueBool(fieldname)),
+                                      separator, suffix);
+}
+
+
+QString DatabaseObject::fieldSummaryYesNoNull(const QString& fieldname,
+                                              const QString& altname,
+                                              const QString& separator,
+                                              const QString& suffix) const
+{
+    QString name = altname.isEmpty() ? fieldname : altname;
+    return stringfunc::standardResult(name,
+                                      uifunc::yesNoNull(value(fieldname)),
+                                      separator, suffix);
+}
+
+
+QString DatabaseObject::fieldSummaryNameValueOptions(
+        const QString& fieldname,
+        const NameValueOptions& options,
+        const QString& altname,
+        const QString& separator,
+        const QString& suffix) const
+{
+    QString name = altname.isEmpty() ? fieldname : altname;
+    QVariant v = value(fieldname);
+    QString pretty_value = options.nameFromValue(v);
+    return stringfunc::standardResult(name, pretty_value,
+                                      separator, suffix);
+}
+
+
 QStringList DatabaseObject::recordSummaryLines(const QString& separator,
                                                const QString& suffix) const
 {

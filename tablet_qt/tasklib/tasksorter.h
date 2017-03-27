@@ -23,6 +23,7 @@
 
 class TaskSorter
 {
+    // Sorts task instances.
 public:
     TaskSorter();
     bool operator()(const TaskPtr& left, const TaskPtr& right) const;

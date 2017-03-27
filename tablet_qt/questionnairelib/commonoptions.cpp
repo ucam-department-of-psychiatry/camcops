@@ -23,16 +23,16 @@
 // Database-level constants
 // ============================================================================
 
-const QString CommonOptions::NO_CHAR('N');
-const QString CommonOptions::YES_CHAR('Y');
+const QString CommonOptions::NO_CHAR("N");
+const QString CommonOptions::YES_CHAR("Y");
 const int CommonOptions::UNKNOWN_INT = -1;
 const int CommonOptions::NO_INT = 0;
 const int CommonOptions::YES_INT = 1;
 const int CommonOptions::INCORRECT_INT = 0;
 const int CommonOptions::CORRECT_INT = 1;
-const QString CommonOptions::SEX_FEMALE('F');
-const QString CommonOptions::SEX_MALE('M');
-const QString CommonOptions::SEX_UNSPECIFIED('X');
+const QString CommonOptions::SEX_FEMALE("F");
+const QString CommonOptions::SEX_MALE("M");
+const QString CommonOptions::SEX_UNSPECIFIED("X");
 
 
 // ============================================================================
@@ -107,7 +107,7 @@ QString CommonOptions::sexMale()
 
 QString CommonOptions::sexUnspecified()
 {
-    return tr("Unspecified (X)");
+    return tr("Other/unspecified (X)");
 }
 
 

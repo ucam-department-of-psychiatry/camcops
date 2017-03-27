@@ -23,6 +23,7 @@
 #include "common/version.h"
 #include "tasklib/task.h"
 #include "tasklib/tasksorter.h"
+#include "qobjects/comparers.h"
 
 
 // ===========================================================================
@@ -71,9 +72,26 @@ void TaskFactory::finishRegistration()
 }
 
 
-QStringList TaskFactory::tablenames() const
+QStringList TaskFactory::tablenames(TaskClassSortMethod sort_method) const
 {
-    return m_tablenames;
+    if (sort_method == TaskClassSortMethod::Tablename) {
+        // Already sorted by this
+        return m_tablenames;
+    }
+    using StringPair = QPair<QString, QString>;
+    QList<StringPair> pairs;
+    bool use_shortname = sort_method == TaskClassSortMethod::Shortname;
+    for (auto tablename : m_tablenames) {
+        const TaskCache& cache = m_map[tablename];
+        pairs.append(StringPair(tablename, use_shortname ? cache.shortname
+                                                         : cache.longname));
+    }
+    qSort(pairs.begin(), pairs.end(), QPairSecondComparer());
+    QStringList sorted_tablenames;
+    for (auto pair : pairs) {
+        sorted_tablenames.append(pair.first);
+    }
+    return sorted_tablenames;
 }
 
 

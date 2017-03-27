@@ -143,3 +143,15 @@ NameValueOptions NameValueOptions::makeNumbers(int first, int last, int step)
     }
     return nvo;
 }
+
+
+QString NameValueOptions::nameFromValue(const QVariant& value) const
+{
+    return name(indexFromValue(value));
+}
+
+
+QVariant NameValueOptions::valueFromName(const QString& name) const
+{
+    return value(indexFromName(name));
+}
