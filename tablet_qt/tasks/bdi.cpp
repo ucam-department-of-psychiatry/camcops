@@ -18,6 +18,7 @@
 */
 
 #include "bdi.h"
+#include "common/textconst.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
@@ -140,7 +141,7 @@ OpenableWidget* Bdi::editor(bool read_only)
         (new QuMcq(fieldRef(FN_BDI_SCALE), scale_options))
             ->setHorizontal(true)
             ->setAsTextButton(true),
-        new QuText(appstring("enter_the_answers")),
+        new QuText(textconst::ENTER_THE_ANSWERS),
         new QuMcqGrid(fields, options),
     }))->setTitle(shortname()));
 

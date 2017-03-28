@@ -31,6 +31,16 @@ QString strnum(const QString& prefix, int num, const QString& suffix)
     return prefix + QString::number(num) + suffix;
 }
 
+QStringList strnumlist(const QString& prefix, const QList<int>& numbers,
+                       const QString& suffix)
+{
+    QStringList strings;
+    for (auto num : numbers) {
+        strings.append(strnum(prefix, num, suffix));
+    }
+    return strings;
+}
+
 
 // ============================================================================
 // Make sequences of strings

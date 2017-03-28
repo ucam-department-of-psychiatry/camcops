@@ -68,6 +68,7 @@ public:
     void validateOrDie();
     bool validIndex(int index) const;
     void shuffle();
+    void reverse();
     QString name(int index) const;
     QVariant value(int index) const;
     QString nameFromValue(const QVariant& value) const;
@@ -76,4 +77,6 @@ public:
     static NameValueOptions makeNumbers(int first, int last, int step = 1);
 protected:
     QList<NameValuePair> m_options;
+public:
+    friend QDebug operator<<(QDebug debug, const NameValueOptions& gi);
 };

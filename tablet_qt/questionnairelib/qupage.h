@@ -56,7 +56,6 @@ public:
 
     QuPage* setType(PageType type);
     QuPage* setTitle(const QString& title);
-    QuPage* setSkip(bool skip = true);
     QuPage* addElement(const QuElementPtr& element);
     QuPage* addElement(QuElement* element);  // takes ownership
     QuPage* addElements(const QList<QuElementPtr>& elements);
@@ -73,6 +72,8 @@ public:
     void clearElements();  // for rebuilding live pages
 signals:
     void elementValueChanged();
+public slots:
+    QuPage* setSkip(bool skip = true);
 protected:
     QPointer<QWidget> widget(Questionnaire* questionnaire) const;
     QList<QuElement*> allElements() const;

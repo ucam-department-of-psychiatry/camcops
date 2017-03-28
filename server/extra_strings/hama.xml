@@ -115,7 +115,7 @@
     <string name="q14_option2">2 – The patient is moderately anxious.</string>
     <string name="q14_option3">3 – The patient is markedly anxious.</string>
     <string name="q14_option4">4 – Patient is overwhelmed by anxiety, for example with shaking and trembling all over.</string>
-    <string name="symptom_severity">HAM-A symptom severity:</string>
+    <string name="symptom_severity">HAM-A symptom severity</string>
 
   </task>
 </resources>

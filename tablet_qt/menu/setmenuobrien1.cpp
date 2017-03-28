@@ -18,12 +18,15 @@
 */
 
 #include "setmenuobrien1.h"
+#include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
 
 SetMenuOBrien1::SetMenuOBrien1(CamcopsApp& app) :
-    MenuWindow(app, tr("O’Brien JT — 1"))
+    MenuWindow(app,
+               tr("O’Brien JT — 1"),
+               uifunc::iconFilename(uiconst::ICON_SETS_RESEARCH))
 {
     m_subtitle = "O’Brien JT, University of Cambridge, UK — "
                  "dementia research clinic";

@@ -64,6 +64,14 @@
 #include "tasks/gds15.h"
 #include "tasks/gmcpq.h"
 
+#include "tasks/hads.h"
+#include "tasks/hama.h"
+#include "tasks/hamd.h"
+#include "tasks/hamd7.h"
+#include "tasks/honos.h"
+#include "tasks/honos65.h"
+#include "tasks/honosca.h"
+
 #include "tasks/phq9.h"
 
 
@@ -118,13 +126,13 @@ void InitTasks(TaskFactory& factory)
     initializeGds15(factory);
     initializeGmcPq(factory);
 
-    // *** initializeHads(factory);
-    // *** initializeHamA(factory);
-    // *** initializeHamD(factory);
-    // *** initializeHamD7(factory);
-    // *** initializeHonos(factory);
-    // *** initializeHonos65(factory);
-    // *** initializeHonosca(factory);
+    initializeHads(factory);
+    initializeHamA(factory);
+    initializeHamD(factory);
+    initializeHamD7(factory);
+    initializeHonos(factory);
+    initializeHonos65(factory);
+    initializeHonosca(factory);
 
     // *** initializeIcd10Depressive(factory);
     // *** initializeIcd10Manic(factory);

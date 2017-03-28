@@ -58,7 +58,9 @@ TR(EXAMINER_COMMENTS_PROMPT, "Optional — Examiner’s comments (e.g. "
 TR(FINISHED, "Finished");
 
 TR(MILD, "Mild");
+TR(MILD_TO_MODERATE, "Mild to moderate");
 TR(MODERATELY_SEVERE, "Moderately severe");
+TR(MODERATE_TO_SEVERE, "Moderate to severe");
 TR(MODERATE, "Moderate");
 TR(MOVE_DOWN, "Move down");
 TR(MOVE_UP, "Move up");
@@ -71,6 +73,11 @@ TR(NOT_SPECIFIED, "<not specified>");
 
 TR(PAGE, "page");
 TR(PATIENT, "Patient");
+TR(PRESS_NEXT_TO_CONTINUE,
+   "Press the NEXT button (the green right-facing arrow at the TOP RIGHT of "
+   "the screen) to continue.");
+
+TR(QUESTION, "Question");
 
 TR(RATING, "Rating");
 
@@ -82,6 +89,8 @@ TR(SEX, "Sex");
 
 TR(THANK_YOU, "Thank you!");
 TR(TOTAL_SCORE, "Total score");
+
+TR(VERY_SEVERE, "Very severe");
 
 
 // ============================================================================

@@ -57,7 +57,7 @@
     <string name="q7_option2">2= Wishes to be dead (or any thoughts of possible death to self).</string>
     <string name="q7_option3">3= Suicidal ideas or gesture.</string>
     <string name="q7_option4">4= Attempts at suicide (any serious attempt rates 4).</string>
-    <string name="severity">Severity:</string>
+    <string name="severity">Severity</string>
     <string name="severity_none">No depression</string>
     <string name="severity_mild">Mild depression</string>
     <string name="severity_moderate">Moderate depression</string>

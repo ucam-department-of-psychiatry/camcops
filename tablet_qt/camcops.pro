@@ -316,7 +316,14 @@ SOURCES += main.cpp \
     tasks/frs.cpp \
     tasks/gad7.cpp \
     tasks/gaf.cpp \
-    tasks/gds15.cpp
+    tasks/gds15.cpp \
+    tasks/hads.cpp \
+    tasks/hama.cpp \
+    tasks/hamd.cpp \
+    tasks/hamd7.cpp \
+    tasks/honos.cpp \
+    tasks/honos65.cpp \
+    tasks/honosca.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -560,7 +567,14 @@ HEADERS  += \
     tasks/frs.h \
     tasks/gad7.h \
     tasks/gaf.h \
-    tasks/gds15.h
+    tasks/gds15.h \
+    tasks/hads.h \
+    tasks/hama.h \
+    tasks/hamd.h \
+    tasks/hamd7.h \
+    tasks/honos.h \
+    tasks/honos65.h \
+    tasks/honosca.h
 
 
 DISTFILES += \

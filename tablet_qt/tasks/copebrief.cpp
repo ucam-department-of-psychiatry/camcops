@@ -63,8 +63,9 @@ void initializeCopeBrief(TaskFactory& factory)
 
 
 CopeBrief::CopeBrief(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
-    Task(app, db, COPEBRIEF_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, COPEBRIEF_TABLENAME, false, false, false),  // ... anon, clin, resp
     // There is a respondent, optionally, but the task handles this manually with more detail
+    m_questionnaire(nullptr)
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
     addField(COMPLETED_BY_PATIENT, QVariant::Bool);

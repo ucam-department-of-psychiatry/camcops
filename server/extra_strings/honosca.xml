@@ -123,8 +123,8 @@ Used here with permission.
     <string name="q15_option2">2 – Mild but definite problem.</string>
     <string name="q15_option3">3 – Moderately severe problems. Parents/carers have been given little information about appropriate services or professionals are not sure where a child should be managed.</string>
     <string name="q15_option4">4 – Very severe problem. Parents have no information about appropriate services or professionals do not know where a child should be managed.</string>
-    <string name="section_a_total">Section A (Q1–13) total:</string>
-    <string name="section_b_total">Section B (Q14–15) total:</string>
+    <string name="section_a_total">Section A (Q1–13) total</string>
+    <string name="section_b_total">Section B (Q14–15) total</string>
 
     <string name="option9">9 – Not known</string>
     <string name="period_rated">Period rated</string>

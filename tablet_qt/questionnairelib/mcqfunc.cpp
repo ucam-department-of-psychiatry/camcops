@@ -166,7 +166,9 @@ void setResponseWidgets(const NameValueOptions& options,
     bool null = value.isNull();
     int index = options.indexFromValue(value);
     if (!null && index == -1) {
-        qWarning() << Q_FUNC_INFO << "- unknown value";
+        qWarning().nospace()
+                << Q_FUNC_INFO << " - unknown value " << value
+                << " (options are " << options << ")";
         // But we must PROCEED so that the widgets are shown.
     }
     for (int vi = 0; vi < question_widgets.size(); ++vi) {

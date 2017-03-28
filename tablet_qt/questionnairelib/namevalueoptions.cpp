@@ -109,6 +109,12 @@ void NameValueOptions::shuffle()
 }
 
 
+void NameValueOptions::reverse()
+{
+    std::reverse(m_options.begin(), m_options.end());
+}
+
+
 QString NameValueOptions::name(int index) const
 {
     if (!validIndex(index)) {
@@ -154,4 +160,26 @@ QString NameValueOptions::nameFromValue(const QVariant& value) const
 QVariant NameValueOptions::valueFromName(const QString& name) const
 {
     return value(indexFromName(name));
+}
+
+
+// ========================================================================
+// For friends
+// ========================================================================
+
+QDebug operator<<(QDebug debug, const NameValueOptions& nvo)
+{
+    QDebug& d = debug.nospace();
+    d << "NameValueOptions{";
+    bool first = true;
+    for (auto nvp : nvo.m_options) {
+        if (!first) {
+            d << ", ";
+        } else {
+            first = false;
+        }
+        d << nvp.name() << ": " << nvp.value() << "}";
+    }
+    d << "}";
+    return debug;
 }

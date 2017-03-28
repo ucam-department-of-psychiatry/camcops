@@ -18,12 +18,15 @@
 */
 
 #include "setmenufromlp.h"
+#include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
 
 SetMenuFromLp::SetMenuFromLp(CamcopsApp& app) :
-    MenuWindow(app, tr("FROM-LP"))
+    MenuWindow(app,
+               tr("FROM-LP"),
+               uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
 {
     m_subtitle = "Framework for Routine Outcome Measurement in Liaison "
                  "Psychiatry (FROM-LP)";

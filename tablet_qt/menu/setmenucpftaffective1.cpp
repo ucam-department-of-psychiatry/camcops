@@ -18,12 +18,15 @@
 */
 
 #include "setmenucpftaffective1.h"
+#include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
 
 SetMenuCpftAffective1::SetMenuCpftAffective1(CamcopsApp& app) :
-    MenuWindow(app, tr("CPFT Affective Disorders Research Database — 1"))
+    MenuWindow(app,
+               tr("CPFT Affective Disorders Research Database — 1"),
+               uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
 {
     m_subtitle = "Cambridgeshire and Peterborough NHS Foundation Trust, UK — "
                  "affective disorders";

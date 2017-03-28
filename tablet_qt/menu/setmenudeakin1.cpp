@@ -18,12 +18,15 @@
 */
 
 #include "setmenudeakin1.h"
+#include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
 
 SetMenuDeakin1::SetMenuDeakin1(CamcopsApp& app) :
-    MenuWindow(app, tr("Deakin JB — 1"))
+    MenuWindow(app,
+               tr("Deakin JB — 1"),
+               uifunc::iconFilename(uiconst::ICON_SETS_RESEARCH))
 {
     m_subtitle = "Deakin JB, University of Cambridge, UK — "
                  "antibody-mediated psychosis";

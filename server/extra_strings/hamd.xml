@@ -170,7 +170,7 @@
     <string name="q21_option1">1= Mild.</string>
     <string name="q21_option2">2= Severe.</string>
     <string name="total_score">HAM-D(17) total score</string>
-    <string name="severity">Severity:</string>
+    <string name="severity">Severity</string>
     <string name="severity_none">No depression</string>
     <string name="severity_mild">Mild depression</string>
     <string name="severity_moderate">Moderate depression</string>

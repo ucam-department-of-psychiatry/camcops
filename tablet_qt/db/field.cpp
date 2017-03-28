@@ -160,15 +160,17 @@ bool Field::setValue(const QVariant& value)
         m_dirty = true;
     }
     m_value = value;
-    bool converted = m_value.convert(m_type);
-    if (!converted) {
-        if (m_type == QVariant::Char) {
-            // Deal with special oddities, e.g. failure to convert
-            // a QVariant of type QString to one of type QChar.
-            m_value = convert::toQCharVariant(value);
-        } else {
-            qWarning() << Q_FUNC_INFO << "Failed to convert" << value
-                       << "to type" << m_type;
+    if (!m_value.isNull()) {  // Don't try to convert NULL values; needless warning
+        bool converted = m_value.convert(m_type);
+        if (!converted) {
+            if (m_type == QVariant::Char) {
+                // Deal with special oddities, e.g. failure to convert
+                // a QVariant of type QString to one of type QChar.
+                m_value = convert::toQCharVariant(value);
+            } else {
+                qWarning() << Q_FUNC_INFO << "Failed to convert" << value
+                           << "to type" << m_type;
+            }
         }
     }
     m_set = true;

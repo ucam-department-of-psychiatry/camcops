@@ -68,11 +68,14 @@ extern const QString DIAGNOSIS;
 
 extern const QString FINISHED;
 
+extern const QString ENTER_THE_ANSWERS;
 extern const QString EXAMINER_COMMENTS;
 extern const QString EXAMINER_COMMENTS_PROMPT;
 
 extern const QString MILD;
+extern const QString MILD_TO_MODERATE;
 extern const QString MODERATE;
+extern const QString MODERATE_TO_SEVERE;
 extern const QString MODERATELY_SEVERE;
 extern const QString MOVE_DOWN;
 extern const QString MOVE_UP;
@@ -85,6 +88,9 @@ extern const QString NOT_SPECIFIED;
 
 extern const QString PAGE;
 extern const QString PATIENT;
+extern const QString PRESS_NEXT_TO_CONTINUE;
+
+extern const QString QUESTION;
 
 extern const QString RATING;
 
@@ -96,6 +102,8 @@ extern const QString SEX;
 
 extern const QString THANK_YOU;
 extern const QString TOTAL_SCORE;
+
+extern const QString VERY_SEVERE;
 
 // ============================================================================
 // Terms and conditions

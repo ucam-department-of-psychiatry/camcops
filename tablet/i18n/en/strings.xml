@@ -801,8 +801,6 @@ Tasks
 <string name="t_hads">Hospital Anxiety and Depression Scale (HADS) (¶+)</string>
 <string name="s_hads">14-item self-report scale. Data collection tool ONLY unless host institution adds scale text.</string>
 <string name="b_hads">HADS</string>
-<string name="hads_anxiety_score">Anxiety score</string>
-<string name="hads_depression_score">Depression score</string>
 
 <string name="t_hama">Hamilton Rating Scale for Anxiety (HAM-A)</string>
 <string name="s_hama">14-item clinician-administered scale.</string>
