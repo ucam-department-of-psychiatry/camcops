@@ -19,7 +19,6 @@
 
 #pragma once
 #include <QDebug>
-#include <QList>
 #include <QString>
 
 class CamcopsApp;
@@ -61,13 +60,13 @@ public:
     int depth() const;  // for convenience only
     bool selectable() const;
     bool hasChildren() const;
-    QList<int> childIndexes() const;
+    QVector<int> childIndexes() const;
     void addChildIndex(int index);
-    void addChildIndexes(const QList<int> indexes);
+    void addChildIndexes(const QVector<int> indexes);
 
 protected:
     DiagnosticCode* m_parent;
-    QList<DiagnosticCode*> m_children;  // owns its children
+    QVector<DiagnosticCode*> m_children;  // owns its children
 
     QString m_code;
     QString m_description;

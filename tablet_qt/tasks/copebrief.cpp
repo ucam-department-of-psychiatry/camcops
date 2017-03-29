@@ -155,7 +155,7 @@ OpenableWidget* CopeBrief::editor(bool read_only)
     FieldRefPtr fr_completed_by_patient = fieldRef(COMPLETED_BY_PATIENT);
     FieldRefPtr fr_relationship = fieldRef(RELATIONSHIP_TO_PATIENT);
 
-    QList<QuElement*> elements1{
+    QVector<QuElement*> elements1{
         new QuText(QString("%1 (%2)?").arg(xstring("q_patient"),
                                            bold(getPatientName()))),
         (new QuMcq(fr_completed_by_patient, yesno_options))
@@ -174,7 +174,7 @@ OpenableWidget* CopeBrief::editor(bool read_only)
                 ->addTag(TAG_RELATIONSHIP_OTHER),
     };
 
-    QList<QuElement*> elements2{
+    QVector<QuElement*> elements2{
         new QuText(xstring("instructions")),
     };
     for (int i = 1; i <= N_QUESTIONS; ++i) {
@@ -187,7 +187,7 @@ OpenableWidget* CopeBrief::editor(bool read_only)
     }
 
     QString commontitle = longname();
-    QList<QuPagePtr> pages{
+    QVector<QuPagePtr> pages{
         QuPagePtr((new QuPage(elements1))->setTitle(commontitle + " (1/2)")),
         QuPagePtr((new QuPage(elements2))->setTitle(commontitle + " (2/2)")),
     };

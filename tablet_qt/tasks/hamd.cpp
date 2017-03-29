@@ -46,7 +46,7 @@ struct HamdQInfo {
     int n_options;
     bool mandatory;
 };
-const QList<HamdQInfo> QLIST{
+const QVector<HamdQInfo> QLIST{
     {"q1", 5, true},
     {"q2", 5, true},
     {"q3", 5, true},
@@ -171,7 +171,7 @@ QStringList HamD::detail() const
 
 OpenableWidget* HamD::editor(bool read_only)
 {
-    QList<QuPagePtr> pages;
+    QVector<QuPagePtr> pages;
 
     auto addpage = [this, &pages](const HamdQInfo& info) -> void {
         NameValueOptions options;

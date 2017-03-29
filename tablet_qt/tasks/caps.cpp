@@ -170,7 +170,7 @@ OpenableWidget* Caps::editor(bool read_only)
         {xstring("frequency_option5"), 5},
     };
     QString detail_prompt = xstring("if_yes_please_rate");
-    QList<QuPagePtr> pages;
+    QVector<QuPagePtr> pages;
 
     m_fr_distress.clear();
     m_fr_intrusiveness.clear();

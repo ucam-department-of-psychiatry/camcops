@@ -19,7 +19,6 @@
 
 #pragma once
 #include <QApplication>
-#include <QList>
 #include <QPointer>
 #include <QSharedPointer>
 #include <QSqlDatabase>
@@ -45,8 +44,6 @@ class Version;
 
 class CamcopsApp : public QApplication
 {
-    using RecordList = QList<QMap<QString, QVariant>>;
-
     Q_OBJECT
 
     // ------------------------------------------------------------------------

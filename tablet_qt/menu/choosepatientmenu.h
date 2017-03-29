@@ -18,7 +18,6 @@
 */
 
 #pragma once
-#include <QList>
 #include <QString>
 #include "common/aliases_camcops.h"
 #include "menulib/menuwindow.h"

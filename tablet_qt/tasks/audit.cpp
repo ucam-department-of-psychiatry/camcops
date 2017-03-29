@@ -158,7 +158,7 @@ OpenableWidget* Audit::editor(bool read_only)
         {xstring("q9to10_option4"), 4},
     };
 
-    QList<QuPagePtr> pages;
+    QVector<QuPagePtr> pages;
 
     pages.append(QuPagePtr((new QuPage{
         new QuText(xstring("instructions_1")),

@@ -52,8 +52,8 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-    int distressScore(const QList<int>& questions) const;
-    int frequencyScore(const QList<int>& questions) const;
+    int distressScore(const QVector<int>& questions) const;
+    int frequencyScore(const QVector<int>& questions) const;
 protected:
     bool questionComplete(int q) const;
     // ------------------------------------------------------------------------

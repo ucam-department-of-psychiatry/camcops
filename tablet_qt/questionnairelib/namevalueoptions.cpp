@@ -81,7 +81,7 @@ int NameValueOptions::indexFromValue(const QVariant& value) const
 
 void NameValueOptions::validateOrDie()
 {
-    QList<QVariant> values;
+    QVector<QVariant> values;
     for (int i = 0; i < m_options.size(); ++i) {
         const NameValuePair& nvp = m_options.at(i);
         const QVariant& v = nvp.value();

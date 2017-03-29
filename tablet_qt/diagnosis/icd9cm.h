@@ -36,12 +36,12 @@ public:
     using CodeDescriptionPair = QPair<QString, QString>;
     using DepthItemPair = QPair<int, DiagnosticCode*>;
 private:
-    void addIcd9cmCodes(const QList<QString>& codes);
+    void addIcd9cmCodes(const QStringList& codes);
     void addIndividualIcd9cmCode(const QString& code, const QString& desc,
                                  bool show_code_in_full_name = true);
     void addSubcodes(const QString& basecode,
                      const QString& basedesc,
-                     const QList<CodeDescriptionPair>& level1);
+                     const QVector<CodeDescriptionPair>& level1);
 
     QStack<DepthItemPair> m_creation_stack;  // depth, index (of parents)
 
@@ -50,10 +50,10 @@ private:
     void addSubstance(const QString& basecode, const QString& basedesc);
     void addSchizophrenia(const QString& basecode, const QString& basedesc);
 
-    static const QList<QString> BASE_CODES;
-    static const QList<CodeDescriptionPair> EPISODIC_AFFECTIVE_L1;
-    static const QList<CodeDescriptionPair> SUBSTANCE_L1;
-    static const QList<CodeDescriptionPair> SCHIZOPHRENIA_L1;
+    static const QStringList BASE_CODES;
+    static const QVector<CodeDescriptionPair> EPISODIC_AFFECTIVE_L1;
+    static const QVector<CodeDescriptionPair> SUBSTANCE_L1;
+    static const QVector<CodeDescriptionPair> SCHIZOPHRENIA_L1;
 public:
     static const QString XSTRING_TASKNAME;
 };

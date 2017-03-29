@@ -141,7 +141,7 @@ QString IdPolicy::pretty() const
 }
 
 
-QString IdPolicy::stringify(const QList<int> &tokens) const
+QString IdPolicy::stringify(const QVector<int> &tokens) const
 {
     QString policy;
     for (int i = 0; i < tokens.length(); ++i) {
@@ -184,7 +184,7 @@ bool IdPolicy::complies(const AttributesType& attributes) const
 
 
 IdPolicy::ChunkValue IdPolicy::idPolicyChunk(
-        const QList<int>& tokens,
+        const QVector<int>& tokens,
         const AttributesType& attributes) const
 {
     // Checks a set of attributes against the policy, or part of the policy.
@@ -248,7 +248,7 @@ IdPolicy::ChunkValue IdPolicy::idPolicyChunk(
 }
 
 
-IdPolicy::ChunkValue IdPolicy::idPolicyContent(const QList<int>& tokens,
+IdPolicy::ChunkValue IdPolicy::idPolicyContent(const QVector<int>& tokens,
                                                const AttributesType& attributes,
                                                int& index) const
 {
@@ -288,7 +288,7 @@ IdPolicy::ChunkValue IdPolicy::idPolicyContent(const QList<int>& tokens,
             // parenthesis, and searchidx points one past the closing
             // parenthesis. We want to exclude the closing parenthesis too.
             int subchunklen = index - subchunkstart - 1;
-            QList<int> subchunk = tokens.mid(subchunkstart, subchunklen);
+            QVector<int> subchunk = tokens.mid(subchunkstart, subchunklen);
             return idPolicyChunk(subchunk, attributes);
         }
     default:
@@ -299,7 +299,7 @@ IdPolicy::ChunkValue IdPolicy::idPolicyContent(const QList<int>& tokens,
 }
 
 
-IdPolicy::OperatorValue IdPolicy::idPolicyOp(const QList<int>& tokens,
+IdPolicy::OperatorValue IdPolicy::idPolicyOp(const QVector<int>& tokens,
                                              int& index) const
 {
     // Returns an operator from the policy, or a no-operator-found indicator.

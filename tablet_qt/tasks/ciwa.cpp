@@ -133,7 +133,7 @@ QStringList Ciwa::detail() const
 
 OpenableWidget* Ciwa::editor(bool read_only)
 {
-    QList<QuPagePtr> pages;
+    QVector<QuPagePtr> pages;
 
     auto addpage = [this, &pages](int n, int lastoption) -> void {
         NameValueOptions options;

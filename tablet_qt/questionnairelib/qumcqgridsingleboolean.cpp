@@ -27,7 +27,7 @@
 
 
 QuMcqGridSingleBoolean::QuMcqGridSingleBoolean(
-        const QList<QuestionWithTwoFields>& questions_with_fields,
+        const QVector<QuestionWithTwoFields>& questions_with_fields,
         const NameValueOptions& mcq_options,
         const QString& boolean_text) :
     m_boolean_left(false),
@@ -80,7 +80,7 @@ QuMcqGridSingleBoolean* QuMcqGridSingleBoolean::setBooleanLeft(
 
 QuMcqGridSingleBoolean* QuMcqGridSingleBoolean::setWidth(
         int question_width,
-        const QList<int>& mcq_option_widths,
+        const QVector<int>& mcq_option_widths,
         int boolean_width)
 {
     if (mcq_option_widths.size() != m_mcq_options.size()) {
@@ -102,7 +102,7 @@ QuMcqGridSingleBoolean* QuMcqGridSingleBoolean::setTitle(const QString &title)
 
 
 QuMcqGridSingleBoolean* QuMcqGridSingleBoolean::setSubtitles(
-        const QList<McqGridSubtitle>& subtitles)
+        const QVector<McqGridSubtitle>& subtitles)
 {
     m_subtitles = subtitles;
     return this;
@@ -200,7 +200,7 @@ QPointer<QWidget> QuMcqGridSingleBoolean::makeWidget(Questionnaire* questionnair
                                  m_questions_with_fields.at(qi).question());
 
         // The response widgets
-        QList<QPointer<BooleanWidget>> question_widgets;
+        QVector<QPointer<BooleanWidget>> question_widgets;
         for (int vi = 0; vi < n_options; ++vi) {
             QPointer<BooleanWidget> w = new BooleanWidget();
             w->setAppearance(BooleanWidget::Appearance::Radio);
@@ -315,7 +315,7 @@ void QuMcqGridSingleBoolean::mcqFieldValueChanged(int question_index,
         qWarning() << Q_FUNC_INFO << "Bad question_index:" << question_index;
         return;
     }
-    const QList<QPointer<BooleanWidget>>& question_widgets = m_mcq_widgets.at(
+    const QVector<QPointer<BooleanWidget>>& question_widgets = m_mcq_widgets.at(
                 question_index);
 
     mcqfunc::setResponseWidgets(m_mcq_options, question_widgets, fieldref);

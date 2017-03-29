@@ -33,6 +33,13 @@ QuestionWithTwoFields::QuestionWithTwoFields(const QString& question,
 }
 
 
+QuestionWithTwoFields::QuestionWithTwoFields() :
+    m_first_field(nullptr),
+    m_second_field(nullptr)
+{
+}
+
+
 QString QuestionWithTwoFields::question() const
 {
     return m_question;

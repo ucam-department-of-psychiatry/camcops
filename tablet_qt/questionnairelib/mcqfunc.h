@@ -44,7 +44,7 @@ void addOptionBackground(GridLayout* grid, int row,
 
 void setResponseWidgets(
         const NameValueOptions& options,
-        const QList<QPointer<BooleanWidget>>& question_widgets,
+        const QVector<QPointer<BooleanWidget>>& question_widgets,
         const FieldRef* fieldref);
 
 void toggleBooleanField(FieldRef* fieldref, bool allow_unset = false);

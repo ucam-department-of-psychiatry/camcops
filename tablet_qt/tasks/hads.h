@@ -50,5 +50,5 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-    int getScore(const QList<int>& questions) const;
+    int getScore(const QVector<int>& questions) const;
 };

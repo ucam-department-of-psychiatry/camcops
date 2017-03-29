@@ -33,6 +33,10 @@ class CamcopsApp;
 class NameValueOptions;
 
 
+const QString DBOBJECT_DEFAULT_SEPARATOR = " = ";
+const QString DBOBJECT_DEFAULT_SUFFIX = "";
+
+
 class DatabaseObject : public QObject
 {
     // A database object supporting a single integer PK field, and a default
@@ -88,7 +92,7 @@ public:
     QChar valueQChar(const QString& fieldname) const;
     char valueLatin1Char(const QString& fieldname) const;
 
-    QList<QVariant> values(const QStringList& fieldnames) const;
+    QVector<QVariant> values(const QStringList& fieldnames) const;
 
     FieldRefPtr fieldRef(const QString& fieldname,
                          bool mandatory = true,
@@ -99,27 +103,44 @@ public:
     // Whole-object summary
     // ========================================================================
 
-    QString fieldSummary(const QString& fieldname,
-                         const QString& altname = "",
-                         const QString& separator = " = ",
-                         const QString& suffix = "") const;
-    QString fieldSummaryYesNo(const QString& fieldname,
-                              const QString& altname,
-                              const QString& separator = " = ",
-                              const QString& suffix = "") const;
-    QString fieldSummaryYesNoNull(const QString& fieldname,
-                                  const QString& altname,
-                                  const QString& separator = " = ",
-                                  const QString& suffix = "") const;
-    QString fieldSummaryNameValueOptions(const QString& fieldname,
-                                         const NameValueOptions& options,
-                                         const QString& altname,
-                                         const QString& separator = " = ",
-                                         const QString& suffix = "") const;
-    QStringList recordSummaryLines(const QString& separator = " = ",
-                                   const QString& suffix = "") const;
-    QString recordSummaryString(const QString& separator = " = ",
-                                const QString& suffix = "") const;
+    QString fieldSummary(
+            const QString& fieldname,
+            const QString& altname = "",
+            const QString& separator = DBOBJECT_DEFAULT_SEPARATOR,
+            const QString& suffix = DBOBJECT_DEFAULT_SUFFIX) const;
+    QString fieldSummaryYesNo(
+            const QString& fieldname,
+            const QString& altname,
+            const QString& separator = DBOBJECT_DEFAULT_SEPARATOR,
+            const QString& suffix = DBOBJECT_DEFAULT_SUFFIX) const;
+    QString fieldSummaryYesNoNull(
+            const QString& fieldname,
+            const QString& altname,
+            const QString& separator = DBOBJECT_DEFAULT_SEPARATOR,
+            const QString& suffix = DBOBJECT_DEFAULT_SUFFIX) const;
+    QString fieldSummaryYesNoUnknown(
+            const QString& fieldname,
+            const QString& altname,
+            const QString& separator = DBOBJECT_DEFAULT_SEPARATOR,
+            const QString& suffix = DBOBJECT_DEFAULT_SUFFIX) const;
+    QString fieldSummaryTrueFalseUnknown(
+            const QString& fieldname,
+            const QString& altname,
+            const QString& separator = DBOBJECT_DEFAULT_SEPARATOR,
+            const QString& suffix = DBOBJECT_DEFAULT_SUFFIX) const;
+
+    QString fieldSummaryNameValueOptions(
+            const QString& fieldname,
+            const NameValueOptions& options,
+            const QString& altname,
+            const QString& separator = DBOBJECT_DEFAULT_SEPARATOR,
+            const QString& suffix = DBOBJECT_DEFAULT_SUFFIX) const;
+    QStringList recordSummaryLines(
+            const QString& separator = DBOBJECT_DEFAULT_SEPARATOR,
+            const QString& suffix = DBOBJECT_DEFAULT_SUFFIX) const;
+    QString recordSummaryString(
+            const QString& separator = DBOBJECT_DEFAULT_SEPARATOR,
+            const QString& suffix = DBOBJECT_DEFAULT_SUFFIX) const;
 
     // ========================================================================
     // Loading, saving
@@ -142,7 +163,7 @@ public:
     // Batch operations
     // ========================================================================
 
-    QList<int> getAllPKs() const;
+    QVector<int> getAllPKs() const;
 
     // ========================================================================
     // Deleting
@@ -184,8 +205,8 @@ public:
 protected:
     void loadAllAncillary();
     virtual void loadAllAncillary(int pk);
-    virtual QList<DatabaseObjectPtr> getAllAncillary() const;
-    virtual QList<DatabaseObjectPtr> getAncillarySpecimens() const;
+    virtual QVector<DatabaseObjectPtr> getAllAncillary() const;
+    virtual QVector<DatabaseObjectPtr> getAncillarySpecimens() const;
 
     // ========================================================================
     // Internals: saving, etc.
@@ -196,7 +217,7 @@ protected:
     void clearAllDirty();
     bool anyDirty() const;
     QStringList fieldnamesMapOrder() const;
-    QList<Field> fieldsOrdered() const;
+    QVector<Field> fieldsOrdered() const;
 
 protected:
     CamcopsApp& m_app;

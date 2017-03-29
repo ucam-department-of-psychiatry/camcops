@@ -128,12 +128,12 @@ QStringList Dast::detail() const
 
 OpenableWidget* Dast::editor(bool read_only)
 {
-    QList<QuestionWithOneField> qfields;
+    QVector<QuestionWithOneField> qfields;
     for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
         qfields.append(QuestionWithOneField(xstring(strnum("q", i)),
                                             fieldRef(strnum(QPREFIX, i))));
     }
-    QList<McqGridSubtitle> subtitles{
+    QVector<McqGridSubtitle> subtitles{
         {5, ""},
         {10, ""},
         {15, ""},

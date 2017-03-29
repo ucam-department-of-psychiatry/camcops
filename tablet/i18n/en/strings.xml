@@ -159,7 +159,6 @@ CamCOPS app
 <string name="examiners_comments">Examiner’s comments</string>
 <string name="clinicians_comments">Clinician’s comments</string>
 <string name="comments">Comments:</string>
-<string name="date_pertains_to">Date this assessment pertains to:</string>
 <string name="in_addition">In addition:</string>
 <string name="meets_criteria">Meets criteria?</string>
 <string name="and">and</string>
@@ -828,7 +827,6 @@ Tasks
 
 <!-- ICD-10 criteria -->
 <string name="s_icd10">World Health Organization International Classification of Diseases, 10th edition</string>
-<string name="icd10_symptomatic_disclaimer">These criteria are the SYMPTOMATIC criteria and IGNORE CAUSAL criteria (such as “episode not attributable to psychoactive substance use or organic mental disorder” or history of prior episodes).</string>
 <string name="t_icd10_schizotypal">ICD-10 criteria for schizotypal disorder (F21)</string>
 <string name="b_icd10_schizotypal">ICD10-schizotypal</string>
 <string name="t_icd10_specific_pd">ICD-10 criteria for specific personality disorders (F60)</string>

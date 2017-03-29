@@ -25,7 +25,7 @@
 namespace mathfunc {
 
 
-QVariant mean(const QList<QVariant>& values, bool ignore_null)
+QVariant mean(const QVector<QVariant>& values, bool ignore_null)
 {
     double total = 0;
     int n = 0;
@@ -49,7 +49,7 @@ QVariant mean(const QList<QVariant>& values, bool ignore_null)
 }
 
 
-int sumInt(const QList<QVariant>& values)
+int sumInt(const QVector<QVariant>& values)
 {
     int total = 0;
     int length = values.length();
@@ -61,7 +61,7 @@ int sumInt(const QList<QVariant>& values)
 }
 
 
-double sumDouble(const QList<QVariant>& values)
+double sumDouble(const QVector<QVariant>& values)
 {
     double total = 0;
     int length = values.length();
@@ -73,7 +73,7 @@ double sumDouble(const QList<QVariant>& values)
 }
 
 
-int countTrue(const QList<QVariant>& values)
+int countTrue(const QVector<QVariant>& values)
 {
     int n = 0;
     int length = values.length();
@@ -87,7 +87,7 @@ int countTrue(const QList<QVariant>& values)
 }
 
 
-bool allTrue(const QList<QVariant>& values)
+bool allTrue(const QVector<QVariant>& values)
 {
     int length = values.length();
     for (int i = 0; i < length; ++i) {
@@ -100,7 +100,7 @@ bool allTrue(const QList<QVariant>& values)
 }
 
 
-bool anyTrue(const QList<QVariant>& values)
+bool anyTrue(const QVector<QVariant>& values)
 {
     int length = values.length();
     for (int i = 0; i < length; ++i) {
@@ -113,13 +113,13 @@ bool anyTrue(const QList<QVariant>& values)
 }
 
 
-bool allFalseOrNull(const QList<QVariant>& values)
+bool allFalseOrNull(const QVector<QVariant>& values)
 {
     return !anyTrue(values);
 }
 
 
-bool anyNull(const QList<QVariant>& values)
+bool anyNull(const QVector<QVariant>& values)
 {
     int length = values.length();
     for (int i = 0; i < length; ++i) {
@@ -132,13 +132,13 @@ bool anyNull(const QList<QVariant>& values)
 }
 
 
-bool noneNull(const QList<QVariant>& values)
+bool noneNull(const QVector<QVariant>& values)
 {
     return !anyNull(values);
 }
 
 
-bool anyNullOrEmpty(const QList<QVariant>& values)
+bool anyNullOrEmpty(const QVector<QVariant>& values)
 {
     int length = values.length();
     for (int i = 0; i < length; ++i) {
@@ -151,13 +151,13 @@ bool anyNullOrEmpty(const QList<QVariant>& values)
 }
 
 
-bool noneNullOrEmpty(const QList<QVariant>& values)
+bool noneNullOrEmpty(const QVector<QVariant>& values)
 {
     return !anyNullOrEmpty(values);
 }
 
 
-int numNull(const QList<QVariant>& values)
+int countNull(const QVector<QVariant>& values)
 {
     int n = 0;
     int length = values.length();
@@ -171,7 +171,7 @@ int numNull(const QList<QVariant>& values)
 }
 
 
-int numNotNull(const QList<QVariant>& values)
+int countNotNull(const QVector<QVariant>& values)
 {
     int n = 0;
     int length = values.length();
@@ -211,8 +211,8 @@ bool eqOrNull(const QVariant& x, bool test)
 
 
 
-int countWhere(const QList<QVariant>& test_values,
-               const QList<QVariant>& where_values)
+int countWhere(const QVector<QVariant>& test_values,
+               const QVector<QVariant>& where_values)
 {
     int n = 0;
     int length = test_values.length();
@@ -226,8 +226,8 @@ int countWhere(const QList<QVariant>& test_values,
 }
 
 
-int countWhereNot(const QList<QVariant>& test_values,
-                  const QList<QVariant>& where_not_values)
+int countWhereNot(const QVector<QVariant>& test_values,
+                  const QVector<QVariant>& where_not_values)
 {
     int n = 0;
     int length = test_values.length();

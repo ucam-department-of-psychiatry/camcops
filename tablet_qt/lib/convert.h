@@ -18,7 +18,6 @@
 */
 
 #pragma once
-#include <QList>
 #include <QMap>
 #include <QSsl>
 #include <QString>
@@ -51,8 +50,8 @@ QByteArray quotedHexToBlob(const QString& hex);
 
 QString toSqlLiteral(const QVariant& value);
 QVariant fromSqlLiteral(const QString& literal);
-QList<QVariant> csvSqlLiteralsToValues(const QString& csv);
-QString valuesToCsvSqlLiterals(const QList<QVariant>& values);
+QVector<QVariant> csvSqlLiteralsToValues(const QString& csv);
+QString valuesToCsvSqlLiterals(const QVector<QVariant>& values);
 
 // ============================================================================
 // Images

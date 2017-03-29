@@ -113,7 +113,7 @@ QStringList Badls::detail() const
 
 OpenableWidget* Badls::editor(bool read_only)
 {
-    QList<QuElementPtr> elements;
+    QVector<QuElementPtr> elements;
     bool second_person = true;
 
     elements.append(getRespondentQuestionnaireBlockElementPtr(second_person));

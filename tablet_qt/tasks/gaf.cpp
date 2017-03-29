@@ -18,6 +18,7 @@
 */
 
 #include "gaf.h"
+#include "common/appstrings.h"
 #include "common/textconst.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/questionnaire.h"
@@ -86,7 +87,7 @@ bool Gaf::isComplete() const
 
 QStringList Gaf::summary() const
 {
-    return QStringList{standardResult(appstring("gaf_score"),
+    return QStringList{standardResult(appstring(appstrings::GAF_SCORE),
                                       prettyValue(SCORE))};
 }
 
@@ -102,7 +103,7 @@ OpenableWidget* Gaf::editor(bool read_only)
     QuPagePtr page((new QuPage{
         getClinicianQuestionnaireBlockRawPointer(),
         (new QuText(textconst::DATA_COLLECTION_ONLY))->setBold(),
-        new QuText(appstring("gaf_score") + ":"),
+        new QuText(appstring(appstrings::GAF_SCORE) + ":"),
         new QuLineEditInteger(fieldRef(SCORE), 0, 100),
     })->setTitle(longname()));
 

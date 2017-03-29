@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define OFFER_LAYOUT_DEBUG_BUTTON
+// #define OFFER_LAYOUT_DEBUG_BUTTON
 // #define DEBUG_PAGE_LAYOUT_ON_OPEN
 
 #include "questionnaire.h"
@@ -50,7 +50,8 @@ Questionnaire::Questionnaire(CamcopsApp& app) :
 }
 
 
-Questionnaire::Questionnaire(CamcopsApp& app, const QList<QuPagePtr>& pages) :
+Questionnaire::Questionnaire(CamcopsApp& app,
+                             const QVector<QuPagePtr>& pages) :
     m_app(app),
     m_pages(pages)
 {
@@ -374,7 +375,7 @@ void Questionnaire::jumpClicked()
     // - In editing mode, we can jump as far as the last page that isn't
     //   incomplete.
     // - We skip skipped pages in either mode.
-    QList<PagePickerItem> pageitems;
+    QVector<PagePickerItem> pageitems;
     bool blocked = false;
     for (int i = 0; i < m_pages.size(); ++i) {
         QuPagePtr page = m_pages.at(i);
@@ -537,7 +538,7 @@ void Questionnaire::setVisibleByTag(const QString& tag, bool visible,
                                     bool current_page_only,
                                     const QString& page_tag)
 {
-    QList<QuElement*> elements = getElementsByTag(tag, current_page_only,
+    QVector<QuElement*> elements = getElementsByTag(tag, current_page_only,
                                                   page_tag);
     for (auto element : elements) {
         element->setVisible(visible);
@@ -545,10 +546,10 @@ void Questionnaire::setVisibleByTag(const QString& tag, bool visible,
 }
 
 
-QList<QuPage*> Questionnaire::getPages(bool current_page_only,
-                                       const QString& page_tag)
+QVector<QuPage*> Questionnaire::getPages(bool current_page_only,
+                                         const QString& page_tag)
 {
-    QList<QuPage*> pages;
+    QVector<QuPage*> pages;
     if (current_page_only) {
         QuPage* page = currentPagePtr();
         if (page && (page_tag.isEmpty() || page->hasTag(page_tag))) {
@@ -581,7 +582,7 @@ void Questionnaire::setPageSkip(int page, bool skip, bool reset_buttons)
 void Questionnaire::setPageSkip(const QString& page_tag, bool skip,
                                 bool reset_buttons)
 {
-    QList<QuPage*> pages = getPages(false, page_tag);
+    QVector<QuPage*> pages = getPages(false, page_tag);
     for (auto page : pages) {
         page->setSkip(skip);
     }
@@ -591,12 +592,12 @@ void Questionnaire::setPageSkip(const QString& page_tag, bool skip,
 }
 
 
-QList<QuElement*> Questionnaire::getElementsByTag(const QString& tag,
-                                                  bool current_page_only,
-                                                  const QString& page_tag)
+QVector<QuElement*> Questionnaire::getElementsByTag(const QString& tag,
+                                                    bool current_page_only,
+                                                    const QString& page_tag)
 {
-    QList<QuPage*> pages = getPages(current_page_only, page_tag);
-    QList<QuElement*> elements;
+    QVector<QuPage*> pages = getPages(current_page_only, page_tag);
+    QVector<QuElement*> elements;
     for (auto page : pages) {
         elements += page->elementsWithTag(tag);
     }
@@ -608,8 +609,8 @@ QuElement* Questionnaire::getFirstElementByTag(const QString& tag,
                                                bool current_page_only,
                                                const QString& page_tag)
 {
-    QList<QuElement*> elements = getElementsByTag(tag, current_page_only,
-                                                  page_tag);
+    QVector<QuElement*> elements = getElementsByTag(tag, current_page_only,
+                                                    page_tag);
     if (elements.isEmpty()) {
         return nullptr;
     }

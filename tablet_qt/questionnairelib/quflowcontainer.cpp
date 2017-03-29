@@ -37,7 +37,7 @@ QuFlowContainer::QuFlowContainer()
 
 
 QuFlowContainer::QuFlowContainer(
-        const QList<QuElementPtr>& elements,
+        const QVector<QuElementPtr>& elements,
         Qt::Alignment alignment) :
     m_elements(elements)
 {
@@ -125,7 +125,7 @@ QPointer<QWidget> QuFlowContainer::makeWidget(
 }
 
 
-QList<QuElementPtr> QuFlowContainer::subelements() const
+QVector<QuElementPtr> QuFlowContainer::subelements() const
 {
     return m_elements;
 }

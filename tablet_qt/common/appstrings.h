@@ -1,0 +1,60 @@
+/*
+    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+
+    This file is part of CamCOPS.
+
+    CamCOPS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    CamCOPS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#pragma once
+#include <QString>
+
+
+namespace appstrings
+{
+
+const QString BDI_WHICH_SCALE("bdi_which_scale");
+const QString DATA_COLLECTION_ONLY("data_collection_only");
+const QString DATE_PERTAINS_TO("date_pertains_to");
+const QString GAF_SCORE("gaf_score");
+const QString HADS_ANXIETY_SCORE("hads_anxiety_score");
+const QString HADS_DEPRESSION_SCORE("hads_depression_score");
+const QString ICD10_SYMPTOMATIC_DISCLAIMER("icd10_symptomatic_disclaimer");
+
+const QString NHS_PERSON_MARITAL_STATUS_CODE_S("nhs_person_marital_status_code_S");
+const QString NHS_PERSON_MARITAL_STATUS_CODE_M("nhs_person_marital_status_code_M");
+const QString NHS_PERSON_MARITAL_STATUS_CODE_D("nhs_person_marital_status_code_D");
+const QString NHS_PERSON_MARITAL_STATUS_CODE_W("nhs_person_marital_status_code_W");
+const QString NHS_PERSON_MARITAL_STATUS_CODE_P("nhs_person_marital_status_code_P");
+const QString NHS_PERSON_MARITAL_STATUS_CODE_N("nhs_person_marital_status_code_N");
+
+const QString NHS_ETHNIC_CATEGORY_CODE_A("nhs_ethnic_category_code_A");
+const QString NHS_ETHNIC_CATEGORY_CODE_B("nhs_ethnic_category_code_B");
+const QString NHS_ETHNIC_CATEGORY_CODE_C("nhs_ethnic_category_code_C");
+const QString NHS_ETHNIC_CATEGORY_CODE_D("nhs_ethnic_category_code_D");
+const QString NHS_ETHNIC_CATEGORY_CODE_E("nhs_ethnic_category_code_E");
+const QString NHS_ETHNIC_CATEGORY_CODE_F("nhs_ethnic_category_code_F");
+const QString NHS_ETHNIC_CATEGORY_CODE_G("nhs_ethnic_category_code_G");
+const QString NHS_ETHNIC_CATEGORY_CODE_H("nhs_ethnic_category_code_H");
+const QString NHS_ETHNIC_CATEGORY_CODE_J("nhs_ethnic_category_code_J");
+const QString NHS_ETHNIC_CATEGORY_CODE_K("nhs_ethnic_category_code_K");
+const QString NHS_ETHNIC_CATEGORY_CODE_L("nhs_ethnic_category_code_L");
+const QString NHS_ETHNIC_CATEGORY_CODE_M("nhs_ethnic_category_code_M");
+const QString NHS_ETHNIC_CATEGORY_CODE_N("nhs_ethnic_category_code_N");
+const QString NHS_ETHNIC_CATEGORY_CODE_P("nhs_ethnic_category_code_P");
+const QString NHS_ETHNIC_CATEGORY_CODE_R("nhs_ethnic_category_code_R");
+const QString NHS_ETHNIC_CATEGORY_CODE_S("nhs_ethnic_category_code_S");
+const QString NHS_ETHNIC_CATEGORY_CODE_Z("nhs_ethnic_category_code_Z");
+
+}  // namespace appstrings

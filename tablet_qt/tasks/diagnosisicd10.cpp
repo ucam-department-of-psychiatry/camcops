@@ -90,9 +90,9 @@ void DiagnosisIcd10::loadAllAncillary(int pk)
 }
 
 
-QList<DatabaseObjectPtr> DiagnosisIcd10::getAncillarySpecimens() const
+QVector<DatabaseObjectPtr> DiagnosisIcd10::getAncillarySpecimens() const
 {
-    return QList<DatabaseObjectPtr>{
+    return QVector<DatabaseObjectPtr>{
         DatabaseObjectPtr(new DiagnosisIcd10Item(m_app, m_db)),
     };
 }

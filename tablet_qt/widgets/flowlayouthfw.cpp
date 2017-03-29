@@ -280,8 +280,8 @@ QSize FlowLayoutHfw::doLayout(const QRect& rect, bool test_only) const
     int y = effective_rect.y();
 
     int row = 0;
-    QList<int> line_heights{0};
-    QList<ItemCalc> itemcalcs;
+    QVector<int> line_heights{0};
+    QVector<ItemCalc> itemcalcs;
 
     for (auto item : m_item_list) {
         ItemCalc calc;

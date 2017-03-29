@@ -39,12 +39,14 @@ QDate nowDate();
 QString nowTimestamp();
 
 QString timestampDateTime(const QDateTime& dt);
+QString timestampDateTime(const QVariant& dt);
 QString shortDateTime(const QDateTime& dt);
 QString shortDateTime(const QVariant& dt);
 QString textDateTime(const QDateTime& dt);
 QString textDateTime(const QVariant& dt);
 
 QString shortDate(const QDate& d);
+QString shortDate(const QVariant& d);
 QString textDate(const QDate& d);
 QString textDate(const QVariant& d);
 

@@ -26,7 +26,7 @@
 
 
 QuThermometer::QuThermometer(FieldRefPtr fieldref,
-                             const QList<QuThermometerItem>& items) :
+                             const QVector<QuThermometerItem>& items) :
     m_fieldref(fieldref),
     m_items(items)
 {

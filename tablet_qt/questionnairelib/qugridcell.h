@@ -27,6 +27,7 @@ class QuGridCell
     // Used by QuContainerGrid.
 
 public:
+    QuGridCell();  // so it can live in a QVector
     QuGridCell(const QuElementPtr element,
                int row,  // y position, starting from 0, going down
                int column,  // x position, starting from 0, going right

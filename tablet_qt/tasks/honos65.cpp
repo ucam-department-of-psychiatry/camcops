@@ -151,7 +151,7 @@ OpenableWidget* Honos65::editor(bool read_only)
         {xstring("q8problemtype_option_i"), "I"},
         {xstring("q8problemtype_option_j"), "J"},
     };
-    QList<QuPagePtr> pages;
+    QVector<QuPagePtr> pages;
 
     auto getoptions = [this](int n) -> NameValueOptions {
         NameValueOptions options;
@@ -169,12 +169,12 @@ OpenableWidget* Honos65::editor(bool read_only)
         QString pagetitle = xstring("title_prefix") + QString::number(n);
         QString question = xstring(strnum("q", n));
         QString fieldname = strnum(QPREFIX, n);
-        QList<QuElement*> elements{
+        QVector<QuElement*> elements{
             new QuText(question),
             new QuMcq(fieldRef(fieldname), options),
         };
         if (n == 8) {
-            elements += QList<QuElement*>{
+            elements += QVector<QuElement*>{
                 new QuText(xstring("q8problemtype_prompt")),
                 new QuMcq(fieldRef(Q8_PROBLEM_TYPE), q8_problemtype_options),
                 new QuText(xstring("q8otherproblem_prompt")),

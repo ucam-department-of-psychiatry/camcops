@@ -32,7 +32,7 @@ QuVerticalContainer::QuVerticalContainer()
 }
 
 
-QuVerticalContainer::QuVerticalContainer(const QList<QuElementPtr>& elements,
+QuVerticalContainer::QuVerticalContainer(const QVector<QuElementPtr>& elements,
                                          Qt::Alignment alignment) :
     m_elements(elements)
 {
@@ -114,7 +114,7 @@ QPointer<QWidget> QuVerticalContainer::makeWidget(Questionnaire* questionnaire)
 }
 
 
-QList<QuElementPtr> QuVerticalContainer::subelements() const
+QVector<QuElementPtr> QuVerticalContainer::subelements() const
 {
     return m_elements;
 }

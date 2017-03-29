@@ -955,6 +955,13 @@ Network
   don't start/stop it.
 
 ===============================================================================
+Containers
+===============================================================================
+Prefer QVector to QList, except for QList<String> / QStringList:
+- http://doc.qt.io/qt-5/qlist.html
+- https://marcmutz.wordpress.com/effective-qt/containers/#containers-qlist
+
+===============================================================================
 NOT IMPLEMENTED
 ===============================================================================
 

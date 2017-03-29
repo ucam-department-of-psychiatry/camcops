@@ -28,6 +28,7 @@ class NameValuePair
     // Encapsulates a single name/value pair.
 
 public:
+    NameValuePair() {}  // so it can live in a QVector
     NameValuePair(const QString& name, const QVariant& value);
     const QString& name() const;  // function access write-protects the members
     const QVariant& value() const;

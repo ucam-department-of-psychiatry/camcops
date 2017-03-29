@@ -115,7 +115,7 @@ QStringList Cage::detail() const
 OpenableWidget* Cage::editor(bool read_only)
 {
     NameValueOptions options = CommonOptions::yesNoChar();
-    QList<QuestionWithOneField> qfields;
+    QVector<QuestionWithOneField> qfields;
     for (int n = FIRST_Q; n <= N_QUESTIONS; ++n) {
         QString question = xstring(strnum("q", n));
         QString fieldname = strnum(QPREFIX, n);

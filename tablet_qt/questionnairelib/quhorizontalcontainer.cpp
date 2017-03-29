@@ -37,7 +37,7 @@ QuHorizontalContainer::QuHorizontalContainer()
 
 
 QuHorizontalContainer::QuHorizontalContainer(
-        const QList<QuElementPtr>& elements,
+        const QVector<QuElementPtr>& elements,
         Qt::Alignment alignment) :
     m_elements(elements)
 {
@@ -143,7 +143,7 @@ QPointer<QWidget> QuHorizontalContainer::makeWidget(
 }
 
 
-QList<QuElementPtr> QuHorizontalContainer::subelements() const
+QVector<QuElementPtr> QuHorizontalContainer::subelements() const
 {
     return m_elements;
 }

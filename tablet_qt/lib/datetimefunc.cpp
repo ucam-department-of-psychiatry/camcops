@@ -106,6 +106,12 @@ QString timestampDateTime(const QDateTime& dt)
 }
 
 
+QString timestampDateTime(const QVariant &dt)
+{
+    return dt.isNull() ? UNKNOWN : timestampDateTime(dt.toDateTime());
+}
+
+
 QString shortDateTime(const QDateTime& dt)
 {
     return dt.toString(SHORT_DATETIME_FORMAT);
@@ -133,6 +139,12 @@ QString textDateTime(const QVariant& dt)
 QString shortDate(const QDate& d)
 {
     return d.toString(SHORT_DATE_FORMAT);
+}
+
+
+QString shortDate(const QVariant &d)
+{
+    return d.isNull() ? UNKNOWN : shortDate(d.toDate());
 }
 
 

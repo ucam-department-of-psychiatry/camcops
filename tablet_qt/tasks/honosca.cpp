@@ -131,7 +131,7 @@ QStringList Honosca::detail() const
 
 OpenableWidget* Honosca::editor(bool read_only)
 {
-    QList<QuPagePtr> pages;
+    QVector<QuPagePtr> pages;
 
     auto getoptions = [this](int n) -> NameValueOptions {
         NameValueOptions options;
@@ -149,7 +149,7 @@ OpenableWidget* Honosca::editor(bool read_only)
         QString pagetitle = titleprefix + QString::number(n);
         QString question = xstring(strnum("q", n));
         QString fieldname = strnum(QPREFIX, n);
-        QList<QuElement*> elements{
+        QVector<QuElement*> elements{
             new QuText(question),
             new QuMcq(fieldRef(fieldname), options),
         };

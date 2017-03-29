@@ -258,11 +258,11 @@ QVariant fromSqlLiteral(const QString& literal)
 }
 
 
-QList<QVariant> csvSqlLiteralsToValues(const QString& csv)
+QVector<QVariant> csvSqlLiteralsToValues(const QString& csv)
 {
     // In: 34, NULL, 'a string''s test, with commas', X'0FB2AA', 64'c3VyZS4='
     // Out: split by commas, dealing with quotes appropriately
-    QList<QVariant> values;
+    QVector<QVariant> values;
     int n = csv.length();
     bool in_quotes = false;
     int startpos = 0;
@@ -311,7 +311,7 @@ QList<QVariant> csvSqlLiteralsToValues(const QString& csv)
 }
 
 
-QString valuesToCsvSqlLiterals(const QList<QVariant>& values)
+QString valuesToCsvSqlLiterals(const QVector<QVariant>& values)
 {
     QStringList literals;
     for (auto value : values) {

@@ -40,8 +40,8 @@ const QString QPREFIX("q");
 
 const QString GDS15_TABLENAME("gds15");
 
-const QList<int> SCORE_IF_YES{2, 3, 4, 6, 8, 9, 10, 12, 14, 15};
-const QList<int> SCORE_IF_NO{1, 5, 7, 11, 13};
+const QVector<int> SCORE_IF_YES{2, 3, 4, 6, 8, 9, 10, 12, 14, 15};
+const QVector<int> SCORE_IF_NO{1, 5, 7, 11, 13};
 
 
 void initializeGds15(TaskFactory& factory)
@@ -116,7 +116,7 @@ QStringList Gds15::detail() const
 OpenableWidget* Gds15::editor(bool read_only)
 {
     NameValueOptions options = CommonOptions::yesNoChar();
-    QList<QuestionWithOneField> qfields;
+    QVector<QuestionWithOneField> qfields;
     for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
         qfields.append(QuestionWithOneField(xstring(strnum("q", i)),
                                             fieldRef(strnum(QPREFIX, i))));

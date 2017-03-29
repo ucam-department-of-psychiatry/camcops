@@ -46,7 +46,7 @@ public:
     // Ancillary management
     // ------------------------------------------------------------------------
     virtual void loadAllAncillary(int pk) override;
-    virtual QList<DatabaseObjectPtr> getAncillarySpecimens() const override;
+    virtual QVector<DatabaseObjectPtr> getAncillarySpecimens() const override;
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------

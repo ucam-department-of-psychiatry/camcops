@@ -18,7 +18,6 @@
 */
 
 #pragma once
-#include <QList>
 #include <QString>
 #include <QVariant>
 #include "common/aliases_qt.h"

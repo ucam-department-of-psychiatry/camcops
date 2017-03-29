@@ -28,6 +28,7 @@ class QuestionWithOneField
     // Used by e.g. QuMCQGrid; QuMultipleResponse.
 
 public:
+    QuestionWithOneField();  // so it can live in a QVector
     QuestionWithOneField(const QString& question, FieldRefPtr fieldref);
     QuestionWithOneField(FieldRefPtr fieldref, const QString& question);
     // ... for convenience

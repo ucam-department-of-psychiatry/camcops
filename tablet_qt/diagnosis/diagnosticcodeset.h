@@ -19,7 +19,6 @@
 
 #pragma once
 #include <QAbstractItemModel>
-#include <QList>
 #include <QString>
 #include "diagnosticcode.h"
 

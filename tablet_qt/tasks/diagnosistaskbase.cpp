@@ -74,7 +74,7 @@ OpenableWidget* DiagnosisTaskBase::editor(bool read_only)
 {
     m_codeset = makeCodeset();
 
-    m_core_elements = QList<QuElementPtr>{
+    m_core_elements = QVector<QuElementPtr>{
         getClinicianQuestionnaireBlockElementPtr(),
         QuElementPtr(new QuButton(
             textconst::ADD,
@@ -98,9 +98,9 @@ OpenableWidget* DiagnosisTaskBase::editor(bool read_only)
 // Ancillary management
 // ============================================================================
 
-QList<DatabaseObjectPtr> DiagnosisTaskBase::getAllAncillary() const
+QVector<DatabaseObjectPtr> DiagnosisTaskBase::getAllAncillary() const
 {
-    QList<DatabaseObjectPtr> ancillaries;
+    QVector<DatabaseObjectPtr> ancillaries;
     for (auto item : m_items) {
         ancillaries.append(item);
     }
@@ -231,7 +231,7 @@ void DiagnosisTaskBase::refreshQuestionnaire()
 
 void DiagnosisTaskBase::rebuildPage(QuPage* page)
 {
-    QList<QuElement*> elements;
+    QVector<QuElement*> elements;
     int n = m_items.size();
     for (int i = 0; i < n; ++i) {
         bool first = i == 0;

@@ -35,9 +35,12 @@ namespace textconst
 // - If a string is shared between the tablet and server (but in a way that
 //   is not task-specific), it should live in the "camcops" namespace of the
 //   downloaded strings, unless it is "mission-critical" for the tablet.
+//   Things that live in the "camcops" XML namespace should be referenced in
+//   the "appstrings" namespace, in common/appstrings.h
 //
 // - If a string is task-specific, it should live in the task's namespace of
-//   the downloaded strings.
+//   the downloaded strings. (It can be referenced by a free-floating name
+//   string, or if used more than once, by a local variable.)
 //
 // (*) Strings that live in the source code, and involve some language, should
 // use the Qt tr() mechanism to support internationalization. (The downloaded
@@ -51,6 +54,7 @@ namespace textconst
 
 extern const QString ADD;
 
+extern const QString CATEGORY;
 extern const QString CLINICIAN_COMMENTS;
 extern const QString CLINICIAN_CONTACT_DETAILS;
 extern const QString CLINICIAN_DETAILS;
@@ -66,11 +70,14 @@ extern const QString DATA_COLLECTION_ONLY;
 extern const QString DELETE;
 extern const QString DIAGNOSIS;
 
+extern const QString FALSE;
 extern const QString FINISHED;
 
 extern const QString ENTER_THE_ANSWERS;
 extern const QString EXAMINER_COMMENTS;
 extern const QString EXAMINER_COMMENTS_PROMPT;
+
+extern const QString ICD10;
 
 extern const QString MILD;
 extern const QString MILD_TO_MODERATE;
@@ -81,10 +88,12 @@ extern const QString MOVE_DOWN;
 extern const QString MOVE_UP;
 
 extern const QString NA;
+extern const QString NO;
 extern const QString NONE;
 extern const QString NO_SUMMARY_SEE_FACSIMILE;
 extern const QString NOT_APPLICABLE;
 extern const QString NOT_SPECIFIED;
+// Don't use NULL; it's a keyword
 
 extern const QString PAGE;
 extern const QString PATIENT;
@@ -102,8 +111,13 @@ extern const QString SEX;
 
 extern const QString THANK_YOU;
 extern const QString TOTAL_SCORE;
+extern const QString TRUE;
+
+extern const QString UNKNOWN;
 
 extern const QString VERY_SEVERE;
+
+extern const QString YES;
 
 // ============================================================================
 // Terms and conditions
@@ -119,4 +133,4 @@ extern const QString LOREM_IPSUM_1;
 extern const QString LOREM_IPSUM_2;
 extern const QString LOREM_IPSUM_3;
 
-}
+}  // namespace textconst

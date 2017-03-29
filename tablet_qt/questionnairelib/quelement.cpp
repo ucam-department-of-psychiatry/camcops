@@ -63,15 +63,15 @@ QPointer<QWidget> QuElement::cachedWidget() const
 }
 
 
-QList<QuElementPtr> QuElement::subelements() const
+QVector<QuElementPtr> QuElement::subelements() const
 {
-    return QList<QuElementPtr>();
+    return QVector<QuElementPtr>();
 }
 
 
-QList<QuElement*> QuElement::subelementsRaw() const
+QVector<QuElement*> QuElement::subelementsRaw() const
 {
-    QList<QuElement*> raw;
+    QVector<QuElement*> raw;
     for (auto e : subelements()) {
         raw.append(e.data());
     }
@@ -79,10 +79,10 @@ QList<QuElement*> QuElement::subelementsRaw() const
 }
 
 
-QList<QuElementPtr> QuElement::subelementsWithChildrenFlattened() const
+QVector<QuElementPtr> QuElement::subelementsWithChildrenFlattened() const
 {
-    QList<QuElementPtr> all_children;
-    QList<QuElementPtr> sub = subelements();
+    QVector<QuElementPtr> all_children;
+    QVector<QuElementPtr> sub = subelements();
     for (auto e : sub) {
         all_children.append(e);
         all_children.append(e->subelementsWithChildrenFlattened());
@@ -91,9 +91,9 @@ QList<QuElementPtr> QuElement::subelementsWithChildrenFlattened() const
 }
 
 
-QList<QuElement*> QuElement::subelementsWithChildrenFlattenedRaw() const
+QVector<QuElement*> QuElement::subelementsWithChildrenFlattenedRaw() const
 {
-    QList<QuElement*> raw;
+    QVector<QuElement*> raw;
     for (auto e : subelementsWithChildrenFlattened()) {
         raw.append(e.data());
     }

@@ -44,8 +44,6 @@
 #include "tasklib/task.h"
 #include "tasklib/taskfactory.h"
 
-using Dict = QMap<QString, QString>;
-using RecordList = QList<QMap<QString, QVariant>>;
 using dbfunc::delimit;
 
 // Keys used by server or client (S server, C client, B bidirectional)
@@ -466,7 +464,7 @@ RecordList NetworkManager::getRecordList()
             return RecordList();
         }
         QString valuelist = m_reply_dict[recordname];
-        QList<QVariant> values = convert::csvSqlLiteralsToValues(valuelist);
+        QVector<QVariant> values = convert::csvSqlLiteralsToValues(valuelist);
         if (values.length() != nfields) {
             statusMessage("ERROR: #values not equal to #fields");
             return RecordList();
@@ -946,7 +944,7 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
             }
             WhereConditions where;
             where[dbconst::MOVE_OFF_TABLET_FIELDNAME] = 1;
-            QList<int> task_pks = dbfunc::getSingleFieldAsIntList(
+            QVector<int> task_pks = dbfunc::getSingleFieldAsIntList(
                         m_db, main_tablename, dbconst::PK_FIELDNAME, where);
             if (task_pks.isEmpty()) {
                 // no tasks to be moved off
@@ -991,7 +989,7 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
         // Get PKs of all anonymous tasks being moved off
         WhereConditions where;
         where[dbconst::MOVE_OFF_TABLET_FIELDNAME] = 1;
-        QList<int> task_pks = dbfunc::getSingleFieldAsIntList(
+        QVector<int> task_pks = dbfunc::getSingleFieldAsIntList(
                     m_db, main_tablename, dbconst::PK_FIELDNAME, where);
         if (task_pks.isEmpty()) {
             // no tasks to be moved off
@@ -1517,7 +1515,7 @@ bool NetworkManager::pruneDeadBlobs()
     statusMessage("Removing any defunct binary large objects");
 
     QStringList all_tables = dbfunc::getAllTables(m_db);
-    QList<int> bad_blob_pks;
+    QVector<int> bad_blob_pks;
 
     // For all BLOBs...
     QString sql = dbfunc::selectColumns(QStringList{dbconst::PK_FIELDNAME,

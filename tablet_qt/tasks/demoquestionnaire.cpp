@@ -596,7 +596,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
     // Sliders, thermometer
     // ------------------------------------------------------------------------
 
-    QList<QuThermometerItem> thermometer_items;
+    QVector<QuThermometerItem> thermometer_items;
     for (int i = 0; i <= 10; ++i) {
         QString text = QString::number(i);
         if (i == 10) {

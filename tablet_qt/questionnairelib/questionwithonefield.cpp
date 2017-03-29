@@ -40,6 +40,13 @@ QuestionWithOneField::QuestionWithOneField(FieldRefPtr fieldref,
 }
 
 
+QuestionWithOneField::QuestionWithOneField() :
+    m_fieldref(nullptr)
+{
+
+}
+
+
 QString QuestionWithOneField::question() const
 {
     return m_question;

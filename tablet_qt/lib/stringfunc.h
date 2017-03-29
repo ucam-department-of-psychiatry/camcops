@@ -36,7 +36,7 @@ QString strnum(const QString& prefix, int num, const QString& suffix = "");
 QStringList strseq(const QString& prefix, int first, int last);
 // Example: stringSequence("q", 1, 3) -> {"q1", "q2", "q3"}
 
-QStringList strnumlist(const QString& prefix, const QList<int>& numbers,
+QStringList strnumlist(const QString& prefix, const QVector<int>& numbers,
                        const QString& suffix = "");
 
 QStringList strseq(const QString& prefix, int first, int last,

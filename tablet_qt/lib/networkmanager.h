@@ -41,8 +41,6 @@ class NetworkManager : public QObject
 {
     // Controls network operations, optionally providing a progress display.
 
-    using Dict = QMap<QString, QString>;
-    using RecordList = QList<QMap<QString, QVariant>>;
     using ReplyFuncPtr = void (NetworkManager::*)(QNetworkReply*);
     // ... a pointer to a member function of NetworkManager that takes a
     // QNetworkReply* parameter and returns void
@@ -204,7 +202,7 @@ protected:
     };
 
     NextUploadStage m_upload_next_stage;
-    QList<int> m_upload_patient_ids_to_move_off;
+    QVector<int> m_upload_patient_ids_to_move_off;
     QStringList m_upload_empty_tables;
     QStringList m_upload_tables_to_send_whole;
     QStringList m_upload_tables_to_send_recordwise;
@@ -212,6 +210,6 @@ protected:
     QStringList m_upload_recordwise_fieldnames;
     int m_upload_n_records;
     int m_upload_current_record_index;
-    QList<int> m_upload_recordwise_pks_to_send;
+    QVector<int> m_upload_recordwise_pks_to_send;
     QStringList m_upload_tables_to_wipe;
 };

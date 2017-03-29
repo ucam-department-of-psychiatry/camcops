@@ -172,7 +172,7 @@ void addOrderByClause(const OrderBy& order_by, SqlArgs& sqlargs_altered)
 
 void addArgs(QSqlQuery& query, const ArgList& args)
 {
-    // Adds arguments to a QSqlQuery from a QList.
+    // Adds arguments to a QSqlQuery from a list/vector.
     const int size = args.size();
     for (int i = 0; i < size; ++i) {
         query.addBindValue(args.at(i), QSql::In);
@@ -333,7 +333,7 @@ QString sqlParamHolders(int n)
 }
 
 
-ArgList argListFromIntList(const QList<int>& intlist)
+ArgList argListFromIntList(const QVector<int>& intlist)
 {
     ArgList args;
     for (auto value : intlist) {
@@ -386,16 +386,16 @@ int count(const QSqlDatabase& db,
 }
 
 
-QList<int> getSingleFieldAsIntList(const QSqlDatabase& db,
-                                   const QString& tablename,
-                                   const QString& fieldname,
-                                   const WhereConditions& where)
+QVector<int> getSingleFieldAsIntList(const QSqlDatabase& db,
+                                     const QString& tablename,
+                                     const QString& fieldname,
+                                     const WhereConditions& where)
 {
     SqlArgs sqlargs(QString("SELECT %1 FROM %2").arg(delimit(fieldname),
                                                      delimit(tablename)));
     addWhereClause(where, sqlargs);
     QSqlQuery query(db);
-    QList<int> results;
+    QVector<int> results;
     if (!execQuery(query, sqlargs)) {
         return results;  // empty list on failure
     }
@@ -406,10 +406,10 @@ QList<int> getSingleFieldAsIntList(const QSqlDatabase& db,
 }
 
 
-QList<int> getPKs(const QSqlDatabase& db,
-                  const QString& tablename,
-                  const QString& pkname,
-                  const WhereConditions& where)
+QVector<int> getPKs(const QSqlDatabase& db,
+                    const QString& tablename,
+                    const QString& pkname,
+                    const WhereConditions& where)
 {
     return getSingleFieldAsIntList(db, tablename, pkname, where);
 }
@@ -483,8 +483,8 @@ bool tableExists(const QSqlDatabase& db, const QString& tablename)
 }
 
 
-QList<SqlitePragmaInfoField> getPragmaInfo(const QSqlDatabase& db,
-                                           const QString& tablename)
+QVector<SqlitePragmaInfoField> getPragmaInfo(const QSqlDatabase& db,
+                                             const QString& tablename)
 {
     QString sql = QString("PRAGMA table_info(%1)").arg(delimit(tablename));
     QSqlQuery query(db);
@@ -492,7 +492,7 @@ QList<SqlitePragmaInfoField> getPragmaInfo(const QSqlDatabase& db,
         uifunc::stopApp("getPragmaInfo: PRAGMA table_info failed for "
                         "table " + tablename);
     }
-    QList<SqlitePragmaInfoField> infolist;
+    QVector<SqlitePragmaInfoField> infolist;
     while (query.next()) {
         SqlitePragmaInfoField fieldinfo;
         fieldinfo.cid = query.value(0).toInt();  // column ID
@@ -508,7 +508,7 @@ QList<SqlitePragmaInfoField> getPragmaInfo(const QSqlDatabase& db,
 
 
 QStringList fieldNamesFromPragmaInfo(
-        const QList<SqlitePragmaInfoField>& infolist,
+        const QVector<SqlitePragmaInfoField>& infolist,
         bool delimited)
 {
     QStringList fieldnames;
@@ -526,14 +526,14 @@ QStringList fieldNamesFromPragmaInfo(
 
 QStringList getFieldNames(const QSqlDatabase& db, const QString& tablename)
 {
-    QList<SqlitePragmaInfoField> infolist = getPragmaInfo(db, tablename);
+    QVector<SqlitePragmaInfoField> infolist = getPragmaInfo(db, tablename);
     return fieldNamesFromPragmaInfo(infolist);
 }
 
 
 QString makeCreationSqlFromPragmaInfo(
         const QString& tablename,
-        const QList<SqlitePragmaInfoField>& infolist)
+        const QVector<SqlitePragmaInfoField>& infolist)
 {
     QStringList fieldspecs;
     const int size = infolist.size();
@@ -589,7 +589,7 @@ bool createIndex(const QSqlDatabase& db, const QString& indexname,
 
 
 void renameColumns(const QSqlDatabase& db, QString tablename,
-                   const QList<QPair<QString, QString>>& from_to,
+                   const QVector<QPair<QString, QString>>& from_to,
                    const QString& tempsuffix)
 {
     if (!tableExists(db, tablename)) {
@@ -683,7 +683,7 @@ void renameTable(const QSqlDatabase& db, const QString& from,
 
 void changeColumnTypes(const QSqlDatabase& db,
                        const QString& tablename,
-                       const QList<QPair<QString, QString>>& changes,
+                       const QVector<QPair<QString, QString>>& changes,
                        const QString& tempsuffix)
 {
     // changes: pairs <fieldname, newtype>
@@ -697,7 +697,7 @@ void changeColumnTypes(const QSqlDatabase& db,
         uifunc::stopApp("changeColumnTypes: temporary table exists: " +
                         dummytable);
     }
-    QList<SqlitePragmaInfoField> infolist = getPragmaInfo(db, tablename);
+    QVector<SqlitePragmaInfoField> infolist = getPragmaInfo(db, tablename);
     qDebug() << "changeColumnTypes";
     qDebug() << "- pragma info:" << infolist;
     qDebug() << "- changes:" << changes;
@@ -735,7 +735,7 @@ void changeColumnTypes(const QSqlDatabase& db,
 }
 
 
-QString sqlCreateTable(const QString& tablename, const QList<Field>& fieldlist)
+QString sqlCreateTable(const QString& tablename, const QVector<Field>& fieldlist)
 {
     QStringList coldefs;
     for (int i = 0; i < fieldlist.size(); ++i) {
@@ -750,7 +750,7 @@ QString sqlCreateTable(const QString& tablename, const QList<Field>& fieldlist)
 
 
 void createTable(const QSqlDatabase& db, const QString& tablename,
-                 const QList<Field>& fieldlist, const QString& tempsuffix)
+                 const QVector<Field>& fieldlist, const QString& tempsuffix)
 {
     QString creation_sql = sqlCreateTable(tablename, fieldlist);
     if (!tableExists(db, tablename)) {
@@ -763,7 +763,7 @@ void createTable(const QSqlDatabase& db, const QString& tablename,
 
     // 1. Create a list of plans. Start with the fields we want, which we
     //    will add (unless later it turns out they exist already).
-    QList<FieldCreationPlan> planlist;
+    QVector<FieldCreationPlan> planlist;
     QStringList goodfieldlist;
     for (int i = 0; i < fieldlist.size(); ++i) {
         const Field& field = fieldlist.at(i);
@@ -781,7 +781,7 @@ void createTable(const QSqlDatabase& db, const QString& tablename,
     //   to have a different type).
     // - If they're not in our "desired" list, then they're superfluous, so
     //   aim to drop them.
-    QList<SqlitePragmaInfoField> infolist = getPragmaInfo(db, tablename);
+    QVector<SqlitePragmaInfoField> infolist = getPragmaInfo(db, tablename);
     for (int i = 0; i < infolist.size(); ++i) {
         const SqlitePragmaInfoField& info = infolist.at(i);
         bool existing_is_superfluous = true;

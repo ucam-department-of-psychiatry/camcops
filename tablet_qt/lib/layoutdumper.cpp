@@ -341,14 +341,14 @@ QString paddingSpaces(int level, int spaces_per_level)
 }
 
 
-QList<const QWidget*> dumpLayoutAndChildren(QDebug& os,
-                                            const QLayout* layout,
-                                            int level,
-                                            const DumperConfig& config)
+QVector<const QWidget*> dumpLayoutAndChildren(QDebug& os,
+                                              const QLayout* layout,
+                                              int level,
+                                              const DumperConfig& config)
 {
     QString padding = paddingSpaces(level, config.spaces_per_level);
     QString next_padding = paddingSpaces(level + 1, config.spaces_per_level);
-    QList<const QWidget*> dumped_children;
+    QVector<const QWidget*> dumped_children;
 
     os << padding << "Layout: " << getLayoutInfo(layout);
 
@@ -388,11 +388,11 @@ QList<const QWidget*> dumpLayoutAndChildren(QDebug& os,
 }
 
 
-QList<const QWidget*> dumpWidgetAndChildren(QDebug& os,
-                                            const QWidget* w,
-                                            int level,
-                                            const QString& alignment,
-                                            const DumperConfig& config)
+QVector<const QWidget*> dumpWidgetAndChildren(QDebug& os,
+                                              const QWidget* w,
+                                              int level,
+                                              const QString& alignment,
+                                              const DumperConfig& config)
 {
     QString padding = paddingSpaces(level, config.spaces_per_level);
 
@@ -400,7 +400,7 @@ QList<const QWidget*> dumpWidgetAndChildren(QDebug& os,
        << getWidgetInfo(w, config)
        << alignment << "\n";
 
-    QList<const QWidget*> dumped_children;
+    QVector<const QWidget*> dumped_children;
     dumped_children.append(w);
 
     QLayout* layout = w->layout();
@@ -422,7 +422,7 @@ QList<const QWidget*> dumpWidgetAndChildren(QDebug& os,
     QList<QWidget*> widgets = w->findChildren<QWidget*>(
                 QString(), Qt::FindDirectChildrenOnly);
     // Search options: FindDirectChildrenOnly or FindChildrenRecursively.
-    QList<QWidget*> undumped_children;
+    QVector<QWidget*> undumped_children;
     foreach (QWidget* child, widgets) {
         if (!dumped_children.contains(child)) {
             undumped_children.push_back(child);

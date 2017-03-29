@@ -122,7 +122,7 @@ QStringList DistressThermometer::detail() const
 
 OpenableWidget* DistressThermometer::editor(bool read_only)
 {
-    QList<QuThermometerItem> thermometer_items;
+    QVector<QuThermometerItem> thermometer_items;
     for (int i = 0; i <= 10; ++i) {
         QString text = QString::number(i);
         if (i == 10) {
@@ -141,7 +141,7 @@ OpenableWidget* DistressThermometer::editor(bool read_only)
         thermometer_items.append(item);
     }
 
-    QList<QuPagePtr> pages;
+    QVector<QuPagePtr> pages;
 
     pages.append(QuPagePtr((new QuPage{
         new QuText(xstring("distress_question")),
@@ -149,12 +149,12 @@ OpenableWidget* DistressThermometer::editor(bool read_only)
                                 ->setRescale(true, 0.4),
     })->setTitle(xstring("section1_title"))));
 
-    QList<QuestionWithOneField> qfpairs;
+    QVector<QuestionWithOneField> qfpairs;
     for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
         qfpairs.append(QuestionWithOneField(xstring(strnum("q", i)),
                                             fieldRef(strnum(QPREFIX, i))));
     }
-    QList<McqGridSubtitle> subtitles{
+    QVector<McqGridSubtitle> subtitles{
         // {1 - 1, xstring("subtitle1")},  // use title instead
         {6 - 1, xstring("subtitle2")},
         {9 - 1, xstring("subtitle3")},

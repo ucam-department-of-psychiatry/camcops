@@ -263,9 +263,9 @@ char DatabaseObject::valueLatin1Char(const QString& fieldname) const
 }
 
 
-QList<QVariant> DatabaseObject::values(const QStringList& fieldnames) const
+QVector<QVariant> DatabaseObject::values(const QStringList& fieldnames) const
 {
-    QList<QVariant> values;
+    QVector<QVariant> values;
     for (auto fieldname : fieldnames) {
         values.append(value(fieldname));
     }
@@ -326,6 +326,31 @@ QString DatabaseObject::fieldSummaryYesNoNull(const QString& fieldname,
     QString name = altname.isEmpty() ? fieldname : altname;
     return stringfunc::standardResult(name,
                                       uifunc::yesNoNull(value(fieldname)),
+                                      separator, suffix);
+}
+
+
+QString DatabaseObject::fieldSummaryYesNoUnknown(const QString& fieldname,
+                                                 const QString& altname,
+                                                 const QString& separator,
+                                                 const QString& suffix) const
+{
+    QString name = altname.isEmpty() ? fieldname : altname;
+    return stringfunc::standardResult(name,
+                                      uifunc::yesNoUnknown(value(fieldname)),
+                                      separator, suffix);
+}
+
+
+QString DatabaseObject::fieldSummaryTrueFalseUnknown(
+        const QString& fieldname,
+        const QString& altname,
+        const QString& separator,
+        const QString& suffix) const
+{
+    QString name = altname.isEmpty() ? fieldname : altname;
+    return stringfunc::standardResult(name,
+                                      uifunc::trueFalseUnknown(value(fieldname)),
                                       separator, suffix);
 }
 
@@ -530,7 +555,7 @@ void DatabaseObject::setAllDirty()
 // Batch operations
 // ============================================================================
 
-QList<int> DatabaseObject::getAllPKs() const
+QVector<int> DatabaseObject::getAllPKs() const
 {
     return dbfunc::getPKs(m_db, m_tablename, m_pk_fieldname);
 }
@@ -735,15 +760,15 @@ void DatabaseObject::loadAllAncillary(int pk)
 }
 
 
-QList<DatabaseObjectPtr> DatabaseObject::getAllAncillary() const
+QVector<DatabaseObjectPtr> DatabaseObject::getAllAncillary() const
 {
-    return QList<DatabaseObjectPtr>();
+    return QVector<DatabaseObjectPtr>();
 }
 
 
-QList<DatabaseObjectPtr> DatabaseObject::getAncillarySpecimens() const
+QVector<DatabaseObjectPtr> DatabaseObject::getAncillarySpecimens() const
 {
-    return QList<DatabaseObjectPtr>();
+    return QVector<DatabaseObjectPtr>();
 }
 
 
@@ -884,9 +909,9 @@ QStringList DatabaseObject::fieldnamesMapOrder() const
     return fieldnames;
 }
 
-QList<Field> DatabaseObject::fieldsOrdered() const
+QVector<Field> DatabaseObject::fieldsOrdered() const
 {
-    QList<Field> ordered_fields;
+    QVector<Field> ordered_fields;
     for (auto fieldname : m_ordered_fieldnames) {
         ordered_fields.append(m_record[fieldname]);
     }

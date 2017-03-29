@@ -31,10 +31,10 @@ class QuGridContainer : public QuElement
 public:
     QuGridContainer();
     // Initialize with the high-precision QuGridCell:
-    QuGridContainer(const QList<QuGridCell>& cells);
+    QuGridContainer(const QVector<QuGridCell>& cells);
     QuGridContainer(std::initializer_list<QuGridCell> cells);
     // Initialize with a simple "n columns" format:
-    QuGridContainer(int n_columns, const QList<QuElementPtr>& elements);
+    QuGridContainer(int n_columns, const QVector<QuElementPtr>& elements);
     QuGridContainer(int n_columns, std::initializer_list<QuElementPtr> elements);
     QuGridContainer(int n_columns, std::initializer_list<QuElement*> elements);  // takes ownership
     // Modify:
@@ -43,11 +43,11 @@ public:
     QuGridContainer* setFixedGrid(bool fixed_grid);
 protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
-    virtual QList<QuElementPtr> subelements() const override;
+    virtual QVector<QuElementPtr> subelements() const override;
 private:
     void commonConstructor();
 protected:
-    QList<QuGridCell> m_cells;
+    QVector<QuGridCell> m_cells;
     QMap<int, int> m_column_stretch;
     bool m_fixed_grid;
 };

@@ -53,6 +53,17 @@ QuGridCell::QuGridCell(QuElement* element,  // takes ownership...
 }
 
 
+QuGridCell::QuGridCell() :
+    element(nullptr),
+    row(-1),
+    column(-1),
+    row_span(0),
+    column_span(0),
+    alignment(0)
+{
+}
+
+
 QDebug operator<<(QDebug debug, const QuGridCell& cell)
 {
     debug.nospace()

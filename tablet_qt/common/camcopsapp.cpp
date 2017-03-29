@@ -30,6 +30,7 @@
 #include <QSqlDatabase>
 #include <QStackedWidget>
 #include <QUuid>
+#include "common/appstrings.h"
 #include "common/camcopsversion.h"
 #include "common/dbconstants.h"  // for NONEXISTENT_PK
 #include "common/textconst.h"
@@ -1192,12 +1193,12 @@ void CamcopsApp::upload()
 NameValueOptions CamcopsApp::nhsPersonMaritalStatusCodeOptions()
 {
     return NameValueOptions{
-        {appstring("nhs_person_marital_status_code_S"), "S"},
-        {appstring("nhs_person_marital_status_code_M"), "M"},
-        {appstring("nhs_person_marital_status_code_D"), "D"},
-        {appstring("nhs_person_marital_status_code_W"), "W"},
-        {appstring("nhs_person_marital_status_code_P"), "P"},
-        {appstring("nhs_person_marital_status_code_N"), "N"}
+        {appstring(appstrings::NHS_PERSON_MARITAL_STATUS_CODE_S), "S"},
+        {appstring(appstrings::NHS_PERSON_MARITAL_STATUS_CODE_M), "M"},
+        {appstring(appstrings::NHS_PERSON_MARITAL_STATUS_CODE_D), "D"},
+        {appstring(appstrings::NHS_PERSON_MARITAL_STATUS_CODE_W), "W"},
+        {appstring(appstrings::NHS_PERSON_MARITAL_STATUS_CODE_P), "P"},
+        {appstring(appstrings::NHS_PERSON_MARITAL_STATUS_CODE_N), "N"}
     };
 }
 
@@ -1205,22 +1206,22 @@ NameValueOptions CamcopsApp::nhsPersonMaritalStatusCodeOptions()
 NameValueOptions CamcopsApp::nhsEthnicCategoryCodeOptions()
 {
     return NameValueOptions{
-        {appstring("nhs_ethnic_category_code_A"), "A"},
-        {appstring("nhs_ethnic_category_code_B"), "B"},
-        {appstring("nhs_ethnic_category_code_C"), "C"},
-        {appstring("nhs_ethnic_category_code_D"), "D"},
-        {appstring("nhs_ethnic_category_code_E"), "E"},
-        {appstring("nhs_ethnic_category_code_F"), "F"},
-        {appstring("nhs_ethnic_category_code_G"), "G"},
-        {appstring("nhs_ethnic_category_code_H"), "H"},
-        {appstring("nhs_ethnic_category_code_J"), "J"},
-        {appstring("nhs_ethnic_category_code_K"), "K"},
-        {appstring("nhs_ethnic_category_code_L"), "L"},
-        {appstring("nhs_ethnic_category_code_M"), "M"},
-        {appstring("nhs_ethnic_category_code_N"), "N"},
-        {appstring("nhs_ethnic_category_code_P"), "P"},
-        {appstring("nhs_ethnic_category_code_R"), "R"},
-        {appstring("nhs_ethnic_category_code_S"), "S"},
-        {appstring("nhs_ethnic_category_code_Z"), "Z"}
+        {appstring(appstrings::NHS_ETHNIC_CATEGORY_CODE_A), "A"},
+        {appstring(appstrings::NHS_ETHNIC_CATEGORY_CODE_B), "B"},
+        {appstring(appstrings::NHS_ETHNIC_CATEGORY_CODE_C), "C"},
+        {appstring(appstrings::NHS_ETHNIC_CATEGORY_CODE_D), "D"},
+        {appstring(appstrings::NHS_ETHNIC_CATEGORY_CODE_E), "E"},
+        {appstring(appstrings::NHS_ETHNIC_CATEGORY_CODE_F), "F"},
+        {appstring(appstrings::NHS_ETHNIC_CATEGORY_CODE_G), "G"},
+        {appstring(appstrings::NHS_ETHNIC_CATEGORY_CODE_H), "H"},
+        {appstring(appstrings::NHS_ETHNIC_CATEGORY_CODE_J), "J"},
+        {appstring(appstrings::NHS_ETHNIC_CATEGORY_CODE_K), "K"},
+        {appstring(appstrings::NHS_ETHNIC_CATEGORY_CODE_L), "L"},
+        {appstring(appstrings::NHS_ETHNIC_CATEGORY_CODE_M), "M"},
+        {appstring(appstrings::NHS_ETHNIC_CATEGORY_CODE_N), "N"},
+        {appstring(appstrings::NHS_ETHNIC_CATEGORY_CODE_P), "P"},
+        {appstring(appstrings::NHS_ETHNIC_CATEGORY_CODE_R), "R"},
+        {appstring(appstrings::NHS_ETHNIC_CATEGORY_CODE_S), "S"},
+        {appstring(appstrings::NHS_ETHNIC_CATEGORY_CODE_Z), "Z"}
     };
 }

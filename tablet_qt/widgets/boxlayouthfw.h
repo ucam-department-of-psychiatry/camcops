@@ -213,7 +213,7 @@ protected:
                     const QRect& layout_rect, const QRect& old_rect);  // RNC
 
 protected:
-    QList<BoxLayoutHfwItem*> m_list;
+    QVector<BoxLayoutHfwItem*> m_list;
     Direction m_dir;
     int m_spacing;
 

@@ -103,7 +103,7 @@ QuGridContainer::QuGridContainer()
 }
 
 
-QuGridContainer::QuGridContainer(const QList<QuGridCell>& cells) :
+QuGridContainer::QuGridContainer(const QVector<QuGridCell>& cells) :
     m_cells(cells)
 {
     commonConstructor();
@@ -131,7 +131,7 @@ QuGridContainer::QuGridContainer(std::initializer_list<QuGridCell> cells) :
 
 
 QuGridContainer::QuGridContainer(int n_columns,
-                                 const QList<QuElementPtr>& elements)
+                                 const QVector<QuElementPtr>& elements)
 {
     CONSTRUCT_FROM_ELEMENTLIST(elements);
     commonConstructor();
@@ -239,9 +239,9 @@ QPointer<QWidget> QuGridContainer::makeWidget(Questionnaire* questionnaire)
 }
 
 
-QList<QuElementPtr> QuGridContainer::subelements() const
+QVector<QuElementPtr> QuGridContainer::subelements() const
 {
-    QList<QuElementPtr> elements;
+    QVector<QuElementPtr> elements;
     for (auto cell : m_cells) {
         elements.append(cell.element);
     }

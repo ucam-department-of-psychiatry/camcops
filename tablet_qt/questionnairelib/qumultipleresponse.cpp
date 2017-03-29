@@ -37,7 +37,7 @@ QuMultipleResponse::QuMultipleResponse()
 
 
 QuMultipleResponse::QuMultipleResponse(
-        const QList<QuestionWithOneField>& items) :
+        const QVector<QuestionWithOneField>& items) :
     m_items(items)
 {
     commonConstructor();

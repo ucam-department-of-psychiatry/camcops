@@ -31,6 +31,7 @@ public:
         BlockedByPrevious,
     };
 
+    PagePickerItem();  // so it can live in a QVector
     PagePickerItem(const QString& text, int page_number,
                    PagePickerItemType type);
     QString text() const;

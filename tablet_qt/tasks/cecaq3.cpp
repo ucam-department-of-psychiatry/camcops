@@ -653,14 +653,14 @@ OpenableWidget* CecaQ3::editor(bool read_only)
         {xstring("5_hit_option_3"), 3},
         {xstring("5_hit_option_4"), 4},
     };
-    QList<McqGridSubtitle> generic_subtitles{
+    QVector<McqGridSubtitle> generic_subtitles{
         McqGridSubtitle(5, ""),
         McqGridSubtitle(10, ""),
         McqGridSubtitle(15, ""),
         McqGridSubtitle(20, ""),
         McqGridSubtitle(25, ""),
     };
-    QList<QuPagePtr> pages;
+    QVector<QuPagePtr> pages;
     const QString asterisk = " (*)";
 
     auto connectedfr = [this](CallbackFn callback,
@@ -891,7 +891,7 @@ OpenableWidget* CecaQ3::editor(bool read_only)
         mcq(cb2a, S2A_WHICH_MOTHER_FIGURE, options_2a_whichmotherfigure, true),
         text("rnc_if_other_describe"),
         textedit(cb2a, S2A_WHICH_MOTHER_FIGURE_OTHER_DETAIL, "hint_description"),
-        (new QuMcqGrid(QList<QuestionWithOneField>{
+        (new QuMcqGrid(QVector<QuestionWithOneField>{
             q1f(cb2a, S2A_Q1, "2a_q1"),
             q1f(cb2a, S2A_Q2, "2a_q2"),
             q1f(cb2a, S2A_Q3, "2a_q3"),
@@ -920,7 +920,7 @@ OpenableWidget* CecaQ3::editor(bool read_only)
         heading("2b_heading"),
         text("2b_instruction"),
         (new QuMcqGridDouble(
-            QList<QuestionWithTwoFields>{
+            QVector<QuestionWithTwoFields>{
                 q2f(cb2b, S2B_Q1, S2B_Q1_FREQUENCY, "2b_q1"),
                 q2f(cb2b, S2B_Q2, S2B_Q2_FREQUENCY, "2b_q2"),
                 q2f(cb2b, S2B_Q3, S2B_Q3_FREQUENCY, "2b_q3"),
@@ -960,7 +960,7 @@ OpenableWidget* CecaQ3::editor(bool read_only)
         mcq(cb3a, S3A_WHICH_FATHER_FIGURE, options_3a_whichfatherfigure, true),
         text("rnc_if_other_describe"),
         textedit(cb3a, S3A_WHICH_FATHER_FIGURE_OTHER_DETAIL, "hint_description"),
-        (new QuMcqGrid(QList<QuestionWithOneField>{
+        (new QuMcqGrid(QVector<QuestionWithOneField>{
             q1f(cb3a, S3A_Q1, "3a_q1"),
             q1f(cb3a, S3A_Q2, "3a_q2"),
             q1f(cb3a, S3A_Q3, "3a_q3"),
@@ -989,7 +989,7 @@ OpenableWidget* CecaQ3::editor(bool read_only)
         heading("3b_heading"),
         text("3b_instruction"),
         (new QuMcqGridDouble(
-            QList<QuestionWithTwoFields>{
+            QVector<QuestionWithTwoFields>{
                 q2f(cb3b, S3B_Q1, S3B_Q1_FREQUENCY, "3b_q1"),
                 q2f(cb3b, S3B_Q2, S3B_Q2_FREQUENCY, "3b_q2"),
                 q2f(cb3b, S3B_Q3, S3B_Q3_FREQUENCY, "3b_q3"),
@@ -1024,7 +1024,7 @@ OpenableWidget* CecaQ3::editor(bool read_only)
     // ------------------------------------------------------------------------
     pages.append(QuPagePtr((new QuPage{
         heading("3c_heading"),
-        (new QuMcqGrid(QList<QuestionWithOneField>{
+        (new QuMcqGrid(QVector<QuestionWithOneField>{
             q1f(cb3c, S3C_Q1, "3c_q1", "", true),
             q1f(cb3c, S3C_Q2, "3c_q2", "", true),
             q1f(cb3c, S3C_Q3, "3c_q3", "", true),
@@ -1826,7 +1826,7 @@ void CecaQ3::setMultipleResponseMinAnswers(const QString& tag, int min_answers)
     if (!m_questionnaire) {
         return;
     }
-    QList<QuElement*> elements = m_questionnaire->getElementsByTag(tag, false);
+    QVector<QuElement*> elements = m_questionnaire->getElementsByTag(tag, false);
     for (auto e : elements) {
         QuMultipleResponse* mr = dynamic_cast<QuMultipleResponse*>(e);
         if (!mr) {

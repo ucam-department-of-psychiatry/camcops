@@ -19,9 +19,10 @@
 
 #pragma once
 
-#include <QList>
+#include <QMap>
 #include <QSharedPointer>
 #include <QWeakPointer>
+#include <QVector>
 
 // Phase 1:
 
@@ -36,13 +37,15 @@ using DiagnosticCodeSetPtr = QSharedPointer<DiagnosticCodeSet>;
 class DiagnosisItemBase;
 using DiagnosisItemBasePtr = QSharedPointer<DiagnosisItemBase>;
 
+using Dict = QMap<QString, QString>;
+
 class FieldRef;
 using FieldRefPtr = QSharedPointer<FieldRef>;
-using FieldRefPtrList = QList<FieldRefPtr>;
+using FieldRefPtrList = QVector<FieldRefPtr>;
 
 class Patient;
 using PatientPtr = QSharedPointer<Patient>;
-using PatientPtrList = QList<PatientPtr>;
+using PatientPtrList = QVector<PatientPtr>;
 
 class QuElement;
 using QuElementPtr = QSharedPointer<QuElement>;
@@ -53,13 +56,15 @@ using QuestionnairePtr = QSharedPointer<Questionnaire>;
 class QuPage;
 using QuPagePtr = QSharedPointer<QuPage>;
 
+using RecordList = QVector<QMap<QString, QVariant>>;
+
 class StoredVar;
 using StoredVarPtr = QSharedPointer<StoredVar>;
 
 class Task;
 using TaskPtr = QSharedPointer<Task>;
 using TaskWeakPtr = QWeakPointer<Task>;
-using TaskPtrList = QList<TaskPtr>;
+using TaskPtrList = QVector<TaskPtr>;
 
 class TaskFactory;
 using TaskFactoryPtr = QSharedPointer<TaskFactory>;

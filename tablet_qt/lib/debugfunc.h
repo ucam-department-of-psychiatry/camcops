@@ -19,7 +19,6 @@
 
 #pragma once
 #include <QDebug>
-#include <QList>
 #include "lib/layoutdumper.h"
 
 class Questionnaire;
@@ -31,7 +30,7 @@ class QVariant;
 namespace debugfunc {
 
 void debugConcisely(QDebug debug, const QVariant& value);
-void debugConcisely(QDebug debug, const QList<QVariant>& values);
+void debugConcisely(QDebug debug, const QVector<QVariant>& values);
 
 void dumpQObject(QObject* obj);
 

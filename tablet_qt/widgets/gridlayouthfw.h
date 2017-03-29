@@ -186,7 +186,7 @@ private:
     mutable QVector<int> m_c_stretches;
     QVector<int> m_r_min_heights;
     QVector<int> m_c_min_widths;
-    QList<QQGridBox*> m_things;  // list of owned objects
+    QVector<QQGridBox*> m_things;  // list of owned objects
 
     // These govern where new inserted items are put:
 

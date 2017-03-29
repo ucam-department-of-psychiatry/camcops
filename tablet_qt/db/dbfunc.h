@@ -19,7 +19,6 @@
 
 #pragma once
 #include <QDebug>
-#include <QList>
 #include <QPair>
 #include <QString>
 #include <QStringList>
@@ -74,7 +73,7 @@ int dbFetchInt(const QSqlDatabase& db,
                int failure_default = -1);
 
 QString sqlParamHolders(int n);
-ArgList argListFromIntList(const QList<int>& intlist);
+ArgList argListFromIntList(const QVector<int>& intlist);
 
 QString csvHeader(const QSqlQuery& query, const char sep = ',');
 QString csvRow(const QSqlQuery& query, const char sep = ',');
@@ -85,14 +84,14 @@ int count(const QSqlDatabase& db,
           const QString& tablename,
           const WhereConditions& where = WhereConditions());
 
-QList<int> getSingleFieldAsIntList(const QSqlDatabase& db,
-                                   const QString& tablename,
-                                   const QString& fieldname,
-                                   const WhereConditions& where);
-QList<int> getPKs(const QSqlDatabase& db,
-                  const QString& tablename,
-                  const QString& pkname,
-                  const WhereConditions& where = WhereConditions());
+QVector<int> getSingleFieldAsIntList(const QSqlDatabase& db,
+                                     const QString& tablename,
+                                     const QString& fieldname,
+                                     const WhereConditions& where);
+QVector<int> getPKs(const QSqlDatabase& db,
+                    const QString& tablename,
+                    const QString& pkname,
+                    const WhereConditions& where = WhereConditions());
 bool existsByPk(const QSqlDatabase& db, const QString& tablename,
                 const QString& pkname, int pkvalue);
 
@@ -106,13 +105,15 @@ bool deleteFrom(const QSqlDatabase& db,
 
 QStringList getAllTables(const QSqlDatabase& db);
 bool tableExists(const QSqlDatabase& db, const QString& tablename);
-QList<SqlitePragmaInfoField> getPragmaInfo(const QSqlDatabase& db,
-                                      const QString& tablename);
-QStringList fieldNamesFromPragmaInfo(const QList<SqlitePragmaInfoField>& infolist,
-                                     bool delimited = false);
+QVector<SqlitePragmaInfoField> getPragmaInfo(const QSqlDatabase& db,
+                                             const QString& tablename);
+QStringList fieldNamesFromPragmaInfo(
+        const QVector<SqlitePragmaInfoField>& infolist,
+        bool delimited = false);
 QStringList getFieldNames(const QSqlDatabase& db, const QString& tablename);
-QString makeCreationSqlFromPragmaInfo(const QString& tablename,
-                                      const QList<SqlitePragmaInfoField>& infolist);
+QString makeCreationSqlFromPragmaInfo(
+        const QString& tablename,
+        const QVector<SqlitePragmaInfoField>& infolist);
 QString dbTableDefinitionSql(const QSqlDatabase& db, const QString& tablename);
 
 // Altering structure
@@ -120,17 +121,17 @@ QString dbTableDefinitionSql(const QSqlDatabase& db, const QString& tablename);
 bool createIndex(const QSqlDatabase& db, const QString& indexname,
                  const QString& tablename, QStringList fieldnames);
 void renameColumns(const QSqlDatabase& db, QString tablename,
-                   const QList<QPair<QString, QString>>& from_to,
+                   const QVector<QPair<QString, QString>>& from_to,
                    const QString& tempsuffix = TABLE_TEMP_SUFFIX);
 void renameTable(const QSqlDatabase& db, const QString& from,
                  const QString& to);
 void changeColumnTypes(const QSqlDatabase& db, const QString& tablename,
-                       const QList<QPair<QString, QString>>& field_newtype,
+                       const QVector<QPair<QString, QString>>& field_newtype,
                        const QString& tempsuffix = TABLE_TEMP_SUFFIX);
 QString sqlCreateTable(const QString& tablename,
-                       const QList<Field>& fieldlist);
+                       const QVector<Field>& fieldlist);
 void createTable(const QSqlDatabase& db, const QString& tablename,
-                 const QList<Field>& fieldlist,
+                 const QVector<Field>& fieldlist,
                  const QString& tempsuffix = TABLE_TEMP_SUFFIX);
 
 }  // namespace dbfunc

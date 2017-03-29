@@ -323,7 +323,9 @@ SOURCES += main.cpp \
     tasks/hamd7.cpp \
     tasks/honos.cpp \
     tasks/honos65.cpp \
-    tasks/honosca.cpp
+    tasks/honosca.cpp \
+    tasks/icd10depressive.cpp \
+    common/appstrings.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -574,7 +576,9 @@ HEADERS  += \
     tasks/hamd7.h \
     tasks/honos.h \
     tasks/honos65.h \
-    tasks/honosca.h
+    tasks/honosca.h \
+    tasks/icd10depressive.h \
+    common/appstrings.h
 
 
 DISTFILES += \

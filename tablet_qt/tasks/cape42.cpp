@@ -43,24 +43,24 @@ const QString FN_FREQ_PREFIX("frequency");
 const QString FN_DISTRESS_PREFIX("distress");
 
 const QString TAG_DISTRESS("distress");
-const QList<int> POSITIVE{2, 5, 6, 7,
-                          10, 11, 13, 15, 17,
-                          20, 22, 24, 26, 28,
-                          30, 31, 33, 34,
-                          41, 42};
-const QList<int> DEPRESSIVE{1, 9,
-                            12, 14, 19,
-                            38, 39,
-                            40};
-const QList<int> NEGATIVE{3, 4, 8,
-                          16, 18,
-                          21, 23, 25, 27, 29,
-                          32, 35, 36, 37};
-const QList<int> ALL{     1,  2,  3,  4,  5,  6,  7,  8,  9,
-                     10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-                     20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
-                     30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
-                     40, 41, 42};  // not the most elegant ;)
+const QVector<int> POSITIVE{2, 5, 6, 7,
+                            10, 11, 13, 15, 17,
+                            20, 22, 24, 26, 28,
+                            30, 31, 33, 34,
+                            41, 42};
+const QVector<int> DEPRESSIVE{1, 9,
+                              12, 14, 19,
+                              38, 39,
+                              40};
+const QVector<int> NEGATIVE{3, 4, 8,
+                            16, 18,
+                            21, 23, 25, 27, 29,
+                            32, 35, 36, 37};
+const QVector<int> ALL{      1,  2,  3,  4,  5,  6,  7,  8,  9,
+                        10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+                        20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+                        30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
+                        40, 41, 42};  // not the most elegant ;)
 const int MIN_SCORE_PER_Q = 1;
 const int MAX_SCORE_PER_Q = 4;
 
@@ -129,7 +129,7 @@ bool Cape42::isComplete() const
 QStringList Cape42::summary() const
 {
     QStringList lines;
-    auto addbit = [this, &lines](const QList<int>& questions,
+    auto addbit = [this, &lines](const QVector<int>& questions,
                                  const QString& name) -> void {
         int n = questions.length();
         int min_score = MIN_SCORE_PER_Q * n;
@@ -186,7 +186,7 @@ OpenableWidget* Cape42::editor(bool read_only)
         {xstring("frequency_option3"), 3},
         {xstring("frequency_option4"), 4},
     };
-    QList<QuPagePtr> pages;
+    QVector<QuPagePtr> pages;
     QString distress_stem = xstring("distress_stem");
     m_distress_fieldrefs.clear();
 
@@ -236,7 +236,7 @@ OpenableWidget* Cape42::editor(bool read_only)
 // Task-specific calculations
 // ============================================================================
 
-int Cape42::distressScore(const QList<int>& questions) const
+int Cape42::distressScore(const QVector<int>& questions) const
 {
     int score = 0;
     for (auto q : questions) {
@@ -252,7 +252,7 @@ int Cape42::distressScore(const QList<int>& questions) const
 }
 
 
-int Cape42::frequencyScore(const QList<int>& questions) const
+int Cape42::frequencyScore(const QVector<int>& questions) const
 {
     int score = 0;
     for (auto q : questions) {

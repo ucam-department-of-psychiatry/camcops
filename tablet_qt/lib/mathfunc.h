@@ -18,36 +18,36 @@
 */
 
 #pragma once
-#include <QList>
 #include <QVariant>
+#include <QVector>
 
 
 namespace mathfunc {
 
-QVariant mean(const QList<QVariant>& values, bool ignore_null = false);
-int sumInt(const QList<QVariant>& values);
-double sumDouble(const QList<QVariant>& values);
+QVariant mean(const QVector<QVariant>& values, bool ignore_null = false);
+int sumInt(const QVector<QVariant>& values);
+double sumDouble(const QVector<QVariant>& values);
 
-int countTrue(const QList<QVariant>& values);
-bool allTrue(const QList<QVariant>& values);
-bool anyTrue(const QList<QVariant>& values);
-bool allFalseOrNull(const QList<QVariant>& values);
-bool anyNull(const QList<QVariant>& values);
-bool noneNull(const QList<QVariant>& values);
-bool anyNullOrEmpty(const QList<QVariant>& values);
-bool noneNullOrEmpty(const QList<QVariant>& values);
-int numNull(const QList<QVariant>& values);
-int numNotNull(const QList<QVariant>& values);
+int countTrue(const QVector<QVariant>& values);
+bool allTrue(const QVector<QVariant>& values);
+bool anyTrue(const QVector<QVariant>& values);
+bool allFalseOrNull(const QVector<QVariant>& values);
+bool anyNull(const QVector<QVariant>& values);
+bool noneNull(const QVector<QVariant>& values);
+bool anyNullOrEmpty(const QVector<QVariant>& values);
+bool noneNullOrEmpty(const QVector<QVariant>& values);
+int countNull(const QVector<QVariant>& values);
+int countNotNull(const QVector<QVariant>& values);
 
 bool eq(const QVariant& x, int test);
 bool eq(const QVariant& x, bool test);
 bool eqOrNull(const QVariant& x, int test);
 bool eqOrNull(const QVariant& x, bool test);
 
-int countWhere(const QList<QVariant>& test_values,
-               const QList<QVariant>& where_values);
-int countWhereNot(const QList<QVariant>& test_values,
-                  const QList<QVariant>& where_not_values);
+int countWhere(const QVector<QVariant>& test_values,
+               const QVector<QVariant>& where_values);
+int countWhereNot(const QVector<QVariant>& test_values,
+                  const QVector<QVariant>& where_not_values);
 
 QString toDp(double x, int dp);
 QString percent(double numerator, double denominator, int dp = 1);

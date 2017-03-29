@@ -134,8 +134,8 @@ OpenableWidget* CgiSch::editor(bool read_only)
                                              i));
     }
     change_options.addItem(NameValuePair(xstring("ii_option9"), 9));
-    QList<QuestionWithOneField> severity_qfields;
-    QList<QuestionWithOneField> change_qfields;
+    QVector<QuestionWithOneField> severity_qfields;
+    QVector<QuestionWithOneField> change_qfields;
     for (int i = 1; i <= NQ_PER_SECTION; ++i) {
         QString question = xstring(strnum("q", i));
         severity_qfields.append(QuestionWithOneField(

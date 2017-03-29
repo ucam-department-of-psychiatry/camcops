@@ -35,14 +35,14 @@ namespace questionnairefunc {
 //              label2      element2
 
 QuElement* defaultGridRawPointer(
-    const QList<GridRowDefinition>& deflist,
+    const QVector<GridRowDefinition>& deflist,
     int left_column_span = 1,
     int right_column_span = 1,
     Qt::Alignment label_alignment = Qt::AlignRight | Qt::AlignTop,
     Qt::Alignment left_column_alignment = 0,
     Qt::Alignment right_column_alignment = 0);
 QuElementPtr defaultGrid(
-    const QList<GridRowDefinition>& deflist,
+    const QVector<GridRowDefinition>& deflist,
     int left_column_span = 1,
     int right_column_span = 1,
     Qt::Alignment label_alignment = Qt::AlignRight | Qt::AlignTop,

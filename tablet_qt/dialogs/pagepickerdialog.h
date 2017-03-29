@@ -19,7 +19,6 @@
 
 #pragma once
 #include <QDialog>
-#include <QList>
 #include "questionnairelib/pagepickeritem.h"
 
 
@@ -30,7 +29,7 @@ class PagePickerDialog : public QDialog
 
     Q_OBJECT
 
-    using PagePickerItemList = QList<PagePickerItem>;
+    using PagePickerItemList = QVector<PagePickerItem>;
 
 public:
     PagePickerDialog(QWidget* parent, const PagePickerItemList& pages,

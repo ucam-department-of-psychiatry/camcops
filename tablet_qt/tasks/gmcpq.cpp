@@ -199,7 +199,7 @@ QStringList GmcPq::detail() const
 
 OpenableWidget* GmcPq::editor(bool read_only)
 {
-    QList<QuPagePtr> pages;
+    QVector<QuPagePtr> pages;
     NameValueOptions yn_options = CommonOptions::yesNoBoolean();
 
     auto text = [this](const QString& xstringname) -> QuElement* {
@@ -255,20 +255,20 @@ OpenableWidget* GmcPq::editor(bool read_only)
 
     pages.append(QuPagePtr((new QuPage{
         text("q4"),
-        new QuMcqGrid(QList<QuestionWithOneField>{qf(Q4A, "q4_a"),
-                                                  qf(Q4B, "q4_b"),
-                                                  qf(Q4C, "q4_c"),
-                                                  qf(Q4D, "q4_d"),
-                                                  qf(Q4E, "q4_e"),
-                                                  qf(Q4F, "q4_f"),
-                                                  qf(Q4G, "q4_g")},
+        new QuMcqGrid(QVector<QuestionWithOneField>{qf(Q4A, "q4_a"),
+                                                    qf(Q4B, "q4_b"),
+                                                    qf(Q4C, "q4_c"),
+                                                    qf(Q4D, "q4_d"),
+                                                    qf(Q4E, "q4_e"),
+                                                    qf(Q4F, "q4_f"),
+                                                    qf(Q4G, "q4_g")},
                       optionsQ4()),
     })->setTitle(maketitle(4))));
 
     pages.append(QuPagePtr((new QuPage{
         text("q5"),
-        new QuMcqGrid(QList<QuestionWithOneField>{qf(Q5A, "q5_a"),
-                                                  qf(Q5B, "q5_b")},
+        new QuMcqGrid(QVector<QuestionWithOneField>{qf(Q5A, "q5_a"),
+                                                    qf(Q5B, "q5_b")},
                       optionsQ5()),
     })->setTitle(maketitle(5))));
 

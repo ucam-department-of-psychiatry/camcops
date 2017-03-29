@@ -112,7 +112,7 @@ QStringList CgiI::detail() const
 
 OpenableWidget* CgiI::editor(bool read_only)
 {
-    QList<QuPagePtr> pages;
+    QVector<QuPagePtr> pages;
     pages.append(getClinicianDetailsPage());
 
     NameValueOptions options;

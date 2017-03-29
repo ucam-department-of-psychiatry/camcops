@@ -28,6 +28,7 @@ class QuestionWithTwoFields
     // Used by e.g. QuMCQGridDouble.
 
 public:
+    QuestionWithTwoFields();  // so it can live in a QVector
     QuestionWithTwoFields(const QString& question,
                           FieldRefPtr first_field,
                           FieldRefPtr second_field);

@@ -819,7 +819,7 @@ void WidgetTestMenu::testQuMCQ(bool horizontal, bool long_text,
 void WidgetTestMenu::testQuMCQGrid(bool expand, int example)
 {
     QString q2 = example == 1 ? "Question 2" : textconst::LOREM_IPSUM_1;
-    QList<QuestionWithOneField> question_field_pairs{
+    QVector<QuestionWithOneField> question_field_pairs{
         QuestionWithOneField(m_fieldref_1, "Question 1"),
         QuestionWithOneField(m_fieldref_2, q2),
     };
@@ -840,7 +840,7 @@ void WidgetTestMenu::testQuMCQGrid(bool expand, int example)
 
 void WidgetTestMenu::testQuMCQGridDouble(bool expand)
 {
-    QList<QuestionWithTwoFields> question_field_pairs{
+    QVector<QuestionWithTwoFields> question_field_pairs{
         QuestionWithTwoFields("Question 1", m_fieldref_1, m_fieldref_2),
         QuestionWithTwoFields("Question 2 " + textconst::LOREM_IPSUM_1,
                               m_fieldref_1, m_fieldref_2),
@@ -853,7 +853,7 @@ void WidgetTestMenu::testQuMCQGridDouble(bool expand)
 
 void WidgetTestMenu::testQuMCQGridSingleBoolean(bool expand)
 {
-    QList<QuestionWithTwoFields> question_field_pairs{
+    QVector<QuestionWithTwoFields> question_field_pairs{
         QuestionWithTwoFields("Question 1", m_fieldref_1, m_fieldref_2),
         QuestionWithTwoFields("Question 2 " + textconst::LOREM_IPSUM_1,
                               m_fieldref_1, m_fieldref_2),
@@ -867,7 +867,7 @@ void WidgetTestMenu::testQuMCQGridSingleBoolean(bool expand)
 
 void WidgetTestMenu::testQuMultipleResponse(bool horizontal, bool long_text)
 {
-    QList<QuestionWithOneField> question_field_pairs{
+    QVector<QuestionWithOneField> question_field_pairs{
         QuestionWithOneField(m_fieldref_1, "Question 1"),
         QuestionWithOneField(m_fieldref_2, long_text ? textconst::LOREM_IPSUM_1
                                                      : "Question 2"),
@@ -947,7 +947,7 @@ void WidgetTestMenu::testQuTextEdit()
 
 void WidgetTestMenu::testQuThermometer()
 {
-    QList<QuThermometerItem> thermometer_items;
+    QVector<QuThermometerItem> thermometer_items;
     for (int i = 0; i <= 10; ++i) {
         QString text = QString::number(i);
         QuThermometerItem item(

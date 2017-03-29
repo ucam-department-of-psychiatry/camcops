@@ -111,7 +111,7 @@ QStringList Bprs::detail() const
 
 OpenableWidget* Bprs::editor(bool read_only)
 {
-    QList<QuPagePtr> pages;
+    QVector<QuPagePtr> pages;
 
     auto addpage = [this, &pages](int n, bool include_na) -> void {
         NameValueOptions options;

@@ -27,7 +27,7 @@
 
 
 QuMcqGridDouble::QuMcqGridDouble(
-        const QList<QuestionWithTwoFields>& questions_with_fields,
+        const QVector<QuestionWithTwoFields>& questions_with_fields,
         const NameValueOptions& options1,
         const NameValueOptions& options2) :
     m_questions_with_fields(questions_with_fields),
@@ -65,8 +65,8 @@ QuMcqGridDouble::~QuMcqGridDouble()
 
 
 QuMcqGridDouble* QuMcqGridDouble::setWidth(int question_width,
-                                           const QList<int>& option1_widths,
-                                           const QList<int>& option2_widths)
+                                           const QVector<int>& option1_widths,
+                                           const QVector<int>& option2_widths)
 {
     if (option1_widths.size() != m_options1.size()) {
         qWarning() << Q_FUNC_INFO << "Bad option1_widths; command ignored";
@@ -91,7 +91,7 @@ QuMcqGridDouble* QuMcqGridDouble::setTitle(const QString &title)
 
 
 QuMcqGridDouble* QuMcqGridDouble::setSubtitles(
-        const QList<McqGridSubtitle>& subtitles)
+        const QVector<McqGridSubtitle>& subtitles)
 {
     m_subtitles = subtitles;
     return this;
@@ -229,9 +229,9 @@ QPointer<QWidget> QuMcqGridDouble::makeWidget(Questionnaire* questionnaire)
         for (bool first : {true, false}) {
             const NameValueOptions& opts = first ? m_options1 : m_options2;
             int n_options = opts.size();
-            QList<QList<QPointer<BooleanWidget>>>& widgets =
+            QVector<QVector<QPointer<BooleanWidget>>>& widgets =
                     first ? m_widgets1 : m_widgets2;
-            QList<QPointer<BooleanWidget>> question_widgets;
+            QVector<QPointer<BooleanWidget>> question_widgets;
             for (int vi = 0; vi < n_options; ++vi) {
                 QPointer<BooleanWidget> w = new BooleanWidget();
                 w->setAppearance(BooleanWidget::Appearance::Radio);
@@ -258,7 +258,7 @@ QPointer<QWidget> QuMcqGridDouble::makeWidget(Questionnaire* questionnaire)
             m_option2_widths.size() == n_second) {
         grid->setColumnStretch(0, m_question_width);
         for (bool first : {true, false}) {
-            QList<int>& widths = first ? m_option1_widths : m_option2_widths;
+            QVector<int>& widths = first ? m_option1_widths : m_option2_widths;
             for (int i = 0; i < widths.size(); ++i) {
                 grid->setColumnStretch(colnum(first, i), widths.at(i));
             }
@@ -322,7 +322,7 @@ void QuMcqGridDouble::fieldValueChanged(int question_index, bool first_field,
                                         const FieldRef* fieldref)
 {
     const NameValueOptions& opts = first_field ? m_options1 : m_options2;
-    QList<QList<QPointer<BooleanWidget>>>& widgets = first_field ? m_widgets1
+    QVector<QVector<QPointer<BooleanWidget>>>& widgets = first_field ? m_widgets1
                                                                  : m_widgets2;
     if (question_index < 0 ||
             question_index >= m_questions_with_fields.size() ||
@@ -330,7 +330,7 @@ void QuMcqGridDouble::fieldValueChanged(int question_index, bool first_field,
         qWarning() << Q_FUNC_INFO << "Bad question_index:" << question_index;
         return;
     }
-    const QList<QPointer<BooleanWidget>>& question_widgets = widgets.at(
+    const QVector<QPointer<BooleanWidget>>& question_widgets = widgets.at(
                 question_index);
 
     mcqfunc::setResponseWidgets(opts, question_widgets, fieldref);

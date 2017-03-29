@@ -160,6 +160,10 @@ void visitUrl(const QString& url);
 QString escapeString(const QString& string);
 QString yesNo(bool yes);
 QString yesNoNull(const QVariant& value);
+QString yesNoUnknown(const QVariant& value);
+QString trueFalse(bool yes);
+QString trueFalseNull(const QVariant& value);
+QString trueFalseUnknown(const QVariant& value);
 
 // ============================================================================
 // Scrolling

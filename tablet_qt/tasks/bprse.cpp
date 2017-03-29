@@ -109,7 +109,7 @@ OpenableWidget* BprsE::editor(bool read_only)
 {
     NameValuePair option0(xstring("option0"), 0);
     NameValuePair option1(xstring("option1"), 1);
-    QList<QuPagePtr> pages;
+    QVector<QuPagePtr> pages;
 
     auto addpage = [this, &pages, &option0, &option1](int n) -> void {
         NameValueOptions options{option0, option1};

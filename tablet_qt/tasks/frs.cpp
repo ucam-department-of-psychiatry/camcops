@@ -50,11 +50,11 @@ const int NEVER = 0;
 const int SOMETIMES = 1;
 const int ALWAYS = 2;
 const int NA = -99;
-const QList<int> NA_QUESTIONS{9, 10, 11, 13, 14, 15, 17, 18, 19, 20, 21, 27};
-const QList<int> SPECIAL_NA_TEXT_QUESTIONS{27};
-const QList<int> NO_SOMETIMES_QUESTIONS{30};
+const QVector<int> NA_QUESTIONS{9, 10, 11, 13, 14, 15, 17, 18, 19, 20, 21, 27};
+const QVector<int> SPECIAL_NA_TEXT_QUESTIONS{27};
+const QVector<int> NO_SOMETIMES_QUESTIONS{30};
 const double DOUBLE_INFINITY = std::numeric_limits<double>::infinity();
-const QList<QPair<QPair<double, double>, double>> TABULAR_LOGIT_RANGES{
+const QVector<QPair<QPair<double, double>, double>> TABULAR_LOGIT_RANGES{
     // pairs are: {{a, b}, result}
     // tests a <= x < b; if true, returns result
     {{100, DOUBLE_INFINITY}, 5.39},
@@ -195,17 +195,17 @@ OpenableWidget* Frs::editor(bool read_only)
         }
         return options;
     };
-    auto makeqelements = [this, &makeoptions](int q) -> QList<QuElement*> {
+    auto makeqelements = [this, &makeoptions](int q) -> QVector<QuElement*> {
         NameValueOptions options = makeoptions(q);
-        return QList<QuElement*>{
+        return QVector<QuElement*>{
             (new QuText(xstring(strnum("q", q, "_q"))))->setBold(true),
             new QuText(xstring(strnum("q", q, "_detail"))),
             new QuMcq(fieldRef(strnum(QPREFIX, q)), options),
         };
     };
     auto makeqgroup = [this, &makeqelements](int start,
-                                             int end) -> QList<QuElement*> {
-        QList<QuElement*> elements;
+                                             int end) -> QVector<QuElement*> {
+        QVector<QuElement*> elements;
         for (int q = start; q <= end; ++q) {
             elements += makeqelements(q);
         }
@@ -215,7 +215,7 @@ OpenableWidget* Frs::editor(bool read_only)
         return new QuText(xstring(xstringname));
     };
 
-    QList<QuPagePtr> pages{
+    QVector<QuPagePtr> pages{
         getClinicianAndRespondentDetailsPage(false),
 
         QuPagePtr((new QuPage(makeqgroup(1, 7)))
@@ -224,28 +224,28 @@ OpenableWidget* Frs::editor(bool read_only)
         QuPagePtr((new QuPage(makeqgroup(8, 9)))
                   ->setTitle(xstring("h_outing"))),
 
-        QuPagePtr((new QuPage(QList<QuElement*>{
+        QuPagePtr((new QuPage(QVector<QuElement*>{
             text("houshold_instruction"),
         } + makeqgroup(10, 12)))
                   ->setTitle(xstring("h_household"))),
 
-        QuPagePtr((new QuPage(QList<QuElement*>{
+        QuPagePtr((new QuPage(QVector<QuElement*>{
             text("finances_instruction_1"),
             text("finances_instruction_2"),
         } + makeqgroup(13, 16)))
                   ->setTitle(xstring("h_finances"))),
 
-        QuPagePtr((new QuPage(QList<QuElement*>{
+        QuPagePtr((new QuPage(QVector<QuElement*>{
             text("medications_instruction"),
         } + makeqgroup(17, 18)))
                   ->setTitle(xstring("h_medications"))),
 
-        QuPagePtr((new QuPage(QList<QuElement*>{
+        QuPagePtr((new QuPage(QVector<QuElement*>{
             text("mealprep_instruction"),
         } + makeqgroup(19, 26)))
                   ->setTitle(xstring("h_mealprep"))),
 
-        QuPagePtr((new QuPage(QList<QuElement*>{
+        QuPagePtr((new QuPage(QVector<QuElement*>{
             text("selfcare_instruction"),
         } + makeqgroup(27, 30)))
                   ->setTitle(xstring("h_selfcare"))),

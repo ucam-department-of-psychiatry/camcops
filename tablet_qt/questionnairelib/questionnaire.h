@@ -41,7 +41,7 @@ class Questionnaire : public OpenableWidget
     Q_OBJECT
 public:
     Questionnaire(CamcopsApp& app);
-    Questionnaire(CamcopsApp& app, const QList<QuPagePtr>& pages);
+    Questionnaire(CamcopsApp& app, const QVector<QuPagePtr>& pages);
     Questionnaire(CamcopsApp& app, std::initializer_list<QuPagePtr> pages);
 
     virtual void build() override;
@@ -63,14 +63,14 @@ public:
     void setVisibleByTag(const QString& tag, bool visible,
                          bool current_page_only = true,
                          const QString& page_tag = "");
-    QList<QuElement*> getElementsByTag(const QString& tag,
-                                       bool current_page_only = true,
-                                       const QString& page_tag = "");
+    QVector<QuElement*> getElementsByTag(const QString& tag,
+                                         bool current_page_only = true,
+                                         const QString& page_tag = "");
     QuElement* getFirstElementByTag(const QString& tag,
                                     bool current_page_only = true,
                                     const QString& page_tag = "");
-    QList<QuPage*> getPages(bool current_page_only,
-                            const QString& page_tag = "");
+    QVector<QuPage*> getPages(bool current_page_only,
+                              const QString& page_tag = "");
     void setPageSkip(int page, bool skip, bool reset_buttons = true);
     void setPageSkip(const QString& page_tag, bool skip,
                      bool reset_buttons = true);
@@ -103,7 +103,7 @@ signals:
 
 protected:
     CamcopsApp& m_app;
-    QList<QuPagePtr> m_pages;
+    QVector<QuPagePtr> m_pages;
     QuPage::PageType m_type;
     bool m_read_only;
     bool m_jump_allowed;

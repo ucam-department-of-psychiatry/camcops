@@ -19,12 +19,12 @@
 
 #pragma once
 
-#include <QList>
 #include <QMap>
 #include <QString>
 #include <QVariant>
+#include <QVector>
 
-using ArgList = QList<QVariant>;
-using OrderBy = QList<QPair<QString, bool>>;  // string is fieldname, bool is "ascending?"
+using ArgList = QVector<QVariant>;
+using OrderBy = QVector<QPair<QString, bool>>;  // string is fieldname, bool is "ascending?"
 using UpdateValues = QMap<QString, QVariant>;
 using WhereConditions = QMap<QString, QVariant>;

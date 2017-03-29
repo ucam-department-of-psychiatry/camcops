@@ -127,7 +127,7 @@ QStringList Cgi::detail() const
 
 OpenableWidget* Cgi::editor(bool read_only)
 {
-    QList<QuPagePtr> pages;
+    QVector<QuPagePtr> pages;
 
     auto addpage = [this, &pages](const QString& fieldname,
                                   int lastoption, bool update_q3) -> void {

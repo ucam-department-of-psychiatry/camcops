@@ -44,7 +44,7 @@ class QuMultipleResponse : public QuElement
     Q_OBJECT
 public:
     QuMultipleResponse();
-    QuMultipleResponse(const QList<QuestionWithOneField>& items);
+    QuMultipleResponse(const QVector<QuestionWithOneField>& items);
     QuMultipleResponse(std::initializer_list<QuestionWithOneField> items);
     QuMultipleResponse* addItem(const QuestionWithOneField& item);
     QuMultipleResponse* setRandomize(bool randomize);
@@ -72,7 +72,7 @@ protected slots:
     void clicked(int index);
     void fieldValueChanged();
 protected:
-    QList<QuestionWithOneField> m_items;
+    QVector<QuestionWithOneField> m_items;
     int m_minimum_answers;  // negative for "not specified"
     int m_maximum_answers;  // negative for "not specified"
     bool m_randomize;
@@ -82,6 +82,6 @@ protected:
     bool m_as_text_button;
     bool m_bold;
 
-    QList<QPointer<BooleanWidget>> m_widgets;
+    QVector<QPointer<BooleanWidget>> m_widgets;
     LabelWordWrapWide* m_instruction_label;
 };

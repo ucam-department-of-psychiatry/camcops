@@ -60,6 +60,6 @@ public slots:
 protected:
     bool dataComplete() const;
 protected:
-    QList<FieldRefPtr> m_data_frs;
+    FieldRefPtrList m_data_frs;
     FieldRefPtr m_confirmation_fr;
 };

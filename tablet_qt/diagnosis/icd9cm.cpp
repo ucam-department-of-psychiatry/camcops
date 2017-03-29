@@ -39,7 +39,7 @@ Icd9cm::Icd9cm(CamcopsApp& app) :
 }
 
 
-void Icd9cm::addIcd9cmCodes(const QList<QString>& codes)
+void Icd9cm::addIcd9cmCodes(const QStringList& codes)
 {
     // Conceptually: as for Icd10.
     for (auto c : codes) {
@@ -126,7 +126,7 @@ void Icd9cm::addIndividualIcd9cmCode(const QString& code, const QString& desc,
 
 void Icd9cm::addSubcodes(const QString& basecode,
                         const QString& basedesc,
-                        const QList<CodeDescriptionPair>& level1)
+                        const QVector<CodeDescriptionPair>& level1)
 {
     for (auto extra1 : level1) {
         QString code = QString("%1%2").arg(basecode).arg(extra1.first);
@@ -141,7 +141,7 @@ void Icd9cm::addSubcodes(const QString& basecode,
 // Episodic affective disorders
 // ============================================================================
 
-const QList<Icd9cm::CodeDescriptionPair> Icd9cm::EPISODIC_AFFECTIVE_L1{
+const QVector<Icd9cm::CodeDescriptionPair> Icd9cm::EPISODIC_AFFECTIVE_L1{
     // The 296.x0 - 296.x6 codes
     {"0", "affective_x0"},
     {"1", "affective_x1"},
@@ -164,7 +164,7 @@ void Icd9cm::addEpisodicAffective(const QString& basecode,
 // Substance-induced
 // ============================================================================
 
-const QList<Icd9cm::CodeDescriptionPair> Icd9cm::SUBSTANCE_L1{
+const QVector<Icd9cm::CodeDescriptionPair> Icd9cm::SUBSTANCE_L1{
     // The 304.x0 - 304.x3 (and 305.x0 - 305.x3) codes
     {"0", "substance_x0"},
     {"1", "substance_x1"},
@@ -183,7 +183,7 @@ void Icd9cm::addSubstance(const QString& basecode, const QString& basedesc)
 // Schizophrenia
 // ============================================================================
 
-const QList<Icd9cm::CodeDescriptionPair> Icd9cm::SCHIZOPHRENIA_L1{
+const QVector<Icd9cm::CodeDescriptionPair> Icd9cm::SCHIZOPHRENIA_L1{
     // The 295.x0 - 295.x5 codes
     {"0", "schizophrenia_x0"},
     {"1", "schizophrenia_x1"},
@@ -204,7 +204,7 @@ void Icd9cm::addSchizophrenia(const QString& basecode, const QString& basedesc)
 // Main codes
 // ============================================================================
 
-const QList<QString> Icd9cm::BASE_CODES{
+const QStringList Icd9cm::BASE_CODES{
     "range_290_294",
     "290",
     "290.0",

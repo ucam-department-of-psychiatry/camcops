@@ -44,7 +44,7 @@ Icd10::Icd10(CamcopsApp& app, QObject* parent) :
 }
 
 
-void Icd10::addIcd10Codes(const QList<QString>& codes)
+void Icd10::addIcd10Codes(const QStringList& codes)
 {
     // Conceptually:
     // - If a new code is longer than the preceding, it should go in as a child
@@ -120,7 +120,7 @@ void Icd10::addIndividualIcd10Code(const QString& code, const QString& desc,
 
 void Icd10::addSubcodes(const QString& basecode,
                         const QString& basedesc,
-                        const QList<CodeDescriptionPair>& level1)
+                        const QVector<CodeDescriptionPair>& level1)
 {
     for (auto extra1 : level1) {
         QString code = QString("%1%2").arg(basecode).arg(extra1.first);
@@ -133,8 +133,8 @@ void Icd10::addSubcodes(const QString& basecode,
 
 void Icd10::addSubcodes(const QString& basecode,
                         const QString& basedesc,
-                        const QList<CodeDescriptionPair>& level1,
-                        const QList<CodeDescriptionPair>& level2)
+                        const QVector<CodeDescriptionPair>& level1,
+                        const QVector<CodeDescriptionPair>& level2)
 {
     for (auto extra1 : level1) {
         QString l1code = QString("%1%2").arg(basecode).arg(extra1.first);
@@ -153,7 +153,7 @@ void Icd10::addSubcodes(const QString& basecode,
 // Dementia
 // ============================================================================
 
-const QList<Icd10::CodeDescriptionPair> Icd10::DEMENTIA_L1{
+const QVector<Icd10::CodeDescriptionPair> Icd10::DEMENTIA_L1{
     // The F0x.x0 - F0x.x4 codes
     {"0", "dementia_x0"},
     {"1", "dementia_x1"},
@@ -162,7 +162,7 @@ const QList<Icd10::CodeDescriptionPair> Icd10::DEMENTIA_L1{
     {"4", "dementia_x4"},
 };
 
-const QList<Icd10::CodeDescriptionPair> Icd10::DEMENTIA_L2{
+const QVector<Icd10::CodeDescriptionPair> Icd10::DEMENTIA_L2{
     // The F0x.xx0 - F0x.xx2 codes
     {"0", "dementia_xx0"},
     {"1", "dementia_xx1"},
@@ -180,7 +180,7 @@ void Icd10::addDementia(const QString& basecode, const QString& basedesc)
 // Substance-induced
 // ============================================================================
 
-const QList<Icd10::CodeDescriptionPair> Icd10::SUBSTANCE_L1{
+const QVector<Icd10::CodeDescriptionPair> Icd10::SUBSTANCE_L1{
     // Possible to be slightly more memory-efficient, but it just gets a bit
     // complicated to read! This is clearer.
     {".0", "substance_0"},
@@ -256,7 +256,7 @@ void Icd10::addSubstance(const QString& basecode, const QString& basedesc)
 // Schizophrenia
 // ============================================================================
 
-const QList<Icd10::CodeDescriptionPair> Icd10::SCHIZOPHRENIA_L1{
+const QVector<Icd10::CodeDescriptionPair> Icd10::SCHIZOPHRENIA_L1{
     // The F20.x0 - F20.x9 codes
     {"0", "schizophrenia_x0"},
     {"1", "schizophrenia_x1"},
@@ -280,7 +280,7 @@ void Icd10::addSchizophrenia(const QString& basecode, const QString& basedesc)
 // Self-harm
 // ============================================================================
 
-const QList<Icd10::CodeDescriptionPair> Icd10::SELFHARM_L1{
+const QVector<Icd10::CodeDescriptionPair> Icd10::SELFHARM_L1{
     // The Xxx.0 - Xxx.9 codes
     {".0", "selfharm_0"},
     {".1", "selfharm_1"},
@@ -295,7 +295,7 @@ const QList<Icd10::CodeDescriptionPair> Icd10::SELFHARM_L1{
 };
 
 
-const QList<Icd10::CodeDescriptionPair> Icd10::SELFHARM_L2{
+const QVector<Icd10::CodeDescriptionPair> Icd10::SELFHARM_L2{
     // The Xxx.x0 - Xxx.x9 codes
     {"0", "selfharm_x0"},
     {"1", "selfharm_x1"},
@@ -320,7 +320,7 @@ void Icd10::addSelfHarm(const QString& basecode, const QString& basedesc)
 // Main codes
 // ============================================================================
 
-const QList<QString> Icd10::BASE_CODES{
+const QStringList Icd10::BASE_CODES{
     // F
     "F",
 

@@ -31,7 +31,7 @@ QuPage::QuPage() :
 }
 
 
-QuPage::QuPage(const QList<QuElementPtr>& elements) :
+QuPage::QuPage(const QVector<QuElementPtr>& elements) :
     m_type(PageType::Inherit),
     m_elements(elements),
     m_skip(false)
@@ -47,7 +47,7 @@ QuPage::QuPage(std::initializer_list<QuElementPtr> elements) :
 }
 
 
-QuPage::QuPage(const QList<QuElement*>& elements) :  // takes ownership
+QuPage::QuPage(const QVector<QuElement*>& elements) :  // takes ownership
     m_type(PageType::Inherit),
     m_skip(false)
 {
@@ -105,7 +105,7 @@ QuPage* QuPage::addElement(QuElement* element)  // takes ownership
 }
 
 
-QuPage* QuPage::addElements(const QList<QuElementPtr>& elements)
+QuPage* QuPage::addElements(const QVector<QuElementPtr>& elements)
 {
     for (auto e : elements) {
         addElement(e);
@@ -114,7 +114,7 @@ QuPage* QuPage::addElements(const QList<QuElementPtr>& elements)
 }
 
 
-QuPage* QuPage::addElements(const QList<QuElement*>& elements)
+QuPage* QuPage::addElements(const QVector<QuElement*>& elements)
 {
     for (auto e : elements) {
         addElement(e);
@@ -182,7 +182,7 @@ QPointer<QWidget> QuPage::widget(Questionnaire* questionnaire) const
         // or this can create standalone windows!
     }
     // Propagate up events from *all* widgets, including those in grids etc.
-    QList<QuElement*> elements = allElements();
+    QVector<QuElement*> elements = allElements();
     for (QuElement* e : elements) {
         connect(e, &QuElement::elementValueChanged,
                 this, &QuPage::elementValueChanged,
@@ -194,9 +194,9 @@ QPointer<QWidget> QuPage::widget(Questionnaire* questionnaire) const
 }
 
 
-QList<QuElement*> QuPage::allElements() const
+QVector<QuElement*> QuPage::allElements() const
 {
-    QList<QuElement*> elements;
+    QVector<QuElement*> elements;
     for (QuElementPtr e : m_elements) {
         elements.append(e.data());
         elements.append(e->subelementsWithChildrenFlattenedRaw());
@@ -205,9 +205,9 @@ QList<QuElement*> QuPage::allElements() const
 }
 
 
-QList<QuElement*> QuPage::elementsWithTag(const QString& tag)
+QVector<QuElement*> QuPage::elementsWithTag(const QString& tag)
 {
-    QList<QuElement*> matching_elements;
+    QVector<QuElement*> matching_elements;
     for (auto e : allElements()) {
         if (e->hasTag(tag)) {
             matching_elements.append(e);
@@ -219,7 +219,7 @@ QList<QuElement*> QuPage::elementsWithTag(const QString& tag)
 
 bool QuPage::missingInput() const
 {
-    QList<QuElement*> elements = allElements();
+    QVector<QuElement*> elements = allElements();
     for (QuElement* e : elements) {
         // Not this:
         /*
@@ -244,7 +244,7 @@ bool QuPage::missingInput() const
 
 void QuPage::closing()
 {
-    QList<QuElement*> elements = allElements();
+    QVector<QuElement*> elements = allElements();
     for (auto e : elements) {
         e->closing();
     }

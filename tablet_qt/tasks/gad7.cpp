@@ -123,7 +123,7 @@ OpenableWidget* Gad7::editor(bool read_only)
         {xstring("a2"), 2},
         {xstring("a3"), 3},
     };
-    QList<QuestionWithOneField> qfields;
+    QVector<QuestionWithOneField> qfields;
     for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
         qfields.append(QuestionWithOneField(fieldRef(strnum(QPREFIX, i)),
                                             xstring(strnum("q", i))));

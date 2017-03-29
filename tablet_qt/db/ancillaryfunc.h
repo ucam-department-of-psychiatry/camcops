@@ -35,7 +35,7 @@ namespace ancillaryfunc
 // ============================================================================
 
 template<class AncillaryType, class AncillaryPtrType>
-void loadAncillary(QList<AncillaryPtrType>& ancillaries,
+void loadAncillary(QVector<AncillaryPtrType>& ancillaries,
                    CamcopsApp& app,
                    const QSqlDatabase& db,
                    const QString& fk_name,

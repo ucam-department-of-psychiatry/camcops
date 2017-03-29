@@ -92,6 +92,6 @@ protected:
     CamcopsApp& m_app;
     QStringList m_tablenames;
     QStringList m_all_tablenames;
-    QList<ProxyType> m_initial_proxy_list;
+    QVector<ProxyType> m_initial_proxy_list;
     MapType m_map;  // maps tablename to TaskCache
 };

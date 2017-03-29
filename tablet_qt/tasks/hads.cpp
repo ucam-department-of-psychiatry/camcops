@@ -18,6 +18,7 @@
 */
 
 #include "hads.h"
+#include "common/appstrings.h"
 #include "common/textconst.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
@@ -39,10 +40,10 @@ const int FIRST_Q = 1;
 const int N_QUESTIONS = 14;
 const int MAX_SCORE_ANXIETY = 21;
 const int MAX_SCORE_DEPRESSION = 21;
-const QList<int> INVERTED_QUESTIONS{1, 3, 5, 6, 8, 10, 11, 13};
+const QVector<int> INVERTED_QUESTIONS{1, 3, 5, 6, 8, 10, 11, 13};
 // ... For these questions, option 3 appears at the top of the choices.
-const QList<int> ANXIETY_QUESTIONS{1, 3, 5, 7, 9, 11, 13};
-const QList<int> DEPRESSION_QUESTIONS{2, 4, 6, 8, 10, 12, 14};
+const QVector<int> ANXIETY_QUESTIONS{1, 3, 5, 7, 9, 11, 13};
+const QVector<int> DEPRESSION_QUESTIONS{2, 4, 6, 8, 10, 12, 14};
 
 const QString QPREFIX("q");
 
@@ -100,9 +101,9 @@ bool Hads::isComplete() const
 QStringList Hads::summary() const
 {
     return QStringList{
-        scorePhrase(appstring("hads_anxiety_score"),
+        scorePhrase(appstring(appstrings::HADS_ANXIETY_SCORE),
                     getScore(ANXIETY_QUESTIONS), MAX_SCORE_ANXIETY),
-        scorePhrase(appstring("hads_depression_score"),
+        scorePhrase(appstring(appstrings::HADS_DEPRESSION_SCORE),
                     getScore(DEPRESSION_QUESTIONS), MAX_SCORE_DEPRESSION),
     };
 }
@@ -116,7 +117,7 @@ QStringList Hads::detail() const
 
 OpenableWidget* Hads::editor(bool read_only)
 {
-    QList<QuPagePtr> pages;
+    QVector<QuPagePtr> pages;
 
     auto fulloptions = [this](int question) -> NameValueOptions {
         NameValueOptions options;
@@ -143,7 +144,7 @@ OpenableWidget* Hads::editor(bool read_only)
             {"2", 2},
             {"3", 3},
         };
-        QList<QuestionWithOneField> qfields;
+        QVector<QuestionWithOneField> qfields;
         for (int n = 1; n <= N_QUESTIONS; ++n) {
             QString question = QString("%1 %2").arg(textconst::QUESTION).arg(n);
             if (ANXIETY_QUESTIONS.contains(n)) {
@@ -194,7 +195,7 @@ OpenableWidget* Hads::editor(bool read_only)
 // Task-specific calculations
 // ============================================================================
 
-int Hads::getScore(const QList<int>& questions) const
+int Hads::getScore(const QVector<int>& questions) const
 {
     return sumInt(values(strnumlist(QPREFIX, questions)));
 }

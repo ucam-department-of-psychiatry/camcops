@@ -155,7 +155,7 @@ void addOptionBackground(GridLayout* grid, int row, int firstcol, int ncols,
 
 
 void setResponseWidgets(const NameValueOptions& options,
-                        const QList<QPointer<BooleanWidget>>& question_widgets,
+                        const QVector<QPointer<BooleanWidget>>& question_widgets,
                         const FieldRef* fieldref)
 {
     if (!fieldref) {

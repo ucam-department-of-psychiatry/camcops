@@ -19,6 +19,7 @@
 
 #pragma once
 #include "namevaluepair.h"
+#include <QVector>
 
 
 class NameValueOptions
@@ -76,7 +77,7 @@ public:
 public:
     static NameValueOptions makeNumbers(int first, int last, int step = 1);
 protected:
-    QList<NameValuePair> m_options;
+    QVector<NameValuePair> m_options;
 public:
     friend QDebug operator<<(QDebug debug, const NameValueOptions& gi);
 };

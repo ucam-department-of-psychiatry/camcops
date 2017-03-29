@@ -55,5 +55,5 @@ protected:
     bool m_horizontal;
     bool m_as_text_button;
     bool m_bold;
-    QList<QPointer<BooleanWidget>> m_widgets;
+    QVector<QPointer<BooleanWidget>> m_widgets;
 };

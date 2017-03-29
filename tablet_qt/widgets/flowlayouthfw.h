@@ -91,7 +91,7 @@ protected:  // RNC (was private)
     int itemTop(int row_top, int item_height, int row_height,
                 Qt::Alignment alignment) const;  // RNC
 
-    QList<QLayoutItem*> m_item_list;
+    QVector<QLayoutItem*> m_item_list;
     int m_h_space;
     int m_v_space;
     mutable QSize m_size_hint;

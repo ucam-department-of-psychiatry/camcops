@@ -40,6 +40,7 @@
 #include <QUrl>
 #include "common/cssconst.h"
 #include "common/platform.h"
+#include "common/textconst.h"
 #include "common/uiconstants.h"
 #include "lib/layoutdumper.h"
 #include "lib/stringfunc.h"
@@ -626,7 +627,7 @@ QString escapeString(const QString& string)
 
 QString yesNo(bool yes)
 {
-    return yes ? tr("Yes") : tr("No");
+    return yes ? textconst::YES : textconst::NO;
 }
 
 
@@ -634,6 +635,31 @@ QString yesNoNull(const QVariant& value)
 {
     return value.isNull() ? "NULL" : yesNo(value.toBool());
 }
+
+
+QString yesNoUnknown(const QVariant& value)
+{
+    return value.isNull() ? textconst::UNKNOWN : yesNo(value.toBool());
+}
+
+
+QString trueFalse(bool yes)
+{
+    return yes ? textconst::TRUE : textconst::FALSE;
+}
+
+
+QString trueFalseNull(const QVariant& value)
+{
+    return value.isNull() ? "NULL" : trueFalse(value.toBool());
+}
+
+
+QString trueFalseUnknown(const QVariant& value)
+{
+    return value.isNull() ? textconst::UNKNOWN : trueFalse(value.toBool());
+}
+
 
 
 // ============================================================================

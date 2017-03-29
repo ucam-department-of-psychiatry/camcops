@@ -34,7 +34,7 @@ public:
 public:
     QuHorizontalContainer();
     QuHorizontalContainer(
-            const QList<QuElementPtr>& elements,
+            const QVector<QuElementPtr>& elements,
             Qt::Alignment alignment = DefaultWidgetAlignment);
     QuHorizontalContainer(
             std::initializer_list<QuElementPtr> elements,
@@ -54,9 +54,9 @@ protected:
     void commonConstructor();
     void createAlignments(Qt::Alignment alignment);
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
-    virtual QList<QuElementPtr> subelements() const override;
+    virtual QVector<QuElementPtr> subelements() const override;
 protected:
-    QList<QuElementPtr> m_elements;
-    QList<Qt::Alignment> m_widget_alignments;
+    QVector<QuElementPtr> m_elements;
+    QVector<Qt::Alignment> m_widget_alignments;
     bool m_add_stretch_right;
 };

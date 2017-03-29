@@ -117,7 +117,7 @@ QStringList HamA::detail() const
 
 OpenableWidget* HamA::editor(bool read_only)
 {
-    QList<QuPagePtr> pages;
+    QVector<QuPagePtr> pages;
 
     auto addpage = [this, &pages](int n) -> void {
         NameValueOptions options;

@@ -70,10 +70,10 @@ QString getDynamicProperties(const QWidget* w);
 QString getLayoutInfo(const QLayout* layout);
 QString getSpacerInfo(QSpacerItem* si);
 QString paddingSpaces(int level, int spaces_per_level);
-QList<const QWidget*> dumpLayoutAndChildren(
+QVector<const QWidget*> dumpLayoutAndChildren(
         QDebug& os, const QLayout* layout, int level,
         const DumperConfig& config);
-QList<const QWidget*> dumpWidgetAndChildren(
+QVector<const QWidget*> dumpWidgetAndChildren(
         QDebug& os, const QWidget* w, int level,
         const QString& alignment, const DumperConfig& config);
 void dumpWidgetHierarchy(const QWidget* w,

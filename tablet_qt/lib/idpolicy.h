@@ -18,9 +18,9 @@
 */
 
 #pragma once
-#include <QList>
 #include <QMap>
 #include <QString>
+#include <QVector>
 
 
 class IdPolicy
@@ -47,20 +47,20 @@ protected:
     void initializeTokenDicts();
     void tokenize(const QString& policy_text);
     void reportSyntaxError(const QString& msg) const;
-    ChunkValue idPolicyChunk(const QList<int>& tokens,
+    ChunkValue idPolicyChunk(const QVector<int>& tokens,
                              const AttributesType& attributes) const;
-    ChunkValue idPolicyContent(const QList<int>& tokens,
+    ChunkValue idPolicyContent(const QVector<int>& tokens,
                                const AttributesType& attributes,
                                int& index) const;
-    OperatorValue idPolicyOp(const QList<int>& tokens, int& index) const;
+    OperatorValue idPolicyOp(const QVector<int>& tokens, int& index) const;
     ChunkValue idPolicyElement(const AttributesType& attributes,
                                int token) const;
-    QString stringify(const QList<int>& tokens) const;
+    QString stringify(const QVector<int>& tokens) const;
 protected:
     QString m_policy_text;
     QMap<int, QString> m_token_to_name;
     QMap<QString, int> m_name_to_token;
-    QList<int> m_tokens;
+    QVector<int> m_tokens;
     bool m_valid;
 };
 

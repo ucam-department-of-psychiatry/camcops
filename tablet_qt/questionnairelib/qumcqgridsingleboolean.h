@@ -44,16 +44,16 @@ class QuMcqGridSingleBoolean : public QuElement
 public:
     QuMcqGridSingleBoolean();
 public:
-    QuMcqGridSingleBoolean(const QList<QuestionWithTwoFields>& questions_with_fields,
+    QuMcqGridSingleBoolean(const QVector<QuestionWithTwoFields>& questions_with_fields,
                            const NameValueOptions& mcq_options,
                            const QString& boolean_text);
     virtual ~QuMcqGridSingleBoolean();
     QuMcqGridSingleBoolean* setBooleanLeft(bool boolean_left);
     QuMcqGridSingleBoolean* setWidth(int question_width,
-                                     const QList<int>& mcq_option_widths,
+                                     const QVector<int>& mcq_option_widths,
                                      int boolean_width);
     QuMcqGridSingleBoolean* setTitle(const QString& title);
-    QuMcqGridSingleBoolean* setSubtitles(const QList<McqGridSubtitle>& subtitles);
+    QuMcqGridSingleBoolean* setSubtitles(const QVector<McqGridSubtitle>& subtitles);
     QuMcqGridSingleBoolean* setExpand(bool expand);
 protected:
     void setFromFields();
@@ -70,17 +70,17 @@ protected slots:
     void booleanFieldValueChanged(int question_index, const FieldRef* fieldref);
 protected:
     bool m_boolean_left;
-    QList<QuestionWithTwoFields> m_questions_with_fields;
+    QVector<QuestionWithTwoFields> m_questions_with_fields;
     NameValueOptions m_mcq_options;
     QString m_boolean_text;
     int m_question_width;
-    QList<int> m_mcq_option_widths;
+    QVector<int> m_mcq_option_widths;
     int m_boolean_width;
     QString m_title;
-    QList<McqGridSubtitle> m_subtitles;
+    QVector<McqGridSubtitle> m_subtitles;
     bool m_expand;
 
-    QList<QList<QPointer<BooleanWidget>>> m_mcq_widgets;
-    QList<QPointer<BooleanWidget>> m_boolean_widgets;
-    QList<QuMcqGridSingleBooleanSignaller*> m_signallers;
+    QVector<QVector<QPointer<BooleanWidget>>> m_mcq_widgets;
+    QVector<QPointer<BooleanWidget>> m_boolean_widgets;
+    QVector<QuMcqGridSingleBooleanSignaller*> m_signallers;
 };

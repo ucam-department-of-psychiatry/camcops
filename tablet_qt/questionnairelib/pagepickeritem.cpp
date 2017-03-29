@@ -30,6 +30,13 @@ PagePickerItem::PagePickerItem(const QString& text, int page_number,
 }
 
 
+PagePickerItem::PagePickerItem() :
+    m_page_number(-1),
+    m_type(PagePickerItemType::BlockedByPrevious)
+{
+}
+
+
 QString PagePickerItem::text() const
 {
     return m_text;

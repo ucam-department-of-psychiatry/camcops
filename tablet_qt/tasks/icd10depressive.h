@@ -18,31 +18,29 @@
 */
 
 #pragma once
-#include <QPointer>
 #include <QString>
-#include "common/aliases_camcops.h"
 #include "tasklib/task.h"
 
 class CamcopsApp;
 class OpenableWidget;
-class Questionnaire;
+class TaskFactory;
+
+void initializeIcd10Depressive(TaskFactory& factory);
 
 
-class DiagnosisTaskBase : public Task
+class Icd10Depressive : public Task
 {
     Q_OBJECT
 public:
-    DiagnosisTaskBase(CamcopsApp& app, const QSqlDatabase& db,
-                      const QString& tablename,
-                      int load_pk = dbconst::NONEXISTENT_PK);
+    Icd10Depressive(CamcopsApp& app, const QSqlDatabase& db,
+                    int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
-    // Deferred to subclasses.
-    // ------------------------------------------------------------------------
-    // Ancillary management
-    // ------------------------------------------------------------------------
-    virtual QVector<DatabaseObjectPtr> getAllAncillary() const override;
+    virtual QString shortname() const override;
+    virtual QString longname() const override;
+    virtual QString menusubtitle() const override;
+    virtual QString infoFilenameStem() const override;
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -53,26 +51,23 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-    // ------------------------------------------------------------------------
-    // DiagnosisTaskBase extras
-    // ------------------------------------------------------------------------
 protected:
-    virtual DiagnosticCodeSetPtr makeCodeset() const = 0;
-    virtual DiagnosisItemBasePtr makeItem() const = 0;
-    void addItem();
-    void deleteItem(int index);
-    void moveUp(int index);
-    void moveDown(int index);
-    QVariant getCode(int index) const;
-    bool setCode(int index, const QVariant& value);
-    QVariant getDescription(int index) const;
-    bool setDescription(int index, const QVariant& value);
-    void refreshQuestionnaire();
-    void rebuildPage(QuPage* page);
-    void renumberItems();
-protected:
-    QVector<DiagnosisItemBasePtr> m_items;
-    QPointer<Questionnaire> m_questionnaire;
-    QVector<QuElementPtr> m_core_elements;
-    DiagnosticCodeSetPtr m_codeset;
+    int nCore() const;
+    int nAdditional() const;
+    int nTotal() const;
+    int nSomatic() const;
+    bool mainComplete() const;
+    // The QVariant ones return true, false, or NULL (for unknown):
+    QVariant meetsCriteriaSeverePsychoticSchizophrenic() const;
+    QVariant meetsCriteriaSeverePsychoticIcd() const;
+    QVariant meetsCriteriaSevereNonpsychotic() const;
+    QVariant meetsCriteriaSevereIgnoringPsychosis() const;
+    QVariant meetsCriteriaModerate() const;
+    QVariant meetsCriteriaMild() const;
+    QVariant meetsCriteriaNone() const;
+    QVariant meetsCriteriaSomatic() const;
+    QString getSomaticDescription() const;
+    QString getMainDescription() const;
+    QString getFullDescription() const;
+    QStringList detailGroup(const QStringList& fieldnames) const;
 };

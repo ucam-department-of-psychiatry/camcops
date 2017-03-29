@@ -136,7 +136,7 @@ OpenableWidget* CbiR::editor(bool read_only)
             [this, &freq_options, &distress_options]
             (QuPagePtr page, const QString& xstringname, int first_q, int last_q)
             -> void {
-        QList<QuestionWithTwoFields> qfields;
+        QVector<QuestionWithTwoFields> qfields;
         for (int q = first_q; q <= last_q; ++q) {
             FieldRefPtr fr_freq = fieldRef(strnum(FN_FREQ_PREFIX, q));
             FieldRefPtr fr_distress = fieldRef(strnum(FN_DISTRESS_PREFIX, q));

@@ -27,14 +27,14 @@
 namespace questionnairefunc {
 
 
-QuElement* defaultGridRawPointer(const QList<GridRowDefinition>& deflist,
+QuElement* defaultGridRawPointer(const QVector<GridRowDefinition>& deflist,
                                  int left_column_span,
                                  int right_column_span,
                                  Qt::Alignment label_alignment,
                                  Qt::Alignment left_column_alignment,
                                  Qt::Alignment right_column_alignment)
 {
-    QList<QuGridCell> cells;
+    QVector<QuGridCell> cells;
     int row = 0;
     const int left_col = 0;
     const int right_col = 1;
@@ -62,7 +62,7 @@ QuElement* defaultGridRawPointer(const QList<GridRowDefinition>& deflist,
 }
 
 
-QuElementPtr defaultGrid(const QList<GridRowDefinition>& deflist,
+QuElementPtr defaultGrid(const QVector<GridRowDefinition>& deflist,
                          int left_column_span,
                          int right_column_span,
                          Qt::Alignment label_alignment,
@@ -83,7 +83,7 @@ QuElementPtr defaultGrid(std::initializer_list<GridRowDefinition> defs,
                          Qt::Alignment left_column_alignment,
                          Qt::Alignment right_column_alignment)
 {
-    QList<GridRowDefinition> deflist(defs);
+    QVector<GridRowDefinition> deflist(defs);
     return defaultGrid(deflist, left_column_span, right_column_span,
                        label_alignment,
                        left_column_alignment, right_column_alignment);
@@ -98,7 +98,7 @@ QuElement* defaultGridRawPointer(
         Qt::Alignment left_column_alignment,
         Qt::Alignment right_column_alignment)
 {
-    QList<GridRowDefinition> deflist;
+    QVector<GridRowDefinition> deflist;
     for (auto rawptrdef : defs) {
         // rawptrdef will be of type GridRowDefinitionRawPtr
         //

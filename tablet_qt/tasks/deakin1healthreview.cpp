@@ -464,7 +464,7 @@ OpenableWidget* Deakin1HealthReview::editor(bool read_only)
                 this, &Deakin1HealthReview::updateMandatory);
     };
 
-    QList<QuPagePtr> pages;
+    QVector<QuPagePtr> pages;
 
     pages.append(QuPagePtr((new QuPage{
         boldtext("Please enter your ethnicity:"),
@@ -641,7 +641,7 @@ OpenableWidget* Deakin1HealthReview::editor(bool read_only)
         boldtext("(B) If you have ever had a period of very heavy use of any "
                  "of these drugs, please tick its “Previous heavy use?” box."),
         (new QuMcqGridSingleBoolean(
-            QList<QuestionWithTwoFields>{
+            QVector<QuestionWithTwoFields>{
                 q2f(RECDRUG_TOBACCO_FREQUENCY, RECDRUG_TOBACCO_PREVHEAVY, DRUGLIST[0]),
                 q2f(RECDRUG_CANNABIS_FREQUENCY, RECDRUG_CANNABIS_PREVHEAVY, DRUGLIST[1]),
                 q2f(RECDRUG_ALCOHOL_FREQUENCY, RECDRUG_ALCOHOL_PREVHEAVY, DRUGLIST[2]),
@@ -668,7 +668,7 @@ OpenableWidget* Deakin1HealthReview::editor(bool read_only)
                 {"Daily", 4},
             },
             "Previous heavy use?"  // boolean label
-        ))->setSubtitles(QList<McqGridSubtitle>{
+        ))->setSubtitles(QVector<McqGridSubtitle>{
             McqGridSubtitle(3, ""),
             McqGridSubtitle(7, ""),
             McqGridSubtitle(10, ""),
@@ -693,7 +693,7 @@ OpenableWidget* Deakin1HealthReview::editor(bool read_only)
     watch(RECDRUG_PREVHEAVY);
 
     pages.append(QuPagePtr((new QuPage{
-        new QuMcqGrid(QList<QuestionWithOneField>{
+        new QuMcqGrid(QVector<QuestionWithOneField>{
             qf(MRI_CLAUSTROPHOBIC,
                "Are you claustrophobic, or have difficulties in small spaces "
                "(e.g. lifts, confined spaces)?"),
@@ -725,7 +725,7 @@ OpenableWidget* Deakin1HealthReview::editor(bool read_only)
              "participation, if applicable:"),
         multiline(OTHER_RELEVANT_THINGS_DETAILS, false),
         text("Finally:"),
-        new QuMcqGrid(QList<QuestionWithOneField>{
+        new QuMcqGrid(QVector<QuestionWithOneField>{
             qf(WILLING_TO_PARTICIPATE_IN_FURTHER_STUDIES,
                "Would you be willing to participate in further studies run by "
                "our department?"),

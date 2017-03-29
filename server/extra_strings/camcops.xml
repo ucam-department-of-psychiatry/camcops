@@ -55,9 +55,19 @@
 
     <!--
     ===========================================================================
+    Strings shared between multiple tasks
+    ===========================================================================
+    -->
+
+    <string name="icd10_symptomatic_disclaimer">These criteria are the SYMPTOMATIC criteria and IGNORE CAUSAL criteria (such as “episode not attributable to psychoactive substance use or organic mental disorder” or history of prior episodes).</string>
+
+    <!--
+    ===========================================================================
     Other
     ===========================================================================
     -->
+
+    <string name="date_pertains_to">Date this assessment pertains to:</string>
 
   </task>
 </resources>

@@ -47,9 +47,9 @@ public:
     };
 public:
     QuPage();
-    QuPage(const QList<QuElementPtr>& elements);
+    QuPage(const QVector<QuElementPtr>& elements);
     QuPage(std::initializer_list<QuElementPtr> elements);
-    QuPage(const QList<QuElement*>& elements);  // takes ownership
+    QuPage(const QVector<QuElement*>& elements);  // takes ownership
     QuPage(std::initializer_list<QuElement*> elements);  // takes ownership
 
     virtual void build() {}  // for on-the-fly building
@@ -58,10 +58,10 @@ public:
     QuPage* setTitle(const QString& title);
     QuPage* addElement(const QuElementPtr& element);
     QuPage* addElement(QuElement* element);  // takes ownership
-    QuPage* addElements(const QList<QuElementPtr>& elements);
-    QuPage* addElements(const QList<QuElement*>& elements);  // takes ownership
+    QuPage* addElements(const QVector<QuElementPtr>& elements);
+    QuPage* addElements(const QVector<QuElement*>& elements);  // takes ownership
     QuPage* addTag(const QString& tag);
-    QList<QuElement*> elementsWithTag(const QString& tag);
+    QVector<QuElement*> elementsWithTag(const QString& tag);
 
     virtual ~QuPage();
 
@@ -76,13 +76,13 @@ public slots:
     QuPage* setSkip(bool skip = true);
 protected:
     QPointer<QWidget> widget(Questionnaire* questionnaire) const;
-    QList<QuElement*> allElements() const;
+    QVector<QuElement*> allElements() const;
     bool missingInput() const;
     void closing();
 protected:
     PageType m_type;
     QString m_title;
     QStringList m_tags;
-    QList<QuElementPtr> m_elements;
+    QVector<QuElementPtr> m_elements;
     bool m_skip;
 };

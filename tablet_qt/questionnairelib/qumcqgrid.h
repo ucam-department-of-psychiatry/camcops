@@ -43,12 +43,12 @@ class QuMcqGrid : public QuElement
     friend class QuMcqGridSignaller;
 
 public:
-    QuMcqGrid(const QList<QuestionWithOneField>& question_field_pairs,
+    QuMcqGrid(const QVector<QuestionWithOneField>& question_field_pairs,
               const NameValueOptions& options);
     virtual ~QuMcqGrid();
-    QuMcqGrid* setWidth(int question_width, const QList<int>& option_widths);
+    QuMcqGrid* setWidth(int question_width, const QVector<int>& option_widths);
     QuMcqGrid* setTitle(const QString& title);
-    QuMcqGrid* setSubtitles(const QList<McqGridSubtitle>& subtitles);
+    QuMcqGrid* setSubtitles(const QVector<McqGridSubtitle>& subtitles);
     QuMcqGrid* setExpand(bool expand);
 protected:
     void setFromFields();
@@ -61,13 +61,13 @@ protected slots:
     void fieldValueChanged(int question_index, const FieldRef* fieldref);
 
 protected:
-    QList<QuestionWithOneField> m_question_field_pairs;
+    QVector<QuestionWithOneField> m_question_field_pairs;
     NameValueOptions m_options;
     int m_question_width;
-    QList<int> m_option_widths;
+    QVector<int> m_option_widths;
     QString m_title;
-    QList<McqGridSubtitle> m_subtitles;
+    QVector<McqGridSubtitle> m_subtitles;
     bool m_expand;
-    QList<QList<QPointer<BooleanWidget>>> m_widgets;
-    QList<QuMcqGridSignaller*> m_signallers;
+    QVector<QVector<QPointer<BooleanWidget>>> m_widgets;
+    QVector<QuMcqGridSignaller*> m_signallers;
 };

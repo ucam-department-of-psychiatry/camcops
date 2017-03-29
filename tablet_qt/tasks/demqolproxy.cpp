@@ -41,7 +41,7 @@ const int N_QUESTIONS = 32;
 const int N_SCORED_QUESTIONS = 31;
 const int MISSING_VALUE = -99;
 const int MINIMUM_N_FOR_TOTAL_SCORE = 16;
-const QList<int>REVERSE_SCORE{1, 4, 6, 8, 11, 32};  // questions scored backwards
+const QVector<int>REVERSE_SCORE{1, 4, 6, 8, 11, 32};  // questions scored backwards
 
 const QString QPREFIX("q");
 
@@ -143,7 +143,7 @@ OpenableWidget* DemqolProxy::editor(bool read_only)
         {xstring("q29_a4"), 4},
         {xstring("no_response"), MISSING_VALUE},
     };
-    QList<QuPagePtr> pages{
+    QVector<QuPagePtr> pages{
         getClinicianAndRespondentDetailsPage(false),
     };
 
@@ -157,8 +157,9 @@ OpenableWidget* DemqolProxy::editor(bool read_only)
     auto italic = [this](const QString& xstringname) -> QuElement* {
         return (new QuText(xstring(xstringname)))->setItalic();
     };
-    auto qfields = [this](int first, int last) -> QList<QuestionWithOneField> {
-        QList<QuestionWithOneField> qf;
+    auto qfields = [this](int first,
+                          int last) -> QVector<QuestionWithOneField> {
+        QVector<QuestionWithOneField> qf;
         for (int i = first; i <= last; ++i) {
             qf.append(QuestionWithOneField(xstring(strnum("proxy_q", i)),
                                            fieldRef(strnum(QPREFIX, i))));

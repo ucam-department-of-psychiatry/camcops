@@ -26,7 +26,7 @@
 #include "widgets/labelwordwrapwide.h"
 
 
-QuMcqGrid::QuMcqGrid(const QList<QuestionWithOneField>& question_field_pairs,
+QuMcqGrid::QuMcqGrid(const QVector<QuestionWithOneField>& question_field_pairs,
                      const NameValueOptions& options) :
     m_question_field_pairs(question_field_pairs),
     m_options(options),
@@ -58,7 +58,7 @@ QuMcqGrid::~QuMcqGrid()
 
 
 QuMcqGrid* QuMcqGrid::setWidth(int question_width,
-                               const QList<int>& option_widths)
+                               const QVector<int>& option_widths)
 {
     if (option_widths.size() != m_options.size()) {
         qWarning() << Q_FUNC_INFO << "Bad option_widths; command ignored";
@@ -77,7 +77,7 @@ QuMcqGrid* QuMcqGrid::setTitle(const QString &title)
 }
 
 
-QuMcqGrid* QuMcqGrid::setSubtitles(const QList<McqGridSubtitle>& subtitles)
+QuMcqGrid* QuMcqGrid::setSubtitles(const QVector<McqGridSubtitle>& subtitles)
 {
     m_subtitles = subtitles;
     return this;
@@ -174,7 +174,7 @@ QPointer<QWidget> QuMcqGrid::makeWidget(Questionnaire* questionnaire)
                                  m_question_field_pairs.at(qi).question());
 
         // The response widgets
-        QList<QPointer<BooleanWidget>> question_widgets;
+        QVector<QPointer<BooleanWidget>> question_widgets;
         for (int vi = 0; vi < n_options; ++vi) {
             QPointer<BooleanWidget> w = new BooleanWidget();
             w->setAppearance(BooleanWidget::Appearance::Radio);
@@ -253,7 +253,7 @@ void QuMcqGrid::fieldValueChanged(int question_index, const FieldRef* fieldref)
         qWarning() << Q_FUNC_INFO << "Bad question_index:" << question_index;
         return;
     }
-    const QList<QPointer<BooleanWidget>>& question_widgets = m_widgets.at(
+    const QVector<QPointer<BooleanWidget>>& question_widgets = m_widgets.at(
                 question_index);
 
     mcqfunc::setResponseWidgets(m_options, question_widgets, fieldref);

@@ -42,15 +42,15 @@ class QuMcqGridDouble : public QuElement
     Q_OBJECT
     friend class QuMcqGridDoubleSignaller;
 public:
-    QuMcqGridDouble(const QList<QuestionWithTwoFields>& questions_with_fields,
+    QuMcqGridDouble(const QVector<QuestionWithTwoFields>& questions_with_fields,
                     const NameValueOptions& options1,
                     const NameValueOptions& options2);
     virtual ~QuMcqGridDouble();
     QuMcqGridDouble* setWidth(int question_width,
-                              const QList<int>& option1_widths,
-                              const QList<int>& option2_widths);
+                              const QVector<int>& option1_widths,
+                              const QVector<int>& option2_widths);
     QuMcqGridDouble* setTitle(const QString& title);
-    QuMcqGridDouble* setSubtitles(const QList<McqGridSubtitle>& subtitles);
+    QuMcqGridDouble* setSubtitles(const QVector<McqGridSubtitle>& subtitles);
     QuMcqGridDouble* setExpand(bool expand);
     QuMcqGridDouble* setStems(const QString& stem1, const QString& stem2);
 protected:
@@ -65,19 +65,19 @@ protected slots:
     void fieldValueChanged(int question_index, bool first_field,
                            const FieldRef* fieldref);
 protected:
-    QList<QuestionWithTwoFields> m_questions_with_fields;
+    QVector<QuestionWithTwoFields> m_questions_with_fields;
     NameValueOptions m_options1;
     NameValueOptions m_options2;
     int m_question_width;
-    QList<int> m_option1_widths;
-    QList<int> m_option2_widths;
+    QVector<int> m_option1_widths;
+    QVector<int> m_option2_widths;
     QString m_title;
-    QList<McqGridSubtitle> m_subtitles;
+    QVector<McqGridSubtitle> m_subtitles;
     bool m_expand;
     QString m_stem1;
     QString m_stem2;
 
-    QList<QList<QPointer<BooleanWidget>>> m_widgets1;
-    QList<QList<QPointer<BooleanWidget>>> m_widgets2;
-    QList<QuMcqGridDoubleSignaller*> m_signallers;
+    QVector<QVector<QPointer<BooleanWidget>>> m_widgets1;
+    QVector<QVector<QPointer<BooleanWidget>>> m_widgets2;
+    QVector<QuMcqGridDoubleSignaller*> m_signallers;
 };

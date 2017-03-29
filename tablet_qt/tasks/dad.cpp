@@ -212,7 +212,7 @@ OpenableWidget* Dad::editor(bool read_only)
 
     QuPagePtr page1 = getClinicianAndRespondentDetailsPage(false);
 
-    QList<QuElement*> elements{
+    QVector<QuElement*> elements{
         (new QuText(xstring("instruction_1") + " " +
                     getPatientName() + " " +
                     xstring("instruction_2")))->setBold(),
@@ -289,8 +289,8 @@ QStringList Dad::getItemsPhase(const QString& phase) const
 
 QString Dad::getScore(const QStringList& fieldnames) const
 {
-    QList<QVariant> v = values(fieldnames);
-    int score = mathfunc::countWhere(v, QList<QVariant>{YES});
-    int possible = mathfunc::countWhereNot(v, QList<QVariant>{QVariant(), NA});
+    QVector<QVariant> v = values(fieldnames);
+    int score = mathfunc::countWhere(v, QVector<QVariant>{YES});
+    int possible = mathfunc::countWhereNot(v, QVector<QVariant>{QVariant(), NA});
     return mathfunc::scoreString(score, possible);
 }

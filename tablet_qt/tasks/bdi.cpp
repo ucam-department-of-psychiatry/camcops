@@ -18,6 +18,7 @@
 */
 
 #include "bdi.h"
+#include "common/appstrings.h"
 #include "common/textconst.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
@@ -121,7 +122,7 @@ OpenableWidget* Bdi::editor(bool read_only)
         {"BDI-IA (1978)", SCALE_BDI_IA},
         {"BDI-II (1996)", SCALE_BDI_II},
     };
-    QList<QuestionWithOneField> fields;
+    QVector<QuestionWithOneField> fields;
     QString question_prefix = tr("Question");
     for (int n = FIRST_Q; n <= N_QUESTIONS; ++n) {
         QString qstrnum = QString::number(n);
@@ -136,8 +137,8 @@ OpenableWidget* Bdi::editor(bool read_only)
     }
 
     QuPagePtr page((new QuPage({
-        (new QuText(appstring("data_collection_only")))->setBold(),
-        new QuText(appstring("bdi_which_scale")),
+        (new QuText(appstring(appstrings::DATA_COLLECTION_ONLY)))->setBold(),
+        new QuText(appstring(appstrings::BDI_WHICH_SCALE)),
         (new QuMcq(fieldRef(FN_BDI_SCALE), scale_options))
             ->setHorizontal(true)
             ->setAsTextButton(true),

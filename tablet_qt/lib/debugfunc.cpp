@@ -55,7 +55,7 @@ void debugConcisely(QDebug debug, const QVariant& value)
 }
 
 
-void debugConcisely(QDebug debug, const QList<QVariant>& values)
+void debugConcisely(QDebug debug, const QVector<QVariant>& values)
 {
     QDebug d = debug.nospace();
     d << "(";

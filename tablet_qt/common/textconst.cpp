@@ -32,6 +32,7 @@ namespace textconst {
 
 TR(ADD, "Add");
 
+TR(CATEGORY, "Category");
 TR(CLINICIAN_COMMENTS, "Clinician’s comments");
 TR(CLINICIAN_CONTACT_DETAILS, "Clinician’s contact details");
 TR(CLINICIAN_DETAILS, "Clinician’s details");
@@ -55,7 +56,11 @@ TR(EXAMINER_COMMENTS, "Examiner’s comments");
 TR(EXAMINER_COMMENTS_PROMPT, "Optional — Examiner’s comments (e.g. "
                              "difficulties the subject had with the task):");
 
+TR(FALSE, "False");
 TR(FINISHED, "Finished");
+
+TR(ICD10, "World Health Organization International Classification of "
+          "Diseases, 10th edition");
 
 TR(MILD, "Mild");
 TR(MILD_TO_MODERATE, "Mild to moderate");
@@ -67,6 +72,7 @@ TR(MOVE_UP, "Move up");
 
 TR(NA, "N/A");
 TR(NONE, "None");
+TR(NO, "No");
 TR(NO_SUMMARY_SEE_FACSIMILE, "No summary available; see the facsimile instead");
 TR(NOT_APPLICABLE, "Not applicable");
 TR(NOT_SPECIFIED, "<not specified>");
@@ -89,8 +95,13 @@ TR(SEX, "Sex");
 
 TR(THANK_YOU, "Thank you!");
 TR(TOTAL_SCORE, "Total score");
+TR(TRUE, "True");
+
+TR(UNKNOWN, "Unknown");
 
 TR(VERY_SEVERE, "Very severe");
+
+TR(YES, "Yes");
 
 
 // ============================================================================
