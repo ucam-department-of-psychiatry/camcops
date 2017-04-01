@@ -141,6 +141,11 @@ VerticalScrollArea::VerticalScrollArea(QWidget* parent) :
 
     // Method 2
     uifunc::applyScrollGestures(viewport());
+
+    // If that doesn't work, try
+    // #include "widgets/flickcharm.h"
+    // FlickCharm charm;
+    // charm.activateOn(this);
 }
 
 

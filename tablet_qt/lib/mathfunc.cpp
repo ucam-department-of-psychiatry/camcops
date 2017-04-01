@@ -73,17 +73,12 @@ double sumDouble(const QVector<QVariant>& values)
 }
 
 
-int countTrue(const QVector<QVariant>& values)
+bool falseNotNull(const QVariant& value)
 {
-    int n = 0;
-    int length = values.length();
-    for (int i = 0; i < length; ++i) {
-        const QVariant& v = values.at(i);
-        if (v.toBool()) {
-            n += 1;
-        }
+    if (value.isNull() || value.toBool()) {  // null or true
+        return false;
     }
-    return n;
+    return true;
 }
 
 
@@ -116,6 +111,32 @@ bool anyTrue(const QVector<QVariant>& values)
 bool allFalseOrNull(const QVector<QVariant>& values)
 {
     return !anyTrue(values);
+}
+
+
+bool allFalse(const QVector<QVariant>& values)
+{
+    int length = values.length();
+    for (int i = 0; i < length; ++i) {
+        const QVariant& v = values.at(i);
+        if (v.isNull() || v.toBool()) {  // null or true
+            return false;
+        }
+    }
+    return true;
+}
+
+
+bool anyFalse(const QVector<QVariant> &values)
+{
+    int length = values.length();
+    for (int i = 0; i < length; ++i) {
+        const QVariant& v = values.at(i);
+        if (!v.isNull() && !v.toBool()) {  // not null and not true
+            return true;
+        }
+    }
+    return false;
 }
 
 
@@ -154,6 +175,20 @@ bool anyNullOrEmpty(const QVector<QVariant>& values)
 bool noneNullOrEmpty(const QVector<QVariant>& values)
 {
     return !anyNullOrEmpty(values);
+}
+
+
+int countTrue(const QVector<QVariant>& values)
+{
+    int n = 0;
+    int length = values.length();
+    for (int i = 0; i < length; ++i) {
+        const QVariant& v = values.at(i);
+        if (v.toBool()) {
+            n += 1;
+        }
+    }
+    return n;
 }
 
 

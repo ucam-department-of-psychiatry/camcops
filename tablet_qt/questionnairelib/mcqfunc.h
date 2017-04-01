@@ -50,18 +50,18 @@ void setResponseWidgets(
 void toggleBooleanField(FieldRef* fieldref, bool allow_unset = false);
 
 // Alignment constants
-extern Qt::Alignment question_text_align;
-extern Qt::Alignment question_widget_align;
+extern const Qt::Alignment question_text_align;
+extern const Qt::Alignment question_widget_align;
 
-extern Qt::Alignment title_text_align;
-extern Qt::Alignment title_widget_align;
+extern const Qt::Alignment title_text_align;
+extern const Qt::Alignment title_widget_align;
 
-extern Qt::Alignment option_text_align;
-extern Qt::Alignment option_widget_align;
+extern const Qt::Alignment option_text_align;
+extern const Qt::Alignment option_widget_align;
 
-extern Qt::Alignment response_widget_align;
+extern const Qt::Alignment response_widget_align;
 
-extern Qt::Alignment stem_text_align;
-extern Qt::Alignment stem_widget_align;
+extern const Qt::Alignment stem_text_align;
+extern const Qt::Alignment stem_widget_align;
 
 }  // namespace mcqfunc

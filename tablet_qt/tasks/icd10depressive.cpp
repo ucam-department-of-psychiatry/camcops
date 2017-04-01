@@ -17,13 +17,15 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define DEBUG_CLASSIFICATION
+
 #include "icd10depressive.h"
 #include "common/appstrings.h"
 #include "common/textconst.h"
+#include "lib/convert.h"
 #include "lib/datetimefunc.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
-#include "lib/uifunc.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/qudatetime.h"
@@ -39,13 +41,8 @@ using mathfunc::anyNull;
 using mathfunc::anyTrue;
 using mathfunc::countNull;
 using mathfunc::countTrue;
-using mathfunc::noneNull;
-using mathfunc::scoreString;
-using mathfunc::sumInt;
-using mathfunc::totalScorePhrase;
+using stringfunc::bold;
 using stringfunc::standardResult;
-using stringfunc::strnum;
-using stringfunc::strseq;
 
 const QString ICD10DEP_TABLENAME("icd10depressive");
 
@@ -96,7 +93,7 @@ const QString HALLUCINATIONS_OTHER("hallucinations_other");
 const QString DELUSIONS_SCHIZOPHRENIC("delusions_schizophrenic");
 const QString DELUSIONS_OTHER("delusions_other");
 const QString STUPOR("stupor");
-const QStringList PSYCHOSIS_NAMES{
+const QStringList PSYCHOSIS_AND_SIMILAR_NAMES{
     HALLUCINATIONS_SCHIZOPHRENIC,
     HALLUCINATIONS_OTHER,
     DELUSIONS_SCHIZOPHRENIC,
@@ -107,6 +104,9 @@ const QString DATE_PERTAINS_TO("date_pertains_to");
 const QString COMMENTS("comments");
 const QString DURATION_AT_LEAST_2_WEEKS("duration_at_least_2_weeks");
 const QString SEVERE_CLINICALLY("severe_clinically");
+const QStringList INFORMATIVE = CORE_NAMES + ADDITIONAL_NAMES +
+        PSYCHOSIS_AND_SIMILAR_NAMES +
+        QStringList{DURATION_AT_LEAST_2_WEEKS, SEVERE_CLINICALLY};
 
 
 void initializeIcd10Depressive(TaskFactory& factory)
@@ -121,7 +121,7 @@ Icd10Depressive::Icd10Depressive(CamcopsApp& app, const QSqlDatabase& db, int lo
     addFields(CORE_NAMES, QVariant::Bool);
     addFields(ADDITIONAL_NAMES, QVariant::Bool);
     addFields(SOMATIC_NAMES, QVariant::Bool);
-    addFields(PSYCHOSIS_NAMES, QVariant::Bool);
+    addFields(PSYCHOSIS_AND_SIMILAR_NAMES, QVariant::Bool);
 
     addField(DATE_PERTAINS_TO, QVariant::Date);
     addField(COMMENTS, QVariant::String);
@@ -129,6 +129,11 @@ Icd10Depressive::Icd10Depressive(CamcopsApp& app, const QSqlDatabase& db, int lo
     addField(SEVERE_CLINICALLY, QVariant::Bool);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
+
+    // Extra initialization:
+    if (load_pk == dbconst::NONEXISTENT_PK) {
+        setValue(DATE_PERTAINS_TO, datetime::nowDate());
+    }
 }
 
 
@@ -196,9 +201,32 @@ QStringList Icd10Depressive::detail() const
     lines.append(fieldSummaryTrueFalseUnknown(SEVERE_CLINICALLY,
                                               SEVERE_CLINICALLY));
     lines += detailGroup(SOMATIC_NAMES);
-    lines += detailGroup(PSYCHOSIS_NAMES);
+    lines += detailGroup(PSYCHOSIS_AND_SIMILAR_NAMES);
     lines.append("");
     lines.append(standardResult(textconst::CATEGORY, getFullDescription()));
+#ifdef DEBUG_CLASSIFICATION
+    auto pv = [](const QVariant& v) -> QString {
+        return bold(convert::prettyValue(v));
+    };
+    lines.append("");
+    lines.append("nCore(): " + pv(nCore()));
+    lines.append("nAdditional(): " + pv(nAdditional()));
+    lines.append("nTotal(): " + pv(nTotal()));
+    lines.append("nSomatic(): " + pv(nSomatic()));
+    lines.append("mainComplete(): " + pv(mainComplete()));
+    lines.append("meetsCriteriaSeverePsychoticSchizophrenic(): " +
+                 pv(meetsCriteriaSeverePsychoticSchizophrenic()));
+    lines.append("meetsCriteriaSeverePsychoticIcd(): " +
+                 pv(meetsCriteriaSeverePsychoticIcd()));
+    lines.append("meetsCriteriaSevereNonpsychotic(): " +
+                 pv(meetsCriteriaSevereNonpsychotic()));
+    lines.append("meetsCriteriaSevereIgnoringPsychosis(): " +
+                 pv(meetsCriteriaSevereIgnoringPsychosis()));
+    lines.append("meetsCriteriaModerate(): " + pv(meetsCriteriaModerate()));
+    lines.append("meetsCriteriaMild(): " + pv(meetsCriteriaMild()));
+    lines.append("meetsCriteriaNone(): " + pv(meetsCriteriaNone()));
+    lines.append("meetsCriteriaSomatic(): " + pv(meetsCriteriaSomatic()));
+#endif
     return lines;
 }
 
@@ -229,6 +257,7 @@ OpenableWidget* Icd10Depressive::editor(bool read_only)
     };
 
     QuPagePtr page((new QuPage{
+        getClinicianQuestionnaireBlockRawPointer(),
         (new QuText(appstring(appstrings::ICD10_SYMPTOMATIC_DISCLAIMER)))->setBold(),
         new QuText(appstring(appstrings::DATE_PERTAINS_TO)),
         (new QuDateTime(fieldRef(DATE_PERTAINS_TO)))
@@ -244,10 +273,17 @@ OpenableWidget* Icd10Depressive::editor(bool read_only)
         heading("somatic"),
         grid(SOMATIC_NAMES, present_absent_options, false),
         heading("psychotic"),
-        grid(PSYCHOSIS_NAMES, present_absent_options, false),
+        grid(PSYCHOSIS_AND_SIMILAR_NAMES, present_absent_options, false),
         new QuHeading(textconst::COMMENTS),
         new QuTextEdit(fieldRef(COMMENTS, false)),
     })->setTitle(longname()));
+
+    for (auto fieldname : INFORMATIVE) {
+        connect(fieldRef(fieldname).data(), &FieldRef::valueChanged,
+                this, &Icd10Depressive::updateMandatory);
+    }
+
+    updateMandatory();
 
     Questionnaire* questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Clinician);
@@ -286,9 +322,34 @@ int Icd10Depressive::nSomatic() const
 
 bool Icd10Depressive::mainComplete() const
 {
-    return valueBool(SEVERE_CLINICALLY) ||
-            (!valueIsNull(DURATION_AT_LEAST_2_WEEKS) &&
-             noneNull(values(CORE_NAMES + ADDITIONAL_NAMES)));
+    if (valueBool(SEVERE_CLINICALLY)) {
+        return true;  // depression present and definitely severe
+    }
+    if (valueIsFalseNotNull(DURATION_AT_LEAST_2_WEEKS)) {
+        return true;  // depression absent; too short
+    }
+
+    QVector<QVariant> core = values(CORE_NAMES);
+    int t_core = countTrue(core);
+    int u_core = countNull(core);
+    if (t_core + u_core < 2) {
+        return true;  // depression absent; definitely <2 core symptoms
+    }
+
+    QVector<QVariant> additional = values(ADDITIONAL_NAMES);
+    int t_additional = countTrue(additional);
+    int u_additional = countNull(additional);
+
+    if (t_core == 3 && (t_core + t_additional) >= 8) {
+        return true;  // depression present and severe
+    }
+    if (t_core + u_core + t_additional + u_additional < 4) {
+        return true;  // depression absent; <4 total symptoms
+    }
+
+    // If we get here: changes in the "unknown" bits might change presence/
+    // absence, or severity.
+    return false;
 }
 
 
@@ -345,10 +406,10 @@ QVariant Icd10Depressive::meetsCriteriaSevereNonpsychotic() const
     if (!severe_ign_psy.toBool()) {
         return severe_ign_psy;  // might be false or NULL
     }
-    if (anyNull(values(PSYCHOSIS_NAMES))) {
+    if (anyNull(values(PSYCHOSIS_AND_SIMILAR_NAMES))) {
         return QVariant();
     }
-    return countTrue(values(PSYCHOSIS_NAMES)) == 0;
+    return countTrue(values(PSYCHOSIS_AND_SIMILAR_NAMES)) == 0;
 }
 
 
@@ -497,4 +558,23 @@ QStringList Icd10Depressive::detailGroup(const QStringList& fieldnames) const
         lines.append(fieldSummary(f, f));
     }
     return lines;
+}
+
+
+// ============================================================================
+// Signal handlers
+// ============================================================================
+
+void Icd10Depressive::updateMandatory()
+{
+    bool known = meetsCriteriaNone().toBool() ||
+            meetsCriteriaMild().toBool() ||
+            meetsCriteriaModerate().toBool() ||
+            meetsCriteriaSevereNonpsychotic().toBool() ||
+            meetsCriteriaSeverePsychoticIcd().toBool() ||
+            meetsCriteriaSeverePsychoticSchizophrenic().toBool();
+    bool need = !known;
+    for (auto fieldname : INFORMATIVE) {
+        fieldRef(fieldname)->setMandatory(need, this);
+    }
 }

@@ -35,19 +35,19 @@ namespace mcqfunc {
 // ============================================================================
 
 // In grids, this is the title in cell (0, 0).
-Qt::Alignment title_text_align = Qt::AlignTop;
-Qt::Alignment title_widget_align = Qt::AlignTop;
+const Qt::Alignment title_text_align = Qt::AlignTop;
+const Qt::Alignment title_widget_align = Qt::AlignTop;
 
 // In grids, these are the response option descriptions in row 0.
-Qt::Alignment option_text_align = Qt::AlignCenter | Qt::AlignBottom;
-Qt::Alignment option_widget_align = Qt::AlignCenter | Qt::AlignBottom;
+const Qt::Alignment option_text_align = Qt::AlignCenter | Qt::AlignBottom;
+const Qt::Alignment option_widget_align = Qt::AlignCenter | Qt::AlignBottom;
 // If you don't apply a widget alignment, the label widget takes the entire
 // cell -- which is fine for the most part (the text alignment does the rest)
 // -- but not when you want a *bottom* alignment.
 
 // In grids, these are the questions down the left-hand side
-Qt::Alignment question_text_align = Qt::AlignVCenter;
-Qt::Alignment question_widget_align = Qt::AlignVCenter;
+const Qt::Alignment question_text_align = Qt::AlignVCenter;
+const Qt::Alignment question_widget_align = Qt::AlignVCenter;
 // Don't do right align; disrupts natural reading flow.
 // For small questions (vertically shorter than response widgets), centre
 // alignment looks best. For long ones, it doesn't matter (as the question
@@ -55,7 +55,7 @@ Qt::Alignment question_widget_align = Qt::AlignVCenter;
 // row).
 
 // In grids, these are the things you touch to respond.
-Qt::Alignment response_widget_align = Qt::AlignCenter | Qt::AlignTop;
+const Qt::Alignment response_widget_align = Qt::AlignCenter | Qt::AlignTop;
 // The vertical alignment is relevant when questions are anything but very
 // short. Assuming the label is properly spaced (but see LabelWordWrapWide for
 // probable Qt bug), top alignment looks good. With the bug, there is an
@@ -63,8 +63,8 @@ Qt::Alignment response_widget_align = Qt::AlignCenter | Qt::AlignTop;
 
 // In grids, these are the stem questions over the array of responses, e.g.
 // for QuMcqGridDouble.
-Qt::Alignment stem_text_align = Qt::AlignCenter | Qt::AlignBottom;
-Qt::Alignment stem_widget_align = Qt::AlignCenter | Qt::AlignBottom;
+const Qt::Alignment stem_text_align = Qt::AlignCenter | Qt::AlignBottom;
+const Qt::Alignment stem_widget_align = Qt::AlignCenter | Qt::AlignBottom;
 
 // ============================================================================
 // Background to part of a QGridLayout

@@ -28,14 +28,19 @@ QVariant mean(const QVector<QVariant>& values, bool ignore_null = false);
 int sumInt(const QVector<QVariant>& values);
 double sumDouble(const QVector<QVariant>& values);
 
-int countTrue(const QVector<QVariant>& values);
+bool falseNotNull(const QVariant& value);
+
 bool allTrue(const QVector<QVariant>& values);
 bool anyTrue(const QVector<QVariant>& values);
 bool allFalseOrNull(const QVector<QVariant>& values);
+bool allFalse(const QVector<QVariant>& values);
+bool anyFalse(const QVector<QVariant>& values);
 bool anyNull(const QVector<QVariant>& values);
 bool noneNull(const QVector<QVariant>& values);
 bool anyNullOrEmpty(const QVector<QVariant>& values);
 bool noneNullOrEmpty(const QVector<QVariant>& values);
+
+int countTrue(const QVector<QVariant>& values);
 int countNull(const QVector<QVariant>& values);
 int countNotNull(const QVector<QVariant>& values);
 

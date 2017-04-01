@@ -33,6 +33,7 @@ namespace textconst {
 TR(ADD, "Add");
 
 TR(CATEGORY, "Category");
+TR(CLINICIAN, "Clinician");
 TR(CLINICIAN_COMMENTS, "Clinician’s comments");
 TR(CLINICIAN_CONTACT_DETAILS, "Clinician’s contact details");
 TR(CLINICIAN_DETAILS, "Clinician’s details");
@@ -62,6 +63,7 @@ TR(FINISHED, "Finished");
 TR(ICD10, "World Health Organization International Classification of "
           "Diseases, 10th edition");
 
+TR(MEETS_CRITERIA, "Meets criteria");
 TR(MILD, "Mild");
 TR(MILD_TO_MODERATE, "Mild to moderate");
 TR(MODERATELY_SEVERE, "Moderately severe");

@@ -62,7 +62,6 @@
 #include <QResizeEvent>
 #include <QStyle>
 #include <QStyleOptionFrame>
-#include "common/gui_defines.h"
 #include "lib/sizehelpers.h"
 
 #ifdef DEBUG_LAYOUT_WITH_CSS

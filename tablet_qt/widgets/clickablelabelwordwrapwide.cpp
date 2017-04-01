@@ -23,8 +23,6 @@
 #include <QDebug>
 #include <QMargins>
 #include <QStyleOptionButton>
-#include "common/gui_defines.h"
-#include "common/layouts.h"
 #include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
 #include "widgets/labelwordwrapwide.h"

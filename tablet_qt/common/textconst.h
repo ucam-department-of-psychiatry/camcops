@@ -55,6 +55,7 @@ namespace textconst
 extern const QString ADD;
 
 extern const QString CATEGORY;
+extern const QString CLINICIAN;
 extern const QString CLINICIAN_COMMENTS;
 extern const QString CLINICIAN_CONTACT_DETAILS;
 extern const QString CLINICIAN_DETAILS;
@@ -79,6 +80,7 @@ extern const QString EXAMINER_COMMENTS_PROMPT;
 
 extern const QString ICD10;
 
+extern const QString MEETS_CRITERIA;
 extern const QString MILD;
 extern const QString MILD_TO_MODERATE;
 extern const QString MODERATE;

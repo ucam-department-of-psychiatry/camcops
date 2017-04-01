@@ -23,7 +23,6 @@
 #include <QStyle>
 #include <QVariant>
 #include "common/cssconst.h"
-#include "common/layouts.h"
 #include "common/uiconstants.h"
 #include "lib/sizehelpers.h"
 #include "lib/uifunc.h"

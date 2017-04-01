@@ -25,7 +25,6 @@
 #include <QPainter>
 #include <QResizeEvent>
 #include <QStyleOption>
-#include "common/gui_defines.h"  // duplicated from header
 #include "lib/sizehelpers.h"
 
 

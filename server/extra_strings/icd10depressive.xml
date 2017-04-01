@@ -79,7 +79,7 @@ is not respected.”
     <string name="category_severe_nonpsychotic">Severe depressive episode without psychotic symptoms</string>
     <string name="category_moderate">Moderate depressive episode</string>
     <string name="category_mild">Mild depressive episode</string>
-    <string name="category_none">No depressive episode</string>
+    <string name="category_none">Not a depressive episode</string>
     <string name="category_with_somatic">(with somatic syndrome)</string>
     <string name="category_without_somatic">(without somatic syndrome)</string>
     <string name="category_somatic_unknown">(somatic syndrome: unknown)</string>

@@ -58,7 +58,7 @@ is not respected.”
     <string name="other_mania">Other symptoms of mania:</string>
     <string name="grandiosity">[GRANDIOSITY] Inflated self-esteem or grandiosity.</string>
     <string name="flight_of_ideas">[FLIGHT OF IDEAS] Flight of ideas or the subjective experience of thoughts racing.</string>
-    <string name="other_criteria">Criteria relating to duration/severity/psychosis:</string>
+    <string name="other_criteria">Criteria relating to duration/severity:</string>
     <string name="sustained4days">Elevated/irritable mood sustained for at least 4 days.</string>
     <string name="sustained7days">Elevated/irritable mood sustained for at least 7 days.</string>
     <string name="admission_required">Elevated/irritable mood severe enough to require hospital admission.</string>

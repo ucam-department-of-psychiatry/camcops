@@ -25,15 +25,15 @@ class CamcopsApp;
 class OpenableWidget;
 class TaskFactory;
 
-void initializeIcd10Depressive(TaskFactory& factory);
+void initializeIcd10Manic(TaskFactory& factory);
 
 
-class Icd10Depressive : public Task
+class Icd10Manic : public Task
 {
     Q_OBJECT
 public:
-    Icd10Depressive(CamcopsApp& app, const QSqlDatabase& db,
-                    int load_pk = dbconst::NONEXISTENT_PK);
+    Icd10Manic(CamcopsApp& app, const QSqlDatabase& db,
+               int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -52,23 +52,14 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
 protected:
-    int nCore() const;
-    int nAdditional() const;
-    int nTotal() const;
-    int nSomatic() const;
-    bool mainComplete() const;
     // The QVariant ones return true, false, or NULL (for unknown):
-    QVariant meetsCriteriaSeverePsychoticSchizophrenic() const;
-    QVariant meetsCriteriaSeverePsychoticIcd() const;
-    QVariant meetsCriteriaSevereNonpsychotic() const;
-    QVariant meetsCriteriaSevereIgnoringPsychosis() const;
-    QVariant meetsCriteriaModerate() const;
-    QVariant meetsCriteriaMild() const;
+    QVariant meetsCriteriaManiaPsychoticSchizophrenic() const;
+    QVariant meetsCriteriaManiaPsychoticIcd() const;
+    QVariant meetsCriteriaManiaNonpsychotic() const;
+    QVariant meetsCriteriaManiaIgnoringPsychosis() const;
+    QVariant meetsCriteriaHypomania() const;
     QVariant meetsCriteriaNone() const;
-    QVariant meetsCriteriaSomatic() const;
-    QString getSomaticDescription() const;
-    QString getMainDescription() const;
-    QString getFullDescription() const;
+    QString getDescription() const;
     QStringList detailGroup(const QStringList& fieldnames) const;
     // ------------------------------------------------------------------------
     // Signal handlers

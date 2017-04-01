@@ -325,7 +325,10 @@ SOURCES += main.cpp \
     tasks/honos65.cpp \
     tasks/honosca.cpp \
     tasks/icd10depressive.cpp \
-    common/appstrings.cpp
+    common/appstrings.cpp \
+    tasks/icd10manic.cpp \
+    widgets/flickcharm.cpp \
+    tasks/icd10mixed.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -578,7 +581,10 @@ HEADERS  += \
     tasks/honos65.h \
     tasks/honosca.h \
     tasks/icd10depressive.h \
-    common/appstrings.h
+    common/appstrings.h \
+    tasks/icd10manic.h \
+    widgets/flickcharm.h \
+    tasks/icd10mixed.h
 
 
 DISTFILES += \

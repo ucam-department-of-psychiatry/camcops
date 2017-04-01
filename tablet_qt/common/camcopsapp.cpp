@@ -34,7 +34,6 @@
 #include "common/camcopsversion.h"
 #include "common/dbconstants.h"  // for NONEXISTENT_PK
 #include "common/textconst.h"
-#include "common/uiconstants.h"
 #include "common/varconst.h"
 #include "common/version.h"
 #include "crypto/cryptofunc.h"
@@ -44,7 +43,6 @@
 #include "db/dumpsql.h"
 #include "dbobjects/blob.h"
 #include "dbobjects/extrastring.h"
-#include "dbobjects/patient.h"
 #include "dbobjects/patientsorter.h"
 #include "dbobjects/storedvar.h"
 #include "lib/convert.h"
@@ -56,9 +54,9 @@
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "menu/mainmenu.h"
-#include "tasklib/inittasks.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnaire.h"
+#include "tasklib/inittasks.h"
 
 const QString APPSTRING_TASKNAME("camcops");  // task name used for generic but downloaded tablet strings
 

@@ -20,9 +20,11 @@
 #pragma once
 
 #include <QMap>
+#include <QPair>
 #include <QSharedPointer>
 #include <QWeakPointer>
 #include <QVector>
+class QString;
 
 // Phase 1:
 

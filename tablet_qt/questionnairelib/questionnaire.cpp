@@ -39,7 +39,6 @@
 #include "questionnairelib/questionnaireheader.h"
 #include "tasklib/task.h"
 #include "widgets/labelwordwrapwide.h"
-#include "widgets/openablewidget.h"
 #include "widgets/verticalscrollarea.h"
 
 

@@ -73,6 +73,8 @@
 #include "tasks/honosca.h"
 
 #include "tasks/icd10depressive.h"
+#include "tasks/icd10manic.h"
+#include "tasks/icd10mixed.h"
 
 #include "tasks/phq9.h"
 
@@ -137,8 +139,8 @@ void InitTasks(TaskFactory& factory)
     initializeHonosca(factory);
 
     initializeIcd10Depressive(factory);
-    // *** initializeIcd10Manic(factory);
-    // *** initializeIcd10Mixed(factory);
+    initializeIcd10Manic(factory);
+    initializeIcd10Mixed(factory);
     // *** initializeIcd10Schizophrenia(factory);
     // *** initializeIcd10Schizotypal(factory);
     // *** initializeIcd10SpecPD(factory);

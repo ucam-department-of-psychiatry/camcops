@@ -31,10 +31,6 @@
 #include <QStyleOptionFrame>
 #include <QWidget>
 
-#if defined(DEBUG_HFW_RESIZE_EVENT) || defined(DEBUG_WIDGET_MARGINS)
-#include <QDebug>
-#endif
-
 #ifdef DEBUG_WIDGET_MARGINS
 #include "lib/layoutdumper.h"
 #endif

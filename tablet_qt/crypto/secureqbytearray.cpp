@@ -17,10 +17,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*
-
 #include "secureqbytearray.h"
 
+/*
 
 SecureQByteArray::SecureQByteArray()
 {

@@ -22,37 +22,37 @@
 namespace appstrings
 {
 
-extern const QString BDI_WHICH_SCALE;
-extern const QString DATA_COLLECTION_ONLY;
-extern const QString DATE_PERTAINS_TO;
-extern const QString GAF_SCORE;
-extern const QString HADS_ANXIETY_SCORE;
-extern const QString HADS_DEPRESSION_SCORE;
-extern const QString ICD10_SYMPTOMATIC_DISCLAIMER;
+const QString BDI_WHICH_SCALE("bdi_which_scale");
+const QString DATA_COLLECTION_ONLY("data_collection_only");
+const QString DATE_PERTAINS_TO("date_pertains_to");
+const QString GAF_SCORE("gaf_score");
+const QString HADS_ANXIETY_SCORE("hads_anxiety_score");
+const QString HADS_DEPRESSION_SCORE("hads_depression_score");
+const QString ICD10_SYMPTOMATIC_DISCLAIMER("icd10_symptomatic_disclaimer");
 
-extern const QString NHS_PERSON_MARITAL_STATUS_CODE_S;
-extern const QString NHS_PERSON_MARITAL_STATUS_CODE_M;
-extern const QString NHS_PERSON_MARITAL_STATUS_CODE_D;
-extern const QString NHS_PERSON_MARITAL_STATUS_CODE_W;
-extern const QString NHS_PERSON_MARITAL_STATUS_CODE_P;
-extern const QString NHS_PERSON_MARITAL_STATUS_CODE_N;
+const QString NHS_PERSON_MARITAL_STATUS_CODE_S("nhs_person_marital_status_code_S");
+const QString NHS_PERSON_MARITAL_STATUS_CODE_M("nhs_person_marital_status_code_M");
+const QString NHS_PERSON_MARITAL_STATUS_CODE_D("nhs_person_marital_status_code_D");
+const QString NHS_PERSON_MARITAL_STATUS_CODE_W("nhs_person_marital_status_code_W");
+const QString NHS_PERSON_MARITAL_STATUS_CODE_P("nhs_person_marital_status_code_P");
+const QString NHS_PERSON_MARITAL_STATUS_CODE_N("nhs_person_marital_status_code_N");
 
-extern const QString NHS_ETHNIC_CATEGORY_CODE_A;
-extern const QString NHS_ETHNIC_CATEGORY_CODE_B;
-extern const QString NHS_ETHNIC_CATEGORY_CODE_C;
-extern const QString NHS_ETHNIC_CATEGORY_CODE_D;
-extern const QString NHS_ETHNIC_CATEGORY_CODE_E;
-extern const QString NHS_ETHNIC_CATEGORY_CODE_F;
-extern const QString NHS_ETHNIC_CATEGORY_CODE_G;
-extern const QString NHS_ETHNIC_CATEGORY_CODE_H;
-extern const QString NHS_ETHNIC_CATEGORY_CODE_J;
-extern const QString NHS_ETHNIC_CATEGORY_CODE_K;
-extern const QString NHS_ETHNIC_CATEGORY_CODE_L;
-extern const QString NHS_ETHNIC_CATEGORY_CODE_M;
-extern const QString NHS_ETHNIC_CATEGORY_CODE_N;
-extern const QString NHS_ETHNIC_CATEGORY_CODE_P;
-extern const QString NHS_ETHNIC_CATEGORY_CODE_R;
-extern const QString NHS_ETHNIC_CATEGORY_CODE_S;
-extern const QString NHS_ETHNIC_CATEGORY_CODE_Z;
+const QString NHS_ETHNIC_CATEGORY_CODE_A("nhs_ethnic_category_code_A");
+const QString NHS_ETHNIC_CATEGORY_CODE_B("nhs_ethnic_category_code_B");
+const QString NHS_ETHNIC_CATEGORY_CODE_C("nhs_ethnic_category_code_C");
+const QString NHS_ETHNIC_CATEGORY_CODE_D("nhs_ethnic_category_code_D");
+const QString NHS_ETHNIC_CATEGORY_CODE_E("nhs_ethnic_category_code_E");
+const QString NHS_ETHNIC_CATEGORY_CODE_F("nhs_ethnic_category_code_F");
+const QString NHS_ETHNIC_CATEGORY_CODE_G("nhs_ethnic_category_code_G");
+const QString NHS_ETHNIC_CATEGORY_CODE_H("nhs_ethnic_category_code_H");
+const QString NHS_ETHNIC_CATEGORY_CODE_J("nhs_ethnic_category_code_J");
+const QString NHS_ETHNIC_CATEGORY_CODE_K("nhs_ethnic_category_code_K");
+const QString NHS_ETHNIC_CATEGORY_CODE_L("nhs_ethnic_category_code_L");
+const QString NHS_ETHNIC_CATEGORY_CODE_M("nhs_ethnic_category_code_M");
+const QString NHS_ETHNIC_CATEGORY_CODE_N("nhs_ethnic_category_code_N");
+const QString NHS_ETHNIC_CATEGORY_CODE_P("nhs_ethnic_category_code_P");
+const QString NHS_ETHNIC_CATEGORY_CODE_R("nhs_ethnic_category_code_R");
+const QString NHS_ETHNIC_CATEGORY_CODE_S("nhs_ethnic_category_code_S");
+const QString NHS_ETHNIC_CATEGORY_CODE_Z("nhs_ethnic_category_code_Z");
 
 }  // namespace appstrings
