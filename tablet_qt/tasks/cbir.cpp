@@ -20,7 +20,6 @@
 #include "cbir.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
-#include "lib/uifunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/quboolean.h"
 #include "questionnairelib/questionnaire.h"

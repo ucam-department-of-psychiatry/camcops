@@ -17,6 +17,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// #define DEBUG_TASK_CREATION
+
 #include "taskfactory.h"
 #include <algorithm>
 #include "common/camcopsapp.h"
@@ -108,8 +110,10 @@ TaskPtr TaskFactory::create(const QString& key, int load_pk) const
                              << load_pk << ")" << "... no such task class";
         return TaskPtr(nullptr);
     }
+#ifdef DEBUG_TASK_CREATION
     qDebug().nospace() << "TaskFactory::create(" << key << ", "
                        << load_pk << ")";
+#endif
     ProxyType proxy = m_map[key].proxy;
     return proxy->create(m_app, m_app.db(), load_pk);
 }

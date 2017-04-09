@@ -848,12 +848,6 @@ Tasks
 <string name="t_iesr">Impact of Events Scale – Revised (IES-R) (¶+)</string>
 <string name="s_iesr">22-item self-report scale. Data collection tool ONLY unless host institution adds scale text.</string>
 <string name="b_iesr">IES-R</string>
-<string name="iesr_event">Event:</string>
-<string name="iesr_a0">Not at all</string>
-<string name="iesr_a1">A little bit</string>
-<string name="iesr_a2">Moderately</string>
-<string name="iesr_a3">Quite a bit</string>
-<string name="iesr_a4">Extremely</string>
 
 <string name="t_ifs">INECO Frontal Screening (IFS) (¶+)</string>
 <string name="s_ifs">30-point clinician-administered assessment. Data collection tool ONLY unless host institution adds scale text.</string>

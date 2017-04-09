@@ -177,7 +177,7 @@ OpenableWidget* HamD::editor(bool read_only)
         NameValueOptions options;
         for (int i = 0; i < info.n_options; ++i) {
             QString name = xstring(QString("%1_option%2").arg(info.name).arg(i));
-            options.addItem(NameValuePair(name, i));
+            options.append(NameValuePair(name, i));
         }
         QString pagetitle = xstring(QString("%1_title").arg(info.name));
         QString question = xstring(QString("%1_question").arg(info.name));

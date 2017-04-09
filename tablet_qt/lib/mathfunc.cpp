@@ -293,11 +293,23 @@ QString scoreString(int numerator, int denominator, bool show_percent, int dp)
 }
 
 
+QString scoreString(double numerator, int denominator, bool show_percent, int dp)
+{
+    QString result = QString("<b>%1</b>/%2")
+            .arg(convert::toDp(numerator, dp))
+            .arg(denominator);
+    if (show_percent) {
+        result += " (" + percent(numerator, denominator, dp) + ")";
+    }
+    return result;
+}
+
+
 QString scoreStringVariant(const QVariant& numerator, int denominator,
                            bool show_percent, int dp)
 {
     QString result = QString("<b>%1</b>/%2")
-            .arg(convert::prettyValue(numerator))
+            .arg(convert::prettyValue(numerator, dp))
             .arg(denominator);
     if (show_percent) {
         result += " (" + percent(numerator.toDouble(), denominator, dp) + ")";
@@ -323,11 +335,31 @@ QString scorePhrase(const QString& description, int numerator, int denominator,
 }
 
 
+QString scorePhrase(const QString& description, double numerator, int denominator,
+                    const QString& separator, const QString& suffix, int dp)
+{
+    return QString("%1%2%3%4")
+            .arg(description,
+                 separator,
+                 scoreString(numerator, denominator, false, dp),
+                 suffix);
+}
+
+
 QString totalScorePhrase(int numerator, int denominator,
                          const QString& separator, const QString& suffix)
 {
     return scorePhrase(textconst::TOTAL_SCORE, numerator, denominator,
                        separator, suffix);
+}
+
+
+QString totalScorePhrase(double numerator, int denominator,
+                         const QString& separator, const QString& suffix,
+                         int dp)
+{
+    return scorePhrase(textconst::TOTAL_SCORE, numerator, denominator,
+                       separator, suffix, dp);
 }
 
 

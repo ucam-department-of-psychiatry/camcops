@@ -36,7 +36,7 @@ NameValueOptions::NameValueOptions(
 }
 
 
-void NameValueOptions::addItem(const NameValuePair& nvp)
+void NameValueOptions::append(const NameValuePair& nvp)
 {
     m_options.append(nvp);
 }
@@ -138,11 +138,11 @@ NameValueOptions NameValueOptions::makeNumbers(int first, int last, int step)
     NameValueOptions nvo;
     if (first < last && step > 0) {
         for (int i = first; i <= last; i += step) {
-            nvo.addItem(NameValuePair{QString::number(i), i});
+            nvo.append(NameValuePair{QString::number(i), i});
         }
     } else if (last < first && step < 0) {
         for (int i = first; i >= last; i += step) {
-            nvo.addItem(NameValuePair{QString::number(i), i});
+            nvo.append(NameValuePair{QString::number(i), i});
         }
     } else {
         uifunc::stopApp("Bad arguments to NameValueOptions");

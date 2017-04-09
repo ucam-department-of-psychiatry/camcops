@@ -20,7 +20,6 @@
 #include "cgii.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
-#include "lib/uifunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
@@ -118,7 +117,7 @@ OpenableWidget* CgiI::editor(bool read_only)
     NameValueOptions options;
     for (int i = 1; i <= 7; ++i) {  // we don't use 0 (not assessed)
         QString name = xstring(QString("q2_option%1").arg(i));
-        options.addItem(NameValuePair(name, i));
+        options.append(NameValuePair(name, i));
     }
     pages.append(QuPagePtr((new QuPage{
         new QuText(xstring("i_q")),

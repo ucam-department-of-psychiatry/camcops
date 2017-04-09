@@ -61,7 +61,7 @@ class NameValueOptions
 public:
     NameValueOptions();
     NameValueOptions(std::initializer_list<NameValuePair> options);
-    void addItem(const NameValuePair& nvp);
+    void append(const NameValuePair& nvp);
     int size() const;
     const NameValuePair& at(int index) const;
     int indexFromName(const QString& name) const;

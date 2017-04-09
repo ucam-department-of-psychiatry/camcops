@@ -17,42 +17,44 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "gds15.h"
+#include "mast.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
+#include "lib/uifunc.h"
 #include "questionnairelib/commonoptions.h"
+#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 using mathfunc::noneNull;
-using mathfunc::scoreString;
-using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;
+using stringfunc::standardResult;
 using stringfunc::strnum;
 using stringfunc::strseq;
 
 const int FIRST_Q = 1;
-const int N_QUESTIONS = 15;
-const int MAX_SCORE = N_QUESTIONS;
+const int N_QUESTIONS = 24;
+const int MAX_SCORE = 53;
 const QString QPREFIX("q");
 
-const QString GDS15_TABLENAME("gds15");
+const QString MAST_TABLENAME("mast");
+const QVector<int> REVERSED_QUESTIONS{1, 4, 6, 7};
+const QVector<int> QUESTIONS_SCORING_ONE{3, 5, 9, 16};
+const QVector<int> QUESTIONS_SCORING_FIVE{8, 19, 20};
+const int THRESHOLD_SCORE = 13;
 
-const QVector<int> SCORE_IF_YES{2, 3, 4, 6, 8, 9, 10, 12, 14, 15};
-const QVector<int> SCORE_IF_NO{1, 5, 7, 11, 13};
 
-
-void initializeGds15(TaskFactory& factory)
+void initializeMast(TaskFactory& factory)
 {
-    static TaskRegistrar<Gds15> registered(factory);
+    static TaskRegistrar<Mast> registered(factory);
 }
 
 
-Gds15::Gds15(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
-    Task(app, db, GDS15_TABLENAME, false, false, false)  // ... anon, clin, resp
+Mast::Mast(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+    Task(app, db, MAST_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::String);  // Y,N
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::String);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -62,27 +64,21 @@ Gds15::Gds15(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
 // Class info
 // ============================================================================
 
-QString Gds15::shortname() const
+QString Mast::shortname() const
 {
-    return "GDS-15";
+    return "MAST";
 }
 
 
-QString Gds15::longname() const
+QString Mast::longname() const
 {
-    return tr("Geriatric Depression Scale, 15-item version");
+    return tr("Michigan Alcohol Screening Test");
 }
 
 
-QString Gds15::menusubtitle() const
+QString Mast::menusubtitle() const
 {
-    return tr("15-item self-report scale.");
-}
-
-
-QString Gds15::infoFilenameStem() const
-{
-    return "gds";
+    return tr("24-item Y/N self-report scale.");
 }
 
 
@@ -90,41 +86,47 @@ QString Gds15::infoFilenameStem() const
 // Instance info
 // ============================================================================
 
-bool Gds15::isComplete() const
+bool Mast::isComplete() const
 {
     return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
 
 
-QStringList Gds15::summary() const
+QStringList Mast::summary() const
 {
     return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
 }
 
 
-QStringList Gds15::detail() const
+QStringList Mast::detail() const
 {
     QStringList lines = completenessInfo();
-    lines += fieldSummaries("q", "", " ", QPREFIX, FIRST_Q, N_QUESTIONS);
+    lines += fieldSummaries("q", "_s", " ", QPREFIX, FIRST_Q, N_QUESTIONS);
     lines.append("");
     lines += summary();
+    lines.append(standardResult(xstring("exceeds_threshold"),
+                                uifunc::yesNo(totalScore() >= THRESHOLD_SCORE)));
     return lines;
 }
 
 
-OpenableWidget* Gds15::editor(bool read_only)
+OpenableWidget* Mast::editor(bool read_only)
 {
-    NameValueOptions options = CommonOptions::yesNoChar();
     QVector<QuestionWithOneField> qfields;
     for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
         qfields.append(QuestionWithOneField(xstring(strnum("q", i)),
                                             fieldRef(strnum(QPREFIX, i))));
     }
+    QVector<McqGridSubtitle> sub{
+        {6, ""},
+        {12, ""},
+        {18, ""},
+    };
 
     QuPagePtr page((new QuPage{
-        new QuText(xstring("instruction")),
-        new QuMcqGrid(qfields, options),
-    })->setTitle(shortname()));
+        new QuText(xstring("stem")),
+        (new QuMcqGrid(qfields, CommonOptions::yesNoChar()))->setSubtitles(sub),
+    })->setTitle(xstring("title")));
 
     Questionnaire* questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Clinician);
@@ -137,18 +139,33 @@ OpenableWidget* Gds15::editor(bool read_only)
 // Task-specific calculations
 // ============================================================================
 
-int Gds15::totalScore() const
+int Mast::totalScore() const
 {
-    int score = 0;
-    for (auto q : SCORE_IF_YES) {
-        if (valueString(strnum(QPREFIX, q)) == CommonOptions::YES_CHAR) {
-            ++score;
-        }
+    int total = 0;
+    for (int q = 1; q <= N_QUESTIONS; ++q) {
+        total += score(q);
     }
-    for (auto q : SCORE_IF_NO) {
-        if (valueString(strnum(QPREFIX, q)) == CommonOptions::NO_CHAR) {
-            ++score;
-        }
+    return total;
+}
+
+
+int Mast::score(int question) const
+{
+    QVariant v = value(strnum(QPREFIX, question));
+    if (v.isNull()) {
+        return 0;
     }
-    return score;
+    bool yes = v.toString() == CommonOptions::YES_CHAR;
+    int presence = REVERSED_QUESTIONS.contains(question)
+            ? (yes ? 0 : 1)  // reversed (negative responses are alcoholic)
+            : (yes ? 1 : 0);  // normal
+    int points;
+    if (QUESTIONS_SCORING_ONE.contains(question)) {
+        points = 1;
+    } else if (QUESTIONS_SCORING_FIVE.contains(question)) {
+        points = 5;
+    } else {
+        points = 2;  // most score 2
+    }
+    return points * presence;
 }

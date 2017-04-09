@@ -54,18 +54,28 @@ int countWhere(const QVector<QVariant>& test_values,
 int countWhereNot(const QVector<QVariant>& test_values,
                   const QVector<QVariant>& where_not_values);
 
-QString toDp(double x, int dp);
 QString percent(double numerator, double denominator, int dp = 1);
 QString scoreString(int numerator, int denominator,
+                    bool show_percent = false, int dp = 1);
+QString scoreString(double numerator, int denominator,
                     bool show_percent = false, int dp = 1);
 QString scoreStringVariant(const QVariant& numerator, int denominator,
                            bool show_percent = false, int dp = 1);
 QString scoreStringWithPercent(int numerator, int denominator, int dp = 1);
+QString scoreStringWithPercent(double numerator, int denominator, int dp = 1);
 QString scorePhrase(const QString& description, int numerator, int denominator,
                     const QString& separator = ": ",
                     const QString& suffix = ".");
+QString scorePhrase(const QString& description, double numerator, int denominator,
+                    const QString& separator = ": ",
+                    const QString& suffix = ".",
+                    int dp = 1);
 QString totalScorePhrase(int numerator, int denominator,
                          const QString& separator = ": ",
                          const QString& suffix = ".");
+QString totalScorePhrase(double numerator, int denominator,
+                         const QString& separator = ": ",
+                         const QString& suffix = ".",
+                         int dp = 1);
 
 }  // namespace mathfunc

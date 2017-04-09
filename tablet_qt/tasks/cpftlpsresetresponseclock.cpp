@@ -24,7 +24,6 @@
 #include "lib/datetimefunc.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
-#include "lib/uifunc.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/quboolean.h"

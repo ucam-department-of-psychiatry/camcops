@@ -102,16 +102,16 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
     m_fieldref_1 = FieldRefPtr(new FieldRef(getter1, setter1, mandatory));
     m_fieldref_2 = FieldRefPtr(new FieldRef(getter2, setter2, mandatory));
 
-    m_options_1.addItem(NameValuePair("Option A1", 1));
-    m_options_1.addItem(NameValuePair("Option A2", 2));
-    m_options_1.addItem(NameValuePair("Option A3", 3));
+    m_options_1.append(NameValuePair("Option A1", 1));
+    m_options_1.append(NameValuePair("Option A2", 2));
+    m_options_1.append(NameValuePair("Option A3", 3));
 
-    m_options_2.addItem(NameValuePair("Option B1", 1));
-    m_options_2.addItem(NameValuePair("Option B2", 2));
+    m_options_2.append(NameValuePair("Option B1", 1));
+    m_options_2.append(NameValuePair("Option B2", 2));
 
-    m_options_3.addItem(NameValuePair("Option C1", 1));
-    m_options_3.addItem(NameValuePair("Option C2 " + textconst::LOREM_IPSUM_1, 2));
-    m_options_3.addItem(NameValuePair("Option C3", 3));
+    m_options_3.append(NameValuePair("Option C1", 1));
+    m_options_3.append(NameValuePair("Option C2 " + textconst::LOREM_IPSUM_1, 2));
+    m_options_3.append(NameValuePair("Option C3", 3));
 
     QSizePolicy fixed_fixed(QSizePolicy::Fixed, QSizePolicy::Fixed);
     QSizePolicy expand_expand(QSizePolicy::Expanding, QSizePolicy::Expanding);

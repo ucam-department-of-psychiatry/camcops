@@ -133,6 +133,13 @@ OPENSSL_COMMON_OPTIONS = [
 # =============================================================================
 
 def run(args, env=None):
+    """
+    Runs an external process.
+
+    args: argparse.Namespace
+    env: Dict[str, str]
+    -> None
+    """
     log.info("Running external command: {}".format(args))
     if env is not None:
         log.info("Using environment: {}".format(env))
@@ -140,6 +147,14 @@ def run(args, env=None):
 
 
 def replace(filename, text_from, text_to):
+    """
+    Replaces text in a file.
+
+    filename: str
+    text_from: str
+    text_to: str
+    -> None
+    """
     log.info("Amending {} from {} to {}".format(
         filename, repr(text_from), repr(text_to)))
     with open(filename) as infile:
@@ -150,11 +165,24 @@ def replace(filename, text_from, text_to):
 
 
 def require(command):
+    """
+    Checks that an external command is available, or raises an exception.
+
+    command: str
+    -> None
+    """
     if not shutil.which(command):
         raise ValueError("Missing OS command: {}".format(command))
 
 
 def replace_multiple(filename, replacements):
+    """
+    Replaces multiple from/to strings within a file.
+
+    filename: str
+    replacement: List[Tuple[str, str]]
+    -> None
+    """
     with open(filename) as infile:
         contents = infile.read()
     for text_from, text_to in replacements:
@@ -166,11 +194,24 @@ def replace_multiple(filename, replacements):
 
 
 def mkdir_p(path):
+    """
+    Makes a directory, and any other necessary directories (mkdir -p).
+
+    path: str
+    -> None
+    """
     log.info("mkdir -p {}".format(path))
     os.makedirs(path, exist_ok=True)
 
 
 def download_if_not_exists(url, filename):
+    """
+    Downloads a URL to a file, unless the file already exists.
+
+    url: str
+    filename: str
+    -> None
+    """
     if isfile(filename):
         log.info("No need to download, already have: {}".format(filename))
         return
@@ -181,6 +222,12 @@ def download_if_not_exists(url, filename):
 
 
 def fetch_qt(args):
+    """
+    Downloads Qt source code.
+
+    args: argparse.Namespace
+    -> None
+    """
     if isdir(args.qt_src_gitdir):
         log.info("Using Qt source in {}".format(args.qt_src_gitdir))
         return
@@ -193,18 +240,36 @@ def fetch_qt(args):
 
 
 def fetch_openssl(args):
+    """
+    Downloads OpenSSL source code.
+
+    args: argparse.Namespace
+    -> None
+    """
     download_if_not_exists(args.openssl_src_url, args.openssl_src_fullpath)
     #download_if_not_exists(args.openssl_android_script_url,
     #                       args.openssl_android_script_fullpath)
 
 
 def get_openssl_rootdir_workdir(args, system):
+    """
+    Calculates local OpenSSL directories.
+
+    args: argparse.Namsepace
+    system: str
+    -> str, str
+    """
     rootdir = join(args.root_dir, "openssl_{}_build".format(system))
     workdir = join(rootdir, args.openssl_version)
     return rootdir, workdir
 
 
 def root_path():
+    """
+    Returns the system root directory.
+
+    -> str
+    """
     # http://stackoverflow.com/questions/12041525
     return os.path.abspath(os.sep)
 
@@ -214,6 +279,13 @@ def root_path():
 # =============================================================================
 
 def build_openssl_android(args, cpu):
+    """
+    Builds OpenSSL for Android.
+
+    args: argparse.Namespace
+    cpu: str
+    -> None
+    """
     rootdir, workdir = get_openssl_rootdir_workdir(args, "android_" + cpu)
     targets = [join(workdir, "libssl.so"),
                join(workdir, "libcrypto.so")]
@@ -370,6 +442,14 @@ def build_openssl_android(args, cpu):
 
 def build_openssl_common_unix(args, cosmetic_osname, target_os, shared_lib_suffix):
     """
+    Builds OpenSSL for Linux and similar OSs.
+
+    args: argparse.Namespace
+    cosmetic_osname: str
+    target_os: str
+    shared_lib_suffix: str
+    -> None
+
     The target_os parameter is paseed to OpenSSL's Configure script.
     Use "./Configure LIST" for all possibilities.
 
@@ -433,6 +513,13 @@ def build_openssl_osx(args):
 # =============================================================================
 
 def add_generic_qt_config_args(qt_config_args, args):
+    """
+    Amends qt_config args, to add common arguments to Qt's "configure" script.
+
+    qt_config_args: List[str]
+    args: argparse.Namespace
+    -> None
+    """
     qt_config_args.extend(QT_CONFIG_COMMON_ARGS)
 
     # For testing a new OpenSSL build, have args.static_openssl=False, or you
@@ -451,6 +538,13 @@ def add_generic_qt_config_args(qt_config_args, args):
 
 
 def build_qt_android(args, cpu):
+    """
+    Builds Qt for Android.
+
+    args: argparse.Namespace
+    cpu: str
+    -> str
+    """
     # Android example at http://wiki.qt.io/Qt5ForAndroidBuilding
     # http://doc.qt.io/qt-5/opensslsupport.html
     # Windows: ?also http://simpleit.us/2010/05/30/enabling-openssl-for-qt-c-on-windows/  # noqa
@@ -486,6 +580,7 @@ def build_qt_android(args, cpu):
     }
     env["OPENSSL_LIBS"] = "-L{} -lssl -lcrypto".format(openssl_lib_root)
     # ... unnecessary? But suggested by Qt.
+    # ... http://doc.qt.io/qt-4.8/ssl.html
 
     log.info("Configuring Android {} build in {}".format(cpu, builddir))
     mkdir_p(builddir)
@@ -538,6 +633,14 @@ def build_qt_android(args, cpu):
 
 
 def build_qt_generic_unix(args, cosmetic_osname, extra_qt_config_args=None):
+    """
+    Builds Qt for Linux and similar OSs.
+
+    args: argparse.Namespace
+    cosmetic_osname: str
+    extra_qt_config_args: List[str]
+    -> str
+    """
     extra_qt_config_args = extra_qt_config_args or []
     opensslrootdir, opensslworkdir = get_openssl_rootdir_workdir(
         args, cosmetic_osname)
@@ -588,6 +691,11 @@ def build_qt_generic_unix(args, cosmetic_osname, extra_qt_config_args=None):
 
 
 def build_qt_linux(args):
+    """
+    Builds Qt for Linux.
+
+    -> str
+    """
     return build_qt_generic_unix(
         args,
         cosmetic_osname="linux",
@@ -600,6 +708,11 @@ def build_qt_linux(args):
 
 
 def build_qt_osx(args):
+    """
+    Builds OpenSSL for Mac OS X.
+
+    -> str
+    """
     # http://stackoverflow.com/questions/20604093/qt5-install-on-osx-qt-xcb
     # os.environ["PATH"] = "/usr/bin:/bin:/usr/sbin:/sbin"
     return build_qt_generic_unix(
@@ -614,6 +727,11 @@ def build_qt_osx(args):
 # =============================================================================
 
 def main():
+    """
+    Main entry point.
+
+    -> None
+    """
     logging.basicConfig(level=logging.DEBUG)
     user_dir = expanduser("~")
 

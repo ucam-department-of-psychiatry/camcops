@@ -23,7 +23,6 @@
 #include "lib/convert.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
-#include "lib/uifunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
@@ -181,16 +180,16 @@ OpenableWidget* Frs::editor(bool read_only)
             {xstring(prefix + "never"), NEVER},
         };
         if (!NO_SOMETIMES_QUESTIONS.contains(q)) {
-            options.addItem(NameValuePair(xstring(prefix + "sometimes"),
+            options.append(NameValuePair(xstring(prefix + "sometimes"),
                                           SOMETIMES));
         }
-        options.addItem(NameValuePair(xstring(prefix + "always"),
+        options.append(NameValuePair(xstring(prefix + "always"),
                                       ALWAYS));
         if (NA_QUESTIONS.contains(q)) {
             if (SPECIAL_NA_TEXT_QUESTIONS.contains(q)) {
-                options.addItem(NameValuePair(xstring(prefix + "na"), NA));
+                options.append(NameValuePair(xstring(prefix + "na"), NA));
             } else {
-                options.addItem(NameValuePair(textconst::NA, NA));
+                options.append(NameValuePair(textconst::NA, NA));
             }
         }
         return options;

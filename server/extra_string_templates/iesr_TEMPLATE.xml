@@ -2,30 +2,41 @@
 <resources>
   <task name="iesr">
     <!-- Impact of Events Scale - Revised -->
-    <!-- TEMPLATE ONLY: replace 'XXX' with real text if you have the necessary permissions -->
-    <string name="instruction_1">XXX</string>
-    <string name="instruction_2">XXX</string>
-    <string name="q1">XXX</string>
-    <string name="q2">XXX</string>
-    <string name="q3">XXX</string>
-    <string name="q4">XXX</string>
-    <string name="q5">XXX</string>
-    <string name="q6">XXX</string>
-    <string name="q7">XXX</string>
-    <string name="q8">XXX</string>
-    <string name="q9">XXX</string>
-    <string name="q10">XXX</string>
-    <string name="q11">XXX</string>
-    <string name="q12">XXX</string>
-    <string name="q13">XXX</string>
-    <string name="q14">XXX</string>
-    <string name="q15">XXX</string>
-    <string name="q16">XXX</string>
-    <string name="q17">XXX</string>
-    <string name="q18">XXX</string>
-    <string name="q19">XXX</string>
-    <string name="q20">XXX</string>
-    <string name="q21">XXX</string>
-    <string name="q22">XXX</string>
+    <!-- TEMPLATE ONLY: replace with real text if you have the necessary permissions -->
+
+    <string name="instruction_1">[instruction_1]</string>
+    <string name="instruction_2">[instruction_2]</string>
+
+    <string name="q1">Q1</string>
+    <string name="q2">Q2</string>
+    <string name="q3">Q3</string>
+    <string name="q4">Q4</string>
+    <string name="q5">Q5</string>
+    <string name="q6">Q6</string>
+    <string name="q7">Q7</string>
+    <string name="q8">Q8</string>
+    <string name="q9">Q9</string>
+    <string name="q10">Q10</string>
+    <string name="q11">Q11</string>
+    <string name="q12">Q12</string>
+    <string name="q13">Q13</string>
+    <string name="q14">Q14</string>
+    <string name="q15">Q15</string>
+    <string name="q16">Q16</string>
+    <string name="q17">Q17</string>
+    <string name="q18">Q18</string>
+    <string name="q19">Q19</string>
+    <string name="q20">Q20</string>
+    <string name="q21">Q21</string>
+    <string name="q22">Q22</string>
+
+    <string name="event">Event:</string>
+
+    <string name="a0">Not at all</string>
+    <string name="a1">A little bit</string>
+    <string name="a2">Moderately</string>
+    <string name="a3">Quite a bit</string>
+    <string name="a4">Extremely</string>
+
   </task>
 </resources>

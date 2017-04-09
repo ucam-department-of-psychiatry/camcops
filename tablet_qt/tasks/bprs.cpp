@@ -20,7 +20,6 @@
 #include "bprs.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
-#include "lib/uifunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
@@ -117,11 +116,11 @@ OpenableWidget* Bprs::editor(bool read_only)
         NameValueOptions options;
         for (int i = 1; i <= 7; ++i) {
             QString name = xstring(QString("q%1_option%2").arg(n).arg(i));
-            options.addItem(NameValuePair(name, i));
+            options.append(NameValuePair(name, i));
         }
         if (include_na) {
             QString name = xstring(QString("q%1_option0").arg(n));
-            options.addItem(NameValuePair(name, 0));
+            options.append(NameValuePair(name, 0));
         }
         QString pagetitle = xstring(QString("q%1_title").arg(n));
         QString question = xstring(QString("q%1_question").arg(n));

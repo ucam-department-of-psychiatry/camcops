@@ -21,7 +21,6 @@
 #include "common/textconst.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
-#include "lib/uifunc.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
@@ -144,10 +143,10 @@ OpenableWidget* CopeBrief::editor(bool read_only)
     };
     NameValueOptions relationship_options;
     for (int i = RELATIONSHIPS_FIRST_NON_OTHER; i <= RELATIONSHIPS_LAST; ++i) {
-        relationship_options.addItem(NameValuePair(
+        relationship_options.append(NameValuePair(
                 xstring(strnum(XSTRING_RELPREFIX, i)), i));
     }
-    relationship_options.addItem(NameValuePair(
+    relationship_options.append(NameValuePair(
                 xstring(strnum(XSTRING_RELPREFIX, RELATIONSHIP_OTHER_CODE)),
                 RELATIONSHIP_OTHER_CODE));
     NameValueOptions yesno_options = CommonOptions::yesNoBoolean();

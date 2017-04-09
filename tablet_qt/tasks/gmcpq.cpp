@@ -337,7 +337,7 @@ NameValueOptions GmcPq::ethnicityOptions(CamcopsApp& app)
     const QString& xstring_taskname = GMCPQ_TABLENAME;
     NameValueOptions options;
     for (int i = 1; i <= N_ETHNICITY_OPTIONS; ++i) {
-        options.addItem(NameValuePair(
+        options.append(NameValuePair(
             app.xstring(xstring_taskname, strnum("ethnicity_option", i)),
             i));
     }

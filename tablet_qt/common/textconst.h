@@ -53,6 +53,7 @@ namespace textconst
 // ============================================================================
 
 extern const QString ADD;
+extern const QString AND;
 
 extern const QString CATEGORY;
 extern const QString CLINICIAN;
@@ -79,6 +80,7 @@ extern const QString EXAMINER_COMMENTS;
 extern const QString EXAMINER_COMMENTS_PROMPT;
 
 extern const QString ICD10;
+extern const QString IN_ADDITION;
 
 extern const QString MEETS_CRITERIA;
 extern const QString MILD;

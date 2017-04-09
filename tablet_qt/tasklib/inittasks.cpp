@@ -75,6 +75,14 @@
 #include "tasks/icd10depressive.h"
 #include "tasks/icd10manic.h"
 #include "tasks/icd10mixed.h"
+#include "tasks/icd10schizophrenia.h"
+#include "tasks/icd10schizotypal.h"
+#include "tasks/icd10specpd.h"
+#include "tasks/iesr.h"
+#include "tasks/ifs.h"
+#include "tasks/irac.h"
+
+#include "tasks/mast.h"
 
 #include "tasks/phq9.h"
 
@@ -141,15 +149,15 @@ void InitTasks(TaskFactory& factory)
     initializeIcd10Depressive(factory);
     initializeIcd10Manic(factory);
     initializeIcd10Mixed(factory);
-    // *** initializeIcd10Schizophrenia(factory);
-    // *** initializeIcd10Schizotypal(factory);
-    // *** initializeIcd10SpecPD(factory);
+    initializeIcd10Schizophrenia(factory); // *** NEEDS CHECKING WITH DOWNLOADED STRINGS
+    initializeIcd10Schizotypal(factory); // *** NEEDS CHECKING WITH DOWNLOADED STRINGS
+    initializeIcd10SpecPD(factory); // *** NEEDS CHECKING WITH DOWNLOADED STRINGS
     // *** initializeIDED3D(factory); // *** COMPLEX
-    // *** initializeIesr(factory);
-    // *** initializeIfs(factory);
-    // *** initializeIrac(factory);
+    initializeIesr(factory); // *** NEEDS CHECKING WITH DOWNLOADED STRINGS
+    initializeIfs(factory); // *** NEEDS CHECKING WITH DOWNLOADED STRINGS
+    initializeIrac(factory);
 
-    // *** initializeMast(factory);
+    initializeMast(factory);
     // *** initializeMdsUpdrs(factory);
     // *** initializeMoca(factory);
 

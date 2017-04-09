@@ -20,7 +20,6 @@
 #include "ciwa.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
-#include "lib/uifunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnairefunc.h"
 #include "questionnairelib/qulineeditdouble.h"
@@ -139,7 +138,7 @@ OpenableWidget* Ciwa::editor(bool read_only)
         NameValueOptions options;
         for (int i = 0; i <= lastoption; ++i) {
             QString name = xstring(QString("q%1_option%2").arg(n).arg(i));
-            options.addItem(NameValuePair(name, i));
+            options.append(NameValuePair(name, i));
         }
         QString pagetitle = xstring(QString("q%1_title").arg(n));
         QString question = xstring(QString("q%1_question").arg(n));

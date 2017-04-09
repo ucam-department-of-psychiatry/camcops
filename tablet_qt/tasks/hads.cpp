@@ -22,7 +22,6 @@
 #include "common/textconst.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
-#include "lib/uifunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
@@ -123,7 +122,7 @@ OpenableWidget* Hads::editor(bool read_only)
         NameValueOptions options;
         for (int i = 0; i <= 3; ++i) {
             QString xstringname = QString("q%1_a%2").arg(question).arg(i);
-            options.addItem(NameValuePair(xstring(xstringname), i));
+            options.append(NameValuePair(xstring(xstringname), i));
         }
         return options;
     };

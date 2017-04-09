@@ -193,6 +193,13 @@ Compiling, linking
   Just added a Q_OBJECT macro? You need to re-run qmake from the Build menu.
   http://stackoverflow.com/questions/2555816/qt-linker-error-undefined-reference-to-vtable
 
+- Runtime error, failing to find libssl.so:
+    Starting /home/rudolf/Documents/code/camcops/build-camcops-Desktop_Qt_5_7_0_SSL-Debug/camcops...
+    /home/rudolf/Documents/code/camcops/build-camcops-Desktop_Qt_5_7_0_SSL-Debug/camcops: error while loading shared libraries: libssl.so: cannot open shared object file: No such file or directory
+    /home/rudolf/Documents/code/camcops/build-camcops-Desktop_Qt_5_7_0_SSL-Debug/camcops exited with code 127
+  ... the one we want to be used is e.g.:
+    ~/dev/qt_local_build/openssl_linux_build/openssl-1.0.2h/libssl.so
+
 ===============================================================================
 Core dump
 ===============================================================================

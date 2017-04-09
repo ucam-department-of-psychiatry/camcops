@@ -328,7 +328,14 @@ SOURCES += main.cpp \
     common/appstrings.cpp \
     tasks/icd10manic.cpp \
     widgets/flickcharm.cpp \
-    tasks/icd10mixed.cpp
+    tasks/icd10mixed.cpp \
+    tasks/icd10schizophrenia.cpp \
+    tasks/icd10schizotypal.cpp \
+    tasks/icd10specpd.cpp \
+    tasks/iesr.cpp \
+    tasks/ifs.cpp \
+    tasks/irac.cpp \
+    tasks/mast.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -584,7 +591,14 @@ HEADERS  += \
     common/appstrings.h \
     tasks/icd10manic.h \
     widgets/flickcharm.h \
-    tasks/icd10mixed.h
+    tasks/icd10mixed.h \
+    tasks/icd10schizophrenia.h \
+    tasks/icd10schizotypal.h \
+    tasks/icd10specpd.h \
+    tasks/iesr.h \
+    tasks/ifs.h \
+    tasks/irac.h \
+    tasks/mast.h
 
 
 DISTFILES += \

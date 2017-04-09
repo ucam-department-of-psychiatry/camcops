@@ -230,7 +230,7 @@ NameValueOptions CommonOptions::optionsCopyingDescriptions(
 {
     NameValueOptions options;
     for (auto desc : descriptions) {
-        options.addItem(NameValuePair(desc, desc));
+        options.append(NameValuePair(desc, desc));
     }
     return options;
 }

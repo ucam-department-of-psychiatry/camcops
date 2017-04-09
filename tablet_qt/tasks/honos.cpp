@@ -20,7 +20,6 @@
 #include "honos.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
-#include "lib/uifunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
@@ -151,9 +150,9 @@ OpenableWidget* Honos::editor(bool read_only)
         NameValueOptions options;
         for (int i = 0; i <= 4; ++i) {
             QString name = xstring(QString("q%1_option%2").arg(n).arg(i));
-            options.addItem(NameValuePair(name, i));
+            options.append(NameValuePair(name, i));
         }
-        options.addItem(NameValuePair(xstring("option9"), 9));
+        options.append(NameValuePair(xstring("option9"), 9));
         return options;
     };
 

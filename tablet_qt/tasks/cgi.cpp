@@ -20,7 +20,6 @@
 #include "cgi.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
-#include "lib/uifunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
@@ -134,7 +133,7 @@ OpenableWidget* Cgi::editor(bool read_only)
         NameValueOptions options;
         for (int i = 0; i <= lastoption; ++i) {
             QString name = xstring(QString("%1_option%2").arg(fieldname).arg(i));
-            options.addItem(NameValuePair(name, i));
+            options.append(NameValuePair(name, i));
         }
         QString pagetitle = xstring(QString("%1_title").arg(fieldname));
         QString question = xstring(QString("%1_question").arg(fieldname));

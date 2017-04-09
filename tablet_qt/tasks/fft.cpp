@@ -109,7 +109,7 @@ OpenableWidget* Fft::editor(bool read_only)
 {
     NameValueOptions options;
     for (int i = 1; i <= 6; ++i) {
-        options.addItem(NameValuePair(xstring(strnum("a", i)), i));
+        options.append(NameValuePair(xstring(strnum("a", i)), i));
     }
 
     QuPagePtr page((new QuPage{

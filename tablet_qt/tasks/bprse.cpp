@@ -20,7 +20,6 @@
 #include "bprse.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
-#include "lib/uifunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
@@ -115,7 +114,7 @@ OpenableWidget* BprsE::editor(bool read_only)
         NameValueOptions options{option0, option1};
         for (int i = 2; i <= 7; ++i) {
             QString name = xstring(QString("q%1_option%2").arg(n).arg(i));
-            options.addItem(NameValuePair(name, i));
+            options.append(NameValuePair(name, i));
         }
         QString pagetitle = xstring(QString("q%1_title").arg(n));
         QString question = xstring(QString("q%1_question").arg(n));

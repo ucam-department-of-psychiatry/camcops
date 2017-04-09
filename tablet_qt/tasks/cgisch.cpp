@@ -20,7 +20,6 @@
 #include "cgisch.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
-#include "lib/uifunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgrid.h"
@@ -128,12 +127,12 @@ OpenableWidget* CgiSch::editor(bool read_only)
     NameValueOptions severity_options;
     NameValueOptions change_options;
     for (int i = 1; i <= 7; ++i) {
-        severity_options.addItem(NameValuePair(xstring(strnum("i_option", i)),
+        severity_options.append(NameValuePair(xstring(strnum("i_option", i)),
                                                i));
-        change_options.addItem(NameValuePair(xstring(strnum("ii_option", i)),
+        change_options.append(NameValuePair(xstring(strnum("ii_option", i)),
                                              i));
     }
-    change_options.addItem(NameValuePair(xstring("ii_option9"), 9));
+    change_options.append(NameValuePair(xstring("ii_option9"), 9));
     QVector<QuestionWithOneField> severity_qfields;
     QVector<QuestionWithOneField> change_qfields;
     for (int i = 1; i <= NQ_PER_SECTION; ++i) {
