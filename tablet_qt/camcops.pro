@@ -335,7 +335,10 @@ SOURCES += main.cpp \
     tasks/iesr.cpp \
     tasks/ifs.cpp \
     tasks/irac.cpp \
-    tasks/mast.cpp
+    tasks/mast.cpp \
+    tasks/mdsupdrs.cpp \
+    lib/roman.cpp \
+    tasks/moca.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -598,7 +601,10 @@ HEADERS  += \
     tasks/iesr.h \
     tasks/ifs.h \
     tasks/irac.h \
-    tasks/mast.h
+    tasks/mast.h \
+    tasks/mdsupdrs.h \
+    lib/roman.h \
+    tasks/moca.h
 
 
 DISTFILES += \

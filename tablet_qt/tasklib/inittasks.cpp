@@ -83,6 +83,8 @@
 #include "tasks/irac.h"
 
 #include "tasks/mast.h"
+#include "tasks/mdsupdrs.h"
+#include "tasks/moca.h"
 
 #include "tasks/phq9.h"
 
@@ -158,8 +160,8 @@ void InitTasks(TaskFactory& factory)
     initializeIrac(factory);
 
     initializeMast(factory);
-    // *** initializeMdsUpdrs(factory);
-    // *** initializeMoca(factory);
+    initializeMdsUpdrs(factory);
+    initializeMoca(factory);
 
     // *** initializeNart(factory);
     // *** initializeNpiQ(factory);

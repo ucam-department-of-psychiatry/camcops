@@ -99,7 +99,11 @@ extern const QString NOT_APPLICABLE;
 extern const QString NOT_SPECIFIED;
 // Don't use NULL; it's a keyword
 
+extern const QString OFF;
+extern const QString ON;
+
 extern const QString PAGE;
+extern const QString PART;
 extern const QString PATIENT;
 extern const QString PRESS_NEXT_TO_CONTINUE;
 

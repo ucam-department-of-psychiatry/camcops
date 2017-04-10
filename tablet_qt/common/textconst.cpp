@@ -81,7 +81,11 @@ TR(NO_SUMMARY_SEE_FACSIMILE, "No summary available; see the facsimile instead");
 TR(NOT_APPLICABLE, "Not applicable");
 TR(NOT_SPECIFIED, "<not specified>");
 
+TR(OFF, "Off");
+TR(ON, "On");
+
 TR(PAGE, "page");
+TR(PART, "Part");
 TR(PATIENT, "Patient");
 TR(PRESS_NEXT_TO_CONTINUE,
    "Press the NEXT button (the green right-facing arrow at the TOP RIGHT of "

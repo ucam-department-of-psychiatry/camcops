@@ -868,14 +868,6 @@ Tasks
 <string name="t_mds_updrs">Movement Disorder Society-Sponsored Revision of the Unified Parkinson’s Disease Rating Scale (MDS-UPDRS) (¶)</string>
 <string name="s_mds_updrs">Assessment of experiences of daily living and motor examination/complications. Data collection tool ONLY.</string>
 <string name="b_mds_updrs">MDS-UPDRS</string>
-<string name="mds_updrs_respondent_pt">Patient</string>
-<string name="mds_updrs_respondent_cg">Caregiver</string>
-<string name="mds_updrs_respondent_both">Patient and caregiver</string>
-<string name="mds_updrs_a0">Normal</string>
-<string name="mds_updrs_a1">Slight</string>
-<string name="mds_updrs_a2">Mild</string>
-<string name="mds_updrs_a3">Moderate</string>
-<string name="mds_updrs_a4">Severe</string>
 
 <!-- National Adult Reading Test (NART). Copyright © Hazel E. Nelson. Used with permission. -->
 <string name="t_nart">National Adult Reading Test (NART)</string>

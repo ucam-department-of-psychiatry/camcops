@@ -33,6 +33,7 @@ using mathfunc::totalScorePhrase;
 using stringfunc::strnum;
 using stringfunc::strnumlist;
 using stringfunc::strseq;
+#define TR(stringname, text) const QString stringname(QObject::tr(text))
 
 const QString IESR_TABLENAME("iesr");
 
@@ -46,7 +47,14 @@ const QString QPREFIX("q");
 const QVector<int> AVOIDANCE_QUESTIONS{5, 7, 8, 11, 12, 13, 17, 22};
 const QVector<int> INTRUSION_QUESTIONS{1, 2, 3, 6, 9, 16, 20};
 const QVector<int> HYPERAROUSAL_QUESTIONS{4, 10, 14, 15, 18, 19, 21};
-const QString EVENT("event");
+const QString FN_EVENT("event");
+
+TR(PROMPT_EVENT, "Event:");
+TR(A0, "Not at all");
+TR(A1, "A little bit");
+TR(A2, "Moderately");
+TR(A3, "Quite a bit");
+TR(A4, "Extremely");
 
 
 void initializeIesr(TaskFactory& factory)
@@ -59,7 +67,7 @@ Iesr::Iesr(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
     Task(app, db, IESR_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
-    addField(EVENT, QVariant::String);
+    addField(FN_EVENT, QVariant::String);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -121,10 +129,13 @@ QStringList Iesr::detail() const
 
 OpenableWidget* Iesr::editor(bool read_only)
 {
-    NameValueOptions options;
-    for (int i = 0; i <= 4; ++i) {
-        options.append(NameValuePair(xstring(strnum("option", i)), i));
-    }
+    NameValueOptions options{
+        {A0, 0},
+        {A1, 1},
+        {A2, 2},
+        {A3, 3},
+        {A4, 4},
+    };
 
     QVector<QuestionWithOneField> qfields;
     for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
@@ -134,8 +145,8 @@ OpenableWidget* Iesr::editor(bool read_only)
 
     QuPagePtr page = QuPagePtr((new QuPage{
         (new QuText(xstring("instruction_1")))->setBold(),
-        new QuText(xstring("event")),
-        new QuTextEdit(fieldRef(EVENT)),
+        new QuText(PROMPT_EVENT),
+        new QuTextEdit(fieldRef(FN_EVENT)),
         (new QuText(xstring("instruction_2")))->setBold(),
         new QuMcqGrid(qfields, options),
     })->setTitle(longname()));
