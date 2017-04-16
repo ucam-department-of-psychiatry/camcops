@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-// #define OFFER_LAYOUT_DEBUG_BUTTON
+#define OFFER_LAYOUT_DEBUG_BUTTON
 // #define DEBUG_PAGE_LAYOUT_ON_OPEN
 
 #include "questionnaire.h"
@@ -221,17 +221,11 @@ void Questionnaire::build()
             this, &Questionnaire::debugLayout);
 
     // Content
-    // The QScrollArea (a) makes text word wrap, by setting a horizontal size
-    // limit (I presume), and (b) deals with the vertical.
-    // But it doesn't get the horizontal widths right. So we use a substitute.
-    VerticalScrollArea* scroll = new VerticalScrollArea();
-    scroll->setObjectName(background_css_name);
     QWidget* pagewidget = page->widget(this);  // adds the content
 #ifdef DEBUG_PAGE_LAYOUT_ON_OPEN
     ShowWatcher* showwatcher = new ShowWatcher(pagewidget, true);
     Q_UNUSED(showwatcher);
 #endif
-    scroll->setWidget(pagewidget);
     connect(page, &QuPage::elementValueChanged,
             this, &Questionnaire::resetButtons,
             Qt::UniqueConnection);
@@ -240,7 +234,18 @@ void Questionnaire::build()
     m_mainlayout = new QVBoxLayout();  // not HFW
     m_mainlayout->setContentsMargins(uiconst::NO_MARGINS);
     m_mainlayout->addWidget(m_p_header);
-    m_mainlayout->addWidget(scroll);
+
+    if (page->allowsScroll()) {
+        // The QScrollArea (a) makes text word wrap, by setting a horizontal
+        // size limit (I presume), and (b) deals with the vertical. But it
+        // doesn't get the horizontal widths right. So we use a substitute.
+        VerticalScrollArea* scroll = new VerticalScrollArea();
+        scroll->setObjectName(background_css_name);
+        scroll->setWidget(pagewidget);
+        m_mainlayout->addWidget(scroll);
+    } else {
+        m_mainlayout->addWidget(pagewidget);
+    }
     // In case the questionnaire is vertically short:
     m_mainlayout->addStretch();
 
@@ -538,7 +543,7 @@ void Questionnaire::setVisibleByTag(const QString& tag, bool visible,
                                     const QString& page_tag)
 {
     QVector<QuElement*> elements = getElementsByTag(tag, current_page_only,
-                                                  page_tag);
+                                                    page_tag);
     for (auto element : elements) {
         element->setVisible(visible);
     }

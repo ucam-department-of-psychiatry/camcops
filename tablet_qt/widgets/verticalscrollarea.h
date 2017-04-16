@@ -21,8 +21,8 @@
 
 #include <QScrollArea>
 #include <QSize>
-// class QGestureEvent;
-// class QSwipeGesture;
+class QGestureEvent;
+class QSwipeGesture;
 
 // http://forum.qt.io/topic/13374/solved-qscrollarea-vertical-scroll-only/4
 
@@ -41,13 +41,13 @@ class VerticalScrollArea : public QScrollArea
     Q_OBJECT
 public:
     explicit VerticalScrollArea(QWidget* parent = nullptr);
-    // virtual bool event(QEvent* event) override;
+    virtual bool event(QEvent* event) override;
     virtual bool eventFilter(QObject* o, QEvent* e) override;
     virtual QSize sizeHint() const override;
 protected:
     void resetSizeLimits();
-    // bool gestureEvent(QGestureEvent* event);
-    // void swipeTriggered(QSwipeGesture* gesture);
+    bool gestureEvent(QGestureEvent* event);
+    void swipeTriggered(QSwipeGesture* gesture);
 protected:
     int m_last_widget_width;
     int m_reentry_depth;

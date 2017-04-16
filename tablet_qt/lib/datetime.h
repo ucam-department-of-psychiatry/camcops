@@ -23,6 +23,7 @@ class QVariant;
 
 namespace datetime {
 
+extern const QString LONG_DATE_FORMAT;
 extern const QString TIMESTAMP_FORMAT;
 extern const QString SHORT_DATETIME_FORMAT;
 extern const QString SHORT_DATE_FORMAT;

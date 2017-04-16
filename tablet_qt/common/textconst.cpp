@@ -30,6 +30,7 @@ namespace textconst {
 // Common text
 // ============================================================================
 
+TR(ABNORMAL, "Abnormal");
 TR(ADD, "Add");
 TR(AND, "and");
 
@@ -78,7 +79,9 @@ TR(NA, "N/A");
 TR(NONE, "None");
 TR(NO, "No");
 TR(NO_SUMMARY_SEE_FACSIMILE, "No summary available; see the facsimile instead");
+TR(NORMAL, "Normal");
 TR(NOT_APPLICABLE, "Not applicable");
+TR(NOT_RECALLED, "Not recalled");
 TR(NOT_SPECIFIED, "<not specified>");
 
 TR(OFF, "Off");
@@ -94,6 +97,7 @@ TR(PRESS_NEXT_TO_CONTINUE,
 TR(QUESTION, "Question");
 
 TR(RATING, "Rating");
+TR(RECALLED, "Recalled");
 
 TR(SCORE, "Score");
 TR(SEE_FACSIMILE_FOR_MORE_DETAIL, "See facsimile for more detail.");

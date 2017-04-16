@@ -95,6 +95,14 @@ QSizePolicy preferredPreferredHFWPolicy()
 }
 
 
+QSizePolicy preferredFixedHFWPolicy()
+{
+    QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    sp.setHeightForWidth(true);
+    return sp;
+}
+
+
 void resizeEventForHFWParentWidget(QWidget* widget)
 {
     // Call from your resizeEvent() processor passing "this" as the parameter

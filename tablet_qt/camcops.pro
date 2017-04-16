@@ -126,7 +126,6 @@ SOURCES += main.cpp \
     dialogs/scrollmessagebox.cpp \
     dialogs/waitbox.cpp \
     lib/convert.cpp \
-    lib/datetimefunc.cpp \
     lib/debugfunc.cpp \
     lib/filefunc.cpp \
     lib/idpolicy.cpp \
@@ -338,7 +337,10 @@ SOURCES += main.cpp \
     tasks/mast.cpp \
     tasks/mdsupdrs.cpp \
     lib/roman.cpp \
-    tasks/moca.cpp
+    tasks/moca.cpp \
+    lib/datetime.cpp \
+    widgets/fixedareahfwtestwidget.cpp \
+    widgets/verticalscrollareaviewport.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -391,7 +393,6 @@ HEADERS  += \
     dialogs/waitbox.h \
     lib/cloneable.h \
     lib/convert.h \
-    lib/datetimefunc.h \
     lib/debugfunc.h \
     lib/filefunc.h \
     lib/idpolicy.h \
@@ -604,7 +605,10 @@ HEADERS  += \
     tasks/mast.h \
     tasks/mdsupdrs.h \
     lib/roman.h \
-    tasks/moca.h
+    tasks/moca.h \
+    lib/datetime.h \
+    widgets/fixedareahfwtestwidget.h \
+    widgets/verticalscrollareaviewport.h
 
 
 DISTFILES += \

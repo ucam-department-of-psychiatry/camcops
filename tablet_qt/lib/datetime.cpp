@@ -17,13 +17,14 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "datetimefunc.h"
+#include "datetime.h"
 #include <QTimeZone>
 #include <QVariant>
 
 namespace datetime {
 
 
+const QString LONG_DATE_FORMAT("dddd d MMMM yyyy");  // Thursday 31 Dec 2000
 const QString TIMESTAMP_FORMAT("yyyy-MM-dd HH:mm:ss.zzz");  // 2000-12-31 23:59:59.999
 const QString SHORT_DATETIME_FORMAT("yyyy-MM-dd HH:mm");  // 2000-12-31 23:59
 const QString SHORT_DATE_FORMAT("yyyy-MM-dd");  // 2000-12-31

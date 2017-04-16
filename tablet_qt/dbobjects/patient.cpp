@@ -24,7 +24,7 @@
 #include "common/dbconstants.h"
 #include "db/dbfunc.h"
 #include "db/dbtransaction.h"
-#include "lib/datetimefunc.h"
+#include "lib/datetime.h"
 #include "lib/idpolicy.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/commonoptions.h"

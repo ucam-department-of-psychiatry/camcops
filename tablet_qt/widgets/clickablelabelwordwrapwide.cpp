@@ -143,7 +143,7 @@ void ClickableLabelWordWrapWide::resizeEvent(QResizeEvent* event)
     qDebug() << Q_FUNC_INFO;
 #endif
     QPushButton::resizeEvent(event);
-    SizeHelpers::resizeEventForHFWParentWidget(this);
+    sizehelpers::resizeEventForHFWParentWidget(this);
 }
 #endif
 

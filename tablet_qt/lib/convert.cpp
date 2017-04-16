@@ -31,7 +31,7 @@
 #include <QRegularExpression>
 #include <QtMath>
 #include <QUrl>
-#include "lib/datetimefunc.h"
+#include "lib/datetime.h"
 #include "lib/uifunc.h"
 #include "lib/stringfunc.h"
 

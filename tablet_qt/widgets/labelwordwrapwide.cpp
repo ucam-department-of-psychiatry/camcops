@@ -105,7 +105,7 @@ void LabelWordWrapWide::commonConstructor()
 {
     setWordWrap(true);  // will also do setHeightForWidth(true);
 #ifdef GUI_USE_RESIZE_FOR_HEIGHT
-    setSizePolicy(SizeHelpers::maximumFixedHFWPolicy());
+    setSizePolicy(sizehelpers::maximumFixedHFWPolicy());
 #else
     // can leave it at the default of Preferred, Preferred (plus HFW as above)
     // but to be explicit:

@@ -18,11 +18,13 @@
 */
 
 #pragma once
+#include <QPointer>
 #include <QString>
 #include "tasklib/task.h"
 
 class CamcopsApp;
 class OpenableWidget;
+class Questionnaire;
 class TaskFactory;
 
 void initializeMoca(TaskFactory& factory);
@@ -52,5 +54,14 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
+protected:
+    int subScore(int first, int last) const;
     int totalScore() const;
+    // ------------------------------------------------------------------------
+    // Signal handlers
+    // ------------------------------------------------------------------------
+protected:
+    void updateMandatory();
+protected:
+    QPointer<Questionnaire> m_questionnaire;
 };

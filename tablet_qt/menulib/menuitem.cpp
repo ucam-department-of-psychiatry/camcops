@@ -32,7 +32,7 @@
 #include "common/uiconstants.h"
 #include "dbobjects/patient.h"
 #include "lib/convert.h"
-#include "lib/datetimefunc.h"  // for SHORT_DATETIME_FORMAT
+#include "lib/datetime.h"  // for SHORT_DATETIME_FORMAT
 #include "lib/idpolicy.h"
 #include "lib/uifunc.h"
 #include "menu/choosepatientmenu.h"

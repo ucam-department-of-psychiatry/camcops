@@ -33,6 +33,7 @@ class QWidget;
 namespace sizehelpers {
 
 // Size policies that take a few statements to create (i.e. have height-for-width set)
+// Remember: these take the widget's sizeHint() as the reference.
 QSizePolicy expandingFixedHFWPolicy();
 QSizePolicy expandingPreferredHFWPolicy();
 QSizePolicy expandingMaximumHFWPolicy();
@@ -40,6 +41,7 @@ QSizePolicy expandingExpandingHFWPolicy();
 QSizePolicy maximumFixedHFWPolicy();
 QSizePolicy maximumMaximumHFWPolicy();
 QSizePolicy preferredPreferredHFWPolicy();
+QSizePolicy preferredFixedHFWPolicy();
 
 // The ugly stuff you have to do for widgets that own height-for-width
 // widgets if you use Qt layouts like QVBoxLayout:

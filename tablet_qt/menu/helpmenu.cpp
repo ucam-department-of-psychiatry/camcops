@@ -27,7 +27,7 @@
 #include "common/uiconstants.h"
 #include "common/camcopsversion.h"
 #include "db/dbfunc.h"
-#include "lib/datetimefunc.h"
+#include "lib/datetime.h"
 #include "lib/filefunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"

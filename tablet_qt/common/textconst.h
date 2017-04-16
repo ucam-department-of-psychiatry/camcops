@@ -52,6 +52,7 @@ namespace textconst
 // Common text
 // ============================================================================
 
+extern const QString ABNORMAL;
 extern const QString ADD;
 extern const QString AND;
 
@@ -95,7 +96,9 @@ extern const QString NA;
 extern const QString NO;
 extern const QString NONE;
 extern const QString NO_SUMMARY_SEE_FACSIMILE;
+extern const QString NORMAL;
 extern const QString NOT_APPLICABLE;
+extern const QString NOT_RECALLED;
 extern const QString NOT_SPECIFIED;
 // Don't use NULL; it's a keyword
 
@@ -110,6 +113,7 @@ extern const QString PRESS_NEXT_TO_CONTINUE;
 extern const QString QUESTION;
 
 extern const QString RATING;
+extern const QString RECALLED;
 
 extern const QString SCORE;
 extern const QString SEE_FACSIMILE_FOR_MORE_DETAIL;

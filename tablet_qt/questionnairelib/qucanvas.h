@@ -37,13 +37,16 @@ class QuCanvas : public QuElement
 public:
     QuCanvas(FieldRefPtr fieldref,
              const QSize& size = QSize(100, 100),
+             bool allow_shrink = true,
              QImage::Format format = QImage::Format_RGB32,
              const QColor& background_colour = Qt::white);
     QuCanvas(FieldRefPtr fieldref,
              const QString& template_filename,
-             const QSize& size = QSize());  // = take template's size
+             const QSize& size = QSize(),  // = take template's size
+             bool allow_shrink = true);
     QuCanvas* setPenColour(const QColor& pen_colour);
     QuCanvas* setPenWidth(int pen_width);
+    QuCanvas* setAllowShrink(bool allow_shrink);
 protected:
     void commonConstructor();
     void setFromField();
@@ -60,6 +63,7 @@ protected slots:
 protected:
     FieldRefPtr m_fieldref;
     QSize m_size;
+    bool m_allow_shrink;
     QImage::Format m_format;
     QColor m_background_colour;
     QColor m_pen_colour;

@@ -24,46 +24,49 @@
 #include "widgets/basewidget.h"
 
 
-QuPage::QuPage() :
-    m_type(PageType::Inherit),
-    m_skip(false)
+QuPage::QuPage()
 {
+    commonConstructor();
 }
 
 
 QuPage::QuPage(const QVector<QuElementPtr>& elements) :
-    m_type(PageType::Inherit),
-    m_elements(elements),
-    m_skip(false)
+    m_elements(elements)
 {
+    commonConstructor();
 }
 
 
 QuPage::QuPage(std::initializer_list<QuElementPtr> elements) :
-    m_type(PageType::Inherit),
-    m_elements(elements),
-    m_skip(false)
+    m_elements(elements)
 {
+    commonConstructor();
 }
 
 
-QuPage::QuPage(const QVector<QuElement*>& elements) :  // takes ownership
-    m_type(PageType::Inherit),
-    m_skip(false)
+void QuPage::commonConstructor()
+{
+    m_type = PageType::Inherit;
+    m_skip = false;
+    m_allow_scroll = true;
+}
+
+
+QuPage::QuPage(const QVector<QuElement*>& elements)  // takes ownership
 {
     for (auto e : elements) {
         addElement(e);
     }
+    commonConstructor();
 }
 
 
-QuPage::QuPage(std::initializer_list<QuElement*> elements) :  // takes ownership
-    m_type(PageType::Inherit),
-    m_skip(false)
+QuPage::QuPage(std::initializer_list<QuElement*> elements)  // takes ownership
 {
     for (auto e : elements) {
         addElement(e);
     }
+    commonConstructor();
 }
 
 
@@ -126,6 +129,19 @@ QuPage* QuPage::addElements(const QVector<QuElement*>& elements)
 void QuPage::clearElements()
 {
     m_elements.clear();
+}
+
+
+QuPage* QuPage::allowScroll(bool allow_scroll)
+{
+    m_allow_scroll = allow_scroll;
+    return this;
+}
+
+
+bool QuPage::allowsScroll() const
+{
+    return m_allow_scroll;
 }
 
 

@@ -21,7 +21,7 @@
 #include <QDebug>
 #include "common/textconst.h"
 #include "common/uiconstants.h"
-#include "lib/datetimefunc.h"
+#include "lib/datetime.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
@@ -892,7 +892,7 @@ OpenableWidget* Ace3::editor(bool read_only)
         instruction("picture1_q"),
         explanation("picture_instruction1"),
         explanation("picture_instruction2"),
-        new QuPhoto(fieldRef(FN_PICTURE1_BLOBID, false)),
+        new QuPhoto(fieldRef(FN_PICTURE1_BLOBID, false, true, true)),  // BLOB
     })
         ->setTitle(makeTitle("Photo 1"))
         ->setType(QuPage::PageType::Clinician));
@@ -905,7 +905,7 @@ OpenableWidget* Ace3::editor(bool read_only)
         instruction("picture2_q"),
         explanation("picture_instruction1"),
         explanation("picture_instruction2"),
-        new QuPhoto(fieldRef(FN_PICTURE2_BLOBID, false)),
+        new QuPhoto(fieldRef(FN_PICTURE2_BLOBID, false, true, true)),  // BLOB
     })
         ->setTitle(makeTitle("Photo 2"))
         ->setType(QuPage::PageType::Clinician));

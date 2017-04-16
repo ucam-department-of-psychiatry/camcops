@@ -27,7 +27,7 @@
 #include "common/version.h"
 #include "db/dbfunc.h"
 #include "dbobjects/patient.h"
-#include "lib/datetimefunc.h"
+#include "lib/datetime.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"

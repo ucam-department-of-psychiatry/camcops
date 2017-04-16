@@ -31,10 +31,11 @@
 const int WRITE_DELAY_MS = 200;
 
 
-QuCanvas::QuCanvas(FieldRefPtr fieldref, const QSize& size,
+QuCanvas::QuCanvas(FieldRefPtr fieldref, const QSize& size, bool allow_shrink,
                    QImage::Format format, const QColor& background_colour) :
     m_fieldref(fieldref),
     m_size(size),
+    m_allow_shrink(allow_shrink),
     m_format(format),
     m_background_colour(background_colour),
     m_using_template(false)
@@ -44,9 +45,10 @@ QuCanvas::QuCanvas(FieldRefPtr fieldref, const QSize& size,
 
 
 QuCanvas::QuCanvas(FieldRefPtr fieldref, const QString& template_filename,
-                   const QSize& size) :
+                   const QSize& size, bool allow_shrink) :
     m_fieldref(fieldref),
     m_size(size),
+    m_allow_shrink(allow_shrink),
     m_background_colour(Qt::white),
     m_template_filename(template_filename),
     m_using_template(true)
@@ -89,6 +91,13 @@ QuCanvas* QuCanvas::setPenWidth(int pen_width)
 }
 
 
+QuCanvas* QuCanvas::setAllowShrink(bool allow_shrink)
+{
+    m_allow_shrink = allow_shrink;
+    return this;
+}
+
+
 QPointer<QWidget> QuCanvas::makeWidget(Questionnaire* questionnaire)
 {
     bool read_only = questionnaire->readOnly();
@@ -100,6 +109,7 @@ QPointer<QWidget> QuCanvas::makeWidget(Questionnaire* questionnaire)
     pen.setWidth(m_pen_width);
     m_canvas->setPen(pen);
     m_canvas->setEnabled(!read_only);
+    m_canvas->setAllowShrink(m_allow_shrink);
     if (!read_only) {
         connect(m_canvas.data(), &CanvasWidget::imageChanged,
                 this, &QuCanvas::imageChanged);
@@ -128,7 +138,11 @@ QPointer<QWidget> QuCanvas::makeWidget(Questionnaire* questionnaire)
     top_layout->addWidget(m_canvas, 0, align);
 
     QWidget* widget = new QWidget();
-    widget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    if (m_allow_shrink) {
+        widget->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+    } else {
+        widget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    }
     widget->setLayout(top_layout);
 
     setFromField();

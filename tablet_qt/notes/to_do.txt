@@ -3,14 +3,15 @@
 TO DO NOW
 ===============================================================================
 
-- allowsNull() is backwards; code is OK but should be renamed notNull(), in field.cpp
-
 - *** tasks
 
 - *** chains (see e.g. ResearchMenu.js; MenuTableRow.js; QuestionnaireHeader.js...)
 - *** concept of "set of tasks" as well as "chain of tasks"
 
 - *** upgrade function - multistep and single-step - per task?
+
+- *** fix viewport-versus-widget height (resize to sizeHint not HFW) in
+  VerticalScrollArea
 
 - test scrolling by touch on Android:
     - menus/questionnaires (VerticalScrollArea)

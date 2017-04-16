@@ -53,10 +53,11 @@ protected:
     void testBooleanWidget(BooleanWidget::Appearance appearance,
                            bool long_text);
     // Camera: use QuPhoto instead
-    void testCanvasWidget();
+    void testCanvasWidget(bool allow_shrink);
     void testClickableLabelNoWrap(bool long_text);
     void testClickableLabelWordWrapWide(bool long_text);
     // DiagnosticCodeSelector: use QuDiagnosticCode instead
+    void testFixedAreaHfwTestWidget();
     // GrowingTextEdit: see QuTextEdit
     void testHorizontalLine();
     void testImageButton();
@@ -67,6 +68,7 @@ protected:
     void testVerticalLine();
     void testVerticalScrollAreaSimple();
     void testVerticalScrollAreaComplex(bool long_text);
+    void testVerticalScrollAreaFixedAreaHfwWidget();
 
     // ========================================================================
     // Layouts and the like

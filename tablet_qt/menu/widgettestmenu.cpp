@@ -68,6 +68,7 @@
 #include "widgets/canvaswidget.h"
 #include "widgets/clickablelabelnowrap.h"
 #include "widgets/clickablelabelwordwrapwide.h"
+#include "widgets/fixedareahfwtestwidget.h"
 #include "widgets/flowlayouthfw.h"
 #include "widgets/horizontalline.h"
 #include "widgets/imagebutton.h"
@@ -174,8 +175,10 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
         MenuItem("BooleanWidget (appearance=Text, long text)",
                  std::bind(&WidgetTestMenu::testBooleanWidget, this,
                            BooleanWidget::Appearance::Text, true)),
-        MenuItem("CanvasWidget",
-                 std::bind(&WidgetTestMenu::testCanvasWidget, this)),
+        MenuItem("CanvasWidget (allow_shrink=false)",
+                 std::bind(&WidgetTestMenu::testCanvasWidget, this, false)),
+        MenuItem("CanvasWidget (allow_shrink=true)",
+                 std::bind(&WidgetTestMenu::testCanvasWidget, this, true)),
         MenuItem("ClickableLabelNoWrap (short text) (not generally used: no word wrap)",
                  std::bind(&WidgetTestMenu::testClickableLabelNoWrap, this, false)),
         MenuItem("ClickableLabelNoWrap (long text) (not generally used: no word wrap)",
@@ -184,6 +187,8 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
                  std::bind(&WidgetTestMenu::testClickableLabelWordWrapWide, this, false)),
         MenuItem("ClickableLabelWordWrapWide (long text)",
                  std::bind(&WidgetTestMenu::testClickableLabelWordWrapWide, this, true)),
+        MenuItem("FixedAreaHfwTestWidget",
+                 std::bind(&WidgetTestMenu::testFixedAreaHfwTestWidget, this)),
         MenuItem("HorizontalLine",
                  std::bind(&WidgetTestMenu::testHorizontalLine, this)),
         MenuItem("ImageButton",
@@ -202,6 +207,8 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
                  std::bind(&WidgetTestMenu::testVerticalScrollAreaComplex, this, false)),
         MenuItem("VerticalScrollArea (VBoxLayout, long text)",
                  std::bind(&WidgetTestMenu::testVerticalScrollAreaComplex, this, true)),
+        MenuItem("VerticalScrollArea (FixedAreaHfwTestWidget)",
+                 std::bind(&WidgetTestMenu::testVerticalScrollAreaFixedAreaHfwWidget, this)),
 
         // --------------------------------------------------------------------
         MenuItem("Layouts and the like").setLabelOnly(),
@@ -445,12 +452,13 @@ void WidgetTestMenu::testBooleanWidget(BooleanWidget::Appearance appearance,
 }
 
 
-void WidgetTestMenu::testCanvasWidget()
+void WidgetTestMenu::testCanvasWidget(bool allow_shrink)
 {
     QSize size(200, 200);
     CanvasWidget* widget = new CanvasWidget(size);
     QImage img(size, QImage::Format_RGB32);
     widget->setImage(img);
+    widget->setAllowShrink(allow_shrink);
     widget->clear(Qt::white);
     debugfunc::debugWidget(widget);
 }
@@ -470,6 +478,13 @@ void WidgetTestMenu::testClickableLabelWordWrapWide(bool long_text)
     ClickableLabelWordWrapWide* widget = new ClickableLabelWordWrapWide(sampleText(long_text));
     connect(widget, &QAbstractButton::clicked,
             this, &WidgetTestMenu::dummyAction);
+    debugfunc::debugWidget(widget);
+}
+
+
+void WidgetTestMenu::testFixedAreaHfwTestWidget()
+{
+    FixedAreaHfwTestWidget* widget = new FixedAreaHfwTestWidget();
     debugfunc::debugWidget(widget);
 }
 
@@ -605,12 +620,22 @@ void WidgetTestMenu::testVerticalScrollAreaSimple()
 void WidgetTestMenu::testVerticalScrollAreaComplex(bool long_text)
 {
     // VBoxLayout (i.e. likely VBoxLayoutHfw) and two word-wrapping labels
-    QWidget* contentwidget = new QWidget();
+    BaseWidget* contentwidget = new BaseWidget();
     VBoxLayout* layout = new VBoxLayout();
     contentwidget->setLayout(layout);
 
     layout->addWidget(new LabelWordWrapWide(sampleText(long_text)));
     layout->addWidget(new LabelWordWrapWide(sampleText(long_text)));
+
+    VerticalScrollArea* scrollwidget = new VerticalScrollArea();
+    scrollwidget->setWidget(contentwidget);
+    debugfunc::debugWidget(scrollwidget);
+}
+
+
+void WidgetTestMenu::testVerticalScrollAreaFixedAreaHfwWidget()
+{
+    FixedAreaHfwTestWidget* contentwidget = new FixedAreaHfwTestWidget();
 
     VerticalScrollArea* scrollwidget = new VerticalScrollArea();
     scrollwidget->setWidget(contentwidget);

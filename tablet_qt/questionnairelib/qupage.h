@@ -61,6 +61,7 @@ public:
     QuPage* addElements(const QVector<QuElementPtr>& elements);
     QuPage* addElements(const QVector<QuElement*>& elements);  // takes ownership
     QuPage* addTag(const QString& tag);
+    QuPage* allowScroll(bool allow_scroll);
     QVector<QuElement*> elementsWithTag(const QString& tag);
 
     virtual ~QuPage();
@@ -70,11 +71,13 @@ public:
     bool hasTag(const QString& tag) const;
     bool skip() const;
     void clearElements();  // for rebuilding live pages
+    bool allowsScroll() const;
 signals:
     void elementValueChanged();
 public slots:
     QuPage* setSkip(bool skip = true);
 protected:
+    void commonConstructor();
     QPointer<QWidget> widget(Questionnaire* questionnaire) const;
     QVector<QuElement*> allElements() const;
     bool missingInput() const;
@@ -85,4 +88,5 @@ protected:
     QStringList m_tags;
     QVector<QuElementPtr> m_elements;
     bool m_skip;
+    bool m_allow_scroll;
 };

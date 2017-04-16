@@ -20,7 +20,7 @@
 #include "field.h"
 #include "lib/convert.h"
 #include "lib/uifunc.h"
-#include "lib/datetimefunc.h"
+#include "lib/datetime.h"
 
 
 Field::Field(const QString& name, QVariant::Type type,
@@ -116,7 +116,7 @@ bool Field::isMandatory() const
 }
 
 
-bool Field::allowsNull() const
+bool Field::notNull() const
 {
     // SQLite allows NULL values in primary keys, but this is a legacy of
     // bugs in early SQLite versions.
@@ -135,7 +135,7 @@ QString Field::sqlColumnDef() const
     if (m_unique && !m_pk) {
         type += " UNIQUE";
     }
-    if (allowsNull()) {
+    if (notNull()) {
         type += " NOT NULL";
     }
     return type;

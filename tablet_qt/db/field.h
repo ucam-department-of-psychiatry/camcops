@@ -37,7 +37,7 @@ public:
     bool isPk() const;
     bool isUnique() const;
     bool isMandatory() const;
-    bool allowsNull() const;
+    bool notNull() const;
     QString sqlColumnDef() const;
     QVariant value() const;
     QString prettyValue() const;  // returns a QString representation

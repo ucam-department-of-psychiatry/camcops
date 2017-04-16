@@ -42,12 +42,15 @@ public:
     CanvasWidget(const QSize& size, QWidget* parent = nullptr);
     ~CanvasWidget();
     void setSize(const QSize& size);
+    void setAllowShrink(bool allow_shrink);
+    void setMinimumShrinkHeight(int height);  // applicable if we can shrink
     void setPen(const QPen& pen);
     void clear(const QColor& background);
     void setImage(const QImage& image, bool resize_widget = true);
     // ... if resize_widget is false, the image will be resized
     void drawTo(QPoint pt);
     virtual QSize sizeHint() const override;
+    virtual QSize minimumSizeHint() const override;
     QImage image() const;
 signals:
     void imageChanged();
@@ -56,8 +59,13 @@ protected:
     virtual void paintEvent(QPaintEvent* event) override;
     virtual void mousePressEvent(QMouseEvent* event) override;
     virtual void mouseMoveEvent(QMouseEvent* event) override;
+    virtual void resizeEvent(QResizeEvent* event) override;
+    QPoint transformDisplayToImageCoords(QPoint point) const;
 protected:
+    int m_minimum_shrink_height;
     QSize m_size;
+    double m_image_to_display_ratio;
+    bool m_allow_shrink;
     QImage m_image;
     QPen m_pen;
     QPoint m_point;

@@ -797,7 +797,7 @@ void createTable(const QSqlDatabase& db, const QString& tablename,
                 plan.add = false;
                 plan.change = (
                     info.type != intended_field->sqlColumnType() ||
-                    info.notnull != intended_field->allowsNull() ||
+                    info.notnull != intended_field->notNull() ||
                     info.pk != intended_field->isPk()
                 );
                 plan.existing_type = info.type;

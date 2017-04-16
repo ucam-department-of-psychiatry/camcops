@@ -46,7 +46,7 @@
 #include "dbobjects/patientsorter.h"
 #include "dbobjects/storedvar.h"
 #include "lib/convert.h"
-#include "lib/datetimefunc.h"
+#include "lib/datetime.h"
 #include "lib/filefunc.h"
 #include "lib/idpolicy.h"
 #include "lib/networkmanager.h"

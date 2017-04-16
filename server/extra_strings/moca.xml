@@ -11,14 +11,14 @@ May be reproduced without permission for CLINICAL and EDUCATIONAL use.
 You must obtain permission from the copyright holder for any other use.
 -->
 
-    <string name="subscore_visuospatial">Visuospatial/executive:</string>
-    <string name="subscore_naming">Naming:</string>
-    <string name="subscore_memory">Memory:</string>
-    <string name="subscore_attention">Attention:</string>
-    <string name="subscore_language">Language:</string>
-    <string name="subscore_abstraction">Abstraction:</string>
-    <string name="subscore_orientation">Orientation:</string>
-    <string name="category">Categorization:</string>
+    <string name="subscore_visuospatial">Visuospatial/executive</string>
+    <string name="subscore_naming">Naming</string>
+    <string name="subscore_memory">Memory</string>
+    <string name="subscore_attention">Attention</string>
+    <string name="subscore_language">Language</string>
+    <string name="subscore_abstraction">Abstraction</string>
+    <string name="subscore_orientation">Orientation</string>
+    <string name="category">Categorization</string>
     <string name="q1_s">Q1 (VSE/path):</string>
     <string name="q2_s">Q2 (VSE/cube):</string>
     <string name="q3_s">Q3 (VSE/clock/contour):</string>

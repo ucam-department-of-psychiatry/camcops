@@ -38,7 +38,7 @@
 #include "dialogs/logbox.h"
 #include "dbobjects/blob.h"
 #include "lib/convert.h"
-#include "lib/datetimefunc.h"
+#include "lib/datetime.h"
 #include "lib/idpolicy.h"
 #include "lib/uifunc.h"
 #include "tasklib/task.h"

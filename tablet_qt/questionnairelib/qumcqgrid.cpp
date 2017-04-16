@@ -250,7 +250,14 @@ void QuMcqGrid::fieldValueChanged(int question_index, const FieldRef* fieldref)
     if (question_index < 0 ||
             question_index >= m_question_field_pairs.size() ||
             question_index >= m_widgets.size()) {
-        qWarning() << Q_FUNC_INFO << "Bad question_index:" << question_index;
+        qWarning().nospace()
+                << Q_FUNC_INFO
+                << " Bad question_index: " << question_index
+                << " (m_question_field_pairs.size() == "
+                << m_question_field_pairs.size()
+                << "; m_widgets.size() == "
+                << m_widgets.size()
+                << ")";
         return;
     }
     const QVector<QPointer<BooleanWidget>>& question_widgets = m_widgets.at(

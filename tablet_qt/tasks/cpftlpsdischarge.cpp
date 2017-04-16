@@ -21,7 +21,7 @@
 #include "common/textconst.h"
 #include "common/uiconstants.h"
 #include "diagnosis/icd10.h"
-#include "lib/datetimefunc.h"
+#include "lib/datetime.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/commonoptions.h"

@@ -20,7 +20,7 @@
 #include "icd10mixed.h"
 #include "common/appstrings.h"
 #include "common/textconst.h"
-#include "lib/datetimefunc.h"
+#include "lib/datetime.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"

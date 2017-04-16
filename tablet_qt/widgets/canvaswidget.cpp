@@ -17,7 +17,10 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// #define DEBUG_TRANSLATIONS
+
 #include "canvaswidget.h"
+#include <cmath>
 #include <QColor>
 #include <QDebug>
 #include <QMouseEvent>
@@ -25,6 +28,7 @@
 #include <QPaintEvent>
 #include <QStyle>
 #include <QStyleOption>
+#include "lib/sizehelpers.h"
 #include "widgets/margins.h"
 
 const QPoint INVALID_POINT(-1, -1);
@@ -47,8 +51,10 @@ CanvasWidget::CanvasWidget(const QSize& size, QWidget* parent) :
 void CanvasWidget::commonConstructor(const QSize& size)
 {
     m_point = INVALID_POINT;
+    m_image_to_display_ratio = 1;
+    m_minimum_shrink_height = 100;
 
-    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    setAllowShrink(false);
     setSize(size);
 
     // Default pen:
@@ -70,6 +76,31 @@ void CanvasWidget::setSize(const QSize& size)
 }
 
 
+void CanvasWidget::setAllowShrink(bool allow_shrink)
+{
+    m_allow_shrink = allow_shrink;
+    if (m_allow_shrink) {
+        setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+        // Can be shrunk in either direction.
+        // We can't have a width-for-height constraint as well as a HFW
+        // constraint; see http://doc.qt.io/qt-5/qsizepolicy.html#setWidthForHeight
+        // Instead, we can draw according to our *actual* height...
+        // Similarly, we don't need a HFW constraint, which will (in many of
+        // our layouts) make the effective height *fixed* once the width is
+        // determined; we do this as a widget that accepts any size up to its
+        // maximum, and then just draws in a subset.
+    } else {
+        setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    }
+}
+
+
+void CanvasWidget::setMinimumShrinkHeight(int height)
+{
+    m_minimum_shrink_height = height;
+}
+
+
 QSize CanvasWidget::sizeHint() const
 {
     // Size of m_image (which is m_size), plus size of borders.
@@ -84,6 +115,18 @@ QSize CanvasWidget::sizeHint() const
 
     Margins m = Margins::getContentsMargins(this);
     return m.addMarginsTo(m_size);
+}
+
+
+QSize CanvasWidget::minimumSizeHint() const
+{
+    if (!m_allow_shrink) {
+        return m_size;
+    }
+    QSize minsize = m_size;
+    minsize.scale(QSize(m_size.width(), m_minimum_shrink_height),
+                  Qt::KeepAspectRatio);
+    return minsize;
 }
 
 
@@ -115,6 +158,27 @@ void CanvasWidget::setImage(const QImage &image, bool resize_widget)
 }
 
 
+void CanvasWidget::resizeEvent(QResizeEvent* event)
+{
+    QSize displaysize = m_size;
+    displaysize.scale(contentsRect().size(), Qt::KeepAspectRatio);
+    // Store the ratio in a format that allows the most common operations to
+    // use multiplication, not division:
+    // http://stackoverflow.com/questions/4125033/floating-point-division-vs-floating-point-multiplication
+    m_image_to_display_ratio = (double)m_size.width() / (double)displaysize.width();
+
+#ifdef DEBUG_TRANSLATIONS
+    qDebug().nospace()
+            << Q_FUNC_INFO
+            << "- widget size " << event->size()
+            << "; contents rect " << contentsRect()
+            << "; m_image_to_display_ratio " << m_image_to_display_ratio;
+#else
+    Q_UNUSED(event);
+#endif
+}
+
+
 void CanvasWidget::paintEvent(QPaintEvent* event)
 {
     Q_UNUSED(event);
@@ -129,12 +193,61 @@ void CanvasWidget::paintEvent(QPaintEvent* event)
 
     QStyleOption o;
     o.initFrom(this);
-    QPainter p(this);
-    style()->drawPrimitive(QStyle::PE_Widget, &o, &p, this);
+    QPainter painter(this);
+    style()->drawPrimitive(QStyle::PE_Widget, &o, &painter, this);
 
     // 2. Our bits
     QRect cr = contentsRect();
-    p.drawImage(cr.left(), cr.top(), m_image);
+    if (m_allow_shrink && cr.size() != m_image.size()) {
+        // Scale
+        QSize displaysize = m_size;
+        displaysize.scale(cr.size(), Qt::KeepAspectRatio);
+        QRect dest_active_rect = QRect(cr.topLeft(), displaysize);
+        QRect source_all_image(QPoint(0, 0), m_image.size());
+        painter.drawImage(dest_active_rect, m_image, source_all_image);
+
+        // Optimizations are possible: we don't have to draw all of it...
+        // http://blog.qt.io/blog/2006/05/13/fast-transformed-pixmapimage-drawing/
+        // ... but I haven't implemented those optimizations.
+
+//#ifdef DEBUG_TRANSLATIONS
+//        QRect exposed_rect = painter.matrix().inverted()
+//                             .mapRect(event->rect())
+//                             .adjusted(-1, -1, 1, 1);
+//        qDebug().nospace()
+//                << Q_FUNC_INFO << " - contentsRect = " << cr
+//                << ", exposed = " << exposed_rect;
+//#endif
+
+    } else {
+        // No need to scale
+        painter.drawImage(cr.left(), cr.top(), m_image);
+    }
+}
+
+
+QPoint CanvasWidget::transformDisplayToImageCoords(QPoint point) const
+{
+    // Convert from widget coordinates (NB there's a frame) to contentsRect
+    // coordinates:
+    int left, top, right, bottom;
+    getContentsMargins(&left, &top, &right, &bottom);
+    point.rx() -= left;
+    point.ry() -= top;
+
+    // Now transform, if required, to account for any scaling that we're
+    // doing:
+    if (!m_allow_shrink) {
+        return point;
+    }
+    QPoint result = QPoint(
+        std::round((double)point.x() * m_image_to_display_ratio),
+        std::round((double)point.y() * m_image_to_display_ratio)
+    );
+#ifdef DEBUG_TRANSLATIONS
+    qDebug() << Q_FUNC_INFO << point << "->" << result;
+#endif
+    return result;
 }
 
 
@@ -142,7 +255,7 @@ void CanvasWidget::mousePressEvent(QMouseEvent* event)
 {
     if (event->buttons() & Qt::LeftButton) {
         m_point = INVALID_POINT;
-        drawTo(event->pos());
+        drawTo(transformDisplayToImageCoords(event->pos()));
         update();
     }
 }
@@ -151,7 +264,7 @@ void CanvasWidget::mousePressEvent(QMouseEvent* event)
 void CanvasWidget::mouseMoveEvent(QMouseEvent* event)
 {
     if (event->buttons() & Qt::LeftButton) {
-        drawTo(event->pos());
+        drawTo(transformDisplayToImageCoords(event->pos()));
         update();
     }
 }
@@ -159,17 +272,11 @@ void CanvasWidget::mouseMoveEvent(QMouseEvent* event)
 
 void CanvasWidget::drawTo(QPoint pt)
 {
+    // The coordinates are IMAGE coordinates.
     if (m_image.isNull()) {
         qWarning() << Q_FUNC_INFO << "null image";
         return;
     }
-
-    // Convert from widget coordinates (NB there's a frame) to image
-    // coordinates:
-    int left, top, right, bottom;
-    getContentsMargins(&left, &top, &right, &bottom);
-    pt.rx() -= left;
-    pt.ry() -= top;
 
     // Draw
     QPainter p(&m_image);
