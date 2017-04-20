@@ -32,7 +32,7 @@ QuMcqGridDoubleSignaller::QuMcqGridDoubleSignaller(QuMcqGridDouble* recipient,
 }
 
 
-void QuMcqGridDoubleSignaller::valueChanged(const FieldRef* fieldref)
+void QuMcqGridDoubleSignaller::valueOrMandatoryChanged(const FieldRef* fieldref)
 {
-    m_recipient->fieldValueChanged(m_question_index, m_first_field, fieldref);
+    m_recipient->fieldValueOrMandatoryChanged(m_question_index, m_first_field, fieldref);
 }

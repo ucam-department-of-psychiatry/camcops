@@ -33,7 +33,7 @@ class QuMcqGridSignaller : public QObject {
 public:
     QuMcqGridSignaller(QuMcqGrid* recipient, int question_index);
 public slots:
-    void valueChanged(const FieldRef* fieldref);
+    void valueOrMandatoryChanged(const FieldRef* fieldref);
 protected:
     QuMcqGrid* m_recipient;
     int m_question_index;

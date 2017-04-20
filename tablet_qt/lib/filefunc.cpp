@@ -23,6 +23,7 @@
 #include "filefunc.h"
 #include <QDebug>
 #include <QFile>
+#include <QFileInfo>
 #include <QString>
 #include <QTextStream>
 
@@ -32,11 +33,18 @@ namespace filefunc {
 
 bool fileExists(const QString& filename)
 {
+#if 0
     QFile file(filename);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         return false;
     }
     return true;
+#endif
+
+    // Alternative method:
+    // http://stackoverflow.com/questions/10273816/how-to-check-whether-file-exists-in-qt-in-c
+    QFileInfo check_file(filename);
+    return check_file.exists() && check_file.isFile();
 }
 
 
@@ -64,6 +72,20 @@ QString textfileContents(const QString& filename)
 QString taskHtmlFilename(const QString& stem)
 {
     return QString(":/taskinfo/%1.html").arg(stem);
+}
+
+
+bool deleteFile(const QString& filename)
+{
+    QFile file(filename);
+    return file.remove();
+}
+
+
+bool renameFile(const QString& from, const QString& to)
+{
+    QFile file(from);
+    return file.rename(to);
 }
 
 

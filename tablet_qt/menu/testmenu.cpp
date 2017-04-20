@@ -95,9 +95,9 @@ TestMenu::TestMenu(CamcopsApp& app)
             std::bind(&TestMenu::testSizeFormatter, this)
         ),
         MAKE_MENU_MENU_ITEM(WidgetTestMenu, app),
-        MenuItem(
-            tr("(†) Run software unit tests (reporting to debugging stream)")
-        ).setNeedsPrivilege(),  // ***
+        // MenuItem(
+        //     tr("(†) Run software unit tests (reporting to debugging stream)")
+        // ).setNeedsPrivilege(),
     };
 }
 

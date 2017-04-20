@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
 """
+NOTE: this script should support as many versions of Python as possible, for
+OSs that ship old versions (e.g. Mac OS/X).
+
 When is it NECESSARY to compile OpenSSL from source?
     - OpenSSL for Android
       http://doc.qt.io/qt-5/opensslsupport.html
@@ -126,6 +129,7 @@ OPENSSL_COMMON_OPTIONS = [
     "no-ssl3",  # SSL-3 is broken. Is an SSL-3 build required for TLS 1.2?
     # "no-comp",  # disable compression independent of zlib
 ]
+MAKE = "make"
 
 
 # =============================================================================
@@ -420,8 +424,8 @@ def build_openssl_android(args, cpu):
             'LIBNAME=$$i'),
         ('LIBCOMPATVERSIONS=";$(SHLIB_VERSION_HISTORY)"', ''),
     ])
-    run(["make", "depend"], env)
-    run(["make", "build_libs"], env)
+    run([MAKE, "depend"], env)
+    run([MAKE, "build_libs"], env)
 
     # Testing:
     # - "Have I built for the right architecture?"
@@ -488,8 +492,8 @@ def build_openssl_common_unix(args, cosmetic_osname, target_os, shared_lib_suffi
             'LIBNAME=$$i'),
         ('LIBCOMPATVERSIONS=";$(SHLIB_VERSION_HISTORY)"', ''),
     ])
-    run(["make", "depend", "-j", str(args.nparallel)], env)
-    run(["make", "build_libs", "-j", str(args.nparallel)], env)
+    run([MAKE, "depend", "-j", str(args.nparallel)], env)
+    run([MAKE, "build_libs", "-j", str(args.nparallel)], env)
 
 
 def build_openssl_linux(args):
@@ -611,7 +615,7 @@ def build_qt_android(args, cpu):
     env["ANDROID_API_VERSION"] = args.android_api
     env["ANDROID_NDK_ROOT"] = args.android_ndk_root
     env["ANDROID_SDK_ROOT"] = args.android_sdk_root
-    run(["make", "-j", str(args.nparallel)], env)  # The make step takes a few hours.  # noqa
+    run([MAKE, "-j", str(args.nparallel)], env)  # The make step takes a few hours.  # noqa
 
     # PROBLEM WITH "make install":
     #       mkdir: cannot create directory ‘/libs’: Permission denied
@@ -627,7 +631,7 @@ def build_qt_android(args, cpu):
     # env["INSTALL_ROOT"] = installdir
     # http://stackoverflow.com/questions/8360609
 
-    run(["make", "install"], env)
+    run([MAKE, "install"], env)
     # ... installs to installdir because of -prefix earlier
     return installdir
 
@@ -678,14 +682,14 @@ def build_qt_generic_unix(args, cosmetic_osname, extra_qt_config_args=None):
 
     log.info("Making Qt {} build into {}".format(cosmetic_osname, installdir))
     os.chdir(builddir)
-    run(["make", "-j", str(args.nparallel)], env)  # The make step takes a few hours.  # noqa
+    run([MAKE, "-j", str(args.nparallel)], env)  # The make step takes a few hours.  # noqa
 
     # makefile = join(builddir, "qttools", "src", "qtplugininfo", "Makefile")
     # baddir = join("$(INSTALL_ROOT)", "libs", android_arch_short, "")
     # gooddir = join(installdir, "libs", android_arch_short, "")
     # replace(makefile, " " + baddir, " " + gooddir)
 
-    run(["make", "install"], env)
+    run([MAKE, "install"], env)
     # ... installs to installdir because of -prefix earlier
     return installdir
 
@@ -694,6 +698,7 @@ def build_qt_linux(args):
     """
     Builds Qt for Linux.
 
+    args: argparse.Namespace
     -> str
     """
     return build_qt_generic_unix(
@@ -711,6 +716,7 @@ def build_qt_osx(args):
     """
     Builds OpenSSL for Mac OS X.
 
+    args: argparse.Namespace
     -> str
     """
     # http://stackoverflow.com/questions/20604093/qt5-install-on-osx-qt-xcb
@@ -720,6 +726,98 @@ def build_qt_osx(args):
         cosmetic_osname="osx",
         extra_qt_config_args=None
     )
+
+
+# =============================================================================
+# SQLCipher
+# =============================================================================
+
+def fetch_sqlcipher(args):
+    """
+    Downloads OpenSSL source code.
+
+    args: argparse.Namespace
+    -> None
+    """
+    if isdir(args.sqlcipher_src_gitdir):
+        log.info("Using SQLCipher source in {}".format(
+            args.sqlcipher_src_gitdir))
+        return
+    log.info("Fetching SQLCipher source from {} into {}".format(
+        args.sqlcipher_git_url, args.sqlcipher_src_gitdir))
+    os.chdir(args.src_rootdir)
+    run(["git", "clone", args.sqlcipher_git_url])
+
+
+def build_sqlcipher(args):
+    """
+    Builds SQLCipher, an open-source encrypted version of SQLite.
+    Our source is the public version; our destination is an "amalgamation"
+    .h and .c file (equivalent to the amalgamation sqlite3.h and sqlite3.c
+    of SQLite itself). Actually, they have the same names, too.
+    
+    args: argparse.Namespace
+    -> None
+    """
+    log.info("Building SQLCipher...")
+    os.chdir(args.sqlcipher_src_gitdir)
+
+    target_c = join(args.sqlcipher_src_gitdir, "sqlite3.c")
+    target_h = join(args.sqlcipher_src_gitdir, "sqlite3.h")
+    target_exe = join(args.sqlcipher_src_gitdir, "sqlcipher")
+
+    all_targets = [target_c, target_h, target_exe]
+    if all(isfile(x) for x in all_targets):
+        log.info("All targets present; skipping ({})".format(all_targets))
+        return
+
+    # (a) configure
+    cflags = ["-DSQLITE_HAS_CODEC"]
+    ldflags = []
+    link_openssl_statically = True
+    if link_openssl_statically:
+        system = "linux"  # *** hard-coded; change
+        _, openssl_workdir = get_openssl_rootdir_workdir(args, system)
+        static_openssl_lib = join(openssl_workdir, "libcrypto.a")
+        openssl_include_dir = join(openssl_workdir, "include")
+        # ... sqlite.c does e.g. "#include <openssl/rand.h>"
+        ldflags.append(static_openssl_lib)
+        cflags.append("-I{}".format(openssl_include_dir))
+    else:
+        # make the executable load OpenSSL dynamically
+        ldflags.append('-lcrypto')
+    trace_include = False
+    if trace_include:
+        cflags.append("-H")
+
+    config_args = [
+        # no quotes (they're fine on the command line but not here)
+        join(args.sqlcipher_src_gitdir, "configure"),
+        "--enable-tempstore=yes",
+        # ... see README.md; equivalent to SQLITE_TEMP_STORE=2
+        'CFLAGS={}'.format(" ".join(cflags)),
+        'LDFLAGS={}'.format(" ".join(ldflags)),
+    ]
+    run(config_args)
+    
+    # (b) make
+    if not isfile(target_c) or not isfile(target_h):
+        run([
+            MAKE,
+            "sqlite3.c",  # the amalgamation target
+        ])
+    if not isfile(target_exe):
+        run([
+            MAKE,
+            "sqlcipher",  # the command-line executable
+        ])
+
+    # (c) results
+    log.info("If successful, you should have the amalgation files:\n"
+             "- {}\n"
+             "- {}\n"
+             "and the executable:\n"
+             "- {}".format(target_c, target_h, target_exe))
 
 
 # =============================================================================
@@ -753,83 +851,106 @@ def main():
     default_openssl_src_url = (
         "https://www.openssl.org/source/{}.tar.gz".format(
             default_openssl_version))
+    
+    # SQLCipher; https://www.zetetic.net/sqlcipher/open-source/
+    default_sqlcipher_src_dirname = "sqlcipher"
+    default_sqlcipher_git_url = "https://github.com/sqlcipher/sqlcipher.git"
+    # note that there's another URL for the Android binary packages
 
     parser = argparse.ArgumentParser(
         description="Build Qt for CamCOPS",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     # Architectures
-    parser.add_argument(
+    archgroup = parser.add_argument_group(
+        "Architecture",
+        "Choose architecture for which to build")
+    archgroup.add_argument(
         "--android_x86", action="store_true",
         help="An architecture target (Android under an Intel x86 emulator)")
-    parser.add_argument(
+    archgroup.add_argument(
         "--android_arm", action="store_true",
         help="An architecture target (Android under a ARM processor tablet)")
-    parser.add_argument(
+    archgroup.add_argument(
         "--linux_x86_64", action="store_true",
         help="An architecture target (native Linux with a 64-bit Intel CPU; "
              "check with 'lscpu' and 'uname -a'")
-    parser.add_argument(
+    archgroup.add_argument(
         "--osx_x86_64", action="store_true",
         help="An architecture target (Mac OS/X under an Intel 64-bit CPU; "
              "check with 'sysctl -a|grep cpu', and see "
              "https://support.apple.com/en-gb/HT201948 )")
 
     # General
-    parser.add_argument(
+    general = parser.add_argument_group("General", "General options")
+    general.add_argument(
         "--nparallel", type=int, default=multiprocessing.cpu_count(),
         help="Number of parallel processes to run")
-    parser.add_argument("--force", action="store_true", help="Force build")
-    parser.add_argument(
+    general.add_argument("--force", action="store_true", help="Force build")
+    general.add_argument(
         "--verbose", type=int, default=1,
         help="Verbosity level")
 
     # Qt
-    parser.add_argument(
+    qt = parser.add_argument_group("Qt", "Qt options")
+    qt.add_argument(
         "--root_dir", default=default_root_dir,
         help="Root directory for source and builds")
-    parser.add_argument(
+    qt.add_argument(
         "--qt_src_dirname", default=default_qt_src_dirname,
         help="Qt source directory")
-    parser.add_argument(
+    qt.add_argument(
         "--qt_git_url", default=default_qt_git_url,
         help="Qt Git URL")
-    parser.add_argument(
+    qt.add_argument(
         "--qt_git_branch", default=default_qt_git_branch,
         help="Qt Git branch")
-
-    parser.add_argument(
+    qt.add_argument(
         "--qt_openssl_static", dest="static_openssl", action="store_true",
         help="Link OpenSSL statically")
-    parser.add_argument(
+    qt.add_argument(
         "--qt_openssl_linked", dest="static_openssl", action="store_false",
         help="Link OpenSSL dynamically")
     parser.set_defaults(static_openssl=True)
 
     # Android
-    parser.add_argument(
+    android = parser.add_argument_group("Android", "Android options")
+    android.add_argument(
         "--android_api_number", type=int, default=default_android_api_num,
         help="Android API number")
-    parser.add_argument(
+    android.add_argument(
         "--android_sdk_root", default=default_android_sdk,
         help="Android SDK root directory")
-    parser.add_argument(
+    android.add_argument(
         "--android_ndk_root", default=default_android_ndk,
         help="Android NDK root directory")
-    parser.add_argument(
+    android.add_argument(
         "--android_ndk_host", default=default_ndk_host,
         help="Android NDK host architecture")
-    parser.add_argument(
+    android.add_argument(
         "--android_toolchain_version", default=default_toolchain_version,
         help="Android toolchain version")
 
     # OpenSSL
-    parser.add_argument(
+    openssl = parser.add_argument_group("OpenSSL", "OpenSSL options")
+    openssl.add_argument(
         "--openssl_version", default=default_openssl_version,
         help="OpenSSL version")
-    parser.add_argument(
+    openssl.add_argument(
         "--openssl_src_url", default=default_openssl_src_url,
         help="OpenSSL source URL")
+    
+    # SQLCipher
+    sqlcipher = parser.add_argument_group("SQLCipher", "SQLCipher options")
+    sqlcipher.add_argument(
+        "--sqlcipher_src_dirname", default=default_sqlcipher_src_dirname,
+        help="SQLCipher source directory")
+    sqlcipher.add_argument(
+        "--sqlcipher_git_url", default=default_sqlcipher_git_url,
+        help="SQLCipher Git URL")
+    sqlcipher.add_argument(
+        "--build_sqlcipher", action="store_true",
+        help="SQLCipher: build (in isolation)")
 
     args = parser.parse_args()
 
@@ -847,43 +968,57 @@ def main():
     args.openssl_src_fullpath = join(args.openssl_src_dir,
                                      args.openssl_src_filename)
 
+    args.sqlcipher_src_gitdir = join(args.src_rootdir,
+                                     args.sqlcipher_src_dirname)
+
     log.info(args)
+
+    # =========================================================================
+    # Common requirements
+    # =========================================================================
+    require(MAKE)
 
     # =========================================================================
     # Fetch
     # =========================================================================
     fetch_qt(args)
     fetch_openssl(args)
+    fetch_sqlcipher(args)
 
     # =========================================================================
     # Build
     # =========================================================================
-    installdirs = []
+    if args.build_sqlcipher:
+        build_sqlcipher(args)
+        return
 
+    installdirs = []
+    need_sqlcipher = False
+    
     if args.android_x86:  # for x86 Android emulator
         log.info("Qt build: Android x86 +SQLite +OpenSSL")
         build_openssl_android(args, "x86")
-        installdir = build_qt_android(args, "x86")
-        installdirs.append(installdir)
+        need_sqlcipher = True
+        installdirs.append(build_qt_android(args, "x86"))
 
     if args.android_arm:  # for native Android
         log.info("Qt build: Android ARM +SQLite +OpenSSL")
         build_openssl_android(args, "arm")
-        installdir = build_qt_android(args, "arm")
-        installdirs.append(installdir)
+        need_sqlcipher = True
+        installdirs.append(build_qt_android(args, "arm"))
 
     if args.linux_x86_64:  # for 64-bit Linux
         log.info("Qt build: Linux x86 64-bit +SQLite +OpenSSL")
         build_openssl_linux(args)
-        installdir = build_qt_linux(args)
-        installdirs.append(installdir)
+        need_sqlcipher = True
+        installdirs.append(build_qt_linux(args))
 
     if args.osx_x86_64:  # for 64-bit Intel Mac OS/X
         # http://doc.qt.io/qt-5/osx.html
         log.info("Qt build: Mac OS/X x86 64-bit +SQLite +OpenSSL")
         build_openssl_osx(args)
-        installdir = build_qt_osx(args)
-        installdirs.append(installdir)
+        need_sqlcipher = True
+        installdirs.append(build_qt_osx(args))
 
     # *** args.ios*  # for iOS (iPad, etc.)
     #     http://doc.qt.io/qt-5/building-from-source-ios.html
@@ -892,6 +1027,9 @@ def main():
 
     # *** args.windows*  # for Windows
     #     http://www.holoborodko.com/pavel/2011/02/01/how-to-compile-qt-4-7-with-visual-studio-2010/
+
+    if need_sqlcipher:
+        build_sqlcipher(args)
 
     if not installdirs:
         log.warning("Nothing to do. Run with --help argument for help.")

@@ -41,7 +41,7 @@ class VerticalScrollAreaViewport : public QWidget
 public:
     VerticalScrollAreaViewport(QWidget* parent = nullptr);
     virtual void resizeEvent(QResizeEvent* event) override;
-    // setGeometry() is not virtual
+    // setGeometry() is not virtual; no point overriding it
     // void setGeometry(const QRect& rect);
     // void setGeometry(int x, int y, int w, int h);
 protected:

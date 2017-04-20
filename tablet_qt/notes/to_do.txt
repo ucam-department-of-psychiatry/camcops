@@ -5,13 +5,22 @@ TO DO NOW
 
 - *** tasks
 
+"// *** other_pd_comments, etc."
+
 - *** chains (see e.g. ResearchMenu.js; MenuTableRow.js; QuestionnaireHeader.js...)
 - *** concept of "set of tasks" as well as "chain of tasks"
 
 - *** upgrade function - multistep and single-step - per task?
 
-- *** fix viewport-versus-widget height (resize to sizeHint not HFW) in
-  VerticalScrollArea
+- *** "single patient" mode, cf. "researcher" mode? Tied to a specific
+  server?
+
+
+
+
+- VerticalScrollArea: *Nearly* perfect. Unclear if residual minor error relates
+  to VerticalScrollArea itself, or to misreporting of ideal height by e.g.
+  GridLayoutHfw.
 
 - test scrolling by touch on Android:
     - menus/questionnaires (VerticalScrollArea)

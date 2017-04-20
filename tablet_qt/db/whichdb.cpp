@@ -17,15 +17,18 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
-class QString;
+#include "whichdb.h"
 
-namespace filefunc {
 
-bool fileExists(const QString& filename);
-QString textfileContents(const QString& filename);
-QString taskHtmlFilename(const QString& stem);
-bool deleteFile(const QString& filename);
-bool renameFile(const QString& from, const QString& to);
+namespace whichdb
+{
 
-}  // namespace filefunc
+const QString SQLITE("QSQLITE");
+const QString SQLCIPHER("SQLCIPHER");
+#ifdef USE_SQLCIPHER
+const QString& DBTYPE = SQLCIPHER;
+#else
+const QString& DBTYPE = SQLITE;
+#endif
+
+}  // namespace whichdb

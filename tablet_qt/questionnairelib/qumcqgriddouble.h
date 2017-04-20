@@ -62,8 +62,8 @@ protected:
     void addOptions(GridLayout* grid, int row);
 protected slots:
     void clicked(int question_index, bool first_field, int value_index);
-    void fieldValueChanged(int question_index, bool first_field,
-                           const FieldRef* fieldref);
+    void fieldValueOrMandatoryChanged(int question_index, bool first_field,
+                                      const FieldRef* fieldref);
 protected:
     QVector<QuestionWithTwoFields> m_questions_with_fields;
     NameValueOptions m_options1;

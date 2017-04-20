@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define DEBUG_SET_VALUE
+// #define DEBUG_SET_VALUE
 
 #include "storedvar.h"
 #include "common/camcopsapp.h"

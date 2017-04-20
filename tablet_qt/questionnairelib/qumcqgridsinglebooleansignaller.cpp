@@ -30,13 +30,13 @@ QuMcqGridSingleBooleanSignaller::QuMcqGridSingleBooleanSignaller(
 }
 
 
-void QuMcqGridSingleBooleanSignaller::mcqFieldValueChanged(const FieldRef* fieldref)
+void QuMcqGridSingleBooleanSignaller::mcqFieldValueOrMandatoryChanged(const FieldRef* fieldref)
 {
-    m_recipient->mcqFieldValueChanged(m_question_index, fieldref);
+    m_recipient->mcqFieldValueOrMandatoryChanged(m_question_index, fieldref);
 }
 
 
-void QuMcqGridSingleBooleanSignaller::booleanFieldValueChanged(const FieldRef* fieldref)
+void QuMcqGridSingleBooleanSignaller::booleanFieldValueOrMandatoryChanged(const FieldRef* fieldref)
 {
-    m_recipient->booleanFieldValueChanged(m_question_index, fieldref);
+    m_recipient->booleanFieldValueOrMandatoryChanged(m_question_index, fieldref);
 }

@@ -30,7 +30,7 @@ QuMcqGridSignaller::QuMcqGridSignaller(QuMcqGrid* recipient,
 }
 
 
-void QuMcqGridSignaller::valueChanged(const FieldRef* fieldref)
+void QuMcqGridSignaller::valueOrMandatoryChanged(const FieldRef* fieldref)
 {
-    m_recipient->fieldValueChanged(m_question_index, fieldref);
+    m_recipient->fieldValueOrMandatoryChanged(m_question_index, fieldref);
 }

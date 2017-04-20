@@ -87,7 +87,25 @@ public:
     QSqlDatabase& db();
     QSqlDatabase& sysdb();
     TaskFactory* taskFactory();
+
+    // ------------------------------------------------------------------------
+    // Initialization
+    // ------------------------------------------------------------------------
+protected:
+    void announceStartup();
+    void registerDatabaseDrivers();
+    void openOrCreateDatabases();
+    bool connectDatabaseEncryption(QString& new_user_password);
+    bool encryptExistingPlaintextDatabases(const QString& passphrase);
+    void seedRng();
+    void makeStoredVarTable();
+    void createStoredVars();
+    void upgradeDatabase();
     void upgradeDatabase(const Version& old_version, const Version& new_version);
+    void makeOtherSystemTables();
+    void registerTasks();
+    void makeTaskTables();
+    void initGui();
 
     // ------------------------------------------------------------------------
     // Opening/closing windows

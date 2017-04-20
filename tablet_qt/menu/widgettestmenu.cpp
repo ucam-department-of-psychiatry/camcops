@@ -454,7 +454,7 @@ void WidgetTestMenu::testBooleanWidget(BooleanWidget::Appearance appearance,
 
 void WidgetTestMenu::testCanvasWidget(bool allow_shrink)
 {
-    QSize size(200, 200);
+    QSize size(400, 400);
     CanvasWidget* widget = new CanvasWidget(size);
     QImage img(size, QImage::Format_RGB32);
     widget->setImage(img);

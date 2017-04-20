@@ -36,12 +36,14 @@ namespace dbfunc {
 
 extern const QString DATA_DATABASE_FILENAME;
 extern const QString SYSTEM_DATABASE_FILENAME;
+extern const QString DATABASE_FILENAME_TEMP_SUFFIX;
 extern const QString TABLE_TEMP_SUFFIX;
 
 // Database operations
 
 QString dbFullPath(const QString& filename);
-void openDatabaseOrDie(QSqlDatabase& db, const QString& filename);
+void openDatabaseOrDie(QSqlDatabase& db, const QString& filename,
+                       bool is_full_path = false);
 
 // SQL fragments
 
@@ -55,7 +57,7 @@ void addWhereClause(const WhereConditions& where, SqlArgs& sqlargs_altered);
 void addOrderByClause(const OrderBy& order_by, SqlArgs& sqlargs_altered);
 void addArgs(QSqlQuery& query, const ArgList& args);
 bool execQuery(QSqlQuery& query, const QString& sql,
-                const ArgList& args);
+                const ArgList& args, bool suppress_errors = false);
 bool execQuery(QSqlQuery& query, const QString& sql);
 bool execQuery(QSqlQuery& query, const SqlArgs& sqlargs);
 bool exec(const QSqlDatabase& db, const QString& sql);
@@ -133,5 +135,15 @@ QString sqlCreateTable(const QString& tablename,
 void createTable(const QSqlDatabase& db, const QString& tablename,
                  const QVector<Field>& fieldlist,
                  const QString& tempsuffix = TABLE_TEMP_SUFFIX);
+
+// Encryption queries, via SQLCipher
+
+bool canReadDatabase(const QSqlDatabase& db);
+bool pragmaKey(const QSqlDatabase& db, const QString& passphase);
+bool pragmaRekey(const QSqlDatabase& db, const QString& passphase);
+bool databaseIsEmpty(const QSqlDatabase& db);
+bool encryptPlainDatabaseInPlace(const QString& filename,
+                                 const QString& tempfilename,
+                                 const QString& passphrase);
 
 }  // namespace dbfunc

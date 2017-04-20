@@ -169,7 +169,7 @@ void ScrollMessageBox::updateSize()
 
     QSize desired_size(
                 qMin(layout_size.width(), window_title_width),
-                layout_size.height() + 100);  // *** some sort of extra
+                layout_size.height() + 100);  // ??? some sort of extra
     QSize final_size = desired_size.boundedTo(hard_limit);
 
     resize(final_size);

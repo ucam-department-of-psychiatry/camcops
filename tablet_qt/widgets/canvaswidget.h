@@ -44,6 +44,7 @@ public:
     void setSize(const QSize& size);
     void setAllowShrink(bool allow_shrink);
     void setMinimumShrinkHeight(int height);  // applicable if we can shrink
+    void setUnusedSpaceColour(const QColor& colour);
     void setPen(const QPen& pen);
     void clear(const QColor& background);
     void setImage(const QImage& image, bool resize_widget = true);
@@ -69,4 +70,5 @@ protected:
     QImage m_image;
     QPen m_pen;
     QPoint m_point;
+    QColor m_unused_space_colour;
 };

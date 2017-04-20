@@ -66,8 +66,10 @@ protected:
 protected slots:
     void mcqClicked(int question_index, int value_index);
     void booleanClicked(int question_index);
-    void mcqFieldValueChanged(int question_index, const FieldRef* fieldref);
-    void booleanFieldValueChanged(int question_index, const FieldRef* fieldref);
+    void mcqFieldValueOrMandatoryChanged(int question_index,
+                                         const FieldRef* fieldref);
+    void booleanFieldValueOrMandatoryChanged(int question_index,
+                                             const FieldRef* fieldref);
 protected:
     bool m_boolean_left;
     QVector<QuestionWithTwoFields> m_questions_with_fields;

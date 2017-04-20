@@ -34,7 +34,7 @@ public:
     QuMcqGridDoubleSignaller(QuMcqGridDouble* recipient, int question_index,
                              bool first_field);
 public slots:
-    void valueChanged(const FieldRef* fieldref);
+    void valueOrMandatoryChanged(const FieldRef* fieldref);
 protected:
     QuMcqGridDouble* m_recipient;
     int m_question_index;

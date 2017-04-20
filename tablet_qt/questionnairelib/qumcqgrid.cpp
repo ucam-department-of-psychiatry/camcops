@@ -42,9 +42,9 @@ QuMcqGrid::QuMcqGrid(const QVector<QuestionWithOneField>& question_field_pairs,
         QuMcqGridSignaller* sig = new QuMcqGridSignaller(this, qi);
         m_signallers.append(sig);
         connect(fieldref.data(), &FieldRef::valueChanged,
-                sig, &QuMcqGridSignaller::valueChanged);
+                sig, &QuMcqGridSignaller::valueOrMandatoryChanged);
         connect(fieldref.data(), &FieldRef::mandatoryChanged,
-                sig, &QuMcqGridSignaller::valueChanged);
+                sig, &QuMcqGridSignaller::valueOrMandatoryChanged);
     }
 }
 
@@ -94,7 +94,7 @@ QuMcqGrid* QuMcqGrid::setExpand(bool expand)
 void QuMcqGrid::setFromFields()
 {
     for (int qi = 0; qi < m_question_field_pairs.size(); ++qi) {
-        fieldValueChanged(qi, m_question_field_pairs.at(qi).fieldref().data());
+        fieldValueOrMandatoryChanged(qi, m_question_field_pairs.at(qi).fieldref().data());
     }
 }
 
@@ -245,19 +245,23 @@ void QuMcqGrid::clicked(int question_index, int value_index)
 }
 
 
-void QuMcqGrid::fieldValueChanged(int question_index, const FieldRef* fieldref)
+void QuMcqGrid::fieldValueOrMandatoryChanged(int question_index,
+                                             const FieldRef* fieldref)
 {
     if (question_index < 0 ||
-            question_index >= m_question_field_pairs.size() ||
-            question_index >= m_widgets.size()) {
+            question_index >= m_question_field_pairs.size()) {
         qWarning().nospace()
                 << Q_FUNC_INFO
                 << " Bad question_index: " << question_index
                 << " (m_question_field_pairs.size() == "
                 << m_question_field_pairs.size()
-                << "; m_widgets.size() == "
-                << m_widgets.size()
                 << ")";
+        return;
+    }
+    if (question_index >= m_widgets.size()) {
+        // Doesn't require a warning; for example, we may set our
+        // mandatory values before the grid is displayed and builds its
+        // widgets.
         return;
     }
     const QVector<QPointer<BooleanWidget>>& question_widgets = m_widgets.at(

@@ -54,6 +54,7 @@ WORDLIST = ["FACE", "VELVET", "CHURCH", "DAISY", "RED"]
 
 class Moca(Task):
     NQUESTIONS = 28
+    MAX_SCORE = 30
 
     tablename = "moca"
     shortname = "MoCA"
@@ -138,9 +139,9 @@ class Moca(Task):
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="MOCA total score",
-            axis_label="Total score (out of 30)",
+            axis_label="Total score (out of {})".format(self.MAX_SCORE),
             axis_min=-0.5,
-            axis_max=30.5,
+            axis_max=(self.MAX_SCORE + 0.5),
             horizontal_lines=[25.5],
             horizontal_labels=[
                 TrackerLabel(26, WSTRING("normal"), LabelAlignment.bottom),
@@ -152,14 +153,15 @@ class Moca(Task):
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="MOCA total score {}/30".format(self.total_score())
+            content="MOCA total score {}/{}".format(self.total_score(),
+                                                    self.MAX_SCORE)
         )]
 
     def get_summaries(self):
         return [
             self.is_complete_summary_field(),
             dict(name="total", cctype="INT", value=self.total_score(),
-                 comment="Total score (/30)"),
+                 comment="Total score (/{})".format(self.MAX_SCORE)),
             dict(name="category", cctype="TEXT", value=self.category(),
                  comment="Categorization"),
         ]
@@ -172,10 +174,15 @@ class Moca(Task):
         )
 
     def total_score(self) -> int:
-        return self.sum_fields(
-            repeat_fieldname("q", 1, self.NQUESTIONS) +
-            ["education12y_or_less"]  # extra point for this
-        )
+        score = self.sum_fields(
+            repeat_fieldname("q", 1, self.NQUESTIONS))
+        # Interpretation of the educational extra point: see moca.cpp; we have
+        # a choice of allowing 31/30 or capping at 30. I think the instructions
+        # imply a cap of 30.
+        if score < self.MAX_SCORE:
+            score += self.sum_fields(["education12y_or_less"])
+            # extra point for this
+        return score
 
     def score_vsp(self) -> int:
         return self.sum_fields(repeat_fieldname("q", 1, 5))
@@ -217,7 +224,8 @@ class Moca(Task):
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(WSTRING("total_score"), answer(totalscore) + " / 30")
+        h += tr(WSTRING("total_score"),
+                answer(totalscore) + " / {}".format(self.MAX_SCORE))
         h += tr_qa(WSTRING("moca_category") + " <sup>[1]</sup>",
                    category)
         h += """

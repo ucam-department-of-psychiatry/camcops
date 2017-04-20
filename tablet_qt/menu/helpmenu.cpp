@@ -27,6 +27,7 @@
 #include "common/uiconstants.h"
 #include "common/camcopsversion.h"
 #include "db/dbfunc.h"
+#include "db/whichdb.h"
 #include "lib/datetime.h"
 #include "lib/filefunc.h"
 #include "lib/stringfunc.h"
@@ -40,7 +41,8 @@ const QString CAMCOPS_DOCS_URL("http://camcops.org/documentation/index.html");
 HelpMenu::HelpMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Help"), uifunc::iconFilename(uiconst::ICON_INFO))
 {
-    QString title_missing = tr("Why isn’t task X here?");
+    QString title_missing(tr("Why isn’t task X here?"));
+    QString title_licences(tr("Software licences"));
     m_items = {
         MenuItem(tr("Online CamCOPS documentation"),
                  std::bind(&HelpMenu::visitCamcopsDocumentation, this),
@@ -55,6 +57,10 @@ HelpMenu::HelpMenu(CamcopsApp& app) :
                               uifunc::iconFilename(uiconst::ICON_INFO))),
         MenuItem(tr("Show software versions"),
                  std::bind(&HelpMenu::softwareVersions, this)),
+        MenuItem(title_licences,
+                 HtmlMenuItem(title_licences,
+                              uifunc::resourceFilename("camcops/html/licences.html"),
+                              uifunc::iconFilename(uiconst::ICON_INFO))),
         MenuItem(tr("About Qt"),
                  std::bind(&HelpMenu::aboutQt, this)),
         MenuItem(tr("View device (installation) ID and database details"),
@@ -105,7 +111,13 @@ void HelpMenu::softwareVersions() const
     QString sql = "SELECT sqlite_version()";
     QSqlDatabase& db = m_app.sysdb();
     QString sqlite_version = dbfunc::dbFetchFirstValue(db, sql).toString();
-    versions.append(QString("<b>Embedded SQLite version:</b> %1").arg(sqlite_version));
+    versions.append(QString("<b>Embedded "
+#ifdef USE_SQLCIPHER
+                            "SQLCipher (SQLite)"
+#else
+                            "SQLite"
+#endif
+                            " version:</b> %1").arg(sqlite_version));
     QString sqlite_info;
     QTextStream s(&sqlite_info);
     QSqlDriver* driver = db.driver();

@@ -19,7 +19,7 @@
 
 // #define DANGER_DEBUG_PASSWORD_DECRYPTION
 #define DANGER_DEBUG_WIPE_PASSWORDS
-#define DEBUG_EMIT
+// #define DEBUG_EMIT
 
 #include "camcopsapp.h"
 #include <QApplication>
@@ -28,6 +28,7 @@
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QSqlDatabase>
+#include <QSqlDriverCreator>
 #include <QStackedWidget>
 #include <QUuid>
 #include "common/appstrings.h"
@@ -41,6 +42,7 @@
 #include "db/dbnestabletransaction.h"
 #include "db/dbtransaction.h"
 #include "db/dumpsql.h"
+#include "db/whichdb.h"
 #include "dbobjects/blob.h"
 #include "dbobjects/extrastring.h"
 #include "dbobjects/patientsorter.h"
@@ -58,18 +60,66 @@
 #include "questionnairelib/questionnaire.h"
 #include "tasklib/inittasks.h"
 
+#ifdef USE_SQLCIPHER
+#include "db/sqlcipherdriver.h"
+#endif
+
 const QString APPSTRING_TASKNAME("camcops");  // task name used for generic but downloaded tablet strings
 
 
 CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     QApplication(argc, argv),
     m_p_task_factory(nullptr),
-    m_lockstate(LockState::Locked),
+    m_lockstate(LockState::Locked),  // default unless we get in via encryption password
     m_whisker_connected(false),
     m_p_main_window(nullptr),
     m_p_window_stack(nullptr),
     m_patient(nullptr),
     m_netmgr(nullptr)
+{
+    announceStartup();
+    seedRng();
+    registerDatabaseDrivers();
+    openOrCreateDatabases();
+    QString new_user_password;
+    bool changed_user_password = connectDatabaseEncryption(new_user_password);
+    makeStoredVarTable();
+    createStoredVars();
+
+#if defined DANGER_DEBUG_WIPE_PASSWORDS && !defined SQLCIPHER_ENCRYPTION_ON
+    qDebug() << "DANGER: wiping passwords";
+    setHashedPassword(varconst::USER_PASSWORD_HASH, "");
+    setHashedPassword(varconst::PRIV_PASSWORD_HASH, "");
+#endif
+#ifdef SQLCIPHER_ENCRYPTION_ON
+    if (changed_user_password) {
+        setHashedPassword(varconst::USER_PASSWORD_HASH, new_user_password);
+    }
+#else
+    Q_UNUSED(changed_user_password);
+    Q_UNUSED(new_user_password);
+#endif
+
+    upgradeDatabase();
+    makeOtherSystemTables();
+    registerTasks();  // AFTER storedvar creation, so tasks can read them
+    makeTaskTables();
+    initGui();
+}
+
+
+CamcopsApp::~CamcopsApp()
+{
+    // http://doc.qt.io/qt-5.7/objecttrees.html
+    // Only delete things that haven't been assigned a parent
+    delete m_p_main_window;
+}
+
+// ============================================================================
+// Initialization
+// ============================================================================
+
+void CamcopsApp::announceStartup()
 {
     // ------------------------------------------------------------------------
     // Announce startup
@@ -79,7 +129,23 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
             << qUtf8Printable(datetime::datetimeToIsoMs(dt))
             << "=" << qUtf8Printable(datetime::datetimeToIsoMsUtc(dt));
     qInfo() << "CamCOPS version:" << camcopsversion::CAMCOPS_VERSION;
+}
 
+
+void CamcopsApp::registerDatabaseDrivers()
+{
+#ifdef USE_SQLCIPHER
+    QSqlDatabase::registerSqlDriver(whichdb::SQLCIPHER,
+                                    new QSqlDriverCreator<SQLCipherDriver>);
+    qInfo() << "Using SQLCipher database";
+#else
+    qInfo() << "Using SQLite database";
+#endif
+}
+
+
+void CamcopsApp::openOrCreateDatabases()
+{
     // ------------------------------------------------------------------------
     // Create databases
     // ------------------------------------------------------------------------
@@ -87,19 +153,145 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     // created the app. So don't open the database in the initializer list!
     // Database lifetime:
     // http://stackoverflow.com/questions/7669987/what-is-the-correct-way-of-qsqldatabase-qsqlquery
-    m_datadb = QSqlDatabase::addDatabase("QSQLITE", "data");
-    m_sysdb = QSqlDatabase::addDatabase("QSQLITE", "sys");
+
+    m_datadb = QSqlDatabase::addDatabase(whichdb::DBTYPE, "data");
+    m_sysdb = QSqlDatabase::addDatabase(whichdb::DBTYPE, "sys");
     dbfunc::openDatabaseOrDie(m_datadb, dbfunc::DATA_DATABASE_FILENAME);
     dbfunc::openDatabaseOrDie(m_sysdb, dbfunc::SYSTEM_DATABASE_FILENAME);
+}
 
+
+bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password)
+{
+    // Returns: was the user password set (changed)?
+
+#ifdef SQLCIPHER_ENCRYPTION_ON
     // ------------------------------------------------------------------------
-    // Make storedvar table
+    // Encryption on!
     // ------------------------------------------------------------------------
+    // The encryption concept is simple:
+    // - We know a database is "fresh" if we can execute some basic SQL such as
+    //   "SELECT COUNT(*) FROM sqlite_master;" before applying any key.
+    // - If the database is fresh:
+    //   * We ask the user for a password (with a double-check).
+    //   * We encrypt the database using "PRAGMA key = 'passphrase';"
+    //   * We store a hashed copy of this password as the user password
+    //     (because we don't want too many, and we need one for the lock/unlock
+    //     facility anyway).
+    // - Otherwise:
+    //   * We ask the user for the password.
+    //   * We apply it with "PRAGMA key = 'passphrase';"
+    //   * We check with "SELECT COUNT(*) FROM sqlite_master;"
+    //   * If that works, we proceed. Otherwise, we ask for the password again.
+    //
+    // We have two databases, and we'll constrain them to have the same
+    // password. Failure to align is an error.
+    //
+    // https://www.zetetic.net/sqlcipher/sqlcipher-api/
 
-    StoredVar storedvar_specimen(*this, m_sysdb);
-    storedvar_specimen.makeTable();
-    storedvar_specimen.makeIndexes();
+    bool encryption_happy = false;
+    bool changed_user_password = false;
+    QString new_pw_text(tr("Enter a new password for the CamCOPS application"));
+    QString new_pw_title(tr("Set CamCOPS password"));
+    QString enter_pw_text(tr("Enter the password to unlock CamCOPS"));
+    QString enter_pw_title(tr("Enter CamCOPS password"));
 
+    while (!encryption_happy) {
+        changed_user_password = false;
+        bool no_password_sys = dbfunc::canReadDatabase(m_sysdb);
+        bool no_password_data = dbfunc::canReadDatabase(m_datadb);
+
+        if (no_password_sys != no_password_data) {
+            QString msg = QString(
+                        "CamCOPS uses a system and a data database; one has a "
+                        "password and one doesn't; this is an incongruent state "
+                        "that has probably arisen from user error, and CamCOPS "
+                        "will not continue until this is fixed (no_password_sys = "
+                        "%1, no_password_data = %2")
+                    .arg(no_password_sys)
+                    .arg(no_password_data);
+            QString title = "Inconsistent database state";
+            uifunc::stopApp(msg, title);
+        }
+
+        if (no_password_sys) {
+            qInfo() << "Databases have no password yet, and need one.";
+            QString dummy_old_password;
+            if (!uifunc::getOldNewPasswords(
+                        new_pw_text, new_pw_title, false,
+                        dummy_old_password, new_user_password, nullptr)) {
+                continue;
+            }
+            qInfo() << "Encrypting databases for the first time...";
+            if (!dbfunc::databaseIsEmpty(m_sysdb) || !dbfunc::databaseIsEmpty(m_datadb)) {
+                qInfo() << "... by rewriting the databases...";
+                encryption_happy = changed_user_password =
+                        encryptExistingPlaintextDatabases(new_user_password);
+            } else {
+                qInfo() << "... by encrypting empty databases...";
+                encryption_happy = changed_user_password =
+                        dbfunc::pragmaKey(m_sysdb, new_user_password) &&
+                        dbfunc::pragmaKey(m_datadb, new_user_password);
+            }
+            if (encryption_happy) {
+                qInfo() << "... successfully encrypted the databases.";
+            } else {
+                qInfo() << "... failed to encrypt; trying again.";
+            }
+        } else {
+            qInfo() << "Databases are encrypted. Requesting password from user.";
+            QString user_password;
+            if (!uifunc::getPassword(enter_pw_text, enter_pw_title,
+                                     user_password, nullptr)) {
+                continue;
+            }
+            qInfo() << "Attempting to decrypt databases...";
+            encryption_happy =
+                    dbfunc::pragmaKey(m_sysdb, user_password) &&
+                    dbfunc::pragmaKey(m_datadb, user_password) &&
+                    dbfunc::canReadDatabase(m_sysdb) &&
+                    dbfunc::canReadDatabase(m_datadb);
+            if (encryption_happy) {
+                qInfo() << "... successfully accessed encrypted databases.";
+            } else {
+                qInfo() << "... failed to decrypt; asking for password again.";
+            }
+        }
+    }
+    // When we get here, the user has either encrypted the databases for the
+    // first time, or decrypted an existing pair; either entitles them to
+    // unlock the app.
+    m_lockstate = LockState::Unlocked;
+    return changed_user_password;
+#else
+    return false;  // user password not changed
+#endif
+}
+
+
+bool CamcopsApp::encryptExistingPlaintextDatabases(const QString& passphrase)
+{
+    using filefunc::fileExists;
+    qInfo() << "... closing databases";
+    m_sysdb.close();
+    m_datadb.close();
+    QString sys_main = dbfunc::dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME);
+    QString sys_temp = dbfunc::dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME +
+                                          dbfunc::DATABASE_FILENAME_TEMP_SUFFIX);
+    QString data_main = dbfunc::dbFullPath(dbfunc::DATA_DATABASE_FILENAME);
+    QString data_temp = dbfunc::dbFullPath(dbfunc::DATA_DATABASE_FILENAME +
+                                           dbfunc::DATABASE_FILENAME_TEMP_SUFFIX);
+    qInfo() << "... encrypting";
+    dbfunc::encryptPlainDatabaseInPlace(sys_main, sys_temp, passphrase);
+    dbfunc::encryptPlainDatabaseInPlace(data_main, data_temp, passphrase);
+    qInfo() << "... re-opening databases";
+    openOrCreateDatabases();
+    return true;
+}
+
+
+void CamcopsApp::seedRng()
+{
     // ------------------------------------------------------------------------
     // Seed Qt's build-in RNG, which we may use for QUuid generation
     // ------------------------------------------------------------------------
@@ -108,102 +300,114 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     qsrand(QDateTime::currentMSecsSinceEpoch() & 0xffffffff);
     // QDateTime::currentMSecsSinceEpoch() -> qint64
     // qsrand wants uint (= uint32)
+}
 
+
+void CamcopsApp::makeStoredVarTable()
+{
+    // ------------------------------------------------------------------------
+    // Make storedvar table
+    // ------------------------------------------------------------------------
+
+    StoredVar storedvar_specimen(*this, m_sysdb);
+    storedvar_specimen.makeTable();
+    storedvar_specimen.makeIndexes();
+}
+
+
+void CamcopsApp::createStoredVars()
+{
     // ------------------------------------------------------------------------
     // Create stored variables: name, type, default
     // ------------------------------------------------------------------------
-    {
-        DbTransaction trans(m_sysdb);  // https://www.sqlite.org/faq.html#q19
+    DbTransaction trans(m_sysdb);  // https://www.sqlite.org/faq.html#q19
 
-        // Version
-        createVar(varconst::CAMCOPS_TABLET_VERSION_AS_STRING, QVariant::String,
-                  camcopsversion::CAMCOPS_VERSION.toString());
+    // Version
+    createVar(varconst::CAMCOPS_TABLET_VERSION_AS_STRING, QVariant::String,
+              camcopsversion::CAMCOPS_VERSION.toString());
 
-        // Questionnaire
-        createVar(varconst::QUESTIONNAIRE_SIZE_PERCENT, QVariant::Int, 100);
+    // Questionnaire
+    createVar(varconst::QUESTIONNAIRE_SIZE_PERCENT, QVariant::Int, 100);
 
-        // Server
-        createVar(varconst::SERVER_ADDRESS, QVariant::String, "");
-        createVar(varconst::SERVER_PORT, QVariant::Int, 443);  // 443 = HTTPS
-        createVar(varconst::SERVER_PATH, QVariant::String, "camcops/database");
-        createVar(varconst::SERVER_TIMEOUT_MS, QVariant::Int, 50000);
-        createVar(varconst::VALIDATE_SSL_CERTIFICATES, QVariant::Bool, true);
-        createVar(varconst::SSL_PROTOCOL, QVariant::String,
-                  convert::SSLPROTODESC_SECUREPROTOCOLS);
-        createVar(varconst::DEBUG_USE_HTTPS_TO_SERVER, QVariant::Bool, true);
-        createVar(varconst::STORE_SERVER_PASSWORD, QVariant::Bool, true);
-        createVar(varconst::SEND_ANALYTICS, QVariant::Bool, true);
+    // Server
+    createVar(varconst::SERVER_ADDRESS, QVariant::String, "");
+    createVar(varconst::SERVER_PORT, QVariant::Int, 443);  // 443 = HTTPS
+    createVar(varconst::SERVER_PATH, QVariant::String, "camcops/database");
+    createVar(varconst::SERVER_TIMEOUT_MS, QVariant::Int, 50000);
+    createVar(varconst::VALIDATE_SSL_CERTIFICATES, QVariant::Bool, true);
+    createVar(varconst::SSL_PROTOCOL, QVariant::String,
+              convert::SSLPROTODESC_SECUREPROTOCOLS);
+    createVar(varconst::DEBUG_USE_HTTPS_TO_SERVER, QVariant::Bool, true);
+    createVar(varconst::STORE_SERVER_PASSWORD, QVariant::Bool, true);
+    createVar(varconst::SEND_ANALYTICS, QVariant::Bool, true);
 
-        // Uploading "dirty" flag
-        createVar(varconst::NEEDS_UPLOAD, QVariant::Bool, false);
+    // Uploading "dirty" flag
+    createVar(varconst::NEEDS_UPLOAD, QVariant::Bool, false);
 
-        // Whisker
-        createVar(varconst::WHISKER_HOST, QVariant::String, "localhost");
-        createVar(varconst::WHISKER_PORT, QVariant::Int, 3233);  // 3233 = Whisker
-        createVar(varconst::WHISKER_TIMEOUT_MS, QVariant::Int, 5000);
+    // Whisker
+    createVar(varconst::WHISKER_HOST, QVariant::String, "localhost");
+    createVar(varconst::WHISKER_PORT, QVariant::Int, 3233);  // 3233 = Whisker
+    createVar(varconst::WHISKER_TIMEOUT_MS, QVariant::Int, 5000);
 
-        // Terms and conditions
-        createVar(varconst::AGREED_TERMS_AT, QVariant::DateTime);
+    // Terms and conditions
+    createVar(varconst::AGREED_TERMS_AT, QVariant::DateTime);
 
-        // Intellectual property
-        createVar(varconst::IP_USE_CLINICAL, QVariant::Int, CommonOptions::UNKNOWN_INT);
-        createVar(varconst::IP_USE_COMMERCIAL, QVariant::Int, CommonOptions::UNKNOWN_INT);
-        createVar(varconst::IP_USE_EDUCATIONAL, QVariant::Int, CommonOptions::UNKNOWN_INT);
-        createVar(varconst::IP_USE_RESEARCH, QVariant::Int, CommonOptions::UNKNOWN_INT);
+    // Intellectual property
+    createVar(varconst::IP_USE_CLINICAL, QVariant::Int, CommonOptions::UNKNOWN_INT);
+    createVar(varconst::IP_USE_COMMERCIAL, QVariant::Int, CommonOptions::UNKNOWN_INT);
+    createVar(varconst::IP_USE_EDUCATIONAL, QVariant::Int, CommonOptions::UNKNOWN_INT);
+    createVar(varconst::IP_USE_RESEARCH, QVariant::Int, CommonOptions::UNKNOWN_INT);
 
-        // Patients and policies
-        createVar(varconst::ID_POLICY_UPLOAD, QVariant::String, "");
-        createVar(varconst::ID_POLICY_FINALIZE, QVariant::String, "");
+    // Patients and policies
+    createVar(varconst::ID_POLICY_UPLOAD, QVariant::String, "");
+    createVar(varconst::ID_POLICY_FINALIZE, QVariant::String, "");
 
-        // Patient-related device-wide settings
-        for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
-            QString desc = dbconst::IDDESC_FIELD_FORMAT.arg(n);
-            QString shortdesc = dbconst::IDSHORTDESC_FIELD_FORMAT.arg(n);
-            createVar(desc, QVariant::String);
-            createVar(shortdesc, QVariant::String);
-        }
-
-        // Other information from server
-        createVar(varconst::SERVER_DATABASE_TITLE, QVariant::String, "");
-        createVar(varconst::SERVER_CAMCOPS_VERSION, QVariant::String, "");
-        createVar(varconst::LAST_SERVER_REGISTRATION, QVariant::DateTime);
-        createVar(varconst::LAST_SUCCESSFUL_UPLOAD, QVariant::DateTime);
-
-        // User
-        // ... server interaction
-        createVar(varconst::DEVICE_FRIENDLY_NAME, QVariant::String, "");
-        createVar(varconst::SERVER_USERNAME, QVariant::String, "");
-        createVar(varconst::SERVER_USERPASSWORD_OBSCURED, QVariant::String, "");
-        createVar(varconst::OFFER_UPLOAD_AFTER_EDIT, QVariant::Bool, false);
-        // ... default clinician details
-        createVar(varconst::DEFAULT_CLINICIAN_SPECIALTY, QVariant::String, "");
-        createVar(varconst::DEFAULT_CLINICIAN_NAME, QVariant::String, "");
-        createVar(varconst::DEFAULT_CLINICIAN_PROFESSIONAL_REGISTRATION, QVariant::String, "");
-        createVar(varconst::DEFAULT_CLINICIAN_POST, QVariant::String, "");
-        createVar(varconst::DEFAULT_CLINICIAN_SERVICE, QVariant::String, "");
-        createVar(varconst::DEFAULT_CLINICIAN_CONTACT_DETAILS, QVariant::String, "");
-
-        // Cryptography
-        createVar(varconst::OBSCURING_KEY, QVariant::String, "");
-        createVar(varconst::OBSCURING_IV, QVariant::String, "");
-        // setEncryptedServerPassword("hello I am a password");
-        // qDebug() << getPlaintextServerPassword();
-        createVar(varconst::USER_PASSWORD_HASH, QVariant::String, "");
-        createVar(varconst::PRIV_PASSWORD_HASH, QVariant::String, "");
-
-        // Device ID
-        createVar(varconst::DEVICE_ID, QVariant::Uuid);
-        if (var(varconst::DEVICE_ID).isNull()) {
-            regenerateDeviceId();
-        }
-
-#ifdef DANGER_DEBUG_WIPE_PASSWORDS
-        qDebug() << "DANGER: wiping passwords";
-        setHashedPassword(varconst::USER_PASSWORD_HASH, "");
-        setHashedPassword(varconst::PRIV_PASSWORD_HASH, "");
-#endif
+    // Patient-related device-wide settings
+    for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
+        QString desc = dbconst::IDDESC_FIELD_FORMAT.arg(n);
+        QString shortdesc = dbconst::IDSHORTDESC_FIELD_FORMAT.arg(n);
+        createVar(desc, QVariant::String);
+        createVar(shortdesc, QVariant::String);
     }
 
+    // Other information from server
+    createVar(varconst::SERVER_DATABASE_TITLE, QVariant::String, "");
+    createVar(varconst::SERVER_CAMCOPS_VERSION, QVariant::String, "");
+    createVar(varconst::LAST_SERVER_REGISTRATION, QVariant::DateTime);
+    createVar(varconst::LAST_SUCCESSFUL_UPLOAD, QVariant::DateTime);
+
+    // User
+    // ... server interaction
+    createVar(varconst::DEVICE_FRIENDLY_NAME, QVariant::String, "");
+    createVar(varconst::SERVER_USERNAME, QVariant::String, "");
+    createVar(varconst::SERVER_USERPASSWORD_OBSCURED, QVariant::String, "");
+    createVar(varconst::OFFER_UPLOAD_AFTER_EDIT, QVariant::Bool, false);
+    // ... default clinician details
+    createVar(varconst::DEFAULT_CLINICIAN_SPECIALTY, QVariant::String, "");
+    createVar(varconst::DEFAULT_CLINICIAN_NAME, QVariant::String, "");
+    createVar(varconst::DEFAULT_CLINICIAN_PROFESSIONAL_REGISTRATION, QVariant::String, "");
+    createVar(varconst::DEFAULT_CLINICIAN_POST, QVariant::String, "");
+    createVar(varconst::DEFAULT_CLINICIAN_SERVICE, QVariant::String, "");
+    createVar(varconst::DEFAULT_CLINICIAN_CONTACT_DETAILS, QVariant::String, "");
+
+    // Cryptography
+    createVar(varconst::OBSCURING_KEY, QVariant::String, "");
+    createVar(varconst::OBSCURING_IV, QVariant::String, "");
+    // setEncryptedServerPassword("hello I am a password");
+    // qDebug() << getPlaintextServerPassword();
+    createVar(varconst::USER_PASSWORD_HASH, QVariant::String, "");
+    createVar(varconst::PRIV_PASSWORD_HASH, QVariant::String, "");
+
+    // Device ID
+    createVar(varconst::DEVICE_ID, QVariant::Uuid);
+    if (var(varconst::DEVICE_ID).isNull()) {
+        regenerateDeviceId();
+    }
+}
+
+
+void CamcopsApp::upgradeDatabase()
+{
     // ------------------------------------------------------------------------
     // Any database upgrade required?
     // ------------------------------------------------------------------------
@@ -214,15 +418,31 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     if (new_version != old_version) {
         setVar(varconst::CAMCOPS_TABLET_VERSION_AS_STRING, new_version.toString());
     }
+}
 
-    // ------------------------------------------------------------------------
-    // Register tasks (AFTER storedvar creation, so tasks can read them)
-    // ------------------------------------------------------------------------
-    m_p_task_factory = TaskFactoryPtr(new TaskFactory(*this));
-    InitTasks(*m_p_task_factory);  // ensures all tasks are registered
-    m_p_task_factory->finishRegistration();
-    qInfo() << "Registered tasks:" << m_p_task_factory->tablenames();
 
+void CamcopsApp::upgradeDatabase(const Version& old_version,
+                                 const Version& new_version)
+{
+    if (old_version == new_version) {
+        qInfo() << "Database is current; no special upgrade steps required";
+        return;
+    }
+    qInfo() << "Considering special database upgrade steps from version"
+            << old_version << "to version" << new_version;
+
+    // Do things: (a) system-wide
+
+    // Do things: (b) individual tasks
+    m_p_task_factory->upgradeDatabase(old_version, new_version);
+
+    qInfo() << "Special database upgrade steps complete";
+    return;
+}
+
+
+void CamcopsApp::makeOtherSystemTables()
+{
     // ------------------------------------------------------------------------
     // Make other tables
     // ------------------------------------------------------------------------
@@ -239,10 +459,31 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
 
     Patient patient_specimen(*this, m_datadb);
     patient_specimen.makeTable();
+}
 
+
+void CamcopsApp::registerTasks()
+{
+    // ------------------------------------------------------------------------
+    // Register tasks (AFTER storedvar creation, so tasks can read them)
+    // ------------------------------------------------------------------------
+    m_p_task_factory = TaskFactoryPtr(new TaskFactory(*this));
+    InitTasks(*m_p_task_factory);  // ensures all tasks are registered
+    m_p_task_factory->finishRegistration();
+    qInfo() << "Registered tasks:" << m_p_task_factory->tablenames();
+
+}
+
+
+void CamcopsApp::makeTaskTables()
+{
     // Make task tables
     m_p_task_factory->makeAllTables();
+}
 
+
+void CamcopsApp::initGui()
+{
     // ------------------------------------------------------------------------
     // Qt stuff
     // ------------------------------------------------------------------------
@@ -250,14 +491,6 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
 
     // Special for top-level window:
     setWindowIcon(QIcon(uifunc::iconFilename(uiconst::ICON_CAMCOPS)));
-}
-
-
-CamcopsApp::~CamcopsApp()
-{
-    // http://doc.qt.io/qt-5.7/objecttrees.html
-    // Only delete things that haven't been assigned a parent
-    delete m_p_main_window;
 }
 
 
@@ -305,26 +538,6 @@ QSqlDatabase& CamcopsApp::sysdb()
 TaskFactory* CamcopsApp::taskFactory()
 {
     return m_p_task_factory.data();
-}
-
-
-void CamcopsApp::upgradeDatabase(const Version& old_version,
-                                 const Version& new_version)
-{
-    if (old_version == new_version) {
-        qInfo() << "Database is current; no special upgrade steps required";
-        return;
-    }
-    qInfo() << "Considering special database upgrade steps from version"
-            << old_version << "to version" << new_version;
-
-    // Do things: (a) system-wide
-
-    // Do things: (b) individual tasks
-    m_p_task_factory->upgradeDatabase(old_version, new_version);
-
-    qInfo() << "Special database upgrade steps complete";
-    return;
 }
 
 

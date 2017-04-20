@@ -18,14 +18,21 @@
 */
 
 #pragma once
-class QString;
+#include <QString>
 
-namespace filefunc {
+#define USE_SQLCIPHER  // Master switch
+#define SQLCIPHER_ENCRYPTION_ON  // Should be on!
 
-bool fileExists(const QString& filename);
-QString textfileContents(const QString& filename);
-QString taskHtmlFilename(const QString& stem);
-bool deleteFile(const QString& filename);
-bool renameFile(const QString& from, const QString& to);
+#if defined SQLCIPHER_ENCRYPTION_ON && !defined USE_SQLCIPHER
+#error Only #define SQLCIPHER_ENCRYPTION_ON if you define USE_SQLCIPHER
+#endif
 
-}  // namespace filefunc
+
+namespace whichdb
+{
+
+extern const QString SQLITE;
+extern const QString SQLCIPHER;
+extern const QString& DBTYPE;
+
+}  // namespace whichdb

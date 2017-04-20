@@ -44,6 +44,8 @@ public:
     virtual bool event(QEvent* event) override;
     virtual bool eventFilter(QObject* o, QEvent* e) override;
     virtual QSize sizeHint() const override;
+    virtual void resizeEvent(QResizeEvent* event) override;
+    void setWidget(QWidget* widget);  // hides parent version
 protected:
     void resetSizeLimits();
     bool gestureEvent(QGestureEvent* event);

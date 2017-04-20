@@ -17,20 +17,23 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define DEBUG_SQL_QUERY
+// #define DEBUG_SQL_QUERY
 // #define DEBUG_QUERY_END
 // #define DEBUG_SQL_RESULT
 
 #include "dbfunc.h"
 #include <QDir>
+#include <QObject>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QStandardPaths>
 #include "db/fieldcreationplan.h"
 #include "db/sqlitepragmainfofield.h"
+#include "db/whichdb.h"
 #include "lib/convert.h"
 #include "lib/debugfunc.h"
+#include "lib/filefunc.h"
 #include "lib/uifunc.h"
 
 
@@ -42,6 +45,7 @@ namespace dbfunc {
 
 const QString DATA_DATABASE_FILENAME("camcops_data.sqlite");
 const QString SYSTEM_DATABASE_FILENAME("camcops_sys.sqlite");
+const QString DATABASE_FILENAME_TEMP_SUFFIX("_temp");
 const QString TABLE_TEMP_SUFFIX("_temp");
 
 
@@ -67,9 +71,10 @@ QString dbFullPath(const QString &filename)
 }
 
 
-void openDatabaseOrDie(QSqlDatabase& db, const QString& filename)
+void openDatabaseOrDie(QSqlDatabase& db, const QString& filename,
+                       bool is_full_path)
 {
-    QString fullpath = dbFullPath(filename);
+    QString fullpath = is_full_path ? filename : dbFullPath(filename);
     db.setDatabaseName(fullpath);
     if (db.open()) {
         qInfo() << "Opened database:" << fullpath;
@@ -180,7 +185,8 @@ void addArgs(QSqlQuery& query, const ArgList& args)
 }
 
 
-bool execQuery(QSqlQuery& query, const QString& sql, const ArgList& args)
+bool execQuery(QSqlQuery& query, const QString& sql, const ArgList& args,
+               bool suppress_errors)
 {
     // Executes an existing query (in place) with the supplied SQL/args.
     // THIS IS THE MAIN POINT THROUGH WHICH ALL QUERIES SHOULD BE EXECUTED.
@@ -200,7 +206,7 @@ bool execQuery(QSqlQuery& query, const QString& sql, const ArgList& args)
 #ifdef DEBUG_QUERY_END
     qDebug() << "... query finished";
 #endif
-    if (!success) {
+    if (!success && !suppress_errors) {
         qCritical() << "Query failed; error was:" << query.lastError();
     }
 #ifdef DEBUG_SQL_RESULT
@@ -883,6 +889,102 @@ void createTable(const QSqlDatabase& db, const QString& tablename,
          delimited_dummytable));
     exec(db, QString("DROP TABLE %1").arg(delimited_dummytable));
     commit(db);
+}
+
+
+// ============================================================================
+// Encryption queries, via SQLCipher
+// ============================================================================
+
+bool canReadDatabase(const QSqlDatabase& db)
+{
+    QSqlQuery query(db);
+    ArgList args;
+    return execQuery(query, "SELECT COUNT(*) FROM sqlite_master", args, true);
+    // The "true" suppresses errors if this fails. It will fail if the database
+    // is encrypted and we've not supplied the right key.
+}
+
+
+bool pragmaKey(const QSqlDatabase& db, const QString& passphase)
+{
+    // "PRAGMA key" is specific to SQLCipher
+    QString sql = QString("PRAGMA key=%1")
+            .arg(convert::toSqlLiteral(passphase));
+    return exec(db, sql);
+}
+
+
+bool pragmaRekey(const QSqlDatabase& db, const QString& passphase)
+{
+    // "PRAGMA rekey" is specific to SQLCipher
+    QString sql = QString("PRAGMA rekey=%1")
+            .arg(convert::toSqlLiteral(passphase));
+    return exec(db, sql);
+}
+
+
+bool databaseIsEmpty(const QSqlDatabase& db)
+{
+    return count(db, "sqlite_master") == 0;
+}
+
+
+bool encryptPlainDatabaseInPlace(const QString& filename,
+                                 const QString& tempfilename,
+                                 const QString& passphrase)
+{
+    // If the database was not empty, we have to use a temporary database
+    // method:
+    // https://discuss.zetetic.net/t/how-to-encrypt-a-plaintext-sqlite-database-to-use-sqlcipher-and-avoid-file-is-encrypted-or-is-not-a-database-errors/868
+    qInfo().nospace()
+            << "Converting plain database ("
+            << filename << ") to encrypted database (using temporary file: "
+            << tempfilename << ")";
+    QString title(QObject::tr("Error encrypting databases"));
+    if (!filefunc::fileExists(filename)) {
+        uifunc::stopApp("Missing database: " + filename, title);
+    }
+    if (filefunc::fileExists(tempfilename)) {
+        uifunc::stopApp("Temporary file exists but shouldn't: " + tempfilename,
+                        title);
+    }
+    QSqlDatabase plain = QSqlDatabase::addDatabase(whichdb::DBTYPE, "plain");
+    openDatabaseOrDie(plain, filename, true);
+#if 0
+    // Unnecessary: the ATTACH DATABASE command (see below) can create
+    // and encrypt from scratch.
+    QSqlDatabase encrypted = QSqlDatabase::addDatabase(whichdb::DBTYPE,
+                                                       "encrypted");
+    openDatabaseOrDie(encrypted, tempfilename, true);
+    if (!pragmaKey(encrypted, passphrase)) {
+        qCritical() << "Failed to encrypt";
+        return false;
+    }
+    encrypted.close();
+#endif
+    bool success =
+            exec(plain, QString("ATTACH DATABASE %1 AS encrypted KEY %2")
+                 .arg(convert::toSqlLiteral(tempfilename))
+                 .arg(convert::toSqlLiteral(passphrase))) &&
+            exec(plain, "SELECT sqlcipher_export('encrypted')") &&
+            exec(plain, "DETACH DATABASE encrypted");
+    plain.close();
+    if (!success) {
+        qCritical() << "Failed to export plain -> encrypted";
+        return false;
+    }
+    // If we get here, we're confident that we have a good encrypted database.
+    // So, we take the plunge:
+    if (!filefunc::deleteFile(filename)) {
+        qCritical() << "Failed to delete: " + filename;
+        return false;
+    }
+    if (!filefunc::renameFile(tempfilename, filename)) {
+        qCritical() << "Failed to rename " + tempfilename + " -> " + filename;
+        return false;
+    }
+    return true;
 }
 
 

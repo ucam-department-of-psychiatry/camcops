@@ -18,8 +18,13 @@
 */
 
 // #define DEBUG_LAYOUT
+
+// Maximum of one of these:
+// #define USE_STRETCH
 #define RESIZE_FOR_HFW  // define this for proper performance!
-#define RESIZE_WITH_VANISHING_SCROLLBAR  // define this to look better
+
+#define VANISHING_SCROLLBAR  // define this to look better
+#define USE_CUSTOM_VIEWPORT
 
 // One of these only:
 // #define TOUCHSCROLL_DIRECT
@@ -29,21 +34,23 @@
 #include "verticalscrollarea.h"
 #include <QDebug>
 #include <QEvent>
+#include <QGestureEvent>
 #include <QLayout>
 #include <QScrollBar>
 #include <QScroller>
+#include "common/layouts.h"
 #include "common/widgetconst.h"
 #include "lib/reentrydepthguard.h"
 #include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
+#include "widgets/basewidget.h"
+#include "widgets/flickcharm.h"
 #include "widgets/margins.h"
 #include "widgets/verticalscrollareaviewport.h"
 
-#ifdef TOUCHSCROLL_DIRECT
-#include <QGestureEvent>
-#endif
-#ifdef TOUCHSCROLL_FLICKCHARM
-#include "widgets/flickcharm.h"
+
+#if defined USE_STRETCH && defined RESIZE_FOR_HFW
+#error Cannot #define both USE_SPACER and RESIZE_FOR_HFW
 #endif
 
 #if defined TOUCHSCROLL_DIRECT && (defined TOUCHSCROLL_SCROLLER || defined TOUCHSCROLL_FLICKCHARM)
@@ -132,13 +139,40 @@ i.e.
 - the BaseWidget has HFW 1904 -> 649, but is given height 679 instead
   by the QScrollArea code, because that's its sizeHint().
 
+    - QScrollArea::setWidget() does this:
+        if (!widget->testAttribute(Qt::WA_Resized))
+            widget->resize(widget->sizeHint());
+    - ... anywhere else?
+
 Could we cope with that using setViewport(), using an HFW
 widget rather than a plain widget? ***
 Alternative would be to rewrite QScrollArea (and several parent classes)...
+Specifically:
+    - QScrollArea / QScrollAreaPrivate
+    - QAbstractScrollArea / QAbstractScrollAreaPrivate
+    - ... and then, to make matters harder, QAbstractScrollArea has in its
+      header "friend class QWidgetPrivate;", and in qwidget.cpp we see that
+      QWidgetPrivate has special handling for QAbstractScrollArea.
+Argh.
+
+Alternatively: why is an HFW widget giving a sizeHint() where the height isn't
+the HFW for its width?
+... well, the prototypical example is:
+
+    BaseWidget<0x0000000004186f40 ''>, visible, pos[DOWN] (0, 0), size[DOWN] (1904 x 679), hasHeightForWidth()[UP] true, heightForWidth(1904)[UP] 649, minimumSize (0 x 0), maximumSize (16777215 x 16777215), sizeHint[UP] (535 x 679), minimumSizeHint[UP] (353 x 679), sizePolicy[UP] (Preferred, Preferred) [hasHeightForWidth=false], stylesheet: false, properties: [_q_styleSheetWidgetFont="Sans Serif,9,-1,5,50,0,0,0,0,0"]
+        Layout: VBoxLayoutHfw, constraint SetDefaultConstraint, minimumSize[UP] (353 x 679), sizeHint[UP] (535 x 679), maximumSize[UP] (524287 x 679), hasHeightForWidth[UP] true, margin (l=9,t=9,r=9,b=9), spacing[UP] 6, heightForWidth(1904)[UP] 649, minimumHeightForWidth(1904)[UP] 649
+
+... where the VBoxLayoutHfw has
+    sizeHint[UP] (535 x 679)
+    heightForWidth(1904)[UP] 649
+... so that's sensible (and the sizeHint is true as "how big it'd like to be").
 
 */
 
 
+// ============================================================================
+// Constructor
+// ============================================================================
 
 VerticalScrollArea::VerticalScrollArea(QWidget* parent) :
     QScrollArea(parent),
@@ -148,8 +182,11 @@ VerticalScrollArea::VerticalScrollArea(QWidget* parent) :
     // ------------------------------------------------------------------------
     // Viewport: change from the default
     // ------------------------------------------------------------------------
-#ifdef RESIZE_FOR_HFW
+#ifdef USE_CUSTOM_VIEWPORT
     VerticalScrollAreaViewport* vp = new VerticalScrollAreaViewport();
+#ifdef USE_STRETCH
+    vp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+#endif
     setViewport(vp);
 #endif
 
@@ -162,7 +199,7 @@ VerticalScrollArea::VerticalScrollArea(QWidget* parent) :
 
     // Vertical scroll bar if required:
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-#ifdef RESIZE_WITH_VANISHING_SCROLLBAR
+#ifdef VANISHING_SCROLLBAR
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 #else
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
@@ -217,50 +254,35 @@ VerticalScrollArea::VerticalScrollArea(QWidget* parent) :
 }
 
 
-bool VerticalScrollArea::event(QEvent* event)
+// ============================================================================
+// Resizing
+// ============================================================================
+
+void VerticalScrollArea::setWidget(QWidget* widget)  // hides parent version
 {
-#ifdef TOUCHSCROLL_DIRECT
-    // http://doc.qt.io/qt-5.7/gestures-overview.html
-    if (event->type() == QEvent::Gesture) {
-        return gestureEvent(static_cast<QGestureEvent*>(event));
-    }
+#ifdef USE_STRETCH
+    BaseWidget* bw = new BaseWidget();
+    VBoxLayout* layout = new VBoxLayout();
+    bw->setLayout(layout);
+    layout->addWidget(widget);
+    layout->addStretch();
+    QScrollArea::setWidget(bw);
+#else
+    QScrollArea::setWidget(widget);
 #endif
-    return QScrollArea::event(event);
 }
 
 
-bool VerticalScrollArea::gestureEvent(QGestureEvent* event)
+void VerticalScrollArea::resizeEvent(QResizeEvent* event)
 {
-#ifdef TOUCHSCROLL_DIRECT
-    qDebug() << Q_FUNC_INFO;
-    // http://doc.qt.io/qt-5.7/gestures-overview.html
-    if (QGesture* swipe = event->gesture(Qt::SwipeGesture)) {
-        swipeTriggered(static_cast<QSwipeGesture*>(swipe));
-    }
-#else
-    Q_UNUSED(event);
+#ifdef RESIZE_FOR_HFW
+#ifdef DEBUG_LAYOUT
+    qDebug() << Q_FUNC_INFO << event->size();
 #endif
-    return true;
-}
-
-
-void VerticalScrollArea::swipeTriggered(QSwipeGesture* gesture)
-{
-#ifdef TOUCHSCROLL_DIRECT
-    qDebug() << Q_FUNC_INFO;
-    if (gesture->state() == Qt::GestureUpdated) {
-        bool up = gesture->verticalDirection() == QSwipeGesture::Up;
-        bool down = gesture->verticalDirection() == QSwipeGesture::Down;
-        if (up || down) {
-            int dy = 50;
-            if (down) {
-                dy = -dy;
-            }
-            scroll(0, dy);  // dx, dy
-        }
-    }
+    QScrollArea::resizeEvent(event);  // doesn't actually do anything?
+    sizehelpers::resizeEventForHFWParentWidget(this);
 #else
-    Q_UNUSED(gesture);
+    QScrollArea::resizeEvent(event);  // doesn't actually do anything?
 #endif
 }
 
@@ -349,7 +371,7 @@ QSize VerticalScrollArea::sizeHint() const
         sh.rheight() = likely_best_height;
     }
 
-#ifndef RESIZE_WITH_VANISHING_SCROLLBAR
+#ifndef VANISHING_SCROLLBAR
     int scrollbar_width = verticalScrollBar()->width();
     sh.rwidth() += scrollbar_width;
 #endif
@@ -553,4 +575,56 @@ void VerticalScrollArea::resetSizeLimits()
     // - Not sure if this can be solved consistently and perfectly.
     // - Try a guard (m_updating_geometry) so it can only do this once.
     //   Works well on Wombat!
+}
+
+
+// ============================================================================
+// Swipe to scroll
+// ============================================================================
+
+bool VerticalScrollArea::event(QEvent* event)
+{
+#ifdef TOUCHSCROLL_DIRECT
+    // http://doc.qt.io/qt-5.7/gestures-overview.html
+    if (event->type() == QEvent::Gesture) {
+        return gestureEvent(static_cast<QGestureEvent*>(event));
+    }
+#endif
+    return QScrollArea::event(event);
+}
+
+
+bool VerticalScrollArea::gestureEvent(QGestureEvent* event)
+{
+#ifdef TOUCHSCROLL_DIRECT
+    qDebug() << Q_FUNC_INFO;
+    // http://doc.qt.io/qt-5.7/gestures-overview.html
+    if (QGesture* swipe = event->gesture(Qt::SwipeGesture)) {
+        swipeTriggered(static_cast<QSwipeGesture*>(swipe));
+    }
+#else
+    Q_UNUSED(event);
+#endif
+    return true;
+}
+
+
+void VerticalScrollArea::swipeTriggered(QSwipeGesture* gesture)
+{
+#ifdef TOUCHSCROLL_DIRECT
+    qDebug() << Q_FUNC_INFO;
+    if (gesture->state() == Qt::GestureUpdated) {
+        bool up = gesture->verticalDirection() == QSwipeGesture::Up;
+        bool down = gesture->verticalDirection() == QSwipeGesture::Down;
+        if (up || down) {
+            int dy = 50;
+            if (down) {
+                dy = -dy;
+            }
+            scroll(0, dy);  // dx, dy
+        }
+    }
+#else
+    Q_UNUSED(gesture);
+#endif
 }

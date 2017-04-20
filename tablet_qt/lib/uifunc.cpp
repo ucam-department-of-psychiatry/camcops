@@ -344,7 +344,6 @@ void setPropertyMissing(QWidget* widget, bool missing, bool repolish)
 {
     setProperty(widget, cssconst::PROPERTY_MISSING, cssBoolean(missing),
                 repolish);
-    // *** INTERMITTENTLY not setting widget to yellow, e.g. slider, thermometer
 }
 
 

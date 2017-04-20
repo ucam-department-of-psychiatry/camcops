@@ -34,8 +34,8 @@ public:
     QuMcqGridSingleBooleanSignaller(QuMcqGridSingleBoolean* recipient,
                                     int question_index);
 public slots:
-    void mcqFieldValueChanged(const FieldRef* fieldref);
-    void booleanFieldValueChanged(const FieldRef* fieldref);
+    void mcqFieldValueOrMandatoryChanged(const FieldRef* fieldref);
+    void booleanFieldValueOrMandatoryChanged(const FieldRef* fieldref);
 protected:
     QuMcqGridSingleBoolean* m_recipient;
     int m_question_index;

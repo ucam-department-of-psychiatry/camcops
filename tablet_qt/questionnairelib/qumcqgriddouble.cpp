@@ -48,9 +48,9 @@ QuMcqGridDouble::QuMcqGridDouble(
                         this, qi, first);
             m_signallers.append(sig);
             connect(fieldref.data(), &FieldRef::valueChanged,
-                    sig, &QuMcqGridDoubleSignaller::valueChanged);
+                    sig, &QuMcqGridDoubleSignaller::valueOrMandatoryChanged);
             connect(fieldref.data(), &FieldRef::mandatoryChanged,
-                    sig, &QuMcqGridDoubleSignaller::valueChanged);
+                    sig, &QuMcqGridDoubleSignaller::valueOrMandatoryChanged);
         }
     }
 }
@@ -118,7 +118,7 @@ void QuMcqGridDouble::setFromFields()
 {
     for (bool first : {true, false}) {
         for (int qi = 0; qi < m_questions_with_fields.size(); ++qi) {
-            fieldValueChanged(
+            fieldValueOrMandatoryChanged(
                         qi, first,
                         m_questions_with_fields.at(qi).fieldref(first).data());
         }
@@ -318,16 +318,19 @@ void QuMcqGridDouble::clicked(int question_index, bool first_field,
 }
 
 
-void QuMcqGridDouble::fieldValueChanged(int question_index, bool first_field,
-                                        const FieldRef* fieldref)
+void QuMcqGridDouble::fieldValueOrMandatoryChanged(int question_index,
+                                                   bool first_field,
+                                                   const FieldRef* fieldref)
 {
     const NameValueOptions& opts = first_field ? m_options1 : m_options2;
     QVector<QVector<QPointer<BooleanWidget>>>& widgets = first_field ? m_widgets1
                                                                  : m_widgets2;
     if (question_index < 0 ||
-            question_index >= m_questions_with_fields.size() ||
-            question_index >= widgets.size()) {
+            question_index >= m_questions_with_fields.size()) {
         qWarning() << Q_FUNC_INFO << "Bad question_index:" << question_index;
+        return;
+    }
+    if (question_index >= widgets.size()) {
         return;
     }
     const QVector<QPointer<BooleanWidget>>& question_widgets = widgets.at(

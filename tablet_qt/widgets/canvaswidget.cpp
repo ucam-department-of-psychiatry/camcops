@@ -26,12 +26,16 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPaintEvent>
+#include <QRegion>
 #include <QStyle>
 #include <QStyleOption>
 #include "lib/sizehelpers.h"
 #include "widgets/margins.h"
 
 const QPoint INVALID_POINT(-1, -1);
+
+const int DEFAULT_MIN_SHRINK_HEIGHT = 200;
+const QColor DEFAULT_UNUSED_SPACE_COLOR(200, 200, 200);
 
 
 CanvasWidget::CanvasWidget(QWidget* parent) :
@@ -52,7 +56,8 @@ void CanvasWidget::commonConstructor(const QSize& size)
 {
     m_point = INVALID_POINT;
     m_image_to_display_ratio = 1;
-    m_minimum_shrink_height = 100;
+    m_minimum_shrink_height = DEFAULT_MIN_SHRINK_HEIGHT;
+    m_unused_space_colour = DEFAULT_UNUSED_SPACE_COLOR;
 
     setAllowShrink(false);
     setSize(size);
@@ -98,6 +103,12 @@ void CanvasWidget::setAllowShrink(bool allow_shrink)
 void CanvasWidget::setMinimumShrinkHeight(int height)
 {
     m_minimum_shrink_height = height;
+}
+
+
+void CanvasWidget::setUnusedSpaceColour(const QColor& colour)
+{
+    m_unused_space_colour = colour;
 }
 
 
@@ -218,6 +229,13 @@ void CanvasWidget::paintEvent(QPaintEvent* event)
 //                << Q_FUNC_INFO << " - contentsRect = " << cr
 //                << ", exposed = " << exposed_rect;
 //#endif
+
+        // Paint unused space:
+        QRegion unused(cr);
+        unused -= QRegion(dest_active_rect);
+        painter.setClipRegion(unused);
+        QBrush brush_unused(m_unused_space_colour);
+        painter.fillRect(cr, brush_unused);
 
     } else {
         // No need to scale

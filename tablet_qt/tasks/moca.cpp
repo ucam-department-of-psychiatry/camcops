@@ -452,8 +452,22 @@ int Moca::subScore(int first, int last) const
 
 int Moca::totalScore() const
 {
-    return subScore(FIRST_Q, N_QUESTIONS) +
-            valueInt(EDUCATION12Y_OR_LESS);  // extra point for this
+    // MOCA instructions:
+    // - "The total possible score is 30 points"
+    // - "TOTAL SCORE: Sum all subscores listed on the right-hand side. Add one
+    //   point for an individual who has 12 years or fewer of formal education,
+    //   for a possible maximum of 30 points."
+    //
+    // - The subscores add up to 30.
+    // - So, presumably this means "add one point if you have <=12 years of
+    //   education AND your score is less than 30", or equivalently "add one
+    //   point... and take the maximum of (your score, 30)".
+
+    int score = subScore(FIRST_Q, N_QUESTIONS);
+    if (score < MAX_SCORE) {
+        score += valueInt(EDUCATION12Y_OR_LESS);  // extra point for this
+    }
+    return score;
 }
 
 

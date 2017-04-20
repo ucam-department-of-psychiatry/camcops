@@ -41,6 +41,12 @@ CONFIG += static  # use a statically linked version of Qt
 # CONFIG += debug  # no, use the QtCreator debug/release settings
 CONFIG += mobility
 CONFIG += c++11
+
+# For SQLCipher (see its README.md):
+# http://stackoverflow.com/questions/16244040/is-the-qt-defines-doing-the-same-thing-as-define-in-c
+DEFINES += SQLITE_HAS_CODEC
+DEFINES += SQLITE_TEMP_STORE=2
+
 MOBILITY =
 
 # PKGCONFIG += openssl
@@ -48,6 +54,8 @@ MOBILITY =
 # ... but no effect? Not mentioned in variable reference (above).
 LIBS += -lssl
 # ... not working either? Doesn't complain, but ldd still shows that system libssl.so is in use
+
+LIBS += /home/rudolf/dev/qt_local_build/src/sqlcipher/sqlite3.o  # *** nasty hard-coding
 
 # =============================================================================
 # Compiler flags
@@ -72,7 +80,10 @@ TEMPLATE = app
 # Paths
 # =============================================================================
 
-INCLUDEPATH += "/home/rudolf/dev/qt_local_build/openssl_linux_build/openssl-1.0.2h/include"
+INCLUDEPATH += "/home/rudolf/dev/qt_local_build/openssl_linux_build/openssl-1.0.2h/include"  # *** nasty hard-coding
+
+# For SQLCipher (to find sqlcipher/sqlite3.h):
+INCLUDEPATH += "/home/rudolf/dev/qt_local_build/src"  # *** nasty hard-coding
 
 # =============================================================================
 # Resources and source files
@@ -340,7 +351,13 @@ SOURCES += main.cpp \
     tasks/moca.cpp \
     lib/datetime.cpp \
     widgets/fixedareahfwtestwidget.cpp \
-    widgets/verticalscrollareaviewport.cpp
+    widgets/verticalscrollareaviewport.cpp \
+    db/sqlcipherdriver.cpp \
+    db/sqlcachedresult.cpp \
+    db/sqlresultprivate.cpp \
+    db/sqlcipherresult.cpp \
+    db/sqlcipherhelpers.cpp \
+    db/whichdb.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -608,7 +625,13 @@ HEADERS  += \
     tasks/moca.h \
     lib/datetime.h \
     widgets/fixedareahfwtestwidget.h \
-    widgets/verticalscrollareaviewport.h
+    widgets/verticalscrollareaviewport.h \
+    db/sqlcipherdriver.h \
+    db/sqlcachedresult.h \
+    db/sqlresultprivate.h \
+    db/sqlcipherresult.h \
+    db/sqlcipherhelpers.h \
+    db/whichdb.h
 
 
 DISTFILES += \
