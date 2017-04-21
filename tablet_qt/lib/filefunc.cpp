@@ -33,15 +33,6 @@ namespace filefunc {
 
 bool fileExists(const QString& filename)
 {
-#if 0
-    QFile file(filename);
-    if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        return false;
-    }
-    return true;
-#endif
-
-    // Alternative method:
     // http://stackoverflow.com/questions/10273816/how-to-check-whether-file-exists-in-qt-in-c
     QFileInfo check_file(filename);
     return check_file.exists() && check_file.isFile();

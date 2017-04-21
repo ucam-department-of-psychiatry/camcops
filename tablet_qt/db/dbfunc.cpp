@@ -48,6 +48,9 @@ const QString SYSTEM_DATABASE_FILENAME("camcops_sys.sqlite");
 const QString DATABASE_FILENAME_TEMP_SUFFIX("_temp");
 const QString TABLE_TEMP_SUFFIX("_temp");
 
+// Private to this file:
+const QString CONNECTION_ENCRYPTION_TEMP_PLAIN("encryption_temp_plain");
+
 
 // ============================================================================
 // Database operations
@@ -942,6 +945,8 @@ bool encryptPlainDatabaseInPlace(const QString& filename,
             << filename << ") to encrypted database (using temporary file: "
             << tempfilename << ")";
     QString title(QObject::tr("Error encrypting databases"));
+
+    // 1. Check files exist/don't exist.
     if (!filefunc::fileExists(filename)) {
         uifunc::stopApp("Missing database: " + filename, title);
     }
@@ -949,27 +954,29 @@ bool encryptPlainDatabaseInPlace(const QString& filename,
         uifunc::stopApp("Temporary file exists but shouldn't: " + tempfilename,
                         title);
     }
-    QSqlDatabase plain = QSqlDatabase::addDatabase(whichdb::DBTYPE, "plain");
+
+    // 2. Open the plain-text database
+    QSqlDatabase plain = QSqlDatabase::addDatabase(
+                whichdb::DBTYPE, CONNECTION_ENCRYPTION_TEMP_PLAIN);
     openDatabaseOrDie(plain, filename, true);
-#if 0
-    // Unnecessary: the ATTACH DATABASE command (see below) can create
-    // and encrypt from scratch.
-    QSqlDatabase encrypted = QSqlDatabase::addDatabase(whichdb::DBTYPE,
-                                                       "encrypted");
-    openDatabaseOrDie(encrypted, tempfilename, true);
-    if (!pragmaKey(encrypted, passphrase)) {
-        qCritical() << "Failed to encrypt";
-        return false;
-    }
-    encrypted.close();
-#endif
+
+    // 3. Encrypt it to another database.
+    //    (ATTACH DATABASE can create and encrypt from scratch.)
+    // Something here is messing up the database system, for other
+    // databases...
     bool success =
             exec(plain, QString("ATTACH DATABASE %1 AS encrypted KEY %2")
                  .arg(convert::toSqlLiteral(tempfilename))
                  .arg(convert::toSqlLiteral(passphrase))) &&
             exec(plain, "SELECT sqlcipher_export('encrypted')") &&
             exec(plain, "DETACH DATABASE encrypted");
+
+    // 4. Close plain-text database properly.
     plain.close();
+    plain = QSqlDatabase();
+    QSqlDatabase::removeDatabase(CONNECTION_ENCRYPTION_TEMP_PLAIN);
+
+    // 5. If we managed, rename the databases.
     if (!success) {
         qCritical() << "Failed to export plain -> encrypted";
         return false;
@@ -984,6 +991,7 @@ bool encryptPlainDatabaseInPlace(const QString& filename,
         qCritical() << "Failed to rename " + tempfilename + " -> " + filename;
         return false;
     }
+    qInfo() << "... successfully converted";
     return true;
 }
 

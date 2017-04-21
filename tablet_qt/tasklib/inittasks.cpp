@@ -86,6 +86,8 @@
 #include "tasks/mdsupdrs.h"
 #include "tasks/moca.h"
 
+#include "tasks/nart.h"
+
 #include "tasks/phq9.h"
 
 
@@ -151,19 +153,19 @@ void InitTasks(TaskFactory& factory)
     initializeIcd10Depressive(factory);
     initializeIcd10Manic(factory);
     initializeIcd10Mixed(factory);
-    initializeIcd10Schizophrenia(factory); // *** NEEDS CHECKING WITH DOWNLOADED STRINGS
-    initializeIcd10Schizotypal(factory); // *** NEEDS CHECKING WITH DOWNLOADED STRINGS
-    initializeIcd10SpecPD(factory); // *** NEEDS CHECKING WITH DOWNLOADED STRINGS
+    initializeIcd10Schizophrenia(factory);
+    initializeIcd10Schizotypal(factory);
+    initializeIcd10SpecPD(factory);
     // *** initializeIDED3D(factory); // *** COMPLEX
-    initializeIesr(factory); // *** NEEDS CHECKING WITH DOWNLOADED STRINGS
-    initializeIfs(factory); // *** NEEDS CHECKING WITH DOWNLOADED STRINGS
+    initializeIesr(factory);
+    initializeIfs(factory);
     initializeIrac(factory);
 
     initializeMast(factory);
     initializeMdsUpdrs(factory);
     initializeMoca(factory);
 
-    // *** initializeNart(factory);
+    initializeNart(factory);
     // *** initializeNpiQ(factory);
 
     // *** initializePanss(factory);

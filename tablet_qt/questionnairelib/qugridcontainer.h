@@ -35,6 +35,7 @@ public:
     QuGridContainer(std::initializer_list<QuGridCell> cells);
     // Initialize with a simple "n columns" format:
     QuGridContainer(int n_columns, const QVector<QuElementPtr>& elements);
+    QuGridContainer(int n_columns, const QVector<QuElement*>& elements);
     QuGridContainer(int n_columns, std::initializer_list<QuElementPtr> elements);
     QuGridContainer(int n_columns, std::initializer_list<QuElement*> elements);  // takes ownership
     // Modify:

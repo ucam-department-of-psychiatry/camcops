@@ -41,6 +41,7 @@ bool anyNullOrEmpty(const QVector<QVariant>& values);
 bool noneNullOrEmpty(const QVector<QVariant>& values);
 
 int countTrue(const QVector<QVariant>& values);
+int countFalse(const QVector<QVariant>& values);
 int countNull(const QVector<QVariant>& values);
 int countNotNull(const QVector<QVariant>& values);
 

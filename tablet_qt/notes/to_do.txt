@@ -5,7 +5,9 @@ TO DO NOW
 
 - *** tasks
 
-"// *** other_pd_comments, etc."
+
+NART: QuGridContainer::setFixedGrid
+
 
 - *** chains (see e.g. ResearchMenu.js; MenuTableRow.js; QuestionnaireHeader.js...)
 - *** concept of "set of tasks" as well as "chain of tasks"

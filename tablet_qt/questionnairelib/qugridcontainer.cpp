@@ -139,6 +139,14 @@ QuGridContainer::QuGridContainer(int n_columns,
 
 
 QuGridContainer::QuGridContainer(int n_columns,
+                                 const QVector<QuElement*>& elements)
+{
+    CONSTRUCT_FROM_ELEMENTLIST(elements);
+    commonConstructor();
+}
+
+
+QuGridContainer::QuGridContainer(int n_columns,
                                  std::initializer_list<QuElementPtr> elements)
 {
     CONSTRUCT_FROM_ELEMENTLIST(elements);

@@ -270,7 +270,7 @@ OpenableWidget* Icd10Schizophrenia::editor(bool read_only)
         grid(D_NAMES, false),
         text("duration_comment"),
         grid(E_NAMES, false),
-        heading("affective_comment"),
+        text("affective_comment"),
         grid(F_NAMES, false),
         heading("simple_title"),
         grid(G_NAMES, true),

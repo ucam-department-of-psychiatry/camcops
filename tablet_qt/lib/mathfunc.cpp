@@ -192,6 +192,20 @@ int countTrue(const QVector<QVariant>& values)
 }
 
 
+int countFalse(const QVector<QVariant>& values)
+{
+    int n = 0;
+    int length = values.length();
+    for (int i = 0; i < length; ++i) {
+        const QVariant& v = values.at(i);
+        if (falseNotNull(v)) {
+            n += 1;
+        }
+    }
+    return n;
+}
+
+
 int countNull(const QVector<QVariant>& values)
 {
     int n = 0;

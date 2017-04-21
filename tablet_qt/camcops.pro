@@ -354,10 +354,10 @@ SOURCES += main.cpp \
     widgets/verticalscrollareaviewport.cpp \
     db/sqlcipherdriver.cpp \
     db/sqlcachedresult.cpp \
-    db/sqlresultprivate.cpp \
     db/sqlcipherresult.cpp \
     db/sqlcipherhelpers.cpp \
-    db/whichdb.cpp
+    db/whichdb.cpp \
+    tasks/nart.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -628,10 +628,10 @@ HEADERS  += \
     widgets/verticalscrollareaviewport.h \
     db/sqlcipherdriver.h \
     db/sqlcachedresult.h \
-    db/sqlresultprivate.h \
     db/sqlcipherresult.h \
     db/sqlcipherhelpers.h \
-    db/whichdb.h
+    db/whichdb.h \
+    tasks/nart.h
 
 
 DISTFILES += \

@@ -873,12 +873,6 @@ Tasks
 <string name="t_nart">National Adult Reading Test (NART)</string>
 <string name="s_nart">Estimation of premorbid IQ by reading irregular words</string>
 <string name="b_nart">NART</string>
-<!-- Most of the NART is hard-coded as it is language-specific by its nature -->
-<string name="nart_full_scale_iq">Predicted full-scale IQ</string>
-<string name="nart_verbal_iq">Predicted verbal IQ</string>
-<string name="nart_performance_iq">Predicted performance IQ</string>
-<string name="nart_instructions">Give the subject a piece of paper with the NART word list on. Follow the instructions in the Task Information. Use the list below to score. You may find it quickest to mark errors as the subject reads, then fill in correct answers at the end.</string>
-<string name="nart_words_correct_q">Words correct?</string>
 
 <string name="t_npiq">Neuropsychiatry Inventory Questionnaire (NPI-Q) (¶+)</string>
 <string name="s_npiq">12-item carer-rated scale for use in dementia. Data collection tool ONLY unless host institution adds scale text.</string>

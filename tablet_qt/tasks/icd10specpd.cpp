@@ -82,6 +82,8 @@ const QString SKIP_HISTRIONIC("skip_histrionic");
 const QString SKIP_ANANKASTIC("skip_anankastic");
 const QString SKIP_ANXIOUS("skip_anxious");
 const QString SKIP_DEPENDENT("skip_dependent");
+
+const QString OTHER_PD_PRESENT("other_pd_present");  // new in v2.0.0
 const QString VIGNETTE("vignette");
 
 
@@ -115,6 +117,7 @@ Icd10SpecPD::Icd10SpecPD(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
     addField(SKIP_ANANKASTIC, QVariant::Bool);
     addField(SKIP_ANXIOUS, QVariant::Bool);
     addField(SKIP_DEPENDENT, QVariant::Bool);
+    addField(OTHER_PD_PRESENT, QVariant::Bool);
     addField(VIGNETTE, QVariant::String);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
@@ -213,6 +216,10 @@ QStringList Icd10SpecPD::detail() const
                        yesNoUnknown(hasAnxiousPD())),
         standardResult(xstring("dependent_pd_title"),
                        yesNoUnknown(hasDependentPD())),
+        standardResult(xstring("other_pd_title"),
+                       yesNoUnknown(value(OTHER_PD_PRESENT))),
+        standardResult(xstring("vignette"),
+                       valueString(VIGNETTE)),
     };
 }
 
@@ -232,6 +239,9 @@ OpenableWidget* Icd10SpecPD::editor(bool read_only)
     };
     auto boldtext = [this](const QString& xstringname) -> QuElement* {
         return (new QuText(xstring(xstringname)))->setBold();
+    };
+    auto heading = [this](const QString& xstringname) -> QuElement* {
+        return new QuHeading(xstring(xstringname));
     };
     auto gridbase = [this, &options]
             (const QStringList& fieldnames, const QStringList& xstringnames)
@@ -259,16 +269,15 @@ OpenableWidget* Icd10SpecPD::editor(bool read_only)
     auto generalpage = [this, &text, &boldtext, &gridbase]() -> QuPagePtr {
         QuPage* page = new QuPage();
         page->setTitle(xstring("general"));
-        page->addElement(boldtext("general"));
-        page->addElement(gridbase({strnum(G_PREFIX, 1)},
-                                  {"pd_G1"}));
-        page->addElement(boldtext("pd_G1b"));
+        page->addElement(text("general"));
+        page->addElement(gridbase({strnum(G_PREFIX, 1)}, {"G1"}));
+        page->addElement(text("G1b"));
         page->addElement(gridbase(strseq(G1_PREFIX, 1, N_GENERAL_1),
-                                  strseq("pd_G1_", 1, N_GENERAL_1)));
-        page->addElement((new QuText(textconst::IN_ADDITION + ":"))->setBold());
+                                  strseq("G1_", 1, N_GENERAL_1)));
+        page->addElement(new QuText(textconst::IN_ADDITION + ":"));
         page->addElement(gridbase(strseq(G_PREFIX, 2, N_GENERAL),
-                                  strseq("pd_G", 2, N_GENERAL)));
-        page->addElement(boldtext("pd_comments"));
+                                  strseq("G", 2, N_GENERAL)));
+        page->addElement(text("comments"));
         return QuPagePtr(page);
     };
     auto pdpage = [this, &grid, &text]
@@ -276,19 +285,23 @@ OpenableWidget* Icd10SpecPD::editor(bool read_only)
              int n,
              const QString& skipfield,
              const QString& title_xstring,
-             const QString& q_xstring) -> QuPagePtr {
+             const QString& q_xstring,
+             const QString& comment_xstring = "") -> QuPagePtr {
         QuPage* page = new QuPage();
         page->setTitle(xstring(title_xstring));
         page->addElement(
             (new QuBoolean(xstring("skip_this_pd"),
                            fieldRef(skipfield, false)))->setAsTextButton(true));
         page->addElement(new QuText(xstring("general_criteria_must_be_met")));
-        page->addElement(new QuText(m_fr_has_pd));
+        page->addElement((new QuText(m_fr_has_pd))->setBold());
         page->addElement(text(q_xstring));
         page->addElement(grid(prefix, n));
+        if (!comment_xstring.isEmpty()) {
+            page->addElement(text(comment_xstring));
+        }
         return QuPagePtr(page);
     };
-    auto eupdpage = [this, &grid, &text, &boldtext]() -> QuPagePtr {
+    auto eupdpage = [this, &grid, &text, &boldtext, &heading]() -> QuPagePtr {
         QuPage* page = new QuPage();
         page->setTitle(xstring("eu_pd_title"));
         page->addElement(
@@ -296,10 +309,10 @@ OpenableWidget* Icd10SpecPD::editor(bool read_only)
                            fieldRef(SKIP_EU, false)))->setAsTextButton(true));
         page->addElement(text("general_criteria_must_be_met"));
         page->addElement(new QuText(m_fr_has_pd));
-        page->addElement(boldtext("eu_pd_i_title"));
+        page->addElement(heading("eu_pd_i_title"));
         page->addElement(text("eu_pd_i_B"));
         page->addElement(grid(EU_PREFIX, N_EUPD_I, 1));
-        page->addElement(boldtext("eu_pd_b_title"));
+        page->addElement(heading("eu_pd_b_title"));
         page->addElement(text("eu_pd_b_B"));
         page->addElement(grid(EU_PREFIX, N_EU, N_EUPD_I + 1));
         return QuPagePtr(page);
@@ -314,8 +327,6 @@ OpenableWidget* Icd10SpecPD::editor(bool read_only)
             ->setOfferNowButton(true),
         new QuText(textconst::COMMENTS),
         new QuTextEdit(fieldRef(COMMENTS, false)),
-        text("vignette"),
-        new QuTextEdit(fieldRef(VIGNETTE, false)),
     })->setTitle(longname()))};
 
     // General criteria for personality disorders
@@ -327,18 +338,24 @@ OpenableWidget* Icd10SpecPD::editor(bool read_only)
     pages.append(pdpage(SCHIZOID_PREFIX, N_SCHIZOID, SKIP_SCHIZOID,
                         "schizoid_pd_title", "schizoid_pd_B"));
     pages.append(pdpage(DISSOCIAL_PREFIX, N_DISSOCIAL, SKIP_DISSOCIAL,
-                        "dissocial_pd_title", "dissocial_pd_B"));
+                        "dissocial_pd_title", "dissocial_pd_B",
+                        "dissocial_pd_comments"));
     pages.append(eupdpage());  // EUPD is more complex
     pages.append(pdpage(HISTRIONIC_PREFIX, N_HISTRIONIC, SKIP_HISTRIONIC,
-                        "histrionic_pd_title", "histrionic_pd_B"));
+                        "histrionic_pd_title", "histrionic_pd_B",
+                        "histrionic_pd_comments"));
     pages.append(pdpage(ANANKASTIC_PREFIX, N_ANANKASTIC, SKIP_ANANKASTIC,
                         "anankastic_pd_title", "anankastic_pd_B"));
     pages.append(pdpage(ANXIOUS_PREFIX, N_ANXIOUS, SKIP_ANXIOUS,
                         "anxious_pd_title", "anxious_pd_B"));
     pages.append(pdpage(DEPENDENT_PREFIX, N_DEPENDENT, SKIP_DEPENDENT,
                         "dependent_pd_title", "dependent_pd_B"));
-
-    // *** other_pd_comments, etc.
+    pages.append(QuPagePtr((new QuPage{
+        text("other_pd_comments"),
+        new QuBoolean(xstring("other_pd_title"), fieldRef(OTHER_PD_PRESENT)),
+        text("vignette"),
+        new QuTextEdit(fieldRef(VIGNETTE, false)),
+    })->setTitle(xstring("other_pd_title"))));
 
     QStringList connected_fields = strseq(G_PREFIX, 1, N_GENERAL) +
             strseq(G1_PREFIX, 1, N_GENERAL_1) +
@@ -351,6 +368,7 @@ OpenableWidget* Icd10SpecPD::editor(bool read_only)
                 SKIP_ANANKASTIC,
                 SKIP_ANXIOUS,
                 SKIP_DEPENDENT,
+                OTHER_PD_PRESENT,
             };
     for (auto fieldname : connected_fields) {
         connect(fieldRef(fieldname).data(), &FieldRef::valueChanged,
@@ -592,6 +610,8 @@ void Icd10SpecPD::updateMandatory()
     bool need_anankastic = !(pd_excluded || valueBool(SKIP_ANANKASTIC));
     bool need_anxious = !(pd_excluded || valueBool(SKIP_ANXIOUS));
     bool need_dependent = !(pd_excluded || valueBool(SKIP_DEPENDENT));
+    bool need_other = !pd_excluded;
+    bool need_vignette = !pd_excluded && valueBool(OTHER_PD_PRESENT);
 
     set(G_PREFIX, N_GENERAL, need_general);
     set(G1_PREFIX, N_GENERAL_1, need_general);
@@ -603,6 +623,8 @@ void Icd10SpecPD::updateMandatory()
     set(ANANKASTIC_PREFIX, N_ANANKASTIC, need_anankastic);
     set(ANXIOUS_PREFIX, N_ANXIOUS, need_anxious);
     set(DEPENDENT_PREFIX, N_DEPENDENT, need_dependent);
+    fieldRef(OTHER_PD_PRESENT)->setMandatory(need_other);
+    fieldRef(VIGNETTE)->setMandatory(need_vignette);
 }
 
 

@@ -95,7 +95,9 @@ protected:
     void announceStartup();
     void registerDatabaseDrivers();
     void openOrCreateDatabases();
-    bool connectDatabaseEncryption(QString& new_user_password);
+    void closeDatabases();
+    bool connectDatabaseEncryption(QString& new_user_password,
+                                   bool& user_cancelled_please_quit);
     bool encryptExistingPlaintextDatabases(const QString& passphrase);
     void seedRng();
     void makeStoredVarTable();
@@ -105,7 +107,9 @@ protected:
     void makeOtherSystemTables();
     void registerTasks();
     void makeTaskTables();
-    void initGui();
+    void initGuiOne();
+    void initGuiTwo();
+    void openMainWindow();
 
     // ------------------------------------------------------------------------
     // Opening/closing windows

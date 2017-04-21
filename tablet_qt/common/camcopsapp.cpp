@@ -18,12 +18,13 @@
 */
 
 // #define DANGER_DEBUG_PASSWORD_DECRYPTION
-#define DANGER_DEBUG_WIPE_PASSWORDS
+// #define DANGER_DEBUG_WIPE_PASSWORDS
 // #define DEBUG_EMIT
 
 #include "camcopsapp.h"
 #include <QApplication>
 #include <QDateTime>
+#include <QDebug>
 #include <QIcon>
 #include <QMainWindow>
 #include <QMessageBox>
@@ -65,6 +66,8 @@
 #endif
 
 const QString APPSTRING_TASKNAME("camcops");  // task name used for generic but downloaded tablet strings
+const QString CONNECTION_DATA("data");
+const QString CONNECTION_SYS("sys");
 
 
 CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
@@ -77,12 +80,32 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     m_patient(nullptr),
     m_netmgr(nullptr)
 {
+}
+
+
+CamcopsApp::~CamcopsApp()
+{
+    // http://doc.qt.io/qt-5.7/objecttrees.html
+    // Only delete things that haven't been assigned a parent
+    delete m_p_main_window;
+}
+
+
+int CamcopsApp::run()
+{
     announceStartup();
     seedRng();
+    initGuiOne();
     registerDatabaseDrivers();
     openOrCreateDatabases();
     QString new_user_password;
-    bool changed_user_password = connectDatabaseEncryption(new_user_password);
+    bool user_cancelled_please_quit;
+    bool changed_user_password = connectDatabaseEncryption(
+                new_user_password, user_cancelled_please_quit);
+    if (user_cancelled_please_quit) {
+        qCritical() << "User cancelled attempt";
+        return 0;  // will quit
+    }
     makeStoredVarTable();
     createStoredVars();
 
@@ -97,23 +120,21 @@ CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
     }
 #else
     Q_UNUSED(changed_user_password);
-    Q_UNUSED(new_user_password);
 #endif
 
     upgradeDatabase();
     makeOtherSystemTables();
     registerTasks();  // AFTER storedvar creation, so tasks can read them
     makeTaskTables();
-    initGui();
+    initGuiTwo();  // AFTER storedvar creation
+    openMainWindow();
+    if (!hasAgreedTerms()) {
+        offerTerms();
+    }
+    qInfo() << "Starting Qt event processor...";
+    return exec();  // Main Qt event loop
 }
 
-
-CamcopsApp::~CamcopsApp()
-{
-    // http://doc.qt.io/qt-5.7/objecttrees.html
-    // Only delete things that haven't been assigned a parent
-    delete m_p_main_window;
-}
 
 // ============================================================================
 // Initialization
@@ -154,14 +175,30 @@ void CamcopsApp::openOrCreateDatabases()
     // Database lifetime:
     // http://stackoverflow.com/questions/7669987/what-is-the-correct-way-of-qsqldatabase-qsqlquery
 
-    m_datadb = QSqlDatabase::addDatabase(whichdb::DBTYPE, "data");
-    m_sysdb = QSqlDatabase::addDatabase(whichdb::DBTYPE, "sys");
+    m_datadb = QSqlDatabase::addDatabase(whichdb::DBTYPE, CONNECTION_DATA);
     dbfunc::openDatabaseOrDie(m_datadb, dbfunc::DATA_DATABASE_FILENAME);
+
+    m_sysdb = QSqlDatabase::addDatabase(whichdb::DBTYPE, CONNECTION_SYS);
     dbfunc::openDatabaseOrDie(m_sysdb, dbfunc::SYSTEM_DATABASE_FILENAME);
 }
 
 
-bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password)
+void CamcopsApp::closeDatabases()
+{
+    // http://stackoverflow.com/questions/9519736/warning-remove-database
+    // http://www.qtcentre.org/archive/index.php/t-40358.html
+    m_sysdb.close();
+    m_sysdb = QSqlDatabase();
+    QSqlDatabase::removeDatabase(CONNECTION_SYS);
+
+    m_datadb.close();
+    m_datadb = QSqlDatabase();
+    QSqlDatabase::removeDatabase(CONNECTION_DATA);
+}
+
+
+bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
+                                           bool& user_cancelled_please_quit)
 {
     // Returns: was the user password set (changed)?
 
@@ -215,35 +252,45 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password)
         }
 
         if (no_password_sys) {
+
             qInfo() << "Databases have no password yet, and need one.";
             QString dummy_old_password;
             if (!uifunc::getOldNewPasswords(
                         new_pw_text, new_pw_title, false,
                         dummy_old_password, new_user_password, nullptr)) {
-                continue;
+                user_cancelled_please_quit = true;
+                return false;
             }
             qInfo() << "Encrypting databases for the first time...";
             if (!dbfunc::databaseIsEmpty(m_sysdb) || !dbfunc::databaseIsEmpty(m_datadb)) {
                 qInfo() << "... by rewriting the databases...";
-                encryption_happy = changed_user_password =
-                        encryptExistingPlaintextDatabases(new_user_password);
+                encryption_happy = encryptExistingPlaintextDatabases(new_user_password);
             } else {
                 qInfo() << "... by encrypting empty databases...";
-                encryption_happy = changed_user_password =
-                        dbfunc::pragmaKey(m_sysdb, new_user_password) &&
-                        dbfunc::pragmaKey(m_datadb, new_user_password);
+                encryption_happy = true;
             }
+            changed_user_password = true;
+            // Whether we've encrypted an existing database (then reopened it)
+            // or just opened a fresh one, we need to apply the key now.
+            encryption_happy = encryption_happy &&
+                    dbfunc::pragmaKey(m_sysdb, new_user_password) &&
+                    dbfunc::pragmaKey(m_datadb, new_user_password) &&
+                    dbfunc::canReadDatabase(m_sysdb) &&
+                    dbfunc::canReadDatabase(m_datadb);
             if (encryption_happy) {
                 qInfo() << "... successfully encrypted the databases.";
             } else {
                 qInfo() << "... failed to encrypt; trying again.";
             }
+
         } else {
+
             qInfo() << "Databases are encrypted. Requesting password from user.";
             QString user_password;
             if (!uifunc::getPassword(enter_pw_text, enter_pw_title,
                                      user_password, nullptr)) {
-                continue;
+                user_cancelled_please_quit = true;
+                return false;
             }
             qInfo() << "Attempting to decrypt databases...";
             encryption_happy =
@@ -256,6 +303,7 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password)
             } else {
                 qInfo() << "... failed to decrypt; asking for password again.";
             }
+
         }
     }
     // When we get here, the user has either encrypted the databases for the
@@ -273,8 +321,7 @@ bool CamcopsApp::encryptExistingPlaintextDatabases(const QString& passphrase)
 {
     using filefunc::fileExists;
     qInfo() << "... closing databases";
-    m_sysdb.close();
-    m_datadb.close();
+    closeDatabases();
     QString sys_main = dbfunc::dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME);
     QString sys_temp = dbfunc::dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME +
                                           dbfunc::DATABASE_FILENAME_TEMP_SUFFIX);
@@ -482,26 +529,24 @@ void CamcopsApp::makeTaskTables()
 }
 
 
-void CamcopsApp::initGui()
+void CamcopsApp::initGuiOne()
 {
-    // ------------------------------------------------------------------------
-    // Qt stuff
-    // ------------------------------------------------------------------------
-    setStyleSheet(getSubstitutedCss(uiconst::CSS_CAMCOPS_MAIN));
+    // Qt stuff: before storedvars accessible
 
     // Special for top-level window:
     setWindowIcon(QIcon(uifunc::iconFilename(uiconst::ICON_CAMCOPS)));
 }
 
 
-// ============================================================================
-// Core
-// ============================================================================
-
-int CamcopsApp::run()
+void CamcopsApp::initGuiTwo()
 {
-    qDebug() << "CamcopsApp::run()";
+    // Qt stuff: after storedvars accessible
+    setStyleSheet(getSubstitutedCss(uiconst::CSS_CAMCOPS_MAIN));
+}
 
+
+void CamcopsApp::openMainWindow()
+{
     m_p_main_window = new QMainWindow();
     m_p_main_window->showMaximized();
     m_p_window_stack = new QStackedWidget(m_p_main_window);
@@ -513,15 +558,11 @@ int CamcopsApp::run()
 
     MainMenu* menu = new MainMenu(*this);
     open(menu);
-
-    if (!hasAgreedTerms()) {
-        offerTerms();
-    }
-
-    qInfo() << "Starting Qt event processor...";
-    return exec();  // Main Qt event loop
 }
 
+// ============================================================================
+// Core
+// ============================================================================
 
 QSqlDatabase& CamcopsApp::db()
 {

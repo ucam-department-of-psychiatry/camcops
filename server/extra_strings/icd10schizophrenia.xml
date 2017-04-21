@@ -65,7 +65,7 @@ is not respected.”
     <string name="negative">Negative symptoms: “negative” symptoms such as marked apathy, paucity of speech, and blunting or incongruity of emotional responses, usually resulting in social withdrawal and lowering of social performance; it must be clear that these are not due to depression or to neuroleptic medication.</string>
     <string name="other_criteria">D. Criteria relating to duration, preceding affective episodes, or other causes</string>
     <string name="present_one_month">Symptoms in A–C above present for most of the time during an episode of psychotic illness lasting for at least one month (or at some time during most of the days).</string>
-    <string name="duration_comment">[If false, consider acute polymorphic psychotic disorder with symptoms of schizophrenia (F23.1) and acute schizophrenia-like psychoticd disorder (F23.2).]</string>
+    <string name="duration_comment">[If false, consider acute polymorphic psychotic disorder with symptoms of schizophrenia (F23.1) and acute schizophrenia-like psychotic disorder (F23.2).]</string>
     <string name="also_manic">Also meets criteria for manic episode (F30)?</string>
     <string name="also_depressive">Also meets criteria for depressive episode (F32)?</string>
     <string name="if_mood_psychosis_first">If the patient also meets criteria for manic episode (F30) or depressive episode (F32), the criteria listed above must have been met before the disturbance of mood developed.</string>
