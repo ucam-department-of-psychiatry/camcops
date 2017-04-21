@@ -6,9 +6,6 @@ TO DO NOW
 - *** tasks
 
 
-NART: QuGridContainer::setFixedGrid
-
-
 - *** chains (see e.g. ResearchMenu.js; MenuTableRow.js; QuestionnaireHeader.js...)
 - *** concept of "set of tasks" as well as "chain of tasks"
 
@@ -19,10 +16,6 @@ NART: QuGridContainer::setFixedGrid
 
 
 
-
-- VerticalScrollArea: *Nearly* perfect. Unclear if residual minor error relates
-  to VerticalScrollArea itself, or to misreporting of ideal height by e.g.
-  GridLayoutHfw.
 
 - test scrolling by touch on Android:
     - menus/questionnaires (VerticalScrollArea)
@@ -45,9 +38,6 @@ NART: QuGridContainer::setFixedGrid
 - Note for SERVER side: is ZIP generation inefficient with >1 SQL query per
   task fetched (e.g. generate PKs, filter PKs, fetch...)
   ... ensure that in general this is done by generate PKs -> yield Task -> filter
-
-- NART: add (and cite) new IQ standardization:
-    http://www.tandfonline.com/doi/full/10.1080/09602011.2016.1231121
 
 
 ===============================================================================
@@ -74,3 +64,7 @@ MAYBE IN THE FUTURE
 
 - command-line option to select different directory for "tablet" databases,
   e.g. to run multiple instances on a desktop.
+
+- VerticalScrollArea: *Nearly* perfect. Unclear if residual minor error relates
+  to VerticalScrollArea itself, or to misreporting of ideal height by e.g.
+  GridLayoutHfw.

@@ -25,37 +25,22 @@ class CamcopsApp;
 class OpenableWidget;
 class TaskFactory;
 
-void initializeNart(TaskFactory& factory);
+void initializePanss(TaskFactory& factory);
 
 
-class Nart : public Task
+class Panss : public Task
 {
     Q_OBJECT
 public:
-    struct NartIQ
-    {
-        NartIQ(const QString& quantity, const QString& reference,
-               const QString& formula, const QVariant& iq) :
-            quantity(quantity),
-            reference(reference),
-            formula(formula),
-            iq(iq)
-        {}
-        QString quantity;
-        QString reference;
-        QString formula;
-        QVariant iq;
-    };
-
-    Nart(CamcopsApp& app, const QSqlDatabase& db,
-         int load_pk = dbconst::NONEXISTENT_PK);
+    Panss(CamcopsApp& app, const QSqlDatabase& db,
+          int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString menusubtitle() const override;
-    virtual bool isCrippled() const override { return false; }
+    virtual bool isCrippled() const override { return true; }
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -67,16 +52,7 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
 protected:
-    int numErrors() const;
-    NartIQ nelsonFullScaleIQ(bool complete, int errors) const;
-    NartIQ nelsonVerbalIQ(bool complete, int errors) const;
-    NartIQ nelsonPerformanceIQ(bool complete, int errors) const;
-    NartIQ nelsonWillisonFullScaleIQ(bool complete, int errors) const;
-    NartIQ brightFullScaleIQ(bool complete, int errors) const;
-    NartIQ brightGeneralAbility(bool complete, int errors) const;
-    NartIQ brightVerbalComprehension(bool complete, int errors) const;
-    NartIQ brightPerceptualReasoning(bool complete, int errors) const;
-    NartIQ brightWorkingMemory(bool complete, int errors) const;
-    NartIQ brightPerceptualSpeed(bool complete, int errors) const;
-    QString result(const NartIQ& iq, bool full = true) const;
+    int getP() const;
+    int getN() const;
+    int getG() const;
 };

@@ -164,6 +164,7 @@ QuGridContainer::QuGridContainer(int n_columns,
 
 void QuGridContainer::commonConstructor()
 {
+    m_expand = true;
     m_fixed_grid = true;
 }
 
@@ -189,8 +190,19 @@ QuGridContainer* QuGridContainer::setFixedGrid(bool fixed_grid)
 }
 
 
+QuGridContainer* QuGridContainer::setExpandHorizontally(bool expand)
+{
+    m_expand = expand;
+    return this;
+}
+
+
 QPointer<QWidget> QuGridContainer::makeWidget(Questionnaire* questionnaire)
 {
+    // m_expand: using preferredFixedHFWPolicy() doesn't prevent it expanding
+    // right, even if the contained widgets are small.
+    // Instead, use a horizontal container with a stretch. That works.
+
     QPointer<QWidget> widget = new BaseWidget();
     widget->setSizePolicy(sizehelpers::expandingFixedHFWPolicy());
 
@@ -201,7 +213,14 @@ QPointer<QWidget> QuGridContainer::makeWidget(Questionnaire* questionnaire)
 #endif
     GridLayout* grid = new GridLayout();
     grid->setContentsMargins(uiconst::NO_MARGINS);
-    widget->setLayout(grid);
+    if (m_expand) {
+        widget->setLayout(grid);
+    } else {
+        HBoxLayout* hbox = new HBoxLayout();
+        hbox->addLayout(grid);
+        hbox->addStretch();
+        widget->setLayout(hbox);
+    }
     for (auto c : m_cells) {
         QuElementPtr e = c.element;
         QPointer<QWidget> w = e->widget(questionnaire);

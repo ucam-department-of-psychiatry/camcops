@@ -87,7 +87,9 @@
 #include "tasks/moca.h"
 
 #include "tasks/nart.h"
+#include "tasks/npiq.h"
 
+#include "tasks/panss.h"
 #include "tasks/phq9.h"
 
 
@@ -166,9 +168,9 @@ void InitTasks(TaskFactory& factory)
     initializeMoca(factory);
 
     initializeNart(factory);
-    // *** initializeNpiQ(factory);
+    initializeNpiQ(factory);
 
-    // *** initializePanss(factory);
+    initializePanss(factory);
     // *** initializePatientSatisfaction(factory);
     // *** initializePclC(factory);
     // *** initializePclM(factory);

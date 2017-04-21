@@ -109,9 +109,13 @@ int CamcopsApp::run()
     makeStoredVarTable();
     createStoredVars();
 
-#if defined DANGER_DEBUG_WIPE_PASSWORDS && !defined SQLCIPHER_ENCRYPTION_ON
-    qDebug() << "DANGER: wiping passwords";
+#ifdef DANGER_DEBUG_WIPE_PASSWORDS
+#ifndef SQLCIPHER_ENCRYPTION_ON
+    // Can't mess around with the user password when it's also the database p/w
+    qDebug() << "DANGER: wiping user-mode password";
     setHashedPassword(varconst::USER_PASSWORD_HASH, "");
+#endif
+    qDebug() << "DANGER: wiping privileged-mode password";
     setHashedPassword(varconst::PRIV_PASSWORD_HASH, "");
 #endif
 #ifdef SQLCIPHER_ENCRYPTION_ON
@@ -312,6 +316,16 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
     m_lockstate = LockState::Unlocked;
     return changed_user_password;
 #else
+    if (!dbfunc::canReadDatabase(m_sysdb)) {
+        stopApp(tr("Can't read system database; corrupted? encrypted? (This "
+                   "version of CamCOPS has had its encryption facilities "
+                   "disabled."));
+    }
+    if (!dbfunc::canReadDatabase(m_datadb)) {
+        stopApp(tr("Can't read data database; corrupted? encrypted? (This "
+                   "version of CamCOPS has had its encryption facilities "
+                   "disabled."));
+    }
     return false;  // user password not changed
 #endif
 }
@@ -774,8 +788,24 @@ bool CamcopsApp::checkPassword(const QString& hashed_password_varname,
 
 void CamcopsApp::changeAppPassword()
 {
-    changePassword(varconst::USER_PASSWORD_HASH,
-                   tr("Change privileged-mode password"));
+    QString title(tr("Change app password"));
+#ifdef SQLCIPHER_ENCRYPTION_ON
+    // We also use this password for database encryption, so we need to know
+    // it briefly (in plaintext format) to reset the database encryption key.
+    QString new_password;
+    bool changed = changePassword(varconst::USER_PASSWORD_HASH, title,
+                                  nullptr, &new_password);
+    if (changed) {
+        SlowGuiGuard guard = getSlowGuiGuard(tr("Re-encrypting databases..."));
+        qInfo() << "Re-encrypting system database...";
+        dbfunc::pragmaRekey(m_sysdb, new_password);
+        qInfo() << "Re-encrypting data database...";
+        dbfunc::pragmaRekey(m_datadb, new_password);
+        qInfo() << "Re-encryption finished.";
+    }
+#else
+    changePassword(varconst::USER_PASSWORD_HASH, title);
+#endif
 }
 
 
@@ -786,9 +816,12 @@ void CamcopsApp::changePrivPassword()
 }
 
 
-void CamcopsApp::changePassword(const QString& hashed_password_varname,
-                                const QString& text)
+bool CamcopsApp::changePassword(const QString& hashed_password_varname,
+                                const QString& text,
+                                QString* p_old_password,
+                                QString* p_new_password)
 {
+    // Returns: changed?
     QString old_password_hash = varString(hashed_password_varname);
     bool old_password_exists = !old_password_hash.isEmpty();
     QString old_password_from_user;
@@ -797,14 +830,21 @@ void CamcopsApp::changePassword(const QString& hashed_password_varname,
                                          old_password_from_user, new_password,
                                          m_p_main_window);
     if (!ok) {
-        return;  // user cancelled
+        return false;  // user cancelled
     }
     if (old_password_exists && !cryptofunc::matchesHash(old_password_from_user,
                                                         old_password_hash)) {
         uifunc::alert("Incorrect old password");
-        return;
+        return false;
+    }
+    if (p_old_password) {
+        *p_old_password = old_password_from_user;
+    }
+    if (p_new_password) {
+        *p_new_password = new_password;
     }
     setHashedPassword(hashed_password_varname, new_password);
+    return true;
 }
 
 

@@ -357,7 +357,9 @@ SOURCES += main.cpp \
     db/sqlcipherresult.cpp \
     db/sqlcipherhelpers.cpp \
     db/whichdb.cpp \
-    tasks/nart.cpp
+    tasks/nart.cpp \
+    tasks/npiq.cpp \
+    tasks/panss.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -631,7 +633,9 @@ HEADERS  += \
     db/sqlcipherresult.h \
     db/sqlcipherhelpers.h \
     db/whichdb.h \
-    tasks/nart.h
+    tasks/nart.h \
+    tasks/npiq.h \
+    tasks/panss.h
 
 
 DISTFILES += \

@@ -108,16 +108,10 @@ void HelpMenu::softwareVersions() const
     // We can't #include <sqlite3.h>; that's the system version.
     // The Qt driver (in qsql_sqlite.cpp) uses SQLITE_VERSION_NUMBER but
     // doesn't expose it. So we have to ask the database itself.
-    QString sql = "SELECT sqlite_version()";
     QSqlDatabase& db = m_app.sysdb();
-    QString sqlite_version = dbfunc::dbFetchFirstValue(db, sql).toString();
-    versions.append(QString("<b>Embedded "
-#ifdef USE_SQLCIPHER
-                            "SQLCipher (SQLite)"
-#else
-                            "SQLite"
-#endif
-                            " version:</b> %1").arg(sqlite_version));
+    QString sqlite_version = dbfunc::dbFetchFirstValue(
+                db, "SELECT sqlite_version()").toString();
+    versions.append(QString("<b>Embedded SQLite version:</b> %1").arg(sqlite_version));
     QString sqlite_info;
     QTextStream s(&sqlite_info);
     QSqlDriver* driver = db.driver();
@@ -138,6 +132,19 @@ void HelpMenu::softwareVersions() const
       << "; MultipleResultSets " << driver->hasFeature(QSqlDriver::MultipleResultSets)
       << "; CancelQuery " << driver->hasFeature(QSqlDriver::CancelQuery);
     versions.append(sqlite_info);
+#ifdef USE_SQLCIPHER
+    QString sqlcipher_version = dbfunc::dbFetchFirstValue(
+                db, "PRAGMA cipher_version").toString();
+    QString cipher_provider = dbfunc::dbFetchFirstValue(
+                db, "PRAGMA cipher_provider").toString();
+    QString cipher_provider_version = dbfunc::dbFetchFirstValue(
+                db, "PRAGMA cipher_provider_version").toString();
+    versions.append(QString("<b>SQLCipher version:</b> %1 (cipher provider: "
+                            "%2, version: %3)")
+                    .arg(sqlcipher_version,
+                         cipher_provider,
+                         cipher_provider_version));
+#endif
     versions.append(newline);
 
     // ------------------------------------------------------------------------
@@ -150,7 +157,7 @@ void HelpMenu::softwareVersions() const
     //      OPENSSL_VERSION_NUMBER
     //      OpenSSL_version
     //      OpenSSL_version_num
-    // ... all available within QtNetwork/provate/qssql*.h, but not exposed.
+    // ... all available within QtNetwork/private/qssql*.h, but not exposed.
     // However, we have this:
     versions.append(QString("<b>Compile-time OpenSSL version:</b> %1").arg(
         QSslSocket::sslLibraryBuildVersionString()));

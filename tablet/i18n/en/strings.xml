@@ -878,51 +878,9 @@ Tasks
 <string name="s_npiq">12-item carer-rated scale for use in dementia. Data collection tool ONLY unless host institution adds scale text.</string>
 <string name="b_npiq">NPI-Q</string>
 
-<!-- PANSS - CRIPPLED (task reproduction not permitted) -->
 <string name="t_panss">Positive and Negative Syndrome Scale (PANSS) (¶)</string>
 <string name="s_panss">Scale for positive (7 items) and negative symptoms of schizophrenia (7 items), and general psychopathology (16 items). Data collection tool ONLY.</string>
 <string name="b_panss">PANSS</string>
-<string name="panss_p">Positive</string>
-<string name="panss_n">Negative</string>
-<string name="panss_g">General</string>
-<string name="panss_composite">Composite (P – N)</string>
-<string name="panss_option1">1 Absent</string>
-<string name="panss_option2">2 Minimal</string>
-<string name="panss_option3">3 Mild</string>
-<string name="panss_option4">4 Moderate</string>
-<string name="panss_option5">5 Moderate–severe</string>
-<string name="panss_option6">6 Severe</string>
-<string name="panss_option7">7 Extreme</string>
-<string name="panss_p1_s">P1 (delusions):</string>
-<string name="panss_p2_s">P2 (conceptual disorganisation):</string>
-<string name="panss_p3_s">P3 (hallucinatory behaviour):</string>
-<string name="panss_p4_s">P4 (excitement):</string>
-<string name="panss_p5_s">P5 (grandiosity):</string>
-<string name="panss_p6_s">P6 (suspiciousness/persecution):</string>
-<string name="panss_p7_s">P7 (hostility):</string>
-<string name="panss_n1_s">N1 (blunted affect):</string>
-<string name="panss_n2_s">N2 (emotional withdrawal):</string>
-<string name="panss_n3_s">N3 (poor rapport):</string>
-<string name="panss_n4_s">N4 (passive/apathetic social withdrawal):</string>
-<string name="panss_n5_s">N5 (difficulty in abstract thinking):</string>
-<string name="panss_n6_s">N6 (lack of spontaneity/conversation flow):</string>
-<string name="panss_n7_s">N7 (stereotyped thinking):</string>
-<string name="panss_g1_s">G1 (somatic concern):</string>
-<string name="panss_g2_s">G2 (anxiety):</string>
-<string name="panss_g3_s">G3 (guilt feelings):</string>
-<string name="panss_g4_s">G4 (tension):</string>
-<string name="panss_g5_s">G5 (mannerisms/posturing):</string>
-<string name="panss_g6_s">G6 (depression):</string>
-<string name="panss_g7_s">G7 (motor retardation):</string>
-<string name="panss_g8_s">G8 (uncooperativeness):</string>
-<string name="panss_g9_s">G9 (unusual thought content):</string>
-<string name="panss_g10_s">G10 (disorientation):</string>
-<string name="panss_g11_s">G11 (poor attention):</string>
-<string name="panss_g12_s">G12 (lack of judgement/insight):</string>
-<string name="panss_g13_s">G13 (disturbance of volition):</string>
-<string name="panss_g14_s">G14 (poor impulse control):</string>
-<string name="panss_g15_s">G15 (preoccupation):</string>
-<string name="panss_g16_s">G16 (active social avoidance):</string>
 
 <!-- Patient Satisfaction Scale -->
 <string name="t_pt_satis">Patient Satisfaction Scale</string>

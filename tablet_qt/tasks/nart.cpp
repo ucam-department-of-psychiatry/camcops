@@ -17,6 +17,11 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+National Adult Reading Test (NART).
+Copyright © Hazel E. Nelson. Used with permission; see documentation.
+*/
+
 #include "nart.h"
 #include "lib/convert.h"
 #include "lib/mathfunc.h"
@@ -86,6 +91,12 @@ const QStringList WORDLIST{
 };
 QStringList ACCENTED_WORDLIST;
 const int DP = 1;
+const QString NART_INSTRUCTION(
+    "Give the subject a piece of paper with the NART word list "
+    "on. Follow the instructions in the Task Information. Use "
+    "the list below to score. You may find it quickest to mark "
+    "errors as the subject reads, then fill in correct answers "
+    "at the end.");
 
 
 void initializeNart(TaskFactory& factory)
@@ -145,9 +156,9 @@ QStringList Nart::summary() const
     bool complete = isComplete();
     int errors = numErrors();
     return QStringList{
-        result(nelsonFullScaleIQ(complete, errors)),
-        result(nelsonWillisonFullScaleIQ(complete, errors)),
-        result(brightFullScaleIQ(complete, errors)),
+        result(nelsonFullScaleIQ(complete, errors), false),
+        result(nelsonWillisonFullScaleIQ(complete, errors), false),
+        result(brightFullScaleIQ(complete, errors), false),
     };
 }
 
@@ -187,23 +198,29 @@ OpenableWidget* Nart::editor(bool read_only)
 {
     NameValueOptions options = CommonOptions::incorrectCorrectBoolean();
 
-    QVector<QuElement*> cells;
+    QVector<QuGridCell> cells;
+    const int row_span = 1;
+    const int col_span = 1;
+    const Qt::Alignment align = Qt::AlignLeft | Qt::AlignVCenter;
+    int row = 0;
     for (int i = 0; i < ACCENTED_WORDLIST.length(); ++i) {
         QString fieldname = WORDLIST.at(i);
         QString word = ACCENTED_WORDLIST.at(i).toUpper();
-        cells.append((new QuText(word))->setBold());
-        cells.append((new QuMcq(fieldRef(fieldname), options))
-                     ->setHorizontal(true));
+        QuText* el_word = new QuText(word);
+        el_word->setBold();
+        QuMcq* el_mcq = new QuMcq(fieldRef(fieldname), options);
+        el_mcq->setHorizontal(true);
+        cells.append(QuGridCell(el_word, row, 0, row_span, col_span, align));
+        cells.append(QuGridCell(el_mcq, row, 1, row_span, col_span, align));
+        ++row;
     }
 
     QuPagePtr page(new QuPage{
         getClinicianQuestionnaireBlockRawPointer(),
-        new QuText("Give the subject a piece of paper with the NART word list "
-                   "on. Follow the instructions in the Task Information. Use "
-                   "the list below to score. You may find it quickest to mark "
-                   "errors as the subject reads, then fill in correct answers "
-                   "at the end."),
-        (new QuGridContainer(2, cells))->setFixedGrid(false),
+        new QuText(NART_INSTRUCTION),
+        (new QuGridContainer(cells))
+            ->setExpandHorizontally(false)
+            ->setFixedGrid(false),
     });
     page->setTitle(longname());
 
@@ -324,10 +341,11 @@ Nart::NartIQ Nart::brightPerceptualSpeed(bool complete, int errors) const
 }
 
 
-QString Nart::result(const NartIQ& iq) const
+QString Nart::result(const NartIQ& iq, bool full) const
 {
-    QString name = QString("%1 (%2; %3)")
-            .arg(iq.quantity, iq.reference, iq.formula);
+    QString name = full
+            ? QString("%1 (%2; %3)").arg(iq.quantity, iq.reference, iq.formula)
+            : QString("%1").arg(iq.quantity);
     QString value = convert::prettyValue(iq.iq, DP);
     return stringfunc::standardResult(name, value);
 }

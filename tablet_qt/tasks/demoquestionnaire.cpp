@@ -275,7 +275,8 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
         })
             ->setColumnStretch(0, 1)
             ->setColumnStretch(1, 1),
-        new QuHeading("Another grid (1:1:1 columns, fixed column style = default):"),
+        new QuHeading("Another grid (1:1:1 columns, expanding horizontally, "
+                      "fixed column style = default):"),
         (new QuGridContainer{
             QuGridCell(new QuText("1. Short"), 0, 0),
             QuGridCell(new QuText("2. Medium sort of length"), 0, 1),
@@ -284,8 +285,10 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
             ->setColumnStretch(0, 1)
             ->setColumnStretch(1, 1)
             ->setColumnStretch(2, 1)
+            ->setExpandHorizontally(true)
             ->setFixedGrid(true),
-        new QuHeading("Another grid (1:1:1 columns, non-fixed style):"),
+        new QuHeading("Another grid (1:1:1 columns, non-expanding, "
+                      "non-fixed style):"),
         (new QuGridContainer{
             QuGridCell(new QuText("1. Short"), 0, 0),
             QuGridCell(new QuText("2. Medium sort of length"), 0, 1),
@@ -294,6 +297,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
             ->setColumnStretch(0, 1)
             ->setColumnStretch(1, 1)
             ->setColumnStretch(2, 1)
+            ->setExpandHorizontally(false)
             ->setFixedGrid(false),
         new QuHeading("More automated grid (of label/element pairs):"),
         questionnairefunc::defaultGridRawPointer({

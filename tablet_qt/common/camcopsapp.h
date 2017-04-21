@@ -148,8 +148,10 @@ protected:
                        const QString& text, const QString& title);
     void setHashedPassword(const QString& hashed_password_varname,
                            const QString& password);
-    void changePassword(const QString& hashed_password_varname,
-                        const QString& text);
+    bool changePassword(const QString& hashed_password_varname,
+                        const QString& text,
+                        QString* p_old_password = nullptr,
+                        QString* p_new_password = nullptr);
     void regenerateDeviceId();
 signals:
     void lockStateChanged(LockState lockstate);

@@ -42,6 +42,7 @@ public:
     QuGridContainer* addCell(const QuGridCell& cell);
     QuGridContainer* setColumnStretch(int column, int stretch);
     QuGridContainer* setFixedGrid(bool fixed_grid);
+    QuGridContainer* setExpandHorizontally(bool expand);
 protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual QVector<QuElementPtr> subelements() const override;
@@ -50,5 +51,6 @@ private:
 protected:
     QVector<QuGridCell> m_cells;
     QMap<int, int> m_column_stretch;
+    bool m_expand;
     bool m_fixed_grid;
 };
