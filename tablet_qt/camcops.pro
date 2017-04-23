@@ -367,7 +367,10 @@ SOURCES += main.cpp \
     tasks/pclcommon.cpp \
     tasks/pclc.cpp \
     tasks/pclm.cpp \
-    tasks/pcls.cpp
+    tasks/pcls.cpp \
+    tasks/phq15.cpp \
+    tasks/pdss.cpp \
+    tasks/progressnote.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -651,7 +654,10 @@ HEADERS  += \
     tasks/pclcommon.h \
     tasks/pclc.h \
     tasks/pclm.h \
-    tasks/pcls.h
+    tasks/pcls.h \
+    tasks/phq15.h \
+    tasks/pdss.h \
+    tasks/progressnote.h
 
 
 DISTFILES += \

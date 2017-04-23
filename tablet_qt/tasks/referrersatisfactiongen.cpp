@@ -48,7 +48,7 @@ QString ReferrerSatisfactionGen::shortname() const
 
 QString ReferrerSatisfactionGen::longname() const
 {
-    return tr("Referrer Satisfaction Scale (anonymous survey).");
+    return tr("Referrer Satisfaction Scale (anonymous survey)");
 }
 
 

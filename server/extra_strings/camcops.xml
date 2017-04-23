@@ -74,7 +74,13 @@
     <string name="satis_rating_a2">Average</string>
     <string name="satis_rating_a3">Good</string>
     <string name="satis_rating_a4">Excellent</string>
-    
+
+    <!--
+    ===========================================================================
+    Short things for specific tasks, not meriting separate string files
+    ===========================================================================
+    -->
+
     <!--
     ===========================================================================
     Other

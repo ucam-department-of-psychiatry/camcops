@@ -1045,8 +1045,6 @@ Simple clinical tasks
 <string name="t_progressnote">Progress note (ProgressNote)</string>
 <string name="s_progressnote">Clinical progress note entry.</string>
 <string name="b_progressnote">ProgressNote</string>
-<string name="progressnote_title">Progress note</string>
-<string name="progressnote_note">Note</string>
 
 <!-- Clinical contact log -->
 <string name="t_contactlog">Contact log (Contact)</string>

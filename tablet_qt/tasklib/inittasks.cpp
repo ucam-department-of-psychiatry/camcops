@@ -94,7 +94,10 @@
 #include "tasks/pclc.h"
 #include "tasks/pclm.h"
 #include "tasks/pcls.h"
+#include "tasks/pdss.h"
 #include "tasks/phq9.h"
+#include "tasks/phq15.h"
+#include "tasks/progressnote.h"
 
 #include "tasks/referrersatisfactiongen.h"
 #include "tasks/referrersatisfactionspec.h"
@@ -179,15 +182,15 @@ void InitTasks(TaskFactory& factory)
 
     initializePanss(factory);
     initializePatientSatisfaction(factory);
-    initializePclC(factory);
-    initializePclM(factory);
-    initializePclS(factory);
-    // *** initializePdss(factory);
+    initializePclC(factory); // *** NEED TO CHECK WITH DOWNLOADED STRINGS
+    initializePclM(factory); // *** NEED TO CHECK WITH DOWNLOADED STRINGS
+    initializePclS(factory); // *** NEED TO CHECK WITH DOWNLOADED STRINGS
+    initializePdss(factory);
     // *** initializePhoto(factory);
     // *** initializePhotoSequence(factory);
     initializePhq9(factory);
-    // *** initializePhq15(factory);
-    // *** initializeProgressNote(factory);
+    initializePhq15(factory); // *** NEED TO CHECK WITH DOWNLOADED STRINGS
+    initializeProgressNote(factory);
     // *** initializePswq(factory);
     // *** initializePsychiatricClerking(factory);
 

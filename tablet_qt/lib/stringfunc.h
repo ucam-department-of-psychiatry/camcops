@@ -67,5 +67,9 @@ QString standardResult(const QString& name,
 // ============================================================================
 
 QString& replaceFirst(QString& str, const QString& from, const QString& to);
+QString stylizeNewlines(const QString& str, bool stylize = true);
+QString abbreviate(const QString& str, int max_len = 255,
+                   bool stylize_newlines = true,
+                   const QString& suffix = "...");
 
 }  // namespace stringfunc

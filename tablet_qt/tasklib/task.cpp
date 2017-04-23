@@ -399,6 +399,37 @@ QStringList Task::fieldSummariesYesNo(const QString& xstringprefix,
 }
 
 
+QStringList Task::clinicianDetails() const
+{
+    if (!hasClinician()) {
+        return QStringList();
+    }
+    return QStringList{
+        fieldSummary(CLINICIAN_SPECIALTY, textconst::CLINICIAN_SPECIALTY),
+        fieldSummary(CLINICIAN_NAME, textconst::CLINICIAN_NAME),
+        fieldSummary(CLINICIAN_PROFESSIONAL_REGISTRATION,
+                     textconst::CLINICIAN_PROFESSIONAL_REGISTRATION),
+        fieldSummary(CLINICIAN_POST, textconst::CLINICIAN_POST),
+        fieldSummary(CLINICIAN_SERVICE, textconst::CLINICIAN_SERVICE),
+        fieldSummary(CLINICIAN_CONTACT_DETAILS,
+                     textconst::CLINICIAN_CONTACT_DETAILS),
+    };
+}
+
+
+QStringList Task::respondentDetails() const
+{
+    if (!hasRespondent()) {
+        return QStringList();
+    }
+    return QStringList{
+        fieldSummary(RESPONDENT_NAME, textconst::RESPONDENT_NAME_3P),
+        fieldSummary(RESPONDENT_RELATIONSHIP,
+                     textconst::RESPONDENT_RELATIONSHIP_3P),
+    };
+}
+
+
 // ============================================================================
 // Editing
 // ============================================================================
@@ -480,11 +511,11 @@ QVariant Task::respondentRelationship() const
 QuElement* Task::getRespondentQuestionnaireBlockRawPointer(bool second_person)
 {
     const QString name = second_person
-            ? tr("Your name")
-            : tr("Respondent’s name");
+            ? textconst::RESPONDENT_NAME_2P
+            : textconst::RESPONDENT_NAME_3P;
     const QString relationship = second_person
-            ? tr("Your relationship to the patient")
-            : tr("Respondent’s relationship to patient");
+            ? textconst::RESPONDENT_RELATIONSHIP_2P
+            : textconst::RESPONDENT_RELATIONSHIP_3P;
     return questionnairefunc::defaultGridRawPointer({
         {name, new QuLineEdit(fieldRef(RESPONDENT_NAME))},
         {relationship, new QuLineEdit(fieldRef(RESPONDENT_RELATIONSHIP))},
@@ -502,7 +533,7 @@ QuPagePtr Task::getRespondentDetailsPage(bool second_person)
 {
     return QuPagePtr(
         (new QuPage{getRespondentQuestionnaireBlockRawPointer(second_person)})
-            ->setTitle(tr("Respondent’s details"))
+            ->setTitle(textconst::RESPONDENT_DETAILS)
             ->setType(second_person ? QuPage::PageType::Patient
                                     : QuPage::PageType::Clinician)
     );
@@ -519,7 +550,7 @@ QuPagePtr Task::getClinicianAndRespondentDetailsPage(bool second_person)
             }, uiconst::DEFAULT_COLSPAN_Q, uiconst::DEFAULT_COLSPAN_A),
             getRespondentQuestionnaireBlockRawPointer(second_person)
         })
-            ->setTitle(tr("Clinician’s and respondent’s details"))
+            ->setTitle(textconst::CLINICIAN_AND_RESPONDENT_DETAILS)
             ->setType(second_person ? QuPage::PageType::ClinicianWithPatient
                                     : QuPage::PageType::Clinician)
     );

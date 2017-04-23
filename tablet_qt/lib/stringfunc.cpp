@@ -165,4 +165,29 @@ QString& replaceFirst(QString& str, const QString& from, const QString& to)
 }
 
 
+const QString STYLIZED_NEWLINE("↵");  // ⏎
+
+
+QString stylizeNewlines(const QString& str, bool stylize)
+{
+    if (!stylize) {
+        return str;
+    }
+    QString nlstr = str;
+    nlstr.replace("\n", STYLIZED_NEWLINE);
+    return nlstr;
+}
+
+
+QString abbreviate(const QString& str, int max_len, bool stylize_newlines,
+                   const QString& suffix)
+{
+    if (str.length() <= max_len) {
+        return stylizeNewlines(str, stylize_newlines);
+    }
+    int fragment_len = max_len - suffix.length();
+    return stylizeNewlines(str.left(fragment_len) + suffix, stylize_newlines);
+}
+
+
 }  // namespace stringfunc

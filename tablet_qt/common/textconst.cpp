@@ -36,6 +36,7 @@ TR(AND, "and");
 
 TR(CATEGORY, "Category");
 TR(CLINICIAN, "Clinician");
+TR(CLINICIAN_AND_RESPONDENT_DETAILS, "Clinician’s and respondent’s details");
 TR(CLINICIAN_COMMENTS, "Clinician’s comments");
 TR(CLINICIAN_CONTACT_DETAILS, "Clinician’s contact details");
 TR(CLINICIAN_DETAILS, "Clinician’s details");
@@ -66,6 +67,8 @@ TR(ICD10, "World Health Organization International Classification of "
           "Diseases, 10th edition");
 TR(IN_ADDITION, "In addition");
 
+TR(LOCATION, "Location");
+
 TR(MEETS_CRITERIA, "Meets criteria");
 TR(MILD, "Mild");
 TR(MILD_TO_MODERATE, "Mild to moderate");
@@ -83,6 +86,7 @@ TR(NORMAL, "Normal");
 TR(NOT_APPLICABLE, "Not applicable");
 TR(NOT_RECALLED, "Not recalled");
 TR(NOT_SPECIFIED, "<not specified>");
+TR(NOTE, "Note");
 
 TR(OFF, "Off");
 TR(ON, "On");
@@ -98,6 +102,11 @@ TR(QUESTION, "Question");
 
 TR(RATING, "Rating");
 TR(RECALLED, "Recalled");
+TR(RESPONDENT_DETAILS, "Respondent’s details");
+TR(RESPONDENT_NAME_2P, "Your name");
+TR(RESPONDENT_NAME_3P, "Respondent’s name");
+TR(RESPONDENT_RELATIONSHIP_2P, "Your relationship to the patient");
+TR(RESPONDENT_RELATIONSHIP_3P, "Respondent’s relationship to patient");
 
 TR(SCORE, "Score");
 TR(SEE_FACSIMILE_FOR_MORE_DETAIL, "See facsimile for more detail.");

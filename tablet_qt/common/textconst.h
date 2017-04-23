@@ -58,6 +58,7 @@ extern const QString AND;
 
 extern const QString CATEGORY;
 extern const QString CLINICIAN;
+extern const QString CLINICIAN_AND_RESPONDENT_DETAILS;
 extern const QString CLINICIAN_COMMENTS;
 extern const QString CLINICIAN_CONTACT_DETAILS;
 extern const QString CLINICIAN_DETAILS;
@@ -83,6 +84,8 @@ extern const QString EXAMINER_COMMENTS_PROMPT;
 extern const QString ICD10;
 extern const QString IN_ADDITION;
 
+extern const QString LOCATION;
+
 extern const QString MEETS_CRITERIA;
 extern const QString MILD;
 extern const QString MILD_TO_MODERATE;
@@ -100,6 +103,7 @@ extern const QString NORMAL;
 extern const QString NOT_APPLICABLE;
 extern const QString NOT_RECALLED;
 extern const QString NOT_SPECIFIED;
+extern const QString NOTE;
 // Don't use NULL; it's a keyword
 
 extern const QString OFF;
@@ -114,6 +118,11 @@ extern const QString QUESTION;
 
 extern const QString RATING;
 extern const QString RECALLED;
+extern const QString RESPONDENT_DETAILS;
+extern const QString RESPONDENT_NAME_2P;
+extern const QString RESPONDENT_NAME_3P;
+extern const QString RESPONDENT_RELATIONSHIP_2P;
+extern const QString RESPONDENT_RELATIONSHIP_3P;
 
 extern const QString SCORE;
 extern const QString SEE_FACSIMILE_FOR_MORE_DETAIL;
