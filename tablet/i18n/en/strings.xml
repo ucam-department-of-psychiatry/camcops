@@ -886,17 +886,6 @@ Tasks
 <string name="t_pt_satis">Patient Satisfaction Scale</string>
 <string name="s_pt_satis">Short rating of a clinical service received</string>
 <string name="b_pt_satis">PatientSatisfaction</string>
-<string name="pt_satis_rating_q">How would you rate the service you have received from</string>
-<string name="pt_satis_good_q">What has been good about the service you have received?</string>
-<string name="pt_satis_good_s">Good:</string>
-<string name="pt_satis_bad_q">What could be improved?</string>
-<string name="pt_satis_bad_s">Could be improved:</string>
-<string name="service_being_rated">Service being rated</string>
-<string name="service_satis_rating_a0">Very poor</string>
-<string name="service_satis_rating_a1">Poor</string>
-<string name="service_satis_rating_a2">Average</string>
-<string name="service_satis_rating_a3">Good</string>
-<string name="service_satis_rating_a4">Excellent</string>
 
 <!-- PCL -->
 <string name="t_pcl_m">PTSD Checklist, Military version (PCL-M)</string>
@@ -986,10 +975,6 @@ Tasks
 <string name="t_ref_satis_spec">Referrer Satisfaction Scale (patient-specific)</string>
 <string name="s_ref_satis_spec">Short rating of a clinical service received (patient-specific)</string>
 <string name="b_ref_satis_spec">ReferrerSatisfactionSpecific</string>
-<string name="ref_satis_rating_gen_q">How would you rate the service you have received from</string>
-<string name="ref_satis_rating_spec_q">In relation to this patient’s care, how would you rate the service you have received from</string>
-<string name="ref_satis_good_q">What has been good about the service you have received?</string>
-<string name="ref_satis_bad_q">What could be improved?</string>
 
 <!-- WEMWBS, SWEMWBS -->
 <string name="t_wemwbs">Warwick–Edinburgh Mental Well-Being Scale (WEMWBS)</string>

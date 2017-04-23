@@ -57,4 +57,14 @@ extern const QString NHS_ETHNIC_CATEGORY_CODE_R;
 extern const QString NHS_ETHNIC_CATEGORY_CODE_S;
 extern const QString NHS_ETHNIC_CATEGORY_CODE_Z;
 
+extern const QString SATIS_BAD_Q;
+extern const QString SATIS_BAD_S;
+extern const QString SATIS_GOOD_Q;
+extern const QString SATIS_GOOD_S;
+extern const QString SATIS_PT_RATING_Q;
+extern const QString SATIS_REF_GEN_RATING_Q;
+extern const QString SATIS_REF_SPEC_RATING_Q;
+extern const QString SATIS_RATING_A_PREFIX;
+extern const QString SATIS_SERVICE_BEING_RATED;
+
 }  // namespace appstrings

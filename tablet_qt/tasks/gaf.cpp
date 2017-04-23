@@ -25,7 +25,6 @@
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
-using stringfunc::standardResult;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 24;
@@ -87,8 +86,7 @@ bool Gaf::isComplete() const
 
 QStringList Gaf::summary() const
 {
-    return QStringList{standardResult(appstring(appstrings::GAF_SCORE),
-                                      prettyValue(SCORE))};
+    return QStringList{fieldSummary(SCORE, appstring(appstrings::GAF_SCORE))};
 }
 
 

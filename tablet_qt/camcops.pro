@@ -359,7 +359,15 @@ SOURCES += main.cpp \
     db/whichdb.cpp \
     tasks/nart.cpp \
     tasks/npiq.cpp \
-    tasks/panss.cpp
+    tasks/panss.cpp \
+    tasks/patientsatisfaction.cpp \
+    tasks/referrersatisfactiongen.cpp \
+    tasks/referrersatisfactionspec.cpp \
+    tasks/satisfactioncommon.cpp \
+    tasks/pclcommon.cpp \
+    tasks/pclc.cpp \
+    tasks/pclm.cpp \
+    tasks/pcls.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -635,7 +643,15 @@ HEADERS  += \
     db/whichdb.h \
     tasks/nart.h \
     tasks/npiq.h \
-    tasks/panss.h
+    tasks/panss.h \
+    tasks/patientsatisfaction.h \
+    tasks/referrersatisfactiongen.h \
+    tasks/referrersatisfactionspec.h \
+    tasks/satisfactioncommon.h \
+    tasks/pclcommon.h \
+    tasks/pclc.h \
+    tasks/pclm.h \
+    tasks/pcls.h
 
 
 DISTFILES += \

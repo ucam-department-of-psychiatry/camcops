@@ -129,6 +129,7 @@ void SingleTaskMenu::addTask()
         task->setPatient(m_app.selectedPatientId());
     }
     task->setDefaultClinicianVariablesAtFirstUse();
+    task->setDefaultsAtFirstUse();
     task->save();
     editTaskConfirmed(task);
 }

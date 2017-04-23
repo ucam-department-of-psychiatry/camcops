@@ -90,7 +90,14 @@
 #include "tasks/npiq.h"
 
 #include "tasks/panss.h"
+#include "tasks/patientsatisfaction.h"
+#include "tasks/pclc.h"
+#include "tasks/pclm.h"
+#include "tasks/pcls.h"
 #include "tasks/phq9.h"
+
+#include "tasks/referrersatisfactiongen.h"
+#include "tasks/referrersatisfactionspec.h"
 
 
 void InitTasks(TaskFactory& factory)
@@ -171,10 +178,10 @@ void InitTasks(TaskFactory& factory)
     initializeNpiQ(factory);
 
     initializePanss(factory);
-    // *** initializePatientSatisfaction(factory);
-    // *** initializePclC(factory);
-    // *** initializePclM(factory);
-    // *** initializePclS(factory);
+    initializePatientSatisfaction(factory);
+    initializePclC(factory);
+    initializePclM(factory);
+    initializePclS(factory);
     // *** initializePdss(factory);
     // *** initializePhoto(factory);
     // *** initializePhotoSequence(factory);
@@ -188,8 +195,8 @@ void InitTasks(TaskFactory& factory)
     // *** initializeQolSG(factory); // *** COMPLEX
 
     // *** initializeRand36(factory);
-    // *** initializeReferrerSatisfactionGen(factory);
-    // *** initializeReferrerSatisfactionSpec(factory);
+    initializeReferrerSatisfactionGen(factory);
+    initializeReferrerSatisfactionSpec(factory);
 
     // *** initializeSlums(factory);
     // *** initializeSmast(factory);

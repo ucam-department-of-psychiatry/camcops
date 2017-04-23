@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="panss">
+    <!-- PANSS - CRIPPLED (task reproduction not permitted) -->
+
+    <string name="p">Positive</string>
+    <string name="n">Negative</string>
+    <string name="g">General</string>
+    <string name="composite">Composite (P – N)</string>
+    <string name="option1">1 Absent</string>
+    <string name="option2">2 Minimal</string>
+    <string name="option3">3 Mild</string>
+    <string name="option4">4 Moderate</string>
+    <string name="option5">5 Moderate–severe</string>
+    <string name="option6">6 Severe</string>
+    <string name="option7">7 Extreme</string>
+    <string name="p1_s">P1 (delusions):</string>
+    <string name="p2_s">P2 (conceptual disorganisation):</string>
+    <string name="p3_s">P3 (hallucinatory behaviour):</string>
+    <string name="p4_s">P4 (excitement):</string>
+    <string name="p5_s">P5 (grandiosity):</string>
+    <string name="p6_s">P6 (suspiciousness/persecution):</string>
+    <string name="p7_s">P7 (hostility):</string>
+    <string name="n1_s">N1 (blunted affect):</string>
+    <string name="n2_s">N2 (emotional withdrawal):</string>
+    <string name="n3_s">N3 (poor rapport):</string>
+    <string name="n4_s">N4 (passive/apathetic social withdrawal):</string>
+    <string name="n5_s">N5 (difficulty in abstract thinking):</string>
+    <string name="n6_s">N6 (lack of spontaneity/conversation flow):</string>
+    <string name="n7_s">N7 (stereotyped thinking):</string>
+    <string name="g1_s">G1 (somatic concern):</string>
+    <string name="g2_s">G2 (anxiety):</string>
+    <string name="g3_s">G3 (guilt feelings):</string>
+    <string name="g4_s">G4 (tension):</string>
+    <string name="g5_s">G5 (mannerisms/posturing):</string>
+    <string name="g6_s">G6 (depression):</string>
+    <string name="g7_s">G7 (motor retardation):</string>
+    <string name="g8_s">G8 (uncooperativeness):</string>
+    <string name="g9_s">G9 (unusual thought content):</string>
+    <string name="g10_s">G10 (disorientation):</string>
+    <string name="g11_s">G11 (poor attention):</string>
+    <string name="g12_s">G12 (lack of judgement/insight):</string>
+    <string name="g13_s">G13 (disturbance of volition):</string>
+    <string name="g14_s">G14 (poor impulse control):</string>
+    <string name="g15_s">G15 (preoccupation):</string>
+    <string name="g16_s">G16 (active social avoidance):</string>
+
+  </task>
+</resources>

@@ -61,6 +61,20 @@
 
     <string name="icd10_symptomatic_disclaimer">These criteria are the SYMPTOMATIC criteria and IGNORE CAUSAL criteria (such as “episode not attributable to psychoactive substance use or organic mental disorder” or history of prior episodes).</string>
 
+    <string name="satis_pt_rating_q">How would you rate the service you have received from</string>
+    <string name="satis_ref_spec_rating_q">In relation to this patient’s care, how would you rate the service you have received from</string>
+    <string name="satis_ref_gen_rating_q">How would you rate the service you have received from</string>
+    <string name="satis_good_q">What has been good about the service you have received?</string>
+    <string name="satis_bad_q">What could be improved?</string>
+    <string name="satis_good_s">Good</string>
+    <string name="satis_bad_s">Could be improved</string>
+    <string name="satis_service_being_rated">Service being rated</string>
+    <string name="satis_rating_a0">Very poor</string>
+    <string name="satis_rating_a1">Poor</string>
+    <string name="satis_rating_a2">Average</string>
+    <string name="satis_rating_a3">Good</string>
+    <string name="satis_rating_a4">Excellent</string>
+    
     <!--
     ===========================================================================
     Other

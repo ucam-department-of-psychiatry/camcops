@@ -55,4 +55,14 @@ const QString NHS_ETHNIC_CATEGORY_CODE_R("nhs_ethnic_category_code_R");
 const QString NHS_ETHNIC_CATEGORY_CODE_S("nhs_ethnic_category_code_S");
 const QString NHS_ETHNIC_CATEGORY_CODE_Z("nhs_ethnic_category_code_Z");
 
+const QString SATIS_BAD_Q("satis_bad_q");
+const QString SATIS_BAD_S("satis_bad_s");
+const QString SATIS_GOOD_Q("satis_good_q");
+const QString SATIS_GOOD_S("satis_good_s");
+const QString SATIS_PT_RATING_Q("satis_pt_rating_q");
+const QString SATIS_REF_GEN_RATING_Q("satis_ref_gen_rating_q");
+const QString SATIS_REF_SPEC_RATING_Q("satis_ref_spec_rating_q");
+const QString SATIS_RATING_A_PREFIX("satis_rating_a");
+const QString SATIS_SERVICE_BEING_RATED("satis_service_being_rated");
+
 }  // namespace appstrings

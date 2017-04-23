@@ -25,31 +25,36 @@ class CamcopsApp;
 class OpenableWidget;
 class TaskFactory;
 
-void initializeFft(TaskFactory& factory);
 
-
-class Fft : public Task
+class SatisfactionCommon : public Task
 {
-    Q_OBJECT
+    // abstract base class
+    // not a Q_OBJECT
 public:
-    Fft(CamcopsApp& app, const QSqlDatabase& db,
-        int load_pk = dbconst::NONEXISTENT_PK);
+    SatisfactionCommon(CamcopsApp& app, const QSqlDatabase& db,
+                       const QString& tablename, bool anonymous,
+                       int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
-    virtual QString shortname() const override;
-    virtual QString longname() const override;
-    virtual QString menusubtitle() const override;
+    virtual QString shortname() const override = 0;
+    virtual QString longname() const override = 0;
+    virtual QString menusubtitle() const override = 0;
     virtual QString infoFilenameStem() const override;
+    virtual bool isCrippled() const override { return false; }
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
     virtual bool isComplete() const override;
     virtual QStringList summary() const override;
     virtual QStringList detail() const override;
-    virtual OpenableWidget* editor(bool read_only = false) override;
+    virtual void setDefaultsAtFirstUse() override;
+    virtual OpenableWidget* editor(bool read_only = false) override = 0;
+    OpenableWidget* satisfactionEditor(const QString& rating_q,
+                                       bool read_only);
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-    QString ratingText() const;
+protected:
+    QString getRatingText() const;
 };

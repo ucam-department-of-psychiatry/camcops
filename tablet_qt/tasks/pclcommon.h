@@ -25,22 +25,25 @@ class CamcopsApp;
 class OpenableWidget;
 class TaskFactory;
 
-void initializeFft(TaskFactory& factory);
 
-
-class Fft : public Task
+class PclCommon : public Task
 {
-    Q_OBJECT
+    // abstract base class
+    // not a Q_OBJECT
 public:
-    Fft(CamcopsApp& app, const QSqlDatabase& db,
-        int load_pk = dbconst::NONEXISTENT_PK);
+    PclCommon(CamcopsApp& app, const QSqlDatabase& db,
+              const QString& tablename,
+              const QString& xstring_prefix,
+              bool specific_event,
+              int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
-    virtual QString shortname() const override;
-    virtual QString longname() const override;
+    virtual QString shortname() const override = 0;
+    virtual QString longname() const override = 0;
     virtual QString menusubtitle() const override;
     virtual QString infoFilenameStem() const override;
+    virtual QString xstringTaskname() const override;
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -51,5 +54,12 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-    QString ratingText() const;
+protected:
+    int totalScore() const;
+    int numSymptomatic(int first, int last) const;
+    int numNull(int first, int last) const;
+    QVariant hasPtsd() const;
+protected:
+    QString m_xstring_prefix;
+    bool m_specific_event;
 };

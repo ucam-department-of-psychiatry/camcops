@@ -18,38 +18,25 @@
 */
 
 #pragma once
-#include <QString>
-#include "tasklib/task.h"
+#include "tasks/satisfactioncommon.h"
 
-class CamcopsApp;
-class OpenableWidget;
-class TaskFactory;
-
-void initializeFft(TaskFactory& factory);
+void initializeReferrerSatisfactionSpec(TaskFactory& factory);
 
 
-class Fft : public Task
+class ReferrerSatisfactionSpec : public SatisfactionCommon
 {
     Q_OBJECT
 public:
-    Fft(CamcopsApp& app, const QSqlDatabase& db,
-        int load_pk = dbconst::NONEXISTENT_PK);
+    ReferrerSatisfactionSpec(CamcopsApp& app, const QSqlDatabase& db,
+                             int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString menusubtitle() const override;
-    virtual QString infoFilenameStem() const override;
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
-    virtual bool isComplete() const override;
-    virtual QStringList summary() const override;
-    virtual QStringList detail() const override;
     virtual OpenableWidget* editor(bool read_only = false) override;
-    // ------------------------------------------------------------------------
-    // Task-specific calculations
-    // ------------------------------------------------------------------------
-    QString ratingText() const;
 };

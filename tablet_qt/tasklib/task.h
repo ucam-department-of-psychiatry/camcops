@@ -120,6 +120,7 @@ public:
     // ------------------------------------------------------------------------
     double editingTimeSeconds() const;
     void setDefaultClinicianVariablesAtFirstUse();
+    virtual void setDefaultsAtFirstUse() {}
 protected:
     QuElement* getClinicianQuestionnaireBlockRawPointer();
     QuElementPtr getClinicianQuestionnaireBlockElementPtr();
