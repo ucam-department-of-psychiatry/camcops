@@ -1,0 +1,118 @@
+/*
+    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+
+    This file is part of CamCOPS.
+
+    CamCOPS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    CamCOPS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#include "photo.h"
+#include "common/textconst.h"
+#include "lib/mathfunc.h"
+#include "lib/stringfunc.h"
+#include "questionnairelib/questionnaire.h"
+#include "questionnairelib/quphoto.h"
+#include "questionnairelib/qutext.h"
+#include "questionnairelib/qutextedit.h"
+#include "tasklib/taskfactory.h"
+using mathfunc::noneNull;
+
+const QString PHOTO_TABLENAME("photo");
+
+const QString DESCRIPTION("description");
+const QString PHOTO_BLOBID("photo_blobid");
+// const QString ROTATION("rotation");  // DEFUNCT in v2
+
+
+void initializePhoto(TaskFactory& factory)
+{
+    static TaskRegistrar<Photo> registered(factory);
+}
+
+
+Photo::Photo(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+    Task(app, db, PHOTO_TABLENAME, false, true, false)  // ... anon, clin, resp
+{
+    addField(DESCRIPTION, QVariant::String);
+    addField(PHOTO_BLOBID, QVariant::String);  // FK to BLOB table
+    // addField(ROTATION, QVariant::Int);  // DEFUNCT in v2
+
+    load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
+}
+
+
+// ============================================================================
+// Class info
+// ============================================================================
+
+QString Photo::shortname() const
+{
+    return "Photo";
+}
+
+
+QString Photo::longname() const
+{
+    return tr("Photograph");
+}
+
+
+QString Photo::menusubtitle() const
+{
+    return tr("Photograph with accompanying detail.");
+}
+
+
+QString Photo::infoFilenameStem() const
+{
+    return "clinical";
+}
+
+
+// ============================================================================
+// Instance info
+// ============================================================================
+
+bool Photo::isComplete() const
+{
+    return noneNull(values({DESCRIPTION, PHOTO_BLOBID}));
+}
+
+
+QStringList Photo::summary() const
+{
+    return QStringList{valueString(DESCRIPTION)};
+}
+
+
+QStringList Photo::detail() const
+{
+    return completenessInfo() + summary();
+}
+
+
+OpenableWidget* Photo::editor(bool read_only)
+{
+    QuPagePtr page((new QuPage{
+        new QuText(textconst::PHOTO_Q),
+        new QuText(textconst::DESCRIPTION),
+        new QuTextEdit(fieldRef(DESCRIPTION)),
+        new QuPhoto(fieldRef(PHOTO_BLOBID, true, true, true)),
+    })->setTitle(textconst::PHOTO_TITLE));
+
+    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    questionnaire->setType(QuPage::PageType::Clinician);
+    questionnaire->setReadOnly(read_only);
+    return questionnaire;
+}

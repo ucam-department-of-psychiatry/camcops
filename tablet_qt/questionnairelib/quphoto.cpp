@@ -28,7 +28,7 @@
 #include "lib/slowguiguard.h"
 #include "lib/slownonguifunctioncaller.h"
 #include "questionnairelib/questionnaire.h"
-#include "widgets/aspectratiopixmaplabel.h"
+#include "widgets/aspectratiopixmap.h"
 #include "widgets/camera.h"
 #include "widgets/imagebutton.h"
 
@@ -66,6 +66,16 @@ QuPhoto::QuPhoto(FieldRefPtr fieldref) :
 
 QPointer<QWidget> QuPhoto::makeWidget(Questionnaire* questionnaire)
 {
+    // Layout is:
+    //
+    // btn_take         optional_problem_markers
+    // btn_rot_left     photo_photo_photo_photo_photo_photo
+    // btn_rot_right    photo_photo_photo_photo_photo_photo
+    // btn_clear        photo_photo_photo_photo_photo_photo
+    //                  photo_photo_photo_photo_photo_photo
+    //                  photo_photo_photo_photo_photo_photo
+    //                  photo_photo_photo_photo_photo_photo
+
     m_questionnaire = questionnaire;
     bool read_only = questionnaire->readOnly();
     Qt::Alignment align = Qt::AlignLeft | Qt::AlignTop;
@@ -127,7 +137,7 @@ QPointer<QWidget> QuPhoto::makeWidget(Questionnaire* questionnaire)
                 uifunc::iconFilename(uiconst::ICON_FIELD_INCOMPLETE_MANDATORY));
     m_field_problem = uifunc::iconWidget(
                 uifunc::iconFilename(uiconst::ICON_FIELD_PROBLEM));
-    m_image = new AspectRatioPixmapLabel();
+    m_image = new AspectRatioPixmap();
 
     QVBoxLayout* image_layout = new QVBoxLayout();
     image_layout->setContentsMargins(uiconst::NO_MARGINS);

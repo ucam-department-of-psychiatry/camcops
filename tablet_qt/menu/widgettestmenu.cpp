@@ -63,7 +63,7 @@
 #include "questionnairelib/qutextedit.h"
 #include "questionnairelib/quthermometer.h"
 #include "tasks/ace3.h"
-#include "widgets/aspectratiopixmaplabel.h"
+#include "widgets/aspectratiopixmap.h"
 #include "widgets/basewidget.h"
 #include "widgets/canvaswidget.h"
 #include "widgets/clickablelabelnowrap.h"
@@ -158,8 +158,8 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
         // --------------------------------------------------------------------
         MenuItem("Low-level widgets").setLabelOnly(),
         // --------------------------------------------------------------------
-        MenuItem("AspectRatioPixmapLabel (should maintain aspect ratio and resize from 0 to its intrinsic size)",
-                 std::bind(&WidgetTestMenu::testAspectRatioPixmapLabel, this)),
+        MenuItem("AspectRatioPixmap (should maintain aspect ratio and resize from 0 to its intrinsic size)",
+                 std::bind(&WidgetTestMenu::testAspectRatioPixmap, this)),
         MenuItem("BooleanWidget (appearance=CheckBlack)",
                  std::bind(&WidgetTestMenu::testBooleanWidget, this,
                            BooleanWidget::Appearance::CheckBlack, false)),
@@ -209,6 +209,8 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
                  std::bind(&WidgetTestMenu::testVerticalScrollAreaComplex, this, true)),
         MenuItem("VerticalScrollArea (FixedAreaHfwTestWidget)",
                  std::bind(&WidgetTestMenu::testVerticalScrollAreaFixedAreaHfwWidget, this)),
+        MenuItem("VerticalScrollArea (AspectRatioPixmap)",
+                 std::bind(&WidgetTestMenu::testVerticalScrollAreaAspectRatioPixmap, this)),
 
         // --------------------------------------------------------------------
         MenuItem("Layouts and the like").setLabelOnly(),
@@ -427,9 +429,9 @@ void WidgetTestMenu::testQPushButton(const QSizePolicy& policy)
 // Low-level widgets
 // ============================================================================
 
-void WidgetTestMenu::testAspectRatioPixmapLabel()
+void WidgetTestMenu::testAspectRatioPixmap()
 {
-    AspectRatioPixmapLabel* widget = new AspectRatioPixmapLabel();
+    AspectRatioPixmap* widget = new AspectRatioPixmap();
     QPixmap pixmap = uifunc::getPixmap(uifunc::iconFilename(uiconst::ICON_CAMCOPS));
     widget->setPixmap(pixmap);
     debugfunc::debugWidget(widget);
@@ -636,6 +638,18 @@ void WidgetTestMenu::testVerticalScrollAreaComplex(bool long_text)
 void WidgetTestMenu::testVerticalScrollAreaFixedAreaHfwWidget()
 {
     FixedAreaHfwTestWidget* contentwidget = new FixedAreaHfwTestWidget();
+
+    VerticalScrollArea* scrollwidget = new VerticalScrollArea();
+    scrollwidget->setWidget(contentwidget);
+    debugfunc::debugWidget(scrollwidget);
+}
+
+
+void WidgetTestMenu::testVerticalScrollAreaAspectRatioPixmap()
+{
+    AspectRatioPixmap* contentwidget = new AspectRatioPixmap();
+    QPixmap pixmap = uifunc::getPixmap(uifunc::iconFilename(uiconst::ICON_CAMCOPS));
+    contentwidget->setPixmap(pixmap);
 
     VerticalScrollArea* scrollwidget = new VerticalScrollArea();
     scrollwidget->setWidget(contentwidget);

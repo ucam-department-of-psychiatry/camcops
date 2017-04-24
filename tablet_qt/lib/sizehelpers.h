@@ -66,4 +66,6 @@ QSize frameExtraSizeRequired(const QFrame* frame,
 QSize labelExtraSizeRequired(const QLabel* label,
                              const QStyleOptionFrame* opt,
                              const QSize& child_size);
+bool fixedHeightEquals(QWidget* widget, int height);
+
 }  // namespace sizehelpers

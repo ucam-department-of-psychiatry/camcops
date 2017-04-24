@@ -41,6 +41,7 @@ SetMenuOBrien1::SetMenuOBrien1(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM("demqolproxy", app),
         MAKE_TASK_MENU_ITEM("frs", app),
         MAKE_TASK_MENU_ITEM("hads", app),
+        MAKE_TASK_MENU_ITEM("hads_respondent", app),
         MAKE_TASK_MENU_ITEM("ifs", app),
         MAKE_TASK_MENU_ITEM("npiq", app),
         MAKE_TASK_MENU_ITEM("mds_updrs", app),

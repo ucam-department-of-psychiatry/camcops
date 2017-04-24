@@ -21,7 +21,7 @@
 #include "db/fieldref.h"
 #include "quelement.h"
 
-class AspectRatioPixmapLabel;
+class AspectRatioPixmap;
 class Camera;
 class QLabel;
 class QWidget;
@@ -58,7 +58,7 @@ protected:
     QPointer<QLabel> m_incomplete_optional;
     QPointer<QLabel> m_incomplete_mandatory;
     QPointer<QLabel> m_field_problem;
-    QPointer<AspectRatioPixmapLabel> m_image;
+    QPointer<AspectRatioPixmap> m_image;
     QPointer<Camera> m_camera;
     QPointer<QWidget> m_main_widget;
 };

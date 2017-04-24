@@ -262,8 +262,11 @@ void LabelWordWrapWide::forceHeight()
 
 #endif
 
-    setFixedHeight(final_height);
-    updateGeometry();
+    bool change = !sizehelpers::fixedHeightEquals(this, final_height);
+    if (change) {
+        setFixedHeight(final_height);
+        updateGeometry();
+    }
 }
 
 

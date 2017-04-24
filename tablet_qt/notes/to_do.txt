@@ -48,7 +48,7 @@ QT BUG?
   the picture-naming in the ACE-III. The delay occurs whether you click the
   boolean indicator (with its "you are touching me" shading) or the image.
   It seems to occur only if the main window is NOT maximized.
-  The delay is in calling AspectRatioPixmapLabel::mousePressEvent, for example.
+  The delay is in calling AspectRatioPixmap::mousePressEvent, for example.
   Using "#define DEBUG_CLICK_TIMING" shows that the delay is NOT because the
   widget's overridden sizeHint (etc.) code is being called.
   Not sure that this is a problem in my code.
@@ -68,3 +68,6 @@ MAYBE IN THE FUTURE
 - VerticalScrollArea: *Nearly* perfect. Unclear if residual minor error relates
   to VerticalScrollArea itself, or to misreporting of ideal height by e.g.
   GridLayoutHfw.
+  (Example: PDSS [with no task strings]?)
+  (Note: sometimes worth trying to un-maximize then maximize the window; error
+  can sometimes go away.)

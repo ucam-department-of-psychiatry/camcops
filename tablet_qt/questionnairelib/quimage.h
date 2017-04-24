@@ -21,7 +21,7 @@
 #include "db/fieldref.h"
 #include "quelement.h"
 
-class AspectRatioPixmapLabel;
+class AspectRatioPixmap;
 
 
 class QuImage : public QuElement
@@ -44,7 +44,7 @@ protected:
 protected:
     QString m_filename;
     FieldRefPtr m_fieldref;
-    QPointer<AspectRatioPixmapLabel> m_label;
+    QPointer<AspectRatioPixmap> m_label;
     QSize m_size;
     bool m_allow_shrink;
 };

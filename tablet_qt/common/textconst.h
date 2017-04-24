@@ -72,6 +72,7 @@ extern const QString COMMENTS;
 
 extern const QString DATA_COLLECTION_ONLY;
 extern const QString DELETE;
+extern const QString DESCRIPTION;
 extern const QString DIAGNOSIS;
 
 extern const QString FALSE;
@@ -112,6 +113,8 @@ extern const QString ON;
 extern const QString PAGE;
 extern const QString PART;
 extern const QString PATIENT;
+extern const QString PHOTO_TITLE;
+extern const QString PHOTO_Q;
 extern const QString PRESS_NEXT_TO_CONTINUE;
 
 extern const QString QUESTION;

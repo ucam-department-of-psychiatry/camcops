@@ -31,12 +31,12 @@
 // Consensus that setHeightForWidth doesn't work terribly well...
 
 #include <QLabel>
-#include <QPixmap>
+#include <QWidget>
 class QMouseEvent;
 class QResizeEvent;
 
 
-class AspectRatioPixmapLabel : public QLabel
+class AspectRatioPixmap : public QWidget
 {
     // Image that retains its aspect ratio, for displaying photos.
     // - Displays image UP TO its original size.
@@ -46,16 +46,23 @@ class AspectRatioPixmapLabel : public QLabel
     //   that responds to the start of the click, so maybe that is reasonable.
     //   For another way of responding to clicks, see ClickableLabel.
 
+    // For speed, DO NOT allow resizeEvent() to call some sort of function like
+    // QLabel::setPixmap(scaledPixmap()). That leads to terminal slowness with
+    // large images.
+    // Instead, store a size, and plot the image to that size as required.
+    // Compare CanvasWidget, which also does that.
+
     Q_OBJECT
 public:
-    explicit AspectRatioPixmapLabel(QWidget* parent = nullptr);
+    explicit AspectRatioPixmap(QWidget* parent = nullptr);
+    virtual bool hasHeightForWidth() const override;
     virtual int heightForWidth(int width) const override;
     virtual QSize sizeHint() const override;
     virtual QSize minimumSizeHint() const override;
-    QPixmap scaledPixmap() const;
     void clear();
 protected:
     virtual void mousePressEvent(QMouseEvent* event) override;
+    virtual void paintEvent(QPaintEvent* event) override;
 signals:
     void clicked();
 public slots:
@@ -65,4 +72,5 @@ public slots:
     virtual void resizeEvent(QResizeEvent* event) override;
 private:
     QPixmap m_pixmap;
+    QSize m_size;  // size on screen
 };

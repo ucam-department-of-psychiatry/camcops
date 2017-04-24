@@ -169,6 +169,46 @@ the HFW for its width?
 
 */
 
+/*
+
+Further leftover problem: an infinite bistable state.
+For example:
+
+... resetSizeLimits() - Child widget resized to QRect(0,0 365x377); setting VerticalScrollArea minimum width to 140 (124 for widget, 16 for scrollbar); setting minimum height to 100; setting maximum height to 377 ([scrollbar inactive] widget's width 365 -> not narrowed -> max height remains 377) [viewport margins: QMargins(0, 0, 0, 0), viewport_geometry: QRect(0,0 365x377), scrollarea_geometry: QRect(0,80 381x377)]
+... VerticalScrollArea::eventFilter(QObject*, QEvent*) - Child is resizing to QRect(0,0 365x377)
+... VerticalScrollArea::eventFilter(QObject*, QEvent*) - Child is resizing to QRect(0,0 381x389)
+... VerticalScrollArea::resetSizeLimits() - Child widget resized to QRect(0,0 381x389); setting VerticalScrollArea minimum width to 140 (124 for widget, 16 for scrollbar); setting minimum height to 100; setting maximum height to 389 ([scrollbar active] widget's width 381 -> not narrowed -> max height remains 389) [viewport margins: QMargins(0, 0, 0, 0), viewport_geometry: QRect(0,0 365x377), scrollarea_geometry: QRect(0,80 381x377)]
+... VerticalScrollArea::eventFilter(QObject*, QEvent*) - Child is resizing to QRect(0,0 381x389)
+... VerticalScrollArea::eventFilter(QObject*, QEvent*) - Child is resizing to QRect(0,0 365x377)
+... VerticalScrollArea::eventFilter(QObject*, QEvent*) - Child is resizing to QRect(0,0 381x389)
+... VerticalScrollArea::resetSizeLimits() - Child widget resized to QRect(0,0 381x389); setting VerticalScrollArea minimum width to 140 (124 for widget, 16 for scrollbar); setting minimum height to 100; setting maximum height to 389 ([scrollbar active] widget's width 381 -> not narrowed -> max height remains 389) [viewport margins: QMargins(0, 0, 0, 0), viewport_geometry: QRect(0,0 365x377), scrollarea_geometry: QRect(0,80 381x377)]
+... VerticalScrollArea::eventFilter(QObject*, QEvent*) - Child is resizing to QRect(0,0 381x389)
+... VerticalScrollArea::eventFilter(QObject*, QEvent*) - Child is resizing to QRect(0,0 365x377)
+... VerticalScrollArea::eventFilter(QObject*, QEvent*) - Child is resizing to QRect(0,0 381x389)
+... VerticalScrollArea::resetSizeLimits() - Child widget resized to QRect(0,0 381x389); setting VerticalScrollArea minimum width to 140 (124 for widget, 16 for scrollbar); setting minimum height to 100; setting maximum height to 389 ([scrollbar active] widget's width 381 -> not narrowed -> max height remains 389) [viewport margins: QMargins(0, 0, 0, 0), viewport_geometry: QRect(0,0 365x377), scrollarea_geometry: QRect(0,80 381x377)]
+...
+... VerticalScrollArea::resetSizeLimits() - Child widget resized to QRect(0,0 365x377); setting VerticalScrollArea minimum width to 140 (124 for widget, 16 for scrollbar); setting minimum height to 100; setting maximum height to 377 ([scrollbar inactive] widget's width 365 -> not narrowed -> max height remains 377) [viewport margins: QMargins(0, 0, 0, 0), viewport_geometry: QRect(0,0 365x377), scrollarea_geometry: QRect(0,80 381x377)]
+... VerticalScrollArea::resetSizeLimits() - Child widget resized to QRect(0,0 365x377); setting VerticalScrollArea minimum width to 140 (124 for widget, 16 for scrollbar); setting minimum height to 100; setting maximum height to 377 ([scrollbar inactive] widget's width 365 -> not narrowed -> max height remains 377) [viewport margins: QMargins(0, 0, 0, 0), viewport_geometry: QRect(0,0 365x377), scrollarea_geometry: QRect(0,80 381x377)]
+...
+... VerticalScrollArea::resetSizeLimits() - Child widget resized to QRect(0,0 381x389); setting VerticalScrollArea minimum width to 140 (124 for widget, 16 for scrollbar); setting minimum height to 100; setting maximum height to 389 ([scrollbar active] widget's width 381 -> not narrowed -> max height remains 389) [viewport margins: QMargins(0, 0, 0, 0), viewport_geometry: QRect(0,0 365x377), scrollarea_geometry: QRect(0,80 381x377)]
+...
+
+That is, we're flitting between 365x377 and 381x389.
+This is with a photo trying to maintain its aspect ratio.
+
+So, presumably, we have a state where it's equally happy (or unhappy) with
+
+    wwwwwwwwwwww        wwwwwwww  ss
+    wwwwwwwwwwww        wwwwwwww  ss
+    wwwwwwwwwwww        wwwwwwww  ss
+    wwwwwwwwwwww        wwwwwwww  ss
+    wwwwwwwwwwww
+    wwwwwwwwwwww
+
+or something like that.
+
+*/
+
 
 // ============================================================================
 // Constructor
@@ -300,10 +340,20 @@ bool VerticalScrollArea::eventFilter(QObject* o, QEvent* e)
     // widget.
 
     if (o && o == widget() && e && e->type() == QEvent::Resize) {
-#ifdef DEBUG_LAYOUT
         QWidget* w = dynamic_cast<QWidget*>(o);
+#ifdef DEBUG_LAYOUT
         qDebug() << Q_FUNC_INFO << "- Child is resizing to" << w->geometry();
 #endif
+        bool skip = w->size() == m_widget_size_back_1 ||
+                w->size() == m_widget_size_back_2;
+        m_widget_size_back_2 = m_widget_size_back_1;
+        m_widget_size_back_1 = w->size();
+        if (skip) {
+#ifdef DEBUG_LAYOUT
+            qDebug() << "Size matches 1-back or 2-back; stopping";
+#endif
+            return false;
+        }
 
 #ifdef RESIZE_FOR_HFW
         // --------------------------------------------------------------------
@@ -325,6 +375,27 @@ bool VerticalScrollArea::eventFilter(QObject* o, QEvent* e)
         return QScrollArea::eventFilter(o, e);
 #endif
     } else {
+#ifdef DEBUG_LAYOUT
+        // Beware this almost-infinite loop (read from bottom to top):
+        //
+        //#29 0x00000000005b6b6c in VerticalScrollArea::eventFilter (this=0x33e54d0,
+        //    o=0x3345140, e=0x7fffffffaac0)
+        //    at ../tablet_qt/widgets/verticalscrollarea.cpp:321
+        //#30 0x000000000140f7d2 in QCoreApplicationPrivate::sendThroughObjectEventFilters(QObject*, QEvent*) ()
+        //#31 0x0000000000837e35 in QApplicationPrivate::notify_helper(QObject*, QEvent*)
+        //    ()
+        //#32 0x000000000083f45c in QApplication::notify(QObject*, QEvent*) ()
+        //#33 0x000000000140faf8 in QCoreApplication::notifyInternal2(QObject*, QEvent*)
+        //    ()
+        //#34 0x0000000000867a47 in QWidgetPrivate::setGeometry_sys(int, int, int, int, bool) ()
+        //#35 0x0000000000867f34 in QWidget::resize(QSize const&) ()
+        //#36 0x0000000000979244 in QScrollAreaPrivate::updateScrollBars() ()
+        //#37 0x0000000000979e19 in QScrollArea::eventFilter(QObject*, QEvent*) ()
+        //#38 0x00000000005b6b6c in VerticalScrollArea::eventFilter (this=0x33e54d0,
+        //    o=0x3345140, e=0x7fffffffaf10)
+        //    at ../tablet_qt/widgets/verticalscrollarea.cpp:321
+        qDebug() << Q_FUNC_INFO << "- event type:" << e->type();
+#endif
         return QScrollArea::eventFilter(o, e);
     }
 }
@@ -517,6 +588,13 @@ void VerticalScrollArea::resetSizeLimits()
             << ", scrollarea_geometry: " << scrollarea_rect
             << "]";
 #endif
+
+    bool change = new_min_width != minimumWidth() ||
+            new_min_height != minimumHeight() ||
+            new_max_height != maximumHeight();
+    if (!change) {
+        return;
+    }
 
     // --------------------------------------------------------------------
     // Prevent infinite recursion

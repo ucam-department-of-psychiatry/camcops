@@ -49,7 +49,7 @@ protected:
     // ========================================================================
     // Low-level widgets
     // ========================================================================
-    void testAspectRatioPixmapLabel();
+    void testAspectRatioPixmap();
     void testBooleanWidget(BooleanWidget::Appearance appearance,
                            bool long_text);
     // Camera: use QuPhoto instead
@@ -69,6 +69,7 @@ protected:
     void testVerticalScrollAreaSimple();
     void testVerticalScrollAreaComplex(bool long_text);
     void testVerticalScrollAreaFixedAreaHfwWidget();
+    void testVerticalScrollAreaAspectRatioPixmap();
 
     // ========================================================================
     // Layouts and the like

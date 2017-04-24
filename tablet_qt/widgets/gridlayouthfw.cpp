@@ -70,6 +70,7 @@
 #include <QVarLengthArray>
 #include "common/widgetconst.h"
 #include "lib/reentrydepthguard.h"
+#include "lib/sizehelpers.h"
 
 #ifdef DEBUG_LAYOUT
 #include <QDebug>
@@ -1160,8 +1161,12 @@ void GridLayoutHfw::setGeometry(const QRect &rect)
     // ------------------------------------------------------------------------
 #ifdef GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
     if (parent_new_height != -1) {
-        parent->setFixedHeight(parent_new_height);  // RISK OF INFINITE RECURSION
-        parent->updateGeometry();
+        bool change = !sizehelpers::fixedHeightEquals(parent,
+                                                      parent_new_height);
+        if (change) {
+            parent->setFixedHeight(parent_new_height);  // RISK OF INFINITE RECURSION
+            parent->updateGeometry();
+        }
     }
 #endif
 }

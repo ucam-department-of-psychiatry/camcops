@@ -53,6 +53,7 @@ TR(DATA_COLLECTION_ONLY,
    "collection tool only; use it only in conjunction with a licensed copy of "
    "the original task.");
 TR(DELETE, "Delete");
+TR(DESCRIPTION, "Description");
 TR(DIAGNOSIS, "Diagnosis");
 
 TR(ENTER_THE_ANSWERS, "Enter the answers:");
@@ -94,6 +95,11 @@ TR(ON, "On");
 TR(PAGE, "page");
 TR(PART, "Part");
 TR(PATIENT, "Patient");
+TR(PHOTO_TITLE, "Clinical photograph");
+TR(PHOTO_Q,
+   "1. Ensure consent is documented, if applicable.\n"
+   "2. Take a photograph.\n"
+   "3. Enter a description.");
 TR(PRESS_NEXT_TO_CONTINUE,
    "Press the NEXT button (the green right-facing arrow at the TOP RIGHT of "
    "the screen) to continue.");

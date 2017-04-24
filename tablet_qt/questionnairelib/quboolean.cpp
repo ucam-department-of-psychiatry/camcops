@@ -25,7 +25,7 @@
 #include "lib/uifunc.h"
 #include "questionnairelib/mcqfunc.h"
 #include "questionnairelib/questionnaire.h"
-#include "widgets/aspectratiopixmaplabel.h"
+#include "widgets/aspectratiopixmap.h"
 #include "widgets/basewidget.h"
 #include "widgets/booleanwidget.h"
 // #include "widgets/clickablelabelnowrap.h"
@@ -167,10 +167,10 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire *questionnaire)
         // Image label (accompanying image)
         // --------------------------------------------------------------------
         QPixmap image = uifunc::getPixmap(m_image_filename, m_image_size);
-        AspectRatioPixmapLabel* label = new AspectRatioPixmapLabel();
+        AspectRatioPixmap* label = new AspectRatioPixmap();
         label->setPixmap(image);
         if (!read_only && m_content_clickable) {
-            connect(label, &AspectRatioPixmapLabel::clicked,
+            connect(label, &AspectRatioPixmap::clicked,
                     this, &QuBoolean::clicked);
         }
         labelwidget = label;

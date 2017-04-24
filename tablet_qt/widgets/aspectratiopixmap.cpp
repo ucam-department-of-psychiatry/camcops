@@ -20,38 +20,42 @@
 // #define DEBUG_LAYOUT
 // #define DEBUG_CLICK_TIMING
 
-#include "aspectratiopixmaplabel.h"
+#include "aspectratiopixmap.h"
 #include <QDebug>
 #include <QMouseEvent>
+#include <QPainter>
 #include <QResizeEvent>
 #include "common/gui_defines.h"
 #include "common/uiconstants.h"
+#include "lib/sizehelpers.h"
 
 
-AspectRatioPixmapLabel::AspectRatioPixmapLabel(QWidget* parent) :
-    QLabel(parent)
+AspectRatioPixmap::AspectRatioPixmap(QWidget* parent) :
+    QWidget(parent)
 {
-    setScaledContents(false);
-
-    QSizePolicy sp(QSizePolicy::Maximum, QSizePolicy::Fixed);
-    sp.setHeightForWidth(true);
-    setSizePolicy(sp);
-    updateGeometry();
+    // setScaledContents(false);  // from QLabel
+    setSizePolicy(sizehelpers::maximumFixedHFWPolicy());
+    // updateGeometry();
 }
 
 
-void AspectRatioPixmapLabel::setPixmap(const QPixmap& pixmap)
+void AspectRatioPixmap::setPixmap(const QPixmap& pixmap)
 {
 #ifdef DEBUG_LAYOUT
     qDebug() << Q_FUNC_INFO;
 #endif
     m_pixmap = pixmap;
-    QLabel::setPixmap(scaledPixmap());
     updateGeometry();
 }
 
 
-int AspectRatioPixmapLabel::heightForWidth(int width) const
+bool AspectRatioPixmap::hasHeightForWidth() const
+{
+    return true;
+}
+
+
+int AspectRatioPixmap::heightForWidth(int width) const
 {
 #ifdef DEBUG_CLICK_TIMING
     qDebug() << Q_FUNC_INFO;
@@ -73,7 +77,7 @@ int AspectRatioPixmapLabel::heightForWidth(int width) const
 }
 
 
-QSize AspectRatioPixmapLabel::sizeHint() const
+QSize AspectRatioPixmap::sizeHint() const
 {
 #ifdef DEBUG_CLICK_TIMING
     qDebug() << Q_FUNC_INFO;
@@ -86,7 +90,7 @@ QSize AspectRatioPixmapLabel::sizeHint() const
 #endif
     return hint;
 
-    // PROBLEM with AspectRatioPixmapLabel
+    // PROBLEM with AspectRatioPixmap
     // If you have a 1920 x 1080 pixmap, then if you don't override sizeHint
     // you get something like a 640x380 default size. If you want the pixmap
     // to expand horizontally, you need to give a sizeHint.
@@ -109,41 +113,19 @@ QSize AspectRatioPixmapLabel::sizeHint() const
 }
 
 
-QSize AspectRatioPixmapLabel::minimumSizeHint() const
+QSize AspectRatioPixmap::minimumSizeHint() const
 {
     return QSize(0, 0);
 }
 
 
-QPixmap AspectRatioPixmapLabel::scaledPixmap() const
+void AspectRatioPixmap::resizeEvent(QResizeEvent* event)
 {
-#ifdef DEBUG_LAYOUT
-    qDebug() << Q_FUNC_INFO << "this->size()" << this->size();
-#endif
-    return m_pixmap.scaled(this->size(),
-                      Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    m_size = event->size();
 }
 
 
-void AspectRatioPixmapLabel::resizeEvent(QResizeEvent* event)
-{
-#ifdef DEBUG_CLICK_TIMING
-    qDebug() << Q_FUNC_INFO;
-#endif
-    Q_UNUSED(event);
-    if (!m_pixmap.isNull()) {
-        QLabel::setPixmap(scaledPixmap());
-#ifdef GUI_USE_RESIZE_FOR_HEIGHT
-        updateGeometry();  // WATCH OUT: any potential for infinite recursion?
-#ifdef DEBUG_LAYOUT
-        qDebug() << Q_FUNC_INFO << "calling updateGeometry()";
-#endif
-#endif
-    }
-}
-
-
-void AspectRatioPixmapLabel::mousePressEvent(QMouseEvent* event)
+void AspectRatioPixmap::mousePressEvent(QMouseEvent* event)
 {
 #ifdef DEBUG_CLICK_TIMING
     qDebug() << Q_FUNC_INFO;
@@ -153,7 +135,7 @@ void AspectRatioPixmapLabel::mousePressEvent(QMouseEvent* event)
 }
 
 
-void AspectRatioPixmapLabel::clear()
+void AspectRatioPixmap::clear()
 {
     // qDebug() << Q_FUNC_INFO;
     // If you set (1) a giant pixmap and then (2) a null pixmap, you can have
@@ -161,4 +143,29 @@ void AspectRatioPixmapLabel::clear()
     QPixmap blank(1, 1);
     blank.fill(uiconst::BLACK_TRANSPARENT);
     setPixmap(blank);
+}
+
+
+void AspectRatioPixmap::paintEvent(QPaintEvent* event)
+{
+    Q_UNUSED(event);
+
+    QPainter painter(this);
+    QRect cr = contentsRect();
+    if (cr.size() != m_pixmap.size()) {
+        // Scale
+        QSize displaysize = m_size;
+        displaysize.scale(cr.size(), Qt::KeepAspectRatio);
+        QRect dest_active_rect = QRect(cr.topLeft(), displaysize);
+        QRect source_all_image(QPoint(0, 0), m_pixmap.size());
+        painter.drawPixmap(dest_active_rect, m_pixmap, source_all_image);
+
+        // Optimizations are possible: we don't have to draw all of it...
+        // http://blog.qt.io/blog/2006/05/13/fast-transformed-pixmapimage-drawing/
+        // ... but I haven't implemented those optimizations.
+        // See also CanvasWidget.
+    } else {
+        // No need to scale
+        painter.drawPixmap(cr.left(), cr.top(), m_pixmap);
+    }
 }

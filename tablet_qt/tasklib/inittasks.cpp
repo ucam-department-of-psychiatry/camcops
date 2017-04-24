@@ -65,6 +65,7 @@
 #include "tasks/gmcpq.h"
 
 #include "tasks/hads.h"
+#include "tasks/hadsrespondent.h"
 #include "tasks/hama.h"
 #include "tasks/hamd.h"
 #include "tasks/hamd7.h"
@@ -95,6 +96,7 @@
 #include "tasks/pclm.h"
 #include "tasks/pcls.h"
 #include "tasks/pdss.h"
+#include "tasks/photo.h"
 #include "tasks/phq9.h"
 #include "tasks/phq15.h"
 #include "tasks/progressnote.h"
@@ -155,6 +157,7 @@ void InitTasks(TaskFactory& factory)
     initializeGmcPq(factory);
 
     initializeHads(factory);
+    initializeHadsRespondent(factory);
     initializeHamA(factory);
     initializeHamD(factory);
     initializeHamD7(factory);
@@ -186,7 +189,7 @@ void InitTasks(TaskFactory& factory)
     initializePclM(factory); // *** NEED TO CHECK WITH DOWNLOADED STRINGS
     initializePclS(factory); // *** NEED TO CHECK WITH DOWNLOADED STRINGS
     initializePdss(factory);
-    // *** initializePhoto(factory);
+    initializePhoto(factory);
     // *** initializePhotoSequence(factory);
     initializePhq9(factory);
     initializePhq15(factory); // *** NEED TO CHECK WITH DOWNLOADED STRINGS

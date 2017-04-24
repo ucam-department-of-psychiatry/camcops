@@ -25,41 +25,23 @@ class CamcopsApp;
 class OpenableWidget;
 class TaskFactory;
 
-void initializeHads(TaskFactory& factory);
+void initializePhoto(TaskFactory& factory);
 
 
-class Hads : public Task
+class Photo : public Task
 {
-    // We also make this task suitable for use for respondents who are not the
-    // primary patient (e.g. carers). This involves no modification to the HADS
-    // structure, so we have two options:
-    //
-    // (1) one task + boolean patient-or-not flag + respondent info applicable
-    //     if respondent is not the patient
-    // (2) two tasks, one for primary patient, one for other respondent
-    //
-    // Both would be reasonable. The risk with (1) is that someone charts
-    // numerical progress on the HADS thinking it's from the patient, and it
-    // isn't. That alone warrants a strong "patient task versus respondent
-    // task" distinction. So we'll have an additional task, HadsRespondent,
-    // which inherits from this.
-
     Q_OBJECT
 public:
-    Hads(CamcopsApp& app, const QSqlDatabase& db,
-         int load_pk = dbconst::NONEXISTENT_PK);
-protected:
-    Hads(CamcopsApp& app, const QSqlDatabase& db,
-         const QString& tablename, bool has_respondent,
-         int load_pk = dbconst::NONEXISTENT_PK);
-    void commonConstructor(int load_pk);
+    Photo(CamcopsApp& app, const QSqlDatabase& db,
+          int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
-public:
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString menusubtitle() const override;
+    virtual QString infoFilenameStem() const;
+    virtual bool isCrippled() const { return false; }
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -70,6 +52,4 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-protected:
-    int getScore(const QVector<int>& questions) const;
 };

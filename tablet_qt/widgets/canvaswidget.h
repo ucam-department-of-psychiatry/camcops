@@ -64,7 +64,7 @@ protected:
     QPoint transformDisplayToImageCoords(QPoint point) const;
 protected:
     int m_minimum_shrink_height;
-    QSize m_size;
+    QSize m_size;  // size on screen
     double m_image_to_display_ratio;
     bool m_allow_shrink;
     QImage m_image;

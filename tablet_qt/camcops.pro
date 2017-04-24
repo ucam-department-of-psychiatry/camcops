@@ -254,7 +254,6 @@ SOURCES += main.cpp \
     tasks/ace3.cpp \
     tasks/demoquestionnaire.cpp \
     tasks/phq9.cpp \
-    widgets/aspectratiopixmaplabel.cpp \
     widgets/basewidget.cpp \
     widgets/booleanwidget.cpp \
     widgets/boxlayouthfw.cpp \
@@ -370,7 +369,10 @@ SOURCES += main.cpp \
     tasks/pcls.cpp \
     tasks/phq15.cpp \
     tasks/pdss.cpp \
-    tasks/progressnote.cpp
+    tasks/progressnote.cpp \
+    tasks/hadsrespondent.cpp \
+    tasks/photo.cpp \
+    widgets/aspectratiopixmap.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -541,7 +543,6 @@ HEADERS  += \
     tasks/ace3.h \
     tasks/demoquestionnaire.h \
     tasks/phq9.h \
-    widgets/aspectratiopixmaplabel.h \
     widgets/basewidget.h \
     widgets/booleanwidget.h \
     widgets/boxlayouthfw.h \
@@ -657,7 +658,10 @@ HEADERS  += \
     tasks/pcls.h \
     tasks/phq15.h \
     tasks/pdss.h \
-    tasks/progressnote.h
+    tasks/progressnote.h \
+    tasks/hadsrespondent.h \
+    tasks/photo.h \
+    widgets/aspectratiopixmap.h
 
 
 DISTFILES += \

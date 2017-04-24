@@ -438,7 +438,7 @@ CanvasWidget {
 }
 
 /* QuPhoto */
-AspectRatioPixmapLabel {
+AspectRatioPixmap {
     background-color: lightgray;
 }
 

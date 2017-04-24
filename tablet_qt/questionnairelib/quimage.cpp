@@ -20,7 +20,7 @@
 #include "quimage.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
-#include "widgets/aspectratiopixmaplabel.h"
+#include "widgets/aspectratiopixmap.h"
 
 
 QuImage::QuImage(const QString& filename, const QSize& size) :
@@ -77,7 +77,7 @@ QPointer<QWidget> QuImage::makeWidget(Questionnaire* questionnaire)
     }
 
     // Create widget
-    m_label = new AspectRatioPixmapLabel();
+    m_label = new AspectRatioPixmap();
     if (!m_allow_shrink) {
         m_label->setFixedSize(image.size());
     }

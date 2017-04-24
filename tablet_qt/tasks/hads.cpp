@@ -58,6 +58,23 @@ void initializeHads(TaskFactory& factory)
 Hads::Hads(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
     Task(app, db, HADS_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
+    // Main HADS constructor. No respondent.
+    commonConstructor(load_pk);
+}
+
+
+Hads::Hads(CamcopsApp& app, const QSqlDatabase& db,
+           const QString& tablename, bool has_respondent,
+           int load_pk) :
+    Task(app, db, tablename, false, false, has_respondent)  // ... anon, clin, resp
+{
+    // Constructor used by HadsRespondent.
+    commonConstructor(load_pk);
+}
+
+
+void Hads::commonConstructor(int load_pk)
+{
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
@@ -155,22 +172,30 @@ OpenableWidget* Hads::editor(bool read_only)
             qfields.append(QuestionWithOneField(question,
                                                 fieldRef(strnum(QPREFIX, n))));
         }
-        pages.append(QuPagePtr((new QuPage{
-            (new QuText(textconst::DATA_COLLECTION_ONLY))->setBold(),
-            new QuText(textconst::ENTER_THE_ANSWERS),
-            new QuMcqGrid(qfields, options),
-        })->setTitle(longname())));
+        QVector<QuElement*> elements;
+        if (hasRespondent()) {  // for HadsRespondent
+            elements.append(getRespondentQuestionnaireBlockRawPointer(true));
+        }
+        elements.append((new QuText(textconst::DATA_COLLECTION_ONLY))
+                        ->setBold());
+        elements.append(new QuText(textconst::ENTER_THE_ANSWERS));
+        elements.append(new QuMcqGrid(qfields, options));
+        pages.append(QuPagePtr((new QuPage(elements))->setTitle(longname())));
 
     } else {
         // --------------------------------------------------------------------
         // Full version, if available
         // --------------------------------------------------------------------
-        pages.append(QuPagePtr((new QuPage{
-            text("instruction_1"),
-            text("instruction_2"),
-            text("instruction_3"),
-            (new QuText(textconst::PRESS_NEXT_TO_CONTINUE))->setBold(),
-        })->setTitle(longname())));
+        QVector<QuElement*> elements;
+        if (hasRespondent()) {  // for HadsRespondent
+            elements.append(getRespondentQuestionnaireBlockRawPointer(true));
+        }
+        elements.append(text("instruction_1"));
+        elements.append(text("instruction_2"));
+        elements.append(text("instruction_3"));
+        elements.append((new QuText(textconst::PRESS_NEXT_TO_CONTINUE))
+                        ->setBold());
+        pages.append(QuPagePtr((new QuPage(elements))->setTitle(longname())));
         for (int n = 1; n <= N_QUESTIONS; ++n) {
             NameValueOptions options = fulloptions(n);
             if (INVERTED_QUESTIONS.contains(n)) {

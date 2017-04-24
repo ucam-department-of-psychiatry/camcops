@@ -118,8 +118,11 @@ void resizeEventForHFWParentWidget(QWidget* widget)
 #ifdef DEBUG_HFW_RESIZE_EVENT
     qDebug() << Q_FUNC_INFO << "w" << w << "-> h" << h;
 #endif
-    widget->setFixedHeight(h);
-    widget->updateGeometry();
+    bool change = !fixedHeightEquals(widget, h);
+    if (change) {
+        widget->setFixedHeight(h);
+        widget->updateGeometry();
+    }
 }
 
 
@@ -267,6 +270,13 @@ QSize labelExtraSizeRequired(const QLabel* label,
     return widgetExtraSizeForCssOrLayout(label, opt, child_size,
                                          true, QStyle::CT_PushButton);
     // Is QStyle::CT_PushButton right?
+}
+
+
+bool fixedHeightEquals(QWidget* widget, int height)
+{
+    return height == widget->minimumHeight() &&
+            height == widget->maximumHeight();
 }
 
 

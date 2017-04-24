@@ -53,4 +53,6 @@ protected:
 protected:
     int m_last_widget_width;
     int m_reentry_depth;
+    QSize m_widget_size_back_1;
+    QSize m_widget_size_back_2;
 };

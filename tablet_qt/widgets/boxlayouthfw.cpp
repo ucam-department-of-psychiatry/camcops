@@ -72,6 +72,7 @@
 #include <QWidget>
 #include "common/widgetconst.h"
 #include "lib/reentrydepthguard.h"
+#include "lib/sizehelpers.h"
 #include "widgets/qtlayouthelpers.h"
 
 #ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
@@ -1184,8 +1185,12 @@ void BoxLayoutHfw::setGeometry(const QRect& initial_rect)
     // ------------------------------------------------------------------------
 #ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
     if (parent_new_height != -1) {
-        parent->setFixedHeight(parent_new_height);  // RISK OF INFINITE RECURSION
-        parent->updateGeometry();
+        bool change = !sizehelpers::fixedHeightEquals(parent,
+                                                      parent_new_height);
+        if (change) {
+            parent->setFixedHeight(parent_new_height);  // RISK OF INFINITE RECURSION
+            parent->updateGeometry();
+        }
     }
 #endif
 }

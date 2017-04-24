@@ -83,8 +83,8 @@ Files that make up a complete set of classes:
     widgets/labelwordwrapwide.cpp   }   as much width as possible before
                                         wrapping
 
-    widgets/aspectratiopixmaplabel.h   } widget to keep an image's aspect ratio
-    widgets/aspectratiopixmaplabel.cpp }   fixed
+    widgets/aspectratiopixmap.h   } widget to keep an image's aspect ratio
+    widgets/aspectratiopixmap.cpp }   fixed
 
     (*) uses gui_defines.h to implement a master switch for testing
 
