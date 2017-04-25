@@ -185,11 +185,14 @@ bool FieldRef::setValue(const QVariant& value, const QObject* originator)
         changed = m_blob->setBlob(value, true);
         if (changed) {
             m_blob->save();  // ensure it has a PK
-            m_p_dbobject->setValue(m_fieldname, m_blob->pkvalue());
+            m_p_dbobject->setValue(m_fieldname, m_blob->pkvalue(), true);
         }
         // ... (a) sets the BLOB, and (b) if the BLOB has changed or is being
         // set for the first time, sets the "original" field to contain the PK
         // of the BLOB entry.
+        // ... and (c) we ensure that the setValue() command touches the
+        // record, on the basis that a task has changed if one of its BLOBs has
+        // changed, even if the BLOB PK has not changed.
         break;
     case FieldRefMethod::Functions:
         changed = m_setterfunc(value);

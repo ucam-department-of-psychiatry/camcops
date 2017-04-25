@@ -75,7 +75,7 @@ void Questionnaire::commonConstructor()
     m_within_chain = false;
 
     m_built = false;
-    m_current_pagenum_zero_based = 0;  // starting page
+    m_current_page_index = 0;  // starting page
 
     setStyleSheet(m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_QUESTIONNAIRE));
 
@@ -155,11 +155,11 @@ void Questionnaire::build()
     //                      W pagewidget = QWidget
 
     // Get page
-    if (m_current_pagenum_zero_based < 0 ||
-            m_current_pagenum_zero_based > m_pages.size()) {
+    if (m_current_page_index < 0 ||
+            m_current_page_index > m_pages.size()) {
         // Duff page!
         qWarning() << Q_FUNC_INFO << "Bad page number:"
-                   << m_current_pagenum_zero_based;
+                   << m_current_page_index;
         uifunc::stopApp("BUG! Bad page number in Questionnaire::build");
     }
     QuPage* page = currentPagePtr();
@@ -282,7 +282,7 @@ bool Questionnaire::event(QEvent* e)
 bool Questionnaire::morePagesToGo() const
 {
     int lastpage = nPages() - 1;
-    for (int i = m_current_pagenum_zero_based; i < lastpage; ++i) {
+    for (int i = m_current_page_index; i < lastpage; ++i) {
         if (m_pages.at(i)->skip()) {
             continue;
         }
@@ -301,16 +301,22 @@ void Questionnaire::resetButtons()
     bool on_last_page = !morePagesToGo();
     bool allow_progression = readOnly() || !page->missingInput();
     m_p_header->setButtons(
-        m_current_pagenum_zero_based > 0,  // previous
+        m_current_page_index > 0,  // previous
         !on_last_page && allow_progression,  // next
         on_last_page && allow_progression  // finish
     );
 }
 
 
+int Questionnaire::currentPageIndex() const
+{
+    return m_current_page_index;
+}
+
+
 int Questionnaire::currentPageNumOneBased() const
 {
-    return m_current_pagenum_zero_based + 1;
+    return m_current_page_index + 1;
 }
 
 
@@ -322,11 +328,16 @@ int Questionnaire::nPages() const
 
 QuPage* Questionnaire::currentPagePtr() const
 {
-    if (m_current_pagenum_zero_based < 0 ||
-            m_current_pagenum_zero_based >= m_pages.size()) {
+    return pagePtr(m_current_page_index);
+}
+
+
+QuPage* Questionnaire::pagePtr(int index) const
+{
+    if (index < 0 || index >= m_pages.size()) {
         return nullptr;
     }
-    return m_pages.at(m_current_pagenum_zero_based).data();
+    return m_pages.at(index).data();
 }
 
 
@@ -410,7 +421,7 @@ void Questionnaire::jumpClicked()
 
 void Questionnaire::previousClicked()
 {
-    for (int i = m_current_pagenum_zero_based - 1; i >= 0; --i) {
+    for (int i = m_current_page_index - 1; i >= 0; --i) {
         if (m_pages.at(i)->skip()) {
             continue;
         }
@@ -428,7 +439,7 @@ void Questionnaire::nextClicked()
         return;
     }
     int npages = nPages();
-    for (int i = m_current_pagenum_zero_based + 1; i < npages; ++i) {
+    for (int i = m_current_page_index + 1; i < npages; ++i) {
         if (m_pages.at(i)->skip()) {
             continue;
         }
@@ -440,24 +451,74 @@ void Questionnaire::nextClicked()
 
 void Questionnaire::refreshCurrentPage()
 {
-    goToPage(m_current_pagenum_zero_based, true);
+    goToPage(m_current_page_index, true);
 }
 
 
-void Questionnaire::goToPage(int index_zero_based, bool allow_refresh)
+void Questionnaire::deletePage(int index)
 {
-    if (index_zero_based < 0 || index_zero_based >= nPages()) {
-        qWarning() << Q_FUNC_INFO
-                   << "Invalid index_zero_based:" << index_zero_based;
+    if (nPages() <= 1) {
+        qWarning() << Q_FUNC_INFO << "Can't delete the only remaining page!";
         return;
     }
-    if (index_zero_based == m_current_pagenum_zero_based && !allow_refresh) {
-        qDebug() << "Page" << index_zero_based <<
+
+    // Step 1: if we're on the page being deleted, move cleanly to another
+    //         page.
+    // Step 2: delete the page (now invisible).
+
+    bool deleting_current = index == m_current_page_index;
+    bool deleting_earlier = index < m_current_page_index;
+    bool deleting_current_and_moving_forward = false;
+    if (deleting_current) {
+        bool deleting_last = index == nPages() - 1;
+        int go_to_index = deleting_last ? index - 1
+                                        : index + 1;
+        deleting_current_and_moving_forward = !deleting_last;
+        goToPage(go_to_index);  // alters m_current_pagenum_zero_based
+    }
+
+    m_pages.remove(index);
+
+    if (deleting_earlier || deleting_current_and_moving_forward) {
+        // We're not changing page, but the page number we're on is changing!
+        m_current_page_index -= 1;
+    }
+}
+
+
+void Questionnaire::movePageBackwards(int index)
+{
+    if (index < 1 || index >= m_pages.size()) {
+        return;
+    }
+    std::swap(m_pages[index - 1], m_pages[index]);
+    goToPage(m_current_page_index);
+}
+
+
+void Questionnaire::movePageForwards(int index)
+{
+    if (index < 0 || index >= m_pages.size() - 1) {
+        return;
+    }
+    std::swap(m_pages[index], m_pages[index + 1]);
+    goToPage(m_current_page_index);
+}
+
+
+void Questionnaire::goToPage(int index, bool allow_refresh)
+{
+    if (index < 0 || index >= nPages()) {
+        qWarning() << Q_FUNC_INFO << "Invalid index:" << index;
+        return;
+    }
+    if (index == m_current_page_index && !allow_refresh) {
+        qDebug() << "Page" << index <<
                     "(zero-based index) already selected";
         return;
     }
     pageClosing();
-    m_current_pagenum_zero_based = index_zero_based;
+    m_current_page_index = index;
     build();
 }
 

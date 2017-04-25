@@ -107,14 +107,23 @@ extern const QString NOT_SPECIFIED;
 extern const QString NOTE;
 // Don't use NULL; it's a keyword
 
+extern const QString OF;
 extern const QString OFF;
 extern const QString ON;
 
 extern const QString PAGE;
 extern const QString PART;
 extern const QString PATIENT;
+extern const QString PHOTO;
+extern const QString PHOTOS;
 extern const QString PHOTO_TITLE;
 extern const QString PHOTO_Q;
+extern const QString PHOTOSEQUENCE_ADD;
+extern const QString PHOTOSEQUENCE_DELETE;
+extern const QString PHOTOSEQUENCE_PHOTO_DESCRIPTION;
+extern const QString PHOTOSEQUENCE_SEQUENCE_DESCRIPTION;
+extern const QString PHOTOSEQUENCE_MOVE_BACK;
+extern const QString PHOTOSEQUENCE_MOVE_FORWARDS;
 extern const QString PRESS_NEXT_TO_CONTINUE;
 
 extern const QString QUESTION;

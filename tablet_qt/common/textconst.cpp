@@ -89,17 +89,26 @@ TR(NOT_RECALLED, "Not recalled");
 TR(NOT_SPECIFIED, "<not specified>");
 TR(NOTE, "Note");
 
+TR(OF, "of");
 TR(OFF, "Off");
 TR(ON, "On");
 
 TR(PAGE, "page");
 TR(PART, "Part");
 TR(PATIENT, "Patient");
+TR(PHOTO, "Photo");
+TR(PHOTOS, "Photos");
 TR(PHOTO_TITLE, "Clinical photograph");
 TR(PHOTO_Q,
    "1. Ensure consent is documented, if applicable.\n"
    "2. Take a photograph.\n"
    "3. Enter a description.");
+TR(PHOTOSEQUENCE_ADD, "Add new photo");
+TR(PHOTOSEQUENCE_DELETE, "Delete this photo");
+TR(PHOTOSEQUENCE_PHOTO_DESCRIPTION, "Photo description");
+TR(PHOTOSEQUENCE_SEQUENCE_DESCRIPTION, "Sequence description");
+TR(PHOTOSEQUENCE_MOVE_BACK, "Move this photo backwards");
+TR(PHOTOSEQUENCE_MOVE_FORWARDS, "Move this photo forwards");
 TR(PRESS_NEXT_TO_CONTINUE,
    "Press the NEXT button (the green right-facing arrow at the TOP RIGHT of "
    "the screen) to continue.");

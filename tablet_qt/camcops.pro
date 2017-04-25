@@ -372,7 +372,9 @@ SOURCES += main.cpp \
     tasks/progressnote.cpp \
     tasks/hadsrespondent.cpp \
     tasks/photo.cpp \
-    widgets/aspectratiopixmap.cpp
+    widgets/aspectratiopixmap.cpp \
+    tasks/photosequence.cpp \
+    tasks/photosequencephoto.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -661,7 +663,9 @@ HEADERS  += \
     tasks/progressnote.h \
     tasks/hadsrespondent.h \
     tasks/photo.h \
-    widgets/aspectratiopixmap.h
+    widgets/aspectratiopixmap.h \
+    tasks/photosequence.h \
+    tasks/photosequencephoto.h
 
 
 DISTFILES += \

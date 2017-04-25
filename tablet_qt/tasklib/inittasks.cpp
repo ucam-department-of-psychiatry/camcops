@@ -97,6 +97,7 @@
 #include "tasks/pcls.h"
 #include "tasks/pdss.h"
 #include "tasks/photo.h"
+#include "tasks/photosequence.h"
 #include "tasks/phq9.h"
 #include "tasks/phq15.h"
 #include "tasks/progressnote.h"
@@ -190,7 +191,7 @@ void InitTasks(TaskFactory& factory)
     initializePclS(factory); // *** NEED TO CHECK WITH DOWNLOADED STRINGS
     initializePdss(factory);
     initializePhoto(factory);
-    // *** initializePhotoSequence(factory);
+    initializePhotoSequence(factory);
     initializePhq9(factory);
     initializePhq15(factory); // *** NEED TO CHECK WITH DOWNLOADED STRINGS
     initializeProgressNote(factory);

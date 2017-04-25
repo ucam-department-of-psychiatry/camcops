@@ -49,6 +49,9 @@ class Patient;
 using PatientPtr = QSharedPointer<Patient>;
 using PatientPtrList = QVector<PatientPtr>;
 
+class PhotoSequencePhoto;
+using PhotoSequencePhotoPtr = QSharedPointer<PhotoSequencePhoto>;
+
 class QuElement;
 using QuElementPtr = QSharedPointer<QuElement>;
 

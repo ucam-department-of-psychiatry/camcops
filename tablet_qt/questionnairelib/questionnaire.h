@@ -60,6 +60,7 @@ public:
     CamcopsApp& app() const;
     QString getSubstitutedCss(const QString& filename) const;
     QuPage* currentPagePtr() const;
+    QuPage* pagePtr(int index) const;
     void setVisibleByTag(const QString& tag, bool visible,
                          bool current_page_only = true,
                          const QString& page_tag = "");
@@ -75,13 +76,19 @@ public:
     void setPageSkip(const QString& page_tag, bool skip,
                      bool reset_buttons = true);
     void refreshCurrentPage();
+    void deletePage(int index);
+    void movePageBackwards(int index);
+    void movePageForwards(int index);
+    int currentPageIndex() const;
+    int currentPageNumOneBased() const;
+    int nPages() const;
+    void goToPage(int index, bool allow_refresh = false);
+    void debugLayout();
 public slots:
     void resetButtons();
 protected:
     void commonConstructor();
     bool morePagesToGo() const;
-    int currentPageNumOneBased() const;
-    int nPages() const;
     void doFinish();
     void doCancel();
     void pageClosing();
@@ -91,8 +98,6 @@ protected slots:
     void previousClicked();
     void nextClicked();
     void finishClicked();
-    void goToPage(int index_zero_based, bool allow_refresh = false);
-    void debugLayout();
 signals:
     void editStarted();
     void editFinished(bool aborted);
@@ -114,5 +119,5 @@ protected:
     QPointer<QWidget> m_background_widget;
     QPointer<QVBoxLayout> m_mainlayout;
     QPointer<QuestionnaireHeader> m_p_header;
-    int m_current_pagenum_zero_based;
+    int m_current_page_index;
 };

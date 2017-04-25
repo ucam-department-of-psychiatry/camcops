@@ -51,9 +51,10 @@ void loadAncillary(QVector<AncillaryPtrType>& ancillaries,
     bool success = dbfunc::execQuery(query, sqlargs);
     if (success) {  // success check may be redundant (cf. while clause)
         while (query.next()) {
-            AncillaryPtrType ancillary(new AncillaryType(
-                                       app, db, dbconst::NONEXISTENT_PK));
-            ancillary->setFromQuery(query, true);
+            AncillaryType* raw_ptr_ancillary = new AncillaryType(
+                        app, db, dbconst::NONEXISTENT_PK);
+            raw_ptr_ancillary->setFromQuery(query, true);
+            AncillaryPtrType ancillary(raw_ptr_ancillary);
             ancillaries.append(ancillary);
         }
     }

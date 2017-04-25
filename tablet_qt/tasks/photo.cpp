@@ -86,7 +86,7 @@ QString Photo::infoFilenameStem() const
 
 bool Photo::isComplete() const
 {
-    return noneNull(values({DESCRIPTION, PHOTO_BLOBID}));
+    return !valueIsNullOrEmpty(DESCRIPTION) && !valueIsNull(PHOTO_BLOBID);
 }
 
 
@@ -108,7 +108,7 @@ OpenableWidget* Photo::editor(bool read_only)
         new QuText(textconst::PHOTO_Q),
         new QuText(textconst::DESCRIPTION),
         new QuTextEdit(fieldRef(DESCRIPTION)),
-        new QuPhoto(fieldRef(PHOTO_BLOBID, true, true, true)),
+        new QuPhoto(fieldRef(PHOTO_BLOBID, false, true, true)),
     })->setTitle(textconst::PHOTO_TITLE));
 
     Questionnaire* questionnaire = new Questionnaire(m_app, {page});
