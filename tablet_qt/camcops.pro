@@ -374,7 +374,9 @@ SOURCES += main.cpp \
     tasks/photo.cpp \
     widgets/aspectratiopixmap.cpp \
     tasks/photosequence.cpp \
-    tasks/photosequencephoto.cpp
+    tasks/photosequencephoto.cpp \
+    tasks/pswq.cpp \
+    tasks/psychiatricclerking.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -665,7 +667,9 @@ HEADERS  += \
     tasks/photo.h \
     widgets/aspectratiopixmap.h \
     tasks/photosequence.h \
-    tasks/photosequencephoto.h
+    tasks/photosequencephoto.h \
+    tasks/pswq.h \
+    tasks/psychiatricclerking.h
 
 
 DISTFILES += \

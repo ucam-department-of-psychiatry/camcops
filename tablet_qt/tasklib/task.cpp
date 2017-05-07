@@ -399,20 +399,23 @@ QStringList Task::fieldSummariesYesNo(const QString& xstringprefix,
 }
 
 
-QStringList Task::clinicianDetails() const
+QStringList Task::clinicianDetails(const QString& separator) const
 {
     if (!hasClinician()) {
         return QStringList();
     }
     return QStringList{
-        fieldSummary(CLINICIAN_SPECIALTY, textconst::CLINICIAN_SPECIALTY),
-        fieldSummary(CLINICIAN_NAME, textconst::CLINICIAN_NAME),
+        fieldSummary(CLINICIAN_SPECIALTY, textconst::CLINICIAN_SPECIALTY,
+                     separator),
+        fieldSummary(CLINICIAN_NAME, textconst::CLINICIAN_NAME, separator),
         fieldSummary(CLINICIAN_PROFESSIONAL_REGISTRATION,
-                     textconst::CLINICIAN_PROFESSIONAL_REGISTRATION),
-        fieldSummary(CLINICIAN_POST, textconst::CLINICIAN_POST),
-        fieldSummary(CLINICIAN_SERVICE, textconst::CLINICIAN_SERVICE),
+                     textconst::CLINICIAN_PROFESSIONAL_REGISTRATION,
+                     separator),
+        fieldSummary(CLINICIAN_POST, textconst::CLINICIAN_POST, separator),
+        fieldSummary(CLINICIAN_SERVICE, textconst::CLINICIAN_SERVICE,
+                     separator),
         fieldSummary(CLINICIAN_CONTACT_DETAILS,
-                     textconst::CLINICIAN_CONTACT_DETAILS),
+                     textconst::CLINICIAN_CONTACT_DETAILS, separator),
     };
 }
 

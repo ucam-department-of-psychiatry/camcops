@@ -25,15 +25,15 @@ class CamcopsApp;
 class OpenableWidget;
 class TaskFactory;
 
-void initializePhq15(TaskFactory& factory);
+void initializePswq(TaskFactory& factory);
 
 
-class Phq15 : public Task
+class Pswq : public Task
 {
     Q_OBJECT
 public:
-    Phq15(CamcopsApp& app, const QSqlDatabase& db,
-          int load_pk = dbconst::NONEXISTENT_PK);
+    Pswq(CamcopsApp& app, const QSqlDatabase& db,
+         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -50,10 +50,5 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-    QVector<int> applicableQuestionNumbers() const;
-    QStringList applicableQuestionFieldNames() const;
     int totalScore() const;
-    int nQuestions() const;
-    int maxScore() const;
-    int nSevereSymptoms() const;
 };

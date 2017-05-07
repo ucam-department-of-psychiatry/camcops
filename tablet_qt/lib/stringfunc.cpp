@@ -32,6 +32,7 @@ QString strnum(const QString& prefix, int num, const QString& suffix)
     return prefix + QString::number(num) + suffix;
 }
 
+
 QStringList strnumlist(const QString& prefix, const QVector<int>& numbers,
                        const QString& suffix)
 {

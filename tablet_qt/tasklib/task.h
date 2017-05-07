@@ -115,7 +115,7 @@ public:
                                     int first,
                                     int last,
                                     const QString& suffix = "") const;
-    QStringList clinicianDetails() const;
+    QStringList clinicianDetails(const QString& separator = ": ") const;
     QStringList respondentDetails() const;
     // ------------------------------------------------------------------------
     // Editing

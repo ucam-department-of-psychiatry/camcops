@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="psychiatricclerking">
+    <!-- Psychiatric clerking -->
+
+    <string name="title">Psychiatric clerking</string>
+
+    <string name="heading_current_contact">Current contact</string>
+    <string name="heading_background">Background</string>
+    <string name="heading_examination_investigations">Examination and investigations</string>
+    <string name="heading_risk_legal">Risk and legal considerations</string>
+    <string name="heading_summary_plan">Summary and plan</string>
+
+    <string name="mental_state_examination">Mental state examination</string> <!-- subheading, not field -->
+    <string name="physical_examination">Physical examination</string> <!-- subheading, not field -->
+    <string name="assessments_and_investigations">Assessments and investigations</string> <!-- subheading, not field -->
+
+    <string name="location">Location</string>
+    <string name="contact_type">Contact type (e.g. admission, referral, outpatients, etc.)</string> <!-- RCP heading/field -->
+    <string name="reason_for_contact">Reason for contact (e.g. patient’s reason, professional’s reason)</string> <!-- RCP heading/field -->
+    <string name="presenting_issue">Presenting issue(s) (history of presenting complaint)</string> <!-- RCP heading/field -->
+    <string name="systems_review">Review of symptoms/systems</string>
+    <string name="collateral_history">Collateral history</string>
+    <string name="diagnoses_psychiatric">Diagnoses — psychiatric (past psychiatric history)</string> <!-- RCP "Diagnoses" split here -->
+    <string name="diagnoses_medical">Diagnoses — medical (past medical history)</string> <!-- RCP "Diagnoses" split here -->
+    <string name="operations_procedures">Operations and procedures</string> <!-- RCP heading/field -->
+    <string name="allergies_adverse_reactions">Allergies and adverse reactions</string> <!-- RCP heading/field -->
+    <string name="medications">Medications</string> <!-- RCP heading/field -->
+    <string name="recreational_drug_use">Recreational/illicit drug use (inc. tobacco, alcohol)</string>
+    <string name="family_history">Family history (record of relevant illness in family relations)</string> <!-- RCP heading/field -->
+    <string name="developmental_history">Developmental history</string>
+    <string name="personal_history">Personal history</string>
+    <string name="premorbid_personality">Premorbid personality</string>
+    <string name="forensic_history">Forensic history</string>
+    <string name="current_social_situation">Current social situation</string>
+    <string name="mse_appearance_behaviour">Appearance and behaviour</string>
+    <string name="mse_speech">Speech</string>
+    <string name="mse_mood_subjective">Mood/affect (subjective)</string>
+    <string name="mse_mood_objective">Mood/affect (objective)</string>
+    <string name="mse_thought_form">Thought form</string>
+    <string name="mse_thought_content">Thought content</string>
+    <string name="mse_perception">Perception</string>
+    <string name="mse_cognition">Cognition</string>
+    <string name="mse_insight">Insight</string>
+    <string name="physical_examination_general">General</string>
+    <string name="physical_examination_cardiovascular">Cardiovascular</string>
+    <string name="physical_examination_respiratory">Respiratory</string>
+    <string name="physical_examination_abdominal">Abdominal</string>
+    <string name="physical_examination_neurological">Neurological</string>
+    <string name="assessment_scales">Assessment scales</string> <!-- RCP heading/field -->
+    <string name="investigations_results">Investigations and results</string> <!-- RCP heading/field -->
+    <string name="safety_alerts">Safety alerts</string> <!-- RCP heading/field -->
+    <string name="risk_assessment">Risk assessment</string>
+    <string name="relevant_legal_information">Relevant legal information (e.g. capacity, advocate, advance decision, Mental Health Act)</string> <!-- RCP heading/field -->
+    <string name="current_problems">Current problems and issues</string> <!-- RCP heading/field -->
+    <string name="patient_carer_concerns">Patient’s and carer’s concerns</string> <!-- RCP heading/field -->
+    <string name="impression">Impression</string>
+    <string name="management_plan">Management plan</string> <!-- RCP heading/field -->
+    <string name="information_given">Information given</string> <!-- RCP heading/field -->
+
+  </task>
+</resources>

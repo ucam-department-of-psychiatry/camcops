@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-  <task name="phq19">
+  <task name="phq15">
     <!-- Patient Health Questionnaire-15 (PHQ-15) -->
 
     <string name="title">Physical symptoms (PHQ-15)</string>

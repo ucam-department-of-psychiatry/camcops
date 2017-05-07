@@ -31,13 +31,12 @@ using mathfunc::noneNull;
 using mathfunc::sumInt;
 using mathfunc::scorePhrase;
 using mathfunc::totalScorePhrase;
-using stringfunc::standardResult;
 using stringfunc::strnum;
+using stringfunc::strnumlist;
 using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 15;
-const int MAX_SCORE = 30;
 const QString QPREFIX("q");
 
 const QString PHQ15_TABLENAME("phq15");
@@ -87,23 +86,16 @@ QString Phq15::menusubtitle() const
 
 bool Phq15::isComplete() const
 {
-    QStringList relevant_fields;
-    for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
-        if (i == 4 && !isFemale()) {
-            continue;  // Q4 is for women only
-        }
-        relevant_fields.append(strnum(QPREFIX, i));
-    }
-    return noneNull(values(relevant_fields));
+    return noneNull(values(applicableQuestionFieldNames()));
 }
 
 
 QStringList Phq15::summary() const
 {
     return QStringList{
-        totalScorePhrase(totalScore(), MAX_SCORE),
+        totalScorePhrase(totalScore(), maxScore()),
         scorePhrase(xstring("n_severe_symptoms"),
-                    nSevereSymptoms(), N_QUESTIONS),
+                    nSevereSymptoms(), nQuestions()),
     };
 }
 
@@ -142,10 +134,7 @@ OpenableWidget* Phq15::editor(bool read_only)
         {xstring("a2"), 2},
     };
     QVector<QuestionWithOneField> qfields;
-    for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
-        if (i == 4 && !isFemale()) {
-            continue;  // Q4 is for women only
-        }
+    for (int i : applicableQuestionNumbers()) {
         qfields.append(QuestionWithOneField(xstring(strnum("q", i)),
                                             fieldRef(strnum(QPREFIX, i))));
     }
@@ -165,17 +154,48 @@ OpenableWidget* Phq15::editor(bool read_only)
 // Task-specific calculations
 // ============================================================================
 
+QVector<int> Phq15::applicableQuestionNumbers() const
+{
+    QVector<int> questions;
+    for (int q = FIRST_Q; q <= N_QUESTIONS; ++q) {
+        if (q == 4 && !isFemale()) {
+            continue;  // Q4 is for women only
+        }
+        questions.append(q);
+    }
+    return questions;
+}
+
+
+QStringList Phq15::applicableQuestionFieldNames() const
+{
+    return strnumlist(QPREFIX, applicableQuestionNumbers());
+}
+
+
 int Phq15::totalScore() const
 {
-    return sumInt(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
+    return sumInt(values(applicableQuestionFieldNames()));
+}
+
+
+int Phq15::nQuestions() const
+{
+    return isFemale() ? N_QUESTIONS : N_QUESTIONS - 1;
+}
+
+
+int Phq15::maxScore() const
+{
+    return 2 * nQuestions();
 }
 
 
 int Phq15::nSevereSymptoms() const
 {
     int n = 0;
-    for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
-        n += valueInt(strnum(QPREFIX, i)) >= 2;
+    for (auto fieldname : applicableQuestionFieldNames()) {
+        n += valueInt(fieldname) >= 2;
     }
     return n;
 }

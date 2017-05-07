@@ -25,21 +25,22 @@ class CamcopsApp;
 class OpenableWidget;
 class TaskFactory;
 
-void initializePhq15(TaskFactory& factory);
+void initializePsychiatricClerking(TaskFactory& factory);
 
 
-class Phq15 : public Task
+class PsychiatricClerking : public Task
 {
     Q_OBJECT
 public:
-    Phq15(CamcopsApp& app, const QSqlDatabase& db,
-          int load_pk = dbconst::NONEXISTENT_PK);
+    PsychiatricClerking(CamcopsApp& app, const QSqlDatabase& db,
+                        int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString menusubtitle() const override;
+    virtual QString infoFilenameStem() const override;
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -50,10 +51,4 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-    QVector<int> applicableQuestionNumbers() const;
-    QStringList applicableQuestionFieldNames() const;
-    int totalScore() const;
-    int nQuestions() const;
-    int maxScore() const;
-    int nSevereSymptoms() const;
 };
