@@ -28,7 +28,7 @@
 #include "questionnairelib/questionnaire.h"
 
 
-const int WRITE_DELAY_MS = 10;
+const int WRITE_DELAY_MS = 50;  // 10 is a bit low (sliders look slow)
 
 
 QuSlider::QuSlider(FieldRefPtr fieldref, int minimum, int maximum, int step) :
@@ -84,6 +84,13 @@ QuSlider* QuSlider::setTickInterval(int tick_interval)
 QuSlider* QuSlider::setTickPosition(QSlider::TickPosition position)
 {
     m_tick_position = position;
+    return this;
+}
+
+
+QuSlider* QuSlider::setNullApparentValue(int null_apparent_value)
+{
+    m_null_apparent_value = null_apparent_value;
     return this;
 }
 

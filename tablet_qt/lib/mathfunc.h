@@ -71,6 +71,11 @@ QString scorePhrase(const QString& description, double numerator, int denominato
                     const QString& separator = ": ",
                     const QString& suffix = ".",
                     int dp = 1);
+QString scorePhraseVariant(
+        const QString& description, const QVariant& numerator, int denominator,
+        const QString& separator = ": ",
+        const QString& suffix = ".",
+        int dp = 1);
 QString totalScorePhrase(int numerator, int denominator,
                          const QString& separator = ": ",
                          const QString& suffix = ".");
@@ -78,5 +83,7 @@ QString totalScorePhrase(double numerator, int denominator,
                          const QString& separator = ": ",
                          const QString& suffix = ".",
                          int dp = 1);
+
+QVector<int> intseq(int first, int last, int step = 1);
 
 }  // namespace mathfunc

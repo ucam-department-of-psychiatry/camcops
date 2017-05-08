@@ -104,6 +104,9 @@
 #include "tasks/pswq.h"
 #include "tasks/psychiatricclerking.h"
 
+#include "tasks/qolbasic.h"
+
+#include "tasks/rand36.h"
 #include "tasks/referrersatisfactiongen.h"
 #include "tasks/referrersatisfactionspec.h"
 
@@ -200,10 +203,10 @@ void InitTasks(TaskFactory& factory)
     initializePswq(factory);
     initializePsychiatricClerking(factory);
 
-    // *** initializeQolBasic(factory);
+    initializeQolBasic(factory);
     // *** initializeQolSG(factory); // *** COMPLEX
 
-    // *** initializeRand36(factory);
+    initializeRand36(factory);
     initializeReferrerSatisfactionGen(factory);
     initializeReferrerSatisfactionSpec(factory);
 

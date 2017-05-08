@@ -57,7 +57,8 @@
 **
 ****************************************************************************/
 
-// #define DEBUG_LAYOUT
+// #define DEBUG_LAYOUT_COMMS
+// #define DEBUG_LAYOUT_CALCS
 // #define DISABLE_CACHING
 // #define Q_OS_MAC  // for testing only, just to be sure it compiles OK...
 
@@ -903,7 +904,7 @@ QSize BoxLayoutHfw::sizeHint() const
 #else
     GeomInfo gi = getGeomInfo();
 #endif
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_COMMS
     qDebug().nospace() << Q_FUNC_INFO << " -> " << gi.m_size_hint
 #ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
                        << " (based on notional width of "
@@ -923,7 +924,7 @@ QSize BoxLayoutHfw::minimumSize() const
 #else
     GeomInfo gi = getGeomInfo();
 #endif
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_COMMS
     qDebug().nospace() << Q_FUNC_INFO << " -> " << gi.m_min_size
 #ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
                        << " (based on notional width of "
@@ -950,7 +951,7 @@ QSize BoxLayoutHfw::maximumSize() const
     if (alignment() & Qt::AlignVertical_Mask) {
         s.setHeight(QLAYOUTSIZE_MAX);
     }
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_COMMS
     qDebug().nospace() << Q_FUNC_INFO << " -> " << s
 #ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
                        << " (based on notional width of "
@@ -985,6 +986,10 @@ int BoxLayoutHfw::heightForWidth(int w) const
         return -1;
     }
     HfwInfo hfw_info = getHfwInfo(w);
+#ifdef DEBUG_LAYOUT_COMMS
+    qDebug() << Q_FUNC_INFO << ": width" << w
+             << " -> height" << hfw_info.hfw_height;
+#endif
     return hfw_info.hfw_height;
 }
 
@@ -995,6 +1000,10 @@ int BoxLayoutHfw::minimumHeightForWidth(int w) const
         return -1;
     }
     HfwInfo hfw_info = getHfwInfo(w);
+#ifdef DEBUG_LAYOUT_COMMS
+    qDebug() << Q_FUNC_INFO << ": width" << w
+             << " -> minimum height" << hfw_info.hfw_min_height;
+#endif
     return hfw_info.hfw_min_height;
 }
 
@@ -1076,7 +1085,7 @@ void BoxLayoutHfw::setGeometry(const QRect& initial_rect)
     // ------------------------------------------------------------------------
     // Announce
     // ------------------------------------------------------------------------
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_CALCS
     qDebug() << Q_FUNC_INFO;
 #endif
 
@@ -1091,7 +1100,7 @@ void BoxLayoutHfw::setGeometry(const QRect& initial_rect)
     if (!m_dirty && r == geometry()) {
 #endif
         // Exactly the same geometry as last time, and we're all set up.
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_CALCS
         qDebug() << "... nothing to do, for" << r;
 #endif
         return;
@@ -1135,7 +1144,7 @@ void BoxLayoutHfw::setGeometry(const QRect& initial_rect)
             // size we need to be.
             // This means that our minimum height (etc.) may be wrong. So we
             // need to invalidate the layout (at least partly).
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_CALCS
             qDebug().nospace()
                     << "... resetting width hints, for " << r
                     << " (because width=" << r.width()
@@ -1216,7 +1225,7 @@ int BoxLayoutHfw::getParentTargetHeight(QWidget* parent,
     target_max_height += parent_margins.totalHeight();
 
     if (parent->geometry().height() < target_min_height) {
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_CALCS
         qDebug().nospace()
                 << "... will set parent height to " << target_min_height
                 << " (was " << parent->geometry().height()
@@ -1227,7 +1236,7 @@ int BoxLayoutHfw::getParentTargetHeight(QWidget* parent,
         parent_new_height = target_min_height;
     }
     if (parent->geometry().height() > target_max_height) {
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_CALCS
         qDebug().nospace()
                 << "... will set parent height to " << target_max_height
                 << " (was " << parent->geometry().height()
@@ -1247,7 +1256,7 @@ void BoxLayoutHfw::distribute(const GeomInfo& gi,
     const QRect& r = layout_rect;  // alias
     QRect s = getContentsRect(layout_rect);
 
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_COMMS
     qDebug().nospace() << "... called with layout rect " << layout_rect
                        << ", giving final rect for children of " << s;
 #endif
@@ -1304,7 +1313,7 @@ void BoxLayoutHfw::distribute(const GeomInfo& gi,
         //      - QWidgetPrivate::setGeometry_sys()
         //        ... can apply min/max constraints
         //        ... posts a QResizeEvent
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_COMMS
         qDebug() << "... item" << i
                  << "given setGeometry() instruction" << childrect;
 #endif
@@ -1579,7 +1588,7 @@ BoxLayoutHfw::GeomInfo BoxLayoutHfw::getGeomInfo() const
     // End of main thinking
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_CALCS
     qDebug() << Q_FUNC_INFO;
     qDebug().nospace()
             << "..."
@@ -1666,7 +1675,7 @@ BoxLayoutHfw::HfwInfo BoxLayoutHfw::getHfwInfo(int layout_width) const
 
     Q_ASSERT(n == m_list.size());
 
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_CALCS
     qDebug() << Q_FUNC_INFO;
 #endif
 
@@ -1677,7 +1686,7 @@ BoxLayoutHfw::HfwInfo BoxLayoutHfw::getHfwInfo(int layout_width) const
             BoxLayoutHfwItem* box = m_list.at(i);
             h = qMax(h, box->hfw(a.at(i).size));
             mh = qMax(mh, box->minhfw(a.at(i).size));
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_CALCS
             qDebug() << "... horizontal, item" << i << "width" << a.at(i).size
                      << "taking h to" << h
                      << "and mh to" << mh;
@@ -1692,7 +1701,7 @@ BoxLayoutHfw::HfwInfo BoxLayoutHfw::getHfwInfo(int layout_width) const
             mh += box->minhfw(w);
             h += spacing;
             mh += spacing;
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_CALCS
             qDebug() << "... vertical, item" << i << "width" << w
                      << "has hfw()" << box->hfw(w)
                      << "and minhfw()" << box->minhfw(w)
@@ -1713,7 +1722,7 @@ BoxLayoutHfw::HfwInfo BoxLayoutHfw::getHfwInfo(int layout_width) const
     // End of main thinking
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_CALCS
     qDebug().nospace() << "... For layout (contents) width " << w << ":"
                        << " m_hfw_height " << hfwinfo.hfw_height
                        << " m_hfw_min_height " << hfwinfo.hfw_min_height;
@@ -1951,7 +1960,7 @@ Margins BoxLayoutHfw::effectiveMargins(const Margins& contents_margins) const
 
 inline void BoxLayoutHfw::setDirty()
 {
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_CALCS
     qDebug() << Q_FUNC_INFO;
 #endif
     m_dirty = true;
@@ -1966,7 +1975,7 @@ inline void BoxLayoutHfw::setDirty()
 #ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
 void BoxLayoutHfw::clearCaches() const
 {
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_CALCS
     qDebug() << Q_FUNC_INFO;
 #endif
     m_hfw_cache.clear();

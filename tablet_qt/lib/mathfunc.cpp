@@ -27,6 +27,8 @@ namespace mathfunc {
 
 QVariant mean(const QVector<QVariant>& values, bool ignore_null)
 {
+    // ignore_null true: return the mean of the values, ignoring any NULLs.
+    // ignore_null false: return the mean, or NULL if any are NULL.
     double total = 0;
     int n = 0;
     int length = values.length();
@@ -360,6 +362,19 @@ QString scorePhrase(const QString& description, double numerator, int denominato
 }
 
 
+QString scorePhraseVariant(const QString& description,
+                           const QVariant& numerator, int denominator,
+                           const QString& separator, const QString& suffix,
+                           int dp)
+{
+    return QString("%1%2%3%4")
+            .arg(description,
+                 separator,
+                 scoreStringVariant(numerator, denominator, false, dp),
+                 suffix);
+}
+
+
 QString totalScorePhrase(int numerator, int denominator,
                          const QString& separator, const QString& suffix)
 {
@@ -374,6 +389,22 @@ QString totalScorePhrase(double numerator, int denominator,
 {
     return scorePhrase(textconst::TOTAL_SCORE, numerator, denominator,
                        separator, suffix, dp);
+}
+
+
+QVector<int> intseq(int first, int last, int step)
+{
+    QVector<int> v;
+    if (step > 0) {
+        for (int i = first; i <= last; i += step) {
+            v.append(i);
+        }
+    } else if (step < 0) {
+        for (int i = first; i >= last; i -= step) {
+            v.append(i);
+        }
+    }
+    return v;
 }
 
 

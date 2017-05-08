@@ -376,7 +376,9 @@ SOURCES += main.cpp \
     tasks/photosequence.cpp \
     tasks/photosequencephoto.cpp \
     tasks/pswq.cpp \
-    tasks/psychiatricclerking.cpp
+    tasks/psychiatricclerking.cpp \
+    tasks/qolbasic.cpp \
+    tasks/rand36.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -669,7 +671,9 @@ HEADERS  += \
     tasks/photosequence.h \
     tasks/photosequencephoto.h \
     tasks/pswq.h \
-    tasks/psychiatricclerking.h
+    tasks/psychiatricclerking.h \
+    tasks/qolbasic.h \
+    tasks/rand36.h
 
 
 DISTFILES += \

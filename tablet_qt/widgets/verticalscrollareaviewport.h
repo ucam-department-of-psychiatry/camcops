@@ -35,15 +35,16 @@ class VerticalScrollAreaViewport : public QWidget
     //
     // HOWEVER, resizeEvent() is not called when we resize the
     // VerticalScrollArea, and setGeometry() is not virtual, so this is not
-    // much use.
+    // much use. (If called via a QWidget*, as in
+    // QAbstractScrollAreaPrivate::layoutChildren(), the base class
+    // QWidget::setGeometry() will be called.)
 
     Q_OBJECT
 public:
     VerticalScrollAreaViewport(QWidget* parent = nullptr);
     virtual void resizeEvent(QResizeEvent* event) override;
-    // setGeometry() is not virtual; no point overriding it
+    // setGeometry() is not virtual; no point overriding it; see above
     // void setGeometry(const QRect& rect);
     // void setGeometry(int x, int y, int w, int h);
-protected:
     void resizeSingleChild(const QSize& our_size);
 };

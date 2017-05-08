@@ -17,20 +17,19 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-// #define DEBUG_LAYOUT
+#define DEBUG_LAYOUT
 
 #include "verticalscrollareaviewport.h"
 #include <QDebug>
 #include <QResizeEvent>
+#include "lib/layoutdumper.h"
 #include "lib/sizehelpers.h"
+#include "widgets/basewidget.h"
 
 
 VerticalScrollAreaViewport::VerticalScrollAreaViewport(QWidget* parent) :
     QWidget(parent)
 {
-#ifdef DEBUG_LAYOUT
-    qDebug() << Q_FUNC_INFO;
-#endif
 }
 
 
@@ -97,5 +96,24 @@ void VerticalScrollAreaViewport::resizeSingleChild(const QSize& our_size)
     } else {
         new_child_size = child->sizeHint();
     }
+#ifdef DEBUG_LAYOUT
+    qDebug() << Q_FUNC_INFO << "(1) Child widget before:"
+             << layoutdumper::getWidgetInfo(child);
+    qDebug() << Q_FUNC_INFO << "(2) resizing child to:" << new_child_size;
+#endif
+
+    // OK, this is NASTY (but so is the way that support for scroll areas is
+    // baked into a complicated hierarchy of Qt private code):
+    // child->setFixedSize(new_child_size); // even that doesn't work
+
     child->resize(new_child_size);
+
+#ifdef DEBUG_LAYOUT
+    qDebug() << Q_FUNC_INFO << "(3) Child widget after:"
+             << layoutdumper::getWidgetInfo(child);
+    if (child->size() != new_child_size) {
+        qWarning() << Q_FUNC_INFO << "... seems that instruction was IGNORED!";
+    }
+    qDebug() << Q_FUNC_INFO << "(4) ... done";
+#endif
 }

@@ -18,6 +18,7 @@
 */
 
 // #define DEBUG_LAYOUT
+// #define DEBUG_IRRELEVANT_EVENTS
 
 // Maximum of one of these:
 // #define USE_STRETCH
@@ -40,6 +41,7 @@
 #include <QScroller>
 #include "common/layouts.h"
 #include "common/widgetconst.h"
+#include "lib/layoutdumper.h"
 #include "lib/reentrydepthguard.h"
 #include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
@@ -167,9 +169,7 @@ the HFW for its width?
     heightForWidth(1904)[UP] 649
 ... so that's sensible (and the sizeHint is true as "how big it'd like to be").
 
-*/
-
-/*
+---
 
 Further leftover problem: an infinite bistable state.
 For example:
@@ -206,6 +206,32 @@ So, presumably, we have a state where it's equally happy (or unhappy) with
     wwwwwwwwwwww
 
 or something like that.
+
+---
+
+2017-05-08: still getting situations where there's enough space but the
+contained widget is being scrolled. Here's an example, from the RAND-36, p3:
+
+VerticalScrollArea<0x0000000004dc9a40 'questionnaire_background_clinician'>, visible, pos[DOWN] (0, 79), size[DOWN] (1920 x 640), hasHeightForWidth()[UP] false, heightForWidth(1920)[UP] -1, minimumSize (901 x 100), maximumSize (16777215 x 740), sizeHint[UP] (1843 x 640), minimumSizeHint[UP] (57 x 57), sizePolicy[UP] (Expanding, Expanding) [hasHeightForWidth=false]...
+    VerticalScrollAreaViewport<0x0000000004d81b80 ''>, visible, pos[DOWN] (0, 0), size[DOWN] (1904 x 640), hasHeightForWidth()[UP] false, heightForWidth(1904)[UP] -1, minimumSize (0 x 0), maximumSize (16777215 x 16777215), sizeHint[UP] (-1 x -1), minimumSizeHint[UP] (-1 x -1), sizePolicy[UP] (Preferred, Preferred) [hasHeightForWidth=false]...
+    ... Non-layout children of VerticalScrollAreaViewport<0x0000000004d81b80 ''>:
+        BaseWidget<0x0000000004cf6680 ''>, visible, pos[DOWN] (0, 0), size[DOWN] (1904 x 740), hasHeightForWidth()[UP] true, heightForWidth(1904)[UP] 640, minimumSize (0 x 0), maximumSize (16777215 x 16777215), sizeHint[UP] (1827 x 740), minimumSizeHint[UP] (885 x 740), sizePolicy[UP] (Preferred, Preferred) [hasHeightForWidth=false]...
+
+Note particularly:
+
+    VerticalScrollAreaViewport size[DOWN] (1904 x 640), hasHeightForWidth()[UP] false
+        BaseWidget size[DOWN] (1904 x 740), hasHeightForWidth()[UP] true, heightForWidth(1904)[UP] 640, sizeHint[UP] (1827 x 740)
+
+So the BaseWidget is being made TOO BIG vertically (for width 1904 it wants
+height 640 and is being given 740, even though the viewport is 640).
+
+Unfortunately, our VerticalScrollAreaViewport::resizeEvent() is not being
+called. The problem may lie in QAbstractScrollAreaPrivate::layoutChildren(),
+which, of course, is not something that's virtual and amenable to overriding.
+As above.
+
+Can we catch VerticalScrollArea::resizeEvent() and manually call
+VerticalScrollAreaViewport::resizeSingleChild()?
 
 */
 
@@ -315,14 +341,19 @@ void VerticalScrollArea::setWidget(QWidget* widget)  // hides parent version
 
 void VerticalScrollArea::resizeEvent(QResizeEvent* event)
 {
-#ifdef RESIZE_FOR_HFW
 #ifdef DEBUG_LAYOUT
     qDebug() << Q_FUNC_INFO << event->size();
 #endif
     QScrollArea::resizeEvent(event);  // doesn't actually do anything?
-    sizehelpers::resizeEventForHFWParentWidget(this);
-#else
-    QScrollArea::resizeEvent(event);  // doesn't actually do anything?
+#ifdef RESIZE_FOR_HFW
+    // sizehelpers::resizeEventForHFWParentWidget(this);
+#endif
+#ifdef USE_CUSTOM_VIEWPORT
+    QWidget* w = viewport();
+    VerticalScrollAreaViewport* vp = dynamic_cast<VerticalScrollAreaViewport*>(w);
+    if (vp) {
+        vp->resizeSingleChild(vp->size());
+    }
 #endif
 }
 
@@ -375,7 +406,7 @@ bool VerticalScrollArea::eventFilter(QObject* o, QEvent* e)
         return QScrollArea::eventFilter(o, e);
 #endif
     } else {
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_IRRELEVANT_EVENTS
         // Beware this almost-infinite loop (read from bottom to top):
         //
         //#29 0x00000000005b6b6c in VerticalScrollArea::eventFilter (this=0x33e54d0,
@@ -454,7 +485,10 @@ QSize VerticalScrollArea::sizeHint() const
     sh.rheight() += marg.totalHeight();
 
 #ifdef DEBUG_LAYOUT
-    qDebug() << Q_FUNC_INFO << "->" << sh;
+    qDebug().nospace()
+            << Q_FUNC_INFO
+            << " - [widget sizeHint() " << w->sizeHint()
+            << "] -> final sizeHint() " << sh;
 #endif
     return sh;
 }
@@ -507,59 +541,92 @@ void VerticalScrollArea::resetSizeLimits()
     // ... for HFW widgets.
 
     int widget_min_width = qMax(0, w->minimumSizeHint().width());
-    int new_min_width = widget_min_width;
+    int widget_min_height;
+    int widget_max_height;
 
-    // Minimum height: if the widget is small, then the widget height (3 in
-    // this example, i.e. without scrollbars), but if it's large, then
-    // SQUASH_DOWN_TO_HEIGHT.
-    //
-    // Rephrased:
-    // Vertically, the scroller can get as SMALL as the widget if that's less
-    // than SQUASH_DOWN_TO_HEIGHT, but if the widget is bigger, the MINIMUM
-    // size of the scroller can be something small, if the window is small,
-    // i.e. SQUASH_DOWN_TO_HEIGHT.
-    // But it's also possible that the widget's minimum height is -1, which
-    // we'll translate to 0.
-    int widget_min_height = w->minimumSizeHint().height();
-    int new_min_height = qMin(qMax(0, widget_min_height),
-                              SQUASH_DOWN_TO_HEIGHT);
-
-    // Maximum height: that with scrollbars (4 in this example), for HFW
-    // widgets.
-
-    int widget_max_height = w->maximumHeight();
-    int new_max_height;
     if (widget_has_hfw) {
+        // ====================================================================
+        // HFW
+        // ====================================================================
+#ifdef DEBUG_LAYOUT
+        hfw_explanation += QString("[widget has HFW] ");
+#endif
         int widget_width = w->geometry().width();
         m_last_widget_width = widget_width;
+
+        // Calculate widget_max_height
         if (false) {
             // It is quite likely that the widget is now a sensible width for
             // us without scroll bars - so when we add scroll bars, it'll get
             // narrower and thus taller. If we don't account for these, our
             // scroll area will often be a fraction too short vertically.
             int narrower_widget_width = qMax(1, widget_width - scrollbar_width);
-            new_max_height = w->heightForWidth(narrower_widget_width);
+            widget_max_height = w->heightForWidth(narrower_widget_width);
 #ifdef DEBUG_LAYOUT
             hfw_explanation += QString("widget's width %1 -> narrowed %2 in case scrollbars added -> HFW %3")
                     .arg(widget_width)
                     .arg(narrower_widget_width)
-                    .arg(new_max_height);
+                    .arg(widget_max_height);
 #endif
         } else {
-            new_max_height = w->heightForWidth(widget_width);
+            widget_max_height = w->heightForWidth(widget_width);
 #ifdef DEBUG_LAYOUT
             hfw_explanation += QString("widget's width %1 -> not narrowed -> max height remains %2")
                     .arg(widget_width)
-                    .arg(new_max_height);
+                    .arg(widget_max_height);
 #endif
         }
-    } else {
-        new_max_height = widget_max_height;
+
+        // Calculate widget_min_height
+        // For height-for-width widgets, minimumSizeHint().height() may be misleading.
+        int widget_max_width = qMin(w->maximumWidth(), QWIDGETSIZE_MAX);
+        widget_min_height = qMin(w->heightForWidth(widget_min_width),
+                                 qMin(w->heightForWidth(widget_width),
+                                      w->heightForWidth(widget_max_width)));
 #ifdef DEBUG_LAYOUT
+        hfw_explanation += QString(
+                    "; widget HFWs: min_width %1 -> %2; width %3 -> %4; "
+                    "max_width %5 -> %6; overall widget_min_height %7")
+                .arg(widget_min_width)
+                .arg(w->heightForWidth(widget_min_width))
+                .arg(widget_width)
+                .arg(w->heightForWidth(widget_width))
+                .arg(widget_max_width)
+                .arg(w->heightForWidth(widget_max_width))
+                .arg(widget_min_height);
+#endif
+    } else {
+        // ====================================================================
+        // Not HFW
+        // ====================================================================
+        // Minimum height: if the widget is small, then the widget height (3 in
+        // this example, i.e. without scrollbars), but if it's large, then
+        // SQUASH_DOWN_TO_HEIGHT.
+        //
+        // Rephrased:
+        // Vertically, the scroller can get as SMALL as the widget if that's less
+        // than SQUASH_DOWN_TO_HEIGHT, but if the widget is bigger, the MINIMUM
+        // size of the scroller can be something small, if the window is small,
+        // i.e. SQUASH_DOWN_TO_HEIGHT.
+        // But it's also possible that the widget's minimum height is -1, which
+        // we'll translate to 0.
+        widget_min_height = w->minimumSizeHint().height();
+
+        // Maximum height: that with scrollbars (4 in this example), for HFW
+        // widgets.
+
+        widget_max_height = w->maximumHeight();
+#ifdef DEBUG_LAYOUT
+        hfw_explanation += QString("[widget does not have HFW] ");
         hfw_explanation += QString("widget's maximum height is %1")
                 .arg(widget_max_height);
 #endif
     }
+
+    int new_min_width = widget_min_width;
+    int new_max_height = widget_max_height;
+    int new_min_height = qMin(qMax(0, widget_min_height),
+                              SQUASH_DOWN_TO_HEIGHT);
 
     // The only other odd bit is that VerticalScrollArea can position its
     // qt_scrollarea_viewport widget at e.g. pos (1, 1), not (0, 0), so our
@@ -587,6 +654,8 @@ void VerticalScrollArea::resetSizeLimits()
             << ", viewport_geometry: " << viewport_rect
             << ", scrollarea_geometry: " << scrollarea_rect
             << "]";
+    qDebug() << Q_FUNC_INFO << "Child widget:"
+             << layoutdumper::getWidgetInfo(w);
 #endif
 
     bool change = new_min_width != minimumWidth() ||

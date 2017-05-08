@@ -64,7 +64,8 @@ QString toString(const void* pointer);
 QString toString(const Qt::Alignment& alignment);
 QString toString(bool boolean);
 QString getWidgetDescriptor(const QWidget* w);
-QString getWidgetInfo(const QWidget* w, const DumperConfig& config);
+QString getWidgetInfo(const QWidget* w,
+                      const DumperConfig& config = DumperConfig());
 QString getWidgetAttributeInfo(const QWidget* w);
 QString getDynamicProperties(const QWidget* w);
 QString getLayoutInfo(const QLayout* layout);

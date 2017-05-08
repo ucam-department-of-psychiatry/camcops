@@ -922,18 +922,6 @@ Tasks
 <string name="t_qolbasic">Quality of Life: basic assessment (QoLBasic)</string>
 <string name="s_qolbasic">Time trade-off and response scale measures of quality of life.</string>
 <string name="b_qolbasic">QoL-Basic</string>
-<string name="qolbasic_tto_title">Quality of life: time trade-off</string>
-<string name="qolbasic_tto_q">Imagine that you are told that you have 10 years left to live. In connection with this you are also told that you can choose to live these 10 years in your current health state or that you can choose to give up some life years to live for a shorter period in full health. Indicate on the line the number of years in full health that you think is of equal value to 10 years in your current health state.</string>
-<string name="qolbasic_tto_q_s">Time trade-off (QoL × 10):</string>
-<string name="qolbasic_rs_title">Quality of life: rating scale</string>
-<!-- ... illustrates your current state of health: dead ... full health (Burstrom 2006) -->
-<!-- ... 0=least preferred health state (death) and 100=most preferred health state (perfect health) (http://erj.ersjournals.com/content/18/1/38.full) -->
-<!-- ... illustrates your current quality of life: no quality of life ... full quality of life -->
-<string name="qolbasic_rs_q">Mark the point on the scale that you feel best illustrates your current quality of life.</string>
-<string name="qolbasic_rs_q_s">Rating scale (QoL × 100):</string>
-<string name="qolbasic_rs_0">No quality of life</string>
-<string name="qolbasic_rs_100">Full quality of life</string>
-<string name="qolbasic_mean_qol">Mean quality of life:</string>
 
 <!-- Quality of Life: Standard Gamble (QoL-SG) -->
 <string name="t_qolsg">Quality of Life: Standard Gamble (QoL-SG)</string>
