@@ -378,7 +378,8 @@ SOURCES += main.cpp \
     tasks/pswq.cpp \
     tasks/psychiatricclerking.cpp \
     tasks/qolbasic.cpp \
-    tasks/rand36.cpp
+    tasks/rand36.cpp \
+    tasks/slums.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -673,7 +674,8 @@ HEADERS  += \
     tasks/pswq.h \
     tasks/psychiatricclerking.h \
     tasks/qolbasic.h \
-    tasks/rand36.h
+    tasks/rand36.h \
+    tasks/slums.h
 
 
 DISTFILES += \
@@ -718,7 +720,8 @@ DISTFILES += \
     stylesheets/camera.css \
     tools/build_qt.py \
     notes/rejected_ideas.txt \
-    notes/string_formats.txt
+    notes/string_formats.txt \
+    notes/layout_notes.txt
 
 
 # =============================================================================

@@ -110,6 +110,8 @@
 #include "tasks/referrersatisfactiongen.h"
 #include "tasks/referrersatisfactionspec.h"
 
+#include "tasks/slums.h"
+
 
 void InitTasks(TaskFactory& factory)
 {
@@ -210,7 +212,7 @@ void InitTasks(TaskFactory& factory)
     initializeReferrerSatisfactionGen(factory);
     initializeReferrerSatisfactionSpec(factory);
 
-    // *** initializeSlums(factory);
+    initializeSlums(factory); // *** IN PROGRESS
     // *** initializeSmast(factory);
     // *** initializeSwemwbs(factory);
 

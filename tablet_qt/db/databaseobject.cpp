@@ -307,9 +307,9 @@ QString DatabaseObject::fieldSummary(const QString& fieldname,
 
 
 QString DatabaseObject::fieldSummaryYesNo(const QString& fieldname,
-                                       const QString& altname,
-                                       const QString& separator,
-                                       const QString& suffix) const
+                                          const QString& altname,
+                                          const QString& separator,
+                                          const QString& suffix) const
 {
     QString name = altname.isEmpty() ? fieldname : altname;
     return stringfunc::standardResult(name,
