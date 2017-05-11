@@ -19,6 +19,7 @@
 
 #include "slums.h"
 #include "common/textconst.h"
+#include "common/uiconstants.h"
 #include "lib/datetime.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
@@ -45,29 +46,29 @@ const QString SLUMS_TABLENAME("slums");
 
 const QString ALERT("alert");
 const QString HIGHSCHOOLEDUCATION("highschooleducation");
-const QString Q1("q1");
-const QString Q2("q2");
-const QString Q3("q3");
+const QString Q1("q1");  // scores 1
+const QString Q2("q2");  // scores 1
+const QString Q3("q3");  // scores 1
 // Q4 is "please remember these [...] objects[...]"
-const QString Q5A("q5a");
-const QString Q5B("q5b");
-const QString Q6("q6");
-const QString Q7A("q7a");
-const QString Q7B("q7b");
-const QString Q7C("q7c");
-const QString Q7D("q7d");
-const QString Q7E("q7e");
+const QString Q5A("q5a");  // scores 1
+const QString Q5B("q5b");  // scores 2
+const QString Q6("q6");  // scores 3
+const QString Q7A("q7a");  // scores 1
+const QString Q7B("q7b");  // scores 1
+const QString Q7C("q7c");  // scores 1
+const QString Q7D("q7d");  // scores 1
+const QString Q7E("q7e");  // scores 1
 // Q8a is not scored (the first backwards digit span)
-const QString Q8B("q8b");
-const QString Q8C("q8c");
-const QString Q9A("q9a");
-const QString Q9B("q9b");
-const QString Q10A("q10a");
-const QString Q10B("q10b");
-const QString Q11A("q11a");
-const QString Q11B("q11b");
-const QString Q11C("q11c");
-const QString Q11D("q11d");
+const QString Q8B("q8b");  // scores 1
+const QString Q8C("q8c");  // scores 1
+const QString Q9A("q9a");  // scores 2
+const QString Q9B("q9b");  // scores 2
+const QString Q10A("q10a");  // scores 1
+const QString Q10B("q10b");  // scores 1
+const QString Q11A("q11a");  // scores 2
+const QString Q11B("q11b");  // scores 2
+const QString Q11C("q11c");  // scores 2
+const QString Q11D("q11d");  // scores 2
 const QStringList QLIST{
     Q1,
     Q2,
@@ -236,6 +237,9 @@ OpenableWidget* Slums::editor(bool read_only)
         QuCanvas* c = new QuCanvas(
                     fieldRef(blob_id_fieldname, true, true, true),  // BLOB
                     uifunc::resourceFilename(image_filename));
+        c->setBorderWidth(0);
+        c->setBorderColour(uiconst::TRANSPARENT);
+        c->setBackgroundColour(uiconst::TRANSPARENT);
         c->setAllowShrink(true);
         return c;
     };
@@ -251,13 +255,13 @@ OpenableWidget* Slums::editor(bool read_only)
     };
     NameValueOptions q6_options{
         {xstring("q6_option0"), 0},
-        {xstring("q6_option1"), 2},
-        {xstring("q6_option2"), 3},
-        {xstring("q6_option3"), 4},
+        {xstring("q6_option1"), 1},
+        {xstring("q6_option2"), 2},
+        {xstring("q6_option3"), 3},
     };
     NameValueOptions q7_options{
         {textconst::NOT_RECALLED, 0},
-        {textconst::RECALLED, 2},
+        {textconst::RECALLED, 1},
     };
     QDateTime now = datetime::now();
     QString correct_date = "     " + now.toString("dddd d MMMM yyyy");
@@ -305,7 +309,9 @@ OpenableWidget* Slums::editor(bool read_only)
     pages.append(QuPagePtr((new QuPage{
         text("q9"),
         canvas(CLOCKPICTURE_BLOBID, IMAGE_CIRCLE),
-    })->setTitle(singular + " 9")));
+    })
+        ->setTitle(singular + " 9")
+        ->setType(QuPage::PageType::ClinicianWithPatient)));
 
     pages.append(QuPagePtr((new QuPage{
         mcqgrid({Q9A, Q9B}, incorr_0_corr_2_options),
@@ -315,7 +321,9 @@ OpenableWidget* Slums::editor(bool read_only)
         canvas(SHAPESPICTURE_BLOBID, IMAGE_SHAPES),
         text("q10_part1"),
         text("q10_part2"),
-    })->setTitle(singular + " 10")));
+    })
+        ->setTitle(singular + " 10")
+        ->setType(QuPage::PageType::ClinicianWithPatient)));
 
     pages.append(QuPagePtr((new QuPage{
         mcqgrid({Q10A, Q10B}, incorrect_correct_options),
@@ -324,13 +332,13 @@ OpenableWidget* Slums::editor(bool read_only)
     pages.append(QuPagePtr((new QuPage{
         text("q11"),
         mcqgrid({Q11A, Q11B, Q11C, Q11D}, incorr_0_corr_2_options),
-    })->setTitle(singular + " 9 " + scoring)));
+    })->setTitle(singular + " 11")));
 
     pages.append(QuPagePtr((new QuPage{
         textRaw(textconst::EXAMINER_COMMENTS),
         (new QuTextEdit(fieldRef(COMMENTS, false)))
             ->setHint(textconst::EXAMINER_COMMENTS_PROMPT),
-    })->setTitle(singular + " 9 " + scoring)));
+    })->setTitle(singular + " 12")));
 
     Questionnaire* questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setType(QuPage::PageType::Clinician);
@@ -346,5 +354,4 @@ OpenableWidget* Slums::editor(bool read_only)
 int Slums::totalScore() const
 {
     return sumInt(values(QLIST));
-    XXX SCORING IS WRONG: 36/30 XXX
 }

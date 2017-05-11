@@ -22,6 +22,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QTimer>
+#include "common/uiconstants.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/canvaswidget.h"
@@ -60,6 +61,9 @@ QuCanvas::QuCanvas(FieldRefPtr fieldref, const QString& template_filename,
 void QuCanvas::commonConstructor()
 {
     Q_ASSERT(m_fieldref);
+    m_border_width_px = 2;
+    m_border_colour = uiconst::GREY_200;
+    m_unused_space_colour = uiconst::TRANSPARENT;
     m_pen_colour = Qt::red;
     m_pen_width = 5;
     m_canvas = nullptr;
@@ -77,16 +81,44 @@ void QuCanvas::commonConstructor()
 }
 
 
-QuCanvas* QuCanvas::setPenColour(const QColor& pen_colour)
+QuCanvas* QuCanvas::setBackgroundColour(const QColor& colour)
 {
-    m_pen_colour = pen_colour;
+    m_background_colour = colour;
     return this;
 }
 
 
-QuCanvas* QuCanvas::setPenWidth(int pen_width)
+QuCanvas* QuCanvas::setBorderWidth(int width)
 {
-    m_pen_width = pen_width;
+    m_border_width_px = width;
+    return this;
+}
+
+
+QuCanvas* QuCanvas::setBorderColour(const QColor& colour)
+{
+    m_border_colour = colour;
+    return this;
+}
+
+
+QuCanvas* QuCanvas::setUnusedSpaceColour(const QColor& colour)
+{
+    m_unused_space_colour = colour;
+    return this;
+}
+
+
+QuCanvas* QuCanvas::setPenColour(const QColor& colour)
+{
+    m_pen_colour = colour;
+    return this;
+}
+
+
+QuCanvas* QuCanvas::setPenWidth(int width)
+{
+    m_pen_width = width;
     return this;
 }
 
@@ -108,6 +140,8 @@ QPointer<QWidget> QuCanvas::makeWidget(Questionnaire* questionnaire)
     pen.setColor(m_pen_colour);
     pen.setWidth(m_pen_width);
     m_canvas->setPen(pen);
+    m_canvas->setBorder(m_border_width_px, m_border_colour);
+    m_canvas->setUnusedSpaceColour(m_unused_space_colour);
     m_canvas->setEnabled(!read_only);
     m_canvas->setAllowShrink(m_allow_shrink);
     if (!read_only) {

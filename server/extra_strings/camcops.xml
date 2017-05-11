@@ -53,6 +53,16 @@
     <string name="hads_anxiety_score">Anxiety score</string>
     <string name="hads_depression_score">Depression score</string>
 
+    <string name="wsas_a0">0: Not at all</string>
+    <string name="wsas_a1">1</string>
+    <string name="wsas_a2">2: Slightly</string>
+    <string name="wsas_a3">3</string>
+    <string name="wsas_a4">4: Definitely</string>
+    <string name="wsas_a5">5</string>
+    <string name="wsas_a6">6: Markedly</string>
+    <string name="wsas_a7">7</string>
+    <string name="wsas_a8">8: Very severely</string>
+
     <!--
     ===========================================================================
     Strings shared between multiple tasks

@@ -141,7 +141,7 @@ void AspectRatioPixmap::clear()
     // If you set (1) a giant pixmap and then (2) a null pixmap, you can have
     // your size remain at the giant size.
     QPixmap blank(1, 1);
-    blank.fill(uiconst::BLACK_TRANSPARENT);
+    blank.fill(uiconst::TRANSPARENT);
     setPixmap(blank);
 }
 

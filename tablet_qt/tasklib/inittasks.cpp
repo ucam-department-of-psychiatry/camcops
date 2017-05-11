@@ -111,6 +111,11 @@
 #include "tasks/referrersatisfactionspec.h"
 
 #include "tasks/slums.h"
+#include "tasks/smast.h"
+#include "tasks/swemwbs.h"
+
+#include "tasks/wemwbs.h"
+#include "tasks/wsas.h"
 
 
 void InitTasks(TaskFactory& factory)
@@ -212,12 +217,12 @@ void InitTasks(TaskFactory& factory)
     initializeReferrerSatisfactionGen(factory);
     initializeReferrerSatisfactionSpec(factory);
 
-    initializeSlums(factory); // *** IN PROGRESS
-    // *** initializeSmast(factory);
-    // *** initializeSwemwbs(factory);
+    initializeSlums(factory);
+    initializeSmast(factory);
+    initializeSwemwbs(factory);
 
-    // *** initializeWemwbs(factory);
-    // *** initializeWsas(factory);
+    initializeWemwbs(factory);
+    initializeWsas(factory);
 
     // *** initializeYbocs(factory);
     // *** initializeYbocsSc(factory);

@@ -17,10 +17,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "mast.h"
+#include "smast.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
-#include "lib/uifunc.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
@@ -29,30 +28,28 @@
 #include "tasklib/taskfactory.h"
 using mathfunc::noneNull;
 using mathfunc::totalScorePhrase;
-using stringfunc::standardResult;
+using stringfunc::bold;
 using stringfunc::strnum;
 using stringfunc::strseq;
 
 const int FIRST_Q = 1;
-const int N_QUESTIONS = 24;
-const int MAX_SCORE = 53;
+const int N_QUESTIONS = 13;
+const int MAX_SCORE = N_QUESTIONS;
 const QString QPREFIX("q");
 
-const QString MAST_TABLENAME("mast");
-const QVector<int> REVERSED_QUESTIONS{1, 4, 6, 7};
-const QVector<int> QUESTIONS_SCORING_ONE{3, 5, 9, 16};
-const QVector<int> QUESTIONS_SCORING_FIVE{8, 19, 20};
-const int THRESHOLD_SCORE = 13;
+const QVector<int> REVERSE_SCORED_Q{1, 4, 5};
+
+const QString SMAST_TABLENAME("smast");
 
 
-void initializeMast(TaskFactory& factory)
+void initializeSmast(TaskFactory& factory)
 {
-    static TaskRegistrar<Mast> registered(factory);
+    static TaskRegistrar<Smast> registered(factory);
 }
 
 
-Mast::Mast(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
-    Task(app, db, MAST_TABLENAME, false, false, false)  // ... anon, clin, resp
+Smast::Smast(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+    Task(app, db, SMAST_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::String);
 
@@ -64,21 +61,27 @@ Mast::Mast(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
 // Class info
 // ============================================================================
 
-QString Mast::shortname() const
+QString Smast::shortname() const
 {
-    return "MAST";
+    return "SMAST";
 }
 
 
-QString Mast::longname() const
+QString Smast::longname() const
 {
-    return tr("Michigan Alcohol Screening Test");
+    return tr("Short Michigan Alcohol Screening Test");
 }
 
 
-QString Mast::menusubtitle() const
+QString Smast::menusubtitle() const
 {
-    return tr("24-item Y/N self-report scale.");
+    return tr("13-item Y/N self-report scale.");
+}
+
+
+QString Smast::infoFilenameStem() const
+{
+    return "mast";
 }
 
 
@@ -86,31 +89,43 @@ QString Mast::menusubtitle() const
 // Instance info
 // ============================================================================
 
-bool Mast::isComplete() const
+bool Smast::isComplete() const
 {
     return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
 
 
-QStringList Mast::summary() const
+QStringList Smast::summary() const
 {
     return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
 }
 
 
-QStringList Mast::detail() const
+QStringList Smast::detail() const
 {
+    int total = totalScore();
+    QString likelihood =
+            total >= 3 ? xstring("problem_probable")
+                       : (total >= 2 ? xstring("problem_possible")
+                                     : xstring("problem_unlikely"));
+    QString scores = ", " + xstring("scores") + " ";
+
     QStringList lines = completenessInfo();
-    lines += fieldSummaries("q", "_s", " ", QPREFIX, FIRST_Q, N_QUESTIONS);
+    for (int q = FIRST_Q; q <= N_QUESTIONS; ++q) {
+        lines.append(fieldSummary(strnum(QPREFIX, q),
+                                  xstring(strnum("q", q, "_s")),
+                                  " ") +
+                     scores + bold(QString::number(score(q))));
+    }
     lines.append("");
     lines += summary();
-    lines.append(standardResult(xstring("exceeds_threshold"),
-                                uifunc::yesNo(totalScore() >= THRESHOLD_SCORE)));
+    lines.append("");
+    lines.append(xstring("problem_likelihood") + " " + bold(likelihood));
     return lines;
 }
 
 
-OpenableWidget* Mast::editor(bool read_only)
+OpenableWidget* Smast::editor(bool read_only)
 {
     QVector<QuestionWithOneField> qfields;
     for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
@@ -118,9 +133,9 @@ OpenableWidget* Mast::editor(bool read_only)
                                             fieldRef(strnum(QPREFIX, i))));
     }
     QVector<McqGridSubtitle> sub{
-        {6, ""},
-        {12, ""},
-        {18, ""},
+        {5, ""},
+        {10, ""},
+        {15, ""},
     };
 
     QuPagePtr page((new QuPage{
@@ -139,33 +154,26 @@ OpenableWidget* Mast::editor(bool read_only)
 // Task-specific calculations
 // ============================================================================
 
-int Mast::totalScore() const
-{
-    int total = 0;
-    for (int q = 1; q <= N_QUESTIONS; ++q) {
-        total += score(q);
-    }
-    return total;
-}
-
-
-int Mast::score(int question) const
+int Smast::score(int question) const
 {
     QVariant v = value(strnum(QPREFIX, question));
     if (v.isNull()) {
-        return 0;
+        return 0;  // to avoid silly scoring of incomplete tasks
     }
     bool yes = v.toString() == CommonOptions::YES_CHAR;
-    int presence = REVERSED_QUESTIONS.contains(question)
-            ? (yes ? 0 : 1)  // reversed (negative responses are alcoholic)
-            : (yes ? 1 : 0);  // normal
-    int points;
-    if (QUESTIONS_SCORING_ONE.contains(question)) {
-        points = 1;
-    } else if (QUESTIONS_SCORING_FIVE.contains(question)) {
-        points = 5;
+    if (REVERSE_SCORED_Q.contains(question)) {
+        return yes ? 0 : 1;
     } else {
-        points = 2;  // most score 2
+        return yes ? 1 : 0;
     }
-    return points * presence;
+}
+
+
+int Smast::totalScore() const
+{
+    int total = 0;
+    for (int q = FIRST_Q; q <= N_QUESTIONS; ++q) {
+        total += score(q);
+    }
+    return total;
 }

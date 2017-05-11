@@ -61,7 +61,9 @@ const QString CSS_CAMCOPS_DIAGNOSTIC_CODE(
 
 const QString WARNING_COLOUR("red");
 
-const QColor BLACK_TRANSPARENT(0, 0, 0, 0);  // a=0 means fully transparent
+const QColor TRANSPARENT(0, 0, 0, 0);  // a=0 means fully transparent
+const QColor GREY_200(200, 200, 200, 255);
+
 const QColor BUTTON_UNPRESSED_COLOUR(127, 127, 127, 100);
 const QColor BUTTON_PRESSED_COLOUR(100, 100, 255, 200);
 const QColor BUTTON_DISABLED_COLOUR(127, 127, 127, 200);

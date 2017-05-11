@@ -44,6 +44,9 @@ public:
     void setSize(const QSize& size);
     void setAllowShrink(bool allow_shrink);
     void setMinimumShrinkHeight(int height);  // applicable if we can shrink
+    void setBorderWidth(int width);
+    void setBorderColour(const QColor& colour);
+    void setBorder(int width, const QColor& colour);
     void setUnusedSpaceColour(const QColor& colour);
     void setPen(const QPen& pen);
     void clear(const QColor& background);
@@ -62,6 +65,7 @@ protected:
     virtual void mouseMoveEvent(QMouseEvent* event) override;
     virtual void resizeEvent(QResizeEvent* event) override;
     QPoint transformDisplayToImageCoords(QPoint point) const;
+    void setBorderCss();
 protected:
     int m_minimum_shrink_height;
     QSize m_size;  // size on screen
@@ -70,5 +74,7 @@ protected:
     QImage m_image;
     QPen m_pen;
     QPoint m_point;
+    int m_border_width_px;
+    QColor m_border_colour;
     QColor m_unused_space_colour;
 };

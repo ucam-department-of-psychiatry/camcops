@@ -379,7 +379,11 @@ SOURCES += main.cpp \
     tasks/psychiatricclerking.cpp \
     tasks/qolbasic.cpp \
     tasks/rand36.cpp \
-    tasks/slums.cpp
+    tasks/slums.cpp \
+    tasks/smast.cpp \
+    tasks/swemwbs.cpp \
+    tasks/wemwbs.cpp \
+    tasks/wsas.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -675,7 +679,11 @@ HEADERS  += \
     tasks/psychiatricclerking.h \
     tasks/qolbasic.h \
     tasks/rand36.h \
-    tasks/slums.h
+    tasks/slums.h \
+    tasks/smast.h \
+    tasks/swemwbs.h \
+    tasks/wemwbs.h \
+    tasks/wsas.h
 
 
 DISTFILES += \

@@ -976,15 +976,6 @@ Tasks
 <string name="t_wsas">Work and Social Adjustment Scale (WSAS) (¶+)</string>
 <string name="s_wsas">5-item self-report scale. Data collection tool ONLY unless host institution adds scale text.</string>
 <string name="b_wsas">WSAS</string>
-<string name="wsas_a0">0: Not at all</string>
-<string name="wsas_a1">1</string>
-<string name="wsas_a2">2: Slightly</string>
-<string name="wsas_a3">3</string>
-<string name="wsas_a4">4: Definitely</string>
-<string name="wsas_a5">5</string>
-<string name="wsas_a6">6: Markedly</string>
-<string name="wsas_a7">7</string>
-<string name="wsas_a8">8: Very severely</string>
 
 <string name="t_ybocs">Yale–Brown Obsessive Compulsive Scale (Y-BOCS), 9/89 revision (¶+)</string>
 <string name="s_ybocs">10-item clinician-rated scale. Data collection tool ONLY unless host institution adds scale text.</string>

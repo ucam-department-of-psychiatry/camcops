@@ -29,13 +29,15 @@
 #include <QRegion>
 #include <QStyle>
 #include <QStyleOption>
+#include "common/uiconstants.h"
 #include "lib/sizehelpers.h"
 #include "widgets/margins.h"
 
 const QPoint INVALID_POINT(-1, -1);
 
 const int DEFAULT_MIN_SHRINK_HEIGHT = 200;
-const QColor DEFAULT_UNUSED_SPACE_COLOR(200, 200, 200);
+const QColor DEFAULT_BORDER_COLOR(uiconst::GREY_200);
+const QColor DEFAULT_UNUSED_SPACE_COLOR(uiconst::GREY_200);
 
 
 CanvasWidget::CanvasWidget(QWidget* parent) :
@@ -57,6 +59,8 @@ void CanvasWidget::commonConstructor(const QSize& size)
     m_point = INVALID_POINT;
     m_image_to_display_ratio = 1;
     m_minimum_shrink_height = DEFAULT_MIN_SHRINK_HEIGHT;
+    m_border_width_px = 2;
+    m_border_colour = DEFAULT_BORDER_COLOR;
     m_unused_space_colour = DEFAULT_UNUSED_SPACE_COLOR;
 
     setAllowShrink(false);
@@ -65,6 +69,8 @@ void CanvasWidget::commonConstructor(const QSize& size)
     // Default pen:
     m_pen.setColor(Qt::blue);
     m_pen.setWidth(2);
+
+    setBorderCss();
 }
 
 
@@ -103,6 +109,28 @@ void CanvasWidget::setAllowShrink(bool allow_shrink)
 void CanvasWidget::setMinimumShrinkHeight(int height)
 {
     m_minimum_shrink_height = height;
+}
+
+
+void CanvasWidget::setBorderWidth(int width)
+{
+    m_border_width_px = width;
+    setBorderCss();
+}
+
+
+void CanvasWidget::setBorderColour(const QColor& colour)
+{
+    m_border_colour = colour;
+    setBorderCss();
+}
+
+
+void CanvasWidget::setBorder(int width, const QColor& colour)
+{
+    m_border_width_px = width;
+    m_border_colour = colour;
+    setBorderCss();
 }
 
 
@@ -313,4 +341,16 @@ void CanvasWidget::drawTo(QPoint pt)
 QImage CanvasWidget::image() const
 {
     return m_image;
+}
+
+
+void CanvasWidget::setBorderCss()
+{
+    QString css = QString("border: %1px solid rgba(%2,%3,%4,%5);")
+            .arg(m_border_width_px)
+            .arg(m_border_colour.red())
+            .arg(m_border_colour.green())
+            .arg(m_border_colour.blue())
+            .arg(m_border_colour.alpha());
+    setStyleSheet(css);
 }

@@ -44,8 +44,12 @@ public:
              const QString& template_filename,
              const QSize& size = QSize(),  // = take template's size
              bool allow_shrink = true);
-    QuCanvas* setPenColour(const QColor& pen_colour);
-    QuCanvas* setPenWidth(int pen_width);
+    QuCanvas* setBackgroundColour(const QColor& colour);
+    QuCanvas* setBorderWidth(int width);
+    QuCanvas* setBorderColour(const QColor& colour);
+    QuCanvas* setUnusedSpaceColour(const QColor& colour);
+    QuCanvas* setPenColour(const QColor& colour);
+    QuCanvas* setPenWidth(int width);
     QuCanvas* setAllowShrink(bool allow_shrink);
 protected:
     void commonConstructor();
@@ -66,6 +70,9 @@ protected:
     bool m_allow_shrink;
     QImage::Format m_format;
     QColor m_background_colour;
+    int m_border_width_px;
+    QColor m_border_colour;
+    QColor m_unused_space_colour;
     QColor m_pen_colour;
     int m_pen_width;
     QString m_template_filename;

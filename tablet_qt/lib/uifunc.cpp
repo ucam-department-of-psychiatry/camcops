@@ -119,11 +119,11 @@ QPixmap addCircleBackground(const QPixmap& image, const QColor& colour,
     // Assumes it is of size ICONSIZE
     QSize size(image.size());
     QPixmap pm(size);
-    pm.fill(uiconst::BLACK_TRANSPARENT);
+    pm.fill(uiconst::TRANSPARENT);
     QPainter painter(&pm);
     QBrush brush(colour);
     painter.setBrush(brush);
-    QPen pen(uiconst::BLACK_TRANSPARENT);
+    QPen pen(uiconst::TRANSPARENT);
     painter.setPen(pen);
     if (behind) {
         // Background to indicate "being touched"
@@ -163,7 +163,7 @@ QPixmap makeDisabledIcon(const QPixmap& image)
 QLabel* blankIcon(QWidget* parent)
 {
     QPixmap iconimage(uiconst::ICONSIZE);
-    iconimage.fill(uiconst::BLACK_TRANSPARENT);
+    iconimage.fill(uiconst::TRANSPARENT);
     QLabel* iconlabel = new QLabel(parent);
     iconlabel->setFixedSize(uiconst::ICONSIZE);
     iconlabel->setPixmap(iconimage);

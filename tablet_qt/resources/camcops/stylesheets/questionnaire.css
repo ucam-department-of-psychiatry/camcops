@@ -434,6 +434,7 @@ QLabel#slider {
 }
 
 CanvasWidget {
+    /* in practice: is overridden in code */
     border: 2px solid gray;
 }
 

@@ -108,12 +108,32 @@ void VerticalScrollAreaViewport::resizeSingleChild(const QSize& our_size)
 
     child->resize(new_child_size);
 
+    // *** Aha.
+    // BoxLayoutHfw and GridLayoutHfw, from their setGeometry(), call
+    // their parent->setFixedHeight() and parent->updateGeometry(). So anything
+    // we do here is just overridden again, I think.
+
 #ifdef DEBUG_LAYOUT
     qDebug() << Q_FUNC_INFO << "(3) Child widget after:"
              << layoutdumper::getWidgetInfo(child);
-    if (child->size() != new_child_size) {
-        qWarning() << Q_FUNC_INFO << "... seems that instruction was IGNORED!";
+#endif
+    QSize child_size = child->size();
+    if (child_size != new_child_size) {
+        qWarning()
+                << Q_FUNC_INFO
+                << "... child->resize() not honoured! We asked for"
+                << new_child_size
+                << "and got"
+                << child_size;
+#ifdef DEBUG_LAYOUT
+        if (child_size.height() > new_child_size.height()) {
+            qDebug() << Q_FUNC_INFO << "An unnecessary scroll bar is likely.";
+            // no help // child->setFixedHeight(new_child_size.height());
+            // no help // child->updateGeometry();
+        }
+#endif
     }
+#ifdef DEBUG_LAYOUT
     qDebug() << Q_FUNC_INFO << "(4) ... done";
 #endif
 }
