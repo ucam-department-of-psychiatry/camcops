@@ -68,6 +68,7 @@ extern const QString CLINICIAN_PROFESSIONAL_REGISTRATION;
 extern const QString CLINICIAN_SERVICE;
 extern const QString CLINICIAN_SPECIALTY;
 extern const QString CLINICIANS_COMMENTS;
+extern const QString COMMENT;
 extern const QString COMMENTS;
 
 extern const QString DATA_COLLECTION_ONLY;

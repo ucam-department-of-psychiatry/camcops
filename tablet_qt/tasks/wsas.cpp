@@ -36,12 +36,11 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 5;
-const int MAX_SCORE = 40;
+const int MAX_PER_Q = 8;
 const QString QPREFIX("q");
-
 const QString WSAS_TABLENAME("wsas");
-
 const QString RETIRED_ETC("retired_etc");
+const QString Q1_TAG("q1");
 
 
 void initializeWsas(TaskFactory& factory)
@@ -89,13 +88,14 @@ QString Wsas::menusubtitle() const
 
 bool Wsas::isComplete() const
 {
-    return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
+    return (valueBool(RETIRED_ETC) || !valueIsNull(strnum(QPREFIX, FIRST_Q))) &&
+            noneNull(values(strseq(QPREFIX, FIRST_Q + 1, N_QUESTIONS)));
 }
 
 
 QStringList Wsas::summary() const
 {
-    return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
+    return QStringList{totalScorePhrase(totalScore(), maxScore())};
 }
 
 
@@ -119,23 +119,36 @@ OpenableWidget* Wsas::editor(bool read_only)
         {appstring("wsas_a8"), 8},
     };
 
-    QVector<QuestionWithOneField> qfields;
-    for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
-        qfields.append(QuestionWithOneField(
+    QVector<QuestionWithOneField> q1fields{QuestionWithOneField(
+                    xstring(strnum("q", FIRST_Q), strnum("Q", FIRST_Q)),
+                    fieldRef(strnum(QPREFIX, FIRST_Q)))};
+
+    QVector<QuestionWithOneField> otherqfields;
+    for (int i = FIRST_Q + 1; i <= N_QUESTIONS; ++i) {
+        otherqfields.append(QuestionWithOneField(
                            xstring(strnum("q", i), strnum("Q", i)),
                            fieldRef(strnum(QPREFIX, i))));
     }
 
+    FieldRefPtr fr_retired = fieldRef(RETIRED_ETC, false);
+
     QuPagePtr page((new QuPage{
         (new QuText(xstring("instruction")))->setBold(),
-        new QuBoolean(xstring("q_retired_etc"), fieldRef(RETIRED_ETC, false)),
-        new QuMcqGrid(qfields, options),
+        new QuBoolean(xstring("q_retired_etc"), fr_retired),
+        (new QuMcqGrid(q1fields, options))->addTag(Q1_TAG),
+        new QuMcqGrid(otherqfields, options),
     })->setTitle(longname()));
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
-    questionnaire->setType(QuPage::PageType::Patient);
-    questionnaire->setReadOnly(read_only);
-    return questionnaire;
+    connect(fr_retired.data(), &FieldRef::valueChanged,
+            this, &Wsas::workChanged);
+
+    m_questionnaire = new Questionnaire(m_app, {page});
+    m_questionnaire->setType(QuPage::PageType::Patient);
+    m_questionnaire->setReadOnly(read_only);
+
+    workChanged();
+
+    return m_questionnaire;
 }
 
 
@@ -145,5 +158,25 @@ OpenableWidget* Wsas::editor(bool read_only)
 
 int Wsas::totalScore() const
 {
-    return sumInt(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
+    return (valueBool(RETIRED_ETC) ? 0 : valueInt(strnum(QPREFIX, FIRST_Q))) +
+            sumInt(values(strseq(QPREFIX, FIRST_Q + 1, N_QUESTIONS)));
+}
+
+
+int Wsas::maxScore() const
+{
+    return MAX_PER_Q * (valueBool(RETIRED_ETC) ? (N_QUESTIONS - 1)
+                                               : N_QUESTIONS);
+}
+
+// ============================================================================
+// Task-specific calculations
+// ============================================================================
+
+void Wsas::workChanged()
+{
+    if (!m_questionnaire) {
+        return;
+    }
+    m_questionnaire->setVisibleByTag(Q1_TAG, !valueBool(RETIRED_ETC));
 }

@@ -67,9 +67,13 @@ protected:
     bool setCode(int index, const QVariant& value);
     QVariant getDescription(int index) const;
     bool setDescription(int index, const QVariant& value);
+    QVariant getComment(int index) const;
+    bool setComment(int index, const QVariant& value);
     void refreshQuestionnaire();
     void rebuildPage(QuPage* page);
     void renumberItems();
+public:
+    static const QString RELATES_TO_DATE;
 protected:
     QVector<DiagnosisItemBasePtr> m_items;
     QPointer<Questionnaire> m_questionnaire;

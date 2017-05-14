@@ -234,7 +234,6 @@ void InitTasks(TaskFactory& factory)
 
     initializeZbi12(factory);
 
-
     // *** new: mini-ACE
     // *** new: other things in e-mail queue
 

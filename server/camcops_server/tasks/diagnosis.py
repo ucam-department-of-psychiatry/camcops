@@ -55,6 +55,8 @@ def make_diagnosis_item_base_fieldspecs(fkname: str):
         dict(name="code", cctype="TEXT", comment="Diagnostic code"),
         dict(name="description", cctype="TEXT",
              comment="Description of the diagnostic code"),
+        dict(name="comment", cctype="TEXT",
+             comment="Clinician's comment"),  # new in v2.0.0
     ]
 
 
@@ -74,6 +76,7 @@ class DiagnosisItemBase(Ancillary):
             self.seqnum + 1,
             answer(ws.webify(self.code)),
             answer(ws.webify(self.description)),
+            answer(ws.webify(self.comment)),
         )
 
     def get_code_for_hl7(self) -> str:
@@ -88,7 +91,11 @@ class DiagnosisItemBase(Ancillary):
 
 class DiagnosisBase(object):
     MUST_OVERRIDE = "DiagnosisBase: must override fn in derived class"
-    fieldspecs = []
+    fieldspecs = [
+        dict(name="relates_to_date",
+             cctype="DATETIME",
+             comment="Date that diagnoses relate to"),  # new in v2.0.0
+    ]
     has_clinician = True
     hl7_coding_system = "?"
 
@@ -115,7 +122,8 @@ class DiagnosisBase(object):
                 <tr>
                     <th width="10%">Diagnosis #</th>
                     <th width="10%">Code</th>
-                    <th width="80%">Description</th>
+                    <th width="40%">Description</th>
+                    <th width="40%">Comment</th>
                 </tr>
         """.format(
             self.get_is_complete_tr(),

@@ -42,7 +42,7 @@ public:
     {}
 
 public:
-    bool show_widget_properties = true;
+    bool show_widget_properties = false;
     // ... e.g.:
     // [_q_styleSheetWidgetFont="Sans Serif,9,-1,5,50,0,0,0,0,0"]
 

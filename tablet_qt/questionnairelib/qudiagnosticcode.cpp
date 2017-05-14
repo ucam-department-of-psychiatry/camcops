@@ -87,11 +87,13 @@ QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
     m_label_description = new LabelWordWrapWide();
     m_label_description->setObjectName(cssconst::DIAGNOSTIC_CODE);
 
-    QHBoxLayout* textlayout = new QHBoxLayout();
+    Qt::Alignment widget_align = Qt::AlignTop;
+
+    HBoxLayout* textlayout = new HBoxLayout();
     textlayout->setContentsMargins(uiconst::NO_MARGINS);
-    textlayout->addWidget(m_missing_indicator);
-    textlayout->addWidget(m_label_code);
-    textlayout->addWidget(m_label_description);
+    textlayout->addWidget(m_missing_indicator, 0, widget_align);
+    textlayout->addWidget(m_label_code, 0, widget_align);
+    textlayout->addWidget(m_label_description, 0, widget_align);
     textlayout->addStretch();
 
     ClickableLabelWordWrapWide* button = new ClickableLabelWordWrapWide(tr("Set diagnosis"));
@@ -103,9 +105,9 @@ QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
                 this, &QuDiagnosticCode::setButtonClicked);
     }
 
-    QHBoxLayout* buttonlayout = new QHBoxLayout();
+    HBoxLayout* buttonlayout = new HBoxLayout();
     buttonlayout->setContentsMargins(uiconst::NO_MARGINS);
-    buttonlayout->addWidget(button);
+    buttonlayout->addWidget(button, 0, widget_align);
 
     if (m_offer_null_button) {
         ClickableLabelWordWrapWide* null_button = new ClickableLabelWordWrapWide(tr("Clear"));
@@ -116,11 +118,11 @@ QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
             connect(null_button, &ClickableLabelWordWrapWide::clicked,
                     this, &QuDiagnosticCode::nullButtonClicked);
         }
-        buttonlayout->addWidget(null_button);
+        buttonlayout->addWidget(null_button, 0, widget_align);
     }
     buttonlayout->addStretch();
 
-    QVBoxLayout* toplayout = new QVBoxLayout();
+    VBoxLayout* toplayout = new VBoxLayout();
     toplayout->setContentsMargins(uiconst::NO_MARGINS);
     toplayout->addLayout(textlayout);
     toplayout->addLayout(buttonlayout);

@@ -18,11 +18,13 @@
 */
 
 #pragma once
+#include <QPointer>
 #include <QString>
 #include "tasklib/task.h"
 
 class CamcopsApp;
 class OpenableWidget;
+class Questionnaire;
 class TaskFactory;
 
 void initializeWsas(TaskFactory& factory);
@@ -51,4 +53,12 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     int totalScore() const;
+    int maxScore() const;
+    // ------------------------------------------------------------------------
+    // Signal handlers
+    // ------------------------------------------------------------------------
+public slots:
+    void workChanged();
+protected:
+    QPointer<Questionnaire> m_questionnaire;
 };

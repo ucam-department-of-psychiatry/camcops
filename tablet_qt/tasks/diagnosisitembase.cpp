@@ -22,6 +22,7 @@
 const QString DiagnosisItemBase::SEQNUM("seqnum");
 const QString DiagnosisItemBase::CODE("code");
 const QString DiagnosisItemBase::DESCRIPTION("description");
+const QString DiagnosisItemBase::COMMENT("comment");  // new in v2.0.0
 
 
 DiagnosisItemBase::DiagnosisItemBase(CamcopsApp& app, const QSqlDatabase& db,
@@ -40,6 +41,7 @@ DiagnosisItemBase::DiagnosisItemBase(CamcopsApp& app, const QSqlDatabase& db,
     addField(SEQNUM, QVariant::Int);
     addField(CODE, QVariant::String);
     addField(DESCRIPTION, QVariant::String);
+    addField(COMMENT, QVariant::String);  // new in v2.0.0
 
     load(load_pk);
 }
@@ -72,4 +74,10 @@ QString DiagnosisItemBase::code() const
 QString DiagnosisItemBase::description() const
 {
     return valueString(DESCRIPTION);
+}
+
+
+QString DiagnosisItemBase::comment() const
+{
+    return valueString(COMMENT);
 }

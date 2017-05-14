@@ -46,6 +46,7 @@ TR(CLINICIAN_PROFESSIONAL_REGISTRATION, "Clinician’s professional registration
 TR(CLINICIAN_SERVICE, "Clinician’s service");
 TR(CLINICIAN_SPECIALTY, "Clinician’s specialty");
 TR(CLINICIANS_COMMENTS, "Clinician’s comments");
+TR(COMMENT, "Comment");
 TR(COMMENTS, "Comments");
 
 TR(DATA_COLLECTION_ONLY,

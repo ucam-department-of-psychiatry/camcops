@@ -19,16 +19,26 @@
 
 #include "diagnosistaskbase.h"
 #include <algorithm>
+#include <QDate>
 #include "diagnosisitembase.h"
 #include "common/textconst.h"
 #include "diagnosis/diagnosticcodeset.h"
+#include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/qubutton.h"
+#include "questionnairelib/qudatetime.h"
 #include "questionnairelib/qudiagnosticcode.h"
 #include "questionnairelib/questionnaire.h"
+#include "questionnairelib/quflowcontainer.h"
+#include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/quhorizontalcontainer.h"
 #include "questionnairelib/quhorizontalline.h"
+#include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qutext.h"
+#include "questionnairelib/quverticalcontainer.h"
+using stringfunc::bold;
+
+const QString DiagnosisTaskBase::RELATES_TO_DATE("relates_to_date");  // new in v2.0.0
 
 
 DiagnosisTaskBase::DiagnosisTaskBase(CamcopsApp& app, const QSqlDatabase& db,
@@ -37,6 +47,8 @@ DiagnosisTaskBase::DiagnosisTaskBase(CamcopsApp& app, const QSqlDatabase& db,
     m_questionnaire(nullptr),
     m_codeset(nullptr)
 {
+    addField(RELATES_TO_DATE, QVariant::Date);  // new in v2.0.0
+
     load(load_pk);
 }
 
@@ -54,6 +66,7 @@ bool DiagnosisTaskBase::isComplete() const
 QStringList DiagnosisTaskBase::summary() const
 {
     QStringList lines;
+    lines.append(tr("Relates to: ") + bold(prettyValue(RELATES_TO_DATE)) + ".");
     for (auto item : m_items) {
         lines.append(QString("%1: <b>%2 – %3</b>.").arg(
                          QString::number(item->seqnum()),
@@ -76,6 +89,12 @@ OpenableWidget* DiagnosisTaskBase::editor(bool read_only)
 
     m_core_elements = QVector<QuElementPtr>{
         getClinicianQuestionnaireBlockElementPtr(),
+        QuElementPtr((new QuHorizontalContainer{
+            new QuText(tr("Date diagnoses relate to:")),
+            (new QuDateTime(fieldRef(RELATES_TO_DATE)))
+                        ->setMode(QuDateTime::Mode::DefaultDate)
+                        ->setOfferNowButton(true),
+        })->setWidgetAlignment(Qt::AlignTop)),
         QuElementPtr(new QuButton(
             textconst::ADD,
             std::bind(&DiagnosisTaskBase::addItem, this)
@@ -218,6 +237,30 @@ bool DiagnosisTaskBase::setDescription(int index, const QVariant& value)
 }
 
 
+QVariant DiagnosisTaskBase::getComment(int index) const
+{
+    if (index < 0 || index >= m_items.size()) {
+        return QVariant();
+    }
+    DiagnosisItemBasePtr item = m_items.at(index);
+    return item->value(DiagnosisItemBase::COMMENT);
+}
+
+
+bool DiagnosisTaskBase::setComment(int index, const QVariant& value)
+{
+    if (index < 0 || index >= m_items.size()) {
+        return false;
+    }
+    DiagnosisItemBasePtr item = m_items.at(index);
+    bool changed = item->setValue(DiagnosisItemBase::COMMENT, value);
+    if (changed) {
+        item->save();
+    }
+    return changed;
+}
+
+
 void DiagnosisTaskBase::refreshQuestionnaire()
 {
     if (!m_questionnaire) {
@@ -231,6 +274,7 @@ void DiagnosisTaskBase::refreshQuestionnaire()
 
 void DiagnosisTaskBase::rebuildPage(QuPage* page)
 {
+    Qt::Alignment widget_align = Qt::AlignTop;
     QVector<QuElement*> elements;
     int n = m_items.size();
     for (int i = 0; i < n; ++i) {
@@ -239,17 +283,24 @@ void DiagnosisTaskBase::rebuildPage(QuPage* page)
         elements.append(new QuHorizontalLine());
         elements.append((new QuText(textconst::DIAGNOSIS + " " +
                                     QString::number(i + 1)))->setBold());
+
         FieldRef::GetterFunction get_code = std::bind(
                     &DiagnosisTaskBase::getCode, this, i);
         FieldRef::GetterFunction get_desc = std::bind(
                     &DiagnosisTaskBase::getDescription, this, i);
+        FieldRef::GetterFunction get_comment = std::bind(
+                    &DiagnosisTaskBase::getComment, this, i);
         FieldRef::SetterFunction set_code = std::bind(
                     &DiagnosisTaskBase::setCode, this, i, std::placeholders::_1);
         FieldRef::SetterFunction set_desc = std::bind(
                     &DiagnosisTaskBase::setDescription, this, i, std::placeholders::_1);
+        FieldRef::SetterFunction set_comment = std::bind(
+                    &DiagnosisTaskBase::setComment, this, i, std::placeholders::_1);
         FieldRefPtr fr_code = FieldRefPtr(new FieldRef(get_code, set_code, true));
         FieldRefPtr fr_desc = FieldRefPtr(new FieldRef(get_desc, set_desc, true));
-        elements.append(new QuHorizontalContainer({
+        FieldRefPtr fr_comment = FieldRefPtr(new FieldRef(get_comment, set_comment, false));
+
+        QuFlowContainer* buttons = new QuFlowContainer({
             new QuButton(
                 textconst::DELETE,
                 std::bind(&DiagnosisTaskBase::deleteItem, this, i)
@@ -262,8 +313,30 @@ void DiagnosisTaskBase::rebuildPage(QuPage* page)
                 textconst::MOVE_DOWN,
                 std::bind(&DiagnosisTaskBase::moveDown, this, i)
             ))->setActive(!last),
-            new QuDiagnosticCode(m_codeset, fr_code, fr_desc),
-        }));
+        }, widget_align);
+
+        QuDiagnosticCode* dx = new QuDiagnosticCode(m_codeset, fr_code, fr_desc);
+        QuText* comment_label = new QuText(textconst::COMMENT + ":");
+        QuLineEdit* comment_edit = new QuLineEdit(fr_comment);
+
+        QuGridContainer* maingrid = new QuGridContainer();
+        const int row_span = 1;
+        const int col_span = 1;
+        const int button_width = 2;
+        const int other_width = 4;
+        maingrid->addCell(QuGridCell(buttons, 0, 0,
+                                     row_span, col_span, widget_align));
+        maingrid->addCell(QuGridCell(dx, 0, 1,
+                                     row_span, col_span, widget_align));
+        maingrid->addCell(QuGridCell(comment_label, 1, 1,
+                                     row_span, col_span, widget_align));
+        maingrid->addCell(QuGridCell(comment_edit, 2, 1,
+                                     row_span, col_span, widget_align));
+        maingrid->setColumnStretch(0, button_width);
+        maingrid->setColumnStretch(1, other_width);
+        maingrid->setFixedGrid(false);
+        maingrid->setExpandHorizontally(true);
+        elements.append(maingrid);
     }
 
     page->clearElements();

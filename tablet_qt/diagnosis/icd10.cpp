@@ -29,7 +29,7 @@
 #include <QMap>
 #include <QObject>
 
-const QString Icd10::XSTRING_TASKNAME("icd9cm");
+const QString Icd10::XSTRING_TASKNAME("icd10");
 
 
 // ============================================================================

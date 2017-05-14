@@ -49,7 +49,7 @@ void ChoosePatientMenu::build()
     // Patient
     PatientPtrList patients = m_app.getAllPatients();
     m_items.clear();
-    qDebug() << Q_FUNC_INFO << "-" << patients.size() << "patients";
+    qDebug() << Q_FUNC_INFO << "-" << patients.size() << "patient(s)";
     for (auto patient : patients) {
         m_items.append(MenuItem(patient));
     }
