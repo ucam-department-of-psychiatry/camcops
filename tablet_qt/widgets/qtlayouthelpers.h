@@ -118,7 +118,8 @@ struct QQLayoutStruct
         init(stretch_factor, min_size);
     }
 
-    inline void init(int stretch_factor = 0, int min_size = 0) {
+    inline void init(int stretch_factor = 0, int min_size = 0)
+    {
         stretch = stretch_factor;
         minimum_size = size_hint = min_size;
         maximum_size = QLAYOUTSIZE_MAX;
@@ -127,11 +128,13 @@ struct QQLayoutStruct
         spacing = 0;
     }
 
-    int smartSizeHint() {
+    int smartSizeHint()
+    {
         return (stretch > 0) ? minimum_size : size_hint;
     }
 
-    int effectiveSpacer(int uniform_spacer) const {
+    int effectiveSpacer(int uniform_spacer) const
+    {
         Q_ASSERT(uniform_spacer >= 0 || spacing >= 0);
         return (uniform_spacer >= 0) ? uniform_spacer : spacing;
     }

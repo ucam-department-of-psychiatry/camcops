@@ -57,12 +57,16 @@
 **
 ****************************************************************************/
 
-// #define DEBUG_LAYOUT
+// #define DEBUG_LAYOUT_BASIC
+// #define DEBUG_LAYOUT_DETAILED
+// #define DEBUG_LAYOUT_COMMS
+
 // #define DISABLE_CACHING
 // #define Q_OS_MAC  // for testing only, just to be sure it compiles OK...
 
 #include "gridlayouthfw.h"
 #include <QApplication>
+#include <QDebug>
 #include <QWidget>
 #include <QList>
 #include <QSizePolicy>
@@ -71,10 +75,6 @@
 #include "common/widgetconst.h"
 #include "lib/reentrydepthguard.h"
 #include "lib/sizehelpers.h"
-
-#ifdef DEBUG_LAYOUT
-#include <QDebug>
-#endif
 
 #ifdef GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
 #include "common/globals.h"  // for qHash(const QRect&)
@@ -131,11 +131,11 @@ public:
     int heightForWidth(int w) const { return item_->heightForWidth(w); }
 
     void setAlignment(Qt::Alignment a) { item_->setAlignment(a); }
-    void setGeometry(const QRect &r) { item_->setGeometry(r); }
+    void setGeometry(const QRect& r) { item_->setGeometry(r); }
     Qt::Alignment alignment() const { return item_->alignment(); }
     QLayoutItem* item() { return item_; }
     void setItem(QLayoutItem* newitem) { item_ = newitem; }
-    QLayoutItem* takeItem() { QLayoutItem* i = item_; item_ = 0; return i; }
+    QLayoutItem* takeItem() { QLayoutItem* i = item_; item_ = nullptr; return i; }
 
     int hStretch() { return item_->widget() ?
                          item_->widget()->sizePolicy().horizontalStretch() : 0; }
@@ -430,7 +430,8 @@ void GridLayoutHfw::addData(GeomInfo& gi, QQGridBox* box,
 }
 
 
-static void initEmptyMultiBox(QVector<QQLayoutStruct>& chain, int start, int end)
+static void initEmptyMultiBox(QVector<QQLayoutStruct>& chain, int start,
+                              int end)
 {
     for (int i = start; i <= end; i++) {
         QQLayoutStruct* data = &chain[i];
@@ -446,7 +447,8 @@ static void distributeMultiBox(QVector<QQLayoutStruct>& chain, int start,
                                int end, int min_size, int size_hint,
                                QVector<int>& stretch_array, int stretch)
 {
-#ifdef DEBUG_LAYOUT
+    // This function distributes objects along a single dimension.
+#ifdef DEBUG_LAYOUT_DETAILED
     qDebug().nospace()
             << Q_FUNC_INFO
             << "- starting chain=" << chain
@@ -527,7 +529,7 @@ static void distributeMultiBox(QVector<QQLayoutStruct>& chain, int start,
         }
     }
 
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_DETAILED
     qDebug() << "... modified chain:" << chain;
 #endif
 }
@@ -622,23 +624,30 @@ void GridLayoutHfw::setupSpacings(QVector<QLayoutStruct>& chain,
 
 void GridLayoutHfw::addHfwData(GeomInfo& gi, QQGridBox* box, int width) const
 {
-    QVector<QLayoutStruct> &rdata = gi.m_hfw_data;
+    QVector<QLayoutStruct>& rdata = gi.m_hfw_data;
     QLayoutStruct& ls = rdata[box->row];  // May have been influenced by OTHER items already
+
+    // We are setting properties for the QLayoutStruct, which represents an
+    // entire row.
+
     if (box->hasHeightForWidth()) {
+
         int hfw = box->heightForWidth(width);
-        ls.size_hint = qMax(hfw, ls.size_hint);
         ls.minimum_size = qMax(hfw, ls.minimum_size);
+        ls.size_hint = qMax(hfw, ls.size_hint);
 #ifdef GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
         if (ls.maximum_size >= QLAYOUTSIZE_MAX) {
             // unset, so set maximum
-            ls.maximum_size = qMin(QLAYOUTSIZE_MAX, ls.size_hint);
+            ls.maximum_size = qMin(ls.size_hint, QLAYOUTSIZE_MAX);
         } else {
-            // already set; we'll need to increase the maximum for the row, even
-            // if it's beyond the maximum for one of the widgets
+            // already set; we'll need to increase the maximum for the row,
+            // even if it's beyond the maximum for one of the widgets
             ls.maximum_size = qMax(ls.maximum_size, ls.size_hint);
         }
 #endif
+
     } else {
+
         int hint_h = box->sizeHint().height();
         int min_h = box->minimumSize().height();
         // Note:
@@ -662,8 +671,8 @@ void GridLayoutHfw::addHfwData(GeomInfo& gi, QQGridBox* box, int width) const
             // unset, so set maximum
             ls.maximum_size = qMin(QLAYOUTSIZE_MAX, hint_h);
         } else {
-            // already set; we'll need to increase the maximum for the row, even
-            // if it's beyond the maximum for one of the widgets
+            // already set; we'll need to increase the maximum for the row,
+            // even if it's beyond the maximum for one of the widgets
             ls.maximum_size = qMax(ls.maximum_size, hint_h);
         }
         // Many widgets have a maximum size that's giant, so we can't use
@@ -673,13 +682,14 @@ void GridLayoutHfw::addHfwData(GeomInfo& gi, QQGridBox* box, int width) const
 #else
         ls.size_hint = qMax(hint.height(), ls.size_hint);
 #endif
+
     }
 }
 
 
 void GridLayoutHfw::distribute(const QRect& layout_rect)
 {
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_BASIC
     qDebug() << Q_FUNC_INFO << "layout_rect" << layout_rect;
 #endif
 
@@ -694,7 +704,8 @@ void GridLayoutHfw::distribute(const QRect& layout_rect)
 #else
     GeomInfo gi = getGeomInfo();
 #endif
-#ifdef DEBUG_LAYOUT
+
+#ifdef DEBUG_LAYOUT_BASIC
     qDebug() << gi;
 #endif
 
@@ -755,7 +766,7 @@ void GridLayoutHfw::distribute(const QRect& layout_rect)
         box->setGeometry(childrect);
         // ... will call QLayoutItem::setGeometry() and then, for widgets,
         // typically QWidgetItem::setGeometry() [in qlayoutitem.cpp]
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_DETAILED
         QString rowdesc = (r1 == r2)
                 ? QString("row=%1").arg(r1)
                 : QString("rows=%1-%2").arg(r1).arg(r2);
@@ -827,7 +838,7 @@ void GridLayoutHfw::setDefaultPositioning(int n, Qt::Orientation orient)
         expand(1, n);
         m_add_vertical = false;
     } else {
-        expand(n,1);
+        expand(n, 1);
         m_add_vertical = true;
     }
 }
@@ -916,7 +927,7 @@ QSize GridLayoutHfw::sizeHint() const
 #else
     GeomInfo gi = getGeomInfo();
 #endif
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_COMMS
     qDebug().nospace() << Q_FUNC_INFO << " -> " << gi.m_size_hint
 #ifdef GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
                        << " (based on notional width of "
@@ -936,7 +947,7 @@ QSize GridLayoutHfw::minimumSize() const
 #else
     GeomInfo gi = getGeomInfo();
 #endif
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_COMMS
     qDebug().nospace() << Q_FUNC_INFO << " -> " << gi.m_min_size
 #ifdef GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
                        << " (based on notional width of "
@@ -963,7 +974,7 @@ QSize GridLayoutHfw::maximumSize() const
     if (alignment() & Qt::AlignVertical_Mask) {
         s.setHeight(QLAYOUTSIZE_MAX);
     }
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_COMMS
     qDebug().nospace() << Q_FUNC_INFO << " -> " << s
 #ifdef GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
                        << " (based on notional width of "
@@ -1094,7 +1105,7 @@ void GridLayoutHfw::setGeometry(const QRect &rect)
     // ------------------------------------------------------------------------
     // Announce
     // ------------------------------------------------------------------------
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_BASIC
     qDebug() << Q_FUNC_INFO;
 #endif
 
@@ -1109,7 +1120,7 @@ void GridLayoutHfw::setGeometry(const QRect &rect)
     if (!m_dirty && r == geometry()) {
 #endif
         // Exactly the same geometry as last time, and we're all set up.
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_BASIC
         qDebug() << "[setGeometry()] ... nothing to do, for" << r;
 #endif
         return;
@@ -1128,7 +1139,7 @@ void GridLayoutHfw::setGeometry(const QRect &rect)
 #ifdef GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
     if (gi.m_has_hfw) {
         if (r.width() != m_width_last_size_constraints_based_on) {
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_BASIC
             qDebug().nospace()
                     << "[setGeometry()] ... resetting width hints, for " << r
                     << " (because width=" << r.width()
@@ -1193,7 +1204,7 @@ int GridLayoutHfw::getParentTargetHeight(QWidget* parent,
     target_max_height += parent_margins.totalHeight();
 
     if (parent->geometry().height() < target_min_height) {
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_BASIC
         qDebug().nospace()
                 << "[getParentTargetHeight()] "
                 << "... will increase parent height to " << target_min_height
@@ -1205,7 +1216,7 @@ int GridLayoutHfw::getParentTargetHeight(QWidget* parent,
         parent_new_height = target_min_height;
     }
     if (parent->geometry().height() > target_max_height) {
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_BASIC
         qDebug().nospace()
                 << "[getParentTargetHeight()] "
                 << "... will decrease parent height to " << target_max_height
@@ -1436,7 +1447,7 @@ inline void GridLayoutHfw::setDirty()
     // http://stackoverflow.com/questions/3992980/c-inline-member-function-in-cpp-file
     // https://isocpp.org/wiki/faq/inline-functions#where-to-put-inline-keyword
 
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_DETAILED
     qDebug() << Q_FUNC_INFO;
 #endif
     m_dirty = true;
@@ -1496,7 +1507,7 @@ GridLayoutHfw::GeomInfo GridLayoutHfw::getGeomInfo() const
 #endif
 
 
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_BASIC
     qDebug() << Q_FUNC_INFO;
 #endif
 
@@ -1720,16 +1731,13 @@ GridLayoutHfw::GeomInfo GridLayoutHfw::getGeomInfo() const
 
     // From calcHfw (but then altered):
     if (gi.m_has_hfw) {
-        gi.m_hfw_height = gi.m_size_hint.height();
-        gi.m_hfw_min_height = gi.m_min_size.height();
+        gi.m_hfw_height = gi.m_size_hint.height();  // already incorporates extra
+        gi.m_hfw_min_height = gi.m_min_size.height();  // already incorporates extra
     } else {
         gi.m_hfw_height = -1;
         gi.m_hfw_min_height = -1;
     }
 
-    gi.m_min_size += extra;
-    gi.m_max_size += extra;
-    gi.m_size_hint += extra;
 
     // More from distribute() on the actual calculation
     // ........................................................................
@@ -1737,38 +1745,43 @@ GridLayoutHfw::GeomInfo GridLayoutHfw::getGeomInfo() const
 #ifdef GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
     if (gi.m_has_hfw) {
         if (r.height() < gi.m_hfw_min_height) {
-#ifdef DEBUG_LAYOUT
+    #ifdef DEBUG_LAYOUT_BASIC
             qDebug() << "[getGeomInfo()] ... adjusting r height up from"
                      << r.height() << "to" << gi.m_hfw_min_height;
-#endif
+    #endif
             r.setHeight(gi.m_hfw_min_height);
         } else if (r.height() > gi.m_hfw_height) {
-#ifdef DEBUG_LAYOUT
+    #ifdef DEBUG_LAYOUT_BASIC
             qDebug() << "[getGeomInfo()] ... adjusting r height down from"
                      << r.height() << "to" << gi.m_hfw_height;
-#endif
+    #endif
             r.setHeight(gi.m_hfw_height);
         }
     }
 
     // Now work out row heights
-    if (gi.m_has_hfw) {
-        qGeomCalc(gi.m_hfw_data, 0, m_nrow, r.y(), r.height());
-    } else {
-        qGeomCalc(gi.m_row_data, 0, m_nrow, r.y(), r.height());
-    }
+    qGeomCalc(gi.m_has_hfw ? gi.m_hfw_data : gi.m_row_data,
+              0, m_nrow, r.y(), r.height());
 #endif
+
+    gi.m_min_size += extra;
+    gi.m_max_size += extra;
+    gi.m_size_hint += extra;
+    if (gi.m_has_hfw) {
+        gi.m_hfw_height += extra.height();
+        gi.m_hfw_min_height += extra.height();
+    }
 
     // End of main thinking
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_BASIC
     qDebug().nospace()
             << "[getGeomInfo()] ..."
-#ifdef GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
+    #ifdef GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
              << " for rect " << layout_rect
              << " (contents rect " << r << ")"
-#endif
+    #endif
              << " n " << n
              << " m_expanding " << gi.m_expanding
              << " m_min_size " << gi.m_min_size
@@ -1777,6 +1790,7 @@ GridLayoutHfw::GeomInfo GridLayoutHfw::getGeomInfo() const
              << " m_has_hfw " << gi.m_has_hfw
              << " (margins " << effmarg
              << ")";
+    #ifdef DEBUG_LAYOUT_DETAILED
     for (int i = 0; i < m_things.size(); ++i) {
         QQGridBox* box = m_things.at(i);
         int r1 = box->row;
@@ -1820,6 +1834,7 @@ GridLayoutHfw::GeomInfo GridLayoutHfw::getGeomInfo() const
                                << i << ": " << ls;
         }
     }
+    #endif
 #endif
 
 #ifdef GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT

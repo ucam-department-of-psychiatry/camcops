@@ -30,12 +30,13 @@
 #include "lib/sizehelpers.h"
 
 
-AspectRatioPixmap::AspectRatioPixmap(QWidget* parent) :
+AspectRatioPixmap::AspectRatioPixmap(QPixmap* pixmap, QWidget* parent) :
     QWidget(parent)
 {
-    // setScaledContents(false);  // from QLabel
     setSizePolicy(sizehelpers::maximumFixedHFWPolicy());
-    // updateGeometry();
+    if (pixmap) {
+        setPixmap(*pixmap);
+    }
 }
 
 
@@ -45,7 +46,7 @@ void AspectRatioPixmap::setPixmap(const QPixmap& pixmap)
     qDebug() << Q_FUNC_INFO;
 #endif
     m_pixmap = pixmap;
-    updateGeometry();
+    updateGeometry();  // maximum size may have changed
 }
 
 
@@ -119,12 +120,6 @@ QSize AspectRatioPixmap::minimumSizeHint() const
 }
 
 
-void AspectRatioPixmap::resizeEvent(QResizeEvent* event)
-{
-    m_size = event->size();
-}
-
-
 void AspectRatioPixmap::mousePressEvent(QMouseEvent* event)
 {
 #ifdef DEBUG_CLICK_TIMING
@@ -154,10 +149,16 @@ void AspectRatioPixmap::paintEvent(QPaintEvent* event)
     QRect cr = contentsRect();
     if (cr.size() != m_pixmap.size()) {
         // Scale
-        QSize displaysize = m_size;
+        QSize displaysize = m_pixmap.size();
         displaysize.scale(cr.size(), Qt::KeepAspectRatio);
         QRect dest_active_rect = QRect(cr.topLeft(), displaysize);
         QRect source_all_image(QPoint(0, 0), m_pixmap.size());
+#ifdef DEBUG_LAYOUT
+        qDebug().nospace()
+                << Q_FUNC_INFO
+                << " - Asked to draw to contentsRect() of size " << cr.size()
+                << "; drawing to size " << displaysize;
+#endif
         painter.drawPixmap(dest_active_rect, m_pixmap, source_all_image);
 
         // Optimizations are possible: we don't have to draw all of it...

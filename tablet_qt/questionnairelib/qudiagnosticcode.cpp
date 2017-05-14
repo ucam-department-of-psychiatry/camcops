@@ -191,5 +191,5 @@ void QuDiagnosticCode::fieldValueChanged(const FieldRef* fieldref_code)
     if (m_label_description) {
         m_label_description->setText(m_fieldref_description->valueString());
     }
-    m_widget->updateGeometry();
+    // m_widget->updateGeometry();
 }

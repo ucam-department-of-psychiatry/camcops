@@ -49,7 +49,9 @@
     -->
 
     <string name="bdi_which_scale">Which scale are you collecting data from?</string>
+
     <string name="gaf_score">GAF score (1–100 or 0 for insufficient information)</string>
+
     <string name="hads_anxiety_score">Anxiety score</string>
     <string name="hads_depression_score">Depression score</string>
 
@@ -62,6 +64,12 @@
     <string name="wsas_a6">6: Markedly</string>
     <string name="wsas_a7">7</string>
     <string name="wsas_a8">8: Very severely</string>
+
+    <string name="zbi_a0">Never</string>
+    <string name="zbi_a1">Rarely</string>
+    <string name="zbi_a2">Sometimes</string>
+    <string name="zbi_a3">Quite frequently</string>
+    <string name="zbi_a4">Nearly always</string>
 
     <!--
     ===========================================================================

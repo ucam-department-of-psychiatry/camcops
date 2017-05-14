@@ -54,7 +54,8 @@ class AspectRatioPixmap : public QWidget
 
     Q_OBJECT
 public:
-    explicit AspectRatioPixmap(QWidget* parent = nullptr);
+    explicit AspectRatioPixmap(QPixmap* pixmap = nullptr,
+                               QWidget* parent = nullptr);
     virtual bool hasHeightForWidth() const override;
     virtual int heightForWidth(int width) const override;
     virtual QSize sizeHint() const override;
@@ -67,10 +68,6 @@ signals:
     void clicked();
 public slots:
     virtual void setPixmap(const QPixmap& pixmap);  // WON'T OVERRIDE.
-    // - SO QLabel PROPERTY ACCESSORS ARE NOT VIRTUAL.
-    // - AND YOU MUST BEWARE WHAT POINTER TYPE YOU ACCESS THIS THROUGH!
-    virtual void resizeEvent(QResizeEvent* event) override;
 private:
     QPixmap m_pixmap;
-    QSize m_size;  // size on screen
 };

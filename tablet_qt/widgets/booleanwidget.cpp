@@ -65,7 +65,7 @@ BooleanWidget::BooleanWidget(QWidget* parent) :
     connect(m_textbutton, &ClickableLabelWordWrapWide::clicked,
             this, &BooleanWidget::clicked);
 
-    updateWidget();
+    updateWidget(true);
 }
 
 
@@ -73,7 +73,7 @@ void BooleanWidget::setReadOnly(bool read_only)
 {
     if (read_only != m_read_only) {
         m_read_only = read_only;
-        updateWidget();
+        updateWidget(false);
     }
 }
 
@@ -82,7 +82,7 @@ void BooleanWidget::setSize(bool big)
 {
     if (big != m_big) {
         m_big = big;
-        updateWidget();
+        updateWidget(true);
     }
 }
 
@@ -91,7 +91,7 @@ void BooleanWidget::setBold(bool bold)
 {
     if (bold != m_bold) {
         m_bold = bold;
-        updateWidget();
+        updateWidget(true);
     }
 }
 
@@ -101,7 +101,7 @@ void BooleanWidget::setAppearance(BooleanWidget::Appearance appearance)
     if (appearance != m_appearance) {
         m_appearance = appearance;
         m_as_image = (appearance != Appearance::Text);
-        updateWidget();
+        updateWidget(true);
     }
 }
 
@@ -125,12 +125,12 @@ void BooleanWidget::setState(BooleanWidget::State state)
 {
     if (state != m_state) {
         m_state = state;
-        updateWidget();
+        updateWidget(false);
     }
 }
 
 
-void BooleanWidget::updateWidget()
+void BooleanWidget::updateWidget(bool full_refresh)
 {
     QString img;
     switch (m_appearance) {
@@ -227,21 +227,30 @@ void BooleanWidget::updateWidget()
         break;
     }
     if (m_as_image) {
-        m_imagebutton->setVisible(true);
-        m_textbutton->setVisible(false);
-        m_imagebutton->setImageSize(m_big ? uiconst::ICONSIZE : uiconst::SMALL_ICONSIZE);
+        if (full_refresh) {
+            m_imagebutton->setVisible(true);
+            m_textbutton->setVisible(false);
+            m_imagebutton->setImageSize(m_big ? uiconst::ICONSIZE
+                                              : uiconst::SMALL_ICONSIZE);
+            setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        }
         m_imagebutton->setImages(img, true, false, false, false, m_read_only);
         // ... don't alter unpressed images
         // ... FOR NOW, put pressed marker on top (as PNGs are not transparent
         //     inside the check boxes etc.)
-        setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     } else {  // Text
-        m_imagebutton->setVisible(false);
-        m_textbutton->setVisible(true);
-        setSizePolicy(sizehelpers::maximumFixedHFWPolicy());
+        if (full_refresh) {
+            m_imagebutton->setVisible(false);
+            m_textbutton->setVisible(true);
+            setSizePolicy(sizehelpers::maximumFixedHFWPolicy());
+        }
         uifunc::repolish(m_textbutton);
     }
-    updateGeometry();
+    if (full_refresh) {
+        updateGeometry();
+    } else {
+        update();
+    }
 }
 
 
@@ -249,7 +258,9 @@ void BooleanWidget::setText(const QString& text)
 {
     // qDebug() << Q_FUNC_INFO << text;
     m_textbutton->setText(text);
-    updateGeometry();
+    if (m_appearance == Appearance::Text) {
+        updateGeometry();  // text change often implies size change
+    }
 }
 
 

@@ -117,6 +117,11 @@
 #include "tasks/wemwbs.h"
 #include "tasks/wsas.h"
 
+#include "tasks/ybocs.h"
+#include "tasks/ybocssc.h"
+
+#include "tasks/zbi12.h"
+
 
 void InitTasks(TaskFactory& factory)
 {
@@ -224,10 +229,10 @@ void InitTasks(TaskFactory& factory)
     initializeWemwbs(factory);
     initializeWsas(factory);
 
-    // *** initializeYbocs(factory);
-    // *** initializeYbocsSc(factory);
+    initializeYbocs(factory);
+    initializeYbocsSc(factory);
 
-    // *** initializeZbi12(factory);
+    initializeZbi12(factory);
 
 
     // *** new: mini-ACE

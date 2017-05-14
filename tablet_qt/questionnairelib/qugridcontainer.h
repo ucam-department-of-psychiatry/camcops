@@ -40,9 +40,9 @@ public:
     QuGridContainer(int n_columns, std::initializer_list<QuElement*> elements);  // takes ownership
     // Modify:
     QuGridContainer* addCell(const QuGridCell& cell);
-    QuGridContainer* setColumnStretch(int column, int stretch);
-    QuGridContainer* setFixedGrid(bool fixed_grid);
-    QuGridContainer* setExpandHorizontally(bool expand);
+    QuGridContainer* setColumnStretch(int column, int stretch);  // To force the column widths
+    QuGridContainer* setFixedGrid(bool fixed_grid);  // Columns of equal width, unless specified; expands right as required
+    QuGridContainer* setExpandHorizontally(bool expand);  // Does the whole thing expand to the far right of the screen?
 protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual QVector<QuElementPtr> subelements() const override;

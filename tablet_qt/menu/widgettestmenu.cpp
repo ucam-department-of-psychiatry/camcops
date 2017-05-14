@@ -211,6 +211,8 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
                  std::bind(&WidgetTestMenu::testVerticalScrollAreaFixedAreaHfwWidget, this)),
         MenuItem("VerticalScrollArea (AspectRatioPixmap)",
                  std::bind(&WidgetTestMenu::testVerticalScrollAreaAspectRatioPixmap, this)),
+        MenuItem("VerticalScrollArea (GridLayout)",
+                 std::bind(&WidgetTestMenu::testVerticalScrollGridLayout, this)),
 
         // --------------------------------------------------------------------
         MenuItem("Layouts and the like").setLabelOnly(),
@@ -229,7 +231,8 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
                  std::bind(&WidgetTestMenu::testVBoxLayout, this, true)),
         MenuItem("GridLayoutHfw (example 1: fixed-size icons and word-wrapping text)",
                  std::bind(&WidgetTestMenu::testGridLayoutHfw, this, 1)),
-        MenuItem("GridLayoutHfw (example 2: 4 x short text)",
+        MenuItem("GridLayoutHfw (example 2: 4 x short text, an example with "
+                 "height-for-width items only)",
                  std::bind(&WidgetTestMenu::testGridLayoutHfw, this, 2)),
         MenuItem("GridLayoutHfw (example 3: approximating QuMcqGrid)",
                  std::bind(&WidgetTestMenu::testGridLayoutHfw, this, 3)),
@@ -650,6 +653,30 @@ void WidgetTestMenu::testVerticalScrollAreaAspectRatioPixmap()
     AspectRatioPixmap* contentwidget = new AspectRatioPixmap();
     QPixmap pixmap = uifunc::getPixmap(uifunc::iconFilename(uiconst::ICON_CAMCOPS));
     contentwidget->setPixmap(pixmap);
+
+    VerticalScrollArea* scrollwidget = new VerticalScrollArea();
+    scrollwidget->setWidget(contentwidget);
+    debugfunc::debugWidget(scrollwidget);
+}
+
+
+void WidgetTestMenu::testVerticalScrollGridLayout()
+{
+    BaseWidget* contentwidget = new BaseWidget();
+    GridLayoutHfw* layout = new GridLayoutHfw();
+    contentwidget->setLayout(layout);
+
+    bool long_text = true;
+    QPixmap pixmap = uifunc::getPixmap(uifunc::iconFilename(uiconst::ICON_CAMCOPS));
+
+    layout->addWidget(new LabelWordWrapWide(sampleText(long_text)), 0, 1);
+    layout->addWidget(new LabelWordWrapWide(sampleText(long_text)), 0, 2);
+    layout->addWidget(new LabelWordWrapWide(sampleText(long_text)), 1, 0);
+    layout->addWidget(new AspectRatioPixmap(&pixmap), 1, 1);
+    layout->addWidget(new AspectRatioPixmap(&pixmap), 1, 2);
+    layout->addWidget(new LabelWordWrapWide(sampleText(long_text)), 2, 0);
+    layout->addWidget(new AspectRatioPixmap(&pixmap), 2, 1);
+    layout->addWidget(new AspectRatioPixmap(&pixmap), 2, 2);
 
     VerticalScrollArea* scrollwidget = new VerticalScrollArea();
     scrollwidget->setWidget(contentwidget);

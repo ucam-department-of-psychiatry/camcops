@@ -22,6 +22,7 @@
 #include "questionnairelib/mcqfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgridsinglebooleansignaller.h"
+#include "widgets/basewidget.h"
 #include "widgets/booleanwidget.h"
 #include "widgets/labelwordwrapwide.h"
 
@@ -245,7 +246,7 @@ QPointer<QWidget> QuMcqGridSingleBoolean::makeWidget(Questionnaire* questionnair
     mcqfunc::addVerticalLine(grid, spacercol(true), n_rows);
     mcqfunc::addVerticalLine(grid, spacercol(false), n_rows);
 
-    QPointer<QWidget> widget = new QWidget();
+    QPointer<QWidget> widget = new BaseWidget();
     widget->setLayout(grid);
     widget->setObjectName(cssconst::MCQ_GRID_SINGLE_BOOLEAN);
     if (m_expand) {

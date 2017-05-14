@@ -101,31 +101,34 @@ struct BoxLayoutHfwItem
     {}
     ~BoxLayoutHfwItem() { delete item; }
 
-    int hfw(int w)
+    int hfw(int w) const
     {
         if (item->hasHeightForWidth()) {
+            w = boundWidth(w);  // RNC
             return item->heightForWidth(w);
         } else {
             return item->sizeHint().height();
         }
     }
-    int minhfw(int w)  // was mhfw
+    int minhfw(int w) const  // was mhfw
     {
         if (item->hasHeightForWidth()) {
+            w = boundWidth(w);  // RNC
             return item->heightForWidth(w);
         } else {
             return item->minimumSize().height();
         }
     }
-    int maxhfw(int w)  // RNC
+    int maxhfw(int w) const  // RNC
     {
         if (item->hasHeightForWidth()) {
+            w = boundWidth(w);  // RNC
             return item->heightForWidth(w);
         } else {
             return item->maximumSize().height();
         }
     }
-    int hStretch()
+    int hStretch() const
     {
         if (stretch == 0 && item->widget()) {
             return item->widget()->sizePolicy().horizontalStretch();
@@ -133,13 +136,32 @@ struct BoxLayoutHfwItem
             return stretch;
         }
     }
-    int vStretch()
+    int vStretch() const
     {
         if (stretch == 0 && item->widget()) {
             return item->widget()->sizePolicy().verticalStretch();
         } else {
             return stretch;
         }
+    }
+    int boundWidth(int w) const  // RNC
+    {
+        w = qBound(item->minimumSize().width(),
+                   w,
+                   item->maximumSize().width());
+        if (QWidget* widget = item->widget()) {
+            QSizePolicy::Policy policy = widget->sizePolicy().horizontalPolicy();
+            if ((policy & QSizePolicy::PolicyFlag::ShrinkFlag) == 0) {
+                // Can't shrink, so don't let w go below sizeHint() width.
+                w = qMax(item->sizeHint().width(), w);
+            }
+            if ((policy & (QSizePolicy::PolicyFlag::GrowFlag |
+                           QSizePolicy::PolicyFlag::ExpandFlag)) == 0) {
+                // Can't grow/expand, so don't let w go above sizeHint() width.
+                w = qMin(w, item->sizeHint().width());
+            }
+        }
+        return w;
     }
 
     QLayoutItem* item;

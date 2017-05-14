@@ -33,46 +33,12 @@ VerticalScrollAreaViewport::VerticalScrollAreaViewport(QWidget* parent) :
 }
 
 
-void VerticalScrollAreaViewport::resizeEvent(QResizeEvent* event)
+void VerticalScrollAreaViewport::checkChildSize() const
 {
-    QSize s = event->size();
-
-#ifdef DEBUG_LAYOUT
-    qDebug() << Q_FUNC_INFO << s;
-#endif
-    // QWidget::resizeEvent(event);  // doesn't actually do anything
-
-    resizeSingleChild(s);
-}
-
-
-/*
-void VerticalScrollAreaViewport::setGeometry(const QRect& rect)
-{
-    QWidget::setGeometry(rect);
-    resizeSingleChild(rect.size());
-}
-
-
-void VerticalScrollAreaViewport::setGeometry(int x, int y, int w, int h)
-{
-    QWidget::setGeometry(x, y, w, h);
-    resizeSingleChild(QSize(w, h));
-}
-*/
-
-
-void VerticalScrollAreaViewport::resizeSingleChild(const QSize& our_size)
-{
-#ifdef DEBUG_LAYOUT
-    qDebug() << Q_FUNC_INFO << our_size;
-#endif
-
     if (layout()) {
         qWarning() << Q_FUNC_INFO << "- shouldn't have a layout!";
         return;
     }
-
     const QObjectList& children_list = children();
     if (children_list.length() == 0) {
         qWarning() << Q_FUNC_INFO << "- no children!";
@@ -89,51 +55,41 @@ void VerticalScrollAreaViewport::resizeSingleChild(const QSize& our_size)
         return;
     }
 
-    QSize new_child_size;
-    if (child->hasHeightForWidth()) {
-        new_child_size = our_size;
-        new_child_size.rheight() = child->heightForWidth(our_size.width());
-    } else {
-        new_child_size = child->sizeHint();
-    }
+    const QSize our_size = size();
 #ifdef DEBUG_LAYOUT
-    qDebug() << Q_FUNC_INFO << "(1) Child widget before:"
-             << layoutdumper::getWidgetInfo(child);
-    qDebug() << Q_FUNC_INFO << "(2) resizing child to:" << new_child_size;
+    qDebug() << Q_FUNC_INFO << "our_size:" << our_size;
 #endif
 
-    // OK, this is NASTY (but so is the way that support for scroll areas is
-    // baked into a complicated hierarchy of Qt private code):
-    // child->setFixedSize(new_child_size); // even that doesn't work
+    QSize desired_child_size;
+    if (child->hasHeightForWidth()) {
+        desired_child_size = our_size;
+        desired_child_size.rheight() = child->heightForWidth(our_size.width());
+    } else {
+        desired_child_size = child->sizeHint();
+    }
+#ifdef DEBUG_LAYOUT
+    qDebug() << Q_FUNC_INFO << "Child widget:"
+             << layoutdumper::getWidgetInfo(child);
+    qDebug() << Q_FUNC_INFO << "desired_child_size:" << desired_child_size;
+#endif
 
-    child->resize(new_child_size);
-
-    // *** Aha.
+    // Don't try setting the child size here.
     // BoxLayoutHfw and GridLayoutHfw, from their setGeometry(), call
     // their parent->setFixedHeight() and parent->updateGeometry(). So anything
-    // we do here is just overridden again, I think.
+    // we do here to alter the child size is just overridden again, I think.
 
 #ifdef DEBUG_LAYOUT
     qDebug() << Q_FUNC_INFO << "(3) Child widget after:"
              << layoutdumper::getWidgetInfo(child);
 #endif
     QSize child_size = child->size();
-    if (child_size != new_child_size) {
+    if (child_size != desired_child_size) {
         qWarning()
                 << Q_FUNC_INFO
-                << "... child->resize() not honoured! We asked for"
-                << new_child_size
-                << "and got"
-                << child_size;
-#ifdef DEBUG_LAYOUT
-        if (child_size.height() > new_child_size.height()) {
+                << "... child size problem! We expected" << desired_child_size
+                << "and got" << child_size;
+        if (child_size.height() > desired_child_size.height()) {
             qDebug() << Q_FUNC_INFO << "An unnecessary scroll bar is likely.";
-            // no help // child->setFixedHeight(new_child_size.height());
-            // no help // child->updateGeometry();
         }
-#endif
     }
-#ifdef DEBUG_LAYOUT
-    qDebug() << Q_FUNC_INFO << "(4) ... done";
-#endif
 }

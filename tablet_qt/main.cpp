@@ -18,7 +18,7 @@
 */
 
 // #define TEST_QT_BASIC
-#define FULL_LOG_FORMAT
+// #define FULL_LOG_FORMAT
 
 #ifdef TEST_QT_BASIC
 #include <QApplication>  // for minimal_qt_app

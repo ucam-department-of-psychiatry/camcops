@@ -19,10 +19,13 @@
 
 // #define DEBUG_LAYOUT
 // #define DEBUG_IRRELEVANT_EVENTS
+// #define DEBUG_VIEWPORT_CHILD_SIZE
 
 // Maximum of one of these:
 // #define USE_STRETCH
 #define RESIZE_FOR_HFW  // define this for proper performance!
+
+// #define HFW_METHOD_1
 
 #define VANISHING_SCROLLBAR  // define this to look better
 #define USE_CUSTOM_VIEWPORT
@@ -349,11 +352,13 @@ void VerticalScrollArea::resizeEvent(QResizeEvent* event)
     // sizehelpers::resizeEventForHFWParentWidget(this);
 #endif
 #ifdef USE_CUSTOM_VIEWPORT
+#ifdef DEBUG_VIEWPORT_CHILD_SIZE
     QWidget* w = viewport();
     VerticalScrollAreaViewport* vp = dynamic_cast<VerticalScrollAreaViewport*>(w);
     if (vp) {
-        vp->resizeSingleChild(vp->size());
+        vp->checkChildSize();
     }
+#endif
 #endif
 }
 
@@ -527,7 +532,9 @@ void VerticalScrollArea::resetSizeLimits()
     //
     // Can we distinguish these?
 
+#ifdef HFW_METHOD_1
     int scrollbar_width = vsb->width();
+#endif
 #ifdef DEBUG_LAYOUT
     int vsb_value = vsb->value();
     bool scrollbar_active = vsb_value != vsb->minimum() ||
@@ -540,6 +547,7 @@ void VerticalScrollArea::resetSizeLimits()
     // which is either width + scrollbar (if present), or width (if absent),
     // ... for HFW widgets.
 
+    int widget_width = w->geometry().width();
     int widget_min_width = qMax(0, w->minimumSizeHint().width());
     int widget_min_height;
     int widget_max_height;
@@ -551,9 +559,9 @@ void VerticalScrollArea::resetSizeLimits()
 #ifdef DEBUG_LAYOUT
         hfw_explanation += QString("[widget has HFW] ");
 #endif
-        int widget_width = w->geometry().width();
         m_last_widget_width = widget_width;
 
+#ifdef HFW_METHOD_1
         // Calculate widget_max_height
         if (false) {
             // It is quite likely that the widget is now a sensible width for
@@ -562,19 +570,21 @@ void VerticalScrollArea::resetSizeLimits()
             // scroll area will often be a fraction too short vertically.
             int narrower_widget_width = qMax(1, widget_width - scrollbar_width);
             widget_max_height = w->heightForWidth(narrower_widget_width);
-#ifdef DEBUG_LAYOUT
-            hfw_explanation += QString("widget's width %1 -> narrowed %2 in case scrollbars added -> HFW %3")
+    #ifdef DEBUG_LAYOUT
+            hfw_explanation += QString("widget's width %1 -> narrowed %2 in "
+                                       "case scrollbars added -> HFW %3")
                     .arg(widget_width)
                     .arg(narrower_widget_width)
                     .arg(widget_max_height);
-#endif
+    #endif
         } else {
             widget_max_height = w->heightForWidth(widget_width);
-#ifdef DEBUG_LAYOUT
-            hfw_explanation += QString("widget's width %1 -> not narrowed -> max height remains %2")
+    #ifdef DEBUG_LAYOUT
+            hfw_explanation += QString("widget's width %1 -> not narrowed -> "
+                                       "max height remains %2")
                     .arg(widget_width)
                     .arg(widget_max_height);
-#endif
+    #endif
         }
 
         // Calculate widget_min_height
@@ -583,7 +593,7 @@ void VerticalScrollArea::resetSizeLimits()
         widget_min_height = qMin(w->heightForWidth(widget_min_width),
                                  qMin(w->heightForWidth(widget_width),
                                       w->heightForWidth(widget_max_width)));
-#ifdef DEBUG_LAYOUT
+    #ifdef DEBUG_LAYOUT
         hfw_explanation += QString(
                     "; widget HFWs: min_width %1 -> %2; width %3 -> %4; "
                     "max_width %5 -> %6; overall widget_min_height %7")
@@ -594,8 +604,18 @@ void VerticalScrollArea::resetSizeLimits()
                 .arg(widget_max_width)
                 .arg(w->heightForWidth(widget_max_width))
                 .arg(widget_min_height);
+    #endif
+
+#else
+
+        int widget_hfw_height = w->heightForWidth(widget_width);
+        widget_min_height = widget_hfw_height;
+        widget_max_height = widget_hfw_height;
+
 #endif
+
     } else {
+
         // ====================================================================
         // Not HFW
         // ====================================================================
@@ -621,12 +641,12 @@ void VerticalScrollArea::resetSizeLimits()
         hfw_explanation += QString("widget's maximum height is %1")
                 .arg(widget_max_height);
 #endif
+
     }
 
     int new_min_width = widget_min_width;
+    int new_min_height = qBound(0, widget_min_height, SQUASH_DOWN_TO_HEIGHT);
     int new_max_height = widget_max_height;
-    int new_min_height = qMin(qMax(0, widget_min_height),
-                              SQUASH_DOWN_TO_HEIGHT);
 
     // The only other odd bit is that VerticalScrollArea can position its
     // qt_scrollarea_viewport widget at e.g. pos (1, 1), not (0, 0), so our
@@ -646,7 +666,7 @@ void VerticalScrollArea::resetSizeLimits()
             << "; setting VerticalScrollArea minimum width to "
             << new_min_width
             << " (" << widget_min_width << " for widget, "
-            << scrollbar_width << " for scrollbar)"
+            << marg.totalWidth() << " for margins)"
             << "; setting minimum height to " << new_min_height
             << "; setting maximum height to " << new_max_height
             << " (" << hfw_explanation << ") "

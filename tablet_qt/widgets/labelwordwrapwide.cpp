@@ -430,6 +430,7 @@ QSize LabelWordWrapWide::sizeHint() const
 #else
     QSize& size_hint = text_size;
 #endif
+    size_hint = size_hint.expandedTo(minimumSizeHint());
 #ifdef DEBUG_CALCULATIONS
     qDebug() << Q_FUNC_INFO
              << "- text_size" << text_size

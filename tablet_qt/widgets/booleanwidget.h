@@ -69,7 +69,7 @@ public:
     void setText(const QString& text);
 protected:
     virtual void paintEvent(QPaintEvent* e) override;
-    void updateWidget();
+    void updateWidget(bool full_refresh);
 protected:
     bool m_read_only;
     bool m_big;

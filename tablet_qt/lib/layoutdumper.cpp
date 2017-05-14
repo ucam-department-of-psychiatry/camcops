@@ -199,17 +199,68 @@ QString getWidgetInfo(const QWidget* w, const DumperConfig& config)
         elements.append(QString("stylesheet: %1").arg(w->styleSheet()));
     }
 
-    if (geom.width() < w->minimumSize().width() ||
-            geom.height() < w->minimumSize().height()) {
-        elements.append("[BUG? size < minimumSize()]");
+    // Geometry within bounds?
+    if (geom.width() < w->minimumSize().width()) {
+        elements.append("[BUG? geometry().width() < minimumSize().width()]");
     }
-    if (geom.width() < w->minimumSizeHint().width() ||
+    if (geom.height() < w->minimumSize().height()) {
+        elements.append("[BUG? geometry().height() < minimumSize().height()]");
+    }
+    if (geom.width() < w->minimumSizeHint().width()) {
+        elements.append("[WARNING: geometry().width() < "
+                        "minimumSizeHint().width()]");
+    }
+    if (!w->hasHeightForWidth() &&
             geom.height() < w->minimumSizeHint().height()) {
-        elements.append("[WARNING: size < minimumSizeHint()]");
+        elements.append("[WARNING: geometry().height() < "
+                        "minimumSizeHint().height()]");
+    }
+    if (geom.width() > w->maximumSize().width()) {
+        elements.append("[BUG? geometry().width() > maximumSize().width()]");
+    }
+    if (geom.height() > w->maximumSize().height()) {
+        elements.append("[BUG? geometry().height() > maximumSize().height()]");
     }
     if (w->hasHeightForWidth() &&
             geom.height() < w->heightForWidth(geom.width())) {
-        elements.append("[WARNING: height < heightForWidth(width)]");
+        elements.append("[WARNING: geometry().height() < "
+                        "heightForWidth(geometry().width())]");
+    }
+
+    // Bounds themselves consistent?
+    if (w->sizeHint().width() != -1 && w->sizeHint().height() != -1) {
+        if (w->sizeHint().width() < w->minimumSizeHint().width()) {
+            elements.append("[BUG? sizeHint().width() < "
+                            "minimumSizeHint().width()]");
+        }
+        /*
+        // Not clear that these are wrong; the layout may have other reasons
+        // for setting our minimumSize() bigger than our sizeHint().
+        if (w->sizeHint().width() < w->minimumSize().width()) {
+            elements.append("[BUG? sizeHint().width() < "
+                            "minimumSize().width()]");
+        }
+        if (w->sizeHint().width() > w->maximumSize().width()) {
+            elements.append("[BUG? sizeHint().width() > "
+                            "maximumSize().width()]");
+        }
+        */
+        if (w->sizeHint().height() < w->minimumSizeHint().height()) {
+            elements.append("[BUG? (Not sure!) sizeHint().height() < "
+                            "minimumSizeHint().height()]");
+        }
+        if (!w->hasHeightForWidth()) {
+            /*
+            if (w->sizeHint().height() < w->minimumSize().height()) {
+                elements.append("[BUG? sizeHint().height() < "
+                                "minimumSize().height()]");
+            }
+            if (w->sizeHint().height() > w->maximumSize().height()) {
+                elements.append("[BUG? sizeHint().height() > "
+                                "maximumSize().height()]");
+            }
+            */
+        }
     }
 
     return elements.join(", ");
@@ -291,6 +342,21 @@ QString getLayoutInfo(const QLayout* layout)
     elements.append(QString("spacing[UP] %1")
                     .arg(layout->spacing()));
 
+    // Check hints are consistent
+    if (sizehint.width() < minsize.width()) {
+        elements.append("[BUG? sizeHint().width() < minimumSize().width()]");
+    }
+    if (sizehint.height() < minsize.height()) {
+        elements.append("[BUG? sizeHint().height() < minimumSize().height()]");
+    }
+    if (sizehint.width() > maxsize.width()) {
+        elements.append("[BUG? sizeHint().width() > maximumSize().width()]");
+    }
+    if (sizehint.height() > maxsize.height()) {
+        elements.append("[BUG? sizeHint().height() > maximumSize().height()]");
+    }
+
+    // Check parent size is appropriate
     if (parent) {
         QSize parent_size = parent->size();
         int parent_width = parent_size.width();
@@ -300,9 +366,13 @@ QString getLayoutInfo(const QLayout* layout)
         elements.append(QString("minimumHeightForWidth(%1)[UP] %2")
                         .arg(parent_width)
                         .arg(layout->minimumHeightForWidth(parent_width)));
-        if (parent_width < minsize.width() ||
-                parent_size.height() < minsize.height()) {
-            elements.append("[WARNING: parent->size() < this->minimumSize()]");
+        if (parent_width < minsize.width()) {
+            elements.append("[WARNING: parent->size().width() < "
+                            "minimumSize().width()]");
+        }
+        if (parent_size.height() < minsize.height()) {
+            elements.append("[WARNING: parent->size().height() < "
+                            "minimumSize().height()]");
         }
     }
     return elements.join(", ");

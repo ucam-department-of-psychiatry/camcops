@@ -383,7 +383,10 @@ SOURCES += main.cpp \
     tasks/smast.cpp \
     tasks/swemwbs.cpp \
     tasks/wemwbs.cpp \
-    tasks/wsas.cpp
+    tasks/wsas.cpp \
+    tasks/zbi12.cpp \
+    tasks/ybocs.cpp \
+    tasks/ybocssc.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -683,7 +686,10 @@ HEADERS  += \
     tasks/smast.h \
     tasks/swemwbs.h \
     tasks/wemwbs.h \
-    tasks/wsas.h
+    tasks/wsas.h \
+    tasks/zbi12.h \
+    tasks/ybocs.h \
+    tasks/ybocssc.h
 
 
 DISTFILES += \

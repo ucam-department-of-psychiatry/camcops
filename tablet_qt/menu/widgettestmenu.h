@@ -70,6 +70,7 @@ protected:
     void testVerticalScrollAreaComplex(bool long_text);
     void testVerticalScrollAreaFixedAreaHfwWidget();
     void testVerticalScrollAreaAspectRatioPixmap();
+    void testVerticalScrollGridLayout();
 
     // ========================================================================
     // Layouts and the like

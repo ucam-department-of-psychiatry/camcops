@@ -17,12 +17,10 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "wsas.h"
-#include "common/textconst.h"
+#include "zbi12.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/namevaluepair.h"
-#include "questionnairelib/quboolean.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
@@ -35,25 +33,21 @@ using stringfunc::strnum;
 using stringfunc::strseq;
 
 const int FIRST_Q = 1;
-const int N_QUESTIONS = 5;
-const int MAX_SCORE = 40;
+const int N_QUESTIONS = 12;
 const QString QPREFIX("q");
 
-const QString WSAS_TABLENAME("wsas");
-
-const QString RETIRED_ETC("retired_etc");
+const QString ZBI12_TABLENAME("zbi12");
 
 
-void initializeWsas(TaskFactory& factory)
+void initializeZbi12(TaskFactory& factory)
 {
-    static TaskRegistrar<Wsas> registered(factory);
+    static TaskRegistrar<Zbi12> registered(factory);
 }
 
 
-Wsas::Wsas(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
-    Task(app, db, WSAS_TABLENAME, false, false, false)  // ... anon, clin, resp
+Zbi12::Zbi12(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+    Task(app, db, ZBI12_TABLENAME, false, false, true)  // ... anon, clin, resp
 {
-    addField(RETIRED_ETC, QVariant::Bool);
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
@@ -64,22 +58,28 @@ Wsas::Wsas(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
 // Class info
 // ============================================================================
 
-QString Wsas::shortname() const
+QString Zbi12::shortname() const
 {
-    return "WSAS";
+    return "ZBI-12";
 }
 
 
-QString Wsas::longname() const
+QString Zbi12::longname() const
 {
-    return tr("Work and Social Adjustment Scale (¶+)");
+    return tr("Zarit Burden Interview, 12-item version (¶+)");
 }
 
 
-QString Wsas::menusubtitle() const
+QString Zbi12::menusubtitle() const
 {
-    return tr("5-item self-report scale. Data collection tool ONLY unless "
-              "host institution adds scale text.");
+    return tr("12-item caregiver-report scale. Data collection tool ONLY "
+              "unless host institution adds scale text.");
+}
+
+
+QString Zbi12::infoFilenameStem() const
+{
+    return "zbi";
 }
 
 
@@ -87,38 +87,34 @@ QString Wsas::menusubtitle() const
 // Instance info
 // ============================================================================
 
-bool Wsas::isComplete() const
+bool Zbi12::isComplete() const
 {
-    return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
+    return isRespondentComplete() &&
+            noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
 
 
-QStringList Wsas::summary() const
+QStringList Zbi12::summary() const
 {
-    return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
+    return QStringList{valueString(RESPONDENT_NAME)};
 }
 
 
-QStringList Wsas::detail() const
+QStringList Zbi12::detail() const
 {
     return completenessInfo() + summary();
 }
 
 
-OpenableWidget* Wsas::editor(bool read_only)
+OpenableWidget* Zbi12::editor(bool read_only)
 {
     NameValueOptions options{
-        {appstring("wsas_a0"), 0},
-        {appstring("wsas_a1"), 1},
-        {appstring("wsas_a2"), 2},
-        {appstring("wsas_a3"), 3},
-        {appstring("wsas_a4"), 4},
-        {appstring("wsas_a5"), 5},
-        {appstring("wsas_a6"), 6},
-        {appstring("wsas_a7"), 7},
-        {appstring("wsas_a8"), 8},
+        {appstring("zbi_a0"), 0},
+        {appstring("zbi_a1"), 1},
+        {appstring("zbi_a2"), 2},
+        {appstring("zbi_a3"), 3},
+        {appstring("zbi_a4"), 4},
     };
-
     QVector<QuestionWithOneField> qfields;
     for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
         qfields.append(QuestionWithOneField(
@@ -127,8 +123,8 @@ OpenableWidget* Wsas::editor(bool read_only)
     }
 
     QuPagePtr page((new QuPage{
+        getRespondentQuestionnaireBlockRawPointer(true),
         (new QuText(xstring("instruction")))->setBold(),
-        new QuBoolean(xstring("q_retired_etc"), fieldRef(RETIRED_ETC, false)),
         new QuMcqGrid(qfields, options),
     })->setTitle(longname()));
 
@@ -142,8 +138,3 @@ OpenableWidget* Wsas::editor(bool read_only)
 // ============================================================================
 // Task-specific calculations
 // ============================================================================
-
-int Wsas::totalScore() const
-{
-    return sumInt(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
-}

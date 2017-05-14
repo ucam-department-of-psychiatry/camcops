@@ -22,6 +22,7 @@
 #include "questionnairelib/mcqfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgridsignaller.h"
+#include "widgets/basewidget.h"
 #include "widgets/booleanwidget.h"
 #include "widgets/labelwordwrapwide.h"
 
@@ -203,7 +204,7 @@ QPointer<QWidget> QuMcqGrid::makeWidget(Questionnaire* questionnaire)
     // Vertical lines
     mcqfunc::addVerticalLine(grid, 1, n_rows);
 
-    QPointer<QWidget> widget = new QWidget();
+    QPointer<QWidget> widget = new BaseWidget();
     widget->setLayout(grid);
     widget->setObjectName(cssconst::MCQ_GRID);
     if (m_expand) {

@@ -137,6 +137,7 @@ extern const QString RESPONDENT_RELATIONSHIP_2P;
 extern const QString RESPONDENT_RELATIONSHIP_3P;
 
 extern const QString SCORE;
+extern const QString SEE_FACSIMILE;
 extern const QString SEE_FACSIMILE_FOR_MORE_DETAIL;
 extern const QString SERVICE;
 extern const QString SEVERE;

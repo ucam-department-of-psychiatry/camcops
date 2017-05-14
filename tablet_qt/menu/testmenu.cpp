@@ -261,7 +261,7 @@ void TestMenu::testSizeFormatter()
     QString text;
     for (bool binary : {false, true}) {
         for (auto num : nums) {
-            text += QString("%1 -> %2\n")
+            text += QString("%1 → %2\n")
               .arg(num)
               .arg(convert::prettySize(num, space, binary, longform, suffix));
         }

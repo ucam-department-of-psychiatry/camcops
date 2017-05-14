@@ -22,6 +22,7 @@
 #include "questionnairelib/mcqfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgriddoublesignaller.h"
+#include "widgets/basewidget.h"
 #include "widgets/booleanwidget.h"
 #include "widgets/labelwordwrapwide.h"
 
@@ -269,7 +270,7 @@ QPointer<QWidget> QuMcqGridDouble::makeWidget(Questionnaire* questionnaire)
     mcqfunc::addVerticalLine(grid, spacercol(true), n_rows);
     mcqfunc::addVerticalLine(grid, spacercol(false), n_rows);
 
-    QPointer<QWidget> widget = new QWidget();
+    QPointer<QWidget> widget = new BaseWidget();
     widget->setLayout(grid);
     widget->setObjectName(cssconst::MCQ_GRID_DOUBLE);
     if (m_expand) {

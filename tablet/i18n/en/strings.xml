@@ -989,11 +989,6 @@ Tasks
 <string name="t_zbi12">Zarit Burden Interview (ZBI), 12-item version (¶+)</string>
 <string name="s_zbi12">12-item caregiver-report scale. Data collection tool ONLY unless host institution adds scale text.</string>
 <string name="b_zbi12">ZBI-12</string>
-<string name="zbi_a0">Never</string>
-<string name="zbi_a1">Rarely</string>
-<string name="zbi_a2">Sometimes</string>
-<string name="zbi_a3">Quite frequently</string>
-<string name="zbi_a4">Nearly always</string>
 
 <!--
 ===============================================================================

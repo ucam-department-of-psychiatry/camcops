@@ -492,13 +492,22 @@ QuPagePtr Task::getClinicianDetailsPage()
 }
 
 
+bool Task::isClinicianComplete() const
+{
+    if (!m_has_clinician) {
+        return false;
+    }
+    return !valueIsNullOrEmpty(CLINICIAN_NAME);
+}
+
+
 bool Task::isRespondentComplete() const
 {
     if (!m_has_respondent) {
         return false;
     }
-    return !valueString(RESPONDENT_NAME).isEmpty() &&
-            !valueString(RESPONDENT_RELATIONSHIP).isEmpty();
+    return !valueIsNullOrEmpty(RESPONDENT_NAME) &&
+            !valueIsNullOrEmpty(RESPONDENT_RELATIONSHIP);
 }
 
 

@@ -124,6 +124,7 @@ TR(RESPONDENT_RELATIONSHIP_2P, "Your relationship to the patient");
 TR(RESPONDENT_RELATIONSHIP_3P, "Respondent’s relationship to patient");
 
 TR(SCORE, "Score");
+TR(SEE_FACSIMILE, "See facsimile.");
 TR(SEE_FACSIMILE_FOR_MORE_DETAIL, "See facsimile for more detail.");
 TR(SERVICE, "Service");
 TR(SEVERE, "Severe");
