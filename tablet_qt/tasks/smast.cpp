@@ -39,7 +39,7 @@ const QString QPREFIX("q");
 
 const QVector<int> REVERSE_SCORED_Q{1, 4, 5};
 
-const QString SMAST_TABLENAME("smast");
+const QString Smast::SMAST_TABLENAME("smast");
 
 
 void initializeSmast(TaskFactory& factory)

@@ -32,7 +32,7 @@
 #include "tasklib/taskfactory.h"
 #include "photosequencephoto.h"
 
-const QString PHOTOSEQUENCE_TABLENAME("photosequence");
+const QString PhotoSequence::PHOTOSEQUENCE_TABLENAME("photosequence");
 
 const QString SEQUENCE_DESCRIPTION("sequence_description");
 

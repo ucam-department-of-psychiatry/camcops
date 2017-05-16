@@ -36,7 +36,7 @@ const int N_QUESTIONS = 20;
 const int MAX_SCORE = N_QUESTIONS * 3;
 const QString QPREFIX("q");
 
-const QString BADLS_TABLENAME("badls");
+const QString Badls::BADLS_TABLENAME("badls");
 const QMap<QString, int> BADLS_SCORING{
     {"a", 0},
     {"b", 1},

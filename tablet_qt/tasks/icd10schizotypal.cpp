@@ -41,7 +41,7 @@ using stringfunc::standardResult;
 using stringfunc::strseq;
 using uifunc::yesNoUnknown;
 
-const QString ICD10SZTYPAL_TABLENAME("icd10schizotypal");
+const QString Icd10Schizotypal::ICD10SZTYPAL_TABLENAME("icd10schizotypal");
 
 const int N_A = 9;
 const QString A_PREFIX("a");

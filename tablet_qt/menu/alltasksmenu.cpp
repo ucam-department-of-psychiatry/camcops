@@ -18,7 +18,7 @@
 */
 
 #include "alltasksmenu.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 #include "tasklib/taskfactory.h"

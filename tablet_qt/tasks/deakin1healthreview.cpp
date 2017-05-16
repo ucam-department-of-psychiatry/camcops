@@ -43,7 +43,7 @@ using mathfunc::totalScorePhrase;
 using stringfunc::strnum;
 using stringfunc::strseq;
 
-const QString DEAKIN1HEALTHREVIEW_TABLENAME("deakin_1_healthreview");
+const QString Deakin1HealthReview::DEAKIN1HEALTHREVIEW_TABLENAME("deakin_1_healthreview");
 
 const QString ETHNICITY("ethnicity");
 const QString ETHNICITY_TEXT("ethnicity_text");

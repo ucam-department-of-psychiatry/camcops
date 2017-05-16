@@ -54,6 +54,8 @@ protected:
     void callbackHello();
     void callbackArg(const QString& arg);
     QuBoolean* aceBoolean(const QString& stringname, const QString& fieldname);
+public:
+    static const QString DEMOQUESTIONNAIRE_TABLENAME;
 };
 
 void initializeDemoQuestionnaire(TaskFactory& factory);

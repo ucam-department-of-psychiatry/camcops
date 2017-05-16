@@ -38,4 +38,6 @@ public:
     virtual QString longname() const override;
     virtual QString infoFilenameStem() const override;
     virtual QString xstringTaskname() const override;
+public:
+    static const QString HADSRESPONDENT_TABLENAME;
 };

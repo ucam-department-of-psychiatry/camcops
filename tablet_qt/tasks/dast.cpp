@@ -39,7 +39,7 @@ const int N_QUESTIONS = 28;
 const int MAX_SCORE = N_QUESTIONS;
 const QString QPREFIX("q");
 
-const QString DAST_TABLENAME("dast");
+const QString Dast::DAST_TABLENAME("dast");
 
 
 void initializeDast(TaskFactory& factory)

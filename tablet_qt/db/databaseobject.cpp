@@ -157,10 +157,10 @@ QVariant DatabaseObject::value(const QString& fieldname) const
 }
 
 
-QString DatabaseObject::prettyValue(const QString &fieldname) const
+QString DatabaseObject::prettyValue(const QString &fieldname, int dp) const
 {
     requireField(fieldname);
-    return m_record[fieldname].prettyValue();
+    return m_record[fieldname].prettyValue(dp);
 }
 
 

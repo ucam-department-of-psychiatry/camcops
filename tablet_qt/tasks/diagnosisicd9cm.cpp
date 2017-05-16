@@ -27,7 +27,7 @@
 #include "tasks/diagnosisicd9cmitem.h"
 #include "tasklib/taskfactory.h"
 
-const QString DIAGNOSIS_ICD9CM_TABLENAME("diagnosis_icd9cm");
+const QString DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME("diagnosis_icd9cm");
 
 
 void initializeDiagnosisIcd9CM(TaskFactory& factory)

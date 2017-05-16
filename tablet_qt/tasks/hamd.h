@@ -62,4 +62,6 @@ protected:
     void chooseWeightPage();
 protected:
     QPointer<Questionnaire> m_questionnaire;
+public:
+    static const QString HAMD_TABLENAME;
 };

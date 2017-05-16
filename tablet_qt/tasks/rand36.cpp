@@ -39,7 +39,7 @@ const int N_QUESTIONS = 36;
 const int MAX_SCORE = 100;  // overall, or for subscales
 const QString QPREFIX("q");
 
-const QString RAND36_TABLENAME("rand36");
+const QString Rand36::RAND36_TABLENAME("rand36");
 
 const QVector<int> CODE_5STEP_DOWN{1, 2, 20, 22, 34, 36};
 const QVector<int> CODE_3STEP_UP{3, 4, 5, 6, 7, 8, 9, 10, 11, 12};

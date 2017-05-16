@@ -56,4 +56,6 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     int totalScore() const;
+public:
+    static const QString AUDITC_TABLENAME;
 };

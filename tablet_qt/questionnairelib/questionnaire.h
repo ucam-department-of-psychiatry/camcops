@@ -24,7 +24,7 @@
 #include <QPointer>
 #include <QSharedPointer>
 #include "common/aliases_camcops.h"
-#include "common/uiconstants.h"  // for FontSize
+#include "common/uiconst.h"  // for FontSize
 #include "widgets/openablewidget.h"
 #include "qupage.h"
 
@@ -84,6 +84,7 @@ public:
     int nPages() const;
     void goToPage(int index, bool allow_refresh = false);
     void debugLayout();
+    void keyPressEvent(QKeyEvent* event);
 public slots:
     void resetButtons();
 protected:

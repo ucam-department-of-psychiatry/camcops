@@ -55,4 +55,6 @@ protected:
     QStringList getItemsActivities(const QStringList& activities) const;
     QStringList getItemsPhase(const QString& phase) const;
     QString getScore(const QStringList& fieldnames) const;
+public:
+    static const QString DAD_TABLENAME;
 };

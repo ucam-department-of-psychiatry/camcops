@@ -28,7 +28,7 @@
 #include "tasklib/taskfactory.h"
 using mathfunc::noneNull;
 
-const QString PHOTO_TABLENAME("photo");
+const QString Photo::PHOTO_TABLENAME("photo");
 
 const QString DESCRIPTION("description");
 const QString PHOTO_BLOBID("photo_blobid");

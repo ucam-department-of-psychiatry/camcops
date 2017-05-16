@@ -39,7 +39,7 @@ const int N_QUESTIONS = 7;
 const int MAX_SCORE = 21;
 const QString QPREFIX("q");
 
-const QString GAD7_TABLENAME("gad7");
+const QString Gad7::GAD7_TABLENAME("gad7");
 
 
 void initializeGad7(TaskFactory& factory)

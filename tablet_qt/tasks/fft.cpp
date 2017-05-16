@@ -30,7 +30,7 @@
 using stringfunc::strnum;
 using stringfunc::standardResult;
 
-const QString FFT_TABLENAME("fft");
+const QString Fft::FFT_TABLENAME("fft");
 
 const QString SERVICE("service");  // the service being rated
 const QString RATING("rating");

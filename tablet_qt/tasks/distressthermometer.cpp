@@ -41,7 +41,7 @@ const int N_QUESTIONS = 36;
 const int MAX_SCORE = N_QUESTIONS;
 const QString QPREFIX("q");
 
-const QString DT_TABLENAME("distressthermometer");
+const QString DistressThermometer::DT_TABLENAME("distressthermometer");
 
 const QString DISTRESS("distress");
 const QString OTHER("other");

@@ -45,7 +45,7 @@ const int MAX_OBSESSION_SCORE = 20;
 const int MAX_COMPULSION_SCORE = 20;
 const int MAX_SCORE = 40;
 
-const QString YBOCS_TABLENAME("ybocs");
+const QString Ybocs::YBOCS_TABLENAME("ybocs");
 
 const QString Q1B("q1b");
 const QString Q6B("q6b");

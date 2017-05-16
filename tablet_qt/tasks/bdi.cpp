@@ -39,7 +39,7 @@ const int N_QUESTIONS = 21;
 const int MAX_SCORE = N_QUESTIONS * 3;
 const QString QPREFIX("q");
 
-const QString BDI_TABLENAME("bdi");
+const QString Bdi::BDI_TABLENAME("bdi");
 const QString FN_BDI_SCALE("bdi_scale");
 
 const QString SCALE_BDI_I("BDI-I");

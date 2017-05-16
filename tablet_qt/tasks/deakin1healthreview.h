@@ -62,4 +62,6 @@ signals:
     void setFHImmuneMinimum(int minimum_answers);
 public slots:
     void updateMandatory();
+public:
+    static const QString DEAKIN1HEALTHREVIEW_TABLENAME;
 };

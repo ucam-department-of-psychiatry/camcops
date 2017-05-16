@@ -72,4 +72,6 @@ public:
     // ------------------------------------------------------------------------
 protected:
     int getScore(const QVector<int>& questions) const;
+public:
+    static const QString HADS_TABLENAME;
 };

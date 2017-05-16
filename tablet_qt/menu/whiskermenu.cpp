@@ -18,7 +18,7 @@
 */
 
 #include "whiskermenu.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "common/varconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"

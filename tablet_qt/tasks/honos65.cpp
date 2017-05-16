@@ -39,7 +39,7 @@ const int N_QUESTIONS = 12;
 const int MAX_SCORE = 48;
 const QString QPREFIX("q");
 
-const QString HONOS65_TABLENAME("honos65");
+const QString Honos65::HONOS65_TABLENAME("honos65");
 
 const QString PERIOD_RATED("period_rated");
 const QString Q8("q8");

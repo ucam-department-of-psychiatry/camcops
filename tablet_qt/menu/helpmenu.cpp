@@ -24,7 +24,7 @@
 #include <QSqlDriver>
 #include <QtSql/QtSqlVersion>
 #include "common/textconst.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "common/camcopsversion.h"
 #include "db/dbfunc.h"
 #include "db/whichdb.h"
@@ -33,6 +33,7 @@
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
+#include "tasks/demoquestionnaire.h"
 
 const QString CAMCOPS_URL("http://camcops.org/");
 const QString CAMCOPS_DOCS_URL("http://camcops.org/documentation/index.html");
@@ -50,7 +51,7 @@ HelpMenu::HelpMenu(CamcopsApp& app) :
         MenuItem(tr("Visit") + " " + CAMCOPS_URL,
                  std::bind(&HelpMenu::visitCamcopsWebsite, this),
                  uifunc::iconFilename(uiconst::ICON_CAMCOPS)),
-        MAKE_TASK_MENU_ITEM("demoquestionnaire", app),
+        MAKE_TASK_MENU_ITEM(DemoQuestionnaire::DEMOQUESTIONNAIRE_TABLENAME, app),
         MenuItem(title_missing,
                  HtmlMenuItem(title_missing,
                               filefunc::taskHtmlFilename("MISSING_TASKS"),

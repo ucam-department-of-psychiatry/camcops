@@ -18,9 +18,21 @@
 */
 
 #include "setmenudeakin1.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
+
+#include "tasks/ace3.h"
+#include "tasks/bdi.h"
+#include "tasks/bmi.h"
+#include "tasks/caps.h"
+#include "tasks/cecaq3.h"
+#include "tasks/cgisch.h"
+#include "tasks/deakin1healthreview.h"
+#include "tasks/diagnosisicd9cm.h"
+#include "tasks/gaf.h"
+#include "tasks/nart.h"
+#include "tasks/panss.h"
 
 
 SetMenuDeakin1::SetMenuDeakin1(CamcopsApp& app) :
@@ -32,19 +44,19 @@ SetMenuDeakin1::SetMenuDeakin1(CamcopsApp& app) :
                  "antibody-mediated psychosis";
     m_items = {
         MAKE_CHANGE_PATIENT(app),
-        MAKE_TASK_MENU_ITEM("ace3", app),
-        MAKE_TASK_MENU_ITEM("bdi", app),
-        MAKE_TASK_MENU_ITEM("bmi", app),
-        MAKE_TASK_MENU_ITEM("caps", app),
-        MAKE_TASK_MENU_ITEM("cecaq3", app),
-        MAKE_TASK_MENU_ITEM("cgisch", app),
-        MAKE_TASK_MENU_ITEM("diagnosis_icd9cm", app),
-        MAKE_TASK_MENU_ITEM("deakin_1_healthreview", app),
+        MAKE_TASK_MENU_ITEM(Ace3::ACE3_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Bdi::BDI_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Bmi::BMI_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Caps::CAPS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(CecaQ3::CECAQ3_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(CgiSch::CGISCH_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Deakin1HealthReview::DEAKIN1HEALTHREVIEW_TABLENAME, app),
         MenuItem("*** soundtest for ExpDetThreshold/ExpDet"),
         MAKE_TASK_MENU_ITEM("cardinal_expdetthreshold", app),
         MAKE_TASK_MENU_ITEM("cardinal_expdet", app),
-        MAKE_TASK_MENU_ITEM("gaf", app),
-        MAKE_TASK_MENU_ITEM("nart", app),
-        MAKE_TASK_MENU_ITEM("panss", app),
+        MAKE_TASK_MENU_ITEM(Gaf::GAF_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Nart::NART_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Panss::PANSS_TABLENAME, app),
     };
 }

@@ -41,7 +41,7 @@ const int FIRST_Q = 1;
 const int N_QUESTIONS = 30;
 const QString QPREFIX("q");
 
-const QString FRS_TABLENAME("frs");
+const QString Frs::FRS_TABLENAME("frs");
 
 const QString COMMENTS("comments");
 

@@ -39,7 +39,7 @@ const int N_QUESTIONS = 14;
 const int MAX_SCORE = 56;
 const QString QPREFIX("q");
 
-const QString HAMA_TABLENAME("hama");
+const QString HamA::HAMA_TABLENAME("hama");
 
 
 void initializeHamA(TaskFactory& factory)

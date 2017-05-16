@@ -53,4 +53,6 @@ public:
     int totalScore() const;
 public slots:
     void setEfficacyIndex();
+public:
+    static const QString CGI_TABLENAME;
 };

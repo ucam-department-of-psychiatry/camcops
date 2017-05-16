@@ -20,7 +20,7 @@
 #include "ace3.h"
 #include <QDebug>
 #include "common/textconst.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "lib/datetime.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
@@ -53,7 +53,7 @@ using stringfunc::bold;
 using stringfunc::strnum;
 using stringfunc::strseq;
 
-const QString ACE3_TABLENAME("ace3");
+const QString Ace3::ACE3_TABLENAME("ace3");
 
 const QString IMAGE_SPOON("ace3/spoon.png");
 const QString IMAGE_BOOK("ace3/book.png");

@@ -18,9 +18,16 @@
 */
 
 #include "psychosismenu.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
+
+#include "tasks/cape42.h"
+#include "tasks/caps.h"
+#include "tasks/cgisch.h"
+#include "tasks/icd10schizophrenia.h"
+#include "tasks/icd10schizotypal.h"
+#include "tasks/panss.h"
 
 
 PsychosisMenu::PsychosisMenu(CamcopsApp& app) :
@@ -29,11 +36,11 @@ PsychosisMenu::PsychosisMenu(CamcopsApp& app) :
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),
-        MAKE_TASK_MENU_ITEM("cape42", app),
-        MAKE_TASK_MENU_ITEM("caps", app),
-        MAKE_TASK_MENU_ITEM("cgisch", app),
-        MAKE_TASK_MENU_ITEM("panss", app),
-        MAKE_TASK_MENU_ITEM("icd10schizophrenia", app),
-        MAKE_TASK_MENU_ITEM("icd10schizotypal", app),
+        MAKE_TASK_MENU_ITEM(Cape42::CAPE42_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Caps::CAPS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(CgiSch::CGISCH_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Panss::PANSS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Icd10Schizophrenia::ICD10SZ_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Icd10Schizotypal::ICD10SZTYPAL_TABLENAME, app),
     };
 }

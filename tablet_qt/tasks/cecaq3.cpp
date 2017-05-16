@@ -47,7 +47,7 @@ using mathfunc::totalScorePhrase;
 using stringfunc::strnum;
 using stringfunc::strseq;
 
-const QString CECAQ3_TABLENAME("cecaq3");
+const QString CecaQ3::CECAQ3_TABLENAME("cecaq3");
 
 // Fieldnames:
 const QString S1A_MOTHERFIGURE_BIRTHMOTHER("s1a_motherfigure_birthmother");

@@ -21,7 +21,7 @@
 #include <QDebug>
 #include <QString>
 #include "common/cssconst.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "db/fieldref.h"
 #include "widgets/booleanwidget.h"
 #include "widgets/labelwordwrapwide.h"

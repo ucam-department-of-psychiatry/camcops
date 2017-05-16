@@ -79,4 +79,6 @@ protected:
 protected:
     QVector<PhotoSequencePhotoPtr> m_photos;
     QPointer<Questionnaire> m_questionnaire;
+public:
+    static const QString PHOTOSEQUENCE_TABLENAME;
 };

@@ -53,4 +53,6 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     QVariant totalScore() const;
+public:
+    static const QString DEMQOLPROXY_TABLENAME;
 };

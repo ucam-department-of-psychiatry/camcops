@@ -23,6 +23,7 @@
 #include "questionnaire.h"
 #include <functional>
 #include <QDebug>
+#include <QKeyEvent>
 #include <QMessageBox>
 #include <QLabel>
 #include <QVBoxLayout>
@@ -88,6 +89,8 @@ void Questionnaire::commonConstructor()
     m_background_widget = nullptr;
     m_mainlayout = nullptr;
     m_p_header = nullptr;
+
+    setEscapeKeyCanAbort(false);
 }
 
 
@@ -350,6 +353,18 @@ bool Questionnaire::readOnly() const
 int Questionnaire::fontSizePt(uiconst::FontSize fontsize) const
 {
     return m_app.fontSizePt(fontsize);
+}
+
+
+void Questionnaire::keyPressEvent(QKeyEvent* event)
+{
+    if (!event) {
+        return;
+    }
+    if (event->key() == Qt::Key_Escape && event->type() == QEvent::KeyPress) {
+        // Escape key pressed
+        cancelClicked();
+    }
 }
 
 

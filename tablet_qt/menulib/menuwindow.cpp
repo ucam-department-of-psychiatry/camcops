@@ -27,7 +27,7 @@
 #include <QMessageBox>
 #include <QVBoxLayout>
 #include "common/cssconst.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "dbobjects/patient.h"
 #include "lib/filefunc.h"
 #include "lib/layoutdumper.h"
@@ -74,6 +74,8 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
                         m_mainlayout
                             widgets of interest
     */
+
+    setEscapeKeyCanAbort(!top, true);
 
     loadStyleSheet();
     setObjectName(cssconst::MENU_WINDOW_OUTER_OBJECT);
@@ -401,6 +403,10 @@ void MenuWindow::viewTask()
         if (facsimile_available) {
             qInfo() << "View as facsimile:" << instance_title;
             OpenableWidget* widget = task->editor(true);
+            if (!widget) {
+                complainTaskNotOfferingEditor();
+                return;
+            }
             m_app.open(widget, task);
         }
         break;
@@ -461,8 +467,19 @@ void MenuWindow::editTaskConfirmed(const TaskPtr& task)
     QString instance_title = task->instanceTitle();
     qInfo() << "Edit:" << instance_title;
     OpenableWidget* widget = task->editor(false);
+    if (!widget) {
+        complainTaskNotOfferingEditor();
+        return;
+    }
     connectQuestionnaireToTask(widget, task.data());
     m_app.open(widget, task, true);
+}
+
+
+void MenuWindow::complainTaskNotOfferingEditor()
+{
+    uifunc::alert(tr("Task has declined to supply an editor!"),
+                  tr("Can't edit/view task"));
 }
 
 

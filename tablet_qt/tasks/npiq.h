@@ -64,4 +64,6 @@ protected:
     void updateMandatory(int q);
 protected:
     QPointer<Questionnaire> m_questionnaire;
+public:
+    static const QString NPIQ_TABLENAME;
 };

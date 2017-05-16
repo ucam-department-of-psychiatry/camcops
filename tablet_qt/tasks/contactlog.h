@@ -52,4 +52,6 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     int timeTakenMinutes() const;
+public:
+    static const QString CONTACTLOG_TABLENAME;
 };

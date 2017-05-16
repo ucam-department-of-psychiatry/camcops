@@ -927,22 +927,6 @@ Tasks
 <string name="t_qolsg">Quality of Life: Standard Gamble (QoL-SG)</string>
 <string name="s_qolsg">Standard-gamble measure of quality of life.</string>
 <string name="b_qolsg">QoL-SG</string>
-<string name="qolsg_utility">Utility:</string>
-<string name="qolsg_initial_instruction">Quality of Life Standard Gamble\n \n \nPlease choose the statement that best describes your current health state:</string>
-<string name="qolsg_current_state">Current state:</string>
-<string name="qolsg_dead">Dead</string>
-<string name="qolsg_healthy">Healthy</string>
-<string name="qolsg_indifferent">Both wheels seem about equal to me now</string>
-<string name="qolsg_h_above_1" formatted="false">I am better than 100% healthy</string>
-<string name="qolsg_h_0_to_1" formatted="false">I am somewhere from 0% to 100% healthy</string>
-<string name="qolsg_h_below_0">My current state is worse than being dead</string>
-<string name="qolsg_left">left</string>
-<string name="qolsg_right">right</string>
-<string name="qolsg_instruction_prefix_2">Suppose you are offered two alternatives, represented by the two wheels below.</string>
-<string name="qolsg_instruction_medium">The FIXEDSIDE wheel represents you remaining in your current state of health for the rest of your life.\nThe LOTTERYSIDE wheel represents an experimental treatment. There is a chance that it will return you\nto full health for the rest of your life. However, there is also a chance that it will kill you instantly.</string>
-<string name="qolsg_instruction_low">The FIXEDSIDE wheel represents a poison that would kill you instantly.\nThe LOTTERYSIDE wheel represents an experimental treatment. There is a chance that it will return you to full\nhealth for the rest of your life. However, there is also a chance that you will remain in your current state\nof health for the rest of your life.</string>
-<string name="qolsg_instruction_high">The FIXEDSIDE wheel represents a medicine that would give you normal full health for the rest of your life.\nThe LOTTERYSIDE wheel represents an experimental treatment. There is a chance that it will keep you in your current\nstate of health for the rest of your life. However, there is also a chance that it will kill you instantly.</string>
-<string name="qolsg_instruction_suffix">Please drag the red pointer to adjust the chances on the LOTTERYSIDE wheel, until the two wheels seem\nEQUAL IN VALUE to you. Then press the green button.</string>
 
 <string name="t_slums">St Louis University Mental Status (SLUMS) Exam</string>
 <string name="s_slums">30-point clinician-administered brief cognitive assessment.</string>

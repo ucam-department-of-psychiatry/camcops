@@ -35,7 +35,7 @@ using stringfunc::strnumlist;
 using stringfunc::strseq;
 #define TR(stringname, text) const QString stringname(QObject::tr(text))
 
-const QString IESR_TABLENAME("iesr");
+const QString Iesr::IESR_TABLENAME("iesr");
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 22;

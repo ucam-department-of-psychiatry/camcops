@@ -46,7 +46,7 @@ using mathfunc::falseNotNull;
 using stringfunc::bold;
 using stringfunc::standardResult;
 
-const QString ICD10MANIC_TABLENAME("icd10manic");
+const QString Icd10Manic::ICD10MANIC_TABLENAME("icd10manic");
 
 const QString MOOD_ELEVATED("mood_elevated");
 const QString MOOD_IRRITABLE("mood_irritable");

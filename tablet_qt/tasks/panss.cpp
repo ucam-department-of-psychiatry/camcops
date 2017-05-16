@@ -46,7 +46,7 @@ const QString P_PREFIX("p");
 const QString N_PREFIX("n");
 const QString G_PREFIX("g");
 
-const QString PANSS_TABLENAME("panss");
+const QString Panss::PANSS_TABLENAME("panss");
 
 
 void initializePanss(TaskFactory& factory)

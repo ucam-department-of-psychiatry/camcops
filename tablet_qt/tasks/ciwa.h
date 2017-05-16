@@ -53,4 +53,6 @@ public:
     int totalScore() const;
 protected:
     QString severityDescription(int total_score) const;
+public:
+    static const QString CIWA_TABLENAME;
 };

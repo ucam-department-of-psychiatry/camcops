@@ -21,7 +21,7 @@
 #include <QDialog>
 #include <QHBoxLayout>
 #include "common/cssconst.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "dialogs/nvpchoicedialog.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"

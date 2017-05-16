@@ -32,7 +32,7 @@ using mathfunc::totalScorePhrase;
 using stringfunc::strnum;
 using stringfunc::strseq;
 
-const QString CGISCH_TABLENAME("cgisch");
+const QString CgiSch::CGISCH_TABLENAME("cgisch");
 
 const QString FP_SEVERITY("severity");
 const QString FP_CHANGE("change");

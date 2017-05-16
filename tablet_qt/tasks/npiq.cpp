@@ -43,7 +43,7 @@ const int MAX_ENDORSED = 12;
 const int MAX_SEVERITY = 36;
 const int MAX_DISTRESS = 60;
 
-const QString NPIQ_TABLENAME("npiq");
+const QString NpiQ::NPIQ_TABLENAME("npiq");
 const QString ELEMENT_TAG_PREFIX("q");
 const QString PAGE_TAG_PREFIX("q");
 

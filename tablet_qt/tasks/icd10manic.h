@@ -66,4 +66,6 @@ protected:
     // ------------------------------------------------------------------------
 protected:
     void updateMandatory();
+public:
+    static const QString ICD10MANIC_TABLENAME;
 };

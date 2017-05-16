@@ -100,7 +100,6 @@ SOURCES += main.cpp \
     common/globals.cpp \
     common/platform.cpp \
     common/random.cpp \
-    common/uiconstants.cpp \
     common/varconst.cpp \
     common/version.cpp \
     crypto/cryptofunc.cpp \
@@ -386,7 +385,13 @@ SOURCES += main.cpp \
     tasks/wsas.cpp \
     tasks/zbi12.cpp \
     tasks/ybocs.cpp \
-    tasks/ybocssc.cpp
+    tasks/ybocssc.cpp \
+    tasks/cisr.cpp \
+    tasks/qolsg.cpp \
+    common/uiconst.cpp \
+    lib/graphicsfunc.cpp \
+    widgets/screenlikegraphicsview.cpp \
+    widgets/graphicstextbutton.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -400,7 +405,6 @@ HEADERS  += \
     common/layouts.h \
     common/platform.h \
     common/random.h \
-    common/uiconstants.h \
     common/varconst.h \
     common/version.h \
     crypto/cryptofunc.h \
@@ -689,7 +693,13 @@ HEADERS  += \
     tasks/wsas.h \
     tasks/zbi12.h \
     tasks/ybocs.h \
-    tasks/ybocssc.h
+    tasks/ybocssc.h \
+    tasks/cisr.h \
+    tasks/qolsg.h \
+    common/uiconst.h \
+    lib/graphicsfunc.h \
+    widgets/screenlikegraphicsview.h \
+    widgets/graphicstextbutton.h
 
 
 DISTFILES += \

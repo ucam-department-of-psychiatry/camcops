@@ -52,4 +52,6 @@ public:
     // ------------------------------------------------------------------------
     int totalScore() const;
     bool isPositive() const;
+public:
+    static const QString FAST_TABLENAME;
 };

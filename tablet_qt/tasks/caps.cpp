@@ -45,7 +45,7 @@ const int N_QUESTIONS = 32;
 const int MAX_TOTAL_SCORE = 32;
 const int MAX_SUBSCALE_SCORE = 160;  // distress, intrusiveness, frequency
 
-const QString CAPS_TABLENAME("caps");
+const QString Caps::CAPS_TABLENAME("caps");
 const QString FN_ENDORSE_PREFIX("endorse");
 const QString FN_DISTRESS_PREFIX("distress");
 const QString FN_INTRUSIVE_PREFIX("intrusiveness");

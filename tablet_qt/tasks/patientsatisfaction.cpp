@@ -21,7 +21,7 @@
 #include "common/appstrings.h"
 #include "tasklib/taskfactory.h"
 
-const QString PT_SATIS_TABLENAME("pt_satis");
+const QString PatientSatisfaction::PT_SATIS_TABLENAME("pt_satis");
 
 
 void initializePatientSatisfaction(TaskFactory& factory)

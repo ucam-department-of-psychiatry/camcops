@@ -20,7 +20,7 @@
 #include "cpftlpsreferral.h"
 #include "common/camcopsapp.h"
 #include "common/textconst.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "lib/datetime.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
@@ -40,7 +40,7 @@
 using mathfunc::noneNullOrEmpty;
 
 
-const QString CPFTLPSREFERRAL_TABLENAME("cpft_lps_referral");
+const QString CPFTLPSReferral::CPFTLPSREFERRAL_TABLENAME("cpft_lps_referral");
 
 const QString REFERRAL_DATE_TIME("referral_date_time");
 const QString LPS_DIVISION("lps_division");

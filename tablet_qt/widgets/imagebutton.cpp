@@ -19,7 +19,7 @@
 
 #include "imagebutton.h"
 #include <QPainter>
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "lib/uifunc.h"
 
 

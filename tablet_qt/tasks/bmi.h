@@ -104,4 +104,6 @@ protected:
     FieldRefPtr m_fr_mass_st;
     FieldRefPtr m_fr_mass_lb;
     FieldRefPtr m_fr_mass_oz;
+public:
+    static const QString BMI_TABLENAME;
 };

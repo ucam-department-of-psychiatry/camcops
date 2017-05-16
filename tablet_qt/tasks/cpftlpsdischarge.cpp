@@ -19,7 +19,7 @@
 
 #include "cpftlpsdischarge.h"
 #include "common/textconst.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "diagnosis/icd10.h"
 #include "lib/datetime.h"
 #include "lib/mathfunc.h"
@@ -44,7 +44,7 @@ using stringfunc::strnum;
 using stringfunc::strseq;
 
 
-const QString CPFTLPSDISCHARGE_TABLENAME("cpft_lps_discharge");
+const QString CPFTLPSDischarge::CPFTLPSDISCHARGE_TABLENAME("cpft_lps_discharge");
 
 const QString DISCHARGE_DATE("discharge_date");
 const QString DISCHARGE_REASON_CODE("discharge_reason_code");

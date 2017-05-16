@@ -18,9 +18,24 @@
 */
 
 #include "clinicalmenu.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
+
+#include "tasks/bmi.h"
+#include "tasks/contactlog.h"
+#include "tasks/cpftlpsdischarge.h"
+#include "tasks/cpftlpsreferral.h"
+#include "tasks/cpftlpsresetresponseclock.h"
+#include "tasks/diagnosisicd10.h"
+#include "tasks/fft.h"
+#include "tasks/irac.h"
+#include "tasks/patientsatisfaction.h"
+#include "tasks/photo.h"
+#include "tasks/photosequence.h"
+#include "tasks/progressnote.h"
+#include "tasks/psychiatricclerking.h"
+#include "tasks/referrersatisfactionspec.h"
 
 
 ClinicalMenu::ClinicalMenu(CamcopsApp& app) :
@@ -29,19 +44,19 @@ ClinicalMenu::ClinicalMenu(CamcopsApp& app) :
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),
-        MAKE_TASK_MENU_ITEM("bmi", app),
-        MAKE_TASK_MENU_ITEM("contactlog", app),
-        MAKE_TASK_MENU_ITEM("cpft_lps_referral", app),
-        MAKE_TASK_MENU_ITEM("cpft_lps_resetresponseclock", app),
-        MAKE_TASK_MENU_ITEM("cpft_lps_discharge", app),
-        MAKE_TASK_MENU_ITEM("diagnosis_icd10", app),
-        MAKE_TASK_MENU_ITEM("fft", app),
-        MAKE_TASK_MENU_ITEM("irac", app),
-        MAKE_TASK_MENU_ITEM("pt_satis", app),
-        MAKE_TASK_MENU_ITEM("photo", app),
-        MAKE_TASK_MENU_ITEM("photosequence", app),
-        MAKE_TASK_MENU_ITEM("progressnote", app),
-        MAKE_TASK_MENU_ITEM("psychiatricclerking", app),
-        MAKE_TASK_MENU_ITEM("ref_satis_spec", app),
+        MAKE_TASK_MENU_ITEM(Bmi::BMI_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(ContactLog::CONTACTLOG_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(CPFTLPSReferral::CPFTLPSREFERRAL_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(CPFTLPSResetResponseClock::CPFTLPSRESETCLOCK_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(CPFTLPSDischarge::CPFTLPSDISCHARGE_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(DiagnosisIcd10::DIAGNOSIS_ICD10_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Fft::FFT_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Irac::IRAC_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(PatientSatisfaction::PT_SATIS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Photo::PHOTO_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(PhotoSequence::PHOTOSEQUENCE_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(ProgressNote::PROGNOTE_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(PsychiatricClerking::PSYCLERK_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(ReferrerSatisfactionSpec::REF_SATIS_SPEC_TABLENAME, app),
     };
 }

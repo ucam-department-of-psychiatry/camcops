@@ -53,4 +53,6 @@ public:
     // ------------------------------------------------------------------------
 protected:
     QVariant meetsCriteria() const;
+public:
+    static const QString ICD10SZTYPAL_TABLENAME;
 };

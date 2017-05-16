@@ -90,4 +90,6 @@ protected:
     void setMultipleResponseMinAnswers(const QString& tag, int min_answers);
 protected:
     QPointer<Questionnaire> m_questionnaire;
+public:
+    static const QString CECAQ3_TABLENAME;
 };

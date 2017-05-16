@@ -23,7 +23,7 @@
 #include <QUrl>
 #include <QHBoxLayout>
 #include <QWidget>
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "widgets/imagebutton.h"
 

@@ -53,4 +53,6 @@ public:
     int obsessionScore() const;
     int compulsionScore() const;
     int totalScore() const;
+public:
+    static const QString YBOCS_TABLENAME;
 };

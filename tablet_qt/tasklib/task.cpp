@@ -22,7 +22,7 @@
 #include <QVariant>
 #include "common/camcopsapp.h"
 #include "common/textconst.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "common/varconst.h"
 #include "common/version.h"
 #include "db/dbfunc.h"

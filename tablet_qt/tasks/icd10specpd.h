@@ -81,4 +81,6 @@ protected:
     bool ignoreValue(const QVariant& value) const;
 protected:
     FieldRefPtr m_fr_has_pd;
+public:
+    static const QString ICD10SPECPD_TABLENAME;
 };

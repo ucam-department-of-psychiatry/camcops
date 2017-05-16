@@ -20,7 +20,7 @@
 #pragma once
 #include <QSharedPointer>
 #include <QWidget>
-
+class QGraphicsView;
 
 
 class OpenableWidget : public QWidget
@@ -31,10 +31,19 @@ class OpenableWidget : public QWidget
 public:
     OpenableWidget(QWidget* parent = nullptr);
     virtual void build();  // opportunity to do stuff between creation and opening
-    virtual bool wantsFullscreen();
-    virtual void setWantsFullscreen(bool fullscreen = true);
+    bool wantsFullscreen() const;
+    void setWantsFullscreen(bool fullscreen = true);
+    void setGraphicsViewAsOnlyContents(QGraphicsView* view,
+                                       int margin = 0,
+                                       bool fullscreen = true);
+    bool escapeKeyCanAbort() const;
+    void setEscapeKeyCanAbort(bool esc_can_abort,
+                              bool without_confirmation = false);
+    virtual void keyPressEvent(QKeyEvent* event) override;
 signals:
     void finished();
 protected:
     bool m_wants_fullscreen;
+    bool m_escape_key_can_abort;
+    bool m_escape_aborts_without_confirmation;
 };

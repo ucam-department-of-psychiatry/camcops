@@ -95,6 +95,7 @@ int CamcopsApp::run()
 {
     announceStartup();
     seedRng();
+    convert::registerQVectorTypesForQVariant();
     initGuiOne();
     registerDatabaseDrivers();
     openOrCreateDatabases();

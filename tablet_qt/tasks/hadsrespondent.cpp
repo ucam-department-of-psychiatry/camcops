@@ -20,7 +20,7 @@
 #include "hadsrespondent.h"
 #include "tasklib/taskfactory.h"
 
-const QString HADSRESPONDENT_TABLENAME("hads_respondent");
+const QString HadsRespondent::HADSRESPONDENT_TABLENAME("hads_respondent");
 
 
 void initializeHadsRespondent(TaskFactory& factory)

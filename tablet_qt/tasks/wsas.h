@@ -61,4 +61,6 @@ public slots:
     void workChanged();
 protected:
     QPointer<Questionnaire> m_questionnaire;
+public:
+    static const QString WSAS_TABLENAME;
 };

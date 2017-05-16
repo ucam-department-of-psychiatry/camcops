@@ -44,7 +44,7 @@ const QVector<int>REVERSE_SCORE{1, 3, 5, 6, 10, 29};  // questions scored backwa
 
 const QString QPREFIX("q");
 
-const QString DEMQOL_TABLENAME("demqol");
+const QString Demqol::DEMQOL_TABLENAME("demqol");
 
 
 void initializeDemqol(TaskFactory& factory)

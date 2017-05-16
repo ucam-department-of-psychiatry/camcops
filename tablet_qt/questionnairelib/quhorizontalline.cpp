@@ -19,7 +19,7 @@
 
 #include "quhorizontalline.h"
 #include "common/cssconst.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "widgets/horizontalline.h"
 
 

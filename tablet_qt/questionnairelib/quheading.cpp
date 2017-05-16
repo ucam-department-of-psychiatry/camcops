@@ -20,7 +20,7 @@
 #include "quheading.h"
 #include "common/cssconst.h"
 #include "common/layouts.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/basewidget.h"

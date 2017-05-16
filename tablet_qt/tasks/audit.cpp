@@ -38,7 +38,7 @@ const int MAX_SCORE = N_QUESTIONS * 4;
 const int STANDARD_CUTOFF = 8;
 const QString QPREFIX("q");
 
-const QString AUDIT_TABLENAME("audit");
+const QString Audit::AUDIT_TABLENAME("audit");
 const QString TAG_Q2TO3("q2to3");
 const QString TAG_Q4TO8("q4to8");
 

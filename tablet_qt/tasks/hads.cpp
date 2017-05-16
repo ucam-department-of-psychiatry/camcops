@@ -46,7 +46,7 @@ const QVector<int> DEPRESSION_QUESTIONS{2, 4, 6, 8, 10, 12, 14};
 
 const QString QPREFIX("q");
 
-const QString HADS_TABLENAME("hads");
+const QString Hads::HADS_TABLENAME("hads");
 
 
 void initializeHads(TaskFactory& factory)

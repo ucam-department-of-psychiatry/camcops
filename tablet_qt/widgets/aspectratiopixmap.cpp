@@ -26,7 +26,7 @@
 #include <QPainter>
 #include <QResizeEvent>
 #include "common/gui_defines.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "lib/sizehelpers.h"
 
 

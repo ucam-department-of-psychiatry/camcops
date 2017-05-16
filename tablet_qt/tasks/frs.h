@@ -63,4 +63,6 @@ protected:
     ScoreInfo getScore() const;
     QVariant getTabularLogit(double score) const;
     QString getSeverity(const QVariant& logit) const;
+public:
+    static const QString FRS_TABLENAME;
 };

@@ -38,7 +38,7 @@ const int N_QUESTIONS = 20;
 const int MAX_SCORE = 126;
 const QString QPREFIX("q");
 
-const QString BPRS_TABLENAME("bprs");
+const QString Bprs::BPRS_TABLENAME("bprs");
 
 // Some scales use 9 for "not assessed"; we'll use 0 (as in the original BPRS).
 

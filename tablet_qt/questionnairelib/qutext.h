@@ -20,7 +20,7 @@
 #pragma once
 #include "db/fieldref.h"
 #include "quelement.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 
 class LabelWordWrapWide;
 

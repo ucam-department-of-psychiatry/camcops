@@ -39,7 +39,7 @@ const int N_QUESTIONS = 16;
 const QString QPREFIX("q");
 const QVector<int> REVERSE_SCORE{1, 3, 8, 10, 11};
 
-const QString PSWQ_TABLENAME("pswq");
+const QString Pswq::PSWQ_TABLENAME("pswq");
 
 
 void initializePswq(TaskFactory& factory)

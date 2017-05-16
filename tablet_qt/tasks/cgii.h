@@ -53,4 +53,6 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     QString getRatingText() const;
+public:
+    static const QString CGI_I_TABLENAME;
 };

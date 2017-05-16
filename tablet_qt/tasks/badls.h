@@ -52,4 +52,6 @@ public:
     // ------------------------------------------------------------------------
     int score(int qnum) const;
     int totalScore() const;
+public:
+    static const QString BADLS_TABLENAME;
 };

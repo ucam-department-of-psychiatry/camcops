@@ -37,7 +37,7 @@ const int N_QUESTIONS = 3;
 const int MAX_SCORE = N_QUESTIONS * 4;
 const QString QPREFIX("q");
 
-const QString TABLENAME("audit_c");
+const QString AuditC::AUDITC_TABLENAME("audit_c");
 
 
 void initializeAuditC(TaskFactory& factory)
@@ -47,7 +47,7 @@ void initializeAuditC(TaskFactory& factory)
 
 
 AuditC::AuditC(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
-    Task(app, db, TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, AUDITC_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
 
@@ -80,7 +80,7 @@ QString AuditC::menusubtitle() const
 
 QString AuditC::xstringTaskname() const
 {
-    return AUDIT_TABLENAME;  // shares strings with AUDIT
+    return Audit::AUDIT_TABLENAME;  // shares strings with AUDIT
 }
 
 

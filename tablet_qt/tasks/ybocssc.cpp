@@ -36,7 +36,7 @@ using mathfunc::totalScorePhrase;
 using stringfunc::strnum;
 using stringfunc::strseq;
 
-const QString YBOCSSC_TABLENAME("ybocssc");
+const QString YbocsSc::YBOCSSC_TABLENAME("ybocssc");
 
 const QString SC_PREFIX("sc_");
 const QString SUFFIX_CURRENT("_current");

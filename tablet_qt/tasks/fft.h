@@ -52,4 +52,6 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     QString ratingText() const;
+public:
+    static const QString FFT_TABLENAME;
 };

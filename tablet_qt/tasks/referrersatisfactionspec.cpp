@@ -21,7 +21,7 @@
 #include "common/appstrings.h"
 #include "tasklib/taskfactory.h"
 
-const QString REF_SATIS_SPEC_TABLENAME("ref_satis_spec");
+const QString ReferrerSatisfactionSpec::REF_SATIS_SPEC_TABLENAME("ref_satis_spec");
 
 
 void initializeReferrerSatisfactionSpec(TaskFactory& factory)

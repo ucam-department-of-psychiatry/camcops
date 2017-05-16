@@ -18,7 +18,7 @@
 */
 
 #include "singletaskmenu.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "dbobjects/patient.h"
 #include "lib/filefunc.h"
 #include "lib/uifunc.h"

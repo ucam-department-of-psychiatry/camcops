@@ -40,7 +40,7 @@ using mathfunc::falseNotNull;
 using stringfunc::standardResult;
 using uifunc::yesNoUnknown;
 
-const QString ICD10SZ_TABLENAME("icd10schizophrenia");
+const QString Icd10Schizophrenia::ICD10SZ_TABLENAME("icd10schizophrenia");
 
 const QString PASSIVITY_BODILY("passivity_bodily");
 const QString PASSIVITY_MENTAL("passivity_mental");

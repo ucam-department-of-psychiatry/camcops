@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "uiconstants.h"
+#include "uiconst.h"
 #include <QObject>  // for tr()
 
 namespace uiconst {
@@ -61,8 +61,14 @@ const QString CSS_CAMCOPS_DIAGNOSTIC_CODE(
 
 const QString WARNING_COLOUR("red");
 
+const QColor BLACK(0, 0, 0);  // default a=255
+const QColor GREY_200(200, 200, 200);
+const QColor WHITE(255, 255, 255);
 const QColor TRANSPARENT(0, 0, 0, 0);  // a=0 means fully transparent
-const QColor GREY_200(200, 200, 200, 255);
+
+const QColor RED(255, 0, 0);
+const QColor GREEN(0, 255, 0);
+const QColor BLUE(0, 0, 255);
 
 const QColor BUTTON_UNPRESSED_COLOUR(127, 127, 127, 100);
 const QColor BUTTON_PRESSED_COLOUR(100, 100, 255, 200);

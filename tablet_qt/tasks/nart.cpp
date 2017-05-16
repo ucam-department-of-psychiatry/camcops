@@ -34,7 +34,7 @@ Copyright © Hazel E. Nelson. Used with permission; see documentation.
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 
-const QString NART_TABLENAME("nart");
+const QString Nart::NART_TABLENAME("nart");
 
 // Most of the NART is hard-coded as it is language-specific by its nature
 const QStringList WORDLIST{

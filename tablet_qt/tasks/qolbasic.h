@@ -54,4 +54,6 @@ public:
     QVariant qolTto() const;
     QVariant qolRs() const;
     QVariant meanQol() const;
+public:
+    static const QString QOLBASIC_TABLENAME;
 };

@@ -58,4 +58,6 @@ protected:
     // ------------------------------------------------------------------------
 protected:
     void updateMandatory();
+public:
+    static const QString ICD10SZ_TABLENAME;
 };

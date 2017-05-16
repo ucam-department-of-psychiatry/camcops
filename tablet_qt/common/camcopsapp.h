@@ -24,7 +24,7 @@
 #include <QSqlDatabase>
 #include <QStack>
 #include "common/aliases_camcops.h"
-#include "common/uiconstants.h"  // for FontSize
+#include "common/uiconst.h"  // for FontSize
 #include "crypto/secureqstring.h"
 #include "db/fieldref.h"  // for FieldRefPtr
 #include "dbobjects/patient.h"

@@ -22,7 +22,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QTimer>
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/canvaswidget.h"

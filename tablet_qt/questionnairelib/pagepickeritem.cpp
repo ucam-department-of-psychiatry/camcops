@@ -18,7 +18,7 @@
 */
 
 #include "pagepickeritem.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 
 
 PagePickerItem::PagePickerItem(const QString& text, int page_number,

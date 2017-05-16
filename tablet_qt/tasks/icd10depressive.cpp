@@ -44,7 +44,7 @@ using mathfunc::countTrue;
 using stringfunc::bold;
 using stringfunc::standardResult;
 
-const QString ICD10DEP_TABLENAME("icd10depressive");
+const QString Icd10Depressive::ICD10DEP_TABLENAME("icd10depressive");
 
 const QString MOOD("mood");
 const QString ANHEDONIA("anhedonia");

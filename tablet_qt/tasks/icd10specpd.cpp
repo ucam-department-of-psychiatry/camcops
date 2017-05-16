@@ -46,7 +46,7 @@ using stringfunc::strnum;
 using stringfunc::strseq;
 using uifunc::yesNoUnknown;
 
-const QString ICD10SPECPD_TABLENAME("icd10specpd");
+const QString Icd10SpecPD::ICD10SPECPD_TABLENAME("icd10specpd");
 
 const int N_GENERAL = 6;
 const int N_GENERAL_1 = 4;

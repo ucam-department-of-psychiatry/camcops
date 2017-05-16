@@ -36,7 +36,7 @@ const int FIRST_Q = 1;
 const int N_QUESTIONS = 12;
 const QString QPREFIX("q");
 
-const QString ZBI12_TABLENAME("zbi12");
+const QString Zbi12::ZBI12_TABLENAME("zbi12");
 
 
 void initializeZbi12(TaskFactory& factory)

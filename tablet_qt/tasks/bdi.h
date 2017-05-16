@@ -52,4 +52,6 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     int totalScore() const;
+public:
+    static const QString BDI_TABLENAME;
 };

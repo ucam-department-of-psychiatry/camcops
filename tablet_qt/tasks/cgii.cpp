@@ -32,7 +32,7 @@ using mathfunc::totalScorePhrase;
 using stringfunc::strnum;
 using stringfunc::strseq;
 
-const QString CGI_I_TABLENAME("cgi_i");
+const QString CgiI::CGI_I_TABLENAME("cgi_i");
 
 const QString Q("q");
 

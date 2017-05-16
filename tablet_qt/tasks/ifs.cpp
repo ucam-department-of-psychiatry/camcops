@@ -41,7 +41,7 @@ using stringfunc::strnum;
 using stringfunc::strnumlist;
 using stringfunc::strseq;
 
-const QString IFS_TABLENAME("ifs");
+const QString Ifs::IFS_TABLENAME("ifs");
 
 const QString Q1("q1");
 const QString Q2("q2");

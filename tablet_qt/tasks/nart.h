@@ -79,4 +79,6 @@ protected:
     NartIQ brightWorkingMemory(bool complete, int errors) const;
     NartIQ brightPerceptualSpeed(bool complete, int errors) const;
     QString result(const NartIQ& iq, bool full = true) const;
+public:
+    static const QString NART_TABLENAME;
 };

@@ -98,6 +98,7 @@ protected:
     void deleteTask();
     void toggleFinishFlag();
     void connectQuestionnaireToTask(OpenableWidget* widget, Task* task);
+    void complainTaskNotOfferingEditor();
 
 protected:
     CamcopsApp& m_app;

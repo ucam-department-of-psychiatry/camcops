@@ -20,7 +20,7 @@
 #include "pclm.h"
 #include "tasklib/taskfactory.h"
 
-const QString PCLM_TABLENAME("pclm");
+const QString PclM::PCLM_TABLENAME("pclm");
 
 
 void initializePclM(TaskFactory& factory)

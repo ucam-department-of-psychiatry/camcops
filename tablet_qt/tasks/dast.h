@@ -54,4 +54,6 @@ public:
 protected:
     int totalScore() const;
     int score(const QVariant& value, int question) const;
+public:
+    static const QString DAST_TABLENAME;
 };

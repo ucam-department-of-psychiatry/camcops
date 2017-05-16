@@ -35,7 +35,7 @@
 using mathfunc::noneNull;
 using uifunc::yesNoNull;
 
-const QString CONTACTLOG_TABLENAME("contactlog");
+const QString ContactLog::CONTACTLOG_TABLENAME("contactlog");
 
 const QString LOCATION("location");  // ... location
 const QString START("start");

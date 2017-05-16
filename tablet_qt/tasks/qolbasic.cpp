@@ -31,7 +31,7 @@ using mathfunc::noneNull;
 using stringfunc::standardResult;
 
 
-const QString QOLBASIC_TABLENAME("qolbasic");
+const QString QolBasic::QOLBASIC_TABLENAME("qolbasic");
 const QString TTO("tto");
 const QString RS("rs");
 

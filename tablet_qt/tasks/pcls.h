@@ -34,4 +34,6 @@ public:
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
+public:
+    static const QString PCLS_TABLENAME;
 };

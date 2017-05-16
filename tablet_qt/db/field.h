@@ -28,6 +28,8 @@ public:
     Field();
     Field(const QString& name, QVariant::Type type,
           bool mandatory = false, bool unique = false, bool pk = false);
+    Field(const QString& name, const QString& type_name,
+          bool mandatory = false, bool unique = false, bool pk = false);
     Field& setPk(bool pk);
     Field& setUnique(bool unique);
     Field& setMandatory(bool pk);
@@ -40,7 +42,7 @@ public:
     bool notNull() const;
     QString sqlColumnDef() const;
     QVariant value() const;
-    QString prettyValue() const;  // returns a QString representation
+    QString prettyValue(int dp = -1) const;  // returns a QString representation
     bool setValue(const QVariant& value);  // returns: dirty?
     bool nullify();  // returns: dirty?
     bool isNull() const;
@@ -57,6 +59,7 @@ public:
 protected:
     QString m_name;
     QVariant::Type m_type;
+    QString m_type_name;
     bool m_pk;
     bool m_unique;
     bool m_mandatory;

@@ -40,7 +40,7 @@ const int N_QUESTIONS = 15;
 const int MAX_SCORE = 60;
 const QString QPREFIX("q");
 
-const QString HONOSCA_TABLENAME("honosca");
+const QString Honosca::HONOSCA_TABLENAME("honosca");
 
 const QString PERIOD_RATED("period_rated");
 const QString Q8("q8");

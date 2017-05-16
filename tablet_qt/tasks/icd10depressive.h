@@ -75,4 +75,6 @@ protected:
     // ------------------------------------------------------------------------
 protected:
     void updateMandatory();
+public:
+    static const QString ICD10DEP_TABLENAME;
 };

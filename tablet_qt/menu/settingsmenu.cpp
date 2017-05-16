@@ -24,7 +24,7 @@
 #include <QFileDialog>
 #include <QTextStream>
 #include "common/platform.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "common/varconst.h"
 #include "db/dbnestabletransaction.h"
 #include "db/fieldref.h"

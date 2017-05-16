@@ -38,7 +38,7 @@ const int N_QUESTIONS = 4;
 const int MAX_SCORE = 16;
 const QString QPREFIX("q");
 
-const QString FAST_TABLENAME("fast");
+const QString Fast::FAST_TABLENAME("fast");
 
 
 void initializeFast(TaskFactory& factory)

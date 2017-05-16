@@ -18,9 +18,18 @@
 */
 
 #include "addictionmenu.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
+
+#include "tasks/audit.h"
+#include "tasks/auditc.h"
+#include "tasks/cage.h"
+#include "tasks/ciwa.h"
+#include "tasks/dast.h"
+#include "tasks/fast.h"
+#include "tasks/mast.h"
+#include "tasks/smast.h"
 
 
 AddictionMenu::AddictionMenu(CamcopsApp& app) :
@@ -29,13 +38,13 @@ AddictionMenu::AddictionMenu(CamcopsApp& app) :
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),
-        MAKE_TASK_MENU_ITEM("audit", app),
-        MAKE_TASK_MENU_ITEM("audit_c", app),
-        MAKE_TASK_MENU_ITEM("cage", app),
-        MAKE_TASK_MENU_ITEM("ciwa", app),
-        MAKE_TASK_MENU_ITEM("dast", app),
-        MAKE_TASK_MENU_ITEM("fast", app),
-        MAKE_TASK_MENU_ITEM("mast", app),
-        MAKE_TASK_MENU_ITEM("smast", app),
+        MAKE_TASK_MENU_ITEM(Audit::AUDIT_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(AuditC::AUDITC_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Cage::CAGE_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Ciwa::CIWA_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Dast::DAST_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Fast::FAST_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Mast::MAST_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Smast::SMAST_TABLENAME, app),
     };
 }

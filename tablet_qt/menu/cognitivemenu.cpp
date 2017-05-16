@@ -18,9 +18,14 @@
 */
 
 #include "cognitivemenu.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
+
+#include "tasks/ace3.h"
+#include "tasks/moca.h"
+#include "tasks/nart.h"
+#include "tasks/slums.h"
 
 
 CognitiveMenu::CognitiveMenu(CamcopsApp& app) :
@@ -29,9 +34,9 @@ CognitiveMenu::CognitiveMenu(CamcopsApp& app) :
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),
-        MAKE_TASK_MENU_ITEM("ace3", app),
-        MAKE_TASK_MENU_ITEM("moca", app),
-        MAKE_TASK_MENU_ITEM("slums", app),
-        MAKE_TASK_MENU_ITEM("nart", app),
+        MAKE_TASK_MENU_ITEM(Ace3::ACE3_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Moca::MOCA_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Slums::SLUMS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Nart::NART_TABLENAME, app),
     };
 }

@@ -29,7 +29,7 @@ using mathfunc::noneNull;
 using stringfunc::standardResult;
 using stringfunc::strnum;
 
-const QString IRAC_TABLENAME("irac");
+const QString Irac::IRAC_TABLENAME("irac");
 
 const QString AIM("aim");
 const QString ACHIEVED("achieved");

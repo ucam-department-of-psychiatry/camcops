@@ -22,6 +22,7 @@
 #define DEBUG_CHECK_VALID  // may be sensible to leave this on
 
 #include "common/camcopsapp.h"
+#include "common/globals.h"
 #include "db/fieldref.h"
 #include "dbobjects/blob.h"
 #include "lib/convert.h"
@@ -333,6 +334,13 @@ QByteArray FieldRef::valueByteArray() const
 QImage FieldRef::valueImage() const
 {
     return convert::byteArrayToImage(valueByteArray());
+}
+
+
+QVector<int> FieldRef::valueVectorInt() const
+{
+    QVariant v = value();
+    return convert::qVariantToIntVector(v);
 }
 
 

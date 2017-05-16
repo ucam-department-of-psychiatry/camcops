@@ -22,27 +22,44 @@
 #include "lib/uifunc.h"
 #include "lib/datetime.h"
 
+const QString SQLITE_TYPE_BLOB("BLOB");
+const QString SQLITE_TYPE_INTEGER("INTEGER");
+const QString SQLITE_TYPE_REAL("REAL");
+const QString SQLITE_TYPE_TEXT("TEXT");
+
 
 Field::Field(const QString& name, QVariant::Type type,
              bool mandatory, bool unique, bool pk) :
     m_name(name),
     m_type(type),
     m_pk(pk),
-    m_unique(unique),
-    m_mandatory(mandatory),
+    m_unique(unique || pk),
+    m_mandatory(mandatory || pk),
     m_set(false),
     m_dirty(true)
 {
-    if (pk) {
-        m_unique = true;
-        m_mandatory = true;
-    }
 //    if (type == QVariant::String || type == QVariant::Char) {
 //        m_default_value = "";  // empty string, not NULL (as per Django)
 //    } else {
 //        m_default_value = QVariant(type);  // NULL
 //    }
     m_default_value = QVariant(type);  // NULL
+    m_value = m_default_value;
+}
+
+
+Field::Field(const QString& name, const QString& type_name,
+             bool mandatory, bool unique, bool pk) :
+    m_name(name),
+    m_type(QVariant::UserType),
+    m_type_name(type_name),
+    m_pk(pk),
+    m_unique(unique || pk),
+    m_mandatory(mandatory || pk),
+    m_set(false),
+    m_dirty(true)
+{
+    m_default_value = QVariant();  // NULL
     m_value = m_default_value;
 }
 
@@ -148,9 +165,9 @@ QVariant Field::value() const
 }
 
 
-QString Field::prettyValue() const
+QString Field::prettyValue(int dp) const
 {
-    return convert::prettyValue(m_value, m_type);
+    return convert::prettyValue(m_value, dp, m_type);
 }
 
 
@@ -251,22 +268,28 @@ QString Field::sqlColumnType() const
     case QVariant::Bool:
     case QVariant::LongLong:  // 64-bit
     case QVariant::ULongLong:  // 64-bit
-        return "INTEGER";
+        return SQLITE_TYPE_INTEGER;
     case QVariant::Double:
-        return "REAL";
+        return SQLITE_TYPE_REAL;
     case QVariant::String:
     case QVariant::Char:
     case QVariant::Date:
     case QVariant::Time:
     case QVariant::DateTime:
     case QVariant::Uuid:
-        return "TEXT";
+        return SQLITE_TYPE_TEXT;
     case QVariant::ByteArray:
-        return "BLOB";
+        return SQLITE_TYPE_BLOB;
+    case QVariant::UserType:
+        if (m_type_name == convert::TYPENAME_QVECTOR_INT) {
+            return SQLITE_TYPE_TEXT;
+        }
+        break;
     default:
-        uifunc::stopApp("Field::sqlColumnType: Unknown field type: " +
-                        m_type);
+        break;
     }
+    uifunc::stopApp("Field::sqlColumnType: Unknown field type: " +
+                    m_type);
     return "";
 }
 
@@ -282,6 +305,14 @@ void Field::setFromDatabaseValue(const QVariant& db_value)
         // If you just do "m_value = db_value", it will become an invalid
         // value when the convert() call is made below, so will appear as NULL.
         m_value = convert::toQCharVariant(db_value);
+        break;
+    case QVariant::UserType:
+        if (m_type_name == convert::TYPENAME_QVECTOR_INT) {
+            m_value.setValue(convert::csvStringToIntVector(
+                                 db_value.toString()));
+        } else {
+            m_value = db_value;
+        }
         break;
     default:
         m_value = db_value;
@@ -308,7 +339,14 @@ QVariant Field::databaseValue() const
         return m_value.toString();
         // see http://doc.qt.io/qt-5/quuid.html#toString; e.g.
         // "{xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx}" where 'x' is a hex digit
+    case QVariant::UserType:
+        if (m_type_name == convert::TYPENAME_QVECTOR_INT) {
+            return convert::intVectorToCsvString(
+                        convert::qVariantToIntVector(m_value));
+        }
+        break;
     default:
-        return m_value;
+        break;
     }
+    return m_value;
 }

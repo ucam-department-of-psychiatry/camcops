@@ -18,9 +18,32 @@
 */
 
 #include "globalmenu.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
+
+#include "tasks/badls.h"
+#include "tasks/bprs.h"
+#include "tasks/bprse.h"
+#include "tasks/cbir.h"
+#include "tasks/cgi.h"
+#include "tasks/cgii.h"
+#include "tasks/copebrief.h"
+#include "tasks/dad.h"
+#include "tasks/demqol.h"
+#include "tasks/demqolproxy.h"
+#include "tasks/distressthermometer.h"
+#include "tasks/frs.h"
+#include "tasks/gaf.h"
+#include "tasks/honos.h"
+#include "tasks/honos65.h"
+#include "tasks/honosca.h"
+#include "tasks/npiq.h"
+#include "tasks/rand36.h"
+#include "tasks/swemwbs.h"
+#include "tasks/wemwbs.h"
+#include "tasks/wsas.h"
+#include "tasks/zbi12.h"
 
 
 GlobalMenu::GlobalMenu(CamcopsApp& app) :
@@ -30,27 +53,27 @@ GlobalMenu::GlobalMenu(CamcopsApp& app) :
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),
-        MAKE_TASK_MENU_ITEM("badls", app),
-        MAKE_TASK_MENU_ITEM("bprs", app),
-        MAKE_TASK_MENU_ITEM("bprse", app),
-        MAKE_TASK_MENU_ITEM("cbir", app),
-        MAKE_TASK_MENU_ITEM("cgi", app),
-        MAKE_TASK_MENU_ITEM("cgi_i", app),
-        MAKE_TASK_MENU_ITEM("cope_brief", app),
-        MAKE_TASK_MENU_ITEM("dad", app),
-        MAKE_TASK_MENU_ITEM("demqol", app),
-        MAKE_TASK_MENU_ITEM("demqolproxy", app),
-        MAKE_TASK_MENU_ITEM("distressthermometer", app),
-        MAKE_TASK_MENU_ITEM("frs", app),
-        MAKE_TASK_MENU_ITEM("gaf", app),
-        MAKE_TASK_MENU_ITEM("honos", app),
-        MAKE_TASK_MENU_ITEM("honos65", app),
-        MAKE_TASK_MENU_ITEM("honosca", app),
-        MAKE_TASK_MENU_ITEM("npiq", app),
-        MAKE_TASK_MENU_ITEM("rand36", app),
-        MAKE_TASK_MENU_ITEM("swemwbs", app),
-        MAKE_TASK_MENU_ITEM("wemwbs", app),
-        MAKE_TASK_MENU_ITEM("wsas", app),
-        MAKE_TASK_MENU_ITEM("zbi12", app),
+        MAKE_TASK_MENU_ITEM(Badls::BADLS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Bprs::BPRS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(BprsE::BPRSE_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(CbiR::CBIR_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Cgi::CGI_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(CgiI::CGI_I_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(CopeBrief::COPEBRIEF_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Dad::DAD_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Demqol::DEMQOL_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(DemqolProxy::DEMQOLPROXY_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(DistressThermometer::DT_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Frs::FRS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Gaf::GAF_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Honos::HONOS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Honos65::HONOS65_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Honosca::HONOSCA_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(NpiQ::NPIQ_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Rand36::RAND36_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Swemwbs::SWEMWBS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Wemwbs::WEMWBS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Wsas::WSAS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Zbi12::ZBI12_TABLENAME, app),
     };
 }

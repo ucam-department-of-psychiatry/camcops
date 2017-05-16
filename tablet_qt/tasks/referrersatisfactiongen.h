@@ -39,4 +39,6 @@ public:
     // Instance overrides
     // ------------------------------------------------------------------------
     virtual OpenableWidget* editor(bool read_only = false) override;
+public:
+    static const QString REF_SATIS_GEN_TABLENAME;
 };

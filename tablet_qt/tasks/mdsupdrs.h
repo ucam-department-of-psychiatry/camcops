@@ -56,4 +56,6 @@ public:
     // ------------------------------------------------------------------------
 protected:
     void levodopaChanged(const FieldRef* fieldref);
+public:
+    static const QString MDS_UPDRS_TABLENAME;
 };

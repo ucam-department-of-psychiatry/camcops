@@ -38,7 +38,7 @@ const int FIRST_Q = 1;
 const int N_QUESTIONS = 5;
 const int MAX_PER_Q = 8;
 const QString QPREFIX("q");
-const QString WSAS_TABLENAME("wsas");
+const QString Wsas::WSAS_TABLENAME("wsas");
 const QString RETIRED_ETC("retired_etc");
 const QString Q1_TAG("q1");
 

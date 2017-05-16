@@ -35,6 +35,7 @@
 #include "menulib/menuitem.h"
 #include "menu/widgettestmenu.h"
 #include "tasklib/taskfactory.h"  // for TaskPtr
+#include "tasks/phq9.h"
 
 const int EXPENSIVE_FUNCTION_DURATION_MS = 20000;
 
@@ -158,7 +159,7 @@ void TestMenu::testHttp()
 void TestMenu::testPhq9Creation()
 {
 #ifdef DEBUG_OPTIONS
-    QString tablename = "phq9";
+    QString tablename = Phq9::PHQ9_TABLENAME;
     TaskPtr p_task = m_app.taskFactory()->create(tablename);
     if (!p_task) {
         qCritical() << Q_FUNC_INFO << "Failed to create task: "

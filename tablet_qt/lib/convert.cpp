@@ -41,6 +41,8 @@ namespace convert {
 // SQL literals
 // ============================================================================
 
+const QString NULL_STR("NULL");
+
 const QChar COMMA = ',';
 const QChar SQUOTE = '\'';  // single quote
 
@@ -172,9 +174,10 @@ QByteArray quotedHexToBlob(const QString& hex)
 QString toSqlLiteral(const QVariant& value)
 {
     if (value.isNull()) {
-        return "NULL";
+        return NULL_STR;
     }
-    switch (value.type()) {
+    QVariant::Type variant_type = value.type();
+    switch (variant_type) {
     // Integer types
     case QVariant::Int:
         return QString("%1").arg(value.toInt());
@@ -211,11 +214,24 @@ QString toSqlLiteral(const QVariant& value)
         // Base 64 is more efficient for network transmission than hex.
         return blobToQuotedBase64(value.toByteArray());
 
-    default:
-        uifunc::stopApp("toSqlLiteral: Unknown field type: " +
-                        value.type());
+    case QVariant::Invalid:
+        uifunc::stopApp("toSqlLiteral: Invalid field type");
         // We'll never get here, but to stop compilers complaining:
-        return "NULL";
+        return NULL_STR;
+
+    case QVariant::UserType:
+        if (isQVariantOfUserType(value, TYPENAME_QVECTOR_INT)) {
+            QVector<int> intvec = qVariantToIntVector(value);
+            return sqlQuoteString(intVectorToCsvString(intvec));
+        }
+        uifunc::stopApp("toSqlLiteral: Unknown user type");
+        // We'll never get here, but to stop compilers complaining:
+        return NULL_STR;
+
+    default:
+        uifunc::stopApp("toSqlLiteral: Unknown user type: " + variant_type);
+        // We'll never get here, but to stop compilers complaining:
+        return NULL_STR;
     }
 }
 
@@ -223,7 +239,7 @@ QString toSqlLiteral(const QVariant& value)
 QVariant fromSqlLiteral(const QString& literal)
 {
     if (literal.isEmpty() ||
-            literal.compare("NULL", Qt::CaseInsensitive) == 0) {
+            literal.compare(NULL_STR, Qt::CaseInsensitive) == 0) {
         // NULL
         return QVariant();
     }
@@ -374,9 +390,6 @@ SecureQByteArray base64ToSecureBytes(const QString& data_b64)
 // ============================================================================
 // Display formatting
 // ============================================================================
-
-const QString NULL_STR("NULL");
-
 
 QString toDp(double x, int dp)
 {
@@ -566,12 +579,68 @@ QVariant toQCharVariant(const QVariant& v)
 
 
 // ============================================================================
+// Specific vectors as strings
+// ============================================================================
+
+QString intVectorToCsvString(const QVector<int>& vec)
+{
+    QStringList strings;
+    for (int value : vec) {
+        strings.append(QString::number(value));
+    }
+    return strings.join(",");
+}
+
+
+QVector<int> csvStringToIntVector(const QString& str)
+{
+    QStringList strings = str.split(",");
+    QVector<int> vec;
+    for (const QString& s : strings) {
+        vec.append(s.toInt());
+    }
+    return vec;
+}
+
+
+// ============================================================================
+// QVariant modifications
+// ============================================================================
+
+const char* TYPENAME_QVECTOR_INT("QVector<int>");
+
+
+void registerQVectorTypesForQVariant()
+{
+    // http://stackoverflow.com/questions/6177906/is-there-a-reason-why-qvariant-accepts-only-qlist-and-not-qvector-nor-qlinkedlis
+    qRegisterMetaType<QVector<int>>(TYPENAME_QVECTOR_INT);
+}
+
+
+bool isQVariantOfUserType(const QVariant& v, const QString& type_name)
+{
+    return v.userType() >= QMetaType::User && v.typeName() == type_name;
+}
+
+
+QVector<int> qVariantToIntVector(const QVariant& v)
+{
+    // We're adding support for QVector<int>.
+    // - http://stackoverflow.com/questions/6177906/is-there-a-reason-why-qvariant-accepts-only-qlist-and-not-qvector-nor-qlinkedlis
+    // - http://doc.qt.io/qt-5/qvariant.html
+    // - http://doc.qt.io/qt-5/qmetatype.html
+    return v.value<QVector<int>>();
+}
+
+
+// ============================================================================
 // Physical units
 // ============================================================================
 
 #ifdef DEBUG_UNIT_CONVERSION
 #define UNIT_CONVERSION "Unit conversion: "
 #endif
+
 const double CM_PER_INCH = 2.54;
 const double CM_PER_M = 100;
 const double INCHES_PER_FOOT = 12;

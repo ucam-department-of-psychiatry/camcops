@@ -75,4 +75,6 @@ protected:
     QMap<int, FieldRefPtr> m_fr_distress;
     QMap<int, FieldRefPtr> m_fr_intrusiveness;
     QMap<int, FieldRefPtr> m_fr_frequency;
+public:
+    static const QString CAPS_TABLENAME;
 };

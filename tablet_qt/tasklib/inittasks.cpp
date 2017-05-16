@@ -38,6 +38,7 @@
 #include "tasks/cgi.h"
 #include "tasks/cgii.h"
 #include "tasks/cgisch.h"
+#include "tasks/cisr.h"
 #include "tasks/ciwa.h"
 #include "tasks/contactlog.h"
 #include "tasks/copebrief.h"
@@ -105,6 +106,7 @@
 #include "tasks/psychiatricclerking.h"
 
 #include "tasks/qolbasic.h"
+#include "tasks/qolsg.h"
 
 #include "tasks/rand36.h"
 #include "tasks/referrersatisfactiongen.h"
@@ -148,6 +150,7 @@ void InitTasks(TaskFactory& factory)
     initializeCgi(factory);
     initializeCgiI(factory);
     initializeCgiSch(factory);
+    initializeCisr(factory); // *** IMPLEMENT!
     initializeCiwa(factory);
     initializeContactLog(factory);
     initializeCopeBrief(factory);
@@ -216,7 +219,7 @@ void InitTasks(TaskFactory& factory)
     initializePsychiatricClerking(factory);
 
     initializeQolBasic(factory);
-    // *** initializeQolSG(factory); // *** COMPLEX
+    initializeQolSG(factory); // *** IN PROGRESS
 
     initializeRand36(factory);
     initializeReferrerSatisfactionGen(factory);

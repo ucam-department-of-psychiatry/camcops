@@ -52,4 +52,6 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
+public:
+    static const QString CPFTLPSRESETCLOCK_TABLENAME;
 };

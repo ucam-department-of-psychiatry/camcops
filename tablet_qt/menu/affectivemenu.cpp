@@ -18,9 +18,30 @@
 */
 
 #include "affectivemenu.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
+
+#include "tasks/bdi.h"
+#include "tasks/gad7.h"
+#include "tasks/gds15.h"
+#include "tasks/hads.h"
+#include "tasks/hama.h"
+#include "tasks/hamd.h"
+#include "tasks/hamd7.h"
+#include "tasks/icd10depressive.h"
+#include "tasks/icd10manic.h"
+#include "tasks/icd10mixed.h"
+#include "tasks/iesr.h"
+#include "tasks/pclc.h"
+#include "tasks/pclm.h"
+#include "tasks/pcls.h"
+#include "tasks/pdss.h"
+#include "tasks/phq9.h"
+#include "tasks/phq15.h"
+#include "tasks/pswq.h"
+#include "tasks/ybocs.h"
+#include "tasks/ybocssc.h"
 
 
 AffectiveMenu::AffectiveMenu(CamcopsApp& app) :
@@ -30,27 +51,27 @@ AffectiveMenu::AffectiveMenu(CamcopsApp& app) :
     m_items = {
         MAKE_CHANGE_PATIENT(app),
         // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("asrm", app),
-        MAKE_TASK_MENU_ITEM("bdi", app),
+        MAKE_TASK_MENU_ITEM(Bdi::BDI_TABLENAME, app),
         // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("epds", app),
-        MAKE_TASK_MENU_ITEM("gad7", app),
-        MAKE_TASK_MENU_ITEM("gds15", app),
-        MAKE_TASK_MENU_ITEM("hads", app),
-        MAKE_TASK_MENU_ITEM("hama", app),
-        MAKE_TASK_MENU_ITEM("hamd", app),
-        MAKE_TASK_MENU_ITEM("hamd7", app),
-        MAKE_TASK_MENU_ITEM("icd10depressive", app),
-        MAKE_TASK_MENU_ITEM("icd10manic", app),
-        MAKE_TASK_MENU_ITEM("icd10mixed", app),
-        MAKE_TASK_MENU_ITEM("iesr", app),
+        MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Gds15::GDS15_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Hads::HADS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(HamA::HAMA_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(HamD::HAMD_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(HamD7::HAMD7_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Icd10Depressive::ICD10DEP_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Icd10Manic::ICD10MANIC_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Icd10Mixed::ICD10MIXED_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Iesr::IESR_TABLENAME, app),
         // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("madrs", app),
-        MAKE_TASK_MENU_ITEM("pclm", app),
-        MAKE_TASK_MENU_ITEM("pclc", app),
-        MAKE_TASK_MENU_ITEM("pcls", app),
-        MAKE_TASK_MENU_ITEM("pdss", app),
-        MAKE_TASK_MENU_ITEM("phq9", app),
-        MAKE_TASK_MENU_ITEM("phq15", app),
-        MAKE_TASK_MENU_ITEM("pswq", app),
-        MAKE_TASK_MENU_ITEM("ybocs", app),
-        MAKE_TASK_MENU_ITEM("ybocssc", app),
+        MAKE_TASK_MENU_ITEM(PclM::PCLM_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(PclC::PCLC_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(PclS::PCLS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Pdss::PDSS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Phq15::PHQ15_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Pswq::PSWQ_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Ybocs::YBOCS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(YbocsSc::YBOCSSC_TABLENAME, app),
     };
 }

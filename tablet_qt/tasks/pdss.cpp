@@ -40,7 +40,7 @@ const int MAX_SCORE = 28;
 const int MAX_COMPOSITE_SCORE = 4;
 const QString QPREFIX("q");
 
-const QString PDSS_TABLENAME("pdss");
+const QString Pdss::PDSS_TABLENAME("pdss");
 
 
 void initializePdss(TaskFactory& factory)

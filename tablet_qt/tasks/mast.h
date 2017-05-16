@@ -52,4 +52,6 @@ public:
     // ------------------------------------------------------------------------
     int totalScore() const;
     int score(int question) const;
+public:
+    static const QString MAST_TABLENAME;
 };

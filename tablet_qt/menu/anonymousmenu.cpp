@@ -18,9 +18,12 @@
 */
 
 #include "anonymousmenu.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
+
+#include "tasks/gmcpq.h"
+#include "tasks/referrersatisfactiongen.h"
 
 
 AnonymousMenu::AnonymousMenu(CamcopsApp& app) :
@@ -29,7 +32,7 @@ AnonymousMenu::AnonymousMenu(CamcopsApp& app) :
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),
-        MAKE_TASK_MENU_ITEM("gmcpq", app),
-        MAKE_TASK_MENU_ITEM("ref_satis_gen", app),
+        MAKE_TASK_MENU_ITEM(GmcPq::GMCPQ_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(ReferrerSatisfactionGen::REF_SATIS_GEN_TABLENAME, app),
     };
 }

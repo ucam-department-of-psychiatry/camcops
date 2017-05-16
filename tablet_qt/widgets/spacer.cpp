@@ -18,7 +18,7 @@
 */
 
 #include "spacer.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 
 Spacer::Spacer(QWidget* parent) :
     QWidget(parent),

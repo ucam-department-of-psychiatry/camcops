@@ -24,7 +24,7 @@
 #include <QMouseEvent>
 #include <QStyleOptionButton>
 #include <QVBoxLayout>
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "lib/sizehelpers.h"
 
 

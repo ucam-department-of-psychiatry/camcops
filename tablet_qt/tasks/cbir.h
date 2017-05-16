@@ -62,4 +62,6 @@ protected:
 protected:
     FieldRefPtrList m_data_frs;
     FieldRefPtr m_confirmation_fr;
+public:
+    static const QString CBIR_TABLENAME;
 };

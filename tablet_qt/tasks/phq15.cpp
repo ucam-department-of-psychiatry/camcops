@@ -39,7 +39,7 @@ const int FIRST_Q = 1;
 const int N_QUESTIONS = 15;
 const QString QPREFIX("q");
 
-const QString PHQ15_TABLENAME("phq15");
+const QString Phq15::PHQ15_TABLENAME("phq15");
 
 
 void initializePhq15(TaskFactory& factory)

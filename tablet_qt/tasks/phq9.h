@@ -54,4 +54,6 @@ public:
     int nCoreSymptoms() const;
     int nOtherSymptoms() const;
     static QString severity(int score);
+public:
+    static const QString PHQ9_TABLENAME;
 };

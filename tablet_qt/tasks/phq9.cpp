@@ -40,7 +40,7 @@ const int N_QUESTIONS = 10;
 const int MAX_SCORE = 27;
 const QString QPREFIX("q");
 
-const QString PHQ9_TABLENAME("phq9");
+const QString Phq9::PHQ9_TABLENAME("phq9");
 
 
 void initializePhq9(TaskFactory& factory)

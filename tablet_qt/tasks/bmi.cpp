@@ -33,7 +33,7 @@
 using convert::toDp;
 using mathfunc::noneNull;
 
-const QString BMI_TABLENAME("bmi");
+const QString Bmi::BMI_TABLENAME("bmi");
 
 const QString FN_MASS_KG("mass_kg");
 const QString FN_HEIGHT_M("height_m");

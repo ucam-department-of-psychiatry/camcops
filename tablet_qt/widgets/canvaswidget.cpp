@@ -29,7 +29,7 @@
 #include <QRegion>
 #include <QStyle>
 #include <QStyleOption>
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "lib/sizehelpers.h"
 #include "widgets/margins.h"
 

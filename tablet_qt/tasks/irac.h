@@ -52,4 +52,6 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     QString getAchievedText() const;
+public:
+    static const QString IRAC_TABLENAME;
 };

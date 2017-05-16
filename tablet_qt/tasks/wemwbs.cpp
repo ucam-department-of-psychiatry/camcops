@@ -39,7 +39,7 @@ const int MIN_Q_SCORE = 1;
 const int MAX_Q_SCORE = 5;
 const QString QPREFIX("q");
 
-const QString WEMWBS_TABLENAME("wemwbs");
+const QString Wemwbs::WEMWBS_TABLENAME("wemwbs");
 
 
 void initializeWemwbs(TaskFactory& factory)

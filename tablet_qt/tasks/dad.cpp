@@ -31,7 +31,7 @@
 #include "tasklib/taskfactory.h"
 using mathfunc::noneNull;
 
-const QString DAD_TABLENAME("dad");
+const QString Dad::DAD_TABLENAME("dad");
 
 const int YES = 1;
 const int NO = 0;

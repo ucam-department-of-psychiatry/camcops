@@ -25,7 +25,7 @@
 #include <QVariant>
 #include <QVBoxLayout>
 #include "common/cssconst.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "qobjects/keypresswatcher.h"
 #include "qobjects/showwatcher.h"
 #include "widgets/vboxlayouthfw.h"

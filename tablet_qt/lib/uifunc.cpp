@@ -41,7 +41,8 @@
 #include "common/cssconst.h"
 #include "common/platform.h"
 #include "common/textconst.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
+#include "lib/convert.h"
 #include "lib/layoutdumper.h"
 #include "lib/stringfunc.h"
 #include "dialogs/passwordchangedialog.h"
@@ -237,19 +238,6 @@ QString UiFunc::iconTouchedPngFilename(const QString& stem)
 // ============================================================================
 // Widget manipulations
 // ============================================================================
-
-/*
-QString cssColour(const QColor& colour)
-{
-    QString css = QString("rgba(%1,%2,%3,%4)").arg(
-        QString::number(colour.red()),
-        QString::number(colour.green()),
-        QString::number(colour.blue()),
-        QString::number(colour.alpha()));
-    return css;
-}
-*/
-
 
 /*
 void setBackgroundColour(QWidget* widget, const QColor& colour)
@@ -632,7 +620,7 @@ QString yesNo(bool yes)
 
 QString yesNoNull(const QVariant& value)
 {
-    return value.isNull() ? "NULL" : yesNo(value.toBool());
+    return value.isNull() ? convert::NULL_STR : yesNo(value.toBool());
 }
 
 
@@ -650,7 +638,7 @@ QString trueFalse(bool yes)
 
 QString trueFalseNull(const QVariant& value)
 {
-    return value.isNull() ? "NULL" : trueFalse(value.toBool());
+    return value.isNull() ? convert::NULL_STR : trueFalse(value.toBool());
 }
 
 

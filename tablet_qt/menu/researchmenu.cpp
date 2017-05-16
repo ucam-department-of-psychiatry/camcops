@@ -18,9 +18,13 @@
 */
 
 #include "researchmenu.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
+
+#include "tasks/diagnosisicd9cm.h"
+#include "tasks/qolbasic.h"
+#include "tasks/qolsg.h"
 
 
 ResearchMenu::ResearchMenu(CamcopsApp& app) :
@@ -29,12 +33,12 @@ ResearchMenu::ResearchMenu(CamcopsApp& app) :
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),
-        MAKE_TASK_MENU_ITEM("qolbasic", app),
-        MAKE_TASK_MENU_ITEM("qolsg", app),
+        MAKE_TASK_MENU_ITEM(QolBasic::QOLBASIC_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(QolSG::QOLSG_TABLENAME, app),
         MenuItem("*** soundtest for ExpDetThreshold/ExpDet"),
         MAKE_TASK_MENU_ITEM("cardinal_expdetthreshold", app),
         MAKE_TASK_MENU_ITEM("cardinal_expdet", app),
-        MAKE_TASK_MENU_ITEM("diagnosis_icd9cm", app),
+        MAKE_TASK_MENU_ITEM(DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME, app),
         MAKE_TASK_MENU_ITEM("ided3d", app),
         MenuItem("*** chain: qolbasic -> phq9 -> phq15"),
     };

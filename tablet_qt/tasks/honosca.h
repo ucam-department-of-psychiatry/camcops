@@ -54,4 +54,6 @@ public:
 protected:
     int totalScore() const;
     int scoreSum(int first, int last) const;
+public:
+    static const QString HONOSCA_TABLENAME;
 };

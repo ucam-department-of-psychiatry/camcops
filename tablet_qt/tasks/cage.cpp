@@ -40,7 +40,7 @@ const int N_QUESTIONS = 4;
 const int MAX_SCORE = N_QUESTIONS;
 const QString QPREFIX("q");
 
-const QString CAGE_TABLENAME("cage");
+const QString Cage::CAGE_TABLENAME("cage");
 
 const int CAGE_THRESHOLD = 2;
 

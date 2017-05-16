@@ -58,7 +58,7 @@
 #include <QVBoxLayout>
 #include <QVideoFrame>
 #include "common/cssconst.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "lib/imagefunc.h"
 #include "imagebutton.h"
 

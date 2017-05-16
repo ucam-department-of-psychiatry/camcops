@@ -48,7 +48,7 @@ const int N_QUESTIONS = 28;
 const int MAX_SCORE = 30;
 const QString QPREFIX("q");
 
-const QString MOCA_TABLENAME("moca");
+const QString Moca::MOCA_TABLENAME("moca");
 
 const QString IMAGE_PATH("moca/path.png");
 const QString IMAGE_CUBE("moca/cube.png");

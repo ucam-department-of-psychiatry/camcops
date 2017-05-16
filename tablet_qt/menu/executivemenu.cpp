@@ -18,9 +18,11 @@
 */
 
 #include "executivemenu.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
+
+#include "tasks/ifs.h"
 
 
 ExecutiveMenu::ExecutiveMenu(CamcopsApp& app) :
@@ -29,6 +31,6 @@ ExecutiveMenu::ExecutiveMenu(CamcopsApp& app) :
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),
-        MAKE_TASK_MENU_ITEM("ifs", app),
+        MAKE_TASK_MENU_ITEM(Ifs::IFS_TABLENAME, app),
     };
 }

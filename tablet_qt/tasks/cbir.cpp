@@ -38,7 +38,7 @@ using stringfunc::strseq;
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 45;
 
-const QString CBIR_TABLENAME("cbir");
+const QString CbiR::CBIR_TABLENAME("cbir");
 
 const QString FN_FREQ_PREFIX("frequency");
 const QString FN_DISTRESS_PREFIX("distress");

@@ -18,10 +18,13 @@
 */
 
 #include "catatoniaepsemenu.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "lib/filefunc.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
+
+#include "tasks/aims.h"
+#include "tasks/mdsupdrs.h"
 
 
 CatatoniaEpseMenu::CatatoniaEpseMenu(CamcopsApp& app) :
@@ -32,7 +35,7 @@ CatatoniaEpseMenu::CatatoniaEpseMenu(CamcopsApp& app) :
     QString examsubtitle = tr("Standardized technique (for BFCRS, BFCSI)");
     m_items = {
         MAKE_CHANGE_PATIENT(app),
-        MAKE_TASK_MENU_ITEM("aims", app),
+        MAKE_TASK_MENU_ITEM(Aims::AIMS_TABLENAME, app),
         // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("bars", app),
         // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("bfcrs", app),
 
@@ -46,7 +49,7 @@ CatatoniaEpseMenu::CatatoniaEpseMenu(CamcopsApp& app) :
         // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("csi", app), // == bfcsi
         // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("gass", app),
         // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("lunsers", app),
-        MAKE_TASK_MENU_ITEM("updrs", app),
+        MAKE_TASK_MENU_ITEM(MdsUpdrs::MDS_UPDRS_TABLENAME, app),
         // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("sas", app),
     };
 }

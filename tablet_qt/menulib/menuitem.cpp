@@ -29,7 +29,7 @@
 #include "common/camcopsapp.h"
 #include "common/cssconst.h"
 #include "common/layouts.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "dbobjects/patient.h"
 #include "lib/convert.h"
 #include "lib/datetime.h"  // for SHORT_DATETIME_FORMAT

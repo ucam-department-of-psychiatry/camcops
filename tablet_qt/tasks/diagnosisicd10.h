@@ -55,4 +55,6 @@ public:
     // ------------------------------------------------------------------------
     virtual DiagnosticCodeSetPtr makeCodeset() const override;
     virtual DiagnosisItemBasePtr makeItem() const override;
+public:
+    static const QString DIAGNOSIS_ICD10_TABLENAME;
 };

@@ -39,7 +39,7 @@ using mathfunc::anyFalse;
 using stringfunc::standardResult;
 using uifunc::trueFalseUnknown;
 
-const QString ICD10MIXED_TABLENAME("icd10mixed");
+const QString Icd10Mixed::ICD10MIXED_TABLENAME("icd10mixed");
 
 const QString DATE_PERTAINS_TO("date_pertains_to");
 const QString COMMENTS("comments");

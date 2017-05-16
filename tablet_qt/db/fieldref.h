@@ -36,7 +36,6 @@ class FieldRef : public QObject
     /*
 
 If a FieldRef didn't do signals, one would think:
-
 - Copy these things by value. They're small.
 - Don't use references; the owning function is likely to have finished
   and made the reference become invalid.
@@ -44,34 +43,38 @@ If a FieldRef didn't do signals, one would think:
 - The only prerequisite is that the things they point to outlast the
   lifetime of this object.
 
-However, it'd be helpful if they could do signals.
+However, it'd be very helpful if they could do signals.
 - In which case, they should be a QObject.
 - In which case, you can't copy them.
 - In which case, they should be managed by pointer.
 - In which case, they should be managed by a QSharedPointer.
 
-The FieldRef manages various kinds of indirection:
-- Field: direct connection to a Field object
-- DatabaseObject: connection to a Field object belonging to a DatabaseObject
-- DatabaseObjectBlobField: connection to (a) a field in the DatabaseObject that
-  stores the PK of a BLOB record, and (b) a record in the BLOB table that
-  stores the actual blob, and references back to the table/PK/field of the
-  DatabaseObject in question.
-- Functions: getter/setter functions, to allow the use e.g. of Questionnaires
-  (which use FieldRefs) together with arbitrary C++ objects, e.g. for setting
-  StoredVar objects.
+The FieldRef manages various kinds of indirection; see FieldRefMethod below.
 
     */
+
     Q_OBJECT
 public:
     enum class FieldRefMethod {
         Invalid,
+            // Dummy value indicating "not configured".
         Field,
+            // Direct connection to a Field object.
         DatabaseObject,
+            // Connection to a Field object belonging to a DatabaseObject.
         DatabaseObjectBlobField,
+            // Connection to (a) a field in the DatabaseObject that stores the
+            // PK of a BLOB record, and (b) a record in the BLOB table that
+            // stores the actual blob, and references back to the
+            // table/PK/field of the DatabaseObject in question.
         Functions,
+            // getter/setter functions, to allow the use e.g. of Questionnaires
+            // (which use FieldRefs) together with arbitrary C++ objects, e.g.
+            // for setting StoredVar objects.
         StoredVar,
+            // Connection to a named StoredVar of the master app object.
         CachedStoredVar,
+            // Connection to a named CachedStoredVar of the master app object.
     };
     using GetterFunction = std::function<QVariant()>;
     using SetterFunction = std::function<bool(const QVariant&)>;  // returns: changed?
@@ -103,6 +106,7 @@ public:
     QString valueString() const;
     QByteArray valueByteArray() const;
     QImage valueImage() const;  // convenience function
+    QVector<int> valueVectorInt() const;
     bool isNull() const;
 
     bool mandatory() const;

@@ -42,7 +42,7 @@ const int RELATIONSHIPS_FIRST = 0;
 const int RELATIONSHIPS_FIRST_NON_OTHER = 1;
 const int RELATIONSHIPS_LAST = 9;
 
-const QString COPEBRIEF_TABLENAME("cope_brief");
+const QString CopeBrief::COPEBRIEF_TABLENAME("cope_brief");
 
 const QString COMPLETED_BY_PATIENT("completed_by_patient");
 const QString COMPLETED_BY("completed_by");

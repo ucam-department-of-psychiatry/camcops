@@ -76,7 +76,7 @@ public:
                   bool touch_record = true);  // returns: changed?
 
     QVariant value(const QString& fieldname) const;
-    QString prettyValue(const QString& fieldname) const;
+    QString prettyValue(const QString& fieldname, int dp = -1) const;
     bool valueIsNull(const QString& fieldname) const;
     bool valueIsFalseNotNull(const QString &fieldname) const;
     bool valueIsNullOrEmpty(const QString &fieldname) const;

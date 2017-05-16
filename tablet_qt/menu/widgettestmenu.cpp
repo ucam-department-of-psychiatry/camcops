@@ -21,7 +21,7 @@
 #include <QPushButton>
 #include "common/cssconst.h"
 #include "common/textconst.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "diagnosis/icd10.h"
 #include "lib/debugfunc.h"
 #include "lib/layoutdumper.h"

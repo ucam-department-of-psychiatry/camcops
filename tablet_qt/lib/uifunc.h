@@ -78,7 +78,6 @@ QAbstractButton* iconButton(const QString& normal_filename,
 // Widget manipulations, and other Qt internals
 // ============================================================================
 
-// QString cssColour(const QColor& colour);
 // void setBackgroundColour(QWidget* widget, const QColor& colour);
 void removeAllChildWidgets(QObject* object);
 Qt::Alignment combineAlignment(Qt::Alignment halign, Qt::Alignment valign);

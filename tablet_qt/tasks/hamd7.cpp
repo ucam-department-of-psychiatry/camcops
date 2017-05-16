@@ -36,7 +36,7 @@ const int FIRST_Q = 1;
 const int N_QUESTIONS = 7;
 const int MAX_SCORE = 26;
 
-const QString HAMD7_TABLENAME("hamd7");
+const QString HamD7::HAMD7_TABLENAME("hamd7");
 const QString QPREFIX("q");
 
 

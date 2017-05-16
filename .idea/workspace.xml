@@ -9,22 +9,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d507af95-9eb5-49a8-90aa-7921b1aee6f4" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/diagnosis.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/diagnosis.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/common/textconst.cpp" afterPath="$PROJECT_DIR$/tablet_qt/common/textconst.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/common/textconst.h" afterPath="$PROJECT_DIR$/tablet_qt/common/textconst.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/diagnosis/icd10.cpp" afterPath="$PROJECT_DIR$/tablet_qt/diagnosis/icd10.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/lib/layoutdumper.h" afterPath="$PROJECT_DIR$/tablet_qt/lib/layoutdumper.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/choosepatientmenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/choosepatientmenu.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/patientsummarymenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/patientsummarymenu.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qudiagnosticcode.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qudiagnosticcode.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnaire.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnaire.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasklib/inittasks.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasklib/inittasks.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasks/diagnosisitembase.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasks/diagnosisitembase.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasks/diagnosisitembase.h" afterPath="$PROJECT_DIR$/tablet_qt/tasks/diagnosisitembase.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasks/diagnosistaskbase.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasks/diagnosistaskbase.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasks/diagnosistaskbase.h" afterPath="$PROJECT_DIR$/tablet_qt/tasks/diagnosistaskbase.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasks/wsas.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasks/wsas.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasks/wsas.h" afterPath="$PROJECT_DIR$/tablet_qt/tasks/wsas.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/server/playing/django_test.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="camcops.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -53,16 +39,6 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="camcops.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/camcops_server/camcops.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="7280">
-              <caret line="560" column="66" lean-forward="false" selection-start-line="560" selection-start-column="66" selection-end-line="560" selection-end-column="66" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="bdi.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/bdi.py">
           <provider selected="true" editor-type-id="text-editor">
@@ -93,14 +69,24 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="diagnosis.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="diagnosis.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/diagnosis.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="465">
-              <caret line="91" column="28" lean-forward="true" selection-start-line="91" selection-start-column="28" selection-end-line="91" selection-end-column="28" />
+              <caret line="91" column="28" lean-forward="false" selection-start-line="91" selection-start-column="28" selection-end-line="91" selection-end-column="28" />
               <folding>
                 <marker date="1494804213357" expanded="true" signature="7803:8658" ph="SELECT p.sur... patient" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="django_test.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/server/playing/django_test.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="26">
+              <caret line="2" column="0" lean-forward="true" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -234,7 +220,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/server/camcops_server/tasks/cage.py" />
         <option value="$PROJECT_DIR$/server/camcops_server/tasks/cape42.py" />
         <option value="$PROJECT_DIR$/server/camcops_server/tasks/caps.py" />
         <option value="$PROJECT_DIR$/server/camcops_server/tasks/bmi.py" />
@@ -285,6 +270,7 @@
         <option value="$PROJECT_DIR$/server/camcops_server/tasks/ciwa.py" />
         <option value="$PROJECT_DIR$/server/camcops_server/camcops.py" />
         <option value="$PROJECT_DIR$/server/camcops_server/tasks/diagnosis.py" />
+        <option value="$PROJECT_DIR$/server/playing/django_test.py" />
       </list>
     </option>
   </component>
@@ -429,7 +415,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="extra_strings" />
+              <option name="myItemId" value="playing" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -534,6 +520,13 @@
       <option name="CUSTOM_SETTINGS" value="false" />
       <option name="USE_OPTIONS" value="false" />
       <option name="OPTIONS" value="" />
+      <method />
+    </configuration>
+    <configuration default="true" type="JavaScriptTestRunnerJest" factoryName="Jest">
+      <node-interpreter value="project" />
+      <working-dir value="" />
+      <envs />
+      <scope-kind value="ALL" />
       <method />
     </configuration>
     <configuration default="true" type="JavaScriptTestRunnerProtractor" factoryName="Protractor">
@@ -738,6 +731,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-3" y="48" width="1206" height="1555" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
@@ -745,7 +739,7 @@
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2675" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2675" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="LuaJ" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32943144" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -813,13 +807,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/camcops_meta.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="299">
-          <caret line="23" column="0" lean-forward="false" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/server/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -1196,10 +1183,18 @@
     <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/diagnosis.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="465">
-          <caret line="91" column="28" lean-forward="true" selection-start-line="91" selection-start-column="28" selection-end-line="91" selection-end-column="28" />
+          <caret line="91" column="28" lean-forward="false" selection-start-line="91" selection-start-column="28" selection-end-line="91" selection-end-column="28" />
           <folding>
             <marker date="1494804213357" expanded="true" signature="7803:8658" ph="SELECT p.sur... patient" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/playing/django_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="26">
+          <caret line="2" column="0" lean-forward="true" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>

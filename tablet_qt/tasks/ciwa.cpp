@@ -40,7 +40,7 @@ const int N_SCORED_QUESTIONS = 10;
 const int MAX_SCORE = 67;
 const QString QPREFIX("q");
 
-const QString CIWA_TABLENAME("ciwa");
+const QString Ciwa::CIWA_TABLENAME("ciwa");
 const QString T("t");
 const QString HR("hr");
 const QString SBP("sbp");

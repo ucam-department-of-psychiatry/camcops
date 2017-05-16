@@ -37,7 +37,7 @@ const int N_QUESTIONS = 15;
 const int MAX_SCORE = N_QUESTIONS;
 const QString QPREFIX("q");
 
-const QString GDS15_TABLENAME("gds15");
+const QString Gds15::GDS15_TABLENAME("gds15");
 
 const QVector<int> SCORE_IF_YES{2, 3, 4, 6, 8, 9, 10, 12, 14, 15};
 const QVector<int> SCORE_IF_NO{1, 5, 7, 11, 13};

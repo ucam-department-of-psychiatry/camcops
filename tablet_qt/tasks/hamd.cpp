@@ -35,7 +35,7 @@ using stringfunc::strseq;
 const int N_SCORED_QUESTIONS = 17;
 const int MAX_SCORE = 52;
 
-const QString HAMD_TABLENAME("hamd");
+const QString HamD::HAMD_TABLENAME("hamd");
 const QString QPREFIX("q");
 
 const QString WHICH_Q16("whichq16");

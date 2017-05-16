@@ -37,7 +37,7 @@ using stringfunc::strseq;
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 42;
 
-const QString CAPE42_TABLENAME("cape42");
+const QString Cape42::CAPE42_TABLENAME("cape42");
 
 const QString FN_FREQ_PREFIX("frequency");
 const QString FN_DISTRESS_PREFIX("distress");

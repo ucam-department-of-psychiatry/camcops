@@ -36,6 +36,8 @@ namespace convert {
 // SQL literals
 // ============================================================================
 
+extern const QString NULL_STR;
+
 QString escapeNewlines(QString raw);
 QString unescapeNewlines(QString escaped);
 
@@ -111,6 +113,22 @@ QSsl::SslProtocol sslProtocolFromDescription(const QString& desc);
 QVariant toQCharVariant(const QVariant& v);
 
 // ============================================================================
+// Specific vectors as strings
+// ============================================================================
+
+QString intVectorToCsvString(const QVector<int>& vec);
+QVector<int> csvStringToIntVector(const QString& str);
+
+// ============================================================================
+// QVariant modifications
+// ============================================================================
+
+extern const char* TYPENAME_QVECTOR_INT;
+void registerQVectorTypesForQVariant();
+bool isQVariantOfUserType(const QVariant& v, const QString& type_name);
+QVector<int> qVariantToIntVector(const QVariant& v);
+
+// ============================================================================
 // Physical units
 // ============================================================================
 
@@ -135,3 +153,12 @@ void stonesPoundsOuncesFromKilograms(
 
 
 }  // namespace convert
+
+
+
+
+// ============================================================================
+// Using QVector in QVariant: see also convert::registerQVectorTypesForQVariant()
+// ============================================================================
+
+Q_DECLARE_METATYPE(QVector<int>)

@@ -19,7 +19,7 @@
 
 #include "slums.h"
 #include "common/textconst.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "lib/datetime.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
@@ -42,7 +42,7 @@ using stringfunc::standardResult;
 using stringfunc::strnum;
 using stringfunc::strseq;
 
-const QString SLUMS_TABLENAME("slums");
+const QString Slums::SLUMS_TABLENAME("slums");
 
 const QString ALERT("alert");
 const QString HIGHSCHOOLEDUCATION("highschooleducation");

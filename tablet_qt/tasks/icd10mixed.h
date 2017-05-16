@@ -52,4 +52,6 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     QVariant meetsCriteria() const;
+public:
+    static const QString ICD10MIXED_TABLENAME;
 };

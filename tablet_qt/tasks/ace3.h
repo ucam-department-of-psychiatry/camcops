@@ -71,4 +71,6 @@ public slots:
     void updateAddressRecognition();
 protected:
     QPointer<Questionnaire> m_questionnaire;
+public:
+    static const QString ACE3_TABLENAME;
 };

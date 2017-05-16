@@ -53,4 +53,6 @@ public:
     // ------------------------------------------------------------------------
     int score(int question) const;
     int totalScore() const;
+public:
+    static const QString SMAST_TABLENAME;
 };

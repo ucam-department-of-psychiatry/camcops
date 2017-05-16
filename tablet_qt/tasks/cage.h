@@ -52,4 +52,6 @@ public:
     // ------------------------------------------------------------------------
     int totalScore() const;
     int score(const QVariant& value) const;
+public:
+    static const QString CAGE_TABLENAME;
 };

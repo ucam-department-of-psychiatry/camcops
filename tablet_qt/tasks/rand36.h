@@ -53,4 +53,6 @@ public:
     QVariant recoded(int question) const;
     QVariant subscaleMean(const QVector<int>& questions) const;
     QVariant overallMean() const;
+public:
+    static const QString RAND36_TABLENAME;
 };

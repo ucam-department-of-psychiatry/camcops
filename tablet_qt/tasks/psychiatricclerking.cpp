@@ -27,7 +27,7 @@
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
 
-const QString PSYCLERK_TABLENAME("psychiatricclerking");
+const QString PsychiatricClerking::PSYCLERK_TABLENAME("psychiatricclerking");
 
 const QString LOCATION("location");
 const QString CONTACT_TYPE("contact_type");

@@ -18,9 +18,19 @@
 */
 
 #include "setmenucpftaffective1.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
+
+#include "tasks/diagnosisicd9cm.h"
+#include "tasks/hamd.h"
+#include "tasks/iesr.h"
+#include "tasks/pdss.h"
+#include "tasks/pswq.h"
+#include "tasks/swemwbs.h"
+#include "tasks/wsas.h"
+#include "tasks/ybocs.h"
+#include "tasks/ybocssc.h"
 
 
 SetMenuCpftAffective1::SetMenuCpftAffective1(CamcopsApp& app) :
@@ -32,14 +42,14 @@ SetMenuCpftAffective1::SetMenuCpftAffective1(CamcopsApp& app) :
                  "affective disorders";
     m_items = {
         MAKE_CHANGE_PATIENT(app),
-        MAKE_TASK_MENU_ITEM("diagnosis_icd9cm", app),  // = DSM-IV
-        MAKE_TASK_MENU_ITEM("hamd", app),
-        MAKE_TASK_MENU_ITEM("iesr", app),
-        MAKE_TASK_MENU_ITEM("pdss", app),
-        MAKE_TASK_MENU_ITEM("pswq", app),
-        MAKE_TASK_MENU_ITEM("swemwbs", app),
-        MAKE_TASK_MENU_ITEM("wsas", app),
-        MAKE_TASK_MENU_ITEM("ybocs", app),
-        MAKE_TASK_MENU_ITEM("ybocssc", app),
+        MAKE_TASK_MENU_ITEM(DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME, app),  // = DSM-IV
+        MAKE_TASK_MENU_ITEM(HamD::HAMD_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Iesr::IESR_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Pdss::PDSS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Pswq::PSWQ_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Swemwbs::SWEMWBS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Wsas::WSAS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Ybocs::YBOCS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(YbocsSc::YBOCSSC_TABLENAME, app),
     };
 }

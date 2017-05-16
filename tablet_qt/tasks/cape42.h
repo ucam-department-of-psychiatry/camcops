@@ -67,4 +67,6 @@ protected:
 protected:
     QPointer<Questionnaire> m_questionnaire;
     QMap<int, FieldRefPtr> m_distress_fieldrefs;
+public:
+    static const QString CAPE42_TABLENAME;
 };

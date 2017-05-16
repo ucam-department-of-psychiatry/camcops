@@ -52,4 +52,6 @@ public:
     // ------------------------------------------------------------------------
     int totalScore() const;
     double compositeScore() const;
+public:
+    static const QString PDSS_TABLENAME;
 };

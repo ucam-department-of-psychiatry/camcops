@@ -18,9 +18,22 @@
 */
 
 #include "setmenufromlp.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
+
+#include "tasks/ace3.h"
+#include "tasks/auditc.h"
+#include "tasks/bmi.h"
+#include "tasks/cgii.h"
+#include "tasks/fft.h"
+#include "tasks/gad7.h"
+#include "tasks/honos.h"
+#include "tasks/irac.h"
+#include "tasks/patientsatisfaction.h"
+#include "tasks/phq9.h"
+#include "tasks/referrersatisfactiongen.h"
+#include "tasks/referrersatisfactionspec.h"
 
 
 SetMenuFromLp::SetMenuFromLp(CamcopsApp& app) :
@@ -33,22 +46,22 @@ SetMenuFromLp::SetMenuFromLp(CamcopsApp& app) :
     m_items = {
         MAKE_CHANGE_PATIENT(app),
         MenuItem(tr("GENERIC SCALES")).setLabelOnly(),
-        MAKE_TASK_MENU_ITEM("cgi_i", app),
+        MAKE_TASK_MENU_ITEM(CgiI::CGI_I_TABLENAME, app),
         // CORE-10 -- copyright conditions prohibit
-        MAKE_TASK_MENU_ITEM("irac", app),
-        MAKE_TASK_MENU_ITEM("pt_satis", app),
-        MAKE_TASK_MENU_ITEM("fft", app),
-        MAKE_TASK_MENU_ITEM("ref_satis_gen", app),
-        MAKE_TASK_MENU_ITEM("ref_satis_spec", app),
+        MAKE_TASK_MENU_ITEM(Irac::IRAC_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(PatientSatisfaction::PT_SATIS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Fft::FFT_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(ReferrerSatisfactionGen::REF_SATIS_GEN_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(ReferrerSatisfactionSpec::REF_SATIS_SPEC_TABLENAME, app),
 
         MenuItem(tr("DISEASE-SPECIFIC SCALES")).setLabelOnly(),
-        MAKE_TASK_MENU_ITEM("ace3", app),
-        MAKE_TASK_MENU_ITEM("phq9", app),
+        MAKE_TASK_MENU_ITEM(Ace3::ACE3_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, app),
         // EPDS -- Royal College not currently permitting use
-        MAKE_TASK_MENU_ITEM("gad7", app),
-        MAKE_TASK_MENU_ITEM("honos", app),
-        MAKE_TASK_MENU_ITEM("audit_c", app),
-        MAKE_TASK_MENU_ITEM("bmi", app),
+        MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Honos::HONOS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(AuditC::AUDITC_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Bmi::BMI_TABLENAME, app),
         // *** EQ-5D-5L, if permitted?
     };
 }

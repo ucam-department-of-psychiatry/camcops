@@ -64,4 +64,6 @@ protected:
     void updateMandatory();
 protected:
     QPointer<Questionnaire> m_questionnaire;
+public:
+    static const QString MOCA_TABLENAME;
 };

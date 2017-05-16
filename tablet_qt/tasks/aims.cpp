@@ -38,7 +38,7 @@ const int N_QUESTIONS = 12;
 const int MAX_SCORE = 40;
 const QString QPREFIX("q");
 
-const QString AIMS_TABLENAME("aims");
+const QString Aims::AIMS_TABLENAME("aims");
 
 
 void initializeAims(TaskFactory& factory)

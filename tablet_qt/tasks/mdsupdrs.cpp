@@ -38,7 +38,7 @@ using stringfunc::strnum;
 using stringfunc::strseq;
 #define TR(stringname, text) const QString stringname(QObject::tr(text))
 
-const QString MDS_UPDRS_TABLENAME("mds_updrs");
+const QString MdsUpdrs::MDS_UPDRS_TABLENAME("mds_updrs");
 
 // Part I
 const QString Q1A("q1a");

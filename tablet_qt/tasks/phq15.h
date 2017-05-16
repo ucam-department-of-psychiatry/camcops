@@ -56,4 +56,6 @@ public:
     int nQuestions() const;
     int maxScore() const;
     int nSevereSymptoms() const;
+public:
+    static const QString PHQ15_TABLENAME;
 };

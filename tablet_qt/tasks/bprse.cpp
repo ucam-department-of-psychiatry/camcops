@@ -37,7 +37,7 @@ const int N_QUESTIONS = 24;
 const int MAX_SCORE = 168;
 const QString QPREFIX("q");
 
-const QString BPRSE_TABLENAME("bprse");
+const QString BprsE::BPRSE_TABLENAME("bprse");
 
 
 void initializeBprsE(TaskFactory& factory)

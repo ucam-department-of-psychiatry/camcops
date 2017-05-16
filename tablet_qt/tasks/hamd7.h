@@ -54,4 +54,6 @@ public:
 protected:
     int totalScore() const;
     int nOptions(int question) const;
+public:
+    static const QString HAMD7_TABLENAME;
 };

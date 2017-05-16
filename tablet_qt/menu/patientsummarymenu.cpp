@@ -18,7 +18,7 @@
 */
 
 #include "patientsummarymenu.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "dbobjects/patient.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"

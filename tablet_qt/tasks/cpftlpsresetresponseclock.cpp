@@ -20,7 +20,7 @@
 #include "cpftlpsresetresponseclock.h"
 #include "common/camcopsapp.h"
 #include "common/textconst.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "lib/datetime.h"
 #include "lib/mathfunc.h"
 #include "lib/stringfunc.h"
@@ -40,7 +40,7 @@
 using mathfunc::noneNullOrEmpty;
 
 
-const QString CPFTLPSRESETCLOCK_TABLENAME("cpft_lps_resetresponseclock");
+const QString CPFTLPSResetResponseClock::CPFTLPSRESETCLOCK_TABLENAME("cpft_lps_resetresponseclock");
 
 const QString RESET_START_TIME_TO("reset_start_time_to");
 const QString REASON("reason");

@@ -18,7 +18,9 @@
 */
 
 #pragma once
+#include <QMetaType>
 #include <QtGlobal>
+#include <QVector>
 class QRect;
 
 

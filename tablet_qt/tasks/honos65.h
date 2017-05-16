@@ -57,4 +57,6 @@ public:
     // ------------------------------------------------------------------------
 protected:
     void updateMandatory(const FieldRef* fieldref, const QObject* originator);
+public:
+    static const QString HONOS65_TABLENAME;
 };

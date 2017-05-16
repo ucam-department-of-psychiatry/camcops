@@ -31,7 +31,7 @@ const int N_QUESTIONS = 24;
 const int MAX_SCORE = 168;
 const QString QPREFIX("q");
 
-const QString GAF_TABLENAME("gaf");
+const QString Gaf::GAF_TABLENAME("gaf");
 
 const QString SCORE("score");
 

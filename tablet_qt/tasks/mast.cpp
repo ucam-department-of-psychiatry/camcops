@@ -38,7 +38,7 @@ const int N_QUESTIONS = 24;
 const int MAX_SCORE = 53;
 const QString QPREFIX("q");
 
-const QString MAST_TABLENAME("mast");
+const QString Mast::MAST_TABLENAME("mast");
 const QVector<int> REVERSED_QUESTIONS{1, 4, 6, 7};
 const QVector<int> QUESTIONS_SCORING_ONE{3, 5, 9, 16};
 const QVector<int> QUESTIONS_SCORING_FIVE{8, 19, 20};

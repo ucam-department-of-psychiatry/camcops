@@ -55,4 +55,6 @@ protected:
     int getP() const;
     int getN() const;
     int getG() const;
+public:
+    static const QString PANSS_TABLENAME;
 };

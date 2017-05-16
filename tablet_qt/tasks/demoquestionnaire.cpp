@@ -20,7 +20,7 @@
 #include "demoquestionnaire.h"
 #include "common/camcopsapp.h"
 #include "common/textconst.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "diagnosis/icd10.h"
 #include "diagnosis/icd9cm.h"
 #include "lib/uifunc.h"
@@ -68,6 +68,8 @@
 #include "questionnairelib/qutextedit.h"
 #include "questionnairelib/quthermometer.h"
 
+const QString DemoQuestionnaire::DEMOQUESTIONNAIRE_TABLENAME("demoquestionnaire");
+
 
 void initializeDemoQuestionnaire(TaskFactory& factory)
 {
@@ -77,7 +79,7 @@ void initializeDemoQuestionnaire(TaskFactory& factory)
 
 DemoQuestionnaire::DemoQuestionnaire(CamcopsApp& app,
                                      const QSqlDatabase& db, int load_pk) :
-    Task(app, db, "demoquestionnaire", true, false, false)
+    Task(app, db, DEMOQUESTIONNAIRE_TABLENAME, true, false, false)
 {
     using stringfunc::strseq;
 

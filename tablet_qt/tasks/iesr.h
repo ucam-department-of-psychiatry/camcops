@@ -54,4 +54,6 @@ public:
     int avoidanceScore() const;
     int intrusionScore() const;
     int hyperarousalScore() const;
+public:
+    static const QString IESR_TABLENAME;
 };

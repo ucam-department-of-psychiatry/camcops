@@ -18,9 +18,13 @@
 */
 
 #include "personalitymenu.h"
-#include "common/uiconstants.h"
+#include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
+
+#include "tasks/cecaq3.h"
+#include "tasks/icd10schizotypal.h"
+#include "tasks/icd10specpd.h"
 
 
 PersonalityMenu::PersonalityMenu(CamcopsApp& app) :
@@ -29,8 +33,8 @@ PersonalityMenu::PersonalityMenu(CamcopsApp& app) :
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),
-        MAKE_TASK_MENU_ITEM("cecaq3", app),
-        MAKE_TASK_MENU_ITEM("icd10specpd", app),
-        MAKE_TASK_MENU_ITEM("icd10schizotypal", app),
+        MAKE_TASK_MENU_ITEM(CecaQ3::CECAQ3_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Icd10SpecPD::ICD10SPECPD_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Icd10Schizotypal::ICD10SZTYPAL_TABLENAME, app),
     };
 }

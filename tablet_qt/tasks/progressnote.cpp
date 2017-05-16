@@ -26,7 +26,7 @@
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
 
-const QString PROGNOTE_TABLENAME("progressnote");
+const QString ProgressNote::PROGNOTE_TABLENAME("progressnote");
 
 const QString LOCATION("location");
 const QString NOTE("note");

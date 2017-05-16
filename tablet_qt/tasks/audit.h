@@ -62,4 +62,6 @@ public slots:
     void setPageSkip();
 protected:
     QPointer<Questionnaire> m_questionnaire;
+public:
+    static const QString AUDIT_TABLENAME;
 };

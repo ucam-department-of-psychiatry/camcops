@@ -64,4 +64,6 @@ public slots:
     void relationshipChanged();
 protected:
     QPointer<Questionnaire> m_questionnaire;
+public:
+    static const QString COPEBRIEF_TABLENAME;
 };

@@ -39,7 +39,7 @@ const int MIN_Q_SCORE = 1;
 const int MAX_Q_SCORE = 5;
 const QString QPREFIX("q");
 
-const QString SWEMWBS_TABLENAME("swemwbs");
+const QString Swemwbs::SWEMWBS_TABLENAME("swemwbs");
 
 
 void initializeSwemwbs(TaskFactory& factory)
