@@ -56,6 +56,8 @@ extern const QString ABNORMAL;
 extern const QString ADD;
 extern const QString AND;
 
+extern const QString BACK;
+
 extern const QString CATEGORY;
 extern const QString CLINICIAN;
 extern const QString CLINICIAN_AND_RESPONDENT_DETAILS;

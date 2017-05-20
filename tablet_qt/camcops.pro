@@ -99,7 +99,6 @@ SOURCES += main.cpp \
     common/dbconstants.cpp \
     common/globals.cpp \
     common/platform.cpp \
-    common/random.cpp \
     common/varconst.cpp \
     common/version.cpp \
     crypto/cryptofunc.cpp \
@@ -391,7 +390,11 @@ SOURCES += main.cpp \
     common/uiconst.cpp \
     lib/graphicsfunc.cpp \
     widgets/screenlikegraphicsview.cpp \
-    widgets/graphicstextbutton.cpp
+    widgets/graphicstextbutton.cpp \
+    lib/random.cpp \
+    lib/containers.cpp \
+    widgets/adjustablepie.cpp \
+    lib/penbrush.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -404,7 +407,6 @@ HEADERS  += \
     common/gui_defines.h \
     common/layouts.h \
     common/platform.h \
-    common/random.h \
     common/varconst.h \
     common/version.h \
     crypto/cryptofunc.h \
@@ -699,7 +701,11 @@ HEADERS  += \
     common/uiconst.h \
     lib/graphicsfunc.h \
     widgets/screenlikegraphicsview.h \
-    widgets/graphicstextbutton.h
+    widgets/graphicstextbutton.h \
+    lib/random.h \
+    lib/containers.h \
+    widgets/adjustablepie.h \
+    lib/penbrush.h
 
 
 DISTFILES += \

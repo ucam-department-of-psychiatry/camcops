@@ -49,6 +49,7 @@ protected:
     // ========================================================================
     // Low-level widgets
     // ========================================================================
+    void testAdjustablePie(int n, bool rotate_labels);
     void testAspectRatioPixmap();
     void testBooleanWidget(BooleanWidget::Appearance appearance,
                            bool long_text);

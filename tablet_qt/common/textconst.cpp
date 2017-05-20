@@ -34,6 +34,8 @@ TR(ABNORMAL, "Abnormal");
 TR(ADD, "Add");
 TR(AND, "and");
 
+TR(BACK, "Back");
+
 TR(CATEGORY, "Category");
 TR(CLINICIAN, "Clinician");
 TR(CLINICIAN_AND_RESPONDENT_DETAILS, "Clinician’s and respondent’s details");

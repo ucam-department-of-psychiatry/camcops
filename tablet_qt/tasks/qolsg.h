@@ -18,10 +18,12 @@
 */
 
 #pragma once
+#include <QColor>
 #include <QPointer>
 #include <QString>
 #include "tasklib/task.h"
 
+class AdjustablePie;
 class CamcopsApp;
 class OpenableWidget;
 class QGraphicsScene;
@@ -51,21 +53,44 @@ public:
     virtual QStringList detail() const override;
     virtual OpenableWidget* editor(bool read_only = false) override;
     // ------------------------------------------------------------------------
-    // Task-specific calculations
+    // Internals
     // ------------------------------------------------------------------------
+public:
+    struct LotteryOption {
+        LotteryOption() {}
+        LotteryOption(const QString& label, const QColor& fill_colour,
+                      const QColor& text_colour) :
+            label(label),
+            fill_colour(fill_colour),
+            text_colour(text_colour)
+        {}
+        QString label;
+        QColor fill_colour;
+        QColor text_colour;
+    };
 protected:
-    void start();
-    // ------------------------------------------------------------------------
-    // Signal handlers
-    // ------------------------------------------------------------------------
+    void testGraphics();
+    void startTask();
+    void askCategory();
+    void thanks();
+    void clearScene();
+    void showFixed(bool left, const LotteryOption& option);
+    void showLottery(bool left, const LotteryOption& option1,
+                     const LotteryOption& option2, qreal p);
+    void showGambleInstruction(bool left, const QString& category_chosen);
+    void lotteryTouched(qreal p);
 protected slots:
+    void giveChoice(const QString& category_chosen);
     void testButtonClicked();
-    // ------------------------------------------------------------------------
-    // Data
-    // ------------------------------------------------------------------------
+    void recordChoice(qreal p);
+    void finished();
+    void pieAdjusted(QVector<qreal> proportions);
 protected:
     QPointer<QGraphicsScene> m_scene;
+    QPointer<OpenableWidget> m_widget;
+    QPointer<AdjustablePie> m_pie;
     bool m_read_only;
+    bool m_pie_touched_at_least_once;
 public:
     static const QString QOLSG_TABLENAME;
 };

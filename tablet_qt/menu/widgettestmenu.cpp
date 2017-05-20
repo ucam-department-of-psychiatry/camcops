@@ -19,6 +19,7 @@
 
 #include "widgettestmenu.h"
 #include <QPushButton>
+#include <QtGlobal>
 #include "common/cssconst.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"
@@ -63,6 +64,7 @@
 #include "questionnairelib/qutextedit.h"
 #include "questionnairelib/quthermometer.h"
 #include "tasks/ace3.h"
+#include "widgets/adjustablepie.h"
 #include "widgets/aspectratiopixmap.h"
 #include "widgets/basewidget.h"
 #include "widgets/canvaswidget.h"
@@ -158,6 +160,14 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
         // --------------------------------------------------------------------
         MenuItem("Low-level widgets").setLabelOnly(),
         // --------------------------------------------------------------------
+        MenuItem("AdjustablePie (1)",
+                 std::bind(&WidgetTestMenu::testAdjustablePie, this, 1, true)),
+        MenuItem("AdjustablePie (2)",
+                 std::bind(&WidgetTestMenu::testAdjustablePie, this, 2, true)),
+        MenuItem("AdjustablePie (3, don't rotate labels)",
+                 std::bind(&WidgetTestMenu::testAdjustablePie, this, 3, false)),
+        MenuItem("AdjustablePie (3, rotate labels)",
+                 std::bind(&WidgetTestMenu::testAdjustablePie, this, 3, true)),
         MenuItem("AspectRatioPixmap (should maintain aspect ratio and resize from 0 to its intrinsic size)",
                  std::bind(&WidgetTestMenu::testAspectRatioPixmap, this)),
         MenuItem("BooleanWidget (appearance=CheckBlack)",
@@ -431,6 +441,23 @@ void WidgetTestMenu::testQPushButton(const QSizePolicy& policy)
 // ============================================================================
 // Low-level widgets
 // ============================================================================
+
+void WidgetTestMenu::testAdjustablePie(int n, bool rotate_labels)
+{
+    AdjustablePie* pie = new AdjustablePie(n);
+    qreal prop = 1.0 / n;
+    QVector<qreal> proportions(n, prop);
+    pie->setProportions(proportions);
+    pie->setLabelRotation(rotate_labels);
+    if (n == 1) {
+        pie->setCentreLabel("Whole pie!");
+    }
+    for (int i = 0; i < n; ++i) {
+        pie->setLabel(i, QString("Sector %1").arg(i));
+    }
+    debugfunc::debugWidget(pie);
+}
+
 
 void WidgetTestMenu::testAspectRatioPixmap()
 {

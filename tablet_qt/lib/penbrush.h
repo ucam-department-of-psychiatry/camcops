@@ -17,11 +17,28 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "random.h"
+#pragma once
+#include <QPen>
+#include <QBrush>
 
-namespace ccrandom {
 
-std::random_device rd;
-std::mt19937 rng(rd());
+struct PenBrush
+{
+    PenBrush()
+    {}
+    PenBrush(const QPen& pen, const QBrush& brush) :
+        pen(pen),
+        brush(brush)
+    {}
+    PenBrush(const QColor& pen_colour, const QColor& brush_colour) :
+        pen(pen_colour),
+        brush(brush_colour)
+    {}
+    PenBrush(const QColor& colour) :
+        pen(colour),
+        brush(colour)
+    {}
 
-}  // namespace ccrandom
+    QPen pen;
+    QBrush brush;
+};

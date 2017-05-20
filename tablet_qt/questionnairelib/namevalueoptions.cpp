@@ -19,8 +19,8 @@
 
 #include "namevalueoptions.h"
 #include <QDebug>
-#include "common/random.h"
 #include "lib/convert.h"
+#include "lib/random.h"
 #include "lib/uifunc.h"
 
 

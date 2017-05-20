@@ -17,13 +17,20 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
-#include <random>
+#include "random.h"
+
+namespace ccrandom {
 
 
-namespace ccrandom {  // not "random"; conflicts
+std::random_device rd;
+std::mt19937 rng(rd());
 
-extern std::random_device rd;
-extern std::mt19937 rng;
+
+bool coin(qreal p)
+{
+    std::bernoulli_distribution dist(p);
+    return dist(rng);
+}
+
 
 }  // namespace ccrandom
