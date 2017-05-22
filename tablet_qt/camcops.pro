@@ -394,7 +394,10 @@ SOURCES += main.cpp \
     lib/random.cpp \
     lib/containers.cpp \
     widgets/adjustablepie.cpp \
-    lib/penbrush.cpp
+    lib/penbrush.cpp \
+    lib/geometry.cpp \
+    lib/linesegment.cpp \
+    lib/paintertranslaterotatecontext.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -705,7 +708,10 @@ HEADERS  += \
     lib/random.h \
     lib/containers.h \
     widgets/adjustablepie.h \
-    lib/penbrush.h
+    lib/penbrush.h \
+    lib/geometry.h \
+    lib/linesegment.h \
+    lib/paintertranslaterotatecontext.h
 
 
 DISTFILES += \

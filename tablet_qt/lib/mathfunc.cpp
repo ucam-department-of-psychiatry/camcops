@@ -25,6 +25,30 @@
 namespace mathfunc {
 
 
+bool rangesOverlap(qreal a0, qreal a1, qreal b0, qreal b1)
+{
+    // There are two ranges: (a0, a1) and (b0, b1). Is there overlap?
+    if (a0 > a1) {
+        std::swap(a0, a1);
+    }
+    if (b0 > b1) {
+        std::swap(b0, b1);
+    }
+    if (a1 < b0 || b1 < a0) {
+        // A is entirely less than B, or B is entirely less than A.
+        return false;
+    }
+    // Otherwise, there's overlap.
+    return true;
+}
+
+
+bool nearlyEqual(qreal x, qreal y)
+{
+    return qFuzzyIsNull(x - y);
+}
+
+
 QVariant mean(const QVector<QVariant>& values, bool ignore_null)
 {
     // ignore_null true: return the mean of the values, ignoring any NULLs.

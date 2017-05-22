@@ -204,7 +204,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
     // ------------------------------------------------------------------------
 
     Qt::Alignment bottomleft = Qt::AlignLeft | Qt::AlignBottom;
-    Qt::Alignment centre = Qt::AlignCenter | Qt::AlignVCenter;
+    Qt::Alignment centre = Qt::AlignHCenter | Qt::AlignVCenter;
     Qt::Alignment topright = Qt::AlignRight | Qt::AlignTop;
 
     QuHorizontalContainer* horiz1 = new QuHorizontalContainer();

@@ -89,11 +89,6 @@ QString cssBoolean(bool value);
 void setPropertyItalic(QWidget* widget, bool italic, bool repolish = true);
 void setPropertyMissing(QWidget* widget, bool missing,
                         bool repolish = true);
-// Drawing text with alignment at a point (not a rectangle):
-void drawText(QPainter& painter, qreal x, qreal y, Qt::Alignment flags,
-              const QString& text, QRectF* boundingRect = 0);
-void drawText(QPainter& painter, const QPointF& point, Qt::Alignment flags,
-              const QString& text, QRectF* boundingRect = 0);
 
 // void clearLayout(QLayout* layout);
 

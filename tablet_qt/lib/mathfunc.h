@@ -24,6 +24,30 @@
 
 namespace mathfunc {
 
+
+template<typename T>
+int sgn(T val)
+{
+    // Returns -1 if val is negative, 0 if zero, and +1 if positive.
+    // http://stackoverflow.com/questions/1903954/is-there-a-standard-sign-function-signum-sgn-in-c-c
+    return (T(0) < val) - (val < T(0));
+}
+
+
+template<typename T>
+T mod(T x, T y)
+{
+    // Returns x mod y, coping with negatives.
+    // http://stackoverflow.com/questions/11980292/how-to-wrap-around-a-range
+    if (y == 0) {
+        return 0;  // stupid caller
+    }
+    return x - y * std::floor(x / y);
+}
+
+bool rangesOverlap(qreal a0, qreal a1, qreal b0, qreal b1);
+bool nearlyEqual(qreal x, qreal y);
+
 QVariant mean(const QVector<QVariant>& values, bool ignore_null = false);
 int sumInt(const QVector<QVariant>& values);
 double sumDouble(const QVector<QVariant>& values);

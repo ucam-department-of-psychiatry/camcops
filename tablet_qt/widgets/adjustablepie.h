@@ -37,6 +37,9 @@ public:
     // (For n_sectors == 1, no cursors are shown; that's a fixed, whole pie.)
     void setNSectors(int n_sectors);
 
+    // Background colour:
+    void setBackgroundBrush(const QBrush& brush);
+
     // Colour of each sector
     void setSectorPenBrush(int sector_index, const PenBrush& penbrush);
     void setSectorPenBrushes(const QVector<PenBrush>& penbrushes);
@@ -76,6 +79,10 @@ public:
 
     // Angle that each cursor (itself a sector shape) subtends:
     void setCursorAngle(qreal degrees);
+
+    // Radius for the labels (typically, for autorotating labels, the bottom
+    // of the text):
+    void setLabelStartRadius(int radius);
 
     // Radius of the whole widget:
     void setOverallRadius(int radius);
@@ -124,7 +131,6 @@ protected:
     qreal convertAngleToQt(qreal degrees) const;
     qreal convertAngleToInternal(qreal degrees) const;
     bool posInCursor(const QPoint& pos, int cursor_index) const;
-    bool moveCrossesBottomCut(const QPoint& from, const QPoint& to) const;
     qreal angleToProportion(qreal angle_degrees) const;
     qreal proportionToAngle(qreal proportion) const;
     qreal angleOfPos(const QPoint& pos) const;
@@ -136,6 +142,7 @@ protected:
 protected:
     // Fairly static:
     int m_n_sectors;
+    QBrush m_background_brush;
     QVector<PenBrush> m_sector_penbrushes;  // n
     QVector<QString> m_labels;  // n
     QVector<QColor> m_label_colours;  // n

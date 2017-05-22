@@ -212,8 +212,8 @@ void MenuHeader::setTitle(const QString& title)
 void MenuHeader::setCrippled(bool crippled)
 {
     if (m_top_bar) {
-        m_top_bar->setObjectName(
-                    crippled  ? cssconst::MENU_HEADER_CRIPPLED : "");
+        m_top_bar->setObjectName(crippled ? cssconst::MENU_HEADER_CRIPPLED
+                                          : "");
     }
 }
 

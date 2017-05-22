@@ -103,9 +103,9 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
     // ------------------------------------------------------------------------
 
 #ifdef OFFER_LAYOUT_DEBUG_BUTTON
-    bool offer_debug_layout = true;
+    const bool offer_debug_layout = true;
 #else
-    bool offer_debug_layout = false;
+    const bool offer_debug_layout = false;
 #endif
     m_p_header = new MenuHeader(this, m_app, m_top, m_title, m_icon,
                                 offer_debug_layout);
@@ -508,9 +508,9 @@ void MenuWindow::deleteItem()
 
 void MenuWindow::deleteTask()
 {
-    // Edit a task, if one is selected and editable
+    // Delete a task, if one is selected
     TaskPtr task = currentTask();
-    if (!task || !task->isEditable()) {
+    if (!task) {
         return;
     }
     QString instance_title = task->instanceTitle();

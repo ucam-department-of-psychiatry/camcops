@@ -21,7 +21,6 @@
 // #define DEBUG_COORDS
 
 #include "graphicsfunc.h"
-#include <math.h>  // for std::fmod
 #include <QBrush>
 #include <QColor>
 #include <QDebug>
@@ -34,9 +33,11 @@
 #include <QPen>
 #include <QPushButton>
 #include <QRectF>
-#include <QtMath>
 #include <QVBoxLayout>
+#include "lib/geometry.h"
 #include "widgets/adjustablepie.h"
+using geometry::clockwiseToAnticlockwise;
+using geometry::sixteenthsOfADegree;
 
 
 namespace graphicsfunc
@@ -45,87 +46,6 @@ namespace graphicsfunc
 // ============================================================================
 // LineSegment
 // ============================================================================
-
-LineSegment::LineSegment(const QPointF& from, const QPointF& to) :
-    from(from),
-    to(to)
-{
-    // http://stackoverflow.com/questions/385305/efficient-maths-algorithm-to-calculate-intersections
-    x0 = from.x();
-    x1 = to.x();
-    y0 = from.y();
-    y1 = to.y();
-
-    // Normalize:
-    if (x0 > x1) {
-        std::swap(x0, x1);
-    }
-    if (y0 > y1) {
-        std::swap(y0, y1);
-    }
-
-    xm = (x0 + x1) / 2;
-    ym = (y0 + y1) / 2;
-    a = y1 - y0;
-    b = x0 - x1;
-}
-
-
-qreal LineSegment::c(qreal x, qreal y) const
-{
-    return a * (x - xm) + b * (y - ym);
-}
-
-
-qreal LineSegment::c(const QPointF& pt) const
-{
-    return c(pt.x(), pt.y());
-}
-
-
-bool LineSegment::isPoint() const
-{
-    return x0 == x1 && y0 == y1;
-}
-
-
-bool LineSegment::xRangesOverlap(const LineSegment& other) const
-{
-    return rangesOverlap(x0, x1, other.x0, other.x1);
-}
-
-
-bool LineSegment::yRangesOverlap(const LineSegment& other) const
-{
-    return rangesOverlap(y0, y1, other.y0, other.y1);
-}
-
-
-bool LineSegment::intersects(const LineSegment& other) const
-{
-    if (isPoint() || other.isPoint()) {
-        return false;
-    }
-    // Don't use QRectF::intersects(); that returns false when using a
-    // rectangle without width (even if it has height) or vice versa.
-    if (!xRangesOverlap(other) || !yRangesOverlap(other)) {
-        return false;
-    }
-    // http://stackoverflow.com/questions/385305/efficient-maths-algorithm-to-calculate-intersections
-    // See also: http://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
-    if (sgn(c(other.from)) == sgn(c(other.to))) {
-        // Both other.from and other.to are on the same side of our
-        // line, and therefore there can be no intersection.
-        return false;
-    }
-    if (sgn(other.c(from)) == sgn(other.c(to))) {
-        // Both from and to are on the same side of the other
-        // line, and therefore there can be no intersection.
-        return false;
-    }
-    // There must be an intersection.
-    return true;
-}
 
 
 // ============================================================================
@@ -138,6 +58,15 @@ QString pixelCss(int px)
         return "0";  // no units for 0 in CSS
     }
     return QString("%1px").arg(px);
+}
+
+
+QString ptCss(qreal pt)
+{
+    if (pt <= 0) {
+        return "0";  // no units for 0 in CSS
+    }
+    return QString("%1pt").arg(pt);
 }
 
 
@@ -214,7 +143,7 @@ void alignRect(QRectF& rect, Qt::Alignment alignment)
             alignment & Qt::AlignJustify ||
             alignment & Qt::AlignAbsolute) {
         dx = 0;
-    } else if (alignment & Qt::AlignCenter) {
+    } else if (alignment & Qt::AlignHCenter) {
         dx = -rect.width() / 2;
     } else if (alignment & Qt::AlignRight) {
         dx = -rect.width();
@@ -239,6 +168,46 @@ void alignRect(QRectF& rect, Qt::Alignment alignment)
 }
 
 
+void drawSector(QPainter& painter,
+                const QPointF& tip,
+                qreal radius,
+                qreal start_angle_deg,
+                qreal end_angle_deg,
+                bool move_clockwise_from_start_to_end,
+                const QPen& pen,
+                const QBrush& brush)
+{
+#ifdef DEBUG_COORDS
+    qDebug() << "drawSector:"
+             << "tip" << tip
+             << "radius" << radius
+             << "start_angle_deg (polar)" << start_angle_deg
+             << "end_angle_deg (polar)" << end_angle_deg
+             << "move_clockwise_from_start_to_end" << move_clockwise_from_start_to_end;
+#endif
+    painter.setPen(pen);
+    painter.setBrush(brush);
+    qreal diameter = radius * 2;
+    QRectF rect(tip - QPointF(radius, radius), QSizeF(diameter, diameter));
+    if (!move_clockwise_from_start_to_end) {
+        std::swap(start_angle_deg, end_angle_deg);
+    }
+    start_angle_deg = clockwiseToAnticlockwise(start_angle_deg);
+    end_angle_deg = clockwiseToAnticlockwise(end_angle_deg);
+    qreal span_angle_deg = end_angle_deg - start_angle_deg;
+#ifdef DEBUG_COORDS
+    qDebug() << "... "
+             << "tip" << tip
+             << "rect" << rect
+             << "start_angle_deg (for QPainter::drawPie)" << start_angle_deg
+             << "span_angle_deg (for QPainter::drawPie)" << span_angle_deg;
+#endif
+    painter.drawPie(rect,
+                    sixteenthsOfADegree(start_angle_deg),
+                    sixteenthsOfADegree(span_angle_deg));
+}
+
+
 QRectF textRectF(const QString& text, const QFont& font)
 {
     QFontMetrics fm(font);
@@ -246,250 +215,61 @@ QRectF textRectF(const QString& text, const QFont& font)
 }
 
 
-const qreal DEG_0 = 0.0;
-const qreal DEG_90 = 90.0;
-const qreal DEG_270 = 270.0;
-const qreal DEG_180 = 180.0;
-const qreal DEG_360 = 360.0;
-
-
-bool rangesOverlap(qreal a0, qreal a1, qreal b0, qreal b1)
+void drawText(QPainter& painter, const QPointF& point, const QString& text,
+              const QFont& font, Qt::Alignment align)
 {
-    // There are two ranges: (a0, a1) and (b0, b1). Is there overlap?
-    if (a0 > a1) {
-        std::swap(a0, a1);
+    QRectF textrect = textRectF(text, font);
+
+    qreal x = point.x();
+    if (align & Qt::AlignRight) {
+        x -= textrect.width();
+    } else if (align & Qt::AlignHCenter) {
+        x -= textrect.width() / 2.0;
     }
-    if (b0 > b1) {
-        std::swap(b0, b1);
+
+    qreal y = point.y();
+    if (align & Qt::AlignTop) {
+        y += textrect.height();
+    } else if (align & Qt::AlignVCenter) {
+        y += textrect.height() / 2.0;
     }
-    if (a1 < b0 || b1 < a0) {
-        // A is entirely less than B, or B is entirely less than A.
-        return false;
-    }
-    // Otherwise, there's overlap.
-    return true;
+
+    painter.setFont(font);
+    painter.drawText(x, y, text);
 }
 
 
-int sixteenthsOfADegree(qreal degrees)
+void drawText(QPainter& painter, qreal x, qreal y, Qt::Alignment flags,
+              const QString& text, QRectF* boundingRect)
 {
-    // http://doc.qt.io/qt-5/qpainter.html#drawPie
-    return std::round(degrees * 16.0);
+    // http://stackoverflow.com/questions/24831484
+   const qreal size = 32767.0;
+   QPointF corner(x, y - size);
+   if (flags & Qt::AlignHCenter) {
+       corner.rx() -= size / 2.0;
+   }
+   else if (flags & Qt::AlignRight) {
+       corner.rx() -= size;
+   }
+   if (flags & Qt::AlignVCenter) {
+       corner.ry() += size / 2.0;
+   }
+   else if (flags & Qt::AlignTop) {
+       corner.ry() += size;
+   }
+   else {
+       flags |= Qt::AlignBottom;
+   }
+   QRectF rect(corner, QSizeF(size, size));
+   painter.drawText(rect, flags, text, boundingRect);
 }
 
 
-qreal normalizeHeading(qreal heading_deg)
+void drawText(QPainter& painter, const QPointF& point, Qt::Alignment flags,
+              const QString& text, QRectF* boundingRect)
 {
-    return mod(heading_deg, DEG_360);
-}
-
-
-bool headingNearlyEq(qreal heading_deg, qreal value_deg)
-{
-    return qFuzzyIsNull(normalizeHeading(heading_deg - value_deg));
-}
-
-
-bool headingInRange(qreal first_bound_deg,
-                    qreal heading_deg,
-                    qreal second_bound_deg,
-                    bool inclusive)
-{
-    // The values in degrees are taken as a COMPASS HEADING, i.e. increasing
-    // is clockwise. The valid sector is defined CLOCKWISE from the first bound
-    // to the second.
-    first_bound_deg = normalizeHeading(first_bound_deg);
-    heading_deg = normalizeHeading(heading_deg);
-    second_bound_deg = normalizeHeading(second_bound_deg);
-    // First, we deal with "on the boundary" conditions:
-    if (heading_deg == first_bound_deg || heading_deg == second_bound_deg) {
-        return inclusive;
-    }
-    bool range_increases = first_bound_deg < second_bound_deg;
-    qreal lower_bound;
-    qreal upper_bound;
-    if (range_increases) {
-        lower_bound = first_bound_deg;
-        upper_bound = second_bound_deg;
-    } else {
-        lower_bound = second_bound_deg;
-        upper_bound = first_bound_deg;
-    }
-    bool within = lower_bound < heading_deg && heading_deg < upper_bound;
-    // Second bound is clockwise ("right") from first.
-    // If the second bound is numerically greater than the first, then
-    // we have a simple range that doesn't cross "North" (0 = 360),
-    // and the heading is in range if it's within the two. For example,
-    // if the range is (50, 70), then the heading is in range if
-    // 50 < x < 70. However, if the range decreases, we're crossing North,
-    // e.g. (350, 10); in that case, the heading is in range if and only if
-    // it is NOT true that 10 < x < 350.
-    return within == range_increases;
-}
-
-
-qreal convertHeadingFromTrueNorth(qreal true_north_heading_deg,
-                                  qreal pseudo_north_deg,
-                                  bool normalize)
-{
-    // Example: pseudo_north_deg is 30;
-    // then 0 in true North is -30 in pseudo-North.
-    qreal h = true_north_heading_deg - pseudo_north_deg;
-    return normalize ? normalizeHeading(h) : h;
-}
-
-
-qreal convertHeadingToTrueNorth(qreal pseudo_north_heading_deg,
-                                qreal pseudo_north_deg,
-                                bool normalize)
-{
-    // Inverts convertHeadingFromTrueNorth().
-    qreal h = pseudo_north_heading_deg + pseudo_north_deg;
-    return normalize ? normalizeHeading(h) : h;
-}
-
-
-QPointF polarToCartesian(qreal r, qreal theta_deg, bool y_down_as_per_qt)
-{
-    // theta == 0 implies along the x axis in a positive direction (right).
-    qreal theta_rad = qDegreesToRadians(theta_deg);
-    if (y_down_as_per_qt) {
-        // Qt uses y-inverted coordinates where positive is (right, down).
-        return QPointF(r * qCos(theta_rad), -r * qSin(theta_rad));
-    } else {
-        return QPointF(r * qCos(theta_rad), r * qSin(theta_rad));
-    }
-}
-
-
-qreal distanceBetween(const QPointF& from, const QPointF& to)
-{
-    qreal dx = to.x() - from.x();
-    qreal dy = to.y() - from.y();
-    // Pythagoras:
-    return qSqrt(qPow(dx, 2) + qPow(dy, 2));
-}
-
-
-qreal polarThetaToHeading(qreal theta_deg, qreal north_deg)
-{
-    // Polar coordinates have theta 0 == East, and theta positive is
-    // anticlockwise. Compass headings have 0 == North, unless adjusted by
-    // north_deg (e.g. specifying north_deg = 90 makes the heading 0 when
-    // actually East), and positive clockwise.
-    // - The first step converts to "clockwise, up is 0":
-    qreal true_north_heading = DEG_90 - theta_deg;
-    return convertHeadingFromTrueNorth(true_north_heading, north_deg);
-}
-
-
-qreal headingToPolarTheta(qreal heading_deg, qreal north_deg, bool normalize)
-{
-    // Polar coordinates have theta 0 == East, and theta positive is
-    // anticlockwise. Compass headings have 0 == North, unless adjusted by
-    // north_deg (e.g. specifying north_deg = 90 makes the heading 0 when
-    // actually East), and positive clockwise.
-    qreal true_north_heading = convertHeadingToTrueNorth(
-                heading_deg, north_deg, normalize);
-    qreal theta = DEG_90 - true_north_heading;
-    return normalize ? normalizeHeading(theta) : theta;
-}
-
-
-qreal polarTheta(const QPointF& from, const QPointF& to, bool y_down_as_per_qt)
-{
-    qreal dx = to.x() - from.x();
-    qreal dy_up = y_down_as_per_qt ? (from.y() - to.y())  // y positive = down
-                                   : (to.y() - from.y());  // y positive = up
-    if (dx == 0 && dy_up == 0) {
-        // Nonsensical; no movement.
-        return 0.0;
-    }
-    // The arctan function will give us 0 = East, the geometric form.
-    return qRadiansToDegrees(qAtan2(dy_up, dx));
-}
-
-
-qreal polarTheta(const QPointF& to, bool y_down_as_per_qt)
-{
-    return polarTheta(QPointF(0, 0), to, y_down_as_per_qt);
-}
-
-
-qreal headingDegrees(const QPointF& from, const QPointF& to,
-                     bool y_down_as_per_qt, qreal north_deg)
-{
-    // Returns a COMPASS HEADING (0 is North = up).
-    return polarThetaToHeading(polarTheta(from, to, y_down_as_per_qt),
-                               north_deg);
-}
-
-
-bool lineSegmentsIntersect(const QPointF& first_from, const QPointF& first_to,
-                           const QPointF& second_from, const QPointF& second_to)
-{
-    LineSegment s1(first_from, first_to);
-    LineSegment s2(second_from, second_to);
-    return s1.intersects(s2);
-}
-
-
-bool lineCrossesHeadingWithinRadius(const QPointF& from, const QPointF& to,
-                                    const QPointF& point, qreal heading_deg,
-                                    qreal north_deg, qreal radius,
-                                    bool y_down_as_per_qt)
-{
-    // (1) Draw a line from "from" to "to".
-    // (2) Draw a line from "point" in direction "heading", where increasing
-    //     values of "heading" are clockwise, and a heading of 0 points in
-    //     the North direction, where that is defined by north_deg degrees
-    //     clockwise of "screen up".
-    if (from == to) {
-        return false;
-    }
-    qreal theta = headingToPolarTheta(heading_deg, north_deg);
-    QPointF distant_point = point + polarToCartesian(radius, theta,
-                                                     y_down_as_per_qt);
-    return lineSegmentsIntersect(from, to, point, distant_point);
-}
-
-
-bool linePassesBelowPoint(const QPointF& from, const QPointF& to,
-                          const QPointF& point, bool y_down_as_per_qt)
-{
-    return lineCrossesHeadingWithinRadius(from, to, point, DEG_180, 0,
-                                          QWIDGETSIZE_MAX, y_down_as_per_qt);
-}
-
-
-void drawSector(QPainter& painter,
-                const QPointF& tip,
-                qreal radius,
-                qreal start_angle_deg,
-                qreal end_angle_deg,
-                bool treat_as_clockwise_angles,
-                const QPen& pen,
-                const QBrush& brush)
-{
-    painter.setPen(pen);
-    painter.setBrush(brush);
-    qreal diameter = radius * 2;
-    QRectF rect(tip - QPointF(radius, radius), QSizeF(diameter, diameter));
-    if (treat_as_clockwise_angles) {
-        std::swap(start_angle_deg, end_angle_deg);
-    }
-    qreal span_angle_deg = end_angle_deg - start_angle_deg;
-#ifdef DEBUG_COORDS
-    qDebug() << "drawSector:"
-             << "tip" << tip
-             << "radius" << radius
-             << "rect" << rect
-             << "start_angle_deg" << start_angle_deg
-             << "span_angle_deg" << span_angle_deg;
-#endif
-    painter.drawPie(rect,
-                    sixteenthsOfADegree(start_angle_deg),
-                    sixteenthsOfADegree(span_angle_deg));
+    // http://stackoverflow.com/questions/24831484
+   drawText(painter, point.x(), point.y(), flags, text, boundingRect);
 }
 
 
@@ -537,7 +317,7 @@ ButtonAndProxy makeTextButton(QGraphicsScene* scene,  // button is added to scen
                               const QRectF& rect,
                               const ButtonConfig& config,
                               const QString& text,
-                              const QFont& font,
+                              QFont font,
                               QWidget* parent)
 {
     Q_ASSERT(scene);
@@ -575,7 +355,7 @@ ButtonAndProxy makeTextButton(QGraphicsScene* scene,  // button is added to scen
             .arg(colourCss(config.background_colour),  // 1
                  penCss(config.border_pen),  // 2
                  pixelCss(config.corner_radius_px),  // 3
-                 pixelCss(config.font_size_px),  // 4
+                 ptCss(config.font_size_pt),  // 4
                  pixelCss(config.padding_px),  // 5
                  colourCss(config.pressed_background_colour));  // 6
     QString label_css = labelCss(config.text_colour);
@@ -593,6 +373,7 @@ ButtonAndProxy makeTextButton(QGraphicsScene* scene,  // button is added to scen
 
     QLabel* label = new QLabel(result.button);
     label->setStyleSheet(label_css);
+    font.setPointSizeF(config.font_size_pt);
     label->setFont(font);
     label->setText(text);
     label->setWordWrap(true);
@@ -617,7 +398,7 @@ LabelAndProxy makeText(QGraphicsScene* scene,  // text is added to scene
                        const QPointF& pos,
                        const TextConfig& config,
                        const QString& text,
-                       const QFont& font,
+                       QFont font,
                        QWidget* parent)
 {
     Q_ASSERT(scene);
@@ -631,6 +412,7 @@ LabelAndProxy makeText(QGraphicsScene* scene,  // text is added to scene
     LabelAndProxy result;
     result.label = new QLabel(text, parent);
     result.label->setStyleSheet(css);
+    font.setPointSizeF(config.font_size_pt);
     result.label->setFont(font);
     result.label->setOpenExternalLinks(false);
     result.label->setTextInteractionFlags(Qt::NoTextInteraction);

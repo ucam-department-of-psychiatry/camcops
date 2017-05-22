@@ -37,6 +37,8 @@
 #include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qupage.h"
 #include "questionnairelib/quspacer.h"
+#include "widgets/openablewidget.h"
+#include "widgets/screenlikegraphicsview.h"
 
 const QString Task::PATIENT_FK_FIELDNAME("patient_id");
 const QString Task::FIRSTEXIT_IS_FINISH_FIELDNAME("firstexit_is_finish");
@@ -457,6 +459,21 @@ void Task::setDefaultClinicianVariablesAtFirstUse()
 }
 
 
+OpenableWidget* Task::makeGraphicsWidgetForEditing(
+        QGraphicsScene* scene,
+        const QColor& background_colour)
+{
+    ScreenLikeGraphicsView* view = new ScreenLikeGraphicsView(scene);
+    view->setBackgroundColour(background_colour);
+    OpenableWidget* widget = new OpenableWidget();
+    widget->setGraphicsViewAsOnlyContents(view);
+    connect(widget, &OpenableWidget::aborting,
+            this, &Task::editFinishedAbort);
+    editStarted();
+    return widget;
+}
+
+
 QuElement* Task::getClinicianQuestionnaireBlockRawPointer()
 {
     return questionnairefunc::defaultGridRawPointer({
@@ -592,6 +609,7 @@ void Task::editFinished(bool aborted)
     if (!valueBool(FIRSTEXIT_IS_FINISH_FIELDNAME)
             && !valueBool(FIRSTEXIT_IS_ABORT_FIELDNAME)) {
         // First exit, so set flags:
+        setValue(WHEN_FIRSTEXIT_FIELDNAME, now);
         if (aborted) {
             setValue(FIRSTEXIT_IS_ABORT_FIELDNAME, true);
         } else {
@@ -599,6 +617,18 @@ void Task::editFinished(bool aborted)
         }
     }
     save();
+}
+
+
+void Task::editFinishedProperly()
+{
+    editFinished(false);
+}
+
+
+void Task::editFinishedAbort()
+{
+    editFinished(true);
 }
 
 

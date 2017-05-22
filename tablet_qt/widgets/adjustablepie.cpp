@@ -17,33 +17,42 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// #define DEBUG_CHANGES
 // #define DEBUG_DRAW
-#define DEBUG_MOVE
+// #define DEBUG_EVENTS
+// #define DEBUG_MOVE
 
 #include "adjustablepie.h"
 #include <math.h>  // for std::fmod
 #include <QDebug>
+#include <QFrame>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QTimer>
 #include "lib/containers.h"
+#include "lib/geometry.h"
 #include "lib/graphicsfunc.h"
+#include "lib/linesegment.h"
+#include "lib/paintertranslaterotatecontext.h"
 using containers::forceVectorSize;
-using graphicsfunc::convertHeadingToTrueNorth;
-using graphicsfunc::DEG_0;
-using graphicsfunc::DEG_90;
-using graphicsfunc::DEG_180;
-using graphicsfunc::DEG_270;
-using graphicsfunc::DEG_360;
-using graphicsfunc::distanceBetween;
+using geometry::convertHeadingToTrueNorth;
+using geometry::DEG_0;
+using geometry::DEG_90;
+using geometry::DEG_180;
+using geometry::DEG_270;
+using geometry::DEG_360;
+using geometry::distanceBetween;
+using geometry::headingInRange;
+using geometry::headingNearlyEq;
+using geometry::headingToPolarTheta;
+using geometry::lineCrossesHeadingWithinRadius;
+using geometry::lineFromPointInHeadingWithRadius;
+using geometry::normalizeHeading;
+using geometry::polarToCartesian;
+using geometry::polarTheta;
+using geometry::polarThetaToHeading;
 using graphicsfunc::drawSector;
-using graphicsfunc::headingInRange;
-using graphicsfunc::headingNearlyEq;
-using graphicsfunc::headingToPolarTheta;
-using graphicsfunc::lineCrossesHeadingWithinRadius;
-using graphicsfunc::polarToCartesian;
-using graphicsfunc::polarTheta;
-using graphicsfunc::polarThetaToHeading;
+using graphicsfunc::drawText;
 using graphicsfunc::textRectF;
 
 // ============================================================================
@@ -89,6 +98,7 @@ QColor DEFAULT_LABEL_COLOUR("darkblue");
 
 AdjustablePie::AdjustablePie(int n_sectors, QWidget* parent) :
     QWidget(parent),
+    m_background_brush(QBrush(QColor(0, 0, 0, 0))),
     m_sector_radius(75),
     m_cursor_inner_radius(75),
     m_cursor_outer_radius(125),
@@ -99,8 +109,16 @@ AdjustablePie::AdjustablePie(int n_sectors, QWidget* parent) :
     m_reporting_delay_ms(0),
     m_rotate_labels(true),
     m_user_dragging_cursor(false),
+    m_cursor_num_being_dragged(-1),
     m_timer(new QTimer())
 {
+    // None of these seem to prevent some sort of automatic background
+    // drawing, making a transparent background fail:
+    setAutoFillBackground(false);
+    // setStyleSheet("");
+
+    setContentsMargins(0, 0, 0, 0);
+
     setNSectors(n_sectors);
     m_timer->setSingleShot(true);
     connect(m_timer.data(), &QTimer::timeout,
@@ -116,6 +134,12 @@ void AdjustablePie::setNSectors(int n_sectors)
     }
     m_n_sectors = n_sectors;
     normalize();
+}
+
+
+void AdjustablePie::setBackgroundBrush(const QBrush& brush)
+{
+    m_background_brush = brush;
 }
 
 
@@ -240,6 +264,12 @@ void AdjustablePie::setCursorAngle(qreal degrees)
 }
 
 
+void AdjustablePie::setLabelStartRadius(int radius)
+{
+    m_label_start_radius = radius;
+}
+
+
 void AdjustablePie::setCentreLabel(const QString& label)
 {
     m_centre_label = label;
@@ -297,7 +327,7 @@ void AdjustablePie::setProportionCumulative(int cursor_index, qreal proportion)
                         proportion, m_cursor_props_cum.at(i), 1.0);
         }
     }
-#ifdef DEBUG_MOVE
+#ifdef DEBUG_CHANGES
     qDebug() << Q_FUNC_INFO << m_cursor_props_cum;
 #endif
     update();
@@ -389,6 +419,11 @@ void AdjustablePie::paintEvent(QPaintEvent* event)
     QRect cr = contentsRect();
     QPoint widget_centre = cr.center();
 
+    // Paint background
+    p.setPen(QPen(Qt::PenStyle::NoPen));
+    p.setBrush(m_background_brush);
+    p.drawRect(cr);
+
 #ifdef DEBUG_DRAW
     qDebug() << Q_FUNC_INFO
              << "contentsRect()" << cr
@@ -401,7 +436,6 @@ void AdjustablePie::paintEvent(QPaintEvent* event)
     // ------------------------------------------------------------------------
     QPointF sector_tip = widget_centre;
     qreal cursor_radius = m_cursor_outer_radius - m_cursor_inner_radius;
-    p.setFont(m_outer_label_font);
     for (int i = 0; i < m_n_sectors; ++i) {
         qreal prev_prop = i == 0 ? 0.0 : sectorProportionCumulative(i - 1);
         qreal sector_start_angle = prev_prop * DEG_360;
@@ -449,7 +483,6 @@ void AdjustablePie::paintEvent(QPaintEvent* event)
             qreal abs_heading = convertHeadingToTrueNorth(
                         sector_mid_angle, m_base_compass_heading_deg);
             // 0 up, 90 right...
-            QRectF textrect = textRectF(label, m_outer_label_font);
             qreal rotation = abs_heading;
             // Easiest way to think of it: something at 180 is at the top
             // and shouldn't be rotated.
@@ -457,7 +490,6 @@ void AdjustablePie::paintEvent(QPaintEvent* event)
             // anticlockwise.
             // QPainter::rotate() rotates clockwise.
             p.setPen(m_label_colours.at(i));
-            p.translate(label_tip);  // label_tip becomes origin
             if (m_rotate_labels) {
 #ifdef DEBUG_DRAW
             qDebug() << "... label:" << label
@@ -465,11 +497,13 @@ void AdjustablePie::paintEvent(QPaintEvent* event)
                      << "sector_mid_angle" << sector_mid_angle
                      << "rotation" << rotation;
 #endif
-                p.rotate(rotation);  // rotation is clockwise
-                p.drawText(-textrect.width() / 2, 0, label);
-                // ... horizontally centred; vertically bottom-aligned
-                p.rotate(-rotation);
+                PainterTranslateRotateContext ptrc(p, label_tip, rotation);
+                // rotation is clockwise
+
+                drawText(p, QPointF(0, 0), label, m_outer_label_font,
+                         Qt::AlignHCenter | Qt::AlignBottom);
             } else {
+                PainterTranslateRotateContext ptrc(p, label_tip, 0);
                 // ... relative to North = up
                 bool hcentre = headingNearlyEq(abs_heading, DEG_0) ||
                         headingNearlyEq(abs_heading, DEG_180);
@@ -479,6 +513,12 @@ void AdjustablePie::paintEvent(QPaintEvent* event)
                         headingNearlyEq(abs_heading, DEG_270);
                 bool bottom = !vcentre &&
                         headingInRange(DEG_90, abs_heading, DEG_270);
+                Qt::Alignment halign = hcentre ? Qt::AlignHCenter
+                                               : (left ? Qt::AlignRight
+                                                       : Qt::AlignLeft);
+                Qt::Alignment valign = vcentre ? Qt::AlignVCenter
+                                               : (bottom ? Qt::AlignTop
+                                                         : Qt::AlignBottom);
 #ifdef DEBUG_DRAW
             qDebug() << "... label:" << label
                      << "label_tip" << label_tip
@@ -486,17 +526,13 @@ void AdjustablePie::paintEvent(QPaintEvent* event)
                      << "hcentre" << hcentre
                      << "left" << left
                      << "vcentre" << vcentre
-                     << "bottom" << bottom;
+                     << "bottom" << bottom
+                     << "halign" << halign
+                     << "valign" << valign;
 #endif
-                p.drawText(hcentre ? (-textrect.width() / 2)
-                                   : (left ? -textrect.width()
-                                           : 0),
-                           vcentre ? (-textrect.height() / 2)
-                                   : (bottom ? -textrect.height()
-                                             : 0),
-                           label);
+                drawText(p, QPointF(0, 0), label, m_outer_label_font,
+                         halign | valign);
             }
-            p.translate(-label_tip);  // origin restored
         }
         // Onwards...
         sector_start_angle = sector_end_angle;  // for the next one
@@ -506,12 +542,9 @@ void AdjustablePie::paintEvent(QPaintEvent* event)
     // Centre label
     // ------------------------------------------------------------------------
     if (!m_centre_label.isEmpty()) {
-        QRectF textrect = textRectF(m_centre_label, m_centre_label_font);
-        QPointF textpos = widget_centre + QPointF(-textrect.width() / 2,
-                                                  +textrect.height() / 2);
         p.setPen(m_centre_label_colour);
-        p.setFont(m_centre_label_font);
-        p.drawText(textpos, m_centre_label);
+        drawText(p, widget_centre, m_centre_label, m_centre_label_font,
+                 Qt::AlignHCenter | Qt::AlignVCenter);
     }
 }
 
@@ -521,13 +554,13 @@ void AdjustablePie::mousePressEvent(QMouseEvent* event)
     // We draw the cursors from 0 upwards, so we detect their touching in the
     // reverse order, in case they're stacked.
     QPoint pos = event->pos();
-#ifdef DEBUG_MOVE
+#ifdef DEBUG_EVENTS
     qDebug() << Q_FUNC_INFO << pos;
 #endif
     for (int i = m_n_sectors - 2; i >= 0; --i) {
         if (posInCursor(pos, i)) {
 #ifdef DEBUG_MOVE
-            qDebug() << "... in cursor" << i;
+            qDebug() << "mousePressEvent: in cursor" << i;
 #endif
             m_user_dragging_cursor = true;
             m_cursor_num_being_dragged = i;
@@ -535,6 +568,7 @@ void AdjustablePie::mousePressEvent(QMouseEvent* event)
             qreal mouse_angle = angleOfPos(m_last_mouse_pos);
             qreal cursor_angle = cursorAngle(i);
             m_angle_offset_from_cursor_centre = mouse_angle - cursor_angle;
+            update();
             break;
         }
     }
@@ -548,20 +582,59 @@ void AdjustablePie::mouseMoveEvent(QMouseEvent* event)
         // part of our widget
         return;
     }
-#ifdef DEBUG_MOVE
+#ifdef DEBUG_EVENTS
     qDebug() << Q_FUNC_INFO;
 #endif
     QPoint newpos = event->pos();
-    if (moveCrossesBottomCut(m_last_mouse_pos, newpos)) {
-#ifdef DEBUG_MOVE
-        qDebug() << "... move crosses bottom cut; ignoring";
-#endif
-        return;
-    }
+    QPoint oldpos = m_last_mouse_pos;
     m_last_mouse_pos = newpos;
     qreal mouse_angle = angleOfPos(newpos);
     qreal new_cursor_angle = mouse_angle - m_angle_offset_from_cursor_centre;
-    qreal prop = angleToProportion(new_cursor_angle);
+    qreal oldprop = m_cursor_props_cum.at(m_cursor_num_being_dragged);
+    qreal target_prop = angleToProportion(new_cursor_angle);
+    // Post-processing magic since target_prop will never be 1.0:
+    if (target_prop <= 0.0 && oldprop > 0.5) {
+        target_prop = 1.0;
+    }
+
+    if ((oldprop <= 0.0 && target_prop > 0.5) ||
+            (oldprop >= 1.0 && target_prop < 0.5)) {
+#ifdef DEBUG_MOVE
+        qDebug() << "DECISION: already at end stop; ignored";
+#endif
+        return;
+    }
+
+    qreal prop;
+    QPoint pie_centre = contentsRect().center();
+    LineSegment baseline = lineFromPointInHeadingWithRadius(
+                pie_centre,
+                DEG_0,
+                m_base_compass_heading_deg);
+    LineSegment movement(oldpos, newpos);
+    bool from_on = baseline.pointOn(oldpos);
+    bool to_on = baseline.pointOn(newpos);
+    bool crosses = movement.intersects(baseline) && !from_on && !to_on;
+
+    if (oldprop < 0.5 && target_prop > 0.75 &&
+            !(oldprop > 0.25 && !crosses)) {
+#ifdef DEBUG_MOVE
+        qDebug() << "DECISION: hit bottom end stop";
+#endif
+        prop = 0.0;
+    } else if (oldprop > 0.5 && target_prop < 0.25 &&
+               !(oldprop < 0.75 && !crosses)) {
+#ifdef DEBUG_MOVE
+        qDebug() << "DECISION: hit top end stop";
+#endif
+        prop = 1.0;
+    } else {
+#ifdef DEBUG_MOVE
+        qDebug() << "DECISION: free:" << target_prop;
+#endif
+        prop = target_prop;
+    }
+
 #ifdef DEBUG_MOVE
     qDebug() << "... setting cursor" << m_cursor_num_being_dragged
              << "cumulative proportion to" << prop;
@@ -576,7 +649,7 @@ void AdjustablePie::mouseReleaseEvent(QMouseEvent* event)
     Q_UNUSED(event);
     if (m_user_dragging_cursor) {
         m_user_dragging_cursor = false;
-#ifdef DEBUG_MOVE
+#ifdef DEBUG_EVENTS
         qDebug() << Q_FUNC_INFO;
 #endif
         update();
@@ -673,22 +746,11 @@ bool AdjustablePie::posInCursor(const QPoint& pos, int cursor_index) const
 }
 
 
-bool AdjustablePie::moveCrossesBottomCut(const QPoint& from,
-                                         const QPoint& to) const
-{
-    // This function is used to prevent hopping from e.g. 1 to 359 degrees.
-#ifdef DEBUG_MOVE
-    qDebug() << Q_FUNC_INFO << from << "->" << to;
-#endif
-    QPoint pie_centre = contentsRect().center();
-    return lineCrossesHeadingWithinRadius(from, to, pie_centre, DEG_0,
-                                          m_base_compass_heading_deg);
-}
-
-
 qreal AdjustablePie::angleToProportion(qreal angle_degrees) const
 {
-    return angle_degrees / DEG_360;
+    // BEWARE that this will never produce 1.0, so some post-processing
+    // magic is required for that; see mouseMoveEvent().
+    return qBound(0.0, normalizeHeading(angle_degrees) / DEG_360, 1.0);
 }
 
 

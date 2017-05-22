@@ -39,8 +39,8 @@ const Qt::Alignment title_text_align = Qt::AlignTop;
 const Qt::Alignment title_widget_align = Qt::AlignTop;
 
 // In grids, these are the response option descriptions in row 0.
-const Qt::Alignment option_text_align = Qt::AlignCenter | Qt::AlignBottom;
-const Qt::Alignment option_widget_align = Qt::AlignCenter | Qt::AlignBottom;
+const Qt::Alignment option_text_align = Qt::AlignHCenter | Qt::AlignBottom;
+const Qt::Alignment option_widget_align = Qt::AlignHCenter | Qt::AlignBottom;
 // If you don't apply a widget alignment, the label widget takes the entire
 // cell -- which is fine for the most part (the text alignment does the rest)
 // -- but not when you want a *bottom* alignment.
@@ -55,7 +55,7 @@ const Qt::Alignment question_widget_align = Qt::AlignVCenter;
 // row).
 
 // In grids, these are the things you touch to respond.
-const Qt::Alignment response_widget_align = Qt::AlignCenter | Qt::AlignTop;
+const Qt::Alignment response_widget_align = Qt::AlignHCenter | Qt::AlignTop;
 // The vertical alignment is relevant when questions are anything but very
 // short. Assuming the label is properly spaced (but see LabelWordWrapWide for
 // probable Qt bug), top alignment looks good. With the bug, there is an
@@ -63,8 +63,8 @@ const Qt::Alignment response_widget_align = Qt::AlignCenter | Qt::AlignTop;
 
 // In grids, these are the stem questions over the array of responses, e.g.
 // for QuMcqGridDouble.
-const Qt::Alignment stem_text_align = Qt::AlignCenter | Qt::AlignBottom;
-const Qt::Alignment stem_widget_align = Qt::AlignCenter | Qt::AlignBottom;
+const Qt::Alignment stem_text_align = Qt::AlignHCenter | Qt::AlignBottom;
+const Qt::Alignment stem_widget_align = Qt::AlignHCenter | Qt::AlignBottom;
 
 // ============================================================================
 // Background to part of a QGridLayout

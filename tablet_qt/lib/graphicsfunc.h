@@ -22,7 +22,6 @@
 #include <QFont>
 #include <QObject>
 #include <QPen>
-#include <QWidget>  // for QWIDGETSIZE_MAX
 class AdjustablePie;
 class QBrush;
 class QGraphicsProxyWidget;
@@ -39,45 +38,20 @@ namespace graphicsfunc
 {
 
 // ============================================================================
-// Support templates
-// ============================================================================
-
-template<typename T>
-int sgn(T val)
-{
-    // Returns -1 if val is negative, 0 if zero, and +1 if positive.
-    // http://stackoverflow.com/questions/1903954/is-there-a-standard-sign-function-signum-sgn-in-c-c
-    return (T(0) < val) - (val < T(0));
-}
-
-
-template<typename T>
-T mod(T x, T y)
-{
-    // Returns x mod y, coping with negatives.
-    // http://stackoverflow.com/questions/11980292/how-to-wrap-around-a-range
-    if (y == 0) {
-        return 0;  // stupid caller
-    }
-    return x - y * std::floor(x / y);
-}
-
-
-// ============================================================================
 // Support structures
 // ============================================================================
 
 struct TextConfig {
-    TextConfig(int font_size_px,
+    TextConfig(qreal font_size_pt,
                const QColor& colour,
                qreal width = -1,
                Qt::Alignment alignment = Qt::AlignCenter) :
-        font_size_px(font_size_px),
+        font_size_pt(font_size_pt),
         colour(colour),
         width(width),
         alignment(alignment)
     {}
-    int font_size_px;
+    qreal font_size_pt;
     QColor colour;
     qreal width;
     Qt::Alignment alignment;
@@ -86,7 +60,7 @@ struct TextConfig {
 
 struct ButtonConfig {
     ButtonConfig(int padding_px,
-                 int font_size_px,
+                 qreal font_size_pt,
                  const QColor& text_colour,
                  Qt::Alignment text_alignment,
                  const QColor& background_colour,
@@ -94,7 +68,7 @@ struct ButtonConfig {
                  const QPen& border_pen,
                  int corner_radius_px) :
         padding_px(padding_px),
-        font_size_px(font_size_px),
+        font_size_pt(font_size_pt),
         text_colour(text_colour),
         text_alignment(text_alignment),
         background_colour(background_colour),
@@ -103,7 +77,7 @@ struct ButtonConfig {
         corner_radius_px(corner_radius_px)
     {}
     int padding_px;
-    int font_size_px;
+    qreal font_size_pt;
     QColor text_colour;
     Qt::Alignment text_alignment;
     QColor background_colour;
@@ -143,38 +117,13 @@ struct AdjustablePieAndProxy {
     QGraphicsProxyWidget* proxy = nullptr;
 };
 
-class LineSegment {
-    // a(x - xm) + b(y - ym) = c
-    // http://stackoverflow.com/questions/385305/efficient-maths-algorithm-to-calculate-intersections
-public:
-    LineSegment(const QPointF& from, const QPointF& to);
-    qreal c(qreal x, qreal y) const;  // 0 if point is on the line; otherwise, sign gives side
-    qreal c(const QPointF& pt) const;
-    bool isPoint() const;
-    bool xRangesOverlap(const LineSegment& other) const;
-    bool yRangesOverlap(const LineSegment& other) const;
-    bool intersects(const LineSegment& other) const;
-
-protected:
-    QPointF from;
-    QPointF to;
-    qreal x0;  // lower x coordinate
-    qreal x1;  // higher x coordinate
-    qreal y0;  // lower y coordinate
-    qreal y1;  // higher y coordinate
-
-    qreal a;  // y span of line segment
-    qreal xm;  // x median of line segment
-    qreal b;  // x span of line segment
-    qreal ym;  // y median of line segment
-};
-
 
 // ============================================================================
 // CSS
 // ============================================================================
 
 QString pixelCss(int px);
+QString ptCss(qreal pt);
 QString colourCss(const QColor& colour);
 QString penStyleCss(const QPen& pen);
 QString penCss(const QPen& pen);
@@ -185,50 +134,6 @@ QString labelCss(const QColor& colour);
 // ============================================================================
 
 void alignRect(QRectF& rect, Qt::Alignment alignment);
-QRectF textRectF(const QString& text, const QFont& font);
-
-bool rangesOverlap(qreal a0, qreal a1, qreal b0, qreal b1);
-
-extern const qreal DEG_0;
-extern const qreal DEG_90;
-extern const qreal DEG_270;
-extern const qreal DEG_180;
-extern const qreal DEG_360;
-
-int sixteenthsOfADegree(qreal degrees);
-
-qreal normalizeHeading(qreal heading_deg);
-bool headingNearlyEq(qreal heading_deg, qreal value_deg);
-bool headingInRange(qreal first_bound_deg,
-                    qreal heading_deg,
-                    qreal second_bound_deg,
-                    bool inclusive = false);
-qreal convertHeadingFromTrueNorth(qreal true_north_heading_deg,
-                                  qreal pseudo_north_deg,
-                                  bool normalize = true);
-qreal convertHeadingToTrueNorth(qreal pseudo_north_heading_deg,
-                                qreal pseudo_north_deg,
-                                bool normalize = true);
-
-QPointF polarToCartesian(qreal r, qreal theta_degrees,
-                         bool y_down_as_per_qt = true);
-qreal distanceBetween(const QPointF& from, const QPointF& to);
-qreal polarTheta(const QPointF& from, const QPointF& to,
-                 bool y_down_as_per_qt = true);
-qreal polarTheta(const QPointF& to, bool y_down_as_per_qt = true);
-qreal polarThetaToHeading(qreal theta, qreal north_deg = 0.0);
-qreal headingToPolarTheta(qreal heading_deg, qreal north_deg = 0.0,
-                          bool normalize = true);
-qreal headingDegrees(const QPointF& from, const QPointF& to,
-                     bool y_down_as_per_qt = true, qreal north_deg = 0.0);
-LineSegment lineFormula(const QPointF& from, const QPointF& to);
-bool lineCrossesHeadingWithinRadius(const QPointF& from, const QPointF& to,
-                                    const QPointF& point, qreal heading_deg,
-                                    qreal north_deg = 0.0,
-                                    qreal radius = QWIDGETSIZE_MAX,
-                                    bool y_down_as_per_qt = true);
-bool linePassesBelowPoint(const QPointF& from, const QPointF& to,
-                          const QPointF& point, bool y_down_as_per_qt = true);
 
 void drawSector(QPainter& painter,
                 const QPointF& tip,
@@ -239,6 +144,16 @@ void drawSector(QPainter& painter,
                 const QPen& pen,
                 const QBrush& brush);
 
+QRectF textRectF(const QString& text, const QFont& font);
+// Text with alignment:
+void drawText(QPainter& painter, const QPointF& point, const QString& text,
+              const QFont& font, Qt::Alignment align);
+// Drawing text with alignment at a point (not a rectangle):
+void drawText(QPainter& painter, qreal x, qreal y, Qt::Alignment flags,
+              const QString& text, QRectF* boundingRect = 0);
+void drawText(QPainter& painter, const QPointF& point, Qt::Alignment flags,
+              const QString& text, QRectF* boundingRect = 0);
+
 // ============================================================================
 // Creating QGraphicsScene objects
 // ============================================================================
@@ -248,7 +163,7 @@ ButtonAndProxy makeTextButton(
         const QRectF& rect,
         const ButtonConfig& config,
         const QString& text,
-        const QFont& font = QFont(),
+        QFont font = QFont(),
         QWidget* parent = nullptr);
 
 LabelAndProxy makeText(
@@ -256,7 +171,7 @@ LabelAndProxy makeText(
         const QPointF& point,
         const TextConfig& config,
         const QString& text,
-        const QFont& font = QFont(),
+        QFont font = QFont(),
         QWidget* parent = nullptr);
 
 AdjustablePieAndProxy makeAdjustablePie(

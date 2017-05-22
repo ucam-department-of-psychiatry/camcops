@@ -41,6 +41,7 @@ public:
                               bool without_confirmation = false);
     virtual void keyPressEvent(QKeyEvent* event) override;
 signals:
+    void aborting();
     void finished();
 protected:
     bool m_wants_fullscreen;

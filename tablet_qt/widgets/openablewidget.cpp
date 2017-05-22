@@ -18,6 +18,7 @@
 */
 
 // #define DEBUG_OPENABLE_WIDGET_LAYOUT  // Dumps layout when widget shown
+// #define PRESS_D_TO_DUMP
 
 #include "openablewidget.h"
 #include <QGraphicsView>
@@ -27,6 +28,9 @@
 #include "lib/sizehelpers.h"
 #ifdef DEBUG_OPENABLE_WIDGET_LAYOUT
 #include "qobjects/showwatcher.h"
+#endif
+#ifdef PRESS_D_TO_DUMP
+#include "lib/layoutdumper.h"
 #endif
 
 
@@ -92,7 +96,9 @@ void OpenableWidget::keyPressEvent(QKeyEvent* event)
     if (!event) {
         return;
     }
-    if (event->key() == Qt::Key_Escape && event->type() == QEvent::KeyPress) {
+    int key = event->key();
+    QEvent::Type type = event->type();
+    if (key == Qt::Key_Escape && type == QEvent::KeyPress) {
         // Escape key pressed
         if (m_escape_key_can_abort) {
             if (m_escape_aborts_without_confirmation ||
@@ -100,8 +106,14 @@ void OpenableWidget::keyPressEvent(QKeyEvent* event)
                                     tr("Abort?"),
                                     "", "", this)) {
                 // User confirms: abort
+                emit aborting();
                 emit finished();
             }
         }
     }
+#ifdef PRESS_D_TO_DUMP
+    if (key == Qt::Key_D && type == QEvent::KeyPress) {
+        layoutdumper::dumpWidgetHierarchy(this);
+    }
+#endif
 }

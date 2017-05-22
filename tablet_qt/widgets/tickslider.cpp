@@ -23,7 +23,7 @@
 #include <QMouseEvent>
 #include <QStyleOptionSlider>
 #include <QStylePainter>
-#include "lib/uifunc.h"
+#include "lib/graphicsfunc.h"
 
 
 const QColor DEFAULT_TICK_COLOR(0, 0, 0, 255);
@@ -289,8 +289,8 @@ void TickSlider::paintEvent(QPaintEvent *ev)
             }
             if (has_label && (tickLabelPosition() == TicksBothSides ||
                               tickLabelPosition() == TicksAbove)) {
-                uifunc::drawText(p, x, top_label_top,
-                                 halign | Qt::AlignTop, label_text);
+                graphicsfunc::drawText(p, x, top_label_top,
+                                       halign | Qt::AlignTop, label_text);
             }
             if (tickPosition() == TicksBothSides ||
                     tickPosition() == TicksBelow) {
@@ -298,8 +298,8 @@ void TickSlider::paintEvent(QPaintEvent *ev)
             }
             if (has_label && (tickLabelPosition() == TicksBothSides ||
                               tickLabelPosition() == TicksBelow)) {
-                uifunc::drawText(p, x, bottom_label_bottom,
-                                 halign | Qt::AlignBottom, label_text);
+                graphicsfunc::drawText(p, x, bottom_label_bottom,
+                                       halign | Qt::AlignBottom, label_text);
             }
         }
     } else {
@@ -343,8 +343,8 @@ void TickSlider::paintEvent(QPaintEvent *ev)
             }
             if (has_label && (tickLabelPosition() == TicksBothSides ||
                               tickLabelPosition() == TicksLeft)) {
-                uifunc::drawText(p, left_label_right, y,
-                                 Qt::AlignRight | valign, label_text);
+                graphicsfunc::drawText(p, left_label_right, y,
+                                       Qt::AlignRight | valign, label_text);
             }
             if (tickPosition() == TicksBothSides ||
                     tickPosition() == TicksRight) {
@@ -352,8 +352,8 @@ void TickSlider::paintEvent(QPaintEvent *ev)
             }
             if (has_label && (tickLabelPosition() == TicksBothSides ||
                               tickLabelPosition() == TicksRight)) {
-                uifunc::drawText(p, right_label_left, y,
-                                 Qt::AlignLeft | valign, label_text);
+                graphicsfunc::drawText(p, right_label_left, y,
+                                       Qt::AlignLeft | valign, label_text);
             }
         }
     }

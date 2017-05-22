@@ -26,6 +26,7 @@
 
 class CamcopsApp;
 class OpenableWidget;
+class QGraphicsScene;
 class Version;
 
 extern const QString PATIENT_FK_FIELDNAME;
@@ -62,7 +63,7 @@ public:
     virtual bool prohibitsCommercial() const { return false; }
     virtual bool prohibitsEducational() const { return false; }
     virtual bool prohibitsResearch() const { return false; }
-    virtual bool isEditable() const { return true; }
+    virtual bool isEditable() const { return true; }  // ... once created
     virtual bool isCrippled() const { return !hasExtraStrings(); }
     virtual bool hasExtraStrings() const;
     virtual bool isTaskPermissible() const;
@@ -124,6 +125,8 @@ public:
     void setDefaultClinicianVariablesAtFirstUse();
     virtual void setDefaultsAtFirstUse() {}
 protected:
+    OpenableWidget* makeGraphicsWidgetForEditing(
+            QGraphicsScene* scene, const QColor& background_colour);
     QuElement* getClinicianQuestionnaireBlockRawPointer();
     QuElementPtr getClinicianQuestionnaireBlockElementPtr();
     QuPagePtr getClinicianDetailsPage();
@@ -137,6 +140,8 @@ protected:
 public slots:
     void editStarted();
     void editFinished(bool aborted = false);
+    void editFinishedProperly();
+    void editFinishedAbort();
     // ------------------------------------------------------------------------
     // Patient functions (for non-anonymous tasks)
     // ------------------------------------------------------------------------

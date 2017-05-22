@@ -21,6 +21,7 @@
 #include <QColor>
 #include <QPointer>
 #include <QString>
+#include "lib/graphicsfunc.h"
 #include "tasklib/task.h"
 
 class AdjustablePie;
@@ -45,6 +46,8 @@ public:
     virtual QString longname() const override;
     virtual QString menusubtitle() const override;
     virtual QString infoFilenameStem() const override;
+    virtual bool isEditable() const override { return false; }
+    virtual bool isCrippled() const override { return false; }
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -69,28 +72,29 @@ public:
         QColor text_colour;
     };
 protected:
-    void testGraphics();
     void startTask();
     void askCategory();
     void thanks();
     void clearScene();
+    graphicsfunc::AdjustablePieAndProxy makePie(const QPointF& centre,
+                                                int n_sectors);
     void showFixed(bool left, const LotteryOption& option);
     void showLottery(bool left, const LotteryOption& option1,
-                     const LotteryOption& option2, qreal p);
-    void showGambleInstruction(bool left, const QString& category_chosen);
+                     const LotteryOption& option2, qreal starting_p);
+    void showGambleInstruction(bool lottery_on_left,
+                               const QString& category_chosen);
     void lotteryTouched(qreal p);
 protected slots:
     void giveChoice(const QString& category_chosen);
-    void testButtonClicked();
-    void recordChoice(qreal p);
+    void recordChoice();
     void finished();
     void pieAdjusted(QVector<qreal> proportions);
 protected:
     QPointer<QGraphicsScene> m_scene;
     QPointer<OpenableWidget> m_widget;
     QPointer<AdjustablePie> m_pie;
-    bool m_read_only;
     bool m_pie_touched_at_least_once;
+    qreal m_last_p;
 public:
     static const QString QOLSG_TABLENAME;
 };
