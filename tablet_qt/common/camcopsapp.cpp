@@ -631,10 +631,14 @@ void CamcopsApp::open(OpenableWidget* widget, TaskPtr task,
     // qDebug() << Q_FUNC_INFO << "Build complete, about to show";
     m_p_window_stack->setCurrentIndex(index);
     if (widget->wantsFullscreen()) {
-        m_p_main_window->showFullScreen();
+        enterFullscreen();
     }
 
     // 3. Signals
+    connect(widget, &OpenableWidget::enterFullscreen,
+            this, &CamcopsApp::enterFullscreen);
+    connect(widget, &OpenableWidget::leaveFullscreen,
+            this, &CamcopsApp::leaveFullscreen);
     connect(widget, &OpenableWidget::finished,
             this, &CamcopsApp::close);
 
@@ -701,6 +705,18 @@ void CamcopsApp::close()
 #endif
         emit selectedPatientDetailsChanged(m_patient.data());
     }
+}
+
+
+void CamcopsApp::enterFullscreen()
+{
+    m_p_main_window->showFullScreen();
+}
+
+
+void CamcopsApp::leaveFullscreen()
+{
+    m_p_main_window->showNormal();
 }
 
 

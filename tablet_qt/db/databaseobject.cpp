@@ -88,7 +88,8 @@ DatabaseObject::~DatabaseObject()
 // ============================================================================
 
 void DatabaseObject::addField(const QString& fieldname, QVariant::Type type,
-                              bool mandatory, bool unique, bool pk)
+                              bool mandatory, bool unique, bool pk,
+                              const QVariant& default_value)
 {
     if (type == QVariant::ULongLong) {
         qWarning() << "SQLite3 does not properly support unsigned 64-bit "
@@ -97,7 +98,7 @@ void DatabaseObject::addField(const QString& fieldname, QVariant::Type type,
     if (m_record.contains(fieldname)) {
         uifunc::stopApp("Attempt to insert duplicate fieldname: " + fieldname);
     }
-    Field field(fieldname, type, mandatory, unique, pk);
+    Field field(fieldname, type, mandatory, unique, pk, default_value);
     m_record.insert(fieldname, field);
     m_ordered_fieldnames.append(fieldname);
 }
@@ -291,6 +292,14 @@ FieldRefPtr DatabaseObject::fieldRef(const QString& fieldname, bool mandatory,
 }
 
 
+Field& DatabaseObject::getField(const QString& fieldname)
+{
+    // Dangerous in that it returns a reference.
+    requireField(fieldname);
+    return m_record[fieldname];
+}
+
+
 // ============================================================================
 // Whole-object summary
 // ============================================================================
@@ -387,6 +396,14 @@ QString DatabaseObject::recordSummaryString(const QString& separator,
                                             const QString& suffix) const
 {
     return recordSummaryLines(separator, suffix).join("<br>");
+}
+
+
+QString DatabaseObject::recordSummaryCSVString(
+        const QString& equals_separator,
+        const QString& comma_separator) const
+{
+    return recordSummaryLines(equals_separator, "").join(comma_separator);
 }
 
 

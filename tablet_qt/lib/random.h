@@ -20,6 +20,7 @@
 #pragma once
 #include <random>
 #include <QtGlobal>
+#include <QVector>
 
 
 namespace ccrandom {  // not "random"; conflicts
@@ -28,5 +29,41 @@ extern std::random_device rd;
 extern std::mt19937 rng;
 
 bool coin(qreal p = 0.5);
+int randomInt(int minimum, int maximum);
+
+
+template<typename T>
+int randomIndex(const QVector<T>& vec)
+{
+    if (vec.isEmpty()) {
+        return -1;
+    }
+    return randomInt(0, vec.size() - 1);
+}
+
+
+// Draw without replacement
+template<typename T>
+T dwor(QVector<T>& bucket)
+{
+    if (bucket.isEmpty()) {
+        return T();
+    }
+    int index = randomIndex(bucket);
+    return bucket.takeAt(index);
+}
+
+
+// Draw with replacement
+template<typename T>
+T drawreplace(QVector<T>& bucket)
+{
+    if (bucket.isEmpty()) {
+        return T();
+    }
+    int index = randomIndex(bucket);
+    return bucket.at(index);
+}
+
 
 }  // namespace ccrandom

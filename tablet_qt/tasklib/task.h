@@ -125,8 +125,12 @@ public:
     void setDefaultClinicianVariablesAtFirstUse();
     virtual void setDefaultsAtFirstUse() {}
 protected:
-    OpenableWidget* makeGraphicsWidgetForEditing(
-            QGraphicsScene* scene, const QColor& background_colour);
+    OpenableWidget* makeGraphicsWidget(
+            QGraphicsScene* scene, const QColor& background_colour,
+            bool fullscreen = true, bool esc_can_abort = true);
+    OpenableWidget* makeGraphicsWidgetForImmediateEditing(
+            QGraphicsScene* scene, const QColor& background_colour,
+            bool fullscreen = true, bool esc_can_abort = true);
     QuElement* getClinicianQuestionnaireBlockRawPointer();
     QuElementPtr getClinicianQuestionnaireBlockElementPtr();
     QuPagePtr getClinicianDetailsPage();

@@ -30,7 +30,6 @@
 #include "tasklib/taskfactory.h"
 #include "widgets/adjustablepie.h"
 #include "widgets/openablewidget.h"
-#include "widgets/screenlikegraphicsview.h"
 using ccrandom::coin;
 using datetime::now;
 using graphicsfunc::AdjustablePieAndProxy;
@@ -140,6 +139,7 @@ const QString LOTTERY_OPTION_DEAD("dead");
 //          https://www.w3.org/TR/SVG/types.html#ColorKeywords
 
 // Graphics
+
 const qreal SCENE_WIDTH = 1000;
 const qreal SCENE_HEIGHT = 750;  // 4:3 aspect ratio
 const int BORDER_WIDTH_PX = 3;
@@ -149,7 +149,7 @@ const QColor BUTTON_BACKGROUND("blue");
 const QColor TEXT_COLOUR("white");
 const QColor BUTTON_PRESSED_BACKGROUND("olive");
 const QColor BACK_BUTTON_BACKGROUND("darkred");
-const qreal TEXT_SIZE_PT = 15;  // will be scaled
+const qreal TEXT_SIZE_PX = 20;  // will be scaled
 const int BUTTON_RADIUS = 5;
 const int PADDING = 5;
 const Qt::Alignment BUTTON_TEXT_ALIGN = Qt::AlignCenter;
@@ -169,14 +169,14 @@ const qreal RIGHT_STIM_CENTRE = SCENE_WIDTH * (0.5 + (0.5 * CENTRESPACE_FRAC +
 const QRectF SCENE_RECT(0, 0, SCENE_WIDTH, SCENE_HEIGHT);
 QPen BORDER_PEN(QBrush(EDGE_COLOUR), BORDER_WIDTH_PX);
 const ButtonConfig BASE_BUTTON_CONFIG(PADDING,
-                                      TEXT_SIZE_PT,
+                                      TEXT_SIZE_PX,
                                       TEXT_COLOUR,
                                       BUTTON_TEXT_ALIGN,
                                       BUTTON_BACKGROUND,
                                       BUTTON_PRESSED_BACKGROUND,
                                       BORDER_PEN,
                                       BUTTON_RADIUS);
-const TextConfig BASE_TEXT_CONFIG(TEXT_SIZE_PT, TEXT_COLOUR,
+const TextConfig BASE_TEXT_CONFIG(TEXT_SIZE_PX, TEXT_COLOUR,
                                   SCENE_WIDTH, TEXT_ALIGN);
 // YOU CANNOT INSTANTIATE A STATIC QFont() OBJECT BEFORE QT IS FULLY
 // FIRED UP; QFont::QFont() calls QFontPrivate::QFontPrivate()) calls
@@ -189,21 +189,23 @@ const TextConfig BASE_TEXT_CONFIG(TEXT_SIZE_PT, TEXT_COLOUR,
 
 const QColor CURRENT_STATE_TEXT_COLOUR("yellow");
 const QolSG::LotteryOption TESTSTATE(
-        TX_CURRENT_STATE, QColor("green"), CURRENT_STATE_TEXT_COLOUR);
+        TX_CURRENT_STATE, QColor("gray"), CURRENT_STATE_TEXT_COLOUR);
 const QolSG::LotteryOption DEAD(
         TX_DEAD, QColor("black"), QColor("red"));
 const QolSG::LotteryOption HEALTHY(
         TX_HEALTHY, QColor("blue"), QColor("white"));
-const QPen SECTOR_PEN(QBrush(QColor("white")), 3.0);
 
+// AdjustablePie settings:
 const qreal PIE_FRAC = 0.5;
 const qreal CURSOR_FRAC = 0.25;
 const qreal LABEL_CURSOR_GAP_FRAC = 0.05;
 const int PIE_CURSOR_ANGLE = 60;
 const int PIE_REPORTING_DELAY_MS = 10;
 const int PIE_BASE_HEADING = 180;
-const QColor CURSOR_COLOUR("red");
-const QColor CURSOR_ACTIVE_COLOUR("orange");
+PenBrush CURSOR(QPen(Qt::NoPen), QBrush(QColor("red")));
+PenBrush CURSOR_ACTIVE(QPen(QBrush(QColor("orange")), 3.0),
+                       QBrush(QColor("red")));
+const QPen SECTOR_PEN(QBrush(QColor("white")), 3.0);
 
 
 // ============================================================================
@@ -298,7 +300,7 @@ OpenableWidget* QolSG::editor(bool read_only)
 
     m_scene = new QGraphicsScene(SCENE_RECT);
     m_scene->setBackgroundBrush(QBrush(SCENE_BACKGROUND)); // *** not working
-    m_widget = makeGraphicsWidgetForEditing(m_scene, SCENE_BACKGROUND);
+    m_widget = makeGraphicsWidgetForImmediateEditing(m_scene, SCENE_BACKGROUND);
 
     startTask();
 
@@ -317,6 +319,7 @@ OpenableWidget* QolSG::editor(bool read_only)
             Qt::QueuedConnection)
 // To use a Qt::ConnectionType parameter with a functor, we need a context
 // See http://doc.qt.io/qt-5/qobject.html#connect-5
+// That's the reason for the extra "this":
 #define CONNECT_BUTTON_PARAM(b, funcname, param) \
     connect(b.button, &QPushButton::clicked, this, \
             std::bind(&QolSG::funcname, this, param), \
@@ -363,6 +366,7 @@ void QolSG::askCategory()
     CONNECT_BUTTON_PARAM(l, giveChoice, CHOICE_LOW);
 
     setValue(FN_CATEGORY_START_TIME, now());
+    save();
 }
 
 
@@ -484,6 +488,7 @@ void QolSG::giveChoice(const QString& category_chosen)
 
     // Off we go
     setValue(FN_GAMBLE_START_TIME, now());
+    save();
 }
 
 
@@ -507,14 +512,12 @@ AdjustablePieAndProxy QolSG::makePie(const QPointF& centre, int n_sectors)
 
     QFont font;
     font.setBold(true);
-    font.setPointSizeF(TEXT_SIZE_PT);
+    font.setPixelSize(TEXT_SIZE_PX);
     pie->setOuterLabelFont(font);
     pie->setCentreLabelFont(font);
 
-    PenBrush cursor(QPen(Qt::NoPen), QBrush(CURSOR_COLOUR));
-    PenBrush activecursor(QPen(Qt::NoPen), QBrush(CURSOR_ACTIVE_COLOUR));
-    pie->setCursorPenBrushes({cursor});
-    pie->setCursorActivePenBrushes({activecursor});
+    pie->setCursorPenBrushes({CURSOR});
+    pie->setCursorActivePenBrushes({CURSOR_ACTIVE});
 
     return pp;
 }

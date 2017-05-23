@@ -22,13 +22,14 @@
 
 QT += core  # included by default; QtCore module
 QT += gui  # included by default; QtGui module
-QT += widgets  # required to #include <QApplication>
-QT += sql  # required to #include <QSqlDatabase>
-QT += network  # required to #include <QtNetwork/*>
 QT += multimedia  # or: undefined reference to QMedia*::*
 QT += multimediawidgets
+QT += network  # required to #include <QtNetwork/*>
+QT += sql  # required to #include <QSqlDatabase>
+QT += svg  # required to #include <QGraphicsSvgItem> or <QSvgRenderer>
 # QT += webkit  # for QWebView -- no, not used
 # QT += webkitwidgets  # for QWebView -- no, not used
+QT += widgets  # required to #include <QApplication>
 
 # http://stackoverflow.com/questions/20351155/how-can-i-enable-ssl-in-qt-windows-application
 # http://stackoverflow.com/questions/18663331/how-to-check-the-selected-version-of-qt-in-a-pro-file
@@ -390,14 +391,16 @@ SOURCES += main.cpp \
     common/uiconst.cpp \
     lib/graphicsfunc.cpp \
     widgets/screenlikegraphicsview.cpp \
-    widgets/graphicstextbutton.cpp \
     lib/random.cpp \
     lib/containers.cpp \
     widgets/adjustablepie.cpp \
     lib/penbrush.cpp \
     lib/geometry.cpp \
     lib/linesegment.cpp \
-    lib/paintertranslaterotatecontext.cpp
+    lib/paintertranslaterotatecontext.cpp \
+    tasks/ided3d.cpp \
+    widgets/svgwidgetclickable.cpp \
+    lib/css.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -704,14 +707,16 @@ HEADERS  += \
     common/uiconst.h \
     lib/graphicsfunc.h \
     widgets/screenlikegraphicsview.h \
-    widgets/graphicstextbutton.h \
     lib/random.h \
     lib/containers.h \
     widgets/adjustablepie.h \
     lib/penbrush.h \
     lib/geometry.h \
     lib/linesegment.h \
-    lib/paintertranslaterotatecontext.h
+    lib/paintertranslaterotatecontext.h \
+    tasks/ided3d.h \
+    widgets/svgwidgetclickable.h \
+    lib/css.h
 
 
 DISTFILES += \
@@ -757,7 +762,10 @@ DISTFILES += \
     tools/build_qt.py \
     notes/rejected_ideas.txt \
     notes/string_formats.txt \
-    notes/layout_notes.txt
+    notes/layout_notes.txt \
+    notes/overall_design.txt \
+    tools/cppclean_all.sh \
+    tools/chord.py
 
 
 # =============================================================================

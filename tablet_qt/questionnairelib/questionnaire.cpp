@@ -302,7 +302,8 @@ void Questionnaire::resetButtons()
         return;
     }
     bool on_last_page = !morePagesToGo();
-    bool allow_progression = readOnly() || !page->missingInput();
+    bool allow_progression = readOnly() ||
+            (!page->progressBlocked() && !page->missingInput());
     m_p_header->setButtons(
         m_current_page_index > 0,  // previous
         !on_last_page && allow_progression,  // next
@@ -414,7 +415,7 @@ void Questionnaire::jumpClicked()
             // Skipped pages don't block subsequent ones, either.
         }
         QString text = page->title();
-        bool missing_input = page->missingInput();
+        bool missing_input = page->progressBlocked() || page->missingInput();
         PagePickerItem::PagePickerItemType type = blocked
             ? PagePickerItem::PagePickerItemType::BlockedByPrevious
             : (missing_input ? PagePickerItem::PagePickerItemType::IncompleteSelectable
@@ -449,7 +450,8 @@ void Questionnaire::previousClicked()
 void Questionnaire::nextClicked()
 {
     QuPage* page = currentPagePtr();
-    if (!page || (!readOnly() && page->missingInput())) {
+    if (!page || (!readOnly() && (page->progressBlocked() ||
+                                  page->missingInput()))) {
         // Can't progress
         return;
     }
@@ -545,7 +547,8 @@ void Questionnaire::finishClicked()
         return;
     }
     QuPage* page = currentPagePtr();
-    if (!page || (!readOnly() && page->missingInput())) {
+    if (!page || (!readOnly() && (page->progressBlocked() ||
+                                  page->missingInput()))) {
         // Can't progress
         return;
     }
@@ -577,7 +580,7 @@ void Questionnaire::doCancel()
 void Questionnaire::doFinish()
 {
     if (!readOnly()) {
-        // tell task about finish-with-abort
+        // tell task about finish-without-abort
         emit editFinished(false);
     }
     emit completed();
@@ -635,7 +638,6 @@ QVector<QuPage*> Questionnaire::getPages(bool current_page_only,
         if (page && (page_tag.isEmpty() || page->hasTag(page_tag))) {
             pages.append(page);
         }
-        pages.append(page);
     } else {
         for (auto p : m_pages) {
             if (page_tag.isEmpty() || p->hasTag(page_tag)) {

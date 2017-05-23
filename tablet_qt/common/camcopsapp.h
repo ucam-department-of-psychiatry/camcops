@@ -121,10 +121,13 @@ public:
     SlowGuiGuard getSlowGuiGuard(const QString& text = "Opening...",
                                  const QString& title = "Please wait...",
                                  int minimum_duration_ms = 100);
+
 signals:
     void taskAlterationFinished(TaskPtr task);
 public slots:
     void close();
+    void enterFullscreen();
+    void leaveFullscreen();
 
     // ------------------------------------------------------------------------
     // Security and related

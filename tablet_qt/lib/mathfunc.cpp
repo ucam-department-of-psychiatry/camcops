@@ -20,6 +20,7 @@
 #include "mathfunc.h"
 #include "common/textconst.h"
 #include "lib/convert.h"
+#include <QtMath>  // for e.g. qSqrt()
 #include <QObject>
 
 namespace mathfunc {
@@ -429,6 +430,54 @@ QVector<int> intseq(int first, int last, int step)
         }
     }
     return v;
+}
+
+
+QVector<int> range(int start, int end)
+{
+    return intseq(start, end - 1, 1);
+}
+
+
+QVector<int> range(int n)
+{
+    return range(0, n);
+}
+
+
+QVector<qreal> distribute(int n, qreal minimum, qreal maximum)
+{
+    // Fence/fence-post problem; return centre of fence segments.
+    QVector<qreal> posts;
+    if (n <= 0) {
+        return posts;  // or we'll have division by zero shortly
+    }
+    if (maximum < minimum) {
+        std::swap(minimum, maximum);
+    }
+    qreal extent = maximum - minimum;
+    qreal each = extent / n;
+    // ... (double / int) gives double
+    // https://stackoverflow.com/questions/5563000/implicit-type-conversion-rules-in-c-operators
+    qreal centre_offset = each / 2;
+    for (int i = 0; i < n; ++i) {
+        posts.append(minimum + i * each + centre_offset);
+    }
+    return posts;
+}
+
+
+QPair<int, int> gridDimensions(int n, qreal aspect)
+{
+    // Solve the equations:
+    //      x * y >= n
+    //      aspect ~= x / y
+    // ... for smallest x, y. Thus:
+    //      x = aspect * y
+    //      aspect * y * y >= n
+    int y = qCeil(qSqrt(n / aspect));
+    int x = qCeil(n / y);
+    return QPair<int, int>(x, y);
 }
 
 

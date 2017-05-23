@@ -332,6 +332,7 @@ QSize LabelWordWrapWide::sizeOfTextWithoutWrap() const
     //                            Qt::AlignLeft | Qt::AlignTop,
     //                            t);
     // Ah, no! The boundingRect is correct; it's the height that's not.
+    // Note that tightBoundingRect() is no good here.
 
     // int width = br.width();
     // QSize text_size(width, height);

@@ -27,7 +27,8 @@ class Field
 public:
     Field();
     Field(const QString& name, QVariant::Type type,
-          bool mandatory = false, bool unique = false, bool pk = false);
+          bool mandatory = false, bool unique = false, bool pk = false,
+          const QVariant& default_value = QVariant());
     Field(const QString& name, const QString& type_name,
           bool mandatory = false, bool unique = false, bool pk = false);
     Field& setPk(bool pk);

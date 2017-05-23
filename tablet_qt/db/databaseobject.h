@@ -61,7 +61,8 @@ public:
                   QVariant::Type type,
                   bool mandatory = false,
                   bool unique = false,
-                  bool pk = false);
+                  bool pk = false,
+                  const QVariant& default_value = QVariant());
     void addField(const Field& field);
     void addFields(const QStringList& fieldnames, QVariant::Type type,
                    bool mandatory = false);
@@ -98,11 +99,15 @@ public:
                          bool mandatory = true,
                          bool autosave = true,
                          bool blob = false);
+    // Low-level field access (for internal use only)
+protected:
+    Field& getField(const QString& fieldname);
 
     // ========================================================================
     // Whole-object summary
     // ========================================================================
 
+public:
     QString fieldSummary(
             const QString& fieldname,
             const QString& altname = "",
@@ -141,6 +146,9 @@ public:
     QString recordSummaryString(
             const QString& separator = DBOBJECT_DEFAULT_SEPARATOR,
             const QString& suffix = DBOBJECT_DEFAULT_SUFFIX) const;
+    QString recordSummaryCSVString(
+            const QString& equals_separator = DBOBJECT_DEFAULT_SEPARATOR,
+            const QString& comma_separator = ", ") const;
 
     // ========================================================================
     // Loading, saving

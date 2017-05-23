@@ -17,13 +17,19 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
-#include <QPushButton>
+#include <QString>
+class QColor;
+class QPen;
 
-
-class GraphicsTextButton : public QPushButton
+namespace css
 {
-public:
-    GraphicsTextButton();
-};
+
+QString pixelCss(int px);
+QString ptCss(qreal pt);
+QString colourCss(const QColor& colour);
+QString penStyleCss(const QPen& pen);
+QString penCss(const QPen& pen);
+QString labelCss(const QColor& colour);
+
+}  // namespace css

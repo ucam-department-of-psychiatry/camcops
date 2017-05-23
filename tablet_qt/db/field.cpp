@@ -29,7 +29,8 @@ const QString SQLITE_TYPE_TEXT("TEXT");
 
 
 Field::Field(const QString& name, QVariant::Type type,
-             bool mandatory, bool unique, bool pk) :
+             bool mandatory, bool unique, bool pk,
+             const QVariant& default_value) :
     m_name(name),
     m_type(type),
     m_pk(pk),
@@ -43,7 +44,11 @@ Field::Field(const QString& name, QVariant::Type type,
 //    } else {
 //        m_default_value = QVariant(type);  // NULL
 //    }
-    m_default_value = QVariant(type);  // NULL
+    if (default_value.isNull()) {
+        m_default_value = QVariant(type);  // NULL
+    } else {
+        m_default_value = default_value;
+    }
     m_value = m_default_value;
 }
 

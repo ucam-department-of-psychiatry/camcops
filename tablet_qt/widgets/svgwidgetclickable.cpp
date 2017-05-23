@@ -17,16 +17,34 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "graphicstextbutton.h"
+#include "svgwidgetclickable.h"
+#include "lib/uifunc.h"
 
 
-/*
-
-
-
-*/
-
-GraphicsTextButton::GraphicsTextButton()
+SvgWidgetClickable::SvgWidgetClickable(QWidget* parent) :
+    QSvgWidget(parent)
 {
+    commonConstructor();
+}
 
+
+SvgWidgetClickable::SvgWidgetClickable(const QString& filename,
+                                       QWidget* parent) :
+    QSvgWidget(filename, parent)
+{
+    commonConstructor();
+}
+
+
+void SvgWidgetClickable::commonConstructor()
+{
+    uifunc::setBackgroundColour(this, QColor());
+    setContentsMargins(0, 0, 0, 0);
+}
+
+
+void SvgWidgetClickable::mousePressEvent(QMouseEvent* event)
+{
+    Q_UNUSED(event);
+    emit clicked();
 }

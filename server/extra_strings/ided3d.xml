@@ -12,6 +12,7 @@
     <string name="pause_after_beep_ms">Time to continue visual feedback after auditory feedback finished (ms)</string>
     <string name="iti_ms">Intertrial interval (ITI) (ms)</string>
     <string name="counterbalance_dimensions">Dimension counterbalancing [0–5]</string>
+    <string name="volume">Volume (0–1)</string>
     <string name="offer_abort">Offer abort button?</string>
     <string name="debug_display_stimuli_only">DEBUG: display stimuli only (don’t run task)</string>
     <string name="instructions">On each trial, you will see two stimuli. One is correct, and one is incorrect.\nTry to choose the correct one.\nYou will need to learn which one this is on any given trial.</string>

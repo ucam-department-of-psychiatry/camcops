@@ -20,9 +20,11 @@
 #pragma once
 #include <QColor>
 #include <QFont>
+#include <QMap>
 #include <QObject>
 #include <QPen>
 class AdjustablePie;
+class SvgWidgetClickable;
 class QBrush;
 class QGraphicsProxyWidget;
 class QGraphicsScene;
@@ -31,6 +33,7 @@ class QLabel;
 class QPushButton;
 class QRectF;
 class QString;
+class QSvgRenderer;
 class QWidget;
 
 
@@ -41,17 +44,24 @@ namespace graphicsfunc
 // Support structures
 // ============================================================================
 
+// We use pixels, not points, for font sizes here.
+// In general, this is deprecated, because it makes things device-specific,
+// i.e. dependent on the dots-per-inch (DPI) setting. However, in this context
+// we are working in a pixel-based graphics system, which is then scaled by the
+// ScreenLikeGraphicsView. It's not clear that "DPI" makes sense here, and we
+// want our text size to be predictable.
+
 struct TextConfig {
-    TextConfig(qreal font_size_pt,
+    TextConfig(int font_size_px,
                const QColor& colour,
                qreal width = -1,
                Qt::Alignment alignment = Qt::AlignCenter) :
-        font_size_pt(font_size_pt),
+        font_size_px(font_size_px),
         colour(colour),
         width(width),
         alignment(alignment)
     {}
-    qreal font_size_pt;
+    int font_size_px;
     QColor colour;
     qreal width;
     Qt::Alignment alignment;
@@ -60,7 +70,7 @@ struct TextConfig {
 
 struct ButtonConfig {
     ButtonConfig(int padding_px,
-                 qreal font_size_pt,
+                 int font_size_px,
                  const QColor& text_colour,
                  Qt::Alignment text_alignment,
                  const QColor& background_colour,
@@ -68,7 +78,7 @@ struct ButtonConfig {
                  const QPen& border_pen,
                  int corner_radius_px) :
         padding_px(padding_px),
-        font_size_pt(font_size_pt),
+        font_size_px(font_size_px),
         text_colour(text_colour),
         text_alignment(text_alignment),
         background_colour(background_colour),
@@ -77,7 +87,7 @@ struct ButtonConfig {
         corner_radius_px(corner_radius_px)
     {}
     int padding_px;
-    qreal font_size_pt;
+    int font_size_px;
     QColor text_colour;
     Qt::Alignment text_alignment;
     QColor background_colour;
@@ -118,16 +128,29 @@ struct AdjustablePieAndProxy {
 };
 
 
+struct SvgWidgetAndProxy {
+    SvgWidgetClickable* widget = nullptr;
+    QGraphicsProxyWidget* proxy = nullptr;
+};
+
+
 // ============================================================================
-// CSS
+// SVG
 // ============================================================================
 
-QString pixelCss(int px);
-QString ptCss(qreal pt);
-QString colourCss(const QColor& colour);
-QString penStyleCss(const QPen& pen);
-QString penCss(const QPen& pen);
-QString labelCss(const QColor& colour);
+QString xmlElement(const QString& tag, const QString& contents,
+                   const QMap<QString, QString> attributes = QMap<QString, QString>());
+QString xmlAttributes(const QMap<QString, QString> attributes);
+QString svg(const QStringList& elements);
+QString svgPath(const QString& contents,
+                const QColor& stroke, int stroke_width,
+                const QColor& fill,
+                const QString& element_id = "");
+QString svgFromPathContents(const QString& path_contents,
+                            const QColor& stroke, int stroke_width,
+                            const QColor& fill,
+                            const QString& element_id = "");
+QString opacity(const QColor& colour);
 
 // ============================================================================
 // Graphics calculations and painting
@@ -179,6 +202,12 @@ AdjustablePieAndProxy makeAdjustablePie(
         const QPointF& centre,
         int n_sectors,
         qreal diameter,
+        QWidget* parent = nullptr);
+
+SvgWidgetAndProxy makeSvg(
+        QGraphicsScene* scene,  // SVG is added to scene
+        const QPointF& centre,
+        const QString& svg,
         QWidget* parent = nullptr);
 
 

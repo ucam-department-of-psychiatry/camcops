@@ -42,6 +42,7 @@
 #include "common/platform.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"
+#include "lib/css.h"
 #include "lib/convert.h"
 #include "lib/layoutdumper.h"
 #include "lib/stringfunc.h"
@@ -239,7 +240,6 @@ QString UiFunc::iconTouchedPngFilename(const QString& stem)
 // Widget manipulations
 // ============================================================================
 
-/*
 void setBackgroundColour(QWidget* widget, const QColor& colour)
 {
     // https://wiki.qt.io/How_to_Change_the_Background_Color_of_QWidget
@@ -253,9 +253,28 @@ void setBackgroundColour(QWidget* widget, const QColor& colour)
     // widget->setAutoFillBackground(true);
 
     // Stylesheet method working.
-    widget->setStyleSheet("background-color:" + cssColour(colour) + ";");
+    widget->setStyleSheet("background-color:" + css::colourCss(colour) + ";");
+
+    // See also:
+    // https://stackoverflow.com/questions/25466030/make-qwidget-transparent
+    // http://doc.qt.io/qt-5/qwidget.html#transparency-and-double-buffering
+
 }
-*/
+
+
+void setBackgroundAndPressedColour(QWidget* widget,
+                                   const QColor& background,
+                                   const QColor& pressed)
+{
+    // untested
+    widget->setStyleSheet(QString(
+        "QWidget {"
+        "  background-color: %1;"
+        "}"
+        "QWidget:pressed {"
+        "  background-color: %1;"
+        "}").arg(css::colourCss(background), css::colourCss(pressed));
+}
 
 
 void removeAllChildWidgets(QObject* object)

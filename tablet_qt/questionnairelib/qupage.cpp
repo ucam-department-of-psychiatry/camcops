@@ -49,6 +49,7 @@ void QuPage::commonConstructor()
     m_type = PageType::Inherit;
     m_skip = false;
     m_allow_scroll = true;
+    m_progress_blocked = false;
 }
 
 
@@ -255,6 +256,18 @@ bool QuPage::missingInput() const
         }
     }
     return false;
+}
+
+
+void QuPage::blockProgress(bool block)
+{
+    m_progress_blocked = block;
+}
+
+
+bool QuPage::progressBlocked() const
+{
+    return m_progress_blocked;
 }
 
 

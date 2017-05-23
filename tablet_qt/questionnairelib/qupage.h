@@ -72,6 +72,9 @@ public:
     bool skip() const;
     void clearElements();  // for rebuilding live pages
     bool allowsScroll() const;
+    bool missingInput() const;
+    void blockProgress(bool block);
+    bool progressBlocked() const;
 signals:
     void elementValueChanged();
 public slots:
@@ -80,7 +83,6 @@ protected:
     void commonConstructor();
     QPointer<QWidget> widget(Questionnaire* questionnaire) const;
     QVector<QuElement*> allElements() const;
-    bool missingInput() const;
     void closing();
 protected:
     PageType m_type;
@@ -89,4 +91,5 @@ protected:
     QVector<QuElementPtr> m_elements;
     bool m_skip;
     bool m_allow_scroll;
+    bool m_progress_blocked;
 };

@@ -34,6 +34,7 @@
 #include "lib/graphicsfunc.h"
 #include "lib/linesegment.h"
 #include "lib/paintertranslaterotatecontext.h"
+#include "lib/uifunc.h"
 using containers::forceVectorSize;
 using geometry::convertHeadingToTrueNorth;
 using geometry::DEG_0;
@@ -112,11 +113,7 @@ AdjustablePie::AdjustablePie(int n_sectors, QWidget* parent) :
     m_cursor_num_being_dragged(-1),
     m_timer(new QTimer())
 {
-    // None of these seem to prevent some sort of automatic background
-    // drawing, making a transparent background fail:
-    setAutoFillBackground(false);
-    // setStyleSheet("");
-
+    uifunc::setBackgroundColour(this, QColor());
     setContentsMargins(0, 0, 0, 0);
 
     setNSectors(n_sectors);
@@ -434,13 +431,28 @@ void AdjustablePie::paintEvent(QPaintEvent* event)
     // ------------------------------------------------------------------------
     // Sectors, cursors, labels
     // ------------------------------------------------------------------------
+    // Draw them separately, in case they overlap (e.g. thick pens).
+
     QPointF sector_tip = widget_centre;
     qreal cursor_radius = m_cursor_outer_radius - m_cursor_inner_radius;
-    for (int i = 0; i < m_n_sectors; ++i) {
+
+    qreal sector_start_angle;
+    qreal sector_end_angle;
+    auto startLoop = [this, &sector_start_angle, &sector_end_angle] (int i) -> void {
         qreal prev_prop = i == 0 ? 0.0 : sectorProportionCumulative(i - 1);
-        qreal sector_start_angle = prev_prop * DEG_360;
+        sector_start_angle = prev_prop * DEG_360;
         qreal prop = sectorProportionCumulative(i);
-        qreal sector_end_angle = prop * DEG_360;
+        sector_end_angle = prop * DEG_360;
+    };
+    auto endLoop = [this, &sector_start_angle, &sector_end_angle] () -> void {
+        sector_start_angle = sector_end_angle;  // for the next one
+    };
+
+    // ------------------------------------------------------------------------
+    // Sectors
+    // ------------------------------------------------------------------------
+    for (int i = 0; i < m_n_sectors; ++i) {
+        startLoop(i);
         // Sector
         const PenBrush& spb = m_sector_penbrushes.at(i);
         if (m_n_sectors == 1) {
@@ -455,7 +467,13 @@ void AdjustablePie::paintEvent(QPaintEvent* event)
                        true,
                        spb.pen, spb.brush);
         }
-        // Cursor
+        endLoop();
+    }
+    // ------------------------------------------------------------------------
+    // Cursors
+    // ------------------------------------------------------------------------
+    for (int i = 0; i < m_n_sectors; ++i) {
+        startLoop(i);
         if (i < m_n_sectors - 1) {
             qreal cursor_half_angle = m_cursor_angle_degrees / 2.0;
             qreal cursor_start_angle = sector_end_angle - cursor_half_angle;
@@ -472,7 +490,14 @@ void AdjustablePie::paintEvent(QPaintEvent* event)
                        convertAngleToQt(cursor_end_angle), true,
                        cpb.pen, cpb.brush);
         }
+        endLoop();
+    }
+    // ------------------------------------------------------------------------
+    // Labels
+    // ------------------------------------------------------------------------
+    for (int i = 0; i < m_n_sectors; ++i) {
         // Label
+        startLoop(i);
         qreal sector_mid_angle = sector_end_angle - (sector_end_angle -
                                                      sector_start_angle) / 2;
         QPointF label_tip = widget_centre +
@@ -534,8 +559,7 @@ void AdjustablePie::paintEvent(QPaintEvent* event)
                          halign | valign);
             }
         }
-        // Onwards...
-        sector_start_angle = sector_end_angle;  // for the next one
+        endLoop();
     }
 
     // ------------------------------------------------------------------------

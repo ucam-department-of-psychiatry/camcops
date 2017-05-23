@@ -201,5 +201,7 @@
         <file>resources/camcops/images/vline.png</file>
         <file>resources/ace3/a.png</file>
         <file>resources/camcops/html/licences.html</file>
+        <file>resources/ided3d/correct.wav</file>
+        <file>resources/ided3d/incorrect.wav</file>
     </qresource>
 </RCC>

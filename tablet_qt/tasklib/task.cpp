@@ -459,14 +459,28 @@ void Task::setDefaultClinicianVariablesAtFirstUse()
 }
 
 
-OpenableWidget* Task::makeGraphicsWidgetForEditing(
+OpenableWidget* Task::makeGraphicsWidget(
         QGraphicsScene* scene,
-        const QColor& background_colour)
+        const QColor& background_colour,
+        bool fullscreen,
+        bool esc_can_abort)
 {
     ScreenLikeGraphicsView* view = new ScreenLikeGraphicsView(scene);
     view->setBackgroundColour(background_colour);
     OpenableWidget* widget = new OpenableWidget();
-    widget->setGraphicsViewAsOnlyContents(view);
+    widget->setWidgetAsOnlyContents(view, 0, fullscreen, esc_can_abort);
+    return widget;
+}
+
+
+OpenableWidget* Task::makeGraphicsWidgetForImmediateEditing(
+        QGraphicsScene* scene,
+        const QColor& background_colour,
+        bool fullscreen,
+        bool esc_can_abort)
+{
+    OpenableWidget* widget = makeGraphicsWidget(scene, background_colour,
+                                                fullscreen, esc_can_abort);
     connect(widget, &OpenableWidget::aborting,
             this, &Task::editFinishedAbort);
     editStarted();
@@ -610,11 +624,8 @@ void Task::editFinished(bool aborted)
             && !valueBool(FIRSTEXIT_IS_ABORT_FIELDNAME)) {
         // First exit, so set flags:
         setValue(WHEN_FIRSTEXIT_FIELDNAME, now);
-        if (aborted) {
-            setValue(FIRSTEXIT_IS_ABORT_FIELDNAME, true);
-        } else {
-            setValue(FIRSTEXIT_IS_FINISH_FIELDNAME, true);
-        }
+        setValue(FIRSTEXIT_IS_ABORT_FIELDNAME, aborted);
+        setValue(FIRSTEXIT_IS_FINISH_FIELDNAME, !aborted);
     }
     save();
 }

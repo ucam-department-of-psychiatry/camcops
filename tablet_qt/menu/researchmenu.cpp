@@ -23,6 +23,7 @@
 #include "menulib/menuitem.h"
 
 #include "tasks/diagnosisicd9cm.h"
+#include "tasks/ided3d.h"
 #include "tasks/qolbasic.h"
 #include "tasks/qolsg.h"
 
@@ -39,7 +40,7 @@ ResearchMenu::ResearchMenu(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM("cardinal_expdetthreshold", app),
         MAKE_TASK_MENU_ITEM("cardinal_expdet", app),
         MAKE_TASK_MENU_ITEM(DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM("ided3d", app),
+        MAKE_TASK_MENU_ITEM(IDED3D::IDED3D_TABLENAME, app),
         MenuItem("*** chain: qolbasic -> phq9 -> phq15"),
     };
 }

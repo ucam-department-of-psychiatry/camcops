@@ -18,7 +18,7 @@
 */
 
 // #define DEBUG_OPENABLE_WIDGET_LAYOUT  // Dumps layout when widget shown
-// #define PRESS_D_TO_DUMP
+// #define DEBUG_PRESS_D_TO_DUMP
 
 #include "openablewidget.h"
 #include <QGraphicsView>
@@ -29,13 +29,14 @@
 #ifdef DEBUG_OPENABLE_WIDGET_LAYOUT
 #include "qobjects/showwatcher.h"
 #endif
-#ifdef PRESS_D_TO_DUMP
+#ifdef DEBUG_PRESS_D_TO_DUMP
 #include "lib/layoutdumper.h"
 #endif
 
 
 OpenableWidget::OpenableWidget(QWidget* parent) :
     QWidget(parent),
+    m_subwidget(nullptr),
     m_wants_fullscreen(false),
     m_escape_key_can_abort(true),
     m_escape_aborts_without_confirmation(false)
@@ -49,6 +50,11 @@ OpenableWidget::OpenableWidget(QWidget* parent) :
 
 void OpenableWidget::build()
 {
+    QWidget* widget = m_subwidget.data();
+    OpenableWidget* openable_widget = dynamic_cast<OpenableWidget*>(widget);
+    if (openable_widget) {
+        openable_widget->build();
+    }
 }
 
 
@@ -64,16 +70,33 @@ void OpenableWidget::setWantsFullscreen(bool fullscreen)
 }
 
 
-void OpenableWidget::setGraphicsViewAsOnlyContents(QGraphicsView* view,
-                                                   int margin,
-                                                   bool fullscreen)
+void OpenableWidget::setWidgetAsOnlyContents(QWidget* widget,
+                                             int margin,
+                                             bool fullscreen,
+                                             bool esc_can_abort)
 {
-    setWantsFullscreen(fullscreen);
-    setEscapeKeyCanAbort(true, false);
+    // Remove any existing layout
+    QLayout* l = layout();
+    delete l;
+    // https://stackoverflow.com/questions/7528680/how-to-delete-an-already-existing-layout-on-a-widget
+    // https://stackoverflow.com/questions/6731331/is-it-still-safe-to-delete-nullptr-in-c0x
 
-    QVBoxLayout* layout = new QVBoxLayout(this);
-    layout->setMargin(margin);
-    layout->addWidget(view);
+    QVBoxLayout* vl = new QVBoxLayout(this);
+    setLayout(vl);
+    vl->setMargin(margin);
+    vl->addWidget(widget);
+
+    m_subwidget = widget;
+
+    // Full screen?
+    setWantsFullscreen(fullscreen);  // in case we're not shown yet
+    emit (fullscreen ? enterFullscreen() : leaveFullscreen());  // in case we're already showing
+
+    // Escape key behaviour?
+    // - Note that one reason not to have multiple widgets active but not
+    //   shown is performance; another is defining which grabs the Escape key
+    //   (or other keys); a third is connecting up all the signals correctly.
+    setEscapeKeyCanAbort(esc_can_abort, false);
 }
 
 
@@ -111,7 +134,7 @@ void OpenableWidget::keyPressEvent(QKeyEvent* event)
             }
         }
     }
-#ifdef PRESS_D_TO_DUMP
+#ifdef DEBUG_PRESS_D_TO_DUMP
     if (key == Qt::Key_D && type == QEvent::KeyPress) {
         layoutdumper::dumpWidgetHierarchy(this);
     }

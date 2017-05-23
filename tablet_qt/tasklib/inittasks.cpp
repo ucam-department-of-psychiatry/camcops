@@ -80,6 +80,7 @@
 #include "tasks/icd10schizophrenia.h"
 #include "tasks/icd10schizotypal.h"
 #include "tasks/icd10specpd.h"
+#include "tasks/ided3d.h"
 #include "tasks/iesr.h"
 #include "tasks/ifs.h"
 #include "tasks/irac.h"
@@ -192,7 +193,7 @@ void InitTasks(TaskFactory& factory)
     initializeIcd10Schizophrenia(factory);
     initializeIcd10Schizotypal(factory);
     initializeIcd10SpecPD(factory);
-    // *** initializeIDED3D(factory); // *** COMPLEX
+    initializeIDED3D(factory);
     initializeIesr(factory);
     initializeIfs(factory);
     initializeIrac(factory);

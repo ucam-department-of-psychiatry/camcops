@@ -108,6 +108,33 @@ QString totalScorePhrase(double numerator, int denominator,
                          const QString& suffix = ".",
                          int dp = 1);
 
-QVector<int> intseq(int first, int last, int step = 1);
+QVector<int> intseq(int first, int last, int step = 1);  // first to last inclusive
+QVector<int> range(int start, int end);  // start to (end - 1) inclusive
+QVector<int> range(int n);  // 0 to (n - 1) inclusive
+
+
+template<typename T>
+QVector<T> rep(const T& x, int n)
+{
+    return QVector<T>(n, x);
+}
+
+
+template<typename T>
+QVector<T> rep(const QVector<T>& values, int each, int times)
+{
+    QVector<T> result;
+    for (int t = 0; t < times; ++t) {
+        for (const T& x : values) {
+            for (int e = 0; e < each; ++e) {
+                result.append(x);
+            }
+        }
+    }
+    return result;
+}
+
+QVector<qreal> distribute(int n, qreal minimum, qreal maximum);
+QPair<int, int> gridDimensions(int n, qreal aspect = 1.0);
 
 }  // namespace mathfunc

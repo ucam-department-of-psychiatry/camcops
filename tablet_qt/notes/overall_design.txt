@@ -1,0 +1,127 @@
+===============================================================================
+CLIENT ARCHITECTURE
+===============================================================================
+
+- We can't run solely over the web; that would break when no Internet is
+  available.
+
+- It's very hard to get a good hybrid that will run over the web and on a
+  standalone client; using Titanium, for example, was not easy and never ended
+  up with a satisfactory web client.
+
+- At which point, you may as well have a high-performance cross-platform client
+  system, hence Qt/C++ (and there's potential to run even these over the web;
+  e.g. Qt applications are starting [2017] to support being served over VNC).
+
+===============================================================================
+SERVER DATA DESIGN
+===============================================================================
+
+We're trying to satisfy quite a few constraints...
+
+- Ability to enter data on tablet with less than the server's preferred ID
+  requirements (hence the "upload" and "finalize" ID policies).
+
+- Ability to run in minimal-ID and full-ID modes, as the server prefers (hence
+  configurable ID.
+
+- General principle of approaching a normalized database where possible, but
+  with some exceptions:
+    - the {device, era} server fields;
+    - the _current field (history within the same table as data);
+    - some extra copying of ID descriptions to "patient" record at upload, so
+      that ID is absolutely secured if someone changes the ID descriptions.
+
+- ALTERNATIVE HISTORY MODELS:
+    - table with "current" field and history information
+        - what we're using
+        - some need to filter for research exports (ignoring non-current stuff)
+    - history in separate shadow tables (profusion of tables; need to move
+      data);
+    - single giant audit table with fields like "table", "field", "value",
+      "date"
+    - bitemporal model, "date of entry" + "date we believe entry to be correct"
+        https://www.simple-talk.com/sql/t-sql-programming/a-primer-on-managing-data-bitemporally/
+        ... though picking "current" data requires a scan for maximum date
+            per row
+    - let's stick with what we have
+
+- Ability to run without a server, or to switch servers, and to wipe data from
+  the tablet after upload -- hence the server's extra {device, era} fields.
+  The server maintains an integer PK system.
+
+    - ALTERNATIVE KEY MODELS:
+        - tablet becomes aware of server PK and uses that somehow
+            - server has to report back PKs recordwise at upload
+            - hard to switch servers
+            - if modified version is uploaded, have to rewrite tablet keys
+    - Let's stick.
+
+===============================================================================
+SERVER ORM AND WEB FRAMEWORK
+===============================================================================
+
+- Then, that leads to a decision about server-side database ORM.
+    - Let's move away from mine; we want better cross-database support.
+    - SQLAlchemy one obvious candidate.
+        - Can be customized for our ISO date/time field.
+        - Migration support worse than Django (at least in terms of convenience).
+    - Django the other.
+        - Can be customized for our ISO date/time field.
+        - Historical weaknesses re composite keys.
+            - We don't need composite primary keys, but we do want composite
+              foreign keys.
+        - Django's notes re composite PKs:
+            https://code.djangoproject.com/wiki/MultipleColumnPrimaryKeys
+        - There is external support:
+            https://pypi.python.org/pypi/django-composite-foreignkey
+        - Maybe we can't do this:
+            patient = models.ForeignKey(Patient, ... where current and same device/era...)
+          but we could do this:
+
+            def patient() -> Optional[Patient]:
+                if self.anonymous():
+                    return None
+                q = Patient.objects.filter(id__eq=self.patient_id)
+                q = q.filter(_current__eq=True)
+                q = q.filter(_device__eq=self._device)
+                q = q.filter(_era__eq=self._era)
+                return q[0] if q else None
+                # http://stackoverflow.com/questions/1387727/checking-for-empty-queryset-in-django
+
+- In terms of a general database framework, Django is pretty good, and it's
+  not clear that Pyramid is a huge improvement. Django also brings:
+    - the excellent admin interface
+    - good migrations
+    - its debug toolbar
+    - good documentation
+    - we know it operates in the Windows (e.g. SQL Server) environment
+    - field comments ("help_text" attribute)
+        https://docs.djangoproject.com/en/dev/ref/models/fields/#help-text
+    - permitted values ("choices")
+    - note it has a preference for using "" not NULL for empty strings,
+      but it can cope:
+        https://docs.djangoproject.com/en/dev/ref/models/fields/#null
+    - you can always use raw SQL
+        https://docs.djangoproject.com/en/1.11/topics/db/sql
+
+
+===============================================================================
+THINGS TO AVOID
+===============================================================================
+
+- Hacking around with summary tables; the server shouldn't be adding tables
+  dynamically. Create the data dumps dynamically (and convert to SQL for
+  downloading if required).
+
+    - To get Django to report table creation SQL: "django-admin sqlmigrate"
+      does this on the command line, but also:
+      https://docs.djangoproject.com/en/1.11/ref/schema-editor/
+      ... could run this on an in-memory SQLite connection...
+
+        with connection.schema_editor() as schema_editor:
+            schema_editor.create_model(MyModel)  # uses the database
+            # ... or:
+            for field in SOME_FIELD_LIST:
+                column_sql, params = schema_editor.column_sql(MyModel, field)
+

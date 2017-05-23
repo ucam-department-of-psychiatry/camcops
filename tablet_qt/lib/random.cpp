@@ -33,4 +33,11 @@ bool coin(qreal p)
 }
 
 
+int randomInt(int minimum, int maximum)
+{
+    std::uniform_int_distribution<int> dist(minimum, maximum);
+    return dist(rng);
+}
+
+
 }  // namespace ccrandom

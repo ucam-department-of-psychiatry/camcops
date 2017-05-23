@@ -18,7 +18,7 @@
 */
 
 #pragma once
-#include <QSharedPointer>
+#include <QPointer>
 #include <QWidget>
 class QGraphicsView;
 
@@ -26,6 +26,13 @@ class QGraphicsView;
 class OpenableWidget : public QWidget
 {
     // Widget that the CamCOPS main app knows how to open as a screen.
+    // - See CamcopsApp::open().
+    // - Examples include MenuWindow, HtmlInfoWindow, and Questionnaire.
+    // - Tasks that run plain graphics may use them directly; see e.g. QolSG,
+    //   which uses a ScreenLikeGraphicsView in an OpenableWidget.
+    // - It is also a widget in its own right, so you can nest them; an example
+    //   is the IDED3D task, which has a Questionnaire config screen followed
+    //   by a graphics view.
 
     Q_OBJECT
 public:
@@ -33,9 +40,10 @@ public:
     virtual void build();  // opportunity to do stuff between creation and opening
     bool wantsFullscreen() const;
     void setWantsFullscreen(bool fullscreen = true);
-    void setGraphicsViewAsOnlyContents(QGraphicsView* view,
-                                       int margin = 0,
-                                       bool fullscreen = true);
+    void setWidgetAsOnlyContents(QWidget* widget,
+                                 int margin = 0,
+                                 bool fullscreen = true,
+                                 bool esc_can_abort = true);
     bool escapeKeyCanAbort() const;
     void setEscapeKeyCanAbort(bool esc_can_abort,
                               bool without_confirmation = false);
@@ -43,7 +51,10 @@ public:
 signals:
     void aborting();
     void finished();
+    void enterFullscreen();
+    void leaveFullscreen();
 protected:
+    QPointer<QWidget> m_subwidget;
     bool m_wants_fullscreen;
     bool m_escape_key_can_abort;
     bool m_escape_aborts_without_confirmation;
