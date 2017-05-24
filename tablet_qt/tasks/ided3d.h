@@ -125,7 +125,7 @@ protected:
     void debugDisplayStimuli();
     graphicsfunc::SvgWidgetAndProxy showIndividualStimulus(
             int stimulus_num, const QColor& colour,
-            const QPointF& centre, qreal scale);
+            const QPointF& centre, qreal scale, bool debug = false);
 
 protected slots:
     void validateQuestionnaire();

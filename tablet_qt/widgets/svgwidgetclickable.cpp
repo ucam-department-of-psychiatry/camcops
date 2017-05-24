@@ -18,6 +18,11 @@
 */
 
 #include "svgwidgetclickable.h"
+#
+#include <QDebug>
+#include <QMouseEvent>
+#include <QPainter>
+#include <QPaintEvent>
 #include "lib/uifunc.h"
 
 
@@ -38,13 +43,73 @@ SvgWidgetClickable::SvgWidgetClickable(const QString& filename,
 
 void SvgWidgetClickable::commonConstructor()
 {
+    m_pressed = false;
+    m_pressing_inside = false;
     uifunc::setBackgroundColour(this, QColor());
     setContentsMargins(0, 0, 0, 0);
+}
+
+
+void SvgWidgetClickable::setBackgroundColour(const QColor& colour)
+{
+    m_background_colour = colour;
+    update();
+}
+
+
+void SvgWidgetClickable::setPressedBackgroundColour(const QColor& colour)
+{
+    m_pressed_background_colour = colour;
+    update();
 }
 
 
 void SvgWidgetClickable::mousePressEvent(QMouseEvent* event)
 {
     Q_UNUSED(event);
-    emit clicked();
+    m_pressed = true;
+    m_pressing_inside = true;
+    emit pressed();
+    update();
+}
+
+
+void SvgWidgetClickable::mouseMoveEvent(QMouseEvent* event)
+{
+    if (m_pressed) {
+        bool was_pressing_inside = m_pressing_inside;
+        m_pressing_inside = contentsRect().contains(event->pos());
+        if (m_pressing_inside != was_pressing_inside) {
+            update();
+        }
+    }
+    Q_UNUSED(event);
+    update();
+}
+
+
+void SvgWidgetClickable::mouseReleaseEvent(QMouseEvent* event)
+{
+    m_pressed = false;
+    if (contentsRect().contains(event->pos())) {
+        // release occurred inside widget
+        emit clicked();
+    }
+    update();
+}
+
+
+void SvgWidgetClickable::paintEvent(QPaintEvent* event)
+{
+    {
+        const QColor& bg = m_pressed && m_pressing_inside
+                ? m_pressed_background_colour
+                : m_background_colour;
+        QPainter p(this);
+        p.setBrush(QBrush(bg));
+        QRect cr = contentsRect();
+        p.drawRect(cr);
+    }
+
+    QSvgWidget::paintEvent(event);
 }

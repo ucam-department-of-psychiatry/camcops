@@ -53,6 +53,97 @@ namespace graphicsfunc
 
 
 // ============================================================================
+// SvgTransform
+// ============================================================================
+
+SvgTransform::SvgTransform()
+{
+}
+
+
+SvgTransform& SvgTransform::matrix(qreal a, qreal b, qreal c,
+                                   qreal d, qreal e, qreal f)
+{
+    transformations.append(QString("matrix(%1 %2 %3 %4 %5 %6")
+                           .arg(a)
+                           .arg(b)
+                           .arg(c)
+                           .arg(d)
+                           .arg(e)
+                           .arg(f));
+    return *this;
+}
+
+
+SvgTransform& SvgTransform::translate(qreal x, qreal y)
+{
+    transformations.append(QString("translate(%1 %2)")
+                           .arg(x)
+                           .arg(y));
+    return *this;
+}
+
+
+SvgTransform& SvgTransform::scale(qreal xy)
+{
+    transformations.append(QString("scale(%1)").arg(xy));
+    return *this;
+}
+
+
+SvgTransform& SvgTransform::scale(qreal x, qreal y)
+{
+    transformations.append(QString("scale(%1 %2)")
+                           .arg(x)
+                           .arg(y));
+    return *this;
+}
+
+
+SvgTransform& SvgTransform::rotate(qreal a)
+{
+    transformations.append(QString("rotate(%1)").arg(a));
+    return *this;
+}
+
+
+SvgTransform& SvgTransform::rotate(qreal a, qreal x, qreal y)
+{
+    transformations.append(QString("rotate(%1 %2 %e)")
+                           .arg(a)
+                           .arg(x)
+                           .arg(y));
+    return *this;
+}
+
+
+SvgTransform& SvgTransform::skewX(qreal a)
+{
+    transformations.append(QString("skewX(%1)").arg(a));
+    return *this;
+}
+
+
+SvgTransform& SvgTransform::skewY(qreal a)
+{
+    transformations.append(QString("skewY(%1)").arg(a));
+    return *this;
+}
+
+
+QString SvgTransform::string() const
+{
+    return transformations.join(" ");
+}
+
+
+bool SvgTransform::active() const
+{
+    return !transformations.isEmpty();
+}
+
+
+// ============================================================================
 // SVG
 // ============================================================================
 
@@ -94,6 +185,7 @@ QString svg(const QStringList& elements)
 QString svgPath(const QString& contents,
                 const QColor& stroke, int stroke_width,
                 const QColor& fill,
+                const SvgTransform& transform,
                 const QString& element_id)
 {
     // https://www.w3schools.com/graphics/svg_path.asp
@@ -110,6 +202,9 @@ QString svgPath(const QString& contents,
     if (!element_id.isEmpty()) {
         attributes["id"] = element_id;
     }
+    if (transform.active()) {
+        attributes["transform"] = transform.string();
+    }
     return xmlElement("path", "", attributes);
 }
 
@@ -125,6 +220,7 @@ const QString TEST_SVG(
 QString svgFromPathContents(const QString& path_contents,
                             const QColor& stroke, int stroke_width,
                             const QColor& fill,
+                            const SvgTransform& transform,
                             const QString& element_id)
 {
 #ifdef DEBUG_SVG
@@ -136,7 +232,8 @@ QString svgFromPathContents(const QString& path_contents,
     return TEST_SVG;
 #else
     return svg({
-        svgPath(path_contents, stroke, stroke_width, fill, element_id)
+        svgPath(path_contents, stroke, stroke_width, fill, transform,
+                   element_id)
     });
 #endif
 }
@@ -487,6 +584,8 @@ SvgWidgetAndProxy makeSvg(
         QGraphicsScene* scene,  // SVG is added to scene
         const QPointF& centre,
         const QString& svg,
+        const QColor& pressed_background_colour,
+        const QColor& background_colour,
         QWidget* parent)
 {
     SvgWidgetAndProxy result;
@@ -494,6 +593,9 @@ SvgWidgetAndProxy makeSvg(
 
     result.widget = new SvgWidgetClickable(parent);
     result.widget->load(contents);
+    result.widget->setBackgroundColour(background_colour);
+    result.widget->setPressedBackgroundColour(pressed_background_colour);
+
     QSizeF size = result.widget->sizeHint();
     QPointF top_left(centre.x() - size.width() / 2,
                      centre.y() - size.height() / 2);

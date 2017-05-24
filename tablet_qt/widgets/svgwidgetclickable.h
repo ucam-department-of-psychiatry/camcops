@@ -31,14 +31,34 @@ class SvgWidgetClickable : public QSvgWidget
     //   renderer separately, which is something of a pain.
     // For clicks:
     // - https://stackoverflow.com/questions/36372615/how-can-i-capture-click-events-signals-of-a-qgraphicssvgitem
+    // For changing the background colour when pressed:
+    // - The ":pseudo" stylesheet selector doesn't work; possibly that's
+    //   only for QAbstractButton.
+    // - You can't both override paintEvent() and call the base class
+    //   implementation?
+    //   - https://stackoverflow.com/questions/13897026/accessing-a-qpainter-in-base-class
+    //   - http://doc.qt.io/qt-4.8/qpainter.html#begin
+    // - Aha! You can. You just have to ensure the first QPainter is destroyed
+    //   first. Done.
     Q_OBJECT
 public:
     SvgWidgetClickable(QWidget* parentitem = nullptr);
     SvgWidgetClickable(const QString& filename,
                        QWidget* parentitem = nullptr);
+    void setBackgroundColour(const QColor& colour);
+    void setPressedBackgroundColour(const QColor& colour);
 protected:
     void commonConstructor();
     virtual void mousePressEvent(QMouseEvent* event) override;
+    virtual void mouseMoveEvent(QMouseEvent* event) override;
+    virtual void mouseReleaseEvent(QMouseEvent* event) override;
+    virtual void paintEvent(QPaintEvent* event) override;
 signals:
-    void clicked();
+    void pressed();  // start of mouse press
+    void clicked();  // press -> release = click
+protected:
+    QColor m_background_colour;
+    QColor m_pressed_background_colour;
+    bool m_pressed;
+    bool m_pressing_inside;
 };

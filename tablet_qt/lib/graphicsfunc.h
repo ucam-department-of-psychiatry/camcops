@@ -135,6 +135,28 @@ struct SvgWidgetAndProxy {
 
 
 // ============================================================================
+// SvgTransform
+// ============================================================================
+
+class SvgTransform {
+public:
+    SvgTransform();
+    SvgTransform& matrix(qreal a, qreal b, qreal c, qreal d, qreal e, qreal f);
+    SvgTransform& translate(qreal x, qreal y = 0.0);
+    SvgTransform& scale(qreal xy);
+    SvgTransform& scale(qreal x, qreal y);
+    SvgTransform& rotate(qreal a);
+    SvgTransform& rotate(qreal a, qreal x, qreal y);
+    SvgTransform& skewX(qreal a);
+    SvgTransform& skewY(qreal a);
+    QString string() const;
+    bool active() const;
+protected:
+    QStringList transformations;
+};
+
+
+// ============================================================================
 // SVG
 // ============================================================================
 
@@ -145,10 +167,12 @@ QString svg(const QStringList& elements);
 QString svgPath(const QString& contents,
                 const QColor& stroke, int stroke_width,
                 const QColor& fill,
+                const SvgTransform& transform,
                 const QString& element_id = "");
 QString svgFromPathContents(const QString& path_contents,
                             const QColor& stroke, int stroke_width,
                             const QColor& fill,
+                            const SvgTransform& transform,
                             const QString& element_id = "");
 QString opacity(const QColor& colour);
 
@@ -208,6 +232,8 @@ SvgWidgetAndProxy makeSvg(
         QGraphicsScene* scene,  // SVG is added to scene
         const QPointF& centre,
         const QString& svg,
+        const QColor& pressed_background_colour = QColor(),
+        const QColor& background_colour = QColor(),
         QWidget* parent = nullptr);
 
 

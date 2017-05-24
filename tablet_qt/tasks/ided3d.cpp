@@ -57,6 +57,8 @@ Comments
 
 */
 
+// #define DEBUG_SVG
+
 #include "ided3d.h"
 #include <functional>
 #include <QDebug>
@@ -89,6 +91,7 @@ using graphicsfunc::LabelAndProxy;
 using graphicsfunc::makeSvg;
 using graphicsfunc::makeText;
 using graphicsfunc::makeTextButton;
+using graphicsfunc::SvgTransform;
 using graphicsfunc::SvgWidgetAndProxy;
 using graphicsfunc::TextConfig;
 using stringfunc::replaceFirst;
@@ -183,6 +186,7 @@ const Qt::Alignment BUTTON_TEXT_ALIGN = Qt::AlignCenter;
 const Qt::Alignment TEXT_ALIGN = Qt::AlignCenter;
 const int STIMSIZE = 120;  // max width/height
 const int STIM_STROKE_WIDTH = 3;
+const QColor STIM_PRESSED_BG_COLOUR("orange");
 
 // Dimensions
 const QString DIM_SHAPE("shape");
@@ -681,11 +685,17 @@ void IDED3D::validateQuestionnaire()
     connect(b.button, &QPushButton::clicked, this, \
             std::bind(&IDED3D::funcname, this, param), \
             Qt::QueuedConnection)
-#define CONNECT_SVG(svg, funcname) \
+// For debugging:
+#define CONNECT_SVG_CLICKED(svg, funcname) \
     connect(svg.widget, &SvgWidgetClickable::clicked, \
             this, &IDED3D::funcname, \
             Qt::QueuedConnection)
     // ... svg is an SvgItemAndRenderer
+// For rapid response detection:
+#define CONNECT_SVG_PRESSED(svg, funcname) \
+    connect(svg.widget, &SvgWidgetClickable::pressed, \
+            this, &IDED3D::funcname, \
+            Qt::QueuedConnection)
 
 
 void IDED3D::startTask()
@@ -700,7 +710,6 @@ void IDED3D::startTask()
 
 void IDED3D::debugDisplayStimuli()
 {
-    qDebug() << Q_FUNC_INFO;
     int n_stimuli = SHAPE_DEFINITIONS.size();
     qreal aspect = SCENE_WIDTH / SCENE_HEIGHT;
     QPair<int, int> x_y = mathfunc::gridDimensions(n_stimuli, aspect);
@@ -713,11 +722,11 @@ void IDED3D::debugDisplayStimuli()
     for (int y = 0; y < ny && n < n_stimuli; ++y) {
         for (int x = 0; x < nx && n < n_stimuli; ++x) {
             QPointF centre(x_centres[x], y_centres[y]);
-            SvgWidgetAndProxy stim = showIndividualStimulus(n, TEST_COLOUR,
-                                                            centre, scale);
+            SvgWidgetAndProxy stim = showIndividualStimulus(
+                        n, TEST_COLOUR, centre, scale, true);
             QString label = QString::number(n);
             makeText(m_scene, centre, BASE_TEXT_CONFIG, label);
-            CONNECT_SVG(stim, finish);
+            CONNECT_SVG_CLICKED(stim, finish);
             n += 1;
         }
     }
@@ -726,29 +735,20 @@ void IDED3D::debugDisplayStimuli()
 
 SvgWidgetAndProxy IDED3D::showIndividualStimulus(
         int stimulus_num, const QColor& colour,
-        const QPointF& centre, qreal scale)
+        const QPointF& centre, qreal scale, bool debug)
 {
     Q_ASSERT(stimulus_num >= 0 && stimulus_num < SHAPE_DEFINITIONS.size());
-    const QString& base_svg = SHAPE_DEFINITIONS.at(stimulus_num);
-    // ***
-    /*
-    QString path_contents = QString(
-                "s%1 "  // scale
-                "t%2,%3 "
-                "%4")  // translate (correcting for current scaling)
-            .arg(scale)
-            .arg(centre.x() / scale)
-            .arg(centre.y() / scale)
-            .arg(base_svg);
-    */
-    QString path_contents = base_svg;
-    Q_UNUSED(scale);
+    const QString& path_contents = SHAPE_DEFINITIONS.at(stimulus_num);
+    SvgTransform transform;
+    transform.scale(scale);
     QString svg = graphicsfunc::svgFromPathContents(
-                path_contents, colour, STIM_STROKE_WIDTH, colour);
+                path_contents, colour, STIM_STROKE_WIDTH, colour, transform);
+#ifdef DEBUG_SVG
     qDebug().noquote() << "showIndividualStimulus: svg:" << svg;
-    return makeSvg(m_scene, centre, svg);
+#endif
+    return makeSvg(m_scene, centre, svg,
+                   debug ? STIM_PRESSED_BG_COLOUR : QColor());
 }
-
 
 
 void IDED3D::abort()

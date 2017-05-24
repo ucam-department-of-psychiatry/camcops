@@ -273,7 +273,7 @@ void setBackgroundAndPressedColour(QWidget* widget,
         "}"
         "QWidget:pressed {"
         "  background-color: %1;"
-        "}").arg(css::colourCss(background), css::colourCss(pressed));
+        "}").arg(css::colourCss(background), css::colourCss(pressed)));
 }
 
 
