@@ -56,7 +56,7 @@ T dwor(QVector<T>& bucket)
 
 // Draw with replacement
 template<typename T>
-T drawreplace(QVector<T>& bucket)
+T drawreplace(const QVector<T>& bucket)
 {
     if (bucket.isEmpty()) {
         return T();

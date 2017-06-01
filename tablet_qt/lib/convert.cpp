@@ -38,13 +38,33 @@
 namespace convert {
 
 // ============================================================================
+// Constants used in several places
+// ============================================================================
+
+const QChar COMMA(',');
+const QChar SQUOTE('\'');  // single quote
+const QChar DQUOTE('"');  // double quote
+const QChar NL('\n');  // newline
+const QChar CR('\r');  // carriage return
+const QChar TAB('\t');
+const QChar BACKSLASH('\\');
+const QChar SPACE(' ');
+const QChar ZERO('0');
+
+const ushort UNICODE_COMMA = COMMA.unicode();
+const ushort UNICODE_DQUOTE = DQUOTE.unicode();
+const ushort UNICODE_NL = NL.unicode();
+const ushort UNICODE_CR = CR.unicode();
+const ushort UNICODE_TAB = TAB.unicode();
+const ushort UNICODE_BACKSLASH = BACKSLASH.unicode();
+const ushort UNICODE_SPACE = SPACE.unicode();
+
+
+// ============================================================================
 // SQL literals
 // ============================================================================
 
 const QString NULL_STR("NULL");
-
-const QChar COMMA = ',';
-const QChar SQUOTE = '\'';  // single quote
 
 const QString RECORD_RE_STR("^([\\S]+?):\\s*([\\s\\S]*)");
 // double-backslashes for C++ escaping
@@ -65,7 +85,7 @@ QString escapeNewlines(QString raw)
 }
 
 
-QString unescapeNewlines(QString escaped)
+QString unescapeNewlines(const QString& escaped)
 {
     if (escaped.isEmpty()) {
         return escaped;
@@ -224,6 +244,10 @@ QString toSqlLiteral(const QVariant& value)
             QVector<int> intvec = qVariantToIntVector(value);
             return sqlQuoteString(intVectorToCsvString(intvec));
         }
+        if (isQVariantOfUserType(value, TYPENAME_QSTRINGLIST)) {
+            QStringList strlist = qVariantToQStringList(value);
+            return sqlQuoteString(qStringListToCsvString(strlist));
+        }
         uifunc::stopApp("toSqlLiteral: Unknown user type");
         // We'll never get here, but to stop compilers complaining:
         return NULL_STR;
@@ -333,14 +357,125 @@ QString valuesToCsvSqlLiterals(const QVector<QVariant>& values)
     for (auto value : values) {
         literals.append(toSqlLiteral(value));
     }
-    return literals.join(',');
+    return literals.join(COMMA);
+}
+
+
+// ============================================================================
+// C++ literals
+// ============================================================================
+
+const int BASE_OCTAL = 8;
+const int OCTAL_NUM_DIGITS = 3;
+
+
+QString stringToUnquotedCppLiteral(const QString& raw)
+{
+    // https://stackoverflow.com/questions/10220401
+    QString escaped;
+    for (QChar c : raw) {
+        ushort u = c.unicode();
+        if (u == UNICODE_NL) {
+            escaped += R"(\n)";
+        } else if (u == UNICODE_CR) {
+            escaped += R"(\r)";
+        } else if (u == UNICODE_TAB) {
+            escaped += R"(\t)";
+        } else if (u == UNICODE_BACKSLASH) {
+            escaped += R"(\\)";
+        } else if (u == UNICODE_DQUOTE) {
+            escaped += R"(\")";
+        } else if (u < UNICODE_SPACE) {
+            QString octal = QString("\\%1").arg(u, OCTAL_NUM_DIGITS,
+                                                BASE_OCTAL, ZERO);
+            // ... number, fieldwidth (+ right align, - left align), base, fillchar
+            escaped += octal;
+        } else {
+            escaped += c;
+        }
+    }
+    return escaped;
+}
+
+
+QString stringToCppLiteral(const QString &raw)
+{
+    return DQUOTE + stringToUnquotedCppLiteral(raw) + DQUOTE;
+}
+
+
+QString unquotedCppLiteralToString(const QString& escaped)
+{
+    // reverses stringToUnquotedCppLiteral()
+    QString raw;
+    QString escape_digits;
+    bool in_escape = false;
+    bool in_octal = false;
+    for (QChar c : escaped) {
+        ushort u = c.unicode();
+        if (in_escape) {
+            if (in_octal) {
+                bool ok = c.isDigit();
+                if (ok) {
+                    escape_digits.append(c);
+                    if (escape_digits.length() >= OCTAL_NUM_DIGITS) {
+                        bool ok;
+                        ushort code = escape_digits.toInt(&ok, BASE_OCTAL);
+                        if (ok) {
+                            // our octal code has finished
+                            raw += QChar(code);
+                            in_escape = false;
+                        }
+                    }
+                }
+                if (!ok) {
+                    qWarning() << Q_FUNC_INFO << "Bad octal in:" << escaped;
+                    in_escape = false;
+                }
+                // otherwise, in_escape remains true
+            } else if (u == UNICODE_BACKSLASH) {
+                in_octal = true;
+                // in_escape remains true
+            } else {
+                if (c == 'r') {
+                    raw += CR;
+                } else if (c == 'n') {
+                    raw += NL;
+                } else {
+                    qWarning() << Q_FUNC_INFO << "Unknown escape code:" << c;
+                }
+                in_escape = false;
+            }
+        } else {
+            if (u == UNICODE_BACKSLASH) {
+                in_escape = true;
+                in_octal = false;
+                escape_digits = "";
+            } else {
+                raw += c;
+            }
+        }
+    }
+    return raw;
+}
+
+
+QString cppLiteralToString(const QString& escaped)
+{
+    // reverses stringToCppLiteral()
+    int len = escaped.length();
+    if (len >= 2 && escaped.at(0) == DQUOTE && escaped.at(len - 1) == DQUOTE) {
+        // quoted string
+        return unquotedCppLiteralToString(escaped.mid(1, len - 2));
+    } else {
+        return unquotedCppLiteralToString(escaped);
+    }
 }
 
 
 // ============================================================================
 // Images
 // ============================================================================
-
 
 QByteArray imageToByteArray(const QImage& image, const char* format)
 {
@@ -588,13 +723,13 @@ QString intVectorToCsvString(const QVector<int>& vec)
     for (int value : vec) {
         strings.append(QString::number(value));
     }
-    return strings.join(",");
+    return strings.join(COMMA);
 }
 
 
 QVector<int> csvStringToIntVector(const QString& str)
 {
-    QStringList strings = str.split(",");
+    QStringList strings = str.split(COMMA);
     QVector<int> vec;
     for (const QString& s : strings) {
         vec.append(s.toInt());
@@ -603,17 +738,75 @@ QVector<int> csvStringToIntVector(const QString& str)
 }
 
 
+QString qStringListToCsvString(const QStringList& vec)
+{
+    QStringList words;
+    for (QString word : vec) {
+        words.append(stringToCppLiteral(word));
+    }
+    return words.join(COMMA);
+}
+
+
+QStringList csvStringToQStringList(const QString& str)
+{
+    QStringList words;
+    QString word;
+    bool in_quote = false;
+    bool in_escape = false;
+    for (QChar c : str) {
+        ushort u = c.unicode();
+        if (in_escape) {
+            // We don't have to be concerned with sophisticated escaping.
+            // We just want to make sure that \" isn't treated like it's an
+            // opening or closing quote, but that the " in \\" is.
+            word += c;
+            in_escape = false;
+        } else {
+            if (u == UNICODE_BACKSLASH) {
+                word += c;
+                in_escape = true;
+            } else if (in_quote) {
+                word += c;
+                if (u == UNICODE_DQUOTE) {
+                    // end of quoted string
+                    in_quote = false;
+                }
+            } else {
+                // Not within quotes, so commas mean CSV breaks
+                if (u == UNICODE_COMMA) {
+                    // CSV break: MAIN POINT OF ONWARD PROCESSING
+                    words.append(cppLiteralToString(word.trimmed()));
+                    word = "";
+                } else if (u == UNICODE_DQUOTE) {
+                    // start of quoted string
+                    word += c;
+                    in_quote = true;  // so we can have commas within quotes
+                } else {
+                    // character outside quotes
+                    word += c;
+                }
+            }
+        }
+    }
+    words.append(cppLiteralToString(word.trimmed()));
+    return words;
+}
+
+
 // ============================================================================
 // QVariant modifications
 // ============================================================================
 
 const char* TYPENAME_QVECTOR_INT("QVector<int>");
+const char* TYPENAME_QSTRINGLIST("QStringList");
 
 
 void registerQVectorTypesForQVariant()
 {
     // http://stackoverflow.com/questions/6177906/is-there-a-reason-why-qvariant-accepts-only-qlist-and-not-qvector-nor-qlinkedlis
     qRegisterMetaType<QVector<int>>(TYPENAME_QVECTOR_INT);
+    qRegisterMetaType<QStringList>(TYPENAME_QSTRINGLIST);
 }
 
 
@@ -630,6 +823,12 @@ QVector<int> qVariantToIntVector(const QVariant& v)
     // - http://doc.qt.io/qt-5/qvariant.html
     // - http://doc.qt.io/qt-5/qmetatype.html
     return v.value<QVector<int>>();
+}
+
+
+QStringList qVariantToQStringList(const QVariant& v)
+{
+    return v.value<QStringList>();
 }
 
 
@@ -715,6 +914,23 @@ void stonesPoundsOuncesFromKilograms(double kilograms,
     qDebug() << UNIT_CONVERSION << kilograms << "kg ->"
              << stones << "st" << pounds << "lb" << ounces << "oz";
 #endif
+}
+
+
+// ============================================================================
+// Tests
+// ============================================================================
+
+void testConversions()
+{
+    qDebug() << "Testing conversions...";
+
+    QStringList stringlist{"a", "b", "c1\nc2"};
+    QString stringlist_to_str(R"("a","b","c1\nc2")");
+    assert_eq(qStringListToCsvString(stringlist), stringlist_to_str);
+    assert_eq(csvStringToQStringList(stringlist_to_str), stringlist);
+
+    qDebug() << "... all conversions correct.";
 }
 
 

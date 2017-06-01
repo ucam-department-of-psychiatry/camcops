@@ -28,7 +28,7 @@ class PhotoSequencePhoto : public DatabaseObject
 public:
     PhotoSequencePhoto(CamcopsApp& app, const QSqlDatabase& db,
                        int load_pk = dbconst::NONEXISTENT_PK);
-    void setForeignKeyToOwner(int fk);
+    PhotoSequencePhoto(int owner_fk, CamcopsApp& app, const QSqlDatabase& db);
     void setSeqnum(int seqnum);
     int seqnum() const;
     QString description() const;

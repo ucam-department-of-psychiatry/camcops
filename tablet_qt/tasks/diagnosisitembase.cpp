@@ -47,9 +47,13 @@ DiagnosisItemBase::DiagnosisItemBase(CamcopsApp& app, const QSqlDatabase& db,
 }
 
 
-void DiagnosisItemBase::setForeignKeyToOwner(int fk)
+DiagnosisItemBase::DiagnosisItemBase(int owner_fk,
+                                     CamcopsApp& app, const QSqlDatabase& db,
+                                     const QString& tablename,
+                                     const QString& fkname) :
+    DiagnosisItemBase(app, db, tablename, fkname)  // delegating constructor
 {
-    setValue(m_fkname, fk);
+    setValue(m_fkname, owner_fk);
 }
 
 

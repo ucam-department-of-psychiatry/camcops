@@ -110,5 +110,6 @@ DiagnosticCodeSetPtr DiagnosisIcd9CM::makeCodeset() const
 
 DiagnosisItemBasePtr DiagnosisIcd9CM::makeItem() const
 {
-    return DiagnosisItemBasePtr(new DiagnosisIcd9CMItem(m_app, m_db));
+    return DiagnosisItemBasePtr(new DiagnosisIcd9CMItem(
+                                    pkvalueInt(), m_app, m_db));
 }

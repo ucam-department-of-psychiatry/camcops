@@ -27,6 +27,7 @@
 #include <QDebug>
 #include <QGraphicsProxyWidget>
 #include <QGraphicsScene>
+#include <QGraphicsRectItem>
 #include <QGraphicsTextItem>
 #include <QLabel>
 #include <QMetaMethod>
@@ -38,6 +39,7 @@
 #include <QVBoxLayout>
 #include "lib/css.h"
 #include "lib/geometry.h"
+#include "lib/mathfunc.h"
 #include "widgets/adjustablepie.h"
 #include "widgets/svgwidgetclickable.h"
 using css::colourCss;
@@ -241,8 +243,13 @@ QString svgFromPathContents(const QString& path_contents,
 
 QString opacity(const QColor& colour)
 {
-    qreal opacity = colour.alpha() / 255.0;  // convert 0-255 to 0-1
-    return QString::number(opacity);
+    return QString::number(mathfunc::byteToProportion(colour.alpha()));
+}
+
+
+int alpha(qreal opacity)
+{
+    return mathfunc::proportionToByte(opacity);
 }
 
 
@@ -605,6 +612,15 @@ SvgWidgetAndProxy makeSvg(
     result.proxy->setGeometry(rect);
 
     return result;
+}
+
+
+QGraphicsRectItem* makeObscuringRect(QGraphicsScene* scene,
+                                     const QRectF& rect, qreal opacity)
+{
+    QPen pen(Qt::NoPen);
+    QBrush brush(QColor(0, 0, 0, alpha(opacity)));
+    return scene->addRect(rect, pen, brush);
 }
 
 

@@ -179,6 +179,12 @@ QString resourceFilename(const QString& resourcepath)
 }
 
 
+QUrl resourceUrl(const QString& resourcepath)
+{
+    return QUrl(QString("qrc:///resources/%1").arg(resourcepath));
+}
+
+
 QString iconFilename(const QString& basefile)
 {
     return resourceFilename(QString("camcops/images/%1").arg(basefile));

@@ -30,7 +30,8 @@ public:
           bool mandatory = false, bool unique = false, bool pk = false,
           const QVariant& default_value = QVariant());
     Field(const QString& name, const QString& type_name,
-          bool mandatory = false, bool unique = false, bool pk = false);
+          bool mandatory = false, bool unique = false, bool pk = false,
+          const QVariant& default_value = QVariant());
     Field& setPk(bool pk);
     Field& setUnique(bool unique);
     Field& setMandatory(bool pk);

@@ -28,6 +28,7 @@ class SvgWidgetClickable;
 class QBrush;
 class QGraphicsProxyWidget;
 class QGraphicsScene;
+class QGraphicsRectItem;
 class QGraphicsTextItem;
 class QLabel;
 class QPushButton;
@@ -175,6 +176,8 @@ QString svgFromPathContents(const QString& path_contents,
                             const SvgTransform& transform,
                             const QString& element_id = "");
 QString opacity(const QColor& colour);
+int alpha(qreal opacity);
+
 
 // ============================================================================
 // Graphics calculations and painting
@@ -235,6 +238,11 @@ SvgWidgetAndProxy makeSvg(
         const QColor& pressed_background_colour = QColor(),
         const QColor& background_colour = QColor(),
         QWidget* parent = nullptr);
+
+QGraphicsRectItem* makeObscuringRect(
+        QGraphicsScene* scene,
+        const QRectF& rect,
+        qreal opacity = 0.5);  // 0-1
 
 
 }  // namespace graphicsfunc

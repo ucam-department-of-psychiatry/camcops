@@ -53,6 +53,7 @@ namespace textconst
 // ============================================================================
 
 extern const QString ABNORMAL;
+extern const QString ABORT;
 extern const QString ADD;
 extern const QString AND;
 
@@ -72,6 +73,7 @@ extern const QString CLINICIAN_SPECIALTY;
 extern const QString CLINICIANS_COMMENTS;
 extern const QString COMMENT;
 extern const QString COMMENTS;
+extern const QString CORRECT;
 
 extern const QString DATA_COLLECTION_ONLY;
 extern const QString DELETE;
@@ -87,6 +89,7 @@ extern const QString EXAMINER_COMMENTS_PROMPT;
 
 extern const QString ICD10;
 extern const QString IN_ADDITION;
+extern const QString INCORRECT;
 
 extern const QString LOCATION;
 
@@ -153,6 +156,8 @@ extern const QString TRUE;
 extern const QString UNKNOWN;
 
 extern const QString VERY_SEVERE;
+
+extern const QString WRONG;
 
 extern const QString YES;
 

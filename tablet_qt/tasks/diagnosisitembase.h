@@ -30,7 +30,10 @@ public:
                       const QString& tablename,
                       const QString& fkname,
                       int load_pk = dbconst::NONEXISTENT_PK);
-    void setForeignKeyToOwner(int fk);
+    DiagnosisItemBase(int owner_fk,
+                      CamcopsApp& app, const QSqlDatabase& db,
+                      const QString& tablename,
+                      const QString& fkname);
     void setSeqnum(int seqnum);
     int seqnum() const;
     QString code() const;

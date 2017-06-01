@@ -137,4 +137,10 @@ QVector<T> rep(const QVector<T>& values, int each, int times)
 QVector<qreal> distribute(int n, qreal minimum, qreal maximum);
 QPair<int, int> gridDimensions(int n, qreal aspect = 1.0);
 
+int proportionToByte(qreal proportion);  // 0.0-1.0 to 0-255
+qreal byteToProportion(int byte);  // 0-255 to 0.0-1.0
+
+int proportionToIntPercent(qreal proportion);  // 0.0-1.0 to 0-100
+qreal intPercentToProportion(int percent);  // 0-100 to 0.0-1.0
+
 }  // namespace mathfunc

@@ -26,6 +26,7 @@ class DiagnosisIcd10Item : public DiagnosisItemBase
 public:
     DiagnosisIcd10Item(CamcopsApp& app, const QSqlDatabase& db,
                        int load_pk = dbconst::NONEXISTENT_PK);
+    DiagnosisIcd10Item(int owner_fk, CamcopsApp& app, const QSqlDatabase& db);
 public:
     static const QString FK_NAME;
 };

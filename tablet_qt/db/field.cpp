@@ -39,11 +39,6 @@ Field::Field(const QString& name, QVariant::Type type,
     m_set(false),
     m_dirty(true)
 {
-//    if (type == QVariant::String || type == QVariant::Char) {
-//        m_default_value = "";  // empty string, not NULL (as per Django)
-//    } else {
-//        m_default_value = QVariant(type);  // NULL
-//    }
     if (default_value.isNull()) {
         m_default_value = QVariant(type);  // NULL
     } else {
@@ -54,7 +49,8 @@ Field::Field(const QString& name, QVariant::Type type,
 
 
 Field::Field(const QString& name, const QString& type_name,
-             bool mandatory, bool unique, bool pk) :
+             bool mandatory, bool unique, bool pk,
+             const QVariant& default_value) :
     m_name(name),
     m_type(QVariant::UserType),
     m_type_name(type_name),
@@ -64,15 +60,14 @@ Field::Field(const QString& name, const QString& type_name,
     m_set(false),
     m_dirty(true)
 {
-    m_default_value = QVariant();  // NULL
+    m_default_value = default_value;
     m_value = m_default_value;
 }
 
 
 Field::Field() :  // needed by QMap
-    Field("", QVariant::Int)
+    Field("", QVariant::Int)  // delegating constructor (C++11)
 {
-    // delegating constructor (C++11)
 }
 
 
@@ -182,7 +177,9 @@ bool Field::setValue(const QVariant& value)
         m_dirty = true;
     }
     m_value = value;
-    if (!m_value.isNull()) {  // Don't try to convert NULL values; needless warning
+    if (!m_value.isNull() && m_type != QVariant::UserType) {
+        // Don't try to convert NULL values; needless warning.
+        // Don't try to convert user type; it'll go wrong.
         bool converted = m_value.convert(m_type);
         if (!converted) {
             if (m_type == QVariant::Char) {
@@ -289,6 +286,9 @@ QString Field::sqlColumnType() const
         if (m_type_name == convert::TYPENAME_QVECTOR_INT) {
             return SQLITE_TYPE_TEXT;
         }
+        if (m_type_name == convert::TYPENAME_QSTRINGLIST) {
+            return SQLITE_TYPE_TEXT;
+        }
         break;
     default:
         break;
@@ -315,6 +315,9 @@ void Field::setFromDatabaseValue(const QVariant& db_value)
         if (m_type_name == convert::TYPENAME_QVECTOR_INT) {
             m_value.setValue(convert::csvStringToIntVector(
                                  db_value.toString()));
+        } else if (m_type_name == convert::TYPENAME_QSTRINGLIST) {
+            m_value.setValue(convert::csvStringToQStringList(
+                                 db_value.toString()));
         } else {
             m_value = db_value;
         }
@@ -323,7 +326,9 @@ void Field::setFromDatabaseValue(const QVariant& db_value)
         m_value = db_value;
         break;
     }
-    m_value.convert(m_type);
+    if (m_type != QVariant::UserType) {
+        m_value.convert(m_type);
+    }
     m_dirty = false;
 }
 
@@ -348,6 +353,10 @@ QVariant Field::databaseValue() const
         if (m_type_name == convert::TYPENAME_QVECTOR_INT) {
             return convert::intVectorToCsvString(
                         convert::qVariantToIntVector(m_value));
+        }
+        if (m_type_name == convert::TYPENAME_QSTRINGLIST) {
+            return convert::qStringListToCsvString(
+                        convert::qVariantToQStringList(m_value));
         }
         break;
     default:

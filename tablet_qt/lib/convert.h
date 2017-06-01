@@ -39,7 +39,7 @@ namespace convert {
 extern const QString NULL_STR;
 
 QString escapeNewlines(QString raw);
-QString unescapeNewlines(QString escaped);
+QString unescapeNewlines(const QString& escaped);
 
 QString sqlQuoteString(QString raw);
 QString sqlDequoteString(const QString& quoted);
@@ -54,6 +54,16 @@ QString toSqlLiteral(const QVariant& value);
 QVariant fromSqlLiteral(const QString& literal);
 QVector<QVariant> csvSqlLiteralsToValues(const QString& csv);
 QString valuesToCsvSqlLiterals(const QVector<QVariant>& values);
+
+// ============================================================================
+// C++ literals
+// ============================================================================
+
+QString stringToUnquotedCppLiteral(const QString& raw);
+QString stringToCppLiteral(const QString& raw);
+
+QString unquotedCppLiteralToString(const QString& escaped);
+QString cppLiteralToString(const QString& escaped);
 
 // ============================================================================
 // Images
@@ -119,14 +129,19 @@ QVariant toQCharVariant(const QVariant& v);
 QString intVectorToCsvString(const QVector<int>& vec);
 QVector<int> csvStringToIntVector(const QString& str);
 
+QString qStringListToCsvString(const QStringList& vec);
+QStringList csvStringToQStringList(const QString& str);
+
 // ============================================================================
 // QVariant modifications
 // ============================================================================
 
 extern const char* TYPENAME_QVECTOR_INT;
+extern const char* TYPENAME_QSTRINGLIST;
 void registerQVectorTypesForQVariant();
 bool isQVariantOfUserType(const QVariant& v, const QString& type_name);
 QVector<int> qVariantToIntVector(const QVariant& v);
+QStringList qVariantToQStringList(const QVariant& v);
 
 // ============================================================================
 // Physical units
@@ -150,6 +165,25 @@ void stonesPoundsFromKilograms(
         double kilograms, int& stones, double& pounds);
 void stonesPoundsOuncesFromKilograms(
         double kilograms, int& stones, int& pounds, double& ounces);
+
+
+// ============================================================================
+// Tests
+// ============================================================================
+
+template<typename T>
+void assert_eq(const T& a, const T& b)
+{
+    if (a == b) {
+        qDebug() << "Conversion success:" << a << "==" << b;
+    } else {
+        qCritical() << "Conversion failure:" << a << "!=" << b;
+        Q_ASSERT(false);
+        qFatal("Stopping");
+    }
+}
+
+void testConversions();
 
 
 }  // namespace convert

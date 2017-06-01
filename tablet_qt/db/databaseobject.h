@@ -63,6 +63,12 @@ public:
                   bool unique = false,
                   bool pk = false,
                   const QVariant& default_value = QVariant());
+    void addField(const QString& fieldname,
+                  const QString& type_name,
+                  bool mandatory = false,
+                  bool unique = false,
+                  bool pk = false,
+                  const QVariant& default_value = QVariant());
     void addField(const Field& field);
     void addFields(const QStringList& fieldnames, QVariant::Type type,
                    bool mandatory = false);
@@ -75,6 +81,7 @@ public:
 
     bool setValue(const QString& fieldname, const QVariant& value,
                   bool touch_record = true);  // returns: changed?
+    void addToValueInt(const QString& fieldname, int increment);
 
     QVariant value(const QString& fieldname) const;
     QString prettyValue(const QString& fieldname, int dp = -1) const;

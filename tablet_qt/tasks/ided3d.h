@@ -19,6 +19,7 @@
 
 #pragma once
 #include <QColor>
+#include <QMediaPlayer>
 #include <QPointer>
 #include <QSharedPointer>
 #include <QString>
@@ -28,17 +29,31 @@
 class CamcopsApp;
 class OpenableWidget;
 class QGraphicsScene;
+class QTimer;
 class TaskFactory;
 
+class IDED3DStage;
+using IDED3DStagePtr = QSharedPointer<IDED3DStage>;
+class IDED3DTrial;
+using IDED3DTrialPtr = QSharedPointer<IDED3DTrial>;
+
 void initializeIDED3D(TaskFactory& factory);
+
+// "Meta object features not supported for nested classes"
+// ... so Stage, Trial must be standalone
+// ... so they may as well have their own .h/.cpp files for ease of reading
 
 
 class IDED3D : public Task
 {
     Q_OBJECT
+    using FuncPtr = void (IDED3D::*)();
+    // ... a pointer to a member function of NetworkManager that takes no
+    // parameters and returns void
 public:
     IDED3D(CamcopsApp& app, const QSqlDatabase& db,
            int load_pk = dbconst::NONEXISTENT_PK);
+    ~IDED3D();
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -60,103 +75,69 @@ public:
     virtual QStringList summary() const override;
     virtual QStringList detail() const override;
     virtual OpenableWidget* editor(bool read_only = false) override;
+
     // ------------------------------------------------------------------------
-    // Internals
+    // Validation for questionnaire
+    // ------------------------------------------------------------------------
+protected slots:
+    void validateQuestionnaire();
+
+    // ------------------------------------------------------------------------
+    // Calculation/assistance functions for main task
     // ------------------------------------------------------------------------
 protected:
-
-    class Trial : public DatabaseObject {
-        friend class IDED3D;
-    public:
-        Trial(CamcopsApp& app, const QSqlDatabase& db,
-              int load_pk = dbconst::NONEXISTENT_PK);
-    protected:
-        static const QString TRIAL_TABLENAME;
-        static const QString FN_FK_TO_TASK;
-        static const QString FN_TRIAL;
-        static const QString FN_STAGE;
-        static const QString FN_CORRECT_LOCATION;
-        static const QString FN_INCORRECT_LOCATION;
-        static const QString FN_CORRECT_SHAPE;
-        static const QString FN_CORRECT_COLOUR;
-        static const QString FN_CORRECT_NUMBER;
-        static const QString FN_INCORRECT_SHAPE;
-        static const QString FN_INCORRECT_COLOUR;
-        static const QString FN_INCORRECT_NUMBER;
-        static const QString FN_TRIAL_START_TIME;
-        static const QString FN_RESPONDED;
-        static const QString FN_RESPONSE_TIME;
-        static const QString FN_RESPONSE_LATENCY_MS;
-        static const QString FN_CORRECT;
-        static const QString FN_INCORRECT;
-    };
-    using TrialPtr = QSharedPointer<Trial>;
-
-    class Stage : public DatabaseObject {
-        friend class IDED3D;
-    public:
-        Stage(CamcopsApp& app, const QSqlDatabase& db,
-              int load_pk = dbconst::NONEXISTENT_PK);
-    protected:
-        static const QString STAGE_TABLENAME;
-        static const QString FN_FK_TO_TASK;
-        static const QString STAGE_FN_FK_TO_TASK;
-        static const QString FN_STAGE;
-        static const QString FN_STAGE_NAME;
-        static const QString FN_RELEVANT_DIMENSION;
-        static const QString FN_CORRECT_EXEMPLAR;
-        static const QString FN_INCORRECT_EXEMPLAR;
-        static const QString FN_CORRECT_STIMULUS_SHAPES;
-        static const QString FN_CORRECT_STIMULUS_COLOURS;
-        static const QString FN_CORRECT_STIMULUS_NUMBERS;
-        static const QString FN_INCORRECT_STIMULUS_SHAPES;
-        static const QString FN_INCORRECT_STIMULUS_COLOURS;
-        static const QString FN_INCORRECT_STIMULUS_NUMBERS;
-        static const QString FN_FIRST_TRIAL_NUM;
-        static const QString FN_N_COMPLETED_TRIALS;
-        static const QString FN_N_CORRECT;
-        static const QString FN_N_INCORRECT;
-        static const QString FN_STAGE_PASSED;
-        static const QString FN_STAGE_FAILED;
-    };
-    using StagePtr = QSharedPointer<Stage>;
-
-    void startTask();
+    void makeStages();
     void debugDisplayStimuli();
     graphicsfunc::SvgWidgetAndProxy showIndividualStimulus(
             int stimulus_num, const QColor& colour,
             const QPointF& centre, qreal scale, bool debug = false);
+    QVector<QPointF> stimCentres(int n) const;
+    QRectF locationRect(int location) const;
+    void showEmptyBox(int location);
+    void showCompositeStimulus(int shape, int colour_number, int number,
+                               int location, bool correct);
+    bool stagePassed() const;
+    int getNumTrialsThisStage() const;
+    bool stageFailed() const;
+    void clearScene();
+    void setTimeout(int time_ms, FuncPtr callback);  // NB QObject has startTimer(), calling timerEvent()
 
+    // ------------------------------------------------------------------------
+    // Main task proper
+    // ------------------------------------------------------------------------
+protected:
+    void startTask();
 protected slots:
-    void validateQuestionnaire();
+    void nextTrial();
+    void startTrial();
+    void recordResponse(bool correct);
+    void showAnswer(bool correct);
+    void mediaStatusChanged(QMediaPlayer::MediaStatus status);
+    void waitAfterBeep();
+    void iti();
+    void thanks();
     void abort();
     void finish();
 
+    // ------------------------------------------------------------------------
+    // Data
+    // ------------------------------------------------------------------------
 protected:
     QPointer<OpenableWidget> m_widget;
     QPointer<Questionnaire> m_questionnaire;
     QPointer<OpenableWidget> m_graphics_widget;
     QPointer<QGraphicsScene> m_scene;
-    QVector<StagePtr> m_stages;
-    QVector<TrialPtr> m_trials;
+    QVector<IDED3DStagePtr> m_stages;
+    QVector<IDED3DTrialPtr> m_trials;
+    int m_current_stage;  // zero-based
+    int m_current_trial;  // zero-based
+    QSharedPointer<QTimer> m_timer;
+    QSharedPointer<QMediaPlayer> m_player_correct;  // not owned by other widgets
+    QSharedPointer<QMediaPlayer> m_player_incorrect;  // not owned by other widgets
 
+    // ------------------------------------------------------------------------
+    // Constants
+    // ------------------------------------------------------------------------
 public:
     static const QString IDED3D_TABLENAME;
-protected:
-    static const QString FN_LAST_STAGE;
-    static const QString FN_MAX_TRIALS_PER_STAGE;
-    static const QString FN_PROGRESS_CRITERION_X;
-    static const QString FN_PROGRESS_CRITERION_Y;
-    static const QString FN_MIN_NUMBER;
-    static const QString FN_MAX_NUMBER;
-    static const QString FN_PAUSE_AFTER_BEEP_MS;
-    static const QString FN_ITI_MS;
-    static const QString FN_COUNTERBALANCE_DIMENSIONS;
-    static const QString FN_VOLUME;
-    static const QString FN_OFFER_ABORT;
-    static const QString FN_DEBUG_DISPLAY_STIMULI_ONLY;
-    static const QString FN_SHAPE_DEFINITIONS_SVG;
-    static const QString FN_ABORTED;
-    static const QString FN_FINISHED;
-    static const QString FN_LAST_TRIAL_COMPLETED;
 };

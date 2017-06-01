@@ -283,8 +283,8 @@ void PhotoSequence::addPhoto()
         uifunc::alert(tr("A photo is blank; won’t add another"));
         return;
     }
-    PhotoSequencePhotoPtr photo(new PhotoSequencePhoto(m_app, m_db));
-    photo->setForeignKeyToOwner(pkvalueInt());
+    PhotoSequencePhotoPtr photo(new PhotoSequencePhoto(
+                                    pkvalueInt(), m_app, m_db));
     photo->setSeqnum(m_photos.size());
     photo->save();
     m_photos.append(photo);

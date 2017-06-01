@@ -42,4 +42,49 @@ void forceVectorSize(QVector<T>& vec,
 }
 
 
+// first vector minus second vector
+template<typename T>
+QVector<T> subtract(const QVector<T>& first, const QVector<T>& second)
+{
+    QVector<T> difference;
+    for (const T& first_item : first) {
+        if (!second.contains(first_item)) {
+            difference.append(first_item);
+        }
+    }
+    return difference;
+}
+
+
+/*
+generalization of "at" for multiple indices:
+
+    QVector<QString> v{"zero", "one", "two", "three", "four"};
+    QVector<QString> v2 = at(v, {1, 3});
+    assert(v2 == QVector<QString>{"one", "three"});
+*/
+template<typename T>
+QVector<T> at(const QVector<T>& vec, const QVector<int>& indices)
+{
+    const QVector<T>& subset;
+    for (int index : indices) {
+        subset.append(vec.at(index));
+    }
+    return vec;
+}
+
+
+template<typename ContainerType>
+bool containsAll(const ContainerType& a, const ContainerType& b)
+{
+    // Does a contain all elements of b?
+    for (auto b_element : b) {
+        if (!a.contains(b_element)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
 }  // namespace containers

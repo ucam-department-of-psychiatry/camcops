@@ -29,3 +29,11 @@ DiagnosisIcd10Item::DiagnosisIcd10Item(CamcopsApp& app,
                       DIAGNOSIS_ICD10_ITEM_TABLENAME, FK_NAME, load_pk)
 {
 }
+
+
+DiagnosisIcd10Item::DiagnosisIcd10Item(int owner_fk, CamcopsApp& app,
+                                       const QSqlDatabase& db) :
+    DiagnosisItemBase(owner_fk, app, db,
+                      DIAGNOSIS_ICD10_ITEM_TABLENAME, FK_NAME)  // delegating constructor
+{
+}

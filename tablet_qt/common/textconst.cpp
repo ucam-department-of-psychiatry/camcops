@@ -31,6 +31,7 @@ namespace textconst {
 // ============================================================================
 
 TR(ABNORMAL, "Abnormal");
+TR(ABORT, "Abort");
 TR(ADD, "Add");
 TR(AND, "and");
 
@@ -50,6 +51,7 @@ TR(CLINICIAN_SPECIALTY, "Clinician’s specialty");
 TR(CLINICIANS_COMMENTS, "Clinician’s comments");
 TR(COMMENT, "Comment");
 TR(COMMENTS, "Comments");
+TR(CORRECT, "Correct");
 
 TR(DATA_COLLECTION_ONLY,
    "Reproduction of this task/scale is not permitted. This is a data "
@@ -70,6 +72,7 @@ TR(FINISHED, "Finished");
 TR(ICD10, "World Health Organization International Classification of "
           "Diseases, 10th edition");
 TR(IN_ADDITION, "In addition");
+TR(INCORRECT, "Incorrect");
 
 TR(LOCATION, "Location");
 
@@ -140,6 +143,8 @@ TR(TRUE, "True");
 TR(UNKNOWN, "Unknown");
 
 TR(VERY_SEVERE, "Very severe");
+
+TR(WRONG, "Wrong");
 
 TR(YES, "Yes");
 

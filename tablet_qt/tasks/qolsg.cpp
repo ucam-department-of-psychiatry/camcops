@@ -24,8 +24,8 @@
 #include <QPen>
 #include <QPushButton>
 #include "common/textconst.h"
+#include "lib/ccrandom.h"
 #include "lib/datetime.h"
-#include "lib/random.h"
 #include "lib/stringfunc.h"
 #include "tasklib/taskfactory.h"
 #include "widgets/adjustablepie.h"
@@ -49,6 +49,9 @@ using stringfunc::replaceFirst;
 
 // Table name
 const QString QolSG::QOLSG_TABLENAME("qolsg");
+
+namespace qolsgconst {
+// See namespace rationale in ided3d.cpp
 
 // Fieldnames
 const QString FN_CATEGORY_START_TIME("category_start_time");
@@ -167,7 +170,7 @@ const qreal RIGHT_STIM_CENTRE = SCENE_WIDTH * (0.5 + (0.5 * CENTRESPACE_FRAC +
                                                       0.5 * STIMDIAMETER_FRAC));
 
 const QRectF SCENE_RECT(0, 0, SCENE_WIDTH, SCENE_HEIGHT);
-QPen BORDER_PEN(QBrush(EDGE_COLOUR), BORDER_WIDTH_PX);
+const QPen BORDER_PEN(QBrush(EDGE_COLOUR), BORDER_WIDTH_PX);
 const ButtonConfig BASE_BUTTON_CONFIG(PADDING,
                                       TEXT_SIZE_PX,
                                       TEXT_COLOUR,
@@ -206,6 +209,9 @@ PenBrush CURSOR(QPen(Qt::NoPen), QBrush(QColor("red")));
 PenBrush CURSOR_ACTIVE(QPen(QBrush(QColor("orange")), 3.0),
                        QBrush(QColor("red")));
 const QPen SECTOR_PEN(QBrush(QColor("white")), 3.0);
+
+}  // namespace qolsgconst
+using namespace qolsgconst;
 
 
 // ============================================================================

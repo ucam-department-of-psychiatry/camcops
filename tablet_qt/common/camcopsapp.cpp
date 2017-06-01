@@ -20,6 +20,7 @@
 // #define DANGER_DEBUG_PASSWORD_DECRYPTION
 // #define DANGER_DEBUG_WIPE_PASSWORDS
 // #define DEBUG_EMIT
+// #define TEST_CONVERSIONS
 
 #include "camcopsapp.h"
 #include <QApplication>
@@ -96,6 +97,9 @@ int CamcopsApp::run()
     announceStartup();
     seedRng();
     convert::registerQVectorTypesForQVariant();
+#ifdef TEST_CONVERSIONS
+    convert::testConversions();
+#endif
     initGuiOne();
     registerDatabaseDrivers();
     openOrCreateDatabases();

@@ -238,8 +238,9 @@ void InitTasks(TaskFactory& factory)
 
     initializeZbi12(factory);
 
+    // *** new: CIS-R (see software + PDF, need permissions)
     // *** new: mini-ACE
-    // *** new: other things in e-mail queue
+    // *** new: Andy Fost / eating disordes; e-mail of 24/5/16
 
     // *** discarded tasks - revitalize: ASRM
     // *** discarded tasks - revitalize: BARS

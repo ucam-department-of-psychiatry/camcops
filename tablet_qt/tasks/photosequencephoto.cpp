@@ -46,9 +46,11 @@ PhotoSequencePhoto::PhotoSequencePhoto(CamcopsApp& app, const QSqlDatabase& db,
 }
 
 
-void PhotoSequencePhoto::setForeignKeyToOwner(int fk)
+PhotoSequencePhoto::PhotoSequencePhoto(int owner_fk, CamcopsApp& app,
+                                       const QSqlDatabase& db) :
+    PhotoSequencePhoto(app, db)  // delegating constructor
 {
-    setValue(FK_NAME, fk);
+    setValue(FK_NAME, owner_fk);
 }
 
 

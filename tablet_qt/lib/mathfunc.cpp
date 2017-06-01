@@ -441,6 +441,7 @@ QVector<int> range(int start, int end)
 
 QVector<int> range(int n)
 {
+    // returns 0 to n-1 inclusive
     return range(0, n);
 }
 
@@ -478,6 +479,36 @@ QPair<int, int> gridDimensions(int n, qreal aspect)
     int y = qCeil(qSqrt(n / aspect));
     int x = qCeil(n / y);
     return QPair<int, int>(x, y);
+}
+
+
+int proportionToByte(qreal proportion)
+{
+    // convert 0.0-1.0 to 0-255
+    int a = std::round(qBound(0.0, proportion, 1.0) * 255);
+    return qBound(0, a, 255);
+}
+
+
+qreal byteToProportion(int byte)
+{
+    // convert 0-255 to 0.0-1.0
+    return qBound(0, byte, 255) / 255.0;
+}
+
+
+int proportionToIntPercent(qreal proportion)
+{
+    // convert 0.0-1.0 to 0-100
+    int a = std::round(qBound(0.0, proportion, 1.0) * 100);
+    return qBound(0, a, 100);
+}
+
+
+qreal intPercentToProportion(int percent)
+{
+    // convert 0-100 to 0.0-1.0
+    return qBound(0, percent, 100) / 100.0;
 }
 
 

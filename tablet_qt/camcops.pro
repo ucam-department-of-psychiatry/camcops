@@ -391,7 +391,6 @@ SOURCES += main.cpp \
     common/uiconst.cpp \
     lib/graphicsfunc.cpp \
     widgets/screenlikegraphicsview.cpp \
-    lib/random.cpp \
     lib/containers.cpp \
     widgets/adjustablepie.cpp \
     lib/penbrush.cpp \
@@ -400,7 +399,11 @@ SOURCES += main.cpp \
     lib/paintertranslaterotatecontext.cpp \
     tasks/ided3d.cpp \
     widgets/svgwidgetclickable.cpp \
-    lib/css.cpp
+    lib/css.cpp \
+    lib/ccrandom.cpp \
+    tasks/ided3dstage.cpp \
+    tasks/ided3dtrial.cpp \
+    tasks/ided3dexemplars.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -707,7 +710,6 @@ HEADERS  += \
     common/uiconst.h \
     lib/graphicsfunc.h \
     widgets/screenlikegraphicsview.h \
-    lib/random.h \
     lib/containers.h \
     widgets/adjustablepie.h \
     lib/penbrush.h \
@@ -716,7 +718,11 @@ HEADERS  += \
     lib/paintertranslaterotatecontext.h \
     tasks/ided3d.h \
     widgets/svgwidgetclickable.h \
-    lib/css.h
+    lib/css.h \
+    lib/ccrandom.h \
+    tasks/ided3dstage.h \
+    tasks/ided3dtrial.h \
+    tasks/ided3dexemplars.h
 
 
 DISTFILES += \

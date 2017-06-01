@@ -104,6 +104,20 @@ void DatabaseObject::addField(const QString& fieldname, QVariant::Type type,
 }
 
 
+void DatabaseObject::addField(const QString& fieldname,
+                              const QString& type_name,
+                              bool mandatory, bool unique, bool pk,
+                              const QVariant& default_value)
+{
+    if (m_record.contains(fieldname)) {
+        uifunc::stopApp("Attempt to insert duplicate fieldname: " + fieldname);
+    }
+    Field field(fieldname, type_name, mandatory, unique, pk, default_value);
+    m_record.insert(fieldname, field);
+    m_ordered_fieldnames.append(fieldname);
+}
+
+
 void DatabaseObject::addFields(const QStringList& fieldnames,
                                QVariant::Type type, bool mandatory)
 {
@@ -148,6 +162,12 @@ bool DatabaseObject::setValue(const QString& fieldname, const QVariant& value,
         }
     }
     return dirty;
+}
+
+
+void DatabaseObject::addToValueInt(const QString& fieldname, int increment)
+{
+    setValue(fieldname, valueInt(fieldname) + increment);
 }
 
 

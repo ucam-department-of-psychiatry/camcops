@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "random.h"
+#include "ccrandom.h"
 
 namespace ccrandom {
 

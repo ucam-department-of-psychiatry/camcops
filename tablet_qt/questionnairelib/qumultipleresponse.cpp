@@ -20,7 +20,7 @@
 #include "qumultipleresponse.h"
 #include "common/cssconst.h"
 #include "common/layouts.h"
-#include "lib/random.h"
+#include "lib/ccrandom.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/basewidget.h"

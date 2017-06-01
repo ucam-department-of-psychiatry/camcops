@@ -17,13 +17,11 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-// #define TEST_QT_BASIC
+// #define TEST_BASIC_QT_ONLY
 // #define FULL_LOG_FORMAT
 
-#ifdef TEST_QT_BASIC
 #include <QApplication>  // for minimal_qt_app
 #include <QPushButton>  // for minimal_qt_app
-#endif
 #include <QDebug>  // for qSetMessagePattern
 #include "common/camcopsapp.h"
 
@@ -42,7 +40,6 @@ const QString message_pattern("camcops: %{type}: %{message}");
 #endif
 
 
-#ifdef TEST_QT_BASIC
 int runMinimalQtAapp(int& argc, char *argv[])
 {
     QApplication app(argc, argv);
@@ -50,7 +47,6 @@ int runMinimalQtAapp(int& argc, char *argv[])
     button.show();
     return app.exec();
 }
-#endif
 
 
 int main(int argc, char *argv[])
@@ -60,7 +56,7 @@ int main(int argc, char *argv[])
     // https://bugreports.qt.io/browse/QTBUG-5637
     // http://doc.qt.io/qt-5/qapplication.html
 
-#ifdef TEST_QT_BASIC
+#ifdef TEST_BASIC_QT_ONLY
     // For when it all breaks!
     return runMinimalQtAapp(argc, argv);
 #else

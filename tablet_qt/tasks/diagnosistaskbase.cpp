@@ -146,7 +146,6 @@ void DiagnosisTaskBase::addItem()
         return;
     }
     DiagnosisItemBasePtr item = makeItem();
-    item->setForeignKeyToOwner(pkvalueInt());
     item->setSeqnum(m_items.size());
     item->save();
     m_items.append(item);
