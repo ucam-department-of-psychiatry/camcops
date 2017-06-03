@@ -24,6 +24,7 @@
 #include <QSqlDatabase>
 #include <QStack>
 #include "common/aliases_camcops.h"
+#include "common/textconst.h"
 #include "common/uiconst.h"  // for FontSize
 #include "crypto/secureqstring.h"
 #include "db/fieldref.h"  // for FieldRefPtr
@@ -119,7 +120,7 @@ public:
               bool may_alter_task = false,
               PatientPtr patient = PatientPtr(nullptr));
     SlowGuiGuard getSlowGuiGuard(const QString& text = "Opening...",
-                                 const QString& title = "Please wait...",
+                                 const QString& title = textconst::PLEASE_WAIT,
                                  int minimum_duration_ms = 100);
 
 signals:

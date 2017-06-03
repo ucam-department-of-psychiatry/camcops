@@ -324,6 +324,13 @@ QString FieldRef::valueString() const
 }
 
 
+QStringList FieldRef::valueStringList() const
+{
+    QVariant v = value();
+    return v.toStringList();
+}
+
+
 QByteArray FieldRef::valueByteArray() const
 {
     QVariant v = value();

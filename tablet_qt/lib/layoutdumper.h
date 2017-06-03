@@ -32,26 +32,32 @@ class DumperConfig {
 public:
     DumperConfig() {}
     DumperConfig(bool show_widget_properties,
-                 bool show_widget_attributes,
+                 bool show_all_widget_attributes,
+                 bool show_set_widget_attributes,
                  bool show_widget_stylesheets,
                  bool spaces_per_level) :
         show_widget_properties(show_widget_properties),
-        show_widget_attributes(show_widget_attributes),
+        show_all_widget_attributes(show_all_widget_attributes),
+        show_set_widget_attributes(show_set_widget_attributes),
         show_widget_stylesheets(show_widget_stylesheets),
         spaces_per_level(spaces_per_level)
     {}
 
 public:
-    bool show_widget_properties = false;
+    bool show_widget_properties = true;
     // ... e.g.:
     // [_q_styleSheetWidgetFont="Sans Serif,9,-1,5,50,0,0,0,0,0"]
 
-    bool show_widget_attributes = false;
+    bool show_all_widget_attributes = false;
     // ... e.g.:
     // [WA_NoSystemBackground 0, WA_OpaquePaintEvent 0, WA_SetStyle 0,
     //  WA_StyleSheet 1, WA_TranslucentBackground 0, WA_StyledBackground 0]
 
-    bool show_widget_stylesheets = false;
+    bool show_set_widget_attributes = true;
+    // ... e.g.:
+    // [WA_StyleSheet]
+
+    bool show_widget_stylesheets = true;
     // ... the CSS attached by the user
 
     int spaces_per_level = 4;
@@ -66,7 +72,7 @@ QString toString(bool boolean);
 QString getWidgetDescriptor(const QWidget* w);
 QString getWidgetInfo(const QWidget* w,
                       const DumperConfig& config = DumperConfig());
-QString getWidgetAttributeInfo(const QWidget* w);
+QString getWidgetAttributeInfo(const QWidget* w, bool all = false);
 QString getDynamicProperties(const QWidget* w);
 QString getLayoutInfo(const QLayout* layout);
 QString getSpacerInfo(QSpacerItem* si);

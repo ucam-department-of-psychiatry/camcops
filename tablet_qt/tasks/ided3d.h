@@ -90,10 +90,12 @@ protected:
     void debugDisplayStimuli();
     graphicsfunc::SvgWidgetAndProxy showIndividualStimulus(
             int stimulus_num, const QColor& colour,
-            const QPointF& centre, qreal scale, bool debug = false);
+            const QPointF& centre, qreal scale,
+            bool debug = false);
     QVector<QPointF> stimCentres(int n) const;
     QRectF locationRect(int location) const;
-    void showEmptyBox(int location);
+    void showEmptyBox(int location, bool touchable = false,
+                      bool correct = false);
     void showCompositeStimulus(int shape, int colour_number, int number,
                                int location, bool correct);
     bool stagePassed() const;

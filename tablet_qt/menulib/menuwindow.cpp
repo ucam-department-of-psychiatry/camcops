@@ -31,10 +31,12 @@
 #include "dbobjects/patient.h"
 #include "lib/filefunc.h"
 #include "lib/layoutdumper.h"
+#include "lib/slowguiguard.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "menulib/menuheader.h"
 #include "questionnairelib/questionnaire.h"
+#include "questionnairelib/questionnairefunc.h"
 #include "tasklib/task.h"
 
 const int BAD_INDEX = -1;
@@ -493,10 +495,7 @@ void MenuWindow::connectQuestionnaireToTask(OpenableWidget* widget, Task* task)
     if (!questionnaire) {
         return;
     }
-    connect(questionnaire, &Questionnaire::editStarted,
-            task, &Task::editStarted);
-    connect(questionnaire, &Questionnaire::editFinished,
-            task, &Task::editFinished);
+    questionnairefunc::connectQuestionnaireToTask(questionnaire, task);
 }
 
 
@@ -526,9 +525,13 @@ void MenuWindow::deleteTask()
     if (reply != QMessageBox::Yes) {
         return;
     }
-    qInfo() << "Delete:" << instance_title;
-    task->deleteFromDatabase();
-    build();
+    {
+        SlowGuiGuard guard = m_app.getSlowGuiGuard(tr("Deleting task"),
+                                                   textconst::PLEASE_WAIT);
+        qInfo() << "Delete:" << instance_title;
+        task->deleteFromDatabase();
+        build();
+    }
 }
 
 

@@ -39,6 +39,7 @@ Comments
 */
 
 // #define DEBUG_SVG
+// #define DEBUG_STEP_DETAIL
 
 #include "ided3d.h"
 #include <functional>
@@ -50,6 +51,7 @@ Comments
 #include <QTimer>
 #include <QtMath>
 #include "common/textconst.h"
+#include "common/uiconst.h"
 #include "db/ancillaryfunc.h"
 #include "lib/ccrandom.h"
 #include "lib/containers.h"
@@ -75,6 +77,7 @@ using ccrandom::dwor;
 using datetime::now;
 using graphicsfunc::ButtonAndProxy;
 using graphicsfunc::ButtonConfig;
+using graphicsfunc::centredRect;
 using graphicsfunc::LabelAndProxy;
 using graphicsfunc::makeSvg;
 using graphicsfunc::makeText;
@@ -116,6 +119,7 @@ const QString FN_VOLUME("volume");
 const QString FN_OFFER_ABORT("offer_abort");
 const QString FN_DEBUG_DISPLAY_STIMULI_ONLY("debug_display_stimuli_only");
 const QString FN_SHAPE_DEFINITIONS_SVG("shape_definitions_svg");
+const QString FN_COLOUR_DEFINITIONS_RGB("colour_definitions_rgb");  // new in v2.0.0
 const QString FN_ABORTED("aborted");
 const QString FN_FINISHED("finished");
 const QString FN_LAST_TRIAL_COMPLETED("last_trial_completed");
@@ -147,6 +151,9 @@ const int STIMSIZE = 120;  // max width/height
 const int STIM_STROKE_WIDTH = 3;
 const QColor STIM_PRESSED_BG_COLOUR("orange");
 const QColor EDGE_COLOUR("white");
+const QColor CORRECT_BG_COLOUR("green");
+const QColor INCORRECT_BG_COLOUR("red");
+const qreal FEEDBACK_OPACITY = 0.75;
 
 // Colours
 const QColor TEST_COLOUR("purple");
@@ -169,20 +176,24 @@ const int DEFAULT_PROGRESS_CRITERION_X = 6;  // as per Rogers et al. 1999
 const int DEFAULT_PROGRESS_CRITERION_Y = 6;  // as per Rogers et al. 1999
 const int DEFAULT_PAUSE_AFTER_BEEP_MS = 500;
 const int DEFAULT_ITI_MS = 500;
-const qreal DEFAULT_VOLUME = MAX_VOLUME;
+const qreal DEFAULT_VOLUME = MAX_VOLUME / 2.0;
 const bool DEFAULT_OFFER_ABORT = false;
 
 // Derived constants
 const QRectF SCENE_RECT(0, 0, SCENE_WIDTH, SCENE_HEIGHT);
 const QPen BORDER_PEN(QBrush(EDGE_COLOUR), BORDER_WIDTH_PX);
-const ButtonConfig BASE_BUTTON_CONFIG(PADDING,
-                                      TEXT_SIZE_PX,
-                                      TEXT_COLOUR,
-                                      BUTTON_TEXT_ALIGN,
-                                      BUTTON_BACKGROUND,
-                                      BUTTON_PRESSED_BACKGROUND,
-                                      BORDER_PEN,
-                                      BUTTON_RADIUS);
+const ButtonConfig BASE_BUTTON_CONFIG(
+        PADDING, TEXT_SIZE_PX, TEXT_COLOUR, BUTTON_TEXT_ALIGN,
+        BUTTON_BACKGROUND, BUTTON_PRESSED_BACKGROUND,
+        BORDER_PEN, BUTTON_RADIUS);
+const ButtonConfig STIM_BUTTON_CONFIG(
+        PADDING, TEXT_SIZE_PX, TEXT_COLOUR, BUTTON_TEXT_ALIGN,
+        uiconst::TRANSPARENT, BUTTON_PRESSED_BACKGROUND,
+        BORDER_PEN, BUTTON_RADIUS);
+const ButtonConfig EMPTYBOX_BUTTON_CONFIG(
+        PADDING, TEXT_SIZE_PX, TEXT_COLOUR, BUTTON_TEXT_ALIGN,
+        uiconst::TRANSPARENT, uiconst::TRANSPARENT,
+        BORDER_PEN, BUTTON_RADIUS);
 const TextConfig BASE_TEXT_CONFIG(TEXT_SIZE_PX, TEXT_COLOUR,
                                   SCENE_WIDTH, TEXT_ALIGN);
 
@@ -201,7 +212,10 @@ const QVector<QPointF> LOCATIONS{  // centre points
     QPointF(HDIST.at(1), VDIST.at(2)),  // bottom
     QPointF(HDIST.at(0), VDIST.at(1)),  // left
 };
-const QPointF PROMPT(SCENE_WIDTH * 0.5, SCENE_HEIGHT * 0.5);
+const QPointF SCENE_CENTRE(SCENE_WIDTH * 0.5, SCENE_HEIGHT * 0.5);
+const QRectF ANSWER_BACKDROP_RECT(centredRect(SCENE_CENTRE,
+                                              0.3 * SCENE_WIDTH,
+                                              0.1 * SCENE_HEIGHT));
 
 
 }  // namespace ided3dconst
@@ -239,6 +253,7 @@ IDED3D::IDED3D(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
     addField(FN_OFFER_ABORT, QVariant::Bool);
     addField(FN_DEBUG_DISPLAY_STIMULI_ONLY, QVariant::Bool);
     addField(FN_SHAPE_DEFINITIONS_SVG, QVariant::String);
+    addField(FN_COLOUR_DEFINITIONS_RGB, QVariant::String);
     // Results
     addField(FN_ABORTED, QVariant::Bool);
     getField(FN_ABORTED).setDefaultValue(false);
@@ -364,10 +379,10 @@ QStringList IDED3D::summary() const
     }
     QStringList lines;
     int n_trials = m_trials.length();
-    lines.append(QString("Performed %1 trials").arg(n_trials));
+    lines.append(QString("Performed %1 trial(s).").arg(n_trials));
     if (n_trials > 0) {
         IDED3DTrialPtr last_trial = m_trials.at(n_trials - 1);
-        lines.append(QString("Last trial was at stage %1")
+        lines.append(QString("Last trial was at stage %1.")
                      .arg(last_trial->valueInt(IDED3DTrial::FN_STAGE)));
     }
     return lines;
@@ -468,6 +483,9 @@ OpenableWidget* IDED3D::editor(bool read_only)
             this, &IDED3D::abort);
     connect(m_questionnaire.data(), &Questionnaire::completed,
             this, &IDED3D::startTask);
+    // Because our main m_widget isn't itself a questionnaire, we need to hook
+    // up these, too:
+    questionnairefunc::connectQuestionnaireToTask(m_questionnaire.data(), this);
 
     validateQuestionnaire();
 
@@ -478,7 +496,10 @@ OpenableWidget* IDED3D::editor(bool read_only)
 
     m_scene = new QGraphicsScene(SCENE_RECT);
     m_scene->setBackgroundBrush(QBrush(SCENE_BACKGROUND)); // *** not working
-    m_graphics_widget = makeGraphicsWidget(m_scene, SCENE_BACKGROUND);
+    m_graphics_widget = makeGraphicsWidget(m_scene, SCENE_BACKGROUND,
+                                           true, true);
+    connect(m_graphics_widget.data(), &OpenableWidget::aborting,
+            this, &IDED3D::abort);
 
     m_widget = new OpenableWidget();
 
@@ -533,15 +554,7 @@ void IDED3D::validateQuestionnaire()
             this, &IDED3D::funcname, \
             Qt::QueuedConnection)
     // ... svg is an SvgItemAndRenderer
-// For rapid response detection:
-#define CONNECT_SVG_PRESSED(svg, funcname) \
-    connect(svg.widget, &SvgWidgetClickable::pressed, \
-            this, &IDED3D::funcname, \
-            Qt::QueuedConnection)
-#define CONNECT_SVG_PRESSED_PARAM(svg, funcname, param) \
-    connect(svg.widget, &SvgWidgetClickable::pressed, \
-            this, std::bind(&IDED3D::funcname, this, param), \
-            Qt::QueuedConnection)
+    // ... use "pressed" not "clicked" for rapid response detection.
 
 
 // ============================================================================
@@ -679,7 +692,7 @@ void IDED3D::makeStages()
     // Stages
     QString first_dim_name = poss_dimensions.at(first_dim_index);
     QString second_dim_name = poss_dimensions.at(second_dim_index);
-    int stage = 1;
+    int stage = 0;  // zero-based stage number
     m_stages.clear();
     // ... use QVector<IDED3DStagePtr>; don't use QVector<Stage>;
     // no default constructor ("implicitly deleted... ill-formed...")
@@ -730,6 +743,7 @@ void IDED3D::makeStages()
 void IDED3D::debugDisplayStimuli()
 {
     int n_stimuli = IDED3DExemplars::nShapes();
+    m_scene->addRect(SCENE_RECT, QPen(), QBrush(Qt::green));
     qreal aspect = SCENE_WIDTH / SCENE_HEIGHT;
     QPair<int, int> x_y = gridDimensions(n_stimuli, aspect);
     int nx = x_y.first;
@@ -754,7 +768,8 @@ void IDED3D::debugDisplayStimuli()
 
 SvgWidgetAndProxy IDED3D::showIndividualStimulus(
         int stimulus_num, const QColor& colour,
-        const QPointF& centre, qreal scale, bool debug)
+        const QPointF& centre, qreal scale,
+        bool debug)
 {
     Q_ASSERT(stimulus_num >= 0 && stimulus_num < IDED3DExemplars::nShapes());
     const QString& path_contents = IDED3DExemplars::shapeSvg(stimulus_num);
@@ -765,8 +780,11 @@ SvgWidgetAndProxy IDED3D::showIndividualStimulus(
 #ifdef DEBUG_SVG
     qDebug().noquote() << "showIndividualStimulus: svg:" << svg;
 #endif
+    bool transparent_for_mouse = !debug;
     return makeSvg(m_scene, centre, svg,
-                   debug ? STIM_PRESSED_BG_COLOUR : QColor());
+                   debug ? STIM_PRESSED_BG_COLOUR : uiconst::TRANSPARENT,
+                   uiconst::TRANSPARENT,
+                   transparent_for_mouse);
 }
 
 
@@ -805,8 +823,8 @@ QVector<QPointF> IDED3D::stimCentres(int n) const
     case 7:
     case 9:
         {
-            int ntop = qFloor(n / 2);
-            int nbottom = qCeil(n / 2);
+            int ntop = qFloor(n / 2.0);
+            int nbottom = qCeil(n / 2.0);
             QVector<qreal> topx = distribute(ntop, left, right);
             QVector<qreal> bottomx = distribute(nbottom, left, right);
             QVector<qreal> tempy = distribute(2, top, bottom);
@@ -827,6 +845,7 @@ QVector<QPointF> IDED3D::stimCentres(int n) const
     for (int i = 0; i < x.size(); ++i) {
         points.append(QPointF(x.at(i), y.at(i)));
     }
+    Q_ASSERT(points.size() == n);
     return points;
 }
 
@@ -842,9 +861,17 @@ QRectF IDED3D::locationRect(int location) const
 }
 
 
-void IDED3D::showEmptyBox(int location)
+void IDED3D::showEmptyBox(int location, bool touchable, bool correct)
 {
-    m_scene->addRect(locationRect(location), BORDER_PEN, BOXBRUSH);
+    QRectF rect = locationRect(location);
+    ButtonAndProxy box = makeTextButton(
+                m_scene,
+                rect,
+                touchable ? STIM_BUTTON_CONFIG : EMPTYBOX_BUTTON_CONFIG,
+                "");
+    if (touchable) {
+        CONNECT_BUTTON_PARAM(box, recordResponse, correct);
+    }
 }
 
 
@@ -854,10 +881,13 @@ void IDED3D::showCompositeStimulus(int shape, int colour_number, int number,
     Q_ASSERT(location >= 0 && location < LOCATIONS.size());
     QPointF overall_centre = LOCATIONS.at(location);
     QColor colour = IDED3DExemplars::colour(colour_number);
-    qreal scale = (0.8 * 0.95 * BOXHEIGHT / 2) / STIMSIZE;
-    // ... without the 0.8, you can fit 4 but not 5 wide.
+    qreal scale = (0.75 * 0.95 * BOXHEIGHT / 2) / STIMSIZE;
+    // ... without the 0.75, you can fit 4 but not 5 wide.
     QVector<QPointF> centres = stimCentres(number);
 
+    // We make the background box touchable, not the SVG. This handles line-
+    // like stimuli better, and is visually preferable.
+    showEmptyBox(location, true, correct);
     for (int i = 0; i < number; ++i) {
         // Scale up
         centres[i].rx() *= BOXWIDTH;
@@ -865,9 +895,7 @@ void IDED3D::showCompositeStimulus(int shape, int colour_number, int number,
         // Reposition (from coordinates relative to box centre at 0,0)
         centres[i].rx() += overall_centre.x();
         centres[i].ry() += overall_centre.y();
-        SvgWidgetAndProxy stim = showIndividualStimulus(
-                    shape, colour, centres.at(i), scale);
-        CONNECT_SVG_PRESSED_PARAM(stim, recordResponse, correct);
+        showIndividualStimulus(shape, colour, centres.at(i), scale);
     }
 }
 
@@ -901,7 +929,14 @@ bool IDED3D::stagePassed() const
             n_correct += 1;
         }
     }
-    return n_correct >= valueInt(FN_PROGRESS_CRITERION_X);
+    bool passed = n_correct >= valueInt(FN_PROGRESS_CRITERION_X);
+    qDebug().nospace()
+            << n_correct << " correct (need X="
+            << valueInt(FN_PROGRESS_CRITERION_X) << ") of last Y="
+            << valueInt(FN_PROGRESS_CRITERION_Y)
+            << " trials this stage => stage passed = "
+            << passed;
+    return passed;
 }
 
 
@@ -921,7 +956,14 @@ int IDED3D::getNumTrialsThisStage() const
 
 bool IDED3D::stageFailed() const
 {
-    return getNumTrialsThisStage() >= valueInt(FN_MAX_TRIALS_PER_STAGE);
+    int n_this_stage = getNumTrialsThisStage();
+    bool failed = n_this_stage >= valueInt(FN_MAX_TRIALS_PER_STAGE);
+    qDebug().nospace()
+            << n_this_stage
+            << " trials performed this stage (max="
+            << valueInt(FN_MAX_TRIALS_PER_STAGE) << ") => stage failed = "
+            << failed;
+    return failed;
 }
 
 
@@ -932,7 +974,7 @@ bool IDED3D::stageFailed() const
 void IDED3D::startTask()
 {
     qDebug() << Q_FUNC_INFO;
-    m_widget->setWidgetAsOnlyContents(m_graphics_widget, 0, true, true);
+    m_widget->setWidgetAsOnlyContents(m_graphics_widget, 0, false, false);
     if (valueBool(FN_DEBUG_DISPLAY_STIMULI_ONLY)) {
         debugDisplayStimuli();
         return;
@@ -940,6 +982,9 @@ void IDED3D::startTask()
 
     // Store a version of the shape definitions, in JSON format
     setValue(FN_SHAPE_DEFINITIONS_SVG, IDED3DExemplars::allShapesAsJson());
+    // Similarly for colours
+    setValue(FN_COLOUR_DEFINITIONS_RGB, IDED3DExemplars::allColoursAsJson());
+    editStarted();  // will have been stopped by the end of the questionnaire?
 
     // Double-check we have a PK before we create stages/trials
     save();
@@ -967,8 +1012,8 @@ void IDED3D::startTask()
     // Start
     ButtonAndProxy start = makeTextButton(
                 m_scene,
-                QRectF(0.3 * SCENE_WIDTH, 0.6 * SCENE_HEIGHT,
-                       0.4 * SCENE_WIDTH, 0.1 * SCENE_HEIGHT),
+                QRectF(0.2 * SCENE_WIDTH, 0.6 * SCENE_HEIGHT,
+                       0.6 * SCENE_WIDTH, 0.1 * SCENE_HEIGHT),
                 BASE_BUTTON_CONFIG,
                 TX_START);
     CONNECT_BUTTON(start, nextTrial);
@@ -977,7 +1022,9 @@ void IDED3D::startTask()
 
 void IDED3D::nextTrial()
 {
+#ifdef DEBUG_STEP_DETAIL
     qDebug() << Q_FUNC_INFO;
+#endif
     Q_ASSERT(m_current_stage >= 0 && m_current_stage < m_stages.size());
     IDED3DStagePtr stage = m_stages.at(m_current_stage);
     clearScene();
@@ -1004,6 +1051,7 @@ void IDED3D::nextTrial()
     }
 
     stage = m_stages.at(m_current_stage);  // a different one, perhaps
+    qDebug().noquote() << stage->summary();
     m_current_trial += 1;
     IDED3DTrialPtr tr = IDED3DTrialPtr(new IDED3DTrial(
                                 *stage, m_current_trial, m_app, m_db));
@@ -1021,6 +1069,7 @@ void IDED3D::startTrial()
              << "m_current_trial" << m_current_trial;
     Q_ASSERT(0 <= m_current_trial && m_current_trial < m_trials.size());
     IDED3DTrialPtr trial = m_trials.at(m_current_trial);
+    qDebug().noquote() << trial->summary();
 
     // Two stimuli are shown for every trial. (So no need to record explicitly
     // the location that is chosen; that information is available from the fact
@@ -1071,17 +1120,21 @@ void IDED3D::recordResponse(bool correct)
 
     trial->recordResponse(correct);
     stage->recordResponse(correct);
+    setValue(FN_LAST_TRIAL_COMPLETED, m_current_trial + 1);  // one-based
     showAnswer(correct);
 }
 
 
 void IDED3D::showAnswer(bool correct)
 {
+#ifdef DEBUG_STEP_DETAIL
     qDebug() << Q_FUNC_INFO << "correct" << correct;
-    const qreal opacity = 0.5;
-    makeObscuringRect(m_scene, SCENE_RECT, opacity);
-    const QString text = correct ? textconst::CORRECT : textconst::WRONG;
-    makeText(m_scene, PROMPT, BASE_TEXT_CONFIG, text);
+#endif
+    const QString& text = correct ? textconst::CORRECT : textconst::WRONG;
+    const QColor& colour = correct ? CORRECT_BG_COLOUR : INCORRECT_BG_COLOUR;
+    makeObscuringRect(m_scene, SCENE_RECT, FEEDBACK_OPACITY, colour);
+    m_scene->addRect(ANSWER_BACKDROP_RECT, QPen(Qt::NoPen), QBrush(colour));
+    makeText(m_scene, SCENE_CENTRE, BASE_TEXT_CONFIG, text);
     if (correct) {
         m_player_correct->play();  // on completion will go to mediaStatusChanged()
     } else {
@@ -1093,7 +1146,9 @@ void IDED3D::showAnswer(bool correct)
 void IDED3D::mediaStatusChanged(QMediaPlayer::MediaStatus status)
 {
     if (status == QMediaPlayer::EndOfMedia) {
+#ifdef DEBUG_STEP_DETAIL
         qDebug() << "Sound playback finished";
+#endif
         waitAfterBeep();
     }
 }
@@ -1101,14 +1156,18 @@ void IDED3D::mediaStatusChanged(QMediaPlayer::MediaStatus status)
 
 void IDED3D::waitAfterBeep()
 {
+#ifdef DEBUG_STEP_DETAIL
     qDebug() << Q_FUNC_INFO;
+#endif
     setTimeout(valueInt(FN_PAUSE_AFTER_BEEP_MS), &IDED3D::iti);
 }
 
 
 void IDED3D::iti()
 {
+#ifdef DEBUG_STEP_DETAIL
     qDebug() << Q_FUNC_INFO;
+#endif
     clearScene();
     setTimeout(valueInt(FN_ITI_MS), &IDED3D::nextTrial);
 }
@@ -1116,7 +1175,9 @@ void IDED3D::iti()
 
 void IDED3D::thanks()
 {
+#ifdef DEBUG_STEP_DETAIL
     qDebug() << Q_FUNC_INFO;
+#endif
     clearScene();
     ButtonAndProxy thx = makeTextButton(
                 m_scene,
@@ -1130,7 +1191,10 @@ void IDED3D::thanks()
 
 void IDED3D::abort()
 {
+#ifdef DEBUG_STEP_DETAIL
     qDebug() << Q_FUNC_INFO;
+#endif
+    setValue(FN_ABORTED, true);
     Q_ASSERT(m_widget);
     editFinishedAbort();
     emit m_widget->finished();
@@ -1139,7 +1203,10 @@ void IDED3D::abort()
 
 void IDED3D::finish()
 {
+#ifdef DEBUG_STEP_DETAIL
     qDebug() << Q_FUNC_INFO;
+#endif
+    setValue(FN_FINISHED, true);
     Q_ASSERT(m_widget);
     editFinishedProperly();
     emit m_widget->finished();

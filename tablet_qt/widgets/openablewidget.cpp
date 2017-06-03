@@ -76,6 +76,7 @@ void OpenableWidget::setWidgetAsOnlyContents(QWidget* widget,
                                              bool esc_can_abort)
 {
     // Remove any existing layout
+    m_subwidget = nullptr;
     QLayout* l = layout();
     delete l;
     // https://stackoverflow.com/questions/7528680/how-to-delete-an-already-existing-layout-on-a-widget

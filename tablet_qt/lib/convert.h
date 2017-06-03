@@ -18,6 +18,7 @@
 */
 
 #pragma once
+#include <QDebug>
 #include <QMap>
 #include <QSsl>
 #include <QString>
@@ -137,11 +138,15 @@ QStringList csvStringToQStringList(const QString& str);
 // ============================================================================
 
 extern const char* TYPENAME_QVECTOR_INT;
-extern const char* TYPENAME_QSTRINGLIST;
 void registerQVectorTypesForQVariant();
 bool isQVariantOfUserType(const QVariant& v, const QString& type_name);
 QVector<int> qVariantToIntVector(const QVariant& v);
-QStringList qVariantToQStringList(const QVariant& v);
+
+// ============================================================================
+// JSON
+// ============================================================================
+
+QString stringListToJson(const QStringList& list, bool compact = true);
 
 // ============================================================================
 // Physical units

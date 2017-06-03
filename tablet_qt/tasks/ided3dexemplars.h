@@ -34,17 +34,18 @@ public:
     QVector<int> getExemplars(const QString& dim_name) const;
     QVector<int> getShapes() const;
     QVector<int> getColours() const;
-    QStringList getColourNames() const;
+    // QStringList getColourNames() const;
     QVector<int> getNumbers() const;
 
     static int nShapes();
     static QString shapeSvg(int shape_num);
-    static QString colourName(int colour_number);
+    // static QString colourName(int colour_number);
     static QColor colour(int colour_number);
     static QStringList possibleDimensions();
     static QVector<QVector<int>> possibilities(int number_min,
                                                int number_max);
     static QString allShapesAsJson();
+    static QString allColoursAsJson();
 protected:
     static QVector<int> possibleShapeIndices();
     static QVector<int> possibleColourIndices();

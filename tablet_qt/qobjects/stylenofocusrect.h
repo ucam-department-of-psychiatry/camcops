@@ -18,32 +18,14 @@
 */
 
 #pragma once
-#include <QString>
-#include "common/textconst.h"
-
-class QApplication;
-class QWidget;
-class WaitBox;
+#include <QProxyStyle>
 
 
-class SlowGuiGuard
+class StyleNoFocusRect : public QProxyStyle
 {
-    // Create an instance of this object on the stack in a block containing
-    // a slow GUI operation. It will:
-    //  (1) show a wait box
-    //  (2) refresh the GUI manually using processEvents()
-    //  ... then you do your slow GUI thing
-    //  ... and on destruction:
-    //  (3) clear the wait box.
-
+    // https://stackoverflow.com/questions/17280056/qt-css-decoration-on-focus
+    // http://doc.qt.io/qt-5/qproxystyle.html#details
 public:
-    SlowGuiGuard(QApplication& app,
-                 QWidget* parent,
-                 const QString& text = "Operation in progress...",
-                 const QString& title = textconst::PLEASE_WAIT,
-                 int minimum_duration_ms = 100);
-    ~SlowGuiGuard();
-protected:
-    WaitBox* m_wait_box;
-    static bool s_waiting;
+    void drawPrimitive(PrimitiveElement element, const QStyleOption *option,
+                       QPainter *painter, const QWidget *widget) const override;
 };

@@ -19,6 +19,7 @@
 
 #pragma once
 #include <QThread>
+#include "common/textconst.h"
 #include "dialogs/waitbox.h"
 #include "threadworker.h"
 
@@ -38,7 +39,7 @@ public:
     SlowNonGuiFunctionCaller(ThreadWorker::PlainWorkerFunction func,
                              QWidget* parent,
                              const QString& text = "Operation in progress...",
-                             const QString& title = "Please wait...");
+                             const QString& title = textconst::PLEASE_WAIT);
     ~SlowNonGuiFunctionCaller();
 protected:
     QThread m_worker_thread;

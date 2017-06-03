@@ -25,6 +25,7 @@
 #include "common/uiconst.h"
 #include "diagnosis/icd10.h"
 #include "lib/debugfunc.h"
+#include "lib/graphicsfunc.h"
 #include "lib/layoutdumper.h"
 #include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
@@ -75,6 +76,7 @@
 #include "widgets/horizontalline.h"
 #include "widgets/imagebutton.h"
 #include "widgets/labelwordwrapwide.h"
+#include "widgets/svgwidgetclickable.h"
 #include "widgets/verticalline.h"
 #include "widgets/verticalscrollarea.h"
 
@@ -209,6 +211,8 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
                  std::bind(&WidgetTestMenu::testLabelWordWrapWide, this, true, false)),
         MenuItem("LabelWordWrapWide (long text) (within VBoxLayoutHfw)",
                  std::bind(&WidgetTestMenu::testLabelWordWrapWide, this, true, true)),
+        MenuItem("SvgWidgetClickable",
+                 std::bind(&WidgetTestMenu::testSvgWidgetClickable, this)),
         MenuItem("VerticalLine",
                  std::bind(&WidgetTestMenu::testVerticalLine, this)),
         MenuItem("VerticalScrollArea (QVBoxLayout, fixed-size icons)",
@@ -532,8 +536,7 @@ void WidgetTestMenu::testHorizontalLine()
 
 void WidgetTestMenu::testImageButton()
 {
-    ImageButton* widget;
-    widget = new ImageButton(uiconst::CBS_ADD);
+    ImageButton* widget = new ImageButton(uiconst::CBS_ADD);
     debugfunc::debugWidget(widget);
 }
 
@@ -548,6 +551,14 @@ void WidgetTestMenu::testLabelWordWrapWide(bool long_text, bool use_hfw_layout)
                            set_background_by_stylesheet,
                            config,
                            use_hfw_layout);
+}
+
+
+void WidgetTestMenu::testSvgWidgetClickable()
+{
+    SvgWidgetClickable* widget = new SvgWidgetClickable();
+    widget->setSvgFromString(graphicsfunc::TEST_SVG);
+    debugfunc::debugWidget(widget);
 }
 
 

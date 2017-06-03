@@ -18,14 +18,21 @@
 */
 
 #include "questionnairefunc.h"
+#include <QObject>
 #include "lib/uifunc.h"
 #include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/quelement.h"
+#include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qugridcell.h"
 #include "questionnairelib/qutext.h"
+#include "tasklib/task.h"
 
 namespace questionnairefunc {
 
+
+// ============================================================================
+// Grids
+// ============================================================================
 
 QuElement* defaultGridRawPointer(const QVector<GridRowDefinition>& deflist,
                                  int left_column_span,
@@ -110,6 +117,22 @@ QuElement* defaultGridRawPointer(
                 deflist, left_column_span, right_column_span,
                 label_alignment,
                 left_column_alignment, right_column_alignment);
+}
+
+
+// ============================================================================
+// Signals
+// ============================================================================
+
+void connectQuestionnaireToTask(Questionnaire* questionnaire, Task* task)
+{
+    if (!questionnaire || !task) {
+        return;
+    }
+    QObject::connect(questionnaire, &Questionnaire::editStarted,
+                     task, &Task::editStarted);
+    QObject::connect(questionnaire, &Questionnaire::editFinished,
+                     task, &Task::editFinished);
 }
 
 

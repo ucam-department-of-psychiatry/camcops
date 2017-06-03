@@ -65,6 +65,7 @@ protected:
     void testLabelWordWrapWide(bool long_text, bool use_hfw_layout);
     // OpenableWidget: part of main app framework instead
     // Spacer: see QuSpacer instead
+    void testSvgWidgetClickable();
     // TickSlider: see QuSlider instead
     void testVerticalLine();
     void testVerticalScrollAreaSimple();

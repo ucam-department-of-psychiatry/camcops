@@ -183,9 +183,11 @@ QString getWidgetInfo(const QWidget* w, const DumperConfig& config)
     elements.append(QString("stylesheet: %1")
                     .arg(w->styleSheet().isEmpty() ? "false" : "true"));
 
-    if (config.show_widget_attributes) {
+    if (config.show_all_widget_attributes ||
+            config.show_set_widget_attributes) {
         elements.append(QString("attributes: [%1]")
-                        .arg(getWidgetAttributeInfo(w)));
+                        .arg(getWidgetAttributeInfo(
+                                 w, config.show_all_widget_attributes)));
     }
 
     if (config.show_widget_properties) {
@@ -196,7 +198,8 @@ QString getWidgetInfo(const QWidget* w, const DumperConfig& config)
     }
 
     if (config.show_widget_stylesheets) {
-        elements.append(QString("stylesheet: %1").arg(w->styleSheet()));
+        elements.append(QString("stylesheet contents: %1").arg(
+                            convert::stringToCppLiteral(w->styleSheet())));
     }
 
     // Geometry within bounds?
@@ -267,25 +270,113 @@ QString getWidgetInfo(const QWidget* w, const DumperConfig& config)
 }
 
 
-QString getWidgetAttributeInfo(const QWidget* w)
+#define ADD_WIDGET_ATTR(x) add(Qt::x, #x)
+
+
+QString getWidgetAttributeInfo(const QWidget* w, bool all)
 {
     // http://doc.qt.io/qt-5/qt.html#WidgetAttribute-enum
     if (!w) {
         return NULL_WIDGET_STRING;
     }
     QStringList elements;
-    elements.append(QString("WA_NoSystemBackground %1").arg(
-        w->testAttribute(Qt::WidgetAttribute::WA_NoSystemBackground)));
-    elements.append(QString("WA_OpaquePaintEvent %1").arg(
-        w->testAttribute(Qt::WidgetAttribute::WA_OpaquePaintEvent)));
-    elements.append(QString("WA_SetStyle %1").arg(
-        w->testAttribute(Qt::WidgetAttribute::WA_SetStyle)));
-    elements.append(QString("WA_StyleSheet %1").arg(
-        w->testAttribute(Qt::WidgetAttribute::WA_StyleSheet)));
-    elements.append(QString("WA_TranslucentBackground %1").arg(
-        w->testAttribute(Qt::WidgetAttribute::WA_TranslucentBackground)));
-    elements.append(QString("WA_StyledBackground %1").arg(
-        w->testAttribute(Qt::WidgetAttribute::WA_StyledBackground)));
+    auto add = [&all, &w, &elements](Qt::WidgetAttribute attr,
+            const QString& desc) {
+        bool set = w->testAttribute(attr);
+        if (all) {
+            elements.append(QString("%1 %2").arg(desc, set));
+        } else {
+            if (set) {
+                elements.append(desc);
+            }
+        }
+    };
+
+    // http://doc.qt.io/qt-5/qt.html#WidgetAttribute-enum
+    // ... sorted
+
+    ADD_WIDGET_ATTR(WA_AcceptTouchEvents);
+    ADD_WIDGET_ATTR(WA_AlwaysShowToolTips);
+    ADD_WIDGET_ATTR(WA_AlwaysStackOnTop);
+    ADD_WIDGET_ATTR(WA_ContentsPropagated);
+    ADD_WIDGET_ATTR(WA_CustomWhatsThis);
+    ADD_WIDGET_ATTR(WA_DeleteOnClose);
+    ADD_WIDGET_ATTR(WA_Disabled);
+    ADD_WIDGET_ATTR(WA_DontCreateNativeAncestors);
+    ADD_WIDGET_ATTR(WA_DontShowOnScreen);
+    ADD_WIDGET_ATTR(WA_ForceDisabled);
+    ADD_WIDGET_ATTR(WA_ForceUpdatesDisabled);
+    ADD_WIDGET_ATTR(WA_GroupLeader);
+    ADD_WIDGET_ATTR(WA_Hover);
+    ADD_WIDGET_ATTR(WA_InputMethodEnabled);
+    ADD_WIDGET_ATTR(WA_KeyboardFocusChange);
+    ADD_WIDGET_ATTR(WA_KeyCompression);
+    ADD_WIDGET_ATTR(WA_LayoutOnEntireRect);
+    ADD_WIDGET_ATTR(WA_LayoutUsesWidgetRect);
+    ADD_WIDGET_ATTR(WA_MacAlwaysShowToolWindow);
+    ADD_WIDGET_ATTR(WA_MacBrushedMetal);
+    ADD_WIDGET_ATTR(WA_MacFrameworkScaled);
+    ADD_WIDGET_ATTR(WA_MacMiniSize);
+    ADD_WIDGET_ATTR(WA_MacNoClickThrough);
+    ADD_WIDGET_ATTR(WA_MacNormalSize);
+    ADD_WIDGET_ATTR(WA_MacOpaqueSizeGrip);
+    ADD_WIDGET_ATTR(WA_MacShowFocusRect);
+    ADD_WIDGET_ATTR(WA_MacSmallSize);
+    ADD_WIDGET_ATTR(WA_MacVariableSize);
+    ADD_WIDGET_ATTR(WA_Mapped);
+    ADD_WIDGET_ATTR(WA_MouseNoMask);
+    ADD_WIDGET_ATTR(WA_MouseTracking);
+    ADD_WIDGET_ATTR(WA_Moved);
+    ADD_WIDGET_ATTR(WA_MSWindowsUseDirect3D);
+    ADD_WIDGET_ATTR(WA_NativeWindow);
+    ADD_WIDGET_ATTR(WA_NoBackground);
+    ADD_WIDGET_ATTR(WA_NoChildEventsForParent);
+    ADD_WIDGET_ATTR(WA_NoChildEventsFromChildren);
+    ADD_WIDGET_ATTR(WA_NoMousePropagation);
+    ADD_WIDGET_ATTR(WA_NoMouseReplay);
+    ADD_WIDGET_ATTR(WA_NoSystemBackground);
+    ADD_WIDGET_ATTR(WA_OpaquePaintEvent);
+    ADD_WIDGET_ATTR(WA_OutsideWSRange);
+    ADD_WIDGET_ATTR(WA_PaintOnScreen);
+    ADD_WIDGET_ATTR(WA_PaintUnclipped);
+    ADD_WIDGET_ATTR(WA_PendingMoveEvent);
+    ADD_WIDGET_ATTR(WA_PendingResizeEvent);
+    ADD_WIDGET_ATTR(WA_QuitOnClose);
+    ADD_WIDGET_ATTR(WA_Resized);
+    ADD_WIDGET_ATTR(WA_RightToLeft);
+    ADD_WIDGET_ATTR(WA_SetCursor);
+    ADD_WIDGET_ATTR(WA_SetFont);
+    ADD_WIDGET_ATTR(WA_SetLocale);
+    ADD_WIDGET_ATTR(WA_SetPalette);
+    ADD_WIDGET_ATTR(WA_SetStyle);
+    ADD_WIDGET_ATTR(WA_ShowModal);
+    ADD_WIDGET_ATTR(WA_ShowWithoutActivating);
+    ADD_WIDGET_ATTR(WA_StaticContents);
+    ADD_WIDGET_ATTR(WA_StyledBackground);
+    ADD_WIDGET_ATTR(WA_StyleSheet);
+    // ADD_WIDGET_ATTR(WA_TabletTracking);  // too new
+    ADD_WIDGET_ATTR(WA_TouchPadAcceptSingleTouchEvents);
+    ADD_WIDGET_ATTR(WA_TranslucentBackground);
+    ADD_WIDGET_ATTR(WA_TransparentForMouseEvents);
+    ADD_WIDGET_ATTR(WA_UnderMouse);
+    ADD_WIDGET_ATTR(WA_UpdatesDisabled);
+    ADD_WIDGET_ATTR(WA_WindowModified);
+    ADD_WIDGET_ATTR(WA_WindowPropagation);
+    ADD_WIDGET_ATTR(WA_X11DoNotAcceptFocus);
+    ADD_WIDGET_ATTR(WA_X11NetWmWindowTypeCombo);
+    ADD_WIDGET_ATTR(WA_X11NetWmWindowTypeDesktop);
+    ADD_WIDGET_ATTR(WA_X11NetWmWindowTypeDialog);
+    ADD_WIDGET_ATTR(WA_X11NetWmWindowTypeDND);
+    ADD_WIDGET_ATTR(WA_X11NetWmWindowTypeDock);
+    ADD_WIDGET_ATTR(WA_X11NetWmWindowTypeDropDownMenu);
+    ADD_WIDGET_ATTR(WA_X11NetWmWindowTypeMenu);
+    ADD_WIDGET_ATTR(WA_X11NetWmWindowTypeNotification);
+    ADD_WIDGET_ATTR(WA_X11NetWmWindowTypePopupMenu);
+    ADD_WIDGET_ATTR(WA_X11NetWmWindowTypeSplash);
+    ADD_WIDGET_ATTR(WA_X11NetWmWindowTypeToolBar);
+    ADD_WIDGET_ATTR(WA_X11NetWmWindowTypeToolTip);
+    ADD_WIDGET_ATTR(WA_X11NetWmWindowTypeUtility);
+
     return elements.join(", ");
 }
 

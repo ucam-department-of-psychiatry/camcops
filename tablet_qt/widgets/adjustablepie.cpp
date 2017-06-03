@@ -99,7 +99,8 @@ QColor DEFAULT_LABEL_COLOUR("darkblue");
 
 AdjustablePie::AdjustablePie(int n_sectors, QWidget* parent) :
     QWidget(parent),
-    m_background_brush(QBrush(QColor(0, 0, 0, 0))),
+    m_background_brush(QBrush(uiconst::TRANSPARENT)),
+    m_centre_label_colour(uiconst::BLACK),
     m_sector_radius(75),
     m_cursor_inner_radius(75),
     m_cursor_outer_radius(125),
@@ -113,7 +114,7 @@ AdjustablePie::AdjustablePie(int n_sectors, QWidget* parent) :
     m_cursor_num_being_dragged(-1),
     m_timer(new QTimer())
 {
-    uifunc::setBackgroundColour(this, QColor());
+    uifunc::setBackgroundColour(this, uiconst::TRANSPARENT);
     setContentsMargins(0, 0, 0, 0);
 
     setNSectors(n_sectors);

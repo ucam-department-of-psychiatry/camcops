@@ -403,7 +403,9 @@ SOURCES += main.cpp \
     lib/ccrandom.cpp \
     tasks/ided3dstage.cpp \
     tasks/ided3dtrial.cpp \
-    tasks/ided3dexemplars.cpp
+    tasks/ided3dexemplars.cpp \
+    widgets/graphicsrectitemclickable.cpp \
+    qobjects/stylenofocusrect.cpp
 
 HEADERS  += \
     common/aliases_camcops.h \
@@ -722,7 +724,9 @@ HEADERS  += \
     lib/ccrandom.h \
     tasks/ided3dstage.h \
     tasks/ided3dtrial.h \
-    tasks/ided3dexemplars.h
+    tasks/ided3dexemplars.h \
+    widgets/graphicsrectitemclickable.h \
+    qobjects/stylenofocusrect.h
 
 
 DISTFILES += \
@@ -771,7 +775,8 @@ DISTFILES += \
     notes/layout_notes.txt \
     notes/overall_design.txt \
     tools/cppclean_all.sh \
-    tools/chord.py
+    tools/chord.py \
+    tools/decrypt_sqlcipher.py
 
 
 # =============================================================================

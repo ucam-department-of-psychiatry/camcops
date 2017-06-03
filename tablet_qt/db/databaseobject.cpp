@@ -165,6 +165,22 @@ bool DatabaseObject::setValue(const QString& fieldname, const QVariant& value,
 }
 
 
+bool DatabaseObject::setValue(const QString& fieldname,
+                              const QVector<int>& value,
+                              bool touch_record)
+{
+    return setValue(fieldname, QVariant::fromValue(value), touch_record);
+}
+
+
+bool DatabaseObject::setValue(const QString& fieldname,
+                              const QStringList& value,
+                              bool touch_record)
+{
+    return setValue(fieldname, QVariant::fromValue(value), touch_record);
+}
+
+
 void DatabaseObject::addToValueInt(const QString& fieldname, int increment)
 {
     setValue(fieldname, valueInt(fieldname) + increment);
@@ -269,6 +285,13 @@ QString DatabaseObject::valueString(const QString& fieldname) const
 }
 
 
+QStringList DatabaseObject::valueStringList(const QString& fieldname) const
+{
+    QVariant v = value(fieldname);
+    return v.toStringList();
+}
+
+
 QChar DatabaseObject::valueQChar(const QString& fieldname) const
 {
     QVariant v = value(fieldname);
@@ -281,6 +304,13 @@ char DatabaseObject::valueLatin1Char(const QString& fieldname) const
     QVariant v = value(fieldname);
     QChar c = v.toChar();  // 16-bit char
     return c.toLatin1();  // 8-bit char
+}
+
+
+QVector<int> DatabaseObject::valueVectorInt(const QString& fieldname) const
+{
+    QVariant v = value(fieldname);
+    return v.value<QVector<int>>();
 }
 
 

@@ -28,6 +28,8 @@
 #include <QDateTime>
 #include <QDebug>
 #include <QImage>
+#include <QJsonArray>
+#include <QJsonDocument>
 #include <QRegularExpression>
 #include <QtMath>
 #include <QUrl>
@@ -201,10 +203,10 @@ QString toSqlLiteral(const QVariant& value)
     // Integer types
     case QVariant::Int:
         return QString("%1").arg(value.toInt());
-    case QVariant::UInt:
-        return QString("%1").arg(value.toUInt());
     case QVariant::LongLong:
         return QString("%1").arg(value.toLongLong());
+    case QVariant::UInt:
+        return QString("%1").arg(value.toUInt());
     case QVariant::ULongLong:
         return QString("%1").arg(value.toULongLong());
 
@@ -217,23 +219,26 @@ QString toSqlLiteral(const QVariant& value)
         return QString("%1").arg(value.toDouble());
 
     // String
-    case QVariant::String:
     case QVariant::Char:
+    case QVariant::String:
         return sqlQuoteString(escapeNewlines(value.toString()));
+    case QVariant::StringList:
+        return sqlQuoteString(qStringListToCsvString(value.toStringList()));
 
     // Dates, times
     case QVariant::Date:
         return value.toDate().toString("'yyyy-MM-dd'");
-    case QVariant::Time:
-        return value.toTime().toString("'HH:mm:ss'");
     case QVariant::DateTime:
         return QString("'%1'").arg(datetime::datetimeToIsoMs(value.toDateTime()));
+    case QVariant::Time:
+        return value.toTime().toString("'HH:mm:ss'");
 
     // BLOB types
     case QVariant::ByteArray:
         // Base 64 is more efficient for network transmission than hex.
         return blobToQuotedBase64(value.toByteArray());
 
+    // Other
     case QVariant::Invalid:
         uifunc::stopApp("toSqlLiteral: Invalid field type");
         // We'll never get here, but to stop compilers complaining:
@@ -243,10 +248,6 @@ QString toSqlLiteral(const QVariant& value)
         if (isQVariantOfUserType(value, TYPENAME_QVECTOR_INT)) {
             QVector<int> intvec = qVariantToIntVector(value);
             return sqlQuoteString(intVectorToCsvString(intvec));
-        }
-        if (isQVariantOfUserType(value, TYPENAME_QSTRINGLIST)) {
-            QStringList strlist = qVariantToQStringList(value);
-            return sqlQuoteString(qStringListToCsvString(strlist));
         }
         uifunc::stopApp("toSqlLiteral: Unknown user type");
         // We'll never get here, but to stop compilers complaining:
@@ -551,6 +552,23 @@ QString prettyValue(const QVariant& variant, int dp, QVariant::Type type)
             stringfunc::toHtmlLinebreaks(escaped, false);
             return escaped;
         }
+    case QVariant::StringList:
+        {
+            QStringList raw = variant.toStringList();
+            QStringList escaped;
+            for (const QString& r : raw) {
+                QString e = r.toHtmlEscaped();
+                stringfunc::toHtmlLinebreaks(e, false);
+                escaped.append(e);
+            }
+            return escaped.join(",");
+        }
+    case QVariant::UserType:
+        if (isQVariantOfUserType(variant, TYPENAME_QVECTOR_INT)) {
+            QVector<int> intvec = qVariantToIntVector(variant);
+            return intVectorToCsvString(intvec);
+        }
+        uifunc::stopApp("prettyValue: Unknown user type");
     default:
         return variant.toString();
     }
@@ -799,14 +817,12 @@ QStringList csvStringToQStringList(const QString& str)
 // ============================================================================
 
 const char* TYPENAME_QVECTOR_INT("QVector<int>");
-const char* TYPENAME_QSTRINGLIST("QStringList");
 
 
 void registerQVectorTypesForQVariant()
 {
     // http://stackoverflow.com/questions/6177906/is-there-a-reason-why-qvariant-accepts-only-qlist-and-not-qvector-nor-qlinkedlis
     qRegisterMetaType<QVector<int>>(TYPENAME_QVECTOR_INT);
-    qRegisterMetaType<QStringList>(TYPENAME_QSTRINGLIST);
 }
 
 
@@ -826,9 +842,16 @@ QVector<int> qVariantToIntVector(const QVariant& v)
 }
 
 
-QStringList qVariantToQStringList(const QVariant& v)
+// ============================================================================
+// JSON
+// ============================================================================
+
+QString stringListToJson(const QStringList& list, bool compact)
 {
-    return v.value<QStringList>();
+    QJsonArray ja(QJsonArray::fromStringList(list));
+    QJsonDocument jd(ja);
+    return jd.toJson(compact ? QJsonDocument::Compact
+                             : QJsonDocument::Indented);
 }
 
 

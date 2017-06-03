@@ -41,6 +41,7 @@ public:
     int incorrectShape() const;
     int incorrectColour() const;
     int incorrectNumber() const;
+    QString summary() const;
 public:
     static const QString TRIAL_TABLENAME;
     static const QString FN_FK_TO_TASK;
@@ -49,6 +50,4 @@ public:
 protected:
     int m_stage_num_zero_based;
     int m_trial_num_zero_based;
-    int m_correct_colour_number;
-    int m_incorrect_colour_number;
 };

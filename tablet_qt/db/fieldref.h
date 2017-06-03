@@ -97,6 +97,7 @@ public:
     void emitValueChanged(const QObject* originator = nullptr);  // for rare manual use
 
     QVariant value() const;
+
     bool valueBool() const;
     int valueInt() const;
     qlonglong valueLongLong() const;
@@ -104,9 +105,11 @@ public:
     QDateTime valueDateTime() const;
     QDate valueDate() const;
     QString valueString() const;
+    QStringList valueStringList() const;
     QByteArray valueByteArray() const;
     QImage valueImage() const;  // convenience function
     QVector<int> valueVectorInt() const;
+
     bool isNull() const;
 
     bool mandatory() const;

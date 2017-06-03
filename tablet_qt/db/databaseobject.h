@@ -81,13 +81,19 @@ public:
 
     bool setValue(const QString& fieldname, const QVariant& value,
                   bool touch_record = true);  // returns: changed?
+    bool setValue(const QString& fieldname, const QVector<int>& value,
+                  bool touch_record = true);  // returns: changed?
+    bool setValue(const QString& fieldname, const QStringList& value,
+                  bool touch_record = true);  // returns: changed?
     void addToValueInt(const QString& fieldname, int increment);
 
     QVariant value(const QString& fieldname) const;
+
     QString prettyValue(const QString& fieldname, int dp = -1) const;
     bool valueIsNull(const QString& fieldname) const;
     bool valueIsFalseNotNull(const QString &fieldname) const;
     bool valueIsNullOrEmpty(const QString &fieldname) const;
+
     bool valueBool(const QString& fieldname) const;
     int valueInt(const QString& fieldname) const;
     qlonglong valueLongLong(const QString& fieldname) const;
@@ -97,8 +103,10 @@ public:
     QDate valueDate(const QString& fieldname) const;
     QByteArray valueByteArray(const QString& fieldname) const;
     QString valueString(const QString& fieldname) const;
+    QStringList valueStringList(const QString& fieldname) const;
     QChar valueQChar(const QString& fieldname) const;
     char valueLatin1Char(const QString& fieldname) const;
+    QVector<int> valueVectorInt(const QString& fieldname) const;
 
     QVector<QVariant> values(const QStringList& fieldnames) const;
 

@@ -19,9 +19,8 @@
 
 #include "ided3dexemplars.h"
 #include <QColor>
-#include <QJsonArray>
-#include <QJsonDocument>
 #include "lib/containers.h"
+#include "lib/convert.h"
 #include "lib/mathfunc.h"
 using mathfunc::intseq;
 using mathfunc::range;
@@ -175,6 +174,7 @@ QVector<int> IDED3DExemplars::getColours() const
 }
 
 
+/*
 QStringList IDED3DExemplars::getColourNames() const
 {
     QVector<int> colour_indices = getColours();
@@ -185,6 +185,7 @@ QStringList IDED3DExemplars::getColourNames() const
     }
     return names;
 }
+*/
 
 
 QVector<int> IDED3DExemplars::getNumbers() const
@@ -205,10 +206,12 @@ QString IDED3DExemplars::shapeSvg(int shape_num)
 }
 
 
+/*
 QString IDED3DExemplars::colourName(int colour_number)
 {
     return POSSIBLE_COLOURS.at(colour_number).name();
 }
+*/
 
 
 QColor IDED3DExemplars::colour(int colour_number)
@@ -257,7 +260,15 @@ QVector<QVector<int>> IDED3DExemplars::possibilities(int number_min,
 
 QString IDED3DExemplars::allShapesAsJson()
 {
-    QJsonArray ja(QJsonArray::fromStringList(SHAPE_DEFINITIONS));
-    QJsonDocument jd(ja);
-    return jd.toJson(QJsonDocument::Compact);
+    return convert::stringListToJson(SHAPE_DEFINITIONS);
+}
+
+
+QString IDED3DExemplars::allColoursAsJson()
+{
+    QStringList colours;
+    for (const QColor& colour : POSSIBLE_COLOURS) {
+        colours.append(colour.name());
+    }
+    return convert::stringListToJson(colours);
 }

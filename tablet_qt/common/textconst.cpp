@@ -115,6 +115,7 @@ TR(PHOTOSEQUENCE_PHOTO_DESCRIPTION, "Photo description");
 TR(PHOTOSEQUENCE_SEQUENCE_DESCRIPTION, "Sequence description");
 TR(PHOTOSEQUENCE_MOVE_BACK, "Move this photo backwards");
 TR(PHOTOSEQUENCE_MOVE_FORWARDS, "Move this photo forwards");
+TR(PLEASE_WAIT, "Please wait...");
 TR(PRESS_NEXT_TO_CONTINUE,
    "Press the NEXT button (the green right-facing arrow at the TOP RIGHT of "
    "the screen) to continue.");

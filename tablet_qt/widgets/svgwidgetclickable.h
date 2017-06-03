@@ -45,8 +45,11 @@ public:
     SvgWidgetClickable(QWidget* parentitem = nullptr);
     SvgWidgetClickable(const QString& filename,
                        QWidget* parentitem = nullptr);
+    void setSvgFromString(const QString& svg);
+    void setSvgFromFile(const QString& filename);
     void setBackgroundColour(const QColor& colour);
     void setPressedBackgroundColour(const QColor& colour);
+    void setTransparentForMouseEvents(bool transparent);
 protected:
     void commonConstructor();
     virtual void mousePressEvent(QMouseEvent* event) override;

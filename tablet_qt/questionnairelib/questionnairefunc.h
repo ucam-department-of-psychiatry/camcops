@@ -23,10 +23,16 @@
 #include <QSharedPointer>
 #include <common/aliases_camcops.h>
 
+class Questionnaire;
 class QuGridCell;
+class Task;
 
 
 namespace questionnairefunc {
+
+// ============================================================================
+// Grids
+// ============================================================================
 
 // Make default grids: convenience functions for grid creation.
 // These functions take {string, element} pairs and make a grid like:
@@ -62,6 +68,12 @@ QuElement* defaultGridRawPointer(
     Qt::Alignment label_alignment = Qt::AlignRight | Qt::AlignTop,
     Qt::Alignment left_column_alignment = 0,
     Qt::Alignment right_column_alignment = 0);
+
+// ============================================================================
+// Signals
+// ============================================================================
+
+void connectQuestionnaireToTask(Questionnaire* questionnaire, Task* task);
 
 }  // namespace questionnairefunc
 

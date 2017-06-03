@@ -18,11 +18,11 @@
 */
 
 #include "svgwidgetclickable.h"
-#
 #include <QDebug>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPaintEvent>
+#include "common/uiconst.h"
 #include "lib/uifunc.h"
 
 
@@ -41,11 +41,27 @@ SvgWidgetClickable::SvgWidgetClickable(const QString& filename,
 }
 
 
+void SvgWidgetClickable::setSvgFromString(const QString& svg)
+{
+    load(svg.toUtf8());
+}
+
+
+void SvgWidgetClickable::setSvgFromFile(const QString& filename)
+{
+    load(filename);
+}
+
+
 void SvgWidgetClickable::commonConstructor()
 {
     m_pressed = false;
     m_pressing_inside = false;
-    uifunc::setBackgroundColour(this, QColor());
+    m_background_colour = uiconst::TRANSPARENT;
+    m_pressed_background_colour = uiconst::TRANSPARENT;
+
+    setTransparentForMouseEvents(false);
+    uifunc::setBackgroundColour(this, uiconst::TRANSPARENT);
     setContentsMargins(0, 0, 0, 0);
 }
 
@@ -61,6 +77,13 @@ void SvgWidgetClickable::setPressedBackgroundColour(const QColor& colour)
 {
     m_pressed_background_colour = colour;
     update();
+}
+
+
+void SvgWidgetClickable::setTransparentForMouseEvents(bool transparent)
+{
+    setAttribute(Qt::WA_TransparentForMouseEvents, transparent);
+    // only applies in QWidget mode, not when it's a QGraphicsItem
 }
 
 
@@ -83,8 +106,6 @@ void SvgWidgetClickable::mouseMoveEvent(QMouseEvent* event)
             update();
         }
     }
-    Q_UNUSED(event);
-    update();
 }
 
 
@@ -106,6 +127,7 @@ void SvgWidgetClickable::paintEvent(QPaintEvent* event)
                 ? m_pressed_background_colour
                 : m_background_colour;
         QPainter p(this);
+        p.setPen(QPen(Qt::PenStyle::NoPen));
         p.setBrush(QBrush(bg));
         QRect cr = contentsRect();
         p.drawRect(cr);

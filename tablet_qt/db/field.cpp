@@ -265,28 +265,26 @@ QString Field::sqlColumnType() const
     //        64-bit unsigned: 0 to +18,446,744,073,709,551,615 = 18446744073709551615
     // C++ type name: QVariant::typeToName(m_type);
     switch (m_type) {
-    case QVariant::Int:  // normally 32-bit
-    case QVariant::UInt:  // normally 32-bit
     case QVariant::Bool:
+    case QVariant::Int:  // normally 32-bit
     case QVariant::LongLong:  // 64-bit
+    case QVariant::UInt:  // normally 32-bit
     case QVariant::ULongLong:  // 64-bit
         return SQLITE_TYPE_INTEGER;
     case QVariant::Double:
         return SQLITE_TYPE_REAL;
-    case QVariant::String:
     case QVariant::Char:
     case QVariant::Date:
-    case QVariant::Time:
     case QVariant::DateTime:
+    case QVariant::String:
+    case QVariant::StringList:
+    case QVariant::Time:
     case QVariant::Uuid:
         return SQLITE_TYPE_TEXT;
     case QVariant::ByteArray:
         return SQLITE_TYPE_BLOB;
     case QVariant::UserType:
         if (m_type_name == convert::TYPENAME_QVECTOR_INT) {
-            return SQLITE_TYPE_TEXT;
-        }
-        if (m_type_name == convert::TYPENAME_QSTRINGLIST) {
             return SQLITE_TYPE_TEXT;
         }
         break;
@@ -303,20 +301,19 @@ void Field::setFromDatabaseValue(const QVariant& db_value)
 {
     // SQLite -> C++
     switch (m_type) {
-    case QVariant::DateTime:
-        m_value = QVariant(datetime::isoToDateTime(db_value.toString()));
-        break;
     case QVariant::Char:
         // If you just do "m_value = db_value", it will become an invalid
         // value when the convert() call is made below, so will appear as NULL.
         m_value = convert::toQCharVariant(db_value);
         break;
+    case QVariant::DateTime:
+        m_value = QVariant(datetime::isoToDateTime(db_value.toString()));
+        break;
+    case QVariant::StringList:
+        m_value = QVariant(convert::csvStringToQStringList(db_value.toString()));
     case QVariant::UserType:
         if (m_type_name == convert::TYPENAME_QVECTOR_INT) {
             m_value.setValue(convert::csvStringToIntVector(
-                                 db_value.toString()));
-        } else if (m_type_name == convert::TYPENAME_QSTRINGLIST) {
-            m_value.setValue(convert::csvStringToQStringList(
                                  db_value.toString()));
         } else {
             m_value = db_value;
@@ -345,20 +342,18 @@ QVariant Field::databaseValue() const
         break;
     case QVariant::DateTime:
         return QVariant(datetime::datetimeToIsoMs(m_value.toDateTime()));
-    case QVariant::Uuid:
-        return m_value.toString();
-        // see http://doc.qt.io/qt-5/quuid.html#toString; e.g.
-        // "{xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx}" where 'x' is a hex digit
+    case QVariant::StringList:
+        return convert::qStringListToCsvString(m_value.toStringList());
     case QVariant::UserType:
         if (m_type_name == convert::TYPENAME_QVECTOR_INT) {
             return convert::intVectorToCsvString(
                         convert::qVariantToIntVector(m_value));
         }
-        if (m_type_name == convert::TYPENAME_QSTRINGLIST) {
-            return convert::qStringListToCsvString(
-                        convert::qVariantToQStringList(m_value));
-        }
         break;
+    case QVariant::Uuid:
+        return m_value.toString();
+        // see http://doc.qt.io/qt-5/quuid.html#toString; e.g.
+        // "{xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx}" where 'x' is a hex digit
     default:
         break;
     }

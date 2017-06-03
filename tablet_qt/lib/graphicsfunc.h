@@ -23,6 +23,7 @@
 #include <QMap>
 #include <QObject>
 #include <QPen>
+#include "common/uiconst.h"
 class AdjustablePie;
 class SvgWidgetClickable;
 class QBrush;
@@ -40,6 +41,12 @@ class QWidget;
 
 namespace graphicsfunc
 {
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+extern const QString TEST_SVG;
 
 // ============================================================================
 // Support structures
@@ -184,6 +191,7 @@ int alpha(qreal opacity);
 // ============================================================================
 
 void alignRect(QRectF& rect, Qt::Alignment alignment);
+QRectF centredRect(const QPointF& centre, qreal w, qreal h);
 
 void drawSector(QPainter& painter,
                 const QPointF& tip,
@@ -235,14 +243,16 @@ SvgWidgetAndProxy makeSvg(
         QGraphicsScene* scene,  // SVG is added to scene
         const QPointF& centre,
         const QString& svg,
-        const QColor& pressed_background_colour = QColor(),
-        const QColor& background_colour = QColor(),
+        const QColor& pressed_background_colour = uiconst::TRANSPARENT,
+        const QColor& background_colour = uiconst::TRANSPARENT,
+        bool transparent_for_mouse = false,
         QWidget* parent = nullptr);
 
 QGraphicsRectItem* makeObscuringRect(
         QGraphicsScene* scene,
         const QRectF& rect,
-        qreal opacity = 0.5);  // 0-1
+        qreal opacity = 0.5,
+        const QColor& colour_ignoring_opacity = QColor(0, 0, 0));  // 0-1
 
 
 }  // namespace graphicsfunc

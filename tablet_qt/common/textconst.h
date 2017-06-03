@@ -130,6 +130,7 @@ extern const QString PHOTOSEQUENCE_PHOTO_DESCRIPTION;
 extern const QString PHOTOSEQUENCE_SEQUENCE_DESCRIPTION;
 extern const QString PHOTOSEQUENCE_MOVE_BACK;
 extern const QString PHOTOSEQUENCE_MOVE_FORWARDS;
+extern const QString PLEASE_WAIT;
 extern const QString PRESS_NEXT_TO_CONTINUE;
 
 extern const QString QUESTION;

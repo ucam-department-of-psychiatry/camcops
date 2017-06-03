@@ -51,14 +51,12 @@ public:
     void recordResponse(bool correct);
     void recordTrialCompleted();
     void recordStageEnded(bool passed);
+    QString summary() const;
 public:
     static const QString STAGE_TABLENAME;
     static const QString FN_FK_TO_TASK;
     static const QString FN_STAGE;
 protected:
     bool m_incorrect_stimulus_can_overlap;
-    int m_stage_num_zero_based;
     int m_n_possible_locations;
-    QVector<int> m_correct_colours;
-    QVector<int> m_incorrect_colours;
 };

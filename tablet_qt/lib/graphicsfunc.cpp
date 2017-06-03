@@ -40,6 +40,7 @@
 #include "lib/css.h"
 #include "lib/geometry.h"
 #include "lib/mathfunc.h"
+#include "qobjects/stylenofocusrect.h"
 #include "widgets/adjustablepie.h"
 #include "widgets/svgwidgetclickable.h"
 using css::colourCss;
@@ -52,6 +53,17 @@ using geometry::sixteenthsOfADegree;
 
 namespace graphicsfunc
 {
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+const QString TEST_SVG(
+"<svg height=\"210\" width=\"210\">"
+"    <polygon points=\"100,10 40,198 190,78 10,78 160,198\""
+"     style=\"fill:lime;stroke:purple;stroke-width:5;fill-rule:evenodd;\"/>"
+"</svg>"
+);
 
 
 // ============================================================================
@@ -210,14 +222,6 @@ QString svgPath(const QString& contents,
     return xmlElement("path", "", attributes);
 }
 
-#ifdef DEBUG_SVG
-const QString TEST_SVG(
-"<svg height=\"210\" width=\"210\">"
-"    <polygon points=\"100,10 40,198 190,78 10,78 160,198\""
-"     style=\"fill:lime;stroke:purple;stroke-width:5;fill-rule:evenodd;\"/>"
-"</svg>"
-);
-#endif
 
 QString svgFromPathContents(const QString& path_contents,
                             const QColor& stroke, int stroke_width,
@@ -291,6 +295,12 @@ void alignRect(QRectF& rect, Qt::Alignment alignment)
     }
 
     rect.translate(dx, dy);
+}
+
+
+QRectF centredRect(const QPointF& centre, qreal w, qreal h)
+{
+    return QRectF(centre.x() - w / 2.0, centre.y() - h / 2.0, w, h);
 }
 
 
@@ -477,6 +487,8 @@ ButtonAndProxy makeTextButton(QGraphicsScene* scene,  // button is added to scen
                 " border-radius: %3;"
                 " font-size: %4;"
                 " margin: 0;"
+                " outline: none; "
+                // ... METHOD 1 of switching off the inner (dotted) focus rect
                 " padding: %5; "
                 "} "
                 "QPushButton:pressed {"
@@ -488,6 +500,11 @@ ButtonAndProxy makeTextButton(QGraphicsScene* scene,  // button is added to scen
                  pixelCss(config.font_size_px),  // 4
                  pixelCss(config.padding_px),  // 5
                  colourCss(config.pressed_background_colour));  // 6
+    // note CSS specifiers:
+    // :checked
+    // :focus
+    // :hover
+    // :pressed
     QString label_css = labelCss(config.text_colour);
 #ifdef DEBUG_CSS
     qDebug() << "makeGraphicsTextButton: button CSS:" << button_css;
@@ -500,22 +517,26 @@ ButtonAndProxy makeTextButton(QGraphicsScene* scene,  // button is added to scen
     result.button->setFlat(true);
     result.button->setAttribute(Qt::WA_TranslucentBackground);
     result.button->setStyleSheet(button_css);
+    // result.button->setStyle(new StyleNoFocusRect());
+    // ... METHOD 2 of switching off the inner (dotted) focus rectangle
 
-    QLabel* label = new QLabel(result.button);
-    label->setStyleSheet(label_css);
-    font.setPixelSize(config.font_size_px);
-    label->setFont(font);
-    label->setText(text);
-    label->setWordWrap(true);
-    label->setAlignment(config.text_alignment);
-    label->setMouseTracking(false);
-    label->setTextInteractionFlags(Qt::NoTextInteraction);
+    if (!text.isEmpty()) {
+        QLabel* label = new QLabel(result.button);
+        label->setStyleSheet(label_css);
+        font.setPixelSize(config.font_size_px);
+        label->setFont(font);
+        label->setText(text);
+        label->setWordWrap(true);
+        label->setAlignment(config.text_alignment);
+        label->setMouseTracking(false);
+        label->setTextInteractionFlags(Qt::NoTextInteraction);
 
-    QVBoxLayout* layout = new QVBoxLayout();
-    layout->setMargin(0);
-    layout->addWidget(label);
+        QVBoxLayout* layout = new QVBoxLayout();
+        layout->setMargin(0);
+        layout->addWidget(label);
 
-    result.button->setLayout(layout);
+        result.button->setLayout(layout);
+    }
 
     result.proxy = scene->addWidget(result.button);
     result.proxy->setGeometry(rect);
@@ -593,6 +614,7 @@ SvgWidgetAndProxy makeSvg(
         const QString& svg,
         const QColor& pressed_background_colour,
         const QColor& background_colour,
+        bool transparent_for_mouse,
         QWidget* parent)
 {
     SvgWidgetAndProxy result;
@@ -602,6 +624,7 @@ SvgWidgetAndProxy makeSvg(
     result.widget->load(contents);
     result.widget->setBackgroundColour(background_colour);
     result.widget->setPressedBackgroundColour(pressed_background_colour);
+    result.widget->setTransparentForMouseEvents(transparent_for_mouse);  // irrelevant!
 
     QSizeF size = result.widget->sizeHint();
     QPointF top_left(centre.x() - size.width() / 2,
@@ -610,16 +633,22 @@ SvgWidgetAndProxy makeSvg(
 
     result.proxy = scene->addWidget(result.widget);
     result.proxy->setGeometry(rect);
+    result.proxy->setAcceptedMouseButtons(transparent_for_mouse
+                                          ? Qt::NoButton
+                                          : Qt::LeftButton);
 
     return result;
 }
 
 
 QGraphicsRectItem* makeObscuringRect(QGraphicsScene* scene,
-                                     const QRectF& rect, qreal opacity)
+                                     const QRectF& rect, qreal opacity,
+                                     const QColor& colour_ignoring_opacity)
 {
     QPen pen(Qt::NoPen);
-    QBrush brush(QColor(0, 0, 0, alpha(opacity)));
+    QColor colour(colour_ignoring_opacity);
+    colour.setAlpha(alpha(opacity));
+    QBrush brush(colour);
     return scene->addRect(rect, pen, brush);
 }
 
