@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 
 """
-NOTE: this script should support as many versions of Python as possible, for
-OSs that ship old versions (e.g. Mac OS/X).
-
 When is it NECESSARY to compile OpenSSL from source?
     - OpenSSL for Android
       http://doc.qt.io/qt-5/opensslsupport.html
@@ -52,6 +49,7 @@ UPON QT CONFIGURE FAILURE:
 
 
 import argparse
+from contextlib import contextmanager
 import logging
 import multiprocessing
 import os
@@ -59,9 +57,86 @@ from os.path import abspath, expanduser, isdir, isfile, join, split
 import shutil
 import subprocess
 import sys
+from typing import Dict, List, Tuple
 import urllib.request
 
 log = logging.getLogger(__name__)
+
+# =============================================================================
+# Constants
+# =============================================================================
+
+USE_MLPACK = True
+USE_ARMADILLO = USE_MLPACK
+USE_BOOST = USE_MLPACK
+
+USE_EIGEN = True
+
+USER_DIR = expanduser("~")
+HEAD = "HEAD"  # git commit meaning "the most recent"
+
+# -----------------------------------------------------------------------------
+# Downloading and versions
+# -----------------------------------------------------------------------------
+
+# Android
+DEFAULT_ANDROID_API_NUM = 23
+DEFAULT_ROOT_DIR = join(USER_DIR, "dev", "qt_local_build")
+DEFAULT_ANDROID_SDK = join(USER_DIR, "dev", "android-sdk-linux")
+DEFAULT_ANDROID_NDK = join(USER_DIR, "dev", "android-ndk-r11c")
+DEFAULT_NDK_HOST = "linux-x86_64"
+DEFAULT_TOOLCHAIN_VERSION = "4.9"
+
+# Qt
+DEFAULT_QT_SRC_DIRNAME = "qt5"
+DEFAULT_QT_GIT_URL = "git://code.qt.io/qt/qt5.git"
+DEFAULT_QT_GIT_BRANCH = "5.7.0"
+DEFAULT_QT_GIT_COMMIT = HEAD
+DEFAULT_QT_USE_OPENSSL_STATICALLY = True
+
+# OpenSSL
+DEFAULT_OPENSSL_VERSION = "1.0.2h"
+DEFAULT_OPENSSL_SRC_URL = (
+    "https://www.openssl.org/source/openssl-{}.tar.gz".format(
+        DEFAULT_OPENSSL_VERSION))
+DEFAULT_OPENSSL_ANDROID_SCRIPT_URL = \
+    "https://wiki.openssl.org/images/7/70/Setenv-android.sh"
+
+# SQLCipher; https://www.zetetic.net/sqlcipher/open-source/
+DEFAULT_SQLCIPHER_GIT_URL = "https://github.com/sqlcipher/sqlcipher.git"
+DEFAULT_SQLCIPHER_GIT_COMMIT = HEAD
+# note that there's another URL for the Android binary packages
+
+# Boost
+DEFAULT_BOOST_VERSION = "1.64.0"
+DEFAULT_BOOST_SRC_URL = (
+    "https://dl.bintray.com/boostorg/"
+    "release/{vdot}/source/boost_{vund}.tar.gz".format(
+        vdot=DEFAULT_BOOST_VERSION,
+        vund=DEFAULT_BOOST_VERSION.replace(".", "_"),
+    )
+    # It looks like there's an extra ":" before the final "boost" in the
+    # list at https://dl.bintray.com/boostorg/release/1.64.0/source/
+    # but the URL only works if you remove it.
+)
+
+# Armadillo
+DEFAULT_ARMA_VERSION = "7.950.0"
+DEFAULT_ARMA_SRC_URL = (
+    "http://sourceforge.net/projects/arma/files/"
+    "armadillo-{}.tar.xz".format(
+        DEFAULT_ARMA_VERSION))
+
+# MLPACK; http://mlpack.org/
+DEFAULT_MLPACK_GIT_URL = "https://github.com/mlpack/mlpack"
+DEFAULT_MLPACK_GIT_COMMIT = HEAD
+
+# Eigen
+DEFAULT_EIGEN_VERSION = "3.3.3"
+
+# -----------------------------------------------------------------------------
+# Constants: building Qt
+# -----------------------------------------------------------------------------
 
 QT_CONFIG_COMMON_ARGS = [
     # use "configure -help" to list all of them
@@ -77,10 +152,10 @@ QT_CONFIG_COMMON_ARGS = [
     "-release",  # default is release
 
     # "-debug-and-release",  # make a release library as well: MAC ONLY
-        # ... debug was the default in 4.8, but not in 5.7
-        # ... release is default in 5.7 (as per "configure -h")
-        # ... check with "readelf --debug-dump=decodedline <LIBRARY.so>"
-        # ... http://stackoverflow.com/questions/1999654
+    # ... debug was the default in 4.8, but not in 5.7
+    # ... release is default in 5.7 (as per "configure -h")
+    # ... check with "readelf --debug-dump=decodedline <LIBRARY.so>"
+    # ... http://stackoverflow.com/questions/1999654
 
     "-static",  # makes a static Qt library (cf. default of "-shared")
     # ... NB ALSO NEEDS "CONFIG += static" in the .pro file
@@ -107,7 +182,6 @@ QT_CONFIG_COMMON_ARGS = [
     "-qt-libjpeg",  # Qt, not host OS, version of JPEG library
     "-qt-doubleconversion",
 
-
     # -------------------------------------------------------------------------
     # Compilation
     # -------------------------------------------------------------------------
@@ -129,35 +203,185 @@ OPENSSL_COMMON_OPTIONS = [
     "no-ssl3",  # SSL-3 is broken. Is an SSL-3 build required for TLS 1.2?
     # "no-comp",  # disable compression independent of zlib
 ]
+
+# -----------------------------------------------------------------------------
+# Constants: external tools
+# -----------------------------------------------------------------------------
+
+CMAKE = "cmake"
 MAKE = "make"
+TAR = "tar"
+
+
+# -----------------------------------------------------------------------------
+# Logging
+# -----------------------------------------------------------------------------
+
+LOG_FORMAT = '%(asctime)s.%(msecs)03d:%(levelname)s:%(message)s'
+LOG_DATEFMT = '%Y-%m-%d %H:%M:%S'
+
+
+# =============================================================================
+# Config class, just to make sure we check the argument namespace properly
+# =============================================================================
+# https://stackoverflow.com/questions/42279063/python-typehints-for-argparse-namespace-objects  # noqa
+
+class Config(object):
+    # noinspection PyUnresolvedReferences
+    def __init__(self, args: argparse.Namespace) -> None:
+        # Architectures
+        self.android_x86 = args.android_x86  # type: bool
+        self.android_arm = args.android_arm  # type: bool
+        self.linux_x86_64 = args.linux_x86_64  # type: bool
+        self.osx_x86_64 = args.osx_x86_64  # type: bool
+
+        # General
+        self.show_config_only = args.show_config_only  # type: bool
+        self.root_dir = args.root_dir  # type: str
+        self.nparallel = args.nparallel  # type: int
+        self.force = args.force  # type: bool
+        self.verbose = args.verbose  # type: int
+        self.src_rootdir = join(self.root_dir, "src")  # type: str
+
+        # Qt
+        # - git repository in src/qt5
+        # - build to multiple directories off root
+        self.qt_git_url = args.qt_git_url  # type: str
+        self.qt_git_branch = args.qt_git_branch  # type: str
+        self.qt_git_commit = args.qt_git_commit  # type: str
+        self.qt_openssl_static = args.qt_openssl_static  # type: bool
+        self.qt_src_gitdir = join(self.src_rootdir,
+                                  args.qt_src_dirname)  # type: str  # noqa
+
+        # Android SDK/NDK
+        # - installed independently by user
+        # - used for cross-compilation to Android targets
+        self.android_api_number = args.android_api_number  # type: int
+        self.android_sdk_root = args.android_sdk_root  # type: str
+        self.android_ndk_root = args.android_ndk_root  # type: str
+        self.android_ndk_host = args.android_ndk_host  # type: str
+        self.android_toolchain_version = args.android_toolchain_version  # type: str  # noqa
+        self.android_api = "android-{}".format(self.android_api_number)
+        # ... see $ANDROID_SDK_ROOT/platforms/
+
+        # OpenSSL
+        # - download tar file to src/openssl
+        # - built to multiple directories off root
+        self.openssl_version = args.openssl_version  # type: str
+        self.openssl_src_url = args.openssl_src_url  # type: str
+        self.openssl_android_script_url = args.openssl_android_script_url  # type: str  # noqa
+        # ... derived:
+        self.openssl_src_dir = join(self.src_rootdir, "openssl")
+        self.openssl_src_filename = "openssl-{}.tar.gz".format(
+            self.openssl_version)
+        self.openssl_src_fullpath = join(self.openssl_src_dir,
+                                         self.openssl_src_filename)
+        self.openssl_android_script_fullpath = join(
+            self.openssl_src_dir, "Setenv-android.sh")
+
+        # SQLCipher
+        # - git repository in "src"
+        # - single build in situ; we make the amalgamation file "sqlite3.c",
+        #   and as a bonus the "sqlcipher" executable for the host machine, but
+        #   the latter isn't part of CamCOPS's use of SQLCipher (CamCOPS just
+        #   uses the amalgamation file, which is platform-independent).
+        self.sqlcipher_git_url = args.sqlcipher_git_url  # type: str
+        self.sqlcipher_git_commit = args.sqlcipher_git_commit  # type: str
+        self.build_sqlcipher = args.build_sqlcipher  # type: bool
+        self.sqlcipher_src_gitdir = join(self.src_rootdir, "sqlcipher")  # type: str  # noqa
+
+        if USE_BOOST:
+            # Boost
+            # - download tar file to src/boost
+            # - unpack to boost/...
+            self.boost_version = args.boost_version  # type: str
+            self.boost_src_url = args.boost_src_url  # type: str
+            # ... derived:
+            boost_version_underscores = self.boost_version.replace(".", "_")
+            self.boost_src_dir = join(self.src_rootdir, "boost")
+            self.boost_src_filename = "boost_{}.tar.xz".format(
+                boost_version_underscores)
+            self.boost_src_fullpath = join(self.boost_src_dir,
+                                           self.boost_src_filename)
+            self.boost_dest_dir = join(self.root_dir, "boost")
+            self.boost_root = join(self.boost_dest_dir,
+                                   "boost_" + boost_version_underscores)
+            self.boost_include_dir = self.boost_root
+            self.boost_library_dir = join(self.boost_root, "libs")
+
+        # Armadillo
+        # - download tar file to src/armadillo
+        # - unpack to armadillo/...
+        # - *** build
+        if USE_ARMADILLO:
+            self.arma_version = args.arma_version  # type: str
+            self.arma_src_url = args.arma_src_url  # type: str
+            # ... derived:
+            arma_w_version = "armadillo-{}".format(self.arma_version)
+            self.arma_src_dir = join(self.src_rootdir, "armadillo")
+            self.arma_src_filename = arma_w_version + ".tar.xz"
+            self.arma_src_fullpath = join(self.arma_src_dir,
+                                          self.arma_src_filename)
+            self.arma_dest_dir = join(self.root_dir, "armadillo")
+            self.arma_working_dir = join(self.arma_dest_dir, arma_w_version)
+            self.arma_include_dir = join(self.arma_working_dir, "include")
+            self.arma_lib = join(self.arma_working_dir, "libarmadillo.so")
+
+        if USE_MLPACK:
+            # MLPACK
+            # - git repository in src/mlpack
+            # - CMake to build BUT needs compilation (+ cross-compilation)
+            self.mlpack_git_url = args.mlpack_git_url  # type: str
+            self.mlpack_git_commit = args.mlpack_git_commit  # type: str
+            self.mlpack_src_gitdir = join(self.src_rootdir, "mlpack")  # type: str  # noqa
+            self.build_mlpack = args.build_mlpack  # type: bool
+
+        if USE_EIGEN:
+            self.eigen_version = args.eigen_version  # type: str
+            self.eigen_src_url = (
+                "http://bitbucket.org/eigen/eigen/get/{}.tar.gz".format(
+                    self.eigen_version)
+            )
+            self.eigen_src_dir = join(self.src_rootdir, "eigen")
+            self.eigen_src_fullpath = join(
+                self.eigen_src_dir,
+                "eigen-{}.tar.gz".format(self.eigen_version))
+            self.eigen_unpacked_dir = join(self.root_dir, "eigen")
+
+    def __repr__(self) -> str:
+        elements = ["    {}={}".format(k, repr(v))
+                    for k, v in self.__dict__.items()]
+        elements.sort()
+        return "{q}(\n{e}\n)".format(q=self.__class__.__qualname__,
+                                     e=",\n".join(elements))
 
 
 # =============================================================================
 # Ancillary
 # =============================================================================
 
-def run(args, env=None):
+@contextmanager
+def pushd(directory: str) -> None:
+    previous_dir = os.getcwd()
+    os.chdir(directory)
+    yield
+    os.chdir(previous_dir)
+
+
+def run(args: List[str], env: Dict[str, str] = None) -> None:
     """
     Runs an external process.
-
-    args: argparse.Namespace
-    env: Dict[str, str]
-    -> None
     """
-    log.info("Running external command: {}".format(args))
+    log.info("From directory {}, running external command: {}".format(
+        repr(os.getcwd()), args))
     if env is not None:
         log.info("Using environment: {}".format(env))
     subprocess.check_call(args, env=env)
 
 
-def replace(filename, text_from, text_to):
+def replace(filename: str, text_from: str, text_to: str) -> None:
     """
     Replaces text in a file.
-
-    filename: str
-    text_from: str
-    text_to: str
-    -> None
     """
     log.info("Amending {} from {} to {}".format(
         filename, repr(text_from), repr(text_to)))
@@ -168,24 +392,18 @@ def replace(filename, text_from, text_to):
         outfile.write(contents)
 
 
-def require(command):
+def require(command: str) -> None:
     """
     Checks that an external command is available, or raises an exception.
-
-    command: str
-    -> None
     """
     if not shutil.which(command):
         raise ValueError("Missing OS command: {}".format(command))
 
 
-def replace_multiple(filename, replacements):
+def replace_multiple(filename: str,
+                     replacements: List[Tuple[str, str]]) -> None:
     """
     Replaces multiple from/to strings within a file.
-
-    filename: str
-    replacement: List[Tuple[str, str]]
-    -> None
     """
     with open(filename) as infile:
         contents = infile.read()
@@ -197,103 +415,122 @@ def replace_multiple(filename, replacements):
         outfile.write(contents)
 
 
-def mkdir_p(path):
+def mkdir_p(path: str) -> None:
     """
     Makes a directory, and any other necessary directories (mkdir -p).
-
-    path: str
-    -> None
     """
     log.info("mkdir -p {}".format(path))
     os.makedirs(path, exist_ok=True)
 
 
-def download_if_not_exists(url, filename):
+def download_if_not_exists(url: str, filename: str) -> None:
     """
     Downloads a URL to a file, unless the file already exists.
-
-    url: str
-    filename: str
-    -> None
     """
     if isfile(filename):
         log.info("No need to download, already have: {}".format(filename))
         return
-    dir, basename = split(abspath(filename))
-    mkdir_p(dir)
+    directory, basename = split(abspath(filename))
+    mkdir_p(directory)
     log.info("Downloading from {} to {}".format(url, filename))
     urllib.request.urlretrieve(url, filename)
 
 
-def fetch_qt(args):
-    """
-    Downloads Qt source code.
-
-    args: argparse.Namespace
-    -> None
-    """
-    if isdir(args.qt_src_gitdir):
-        log.info("Using Qt source in {}".format(args.qt_src_gitdir))
-        return
-    log.info("Fetching Qt source from {} (branch {}) into {}".format(
-        args.qt_git_url, args.qt_git_branch, args.qt_src_gitdir))
-    os.chdir(args.src_rootdir)
-    run(["git", "clone", "--branch", args.qt_git_branch, args.qt_git_url])
-    os.chdir(args.qt_src_gitdir)
-    run(["perl", "init-repository"])
-
-
-def fetch_openssl(args):
-    """
-    Downloads OpenSSL source code.
-
-    args: argparse.Namespace
-    -> None
-    """
-    download_if_not_exists(args.openssl_src_url, args.openssl_src_fullpath)
-    #download_if_not_exists(args.openssl_android_script_url,
-    #                       args.openssl_android_script_fullpath)
-
-
-def get_openssl_rootdir_workdir(args, system):
+def get_openssl_rootdir_workdir(cfg: Config, system: str) -> Tuple[str, str]:
     """
     Calculates local OpenSSL directories.
-
-    args: argparse.Namsepace
-    system: str
-    -> str, str
     """
-    rootdir = join(args.root_dir, "openssl_{}_build".format(system))
-    workdir = join(rootdir, args.openssl_version)
+    rootdir = join(cfg.root_dir, "openssl_{}_build".format(system))
+    workdir = join(rootdir, cfg.openssl_version)
     return rootdir, workdir
 
 
-def root_path():
+def root_path() -> str:
     """
     Returns the system root directory.
-
-    -> str
     """
     # http://stackoverflow.com/questions/12041525
-    return os.path.abspath(os.sep)
+    return abspath(os.sep)
+
+
+def git_clone(prettyname: str, url: str, directory: str,
+              branch: str = None,
+              commit: str = None) -> bool:
+    """
+    Fetches a Git repository, unless we have it already.
+    Returns: did we need to do anything?
+    """
+    if isdir(directory):
+        log.info("Not re-cloning {} Git repository: using existing source "
+                 "in {}".format(prettyname, directory))
+        return False
+    log.info("Fetching {} source from {} into {}".format(
+        prettyname, url, directory))
+    gitargs = ["git", "clone"]
+    if branch:
+        gitargs += ["--branch", branch]
+    gitargs += [url, directory]
+    run(gitargs)
+    if commit:
+        log.info("Resetting {} local Git repository to commit {}".format(
+            prettyname, commit))
+        run(["git",
+             "-C", directory,
+             "reset", "--hard", commit])
+        # Using a Git repository that's not in the working directory:
+        # https://stackoverflow.com/questions/1386291/git-git-dir-not-working-as-expected  # noqa
+    return True
+
+
+def untar_to_directory(tarfile: str, directory: str,
+                       verbose: bool = False,
+                       gzipped: bool = False,
+                       skip_if_dir_exists: bool = True) -> None:
+    if skip_if_dir_exists and isdir(directory):
+        log.info("Skipping extraction of {} as directory {} exists".format(
+            repr(tarfile), repr(directory)))
+        return
+    log.info("Extracting {} to {}".format(repr(tarfile), repr(directory)))
+    mkdir_p(directory)
+    flags = "-x"  # extract
+    if verbose:
+        flags += "v"  # verbose
+    if gzipped:
+        flags += "z"  # decompress using gzip
+    flags += "f"  # filename follows
+    flags = "-xvf" if verbose else "-xf"
+    run([TAR, flags, tarfile, "-C", directory])
+    # C change to directory DIR
+
+
+def delete_cmake_cache(directory: str) -> None:
+    cmake_cache = join(directory, "CMakeCache.txt")
+    if isfile(cmake_cache):
+        log.info("Deleting CMake cache {}".format(repr(cmake_cache)))
+        os.remove(cmake_cache)
 
 
 # =============================================================================
 # Building OpenSSL
 # =============================================================================
 
-def build_openssl_android(args, cpu):
+def fetch_openssl(cfg: Config) -> None:
+    """
+    Downloads OpenSSL source code.
+    """
+    download_if_not_exists(cfg.openssl_src_url, cfg.openssl_src_fullpath)
+    download_if_not_exists(cfg.openssl_android_script_url,
+                           cfg.openssl_android_script_fullpath)
+
+
+def build_openssl_android(cfg: Config, cpu: str) -> None:
     """
     Builds OpenSSL for Android.
-
-    args: argparse.Namespace
-    cpu: str
-    -> None
     """
-    rootdir, workdir = get_openssl_rootdir_workdir(args, "android_" + cpu)
+    rootdir, workdir = get_openssl_rootdir_workdir(cfg, "android_" + cpu)
     targets = [join(workdir, "libssl.so"),
                join(workdir, "libcrypto.so")]
-    if not args.force and all(isfile(x) for x in targets):
+    if not cfg.force and all(isfile(x) for x in targets):
         log.info("OpenSSL: All targets exist already: {}".format(targets))
         return
 
@@ -303,20 +540,22 @@ def build_openssl_android(args, cpu):
     android_arch_short = cpu
     android_arch_full = "arch-{}".format(android_arch_short)  # e.g. arch-x86
     if cpu == "x86":
-        android_eabi = "{}-{}".format(android_arch_short,
-                                      args.android_toolchain_version)  # e.g. x86-4.9
+        android_eabi = "{}-{}".format(
+            android_arch_short,
+            cfg.android_toolchain_version)  # e.g. x86-4.9
         # For toolchain version: ls $ANDROID_NDK_ROOT/toolchains
         # ... "-android-arch" and "-android-toolchain-version" get
         # concatenated, I think; for example, this gives the toolchain
         # "x86_64-4.9"
     else:
         # but ARM ones look like "arm-linux-androideabi-4.9"
-        android_eabi = "{}-linux-androideabi-{}".format(android_arch_short,
-                                                        args.android_toolchain_version)
-    android_sysroot = join(args.android_ndk_root, "platforms",
-                           args.android_api, android_arch_full)
-    android_toolchain = join(args.android_ndk_root, "toolchains", android_eabi,
-                             "prebuilt", args.android_ndk_host, "bin")
+        android_eabi = "{}-linux-androideabi-{}".format(
+            android_arch_short,
+            cfg.android_toolchain_version)
+    android_sysroot = join(cfg.android_ndk_root, "platforms",
+                           cfg.android_api, android_arch_full)
+    android_toolchain = join(cfg.android_ndk_root, "toolchains", android_eabi,
+                             "prebuilt", cfg.android_ndk_host, "bin")
 
     # http://doc.qt.io/qt-5/opensslsupport.html
     if cpu == "armv5":
@@ -330,8 +569,7 @@ def build_openssl_android(args, cpu):
     env = {  # clean environment
         'PATH': os.environ['PATH'],
     }
-    mkdir_p(rootdir)
-    run(["tar", "-xvf", args.openssl_src_fullpath, "-C", rootdir])
+    untar_to_directory(cfg.openssl_src_fullpath, rootdir)
 
     # https://wiki.openssl.org/index.php/Android
     makefile_org = join(workdir, "Makefile.org")
@@ -352,12 +590,12 @@ def build_openssl_android(args, cpu):
         "no-engine",  # disable hardware support ("useful on mobile devices")
     ]
 
-    env["ANDROID_API"] = args.android_api
+    env["ANDROID_API"] = cfg.android_api
     env["ANDROID_ARCH"] = android_arch_full
     env["ANDROID_DEV"] = join(android_sysroot, "usr")
     env["ANDROID_EABI"] = android_eabi
-    env["ANDROID_NDK_ROOT"] = args.android_ndk_root
-    env["ANDROID_SDK_ROOT"] = args.android_sdk_root
+    env["ANDROID_NDK_ROOT"] = cfg.android_ndk_root
+    env["ANDROID_SDK_ROOT"] = cfg.android_sdk_root
     env["ANDROID_SYSROOT"] = android_sysroot
     env["ANDROID_TOOLCHAIN"] = android_toolchain
     env["ARCH"] = cpu
@@ -379,28 +617,22 @@ def build_openssl_android(args, cpu):
         # http://doc.qt.io/qt-5/opensslsupport.html
         env["ANDROID_DEV"] = join(android_sysroot, "usr")
         if cpu == "x86":
-            cc_prefix = "i686"
-        else:
-            cc_prefix = "arm"
-        if cpu == "x86":
             env["CC"] = join(
                 android_toolchain,
                 "i686-linux-android-gcc-{}".format(
-                    args.android_toolchain_version)
+                    cfg.android_toolchain_version)
             )
             env["AR"] = join(android_toolchain, "i686-linux-android-gcc-ar")
         else:
             env["CC"] = join(
                 android_toolchain,
                 "arm-linux-androideabi-gcc-{}".format(
-                    args.android_toolchain_version)
+                    cfg.android_toolchain_version)
             )
             env["AR"] = join(android_toolchain, "arm-linux-androideabi-gcc-ar")
         configure_args = [
             target_os,
         ] + common_ssl_config_options  # was OPENSSL_COMMON_OPTIONS, check ***
-        # print(env)
-        # sys.exit(1)
         run(["perl", join(workdir, "Configure")] + configure_args, env)
 
     else:
@@ -444,33 +676,29 @@ def build_openssl_android(args, cpu):
     # ... looks OK
 
 
-def build_openssl_common_unix(args, cosmetic_osname, target_os, shared_lib_suffix):
+def build_openssl_common_unix(cfg: Config,
+                              cosmetic_osname: str,
+                              target_os: str,
+                              shared_lib_suffix: str) -> None:
     """
     Builds OpenSSL for Linux and similar OSs.
-
-    args: argparse.Namespace
-    cosmetic_osname: str
-    target_os: str
-    shared_lib_suffix: str
-    -> None
 
     The target_os parameter is paseed to OpenSSL's Configure script.
     Use "./Configure LIST" for all possibilities.
 
         https://wiki.openssl.org/index.php/Compilation_and_Installation
     """
-    rootdir, workdir = get_openssl_rootdir_workdir(args, cosmetic_osname)
+    rootdir, workdir = get_openssl_rootdir_workdir(cfg, cosmetic_osname)
     targets = [join(workdir, "libssl{}".format(shared_lib_suffix)),
                join(workdir, "libcrypto{}".format(shared_lib_suffix))]
-    if not args.force and all(isfile(x) for x in targets):
+    if not cfg.force and all(isfile(x) for x in targets):
         log.info("OpenSSL: All targets exist already: {}".format(targets))
         return
 
     env = {  # clean environment
         'PATH': os.environ['PATH'],
     }
-    mkdir_p(rootdir)
-    run(["tar", "-xvf", args.openssl_src_fullpath, "-C", rootdir])
+    untar_to_directory(cfg.openssl_src_fullpath, rootdir)
 
     makefile_org = join(workdir, "Makefile.org")
     replace(makefile_org,
@@ -492,20 +720,19 @@ def build_openssl_common_unix(args, cosmetic_osname, target_os, shared_lib_suffi
             'LIBNAME=$$i'),
         ('LIBCOMPATVERSIONS=";$(SHLIB_VERSION_HISTORY)"', ''),
     ])
-    run([MAKE, "depend", "-j", str(args.nparallel)], env)
-    run([MAKE, "build_libs", "-j", str(args.nparallel)], env)
+    run([MAKE, "depend", "-j", str(cfg.nparallel)], env)
+    run([MAKE, "build_libs", "-j", str(cfg.nparallel)], env)
 
 
-def build_openssl_linux(args):
-    build_openssl_common_unix(args,
+def build_openssl_linux(cfg: Config) -> None:
+    build_openssl_common_unix(cfg,
                               cosmetic_osname="linux",
                               target_os="linux-x86_64",
                               shared_lib_suffix=".so")
 
 
-
-def build_openssl_osx(args):
-    build_openssl_common_unix(args,
+def build_openssl_osx(cfg: Config) -> None:
+    build_openssl_common_unix(cfg,
                               cosmetic_osname="osx",
                               target_os="darwin64-x86_64-cc",
                               shared_lib_suffix=".dylib")
@@ -516,38 +743,45 @@ def build_openssl_osx(args):
 # Building Qt
 # =============================================================================
 
-def add_generic_qt_config_args(qt_config_args, args):
+def fetch_qt(cfg: Config) -> None:
+    """
+    Downloads Qt source code.
+    """
+    if not git_clone(prettyname="Qt",
+                     url=cfg.qt_git_url,
+                     branch=cfg.qt_git_branch,
+                     commit=cfg.qt_git_commit,
+                     directory=cfg.qt_src_gitdir):
+        return
+    os.chdir(cfg.qt_src_gitdir)
+    run(["perl", "init-repository"])
+
+
+def add_generic_qt_config_args(qt_config_args: List[str],
+                               cfg: Config) -> None:
     """
     Amends qt_config args, to add common arguments to Qt's "configure" script.
-
-    qt_config_args: List[str]
-    args: argparse.Namespace
-    -> None
     """
     qt_config_args.extend(QT_CONFIG_COMMON_ARGS)
 
-    # For testing a new OpenSSL build, have args.static_openssl=False, or you
+    # For testing a new OpenSSL build, have cfg.qt_openssl_static=False, or you
     # have to rebuild Qt every time... extremely slow.
-    if args.static_openssl:
+    if cfg.qt_openssl_static:
         qt_config_args.append("-openssl-linked")  # OpenSSL
         # http://doc.qt.io/qt-4.8/ssl.html
         # http://stackoverflow.com/questions/20843180
     else:
         qt_config_args.append("-openssl")  # OpenSSL
 
-    if args.verbose >= 1:
+    if cfg.verbose >= 1:
         qt_config_args.append("-v")  # verbose
-    if args.verbose >= 2:
+    if cfg.verbose >= 2:
         qt_config_args.append("-v")  # more verbose
 
 
-def build_qt_android(args, cpu):
+def build_qt_android(cfg: Config, cpu: str) -> str:
     """
     Builds Qt for Android.
-
-    args: argparse.Namespace
-    cpu: str
-    -> str
     """
     # Android example at http://wiki.qt.io/Qt5ForAndroidBuilding
     # http://doc.qt.io/qt-5/opensslsupport.html
@@ -560,7 +794,7 @@ def build_qt_android(args, cpu):
     require("ant")  # will be needed later; try: sudo apt install ant
 
     opensslrootdir, opensslworkdir = get_openssl_rootdir_workdir(
-        args, "android_" + cpu)
+        cfg, "android_" + cpu)
     openssl_include_root = join(opensslworkdir, "include")
     openssl_lib_root = opensslworkdir
     if cpu == "x86":
@@ -570,28 +804,28 @@ def build_qt_android(args, cpu):
     else:
         raise ValueError("Unknown cpu: {}".format(cpu))
 
-    builddir = join(args.root_dir, "qt_android_{}_build".format(cpu))
-    installdir = join(args.root_dir, "qt_android_{}_install".format(cpu))
+    builddir = join(cfg.root_dir, "qt_android_{}_build".format(cpu))
+    installdir = join(cfg.root_dir, "qt_android_{}_install".format(cpu))
 
     targets = [join(installdir, "bin", "qmake")]
-    if not args.force and all(isfile(x) for x in targets):
+    if not cfg.force and all(isfile(x) for x in targets):
         log.info("Qt: All targets exist already: {}".format(targets))
         return installdir
 
     # env = os.environ.copy()
     env = {  # clean environment
         'PATH': os.environ['PATH'],
+        'OPENSSL_LIBS': "-L{} -lssl -lcrypto".format(openssl_lib_root),
+        # ... unnecessary? But suggested by Qt.
+        # ... http://doc.qt.io/qt-4.8/ssl.html
     }
-    env["OPENSSL_LIBS"] = "-L{} -lssl -lcrypto".format(openssl_lib_root)
-    # ... unnecessary? But suggested by Qt.
-    # ... http://doc.qt.io/qt-4.8/ssl.html
 
     log.info("Configuring Android {} build in {}".format(cpu, builddir))
     mkdir_p(builddir)
     mkdir_p(installdir)
     os.chdir(builddir)
     qt_config_args = [
-        join(args.qt_src_gitdir, "configure"),
+        join(cfg.qt_src_gitdir, "configure"),
 
         # General options:
         "-I", openssl_include_root,  # OpenSSL
@@ -599,23 +833,23 @@ def build_qt_android(args, cpu):
         "-prefix", installdir,
 
         # Android options:
-        "-android-sdk", args.android_sdk_root,
-        "-android-ndk", args.android_ndk_root,
-        "-android-ndk-host", args.android_ndk_host,
+        "-android-sdk", cfg.android_sdk_root,
+        "-android-ndk", cfg.android_ndk_root,
+        "-android-ndk-host", cfg.android_ndk_host,
         "-android-arch", android_arch_short,
-        "-android-toolchain-version", args.android_toolchain_version,
+        "-android-toolchain-version", cfg.android_toolchain_version,
         "-xplatform", "android-g++",
     ]
 
-    add_generic_qt_config_args(qt_config_args, args)
+    add_generic_qt_config_args(qt_config_args, cfg)
     run(qt_config_args)  # The configure step takes a few seconds.
 
     log.info("Making Qt Android {} build into {}".format(cpu, installdir))
     os.chdir(builddir)
-    env["ANDROID_API_VERSION"] = args.android_api
-    env["ANDROID_NDK_ROOT"] = args.android_ndk_root
-    env["ANDROID_SDK_ROOT"] = args.android_sdk_root
-    run([MAKE, "-j", str(args.nparallel)], env)  # The make step takes a few hours.  # noqa
+    env["ANDROID_API_VERSION"] = cfg.android_api
+    env["ANDROID_NDK_ROOT"] = cfg.android_ndk_root
+    env["ANDROID_SDK_ROOT"] = cfg.android_sdk_root
+    run([MAKE, "-j", str(cfg.nparallel)], env)  # The make step takes a few hours.  # noqa
 
     # PROBLEM WITH "make install":
     #       mkdir: cannot create directory ‘/libs’: Permission denied
@@ -636,22 +870,19 @@ def build_qt_android(args, cpu):
     return installdir
 
 
-def build_qt_generic_unix(args, cosmetic_osname, extra_qt_config_args=None):
+def build_qt_generic_unix(cfg: Config,
+                          cosmetic_osname: str,
+                          extra_qt_config_args: List[str] = None) -> str:
     """
     Builds Qt for Linux and similar OSs.
-
-    args: argparse.Namespace
-    cosmetic_osname: str
-    extra_qt_config_args: List[str]
-    -> str
     """
     extra_qt_config_args = extra_qt_config_args or []
     opensslrootdir, opensslworkdir = get_openssl_rootdir_workdir(
-        args, cosmetic_osname)
+        cfg, cosmetic_osname)
     openssl_include_root = join(opensslworkdir, "include")
     openssl_lib_root = opensslworkdir
-    builddir = join(args.root_dir, "qt_{}_build".format(cosmetic_osname))
-    installdir = join(args.root_dir, "qt_{}_install".format(cosmetic_osname))
+    builddir = join(cfg.root_dir, "qt_{}_build".format(cosmetic_osname))
+    installdir = join(cfg.root_dir, "qt_{}_install".format(cosmetic_osname))
 
     targets = [join(installdir, "bin", "qmake")]
     if all(isfile(x) for x in targets):
@@ -660,16 +891,16 @@ def build_qt_generic_unix(args, cosmetic_osname, extra_qt_config_args=None):
 
     env = {  # clean environment
         'PATH': os.environ['PATH'],
+        "OPENSSL_LIBS": "-L{} -lssl -lcrypto".format(openssl_lib_root),
+        # ... unnecessary? But suggested by Qt.
     }
-    env["OPENSSL_LIBS"] = "-L{} -lssl -lcrypto".format(openssl_lib_root)
-    # ... unnecessary? But suggested by Qt.
 
     log.info("Configuring {} build in {}".format(cosmetic_osname, builddir))
     mkdir_p(builddir)
     mkdir_p(installdir)
     os.chdir(builddir)
     qt_config_args = [
-        join(args.qt_src_gitdir, "configure"),
+        join(cfg.qt_src_gitdir, "configure"),
 
         # General options:
         "-I", openssl_include_root,  # OpenSSL
@@ -677,12 +908,12 @@ def build_qt_generic_unix(args, cosmetic_osname, extra_qt_config_args=None):
         "-prefix", installdir,
     ] + extra_qt_config_args
 
-    add_generic_qt_config_args(qt_config_args, args)
+    add_generic_qt_config_args(qt_config_args, cfg)
     run(qt_config_args)  # The configure step takes a few seconds.
 
     log.info("Making Qt {} build into {}".format(cosmetic_osname, installdir))
     os.chdir(builddir)
-    run([MAKE, "-j", str(args.nparallel)], env)  # The make step takes a few hours.  # noqa
+    run([MAKE, "-j", str(cfg.nparallel)], env)  # The make step takes a few hours.  # noqa
 
     # makefile = join(builddir, "qttools", "src", "qtplugininfo", "Makefile")
     # baddir = join("$(INSTALL_ROOT)", "libs", android_arch_short, "")
@@ -694,15 +925,12 @@ def build_qt_generic_unix(args, cosmetic_osname, extra_qt_config_args=None):
     return installdir
 
 
-def build_qt_linux(args):
+def build_qt_linux(cfg: Config) -> str:
     """
     Builds Qt for Linux.
-
-    args: argparse.Namespace
-    -> str
     """
     return build_qt_generic_unix(
-        args,
+        cfg,
         cosmetic_osname="linux",
         extra_qt_config_args=[
             # Linux options:
@@ -712,17 +940,14 @@ def build_qt_linux(args):
     )
 
 
-def build_qt_osx(args):
+def build_qt_osx(cfg: Config) -> str:
     """
     Builds OpenSSL for Mac OS X.
-
-    args: argparse.Namespace
-    -> str
     """
     # http://stackoverflow.com/questions/20604093/qt5-install-on-osx-qt-xcb
     # os.environ["PATH"] = "/usr/bin:/bin:/usr/sbin:/sbin"
     return build_qt_generic_unix(
-        args,
+        cfg,
         cosmetic_osname="osx",
         extra_qt_config_args=None
     )
@@ -732,39 +957,29 @@ def build_qt_osx(args):
 # SQLCipher
 # =============================================================================
 
-def fetch_sqlcipher(args):
+def fetch_sqlcipher(cfg: Config) -> None:
     """
     Downloads OpenSSL source code.
-
-    args: argparse.Namespace
-    -> None
     """
-    if isdir(args.sqlcipher_src_gitdir):
-        log.info("Using SQLCipher source in {}".format(
-            args.sqlcipher_src_gitdir))
-        return
-    log.info("Fetching SQLCipher source from {} into {}".format(
-        args.sqlcipher_git_url, args.sqlcipher_src_gitdir))
-    os.chdir(args.src_rootdir)
-    run(["git", "clone", args.sqlcipher_git_url])
+    git_clone(prettyname="SQLCipher",
+              url=cfg.sqlcipher_git_url,
+              commit=cfg.sqlcipher_git_commit,
+              directory=cfg.sqlcipher_src_gitdir)
 
 
-def build_sqlcipher(args):
+def build_sqlcipher(cfg: Config) -> None:
     """
     Builds SQLCipher, an open-source encrypted version of SQLite.
     Our source is the public version; our destination is an "amalgamation"
     .h and .c file (equivalent to the amalgamation sqlite3.h and sqlite3.c
     of SQLite itself). Actually, they have the same names, too.
-    
-    args: argparse.Namespace
-    -> None
     """
     log.info("Building SQLCipher...")
-    os.chdir(args.sqlcipher_src_gitdir)
+    os.chdir(cfg.sqlcipher_src_gitdir)
 
-    target_c = join(args.sqlcipher_src_gitdir, "sqlite3.c")
-    target_h = join(args.sqlcipher_src_gitdir, "sqlite3.h")
-    target_exe = join(args.sqlcipher_src_gitdir, "sqlcipher")
+    target_c = join(cfg.sqlcipher_src_gitdir, "sqlite3.c")
+    target_h = join(cfg.sqlcipher_src_gitdir, "sqlite3.h")
+    target_exe = join(cfg.sqlcipher_src_gitdir, "sqlcipher")
 
     all_targets = [target_c, target_h, target_exe]
     if all(isfile(x) for x in all_targets):
@@ -777,7 +992,7 @@ def build_sqlcipher(args):
     link_openssl_statically = True
     if link_openssl_statically:
         system = "linux"  # *** hard-coded; change
-        _, openssl_workdir = get_openssl_rootdir_workdir(args, system)
+        _, openssl_workdir = get_openssl_rootdir_workdir(cfg, system)
         static_openssl_lib = join(openssl_workdir, "libcrypto.a")
         openssl_include_dir = join(openssl_workdir, "include")
         # ... sqlite.c does e.g. "#include <openssl/rand.h>"
@@ -792,7 +1007,7 @@ def build_sqlcipher(args):
 
     config_args = [
         # no quotes (they're fine on the command line but not here)
-        join(args.sqlcipher_src_gitdir, "configure"),
+        join(cfg.sqlcipher_src_gitdir, "configure"),
         "--enable-tempstore=yes",
         # ... see README.md; equivalent to SQLITE_TEMP_STORE=2
         'CFLAGS={}'.format(" ".join(cflags)),
@@ -821,45 +1036,206 @@ def build_sqlcipher(args):
 
 
 # =============================================================================
+# Boost
+# =============================================================================
+
+def fetch_boost(cfg: Config) -> None:
+    """
+    Downloads Boost source code.
+    """
+    download_if_not_exists(cfg.boost_src_url, cfg.boost_src_fullpath)
+
+
+def build_boost(cfg: Config) -> None:
+    """
+    Unpacks Boost from source.
+    Try to avoid anything needing compilation; if we can keep this to
+    "headers-only" Boost, it will be cross-platform without further effort.
+    """
+    untar_to_directory(cfg.boost_src_fullpath, cfg.boost_dest_dir)
+
+
+# =============================================================================
+# Armadillo
+# =============================================================================
+
+def fetch_armadillo(cfg: Config) -> None:
+    """
+    Downloads Armadillo source code.
+    There's also a Git repository at
+        https://github.com/conradsnicta/armadillo-code
+    but the download is the verified static snapshot.
+    """
+    download_if_not_exists(cfg.arma_src_url, cfg.arma_src_fullpath)
+
+
+def build_armadillo(cfg: Config) -> None:
+    untar_to_directory(cfg.arma_src_fullpath, cfg.arma_dest_dir)
+    # run([CMAKE,
+    #      # "-D", "ARMADILLO_LIBRARY={}".format(cfg.arma_lib),
+    #      "-D", "ARMADILLO_INCLUDE_DIR={}".format(cfg.arma_include_dir),
+    #      cfg.arma_working_dir])
+    # run([MAKE, "-C", cfg.arma_working_dir])
+
+
+# =============================================================================
+# MLPACK
+# =============================================================================
+
+def fetch_mlpack(cfg: Config) -> None:
+    """
+    Downloads MLPACK source code.
+    """
+    git_clone(prettyname="MLPACK",
+              url=cfg.mlpack_git_url,
+              commit=cfg.mlpack_git_commit,
+              directory=cfg.mlpack_src_gitdir)
+
+
+def build_mlpack(cfg: Config) -> None:
+    """
+    Without building, there is no <mlpack/mlpack_export.hpp>
+    
+    We run cmake for MLPACK, telling it where Armadillo lives.
+    
+    If you get this:
+        CMake Error at CMake/NewCXX11.cmake:4 (target_compile_features):
+        target_compile_features no known features for CXX compiler
+        "GNU"
+    ... update cmake from 3.5.1
+        https://stackoverflow.com/questions/38027292/configure-a-qt5-5-7-application-for-android-with-cmake
+        https://bugreports.qt.io/browse/QTBUG-54666
+    ... note that CMake 3.7.0 is the first to support Android cross-
+        compilation, too
+    ... e.g. from https://launchpad.net/ubuntu/+source/cmake
+        ... hard to install.
+        ... first >=3.7.0 is Ubuntu zesty
+        ... no backports to xenial
+        ... "pinning"
+        ... or just manually install .deb files:
+        
+        sudo dpkg --install \
+            cmake_3.7.2-1_amd64.deb \
+            cmake-data_3.7.2-1_all.deb \
+            libjsoncpp1_1.7.4-3_amd64.deb
+
+        from
+            https://launchpad.net/ubuntu/+source/cmake
+            https://packages.ubuntu.com/zesty/libjsoncpp1
+            
+    ... no, still get error; aha:
+        https://github.com/mlpack/mlpack/issues/796
+    ... see CMAKE_CXX_FLAGS below
+        ... no, would need more hacking of the CMakeLists.txt
+    ... aha! Define FORCE_CXX11=1
+
+    """  # noqa
+    delete_cmake_cache(cfg.mlpack_src_gitdir)
+    cmakelists = join(cfg.mlpack_src_gitdir, "CMakeLists.txt")
+    replacements = [
+        # The supplied version hard-codes the Boost versions (as of 2017-06-06,
+        # to versions 1.49.0 through 1.55.0), asking for 1.49.
+        (
+            '''set(Boost_ADDITIONAL_VERSIONS
+  "1.49.0" "1.50.0" "1.51.0" "1.52.0" "1.53.0" "1.54.0" "1.55.0")''',
+            'set(Boost_ADDITIONAL_VERSIONS "{}")'.format(cfg.boost_version)
+        ),
+        # Note that FindBoost.cmake looks for
+        #       boost_program_options
+        #       boost_unit_test_framework
+        #       boost_serialization
+        # as libraries (and they require Boost compilation)...
+        # ... BECAUSE they are marked as REQUIRED by MLPACK's CMakeLists.txt
+        # We shouldn't need them, so as well as changing the Boost version,
+        # we can remove the requirement:
+        (
+            """find_package(Boost 1.49
+    COMPONENTS
+      program_options
+      unit_test_framework
+      serialization
+    REQUIRED
+)""",
+            "find_package(Boost {})".format(cfg.boost_version)
+        ),
+    ]
+    replace_multiple(cmakelists, replacements)
+    log.info("CMake version:")
+    with pushd(cfg.mlpack_src_gitdir):
+        run([CMAKE, "--version"])
+        run([
+            CMAKE,
+            #  "-D", "ARMADILLO_LIBRARY={}".format(cfg.arma_lib),
+            "-D", "ARMADILLO_INCLUDE_DIR={}".format(cfg.arma_include_dir),
+            "-D", "BOOST_ROOT={}".format(cfg.boost_root),
+            "-D", "BOOST_INCLUDEDIR={}".format(cfg.boost_include_dir),
+            "-D", "BOOST_LIBRARYDIR={}".format(cfg.boost_library_dir),
+            # "-D", "CMAKE_CXX_FLAGS=-I/usr/local/opt/llvm/include -std=c++11",
+            "-D", "FORCE_CXX11=1"
+            # "-D", "Boost_DEBUG=ON",  # tell FindBoost.cmake to be verbose
+            # "-L",  # list variables
+            # "--debug-output",
+            # "--trace-expand",  # very verbose
+            "-Wno-dev",  # turn off some warnings
+            cfg.mlpack_src_gitdir
+        ])
+
+
+# =============================================================================
+# Eigen
+# =============================================================================
+
+def fetch_eigen(cfg: Config) -> None:
+    """
+    Downloads Eigen.
+    http://eigen.tuxfamily.org
+    """
+    download_if_not_exists(cfg.eigen_src_url, cfg.eigen_src_fullpath)
+
+
+def build_eigen(cfg: Config) -> None:
+    """
+    'Build' simply means 'unpack' -- header-only template library.
+    """
+    untar_to_directory(tarfile=cfg.eigen_src_fullpath,
+                       directory=cfg.eigen_unpacked_dir,
+                       gzipped=True)
+
+
+# =============================================================================
 # Main
 # =============================================================================
 
-def main():
+def main() -> None:
     """
     Main entry point.
-
-    -> None
     """
-    logging.basicConfig(level=logging.DEBUG)
-    user_dir = expanduser("~")
+    logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT,
+                        datefmt=LOG_DATEFMT)
 
-    # Android
-    default_android_api_num = 23
-    default_root_dir = join(user_dir, "dev", "qt_local_build")
-    default_android_sdk = join(user_dir, "dev", "android-sdk-linux")
-    default_android_ndk = join(user_dir, "dev", "android-ndk-r11c")
-    default_ndk_host = "linux-x86_64"
-    default_toolchain_version = "4.9"
-
-    # Qt
-    default_qt_src_dirname = "qt5"
-    default_qt_git_url = "git://code.qt.io/qt/qt5.git"
-    default_qt_git_branch = "5.7.0"
-
-    # OpenSSL
-    default_openssl_version = "openssl-1.0.2h"
-    default_openssl_src_url = (
-        "https://www.openssl.org/source/{}.tar.gz".format(
-            default_openssl_version))
-    
-    # SQLCipher; https://www.zetetic.net/sqlcipher/open-source/
-    default_sqlcipher_src_dirname = "sqlcipher"
-    default_sqlcipher_git_url = "https://github.com/sqlcipher/sqlcipher.git"
-    # note that there's another URL for the Android binary packages
+    # -------------------------------------------------------------------------
+    # Command-line arguments
+    # -------------------------------------------------------------------------
 
     parser = argparse.ArgumentParser(
-        description="Build Qt for CamCOPS",
+        description="Build Qt and other libraries for CamCOPS",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+    # General
+    general = parser.add_argument_group("General", "General options")
+    general.add_argument(
+        "--show_config_only", action="store_true",
+        help="Show config, then quit")
+    general.add_argument(
+        "--root_dir", default=DEFAULT_ROOT_DIR,
+        help="Root directory for source and builds")
+    general.add_argument(
+        "--nparallel", type=int, default=multiprocessing.cpu_count(),
+        help="Number of parallel processes to run")
+    general.add_argument("--force", action="store_true", help="Force build")
+    general.add_argument(
+        "--verbose", type=int, default=1,
+        help="Verbosity level")
 
     # Architectures
     archgroup = parser.add_argument_group(
@@ -881,161 +1257,227 @@ def main():
              "check with 'sysctl -a|grep cpu', and see "
              "https://support.apple.com/en-gb/HT201948 )")
 
-    # General
-    general = parser.add_argument_group("General", "General options")
-    general.add_argument(
-        "--nparallel", type=int, default=multiprocessing.cpu_count(),
-        help="Number of parallel processes to run")
-    general.add_argument("--force", action="store_true", help="Force build")
-    general.add_argument(
-        "--verbose", type=int, default=1,
-        help="Verbosity level")
-
     # Qt
-    qt = parser.add_argument_group("Qt", "Qt options")
+    qt = parser.add_argument_group(
+        "Qt",
+        "Qt options [Qt must be built from source for SQLite support, and "
+        "also if static OpenSSL linkage is desired; note that static OpenSSL "
+        "linkage requires a Qt rebuild (slow!) if you rebuild OpenSSL]")
     qt.add_argument(
-        "--root_dir", default=default_root_dir,
-        help="Root directory for source and builds")
-    qt.add_argument(
-        "--qt_src_dirname", default=default_qt_src_dirname,
+        "--qt_src_dirname", default=DEFAULT_QT_SRC_DIRNAME,
         help="Qt source directory")
     qt.add_argument(
-        "--qt_git_url", default=default_qt_git_url,
+        "--qt_git_url", default=DEFAULT_QT_GIT_URL,
         help="Qt Git URL")
     qt.add_argument(
-        "--qt_git_branch", default=default_qt_git_branch,
+        "--qt_git_branch", default=DEFAULT_QT_GIT_BRANCH,
         help="Qt Git branch")
     qt.add_argument(
-        "--qt_openssl_static", dest="static_openssl", action="store_true",
-        help="Link OpenSSL statically")
+        "--qt_git_commit", default=DEFAULT_QT_GIT_COMMIT,
+        help="Qt Git commit")
     qt.add_argument(
-        "--qt_openssl_linked", dest="static_openssl", action="store_false",
-        help="Link OpenSSL dynamically")
-    parser.set_defaults(static_openssl=True)
+        "--qt_openssl_static", dest="qt_openssl_static", action="store_true",
+        help="Link OpenSSL statically [True=static, False=dynamic]")
+    qt.add_argument(
+        "--qt_openssl_linked", dest="qt_openssl_static", action="store_false",
+        help="Link OpenSSL dynamically [True=static, False=dynamic]")
+    parser.set_defaults(qt_openssl_static=DEFAULT_QT_USE_OPENSSL_STATICALLY)
 
     # Android
-    android = parser.add_argument_group("Android", "Android options")
+    android = parser.add_argument_group(
+        "Android",
+        "Android options (NB you must install the Android SDK and NDK "
+        "separately, BEFOREHAND)")
     android.add_argument(
-        "--android_api_number", type=int, default=default_android_api_num,
+        "--android_api_number", type=int, default=DEFAULT_ANDROID_API_NUM,
         help="Android API number")
     android.add_argument(
-        "--android_sdk_root", default=default_android_sdk,
+        "--android_sdk_root", default=DEFAULT_ANDROID_SDK,
         help="Android SDK root directory")
     android.add_argument(
-        "--android_ndk_root", default=default_android_ndk,
+        "--android_ndk_root", default=DEFAULT_ANDROID_NDK,
         help="Android NDK root directory")
     android.add_argument(
-        "--android_ndk_host", default=default_ndk_host,
+        "--android_ndk_host", default=DEFAULT_NDK_HOST,
         help="Android NDK host architecture")
     android.add_argument(
-        "--android_toolchain_version", default=default_toolchain_version,
+        "--android_toolchain_version", default=DEFAULT_TOOLCHAIN_VERSION,
         help="Android toolchain version")
 
     # OpenSSL
-    openssl = parser.add_argument_group("OpenSSL", "OpenSSL options")
+    openssl = parser.add_argument_group(
+        "OpenSSL",
+        "OpenSSL options [OpenSSL must be built from source to use it on "
+        "Android; Qt needs OpenSSL somehow; CamCOPS uses OpenSSL]")
     openssl.add_argument(
-        "--openssl_version", default=default_openssl_version,
+        "--openssl_version", default=DEFAULT_OPENSSL_VERSION,
         help="OpenSSL version")
     openssl.add_argument(
-        "--openssl_src_url", default=default_openssl_src_url,
+        "--openssl_src_url", default=DEFAULT_OPENSSL_SRC_URL,
         help="OpenSSL source URL")
+    openssl.add_argument(
+        "--openssl_android_script_url",
+        default=DEFAULT_OPENSSL_ANDROID_SCRIPT_URL,
+        help="OpenSSL Android script source (URL) (not really unused)"
+    )
     
     # SQLCipher
-    sqlcipher = parser.add_argument_group("SQLCipher", "SQLCipher options")
+    sqlcipher = parser.add_argument_group(
+        "SQLCipher",
+        "SQLCipher options [CamCOPS uses SQLCipher]")
     sqlcipher.add_argument(
-        "--sqlcipher_src_dirname", default=default_sqlcipher_src_dirname,
-        help="SQLCipher source directory")
-    sqlcipher.add_argument(
-        "--sqlcipher_git_url", default=default_sqlcipher_git_url,
+        "--sqlcipher_git_url", default=DEFAULT_SQLCIPHER_GIT_URL,
         help="SQLCipher Git URL")
+    sqlcipher.add_argument(
+        "--sqlcipher_git_commit", default=DEFAULT_SQLCIPHER_GIT_COMMIT,
+        help="SQLCipher Git commit")
     sqlcipher.add_argument(
         "--build_sqlcipher", action="store_true",
         help="SQLCipher: build (in isolation)")
 
-    args = parser.parse_args()
+    # Boost (used by MLPACK)
+    if USE_BOOST:
+        boost = parser.add_argument_group(
+            "Boost",
+            "Boost C++ library options [MLPACK uses Boost]")
+        boost.add_argument(
+            "--boost_version", default=DEFAULT_BOOST_VERSION,
+            help="Armadillo version")
+        boost.add_argument(
+            "--boost_src_url", default=DEFAULT_BOOST_SRC_URL,
+            help="Armadillo source URL")
+
+    # Armadillo (used by MLPACK)
+    if USE_ARMADILLO:
+        armadillo = parser.add_argument_group(
+            "Armadillo",
+            "Armadillo C++ library options [MLPACK uses Armadillo]")
+        armadillo.add_argument(
+            "--arma_version", default=DEFAULT_ARMA_VERSION,
+            help="Armadillo version")
+        armadillo.add_argument(
+            "--arma_src_url", default=DEFAULT_ARMA_SRC_URL,
+            help="Armadillo source URL")
+
+    # MLPACK
+    if USE_MLPACK:
+        mlpack = parser.add_argument_group(
+            "MLPACK",
+            "MLPACK C++ library options [CamCOPS uses MLPACK]")
+        mlpack.add_argument(
+            "--mlpack_git_url", default=DEFAULT_MLPACK_GIT_URL,
+            help="MLPACK Git URL")
+        mlpack.add_argument(
+            "--mlpack_git_commit", default=DEFAULT_MLPACK_GIT_COMMIT,
+            help="MLPACK Git commit")
+        mlpack.add_argument(
+            "--build_mlpack", action="store_true",
+            help="MLPACK: build (in isolation)")
+
+    # Eigen
+    if USE_EIGEN:
+        eigen = parser.add_argument_group(
+            "Eigen",
+            "Eigen C++ template library [CamCOPS uses Eigen]")
+        eigen.add_argument(
+            "--eigen_version", default=DEFAULT_EIGEN_VERSION,
+            help="Eigen version")
+
+    args = parser.parse_args()  # type: argparse.Namespace
 
     # Calculated args
 
-    args.src_rootdir = join(args.root_dir, "src")
-    args.qt_src_gitdir = join(args.src_rootdir, args.qt_src_dirname)
+    cfg = Config(args)
+    log.info("Args: {}".format(args))
+    log.info("Config: {}".format(cfg))
 
-    args.android_api = "android-{}".format(args.android_api_number)
-    # see $ANDROID_SDK_ROOT/platforms/
-
-    args.openssl_tar_dir = join(args.src_rootdir, "openssl")
-    args.openssl_src_dir = join(args.src_rootdir, args.openssl_version)
-    args.openssl_src_filename = "{}.tar.gz".format(args.openssl_version)
-    args.openssl_src_fullpath = join(args.openssl_src_dir,
-                                     args.openssl_src_filename)
-
-    args.sqlcipher_src_gitdir = join(args.src_rootdir,
-                                     args.sqlcipher_src_dirname)
-
-    log.info(args)
+    if cfg.show_config_only:
+        sys.exit(0)
 
     # =========================================================================
     # Common requirements
     # =========================================================================
+    require(CMAKE)
     require(MAKE)
+    require(TAR)
 
     # =========================================================================
     # Fetch
     # =========================================================================
-    fetch_qt(args)
-    fetch_openssl(args)
-    fetch_sqlcipher(args)
+    fetch_qt(cfg)
+    fetch_openssl(cfg)
+    fetch_sqlcipher(cfg)
+    if USE_BOOST:
+        fetch_boost(cfg)
+    if USE_ARMADILLO:
+        fetch_armadillo(cfg)
+    if USE_MLPACK:
+        fetch_mlpack(cfg)
+    if USE_EIGEN:
+        fetch_eigen(cfg)
 
     # =========================================================================
     # Build
     # =========================================================================
-    if args.build_sqlcipher:
-        build_sqlcipher(args)
+
+    if USE_BOOST:
+        build_boost(cfg)
+    if USE_ARMADILLO:
+        build_armadillo(cfg)
+    if USE_MLPACK:
+        build_mlpack(cfg)
+    if USE_EIGEN:
+        build_eigen(cfg)
+    if cfg.build_sqlcipher:
+        build_sqlcipher(cfg)
         return
 
     installdirs = []
     need_sqlcipher = False
+    done_extra = False
     
-    if args.android_x86:  # for x86 Android emulator
+    if cfg.android_x86:  # for x86 Android emulator
         log.info("Qt build: Android x86 +SQLite +OpenSSL")
-        build_openssl_android(args, "x86")
+        build_openssl_android(cfg, "x86")
         need_sqlcipher = True
-        installdirs.append(build_qt_android(args, "x86"))
+        installdirs.append(build_qt_android(cfg, "x86"))
 
-    if args.android_arm:  # for native Android
+    if cfg.android_arm:  # for native Android
         log.info("Qt build: Android ARM +SQLite +OpenSSL")
-        build_openssl_android(args, "arm")
+        build_openssl_android(cfg, "arm")
         need_sqlcipher = True
-        installdirs.append(build_qt_android(args, "arm"))
+        installdirs.append(build_qt_android(cfg, "arm"))
 
-    if args.linux_x86_64:  # for 64-bit Linux
+    if cfg.linux_x86_64:  # for 64-bit Linux
         log.info("Qt build: Linux x86 64-bit +SQLite +OpenSSL")
-        build_openssl_linux(args)
+        build_openssl_linux(cfg)
         need_sqlcipher = True
-        installdirs.append(build_qt_linux(args))
+        installdirs.append(build_qt_linux(cfg))
 
-    if args.osx_x86_64:  # for 64-bit Intel Mac OS/X
+    if cfg.osx_x86_64:  # for 64-bit Intel Mac OS/X
         # http://doc.qt.io/qt-5/osx.html
         log.info("Qt build: Mac OS/X x86 64-bit +SQLite +OpenSSL")
-        build_openssl_osx(args)
+        build_openssl_osx(cfg)
         need_sqlcipher = True
-        installdirs.append(build_qt_osx(args))
+        installdirs.append(build_qt_osx(cfg))
 
-    # *** args.ios*  # for iOS (iPad, etc.)
+    # *** cfg.ios*  # for iOS (iPad, etc.)
     #     http://doc.qt.io/qt-5/building-from-source-ios.html
     #     http://doc.qt.io/qt-5/ios-support.html
     #     https://gist.github.com/foozmeat/5154962
 
-    # *** args.windows*  # for Windows
+    # *** cfg.windows*  # for Windows
     #     http://www.holoborodko.com/pavel/2011/02/01/how-to-compile-qt-4-7-with-visual-studio-2010/
 
     if need_sqlcipher:
-        build_sqlcipher(args)
+        build_sqlcipher(cfg)
+        done_extra = True
 
-    if not installdirs:
-        log.warning("Nothing to do. Run with --help argument for help.")
+    if not installdirs and not done_extra:
+        log.warning("Nothing more to do. Run with --help argument for help.")
         sys.exit(1)
 
-    print("""
+    log.info("""
 ===============================================================================
 Now, in Qt Creator:
 ===============================================================================
@@ -1085,6 +1527,7 @@ RUNTIME REQUIREMENTS
     """.format(  # noqa
         bindirs=", ".join(join(x, "bin") for x in installdirs)
     ))
+    sys.exit(0)
 
 
 if __name__ == '__main__':

@@ -33,6 +33,8 @@
 #include "tasks/cage.h"
 #include "tasks/cape42.h"
 #include "tasks/caps.h"
+#include "tasks/cardinalexpdetthreshold.h"
+#include "tasks/cardinalexpectationdetection.h"
 #include "tasks/cbir.h"
 #include "tasks/cecaq3.h"
 #include "tasks/cgi.h"
@@ -144,8 +146,8 @@ void InitTasks(TaskFactory& factory)
     initializeCage(factory);
     initializeCape42(factory);
     initializeCaps(factory);
-    // *** initializeCardinalExpDetThreshold(factory); // *** COMPLEX
-    // *** initializeCardinalExpectationDetection(factory); // *** COMPLEX
+    initializeCardinalExpDetThreshold(factory); // *** IMPLEMENT!
+    initializeCardinalExpectationDetection(factory); // *** IMPLEMENT!
     initializeCbiR(factory);
     initializeCecaQ3(factory);
     initializeCgi(factory);
@@ -220,7 +222,7 @@ void InitTasks(TaskFactory& factory)
     initializePsychiatricClerking(factory);
 
     initializeQolBasic(factory);
-    initializeQolSG(factory); // *** IN PROGRESS
+    initializeQolSG(factory);
 
     initializeRand36(factory);
     initializeReferrerSatisfactionGen(factory);
@@ -240,7 +242,7 @@ void InitTasks(TaskFactory& factory)
 
     // *** new: CIS-R (see software + PDF, need permissions)
     // *** new: mini-ACE
-    // *** new: Andy Fost / eating disordes; e-mail of 24/5/16
+    // *** new: Andy Foster / eating disordes; e-mail of 24/5/16
 
     // *** discarded tasks - revitalize: ASRM
     // *** discarded tasks - revitalize: BARS

@@ -48,7 +48,7 @@ class IDED3D : public Task
 {
     Q_OBJECT
     using FuncPtr = void (IDED3D::*)();
-    // ... a pointer to a member function of NetworkManager that takes no
+    // ... a pointer to a member function of IDED3D that takes no
     // parameters and returns void
 public:
     IDED3D(CamcopsApp& app, const QSqlDatabase& db,

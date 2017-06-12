@@ -61,7 +61,7 @@ QuAudioPlayer::~QuAudioPlayer()
 QuAudioPlayer* QuAudioPlayer::setVolume(int volume)
 {
     // qDebug().nospace() << "QuAudioPlayer::setVolume(" << volume << ")";
-    m_volume = qBound(uiconst::MIN_VOLUME, volume, uiconst::MAX_VOLUME);
+    m_volume = qBound(uiconst::MIN_VOLUME_QT, volume, uiconst::MAX_VOLUME_QT);
     if (m_player) {
         m_player->setVolume(m_volume);
     }
@@ -102,7 +102,7 @@ QPointer<QWidget> QuAudioPlayer::makeWidget(Questionnaire* questionnaire)
     if (m_offer_volume_control) {
         QDial* dial = new QDial();
         dial->setNotchesVisible(true);
-        dial->setRange(uiconst::MIN_VOLUME, uiconst::MAX_VOLUME);
+        dial->setRange(uiconst::MIN_VOLUME_QT, uiconst::MAX_VOLUME_QT);
         dial->setValue(m_volume);
         connect(dial, &QDial::valueChanged,
                 this, &QuAudioPlayer::setVolumeNoReturn);

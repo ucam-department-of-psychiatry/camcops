@@ -43,7 +43,7 @@ HelpMenu::HelpMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Help"), uifunc::iconFilename(uiconst::ICON_INFO))
 {
     QString title_missing(tr("Why isn’t task X here?"));
-    QString title_licences(tr("Software licences"));
+    QString title_licences(tr("Software licences and citations"));
     m_items = {
         MenuItem(tr("Online CamCOPS documentation"),
                  std::bind(&HelpMenu::visitCamcopsDocumentation, this),
@@ -177,12 +177,13 @@ void HelpMenu::aboutQt()
 
 void HelpMenu::showDeviceIdAndDbDetails() const
 {
-    QStringList lines;
-    lines.append(QString("<b>Device ID:</b> %1").arg(m_app.deviceId()));
-    lines.append(QString("<b>Main database:</b> %1").arg(
-        dbfunc::dbFullPath(dbfunc::DATA_DATABASE_FILENAME)));
-    lines.append(QString("<b>System database:</b> %1").arg(
-        dbfunc::dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME)));
+    QStringList lines{
+        QString("<b>Device ID:</b> %1").arg(m_app.deviceId()),
+        QString("<b>Main database:</b> %1").arg(
+            dbfunc::dbFullPath(dbfunc::DATA_DATABASE_FILENAME)),
+        QString("<b>System database:</b> %1").arg(
+            dbfunc::dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME)),
+    };
     uifunc::alert(stringfunc::joinHtmlLines(lines),
                   tr("Device/installation ID; databases"));
 }

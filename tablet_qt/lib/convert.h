@@ -171,6 +171,8 @@ void stonesPoundsFromKilograms(
 void stonesPoundsOuncesFromKilograms(
         double kilograms, int& stones, int& pounds, double& ounces);
 
+int msFromSec(qreal seconds);
+
 
 // ============================================================================
 // Tests

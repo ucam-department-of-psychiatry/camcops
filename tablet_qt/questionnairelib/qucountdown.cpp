@@ -33,7 +33,7 @@ const int PERIOD_MS = 100;  // should divide into whole seconds!
 
 QuCountdown::QuCountdown(int time_s) :
     m_time_s(time_s),
-    m_volume(uiconst::MAX_VOLUME),
+    m_volume(uiconst::MAX_VOLUME_QT),
     m_running(false),
     m_timer(new QTimer())
 {
@@ -53,7 +53,7 @@ QuCountdown::~QuCountdown()
 
 QuCountdown* QuCountdown::setVolume(int volume)
 {
-    m_volume = qBound(uiconst::MIN_VOLUME, volume, uiconst::MAX_VOLUME);
+    m_volume = qBound(uiconst::MIN_VOLUME_QT, volume, uiconst::MAX_VOLUME_QT);
     if (m_player) {
         m_player->setVolume(m_volume);
     }

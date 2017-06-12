@@ -149,6 +149,7 @@ extern const QString SEE_FACSIMILE_FOR_MORE_DETAIL;
 extern const QString SERVICE;
 extern const QString SEVERE;
 extern const QString SEX;
+extern const QString SOUND_TEST_FOR;
 
 extern const QString THANK_YOU;
 extern const QString TOTAL_SCORE;

@@ -151,8 +151,8 @@ extern const QString CBS_ZOOM;
 // Sounds
 // ============================================================================
 
-extern const int MIN_VOLUME;
-extern const int MAX_VOLUME;
+extern const int MIN_VOLUME_QT;
+extern const int MAX_VOLUME_QT;
 extern const QString DEMO_SOUND_URL;
 extern const QString DEMO_SOUND_URL_2;
 extern const QString SOUND_COUNTDOWN_FINISHED;

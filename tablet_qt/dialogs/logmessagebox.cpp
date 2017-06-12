@@ -29,7 +29,6 @@ const int MIN_WIDTH = 600;
 const int MIN_HEIGHT = 600;
 
 
-
 LogMessageBox::LogMessageBox(QWidget* parent, const QString& title,
                              const QString& text, bool as_html) :
     QDialog(parent)

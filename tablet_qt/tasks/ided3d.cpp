@@ -57,7 +57,7 @@ Comments
 #include "lib/containers.h"
 #include "lib/datetime.h"
 #include "lib/graphicsfunc.h"
-#include "lib/mathfunc.h"
+#include "maths/mathfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/quboolean.h"
 #include "questionnairelib/questionnaire.h"
@@ -66,12 +66,12 @@ Comments
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "taskxtra/ided3dexemplars.h"
+#include "taskxtra/ided3dstage.h"
+#include "taskxtra/ided3dtrial.h"
 #include "widgets/adjustablepie.h"
 #include "widgets/svgwidgetclickable.h"
 #include "widgets/openablewidget.h"
-#include "ided3dexemplars.h"
-#include "ided3dstage.h"
-#include "ided3dtrial.h"
 using ccrandom::coin;
 using ccrandom::dwor;
 using datetime::now;
@@ -1001,9 +1001,9 @@ void IDED3D::startTask()
     m_player_correct->setMedia(uifunc::resourceUrl(SOUND_FILE_CORRECT));
     m_player_incorrect->setMedia(uifunc::resourceUrl(SOUND_FILE_INCORRECT));
     m_player_correct->setVolume(mathfunc::proportionToIntPercent(
-                                    valueInt(FN_VOLUME)));
+                                    valueDouble(FN_VOLUME)));
     m_player_incorrect->setVolume(mathfunc::proportionToIntPercent(
-                                      valueInt(FN_VOLUME)));
+                                      valueDouble(FN_VOLUME)));
     connect(m_player_correct.data(), &QMediaPlayer::mediaStatusChanged,
             this, &IDED3D::mediaStatusChanged);
     connect(m_player_incorrect.data(), &QMediaPlayer::mediaStatusChanged,

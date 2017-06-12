@@ -22,7 +22,7 @@
 #include "common/uiconst.h"
 #include "diagnosis/icd10.h"
 #include "lib/datetime.h"
-#include "lib/mathfunc.h"
+#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/namevaluepair.h"

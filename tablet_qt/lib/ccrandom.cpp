@@ -35,7 +35,27 @@ bool coin(qreal p)
 
 int randomInt(int minimum, int maximum)
 {
+    // [minimum, maximum] -- i.e. inclusive
     std::uniform_int_distribution<int> dist(minimum, maximum);
+    return dist(rng);
+}
+
+
+qreal randomRealExcUpper(qreal minimum, qreal maximum)
+{
+    // [minimum, maximum) -- i.e. includes lower but not upper bound
+    // http://en.cppreference.com/w/cpp/numeric/random/uniform_real_distribution
+    std::uniform_real_distribution<qreal> dist(minimum, maximum);
+    return dist(rng);
+}
+
+
+qreal randomRealIncUpper(qreal minimum, qreal maximum)
+{
+    // [minimum, maximum] -- i.e. inclusive
+    // http://en.cppreference.com/w/cpp/numeric/random/uniform_real_distribution
+    qreal adjusted_max = std::nextafter(maximum, std::numeric_limits<qreal>::max());
+    std::uniform_real_distribution<qreal> dist(minimum, adjusted_max);
     return dist(rng);
 }
 

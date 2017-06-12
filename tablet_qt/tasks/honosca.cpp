@@ -18,7 +18,7 @@
 */
 
 #include "honosca.h"
-#include "lib/mathfunc.h"
+#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"

@@ -54,6 +54,8 @@ QStringList strseq(const QStringList& prefixes, int first, int last,
 
 QString bold(const QString& str);
 QString bold(int x);
+QString a(const QString& url, const QString& text);
+QString a(const QString& url_and_text);
 QString joinHtmlLines(const QStringList& lines);
 QString& toHtmlLinebreaks(QString& str,
                           bool convert_embedded_literals = true);

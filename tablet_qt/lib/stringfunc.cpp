@@ -130,6 +130,18 @@ QString bold(int x)
 }
 
 
+QString a(const QString& url, const QString& text)
+{
+    return QString("<a href=\"%1\">%2</a>").arg(url, text);
+}
+
+
+QString a(const QString& url_and_text)
+{
+    return a(url_and_text, url_and_text);
+}
+
+
 QString joinHtmlLines(const QStringList& lines)
 {
     return lines.join("<br>");

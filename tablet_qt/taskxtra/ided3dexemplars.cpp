@@ -21,8 +21,8 @@
 #include <QColor>
 #include "lib/containers.h"
 #include "lib/convert.h"
-#include "lib/mathfunc.h"
-using mathfunc::intseq;
+#include "maths/mathfunc.h"
+using mathfunc::seq;
 using mathfunc::range;
 
 
@@ -248,7 +248,7 @@ QVector<QVector<int>> IDED3DExemplars::possibilities(int number_min,
     // Order of dimensions in vector must match possibleDimensions()
     const QVector<int> possible_shapes = possibleShapeIndices();
     const QVector<int> possible_colours = possibleColourIndices();
-    const QVector<int> possible_numbers = intseq(number_min,
+    const QVector<int> possible_numbers = seq(number_min,
                                                  number_max);
     return QVector<QVector<int>>{
         possible_shapes,

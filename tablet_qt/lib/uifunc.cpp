@@ -42,13 +42,14 @@
 #include "common/platform.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"
+#include "dialogs/logmessagebox.h"
+#include "dialogs/passwordchangedialog.h"
+#include "dialogs/passwordentrydialog.h"
+#include "dialogs/scrollmessagebox.h"
 #include "lib/css.h"
 #include "lib/convert.h"
 #include "lib/layoutdumper.h"
 #include "lib/stringfunc.h"
-#include "dialogs/passwordchangedialog.h"
-#include "dialogs/passwordentrydialog.h"
-#include "dialogs/scrollmessagebox.h"
 
 
 namespace uifunc {
@@ -470,6 +471,22 @@ void alert(const QString& text, const QString& title, bool scroll)
 void alert(const QStringList& lines, const QString& title, bool scroll)
 {
     alert(stringfunc::joinHtmlLines(lines), title, scroll);
+}
+
+
+void alertLogMessageBox(const QString& text, const QString& title,
+                        bool as_html)
+{
+    LogMessageBox box(nullptr, title, text, as_html);
+    box.exec();
+}
+
+
+void alertLogMessageBox(const QStringList& lines, const QString& title,
+                        bool as_html)
+{
+    QString text = lines.join(as_html ? "<br>" : "\n");
+    alertLogMessageBox(text, title, as_html);
 }
 
 

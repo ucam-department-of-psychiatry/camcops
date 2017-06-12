@@ -8,6 +8,28 @@
 # http://doc.qt.io/qt-5.7/qmake-variable-reference.html
 
 # =============================================================================
+# Prerequisites: environment variables
+# =============================================================================
+# Need environment variable CAMCOPS_QT_BASE_DIR
+# Put something like this in your ~/.profile:
+#   export CAMCOPS_QT_BASE_DIR="/home/rudolf/dev/qt_local_build"
+
+# This file is read by qmake.
+# Use $$(...) to read an environment variable at the time of qmake.
+# Use $(...) to read an environment variable at the time of make.
+# Use $$... or $${...} to read a Qt project file variable.
+# See
+# - http://doc.qt.io/qt-4.8/qmake-advanced-usage.html#variables
+# - http://doc.qt.io/qt-5/qmake-test-function-reference.html
+# Here, we copy an environment variable to a Qt project file variable:
+QT_BASE_DIR = $(CAMCOPS_QT_BASE_DIR)  # value at time of make
+QT_BASE_DIR_AT_QMAKE = $$(CAMCOPS_QT_BASE_DIR)  # value at time of qmake ("now")
+message("Using base directory: '$${QT_BASE_DIR_AT_QMAKE}'")
+isEmpty(QT_BASE_DIR_AT_QMAKE) {
+    error("Environment variable CAMCOPS_QT_BASE_DIR is undefined")
+}
+
+# =============================================================================
 # Parts of Qt
 # =============================================================================
 
@@ -56,7 +78,7 @@ MOBILITY =
 LIBS += -lssl
 # ... not working either? Doesn't complain, but ldd still shows that system libssl.so is in use
 
-LIBS += /home/rudolf/dev/qt_local_build/src/sqlcipher/sqlite3.o  # *** nasty hard-coding
+LIBS += "$$QT_BASE_DIR/src/sqlcipher/sqlite3.o"
 
 # =============================================================================
 # Compiler flags
@@ -80,11 +102,15 @@ TEMPLATE = app
 # =============================================================================
 # Paths
 # =============================================================================
+# See build_qt.py for how these are built (or not built) as required.
 
-INCLUDEPATH += "/home/rudolf/dev/qt_local_build/openssl_linux_build/openssl-1.0.2h/include"  # *** nasty hard-coding
-
-# For SQLCipher (to find sqlcipher/sqlite3.h):
-INCLUDEPATH += "/home/rudolf/dev/qt_local_build/src"  # *** nasty hard-coding
+INCLUDEPATH += "$$QT_BASE_DIR/eigen/eigen-eigen-67e894c6cd8f"  # from which: <Eigen/...>
+# INCLUDEPATH += "$$QT_BASE_DIR/armadillo/armadillo-7.950.0/include"  # from which: <armadillo>
+# INCLUDEPATH += "$$QT_BASE_DIR/armadillo/armadillo-7.950.0/include/armadillo_bits"
+# INCLUDEPATH += "$$QT_BASE_DIR/boost/boost_1_64_0"  # from which: <boost/...>
+# INCLUDEPATH += "$$QT_BASE_DIR/src/mlpack/src"  # from which: <mlpack/...>
+INCLUDEPATH += "$$QT_BASE_DIR/openssl_linux_build/openssl-1.0.2h/include"  # *** nasty hard-coding
+INCLUDEPATH += "$$QT_BASE_DIR/src"  # from which: <sqlcipher/sqlite3.h>
 
 # =============================================================================
 # Resources and source files
@@ -94,17 +120,22 @@ RESOURCES += \
     camcops.qrc
 
 SOURCES += main.cpp \
+    common/appstrings.cpp \
     common/camcopsapp.cpp \
     common/camcopsversion.cpp \
     common/cssconst.cpp \
     common/dbconstants.cpp \
     common/globals.cpp \
     common/platform.cpp \
+    common/textconst.cpp \
+    common/uiconst.cpp \
     common/varconst.cpp \
     common/version.cpp \
+    common/widgetconst.cpp \
     crypto/cryptofunc.cpp \
     crypto/secureqbytearray.cpp \
     crypto/secureqstring.cpp \
+    db/ancillaryfunc.cpp \
     db/databaseobject.cpp \
     db/dbfunc.cpp \
     db/dbnestabletransaction.cpp \
@@ -119,7 +150,12 @@ SOURCES += main.cpp \
     dbobjects/patientsorter.cpp \
     dbobjects/storedvar.cpp \
     db/sqlargs.cpp \
+    db/sqlcachedresult.cpp \
+    db/sqlcipherdriver.cpp \
+    db/sqlcipherhelpers.cpp \
+    db/sqlcipherresult.cpp \
     db/sqlitepragmainfofield.cpp \
+    db/whichdb.cpp \
     diagnosis/diagnosissortfiltermodel.cpp \
     diagnosis/diagnosticcode.cpp \
     diagnosis/diagnosticcodeset.cpp \
@@ -135,15 +171,28 @@ SOURCES += main.cpp \
     dialogs/progressbox.cpp \
     dialogs/scrollmessagebox.cpp \
     dialogs/waitbox.cpp \
+    lib/ccrandom.cpp \
+    lib/containers.cpp \
     lib/convert.cpp \
+    lib/css.cpp \
+    lib/datetime.cpp \
     lib/debugfunc.cpp \
     lib/filefunc.cpp \
+    lib/flagguard.cpp \
+    lib/geometry.cpp \
+    lib/graphicsfunc.cpp \
     lib/idpolicy.cpp \
     lib/imagefunc.cpp \
     lib/layoutdumper.cpp \
-    lib/mathfunc.cpp \
+    lib/linesegment.cpp \
+    maths/mathfunc.cpp \
     lib/networkmanager.cpp \
+    lib/nhs.cpp \
     lib/numericfunc.cpp \
+    lib/paintertranslaterotatecontext.cpp \
+    lib/penbrush.cpp \
+    lib/reentrydepthguard.cpp \
+    lib/roman.cpp \
     lib/sizehelpers.cpp \
     lib/slowguiguard.cpp \
     lib/slownonguifunctioncaller.cpp \
@@ -184,6 +233,7 @@ SOURCES += main.cpp \
     menu/testmenu.cpp \
     menu/whiskermenu.cpp \
     menu/widgettestmenu.cpp \
+    qobjects/comparers.cpp \
     qobjects/focuswatcher.cpp \
     qobjects/keypresswatcher.cpp \
     qobjects/shootabug.cpp \
@@ -192,6 +242,7 @@ SOURCES += main.cpp \
     qobjects/strictint64validator.cpp \
     qobjects/strictintvalidator.cpp \
     qobjects/strictuint64validator.cpp \
+    qobjects/stylenofocusrect.cpp \
     questionnairelib/commonoptions.cpp \
     questionnairelib/mcqfunc.cpp \
     questionnairelib/mcqgridsubtitle.cpp \
@@ -251,8 +302,107 @@ SOURCES += main.cpp \
     tasklib/taskregistrar.cpp \
     tasklib/tasksorter.cpp \
     tasks/ace3.cpp \
+    tasks/aims.cpp \
+    tasks/auditc.cpp \
+    tasks/audit.cpp \
+    tasks/badls.cpp \
+    tasks/bdi.cpp \
+    tasks/bmi.cpp \
+    tasks/bprs.cpp \
+    tasks/bprse.cpp \
+    tasks/cage.cpp \
+    tasks/cape42.cpp \
+    tasks/caps.cpp \
+    tasks/cardinalexpdetthreshold.cpp \
+    tasks/cbir.cpp \
+    tasks/cecaq3.cpp \
+    tasks/cgi.cpp \
+    tasks/cgii.cpp \
+    tasks/cgisch.cpp \
+    tasks/cisr.cpp \
+    tasks/ciwa.cpp \
+    tasks/contactlog.cpp \
+    tasks/copebrief.cpp \
+    tasks/cpftlpsdischarge.cpp \
+    tasks/cpftlpsreferral.cpp \
+    tasks/cpftlpsresetresponseclock.cpp \
+    tasks/dad.cpp \
+    tasks/dast.cpp \
+    tasks/deakin1healthreview.cpp \
     tasks/demoquestionnaire.cpp \
+    tasks/demqol.cpp \
+    tasks/demqolproxy.cpp \
+    tasks/diagnosisicd10.cpp \
+    tasks/diagnosisicd9cm.cpp \
+    tasks/distressthermometer.cpp \
+    tasks/fast.cpp \
+    tasks/fft.cpp \
+    tasks/frs.cpp \
+    tasks/gad7.cpp \
+    tasks/gaf.cpp \
+    tasks/gds15.cpp \
+    tasks/gmcpq.cpp \
+    tasks/hads.cpp \
+    tasks/hadsrespondent.cpp \
+    tasks/hama.cpp \
+    tasks/hamd7.cpp \
+    tasks/hamd.cpp \
+    tasks/honos65.cpp \
+    tasks/honosca.cpp \
+    tasks/honos.cpp \
+    tasks/icd10depressive.cpp \
+    tasks/icd10manic.cpp \
+    tasks/icd10mixed.cpp \
+    tasks/icd10schizophrenia.cpp \
+    tasks/icd10schizotypal.cpp \
+    tasks/icd10specpd.cpp \
+    tasks/ided3d.cpp \
+    tasks/iesr.cpp \
+    tasks/ifs.cpp \
+    tasks/irac.cpp \
+    tasks/mast.cpp \
+    tasks/mdsupdrs.cpp \
+    tasks/moca.cpp \
+    tasks/nart.cpp \
+    tasks/npiq.cpp \
+    tasks/panss.cpp \
+    tasks/patientsatisfaction.cpp \
+    tasks/pclc.cpp \
+    tasks/pclm.cpp \
+    tasks/pcls.cpp \
+    tasks/pdss.cpp \
+    tasks/photo.cpp \
+    tasks/photosequence.cpp \
+    tasks/phq15.cpp \
     tasks/phq9.cpp \
+    tasks/progressnote.cpp \
+    tasks/pswq.cpp \
+    tasks/psychiatricclerking.cpp \
+    tasks/qolbasic.cpp \
+    tasks/qolsg.cpp \
+    tasks/rand36.cpp \
+    tasks/referrersatisfactiongen.cpp \
+    tasks/referrersatisfactionspec.cpp \
+    tasks/slums.cpp \
+    tasks/smast.cpp \
+    tasks/swemwbs.cpp \
+    tasks/wemwbs.cpp \
+    tasks/wsas.cpp \
+    tasks/ybocs.cpp \
+    tasks/ybocssc.cpp \
+    tasks/zbi12.cpp \
+    taskxtra/diagnosisicd10item.cpp \
+    taskxtra/diagnosisicd9cmitem.cpp \
+    taskxtra/diagnosisitembase.cpp \
+    taskxtra/diagnosistaskbase.cpp \
+    taskxtra/ided3dexemplars.cpp \
+    taskxtra/ided3dstage.cpp \
+    taskxtra/ided3dtrial.cpp \
+    taskxtra/pclcommon.cpp \
+    taskxtra/photosequencephoto.cpp \
+    taskxtra/satisfactioncommon.cpp \
+    widgets/adjustablepie.cpp \
+    widgets/aspectratiopixmap.cpp \
     widgets/basewidget.cpp \
     widgets/booleanwidget.cpp \
     widgets/boxlayouthfw.cpp \
@@ -261,7 +411,10 @@ SOURCES += main.cpp \
     widgets/clickablelabelnowrap.cpp \
     widgets/clickablelabelwordwrapwide.cpp \
     widgets/diagnosticcodeselector.cpp \
+    widgets/fixedareahfwtestwidget.cpp \
+    widgets/flickcharm.cpp \
     widgets/flowlayouthfw.cpp \
+    widgets/graphicsrectitemclickable.cpp \
     widgets/gridlayouthfw.cpp \
     widgets/growingtextedit.cpp \
     widgets/hboxlayouthfw.cpp \
@@ -272,144 +425,29 @@ SOURCES += main.cpp \
     widgets/margins.cpp \
     widgets/openablewidget.cpp \
     widgets/qtlayouthelpers.cpp \
+    widgets/screenlikegraphicsview.cpp \
     widgets/spacer.cpp \
+    widgets/svgwidgetclickable.cpp \
     widgets/tickslider.cpp \
     widgets/vboxlayouthfw.cpp \
     widgets/verticalline.cpp \
     widgets/verticalscrollarea.cpp \
-    common/textconst.cpp \
-    lib/flagguard.cpp \
-    lib/reentrydepthguard.cpp \
-    common/widgetconst.cpp \
-    lib/nhs.cpp \
-    tasks/aims.cpp \
-    tasks/audit.cpp \
-    tasks/auditc.cpp \
-    tasks/badls.cpp \
-    tasks/bdi.cpp \
-    tasks/bmi.cpp \
-    tasks/bprs.cpp \
-    tasks/bprse.cpp \
-    tasks/cage.cpp \
-    tasks/cape42.cpp \
-    tasks/caps.cpp \
-    tasks/cbir.cpp \
-    tasks/cecaq3.cpp \
-    tasks/cgi.cpp \
-    tasks/cgii.cpp \
-    tasks/cgisch.cpp \
-    tasks/ciwa.cpp \
-    tasks/contactlog.cpp \
-    tasks/copebrief.cpp \
-    tasks/cpftlpsdischarge.cpp \
-    tasks/cpftlpsreferral.cpp \
-    tasks/cpftlpsresetresponseclock.cpp \
-    tasks/dad.cpp \
-    tasks/dast.cpp \
-    tasks/demqol.cpp \
-    tasks/demqolproxy.cpp \
-    tasks/diagnosisicd9cm.cpp \
-    tasks/diagnosistaskbase.cpp \
-    tasks/diagnosisitembase.cpp \
-    db/ancillaryfunc.cpp \
-    tasks/diagnosisicd9cmitem.cpp \
-    tasks/diagnosisicd10.cpp \
-    tasks/diagnosisicd10item.cpp \
-    tasks/deakin1healthreview.cpp \
-    tasks/gmcpq.cpp \
-    tasks/distressthermometer.cpp \
-    tasks/fast.cpp \
-    qobjects/comparers.cpp \
-    tasks/fft.cpp \
-    tasks/frs.cpp \
-    tasks/gad7.cpp \
-    tasks/gaf.cpp \
-    tasks/gds15.cpp \
-    tasks/hads.cpp \
-    tasks/hama.cpp \
-    tasks/hamd.cpp \
-    tasks/hamd7.cpp \
-    tasks/honos.cpp \
-    tasks/honos65.cpp \
-    tasks/honosca.cpp \
-    tasks/icd10depressive.cpp \
-    common/appstrings.cpp \
-    tasks/icd10manic.cpp \
-    widgets/flickcharm.cpp \
-    tasks/icd10mixed.cpp \
-    tasks/icd10schizophrenia.cpp \
-    tasks/icd10schizotypal.cpp \
-    tasks/icd10specpd.cpp \
-    tasks/iesr.cpp \
-    tasks/ifs.cpp \
-    tasks/irac.cpp \
-    tasks/mast.cpp \
-    tasks/mdsupdrs.cpp \
-    lib/roman.cpp \
-    tasks/moca.cpp \
-    lib/datetime.cpp \
-    widgets/fixedareahfwtestwidget.cpp \
     widgets/verticalscrollareaviewport.cpp \
-    db/sqlcipherdriver.cpp \
-    db/sqlcachedresult.cpp \
-    db/sqlcipherresult.cpp \
-    db/sqlcipherhelpers.cpp \
-    db/whichdb.cpp \
-    tasks/nart.cpp \
-    tasks/npiq.cpp \
-    tasks/panss.cpp \
-    tasks/patientsatisfaction.cpp \
-    tasks/referrersatisfactiongen.cpp \
-    tasks/referrersatisfactionspec.cpp \
-    tasks/satisfactioncommon.cpp \
-    tasks/pclcommon.cpp \
-    tasks/pclc.cpp \
-    tasks/pclm.cpp \
-    tasks/pcls.cpp \
-    tasks/phq15.cpp \
-    tasks/pdss.cpp \
-    tasks/progressnote.cpp \
-    tasks/hadsrespondent.cpp \
-    tasks/photo.cpp \
-    widgets/aspectratiopixmap.cpp \
-    tasks/photosequence.cpp \
-    tasks/photosequencephoto.cpp \
-    tasks/pswq.cpp \
-    tasks/psychiatricclerking.cpp \
-    tasks/qolbasic.cpp \
-    tasks/rand36.cpp \
-    tasks/slums.cpp \
-    tasks/smast.cpp \
-    tasks/swemwbs.cpp \
-    tasks/wemwbs.cpp \
-    tasks/wsas.cpp \
-    tasks/zbi12.cpp \
-    tasks/ybocs.cpp \
-    tasks/ybocssc.cpp \
-    tasks/cisr.cpp \
-    tasks/qolsg.cpp \
-    common/uiconst.cpp \
-    lib/graphicsfunc.cpp \
-    widgets/screenlikegraphicsview.cpp \
-    lib/containers.cpp \
-    widgets/adjustablepie.cpp \
-    lib/penbrush.cpp \
-    lib/geometry.cpp \
-    lib/linesegment.cpp \
-    lib/paintertranslaterotatecontext.cpp \
-    tasks/ided3d.cpp \
-    widgets/svgwidgetclickable.cpp \
-    lib/css.cpp \
-    lib/ccrandom.cpp \
-    tasks/ided3dstage.cpp \
-    tasks/ided3dtrial.cpp \
-    tasks/ided3dexemplars.cpp \
-    widgets/graphicsrectitemclickable.cpp \
-    qobjects/stylenofocusrect.cpp
+    tasks/cardinalexpectationdetection.cpp \
+    dialogs/soundtestdialog.cpp \
+    taskxtra/cardinalexpdetcommon.cpp \
+    taskxtra/cardinalexpdetthresholdtrial.cpp \
+    maths/mlpackfunc.cpp \
+    maths/eigenfunc.cpp \
+    maths/glm.cpp \
+    maths/logisticregression.cpp \
+    maths/linkfunctionfamily.cpp \
+    maths/statsfunc.cpp
 
-HEADERS  += \
+HEADERS += \
     common/aliases_camcops.h \
     common/aliases_qt.h \
+    common/appstrings.h \
     common/camcopsapp.h \
     common/camcopsversion.h \
     common/cssconst.h \
@@ -418,12 +456,16 @@ HEADERS  += \
     common/gui_defines.h \
     common/layouts.h \
     common/platform.h \
+    common/textconst.h \
+    common/uiconst.h \
     common/varconst.h \
     common/version.h \
+    common/widgetconst.h \
     crypto/cryptofunc.h \
     crypto/secureqbytearray.h \
     crypto/secureqstring.h \
     crypto/zallocator.h \
+    db/ancillaryfunc.h \
     db/databaseobject.h \
     db/dbfunc.h \
     db/dbnestabletransaction.h \
@@ -438,7 +480,12 @@ HEADERS  += \
     dbobjects/patientsorter.h \
     dbobjects/storedvar.h \
     db/sqlargs.h \
+    db/sqlcachedresult.h \
+    db/sqlcipherdriver.h \
+    db/sqlcipherhelpers.h \
+    db/sqlcipherresult.h \
     db/sqlitepragmainfofield.h \
+    db/whichdb.h \
     diagnosis/diagnosissortfiltermodel.h \
     diagnosis/diagnosticcode.h \
     diagnosis/diagnosticcodeset.h \
@@ -454,16 +501,29 @@ HEADERS  += \
     dialogs/progressbox.h \
     dialogs/scrollmessagebox.h \
     dialogs/waitbox.h \
+    lib/ccrandom.h \
     lib/cloneable.h \
+    lib/containers.h \
     lib/convert.h \
+    lib/css.h \
+    lib/datetime.h \
     lib/debugfunc.h \
     lib/filefunc.h \
+    lib/flagguard.h \
+    lib/geometry.h \
+    lib/graphicsfunc.h \
     lib/idpolicy.h \
     lib/imagefunc.h \
     lib/layoutdumper.h \
-    lib/mathfunc.h \
+    lib/linesegment.h \
+    maths/mathfunc.h \
     lib/networkmanager.h \
+    lib/nhs.h \
     lib/numericfunc.h \
+    lib/paintertranslaterotatecontext.h \
+    lib/penbrush.h \
+    lib/reentrydepthguard.h \
+    lib/roman.h \
     lib/sizehelpers.h \
     lib/slowguiguard.h \
     lib/slownonguifunctioncaller.h \
@@ -505,6 +565,7 @@ HEADERS  += \
     menu/testmenu.h \
     menu/whiskermenu.h \
     menu/widgettestmenu.h \
+    qobjects/comparers.h \
     qobjects/focuswatcher.h \
     qobjects/keypresswatcher.h \
     qobjects/shootabug.h \
@@ -513,6 +574,7 @@ HEADERS  += \
     qobjects/strictint64validator.h \
     qobjects/strictintvalidator.h \
     qobjects/strictuint64validator.h \
+    qobjects/stylenofocusrect.h \
     questionnairelib/commonoptions.h \
     questionnairelib/mcqfunc.h \
     questionnairelib/mcqgridsubtitle.h \
@@ -572,8 +634,107 @@ HEADERS  += \
     tasklib/taskregistrar.h \
     tasklib/tasksorter.h \
     tasks/ace3.h \
+    tasks/aims.h \
+    tasks/auditc.h \
+    tasks/audit.h \
+    tasks/badls.h \
+    tasks/bdi.h \
+    tasks/bmi.h \
+    tasks/bprse.h \
+    tasks/bprs.h \
+    tasks/cage.h \
+    tasks/cape42.h \
+    tasks/caps.h \
+    tasks/cardinalexpdetthreshold.h \
+    tasks/cbir.h \
+    tasks/cecaq3.h \
+    tasks/cgi.h \
+    tasks/cgii.h \
+    tasks/cgisch.h \
+    tasks/cisr.h \
+    tasks/ciwa.h \
+    tasks/contactlog.h \
+    tasks/copebrief.h \
+    tasks/cpftlpsdischarge.h \
+    tasks/cpftlpsreferral.h \
+    tasks/cpftlpsresetresponseclock.h \
+    tasks/dad.h \
+    tasks/dast.h \
+    tasks/deakin1healthreview.h \
     tasks/demoquestionnaire.h \
+    tasks/demqol.h \
+    tasks/demqolproxy.h \
+    tasks/diagnosisicd10.h \
+    tasks/diagnosisicd9cm.h \
+    tasks/distressthermometer.h \
+    tasks/fast.h \
+    tasks/fft.h \
+    tasks/frs.h \
+    tasks/gad7.h \
+    tasks/gaf.h \
+    tasks/gds15.h \
+    tasks/gmcpq.h \
+    tasks/hads.h \
+    tasks/hadsrespondent.h \
+    tasks/hama.h \
+    tasks/hamd7.h \
+    tasks/hamd.h \
+    tasks/honos65.h \
+    tasks/honosca.h \
+    tasks/honos.h \
+    tasks/icd10depressive.h \
+    tasks/icd10manic.h \
+    tasks/icd10mixed.h \
+    tasks/icd10schizophrenia.h \
+    tasks/icd10schizotypal.h \
+    tasks/icd10specpd.h \
+    tasks/ided3d.h \
+    tasks/iesr.h \
+    tasks/ifs.h \
+    tasks/irac.h \
+    tasks/mast.h \
+    tasks/mdsupdrs.h \
+    tasks/moca.h \
+    tasks/nart.h \
+    tasks/npiq.h \
+    tasks/panss.h \
+    tasks/patientsatisfaction.h \
+    tasks/pclc.h \
+    tasks/pclm.h \
+    tasks/pcls.h \
+    tasks/pdss.h \
+    tasks/photo.h \
+    tasks/photosequence.h \
+    tasks/phq15.h \
     tasks/phq9.h \
+    tasks/progressnote.h \
+    tasks/pswq.h \
+    tasks/psychiatricclerking.h \
+    tasks/qolbasic.h \
+    tasks/qolsg.h \
+    tasks/rand36.h \
+    tasks/referrersatisfactiongen.h \
+    tasks/referrersatisfactionspec.h \
+    tasks/slums.h \
+    tasks/smast.h \
+    tasks/swemwbs.h \
+    tasks/wemwbs.h \
+    tasks/wsas.h \
+    tasks/ybocs.h \
+    tasks/ybocssc.h \
+    tasks/zbi12.h \
+    taskxtra/diagnosisicd10item.h \
+    taskxtra/diagnosisicd9cmitem.h \
+    taskxtra/diagnosisitembase.h \
+    taskxtra/diagnosistaskbase.h \
+    taskxtra/ided3dexemplars.h \
+    taskxtra/ided3dstage.h \
+    taskxtra/ided3dtrial.h \
+    taskxtra/pclcommon.h \
+    taskxtra/photosequencephoto.h \
+    taskxtra/satisfactioncommon.h \
+    widgets/adjustablepie.h \
+    widgets/aspectratiopixmap.h \
     widgets/basewidget.h \
     widgets/booleanwidget.h \
     widgets/boxlayouthfw.h \
@@ -582,7 +743,10 @@ HEADERS  += \
     widgets/clickablelabelnowrap.h \
     widgets/clickablelabelwordwrapwide.h \
     widgets/diagnosticcodeselector.h \
+    widgets/fixedareahfwtestwidget.h \
+    widgets/flickcharm.h \
     widgets/flowlayouthfw.h \
+    widgets/graphicsrectitemclickable.h \
     widgets/gridlayouthfw.h \
     widgets/growingtextedit.h \
     widgets/hboxlayouthfw.h \
@@ -593,141 +757,24 @@ HEADERS  += \
     widgets/margins.h \
     widgets/openablewidget.h \
     widgets/qtlayouthelpers.h \
+    widgets/screenlikegraphicsview.h \
     widgets/spacer.h \
+    widgets/svgwidgetclickable.h \
     widgets/tickslider.h \
     widgets/vboxlayouthfw.h \
     widgets/verticalline.h \
     widgets/verticalscrollarea.h \
-    common/textconst.h \
-    lib/flagguard.h \
-    lib/reentrydepthguard.h \
-    common/widgetconst.h \
-    lib/nhs.h \
-    tasks/aims.h \
-    tasks/audit.h \
-    tasks/auditc.h \
-    tasks/badls.h \
-    tasks/bdi.h \
-    tasks/bmi.h \
-    tasks/bprs.h \
-    tasks/bprse.h \
-    tasks/cage.h \
-    tasks/cape42.h \
-    tasks/caps.h \
-    tasks/cbir.h \
-    tasks/cecaq3.h \
-    tasks/cgi.h \
-    tasks/cgii.h \
-    tasks/cgisch.h \
-    tasks/ciwa.h \
-    tasks/contactlog.h \
-    tasks/copebrief.h \
-    tasks/cpftlpsdischarge.h \
-    tasks/cpftlpsreferral.h \
-    tasks/cpftlpsresetresponseclock.h \
-    tasks/dad.h \
-    tasks/dast.h \
-    tasks/demqol.h \
-    tasks/demqolproxy.h \
-    tasks/diagnosisicd9cm.h \
-    tasks/diagnosistaskbase.h \
-    tasks/diagnosisitembase.h \
-    db/ancillaryfunc.h \
-    tasks/diagnosisicd9cmitem.h \
-    tasks/diagnosisicd10.h \
-    tasks/diagnosisicd10item.h \
-    tasks/deakin1healthreview.h \
-    tasks/gmcpq.h \
-    tasks/distressthermometer.h \
-    tasks/fast.h \
-    qobjects/comparers.h \
-    tasks/fft.h \
-    tasks/frs.h \
-    tasks/gad7.h \
-    tasks/gaf.h \
-    tasks/gds15.h \
-    tasks/hads.h \
-    tasks/hama.h \
-    tasks/hamd.h \
-    tasks/hamd7.h \
-    tasks/honos.h \
-    tasks/honos65.h \
-    tasks/honosca.h \
-    tasks/icd10depressive.h \
-    common/appstrings.h \
-    tasks/icd10manic.h \
-    widgets/flickcharm.h \
-    tasks/icd10mixed.h \
-    tasks/icd10schizophrenia.h \
-    tasks/icd10schizotypal.h \
-    tasks/icd10specpd.h \
-    tasks/iesr.h \
-    tasks/ifs.h \
-    tasks/irac.h \
-    tasks/mast.h \
-    tasks/mdsupdrs.h \
-    lib/roman.h \
-    tasks/moca.h \
-    lib/datetime.h \
-    widgets/fixedareahfwtestwidget.h \
     widgets/verticalscrollareaviewport.h \
-    db/sqlcipherdriver.h \
-    db/sqlcachedresult.h \
-    db/sqlcipherresult.h \
-    db/sqlcipherhelpers.h \
-    db/whichdb.h \
-    tasks/nart.h \
-    tasks/npiq.h \
-    tasks/panss.h \
-    tasks/patientsatisfaction.h \
-    tasks/referrersatisfactiongen.h \
-    tasks/referrersatisfactionspec.h \
-    tasks/satisfactioncommon.h \
-    tasks/pclcommon.h \
-    tasks/pclc.h \
-    tasks/pclm.h \
-    tasks/pcls.h \
-    tasks/phq15.h \
-    tasks/pdss.h \
-    tasks/progressnote.h \
-    tasks/hadsrespondent.h \
-    tasks/photo.h \
-    widgets/aspectratiopixmap.h \
-    tasks/photosequence.h \
-    tasks/photosequencephoto.h \
-    tasks/pswq.h \
-    tasks/psychiatricclerking.h \
-    tasks/qolbasic.h \
-    tasks/rand36.h \
-    tasks/slums.h \
-    tasks/smast.h \
-    tasks/swemwbs.h \
-    tasks/wemwbs.h \
-    tasks/wsas.h \
-    tasks/zbi12.h \
-    tasks/ybocs.h \
-    tasks/ybocssc.h \
-    tasks/cisr.h \
-    tasks/qolsg.h \
-    common/uiconst.h \
-    lib/graphicsfunc.h \
-    widgets/screenlikegraphicsview.h \
-    lib/containers.h \
-    widgets/adjustablepie.h \
-    lib/penbrush.h \
-    lib/geometry.h \
-    lib/linesegment.h \
-    lib/paintertranslaterotatecontext.h \
-    tasks/ided3d.h \
-    widgets/svgwidgetclickable.h \
-    lib/css.h \
-    lib/ccrandom.h \
-    tasks/ided3dstage.h \
-    tasks/ided3dtrial.h \
-    tasks/ided3dexemplars.h \
-    widgets/graphicsrectitemclickable.h \
-    qobjects/stylenofocusrect.h
-
+    tasks/cardinalexpectationdetection.h \
+    dialogs/soundtestdialog.h \
+    taskxtra/cardinalexpdetcommon.h \
+    taskxtra/cardinalexpdetthresholdtrial.h \
+    maths/mlpackfunc.h \
+    maths/eigenfunc.h \
+    maths/glm.h \
+    maths/logisticregression.h \
+    maths/linkfunctionfamily.h \
+    maths/statsfunc.h
 
 DISTFILES += \
     android/AndroidManifest.xml \
@@ -763,19 +810,19 @@ DISTFILES += \
     LICENSE.txt \
     notes/coding_conventions.txt \
     notes/known_problems.txt \
+    notes/layout_notes.txt \
+    notes/overall_design.txt \
     notes/qt_notes.txt \
+    notes/rejected_ideas.txt \
+    notes/string_formats.txt \
     notes/to_do.txt \
     stylesheets/camcops.css \
     stylesheets/camcops_menu.css \
     stylesheets/camcops_questionnaire.css \
     stylesheets/camera.css \
     tools/build_qt.py \
-    notes/rejected_ideas.txt \
-    notes/string_formats.txt \
-    notes/layout_notes.txt \
-    notes/overall_design.txt \
-    tools/cppclean_all.sh \
     tools/chord.py \
+    tools/cppclean_all.sh \
     tools/decrypt_sqlcipher.py
 
 

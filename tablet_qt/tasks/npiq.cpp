@@ -19,7 +19,7 @@
 
 #include "npiq.h"
 #include "lib/convert.h"
-#include "lib/mathfunc.h"
+#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/namevaluepair.h"

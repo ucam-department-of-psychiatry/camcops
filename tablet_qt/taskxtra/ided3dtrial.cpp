@@ -21,7 +21,7 @@
 #include "lib/ccrandom.h"
 #include "lib/containers.h"
 #include "lib/datetime.h"
-#include "lib/mathfunc.h"
+#include "maths/mathfunc.h"
 #include "ided3dexemplars.h"
 #include "ided3dstage.h"
 using ccrandom::drawreplace;

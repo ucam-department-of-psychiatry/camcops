@@ -26,4 +26,6 @@ class ResearchMenu : public MenuWindow
     Q_OBJECT
 public:
     ResearchMenu(CamcopsApp& app);
+protected:
+    void soundTestCardinalExpDet();
 };

@@ -19,7 +19,7 @@
 
 #include "mdsupdrs.h"
 #include "common/textconst.h"
-#include "lib/mathfunc.h"
+#include "maths/mathfunc.h"
 #include "lib/roman.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/commonoptions.h"

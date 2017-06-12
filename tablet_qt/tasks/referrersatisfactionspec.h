@@ -18,7 +18,7 @@
 */
 
 #pragma once
-#include "tasks/satisfactioncommon.h"
+#include "taskxtra/satisfactioncommon.h"
 
 void initializeReferrerSatisfactionSpec(TaskFactory& factory);
 

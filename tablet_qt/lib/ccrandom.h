@@ -30,6 +30,8 @@ extern std::mt19937 rng;
 
 bool coin(qreal p = 0.5);
 int randomInt(int minimum, int maximum);
+qreal randomRealExcUpper(qreal minimum, qreal maximum);
+qreal randomRealIncUpper(qreal minimum, qreal maximum);
 
 
 template<typename T>

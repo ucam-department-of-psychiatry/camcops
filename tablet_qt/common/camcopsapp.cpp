@@ -21,6 +21,7 @@
 // #define DANGER_DEBUG_WIPE_PASSWORDS
 // #define DEBUG_EMIT
 // #define TEST_CONVERSIONS
+// #define TEST_EIGEN_FUNCTIONS
 
 #include "camcopsapp.h"
 #include <QApplication>
@@ -57,6 +58,7 @@
 #include "lib/slowguiguard.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "maths/eigenfunc.h"
 #include "menu/mainmenu.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnaire.h"
@@ -94,12 +96,20 @@ CamcopsApp::~CamcopsApp()
 
 int CamcopsApp::run()
 {
+    // Say hello
     announceStartup();
+
+    // Baseline C++ things
     seedRng();
     convert::registerQVectorTypesForQVariant();
 #ifdef TEST_CONVERSIONS
     convert::testConversions();
 #endif
+#ifdef TEST_EIGEN_FUNCTIONS
+    eigenfunc::testEigenFunctions();
+#endif
+
+    // CamCOPS core
     initGuiOne();
     registerDatabaseDrivers();
     openOrCreateDatabases();

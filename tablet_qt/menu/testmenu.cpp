@@ -32,6 +32,9 @@
 #include "lib/networkmanager.h"
 #include "lib/uifunc.h"
 #include "lib/slownonguifunctioncaller.h"
+#include "maths/eigenfunc.h"
+#include "maths/logisticregression.h"
+#include "maths/mathfunc.h"
 #include "menulib/menuitem.h"
 #include "menu/widgettestmenu.h"
 #include "tasklib/taskfactory.h"  // for TaskPtr
@@ -94,6 +97,10 @@ TestMenu::TestMenu(CamcopsApp& app)
         MenuItem(
             tr("Test size formatter"),
             std::bind(&TestMenu::testSizeFormatter, this)
+        ),
+        MenuItem(
+            tr("Test logistic regression, and the underlying generalized linear model (GLM)"),
+            std::bind(&TestMenu::testLogisticRegression, this)
         ),
         MAKE_MENU_MENU_ITEM(WidgetTestMenu, app),
         // MenuItem(
@@ -268,4 +275,80 @@ void TestMenu::testSizeFormatter()
         }
     }
     uifunc::alert(text);
+}
+
+
+void TestMenu::testLogisticRegression()
+{
+    using namespace eigenfunc;
+    using namespace Eigen;
+
+    // 1. Our "plain" method.
+    QVector<double> x_q{0.50, 0.75, 1.00, 1.25, 1.50, 1.75, 1.75, 2.00, 2.25, 2.50, 2.75, 3.00, 3.25, 3.50, 4.00, 4.25, 4.50, 4.75, 5.00, 5.50};
+    QVector<int> y_q{0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1};
+    QVector<double> params_q = mathfunc::logisticFitSinglePredictor(x_q, y_q);
+    QString result1;
+    if (params_q.length() != 2) {
+        result1 = "Error! Parameters not of length 2.";
+    } else {
+        result1 = QString(R"(
+# Example from: https://en.wikipedia.org/wiki/Logistic_regression
+# R code:
+
+d <- data.frame(
+    x = c(0.50, 0.75, 1.00, 1.25, 1.50, 1.75, 1.75, 2.00, 2.25, 2.50, 2.75, 3.00, 3.25, 3.50, 4.00, 4.25, 4.50, 4.75, 5.00, 5.50),
+    y = c(0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1)
+)
+dm <- matrix(c(rep(1, length(d$x)), d$x), ncol=2)
+# irls_svdnewton(dm, d$y)
+model <- glm(y ~ x, family=binomial(link='logit'), data=d)
+summary(model)
+
+# R gives coefficients: intercept = -4.0777, x = 1.5046
+# (as per Wikipedia also)
+
+Our results: intercept = %1, x = %2)
+        )").arg(params_q.at(0)).arg(params_q.at(1));
+    }
+
+    // 2. A more detailed look.
+    VectorXd x_e = eigenColumnVectorFromQVector<double>(x_q);
+    VectorXi y_e = eigenColumnVectorFromQVector<int>(y_q);
+    LogisticRegression lr1(Glm::SolveMethod::IRLS);
+    lr1.fit(x_e, y_e);
+    VectorXd coeffs1 = lr1.coefficients();
+    VectorXd p = lr1.predictProb();
+    VectorXi cat = lr1.predictBinary();
+
+    QString s_x = qStringFromEigenMatrixOrArray(x_e);
+    QString s_y = qStringFromEigenMatrixOrArray(y_e);
+    QString s_coeffs1 = qStringFromEigenMatrixOrArray(coeffs1);
+    QString s_p = qStringFromEigenMatrixOrArray(p);
+    QString s_cat = qStringFromEigenMatrixOrArray(cat);
+
+    LogisticRegression lr2(Glm::SolveMethod::IRLS_SVD_Newton);
+    lr2.fit(x_e, y_e);
+    VectorXd coeffs2 = lr2.coefficients();
+    QString s_coeffs2 = qStringFromEigenMatrixOrArray(coeffs2);
+
+    QString result2 = QString(R"(
+With the same data:
+
+IN x: %1
+IN y: %2
+
+IRLS method:
+OUT coefficients: %3
+OUT predicted p: %4
+OUT predicted categories: %5
+OUT n_iterations: %6
+
+IRLS-SVD-Newton method:
+OUT coefficients: %7
+OUT n_iterations: %8)").arg(s_x, s_y, s_coeffs1,
+                            s_p, s_cat, QString::number(lr1.nIterations()),
+                            s_coeffs2, QString::number(lr2.nIterations()));
+
+    QString result = result1 + result2;
+    uifunc::alertLogMessageBox(result, tr("Test logistic regression"), false);
 }

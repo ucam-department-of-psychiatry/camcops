@@ -18,12 +18,16 @@
 */
 
 #pragma once
+
 #include <QVariant>
 #include <QVector>
 
 
 namespace mathfunc {
 
+// ============================================================================
+// Basic sums
+// ============================================================================
 
 template<typename T>
 int sgn(T val)
@@ -49,6 +53,12 @@ bool rangesOverlap(qreal a0, qreal a1, qreal b0, qreal b1);
 bool nearlyEqual(qreal x, qreal y);
 
 QVariant mean(const QVector<QVariant>& values, bool ignore_null = false);
+qreal mean(qreal a, qreal b);
+
+// ============================================================================
+// QVariant operations, and QVariant collections
+// ============================================================================
+
 int sumInt(const QVector<QVariant>& values);
 double sumDouble(const QVector<QVariant>& values);
 
@@ -79,6 +89,10 @@ int countWhere(const QVector<QVariant>& test_values,
 int countWhereNot(const QVector<QVariant>& test_values,
                   const QVector<QVariant>& where_not_values);
 
+// ============================================================================
+// Functions for scoring
+// ============================================================================
+
 QString percent(double numerator, double denominator, int dp = 1);
 QString scoreString(int numerator, int denominator,
                     bool show_percent = false, int dp = 1);
@@ -108,7 +122,27 @@ QString totalScorePhrase(double numerator, int denominator,
                          const QString& suffix = ".",
                          int dp = 1);
 
-QVector<int> intseq(int first, int last, int step = 1);  // first to last inclusive
+// ============================================================================
+// Sequence and range generation
+// ============================================================================
+
+template<typename T>
+QVector<T> seq(T first, T last, T step = 1)
+{
+    QVector<T> v;
+    if (step > 0) {
+        for (T i = first; i <= last; i += step) {
+            v.append(i);
+        }
+    } else if (step < 0) {
+        for (T i = first; i >= last; i -= step) {
+            v.append(i);
+        }
+    }
+    return v;
+}
+
+
 QVector<int> range(int start, int end);  // start to (end - 1) inclusive
 QVector<int> range(int n);  // 0 to (n - 1) inclusive
 
@@ -134,13 +168,38 @@ QVector<T> rep(const QVector<T>& values, int each, int times)
     return result;
 }
 
+
+// ============================================================================
+// Spacing things out
+// ============================================================================
+
 QVector<qreal> distribute(int n, qreal minimum, qreal maximum);
 QPair<int, int> gridDimensions(int n, qreal aspect = 1.0);
+
+// ============================================================================
+// Numerical conversions
+// ============================================================================
 
 int proportionToByte(qreal proportion);  // 0.0-1.0 to 0-255
 qreal byteToProportion(int byte);  // 0-255 to 0.0-1.0
 
 int proportionToIntPercent(qreal proportion);  // 0.0-1.0 to 0-100
 qreal intPercentToProportion(int percent);  // 0-100 to 0.0-1.0
+
+// ============================================================================
+// Logistic regression
+// ============================================================================
+
+struct LogisticDescriptives {
+    bool ok = false;
+    qreal intercept;
+    qreal slope;
+    qreal k;
+    qreal theta;
+};
+QVector<qreal> logisticFitSinglePredictor(const QVector<qreal>& x,
+                                          const QVector<int>& y);
+LogisticDescriptives logisticDescriptives(const QVector<qreal>& parameters);
+qreal logisticFindXWhereP(qreal p, qreal slope, qreal intercept);
 
 }  // namespace mathfunc

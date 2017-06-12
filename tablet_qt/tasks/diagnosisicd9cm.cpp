@@ -24,8 +24,8 @@
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
-#include "tasks/diagnosisicd9cmitem.h"
 #include "tasklib/taskfactory.h"
+#include "taskxtra/diagnosisicd9cmitem.h"
 
 const QString DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME("diagnosis_icd9cm");
 

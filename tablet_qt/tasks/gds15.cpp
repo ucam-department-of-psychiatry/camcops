@@ -18,7 +18,7 @@
 */
 
 #include "gds15.h"
-#include "lib/mathfunc.h"
+#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnaire.h"

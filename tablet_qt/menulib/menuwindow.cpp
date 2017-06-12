@@ -28,6 +28,7 @@
 #include <QVBoxLayout>
 #include "common/cssconst.h"
 #include "common/uiconst.h"
+#include "db/dbtransaction.h"
 #include "dbobjects/patient.h"
 #include "lib/filefunc.h"
 #include "lib/layoutdumper.h"
@@ -529,6 +530,7 @@ void MenuWindow::deleteTask()
         SlowGuiGuard guard = m_app.getSlowGuiGuard(tr("Deleting task"),
                                                    textconst::PLEASE_WAIT);
         qInfo() << "Delete:" << instance_title;
+        DbTransaction trans(m_app.db());
         task->deleteFromDatabase();
         build();
     }
@@ -540,6 +542,7 @@ void MenuWindow::toggleFinishFlag()
     TaskPtr task = currentTask();
     PatientPtr patient = currentPatient();
     if (task && task->isAnonymous()) {
+        DbTransaction trans(m_app.db());
         task->toggleMoveOffTablet();
         build();
     } else if (patient) {

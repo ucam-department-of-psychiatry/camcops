@@ -138,8 +138,8 @@ const QString CBS_ZOOM("zoom.png");
 // Sounds
 // ============================================================================
 
-const int MIN_VOLUME = 0;
-const int MAX_VOLUME = 100;
+const int MIN_VOLUME_QT = 0;
+const int MAX_VOLUME_QT = 100;
 
 const QString DEMO_SOUND_URL("qrc:///resources/camcops/sounds/portal_still_alive.mp3");  // *** change; copyright
 const QString DEMO_SOUND_URL_2("qrc:///resources/camcops/sounds/soundtest.wav");  // *** change; copyright

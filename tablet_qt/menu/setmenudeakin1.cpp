@@ -18,7 +18,9 @@
 */
 
 #include "setmenudeakin1.h"
+#include "common/textconst.h"
 #include "common/uiconst.h"
+#include "dialogs/soundtestdialog.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
@@ -26,6 +28,8 @@
 #include "tasks/bdi.h"
 #include "tasks/bmi.h"
 #include "tasks/caps.h"
+#include "tasks/cardinalexpdetthreshold.h"
+#include "tasks/cardinalexpectationdetection.h"
 #include "tasks/cecaq3.h"
 #include "tasks/cgisch.h"
 #include "tasks/deakin1healthreview.h"
@@ -33,6 +37,7 @@
 #include "tasks/gaf.h"
 #include "tasks/nart.h"
 #include "tasks/panss.h"
+#include "taskxtra/cardinalexpdetcommon.h"
 
 
 SetMenuDeakin1::SetMenuDeakin1(CamcopsApp& app) :
@@ -52,11 +57,25 @@ SetMenuDeakin1::SetMenuDeakin1(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM(CgiSch::CGISCH_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Deakin1HealthReview::DEAKIN1HEALTHREVIEW_TABLENAME, app),
-        MenuItem("*** soundtest for ExpDetThreshold/ExpDet"),
-        MAKE_TASK_MENU_ITEM("cardinal_expdetthreshold", app),
-        MAKE_TASK_MENU_ITEM("cardinal_expdet", app),
+        MenuItem(
+            cardinalexpdetcommon::SOUNDTEST_TITLE,
+            std::bind(&SetMenuDeakin1::soundTestCardinalExpDet, this),
+            "",
+            cardinalexpdetcommon::SOUNDTEST_SUBTITLE
+        ),
+        MAKE_TASK_MENU_ITEM(CardinalExpDetThreshold::CARDINALEXPDETTHRESHOLD_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(CardinalExpectationDetection::CARDINALEXPDET_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Gaf::GAF_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Nart::NART_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Panss::PANSS_TABLENAME, app),
     };
+}
+
+
+void SetMenuDeakin1::soundTestCardinalExpDet()
+{
+    SoundTestDialog dlg(cardinalexpdetcommon::urlFromStem(
+                            cardinalexpdetcommon::AUDITORY_BACKGROUND),
+                        cardinalexpdetcommon::SOUNDTEST_VOLUME, this);
+    dlg.exec();
 }

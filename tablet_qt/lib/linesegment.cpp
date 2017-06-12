@@ -23,7 +23,7 @@
 #include <QDebug>
 #include <QTransform>
 #include <QtMath>
-#include "lib/mathfunc.h"
+#include "maths/mathfunc.h"
 using mathfunc::sgn;
 using mathfunc::rangesOverlap;
 

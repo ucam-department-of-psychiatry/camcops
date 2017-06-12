@@ -136,6 +136,7 @@ TR(SEE_FACSIMILE_FOR_MORE_DETAIL, "See facsimile for more detail.");
 TR(SERVICE, "Service");
 TR(SEVERE, "Severe");
 TR(SEX, "Sex");
+TR(SOUND_TEST_FOR, "Sound test for");
 
 TR(THANK_YOU, "Thank you!");
 TR(TOTAL_SCORE, "Total score");

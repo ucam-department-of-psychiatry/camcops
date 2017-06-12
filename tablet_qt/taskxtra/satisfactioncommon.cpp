@@ -22,7 +22,7 @@
 #include "common/camcopsapp.h"
 #include "common/textconst.h"
 #include "common/varconst.h"
-#include "lib/mathfunc.h"
+#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"

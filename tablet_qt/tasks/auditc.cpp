@@ -19,7 +19,7 @@
 
 #include "auditc.h"
 #include "audit.h"  // for AUDIT_TABLENAME
-#include "lib/mathfunc.h"
+#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"

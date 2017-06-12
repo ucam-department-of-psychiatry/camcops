@@ -19,7 +19,7 @@
 
 #include "rand36.h"
 #include "common/textconst.h"
-#include "lib/mathfunc.h"
+#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
@@ -27,7 +27,7 @@
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
-using mathfunc::intseq;
+using mathfunc::seq;
 using mathfunc::mean;
 using mathfunc::noneNull;
 using mathfunc::scorePhraseVariant;
@@ -378,5 +378,5 @@ QVariant Rand36::subscaleMean(const QVector<int>& questions) const
 
 QVariant Rand36::overallMean() const
 {
-    return subscaleMean(intseq(FIRST_Q, N_QUESTIONS));
+    return subscaleMean(seq(FIRST_Q, N_QUESTIONS));
 }

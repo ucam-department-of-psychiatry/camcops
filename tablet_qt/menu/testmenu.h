@@ -44,6 +44,7 @@ protected:
     void testWait();
     void expensiveFunction();
     void testSizeFormatter();
+    void testLogisticRegression();
 
 protected:
     QSharedPointer<QMediaPlayer> m_player;

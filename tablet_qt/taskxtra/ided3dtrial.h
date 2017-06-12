@@ -22,7 +22,8 @@
 class IDED3DStage;
 
 
-class IDED3DTrial : public DatabaseObject {
+class IDED3DTrial : public DatabaseObject
+{
     Q_OBJECT
 public:
     IDED3DTrial(CamcopsApp& app, const QSqlDatabase& db,

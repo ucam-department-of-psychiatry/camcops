@@ -23,13 +23,15 @@
 
 class QuLineEditDouble : public QuLineEdit
 {
-    // Offers a one-line text editor, for a floating-point number.
+    // - Offers a one-line text editor, for a floating-point number.
+    // - The default number of decimal places, 1000, matches QDoubleValidator;
+    //   http://doc.qt.io/qt-5/qdoublevalidator.html#decimals-prop
 
     Q_OBJECT
 public:
     QuLineEditDouble(FieldRefPtr fieldref, bool allow_empty = true);
     QuLineEditDouble(FieldRefPtr fieldref, double minimum, double maximum,
-                     int decimals, bool allow_empty = true);
+                     int decimals = 1000, bool allow_empty = true);
     QuLineEditDouble* setStrictValidator(bool strict);
 protected:
     virtual void extraLineEditCreation(QLineEdit* editor) override;

@@ -18,7 +18,7 @@
 */
 
 #include "ifs.h"
-#include "lib/mathfunc.h"
+#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/namevaluepair.h"

@@ -18,13 +18,20 @@
 */
 
 #include "mathfunc.h"
-#include "common/textconst.h"
-#include "lib/convert.h"
+
 #include <QtMath>  // for e.g. qSqrt()
 #include <QObject>
+#include "common/textconst.h"
+#include "lib/convert.h"
+#include "maths/eigenfunc.h"
+#include "maths/mlpackfunc.h"
 
 namespace mathfunc {
 
+
+// ============================================================================
+// Basic sums
+// ============================================================================
 
 bool rangesOverlap(qreal a0, qreal a1, qreal b0, qreal b1)
 {
@@ -75,6 +82,16 @@ QVariant mean(const QVector<QVariant>& values, bool ignore_null)
     return total / n;
 }
 
+
+qreal mean(qreal a, qreal b)
+{
+    return (a + b) / 2;
+}
+
+
+// ============================================================================
+// QVariant operations, and QVariant collections
+// ============================================================================
 
 int sumInt(const QVector<QVariant>& values)
 {
@@ -317,6 +334,10 @@ int countWhereNot(const QVector<QVariant>& test_values,
 }
 
 
+// ============================================================================
+// Functions for scoring
+// ============================================================================
+
 QString percent(double numerator, double denominator, int dp)
 {
     double pct = 100 * numerator / denominator;
@@ -417,25 +438,13 @@ QString totalScorePhrase(double numerator, int denominator,
 }
 
 
-QVector<int> intseq(int first, int last, int step)
-{
-    QVector<int> v;
-    if (step > 0) {
-        for (int i = first; i <= last; i += step) {
-            v.append(i);
-        }
-    } else if (step < 0) {
-        for (int i = first; i >= last; i -= step) {
-            v.append(i);
-        }
-    }
-    return v;
-}
-
+// ============================================================================
+// Sequence and range generation
+// ============================================================================
 
 QVector<int> range(int start, int end)
 {
-    return intseq(start, end - 1, 1);
+    return seq(start, end - 1, 1);
 }
 
 
@@ -445,6 +454,10 @@ QVector<int> range(int n)
     return range(0, n);
 }
 
+
+// ============================================================================
+// Spacing things out
+// ============================================================================
 
 QVector<qreal> distribute(int n, qreal minimum, qreal maximum)
 {
@@ -482,6 +495,10 @@ QPair<int, int> gridDimensions(int n, qreal aspect)
 }
 
 
+// ============================================================================
+// Numerical conversions
+// ============================================================================
+
 int proportionToByte(qreal proportion)
 {
     // convert 0.0-1.0 to 0-255
@@ -509,6 +526,171 @@ qreal intPercentToProportion(int percent)
 {
     // convert 0-100 to 0.0-1.0
     return qBound(0, percent, 100) / 100.0;
+}
+
+
+// ============================================================================
+// Logistic regression
+// ============================================================================
+
+
+/*
+
+-------------------------------------------------------------------------------
+For logistic regression: Choosing a library (or roll our own?)
+-------------------------------------------------------------------------------
+The Javascript implementation was based on
+- http://statpages.info/logistic.html
+
+Theory:
+- http://people.csail.mit.edu/jrennie/writing/lr.pdf
+
+Relevant C libraries include
+- GSL
+  https://lists.gnu.org/archive/html/help-gsl/2010-04/msg00021.html
+  https://www.gnu.org/software/gsl/manual/html_node/Linear-regression-with-a-constant-term.html
+
+A few C++ implementations:
+- https://stackoverflow.com/questions/33976729/logistic-regression-for-fault-detection-in-an-image
+- https://github.com/bluekingsong/logistic-regression-cpp/blob/master/code/logistic_regression.cpp
+- https://github.com/liyanghua/logistic-regression-in-c--/blob/master/lr.cpp
+- OpenCV
+  http://docs.opencv.org/3.0-beta/modules/ml/doc/logistic_regression.html
+- mlpack [OF INTEREST]
+  http://mlpack.org/
+  http://mlpack.org/docs/mlpack-2.2.3/doxygen.php?doc=namespacemlpack_1_1regression.html
+  ... uses Armadillo
+      http://www.mlpack.org/docs/mlpack-1.0.0/doxygen.php?doc=build.html
+      http://arma.sourceforge.net/docs.html
+      ... needs cross-compilation and tries to use system LAPACK/BLAS
+          see output of "cmake ." in Armadillo base directory
+          https://stackoverflow.com/questions/21263427/cross-compiling-armadillo-linear-algebra-library
+- Dlib [OF INTEREST]
+  http://dlib.net/ml.html
+  https://sourceforge.net/p/dclib/discussion/442518/thread/8f16e2e2/
+- Overview of libraries
+  https://en.wikipedia.org/wiki/List_of_numerical_libraries#C.2B.2B
+- ALGLIB
+  http://www.alglib.net/dataanalysis/logit.php
+- Eigen
+  see below
+
+-------------------------------------------------------------------------------
+DLib notes
+-------------------------------------------------------------------------------
+
+http://dlib.net/matrix_ex.cpp.html
+
+type is:    dlib::matrix<type, nrows, ncols>
+    ... but specify 0 for "don't know yet"
+
+e.g.
+            dlib::matrix<double, 0, 1> m(n);  // creates column vector, size n
+
+element-access shorthand m(i) is available for column vectors
+
+-------------------------------------------------------------------------------
+DLib example code
+-------------------------------------------------------------------------------
+
+#include <dlib/matrix.h>
+
+
+template<typename T>
+dlib::matrix<double, 0, 1> dlibColumnVectorFromQVector(const QVector<T>& v)
+{
+    int n = v.size();
+    dlib::matrix<double, 0, 1> m(n);
+    for (int i = 0; i < n; ++i) {
+        m(i) = v.at(i);
+    }
+    return m;
+}
+
+
+template<typename T>
+dlib::matrix<double, 1, 0> dlibRowVectorFromQVector(const QVector<T>& v)
+{
+    int n = v.size();
+    dlib::matrix<double, 1, 0> m(n);
+    for (int i = 0; i < n; ++i) {
+        m(1, i) = v.at(i);
+    }
+    return m;
+}
+
+
+For logistic regression in DLib:
+    see https://sourceforge.net/p/dclib/discussion/442518/thread/8f16e2e2/
+
+-------------------------------------------------------------------------------
+MLPACK notes
+-------------------------------------------------------------------------------
+
+arma::mat is shorthand for arma::Mat<double>
+    constructor: mat(n_rows, n_cols)
+
+arma::vec is shorthand for arma::Col<double>, equiv. to mat(n, 1)
+
+http://arma.sourceforge.net/docs.html#element_access
+
+BUT it uses BLAS and lots of other compiled things...
+
+    https://en.m.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms
+
+-------------------------------------------------------------------------------
+Eigen notes
+-------------------------------------------------------------------------------
+
+- http://eigen.tuxfamily.org
+- https://codereview.stackexchange.com/questions/112750/logistic-regression-with-eigen
+- https://github.com/wepe/MachineLearning/tree/master/logistic%20regression/use_cpp_and_eigen
+- https://forum.kde.org/viewtopic.php?f=74&t=129644
+
+Note also that Douglas Bates's lme4 is implemented using Eigen (Bates et al.
+2015, J Stat Soft 67:1), which is a fair endorsement!
+
+*/
+
+QVector<qreal> logisticFitSinglePredictor(const QVector<qreal>& x,
+                                          const QVector<int>& y)
+{
+    // Returns vector of length 2 containing the parameters (intercept, slope)
+
+#if 0  // code for MLPACK
+    using namespace mlpackfunc;
+    arma::vec predictors = armaColumnVectorFromQVector<double>(x);
+    arma::Row<size_t> responses = armaRowVectorFromQVector<size_t>(y);
+    arma::vec parameters = getParamsLogisticFitSinglePredictor(
+                predictors, responses);
+    return qVectorFromArmaVector<qreal>(parameters);
+#endif
+    using namespace eigenfunc;
+    ColumnVector<qreal> predictors = eigenColumnVectorFromQVector<qreal>(x);
+    RowVector<int> responses = eigenColumnVectorFromQVector<int>(y);
+    ColumnVector<double> parameters = getParamsLogisticFitSinglePredictor(
+                predictors, responses);
+    return qVectorFromEigenVector<qreal>(parameters);
+}
+
+
+LogisticDescriptives logisticDescriptives(const QVector<qreal>& parameters)
+{
+    LogisticDescriptives desc;
+    if (parameters.size() == 2) {
+        desc.ok = true;
+        desc.intercept = parameters.at(0);
+        desc.slope = parameters.at(1);
+        desc.k = desc.slope;
+        desc.theta = -desc.intercept / desc.slope;  // also the x50 value
+    }
+    return desc;
+}
+
+
+qreal logisticFindXWhereP(qreal p, qreal slope, qreal intercept)
+{
+    return (qLn(p / (1 - p)) - intercept) / slope;
 }
 
 

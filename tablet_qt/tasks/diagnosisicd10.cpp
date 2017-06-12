@@ -24,8 +24,8 @@
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
-#include "tasks/diagnosisicd10item.h"
 #include "tasklib/taskfactory.h"
+#include "taskxtra/diagnosisicd10item.h"
 
 const QString DiagnosisIcd10::DIAGNOSIS_ICD10_TABLENAME("diagnosis_icd10");
 

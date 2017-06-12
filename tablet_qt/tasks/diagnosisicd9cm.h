@@ -19,7 +19,7 @@
 
 #pragma once
 #include <QString>
-#include "diagnosistaskbase.h"
+#include "taskxtra/diagnosistaskbase.h"
 
 class CamcopsApp;
 class OpenableWidget;

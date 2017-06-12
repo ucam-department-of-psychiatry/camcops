@@ -658,6 +658,7 @@ QUrlQuery getPostDataAsUrlQuery(const QMap<QString, QString>& dict)
     return postdata;
 }
 
+
 // http://doc.qt.io/qt-5/qssl.html#SslProtocol-enum
 const QString SSLPROTODESC_SSLV3 = "SslV3";
 const QString SSLPROTODESC_SSLV2 = "SslV2";
@@ -673,7 +674,8 @@ const QString SSLPROTODESC_TLSV1_2_OR_LATER = "TlsV1_2OrLater";
 const QString SSLPROTODESC_UNKNOWN_PROTOCOL = "UnknownProtocol";
 
 
-QString describeSslProtocol(QSsl::SslProtocol protocol) {
+QString describeSslProtocol(QSsl::SslProtocol protocol)
+{
     using namespace QSsl;
     switch (protocol) {
     case SslV3: return SSLPROTODESC_SSLV3;
@@ -695,7 +697,9 @@ QString describeSslProtocol(QSsl::SslProtocol protocol) {
     }
 }
 
-QSsl::SslProtocol sslProtocolFromDescription(const QString& desc) {
+
+QSsl::SslProtocol sslProtocolFromDescription(const QString& desc)
+{
     using namespace QSsl;
     if (desc == SSLPROTODESC_SSLV3) return SslV3;
     if (desc == SSLPROTODESC_SSLV2) return SslV2;
@@ -937,6 +941,12 @@ void stonesPoundsOuncesFromKilograms(double kilograms,
     qDebug() << UNIT_CONVERSION << kilograms << "kg ->"
              << stones << "st" << pounds << "lb" << ounces << "oz";
 #endif
+}
+
+
+int msFromSec(qreal seconds)
+{
+    return qRound(seconds * 1000);
 }
 
 

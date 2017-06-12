@@ -119,6 +119,10 @@ void alert(const QString& text,
 void alert(const QStringList& lines,
            const QString& title = QObject::tr("Alert"),
            bool scroll = false);
+void alertLogMessageBox(const QString& text, const QString& title,
+                        bool as_html = true);
+void alertLogMessageBox(const QStringList& lines, const QString& title,
+                        bool as_html = true);
 
 // ============================================================================
 // Confirmation

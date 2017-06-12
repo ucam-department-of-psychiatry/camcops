@@ -39,7 +39,7 @@
 #include <QVBoxLayout>
 #include "lib/css.h"
 #include "lib/geometry.h"
-#include "lib/mathfunc.h"
+#include "maths/mathfunc.h"
 #include "qobjects/stylenofocusrect.h"
 #include "widgets/adjustablepie.h"
 #include "widgets/svgwidgetclickable.h"
