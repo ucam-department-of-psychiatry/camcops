@@ -25,6 +25,7 @@
 #include <QBrush>
 #include <QColor>
 #include <QDebug>
+#include <QGraphicsPixmapItem>
 #include <QGraphicsProxyWidget>
 #include <QGraphicsScene>
 #include <QGraphicsRectItem>
@@ -36,9 +37,11 @@
 #include <QPushButton>
 #include <QRectF>
 #include <QSvgRenderer>
+#include <QtGlobal>
 #include <QVBoxLayout>
+#include "graphics/geometry.h"
+#include "graphics/graphicspixmapitemwithopacity.h"
 #include "lib/css.h"
-#include "lib/geometry.h"
 #include "maths/mathfunc.h"
 #include "qobjects/stylenofocusrect.h"
 #include "widgets/adjustablepie.h"
@@ -650,6 +653,37 @@ QGraphicsRectItem* makeObscuringRect(QGraphicsScene* scene,
     colour.setAlpha(alpha(opacity));
     QBrush brush(colour);
     return scene->addRect(rect, pen, brush);
+}
+
+
+QGraphicsPixmapItem* makeImage(
+        QGraphicsScene* scene,
+        const QRectF& rect,
+        const QString& filename,
+        qreal opacity,
+        Qt::AspectRatioMode aspect_ratio_mode,
+        Qt::TransformationMode transformation_mode_1,
+        Qt::TransformationMode transformation_mode_2)
+{
+    // https://stackoverflow.com/questions/5960074/qimage-in-a-qgraphics-scene
+    QPointF top_left = rect.topLeft();
+    QSize size = QSize(qRound(rect.width()), qRound(rect.height()));  // convert float to int
+    QPixmap pixmap_raw = QPixmap(filename);
+    QPixmap pixmap_scaled = pixmap_raw.scaled(size, aspect_ratio_mode,
+                                              transformation_mode_1);
+    QGraphicsPixmapItem* img;
+    if (opacity < 1.0) {
+        GraphicsPixmapItemWithOpacity* opacity_img =
+                new GraphicsPixmapItemWithOpacity(pixmap_scaled);
+        opacity_img->setOpacity(opacity);
+        img = opacity_img;
+        scene->addItem(img);  // the scene takes ownership: http://doc.qt.io/qt-5/qgraphicsscene.html#addItem
+    } else {
+        img = scene->addPixmap(pixmap_scaled);
+    }
+    img->setOffset(top_left);
+    img->setTransformationMode(transformation_mode_2);
+    return img;
 }
 
 

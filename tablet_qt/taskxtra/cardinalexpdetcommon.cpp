@@ -19,6 +19,7 @@
 
 #include "cardinalexpdetcommon.h"
 #include <QObject>
+#include "lib/uifunc.h"
 
 #define TR(stringname, text) const QString stringname(QObject::tr(text))
 
@@ -72,7 +73,13 @@ TR(TX_CONFIG_VISUAL_TARGET_DURATION_S,
 
 QUrl urlFromStem(const QString& stem)
 {
-    return QUrl(QString("qrc:///resources/expdet/%1").arg(stem));
+    return uifunc::resourceUrl(QString("/expdet/%1").arg(stem));
+}
+
+
+QString filenameFromStem(const QString& stem)
+{
+    return uifunc::resourceFilename(QString("/expdet/%1").arg(stem));
 }
 
 

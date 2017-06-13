@@ -29,11 +29,11 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QTimer>
+#include "graphics/geometry.h"
+#include "graphics/graphicsfunc.h"
+#include "graphics/linesegment.h"
+#include "graphics/paintertranslaterotatecontext.h"
 #include "lib/containers.h"
-#include "lib/geometry.h"
-#include "lib/graphicsfunc.h"
-#include "lib/linesegment.h"
-#include "lib/paintertranslaterotatecontext.h"
 #include "lib/uifunc.h"
 using containers::forceVectorSize;
 using geometry::convertHeadingToTrueNorth;

@@ -130,6 +130,7 @@ TR(RESPONDENT_NAME_3P, "Respondent’s name");
 TR(RESPONDENT_RELATIONSHIP_2P, "Your relationship to the patient");
 TR(RESPONDENT_RELATIONSHIP_3P, "Respondent’s relationship to patient");
 
+TR(SAVING, "Saving, please wait...");
 TR(SCORE, "Score");
 TR(SEE_FACSIMILE, "See facsimile.");
 TR(SEE_FACSIMILE_FOR_MORE_DETAIL, "See facsimile for more detail.");
@@ -139,7 +140,9 @@ TR(SEX, "Sex");
 TR(SOUND_TEST_FOR, "Sound test for");
 
 TR(THANK_YOU, "Thank you!");
+TR(THANK_YOU_TOUCH_TO_EXIT, "Thank you! Please touch here to exit.");
 TR(TOTAL_SCORE, "Total score");
+TR(TOUCH_TO_START, "When you’re ready, touch here to start.");
 TR(TRUE, "True");
 
 TR(UNKNOWN, "Unknown");

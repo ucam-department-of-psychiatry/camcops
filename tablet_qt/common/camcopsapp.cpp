@@ -20,6 +20,7 @@
 // #define DANGER_DEBUG_PASSWORD_DECRYPTION
 // #define DANGER_DEBUG_WIPE_PASSWORDS
 // #define DEBUG_EMIT
+// #define DEBUG_SCREEN_STACK
 // #define TEST_CONVERSIONS
 // #define TEST_EIGEN_FUNCTIONS
 
@@ -637,7 +638,9 @@ void CamcopsApp::open(OpenableWidget* widget, TaskPtr task,
     Qt::WindowStates prev_window_state = m_p_main_window->windowState();
     QPointer<OpenableWidget> guarded_widget = widget;
 
+#ifdef DEBUG_SCREEN_STACK
     qDebug() << Q_FUNC_INFO << "Pushing screen";
+#endif
     int index = m_p_window_stack->addWidget(widget);  // will show the widget
     // The stack takes over ownership.
     // qDebug() << Q_FUNC_INFO << "About to build";
@@ -674,7 +677,9 @@ void CamcopsApp::close()
     // (... and similarly any patient)
 
     QWidget* top = m_p_window_stack->currentWidget();
+#ifdef DEBUG_SCREEN_STACK
     qDebug() << Q_FUNC_INFO << "Popping screen";
+#endif
     m_p_window_stack->removeWidget(top);
     // Ownership is returned to the application, so...
     top->deleteLater();  // later, in case it was this object that called us

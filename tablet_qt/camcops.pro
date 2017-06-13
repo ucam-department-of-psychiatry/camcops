@@ -170,7 +170,14 @@ SOURCES += main.cpp \
     dialogs/passwordentrydialog.cpp \
     dialogs/progressbox.cpp \
     dialogs/scrollmessagebox.cpp \
+    dialogs/soundtestdialog.cpp \
     dialogs/waitbox.cpp \
+    graphics/geometry.cpp \
+    graphics/graphicsfunc.cpp \
+    graphics/imagefunc.cpp \
+    graphics/linesegment.cpp \
+    graphics/paintertranslaterotatecontext.cpp \
+    graphics/penbrush.cpp \
     lib/ccrandom.cpp \
     lib/containers.cpp \
     lib/convert.cpp \
@@ -179,18 +186,11 @@ SOURCES += main.cpp \
     lib/debugfunc.cpp \
     lib/filefunc.cpp \
     lib/flagguard.cpp \
-    lib/geometry.cpp \
-    lib/graphicsfunc.cpp \
     lib/idpolicy.cpp \
-    lib/imagefunc.cpp \
     lib/layoutdumper.cpp \
-    lib/linesegment.cpp \
-    maths/mathfunc.cpp \
     lib/networkmanager.cpp \
     lib/nhs.cpp \
     lib/numericfunc.cpp \
-    lib/paintertranslaterotatecontext.cpp \
-    lib/penbrush.cpp \
     lib/reentrydepthguard.cpp \
     lib/roman.cpp \
     lib/sizehelpers.cpp \
@@ -199,6 +199,13 @@ SOURCES += main.cpp \
     lib/stringfunc.cpp \
     lib/threadworker.cpp \
     lib/uifunc.cpp \
+    maths/eigenfunc.cpp \
+    maths/glm.cpp \
+    maths/linkfunctionfamily.cpp \
+    maths/logisticregression.cpp \
+    maths/mathfunc.cpp \
+    maths/mlpackfunc.cpp \
+    maths/statsfunc.cpp \
     menu/addictionmenu.cpp \
     menu/affectivemenu.cpp \
     menu/alltasksmenu.cpp \
@@ -314,6 +321,7 @@ SOURCES += main.cpp \
     tasks/cape42.cpp \
     tasks/caps.cpp \
     tasks/cardinalexpdetthreshold.cpp \
+    tasks/cardinalexpectationdetection.cpp \
     tasks/cbir.cpp \
     tasks/cecaq3.cpp \
     tasks/cgi.cpp \
@@ -391,6 +399,8 @@ SOURCES += main.cpp \
     tasks/ybocs.cpp \
     tasks/ybocssc.cpp \
     tasks/zbi12.cpp \
+    taskxtra/cardinalexpdetcommon.cpp \
+    taskxtra/cardinalexpdetthresholdtrial.cpp \
     taskxtra/diagnosisicd10item.cpp \
     taskxtra/diagnosisicd9cmitem.cpp \
     taskxtra/diagnosisitembase.cpp \
@@ -433,16 +443,10 @@ SOURCES += main.cpp \
     widgets/verticalline.cpp \
     widgets/verticalscrollarea.cpp \
     widgets/verticalscrollareaviewport.cpp \
-    tasks/cardinalexpectationdetection.cpp \
-    dialogs/soundtestdialog.cpp \
-    taskxtra/cardinalexpdetcommon.cpp \
-    taskxtra/cardinalexpdetthresholdtrial.cpp \
-    maths/mlpackfunc.cpp \
-    maths/eigenfunc.cpp \
-    maths/glm.cpp \
-    maths/logisticregression.cpp \
-    maths/linkfunctionfamily.cpp \
-    maths/statsfunc.cpp
+    graphics/textconfig.cpp \
+    graphics/buttonconfig.cpp \
+    graphics/graphicspixmapitemwithopacity.cpp \
+    maths/logisticdescriptives.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -500,7 +504,14 @@ HEADERS += \
     dialogs/passwordentrydialog.h \
     dialogs/progressbox.h \
     dialogs/scrollmessagebox.h \
+    dialogs/soundtestdialog.h \
     dialogs/waitbox.h \
+    graphics/geometry.h \
+    graphics/graphicsfunc.h \
+    graphics/imagefunc.h \
+    graphics/linesegment.h \
+    graphics/paintertranslaterotatecontext.h \
+    graphics/penbrush.h \
     lib/ccrandom.h \
     lib/cloneable.h \
     lib/containers.h \
@@ -510,18 +521,11 @@ HEADERS += \
     lib/debugfunc.h \
     lib/filefunc.h \
     lib/flagguard.h \
-    lib/geometry.h \
-    lib/graphicsfunc.h \
     lib/idpolicy.h \
-    lib/imagefunc.h \
     lib/layoutdumper.h \
-    lib/linesegment.h \
-    maths/mathfunc.h \
     lib/networkmanager.h \
     lib/nhs.h \
     lib/numericfunc.h \
-    lib/paintertranslaterotatecontext.h \
-    lib/penbrush.h \
     lib/reentrydepthguard.h \
     lib/roman.h \
     lib/sizehelpers.h \
@@ -530,6 +534,13 @@ HEADERS += \
     lib/stringfunc.h \
     lib/threadworker.h \
     lib/uifunc.h \
+    maths/eigenfunc.h \
+    maths/glm.h \
+    maths/linkfunctionfamily.h \
+    maths/logisticregression.h \
+    maths/mathfunc.h \
+    maths/mlpackfunc.h \
+    maths/statsfunc.h \
     menu/addictionmenu.h \
     menu/affectivemenu.h \
     menu/alltasksmenu.h \
@@ -646,6 +657,7 @@ HEADERS += \
     tasks/cape42.h \
     tasks/caps.h \
     tasks/cardinalexpdetthreshold.h \
+    tasks/cardinalexpectationdetection.h \
     tasks/cbir.h \
     tasks/cecaq3.h \
     tasks/cgi.h \
@@ -723,6 +735,8 @@ HEADERS += \
     tasks/ybocs.h \
     tasks/ybocssc.h \
     tasks/zbi12.h \
+    taskxtra/cardinalexpdetcommon.h \
+    taskxtra/cardinalexpdetthresholdtrial.h \
     taskxtra/diagnosisicd10item.h \
     taskxtra/diagnosisicd9cmitem.h \
     taskxtra/diagnosisitembase.h \
@@ -765,16 +779,10 @@ HEADERS += \
     widgets/verticalline.h \
     widgets/verticalscrollarea.h \
     widgets/verticalscrollareaviewport.h \
-    tasks/cardinalexpectationdetection.h \
-    dialogs/soundtestdialog.h \
-    taskxtra/cardinalexpdetcommon.h \
-    taskxtra/cardinalexpdetthresholdtrial.h \
-    maths/mlpackfunc.h \
-    maths/eigenfunc.h \
-    maths/glm.h \
-    maths/logisticregression.h \
-    maths/linkfunctionfamily.h \
-    maths/statsfunc.h
+    graphics/textconfig.h \
+    graphics/buttonconfig.h \
+    graphics/graphicspixmapitemwithopacity.h \
+    maths/logisticdescriptives.h
 
 DISTFILES += \
     android/AndroidManifest.xml \

@@ -247,9 +247,8 @@ QString qStringFromEigenMatrixOrArray(const Eigen::DenseBase<Derived>& m,
     // - C++ std::type_traits doesn't allow detection of template
     //   specializations, I don't think! Hence the type_name system, via which
     //   the detection is done at compile-time.
-    using namespace Eigen;
-    IOFormat heavy_fmt(
-                FullPrecision,  // precision
+    Eigen::IOFormat heavy_fmt(
+                Eigen::FullPrecision,  // precision
                 0,  // flags
                 ", ",  // coeffSeparator
                 ";\n",  // rowSeparator
@@ -311,6 +310,15 @@ ColumnVector<DestContentsT> eigenColumnVectorFromStdVector(
 }
 
 
+template<typename Scalar>
+ColumnVector<Scalar> eigenColumnVectorFromInitList(
+        std::initializer_list<Scalar> vlist)
+{
+    // Equivalent, but taking an initializer list
+    return eigenColumnVectorFromStdVector<Scalar>(std::vector<Scalar>(vlist));
+}
+
+
 template<typename DestContentsT, typename SourceContentsT>
 RowVector<DestContentsT> eigenRowVectorFromStdVector(
         const std::vector<SourceContentsT>& sv)
@@ -318,6 +326,15 @@ RowVector<DestContentsT> eigenRowVectorFromStdVector(
     // Takes a C++ std::vector and returns an Eigen RowVector (i.e. an Eigen
     // Matrix of dimensions 1xn).
     return eigenVectorFromStdVector<RowVector<DestContentsT>>(sv);
+}
+
+
+template<typename Scalar>
+ColumnVector<Scalar> eigenRowVectorFromInitList(
+        std::initializer_list<Scalar> vlist)
+{
+    // Equivalent, but taking an initializer list
+    return eigenRowVectorFromStdVector<Scalar>(std::vector<Scalar>(vlist));
 }
 
 
@@ -364,6 +381,10 @@ IndexArray indexSeq(Eigen::Index first, Eigen::Index last,
 ArrayXb selectBoolFromIndices(const IndexArray& indices, Eigen::Index size);
 ArrayXXb selectBoolFromIndices(const IndexArray& indices, Eigen::Index n_rows,
                                Eigen::Index n_cols);
+
+// Add a column of ones as the first column, for creating design matrices in
+// which an intercept term is required.
+Eigen::MatrixXd addOnesAsFirstColumn(const Eigen::MatrixXd& m);
 
 
 // ============================================================================
@@ -912,16 +933,6 @@ Eigen::MatrixXd forwardOrBackSolve(Eigen::MatrixXd lr,
                                    bool transpose,
                                    bool upper_tri);
 
-
-// ============================================================================
-// Logistic regression support functions
-// ============================================================================
-
-ColumnVector<double> getParamsLogisticFitSinglePredictor(
-        const ColumnVector<double>& predictor_values,
-        const ColumnVector<int>& responses);
-// ... returns a Vector<double> of size 2x1, containing the intercept and
-//
 
 // ============================================================================
 // Testing

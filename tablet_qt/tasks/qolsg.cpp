@@ -34,12 +34,10 @@ using ccrandom::coin;
 using datetime::now;
 using graphicsfunc::AdjustablePieAndProxy;
 using graphicsfunc::ButtonAndProxy;
-using graphicsfunc::ButtonConfig;
 using graphicsfunc::LabelAndProxy;
 using graphicsfunc::makeAdjustablePie;
 using graphicsfunc::makeText;
 using graphicsfunc::makeTextButton;
-using graphicsfunc::TextConfig;
 using stringfunc::replaceFirst;
 
 
@@ -633,7 +631,7 @@ void QolSG::recordChoice()
     setValue(FN_GAMBLE_RESPONDED, true);
     setValue(FN_GAMBLE_P, p);
     QString category_chosen = valueString(FN_CATEGORY_CHOSEN);
-    qreal utility;
+    qreal utility = 0;
     if (category_chosen == CHOICE_HIGH) {
         utility = 1 / p;
     } else if (category_chosen == CHOICE_MEDIUM) {

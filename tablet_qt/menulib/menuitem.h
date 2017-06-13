@@ -80,6 +80,8 @@ public:
     void showHtml(const QString& filename) const;
     bool isImplemented() const;
 
+    QString info() const;
+
 protected:
     QString m_title;
     QString m_subtitle;

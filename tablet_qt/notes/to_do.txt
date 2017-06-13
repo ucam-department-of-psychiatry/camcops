@@ -3,6 +3,8 @@
 TO DO NOW
 ===============================================================================
 
+- *** ExpDetThreshold occasionally not doing regression (NULL slope etc.)
+
 - *** tasks
 
 

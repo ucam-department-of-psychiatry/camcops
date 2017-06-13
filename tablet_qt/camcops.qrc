@@ -203,5 +203,16 @@
         <file>resources/camcops/html/licences.html</file>
         <file>resources/ided3d/correct.wav</file>
         <file>resources/ided3d/incorrect.wav</file>
+        <file>resources/expdet/A_background.wav</file>
+        <file>resources/expdet/A_cue_00_pluck.wav</file>
+        <file>resources/expdet/A_cue_01_river.wav</file>
+        <file>resources/expdet/A_cue_02_bird.wav</file>
+        <file>resources/expdet/A_cue_03_morse.wav</file>
+        <file>resources/expdet/A_cue_04_cymbal.wav</file>
+        <file>resources/expdet/A_cue_05_match.wav</file>
+        <file>resources/expdet/A_cue_06_metal.wav</file>
+        <file>resources/expdet/A_cue_07_bach.wav</file>
+        <file>resources/expdet/A_target_0_tone.wav</file>
+        <file>resources/expdet/A_target_1_voice.wav</file>
     </qresource>
 </RCC>

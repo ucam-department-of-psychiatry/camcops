@@ -19,6 +19,7 @@
 
 #pragma once
 #include <Eigen/Dense>
+#include <QDateTime>
 #include <QStringList>
 #include "maths/linkfunctionfamily.h"
 
@@ -74,19 +75,26 @@ public:
     Eigen::VectorXd coefficients() const;
     Eigen::VectorXd predict() const;  // ... by original predictors
     Eigen::VectorXd predict(const Eigen::MatrixXd& predictors) const;  // use new predictors
+    Eigen::VectorXd residuals(const Eigen::MatrixXd& predictors) const;  // use new predictors
     Eigen::VectorXd residuals() const;  // ... with original predictors
     Eigen::ArrayXXd predictEta(const Eigen::MatrixXd& predictors) const;  // the intermediate variable, BEFORE the inverse link function has been applied (e.g.: logit units)
     Eigen::ArrayXXd predictEta() const;  // ... with original predictors
 
+    // Dumb stuff:
+    Eigen::VectorXd retrodictUnivariatePredictor(const Eigen::VectorXd& depvar) const;
+
     // Get debugging info:
     QStringList calculationErrors() const;
     QStringList getInfo() const;
+    qint64 timeToFitMs() const;
 
 protected:
+    // Internals:
     void reset();
     void addInfo(const QString& msg) const;
     void addError(const QString& msg) const;
     void warnReturningGarbage() const;
+    // The interesting stuff:
     void fitIRLS();
     void fitIRLSSVDNewton();
     Eigen::Array<Eigen::Index, Eigen::Dynamic, 1> svdsubsel(
@@ -114,4 +122,6 @@ protected:
     // Debugging info:
     mutable QStringList m_calculation_errors;
     mutable QStringList m_info;
+    QDateTime m_fit_start_time;
+    QDateTime m_fit_end_time;
 };

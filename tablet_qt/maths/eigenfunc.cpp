@@ -107,6 +107,14 @@ ArrayXXb selectBoolFromIndices(const IndexArray& indices, Index n_rows,
 }
 
 
+MatrixXd addOnesAsFirstColumn(const MatrixXd& m)
+{
+    MatrixXd X_design(m.rows(), m.cols() + 1);
+    X_design << MatrixXd::Ones(m.rows(), 1.0), m;  // first column is 1.0
+    return X_design;
+}
+
+
 // ============================================================================
 // Other R functions
 // ============================================================================
@@ -261,20 +269,6 @@ Eigen::MatrixXd forwardOrBackSolve(Eigen::MatrixXd lr,
     } else {
         return lr.triangularView<Lower>().solve(x);
     }
-}
-
-
-// ============================================================================
-// Logistic regression support functions
-// ============================================================================
-
-ColumnVector<double> getParamsLogisticFitSinglePredictor(
-        const ColumnVector<double>& predictor_values,
-        const ColumnVector<int>& responses)
-{
-    LogisticRegression lr;
-    lr.fit(predictor_values, responses);
-    return lr.coefficients();
 }
 
 

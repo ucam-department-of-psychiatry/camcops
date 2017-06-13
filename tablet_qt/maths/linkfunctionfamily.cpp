@@ -34,10 +34,27 @@ LinkFunctionFamily::LinkFunctionFamily(
 }
 
 
+// Disambiguating overloaded functions:
+// - https://stackoverflow.com/questions/10111042/wrap-overloaded-function-via-stdfunction
+
 const LinkFunctionFamily LINK_FN_FAMILY_LOGIT(
         statsfunc::logit,  // link
-        static_cast<double (&)(double)>(statsfunc::logistic),  // inverse link
-            // ... disambiguating overloaded function
-            // ... https://stackoverflow.com/questions/10111042/wrap-overloaded-function-via-stdfunction
+        statsfunc::logistic,  // inverse link
         statsfunc::derivativeOfLogistic,  // derivative of inverse link
-        statsfunc::binomialVariance);  // variance function
+        statsfunc::binomialVariance  // variance function
+);
+
+
+const LinkFunctionFamily LINK_FN_FAMILY_IDENTITY(
+        statsfunc::identity,  // link
+        statsfunc::identity,  // inverse link
+        static_cast<double (&)(double)>(statsfunc::one),  // derivative of inverse link (y = x => y' = 1)
+        static_cast<Eigen::ArrayXXd (&)(const Eigen::ArrayXXd&)>(statsfunc::one)  // variance function
+            // ... ?assumes normality; variance is independent of the mean
+            // ... https://en.wikipedia.org/wiki/Variance_function#Example_.E2.80.93_normal
+);
+
+// For link function families, see also:
+// - https://stats.stackexchange.com/questions/212430/what-are-the-error-distribution-and-link-functions-of-a-model-family-in-r
+// - https://en.wikipedia.org/wiki/Generalized_linear_model#Link_function
+// - R: ?family

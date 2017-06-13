@@ -24,9 +24,12 @@
 #include <QObject>
 #include <QPen>
 #include "common/uiconst.h"
+#include "graphics/buttonconfig.h"
+#include "graphics/textconfig.h"
 class AdjustablePie;
 class SvgWidgetClickable;
 class QBrush;
+class QGraphicsPixmapItem;
 class QGraphicsProxyWidget;
 class QGraphicsScene;
 class QGraphicsRectItem;
@@ -51,59 +54,6 @@ extern const QString TEST_SVG;
 // ============================================================================
 // Support structures
 // ============================================================================
-
-// We use pixels, not points, for font sizes here.
-// In general, this is deprecated, because it makes things device-specific,
-// i.e. dependent on the dots-per-inch (DPI) setting. However, in this context
-// we are working in a pixel-based graphics system, which is then scaled by the
-// ScreenLikeGraphicsView. It's not clear that "DPI" makes sense here, and we
-// want our text size to be predictable.
-
-struct TextConfig {
-    TextConfig(int font_size_px,
-               const QColor& colour,
-               qreal width = -1,
-               Qt::Alignment alignment = Qt::AlignCenter) :
-        font_size_px(font_size_px),
-        colour(colour),
-        width(width),
-        alignment(alignment)
-    {}
-    int font_size_px;
-    QColor colour;
-    qreal width;
-    Qt::Alignment alignment;
-};
-
-
-struct ButtonConfig {
-    ButtonConfig(int padding_px,
-                 int font_size_px,
-                 const QColor& text_colour,
-                 Qt::Alignment text_alignment,
-                 const QColor& background_colour,
-                 const QColor& pressed_background_colour,
-                 const QPen& border_pen,
-                 int corner_radius_px) :
-        padding_px(padding_px),
-        font_size_px(font_size_px),
-        text_colour(text_colour),
-        text_alignment(text_alignment),
-        background_colour(background_colour),
-        pressed_background_colour(pressed_background_colour),
-        border_pen(border_pen),
-        corner_radius_px(corner_radius_px)
-    {}
-    int padding_px;
-    int font_size_px;
-    QColor text_colour;
-    Qt::Alignment text_alignment;
-    QColor background_colour;
-    QColor pressed_background_colour;
-    QPen border_pen;
-    int corner_radius_px;
-};
-
 
 struct ButtonAndProxy {
     // Ownership of QGraphicsProxyWidget/QWidget pairs is shared, i.e. if
@@ -254,5 +204,13 @@ QGraphicsRectItem* makeObscuringRect(
         qreal opacity = 0.5,
         const QColor& colour_ignoring_opacity = QColor(0, 0, 0));  // 0-1
 
+QGraphicsPixmapItem* makeImage(
+        QGraphicsScene* scene,
+        const QRectF& rect,
+        const QString& filename,
+        qreal opacity = 1.0,
+        Qt::AspectRatioMode aspect_ratio_mode = Qt::KeepAspectRatio,
+        Qt::TransformationMode transformation_mode_1 = Qt::FastTransformation,
+        Qt::TransformationMode transformation_mode_2 = Qt::FastTransformation);
 
 }  // namespace graphicsfunc

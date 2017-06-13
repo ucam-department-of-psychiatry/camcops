@@ -61,7 +61,7 @@ Then a general linear model is
 
 A generalized linear model extends this with a link function [11]:
     eta = Xb                        // linear predictor
-    E(Y) = mu = invlink(eta)
+    E(Y) = mu = invlink(eta)        // Y = invlink(eta) or eta = link(y), ignoring error etc.
 
 i.e.
 
@@ -122,44 +122,6 @@ Glm::Glm(LinkFunctionFamily link_fn_family,
 
 
 // ============================================================================
-// Internals
-// ============================================================================
-
-void Glm::reset()
-{
-    m_dependent_variable = VectorXd();
-    m_predictors = MatrixXd();
-    m_p_weights = nullptr;
-
-    m_fitted = false;
-    m_converged = false;
-    m_n_iterations = 0;
-    m_calculation_errors.clear();
-    m_coefficients = VectorXd();
-}
-
-
-void Glm::warnReturningGarbage() const
-{
-    QString not_fitted("Not fitted! Returning garbage.");
-    qWarning() << not_fitted;
-    addError(not_fitted);
-}
-
-
-void Glm::addInfo(const QString &msg) const
-{
-    m_info.append(msg);
-}
-
-
-void Glm::addError(const QString &msg) const
-{
-    m_calculation_errors.append(msg);
-}
-
-
-// ============================================================================
 // Fit method
 // ============================================================================
 
@@ -168,6 +130,7 @@ void Glm::fit(const MatrixXd& predictors,
               VectorXd* p_weights)
 {
     reset();
+    m_fit_start_time = QDateTime::currentDateTime();
 
     // Set up data
     m_predictors = predictors;
@@ -209,6 +172,8 @@ void Glm::fit(const MatrixXd& predictors,
             break;
         }
     }
+
+    m_fit_end_time = QDateTime::currentDateTime();
 
     // Report any errors
     if (!m_calculation_errors.isEmpty()) {
@@ -316,11 +281,88 @@ VectorXd Glm::coefficients() const
 }
 
 
+VectorXd Glm::predict(const MatrixXd& predictors) const
+{
+    // As per: Y_predicted = invlink(Xb)
+    if (!m_fitted || predictors.cols() != nPredictors()) {
+        warnReturningGarbage();
+        return VectorXd();
+    }
+    const ArrayXXd eta = predictEta(predictors);
+    // y = invlink(eta)
+    const ArrayXXd predicted = eta.unaryExpr(m_link_fn_family.inv_link_fn);
+    return predicted.matrix();
+}
+
+
 VectorXd Glm::predict() const
 {
     return predict(m_predictors);
 }
 
+
+Eigen::VectorXd Glm::residuals(const Eigen::MatrixXd& predictors) const
+{
+    if (!m_fitted || predictors.cols() != nPredictors()) {
+        warnReturningGarbage();
+        return VectorXd();
+    }
+    return predict(predictors) - m_dependent_variable;
+}
+
+
+VectorXd Glm::residuals() const
+{
+    return residuals(m_predictors);
+}
+
+
+Eigen::ArrayXXd Glm::predictEta(const Eigen::MatrixXd& predictors) const
+{
+    if (!m_fitted || predictors.cols() != nPredictors()) {
+        warnReturningGarbage();
+        return VectorXd();
+    }
+    // eta = Xb
+    return (predictors * m_coefficients).array();
+}
+
+
+Eigen::ArrayXXd Glm::predictEta() const
+{
+    return predictEta(m_predictors);
+}
+
+
+// ============================================================================
+// Dumb stuff
+// ============================================================================
+
+VectorXd Glm::retrodictUnivariatePredictor(const VectorXd& y) const
+{
+    // If there is >1 predictor, this is utterly meaningless.
+    if (!m_fitted || m_coefficients.size() != 2) {
+        warnReturningGarbage();
+        return VectorXd();
+    }
+    // But on the assumption that the first column of the predictors is an
+    // intercept, and the second is a univariate predictor, there is some
+    // meaning:
+    const double b0 = m_coefficients(0);  // intercept
+    const double b1 = m_coefficients(1);  // slope
+    // In these circumstances, the GLM is
+    //      y = invlink(xb [+ error somewhere]) = invlink(b0 + x * b1)
+    //      link(y) = b0 + x * b1
+    //      x = (link(y) - b0) / b1
+    //      x = (eta - b0) / b1
+    const ArrayXd eta = y.array().unaryExpr(m_link_fn_family.link_fn);
+    return (eta - b0) / b1;
+}
+
+
+// ============================================================================
+// Get debugging info
+// ============================================================================
 
 QStringList Glm::calculationErrors() const
 {
@@ -334,42 +376,50 @@ QStringList Glm::getInfo() const
 }
 
 
-VectorXd Glm::residuals() const
+qint64 Glm::timeToFitMs() const
 {
-    if (!m_fitted) {
-        warnReturningGarbage();
-        return VectorXd();
-    }
-    return predict() - m_dependent_variable;
+    return m_fit_start_time.msecsTo(m_fit_end_time);
 }
 
 
-Eigen::ArrayXXd Glm::predictEta(const Eigen::MatrixXd& predictors) const
+// ============================================================================
+// Internals
+// ============================================================================
+
+void Glm::reset()
 {
-    if (!m_fitted) {
-        warnReturningGarbage();
-        return VectorXd();
-    }
-    return (predictors * m_coefficients).array();
+    m_dependent_variable = VectorXd();
+    m_predictors = MatrixXd();
+    m_p_weights = nullptr;
+
+    m_fitted = false;
+    m_converged = false;
+    m_n_iterations = 0;
+    m_coefficients = VectorXd();
+
+    m_calculation_errors.clear();
+    m_info.clear();
+    m_fit_start_time = m_fit_end_time = QDateTime();
 }
 
 
-Eigen::ArrayXXd Glm::predictEta() const
+void Glm::warnReturningGarbage() const
 {
-    return predictEta(m_predictors);
+    QString not_fitted("Not fitted! Returning garbage.");
+    qWarning() << not_fitted;
+    addError(not_fitted);
 }
 
 
-VectorXd Glm::predict(const MatrixXd& predictors) const
+void Glm::addInfo(const QString &msg) const
 {
-    // As per: Y_predicted = invlink(Xb)
-    if (!m_fitted) {
-        warnReturningGarbage();
-        return VectorXd();
-    }
-    const ArrayXXd eta = predictEta(predictors);
-    const ArrayXXd predicted = eta.unaryExpr(m_link_fn_family.inv_link_fn);
-    return predicted.matrix();
+    m_info.append(msg);
+}
+
+
+void Glm::addError(const QString &msg) const
+{
+    m_calculation_errors.append(msg);
 }
 
 

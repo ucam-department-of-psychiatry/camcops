@@ -56,9 +56,8 @@ Comments
 #include "lib/ccrandom.h"
 #include "lib/containers.h"
 #include "lib/datetime.h"
-#include "lib/graphicsfunc.h"
-#include "maths/mathfunc.h"
 #include "lib/uifunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/quboolean.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionnairefunc.h"
@@ -76,7 +75,6 @@ using ccrandom::coin;
 using ccrandom::dwor;
 using datetime::now;
 using graphicsfunc::ButtonAndProxy;
-using graphicsfunc::ButtonConfig;
 using graphicsfunc::centredRect;
 using graphicsfunc::LabelAndProxy;
 using graphicsfunc::makeSvg;
@@ -85,7 +83,6 @@ using graphicsfunc::makeTextButton;
 using graphicsfunc::makeObscuringRect;
 using graphicsfunc::SvgTransform;
 using graphicsfunc::SvgWidgetAndProxy;
-using graphicsfunc::TextConfig;
 using mathfunc::distribute;
 using mathfunc::gridDimensions;
 using mathfunc::rep;
@@ -130,8 +127,6 @@ const QString TAG_WARNING_MIN_MAX("mm");
 
 // Strings shown to the user
 #define TR(stringname, text) const QString stringname(QObject::tr(text))
-TR(TX_START, "When you’re ready, touch here to start.");
-TR(TX_THANKS, "Thank you! Please touch here to exit.");
 
 // Graphics
 const qreal SCENE_WIDTH = 1000;
@@ -1015,7 +1010,7 @@ void IDED3D::startTask()
                 QRectF(0.2 * SCENE_WIDTH, 0.6 * SCENE_HEIGHT,
                        0.6 * SCENE_WIDTH, 0.1 * SCENE_HEIGHT),
                 BASE_BUTTON_CONFIG,
-                TX_START);
+                textconst::TOUCH_TO_START);
     CONNECT_BUTTON(start, nextTrial);
 }
 
@@ -1184,7 +1179,7 @@ void IDED3D::thanks()
                 QRectF(0.3 * SCENE_WIDTH, 0.6 * SCENE_HEIGHT,
                        0.4 * SCENE_WIDTH, 0.1 * SCENE_HEIGHT),
                 BASE_BUTTON_CONFIG,
-                TX_THANKS);
+                textconst::THANK_YOU_TOUCH_TO_EXIT);
     CONNECT_BUTTON(thx, finish);
 }
 

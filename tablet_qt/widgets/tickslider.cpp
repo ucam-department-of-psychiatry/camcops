@@ -23,7 +23,7 @@
 #include <QMouseEvent>
 #include <QStyleOptionSlider>
 #include <QStylePainter>
-#include "lib/graphicsfunc.h"
+#include "graphics/graphicsfunc.h"
 
 
 const QColor DEFAULT_TICK_COLOR(0, 0, 0, 255);

@@ -599,6 +599,32 @@ MenuItem& MenuItem::setUnsupported(bool unsupported)
 }
 
 
+QString MenuItem::info() const
+{
+    // Prettier than operator<<
+    QStringList parts{"Menu item:"};
+    if (!m_title.isEmpty()) {
+        parts.append(QString("title=%1")
+                     .arg(convert::stringToCppLiteral(m_title)));
+    }
+    if (m_p_task) {
+        parts.append(QString("task=%1")
+                     .arg(convert::stringToCppLiteral(m_p_task->shortname())));
+    }
+    if (m_p_patient) {
+        QString patient_info = QString("%1, %2 (%3, DOB %4); %5")
+                        .arg(m_p_patient->surname().toUpper(),
+                             m_p_patient->forename(),
+                             QString("%1 y").arg(m_p_patient->ageYears()),
+                             m_p_patient->dobText(),
+                             m_p_patient->shortIdnumSummary());
+        parts.append(QString("patient=%1")
+                     .arg(convert::stringToCppLiteral(patient_info)));
+    }
+    return parts.join(" ");
+}
+
+
 QDebug operator<<(QDebug debug, const MenuItem& m)
 {
     debug.nospace() << "MenuItem @ " << convert::prettyPointer(&m)

@@ -28,6 +28,30 @@ namespace statsfunc {
 // Elementary functions
 // ============================================================================
 
+double identity(double x)
+{
+    return x;
+}
+
+
+double one(double x)
+{
+    // Derivative of the identity function:
+    //      y = x
+    //      y' = 1
+    Q_UNUSED(x);
+    return 1.0;
+}
+
+
+Eigen::ArrayXXd one(const Eigen::ArrayXXd& x)
+{
+    ArrayXXd result(x.rows(), x.cols());
+    result.setConstant(1.0);
+    return result;
+}
+
+
 double logistic(double x)
 {
     // The core logistic function, a sigmoid
@@ -36,11 +60,14 @@ double logistic(double x)
 }
 
 
-double logistic(double x, double x0, double k)
+double logistic_x0_k(double x, double x0, double k)
 {
     // Generalized logistic function with k steepness, x0 midpoint
     // https://en.wikipedia.org/wiki/Logistic_function
     return logistic(k * (x - x0));
+
+    // HOWEVER, note that there are other formulations of slope/intercept:
+    // see e.g. mathfunc::LogisticDescriptives.
 }
 
 

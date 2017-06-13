@@ -20,7 +20,6 @@
 
 #include "geometry.h"
 #include <QtMath>
-#include "lib/linesegment.h"
 #include "maths/mathfunc.h"
 using mathfunc::mod;
 

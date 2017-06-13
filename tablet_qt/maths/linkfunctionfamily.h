@@ -31,11 +31,23 @@ public:
             std::function<double(double)> derivative_inv_link_fn,
             std::function<Eigen::ArrayXXd(const Eigen::ArrayXXd&)> variance_fn);
 public:
-    std::function<double(double)> link_fn;  // link function (e.g. logit)
-    std::function<double(double)> inv_link_fn;  // inverse link function (e.g. logistic)
-    std::function<double(double)> derivative_inv_link_fn;  // "mu.eta" in R
+    // Link function (e.g. logit):
+    std::function<double(double)> link_fn;
+
+    // Inverse link function (e.g. logistic):
+    std::function<double(double)> inv_link_fn;
+
+    // Derivative of the inverse link function ("mu.eta" in R):
+    std::function<double(double)> derivative_inv_link_fn;
+
+    // Variance function: gives the variance as a function of the mean; "the
+    // part of the variance that depends on" the mean.
+    // https://en.wikipedia.org/wiki/Variance_function
+    // If the variance is independent of the mean, then this should return a
+    // constant, probably 1.
     std::function<Eigen::ArrayXXd(const Eigen::ArrayXXd&)> variance_fn;
 };
 
 
+extern const LinkFunctionFamily LINK_FN_FAMILY_IDENTITY;
 extern const LinkFunctionFamily LINK_FN_FAMILY_LOGIT;

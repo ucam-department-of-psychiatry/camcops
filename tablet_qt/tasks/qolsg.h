@@ -21,7 +21,7 @@
 #include <QColor>
 #include <QPointer>
 #include <QString>
-#include "lib/graphicsfunc.h"
+#include "graphics/graphicsfunc.h"
 #include "tasklib/task.h"
 
 class AdjustablePie;

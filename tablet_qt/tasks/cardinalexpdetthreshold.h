@@ -86,13 +86,14 @@ protected:
     bool lastTrialWasFirstNo() const;
     int getNBackNonCatchTrialIndex(int n, int start_index) const;
     qreal getIntensity() const;
-    bool wantCatchTrial() const;
+    bool wantCatchTrial(int trial_num) const;
     bool isAuditory() const;
     bool timeToStop() const;
 
     void clearScene();
     void setTimeout(int time_ms, FuncPtr callback);
-    void showVisualStimulus(int stimulus, qreal intensity);
+    void showVisualStimulus(const QString& filename_stem, qreal intensity);
+    void savingWait();
     void reset();
     void labelTrialsForAnalysis();
     void calculateFit();

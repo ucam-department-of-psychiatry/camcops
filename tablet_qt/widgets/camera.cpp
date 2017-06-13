@@ -59,7 +59,7 @@
 #include <QVideoFrame>
 #include "common/cssconst.h"
 #include "common/uiconst.h"
-#include "lib/imagefunc.h"
+#include "graphics/imagefunc.h"
 #include "imagebutton.h"
 
 

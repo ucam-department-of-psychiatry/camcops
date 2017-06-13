@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define DEBUG_STEP_DETAIL
+// #define DEBUG_STEP_DETAIL
 
 #include "cardinalexpdetthreshold.h"
 #include <QGraphicsScene>
@@ -26,9 +26,10 @@
 #include "common/uiconst.h"
 #include "db/ancillaryfunc.h"
 #include "db/dbtransaction.h"
+#include "graphics/graphicsfunc.h"
 #include "lib/ccrandom.h"
 #include "lib/convert.h"
-#include "lib/graphicsfunc.h"
+#include "maths/logisticdescriptives.h"
 #include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionnairefunc.h"
@@ -43,17 +44,20 @@
 using cardinalexpdetcommon::AUDITORY_BACKGROUND;
 using cardinalexpdetcommon::AUDITORY_CUES;
 using cardinalexpdetcommon::AUDITORY_TARGETS;
-using cardinalexpdetcommon::VISUAL_BACKGROUND;
-using cardinalexpdetcommon::VISUAL_CUES;
-using cardinalexpdetcommon::VISUAL_TARGETS;
+using cardinalexpdetcommon::filenameFromStem;
 using cardinalexpdetcommon::MODALITY_AUDITORY;
 using cardinalexpdetcommon::MODALITY_VISUAL;
 using cardinalexpdetcommon::TX_CONFIG_VISUAL_TARGET_DURATION_S;
 using cardinalexpdetcommon::urlFromStem;
+using cardinalexpdetcommon::VISUAL_BACKGROUND;
+using cardinalexpdetcommon::VISUAL_CUES;
+using cardinalexpdetcommon::VISUAL_TARGETS;
 using ccrandom::coin;
 using ccrandom::randomRealIncUpper;
 using convert::msFromSec;
 using graphicsfunc::ButtonAndProxy;
+using graphicsfunc::makeImage;
+using graphicsfunc::makeText;
 using graphicsfunc::makeTextButton;
 using mathfunc::mean;
 
@@ -88,53 +92,48 @@ const QString FN_K("k");
 const QString FN_THETA("theta");
 
 // Text for user
-const QString TX_CONFIG_TITLE("Configure ExpDetThreshold task");
-const QString TX_CONFIG_MAIN_INSTRUCTIONS_1(
+#define TR(stringname, text) const QString stringname(QObject::tr(text))
+TR(TX_CONFIG_TITLE, "Configure ExpDetThreshold task");
+TR(TX_CONFIG_MAIN_INSTRUCTIONS_1,
         "Set your device’s brightness and volume BEFORE running this task, "
         "and DO NOT ALTER THEM in between runs or before completing the main "
         "Expectation–Detection task. Also, try to keep the lighting and "
         "background noise constant throughout.");
-const QString TX_CONFIG_MAIN_INSTRUCTIONS_2(
+TR(TX_CONFIG_MAIN_INSTRUCTIONS_2,
         "Before you run the Expectation–Detection task for a given subject, "
         "please run this task FOUR times to determine the subject’s threshold "
         "for each of two auditory stimuli (tone, voice) and each of two "
         "auditory stimuli (circle, word).");
-const QString TX_CONFIG_MAIN_INSTRUCTIONS_3(
+TR(TX_CONFIG_MAIN_INSTRUCTIONS_3,
         "Then, make a note of the 75% (“x75”) threshold intensities for each "
         "stimulus, and start the Expectation–Detection task (which only needs "
         "to be run once). It will ask you for these four intensities.");
-const QString TX_CONFIG_INSTRUCTIONS_1("Choose a modality:");
-const QString TX_AUDITORY("Auditory");
-const QString TX_VISUAL("Visual");
-const QString TX_CONFIG_INSTRUCTIONS_2("Choose a target stimulus:");
-const QString TX_AUDITORY_TARGET_0("tone (auditory target 0)");
-const QString TX_AUDITORY_TARGET_0_SHORT("tone");
-const QString TX_AUDITORY_TARGET_1("voice (auditory target 1)");
-const QString TX_AUDITORY_TARGET_1_SHORT("voice");
-const QString TX_VISUAL_TARGET_0("circle (visual target 0)");
-const QString TX_VISUAL_TARGET_0_SHORT("circle");
-const QString TX_VISUAL_TARGET_1("word (visual target 1)");
-const QString TX_VISUAL_TARGET_1_SHORT("word");
-const QString TX_CONFIG_INFO(
-        "Intensities and probabilities are in the range 0–1.");
-const QString TX_CONFIG_START_INTENSITY_MIN(
-        "Minimum starting intensity (e.g. 0.9)");
-const QString TX_CONFIG_START_INTENSITY_MAX(
-        "Maximum starting intensity (e.g. 1.0)");
-const QString TX_CONFIG_INITIAL_LARGE_INTENSITY_STEP(
-        "Initial, large, intensity step (e.g. 0.1)");
-const QString TX_CONFIG_MAIN_SMALL_INTENSITY_STEP(
-        "Main, small, intensity step (e.g. 0.01)");
-const QString TX_CONFIG_NUM_TRIALS_IN_MAIN_SEQUENCE(
-        "Number of trials in the main test sequence (e.g. 14)");
-const QString TX_CONFIG_P_CATCH_TRIAL(
-        "Probability of a catch trial (e.g. 0.2)");
-const QString TX_CONFIG_BACKGROUND_INTENSITY(
-        "Background intensity (usually 1.0)");
-const QString TX_CONFIG_ITI_S("Intertrial interval (s) (e.g. 0.2)");
-const QString TX_DETECTION_Q_VISUAL("Did you see a");
-const QString TX_DETECTION_Q_AUDITORY("Did you hear a");
-const QString TX_START_PROMPT("When you’re ready, touch here to start.");
+TR(TX_CONFIG_INSTRUCTIONS_1, "Choose a modality:");
+TR(TX_AUDITORY, "Auditory");
+TR(TX_VISUAL, "Visual");
+TR(TX_CONFIG_INSTRUCTIONS_2, "Choose a target stimulus:");
+TR(TX_AUDITORY_TARGET_0, "tone (auditory target 0)");
+TR(TX_AUDITORY_TARGET_0_SHORT, "tone");
+TR(TX_AUDITORY_TARGET_1, "voice (auditory target 1)");
+TR(TX_AUDITORY_TARGET_1_SHORT, "voice");
+TR(TX_VISUAL_TARGET_0, "circle (visual target 0)");
+TR(TX_VISUAL_TARGET_0_SHORT, "circle");
+TR(TX_VISUAL_TARGET_1, "word (visual target 1)");
+TR(TX_VISUAL_TARGET_1_SHORT, "word");
+TR(TX_CONFIG_INFO, "Intensities and probabilities are in the range 0–1.");
+TR(TX_CONFIG_START_INTENSITY_MIN, "Minimum starting intensity (e.g. 0.9)");
+TR(TX_CONFIG_START_INTENSITY_MAX, "Maximum starting intensity (e.g. 1.0)");
+TR(TX_CONFIG_INITIAL_LARGE_INTENSITY_STEP,
+   "Initial, large, intensity step (e.g. 0.1)");
+TR(TX_CONFIG_MAIN_SMALL_INTENSITY_STEP,
+   "Main, small, intensity step (e.g. 0.01)");
+TR(TX_CONFIG_NUM_TRIALS_IN_MAIN_SEQUENCE,
+   "Number of trials in the main test sequence (e.g. 14)");
+TR(TX_CONFIG_P_CATCH_TRIAL, "Probability of a catch trial (e.g. 0.2)");
+TR(TX_CONFIG_BACKGROUND_INTENSITY, "Background intensity (usually 1.0)");
+TR(TX_CONFIG_ITI_S, "Intertrial interval (s) (e.g. 0.2)");
+TR(TX_DETECTION_Q_VISUAL, "Did you see a");
+TR(TX_DETECTION_Q_AUDITORY, "Did you hear a");
 
 // Defaults
 const qreal DEFAULT_VISUAL_TARGET_DURATION_S = 1.0;
@@ -157,23 +156,54 @@ const QString TAG_WARNING_MIN_MAX("mm");
 // Other
 const int DP = 3;
 
-// Graphics
+// Graphics: positioning
 const qreal SCENE_WIDTH = 1000;
 const qreal SCENE_HEIGHT = 750;  // 4:3 aspect ratio
 const QRectF SCENE_RECT(0, 0, SCENE_WIDTH, SCENE_HEIGHT);
+const QPointF SCENE_CENTRE(SCENE_WIDTH * 0.5, SCENE_HEIGHT * 0.5);
+const qreal STIM_SIDE = 400;
+// Keep stimuli above all buttons, to avoid screen smudging
+const QRectF VISUAL_STIM_RECT(0.5 * SCENE_WIDTH - STIM_SIDE / 2.0,  // left
+                              0.05 * SCENE_HEIGHT,  // top
+                              STIM_SIDE,  // width
+                              STIM_SIDE);  // height
+const QRectF START_BUTTON_RECT(0.2 * SCENE_WIDTH, 0.6 * SCENE_HEIGHT,
+                               0.6 * SCENE_WIDTH, 0.1 * SCENE_HEIGHT);
+const QPointF PROMPT_CENTRE(0.5 * SCENE_WIDTH, 0.65 * SCENE_HEIGHT);
+const qreal RESPONSE_BUTTON_TOP = 0.75 * SCENE_HEIGHT;
+const qreal RESPONSE_BUTTON_HEIGHT = 0.2 * SCENE_HEIGHT;
+const qreal RESPONSE_BUTTON_WIDTH = 0.2 * SCENE_WIDTH;
+const QRectF NO_BUTTON_RECT(0.2 * SCENE_WIDTH, RESPONSE_BUTTON_TOP,
+                            RESPONSE_BUTTON_WIDTH, RESPONSE_BUTTON_HEIGHT);
+const QRectF YES_BUTTON_RECT(0.6 * SCENE_WIDTH, RESPONSE_BUTTON_TOP,
+                             RESPONSE_BUTTON_WIDTH, RESPONSE_BUTTON_HEIGHT);
+const QRectF ABORT_BUTTON_RECT(0.01 * SCENE_WIDTH, 0.94 * SCENE_HEIGHT,
+                               0.07 * SCENE_WIDTH, 0.05 * SCENE_HEIGHT);
+const QRectF THANKS_BUTTON_RECT(0.3 * SCENE_WIDTH, 0.6 * SCENE_HEIGHT,
+                                0.4 * SCENE_WIDTH, 0.1 * SCENE_HEIGHT);
+
+// Graphics: other
 const QColor SCENE_BACKGROUND("black");  // try: "salmon"
 const int BORDER_WIDTH_PX = 3;
-const QColor BUTTON_BACKGROUND("blue");
+const QColor BUTTON_BACKGROUND(0, 0, 200);
 const QColor TEXT_COLOUR("white");
 const QColor BUTTON_PRESSED_BACKGROUND("olive");
-const QColor ABORT_BUTTON_BACKGROUND("darkred");
+const QColor ABORT_BUTTON_BACKGROUND(100, 0, 0);
 const qreal TEXT_SIZE_PX = 20;  // will be scaled
 const int BUTTON_RADIUS = 5;
 const int PADDING = 5;
 const Qt::Alignment BUTTON_TEXT_ALIGN = Qt::AlignCenter;
 const Qt::Alignment TEXT_ALIGN = Qt::AlignCenter;
 const QColor EDGE_COLOUR("white");
+const QPen BORDER_PEN(QBrush(EDGE_COLOUR), BORDER_WIDTH_PX);
+const ButtonConfig BASE_BUTTON_CONFIG(
+        PADDING, TEXT_SIZE_PX, TEXT_COLOUR, BUTTON_TEXT_ALIGN,
+        BUTTON_BACKGROUND, BUTTON_PRESSED_BACKGROUND,
+        BORDER_PEN, BUTTON_RADIUS);
+const TextConfig BASE_TEXT_CONFIG(TEXT_SIZE_PX, TEXT_COLOUR,
+                                  SCENE_WIDTH, TEXT_ALIGN);
 
+// *** regression not being calculated all the time? e.g. circle
 
 // ============================================================================
 // Factory method
@@ -327,15 +357,18 @@ bool CardinalExpDetThreshold::isComplete() const
 QStringList CardinalExpDetThreshold::summary() const
 {
     return QStringList{
-        QString("Target: <b>%1</b>").arg(getTargetName()),
-        QString("x75 = <b>%1</b>").arg(convert::prettyValue(x75(), DP)),
+        QString("Target: <b>%1</b>.").arg(getTargetName()),
+        QString("x75 [intensity for which p(detect) = 0.75]: <b>%1</b>").arg(
+                    convert::prettyValue(x75(), DP)),
     };
 }
 
 
 QStringList CardinalExpDetThreshold::detail() const
 {
-    QStringList lines = completenessInfo() + recordSummaryLines();
+    QStringList lines = completenessInfo() + summary();
+    lines.append("\n");
+    lines += recordSummaryLines();
     lines.append("\n");
     lines.append("Trials:");
     for (CardinalExpDetThresholdTrialPtr trial : m_trials) {
@@ -437,6 +470,8 @@ OpenableWidget* CardinalExpDetThreshold::editor(bool read_only)
     m_questionnaire->setReadOnly(read_only);
     m_questionnaire->setWithinChain(true);  // fast forward button, not stop
 
+    connect(fieldRef(FN_MODALITY).data(), &FieldRef::valueChanged,
+            this, &CardinalExpDetThreshold::validateQuestionnaire);
     connect(fieldRef(FN_START_INTENSITY_MIN).data(), &FieldRef::valueChanged,
             this, &CardinalExpDetThreshold::validateQuestionnaire);
     connect(fieldRef(FN_START_INTENSITY_MAX).data(), &FieldRef::valueChanged,
@@ -577,7 +612,8 @@ QVariant CardinalExpDetThreshold::x(qreal p) const
     }
     qreal intercept = valueDouble(FN_INTERCEPT);
     qreal slope = valueDouble(FN_SLOPE);
-    return mathfunc::logisticFindXWhereP(p, slope, intercept);
+    LogisticDescriptives ld(intercept, slope);  // coefficients already known
+    return ld.x(p);
 }
 
 
@@ -664,19 +700,19 @@ qreal CardinalExpDetThreshold::getIntensity() const
 }
 
 
-bool CardinalExpDetThreshold::wantCatchTrial() const
+bool CardinalExpDetThreshold::wantCatchTrial(int trial_num) const
 {
-    Q_ASSERT(m_current_trial < m_trials.size());
-    if (m_current_trial <= 0) {
+    Q_ASSERT(trial_num - 1 < m_trials.size());
+    if (trial_num <= 0) {
         return false;  // never on the first
     }
-    if (m_trials.at(m_current_trial - 1)->wasCaughtOutReset()) {
+    if (m_trials.at(trial_num - 1)->wasCaughtOutReset()) {
         return false;  // never immediately after a reset
     }
-    if (m_current_trial == 1) {
+    if (trial_num == 1) {
         return true;  // always on the second
     }
-    if (m_trials.at(m_current_trial - 2)->wasCaughtOutReset()) {
+    if (m_trials.at(trial_num - 2)->wasCaughtOutReset()) {
         return true;  // always on the second of a fresh run
     }
     return coin(valueDouble(FN_P_CATCH_TRIAL));  // otherwise on e.g. 20% of trials
@@ -686,6 +722,19 @@ bool CardinalExpDetThreshold::wantCatchTrial() const
 bool CardinalExpDetThreshold::isAuditory() const
 {
     return valueInt(FN_MODALITY) == MODALITY_AUDITORY;
+}
+
+
+bool CardinalExpDetThreshold::timeToStop() const
+{
+    if (m_trial_last_y_b4_first_n < 0) {
+        return false;
+    }
+    int final_trial_ignoring_catch_trials =
+            m_trials[m_trial_last_y_b4_first_n]->trialNumIgnoringCatchTrials()
+            + valueInt(FN_NUM_TRIALS_IN_MAIN_SEQUENCE) - 1;
+    return m_trials[m_current_trial]->trialNumIgnoringCatchTrials() >=
+            final_trial_ignoring_catch_trials;
 }
 
 
@@ -706,11 +755,18 @@ void CardinalExpDetThreshold::setTimeout(int time_ms, FuncPtr callback)
 }
 
 
-void CardinalExpDetThreshold::showVisualStimulus(int stimulus, qreal intensity)
+void CardinalExpDetThreshold::showVisualStimulus(const QString& filename_stem,
+                                                 qreal intensity)
 {
-    Q_UNUSED(stimulus);
-    Q_UNUSED(intensity);
-    // ***
+    QString filename = cardinalexpdetcommon::filenameFromStem(filename_stem);
+    makeImage(m_scene, VISUAL_STIM_RECT, filename, intensity);
+}
+
+
+void CardinalExpDetThreshold::savingWait()
+{
+    clearScene();
+    makeText(m_scene, SCENE_CENTRE, BASE_TEXT_CONFIG, textconst::SAVING);
 }
 
 
@@ -724,6 +780,7 @@ void CardinalExpDetThreshold::reset()
 
 void CardinalExpDetThreshold::labelTrialsForAnalysis()
 {
+    // Trial numbers in the calculation sequence start from 1.
     DbTransaction trans(m_db);
     int tnum = 1;
     for (int i = 0; i < m_trials.size(); ++i) {
@@ -739,7 +796,25 @@ void CardinalExpDetThreshold::labelTrialsForAnalysis()
 
 void CardinalExpDetThreshold::calculateFit()
 {
-
+    QVector<double> intensity;  // predictor
+    QVector<int> choice;  // dependent variable
+    for (int i = 0; i < m_trials.size(); ++i) {
+        CardinalExpDetThresholdTrialPtr tp = m_trials.at(i);
+        if (tp->isInCalculationSeq()) {
+            intensity.append(tp->intensity());
+            choice.append(tp->yes() ? 1 : 0);
+        }
+    }
+    qInfo() << "Calculating regression:";
+    qInfo() << "Intensities:" << intensity;
+    qInfo() << "Choices:" << choice;
+    LogisticDescriptives ld(intensity, choice);  // fit the regression
+    qInfo().nospace() << "Coefficients: b0 (intercept) = " << ld.b0()
+                      << ", b1 (slope) = " << ld.b1();
+    setValue(FN_INTERCEPT, ld.intercept());
+    setValue(FN_SLOPE, ld.slope());
+    setValue(FN_K, ld.k());
+    setValue(FN_THETA, ld.theta());
 }
 
 
@@ -792,33 +867,43 @@ void CardinalExpDetThreshold::startTask()
     }
 
     // Start
-#ifdef ARGH  // ***
     ButtonAndProxy start = makeTextButton(
-                m_scene,
-                QRectF(0.2 * SCENE_WIDTH, 0.6 * SCENE_HEIGHT,
-                       0.6 * SCENE_WIDTH, 0.1 * SCENE_HEIGHT),
-                BASE_BUTTON_CONFIG,
-                TX_START);
+                m_scene, START_BUTTON_RECT, BASE_BUTTON_CONFIG,
+                textconst::TOUCH_TO_START);
     CONNECT_BUTTON(start, nextTrial);
-#endif
 }
 
 
 void CardinalExpDetThreshold::nextTrial()
 {
-
+#ifdef DEBUG_STEP_DETAIL
+    qDebug() << Q_FUNC_INFO;
+#endif
+    clearScene();
+    if (timeToStop()) {
+        qDebug() << "Time to stop";
+        savingWait();
+        setValue(FN_FINISHED, true);
+        labelTrialsForAnalysis();
+        calculateFit();
+        save();
+        thanks();
+    } else {
+        startTrial();
+    }
 }
 
 
 void CardinalExpDetThreshold::startTrial()
 {
-    ++m_current_trial;
 #ifdef DEBUG_STEP_DETAIL
     qDebug() << Q_FUNC_INFO;
 #endif
 
-    // Determine if it's a catch trial (on which no stimulus is presented)
-    bool want_catch = wantCatchTrial();
+    // Increment trial numbers; determine if it's a catch trial (on which no
+    // stimulus is presented); create trial record
+    ++m_current_trial;
+    bool want_catch = wantCatchTrial(m_current_trial);
     bool present_target = !want_catch;
     if (!want_catch) {
         ++m_current_trial_ignoring_catch_trials;
@@ -826,55 +911,51 @@ void CardinalExpDetThreshold::startTrial()
     QVariant trial_ignoring_catch_trials = want_catch
             ? QVariant()  // NULL
             : m_current_trial_ignoring_catch_trials;
-    qreal intensity = qBound(0.0, getIntensity(), 1.0);
-    // intensity is in the range [0, 1]
-
-    // Create trial record
-    CardinalExpDetThresholdTrialPtr tp(new CardinalExpDetThresholdTrial(
+    CardinalExpDetThresholdTrialPtr tr(new CardinalExpDetThresholdTrial(
                                            pkvalueInt(),
                                            m_current_trial,
                                            trial_ignoring_catch_trials,
                                            present_target,
-                                           intensity,
                                            m_app,
                                            m_db));
-    m_trials.append(tp);
-    qDebug() << tp->summary();
-
-#ifdef ARGH  // ***
+    m_trials.append(tr);
+    qDebug() << tr->summary();
 
     // Display stimulus
     bool auditory = isAuditory();
     if (present_target) {
+        // Now we've put the new trial in the vector, we can calculate intensity:
+        qreal intensity = qBound(0.0, getIntensity(), 1.0);
+        // ... intensity is in the range [0, 1]
+        tr->setIntensity(intensity);
         if (auditory) {
             m_player_target->setVolume(
                         mathfunc::proportionToIntPercent(intensity));
             m_player_background->play();
             m_player_target->play();
         } else {
-            // ***
-            showVisualStimulus(tp.background_filename, tp.background_intensity);
-            showVisualStimulus(tp.target_filename, tr.intensity);
+            showVisualStimulus(valueString(FN_BACKGROUND_FILENAME),
+                               valueDouble(FN_BACKGROUND_INTENSITY));
+            showVisualStimulus(valueString(FN_TARGET_FILENAME),
+                               tr->intensity());
         }
     } else {
         // Catch trial
         if (auditory) {
             m_player_background->play();
         } else {
-            // ***
-            showVisualStimulus(tp.background_filename, tp.background_intensity);
+            showVisualStimulus(valueString(FN_BACKGROUND_FILENAME),
+                               valueDouble(FN_BACKGROUND_INTENSITY));
         }
     }
 
     // If auditory, the event will be driven by the end of the sound, via
-    // mediaStatusChangedBackground().
-    // Otherwise:
+    // mediaStatusChangedBackground(). Otherwise:
     if (!auditory) {
         int stimulus_time_ms = msFromSec(
                     valueDouble(FN_VISUAL_TARGET_DURATION_S));
         setTimeout(stimulus_time_ms, &CardinalExpDetThreshold::offerChoice);
     }
-#endif
 }
 
 
@@ -883,7 +964,7 @@ void CardinalExpDetThreshold::mediaStatusChangedBackground(
 {
     if (status == QMediaPlayer::EndOfMedia) {
 #ifdef DEBUG_STEP_DETAIL
-        qDebug() << "Backgroud sound playback finished";
+        qDebug() << "Background sound playback finished";
 #endif
         m_player_target->stop();  // in case it's still playing
         offerChoice();
@@ -893,10 +974,26 @@ void CardinalExpDetThreshold::mediaStatusChangedBackground(
 
 void CardinalExpDetThreshold::offerChoice()
 {
+#ifdef DEBUG_STEP_DETAIL
+    qDebug() << Q_FUNC_INFO;
+#endif
     Q_ASSERT(m_current_trial >= 0 && m_current_trial < m_trials.size());
     CardinalExpDetThresholdTrial& t = *m_trials.at(m_current_trial);
+    clearScene();
 
-    // ***
+    ButtonConfig abort_button_cfg = BASE_BUTTON_CONFIG;
+    abort_button_cfg.setBackgroundColour(ABORT_BUTTON_BACKGROUND);
+
+    makeText(m_scene, PROMPT_CENTRE, BASE_TEXT_CONFIG, valueString(FN_PROMPT));
+    ButtonAndProxy y = makeTextButton(m_scene, YES_BUTTON_RECT,
+                                      BASE_BUTTON_CONFIG, textconst::YES);
+    ButtonAndProxy n = makeTextButton(m_scene, NO_BUTTON_RECT,
+                                      BASE_BUTTON_CONFIG, textconst::NO);
+    ButtonAndProxy a = makeTextButton(m_scene, ABORT_BUTTON_RECT,
+                                      abort_button_cfg, textconst::ABORT);
+    CONNECT_BUTTON_PARAM(y, recordChoice, true);
+    CONNECT_BUTTON_PARAM(n, recordChoice, false);
+    CONNECT_BUTTON(a, abort);
 
     t.recordChoiceTime();
 }
@@ -927,7 +1024,14 @@ void CardinalExpDetThreshold::recordChoice(bool yes)
 
 void CardinalExpDetThreshold::thanks()
 {
-
+#ifdef DEBUG_STEP_DETAIL
+    qDebug() << Q_FUNC_INFO;
+#endif
+    clearScene();
+    ButtonAndProxy thx = makeTextButton(
+                m_scene, THANKS_BUTTON_RECT, BASE_BUTTON_CONFIG,
+                textconst::THANK_YOU_TOUCH_TO_EXIT);
+    CONNECT_BUTTON(thx, finish);
 }
 
 
@@ -936,9 +1040,10 @@ void CardinalExpDetThreshold::abort()
 #ifdef DEBUG_STEP_DETAIL
     qDebug() << Q_FUNC_INFO;
 #endif
+    savingWait();
     setValue(FN_FINISHED, false);
     Q_ASSERT(m_widget);
-    editFinishedAbort();
+    editFinishedAbort();  // will save
     emit m_widget->finished();
 }
 
@@ -950,6 +1055,6 @@ void CardinalExpDetThreshold::finish()
 #endif
     setValue(FN_FINISHED, true);
     Q_ASSERT(m_widget);
-    editFinishedProperly();
+    editFinishedProperly();  // will save
     emit m_widget->finished();
 }

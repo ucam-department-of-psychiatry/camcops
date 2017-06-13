@@ -30,19 +30,21 @@ public:
     CardinalExpDetThresholdTrial(
             int task_pk, int trial_num,
             const QVariant& trial_num_ignoring_catch_trials,
-            bool target_presented, qreal intensity,
+            bool target_presented,
             CamcopsApp& app, const QSqlDatabase& db);
     bool wasCaughtOutReset() const;
     int trialNum() const;
     int trialNumIgnoringCatchTrials() const;
     bool targetPresented() const;
     qreal intensity() const;
+    void setIntensity(double intensity);
     bool yes() const;
     void setCaughtOutReset();
     void recordChoiceTime();
     void recordResponse(bool yes);
     QString summary() const;
     void setTrialNumInCalcSeq(const QVariant& value);
+    bool isInCalculationSeq() const;
 public:
     static const QString TRIAL_TABLENAME;
     static const QString FN_FK_TO_TASK;

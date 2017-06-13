@@ -21,7 +21,7 @@
 #include <QPointF>
 #include <QtGlobal>
 #include <QWidget>  // for QWIDGETSIZE_MAX
-#include "lib/linesegment.h"
+#include "graphics/linesegment.h"
 
 
 namespace geometry
@@ -102,7 +102,7 @@ Other notes on Qt coordinates
   0   |
   1   SSOOMMEE  TTEEXXTT
   2   SSOOMMEE  TTEEXXTT
-  3 - SSOOMMEE  TTEEXXTT -
+  3 - SSOOMMEE  TTEEXXTT -      [descenders go below line?]
   4   |
 
   So if you draw at y = 3, it'll be bottom-aligned there.

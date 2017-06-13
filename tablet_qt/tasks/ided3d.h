@@ -23,7 +23,7 @@
 #include <QPointer>
 #include <QSharedPointer>
 #include <QString>
-#include "lib/graphicsfunc.h"
+#include "graphics/graphicsfunc.h"
 #include "tasklib/task.h"
 
 class CamcopsApp;

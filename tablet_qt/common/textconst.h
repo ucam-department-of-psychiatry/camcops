@@ -143,6 +143,7 @@ extern const QString RESPONDENT_NAME_3P;
 extern const QString RESPONDENT_RELATIONSHIP_2P;
 extern const QString RESPONDENT_RELATIONSHIP_3P;
 
+extern const QString SAVING;
 extern const QString SCORE;
 extern const QString SEE_FACSIMILE;
 extern const QString SEE_FACSIMILE_FOR_MORE_DETAIL;
@@ -152,7 +153,9 @@ extern const QString SEX;
 extern const QString SOUND_TEST_FOR;
 
 extern const QString THANK_YOU;
+extern const QString THANK_YOU_TOUCH_TO_EXIT;
 extern const QString TOTAL_SCORE;
+extern const QString TOUCH_TO_START;
 extern const QString TRUE;
 
 extern const QString UNKNOWN;

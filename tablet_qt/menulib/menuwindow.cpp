@@ -331,15 +331,15 @@ void MenuWindow::menuItemClicked(QListWidgetItem *item)
         return;
     }
     MenuItem& m = m_items[i];
-    qInfo() << "Clicked:" << m;
+    qInfo().noquote().nospace() << "Clicked: " << m.info();
     TaskPtr task = m.task();
     PatientPtr patient = m.patient();
 
     if (task) {
         // Nothing to do; see menuItemSelectionChanged()
     } else if (patient) {
-        qDebug() << Q_FUNC_INFO << "non-null patient pointer =" << patient
-                 << ", this =" << this;
+        // qDebug() << Q_FUNC_INFO << "non-null patient pointer =" << patient
+        //          << ", this =" << this;
         bool selected = false;
         if (m_app.selectedPatientId() == patient->id()) {
             // Clicked on currently selected patient; deselect it.

@@ -186,20 +186,4 @@ qreal byteToProportion(int byte);  // 0-255 to 0.0-1.0
 int proportionToIntPercent(qreal proportion);  // 0.0-1.0 to 0-100
 qreal intPercentToProportion(int percent);  // 0-100 to 0.0-1.0
 
-// ============================================================================
-// Logistic regression
-// ============================================================================
-
-struct LogisticDescriptives {
-    bool ok = false;
-    qreal intercept;
-    qreal slope;
-    qreal k;
-    qreal theta;
-};
-QVector<qreal> logisticFitSinglePredictor(const QVector<qreal>& x,
-                                          const QVector<int>& y);
-LogisticDescriptives logisticDescriptives(const QVector<qreal>& parameters);
-qreal logisticFindXWhereP(qreal p, qreal slope, qreal intercept);
-
 }  // namespace mathfunc

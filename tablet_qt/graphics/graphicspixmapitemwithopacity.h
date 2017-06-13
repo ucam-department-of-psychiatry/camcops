@@ -18,29 +18,22 @@
 */
 
 #pragma once
-#include <QString>
-#include <QUrl>
+#include <QGraphicsPixmapItem>
 
-namespace cardinalexpdetcommon
+
+class GraphicsPixmapItemWithOpacity : public QGraphicsPixmapItem
 {
-
-extern const QString AUDITORY_BACKGROUND;
-extern const QStringList AUDITORY_CUES;
-extern const QStringList AUDITORY_TARGETS;
-extern const QString VISUAL_BACKGROUND;
-extern const QStringList VISUAL_CUES;
-extern const QStringList VISUAL_TARGETS;
-
-extern const int MODALITY_AUDITORY;
-extern const int MODALITY_VISUAL;
-
-extern const int SOUNDTEST_VOLUME;
-extern const QString SOUNDTEST_TITLE;
-extern const QString SOUNDTEST_SUBTITLE;
-
-extern const QString TX_CONFIG_VISUAL_TARGET_DURATION_S;
-
-QUrl urlFromStem(const QString& stem);
-QString filenameFromStem(const QString& stem);
-
-}  // namespace cardinalexpdetcommon
+    // Don't use the Q_OBJECT macro! QGraphicsItem is not a QObject.
+    // If you do, you'll get:
+    // error: ‘staticMetaObject’ is not a member of ‘QGraphicsPixmapItem’
+public:
+    GraphicsPixmapItemWithOpacity(QGraphicsItem* parent = nullptr);
+    GraphicsPixmapItemWithOpacity(const QPixmap& pixmap,
+                                  QGraphicsItem* parent = nullptr);
+    void setOpacity(qreal opacity);
+    virtual void paint(QPainter* painter,
+                       const QStyleOptionGraphicsItem* option,
+                       QWidget* widget) override;
+protected:
+    qreal m_opacity;
+};

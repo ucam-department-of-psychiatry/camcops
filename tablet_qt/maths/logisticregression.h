@@ -20,11 +20,12 @@
 #pragma once
 #include "maths/glm.h"
 
+
 class LogisticRegression : public Glm
 {
 public:
     LogisticRegression(
-            SolveMethod solve_method = SolveMethod::IRLS, // ***
+            SolveMethod solve_method = SolveMethod::IRLS,
             int max_iterations = GLM_DEFAULT_MAX_ITERATIONS,
             double tolerance = GLM_DEFAULT_TOLERANCE,
             RankDeficiencyMethod rank_deficiency_method = RankDeficiencyMethod::Error);

@@ -68,7 +68,7 @@ CardinalExpDetThresholdTrial::CardinalExpDetThresholdTrial(
 CardinalExpDetThresholdTrial::CardinalExpDetThresholdTrial(
         int task_pk, int trial_num,
         const QVariant& trial_num_ignoring_catch_trials,
-        bool target_presented, qreal intensity,
+        bool target_presented,
         CamcopsApp& app, const QSqlDatabase& db) :
     CardinalExpDetThresholdTrial::CardinalExpDetThresholdTrial(
         app, db, dbconst::NONEXISTENT_PK)  // delegating constructor
@@ -80,7 +80,6 @@ CardinalExpDetThresholdTrial::CardinalExpDetThresholdTrial(
     if (target_presented) {
         QDateTime now = datetime::now();
         setValue(FN_TARGET_TIME, now);
-        setValue(FN_INTENSITY, intensity);
     }
     save();
 }
@@ -113,6 +112,13 @@ bool CardinalExpDetThresholdTrial::targetPresented() const
 qreal CardinalExpDetThresholdTrial::intensity() const
 {
     return valueDouble(FN_INTENSITY);
+}
+
+
+void CardinalExpDetThresholdTrial::setIntensity(double intensity)
+{
+    setValue(FN_INTENSITY, intensity);
+    save();
 }
 
 
@@ -165,4 +171,12 @@ QString CardinalExpDetThresholdTrial::summary() const
 void CardinalExpDetThresholdTrial::setTrialNumInCalcSeq(const QVariant& value)
 {
     setValue(FN_TRIAL_NUM_IN_CALCULATION_SEQUENCE, value);
+    save();
+}
+
+
+bool CardinalExpDetThresholdTrial::isInCalculationSeq() const
+{
+    // See CardinalExpDetThreshold::labelTrialsForAnalysis()
+    return valueInt(FN_TRIAL_NUM_IN_CALCULATION_SEQUENCE) >= 1;
 }

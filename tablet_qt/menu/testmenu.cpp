@@ -33,6 +33,7 @@
 #include "lib/uifunc.h"
 #include "lib/slownonguifunctioncaller.h"
 #include "maths/eigenfunc.h"
+#include "maths/logisticdescriptives.h"
 #include "maths/logisticregression.h"
 #include "maths/mathfunc.h"
 #include "menulib/menuitem.h"
@@ -286,12 +287,8 @@ void TestMenu::testLogisticRegression()
     // 1. Our "plain" method.
     QVector<double> x_q{0.50, 0.75, 1.00, 1.25, 1.50, 1.75, 1.75, 2.00, 2.25, 2.50, 2.75, 3.00, 3.25, 3.50, 4.00, 4.25, 4.50, 4.75, 5.00, 5.50};
     QVector<int> y_q{0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1};
-    QVector<double> params_q = mathfunc::logisticFitSinglePredictor(x_q, y_q);
-    QString result1;
-    if (params_q.length() != 2) {
-        result1 = "Error! Parameters not of length 2.";
-    } else {
-        result1 = QString(R"(
+    LogisticDescriptives ld1(x_q, y_q);
+    QString result1 = QString(R"(
 # Example from: https://en.wikipedia.org/wiki/Logistic_regression
 # R code:
 
@@ -308,8 +305,7 @@ summary(model)
 # (as per Wikipedia also)
 
 Our results: intercept = %1, x = %2)
-        )").arg(params_q.at(0)).arg(params_q.at(1));
-    }
+        )").arg(ld1.intercept(), ld1.slope());
 
     // 2. A more detailed look.
     VectorXd x_e = eigenColumnVectorFromQVector<double>(x_q);
@@ -320,16 +316,9 @@ Our results: intercept = %1, x = %2)
     VectorXd p = lr1.predictProb();
     VectorXi cat = lr1.predictBinary();
 
-    QString s_x = qStringFromEigenMatrixOrArray(x_e);
-    QString s_y = qStringFromEigenMatrixOrArray(y_e);
-    QString s_coeffs1 = qStringFromEigenMatrixOrArray(coeffs1);
-    QString s_p = qStringFromEigenMatrixOrArray(p);
-    QString s_cat = qStringFromEigenMatrixOrArray(cat);
-
     LogisticRegression lr2(Glm::SolveMethod::IRLS_SVD_Newton);
     lr2.fit(x_e, y_e);
     VectorXd coeffs2 = lr2.coefficients();
-    QString s_coeffs2 = qStringFromEigenMatrixOrArray(coeffs2);
 
     QString result2 = QString(R"(
 With the same data:
@@ -342,13 +331,47 @@ OUT coefficients: %3
 OUT predicted p: %4
 OUT predicted categories: %5
 OUT n_iterations: %6
+OUT time to fit (ms): %7
 
 IRLS-SVD-Newton method:
-OUT coefficients: %7
-OUT n_iterations: %8)").arg(s_x, s_y, s_coeffs1,
-                            s_p, s_cat, QString::number(lr1.nIterations()),
-                            s_coeffs2, QString::number(lr2.nIterations()));
+OUT coefficients: %8
+OUT n_iterations: %9
+OUT time to fit (ms): %10
+        )")
+            .arg(qStringFromEigenMatrixOrArray(x_e))
+            .arg(qStringFromEigenMatrixOrArray(y_e))
+            .arg(qStringFromEigenMatrixOrArray(coeffs1))
+            .arg(qStringFromEigenMatrixOrArray(p))
+            .arg(qStringFromEigenMatrixOrArray(cat))
+            .arg(QString::number(lr1.nIterations()))
+            .arg(QString::number(lr1.timeToFitMs()))
+            .arg(qStringFromEigenMatrixOrArray(coeffs2))
+            .arg(QString::number(lr2.nIterations()))
+            .arg(QString::number(lr2.timeToFitMs()));
 
-    QString result = result1 + result2;
+    VectorXd test_x = eigenColumnVectorFromInitList<double>({0.8, 1.6, 2.4, 3.2});
+    VectorXd predicted_p = lr1.predictProb(test_x);
+    VectorXd retrieved_x = lr1.retrodictUnivariatePredictor(predicted_p);
+    LogisticDescriptives ld2(coeffs1);
+    VectorXd crosscheck_x(retrieved_x.size());
+    for (int i = 0; i < crosscheck_x.size(); ++i) {
+        double p = predicted_p(i);
+        crosscheck_x(i) = ld2.x(p);
+    }
+
+    QString result3 = QString(R"(
+Now some silly things:
+
+test_x: %1
+predicted_p: %2
+retrieved_x [SHOULD MATCH test_x]: %3
+crosscheck_x (via LogisticDescriptives()) [SHOULD MATCH test_x]: %4
+        )")
+            .arg(qStringFromEigenMatrixOrArray(test_x))
+            .arg(qStringFromEigenMatrixOrArray(predicted_p))
+            .arg(qStringFromEigenMatrixOrArray(retrieved_x))
+            .arg(qStringFromEigenMatrixOrArray(crosscheck_x));
+
+    QString result = result1 + result2 + result3;
     uifunc::alertLogMessageBox(result, tr("Test logistic regression"), false);
 }

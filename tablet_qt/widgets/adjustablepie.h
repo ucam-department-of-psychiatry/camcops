@@ -22,7 +22,7 @@
 #include <QPen>
 #include <QPoint>
 #include <QWidget>
-#include "lib/penbrush.h"
+#include "graphics/penbrush.h"
 
 
 class AdjustablePie : public QWidget
