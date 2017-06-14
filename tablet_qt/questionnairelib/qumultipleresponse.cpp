@@ -167,7 +167,7 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
 
     // Randomize?
     if (m_randomize) {
-        std::shuffle(m_items.begin(), m_items.end(), ccrandom::rng);
+        ccrandom::shuffle(m_items);
     }
 
     bool read_only = questionnaire->readOnly();

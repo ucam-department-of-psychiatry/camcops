@@ -105,7 +105,7 @@ bool NameValueOptions::validIndex(int index) const
 
 void NameValueOptions::shuffle()
 {
-    std::shuffle(m_options.begin(), m_options.end(), ccrandom::rng);
+    ccrandom::shuffle(m_options);
 }
 
 

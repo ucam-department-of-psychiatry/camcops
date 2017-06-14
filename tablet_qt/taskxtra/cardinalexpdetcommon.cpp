@@ -17,6 +17,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define DEBUG_STEP_DETAIL
+
 #include "cardinalexpdetcommon.h"
 #include <QObject>
 #include "lib/uifunc.h"
@@ -26,6 +28,10 @@
 
 namespace cardinalexpdetcommon
 {
+
+const int N_CUES_PER_MODALITY = 8;
+const qreal MIN_INTENSITY = 0.0;
+const qreal MAX_INTENSITY = 1.0;
 
 const QString AUDITORY_BACKGROUND("A_background.wav");
 const QStringList AUDITORY_CUES{
@@ -69,6 +75,63 @@ TR(SOUNDTEST_SUBTITLE,
 
 TR(TX_CONFIG_VISUAL_TARGET_DURATION_S,
    "Visual target duration (s) (e.g. 1.0):");
+
+TR(TX_AUDITORY_TARGET_0, "tone (auditory target 0)");
+TR(TX_AUDITORY_TARGET_0_SHORT, "tone");
+TR(TX_AUDITORY_TARGET_1, "voice (auditory target 1)");
+TR(TX_AUDITORY_TARGET_1_SHORT, "voice");
+TR(TX_VISUAL_TARGET_0, "circle (visual target 0)");
+TR(TX_VISUAL_TARGET_0_SHORT, "circle");
+TR(TX_VISUAL_TARGET_1, "word (visual target 1)");
+TR(TX_VISUAL_TARGET_1_SHORT, "word");
+
+
+// Graphics: positioning
+const qreal SCENE_WIDTH = 1000;
+const qreal SCENE_HEIGHT = 750;  // 4:3 aspect ratio
+const QRectF SCENE_RECT(0, 0, SCENE_WIDTH, SCENE_HEIGHT);
+const QPointF SCENE_CENTRE(SCENE_WIDTH * 0.5, SCENE_HEIGHT * 0.5);
+const qreal STIM_SIDE = 400;
+// Keep stimuli above all buttons, to avoid screen smudging
+const QRectF VISUAL_STIM_RECT(0.5 * SCENE_WIDTH - STIM_SIDE / 2.0,  // left
+                              0.05 * SCENE_HEIGHT,  // top
+                              STIM_SIDE,  // width
+                              STIM_SIDE);  // height
+const QRectF START_BUTTON_RECT(0.2 * SCENE_WIDTH, 0.6 * SCENE_HEIGHT,
+                               0.6 * SCENE_WIDTH, 0.1 * SCENE_HEIGHT);
+const QPointF PROMPT_CENTRE(0.5 * SCENE_WIDTH, 0.65 * SCENE_HEIGHT);
+const qreal RESPONSE_BUTTON_TOP = 0.75 * SCENE_HEIGHT;
+const qreal RESPONSE_BUTTON_HEIGHT = 0.2 * SCENE_HEIGHT;
+const qreal RESPONSE_BUTTON_WIDTH = 0.2 * SCENE_WIDTH;
+const QRectF NO_BUTTON_RECT(0.2 * SCENE_WIDTH, RESPONSE_BUTTON_TOP,
+                            RESPONSE_BUTTON_WIDTH, RESPONSE_BUTTON_HEIGHT);
+const QRectF YES_BUTTON_RECT(0.6 * SCENE_WIDTH, RESPONSE_BUTTON_TOP,
+                             RESPONSE_BUTTON_WIDTH, RESPONSE_BUTTON_HEIGHT);
+const QRectF ABORT_BUTTON_RECT(0.01 * SCENE_WIDTH, 0.94 * SCENE_HEIGHT,
+                               0.07 * SCENE_WIDTH, 0.05 * SCENE_HEIGHT);
+const QRectF THANKS_BUTTON_RECT(0.3 * SCENE_WIDTH, 0.6 * SCENE_HEIGHT,
+                                0.4 * SCENE_WIDTH, 0.1 * SCENE_HEIGHT);
+
+// Graphics: other
+const QColor SCENE_BACKGROUND("black");  // try: "salmon"
+const int BORDER_WIDTH_PX = 3;
+const QColor BUTTON_BACKGROUND(0, 0, 200);
+const QColor TEXT_COLOUR("white");
+const QColor BUTTON_PRESSED_BACKGROUND("olive");
+const QColor ABORT_BUTTON_BACKGROUND(100, 0, 0);
+const qreal TEXT_SIZE_PX = 20;  // will be scaled
+const int BUTTON_RADIUS = 5;
+const int PADDING = 5;
+const Qt::Alignment BUTTON_TEXT_ALIGN = Qt::AlignCenter;
+const Qt::Alignment TEXT_ALIGN = Qt::AlignCenter;
+const QColor EDGE_COLOUR("white");
+const QPen BORDER_PEN(QBrush(EDGE_COLOUR), BORDER_WIDTH_PX);
+const ButtonConfig BASE_BUTTON_CONFIG(
+        PADDING, TEXT_SIZE_PX, TEXT_COLOUR, BUTTON_TEXT_ALIGN,
+        BUTTON_BACKGROUND, BUTTON_PRESSED_BACKGROUND,
+        BORDER_PEN, BUTTON_RADIUS);
+const TextConfig BASE_TEXT_CONFIG(TEXT_SIZE_PX, TEXT_COLOUR,
+                                  SCENE_WIDTH, TEXT_ALIGN);
 
 
 QUrl urlFromStem(const QString& stem)

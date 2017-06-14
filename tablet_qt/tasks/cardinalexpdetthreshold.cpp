@@ -41,17 +41,7 @@
 #include "tasklib/taskregistrar.h"
 #include "taskxtra/cardinalexpdetcommon.h"
 #include "taskxtra/cardinalexpdetthresholdtrial.h"
-using cardinalexpdetcommon::AUDITORY_BACKGROUND;
-using cardinalexpdetcommon::AUDITORY_CUES;
-using cardinalexpdetcommon::AUDITORY_TARGETS;
-using cardinalexpdetcommon::filenameFromStem;
-using cardinalexpdetcommon::MODALITY_AUDITORY;
-using cardinalexpdetcommon::MODALITY_VISUAL;
-using cardinalexpdetcommon::TX_CONFIG_VISUAL_TARGET_DURATION_S;
-using cardinalexpdetcommon::urlFromStem;
-using cardinalexpdetcommon::VISUAL_BACKGROUND;
-using cardinalexpdetcommon::VISUAL_CUES;
-using cardinalexpdetcommon::VISUAL_TARGETS;
+using namespace cardinalexpdetcommon;  // lots...
 using ccrandom::coin;
 using ccrandom::randomRealIncUpper;
 using convert::msFromSec;
@@ -112,14 +102,6 @@ TR(TX_CONFIG_INSTRUCTIONS_1, "Choose a modality:");
 TR(TX_AUDITORY, "Auditory");
 TR(TX_VISUAL, "Visual");
 TR(TX_CONFIG_INSTRUCTIONS_2, "Choose a target stimulus:");
-TR(TX_AUDITORY_TARGET_0, "tone (auditory target 0)");
-TR(TX_AUDITORY_TARGET_0_SHORT, "tone");
-TR(TX_AUDITORY_TARGET_1, "voice (auditory target 1)");
-TR(TX_AUDITORY_TARGET_1_SHORT, "voice");
-TR(TX_VISUAL_TARGET_0, "circle (visual target 0)");
-TR(TX_VISUAL_TARGET_0_SHORT, "circle");
-TR(TX_VISUAL_TARGET_1, "word (visual target 1)");
-TR(TX_VISUAL_TARGET_1_SHORT, "word");
 TR(TX_CONFIG_INFO, "Intensities and probabilities are in the range 0–1.");
 TR(TX_CONFIG_START_INTENSITY_MIN, "Minimum starting intensity (e.g. 0.9)");
 TR(TX_CONFIG_START_INTENSITY_MAX, "Maximum starting intensity (e.g. 1.0)");
@@ -155,55 +137,6 @@ const QString TAG_WARNING_MIN_MAX("mm");
 
 // Other
 const int DP = 3;
-
-// Graphics: positioning
-const qreal SCENE_WIDTH = 1000;
-const qreal SCENE_HEIGHT = 750;  // 4:3 aspect ratio
-const QRectF SCENE_RECT(0, 0, SCENE_WIDTH, SCENE_HEIGHT);
-const QPointF SCENE_CENTRE(SCENE_WIDTH * 0.5, SCENE_HEIGHT * 0.5);
-const qreal STIM_SIDE = 400;
-// Keep stimuli above all buttons, to avoid screen smudging
-const QRectF VISUAL_STIM_RECT(0.5 * SCENE_WIDTH - STIM_SIDE / 2.0,  // left
-                              0.05 * SCENE_HEIGHT,  // top
-                              STIM_SIDE,  // width
-                              STIM_SIDE);  // height
-const QRectF START_BUTTON_RECT(0.2 * SCENE_WIDTH, 0.6 * SCENE_HEIGHT,
-                               0.6 * SCENE_WIDTH, 0.1 * SCENE_HEIGHT);
-const QPointF PROMPT_CENTRE(0.5 * SCENE_WIDTH, 0.65 * SCENE_HEIGHT);
-const qreal RESPONSE_BUTTON_TOP = 0.75 * SCENE_HEIGHT;
-const qreal RESPONSE_BUTTON_HEIGHT = 0.2 * SCENE_HEIGHT;
-const qreal RESPONSE_BUTTON_WIDTH = 0.2 * SCENE_WIDTH;
-const QRectF NO_BUTTON_RECT(0.2 * SCENE_WIDTH, RESPONSE_BUTTON_TOP,
-                            RESPONSE_BUTTON_WIDTH, RESPONSE_BUTTON_HEIGHT);
-const QRectF YES_BUTTON_RECT(0.6 * SCENE_WIDTH, RESPONSE_BUTTON_TOP,
-                             RESPONSE_BUTTON_WIDTH, RESPONSE_BUTTON_HEIGHT);
-const QRectF ABORT_BUTTON_RECT(0.01 * SCENE_WIDTH, 0.94 * SCENE_HEIGHT,
-                               0.07 * SCENE_WIDTH, 0.05 * SCENE_HEIGHT);
-const QRectF THANKS_BUTTON_RECT(0.3 * SCENE_WIDTH, 0.6 * SCENE_HEIGHT,
-                                0.4 * SCENE_WIDTH, 0.1 * SCENE_HEIGHT);
-
-// Graphics: other
-const QColor SCENE_BACKGROUND("black");  // try: "salmon"
-const int BORDER_WIDTH_PX = 3;
-const QColor BUTTON_BACKGROUND(0, 0, 200);
-const QColor TEXT_COLOUR("white");
-const QColor BUTTON_PRESSED_BACKGROUND("olive");
-const QColor ABORT_BUTTON_BACKGROUND(100, 0, 0);
-const qreal TEXT_SIZE_PX = 20;  // will be scaled
-const int BUTTON_RADIUS = 5;
-const int PADDING = 5;
-const Qt::Alignment BUTTON_TEXT_ALIGN = Qt::AlignCenter;
-const Qt::Alignment TEXT_ALIGN = Qt::AlignCenter;
-const QColor EDGE_COLOUR("white");
-const QPen BORDER_PEN(QBrush(EDGE_COLOUR), BORDER_WIDTH_PX);
-const ButtonConfig BASE_BUTTON_CONFIG(
-        PADDING, TEXT_SIZE_PX, TEXT_COLOUR, BUTTON_TEXT_ALIGN,
-        BUTTON_BACKGROUND, BUTTON_PRESSED_BACKGROUND,
-        BORDER_PEN, BUTTON_RADIUS);
-const TextConfig BASE_TEXT_CONFIG(TEXT_SIZE_PX, TEXT_COLOUR,
-                                  SCENE_WIDTH, TEXT_ALIGN);
-
-// *** regression not being calculated all the time? e.g. circle
 
 // ============================================================================
 // Factory method
@@ -551,13 +484,6 @@ void CardinalExpDetThreshold::validateQuestionnaire()
     connect(b.button, &QPushButton::clicked, \
             this, std::bind(&CardinalExpDetThreshold::funcname, this, param), \
             Qt::QueuedConnection)
-// For debugging:
-#define CONNECT_SVG_CLICKED(svg, funcname) \
-    connect(svg.widget, &SvgWidgetClickable::clicked, \
-            this, &CardinalExpDetThreshold::funcname, \
-            Qt::QueuedConnection)
-    // ... svg is an SvgItemAndRenderer
-    // ... use "pressed" not "clicked" for rapid response detection.
 
 
 // ============================================================================
@@ -805,6 +731,10 @@ void CardinalExpDetThreshold::calculateFit()
             choice.append(tp->yes() ? 1 : 0);
         }
     }
+    if (intensity.isEmpty()) {
+        qWarning() << "No trials found for calculateFit()";
+        return;
+    }
     qInfo() << "Calculating regression:";
     qInfo() << "Intensities:" << intensity;
     qInfo() << "Choices:" << choice;
@@ -883,7 +813,7 @@ void CardinalExpDetThreshold::nextTrial()
     if (timeToStop()) {
         qDebug() << "Time to stop";
         savingWait();
-        setValue(FN_FINISHED, true);
+        setValue(FN_FINISHED, true);  // will also be set by thanks() -> finish()
         labelTrialsForAnalysis();
         calculateFit();
         save();

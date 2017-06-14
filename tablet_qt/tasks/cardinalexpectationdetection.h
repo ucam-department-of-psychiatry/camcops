@@ -21,12 +21,18 @@
 #include <QMediaPlayer>
 #include <QPointer>
 #include "tasklib/task.h"
+#include "taskxtra/cardinalexpdetrating.h"
 
 class CamcopsApp;
 class OpenableWidget;
 class QGraphicsScene;
 class QTimer;
 class TaskFactory;
+
+class CardinalExpDetTrial;
+using CardinalExpDetTrialPtr = QSharedPointer<CardinalExpDetTrial>;
+class CardinalExpDetTrialGroupSpec;
+using CardinalExpDetTrialGroupSpecPtr = QSharedPointer<CardinalExpDetTrialGroupSpec>;
 
 void initializeCardinalExpectationDetection(TaskFactory& factory);
 
@@ -64,15 +70,26 @@ public:
     virtual OpenableWidget* editor(bool read_only = false) override;
 
     // ------------------------------------------------------------------------
-    // Validation for questionnaire
-    // ------------------------------------------------------------------------
-protected slots:
-    void validateQuestionnaire();
-
-    // ------------------------------------------------------------------------
     // Calculation/assistance functions for main task
     // ------------------------------------------------------------------------
 protected:
+    void makeTrialGroupSpecs();
+    QRectF getRatingButtonRect(int x, int n) const;
+    void makeRatingButtonsAndPoints();
+    void doCounterbalancing();
+    int getRawCueIndex(int cue) const;
+    QUrl getAuditoryCueUrl(int cue) const;
+    QString getVisualCueFilename(int cue) const;
+    QUrl getAuditoryTargetUrl(int target_number) const;
+    QString getVisualTargetFilename(int target_number) const;
+    QUrl getAuditoryBackgroundUrl() const;
+    QString getVisualBackgroundFilename() const;
+    QString getPromptText(int modality,  int target_number) const;
+    void reportCounterbalancing() const;
+    QVector<CardinalExpDetTrialPtr> makeTrialGroup(
+            int block, int groupnum,
+            CardinalExpDetTrialGroupSpecPtr groupspec) const;
+    void createTrials();
     void clearScene();
     void setTimeout(int time_ms, FuncPtr callback);
 
@@ -82,6 +99,7 @@ protected:
 protected:
     void startTask();
 protected slots:
+    void mediaStatusChangedBackground(QMediaPlayer::MediaStatus status);
     void abort();
     void finish();
 
@@ -94,7 +112,13 @@ protected:
     QPointer<OpenableWidget> m_graphics_widget;
     QPointer<QGraphicsScene> m_scene;
     QSharedPointer<QTimer> m_timer;
-    QSharedPointer<QMediaPlayer> m_player;  // not owned by other widgets
+    QSharedPointer<QMediaPlayer> m_player_background;
+    QSharedPointer<QMediaPlayer> m_player_target;
+    QVector<CardinalExpDetTrialGroupSpecPtr> m_groups;
+    QVector<CardinalExpDetTrialPtr> m_trials;
+    int m_current_trial;
+    QVector<int> m_raw_cue_indices;  // Means of counterbalancing
+    QVector<CardinalExpDetRating> m_ratings;
 
     // ------------------------------------------------------------------------
     // Constants

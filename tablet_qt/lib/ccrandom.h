@@ -18,6 +18,7 @@
 */
 
 #pragma once
+#include <algorithm>
 #include <random>
 #include <QtGlobal>
 #include <QVector>
@@ -65,6 +66,13 @@ T drawreplace(const QVector<T>& bucket)
     }
     int index = randomIndex(bucket);
     return bucket.at(index);
+}
+
+
+template<typename T>
+void shuffle(QVector<T>& vec)
+{
+    std::shuffle(vec.begin(), vec.end(), rng);
 }
 
 

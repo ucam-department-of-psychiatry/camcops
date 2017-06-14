@@ -446,7 +446,10 @@ SOURCES += main.cpp \
     graphics/textconfig.cpp \
     graphics/buttonconfig.cpp \
     graphics/graphicspixmapitemwithopacity.cpp \
-    maths/logisticdescriptives.cpp
+    maths/logisticdescriptives.cpp \
+    taskxtra/cardinalexpdettrialgroupspec.cpp \
+    taskxtra/cardinalexpdettrial.cpp \
+    taskxtra/cardinalexpdetrating.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -782,7 +785,10 @@ HEADERS += \
     graphics/textconfig.h \
     graphics/buttonconfig.h \
     graphics/graphicspixmapitemwithopacity.h \
-    maths/logisticdescriptives.h
+    maths/logisticdescriptives.h \
+    taskxtra/cardinalexpdettrialgroupspec.h \
+    taskxtra/cardinalexpdettrial.h \
+    taskxtra/cardinalexpdetrating.h
 
 DISTFILES += \
     android/AndroidManifest.xml \

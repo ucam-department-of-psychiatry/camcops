@@ -87,4 +87,29 @@ bool containsAll(const ContainerType& a, const ContainerType& b)
 }
 
 
+template<typename ContainerType>
+ContainerType rotateVector(const ContainerType& v, int n_rotate)
+{
+    int size = v.size();
+    n_rotate = n_rotate % size;  // don't do unnecessary work
+    if (n_rotate <= 0) {
+        return v;
+    }
+    ContainerType newvec(size);
+    int new_index;
+    for (int old_index = 0; old_index < size; ++old_index) {
+        new_index = (old_index + n_rotate) % size;
+        newvec[new_index] = v.at(old_index);
+    }
+    return newvec;
+}
+
+
+template<typename ContainerType>
+void rotateVectorInPlace(ContainerType& v, int n_rotate)
+{
+    v = rotateVector(v, n_rotate);
+}
+
+
 }  // namespace containers
