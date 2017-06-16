@@ -105,7 +105,7 @@ const QString TX_CONFIG_PAUSE_EVERY_N_TRIALS(
 const QString TX_CONFIG_IS_DETECTION_RESPONSE_ON_RIGHT(
         "“Detection” responses are towards the right");
 const QString TX_CONFIG_CUE_DURATION_S(
-        "Cue duration (s) (cus is multimodal; auditory+visual):");
+        "Cue duration (s) (cue is multimodal; auditory+visual):");
 const QString TX_CONFIG_VISUAL_CUE_INTENSITY(
         "Visual cue intensity (0.0–1.0, usually 1.0):");
 const QString TX_CONFIG_AUDITORY_CUE_INTENSITY(
@@ -196,7 +196,7 @@ CardinalExpectationDetection::CardinalExpectationDetection(
     addField(FN_NUM_BLOCKS, QVariant::Int);
     addField(FN_STIMULUS_COUNTERBALANCING, QVariant::Int);
     addField(FN_IS_DETECTION_RESPONSE_ON_RIGHT, QVariant::Bool);
-    addField(FN_PAUSE_EVERY_N_TRIALS, QVariant::Bool);
+    addField(FN_PAUSE_EVERY_N_TRIALS, QVariant::Int);
     // ... cue
     addField(FN_CUE_DURATION_S, QVariant::Double);
     addField(FN_VISUAL_CUE_INTENSITY, QVariant::Double);
@@ -955,6 +955,8 @@ void CardinalExpectationDetection::processResponse(int rating)
         previous_points = m_trials.at(m_current_trial - 1)->cumulativePoints();
     }
     t->recordResponse(r, previous_points);
+    setValue(FN_LAST_TRIAL_COMPLETED, m_current_trial);
+    save();
     displayScore();
 }
 

@@ -451,7 +451,8 @@ SOURCES += main.cpp \
     taskxtra/cardinalexpdettrial.cpp \
     taskxtra/cardinalexpdetrating.cpp \
     lib/soundfunc.cpp \
-    lib/timerfunc.cpp
+    lib/timerfunc.cpp \
+    maths/dqrls.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -792,7 +793,8 @@ HEADERS += \
     taskxtra/cardinalexpdettrial.h \
     taskxtra/cardinalexpdetrating.h \
     lib/soundfunc.h \
-    lib/timerfunc.h
+    lib/timerfunc.h \
+    maths/dqrls.h
 
 DISTFILES += \
     android/AndroidManifest.xml \

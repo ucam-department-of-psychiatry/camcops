@@ -18,36 +18,103 @@
 */
 
 #pragma once
+
+// #define LINK_FUNCTION_FAMILY_USE_AIC
+
 #include <Eigen/Dense>
 #include <functional>
+#include <QString>
 
 
 class LinkFunctionFamily
 {
 public:
+    using LinkFnType = std::function<Eigen::ArrayXXd(const Eigen::ArrayXXd&)>;
+    using InvLinkFnType = std::function<Eigen::ArrayXXd(const Eigen::ArrayXXd&)>;
+    using DerivativeInvLinkFnType = std::function<Eigen::ArrayXXd(const Eigen::ArrayXXd&)>;
+    using VarianceFnType = std::function<Eigen::ArrayXXd(const Eigen::ArrayXXd&)>;
+    using DevResidsFnType = std::function<Eigen::ArrayXd(
+            const Eigen::ArrayXd&,  // y
+            const Eigen::ArrayXd&,  // mu
+            const Eigen::ArrayXd&  // wt
+        )>;
+    using ValidEtaFnType = std::function<bool(const Eigen::ArrayXd&)>;
+    using ValidMuFnType = std::function<bool(const Eigen::ArrayXd&)>;
+    using InitializeFnType = std::function<bool(  // returns: OK?
+        QStringList&,  // errors
+        const LinkFunctionFamily&,  // family
+        Eigen::ArrayXd&,  // y
+        Eigen::ArrayXd&,  // n
+        Eigen::ArrayXd&,  // m
+        Eigen::ArrayXd&,  // weights
+        Eigen::ArrayXd&,  // start
+        Eigen::ArrayXd&,  // etastart
+        Eigen::ArrayXd&   // mustart
+        )>;
+#ifdef LINK_FUNCTION_FAMILY_USE_AIC
+    using AICFnType = std::function<double(
+            const Eigen::ArrayXd&,  // y, definitely vector (from glm.fit)
+            const Eigen::ArrayXd&,  // n (NO IDEA from R glm.fit)
+            const Eigen::ArrayXd&,  // mu, definitely vector (from glm.fit)
+            const Eigen::ArrayXd&,  // wt, definitely vector (from glm.fit)
+            double  // dev, definitely scalar (from glm.fit)
+        )>;
+#endif
+
     LinkFunctionFamily(
-            std::function<double(double)> link_fn,
-            std::function<double(double)> inv_link_fn,
-            std::function<double(double)> derivative_inv_link_fn,
-            std::function<Eigen::ArrayXXd(const Eigen::ArrayXXd&)> variance_fn);
+            const QString& family_name,
+            LinkFnType link_fn,
+            InvLinkFnType inv_link_fn,
+            DerivativeInvLinkFnType derivative_inv_link_fn,
+            VarianceFnType variance_fn,
+            DevResidsFnType dev_resids_fn,
+            ValidEtaFnType valid_eta_fn,
+            ValidMuFnType valid_mu_fn,
+            InitializeFnType initialize_fn
+#ifdef LINK_FUNCTION_FAMILY_USE_AIC
+            , AICFnType aic_fn
+#endif
+            );
 public:
+    // For nasty hacks, like R does ;)
+    QString family_name;  // "family" in R
+
     // Link function (e.g. logit):
-    std::function<double(double)> link_fn;
+    LinkFnType link_fn;
 
     // Inverse link function (e.g. logistic):
-    std::function<double(double)> inv_link_fn;
+    InvLinkFnType inv_link_fn;
 
     // Derivative of the inverse link function ("mu.eta" in R):
-    std::function<double(double)> derivative_inv_link_fn;
+    DerivativeInvLinkFnType derivative_inv_link_fn;
 
     // Variance function: gives the variance as a function of the mean; "the
     // part of the variance that depends on" the mean.
     // https://en.wikipedia.org/wiki/Variance_function
     // If the variance is independent of the mean, then this should return a
     // constant, probably 1.
-    std::function<Eigen::ArrayXXd(const Eigen::ArrayXXd&)> variance_fn;
+    VarianceFnType variance_fn;
+
+    // Something related to the deviance of the residuals... ("dev.resids" in R)
+    DevResidsFnType dev_resids_fn;
+
+    // Validate inputs
+    ValidEtaFnType valid_eta_fn;
+    ValidMuFnType valid_mu_fn;
+
+    // GLM initialization (ugly eval() code in R)
+    InitializeFnType initialize_fn;
+
+#ifdef LINK_FUNCTION_FAMILY_USE_AIC
+    // AIC (Aikake information criterion) calculation ("aic" in R)
+    AICFnType aic_fn;
+#endif
 };
 
 
-extern const LinkFunctionFamily LINK_FN_FAMILY_IDENTITY;
+extern const QString LINK_FAMILY_NAME_GAUSSIAN;
+extern const QString LINK_FAMILY_NAME_BINOMIAL;
+extern const QString LINK_FAMILY_NAME_POISSON;
+
+extern const LinkFunctionFamily LINK_FN_FAMILY_GAUSSIAN;  // default for glm() in R
 extern const LinkFunctionFamily LINK_FN_FAMILY_LOGIT;

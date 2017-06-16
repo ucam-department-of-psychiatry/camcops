@@ -83,6 +83,7 @@ For logistic regression, then:
 #include "glm.h"
 #include <algorithm>
 #include <QDebug>
+#include "maths/dqrls.h"
 #include "maths/eigenfunc.h"
 #include "maths/mathfunc.h"
 #include "maths/statsfunc.h"
@@ -100,6 +101,10 @@ using namespace Eigen;
 
 // Also helpful to have an svd() macro to match R's.
 #define svd(x) ((x).jacobiSvd(ComputeThinU | ComputeThinV))
+
+
+const double NA = std::numeric_limits<double>::quiet_NaN();
+const double INF = std::numeric_limits<double>::infinity();
 
 
 // ============================================================================
@@ -175,12 +180,17 @@ void Glm::fit(const MatrixXd& predictors,
     // Perform fit
     if (ok) {
         switch (m_solve_method) {
-        case SolveMethod::IRLS:
-            fitIRLS();
+        case SolveMethod::IRLS_KaneLewis:
+            fitIRLSKaneLewis();
             break;
-        case SolveMethod::IRLS_SVD_Newton:
-            fitIRLSSVDNewton();
+        case SolveMethod::IRLS_SVDNewton_KaneLewis:
+            fitIRLSSVDNewtonKaneLewis();
             break;
+#ifdef GLM_OFFER_R_GLM_FIT
+        case SolveMethod::IRLS_R_glmfit:
+            fitIRLSRglmfit();
+            break;
+#endif
         default:
             addError("Unknown solve method!");
             break;
@@ -318,7 +328,7 @@ VectorXd Glm::predict(const MatrixXd& predictors) const
     }
     const ArrayXXd eta = predictEta(predictors);
     // y = invlink(eta)
-    const ArrayXXd predicted = eta.unaryExpr(m_link_fn_family.inv_link_fn);
+    const ArrayXXd predicted = m_link_fn_family.inv_link_fn(eta);
     return predicted.matrix();
 }
 
@@ -383,7 +393,7 @@ VectorXd Glm::retrodictUnivariatePredictor(const VectorXd& y) const
     //      link(y) = b0 + x * b1
     //      x = (link(y) - b0) / b1
     //      x = (eta - b0) / b1
-    const ArrayXd eta = y.array().unaryExpr(m_link_fn_family.link_fn);
+    const ArrayXd eta = m_link_fn_family.link_fn(y.array());
     return (eta - b0) / b1;
 }
 
@@ -455,7 +465,7 @@ void Glm::addError(const QString &msg) const
 // The interesting parts
 // ============================================================================
 
-void Glm::fitIRLS()
+void Glm::fitIRLSKaneLewis()
 {
     addInfo("Fitting GLM using iteratively reweighted least squares (IRLS) "
             "estimation");
@@ -484,8 +494,8 @@ void Glm::fitIRLS()
         // arrays, in the Qt debugger.
         const ArrayXXd eta = (A   * x).array();
                            // n,k * k,1  -> n,1
-        const ArrayXXd g = eta.unaryExpr(family.inv_link_fn);  // apply invlink to eta -> n,1
-        const ArrayXXd gprime = eta.unaryExpr(family.derivative_inv_link_fn).array();  // -> n,1
+        const ArrayXXd g = family.inv_link_fn(eta);  // apply invlink to eta -> n,1
+        const ArrayXXd gprime = family.derivative_inv_link_fn(eta);  // -> n,1
         const ArrayXXd gprime_squared = gprime.square();  // -> n,1
         const VectorXd z = (eta + (b - g) / gprime).matrix();  // n,1
         const ArrayXXd var_g = family.variance_fn(g);
@@ -532,7 +542,7 @@ void Glm::fitIRLS()
 }
 
 
-void Glm::fitIRLSSVDNewton()
+void Glm::fitIRLSSVDNewtonKaneLewis()
 {
     addInfo("Fitting GLM using iteratively reweighted least squares (IRLS) "
             "estimation, SVD (singular value decomposition) Newton variant");
@@ -547,8 +557,6 @@ void Glm::fitIRLSSVDNewton()
     const int n_predictors = nPredictors();  // = npred
     const int m = nObservations();  // n (sigh...) = nobs
     const int& n = n_predictors;  // = npred
-    const double NA = std::numeric_limits<double>::quiet_NaN();
-    const double Inf = std::numeric_limits<double>::infinity();
     using namespace eigenfunc;
 
     ArrayXd weights(m);  // nobs,1
@@ -625,7 +633,7 @@ void Glm::fitIRLSSVDNewton()
         const ArrayXd b_good = subsetByElementBoolean(b, good);  // nobs_where_good,1
         const ArrayXd weights_good = subsetByElementBoolean(weights, good);  // nobs_where_good,1
 
-        const ArrayXd g = t_good.unaryExpr(family.inv_link_fn);  // nobs_where_good,1
+        const ArrayXd g = family.inv_link_fn(t_good);  // nobs_where_good,1
 
         const ArrayXd varg = family.variance_fn(g);  // nobs_where_good,1
         if (varg.isNaN().any()) {
@@ -647,7 +655,7 @@ void Glm::fitIRLSSVDNewton()
             return;
         }
 
-        const ArrayXd gprime = t_good.unaryExpr(family.derivative_inv_link_fn);  // nobs_where_good,1
+        const ArrayXd gprime = family.derivative_inv_link_fn(t_good);  // nobs_where_good,1
         if (gprime.isNaN().any()) {
             // As per original...
             addError(QString("NAs in the inverse link function derivative "
@@ -718,7 +726,7 @@ void Glm::fitIRLSSVDNewton()
     VectorXd& x = m_coefficients;
     x = VectorXd(n).setConstant(NA);
     if (m_rank_deficiency_method == RankDeficiencyMethod::MinimumNorm) {
-        S_d = tiny_singular_values.select(Inf, S_d);
+        S_d = tiny_singular_values.select(INF, S_d);
     }
 
     const ArrayXd t_good = subsetByElementBoolean(t, good);  // nobs_where_good,1
@@ -781,3 +789,354 @@ eigenfunc::IndexArray Glm::svdsubsel(const MatrixXd& A, int k)
     sort(column_indices);
     return column_indices;
 }
+
+
+#ifdef GLM_OFFER_R_GLM_FIT
+void Glm::fitIRLSRglmfit()
+{
+    addInfo("Fitting GLM using IRLS as implemented by R's glm.fit");
+
+    /*
+    In R:
+    - ?glm
+    - ?glm.control  -- gives default epsilon, maxit
+    - ?glm.fit -- default "method" to glm(), and the main fitting function
+    */
+
+    using namespace eigenfunc;
+
+    // Input parameters and naming
+    const int nobs = nObservations();
+    const int nvars = nPredictors();
+    const MatrixXd& x = m_predictors;  // nobs,nvars
+    ArrayXd y = m_dependent_variable.array();  // nobs,1
+    ArrayXd weights(nobs);  // nobs,1
+    if (m_p_weights) {
+        weights = m_p_weights->array();
+    } else {
+        weights = ArrayXd::Ones(nobs);
+    }
+    ArrayXd start;  // not implemented as a parameter
+    ArrayXd etastart;  // not implemented as a parameter
+    ArrayXd mustart;  // not implemented as a parameter
+    ArrayXd offset = ArrayXd::Zero(nobs);  // specifying it not yet supported
+    const LinkFunctionFamily& family = m_link_fn_family;
+    // const bool intercept = true;  // specifying it not yet supported
+    bool& conv = m_converged;
+    const bool empty = nvars == 0;
+    const LinkFunctionFamily::LinkFnType linkfun = family.link_fn;
+    const LinkFunctionFamily::VarianceFnType& variance = family.variance_fn;
+    const LinkFunctionFamily::InvLinkFnType& linkinv = family.inv_link_fn;
+    const LinkFunctionFamily::ValidEtaFnType valideta = family.valid_eta_fn;
+    const LinkFunctionFamily::ValidMuFnType validmu = family.valid_mu_fn;
+    const LinkFunctionFamily::DerivativeInvLinkFnType mu_eta = family.derivative_inv_link_fn;
+    const LinkFunctionFamily::InitializeFnType initialize = family.initialize_fn;
+    const LinkFunctionFamily::DevResidsFnType dev_resids = family.dev_resids_fn;
+    const double& epsilon = m_tolerance;
+#ifdef LINK_FUNCTION_FAMILY_USE_AIC
+    const LinkFunctionFamily::AICFnType& aic = family.aic_fn;
+#endif
+    int& iter = m_n_iterations;
+    VectorXd& coef = m_coefficients;
+    const int& maxit = m_max_iterations;
+    const bool& trace = m_verbose;
+
+    const double qr_tol = std::min(1e-07, epsilon / 1000);
+
+    ArrayXd residuals;  // nobs,1
+    ArrayXd eta;  // nobs,1
+    ArrayXd mu;  // nobs,1
+    double dev = 0.0;
+    ArrayXd w;  // nobs,1
+    ArrayXd z;  // nobs,1
+    ArrayXb good;  // nobs,1
+    ArrayXd n;  // nobs,1
+    ArrayXd m;  // nobs,1
+    bool boundary = false;
+
+    // Initialize as the link family dictates
+    if (mustart.size() == 0) {
+        initialize(m_calculation_errors, family,
+                   y, n, m, weights,
+                   start, etastart, mustart);
+    } else {
+        ArrayXd mukeep(mustart);
+        initialize(m_calculation_errors, family,
+                   y, n, m, weights,
+                   start, etastart, mustart);
+        mustart = mukeep;
+    }
+
+    // Main bit
+    if (empty) {
+        eta = offset;
+        if (!valideta(eta)) {
+            addError("invalid linear predictor values in empty model");
+            return;
+        }
+        mu = linkinv(eta);
+        if (!validmu(mu)) {
+            addError("invalid fitted means in empty model");
+            return;
+        }
+        dev = dev_resids(y, mu, weights).sum();
+        ArrayXd mu_eta_of_eta = mu_eta(eta);
+        w = (
+                    (weights * mu_eta_of_eta.square()) /
+                    variance(mu)
+            ).sqrt();
+        residuals = (y - mu) / mu_eta_of_eta;
+        good = ArrayXb(residuals.size());
+        good.setConstant(true);
+        boundary = true;
+        conv = true;
+        coef = VectorXd();
+        iter = 0;
+    } else {
+
+        ArrayXd coefold;
+        double devold;
+        dqrls::DqrlsResult fit;
+
+        // No prizes for code clarity in R...
+        // Set eta.
+        if (etastart.size() > 0) {
+            eta = etastart;
+        } else {
+            if (start.size() > 0) {
+                if (start.size() != nvars) {
+                    addError(QString(
+                                 "length of 'start' should equal %1 and "
+                                 "correspond to initial coefs...").arg(nvars));
+                    return;
+                } else {
+                    coefold = start;
+                    eta = offset + (x * start.matrix()).array();
+                }
+            } else {
+                eta = linkfun(mustart);
+            }
+        }
+
+        mu = linkinv(eta);
+        if (!validmu(mu) && valideta(eta)) {
+            addError("cannot find valid starting values: please specify some");
+            return;
+        }
+
+        devold = dev_resids(y, mu, weights).sum();
+        boundary = false;
+        conv = false;
+
+        // --------------------------------------------------------------------
+        // MAIN CALCULATION LOOP
+        // --------------------------------------------------------------------
+        for (iter = 1; iter <= maxit; ++iter) {
+
+            // Checks
+            good = weights > 0;
+            ArrayXd varmu = subsetByElementBoolean(variance(mu), good);
+            if (varmu.isNaN().any()) {
+                addError("NAs in V(mu)");
+                return;
+            }
+            if ((varmu == 0).any()) {
+                addError("0s in V(mu)");
+                return;
+            }
+            ArrayXd mu_eta_val = mu_eta(eta);
+            if (subsetByElementBoolean(mu_eta_val.isNaN(), good).any()) {
+                addError("NAs in d(mu)/d(eta)");
+                return;
+            }
+
+            // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            // "good" is reset here; don't rely on cached info
+            // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            good = (weights > 0) && (mu_eta_val != 0);
+            if (!good.any()) {
+                conv = false;
+                addError(QString("no observations informative at iteration "
+                                 "%1").arg(iter));
+                break;
+            }
+
+            ArrayXd mu_eta_val_good = subsetByElementBoolean(mu_eta_val, good);
+            z = subsetByElementBoolean(eta - offset, good) +
+                    subsetByElementBoolean(y - mu, good) /
+                    mu_eta_val_good;  // n_good,1
+            w = (
+                    (subsetByElementBoolean(weights, good) *
+                        mu_eta_val_good.square()) /
+                    subsetByElementBoolean(variance(mu), good)
+                ).sqrt();  // n_good,1
+
+            // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            // Main moment of fitting
+            // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            ArrayXXd x_good = subsetByRowBoolean(x, good).array();
+            ArrayXXd x_good_times_w = multiply(x_good, w);
+            // ... in R, multiplication of a matrix(n_good, nvar) by a vector
+            // of length (n_good)
+            fit = dqrls::Cdqrls(x_good_times_w.matrix(),  // x
+                                (z * w).matrix(),  // y
+                                qr_tol,
+                                false);  // check
+
+            if (!fit.coefficients.array().isFinite().all()) {
+                conv = false;
+                addError(QString("non-finite coefficients at iteration "
+                                 "%1").arg(iter));
+                break;
+            }
+            if (nobs < fit.rank) {
+                addError(QString("X matrix has rank %1, but only %2 "
+                                 "observation(s)").arg(fit.rank).arg(nobs));
+                return;
+            }
+
+            // start[fit$pivot] <- fit$coefficients
+            // ... fit$pivot contained indices of pivoted columns
+            // ... but we're using Eigen::FullPivHouseholderQR to do full
+            //     pivoting, i.e. all
+            start = fit.coefficients.array();
+
+            // eta <- drop(x %*% start)
+            // ... the drop() bit takes a one-dimensional matrix and makes a vector
+            eta = (x * start.matrix()).array();
+
+            // mu <- linkinv(eta <- eta + offset)
+            // http://blog.revolutionanalytics.com/2008/12/use-equals-or-arrow-for-assignment.html
+            eta = eta + offset;
+            mu = linkinv(eta);
+
+            dev = dev_resids(y, mu, weights).sum();
+            if (trace) {
+                addInfo(QString("Deviance = %1 Iterations - %2")
+                        .arg(dev).arg(iter));
+            }
+            boundary = false;
+            if (!std::isfinite(dev)) {
+                if (coefold.size() == 0) {
+                    addError("no valid set of coefficients has been found: "
+                             "please supply starting values");
+                    return;
+                }
+                addInfo("step size truncated due to divergence");
+                int ii = 1;
+                while (!std::isfinite(dev)) {
+                    if (ii > maxit) {
+                        addError("inner loop 1; cannot correct step size");
+                        return;
+                    }
+                    ii += 1;
+                    start = (start + coefold) / 2;
+                    eta = (x * start.matrix()).array();
+                    eta = eta + offset;
+                    mu = linkinv(eta);
+                    dev = dev_resids(y, mu, weights).sum();
+                }
+                boundary = true;
+                if (trace) {
+                    addInfo(QString("Step halved: new deviance = %1").arg(dev));
+                }
+            }
+            if (!(valideta(eta) && validmu(mu))) {
+                if (coefold.size() == 0) {
+                    addError("no valid set of coefficients has been found: "
+                             "please supply starting values");
+                    return;
+                }
+                addInfo("step size truncated: out of bounds");
+                int ii = 1;
+                while (!(valideta(eta) && validmu(mu))) {
+                    if (ii > maxit) {
+                        addError("inner loop 2; cannot correct step size");
+                        return;
+                    }
+                    ii += 1;
+                    start = (start + coefold) / 2;
+                    eta = (x * start.matrix()).array();
+                    eta = eta + offset;
+                    mu = linkinv(eta);
+                }
+                boundary = true;
+                dev = dev_resids(y, mu, weights).sum();
+                if (trace) {
+                    addInfo(QString("Step halved: new deviance = %1").arg(dev));
+                }
+            }
+
+            // ----------------------------------------------------------------
+            // Converged?
+            // ----------------------------------------------------------------
+            if (std::abs(dev - devold) / (0.1 + std::abs(dev)) < epsilon) {
+                conv = true;
+                coef = start;
+                break;
+            } else {
+                devold = dev;
+                coef = start;
+                coefold = start;
+            }
+
+        }
+
+        if (!conv) {
+            addError("algorithm did not converge");
+        }
+        if (boundary) {
+            addError("algorithm stopped at boundary value");
+        }
+        const double eps = 10 * std::numeric_limits<double>::epsilon();
+        if (family.family_name == LINK_FAMILY_NAME_BINOMIAL) {
+            if ((mu > 1 - eps).any() || (mu < eps).any()) {
+                addError("warning: fitted probabilities numerically 0 or 1 occurred");
+            }
+        }
+        if (family.family_name == LINK_FAMILY_NAME_POISSON) {
+            if ((mu < eps).any()) {
+                addError("warning: fitted rates numerically 0 occurred");
+            }
+        }
+
+        if (fit.rank < nvars) {
+            // coef[fit$pivot][seq.int(fit$rank + 1, nvars)] <- NA
+            addError("Not sure how to wipe out duff coefficients with full "
+                     "pivoting; may be discrepancy with R");
+        }
+
+#if 0
+        xxnames <- xnames[fit$pivot]
+        residuals <- (y - mu)/mu.eta(eta)
+        fit$qr <- as.matrix(fit$qr)
+        nr <- min(sum(good), nvars)
+        if (nr < nvars) {
+            Rmat <- diag(nvars)
+            Rmat[1L:nr, 1L:nvars] <- fit$qr[1L:nr, 1L:nvars]
+        }
+        else Rmat <- fit$qr[1L:nvars, 1L:nvars]
+        Rmat <- as.matrix(Rmat)
+        Rmat[row(Rmat) > col(Rmat)] <- 0
+        names(coef) <- xnames
+        colnames(fit$qr) <- xxnames
+        dimnames(Rmat) <- list(xxnames, xxnames)
+#endif
+
+    }
+
+#if 0
+    ArrayXd wt = good.select(w.square(), 0);
+    double wtdmu = intercept
+            ? (weights * y).sum() / weights.sum()
+            : linkinv(offset);
+    double nulldev = dev_resids(y, wtdmu, weights);
+    int n_ok = nobs - (weights == 0).cast<int>().sum();
+    int nulldf = n_ok - static_cast<int>(intercept);
+    int rank = empty ? 0 : fit.rank;
+    int resdef = n_ok - rank;
+    double aic_model = aic(y, n, mu, weights, dev) + 2 * rank;
+    // skipped: return all the extra results
+#endif
+}
+#endif

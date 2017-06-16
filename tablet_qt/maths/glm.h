@@ -18,16 +18,25 @@
 */
 
 #pragma once
+
+#define GLM_OFFER_R_GLM_FIT  // Success!
+
 #include <Eigen/Dense>
 #include <QDateTime>
 #include <QStringList>
 #include "maths/linkfunctionfamily.h"
 
-const int GLM_DEFAULT_MAX_ITERATIONS = 25;  // As per: https://bwlewis.github.io/GLM/
+const int GLM_DEFAULT_MAX_ITERATIONS = 25;
+// As per both:
+// - https://bwlewis.github.io/GLM/
+// - R: ?glm.control [from ?glm]
 // ... DON'T just increase it arbitrarily; it impacts the results substantially
 // when the GLM does not converge. See the logistic regression test menu.
 
-const double GLM_DEFAULT_TOLERANCE = 1e-8;  // As per: https://bwlewis.github.io/GLM/
+const double GLM_DEFAULT_TOLERANCE = 1e-8;
+// As per both:
+// - https://bwlewis.github.io/GLM/
+// - R: ?glm.control
 
 
 class Glm
@@ -36,8 +45,11 @@ class Glm
 
 public:
     enum SolveMethod {
-        IRLS,
-        IRLS_SVD_Newton,
+        IRLS_KaneLewis,
+        IRLS_SVDNewton_KaneLewis,
+#ifdef GLM_OFFER_R_GLM_FIT
+        IRLS_R_glmfit,
+#endif
     };
     enum RankDeficiencyMethod {
         SelectColumns,
@@ -47,7 +59,12 @@ public:
 
     // Constructor:
     Glm(LinkFunctionFamily link_fn_family,
-        SolveMethod solve_method = SolveMethod::IRLS_SVD_Newton,
+        SolveMethod solve_method =
+#ifdef GLM_OFFER_R_GLM_FIT
+            SolveMethod::IRLS_R_glmfit,
+#else
+            SolveMethod::IRLS_SVDNewton_KaneLewis,
+#endif
         int max_iterations = GLM_DEFAULT_MAX_ITERATIONS,
         double tolerance = GLM_DEFAULT_TOLERANCE,
         RankDeficiencyMethod rank_deficiency_method = RankDeficiencyMethod::SelectColumns);
@@ -101,8 +118,11 @@ protected:
     void addError(const QString& msg) const;
     void warnReturningGarbage() const;
     // The interesting stuff:
-    void fitIRLS();
-    void fitIRLSSVDNewton();
+    void fitIRLSKaneLewis();
+    void fitIRLSSVDNewtonKaneLewis();
+#ifdef GLM_OFFER_R_GLM_FIT
+    void fitIRLSRglmfit();
+#endif
     Eigen::Array<Eigen::Index, Eigen::Dynamic, 1> svdsubsel(
             const Eigen::MatrixXd& A, int k);
 

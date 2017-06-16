@@ -25,7 +25,12 @@ class LogisticRegression : public Glm
 {
 public:
     LogisticRegression(
-            SolveMethod solve_method = SolveMethod::IRLS,
+            SolveMethod solve_method =
+#ifdef GLM_OFFER_R_GLM_FIT
+                    SolveMethod::IRLS_R_glmfit,
+#else
+                    SolveMethod::IRLS_SVDNewton_KaneLewis,
+#endif
             int max_iterations = GLM_DEFAULT_MAX_ITERATIONS,
             double tolerance = GLM_DEFAULT_TOLERANCE,
             RankDeficiencyMethod rank_deficiency_method = RankDeficiencyMethod::Error);

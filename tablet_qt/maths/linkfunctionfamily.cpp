@@ -22,36 +22,74 @@
 
 
 LinkFunctionFamily::LinkFunctionFamily(
-        std::function<double(double)> link_fn,
-        std::function<double(double)> inv_link_fn,
-        std::function<double(double)> derivative_inv_link_fn,
-        std::function<Eigen::ArrayXXd(const Eigen::ArrayXXd&)> variance_fn) :
+        const QString& family_name,
+        LinkFnType link_fn,
+        InvLinkFnType inv_link_fn,
+        DerivativeInvLinkFnType derivative_inv_link_fn,
+        VarianceFnType variance_fn,
+        DevResidsFnType dev_resids_fn,
+        ValidEtaFnType valid_eta_fn,
+        ValidMuFnType valid_mu_fn,
+        InitializeFnType initialize_fn
+#ifdef LINK_FUNCTION_FAMILY_USE_AIC
+        , AICFnType aic_fn
+#endif
+        ) :
+    family_name(family_name),
     link_fn(link_fn),
     inv_link_fn(inv_link_fn),
     derivative_inv_link_fn(derivative_inv_link_fn),
-    variance_fn(variance_fn)
+    variance_fn(variance_fn),
+    dev_resids_fn(dev_resids_fn),
+    valid_eta_fn(valid_eta_fn),
+    valid_mu_fn(valid_mu_fn),
+    initialize_fn(initialize_fn)
+#ifdef LINK_FUNCTION_FAMILY_USE_AIC
+    , aic_fn(aic_fn)
+#endif
 {
 }
+
+
+const QString LINK_FAMILY_NAME_GAUSSIAN("gaussian");
+const QString LINK_FAMILY_NAME_BINOMIAL("binomial");
+const QString LINK_FAMILY_NAME_POISSON("poisson");
 
 
 // Disambiguating overloaded functions:
 // - https://stackoverflow.com/questions/10111042/wrap-overloaded-function-via-stdfunction
 
 const LinkFunctionFamily LINK_FN_FAMILY_LOGIT(
-        statsfunc::logit,  // link
-        statsfunc::logistic,  // inverse link
-        statsfunc::derivativeOfLogistic,  // derivative of inverse link
-        statsfunc::binomialVariance  // variance function
+        LINK_FAMILY_NAME_BINOMIAL,  // family_name
+        statsfunc::logitArray,  // link
+        statsfunc::logisticArray,  // inverse link
+        statsfunc::derivativeOfLogisticArray,  // derivative of inverse link
+        statsfunc::binomialVariance,  // variance function
+        statsfunc::binomialDevResids,  // dev_resids_fn
+        statsfunc::alwaysTrue,  // valid_eta_fn
+        statsfunc::binomialValidMu,  // valid_mu_fn
+        statsfunc::binomialInitialize  // initialize_fn
+#ifdef LINK_FUNCTION_FAMILY_USE_AIC
+        , statsfunc::binomialAIC  // aic_fn
+#endif
 );
 
 
-const LinkFunctionFamily LINK_FN_FAMILY_IDENTITY(
-        statsfunc::identity,  // link
-        statsfunc::identity,  // inverse link
-        static_cast<double (&)(double)>(statsfunc::one),  // derivative of inverse link (y = x => y' = 1)
-        static_cast<Eigen::ArrayXXd (&)(const Eigen::ArrayXXd&)>(statsfunc::one)  // variance function
+const LinkFunctionFamily LINK_FN_FAMILY_GAUSSIAN(
+        LINK_FAMILY_NAME_GAUSSIAN,  // family_name
+        statsfunc::identityArray,  // link
+        statsfunc::identityArray,  // inverse link
+        statsfunc::oneArray,  // derivative of inverse link (y = x => y' = 1)
+        statsfunc::oneArray,  // variance function
             // ... ?assumes normality; variance is independent of the mean
             // ... https://en.wikipedia.org/wiki/Variance_function#Example_.E2.80.93_normal
+        statsfunc::gaussianDevResids,  // dev_resids_fn
+        statsfunc::alwaysTrue,  // valid_eta_fn
+        statsfunc::alwaysTrue,  // valid_mu_fn
+        statsfunc::gaussianInitialize  // initialize_fn
+#ifdef LINK_FUNCTION_FAMILY_USE_AIC
+        , statsfunc::gaussianAIC  // aic_fn
+#endif
 );
 
 // For link function families, see also:

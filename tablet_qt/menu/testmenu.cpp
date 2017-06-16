@@ -278,6 +278,11 @@ void TestMenu::testLogisticRegression()
 {
     using namespace eigenfunc;
     using namespace Eigen;
+    QStringList results;
+
+    // ========================================================================
+    // Data set 1
+    // ========================================================================
 
     qInfo() << Q_FUNC_INFO
             << "1a. Our 'plain' method: LogisticDescriptives(x, y)";
@@ -307,7 +312,7 @@ Our results: intercept = %1, slope = %2)
             << "1b. A more detailed look: LogisticRegression(), IRLS";
     VectorXd x_e = eigenColumnVectorFromQVector<double>(x_q);
     VectorXi y_e = eigenColumnVectorFromQVector<int>(y_q);
-    LogisticRegression lr1a(Glm::SolveMethod::IRLS);
+    LogisticRegression lr1a(Glm::SolveMethod::IRLS_KaneLewis);
     lr1a.setVerbose(true);
     lr1a.fit(x_e, y_e);
     VectorXd coeffs1a = lr1a.coefficients();
@@ -316,12 +321,12 @@ Our results: intercept = %1, slope = %2)
 
     qInfo() << Q_FUNC_INFO
             << "1c. A more detailed look: LogisticRegression(), IRLS SVD Newton";
-    LogisticRegression lr1b(Glm::SolveMethod::IRLS_SVD_Newton);
-    lr1b.setVerbose(true);
-    lr1b.fit(x_e, y_e);
-    VectorXd coeffs1b = lr1b.coefficients();
+    LogisticRegression lr1c(Glm::SolveMethod::IRLS_SVDNewton_KaneLewis);
+    lr1c.setVerbose(true);
+    lr1c.fit(x_e, y_e);
+    VectorXd coeffs1c = lr1c.coefficients();
 
-    QString result2 = QString(R"(
+    results.append(QString(R"(
 With the same data:
 
 IN x: %1
@@ -346,9 +351,9 @@ OUT time to fit (ms): %10
             .arg(qStringFromEigenMatrixOrArray(cat))
             .arg(QString::number(lr1a.nIterations()))
             .arg(QString::number(lr1a.timeToFitMs()))
-            .arg(qStringFromEigenMatrixOrArray(coeffs1b))
-            .arg(QString::number(lr1b.nIterations()))
-            .arg(QString::number(lr1b.timeToFitMs()));
+            .arg(qStringFromEigenMatrixOrArray(coeffs1c))
+            .arg(QString::number(lr1c.nIterations()))
+            .arg(QString::number(lr1c.timeToFitMs())));
 
     VectorXd test_x = eigenColumnVectorFromInitList<double>({0.8, 1.6, 2.4, 3.2});
     VectorXd predicted_p = lr1a.predictProb(test_x);
@@ -360,7 +365,18 @@ OUT time to fit (ms): %10
         crosscheck_x(i) = ld2.x(p);
     }
 
-    QString result3 = QString(R"(
+#ifdef GLM_OFFER_R_GLM_FIT
+    qInfo() << Q_FUNC_INFO
+            << "1d. LogisticRegression(), IRLS implemented as per R glm.fit";
+    LogisticRegression lr1d(Glm::SolveMethod::IRLS_R_glmfit);
+    lr1d.setVerbose(true);
+    lr1d.fit(x_e, y_e);
+    VectorXd coeffs1d = lr1d.coefficients();
+    results.append(QString("With our implementation of R's glm.fit IRLS: "
+                           "%1").arg(qStringFromEigenMatrixOrArray(coeffs1d)));
+#endif
+
+    results.append(QString(R"(
 Now some silly things:
 
 test_x: %1
@@ -371,8 +387,11 @@ crosscheck_x (via LogisticDescriptives()) [SHOULD MATCH test_x]: %4
             .arg(qStringFromEigenMatrixOrArray(test_x))
             .arg(qStringFromEigenMatrixOrArray(predicted_p))
             .arg(qStringFromEigenMatrixOrArray(retrieved_x))
-            .arg(qStringFromEigenMatrixOrArray(crosscheck_x));
+            .arg(qStringFromEigenMatrixOrArray(crosscheck_x)));
 
+    // ========================================================================
+    // Data set 2
+    // ========================================================================
 
     qInfo() << Q_FUNC_INFO
             << "2a. A more numerically complex example, via IRLS.";
@@ -388,20 +407,19 @@ crosscheck_x (via LogisticDescriptives()) [SHOULD MATCH test_x]: %4
         0, 1, 0,
         0, 1, 0,
         1, 1});
-    // LogisticRegression lr2(Glm::SolveMethod::IRLS_SVD_Newton);
-    LogisticRegression lr2a(Glm::SolveMethod::IRLS);
+    LogisticRegression lr2a(Glm::SolveMethod::IRLS_KaneLewis);
     lr2a.setVerbose(true);
     lr2a.fit(x2, y2);
     VectorXd coeffs2a = lr2a.coefficients();
 
     qInfo() << Q_FUNC_INFO
             << "2b. A more numerically complex example, via IRLS-SVD-Newton.";
-    LogisticRegression lr2b(Glm::SolveMethod::IRLS_SVD_Newton);
+    LogisticRegression lr2b(Glm::SolveMethod::IRLS_SVDNewton_KaneLewis);
     lr2b.setVerbose(true);
     lr2b.fit(x2, y2);
     VectorXd coeffs2b = lr2b.coefficients();
 
-    QString result4 = QString(R"(
+    results.append(QString(R"(
 Another example, giving a warning in R:
 
 d2 <- data.frame(
@@ -427,7 +445,18 @@ CamCOPS: coefficients: IRLS-SVD-Newton: %2
 
 )")
             .arg(qStringFromEigenMatrixOrArray(coeffs2a))
-            .arg(qStringFromEigenMatrixOrArray(coeffs2b));
+            .arg(qStringFromEigenMatrixOrArray(coeffs2b)));
+
+#ifdef GLM_OFFER_R_GLM_FIT
+    qInfo() << Q_FUNC_INFO << "2c. And again with the R glm.fit method.";
+    LogisticRegression lr2c(Glm::SolveMethod::IRLS_R_glmfit);
+    lr2c.setVerbose(true);
+    lr2c.fit(x2, y2);
+    VectorXd coeffs2c = lr2c.coefficients();
+    results.append(QString(
+           "CamCOPS: coefficients: RNC implementation of R's "
+           "glm.fit IRLS: %1").arg(qStringFromEigenMatrixOrArray(coeffs2c)));
+#endif
 
     /*
 
@@ -457,13 +486,15 @@ logistic <- function(x, intercept=0, slope=1) {
   t <- intercept + slope * x
   1 / (1 + exp(-t))
 }
-curve(logistic(x), -6, 6)  # as per Wikipedia!
+# curve(logistic(x), -6, 6)  # as per Wikipedia!
 r_fn <- function(x) logistic(x, -119.8, 2014.1)
 camcops_25_fn <- function(x) logistic(x, -16.6975412143982, 240.954480219989)
 camcops_500_fn <- function(x) logistic(x, 0.177316312229748, 2.10120649598573)
+rcppnumerical_fastlr_fn <- function(x) logistic(x, -49.08323, 831.76727)
 plot(r_fn, 0, max(d2$intensity), col='blue')
 plot(camcops_25_fn, col='red', add=TRUE)
 plot(camcops_500_fn, col='green', add=TRUE)
+plot(rcppnumerical_fastlr_fn, col='orange', add=TRUE)
 points(x=d2$intensity, y=d2$yes)
 
 The R function is doing it better, although the IRLS-SVD-Newton one isn't dreadful.
@@ -475,8 +506,10 @@ https://github.com/RcppCore/RcppEigen/blob/master/src/fastLm.cpp
 https://github.com/yixuan/RcppNumerical/blob/master/src/fastLR.cpp
 https://github.com/lme4/lme4/tree/master/src
 
+Rcpp
+
     */
 
-    QString result = result1 + result2 + result3 + result4;
-    uifunc::alertLogMessageBox(result, tr("Test logistic regression"), false);
+    uifunc::alertLogMessageBox(results.join("\n"),
+                               tr("Test logistic regression"), false);
 }
