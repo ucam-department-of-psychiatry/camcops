@@ -19,14 +19,14 @@
 
 #include "soundtestdialog.h"
 #include "dialogs/logbox.h"
+#include "lib/soundfunc.h"
 
 
 SoundTestDialog::SoundTestDialog(const QUrl& url, int volume_percent,
                                  QWidget* parent) :
     LogBox(parent, tr("Sound test"))
 {
-    m_player = QSharedPointer<QMediaPlayer>(new QMediaPlayer(),
-                                            &QObject::deleteLater);
+    soundfunc::makeMediaPlayer(m_player);
     connect(m_player.data(), &QMediaPlayer::mediaStatusChanged,
             this, &SoundTestDialog::mediaStatusChanged);
     // http://doc.qt.io/qt-5/qsharedpointer.html
@@ -42,9 +42,7 @@ SoundTestDialog::SoundTestDialog(const QUrl& url, int volume_percent,
 SoundTestDialog::~SoundTestDialog()
 {
     // Unsure if necessary - but similar code in QuAudioPlayer was crashing.
-    if (m_player) {
-        m_player->stop();
-    }
+    soundfunc::finishMediaPlayer(m_player);
 }
 
 

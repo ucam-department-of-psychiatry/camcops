@@ -79,9 +79,9 @@ protected:
     void doCounterbalancing();
     int getRawCueIndex(int cue) const;
     QUrl getAuditoryCueUrl(int cue) const;
-    QString getVisualCueFilename(int cue) const;
+    QString getVisualCueFilenameStem(int cue) const;
     QUrl getAuditoryTargetUrl(int target_number) const;
-    QString getVisualTargetFilename(int target_number) const;
+    QString getVisualTargetFilenameStem(int target_number) const;
     QUrl getAuditoryBackgroundUrl() const;
     QString getVisualBackgroundFilename() const;
     QString getPromptText(int modality,  int target_number) const;
@@ -90,8 +90,11 @@ protected:
             int block, int groupnum,
             CardinalExpDetTrialGroupSpecPtr groupspec) const;
     void createTrials();
+    void estimateRemaining(int& n_trials_left, double& time_min) const;
     void clearScene();
     void setTimeout(int time_ms, FuncPtr callback);
+    CardinalExpDetTrialPtr currentTrial() const;
+    void showVisualStimulus(const QString& filename_stem, qreal intensity);
 
     // ------------------------------------------------------------------------
     // Main task proper
@@ -99,7 +102,19 @@ protected:
 protected:
     void startTask();
 protected slots:
+    void nextTrial();
+    void userPause();
+    void startTrialProperWithCue();
+    void isi();
+    void target();
     void mediaStatusChangedBackground(QMediaPlayer::MediaStatus status);
+    void detection();
+    void processResponse(int rating);
+    void displayScore();
+    void iti();
+    void endTrial();
+    void thanks();
+    void askAbort(FuncPtr nextfn);
     void abort();
     void finish();
 
@@ -112,8 +127,10 @@ protected:
     QPointer<OpenableWidget> m_graphics_widget;
     QPointer<QGraphicsScene> m_scene;
     QSharedPointer<QTimer> m_timer;
+    QSharedPointer<QMediaPlayer> m_player_cue;
     QSharedPointer<QMediaPlayer> m_player_background;
-    QSharedPointer<QMediaPlayer> m_player_target;
+    QSharedPointer<QMediaPlayer> m_player_target_0;
+    QSharedPointer<QMediaPlayer> m_player_target_1;
     QVector<CardinalExpDetTrialGroupSpecPtr> m_groups;
     QVector<CardinalExpDetTrialPtr> m_trials;
     int m_current_trial;

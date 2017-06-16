@@ -115,9 +115,20 @@ Glm::Glm(LinkFunctionFamily link_fn_family,
     m_solve_method(solve_method),
     m_max_iterations(max_iterations),
     m_tolerance(tolerance),
-    m_rank_deficiency_method(rank_deficiency_method)
+    m_rank_deficiency_method(rank_deficiency_method),
+    m_verbose(false)
 {
     reset();
+}
+
+
+// ============================================================================
+// Set options
+// ============================================================================
+
+void Glm::setVerbose(bool verbose)
+{
+    m_verbose = verbose;
 }
 
 
@@ -129,6 +140,9 @@ void Glm::fit(const MatrixXd& predictors,
               const VectorXd& depvar,
               VectorXd* p_weights)
 {
+    if (m_verbose) {
+        qInfo() << "Glm::fit() starting";
+    }
     reset();
     m_fit_start_time = QDateTime::currentDateTime();
 
@@ -176,11 +190,25 @@ void Glm::fit(const MatrixXd& predictors,
     m_fit_end_time = QDateTime::currentDateTime();
 
     // Report any errors
+    if (m_verbose && !m_info.isEmpty()) {
+        qInfo() << "Info from GLM fit:";
+        for (auto info : m_info) {
+            qInfo().noquote() << "-" << info;
+        }
+    }
     if (!m_calculation_errors.isEmpty()) {
         qWarning() << "Errors occurred during GLM fit:";
         for (auto error : m_calculation_errors) {
-            qWarning() << "-" << error;
+            qWarning().noquote() << "-" << error;
         }
+    }
+    if (!m_fitted) {
+        qWarning() << "GLM could not be fitted";
+    } else if (!m_converged) {
+        qWarning() << "GLM did not converge";
+    }
+    if (m_verbose) {
+        qInfo() << "Glm::fit() finishing";
     }
 }
 
@@ -602,30 +630,35 @@ void Glm::fitIRLSSVDNewton()
         const ArrayXd varg = family.variance_fn(g);  // nobs_where_good,1
         if (varg.isNaN().any()) {
             // As per original...
-            addError("NAs in variance of the inverse link function");
+            addError(QString("NAs in variance of the inverse link function "
+                             "(iteration %1)").arg(m_n_iterations));
             return;
         }
         // But also (RNC):
         if (varg.isInf().any()) {
             // As per original...
-            addError("Infinities in variance of the inverse link function");
+            addError(QString("Infinities in variance of the inverse link "
+                             "function (iteration %1)").arg(m_n_iterations));
             return;
         }
         if ((varg == 0).any()) {
-            addError("Zero value in variance of the inverse link function");
+            addError(QString("Zero value in variance of the inverse link "
+                             "function (iteration %1)").arg(m_n_iterations));
             return;
         }
 
         const ArrayXd gprime = t_good.unaryExpr(family.derivative_inv_link_fn);  // nobs_where_good,1
         if (gprime.isNaN().any()) {
             // As per original...
-            addError("NAs in the inverse link function derivative");
+            addError(QString("NAs in the inverse link function derivative "
+                             "(iteration %1)").arg(m_n_iterations));
             return;
         }
         // But also (RNC):
         if (gprime.isInf().any()) {
             // As per original...
-            addError("Infinities in the inverse link function derivative");
+            addError(QString("Infinities in the inverse link function "
+                             "derivative (iteration %1)").arg(m_n_iterations));
             return;
         }
 
@@ -641,7 +674,8 @@ void Glm::fitIRLSSVDNewton()
         // --------------------------------------------------------------------
         int n_good = good.cast<int>().sum();
         if (n_good < m) {
-            addInfo("Warning: tiny weights encountered");
+            addInfo(QString("Warning: tiny weights encountered (iteration "
+                            "%1)").arg(m_n_iterations));
         }
         s_old = s;
 
@@ -695,6 +729,8 @@ void Glm::fitIRLSSVDNewton()
                                            S_u_good,
                                            t_good).array()).matrix();  // npred,1
     x = select_pred_bool.select(x_possible, x);
+
+    m_fitted = true;
 }
 
 

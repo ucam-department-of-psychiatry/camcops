@@ -56,6 +56,8 @@ Comments
 #include "lib/ccrandom.h"
 #include "lib/containers.h"
 #include "lib/datetime.h"
+#include "lib/soundfunc.h"
+#include "lib/timerfunc.h"
 #include "lib/uifunc.h"
 #include "maths/mathfunc.h"
 #include "questionnairelib/quboolean.h"
@@ -276,20 +278,15 @@ IDED3D::IDED3D(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
     // Internal data
     m_current_stage = 0;
     m_current_trial = -1;
-    m_timer = QSharedPointer<QTimer>(new QTimer());
-    m_timer->setSingleShot(true);
+    timerfunc::makeSingleShotTimer(m_timer);
 }
 
 
 IDED3D::~IDED3D()
 {
     // Necessary: for rationale, see QuAudioPlayer::~QuAudioPlayer()
-    if (m_player_correct) {
-        m_player_correct->stop();
-    }
-    if (m_player_incorrect) {
-        m_player_incorrect->stop();
-    }
+    soundfunc::finishMediaPlayer(m_player_correct);
+    soundfunc::finishMediaPlayer(m_player_incorrect);
 }
 
 
@@ -988,17 +985,13 @@ void IDED3D::startTask()
     makeStages();
 
     // Prep the sounds
-    m_player_correct = QSharedPointer<QMediaPlayer>(new QMediaPlayer(),
-                                                    &QObject::deleteLater);
-    m_player_incorrect = QSharedPointer<QMediaPlayer>(new QMediaPlayer(),
-                                                      &QObject::deleteLater);
+    soundfunc::makeMediaPlayer(m_player_correct);
+    soundfunc::makeMediaPlayer(m_player_incorrect);
     // ... for rationale, see QuAudioPlayer::makeWidget()
     m_player_correct->setMedia(uifunc::resourceUrl(SOUND_FILE_CORRECT));
     m_player_incorrect->setMedia(uifunc::resourceUrl(SOUND_FILE_INCORRECT));
-    m_player_correct->setVolume(mathfunc::proportionToIntPercent(
-                                    valueDouble(FN_VOLUME)));
-    m_player_incorrect->setVolume(mathfunc::proportionToIntPercent(
-                                      valueDouble(FN_VOLUME)));
+    soundfunc::setVolume(m_player_correct, valueDouble(FN_VOLUME));
+    soundfunc::setVolume(m_player_incorrect, valueDouble(FN_VOLUME));
     connect(m_player_correct.data(), &QMediaPlayer::mediaStatusChanged,
             this, &IDED3D::mediaStatusChanged);
     connect(m_player_incorrect.data(), &QMediaPlayer::mediaStatusChanged,

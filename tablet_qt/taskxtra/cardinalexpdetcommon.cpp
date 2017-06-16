@@ -130,8 +130,17 @@ const ButtonConfig BASE_BUTTON_CONFIG(
         PADDING, TEXT_SIZE_PX, TEXT_COLOUR, BUTTON_TEXT_ALIGN,
         BUTTON_BACKGROUND, BUTTON_PRESSED_BACKGROUND,
         BORDER_PEN, BUTTON_RADIUS);
+
+// WATCH OUT: anything using the clone() method must be in THIS FILE, not
+// another .cpp file; see qt_notes.txt,
+// "Problems with .cpp files containing const QObjects"
+const ButtonConfig ABORT_BUTTON_CONFIG = BASE_BUTTON_CONFIG.clone()
+        .setBackgroundColour(ABORT_BUTTON_BACKGROUND);
 const TextConfig BASE_TEXT_CONFIG(TEXT_SIZE_PX, TEXT_COLOUR,
                                   SCENE_WIDTH, TEXT_ALIGN);
+const QColor CONTINUE_BUTTON_BACKGROUND(0, 100, 0);
+const ButtonConfig CONTINUE_BUTTON_CONFIG = BASE_BUTTON_CONFIG.clone()
+        .setBackgroundColour(CONTINUE_BUTTON_BACKGROUND);
 
 
 QUrl urlFromStem(const QString& stem)

@@ -25,6 +25,7 @@
 #include <QPushButton>
 #include <QTimer>
 #include "common/cssconst.h"
+#include "lib/soundfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 
@@ -45,9 +46,7 @@ QuCountdown::QuCountdown(int time_s) :
 
 QuCountdown::~QuCountdown()
 {
-    if (m_player) {
-        m_player->stop();
-    }
+    soundfunc::finishMediaPlayer(m_player);
 }
 
 
@@ -99,8 +98,7 @@ QPointer<QWidget> QuCountdown::makeWidget(Questionnaire* questionnaire)
         connect(m_reset_button, &QPushButton::clicked,
                 this, &QuCountdown::reset);
 
-        m_player = QSharedPointer<QMediaPlayer>(new QMediaPlayer(),
-                                                &QObject::deleteLater);
+        soundfunc::makeMediaPlayer(m_player);
         m_player->setMedia(QUrl(uiconst::SOUND_COUNTDOWN_FINISHED));
     }
 

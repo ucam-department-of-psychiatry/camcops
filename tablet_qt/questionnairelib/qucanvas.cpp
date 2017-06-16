@@ -23,6 +23,7 @@
 #include <QLabel>
 #include <QTimer>
 #include "common/uiconst.h"
+#include "lib/timerfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/canvaswidget.h"
@@ -70,8 +71,7 @@ void QuCanvas::commonConstructor()
     m_missing_indicator = nullptr;
     m_no_missing_indicator = nullptr;
     m_field_write_pending = false;
-    m_timer = QSharedPointer<QTimer>(new QTimer());
-    m_timer->setSingleShot(true);
+    timerfunc::makeSingleShotTimer(m_timer);
     connect(m_timer.data(), &QTimer::timeout,
             this, &QuCanvas::completePendingFieldWrite);
     connect(m_fieldref.data(), &FieldRef::valueChanged,

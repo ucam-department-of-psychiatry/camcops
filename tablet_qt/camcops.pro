@@ -449,7 +449,9 @@ SOURCES += main.cpp \
     maths/logisticdescriptives.cpp \
     taskxtra/cardinalexpdettrialgroupspec.cpp \
     taskxtra/cardinalexpdettrial.cpp \
-    taskxtra/cardinalexpdetrating.cpp
+    taskxtra/cardinalexpdetrating.cpp \
+    lib/soundfunc.cpp \
+    lib/timerfunc.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -788,7 +790,9 @@ HEADERS += \
     maths/logisticdescriptives.h \
     taskxtra/cardinalexpdettrialgroupspec.h \
     taskxtra/cardinalexpdettrial.h \
-    taskxtra/cardinalexpdetrating.h
+    taskxtra/cardinalexpdetrating.h \
+    lib/soundfunc.h \
+    lib/timerfunc.h
 
 DISTFILES += \
     android/AndroidManifest.xml \

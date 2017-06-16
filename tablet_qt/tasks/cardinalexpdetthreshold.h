@@ -21,6 +21,7 @@
 #include <QMediaPlayer>
 #include <QPointer>
 #include <QSharedPointer>
+#include "maths/logisticdescriptives.h"
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -96,7 +97,8 @@ protected:
     void savingWait();
     void reset();
     void labelTrialsForAnalysis();
-    void calculateFit();
+    LogisticDescriptives calculateFit() const;
+    void calculateAndStoreFit();
 
     // ------------------------------------------------------------------------
     // Main task proper

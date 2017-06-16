@@ -17,6 +17,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// *** Consider: linear v. logarithmic volume; http://doc.qt.io/qt-5/qaudio.html#convertVolume
+
 // #define DEBUG_STEP_DETAIL
 
 #include "cardinalexpdetthreshold.h"
@@ -29,7 +31,8 @@
 #include "graphics/graphicsfunc.h"
 #include "lib/ccrandom.h"
 #include "lib/convert.h"
-#include "maths/logisticdescriptives.h"
+#include "lib/soundfunc.h"
+#include "lib/timerfunc.h"
 #include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionnairefunc.h"
@@ -194,16 +197,6 @@ CardinalExpDetThreshold::CardinalExpDetThreshold(
     }
 
     // Internal data
-    m_player_background = QSharedPointer<QMediaPlayer>(new QMediaPlayer(),
-                                                       &QObject::deleteLater);
-    connect(m_player_background.data(), &QMediaPlayer::mediaStatusChanged,
-            this, &CardinalExpDetThreshold::mediaStatusChangedBackground);
-    m_player_target = QSharedPointer<QMediaPlayer>(new QMediaPlayer(),
-                                                   &QObject::deleteLater);
-
-    m_timer = QSharedPointer<QTimer>(new QTimer());
-    m_timer->setSingleShot(true);
-
     m_current_trial = -1;
     m_current_trial_ignoring_catch_trials = -1;
     m_trial_last_y_b4_first_n = -1;
@@ -213,12 +206,8 @@ CardinalExpDetThreshold::CardinalExpDetThreshold(
 CardinalExpDetThreshold::~CardinalExpDetThreshold()
 {
     // Necessary: for rationale, see QuAudioPlayer::~QuAudioPlayer()
-    if (m_player_background) {
-        m_player_background->stop();
-    }
-    if (m_player_target) {
-        m_player_target->stop();
-    }
+    soundfunc::finishMediaPlayer(m_player_background);
+    soundfunc::finishMediaPlayer(m_player_target);
 }
 
 
@@ -307,6 +296,10 @@ QStringList CardinalExpDetThreshold::detail() const
     for (CardinalExpDetThresholdTrialPtr trial : m_trials) {
         lines.append(trial->recordSummaryCSVString());
     }
+    lines.append("\n");
+    LogisticDescriptives ld = calculateFit();
+    lines.append(QString("Logistic parameters, recalculated now: intercept=%1,"
+                         " slope=%2").arg(ld.intercept()).arg(ld.slope()));
     return lines;
 }
 
@@ -720,7 +713,7 @@ void CardinalExpDetThreshold::labelTrialsForAnalysis()
 }
 
 
-void CardinalExpDetThreshold::calculateFit()
+LogisticDescriptives CardinalExpDetThreshold::calculateFit() const
 {
     QVector<double> intensity;  // predictor
     QVector<int> choice;  // dependent variable
@@ -731,14 +724,20 @@ void CardinalExpDetThreshold::calculateFit()
             choice.append(tp->yes() ? 1 : 0);
         }
     }
-    if (intensity.isEmpty()) {
-        qWarning() << "No trials found for calculateFit()";
-        return;
-    }
     qInfo() << "Calculating regression:";
     qInfo() << "Intensities:" << intensity;
     qInfo() << "Choices:" << choice;
+    if (intensity.isEmpty()) {
+        qWarning() << "No trials found for calculateFit()";
+    }
     LogisticDescriptives ld(intensity, choice);  // fit the regression
+    return ld;
+}
+
+
+void CardinalExpDetThreshold::calculateAndStoreFit()
+{
+    LogisticDescriptives ld = calculateFit();
     qInfo().nospace() << "Coefficients: b0 (intercept) = " << ld.b0()
                       << ", b1 (slope) = " << ld.b1();
     setValue(FN_INTERCEPT, ld.intercept());
@@ -785,12 +784,19 @@ void CardinalExpDetThreshold::startTask()
     // Double-check we have a PK before we create trials
     save();
 
+    // Set up players and timers
+    soundfunc::makeMediaPlayer(m_player_background);
+    soundfunc::makeMediaPlayer(m_player_target);
+    connect(m_player_background.data(), &QMediaPlayer::mediaStatusChanged,
+            this, &CardinalExpDetThreshold::mediaStatusChangedBackground);
+    timerfunc::makeSingleShotTimer(m_timer);
+
     // Prep the sounds
     if (auditory) {
         m_player_background->setMedia(urlFromStem(
                                 valueString(FN_BACKGROUND_FILENAME)));
-        m_player_background->setVolume(mathfunc::proportionToIntPercent(
-                                valueDouble(FN_BACKGROUND_INTENSITY)));
+        soundfunc::setVolume(m_player_background,
+                             valueDouble(FN_BACKGROUND_INTENSITY));
         m_player_target->setMedia(urlFromStem(
                                 valueString(FN_TARGET_FILENAME)));
         // Volume will be set later.
@@ -815,7 +821,7 @@ void CardinalExpDetThreshold::nextTrial()
         savingWait();
         setValue(FN_FINISHED, true);  // will also be set by thanks() -> finish()
         labelTrialsForAnalysis();
-        calculateFit();
+        calculateAndStoreFit();
         save();
         thanks();
     } else {
@@ -859,8 +865,7 @@ void CardinalExpDetThreshold::startTrial()
         // ... intensity is in the range [0, 1]
         tr->setIntensity(intensity);
         if (auditory) {
-            m_player_target->setVolume(
-                        mathfunc::proportionToIntPercent(intensity));
+            soundfunc::setVolume(m_player_target, intensity);
             m_player_background->play();
             m_player_target->play();
         } else {
@@ -911,16 +916,13 @@ void CardinalExpDetThreshold::offerChoice()
     CardinalExpDetThresholdTrial& t = *m_trials.at(m_current_trial);
     clearScene();
 
-    ButtonConfig abort_button_cfg = BASE_BUTTON_CONFIG;
-    abort_button_cfg.setBackgroundColour(ABORT_BUTTON_BACKGROUND);
-
     makeText(m_scene, PROMPT_CENTRE, BASE_TEXT_CONFIG, valueString(FN_PROMPT));
     ButtonAndProxy y = makeTextButton(m_scene, YES_BUTTON_RECT,
                                       BASE_BUTTON_CONFIG, textconst::YES);
     ButtonAndProxy n = makeTextButton(m_scene, NO_BUTTON_RECT,
                                       BASE_BUTTON_CONFIG, textconst::NO);
     ButtonAndProxy a = makeTextButton(m_scene, ABORT_BUTTON_RECT,
-                                      abort_button_cfg, textconst::ABORT);
+                                      ABORT_BUTTON_CONFIG, textconst::ABORT);
     CONNECT_BUTTON_PARAM(y, recordChoice, true);
     CONNECT_BUTTON_PARAM(n, recordChoice, false);
     CONNECT_BUTTON(a, abort);

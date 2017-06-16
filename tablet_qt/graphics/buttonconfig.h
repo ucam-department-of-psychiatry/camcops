@@ -41,6 +41,7 @@ public:
                  const QColor& pressed_background_colour,
                  const QPen& border_pen,
                  int corner_radius_px);
+    ButtonConfig clone() const;
     ButtonConfig& setPadding(int font_size_px);
     ButtonConfig& setFontSize(int font_size_px);
     ButtonConfig& setTextColour(const QColor& text_colour);

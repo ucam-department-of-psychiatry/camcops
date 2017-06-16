@@ -37,6 +37,7 @@ TR(AND, "and");
 
 TR(BACK, "Back");
 
+TR(CANCEL, "Cancel");
 TR(CATEGORY, "Category");
 TR(CLINICIAN, "Clinician");
 TR(CLINICIAN_AND_RESPONDENT_DETAILS, "Clinician’s and respondent’s details");
@@ -123,6 +124,7 @@ TR(PRESS_NEXT_TO_CONTINUE,
 TR(QUESTION, "Question");
 
 TR(RATING, "Rating");
+TR(REALLY_ABORT, "Really abort?");
 TR(RECALLED, "Recalled");
 TR(RESPONDENT_DETAILS, "Respondent’s details");
 TR(RESPONDENT_NAME_2P, "Your name");

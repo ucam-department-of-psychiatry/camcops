@@ -34,6 +34,7 @@
 #include "graphics/linesegment.h"
 #include "graphics/paintertranslaterotatecontext.h"
 #include "lib/containers.h"
+#include "lib/timerfunc.h"
 #include "lib/uifunc.h"
 using containers::forceVectorSize;
 using geometry::convertHeadingToTrueNorth;
@@ -111,14 +112,13 @@ AdjustablePie::AdjustablePie(int n_sectors, QWidget* parent) :
     m_reporting_delay_ms(0),
     m_rotate_labels(true),
     m_user_dragging_cursor(false),
-    m_cursor_num_being_dragged(-1),
-    m_timer(new QTimer())
+    m_cursor_num_being_dragged(-1)
 {
     uifunc::setBackgroundColour(this, uiconst::TRANSPARENT);
     setContentsMargins(0, 0, 0, 0);
 
     setNSectors(n_sectors);
-    m_timer->setSingleShot(true);
+    timerfunc::makeSingleShotTimer(m_timer);
     connect(m_timer.data(), &QTimer::timeout,
             this, &AdjustablePie::report);
 }

@@ -54,7 +54,8 @@ double identity(double x);
 double one(double x);
 Eigen::ArrayXXd one(const Eigen::ArrayXXd& x);
 double logistic(double x);
-double logistic_x0_k(double x, double x0, double k);  // k steepness, x0 midpoint
+double logisticInterceptSlope(double x, double intercept, double slope);
+double logisticX0K(double x, double x0, double k);  // k steepness, x0 midpoint
 double derivativeOfLogistic(double x);  // derivative of logistic function
 double logit(double p);  // inverse of logistic function
 Eigen::ArrayXXd binomialVariance(const Eigen::ArrayXXd& x);

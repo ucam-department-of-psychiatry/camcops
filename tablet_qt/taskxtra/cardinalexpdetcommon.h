@@ -90,6 +90,8 @@ extern const Qt::Alignment TEXT_ALIGN;
 extern const QColor EDGE_COLOUR;
 extern const QPen BORDER_PEN;
 extern const ButtonConfig BASE_BUTTON_CONFIG;
+extern const ButtonConfig ABORT_BUTTON_CONFIG;
+extern const ButtonConfig CONTINUE_BUTTON_CONFIG;
 extern const TextConfig BASE_TEXT_CONFIG;
 
 

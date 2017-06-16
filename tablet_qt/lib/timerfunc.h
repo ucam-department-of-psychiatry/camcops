@@ -18,23 +18,12 @@
 */
 
 #pragma once
-#include <QRectF>
-#include <QString>
+#include <QSharedPointer>
+class QTimer;
 
 
-class CardinalExpDetRating
-{
-public:
-    CardinalExpDetRating(int rating, bool detection_response_on_right);
-    CardinalExpDetRating();  // so it can live in a QVector
-protected:
-    QRectF getRatingButtonRect(int x, int n) const;
-public:
-    int rating;
-    QRectF rect;
-    QString label;
-    int points_multiplier;
-    bool means_yes;
-    bool means_dont_know;
-    static const int N_RATINGS;
-};
+namespace timerfunc {
+
+void makeSingleShotTimer(QSharedPointer<QTimer>& timer);
+
+}  // namespace timerfunc

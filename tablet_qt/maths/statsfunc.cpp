@@ -60,14 +60,20 @@ double logistic(double x)
 }
 
 
-double logistic_x0_k(double x, double x0, double k)
+double logisticInterceptSlope(double x, double intercept, double slope)
+{
+    return logistic(intercept + slope * x);
+}
+
+
+double logisticX0K(double x, double x0, double k)
 {
     // Generalized logistic function with k steepness, x0 midpoint
     // https://en.wikipedia.org/wiki/Logistic_function
     return logistic(k * (x - x0));
 
     // HOWEVER, note that there are other formulations of slope/intercept:
-    // see e.g. mathfunc::LogisticDescriptives.
+    // see e.g. mathfunc::LogisticDescriptives, and as above.
 }
 
 

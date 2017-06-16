@@ -18,23 +18,17 @@
 */
 
 #pragma once
-#include <QRectF>
-#include <QString>
+#include <QSharedPointer>
+class QMediaPlayer;
 
 
-class CardinalExpDetRating
-{
-public:
-    CardinalExpDetRating(int rating, bool detection_response_on_right);
-    CardinalExpDetRating();  // so it can live in a QVector
-protected:
-    QRectF getRatingButtonRect(int x, int n) const;
-public:
-    int rating;
-    QRectF rect;
-    QString label;
-    int points_multiplier;
-    bool means_yes;
-    bool means_dont_know;
-    static const int N_RATINGS;
-};
+namespace soundfunc {
+
+
+void makeMediaPlayer(QSharedPointer<QMediaPlayer>& player);
+void finishMediaPlayer(const QSharedPointer<QMediaPlayer>& player);
+void setVolume(const QSharedPointer<QMediaPlayer>& player, int volume_percent);
+void setVolume(const QSharedPointer<QMediaPlayer>& player, double volume_proportion);
+
+
+}  // namespace soundfunc

@@ -40,6 +40,12 @@ ButtonConfig::ButtonConfig(int padding_px,
 }
 
 
+ButtonConfig ButtonConfig::clone() const
+{
+    return ButtonConfig(*this);
+}
+
+
 ButtonConfig& ButtonConfig::setPadding(int font_size_px_)
 {
     font_size_px = font_size_px_;

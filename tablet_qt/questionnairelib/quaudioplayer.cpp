@@ -24,6 +24,7 @@
 #include <QHBoxLayout>
 #include <QWidget>
 #include "common/uiconst.h"
+#include "lib/soundfunc.h"
 #include "lib/uifunc.h"
 #include "widgets/imagebutton.h"
 
@@ -44,17 +45,7 @@ QuAudioPlayer::QuAudioPlayer(const QString& url) :
 QuAudioPlayer::~QuAudioPlayer()
 {
     // qDebug() << "QuAudioPlayer::~QuAudioPlayer()";
-
-    // The following seems to prevent a crash (even with deleteLater set up by
-    // the QSharedPointer<QMediaPlayer>(new ...) call) whereby ongoing events
-    // try to go to a non-existing QMediaPlayer.
-    // Looks like this is not an uncommon problem:
-    //  https://www.google.com/?ion=1&espv=2#q=delete%20qmediaplayer%20crash
-    // The crash comes from QMetaObject, from the Qt event loop.
-
-    if (m_player) {
-        m_player->stop();
-    }
+    soundfunc::finishMediaPlayer(m_player);
 }
 
 
@@ -111,12 +102,7 @@ QPointer<QWidget> QuAudioPlayer::makeWidget(Questionnaire* questionnaire)
 
     layout->addStretch();
 
-    m_player = QSharedPointer<QMediaPlayer>(new QMediaPlayer(),
-                                            &QObject::deleteLater);
-    // http://doc.qt.io/qt-5/qsharedpointer.html
-    // Failing to use deleteLater() can cause crashes, as there may be
-    // outstanding events relating to this object.
-    // ... but it's not enough; see above.
+    soundfunc::makeMediaPlayer(m_player);
     m_player->setMedia(QUrl(m_url));
     m_player->setVolume(m_volume);
     connect(m_player.data(), &QMediaPlayer::mediaStatusChanged,

@@ -89,8 +89,8 @@ def main():
         password = os.environ[PASSWORD_ENV_VAR]
         log.debug("Using password from environment variable {}".format(PASSWORD_ENV_VAR))
     else:
-        log.debug("Password not on command-line or in environment variable {};"
-                  " please enter it manually.".format(PASSWORD_ENV_VAR))
+        log.info("Password not on command-line or in environment variable {};"
+                 " please enter it manually.".format(PASSWORD_ENV_VAR))
         password = getpass.getpass()
 
     # -------------------------------------------------------------------------

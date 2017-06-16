@@ -17,24 +17,17 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
-#include <QRectF>
-#include <QString>
+#include "timerfunc.h"
+#include <QTimer>
+
+namespace timerfunc {
 
 
-class CardinalExpDetRating
+void makeSingleShotTimer(QSharedPointer<QTimer>& timer)
 {
-public:
-    CardinalExpDetRating(int rating, bool detection_response_on_right);
-    CardinalExpDetRating();  // so it can live in a QVector
-protected:
-    QRectF getRatingButtonRect(int x, int n) const;
-public:
-    int rating;
-    QRectF rect;
-    QString label;
-    int points_multiplier;
-    bool means_yes;
-    bool means_dont_know;
-    static const int N_RATINGS;
-};
+    timer = QSharedPointer<QTimer>(new QTimer());
+    timer->setSingleShot(true);
+}
+
+
+}  // namespace timerfunc

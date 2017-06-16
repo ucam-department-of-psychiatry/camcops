@@ -54,13 +54,23 @@ LogisticDescriptives::LogisticDescriptives(double intercept, double slope)
 
 
 LogisticDescriptives::LogisticDescriptives(const QVector<qreal>& x,
-                                           const QVector<int>& y) :
-    m_ok(false)
+                                           const QVector<int>& y,
+                                           bool verbose)
 {
     using namespace eigenfunc;
+    commonConstructor();
+    if (x.size() != y.size()) {
+        qCritical("Size-mismatched data set passed to LogisticDescriptives");
+        return;
+    }
+    if (x.size() == 0) {
+        qWarning("Empty data set passed to LogisticDescriptives");
+        return;
+    }
     ColumnVector<qreal> predictors = eigenColumnVectorFromQVector<qreal>(x);
     RowVector<int> responses = eigenColumnVectorFromQVector<int>(y);
     LogisticRegression lr;
+    lr.setVerbose(verbose);
     lr.fit(predictors, responses);
     ColumnVector<double> coefficients = lr.coefficients();
     if (coefficients.size() != 2) {

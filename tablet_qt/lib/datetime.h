@@ -55,4 +55,8 @@ int ageYearsFrom(const QDate& from, const QDate& to);
 int ageYears(const QVariant& dob, int default_years = -1);
 double doubleSecondsFrom(const QDateTime& from, const QDateTime& to);
 
+double msToSec(double ms);
+int secToIntMs(double sec);
+double secToMin(double sec);
+
 }  // namespace datetime

@@ -18,15 +18,17 @@
 */
 
 #include "cardinalexpdettrial.h"
+#include "lib/datetime.h"
+#include "taskxtra/cardinalexpdetcommon.h"
+#include "taskxtra/cardinalexpdetrating.h"
 
 
 // Tablename
-const QString CardinalExpDetTrial::TRIAL_TABLENAME(
-        "cardinal_expdet_trialgroupspec");
+const QString CardinalExpDetTrial::TRIAL_TABLENAME("cardinal_expdet_trials");
 
 // Fieldnames
 const QString CardinalExpDetTrial::FN_FK_TO_TASK("cardinal_expdet_id");
-const QString CardinalExpDetTrial::FN_TRIAL("group_num");
+const QString CardinalExpDetTrial::FN_TRIAL("trial");
 const QString FN_BLOCK("block");
 const QString FN_GROUP_NUM("group_num");
 const QString FN_CUE("cue");
@@ -118,5 +120,139 @@ CardinalExpDetTrial::CardinalExpDetTrial(
 void CardinalExpDetTrial::setTrialNum(int trial_num)
 {
     setValue(FN_TRIAL, trial_num);
+    save();
+}
+
+
+// ============================================================================
+// Info
+// ============================================================================
+
+int CardinalExpDetTrial::cue() const
+{
+    return valueInt(FN_CUE);
+}
+
+
+bool CardinalExpDetTrial::targetPresent() const
+{
+    return valueBool(FN_TARGET_PRESENT);
+}
+
+
+int CardinalExpDetTrial::targetNumber() const
+{
+    return valueInt(FN_TARGET_NUMBER);
+}
+
+
+int CardinalExpDetTrial::targetModality() const
+{
+    return valueInt(FN_TARGET_MODALITY);
+}
+
+
+bool CardinalExpDetTrial::isTargetAuditory() const
+{
+    return targetModality() == cardinalexpdetcommon::MODALITY_AUDITORY;
+}
+
+
+int CardinalExpDetTrial::points() const
+{
+    return valueInt(FN_POINTS);
+}
+
+
+int CardinalExpDetTrial::cumulativePoints() const
+{
+    return valueInt(FN_CUMULATIVE_POINTS);
+}
+
+
+int CardinalExpDetTrial::itiLengthMs() const
+{
+    return datetime::secToIntMs(valueDouble(FN_ITI_LENGTH_S));
+}
+
+
+bool CardinalExpDetTrial::responded() const
+{
+    return valueBool(FN_RESPONDED);
+}
+
+
+// ============================================================================
+// Recording
+// ============================================================================
+
+void CardinalExpDetTrial::startPauseBeforeTrial(bool pause)
+{
+    setValue(FN_PAUSE_GIVEN_BEFORE_TRIAL, pause);
+    if (pause) {
+        setValue(FN_PAUSE_START_TIME, datetime::now());
+    }
+    save();
+}
+
+
+void CardinalExpDetTrial::startTrialWithCue()
+{
+    QDateTime now = datetime::now();
+    if (valueBool(FN_PAUSE_GIVEN_BEFORE_TRIAL)) {
+        setValue(FN_PAUSE_END_TIME, now);
+    }
+    setValue(FN_TRIAL_START_TIME, now);
+    setValue(FN_CUE_START_TIME, now);
+    save();
+}
+
+
+void CardinalExpDetTrial::startTarget()
+{
+    setValue(FN_TARGET_START_TIME, datetime::now());
+    save();
+}
+
+
+void CardinalExpDetTrial::startDetection()
+{
+    setValue(FN_DETECTION_START_TIME, datetime::now());
+    save();
+}
+
+
+void CardinalExpDetTrial::recordResponse(const CardinalExpDetRating& rating,
+                                         int previous_points)
+{
+    QDateTime now = datetime::now();
+    bool correct = rating.means_dont_know
+            ? false
+            : (rating.means_yes == targetPresent());
+    int points = (correct ? 1 : -1) * rating.points_multiplier;
+    setValue(FN_RESPONDED, true);
+    setValue(FN_RESPONSE_TIME, now);
+    setValue(FN_RESPONSE_LATENCY_MS,
+             valueDateTime(FN_DETECTION_START_TIME).msecsTo(now));
+    setValue(FN_RATING, rating.rating);
+    setValue(FN_CORRECT, correct);
+    setValue(FN_POINTS, points);
+    setValue(FN_CUMULATIVE_POINTS, previous_points + points);
+    save();
+}
+
+
+void CardinalExpDetTrial::startIti()
+{
+    setValue(FN_ITI_START_TIME, datetime::now());
+    save();
+}
+
+
+void CardinalExpDetTrial::endTrial()
+{
+    QDateTime now = datetime::now();
+    setValue(FN_ITI_END_TIME, now);
+    setValue(FN_TRIAL_END_TIME, now);
     save();
 }

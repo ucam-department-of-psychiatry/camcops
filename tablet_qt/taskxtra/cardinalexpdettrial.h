@@ -19,6 +19,7 @@
 
 #pragma once
 #include "db/databaseobject.h"
+class CardinalExpDetRating;
 
 
 class CardinalExpDetTrial : public DatabaseObject
@@ -33,8 +34,27 @@ public:
             int target_modality, int target_number, bool target_present,
             double iti_s,
             CamcopsApp& app, const QSqlDatabase& db);
+    // Setup
     void setTrialNum(int trial_num);
-    int trialNum() const;
+    // Info
+    int cue() const;
+    bool targetPresent() const;
+    int targetNumber() const;
+    int targetModality() const;
+    bool isTargetAuditory() const;
+    int points() const;
+    int cumulativePoints() const;
+    int itiLengthMs() const;
+    bool responded() const;
+    // Recording
+    void startPauseBeforeTrial(bool pause);
+    void startTrialWithCue();
+    void startTarget();
+    void startDetection();
+    void recordResponse(const CardinalExpDetRating& rating,
+                        int previous_points);
+    void startIti();
+    void endTrial();
 public:
     static const QString TRIAL_TABLENAME;
     static const QString FN_FK_TO_TASK;

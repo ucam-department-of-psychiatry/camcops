@@ -195,8 +195,25 @@ int ageYears(const QVariant& dob, int default_years)
 
 double doubleSecondsFrom(const QDateTime& from, const QDateTime& to)
 {
-    qint64 ms = from.msecsTo(to);
-    return static_cast<double>(ms) / 1000;
+    return msToSec(from.msecsTo(to));
+}
+
+
+double msToSec(double ms)
+{
+    return ms / 1000.0;
+}
+
+
+double secToMin(double sec)
+{
+    return sec / 60.0;
+}
+
+
+int secToIntMs(double sec)
+{
+    return qRound(sec * 1000);
 }
 
 

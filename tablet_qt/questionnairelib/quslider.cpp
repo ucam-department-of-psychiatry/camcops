@@ -24,6 +24,7 @@
 #include <QVBoxLayout>
 #include "common/cssconst.h"
 #include "common/uiconst.h"
+#include "lib/timerfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 
@@ -52,12 +53,11 @@ QuSlider::QuSlider(FieldRefPtr fieldref, int minimum, int maximum, int step) :
     // Internals
     m_value_label(nullptr),
     m_slider(nullptr),
-    m_field_write_pending(false),
-    m_timer(new QTimer())
+    m_field_write_pending(false)
 {
     Q_ASSERT(m_fieldref);
     m_big_step = 2 * step;
-    m_timer->setSingleShot(true);
+    timerfunc::makeSingleShotTimer(m_timer);
     connect(m_timer.data(), &QTimer::timeout,
             this, &QuSlider::completePendingFieldWrite);
     connect(m_fieldref.data(), &FieldRef::valueChanged,

@@ -37,7 +37,8 @@ const int CardinalExpDetRating::N_RATINGS = TX_OPTIONS.size();
 
 
 CardinalExpDetRating::CardinalExpDetRating(int rating,
-                                           bool detection_response_on_right)
+                                           bool detection_response_on_right) :
+    rating(rating)
 {
     Q_ASSERT(rating >= 0 && rating < N_RATINGS);
     double rating_double = static_cast<double>(rating);
@@ -58,6 +59,7 @@ CardinalExpDetRating::CardinalExpDetRating(int rating,
 
 CardinalExpDetRating::CardinalExpDetRating()
 {
+    rating = -1;
     points_multiplier = 0;
     means_yes = false;
     means_dont_know = false;

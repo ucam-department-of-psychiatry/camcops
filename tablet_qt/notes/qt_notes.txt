@@ -973,6 +973,48 @@ Build size
 ===============================================================================
 - 2017-06-13: debug 178M, release (optimized -O3) 40M
 
+
+===============================================================================
+Problems with .cpp files containing const QObjects
+===============================================================================
+
+DO NOT LET QT INITIALIZATION CROSS A COMPILATION UNIT BOUNDARY.
+
+Example of how to get it wrong:
+
+    // cardinalexpdetcommon.h
+
+    extern const ButtonConfig BASE_BUTTON_CONFIG;
+
+    // cardinalexpdetcommon.cpp
+
+    const ButtonConfig BASE_BUTTON_CONFIG(...);
+
+    // cardinalexpectationdetection.cpp
+
+    const ButtonConfig CONTINUE_BUTTON_CONFIG = BASE_BUTTON_CONFIG.clone()
+            .setBackgroundColour(CONTINUE_BUTTON_BACKGROUND);
+
+... leads to a null pointer crash through QPen, one of the ButtonConfig
+members.
+
+I think the problem is that BASE_BUTTON_CONFIG is not guaranteed to be
+instantiated before CONTINUE_BUTTON_CONFIG; they could be instantiated in
+reverse order, so the clone() function clones garbage.
+
+The problem:
+    https://isocpp.org/wiki/faq/ctors#static-init-order
+Initialization of static *class* members (not applicable):
+    https://stackoverflow.com/questions/16300432/are-static-class-members-guaranteed-to-be-initialized-before-main-is-called
+Static initialization of objects in a translation unit:
+    https://stackoverflow.com/questions/25007701/is-the-static-initialization-of-global-variables-completed-before-main
+
+Note also this, but that's not the problem here:
+    https://www.ics.com/designpatterns/book/globals.html
+
+Solution in this example:
+    - move CONTINUE_BUTTON_CONFIG into cardinalexpdetcommon.cpp
+
 ===============================================================================
 NOT IMPLEMENTED
 ===============================================================================

@@ -23,8 +23,11 @@
 #include <QStringList>
 #include "maths/linkfunctionfamily.h"
 
-const int GLM_DEFAULT_MAX_ITERATIONS = 500;
-const double GLM_DEFAULT_TOLERANCE = 1e-8;
+const int GLM_DEFAULT_MAX_ITERATIONS = 25;  // As per: https://bwlewis.github.io/GLM/
+// ... DON'T just increase it arbitrarily; it impacts the results substantially
+// when the GLM does not converge. See the logistic regression test menu.
+
+const double GLM_DEFAULT_TOLERANCE = 1e-8;  // As per: https://bwlewis.github.io/GLM/
 
 
 class Glm
@@ -48,6 +51,9 @@ public:
         int max_iterations = GLM_DEFAULT_MAX_ITERATIONS,
         double tolerance = GLM_DEFAULT_TOLERANCE,
         RankDeficiencyMethod rank_deficiency_method = RankDeficiencyMethod::SelectColumns);
+
+    // Set options:
+    void setVerbose(bool verbose);
 
     // Re-retrieve config:
     LinkFunctionFamily getLinkFunctionFamily() const;
@@ -107,6 +113,7 @@ protected:
     int m_max_iterations;
     double m_tolerance;
     RankDeficiencyMethod m_rank_deficiency_method;
+    bool m_verbose;
 
     // In (rows,cols where n = #observations, k = #predictors):
     Eigen::VectorXd m_dependent_variable;  // n,1

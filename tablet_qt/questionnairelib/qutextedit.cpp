@@ -19,6 +19,7 @@
 
 #include "qutextedit.h"
 #include <QTimer>
+#include "lib/timerfunc.h"
 #include "lib/uifunc.h"
 #include "qobjects/focuswatcher.h"
 #include "questionnairelib/questionnaire.h"
@@ -34,11 +35,10 @@ QuTextEdit::QuTextEdit(FieldRefPtr fieldref, bool accept_rich_text) :
     m_hint("text"),
     m_editor(nullptr),
     m_ignore_widget_signal(false),
-    m_focus_watcher(nullptr),
-    m_timer(new QTimer())
+    m_focus_watcher(nullptr)
 {
     Q_ASSERT(m_fieldref);
-    m_timer->setSingleShot(true);
+    timerfunc::makeSingleShotTimer(m_timer);
     connect(m_timer.data(), &QTimer::timeout,
             this, &QuTextEdit::textChanged);
     connect(m_fieldref.data(), &FieldRef::valueChanged,

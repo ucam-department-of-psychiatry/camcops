@@ -59,6 +59,7 @@ extern const QString AND;
 
 extern const QString BACK;
 
+extern const QString CANCEL;
 extern const QString CATEGORY;
 extern const QString CLINICIAN;
 extern const QString CLINICIAN_AND_RESPONDENT_DETAILS;
@@ -136,6 +137,7 @@ extern const QString PRESS_NEXT_TO_CONTINUE;
 extern const QString QUESTION;
 
 extern const QString RATING;
+extern const QString REALLY_ABORT;
 extern const QString RECALLED;
 extern const QString RESPONDENT_DETAILS;
 extern const QString RESPONDENT_NAME_2P;

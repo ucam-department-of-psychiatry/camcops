@@ -17,15 +17,21 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define DEBUG_STEP_DETAIL
+
 #include "cardinalexpectationdetection.h"
 #include <QDebug>
 #include <QGraphicsScene>
 #include <QPushButton>
 #include <QTimer>
+#include "common/textconst.h"
 #include "db/ancillaryfunc.h"
 #include "db/dbtransaction.h"
 #include "lib/ccrandom.h"
 #include "lib/containers.h"
+#include "lib/datetime.h"
+#include "lib/soundfunc.h"
+#include "lib/timerfunc.h"
 #include "lib/uifunc.h"
 #include "graphics/graphicsfunc.h"
 #include "maths/mathfunc.h"
@@ -42,7 +48,12 @@
 #include "taskxtra/cardinalexpdettrialgroupspec.h"
 using namespace cardinalexpdetcommon;  // lots...
 using containers::rotateVectorInPlace;
+using datetime::msToSec;
+using datetime::secToIntMs;
+using datetime::secToMin;
+using mathfunc::mean;
 using graphicsfunc::ButtonAndProxy;
+using graphicsfunc::makeImage;
 using graphicsfunc::makeText;
 using graphicsfunc::makeTextButton;
 
@@ -74,7 +85,7 @@ const QString FN_ITI_MIN_S("iti_min_s");
 const QString FN_ITI_MAX_S("iti_max_s");
 const QString FN_ABORTED("aborted");
 const QString FN_FINISHED("finished");
-const QString FN_LAST_TRIAL_COMPLETED("last_trial_completed");
+const QString FN_LAST_TRIAL_COMPLETED("last_trial_completed"); // *** NOT BEING SET
 
 // Text for user
 const QString TX_CONFIG_TITLE("Configure Expectation–Detection task");
@@ -120,7 +131,8 @@ const QString TX_INSTRUCTIONS_3(
 const QString TX_DETECTION_Q_PREFIX("Did you");
 const QString TX_DETECTION_Q_VISUAL("see a");
 const QString TX_DETECTION_Q_AUDITORY("hear a");
-const QString TX_PAUSE_PROMPT("When you’re ready, touch here to continue.");
+const QString TX_CONTINUE_WHEN_READY(
+        "When you’re ready, touch here to continue.");
 const QString TX_NUM_TRIALS_LEFT("Number of trials to go:");
 const QString TX_TIME_LEFT("Estimated time left (minutes):");
 const QString TX_POINTS("Your score on this trial was:");
@@ -148,6 +160,14 @@ const qreal DEFAULT_ITI_MAX_S = 0.8;
 const int N_TRIAL_GROUPS = 8;
 
 // Graphics
+const qreal PROMPT_X(0.5 * SCENE_WIDTH);
+const QPointF PROMPT_1(PROMPT_X, 0.20 * SCENE_HEIGHT);
+const QPointF PROMPT_2(PROMPT_X, 0.25 * SCENE_HEIGHT);
+const QPointF PROMPT_3(PROMPT_X, 0.30 * SCENE_HEIGHT);
+const QRectF START_BTN_RECT(0.2 * SCENE_WIDTH, 0.6 * SCENE_HEIGHT,
+                            0.6 * SCENE_WIDTH, 0.1 * SCENE_HEIGHT);
+const QRectF CONTINUE_BTN_RECT(0.3 * SCENE_WIDTH, 0.6 * SCENE_HEIGHT,
+                               0.4 * SCENE_WIDTH, 0.2 * SCENE_HEIGHT);
 const QRectF CANCEL_ABORT_RECT(0.2 * SCENE_WIDTH, 0.6 * SCENE_HEIGHT,
                                0.2 * SCENE_WIDTH, 0.2 * SCENE_HEIGHT);
 const QRectF REALLY_ABORT_RECT(0.6 * SCENE_WIDTH, 0.6 * SCENE_HEIGHT,
@@ -218,16 +238,6 @@ CardinalExpectationDetection::CardinalExpectationDetection(
     }
 
     // Internal data
-    m_player_background = QSharedPointer<QMediaPlayer>(new QMediaPlayer(),
-                                                       &QObject::deleteLater);
-    connect(m_player_background.data(), &QMediaPlayer::mediaStatusChanged,
-            this, &CardinalExpectationDetection::mediaStatusChangedBackground);
-    m_player_target = QSharedPointer<QMediaPlayer>(new QMediaPlayer(),
-                                                   &QObject::deleteLater);
-
-    m_timer = QSharedPointer<QTimer>(new QTimer());
-    m_timer->setSingleShot(true);
-
     m_current_trial = -1;
 }
 
@@ -235,12 +245,10 @@ CardinalExpectationDetection::CardinalExpectationDetection(
 CardinalExpectationDetection::~CardinalExpectationDetection()
 {
     // Necessary: for rationale, see QuAudioPlayer::~QuAudioPlayer()
-    if (m_player_background) {
-        m_player_background->stop();
-    }
-    if (m_player_target) {
-        m_player_target->stop();
-    }
+    soundfunc::finishMediaPlayer(m_player_cue);
+    soundfunc::finishMediaPlayer(m_player_background);
+    soundfunc::finishMediaPlayer(m_player_target_0);
+    soundfunc::finishMediaPlayer(m_player_target_1);
 }
 
 
@@ -319,7 +327,13 @@ QStringList CardinalExpectationDetection::summary() const
 {
     QStringList lines;
     int n_trials = m_trials.length();
-    lines.append(QString("Performed %1 trial(s).").arg(n_trials));
+    int completed_trials = 0;
+    for (int i = 0; i < n_trials; ++i) {
+        if (m_trials.at(i)->responded()) {
+            ++completed_trials;
+        }
+    }
+    lines.append(QString("Performed %1 trial(s).").arg(completed_trials));
     return lines;
 }
 
@@ -417,8 +431,8 @@ OpenableWidget* CardinalExpectationDetection::editor(bool read_only)
              new QuLineEditDouble(fieldRef(FN_ISI_DURATION_S),
                                   0.0, 100.0, TIME_DP)},
         }),
-        (new QuBoolean(TX_CONFIG_IS_DETECTION_RESPONSE_ON_RIGHT,
-                       fieldRef(FN_IS_DETECTION_RESPONSE_ON_RIGHT)))->setAsTextButton(true),
+        new QuBoolean(TX_CONFIG_IS_DETECTION_RESPONSE_ON_RIGHT,
+                      fieldRef(FN_IS_DETECTION_RESPONSE_ON_RIGHT)),
     })->setTitle(TX_CONFIG_TITLE));
 
     m_questionnaire = new Questionnaire(m_app, {page});
@@ -541,9 +555,9 @@ QUrl CardinalExpectationDetection::getAuditoryCueUrl(int cue) const
 }
 
 
-QString CardinalExpectationDetection::getVisualCueFilename(int cue) const
+QString CardinalExpectationDetection::getVisualCueFilenameStem(int cue) const
 {
-    return filenameFromStem(VISUAL_CUES.at(getRawCueIndex(cue)));
+    return VISUAL_CUES.at(getRawCueIndex(cue));
 }
 
 
@@ -555,11 +569,11 @@ QUrl CardinalExpectationDetection::getAuditoryTargetUrl(
 }
 
 
-QString CardinalExpectationDetection::getVisualTargetFilename(
+QString CardinalExpectationDetection::getVisualTargetFilenameStem(
         int target_number) const
 {
     Q_ASSERT(target_number >= 0 && target_number < VISUAL_TARGETS.size());
-    return filenameFromStem(VISUAL_TARGETS.at(target_number));
+    return VISUAL_TARGETS.at(target_number);
 }
 
 
@@ -571,7 +585,7 @@ QUrl CardinalExpectationDetection::getAuditoryBackgroundUrl() const
 
 QString CardinalExpectationDetection::getVisualBackgroundFilename() const
 {
-    return filenameFromStem(VISUAL_BACKGROUND);
+    return VISUAL_BACKGROUND;
 }
 
 
@@ -627,7 +641,8 @@ QVector<CardinalExpDetTrialPtr> CardinalExpectationDetection::makeTrialGroup(
                 target_modality,
                 target_number,
                 target_present,
-                ccrandom::randomRealIncUpper(iti_min_s, iti_max_s))));
+                ccrandom::randomRealIncUpper(iti_min_s, iti_max_s),
+                m_app, m_db)));
     }
     target_present = false;
     for (int i = 0; i < groupspec->nTarget(); ++i) {
@@ -640,7 +655,8 @@ QVector<CardinalExpDetTrialPtr> CardinalExpectationDetection::makeTrialGroup(
                 target_modality,
                 target_number,
                 target_present,
-                ccrandom::randomRealIncUpper(iti_min_s, iti_max_s))));
+                ccrandom::randomRealIncUpper(iti_min_s, iti_max_s),
+                m_app, m_db)));
     }
     return trials;
 }
@@ -668,6 +684,25 @@ void CardinalExpectationDetection::createTrials()
 }
 
 
+void CardinalExpectationDetection::estimateRemaining(int& n_trials_left,
+                                                     double& time_min) const
+{
+    qint64 auditory_bg_ms = m_player_background->duration();
+    double auditory_bg_s = msToSec(auditory_bg_ms);
+    double visual_target_s = valueDouble(FN_VISUAL_TARGET_DURATION_S);
+    double min_iti_s = valueDouble(FN_ITI_MIN_S);
+    double max_iti_s = valueDouble(FN_ITI_MAX_S);
+    double avg_trial_s =
+            mean(visual_target_s, auditory_bg_s) +
+            1.0 +  // rough guess for user response time
+            2.0 + // rough guess for user confirmation time
+            mean(min_iti_s, max_iti_s);
+    // Results:
+    n_trials_left = m_trials.size() - m_current_trial;
+    time_min = secToMin(n_trials_left * avg_trial_s);
+}
+
+
 void CardinalExpectationDetection::clearScene()
 {
     m_scene->clear();
@@ -682,6 +717,21 @@ void CardinalExpectationDetection::setTimeout(int time_ms, FuncPtr callback)
             this, callback,
             Qt::QueuedConnection);
     m_timer->start(time_ms);
+}
+
+
+CardinalExpDetTrialPtr CardinalExpectationDetection::currentTrial() const
+{
+    return m_trials.at(m_current_trial);
+}
+
+
+void CardinalExpectationDetection::showVisualStimulus(
+        const QString& filename_stem, qreal intensity)
+{
+    QString filename = cardinalexpdetcommon::filenameFromStem(filename_stem);
+    qDebug() << Q_FUNC_INFO << "Filename:" << filename;
+    makeImage(m_scene, VISUAL_STIM_RECT, filename, intensity);
 }
 
 
@@ -708,31 +758,154 @@ void CardinalExpectationDetection::startTask()
     makeTrialGroupSpecs();
     createTrials();
 
-    // Prep the sounds
-    m_player_correct = QSharedPointer<QMediaPlayer>(new QMediaPlayer(),
-                                                    &QObject::deleteLater);
-    m_player_incorrect = QSharedPointer<QMediaPlayer>(new QMediaPlayer(),
-                                                      &QObject::deleteLater);
-    // ... for rationale, see QuAudioPlayer::makeWidget()
-    m_player_correct->setMedia(uifunc::resourceUrl(SOUND_FILE_CORRECT));
-    m_player_incorrect->setMedia(uifunc::resourceUrl(SOUND_FILE_INCORRECT));
-    m_player_correct->setVolume(mathfunc::proportionToIntPercent(
-                                    valueInt(FN_VOLUME)));
-    m_player_incorrect->setVolume(mathfunc::proportionToIntPercent(
-                                      valueInt(FN_VOLUME)));
-    connect(m_player_correct.data(), &QMediaPlayer::mediaStatusChanged,
-            this, &CardinalExpectationDetection::mediaStatusChanged);
-    connect(m_player_incorrect.data(), &QMediaPlayer::mediaStatusChanged,
-            this, &CardinalExpectationDetection::mediaStatusChanged);
+    // Set up players and timers
+    soundfunc::makeMediaPlayer(m_player_cue);
+    soundfunc::makeMediaPlayer(m_player_background);
+    soundfunc::makeMediaPlayer(m_player_target_0);
+    soundfunc::makeMediaPlayer(m_player_target_1);
+    connect(m_player_background.data(), &QMediaPlayer::mediaStatusChanged,
+            this, &CardinalExpectationDetection::mediaStatusChangedBackground);
+
+    timerfunc::makeSingleShotTimer(m_timer);
+
+    // Prep the background sound, and the targets (just to avoid any subtle
+    // loading time information)
+    soundfunc::setVolume(m_player_cue,
+                         valueDouble(FN_AUDITORY_CUE_INTENSITY));
+    soundfunc::setVolume(m_player_background,
+                         valueDouble(FN_AUDITORY_BACKGROUND_INTENSITY));
+    soundfunc::setVolume(m_player_target_0,
+                         valueDouble(FN_AUDITORY_TARGET_0_INTENSITY));
+    soundfunc::setVolume(m_player_target_1,
+                         valueDouble(FN_AUDITORY_TARGET_1_INTENSITY));
+    m_player_background->setMedia(getAuditoryBackgroundUrl());
+    m_player_target_0->setMedia(getAuditoryTargetUrl(0));
+    m_player_target_1->setMedia(getAuditoryTargetUrl(1));
 
     // Start
     ButtonAndProxy start = makeTextButton(
-                m_scene,
-                QRectF(0.2 * SCENE_WIDTH, 0.6 * SCENE_HEIGHT,
-                       0.6 * SCENE_WIDTH, 0.1 * SCENE_HEIGHT),
-                BASE_BUTTON_CONFIG,
-                TX_START);
+                m_scene, START_BTN_RECT, BASE_BUTTON_CONFIG,
+                textconst::TOUCH_TO_START);
     CONNECT_BUTTON(start, nextTrial);
+}
+
+
+void CardinalExpectationDetection::nextTrial()
+{
+#ifdef DEBUG_STEP_DETAIL
+    qDebug() << Q_FUNC_INFO;
+#endif
+    ++m_current_trial;
+    if (m_current_trial >= m_trials.length()) {
+        thanks();
+        return;
+    }
+    int pause_every_n = valueInt(FN_PAUSE_EVERY_N_TRIALS);
+    bool pause = pause_every_n > 0 && m_current_trial % pause_every_n == 0;
+    currentTrial()->startPauseBeforeTrial(pause);
+    if (pause) {
+        // we allow a pause at the start of trial 0
+        userPause();
+    } else {
+        startTrialProperWithCue();
+    }
+}
+
+
+void CardinalExpectationDetection::userPause()
+{
+#ifdef DEBUG_STEP_DETAIL
+    qDebug() << Q_FUNC_INFO;
+#endif
+    clearScene();
+    int n_trials_left;
+    double time_min;
+    estimateRemaining(n_trials_left, time_min);
+    QString msg_trials = TX_NUM_TRIALS_LEFT + " " + QString::number(n_trials_left);
+    QString msg_time = TX_TIME_LEFT + " " + QString::number(qRound(time_min));
+    makeText(m_scene, PROMPT_1, BASE_TEXT_CONFIG, msg_trials);
+    makeText(m_scene, PROMPT_2, BASE_TEXT_CONFIG, msg_time);
+    ButtonAndProxy a = makeTextButton(
+                m_scene, ABORT_BUTTON_RECT,
+                ABORT_BUTTON_CONFIG, textconst::ABORT);
+    ButtonAndProxy s = makeTextButton(
+                m_scene, CONTINUE_BTN_RECT,
+                CONTINUE_BUTTON_CONFIG, TX_CONTINUE_WHEN_READY);
+    CONNECT_BUTTON_PARAM(a, askAbort, &CardinalExpectationDetection::userPause);
+    CONNECT_BUTTON(s, startTrialProperWithCue);
+}
+
+
+void CardinalExpectationDetection::startTrialProperWithCue()
+{
+#ifdef DEBUG_STEP_DETAIL
+    qDebug() << Q_FUNC_INFO;
+#endif
+    clearScene();
+    CardinalExpDetTrialPtr t = currentTrial();
+    t->startTrialWithCue();
+    // Cues are multimodal.
+    int cue = t->cue();
+    // (a) sound
+    m_player_cue->setMedia(getAuditoryCueUrl(cue));
+    m_player_cue->play();
+    // (b) image
+    showVisualStimulus(getVisualCueFilenameStem(cue),
+                       valueDouble(FN_VISUAL_CUE_INTENSITY));
+    // Timer:
+    setTimeout(secToIntMs(valueDouble(FN_CUE_DURATION_S)),
+               &CardinalExpectationDetection::isi);
+}
+
+
+void CardinalExpectationDetection::isi()
+{
+#ifdef DEBUG_STEP_DETAIL
+    qDebug() << Q_FUNC_INFO;
+#endif
+    clearScene();
+    m_player_cue->stop();  // in case it hasn't already; also resets it to the start
+    setTimeout(secToIntMs(valueDouble(FN_ISI_DURATION_S)),
+               &CardinalExpectationDetection::target);
+}
+
+
+void CardinalExpectationDetection::target()
+{
+#ifdef DEBUG_STEP_DETAIL
+    qDebug() << Q_FUNC_INFO;
+#endif
+    CardinalExpDetTrialPtr t = currentTrial();
+    qDebug().nospace() << "Target present: " << t->targetPresent()
+                       << ", target number: " << t->targetNumber();
+    t->startTarget();
+    int target_number = t->targetNumber();
+
+    if (t->isTargetAuditory()) {
+        // AUDITORY
+        m_player_background->play();
+        if (t->targetPresent()) {
+            // volume was preset above
+            if (target_number == 0) {
+                m_player_target_0->play();
+            } else {
+                m_player_target_1->play();
+            }
+        }
+        // We will get to detection() via the background player's timeout
+    } else {
+        // VISUAL
+        showVisualStimulus(getVisualBackgroundFilename(),
+                           valueDouble(FN_VISUAL_BACKGROUND_INTENSITY));
+        if (t->targetPresent()) {
+            double intensity = target_number == 0
+                    ? valueDouble(FN_VISUAL_TARGET_0_INTENSITY)
+                    : valueDouble(FN_VISUAL_TARGET_1_INTENSITY);
+            showVisualStimulus(getVisualTargetFilenameStem(target_number), intensity);
+        }
+        setTimeout(secToIntMs(valueDouble(FN_VISUAL_TARGET_DURATION_S)),
+                   &CardinalExpectationDetection::detection);
+    }
 }
 
 
@@ -743,15 +916,132 @@ void CardinalExpectationDetection::mediaStatusChangedBackground(
 #ifdef DEBUG_STEP_DETAIL
         qDebug() << "Background sound playback finished";
 #endif
-        m_player_target->stop();  // in case it's still playing
-        XXXXXXXXXX; // ***
+        m_player_target_0->stop();  // in case it's still playing
+        m_player_target_1->stop();  // in case it's still playing
+        detection();
     }
+}
+
+
+void CardinalExpectationDetection::detection()
+{
+#ifdef DEBUG_STEP_DETAIL
+    qDebug() << Q_FUNC_INFO;
+#endif
+    clearScene();
+    CardinalExpDetTrialPtr t = currentTrial();
+    makeText(m_scene, PROMPT_1, BASE_TEXT_CONFIG,
+             getPromptText(t->targetModality(), t->targetNumber()));
+    for (int i = 0; i < m_ratings.size(); ++i) {
+        const CardinalExpDetRating& r = m_ratings.at(i);
+        ButtonAndProxy b = makeTextButton(m_scene, r.rect,
+                                          BASE_BUTTON_CONFIG, r.label);
+        CONNECT_BUTTON_PARAM(b, processResponse, i);
+    }
+    currentTrial()->startDetection();
+}
+
+
+void CardinalExpectationDetection::processResponse(int rating)
+{
+#ifdef DEBUG_STEP_DETAIL
+    qDebug() << Q_FUNC_INFO;
+#endif
+    qDebug() << "Response: rating =" << rating;
+    CardinalExpDetTrialPtr t = currentTrial();
+    const CardinalExpDetRating& r = m_ratings.at(rating);
+    int previous_points = 0;
+    if (m_current_trial > 0) {
+        previous_points = m_trials.at(m_current_trial - 1)->cumulativePoints();
+    }
+    t->recordResponse(r, previous_points);
+    displayScore();
+}
+
+
+void CardinalExpectationDetection::displayScore()
+{
+#ifdef DEBUG_STEP_DETAIL
+    qDebug() << Q_FUNC_INFO;
+#endif
+    clearScene();
+    CardinalExpDetTrialPtr t = currentTrial();
+    int points = t->points();
+    int cum_points = t->cumulativePoints();
+    QString points_msg = TX_POINTS + " " +
+            (points > 0 ? "+" : "") +  QString::number(points);
+    QString cumpoints_msg = TX_CUMULATIVE_POINTS + " " +
+            (cum_points > 0 ? "+" : "") + QString::number(cum_points);
+    makeText(m_scene, PROMPT_1, BASE_TEXT_CONFIG, points_msg);
+    makeText(m_scene, PROMPT_2, BASE_TEXT_CONFIG, cumpoints_msg);
+    ButtonAndProxy a = makeTextButton(
+                m_scene, ABORT_BUTTON_RECT,
+                ABORT_BUTTON_CONFIG, textconst::ABORT);
+    ButtonAndProxy cont = makeTextButton(
+                m_scene, CONTINUE_BTN_RECT,
+                CONTINUE_BUTTON_CONFIG, TX_CONTINUE_WHEN_READY);
+    CONNECT_BUTTON_PARAM(a, askAbort,
+                         &CardinalExpectationDetection::displayScore);
+    CONNECT_BUTTON(cont, iti);
+}
+
+
+void CardinalExpectationDetection::iti()
+{
+#ifdef DEBUG_STEP_DETAIL
+    qDebug() << Q_FUNC_INFO;
+#endif
+    clearScene();
+    CardinalExpDetTrialPtr t = currentTrial();
+    t->startIti();
+    setTimeout(t->itiLengthMs(), &CardinalExpectationDetection::endTrial);
+}
+
+
+void CardinalExpectationDetection::endTrial()
+{
+#ifdef DEBUG_STEP_DETAIL
+    qDebug() << Q_FUNC_INFO;
+#endif
+    currentTrial()->endTrial();
+    nextTrial();
+}
+
+
+void CardinalExpectationDetection::thanks()
+{
+#ifdef DEBUG_STEP_DETAIL
+    qDebug() << Q_FUNC_INFO;
+#endif
+    clearScene();
+    ButtonAndProxy thx = makeTextButton(
+                m_scene, THANKS_BUTTON_RECT, BASE_BUTTON_CONFIG,
+                textconst::THANK_YOU_TOUCH_TO_EXIT);
+    CONNECT_BUTTON(thx, finish);
+}
+
+
+void CardinalExpectationDetection::askAbort(FuncPtr nextfn)
+{
+#ifdef DEBUG_STEP_DETAIL
+    qDebug() << Q_FUNC_INFO;
+#endif
+    clearScene();
+    makeText(m_scene, PROMPT_1, BASE_TEXT_CONFIG, textconst::REALLY_ABORT);
+    ButtonAndProxy a = makeTextButton(
+                m_scene, REALLY_ABORT_RECT,
+                ABORT_BUTTON_CONFIG, textconst::ABORT);
+    ButtonAndProxy c = makeTextButton(
+                m_scene, CANCEL_ABORT_RECT,
+                CONTINUE_BUTTON_CONFIG, textconst::CANCEL);
+    CONNECT_BUTTON(a, abort);
+    connect(c.button, &QPushButton::clicked,
+            this, nextfn, Qt::QueuedConnection);
 }
 
 
 void CardinalExpectationDetection::abort()
 {
-#ifdef ARGH  // ***
 #ifdef DEBUG_STEP_DETAIL
     qDebug() << Q_FUNC_INFO;
 #endif
@@ -759,13 +1049,11 @@ void CardinalExpectationDetection::abort()
     Q_ASSERT(m_widget);
     editFinishedAbort();
     emit m_widget->finished();
-#endif
 }
 
 
 void CardinalExpectationDetection::finish()
 {
-#ifdef ARGH  // ***
 #ifdef DEBUG_STEP_DETAIL
     qDebug() << Q_FUNC_INFO;
 #endif
@@ -773,5 +1061,14 @@ void CardinalExpectationDetection::finish()
     Q_ASSERT(m_widget);
     editFinishedProperly();
     emit m_widget->finished();
-#endif
 }
+
+/*
+
+***
+
+TEST THIS:
+
+
+
+*/

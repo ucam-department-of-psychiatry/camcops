@@ -211,6 +211,8 @@ bool execQuery(QSqlQuery& query, const QString& sql, const ArgList& args,
 #endif
     if (!success && !suppress_errors) {
         qCritical() << "Query failed; error was:" << query.lastError();
+        qCritical() << "SQL was:" << sql;
+        qCritical() << "Args were:" << args;
     }
 #ifdef DEBUG_SQL_RESULT
     if (success && query.isSelect() && !query.isForwardOnly()) {

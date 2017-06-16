@@ -149,7 +149,7 @@ QVector<int> qVariantToIntVector(const QVariant& v);
 QString stringListToJson(const QStringList& list, bool compact = true);
 
 // ============================================================================
-// Physical units
+// Physical units (other than time: in datetime namespace)
 // ============================================================================
 
 extern const double CM_PER_INCH;
