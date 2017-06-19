@@ -19,10 +19,12 @@
 
 // #define TEST_BASIC_QT_ONLY
 // #define FULL_LOG_FORMAT
+#define DISABLE_ANDROID_NATIVE_DIALOGS
 
 #include <QApplication>  // for minimal_qt_app
-#include <QPushButton>  // for minimal_qt_app
 #include <QDebug>  // for qSetMessagePattern
+#include <QPushButton>  // for minimal_qt_app
+#include <QStyleFactory>
 #include "common/camcopsapp.h"
 
 #ifdef FULL_LOG_FORMAT
@@ -67,7 +69,16 @@ int main(int argc, char *argv[])
     //   not work from the stylsheet. This must be done before the app is
     //   created. See https://bugreports.qt.io/browse/QTBUG-45517
 
-    QApplication::setStyle("fusion");
+    QApplication::setStyle(QStyleFactory::create("Fusion"));
+    // ... https://stackoverflow.com/questions/41184723/i-want-qt-app-to-look-like-qt-app-rather-than-android-native
+
+#ifdef DISABLE_ANDROID_NATIVE_DIALOGS
+    // To fix a message box bug:
+    // https://bugreports.qt.io/browse/QTBUG-35313
+    qputenv("QT_USE_ANDROID_NATIVE_DIALOGS", "0");
+    // ... read by QAndroidPlatformTheme::usePlatformNativeDialog in
+    //     qandroidplatformtheme.cpp
+#endif
 
     qSetMessagePattern(message_pattern);
     // See also http://stackoverflow.com/questions/4954140/how-to-redirect-qdebug-qwarning-qcritical-etc-output

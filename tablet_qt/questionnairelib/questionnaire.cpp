@@ -25,6 +25,7 @@
 #include <QDebug>
 #include <QKeyEvent>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QLabel>
 #include <QVBoxLayout>
 #include "common/camcopsapp.h"
@@ -386,15 +387,15 @@ void Questionnaire::cancelClicked()
         doCancel();
         return;
     }
-    QMessageBox msgbox(QMessageBox::Question,  // icon
-                       tr("Abort"),  // title
-                       tr("Abort this questionnaire?"),  // text
-                       QMessageBox::Yes | QMessageBox::No,  // buttons
-                       this);  // parent
-    msgbox.setButtonText(QMessageBox::Yes, tr("Yes, abort"));
-    msgbox.setButtonText(QMessageBox::No, tr("No, go back"));
-    int reply = msgbox.exec();
-    if (reply == QMessageBox::Yes) {
+    QMessageBox msgbox(this);
+    msgbox.setIcon(QMessageBox::Question);
+    msgbox.setWindowTitle(tr("Abort"));
+    msgbox.setText(tr("Abort this questionnaire?"));
+    QAbstractButton* yes = msgbox.addButton(tr("Yes, abort"),
+                                            QMessageBox::YesRole);
+    msgbox.addButton(tr("No, go back"), QMessageBox::NoRole);
+    msgbox.exec();
+    if (msgbox.clickedButton() == yes) {
         doCancel();
     }
 }

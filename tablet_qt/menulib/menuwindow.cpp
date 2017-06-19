@@ -25,6 +25,7 @@
 #include <QListWidget>
 #include <QListWidgetItem>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QVBoxLayout>
 #include "common/cssconst.h"
 #include "common/uiconst.h"
@@ -168,6 +169,8 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
     connect(m_p_listwidget, &QListWidget::itemActivated,
             this, &MenuWindow::menuItemClicked,
             Qt::UniqueConnection);
+
+    uifunc::applyScrollGestures(m_p_listwidget);
 
     // ------------------------------------------------------------------------
     // Other signals
@@ -389,48 +392,40 @@ void MenuWindow::viewTask()
     if (facsimile_available) {
         buttons |= QMessageBox::Open;
     }
-    QMessageBox msgbox(QMessageBox::Question,  // icon
-                       tr("View task"),  // title
-                       tr("View in what format?"),  // text
-                       buttons,  // buttons
-                       this);  // parent
-    msgbox.setButtonText(QMessageBox::Yes, tr("Summary"));
-    msgbox.setButtonText(QMessageBox::Ok, tr("Detail"));
-    msgbox.setButtonText(QMessageBox::Cancel, tr("Cancel"));
+    QMessageBox msgbox(this);
+    msgbox.setIcon(QMessageBox::Question);
+    msgbox.setWindowTitle(tr("View task"));
+    msgbox.setText(tr("View in what format?"));
+    QAbstractButton* summary = msgbox.addButton(tr("Summary"), QMessageBox::YesRole);
+    QAbstractButton* detail = msgbox.addButton(tr("Detail"), QMessageBox::NoRole);
+    msgbox.addButton(tr("Cancel"), QMessageBox::RejectRole);  // e.g. Cancel
+    QAbstractButton* facsimile = nullptr;
     if (facsimile_available) {
-        msgbox.setButtonText(QMessageBox::Open, tr("Facsimile"));
+        facsimile = msgbox.addButton(tr("Facsimile"), QMessageBox::AcceptRole);
     }
-    int reply = msgbox.exec();
-    switch (reply) {
-    case QMessageBox::Open:  // facsimile
-        if (facsimile_available) {
-            qInfo() << "View as facsimile:" << instance_title;
-            OpenableWidget* widget = task->editor(true);
-            if (!widget) {
-                complainTaskNotOfferingEditor();
-                return;
-            }
-            m_app.open(widget, task);
+    msgbox.exec();
+    QAbstractButton* reply = msgbox.clickedButton();
+    if (facsimile_available && reply == facsimile) {
+        qInfo() << "View as facsimile:" << instance_title;
+        OpenableWidget* widget = task->editor(true);
+        if (!widget) {
+            complainTaskNotOfferingEditor();
+            return;
         }
-        break;
-    case QMessageBox::Ok:  // detail
-        {
-            qInfo() << "View detail:" << instance_title;
-            QString detail = stringfunc::joinHtmlLines(task->detail());
+        m_app.open(widget, task);
+
+    } else if (reply == detail) {
+        qInfo() << "View detail:" << instance_title;
+        QString detail = stringfunc::joinHtmlLines(task->detail());
 #ifdef SHOW_TASK_TIMING
-            detail += QString("<br><br>Editing time: <b>%1</b> s")
-                    .arg(task->editingTimeSeconds());
+        detail += QString("<br><br>Editing time: <b>%1</b> s")
+                .arg(task->editingTimeSeconds());
 #endif
-            uifunc::alert(detail, instance_title, true);  // with scrolling
-        }
-        break;
-    case QMessageBox::Yes:  // summary
+        uifunc::alert(detail, instance_title, true);  // with scrolling
+
+    } else if (reply == summary) {
         qInfo() << "View summary:" << instance_title;
         uifunc::alert(task->summary(), instance_title);
-        break;
-    case QMessageBox::No:  // cancel
-    default:
-        break;
     }
 }
 
@@ -449,16 +444,15 @@ void MenuWindow::editTask()
         return;
     }
     QString instance_title = task->instanceTitle();
-    QMessageBox msgbox(
-        QMessageBox::Question,  // icon
-        tr("Edit"),  // title
-        tr("Edit this task?") + "\n\n" +  instance_title,  // text
-        QMessageBox::Yes | QMessageBox::No,  // buttons
-        this);  // parent
-    msgbox.setButtonText(QMessageBox::Yes, tr("Yes, edit"));
-    msgbox.setButtonText(QMessageBox::No, tr("No, cancel"));
-    int reply = msgbox.exec();
-    if (reply != QMessageBox::Yes) {
+    QMessageBox msgbox(this);
+    msgbox.setIcon(QMessageBox::Question);
+    msgbox.setWindowTitle(tr("Edit"));
+    msgbox.setText(tr("Edit this task?") + "\n\n" +  instance_title);
+    QAbstractButton* yes = msgbox.addButton(tr("Yes, edit"),
+                                            QMessageBox::YesRole);
+    msgbox.addButton(tr("No, cancel"), QMessageBox::NoRole);
+    msgbox.exec();
+    if (msgbox.clickedButton() != yes) {
         return;
     }
     editTaskConfirmed(task);
@@ -514,16 +508,15 @@ void MenuWindow::deleteTask()
         return;
     }
     QString instance_title = task->instanceTitle();
-    QMessageBox msgbox(
-        QMessageBox::Warning,  // icon
-        tr("Delete"),  // title
-        tr("Delete this task?") + "\n\n" +  instance_title,  // text
-        QMessageBox::Yes | QMessageBox::No,  // buttons
-        this);  // parent
-    msgbox.setButtonText(QMessageBox::Yes, tr("Yes, delete"));
-    msgbox.setButtonText(QMessageBox::No, tr("No, cancel"));
-    int reply = msgbox.exec();
-    if (reply != QMessageBox::Yes) {
+    QMessageBox msgbox(this);
+    msgbox.setIcon(QMessageBox::Warning);
+    msgbox.setWindowTitle(tr("Delete"));
+    msgbox.setText(tr("Delete this task?") + "\n\n" +  instance_title);
+    QAbstractButton* yes = msgbox.addButton(tr("Yes, delete"),
+                                            QMessageBox::YesRole);
+    msgbox.addButton(tr("No, cancel"), QMessageBox::NoRole);
+    msgbox.exec();
+    if (msgbox.clickedButton() != yes) {
         return;
     }
     {

@@ -49,6 +49,26 @@ T mod(T x, T y)
     return x - y * std::floor(x / y);
 }
 
+// Implemented in GNU C++11 standard library but not available for Android
+// (e.g. https://github.com/android-ndk/ndk/issues/82 ),
+// and not offered by <QtGlobal>
+
+template<typename T>
+T trunc(const T& x)
+{
+    // http://en.cppreference.com/w/cpp/numeric/math/trunc
+    // http://en.cppreference.com/w/cpp/numeric/math/floor
+    // For x >= 0, floor and trunc are the same.
+    // For x < 0, floor moves towards -Inf and trunc moves towards 0.
+    // Example: floor(1.5) == trunc(1.5) == 1.0
+    // Example: floor(-1.5) == -2.0; trunc(-1.5) == -1.0
+    // The answer:
+    // https://stackoverflow.com/questions/6709405/is-there-a-trunc-function-in-c
+
+    return x > 0 ? std::floor(x) : std::ceil(x);
+}
+
+
 bool rangesOverlap(qreal a0, qreal a1, qreal b0, qreal b1);
 bool nearlyEqual(qreal x, qreal y);
 

@@ -803,7 +803,7 @@ void WidgetTestMenu::testAce3()
 
 void WidgetTestMenu::testQuAudioPlayer()
 {
-    QuAudioPlayer element(uiconst::DEMO_SOUND_URL);
+    QuAudioPlayer element(uiconst::DEMO_SOUND_URL_1);
     testQuestionnaireElement(&element);
 }
 

@@ -57,13 +57,15 @@ protected slots:
                           const QItemSelection& deselected);
     void proxySelectionChanged(const QItemSelection& proxy_selected,
                                const QItemSelection& proxy_deselected);
+    void searchItemClicked(const QModelIndex& index);
+    void treeItemClicked(const QModelIndex& index);
     void searchTextEdited(const QString& text);
     // void toggleSearch();
     void goToSearch();
     void goToTree();
     void debugLayout();
 protected:
-    void newSelection(const QModelIndex& index);
+    void itemChosen(const QModelIndex& index);
     QModelIndex sourceFromProxy(const QModelIndex& index);
     QModelIndex proxyFromSource(const QModelIndex& index);
     void setSearchAppearance();

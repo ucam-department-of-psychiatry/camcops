@@ -31,9 +31,9 @@
 #define USE_CUSTOM_VIEWPORT
 
 // One of these only:
-// #define TOUCHSCROLL_DIRECT
-#define TOUCHSCROLL_SCROLLER
-// #define TOUCHSCROLL_FLICKCHARM
+// #define TOUCHSCROLL_DIRECT  // DOES NOT WORK
+#define TOUCHSCROLL_SCROLLER  // Works
+// #define TOUCHSCROLL_FLICKCHARM  // DOESN'T WORK (well? at all?)
 
 #include "verticalscrollarea.h"
 #include <QDebug>
@@ -302,6 +302,7 @@ VerticalScrollArea::VerticalScrollArea(QWidget* parent) :
     // ------------------------------------------------------------------------
 
 #ifdef TOUCHSCROLL_DIRECT
+    // DOES NOT WORK:
     setAttribute(Qt::WA_AcceptTouchEvents);
     grabGesture(Qt::SwipeGesture);  // will arrive via event()
 
@@ -316,7 +317,7 @@ VerticalScrollArea::VerticalScrollArea(QWidget* parent) :
 #endif
 
 #ifdef TOUCHSCROLL_FLICKCHARM
-    // If that doesn't work, try
+    // DOESN'T WORK (well? at all?)
     FlickCharm charm;
     charm.activateOn(this);
 #endif

@@ -3,7 +3,6 @@
         <file>resources/camcops/images/camcops.png</file>
         <file>resources/camcops/images/hasChild.png</file>
         <file>resources/camcops/stylesheets/questionnaire.css</file>
-        <file>resources/camcops/sounds/portal_still_alive.mp3</file>
         <file>resources/camcops/images/add.png</file>
         <file>resources/camcops/images/addiction.png</file>
         <file>resources/camcops/images/affective.png</file>
@@ -127,7 +126,6 @@
         <file>taskinfo/zbi.html</file>
         <file>taskinfo/cardinal_expdet.html</file>
         <file>taskinfo/gmcpq.html</file>
-        <file>resources/camcops/sounds/soundtest.wav</file>
         <file>resources/camcops/sounds/countdown_finished.wav</file>
         <file>resources/distressthermometer/dt_sel_0.png</file>
         <file>resources/distressthermometer/dt_sel_1.png</file>
@@ -214,5 +212,10 @@
         <file>resources/expdet/A_cue_07_bach.wav</file>
         <file>resources/expdet/A_target_0_tone.wav</file>
         <file>resources/expdet/A_target_1_voice.wav</file>
+        <file>resources/camcops/sounds/mozart_laudate.mp3</file>
+        <file>resources/camcops/sounds/bach_brandenburg_3_3.mp3</file>
+        <file>resources/camcops/images/spanner.png</file>
+        <file>resources/camcops/images/treeview.png</file>
+        <file>resources/camcops/images/magnify.png</file>
     </qresource>
 </RCC>

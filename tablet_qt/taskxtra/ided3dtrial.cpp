@@ -18,9 +18,9 @@
 */
 
 #include "ided3dtrial.h"
-#include "lib/ccrandom.h"
 #include "lib/containers.h"
 #include "lib/datetime.h"
+#include "maths/ccrandom.h"
 #include "maths/mathfunc.h"
 #include "ided3dexemplars.h"
 #include "ided3dstage.h"

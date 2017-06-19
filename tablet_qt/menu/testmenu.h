@@ -44,6 +44,9 @@ protected:
     void testWait();
     void expensiveFunction();
     void testSizeFormatter();
+    void testConversions();
+    void testEigenFunctions();
+    void testRandom();
     void testLogisticRegression();
 
 protected:

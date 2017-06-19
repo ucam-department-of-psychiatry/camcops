@@ -19,6 +19,9 @@
 
 // #define OFFER_LAYOUT_DEBUG_BUTTON
 
+// #define RESPOND_VIA_ITEM_SELECTION  // bad
+#define RESPOND_VIA_ITEM_CLICKED  // good
+
 #include "diagnosticcodeselector.h"
 #include <functional>
 #include <QApplication>
@@ -123,11 +126,11 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     title_label->setAlignment(text_align);
     title_label->setObjectName(cssconst::TITLE);
 
-    m_search_button = new ImageButton(uiconst::CBS_ZOOM);  // *** ICON: remove "+" from centre of magnifying glass
+    m_search_button = new ImageButton(uiconst::CBS_MAGNIFY);
     connect(m_search_button.data(), &QAbstractButton::clicked,
             this, &DiagnosticCodeSelector::goToSearch);
 
-    m_tree_button = new ImageButton(uiconst::CBS_CHOOSE_PAGE);  // *** ICON: tree view
+    m_tree_button = new ImageButton(uiconst::CBS_TREE_VIEW);
     connect(m_tree_button.data(), &QAbstractButton::clicked,
             this, &DiagnosticCodeSelector::goToTree);
 
@@ -166,8 +169,10 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
 
     m_selection_model = QSharedPointer<QItemSelectionModel>(
                 new QItemSelectionModel(m_codeset.data()));
+#ifdef RESPOND_VIA_ITEM_SELECTION
     connect(m_selection_model.data(), &QItemSelectionModel::selectionChanged,
             this, &DiagnosticCodeSelector::selectionChanged);
+#endif
     m_selection_model->select(selected, QItemSelectionModel::ClearAndSelect);
 
     // ========================================================================
@@ -192,6 +197,10 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     m_treeview->setSortingEnabled(false);
     m_treeview->scrollTo(selected);
     uifunc::applyScrollGestures(m_treeview);
+#ifdef RESPOND_VIA_ITEM_CLICKED
+    connect(m_treeview.data(), &QListView::clicked,
+            this, &DiagnosticCodeSelector::treeItemClicked);
+#endif
 
     // ========================================================================
     // Search box
@@ -224,8 +233,11 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
 
     m_proxy_selection_model = QSharedPointer<QItemSelectionModel>(
                 new QItemSelectionModel(m_diag_filter_model.data()));
+
+#ifdef RESPOND_VIA_ITEM_SELECTION
     connect(m_proxy_selection_model.data(), &QItemSelectionModel::selectionChanged,
             this, &DiagnosticCodeSelector::proxySelectionChanged);
+#endif
     QModelIndex proxy_selected = proxyFromSource(selected);
     m_proxy_selection_model->select(proxy_selected,
                                     QItemSelectionModel::ClearAndSelect);
@@ -252,6 +264,10 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     m_flatview->setWordWrap(true);
     m_flatview->scrollTo(proxy_selected);
     uifunc::applyScrollGestures(m_flatview);
+#ifdef RESPOND_VIA_ITEM_CLICKED
+    connect(m_flatview.data(), &QListView::clicked,
+            this, &DiagnosticCodeSelector::searchItemClicked);
+#endif
 
     // ========================================================================
     // Final assembly (with "this" as main widget)
@@ -286,16 +302,20 @@ void DiagnosticCodeSelector::selectionChanged(const QItemSelection& selected,
                                               const QItemSelection& deselected)
 {
     Q_UNUSED(deselected);
+#ifdef RESPOND_VIA_ITEM_SELECTION
     QModelIndexList indexes = selected.indexes();
     if (indexes.isEmpty()) {
         return;
     }
     QModelIndex index = indexes.at(0);
-    newSelection(index);
+    itemChosen(index);
+#else
+    Q_UNUSED(selected);
+#endif
 }
 
 
-void DiagnosticCodeSelector::newSelection(const QModelIndex& index)
+void DiagnosticCodeSelector::itemChosen(const QModelIndex& index)
 {
     if (!index.isValid()) {
         return;
@@ -329,7 +349,22 @@ void DiagnosticCodeSelector::proxySelectionChanged(
     }
     QModelIndex proxy_index = proxy_indexes.at(0);
     QModelIndex src_index = sourceFromProxy(proxy_index);
-    newSelection(src_index);
+    itemChosen(src_index);
+}
+
+
+void DiagnosticCodeSelector::searchItemClicked(const QModelIndex& index)
+{
+    // The search view uses a proxy model.
+    QModelIndex src_index = sourceFromProxy(index);
+    itemChosen(src_index);
+}
+
+
+void DiagnosticCodeSelector::treeItemClicked(const QModelIndex& index)
+{
+    // The tree view uses the underlying model directly.
+    itemChosen(index);
 }
 
 

@@ -17,7 +17,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/****************************************************************************
+// Modified from Qt's qtbase/src/plugins/sqldrivers/sqlite/qsql_sqlite.cpp
+
+/* ============================================================================
 **
 ** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
@@ -54,7 +56,7 @@
 **
 ** $QT_END_LICENSE$
 **
-****************************************************************************/
+============================================================================ */
 
 #define MODIFIED_FROM_SQLITE  // shows what we've done
 
@@ -80,9 +82,11 @@
 
 #ifdef MODIFIED_FROM_SQLITE
 #include "db/whichdb.h"
-#ifdef USE_SQLCIPHER
-#include <sqlcipher/sqlite3.h>
-#endif
+    #ifdef USE_SQLCIPHER
+#include <sqlcipher/sqlite3.h>  // does the 'extern "C" { ... }' part for us
+    #else
+#include <sqlite3.h>
+    #endif
 #else
 #include <sqlite3.h>
 #endif

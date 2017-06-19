@@ -24,6 +24,7 @@
 #include "common/camcopsapp.h"
 #include "common/cssconst.h"
 #include "lib/filefunc.h"
+#include "lib/uifunc.h"
 #include "menulib/menuheader.h"
 #include "widgets/labelwordwrapwide.h"
 
@@ -63,6 +64,8 @@ HtmlInfoWindow::HtmlInfoWindow(CamcopsApp& app, const QString& title,
         browser->setOpenExternalLinks(true);
         mainlayout->addWidget(browser);
         // It manages scrolling itself.
+        // But not touch scrolling: touching us
+        uifunc::applyScrollGestures(browser);
     } else {
         QLabel* label = new LabelWordWrapWide(tr("No such file") + ": " +
                                               filename);

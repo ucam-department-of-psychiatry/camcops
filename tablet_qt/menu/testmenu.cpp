@@ -33,6 +33,7 @@
 #include "lib/uifunc.h"
 #include "lib/slownonguifunctioncaller.h"
 #include "lib/soundfunc.h"
+#include "maths/ccrandom.h"
 #include "maths/eigenfunc.h"
 #include "maths/logisticdescriptives.h"
 #include "maths/logisticregression.h"
@@ -42,11 +43,12 @@
 #include "tasklib/taskfactory.h"  // for TaskPtr
 #include "tasks/phq9.h"
 
-const int EXPENSIVE_FUNCTION_DURATION_MS = 20000;
+const int EXPENSIVE_FUNCTION_DURATION_MS = 10000;
 
 
 TestMenu::TestMenu(CamcopsApp& app)
-    : MenuWindow(app, tr("CamCOPS self-tests"), ""),
+    : MenuWindow(app, tr("CamCOPS self-tests"),
+                 uifunc::iconFilename(uiconst::CBS_SPANNER)),
       m_player(nullptr)
 {
     m_items = {
@@ -70,15 +72,15 @@ TestMenu::TestMenu(CamcopsApp& app)
         ).setNotIfLocked(),
 #ifdef DEBUG_OPTIONS
         MenuItem(
-            tr("Test PHQ9 creation"),
+            tr("Test PHQ9 creation (nothing is saved)"),
             std::bind(&TestMenu::testPhq9Creation, this)
         ).setNotIfLocked(),
         MenuItem(
-            tr("Test ICD-10 code set creation"),
+            tr("Test ICD-10 code set creation (nothing is saved)"),
             std::bind(&TestMenu::testIcd10CodeSetCreation, this)
         ),
         MenuItem(
-            tr("Test ICD-9-CM code set creation"),
+            tr("Test ICD-9-CM code set creation (nothing is saved)"),
             std::bind(&TestMenu::testIcd9cmCodeSetCreation, this)
         ),
 #endif
@@ -99,6 +101,19 @@ TestMenu::TestMenu(CamcopsApp& app)
         MenuItem(
             tr("Test size formatter"),
             std::bind(&TestMenu::testSizeFormatter, this)
+        ),
+        MenuItem(
+            tr("Test conversions"),
+            std::bind(&TestMenu::testConversions, this)
+        ),
+        MenuItem(
+            tr("Test Eigen functions"),
+            std::bind(&TestMenu::testEigenFunctions, this)
+        ),
+        MenuItem(
+            tr("Test random number functions (and associated floating point "
+               "assistance functions)"),
+            std::bind(&TestMenu::testRandom, this)
         ),
         MenuItem(
             tr("Test logistic regression, and the underlying generalized linear model (GLM)"),
@@ -129,7 +144,7 @@ void TestMenu::testDebugConsole()
 void TestMenu::testSound()
 {
     soundfunc::makeMediaPlayer(m_player);
-    QUrl url(uiconst::DEMO_SOUND_URL);
+    QUrl url(uiconst::DEMO_SOUND_URL_1);
     qDebug() << "Trying to play:" << url;
     m_player->setMedia(url);
     m_player->setVolume(50);
@@ -271,6 +286,30 @@ void TestMenu::testSizeFormatter()
         }
     }
     uifunc::alert(text);
+}
+
+
+void TestMenu::testConversions()
+{
+    convert::testConversions();
+    uifunc::alert("Conversion test: OK");
+}
+
+
+void TestMenu::testEigenFunctions()
+{
+    eigenfunc::testEigenFunctions();
+    uifunc::alert("Eigen functions: OK "
+                  "(more details are on the debug console)");
+}
+
+
+void TestMenu::testRandom()
+{
+    ccrandom::testRandom();
+    uifunc::alert("Random-number functions (and supporting "
+                  "floating-point-delta functions): OK "
+                  "(more details are on the debug console)");
 }
 
 

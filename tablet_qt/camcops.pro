@@ -22,12 +22,17 @@
 # - http://doc.qt.io/qt-4.8/qmake-advanced-usage.html#variables
 # - http://doc.qt.io/qt-5/qmake-test-function-reference.html
 # Here, we copy an environment variable to a Qt project file variable:
-QT_BASE_DIR = $(CAMCOPS_QT_BASE_DIR)  # value at time of make
-QT_BASE_DIR_AT_QMAKE = $$(CAMCOPS_QT_BASE_DIR)  # value at time of qmake ("now")
-message("Using base directory: '$${QT_BASE_DIR_AT_QMAKE}'")
-isEmpty(QT_BASE_DIR_AT_QMAKE) {
+# QT_BASE_DIR = $(CAMCOPS_QT_BASE_DIR)  # value at time of make
+QT_BASE_DIR = $$(CAMCOPS_QT_BASE_DIR)  # value at time of qmake ("now")
+isEmpty(QT_BASE_DIR) {
     error("Environment variable CAMCOPS_QT_BASE_DIR is undefined")
 }
+message("Using base directory: $${QT_BASE_DIR}")
+# AVOID # CAMCOPS_SOURCE_ROOT = ${PWD}  # at time of make
+CAMCOPS_SOURCE_ROOT = $${PWD}  # at time of qmake ("now")
+message("Expecting CamCOPS source root at: $${CAMCOPS_SOURCE_ROOT}")
+# message("QMAKESPEC: $${QMAKESPEC}")
+# message("QMAKE_PLATFORM: $${QMAKE_PLATFORM}")
 
 # =============================================================================
 # Parts of Qt
@@ -60,7 +65,6 @@ QT += widgets  # required to #include <QApplication>
 # Overall configuration
 # =============================================================================
 
-CONFIG += static  # use a statically linked version of Qt
 # CONFIG += debug  # no, use the QtCreator debug/release settings
 CONFIG += mobility
 CONFIG += c++11
@@ -77,8 +81,6 @@ MOBILITY =
 # ... but no effect? Not mentioned in variable reference (above).
 LIBS += -lssl
 # ... not working either? Doesn't complain, but ldd still shows that system libssl.so is in use
-
-LIBS += "$$QT_BASE_DIR/src/sqlcipher/sqlite3.o"
 
 # =============================================================================
 # Compiler flags
@@ -104,13 +106,64 @@ TEMPLATE = app
 # =============================================================================
 # See build_qt.py for how these are built (or not built) as required.
 
-INCLUDEPATH += "$$QT_BASE_DIR/eigen/eigen-eigen-67e894c6cd8f"  # from which: <Eigen/...>
-# INCLUDEPATH += "$$QT_BASE_DIR/armadillo/armadillo-7.950.0/include"  # from which: <armadillo>
-# INCLUDEPATH += "$$QT_BASE_DIR/armadillo/armadillo-7.950.0/include/armadillo_bits"
-# INCLUDEPATH += "$$QT_BASE_DIR/boost/boost_1_64_0"  # from which: <boost/...>
-# INCLUDEPATH += "$$QT_BASE_DIR/src/mlpack/src"  # from which: <mlpack/...>
-INCLUDEPATH += "$$QT_BASE_DIR/openssl_linux_build/openssl-1.0.2h/include"  # *** nasty hard-coding
-INCLUDEPATH += "$$QT_BASE_DIR/src"  # from which: <sqlcipher/sqlite3.h>
+INCLUDEPATH += "$${QT_BASE_DIR}/eigen/eigen-eigen-67e894c6cd8f"  # from which: <Eigen/...>
+# INCLUDEPATH += "$${QT_BASE_DIR}/armadillo/armadillo-7.950.0/include"  # from which: <armadillo>
+# INCLUDEPATH += "$${QT_BASE_DIR}/armadillo/armadillo-7.950.0/include/armadillo_bits"
+# INCLUDEPATH += "$${QT_BASE_DIR}/boost/boost_1_64_0"  # from which: <boost/...>
+# INCLUDEPATH += "$${QT_BASE_DIR}/src/mlpack/src"  # from which: <mlpack/...>
+
+# =============================================================================
+# OS-specific options
+# =============================================================================
+# https://wiki.qt.io/Technical_FAQ#How_can_I_detect_in_the_.pro_file_if_I_am_compiling_for_a_32_bit_or_a_64_bit_platform.3F
+
+OPENSSL_VERSION = 1.0.2h
+OPENSSL_SUBDIR = openssl-$${OPENSSL_VERSION}
+message("Using OpenSSL version $$OPENSSL_VERSION")
+
+# Set OS-specific variables
+linux : !android {
+    message("Building for Linux")  # and not Android Linux!
+    message("Assuming x86_64")
+    CAMCOPS_ARCH_TAG = "linux_x86_64"
+
+    CONFIG += static  # use a statically linked version of Qt
+}
+android {
+    message("Building for Android")
+    contains(ANDROID_TARGET_ARCH, x86) {
+        message("Building for Android/x86 (e.g. Android emulator)")
+        CAMCOPS_ARCH_TAG = "android_x86"
+    }
+    contains(ANDROID_TARGET_ARCH, armeabi-v7a) {
+        message("Building for Android/ARMv7")
+        CAMCOPS_ARCH_TAG = "android_armv7"
+    }
+
+    # http://doc.qt.io/qt-5/deployment-android.html#android-specific-qmake-variables
+    ANDROID_PACKAGE_SOURCE_DIR = "$${CAMCOPS_SOURCE_ROOT}/android"
+    message("ANDROID_PACKAGE_SOURCE_DIR: $${ANDROID_PACKAGE_SOURCE_DIR}")
+    # ... contains things like AndroidManifest.xml
+}
+isEmpty(CAMCOPS_ARCH_TAG) {
+    error("Unknown architecture; don't know how to build CamCOPS")
+}
+
+# OpenSSL
+# -----------------------------------------------------------------------------
+OPENSSL_DIR = "$${QT_BASE_DIR}/openssl_$${CAMCOPS_ARCH_TAG}_build/$${OPENSSL_SUBDIR}"
+INCLUDEPATH += "$${OPENSSL_DIR}/include"
+LIBS += "$${OPENSSL_DIR}/libcrypto.so"
+LIBS += "$${OPENSSL_DIR}/libssl.so"
+ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libcrypto.so"  # needed for Qt
+ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libssl.so"
+
+# SQLCipher
+# -----------------------------------------------------------------------------
+SQLCIPHER_DIR = "$${QT_BASE_DIR}/sqlcipher_$${CAMCOPS_ARCH_TAG}"
+INCLUDEPATH += "$${SQLCIPHER_DIR}"  # from which: <sqlcipher/sqlite3.h>
+LIBS += "$${SQLCIPHER_DIR}/sqlcipher/sqlite3.o"
+
 
 # =============================================================================
 # Resources and source files
@@ -178,7 +231,7 @@ SOURCES += main.cpp \
     graphics/linesegment.cpp \
     graphics/paintertranslaterotatecontext.cpp \
     graphics/penbrush.cpp \
-    lib/ccrandom.cpp \
+    maths/ccrandom.cpp \
     lib/containers.cpp \
     lib/convert.cpp \
     lib/css.cpp \
@@ -452,7 +505,9 @@ SOURCES += main.cpp \
     taskxtra/cardinalexpdetrating.cpp \
     lib/soundfunc.cpp \
     lib/timerfunc.cpp \
-    maths/dqrls.cpp
+    maths/dqrls.cpp \
+    maths/endian.cpp \
+    maths/countingcontainer.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -518,7 +573,7 @@ HEADERS += \
     graphics/linesegment.h \
     graphics/paintertranslaterotatecontext.h \
     graphics/penbrush.h \
-    lib/ccrandom.h \
+    maths/ccrandom.h \
     lib/cloneable.h \
     lib/containers.h \
     lib/convert.h \
@@ -794,7 +849,11 @@ HEADERS += \
     taskxtra/cardinalexpdetrating.h \
     lib/soundfunc.h \
     lib/timerfunc.h \
-    maths/dqrls.h
+    maths/dqrls.h \
+    maths/floatbits.h \
+    maths/ieee754.h \
+    maths/endian.h \
+    maths/countingcontainer.h
 
 DISTFILES += \
     android/AndroidManifest.xml \
@@ -843,22 +902,5 @@ DISTFILES += \
     tools/build_qt.py \
     tools/chord.py \
     tools/cppclean_all.sh \
-    tools/decrypt_sqlcipher.py
-
-
-# =============================================================================
-# Android-specific options
-# =============================================================================
-
-ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
-
-#contains(ANDROID_TARGET_ARCH,x86) {
-#    ANDROID_EXTRA_LIBS = \
-#        $$PWD/../../../../dev/qt_local_build/openssl_android_x86_build/openssl-1.0.2h/libcrypto.so \
-#        $$PWD/../../../../dev/qt_local_build/openssl_android_x86_build/openssl-1.0.2h/libssl.so
-#}
-#contains(ANDROID_TARGET_ARCH,armeabi-v7a) {
-#    ANDROID_EXTRA_LIBS = \
-#        $$PWD/../../../../dev/qt_local_build/openssl_android_arm_build/openssl-1.0.2h/libcrypto.so \
-#        $$PWD/../../../../dev/qt_local_build/openssl_android_arm_build/openssl-1.0.2h/libssl.so
-#}
+    tools/decrypt_sqlcipher.py \
+    notes/android_compilation.txt

@@ -31,8 +31,11 @@ extern std::mt19937 rng;
 
 bool coin(qreal p = 0.5);
 int randomInt(int minimum, int maximum);
-qreal randomRealExcUpper(qreal minimum, qreal maximum);
-qreal randomRealIncUpper(qreal minimum, qreal maximum);
+double randomRealExcUpper(double minimum, double maximum);
+float nextFloatAbove(float x);
+double nextDoubleAboveManual(double x);
+double nextDoubleAbove(double x);
+double randomRealIncUpper(double minimum, double maximum);
 
 
 template<typename T>
@@ -74,6 +77,9 @@ void shuffle(QVector<T>& vec)
 {
     std::shuffle(vec.begin(), vec.end(), rng);
 }
+
+
+void testRandom();
 
 
 }  // namespace ccrandom

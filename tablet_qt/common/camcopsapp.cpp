@@ -21,8 +21,6 @@
 // #define DANGER_DEBUG_WIPE_PASSWORDS
 // #define DEBUG_EMIT
 // #define DEBUG_SCREEN_STACK
-// #define TEST_CONVERSIONS
-// #define TEST_EIGEN_FUNCTIONS
 
 #include "camcopsapp.h"
 #include <QApplication>
@@ -31,6 +29,7 @@
 #include <QIcon>
 #include <QMainWindow>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QSqlDatabase>
 #include <QSqlDriverCreator>
 #include <QStackedWidget>
@@ -59,7 +58,6 @@
 #include "lib/slowguiguard.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
-#include "maths/eigenfunc.h"
 #include "menu/mainmenu.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnaire.h"
@@ -103,12 +101,6 @@ int CamcopsApp::run()
     // Baseline C++ things
     seedRng();
     convert::registerQVectorTypesForQVariant();
-#ifdef TEST_CONVERSIONS
-    convert::testConversions();
-#endif
-#ifdef TEST_EIGEN_FUNCTIONS
-    eigenfunc::testEigenFunctions();
-#endif
 
     // CamCOPS core
     initGuiOne();
@@ -695,16 +687,15 @@ void CamcopsApp::close()
 
         if (varBool(varconst::OFFER_UPLOAD_AFTER_EDIT) &&
                 varBool(varconst::NEEDS_UPLOAD)) {
-            QMessageBox msgbox(
-                QMessageBox::Question,  // icon
-                tr("Upload?"),  // title
-                tr("Task finished. Upload data to server now?"),  // text
-                QMessageBox::Yes | QMessageBox::No,  // buttons
-                m_p_main_window);  // parent
-            msgbox.setButtonText(QMessageBox::Yes, tr("Yes, upload"));
-            msgbox.setButtonText(QMessageBox::No, tr("No, cancel"));
-            int reply = msgbox.exec();
-            if (reply == QMessageBox::Yes) {
+            QMessageBox msgbox(m_p_main_window);  // parent
+            msgbox.setIcon(QMessageBox::Question);
+            msgbox.setWindowTitle(tr("Upload?"));
+            msgbox.setText(tr("Task finished. Upload data to server now?"));
+            QAbstractButton* yes = msgbox.addButton(tr("Yes, upload"),
+                                                    QMessageBox::YesRole);
+            msgbox.addButton(tr("No, cancel"), QMessageBox::NoRole);
+            msgbox.exec();
+            if (msgbox.clickedButton() == yes) {
                 upload();
             }
         }
@@ -1424,21 +1415,21 @@ QDateTime CamcopsApp::agreedTermsAt() const
 
 void CamcopsApp::offerTerms()
 {
-    QMessageBox msgbox(QMessageBox::Question,  // icon
-                       tr("View terms and conditions of use"),  // title
-                       textconst::TERMS_CONDITIONS,  // text
-                       QMessageBox::Yes | QMessageBox::No,  // buttons
-                       m_p_main_window);  // parent
-    msgbox.setButtonText(QMessageBox::Yes,
-                         tr("I AGREE to these terms and conditions"));
-    msgbox.setButtonText(QMessageBox::No,
-                         tr("I DO NOT AGREE to these terms and conditions"));
+    QMessageBox msgbox(m_p_main_window);
+    msgbox.setIcon(QMessageBox::Question);
+    msgbox.setWindowTitle(tr("View terms and conditions of use"));
+    msgbox.setText(textconst::TERMS_CONDITIONS);
+    QAbstractButton* yes = msgbox.addButton(
+                tr("I AGREE to these terms and conditions"),
+                QMessageBox::YesRole);
+    msgbox.addButton(tr("I DO NOT AGREE to these terms and conditions"),
+                     QMessageBox::NoRole);
     // It's hard work to remove the Close button from the dialog, but that is
     // interpreted as rejection, so that's OK.
     // - http://www.qtcentre.org/threads/41269-disable-close-button-in-QMessageBox
 
-    int reply = msgbox.exec();
-    if (reply == QMessageBox::Yes) {
+    msgbox.exec();
+    if (msgbox.clickedButton() == yes) {
         // Agreed terms
         setVar(varconst::AGREED_TERMS_AT, QDateTime::currentDateTime());
     } else {
@@ -1470,10 +1461,6 @@ void CamcopsApp::dumpSystemDatabase(QTextStream& os)
 
 void CamcopsApp::upload()
 {
-    QMessageBox::StandardButtons buttons = (QMessageBox::Yes |
-                                            QMessageBox::No |
-                                            QMessageBox::Ok |
-                                            QMessageBox::Cancel);
     QString text =
             "Copy data to server, or move it to server?\n"
             "\n"
@@ -1484,29 +1471,24 @@ void CamcopsApp::upload()
             "\n"
             "Please MOVE whenever possible; this reduces the amount of "
             "patient-identifiable information stored on this device.";
-    QMessageBox msgbox(QMessageBox::Question,  // icon
-                       tr("Upload to server"),  // title
-                       text,  // text
-                       buttons,  // buttons
-                       m_p_main_window);  // parent
-    msgbox.setButtonText(QMessageBox::Yes, tr("Copy"));
-    msgbox.setButtonText(QMessageBox::No, tr("Move, keeping patients"));
-    msgbox.setButtonText(QMessageBox::Ok, tr("Move"));
-    msgbox.setButtonText(QMessageBox::Cancel, tr("Cancel"));
-    int reply = msgbox.exec();
+    QMessageBox msgbox(m_p_main_window);
+    msgbox.setIcon(QMessageBox::Question);
+    msgbox.setWindowTitle(tr("Upload to server"));
+    msgbox.setText(text);
+    QAbstractButton* copy = msgbox.addButton(tr("Copy"), QMessageBox::YesRole);
+    QAbstractButton* move_keep = msgbox.addButton(tr("Move, keeping patients"), QMessageBox::NoRole);
+    QAbstractButton* move = msgbox.addButton(tr("Move"), QMessageBox::AcceptRole);  // e.g. OK
+    msgbox.addButton(tr("Cancel"), QMessageBox::RejectRole);  // e.g. Cancel
+    msgbox.exec();
     NetworkManager::UploadMethod method;
-    switch (reply) {
-    case QMessageBox::Yes:  // copy
+    QAbstractButton* reply = msgbox.clickedButton();
+    if (reply == copy) {
         method = NetworkManager::UploadMethod::Copy;
-        break;
-    case QMessageBox::No:  // move, keeping patients
+    } else if (reply == move_keep) {
         method = NetworkManager::UploadMethod::MoveKeepingPatients;
-        break;
-    case QMessageBox::Ok:  // move
+    } else if (reply == move) {
         method = NetworkManager::UploadMethod::Move;
-        break;
-    case QMessageBox::Cancel:  // cancel
-    default:
+    } else {
         return;
     }
     NetworkManager* netmgr = networkManager();

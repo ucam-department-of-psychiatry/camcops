@@ -24,9 +24,9 @@
 #include <QPen>
 #include <QPushButton>
 #include "common/textconst.h"
-#include "lib/ccrandom.h"
 #include "lib/datetime.h"
 #include "lib/stringfunc.h"
+#include "maths/ccrandom.h"
 #include "tasklib/taskfactory.h"
 #include "widgets/adjustablepie.h"
 #include "widgets/openablewidget.h"

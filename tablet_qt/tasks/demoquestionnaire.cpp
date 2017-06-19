@@ -320,7 +320,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
         new QuHeading("Simple audio player:"),
         (new QuAudioPlayer(uiconst::DEMO_SOUND_URL_2))->setVolume(25),
         new QuHeading("Audio player with volume control:"),
-        (new QuAudioPlayer(uiconst::DEMO_SOUND_URL))->setOfferVolumeControl(),
+        (new QuAudioPlayer(uiconst::DEMO_SOUND_URL_1))->setOfferVolumeControl(),
         new QuHeading("Countdown:"),
         new QuCountdown(20),
     })->setTitle("Audio players, countdowns"));

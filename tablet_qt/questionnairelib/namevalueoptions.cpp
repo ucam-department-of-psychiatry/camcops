@@ -20,8 +20,8 @@
 #include "namevalueoptions.h"
 #include <QDebug>
 #include "lib/convert.h"
-#include "lib/ccrandom.h"
 #include "lib/uifunc.h"
+#include "maths/ccrandom.h"
 
 
 NameValueOptions::NameValueOptions()

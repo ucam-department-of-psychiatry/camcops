@@ -22,6 +22,7 @@
 #include "choosepatientmenu.h"
 #include <QDebug>
 #include <QMessageBox>
+#include <QPushButton>
 #include "dbobjects/patient.h"
 #include "lib/uifunc.h"
 #include "menulib/menuheader.h"
@@ -126,16 +127,15 @@ void ChoosePatientMenu::deletePatient()
 
     // First check
     {
-        QMessageBox msgbox(
-            QMessageBox::Warning,  // icon
-            tr("Delete patient"),  // title
-            tr("Delete this patient?") + "\n\n" +  patient_details,  // text
-            QMessageBox::Yes | QMessageBox::No,  // buttons
-            this);  // parent
-        msgbox.setButtonText(QMessageBox::Yes, tr("Yes, delete"));
-        msgbox.setButtonText(QMessageBox::No, tr("No, cancel"));
-        int reply = msgbox.exec();
-        if (reply != QMessageBox::Yes) {
+        QMessageBox msgbox(this);
+        msgbox.setIcon(QMessageBox::Warning);
+        msgbox.setWindowTitle(tr("Delete patient"));
+        msgbox.setText(tr("Delete this patient?") + "\n\n" +  patient_details);
+        QAbstractButton* delete_button = msgbox.addButton(
+                    tr("Yes, delete"), QMessageBox::YesRole);
+        msgbox.addButton(tr("No, cancel"), QMessageBox::NoRole);
+        msgbox.exec();
+        if (msgbox.clickedButton() != delete_button) {
             return;
         }
     }
@@ -143,17 +143,17 @@ void ChoosePatientMenu::deletePatient()
     // Second check
     int n_tasks = patient->numTasks();
     if (n_tasks > 0) {
-        QMessageBox msgbox(
-            QMessageBox::Warning,  // icon
-            tr("Delete patient WITH TASKS"),  // title
-            tr("Delete this patient?") + "\n\n" +  patient_details +
-                QString("\n\n<b>THERE ARE %1 ASSOCIATED TASKS!</b>").arg(n_tasks),  // text
-            QMessageBox::Yes | QMessageBox::No,  // buttons
-            this);  // parent
-        msgbox.setButtonText(QMessageBox::Yes, tr("Yes, delete despite tasks"));
-        msgbox.setButtonText(QMessageBox::No, tr("No, cancel"));
-        int reply = msgbox.exec();
-        if (reply != QMessageBox::Yes) {
+        QMessageBox msgbox(this);
+        msgbox.setIcon(QMessageBox::Warning);
+        msgbox.setWindowTitle(tr("Delete patient WITH TASKS"));
+        msgbox.setText(tr("Delete this patient?") + "\n\n" +  patient_details +
+                       QString("\n\n<b>THERE ARE %1 ASSOCIATED TASKS!</b>")
+                            .arg(n_tasks));
+        QAbstractButton* delete_button = msgbox.addButton(
+                    tr("Yes, delete despite tasks"), QMessageBox::YesRole);
+        msgbox.addButton(tr("No, cancel"), QMessageBox::NoRole);
+        msgbox.exec();
+        if (msgbox.clickedButton() != delete_button) {
             return;
         }
     }

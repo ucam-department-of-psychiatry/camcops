@@ -3,6 +3,26 @@
 KNOWN PROBLEMS
 ===============================================================================
 
+ANY PLATFORM
+
 -   It seems likely that QLabel::heightForWidth() sometimes gets heights wrong
     for some stylesheets, leading to excessive vertical height. See
     labelwordwrapwide.cpp (and to see the problem: try the demo QuMcqGrid).
+    ... I think I've largely compensated for this, though.
+
+ANDROID
+
+-   Occasionally, copy/paste selection cursors appear on screen, far removed
+    from the text they relate to. This is presumably a Qt bug.
+    Related Qt bugs:
+    - https://bugreports.qt.io/browse/QTBUG-34867
+    - https://bugreports.qt.io/browse/QTBUG-58700
+
+-   Camera functions are slow.
+
+-   There is no camera preview (viewfinder).
+    Known Qt problem: https://bugreports.qt.io/browse/QTBUG-53194
+    ... effectively: "unsupported; use QVideoProbe or QAbstractVideoSurface"
+    Possible solutions:
+    - http://omg-it.works/how-to-grab-video-frames-directly-from-qcamera/
+    - http://developers-club.com/posts/254625/

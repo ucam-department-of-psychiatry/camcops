@@ -3,9 +3,23 @@
 TO DO NOW
 ===============================================================================
 
-- *** ExpDetThreshold occasionally not doing regression (NULL slope etc.)
+- ICONS
+    - tick icon for "OK", used as alternative to green stop icon for
+      questionnaires in config context. == uiconst::CBS_OK
 
-- *** tasks
+- fix server, quick'n'dirty
+
+
+===============================================================================
+REQUIRED, BUT NOT IMMEDIATELY, OR TO THINK ABOUT
+===============================================================================
+
+ANDROID
+- camera is slow
+- no camera preview
+
+SERVER
+- cross-platform, Django
 
 
 - *** chains (see e.g. ResearchMenu.js; MenuTableRow.js; QuestionnaireHeader.js...)
@@ -18,21 +32,6 @@ TO DO NOW
 
 
 
-
-- test scrolling by touch on Android:
-    - menus/questionnaires (VerticalScrollArea)
-    - diagnostic code selector widget (DiagnosticCodeSelector)
-
-- ICONS
-    - screwdriver icon for test menu
-    - magnifying glass without "+" to toggle search in diagnostic code view
-    - new icon for "tree" in diagnostic code view
-    - tick icon for "OK", used as alternative to green stop icon for
-      questionnaires in config context.
-
-- "webview"-like tasks, e.g. ID/ED
-  aspect ratio:
-  http://stackoverflow.com/questions/452333/how-to-maintain-widgets-aspect-ratio-in-qt
 
 - as per Julia's problem: >1 patient on tablet, need to have same RID (because
   extra one created by mistake) - option to merge

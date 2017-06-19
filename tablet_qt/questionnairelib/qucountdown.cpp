@@ -17,6 +17,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// #define DEBUG_TICKS
+
 #include "qucountdown.h"
 #include <functional>
 #include <QHBoxLayout>
@@ -139,12 +141,16 @@ void QuCountdown::tick()
     m_seconds_left -= PERIOD_MS / 1000.0;
     if (m_seconds_left <= 0) {
         // Finished!
+#ifdef DEBUG_TICKS
         qDebug() << Q_FUNC_INFO << "- finished";
+#endif
         bong();
         stop();  // will call updateDisplay()
     } else {
+#ifdef DEBUG_TICKS
         qDebug() << Q_FUNC_INFO << "-" << m_seconds_left
                  << "seconds left";
+#endif
         updateDisplay();
     }
 }

@@ -135,15 +135,18 @@ extern const QString CBS_FAST_FORWARD;
 extern const QString CBS_FINISH;
 extern const QString CBS_FINISHFLAG;
 extern const QString CBS_LOCKED;
+extern const QString CBS_MAGNIFY;
 extern const QString CBS_NEXT;
 extern const QString CBS_OK;
 extern const QString CBS_PRIVILEGED;
 extern const QString CBS_RELOAD;
 extern const QString CBS_ROTATE_ANTICLOCKWISE;
 extern const QString CBS_ROTATE_CLOCKWISE;
+extern const QString CBS_SPANNER;
 extern const QString CBS_SPEAKER;
 extern const QString CBS_SPEAKER_PLAYING;
 extern const QString CBS_TIME_NOW;
+extern const QString CBS_TREE_VIEW;
 extern const QString CBS_UNLOCKED;
 extern const QString CBS_ZOOM;
 
@@ -153,7 +156,7 @@ extern const QString CBS_ZOOM;
 
 extern const int MIN_VOLUME_QT;
 extern const int MAX_VOLUME_QT;
-extern const QString DEMO_SOUND_URL;
+extern const QString DEMO_SOUND_URL_1;
 extern const QString DEMO_SOUND_URL_2;
 extern const QString SOUND_COUNTDOWN_FINISHED;
 

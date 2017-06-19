@@ -503,7 +503,7 @@ QPair<int, int> gridDimensions(int n, qreal aspect)
 int proportionToByte(qreal proportion)
 {
     // convert 0.0-1.0 to 0-255
-    int a = std::round(qBound(0.0, proportion, 1.0) * 255);
+    int a = qRound(qBound(0.0, proportion, 1.0) * 255);
     return qBound(0, a, 255);
 }
 
@@ -518,7 +518,7 @@ qreal byteToProportion(int byte)
 int proportionToIntPercent(qreal proportion)
 {
     // convert 0.0-1.0 to 0-100
-    int a = std::round(qBound(0.0, proportion, 1.0) * 100);
+    int a = qRound(qBound(0.0, proportion, 1.0) * 100);
     return qBound(0, a, 100);
 }
 

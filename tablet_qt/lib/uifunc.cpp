@@ -21,7 +21,6 @@
 
 #include "uifunc.h"
 #include <QApplication>
-#include <QAbstractButton>
 #include <QBrush>
 #include <QDebug>
 #include <QDesktopServices>
@@ -33,6 +32,7 @@
 #include <QPen>
 #include <QPixmapCache>
 #include <QPlainTextEdit>
+#include <QPushButton>
 #include <QScrollBar>
 #include <QScroller>
 #include <QStyle>
@@ -503,16 +503,14 @@ bool confirm(const QString& text, const QString& title,
     if (no.isEmpty()) {
         no = tr("No");
     }
-    QMessageBox msgbox(
-        QMessageBox::Question,  // icon
-        title,  // title
-        text,  // text
-        QMessageBox::Yes | QMessageBox::No,  // buttons
-        parent);  // parent
-    msgbox.setButtonText(QMessageBox::Yes, yes);
-    msgbox.setButtonText(QMessageBox::No, no);
-    int reply = msgbox.exec();
-    return reply == QMessageBox::Yes;
+    QMessageBox msgbox(parent);
+    msgbox.setIcon(QMessageBox::Question);
+    msgbox.setWindowTitle(title);
+    msgbox.setText(text);
+    QAbstractButton* yes_button = msgbox.addButton(yes, QMessageBox::YesRole);
+    msgbox.addButton(no, QMessageBox::NoRole);
+    msgbox.exec();
+    return msgbox.clickedButton() == yes_button;
 }
 
 
@@ -663,6 +661,9 @@ QString trueFalseUnknown(const QVariant& value)
 
 void applyScrollGestures(QWidget* widget)
 {
+    // This method works well, except that if the widget is also handling
+    // mouse clicks (etc.), it can get slightly confusing.
+
     if (!widget) {
         stopApp("Null pointer to applyScrollGestures");
     }

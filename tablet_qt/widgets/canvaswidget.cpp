@@ -287,8 +287,8 @@ QPoint CanvasWidget::transformDisplayToImageCoords(QPoint point) const
         return point;
     }
     QPoint result = QPoint(
-        std::round((double)point.x() * m_image_to_display_ratio),
-        std::round((double)point.y() * m_image_to_display_ratio)
+        qRound((double)point.x() * m_image_to_display_ratio),
+        qRound((double)point.y() * m_image_to_display_ratio)
     );
 #ifdef DEBUG_TRANSLATIONS
     qDebug() << Q_FUNC_INFO << point << "->" << result;

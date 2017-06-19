@@ -36,6 +36,7 @@
 #include "lib/datetime.h"
 #include "lib/uifunc.h"
 #include "lib/stringfunc.h"
+#include "maths/mathfunc.h"
 
 namespace convert {
 
@@ -892,7 +893,7 @@ double metresFromFeetInches(double feet, double inches)
 void feetInchesFromMetres(double metres, int& feet, double& inches)
 {
     double total_inches = metres * CM_PER_M / CM_PER_INCH;
-    feet = std::trunc(total_inches / INCHES_PER_FOOT);
+    feet = mathfunc::trunc(total_inches / INCHES_PER_FOOT);
     inches = std::fmod(total_inches, INCHES_PER_FOOT);
 #ifdef DEBUG_UNIT_CONVERSION
     qDebug() << UNIT_CONVERSION
@@ -920,7 +921,7 @@ void stonesPoundsFromKilograms(double kilograms,
                                int& stones, double& pounds)
 {
     double total_pounds = kilograms * POUNDS_PER_KG;
-    stones = std::trunc(total_pounds / POUNDS_PER_STONE);
+    stones = mathfunc::trunc(total_pounds / POUNDS_PER_STONE);
     pounds = std::fmod(total_pounds, POUNDS_PER_STONE);
 #ifdef DEBUG_UNIT_CONVERSION
     qDebug() << UNIT_CONVERSION
@@ -933,9 +934,9 @@ void stonesPoundsOuncesFromKilograms(double kilograms,
                                      int& stones, int& pounds, double& ounces)
 {
     double total_pounds = kilograms * POUNDS_PER_KG;
-    stones = std::trunc(total_pounds / POUNDS_PER_STONE);
+    stones = mathfunc::trunc(total_pounds / POUNDS_PER_STONE);
     double float_pounds = std::fmod(total_pounds, POUNDS_PER_STONE);
-    pounds = std::trunc(float_pounds);
+    pounds = mathfunc::trunc(float_pounds);
     ounces = std::fmod(float_pounds, 1);
 #ifdef DEBUG_UNIT_CONVERSION
     qDebug() << UNIT_CONVERSION << kilograms << "kg ->"

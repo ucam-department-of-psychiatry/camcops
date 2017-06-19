@@ -122,15 +122,18 @@ const QString CBS_FAST_FORWARD("fast_forward.png");
 const QString CBS_FINISH("finish.png");
 const QString CBS_FINISHFLAG("finishflag.png");
 const QString CBS_LOCKED("locked.png");
+const QString CBS_MAGNIFY("magnify.png");
 const QString CBS_NEXT("next.png");
 const QString CBS_OK("ok.png");
 const QString CBS_PRIVILEGED("privileged.png");
 const QString CBS_RELOAD("reload.png");
 const QString CBS_ROTATE_ANTICLOCKWISE("rotate_anticlockwise.png");
 const QString CBS_ROTATE_CLOCKWISE("rotate_clockwise.png");
+const QString CBS_SPANNER("spanner.png");
 const QString CBS_SPEAKER("speaker.png");
 const QString CBS_SPEAKER_PLAYING("speaker_playing.png");
 const QString CBS_TIME_NOW("time_now.png");
+const QString CBS_TREE_VIEW("treeview.png");
 const QString CBS_UNLOCKED("unlocked.png");
 const QString CBS_ZOOM("zoom.png");
 
@@ -141,8 +144,8 @@ const QString CBS_ZOOM("zoom.png");
 const int MIN_VOLUME_QT = 0;
 const int MAX_VOLUME_QT = 100;
 
-const QString DEMO_SOUND_URL("qrc:///resources/camcops/sounds/portal_still_alive.mp3");  // *** change; copyright
-const QString DEMO_SOUND_URL_2("qrc:///resources/camcops/sounds/soundtest.wav");  // *** change; copyright
+const QString DEMO_SOUND_URL_1("qrc:///resources/camcops/sounds/bach_brandenburg_3_3.mp3");
+const QString DEMO_SOUND_URL_2("qrc:///resources/camcops/sounds/mozart_laudate.mp3");
 const QString SOUND_COUNTDOWN_FINISHED("qrc:///resources/camcops/sounds/countdown_finished.wav");
 
 // ============================================================================

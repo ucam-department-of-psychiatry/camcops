@@ -33,6 +33,7 @@
 #include <QSize>
 // #include <QSpacerItem>
 #include <QStyle>
+#include "lib/uifunc.h"
 
 const QSize MIN_SIZE(600, 600);
 // const QSize MAX_SIZE(1024, 1500);
@@ -65,6 +66,8 @@ ScrollMessageBox::ScrollMessageBox(const QMessageBox::Icon& icon,
     // scroll->setGeometry(QRect(10, 20, 560, 430));
     scroll->setWidget(m_label);
     scroll->setWidgetResizable(true);
+
+    uifunc::applyScrollGestures(scroll);
 
     if (icon != QMessageBox::NoIcon) {
         icon_label = new QLabel();
