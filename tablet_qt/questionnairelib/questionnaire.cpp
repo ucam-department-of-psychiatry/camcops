@@ -211,6 +211,9 @@ void Questionnaire::build()
         this, page->title(),
         m_read_only, m_jump_allowed, m_within_chain,
         header_css_name, offer_debug_layout);
+    if (!m_finish_button_icon_base_filename.isEmpty()) {
+        m_p_header->setFinishButtonIcon(m_finish_button_icon_base_filename);
+    }
     connect(m_p_header, &QuestionnaireHeader::cancelClicked,
             this, &Questionnaire::cancelClicked);
     connect(m_p_header, &QuestionnaireHeader::jumpClicked,
@@ -698,4 +701,20 @@ QuElement* Questionnaire::getFirstElementByTag(const QString& tag,
         return nullptr;
     }
     return elements.at(0);
+}
+
+
+
+void Questionnaire::setFinishButtonIcon(const QString& base_filename)
+{
+    m_finish_button_icon_base_filename = base_filename;
+    if (m_p_header) {
+        m_p_header->setFinishButtonIcon(base_filename);
+    }
+}
+
+
+void Questionnaire::setFinishButtonIconToTick()
+{
+    setFinishButtonIcon(uiconst::CBS_OK);
 }

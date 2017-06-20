@@ -65,7 +65,7 @@ HtmlInfoWindow::HtmlInfoWindow(CamcopsApp& app, const QString& title,
         mainlayout->addWidget(browser);
         // It manages scrolling itself.
         // But not touch scrolling: touching us
-        uifunc::applyScrollGestures(browser);
+        uifunc::applyScrollGestures(browser->viewport());
     } else {
         QLabel* label = new LabelWordWrapWide(tr("No such file") + ": " +
                                               filename);

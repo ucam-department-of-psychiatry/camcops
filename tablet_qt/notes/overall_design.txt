@@ -55,7 +55,16 @@ We're trying to satisfy quite a few constraints...
             - server has to report back PKs recordwise at upload
             - hard to switch servers
             - if modified version is uploaded, have to rewrite tablet keys
+        - server maintains an additional PK system
+            - server calculates these at upload
+            - requires uploading in a way that respects dependencies (i.e.
+              to upload a record B where B.a_fk = A.pk, A has to be uploaded
+              first).
+            - server needs to understand the details of all records - not just
+              Patient references, but e.g. if a Trial references its Task, the
+              server would have to cope.
     - Let's stick.
+    - That means we have to cope with COMPOSITE KEYS.
 
 ===============================================================================
 SERVER ORM AND WEB FRAMEWORK
@@ -89,6 +98,11 @@ SERVER ORM AND WEB FRAMEWORK
                 return q[0] if q else None
                 # http://stackoverflow.com/questions/1387727/checking-for-empty-queryset-in-django
 
+            def tasks_where_patient_female() -> QuerySet:
+                for TaskClass in all_non_anonymous_task_classes():
+                    # ... mmm... this is less obvious
+                    # ...
+
 - In terms of a general database framework, Django is pretty good, and it's
   not clear that Pyramid is a huge improvement. Django also brings:
     - the excellent admin interface
@@ -105,6 +119,16 @@ SERVER ORM AND WEB FRAMEWORK
     - you can always use raw SQL
         https://docs.djangoproject.com/en/1.11/topics/db/sql
 
+- What's the best with SQLAlchemy?
+    - Flask? http://flask.pocoo.org/
+    - Pyramid? https://trypyramid.com/
+
+        migrations: SQLAlchemy/Alembic: http://alembic.zzzcomputing.com/en/latest/tutorial.html
+        debug toolbar: http://docs.pylonsproject.org/projects/pyramid_debugtoolbar/en/latest/
+
+- An option is Django with composite keys hacked in:
+    http://django-composite-foreignkey.readthedocs.io/
+    ... that might do the trick!
 
 ===============================================================================
 THINGS TO AVOID

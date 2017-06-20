@@ -24,6 +24,7 @@
 #include "qupage.h"
 #include "widgets/basewidget.h"
 
+class ImageButton;
 class QAbstractButton;
 class QLabel;
 class QPushButton;
@@ -40,6 +41,7 @@ public:
                         bool read_only, bool jump_allowed, bool within_chain,
                         const QString& css_name, bool debug_allowed = false);
     void setButtons(bool previous, bool next, bool finish);
+    void setFinishButtonIcon(const QString& base_filename);
 signals:
     void cancelClicked();
     void jumpClicked();
@@ -53,6 +55,6 @@ protected:
     QPointer<QAbstractButton> m_button_jump;
     QPointer<QAbstractButton> m_button_previous;
     QPointer<QAbstractButton> m_button_next;
-    QPointer<QAbstractButton> m_button_finish;
+    QPointer<ImageButton> m_button_finish;
     QPointer<QLabel> m_icon_no_next;
 };

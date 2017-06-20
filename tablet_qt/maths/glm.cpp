@@ -1138,5 +1138,7 @@ void Glm::fitIRLSRglmfit()
     double aic_model = aic(y, n, mu, weights, dev) + 2 * rank;
     // skipped: return all the extra results
 #endif
+
+    m_fitted = true;
 }
 #endif

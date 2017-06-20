@@ -307,6 +307,7 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
     page->setType(QuPage::PageType::Config);
 
     Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    questionnaire->setFinishButtonIconToTick();
     connect(questionnaire, &Questionnaire::completed,
             this, &SettingsMenu::serverSettingsSaved);
     connect(questionnaire, &Questionnaire::cancelled,
@@ -365,6 +366,7 @@ OpenableWidget* SettingsMenu::configureIntellectualProperty(CamcopsApp& app)
     page->setType(QuPage::PageType::Config);
 
     m_ip_questionnaire = new Questionnaire(m_app, {page});
+    m_ip_questionnaire->setFinishButtonIconToTick();
     connect(m_ip_questionnaire, &Questionnaire::completed,
             this, &SettingsMenu::ipSaved);
     connect(m_ip_questionnaire, &Questionnaire::cancelled,
@@ -531,6 +533,7 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
     page->setType(QuPage::PageType::Config);
 
     Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    questionnaire->setFinishButtonIconToTick();
     connect(questionnaire, &Questionnaire::completed,
             this, &SettingsMenu::userSettingsSaved);
     connect(questionnaire, &Questionnaire::cancelled,
@@ -600,6 +603,7 @@ OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp &app)
     page->setType(QuPage::PageType::Config);
 
     m_fontsize_questionnaire = new Questionnaire(app, {page});
+    m_fontsize_questionnaire->setFinishButtonIconToTick();
     connect(m_fontsize_questionnaire, &Questionnaire::completed,
             this, &SettingsMenu::fontSettingsSaved);
     connect(m_fontsize_questionnaire, &Questionnaire::cancelled,
@@ -910,6 +914,7 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
     page->setType(QuPage::PageType::Config);
 
     Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    questionnaire->setFinishButtonIconToTick();
     questionnaire->setReadOnly(true);
     return questionnaire;
 }

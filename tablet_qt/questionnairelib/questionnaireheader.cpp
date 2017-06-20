@@ -158,3 +158,9 @@ void QuestionnaireHeader::setButtons(bool previous, bool next, bool finish)
     m_button_finish->setVisible(finish);
     m_icon_no_next->setVisible(!next && !finish);
 }
+
+
+void QuestionnaireHeader::setFinishButtonIcon(const QString& base_filename)
+{
+    m_button_finish->setImages(base_filename);
+}

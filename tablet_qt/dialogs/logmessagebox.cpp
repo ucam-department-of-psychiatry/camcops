@@ -44,7 +44,7 @@ LogMessageBox::LogMessageBox(QWidget* parent, const QString& title,
     m_editor->setReadOnly(true);
     m_editor->setLineWrapMode(QPlainTextEdit::NoWrap);
     mainlayout->addWidget(m_editor);
-    uifunc::applyScrollGestures(m_editor);
+    uifunc::applyScrollGestures(m_editor->viewport());
 
     if (as_html) {
         m_editor->appendHtml(text);

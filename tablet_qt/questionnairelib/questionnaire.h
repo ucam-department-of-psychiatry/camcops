@@ -40,65 +40,72 @@ class Questionnaire : public OpenableWidget
 
     Q_OBJECT
 public:
+    // Constructors
     Questionnaire(CamcopsApp& app);
     Questionnaire(CamcopsApp& app, const QVector<QuPagePtr>& pages);
     Questionnaire(CamcopsApp& app, std::initializer_list<QuPagePtr> pages);
 
-    virtual void build() override;
-    bool event(QEvent* e) override;
+    // Information about the questionnaire
+    bool readOnly() const;
+    int currentPageIndex() const;
+    int currentPageNumOneBased() const;
+    int nPages() const;
 
+    // Build widgets when the Questionnaire is displayed
+    virtual void build() override;
+
+    // Set attributes about the questionnaire
     void setType(QuPage::PageType type);
-    void addPage(const QuPagePtr& page);
     void setReadOnly(bool read_only = true);
     void setJumpAllowed(bool jump_allowed = true);
     void setWithinChain(bool within_chain = true);
+    void setFinishButtonIcon(const QString& base_filename);
+    void setFinishButtonIconToTick();
 
-    bool readOnly() const;
-    int fontSizePt(uiconst::FontSize fontsize) const;
+    // Add pages
+    void addPage(const QuPagePtr& page);
 
-    void openSubWidget(OpenableWidget* widget);
-    CamcopsApp& app() const;
-    QString getSubstitutedCss(const QString& filename) const;
+    // Get page information
     QuPage* currentPagePtr() const;
     QuPage* pagePtr(int index) const;
-    void setVisibleByTag(const QString& tag, bool visible,
-                         bool current_page_only = true,
-                         const QString& page_tag = "");
+    QVector<QuPage*> getPages(bool current_page_only,
+                              const QString& page_tag = "");
+
+    // Alter pages
+    void setPageSkip(int page, bool skip, bool reset_buttons = true);
+    void setPageSkip(const QString& page_tag, bool skip,
+                     bool reset_buttons = true);
+    void deletePage(int index);
+    void movePageBackwards(int index);
+    void movePageForwards(int index);
+
+    // Get element information
     QVector<QuElement*> getElementsByTag(const QString& tag,
                                          bool current_page_only = true,
                                          const QString& page_tag = "");
     QuElement* getFirstElementByTag(const QString& tag,
                                     bool current_page_only = true,
                                     const QString& page_tag = "");
-    QVector<QuPage*> getPages(bool current_page_only,
-                              const QString& page_tag = "");
-    void setPageSkip(int page, bool skip, bool reset_buttons = true);
-    void setPageSkip(const QString& page_tag, bool skip,
-                     bool reset_buttons = true);
+
+    // Alter elements
+    void setVisibleByTag(const QString& tag, bool visible,
+                         bool current_page_only = true,
+                         const QString& page_tag = "");
     void refreshCurrentPage();
-    void deletePage(int index);
-    void movePageBackwards(int index);
-    void movePageForwards(int index);
-    int currentPageIndex() const;
-    int currentPageNumOneBased() const;
-    int nPages() const;
     void goToPage(int index, bool allow_refresh = false);
     void debugLayout();
-    void keyPressEvent(QKeyEvent* event);
+
+    // Advanced control
+    void openSubWidget(OpenableWidget* widget);
+
+    // Utility functions
+    CamcopsApp& app() const;
+    int fontSizePt(uiconst::FontSize fontsize) const;
+    QString getSubstitutedCss(const QString& filename) const;
+
 public slots:
     void resetButtons();
-protected:
-    void commonConstructor();
-    bool morePagesToGo() const;
-    void doFinish();
-    void doCancel();
-    void pageClosing();
-protected slots:
-    void cancelClicked();
-    void jumpClicked();
-    void previousClicked();
-    void nextClicked();
-    void finishClicked();
+
 signals:
     void editStarted();
     void editFinished(bool aborted);
@@ -106,6 +113,22 @@ signals:
     void cancelled();  // failure/cancel
     void completed();  // success/OK
     // and finished() is emitted with either; see OpenableWidget
+
+protected:
+    void commonConstructor();
+    bool morePagesToGo() const;
+    void doFinish();
+    void doCancel();
+    void pageClosing();
+    // Signal handling
+    bool event(QEvent* e) override;
+    void keyPressEvent(QKeyEvent* event);
+protected slots:
+    void cancelClicked();
+    void jumpClicked();
+    void previousClicked();
+    void nextClicked();
+    void finishClicked();
 
 protected:
     CamcopsApp& m_app;
@@ -121,4 +144,5 @@ protected:
     QPointer<QVBoxLayout> m_mainlayout;
     QPointer<QuestionnaireHeader> m_p_header;
     int m_current_page_index;
+    QString m_finish_button_icon_base_filename;
 };

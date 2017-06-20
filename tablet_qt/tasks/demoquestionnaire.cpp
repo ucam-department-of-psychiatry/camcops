@@ -70,6 +70,8 @@
 
 const QString DemoQuestionnaire::DEMOQUESTIONNAIRE_TABLENAME("demoquestionnaire");
 
+const int SOUNDTEST_1_VOLUME = 50;
+
 
 void initializeDemoQuestionnaire(TaskFactory& factory)
 {
@@ -318,7 +320,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
 
     QuPagePtr page_audio_countdown((new QuPage{
         new QuHeading("Simple audio player:"),
-        (new QuAudioPlayer(uiconst::DEMO_SOUND_URL_2))->setVolume(25),
+        (new QuAudioPlayer(uiconst::DEMO_SOUND_URL_2))->setVolume(SOUNDTEST_1_VOLUME),
         new QuHeading("Audio player with volume control:"),
         (new QuAudioPlayer(uiconst::DEMO_SOUND_URL_1))->setOfferVolumeControl(),
         new QuHeading("Countdown:"),

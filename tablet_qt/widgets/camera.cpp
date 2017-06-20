@@ -405,7 +405,9 @@ void Camera::imageAvailable(int id, const QVideoFrame& buffer)
     // http://stackoverflow.com/questions/27829830/convert-qvideoframe-to-qimage
 
     Q_UNUSED(id);
+    qInfo() << "Camera::imageAvailable: fetching image from buffer...";
     m_most_recent_image = imagefunc::imageFromVideoFrame(buffer);
+    qInfo() << "Camera::imageAvailable: ... fetched.";
     m_captured_state = CapturedState::Buffer;
     m_capturing_image = false;
     emit imageCaptured(image());
@@ -498,7 +500,9 @@ QImage Camera::image() const
         break;
     case CapturedState::File:
         qDebug() << "... returning contents of" << m_most_recent_filename;
+        qInfo() << "Camera::image: Loading image file...";
         img.load(m_most_recent_filename);
+        qInfo() << "Camera::image: ... loaded.";
         break;
     case CapturedState::Buffer:
         qDebug() << "... returning image from buffer";

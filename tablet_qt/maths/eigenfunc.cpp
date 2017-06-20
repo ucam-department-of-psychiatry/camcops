@@ -278,12 +278,14 @@ Eigen::MatrixXd forwardOrBackSolve(Eigen::MatrixXd lr,
 
 const QString LINE("===============================================================================");
 #define ASSERT_ARRAYS_SAME(a, b) Q_ASSERT((a).matrix() == (b).matrix());
-#define OUTPUT_LINE() qDebug().noquote() << LINE;
-#define REPORT(x) qDebug().noquote().nospace() << #x << ": " << qStringFromEigenMatrixOrArray(x);
+#define OUTPUT_LINE() lines.append(LINE);
+#define STATE(x) lines.append(x);
+#define REPORT(x) lines.append(QString("%1: %2").arg(#x, qStringFromEigenMatrixOrArray(x)));
 
-void testEigenFunctions()
+QStringList testEigenFunctions()
 {
-    qDebug() << "Testing eigenfunc...";
+    QStringList lines;
+    STATE("Testing eigenfunc...");
 
     QVector<int> qv1{-1, 0, 1, 2};
 
@@ -293,7 +295,7 @@ void testEigenFunctions()
     ev1_b << -1, 0, 1, 2;
     Q_ASSERT(ev1_a == ev1_b);
     Q_ASSERT(qVectorFromEigenVector<int>(ev1_a) == qv1);
-    qDebug() << "Example column vector:";
+    STATE("Example column vector:");
     REPORT(ev1_a);
 
     RowVectorXi ev2_a = eigenColumnVectorFromQVector<int>(qv1);
@@ -301,7 +303,7 @@ void testEigenFunctions()
     ev2_b << -1, 0, 1, 2;
     Q_ASSERT(ev2_a == ev2_b);
     Q_ASSERT(qVectorFromEigenVector<int>(ev2_a) == qv1);
-    qDebug() << "Example row vector:";
+    STATE("Example row vector:");
     REPORT(ev2_a);
 
     IndexArray idxarr1_a = (IndexArray(3) << 3, 4, 5).finished();
@@ -402,7 +404,7 @@ void testEigenFunctions()
     OUTPUT_LINE();
     MatrixXd m14 = m13.cast<double>();  // move into the double arena, not int
     MatrixXd m15 = scale(m14);
-    qDebug() << "[NOT TESTED BY AN ASSERT] Testing scale():";
+    STATE("[NOT TESTED BY AN ASSERT] Testing scale():");
     REPORT(m15);
 
 /*
@@ -420,7 +422,7 @@ chol(m16, pivot=TRUE)
     m16 << 4, 12, -16,
            12, 37, -43,
            -16, -43, 98;
-    qDebug() << "Matrix to undergo Cholesky decomposition:";
+    STATE("Matrix to undergo Cholesky decomposition:");
     REPORT(m16);
     Matrix3d m16_llt_u;
     m16_llt_u << 2, 6, -8,  // the U = Upper triangular version
@@ -430,11 +432,11 @@ chol(m16, pivot=TRUE)
     // m16_ldlt_u << 1, 3, -4,  // the U = Upper triangular version
     //               0, 1, 5,
     //               0, 0, 1;
-    qDebug() << "Testing chol(pivot=false):";
+    STATE("Testing chol(pivot=false):");
     Matrix3d m17 = chol(m16, false);
     REPORT(m17);
     Q_ASSERT(m17 == m16_llt_u);
-    qDebug() << "[NOT TESTED BY AN ASSERT] Testing chol(pivot=true):";
+    STATE("[NOT TESTED BY AN ASSERT] Testing chol(pivot=true):");
     Matrix3d m18 = chol(m16, true);
     REPORT(m18);
     // Q_ASSERT(m18 == m16_ldlt_u);
@@ -442,7 +444,7 @@ chol(m16, pivot=TRUE)
     // Wikipedia; nor are we using the pivot=false version...
 
     OUTPUT_LINE();
-    qDebug() << "Testing backsolve:";
+    STATE("Testing backsolve:");
     // ?backsolve
     Matrix3d r;
     r << 1, 2, 3,
@@ -480,7 +482,7 @@ chol(m16, pivot=TRUE)
     Q_ASSERT(backsolve(tr, x, -1, false, false) == backsolve_tr_solution_a);
 
     OUTPUT_LINE();
-    qDebug() << "Testing multiply:";
+    STATE("Testing multiply:");
     ArrayXXi m19(4, 4);
     m19 << 1, 5,  9, 13,
            2, 6, 10, 14,
@@ -503,7 +505,9 @@ chol(m16, pivot=TRUE)
     ASSERT_ARRAYS_SAME(m21_b, m21_c);
 
     OUTPUT_LINE();
-    qDebug() << "... all eigenfunc tests completed correctly.";
+    STATE("... all eigenfunc tests completed correctly.");
+
+    return lines;
 }
 
 

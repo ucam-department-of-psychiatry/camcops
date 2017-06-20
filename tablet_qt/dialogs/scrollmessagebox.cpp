@@ -67,7 +67,7 @@ ScrollMessageBox::ScrollMessageBox(const QMessageBox::Icon& icon,
     scroll->setWidget(m_label);
     scroll->setWidgetResizable(true);
 
-    uifunc::applyScrollGestures(scroll);
+    uifunc::applyScrollGestures(scroll->viewport());
 
     if (icon != QMessageBox::NoIcon) {
         icon_label = new QLabel();

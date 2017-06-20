@@ -25,6 +25,7 @@
 #include <Eigen/Dense>
 #include <functional>
 #include <QDebug>
+#include <QStringList>
 #include <QVector>
 #include <vector>
 
@@ -938,7 +939,7 @@ Eigen::MatrixXd forwardOrBackSolve(Eigen::MatrixXd lr,
 // Testing
 // ============================================================================
 
-void testEigenFunctions();
+QStringList testEigenFunctions();
 
 
 }  // namespace eigenfunc

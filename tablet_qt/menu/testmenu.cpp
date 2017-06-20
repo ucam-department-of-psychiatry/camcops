@@ -285,7 +285,7 @@ void TestMenu::testSizeFormatter()
               .arg(convert::prettySize(num, space, binary, longform, suffix));
         }
     }
-    uifunc::alert(text);
+    uifunc::alertLogMessageBox(text, "Size formatting", false);
 }
 
 
@@ -298,18 +298,20 @@ void TestMenu::testConversions()
 
 void TestMenu::testEigenFunctions()
 {
-    eigenfunc::testEigenFunctions();
-    uifunc::alert("Eigen functions: OK "
-                  "(more details are on the debug console)");
+    QString text = eigenfunc::testEigenFunctions().join("\n");
+
+    uifunc::alertLogMessageBox(text, "Eigen functions successfully tested",
+                               false);
 }
 
 
 void TestMenu::testRandom()
 {
-    ccrandom::testRandom();
-    uifunc::alert("Random-number functions (and supporting "
-                  "floating-point-delta functions): OK "
-                  "(more details are on the debug console)");
+    QString text = ccrandom::testRandom().join("\n");
+    uifunc::alertLogMessageBox(text,
+                               "Random-number functions (and supporting "
+                               "floating-point-delta functions): OK",
+                               false);
 }
 
 
@@ -481,7 +483,6 @@ m2 <- glm(yes ~ intensity, family=binomial(link='logit'), data=d2)
 
 CamCOPS: coefficients: IRLS: %1
 CamCOPS: coefficients: IRLS-SVD-Newton: %2
-
 )")
             .arg(qStringFromEigenMatrixOrArray(coeffs2a))
             .arg(qStringFromEigenMatrixOrArray(coeffs2b)));

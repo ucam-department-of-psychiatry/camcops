@@ -54,7 +54,8 @@ LogBox::LogBox(QWidget* parent, const QString& title, bool offer_cancel,
     m_editor->setLineWrapMode(QPlainTextEdit::NoWrap);
     m_editor->setMaximumBlockCount(maximum_block_count);
     mainlayout->addWidget(m_editor);
-    uifunc::applyScrollGestures(m_editor);
+    uifunc::applyScrollGestures(m_editor->viewport());
+    // ... https://stackoverflow.com/questions/23675845/qt-conflict-between-qscroller-and-qscrollbar
 
     QHBoxLayout* buttonlayout = new QHBoxLayout();
     QPushButton* copybutton = new QPushButton(tr("Copy"));

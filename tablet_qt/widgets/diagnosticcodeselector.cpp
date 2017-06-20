@@ -196,7 +196,7 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     m_treeview->setColumnHidden(DiagnosticCode::COLUMN_FULLNAME, false);
     m_treeview->setSortingEnabled(false);
     m_treeview->scrollTo(selected);
-    uifunc::applyScrollGestures(m_treeview);
+    uifunc::applyScrollGestures(m_treeview->viewport());
 #ifdef RESPOND_VIA_ITEM_CLICKED
     connect(m_treeview.data(), &QListView::clicked,
             this, &DiagnosticCodeSelector::treeItemClicked);
@@ -263,7 +263,7 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     m_flatview->setSelectionModel(m_proxy_selection_model.data());
     m_flatview->setWordWrap(true);
     m_flatview->scrollTo(proxy_selected);
-    uifunc::applyScrollGestures(m_flatview);
+    uifunc::applyScrollGestures(m_flatview->viewport());
 #ifdef RESPOND_VIA_ITEM_CLICKED
     connect(m_flatview.data(), &QListView::clicked,
             this, &DiagnosticCodeSelector::searchItemClicked);

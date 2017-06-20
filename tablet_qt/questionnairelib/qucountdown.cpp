@@ -32,6 +32,7 @@
 #include "questionnairelib/questionnaire.h"
 
 const int PERIOD_MS = 100;  // should divide into whole seconds!
+const int DP = 1;
 
 
 QuCountdown::QuCountdown(int time_s) :
@@ -83,6 +84,8 @@ QPointer<QWidget> QuCountdown::makeWidget(Questionnaire* questionnaire)
     m_reset_button = new QPushButton(tr("Reset"));
     m_reset_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     layout->addWidget(m_reset_button);
+
+    layout->addStretch();
 
     m_label = new QLabel();
     m_label->setObjectName(cssconst::COUNTDOWN_LABEL);
@@ -174,7 +177,7 @@ void QuCountdown::updateDisplay()
     if (m_seconds_left < 0) {
         text = tr("FINISHED");
     } else {
-        text = QString("%1 s").arg(m_seconds_left);
+        text = QString("%1 s").arg(QString::number(m_seconds_left, 'f', DP));
         if (!m_running) {
             text += tr(" (not running)");
         }

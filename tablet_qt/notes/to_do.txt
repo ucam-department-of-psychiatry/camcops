@@ -3,10 +3,6 @@
 TO DO NOW
 ===============================================================================
 
-- ICONS
-    - tick icon for "OK", used as alternative to green stop icon for
-      questionnaires in config context. == uiconst::CBS_OK
-
 - fix server, quick'n'dirty
 
 
@@ -21,8 +17,13 @@ ANDROID
 SERVER
 - cross-platform, Django
 
+TASKS
+- CIS-R, and the new SequentialQuestionnaire class (or whatever I called it)
+
+
 
 - *** chains (see e.g. ResearchMenu.js; MenuTableRow.js; QuestionnaireHeader.js...)
+    ... or is that pointless relative to a "set of tasks" concept?
 - *** concept of "set of tasks" as well as "chain of tasks"
 
 - *** upgrade function - multistep and single-step - per task?

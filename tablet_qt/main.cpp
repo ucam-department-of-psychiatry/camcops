@@ -17,8 +17,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-// #define TEST_BASIC_QT_ONLY
-// #define FULL_LOG_FORMAT
+// #define TEST_BASIC_QT_ONLY  // Disables CamCOPS! Just says hello.
+#define FULL_LOG_FORMAT
 #define DISABLE_ANDROID_NATIVE_DIALOGS
 
 #include <QApplication>  // for minimal_qt_app

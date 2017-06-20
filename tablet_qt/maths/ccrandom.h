@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <random>
 #include <QtGlobal>
+#include <QStringList>
 #include <QVector>
 
 
@@ -79,7 +80,7 @@ void shuffle(QVector<T>& vec)
 }
 
 
-void testRandom();
+QStringList testRandom();
 
 
 }  // namespace ccrandom

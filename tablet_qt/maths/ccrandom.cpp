@@ -126,8 +126,10 @@ double randomRealIncUpper(double minimum, double maximum)
 }
 
 
-void testRandom()
+QStringList testRandom()
 {
+    QStringList lines;
+
     // https://stackoverflow.com/questions/16839658/printf-width-specifier-to-maintain-precision-of-floating-point-value
     auto fullFloat = [](float f) -> QString {
         return QString::number(f, 'g', 9);
@@ -136,36 +138,41 @@ void testRandom()
         return QString::number(d, 'g', 17);
     };
 
-    auto testNextFloatAbove = [&fullFloat](float f) -> void {
+    auto testNextFloatAbove = [&fullFloat, &lines](float f) -> void {
         float nf = nextFloatAbove(f);
         BitRepresentationFloat brf(f);
         BitRepresentationFloat brnf(nf);
-        qDebug().nospace().noquote()
-                << "nextFloatAbove(" << fullFloat(f)
-                << " [integer representation " << brf.ui
-                << "]) -> " << fullFloat(nf)
-                << " [integer representation " << brnf.ui << "]";
+        lines.append(QString("nextFloatAbove(%1 [integer representation %2]) "
+                             "-> %3 [integer representation %4]")
+                     .arg(fullFloat(f),
+                          QString::number(brf.ui),
+                          fullFloat(nf),
+                          QString::number(brnf.ui)));
     };
-    auto testNextDoubleAbove = [&fullDouble](double d) -> void {
+    auto testNextDoubleAbove = [&fullDouble, &lines](double d) -> void {
         double dam = nextDoubleAboveManual(d);
         double da = nextDoubleAbove(d);
         BitRepresentationDouble brd(d);
         BitRepresentationDouble brdam(dam);
         BitRepresentationDouble brda(da);
-        qDebug().nospace().noquote()
-                << "nextDoubleAboveManual(" << fullDouble(d)
-                << " [integer representation " << brd.ui
-                << "]) -> " << fullDouble(dam)
-                << " [integer representation " << brdam.ui << "]";
-        qDebug().nospace().noquote()
-                << "nextDoubleAbove(" << fullDouble(d)
-                << " [integer representation " << brd.ui
-                << "]) -> " << fullDouble(da)
-                << " [integer representation " << brda.ui << "]";
+        lines.append(
+            QString("nextDoubleAboveManual(%1 [integer representation %2]) "
+                    "-> %3 [integer representation %4]")
+                     .arg(fullDouble(d),
+                          QString::number(brd.ui),
+                          fullDouble(dam),
+                          QString::number(brdam.ui)));
+        lines.append(
+            QString("nextDoubleAbove(%1 [integer representation %2]) "
+                    "-> %3 [integer representation %4]")
+                     .arg(fullDouble(d),
+                          QString::number(brd.ui),
+                          fullDouble(da),
+                          QString::number(brda.ui)));
     };
 
-    auto testRangeSampling = [&fullDouble](qreal range_min, qreal range_max,
-                                           int range_n) -> void {
+    auto testRangeSampling = [&fullDouble, &lines]
+            (qreal range_min, qreal range_max, int range_n) -> void {
         qreal exc_min = std::numeric_limits<double>::max();  // start high
         qreal exc_max = -exc_min;  // start low
         qreal inc_min = exc_min;
@@ -185,25 +192,27 @@ void testRandom()
             int inc_centile = draw_inc * 100;
             inc_centiles.add(inc_centile);
         }
-        qDebug().nospace().noquote()
-                << "Draw from upper-exclusive range ["
-                << fullDouble(range_min) << "–" << fullDouble(range_max)
-                << "): min " << fullDouble(exc_min)
-                << ", max " << fullDouble(exc_max)
-                << ", centiles " << exc_centiles;
-        qDebug().nospace().noquote()
-                << "Draw from upper-inclusive range ["
-                << fullDouble(range_min) << "–" << fullDouble(range_max)
-                << "]: min " << fullDouble(inc_min)
-                << ", max " << fullDouble(inc_max)
-                << ", centiles " << inc_centiles;
+        lines.append(QString("Draw from upper-exclusive range [%1–%2): "
+                             "min %3, max %4, centiles %5")
+                     .arg(fullDouble(range_min),
+                          fullDouble(range_max),
+                          fullDouble(exc_min),
+                          fullDouble(exc_max),
+                          exc_centiles.asString()));
+        lines.append(QString("Draw from upper-inclusive range [%1–%2]: "
+                             "min %3, max %4, centiles %5")
+                     .arg(fullDouble(range_min),
+                          fullDouble(range_max),
+                          fullDouble(inc_min),
+                          fullDouble(inc_max),
+                          inc_centiles.asString()));
     };
 
     // ========================================================================
 
-    qDebug() << "Testing std::nextafter() [if available on this platform, via "
-                "nextDoubleAbove()], and manual versions: nextFloatAbove(), "
-                "nextDoubleAboveManual()";
+    lines.append("Testing std::nextafter() [if available on this platform, "
+                 "via nextDoubleAbove()], and manual versions: "
+                 "nextFloatAbove(), nextDoubleAboveManual()");
     const QVector<float>  fv{1.0, 100.0, 1.0e10};
     const QVector<double> dv{1.0, 100.0, 1.0e10, 1.0e100};
     for (float f : fv) {
@@ -213,23 +222,31 @@ void testRandom()
         testNextDoubleAbove(d);
     }
 
+    lines.append("");
+    lines.append("Testing random number generation functions");
+    lines.append("");
+
     const int coin_n = 2000;
     const qreal coin_p = 0.5;
     CountingContainer<bool> coins;
-
     for (int i = 0; i < coin_n; ++i) {
         coins.add(coin(coin_p));
     }
-    qDebug().nospace() << "Coin flips (n=" << coin_n << ", p=" << coin_p
-                       << "): " << coins;
+    lines.append(QString("Coin flips (n=%1, p=%2): %3")
+                 .arg(QString::number(coin_n),
+                      QString::number(coin_p),
+                      coins.asString()));
+    lines.append("");
 
     const int die_n = 6000;
     CountingContainer<int> die;
-
     for (int i = 0; i < die_n; ++i) {
         die.add(randomInt(1, 6));
     }
-    qDebug().nospace() << "Rolls of a fair die (n=" << die_n << "): " << die;
+    lines.append(QString("Rolls of a fair die (n=%1): %2")
+                 .arg(QString::number(die_n),
+                      die.asString()));
+    lines.append("");
 
     const int range_n = 100000;
     testRangeSampling(0.0,
@@ -238,6 +255,8 @@ void testRandom()
     testRangeSampling(1.0,
                       nextDoubleAbove(nextDoubleAbove(nextDoubleAbove(1.0))),
                       range_n);
+
+    return lines;
 }
 
 

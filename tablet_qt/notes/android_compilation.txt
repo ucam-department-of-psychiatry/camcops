@@ -280,3 +280,14 @@ Phase 4: running but behaviour not matching Linux version
 - QMessageBox::setButtonText not working
   ... obsolete; use addButton instead
   ... see https://stackoverflow.com/questions/25101171/what-do-the-different-qmessagebox-roles-mean
+
+-------------------------------------------------------------------------------
+Phase 5: getting the right certificate
+-------------------------------------------------------------------------------
+
+Point Qt Creator to the keystore, as per
+    http://doc.qt.io/qtcreator/creator-deploying-android.html
+... in my case, CAMCOPS_ANDROID_KEYSTORE.bin
+... which, obviously, is not in the Git repository.
+
+Good for Qt; that was easy!

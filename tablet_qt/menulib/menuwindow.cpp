@@ -170,7 +170,7 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
             this, &MenuWindow::menuItemClicked,
             Qt::UniqueConnection);
 
-    uifunc::applyScrollGestures(m_p_listwidget);
+    uifunc::applyScrollGestures(m_p_listwidget->viewport());
 
     // ------------------------------------------------------------------------
     // Other signals

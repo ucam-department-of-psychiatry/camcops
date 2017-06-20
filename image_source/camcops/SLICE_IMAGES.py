@@ -365,6 +365,25 @@ def tile_pdf(src_filename: str,
         args.append('+repage')
     if transparent:
         args.extend(['-transparent', transparent])
+
+    # 2017-06-20: getting the error in CamCOPS (Qt):
+    #     libpng warning: iCCP: profile 'icc': 0h: PCS illuminant is not D50
+    # - https://en.wikipedia.org/wiki/ICC_profile
+    # Using "identify -verbose X.png" shows the profile being used by default
+    #       icc:copyright: Copyright Artifex Software 2011
+    #       icc:description: Artifex Software sRGB ICC Profile
+    #       icc:manufacturer: Artifex Software sRGB ICC Profile
+    #       icc:model: Artifex Software sRGB ICC Profile
+    # Address this with the "-profile" option?
+    # Or "-colorspace RGB"?
+    # - https://www.imagemagick.org/script/color-management.php
+    # - https://www.imagemagick.org/script/command-line-options.php
+    args.extend([
+        '-set', 'colorspace', 'RGB',  # linear RGB, not default sRGB
+        '-profile', 'AdobeRGB1998.icc',
+    ])
+    # ... works, but must come AFTER the "-transparent" command
+
     args.extend([
         '-crop', '{w}x{h}'.format(w=intermediate_tile_width_px,
                                   h=intermediate_tile_height_px),
