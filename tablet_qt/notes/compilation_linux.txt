@@ -25,21 +25,27 @@ Qt not building from the build_qt.py script?
 
 GENERAL TIPS:
 
-Q. How is an instance of Qt configured?
-A. Inspect ...qt_build_dir/config.summary
+Q.  How is an instance of Qt configured?
+A.  Inspect ...qt_build_dir/config.summary
 
-Q. What's in a Linux library?
-A. nm LIBFILE
+Q.  What's in a Linux library?
+A.  nm LIBFILE
+    objdump -TC LIBFILE
+    readelf -Ws LIBFILE
+    - https://stackoverflow.com/questions/34732/how-do-i-list-the-symbols-in-a-so-file
+
+Q.  What libraries are installed on the system?
+A.  ldconfig -p | sort | less
 
 
 SPECIFIC:
 
-Q. It fails with no apparent clear error.
-A. First, try with "--nparallel 1" so you can see the error. (If you're running
-   lots of parallel processes, the things you see last can look OK because the
-   error came from an earlier failing process, hundreds of lines back.)
+Q.  It fails with no apparent clear error.
+A.  First, try with "--nparallel 1" so you can see the error. (If you're
+    running lots of parallel processes, the things you see last can look OK
+    because the error came from an earlier failing process, hundreds of lines back.)
 
-Q. These linker errors:
+Q.  These linker errors:
 
     g++ -Wl,-O1 -fuse-ld=gold -Wl,--enable-new-dtags -o qwindow-compositor
         .obj/main.o .obj/window.o .obj/compositor.o
@@ -109,35 +115,52 @@ Q. These linker errors:
     ...
     Makefile:518: recipe for target 'module-qtwayland-make_first' failed
 
-A. These functions are part of Wayland, at
-   https://github.com/grate-driver/mesa/blob/master/src/egl/wayland/wayland-egl/wayland-egl.c
+A.  These functions are part of Wayland, at
+    https://github.com/grate-driver/mesa/blob/master/src/egl/wayland/wayland-egl/wayland-egl.c
 
-   The only relevant wayland*.c* files referring to wl_egl_window_create are
+    The only relevant wayland*.c* files referring to wl_egl_window_create are
         qtwebengine/src/3rdparty/chromium/third_party/mesa/src/src/egl/wayland/wayland-egl/wayland-egl.c
-   and the only relevant wayland*.h files referring to it are:
+    and the only relevant wayland*.h files referring to it are:
         /home/rudolf/dev/qt_local_build/src/qt5/qtwebengine/src/3rdparty/chromium/third_party/wayland/src/src/wayland-egl-core.h
         /usr/include/wayland-egl-core.h
 
-   Does anything #include it?
+    Does anything #include it?
 
 
 -------------------------------------------------------------------------------
 CamCOPS not linking?
 -------------------------------------------------------------------------------
 
-Q. error: cannot find -lwebp
+Q.  error: cannot find -lwebp
     ... despite presence of libwebp5
     ... note in the Qt install directory: .../plugins/imageformats/libqwebp.a
-Q. error: cannot find -lwebpdemux
+Q.  error: cannot find -lwebpdemux
     ... sudo apt-get install libwebpdemux1
         ... no help
     ... no 'demux' file in the Qt install directory
     ... these two are probably part of QtWebEngine
         ... but that's not in the QT qmake variable
+    ... ldconfig -p | grep webp
+        libwebpdemux.so.1 (libc6,x86-64) => /usr/lib/x86_64-linux-gnu/libwebpdemux.so.1
+        libwebp.so.5 (libc6,x86-64) => /usr/lib/x86_64-linux-gnu/libwebp.so.5
+    ... append --verbose to linker command, giving:
+        LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/5/:/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/5/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/5/../../../:/lib/:/usr/lib/
+    ... also, a correct -L parameter is given
+    ... ANSWER: we need libwebp.so, not libwebp.so.5;
+        https://stackoverflow.com/questions/335928/ld-cannot-find-an-existing-library
+    ... FINAL ANSWER: sudo apt-get install libwebp-dev
 
-A. Try rebuilding Qt without skipping anything (specifically, not skipping
-   qtwebkit, but all -skip options removed).
-   ... no, just get Wayland problems then.
+A.  Try rebuilding Qt without skipping anything (specifically, not skipping
+    qtwebkit, but all -skip options removed).
+    ... no, just get Wayland problems then.
+
+-------------------------------------------------------------------------------
+Prerequisites for BUILDING CamCOPS?
+-------------------------------------------------------------------------------
+
+sudo apt install \
+    libwebp-dev
+
 
 -------------------------------------------------------------------------------
 Prerequisites for RUNNING CamCOPS?
@@ -145,5 +168,16 @@ Prerequisites for RUNNING CamCOPS?
 
 Try to keep these to the absolute minimum, via static linkage!
 
-SEE ALSO THE END OF build_qt.py
-
+sudo apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+    mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev \
+    libasound-dev \
+    libharfbuzz-dev \
+    libpulse-dev \
+    libwayland-dev libwayland-egl1 libegl1-mesa-dev \
+    libtiff-dev \
+    libgbm-dev \
+    libxkbcommon-x11-dev \
+    libdbus-1-dev \
+    libjasper-dev \
+    libxcomposite-dev \
+    libxi-dev

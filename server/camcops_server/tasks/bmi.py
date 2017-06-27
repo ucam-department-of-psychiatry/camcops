@@ -89,18 +89,18 @@ class Bmi(Task):
                 ],
                 horizontal_labels=[
                     # positioned near the mid-range for some:
-                    TrackerLabel(12.5, self.WXSTRING("underweight_under_13"),
+                    TrackerLabel(12.5, self.wxstring("underweight_under_13"),
                                  LabelAlignment.top),
-                    TrackerLabel(14, self.WXSTRING("underweight_13_15")),
-                    TrackerLabel(15.5, self.WXSTRING("underweight_15_16")),
-                    TrackerLabel(16.5, self.WXSTRING("underweight_16_17")),
-                    TrackerLabel(17.25, self.WXSTRING("underweight_17_17.5")),
-                    TrackerLabel(18, self.WXSTRING("underweight_17.5_18.5")),
-                    TrackerLabel(21.75, self.WXSTRING("normal")),
-                    TrackerLabel(27.5, self.WXSTRING("overweight")),
-                    TrackerLabel(32.5, self.WXSTRING("obese_1")),
-                    TrackerLabel(37.6, self.WXSTRING("obese_2")),
-                    TrackerLabel(40.5, self.WXSTRING("obese_3"),
+                    TrackerLabel(14, self.wxstring("underweight_13_15")),
+                    TrackerLabel(15.5, self.wxstring("underweight_15_16")),
+                    TrackerLabel(16.5, self.wxstring("underweight_16_17")),
+                    TrackerLabel(17.25, self.wxstring("underweight_17_17.5")),
+                    TrackerLabel(18, self.wxstring("underweight_17.5_18.5")),
+                    TrackerLabel(21.75, self.wxstring("normal")),
+                    TrackerLabel(27.5, self.wxstring("overweight")),
+                    TrackerLabel(32.5, self.wxstring("obese_1")),
+                    TrackerLabel(37.6, self.wxstring("obese_2")),
+                    TrackerLabel(40.5, self.wxstring("obese_3"),
                                  LabelAlignment.bottom),
                 ],
                 aspect_ratio=1.0,
@@ -144,27 +144,27 @@ class Bmi(Task):
         if bmi is None:
             return "?"
         elif bmi >= 40:
-            return self.WXSTRING("obese_3")
+            return self.wxstring("obese_3")
         elif bmi >= 35:
-            return self.WXSTRING("obese_2")
+            return self.wxstring("obese_2")
         elif bmi >= 30:
-            return self.WXSTRING("obese_1")
+            return self.wxstring("obese_1")
         elif bmi >= 25:
-            return self.WXSTRING("overweight")
+            return self.wxstring("overweight")
         elif bmi >= 18.5:
-            return self.WXSTRING("normal")
+            return self.wxstring("normal")
         elif bmi >= 17.5:
-            return self.WXSTRING("underweight_17.5_18.5")
+            return self.wxstring("underweight_17.5_18.5")
         elif bmi >= 17:
-            return self.WXSTRING("underweight_17_17.5")
+            return self.wxstring("underweight_17_17.5")
         elif bmi >= 16:
-            return self.WXSTRING("underweight_16_17")
+            return self.wxstring("underweight_16_17")
         elif bmi >= 15:
-            return self.WXSTRING("underweight_15_16")
+            return self.wxstring("underweight_15_16")
         elif bmi >= 13:
-            return self.WXSTRING("underweight_13_15")
+            return self.wxstring("underweight_13_15")
         else:
-            return self.WXSTRING("underweight_under_13")
+            return self.wxstring("underweight_under_13")
 
     def get_task_html(self) -> str:
         h = """

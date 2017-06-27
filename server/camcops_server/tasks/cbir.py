@@ -226,19 +226,19 @@ class CbiR(Task):
         freq_dict = {None: None}
         distress_dict = {None: None}
         for a in range(self.MIN_SCORE, self.MAX_SCORE + 1):
-            freq_dict[a] = self.WXSTRING("f" + str(a))
-            distress_dict[a] = self.WXSTRING("d" + str(a))
+            freq_dict[a] = self.wxstring("f" + str(a))
+            distress_dict[a] = self.wxstring("d" + str(a))
 
-        heading_memory = self.WXSTRING("h_memory")
-        heading_everyday = self.WXSTRING("h_everyday")
-        heading_selfcare = self.WXSTRING("h_selfcare")
-        heading_behaviour = self.WXSTRING("h_abnormalbehaviour")
-        heading_mood = self.WXSTRING("h_mood")
-        heading_beliefs = self.WXSTRING("h_beliefs")
-        heading_eating = self.WXSTRING("h_eating")
-        heading_sleep = self.WXSTRING("h_sleep")
-        heading_motor = self.WXSTRING("h_stereotypy_motor")
-        heading_motivation = self.WXSTRING("h_motivation")
+        heading_memory = self.wxstring("h_memory")
+        heading_everyday = self.wxstring("h_everyday")
+        heading_selfcare = self.wxstring("h_selfcare")
+        heading_behaviour = self.wxstring("h_abnormalbehaviour")
+        heading_mood = self.wxstring("h_mood")
+        heading_beliefs = self.wxstring("h_beliefs")
+        heading_eating = self.wxstring("h_eating")
+        heading_sleep = self.wxstring("h_sleep")
+        heading_motor = self.wxstring("h_stereotypy_motor")
+        heading_motivation = self.wxstring("h_motivation")
 
         def get_question_rows(first, last):
             html = ""
@@ -250,7 +250,7 @@ class CbiR(Task):
                 da = ("{}: {}".format(d, get_from_dict(distress_dict, d))
                       if d is not None else None)
                 html += tr(
-                    self.WXSTRING("q" + str(q)),
+                    self.wxstring("q" + str(q)),
                     answer(fa),
                     answer(da),
                 )

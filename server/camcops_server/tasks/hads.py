@@ -146,7 +146,7 @@ class Hads(Task):
             else:
                 q = "Q{}. {}".format(
                     n,
-                    self.WXSTRING("q" + str(n) + "_stem")
+                    self.wxstring("q" + str(n) + "_stem")
                 )
             if n in self.ANXIETY_QUESTIONS:
                 q += " (A)"
@@ -156,7 +156,7 @@ class Hads(Task):
             if crippled or v is None or v < min_score or v > max_score:
                 a = v
             else:
-                a = "{}: {}".format(v, self.WXSTRING("q{}_a{}".format(n, v)))
+                a = "{}: {}".format(v, self.wxstring("q{}_a{}".format(n, v)))
             h += tr_qa(q, a)
         h += """
             </table>

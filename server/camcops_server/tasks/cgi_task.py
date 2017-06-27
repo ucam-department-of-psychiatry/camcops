@@ -102,41 +102,41 @@ class Cgi(Task):
     def get_task_html(self) -> str:
         q1_dict = {
             None: None,
-            0: self.WXSTRING("q1_option0"),
-            1: self.WXSTRING("q1_option1"),
-            2: self.WXSTRING("q1_option2"),
-            3: self.WXSTRING("q1_option3"),
-            4: self.WXSTRING("q1_option4"),
-            5: self.WXSTRING("q1_option5"),
-            6: self.WXSTRING("q1_option6"),
-            7: self.WXSTRING("q1_option7"),
+            0: self.wxstring("q1_option0"),
+            1: self.wxstring("q1_option1"),
+            2: self.wxstring("q1_option2"),
+            3: self.wxstring("q1_option3"),
+            4: self.wxstring("q1_option4"),
+            5: self.wxstring("q1_option5"),
+            6: self.wxstring("q1_option6"),
+            7: self.wxstring("q1_option7"),
         }
         q2_dict = {
             None: None,
-            0: self.WXSTRING("q2_option0"),
-            1: self.WXSTRING("q2_option1"),
-            2: self.WXSTRING("q2_option2"),
-            3: self.WXSTRING("q2_option3"),
-            4: self.WXSTRING("q2_option4"),
-            5: self.WXSTRING("q2_option5"),
-            6: self.WXSTRING("q2_option6"),
-            7: self.WXSTRING("q2_option7"),
+            0: self.wxstring("q2_option0"),
+            1: self.wxstring("q2_option1"),
+            2: self.wxstring("q2_option2"),
+            3: self.wxstring("q2_option3"),
+            4: self.wxstring("q2_option4"),
+            5: self.wxstring("q2_option5"),
+            6: self.wxstring("q2_option6"),
+            7: self.wxstring("q2_option7"),
         }
         q3t_dict = {
             None: None,
-            0: self.WXSTRING("q3t_option0"),
-            1: self.WXSTRING("q3t_option1"),
-            2: self.WXSTRING("q3t_option2"),
-            3: self.WXSTRING("q3t_option3"),
-            4: self.WXSTRING("q3t_option4"),
+            0: self.wxstring("q3t_option0"),
+            1: self.wxstring("q3t_option1"),
+            2: self.wxstring("q3t_option2"),
+            3: self.wxstring("q3t_option3"),
+            4: self.wxstring("q3t_option4"),
         }
         q3s_dict = {
             None: None,
-            0: self.WXSTRING("q3s_option0"),
-            1: self.WXSTRING("q3s_option1"),
-            2: self.WXSTRING("q3s_option2"),
-            3: self.WXSTRING("q3s_option3"),
-            4: self.WXSTRING("q3s_option4"),
+            0: self.wxstring("q3s_option0"),
+            1: self.wxstring("q3s_option1"),
+            2: self.wxstring("q3s_option2"),
+            3: self.wxstring("q3s_option3"),
+            4: self.wxstring("q3s_option4"),
         }
         h = """
             <div class="summary">
@@ -152,13 +152,13 @@ class Cgi(Task):
                     <th width="70%">Answer</th>
                 </tr>
         """
-        h += tr_qa(self.WXSTRING("q1_s") + " <sup>[2]</sup>",
+        h += tr_qa(self.wxstring("q1_s") + " <sup>[2]</sup>",
                    get_from_dict(q1_dict, self.q1))
-        h += tr_qa(self.WXSTRING("q2_s") + " <sup>[2]</sup>",
+        h += tr_qa(self.wxstring("q2_s") + " <sup>[2]</sup>",
                    get_from_dict(q2_dict, self.q2))
-        h += tr_qa(self.WXSTRING("q3t_s") + " <sup>[3]</sup>",
+        h += tr_qa(self.wxstring("q3t_s") + " <sup>[3]</sup>",
                    get_from_dict(q3t_dict, self.q3t))
-        h += tr_qa(self.WXSTRING("q3s_s") + " <sup>[3]</sup>",
+        h += tr_qa(self.wxstring("q3s_s") + " <sup>[3]</sup>",
                    get_from_dict(q3s_dict, self.q3s))
         h += tr(
             """
@@ -166,7 +166,7 @@ class Cgi(Task):
                 <div class="smallprint">
                     [(Q3T – 1) × 4 + Q3S]
                 </div>
-            """.format(self.WXSTRING("q3_s")),
+            """.format(self.wxstring("q3_s")),
             answer(self.q3, formatter_answer=italic)
         )
         h += """
@@ -189,6 +189,7 @@ class CgiI(Task):
     tablename = "cgi_i"
     shortname = "CGI-I"
     longname = "Clinical Global Impressions – Improvement"
+    extrastring_taskname = "cgi"  # shares with CGI
     fieldspecs = [
         dict(name="q", cctype="INT", min=0, max=7,
              comment="Global improvement (1-7, higher worse)"),
@@ -212,18 +213,17 @@ class CgiI(Task):
         qdict = self.get_q_dict()
         return get_from_dict(qdict, self.q)
 
-    @staticmethod
-    def get_q_dict() -> Dict:
+    def get_q_dict(self) -> Dict:
         return {
             None: None,
-            0: self.WXSTRING("q2_option0"),
-            1: self.WXSTRING("q2_option1"),
-            2: self.WXSTRING("q2_option2"),
-            3: self.WXSTRING("q2_option3"),
-            4: self.WXSTRING("q2_option4"),
-            5: self.WXSTRING("q2_option5"),
-            6: self.WXSTRING("q2_option6"),
-            7: self.WXSTRING("q2_option7"),
+            0: self.wxstring("q2_option0"),
+            1: self.wxstring("q2_option1"),
+            2: self.wxstring("q2_option2"),
+            3: self.wxstring("q2_option3"),
+            4: self.wxstring("q2_option4"),
+            5: self.wxstring("q2_option5"),
+            6: self.wxstring("q2_option6"),
+            7: self.wxstring("q2_option7"),
         }
 
     def get_task_html(self) -> str:
@@ -239,7 +239,7 @@ class CgiI(Task):
                     <th width="50%">Answer</th>
                 </tr>
         """
-        h += tr_qa(self.WXSTRING("i_q"), self.get_rating_text())
+        h += tr_qa(self.wxstring("i_q"), self.get_rating_text())
         h += """
             </table>
         """

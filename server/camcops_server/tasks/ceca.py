@@ -1136,66 +1136,66 @@ class CecaQ3(Task):
     def get_task_html(self) -> str:
         separation_map = {
             None: None,
-            1: "1 — " + self.WXSTRING("1c_separation_reason1"),
-            2: "2 — " + self.WXSTRING("1c_separation_reason2"),
-            3: "3 — " + self.WXSTRING("1c_separation_reason3"),
-            4: "4 — " + self.WXSTRING("1c_separation_reason4"),
-            5: "5 — " + self.WXSTRING("1c_separation_reason5"),
-            6: "6 — " + self.WXSTRING("1c_separation_reason6"),
+            1: "1 — " + self.wxstring("1c_separation_reason1"),
+            2: "2 — " + self.wxstring("1c_separation_reason2"),
+            3: "3 — " + self.wxstring("1c_separation_reason3"),
+            4: "4 — " + self.wxstring("1c_separation_reason4"),
+            5: "5 — " + self.wxstring("1c_separation_reason5"),
+            6: "6 — " + self.wxstring("1c_separation_reason6"),
         }
         motherfigure_map = {
             None: None,
-            0: "0 — " + self.WXSTRING("2a_which_option0"),
-            1: "1 — " + self.WXSTRING("2a_which_option1"),
-            2: "2 — " + self.WXSTRING("2a_which_option2"),
-            3: "3 — " + self.WXSTRING("2a_which_option3"),
-            4: "4 — " + self.WXSTRING("2a_which_option4"),
-            5: "5 — " + self.WXSTRING("2a_which_option5"),
+            0: "0 — " + self.wxstring("2a_which_option0"),
+            1: "1 — " + self.wxstring("2a_which_option1"),
+            2: "2 — " + self.wxstring("2a_which_option2"),
+            3: "3 — " + self.wxstring("2a_which_option3"),
+            4: "4 — " + self.wxstring("2a_which_option4"),
+            5: "5 — " + self.wxstring("2a_which_option5"),
         }
         fatherfigure_map = {
             None: None,
-            0: "0 — " + self.WXSTRING("3a_which_option0"),
-            1: "1 — " + self.WXSTRING("3a_which_option1"),
-            2: "2 — " + self.WXSTRING("3a_which_option2"),
-            3: "3 — " + self.WXSTRING("3a_which_option3"),
-            4: "4 — " + self.WXSTRING("3a_which_option4"),
-            5: "5 — " + self.WXSTRING("3a_which_option5"),
+            0: "0 — " + self.wxstring("3a_which_option0"),
+            1: "1 — " + self.wxstring("3a_which_option1"),
+            2: "2 — " + self.wxstring("3a_which_option2"),
+            3: "3 — " + self.wxstring("3a_which_option3"),
+            4: "4 — " + self.wxstring("3a_which_option4"),
+            5: "5 — " + self.wxstring("3a_which_option5"),
         }
         no_yes_5way_map = {
             None: None,
-            1: "1 — " + self.WXSTRING("options5way_notoyes_1"),
+            1: "1 — " + self.wxstring("options5way_notoyes_1"),
             2: "2 — (between not-at-all and unsure)",
-            3: "3 — " + self.WXSTRING("options5way_notoyes_3"),
+            3: "3 — " + self.wxstring("options5way_notoyes_3"),
             4: "4 — (between unsure and yes-definitely)",
-            5: "5 — " + self.WXSTRING("options5way_notoyes_5"),
+            5: "5 — " + self.wxstring("options5way_notoyes_5"),
         }
         no_yes_3way_map = {
             None: None,
-            0: "0 — " + self.WXSTRING("options3way_noto_yes_0"),
-            1: "1 — " + self.WXSTRING("options3way_noto_yes_1"),
-            2: "2 — " + self.WXSTRING("options3way_noto_yes_2"),
+            0: "0 — " + self.wxstring("options3way_noto_yes_0"),
+            1: "1 — " + self.wxstring("options3way_noto_yes_1"),
+            2: "2 — " + self.wxstring("options3way_noto_yes_2"),
         }
         frequency_map = {
             None: None,
-            0: "0 — " + self.WXSTRING("optionsfrequency0"),
-            1: "1 — " + self.WXSTRING("optionsfrequency1"),
-            2: "2 — " + self.WXSTRING("optionsfrequency2"),
-            3: "3 — " + self.WXSTRING("optionsfrequency3"),
+            0: "0 — " + self.wxstring("optionsfrequency0"),
+            1: "1 — " + self.wxstring("optionsfrequency1"),
+            2: "2 — " + self.wxstring("optionsfrequency2"),
+            3: "3 — " + self.wxstring("optionsfrequency3"),
         }
         parent_cared_for_map = {
             None: None,
-            0: "0 — " + self.WXSTRING("3c_whichparentcaredfor_option0"),
-            1: "1 — " + self.WXSTRING("3c_whichparentcaredfor_option1"),
-            2: "2 — " + self.WXSTRING("3c_whichparentcaredfor_option2"),
-            3: "3 — " + self.WXSTRING("3c_whichparentcaredfor_option3"),
-            4: "4 — " + self.WXSTRING("3c_whichparentcaredfor_option4"),
+            0: "0 — " + self.wxstring("3c_whichparentcaredfor_option0"),
+            1: "1 — " + self.wxstring("3c_whichparentcaredfor_option1"),
+            2: "2 — " + self.wxstring("3c_whichparentcaredfor_option2"),
+            3: "3 — " + self.wxstring("3c_whichparentcaredfor_option3"),
+            4: "4 — " + self.wxstring("3c_whichparentcaredfor_option4"),
         }
         hitting_map = {
             None: None,
-            1: "1 — " + self.WXSTRING("5_hit_option_1"),
-            2: "2 — " + self.WXSTRING("5_hit_option_2"),
-            3: "3 — " + self.WXSTRING("5_hit_option_3"),
-            4: "4 — " + self.WXSTRING("5_hit_option_4"),
+            1: "1 — " + self.wxstring("5_hit_option_1"),
+            2: "2 — " + self.wxstring("5_hit_option_2"),
+            3: "3 — " + self.wxstring("5_hit_option_3"),
+            4: "4 — " + self.wxstring("5_hit_option_4"),
         }
         html = (
             """
@@ -1241,7 +1241,7 @@ class CecaQ3(Task):
                 <table class="taskdetail">
             """ +
 
-            subheading_spanning_two_columns("1A: " + self.WXSTRING("1a_q")) +
+            subheading_spanning_two_columns("1A: " + self.wxstring("1a_q")) +
             self.subsubheading_from_wstring("1a_motherfigures") +
             self.wstring_boolean("1a_mf_birthmother",
                                  self.s1a_motherfigure_birthmother) +
@@ -1280,12 +1280,12 @@ class CecaQ3(Task):
             string_string("(Other, details)",
                           self.s1a_fatherfigure_other_detail) +
 
-            subheading_from_string("1B: " + self.WXSTRING("1b_q")) +
+            subheading_from_string("1B: " + self.wxstring("1b_q")) +
             self.wstring_boolean("1b_q", self.s1b_institution) +
             self.wstring_numeric("1b_q_how_long",
                                  self.s1b_institution_time_years) +
 
-            subheading_from_string("1C: " + self.WXSTRING("1c_heading")) +
+            subheading_from_string("1C: " + self.wxstring("1c_heading")) +
             self.subsubheading_from_wstring("mother") +
 
             string_boolean("Mother died before age 17",
@@ -1320,24 +1320,24 @@ class CecaQ3(Task):
             self.wstring_string("please_describe_experience",
                                 self.s1c_describe_experience) +
 
-            subheading_from_string("2A: " + self.WXSTRING("2a_heading")) +
+            subheading_from_string("2A: " + self.wxstring("2a_heading")) +
             self.wstring_dict("2a_which",
                               self.s2a_which_mother_figure, motherfigure_map) +
             self.wstring_string("rnc_if_other_describe",
                                 self.s2a_which_mother_figure_other_detail)
         )
         for i in range(1, 17):
-            html += string_dict(str(i) + ". " + self.WXSTRING("2a_q" +
-                                                        str(i)),
+            html += string_dict(str(i) + ". " + self.wxstring("2a_q" +
+                                                              str(i)),
                                 getattr(self, "s2a_q" + str(i)),
                                 no_yes_5way_map)
         html += (
             self.wstring_string("2a_add_anything", self.s2a_extra) +
-            subheading_from_string("2B: " + self.WXSTRING("2b_heading"))
+            subheading_from_string("2B: " + self.wxstring("2b_heading"))
         )
         for i in range(1, 18):
             html += tr(
-                str(i) + ". " + self.WXSTRING("2b_q" + str(i)),
+                str(i) + ". " + self.wxstring("2b_q" + str(i)),
                 answer(get_from_dict(no_yes_3way_map,
                                      getattr(self, "s2b_q" + str(i)))) +
                 " (" +
@@ -1351,7 +1351,7 @@ class CecaQ3(Task):
             self.wstring_string("is_there_more_you_want_to_say",
                            self.s2b_extra) +
 
-            subheading_from_string("3A: " + self.WXSTRING("3a_heading")) +
+            subheading_from_string("3A: " + self.wxstring("3a_heading")) +
             self.wstring_dict("2a_which",
                               self.s3a_which_father_figure, fatherfigure_map) +
             self.wstring_string("rnc_if_other_describe",
@@ -1359,15 +1359,15 @@ class CecaQ3(Task):
         )
         for i in range(1, 17):
             html += string_dict(
-                str(i) + ". " + self.WXSTRING("3a_q" + str(i)),
+                str(i) + ". " + self.wxstring("3a_q" + str(i)),
                 getattr(self, "s3a_q" + str(i)), no_yes_5way_map)
         html += (
             self.wstring_string("3a_add_anything", self.s3a_extra) +
-            subheading_from_string("3B: " + self.WXSTRING("3b_heading"))
+            subheading_from_string("3B: " + self.wxstring("3b_heading"))
         )
         for i in range(1, 18):
             html += tr(
-                str(i) + ". " + self.WXSTRING("3b_q" + str(i)),
+                str(i) + ". " + self.wxstring("3b_q" + str(i)),
                 answer(get_from_dict(no_yes_3way_map,
                                      getattr(self, "s3b_q" + str(i)))) +
                 " (" +
@@ -1380,11 +1380,11 @@ class CecaQ3(Task):
             self.wstring_boolean("if_any_what_age", self.s3b_age_began) +
             self.wstring_string("is_there_more_you_want_to_say",
                            self.s3b_extra) +
-            subheading_from_string("3C: " + self.WXSTRING("3c_heading"))
+            subheading_from_string("3C: " + self.wxstring("3c_heading"))
         )
         for i in range(1, 18):
             html += string_dict(
-                str(i) + ". " + self.WXSTRING("3c_q" + str(i)),
+                str(i) + ". " + self.wxstring("3c_q" + str(i)),
                 getattr(self, "s3c_q" + str(i)), no_yes_5way_map)
         html += (
             self.wstring_dict("3c_which_parent_cared_for",
@@ -1395,7 +1395,7 @@ class CecaQ3(Task):
             self.wstring_boolean("3c_parent_physical_problem",
                                  self.s3c_parent_physical_problem) +
 
-            subheading_from_string("4: " + self.WXSTRING("4_heading")) +
+            subheading_from_string("4: " + self.wxstring("4_heading")) +
             subsubheading_from_string("(Adult confidant)") +
             self.wstring_boolean("4a_q", self.s4a_adultconfidant) +
             self.subsubheading_from_wstring("4_if_so_who") +
@@ -1452,7 +1452,7 @@ class CecaQ3(Task):
             self.wstring_string("4_note_anything",
                                 self.s4c_closest_additional) +
 
-            subheading_from_string("4: " + self.WXSTRING("5_heading")) +
+            subheading_from_string("4: " + self.wxstring("5_heading")) +
             self.wstring_boolean("5_mainq", self.s5c_physicalabuse) +
             self.subsubheading_from_wstring("5_motherfigure") +
             self.wstring_boolean("5_did_this_person_hurt_you",
@@ -1486,7 +1486,7 @@ class CecaQ3(Task):
             self.wstring_string("5_can_you_describe_2",
                                 self.s5c_nonparent_abuse_description) +
 
-            subheading_from_string("6: " + self.WXSTRING("6_heading")) +
+            subheading_from_string("6: " + self.wxstring("6_heading")) +
             self.wstring_dict("6_any_unwanted",
                               self.s6_any_unwanted_sexual_experience,
                               no_yes_3way_map) +
@@ -1554,22 +1554,22 @@ class CecaQ3(Task):
         return html
 
     def subheading_from_wstring(self, wstringname: str) -> str:
-        return subheading_from_string(self.WXSTRING(wstringname))
+        return subheading_from_string(self.wxstring(wstringname))
 
     def subsubheading_from_wstring(self, wstringname: str) -> str:
-        return subsubheading_from_string(self.WXSTRING(wstringname))
+        return subsubheading_from_string(self.wxstring(wstringname))
 
     def wstring_boolean(self, wstring: str, value: Any) -> str:
-        return string_boolean(self.WXSTRING(wstring), value)
+        return string_boolean(self.wxstring(wstring), value)
     
     def wstring_numeric(self, wstring: str, value: Any) -> str:
-        return string_numeric(self.WXSTRING(wstring), value)
+        return string_numeric(self.wxstring(wstring), value)
 
     def wstring_string(self, wstring: str, value: str) -> str:
-        return string_string(self.WXSTRING(wstring), value)
+        return string_string(self.wxstring(wstring), value)
 
     def wstring_dict(self, wstring: str, value: Any, d: Dict) -> str:
-        return string_dict(self.WXSTRING(wstring), value, d)
+        return string_dict(self.wxstring(wstring), value, d)
 
 
 # =============================================================================

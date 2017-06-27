@@ -205,7 +205,7 @@ class CopeBrief(Task):
         answer_dict = {None: None}
         for option in range(0, 3 + 1):
             answer_dict[option] = (
-                str(option) + " — " + self.WXSTRING("a" + str(option))
+                str(option) + " — " + self.wxstring("a" + str(option))
             )
         h = """
             <div class="summary">
@@ -246,7 +246,7 @@ class CopeBrief(Task):
         """
         for q in range(1, self.NQUESTIONS + 1):
             h += tr_qa(
-                "Q{}. {}".format(q, self.WXSTRING("q" + str(q))),
+                "Q{}. {}".format(q, self.wxstring("q" + str(q))),
                 get_from_dict(answer_dict, getattr(self, "q" + str(q)))
             )
         h += """

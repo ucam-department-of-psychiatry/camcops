@@ -116,6 +116,7 @@ class ReferrerSatisfactionGen(AbstractSatisfaction, Task):
     tablename = "ref_satis_gen"
     shortname = "ReferrerSatisfactionSurvey"
     longname = "Referrer Satisfaction Scale, survey"
+    is_anonymous = True
 
     def get_task_html(self) -> str:
         return self.get_common_task_html(

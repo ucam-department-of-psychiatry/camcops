@@ -118,7 +118,7 @@ class Zbi12(Task):
             a = getattr(self, "q" + str(q))
             fa = ("{}: {}".format(a, get_from_dict(option_dict, a))
                   if a is not None else None)
-            h += tr(self.WXSTRING("q" + str(q)), answer(fa))
+            h += tr(self.wxstring("q" + str(q)), answer(fa))
         h += """
             </table>
         """ + DATA_COLLECTION_UNLESS_UPGRADED_DIV

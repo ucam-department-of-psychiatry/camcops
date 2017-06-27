@@ -131,7 +131,7 @@ class Bprse(Task):
         """
         for i in range(1, self.NQUESTIONS + 1):
             h += tr_qa(
-                self.WXSTRING("q" + str(i) + "_s"),
+                self.wxstring("q" + str(i) + "_s"),
                 get_from_dict(main_dict, getattr(self, "q" + str(i)))
             )
         h += """

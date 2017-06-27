@@ -91,6 +91,8 @@ class Icd10SpecPD(Task):
                  comment="Skip questions for anxious PD?"),
             dict(name="skip_dependent", cctype="BOOL", pv=PV.BIT,
                  comment="Skip questions for dependent PD?"),
+            dict(name="other_pd_present", cctype="BOOL", pv=PV.BIT,
+                 comment="Is another personality disorder present?"),
             dict(name="vignette", cctype="TEXT", pv=PV.BIT,
                  comment="Vignette"),
         ] +

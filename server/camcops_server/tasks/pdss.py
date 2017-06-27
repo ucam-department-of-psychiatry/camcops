@@ -134,9 +134,9 @@ class Pdss(Task):
                                              default="?")),
         )
         for q in range(1, self.NQUESTIONS + 1):
-            qtext = self.WXSTRING("q" + str(q))
+            qtext = self.wxstring("q" + str(q))
             a = getattr(self, "q" + str(q))
-            atext = (self.WXSTRING("q{}_option{}".format(q, a), str(a))
+            atext = (self.wxstring("q{}_option{}".format(q, a), str(a))
                      if a is not None else None)
             h += tr(qtext, answer(atext))
         h += """

@@ -213,8 +213,8 @@ class Ybocs(Task):
             fieldname = "q" + qi[0]
             value = getattr(self, fieldname)
             h += tr(
-                self.WXSTRING(fieldname + "_title"),
-                answer(self.WXSTRING(fieldname + "_a" + str(value), value)
+                self.wxstring(fieldname + "_title"),
+                answer(self.wxstring(fieldname + "_a" + str(value), value)
                        if value is not None else None)
             )
         h += """
@@ -415,12 +415,12 @@ class YbocsSc(Task):
         """
         for group in self.GROUPS:
             h += subheading_spanning_four_columns(
-                self.WXSTRING(self.SC_PREFIX + group))
+                self.wxstring(self.SC_PREFIX + group))
             for item in self.ITEMS:
                 if not item.startswith(group):
                     continue
                 h += tr(
-                    self.WXSTRING(self.SC_PREFIX + item),
+                    self.wxstring(self.SC_PREFIX + item),
                     answer(get_ternary(getattr(self,
                                                item + self.SUFFIX_CURRENT),
                                        value_true="Current",

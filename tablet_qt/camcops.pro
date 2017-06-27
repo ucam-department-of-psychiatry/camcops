@@ -913,5 +913,5 @@ DISTFILES += \
     tools/chord.py \
     tools/cppclean_all.sh \
     tools/decrypt_sqlcipher.py \
-    notes/android_compilation.txt \
-    notes/linux_compilation.txt
+    notes/compilation_android.txt \
+    notes/compilation_linux.txt

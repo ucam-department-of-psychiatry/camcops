@@ -31,7 +31,7 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import (
     CtvInfo,
     CTV_INCOMPLETE,
@@ -87,9 +87,9 @@ class Ciwa(Task):
             axis_max=67.5,
             horizontal_lines=[14.5, 7.5],
             horizontal_labels=[
-                TrackerLabel(17, WSTRING("severe")),
-                TrackerLabel(11, WSTRING("moderate")),
-                TrackerLabel(3.75, WSTRING("mild")),
+                TrackerLabel(17, wappstring("severe")),
+                TrackerLabel(11, wappstring("moderate")),
+                TrackerLabel(3.75, wappstring("mild")),
             ]
         )]
 
@@ -122,11 +122,11 @@ class Ciwa(Task):
     def severity(self) -> str:
         score = self.total_score()
         if score >= 15:
-            severity = WSTRING("ciwa_category_severe")
+            severity = self.wxstring("category_severe")
         elif score >= 8:
-            severity = WSTRING("ciwa_category_moderate")
+            severity = self.wxstring("category_moderate")
         else:
-            severity = WSTRING("ciwa_category_mild")
+            severity = self.wxstring("category_mild")
         return severity
 
     def get_task_html(self) -> str:
@@ -138,14 +138,14 @@ class Ciwa(Task):
             for option in range(0, 8):
                 if option > 4 and q == "q10":
                     continue
-                d[option] = WSTRING("ciwa_" + q + "_option" + str(option))
+                d[option] = self.wxstring(q + "_option" + str(option))
             answer_dicts_dict[q] = d
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(WSTRING("total_score"), answer(score) + " / 67")
-        h += tr_qa(WSTRING("ciwa_severity") + " <sup>[1]</sup>", severity)
+        h += tr(wappstring("total_score"), answer(score) + " / 67")
+        h += tr_qa(self.wxstring("severity") + " <sup>[1]</sup>", severity)
         h += """
                 </table>
             </div>
@@ -157,16 +157,16 @@ class Ciwa(Task):
         """
         for q in range(1, Ciwa.NSCOREDQUESTIONS + 1):
             h += tr_qa(
-                WSTRING("ciwa_q" + str(q) + "_s"),
+                self.wxstring("q" + str(q) + "_s"),
                 get_from_dict(answer_dicts_dict["q" + str(q)],
                               getattr(self, "q" + str(q)))
             )
-        h += subheading_spanning_two_columns(WSTRING("ciwa_vitals_title"))
-        h += tr_qa(WSTRING("ciwa_t"), self.t)
-        h += tr_qa(WSTRING("ciwa_hr"), self.hr)
-        h += tr(WSTRING("ciwa_bp"),
+        h += subheading_spanning_two_columns(self.wxstring("vitals_title"))
+        h += tr_qa(self.wxstring("t"), self.t)
+        h += tr_qa(self.wxstring("hr"), self.hr)
+        h += tr(self.wxstring("bp"),
                 answer(self.sbp) + " / " + answer(self.dbp))
-        h += tr_qa(WSTRING("ciwa_rr"), self.rr)
+        h += tr_qa(self.wxstring("rr"), self.rr)
         h += """
             </table>
             <div class="footnotes">

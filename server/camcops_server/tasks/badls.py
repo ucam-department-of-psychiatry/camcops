@@ -132,9 +132,9 @@ class Badls(Task):
         )
         for q in range(1, self.NQUESTIONS + 1):
             fieldname = "q" + str(q)
-            qtext = self.WXSTRING(fieldname)  # happens to be the same
+            qtext = self.wxstring(fieldname)  # happens to be the same
             avalue = getattr(self, "q" + str(q))
-            atext = (self.WXSTRING("q{}_{}".format(q, avalue))
+            atext = (self.wxstring("q{}_{}".format(q, avalue))
                      if q is not None else None)
             score = self.score(fieldname)
             h += tr(qtext, answer(atext), score)

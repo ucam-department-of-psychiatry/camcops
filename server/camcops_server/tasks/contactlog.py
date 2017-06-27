@@ -102,5 +102,5 @@ class ContactLog(Task):
         h += tr_qa("Patient contact?", get_yes_no_none(self.patient_contact))
         h += tr_qa("Staff liaison?", get_yes_no_none(self.staff_liaison))
         h += tr_qa("Other liaison?", get_yes_no_none(self.other_liaison))
-        h += tr_qa("Comment:", ws.webify(self.comment))
+        h += tr_qa("Comment:", self.comment)
         return h

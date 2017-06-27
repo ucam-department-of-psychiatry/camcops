@@ -137,14 +137,14 @@ class Pswq(Task):
         """.format(
             complete_tr=self.get_is_complete_tr(),
             total=answer(self.total_score()),
-            anchor1=self.WXSTRING("anchor1"),
-            anchor5=self.WXSTRING("anchor5"),
+            anchor1=self.wxstring("anchor1"),
+            anchor5=self.wxstring("anchor5"),
             reversed_questions=", ".join(str(x) for x in self.REVERSE_SCORE)
         )
         for q in range(1, self.NQUESTIONS + 1):
             a = getattr(self, "q" + str(q))
             score = self.score(q)
-            h += tr(self.WXSTRING("q" + str(q)), answer(a), score)
+            h += tr(self.wxstring("q" + str(q)), answer(a), score)
         h += """
             </table>
         """

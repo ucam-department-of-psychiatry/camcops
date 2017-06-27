@@ -109,9 +109,9 @@ class Aims(Task):
         q10_dict = {None: None}
         for option in range(0, 5):
             main_dict[option] = str(option) + " — " + \
-                self.WXSTRING("main_option" + str(option))
+                self.wxstring("main_option" + str(option))
             q10_dict[option] = str(option) + " — " + \
-                self.WXSTRING("q10_option" + str(option))
+                self.wxstring("q10_option" + str(option))
         h = """
             <div class="summary">
                 <table class="summary">
@@ -129,12 +129,12 @@ class Aims(Task):
                 </tr>
         """
         for q in range(1, 10):
-            h += tr_qa(self.WXSTRING("q" + str(q) + "_s"),
+            h += tr_qa(self.wxstring("q" + str(q) + "_s"),
                        get_from_dict(main_dict, getattr(self, "q" + str(q))))
         h += (
-            tr_qa(self.WXSTRING("q10_s"), get_from_dict(q10_dict, self.q10)) +
-            tr_qa(self.WXSTRING("q11_s"), get_yes_no_none(self.q11)) +
-            tr_qa(self.WXSTRING("q12_s"), get_yes_no_none(self.q12)) +
+            tr_qa(self.wxstring("q10_s"), get_from_dict(q10_dict, self.q10)) +
+            tr_qa(self.wxstring("q11_s"), get_yes_no_none(self.q11)) +
+            tr_qa(self.wxstring("q12_s"), get_yes_no_none(self.q12)) +
             """
                 </table>
                 <div class="footnotes">

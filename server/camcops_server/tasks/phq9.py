@@ -181,17 +181,17 @@ class Phq9(Task):
     def get_task_html(self) -> str:
         main_dict = {
             None: None,
-            0: "0 — " + self.WXSTRING("a0"),
-            1: "1 — " + self.WXSTRING("a1"),
-            2: "2 — " + self.WXSTRING("a2"),
-            3: "3 — " + self.WXSTRING("a3")
+            0: "0 — " + self.wxstring("a0"),
+            1: "1 — " + self.wxstring("a1"),
+            2: "2 — " + self.wxstring("a2"),
+            3: "3 — " + self.wxstring("a3")
         }
         q10_dict = {
             None: None,
-            0: "0 — " + self.WXSTRING("fa0"),
-            1: "1 — " + self.WXSTRING("fa1"),
-            2: "2 — " + self.WXSTRING("fa2"),
-            3: "3 — " + self.WXSTRING("fa3")
+            0: "0 — " + self.wxstring("fa0"),
+            1: "1 — " + self.wxstring("fa1"),
+            2: "2 — " + self.wxstring("fa2"),
+            3: "3 — " + self.wxstring("fa3")
         }
         h = """
             <div class="summary">
@@ -199,7 +199,7 @@ class Phq9(Task):
         """ + self.get_is_complete_tr()
         h += tr(WSTRING("total_score") + " <sup>[1]</sup>",
                 answer(self.total_score()) + " / 27")
-        h += tr_qa(self.WXSTRING("depression_severity") + " <sup>[2]</sup>",
+        h += tr_qa(self.wxstring("depression_severity") + " <sup>[2]</sup>",
                    self.severity())
         h += tr(
             "Number of symptoms: core <sup>[3]</sup>, other <sup>[4]</sup>, "
@@ -208,9 +208,9 @@ class Phq9(Task):
             answer(self.n_other()) + "/7, " +
             answer(self.n_total()) + "/9"
         )
-        h += tr_qa(self.WXSTRING("mds") + " <sup>[5]</sup>",
+        h += tr_qa(self.wxstring("mds") + " <sup>[5]</sup>",
                    get_yes_no(self.is_mds()))
-        h += tr_qa(self.WXSTRING("ods") + " <sup>[6]</sup>",
+        h += tr_qa(self.wxstring("ods") + " <sup>[6]</sup>",
                    get_yes_no(self.is_ods()))
         h += """
                 </table>
@@ -226,9 +226,9 @@ class Phq9(Task):
         """
         for i in range(1, self.N_MAIN_QUESTIONS + 1):
             nstr = str(i)
-            h += tr_qa(self.WXSTRING("q" + nstr),
+            h += tr_qa(self.wxstring("q" + nstr),
                        get_from_dict(main_dict, getattr(self, "q" + nstr)))
-        h += tr_qa("10. " + self.WXSTRING("finalq"),
+        h += tr_qa("10. " + self.wxstring("finalq"),
                    get_from_dict(q10_dict, self.q10))
         h += """
             </table>

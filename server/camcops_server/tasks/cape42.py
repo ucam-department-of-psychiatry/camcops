@@ -427,21 +427,21 @@ class Cape42(Task):
                     <th width="15%">Distress ({low}–{high}) <sup>[2]</sup></th>
                 </tr>
         """.format(
-            f1=self.WXSTRING("frequency_option1"),
-            f2=self.WXSTRING("frequency_option2"),
-            f3=self.WXSTRING("frequency_option3"),
-            f4=self.WXSTRING("frequency_option4"),
-            d1=self.WXSTRING("distress_option1"),
-            d2=self.WXSTRING("distress_option2"),
-            d3=self.WXSTRING("distress_option3"),
-            d4=self.WXSTRING("distress_option4"),
+            f1=self.wxstring("frequency_option1"),
+            f2=self.wxstring("frequency_option2"),
+            f3=self.wxstring("frequency_option3"),
+            f4=self.wxstring("frequency_option4"),
+            d1=self.wxstring("distress_option1"),
+            d2=self.wxstring("distress_option2"),
+            d3=self.wxstring("distress_option3"),
+            d4=self.wxstring("distress_option4"),
             low=MIN_SCORE_PER_Q,
             high=MAX_SCORE_PER_Q,
         )
         for q in ALL:
             h += tr(
                 "{q}. ".format(q=q) +
-                self.WXSTRING("q" + str(q)) +
+                self.wxstring("q" + str(q)) +
                 " (<i>" + self.question_category(q) + "</i>)",
                 answer(self.get_frequency(q)),
                 answer(

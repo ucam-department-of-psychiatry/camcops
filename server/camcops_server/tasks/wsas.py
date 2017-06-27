@@ -133,13 +133,13 @@ class Wsas(Task):
         """.format(
             complete_tr=self.get_is_complete_tr(),
             total=answer(self.total_score()),
-            retired_row=tr_qa(self.WXSTRING("q_retired_etc"),
+            retired_row=tr_qa(self.wxstring("q_retired_etc"),
                               get_true_false(self.retired_etc)),
         )
         for q in range(1, self.NQUESTIONS + 1):
             a = getattr(self, "q" + str(q))
             fa = get_from_dict(option_dict, a) if a is not None else None
-            h += tr(self.WXSTRING("q" + str(q)), answer(fa))
+            h += tr(self.wxstring("q" + str(q)), answer(fa))
         h += """
             </table>
         """ + DATA_COLLECTION_UNLESS_UPGRADED_DIV

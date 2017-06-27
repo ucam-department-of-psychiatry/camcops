@@ -169,11 +169,11 @@ class Caps(Task):
         """ + self.get_is_complete_tr()
         h += tr_qa("{} <sup>[1]</sup> (0–32)".format(WSTRING("total_score")),
                    total)
-        h += tr_qa("{} (0–160)".format(self.WXSTRING("distress")),
+        h += tr_qa("{} (0–160)".format(self.wxstring("distress")),
                    distress)
-        h += tr_qa("{} (0–160)".format(self.WXSTRING("intrusiveness")),
+        h += tr_qa("{} (0–160)".format(self.wxstring("intrusiveness")),
                    intrusiveness)
-        h += tr_qa("{} (0–160)".format(self.WXSTRING("frequency")),
+        h += tr_qa("{} (0–160)".format(self.wxstring("frequency")),
                    frequency)
         h += """
                 </table>
@@ -192,16 +192,16 @@ class Caps(Task):
                     <th width="10%">Frequency (1–5)</th>
                 </tr>
         """.format(
-            distress1=self.WXSTRING("distress_option1"),
-            distress5=self.WXSTRING("distress_option5"),
-            intrusiveness1=self.WXSTRING("intrusiveness_option1"),
-            intrusiveness5=self.WXSTRING("intrusiveness_option5"),
-            frequency1=self.WXSTRING("frequency_option1"),
-            frequency5=self.WXSTRING("frequency_option5"),
+            distress1=self.wxstring("distress_option1"),
+            distress5=self.wxstring("distress_option5"),
+            intrusiveness1=self.wxstring("intrusiveness_option1"),
+            intrusiveness5=self.wxstring("intrusiveness_option5"),
+            frequency1=self.wxstring("frequency_option1"),
+            frequency5=self.wxstring("frequency_option5"),
         )
         for q in range(1, Caps.NQUESTIONS + 1):
             h += tr(
-                self.WXSTRING("q" + str(q)),
+                self.wxstring("q" + str(q)),
                 answer(get_yes_no_none(getattr(self, "endorse" + str(q)))),
                 answer(getattr(self, "distress" + str(q))
                        if getattr(self, "endorse" + str(q)) else ""),

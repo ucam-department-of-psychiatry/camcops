@@ -115,19 +115,19 @@ class PsychiatricClerking(Task):
 
     def get_ctv_heading(self, wstringname) -> CtvInfo:
         return CtvInfo(
-            heading=self.WXSTRING(wstringname),
+            heading=self.wxstring(wstringname),
             skip_if_no_content=False
         )
 
     def get_ctv_subheading(self, wstringname) -> CtvInfo:
         return CtvInfo(
-            subheading=self.WXSTRING(wstringname),
+            subheading=self.wxstring(wstringname),
             skip_if_no_content=False
         )
 
     def get_ctv_description_content(self, x: str) -> CtvInfo:
         return CtvInfo(
-            description=self.WXSTRING(x),
+            description=self.wxstring(x),
             content=ws.webify(getattr(self, x))
         )
 
@@ -176,15 +176,15 @@ class PsychiatricClerking(Task):
 
     def heading(self, wstringname: str) -> str:
         return '<div class="heading">{}</div>'.format(
-            self.WXSTRING(wstringname))
+            self.wxstring(wstringname))
 
     def subheading(self, wstringname: str) -> str:
         return '<div class="subheading">{}</div>'.format(
-            self.WXSTRING(wstringname))
+            self.wxstring(wstringname))
 
     def subsubheading(self, wstringname: str) -> str:
         return '<div class="subsubheading">{}</div>'.format(
-            self.WXSTRING(wstringname))
+            self.wxstring(wstringname))
 
     def subhead_text(self, fieldname: str) -> str:
         return self.subheading(fieldname) + '<div><b>{}</b></div>'.format(

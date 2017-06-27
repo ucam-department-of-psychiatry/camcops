@@ -98,7 +98,7 @@ class Cage(Task):
                 <table class="summary">
         """ + self.get_is_complete_tr()
         h += tr(WSTRING("total_score"), answer(score) + " / 4")
-        h += tr_qa(self.WXSTRING("over_threshold"), get_yes_no(exceeds_cutoff))
+        h += tr_qa(self.wxstring("over_threshold"), get_yes_no(exceeds_cutoff))
         h += """
                 </table>
             </div>
@@ -109,7 +109,7 @@ class Cage(Task):
                 </tr>
         """
         for q in range(1, Cage.NQUESTIONS + 1):
-            h += tr_qa(str(q) + " — " + self.WXSTRING("q" + str(q)),
+            h += tr_qa(str(q) + " — " + self.wxstring("q" + str(q)),
                        getattr(self, "q" + str(q)))  # answer is itself Y/N/NULL  # noqa
         h += """
             </table>

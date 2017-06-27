@@ -61,7 +61,7 @@ const int N_ANXIOUS = 5;
 const int N_DEPENDENT = 6;
 
 const QString G_PREFIX("g");
-const QString G1_PREFIX("g1");
+const QString G1_PREFIX("g1_");
 const QString PARANOID_PREFIX("paranoid");
 const QString SCHIZOID_PREFIX("schizoid");
 const QString DISSOCIAL_PREFIX("dissocial");

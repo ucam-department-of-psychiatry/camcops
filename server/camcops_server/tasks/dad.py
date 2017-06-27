@@ -284,11 +284,11 @@ class Dad(Task):
             execution=self.report_score(d['execution']),
         )
         for group in self.GROUPS:
-            h += subheading_spanning_two_columns(self.WXSTRING(group))
+            h += subheading_spanning_two_columns(self.wxstring(group))
             for item in self.ITEMS:
                 if not item.startswith(group):
                     continue
-                q = self.WXSTRING(item)
+                q = self.wxstring(item)
                 if '_init_' in item:
                     q += " (I)"
                 elif '_plan_' in item:

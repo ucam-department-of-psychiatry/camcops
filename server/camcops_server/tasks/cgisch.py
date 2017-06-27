@@ -141,24 +141,24 @@ class CgiSch(Task):
     def get_task_html(self) -> str:
         severity_dict = {
             None: None,
-            1: self.WXSTRING("i_option1"),
-            2: self.WXSTRING("i_option2"),
-            3: self.WXSTRING("i_option3"),
-            4: self.WXSTRING("i_option4"),
-            5: self.WXSTRING("i_option5"),
-            6: self.WXSTRING("i_option6"),
-            7: self.WXSTRING("i_option7"),
+            1: self.wxstring("i_option1"),
+            2: self.wxstring("i_option2"),
+            3: self.wxstring("i_option3"),
+            4: self.wxstring("i_option4"),
+            5: self.wxstring("i_option5"),
+            6: self.wxstring("i_option6"),
+            7: self.wxstring("i_option7"),
         }
         change_dict = {
             None: None,
-            1: self.WXSTRING("ii_option1"),
-            2: self.WXSTRING("ii_option2"),
-            3: self.WXSTRING("ii_option3"),
-            4: self.WXSTRING("ii_option4"),
-            5: self.WXSTRING("ii_option5"),
-            6: self.WXSTRING("ii_option6"),
-            7: self.WXSTRING("ii_option7"),
-            9: self.WXSTRING("ii_option9"),
+            1: self.wxstring("ii_option1"),
+            2: self.wxstring("ii_option2"),
+            3: self.wxstring("ii_option3"),
+            4: self.wxstring("ii_option4"),
+            5: self.wxstring("ii_option5"),
+            6: self.wxstring("ii_option6"),
+            7: self.wxstring("ii_option7"),
+            9: self.wxstring("ii_option9"),
         }
         h = """
             <div class="summary">
@@ -172,29 +172,29 @@ class CgiSch(Task):
                     <th width="30%">Answer <sup>[1]</sup></th>
                 </tr>
         """.format(self.get_is_complete_tr())
-        h += subheading_spanning_two_columns(self.WXSTRING("i_title"))
-        h += tr_span_col(self.WXSTRING("i_question"), cols=2)
-        h += tr_qa(self.WXSTRING("q1"),
+        h += subheading_spanning_two_columns(self.wxstring("i_title"))
+        h += tr_span_col(self.wxstring("i_question"), cols=2)
+        h += tr_qa(self.wxstring("q1"),
                    get_from_dict(severity_dict, self.severity1))
-        h += tr_qa(self.WXSTRING("q2"),
+        h += tr_qa(self.wxstring("q2"),
                    get_from_dict(severity_dict, self.severity2))
-        h += tr_qa(self.WXSTRING("q3"),
+        h += tr_qa(self.wxstring("q3"),
                    get_from_dict(severity_dict, self.severity3))
-        h += tr_qa(self.WXSTRING("q4"),
+        h += tr_qa(self.wxstring("q4"),
                    get_from_dict(severity_dict, self.severity4))
-        h += tr_qa(self.WXSTRING("q5"),
+        h += tr_qa(self.wxstring("q5"),
                    get_from_dict(severity_dict, self.severity5))
-        h += subheading_spanning_two_columns(self.WXSTRING("ii_title"))
-        h += tr_span_col(self.WXSTRING("ii_question"), cols=2)
-        h += tr_qa(self.WXSTRING("q1"),
+        h += subheading_spanning_two_columns(self.wxstring("ii_title"))
+        h += tr_span_col(self.wxstring("ii_question"), cols=2)
+        h += tr_qa(self.wxstring("q1"),
                    get_from_dict(change_dict, self.change1))
-        h += tr_qa(self.WXSTRING("q2"),
+        h += tr_qa(self.wxstring("q2"),
                    get_from_dict(change_dict, self.change2))
-        h += tr_qa(self.WXSTRING("q3"),
+        h += tr_qa(self.wxstring("q3"),
                    get_from_dict(change_dict, self.change3))
-        h += tr_qa(self.WXSTRING("q4"),
+        h += tr_qa(self.wxstring("q4"),
                    get_from_dict(change_dict, self.change4))
-        h += tr_qa(self.WXSTRING("q5"),
+        h += tr_qa(self.wxstring("q5"),
                    get_from_dict(change_dict, self.change5))
         h += """
             </table>
@@ -204,6 +204,6 @@ class CgiSch(Task):
                 {postscript}
             </div>
         """.format(
-            postscript=self.WXSTRING("ii_postscript"),
+            postscript=self.wxstring("ii_postscript"),
         )
         return h

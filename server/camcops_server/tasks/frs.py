@@ -273,14 +273,14 @@ class Frs(Task):
             return None
         prefix = "q" + qstr + "_a_"
         if value == ALWAYS:
-            return self.WXSTRING(prefix + "always")
+            return self.wxstring(prefix + "always")
         if value == SOMETIMES:
-            return self.WXSTRING(prefix + "sometimes")
+            return self.wxstring(prefix + "sometimes")
         if value == NEVER:
-            return self.WXSTRING(prefix + "never")
+            return self.wxstring(prefix + "never")
         if value == NA:
             if q in SPECIAL_NA_TEXT_QUESTIONS:
-                return self.WXSTRING(prefix + "na")
+                return self.wxstring(prefix + "na")
             return WSTRING("NA")
         return None
 
@@ -326,7 +326,7 @@ class Frs(Task):
             severity=scoredict['severity'],
         )
         for q in range(1, NQUESTIONS + 1):
-            qtext = self.WXSTRING("q" + str(q) + "_q")
+            qtext = self.wxstring("q" + str(q) + "_q")
             atext = self.get_answer(q)
             h += tr_qa(qtext, atext)
         h += """

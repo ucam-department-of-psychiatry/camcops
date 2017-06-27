@@ -185,14 +185,14 @@ class NpiQ(Task):
             s = getattr(self, SEVERITY + qstr)
             d = getattr(self, DISTRESS + qstr)
             qtext = "<b>{}:</b> {}".format(
-                self.WXSTRING("t" + qstr),
-                self.WXSTRING("q" + qstr),
+                self.wxstring("t" + qstr),
+                self.wxstring("q" + qstr),
             )
             etext = get_yes_no_unknown(e)
             if e:
-                stext = self.WXSTRING("severity_{}".format(s), s,
+                stext = self.wxstring("severity_{}".format(s), s,
                                       provide_default_if_none=False)
-                dtext = self.WXSTRING("distress_{}".format(d), d,
+                dtext = self.wxstring("distress_{}".format(d), d,
                                       provide_default_if_none=False)
             else:
                 stext = ""

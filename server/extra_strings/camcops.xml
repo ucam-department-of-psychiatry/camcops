@@ -79,7 +79,14 @@
 
     <string name="auditory">Auditory</string>
 
+    <string name="date_pertains_to">Date this assessment pertains to</string>
+
     <string name="icd10_symptomatic_disclaimer">These criteria are the SYMPTOMATIC criteria and IGNORE CAUSAL criteria (such as “episode not attributable to psychoactive substance use or organic mental disorder” or history of prior episodes).</string>
+
+    <string name="mild">Mild</string>
+    <string name="moderate">Moderate</string>
+
+    <string name="question">Question</string>
 
     <string name="satis_pt_rating_q">How would you rate the service you have received from</string>
     <string name="satis_ref_spec_rating_q">In relation to this patient’s care, how would you rate the service you have received from</string>
@@ -94,24 +101,11 @@
     <string name="satis_rating_a2">Average</string>
     <string name="satis_rating_a3">Good</string>
     <string name="satis_rating_a4">Excellent</string>
+    <string name="severe">Severe</string>
+
+    <string name="total_score">Total score</string>
 
     <string name="visual">Visual</string>
-
-    <!--
-    ===========================================================================
-    Short things for specific tasks, not meriting separate string files
-    ===========================================================================
-    -->
-
-
-    <!--
-    ===========================================================================
-    Other
-    ===========================================================================
-    -->
-
-    <string name="date_pertains_to">Date this assessment pertains to</string>
-    <string name="question">Question</string>
 
   </task>
 </resources>

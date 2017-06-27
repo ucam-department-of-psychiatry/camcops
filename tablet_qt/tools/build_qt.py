@@ -1732,23 +1732,9 @@ Then for your project,
       - For Android:
         - Build Settings > Android APK > Details > Additional Libraries > Add
 
-RUNTIME REQUIREMENTS
+BUILD / RUNTIME REQUIREMENTS
 
-- To run CamCOPS under Ubuntu, also need:
-
-    sudo apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \\
-        mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev \\
-        libasound-dev \\
-        libharfbuzz-dev \\
-        libpulse-dev \\
-        libwayland-dev libwayland-egl1 libegl1-mesa-dev \\
-        libtiff-dev \\
-        libgbm-dev \\
-        libxkbcommon-x11-dev \\
-        libdbus-1-dev \\
-        libjasper-dev \\
-        libxcomposite-dev \\
-        libxi-dev
+- For Ubuntu, see compilation_linux.txt
 
 - To build Android programs under Linux, also need:
 

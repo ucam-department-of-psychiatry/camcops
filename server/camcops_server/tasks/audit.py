@@ -113,21 +113,21 @@ class Audit(Task):
         q9_to_10_dict = {None: None}
         for option in range(0, 5):
             q1_dict[option] = str(option) + " – " + \
-                self.WXSTRING("q1_option" + str(option))
+                self.wxstring("q1_option" + str(option))
             q2_dict[option] = str(option) + " – " + \
-                self.WXSTRING("q2_option" + str(option))
+                self.wxstring("q2_option" + str(option))
             q3_to_8_dict[option] = str(option) + " – " + \
-                self.WXSTRING("q3to8_option" + str(option))
+                self.wxstring("q3to8_option" + str(option))
             if option != 1 and option != 3:
                 q9_to_10_dict[option] = str(option) + " – " + \
-                    self.WXSTRING("q9to10_option" + str(option))
+                    self.wxstring("q9to10_option" + str(option))
         h = """
             <div class="summary">
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
         h += tr(WSTRING("total_score"), answer(score) + " / 40")
-        h += tr_qa(self.WXSTRING("exceeds_standard_cutoff"),
+        h += tr_qa(self.wxstring("exceeds_standard_cutoff"),
                    get_yes_no(exceeds_cutoff))
         h += """
                 </table>
@@ -138,16 +138,16 @@ class Audit(Task):
                     <th width="50%">Answer</th>
                 </tr>
         """
-        h += tr_qa(self.WXSTRING("q1_s"), get_from_dict(q1_dict, self.q1))
-        h += tr_qa(self.WXSTRING("q2_s"), get_from_dict(q2_dict, self.q2))
+        h += tr_qa(self.wxstring("q1_s"), get_from_dict(q1_dict, self.q1))
+        h += tr_qa(self.wxstring("q2_s"), get_from_dict(q2_dict, self.q2))
         for q in range(3, 8 + 1):
             h += tr_qa(
-                self.WXSTRING("q" + str(q) + "_s"),
+                self.wxstring("q" + str(q) + "_s"),
                 get_from_dict(q3_to_8_dict, getattr(self, "q" + str(q)))
             )
-        h += tr_qa(self.WXSTRING("q9_s"),
+        h += tr_qa(self.wxstring("q9_s"),
                    get_from_dict(q9_to_10_dict, self.q9))
-        h += tr_qa(self.WXSTRING("q10_s"),
+        h += tr_qa(self.wxstring("q10_s"),
                    get_from_dict(q9_to_10_dict, self.q10))
         h += """
             </table>
@@ -218,15 +218,15 @@ class AuditC(Task):
         q3_dict = {None: None}
         for option in range(0, 5):
             q1_dict[option] = str(option) + " – " + \
-                self.WXSTRING("q1_option" + str(option))
+                self.wxstring("q1_option" + str(option))
             if option == 0:  # special!
                 q2_dict[option] = str(option) + " – " + \
-                    self.WXSTRING("c_q2_option0")
+                    self.wxstring("c_q2_option0")
             else:
                 q2_dict[option] = str(option) + " – " + \
-                    self.WXSTRING("q2_option" + str(option))
+                    self.wxstring("q2_option" + str(option))
             q3_dict[option] = str(option) + " – " + \
-                self.WXSTRING("q3to8_option" + str(option))
+                self.wxstring("q3to8_option" + str(option))
         h = """
             <div class="summary">
                 <table class="summary">
@@ -242,11 +242,11 @@ class AuditC(Task):
                     <th width="50%">Answer</th>
                 </tr>
         """
-        h += tr_qa(self.WXSTRING("c_q1_question"),
+        h += tr_qa(self.wxstring("c_q1_question"),
                    get_from_dict(q1_dict, self.q1))
-        h += tr_qa(self.WXSTRING("c_q2_question"),
+        h += tr_qa(self.wxstring("c_q2_question"),
                    get_from_dict(q2_dict, self.q2))
-        h += tr_qa(self.WXSTRING("c_q3_question"),
+        h += tr_qa(self.wxstring("c_q3_question"),
                    get_from_dict(q3_dict, self.q3))
         h += """
             </table>

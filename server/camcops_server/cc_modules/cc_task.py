@@ -3004,8 +3004,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     def extrastrings_exist(self) -> bool:
         return task_extrastrings_exist(self.get_extrastring_taskname())
 
-    # noinspection PyPep8Naming
-    def WXSTRING(self,
+    def wxstring(self,
                  name: str,
                  defaultvalue: str = None,
                  provide_default_if_none: bool = True) -> str:

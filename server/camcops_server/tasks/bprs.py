@@ -98,35 +98,35 @@ class Bprs(Task):
     def get_task_html(self) -> str:
         main_dict = {
             None: None,
-            0: "0 — " + self.WXSTRING("old_option0"),
-            1: "1 — " + self.WXSTRING("old_option1"),
-            2: "2 — " + self.WXSTRING("old_option2"),
-            3: "3 — " + self.WXSTRING("old_option3"),
-            4: "4 — " + self.WXSTRING("old_option4"),
-            5: "5 — " + self.WXSTRING("old_option5"),
-            6: "6 — " + self.WXSTRING("old_option6"),
-            7: "7 — " + self.WXSTRING("old_option7")
+            0: "0 — " + self.wxstring("old_option0"),
+            1: "1 — " + self.wxstring("old_option1"),
+            2: "2 — " + self.wxstring("old_option2"),
+            3: "3 — " + self.wxstring("old_option3"),
+            4: "4 — " + self.wxstring("old_option4"),
+            5: "5 — " + self.wxstring("old_option5"),
+            6: "6 — " + self.wxstring("old_option6"),
+            7: "7 — " + self.wxstring("old_option7")
         }
         q19_dict = {
             None: None,
-            1: self.WXSTRING("q19_option1"),
-            2: self.WXSTRING("q19_option2"),
-            3: self.WXSTRING("q19_option3"),
-            4: self.WXSTRING("q19_option4"),
-            5: self.WXSTRING("q19_option5"),
-            6: self.WXSTRING("q19_option6"),
-            7: self.WXSTRING("q19_option7")
+            1: self.wxstring("q19_option1"),
+            2: self.wxstring("q19_option2"),
+            3: self.wxstring("q19_option3"),
+            4: self.wxstring("q19_option4"),
+            5: self.wxstring("q19_option5"),
+            6: self.wxstring("q19_option6"),
+            7: self.wxstring("q19_option7")
         }
         q20_dict = {
             None: None,
-            0: self.WXSTRING("q20_option0"),
-            1: self.WXSTRING("q20_option1"),
-            2: self.WXSTRING("q20_option2"),
-            3: self.WXSTRING("q20_option3"),
-            4: self.WXSTRING("q20_option4"),
-            5: self.WXSTRING("q20_option5"),
-            6: self.WXSTRING("q20_option6"),
-            7: self.WXSTRING("q20_option7")
+            0: self.wxstring("q20_option0"),
+            1: self.wxstring("q20_option1"),
+            2: self.wxstring("q20_option2"),
+            3: self.wxstring("q20_option3"),
+            4: self.wxstring("q20_option4"),
+            5: self.wxstring("q20_option5"),
+            6: self.wxstring("q20_option6"),
+            7: self.wxstring("q20_option7")
         }
         h = """
             <div class="summary">
@@ -151,12 +151,12 @@ class Bprs(Task):
         """
         for i in range(1, Bprs.NQUESTIONS - 1):  # only does 1-18
             h += tr_qa(
-                self.WXSTRING("q" + str(i) + "_title"),
+                self.wxstring("q" + str(i) + "_title"),
                 get_from_dict(main_dict, getattr(self, "q" + str(i)))
             )
-        h += tr_qa(self.WXSTRING("q19_title"),
+        h += tr_qa(self.wxstring("q19_title"),
                    get_from_dict(q19_dict, self.q19))
-        h += tr_qa(self.WXSTRING("q20_title"),
+        h += tr_qa(self.wxstring("q20_title"),
                    get_from_dict(q20_dict, self.q20))
         h += """
             </table>
