@@ -27,7 +27,6 @@ from typing import List
 from ..cc_modules.cc_constants import PV
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import tr_qa
-from ..cc_modules.cc_string import WSTRING
 from ..cc_modules.cc_task import get_from_dict, Task
 
 
@@ -45,6 +44,7 @@ class CopeBrief(Task):
     tablename = "cope_brief"
     shortname = "COPE-Brief"
     longname = "Brief COPE Inventory"
+    extrastring_taskname = "cope"
     fieldspecs = [
         dict(name="completed_by_patient", cctype="INT", pv=PV.BIT,
              comment="Task completed by patient? (0 no, 1 yes)"),
@@ -205,7 +205,7 @@ class CopeBrief(Task):
         answer_dict = {None: None}
         for option in range(0, 3 + 1):
             answer_dict[option] = (
-                str(option) + " — " + WSTRING("copebrief_a" + str(option))
+                str(option) + " — " + self.WXSTRING("a" + str(option))
             )
         h = """
             <div class="summary">
@@ -246,7 +246,7 @@ class CopeBrief(Task):
         """
         for q in range(1, self.NQUESTIONS + 1):
             h += tr_qa(
-                "Q{}. {}".format(q, WSTRING("copebrief_q" + str(q))),
+                "Q{}. {}".format(q, self.WXSTRING("q" + str(q))),
                 get_from_dict(answer_dict, getattr(self, "q" + str(q)))
             )
         h += """

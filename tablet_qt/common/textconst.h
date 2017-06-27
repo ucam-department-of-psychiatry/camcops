@@ -106,6 +106,7 @@ extern const QString MOVE_UP;
 extern const QString NA;
 extern const QString NO;
 extern const QString NONE;
+extern const QString NO_DETAIL_SEE_FACSIMILE;
 extern const QString NO_SUMMARY_SEE_FACSIMILE;
 extern const QString NORMAL;
 extern const QString NOT_APPLICABLE;

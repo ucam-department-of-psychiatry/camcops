@@ -89,6 +89,7 @@ TR(MOVE_UP, "Move up");
 TR(NA, "N/A");
 TR(NONE, "None");
 TR(NO, "No");
+TR(NO_DETAIL_SEE_FACSIMILE, "No detail available; see the facsimile instead");
 TR(NO_SUMMARY_SEE_FACSIMILE, "No summary available; see the facsimile instead");
 TR(NORMAL, "Normal");
 TR(NOT_APPLICABLE, "Not applicable");

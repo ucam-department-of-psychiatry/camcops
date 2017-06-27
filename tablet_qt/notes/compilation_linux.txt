@@ -1,0 +1,149 @@
+===============================================================================
+Problem Q&A for building for Linux
+===============================================================================
+
+-------------------------------------------------------------------------------
+Basic prerequisites for building Qt (and building CamCOPS) in full?
+-------------------------------------------------------------------------------
+- http://wiki.qt.io/Qt5_platform_configurations
+
+sudo apt-get install build-essential libgl1-mesa-dev  # [1]
+sudo apt-get install libwayland-dev libwayland-egl1-mesa libwayland-server0 libgles2-mesa-dev libxkbcommon-dev  # [2]
+sudo apt-get install libwebp-dev libwebpdemux1  # [3]
+sudo apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev  # [4]
+
+SEE ALSO THE END OF build_qt.py
+
+[1] http://doc.qt.io/qt-5/linux.html#requirements-for-development-host
+[2] probably: https://wiki.qt.io/QtWayland#Desktop_build_instructions
+[3] qtimageformats/src/plugins/imageformats/webp/webp.pro
+[4] see build_qt.py
+
+-------------------------------------------------------------------------------
+Qt not building from the build_qt.py script?
+-------------------------------------------------------------------------------
+
+GENERAL TIPS:
+
+Q. How is an instance of Qt configured?
+A. Inspect ...qt_build_dir/config.summary
+
+Q. What's in a Linux library?
+A. nm LIBFILE
+
+
+SPECIFIC:
+
+Q. It fails with no apparent clear error.
+A. First, try with "--nparallel 1" so you can see the error. (If you're running
+   lots of parallel processes, the things you see last can look OK because the
+   error came from an earlier failing process, hundreds of lines back.)
+
+Q. These linker errors:
+
+    g++ -Wl,-O1 -fuse-ld=gold -Wl,--enable-new-dtags -o qwindow-compositor
+        .obj/main.o .obj/window.o .obj/compositor.o
+        .obj/qwindow-compositor_plugin_import.o .obj/qrc_qwindow-compositor.o
+        .obj/moc_compositor.o
+        -L/home/rudolf/dev/qt_local_build/openssl_linux_x86_64_build/openssl-1.0.2h
+        -L ../../lib
+        -L/home/rudolf/dev/qt_local_build/qt_linux_x86_64_build/qtwayland/plugins/wayland-graphics-integration-server
+        -ldrm-egl-server
+        -L/home/rudolf/dev/qt_local_build/qt_linux_x86_64_build/qtwayland/lib
+        -L/home/rudolf/dev/qt_local_build/qt_linux_x86_64_build/qtdeclarative/lib
+        -L/home/rudolf/dev/qt_local_build/qt_linux_x86_64_build/qtbase/lib
+        -lxcomposite-egl -lxcomposite-glx
+        -L/home/rudolf/dev/qt_local_build/qt_linux_x86_64_build/qtdeclarative/plugins/scenegraph
+        -lqsgopenvgbackend -lOpenVG
+        -L/home/rudolf/dev/qt_local_build/qt_linux_x86_64_build/qtwayland/plugins/platforms
+        -lqwayland-egl -lwayland-egl -lqwayland-generic
+        -lqwayland-xcomposite-egl -lqwayland-xcomposite-glx -lQt5WaylandClient
+        -lXcomposite -lwayland-client -lwayland-cursor
+        -L/home/rudolf/dev/qt_local_build/qt_linux_x86_64_build/qtbase/plugins/platforms
+        -lqxcb
+        -L/home/rudolf/dev/qt_local_build/qt_linux_x86_64_build/qtbase/plugins/xcbglintegrations
+        -lqxcb-egl-integration -lqxcb-glx-integration -lQt5XcbQpa
+        -lQt5GlxSupport -lxcb-static -lxcb-glx -lXi -lSM -lICE -lxkbcommon-x11
+        -L/home/rudolf/dev/qt_local_build/qt_linux_x86_64_build/qtimageformats/plugins/imageformats
+        -lqicns -lqjp2 -ljasper -lqtga -lqtiff -ltiff -lqwbmp -lqwebp
+        -lwebp -lwebpdemux
+        -L/home/rudolf/dev/qt_local_build/qt_linux_x86_64_build/qtbase/plugins/imageformats
+        -lqgif -lqico -lqjpeg
+        -L/home/rudolf/dev/qt_local_build/qt_linux_x86_64_build/qtbase/plugins/egldeviceintegrations
+        -lqeglfs-emu-integration -lqeglfs-kms-egldevice-integration
+        -lqeglfs-kms-integration -lQt5EglFsKmsSupport -lQt5KmsSupport -lgbm
+        -ldrm -lqeglfs-x11-integration -lQt5EglFSDeviceIntegration
+        -lQt5EventDispatcherSupport -lQt5ServiceSupport -lQt5ThemeSupport
+        -lQt5FontDatabaseSupport -lqtfreetype -lQt5FbSupport -lQt5EglSupport
+        -lXext -lQt5InputSupport -lQt5PlatformCompositorSupport
+        -lQt5DeviceDiscoverySupport -ludev -lxcb -lX11 -lX11-xcb -lEGL
+        -L/home/rudolf/dev/qt_local_build/qt_linux_x86_64_build/qtdeclarative/plugins/qmltooling
+        -lqmldbg_debugger -lqmldbg_inspector -lqmldbg_local -lqmldbg_messages
+        -lqmldbg_native -lqmldbg_nativedebugger -lqmldbg_profiler
+        -lqmldbg_quickprofiler -lqmldbg_server -lQt5PacketProtocol -lqmldbg_tcp
+        -L/home/rudolf/dev/qt_local_build/qt_linux_x86_64_build/qtbase/plugins/bearer
+        -lqconnmanbearer -lqgenericbearer -lqnmbearer -lQt5DBus -ldbus-1
+        -lQt5WaylandCompositor -lQt5Quick -lQt5Gui -lqtlibpng -lqtharfbuzz
+        -lQt5Qml -lQt5Network -lssl -lcrypto -lQt5Core -licui18n -licuuc
+        -licudata -lm -lrt -lqtpcre2 -ldl -lgthread-2.0 -lglib-2.0 -lGL
+        -lpthread -lwayland-server -lxkbcommon
+
+    /home/rudolf/dev/qt_local_build/qt_linux_x86_64_build/qtwayland/plugins/platforms/libqwayland-egl.a(qwaylandglcontext.o):
+        qwaylandglcontext.cpp:function QtWaylandClient::QWaylandGLContext::updateGLFormat():
+        error: undefined reference to 'wl_egl_window_create'
+    /home/rudolf/dev/qt_local_build/qt_linux_x86_64_build/qtwayland/plugins/platforms/libqwayland-egl.a(qwaylandglcontext.o):qwaylandglcontext.cpp:function QtWaylandClient::QWaylandGLContext::updateGLFormat(): error: undefined reference to 'wl_egl_window_destroy'
+    /home/rudolf/dev/qt_local_build/qt_linux_x86_64_build/qtwayland/plugins/platforms/libqwayland-egl.a(qwaylandeglwindow.o):qwaylandeglwindow.cpp:function QtWaylandClient::QWaylandEglWindow::~QWaylandEglWindow(): error: undefined reference to 'wl_egl_window_destroy'
+    /home/rudolf/dev/qt_local_build/qt_linux_x86_64_build/qtwayland/plugins/platforms/libqwayland-egl.a(qwaylandeglwindow.o):qwaylandeglwindow.cpp:function QtWaylandClient::QWaylandEglWindow::updateSurface(bool): error: undefined reference to 'wl_egl_window_get_attached_size'
+    /home/rudolf/dev/qt_local_build/qt_linux_x86_64_build/qtwayland/plugins/platforms/libqwayland-egl.a(qwaylandeglwindow.o):qwaylandeglwindow.cpp:function QtWaylandClient::QWaylandEglWindow::updateSurface(bool): error: undefined reference to 'wl_egl_window_resize'
+    /home/rudolf/dev/qt_local_build/qt_linux_x86_64_build/qtwayland/plugins/platforms/libqwayland-egl.a(qwaylandeglwindow.o):qwaylandeglwindow.cpp:function QtWaylandClient::QWaylandEglWindow::updateSurface(bool): error: undefined reference to 'wl_egl_window_destroy'
+    /home/rudolf/dev/qt_local_build/qt_linux_x86_64_build/qtwayland/plugins/platforms/libqwayland-egl.a(qwaylandeglwindow.o):qwaylandeglwindow.cpp:function QtWaylandClient::QWaylandEglWindow::updateSurface(bool): error: undefined reference to 'wl_egl_window_create'
+    /home/rudolf/dev/qt_local_build/qt_linux_x86_64_build/qtwayland/plugins/platforms/libqwayland-egl.a(qwaylandeglwindow.o):qwaylandeglwindow.cpp:function QtWaylandClient::QWaylandEglWindow::invalidateSurface(): error: undefined reference to 'wl_egl_window_destroy'
+    collect2: error: ld returned 1 exit status
+    Makefile:78: recipe for target 'qwindow-compositor' failed
+    ...
+    Makefile:52: recipe for target 'sub-qwindow-compositor-make_first' failed
+    ...
+    Makefile:44: recipe for target 'sub-wayland-make_first' failed
+    ...
+    Makefile:71: recipe for target 'sub-examples-make_first' failed
+    ...
+    Makefile:518: recipe for target 'module-qtwayland-make_first' failed
+
+A. These functions are part of Wayland, at
+   https://github.com/grate-driver/mesa/blob/master/src/egl/wayland/wayland-egl/wayland-egl.c
+
+   The only relevant wayland*.c* files referring to wl_egl_window_create are
+        qtwebengine/src/3rdparty/chromium/third_party/mesa/src/src/egl/wayland/wayland-egl/wayland-egl.c
+   and the only relevant wayland*.h files referring to it are:
+        /home/rudolf/dev/qt_local_build/src/qt5/qtwebengine/src/3rdparty/chromium/third_party/wayland/src/src/wayland-egl-core.h
+        /usr/include/wayland-egl-core.h
+
+   Does anything #include it?
+
+
+-------------------------------------------------------------------------------
+CamCOPS not linking?
+-------------------------------------------------------------------------------
+
+Q. error: cannot find -lwebp
+    ... despite presence of libwebp5
+    ... note in the Qt install directory: .../plugins/imageformats/libqwebp.a
+Q. error: cannot find -lwebpdemux
+    ... sudo apt-get install libwebpdemux1
+        ... no help
+    ... no 'demux' file in the Qt install directory
+    ... these two are probably part of QtWebEngine
+        ... but that's not in the QT qmake variable
+
+A. Try rebuilding Qt without skipping anything (specifically, not skipping
+   qtwebkit, but all -skip options removed).
+   ... no, just get Wayland problems then.
+
+-------------------------------------------------------------------------------
+Prerequisites for RUNNING CamCOPS?
+-------------------------------------------------------------------------------
+
+Try to keep these to the absolute minimum, via static linkage!
+
+SEE ALSO THE END OF build_qt.py
+

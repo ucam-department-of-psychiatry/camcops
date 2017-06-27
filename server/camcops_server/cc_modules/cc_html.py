@@ -302,10 +302,15 @@ def identity(x: Any) -> Any:
     return x
 
 
+def bold_webify(x: str) -> str:
+    """Webifies the string, then makes it bold."""
+    return bold(ws.webify(x))
+
+
 def answer(x: Any,
            default: str = "?",
            default_for_blank_strings: bool = False,
-           formatter_answer: Callable[[str], str] = bold,
+           formatter_answer: Callable[[str], str] = bold_webify,
            formatter_blank: Callable[[str], str] = italic) -> str:
     """Formats answer in bold, or the default value if None.
 

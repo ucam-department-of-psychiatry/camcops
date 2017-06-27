@@ -110,7 +110,7 @@ class Cage(Task):
         """
         for q in range(1, Cage.NQUESTIONS + 1):
             h += tr_qa(str(q) + " — " + self.WXSTRING("q" + str(q)),
-                       get_yes_no_none(getattr(self, "q" + str(q))))
+                       getattr(self, "q" + str(q)))  # answer is itself Y/N/NULL  # noqa
         h += """
             </table>
         """

@@ -122,7 +122,7 @@ OpenableWidget* Bdi::editor(bool read_only)
         {"BDI-II (1996)", SCALE_BDI_II},
     };
     QVector<QuestionWithOneField> fields;
-    QString question_prefix = tr("Question");
+    QString question_prefix = textconst::QUESTION;
     for (int n = FIRST_Q; n <= N_QUESTIONS; ++n) {
         QString qstrnum = QString::number(n);
         QString fieldname = QPREFIX + qstrnum;

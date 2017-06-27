@@ -366,8 +366,8 @@ class CbiR(Task):
             tr_blanks=tr(
                 "Respondent confirmed that blanks are deliberate (N/A)",
                 answer(get_yes_no(self.confirm_blanks))),
-            tr_comments=tr_qa("Comments",
-                              answer(self.comments, default="")),
+            tr_comments=tr("Comments",
+                           answer(self.comments, default="")),
         )
         h += subheading_spanning_three_columns(heading_memory)
         h += get_question_rows(*self.QNUMS_MEMORY)

@@ -810,9 +810,10 @@ class CardinalExpectationDetection(Task):
                     <th>Block</th>
         """
         for g in range(N_CUES):
+            # Have spaces around | to allow web browsers to word-wrap
             html += """
-                <th>Group {0} P(detected|present)</th>
-                <th>Group {0} P(detected|absent)</th>
+                <th>Group {0} P(detected | present)</th>
+                <th>Group {0} P(detected | absent)</th>
                 <th>Group {0} c</th>
                 <th>Group {0} d'</th>
             """.format(g)
@@ -861,8 +862,8 @@ class CardinalExpectationDetection(Task):
                 <tr>
                     <th>Half (0 first, 1 second)</th>
                     <th>Target probability given stimulus (0 low, 1 high)</th>
-                    <th>P(detected|present)</th>
-                    <th>P(detected|absent)</th>
+                    <th>P(detected | present)</th>
+                    <th>P(detected | absent)</th>
                     <th>c</th>
                     <th>d'</th>
                 </tr>
@@ -916,8 +917,8 @@ class CardinalExpectationDetection(Task):
                 <tr>
                     <th>Block</th>
                     <th>Target probability given stimulus (0 low, 1 high)</th>
-                    <th>P(detected|present)</th>
-                    <th>P(detected|absent)</th>
+                    <th>P(detected | present)</th>
+                    <th>P(detected | absent)</th>
                     <th>c</th>
                     <th>d'</th>
                 </tr>
@@ -953,8 +954,8 @@ class CardinalExpectationDetection(Task):
             <table class="extradetail">
                 <tr>
                     <th>Group</th>
-                    <th>P(detected|present)</th>
-                    <th>P(detected|absent)</th>
+                    <th>P(detected | present)</th>
+                    <th>P(detected | absent)</th>
                     <th>c</th>
                     <th>d'</th>
                 </tr>
@@ -984,8 +985,8 @@ class CardinalExpectationDetection(Task):
             <table class="extradetail">
                 <tr>
                     <th>Block</th>
-                    <th>P(detected|present)</th>
-                    <th>P(detected|absent)</th>
+                    <th>P(detected | present)</th>
+                    <th>P(detected | absent)</th>
                     <th>c</th>
                     <th>d'</th>
                 </tr>

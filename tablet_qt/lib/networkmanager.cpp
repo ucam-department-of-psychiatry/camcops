@@ -17,8 +17,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define DEBUG_NETWORK_REQUESTS
+// #define DEBUG_NETWORK_REQUESTS
 // #define DEBUG_NETWORK_REPLIES
+// #define DEBUG_ACTIVITY
 
 #include "networkmanager.h"
 #include <functional>
@@ -141,7 +142,9 @@ NetworkManager::~NetworkManager()
 void NetworkManager::ensureLogBox()
 {
     if (!m_logbox) {
+#ifdef DEBUG_ACTIVITY
         qDebug() << Q_FUNC_INFO << "creating logbox";
+#endif
         m_logbox = new LogBox(m_parent, m_title, m_offer_cancel);
         m_logbox->setStyleSheet(
                     m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_MAIN));
@@ -183,9 +186,13 @@ void NetworkManager::setTitle(const QString& title)
 
 void NetworkManager::statusMessage(const QString& msg)
 {
+#ifdef DEBUG_ACTIVITY
     qInfo() << "Network:" << msg;
+#endif
     if (m_silent) {
+#ifdef DEBUG_ACTIVITY
         qDebug() << Q_FUNC_INFO << "silent";
+#endif
         return;
     }
     ensureLogBox();
@@ -197,7 +204,9 @@ void NetworkManager::statusMessage(const QString& msg)
 void NetworkManager::logboxCancelled()
 {
     // User has hit cancel
+#ifdef DEBUG_ACTIVITY
     qDebug() << Q_FUNC_INFO;
+#endif
     cleanup();
     deleteLogBox();
     emit cancelled();
@@ -207,7 +216,9 @@ void NetworkManager::logboxCancelled()
 void NetworkManager::logboxFinished()
 {
     // User has acknowledged finish
+#ifdef DEBUG_ACTIVITY
     qDebug() << Q_FUNC_INFO;
+#endif
     cleanup();
     deleteLogBox();
     emit finished();
@@ -546,7 +557,9 @@ void NetworkManager::sslIgnoringErrorHandler(QNetworkReply* reply,
 
 void NetworkManager::cancel()
 {
+#ifdef DEBUG_ACTIVITY
     qDebug() << Q_FUNC_INFO;
+#endif
     cleanup();
     if (m_logbox) {
         m_logbox->reject();  // its rejected() signal calls our logboxCancelled()
@@ -570,7 +583,9 @@ void NetworkManager::succeed()
 
 void NetworkManager::finish(bool success)
 {
+#ifdef DEBUG_ACTIVITY
     qDebug() << Q_FUNC_INFO;
+#endif
     cleanup();
     if (m_logbox) {
         m_logbox->finish(success);  // its signals call our logboxCancelled() or logboxFinished()

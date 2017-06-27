@@ -37,7 +37,6 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_string import WSTRING
 from ..cc_modules.cc_task import get_from_dict, Task
 
 
@@ -46,6 +45,7 @@ from ..cc_modules.cc_task import get_from_dict, Task
 # =============================================================================
 
 FREQUENCY_COMMENT = "Frequency (0 never - 3 often)"
+PV_0_TO_2 = [0, 1, 2]
 
 
 class CecaQ3(Task):
@@ -513,13 +513,14 @@ class CecaQ3(Task):
              comment="Physical abuse, nonparent, description"),
 
         dict(name="s6_any_unwanted_sexual_experience", cctype="BOOL",
-             pv=PV.BIT,
+             pv=PV_0_TO_2,
              comment="Any unwanted sexual experiences (0 no - 2 yes)"),
-        dict(name="s6_unwanted_intercourse", cctype="BOOL", pv=PV.BIT,
+        dict(name="s6_unwanted_intercourse", cctype="BOOL", pv=PV_0_TO_2,
              comment="Unwanted intercourse before 17yo (0 no - 2 yes)"),
         dict(name="s6_upsetting_sexual_adult_authority", cctype="BOOL",
-             pv=PV.BIT, comment="Upsetting sexual experiences under 17yo with "
-             "related adult or someone in authority (0 no - 2 yes)"),
+             pv=PV_0_TO_2,
+             comment="Upsetting sexual experiences under 17yo with "
+                     "related adult or someone in authority (0 no - 2 yes)"),
         dict(name="s6_first_age", cctype="FLOAT", min=0,
              comment="Sexual abuse, first experience, age it began"),
         dict(name="s6_other_age", cctype="FLOAT", min=0,
@@ -1135,66 +1136,66 @@ class CecaQ3(Task):
     def get_task_html(self) -> str:
         separation_map = {
             None: None,
-            1: "1 — " + WSTRING("cecaq3_1c_separation_reason1"),
-            2: "2 — " + WSTRING("cecaq3_1c_separation_reason2"),
-            3: "3 — " + WSTRING("cecaq3_1c_separation_reason3"),
-            4: "4 — " + WSTRING("cecaq3_1c_separation_reason4"),
-            5: "5 — " + WSTRING("cecaq3_1c_separation_reason5"),
-            6: "6 — " + WSTRING("cecaq3_1c_separation_reason6"),
+            1: "1 — " + self.WXSTRING("1c_separation_reason1"),
+            2: "2 — " + self.WXSTRING("1c_separation_reason2"),
+            3: "3 — " + self.WXSTRING("1c_separation_reason3"),
+            4: "4 — " + self.WXSTRING("1c_separation_reason4"),
+            5: "5 — " + self.WXSTRING("1c_separation_reason5"),
+            6: "6 — " + self.WXSTRING("1c_separation_reason6"),
         }
         motherfigure_map = {
             None: None,
-            0: "0 — " + WSTRING("cecaq3_2a_which_option0"),
-            1: "1 — " + WSTRING("cecaq3_2a_which_option1"),
-            2: "2 — " + WSTRING("cecaq3_2a_which_option2"),
-            3: "3 — " + WSTRING("cecaq3_2a_which_option3"),
-            4: "4 — " + WSTRING("cecaq3_2a_which_option4"),
-            5: "5 — " + WSTRING("cecaq3_2a_which_option5"),
+            0: "0 — " + self.WXSTRING("2a_which_option0"),
+            1: "1 — " + self.WXSTRING("2a_which_option1"),
+            2: "2 — " + self.WXSTRING("2a_which_option2"),
+            3: "3 — " + self.WXSTRING("2a_which_option3"),
+            4: "4 — " + self.WXSTRING("2a_which_option4"),
+            5: "5 — " + self.WXSTRING("2a_which_option5"),
         }
         fatherfigure_map = {
             None: None,
-            0: "0 — " + WSTRING("cecaq3_3a_which_option0"),
-            1: "1 — " + WSTRING("cecaq3_3a_which_option1"),
-            2: "2 — " + WSTRING("cecaq3_3a_which_option2"),
-            3: "3 — " + WSTRING("cecaq3_3a_which_option3"),
-            4: "4 — " + WSTRING("cecaq3_3a_which_option4"),
-            5: "5 — " + WSTRING("cecaq3_3a_which_option5"),
+            0: "0 — " + self.WXSTRING("3a_which_option0"),
+            1: "1 — " + self.WXSTRING("3a_which_option1"),
+            2: "2 — " + self.WXSTRING("3a_which_option2"),
+            3: "3 — " + self.WXSTRING("3a_which_option3"),
+            4: "4 — " + self.WXSTRING("3a_which_option4"),
+            5: "5 — " + self.WXSTRING("3a_which_option5"),
         }
         no_yes_5way_map = {
             None: None,
-            1: "1 — " + WSTRING("cecaq3_options5way_notoyes_1"),
+            1: "1 — " + self.WXSTRING("options5way_notoyes_1"),
             2: "2 — (between not-at-all and unsure)",
-            3: "3 — " + WSTRING("cecaq3_options5way_notoyes_3"),
+            3: "3 — " + self.WXSTRING("options5way_notoyes_3"),
             4: "4 — (between unsure and yes-definitely)",
-            5: "5 — " + WSTRING("cecaq3_options5way_notoyes_5"),
+            5: "5 — " + self.WXSTRING("options5way_notoyes_5"),
         }
         no_yes_3way_map = {
             None: None,
-            0: "0 — " + WSTRING("cecaq3_options3way_noto_yes_0"),
-            1: "1 — " + WSTRING("cecaq3_options3way_noto_yes_1"),
-            2: "2 — " + WSTRING("cecaq3_options3way_noto_yes_2"),
+            0: "0 — " + self.WXSTRING("options3way_noto_yes_0"),
+            1: "1 — " + self.WXSTRING("options3way_noto_yes_1"),
+            2: "2 — " + self.WXSTRING("options3way_noto_yes_2"),
         }
         frequency_map = {
             None: None,
-            0: "0 — " + WSTRING("cecaq3_optionsfrequency0"),
-            1: "1 — " + WSTRING("cecaq3_optionsfrequency1"),
-            2: "2 — " + WSTRING("cecaq3_optionsfrequency2"),
-            3: "3 — " + WSTRING("cecaq3_optionsfrequency3"),
+            0: "0 — " + self.WXSTRING("optionsfrequency0"),
+            1: "1 — " + self.WXSTRING("optionsfrequency1"),
+            2: "2 — " + self.WXSTRING("optionsfrequency2"),
+            3: "3 — " + self.WXSTRING("optionsfrequency3"),
         }
         parent_cared_for_map = {
             None: None,
-            0: "0 — " + WSTRING("cecaq3_3c_whichparentcaredfor_option0"),
-            1: "1 — " + WSTRING("cecaq3_3c_whichparentcaredfor_option1"),
-            2: "2 — " + WSTRING("cecaq3_3c_whichparentcaredfor_option2"),
-            3: "3 — " + WSTRING("cecaq3_3c_whichparentcaredfor_option3"),
-            4: "4 — " + WSTRING("cecaq3_3c_whichparentcaredfor_option4"),
+            0: "0 — " + self.WXSTRING("3c_whichparentcaredfor_option0"),
+            1: "1 — " + self.WXSTRING("3c_whichparentcaredfor_option1"),
+            2: "2 — " + self.WXSTRING("3c_whichparentcaredfor_option2"),
+            3: "3 — " + self.WXSTRING("3c_whichparentcaredfor_option3"),
+            4: "4 — " + self.WXSTRING("3c_whichparentcaredfor_option4"),
         }
         hitting_map = {
             None: None,
-            1: "1 — " + WSTRING("cecaq3_5_hit_option_1"),
-            2: "2 — " + WSTRING("cecaq3_5_hit_option_2"),
-            3: "3 — " + WSTRING("cecaq3_5_hit_option_3"),
-            4: "4 — " + WSTRING("cecaq3_5_hit_option_4"),
+            1: "1 — " + self.WXSTRING("5_hit_option_1"),
+            2: "2 — " + self.WXSTRING("5_hit_option_2"),
+            3: "3 — " + self.WXSTRING("5_hit_option_3"),
+            4: "4 — " + self.WXSTRING("5_hit_option_4"),
         }
         html = (
             """
@@ -1240,99 +1241,103 @@ class CecaQ3(Task):
                 <table class="taskdetail">
             """ +
 
-            subheading_spanning_two_columns("1A: " + WSTRING("cecaq3_1a_q")) +
-            subsubheading_from_wstring("cecaq3_1a_motherfigures") +
-            wstring_boolean("cecaq3_1a_mf_birthmother",
-                            self.s1a_motherfigure_birthmother) +
-            wstring_boolean("cecaq3_1a_mf_stepmother",
-                            self.s1a_motherfigure_stepmother) +
-            wstring_boolean("cecaq3_1a_mf_femalerelative",
-                            self.s1a_motherfigure_femalerelative) +
+            subheading_spanning_two_columns("1A: " + self.WXSTRING("1a_q")) +
+            self.subsubheading_from_wstring("1a_motherfigures") +
+            self.wstring_boolean("1a_mf_birthmother",
+                                 self.s1a_motherfigure_birthmother) +
+            self.wstring_boolean("1a_mf_stepmother",
+                                 self.s1a_motherfigure_stepmother) +
+            self.wstring_boolean("1a_mf_femalerelative",
+                                 self.s1a_motherfigure_femalerelative) +
             string_string("(Female relative details)",
                           self.s1a_motherfigure_femalerelative_detail) +
-            wstring_boolean("cecaq3_1a_mf_familyfriend",
-                            self.s1a_motherfigure_familyfriend) +
-            wstring_boolean("cecaq3_1a_mf_fostermother",
-                            self.s1a_motherfigure_fostermother) +
-            wstring_boolean("cecaq3_1a_mf_adoptivemother",
-                            self.s1a_motherfigure_adoptivemother) +
-            wstring_boolean("cecaq3_other", self.s1a_motherfigure_other) +
+            self.wstring_boolean("1a_mf_familyfriend",
+                                 self.s1a_motherfigure_familyfriend) +
+            self.wstring_boolean("1a_mf_fostermother",
+                                 self.s1a_motherfigure_fostermother) +
+            self.wstring_boolean("1a_mf_adoptivemother",
+                                 self.s1a_motherfigure_adoptivemother) +
+            self.wstring_boolean("other", self.s1a_motherfigure_other) +
             string_string("(Other, details)",
                           self.s1a_motherfigure_other_detail) +
 
-            subsubheading_from_wstring("cecaq3_1a_fatherfigures") +
-            wstring_boolean("cecaq3_1a_ff_birthfather",
-                            self.s1a_fatherfigure_birthfather) +
-            wstring_boolean("cecaq3_1a_ff_stepfather",
-                            self.s1a_fatherfigure_stepfather) +
-            wstring_boolean("cecaq3_1a_ff_malerelative",
-                            self.s1a_fatherfigure_malerelative) +
+            self.subsubheading_from_wstring("1a_fatherfigures") +
+            self.wstring_boolean("1a_ff_birthfather",
+                                 self.s1a_fatherfigure_birthfather) +
+            self.wstring_boolean("1a_ff_stepfather",
+                                 self.s1a_fatherfigure_stepfather) +
+            self.wstring_boolean("1a_ff_malerelative",
+                                 self.s1a_fatherfigure_malerelative) +
             string_string("(Male relative details)",
                           self.s1a_fatherfigure_malerelative_detail) +
-            wstring_boolean("cecaq3_1a_ff_familyfriend",
-                            self.s1a_fatherfigure_familyfriend) +
-            wstring_boolean("cecaq3_1a_ff_fosterfather",
-                            self.s1a_fatherfigure_fosterfather) +
-            wstring_boolean("cecaq3_1a_ff_adoptivefather",
-                            self.s1a_fatherfigure_adoptivefather) +
-            wstring_boolean("cecaq3_other", self.s1a_fatherfigure_other) +
+            self.wstring_boolean("1a_ff_familyfriend",
+                                 self.s1a_fatherfigure_familyfriend) +
+            self.wstring_boolean("1a_ff_fosterfather",
+                                 self.s1a_fatherfigure_fosterfather) +
+            self.wstring_boolean("1a_ff_adoptivefather",
+                                 self.s1a_fatherfigure_adoptivefather) +
+            self.wstring_boolean("other", self.s1a_fatherfigure_other) +
             string_string("(Other, details)",
                           self.s1a_fatherfigure_other_detail) +
 
-            subheading_from_string("1B: " + WSTRING("cecaq3_1b_q")) +
-            wstring_boolean("cecaq3_1b_q", self.s1b_institution) +
-            wstring_numeric("cecaq3_1b_q_how_long",
-                            self.s1b_institution_time_years) +
+            subheading_from_string("1B: " + self.WXSTRING("1b_q")) +
+            self.wstring_boolean("1b_q", self.s1b_institution) +
+            self.wstring_numeric("1b_q_how_long",
+                                 self.s1b_institution_time_years) +
 
-            subheading_from_string("1C: " + WSTRING("cecaq3_1c_heading")) +
-            subsubheading_from_wstring("cecaq3_mother") +
+            subheading_from_string("1C: " + self.WXSTRING("1c_heading")) +
+            self.subsubheading_from_wstring("mother") +
 
             string_boolean("Mother died before age 17",
                            self.s1c_mother_died) +
-            wstring_numeric("cecaq3_1c_parentdiedage",
-                            self.s1c_mother_died_subject_aged) +
+            self.wstring_numeric("1c_parentdiedage",
+                                 self.s1c_mother_died_subject_aged) +
             string_boolean("Separated from mother for >1y",
                            self.s1c_separated_from_mother) +
-            wstring_numeric("cecaq3_1c_age_first_separated",
-                            self.s1c_first_separated_from_mother_aged) +
-            wstring_numeric("cecaq3_1c_how_long_separation",
-                            self.s1c_mother_how_long_first_separation_years) +
-            wstring_dict("cecaq3_1c_separation_reason",
-                         self.s1c_mother_separation_reason, separation_map) +
+            self.wstring_numeric("1c_age_first_separated",
+                                 self.s1c_first_separated_from_mother_aged) +
+            self.wstring_numeric(
+                "1c_how_long_separation",
+                self.s1c_mother_how_long_first_separation_years) +
+            self.wstring_dict("1c_separation_reason",
+                              self.s1c_mother_separation_reason,
+                              separation_map) +
 
-            subsubheading_from_wstring("cecaq3_father") +
+            self.subsubheading_from_wstring("father") +
             string_boolean("Father died before age 17", self.s1c_father_died) +
-            wstring_numeric("cecaq3_1c_parentdiedage",
-                            self.s1c_father_died_subject_aged) +
+            self.wstring_numeric("1c_parentdiedage",
+                                 self.s1c_father_died_subject_aged) +
             string_boolean("Separated from father for >1y",
                            self.s1c_separated_from_father) +
-            wstring_numeric("cecaq3_1c_age_first_separated",
-                            self.s1c_first_separated_from_father_aged) +
-            wstring_numeric("cecaq3_1c_how_long_separation",
-                            self.s1c_father_how_long_first_separation_years) +
-            wstring_dict("cecaq3_1c_separation_reason",
-                         self.s1c_father_separation_reason, separation_map) +
-            wstring_string("cecaq3_please_describe_experience",
-                           self.s1c_describe_experience) +
+            self.wstring_numeric("1c_age_first_separated",
+                                 self.s1c_first_separated_from_father_aged) +
+            self.wstring_numeric(
+                "1c_how_long_separation",
+                self.s1c_father_how_long_first_separation_years) +
+            self.wstring_dict("1c_separation_reason",
+                              self.s1c_father_separation_reason,
+                              separation_map) +
+            self.wstring_string("please_describe_experience",
+                                self.s1c_describe_experience) +
 
-            subheading_from_string("2A: " + WSTRING("cecaq3_2a_heading")) +
-            wstring_dict("cecaq3_2a_which",
-                         self.s2a_which_mother_figure, motherfigure_map) +
-            wstring_string("cecaq3_rnc_if_other_describe",
-                           self.s2a_which_mother_figure_other_detail)
+            subheading_from_string("2A: " + self.WXSTRING("2a_heading")) +
+            self.wstring_dict("2a_which",
+                              self.s2a_which_mother_figure, motherfigure_map) +
+            self.wstring_string("rnc_if_other_describe",
+                                self.s2a_which_mother_figure_other_detail)
         )
         for i in range(1, 17):
-            html += string_dict(str(i) + ". " + WSTRING("cecaq3_2a_q" +
+            html += string_dict(str(i) + ". " + self.WXSTRING("2a_q" +
                                                         str(i)),
                                 getattr(self, "s2a_q" + str(i)),
                                 no_yes_5way_map)
         html += (
-            wstring_string("cecaq3_2a_add_anything", self.s2a_extra) +
-            subheading_from_string("2B: " + WSTRING("cecaq3_2b_heading"))
+            self.wstring_string("2a_add_anything", self.s2a_extra) +
+            subheading_from_string("2B: " + self.WXSTRING("2b_heading"))
         )
         for i in range(1, 18):
             html += tr(
-                str(i) + ". " + WSTRING("cecaq3_2b_q" + str(i)),
+                str(i) + ". " + self.WXSTRING("2b_q" + str(i)),
                 answer(get_from_dict(no_yes_3way_map,
                                      getattr(self, "s2b_q" + str(i)))) +
                 " (" +
@@ -1342,27 +1347,27 @@ class CecaQ3(Task):
                 ")"
             )
         html += (
-            wstring_boolean("cecaq3_if_any_what_age", self.s2b_age_began) +
-            wstring_string("cecaq3_is_there_more_you_want_to_say",
+            self.wstring_boolean("if_any_what_age", self.s2b_age_began) +
+            self.wstring_string("is_there_more_you_want_to_say",
                            self.s2b_extra) +
 
-            subheading_from_string("3A: " + WSTRING("cecaq3_3a_heading")) +
-            wstring_dict("cecaq3_2a_which",
-                         self.s3a_which_father_figure, fatherfigure_map) +
-            wstring_string("cecaq3_rnc_if_other_describe",
-                           self.s3a_which_father_figure_other_detail)
+            subheading_from_string("3A: " + self.WXSTRING("3a_heading")) +
+            self.wstring_dict("2a_which",
+                              self.s3a_which_father_figure, fatherfigure_map) +
+            self.wstring_string("rnc_if_other_describe",
+                                self.s3a_which_father_figure_other_detail)
         )
         for i in range(1, 17):
             html += string_dict(
-                str(i) + ". " + WSTRING("cecaq3_3a_q" + str(i)),
+                str(i) + ". " + self.WXSTRING("3a_q" + str(i)),
                 getattr(self, "s3a_q" + str(i)), no_yes_5way_map)
         html += (
-            wstring_string("cecaq3_3a_add_anything", self.s3a_extra) +
-            subheading_from_string("3B: " + WSTRING("cecaq3_3b_heading"))
+            self.wstring_string("3a_add_anything", self.s3a_extra) +
+            subheading_from_string("3B: " + self.WXSTRING("3b_heading"))
         )
         for i in range(1, 18):
             html += tr(
-                str(i) + ". " + WSTRING("cecaq3_3b_q" + str(i)),
+                str(i) + ". " + self.WXSTRING("3b_q" + str(i)),
                 answer(get_from_dict(no_yes_3way_map,
                                      getattr(self, "s3b_q" + str(i)))) +
                 " (" +
@@ -1372,154 +1377,154 @@ class CecaQ3(Task):
                 ")"
             )
         html += (
-            wstring_boolean("cecaq3_if_any_what_age", self.s3b_age_began) +
-            wstring_string("cecaq3_is_there_more_you_want_to_say",
+            self.wstring_boolean("if_any_what_age", self.s3b_age_began) +
+            self.wstring_string("is_there_more_you_want_to_say",
                            self.s3b_extra) +
-            subheading_from_string("3C: " + WSTRING("cecaq3_3c_heading"))
+            subheading_from_string("3C: " + self.WXSTRING("3c_heading"))
         )
         for i in range(1, 18):
             html += string_dict(
-                str(i) + ". " + WSTRING("cecaq3_3c_q" + str(i)),
+                str(i) + ". " + self.WXSTRING("3c_q" + str(i)),
                 getattr(self, "s3c_q" + str(i)), no_yes_5way_map)
         html += (
-            wstring_dict("cecaq3_3c_which_parent_cared_for",
-                         self.s3c_which_parent_cared_for,
-                         parent_cared_for_map) +
-            wstring_boolean("cecaq3_3c_parent_mental_problem",
-                            self.s3c_parent_mental_problem) +
-            wstring_boolean("cecaq3_3c_parent_physical_problem",
-                            self.s3c_parent_physical_problem) +
+            self.wstring_dict("3c_which_parent_cared_for",
+                              self.s3c_which_parent_cared_for,
+                              parent_cared_for_map) +
+            self.wstring_boolean("3c_parent_mental_problem",
+                                 self.s3c_parent_mental_problem) +
+            self.wstring_boolean("3c_parent_physical_problem",
+                                 self.s3c_parent_physical_problem) +
 
-            subheading_from_string("4: " + WSTRING("cecaq3_4_heading")) +
+            subheading_from_string("4: " + self.WXSTRING("4_heading")) +
             subsubheading_from_string("(Adult confidant)") +
-            wstring_boolean("cecaq3_4a_q", self.s4a_adultconfidant) +
-            subsubheading_from_wstring("cecaq3_4_if_so_who") +
-            wstring_boolean("cecaq3_4a_option_mother",
-                            self.s4a_adultconfidant_mother) +
-            wstring_boolean("cecaq3_4a_option_father",
-                            self.s4a_adultconfidant_father) +
-            wstring_boolean("cecaq3_4a_option_relative",
-                            self.s4a_adultconfidant_otherrelative) +
-            wstring_boolean("cecaq3_4a_option_friend",
-                            self.s4a_adultconfidant_familyfriend) +
-            wstring_boolean("cecaq3_4a_option_responsibleadult",
-                            self.s4a_adultconfidant_responsibleadult) +
-            wstring_boolean("cecaq3_4a_option_other",
-                            self.s4a_adultconfidant_other) +
+            self.wstring_boolean("4a_q", self.s4a_adultconfidant) +
+            self.subsubheading_from_wstring("4_if_so_who") +
+            self.wstring_boolean("4a_option_mother",
+                                 self.s4a_adultconfidant_mother) +
+            self.wstring_boolean("4a_option_father",
+                                 self.s4a_adultconfidant_father) +
+            self.wstring_boolean("4a_option_relative",
+                                 self.s4a_adultconfidant_otherrelative) +
+            self.wstring_boolean("4a_option_friend",
+                                 self.s4a_adultconfidant_familyfriend) +
+            self.wstring_boolean("4a_option_responsibleadult",
+                                 self.s4a_adultconfidant_responsibleadult) +
+            self.wstring_boolean("4a_option_other",
+                                 self.s4a_adultconfidant_other) +
             string_string("(Other, details)",
                           self.s4a_adultconfidant_other_detail) +
-            wstring_string("cecaq3_4_note_anything",
-                           self.s4a_adultconfidant_additional) +
+            self.wstring_string("4_note_anything",
+                                self.s4a_adultconfidant_additional) +
             subsubheading_from_string("(Child confidant)") +
-            wstring_boolean("cecaq3_4b_q", self.s4b_childconfidant) +
-            subsubheading_from_wstring("cecaq3_4_if_so_who") +
-            wstring_boolean("cecaq3_4b_option_sister",
-                            self.s4b_childconfidant_sister) +
-            wstring_boolean("cecaq3_4b_option_brother",
-                            self.s4b_childconfidant_brother) +
-            wstring_boolean("cecaq3_4b_option_relative",
-                            self.s4b_childconfidant_otherrelative) +
-            wstring_boolean("cecaq3_4b_option_closefriend",
-                            self.s4b_childconfidant_closefriend) +
-            wstring_boolean("cecaq3_4b_option_otherfriend",
-                            self.s4b_childconfidant_otherfriend) +
-            wstring_boolean("cecaq3_4b_option_other",
-                            self.s4b_childconfidant_other) +
+            self.wstring_boolean("4b_q", self.s4b_childconfidant) +
+            self.subsubheading_from_wstring("4_if_so_who") +
+            self.wstring_boolean("4b_option_sister",
+                                 self.s4b_childconfidant_sister) +
+            self.wstring_boolean("4b_option_brother",
+                                 self.s4b_childconfidant_brother) +
+            self.wstring_boolean("4b_option_relative",
+                                 self.s4b_childconfidant_otherrelative) +
+            self.wstring_boolean("4b_option_closefriend",
+                                 self.s4b_childconfidant_closefriend) +
+            self.wstring_boolean("4b_option_otherfriend",
+                                 self.s4b_childconfidant_otherfriend) +
+            self.wstring_boolean("4b_option_other",
+                                 self.s4b_childconfidant_other) +
             string_string("(Other, details)",
                           self.s4b_childconfidant_other_detail) +
-            wstring_string("cecaq3_4_note_anything",
-                           self.s4b_childconfidant_additional) +
-            subsubheading_from_wstring("cecaq3_4c_q") +
-            wstring_boolean("cecaq3_4c_option_mother",
-                            self.s4c_closest_mother) +
-            wstring_boolean("cecaq3_4c_option_father",
-                            self.s4c_closest_father) +
-            string_boolean("cecaq3_4c_option_sibling",
+            self.wstring_string("4_note_anything",
+                                self.s4b_childconfidant_additional) +
+            self.subsubheading_from_wstring("4c_q") +
+            self.wstring_boolean("4c_option_mother",
+                                 self.s4c_closest_mother) +
+            self.wstring_boolean("4c_option_father",
+                                 self.s4c_closest_father) +
+            string_boolean("4c_option_sibling",
                            self.s4c_closest_sibling) +
-            wstring_boolean("cecaq3_4c_option_relative",
-                            self.s4c_closest_otherrelative) +
-            wstring_boolean("cecaq3_4c_option_adultfriend",
-                            self.s4c_closest_adultfriend) +
-            wstring_boolean("cecaq3_4c_option_youngfriend",
-                            self.s4c_closest_childfriend) +
-            wstring_boolean("cecaq3_4c_option_other", self.s4c_closest_other) +
+            self.wstring_boolean("4c_option_relative",
+                                 self.s4c_closest_otherrelative) +
+            self.wstring_boolean("4c_option_adultfriend",
+                                 self.s4c_closest_adultfriend) +
+            self.wstring_boolean("4c_option_youngfriend",
+                                 self.s4c_closest_childfriend) +
+            self.wstring_boolean("4c_option_other", self.s4c_closest_other) +
             string_string("(Other, details)", self.s4c_closest_other_detail) +
-            wstring_string("cecaq3_4_note_anything",
-                           self.s4c_closest_additional) +
+            self.wstring_string("4_note_anything",
+                                self.s4c_closest_additional) +
 
-            subheading_from_string("4: " + WSTRING("cecaq3_5_heading")) +
-            wstring_boolean("cecaq3_5_mainq", self.s5c_physicalabuse) +
-            subsubheading_from_wstring("cecaq3_5_motherfigure") +
-            wstring_boolean("cecaq3_5_did_this_person_hurt_you",
-                            self.s5c_abused_by_mother) +
-            wstring_numeric("cecaq3_5_how_old",
-                            self.s5c_mother_abuse_age_began) +
-            wstring_boolean("cecaq3_5_hit_more_than_once",
-                            self.s5c_mother_hit_more_than_once) +
-            wstring_dict("cecaq3_5_how_hit",
-                         self.s5c_mother_hit_how, hitting_map) +
-            wstring_boolean("cecaq3_5_injured", self.s5c_mother_injured) +
-            wstring_boolean("cecaq3_5_outofcontrol",
-                            self.s5c_mother_out_of_control) +
-            subsubheading_from_wstring("cecaq3_5_fatherfigure") +
-            wstring_boolean("cecaq3_5_did_this_person_hurt_you",
-                            self.s5c_abused_by_father) +
-            wstring_numeric("cecaq3_5_how_old",
-                            self.s5c_father_abuse_age_began) +
-            wstring_boolean("cecaq3_5_hit_more_than_once",
-                            self.s5c_father_hit_more_than_once) +
-            wstring_dict("cecaq3_5_how_hit",
-                         self.s5c_father_hit_how, hitting_map) +
-            wstring_boolean("cecaq3_5_injured", self.s5c_father_injured) +
-            wstring_boolean("cecaq3_5_outofcontrol",
-                            self.s5c_father_out_of_control) +
-            wstring_string("cecaq3_5_can_you_describe_1",
-                           self.s5c_parental_abuse_description) +
+            subheading_from_string("4: " + self.WXSTRING("5_heading")) +
+            self.wstring_boolean("5_mainq", self.s5c_physicalabuse) +
+            self.subsubheading_from_wstring("5_motherfigure") +
+            self.wstring_boolean("5_did_this_person_hurt_you",
+                                 self.s5c_abused_by_mother) +
+            self.wstring_numeric("5_how_old",
+                                 self.s5c_mother_abuse_age_began) +
+            self.wstring_boolean("5_hit_more_than_once",
+                                 self.s5c_mother_hit_more_than_once) +
+            self.wstring_dict("5_how_hit",
+                              self.s5c_mother_hit_how, hitting_map) +
+            self.wstring_boolean("5_injured", self.s5c_mother_injured) +
+            self.wstring_boolean("5_outofcontrol",
+                                 self.s5c_mother_out_of_control) +
+            self.subsubheading_from_wstring("5_fatherfigure") +
+            self.wstring_boolean("5_did_this_person_hurt_you",
+                                 self.s5c_abused_by_father) +
+            self.wstring_numeric("5_how_old",
+                                 self.s5c_father_abuse_age_began) +
+            self.wstring_boolean("5_hit_more_than_once",
+                                 self.s5c_father_hit_more_than_once) +
+            self.wstring_dict("5_how_hit",
+                              self.s5c_father_hit_how, hitting_map) +
+            self.wstring_boolean("5_injured", self.s5c_father_injured) +
+            self.wstring_boolean("5_outofcontrol",
+                                 self.s5c_father_out_of_control) +
+            self.wstring_string("5_can_you_describe_1",
+                                self.s5c_parental_abuse_description) +
             subsubheading_from_string("(Other in household)") +
-            wstring_boolean("cecaq3_5_anyone_else",
-                            self.s5c_abuse_by_nonparent) +
-            wstring_string("cecaq3_5_can_you_describe_2",
-                           self.s5c_nonparent_abuse_description) +
+            self.wstring_boolean("5_anyone_else",
+                                 self.s5c_abuse_by_nonparent) +
+            self.wstring_string("5_can_you_describe_2",
+                                self.s5c_nonparent_abuse_description) +
 
-            subheading_from_string("6: " + WSTRING("cecaq3_6_heading")) +
-            wstring_dict("cecaq3_6_any_unwanted",
-                         self.s6_any_unwanted_sexual_experience,
-                         no_yes_3way_map) +
-            wstring_dict("cecaq3_6_intercourse",
-                         self.s6_unwanted_intercourse, no_yes_3way_map) +
-            wstring_dict("cecaq3_6_upset_adult_authority",
-                         self.s6_upsetting_sexual_adult_authority,
-                         no_yes_3way_map) +
+            subheading_from_string("6: " + self.WXSTRING("6_heading")) +
+            self.wstring_dict("6_any_unwanted",
+                              self.s6_any_unwanted_sexual_experience,
+                              no_yes_3way_map) +
+            self.wstring_dict("6_intercourse",
+                              self.s6_unwanted_intercourse, no_yes_3way_map) +
+            self.wstring_dict("6_upset_adult_authority",
+                              self.s6_upsetting_sexual_adult_authority,
+                              no_yes_3way_map) +
 
-            subsubheading_from_wstring("cecaq3_6_first_experience") +
-            wstring_numeric("cecaq3_6_q1", self.s6_first_age) +
-            wstring_boolean("cecaq3_6_q2", self.s6_first_person_known) +
-            wstring_boolean("cecaq3_6_q3", self.s6_first_relative) +
-            wstring_boolean("cecaq3_6_q4", self.s6_first_in_household) +
-            wstring_boolean("cecaq3_6_q5", self.s6_first_more_than_once) +
-            wstring_boolean("cecaq3_6_q6",
-                            self.s6_first_touch_privates_subject) +
-            wstring_boolean("cecaq3_6_q7",
-                            self.s6_first_touch_privates_other) +
-            wstring_boolean("cecaq3_6_q8", self.s6_first_intercourse) +
+            self.subsubheading_from_wstring("6_first_experience") +
+            self.wstring_numeric("6_q1", self.s6_first_age) +
+            self.wstring_boolean("6_q2", self.s6_first_person_known) +
+            self.wstring_boolean("6_q3", self.s6_first_relative) +
+            self.wstring_boolean("6_q4", self.s6_first_in_household) +
+            self.wstring_boolean("6_q5", self.s6_first_more_than_once) +
+            self.wstring_boolean("6_q6",
+                                 self.s6_first_touch_privates_subject) +
+            self.wstring_boolean("6_q7",
+                                 self.s6_first_touch_privates_other) +
+            self.wstring_boolean("6_q8", self.s6_first_intercourse) +
 
-            subsubheading_from_wstring("cecaq3_6_other_experience") +
-            wstring_numeric("cecaq3_6_q1", self.s6_other_age) +
-            wstring_boolean("cecaq3_6_q2", self.s6_other_person_known) +
-            wstring_boolean("cecaq3_6_q3", self.s6_other_relative) +
-            wstring_boolean("cecaq3_6_q4", self.s6_other_in_household) +
-            wstring_boolean("cecaq3_6_q5", self.s6_other_more_than_once) +
-            wstring_boolean("cecaq3_6_q6",
-                            self.s6_other_touch_privates_subject) +
-            wstring_boolean("cecaq3_6_q7",
-                            self.s6_other_touch_privates_other) +
-            wstring_boolean("cecaq3_6_q8", self.s6_other_intercourse) +
-            wstring_string("cecaq3_5_can_you_describe_1",
-                           self.s6_unwanted_sexual_description) +
+            self.subsubheading_from_wstring("6_other_experience") +
+            self.wstring_numeric("6_q1", self.s6_other_age) +
+            self.wstring_boolean("6_q2", self.s6_other_person_known) +
+            self.wstring_boolean("6_q3", self.s6_other_relative) +
+            self.wstring_boolean("6_q4", self.s6_other_in_household) +
+            self.wstring_boolean("6_q5", self.s6_other_more_than_once) +
+            self.wstring_boolean("6_q6",
+                                 self.s6_other_touch_privates_subject) +
+            self.wstring_boolean("6_q7",
+                                 self.s6_other_touch_privates_other) +
+            self.wstring_boolean("6_q8", self.s6_other_intercourse) +
+            self.wstring_string("5_can_you_describe_1",
+                                self.s6_unwanted_sexual_description) +
 
-            subheading_from_wstring("cecaq3_any_other_comments") +
-            wstring_string("cecaq3_any_other_comments",
-                           self.any_other_comments) +
+            self.subheading_from_wstring("any_other_comments") +
+            self.wstring_string("any_other_comments",
+                                self.any_other_comments) +
 
             """
                 </table>
@@ -1548,25 +1553,35 @@ class CecaQ3(Task):
         )
         return html
 
+    def subheading_from_wstring(self, wstringname: str) -> str:
+        return subheading_from_string(self.WXSTRING(wstringname))
+
+    def subsubheading_from_wstring(self, wstringname: str) -> str:
+        return subsubheading_from_string(self.WXSTRING(wstringname))
+
+    def wstring_boolean(self, wstring: str, value: Any) -> str:
+        return string_boolean(self.WXSTRING(wstring), value)
+    
+    def wstring_numeric(self, wstring: str, value: Any) -> str:
+        return string_numeric(self.WXSTRING(wstring), value)
+
+    def wstring_string(self, wstring: str, value: str) -> str:
+        return string_string(self.WXSTRING(wstring), value)
+
+    def wstring_dict(self, wstring: str, value: Any, d: Dict) -> str:
+        return string_dict(self.WXSTRING(wstring), value, d)
+
 
 # =============================================================================
-# Helper functions
+# More helper functions
 # =============================================================================
 
 def subheading_from_string(s: str) -> str:
     return subheading_spanning_two_columns(s)
 
 
-def subheading_from_wstring(wstringname: str) -> str:
-    return subheading_from_string(WSTRING(wstringname))
-
-
 def subsubheading_from_string(s: str) -> str:
     return """<tr><td></td><td class="subheading">{}</td></tr>""".format(s)
-
-
-def subsubheading_from_wstring(wstringname: str) -> str:
-    return subsubheading_from_string(WSTRING(wstringname))
 
 
 def row(label: str, value: Any, default: str = "") -> str:
@@ -1587,19 +1602,3 @@ def string_string(string: str, value: str) -> str:
 
 def string_dict(string: str, value: Any, d: Dict) -> str:
     return row(string, get_from_dict(d, value))
-
-
-def wstring_boolean(wstring: str, value: Any) -> str:
-    return string_boolean(WSTRING(wstring), value)
-
-
-def wstring_numeric(wstring: str, value: Any) -> str:
-    return string_numeric(WSTRING(wstring), value)
-
-
-def wstring_string(wstring: str, value: str) -> str:
-    return string_string(WSTRING(wstring), value)
-
-
-def wstring_dict(wstring: str, value: Any, d: Dict) -> str:
-    return string_dict(WSTRING(wstring), value, d)

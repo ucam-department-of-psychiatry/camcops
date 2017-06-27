@@ -30,7 +30,6 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_string import WSTRING
 from ..cc_modules.cc_task import (
     CtvInfo,
     CTV_INCOMPLETE,
@@ -92,8 +91,9 @@ class Cgi(Task):
         if not (self.are_all_fields_complete(self.TASK_FIELDS) and
                 self.field_contents_valid()):
             return False
-        if self.q1 == 0 or self.q2 == 0 or self.q3t == 0 or self.q3s == 0:
-            return False
+        # Requirement for everything to be non-zero removed in v2.0.0
+        # if self.q1 == 0 or self.q2 == 0 or self.q3t == 0 or self.q3s == 0:
+        #     return False
         return True
 
     def total_score(self) -> int:
@@ -102,41 +102,41 @@ class Cgi(Task):
     def get_task_html(self) -> str:
         q1_dict = {
             None: None,
-            0: WSTRING("cgi_q1_option0"),
-            1: WSTRING("cgi_q1_option1"),
-            2: WSTRING("cgi_q1_option2"),
-            3: WSTRING("cgi_q1_option3"),
-            4: WSTRING("cgi_q1_option4"),
-            5: WSTRING("cgi_q1_option5"),
-            6: WSTRING("cgi_q1_option6"),
-            7: WSTRING("cgi_q1_option7"),
+            0: self.WXSTRING("q1_option0"),
+            1: self.WXSTRING("q1_option1"),
+            2: self.WXSTRING("q1_option2"),
+            3: self.WXSTRING("q1_option3"),
+            4: self.WXSTRING("q1_option4"),
+            5: self.WXSTRING("q1_option5"),
+            6: self.WXSTRING("q1_option6"),
+            7: self.WXSTRING("q1_option7"),
         }
         q2_dict = {
             None: None,
-            0: WSTRING("cgi_q2_option0"),
-            1: WSTRING("cgi_q2_option1"),
-            2: WSTRING("cgi_q2_option2"),
-            3: WSTRING("cgi_q2_option3"),
-            4: WSTRING("cgi_q2_option4"),
-            5: WSTRING("cgi_q2_option5"),
-            6: WSTRING("cgi_q2_option6"),
-            7: WSTRING("cgi_q2_option7"),
+            0: self.WXSTRING("q2_option0"),
+            1: self.WXSTRING("q2_option1"),
+            2: self.WXSTRING("q2_option2"),
+            3: self.WXSTRING("q2_option3"),
+            4: self.WXSTRING("q2_option4"),
+            5: self.WXSTRING("q2_option5"),
+            6: self.WXSTRING("q2_option6"),
+            7: self.WXSTRING("q2_option7"),
         }
         q3t_dict = {
             None: None,
-            0: WSTRING("cgi_q3t_option0"),
-            1: WSTRING("cgi_q3t_option1"),
-            2: WSTRING("cgi_q3t_option2"),
-            3: WSTRING("cgi_q3t_option3"),
-            4: WSTRING("cgi_q3t_option4"),
+            0: self.WXSTRING("q3t_option0"),
+            1: self.WXSTRING("q3t_option1"),
+            2: self.WXSTRING("q3t_option2"),
+            3: self.WXSTRING("q3t_option3"),
+            4: self.WXSTRING("q3t_option4"),
         }
         q3s_dict = {
             None: None,
-            0: WSTRING("cgi_q3s_option0"),
-            1: WSTRING("cgi_q3s_option1"),
-            2: WSTRING("cgi_q3s_option2"),
-            3: WSTRING("cgi_q3s_option3"),
-            4: WSTRING("cgi_q3s_option4"),
+            0: self.WXSTRING("q3s_option0"),
+            1: self.WXSTRING("q3s_option1"),
+            2: self.WXSTRING("q3s_option2"),
+            3: self.WXSTRING("q3s_option3"),
+            4: self.WXSTRING("q3s_option4"),
         }
         h = """
             <div class="summary">
@@ -152,13 +152,13 @@ class Cgi(Task):
                     <th width="70%">Answer</th>
                 </tr>
         """
-        h += tr_qa(WSTRING("cgi_q1_s") + " <sup>[2]</sup>",
+        h += tr_qa(self.WXSTRING("q1_s") + " <sup>[2]</sup>",
                    get_from_dict(q1_dict, self.q1))
-        h += tr_qa(WSTRING("cgi_q2_s") + " <sup>[2]</sup>",
+        h += tr_qa(self.WXSTRING("q2_s") + " <sup>[2]</sup>",
                    get_from_dict(q2_dict, self.q2))
-        h += tr_qa(WSTRING("cgi_q3t_s") + " <sup>[3]</sup>",
+        h += tr_qa(self.WXSTRING("q3t_s") + " <sup>[3]</sup>",
                    get_from_dict(q3t_dict, self.q3t))
-        h += tr_qa(WSTRING("cgi_q3s_s") + " <sup>[3]</sup>",
+        h += tr_qa(self.WXSTRING("q3s_s") + " <sup>[3]</sup>",
                    get_from_dict(q3s_dict, self.q3s))
         h += tr(
             """
@@ -166,7 +166,7 @@ class Cgi(Task):
                 <div class="smallprint">
                     [(Q3T – 1) × 4 + Q3S]
                 </div>
-            """.format(WSTRING("cgi_q3_s")),
+            """.format(self.WXSTRING("q3_s")),
             answer(self.q3, formatter_answer=italic)
         )
         h += """
@@ -216,14 +216,14 @@ class CgiI(Task):
     def get_q_dict() -> Dict:
         return {
             None: None,
-            0: WSTRING("cgi_q2_option0"),
-            1: WSTRING("cgi_q2_option1"),
-            2: WSTRING("cgi_q2_option2"),
-            3: WSTRING("cgi_q2_option3"),
-            4: WSTRING("cgi_q2_option4"),
-            5: WSTRING("cgi_q2_option5"),
-            6: WSTRING("cgi_q2_option6"),
-            7: WSTRING("cgi_q2_option7"),
+            0: self.WXSTRING("q2_option0"),
+            1: self.WXSTRING("q2_option1"),
+            2: self.WXSTRING("q2_option2"),
+            3: self.WXSTRING("q2_option3"),
+            4: self.WXSTRING("q2_option4"),
+            5: self.WXSTRING("q2_option5"),
+            6: self.WXSTRING("q2_option6"),
+            7: self.WXSTRING("q2_option7"),
         }
 
     def get_task_html(self) -> str:
@@ -239,7 +239,7 @@ class CgiI(Task):
                     <th width="50%">Answer</th>
                 </tr>
         """
-        h += tr_qa(WSTRING("cgi_i_q"), self.get_rating_text())
+        h += tr_qa(self.WXSTRING("i_q"), self.get_rating_text())
         h += """
             </table>
         """

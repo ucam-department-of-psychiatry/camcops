@@ -49,7 +49,6 @@ from ..cc_modules.cc_nhs import (
 )
 from ..cc_modules.cc_pls import pls
 from ..cc_modules.cc_report import Report, ReportParamSpec, REPORT_RESULT_TYPE
-from ..cc_modules.cc_string import WSTRING
 from ..cc_modules.cc_task import CtvInfo, Task
 
 
@@ -116,8 +115,7 @@ class CPFTLPSReferral(Task):
 
     def get_clinical_text(self) -> List[CtvInfo]:
         return [CtvInfo(
-            heading=ws.webify(WSTRING(
-                "cpft_lps_referral_f_referral_reason")),
+            heading=ws.webify(self.WXSTRING("f_referral_reason_t")),
             content=self.referral_reason
         )]
 
@@ -148,23 +146,23 @@ class CPFTLPSReferral(Task):
         ethnic_category_code = get_nhs_dd_ethnic_category_code()
         if self.lps_division == "G":
             banner_class = "banner_referral_general_adult"
-            division_name = WSTRING("cpft_lps_service_G")
+            division_name = self.WXSTRING("service_G")
         elif self.lps_division == "O":
             banner_class = "banner_referral_old_age"
-            division_name = WSTRING("cpft_lps_service_O")
+            division_name = self.WXSTRING("service_O")
         elif self.lps_division == "S":
             banner_class = "banner_referral_substance_misuse"
-            division_name = WSTRING("cpft_lps_service_S")
+            division_name = self.WXSTRING("service_S")
         else:
             banner_class = ""
             division_name = None
 
         if self.referral_priority == "R":
-            priority_name = WSTRING("cpft_lps_referral_priority_R")
+            priority_name = self.WXSTRING("priority_R")
         elif self.referral_priority == "U":
-            priority_name = WSTRING("cpft_lps_referral_priority_U")
+            priority_name = self.WXSTRING("priority_U")
         elif self.referral_priority == "E":
-            priority_name = WSTRING("cpft_lps_referral_priority_E")
+            priority_name = self.WXSTRING("priority_E")
         else:
             priority_name = None
 
@@ -181,7 +179,7 @@ class CPFTLPSReferral(Task):
         admission_reasons = []
         for r in potential_admission_reasons:
             if getattr(self, r):
-                admission_reasons.append(WSTRING("cpft_lps_referral_f_" + r))
+                admission_reasons.append(self.WXSTRING("f_" + r))
 
         h = """
             <div class="banner {}">{} referral at {}</div>
@@ -205,87 +203,87 @@ class CPFTLPSReferral(Task):
             self.get_is_complete_tr(),
         )
         h += subheading_spanning_four_columns(
-            WSTRING("cpft_lps_referral_t_about_referral"))
+            self.WXSTRING("t_about_referral"))
         h += """
             <tr>
                 <td>{}</td><td>{}</td>
                 <td>{}</td><td class="highlight">{}</td>
             </tr>
         """.format(
-            WSTRING("cpft_lps_referral_f_referral_method"),
+            self.WXSTRING("f_referral_method"),
             answer(self.referral_method),
-            WSTRING("cpft_lps_referral_f_referral_priority"),
+            self.WXSTRING("f_referral_priority"),
             answer(self.referral_priority, default_for_blank_strings=True) +
             ": " + answer(priority_name)
         )
         h += self.four_column_row(
-            WSTRING("cpft_lps_referral_f_referrer_name"),
+            self.WXSTRING("f_referrer_name"),
             self.referrer_name,
-            WSTRING("cpft_lps_referral_f_referring_specialty"),
+            self.WXSTRING("f_referring_specialty"),
             self.referring_specialty
         )
         h += self.four_column_row(
-            WSTRING("cpft_lps_referral_f_referrer_contact_details"),
+            self.WXSTRING("f_referrer_contact_details"),
             self.referrer_contact_details,
-            WSTRING("cpft_lps_referral_f_referring_specialty_other"),
+            self.WXSTRING("f_referring_specialty_other"),
             self.referring_specialty_other
         )
         h += self.four_column_row(
-            WSTRING("cpft_lps_referral_f_referring_consultant"),
+            self.WXSTRING("f_referring_consultant"),
             self.referring_consultant,
             "",
             ""
         )
         h += subheading_spanning_four_columns(
-            WSTRING("cpft_lps_referral_t_patient"))
+            self.WXSTRING("t_patient"))
         h += """
             <tr>
                 <td>{}</td><td>{}</td>
                 <td>{}</td><td class="highlight">{}</td>
             </tr>
         """.format(
-            WSTRING("cpft_lps_referral_f_admission_date"),
+            self.WXSTRING("f_admission_date"),
             answer(format_datetime_string(self.admission_date,
                                           DATEFORMAT.LONG_DATE,
                                           default=None), ""),
-            WSTRING("cpft_lps_referral_f_patient_location"),
+            self.WXSTRING("f_patient_location"),
             answer(self.patient_location)
         )
         h += self.four_column_row(
-            WSTRING("cpft_lps_referral_f_estimated_discharge_date"),
+            self.WXSTRING("f_estimated_discharge_date"),
             format_datetime_string(self.estimated_discharge_date,
                                    DATEFORMAT.LONG_DATE, ""),
-            WSTRING("cpft_lps_referral_f_patient_aware_of_referral"),
+            self.WXSTRING("f_patient_aware_of_referral"),
             get_yes_no_none(self.patient_aware_of_referral)
         )
         h += self.four_column_row(
-            WSTRING("cpft_lps_referral_f_marital_status"),
+            self.WXSTRING("f_marital_status"),
             person_marital_status.get(self.marital_status_code, INVALID_VALUE),
-            WSTRING("cpft_lps_referral_f_interpreter_required"),
+            self.WXSTRING("f_interpreter_required"),
             get_yes_no_none(self.interpreter_required)
         )
         h += self.four_column_row(
-            WSTRING("cpft_lps_referral_f_ethnic_category"),
+            self.WXSTRING("f_ethnic_category"),
             ethnic_category_code.get(self.ethnic_category_code, INVALID_VALUE),
-            WSTRING("cpft_lps_referral_f_sensory_impairment"),
+            self.WXSTRING("f_sensory_impairment"),
             get_yes_no_none(self.sensory_impairment)
         )
         h += subheading_spanning_four_columns(
-            WSTRING("cpft_lps_referral_t_admission_reason"))
+            self.WXSTRING("t_admission_reason"))
         h += tr_span_col(answer(", ".join(admission_reasons), ""), cols=4)
         h += subheading_spanning_four_columns(
-            WSTRING("cpft_lps_referral_t_other_people"))
+            self.WXSTRING("t_other_people"))
         h += self.tr_qa(
-            WSTRING("cpft_lps_referral_f_existing_psychiatric_teams"),
+            self.WXSTRING("f_existing_psychiatric_teams"),
             self.existing_psychiatric_teams, "")
         h += self.tr_qa(
-            WSTRING("cpft_lps_referral_f_care_coordinator"),
+            self.WXSTRING("f_care_coordinator"),
             self.care_coordinator, "")
         h += self.tr_qa(
-            WSTRING("cpft_lps_referral_f_other_contact_details"),
+            self.WXSTRING("f_other_contact_details"),
             self.other_contact_details, "")
         h += subheading_spanning_four_columns(
-            WSTRING("cpft_lps_referral_t_referral_reason"))
+            self.WXSTRING("t_referral_reason"))
         h += tr_span_col(answer(self.referral_reason, ""), cols=4)
         h += """
             </table>
@@ -334,11 +332,11 @@ class CPFTLPSResetResponseClock(Task):
             self.get_is_complete_tr(),
         )
         h += tr_qa(
-            WSTRING("cpft_lps_rc_to"),
+            self.WXSTRING("to"),
             format_datetime_string(self.reset_start_time_to,
                                    DATEFORMAT.LONG_DATETIME_WITH_DAY,
                                    default=None))
-        h += tr_qa(WSTRING("cpft_lps_rc_reason"), self.reason)
+        h += tr_qa(self.WXSTRING("reason"), self.reason)
         h += """
             </table>
         """
@@ -473,19 +471,19 @@ class CPFTLPSDischarge(Task):
         return (
             self.discharge_date and
             self.discharge_reason_code and
-            self.outcome and
+            # self.outcome and  # v2.0.0
             self.field_contents_valid()
         )
 
     def get_discharge_reason(self) -> Optional[str]:
         if self.discharge_reason_code == "F":
-            return WSTRING("cpft_lps_discharge_reason_code_F")
+            return self.WXSTRING("reason_code_F")
         elif self.discharge_reason_code == "A":
-            return WSTRING("cpft_lps_discharge_reason_code_A")
+            return self.WXSTRING("reason_code_A")
         elif self.discharge_reason_code == "O":
-            return WSTRING("cpft_lps_discharge_reason_code_O")
+            return self.WXSTRING("reason_code_O")
         elif self.discharge_reason_code == "C":
-            return WSTRING("cpft_lps_discharge_reason_code_C")
+            return self.WXSTRING("reason_code_C")
         else:
             return None
 
@@ -516,7 +514,7 @@ class CPFTLPSDischarge(Task):
         referral_reasons = []
         for r in potential_referral_reasons:
             if getattr(self, r):
-                referral_reasons.append(WSTRING("cpft_lps_dis_" + r))
+                referral_reasons.append(self.WXSTRING("" + r))
         return referral_reasons
 
     def get_managements(self) -> List[str]:
@@ -548,12 +546,12 @@ class CPFTLPSDischarge(Task):
         managements = []
         for r in potential_managements:
             if getattr(self, r):
-                managements.append(WSTRING("cpft_lps_dis_" + r))
+                managements.append(self.WXSTRING("" + r))
         return managements
 
     def get_psychiatric_diagnoses(self) -> List[str]:
         psychiatric_diagnoses = [
-            WSTRING("cpft_lps_dis_diagnosis_no_active_mental_health_problem")
+            self.WXSTRING("diagnosis_no_active_mental_health_problem")
         ] if self.diagnosis_no_active_mental_health_problem else []
         for i in range(1, 4 + 1):  # magic number
             if getattr(self, "diagnosis_psych_" + str(i) + "_icd10code"):
@@ -579,24 +577,24 @@ class CPFTLPSDischarge(Task):
             self.get_medical_diagnoses()
         return [
             CtvInfo(
-                heading=ws.webify(WSTRING("cpft_lps_dis_discharge_reason")),
+                heading=ws.webify(self.WXSTRING("discharge_reason")),
                 content=self.get_discharge_reason()
             ),
             CtvInfo(
                 heading=ws.webify(
-                    WSTRING("cpft_lps_dis_referral_reason_t")),
+                    self.WXSTRING("referral_reason_t")),
                 content=", ".join(self.get_referral_reasons())
             ),
             CtvInfo(
-                heading=ws.webify(WSTRING("cpft_lps_dis_diagnoses_t")),
+                heading=ws.webify(self.WXSTRING("diagnoses_t")),
                 content=", ".join(diagnoses)
             ),
             CtvInfo(
-                heading=ws.webify(WSTRING("cpft_lps_dis_management_t")),
+                heading=ws.webify(self.WXSTRING("management_t")),
                 content=", ".join(self.get_managements())
             ),
             CtvInfo(
-                heading=ws.webify(WSTRING("cpft_lps_dis_outcome_t")),
+                heading=ws.webify(self.WXSTRING("outcome_t")),
                 content=self.outcome
             ),
         ]
@@ -614,56 +612,50 @@ class CPFTLPSDischarge(Task):
         """.format(
             self.get_is_complete_tr(),
         )
-        h += tr_qa(WSTRING("cpft_lps_dis_discharge_date"),
+        h += tr_qa(self.WXSTRING("discharge_date"),
                    format_datetime_string(self.discharge_date,
                                           DATEFORMAT.LONG_DATE_WITH_DAY,
                                           default=None), "")
-        h += tr_qa(WSTRING("cpft_lps_dis_discharge_reason"),
+        h += tr_qa(self.WXSTRING("discharge_reason"),
                    self.get_discharge_reason(), "")
-        h += tr_qa(
-            WSTRING("cpft_lps_dis_leaflet_or_discharge_card_given"),
-            get_yes_no_none(self.leaflet_or_discharge_card_given), "")
-        h += tr_qa(WSTRING("cpft_lps_dis_frequent_attender"),
+        h += tr_qa(self.WXSTRING("leaflet_or_discharge_card_given"),
+                   get_yes_no_none(self.leaflet_or_discharge_card_given), "")
+        h += tr_qa(self.WXSTRING("frequent_attender"),
                    get_yes_no_none(self.frequent_attender), "")
-        h += tr_qa(
-            WSTRING("cpft_lps_dis_patient_wanted_copy_of_letter"),
-            self.patient_wanted_copy_of_letter, "")
-        h += tr_qa(WSTRING("cpft_lps_dis_gaf_at_first_assessment"),
+        h += tr_qa(self.WXSTRING("patient_wanted_copy_of_letter"),
+                   self.patient_wanted_copy_of_letter, "")
+        h += tr_qa(self.WXSTRING("gaf_at_first_assessment"),
                    self.gaf_at_first_assessment, "")
-        h += tr_qa(WSTRING("cpft_lps_dis_gaf_at_discharge"),
+        h += tr_qa(self.WXSTRING("gaf_at_discharge"),
                    self.gaf_at_discharge, "")
 
         h += subheading_spanning_two_columns(
-            WSTRING("cpft_lps_dis_referral_reason_t"))
+            self.WXSTRING("referral_reason_t"))
         h += tr_span_col(answer(", ".join(self.get_referral_reasons())),
                          cols=2)
-        h += tr_qa(
-            WSTRING("cpft_lps_dis_referral_reason_transplant_organ"),
-            self.referral_reason_transplant_organ, "")
-        h += tr_qa(
-            WSTRING("cpft_lps_dis_referral_reason_other_detail"),
-            self.referral_reason_other_detail, "")
+        h += tr_qa(self.WXSTRING("referral_reason_transplant_organ"),
+                   self.referral_reason_transplant_organ, "")
+        h += tr_qa(self.WXSTRING("referral_reason_other_detail"),
+                   self.referral_reason_other_detail, "")
 
         h += subheading_spanning_two_columns(
-            WSTRING("cpft_lps_dis_diagnoses_t"))
-        h += tr_qa(WSTRING("cpft_lps_dis_psychiatric_t"),
+            self.WXSTRING("diagnoses_t"))
+        h += tr_qa(self.WXSTRING("psychiatric_t"),
                    "<br>".join(self.get_psychiatric_diagnoses()), "")
-        h += tr_qa(WSTRING("cpft_lps_dis_medical_t"),
+        h += tr_qa(self.WXSTRING("medical_t"),
                    "<br>".join(self.get_medical_diagnoses()), "")
 
-        h += subheading_spanning_two_columns(
-            WSTRING("cpft_lps_dis_management_t"))
+        h += subheading_spanning_two_columns(self.WXSTRING("management_t"))
         h += tr_span_col(answer(", ".join(self.get_managements())), cols=2)
-        h += tr_qa(WSTRING("cpft_lps_dis_management_other_detail"),
+        h += tr_qa(self.WXSTRING("management_other_detail"),
                    self.management_other_detail, "")
 
-        h += subheading_spanning_two_columns(WSTRING("cpft_lps_dis_outcome_t"))
-        h += tr_qa(WSTRING("cpft_lps_dis_outcome_t"),
+        h += subheading_spanning_two_columns(self.WXSTRING("outcome_t"))
+        h += tr_qa(self.WXSTRING("outcome_t"),
                    self.outcome, "")
-        h += tr_qa(
-            WSTRING("cpft_lps_dis_outcome_hospital_transfer_detail"),
-            self.outcome_hospital_transfer_detail, "")
-        h += tr_qa(WSTRING("cpft_lps_dis_outcome_other_detail"),
+        h += tr_qa(self.WXSTRING("outcome_hospital_transfer_detail"),
+                   self.outcome_hospital_transfer_detail, "")
+        h += tr_qa(self.WXSTRING("outcome_other_detail"),
                    self.outcome_other_detail, "")
 
         h += """

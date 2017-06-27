@@ -18,6 +18,7 @@
 */
 
 #include "cbir.h"
+#include "common/textconst.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/namevaluepair.h"
@@ -108,7 +109,8 @@ QStringList CbiR::summary() const
 
 QStringList CbiR::detail() const
 {
-    return completenessInfo() + summary();
+    return completenessInfo() + summary() +
+            QStringList{textconst::NO_DETAIL_SEE_FACSIMILE};
 }
 
 

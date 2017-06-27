@@ -26,7 +26,6 @@ from typing import List
 
 import cardinal_pythonlib.rnc_web as ws
 
-from ..cc_modules.cc_string import WSTRING
 from ..cc_modules.cc_task import CtvInfo, Task
 
 
@@ -114,23 +113,21 @@ class PsychiatricClerking(Task):
     )
     has_clinician = True
 
-    @staticmethod
-    def get_ctv_heading(wstringname) -> CtvInfo:
+    def get_ctv_heading(self, wstringname) -> CtvInfo:
         return CtvInfo(
-            heading=ws.webify(WSTRING(wstringname)),
+            heading=self.WXSTRING(wstringname),
             skip_if_no_content=False
         )
 
-    @staticmethod
-    def get_ctv_subheading(wstringname) -> CtvInfo:
+    def get_ctv_subheading(self, wstringname) -> CtvInfo:
         return CtvInfo(
-            subheading=ws.webify(WSTRING(wstringname)),
+            subheading=self.WXSTRING(wstringname),
             skip_if_no_content=False
         )
 
     def get_ctv_description_content(self, x: str) -> CtvInfo:
         return CtvInfo(
-            description=ws.webify(WSTRING(x)),
+            description=self.WXSTRING(x),
             content=ws.webify(getattr(self, x))
         )
 
@@ -177,18 +174,17 @@ class PsychiatricClerking(Task):
     def is_complete() -> bool:
         return True
 
-    @staticmethod
-    def heading(wstringname: str) -> str:
-        return '<div class="heading">{}</div>'.format(WSTRING(wstringname))
+    def heading(self, wstringname: str) -> str:
+        return '<div class="heading">{}</div>'.format(
+            self.WXSTRING(wstringname))
 
-    @staticmethod
-    def subheading(wstringname: str) -> str:
-        return '<div class="subheading">{}</div>'.format(WSTRING(wstringname))
+    def subheading(self, wstringname: str) -> str:
+        return '<div class="subheading">{}</div>'.format(
+            self.WXSTRING(wstringname))
 
-    @staticmethod
-    def subsubheading(wstringname: str) -> str:
+    def subsubheading(self, wstringname: str) -> str:
         return '<div class="subsubheading">{}</div>'.format(
-            WSTRING(wstringname))
+            self.WXSTRING(wstringname))
 
     def subhead_text(self, fieldname: str) -> str:
         return self.subheading(fieldname) + '<div><b>{}</b></div>'.format(
