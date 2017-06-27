@@ -329,7 +329,7 @@ STANDARD_GENERIC_FIELDSPECS = [
     # ... server PK; must always be first in the fieldlist
     dict(name="_device_id", cctype="INT_UNSIGNED", notnull=True,
          comment="(SERVER) ID of the source tablet device",
-         indexed=True, index_nchar=50),
+         indexed=True),
     dict(name="_era", cctype="ISO8601", notnull=True,
          comment="(SERVER) 'NOW', or when this row was preserved and removed "
                  "from the source device (UTC ISO 8601)",
@@ -370,7 +370,7 @@ STANDARD_GENERIC_FIELDSPECS = [
          comment="(SERVER) Date/time of manual erasure (ISO 8601)"),
     dict(name="_manually_erasing_user_id", cctype="INT_UNSIGNED",
          comment="(SERVER) ID of user that erased this row manually"),
-    dict(name="_camcops_version", cctype="FLOAT",
+    dict(name="_camcops_version", cctype="SEMANTICVERSIONTYPE",
          comment="(SERVER) CamCOPS version number of the uploading device"),
     dict(name="_addition_pending", cctype="BOOL",
          notnull=True, comment="(SERVER) Addition pending?"),

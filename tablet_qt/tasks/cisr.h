@@ -18,10 +18,13 @@
 */
 
 #pragma once
+#include <QPointer>
 #include <QString>
+#include "common/aliases_camcops.h"
 #include "tasklib/task.h"
 
 class CamcopsApp;
+class DynamicQuestionnaire;
 class OpenableWidget;
 class TaskFactory;
 
@@ -51,8 +54,12 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     // ------------------------------------------------------------------------
-    // Signal handlers
+    // DynamicQuestionnaire callbacks
     // ------------------------------------------------------------------------
+    QuPagePtr makePage(int current_qnum);
+    bool morePagesToGo(int current_qnum);
 public:
     static const QString CISR_TABLENAME;
+protected:
+    QPointer<DynamicQuestionnaire> m_questionnaire;
 };

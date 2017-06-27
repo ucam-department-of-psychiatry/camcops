@@ -57,7 +57,7 @@ def get_possible_task_tables_views() -> Tuple[List[str], List[str]]:
     """Returns (tables, views) pertaining to tasks."""
     tables = []
     views = []
-    for cls in cc_task.Task.__subclasses__():
+    for cls in cc_task.Task.all_subclasses(sort_tablename=True):
         (tasktables, taskviews) = cls.get_all_table_and_view_names()
         tables.extend(tasktables)
         views.extend(taskviews)

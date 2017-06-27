@@ -23,14 +23,17 @@
 # - http://doc.qt.io/qt-5/qmake-test-function-reference.html
 # Here, we copy an environment variable to a Qt project file variable:
 # QT_BASE_DIR = $(CAMCOPS_QT_BASE_DIR)  # value at time of make
+
 QT_BASE_DIR = $$(CAMCOPS_QT_BASE_DIR)  # value at time of qmake ("now")
 isEmpty(QT_BASE_DIR) {
     error("Environment variable CAMCOPS_QT_BASE_DIR is undefined")
 }
 message("Using base directory: $${QT_BASE_DIR}")
+
 # AVOID # CAMCOPS_SOURCE_ROOT = ${PWD}  # at time of make
 CAMCOPS_SOURCE_ROOT = $${PWD}  # at time of qmake ("now")
 message("Expecting CamCOPS source root at: $${CAMCOPS_SOURCE_ROOT}")
+
 # message("QMAKESPEC: $${QMAKESPEC}")
 # message("QMAKE_PLATFORM: $${QMAKE_PLATFORM}")
 
@@ -57,6 +60,8 @@ QT += svg  # required to #include <QGraphicsSvgItem> or <QSvgRenderer>
 # QT += webkit  # for QWebView -- no, not used
 # QT += webkitwidgets  # for QWebView -- no, not used
 QT += widgets  # required to #include <QApplication>
+# message("QT = $${QT}")
+# message("QTPLUGIN = $${QTPLUGIN}")
 
 # http://stackoverflow.com/questions/20351155/how-can-i-enable-ssl-in-qt-windows-application
 # http://stackoverflow.com/questions/18663331/how-to-check-the-selected-version-of-qt-in-a-pro-file
@@ -81,9 +86,10 @@ MOBILITY =
 # ... but no effect? Not mentioned in variable reference (above).
 LIBS += -lssl
 # ... not working either? Doesn't complain, but ldd still shows that system libssl.so is in use
+# message("LIBS: $${LIBS}")
 
 # =============================================================================
-# Compiler flags
+# Compiler and linker flags
 # =============================================================================
 
 QMAKE_CXXFLAGS += -Werror  # warnings become errors
@@ -93,6 +99,8 @@ QMAKE_CXXFLAGS_RELEASE -= -O
 QMAKE_CXXFLAGS_RELEASE -= -O1
 QMAKE_CXXFLAGS_RELEASE -= -O2
 QMAKE_CXXFLAGS_RELEASE += -O3  # optimize heavily
+
+# QMAKE_LFLAGS += --verbose  # make the linker verbose
 
 # =============================================================================
 # Build targets
@@ -507,7 +515,8 @@ SOURCES += main.cpp \
     lib/timerfunc.cpp \
     maths/dqrls.cpp \
     maths/endian.cpp \
-    maths/countingcontainer.cpp
+    maths/countingcontainer.cpp \
+    questionnairelib/dynamicquestionnaire.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -853,7 +862,8 @@ HEADERS += \
     maths/floatbits.h \
     maths/ieee754.h \
     maths/endian.h \
-    maths/countingcontainer.h
+    maths/countingcontainer.h \
+    questionnairelib/dynamicquestionnaire.h
 
 DISTFILES += \
     android/AndroidManifest.xml \
@@ -903,4 +913,5 @@ DISTFILES += \
     tools/chord.py \
     tools/cppclean_all.sh \
     tools/decrypt_sqlcipher.py \
-    notes/android_compilation.txt
+    notes/android_compilation.txt \
+    notes/linux_compilation.txt

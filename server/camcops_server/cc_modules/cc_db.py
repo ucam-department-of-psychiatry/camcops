@@ -23,6 +23,7 @@
 """
 
 import datetime
+import logging
 from typing import Any, Iterable, List, Optional, Union, Type, TypeVar
 
 import cardinal_pythonlib.rnc_db as rnc_db
@@ -42,6 +43,8 @@ from .cc_constants import (
 from . import cc_dt
 # from .cc_logger import log
 from .cc_pls import pls
+
+log = logging.getLogger(__name__)
 
 T = TypeVar('T')
 
@@ -497,6 +500,10 @@ def create_or_update_table(tablename: str,
     """Adds the sqltype to a set of fieldspecs using cctype, then creates the
     table."""
     add_sqltype_to_fieldspeclist_in_place(fieldspecs_with_cctype)
+    # if False:
+    #     for fs in fieldspecs_with_cctype:
+    #         if "indexed" in fs:
+    #             log.critical(fs)
     pls.db.create_or_update_table(
         tablename, fieldspecs_with_cctype,
         drop_superfluous_columns=drop_superfluous_columns,

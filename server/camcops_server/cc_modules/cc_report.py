@@ -40,6 +40,7 @@ from .cc_constants import (
 )
 from . import cc_dt
 from . import cc_html
+from .cc_lang import all_subclasses
 from .cc_pls import pls
 from .cc_unittest import (
     unit_test_ignore,
@@ -106,6 +107,14 @@ class Report(object):
         """Execute the report. Must override. Parameters are passed in via
         **kwargs."""
         return [], []
+
+    @classmethod
+    def all_subclasses(cls,
+                       sort_title: bool = False) -> List[Type["Task"]]:
+        classes = all_subclasses(cls)
+        if sort_title:
+            classes.sort(key=lambda c: c.report_title)
+        return classes
 
 
 # =============================================================================
@@ -179,7 +188,7 @@ def get_all_report_ids() -> List[str]:
 
 def get_report_instance(report_id: str) -> Optional[Report]:
     """Creates an instance of a Report, given its ID (name), or None."""
-    for cls in Report.__subclasses__():
+    for cls in Report.all_subclasses():
         if cls.report_id == report_id:
             return cls()
     return None
@@ -319,8 +328,7 @@ T = TypeVar('T')
 
 
 def get_all_report_classes() -> List[Type[T]]:
-    classes = Report.__subclasses__()
-    classes.sort(key=lambda cls: cls.report_title)
+    classes = Report.all_subclasses(sort_title=True)
     return classes
 
 
@@ -390,7 +398,7 @@ def unit_tests() -> None:
     unit_test_ignore("", get_param_html, paramspec)
     unit_test_ignore("", get_param_html, paramspec)
 
-    for cls in Report.__subclasses__():
+    for cls in Report.all_subclasses(sort_title=True):
         name = cls.__name__
         report = cls()
         task_unit_test_report(name, report)

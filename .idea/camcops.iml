@@ -4,6 +4,8 @@
     <content url="file://$MODULE_DIR$" />
     <orderEntry type="jdk" jdkName="Python 3.5.2 virtualenv at ~/dev/venvs/camcops" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="R User Library" level="project" />
+    <orderEntry type="library" name="R Skeletons" level="application" />
   </component>
   <component name="PyDocumentationSettings">
     <option name="myDocStringFormat" value="Google" />

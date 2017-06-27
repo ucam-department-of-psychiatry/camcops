@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define DEBUG_OPTIONS
+// #define DEBUG_OPTIONS
 
 #include "testmenu.h"
 #include <QCoreApplication>
@@ -41,6 +41,7 @@
 #include "menulib/menuitem.h"
 #include "menu/widgettestmenu.h"
 #include "tasklib/taskfactory.h"  // for TaskPtr
+#include "tasks/demoquestionnaire.h"
 #include "tasks/phq9.h"
 
 const int EXPENSIVE_FUNCTION_DURATION_MS = 10000;
@@ -120,9 +121,7 @@ TestMenu::TestMenu(CamcopsApp& app)
             std::bind(&TestMenu::testLogisticRegression, this)
         ),
         MAKE_MENU_MENU_ITEM(WidgetTestMenu, app),
-        // MenuItem(
-        //     tr("(†) Run software unit tests (reporting to debugging stream)")
-        // ).setNeedsPrivilege(),
+        MAKE_TASK_MENU_ITEM(DemoQuestionnaire::DEMOQUESTIONNAIRE_TABLENAME, app),
     };
 }
 

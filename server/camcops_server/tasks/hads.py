@@ -162,3 +162,15 @@ class Hads(Task):
             </table>
         """ + DATA_COLLECTION_UNLESS_UPGRADED_DIV
         return h
+
+
+# =============================================================================
+# HadsRespondent
+# =============================================================================
+
+class HadsRespondent(Hads):
+    tablename = "hads_respondent"
+    shortname = "HADS-Respondent"
+    longname = "Hospital Anxiety and Depression Scale (data collection " \
+               "only), non-patient respondent version"
+    has_respondent = True

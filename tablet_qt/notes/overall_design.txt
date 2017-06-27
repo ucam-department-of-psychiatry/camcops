@@ -130,6 +130,35 @@ SERVER ORM AND WEB FRAMEWORK
     http://django-composite-foreignkey.readthedocs.io/
     ... that might do the trick!
 
+- Automatic forms are a Django strength, including the "choices" option on a
+  model.
+  Equivalent in SQLAlchemy:
+    http://sqlalchemy-utils.readthedocs.io/en/latest/data_types.html#module-sqlalchemy_utils.types.choice
+    ... Pyramid... Deform... Colander... it's all a bit DIY.
+
+- So in essence we have the advantages with:
+
+    ORM             SQLAlchemy e.g. Pyramid
+            ... unless multiple column foreign keys are here?
+            ... https://www.quora.com/Which-is-better-and-why-Djangos-ORM-or-SQLAlchemy
+            ... aha!
+                https://github.com/django/django/blob/master/django/db/models/fields/related.py
+                ForeignObject
+                "Abstraction of the ForeignKey relation to support multi-column relations."
+                But in tests/foreign_objects/tests.py:
+                # ForeignObject is not part of public API.
+
+    Templates       Equal (can mix and match with either)
+    Forms           Django
+    Migrations      Django
+    Config files    Pyramid (via .ini), probably, but Django .py can read .ini...
+    Serving static                              Pyramid?
+    Extending from an ad-hoc code structure     Pyramid
+
+  Ultimately, MIGRATIONS ARE IMPORTANT. Django does these very well, including
+  asking for default values for old records when you create a new NOT NULL
+  column and so forth. Though you can customize the SQL...
+
 ===============================================================================
 THINGS TO AVOID
 ===============================================================================

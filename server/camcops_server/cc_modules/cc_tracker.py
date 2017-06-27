@@ -275,8 +275,7 @@ class Tracker(object):
 
         # Which tasks?
         task_class_list = []
-        classes = Task.__subclasses__()
-        classes.sort(key=lambda cls_: cls_.shortname)
+        classes = Task.all_subclasses(sort_shortname=True)
         for cls in classes:
             if (hasattr(cls, 'get_trackers') and
                     cls.tablename in task_tablename_list):
@@ -860,7 +859,7 @@ class ClinicalTextView(object):
 
         # Which tasks? We want to note all within date range, so we use all
         # classes.
-        task_class_list = Task.__subclasses__()
+        task_class_list = Task.all_subclasses()
 
         # What filters?
         self.idnumarray = []
@@ -1325,7 +1324,7 @@ def unit_tests() -> None:
     """Unit tests for cc_tracker module."""
     session = Session()
     tasktables = []
-    for cls in Task.__subclasses__():
+    for cls in Task.all_subclasses(sort_tablename=True):
         tasktables.append(cls.tablename)
     which_idnum = 1
     idnum_value = 3

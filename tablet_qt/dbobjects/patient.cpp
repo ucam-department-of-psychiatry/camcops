@@ -198,10 +198,10 @@ OpenableWidget* Patient::editor(bool read_only)
     Qt::Alignment align = Qt::AlignRight | Qt::AlignTop;
 
     grid->addCell(QuGridCell(new QuText(tr("Surname")), row, 0, 1, 1, align));
-    grid->addCell(QuGridCell(new QuLineEdit(fieldRef(FORENAME_FIELD, false)),
+    grid->addCell(QuGridCell(new QuLineEdit(fieldRef(SURNAME_FIELD, false)),
                              row++, 1));
     grid->addCell(QuGridCell(new QuText(tr("Forename")), row, 0, 1, 1, align));
-    grid->addCell(QuGridCell(new QuLineEdit(fieldRef(SURNAME_FIELD, false)),
+    grid->addCell(QuGridCell(new QuLineEdit(fieldRef(FORENAME_FIELD, false)),
                              row++, 1));
     grid->addCell(QuGridCell(new QuText(tr("Sex")), row, 0, 1, 1, align));
     grid->addCell(QuGridCell(

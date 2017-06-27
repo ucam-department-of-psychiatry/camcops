@@ -42,7 +42,7 @@ class Device(object):
     """Represents a tablet device."""
     TABLENAME = "_security_devices"
     FIELDSPECS = [
-        dict(name="id", cctype="INT_UNSIGNED", pk=True,
+        dict(name="id", cctype="INT_UNSIGNED", pk=True, autoincrement=True,
              comment="ID of the source tablet device"),
         dict(name="name", cctype="DEVICE", indexed=True,
              # TODO: make index unique

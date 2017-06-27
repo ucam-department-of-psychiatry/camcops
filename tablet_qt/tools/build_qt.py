@@ -58,6 +58,7 @@ import shlex
 import shutil
 import subprocess
 import sys
+import traceback
 from typing import Dict, List, Tuple
 import urllib.request
 
@@ -142,19 +143,22 @@ DEFAULT_EIGEN_VERSION = "3.3.3"
 # -----------------------------------------------------------------------------
 # Constants: building Qt
 # -----------------------------------------------------------------------------
+# TO MAKE MINOR CHANGES: delete ...installdir/bin/qmake, and rerun this script.
+# (Can still take ages. Not sure it saves any time, in fact.)
 
 QT_CONFIG_COMMON_ARGS = [
     # use "configure -help" to list all of them
     # http://doc.qt.io/qt-4.8/configure-options.html  # NB better docs than 5.7
     # http://doc.qt.io/qt-5.7/configure-options.html  # less helpful
+    # http://doc.qt.io/qt-5.9/configure-options.html
 
     # -------------------------------------------------------------------------
     # Qt license, debug v. release,
     # -------------------------------------------------------------------------
 
-    "-opensource", "-confirm-license",
+    "-opensource", "-confirm-license",  # Choose our Qt edition.
 
-    "-release",  # default is release
+    "-release",  # Make a release-mode library. (Default is release.)
 
     # "-debug-and-release",  # make a release library as well: MAC ONLY
     # ... debug was the default in 4.8, but not in 5.7
@@ -170,6 +174,7 @@ QT_CONFIG_COMMON_ARGS = [
     # -------------------------------------------------------------------------
     # Database support
     # -------------------------------------------------------------------------
+
     # v5.7.0 # "-qt-sql-sqlite",  # SQLite (v3) support built in to Qt
     "-sql-sqlite",  # v5.9: explicitly add SQLite support
     "-qt-sqlite",  # v5.9: "qt", rather than "system"
@@ -184,12 +189,15 @@ QT_CONFIG_COMMON_ARGS = [
     "-no-sql-tds",  # this one specifically was causing library problems
 
     # -------------------------------------------------------------------------
-    # Third-party libraries
+    # Libraries
     # -------------------------------------------------------------------------
-    "-qt-zlib",  # Qt, not host OS, version of zlib
-    "-qt-libpng",  # Qt, not host OS, version of PNG library
+
+    "-qt-doubleconversion",  # Use Qt version of double conversion library
+    # NOT YET WORKING ("Qt no longer ships fonts") # "-qt-freetype",  # Qt, not system, version of Freetype  # noqa
+    # NOT YET WORKING ("Qt no longer ships fonts") # "-qt-harfbuzz",  # Qt, not system, version of HarfBuzz-NG  # noqa
     "-qt-libjpeg",  # Qt, not host OS, version of JPEG library
-    "-qt-doubleconversion",
+    "-qt-libpng",  # Qt, not host OS, version of PNG library
+    "-qt-zlib",  # Qt, not host OS, version of zlib
 
     # -------------------------------------------------------------------------
     # Compilation
@@ -197,18 +205,33 @@ QT_CONFIG_COMMON_ARGS = [
     # Note: the default release build optimizes with -O2 -Os; there are
     # some 'configure' options to control this, but it's probably a good
     # default.
-    "-no-warnings-are-errors",
+
+    "-no-warnings-are-errors",  # don't treat warnings as errors
 
     # -------------------------------------------------------------------------
     # Stuff to skip
     # -------------------------------------------------------------------------
-    "-nomake", "tests",
+    # CHANGE OF HEART: don't skip anything; it leads to trouble later!
+
+    # not a valid "-nomake": # "-nomake", "docs",
+    # not a valid "-nomake": # "-nomake", "demos",
     "-nomake", "examples",
-    "-skip", "qttranslations",
-    "-skip", "qtwebkit",
+    "-nomake", "tests",
+
+    # "-skip", "qttranslations",
+
+    # Don't need this on any platform, and unsupported on Android:
     "-skip", "qtserialport",
+
+    # Except the webkit stuff, which ends up giving problems with Wayland-EGL:
+    "-skip", "qtwebkit",
     "-skip", "qtwebkit-examples",
 ]
+
+# -----------------------------------------------------------------------------
+# Constants: building OpenSSL
+# -----------------------------------------------------------------------------
+
 OPENSSL_COMMON_OPTIONS = [
     "shared",  # make .so files (needed by Qt sometimes) as well as .a
     "no-ssl2",  # SSL-2 is broken
@@ -1742,4 +1765,12 @@ RUNTIME REQUIREMENTS
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except subprocess.CalledProcessError as e:
+        log.critical("External process failed:")
+        traceback.print_exc()
+        log.critical("If this is the first time you've had this error RE-RUN "
+                     "THE SCRIPT; sometimes Qt builds fail then pick "
+                     "themselves up the next time.")
+        sys.exit(1)

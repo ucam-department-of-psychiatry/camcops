@@ -63,7 +63,7 @@ public:
     void setFinishButtonIconToTick();
 
     // Add pages
-    void addPage(const QuPagePtr& page);
+    virtual void addPage(const QuPagePtr& page);
 
     // Get page information
     QuPage* currentPagePtr() const;
@@ -75,7 +75,7 @@ public:
     void setPageSkip(int page, bool skip, bool reset_buttons = true);
     void setPageSkip(const QString& page_tag, bool skip,
                      bool reset_buttons = true);
-    void deletePage(int index);
+    virtual void deletePage(int index);
     void movePageBackwards(int index);
     void movePageForwards(int index);
 
@@ -92,7 +92,7 @@ public:
                          bool current_page_only = true,
                          const QString& page_tag = "");
     void refreshCurrentPage();
-    void goToPage(int index, bool allow_refresh = false);
+    virtual void goToPage(int index, bool allow_refresh = false);
     void debugLayout();
 
     // Advanced control
@@ -116,13 +116,14 @@ signals:
 
 protected:
     void commonConstructor();
-    bool morePagesToGo() const;
+    virtual bool morePagesToGo() const;
     void doFinish();
     void doCancel();
     void pageClosing();
     // Signal handling
     bool event(QEvent* e) override;
     void keyPressEvent(QKeyEvent* event);
+    virtual void processNextClicked();
 protected slots:
     void cancelClicked();
     void jumpClicked();

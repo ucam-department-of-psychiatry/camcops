@@ -85,7 +85,7 @@ void initializeCPFTLPSReferral(TaskFactory& factory)
 
 
 CPFTLPSReferral::CPFTLPSReferral(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
-    Task(app, db, CPFTLPSREFERRAL_TABLENAME, false, true, false)  // ... anon, clin, resp
+    Task(app, db, CPFTLPSREFERRAL_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addField(REFERRAL_DATE_TIME, QVariant::DateTime);
     addField(LPS_DIVISION, QVariant::String);

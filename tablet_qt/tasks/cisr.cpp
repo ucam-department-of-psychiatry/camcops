@@ -109,12 +109,124 @@ bool answered(int answer)
 }
 
 
+FURTHER THOUGHTS: we'll implement a DynamicQuestionnaire class; q.v.
+
 */
 
 #include "cisr.h"
+#include "questionnairelib/dynamicquestionnaire.h"
+#include "questionnairelib/qutext.h"
+#include "questionnairelib/qupage.h"
 #include "tasklib/taskfactory.h"
 
 const QString Cisr::CISR_TABLENAME("cisr");
+
+// FP field prefix; NUM field numbers; FN field name
+const QString FP_MAIN("main_");
+const int NUM_MAIN_MIN = 18;  // CIS-R starts from Q18; was part of a larger earlier thing
+const int NUM_MAIN_MAX = 21;
+const QString FN_MAIN_19A("main_19a");
+const QString FN_MAIN_19B("main_19a");
+
+const QString FP_SOMATIC("somatic_a");  // section A
+const int NUM_SOMATIC = 9;  // A9 is just to check your sums; we'll auto-generate
+
+const QString FP_FATIGUE("fatigue_b");  // section B
+const int NUM_FATIGUE = 10;  // B10 is just to check your sums; we'll auto-generate
+const QString FN_FATIGUE_B3A("fatigue_b3a");
+
+const QString FP_CONCENTRATION("concentration_c");  // section C
+const int NUM_CONCENTRATION = 9;
+
+const QString FP_SLEEP("sleep_d");  // section D
+const int NUM_SLEEP = 11;
+const QString FN_SLEEP_D4A("sleep_d4a");
+
+const QString FP_IRRITABILITY("irritability_e");  // section E
+const int NUM_IRRITABILITY = 11;
+const QString FN_IRRITABILITY_E7A("irritability_e7a");
+
+const QString FP_WORRYPHYSICAL("worryphysical_f");  // section F
+const int NUM_WORRYPHYSICAL = 8;
+
+const QString FP_DEPRESSION("depression_g");  // section G
+const int NUM_DEPRESSION = 11;
+// There is NO plain G8, just G8(a) and G8(b).
+const QString FN_DEPRESSION_G8A_FAMILY("depression_g8a_family");
+const QString FN_DEPRESSION_G8A_PARTNER("depression_g8a_partner");
+const QString FN_DEPRESSION_G8A_FRIENDS("depression_g8a_friends");
+const QString FN_DEPRESSION_G8A_HOUSING("depression_g8a_housing");
+const QString FN_DEPRESSION_G8A_MONEY("depression_g8a_money");
+const QString FN_DEPRESSION_G8A_PHYSICALHEALTH("depression_g8a_physicalhealth");
+const QString FN_DEPRESSION_G8A_MENTALHEALTH("depression_g8a_mentalhealth");
+const QString FN_DEPRESSION_G8A_WORK("depression_g8a_work");
+const QString FN_DEPRESSION_G8A_LEGAL("depression_g8a_legal");
+const QString FN_DEPRESSION_G8A_NEWS("depression_g8a_news");
+const QString FN_DEPRESSION_G8A_OTHER("depression_g8a_other");
+const QString FN_DEPRESSION_G8A_DK_NO_MAIN("depression_g8a_dk_no_main");
+const QString FN_DEPRESSION_G8B("depression_g8b");
+
+const QString FP_DEPRESSIVEIDEAS("depressiveideas_h");  // section H
+const int NUM_DEPRESSIVEIDEAS = 11;
+const QString FN_DEPRESSIVEIDEAS_H9A("depressiveideas_h9a");
+// H9b isn't a question; it's just a prompt for advice about suicidality;
+// but we'll document the prompt having been read to the subject:
+const QString FN_DEPRESSIVEIDEAS_H9B("depressiveideas_h9b");
+
+const QString FP_WORRY("worry_i");  // section I
+const int NUM_WORRY = 9;
+// There is NO plain G8, just G8(a) and G8(b).
+const QString FN_WORRY_I3A("worry_i3a");
+const QString FN_WORRY_G8A_FAMILY("worry_i3a_family");
+const QString FN_WORRY_G8A_PARTNER("worry_i3a_partner");
+const QString FN_WORRY_G8A_FRIENDS("worry_i3a_friends");
+const QString FN_WORRY_G8A_HOUSING("worry_i3a_housing");
+const QString FN_WORRY_G8A_MONEY("worry_i3a_money");
+const QString FN_WORRY_G8A_PHYSICALHEALTH("worry_i3a_physicalhealth");
+const QString FN_WORRY_G8A_MENTALHEALTH("worry_i3a_mentalhealth");
+const QString FN_WORRY_G8A_WORK("worry_i3a_work");
+const QString FN_WORRY_G8A_LEGAL("worry_i3a_legal");
+const QString FN_WORRY_G8A_NEWS("worry_i3a_news");
+const QString FN_WORRY_G8A_OTHER("worry_i3a_other");
+const QString FN_WORRY_G8A_DK_NO_MAIN("worry_i3a_dk_no_main");
+const QString FN_WORRY_I3B("worry_i3b");
+
+const QString FP_ANXIETY("anxiety_j");  // section J
+const int NUM_ANXIETY = 12;
+const QString FN_ANXIETY_J9A_HEART("anxiety_j9a_heart");
+const QString FN_ANXIETY_J9A_SWEATY_SHAKY("anxiety_j9a_sweaty_shaky");
+const QString FN_ANXIETY_J9A_DIZZY("anxiety_j9a_dizzy");
+const QString FN_ANXIETY_J9A_BREATHLESS("anxiety_j9a_breathless");
+const QString FN_ANXIETY_J9A_BUTTERFLIES("anxiety_j9a_butterflies");
+const QString FN_ANXIETY_J9A_DRY_MOUTH("anxiety_j9a_dry_mouth");
+const QString FN_ANXIETY_J9A_NAUSEA("anxiety_j9a_nausea");
+
+const QString FP_PHOBIA("phobia_k");  // section K
+const int NUM_PHOBIA = 9;
+// There is NO plain K3, just K3(a) and K3(b).
+const QString FN_PHOBIA_K3A("phobia_k3a");
+const QString FN_PHOBIA_K3B("phobia_k3b");
+const QString FN_PHOBIA_K5A_HEART("phobia_k5a_heart");
+const QString FN_PHOBIA_K5A_SWEATY_SHAKY("phobia_k5a_sweaty_shaky");
+const QString FN_PHOBIA_K5A_DIZZY("phobia_k5a_dizzy");
+const QString FN_PHOBIA_K5A_BREATHLESS("phobia_k5a_breathless");
+const QString FN_PHOBIA_K5A_BUTTERFLIES("phobia_k5a_butterflies");
+const QString FN_PHOBIA_K5A_DRY_MOUTH("phobia_k5a_dry_mouth");
+const QString FN_PHOBIA_K5A_NAUSEA("phobia_k5a_nausea");
+
+const QString FP_PANIC("panic_l");  // section L
+const int NUM_PANIC = 8;
+
+const QString FP_COMPULSIONS("compulsions_m");  // section M
+const int NUM_COMPULSIONS = 9;
+
+const QString FP_OBSESSIONS("obsessions_n");  // section N
+const int NUM_OBSESSIONS = 9;
+
+// There's only one question in section O, with two sub-parts:
+const QString FN_OVERALL_1("overall_o1");
+const QString FN_OVERALL_1A("overall_o1a");
+const QString FN_OVERALL_1B("overall_o1b");
 
 
 void initializeCisr(TaskFactory& factory)
@@ -182,9 +294,13 @@ QStringList Cisr::detail() const
 
 OpenableWidget* Cisr::editor(bool read_only)
 {
-    // ***
-    Q_UNUSED(read_only);
-    return nullptr;
+    m_questionnaire = new DynamicQuestionnaire(
+                m_app,
+                std::bind(&Cisr::makePage, this, std::placeholders::_1),
+                std::bind(&Cisr::morePagesToGo, this, std::placeholders::_1));
+    m_questionnaire->setType(QuPage::PageType::Clinician);
+    m_questionnaire->setReadOnly(read_only);
+    return m_questionnaire;
 }
 
 
@@ -194,5 +310,44 @@ OpenableWidget* Cisr::editor(bool read_only)
 
 
 // ============================================================================
-// Signal handlers
+// DynamicQuestionnaire callbacks
 // ============================================================================
+
+QuPagePtr Cisr::makePage(int current_qnum)
+{
+    // *** this is currently junk; fix
+
+    auto title = [this](int pretty_qnum) -> QString {
+        return QString("CISR page %1").arg(pretty_qnum);
+    };
+    auto rawtext = [this](const QString& text) -> QuElement* {
+        return new QuText(text);
+    };
+    auto page = [this, &title, &rawtext](int qnum) -> QuPagePtr {
+        int pretty_qnum = qnum + 1;
+        qDebug().nospace() << "Making page " << qnum
+                           << " (pretty 1-based: page " << pretty_qnum << ")";
+        QuPage* p = new QuPage();
+        p->addElement(rawtext(QString("hello! I'm on page %1").arg(pretty_qnum)));
+        p->setTitle(title(pretty_qnum));
+        return QuPagePtr(p);
+    };
+
+    switch (current_qnum) {
+    case 0:
+        return page(0);
+    case 1:
+        return page(1);
+    case 2:
+        return nullptr;
+    default:
+        return page(-1);
+    }
+}
+
+
+bool Cisr::morePagesToGo(int current_qnum)
+{
+    // The lazy option, for now:
+    return makePage(current_qnum + 1) != nullptr;
+}

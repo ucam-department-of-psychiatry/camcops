@@ -79,9 +79,9 @@ class CPFTLPSReferral(Task):
              pv=PV.BIT),
         dict(name="interpreter_required", cctype="BOOL", pv=PV.BIT),
         dict(name="sensory_impairment", cctype="BOOL", pv=PV.BIT),
-        dict(name="marital_status_code", cctype="INT",
+        dict(name="marital_status_code", cctype="CHAR",
              pv=PV_NHS_MARITAL_STATUS),
-        dict(name="ethnic_category_code", cctype="INT",
+        dict(name="ethnic_category_code", cctype="CHAR",
              pv=PV_NHS_ETHNIC_CATEGORY),
 
         dict(name="admission_reason_overdose", cctype="BOOL",

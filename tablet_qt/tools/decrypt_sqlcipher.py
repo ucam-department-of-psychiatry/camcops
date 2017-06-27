@@ -50,7 +50,7 @@ def main():
         "--sqlcipher", type=str, default=None,
         help=(
             "SQLCipher executable file (if blank, environment variable {} "
-             "will be used, or the default of {})"
+            "will be used, or the default of {})"
         ).format(SQLCIPHER_ENV_VAR, repr(SQLCIPHER_DEFAULT)))
     parser.add_argument(
         "--encoding", type=str, default=sys.getdefaultencoding(),

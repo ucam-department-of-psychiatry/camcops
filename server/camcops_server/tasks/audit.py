@@ -171,6 +171,7 @@ class AuditC(Task):
     tablename = "audit_c"
     shortname = "AUDIT-C"
     longname = "AUDIT Alcohol Consumption Questions"
+    extrastring_taskname = "audit"  # shares strings with AUDIT
     fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, min=0, max=4,
         comment_fmt="Q{n}, {s} (0-4, higher worse)",

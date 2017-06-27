@@ -305,9 +305,10 @@ void Questionnaire::resetButtons()
     if (!page || !m_p_header) {
         return;
     }
-    bool on_last_page = !morePagesToGo();
     bool allow_progression = readOnly() ||
             (!page->progressBlocked() && !page->missingInput());
+    // Optimization: calculate on_last_page only if necessary
+    bool on_last_page = allow_progression && !morePagesToGo();
     m_p_header->setButtons(
         m_current_page_index > 0,  // previous
         !on_last_page && allow_progression,  // next
@@ -375,17 +376,6 @@ void Questionnaire::keyPressEvent(QKeyEvent* event)
 
 void Questionnaire::cancelClicked()
 {
-    /*
-    QMessageBox::StandardButton reply;
-    reply = QMessageBox::question(
-        this,
-        tr("Abort"),
-        tr("Abort this questionnaire?"),
-        QMessageBox::Yes | QMessageBox::No);
-    if (reply == QMessageBox::Yes) {
-        doCancel();
-    }
-    */
     if (m_read_only) {
         doCancel();
         return;
@@ -452,6 +442,16 @@ void Questionnaire::previousClicked()
 
 
 void Questionnaire::nextClicked()
+{
+    // We separate the signal receiver from the "doing things" function so
+    // we can make processNextClicked() virtual for DynamicQuestionnaire (and
+    // not worry about whether we connect() to the base class or derived class
+    // receiver; we always connect() to the base class).
+    processNextClicked();
+}
+
+
+void Questionnaire::processNextClicked()
 {
     QuPage* page = currentPagePtr();
     if (!page || (!readOnly() && (page->progressBlocked() ||

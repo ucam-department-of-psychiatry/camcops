@@ -253,10 +253,10 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
         if (no_password_sys != no_password_data) {
             QString msg = QString(
                         "CamCOPS uses a system and a data database; one has a "
-                        "password and one doesn't; this is an incongruent state "
-                        "that has probably arisen from user error, and CamCOPS "
-                        "will not continue until this is fixed (no_password_sys = "
-                        "%1, no_password_data = %2")
+                        "password and one doesn't (no_password_sys = %1, "
+                        "no_password_data = %2); this is an incongruent state "
+                        "that has probably arisen from user error, and "
+                        "CamCOPS will not continue until this is fixed.")
                     .arg(no_password_sys)
                     .arg(no_password_data);
             QString title = "Inconsistent database state";

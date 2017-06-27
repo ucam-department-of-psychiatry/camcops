@@ -102,7 +102,7 @@ from . import cc_filename
 from . import cc_hl7core
 from . import cc_html
 from . import cc_lang
-from .cc_lang import Min, MinType
+from .cc_lang import all_subclasses, Min, MinType
 from .cc_logger import log
 from .cc_namedtuples import XmlElementTuple
 from . import cc_patient
@@ -637,6 +637,21 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     def get_extra_table_names(cls) -> List[str]:
         """Get a list of any extra tables used by the task."""
         return [depclass.tablename for depclass in cls.dependent_classes]
+
+    # -------------------------------------------------------------------------
+    # Way to fetch all task types
+    # -------------------------------------------------------------------------
+
+    @classmethod
+    def all_subclasses(cls,
+                       sort_tablename: bool = False,
+                       sort_shortname: bool = False) -> List[Type["Task"]]:
+        classes = all_subclasses(cls)
+        if sort_tablename:
+            classes.sort(key=lambda c: c.tablename)
+        elif sort_shortname:
+            classes.sort(key=lambda c: c.shortname)
+        return classes
 
     # -------------------------------------------------------------------------
     # Implement if you provide trackers
@@ -3086,7 +3101,7 @@ def task_factory(basetable: str, serverpk: int) -> Task:
         basetable: string
         serverpk: integer
     """
-    for cls in Task.__subclasses__():
+    for cls in Task.all_subclasses():
         if basetable == cls.tablename:
             return cls(serverpk)
     return None
@@ -3158,7 +3173,7 @@ def gen_tasks_matching_session_filter(
 
     # Find candidate tasks meeting the filters
     cls_pk_wc = []
-    for cls in Task.__subclasses__():
+    for cls in Task.all_subclasses():
         if cls.filter_allows_task_type(session):
             pk_wc = cls.get_session_candidate_task_pks_whencreated(session)
             for row in pk_wc:
@@ -3183,7 +3198,7 @@ def gen_tasks_live_on_tablet(device_id: str) -> Generator[Task, None, None]:
     Includes non-current ones."""
 
     cls_pk_wc = []
-    for cls in Task.__subclasses__():
+    for cls in Task.all_subclasses():
         table = cls.tablename
         wcfield_utc = cls.whencreated_fieldexpr_as_utc()
         query = """
@@ -3215,7 +3230,7 @@ def gen_tasks_using_patient(patient_id: int,
     Includes non-current ones."""
 
     cls_pk_wc = []
-    for cls in Task.__subclasses__():
+    for cls in Task.all_subclasses():
         if cls.is_anonymous:
             continue
         table = cls.tablename
@@ -3252,7 +3267,7 @@ def gen_tasks_for_patient_deletion(
     """Generate tasks to be affected by a delete-patient command."""
 
     cls_pk_wc = []
-    for cls in Task.__subclasses__():
+    for cls in Task.all_subclasses():
         if cls.is_anonymous:
             continue
         pk_wc = cls.get_task_pks_wc_for_patient_deletion(which_idnum,
@@ -3276,7 +3291,7 @@ def get_base_tables(include_anonymous: bool = True) -> List[str]:
     """Get a list of all tasks' base tables."""
     return [
         cls.tablename
-        for cls in Task.__subclasses__()
+        for cls in Task.all_subclasses(sort_tablename=True)
         if (not cls.is_anonymous or include_anonymous)
     ]
 
@@ -3288,7 +3303,7 @@ def get_base_tables(include_anonymous: bool = True) -> List[str]:
 def get_task_filter_dropdown(currently_selected: str = None) -> str:
     """Iterates through all tasks, generating a drop-down list."""
     taskoptions = []
-    for cls in Task.__subclasses__():
+    for cls in Task.all_subclasses(sort_shortname=True):
         t = ws.webify(cls.tablename)
         taskoptions.append({
             "shortname": cls.shortname,
@@ -3298,8 +3313,6 @@ def get_task_filter_dropdown(currently_selected: str = None) -> str:
                 sel=ws.option_selected(currently_selected, t),
             )
         })
-    # Sort list of dictionaries by what we'll display:
-    taskoptions = sorted(taskoptions, key=lambda k: k["shortname"])
     return """
         <select name="{}">
             <option value="">(all)</option>
@@ -3313,10 +3326,10 @@ def get_from_dict(d: Dict, key: str, default: Any = INVALID_VALUE) -> Any:
     return d.get(key, default)
 
 
-def get_all_task_classes() -> List[Type[Task]]:
-    classes = Task.__subclasses__()
-    classes.sort(key=lambda cls: cls.shortname)
-    return classes
+def get_all_task_classes(sort_tablename: bool = False,
+                         sort_shortname: bool = True) -> List[Type[Task]]:
+    return Task.all_subclasses(sort_tablename=sort_tablename,
+                               sort_shortname=sort_shortname)
 
 
 # =============================================================================
@@ -3332,8 +3345,7 @@ class TaskCountReport(Report):
     def get_rows_descriptions(self) -> REPORT_RESULT_TYPE:
         final_rows = []
         fieldnames = []
-        classes = Task.__subclasses__()
-        classes.sort(key=lambda cls_: cls_.tablename)
+        classes = Task.all_subclasses(sort_tablename=True)
         for cls in classes:
             sql = """
                 SELECT
@@ -3819,8 +3831,7 @@ def unit_tests() -> None:
     pls.db.rollback()
 
     skip_tasks = []
-    classes = Task.__subclasses__()
-    classes.sort(key=lambda cls_: cls_.shortname)
+    classes = Task.all_subclasses(sort_shortname=True)
     longnames = set()
     shortnames = set()
     tasktables = set()
@@ -3869,6 +3880,6 @@ def unit_tests() -> None:
 
 def unit_tests_basic() -> None:
     "Preliminary quick checks."""
-    classes = Task.__subclasses__()  # Don't sort yet, in case sortname missing
+    classes = Task.all_subclasses()  # Don't sort yet, in case sortname missing
     for cls in classes:
         task_class_unit_test(cls)

@@ -45,6 +45,7 @@ class MdsUpdrs(Task):
     longname = (
         "Movement Disorder Society-Sponsored Revision of the Unified "
         "Parkinson’s Disease Rating Scale (data collection only)")
+    has_clinician = True  # v2.0.0
     fieldspecs = [
         # Part I
         dict(name="q1a", cctype="INT", pv=informant_pv,

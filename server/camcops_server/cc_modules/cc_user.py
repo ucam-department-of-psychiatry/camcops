@@ -260,7 +260,7 @@ class User:
     """Class representing a user."""
     TABLENAME = "_security_users"
     FIELDSPECS = [
-        dict(name="id", cctype="INT_UNSIGNED", pk=True,
+        dict(name="id", cctype="INT_UNSIGNED", pk=True, autoincrement=True,
              comment="User ID"),
         dict(name="username", cctype="USERNAME", indexed=True,
              comment="User name"),
@@ -439,7 +439,7 @@ def get_user_by_name(username: str,
                                                   username):
         return userobj
     elif create_if_not_exists:
-        userobj.name = username
+        userobj.username = username
         return userobj
     else:
         return None

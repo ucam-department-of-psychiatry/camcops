@@ -23,6 +23,7 @@
 """
 
 import datetime
+import logging
 from typing import Any, List, Optional, Sequence, Tuple, Union
 
 import dateutil.relativedelta
@@ -54,6 +55,8 @@ from .cc_report import Report, REPORT_RESULT_TYPE
 from . import cc_specialnote
 from .cc_unittest import unit_test_ignore
 from . import cc_xml
+
+log = logging.getLogger(__name__)
 
 
 # =============================================================================

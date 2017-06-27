@@ -100,6 +100,16 @@ def derived_class_implements_method(derived: Type[T1],
 
 
 # =============================================================================
+# Subclasses
+# =============================================================================
+# https://stackoverflow.com/questions/3862310/how-can-i-find-all-subclasses-of-a-class-given-its-name  # noqa
+
+def all_subclasses(cls):
+    return cls.__subclasses__() + [g for s in cls.__subclasses__()
+                                   for g in all_subclasses(s)]
+
+
+# =============================================================================
 # Lists
 # =============================================================================
 

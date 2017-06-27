@@ -153,7 +153,7 @@ void InitTasks(TaskFactory& factory)
     initializeCgi(factory);
     initializeCgiI(factory);
     initializeCgiSch(factory);
-    initializeCisr(factory); // *** IMPLEMENT!
+    // initializeCisr(factory); // *** IMPLEMENT!
     initializeCiwa(factory);
     initializeContactLog(factory);
     initializeCopeBrief(factory);
@@ -242,7 +242,7 @@ void InitTasks(TaskFactory& factory)
 
     // *** new: CIS-R (see software + PDF, need permissions)
     // *** new: mini-ACE
-    // *** new: Andy Foster / eating disordes; e-mail of 24/5/16
+    // *** new: Andy Foster / eating disorders; e-mail of 24/5/16
 
     // *** discarded tasks - revitalize: ASRM
     // *** discarded tasks - revitalize: BARS

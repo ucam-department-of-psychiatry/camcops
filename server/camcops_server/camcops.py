@@ -261,6 +261,8 @@ def rename_table(from_table: str, to_table: str) -> None:
 
 def v1_5_alter_device_table() -> None:
     tablename = Device.TABLENAME
+    if not pls.db.table_exists(tablename):
+        return
     if pls.db.column_exists(tablename, 'id'):
         log.warning("Column 'id' already exists in table {}".format(tablename))
         return
@@ -278,6 +280,8 @@ def v1_5_alter_device_table() -> None:
 
 def v1_5_alter_user_table() -> None:
     tablename = User.TABLENAME
+    if not pls.db.table_exists(tablename):
+        return
     if pls.db.column_exists(tablename, 'id'):
         log.warning("Column 'id' already exists in table {}".format(tablename))
         return
@@ -297,6 +301,8 @@ def v1_5_alter_generic_table_devicecol(tablename: str,
                                        from_col: str,
                                        to_col: str,
                                        with_index: bool = True) -> None:
+    if not pls.db.table_exists(tablename):
+        return
     if pls.db.column_exists(tablename, to_col):
         log.warning("Column '{}' already exists in table {}".format(
             to_col, tablename))
@@ -320,6 +326,8 @@ def v1_5_alter_generic_table_devicecol(tablename: str,
 def v1_5_alter_generic_table_usercol(tablename: str,
                                      from_col: str,
                                      to_col: str) -> None:
+    if not pls.db.table_exists(tablename):
+        return
     if pls.db.column_exists(tablename, to_col):
         log.warning("Column '{}' already exists in table {}".format(
             to_col, tablename))
@@ -954,8 +962,9 @@ def cli_main() -> None:
 
     # If we don't know the config filename yet, ask the user
     if not args.configfilename:
-        args.configfilename = ask_user("Configuration file",
-                                       DEFAULT_CONFIG_FILENAME)
+        args.configfilename = ask_user(
+            "Configuration file",
+            os.environ.get(ENVVAR_CONFIG_FILE, DEFAULT_CONFIG_FILENAME))
     # The set_from_environ_and_ping_db() function wants the config filename in
     # the environment:
     os.environ[ENVVAR_CONFIG_FILE] = args.configfilename

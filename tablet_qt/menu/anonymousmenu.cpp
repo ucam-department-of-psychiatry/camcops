@@ -31,7 +31,7 @@ AnonymousMenu::AnonymousMenu(CamcopsApp& app) :
                uifunc::iconFilename(uiconst::ICON_ANONYMOUS))
 {
     m_items = {
-        MAKE_CHANGE_PATIENT(app),
+        // Seems inappropriate: MAKE_CHANGE_PATIENT(app),
         MAKE_TASK_MENU_ITEM(GmcPq::GMCPQ_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(ReferrerSatisfactionGen::REF_SATIS_GEN_TABLENAME, app),
     };

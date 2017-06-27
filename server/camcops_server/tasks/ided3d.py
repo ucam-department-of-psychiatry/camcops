@@ -275,6 +275,8 @@ class IDED3D(Task):
              comment="JSON-encoded version of shape definition"
                      " array in SVG format (with arbitrary scale of -60 to"
                      " +60 in both X and Y dimensions)"),
+        dict(name="colour_definitions_rgb", cctype="TEXT",  # v2.0.0
+             comment="JSON-encoded version of colour RGB definitions"),
         # Results
         dict(name="aborted", cctype="INT",
              comment="Was the task aborted? (0 no, 1 yes)"),
