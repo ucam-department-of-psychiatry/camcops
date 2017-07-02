@@ -131,7 +131,7 @@ void initializeIcd10Schizophrenia(TaskFactory& factory)
 }
 
 
-Icd10Schizophrenia::Icd10Schizophrenia(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Icd10Schizophrenia::Icd10Schizophrenia(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, ICD10SZ_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(A_NAMES, QVariant::Bool);

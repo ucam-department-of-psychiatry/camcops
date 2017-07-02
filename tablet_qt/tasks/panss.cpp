@@ -55,7 +55,7 @@ void initializePanss(TaskFactory& factory)
 }
 
 
-Panss::Panss(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Panss::Panss(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, PANSS_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(strseq(P_PREFIX, 1, N_P), QVariant::Int);

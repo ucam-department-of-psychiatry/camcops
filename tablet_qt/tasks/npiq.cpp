@@ -54,7 +54,7 @@ void initializeNpiQ(TaskFactory& factory)
 }
 
 
-NpiQ::NpiQ(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+NpiQ::NpiQ(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, NPIQ_TABLENAME, false, false, true),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {

@@ -63,7 +63,7 @@ void initializeIesr(TaskFactory& factory)
 }
 
 
-Iesr::Iesr(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Iesr::Iesr(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, IESR_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);

@@ -32,7 +32,7 @@ class Zbi12 : public Task
 {
     Q_OBJECT
 public:
-    Zbi12(CamcopsApp& app, const QSqlDatabase& db,
+    Zbi12(CamcopsApp& app, DatabaseManager& db,
           int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

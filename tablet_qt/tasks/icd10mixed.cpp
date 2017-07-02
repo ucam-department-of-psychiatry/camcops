@@ -56,7 +56,7 @@ void initializeIcd10Mixed(TaskFactory& factory)
 }
 
 
-Icd10Mixed::Icd10Mixed(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Icd10Mixed::Icd10Mixed(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, ICD10MIXED_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addField(DATE_PERTAINS_TO, QVariant::Date);

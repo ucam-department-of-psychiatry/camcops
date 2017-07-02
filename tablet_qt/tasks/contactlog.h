@@ -32,7 +32,7 @@ class ContactLog : public Task
 {
     Q_OBJECT
 public:
-    ContactLog(CamcopsApp& app, const QSqlDatabase& db,
+    ContactLog(CamcopsApp& app, DatabaseManager& db,
                int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

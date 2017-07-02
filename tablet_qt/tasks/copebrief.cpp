@@ -61,7 +61,7 @@ void initializeCopeBrief(TaskFactory& factory)
 }
 
 
-CopeBrief::CopeBrief(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+CopeBrief::CopeBrief(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, COPEBRIEF_TABLENAME, false, false, false),  // ... anon, clin, resp
     // There is a respondent, optionally, but the task handles this manually with more detail
     m_questionnaire(nullptr)

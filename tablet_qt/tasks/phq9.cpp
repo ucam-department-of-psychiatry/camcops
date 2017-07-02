@@ -49,7 +49,7 @@ void initializePhq9(TaskFactory& factory)
 }
 
 
-Phq9::Phq9(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Phq9::Phq9(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, PHQ9_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);

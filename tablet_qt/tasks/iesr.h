@@ -32,7 +32,7 @@ class Iesr : public Task
 {
     Q_OBJECT
 public:
-    Iesr(CamcopsApp& app, const QSqlDatabase& db,
+    Iesr(CamcopsApp& app, DatabaseManager& db,
          int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

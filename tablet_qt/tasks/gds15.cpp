@@ -49,7 +49,7 @@ void initializeGds15(TaskFactory& factory)
 }
 
 
-Gds15::Gds15(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Gds15::Gds15(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, GDS15_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::String);  // Y,N

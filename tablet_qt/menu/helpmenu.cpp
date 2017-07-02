@@ -26,6 +26,7 @@
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "common/camcopsversion.h"
+#include "db/databasemanager.h"
 #include "db/dbfunc.h"
 #include "db/whichdb.h"
 #include "lib/datetime.h"
@@ -109,9 +110,8 @@ void HelpMenu::softwareVersions() const
     // We can't #include <sqlite3.h>; that's the system version.
     // The Qt driver (in qsql_sqlite.cpp) uses SQLITE_VERSION_NUMBER but
     // doesn't expose it. So we have to ask the database itself.
-    QSqlDatabase& db = m_app.sysdb();
-    QString sqlite_version = dbfunc::dbFetchFirstValue(
-                db, "SELECT sqlite_version()").toString();
+    DatabaseManager& db = m_app.sysdb();
+    QString sqlite_version = db.fetchFirstValue("SELECT sqlite_version()").toString();
     versions.append(QString("<b>Embedded SQLite version:</b> %1").arg(sqlite_version));
     QString sqlite_info;
     QTextStream s(&sqlite_info);
@@ -134,12 +134,9 @@ void HelpMenu::softwareVersions() const
       << "; CancelQuery " << driver->hasFeature(QSqlDriver::CancelQuery);
     versions.append(sqlite_info);
 #ifdef USE_SQLCIPHER
-    QString sqlcipher_version = dbfunc::dbFetchFirstValue(
-                db, "PRAGMA cipher_version").toString();
-    QString cipher_provider = dbfunc::dbFetchFirstValue(
-                db, "PRAGMA cipher_provider").toString();
-    QString cipher_provider_version = dbfunc::dbFetchFirstValue(
-                db, "PRAGMA cipher_provider_version").toString();
+    QString sqlcipher_version = db.fetchFirstValue("PRAGMA cipher_version").toString();
+    QString cipher_provider = db.fetchFirstValue("PRAGMA cipher_provider").toString();
+    QString cipher_provider_version = db.fetchFirstValue("PRAGMA cipher_provider_version").toString();
     versions.append(QString("<b>SQLCipher version:</b> %1 (cipher provider: "
                             "%2, version: %3)")
                     .arg(sqlcipher_version,

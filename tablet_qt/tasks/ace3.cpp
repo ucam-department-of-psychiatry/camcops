@@ -173,7 +173,7 @@ void initializeAce3(TaskFactory& factory)
 }
 
 
-Ace3::Ace3(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Ace3::Ace3(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, ACE3_TABLENAME, false, true, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {

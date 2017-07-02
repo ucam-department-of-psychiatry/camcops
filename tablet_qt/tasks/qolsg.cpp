@@ -222,7 +222,7 @@ void initializeQolSG(TaskFactory& factory)
 }
 
 
-QolSG::QolSG(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+QolSG::QolSG(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, QOLSG_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addField(FN_CATEGORY_START_TIME, QVariant::DateTime);

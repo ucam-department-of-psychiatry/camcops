@@ -27,7 +27,7 @@ class PatientSatisfaction : public SatisfactionCommon
 {
     Q_OBJECT
 public:
-    PatientSatisfaction(CamcopsApp& app, const QSqlDatabase& db,
+    PatientSatisfaction(CamcopsApp& app, DatabaseManager& db,
                         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

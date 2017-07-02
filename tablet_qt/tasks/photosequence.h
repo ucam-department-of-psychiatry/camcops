@@ -34,7 +34,7 @@ class PhotoSequence : public Task
 {
     Q_OBJECT
 public:
-    PhotoSequence(CamcopsApp& app, const QSqlDatabase& db,
+    PhotoSequence(CamcopsApp& app, DatabaseManager& db,
                   int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

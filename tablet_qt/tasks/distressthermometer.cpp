@@ -54,7 +54,7 @@ void initializeDistressThermometer(TaskFactory& factory)
 
 
 DistressThermometer::DistressThermometer(CamcopsApp& app,
-                                         const QSqlDatabase& db, int load_pk) :
+                                         DatabaseManager& db, int load_pk) :
     Task(app, db, DT_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);

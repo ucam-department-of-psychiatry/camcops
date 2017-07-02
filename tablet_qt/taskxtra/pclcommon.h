@@ -31,7 +31,7 @@ class PclCommon : public Task
     // abstract base class
     // not a Q_OBJECT
 public:
-    PclCommon(CamcopsApp& app, const QSqlDatabase& db,
+    PclCommon(CamcopsApp& app, DatabaseManager& db,
               const QString& tablename,
               const QString& xstring_prefix,
               bool specific_event,

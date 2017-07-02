@@ -26,12 +26,12 @@ class DiagnosisItemBase : public DatabaseObject
 {
     Q_OBJECT
 public:
-    DiagnosisItemBase(CamcopsApp& app, const QSqlDatabase& db,
+    DiagnosisItemBase(CamcopsApp& app, DatabaseManager& db,
                       const QString& tablename,
                       const QString& fkname,
                       int load_pk = dbconst::NONEXISTENT_PK);
     DiagnosisItemBase(int owner_fk,
-                      CamcopsApp& app, const QSqlDatabase& db,
+                      CamcopsApp& app, DatabaseManager& db,
                       const QString& tablename,
                       const QString& fkname);
     void setSeqnum(int seqnum);

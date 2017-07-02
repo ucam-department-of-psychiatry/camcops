@@ -34,7 +34,7 @@ class CopeBrief : public Task
 {
     Q_OBJECT
 public:
-    CopeBrief(CamcopsApp& app, const QSqlDatabase& db,
+    CopeBrief(CamcopsApp& app, DatabaseManager& db,
               int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

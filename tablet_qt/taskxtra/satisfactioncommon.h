@@ -31,7 +31,7 @@ class SatisfactionCommon : public Task
     // abstract base class
     // not a Q_OBJECT
 public:
-    SatisfactionCommon(CamcopsApp& app, const QSqlDatabase& db,
+    SatisfactionCommon(CamcopsApp& app, DatabaseManager& db,
                        const QString& tablename, bool anonymous,
                        int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------

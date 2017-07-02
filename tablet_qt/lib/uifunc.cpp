@@ -36,6 +36,7 @@
 #include <QScrollBar>
 #include <QScroller>
 #include <QStyle>
+#include <QThread>
 #include <QToolButton>
 #include <QUrl>
 #include "common/cssconst.h"
@@ -427,15 +428,24 @@ bool isScrollAtEnd(QPlainTextEdit* editor)
 // Killing the app
 // ============================================================================
 
+bool amInGuiThread()
+{
+    // https://stackoverflow.com/questions/977653
+    return QThread::currentThread() == QCoreApplication::instance()->thread();
+}
+
+
 void stopApp(const QString& error, const QString& title)
 {
     // MODAL DIALOGUE, FOLLOWED BY HARD KILL,
     // so callers don't need to worry about what happens afterwards.
-    QMessageBox msgbox;
-    msgbox.setWindowTitle(title);
-    msgbox.setText(error);
-    msgbox.setStandardButtons(QMessageBox::Abort);
-    msgbox.exec();
+    if (amInGuiThread()) {
+        QMessageBox msgbox;
+        msgbox.setWindowTitle(title);
+        msgbox.setText(error);
+        msgbox.setStandardButtons(QMessageBox::Abort);
+        msgbox.exec();
+    }
     QString msg = "ABORTING: " + error;
     qFatal("%s", qPrintable(msg));
     // If the first argument is not a string literal:

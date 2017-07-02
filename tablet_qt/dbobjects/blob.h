@@ -26,7 +26,7 @@ class Blob : public DatabaseObject
 {
 public:
     Blob(CamcopsApp& app,
-         const QSqlDatabase& db,
+         DatabaseManager& db,
          const QString& src_table = "",  // defaults for specimen construction
          int src_pk = -1,
          const QString& src_field = "");

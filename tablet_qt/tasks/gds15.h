@@ -32,7 +32,7 @@ class Gds15 : public Task
 {
     Q_OBJECT
 public:
-    Gds15(CamcopsApp& app, const QSqlDatabase& db,
+    Gds15(CamcopsApp& app, DatabaseManager& db,
           int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

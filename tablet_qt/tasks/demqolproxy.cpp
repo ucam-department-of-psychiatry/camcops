@@ -53,7 +53,7 @@ void initializeDemqolProxy(TaskFactory& factory)
 }
 
 
-DemqolProxy::DemqolProxy(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+DemqolProxy::DemqolProxy(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, DEMQOLPROXY_TABLENAME, false, true, true)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);

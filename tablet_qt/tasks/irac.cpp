@@ -41,7 +41,7 @@ void initializeIrac(TaskFactory& factory)
 }
 
 
-Irac::Irac(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Irac::Irac(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, IRAC_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addField(AIM, QVariant::String);

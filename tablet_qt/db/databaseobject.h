@@ -21,16 +21,17 @@
 #include <QDate>
 #include <QDateTime>
 #include <QMap>
-#include <QSqlDatabase>
 #include <QString>
 #include "common/aliases_camcops.h"
 #include "common/aliases_qt.h"
 #include "common/dbconstants.h"
 #include "db/field.h"
 #include "db/sqlargs.h"
+#include "db/whereconditions.h"
 
 class CamcopsApp;
 class NameValueOptions;
+class QueryResult;
 
 
 const QString DBOBJECT_DEFAULT_SEPARATOR = " = ";
@@ -44,7 +45,7 @@ class DatabaseObject : public QObject
     Q_OBJECT  // so our derived classes can be too
 public:
     DatabaseObject(CamcopsApp& app,
-                   const QSqlDatabase& db,
+                   DatabaseManager& db,
                    const QString& tablename,
                    const QString& pk_fieldname = dbconst::PK_FIELDNAME,
                    bool has_modification_timestamp = true,
@@ -174,7 +175,8 @@ public:
     virtual bool load(const WhereConditions& where);
     virtual SqlArgs fetchQuerySql(const WhereConditions& where = WhereConditions(),
                                   const OrderBy& order_by = OrderBy());
-    virtual void setFromQuery(const QSqlQuery& query,
+    virtual void setFromQuery(const QueryResult& query_result,
+                              int row,
                               bool order_matches_fetchquery = false);
     virtual bool save();
     void nullify();  // set all fields to null values
@@ -220,7 +222,7 @@ public:
     void makeTable();
 
     // For making BLOBs share the same database:
-    const QSqlDatabase& database() const;
+    DatabaseManager& database() const;
 
     // ========================================================================
     // Internals: ancillary management
@@ -244,7 +246,7 @@ protected:
 
 protected:
     CamcopsApp& m_app;
-    QSqlDatabase m_db;
+    DatabaseManager& m_db;
     QString m_tablename;  // also used as key for extra strings
     QString m_pk_fieldname;
     bool m_has_modification_timestamp;
@@ -260,7 +262,3 @@ protected:
 public:
     friend QDebug operator<<(QDebug debug, const DatabaseObject& d);
 };
-
-// The QSqlDatabase doesn't need to be passed by pointer; it copies itself
-// safely. See qsqldatabase.cpp (and note also that pass-by-copy, rather than
-// pointers or const references, is how QSqlQuery works in any case).

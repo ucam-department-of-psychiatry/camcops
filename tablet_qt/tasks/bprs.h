@@ -32,7 +32,7 @@ class Bprs : public Task
 {
     Q_OBJECT
 public:
-    Bprs(CamcopsApp& app, const QSqlDatabase& db,
+    Bprs(CamcopsApp& app, DatabaseManager& db,
          int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

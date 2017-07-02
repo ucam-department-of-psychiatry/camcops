@@ -2846,7 +2846,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         """HTML table row, two columns, with web-safing of value."""
         if label is None:
             label = fieldname
-        return cc_html.tr_qa(label, ws.webify(getattr(self, fieldname)))
+        return cc_html.tr_qa(label, getattr(self, fieldname))
 
     def get_twocol_bool_row(self,
                             fieldname: str,

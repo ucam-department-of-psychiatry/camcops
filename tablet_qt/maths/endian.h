@@ -26,7 +26,7 @@ Detecting endianness across compilers: do it at runtime.
 
 */
 
-enum Endian {
+enum class Endian {
     BigEndian,
     LittleEndian
 };

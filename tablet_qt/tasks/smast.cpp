@@ -48,7 +48,7 @@ void initializeSmast(TaskFactory& factory)
 }
 
 
-Smast::Smast(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Smast::Smast(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, SMAST_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::String);

@@ -21,7 +21,7 @@
 
 #include "storedvar.h"
 #include "common/camcopsapp.h"
-#include "db/dbfunc.h"
+#include "db/databasemanager.h"
 #include "lib/uifunc.h"
 
 const QString STOREDVAR_TABLENAME("storedvar");
@@ -59,7 +59,7 @@ const QMap<QVariant::Type, QString> TYPEMAP{
 };
 
 
-StoredVar::StoredVar(CamcopsApp& app, const QSqlDatabase& db,
+StoredVar::StoredVar(CamcopsApp& app, DatabaseManager& db,
                      const QString& name, QVariant::Type type,
                      QVariant default_value) :
     DatabaseObject(app, db, STOREDVAR_TABLENAME, dbconst::PK_FIELDNAME,
@@ -157,6 +157,5 @@ QString StoredVar::name() const
 
 void StoredVar::makeIndexes()
 {
-    dbfunc::createIndex(m_db, "_idx_name",
-                        STOREDVAR_TABLENAME, {NAME_FIELDNAME});
+    m_db.createIndex("_idx_name", STOREDVAR_TABLENAME, {NAME_FIELDNAME});
 }

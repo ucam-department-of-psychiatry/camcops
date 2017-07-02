@@ -21,7 +21,7 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include "common/camcopsapp.h"
-#include "db/dbfunc.h"
+#include "db/databasemanager.h"
 #include "db/sqlargs.h"
 
 
@@ -37,26 +37,24 @@ namespace ancillaryfunc
 template<class AncillaryType, class AncillaryPtrType>
 void loadAncillary(QVector<AncillaryPtrType>& ancillaries,
                    CamcopsApp& app,
-                   const QSqlDatabase& db,
+                   DatabaseManager& db,
                    const QString& fk_name,
                    const OrderBy& order_by,
                    int parent_pk)
 {
     ancillaries.clear();
     WhereConditions where;
-    where[fk_name] = parent_pk;
+    where.add(fk_name, parent_pk);
     AncillaryType specimen(app, db);
     SqlArgs sqlargs = specimen.fetchQuerySql(where, order_by);
-    QSqlQuery query(db);
-    bool success = dbfunc::execQuery(query, sqlargs);
-    if (success) {  // success check may be redundant (cf. while clause)
-        while (query.next()) {
-            AncillaryType* raw_ptr_ancillary = new AncillaryType(
-                        app, db, dbconst::NONEXISTENT_PK);
-            raw_ptr_ancillary->setFromQuery(query, true);
-            AncillaryPtrType ancillary(raw_ptr_ancillary);
-            ancillaries.append(ancillary);
-        }
+    QueryResult result = db.query(sqlargs);
+    int nrows = result.nRows();
+    for (int row = 0; row < nrows; ++row) {
+        AncillaryType* raw_ptr_ancillary = new AncillaryType(
+                    app, db, dbconst::NONEXISTENT_PK);
+        raw_ptr_ancillary->setFromQuery(result, row, true);
+        AncillaryPtrType ancillary(raw_ptr_ancillary);
+        ancillaries.append(ancillary);
     }
 }
 

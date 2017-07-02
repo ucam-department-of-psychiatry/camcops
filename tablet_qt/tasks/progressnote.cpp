@@ -38,7 +38,7 @@ void initializeProgressNote(TaskFactory& factory)
 }
 
 
-ProgressNote::ProgressNote(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+ProgressNote::ProgressNote(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, PROGNOTE_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addField(LOCATION, QVariant::String);

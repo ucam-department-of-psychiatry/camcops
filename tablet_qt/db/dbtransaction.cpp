@@ -18,24 +18,23 @@
 */
 
 #include "dbtransaction.h"
-#include <QSqlDatabase>
-#include "db/dbfunc.h"
+#include "db/databasemanager.h"
 
 
-DbTransaction::DbTransaction(const QSqlDatabase& db) :
+DbTransaction::DbTransaction(DatabaseManager& db) :
     m_db(db),
     m_fail(false)
 {
-    dbfunc::exec(m_db, "BEGIN TRANSACTION");
+    m_db.execNoAnswer("BEGIN TRANSACTION");
 }
 
 
 DbTransaction::~DbTransaction()
 {
     if (m_fail) {
-        dbfunc::exec(m_db, "ROLLBACK");
+        m_db.rollback();
     } else {
-        dbfunc::exec(m_db, "COMMIT");
+        m_db.commit();
     }
 }
 

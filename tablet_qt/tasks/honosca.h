@@ -32,7 +32,7 @@ class Honosca : public Task
 {
     Q_OBJECT
 public:
-    Honosca(CamcopsApp& app, const QSqlDatabase& db,
+    Honosca(CamcopsApp& app, DatabaseManager& db,
             int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

@@ -25,13 +25,13 @@ class CardinalExpDetTrialGroupSpec : public DatabaseObject
 {
     Q_OBJECT
 public:
-    CardinalExpDetTrialGroupSpec(CamcopsApp& app, const QSqlDatabase& db,
+    CardinalExpDetTrialGroupSpec(CamcopsApp& app, DatabaseManager& db,
                                  int load_pk = dbconst::NONEXISTENT_PK);
     CardinalExpDetTrialGroupSpec(
             int task_pk, int group_num,
             int cue, int target_modality, int target_number,
             int n_target, int n_no_target,
-            CamcopsApp& app, const QSqlDatabase& db);
+            CamcopsApp& app, DatabaseManager& db);
     int cue() const;
     int targetModality() const;
     int targetNumber() const;

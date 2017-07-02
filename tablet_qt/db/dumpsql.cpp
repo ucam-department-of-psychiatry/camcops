@@ -19,10 +19,11 @@
 
 #include "dumpsql.h"
 #include <QDebug>
-#include <QSqlDatabase>
 #include <QSqlRecord>
 #include <QSqlQuery>
+#include "db/databasemanager.h"
 #include "db/dbfunc.h"
+#include "db/queryresult.h"
 #include "lib/stringfunc.h"
 using stringfunc::replaceFirst;
 
@@ -73,24 +74,25 @@ const QString VALUE_SEP_COMMA = ", ";  // space less efficient but easier to rea
 
 
 void dumpsql::runTableDumpQuery(QTextStream& os,
-                                const QSqlDatabase& db,
+                                DatabaseManager& db,
                                 const QString& sql,
-                                const QString& firstrow) {
-    QSqlQuery query(db);
-    if (!dbfunc::execQuery(query, sql)) {
+                                const QString& firstrow)
+{
+    QueryResult result = db.query(sql);
+    if (!result.succeeded()) {
         return;
     }
     os << firstrow;
-    QSqlRecord rec = query.record();
-    int ncols = rec.count();
-    while (query.next()) {
-        for (int i = 0; i < ncols; ++i) {
-            if (i > 0) {
+    int nrows = result.nRows();
+    int ncols = result.nCols();
+    for (int row = 0; row < nrows; ++row) {
+        for (int col = 0; col < ncols; ++col) {
+            if (col > 0) {
                 os << VALUE_SEP_COMMA;
             }
-            os << query.value(i).toString();
+            os << result.at(row, col).toString();
         }
-        if (ncols == 1 && query.value(0).toString().contains("--")) {
+        if (ncols == 1 && result.at(row, 0).toString().contains("--")) {
             os << NL; // so comments don't subsume the final ";"
         }
         os << DUMP_T_SQL_TERMINATOR;
@@ -99,18 +101,20 @@ void dumpsql::runTableDumpQuery(QTextStream& os,
 
 
 bool dumpsql::runSchemaDumpQuery(QTextStream& os,
-                                 const QSqlDatabase& db,
+                                 DatabaseManager& db,
                                  const QString& schema_query_sql,
-                                 bool writable_schema) {
-    QSqlQuery query(db);
-    if (!dbfunc::execQuery(query, schema_query_sql)) {
+                                 bool writable_schema)
+{
+    QueryResult result = db.query(schema_query_sql);
+    if (!result.succeeded()) {
         return writable_schema;
     }
     bool firstline = true;
-    while (query.next()) {
-        QString table = query.value(0).toString();
-        QString type = query.value(1).toString();
-        QString maketable_sql = query.value(2).toString();
+    int nrows = result.nRows();
+    for (int row = 0; row < nrows; ++row) {
+        QString table = result.at(row, 0).toString();
+        QString type = result.at(row, 1).toString();
+        QString maketable_sql = result.at(row, 2).toString();
         if (!firstline) {
             os << NL;
         } else {
@@ -141,20 +145,21 @@ bool dumpsql::runSchemaDumpQuery(QTextStream& os,
         if (type == TYPE_TABLE) {
             QString tableinfo_query = PRAGMA_TABLEINFO;
             replaceFirst(tableinfo_query, PLACEHOLDER, table);
-            QSqlQuery q2(db);
-            if (!dbfunc::execQuery(q2, tableinfo_query)) {
+            QueryResult result2 = db.query(tableinfo_query);
+            if (!result2.succeeded()) {
                 continue;
             }
             QString select = DATASELECT_1_SELECT_INSERT_INTO_VALUES;
             replaceFirst(select, PLACEHOLDER, table);
             bool first = true;
-            while (q2.next()) {
+            int nrows2 = result2.nRows();
+            for (int row2 = 0; row2 < nrows2; ++row2) {
                 if (!first) {
                     select += ",";
                 } else {
                     first = false;
                 }
-                QString text = q2.value(1).toString();
+                QString text = result2.at(row, 1).toString();
                 QString databit = DATASELECT_2_QUOTE;
                 replaceFirst(databit, PLACEHOLDER, text);
                 select += databit;
@@ -175,7 +180,7 @@ bool dumpsql::runSchemaDumpQuery(QTextStream& os,
 }
 
 
-void dumpsql::dumpDatabase(QTextStream& os, const QSqlDatabase& db)
+void dumpsql::dumpDatabase(QTextStream& os, DatabaseManager& db)
 {
     bool success = true;  // not really used?
     bool writable_schema = false;
@@ -183,8 +188,8 @@ void dumpsql::dumpDatabase(QTextStream& os, const QSqlDatabase& db)
     os << COMMENT_STARTING;
     os << DUMP_T_START;
 
-    dbfunc::exec(db, DUMP_E_START_1);
-    dbfunc::exec(db, DUMP_E_START_2);
+    db.execNoAnswer(DUMP_E_START_1);
+    db.execNoAnswer(DUMP_E_START_2);
 
     // Tables
     os << COMMENT_TABLES;
@@ -205,7 +210,7 @@ void dumpsql::dumpDatabase(QTextStream& os, const QSqlDatabase& db)
     if (writable_schema) {
         os << DUMP_T_WSOFF;
     }
-    dbfunc::exec(db, DUMP_E_WSOFF);
-    dbfunc::exec(db, DUMP_E_RELEASE);
+    db.execNoAnswer(DUMP_E_WSOFF);
+    db.execNoAnswer(DUMP_E_RELEASE);
     os << (success ? DUMP_T_END_SUCCESS : DUMP_T_END_FAILURE);
 }

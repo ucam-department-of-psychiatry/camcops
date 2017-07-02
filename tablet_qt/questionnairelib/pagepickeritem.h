@@ -25,7 +25,7 @@ class PagePickerItem
 {
     // An option presented by a PagePickerDialog.
 public:
-    enum PagePickerItemType {
+    enum class PagePickerItemType {
         CompleteSelectable,
         IncompleteSelectable,
         BlockedByPrevious,

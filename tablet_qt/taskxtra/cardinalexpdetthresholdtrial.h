@@ -25,13 +25,13 @@ class CardinalExpDetThresholdTrial : public DatabaseObject
 {
     Q_OBJECT
 public:
-    CardinalExpDetThresholdTrial(CamcopsApp& app, const QSqlDatabase& db,
+    CardinalExpDetThresholdTrial(CamcopsApp& app, DatabaseManager& db,
                                  int load_pk = dbconst::NONEXISTENT_PK);
     CardinalExpDetThresholdTrial(
             int task_pk, int trial_num,
             const QVariant& trial_num_ignoring_catch_trials,
             bool target_presented,
-            CamcopsApp& app, const QSqlDatabase& db);
+            CamcopsApp& app, DatabaseManager& db);
     bool wasCaughtOutReset() const;
     int trialNum() const;
     int trialNumIgnoringCatchTrials() const;

@@ -57,7 +57,7 @@ const QString FN_CUMULATIVE_POINTS("cumulative_points");
 
 
 CardinalExpDetTrial::CardinalExpDetTrial(
-        CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+        CamcopsApp& app, DatabaseManager& db, int load_pk) :
     DatabaseObject(app, db, TRIAL_TABLENAME)
 {
     // Keys
@@ -101,7 +101,7 @@ CardinalExpDetTrial::CardinalExpDetTrial(
         int block, int group, int cue, int raw_cue,
         int target_modality, int target_number, bool target_present,
         double iti_s,
-        CamcopsApp& app, const QSqlDatabase& db) :
+        CamcopsApp& app, DatabaseManager& db) :
     CardinalExpDetTrial(app, db, dbconst::NONEXISTENT_PK)  // delegating constructor
 {
     setValue(FN_FK_TO_TASK, task_pk);

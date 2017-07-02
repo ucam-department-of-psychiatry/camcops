@@ -32,7 +32,7 @@ class Honos65 : public Task
 {
     Q_OBJECT
 public:
-    Honos65(CamcopsApp& app, const QSqlDatabase& db,
+    Honos65(CamcopsApp& app, DatabaseManager& db,
             int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

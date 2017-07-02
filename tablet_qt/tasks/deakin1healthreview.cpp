@@ -213,7 +213,7 @@ void initializeDeakin1HealthReview(TaskFactory& factory)
 }
 
 
-Deakin1HealthReview::Deakin1HealthReview(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Deakin1HealthReview::Deakin1HealthReview(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, DEAKIN1HEALTHREVIEW_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addField(ETHNICITY, QVariant::Int);

@@ -54,7 +54,7 @@ QT += core  # included by default; QtCore module
 QT += gui  # included by default; QtGui module
 QT += multimedia  # or: undefined reference to QMedia*::*
 QT += multimediawidgets
-QT += network  # required to #include <QtNetwork/*>
+QT += network  # required to #include <QtNetwork/...>
 QT += sql  # required to #include <QSqlDatabase>
 QT += svg  # required to #include <QGraphicsSvgItem> or <QSvgRenderer>
 # QT += webkit  # for QWebView -- no, not used
@@ -516,7 +516,12 @@ SOURCES += main.cpp \
     maths/dqrls.cpp \
     maths/endian.cpp \
     maths/countingcontainer.cpp \
-    questionnairelib/dynamicquestionnaire.cpp
+    questionnairelib/dynamicquestionnaire.cpp \
+    db/databasemanager.cpp \
+    db/databaseworkerthread.cpp \
+    db/queryresult.cpp \
+    db/whereconditions.cpp \
+    db/threadedqueryrequest.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -863,7 +868,12 @@ HEADERS += \
     maths/ieee754.h \
     maths/endian.h \
     maths/countingcontainer.h \
-    questionnairelib/dynamicquestionnaire.h
+    questionnairelib/dynamicquestionnaire.h \
+    db/databasemanager.h \
+    db/databaseworkerthread.h \
+    db/queryresult.h \
+    db/whereconditions.h \
+    db/threadedqueryrequest.h
 
 DISTFILES += \
     android/AndroidManifest.xml \
@@ -914,4 +924,5 @@ DISTFILES += \
     tools/cppclean_all.sh \
     tools/decrypt_sqlcipher.py \
     notes/compilation_android.txt \
-    notes/compilation_linux.txt
+    notes/compilation_linux.txt \
+    notes/database_performance.txt

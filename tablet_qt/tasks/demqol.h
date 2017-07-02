@@ -32,7 +32,7 @@ class Demqol : public Task
 {
     Q_OBJECT
 public:
-    Demqol(CamcopsApp& app, const QSqlDatabase& db,
+    Demqol(CamcopsApp& app, DatabaseManager& db,
            int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

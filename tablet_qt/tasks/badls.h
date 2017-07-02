@@ -32,7 +32,7 @@ class Badls : public Task
 {
     Q_OBJECT
 public:
-    Badls(CamcopsApp& app, const QSqlDatabase& db,
+    Badls(CamcopsApp& app, DatabaseManager& db,
           int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

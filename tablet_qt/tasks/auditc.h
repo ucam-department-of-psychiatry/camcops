@@ -35,7 +35,7 @@ class AuditC : public Task
     // AUDIT-C = First three questions of the AUDIT.
     Q_OBJECT
 public:
-    AuditC(CamcopsApp& app, const QSqlDatabase& db,
+    AuditC(CamcopsApp& app, DatabaseManager& db,
            int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

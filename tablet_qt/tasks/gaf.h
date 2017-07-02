@@ -32,7 +32,7 @@ class Gaf : public Task
 {
     Q_OBJECT
 public:
-    Gaf(CamcopsApp& app, const QSqlDatabase& db,
+    Gaf(CamcopsApp& app, DatabaseManager& db,
         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

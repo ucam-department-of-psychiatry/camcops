@@ -71,7 +71,7 @@ void initializeCape42(TaskFactory& factory)
 }
 
 
-Cape42::Cape42(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Cape42::Cape42(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, CAPE42_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {

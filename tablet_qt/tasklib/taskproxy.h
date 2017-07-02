@@ -37,13 +37,13 @@ public:
     TaskProxy(TaskFactory& factory);  // Registers itself with the factory.
     // We do want to create instances...
     virtual TaskPtr create(CamcopsApp& app,
-                           const QSqlDatabase& db,
+                           DatabaseManager& db,
                            int load_pk = dbconst::NONEXISTENT_PK) const = 0;
     virtual TaskPtrList fetch(CamcopsApp& app,
-                              const QSqlDatabase& db,
+                              DatabaseManager& db,
                               int patient_id = dbconst::NONEXISTENT_PK) const = 0;
 protected:
     virtual TaskPtrList fetchWhere(CamcopsApp& app,
-                                   const QSqlDatabase& db,
+                                   DatabaseManager& db,
                                    const WhereConditions& where) const = 0;
 };

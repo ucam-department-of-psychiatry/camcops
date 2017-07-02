@@ -32,7 +32,7 @@ class Pdss : public Task
 {
     Q_OBJECT
 public:
-    Pdss(CamcopsApp& app, const QSqlDatabase& db,
+    Pdss(CamcopsApp& app, DatabaseManager& db,
          int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

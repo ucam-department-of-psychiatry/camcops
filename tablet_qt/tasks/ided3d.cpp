@@ -233,7 +233,7 @@ void initializeIDED3D(TaskFactory& factory)
 // IDED3D
 // ============================================================================
 
-IDED3D::IDED3D(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+IDED3D::IDED3D(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, IDED3D_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     // Config

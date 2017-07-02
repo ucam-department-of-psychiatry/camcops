@@ -27,7 +27,7 @@ class ReferrerSatisfactionSpec : public SatisfactionCommon
 {
     Q_OBJECT
 public:
-    ReferrerSatisfactionSpec(CamcopsApp& app, const QSqlDatabase& db,
+    ReferrerSatisfactionSpec(CamcopsApp& app, DatabaseManager& db,
                              int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

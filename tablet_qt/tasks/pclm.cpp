@@ -29,7 +29,7 @@ void initializePclM(TaskFactory& factory)
 }
 
 
-PclM::PclM(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+PclM::PclM(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     PclCommon(app, db, PCLM_TABLENAME, "m", false, load_pk)
 {
 }

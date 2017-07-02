@@ -18,3 +18,10 @@
 */
 
 #include "sqlargs.h"
+
+
+QDebug operator<<(QDebug debug, const SqlArgs& s)
+{
+    debug.nospace() << "SqlArgs(sql=" << s.sql << ", args=" << s.args << ")";
+    return debug;
+}

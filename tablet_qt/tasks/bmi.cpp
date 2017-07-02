@@ -55,7 +55,7 @@ void initializeBmi(TaskFactory& factory)
 }
 
 
-Bmi::Bmi(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Bmi::Bmi(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, BMI_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr),
     m_height_units(METRIC),

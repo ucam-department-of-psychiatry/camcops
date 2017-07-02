@@ -32,7 +32,7 @@ class Mast : public Task
 {
     Q_OBJECT
 public:
-    Mast(CamcopsApp& app, const QSqlDatabase& db,
+    Mast(CamcopsApp& app, DatabaseManager& db,
          int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

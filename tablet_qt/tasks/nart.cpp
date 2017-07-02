@@ -110,7 +110,7 @@ void initializeNart(TaskFactory& factory)
 }
 
 
-Nart::Nart(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Nart::Nart(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, NART_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(WORDLIST, QVariant::Bool);

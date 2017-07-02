@@ -275,7 +275,7 @@ CPU_ARM_V7 = "armv7"
 
 class Platform(object):
     # noinspection PyShadowingNames
-    def __init__(self, os: str, cpu: str = ""):
+    def __init__(self, os: str, cpu: str = "") -> None:
         self.os = os
         self.cpu = cpu
         if os not in [OS_LINUX, OS_ANDROID, OS_WINDOWS, OS_OSX]:
@@ -290,13 +290,13 @@ class Platform(object):
             raise ValueError("Don't know how to build for CPU " + cpu +
                              " on system " + os)
 
-    def description(self):
+    def description(self) -> str:
         return "{}/{}".format(self.os, self.cpu)
 
-    def dirpart(self):
+    def dirpart(self) -> str:
         return "{}_{}".format(self.os, self.cpu)
 
-    def shared_lib_suffix(self):
+    def shared_lib_suffix(self) -> str:
         if self.os == OS_OSX:
             return ".dylib"
         else:
@@ -858,6 +858,7 @@ def build_openssl(cfg: Config, platform: Platform) -> None:
             "no-hw",  # disable hardware support ("useful on mobile devices")
             "no-engine",  # disable hardware support ("useful on mobile devices")  # noqa
         ]
+    # OpenSSL's Configure script applies optimizations by default.
 
     # -------------------------------------------------------------------------
     # Environment
@@ -915,6 +916,7 @@ def build_openssl(cfg: Config, platform: Platform) -> None:
         # http://doc.qt.io/qt-5/opensslsupport.html
         run(["perl", join(workdir, "Configure")] + configure_args, env)
     else:
+        # The "config" script guesses the OS then runs "Configure".
         # https://wiki.openssl.org/index.php/Android
         # and "If in doubt, on Unix-ish systems use './config'."
         # https://wiki.openssl.org/index.php/Compilation_and_Installation
@@ -1124,7 +1126,7 @@ def build_qt(cfg: Config, platform: Platform) -> str:
     return installdir
 
 
-def make_missing_libqtforandroid_so(cfg: Config, platform: Platform):
+def make_missing_libqtforandroid_so(cfg: Config, platform: Platform) -> None:
     qt_install_dir = cfg.qt_install_dir(platform)
     parent_dir = join(qt_install_dir, "plugins", "platforms")
     starting_lib_dir = join(parent_dir, "android")
@@ -1232,6 +1234,8 @@ def build_sqlcipher(cfg: Config, platform: Platform) -> None:
         'CFLAGS={}'.format(" ".join(cflags)),
         'LDFLAGS={}'.format(" ".join(ldflags)),
     ]
+    # By default, SQLCipher compiles with "-O2" optimizations under gcc; see
+    # its "configure" script.
 
     # Platform-specific tweaks; cross-compilation
     if platform.cpu == CPU_ARM_V7:

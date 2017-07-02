@@ -18,6 +18,7 @@
 */
 
 #pragma once
+#include <QDebug>
 #include <QString>
 #include <QVariant>
 #include "common/aliases_qt.h"
@@ -25,9 +26,11 @@
 
 struct SqlArgs {
 public:
-    SqlArgs(const QString& sql, const ArgList& args = ArgList()) :
+    SqlArgs(const QString& sql = "", const ArgList& args = ArgList()) :
         sql(sql), args(args) {}
 public:
     QString sql;
     ArgList args;
+public:
+    friend QDebug operator<<(QDebug debug, const SqlArgs& s);
 };

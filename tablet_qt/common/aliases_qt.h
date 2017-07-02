@@ -26,5 +26,4 @@
 
 using ArgList = QVector<QVariant>;
 using OrderBy = QVector<QPair<QString, bool>>;  // string is fieldname, bool is "ascending?"
-using UpdateValues = QMap<QString, QVariant>;
-using WhereConditions = QMap<QString, QVariant>;
+using UpdateValues = QMap<QString, QVariant>;  // column: value

@@ -32,7 +32,7 @@ class Wemwbs : public Task
 {
     Q_OBJECT
 public:
-    Wemwbs(CamcopsApp& app, const QSqlDatabase& db,
+    Wemwbs(CamcopsApp& app, DatabaseManager& db,
            int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

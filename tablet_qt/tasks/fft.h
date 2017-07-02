@@ -32,7 +32,7 @@ class Fft : public Task
 {
     Q_OBJECT
 public:
-    Fft(CamcopsApp& app, const QSqlDatabase& db,
+    Fft(CamcopsApp& app, DatabaseManager& db,
         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

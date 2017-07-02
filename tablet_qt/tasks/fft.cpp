@@ -42,7 +42,7 @@ void initializeFft(TaskFactory& factory)
 }
 
 
-Fft::Fft(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Fft::Fft(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, FFT_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addField(SERVICE, QVariant::String);

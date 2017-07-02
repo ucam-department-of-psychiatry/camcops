@@ -48,7 +48,7 @@ void initializePswq(TaskFactory& factory)
 }
 
 
-Pswq::Pswq(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Pswq::Pswq(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, PSWQ_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);

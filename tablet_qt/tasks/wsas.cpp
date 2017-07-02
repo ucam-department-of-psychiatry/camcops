@@ -49,7 +49,7 @@ void initializeWsas(TaskFactory& factory)
 }
 
 
-Wsas::Wsas(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Wsas::Wsas(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, WSAS_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addField(RETIRED_ETC, QVariant::Bool);

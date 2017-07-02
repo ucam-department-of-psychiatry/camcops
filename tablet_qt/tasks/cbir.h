@@ -32,7 +32,7 @@ class CbiR : public Task
 {
     Q_OBJECT
 public:
-    CbiR(CamcopsApp& app, const QSqlDatabase& db,
+    CbiR(CamcopsApp& app, DatabaseManager& db,
          int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

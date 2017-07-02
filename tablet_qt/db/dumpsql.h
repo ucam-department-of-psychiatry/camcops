@@ -20,18 +20,18 @@
 #pragma once
 #include <QString>
 #include <QTextStream>
-class QSqlDatabase;
+class DatabaseManager;
 
 namespace dumpsql {
 
 void runTableDumpQuery(QTextStream& os,
-                       const QSqlDatabase& db,
+                       DatabaseManager& db,
                        const QString& sql,
                        const QString& firstrow);
 bool runSchemaDumpQuery(QTextStream& os,
-                        const QSqlDatabase& db,
+                        DatabaseManager& db,
                         const QString& schema_query_sql,
                         bool writable_schema);
-void dumpDatabase(QTextStream& os, const QSqlDatabase& db);
+void dumpDatabase(QTextStream& os, DatabaseManager& db);
 
 }  // namespace dumpsql

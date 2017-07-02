@@ -26,9 +26,9 @@ class PhotoSequencePhoto : public DatabaseObject
 {
     Q_OBJECT
 public:
-    PhotoSequencePhoto(CamcopsApp& app, const QSqlDatabase& db,
+    PhotoSequencePhoto(CamcopsApp& app, DatabaseManager& db,
                        int load_pk = dbconst::NONEXISTENT_PK);
-    PhotoSequencePhoto(int owner_fk, CamcopsApp& app, const QSqlDatabase& db);
+    PhotoSequencePhoto(int owner_fk, CamcopsApp& app, DatabaseManager& db);
     void setSeqnum(int seqnum);
     int seqnum() const;
     QString description() const;

@@ -43,7 +43,7 @@ class Patient : public DatabaseObject
     using AttributesType = QMap<QString, bool>;
 public:
     Patient(CamcopsApp& app,
-            const QSqlDatabase& db,
+            DatabaseManager& db,
             int load_pk = dbconst::NONEXISTENT_PK);
     int id() const;
     QString forename() const;

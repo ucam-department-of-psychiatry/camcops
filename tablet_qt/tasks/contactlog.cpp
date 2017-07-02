@@ -52,7 +52,7 @@ void initializeContactLog(TaskFactory& factory)
 }
 
 
-ContactLog::ContactLog(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+ContactLog::ContactLog(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, CONTACTLOG_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addField(LOCATION, QVariant::String);

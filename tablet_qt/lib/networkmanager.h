@@ -47,7 +47,7 @@ class NetworkManager : public QObject
 
     Q_OBJECT
 public:
-    NetworkManager(CamcopsApp& app, const QSqlDatabase& db,
+    NetworkManager(CamcopsApp& app, DatabaseManager& db,
                    TaskFactoryPtr p_task_factory, QWidget* parent);
     ~NetworkManager();
 
@@ -173,7 +173,7 @@ signals:
     // ------------------------------------------------------------------------
 protected:
     CamcopsApp& m_app;
-    QSqlDatabase m_db;
+    DatabaseManager& m_db;
     TaskFactoryPtr m_p_task_factory;
     QWidget* m_parent;
     QString m_title;

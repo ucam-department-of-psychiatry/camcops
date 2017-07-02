@@ -48,7 +48,7 @@ void initializeGad7(TaskFactory& factory)
 }
 
 
-Gad7::Gad7(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Gad7::Gad7(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, GAD7_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);

@@ -49,7 +49,7 @@ void initializePdss(TaskFactory& factory)
 }
 
 
-Pdss::Pdss(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Pdss::Pdss(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, PDSS_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);

@@ -105,7 +105,7 @@ def start_server(opts):
         cherrypy.engine.stop()
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--host', type=str, default="127.0.0.1",

@@ -80,7 +80,7 @@ void initializeDemoQuestionnaire(TaskFactory& factory)
 
 
 DemoQuestionnaire::DemoQuestionnaire(CamcopsApp& app,
-                                     const QSqlDatabase& db, int load_pk) :
+                                     DatabaseManager& db, int load_pk) :
     Task(app, db, DEMOQUESTIONNAIRE_TABLENAME, true, false, false)
 {
     using stringfunc::strseq;

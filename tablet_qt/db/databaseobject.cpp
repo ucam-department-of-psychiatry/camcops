@@ -19,6 +19,9 @@
 
 // #define DEBUG_SPECIMEN_CREATION
 // #define DEBUG_SAVES
+#define SAVE_UPDATE_BACKGROUND  // .. this is the main point of multithreading
+    // databases; to improve GUI response speed while still being able to
+    // save at each touch to avoid data loss through user error.
 
 #include "databaseobject.h"
 #include <iostream>
@@ -28,8 +31,10 @@
 #include <QSqlQuery>
 #include <QStringList>
 #include "common/camcopsapp.h"
+#include "db/databasemanager.h"
 #include "db/dbfunc.h"
 #include "db/fieldref.h"
+#include "db/queryresult.h"
 #include "dbobjects/blob.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
@@ -39,7 +44,7 @@ const QString NOT_NULL_ERROR("Error: attempting to save NULL to a NOT NULL "
 
 
 DatabaseObject::DatabaseObject(CamcopsApp& app,
-                               const QSqlDatabase& db,
+                               DatabaseManager& db,
                                const QString& tablename,
                                const QString& pk_fieldname,
                                bool has_modification_timestamp,
@@ -471,7 +476,7 @@ bool DatabaseObject::load(int pk)
         return false;
     }
     WhereConditions where;
-    where[pkname()] = QVariant(pk);
+    where.add(pkname(), QVariant(pk));
     return load(where);
 }
 
@@ -487,7 +492,7 @@ bool DatabaseObject::load(const QString& fieldname,
         return false;
     }
     WhereConditions where;
-    where[fieldname] = where_value;
+    where.add(fieldname, where_value);
     return load(where);
 }
 
@@ -495,19 +500,15 @@ bool DatabaseObject::load(const QString& fieldname,
 bool DatabaseObject::load(const WhereConditions& where)
 {
     SqlArgs sqlargs = fetchQuerySql(where);
-    QSqlQuery query(m_db);
-    bool success = dbfunc::execQuery(query, sqlargs);
-    bool found = false;
-    if (success) {  // SQL didn't have errors
-        found = query.next();
-    }
-    if (success && found) {
-        setFromQuery(query, true);
-        loadAllAncillary(); // *** CHECK: two simultaneous queries? ***
+    QueryResult result = m_db.query(sqlargs, QueryResult::FetchMode::FetchFirst);
+    bool found = result.nRows() > 0;
+    if (found) {
+        setFromQuery(result, 0, true);
+        loadAllAncillary();
     } else {
         nullify();
     }
-    return success && found;
+    return found;
 }
 
 
@@ -525,13 +526,14 @@ SqlArgs DatabaseObject::fetchQuerySql(const WhereConditions& where,
     );
     ArgList args;
     SqlArgs sqlargs(sql, args);
-    dbfunc::addWhereClause(where, sqlargs);
+    where.appendWhereClause(sqlargs);
     dbfunc::addOrderByClause(order_by, sqlargs);
     return sqlargs;
 }
 
 
-void DatabaseObject::setFromQuery(const QSqlQuery& query,
+void DatabaseObject::setFromQuery(const QueryResult& query_result,
+                                  int row,
                                   bool order_matches_fetchquery)
 {
     MutableMapIteratorType it(m_record);
@@ -541,7 +543,7 @@ void DatabaseObject::setFromQuery(const QSqlQuery& query,
         while (it.hasNext()) {
             it.next();
             ++field_index;
-            it.value().setFromDatabaseValue(query.value(field_index));
+            it.value().setFromDatabaseValue(query_result.at(row, field_index));
         }
     } else {
         while (it.hasNext()) {
@@ -550,12 +552,12 @@ void DatabaseObject::setFromQuery(const QSqlQuery& query,
             // Empirically, these fieldnames are fine: no delimiting quotes,
             // despite use of delimiters in the SELECT SQL.
             // qDebug().noquote() << "fieldname:" << fieldname;
-            it.value().setFromDatabaseValue(query.value(fieldname));
+            it.value().setFromDatabaseValue(query_result.at(row, fieldname));
         }
     }
 
     // And also:
-    loadAllAncillary(); // *** CHECK: two simultaneous queries? ***
+    loadAllAncillary();
 }
 
 
@@ -624,7 +626,7 @@ void DatabaseObject::setAllDirty()
 
 QVector<int> DatabaseObject::getAllPKs() const
 {
-    return dbfunc::getPKs(m_db, m_tablename, m_pk_fieldname);
+    return m_db.getPKs(m_tablename, m_pk_fieldname);
 }
 
 
@@ -634,7 +636,6 @@ QVector<int> DatabaseObject::getAllPKs() const
 
 void DatabaseObject::deleteFromDatabase()
 {
-    using dbfunc::delimit;
     QVariant pk = pkvalue();
     if (pk.isNull()) {
         qWarning() << "Attempting to delete a DatabaseObject with a "
@@ -650,9 +651,9 @@ void DatabaseObject::deleteFromDatabase()
     // However, we can reliably do it the other way round, and, moreover,
     // delete all associated BLOBs in one DELETE command:
     WhereConditions where_blob;
-    where_blob[Blob::SRC_TABLE_FIELDNAME] = tablename();
-    where_blob[Blob::SRC_PK_FIELDNAME] = pk;
-    if (!dbfunc::deleteFrom(m_db, Blob::TABLENAME, where_blob)) {
+    where_blob.add(Blob::SRC_TABLE_FIELDNAME, tablename());
+    where_blob.add(Blob::SRC_PK_FIELDNAME, pk);
+    if (!m_db.deleteFrom(Blob::TABLENAME, where_blob)) {
         qWarning() << "Failed to delete BLOB(s) where:" << where_blob;
     }
 
@@ -706,8 +707,8 @@ void DatabaseObject::deleteFromDatabase()
     // Delete ourself
     // ------------------------------------------------------------------------
     WhereConditions where_self;
-    where_self[pkname()] = pk;
-    bool success = dbfunc::deleteFrom(m_db, m_tablename, where_self);
+    where_self.add(pkname(), pk);
+    bool success = m_db.deleteFrom(m_tablename, where_self);
     if (success) {
         nullify();
     } else {
@@ -798,13 +799,14 @@ int DatabaseObject::pkvalueInt() const
 
 void DatabaseObject::makeTable()
 {
-    dbfunc::createTable(m_db, m_tablename, fieldsOrdered());
+    m_db.createTable(m_tablename, fieldsOrdered());
     for (auto specimen : getAncillarySpecimens()) {
         specimen->makeTable();
     }
 }
 
-const QSqlDatabase& DatabaseObject::database() const
+
+DatabaseManager& DatabaseObject::database() const
 {
     return m_db;
 }
@@ -871,26 +873,20 @@ bool DatabaseObject::saveInsert()
         placeholders.join(", ") +
         ")"
     );
-    QSqlQuery query(m_db);
-    bool success = dbfunc::execQuery(query, sql, args);
-    if (!success) {
+    QueryResult result = m_db.query(sql, args,
+                                    QueryResult::FetchMode::NoFetch);
+    if (!result.succeeded()) {
         qCritical() << Q_FUNC_INFO << "Failed to INSERT record into table"
                     << m_tablename;
-        return success;
+        return false;
     }
-    QVariant new_pk = query.lastInsertId();
+    QVariant new_pk = result.lastInsertId();
     setValue(pkname(), new_pk);
 #ifdef DEBUG_SAVES
     qDebug().nospace() << "Save/insert: " << qUtf8Printable(m_tablename)
                        << ", " << pkname() << "=" << new_pk;
 #endif
-    /*
-    success = DbFunc::commit(m_db);
-    if (!success) {
-        qCritical() << Q_FUNC_INFO << "Failed to commit" << m_tablename;
-    }
-    */
-    return success;
+    return true;
 }
 
 
@@ -927,19 +923,18 @@ bool DatabaseObject::saveUpdate()
         " WHERE " + dbfunc::delimit(pkname()) + "=?"
     );
     args.append(pkvalue());
-    bool success = dbfunc::exec(m_db, sql, args);
+#ifdef SAVE_UPDATE_BACKGROUND
+    m_db.execNoAnswer(sql, args);
+    return true;
+#else
+    bool success = m_db.exec(sql, args);
     if (!success) {
         qCritical() << Q_FUNC_INFO << "Failed to UPDATE record into table"
                     << m_tablename;
         return success;
     }
-    /*
-    success = DbFunc::commit(m_db);
-    if (!success) {
-        qCritical() << Q_FUNC_INFO << "Failed to commit" << m_tablename;
-    }
-    */
     return success;
+#endif
 }
 
 

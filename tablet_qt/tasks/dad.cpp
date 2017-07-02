@@ -122,7 +122,7 @@ void initializeDad(TaskFactory& factory)
 }
 
 
-Dad::Dad(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Dad::Dad(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, DAD_TABLENAME, false, true, true)  // ... anon, clin, resp
 {
     for (auto item : ITEMS) {

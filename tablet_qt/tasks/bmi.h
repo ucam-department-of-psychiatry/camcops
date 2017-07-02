@@ -34,7 +34,7 @@ class Bmi : public Task
 {
     Q_OBJECT
 public:
-    Bmi(CamcopsApp& app, const QSqlDatabase& db,
+    Bmi(CamcopsApp& app, DatabaseManager& db,
         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

@@ -19,19 +19,19 @@
 
 #pragma once
 #include <QString>
-class QSqlDatabase;
+class DatabaseManager;
 
 
 class DbNestableTransaction
 {
     // https://www.sqlite.org/lang_savepoint.html
 public:
-    DbNestableTransaction(const QSqlDatabase& db);
+    DbNestableTransaction(DatabaseManager& db);
     ~DbNestableTransaction();
     void fail();
     void succeed();
 protected:
-    const QSqlDatabase& m_db;
+    DatabaseManager& m_db;
     bool m_fail;
     QString m_name;
 

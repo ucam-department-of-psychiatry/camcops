@@ -32,7 +32,7 @@ class HamD7 : public Task
 {
     Q_OBJECT
 public:
-    HamD7(CamcopsApp& app, const QSqlDatabase& db,
+    HamD7(CamcopsApp& app, DatabaseManager& db,
           int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

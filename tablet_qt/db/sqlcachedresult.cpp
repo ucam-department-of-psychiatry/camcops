@@ -438,7 +438,7 @@ bool SqlCachedResult::fetchLast()
 
     int i = at();
     while (fetchNext()) {
-        ++i; /* brute force */
+        ++i; // brute force
     }
     if (m_forward_only && at() == QSql::AfterLastRow) {
         setAt(i);

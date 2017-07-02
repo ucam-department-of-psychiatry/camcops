@@ -32,7 +32,7 @@ class CPFTLPSDischarge : public Task
 {
     Q_OBJECT
 public:
-    CPFTLPSDischarge(CamcopsApp& app, const QSqlDatabase& db,
+    CPFTLPSDischarge(CamcopsApp& app, DatabaseManager& db,
                      int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

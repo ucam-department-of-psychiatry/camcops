@@ -32,7 +32,7 @@ class Dad : public Task
 {
     Q_OBJECT
 public:
-    Dad(CamcopsApp& app, const QSqlDatabase& db,
+    Dad(CamcopsApp& app, DatabaseManager& db,
         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

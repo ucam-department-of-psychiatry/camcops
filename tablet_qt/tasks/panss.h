@@ -32,7 +32,7 @@ class Panss : public Task
 {
     Q_OBJECT
 public:
-    Panss(CamcopsApp& app, const QSqlDatabase& db,
+    Panss(CamcopsApp& app, DatabaseManager& db,
           int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

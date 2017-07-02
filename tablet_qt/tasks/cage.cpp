@@ -51,7 +51,7 @@ void initializeCage(TaskFactory& factory)
 }
 
 
-Cage::Cage(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Cage::Cage(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, CAGE_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::String);

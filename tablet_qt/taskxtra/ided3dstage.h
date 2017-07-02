@@ -27,9 +27,9 @@ class IDED3DStage : public DatabaseObject
 {
     Q_OBJECT
 public:
-    IDED3DStage(CamcopsApp& app, const QSqlDatabase& db,
+    IDED3DStage(CamcopsApp& app, DatabaseManager& db,
                 int load_pk = dbconst::NONEXISTENT_PK);
-    IDED3DStage(int task_id, CamcopsApp& app, const QSqlDatabase& db,
+    IDED3DStage(int task_id, CamcopsApp& app, DatabaseManager& db,
                 int stage_num_zero_based,
                 const QString& stage_name,
                 const QString& relevant_dimension,

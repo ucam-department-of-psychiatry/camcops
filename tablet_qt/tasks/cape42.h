@@ -33,7 +33,7 @@ class Cape42 : public Task
 {
     Q_OBJECT
 public:
-    Cape42(CamcopsApp& app, const QSqlDatabase& db,
+    Cape42(CamcopsApp& app, DatabaseManager& db,
            int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

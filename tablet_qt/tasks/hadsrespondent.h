@@ -29,7 +29,7 @@ class HadsRespondent : public Hads
 
     Q_OBJECT
 public:
-    HadsRespondent(CamcopsApp& app, const QSqlDatabase& db,
+    HadsRespondent(CamcopsApp& app, DatabaseManager& db,
                    int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

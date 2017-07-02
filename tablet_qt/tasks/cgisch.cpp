@@ -46,7 +46,7 @@ void initializeCgiSch(TaskFactory& factory)
 }
 
 
-CgiSch::CgiSch(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+CgiSch::CgiSch(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, CGISCH_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(strseq(FP_SEVERITY, 1, NQ_PER_SECTION), QVariant::Int);

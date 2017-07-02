@@ -32,7 +32,7 @@ class Dast : public Task
 {
     Q_OBJECT
 public:
-    Dast(CamcopsApp& app, const QSqlDatabase& db,
+    Dast(CamcopsApp& app, DatabaseManager& db,
          int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

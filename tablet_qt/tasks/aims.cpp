@@ -47,7 +47,7 @@ void initializeAims(TaskFactory& factory)
 }
 
 
-Aims::Aims(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Aims::Aims(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, AIMS_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);

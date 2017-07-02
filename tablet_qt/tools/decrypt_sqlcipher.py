@@ -20,11 +20,11 @@ SQLCIPHER_ENV_VAR = "SQLCIPHER"
 SQLCIPHER_DEFAULT = "sqlcipher"
 
 
-def string_to_sql_literal(s):
+def string_to_sql_literal(s: str) -> None:
     return "'{}'".format(s.replace("'", "''"))
 
 
-def main():
+def main() -> None:
     # -------------------------------------------------------------------------
     # Logging
     # -------------------------------------------------------------------------

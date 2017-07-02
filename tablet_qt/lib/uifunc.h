@@ -106,6 +106,7 @@ void scrollToStart(QPlainTextEdit* editor);
 // Killing the app
 // ============================================================================
 
+bool amInGuiThread();
 void stopApp(const QString& error,
              const QString& title = "CamCOPS internal bug: stopping");
 

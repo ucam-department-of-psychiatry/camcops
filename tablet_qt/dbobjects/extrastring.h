@@ -26,13 +26,13 @@ class ExtraString : public DatabaseObject
 {
 public:
     // Specimen constructor:
-    ExtraString(CamcopsApp& app, const QSqlDatabase& db);
+    ExtraString(CamcopsApp& app, DatabaseManager& db);
     // String loading constructor:
-    ExtraString(CamcopsApp& app, const QSqlDatabase& db,
+    ExtraString(CamcopsApp& app, DatabaseManager& db,
                 const QString& task,
                 const QString& name);
     // String saving constructor:
-    ExtraString(CamcopsApp& app, const QSqlDatabase& db,
+    ExtraString(CamcopsApp& app, DatabaseManager& db,
                 const QString& task,
                 const QString& name,
                 const QString& value);

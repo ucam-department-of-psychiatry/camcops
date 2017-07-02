@@ -10,8 +10,9 @@ CLIENT ARCHITECTURE
   up with a satisfactory web client.
 
 - At which point, you may as well have a high-performance cross-platform client
-  system, hence Qt/C++ (and there's potential to run even these over the web;
-  e.g. Qt applications are starting [2017] to support being served over VNC).
+  system, for low-performance devices, hence Qt/C++ (and there's potential to
+  run even these over the web; e.g. Qt applications are starting [2017] to
+  support being served over VNC).
 
 ===============================================================================
 SERVER DATA DESIGN
@@ -158,6 +159,55 @@ SERVER ORM AND WEB FRAMEWORK
   Ultimately, MIGRATIONS ARE IMPORTANT. Django does these very well, including
   asking for default values for old records when you create a new NOT NULL
   column and so forth. Though you can customize the SQL...
+
+- Note also that our direct-to-database approach for the current API (rather
+  than the user front end) talks directly to databases without any object-
+  oriented Task stuff. That would be significantly harder in Django than
+  SQLAlchemy, becaues whereas SQLAlchemy has its Core underneath its ORM,
+  the next thing under Django's ORM is raw (potentially backend-specific) SQL.
+
+- One might also consider writing the server in C++ and sharing the task-
+  specific code, which from that standpoint might be a considerable advantage.
+  For example, the relevant task calculations would be automatically
+  consistent. You could inspect the fancier result views on the client.
+  Introspection would be harder.
+  One would use it directly or (realistically) load it and proxy Apache to it.
+  Stuff like ZIP file autocreation might be mildly fiddly once but not a
+  problem. Templating was never a big problem to start with. One could somehow
+  hack the DatabaseObject class so that it extended its fields when in use
+  on the server (though that would need different PK systems; not entirely
+  trivial). The major questions that occur to me are:
+    - URL routing
+    - multithreading/routing requests to lots of server threads
+    - HTTP response objects
+    - cross-platform/cross-backend database access
+      ... Qt: ODBC support, MySQL, etc.
+    - forms and other HTTP stuff
+    - graphs
+      ... Qt: https://doc.qt.io/qt-5/qtcharts-barchart-example.html
+    - PDF generation
+      ... Qt: https://stackoverflow.com/questions/10697228/converting-html-to-pdf-with-qt
+    - automatic migrations
+    - debugging
+    - we're not in the same league of ease of use compared to e.g. the Django
+      or Pyramid debug toolbar!
+  Relevant C++ frameworks include
+    - CppCMS
+    - Cutelyst
+    - ULib
+    - Treefrog
+    - etc.:
+      https://en.wikipedia.org/wiki/Comparison_of_web_frameworks#C.2B.2B_2
+  Ultimately, this is moving into sledgehammer-for-nut territory.
+  (Note also that the primary advantage, the DRY basis of things like complex
+  algorithms, is a potential safety decrement; doing it twice in two languages
+  allows an additional cross-check during development, for this particular,
+  in principle more safety-critical thing.)
+
+- DECISION:
+        SQLAlchemy
+        Pyramid
+
 
 ===============================================================================
 THINGS TO AVOID

@@ -34,7 +34,7 @@ const QString FN_N_NO_TARGET("n_no_target");
 
 
 CardinalExpDetTrialGroupSpec::CardinalExpDetTrialGroupSpec(
-        CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+        CamcopsApp& app, DatabaseManager& db, int load_pk) :
     DatabaseObject(app, db, GROUPSPEC_TABLENAME)
 {
     // Keys
@@ -55,7 +55,7 @@ CardinalExpDetTrialGroupSpec::CardinalExpDetTrialGroupSpec(
         int task_pk, int group_num,
         int cue, int target_modality, int target_number,
         int n_target, int n_no_target,
-        CamcopsApp& app, const QSqlDatabase& db) :
+        CamcopsApp& app, DatabaseManager& db) :
     CardinalExpDetTrialGroupSpec::CardinalExpDetTrialGroupSpec(
         app, db, dbconst::NONEXISTENT_PK)  // delegating constructor
 {

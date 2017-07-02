@@ -24,7 +24,7 @@
 
 import datetime
 import re
-import typing
+import typing.re
 from typing import Optional, Union
 
 import dateutil

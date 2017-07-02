@@ -220,7 +220,7 @@ void initializeMdsUpdrs(TaskFactory& factory)
 }
 
 
-MdsUpdrs::MdsUpdrs(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+MdsUpdrs::MdsUpdrs(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, MDS_UPDRS_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     // Part I

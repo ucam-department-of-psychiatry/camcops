@@ -113,7 +113,7 @@ void initializeSlums(TaskFactory& factory)
 }
 
 
-Slums::Slums(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Slums::Slums(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, SLUMS_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addField(ALERT, QVariant::Int);

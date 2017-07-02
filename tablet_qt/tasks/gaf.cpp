@@ -42,7 +42,7 @@ void initializeGaf(TaskFactory& factory)
 }
 
 
-Gaf::Gaf(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Gaf::Gaf(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, GAF_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addField(SCORE, QVariant::String);

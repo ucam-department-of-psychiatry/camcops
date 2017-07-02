@@ -45,7 +45,7 @@ void initializeZbi12(TaskFactory& factory)
 }
 
 
-Zbi12::Zbi12(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Zbi12::Zbi12(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, ZBI12_TABLENAME, false, false, true)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);

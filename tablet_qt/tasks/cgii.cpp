@@ -43,7 +43,7 @@ void initializeCgiI(TaskFactory& factory)
 }
 
 
-CgiI::CgiI(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+CgiI::CgiI(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, CGI_I_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addField(Q, QVariant::Int);

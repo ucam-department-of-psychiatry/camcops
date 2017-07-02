@@ -116,7 +116,7 @@ class Deakin1HealthReview(Task):
         dict(name="health_anything_else", cctype="BOOL", pv=PV.BIT),
         dict(name="health_anything_else_details", cctype="TEXT"),
 
-        dict(name="drug_history", cctype="TEXT", pv=PV.BIT),
+        dict(name="drug_history", cctype="TEXT"),
         dict(name="first_antipsychotic_medication", cctype="TEXT"),
 
         dict(name="recreational_drug_in_last_3_months", cctype="BOOL",

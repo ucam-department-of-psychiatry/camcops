@@ -34,7 +34,7 @@ class Moca : public Task
 {
     Q_OBJECT
 public:
-    Moca(CamcopsApp& app, const QSqlDatabase& db,
+    Moca(CamcopsApp& app, DatabaseManager& db,
          int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

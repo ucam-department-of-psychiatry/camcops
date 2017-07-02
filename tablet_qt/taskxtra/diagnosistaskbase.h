@@ -32,7 +32,7 @@ class DiagnosisTaskBase : public Task
 {
     Q_OBJECT
 public:
-    DiagnosisTaskBase(CamcopsApp& app, const QSqlDatabase& db,
+    DiagnosisTaskBase(CamcopsApp& app, DatabaseManager& db,
                       const QString& tablename,
                       int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------

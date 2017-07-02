@@ -35,7 +35,7 @@ class Cisr : public Task
 {
     Q_OBJECT
 public:
-    Cisr(CamcopsApp& app, const QSqlDatabase& db,
+    Cisr(CamcopsApp& app, DatabaseManager& db,
          int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

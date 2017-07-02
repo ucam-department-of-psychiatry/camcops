@@ -30,6 +30,9 @@ class QString;
 
 class CamcopsApp;
 
+class DatabaseManager;
+using DatabaseManagerPtr = QSharedPointer<DatabaseManager>;
+
 class DatabaseObject;
 using DatabaseObjectPtr = QSharedPointer<DatabaseObject>;
 

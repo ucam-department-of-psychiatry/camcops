@@ -32,7 +32,7 @@ class Deakin1HealthReview : public Task
 {
     Q_OBJECT
 public:
-    Deakin1HealthReview(CamcopsApp& app, const QSqlDatabase& db,
+    Deakin1HealthReview(CamcopsApp& app, DatabaseManager& db,
                         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

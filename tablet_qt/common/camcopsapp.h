@@ -31,7 +31,6 @@
 #include "dbobjects/patient.h"
 #include "questionnairelib/namevalueoptions.h"
 #include "tasklib/task.h"  // for TaskPtr
-
 class IdPolicy;
 class NetworkManager;
 class OpenableWidget;
@@ -85,8 +84,8 @@ public:
     CamcopsApp(int& argc, char *argv[]);
     ~CamcopsApp();
     int run();
-    QSqlDatabase& db();
-    QSqlDatabase& sysdb();
+    DatabaseManager& db();
+    DatabaseManager& sysdb();
     TaskFactory* taskFactory();
 
     // ------------------------------------------------------------------------
@@ -287,8 +286,8 @@ public:
     // Internal data
     // ------------------------------------------------------------------------
 protected:
-    QSqlDatabase m_datadb;
-    QSqlDatabase m_sysdb;
+    DatabaseManagerPtr m_datadb;
+    DatabaseManagerPtr m_sysdb;
     TaskFactoryPtr m_p_task_factory;
     void setLockState(LockState lockstate);
     LockState m_lockstate;

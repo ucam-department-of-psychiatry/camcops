@@ -93,7 +93,7 @@ void initializeIcd10SpecPD(TaskFactory& factory)
 }
 
 
-Icd10SpecPD::Icd10SpecPD(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Icd10SpecPD::Icd10SpecPD(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, ICD10SPECPD_TABLENAME, false, true, false),  // ... anon, clin, resp
     m_fr_has_pd(nullptr)
 {

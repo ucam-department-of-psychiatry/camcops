@@ -103,7 +103,7 @@ void initializeFrs(TaskFactory& factory)
 }
 
 
-Frs::Frs(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Frs::Frs(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, FRS_TABLENAME, false, true, true)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);

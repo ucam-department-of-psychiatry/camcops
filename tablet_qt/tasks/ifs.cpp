@@ -90,7 +90,7 @@ void initializeIfs(TaskFactory& factory)
 }
 
 
-Ifs::Ifs(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Ifs::Ifs(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, IFS_TABLENAME, false, true, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {

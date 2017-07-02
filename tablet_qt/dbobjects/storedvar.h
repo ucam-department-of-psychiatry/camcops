@@ -26,7 +26,7 @@ class StoredVar : public DatabaseObject
 {
 public:
     StoredVar(CamcopsApp& app,
-              const QSqlDatabase& db,
+              DatabaseManager& db,
               const QString& name = "",  // empty for a specimen
               QVariant::Type type = QVariant::Int,
               QVariant default_value = QVariant());

@@ -44,7 +44,7 @@ class CardinalExpectationDetection : public Task
     // ... a pointer to a member function of CardinalExpectationDetection that
     // takes no parameters and returns void
 public:
-    CardinalExpectationDetection(CamcopsApp& app, const QSqlDatabase& db,
+    CardinalExpectationDetection(CamcopsApp& app, DatabaseManager& db,
                                  int load_pk = dbconst::NONEXISTENT_PK);
     ~CardinalExpectationDetection();
     // ------------------------------------------------------------------------

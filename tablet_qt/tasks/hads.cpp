@@ -55,7 +55,7 @@ void initializeHads(TaskFactory& factory)
 }
 
 
-Hads::Hads(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Hads::Hads(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, HADS_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     // Main HADS constructor. No respondent.
@@ -63,7 +63,7 @@ Hads::Hads(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
 }
 
 
-Hads::Hads(CamcopsApp& app, const QSqlDatabase& db,
+Hads::Hads(CamcopsApp& app, DatabaseManager& db,
            const QString& tablename, bool has_respondent,
            int load_pk) :
     Task(app, db, tablename, false, false, has_respondent)  // ... anon, clin, resp

@@ -52,7 +52,7 @@ void initializeBadls(TaskFactory& factory)
 }
 
 
-Badls::Badls(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Badls::Badls(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, BADLS_TABLENAME, false, false, true)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::String);

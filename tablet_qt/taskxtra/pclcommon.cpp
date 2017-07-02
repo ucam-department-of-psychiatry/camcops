@@ -48,7 +48,7 @@ const QString EVENTDATE("eventdate");
 
 
 PclCommon::PclCommon(CamcopsApp& app,
-                     const QSqlDatabase& db,
+                     DatabaseManager& db,
                      const QString& tablename,
                      const QString& xstring_prefix,
                      bool specific_event,

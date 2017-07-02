@@ -49,7 +49,7 @@ from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
 # Icd10SpecPD
 # =============================================================================
 
-def ctv_info_pd(condition, has_it):
+def ctv_info_pd(condition: str, has_it: Optional[bool]) -> CtvInfo:
     return CtvInfo(content=condition + ": " + get_yes_no_unknown(has_it))
 
 

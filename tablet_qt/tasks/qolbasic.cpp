@@ -46,7 +46,7 @@ void initializeQolBasic(TaskFactory& factory)
 }
 
 
-QolBasic::QolBasic(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+QolBasic::QolBasic(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, QOLBASIC_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addField(TTO, QVariant::Double);

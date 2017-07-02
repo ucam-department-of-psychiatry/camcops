@@ -41,10 +41,12 @@
 #include "common/varconst.h"
 #include "common/version.h"
 #include "crypto/cryptofunc.h"
+#include "db/databasemanager.h"
 #include "db/dbfunc.h"
 #include "db/dbnestabletransaction.h"
 #include "db/dbtransaction.h"
 #include "db/dumpsql.h"
+#include "db/whereconditions.h"
 #include "db/whichdb.h"
 #include "dbobjects/blob.h"
 #include "dbobjects/extrastring.h"
@@ -187,25 +189,17 @@ void CamcopsApp::openOrCreateDatabases()
     // Database lifetime:
     // http://stackoverflow.com/questions/7669987/what-is-the-correct-way-of-qsqldatabase-qsqlquery
 
-    m_datadb = QSqlDatabase::addDatabase(whichdb::DBTYPE, CONNECTION_DATA);
-    dbfunc::openDatabaseOrDie(m_datadb, dbfunc::DATA_DATABASE_FILENAME);
-
-    m_sysdb = QSqlDatabase::addDatabase(whichdb::DBTYPE, CONNECTION_SYS);
-    dbfunc::openDatabaseOrDie(m_sysdb, dbfunc::SYSTEM_DATABASE_FILENAME);
+    QString data_filename = dbfunc::dbFullPath(dbfunc::DATA_DATABASE_FILENAME);
+    QString sys_filename = dbfunc::dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME);
+    m_datadb = DatabaseManagerPtr(new DatabaseManager(data_filename, CONNECTION_DATA));
+    m_sysdb = DatabaseManagerPtr(new DatabaseManager(sys_filename, CONNECTION_SYS));
 }
 
 
 void CamcopsApp::closeDatabases()
 {
-    // http://stackoverflow.com/questions/9519736/warning-remove-database
-    // http://www.qtcentre.org/archive/index.php/t-40358.html
-    m_sysdb.close();
-    m_sysdb = QSqlDatabase();
-    QSqlDatabase::removeDatabase(CONNECTION_SYS);
-
-    m_datadb.close();
-    m_datadb = QSqlDatabase();
-    QSqlDatabase::removeDatabase(CONNECTION_DATA);
+    m_datadb = nullptr;
+    m_sysdb = nullptr;
 }
 
 
@@ -247,8 +241,8 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
 
     while (!encryption_happy) {
         changed_user_password = false;
-        bool no_password_sys = dbfunc::canReadDatabase(m_sysdb);
-        bool no_password_data = dbfunc::canReadDatabase(m_datadb);
+        bool no_password_sys = m_sysdb->canReadDatabase();
+        bool no_password_data = m_datadb->canReadDatabase();
 
         if (no_password_sys != no_password_data) {
             QString msg = QString(
@@ -274,7 +268,7 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
                 return false;
             }
             qInfo() << "Encrypting databases for the first time...";
-            if (!dbfunc::databaseIsEmpty(m_sysdb) || !dbfunc::databaseIsEmpty(m_datadb)) {
+            if (!m_sysdb->databaseIsEmpty() || !m_datadb->databaseIsEmpty()) {
                 qInfo() << "... by rewriting the databases...";
                 encryption_happy = encryptExistingPlaintextDatabases(new_user_password);
             } else {
@@ -285,10 +279,10 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
             // Whether we've encrypted an existing database (then reopened it)
             // or just opened a fresh one, we need to apply the key now.
             encryption_happy = encryption_happy &&
-                    dbfunc::pragmaKey(m_sysdb, new_user_password) &&
-                    dbfunc::pragmaKey(m_datadb, new_user_password) &&
-                    dbfunc::canReadDatabase(m_sysdb) &&
-                    dbfunc::canReadDatabase(m_datadb);
+                    m_sysdb->pragmaKey(new_user_password) &&
+                    m_datadb->pragmaKey(new_user_password) &&
+                    m_sysdb->canReadDatabase() &&
+                    m_datadb->canReadDatabase();
             if (encryption_happy) {
                 qInfo() << "... successfully encrypted the databases.";
             } else {
@@ -306,10 +300,10 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
             }
             qInfo() << "Attempting to decrypt databases...";
             encryption_happy =
-                    dbfunc::pragmaKey(m_sysdb, user_password) &&
-                    dbfunc::pragmaKey(m_datadb, user_password) &&
-                    dbfunc::canReadDatabase(m_sysdb) &&
-                    dbfunc::canReadDatabase(m_datadb);
+                    m_sysdb->pragmaKey(user_password) &&
+                    m_datadb->pragmaKey(user_password) &&
+                    m_sysdb->canReadDatabase() &&
+                    m_datadb->canReadDatabase();
             if (encryption_happy) {
                 qInfo() << "... successfully accessed encrypted databases.";
             } else {
@@ -378,7 +372,7 @@ void CamcopsApp::makeStoredVarTable()
     // Make storedvar table
     // ------------------------------------------------------------------------
 
-    StoredVar storedvar_specimen(*this, m_sysdb);
+    StoredVar storedvar_specimen(*this, *m_sysdb);
     storedvar_specimen.makeTable();
     storedvar_specimen.makeIndexes();
 }
@@ -389,7 +383,7 @@ void CamcopsApp::createStoredVars()
     // ------------------------------------------------------------------------
     // Create stored variables: name, type, default
     // ------------------------------------------------------------------------
-    DbTransaction trans(m_sysdb);  // https://www.sqlite.org/faq.html#q19
+    DbTransaction trans(*m_sysdb);  // https://www.sqlite.org/faq.html#q19
 
     // Version
     createVar(varconst::CAMCOPS_TABLET_VERSION_AS_STRING, QVariant::String,
@@ -517,16 +511,16 @@ void CamcopsApp::makeOtherSystemTables()
     // ------------------------------------------------------------------------
 
     // Make special tables: system database
-    ExtraString extrastring_specimen(*this, m_sysdb);
+    ExtraString extrastring_specimen(*this, *m_sysdb);
     extrastring_specimen.makeTable();
     extrastring_specimen.makeIndexes();
 
     // Make special tables: main database
-    Blob blob_specimen(*this, m_datadb);
+    Blob blob_specimen(*this, *m_datadb);
     blob_specimen.makeTable();
     blob_specimen.makeIndexes();
 
-    Patient patient_specimen(*this, m_datadb);
+    Patient patient_specimen(*this, *m_datadb);
     patient_specimen.makeTable();
 }
 
@@ -575,7 +569,7 @@ void CamcopsApp::openMainWindow()
     m_p_main_window->setCentralWidget(m_p_window_stack);
 
     m_netmgr = QSharedPointer<NetworkManager>(
-                new NetworkManager(*this, m_datadb, m_p_task_factory,
+                new NetworkManager(*this, *m_datadb, m_p_task_factory,
                                    m_p_main_window.data()));
 
     MainMenu* menu = new MainMenu(*this);
@@ -586,15 +580,15 @@ void CamcopsApp::openMainWindow()
 // Core
 // ============================================================================
 
-QSqlDatabase& CamcopsApp::db()
+DatabaseManager& CamcopsApp::db()
 {
-    return m_datadb;
+    return *m_datadb;
 }
 
 
-QSqlDatabase& CamcopsApp::sysdb()
+DatabaseManager& CamcopsApp::sysdb()
 {
-    return m_sysdb;
+    return *m_sysdb;
 }
 
 
@@ -825,9 +819,9 @@ void CamcopsApp::changeAppPassword()
     if (changed) {
         SlowGuiGuard guard = getSlowGuiGuard(tr("Re-encrypting databases..."));
         qInfo() << "Re-encrypting system database...";
-        dbfunc::pragmaRekey(m_sysdb, new_password);
+        m_sysdb->pragmaRekey(new_password);
         qInfo() << "Re-encrypting data database...";
-        dbfunc::pragmaRekey(m_datadb, new_password);
+        m_datadb->pragmaRekey(new_password);
         qInfo() << "Re-encryption finished.";
     }
 #else
@@ -896,7 +890,7 @@ bool CamcopsApp::storingServerPassword() const
 void CamcopsApp::setEncryptedServerPassword(const QString& password)
 {
     qDebug() << Q_FUNC_INFO;
-    DbNestableTransaction trans(m_sysdb);
+    DbNestableTransaction trans(*m_sysdb);
     resetEncryptionKeyIfRequired();
     QString iv_b64(cryptofunc::generateIVBase64());  // new one each time
     setVar(varconst::OBSCURING_IV, iv_b64);
@@ -1048,7 +1042,7 @@ void CamcopsApp::reloadPatient(int patient_id)
     if (patient_id == dbconst::NONEXISTENT_PK) {
         m_patient.clear();
     } else {
-        m_patient.reset(new Patient(*this, m_datadb, patient_id));
+        m_patient.reset(new Patient(*this, *m_datadb, patient_id));
     }
 }
 
@@ -1082,17 +1076,15 @@ int CamcopsApp::selectedPatientId() const
 PatientPtrList CamcopsApp::getAllPatients(bool sorted)
 {
     PatientPtrList patients;
-    Patient specimen(*this, m_datadb, dbconst::NONEXISTENT_PK);  // this is why function can't be const
+    Patient specimen(*this, *m_datadb, dbconst::NONEXISTENT_PK);  // this is why function can't be const
     WhereConditions where;  // but we don't specify any
     SqlArgs sqlargs = specimen.fetchQuerySql(where);
-    QSqlQuery query(m_datadb);
-    bool success = dbfunc::execQuery(query, sqlargs);
-    if (success) {  // success check may be redundant (cf. while clause)
-        while (query.next()) {
-            PatientPtr p(new Patient(*this, m_datadb, dbconst::NONEXISTENT_PK));
-            p->setFromQuery(query, true);
-            patients.append(p);
-        }
+    QueryResult result = m_datadb->query(sqlargs);
+    int nrows = result.nRows();
+    for (int row = 0; row < nrows; ++row) {
+        PatientPtr p(new Patient(*this, *m_datadb, dbconst::NONEXISTENT_PK));
+        p->setFromQuery(result, row, true);
+        patients.append(p);
     }
     if (sorted) {
         qSort(patients.begin(), patients.end(), PatientSorter());
@@ -1193,7 +1185,7 @@ QString CamcopsApp::xstringDirect(const QString& taskname,
                                   const QString& stringname,
                                   const QString& default_str)
 {
-    ExtraString extrastring(*this, m_sysdb, taskname, stringname);
+    ExtraString extrastring(*this, *m_sysdb, taskname, stringname);
     bool found = extrastring.exists();
     if (found) {
         QString result = extrastring.value();
@@ -1225,7 +1217,7 @@ QString CamcopsApp::xstring(const QString& taskname,
 
 bool CamcopsApp::hasExtraStrings(const QString& taskname)
 {
-    ExtraString extrastring_specimen(*this, m_sysdb);
+    ExtraString extrastring_specimen(*this, *m_sysdb);
     return extrastring_specimen.anyExist(taskname);
 }
 
@@ -1238,7 +1230,7 @@ void CamcopsApp::clearExtraStringCache()
 
 void CamcopsApp::deleteAllExtraStrings()
 {
-    ExtraString extrastring_specimen(*this, m_sysdb);
+    ExtraString extrastring_specimen(*this, *m_sysdb);
     extrastring_specimen.deleteAllExtraStrings();
     clearExtraStringCache();
 }
@@ -1246,7 +1238,7 @@ void CamcopsApp::deleteAllExtraStrings()
 
 void CamcopsApp::setAllExtraStrings(const RecordList& recordlist)
 {
-    DbTransaction trans(m_sysdb);
+    DbTransaction trans(*m_sysdb);
     deleteAllExtraStrings();
     for (auto record : recordlist) {
         if (!record.contains(ExtraString::EXTRASTRINGS_TASK_FIELD) ||
@@ -1265,7 +1257,7 @@ void CamcopsApp::setAllExtraStrings(const RecordList& recordlist)
             trans.fail();
             return;
         }
-        ExtraString es(*this, m_sysdb, task, name, value);
+        ExtraString es(*this, *m_sysdb, task, name, value);
         es.save();
     }
 }
@@ -1282,7 +1274,7 @@ QString CamcopsApp::appstring(const QString& stringname,
 // ============================================================================
 
 void CamcopsApp::createVar(const QString &name, QVariant::Type type,
-                                 const QVariant &default_value)
+                                 const QVariant& default_value)
 {
     if (name.isEmpty()) {
         uifunc::stopApp("Empty name to createVar");
@@ -1291,7 +1283,7 @@ void CamcopsApp::createVar(const QString &name, QVariant::Type type,
         return;
     }
     m_storedvars[name] = StoredVarPtr(
-        new StoredVar(*this, m_sysdb, name, type, default_value));
+        new StoredVar(*this, *m_sysdb, name, type, default_value));
 }
 
 
@@ -1356,7 +1348,7 @@ void CamcopsApp::clearCachedVars()
 
 void CamcopsApp::saveCachedVars()
 {
-    DbNestableTransaction trans(m_sysdb);
+    DbNestableTransaction trans(*m_sysdb);
     QMapIterator<QString, QVariant> i(m_cachedvars);
     while (i.hasNext()) {
         i.next();
@@ -1445,13 +1437,13 @@ void CamcopsApp::offerTerms()
 
 void CamcopsApp::dumpDataDatabase(QTextStream& os)
 {
-    dumpsql::dumpDatabase(os, m_datadb);
+    dumpsql::dumpDatabase(os, *m_datadb);
 }
 
 
 void CamcopsApp::dumpSystemDatabase(QTextStream& os)
 {
-    dumpsql::dumpDatabase(os, m_sysdb);
+    dumpsql::dumpDatabase(os, *m_sysdb);
 }
 
 

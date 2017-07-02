@@ -33,7 +33,7 @@ class GmcPq : public Task
 {
     Q_OBJECT
 public:
-    GmcPq(CamcopsApp& app, const QSqlDatabase& db,
+    GmcPq(CamcopsApp& app, DatabaseManager& db,
           int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

@@ -32,7 +32,7 @@ class DiagnosisIcd9CM : public DiagnosisTaskBase
 {
     Q_OBJECT
 public:
-    DiagnosisIcd9CM(CamcopsApp& app, const QSqlDatabase& db,
+    DiagnosisIcd9CM(CamcopsApp& app, DatabaseManager& db,
                     int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

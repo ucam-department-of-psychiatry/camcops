@@ -19,7 +19,7 @@
 
 #include "extrastring.h"
 #include "common/camcopsapp.h"
-#include "db/dbfunc.h"
+#include "db/databasemanager.h"
 
 const QString EXTRASTRINGS_TABLENAME("extrastrings");
 const QString ExtraString::EXTRASTRINGS_TASK_FIELD("task");
@@ -28,7 +28,7 @@ const QString ExtraString::EXTRASTRINGS_VALUE_FIELD("value");
 
 
 // Specimen constructor:
-ExtraString::ExtraString(CamcopsApp& app, const QSqlDatabase& db) :
+ExtraString::ExtraString(CamcopsApp& app, DatabaseManager& db) :
     DatabaseObject(app, db, EXTRASTRINGS_TABLENAME, dbconst::PK_FIELDNAME,
                    true, false, false)
 {
@@ -38,7 +38,7 @@ ExtraString::ExtraString(CamcopsApp& app, const QSqlDatabase& db) :
 
 // String loading constructor:
 ExtraString::ExtraString(CamcopsApp& app,
-                         const QSqlDatabase& db,
+                         DatabaseManager& db,
                          const QString& task,
                          const QString& name) :
     DatabaseObject(app, db, EXTRASTRINGS_TABLENAME, dbconst::PK_FIELDNAME,
@@ -48,8 +48,8 @@ ExtraString::ExtraString(CamcopsApp& app,
     if (!task.isEmpty() && !name.isEmpty()) {
         // Not a specimen; load, or set defaults and save
         WhereConditions where;
-        where[EXTRASTRINGS_TASK_FIELD] = task;
-        where[EXTRASTRINGS_NAME_FIELD] = name;
+        where.add(EXTRASTRINGS_TASK_FIELD, task);
+        where.add(EXTRASTRINGS_NAME_FIELD, name);
         m_exists = load(where);
     }
 }
@@ -57,7 +57,7 @@ ExtraString::ExtraString(CamcopsApp& app,
 
 // String saving constructor:
 ExtraString::ExtraString(CamcopsApp& app,
-                         const QSqlDatabase& db,
+                         DatabaseManager& db,
                          const QString& task,
                          const QString& name,
                          const QString& value) :
@@ -68,8 +68,8 @@ ExtraString::ExtraString(CamcopsApp& app,
     if (!task.isEmpty() && !name.isEmpty()) {
         // Not a specimen; load, or set defaults and save
         WhereConditions where;
-        where[EXTRASTRINGS_TASK_FIELD] = task;
-        where[EXTRASTRINGS_NAME_FIELD] = name;
+        where.add(EXTRASTRINGS_TASK_FIELD, task);
+        where.add(EXTRASTRINGS_NAME_FIELD, name);
         bool success = load(where);
         if (!success) {
             setValue(EXTRASTRINGS_TASK_FIELD, task);
@@ -113,21 +113,22 @@ bool ExtraString::exists() const
 bool ExtraString::anyExist(const QString& task) const
 {
     WhereConditions where;
-    where[EXTRASTRINGS_TASK_FIELD] = task;
-    return dbfunc::count(m_db, EXTRASTRINGS_TABLENAME, where) > 0;
+    where.add(EXTRASTRINGS_TASK_FIELD, task);
+    return m_db.count(EXTRASTRINGS_TABLENAME, where) > 0;
 }
 
 
 void ExtraString::deleteAllExtraStrings()
 {
     QString sql = QString("DELETE FROM %1").arg(EXTRASTRINGS_TABLENAME);
-    dbfunc::exec(m_db, sql);
+    m_db.execNoAnswer(sql);
 }
 
 
 void ExtraString::makeIndexes()
 {
-    dbfunc::createIndex(m_db, "_idx_table_name", EXTRASTRINGS_TABLENAME, {
-                            ExtraString::EXTRASTRINGS_TASK_FIELD,
-                            ExtraString::EXTRASTRINGS_NAME_FIELD});
+    m_db.createIndex("_idx_table_name",
+                     EXTRASTRINGS_TABLENAME,
+                     {ExtraString::EXTRASTRINGS_TASK_FIELD,
+                      ExtraString::EXTRASTRINGS_NAME_FIELD});
 }

@@ -82,7 +82,7 @@ void initializeMoca(TaskFactory& factory)
 }
 
 
-Moca::Moca(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Moca::Moca(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, MOCA_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);

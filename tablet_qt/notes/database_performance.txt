@@ -1,0 +1,193 @@
+
+===============================================================================
+PROBLEM: slow writes to database with SQLCipher:
+===============================================================================
+
+camcops[15135]: 2017-06-30T00:58:24.183: debug: ../tablet_qt/db/dbfunc.cpp(221): SELECT query took 1 ms
+camcops[15135]: 2017-06-30T00:58:24.184: debug: ../tablet_qt/db/dbfunc.cpp(221): SELECT query took 1 ms
+camcops[15135]: 2017-06-30T00:58:24.184: debug: ../tablet_qt/db/dbfunc.cpp(221): SELECT query took 0 ms
+camcops[15135]: 2017-06-30T00:58:24.185: debug: ../tablet_qt/db/dbfunc.cpp(221): SELECT query took 0 ms
+camcops[15135]: 2017-06-30T00:58:24.186: debug: ../tablet_qt/db/dbfunc.cpp(221): SELECT query took 1 ms
+camcops[15135]: 2017-06-30T00:58:24.186: debug: ../tablet_qt/db/dbfunc.cpp(221): SELECT query took 0 ms
+camcops[15135]: 2017-06-30T00:58:24.187: debug: ../tablet_qt/db/dbfunc.cpp(221): SELECT query took 0 ms
+camcops[15135]: 2017-06-30T00:58:27.851: debug: ../tablet_qt/db/dbfunc.cpp(221): Non-SELECT query took 41 ms
+camcops[15135]: 2017-06-30T00:58:31.482: debug: ../tablet_qt/db/dbfunc.cpp(221): Non-SELECT query took 216 ms
+camcops[15135]: 2017-06-30T00:58:33.819: debug: ../tablet_qt/db/dbfunc.cpp(221): Non-SELECT query took 57 ms
+camcops[15135]: 2017-06-30T00:58:36.353: debug: ../tablet_qt/db/dbfunc.cpp(221): Non-SELECT query took 223 ms
+camcops[15135]: 2017-06-30T00:58:40.735: debug: ../tablet_qt/db/dbfunc.cpp(221): Non-SELECT query took 45 ms
+camcops[15135]: 2017-06-30T00:58:59.520: debug: ../tablet_qt/db/dbfunc.cpp(221): Non-SELECT query took 39 ms
+camcops[15135]: 2017-06-30T00:59:03.397: debug: ../tablet_qt/db/dbfunc.cpp(221): Non-SELECT query took 228 ms
+camcops[15135]: 2017-06-30T00:59:06.452: debug: ../tablet_qt/db/dbfunc.cpp(221): Non-SELECT query took 227 ms
+camcops[15135]: 2017-06-30T00:59:08.993: debug: ../tablet_qt/db/dbfunc.cpp(221): Non-SELECT query took 232 ms
+camcops[15135]: 2017-06-30T00:59:11.949: debug: ../tablet_qt/db/dbfunc.cpp(221): Non-SELECT query took 216 ms
+camcops[15135]: 2017-06-30T00:59:15.467: debug: ../tablet_qt/db/dbfunc.cpp(221): Non-SELECT query took 46 ms
+
+... which causes perceptible UI lag.
+
+
+NOTES
+
+- Potential corruption problem if you touch an SQLite database with two
+  different instances of the SQLite library:
+  - https://discuss.zetetic.net/t/is-the-multiple-sqlite-problem-an-issue-for-sqlcipher-for-android/1449
+  - http://ericsink.com/entries/sqlite_android_n.html
+  - https://www.sqlite.org/howtocorrupt.html#posix_close_bug
+  - http://ericsink.com/entries/multiple_sqlite_problem.html
+  ... not applicable.
+
+- Multithreaded advice for SQLCipher
+  - https://github.com/sqlcipher/sqlcipher/issues/67
+
+- In Qt, you MUST use a new connection for each thread.
+  http://doc.qt.io/qt-5/threads-modules.html#threads-and-the-sql-module
+
+- Differentiating a read query from a write query:
+
+    QSqlQuery::isSelect()
+    ... calls QSqlResult::isSelect()
+        ... does Q_D(const QSqlResult); return d->isSel;
+            ... set by  QSqlResult::setSelect()
+                ... called by plugins; see e.g. qsql_sqlite.cpp
+                ... in the case of SQLite, this is via:
+                        setSelect(!d->rInf.isEmpty());
+                    within
+                        QSQLiteResult::exec()
+                ... where rInf is a QSqlRecord
+                ... so I think the driver is saying "if we got results, it
+                    was a SELECT statement".
+    Therefore, this is not useful *before* the query is run.
+    Therefore, since we don't want to be poking in the raw SQL as we execute
+    the query, we want a flag
+        bool offload_to_worker_thread = false
+    in
+        dbfunc::execQuery()
+    and things that call it. We will only set this to true from functions like
+        DatabaseObject::saveInsert()
+        DatabaseObject::saveUpdate()
+
+- Then, dbfunc::execQuery() must do this in outline:
+    - choose to EXECUTE or OFFLOAD
+    - if EXECUTE:
+        be sure there are no outstanding writes from the other thread
+        execute query
+    - if OFFLOAD:
+        send query to worker thread via signal
+        return promptly
+
+IMPLEMENTATION (NOT YET CORRECT)
+
+- In more detail, dbfunc::execQuery() must do this:
+    - choose to EXECUTE or OFFLOAD
+    - if EXECUTE:
+        wait for atomically locked query queue to be empty;
+        with global database mutex lock {
+            execute query
+        }
+    - if OFFLOAD:
+        send query to worker thread via signal
+
+- And the worker thread must do something like this:
+    while (true) {
+        while (!incoming_messages) {
+            sleep();
+        }
+        with global database mutex lock {
+            for (query in query_queue) {
+                execute_query();
+            }
+        }
+    }
+
+NOT YET CORRECT.
+Also needs whole-app wait-on-shutdown methods.
+Note that this system is not intrinsically safe with transactions (all parts of
+a transaction would have to be offloaded together or not, as we're talking
+about a separate database connection in the other thread).
+
+Yoran Heling has thought about it properly:
+    https://dev.yorhel.nl/doc/sqlaccess
+... the main possibilities for CamCOPS being
+    (a) message passing
+        - one thread does all the database communications
+        - other threads wait for it to "return" (for reads) or don't
+          (for writes)
+          ... not so obvious when "read" means "return me a cursor I can
+              iterate through"
+          ... e.g. how would one re-implement ancillaryfunc::loadAncillary()?
+          ... would have to fetch all results into a results object and
+              pass that
+          ... for speed, could signal "fetch one" or "fetch all"
+        - cleaner for transactions, in that caller doesn't have to think
+          whether they're in one or not
+    (b) two threads
+        - main thread reads and returns
+        - separate thread for "delayed writes"
+        - simpler for reads, as can iterate through result sets from main
+          thread; no need for back-communication
+        - not so clean for transactions: the risk is that a caller sends some
+          writes to the "delayed write" method and some not.
+        - would have to mark every database call as {Read/NonDelayableWrite}
+          or DelayableWrite, and with an enum, not a bool, for clarity/safety
+        - still broken for transactions in the sense that if thread W starts
+          a transaction, writes something, then thread R reads before thread
+          W (much later) does a COMMIT, then thread R will read the "wrong"
+          thing (i.e. without the transaction data).
+        - TOO DANGEROUS from sync point of view.
+
+Aother alternative, as per
+    https://discuss.zetetic.net/t/sqlcipher-performance/14
+is to do the following:
+
+    - wrap lots of updates in a single transaction (+/- nested)
+    - and as a minor thing, VACUUM as we close the app.
+
+Transactional mode is probably safer...
+... wrap around a questionnaire page? A whole questionnaire?
+... if we currently implement a "wait" signal on changing questionnaire pages,
+    probably best to do it then.
+    ... but a questionnaire page might be giant, and we usually want to prevent
+        data loss and repetition of work (e.g. after an accidental Cancel or
+        closing the app) at all costs in patient-facing questionnaires.
+
+Therefore, optimal solution:
+- Have a database thread for all database access.
+- Implement query-plus-read-results back, where caller waits, and
+  write-query-off-you-go, that operates in the background.
+
+Note also QThread/QObject handling:
+- https://stackoverflow.com/questions/10838013/does-large-use-of-signals-and-slots-affect-application-performance
+- https://mayaposch.wordpress.com/2011/11/01/how-to-really-truly-use-qthreads-the-full-explanation/
+
+Rather than some sort of convoluted signal/slot return, we could do the read
+call like this:
+    - when query send (read or write), main thread atomically increments
+      pending count
+    - when main thread wants results, it tells the database thread "one" or
+      "all"
+    - the database thread maintains a QVector<QVector<QVector<QVariant>>>
+      or similar (vectors: queries, rows, columns), under atomic control
+        ... in practice, one read query used at a time; see below; but in
+            principle one could queue them up
+    - when main thread doesn't care about the results (delayed write):
+        - it pings off the query with no "results requested" details
+        - worker thread processes queries, decrements pending count,
+          doesn't store any results
+    - when main thread wants results
+        - it pings off the query with "results requested" details
+        - worker thread works through its backlog, and stashes results as
+          requested
+        - main thread waits for pending count to be zero
+        - pops the front result and uses it
+
+Relevant classes:
+    QAtomicInteger
+    QMutex
+
+Then, for >1 database:
+    we want to synchronize *all* database operations
+    so a single manager for all databases
+    key to distinguish databases: int will be fastest
+
+See also:
+    https://woboq.com/blog/introduction-to-lockfree-programming.html
+    http://doc.qt.io/qt-5/qtcore-threads-waitconditions-example.html

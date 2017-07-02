@@ -300,7 +300,7 @@ void initializeCecaQ3(TaskFactory& factory)
 }
 
 
-CecaQ3::CecaQ3(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+CecaQ3::CecaQ3(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, CECAQ3_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {

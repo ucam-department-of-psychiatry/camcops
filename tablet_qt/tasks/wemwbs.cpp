@@ -48,7 +48,7 @@ void initializeWemwbs(TaskFactory& factory)
 }
 
 
-Wemwbs::Wemwbs(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Wemwbs::Wemwbs(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, WEMWBS_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);

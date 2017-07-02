@@ -32,7 +32,7 @@ class Phq9 : public Task
 {
     Q_OBJECT
 public:
-    Phq9(CamcopsApp& app, const QSqlDatabase& db,
+    Phq9(CamcopsApp& app, DatabaseManager& db,
          int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

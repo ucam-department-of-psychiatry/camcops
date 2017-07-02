@@ -18,8 +18,7 @@
 */
 
 #pragma once
-#include <QSqlQuery>
-#include "db/dbfunc.h"
+#include "db/databasemanager.h"
 #include "task.h"
 #include "taskproxy.h"
 
@@ -39,7 +38,7 @@ public:
     {}
 
     TaskPtr create(CamcopsApp& app,
-                   const QSqlDatabase& db,
+                   DatabaseManager& db,
                    int load_pk = dbconst::NONEXISTENT_PK) const override
     {
         // Create a single instance of a task (optionally, loading it)
@@ -47,7 +46,7 @@ public:
     }
 
     TaskPtrList fetch(CamcopsApp& app,
-                      const QSqlDatabase& db,
+                      DatabaseManager& db,
                       int patient_id = dbconst::NONEXISTENT_PK) const override
     {
         // Fetch multiple tasks, either matching a patient_id, or all for
@@ -60,29 +59,27 @@ public:
         }
         WhereConditions where;
         if (patient_id != dbconst::NONEXISTENT_PK) {
-            where[Task::PATIENT_FK_FIELDNAME] = QVariant(patient_id);
+            where.add(Task::PATIENT_FK_FIELDNAME, QVariant(patient_id));
         }
         return fetchWhere(app, db, where);
     }
 
 protected:
     TaskPtrList fetchWhere(CamcopsApp& app,
-                           const QSqlDatabase& db,
+                           DatabaseManager& db,
                            const WhereConditions& where) const override
     {
         // Fetch multiple tasks according to the field/value "where" criteria
         TaskPtrList tasklist;
         Derived specimen(app, db, dbconst::NONEXISTENT_PK);
         SqlArgs sqlargs = specimen.fetchQuerySql(where);
-        QSqlQuery query(db);
-        bool success = dbfunc::execQuery(query, sqlargs);
-        if (success) {  // success check may be redundant (cf. while clause)
-            while (query.next()) {
-                TaskPtr p_new_task(new Derived(app, db,
-                                               dbconst::NONEXISTENT_PK));
-                p_new_task->setFromQuery(query, true);
-                tasklist.append(p_new_task);
-            }
+        QueryResult result = db.query(sqlargs);
+        int nrows = result.nRows();
+        for (int row = 0; row < nrows; ++row) {
+            TaskPtr p_new_task(new Derived(app, db,
+                                           dbconst::NONEXISTENT_PK));
+            p_new_task->setFromQuery(result, row, true);
+            tasklist.append(p_new_task);
         }
         return tasklist;
     }

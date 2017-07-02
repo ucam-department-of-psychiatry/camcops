@@ -22,7 +22,7 @@
 ===============================================================================
 """
 
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
 
@@ -170,7 +170,7 @@ def get_tabular_logit(score: float) -> float:
 #     print(",".join(str(q) for q in [x, logit, severity]))
 
 
-def make_frs_fieldspec(n: int):
+def make_frs_fieldspec(n: int) -> Dict[str, Any]:
     pv = [NEVER, ALWAYS]
     pc = ["{} = never".format(NEVER), "{} = always".format(ALWAYS)]
     if n not in NO_SOMETIMES_QUESTIONS:

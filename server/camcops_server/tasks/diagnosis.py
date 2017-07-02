@@ -22,7 +22,7 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List
 
 import cardinal_pythonlib.rnc_web as ws
 import hl7
@@ -45,7 +45,7 @@ from ..cc_modules.cc_report import (
 # Helpers
 # =============================================================================
 
-def make_diagnosis_item_base_fieldspecs(fkname: str):
+def make_diagnosis_item_base_fieldspecs(fkname: str) -> List[Dict[str, Any]]:
     return [
         dict(name=fkname, notnull=True, cctype="INT",
              comment="FK to parent table"),

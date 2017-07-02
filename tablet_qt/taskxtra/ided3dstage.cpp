@@ -45,7 +45,7 @@ const QString FN_STAGE_PASSED("stage_passed");
 const QString FN_STAGE_FAILED("stage_failed");
 
 
-IDED3DStage::IDED3DStage(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+IDED3DStage::IDED3DStage(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     DatabaseObject(app, db, STAGE_TABLENAME),
     m_incorrect_stimulus_can_overlap(false),
     m_n_possible_locations(0)
@@ -76,7 +76,7 @@ IDED3DStage::IDED3DStage(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
 }
 
 
-IDED3DStage::IDED3DStage(int task_id, CamcopsApp& app, const QSqlDatabase& db,
+IDED3DStage::IDED3DStage(int task_id, CamcopsApp& app, DatabaseManager& db,
                          int stage_num_zero_based,
                          const QString& stage_name,
                          const QString& relevant_dimension,

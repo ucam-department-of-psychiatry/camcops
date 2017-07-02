@@ -32,7 +32,7 @@ class ProgressNote : public Task
 {
     Q_OBJECT
 public:
-    ProgressNote(CamcopsApp& app, const QSqlDatabase& db,
+    ProgressNote(CamcopsApp& app, DatabaseManager& db,
                  int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

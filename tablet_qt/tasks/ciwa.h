@@ -32,7 +32,7 @@ class Ciwa : public Task
 {
     Q_OBJECT
 public:
-    Ciwa(CamcopsApp& app, const QSqlDatabase& db,
+    Ciwa(CamcopsApp& app, DatabaseManager& db,
          int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

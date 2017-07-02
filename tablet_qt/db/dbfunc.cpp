@@ -20,15 +20,18 @@
 // #define DEBUG_SQL_QUERY
 // #define DEBUG_QUERY_END
 // #define DEBUG_SQL_RESULT
+// #define DEBUG_VERBOSE_TABLE_CHANGE_PLANS
+// #define DEBUG_QUERY_TIMING
 
 #include "dbfunc.h"
+#include <QDateTime>
 #include <QDir>
 #include <QObject>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QStandardPaths>
-#include "db/fieldcreationplan.h"
+#include "db/databasemanager.h"
 #include "db/sqlitepragmainfofield.h"
 #include "db/whichdb.h"
 #include "lib/convert.h"
@@ -53,7 +56,7 @@ const QString CONNECTION_ENCRYPTION_TEMP_PLAIN("encryption_temp_plain");
 
 
 // ============================================================================
-// Database operations
+// Database filenames
 // ============================================================================
 
 QString dbFullPath(const QString &filename)
@@ -71,26 +74,6 @@ QString dbFullPath(const QString &filename)
     }
     // http://stackoverflow.com/questions/3541529/is-there-qpathcombine-in-qt4
     return QDir::cleanPath(dir + "/" + filename);
-}
-
-
-void openDatabaseOrDie(QSqlDatabase& db, const QString& filename,
-                       bool is_full_path)
-{
-    QString fullpath = is_full_path ? filename : dbFullPath(filename);
-    db.setDatabaseName(fullpath);
-    if (db.open()) {
-        qInfo() << "Opened database:" << fullpath;
-    } else {
-        QSqlError error = db.lastError();
-        qCritical() << "Last database error:" << error;
-        qCritical() << "Database:" << db;
-        QString errmsg = QString(
-            "openDatabaseOrDie: Error: connection to database failed. "
-            "Database = %1; error number = %2; error text = %3"
-        ).arg(fullpath, QString::number(error.number()), error.text());
-        uifunc::stopApp(errmsg);
-    }
 }
 
 
@@ -143,24 +126,6 @@ SqlArgs updateColumns(const UpdateValues& updatevalues, const QString& table)
 // Queries
 // ============================================================================
 
-void addWhereClause(const WhereConditions& where, SqlArgs& sqlargs_altered)
-{
-    if (where.isEmpty()) {
-        return;
-    }
-    QStringList whereclauses;
-    QMapIterator<QString, QVariant> it(where);
-    while (it.hasNext()) {
-        it.next();
-        QString wherefield = it.key();
-        QVariant wherevalue = it.value();
-        whereclauses.append(delimit(wherefield) + "=?");
-        sqlargs_altered.args.append(wherevalue);
-    }
-    sqlargs_altered.sql += " WHERE " + whereclauses.join(" AND ");
-}
-
-
 void addOrderByClause(const OrderBy& order_by, SqlArgs& sqlargs_altered)
 {
     if (order_by.isEmpty()) {
@@ -188,6 +153,13 @@ void addArgs(QSqlQuery& query, const ArgList& args)
 }
 
 
+bool execQuery(QSqlQuery& query, const SqlArgs& sqlargs,
+               bool suppress_errors)
+{
+    return execQuery(query, sqlargs.sql, sqlargs.args, suppress_errors);
+}
+
+
 bool execQuery(QSqlQuery& query, const QString& sql, const ArgList& args,
                bool suppress_errors)
 {
@@ -205,9 +177,19 @@ bool execQuery(QSqlQuery& query, const QString& sql, const ArgList& args,
     }  // endl on destruction
 #endif
 
+#ifdef DEBUG_QUERY_TIMING
+    QDateTime start_time = QDateTime::currentDateTime();
+#endif
     bool success = query.exec();
+#ifdef DEBUG_QUERY_TIMING
+    QDateTime end_time = QDateTime::currentDateTime();
+#endif
 #ifdef DEBUG_QUERY_END
     qDebug() << "... query finished";
+#endif
+#ifdef DEBUG_QUERY_TIMING
+    qDebug() << (query.isSelect() ? "SELECT" : "Non-SELECT")
+             << "query took" << start_time.msecsTo(end_time) << "ms";
 #endif
     if (!success && !suppress_errors) {
         qCritical() << "Query failed; error was:" << query.lastError();
@@ -245,91 +227,6 @@ bool execQuery(QSqlQuery& query, const QString& sql, const ArgList& args,
 }
 
 
-bool execQuery(QSqlQuery& query, const QString& sql)
-{
-    ArgList args;
-    return execQuery(query, sql, args);
-}
-
-
-bool execQuery(QSqlQuery& query, const SqlArgs& sqlargs)
-{
-    return execQuery(query, sqlargs.sql, sqlargs.args);
-}
-
-
-bool exec(const QSqlDatabase& db, const QString& sql, const ArgList& args)
-{
-    // Executes a new query and returns success.
-    QSqlQuery query(db);
-    return execQuery(query, sql, args);
-}
-
-
-// http://stackoverflow.com/questions/2816293/passing-optional-parameter-by-reference-in-c
-bool exec(const QSqlDatabase& db, const QString& sql)
-{
-    ArgList args;
-    return exec(db, sql, args);
-}
-
-
-bool exec(const QSqlDatabase& db, const SqlArgs& sqlargs)
-{
-    return exec(db, sqlargs.sql, sqlargs.args);
-}
-
-
-bool commit(const QSqlDatabase &db)
-{
-    // If we ever need to do proper transations, use an RAII object that
-    // executes BEGIN TRANSATION on creation and either COMMIT or ROLLBACK
-    // on deletion, and/or handles nesting via SAVEPOINT/RELEASE.
-    return exec(db, "COMMIT");
-}
-
-
-QVariant dbFetchFirstValue(const QSqlDatabase& db,
-                           const QString& sql,
-                           const ArgList& args)
-{
-    QSqlQuery query(db);
-    execQuery(query, sql, args);
-    if (!query.next()) {
-        return QVariant();
-    }
-    return query.value(0);
-}
-
-
-QVariant dbFetchFirstValue(const QSqlDatabase& db, const QString& sql)
-{
-    ArgList args;
-    return dbFetchFirstValue(db, sql, args);
-}
-
-
-int dbFetchInt(const QSqlDatabase& db, const SqlArgs& sqlargs,
-               int failure_default)
-{
-    // Executes the specified SQL/args and returns the integer value of the
-    // first field of the first result (or failureDefault).
-    QSqlQuery query(db);
-    execQuery(query, sqlargs);
-    if (!query.next()) {
-        return failure_default;
-    }
-    return query.value(0).toInt();
-}
-
-
-int dbFetchInt(const QSqlDatabase& db, const QString& sql,
-               int failure_default)
-{
-    return dbFetchInt(db, SqlArgs(sql), failure_default);
-}
-
-
 QString sqlParamHolders(int n)
 {
     // String like "?,?,?" for n parameter holders
@@ -354,169 +251,9 @@ ArgList argListFromIntList(const QVector<int>& intlist)
 }
 
 
-QString csvHeader(const QSqlQuery& query, const char sep)
-{
-    QSqlRecord record = query.record();
-    int nfields = record.count();
-    QStringList fieldnames;
-    for (int i = 0; i < nfields; ++i) {
-        fieldnames.append(record.fieldName(i));
-    }
-    return fieldnames.join(sep);
-}
-
-
-QString csvRow(const QSqlQuery& query, const char sep)
-{
-    int nfields = query.record().count();
-    QStringList values;
-    for (int i = 0; i < nfields; ++i) {
-        values.append(convert::toSqlLiteral(query.value(i)));
-    }
-    return values.join(sep);
-}
-
-
-QString csv(QSqlQuery& query, const char sep, const char linesep)
-{
-    QStringList rows;
-    rows.append(csvHeader(query, sep));
-    while (query.next()) {
-        rows.append(csvRow(query, sep));
-    }
-    return rows.join(linesep);
-}
-
-
-int count(const QSqlDatabase& db,
-          const QString& tablename, const WhereConditions& where)
-{
-    SqlArgs sqlargs("SELECT COUNT(*) FROM " + delimit(tablename));
-    addWhereClause(where, sqlargs);
-    return dbFetchInt(db, sqlargs, 0);
-}
-
-
-QVector<int> getSingleFieldAsIntList(const QSqlDatabase& db,
-                                     const QString& tablename,
-                                     const QString& fieldname,
-                                     const WhereConditions& where)
-{
-    SqlArgs sqlargs(QString("SELECT %1 FROM %2").arg(delimit(fieldname),
-                                                     delimit(tablename)));
-    addWhereClause(where, sqlargs);
-    QSqlQuery query(db);
-    QVector<int> results;
-    if (!execQuery(query, sqlargs)) {
-        return results;  // empty list on failure
-    }
-    while (query.next()) {
-        results.append(query.value(0).toInt());
-    }
-    return results;
-}
-
-
-QVector<int> getPKs(const QSqlDatabase& db,
-                    const QString& tablename,
-                    const QString& pkname,
-                    const WhereConditions& where)
-{
-    return getSingleFieldAsIntList(db, tablename, pkname, where);
-}
-
-
-bool existsByPk(const QSqlDatabase& db, const QString& tablename,
-                const QString& pkname, int pkvalue)
-{
-    SqlArgs sqlargs(
-        QString("SELECT EXISTS(SELECT * FROM %1 WHERE %2 = ?)")
-                .arg(delimit(tablename),
-                     delimit(pkname)),
-        ArgList{pkvalue}
-    );
-    // EXISTS always returns 0 or 1
-    // https://www.sqlite.org/lang_expr.html
-    return dbFetchInt(db, sqlargs) == 1;
-}
-
-
-// ============================================================================
-// Modification queries
-// ============================================================================
-
-bool deleteFrom(const QSqlDatabase& db,
-                const QString& tablename,
-                const WhereConditions& where)
-{
-    SqlArgs sqlargs(QString("DELETE FROM %1").arg(delimit(tablename)));
-    addWhereClause(where, sqlargs);
-    QSqlQuery query(db);
-    return execQuery(query, sqlargs);
-}
-
-
 // ============================================================================
 // Database structure
 // ============================================================================
-
-QStringList getAllTables(const QSqlDatabase& db)
-{
-    // System tables begin with sqlite_
-    // - https://www.sqlite.org/fileformat.html
-    // An underscore is a wildcard for LIKE
-    // - https://www.sqlite.org/lang_expr.html
-    QString sql = "SELECT name "
-                  "FROM sqlite_master "
-                  "WHERE sql NOT NULL "
-                  "AND type='table' "
-                  "AND name NOT LIKE 'sqlite\\_%' ESCAPE '\\' "
-                  "ORDER BY name";
-    QSqlQuery query(db);
-    QStringList tablenames;
-    if (!execQuery(query, sql)) {
-        return tablenames;  // empty list on failure
-    }
-    while (query.next()) {
-        tablenames.append(query.value(0).toString());
-    }
-    return tablenames;
-}
-
-
-bool tableExists(const QSqlDatabase& db, const QString& tablename)
-{
-    SqlArgs sqlargs(
-        "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?",
-        {tablename}
-    );
-    return dbFetchInt(db, sqlargs) > 0;
-}
-
-
-QVector<SqlitePragmaInfoField> getPragmaInfo(const QSqlDatabase& db,
-                                             const QString& tablename)
-{
-    QString sql = QString("PRAGMA table_info(%1)").arg(delimit(tablename));
-    QSqlQuery query(db);
-    if (!execQuery(query, sql)) {
-        uifunc::stopApp("getPragmaInfo: PRAGMA table_info failed for "
-                        "table " + tablename);
-    }
-    QVector<SqlitePragmaInfoField> infolist;
-    while (query.next()) {
-        SqlitePragmaInfoField fieldinfo;
-        fieldinfo.cid = query.value(0).toInt();  // column ID
-        fieldinfo.name = query.value(1).toString();
-        fieldinfo.type = query.value(2).toString();
-        fieldinfo.notnull = query.value(3).toBool();
-        fieldinfo.dflt_value = query.value(4);
-        fieldinfo.pk = query.value(5).toBool();
-        infolist.append(fieldinfo);
-    }
-    return infolist;
-}
-
 
 QStringList fieldNamesFromPragmaInfo(
         const QVector<SqlitePragmaInfoField>& infolist,
@@ -532,13 +269,6 @@ QStringList fieldNamesFromPragmaInfo(
         fieldnames.append(name);
     }
     return fieldnames;
-}
-
-
-QStringList getFieldNames(const QSqlDatabase& db, const QString& tablename)
-{
-    QVector<SqlitePragmaInfoField> infolist = getPragmaInfo(db, tablename);
-    return fieldNamesFromPragmaInfo(infolist);
 }
 
 
@@ -570,181 +300,9 @@ QString makeCreationSqlFromPragmaInfo(
 }
 
 
-QString dbTableDefinitionSql(const QSqlDatabase& db, const QString& tablename)
-{
-    QString sql = "SELECT sql FROM sqlite_master WHERE tbl_name=?";
-    ArgList args({tablename});
-    return dbFetchFirstValue(db, sql, args).toString();
-}
-
-
 // ============================================================================
 // Altering structure
 // ============================================================================
-
-bool createIndex(const QSqlDatabase& db, const QString& indexname,
-                 const QString& tablename, QStringList fieldnames)
-{
-    if (!tableExists(db, tablename)) {
-        qWarning() << "WARNING: ignoring createIndex for non-existent table:"
-                   << tablename;
-        return false;
-    }
-    for (int i = 0; i < fieldnames.size(); ++i) {
-        fieldnames[i] = delimit(fieldnames.at(i));
-    }
-    QString sql = QString("CREATE INDEX IF NOT EXISTS %1 ON %2 (%3)").arg(
-        delimit(indexname), delimit(tablename), fieldnames.join(""));
-    return exec(db, sql);
-}
-
-
-void renameColumns(const QSqlDatabase& db, QString tablename,
-                   const QVector<QPair<QString, QString>>& from_to,
-                   const QString& tempsuffix)
-{
-    if (!tableExists(db, tablename)) {
-        qWarning() << "WARNING: ignoring renameColumns for non-existent table:"
-                   << tablename;
-        return;
-    }
-    QString creation_sql = dbTableDefinitionSql(db, tablename);
-    QStringList old_fieldnames = getFieldNames(db, tablename);
-    QStringList new_fieldnames = old_fieldnames;
-    QString dummytable = tablename + tempsuffix;
-    if (tableExists(db, dummytable)) {
-        uifunc::stopApp("renameColumns: temporary table exists: " +
-                        dummytable);
-    }
-    int n_changes = 0;
-    for (int i = 0; i < from_to.size(); ++i) {  // For each rename...
-        QString from = from_to.at(i).first;
-        QString to = from_to.at(i).second;
-        if (from == to) {
-            continue;
-        }
-        // Check the source is valid
-        if (!old_fieldnames.contains(from)) {
-            uifunc::stopApp("renameColumns: 'from' field doesn't "
-                            "exist: " + tablename + "." + from);
-        }
-        // Check the destination doesn't exist already
-        if (new_fieldnames.contains(to)) {
-            uifunc::stopApp(
-                "renameColumns: destination field already exists (or "
-                "attempt to rename two columns to the same name): " +
-                tablename + "." + to);
-        }
-        // Rename the fieldname in the new_fieldnames list, and in the SQL
-        new_fieldnames[new_fieldnames.indexOf(from)] = to;
-        creation_sql.replace(delimit(from), delimit(to));
-        ++n_changes;
-    }
-    if (n_changes == 0) {
-        qDebug() << "renameColumns: nothing to do:" << tablename;
-        return;
-    }
-    qDebug() << Q_FUNC_INFO;
-    qDebug() << "- table:" << tablename;
-    qDebug() << "- from_to:" << from_to;
-    qDebug() << "- old_fieldnames:" << old_fieldnames;
-    qDebug() << "- new_fieldnames:" << new_fieldnames;
-    // Delimit everything
-    QString delimited_tablename = delimit(tablename);
-    QString delimited_dummytable = delimit(dummytable);
-    for (int i = 0; i < old_fieldnames.size(); ++i) {
-        old_fieldnames[i] = delimit(old_fieldnames.at(i));
-        new_fieldnames[i] = delimit(new_fieldnames.at(i));
-    }
-    exec(db, "BEGIN TRANSACTION");
-    exec(db, QString("ALTER TABLE %1 RENAME TO %2").arg(delimited_tablename,
-                                                        delimited_dummytable));
-    // Make a new, clean table:
-    exec(db, creation_sql);
-    // Copy the data across:
-    exec(db, QString("INSERT INTO %1 (%2) SELECT %3 FROM %4").arg(
-             delimited_tablename,
-             new_fieldnames.join(","),
-             old_fieldnames.join(","),
-             delimited_dummytable));
-    // Drop the temporary table:
-    exec(db, QString("DROP TABLE %1").arg(delimited_dummytable));
-    commit(db);
-}
-
-
-void renameTable(const QSqlDatabase& db, const QString& from,
-                 const QString& to)
-{
-    if (!tableExists(db, from)) {
-        qWarning() << Q_FUNC_INFO
-                   << "WARNING: ignoring renameTable for non-existent table:"
-                   << from;
-        return;
-    }
-    if (tableExists(db, to)) {
-        uifunc::stopApp("renameTable: destination table already exists: " +
-                        to);
-    }
-    // http://stackoverflow.com/questions/426495
-    exec(db, QString("ALTER TABLE %1 RENAME TO %2").arg(from, to));
-    // don't COMMIT (error: "cannot commit - no transaction is active")
-}
-
-
-void changeColumnTypes(const QSqlDatabase& db,
-                       const QString& tablename,
-                       const QVector<QPair<QString, QString>>& changes,
-                       const QString& tempsuffix)
-{
-    // changes: pairs <fieldname, newtype>
-    if (!tableExists(db, tablename)) {
-        qWarning() << "WARNING: ignoring changeColumnTypes for non-existent "
-                      "table:" << tablename;
-        return;
-    }
-    QString dummytable = tablename + tempsuffix;
-    if (tableExists(db, dummytable)) {
-        uifunc::stopApp("changeColumnTypes: temporary table exists: " +
-                        dummytable);
-    }
-    QVector<SqlitePragmaInfoField> infolist = getPragmaInfo(db, tablename);
-    qDebug() << "changeColumnTypes";
-    qDebug() << "- pragma info:" << infolist;
-    qDebug() << "- changes:" << changes;
-    int n_changes = 0;
-    for (int i = 0; i < changes.size(); ++i) {
-        QString changefield = changes.at(i).first;
-        for (int j = 0; i < infolist.size(); ++j) {
-            SqlitePragmaInfoField& info = infolist[j];
-            if (changefield.compare(info.name, Qt::CaseInsensitive) == 0) {
-                QString newtype = changes.at(i).second;
-                info.type = newtype;
-                ++n_changes;
-            }
-        }
-    }
-    if (n_changes == 0) {
-        qDebug() << "... nothing to do";
-        return;
-    }
-    QString creation_sql = makeCreationSqlFromPragmaInfo(tablename, infolist);
-    QString fieldnames = fieldNamesFromPragmaInfo(infolist, true).join(",");
-    QString delimited_tablename = delimit(tablename);
-    QString delimited_dummytable = delimit(dummytable);
-    exec(db, "BEGIN TRANSACTION");
-    exec(db, QString("ALTER TABLE %1 RENAME TO %2").arg(delimited_tablename,
-                                                        delimited_dummytable));
-    exec(db, creation_sql);  // make a new clean table
-    exec(db, QString("INSERT INTO %1 (%2) SELECT %3 FROM %4").arg(
-         delimited_tablename,
-         fieldnames,
-         fieldnames,
-         delimited_dummytable));
-    exec(db, QString("DROP TABLE %1").arg(delimited_dummytable));
-    commit(db);
-}
-
 
 QString sqlCreateTable(const QString& tablename, const QVector<Field>& fieldlist)
 {
@@ -760,180 +318,9 @@ QString sqlCreateTable(const QString& tablename, const QVector<Field>& fieldlist
 }
 
 
-void createTable(const QSqlDatabase& db, const QString& tablename,
-                 const QVector<Field>& fieldlist, const QString& tempsuffix)
-{
-    QString creation_sql = sqlCreateTable(tablename, fieldlist);
-    if (!tableExists(db, tablename)) {
-        // Create table from scratch.
-        exec(db, creation_sql);
-        return;
-    }
-
-    // Otherwise, it's a bit more complex...
-
-    // 1. Create a list of plans. Start with the fields we want, which we
-    //    will add (unless later it turns out they exist already).
-    QVector<FieldCreationPlan> planlist;
-    QStringList goodfieldlist;
-    for (int i = 0; i < fieldlist.size(); ++i) {
-        const Field& field = fieldlist.at(i);
-        FieldCreationPlan p;
-        p.name = field.name();
-        p.intended_field = &field;
-        p.add = true;
-        planlist.append(p);
-        goodfieldlist.append(delimit(p.name));
-    }
-
-    // 2. Fetch a list of existing fields.
-    // - If any are in our "desired" list, and we didn't know they were in
-    //   the database, don't add them (but maybe change them if we want them
-    //   to have a different type).
-    // - If they're not in our "desired" list, then they're superfluous, so
-    //   aim to drop them.
-    QVector<SqlitePragmaInfoField> infolist = getPragmaInfo(db, tablename);
-    for (int i = 0; i < infolist.size(); ++i) {
-        const SqlitePragmaInfoField& info = infolist.at(i);
-        bool existing_is_superfluous = true;
-        for (int j = 0; j < planlist.size(); ++j) {
-            FieldCreationPlan& plan = planlist[j];
-            const Field* intended_field = plan.intended_field;
-            if (!intended_field) {
-                // This shouldn't happen!
-                continue;
-            }
-            if (!plan.exists_in_db && intended_field->name() == info.name) {
-                plan.exists_in_db = true;
-                plan.add = false;
-                plan.change = (
-                    info.type != intended_field->sqlColumnType() ||
-                    info.notnull != intended_field->notNull() ||
-                    info.pk != intended_field->isPk()
-                );
-                plan.existing_type = info.type;
-                plan.existing_not_null = info.notnull;
-                existing_is_superfluous = false;
-            }
-        }
-        if (existing_is_superfluous) {
-            FieldCreationPlan plan;
-            plan.name = info.name;
-            plan.exists_in_db = true;
-            plan.existing_type = info.type;
-            plan.drop = true;
-            planlist.append(plan);
-        }
-    }
-
-    // 3. For any fields that require adding: add them.
-    //    For any that require dropping or altering, make a note for the
-    //    complex step.
-    bool drop_or_change_mods_required = false;
-    for (int i = 0; i < planlist.size(); ++i) {
-        const FieldCreationPlan& plan = planlist.at(i);
-        if (plan.add && plan.intended_field) {
-            if (plan.intended_field->isPk()) {
-                uifunc::stopApp(QString(
-                    "createTable: Cannot add a PRIMARY KEY column "
-                    "(%s.%s)").arg(tablename, plan.name));
-            }
-            exec(db, QString("ALTER TABLE %1 ADD COLUMN %2 %3").arg(
-                tablename,
-                delimit(plan.name),
-                plan.intended_field->sqlColumnDef()));
-        }
-        if (plan.drop || plan.change) {
-            drop_or_change_mods_required = true;
-        }
-    }
-
-    /*
-    qDebug() << Q_FUNC_INFO
-             << "tablename:" << tablename
-             << "goodfieldlist:" << goodfieldlist
-             << "infolist:" << infolist
-             << "modifications_required:" << drop_or_change_mods_required
-             << "plan:" << planlist;
-    */
-
-    if (!drop_or_change_mods_required) {
-        qDebug() << "Table" << tablename
-                 << "OK; no drop/change alteration required";
-        return;
-    }
-
-    // 4. Implement drop/change modifications (via a temporary table).
-    qDebug().nospace() << "Amendment plan for " << tablename
-                       << ": " << planlist;
-    // Deleting columns: http://www.sqlite.org/faq.html#q11
-    // ... also http://stackoverflow.com/questions/8442147/
-    // Basically, requires (a) copy data to temporary table; (b) drop original;
-    // (c) create new; (d) copy back.
-    // Or, another method: (a) rename table; (b) create new; (c) copy data
-    // across; (d) drop temporary.
-    // We deal with fields of incorrect type similarly (in this case, any
-    // conversion occurs as we SELECT back the values into the new, proper
-    // fields). Not sure it really is important, though:
-    // http://sqlite.org/datatype3.html
-    QString dummytable = tablename + tempsuffix;
-    if (tableExists(db, dummytable)) {
-        uifunc::stopApp("createTable: temporary table exists: " + dummytable);
-    }
-    QString delimited_tablename = delimit(tablename);
-    QString delimited_dummytable = delimit(dummytable);
-    QString goodfieldstring = goodfieldlist.join(",");
-    exec(db, "BEGIN TRANSACTION");
-    exec(db, QString("ALTER TABLE %1 RENAME TO %2").arg(delimited_tablename,
-                                                        delimited_dummytable));
-    exec(db, creation_sql);  // make a new clean table
-    exec(db, QString("INSERT INTO %1 (%2) SELECT %3 FROM %4").arg(
-         delimited_tablename,
-         goodfieldstring,
-         goodfieldstring,
-         delimited_dummytable));
-    exec(db, QString("DROP TABLE %1").arg(delimited_dummytable));
-    commit(db);
-}
-
-
 // ============================================================================
 // Encryption queries, via SQLCipher
 // ============================================================================
-
-bool canReadDatabase(const QSqlDatabase& db)
-{
-    QSqlQuery query(db);
-    ArgList args;
-    return execQuery(query, "SELECT COUNT(*) FROM sqlite_master", args, true);
-    // The "true" suppresses errors if this fails. It will fail if the database
-    // is encrypted and we've not supplied the right key.
-}
-
-
-bool pragmaKey(const QSqlDatabase& db, const QString& passphase)
-{
-    // "PRAGMA key" is specific to SQLCipher
-    QString sql = QString("PRAGMA key=%1")
-            .arg(convert::toSqlLiteral(passphase));
-    return exec(db, sql);
-}
-
-
-bool pragmaRekey(const QSqlDatabase& db, const QString& passphase)
-{
-    // "PRAGMA rekey" is specific to SQLCipher
-    QString sql = QString("PRAGMA rekey=%1")
-            .arg(convert::toSqlLiteral(passphase));
-    return exec(db, sql);
-}
-
-
-bool databaseIsEmpty(const QSqlDatabase& db)
-{
-    return count(db, "sqlite_master") == 0;
-}
-
 
 bool encryptPlainDatabaseInPlace(const QString& filename,
                                  const QString& tempfilename,
@@ -957,26 +344,17 @@ bool encryptPlainDatabaseInPlace(const QString& filename,
                         title);
     }
 
-    // 2. Open the plain-text database
-    QSqlDatabase plain = QSqlDatabase::addDatabase(
-                whichdb::DBTYPE, CONNECTION_ENCRYPTION_TEMP_PLAIN);
-    openDatabaseOrDie(plain, filename, true);
+    bool success = false;
+    {  // scope to close db automatically
+        // 2. Open the plain-text database
+        DatabaseManager db(filename, CONNECTION_ENCRYPTION_TEMP_PLAIN,
+                           whichdb::DBTYPE);
 
-    // 3. Encrypt it to another database.
-    //    (ATTACH DATABASE can create and encrypt from scratch.)
-    // Something here is messing up the database system, for other
-    // databases...
-    bool success =
-            exec(plain, QString("ATTACH DATABASE %1 AS encrypted KEY %2")
-                 .arg(convert::toSqlLiteral(tempfilename))
-                 .arg(convert::toSqlLiteral(passphrase))) &&
-            exec(plain, "SELECT sqlcipher_export('encrypted')") &&
-            exec(plain, "DETACH DATABASE encrypted");
+        // 3. Encrypt it to another database.
+        success = db.encryptToAnother(tempfilename, passphrase);
 
-    // 4. Close plain-text database properly.
-    plain.close();
-    plain = QSqlDatabase();
-    QSqlDatabase::removeDatabase(CONNECTION_ENCRYPTION_TEMP_PLAIN);
+        // 4. Close plain-text database properly... by ending this scope.
+    }
 
     // 5. If we managed, rename the databases.
     if (!success) {

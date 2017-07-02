@@ -32,7 +32,7 @@ class Aims : public Task
 {
     Q_OBJECT
 public:
-    Aims(CamcopsApp& app, const QSqlDatabase& db,
+    Aims(CamcopsApp& app, DatabaseManager& db,
          int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

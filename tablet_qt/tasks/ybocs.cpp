@@ -91,7 +91,7 @@ void initializeYbocs(TaskFactory& factory)
 }
 
 
-Ybocs::Ybocs(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Ybocs::Ybocs(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, YBOCS_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addField(Q1B, QVariant::Int);

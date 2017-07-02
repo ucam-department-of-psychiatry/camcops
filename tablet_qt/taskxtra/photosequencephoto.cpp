@@ -28,7 +28,7 @@ const QString PhotoSequencePhoto::PHOTO_BLOBID("photo_blobid");
 // const QString PhotoSequenceItem::ROTATION("rotation");  // DEFUNCT in v2
 
 
-PhotoSequencePhoto::PhotoSequencePhoto(CamcopsApp& app, const QSqlDatabase& db,
+PhotoSequencePhoto::PhotoSequencePhoto(CamcopsApp& app, DatabaseManager& db,
                                        int load_pk) :
     DatabaseObject(app, db, PHOTOSEQUENCEPHOTO_TABLENAME,
                    dbconst::PK_FIELDNAME,  // pk_fieldname
@@ -47,7 +47,7 @@ PhotoSequencePhoto::PhotoSequencePhoto(CamcopsApp& app, const QSqlDatabase& db,
 
 
 PhotoSequencePhoto::PhotoSequencePhoto(int owner_fk, CamcopsApp& app,
-                                       const QSqlDatabase& db) :
+                                       DatabaseManager& db) :
     PhotoSequencePhoto(app, db)  // delegating constructor
 {
     setValue(FK_NAME, owner_fk);

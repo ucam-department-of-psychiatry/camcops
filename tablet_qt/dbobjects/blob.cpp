@@ -18,7 +18,7 @@
 */
 
 #include "blob.h"
-#include "db/dbfunc.h"
+#include "db/databasemanager.h"
 
 const QString Blob::TABLENAME("blobs");  // as per DBCONSTANTS.js
 
@@ -31,7 +31,7 @@ const QString BLOB_FIELDNAME("theblob"); // as per dbupload.js
 
 
 Blob::Blob(CamcopsApp& app,
-           const QSqlDatabase& db,
+           DatabaseManager& db,
            const QString& src_table,
            int src_pk,
            const QString& src_field) :
@@ -57,9 +57,9 @@ Blob::Blob(CamcopsApp& app,
     if (!src_table.isEmpty() && !src_field.isEmpty() && src_pk >= 0) {
         // Not a specimen; load, or set defaults and save
         WhereConditions where;
-        where[SRC_TABLE_FIELDNAME] = src_table;
-        where[SRC_PK_FIELDNAME] = src_pk;
-        where[SRC_FIELD_FIELDNAME] = src_field;
+        where.add(SRC_TABLE_FIELDNAME, src_table);
+        where.add(SRC_PK_FIELDNAME, src_pk);
+        where.add(SRC_FIELD_FIELDNAME, src_field);
         bool success = load(where);  // will load the BLOB, if present
         if (!success) {
             setValue(SRC_TABLE_FIELDNAME, src_table);
@@ -118,8 +118,9 @@ QByteArray Blob::blobByteArray() const
 
 void Blob::makeIndexes()
 {
-    dbfunc::createIndex(m_db, "_idx_src_table_pk_field", TABLENAME, {
-                            SRC_TABLE_FIELDNAME,
-                            SRC_PK_FIELDNAME,
-                            SRC_FIELD_FIELDNAME});
+    m_db.createIndex("_idx_src_table_pk_field",
+                     TABLENAME,
+                     {SRC_TABLE_FIELDNAME,
+                      SRC_PK_FIELDNAME,
+                      SRC_FIELD_FIELDNAME});
 }

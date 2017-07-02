@@ -32,7 +32,7 @@ class Icd10Depressive : public Task
 {
     Q_OBJECT
 public:
-    Icd10Depressive(CamcopsApp& app, const QSqlDatabase& db,
+    Icd10Depressive(CamcopsApp& app, DatabaseManager& db,
                     int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

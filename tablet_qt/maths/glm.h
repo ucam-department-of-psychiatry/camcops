@@ -44,14 +44,14 @@ class Glm
     // Generalized linear model (GLM), using Eigen
 
 public:
-    enum SolveMethod {
+    enum class SolveMethod {
         IRLS_KaneLewis,
         IRLS_SVDNewton_KaneLewis,
 #ifdef GLM_OFFER_R_GLM_FIT
         IRLS_R_glmfit,
 #endif
     };
-    enum RankDeficiencyMethod {
+    enum class RankDeficiencyMethod {
         SelectColumns,
         MinimumNorm,
         Error,

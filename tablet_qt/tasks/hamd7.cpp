@@ -46,7 +46,7 @@ void initializeHamD7(TaskFactory& factory)
 }
 
 
-HamD7::HamD7(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+HamD7::HamD7(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, HAMD7_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);

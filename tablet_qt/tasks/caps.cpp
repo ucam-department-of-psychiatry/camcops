@@ -60,7 +60,7 @@ void initializeCaps(TaskFactory& factory)
 }
 
 
-Caps::Caps(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Caps::Caps(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, CAPS_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {

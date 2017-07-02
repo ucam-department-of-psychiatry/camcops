@@ -36,7 +36,7 @@ void initializeDiagnosisIcd10(TaskFactory& factory)
 }
 
 
-DiagnosisIcd10::DiagnosisIcd10(CamcopsApp& app, const QSqlDatabase& db,
+DiagnosisIcd10::DiagnosisIcd10(CamcopsApp& app, DatabaseManager& db,
                                int load_pk) :
     DiagnosisTaskBase(app, db, DIAGNOSIS_ICD10_TABLENAME, load_pk)
 {

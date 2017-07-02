@@ -31,7 +31,7 @@ class DemoQuestionnaire : public Task
 {
     Q_OBJECT
 public:
-    DemoQuestionnaire(CamcopsApp& app, const QSqlDatabase& db,
+    DemoQuestionnaire(CamcopsApp& app, DatabaseManager& db,
                       int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

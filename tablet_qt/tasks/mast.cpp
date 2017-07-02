@@ -51,7 +51,7 @@ void initializeMast(TaskFactory& factory)
 }
 
 
-Mast::Mast(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Mast::Mast(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, MAST_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::String);

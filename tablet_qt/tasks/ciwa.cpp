@@ -54,7 +54,7 @@ void initializeCiwa(TaskFactory& factory)
 }
 
 
-Ciwa::Ciwa(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Ciwa::Ciwa(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, CIWA_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_SCORED_QUESTIONS), QVariant::Int);

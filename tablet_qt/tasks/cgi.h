@@ -32,7 +32,7 @@ class Cgi : public Task
 {
     Q_OBJECT
 public:
-    Cgi(CamcopsApp& app, const QSqlDatabase& db,
+    Cgi(CamcopsApp& app, DatabaseManager& db,
         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

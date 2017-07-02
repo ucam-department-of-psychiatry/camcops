@@ -1,0 +1,210 @@
+/*
+    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+
+    This file is part of CamCOPS.
+
+    CamCOPS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    CamCOPS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#include "queryresult.h"
+#include <QDebug>
+#include <QSqlQuery>
+#include <QSqlRecord>
+#include "lib/convert.h"
+
+
+QueryResult::QueryResult(QSqlQuery& query,
+                         bool success,
+                         FetchMode fetch_mode,
+                         bool store_column_names) :
+    m_success(success)
+{
+    int ncols = 0;
+    if (success) {
+        m_last_insert_id = query.lastInsertId();  // in case it was an INSERT
+        if (fetch_mode != FetchMode::NoFetch) {
+            bool first = true;
+            while (query.next()) {
+                if (first) {
+                    QSqlRecord rec = query.record();
+                    ncols = rec.count();
+                    if (ncols == 0) {
+                        break;
+                    }
+                    if (store_column_names) {
+                        for (int i = 0; i < ncols; ++i) {
+                            m_column_names.append(rec.fieldName(i));
+                        }
+                    }
+                }
+
+                QVector<QVariant> row;
+                for (int i = 0; i < ncols; ++i) {
+                    row.append(query.value(i));
+                }
+                m_data.append(row);
+
+                if (first) {
+                    if (fetch_mode == FetchMode::FetchFirst) {
+                        // all done
+                        break;
+                    }
+                    first = false;
+                }
+            }
+        }
+    }
+    m_n_cols = ncols;
+    m_n_rows = m_data.length();
+}
+
+
+QueryResult::QueryResult() :
+    m_n_cols(0),
+    m_n_rows(0)
+{
+}
+
+
+bool QueryResult::succeeded() const
+{
+    return m_success;
+}
+
+
+int QueryResult::nCols() const
+{
+    return m_n_cols;
+}
+
+
+int QueryResult::nRows() const
+{
+    return m_n_rows;
+}
+
+
+bool QueryResult::isEmpty() const
+{
+    return m_n_rows == 0 || m_n_cols == 0;
+}
+
+
+QVector<QVariant> QueryResult::row(int row) const
+{
+    Q_ASSERT(row >= 0 && row <= m_n_rows);
+    return m_data.at(row);
+}
+
+
+QVariant QueryResult::at(int row, int col) const
+{
+    Q_ASSERT(row >= 0 && row <= m_n_rows);
+    Q_ASSERT(col >= 0 && col <= m_n_cols);
+    return m_data.at(row).at(col);
+}
+
+
+QVariant QueryResult::at(int row, const QString& colname) const
+{
+    int col = m_column_names.indexOf(colname);
+    return at(row, col);
+}
+
+
+QVariant QueryResult::firstValue() const
+{
+    if (isEmpty()) {
+        return QVariant();
+    }
+    return at(0, 0);
+}
+
+
+QVector<int> QueryResult::firstColumnAsIntList() const
+{
+    int nrows = nRows();
+    QVector<int> values;
+    for (int row = 0; row < nrows; ++row) {
+        values.append(at(row, 0).toInt());
+    }
+    return values;
+}
+
+
+QStringList QueryResult::firstColumnAsStringList() const
+{
+    int nrows = nRows();
+    QStringList values;
+    for (int row = 0; row < nrows; ++row) {
+        values.append(at(row, 0).toString());
+    }
+    return values;
+}
+
+
+QVariant QueryResult::lastInsertId() const
+{
+    return m_last_insert_id;
+}
+
+
+QString QueryResult::csvHeader(const char sep) const
+{
+    if (m_column_names.length() < nCols()) {
+        qCritical("Column names were discarded from the QueryResult but are "
+                  "now being requested for a CSV header!");
+    }
+    return m_column_names.join(sep);
+}
+
+
+QString QueryResult::csvRow(int row, const char sep) const
+{
+    int ncols = nCols();
+    QStringList values;
+    for (int col = 0; col < ncols; ++col) {
+        values.append(convert::toSqlLiteral(at(row, col)));
+    }
+    return values.join(sep);
+}
+
+
+QString QueryResult::csv(const char sep, const char linesep) const
+{
+    QStringList rows;
+    rows.append(csvHeader(sep));
+    int nrows = nRows();
+    for (int row = 0; row < nrows; ++row) {
+        rows.append(csvRow(sep));
+    }
+    return rows.join(linesep);
+}
+
+
+QString QueryResult::fetchModeDescription(FetchMode fetch_mode)
+{
+    switch (fetch_mode) {
+    case FetchMode::NoAnswer:
+        return "NoAnswer";
+    case FetchMode::NoFetch:
+        return "NoFetch";
+    case FetchMode::FetchAll:
+        return "FetchAll";
+    case FetchMode::FetchFirst:
+        return "FetchFirst";
+    default:
+        return "?";
+    }
+}

@@ -53,7 +53,7 @@ void initializeBdi(TaskFactory& factory)
 }
 
 
-Bdi::Bdi(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Bdi::Bdi(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, BDI_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addField(FN_BDI_SCALE, QVariant::String);

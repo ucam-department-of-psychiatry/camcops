@@ -42,7 +42,7 @@ N_PICKER = 2
 N_SLIDER = 2
 
 
-def divtest(divname):
+def divtest(divname: str) -> str:
     return '<div class="{d}">.{d}</div>\n'.format(d=divname)
 
 

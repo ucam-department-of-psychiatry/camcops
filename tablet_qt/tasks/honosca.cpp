@@ -55,7 +55,7 @@ void initializeHonosca(TaskFactory& factory)
 }
 
 
-Honosca::Honosca(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Honosca::Honosca(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, HONOSCA_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);

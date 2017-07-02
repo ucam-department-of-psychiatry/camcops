@@ -56,7 +56,7 @@ void initializeCbiR(TaskFactory& factory)
 }
 
 
-CbiR::CbiR(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+CbiR::CbiR(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, CBIR_TABLENAME, false, false, true),  // ... anon, clin, resp
     m_confirmation_fr(nullptr)
 {

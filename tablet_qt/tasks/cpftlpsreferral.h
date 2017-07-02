@@ -32,7 +32,7 @@ class CPFTLPSReferral : public Task
 {
     Q_OBJECT
 public:
-    CPFTLPSReferral(CamcopsApp& app, const QSqlDatabase& db,
+    CPFTLPSReferral(CamcopsApp& app, DatabaseManager& db,
                     int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

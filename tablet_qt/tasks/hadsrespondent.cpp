@@ -29,7 +29,7 @@ void initializeHadsRespondent(TaskFactory& factory)
 }
 
 
-HadsRespondent::HadsRespondent(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+HadsRespondent::HadsRespondent(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Hads(app, db, HADSRESPONDENT_TABLENAME, true, load_pk)
 {
     // Hads constructor will load for us.

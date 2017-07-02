@@ -24,7 +24,7 @@ const QString DiagnosisIcd9CMItem::FK_NAME("diagnosis_icd9cm_id");  // FK to dia
 
 
 DiagnosisIcd9CMItem::DiagnosisIcd9CMItem(CamcopsApp& app,
-                                         const QSqlDatabase& db, int load_pk) :
+                                         DatabaseManager& db, int load_pk) :
     DiagnosisItemBase(app, db,
                       DIAGNOSIS_ICD9CM_ITEM_TABLENAME, FK_NAME, load_pk)
 {
@@ -32,7 +32,7 @@ DiagnosisIcd9CMItem::DiagnosisIcd9CMItem(CamcopsApp& app,
 
 
 DiagnosisIcd9CMItem::DiagnosisIcd9CMItem(int owner_fk, CamcopsApp& app,
-                                         const QSqlDatabase& db) :
+                                         DatabaseManager& db) :
     DiagnosisItemBase(owner_fk, app, db,
                       DIAGNOSIS_ICD9CM_ITEM_TABLENAME, FK_NAME)  // delegating constructor
 {

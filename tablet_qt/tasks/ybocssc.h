@@ -32,7 +32,7 @@ class YbocsSc : public Task
 {
     Q_OBJECT
 public:
-    YbocsSc(CamcopsApp& app, const QSqlDatabase& db,
+    YbocsSc(CamcopsApp& app, DatabaseManager& db,
             int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

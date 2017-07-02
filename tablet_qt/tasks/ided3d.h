@@ -51,7 +51,7 @@ class IDED3D : public Task
     // ... a pointer to a member function of IDED3D that takes no
     // parameters and returns void
 public:
-    IDED3D(CamcopsApp& app, const QSqlDatabase& db,
+    IDED3D(CamcopsApp& app, DatabaseManager& db,
            int load_pk = dbconst::NONEXISTENT_PK);
     ~IDED3D();
     // ------------------------------------------------------------------------

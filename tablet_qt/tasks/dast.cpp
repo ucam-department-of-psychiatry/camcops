@@ -48,7 +48,7 @@ void initializeDast(TaskFactory& factory)
 }
 
 
-Dast::Dast(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Dast::Dast(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, DAST_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::String);

@@ -25,7 +25,7 @@
 #include "common/uiconst.h"
 #include "common/varconst.h"
 #include "common/version.h"
-#include "db/dbfunc.h"
+#include "db/databasemanager.h"
 #include "dbobjects/patient.h"
 #include "lib/datetime.h"
 #include "maths/mathfunc.h"
@@ -58,7 +58,7 @@ const QString Task::RESPONDENT_RELATIONSHIP("respondent_relationship");
 
 
 Task::Task(CamcopsApp& app,
-           const QSqlDatabase& db,
+           DatabaseManager& db,
            const QString& tablename,
            bool is_anonymous,
            bool has_clinician,
@@ -247,7 +247,7 @@ void Task::makeTables()
 
 int Task::count(const WhereConditions& where) const
 {
-    return dbfunc::count(m_db, m_tablename, where);
+    return m_db.count(m_tablename, where);
 }
 
 
@@ -257,7 +257,7 @@ int Task::countForPatient(int patient_id) const
         return 0;
     }
     WhereConditions where;
-    where[PATIENT_FK_FIELDNAME] = patient_id;
+    where.add(PATIENT_FK_FIELDNAME,  patient_id);
     return count(where);
 }
 

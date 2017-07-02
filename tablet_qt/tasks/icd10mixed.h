@@ -32,7 +32,7 @@ class Icd10Mixed : public Task
 {
     Q_OBJECT
 public:
-    Icd10Mixed(CamcopsApp& app, const QSqlDatabase& db,
+    Icd10Mixed(CamcopsApp& app, DatabaseManager& db,
                int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

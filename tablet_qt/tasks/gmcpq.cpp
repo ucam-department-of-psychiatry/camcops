@@ -72,7 +72,7 @@ void initializeGmcPq(TaskFactory& factory)
 }
 
 
-GmcPq::GmcPq(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+GmcPq::GmcPq(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, GMCPQ_TABLENAME, true, false, false)  // ... anon, clin, resp
 {
     addField(DOCTOR, QVariant::String);

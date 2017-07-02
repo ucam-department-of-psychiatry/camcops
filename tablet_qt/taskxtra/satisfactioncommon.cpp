@@ -40,7 +40,7 @@ const QString BAD("bad");
 
 
 SatisfactionCommon::SatisfactionCommon(CamcopsApp& app,
-                                       const QSqlDatabase& db,
+                                       DatabaseManager& db,
                                        const QString& tablename,
                                        bool anonymous,
                                        int load_pk) :

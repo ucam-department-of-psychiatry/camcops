@@ -46,7 +46,7 @@ void initializeBprsE(TaskFactory& factory)
 }
 
 
-BprsE::BprsE(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+BprsE::BprsE(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, BPRSE_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);

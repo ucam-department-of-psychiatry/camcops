@@ -41,7 +41,7 @@ void initializePhoto(TaskFactory& factory)
 }
 
 
-Photo::Photo(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Photo::Photo(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, PHOTO_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addField(DESCRIPTION, QVariant::String);

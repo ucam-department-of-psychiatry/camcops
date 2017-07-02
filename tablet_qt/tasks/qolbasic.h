@@ -32,7 +32,7 @@ class QolBasic : public Task
 {
     Q_OBJECT
 public:
-    QolBasic(CamcopsApp& app, const QSqlDatabase& db,
+    QolBasic(CamcopsApp& app, DatabaseManager& db,
              int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

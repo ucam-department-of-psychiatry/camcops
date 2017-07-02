@@ -27,7 +27,7 @@ class PclC : public PclCommon
 {
     Q_OBJECT
 public:
-    PclC(CamcopsApp& app, const QSqlDatabase& db,
+    PclC(CamcopsApp& app, DatabaseManager& db,
          int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

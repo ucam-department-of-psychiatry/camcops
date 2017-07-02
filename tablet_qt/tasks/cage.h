@@ -32,7 +32,7 @@ class Cage : public Task
 {
     Q_OBJECT
 public:
-    Cage(CamcopsApp& app, const QSqlDatabase& db,
+    Cage(CamcopsApp& app, DatabaseManager& db,
          int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

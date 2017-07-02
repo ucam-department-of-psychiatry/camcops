@@ -235,7 +235,7 @@ void initializeCisr(TaskFactory& factory)
 }
 
 
-Cisr::Cisr(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Cisr::Cisr(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, CISR_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     // ***

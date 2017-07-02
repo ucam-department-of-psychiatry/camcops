@@ -115,7 +115,7 @@ void initializeIcd10Depressive(TaskFactory& factory)
 }
 
 
-Icd10Depressive::Icd10Depressive(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Icd10Depressive::Icd10Depressive(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, ICD10DEP_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(CORE_NAMES, QVariant::Bool);

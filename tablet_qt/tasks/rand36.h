@@ -32,7 +32,7 @@ class Rand36 : public Task
 {
     Q_OBJECT
 public:
-    Rand36(CamcopsApp& app, const QSqlDatabase& db,
+    Rand36(CamcopsApp& app, DatabaseManager& db,
            int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

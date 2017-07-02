@@ -1,30 +1,34 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python
 
 # http://stackoverflow.com/questions/5173795/how-can-i-generate-a-note-or-chord-in-python  # noqa
 # ... and me
 # http://blogs.msdn.com/b/dawate/archive/2009/06/23/intro-to-audio-programming-part-2-demystifying-the-wav-format.aspx  # noqa
 # ... for 16-bit WAV (sampwidth = 2), data range = -32760 to +32760
 
-from __future__ import division
-from __future__ import print_function
 import math
-import wave
 import struct
+from typing import List, Tuple
+import wave
 
 DEBUG = True
 
 
-def synthComplex(freq_coefs=[(440, 1)], duration_s=1.0, fname="test.wav",
-                 frate_Hz=44100.00, amp_proportion=1.0):
+def synth_complex(freq_coefs: List[Tuple[float, float]] = None,
+                  duration_s: float = 1.0,
+                  fname: str = "test.wav",
+                  frate_hz: float = 44100.00,
+                  amp_proportion: float = 1.0) -> None:
+    if freq_coefs is None:
+        freq_coefs = [(440, 1)]  # type: List[Tuple[float, float]]
     sine_list = []
-    datasize = int(frate_Hz * duration_s)
+    datasize = int(frate_hz * duration_s)
     clipped = False
     for x in range(datasize):
         samp = 0
         for k in range(len(freq_coefs)):
             freq = freq_coefs[k][0]
             coef = freq_coefs[k][1]
-            samp = samp + coef * math.sin(2 * math.pi * freq * (x / frate_Hz))
+            samp = samp + coef * math.sin(2 * math.pi * freq * (x / frate_hz))
             # each component can contribute (+/- coef) to each sample
         if samp > 1 or samp < -1:
             clipped = True
@@ -34,7 +38,7 @@ def synthComplex(freq_coefs=[(440, 1)], duration_s=1.0, fname="test.wav",
     nchannels = 1
     sampwidth = 2
     maxamp = 32760  # as above
-    framerate = int(frate_Hz)
+    framerate = int(frate_hz)
     nframes = datasize
     comptype = "NONE"
     compname = "not compressed"
@@ -49,13 +53,13 @@ def synthComplex(freq_coefs=[(440, 1)], duration_s=1.0, fname="test.wav",
         print("warning: amplitude CLIPPED")
 
 
-def frequencyHz(note, octave=4):
+def frequency_hz(note: str, octave: int = 4) -> float:
     badnote = "bad note"
     if (not note or not isinstance(note, str) or len(note) > 2
             or not isinstance(octave, int)):
         raise Exception(badnote)
     basenote = note[0].upper()
-    notenum = 0  # will be: semitones relative to reference A (A4)
+    # notenum = 0  # will be: semitones relative to reference A (A4)
     if basenote == 'C':
         notenum = -9
     elif basenote == 'D':
@@ -83,29 +87,30 @@ def frequencyHz(note, octave=4):
     notenum += 12 * (octave - 4)
     # Frequency = (twelfth root of 2) ^ note * 440 Hz
     # Frequency = 2 ^ (note / 12) * 440 Hz
-    frequency_hz = pow(2, notenum / 12.0) * 440.0
+    freq_hz = pow(2, notenum / 12.0) * 440.0
     if DEBUG:
-        print(note, octave, " = ", frequency_hz, " Hz")
-    return frequency_hz
+        print(note, octave, " = ", freq_hz, " Hz")
+    return freq_hz
     # Test case: frequencyHz("A", 4) should return 440 (pitch standard)
     # Test case: frequencyHz("C", 4) should return 261.626 (middle C)
     # http://en.wikipedia.org/wiki/Scientific_pitch_notation
 
 
-def ided3d():
-    A4 = frequencyHz("A", 4)
-    C4 = frequencyHz("C", 4)
-    C5 = frequencyHz("C", 5)
-    Eb5 = frequencyHz("Eb", 5)
-    E5 = frequencyHz("E", 5)
-    Fs5 = frequencyHz("F#", 5)
-    G5 = frequencyHz("G", 5)
-    C6 = frequencyHz("C", 6)
+# noinspection PyPep8Naming
+def ided3d() -> None:
+    A4 = frequency_hz("A", 4)
+    # C4 = frequency_hz("C", 4)
+    C5 = frequency_hz("C", 5)
+    Eb5 = frequency_hz("Eb", 5)
+    E5 = frequency_hz("E", 5)
+    Fs5 = frequency_hz("F#", 5)
+    G5 = frequency_hz("G", 5)
+    C6 = frequency_hz("C", 6)
 
-    synthComplex([(E5, 1/3), (G5, 1/3), (C6, 1/3)],
-                 duration_s=0.164, fname="correct.wav")
-    synthComplex([(A4, 1/4), (C5, 1/4), (Eb5, 1/4), (Fs5, 1/4)],
-                 duration_s=0.550, fname="incorrect.wav")
+    synth_complex([(E5, 1 / 3), (G5, 1 / 3), (C6, 1 / 3)],
+                  duration_s=0.164, fname="correct.wav")
+    synth_complex([(A4, 1 / 4), (C5, 1 / 4), (Eb5, 1 / 4), (Fs5, 1 / 4)],
+                  duration_s=0.550, fname="incorrect.wav")
 
 
 if __name__ == '__main__':

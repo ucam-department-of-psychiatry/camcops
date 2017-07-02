@@ -46,7 +46,7 @@ void initializeAuditC(TaskFactory& factory)
 }
 
 
-AuditC::AuditC(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+AuditC::AuditC(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, AUDITC_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);

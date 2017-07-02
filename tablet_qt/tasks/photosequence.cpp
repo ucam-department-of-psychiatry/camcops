@@ -43,7 +43,7 @@ void initializePhotoSequence(TaskFactory& factory)
 }
 
 
-PhotoSequence::PhotoSequence(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+PhotoSequence::PhotoSequence(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, PHOTOSEQUENCE_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addField(SEQUENCE_DESCRIPTION, QVariant::String);  // FK to BLOB table

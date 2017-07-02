@@ -18,17 +18,17 @@
 */
 
 #pragma once
-class QSqlDatabase;
+class DatabaseManager;
 
 
 class DbTransaction
 {
 public:
-    DbTransaction(const QSqlDatabase& db);
+    DbTransaction(DatabaseManager& db);
     ~DbTransaction();
     void fail();
     void succeed();
 protected:
-    const QSqlDatabase& m_db;
+    DatabaseManager& m_db;
     bool m_fail;
 };

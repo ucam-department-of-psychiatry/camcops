@@ -38,7 +38,7 @@ class Task : public DatabaseObject
     friend class SingleTaskMenu;  // so it can call setPatient
 public:
     Task(CamcopsApp& app,
-         const QSqlDatabase& db,
+         DatabaseManager& db,
          const QString& tablename,
          bool is_anonymous,
          bool has_clinician,

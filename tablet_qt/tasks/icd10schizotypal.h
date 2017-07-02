@@ -32,7 +32,7 @@ class Icd10Schizotypal : public Task
 {
     Q_OBJECT
 public:
-    Icd10Schizotypal(CamcopsApp& app, const QSqlDatabase& db,
+    Icd10Schizotypal(CamcopsApp& app, DatabaseManager& db,
                      int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

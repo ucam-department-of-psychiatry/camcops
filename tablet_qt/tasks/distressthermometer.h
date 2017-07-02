@@ -32,7 +32,7 @@ class DistressThermometer : public Task
 {
     Q_OBJECT
 public:
-    DistressThermometer(CamcopsApp& app, const QSqlDatabase& db,
+    DistressThermometer(CamcopsApp& app, DatabaseManager& db,
                         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

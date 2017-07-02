@@ -142,7 +142,7 @@ void initializePsychiatricClerking(TaskFactory& factory)
 }
 
 
-PsychiatricClerking::PsychiatricClerking(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+PsychiatricClerking::PsychiatricClerking(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, PSYCLERK_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     // In the Javascript version, EXTRAFIELDS_A was the set of clinician fields.

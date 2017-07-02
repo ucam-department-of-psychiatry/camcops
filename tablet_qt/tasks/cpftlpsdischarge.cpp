@@ -131,7 +131,7 @@ void initializeCPFTLPSDischarge(TaskFactory& factory)
 }
 
 
-CPFTLPSDischarge::CPFTLPSDischarge(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+CPFTLPSDischarge::CPFTLPSDischarge(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, CPFTLPSDISCHARGE_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addField(DISCHARGE_DATE, QVariant::Date);

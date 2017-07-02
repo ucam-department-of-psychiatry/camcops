@@ -32,7 +32,7 @@ class Slums : public Task
 {
     Q_OBJECT
 public:
-    Slums(CamcopsApp& app, const QSqlDatabase& db,
+    Slums(CamcopsApp& app, DatabaseManager& db,
           int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

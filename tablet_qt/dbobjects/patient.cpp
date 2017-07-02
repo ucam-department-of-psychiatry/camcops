@@ -70,7 +70,7 @@ const QString TAG_IDCLASH_FAIL("idclash_fail");
 const QString TAG_IDCLASH_DETAIL("idclash_detail");
 
 
-Patient::Patient(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Patient::Patient(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     DatabaseObject(app, db, TABLENAME, dbconst::PK_FIELDNAME, true, false),
     m_questionnaire(nullptr)
 {
@@ -429,7 +429,7 @@ bool Patient::othersClashOnIdnum(int which_idnum) const
                  delimit(dbconst::PK_FIELDNAME)),
         ArgList{idnum, patient_pk}
     );
-    int c = dbfunc::dbFetchInt(m_db, sqlargs);
+    int c = m_db.fetchInt(sqlargs);
     return c > 0;
 }
 
@@ -458,7 +458,7 @@ bool Patient::anyIdClash() const
                  idnum_criteria.join(" OR "),
                  delimit(dbconst::PK_FIELDNAME));
     SqlArgs sqlargs(sql, args);
-    int c = dbfunc::dbFetchInt(m_db, sqlargs);
+    int c = m_db.fetchInt(sqlargs);
     return c > 0;
 }
 

@@ -156,7 +156,7 @@ void initializeCardinalExpDetThreshold(TaskFactory& factory)
 // ============================================================================
 
 CardinalExpDetThreshold::CardinalExpDetThreshold(
-        CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+        CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, CARDINALEXPDETTHRESHOLD_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     // Config

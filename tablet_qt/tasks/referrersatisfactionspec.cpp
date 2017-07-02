@@ -30,7 +30,7 @@ void initializeReferrerSatisfactionSpec(TaskFactory& factory)
 }
 
 
-ReferrerSatisfactionSpec::ReferrerSatisfactionSpec(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+ReferrerSatisfactionSpec::ReferrerSatisfactionSpec(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     SatisfactionCommon(app, db, REF_SATIS_SPEC_TABLENAME, false, load_pk)
 {
 }

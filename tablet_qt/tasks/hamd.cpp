@@ -80,7 +80,7 @@ void initializeHamD(TaskFactory& factory)
 }
 
 
-HamD::HamD(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+HamD::HamD(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, HAMD_TABLENAME, false, true, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {

@@ -43,7 +43,7 @@ class CardinalExpDetThreshold : public Task
     // ... a pointer to a member function of CardinalExpDetThreshold that takes
     // no parameters and returns void
 public:
-    CardinalExpDetThreshold(CamcopsApp& app, const QSqlDatabase& db,
+    CardinalExpDetThreshold(CamcopsApp& app, DatabaseManager& db,
                             int load_pk = dbconst::NONEXISTENT_PK);
     ~CardinalExpDetThreshold();
     // ------------------------------------------------------------------------

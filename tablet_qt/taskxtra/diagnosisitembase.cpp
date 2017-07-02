@@ -25,7 +25,7 @@ const QString DiagnosisItemBase::DESCRIPTION("description");
 const QString DiagnosisItemBase::COMMENT("comment");  // new in v2.0.0
 
 
-DiagnosisItemBase::DiagnosisItemBase(CamcopsApp& app, const QSqlDatabase& db,
+DiagnosisItemBase::DiagnosisItemBase(CamcopsApp& app, DatabaseManager& db,
                                      const QString& tablename,
                                      const QString& fkname,
                                      int load_pk) :
@@ -48,7 +48,7 @@ DiagnosisItemBase::DiagnosisItemBase(CamcopsApp& app, const QSqlDatabase& db,
 
 
 DiagnosisItemBase::DiagnosisItemBase(int owner_fk,
-                                     CamcopsApp& app, const QSqlDatabase& db,
+                                     CamcopsApp& app, DatabaseManager& db,
                                      const QString& tablename,
                                      const QString& fkname) :
     DiagnosisItemBase(app, db, tablename, fkname)  // delegating constructor

@@ -41,7 +41,7 @@ const QString FN_TRIAL_NUM_IN_CALCULATION_SEQUENCE("trial_num_in_calculation_seq
 
 
 CardinalExpDetThresholdTrial::CardinalExpDetThresholdTrial(
-        CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+        CamcopsApp& app, DatabaseManager& db, int load_pk) :
     DatabaseObject(app, db, TRIAL_TABLENAME)
 {
     // Keys
@@ -69,7 +69,7 @@ CardinalExpDetThresholdTrial::CardinalExpDetThresholdTrial(
         int task_pk, int trial_num,
         const QVariant& trial_num_ignoring_catch_trials,
         bool target_presented,
-        CamcopsApp& app, const QSqlDatabase& db) :
+        CamcopsApp& app, DatabaseManager& db) :
     CardinalExpDetThresholdTrial::CardinalExpDetThresholdTrial(
         app, db, dbconst::NONEXISTENT_PK)  // delegating constructor
 {

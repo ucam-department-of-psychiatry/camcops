@@ -46,10 +46,10 @@ class Hads : public Task
 
     Q_OBJECT
 public:
-    Hads(CamcopsApp& app, const QSqlDatabase& db,
+    Hads(CamcopsApp& app, DatabaseManager& db,
          int load_pk = dbconst::NONEXISTENT_PK);
 protected:
-    Hads(CamcopsApp& app, const QSqlDatabase& db,
+    Hads(CamcopsApp& app, DatabaseManager& db,
          const QString& tablename, bool has_respondent,
          int load_pk = dbconst::NONEXISTENT_PK);
     void commonConstructor(int load_pk);

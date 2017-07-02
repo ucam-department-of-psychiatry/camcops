@@ -56,7 +56,7 @@ void initializeHonos65(TaskFactory& factory)
 }
 
 
-Honos65::Honos65(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Honos65::Honos65(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, HONOS65_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);

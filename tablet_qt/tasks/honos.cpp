@@ -56,7 +56,7 @@ void initializeHonos(TaskFactory& factory)
 }
 
 
-Honos::Honos(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Honos::Honos(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, HONOS_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);

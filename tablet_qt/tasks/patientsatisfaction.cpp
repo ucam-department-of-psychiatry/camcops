@@ -30,7 +30,7 @@ void initializePatientSatisfaction(TaskFactory& factory)
 }
 
 
-PatientSatisfaction::PatientSatisfaction(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+PatientSatisfaction::PatientSatisfaction(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     SatisfactionCommon(app, db, PT_SATIS_TABLENAME, false, load_pk)
 {
 }

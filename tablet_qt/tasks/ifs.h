@@ -34,7 +34,7 @@ class Ifs : public Task
 {
     Q_OBJECT
 public:
-    Ifs(CamcopsApp& app, const QSqlDatabase& db,
+    Ifs(CamcopsApp& app, DatabaseManager& db,
         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

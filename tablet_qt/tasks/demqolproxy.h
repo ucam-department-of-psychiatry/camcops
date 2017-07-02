@@ -32,7 +32,7 @@ class DemqolProxy : public Task
 {
     Q_OBJECT
 public:
-    DemqolProxy(CamcopsApp& app, const QSqlDatabase& db,
+    DemqolProxy(CamcopsApp& app, DatabaseManager& db,
                 int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

@@ -53,7 +53,7 @@ void initializeDemqol(TaskFactory& factory)
 }
 
 
-Demqol::Demqol(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+Demqol::Demqol(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, DEMQOL_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);

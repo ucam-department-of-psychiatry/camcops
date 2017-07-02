@@ -161,7 +161,7 @@ void initializeYbocsSc(TaskFactory& factory)
 }
 
 
-YbocsSc::YbocsSc(CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+YbocsSc::YbocsSc(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, YBOCSSC_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     for (const QString& item : ITEMS) {

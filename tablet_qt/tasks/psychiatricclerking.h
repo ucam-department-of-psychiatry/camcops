@@ -32,7 +32,7 @@ class PsychiatricClerking : public Task
 {
     Q_OBJECT
 public:
-    PsychiatricClerking(CamcopsApp& app, const QSqlDatabase& db,
+    PsychiatricClerking(CamcopsApp& app, DatabaseManager& db,
                         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

@@ -114,7 +114,7 @@ const QString PLEASE_REREGISTER(QObject::tr("Please re-register with the server.
 
 
 NetworkManager::NetworkManager(CamcopsApp& app,
-                               const QSqlDatabase& db,
+                               DatabaseManager& db,
                                TaskFactoryPtr p_task_factory,
                                QWidget* parent) :
     m_app(app),
@@ -816,17 +816,18 @@ bool NetworkManager::isPatientInfoComplete()
 
     Patient specimen_patient(m_app, m_db);
     SqlArgs sqlargs = specimen_patient.fetchQuerySql();
-    QSqlQuery query(m_db);
-    if (!dbfunc::execQuery(query, sqlargs)) {
+    QueryResult result = m_db.query(sqlargs);
+    if (!result.succeeded()) {
         queryFail(sqlargs.sql);
         return false;
     }
     int nfailures_upload = 0;
     int nfailures_finalize = 0;
     int nfailures_clash = 0;
-    while (query.next()) {
+    int nrows = result.nRows();
+    for (int row = 0; row < nrows; ++row) {
         Patient patient(m_app, m_db);
-        patient.setFromQuery(query, true);
+        patient.setFromQuery(result, row, true);
         if (!patient.compliesWithUpload()) {
             ++nfailures_upload;
         }
@@ -947,7 +948,7 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
                          delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME),
                          delimit(Task::PATIENT_FK_FIELDNAME),
                          pt_paramholders);
-            if (!dbfunc::exec(m_db, sql, pt_args)) {
+            if (!m_db.exec(sql, pt_args)) {
                 queryFail(sql);
                 return false;
             }
@@ -958,9 +959,9 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
                 continue;
             }
             WhereConditions where;
-            where[dbconst::MOVE_OFF_TABLET_FIELDNAME] = 1;
-            QVector<int> task_pks = dbfunc::getSingleFieldAsIntList(
-                        m_db, main_tablename, dbconst::PK_FIELDNAME, where);
+            where.add(dbconst::MOVE_OFF_TABLET_FIELDNAME, 1);
+            QVector<int> task_pks = m_db.getSingleFieldAsIntList(
+                        main_tablename, dbconst::PK_FIELDNAME, where);
             if (task_pks.isEmpty()) {
                 // no tasks to be moved off
                 continue;
@@ -980,7 +981,7 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
                              delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME),
                              delimit(fk_task_fieldname),
                              task_paramholders);
-                if (!dbfunc::exec(m_db, sql, task_args)) {
+                if (!m_db.exec(sql, task_args)) {
                     queryFail(sql);
                     return false;
                 }
@@ -1003,9 +1004,9 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
         }
         // Get PKs of all anonymous tasks being moved off
         WhereConditions where;
-        where[dbconst::MOVE_OFF_TABLET_FIELDNAME] = 1;
-        QVector<int> task_pks = dbfunc::getSingleFieldAsIntList(
-                    m_db, main_tablename, dbconst::PK_FIELDNAME, where);
+        where.add(dbconst::MOVE_OFF_TABLET_FIELDNAME, 1);
+        QVector<int> task_pks = m_db.getSingleFieldAsIntList(
+                    main_tablename, dbconst::PK_FIELDNAME, where);
         if (task_pks.isEmpty()) {
             // no tasks to be moved off
             continue;
@@ -1025,7 +1026,7 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
                          delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME),
                          delimit(fk_task_fieldname),
                          task_paramholders);
-            if (!dbfunc::exec(m_db, sql, task_args)) {
+            if (!m_db.exec(sql, task_args)) {
                 queryFail(sql);
                 return false;
             }
@@ -1048,25 +1049,27 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
                                                     Blob::SRC_TABLE_FIELDNAME,
                                                     Blob::SRC_PK_FIELDNAME},
                                         Blob::TABLENAME);
-    QSqlQuery query(m_db);
-    if (!dbfunc::execQuery(query, sql)) {
+    QueryResult result = m_db.query(sql);
+    if (!result.succeeded()) {
         queryFail(sql);
         return false;
     }
-    while (query.next()) {
+    int nrows = result.nRows();
+    for (int row = 0; row < nrows; ++row) {
         // (b) find the table/PK of the linked task (or other table)
-        int blob_pk = query.value(0).toInt();
-        QString src_table = query.value(1).toString();
-        int src_pk = query.value(2).toInt();
+        int blob_pk = result.at(row, 0).toInt();
+        QString src_table = result.at(row, 1).toString();
+        int src_pk = result.at(row, 2).toInt();
 
         // (c) find the move-off flag for that linked task
         SqlArgs sub1_sqlargs(
                     dbfunc::selectColumns(
                         QStringList{dbconst::MOVE_OFF_TABLET_FIELDNAME},
                         src_table));
-        WhereConditions sub1_where{{dbconst::PK_FIELDNAME, src_pk}};
-        dbfunc::addWhereClause(sub1_where, sub1_sqlargs);
-        int move_off_int = dbfunc::dbFetchInt(m_db, sub1_sqlargs, -1);
+        WhereConditions sub1_where;
+        sub1_where.add(dbconst::PK_FIELDNAME, src_pk);
+        sub1_where.appendWhereClause(sub1_sqlargs);
+        int move_off_int = m_db.fetchInt(sub1_sqlargs, -1);
         if (move_off_int == -1) {
             // No records matching
             qWarning().nospace()
@@ -1087,9 +1090,10 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
         // (d) set the BLOB's move-off flag
         UpdateValues update_values{{dbconst::MOVE_OFF_TABLET_FIELDNAME, true}};
         SqlArgs sub2_sqlargs = dbfunc::updateColumns(update_values, Blob::TABLENAME);
-        WhereConditions sub2_where{{dbconst::PK_FIELDNAME, blob_pk}};
-        dbfunc::addWhereClause(sub2_where, sub2_sqlargs);
-        if (!dbfunc::exec(m_db, sub2_sqlargs)) {
+        WhereConditions sub2_where;
+        sub2_where.add(dbconst::PK_FIELDNAME, blob_pk);
+        sub2_where.appendWhereClause(sub2_sqlargs);
+        if (!m_db.exec(sub2_sqlargs)) {
             queryFail(sub2_sqlargs.sql);
             return false;
         }
@@ -1114,7 +1118,7 @@ bool NetworkManager::writeIdDescriptionsToPatientTable()
     QString sql = QString("UPDATE %1 SET %2")
             .arg(delimit(Patient::TABLENAME),
                  assignments.join(", "));
-    if (!dbfunc::exec(m_db, sql, args)) {
+    if (!m_db.exec(sql, args)) {
         queryFail(sql);
         return false;
     }
@@ -1127,10 +1131,10 @@ void NetworkManager::catalogueTablesForUpload()
     statusMessage("Cataloguing tables for upload");
     QStringList recordwise_tables{Blob::TABLENAME};
     QStringList patient_tables{Patient::TABLENAME};
-    QStringList all_tables = dbfunc::getAllTables(m_db);
+    QStringList all_tables = m_db.getAllTables();
     for (auto table : all_tables) {
         // How to upload?
-        if (dbfunc::count(m_db, table) == 0) {
+        if (m_db.count(table) == 0) {
             m_upload_empty_tables.append(table);
         } else if (recordwise_tables.contains(table)) {
             m_upload_tables_to_send_recordwise.append(table);
@@ -1378,20 +1382,19 @@ void NetworkManager::sendTableWhole(const QString& tablename)
     Dict dict;
     dict[KEY_OPERATION] = OP_UPLOAD_TABLE;
     dict[KEY_TABLE] = tablename;
-    QStringList fieldnames = dbfunc::getFieldNames(m_db, tablename);
+    QStringList fieldnames = m_db.getFieldNames(tablename);
     dict[KEY_FIELDS] = fieldnames.join(",");
     QString sql = dbfunc::selectColumns(fieldnames, tablename);
-    QSqlQuery query(m_db);
-    if (!dbfunc::execQuery(query, sql)) {
+    QueryResult result = m_db.query(sql);
+    if (!result.succeeded()) {
         queryFail(sql);
         return;
     }
-    int record = 0;
-    while (query.next()) {
-        dict[KEYSPEC_RECORD.arg(record)] = dbfunc::csvRow(query);
-        ++record;
+    int nrows = result.nRows();
+    for (int record = 0; record < nrows; ++record) {
+        dict[KEYSPEC_RECORD.arg(record)] = result.csvRow(record);
     }
-    dict[KEY_NRECORDS] = QString::number(record);
+    dict[KEY_NRECORDS] = QString::number(nrows);
     serverPost(dict, &NetworkManager::uploadNext);
 }
 
@@ -1401,9 +1404,9 @@ void NetworkManager::sendTableRecordwise(const QString& tablename)
     statusMessage(tr("Preparing to send table (recordwise): ") + tablename);
 
     m_upload_recordwise_table_in_progress = tablename;
-    m_upload_recordwise_fieldnames = dbfunc::getFieldNames(m_db, tablename);
-    m_upload_recordwise_pks_to_send = dbfunc::getPKs(m_db, tablename,
-                                                     dbconst::PK_FIELDNAME);
+    m_upload_recordwise_fieldnames = m_db.getFieldNames(tablename);
+    m_upload_recordwise_pks_to_send = m_db.getPKs(tablename,
+                                                  dbconst::PK_FIELDNAME);
     m_upload_n_records = m_upload_recordwise_pks_to_send.length();
     m_upload_current_record_index = 0;
 
@@ -1439,14 +1442,14 @@ void NetworkManager::sendNextRecord()
                         m_upload_recordwise_fieldnames,
                         m_upload_recordwise_table_in_progress));
     WhereConditions where;
-    where[dbconst::PK_FIELDNAME] = pk;
-    dbfunc::addWhereClause(where, sqlargs);
-    QSqlQuery query(m_db);
-    if (!dbfunc::execQuery(query, sqlargs) || !query.next()) {
+    where.add(dbconst::PK_FIELDNAME, pk);
+    where.appendWhereClause(sqlargs);
+    QueryResult result = m_db.query(sqlargs, QueryResult::FetchMode::FetchFirst);
+    if (!result.succeeded() || result.nRows() < 1) {
         queryFail(sqlargs.sql);
         return;
     }
-    QString values = dbfunc::csvRow(query);
+    QString values = result.csvRow(0);
 
     Dict dict;
     dict[KEY_OPERATION] = OP_UPLOAD_RECORD;
@@ -1474,7 +1477,7 @@ void NetworkManager::wipeTables()
     // Plain wipes
     for (auto wipe_table : m_upload_tables_to_wipe) {
         statusMessage(tr("Wiping table: ") + wipe_table);
-        if (!dbfunc::deleteFrom(m_db, wipe_table)) {
+        if (!m_db.deleteFrom(wipe_table)) {
             statusMessage(tr("... failed to delete!"));
             trans.fail();
             fail();
@@ -1484,18 +1487,18 @@ void NetworkManager::wipeTables()
     if (!m_upload_patient_ids_to_move_off.isEmpty()) {
         statusMessage(tr("Wiping specifically requested patients"));
         WhereConditions where;
-        where[dbconst::MOVE_OFF_TABLET_FIELDNAME] = 1;
+        where.add(dbconst::MOVE_OFF_TABLET_FIELDNAME, 1);
         // Selective wipes: tasks
         if (m_upload_method == UploadMethod::Copy) {
             for (auto tablename : m_p_task_factory->allTablenames()) {
                 if (m_upload_tables_to_wipe.contains(tablename)) {
                     continue;  // already wiped
                 }
-                dbfunc::deleteFrom(m_db, tablename, where);
+                m_db.deleteFrom(tablename, where);
             }
         }
         // Selective wipes: patients
-        dbfunc::deleteFrom(m_db, Patient::TABLENAME, where);
+        m_db.deleteFrom(Patient::TABLENAME, where);
     }
 }
 
@@ -1520,7 +1523,7 @@ bool NetworkManager::clearMoveOffTabletFlag(const QString& tablename)
     QString sql = QString("UPDATE %1 SET %2 = 0")
             .arg(delimit(tablename),
                  delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME));
-    return dbfunc::exec(m_db, sql);
+    return m_db.exec(sql);
 }
 
 
@@ -1529,7 +1532,7 @@ bool NetworkManager::pruneDeadBlobs()
     using dbfunc::delimit;
     statusMessage("Removing any defunct binary large objects");
 
-    QStringList all_tables = dbfunc::getAllTables(m_db);
+    QStringList all_tables = m_db.getAllTables();
     QVector<int> bad_blob_pks;
 
     // For all BLOBs...
@@ -1537,22 +1540,22 @@ bool NetworkManager::pruneDeadBlobs()
                                                     Blob::SRC_TABLE_FIELDNAME,
                                                     Blob::SRC_PK_FIELDNAME},
                                         Blob::TABLENAME);
-    QSqlQuery query(m_db);
-    if (!dbfunc::execQuery(query, sql)) {
+    QueryResult result = m_db.query(sql);
+    if (!result.succeeded()) {
         queryFail(sql);
         return false;
     }
-    while (query.next()) {
-        int blob_pk = query.value(0).toInt();
-        QString src_table = query.value(1).toString();
-        int src_pk = query.value(2).toInt();
+    int nrows = result.nRows();
+    for (int row = 0; row < nrows; ++row) {
+        int blob_pk = result.at(row, 0).toInt();
+        QString src_table = result.at(row, 1).toString();
+        int src_pk = result.at(row, 2).toInt();
         if (src_pk == dbconst::NONEXISTENT_PK) {
             continue;
         }
         // Does our BLOB refer to something non-existent?
         if (!all_tables.contains(src_table) ||
-                !dbfunc::existsByPk(m_db, src_table,
-                                    dbconst::PK_FIELDNAME, src_pk)) {
+                !m_db.existsByPk(src_table, dbconst::PK_FIELDNAME, src_pk)) {
             bad_blob_pks.append(blob_pk);
         }
     }
@@ -1569,7 +1572,7 @@ bool NetworkManager::pruneDeadBlobs()
                  delimit(dbconst::PK_FIELDNAME),
                  paramholders);
     ArgList args = dbfunc::argListFromIntList(bad_blob_pks);
-    if (!dbfunc::exec(m_db, sql, args)) {
+    if (!m_db.exec(sql, args)) {
         queryFail(sql);
         return false;
     }
@@ -1583,5 +1586,5 @@ bool NetworkManager::pruneDeadBlobs()
 
 void NetworkManager::sendAnalytics()
 {
-
+    // ***
 }

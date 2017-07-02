@@ -41,7 +41,7 @@ using stringfunc::bold;
 const QString DiagnosisTaskBase::RELATES_TO_DATE("relates_to_date");  // new in v2.0.0
 
 
-DiagnosisTaskBase::DiagnosisTaskBase(CamcopsApp& app, const QSqlDatabase& db,
+DiagnosisTaskBase::DiagnosisTaskBase(CamcopsApp& app, DatabaseManager& db,
                                      const QString& tablename, int load_pk) :
     Task(app, db, tablename, false, true, false),  // ... anon, clin, resp
     m_questionnaire(nullptr),

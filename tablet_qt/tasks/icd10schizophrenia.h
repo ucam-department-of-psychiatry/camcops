@@ -32,7 +32,7 @@ class Icd10Schizophrenia : public Task
 {
     Q_OBJECT
 public:
-    Icd10Schizophrenia(CamcopsApp& app, const QSqlDatabase& db,
+    Icd10Schizophrenia(CamcopsApp& app, DatabaseManager& db,
                        int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

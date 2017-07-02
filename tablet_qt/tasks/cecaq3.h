@@ -34,7 +34,7 @@ class CecaQ3 : public Task
 {
     Q_OBJECT
 public:
-    CecaQ3(CamcopsApp& app, const QSqlDatabase& db,
+    CecaQ3(CamcopsApp& app, DatabaseManager& db,
            int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides

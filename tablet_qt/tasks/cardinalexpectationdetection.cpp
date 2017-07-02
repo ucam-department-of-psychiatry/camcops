@@ -189,7 +189,7 @@ void initializeCardinalExpectationDetection(TaskFactory& factory)
 // ============================================================================
 
 CardinalExpectationDetection::CardinalExpectationDetection(
-        CamcopsApp& app, const QSqlDatabase& db, int load_pk) :
+        CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, CARDINALEXPDET_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     // Config

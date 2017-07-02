@@ -26,10 +26,10 @@ class IDED3DTrial : public DatabaseObject
 {
     Q_OBJECT
 public:
-    IDED3DTrial(CamcopsApp& app, const QSqlDatabase& db,
+    IDED3DTrial(CamcopsApp& app, DatabaseManager& db,
                 int load_pk = dbconst::NONEXISTENT_PK);
     IDED3DTrial(const IDED3DStage& stage, int trial_num_zero_based,
-                CamcopsApp& app, const QSqlDatabase& db);
+                CamcopsApp& app, DatabaseManager& db);
     void recordTrialStart();
     void recordResponse(bool correct);
     int stageZeroBased() const;
