@@ -130,35 +130,35 @@ class DistressThermometer(Task):
         h += subheading_spanning_two_columns("Practical problems")
         for i in range(1, 5 + 1):
             h += tr_qa(
-                "{}. {}".format(i, WSTRING("distressthermometer_q" + str(i))),
+                "{}. {}".format(i, self.wxstring("q" + str(i))),
                 get_yes_no_none(getattr(self, "q" + str(i)))
             )
         h += subheading_spanning_two_columns("Family problems")
         for i in range(6, 8 + 1):
             h += tr_qa(
-                "{}. {}".format(i, WSTRING("distressthermometer_q" + str(i))),
+                "{}. {}".format(i, self.wxstring("q" + str(i))),
                 get_yes_no_none(getattr(self, "q" + str(i)))
             )
         h += subheading_spanning_two_columns("Emotional problems")
         for i in range(9, 14 + 1):
             h += tr_qa(
-                "{}. {}".format(i, WSTRING("distressthermometer_q" + str(i))),
+                "{}. {}".format(i, self.wxstring("q" + str(i))),
                 get_yes_no_none(getattr(self, "q" + str(i)))
             )
         h += subheading_spanning_two_columns("Spiritual problems")
         for i in range(15, 15 + 1):
             h += tr_qa(
-                "{}. {}".format(i, WSTRING("distressthermometer_q" + str(i))),
+                "{}. {}".format(i, self.wxstring("q" + str(i))),
                 get_yes_no_none(getattr(self, "q" + str(i)))
             )
         h += subheading_spanning_two_columns("Physical problems")
         for i in range(16, self.NQUESTIONS + 1):
             h += tr_qa(
-                "{}. {}".format(i, WSTRING("distressthermometer_q" + str(i))),
+                "{}. {}".format(i, self.wxstring("q" + str(i))),
                 get_yes_no_none(getattr(self, "q" + str(i)))
             )
         h += subheading_spanning_two_columns("Other problems")
-        h += tr_qa(WSTRING("distressthermometer_other_s"), self.other)
+        h += tr_qa(self.wxstring("other_s"), self.other)
         h += """
             </table>
         """

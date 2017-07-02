@@ -153,34 +153,33 @@ class Demqol(Task):
         (total, extrapolated) = self.totalscore_extrapolated()
         return total
 
-    @staticmethod
-    def get_q(n: int) -> str:
+    def get_q(self, n: int) -> str:
         nstr = str(n)
-        return "Q" + nstr + ". " + WSTRING("demqol_q" + nstr)
+        return "Q" + nstr + ". " + self.wxstring("proxy_q" + nstr)
 
     def get_task_html(self) -> str:
         (total, extrapolated) = self.totalscore_extrapolated()
         main_dict = {
             None: None,
-            1: "1 — " + WSTRING("demqol_a1"),
-            2: "2 — " + WSTRING("demqol_a2"),
-            3: "3 — " + WSTRING("demqol_a3"),
-            4: "4 — " + WSTRING("demqol_a4"),
-            MISSING_VALUE: WSTRING("demqol_no_response")
+            1: "1 — " + self.wxstring("a1"),
+            2: "2 — " + self.wxstring("a2"),
+            3: "3 — " + self.wxstring("a3"),
+            4: "4 — " + self.wxstring("a4"),
+            MISSING_VALUE: self.wxstring("no_response")
         }
         last_q_dict = {
             None: None,
-            1: "1 — " + WSTRING("demqol_q29_a1"),
-            2: "2 — " + WSTRING("demqol_q29_a2"),
-            3: "3 — " + WSTRING("demqol_q29_a3"),
-            4: "4 — " + WSTRING("demqol_q29_a4"),
-            MISSING_VALUE: WSTRING("demqol_no_response")
+            1: "1 — " + self.wxstring("q29_a1"),
+            2: "2 — " + self.wxstring("q29_a2"),
+            3: "3 — " + self.wxstring("q29_a3"),
+            4: "4 — " + self.wxstring("q29_a4"),
+            MISSING_VALUE: self.wxstring("no_response")
         }
         instruction_dict = {
-            1: WSTRING("demqol_instruction11"),
-            14: WSTRING("demqol_instruction12"),
-            20: WSTRING("demqol_instruction13"),
-            29: WSTRING("demqol_instruction14"),
+            1: self.wxstring("instruction11"),
+            14: self.wxstring("instruction12"),
+            20: self.wxstring("instruction13"),
+            29: self.wxstring("instruction14"),
         }
         # https://docs.python.org/2/library/stdtypes.html#mapping-types-dict
         # http://paltman.com/try-except-performance-in-python-a-simple-test/
@@ -237,6 +236,7 @@ class DemqolProxy(Task):
     tablename = "demqolproxy"
     shortname = "DEMQOL-Proxy"
     longname = "Dementia Quality of Life measure, proxy version"
+    extrastring_taskname = "demqol"
     fieldspecs = repeat_fieldspec(
         "q", 1, N_SCORED_QUESTIONS, pv=PERMITTED_VALUES,
         comment_fmt="Q{n}. {s} (1 a lot - 4 not at all; -99 no response)",
@@ -313,34 +313,33 @@ class DemqolProxy(Task):
         (total, extrapolated) = self.totalscore_extrapolated()
         return total
 
-    @staticmethod
-    def get_q(n: int) -> str:
+    def get_q(self, n: int) -> str:
         nstr = str(n)
-        return "Q" + nstr + ". " + WSTRING("demqolproxy_q" + nstr)
+        return "Q" + nstr + ". " + self.wxstring("proxy_q" + nstr)
 
     def get_task_html(self) -> str:
         (total, extrapolated) = self.totalscore_extrapolated()
         main_dict = {
             None: None,
-            1: "1 — " + WSTRING("demqol_a1"),
-            2: "2 — " + WSTRING("demqol_a2"),
-            3: "3 — " + WSTRING("demqol_a3"),
-            4: "4 — " + WSTRING("demqol_a4"),
-            MISSING_VALUE: WSTRING("demqol_no_response")
+            1: "1 — " + self.wxstring("a1"),
+            2: "2 — " + self.wxstring("a2"),
+            3: "3 — " + self.wxstring("a3"),
+            4: "4 — " + self.wxstring("a4"),
+            MISSING_VALUE: self.wxstring("no_response")
         }
         last_q_dict = {
             None: None,
-            1: "1 — " + WSTRING("demqol_q29_a1"),
-            2: "2 — " + WSTRING("demqol_q29_a2"),
-            3: "3 — " + WSTRING("demqol_q29_a3"),
-            4: "4 — " + WSTRING("demqol_q29_a4"),
-            MISSING_VALUE: WSTRING("demqol_no_response")
+            1: "1 — " + self.wxstring("q29_a1"),
+            2: "2 — " + self.wxstring("q29_a2"),
+            3: "3 — " + self.wxstring("q29_a3"),
+            4: "4 — " + self.wxstring("q29_a4"),
+            MISSING_VALUE: self.wxstring("no_response")
         }
         instruction_dict = {
-            1: WSTRING("demqolproxy_instruction11"),
-            12: WSTRING("demqolproxy_instruction12"),
-            21: WSTRING("demqolproxy_instruction13"),
-            32: WSTRING("demqolproxy_instruction14"),
+            1: self.wxstring("proxy_instruction11"),
+            12: self.wxstring("proxy_instruction12"),
+            21: self.wxstring("proxy_instruction13"),
+            32: self.wxstring("proxy_instruction14"),
         }
         h = """
             <div class="summary">

@@ -6,6 +6,8 @@ TO DO NOW
 - fix server, quick'n'dirty
 
 TESTING IS AT:
+    last one done:
+        Distress Thermometer
 
 
 
@@ -28,13 +30,6 @@ BUILDS/DISTRIBUTION
 - OS/X build
 - Google Play Store
 - Apple App Store
-
-OPTIMIZING DATABASE USE: CONSIDER:
-- offloading database writes to another thread
-  https://stackoverflow.com/questions/23201320/qt-simultaneous-mysql-queries-in-different-threads-crash
-- https://stackoverflow.com/questions/33475916/how-to-optimize-sqlcipher-performance
-- http://blog.thomasbandt.de/39/2433/de/blog/performance-optimization-of-sqlite-on-ios-with-xamarin.html
-- https://stackoverflow.com/questions/5365235/qt-sql-threaded-database-queries
 
 - *** chains (see e.g. ResearchMenu.js; MenuTableRow.js; QuestionnaireHeader.js...)
     ... or is that pointless relative to a "set of tasks" concept?
