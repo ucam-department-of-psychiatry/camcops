@@ -39,7 +39,7 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_lang import is_false
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
 
 
@@ -284,41 +284,39 @@ class Icd10Schizophrenia(Task):
             self.field_contents_valid()
         )
 
-    @staticmethod
-    def heading_row(wstringname: str, extra: str = None) -> str:
+    def heading_row(self, wstringname: str, extra: str = None) -> str:
         return heading_spanning_two_columns(
-            WSTRING(wstringname) + (extra or "")
+            self.wxstring(wstringname) + (extra or "")
         )
 
-    @staticmethod
-    def text_row(wstringname: str) -> str:
-        return subheading_spanning_two_columns(WSTRING(wstringname))
+    def text_row(self, wstringname: str) -> str:
+        return subheading_spanning_two_columns(self.wxstring(wstringname))
 
     def row_true_false(self, fieldname: str) -> str:
         return self.get_twocol_bool_row_true_false(
-            fieldname, WSTRING("icd10sz_" + fieldname))
+            fieldname, self.wxstring(fieldname))
 
     def row_present_absent(self, fieldname: str) -> str:
         return self.get_twocol_bool_row_present_absent(
-            fieldname, WSTRING("icd10sz_" + fieldname))
+            fieldname, self.wxstring(fieldname))
 
     def get_task_html(self) -> str:
         h = self.get_standard_clinician_comments_block(self.comments) + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr_qa(WSTRING("date_pertains_to"),
+        h += tr_qa(wappstring("date_pertains_to"),
                    format_datetime_string(self.date_pertains_to,
                                           DATEFORMAT.LONG_DATE, default=None))
         h += tr_qa(
-            WSTRING("icd10sz_meets_general_criteria") + " <sup>[1]</sup>",
+            self.wxstring("meets_general_criteria") + " <sup>[1]</sup>",
             get_true_false_none(self.meets_general_criteria()))
         h += """
                 </table>
             </div>
             <div class="explanation">
         """
-        h += WSTRING("icd10sz_comments")
+        h += self.wxstring("comments")
         h += """
             </div>
             <table class="taskdetail">
@@ -328,33 +326,33 @@ class Icd10Schizophrenia(Task):
                 </tr>
         """
 
-        h += self.heading_row("icd10sz_core", " <sup>[2]</sup>")
+        h += self.heading_row("core", " <sup>[2]</sup>")
         for x in Icd10Schizophrenia.A_NAMES:
             h += self.row_present_absent(x)
 
-        h += self.heading_row("icd10sz_other_positive")
+        h += self.heading_row("other_positive")
         for x in Icd10Schizophrenia.B_NAMES:
             h += self.row_present_absent(x)
 
-        h += self.heading_row("icd10sz_negative_title")
+        h += self.heading_row("negative_title")
         for x in Icd10Schizophrenia.C_NAMES:
             h += self.row_present_absent(x)
 
-        h += self.heading_row("icd10sz_other_criteria")
+        h += self.heading_row("other_criteria")
         for x in Icd10Schizophrenia.D_NAMES:
             h += self.row_true_false(x)
-        h += self.text_row("icd10sz_duration_comment")
+        h += self.text_row("duration_comment")
         for x in Icd10Schizophrenia.E_NAMES:
             h += self.row_true_false(x)
-        h += self.text_row("icd10sz_affective_comment")
+        h += self.text_row("affective_comment")
         for x in Icd10Schizophrenia.F_NAMES:
             h += self.row_true_false(x)
 
-        h += self.heading_row("icd10sz_simple_title")
+        h += self.heading_row("simple_title")
         for x in Icd10Schizophrenia.G_NAMES:
             h += self.row_present_absent(x)
 
-        h += self.heading_row("icd10sz_subtypes")
+        h += self.heading_row("subtypes")
         for x in Icd10Schizophrenia.H_NAMES:
             h += self.row_present_absent(x)
 

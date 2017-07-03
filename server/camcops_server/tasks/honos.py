@@ -31,7 +31,7 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import (
     CtvInfo,
     CTV_INCOMPLETE,
@@ -41,7 +41,8 @@ from ..cc_modules.cc_task import (
 )
 
 
-PV_PROBLEMTYPE = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
+PV_MAIN = [0, 1, 2, 3, 4, 9]
+PV_PROBLEMTYPE = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
 
 
 # =============================================================================
@@ -55,7 +56,7 @@ class Honos(Task):
     shortname = "HoNOS"
     longname = "Health of the Nation Outcome Scales, working age adults"
     fieldspecs = repeat_fieldspec(
-        "q", 1, NQUESTIONS, min=0, max=4,
+        "q", 1, NQUESTIONS, pv=PV_MAIN,
         comment_fmt="Q{n}, {s} (0-4, higher worse)",
         comment_strings=[
             "overactive/aggressive/disruptive/agitated",
@@ -137,37 +138,36 @@ class Honos(Task):
                 total += value
         return total
 
-    @staticmethod
-    def get_q(q: int) -> str:
-        return WSTRING("honos_q" + str(q) + "_s")
+    def get_q(self, q: int) -> str:
+        return self.wxstring("q" + str(q) + "_s")
 
-    @staticmethod
-    def get_answer(q: int, a: int) -> str:
+    def get_answer(self, q: int, a: int) -> str:
         if a == 9:
-            return WSTRING("honos_option9")
+            return self.wxstring("option9")
         if a is None or a < 0 or a > 4:
             return None
-        return WSTRING("honos_q" + str(q) + "_option" + str(a))
+        return self.wxstring("q" + str(q) + "_option" + str(a))
 
     def get_task_html(self) -> str:
         q8_problem_type_dict = {
             None: None,
-            "A": WSTRING("honos_q8problemtype_option_a"),
-            "B": WSTRING("honos_q8problemtype_option_b"),
-            "C": WSTRING("honos_q8problemtype_option_c"),
-            "D": WSTRING("honos_q8problemtype_option_d"),
-            "E": WSTRING("honos_q8problemtype_option_e"),
-            "F": WSTRING("honos_q8problemtype_option_f"),
-            "G": WSTRING("honos_q8problemtype_option_g"),
-            "H": WSTRING("honos_q8problemtype_option_h"),
-            "I": WSTRING("honos_q8problemtype_option_i"),
-            "J": WSTRING("honos_q8problemtype_option_j"),
+            "A": self.wxstring("q8problemtype_option_a"),
+            "B": self.wxstring("q8problemtype_option_b"),
+            "C": self.wxstring("q8problemtype_option_c"),
+            "D": self.wxstring("q8problemtype_option_d"),
+            "E": self.wxstring("q8problemtype_option_e"),
+            "F": self.wxstring("q8problemtype_option_f"),
+            "G": self.wxstring("q8problemtype_option_g"),
+            "H": self.wxstring("q8problemtype_option_h"),
+            "I": self.wxstring("q8problemtype_option_i"),
+            "J": self.wxstring("q8problemtype_option_j"),
         }
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(WSTRING("total_score"), answer(self.total_score()) + " / 48")
+        h += tr(wappstring("total_score"),
+                answer(self.total_score()) + " / 48")
         h += """
                 </table>
             </div>
@@ -177,15 +177,15 @@ class Honos(Task):
                     <th width="50%">Answer <sup>[1]</sup></th>
                 </tr>
         """
-        h += tr_qa(WSTRING("honos_period_rated"), self.period_rated)
+        h += tr_qa(self.wxstring("period_rated"), self.period_rated)
         for i in range(1, 8 + 1):
             h += tr_qa(
                 self.get_q(i),
                 self.get_answer(i, getattr(self, "q" + str(i)))
             )
-        h += tr_qa(WSTRING("honos_q8problemtype_s"),
+        h += tr_qa(self.wxstring("q8problemtype_s"),
                    get_from_dict(q8_problem_type_dict, self.q8problemtype))
-        h += tr_qa(WSTRING("honos_q8otherproblem_s"),
+        h += tr_qa(self.wxstring("q8otherproblem_s"),
                    self.q8otherproblem)
         for i in range(9, self.NQUESTIONS + 1):
             h += tr_qa(
@@ -217,7 +217,7 @@ class Honos65(Task):
     shortname = "HoNOS 65+"
     longname = "Health of the Nation Outcome Scales, older adults"
     fieldspecs = repeat_fieldspec(
-        "q", 1, NQUESTIONS, min=0, max=4,
+        "q", 1, NQUESTIONS, pv=PV_MAIN,
         comment_fmt="Q{n}, {s} (0-4, higher worse)",
         comment_strings=[  # not exactly identical to HoNOS
             "behavioural disturbance",
@@ -291,37 +291,36 @@ class Honos65(Task):
                 total += value
         return total
 
-    @staticmethod
-    def get_q(q: int) -> str:
-        return WSTRING("honos65_q" + str(q) + "_s")
+    def get_q(self, q: int) -> str:
+        return self.wxstring("q" + str(q) + "_s")
 
-    @staticmethod
-    def get_answer(q: int, a: int) -> str:
+    def get_answer(self, q: int, a: int) -> str:
         if a == 9:
-            return WSTRING("honos_option9")
+            return self.wxstring("option9")
         if a is None or a < 0 or a > 4:
             return None
-        return WSTRING("honos65_q" + str(q) + "_option" + str(a))
+        return self.wxstring("q" + str(q) + "_option" + str(a))
 
     def get_task_html(self) -> str:
         q8_problem_type_dict = {
             None: None,
-            "A": WSTRING("honos65_q8problemtype_option_a"),
-            "B": WSTRING("honos65_q8problemtype_option_b"),
-            "C": WSTRING("honos65_q8problemtype_option_c"),
-            "D": WSTRING("honos65_q8problemtype_option_d"),
-            "E": WSTRING("honos65_q8problemtype_option_e"),
-            "F": WSTRING("honos65_q8problemtype_option_f"),
-            "G": WSTRING("honos65_q8problemtype_option_g"),
-            "H": WSTRING("honos65_q8problemtype_option_h"),
-            "I": WSTRING("honos65_q8problemtype_option_i"),
-            "J": WSTRING("honos65_q8problemtype_option_j"),
+            "A": self.wxstring("q8problemtype_option_a"),
+            "B": self.wxstring("q8problemtype_option_b"),
+            "C": self.wxstring("q8problemtype_option_c"),
+            "D": self.wxstring("q8problemtype_option_d"),
+            "E": self.wxstring("q8problemtype_option_e"),
+            "F": self.wxstring("q8problemtype_option_f"),
+            "G": self.wxstring("q8problemtype_option_g"),
+            "H": self.wxstring("q8problemtype_option_h"),
+            "I": self.wxstring("q8problemtype_option_i"),
+            "J": self.wxstring("q8problemtype_option_j"),
         }
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(WSTRING("total_score"), answer(self.total_score()) + " / 48")
+        h += tr(wappstring("total_score"),
+                answer(self.total_score()) + " / 48")
         h += """
                 </table>
             </div>
@@ -331,15 +330,15 @@ class Honos65(Task):
                     <th width="50%">Answer <sup>[1]</sup></th>
                 </tr>
         """
-        h += tr_qa(WSTRING("honos_period_rated"), self.period_rated)
+        h += tr_qa(self.wxstring("period_rated"), self.period_rated)
         for i in range(1, 8 + 1):
             h += tr_qa(
                 self.get_q(i),
                 self.get_answer(i, getattr(self, "q" + str(i)))
             )
-        h += tr_qa(WSTRING("honos65_q8problemtype_s"),
+        h += tr_qa(self.wxstring("q8problemtype_s"),
                    get_from_dict(q8_problem_type_dict, self.q8problemtype))
-        h += tr_qa(WSTRING("honos65_q8otherproblem_s"),
+        h += tr_qa(self.wxstring("q8otherproblem_s"),
                    self.q8otherproblem)
         for i in range(9, Honos.NQUESTIONS + 1):
             h += tr_qa(
@@ -371,7 +370,7 @@ class Honosca(Task):
     shortname = "HoNOSCA"
     longname = "Health of the Nation Outcome Scales, Children and Adolescents"
     fieldspecs = repeat_fieldspec(
-        "q", 1, NQUESTIONS, min=0, max=4,
+        "q", 1, NQUESTIONS, pv=PV_MAIN,
         comment_fmt="Q{n}, {s} (0-4, higher worse)",
         comment_strings=[
             "disruptive/antisocial/aggressive",
@@ -436,24 +435,23 @@ class Honosca(Task):
                 total += value
         return total
 
-    @staticmethod
-    def get_q(q: int) -> str:
-        return WSTRING("honosca_q" + str(q) + "_s")
+    def get_q(self, q: int) -> str:
+        return self.wxstring("q" + str(q) + "_s")
 
-    @staticmethod
-    def get_answer(q: int, a: int) -> str:
+    def get_answer(self, q: int, a: int) -> str:
         if a == 9:
-            return WSTRING("honos_option9")
+            return self.wxstring("option9")
         if a is None or a < 0 or a > 4:
             return None
-        return WSTRING("honosca_q" + str(q) + "_option" + str(a))
+        return self.wxstring("q" + str(q) + "_option" + str(a))
 
     def get_task_html(self) -> str:
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(WSTRING("total_score"), answer(self.total_score()) + " / 60")
+        h += tr(wappstring("total_score"),
+                answer(self.total_score()) + " / 60")
         h += """
                 </table>
             </div>
@@ -463,16 +461,16 @@ class Honosca(Task):
                     <th width="50%">Answer <sup>[1]</sup></th>
                 </tr>
         """
-        h += tr_qa(WSTRING("honos_period_rated"), self.period_rated)
+        h += tr_qa(self.wxstring("period_rated"), self.period_rated)
         h += subheading_spanning_two_columns(
-            WSTRING("honosca_section_a_title"))
+            self.wxstring("section_a_title"))
         for i in range(1, 13 + 1):
             h += tr_qa(
                 self.get_q(i),
                 self.get_answer(i, getattr(self, "q" + str(i)))
             )
         h += subheading_spanning_two_columns(
-            WSTRING("honosca_section_b_title"))
+            self.wxstring("section_b_title"))
         for i in range(14, self.NQUESTIONS + 1):
             h += tr_qa(
                 self.get_q(i),

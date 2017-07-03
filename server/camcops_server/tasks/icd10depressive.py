@@ -39,7 +39,7 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
 
 
@@ -315,34 +315,33 @@ class Icd10Depressive(Task):
     def get_somatic_description(self) -> str:
         s = self.meets_criteria_somatic()
         if s is None:
-            return WSTRING("icd10depressive_category_somatic_unknown")
+            return self.wxstring("category_somatic_unknown")
         elif s:
-            return WSTRING("icd10depressive_category_with_somatic")
+            return self.wxstring("category_with_somatic")
         else:
-            return WSTRING("icd10depressive_category_without_somatic")
+            return self.wxstring("category_without_somatic")
 
     def get_main_description(self) -> str:
         if self.meets_criteria_severe_psychotic_schizophrenic():
-            return WSTRING(
-                "icd10depressive_category_severe_psychotic_schizophrenic")
+            return self.wxstring("category_severe_psychotic_schizophrenic")
 
         elif self.meets_criteria_severe_psychotic_icd():
-            return WSTRING("icd10depressive_category_severe_psychotic")
+            return self.wxstring("category_severe_psychotic")
 
         elif self.meets_criteria_severe_nonpsychotic():
-            return WSTRING("icd10depressive_category_severe_nonpsychotic")
+            return self.wxstring("category_severe_nonpsychotic")
 
         elif self.meets_criteria_moderate():
-            return WSTRING("icd10depressive_category_moderate")
+            return self.wxstring("category_moderate")
 
         elif self.meets_criteria_mild():
-            return WSTRING("icd10depressive_category_mild")
+            return self.wxstring("category_mild")
 
         elif self.meets_criteria_none():
-            return WSTRING("icd10depressive_category_none")
+            return self.wxstring("category_none")
 
         else:
-            return WSTRING("Unknown")
+            return wappstring("unknown")
 
     def get_full_description(self) -> str:
         skip_somatic = self.main_complete() and self.meets_criteria_none()
@@ -366,36 +365,35 @@ class Icd10Depressive(Task):
             self.field_contents_valid()
         )
 
-    @staticmethod
-    def text_row(wstringname: str) -> str:
-        return heading_spanning_two_columns(WSTRING(wstringname))
+    def text_row(self, wstringname: str) -> str:
+        return heading_spanning_two_columns(self.wxstring(wstringname))
 
     def row_true_false(self, fieldname: str) -> str:
         return self.get_twocol_bool_row_true_false(
-            fieldname, WSTRING("icd10depressive_" + fieldname))
+            fieldname, self.wxstring("" + fieldname))
 
     def row_present_absent(self, fieldname: str) -> str:
         return self.get_twocol_bool_row_present_absent(
-            fieldname, WSTRING("icd10depressive_" + fieldname))
+            fieldname, self.wxstring("" + fieldname))
 
     def get_task_html(self) -> str:
         h = self.get_standard_clinician_comments_block(self.comments) + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr_qa(WSTRING("date_pertains_to"),
+        h += tr_qa(wappstring("date_pertains_to"),
                    format_datetime_string(self.date_pertains_to,
                                           DATEFORMAT.LONG_DATE,
                                           default=None))
-        h += tr_qa(WSTRING("category") + " <sup>[1,2]</sup>",
+        h += tr_qa(wappstring("category") + " <sup>[1,2]</sup>",
                    self.get_full_description())
-        h += tr(WSTRING("icd10depressive_n_core"),
+        h += tr(self.wxstring("n_core"),
                 answer(self.n_core()) + " / 3")
-        h += tr(WSTRING("icd10depressive_n_total"),
+        h += tr(self.wxstring("n_total"),
                 answer(self.n_total()) + " / 10")
-        h += tr(WSTRING("icd10depressive_n_somatic"),
+        h += tr(self.wxstring("n_somatic"),
                 answer(self.n_somatic()) + " / 8")
-        h += tr(WSTRING("icd10depressive_psychotic_symptoms_or_stupor") +
+        h += tr(self.wxstring("psychotic_symptoms_or_stupor") +
                 " <sup>[2]</sup>",
                 answer(get_present_absent_none(self.is_psychotic_or_stupor())))
         h += """
@@ -403,7 +401,7 @@ class Icd10Depressive(Task):
             </div>
             <div class="explanation">
         """
-        h += WSTRING("icd10_symptomatic_disclaimer")
+        h += wappstring("icd10_symptomatic_disclaimer")
         h += """
             </div>
             <table class="taskdetail">
@@ -413,25 +411,25 @@ class Icd10Depressive(Task):
                 </tr>
         """
 
-        h += self.text_row("icd10depressive_duration_text")
+        h += self.text_row("duration_text")
         h += self.row_true_false("duration_at_least_2_weeks")
 
-        h += self.text_row("icd10depressive_core")
+        h += self.text_row("core")
         for x in Icd10Depressive.CORE_NAMES:
             h += self.row_present_absent(x)
 
-        h += self.text_row("icd10depressive_additional")
+        h += self.text_row("additional")
         for x in Icd10Depressive.ADDITIONAL_NAMES:
             h += self.row_present_absent(x)
 
-        h += self.text_row("icd10depressive_clinical_text")
+        h += self.text_row("clinical_text")
         h += self.row_true_false("severe_clinically")
 
-        h += self.text_row("icd10depressive_somatic")
+        h += self.text_row("somatic")
         for x in Icd10Depressive.SOMATIC_NAMES:
             h += self.row_present_absent(x)
 
-        h += self.text_row("icd10depressive_psychotic")
+        h += self.text_row("psychotic")
         for x in Icd10Depressive.PSYCHOSIS_NAMES:
             h += self.row_present_absent(x)
 

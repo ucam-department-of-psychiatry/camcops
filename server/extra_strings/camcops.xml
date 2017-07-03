@@ -80,10 +80,13 @@
     <string name="absent_or_mild">Absent or mild</string>
     <string name="auditory">Auditory</string>
 
+    <string name="category">Category</string>
+
     <string name="date_pertains_to">Date this assessment pertains to</string>
 
     <string name="icd10_symptomatic_disclaimer">These criteria are the SYMPTOMATIC criteria and IGNORE CAUSAL criteria (such as “episode not attributable to psychoactive substance use or organic mental disorder” or history of prior episodes).</string>
 
+    <string name="meets_criteria">Meets criteria?</string>
     <string name="mild">Mild</string>
     <string name="mild_to_moderate">Mild to moderate</string>
     <string name="moderate">Moderate</string>
@@ -111,6 +114,8 @@
     <string name="severe">Severe</string>
 
     <string name="total_score">Total score</string>
+
+    <string name="unknown">Unknown</string>
 
     <string name="visual">Visual</string>
     <string name="very_severe">Very severe</string>

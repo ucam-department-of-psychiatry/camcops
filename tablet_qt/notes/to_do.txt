@@ -6,8 +6,7 @@ TO DO NOW
 - fix server, quick'n'dirty
 
 TESTING IS AT:
-    last one done:
-        HAM-A
+    next to do: IFS
 
 
 

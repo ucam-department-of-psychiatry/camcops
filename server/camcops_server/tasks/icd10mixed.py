@@ -37,7 +37,7 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_lang import is_false
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
 
 
@@ -117,17 +117,17 @@ class Icd10Mixed(Task):
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr_qa(WSTRING("date_pertains_to"),
+        h += tr_qa(wappstring("date_pertains_to"),
                    format_datetime_string(self.date_pertains_to,
                                           DATEFORMAT.LONG_DATE, default=None))
-        h += tr_qa(WSTRING("meets_criteria"),
+        h += tr_qa(wappstring("meets_criteria"),
                    get_true_false_none(self.meets_criteria()))
         h += """
                 </table>
             </div>
             <div class="explanation">
         """
-        h += WSTRING("icd10_symptomatic_disclaimer")
+        h += wappstring("icd10_symptomatic_disclaimer")
         h += """
             </div>
             <table class="taskdetail">
@@ -138,9 +138,9 @@ class Icd10Mixed(Task):
         """
 
         h += self.get_twocol_bool_row_true_false(
-            "mixture_or_rapid_alternation", WSTRING("icd10mixed_a"))
+            "mixture_or_rapid_alternation", self.wxstring("a"))
         h += self.get_twocol_bool_row_true_false(
-            "duration_at_least_2_weeks", WSTRING("icd10mixed_b"))
+            "duration_at_least_2_weeks", self.wxstring("b"))
 
         h += """
             </table>

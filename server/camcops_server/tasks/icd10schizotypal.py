@@ -39,7 +39,7 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
 
 
@@ -133,25 +133,20 @@ class Icd10Schizotypal(Task):
             self.field_contents_valid()
         )
 
-    @staticmethod
-    def text_row(wstringname: str) -> str:
-        return tr(td(WSTRING(wstringname)),
+    def text_row(self, wstringname: str) -> str:
+        return tr(td(self.wxstring(wstringname)),
                   td("", td_class="subheading"),
                   literal=True)
-
-    def basic_row(self, stem: str, i: int) -> str:
-        return self.get_twocol_bool_row(
-            stem + str(i), WSTRING("icd10_" + stem + "_pd_" + str(i)))
 
     def get_task_html(self) -> str:
         h = self.get_standard_clinician_comments_block(self.comments) + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr_qa(WSTRING("date_pertains_to"),
+        h += tr_qa(wappstring("date_pertains_to"),
                    format_datetime_string(self.date_pertains_to,
                                           DATEFORMAT.LONG_DATE, default=None))
-        h += tr_qa(WSTRING("meets_criteria"),
+        h += tr_qa(wappstring("meets_criteria"),
                    get_yes_no_none(self.meets_criteria()))
         h += """
                 </table>
@@ -162,12 +157,12 @@ class Icd10Schizotypal(Task):
                     <th width="20%">Answer</th>
                 </tr>
         """
-        h += self.text_row("icd10schizotypal_a")
+        h += self.text_row("a")
         for i in range(1, Icd10Schizotypal.N_A + 1):
             h += self.get_twocol_bool_row_true_false(
-                "a" + str(i), WSTRING("icd10schizotypal_a" + str(i)))
+                "a" + str(i), self.wxstring("a" + str(i)))
         h += self.get_twocol_bool_row_true_false(
-            "b", WSTRING("icd10schizotypal_b"))
+            "b", self.wxstring("b"))
         h += """
             </table>
         """ + ICD10_COPYRIGHT_DIV

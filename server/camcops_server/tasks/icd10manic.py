@@ -39,7 +39,7 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_lang import is_false
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
 
 
@@ -296,17 +296,17 @@ class Icd10Manic(Task):
 
     def get_description(self) -> str:
         if self.meets_criteria_mania_psychotic_schizophrenic():
-            return WSTRING("icd10manic_category_manic_psychotic_schizophrenic")
+            return self.wxstring("category_manic_psychotic_schizophrenic")
         elif self.meets_criteria_mania_psychotic_icd():
-            return WSTRING("icd10manic_category_manic_psychotic")
+            return self.wxstring("category_manic_psychotic")
         elif self.meets_criteria_mania_nonpsychotic():
-            return WSTRING("icd10manic_category_manic_nonpsychotic")
+            return self.wxstring("category_manic_nonpsychotic")
         elif self.meets_criteria_hypomania():
-            return WSTRING("icd10manic_category_hypomanic")
+            return self.wxstring("category_hypomanic")
         elif self.meets_criteria_none():
-            return WSTRING("icd10manic_category_none")
+            return self.wxstring("category_none")
         else:
-            return WSTRING("Unknown")
+            return wappstring("unknown")
 
     def is_complete(self) -> bool:
         return (
@@ -315,33 +315,32 @@ class Icd10Manic(Task):
             self.field_contents_valid()
         )
 
-    @staticmethod
-    def text_row(wstringname: str) -> str:
-        return heading_spanning_two_columns(WSTRING(wstringname))
+    def text_row(self, wstringname: str) -> str:
+        return heading_spanning_two_columns(self.wxstring(wstringname))
 
     def row_true_false(self, fieldname: str) -> str:
         return self.get_twocol_bool_row_true_false(
-            fieldname, WSTRING("icd10manic_" + fieldname))
+            fieldname, self.wxstring("" + fieldname))
 
     def get_task_html(self) -> str:
         h = self.get_standard_clinician_comments_block(self.comments) + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr_qa(WSTRING("date_pertains_to"),
+        h += tr_qa(wappstring("date_pertains_to"),
                    format_datetime_string(self.date_pertains_to,
                                           DATEFORMAT.LONG_DATE, default=None))
-        h += tr_qa(WSTRING("category") + " <sup>[1,2]</sup>",
+        h += tr_qa(wappstring("category") + " <sup>[1,2]</sup>",
                    self.get_description())
         h += tr_qa(
-            WSTRING("icd10manic_psychotic_symptoms") + " <sup>[2]</sup>",
+            self.wxstring("psychotic_symptoms") + " <sup>[2]</sup>",
             get_present_absent_none(self.psychosis_present()))
         h += """
                 </table>
             </div>
             <div class="explanation">
         """
-        h += WSTRING("icd10_symptomatic_disclaimer")
+        h += wappstring("icd10_symptomatic_disclaimer")
         h += """
             </div>
             <table class="taskdetail">
@@ -351,23 +350,23 @@ class Icd10Manic(Task):
                 </tr>
         """
 
-        h += self.text_row("icd10manic_core")
+        h += self.text_row("core")
         for x in Icd10Manic.CORE_NAMES:
             h += self.row_true_false(x)
 
-        h += self.text_row("icd10manic_hypomania_mania")
+        h += self.text_row("hypomania_mania")
         for x in Icd10Manic.HYPOMANIA_MANIA_NAMES:
             h += self.row_true_false(x)
 
-        h += self.text_row("icd10manic_other_mania")
+        h += self.text_row("other_mania")
         for x in Icd10Manic.MANIA_NAMES:
             h += self.row_true_false(x)
 
-        h += self.text_row("icd10manic_other_criteria")
+        h += self.text_row("other_criteria")
         for x in Icd10Manic.OTHER_CRITERIA_NAMES:
             h += self.row_true_false(x)
 
-        h += subheading_spanning_two_columns(WSTRING("icd10manic_psychosis"))
+        h += subheading_spanning_two_columns(self.wxstring("psychosis"))
         for x in Icd10Manic.PSYCHOSIS_NAMES:
             h += self.row_true_false(x)
 

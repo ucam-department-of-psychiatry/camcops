@@ -27,7 +27,7 @@ from typing import List
 from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import answer, tr_qa
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
 from ..cc_modules.cc_logger import log
 
@@ -135,9 +135,9 @@ class Hads(Task):
                 </tr>
         """.format(
             is_complete_tr=self.get_is_complete_tr(),
-            sa=WSTRING("hads_anxiety_score"),
+            sa=wappstring("hads_anxiety_score"),
             a=answer(a),
-            sd=WSTRING("hads_depression_score"),
+            sd=wappstring("hads_depression_score"),
             d=answer(d),
         )
         for n in range(1, self.NQUESTIONS + 1):
@@ -173,4 +173,5 @@ class HadsRespondent(Hads):
     shortname = "HADS-Respondent"
     longname = "Hospital Anxiety and Depression Scale (data collection " \
                "only), non-patient respondent version"
+    extrastring_taskname = "hads"
     has_respondent = True
